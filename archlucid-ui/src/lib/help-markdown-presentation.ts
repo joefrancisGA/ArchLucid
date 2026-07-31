@@ -2370,6 +2370,35 @@ function isSoc2SelfAssessmentContributorLeakageLine(line: string): boolean {
 }
 
 /**
+ * TB-1748 — SOC 2 Type I roadmap: illustrative / budget-gated only; no calendar as product promise.
+ */
+export function alignSoc2SelfAssessmentRoadmapHonesty(markdown: string): string {
+  return markdown
+    .replace(
+      /## SOC 2 Type I — readiness planning \(Q2–Q3 2026\)/gi,
+      "## SOC 2 Type I — readiness planning (illustrative — not a commitment)",
+    )
+    .replace(
+      /\| Type I observation period start \| 2026-09-01 \|/gi,
+      "| Type I observation period start | Illustrative — owner/budget gated |",
+    )
+    .replace(
+      /\| Type I report \(stretch\) \| 2026-Q4 \|/gi,
+      "| Type I report (stretch) | Illustrative — owner/budget gated |",
+    )
+    .replace(
+      /\*\*Open\*\* — requires external readiness consultant shortlist and budget line \(see Pending Questions\)/gi,
+      "**Open** — readiness planning only; CPA Type I attestation requires funded consultant engagement and executed agreement (not a product commitment)",
+    )
+    .replace(
+      /\| G-001 \| No CPA SOC 2 report \| CFO \/ Security \| Fund external readiness consultant \+ CPA firm; Type I observation window \|/gi,
+      "| G-001 | No CPA SOC 2 report | Security / leadership | Fund external readiness consultant + CPA firm when budget approves |",
+    )
+    .replace(/\n{3,}/g, "\n\n")
+    .trimEnd();
+}
+
+/**
  * TB-1747 — SOC 2 self-assessment help: strip contributor repo paths and eng control names; buyer-safe summary.
  */
 export function stripSoc2SelfAssessmentContributorLeakage(markdown: string): string {
@@ -2378,6 +2407,13 @@ export function stripSoc2SelfAssessmentContributorLeakage(markdown: string): str
   const result: string[] = [];
 
   for (const line of lines) {
+    if (/^\| G-001 \|/i.test(line)) {
+      result.push(
+        "| G-001 | No CPA SOC 2 report | Security / leadership | Fund external readiness consultant + CPA firm when budget approves | **Open** — readiness planning only; CPA Type I attestation requires funded consultant engagement and executed agreement (not a product commitment) |",
+      );
+      continue;
+    }
+
     if (/^\| G-002 \|/i.test(line)) {
       result.push(
         "| G-002 | Third-party pen-test redacted summary not yet published | Security | Execute vendor programme when funded | **Open** — V1 uses owner-conducted testing; independent third-party publication when a funded programme completes (not CPA SOC 2 attestation) |",
@@ -2427,7 +2463,9 @@ export function stripSoc2SelfAssessmentContributorLeakage(markdown: string): str
     result.push(line);
   }
 
-  return result.join("\n").replace(/\n{3,}/g, "\n\n").trimEnd();
+  return alignSoc2SelfAssessmentRoadmapHonesty(
+    result.join("\n").replace(/\n{3,}/g, "\n\n").trimEnd(),
+  );
 }
 
 export function stripPathChooserContributorLeakage(markdown: string): string {

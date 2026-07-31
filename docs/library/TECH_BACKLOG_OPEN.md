@@ -527,8 +527,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1744 | Report-a-problem help — first-viewport where-it-appears before field dump | Adoption friction P1 **V1** — with **TB-1741** |
 | TB-1745 | Report-a-problem help — Related density + email fallback CTA | Adoption friction P1 **V1** — with **TB-1741** |
 | TB-1746 | `/help/soc2-self-assessment` specialty buyer guide + Trust CTA | Adoption friction P1 **V1** — HES ~40 |
-| TB-1747 | SOC2 self-assessment help — contributor / repo-path leakage strip | Trustworthiness P0 **V1** — with **TB-1746** |
-| TB-1748 | SOC2 self-assessment help — Type I calendar / roadmap commitment honesty | Trustworthiness P0 **V1** — with **TB-1746** |
 | TB-1749 | SOC2 self-assessment help — IA dual with CAIQ / Trust / procurement | Adoption friction P1 **V1** — with **TB-1746** |
 | TB-1750 | SOC2 self-assessment help — title + Help Center discovery | Adoption friction P1 **V1** — with **TB-1746** |
 | TB-1751 | `/help/subprocessors` specialty buyer register + Trust CTA | Adoption friction P1 **V1** — HSU ~44 |

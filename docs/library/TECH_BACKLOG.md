@@ -1,4 +1,4 @@
-**Updated:** 2026-07-30 (**TB-1747** **Done** — SOC2 self-assessment help strips contributor/repo paths and eng control names; buyer-safe summary; Vitest). Prior: 2026-07-30 (**TB-1738** **Done** — product-overview help strips eng/GTM paths, type names, backlog IDs; buyer-safe pillars; Vitest).
+**Updated:** 2026-07-31 (**TB-1748** **Done** — SOC2 Type I roadmap framed as illustrative/budget-gated; no calendar commitments in help; Vitest). Prior: 2026-07-30 (**TB-1747** **Done** — SOC2 self-assessment help strips contributor/repo paths and eng control names; buyer-safe summary; Vitest).
 
 > **Scope:** Engineering-owned technical backlog items deferred from current sessions; audience is contributors and the AI assistant; not a buyer or operator document. Not a substitute for ADRs or the pending-questions owner decisions file.
 
@@ -1316,7 +1316,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1745 | Report-a-problem help — Related density + email fallback CTA; see ## TB-1745 below | Adoption friction P1 — **V1**; with **TB-1741** | S |
 | TB-1746 | `/help/soc2-self-assessment` specialty buyer guide + Trust CTA; see ## TB-1746 below | Adoption friction P1 — **V1**; owner review ~40/100 2026-07-27; traffic **HES**; pairs **TB-1414**/**TB-1631**; do not reopen **TB-135**/**TB-136** | M |
 | TB-1747 | **Done** (2026-07-30) — SOC2 self-assessment help — contributor / repo-path leakage strip; see `## TB-1747` below | Trustworthiness P0 — **V1**; with **TB-1746**; pairs **TB-1235**/**TB-1632** | S |
-| TB-1748 | SOC2 self-assessment help — Type I calendar / roadmap commitment honesty; see ## TB-1748 below | Trustworthiness P0 — **V1**; with **TB-1746**; GTM **G-REAL-05** | S |
+| TB-1748 | **Done** (2026-07-31) — SOC2 self-assessment help — Type I calendar / roadmap commitment honesty; see `## TB-1748` below | Trustworthiness P0 — **V1**; with **TB-1746**; GTM **G-REAL-05** | S |
 | TB-1749 | SOC2 self-assessment help — IA dual with CAIQ / Trust / procurement; see ## TB-1749 below | Adoption friction P1 — **V1**; with **TB-1746**; pairs **TB-1635**/**TB-1253** | S |
 | TB-1750 | SOC2 self-assessment help — title + Help Center discovery; see ## TB-1750 below | Adoption friction P1 — **V1**; with **TB-1746** | S |
 | TB-1751 | `/help/subprocessors` specialty buyer register + Trust CTA; see ## TB-1751 below | Adoption friction P1 — **V1**; owner review ~44/100 2026-07-27; traffic **HSU**; pairs **TB-1414**/**TB-1679** | M |
@@ -42768,7 +42768,9 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1748 — SOC2 self-assessment help — Type I calendar / roadmap commitment honesty (P0)
 
-**Window:** V1 — Trustworthiness. **Status:** Not started. **Priority:** P0.
+**Window:** V1 — Trustworthiness. **Status:** **Done** (2026-07-31). **Priority:** P0.
+
+**Shipped:** `alignSoc2SelfAssessmentRoadmapHonesty()` chained from `stripSoc2SelfAssessmentContributorLeakage()` — Type I section header and milestone targets reframed as illustrative/budget-gated; G-001 row buyer-safe (no CFO/Pending Questions theater); Vitest in `help-markdown-presentation.test.tsx` + `HelpTopicSoc2SelfAssessment.test.tsx`. GTM **G-REAL-05** remains owner execution.
 
 **Problem:** Type I readiness table lists 2026-09-01 / 2026-Q4 and Pending Questions (budget/CFO) — reads as committed dates / internal owner theater on buyer Help.
 

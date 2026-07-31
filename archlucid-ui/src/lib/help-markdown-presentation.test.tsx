@@ -1037,6 +1037,44 @@ describe("help-markdown-presentation", () => {
     expect(prepared).toContain("/help/caiq-sig-response");
   });
 
+  it("frames SOC2 Type I roadmap as illustrative, not committed dates (TB-1748)", () => {
+    const source = [
+      "| G-001 | No CPA SOC 2 report | CFO / Security | Fund external readiness consultant + CPA firm; Type I observation window | **Open** — requires external readiness consultant shortlist and budget line (see Pending Questions) |",
+      "",
+      "## SOC 2 Type I — readiness planning (Q2–Q3 2026)",
+      "",
+      "| Type I observation period start | 2026-09-01 | Illustrative — confirm with selected CPA |",
+      "| Type I report (stretch) | 2026-Q4 | Requires executed attestation agreement |",
+    ].join("\n");
+
+    const prepared = stripSoc2SelfAssessmentContributorLeakage(source).toLowerCase();
+
+    expect(prepared).not.toContain("2026-09-01");
+    expect(prepared).not.toContain("2026-q4");
+    expect(prepared).not.toContain("q2–q3 2026");
+    expect(prepared).not.toContain("pending questions");
+    expect(prepared).not.toContain("cfo / security");
+    expect(prepared).toContain("illustrative");
+    expect(prepared).toContain("not a product commitment");
+  });
+
+  it("keeps presented SOC2 Type I help free of calendar commitments (TB-1748)", () => {
+    const loaded = tryLoadProductDocumentation("soc2-self-assessment");
+
+    expect(loaded).not.toBeNull();
+
+    const sourcePath = loaded!.entry.sourcePaths[0] ?? "";
+    const prepared = prepareHelpMarkdownForPresentation(loaded!.markdown, sourcePath, {
+      helpTopicSlug: "soc2-self-assessment",
+    }).toLowerCase();
+
+    expect(prepared).not.toContain("2026-09-01");
+    expect(prepared).not.toContain("2026-q4");
+    expect(prepared).not.toContain("pending questions");
+    expect(prepared).toContain("illustrative");
+    expect(prepared).toContain("not a commitment");
+  });
+
   it("strips eng CLI, Evidence tier, and JwtBearer from enterprise onboarding (TB-1339)", () => {
     const source = [
       "Choose **OIDC JwtBearer**.",
