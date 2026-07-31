@@ -656,7 +656,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1879 | Guided intake Card / colored-banner density | Adoption friction P1 **V1** — with **TB-1876** |
 | TB-1880 | Guided intake — Vitest URL sync + jargon + traffic honesty | Testability P2 **V1** — with **TB-1876** |
 | TB-1881 | Account security — title/scope honesty (sign-in methods, not SSO suite) | Trustworthiness P1 **V1** — SEA ~52 |
-| TB-1882 | Account security — in-flight disable on challenge/verify/confirm/remove | Correctness P0 **V1** — with **TB-1881** |
 | TB-1883 | Account security — in-page remove confirm + blocked-remove reason | Trustworthiness P1 **V1** — with **TB-1881** |
 | TB-1884 | Account security — empty/inactive honesty + auth-help CTA | Adoption friction P1 **V1** — with **TB-1881**; pairs **TB-1614** |
 | TB-1885 | Account security — Vitest scope + busy + remove + empty | Testability P2 **V1** — with **TB-1881** |

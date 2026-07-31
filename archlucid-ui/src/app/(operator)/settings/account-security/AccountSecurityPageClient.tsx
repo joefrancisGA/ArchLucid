@@ -46,6 +46,7 @@ export function AccountSecurityPageClient() {
   const [challengeId, setChallengeId] = useState<string | null>(null);
   const [verificationCode, setVerificationCode] = useState("");
   const [pendingProposal, setPendingProposal] = useState<AuthenticationIdentityLinkProposal | null>(null);
+  const [busy, setBusy] = useState(false);
 
   const refreshMethods = useCallback(async () => {
     setLoading(true);
@@ -66,9 +67,15 @@ export function AccountSecurityPageClient() {
   }, [refreshMethods]);
 
   async function handleRequestEmailChallenge() {
+    if (busy) {
+      return;
+    }
+
     setErrorMessage(null);
     setStatusMessage(null);
     setPendingProposal(null);
+
+    setBusy(true);
 
     try {
       const response = await requestEmailLinkChallenge(addEmail.trim());
@@ -76,16 +83,20 @@ export function AccountSecurityPageClient() {
       setStatusMessage("Verification code sent. Enter the code to continue.");
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : String(error));
+    } finally {
+      setBusy(false);
     }
   }
 
   async function handleVerifyEmailChallenge() {
-    if (challengeId === null) {
+    if (challengeId === null || busy) {
       return;
     }
 
     setErrorMessage(null);
     setStatusMessage(null);
+
+    setBusy(true);
 
     try {
       const proposal = await verifyEmailLinkChallenge(challengeId, verificationCode.trim());
@@ -93,16 +104,20 @@ export function AccountSecurityPageClient() {
       setStatusMessage("Review the link details and confirm to add this sign-in method.");
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : String(error));
+    } finally {
+      setBusy(false);
     }
   }
 
   async function handleConfirmProposal() {
-    if (pendingProposal === null) {
+    if (pendingProposal === null || busy) {
       return;
     }
 
     setErrorMessage(null);
     setStatusMessage(null);
+
+    setBusy(true);
 
     try {
       await confirmSignInMethodLinkProposal(pendingProposal.proposalId);
@@ -114,16 +129,20 @@ export function AccountSecurityPageClient() {
       await refreshMethods();
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : String(error));
+    } finally {
+      setBusy(false);
     }
   }
 
   async function handleCancelProposal() {
-    if (pendingProposal === null) {
+    if (pendingProposal === null || busy) {
       return;
     }
 
     setErrorMessage(null);
     setStatusMessage(null);
+
+    setBusy(true);
 
     try {
       await cancelSignInMethodLinkProposal(pendingProposal.proposalId);
@@ -133,11 +152,13 @@ export function AccountSecurityPageClient() {
       setStatusMessage("Link cancelled.");
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : String(error));
+    } finally {
+      setBusy(false);
     }
   }
 
   async function handleRemoveMethod(method: SignInMethodSummary) {
-    if (!method.canRemove) {
+    if (!method.canRemove || busy) {
       return;
     }
 
@@ -152,12 +173,16 @@ export function AccountSecurityPageClient() {
     setErrorMessage(null);
     setStatusMessage(null);
 
+    setBusy(true);
+
     try {
       await removeSignInMethod(method.identityId);
       setStatusMessage("Sign-in method removed.");
       await refreshMethods();
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : String(error));
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -224,6 +249,8 @@ export function AccountSecurityPageClient() {
                       type="button"
                       variant="outline"
                       size="sm"
+                      disabled={busy}
+                      data-testid={`sign-in-method-remove-${method.identityId}`}
                       onClick={() => void handleRemoveMethod(method)}
                     >
                       Remove
@@ -260,7 +287,12 @@ export function AccountSecurityPageClient() {
             />
           </div>
 
-          <Button type="button" onClick={() => void handleRequestEmailChallenge()} disabled={!addEmail.trim()}>
+          <Button
+            type="button"
+            data-testid="account-security-send-code"
+            onClick={() => void handleRequestEmailChallenge()}
+            disabled={busy || !addEmail.trim()}
+          >
             Send verification code
           </Button>
 
@@ -277,7 +309,12 @@ export function AccountSecurityPageClient() {
                 onChange={(event) => setVerificationCode(event.target.value)}
                 placeholder="6-digit code"
               />
-              <Button type="button" onClick={() => void handleVerifyEmailChallenge()} disabled={!verificationCode.trim()}>
+              <Button
+                type="button"
+                data-testid="account-security-verify-code"
+                onClick={() => void handleVerifyEmailChallenge()}
+                disabled={busy || !verificationCode.trim()}
+              >
                 Verify code
               </Button>
             </div>
@@ -297,10 +334,21 @@ export function AccountSecurityPageClient() {
                 </p>
               ) : null}
               <div className="flex flex-wrap gap-2">
-                <Button type="button" onClick={() => void handleConfirmProposal()}>
+                <Button
+                  type="button"
+                  data-testid="account-security-confirm-link"
+                  onClick={() => void handleConfirmProposal()}
+                  disabled={busy}
+                >
                   Confirm link
                 </Button>
-                <Button type="button" variant="outline" onClick={() => void handleCancelProposal()}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  data-testid="account-security-cancel-link"
+                  onClick={() => void handleCancelProposal()}
+                  disabled={busy}
+                >
                   Cancel
                 </Button>
               </div>
