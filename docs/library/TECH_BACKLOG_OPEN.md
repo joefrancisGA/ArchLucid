@@ -532,7 +532,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1751 | `/help/subprocessors` specialty buyer register + Trust CTA | Adoption friction P1 **V1** — HSU ~44 |
 | TB-1753 | Subprocessors help — IA dual with DPA / Trust | Adoption friction P1 **V1** — with **TB-1751** |
 | TB-1754 | Subprocessors help — title + Help Center discovery | Adoption friction P1 **V1** — with **TB-1751** |
-| TB-1755 | Subprocessors help — residency / contributor-note honesty | Trustworthiness P0 **V1** — with **TB-1751** |
 | TB-1756 | `/integrations/azure-boards` operator density / whitespace after TB-1151 pack | Adoption friction P1 **V1** — IAZ ~38 |
 | TB-1757 | Azure Boards aside — setup chip StatusTag parity | Adoption friction P1 **V1** — with **TB-1756** |
 | TB-1758 | Azure Boards — load skeleton / partial-refresh honesty | Adoption friction P1 **V1** — with **TB-1756** |

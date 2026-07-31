@@ -29,6 +29,7 @@ import {
   stripProductOverviewContributorLeakage,
   stripSoc2SelfAssessmentContributorLeakage,
   stripSubprocessorsContributorLeakage,
+  alignSubprocessorsResidencyHonesty,
   stripAcceleratorChooserContributorLeakage,
   stripAcceleratorChooserContributorSections,
   stripAzureBoardsContributorLeakage,
@@ -1131,6 +1132,41 @@ describe("help-markdown-presentation", () => {
     expect(prepared).toContain("/help/security-trust");
     expect(prepared).toContain("/help/dpa-template");
     expect(prepared).toContain("microsoft corporation");
+  });
+
+  it("aligns subprocessors residency and drops contributor to-do voice (TB-1755)", () => {
+    const source = [
+      "**Non-Microsoft:** The product codebase does not require a separate non-Microsoft **runtime** subprocessor for core API functionality beyond Microsoft Azure services above. If you add third-party observability, CRM, or support tools that touch customer data, **update this table** before production use.",
+      "",
+      "Until a single public **primary production region** is published for the ArchLucid SaaS offering, treat the region as **“per deployment / subscription — confirm in order form or security pack.”**",
+    ].join("\n");
+
+    const prepared = alignSubprocessorsResidencyHonesty(source).toLowerCase();
+
+    expect(prepared).not.toContain("update this table");
+    expect(prepared).not.toContain("product codebase");
+    expect(prepared).not.toContain("before production use");
+    expect(prepared).toContain("hosted archlucid saas");
+    expect(prepared).toContain("/help/security-trust");
+    expect(prepared).toContain("security diligence pack");
+  });
+
+  it("keeps presented subprocessors help residency buyer-safe (TB-1755)", () => {
+    const loaded = tryLoadProductDocumentation("subprocessors");
+
+    expect(loaded).not.toBeNull();
+
+    const sourcePath = loaded!.entry.sourcePaths[0] ?? "";
+    const prepared = prepareHelpMarkdownForPresentation(loaded!.markdown, sourcePath, {
+      helpTopicSlug: "subprocessors",
+    }).toLowerCase();
+
+    expect(prepared).not.toContain("update this table");
+    expect(prepared).not.toContain("product codebase");
+    expect(prepared).not.toContain("before production use");
+    expect(prepared).toContain("hosted archlucid saas");
+    expect(prepared).toContain("/help/security-trust");
+    expect(prepared).toContain("security diligence pack");
   });
 
   it("strips eng CLI, Evidence tier, and JwtBearer from enterprise onboarding (TB-1339)", () => {

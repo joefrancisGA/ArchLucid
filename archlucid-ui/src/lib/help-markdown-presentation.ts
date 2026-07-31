@@ -1369,6 +1369,20 @@ export function stripSubprocessorsContributorLeakage(markdown: string): string {
       continue;
     }
 
+    if (/^\*\*Non-Microsoft:\*\*/i.test(line.trim())) {
+      result.push(
+        "**Non-Microsoft:** Core hosted ArchLucid API functionality runs on Microsoft Azure services listed above. Additional third-party subprocessors (for example observability, CRM, or support tools) are listed here when they process customer content. Contact your account team during procurement if you need confirmation of the current register.",
+      );
+      continue;
+    }
+
+    if (/^Until a single public \*\*primary production region\*\*/i.test(line.trim())) {
+      result.push(
+        "For **hosted ArchLucid SaaS**, primary data-processing regions are **confirmed in your order or security diligence pack** unless a single public primary region is published on [Security and trust](/help/security-trust). Customer-managed deployments follow the Azure region selected at provisioning.",
+      );
+      continue;
+    }
+
     if (isSubprocessorsContributorLeakageLine(line)) {
       continue;
     }
@@ -1390,24 +1404,45 @@ export function stripSubprocessorsContributorLeakage(markdown: string): string {
     result.push(line);
   }
 
-  return result
-    .join("\n")
-    .replace(/`?DPA_TEMPLATE\.md`?/gi, "[DPA template](/help/dpa-template)")
-    .replace(/DPA_TEMPLATE\.md/gi, "/help/dpa-template")
-    .replace(/`?START_HERE\.md`?/gi, "product documentation hub")
-    .replace(/START_HERE\.md/gi, "product documentation hub")
-    .replace(/`?infra\/[^`\s)]*`?/gi, "hosted infrastructure")
-    .replace(/\binfra\//gi, "hosted infrastructure ")
-    .replace(/`?terraform-azure-variables\.md`?/gi, "infrastructure configuration documentation")
-    .replace(/terraform-azure-variables\.md/gi, "infrastructure configuration documentation")
-    .replace(/`?GEO_FAILOVER_DRILL\.md`?/gi, "operational drill documentation")
-    .replace(/GEO_FAILOVER_DRILL\.md/gi, "operational drill documentation")
-    .replace(/`?CUSTOMER_TRUST_AND_ACCESS\.md`?/gi, "[Security and trust](/help/security-trust)")
-    .replace(/CUSTOMER_TRUST_AND_ACCESS\.md/gi, "/help/security-trust")
-    .replace(/`?SYSTEM_THREAT_MODEL\.md`?/gi, "security documentation")
-    .replace(/SYSTEM_THREAT_MODEL\.md/gi, "security documentation")
-    .replace(/`?trust-center\.md`?/gi, "[Security and trust](/help/security-trust)")
-    .replace(/trust-center\.md/gi, "/help/security-trust")
+  return alignSubprocessorsResidencyHonesty(
+    result
+      .join("\n")
+      .replace(/`?DPA_TEMPLATE\.md`?/gi, "[DPA template](/help/dpa-template)")
+      .replace(/DPA_TEMPLATE\.md/gi, "/help/dpa-template")
+      .replace(/`?START_HERE\.md`?/gi, "product documentation hub")
+      .replace(/START_HERE\.md/gi, "product documentation hub")
+      .replace(/`?infra\/[^`\s)]*`?/gi, "hosted infrastructure")
+      .replace(/\binfra\//gi, "hosted infrastructure ")
+      .replace(/`?terraform-azure-variables\.md`?/gi, "infrastructure configuration documentation")
+      .replace(/terraform-azure-variables\.md/gi, "infrastructure configuration documentation")
+      .replace(/`?GEO_FAILOVER_DRILL\.md`?/gi, "operational drill documentation")
+      .replace(/GEO_FAILOVER_DRILL\.md/gi, "operational drill documentation")
+      .replace(/`?CUSTOMER_TRUST_AND_ACCESS\.md`?/gi, "[Security and trust](/help/security-trust)")
+      .replace(/CUSTOMER_TRUST_AND_ACCESS\.md/gi, "/help/security-trust")
+      .replace(/`?SYSTEM_THREAT_MODEL\.md`?/gi, "security documentation")
+      .replace(/SYSTEM_THREAT_MODEL\.md/gi, "security documentation")
+      .replace(/`?trust-center\.md`?/gi, "[Security and trust](/help/security-trust)")
+      .replace(/trust-center\.md/gi, "/help/security-trust")
+      .replace(/\n{3,}/g, "\n\n")
+      .trimEnd(),
+  );
+}
+
+/**
+ * TB-1755 — subprocessors help: buyer-safe residency posture; no contributor to-do voice.
+ */
+export function alignSubprocessorsResidencyHonesty(markdown: string): string {
+  return markdown
+    .replace(
+      /\*\*Non-Microsoft:\*\* The product codebase does not require[^\n]+/gi,
+      "**Non-Microsoft:** Core hosted ArchLucid API functionality runs on Microsoft Azure services listed above. Additional third-party subprocessors (for example observability, CRM, or support tools) are listed here when they process customer content. Contact your account team during procurement if you need confirmation of the current register.",
+    )
+    .replace(
+      /Until a single public \*\*primary production region\*\* is published for the ArchLucid SaaS offering, treat the region as \*\*["“]per deployment \/ subscription — confirm in order form or security pack\.["”]\*\*/gi,
+      "For **hosted ArchLucid SaaS**, primary data-processing regions are **confirmed in your order or security diligence pack** unless a single public primary region is published on [Security and trust](/help/security-trust). Customer-managed deployments follow the Azure region selected at provisioning.",
+    )
+    .replace(/update this table before production use/gi, "confirm the current subprocessor register during procurement")
+    .replace(/product codebase/gi, "core hosted service")
     .replace(/\n{3,}/g, "\n\n")
     .trimEnd();
 }

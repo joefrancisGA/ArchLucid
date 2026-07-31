@@ -1,4 +1,4 @@
-**Updated:** 2026-07-31 (**TB-1752** **Done** — subprocessors help strips contributor/repo paths; in-app trust/DPA links; Vitest). Prior: 2026-07-31 (**TB-1748** **Done** — SOC2 Type I roadmap framed as illustrative/budget-gated; no calendar commitments in help; Vitest).
+**Updated:** 2026-07-31 (**TB-1755** **Done** — subprocessors help residency honesty; no contributor to-do voice; Vitest). Prior: 2026-07-31 (**TB-1752** **Done** — subprocessors help strips contributor/repo paths; in-app trust/DPA links; Vitest).
 
 > **Scope:** Engineering-owned technical backlog items deferred from current sessions; audience is contributors and the AI assistant; not a buyer or operator document. Not a substitute for ADRs or the pending-questions owner decisions file.
 
@@ -1323,7 +1323,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1752 | **Done** (2026-07-31) — Subprocessors help — contributor / repo-path leakage strip; see `## TB-1752` below | Trustworthiness P0 — **V1**; with **TB-1751**; pairs **TB-1235** | S |
 | TB-1753 | Subprocessors help — IA dual with DPA / Trust; see ## TB-1753 below | Adoption friction P1 — **V1**; with **TB-1751**; pairs **TB-1676**/**TB-1679** | S |
 | TB-1754 | Subprocessors help — title + Help Center discovery; see ## TB-1754 below | Adoption friction P1 — **V1**; with **TB-1751** | S |
-| TB-1755 | Subprocessors help — residency / contributor-note honesty; see ## TB-1755 below | Trustworthiness P0 — **V1**; with **TB-1751** | S |
+| TB-1755 | **Done** (2026-07-31) — Subprocessors help — residency / contributor-note honesty; see `## TB-1755` below | Trustworthiness P0 — **V1**; with **TB-1751** | S |
 | TB-1756 | `/integrations/azure-boards` operator density / whitespace after TB-1151 pack; see ## TB-1756 below | Adoption friction P1 — **V1**; owner reaffirm ~38/100 2026-07-27; traffic **IAZ**; pairs **TB-1151**–**TB-1155** (do not reopen) | S |
 | TB-1757 | Azure Boards aside — setup chip StatusTag parity (no teal theater); see ## TB-1757 below | Adoption friction P1 — **V1**; with **TB-1756**; pairs **TB-116** | S |
 | TB-1758 | Azure Boards — load skeleton / partial-refresh honesty; see ## TB-1758 below | Adoption friction P1 — **V1**; with **TB-1756**; pairs **TB-1152** | S |
@@ -42858,7 +42858,9 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1755 — Subprocessors help — residency / contributor-note honesty (P0)
 
-**Window:** V1 — Trustworthiness. **Status:** Not started. **Priority:** P0.
+**Window:** V1 — Trustworthiness. **Status:** **Done** (2026-07-31). **Priority:** P0.
+
+**Shipped:** `alignSubprocessorsResidencyHonesty()` chained from `stripSubprocessorsContributorLeakage()` — buyer-safe Non-Microsoft note; hosted SaaS residency confirmed via order/security pack with Trust cross-link; Vitest in `help-markdown-presentation.test.tsx` + `HelpTopicSubprocessors.test.tsx`.
 
 **Problem:** “Update this table before production use” is contributor voice; residency “per deployment — confirm in order form” may under-serve hosted SaaS buyers without a published primary region.
 

@@ -38,4 +38,24 @@ describe("HelpTopicMarkdownView subprocessors", () => {
     expect(screen.getAllByRole("link", { name: /security and trust/i }).length).toBeGreaterThan(0);
     expect(screen.getAllByRole("link", { name: /dpa template/i }).length).toBeGreaterThan(0);
   });
+
+  it("renders subprocessors help without contributor to-do or weak residency voice (TB-1755)", () => {
+    if (loaded === null) {
+      throw new Error("Expected subprocessors documentation to load.");
+    }
+
+    const sourcePath = loaded.entry.sourcePaths[0] ?? "";
+    const preparedMarkdown = prepareHelpMarkdownForPresentation(loaded.markdown, sourcePath, {
+      helpTopicSlug: "subprocessors",
+    });
+
+    render(<HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />);
+
+    const visible = (document.body.textContent ?? "").toLowerCase();
+
+    expect(preparedMarkdown.toLowerCase()).not.toContain("update this table");
+    expect(preparedMarkdown.toLowerCase()).not.toContain("product codebase");
+    expect(visible).toContain("hosted archlucid saas");
+    expect(visible).toContain("security diligence pack");
+  });
 });
