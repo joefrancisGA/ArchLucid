@@ -9,7 +9,7 @@
 
 **Route:** **`/reviews/new`** (canonical architect path; legacy **`/runs/new`** may redirect) — submits **`POST /v1/architecture/request`** with a full **`ArchitectureRequest`**-shaped body (camelCase JSON). The wizard replaces the older minimal “few fields only” flow.
 
-**Architect checklist (no screenshots):** **[FIRST_RUN_WALKTHROUGH.md](FIRST_RUN_WALKTHROUGH.md)**
+**Architect checklist (no screenshots):** **[CANONICAL_FIRST_RUN_PATH.md#first-architecture-review-walkthrough](CANONICAL_FIRST_RUN_PATH.md#first-architecture-review-walkthrough)** (`FIRST_RUN_WALKTHROUGH.md` alias)
 
 **After first finalize — workflow handoff:** **[V1_WORKFLOW_HANDOFF_GITHUB_AZDO.md](../runbooks/V1_WORKFLOW_HANDOFF_GITHUB_AZDO.md)** (attach proof to GitHub / Azure DevOps without V1.1 connectors).
 

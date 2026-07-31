@@ -1,6 +1,6 @@
 > **Reviewed:** 2026-07-31
 
-> **Scope:** Single canonical minimum viable first-run path for V1 pilot operators (seven mandatory steps), plus the controlled-pilot first-run proof checklist (formerly the body of `CONTROLLED_PILOT_FIRST_RUN_CHECKLIST.md`; that filename remains a path-stable alias), the hosted-pilot strict single-path quickstart (formerly the body of `HOSTED_PILOT_SINGLE_PATH.md`; that filename remains a path-stable alias), and the expert principal-architect 15-minute lane (formerly the body of `FIRST_15_MINUTES_FOR_PRINCIPAL_ARCHITECTS.md`; that filename remains a path-stable alias for **M-44** / **M-180** callers). Audience is customer-facing operator onboarding, not a contributor reference.
+> **Scope:** Single canonical minimum viable first-run path for V1 pilot operators (seven mandatory steps), plus the architect-workspace first-review UI walkthrough (formerly the body of `FIRST_RUN_WALKTHROUGH.md`; that filename remains a path-stable alias), the controlled-pilot first-run proof checklist (formerly the body of `CONTROLLED_PILOT_FIRST_RUN_CHECKLIST.md`; that filename remains a path-stable alias), the hosted-pilot strict single-path quickstart (formerly the body of `HOSTED_PILOT_SINGLE_PATH.md`; that filename remains a path-stable alias), and the expert principal-architect 15-minute lane (formerly the body of `FIRST_15_MINUTES_FOR_PRINCIPAL_ARCHITECTS.md`; that filename remains a path-stable alias for **M-44** / **M-180** callers). Audience is customer-facing operator onboarding, not a contributor reference.
 
 # Canonical first-run path (V1 pilot)
 
@@ -10,6 +10,7 @@
 
 **Operational detail:** [`../runbooks/FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md)  
 **First-hour operator contract (four steps):** [`FIRST_HOUR_OPERATOR_PATH.md`](FIRST_HOUR_OPERATOR_PATH.md)  
+**Architect UI walkthrough (`/reviews/new`):** [`#first-architecture-review-walkthrough`](#first-architecture-review-walkthrough) (`FIRST_RUN_WALKTHROUGH.md` alias)  
 **Expert principal-architect lane (15 min):** [`#expert-principal-architect-15-minute-lane`](#expert-principal-architect-15-minute-lane) (`FIRST_15_MINUTES_FOR_PRINCIPAL_ARCHITECTS.md` alias)  
 **Hosted / strict RC single path:** [`#hosted-pilot-single-path`](#hosted-pilot-single-path) (`HOSTED_PILOT_SINGLE_PATH.md` alias)  
 **Integration commitments (V1 vs V1.1):** [`../go-to-market/INTEGRATION_CATALOG.md`](../go-to-market/INTEGRATION_CATALOG.md) § Commitment boundary  
@@ -40,6 +41,57 @@ Stop at step 3 when the environment is not ready. Do not sponsor-send until step
 .\scripts\Run-CanonicalFirstPilotPath.ps1 -Phase CommittedProof -RunId '<run-guid>'
 .\scripts\Run-CanonicalFirstPilotPath.ps1 -Phase SponsorHandoff -RunId '<run-guid>' -FailOnHold
 ```
+
+---
+
+## First architecture review walkthrough {#first-architecture-review-walkthrough}
+
+Former standalone body: `docs/library/FIRST_RUN_WALKTHROUGH.md` → this section (filename kept as a path-stable alias). Linear **UI** checklist for creating the first architecture review at **`/reviews/new`** — complements the [seven mandatory steps](#seven-mandatory-steps) (scripted proof path) without screenshots.
+
+**Path-stable alias:** [`FIRST_RUN_WALKTHROUGH.md`](FIRST_RUN_WALKTHROUGH.md).
+
+**Last reviewed:** 2026-07-31
+
+### Objective
+
+Give architects a **linear checklist** for creating the first **architecture review** using **New architecture review** at **`/reviews/new`** (legacy **`/runs/new`** may redirect), without relying on screenshots (which go stale quickly).
+
+### Assumptions
+
+- The UI is available at **`/reviews/new`** (see **[`FIRST_RUN_WIZARD.md`](FIRST_RUN_WIZARD.md)** for design intent).
+- Sign-in works for your tenant — see **[Authentication and sign-in](/help/authentication-sign-in)** and **[Pilot guide](/help/pilot-guide)**.
+
+### Constraints
+
+- This walkthrough does not replace **[`LIVE_E2E_HAPPY_PATH.md`](LIVE_E2E_HAPPY_PATH.md)** for HTTP-level scripted parity or **[`onboarding/day-one-developer.md`](../onboarding/day-one-developer.md#following-the-request-past-create-execute--commit--retrieval--ask)** for the request-to-answer narrative spine.
+
+### Steps
+
+1. **Open the workspace** — Sign in with work/school account, email one-time code, or your organization's SSO.
+2. **Navigate to New architecture review** — Use **`/reviews/new`** or the primary nav entry **New architecture review**.
+3. **Pick a preset or template** — Choose the closest sample if you are evaluating; customize fields only where you have real system facts.
+4. **Complete each wizard step** — Advance only when required fields validate; note inline errors reference a correlation id when the UI surfaces API failures — see **[Troubleshooting](/help/troubleshooting)**.
+5. **Submit** — Capture the returned review id from the success path or **Reviews** list.
+6. **Execute and finalize** — From **review detail**, drive **Execute**, then **Finalize** when the pipeline reports **Ready to finalize** — see **[Workspace navigation](/help/pilot-nav-profile)**.
+7. **Verify the architecture package** — Confirm the signed review record and artifacts appear; use **Compare**/**Replay** only after you have two finalized packages or an export need — see **[Architecture packages](/help/review-packages)**.
+8. **Attach to your workflow (optional)** — After finalize, collect sponsor proof per **[Pilot guide](/help/pilot-guide)** when your team uses GitHub or Azure DevOps handoff.
+
+<details>
+<summary>Administrator details — CLI and HTTP</summary>
+
+- Create path may call **`POST /v1/architecture/request`** (API still uses `run` identifiers).
+- Proof collectors: **`collect-first-pilot-proof.ps1`** and workflow handoff docs under `docs/runbooks/`.
+- Contributor shell patterns: [`operator-shell.md`](operator-shell.md).
+
+</details>
+
+### Related (UI walkthrough)
+
+- **[Your first architecture review](/help/core-pilot)** — guided first-session checklist.
+- **[`FIRST_RUN_WIZARD.md`](FIRST_RUN_WIZARD.md)** — design and UX notes.
+- **[Pilot guide](/help/pilot-guide)** — pilot-facing scope and support boundaries.
+- **[Workspace navigation](/help/pilot-nav-profile)** — sidebar and first-review path.
+- [Seven mandatory steps](#seven-mandatory-steps) — scripted proof / sponsor-handoff path.
 
 ---
 
@@ -150,7 +202,7 @@ Former standalone body: `docs/library/CONTROLLED_PILOT_FIRST_RUN_CHECKLIST.md` �
 
 | Step | Action | Success signal | Doc |
 | --- | --- | --- | --- |
-| 1 | Configure tenant auth and SQL (or use hosted staging). | `GET /health/ready` healthy. | [FIRST_RUN_WALKTHROUGH.md](FIRST_RUN_WALKTHROUGH.md) |
+| 1 | Configure tenant auth and SQL (or use hosted staging). | `GET /health/ready` healthy. | [First architecture review walkthrough](#first-architecture-review-walkthrough) |
 | 2 | Sign in; open **New review** (`/reviews/new`). | Wizard loads without auth errors. | [DEMO_QUICKSTART.md](../go-to-market/DEMO_QUICKSTART.md) |
 | 3 | Create request; note **run id**. | Run appears in Reviews. | [operator-shell.md](operator-shell.md) |
 | 4 | Upload Azure extractor ZIP (Tier 1) or attach evidence. | Upload 200; evidence on run. | [AZURE_EXTRACTOR.md](AZURE_EXTRACTOR.md) |

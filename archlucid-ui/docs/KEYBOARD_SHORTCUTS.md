@@ -116,7 +116,7 @@ flowchart TB
 ## See also
 
 - [OPERATOR_SHELL_TUTORIAL.md](./OPERATOR_SHELL_TUTORIAL.md) — Next.js / shell orientation.
-- Repo onboarding: [FIRST_RUN_WALKTHROUGH.md](../../docs/library/FIRST_RUN_WALKTHROUGH.md) — getting oriented in the wider codebase.
+- Repo onboarding: [CANONICAL_FIRST_RUN_PATH.md#first-architecture-review-walkthrough](../../docs/library/CANONICAL_FIRST_RUN_PATH.md#first-architecture-review-walkthrough) — getting oriented in the wider codebase.
 
 ## Local development only
 

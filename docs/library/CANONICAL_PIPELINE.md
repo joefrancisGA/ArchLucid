@@ -31,7 +31,7 @@ flowchart LR
 ## Where to read next
 
 - [`ARCHITECTURE_FLOWS.md`](ARCHITECTURE_FLOWS.md) — narrative lifecycle and API touchpoints.
-- [`FIRST_RUN_WALKTHROUGH.md`](FIRST_RUN_WALKTHROUGH.md) — architect workspace checklist for first successful review; HTTP-level parity in [`LIVE_E2E_HAPPY_PATH.md`](LIVE_E2E_HAPPY_PATH.md).
+- [`CANONICAL_FIRST_RUN_PATH.md#first-architecture-review-walkthrough`](CANONICAL_FIRST_RUN_PATH.md#first-architecture-review-walkthrough) — architect workspace checklist for first successful review; HTTP-level parity in [`LIVE_E2E_HAPPY_PATH.md`](LIVE_E2E_HAPPY_PATH.md).
 - [`OPERATOR_ATLAS.md`](OPERATOR_ATLAS.md) — task → UI map.
 - [`API_CONTRACTS.md`](API_CONTRACTS.md) — stable HTTP contracts.
 
