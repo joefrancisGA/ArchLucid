@@ -79,6 +79,7 @@ export function ArchitectureCreatedOverviewPanel(
   const overviewSections = parseResult.sections.filter((section) =>
     OVERVIEW_SECTION_KEYS.includes(section.key),
   );
+  const continueClarifyingHref = props.correctionHref ?? REVIEWS_NEW_CREATE_ARCHITECTURE_HREF;
 
   return (
     <div className="space-y-5" data-testid="architecture-workspace-overview-panel">
@@ -116,7 +117,7 @@ export function ArchitectureCreatedOverviewPanel(
             ))}
           </ul>
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            <Link href={REVIEWS_NEW_CREATE_ARCHITECTURE_HREF} className="font-medium text-teal-800 dark:text-teal-300">
+            <Link href={continueClarifyingHref} className="font-medium text-teal-800 dark:text-teal-300">
               Continue clarifying
             </Link>{" "}
             to improve completeness and assessment confidence.

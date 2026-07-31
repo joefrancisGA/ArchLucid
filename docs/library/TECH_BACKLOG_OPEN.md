@@ -639,7 +639,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1859 | Create-home Governance density — one primary next step | Adoption friction P1 **V1** — with **TB-1856** |
 | TB-1860 | Governance tab — Vitest pre-commit honesty + traffic | Testability P2 **V1** — with **TB-1856** |
 | TB-1861 | Traffic honesty — `archTab=overview` create-home only | Trustworthiness P1 **V1** — REO ~55 |
-| TB-1862 | Overview Continue clarifying must be run-scoped | Trustworthiness P0 **V1** — with **TB-1861** |
 | TB-1863 | Overview vs Clarifications — Still needed dedupe | Adoption friction P1 **V1** — with **TB-1861** |
 | TB-1864 | Overview empty structured-sections orientation | Adoption friction P1 **V1** — with **TB-1861** |
 | TB-1865 | Overview tab — Vitest CTA + traffic honesty | Testability P2 **V1** — with **TB-1861** |
