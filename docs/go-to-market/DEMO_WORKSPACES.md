@@ -10,9 +10,9 @@
 
 **Welcome hero (CTAs / Clarity / compliance):** [`DEMO_QUICKSTART.md#welcome-hero--ctas-analytics-and-compliance`](DEMO_QUICKSTART.md#welcome-hero--ctas-analytics-and-compliance).
 
-**Sample-package funnel ID matrix (M-134):** [`SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md`](SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md) — surface → package → IDs (Claims vs Product Tour Contoso vs Workspace B); do not mix universes on one CTA.
+**Sample-package funnel ID matrix (M-134):** [`DEMO_QUICKSTART.md#sample-package-funnel-id-matrix`](DEMO_QUICKSTART.md#sample-package-funnel-id-matrix) (`SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md` alias) — surface → package → IDs (Claims vs Product Tour Contoso vs Workspace B); do not mix universes on one CTA.
 
-**Showcase naming (M-135):** Contoso/Northwind citations below are **operator seed / CI pins** — superseded for public showcase and paid creatives. Use scenario-first names per [`SHOWCASE_NAMING_HIERARCHY.md`](SHOWCASE_NAMING_HIERARCHY.md).
+**Showcase naming (M-135):** Contoso/Northwind citations in seed tables are **operator seed / CI pins** — superseded for public showcase and paid creatives. Use scenario-first names per [`DEMO_QUICKSTART.md#showcase-naming-hierarchy-m-135`](DEMO_QUICKSTART.md#showcase-naming-hierarchy-m-135) (`SHOWCASE_NAMING_HIERARCHY.md` alias).
 
 **Auto-seed (hosted GA):** When **`Demo:AnonymousViewer:Enabled = true`**, Contoso trusted-baseline seed runs on API startup via `DemoSeedStartupHostedService` — see [`DEMO_QUICKSTART.md#demo-workspaces`](DEMO_QUICKSTART.md#demo-workspaces).
 

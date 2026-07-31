@@ -75,7 +75,7 @@ Curated slug **`claims-intake-modernization`** is **static-first**: the UI serve
 | Long-term **primary** buyer-facing sample | **Enterprise Customer Intake Modernization** |
 | **Secondary** regulated-depth example | **Healthcare Claims Intake Modernization** |
 | Buyer-facing showcase organization | **None** — Contoso and Northwind must **not** appear as the customer/org in primary CTA chrome or the primary one-sentence |
-| Controlled-beta / current cold funnel | Stay on the Claims spine until engineering **TB-981** (default flip) — see **M-107** Option A + [`SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md`](../go-to-market/SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md) |
+| Controlled-beta / current cold funnel | Stay on the Claims spine until engineering **TB-981** (default flip) — see **M-107** Option A + [`DEMO_QUICKSTART.md#sample-package-funnel-id-matrix`](../go-to-market/DEMO_QUICKSTART.md#sample-package-funnel-id-matrix) (`SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md` alias) |
 
 **PA one-sentence (pin):** ArchLucid’s primary buyer-facing sample is Enterprise Customer Intake Modernization — a governed architecture proof package for modernizing how an enterprise intakes and processes customer work, with evidence-backed findings you can commit and export.
 

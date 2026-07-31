@@ -3157,12 +3157,12 @@ Do not promise Healthcare Claims sample while serving Contoso `demo/preview`, im
 ### Residuals (honest)
 
 - **TB-1028** / **TB-1029** own the boundary contract and language guards.
-- Cite ADR 0027 + `ui_routes.md` Tier 1/2; sample matrix [`SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md`](SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md).
+- Cite ADR 0027 + `ui_routes.md` Tier 1/2; sample matrix [`DEMO_QUICKSTART.md#sample-package-funnel-id-matrix`](DEMO_QUICKSTART.md#sample-package-funnel-id-matrix) (`SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md` alias).
 - Complements **M-260** (ladder) without replacing rung rename / Resources copy work.
 - Does not reopen Done **M-107** / **M-134**.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
 
-**Related:** [`/live-demo` vs `/see-it` ladder (M-260)](#live-demo-see-it-ladder-m-260) · [Demo/anonymous read plane (M-218)](#demo-anonymous-read-plane-m-218) · [Launch-load failure order (M-183)](#launch-load-failure-order-m-183) · [Strangler next slice (M-185)](#strangler-next-slice-result-sunset-m-185) · [`SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md`](SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+**Related:** [`/live-demo` vs `/see-it` ladder (M-260)](#live-demo-see-it-ladder-m-260) · [Demo/anonymous read plane (M-218)](#demo-anonymous-read-plane-m-218) · [Launch-load failure order (M-183)](#launch-load-failure-order-m-183) · [Strangler next slice (M-185)](#strangler-next-slice-result-sunset-m-185) · [`DEMO_QUICKSTART.md#sample-package-funnel-id-matrix`](DEMO_QUICKSTART.md#sample-package-funnel-id-matrix) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## Strangler next slice — Authority freeze + `/result` sunset (M-185) {#strangler-next-slice-result-sunset-m-185}
 

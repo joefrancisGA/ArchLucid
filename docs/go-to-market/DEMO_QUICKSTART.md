@@ -1,6 +1,6 @@
 ﻿> **Reviewed:** 2026-07-27
 
-> **Scope:** ArchLucid demo quickstart (buyer-facing), screenshot capture brief for marketing/demo PNGs (formerly ``SCREENSHOT_GALLERY.md``), live-call / video demo scripts plus storyboard (formerly ``DEMO_VIDEO_SCRIPT.md``), hosted GA demo workspaces / welcome-hero analytics (formerly the body of ``DEMO_WORKSPACES.md``; that filename remains a path-stable alias for fixture GUID CI), and GTM synthetic samples / architecture review board export how-to (formerly the body of ``samples/README.md``; that filename remains a path-stable alias next to the DOCX/PDF binaries). Full detail, tables, and links in the sections below.
+> **Scope:** ArchLucid demo quickstart (buyer-facing), screenshot capture brief for marketing/demo PNGs (formerly ``SCREENSHOT_GALLERY.md``), live-call / video demo scripts plus storyboard (formerly ``DEMO_VIDEO_SCRIPT.md``), hosted GA demo workspaces / welcome-hero analytics (formerly the body of ``DEMO_WORKSPACES.md``; that filename remains a path-stable alias for fixture GUID CI), GTM synthetic samples / architecture review board export how-to (formerly the body of ``samples/README.md``; that filename remains a path-stable alias next to the DOCX/PDF binaries), the sample-package funnel ID matrix (formerly the body of ``SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md``; that filename remains a path-stable alias for GTM **M-134**), and the showcase naming hierarchy + Contoso/Northwind matrix (formerly the body of ``SHOWCASE_NAMING_HIERARCHY.md``; that filename remains a path-stable alias for GTM **M-135**). Full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -445,6 +445,185 @@ Trim governance or compare if time is tight â€” core story is **finished pa
 
 ---
 
+## Sample-package funnel ID matrix (M-134) {#sample-package-funnel-id-matrix}
+
+Former standalone body: `docs/go-to-market/SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md` → this section (filename kept as a path-stable alias for GTM **M-134** / **M-107** / **M-133**). Internal GTM/ops — not a buyer brochure. Complements [Showcase naming hierarchy (M-135)](#showcase-naming-hierarchy-m-135) and [Demo workspaces](#demo-workspaces).
+
+**Path-stable alias:** [`SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md`](SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md).
+
+**Last reviewed:** 2026-07-30  
+**Status:** Honest co-primary documentation (two buyer-facing packages + one SE-only package). **M-107** + **M-133** Done — cold funnel stays **P-CLAIMS** until **TB-981**; long-term primary name = Enterprise Customer Intake. Package authoring / default flip: **TB-979**–**TB-981**.  
+**PA Q21 minimum:** `/see-it` Claims-static (Option A) — Contoso/unknown live payloads fall back to Claims snapshot; never Contoso under Healthcare Claims chrome. Owned with **M-178** / **TB-1028**. **Northwind** stays **off primary funnel**.
+
+### M-107 owner decision (2026-07-29) — Option A Claims-static
+
+| Decision | Value |
+|----------|--------|
+| Canonical anonymous public proof path | `/showcase/claims-intake-modernization` (**P-CLAIMS**) |
+| Welcome → `/see-it` → primary CTA | Claims sample / showcase — **not** Contoso `/demo/preview` |
+| `/see-it` body source | Prefer Claims live only; Contoso or unknown → checked-in Claims snapshot |
+| Contoso `/demo/preview` | **Secondary** Product Tour / self-demo only (Contoso-labeled) |
+| Get-started vertical samples + Why Verify demo links | All → Claims showcase |
+| Still open (execution) | **TB-980** (author Enterprise package) · **TB-981** (default flip) |
+
+Constant in UI: `CANONICAL_ANONYMOUS_PROOF_HREF` in `archlucid-ui/src/lib/showcase-static-demo.ts`.
+
+### M-133 owner decision (2026-07-29) — Option D ratified
+
+| Pin | Value |
+|-----|--------|
+| Long-term primary scenario | **Enterprise Customer Intake Modernization** |
+| Secondary regulated-depth | **Healthcare Claims Intake Modernization** |
+| Contoso / Northwind in primary one-sentence or primary CTA org chrome | **Forbidden** |
+| Until **TB-981** | Cold funnel + routes stay on Claims spine (**M-107**); this ratification is naming/portfolio intent only |
+
+Full owner note: [`DEMO_PREVIEW.md`](../library/DEMO_PREVIEW.md) § Owner ratification — showcase Option D. Assessment: [`showcase_scenario_strategy_assessment_2026_07_23.md`](../architecture/showcase_scenario_strategy_assessment_2026_07_23.md) §17–§19.
+
+**PA one-sentence:** ArchLucid’s primary buyer-facing sample is Enterprise Customer Intake Modernization — a governed architecture proof package for modernizing how an enterprise intakes and processes customer work, with evidence-backed findings you can commit and export.
+
+### Verdict (what “aligned” means today)
+
+Marketing, trial, showcase, and SQL seeds are **not** one fictional universe. Treat them as **three named packages** and never mix labels across packages on the same page or CTA. Cold funnel proof CTAs use **P-CLAIMS** only. Long-term primary *name* is Enterprise Customer Intake — package not authored yet (**TB-980**).
+
+| Package ID (internal) | Buyer-facing scenario name | Storyline / synthetic orgs | Primary use |
+|-----------------------|----------------------------|----------------------------|-------------|
+| **P-CLAIMS** | Healthcare Claims Intake Modernization | Static showcase / UI fixtures (`claims-intake-modernization`) | Public showcase, `/try`, Tier-1 UI routes, frictionless marketing (**current** cold funnel) |
+| **P-ENTERPRISE-INTAKE** (planned) | Enterprise Customer Intake Modernization | TBD sample-definition (**TB-979**/**TB-980**) | **Long-term primary** after **TB-981** flip — not a live route yet |
+| **P-PRODUCT-TOUR** | Product Tour / self-demo (Workspace A) | Contoso Cloud Platform · Northwind Architects (fabricated) | Welcome **Try the self-demo**, `NEXT_PUBLIC_SELF_DEMO_URL`, preferred `trialSampleRunId` |
+| **P-REGULATED** | Alpine AI governance (Workspace B) | Meridian Advisory Group · Alpine Health | Regulated wedge demos, AI-gov / security-baseline seed engines |
+
+### Surface → package → IDs
+
+| Surface / knob | Package | Route / API | Stable ID(s) | Label rules |
+|----------------|---------|-------------|--------------|-------------|
+| Public showcase | **P-CLAIMS** | `/showcase/claims-intake-modernization` | Slug `claims-intake-modernization` | “Illustrative sample” / Healthcare Claims — **not** live Contoso preview |
+| Frictionless trial launcher | **P-CLAIMS** | `/try` → `/reviews/claims-intake-modernization` | Same slug | Same as showcase |
+| Operator Tier-1 review package | **P-CLAIMS** | `/reviews/claims-intake-modernization` (+ findings / provenance / snapshot) | Same slug; finding e.g. `phi-minimization-risk` | Static package; may inject client-only when demo pin empty (**TB-1039**) |
+| Welcome secondary CTA “Try the self-demo” | **P-PRODUCT-TOUR** | `NEXT_PUBLIC_SELF_DEMO_URL` (default `/runs/b6ab57c8-84b1-8ac6-28d8-d790efcd1dbf` → 301 → `/reviews/...`) | `DemoWorkspaceStableIds.ProductTourArchitectureReviewRunId` = `b6ab57c8-84b1-8ac6-28d8-d790efcd1dbf` | Contoso / Product Tour — **never** “Claims Intake” |
+| Post-registration “Open example review” | **P-PRODUCT-TOUR** (preferred) | `GET /v1/tenant/trial-status` → `trialSampleRunId` | Prefer Product Tour GUID above; if different, document beside `NEXT_PUBLIC_SELF_DEMO_URL` in the deploy runbook | Must match onboarding copy |
+| Anonymous live demo preview | **P-PRODUCT-TOUR** (Contoso seed) | `/demo/preview`, `GET /v1/demo/preview`, `/demo/explain` | Contoso authority baseline `6e8c4a10-2b1f-4c9a-9d3e-10b2a4f0c501` (`ContosoRetailDemoIdentifiers.AuthorityRunBaselineId`); hardened pair `…c502` | Banner/universe = Contoso (or unknown fail-closed) — **not** Healthcare Claims |
+| `/see-it` pitch + body | **P-CLAIMS** (M-107 Option A) | `/see-it` (Claims live or Claims snapshot; Contoso/unknown → snapshot) | Claims snapshot / Claims live only | Primary CTA → `/showcase/claims-intake-modernization` — never Contoso `/demo/preview` on this chain |
+| Workspace A deep link (Sales) | **P-PRODUCT-TOUR** | `/reviews/b6ab57c8-84b1-8ac6-28d8-d790efcd1dbf` | Workspace `2b2571e1-1884-62a2-1e8b-15a2a70a0342` · Project `9beb918c-83d4-1385-0486-21f341806c5c` | Scope headers must match |
+| Workspace B deep link (SE / regulated) | **P-REGULATED** | `/reviews/61c60d76-2b80-93f9-46bb-2f66fd608b9b` | Workspace `3f1a16c3-172e-5632-c53a-3ed16446f603` · Project `49074cdf-bdab-a5fa-789b-09a3e556a8f2` | Meridian/Alpine; seed engines — not live multi-agent (**M-111**) |
+| Northwind compare / creation bridge | **Off-funnel** | e.g. `northwind-copilot-rag-platform` in longer scripts | Fixture slugs only | Do **not** use in welcome → `/see-it` → primary CTA |
+| Why-ArchLucid / measured ROI demo pin | Contoso string key | API snapshot fields | `ContosoRetailDemoIdentifiers.RunBaseline` = `6e8c4a102b1f4c9a9d3e10b2a4f0c501` | Sponsor numbers labeled demo — replace before publish |
+
+Pinned Workspace A/B GUID table (CI): [`DEMO_WORKSPACES.md`](DEMO_WORKSPACES.md) → [Demo workspaces](#demo-workspaces). Route tiers: [`../architecture/ui_routes.md`](../architecture/ui_routes.md).
+
+### Forbidden mixes (toxic)
+
+| Mix | Why it fails |
+|-----|----------------|
+| Claims chrome / title + Contoso `GET /v1/demo/preview` payload | Dual universe — PA Q21 / **M-178** |
+| “Healthcare Claims” CTA → Product Tour GUID | Wrong package |
+| Primary buyer one-sentence naming Contoso or Northwind as the customer | Toxic marketing (**M-135**) |
+| Northwind on welcome / `/see-it` / paid creatives | Off-funnel |
+| Implying showcase slug is the same SQL row as Product Tour / Contoso authority runs | Different stores (static vs seeded) |
+
+### Deploy / Sales checklist
+
+1. Set **`NEXT_PUBLIC_SELF_DEMO_URL`** to Workspace A (`/reviews/b6ab57c8-84b1-8ac6-28d8-d790efcd1dbf` preferred).
+2. Confirm **`trialSampleRunId`** for evaluator tenants matches that Product Tour run (or document the exception).
+3. Before paid creatives: open the exact URL the creative names — Claims showcase **or** Contoso preview — and match the banner.
+4. For regulated demos, bookmark Workspace B; do not reuse Claims or Contoso labels.
+5. After **M-133**: collapse creatives to Enterprise Customer Intake if ratified; until then paid/SEO proof creatives land on Claims showcase.
+
+### Residuals (not closed by M-134)
+
+| Residual | Owner |
+|----------|--------|
+| Canonical anonymous proof path (showcase vs `/see-it` vs `/demo/preview`) | **M-107** **Done** — Option A above |
+| Option D primary scenario sentence (Enterprise Customer Intake) | **M-133** **Done** — execution **TB-980**/**TB-981** |
+| Sample-definition package engineering / default flip | **TB-979**–**TB-981** |
+| Naming hierarchy + safe/toxic org matrix prose | **M-135** **Done** — [Showcase naming hierarchy](#showcase-naming-hierarchy-m-135) |
+| Screenshots / video on ratified creatives | **M-108** / **M-07** / **M-16** |
+
+**Related:** [Showcase naming hierarchy (M-135)](#showcase-naming-hierarchy-m-135) · [Demo workspaces](#demo-workspaces) · [Marketing static vs live boundary (M-179)](BUYER_SECURITY_PROCUREMENT_PACKET.md#marketing-static-vs-live-demo-boundary-m-179) · [`/live-demo` vs `/see-it` ladder (M-260)](BUYER_SECURITY_PROCUREMENT_PACKET.md#live-demo-see-it-ladder-m-260) · [`DEMO_PREVIEW.md`](../library/DEMO_PREVIEW.md) · [`GTM_BACKLOG.md`](GTM_BACKLOG.md).
+
+## Showcase naming hierarchy + Contoso/Northwind matrix (M-135) {#showcase-naming-hierarchy-m-135}
+
+Former standalone body: `docs/go-to-market/SHOWCASE_NAMING_HIERARCHY.md` → this section (filename kept as a path-stable alias for GTM **M-135**). Internal GTM/ops — not a buyer brochure. Complements [Sample-package funnel ID matrix (M-134)](#sample-package-funnel-id-matrix). Does **not** rename routes or SQL seeds.
+
+**Path-stable alias:** [`SHOWCASE_NAMING_HIERARCHY.md`](SHOWCASE_NAMING_HIERARCHY.md).
+
+**Last reviewed:** 2026-07-30  
+**Status:** Shipped. Depends on **M-133** (Option D ratified) and **M-107** (Claims-static cold funnel).  
+**Pairs:** **M-137** (optional fictional-org trademark screen — only if narrative needs a company name) · engineering **TB-980**/**TB-982**
+
+### Scenario-first naming hierarchy
+
+Use this stack in buyer-facing UI, paid creatives, SEO, and SE talk tracks. Prefer the **highest** term that is still accurate.
+
+| Layer | Term (preferred) | Meaning | Example |
+|-------|------------------|---------|---------|
+| 1 | **Showcase** | Public, no-sign-in sample surface | `/showcase/claims-intake-modernization` |
+| 2 | **Scenario name** | Named architecture storyline (not a customer brand) | Healthcare Claims Intake Modernization · *(long-term primary)* Enterprise Customer Intake Modernization |
+| 3 | **Sample review** / **sample architecture package** | The review object buyers open | “Open healthcare claims sample review” |
+| 4 | **Illustrative sample** | Disclosure that content is synthetic / not the visitor’s estate | Banner / footer disclosure |
+
+**Avoid as primary chrome:** “demo customer,” “Contoso review,” “Northwind package,” “live preview” for static Claims showcase, “seeded run” in buyer copy.
+
+**Synonyms allowed sparingly:** “example review” (operator empty states only). Prefer **sample** on marketing per [`COPY_TERMINOLOGY_AUDIT.md`](../ux-audits/COPY_TERMINOLOGY_AUDIT.md).
+
+#### Long-term vs current cold funnel
+
+| Role | Scenario name | Live today? |
+|------|---------------|-------------|
+| Long-term **primary** (name pin) | Enterprise Customer Intake Modernization | Not yet — **TB-980** / **TB-981** |
+| **Secondary** regulated-depth | Healthcare Claims Intake Modernization | **Yes** — canonical anonymous proof (**M-107**) |
+| Product Tour (secondary CTA) | Contoso-labeled self-demo / `/demo/preview` | Yes — never under Claims chrome |
+| Off-funnel | Northwind fixtures / longer SE scripts | Yes — not welcome → `/see-it` → primary CTA |
+
+**PA one-sentence (from M-133):** ArchLucid’s primary buyer-facing sample is Enterprise Customer Intake Modernization — a governed architecture proof package for modernizing how an enterprise intakes and processes customer work, with evidence-backed findings you can commit and export. **Never in that sentence:** Contoso, Northwind.
+
+Until **TB-981**, public creatives that open Claims must name **Healthcare Claims Intake** (or “Claims sample”), not Enterprise Customer Intake as if the package already exists.
+
+### PA Q4 — safe internal vs toxic marketing vs gray
+
+#### (1) Safe internal — keep; do not demand rename for Done
+
+| Item | Why safe |
+|------|----------|
+| Contoso SQL pins / `ContosoRetailDemoIdentifiers` | Internal seed identity; not buyer org brand |
+| Contoso Retail storyline in operator/demo seed docs | Engineering + SE seed narrative |
+| Northwind fixture reuse in tests / longer scripts | Fixture continuity |
+| Meridian Advisory / Alpine Health (Workspace B) | Regulated wedge seed; cite in SE docs |
+| GUIDs, `IsDemoData`, `isDemoData: true` | Honest synthetic markers |
+| Class names / route IDs containing Contoso for Product Tour | Code/API stability |
+
+**Do not** treat Contoso SQL rename as a Done criterion for this row.
+
+#### (2) Toxic marketing — ban in buyer-facing showcase / primary CTA / paid creatives
+
+| Anti-pattern | Why toxic |
+|--------------|-----------|
+| Contoso or Northwind as the **showcase organization** or customer brand | Microsoft fictional-brand entanglement; implies real customer |
+| Contoso / Northwind in the **primary-scenario one-sentence** | Violates **M-133** pin |
+| Contoso / Northwind in **primary CTA chrome** (welcome hero proof CTA, paid landing primary button) | Wrong package signal |
+| Contoso payload under **Healthcare Claims** chrome | Dual universe (**M-178** / PA Q21) |
+| Implying Contoso/Northwind/Meridian are **real customers** or reference logos | False social proof |
+| “Live Contoso demo” as the **canonical** anonymous proof path | Superseded by **M-107** Option A |
+
+#### (3) Gray — allowed with constraints
+
+| Item | Constraint |
+|------|------------|
+| Contoso-labeled `/demo/preview` / Product Tour | Secondary CTA only; banner must say Contoso / Product Tour — never Claims |
+| SE demo scripts that still say Contoso/Northwind | Rewrite over time (**TB-982**); do not use on paid creatives |
+| [`DEMO_WORKSPACES.md`](DEMO_WORKSPACES.md) / seed docs naming Contoso/Northwind | **Superseded for public showcase/paid creatives**; operator seed docs may still name them |
+| Optional fictional org in long-form narrative | Prefer scenario-first with **no** org name; if needed, screen via **M-137** (not Contoso/Northwind/Meridian for new creatives) |
+| Workspace B Meridian/Alpine in regulated demos | SE / Workspace B path only — not primary marketing one-sentence |
+
+### Quick checklist (creatives + copy review)
+
+1. Primary CTA opens Claims showcase or (later) Enterprise package — never Contoso GUID under Claims words.
+2. One-sentence / headline uses scenario name only — no Contoso/Northwind.
+3. Disclosure says **illustrative sample** (or equivalent), not “live customer preview.”
+4. Product Tour / self-demo links are Contoso-labeled and secondary.
+5. Screenshot / video filenames and captions match the package actually on screen (**M-108**).
+
+**Related:** [Sample-package funnel ID matrix (M-134)](#sample-package-funnel-id-matrix) · [`DEMO_PREVIEW.md`](../library/DEMO_PREVIEW.md) · [`COPY_TERMINOLOGY_AUDIT.md`](../ux-audits/COPY_TERMINOLOGY_AUDIT.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) · [`GTM_BACKLOG.md`](GTM_BACKLOG.md).
+
 ## Demo workspaces {#demo-workspaces}
 
 Former standalone body: `docs/go-to-market/DEMO_WORKSPACES.md` → this section (filename kept as a path-stable alias for GUID CI / smoke pins).
@@ -455,7 +634,7 @@ Former standalone body: `docs/go-to-market/DEMO_WORKSPACES.md` → this section 
 
 | Surface | Workspace | Repository wiring |
 |---------|-----------|-------------------|
-| **Landing / welcome — secondary CTA “Try the self-demo”** (improvement **#32**) | **Workspace A** (product tour run) | `archlucid-ui`: [`SelfDemoRequestCta.tsx`](../../archlucid-ui/src/components/marketing/SelfDemoRequestCta.tsx), [`build-self-demo-cta-href.ts`](../../archlucid-ui/src/lib/marketing/build-self-demo-cta-href.ts), env **`NEXT_PUBLIC_SELF_DEMO_URL`** — defaults to legacy `/runs/{ProductTour}` which **301**s to **`/reviews/...`** (see below). Deployments should set **`NEXT_PUBLIC_SELF_DEMO_URL`** explicitly for staging/production hostnames when it must be absolute. **Package map:** [`SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md`](SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md) (**M-134**) — Product Tour ≠ Claims showcase. |
+| **Landing / welcome — secondary CTA “Try the self-demo”** (improvement **#32**) | **Workspace A** (product tour run) | `archlucid-ui`: [`SelfDemoRequestCta.tsx`](../../archlucid-ui/src/components/marketing/SelfDemoRequestCta.tsx), [`build-self-demo-cta-href.ts`](../../archlucid-ui/src/lib/marketing/build-self-demo-cta-href.ts), env **`NEXT_PUBLIC_SELF_DEMO_URL`** — defaults to legacy `/runs/{ProductTour}` which **301**s to **`/reviews/...`** (see below). Deployments should set **`NEXT_PUBLIC_SELF_DEMO_URL`** explicitly for staging/production hostnames when it must be absolute. **Package map:** [`#sample-package-funnel-id-matrix`](#sample-package-funnel-id-matrix) (**M-134**) — Product Tour ≠ Claims showcase. |
 | **Post-registration onboarding** — “Open example review” | Runs returned as **`trialSampleRunId`** | [`OnboardingStartClient.tsx`](../../archlucid-ui/src/components/OnboardingStartClient.tsx) surfaces **`GET /v1/tenant/trial-status`** (`trialSampleRunId`). Coordinators align trial bootstrap with **`DemoWorkspaceStableIds.ProductTourArchitectureReviewRunId`** when hosted evaluators should hit the canonical Product Tour run. |
 | **No dedicated second onboarding deep link today** | **Workspace B** (regulated storyline) | **Sales / CS / marketing** bookmark or email the **Workspace B canonical URL pattern** (`/reviews/{runId}` in this doc). Owners may add explicit copy or CTAs linking Workspace B alongside Workspace A once **#32** copy review extends onboarding. |
 
@@ -871,4 +1050,6 @@ Optional: **`ARCHLUCID_REPO_ROOT`** when the test cannot walk to a directory con
 | [`#screenshot-capture-brief`](#screenshot-capture-brief) | Marketing/demo PNG capture brief (10 shots) |
 | [`#demo-scripts`](#demo-scripts) | Five-minute / 30-minute live scripts + video storyboard |
 | [#demo-workspaces](#demo-workspaces) · [DEMO_WORKSPACES.md](DEMO_WORKSPACES.md) (alias) | Hosted GA Workspace A/B pins + welcome hero |
+| [#sample-package-funnel-id-matrix](#sample-package-funnel-id-matrix) · [SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md](SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md) (alias) | Sample-package funnel ID matrix (M-134) |
+| [#showcase-naming-hierarchy-m-135](#showcase-naming-hierarchy-m-135) · [SHOWCASE_NAMING_HIERARCHY.md](SHOWCASE_NAMING_HIERARCHY.md) (alias) | Showcase naming hierarchy + Contoso/Northwind matrix (M-135) |
 | [`#gtm-samples`](#gtm-samples) · [`samples/README.md`](samples/README.md) (alias) | Synthetic ARB DOCX/PDF samples + export how-to |

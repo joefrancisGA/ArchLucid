@@ -10,6 +10,6 @@
 
 **PA claim-honesty index:** [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
-**Showcase naming (M-135):** Contoso/Northwind toxic-marketing row in the canonical table; hierarchy + full PA Q4 matrix in [`SHOWCASE_NAMING_HIERARCHY.md`](SHOWCASE_NAMING_HIERARCHY.md).
+**Showcase naming (M-135):** Contoso/Northwind toxic-marketing row in the canonical table; hierarchy + full PA Q4 matrix in [`DEMO_QUICKSTART.md#showcase-naming-hierarchy-m-135`](DEMO_QUICKSTART.md#showcase-naming-hierarchy-m-135) (`SHOWCASE_NAMING_HIERARCHY.md` alias).
 
 All do-not / do-promise rows for the PA claim-honesty program live in the public claim boundary guide. This filename remains stable for GTM backlog links and CI path references.
