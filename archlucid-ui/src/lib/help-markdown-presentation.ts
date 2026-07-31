@@ -1269,7 +1269,147 @@ export function stripCaiqSigContributorLeakage(markdown: string): string {
     .replace(/PENDING_QUESTIONS\.md/gi, "owner diligence notes")
     .replace(/`?pen-test-summaries\/[^`\s)]+`?/gi, "penetration test program documentation")
     .replace(/pen-test-summaries\/[^\s`)]+/gi, "penetration test program documentation")
-    .replace(/\n{3,}/g, "\n\n");
+    .replace(/\n{3,}/g, "\n\n")
+    .trimEnd();
+}
+
+const SUBPROCESSORS_OMITTED_SECTION_PREFIXES = ["related documents"] as const;
+
+/**
+ * TB-1752 — drops contributor Related documents section from subprocessors help.
+ */
+export function stripSubprocessorsContributorSections(markdown: string): string {
+  const lines = markdown.split("\n");
+  const result: string[] = [];
+  let omitSection = false;
+
+  for (const line of lines) {
+    if (line.startsWith("## ") && !line.startsWith("###")) {
+      const title = line.slice(3).trim().toLowerCase();
+      omitSection = SUBPROCESSORS_OMITTED_SECTION_PREFIXES.some((prefix) => title.startsWith(prefix));
+    }
+
+    if (!omitSection) {
+      result.push(line);
+    }
+  }
+
+  return result.join("\n");
+}
+
+function isSubprocessorsContributorLeakageLine(line: string): boolean {
+  if (/START_HERE\.md/i.test(line)) {
+    return true;
+  }
+
+  if (/Spine doc:/i.test(line)) {
+    return true;
+  }
+
+  if (/CUSTOMER_TRUST_AND_ACCESS/i.test(line)) {
+    return true;
+  }
+
+  if (/SYSTEM_THREAT_MODEL/i.test(line)) {
+    return true;
+  }
+
+  if (/terraform-azure-variables/i.test(line)) {
+    return true;
+  }
+
+  if (/GEO_FAILOVER_DRILL/i.test(line)) {
+    return true;
+  }
+
+  if (/trust-center\.md/i.test(line)) {
+    return true;
+  }
+
+  if (/`infra\//i.test(line)) {
+    return true;
+  }
+
+  if (/\binfra\//i.test(line)) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * TB-1752 — subprocessors help: strip contributor repo paths; in-app trust/DPA links.
+ */
+export function stripSubprocessorsContributorLeakage(markdown: string): string {
+  const sectionStripped = stripSubprocessorsContributorSections(markdown);
+  const lines = sectionStripped.split("\n");
+  const result: string[] = [];
+
+  for (const line of lines) {
+    if (
+      /^ArchLucid uses the following \*\*subprocessors\*\* to deliver the hosted service\./i.test(line.trim())
+    ) {
+      result.push(
+        "ArchLucid uses the following **subprocessors** to deliver the hosted service. The list reflects the **Azure-first** hosted service architecture. For trust posture and data handling, see [Security and trust](/help/security-trust).",
+      );
+      continue;
+    }
+
+    if (/^Production deployments are \*\*Azure-region scoped\*\*/i.test(line.trim())) {
+      result.push(
+        "Production deployments are **Azure-region scoped**; the **primary region** is selected when the hosted service is provisioned for your subscription or order.",
+      );
+      continue;
+    }
+
+    if (/^\*\*Roadmap:\*\* Document \*\*multi-region\*\*/i.test(line.trim())) {
+      result.push(
+        "**Roadmap:** Document **multi-region** active/active or failover when offered (not yet published as a standard hosted offering).",
+      );
+      continue;
+    }
+
+    if (isSubprocessorsContributorLeakageLine(line)) {
+      continue;
+    }
+
+    if (/^\| \*\*Microsoft Corporation\*\* \| \*\*Azure Container Apps\*\*/i.test(line)) {
+      result.push(
+        "| **Microsoft Corporation** | **Azure Container Apps** (or equivalent compute), **Azure SQL**, **Azure Blob Storage**, **Azure Key Vault**, optional **Azure Service Bus**, **Azure Cache for Redis** (or compatible), **Azure Front Door**, optional **Azure API Management**, monitoring integrations | Customer architecture content, run metadata, manifests, findings, audit events, blobs (including optional agent traces), secrets by reference | **Primary Azure region(s)** chosen at deployment time (see **Data residency** below) | Host application, store and encrypt data at rest, edge routing, optional queue/cache |",
+      );
+      continue;
+    }
+
+    if (/see \[DPA_TEMPLATE\.md\]/i.test(line)) {
+      result.push(
+        "- **Material change:** Updated DPA schedule or subprocessors exhibit available on request; see [DPA template](/help/dpa-template).",
+      );
+      continue;
+    }
+
+    result.push(line);
+  }
+
+  return result
+    .join("\n")
+    .replace(/`?DPA_TEMPLATE\.md`?/gi, "[DPA template](/help/dpa-template)")
+    .replace(/DPA_TEMPLATE\.md/gi, "/help/dpa-template")
+    .replace(/`?START_HERE\.md`?/gi, "product documentation hub")
+    .replace(/START_HERE\.md/gi, "product documentation hub")
+    .replace(/`?infra\/[^`\s)]*`?/gi, "hosted infrastructure")
+    .replace(/\binfra\//gi, "hosted infrastructure ")
+    .replace(/`?terraform-azure-variables\.md`?/gi, "infrastructure configuration documentation")
+    .replace(/terraform-azure-variables\.md/gi, "infrastructure configuration documentation")
+    .replace(/`?GEO_FAILOVER_DRILL\.md`?/gi, "operational drill documentation")
+    .replace(/GEO_FAILOVER_DRILL\.md/gi, "operational drill documentation")
+    .replace(/`?CUSTOMER_TRUST_AND_ACCESS\.md`?/gi, "[Security and trust](/help/security-trust)")
+    .replace(/CUSTOMER_TRUST_AND_ACCESS\.md/gi, "/help/security-trust")
+    .replace(/`?SYSTEM_THREAT_MODEL\.md`?/gi, "security documentation")
+    .replace(/SYSTEM_THREAT_MODEL\.md/gi, "security documentation")
+    .replace(/`?trust-center\.md`?/gi, "[Security and trust](/help/security-trust)")
+    .replace(/trust-center\.md/gi, "/help/security-trust")
+    .replace(/\n{3,}/g, "\n\n")
+    .trimEnd();
 }
 
 const TENANT_ISOLATION_THREE_LAYERS_BUYER_BODY = [
@@ -2737,6 +2877,11 @@ export function prepareHelpMarkdownForPresentation(
     afterAudienceStrip = alignCaiqSigAssuranceHonesty(stripCaiqSigContributorLeakage(sanitized));
   } else if (normalizedSourcePath.includes("dpa_template.md")) {
     afterAudienceStrip = stripDpaTemplateContributorLeakage(sanitized);
+  } else if (
+    options?.helpTopicSlug === "subprocessors" &&
+    normalizedSourcePath.includes("subprocessors.md")
+  ) {
+    afterAudienceStrip = stripSubprocessorsContributorLeakage(sanitized);
   } else if (
     options?.helpTopicSlug === "executive-summary" &&
     normalizedSourcePath.includes("customer-facing/faq.md")

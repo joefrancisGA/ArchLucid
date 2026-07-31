@@ -28,6 +28,7 @@ import {
   stripPriorManifestRetrievalContributorLeakage,
   stripProductOverviewContributorLeakage,
   stripSoc2SelfAssessmentContributorLeakage,
+  stripSubprocessorsContributorLeakage,
   stripAcceleratorChooserContributorLeakage,
   stripAcceleratorChooserContributorSections,
   stripAzureBoardsContributorLeakage,
@@ -1073,6 +1074,63 @@ describe("help-markdown-presentation", () => {
     expect(prepared).not.toContain("pending questions");
     expect(prepared).toContain("illustrative");
     expect(prepared).toContain("not a commitment");
+  });
+
+  it("strips subprocessors contributor repo paths (TB-1752)", () => {
+    const source = [
+      "> **Spine doc:** [`START_HERE.md`](../START_HERE.md).",
+      "",
+      "ArchLucid uses the following **subprocessors** to deliver the hosted service. The list is derived from the **Azure-first** architecture described in [../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md), [../security/SYSTEM_THREAT_MODEL.md](../security/SYSTEM_THREAT_MODEL.md), and repository `infra/` modules.",
+      "",
+      "| **Microsoft Corporation** | **Azure Container Apps** (or equivalent compute), **Azure SQL**, **Azure Blob Storage**, **Azure Key Vault**, optional **Azure Service Bus**, **Azure Cache for Redis** (or compatible), **Azure Front Door**, optional **Azure API Management**, monitoring integrations | Customer architecture content, run metadata, manifests, findings, audit events, blobs (including optional agent traces), secrets by reference | **Primary Azure region(s)** chosen at deploy time via Terraform (see **Data residency** below) | Host application, store and encrypt data at rest, edge routing, optional queue/cache |",
+      "",
+      "Production deployments are **Azure-region scoped**; the **primary region** is selected when infrastructure is provisioned (see `infra/` Terraform variables and [../terraform-azure-variables.md](../library/terraform-azure-variables.md)).",
+      "",
+      "**Roadmap:** Document **multi-region** active/active or failover when offered; see [../runbooks/GEO_FAILOVER_DRILL.md](../runbooks/GEO_FAILOVER_DRILL.md) for operational drill context (internal).",
+      "",
+      "- **Material change:** Updated DPA schedule or subprocessors exhibit available on request; see [DPA_TEMPLATE.md](DPA_TEMPLATE.md).",
+      "",
+      "## Related documents",
+      "",
+      "| [trust-center.md](trust-center.md) | Trust index |",
+    ].join("\n");
+
+    const prepared = stripSubprocessorsContributorLeakage(source).toLowerCase();
+
+    expect(prepared).not.toContain("start_here");
+    expect(prepared).not.toContain(".md");
+    expect(prepared).not.toContain("infra/");
+    expect(prepared).not.toContain("terraform-azure");
+    expect(prepared).not.toContain("geo_failover");
+    expect(prepared).not.toContain("customer_trust_and_access");
+    expect(prepared).not.toContain("system_threat_model");
+    expect(prepared).not.toContain("related documents");
+    expect(prepared).toContain("/help/security-trust");
+    expect(prepared).toContain("/help/dpa-template");
+    expect(prepared).toContain("azure-region scoped");
+    expect(prepared).toContain("multi-region");
+  });
+
+  it("keeps presented subprocessors help buyer-safe (TB-1752)", () => {
+    const loaded = tryLoadProductDocumentation("subprocessors");
+
+    expect(loaded).not.toBeNull();
+
+    const sourcePath = loaded!.entry.sourcePaths[0] ?? "";
+    const prepared = prepareHelpMarkdownForPresentation(loaded!.markdown, sourcePath, {
+      helpTopicSlug: "subprocessors",
+    }).toLowerCase();
+
+    expect(prepared).not.toContain("start_here");
+    expect(prepared).not.toContain("infra/");
+    expect(prepared).not.toContain("terraform-azure");
+    expect(prepared).not.toContain("geo_failover");
+    expect(prepared).not.toContain("customer_trust_and_access");
+    expect(prepared).not.toContain("system_threat_model");
+    expect(prepared).not.toContain("related documents");
+    expect(prepared).toContain("/help/security-trust");
+    expect(prepared).toContain("/help/dpa-template");
+    expect(prepared).toContain("microsoft corporation");
   });
 
   it("strips eng CLI, Evidence tier, and JwtBearer from enterprise onboarding (TB-1339)", () => {

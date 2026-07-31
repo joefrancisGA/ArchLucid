@@ -1,4 +1,4 @@
-**Updated:** 2026-07-31 (**TB-1748** **Done** — SOC2 Type I roadmap framed as illustrative/budget-gated; no calendar commitments in help; Vitest). Prior: 2026-07-30 (**TB-1747** **Done** — SOC2 self-assessment help strips contributor/repo paths and eng control names; buyer-safe summary; Vitest).
+**Updated:** 2026-07-31 (**TB-1752** **Done** — subprocessors help strips contributor/repo paths; in-app trust/DPA links; Vitest). Prior: 2026-07-31 (**TB-1748** **Done** — SOC2 Type I roadmap framed as illustrative/budget-gated; no calendar commitments in help; Vitest).
 
 > **Scope:** Engineering-owned technical backlog items deferred from current sessions; audience is contributors and the AI assistant; not a buyer or operator document. Not a substitute for ADRs or the pending-questions owner decisions file.
 
@@ -1320,7 +1320,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1749 | SOC2 self-assessment help — IA dual with CAIQ / Trust / procurement; see ## TB-1749 below | Adoption friction P1 — **V1**; with **TB-1746**; pairs **TB-1635**/**TB-1253** | S |
 | TB-1750 | SOC2 self-assessment help — title + Help Center discovery; see ## TB-1750 below | Adoption friction P1 — **V1**; with **TB-1746** | S |
 | TB-1751 | `/help/subprocessors` specialty buyer register + Trust CTA; see ## TB-1751 below | Adoption friction P1 — **V1**; owner review ~44/100 2026-07-27; traffic **HSU**; pairs **TB-1414**/**TB-1679** | M |
-| TB-1752 | Subprocessors help — contributor / repo-path leakage strip; see ## TB-1752 below | Trustworthiness P0 — **V1**; with **TB-1751**; pairs **TB-1235** | S |
+| TB-1752 | **Done** (2026-07-31) — Subprocessors help — contributor / repo-path leakage strip; see `## TB-1752` below | Trustworthiness P0 — **V1**; with **TB-1751**; pairs **TB-1235** | S |
 | TB-1753 | Subprocessors help — IA dual with DPA / Trust; see ## TB-1753 below | Adoption friction P1 — **V1**; with **TB-1751**; pairs **TB-1676**/**TB-1679** | S |
 | TB-1754 | Subprocessors help — title + Help Center discovery; see ## TB-1754 below | Adoption friction P1 — **V1**; with **TB-1751** | S |
 | TB-1755 | Subprocessors help — residency / contributor-note honesty; see ## TB-1755 below | Trustworthiness P0 — **V1**; with **TB-1751** | S |
@@ -42820,7 +42820,9 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1752 — Subprocessors help — contributor / repo-path leakage strip (P0)
 
-**Window:** V1 — Trustworthiness. **Status:** Not started. **Priority:** P0.
+**Window:** V1 — Trustworthiness. **Status:** **Done** (2026-07-31). **Priority:** P0.
+
+**Shipped:** `stripSubprocessorsContributorLeakage()` in `help-markdown-presentation.ts` — omits Related documents section; buyer-safe intro + residency/roadmap rows; in-app `/help/security-trust` and `/help/dpa-template` links; strips `START_HERE`, `infra/`, Terraform variable docs, threat-model/runbook paths; Vitest in `help-markdown-presentation.test.tsx` + `HelpTopicSubprocessors.test.tsx`.
 
 **Problem:** Body cites `START_HERE.md`, trust/threat-model `.md` paths, `infra/`, Terraform variable docs, GEO failover runbook, relative `DPA_TEMPLATE.md`.
 

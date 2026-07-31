@@ -530,7 +530,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1749 | SOC2 self-assessment help — IA dual with CAIQ / Trust / procurement | Adoption friction P1 **V1** — with **TB-1746** |
 | TB-1750 | SOC2 self-assessment help — title + Help Center discovery | Adoption friction P1 **V1** — with **TB-1746** |
 | TB-1751 | `/help/subprocessors` specialty buyer register + Trust CTA | Adoption friction P1 **V1** — HSU ~44 |
-| TB-1752 | Subprocessors help — contributor / repo-path leakage strip | Trustworthiness P0 **V1** — with **TB-1751** |
 | TB-1753 | Subprocessors help — IA dual with DPA / Trust | Adoption friction P1 **V1** — with **TB-1751** |
 | TB-1754 | Subprocessors help — title + Help Center discovery | Adoption friction P1 **V1** — with **TB-1751** |
 | TB-1755 | Subprocessors help — residency / contributor-note honesty | Trustworthiness P0 **V1** — with **TB-1751** |
