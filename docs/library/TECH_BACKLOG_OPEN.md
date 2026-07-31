@@ -479,7 +479,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1690 | Executive-summary help — title/body honesty | Trustworthiness P1 **V1** — with **TB-1686** |
 | TB-1691 | `/help/first-value-20-minutes` retarget body to 20-min section | Adoption friction P1 **V1** — HEF ~40 |
 | TB-1692 | First-value-20 help — specialty Admin chrome + customer-path CTA | Adoption friction P1 **V1** — with **TB-1691** |
-| TB-1693 | First-value-20 help — CLI/dotnet / runbook-path leakage strip | Trustworthiness P0 **V1** — with **TB-1691** |
 | TB-1694 | First-value-20 help — IA dual with core-pilot / first-pilot-path / first-run | Adoption friction P1 **V1** — with **TB-1691** |
 | TB-1695 | First-value-20 help — slug/title vs FIRST_PILOT_OPERATOR_PATH honesty | Trustworthiness P1 **V1** — with **TB-1691** |
 | TB-1696 | `/help/integration-readiness` specialty guide + Open readiness CTA | Adoption friction P1 **V1** — HEI ~50 |

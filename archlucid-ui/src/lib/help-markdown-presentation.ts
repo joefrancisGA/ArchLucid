@@ -1409,6 +1409,79 @@ export function stripExecutiveSummaryContributorLeakage(markdown: string): strin
   return result.replace(/\n{3,}/g, "\n\n").trimEnd();
 }
 
+const FIRST_VALUE_20_MINUTES_SECTION_HEADING = "## First value in 20 minutes (time-boxed)";
+
+/**
+ * TB-1693 — keep only the first 20-minute time-box section from the full operator runbook.
+ */
+function extractFirstValue20MinutesSection(markdown: string): string {
+  const sectionStart = markdown.indexOf(FIRST_VALUE_20_MINUTES_SECTION_HEADING);
+
+  if (sectionStart < 0) {
+    return markdown;
+  }
+
+  const afterHeading = markdown.slice(sectionStart);
+  const nextMajorSection = afterHeading.search(/\n## (?!#)/);
+
+  if (nextMajorSection < 0) {
+    return afterHeading.trimEnd();
+  }
+
+  return afterHeading.slice(0, nextMajorSection).trimEnd();
+}
+
+/**
+ * TB-1693 — first-value-20 help: strip CLI/dotnet / runbook-path leakage; bare archlucid CLI.
+ */
+export function stripFirstValue20ContributorLeakage(markdown: string): string {
+  const focused = extractFirstValue20MinutesSection(markdown);
+
+  return focused
+    .replace(/dotnet run --project ArchLucid\.Cli -- /gi, "archlucid ")
+    .replace(/`?archlucid\.json`?/gi, "CLI configuration file")
+    .replace(/`?ARCHLUCID_API_KEY`?/gi, "API key environment variable")
+    .replace(/`GET \/health\/live`/gi, "health check endpoint")
+    .replace(/`?ROLE_INDEX\.md`?/gi, "role index")
+    .replace(/ROLE_INDEX\.md/gi, "role index")
+    .replace(/`?CANONICAL_FIRST_RUN_PATH\.md`?/gi, "[Your first architecture review](/help/core-pilot)")
+    .replace(/CANONICAL_FIRST_RUN_PATH\.md/gi, "/help/core-pilot")
+    .replace(/`?CORE_PILOT\.md`?/gi, "[Your first architecture review](/help/core-pilot)")
+    .replace(/CORE_PILOT\.md/gi, "/help/core-pilot")
+    .replace(/`?PILOT_PREREQUISITES\.md`?/gi, "pilot prerequisites checklist")
+    .replace(/PILOT_PREREQUISITES\.md/gi, "pilot prerequisites checklist")
+    .replace(/`?FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT\.md`?/gi, "production-like preflight checklist")
+    .replace(/FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT\.md/gi, "production-like preflight checklist")
+    .replace(/`?TROUBLESHOOTING\.md`?/gi, "[Troubleshooting](/help/troubleshooting)")
+    .replace(/TROUBLESHOOTING\.md/gi, "/help/troubleshooting")
+    .replace(
+      /`?PRODUCTION_LIKE_AUTH_HANDOFF_CHECKLIST\.md`?/gi,
+      "production-like authentication checklist",
+    )
+    .replace(/PRODUCTION_LIKE_AUTH_HANDOFF_CHECKLIST\.md/gi, "production-like authentication checklist")
+    .replace(/`?QUALITY_GATE_REJECTION\.md`?/gi, "quality gate rejection guide")
+    .replace(/QUALITY_GATE_REJECTION\.md/gi, "quality gate rejection guide")
+    .replace(/`?OPERATIONS_LLM_QUOTA\.md`?/gi, "LLM quota operations guide")
+    .replace(/OPERATIONS_LLM_QUOTA\.md/gi, "LLM quota operations guide")
+    .replace(/`?FIRST_PILOT_EVIDENCE_BUNDLE\.md`?/gi, "first-pilot evidence bundle guide")
+    .replace(/FIRST_PILOT_EVIDENCE_BUNDLE\.md/gi, "first-pilot evidence bundle guide")
+    .replace(/`?GOLDEN_ACCELERATOR_WALKTHROUGH\.md`?/gi, "golden accelerator walkthrough")
+    .replace(/GOLDEN_ACCELERATOR_WALKTHROUGH\.md/gi, "golden accelerator walkthrough")
+    .replace(/`?STARTER_PROOF_PACK_CHOOSER\.md`?/gi, "[Specialty walkthroughs](/help/specialty-walkthroughs)")
+    .replace(/STARTER_PROOF_PACK_CHOOSER\.md/gi, "/help/specialty-walkthroughs")
+    .replace(/`?scripts\/[^`\s)]+`?/gi, "admin automation script")
+    .replace(/\.\/scripts\/[^\s)`]*/gi, "admin automation script")
+    .replace(/`proof-summary\.md`/gi, "proof summary")
+    .replace(/`run-evidence\.json`/gi, "run evidence export")
+    .replace(/`audit-sample\.json`/gi, "audit sample export")
+    .replace(/`artifact-manifest\.json`/gi, "artifact manifest")
+    .replace(/`environment\.json`/gi, "environment summary")
+    .replace(/`limitations\.md`/gi, "limitations summary")
+    .replace(/artifacts\/[^\s`|)]+/gi, "proof output folder")
+    .replace(/\n{3,}/g, "\n\n")
+    .trimEnd();
+}
+
 /**
  * TB-1653 / TB-1284 — soften absolute cross-tenant isolation claims in data-handling help.
  */
@@ -1640,6 +1713,11 @@ export function prepareHelpMarkdownForPresentation(
     normalizedSourcePath.includes("customer-facing/faq.md")
   ) {
     afterAudienceStrip = stripExecutiveSummaryContributorLeakage(sanitized);
+  } else if (
+    options?.helpTopicSlug === "first-value-20-minutes" &&
+    normalizedSourcePath.includes("first_pilot_operator_path.md")
+  ) {
+    afterAudienceStrip = stripFirstValue20ContributorLeakage(sanitized);
   }
 
   const afterIsolationHonesty = alignDataHandlingIsolationHonesty(afterAudienceStrip);

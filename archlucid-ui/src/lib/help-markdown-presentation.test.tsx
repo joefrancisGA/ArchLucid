@@ -21,6 +21,7 @@ import {
   stripTenantIsolationContributorLeakage,
   stripDpaTemplateContributorLeakage,
   stripExecutiveSummaryContributorLeakage,
+  stripFirstValue20ContributorLeakage,
   stripAcceleratorChooserContributorLeakage,
   stripAcceleratorChooserContributorSections,
   stripAzureBoardsContributorLeakage,
@@ -742,6 +743,47 @@ describe("help-markdown-presentation", () => {
     expect(prepared).not.toMatch(/\btb-\d+\b/i);
     expect(prepared).toContain("/help/security-trust");
     expect(prepared).toContain("/help/core-pilot");
+  });
+
+  it("strips first-value-20 CLI/dotnet and runbook-path leakage (TB-1693)", () => {
+    const source = [
+      "## First value in 20 minutes (time-boxed)",
+      "",
+      "`dotnet run --project ArchLucid.Cli -- doctor`",
+      "",
+      "See [`ROLE_INDEX.md`](ROLE_INDEX.md) and [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md).",
+      "",
+      "## Phase A — Platform ready",
+      "",
+      "More eng content.",
+    ].join("\n");
+
+    const prepared = stripFirstValue20ContributorLeakage(source);
+
+    expect(prepared).not.toContain("dotnet run --project");
+    expect(prepared).not.toContain("ROLE_INDEX");
+    expect(prepared).not.toContain("TROUBLESHOOTING.md");
+    expect(prepared).not.toContain("Phase A");
+    expect(prepared).toContain("archlucid doctor");
+    expect(prepared).toContain("/help/troubleshooting");
+  });
+
+  it("keeps presented first-value-20 help buyer-safe (TB-1693)", () => {
+    const loaded = tryLoadProductDocumentation("first-value-20-minutes");
+
+    expect(loaded).not.toBeNull();
+
+    const sourcePath = loaded!.entry.sourcePaths[0] ?? "";
+    const prepared = prepareHelpMarkdownForPresentation(loaded!.markdown, sourcePath, {
+      helpTopicSlug: "first-value-20-minutes",
+    }).toLowerCase();
+
+    expect(prepared).not.toContain("dotnet run --project");
+    expect(prepared).not.toContain("role_index");
+    expect(prepared).not.toContain("canonical_first_run_path");
+    expect(prepared).not.toContain("phase a — platform ready");
+    expect(prepared).toContain("first value in 20 minutes");
+    expect(prepared).toContain("archlucid doctor");
   });
 
   it("strips eng CLI, Evidence tier, and JwtBearer from enterprise onboarding (TB-1339)", () => {

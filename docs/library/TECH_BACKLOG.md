@@ -1,4 +1,4 @@
-**Updated:** 2026-07-30 (**TB-1688** **Done** — executive-summary help strips contributor FAQ `.md`/eng-path leakage; `helpTopicSlug` gate; Vitest). Prior: 2026-07-30 (**TB-1677** **Done** — DPA template help strips contributor `.md`/pack-path leakage; buyer in-app trust links; Vitest).
+**Updated:** 2026-07-30 (**TB-1693** **Done** — first-value-20 help strips CLI/dotnet/runbook-path leakage; 20-min section extract; Vitest). Prior: 2026-07-30 (**TB-1688** **Done** — executive-summary help strips contributor FAQ `.md`/eng-path leakage; `helpTopicSlug` gate; Vitest).
 
 > **Scope:** Engineering-owned technical backlog items deferred from current sessions; audience is contributors and the AI assistant; not a buyer or operator document. Not a substitute for ADRs or the pending-questions owner decisions file.
 
@@ -1261,7 +1261,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1690 | Executive-summary help — title/body honesty (not Frequently asked questions); see ## TB-1690 below | Trustworthiness P1 — **V1**; with **TB-1686** | S |
 | TB-1691 | `/help/first-value-20-minutes` retarget body to 20-min section (not full pilot path); see ## TB-1691 below | Adoption friction P1 — **V1**; owner review ~40/100 2026-07-27; traffic **HEF**; internal-runbook | M |
 | TB-1692 | First-value-20 help — specialty Admin chrome + customer-path CTA; see ## TB-1692 below | Adoption friction P1 — **V1**; with **TB-1691**; pairs **TB-1414** | M |
-| TB-1693 | First-value-20 help — CLI/dotnet / runbook-path leakage strip; see ## TB-1693 below | Trustworthiness P0 — **V1**; with **TB-1691**; pairs **TB-1235** | S |
+| TB-1693 | ~~First-value-20 help — CLI/dotnet / runbook-path leakage strip~~ **Done** 2026-07-30 — `stripFirstValue20ContributorLeakage`; 20-min section extract; Vitest | Trustworthiness P0 — **V1**; with **TB-1691**; pairs **TB-1235** | S |
 | TB-1694 | First-value-20 help — IA dual with core-pilot / first-pilot-path / first-run; see ## TB-1694 below | Adoption friction P1 — **V1**; with **TB-1691** | S |
 | TB-1695 | First-value-20 help — slug/title vs FIRST_PILOT_OPERATOR_PATH honesty; see ## TB-1695 below | Trustworthiness P1 — **V1**; with **TB-1691** | S |
 | TB-1696 | `/help/integration-readiness` specialty guide + Open readiness CTA; see ## TB-1696 below | Adoption friction P1 — **V1**; owner review ~50/100 2026-07-27; traffic **HEI**; pairs **TB-1414** | M |
@@ -42068,11 +42068,11 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1693 — First-value-20 help — CLI/dotnet / runbook-path leakage strip (P0)
 
-**Window:** V1 — Trustworthiness. **Status:** Not started. **Priority:** P0.
+**Window:** V1 — Trustworthiness. **Status:** **Done** 2026-07-30. **Priority:** P0.
 
 **Problem:** Body leads with `dotnet run --project ArchLucid.Cli`, `archlucid.json`, proof artifact filenames, ROLE_INDEX / walkthrough `.md` paths — dense eng theater even for Admin help.
 
-**Approach:** Prefer `archlucid` bare CLI; collapse eng paths behind Admin details; buyer-safe product links for UI steps. Vitest: no `dotnet run --project` in primary chrome. Pairs **TB-1235**.
+**Shipped:** `stripFirstValue20ContributorLeakage()` extracts the first 20-minute section and replaces `dotnet run --project` with bare `archlucid`, collapses runbook `.md` paths to in-app help links, and softens proof-artifact filenames; gated by `helpTopicSlug: first-value-20-minutes`; Vitest in `help-markdown-presentation.test.tsx` and `HelpTopicFirstValue20Minutes.test.tsx`.
 
 **Acceptance:** Admin checklist readable without repo-tree dump. **Size estimate:** S.
 
