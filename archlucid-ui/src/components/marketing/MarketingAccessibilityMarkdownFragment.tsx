@@ -213,6 +213,8 @@ type MarketingAccessibilityMarkdownFragmentProps = {
   presentation?: "marketing" | "help" | "privacy";
   /** Primary repo-relative source path for resolving internal doc links in help topics. */
   sourceDocPath?: string;
+  /** In-app help topic slug for topic-specific presentation strips. */
+  helpTopicSlug?: string;
   /** Engineering runbooks may show documentation governance metadata (Last reviewed, etc.). */
   preserveMaintenanceMetadata?: boolean;
 };
@@ -254,6 +256,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
       ? props.sourceDocPath !== undefined && props.sourceDocPath.trim().length > 0
         ? prepareHelpMarkdownForPresentation(props.markdownBody, props.sourceDocPath, {
             preserveMaintenanceMetadata: props.preserveMaintenanceMetadata === true,
+            helpTopicSlug: props.helpTopicSlug,
           })
         : sanitizeBareMarkdownFileReferences(props.markdownBody)
       : props.markdownBody;

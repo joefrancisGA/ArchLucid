@@ -1359,6 +1359,57 @@ export function stripDpaTemplateContributorLeakage(markdown: string): string {
 }
 
 /**
+ * TB-1688 — executive-summary help (FAQ source): strip contributor FAQ / eng-path leakage.
+ */
+export function stripExecutiveSummaryContributorLeakage(markdown: string): string {
+  let result = markdown
+    .replace(
+      /\*\*How do I try it locally\?\*\*[\s\S]*?(?=\n\n\*\*|\n## |\n---\n|$)/i,
+      [
+        "**How do I evaluate ArchLucid?**",
+        "Start a guided pilot or first architecture review — see [Your first architecture review](/help/core-pilot).",
+      ].join("\n"),
+    )
+    .replace(/`?day-one-developer\.md`?/gi, "[Getting started](/help/core-pilot)")
+    .replace(/day-one-developer\.md/gi, "/help/core-pilot")
+    .replace(/\*\*ArchLucid\.Api\*\*/g, "the hosted service")
+    .replace(/`?archlucid-ui`?/gi, "the web application")
+    .replace(/`?FIRST_REAL_VALUE\.md`?/gi, "deployment configuration documentation")
+    .replace(/FIRST_REAL_VALUE\.md/gi, "deployment configuration documentation")
+    .replace(/`?V1_SCOPE\.md`?/gi, "[Procurement FAQ](/help/procurement)")
+    .replace(/V1_SCOPE\.md/gi, "/help/procurement")
+    .replace(/`?SECURITY\.md`?/gi, "[Security and trust](/help/security-trust)")
+    .replace(/contributor-reference\/SECURITY\.md/gi, "/help/security-trust")
+    .replace(/`?MULTI_TENANT_RLS\.md`?/gi, "[Data handling and tenant isolation](/help/data-handling-tenant-isolation)")
+    .replace(/MULTI_TENANT_RLS\.md/gi, "/help/data-handling-tenant-isolation")
+    .replace(/`?ArchLucid\.Contracts`?/gi, "versioned API contracts")
+    .replace(/ArchLucid\.Contracts/gi, "versioned API contracts")
+    .replace(/\(\*\*TB-\d+\*\*\)/gi, "")
+    .replace(/\*\*TB-\d+\*\*/gi, "enterprise OAuth upgrades")
+    .replace(/\bTB-\d+\b/gi, "enterprise integration upgrades")
+    .replace(/`?INTEGRATION_CATALOG\.md`?/gi, "[Integrations hub](/integrations)")
+    .replace(/INTEGRATION_CATALOG\.md/gi, "/integrations")
+    .replace(/`?PRICING_PHILOSOPHY\.md`?/gi, "[Procurement FAQ](/help/procurement)")
+    .replace(/PRICING_PHILOSOPHY\.md/gi, "/help/procurement")
+    .replace(/`?CONCEPT_VOCABULARY\.md`?/gi, "product terminology guide")
+    .replace(/CONCEPT_VOCABULARY\.md/gi, "product terminology guide")
+    .replace(/via CLI \(see[^)]+\)/gi, "from the product (see [Troubleshooting](/help/troubleshooting))")
+    .replace(/`GET \/version`/gi, "version information")
+    .replace(/`X-Correlation-ID`/gi, "correlation identifier")
+    .replace(/row-level security/gi, "tenant isolation controls");
+
+  result = result.replace(
+    /\*\*Where does tenant data live\?\*\*[\s\S]*?(?=\n\n\*\*|\n## |\n---\n|$)/i,
+    [
+      "**Where does tenant data live?**",
+      "Hosted deployments use Azure-native storage and SQL with dedicated tenant catalogs. See [Data handling and tenant isolation](/help/data-handling-tenant-isolation) and [Security and trust](/help/security-trust).",
+    ].join("\n"),
+  );
+
+  return result.replace(/\n{3,}/g, "\n\n").trimEnd();
+}
+
+/**
  * TB-1653 / TB-1284 — soften absolute cross-tenant isolation claims in data-handling help.
  */
 export function alignDataHandlingIsolationHonesty(markdown: string): string {
@@ -1470,6 +1521,8 @@ export function stripMarkdownHorizontalRules(markdown: string): string {
 export type PrepareHelpMarkdownPresentationOptions = {
   /** Engineering runbooks keep documentation governance lines (Last reviewed, etc.). */
   readonly preserveMaintenanceMetadata?: boolean;
+  /** In-app help topic slug — gates topic-specific presentation strips. */
+  readonly helpTopicSlug?: string;
 };
 
 /** Documentation governance lines stripped from buyer/operator help presentation. */
@@ -1582,6 +1635,11 @@ export function prepareHelpMarkdownForPresentation(
     afterAudienceStrip = alignCaiqSigAssuranceHonesty(stripCaiqSigContributorLeakage(sanitized));
   } else if (normalizedSourcePath.includes("dpa_template.md")) {
     afterAudienceStrip = stripDpaTemplateContributorLeakage(sanitized);
+  } else if (
+    options?.helpTopicSlug === "executive-summary" &&
+    normalizedSourcePath.includes("customer-facing/faq.md")
+  ) {
+    afterAudienceStrip = stripExecutiveSummaryContributorLeakage(sanitized);
   }
 
   const afterIsolationHonesty = alignDataHandlingIsolationHonesty(afterAudienceStrip);

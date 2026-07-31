@@ -24,6 +24,7 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
   const preserveMaintenanceMetadata = entry.audience === "developer";
   const preparedMarkdown = prepareHelpMarkdownForPresentation(markdown, sourceDocPath, {
     preserveMaintenanceMetadata,
+    helpTopicSlug: entry.slug,
   });
   const headings = extractHelpMarkdownHeadings(preparedMarkdown);
 
@@ -60,6 +61,7 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
             tableCaption={`${entry.title} reference table`}
             presentation="help"
             sourceDocPath={entry.sourcePaths[0]}
+            helpTopicSlug={entry.slug}
             preserveMaintenanceMetadata={preserveMaintenanceMetadata}
           />
         </div>

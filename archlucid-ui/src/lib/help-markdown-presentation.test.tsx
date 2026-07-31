@@ -20,6 +20,7 @@ import {
   alignDataHandlingIsolationHonesty,
   stripTenantIsolationContributorLeakage,
   stripDpaTemplateContributorLeakage,
+  stripExecutiveSummaryContributorLeakage,
   stripAcceleratorChooserContributorLeakage,
   stripAcceleratorChooserContributorSections,
   stripAzureBoardsContributorLeakage,
@@ -703,6 +704,44 @@ describe("help-markdown-presentation", () => {
     expect(prepared).not.toContain("incident_communications_policy.md");
     expect(prepared).toContain("/help/security-trust");
     expect(prepared).toContain("/help/subprocessors");
+  });
+
+  it("strips executive-summary contributor FAQ and eng-path leakage (TB-1688)", () => {
+    const source = [
+      "**How do I try it locally?**",
+      "Follow **day-one-developer.md** — run **ArchLucid.Api** and **archlucid-ui**.",
+      "",
+      "Contracts live under **`ArchLucid.Contracts`**.",
+      "",
+      "OAuth upgrades (**TB-600**) — see **INTEGRATION_CATALOG.md**.",
+    ].join("\n");
+
+    const prepared = stripExecutiveSummaryContributorLeakage(source);
+
+    expect(prepared).not.toContain("day-one-developer");
+    expect(prepared).not.toContain("ArchLucid.Contracts");
+    expect(prepared).not.toMatch(/\bTB-\d+\b/i);
+    expect(prepared).not.toContain("INTEGRATION_CATALOG");
+    expect(prepared).toContain("/help/core-pilot");
+  });
+
+  it("keeps presented executive-summary help buyer-safe (TB-1688)", () => {
+    const loaded = tryLoadProductDocumentation("executive-summary");
+
+    expect(loaded).not.toBeNull();
+
+    const sourcePath = loaded!.entry.sourcePaths[0] ?? "";
+    const prepared = prepareHelpMarkdownForPresentation(loaded!.markdown, sourcePath, {
+      helpTopicSlug: "executive-summary",
+    }).toLowerCase();
+
+    expect(prepared).not.toContain("day-one-developer");
+    expect(prepared).not.toContain("security.md");
+    expect(prepared).not.toContain("multi_tenant_rls");
+    expect(prepared).not.toContain("archlucid.contracts");
+    expect(prepared).not.toMatch(/\btb-\d+\b/i);
+    expect(prepared).toContain("/help/security-trust");
+    expect(prepared).toContain("/help/core-pilot");
   });
 
   it("strips eng CLI, Evidence tier, and JwtBearer from enterprise onboarding (TB-1339)", () => {

@@ -1,4 +1,4 @@
-**Updated:** 2026-07-30 (**TB-1677** **Done** — DPA template help strips contributor `.md`/pack-path leakage; buyer in-app trust links; Vitest). Prior: 2026-07-30 (**TB-1659** **Done** — tenant-isolation help strips pack-alias/repo-path leakage; buyer three-layer summary; Vitest).
+**Updated:** 2026-07-30 (**TB-1688** **Done** — executive-summary help strips contributor FAQ `.md`/eng-path leakage; `helpTopicSlug` gate; Vitest). Prior: 2026-07-30 (**TB-1677** **Done** — DPA template help strips contributor `.md`/pack-path leakage; buyer in-app trust links; Vitest).
 
 > **Scope:** Engineering-owned technical backlog items deferred from current sessions; audience is contributors and the AI assistant; not a buyer or operator document. Not a substitute for ADRs or the pending-questions owner decisions file.
 
@@ -1256,7 +1256,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1685 | Evidence-only help — first-viewport job chrome (3 steps before Related); see ## TB-1685 below | Adoption friction P1 — **V1**; with **TB-1681** | S |
 | TB-1686 | `/help/executive-summary` retarget SoT off FAQ dump → sponsor brief; see ## TB-1686 below | Trustworthiness P1 — **V1**; owner review ~30/100 2026-07-27; traffic **EXE**; pairs **TB-1414** | M |
 | TB-1687 | Executive-summary help — specialty guide + Open ROI/sponsor CTA; see ## TB-1687 below | Adoption friction P1 — **V1**; with **TB-1686** | M |
-| TB-1688 | Executive-summary help — contributor FAQ / .md leakage strip; see ## TB-1688 below | Trustworthiness P0 — **V1**; with **TB-1686**; pairs **TB-1235** | S |
+| TB-1688 | ~~Executive-summary help — contributor FAQ / .md leakage strip~~ **Done** 2026-07-30 — `stripExecutiveSummaryContributorLeakage`; `helpTopicSlug` gate; Vitest | Trustworthiness P0 — **V1**; with **TB-1686**; pairs **TB-1235** | S |
 | TB-1689 | Executive-summary help — fix in-app-doc-href catch-all mappings; see ## TB-1689 below | Trustworthiness P1 — **V1**; with **TB-1686**; pairs **TB-1253** | S |
 | TB-1690 | Executive-summary help — title/body honesty (not Frequently asked questions); see ## TB-1690 below | Trustworthiness P1 — **V1**; with **TB-1686** | S |
 | TB-1691 | `/help/first-value-20-minutes` retarget body to 20-min section (not full pilot path); see ## TB-1691 below | Adoption friction P1 — **V1**; owner review ~40/100 2026-07-27; traffic **HEF**; internal-runbook | M |
@@ -42006,11 +42006,11 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1688 — Executive-summary help — contributor FAQ / .md leakage strip (P0)
 
-**Window:** V1 — Trustworthiness. **Status:** Not started. **Priority:** P0.
+**Window:** V1 — Trustworthiness. **Status:** **Done** 2026-07-30. **Priority:** P0.
 
 **Problem:** Current FAQ body exposes day-one-developer, SECURITY.md, MULTI_TENANT_RLS, V1_SCOPE, ArchLucid.Contracts, TB IDs — contributor framing on a buyer Help Center product topic.
 
-**Approach:** After retarget, presentation strip any residual eng paths; buyer-safe sponsor language only. Vitest: no `.md` / `ArchLucid.Contracts` / day-one-developer in rendered help. Pairs **TB-1235**.
+**Shipped:** `stripExecutiveSummaryContributorLeakage()` in `help-markdown-presentation.ts` (gated by `helpTopicSlug: executive-summary` + FAQ source); `helpTopicSlug` plumbed through `HelpTopicMarkdownView` / `MarketingAccessibilityMarkdownFragment`; Vitest in `help-markdown-presentation.test.tsx` and `HelpTopicExecutiveSummary.test.tsx`.
 
 **Acceptance:** No contributor FAQ leakage on this route. **Size estimate:** S.
 

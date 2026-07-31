@@ -475,7 +475,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1685 | Evidence-only help — first-viewport job chrome | Adoption friction P1 **V1** — with **TB-1681** |
 | TB-1686 | `/help/executive-summary` retarget SoT off FAQ dump → sponsor brief | Trustworthiness P1 **V1** — EXE ~30 |
 | TB-1687 | Executive-summary help — specialty guide + Open ROI/sponsor CTA | Adoption friction P1 **V1** — with **TB-1686** |
-| TB-1688 | Executive-summary help — contributor FAQ / .md leakage strip | Trustworthiness P0 **V1** — with **TB-1686** |
 | TB-1689 | Executive-summary help — fix in-app-doc-href catch-all mappings | Trustworthiness P1 **V1** — with **TB-1686** |
 | TB-1690 | Executive-summary help — title/body honesty | Trustworthiness P1 **V1** — with **TB-1686** |
 | TB-1691 | `/help/first-value-20-minutes` retarget body to 20-min section | Adoption friction P1 **V1** — HEF ~40 |

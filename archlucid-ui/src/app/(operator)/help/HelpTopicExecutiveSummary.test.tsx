@@ -1,0 +1,39 @@
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
+  HelpTopicHashScroll: () => null,
+}));
+
+import { HelpTopicMarkdownView } from "@/app/(operator)/help/HelpTopicMarkdownView";
+import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
+import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
+
+describe("HelpTopicMarkdownView executive-summary", () => {
+  const loaded = tryLoadProductDocumentation("executive-summary");
+
+  it("loads executive-summary help from the monorepo FAQ source", () => {
+    expect(loaded).not.toBeNull();
+    expect(loaded?.entry.title).toBe("Executive summary");
+  });
+
+  it("renders executive-summary help without contributor FAQ paths (TB-1688)", () => {
+    if (loaded === null) {
+      throw new Error("Expected executive-summary documentation to load.");
+    }
+
+    const sourcePath = loaded.entry.sourcePaths[0] ?? "";
+    const preparedMarkdown = prepareHelpMarkdownForPresentation(loaded.markdown, sourcePath, {
+      helpTopicSlug: "executive-summary",
+    });
+
+    render(<HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />);
+
+    const visible = (document.body.textContent ?? "").toLowerCase();
+
+    expect(preparedMarkdown.toLowerCase()).not.toContain("day-one-developer");
+    expect(preparedMarkdown.toLowerCase()).not.toContain("archlucid.contracts");
+    expect(visible).not.toContain("day-one-developer");
+    expect(screen.getAllByRole("link", { name: /security and trust/i }).length).toBeGreaterThan(0);
+  });
+});
