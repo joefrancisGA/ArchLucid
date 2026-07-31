@@ -101,10 +101,20 @@ import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture-workflow-intent";
 import {
   GUIDED_INTAKE_CONTINUE_TO_DISCOVERY,
   GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_LABEL,
+  GUIDED_INTAKE_CREATION_SYSTEM_NAME_LABEL,
 } from "@/lib/guided-intake-copy";
 
 const validIntent =
   "We are designing a governed workflow platform for analysts with Entra ID authentication, auditable evidence trails, and exportable architecture reviews.";
+
+const validOutcome = "Reduce cycle time for governed architecture reviews.";
+const validSystemName = "Governed review platform";
+
+function fillCreateArchitectureMinimumFields(): void {
+  fireEvent.change(screen.getByTestId("socratic-system-name"), { target: { value: validSystemName } });
+  fireEvent.change(screen.getByTestId("socratic-intent"), { target: { value: validIntent } });
+  fireEvent.change(screen.getByTestId("socratic-outcome"), { target: { value: validOutcome } });
+}
 
 describe("SocraticIntakeWizard create-architecture intent", () => {
   beforeEach(() => {
@@ -148,19 +158,28 @@ describe("SocraticIntakeWizard create-architecture intent", () => {
   it("uses create-architecture labels and hides redundant draft callouts", () => {
     render(<SocraticIntakeWizard />);
 
+    expect(screen.getByLabelText(`${GUIDED_INTAKE_CREATION_SYSTEM_NAME_LABEL} (required)`)).toBeInTheDocument();
     expect(screen.getByLabelText(`${GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_LABEL} (required)`)).toBeInTheDocument();
     expect(screen.queryByTestId("socratic-intake-progress")).not.toBeInTheDocument();
     expect(screen.queryByTestId("draft-intake-claim-label-architecture-creation-draft")).not.toBeInTheDocument();
     expect(screen.getByTestId("pilot-mode-policy-pack-toggle-selected-standards")).toBeInTheDocument();
   });
 
-  it("allows continuing without actors when overview and outcome are complete", async () => {
+  it("places system name before architecture overview", () => {
     render(<SocraticIntakeWizard />);
 
-    fireEvent.change(screen.getByTestId("socratic-intent"), { target: { value: validIntent } });
-    fireEvent.change(screen.getByTestId("socratic-outcome"), {
-      target: { value: "Reduce cycle time for governed architecture reviews." },
-    });
+    const systemName = screen.getByTestId("socratic-system-name");
+    const overview = screen.getByTestId("socratic-intent");
+
+    expect(
+      systemName.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
+  it("allows continuing without actors when name, overview, and outcome are complete", async () => {
+    render(<SocraticIntakeWizard />);
+
+    fillCreateArchitectureMinimumFields();
 
     const continueButton = screen.getByRole("button", { name: GUIDED_INTAKE_CONTINUE_TO_DISCOVERY });
     expect(continueButton).toBeEnabled();
@@ -180,7 +199,18 @@ describe("SocraticIntakeWizard create-architecture intent", () => {
     fireEvent.change(screen.getByTestId("socratic-intent"), { target: { value: "Too short." } });
 
     expect(screen.getByRole("button", { name: GUIDED_INTAKE_CONTINUE_TO_DISCOVERY })).toBeDisabled();
+    expect(screen.getByTestId("socratic-advance-hint")).toHaveTextContent(/system name/i);
     expect(screen.getByTestId("socratic-advance-hint")).toHaveTextContent(/architecture overview/i);
+  });
+
+  it("blocks continue when system name is missing", () => {
+    render(<SocraticIntakeWizard />);
+
+    fireEvent.change(screen.getByTestId("socratic-intent"), { target: { value: validIntent } });
+    fireEvent.change(screen.getByTestId("socratic-outcome"), { target: { value: validOutcome } });
+
+    expect(screen.getByRole("button", { name: GUIDED_INTAKE_CONTINUE_TO_DISCOVERY })).toBeDisabled();
+    expect(screen.getByTestId("socratic-advance-hint")).toHaveTextContent(/system name/i);
   });
 
   it("allows adding people or systems before the overview is complete", () => {
@@ -193,10 +223,7 @@ describe("SocraticIntakeWizard create-architecture intent", () => {
   it("continues to discovery questions with getDraftQuestions instead of admitDraftRequest", async () => {
     render(<SocraticIntakeWizard />);
 
-    fireEvent.change(screen.getByTestId("socratic-intent"), { target: { value: validIntent } });
-    fireEvent.change(screen.getByTestId("socratic-outcome"), {
-      target: { value: "Reduce cycle time for governed architecture reviews." },
-    });
+    fillCreateArchitectureMinimumFields();
     fireEvent.click(screen.getByTestId("draft-intake-actor-stub-add"));
 
     fireEvent.click(screen.getByRole("button", { name: GUIDED_INTAKE_CONTINUE_TO_DISCOVERY }));

@@ -14,6 +14,7 @@ import {
   GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_LABEL,
   GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_MIN_HELPER,
   GUIDED_INTAKE_CREATION_SYSTEM_NAME_LABEL,
+  GUIDED_INTAKE_CREATION_SYSTEM_NAME_PLACEHOLDER,
   guidedIntakeCreationArchitectureOverviewHelperText,
 } from "@/lib/guided-intake-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -52,6 +53,25 @@ export function ArchitectureDraftFormFields(props: ArchitectureDraftFormFieldsPr
 
   return (
     <div className="space-y-6" data-testid="architecture-draft-form-fields">
+      <div className="space-y-2">
+        <IntakeFieldLabel
+          htmlFor="architecture-draft-system-name"
+          label={GUIDED_INTAKE_CREATION_SYSTEM_NAME_LABEL}
+          required
+        />
+        <Input
+          id="architecture-draft-system-name"
+          value={props.fields.systemName}
+          onChange={(event) => {
+            props.onFieldsChange({ ...props.fields, systemName: event.target.value });
+          }}
+          disabled={props.disabled === true}
+          placeholder={GUIDED_INTAKE_CREATION_SYSTEM_NAME_PLACEHOLDER}
+          data-testid="architecture-draft-system-name"
+          aria-required
+        />
+      </div>
+
       <div className="space-y-2">
         <IntakeFieldLabel
           htmlFor="architecture-draft-intent"
@@ -109,23 +129,6 @@ export function ArchitectureDraftFormFields(props: ArchitectureDraftFormFieldsPr
         creationFlow
         onChange={props.onActorSetChange}
       />
-
-      <div className="space-y-2">
-        <IntakeFieldLabel
-          htmlFor="architecture-draft-system-name"
-          label={GUIDED_INTAKE_CREATION_SYSTEM_NAME_LABEL}
-          required={false}
-        />
-        <Input
-          id="architecture-draft-system-name"
-          value={props.fields.systemName}
-          onChange={(event) => {
-            props.onFieldsChange({ ...props.fields, systemName: event.target.value });
-          }}
-          disabled={props.disabled === true}
-          data-testid="architecture-draft-system-name"
-        />
-      </div>
     </div>
   );
 }

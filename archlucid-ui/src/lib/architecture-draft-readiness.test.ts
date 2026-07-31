@@ -15,6 +15,7 @@ describe("architecture-draft-readiness", () => {
 
     expect(validateArchitectureDraftIntegrity(incomplete).isValid).toBe(true);
     expect(validateArchitectureReviewReadiness(incomplete).isValid).toBe(false);
+    expect(validateArchitectureReviewReadiness(incomplete).blockers).toContain("system name");
   });
 
   it("blocks draft integrity only when partial fields violate format rules", () => {
@@ -26,5 +27,17 @@ describe("architecture-draft-readiness", () => {
 
     expect(validateArchitectureDraftIntegrity(partialInvalidOutcome).isValid).toBe(false);
     expect(validateArchitectureReviewReadiness(partialInvalidOutcome).isValid).toBe(false);
+  });
+
+  it("requires a system name before review start even when overview and outcome are complete", () => {
+    const namedReadyExceptName = {
+      freeTextIntent:
+        "We are designing a governed workflow platform for analysts with authentication, auditable evidence trails, and exportable architecture reviews.",
+      businessOutcome: "Reduce cycle time for governed architecture reviews.",
+      systemName: "",
+    };
+
+    expect(validateArchitectureReviewReadiness(namedReadyExceptName).isValid).toBe(false);
+    expect(validateArchitectureReviewReadiness(namedReadyExceptName).blockers).toEqual(["system name"]);
   });
 });

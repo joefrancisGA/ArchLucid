@@ -66,6 +66,7 @@ import {
   GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_MIN_HELPER,
   GUIDED_INTAKE_CREATION_STEP1_CARD_DESCRIPTION,
   GUIDED_INTAKE_CREATION_SYSTEM_NAME_LABEL,
+  GUIDED_INTAKE_CREATION_SYSTEM_NAME_PLACEHOLDER,
   GUIDED_INTAKE_STEP0_CARD_DESCRIPTION,
   GUIDED_INTAKE_STEP0_CARD_TITLE,
   GUIDED_INTAKE_STEP0_PROGRESS_LABEL,
@@ -185,9 +186,10 @@ export function SocraticIntakeWizard() {
   const intentMeetsMinimum = intentTrimmedLength >= MIN_INTENT_CHARS;
   const outcomeTrimmedLength = businessOutcome.trim().length;
   const outcomeMeetsMinimum = outcomeTrimmedLength >= MIN_OUTCOME_CHARS;
+  const systemNameMeetsMinimum = systemName.trim().length > 0;
 
   const canAdvanceIntent = isCreateArchitectureFlow
-    ? intentMeetsMinimum && outcomeMeetsMinimum && !busy
+    ? systemNameMeetsMinimum && intentMeetsMinimum && outcomeMeetsMinimum && !busy
     : intentMeetsMinimum &&
       outcomeMeetsMinimum &&
       actorSet.actors.length > 0 &&
@@ -200,6 +202,10 @@ export function SocraticIntakeWizard() {
 
     const blockers: string[] = [];
 
+    if (!systemNameMeetsMinimum) {
+      blockers.push("system name");
+    }
+
     if (!intentMeetsMinimum) {
       blockers.push("architecture overview");
     }
@@ -209,7 +215,7 @@ export function SocraticIntakeWizard() {
     }
 
     return blockers;
-  }, [intentMeetsMinimum, isCreateArchitectureFlow, outcomeMeetsMinimum]);
+  }, [intentMeetsMinimum, isCreateArchitectureFlow, outcomeMeetsMinimum, systemNameMeetsMinimum]);
 
   const createArchitectureAdvanceHint = buildGuidedIntakeCreationAdvanceBlockerMessage(
     createArchitectureAdvanceBlockers,
@@ -636,6 +642,25 @@ export function SocraticIntakeWizard() {
             </CardHeader>
           ) : null}
           <CardContent className={cn(isCreateArchitectureFlow ? "space-y-6" : "space-y-4", isCreateArchitectureFlow && "pt-4")}>
+            {isCreateArchitectureFlow ? (
+              <div className="space-y-2">
+                <IntakeFieldLabel
+                  htmlFor="socratic-system-name"
+                  label={GUIDED_INTAKE_CREATION_SYSTEM_NAME_LABEL}
+                  required
+                />
+                <Input
+                  id="socratic-system-name"
+                  value={systemName}
+                  onChange={(event) => setSystemName(event.target.value)}
+                  disabled={busy}
+                  placeholder={GUIDED_INTAKE_CREATION_SYSTEM_NAME_PLACEHOLDER}
+                  data-testid="socratic-system-name"
+                  aria-required
+                />
+              </div>
+            ) : null}
+
             <div className="space-y-2">
               <IntakeFieldLabel
                 htmlFor="socratic-intent"
@@ -741,23 +766,6 @@ export function SocraticIntakeWizard() {
               creationFlow={isCreateArchitectureFlow}
               onChange={setActorSet}
             />
-
-            {isCreateArchitectureFlow ? (
-              <div className="space-y-2">
-                <IntakeFieldLabel
-                  htmlFor="socratic-system-name"
-                  label={GUIDED_INTAKE_CREATION_SYSTEM_NAME_LABEL}
-                  required={false}
-                />
-                <Input
-                  id="socratic-system-name"
-                  value={systemName}
-                  onChange={(event) => setSystemName(event.target.value)}
-                  disabled={busy}
-                  data-testid="socratic-system-name"
-                />
-              </div>
-            ) : null}
 
             <PilotModePolicyPackToggle
               enabled={focusedPilotModeEnabled}

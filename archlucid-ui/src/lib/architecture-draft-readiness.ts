@@ -39,6 +39,10 @@ export function validateArchitectureReviewReadiness(
 ): ArchitectureDraftValidationResult {
   const blockers: string[] = [];
 
+  if (fields.systemName.trim().length === 0) {
+    blockers.push("system name");
+  }
+
   if (fields.freeTextIntent.trim().length < GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS) {
     blockers.push("architecture overview");
   }
