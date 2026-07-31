@@ -79,7 +79,7 @@ These **LLM/trace categories** are indicative, not exhaustive (**[LLM_PROMPT_RED
 | Rule | Requirement |
 | --- | --- |
 | **Identity** | **No** customer name, **no** tenant/workspace/run id, **no** dated narrative that uniquely matches one engagement. |
-| **Content** | Only:** wall-clock ranges**, percentile tables, pass/fail vs **published** targets (**`REAL_MODE_BENCHMARK.md`**), k6 **aggregates** without hostnames, methodology bullets pointing to **this repo’s public docs**. |
+| **Content** | Only:** wall-clock ranges**, percentile tables, pass/fail vs **published** targets ([`FIRST_REAL_VALUE.md#real-mode-e2e-benchmark`](FIRST_REAL_VALUE.md#real-mode-e2e-benchmark)), k6 **aggregates** without hostnames, methodology bullets pointing to **this repo’s public docs**. |
 | **Comparison** | Optional **synthetic** or **demo** pack only, with the standard demo banner — **never** real finding prose. |
 
 ---

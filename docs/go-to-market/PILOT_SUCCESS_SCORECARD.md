@@ -407,8 +407,8 @@ Deliver a reproducible dossier tying four independent signals:
 
 | Signal | Canonical source | Retrieval |
 | --- | --- | --- |
-| Full-run timing | Stable JSON (`schemaVersion` `1.0.0`, `kind` `archlucid.benchmark.realModeE2e.v1`) | Run `scripts/benchmark-real-mode-e2e.ps1` (`-SkipArtifact` for CI-only stdout) — see [`REAL_MODE_BENCHMARK.md`](../library/REAL_MODE_BENCHMARK.md). |
-| Load-test envelope | `k6-ci-summary.json` (CI) or `k6-summary.json` (manual `record_baseline`) | `k6 run ... --summary-export path.json`; see **K6 summary export JSON** in [`REAL_MODE_BENCHMARK.md`](../library/REAL_MODE_BENCHMARK.md). |
+| Full-run timing | Stable JSON (`schemaVersion` `1.0.0`, `kind` `archlucid.benchmark.realModeE2e.v1`) | Run `scripts/benchmark-real-mode-e2e.ps1` (`-SkipArtifact` for CI-only stdout) — see [`FIRST_REAL_VALUE.md#real-mode-e2e-benchmark`](../library/FIRST_REAL_VALUE.md#real-mode-e2e-benchmark). |
+| Load-test envelope | `k6-ci-summary.json` (CI) or `k6-summary.json` (manual `record_baseline`) | `k6 run ... --summary-export path.json`; see **K6 summary export JSON** in [`FIRST_REAL_VALUE.md#k6-summary-export-json`](../library/FIRST_REAL_VALUE.md#k6-summary-export-json). |
 | ROI narrative | Pilot ROI tables / computed deltas | Copy cells from spreadsheets aligned with [`#pilot-roi-measurement`](#pilot-roi-measurement) measurement rows; reconcile with [`ROI_MODEL.md`](ROI_MODEL.md) value levers — avoid double-counted savings categories. |
 | Trace completeness score | Persisted `ExplainabilityTrace` | Call explainability REST shape returning `traceCompletenessRatio` and `missingTraceFields` (`ExplanationController`), or correlate OTel Prometheus metric family documented in [`OBSERVABILITY.md`](../library/OBSERVABILITY.md). |
 
@@ -455,7 +455,7 @@ Deliver a reproducible dossier tying four independent signals:
 ### References
 
 - [`PROOF_PACK_REDACTION_PROFILES.md`](../library/PROOF_PACK_REDACTION_PROFILES.md) — operational redaction profiles for sponsor and benchmark packs.
-- [`REAL_MODE_BENCHMARK.md`](../library/REAL_MODE_BENCHMARK.md) — PowerShell schema + k6 JSON format.
+- [`FIRST_REAL_VALUE.md#real-mode-e2e-benchmark`](../library/FIRST_REAL_VALUE.md#real-mode-e2e-benchmark) — PowerShell schema + k6 JSON format (`REAL_MODE_BENCHMARK.md` alias).
 - [`LOAD_TEST_BASELINE.md`](../library/LOAD_TEST_BASELINE.md) — k6 scenarios, thresholds, baseline table conventions.
 - [`#pilot-roi-measurement`](#pilot-roi-measurement) · [`ROI_MODEL.md`](ROI_MODEL.md) — measurement + business case linkage.
 - [`OBSERVABILITY.md`](../library/OBSERVABILITY.md) — trace completeness histogram and alert rationale.
