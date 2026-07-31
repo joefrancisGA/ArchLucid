@@ -81,11 +81,11 @@ Within **5 business days** of a formal scorecard review, update every in-scope r
 
 | Hypothesis | Pilot ID | ICP score | ICP segment | Scorecard metric | Baseline | Result | Status | Notes |
 |------------|----------|-----------|-------------|------------------|----------|--------|--------|-------|
-| H1 | **Pilot A** | TBD | TBD | Hours per review | TBD | TBD | Pending | Internal dogfood worksheets + PMF-safe updates: **[DOGFOOD_PILOT_KIT.md](../library/DOGFOOD_PILOT_KIT.md)**. Do not fabricate **Baseline**/**Result**. |
-| H2 | **Pilot A** | TBD | TBD | Governance turnaround | TBD | TBD | Pending | Same — **[DOGFOOD_PILOT_KIT.md](../library/DOGFOOD_PILOT_KIT.md)** §4 (fill **Notes**/**Status**/ICP only until measured). |
+| H1 | **Pilot A** | TBD | TBD | Hours per review | TBD | TBD | Pending | Internal dogfood worksheets + PMF-safe updates: **[PILOT_SUCCESS_SCORECARD.md#dogfood-pilot-kit](../../go-to-market/PILOT_SUCCESS_SCORECARD.md#dogfood-pilot-kit)**. Do not fabricate **Baseline**/**Result**. |
+| H2 | **Pilot A** | TBD | TBD | Governance turnaround | TBD | TBD | Pending | Same — **[PILOT_SUCCESS_SCORECARD.md#dogfood-pilot-kit](../../go-to-market/PILOT_SUCCESS_SCORECARD.md#dogfood-pilot-kit)** §4 (fill **Notes**/**Status**/ICP only until measured). |
 | H3 | **Pilot A** | TBD | TBD | Audit trail coverage | TBD | TBD | Pending | Same — evidence only when pilot touched audit-style paths. |
 | H4 | **Pilot A** | TBD | TBD | Quality rating | TBD | TBD | Pending | Same — qualitative **Captured** acceptable per §2.2 (**See scorecard**). |
-| H5 | **Pilot A** | TBD | TBD | Time-to-first-run | TBD | TBD | Pending | **[DOGFOOD_PILOT_KIT.md](../library/DOGFOOD_PILOT_KIT.md)** + [PILOT_ROI_MODEL.md](../library/PILOT_ROI_MODEL.md) **§4.1** “Time to committed manifest” when applicable — still **no invented numerics**. |
+| H5 | **Pilot A** | TBD | TBD | Time-to-first-run | TBD | TBD | Pending | **[PILOT_SUCCESS_SCORECARD.md#dogfood-pilot-kit](../../go-to-market/PILOT_SUCCESS_SCORECARD.md#dogfood-pilot-kit)** + [PILOT_ROI_MODEL.md](../library/PILOT_ROI_MODEL.md) **§4.1** “Time to committed manifest” when applicable — still **no invented numerics**. |
 | H1 | **Pilot B** | TBD | TBD | Hours per review | TBD | TBD | Pending | Add **Pilot C** by copying a block when needed. |
 | H2 | **Pilot B** | TBD | TBD | Governance turnaround | TBD | TBD | Pending | |
 | H3 | **Pilot B** | TBD | TBD | Audit trail coverage | TBD | TBD | Pending | |
@@ -164,7 +164,7 @@ Within **5 business days** of a formal scorecard review, update every in-scope r
 | Doc | Use |
 |-----|-----|
 | [PILOT_ROI_MODEL.md](../library/PILOT_ROI_MODEL.md) | Baseline (§3), during-pilot metrics (§4–§4.1), demo-number rules (§4.1.1) |
-| [DOGFOOD_PILOT_KIT.md](../library/DOGFOOD_PILOT_KIT.md) | Internal Core Pilot worksheets; **Pilot A** row update discipline (notes-first, no fabricated baselines/results) |
+| [PILOT_SUCCESS_SCORECARD.md#dogfood-pilot-kit](../../go-to-market/PILOT_SUCCESS_SCORECARD.md#dogfood-pilot-kit) | Internal Core Pilot worksheets; **Pilot A** row update discipline (notes-first, no fabricated baselines/results) |
 | [PILOT_SUCCESS_SCORECARD.md](PILOT_SUCCESS_SCORECARD.md) | Measurement framework |
 | [BUYER_PERSONAS.md](../../go-to-market/BUYER_PERSONAS.md#ideal-customer-profile-icp) | ICP scoring for pilot selection |
 | [ROI_MODEL.md](ROI_MODEL.md) | Value hypotheses grounding |

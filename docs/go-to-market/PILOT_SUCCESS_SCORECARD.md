@@ -1,6 +1,6 @@
 > **Reviewed:** 2026-07-31
 
-> **Scope:** ArchLucid pilot success scorecard — full detail, tables, and links below — plus the steering / ARB decision memo template (formerly `STEERING_DECISION_MEMO_TEMPLATE.md`), the customer onboarding operating playbook (formerly `CUSTOMER_ONBOARDING_PLAYBOOK.md`), the pilot ROI measurement model (formerly the body of `docs/library/PILOT_ROI_MODEL.md`; that filename remains a path-stable alias for product/CI strings), the renewal/expansion playbook plus customer health scoring (formerly the body of `RENEWAL_EXPANSION_PLAYBOOK.md`; that filename remains a path-stable alias), and the minimum viable pilot success lane (formerly the body of `docs/library/MINIMUM_VIABLE_PILOT_SUCCESS.md`; that filename remains a path-stable alias for operator cookbooks).
+> **Scope:** ArchLucid pilot success scorecard — full detail, tables, and links below — plus the steering / ARB decision memo template (formerly `STEERING_DECISION_MEMO_TEMPLATE.md`), the customer onboarding operating playbook (formerly `CUSTOMER_ONBOARDING_PLAYBOOK.md`), the pilot ROI measurement model (formerly the body of `docs/library/PILOT_ROI_MODEL.md`; that filename remains a path-stable alias for product/CI strings), the renewal/expansion playbook plus customer health scoring (formerly the body of `RENEWAL_EXPANSION_PLAYBOOK.md`; that filename remains a path-stable alias), the minimum viable pilot success lane (formerly the body of `docs/library/MINIMUM_VIABLE_PILOT_SUCCESS.md`; that filename remains a path-stable alias for operator cookbooks), and the internal dogfood pilot kit (formerly the body of `docs/library/DOGFOOD_PILOT_KIT.md`; that filename remains a path-stable alias for M-93 / PMF Pilot A).
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -806,10 +806,103 @@ If a customer churns:
 
 ---
 
+## Dogfood pilot kit (ArchLucid as subject) {#dogfood-pilot-kit}
+
+Former standalone body: `docs/library/DOGFOOD_PILOT_KIT.md` → this section (filename kept as a path-stable alias for GTM **M-93** / PMF **Pilot A**). Internal only — not a customer design-partner substitute. Complements [`#pilot-roi-measurement`](#pilot-roi-measurement) and [`#minimum-viable-pilot-success-lane`](#minimum-viable-pilot-success-lane).
+
+**Path-stable alias:** [`../library/DOGFOOD_PILOT_KIT.md`](../library/DOGFOOD_PILOT_KIT.md).
+
+**Last reviewed:** 2026-07-31
+
+**Audience:** ArchLucid product, engineering, and GTM teammates running an **internal** pilot where the system under review is internal architecture work (not a labeled customer deployment).
+
+**Purpose:** Produce **real** baseline and pilot-outcome observations aligned to **[CORE_PILOT.md](../CORE_PILOT.md)** and [`#pilot-roi-measurement`](#pilot-roi-measurement) (`PILOT_ROI_MODEL.md` alias) — then record them in **[PMF_VALIDATION_TRACKER.md](../archive/gtm-internal/PMF_VALIDATION_TRACKER.md)** (**Pilot A** slot) **without inventing numbers**.
+
+This is **not** a substitute for external design-partner pilots. It validates flow, tooling, and measurement hygiene before customer-facing scorecards.
+
+### Alignment to Core Pilot
+
+Follow the **four steps** in **[CORE_PILOT.md](../CORE_PILOT.md)** §3 as the default lane:
+
+1. Create architecture request
+2. Execute the run (pipeline completes)
+3. Commit the manifest
+4. Review manifest summary and artifacts (exportable package)
+
+**Anti-creep:** Do not expand scope to advanced Operate layers for the first dogfood pass unless the pilot charter explicitly includes them. **[CORE_PILOT.md](../CORE_PILOT.md)** §1 explains what stays secondary.
+
+**Subject matter:** Pick one **real** internal initiative (e.g. a subsystem, integration, or platform decision) that would normally get an architecture package — not synthetic demo-only inputs unless you mark outcomes as **non-customer** and never copy demo numerics into **[PMF_VALIDATION_TRACKER.md](../archive/gtm-internal/PMF_VALIDATION_TRACKER.md)** as if they were measured baselines (see [`#pilot-roi-measurement`](#pilot-roi-measurement) §4.1.1).
+
+### Baseline capture worksheet (before dogfood)
+
+Ground in [`#pilot-roi-measurement`](#pilot-roi-measurement) §3 (especially §3.1–§3.2). Answer **qualitatively** first; add **hours or counts** only when you actually measured them (interview, ticketing, calendar, or comparable system of record).
+
+| # | Prompt (from ROI model §3 spirit) | Your notes (words / ranges OK) | Numeric only if measured |
+|---|-----------------------------------|-------------------------------|---------------------------|
+| B1 | Current **elapsed time** from “request / brief” to “reviewable package” for one representative workflow | | |
+| B2 | **Manual effort** to assemble narrative, manifest-like content, diagrams, evidence | | |
+| B3 | **Difficulty explaining what changed** between two design versions (today’s process) | | |
+| B4 | **Governance evidence** gaps — what gets reconstructed by hand before review | | |
+| B5 | **Architect time split** — packaging vs design quality | | |
+
+**Outputs:**
+
+- Copy **summaries** into your internal charter or this scorecard’s other sections — not straight into **[PMF_VALIDATION_TRACKER.md](../archive/gtm-internal/PMF_VALIDATION_TRACKER.md)** baselines unless the tracker row definitions match numerically.
+- For **[PMF_VALIDATION_TRACKER.md](../archive/gtm-internal/PMF_VALIDATION_TRACKER.md)**: leave **Baseline** as **TBD** until you have a defensible number or agreed **Unknown** per tracker §2.2; describe gaps only in **Notes**.
+
+### Outcome capture worksheet (after dogfood window)
+
+Ground in [`#pilot-roi-measurement`](#pilot-roi-measurement) §4 and §4.1 primary metrics table.
+
+| Bucket | What to capture | Where it usually comes from |
+|--------|-----------------|------------------------------|
+| **Computed (when applicable)** | Time to committed manifest; findings totals/severity; LLM calls; audit row count bounds; evidence chain for top finding | First-value report / run detail / APIs described in ROI §4.1 |
+| **Operator-judged** | Time to reviewable package; manual prep reduction; traceability; change visibility; governance evidence readiness | Interviews + short written assessment |
+| **Secondary** | Onboarding friction, blockers, export usefulness, reviewer confidence | Pilot retro notes |
+
+| # | Prompt | Your notes | Evidence link (internal) |
+|---|--------|------------|---------------------------|
+| O1 | **Time to committed manifest** for dogfood run(s) vs baseline B1 | | |
+| O2 | **Findings** — total and whether mix felt defensible | | |
+| O3 | **Cost / footprint** awareness (LLM calls, agreed envelope) | | |
+| O4 | **Audit / observability** — enough rows to tell the story | | |
+| O5 | **Qualitative bar** — did we meet ROI §5.1 minimum success? §5.2 strong? | | |
+
+**Outputs:** Prefer this scorecard’s synthesis first; then reflect **honest** **Result** cells in **[PMF_VALIDATION_TRACKER.md](../archive/gtm-internal/PMF_VALIDATION_TRACKER.md)** only when values are **Captured** per tracker §2.2 (**TBD**, **Unknown**, **See scorecard**, or real numbers).
+
+### Updating Pilot A in PMF_VALIDATION_TRACKER.md (without inventing numbers)
+
+**Allowed without PMF widening:**
+
+- **Notes** column for **Pilot A** rows — cite this kit, link scorecard, clarify internal dogfood vs external pilot.
+- **Status** transitions that match reality (**Pending** → **Captured** when qualitative or numeric evidence exists — see tracker §2.2).
+- **ICP score** / **ICP segment** when scored per **[BUYER_PERSONAS.md](BUYER_PERSONAS.md#ideal-customer-profile-icp)** (else leave **TBD**).
+
+**Not allowed:** Fabricating **Baseline** or **Result** numerics to “fill the table.” If only qualitative signal exists, use **See scorecard** for **Result** and **Captured** **Status**, per **[PMF_VALIDATION_TRACKER.md](../archive/gtm-internal/PMF_VALIDATION_TRACKER.md)** §2.2.
+
+Hypothesis mapping (reminder):
+
+| Tracker row | Typical bridge from dogfood |
+|-------------|----------------------------|
+| H1 | B1/O1 ↔ hours-per-review framing |
+| H2–H3 | Governance / audit — only if pilot touched those workflows |
+| H4 | Quality / explainability interview |
+| H5 | Provisioning → first Core Pilot completion |
+
+### Related (dogfood kit)
+
+- **[CORE_PILOT.md](../CORE_PILOT.md)** — operator path of record
+- [`#pilot-roi-measurement`](#pilot-roi-measurement) — baseline §3, during-pilot §4–§4.1, demo redaction §4.1.1
+- **[PMF_VALIDATION_TRACKER.md](../archive/gtm-internal/PMF_VALIDATION_TRACKER.md)** — **Pilot A** evidence rows
+- **[PILOT_GUIDE.md](../library/customer-facing/PILOT_GUIDE.md)** — fuller pilot onboarding
+
+---
+
 ## Related documents
 
 | Doc | Use |
 |-----|-----|
+| [`#dogfood-pilot-kit`](#dogfood-pilot-kit) · [`../library/DOGFOOD_PILOT_KIT.md`](../library/DOGFOOD_PILOT_KIT.md) (alias) | Internal ArchLucid-on-ArchLucid dogfood worksheets (M-93) |
 | [`#minimum-viable-pilot-success-lane`](#minimum-viable-pilot-success-lane) · [`../library/MINIMUM_VIABLE_PILOT_SUCCESS.md`](../library/MINIMUM_VIABLE_PILOT_SUCCESS.md) (alias) | Five-step operator first-win lane |
 | [`#pilot-roi-measurement`](#pilot-roi-measurement) · [`../library/PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md) (alias) | Pilot measurement companion (formerly standalone) |
 | [ROI_MODEL.md](ROI_MODEL.md) | Fill in with actual pilot numbers to calculate ROI (includes operational cost guide) |
