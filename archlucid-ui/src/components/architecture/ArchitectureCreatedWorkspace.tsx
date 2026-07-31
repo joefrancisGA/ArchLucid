@@ -10,6 +10,10 @@ import { ArchitectureCreatedWorkspaceHeader } from "@/components/architecture/Ar
 import { ArchitectureDiagramPanel } from "@/components/architecture/ArchitectureDiagramPanel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
+  countOpenClarifications,
+  countOpenQuestionEntities,
+} from "@/lib/architecture-open-clarifications-count";
+import {
   buildArchitectureCreatedHomeModel,
   mergeArchitectureCreatedHomeInput,
   type BuildArchitectureCreatedHomeModelInput,
@@ -56,13 +60,6 @@ function resolveUserAssertions(
   };
 }
 
-function countOpenClarifications(
-  missingCount: number,
-  openQuestionEntityCount: number,
-): number {
-  return missingCount + openQuestionEntityCount;
-}
-
 /** Tabbed post-creation architecture workspace with compact first viewport and lazy tab panels. */
 export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspaceProps): React.JSX.Element {
   const router = useRouter();
@@ -80,6 +77,10 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
   const userAssertions = useMemo(
     () => resolveUserAssertions(merged),
     [merged],
+  );
+  const openQuestionCount = useMemo(
+    () => countOpenQuestionEntities(props.architectureSourceText, userAssertions),
+    [props.architectureSourceText, userAssertions],
   );
 
   const activeTab = resolveArchitectureWorkspaceTab(searchParams.get(ARCHITECTURE_WORKSPACE_TAB_PARAM));
@@ -114,7 +115,7 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
   }, [hashResolved, pathname, router, searchParams]);
 
   const findingsCount = props.findings.length;
-  const clarificationsCount = countOpenClarifications(model.missingItems.length, 0);
+  const clarificationsCount = countOpenClarifications(model.missingItems.length, openQuestionCount);
 
   return (
     <div className="space-y-5" data-testid="architecture-created-workspace">

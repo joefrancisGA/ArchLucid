@@ -56,4 +56,42 @@ describe("ArchitectureCreatedWorkspace", () => {
     expect(screen.getByTestId("architecture-workspace-panel-overview")).toBeInTheDocument();
     expect(screen.queryByTestId("findings-panel-slot")).not.toBeInTheDocument();
   });
+
+  it("includes open-question entities in the clarifications tab badge (TB-1838)", () => {
+    render(
+      <ArchitectureCreatedWorkspace
+        baseline={{
+          runId: "run-1",
+          architectureName: "Claims platform",
+          architectureOverview:
+            "A governed workflow platform for analysts with Entra ID authentication, auditable evidence trails, and exportable architecture reviews for enterprise tenants.",
+          businessOutcome: "Reduce manual triage time and improve auditability for operations teams.",
+          peopleAndSystems: [
+            { label: "Claims analyst", kind: "Human" },
+            { label: "Partner billing API", kind: "Machine" },
+          ],
+          ownerLabel: "owner@example.com",
+          lastUpdatedLabel: "Jul 11, 2026",
+          workspaceStatus: { label: "Draft", kind: "draft", statusTagKind: "neutral" },
+          assessmentInProgress: false,
+          hasArtifacts: true,
+        }}
+        architectureSourceText={`## Open questions
+- Who owns DR failover?
+- What is the RPO target?`}
+        canEditDiagram
+        findings={[]}
+        correctionHref="/reviews/new?path=guided-intake&rerun=run-1"
+        panels={{
+          findings: <div data-testid="findings-panel-slot">Findings</div>,
+          evidence: <div data-testid="evidence-panel-slot">Evidence</div>,
+          governance: <div data-testid="governance-panel-slot">Governance</div>,
+          activity: <div data-testid="activity-panel-slot">Activity</div>,
+          submittedArchitecture: <div data-testid="submitted-panel-slot">Submitted</div>,
+        }}
+      />,
+    );
+
+    expect(screen.getByTestId("architecture-workspace-tab-clarifications")).toHaveTextContent("2");
+  });
 });

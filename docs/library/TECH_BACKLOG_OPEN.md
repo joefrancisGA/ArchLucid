@@ -611,7 +611,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1835 | archTab Activity — Vitest dual-param + panel orientation guards | Testability P2 **V1** — with **TB-1831** |
 | TB-1836 | Traffic honesty — `archTab=clarifications` create-home only | Trustworthiness P1 **V1** — REC ~44 |
 | TB-1837 | Clarifications CTAs must use run-scoped correction (not bare new create) | Adoption friction P1 **V1** — with **TB-1836** |
-| TB-1838 | Clarifications tab badge must count open questions | Correctness P0 **V1** — with **TB-1836** |
 | TB-1839 | Clarifications empty/zero-gap composition (demote confidence theater) | Adoption friction P1 **V1** — with **TB-1836** |
 | TB-1840 | Clarifications tab — Vitest CTA + badge + traffic honesty | Testability P2 **V1** — with **TB-1836** |
 | TB-1841 | Traffic honesty — `archTab=diagram` create-home only | Trustworthiness P1 **V1** — RED ~50 |
