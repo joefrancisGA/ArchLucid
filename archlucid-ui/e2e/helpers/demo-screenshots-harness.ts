@@ -21,7 +21,9 @@ import {
 /** Substrings that indicate demo-unsafe or broken UI — case-sensitive match on visible text. */
 export const DEMO_SCREENSHOT_FAILURE_SUBSTRINGS: readonly string[] = [
   "This architecture review could not be loaded",
-  "No reviews in this workspace yet",
+  // Intentionally omitted: "No reviews in this workspace yet" — TB-1039 / empty Overview
+  // outcome line is valid when Recent reviews SSR list is empty (sample inject is client-only;
+  // Do-this-next stays on). Catch broken packages via "This architecture review could not be loaded".
   "Loading graph viewer",
   "Loading workflow data",
   "Loading alerts",
