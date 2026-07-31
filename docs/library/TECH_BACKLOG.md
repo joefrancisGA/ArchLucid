@@ -1566,6 +1566,11 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-2013 | Decision Register — Start/End date labels + content-sized date inputs; see ## TB-2013 below | Adoption friction P1 — **V1**; owner ask 2026-07-29; with **TB-2012** | S |
 | TB-2014 | Audit + Value report — From/To → Start/End date + picker width; see ## TB-2014 below | Adoption friction P1 — **V1**; with **TB-2012**; Pilot value report is reference | S |
 | TB-2015 | Date-range filter labels/width — Vitest contract; see ## TB-2015 below | Testability P2 — **V1**; after **TB-2013**/**TB-2014** | S |
+| TB-2016 | **Done** (2026-07-31) — Marketing UI Container App (`ui_marketing`), same `ui_container_image`, no Front Door; see ## TB-2016 below | Deployability P1 — **V1**; owner dual-CA override; pairs **TB-2017**–**TB-2020** | M |
+| TB-2017 | **Done** (2026-07-31) — Custom-domain vars/outputs + CLI bind runbook (apex marketing / `app.` operator); see ## TB-2017 below | Deployability P1 — **V1**; with **TB-2016** | S |
+| TB-2018 | **Done** (2026-07-31) — `site-urls.ts` + cross-host Sign in / welcome / signup CTAs; Vitest; see ## TB-2018 below | Adoption friction P1 — **V1**; with **TB-2016** | S |
+| TB-2019 | Host-gate middleware — redirect operator paths off marketing host (and optional marketing-only path nudge on app host); see ## TB-2019 below | Trustworthiness P1 — **V1**; after **TB-2016**/**TB-2018** | M |
+| TB-2020 | **Done** (2026-07-31) — CD dual UI update + CORS dual-origin check; see ## TB-2020 below | Deployability P1 — **V1**; with **TB-2016** | S |
 | TB-1565 | Advisory Scans tab — keep `?tab=scans` deep-link stable; see ## TB-1565 below | Adoption friction P1 — **V1**; owner review ~52/100 2026-07-27; traffic **ADS**; pairs **TB-1505** | XS |
 | TB-1566 | Advisory recommendation disposition — replace `window.prompt` with on-system dialog; see ## TB-1566 below | Adoption friction P1 — **V1**; with **TB-1565**; after Done **TB-1127** affordance | S |
 | TB-1567 | Advisory Scans tab — empty/form first-viewport composition (one next story); see ## TB-1567 below | Adoption friction P1 — **V1**; with **TB-1565**; pairs **TB-1552**/**TB-1477**; after Done **TB-1126**/**TB-1128** | S |
@@ -46443,3 +46448,62 @@ Operators must read three intros before reaching the Trust Center link list.
 **Size estimate:** S.
 
 ---
+
+## TB-2016 — Marketing UI Container App (same image, no Front Door) (P1) — **Done** (2026-07-31)
+
+**Window:** V1 — Deployability.
+
+**Status:** **Done** — `infra/terraform-container-apps/marketing_ui.tf` (`azurerm_container_app.ui_marketing`); defaults `enable_marketing_ui_container_app = true`, name `archlucid-ui-marketing`; reuses `ui_container_image`; diagnostics include `ui_marketing`; operator app seeds `ARCHLUCID_UI_ROLE=operator`.
+
+**Why:** Owner override 2026-07-31 — hard traffic isolation without Front Door cost; same CD image digest.
+
+**Acceptance:** Terraform provisions marketing UI when enabled; outputs `marketing_ui_https_url` / FQDN; CD can roll both apps (**TB-2020**).
+
+---
+
+## TB-2017 — Custom domains without Front Door (apex + app) (P1) — **Done** (2026-07-31)
+
+**Window:** V1 — Deployability.
+
+**Status:** **Done** — vars `ui_custom_domain_name` / `marketing_ui_custom_domain_name` / `api_custom_domain_name`; verification outputs from CAE; README CLI `az containerapp hostname bind` path (azurerm managed-cert resources avoided).
+
+**Ops remaining (not blocking code Done):** create DNS TXT/CNAME and run hostname bind per environment.
+
+---
+
+## TB-2018 — Cross-host site URL helper + critical CTAs (P1) — **Done** (2026-07-31)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** **Done** — `archlucid-ui/src/lib/site-urls.ts` + Vitest; wired Sign in / welcome / evaluation links on marketing header/footer/welcome, `AuthFlowShell`, `OperatorHomeGate`. Runtime env `ARCHLUCID_PUBLIC_SITE_URL` / `ARCHLUCID_APP_SITE_URL`.
+
+---
+
+## TB-2019 — Host-gate middleware for marketing vs app hosts (P1)
+
+**Window:** V1 — Trustworthiness.
+
+**Status:** Not started.
+
+**Problem:** Same image still serves operator routes on the marketing hostname until middleware redirects; buyers can deep-link `/reviews` on apex.
+
+**Approach:** Next.js middleware: if `Host` matches public site and path is operator-only → 307 to `ARCHLUCID_APP_SITE_URL`; optional reverse nudge for marketing-only paths on app host. Keep relative local-dev when split env unset.
+
+**Acceptance:** Marketing host does not render operator shell for `/reviews`, `/settings`, `/auth/signin` (redirect); Vitest or e2e host cases.
+
+**Depends on:** **TB-2016**, **TB-2018**.
+
+**Size estimate:** M.
+
+---
+
+## TB-2020 — CD dual UI deploy + CORS dual-origin check (P1) — **Done** (2026-07-31)
+
+**Window:** V1 — Deployability.
+
+**Status:** **Done** — `.github/workflows/cd.yml` updates `CONTAINER_APP_MARKETING_UI_NAME` with the same UI digest; staging/production CORS check requires apex/`www` **and** `https://app.archlucid.net`.
+
+**Ops remaining:** set GitHub secret `CONTAINER_APP_MARKETING_UI_NAME`; set API `Cors__AllowedOrigins__*` to both hosts before next staging/prod CD.
+
+---
+

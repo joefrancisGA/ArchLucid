@@ -73,7 +73,8 @@ vi.mock("@/components/cto-demo/CtoDemoResetButton", () => ({
 }));
 
 vi.mock("@/components/operator-home/OperatorHomeAdvancedGuidancePanel", () => ({
-  OperatorHomeAdvancedGuidancePanel: () => <div data-testid="operator-home-advanced-guidance" />,
+  OperatorHomeAdvancedGuidancePanel: (props: { readonly buyerPolishedShell?: boolean }) =>
+    props.buyerPolishedShell === true ? null : <div data-testid="operator-home-advanced-guidance" />,
 }));
 
 vi.mock("@/components/cto-demo/CtoDemoExecutiveLandingRedirect", () => ({
@@ -339,7 +340,7 @@ describe("HomePage — buyer-polished shell", () => {
     vi.unstubAllEnvs();
   });
 
-  it("keeps the home launchpad focused on dual-path hero, workspace activity, explore sample, and collapsed setup section", async () => {
+  it("keeps the home launchpad focused on dual-path hero, workspace activity, and explore sample", async () => {
     vi.stubEnv("NEXT_PUBLIC_DEMO_MODE", "true");
     mockLoadOperatorHomeRunsDashboardModel.mockResolvedValue(defaultRunsDashboard(true));
 
@@ -358,9 +359,7 @@ describe("HomePage — buyer-polished shell", () => {
 
     const exploreSample = screen.getByTestId("operator-home-explore-sample-section");
     expect(workspaceActivityHeading.compareDocumentPosition(exploreSample) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    await waitFor(() => {
-      expect(screen.getByTestId("operator-home-advanced-guidance")).toBeInTheDocument();
-    });
+    expect(screen.queryByTestId("operator-home-advanced-guidance")).toBeNull();
     expect(screen.queryByTestId("operator-home-workspace-context")).not.toBeInTheDocument();
     expect(screen.queryByText("ROI estimate pending")).toBeNull();
     expect(screen.queryByText("Advanced Analysis")).toBeNull();
@@ -373,7 +372,7 @@ describe("HomePage — buyer-polished shell", () => {
 describe("HomePage (55R smoke — landing)", () => {
   useOperatorQueryTestLifecycle();
 
-  it("renders dual-path hero, workspace activity, consolidated explore sample section, and collapsed setup section", async () => {
+  it("renders dual-path hero, workspace activity, and consolidated explore sample section", async () => {
     await renderHomePage();
 
     expect(screen.getByRole("heading", { name: "Recent reviews" })).toBeInTheDocument();
@@ -391,9 +390,8 @@ describe("HomePage (55R smoke — landing)", () => {
     expect(screen.getByRole("link", { name: OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA })).toBeInTheDocument();
     expect(screen.queryByTestId("operator-home-explore-open-completed-sample")).toBeNull();
     expect(screen.getByRole("link", { name: OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA })).toBeInTheDocument();
-    await waitFor(() => {
-      expect(screen.getByTestId("operator-home-advanced-guidance")).toBeInTheDocument();
-    });
+    // Buyer-polished home omits the advanced-guidance rail; workflow help is on the hero help control.
+    expect(screen.queryByTestId("operator-home-advanced-guidance")).toBeNull();
     expect(screen.queryByTestId("operator-home-workspace-context")).not.toBeInTheDocument();
     expect(screen.queryByText("ROI estimate pending")).toBeNull();
     expect(screen.queryByText("Advanced Analysis")).toBeNull();

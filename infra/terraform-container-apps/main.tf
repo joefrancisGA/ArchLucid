@@ -782,6 +782,11 @@ resource "azurerm_container_app" "ui" {
         value = "0.0.0.0"
       }
 
+      env {
+        name  = "ARCHLUCID_UI_ROLE"
+        value = "operator"
+      }
+
       # Lightweight UI process health (build fingerprint JSON). Does not call the API.
       liveness_probe {
         transport = "HTTP"

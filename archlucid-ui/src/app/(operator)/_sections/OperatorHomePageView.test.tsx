@@ -37,7 +37,8 @@ vi.mock("@/components/operator-home/OperatorHomeExploreSampleSection", () => ({
 }));
 
 vi.mock("@/components/operator-home/OperatorHomeAdvancedGuidancePanel", () => ({
-  OperatorHomeAdvancedGuidancePanel: () => <div data-testid="home-block-advanced-guidance" />,
+  OperatorHomeAdvancedGuidancePanel: (props: { readonly buyerPolishedShell?: boolean }) =>
+    props.buyerPolishedShell === true ? null : <div data-testid="home-block-advanced-guidance" />,
 }));
 
 vi.mock("@/components/operator-home/OperatorHomeDeferredOnboarding", () => ({
@@ -129,24 +130,22 @@ describe("OperatorHomePageView", () => {
     expect(screen.getByRole("heading", { level: 2, name: OPERATOR_HOME_RECENT_REVIEWS_HEADING })).toBeInTheDocument();
   });
 
-  it("orders buyer-polished home as hero, workspace activity, explore sample, then advanced guidance", () => {
+  it("orders buyer-polished home as hero, workspace activity, then explore sample without advanced guidance", () => {
     render(<OperatorHomePageView model={mockHomeModel(true)} />);
 
     expect(screen.getByTestId("operator-home-hero-section")).toBeInTheDocument();
     expect(screen.getByTestId("home-block-runs-dashboard")).toBeInTheDocument();
     expect(screen.getByTestId("home-block-explore-sample")).toBeInTheDocument();
-    expect(screen.getByTestId("home-block-advanced-guidance")).toBeInTheDocument();
+    expect(screen.queryByTestId("home-block-advanced-guidance")).toBeNull();
     expect(screen.queryByTestId("home-block-workspace-status")).toBeNull();
     expect(screen.queryByTestId("home-block-example-request")).toBeNull();
 
     const heroSection = screen.getByTestId("operator-home-hero-section");
     const runsDashboard = screen.getByTestId("home-block-runs-dashboard");
     const exploreSample = screen.getByTestId("home-block-explore-sample");
-    const advancedGuidance = screen.getByTestId("home-block-advanced-guidance");
 
     expect(heroSection.compareDocumentPosition(runsDashboard) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(runsDashboard.compareDocumentPosition(exploreSample) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(exploreSample.compareDocumentPosition(advancedGuidance) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("keeps operator shell hero, workspace activity, explore sample, workspace context, and advanced guidance in order", () => {

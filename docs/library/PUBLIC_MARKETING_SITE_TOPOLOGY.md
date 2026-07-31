@@ -15,19 +15,29 @@ Document how **modest marketing** pages share **the same apex domain and operati
 
 ## Constraints
 
-- **Single hostname** avoids duplicate CSP/DNS/cert operations for a small funnel; subdomain split (for example **`www`** vs **`app`**) stays optional operator policy.
-- **Robots semantics:** **`Disallow: /`** in `robots.txt` is forbidden for this topology — RFC-style prefix rules would block **`/welcome`** and the rest of marketing. Prefer **explicit `disallow` prefixes** for operator and API routes (implemented in **`archlucid-ui/src/lib/marketing/public-marketing-seo-paths.ts`** + **`app/robots.ts`**).
-- **Front Door parity:** **`marketing_site_route_patterns`** (**`infra/terraform-edge/variables.tf`**) must list every HTML path (and **`/_next/*`**) routed to the marketing Container App origin. When shipping new anonymous marketing URLs, extend both **Front Door defaults** (or `.tfvars`) **and** **`MARKETING_SITEMAP_PATHNAMES`** when the route should surface in **`/sitemap.xml`**.
+- **Hostname split (Option D):** marketing on apex/`www`, operator on **`app.`** — preferred when avoiding Front Door cost. Single-hostname Option A remains valid for small pilots.
+- **Robots semantics:** **`Disallow: /`** in `robots.txt` is forbidden for the marketing host — RFC-style prefix rules would block **`/welcome`**. Prefer **explicit `disallow` prefixes** for operator and API routes (implemented in **`archlucid-ui/src/lib/marketing/public-marketing-seo-paths.ts`** + **`app/robots.ts`**). Serve `robots.ts` / `sitemap.ts` from the marketing hostname.
+- **Front Door (optional only):** when **`infra/terraform-edge`** is enabled, **`marketing_site_route_patterns`** must list every HTML path (and **`/_next/*`**) routed to the marketing origin. Option D does **not** require Front Door — bind custom domains on each Container App instead.
+- **New marketing pathname playbook:** add page under **`(marketing)`** → sitemap when indexable → ensure marketing CA env / DNS still covers the path (same image serves all routes; host middleware gating is **TB-2019**).
 
 ## Architecture Overview
 
-Preferred operating mode today (**Option A**): **one** Next.js build (standalone container) serves **`(marketing)`**, **`(operator)`**, **`(executive)`**, **`app/api`**. **Azure Front Door** routes **`marketing_site_route_patterns`** (for example **`/welcome`**, **`/pricing`**, **`/robots.txt`**, **`/sitemap.xml`**, **`/_next/*`**) to the marketing origin hostname and **`api_route_patterns_when_marketing_enabled`** (for example **`/v1/*`**, **`/health/*`**, **`/metrics`**) to the primary API origin (`backend_hostname`).
+**Preferred operating mode (owner 2026-07-31 — Option D, no Front Door):** deploy the **same** `archlucid-ui` image twice:
 
-**Option B** (no app fork): Deploy the **same image** twice (marketing-only scale-out vs operator) and set **`marketing_backend_hostname`** to the marketing Container App; Terraform already models the second origin (`frontdoor-marketing-routes.tf`).
+| Role | Container App | Custom hostname |
+|------|---------------|-----------------|
+| Marketing | `marketing_ui_container_app_name` (`archlucid-ui-marketing`) | apex / `www` → `marketing_ui_custom_domain_name` |
+| Operator | `ui_container_app_name` (`archlucid-ui`) | `app.<domain>` → `ui_custom_domain_name` |
 
-Static-only marketing export (**Option C**) is **explicitly deferred** — funnel and demo routes require server runtime.
+TLS via Container Apps managed certificates + DNS CNAME (see `infra/terraform-container-apps/README.md`). CD rolls both apps from one digest (`CONTAINER_APP_UI_NAME` + `CONTAINER_APP_MARKETING_UI_NAME`). Cross-host links: `archlucid-ui/src/lib/site-urls.ts`. API CORS must allow both origins. Backlog **TB-2016 – TB-2020**.
 
-See also: **`infra/terraform-edge/README.md`**, **`infra/terraform-edge/frontdoor-marketing-routes.tf`**, **`archlucid-ui/src/app/(marketing)/layout.tsx`**.
+**Option A** (legacy single-app): one Next.js build serves marketing + operator + executive on one hostname; optional Front Door path rules. Still valid for pilots that omit a second UI app (`enable_marketing_ui_container_app = false`).
+
+**Option B** (Front Door dual origin): same image twice with **`marketing_backend_hostname`** + `frontdoor-marketing-routes.tf`. Available if WAF/CDN is later required — not the default cost path.
+
+Static-only marketing export (**Option C**) remains **deferred** — funnel/demo routes need Next SSR/proxy even when business logic is API REST.
+
+See also: **`infra/terraform-container-apps/marketing_ui.tf`**, **`infra/terraform-edge/README.md`** (optional), **`archlucid-ui/src/app/(marketing)/layout.tsx`**.
 
 ## Component Breakdown
 

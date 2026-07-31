@@ -1,17 +1,25 @@
 > **Scope:** Contributor-reference — owner-directed assessment of marketing vs product app separation; not a buyer or operator document.
-> **Decision date:** 2026-07-10. **Owner:** product owner (solo founder).
+> **Decision date:** 2026-07-10 (initial). **Owner override:** 2026-07-31 — dual Container App hostname split, same image, **no Front Door**.
 > **Audience:** engineers and AI coding agents evaluating hosting/deployment changes to `archlucid-ui`.
-> **Depends on:** [`PUBLIC_MARKETING_SITE_TOPOLOGY.md`](PUBLIC_MARKETING_SITE_TOPOLOGY.md) (existing, still-current routing/hosting decision for the apex domain), `archlucid-ui/src/components/OperatorRoleGate.tsx` / `OperatorHomeGate.tsx` (in-app auth boundary), `infra/terraform-container-apps` (UI Container App compute).
-> **Explicitly out of scope for the recommended strategy:** any new Azure Front Door work (new origin, new route rules, new custom domain binding). Front Door stays exactly as configured today — this was an owner constraint given during this assessment, not a technical requirement.
-> **Backlog:** **TB-729 – TB-731** — in [`TECH_BACKLOG.md`](TECH_BACKLOG.md) (see `## TB-729` there).
+> **Depends on:** [`PUBLIC_MARKETING_SITE_TOPOLOGY.md`](PUBLIC_MARKETING_SITE_TOPOLOGY.md), `archlucid-ui/src/components/OperatorRoleGate.tsx` / `OperatorHomeGate.tsx`, `infra/terraform-container-apps` (operator + marketing UI apps).
+> **Still out of scope:** new Azure Front Door investment (owner cost constraint unchanged).
+> **Backlog:** interim autoscaling/gates/metrics **TB-729 – TB-731** (Done). Dual-CA split **TB-2016 – TB-2020**.
 
 # Should ArchLucid separate marketing from the product app?
 
 ## Bottom line
 
-**No — keep one Next.js app, one deployment, one apex domain (`archlucid.net`).** The codebase already implements most of the isolation this question is really asking for: route-group separation (`(marketing)` vs `(operator)` vs `(executive)`), separate nav chrome, ISR caching on marketing routes, split analytics (Clarity vs App Insights), and a documented decision (`PUBLIC_MARKETING_SITE_TOPOLOGY.md`) that already rejected a pure static export because signup, quote-request, early-access, and quick-scan all require server-side API calls.
+**Owner override (2026-07-31): yes — separate marketing and operator onto two Container Apps, same Next.js image / same CD deploy, no Front Door.**
 
-**A real deployment/domain split is not recommended now, and the traffic-isolation lever that was originally the strongest reason to consider one — deploying a second Container App behind a second Azure Front Door origin ("Option B" in the topology doc) — is explicitly excluded here per owner direction to avoid new Front Door investment.** The lower-cost alternative below achieves the same practical goal (a marketing traffic burst cannot starve the authenticated app) without touching Front Door at all.
+| Host | App | Image |
+|------|-----|-------|
+| `archlucid.net` / `www` | `archlucid-ui-marketing` | `archlucid-ui` (same digest) |
+| `app.archlucid.net` | `archlucid-ui` | same digest |
+| API host | `archlucid-api` | unchanged |
+
+Cross-host CTAs use `archlucid-ui/src/lib/site-urls.ts` (`ARCHLUCID_PUBLIC_SITE_URL` / `ARCHLUCID_APP_SITE_URL`). Funnel REST still hits the API (via Next `/api/proxy` or SSR fetch) — Next remains on the marketing app for ISR/SSR; a pure static export is still rejected.
+
+**Historical note (2026-07-10):** the original recommendation was “do not split yet” and ship **TB-729–TB-731** instead. Those remain Done and still useful. The 2026-07-31 decision adds hard traffic isolation via a second UI Container App + custom domains, without paying for Front Door (topology **Option D**).
 
 ---
 
