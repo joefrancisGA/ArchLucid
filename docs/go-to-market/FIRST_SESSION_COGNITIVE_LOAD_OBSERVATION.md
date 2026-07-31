@@ -9,7 +9,7 @@
 
 **Purpose:** Determine whether a competent principal architect reaches a **sponsor-ready architecture package** on first use **without feature-tour narration**. Measure first-session completion, export discovery, and dismissal triggers so ArchLucid can quantify **30-day voluntary usage risk** before investing in UI changes.
 
-**Path under test:** [`CORE_PILOT.md`](../CORE_PILOT.md) · [`FIRST_15_MINUTES_FOR_PRINCIPAL_ARCHITECTS.md`](../library/FIRST_15_MINUTES_FOR_PRINCIPAL_ARCHITECTS.md) (expert 15-min lane) · [`FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) · [`OPERATOR_DECISION_GUIDE.md`](../library/OPERATOR_DECISION_GUIDE.md) · [`PRODUCT_PACKAGING.md`](../library/PRODUCT_PACKAGING.md)
+**Path under test:** [`CORE_PILOT.md`](../CORE_PILOT.md) · [`CANONICAL_FIRST_RUN_PATH.md#expert-principal-architect-15-minute-lane`](../library/CANONICAL_FIRST_RUN_PATH.md#expert-principal-architect-15-minute-lane) (expert 15-min lane; `FIRST_15_MINUTES_FOR_PRINCIPAL_ARCHITECTS.md` alias) · [`FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) · [`OPERATOR_DECISION_GUIDE.md`](../library/OPERATOR_DECISION_GUIDE.md) · [`PRODUCT_PACKAGING.md`](../library/PRODUCT_PACKAGING.md)
 
 **Artifact root:** `artifacts/first-session/<cohort-label>/` (local; do not commit customer-identifying content) · fixtures: [`fixtures/first-session/README.md`](../../fixtures/first-session/README.md)
 

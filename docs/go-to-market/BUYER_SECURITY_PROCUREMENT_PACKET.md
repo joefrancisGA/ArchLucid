@@ -3535,7 +3535,7 @@ Do not promise that artifact-mode replay proves architecture is unchanged, or th
 
 ## First-15 + package-spine IA + dismissal-reducing see-list (M-181) {#pa-first-15-package-spine-ia-m-181}
 
-Former standalone body: `docs/go-to-market/PA_FIRST_15_PACKAGE_SPINE_IA_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-180** / **M-181** / **TB-1030**). Cite [`../library/FIRST_15_MINUTES_FOR_PRINCIPAL_ARCHITECTS.md`](../library/FIRST_15_MINUTES_FOR_PRINCIPAL_ARCHITECTS.md) + [`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md`](FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md). Complements [Operator primary object (M-177)](#operator-primary-object-nav-collapse-m-177) and [Core Pilot happy-path (M-242)](#core-pilot-happy-path-m-242). Live validation remains **M-44** / **M-48** (V1.1 — do not reopen). Not an assurance attestation.
+Former standalone body: `docs/go-to-market/PA_FIRST_15_PACKAGE_SPINE_IA_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-180** / **M-181** / **TB-1030**). Cite [`../library/CANONICAL_FIRST_RUN_PATH.md#expert-principal-architect-15-minute-lane`](../library/CANONICAL_FIRST_RUN_PATH.md#expert-principal-architect-15-minute-lane) + [`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md`](FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md). Complements [Operator primary object (M-177)](#operator-primary-object-nav-collapse-m-177) and [Core Pilot happy-path (M-242)](#core-pilot-happy-path-m-242). Live validation remains **M-44** / **M-48** (V1.1 — do not reopen). Not an assurance attestation.
 
 **Path-stable alias:** [`PA_FIRST_15_PACKAGE_SPINE_IA_PA_ONE_PAGER.md`](PA_FIRST_15_PACKAGE_SPINE_IA_PA_ONE_PAGER.md).
 
@@ -3604,10 +3604,10 @@ Do not promise “15 minutes without founder narration,” “product-led first 
 
 - **TB-1030** / **TB-1031** own first-15 / package-spine language guards.
 - Live validation remains **M-44** / **M-48**; does not reopen those V1.1 rows.
-- Cite [`../library/FIRST_15_MINUTES_FOR_PRINCIPAL_ARCHITECTS.md`](../library/FIRST_15_MINUTES_FOR_PRINCIPAL_ARCHITECTS.md) + [`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md`](FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md).
+- Cite [`../library/CANONICAL_FIRST_RUN_PATH.md#expert-principal-architect-15-minute-lane`](../library/CANONICAL_FIRST_RUN_PATH.md#expert-principal-architect-15-minute-lane) + [`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md`](FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md).
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
 
-**Related:** [Operator primary object (M-177)](#operator-primary-object-nav-collapse-m-177) · [Core Pilot happy-path (M-242)](#core-pilot-happy-path-m-242) · [Shared hallucination defense plane (M-212)](#shared-hallucination-defense-plane-m-212) · [Comparison/replay snapshot (M-175)](#comparison-replay-immutable-snapshot-m-175) · [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) · [`../library/FIRST_15_MINUTES_FOR_PRINCIPAL_ARCHITECTS.md`](../library/FIRST_15_MINUTES_FOR_PRINCIPAL_ARCHITECTS.md) · [`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md`](FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+**Related:** [Operator primary object (M-177)](#operator-primary-object-nav-collapse-m-177) · [Core Pilot happy-path (M-242)](#core-pilot-happy-path-m-242) · [Shared hallucination defense plane (M-212)](#shared-hallucination-defense-plane-m-212) · [Comparison/replay snapshot (M-175)](#comparison-replay-immutable-snapshot-m-175) · [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) · [`../library/CANONICAL_FIRST_RUN_PATH.md#expert-principal-architect-15-minute-lane`](../library/CANONICAL_FIRST_RUN_PATH.md#expert-principal-architect-15-minute-lane) · [`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md`](FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## Shared hallucination defense plane (M-212) {#shared-hallucination-defense-plane-m-212}
 
