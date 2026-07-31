@@ -28,6 +28,7 @@ import {
   waitForReadyForCommit,
 } from "./helpers/live-api-client";
 import { expectFinalizedManifestLinkVisible, expectLiveManifestDetailPageReady } from "./helpers/operator-journey";
+import { ensureFullGuidedWizardMode } from "./helpers/reviews-new-baseline-wizard";
 import { uniqueTrialWorkEmail } from "./helpers/trial-registration-email";
 import { manifestIdFromSignedRecordHref, runIdFromReviewsHref } from "./helpers/run-id-from-href";
 
@@ -288,6 +289,8 @@ test.describe("live-api-trial-end-to-end", () => {
 
     // NewRunWizardClient is dynamic-imported on the detailed tab — wait before interacting.
     await expect(page.locator("[data-wizard-ready='true']")).toBeAttached({ timeout: 120_000 });
+    // Default wizard mode is quick start; full preset step (wizard-start-blank) requires explicit full mode.
+    await ensureFullGuidedWizardMode(page);
     await expect(page.getByTestId("wizard-start-blank")).toBeVisible({ timeout: 120_000 });
     // Renamed from "Use defaults" — advances off the starting-point step via onStartingPointCommitted.
     await page.getByTestId("wizard-start-blank").click();

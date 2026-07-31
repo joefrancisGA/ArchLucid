@@ -16,14 +16,20 @@ describe("example-roi-bulletin marketing page", () => {
     expect(md.split("\n")[0]).toContain("FORBIDDEN");
   });
 
-  it("keeps operator-only admin preview with minTenants=5 and purges contributor paths (TB-1520)", () => {
-    const source = readFileSync(join(__dirname, "page.tsx"), "utf8");
+  it("keeps admin-only preview with minTenants=5 and purges contributor paths (TB-1520)", () => {
+    const pageSource = readFileSync(join(__dirname, "page.tsx"), "utf8");
+    const honestySource = readFileSync(
+      join(process.cwd(), "src/lib/marketing/example-roi-bulletin-honesty.ts"),
+      "utf8",
+    );
 
-    expect(source).toContain("/api/proxy/v1/admin/roi-bulletin-preview");
-    expect(source).toContain("minTenants=5");
-    expect(source).toContain("Operator-only");
-    expect(source).not.toContain("docs/CLI_USAGE.md");
-    expect(source).toContain("index: false");
-    expect(source).toContain(EXAMPLE_ROI_BULLETIN_METHODOLOGY_HELP_HREF);
+    expect(honestySource).toContain("/api/proxy/v1/admin/roi-bulletin-preview");
+    expect(honestySource).toContain('params.set("minTenants", "5")');
+    expect(pageSource).toContain("Admin-only");
+    expect(pageSource).not.toContain("Operator-only");
+    expect(pageSource).not.toContain("docs/CLI_USAGE.md");
+    expect(pageSource).toContain("index: false");
+    expect(pageSource).toContain("EXAMPLE_ROI_BULLETIN_METHODOLOGY_HELP_HREF");
+    expect(EXAMPLE_ROI_BULLETIN_METHODOLOGY_HELP_HREF).toBe("/help/pilot-roi-model");
   });
 });

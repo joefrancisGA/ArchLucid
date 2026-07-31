@@ -11,6 +11,9 @@ UI_APP_DIR = REPO_ROOT / "archlucid-ui" / "src" / "app"
 UI_LIB_DIR = REPO_ROOT / "archlucid-ui" / "src" / "lib"
 HELP_REGISTRY = UI_LIB_DIR / "product-documentation-registry.ts"
 
+# Default Hit% for catalog paths newly inserted by sync-archlucid-ui-route-traffic-workbook.py.
+DEFAULT_NEW_HIT_PCT = "0.02%"
+
 # Legacy workbook paths → canonical catalog paths (scores and Hit% merge on collision).
 WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/alerts": "/governance/alerts",
@@ -36,13 +39,17 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/advisory-scheduling": "/governance/advisory-scans?tab=schedules",
     # TB-1134: Governance setup route rename.
     "/governance/first-30-days": "/governance/setup",
+    # TB-1441 / TB-1443: /alert-routing is next.config-only → Alert rules Routing tab.
+    "/alert-routing": "/governance/alert-rules?tab=routing",
 }
 
 # Legacy App Router redirect stubs — canonical nav hrefs live under /governance/advisory-scans (TB-1124).
+# /alert-routing has no App Router page after TB-1441 (next.config permanent redirect only).
 REDIRECT_ONLY_APP_PATHS = frozenset(
     {
         "/advisory",
         "/advisory-scheduling",
+        "/alert-routing",
     }
 )
 

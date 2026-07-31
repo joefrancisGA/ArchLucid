@@ -1132,7 +1132,7 @@ export const BUYER_DECISION_KEY_SUMMARY = "Decision key";
 export const BUYER_MANIFEST_HEADLINE_SUFFIX = "architecture review";
 
 export const BUYER_MANIFEST_AUTHORITY_SUMMARY =
-  "This signed review record is the authoritative architecture package for this review — decisions, findings, and downloadable deliverables.";
+  "This signed review record is the authoritative record for this review — decisions, findings, and downloadable deliverables.";
 
 export const BUYER_MANIFEST_TOP_RISK_CTA = "View top risk and evidence";
 

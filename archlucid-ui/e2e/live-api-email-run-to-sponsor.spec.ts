@@ -3,7 +3,7 @@
  * Default `playwright.config.ts` is live-backed; run `npx playwright test` (or mock: `-c playwright.mock.config.ts`).
  * Set `LIVE_API_URL` if the API is not on http://127.0.0.1:5128.
  *
- * Covers the **Time-to-Value** in-product CTA on `/runs/[runId]`:
+ * Covers the post-commit sponsor deliverables banner on `/runs/[runId]`:
  *   - Drive a full create → execute → commit cycle so the run-detail page renders the post-commit
  *     `EmailRunToSponsorBanner`.
  *   - Click the banner's primary action and assert the browser receives an `application/pdf` download
@@ -101,26 +101,25 @@ test.describe("live-api-email-run-to-sponsor", () => {
       .toBe(true);
 
     if (await primary.isEnabled()) {
-      const downloadPromise = page.waitForEvent("download", { timeout: 60_000 });
+      // downloadFirstValueReportPdf uses fetch + blob anchor click — headless Chromium may not emit
+      // a Playwright "download" event. Assert the sponsor PDF POST succeeds and returns %PDF bytes.
+      const pdfResponsePromise = page.waitForResponse(
+        (response) =>
+          response.request().method() === "POST" &&
+          response.url().includes("/first-value-report.pdf") &&
+          response.ok(),
+        { timeout: 120_000 },
+      );
       await primary.click();
-      const download = await downloadPromise;
-
-      const filename = download.suggestedFilename();
-
-      expect(filename).toMatch(/first-value-report/i);
-      expect(filename.toLowerCase()).toMatch(/\.pdf$/);
-
-      const path = await download.path();
-
-      if (path === null) {
-        throw new Error("Browser download has no resolved path; cannot verify PDF magic bytes.");
-      }
-
-      const fs = await import("node:fs/promises");
-      const buf = await fs.readFile(path);
+      const pdfResponse = await pdfResponsePromise;
+      const buf = Buffer.from(await pdfResponse.body());
 
       expect(buf.byteLength).toBeGreaterThan(64);
       expect(buf.subarray(0, 4).toString("utf8")).toBe("%PDF");
+
+      const contentDisposition = pdfResponse.headers()["content-disposition"] ?? "";
+
+      expect(contentDisposition.toLowerCase()).toMatch(/first-value-report|\.pdf/);
 
       return;
     }

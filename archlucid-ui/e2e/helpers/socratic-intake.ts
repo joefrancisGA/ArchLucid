@@ -24,6 +24,62 @@ function isDraftSkipResponse(response: { url: () => string; request: () => { met
   );
 }
 
+function isDraftAdmitResponse(response: { url: () => string; request: () => { method: () => string } }): boolean {
+  const url = response.url();
+
+  return (
+    url.includes("/api/proxy/v1/architecture/draft/")
+    && url.includes("/admit")
+    && response.request().method() === "POST"
+  );
+}
+
+async function delayAfterRateLimitedAdmitResponse(
+  response: { headers: () => Record<string, string> },
+): Promise<void> {
+  const headers = response.headers();
+  const retryAfterRaw = headers["retry-after"] ?? headers["Retry-After"];
+  const seconds = retryAfterRaw ? Number.parseInt(String(retryAfterRaw).trim(), 10) : Number.NaN;
+  const ms =
+    Number.isFinite(seconds) && seconds > 0 ? Math.min(seconds * 1000, 60_000) : 2_500;
+
+  await new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/** Clicks guided-intake admit with 429 backoff — extended-matrix shards share one API process. */
+export async function clickSocraticAdmitWithRetry(page: Page, options?: { timeoutMs?: number }): Promise<void> {
+  const timeoutMs = options?.timeoutMs ?? 180_000;
+  const admitButton = page.getByTestId("socratic-admit");
+
+  await expect(admitButton).toBeEnabled({ timeout: 15_000 });
+
+  await expect
+    .poll(
+      async () => {
+        const admitResponsePromise = page.waitForResponse(isDraftAdmitResponse, { timeout: 90_000 });
+
+        await admitButton.click();
+
+        const admitResponse = await admitResponsePromise;
+
+        if (admitResponse.ok()) {
+          return true;
+        }
+
+        if (admitResponse.status() === 429) {
+          await delayAfterRateLimitedAdmitResponse(admitResponse);
+          return false;
+        }
+
+        throw new Error(
+          `draft admit failed ${admitResponse.status()}: ${(await admitResponse.text()).slice(0, 400)}`,
+        );
+      },
+      { timeout: timeoutMs, intervals: [250, 500, 1000, 2000] },
+    )
+    .toBe(true);
+}
+
 /** Waits until admit advances the wizard onto the clarifications step (step 1). */
 export async function waitForSocraticClarificationsStep(page: Page, timeoutMs = 90_000): Promise<void> {
   await expect
@@ -129,6 +185,12 @@ export async function skipAllSocraticClarificationsInUi(page: Page, options?: { 
         }
 
         if (!skipResponse.ok()) {
+          if (skipResponse.status() === 429) {
+            // Extended-matrix shards share one API — backoff and let expect.poll retry.
+            await page.waitForTimeout(2_000);
+            return false;
+          }
+
           throw new Error(
             `Skip clarification failed ${skipResponse.status()}: ${(await skipResponse.text()).slice(0, 400)}`,
           );

@@ -80,6 +80,11 @@ export function formatHours(hours: number): string {
     return `${Math.round(hours)} h`;
   }
 
+  // Whole hours stay unpadded (TB-1534 scorecard: "12 h"); fractional values keep one decimal.
+  if (Number.isInteger(hours) || Math.abs(hours - Math.round(hours)) < 1e-9) {
+    return `${Math.round(hours)} h`;
+  }
+
   return `${hours.toFixed(1)} h`;
 }
 

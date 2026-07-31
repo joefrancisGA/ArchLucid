@@ -7,6 +7,7 @@ import { useCallback, useEffect, useMemo, useState, useTransition } from "react"
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { StatusPill } from "@/components/StatusPill";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -501,8 +502,8 @@ export function RecommendationLearningOpsPageClient(props: Props) {
           <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Production activation</h2>
           <label className="block space-y-1">
             <span className={OPERATOR_TYPOGRAPHY.body}>Operational reason (required for rebuild in production)</span>
-            <textarea
-              className="min-h-20 w-full rounded border border-al-border bg-al-surface px-3 py-2 font-mono text-sm"
+            <Textarea
+              className="min-h-20 bg-al-surface-raised font-mono text-al-text-primary placeholder:text-al-text-placeholder"
               value={activateReason}
               onChange={(event) => setActivateReason(event.target.value)}
             />
@@ -553,8 +554,8 @@ export function RecommendationLearningOpsPageClient(props: Props) {
         {rollbackProfileId ? (
           <div className="mt-4 space-y-2 rounded border border-al-border/60 p-3">
             <p className="m-0 font-mono text-sm">Rollback target: {rollbackProfileId}</p>
-            <textarea
-              className="min-h-20 w-full rounded border border-al-border bg-al-surface px-3 py-2 font-mono text-sm"
+            <Textarea
+              className="min-h-20 bg-al-surface-raised font-mono text-al-text-primary placeholder:text-al-text-placeholder"
               placeholder="Operational reason (required)"
               value={rollbackReason}
               onChange={(event) => setRollbackReason(event.target.value)}

@@ -31,6 +31,8 @@ export type MarketingTierPricingSectionProps = {
   sectionHeadingId: string;
   /** Visible section title. */
   sectionTitle: string;
+  /** When false, omits the visible section heading (page hero owns the h1). */
+  showSectionHeading?: boolean;
   /** Optional short intro under the title. */
   sectionIntro?: string;
   /** Primary CTA target (include UTM query string when desired). */
@@ -94,10 +96,16 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
   }, []);
 
   return (
-    <section aria-labelledby={props.sectionHeadingId} className="mb-10">
-      <h2 id={props.sectionHeadingId} className={cn("mb-2 font-semibold tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>
-        {props.sectionTitle}
-      </h2>
+    <section
+      aria-labelledby={props.showSectionHeading !== false ? props.sectionHeadingId : undefined}
+      aria-label={props.showSectionHeading === false ? "Pricing tiers" : undefined}
+      className="mb-10"
+    >
+      {props.showSectionHeading !== false ? (
+        <h2 id={props.sectionHeadingId} className={cn("mb-2 font-semibold tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>
+          {props.sectionTitle}
+        </h2>
+      ) : null}
       {props.sectionIntro ? (
         <p className={cn("mb-6 max-w-3xl text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>{props.sectionIntro}</p>
       ) : null}

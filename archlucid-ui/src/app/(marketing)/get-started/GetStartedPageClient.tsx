@@ -143,7 +143,7 @@ export function GetStartedPageClient(): ReactElement {
         <p className={cn("mt-2 max-w-3xl text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>
           Select an industry to open a completed sample review. No sign-in is required.
         </p>
-        <p className={cn("mt-2 max-w-3xl text-al-text-secondary", MARKETING_TYPOGRAPHY.meta)}>{GET_STARTED_SAMPLE_PATH_NOTE}</p>
+        <p className={cn("mt-2 max-w-3xl text-al-text-primary", MARKETING_TYPOGRAPHY.meta)}>{GET_STARTED_SAMPLE_PATH_NOTE}</p>
         <ul className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3" role="list" data-testid="get-started-vertical-picker">
           {GET_STARTED_VERTICAL_PRESENTATIONS.map((vertical) => {
             const Icon = vertical.icon;
