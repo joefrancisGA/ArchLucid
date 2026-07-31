@@ -381,7 +381,7 @@ Use this ROI model (and [`PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md)) t
 
 1. Export **Prometheus** totals for **`archlucid_llm_*`** after a representative week.
 2. Re-run the appropriate [k6](../library/LOAD_TEST_BASELINE.md) profile for your rollout tier.
-3. Drop results into [`PROOF_OF_VALUE_SNAPSHOT.md`](../library/PROOF_OF_VALUE_SNAPSHOT.md) binder for exec sign-off.
+3. Drop results into [`PILOT_SUCCESS_SCORECARD.md#proof-of-value-snapshot-assembly`](PILOT_SUCCESS_SCORECARD.md#proof-of-value-snapshot-assembly) binder for exec sign-off.
 
 Former standalone: `docs/go-to-market/COST_GUIDE.md` → this section.
 

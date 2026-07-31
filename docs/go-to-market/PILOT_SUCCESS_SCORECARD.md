@@ -1,6 +1,6 @@
 > **Reviewed:** 2026-07-31
 
-> **Scope:** ArchLucid pilot success scorecard — full detail, tables, and links below — plus the steering / ARB decision memo template (formerly `STEERING_DECISION_MEMO_TEMPLATE.md`), the customer onboarding operating playbook (formerly `CUSTOMER_ONBOARDING_PLAYBOOK.md`), the pilot ROI measurement model (formerly the body of `docs/library/PILOT_ROI_MODEL.md`; that filename remains a path-stable alias for product/CI strings), the renewal/expansion playbook plus customer health scoring (formerly the body of `RENEWAL_EXPANSION_PLAYBOOK.md`; that filename remains a path-stable alias), the minimum viable pilot success lane (formerly the body of `docs/library/MINIMUM_VIABLE_PILOT_SUCCESS.md`; that filename remains a path-stable alias for operator cookbooks), and the internal dogfood pilot kit (formerly the body of `docs/library/DOGFOOD_PILOT_KIT.md`; that filename remains a path-stable alias for M-93 / PMF Pilot A).
+> **Scope:** ArchLucid pilot success scorecard — full detail, tables, and links below — plus the steering / ARB decision memo template (formerly `STEERING_DECISION_MEMO_TEMPLATE.md`), the customer onboarding operating playbook (formerly `CUSTOMER_ONBOARDING_PLAYBOOK.md`), the pilot ROI measurement model (formerly the body of `docs/library/PILOT_ROI_MODEL.md`; that filename remains a path-stable alias for product/CI strings), the renewal/expansion playbook plus customer health scoring (formerly the body of `RENEWAL_EXPANSION_PLAYBOOK.md`; that filename remains a path-stable alias), the minimum viable pilot success lane (formerly the body of `docs/library/MINIMUM_VIABLE_PILOT_SUCCESS.md`; that filename remains a path-stable alias for operator cookbooks), the internal dogfood pilot kit (formerly the body of `docs/library/DOGFOOD_PILOT_KIT.md`; that filename remains a path-stable alias for M-93 / PMF Pilot A), and the proof-of-value snapshot assembly playbook (formerly the body of `docs/library/PROOF_OF_VALUE_SNAPSHOT.md`; that filename remains a path-stable alias).
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -369,6 +369,97 @@ Before presenting, run through [`QUOTE_TO_PROOF_PACKET.md#commercial-conversion-
 | Risk | Mitigation |
 |------|-----------|
 | [Risk identified during pilot] | [How to address it] |
+
+---
+
+## Proof-of-value snapshot assembly {#proof-of-value-snapshot-assembly}
+
+Former standalone body: `docs/library/PROOF_OF_VALUE_SNAPSHOT.md` → this section (filename kept as a path-stable alias). Complements [§6 Report template for leadership](#6-report-template-for-leadership) and [`#pilot-roi-measurement`](#pilot-roi-measurement). **Not** a financial guarantee or substitute for purchaser legal diligence.
+
+**Path-stable alias:** [`../library/PROOF_OF_VALUE_SNAPSHOT.md`](../library/PROOF_OF_VALUE_SNAPSHOT.md).
+
+**Last reviewed:** 2026-07-31
+
+Use this playbook when stakeholders ask for **one** cohesive evidence package after a staged evaluation: **time-to-manifest** under real AOAI (full authority run), **API stability** under scripted concurrent traffic (**k6** summary JSON), **tangible savings** modeled with the Pilot ROI workbook ([`#pilot-roi-measurement`](#pilot-roi-measurement); templates in [`ROI_MODEL.md`](ROI_MODEL.md)), and **explainability completeness** (`ExplainabilityTrace`) surfaced per finding via the deterministic explainability endpoint.
+
+### Objective
+
+Deliver a reproducible dossier tying four independent signals:
+
+1. **Throughput of the pilot workflow** — end-to-end wall clock from scripted create → committed manifest (`benchmark-real-mode-e2e.ps1`).
+2. **Service behavior under scripted load** — aggregate HTTP latency and failure rate — **k6** `--summary-export` (`tests/load/ci-smoke.js` is the smallest merge-blocking profile; fuller baselines live in [`LOAD_TEST_BASELINE.md`](../library/LOAD_TEST_BASELINE.md)).
+3. **Economics grounded in organizational inputs** — values copied from Pilot ROI spreadsheets or first-value Markdown tables (`MEASURED_VS_BASELINE`, deltas in [`#pilot-roi-measurement`](#pilot-roi-measurement) §4–5 narratives).
+4. **Auditability completeness** — per-finding `traceCompletenessRatio` (`GET /v1/explain/runs/{runId}/findings/{findingId}/explainability`) aggregated qualitatively (table of sample findings + Prometheus histogram `archlucid_explainability_trace_completeness_ratio` in [`OBSERVABILITY.md`](../library/OBSERVABILITY.md) when telemetry export is configured).
+
+### Assumptions
+
+- Evidence is sourced from **non-production** stacks unless procurement explicitly sanctions production sampling.
+- You will **redact** tenant-identifying strings before sharing externally (run IDs alone are often acceptable; customer names belong in prose, not pasted SQL).
+- The benchmark JSON (`artifacts/benchmark-real-mode-latest.json`) is **gitignored** — store copies beside this narrative snapshot (SharePoint attachment, Evidence folder, Deal Room binder).
+
+### Constraints
+
+- **Secrets never appear**: benchmark JSON exposes only `environment.apiKeyEnvPresent` booleans — never keys.
+- k6 summaries contain **rates and percentiles**, not customer payloads.
+- Regulatory sign-off (**SOC 2**, **legal**, **procurement**) remains separate from engineering evidence.
+
+### Inputs (minimal artifact set)
+
+| Signal | Canonical source | Retrieval |
+| --- | --- | --- |
+| Full-run timing | Stable JSON (`schemaVersion` `1.0.0`, `kind` `archlucid.benchmark.realModeE2e.v1`) | Run `scripts/benchmark-real-mode-e2e.ps1` (`-SkipArtifact` for CI-only stdout) — see [`REAL_MODE_BENCHMARK.md`](../library/REAL_MODE_BENCHMARK.md). |
+| Load-test envelope | `k6-ci-summary.json` (CI) or `k6-summary.json` (manual `record_baseline`) | `k6 run ... --summary-export path.json`; see **K6 summary export JSON** in [`REAL_MODE_BENCHMARK.md`](../library/REAL_MODE_BENCHMARK.md). |
+| ROI narrative | Pilot ROI tables / computed deltas | Copy cells from spreadsheets aligned with [`#pilot-roi-measurement`](#pilot-roi-measurement) measurement rows; reconcile with [`ROI_MODEL.md`](ROI_MODEL.md) value levers — avoid double-counted savings categories. |
+| Trace completeness score | Persisted `ExplainabilityTrace` | Call explainability REST shape returning `traceCompletenessRatio` and `missingTraceFields` (`ExplanationController`), or correlate OTel Prometheus metric family documented in [`OBSERVABILITY.md`](../library/OBSERVABILITY.md). |
+
+### Assembly workflow
+
+1. **Capture benchmark JSON** immediately after each formal pilot run scenario (warm stack, AOAI quotas healthy). Archive with filename `benchmark-real-mode-<YYYYMMDD>-run-<suffix>.json` if retaining multiple attempts.
+2. **Capture k6 summary** from the tier you need: merge-blocking CI (`tests/load/ci-smoke.js`) for operator API smoke, or Compose baseline (`tests/load/hotpaths.js`) for deeper hot-path evidence — store JSON alongside the benchmark file.
+3. **Snapshot ROI numbers** from the pilot workbook (hours saved, delta vs baseline cost, compliance gap reduction the customer confirmed) — paste into the template table below.
+4. **Sample explainability** on 3–5 representative findings (high/medium severity mix). Record `traceCompletenessRatio` and note whether `missingTraceFields` is empty for each.
+5. **Write the sponsor one-pager** using the [sponsor narrative template](#pov-sponsor-narrative-template) below (export to PDF or slide — both start from the same Markdown).
+
+**Structured pilot row (anonymized):** [PMF buyer-safe evidence row](../archive/gtm-internal/PMF_VALIDATION_TRACKER.md#21a-buyer-safe-evidence-row-template) — use when populating [PMF_VALIDATION_TRACKER.md](../archive/gtm-internal/PMF_VALIDATION_TRACKER.md) alongside this snapshot.
+
+### Sponsor narrative template (copy into an email or deck) {#pov-sponsor-narrative-template}
+
+| Field | Value |
+| --- | --- |
+| **Evidence date / UTC window** |  |
+| **Environment note** | e.g., dedicated pilot tenant vs. shared sandbox |
+| **Real-mode benchmark** (`totalMs`, `targets.totalWallClockUnderFiveMinutes`) |  |
+| **k6** — global `http_req_duration` **`p(95)`** ms; `http_req_failed` rate |  |
+| **Pilot ROI deltas** — hours reclaimed / modeled annual savings bracket | cite spreadsheet row refs |
+| **Explainability completeness** — min / avg ratio across sampled findings |  |
+
+**Storyline bullets (adapt):**
+
+1. We measured **X** minutes from request to committed manifest under real Azure OpenAI configuration — **meets / does not meet** the **< 5 minute** design target (see `targets.totalWallClockUnderFiveMinutes`).
+2. Concurrent API smoke shows **p95 Y ms** with **failed rate Z** under the recorded k6 profile — **stable / needs capacity follow-up** before broad rollout.
+3. Modeled savings using customer-supplied hours and risk assumptions land at **$A–$B** annualized (methodology: [`#pilot-roi-measurement`](#pilot-roi-measurement), assumptions column completed by **< role >**).
+4. Explainability traces average **ratio R** across pilot findings — evidence is structured for auditor follow-up (`ExplainabilityTrace` fields present / gaps listed per finding).
+
+### Security
+
+- Never attach raw API keys, PATs, or Azure OpenAI endpoint keys.
+- If sharing HTTP captures, strip cookies and auth headers.
+- Treat committed manifest excerpts as **confidential** unless the customer approves distribution.
+- Select a **redaction profile** before building or forwarding any pack — [`PROOF_PACK_REDACTION_PROFILES.md`](../library/PROOF_PACK_REDACTION_PROFILES.md) (`internal-pilot`, `customer-approved-external`, `anonymous-benchmark`).
+
+### Operational considerations
+
+- Re-run the bundle after **material** changes: model deployment swap, token budget change, new region, or SQL tier lift.
+- Version-control this narrative in your **customer** workspace; the repository copy here is the **method** only — numbers change per engagement.
+
+### References
+
+- [`PROOF_PACK_REDACTION_PROFILES.md`](../library/PROOF_PACK_REDACTION_PROFILES.md) — operational redaction profiles for sponsor and benchmark packs.
+- [`REAL_MODE_BENCHMARK.md`](../library/REAL_MODE_BENCHMARK.md) — PowerShell schema + k6 JSON format.
+- [`LOAD_TEST_BASELINE.md`](../library/LOAD_TEST_BASELINE.md) — k6 scenarios, thresholds, baseline table conventions.
+- [`#pilot-roi-measurement`](#pilot-roi-measurement) · [`ROI_MODEL.md`](ROI_MODEL.md) — measurement + business case linkage.
+- [`OBSERVABILITY.md`](../library/OBSERVABILITY.md) — trace completeness histogram and alert rationale.
+- API: `GET /v1/explain/runs/{runId}/findings/{findingId}/explainability` (see OpenAPI / `ExplanationController`).
 
 ---
 
@@ -902,6 +993,7 @@ Hypothesis mapping (reminder):
 
 | Doc | Use |
 |-----|-----|
+| [`#proof-of-value-snapshot-assembly`](#proof-of-value-snapshot-assembly) · [`../library/PROOF_OF_VALUE_SNAPSHOT.md`](../library/PROOF_OF_VALUE_SNAPSHOT.md) (alias) | Sponsor PoV dossier assembly (bench + k6 + ROI + explainability) |
 | [`#dogfood-pilot-kit`](#dogfood-pilot-kit) · [`../library/DOGFOOD_PILOT_KIT.md`](../library/DOGFOOD_PILOT_KIT.md) (alias) | Internal ArchLucid-on-ArchLucid dogfood worksheets (M-93) |
 | [`#minimum-viable-pilot-success-lane`](#minimum-viable-pilot-success-lane) · [`../library/MINIMUM_VIABLE_PILOT_SUCCESS.md`](../library/MINIMUM_VIABLE_PILOT_SUCCESS.md) (alias) | Five-step operator first-win lane |
 | [`#pilot-roi-measurement`](#pilot-roi-measurement) · [`../library/PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md) (alias) | Pilot measurement companion (formerly standalone) |

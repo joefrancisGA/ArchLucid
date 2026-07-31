@@ -17,7 +17,7 @@ The benchmark exercises the full request-to-manifest pipeline:
 | **Execute** | `POST /v1/architecture/run/{id}/execute` + poll `GET /v1/architecture/run/{id}` | Agents produce results (LLM calls in real mode, deterministic stubs in simulator). |
 | **Commit** | `POST /v1/architecture/run/{id}/commit` | Merges agent results into a versioned architecture manifest. |
 
-The script records wall-clock milliseconds for each phase, prints JSON to stdout, and (unless `-SkipArtifact`) writes **`artifacts/benchmark-real-mode-latest.json`** at the repository root. For how to combine this file with k6 outputs and ROI tables for sponsors, see [`PROOF_OF_VALUE_SNAPSHOT.md`](PROOF_OF_VALUE_SNAPSHOT.md).
+The script records wall-clock milliseconds for each phase, prints JSON to stdout, and (unless `-SkipArtifact`) writes **`artifacts/benchmark-real-mode-latest.json`** at the repository root. For how to combine this file with k6 outputs and ROI tables for sponsors, see [`PILOT_SUCCESS_SCORECARD.md#proof-of-value-snapshot-assembly`](../go-to-market/PILOT_SUCCESS_SCORECARD.md#proof-of-value-snapshot-assembly).
 
 ## How to run
 
@@ -139,7 +139,7 @@ This target reflects a design goal for evaluator experience — an architecture 
 | **This script** | Real-mode E2E wall-clock (request → manifest) | `scripts/benchmark-real-mode-e2e.ps1` |
 | **`benchmark-e2e-time.ps1`** | General E2E with `-Mode` switch and `-Repeat` for multi-run stats | `scripts/benchmark-e2e-time.ps1` |
 | **Load test baseline** | Throughput and latency under concurrent load (k6 `--summary-export` JSON) | `scripts/load/hotpaths.js`, [`LOAD_TEST_BASELINE.md`](LOAD_TEST_BASELINE.md) — see [K6 summary export JSON](#k6-summary-export-json) below |
-| **Proof-of-value bundle** | Single sponsor narrative from bench + load + ROI + trace completeness | [`PROOF_OF_VALUE_SNAPSHOT.md`](PROOF_OF_VALUE_SNAPSHOT.md) |
+| **Proof-of-value bundle** | Single sponsor narrative from bench + load + ROI + trace completeness | [`PILOT_SUCCESS_SCORECARD.md#proof-of-value-snapshot-assembly`](../go-to-market/PILOT_SUCCESS_SCORECARD.md#proof-of-value-snapshot-assembly) |
 | **BenchmarkDotNet micro** | CPU-level merge, paging, dispatch micro-benchmarks | `ArchLucid.Benchmarks/` |
 | **CI smoke** | Merge-blocking latency gates on hot paths | `tests/load/ci-smoke.js` |
 

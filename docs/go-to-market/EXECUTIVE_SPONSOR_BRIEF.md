@@ -360,4 +360,4 @@ ArchLucid V1 is a bounded product contract for AI-assisted architecture work: ar
 1. **Trust Center index** — [`trust-center.md`](trust-center.md) (public site `/trust` when deployed).
 2. **Downloadable evidence pack (ZIP)** — `GET …/v1/marketing/trust-center/evidence-pack.zip` (see Trust Center).
 3. **Pilot ROI measurement companion** — [`PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md).
-4. **Proof-of-value snapshot playbook** — [`PROOF_OF_VALUE_SNAPSHOT.md`](../library/PROOF_OF_VALUE_SNAPSHOT.md).
+4. **Proof-of-value snapshot playbook** — [`PILOT_SUCCESS_SCORECARD.md#proof-of-value-snapshot-assembly`](PILOT_SUCCESS_SCORECARD.md#proof-of-value-snapshot-assembly).

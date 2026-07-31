@@ -1,4 +1,4 @@
-> **Scope:** Buyer — Redaction **profiles** for ArchLucid **proof-of-value** and **run-evidence** packages (Markdown/PDF/bundles). Complements assembly steps in **[PROOF_OF_VALUE_SNAPSHOT.md](PROOF_OF_VALUE_SNAPSHOT.md)**. **Not** legal advice; customer counsel owns external distribution when regulated data may be present.
+> **Scope:** Buyer — Redaction **profiles** for ArchLucid **proof-of-value** and **run-evidence** packages (Markdown/PDF/bundles). Complements assembly steps in **[PILOT_SUCCESS_SCORECARD.md#proof-of-value-snapshot-assembly](../go-to-market/PILOT_SUCCESS_SCORECARD.md#proof-of-value-snapshot-assembly)**. **Not** legal advice; customer counsel owns external distribution when regulated data may be present.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -39,7 +39,7 @@ The following **never** appear in any forwarded pack (replace with `[REDACTED]` 
 | **Secrets & credential-shaped** | API keys, PATs, connection strings, private keys, webhook secrets, OAuth refresh tokens |
 | **Bearer material** | `Authorization` headers, session cookies, magic links with embedded tokens |
 | **Cloud model credentials** | Azure OpenAI keys, inference endpoint secrets, subscription keys usable to invoke models |
-| **Raw auth captures** | Full HTTP traces unless every header/body field is reviewed; strip cookies and auth headers per **[PROOF_OF_VALUE_SNAPSHOT.md](PROOF_OF_VALUE_SNAPSHOT.md)** §7 |
+| **Raw auth captures** | Full HTTP traces unless every header/body field is reviewed; strip cookies and auth headers per **[PILOT_SUCCESS_SCORECARD.md#proof-of-value-snapshot-assembly](../go-to-market/PILOT_SUCCESS_SCORECARD.md#proof-of-value-snapshot-assembly)** §7 |
 
 These **LLM/trace categories** are indicative, not exhaustive (**[LLM_PROMPT_REDACTION.md](../runbooks/LLM_PROMPT_REDACTION.md)**): email, government-id / financial-card shapes, JWT-shaped tokens, long high-entropy strings — **plus** any customer-specific secret format discovered during review.
 
@@ -100,7 +100,7 @@ Exceptions noted: <none | see appendix>
 
 ## 5. Related documentation
 
-- **[PROOF_OF_VALUE_SNAPSHOT.md](PROOF_OF_VALUE_SNAPSHOT.md)** — assembly workflow and sponsor one-pager template.
+- **[PILOT_SUCCESS_SCORECARD.md#proof-of-value-snapshot-assembly](../go-to-market/PILOT_SUCCESS_SCORECARD.md#proof-of-value-snapshot-assembly)** — assembly workflow and sponsor one-pager template.
 - **[SECURITY.md](contributor-reference/SECURITY.md)** — PII-sized exports and retention posture.
 - **[TROUBLESHOOTING.md](../runbooks/TROUBLESHOOTING.md)** — support bundle contents and review-before-send.
 - **[pen-test-summaries/README.md](../security/pen-test-summaries/README.md)** — parallel discipline for redacted **security** summaries (internal URLs, tenant ids in repro).
