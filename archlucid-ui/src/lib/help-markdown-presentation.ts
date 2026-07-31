@@ -1329,6 +1329,36 @@ export function stripTenantIsolationContributorLeakage(markdown: string): string
 }
 
 /**
+ * TB-1677 — DPA template help: strip contributor .md / pack-path leakage; in-app trust links.
+ */
+export function stripDpaTemplateContributorLeakage(markdown: string): string {
+  return markdown
+    .replace(/> \*\*Spine doc:\*\*[^\n]*\n?/gi, "")
+    .replace(/`?START_HERE\.md`?/gi, "product documentation hub")
+    .replace(/START_HERE\.md/gi, "product documentation hub")
+    .replace(/`?SECURITY\.md`?/gi, "security documentation")
+    .replace(/contributor-reference\/SECURITY\.md/gi, "security documentation")
+    .replace(/`?\.\.\/security\/PII_RETENTION_CONVERSATIONS\.md`?/gi, "conversation retention documentation")
+    .replace(/PII_RETENTION_CONVERSATIONS\.md/gi, "conversation retention documentation")
+    .replace(/`?BUYER_SECURITY_PROCUREMENT_PACKET\.md[^`\s)]*`?/gi, "[Procurement FAQ](/help/procurement)")
+    .replace(/BUYER_SECURITY_PROCUREMENT_PACKET\.md[^\s)`]*/gi, "/help/procurement")
+    .replace(/\[trust-center\.md\]\(trust-center\.md\)/gi, "[Security and trust](/help/security-trust)")
+    .replace(/trust-center\.md/gi, "/help/security-trust")
+    .replace(/`?SUBPROCESSORS\.md`?/gi, "[Subprocessors](/help/subprocessors)")
+    .replace(/SUBPROCESSORS\.md/gi, "/help/subprocessors")
+    .replace(/`?INCIDENT_COMMUNICATIONS_POLICY\.md`?/gi, "incident communications policy")
+    .replace(/INCIDENT_COMMUNICATIONS_POLICY\.md/gi, "incident communications policy")
+    .replace(/`?ASSURANCE_STATUS_CANONICAL\.md[^`\s)]*`?/gi, "assurance status documentation")
+    .replace(/ASSURANCE_STATUS_CANONICAL\.md[^\s)`]*/gi, "assurance status documentation")
+    .replace(/`?docs\/go-to-market\/CROSS_TENANT_DATA_PROCESSING_ADDENDUM\.md`?/gi, "cross-tenant processing addendum")
+    .replace(/CROSS_TENANT_DATA_PROCESSING_ADDENDUM\.md/gi, "cross-tenant processing addendum")
+    .replace(/`?\.\.\/architecture\/adrs\/0031[^`\s)]*`?/gi, "cross-tenant pattern library architecture decision")
+    .replace(/ADR 0031/gi, "cross-tenant pattern library architecture decision")
+    .replace(/\n{3,}/g, "\n\n")
+    .trimEnd();
+}
+
+/**
  * TB-1653 / TB-1284 — soften absolute cross-tenant isolation claims in data-handling help.
  */
 export function alignDataHandlingIsolationHonesty(markdown: string): string {
@@ -1550,6 +1580,8 @@ export function prepareHelpMarkdownForPresentation(
     afterAudienceStrip = stripAzureBoardsContributorLeakage(sanitized);
   } else if (isCaiqSigResponse) {
     afterAudienceStrip = alignCaiqSigAssuranceHonesty(stripCaiqSigContributorLeakage(sanitized));
+  } else if (normalizedSourcePath.includes("dpa_template.md")) {
+    afterAudienceStrip = stripDpaTemplateContributorLeakage(sanitized);
   }
 
   const afterIsolationHonesty = alignDataHandlingIsolationHonesty(afterAudienceStrip);

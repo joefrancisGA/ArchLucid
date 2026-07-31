@@ -1,8 +1,6 @@
 ﻿> **Reviewed:** 2026-07-25
 
-> **Scope:** Data Processing Agreement (DPA) — Template (ArchLucid), including operational controls for optional cross-tenant patterns (formerly `CROSS_TENANT_DATA_PROCESSING_ADDENDUM.md`). Full detail, tables, and links in the sections below.
-
-> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
+> **Scope:** Data Processing Agreement (DPA) — Template (ArchLucid), including operational controls for optional cross-tenant patterns (formerly the cross-tenant processing addendum). Full detail, tables, and links in the sections below.
 
 
 # Data Processing Agreement (DPA) — Template (ArchLucid)
@@ -57,7 +55,7 @@ Including where such data appears in user-provided architecture descriptions, As
 - **Professional content:** technical descriptions, system names, URLs, pasted logs or documents that may identify individuals or systems.
 - **Usage and audit:** operational events recorded in the durable audit log (see product documentation), correlation identifiers, timestamps.
 
-See also [../security/PII_RETENTION_CONVERSATIONS.md](../security/PII_RETENTION_CONVERSATIONS.md) and [SECURITY.md](../library/contributor-reference/SECURITY.md) (PII and conversation retention).
+See also conversation retention and security documentation in [Security and trust](/help/security-trust) and [Data handling and tenant isolation](/help/data-handling-tenant-isolation).
 
 ---
 
@@ -71,17 +69,17 @@ Processing continues for the **subscription term** and until deletion or return 
 
 6.1 **Confidentiality:** Personnel authorized to process Personal Data are bound by confidentiality obligations.
 
-6.2 **Security:** Processor implements appropriate technical and organizational measures, including those described in [trust-center.md](trust-center.md), [BUYER_SECURITY_PROCUREMENT_PACKET.md#tenant-isolation-buyer-overview](BUYER_SECURITY_PROCUREMENT_PACKET.md#tenant-isolation-buyer-overview), and [SECURITY.md](../library/contributor-reference/SECURITY.md).
+6.2 **Security:** Processor implements appropriate technical and organizational measures, including those described in [Security and trust](/help/security-trust), [Procurement FAQ](/help/procurement), and the security documentation linked from the Trust Center.
 
-6.3 **Sub-processors:** Processor may engage Sub-processors listed in [SUBPROCESSORS.md](SUBPROCESSORS.md). Processor will impose data protection terms on Sub-processors. Controller may object to a **new** Sub-processor in accordance with the notification commitment in [SUBPROCESSORS.md](SUBPROCESSORS.md).
+6.3 **Sub-processors:** Processor may engage Sub-processors listed in [Subprocessors](/help/subprocessors). Processor will impose data protection terms on Sub-processors. Controller may object to a **new** Sub-processor in accordance with the notification commitment in [Subprocessors](/help/subprocessors).
 
 6.4 **Assistance:** Processor assists Controller with **data subject requests** and **DPIAs** as described in the agreement and applicable law, within reasonable scope.
 
-6.5 **Breach notification:** Processor notifies Controller **without undue delay** after becoming aware of a **personal data breach**, in line with [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md) and applicable law (including **72 hours** where GDPR Article 33 applies and Processor is responsible).
+6.5 **Breach notification:** Processor notifies Controller **without undue delay** after becoming aware of a **personal data breach**, in line with the incident communications policy described in [Security and trust](/help/security-trust) and applicable law (including **72 hours** where GDPR Article 33 applies and Processor is responsible).
 
 6.6 **Deletion / return:** At end of contract, Processor deletes or returns Personal Data per §9.
 
-6.7 **Audit:** Processor makes available **SOC 2** reports when available ([ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap](ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap)) and reasonable information necessary to demonstrate compliance.
+6.7 **Audit:** Processor makes available **SOC 2** reports when available (see assurance status in [Security and trust](/help/security-trust)) and reasonable information necessary to demonstrate compliance.
 
 ---
 
@@ -93,13 +91,13 @@ Where Personal Data is processed in jurisdictions requiring safeguards, Processo
 
 ## 8. Security incidents
 
-See [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md) for severity classification and customer communication expectations.
+See the incident communications policy described in [Security and trust](/help/security-trust) for severity classification and customer communication expectations.
 
 ---
 
 ## 9. Termination and data return
 
-9.1 **Export:** Controller may export data using product features (e.g., DOCX/ZIP exports, audit CSV) subject to RBAC; see [SECURITY.md](../library/contributor-reference/SECURITY.md) (exports may contain sensitive content).
+9.1 **Export:** Controller may export data using product features (e.g., DOCX/ZIP exports, audit CSV) subject to RBAC; see [Security and trust](/help/security-trust) (exports may contain sensitive content).
 
 9.2 **Deletion:** After termination, Processor deletes Customer Data within **90 days** except where retention is required by law or documented backup cycles; backups roll off per Processor’s retention schedule.
 
@@ -109,11 +107,11 @@ See [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md) for s
 
 **Purpose (product):** Where the Services offer **anonymised industry guidance** (patterns derived from multiple customers’ committed architecture manifests, surfaced only when a statistical privacy floor is met), that processing is **optional** and **separate** from core tenant-private processing.
 
-Former standalone operational addendum: `docs/go-to-market/CROSS_TENANT_DATA_PROCESSING_ADDENDUM.md` → this section.
+Former standalone operational addendum: cross-tenant processing addendum → this section.
 
 10.1 **Default:** Cross-tenant pattern participation is **OFF** unless Controller **explicitly** enables it in the product controls and, where required, documents that choice in the subscription or order form.
 
-10.2 **What is processed:** only non-identifying structural fingerprints and coarse aggregates, as documented below and in [ADR 0031 — Cross-tenant pattern library](../architecture/adrs/0031-cross-tenant-pattern-library.md); **not** free-text titles, URLs, user names, or customer-identifying labels in the operator-facing guidance surface.
+10.2 **What is processed:** only non-identifying structural fingerprints and coarse aggregates, as documented below and in the cross-tenant pattern library architecture decision; **not** free-text titles, URLs, user names, or customer-identifying labels in the operator-facing guidance surface.
 
 10.3 **Privacy mechanism:** Processor applies a minimum cohort size (**k >= 5** distinct contributing tenants per published bucket, unless a stricter value is agreed in writing) before showing any pattern to other tenants.
 
@@ -185,5 +183,5 @@ These records support procurement and compliance evidence requests and should ma
 
 | Doc | Use |
 |-----|-----|
-| [SUBPROCESSORS.md](SUBPROCESSORS.md) | Current subprocessor list |
-| [trust-center.md](trust-center.md) | Trust index |
+| [Subprocessors](/help/subprocessors) | Current subprocessor list |
+| [Security and trust](/help/security-trust) | Trust index |

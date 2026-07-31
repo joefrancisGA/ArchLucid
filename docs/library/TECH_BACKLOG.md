@@ -1,4 +1,4 @@
-**Updated:** 2026-07-30 (**TB-1659** **Done** — tenant-isolation help strips pack-alias/repo-path leakage; buyer three-layer summary; Vitest). Prior: 2026-07-30 (**TB-1541**/**TB-1553**/**TB-1673** **Done** — Reviews hub RE: header Start, Compact empty, resting links; Vitest).
+**Updated:** 2026-07-30 (**TB-1677** **Done** — DPA template help strips contributor `.md`/pack-path leakage; buyer in-app trust links; Vitest). Prior: 2026-07-30 (**TB-1659** **Done** — tenant-isolation help strips pack-alias/repo-path leakage; buyer three-layer summary; Vitest).
 
 > **Scope:** Engineering-owned technical backlog items deferred from current sessions; audience is contributors and the AI assistant; not a buyer or operator document. Not a substitute for ADRs or the pending-questions owner decisions file.
 
@@ -1245,7 +1245,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1674 | Finding badges + secondary surfaces — StatusTag-as-link cue + export/ID/pinned inventory; see ## TB-1674 below | Adoption friction P1 — **V1**; with **TB-1671**; product-learning / planning / evolution / pinned nav | M |
 | TB-1675 | Vitest — bare navigational `<a>`/`<Link>` affordance allowlist + ban inherit-only body links; see ## TB-1675 below | Testability P2 — **V1**; after **TB-1672**–**TB-1674**; pairs **TB-1671** / **TB-1556** / **TB-1576** / **TB-1650** / **TB-1665** / **TB-1670** | S |
 | TB-1676 | `/help/dpa-template` specialty buyer DPA guide + request/download CTA; see ## TB-1676 below | Adoption friction P1 — **V1**; owner review ~40/100 2026-07-27; traffic **HDP**; pairs **TB-1414**; IDs skip **TB-1661**–**TB-1675** | M |
-| TB-1677 | DPA help — contributor / .md path leakage strip; see ## TB-1677 below | Trustworthiness P0 — **V1**; with **TB-1676**; pairs **TB-1235** | S |
+| TB-1677 | ~~DPA help — contributor / .md path leakage strip~~ **Done** 2026-07-30 — `stripDpaTemplateContributorLeakage`; source `DPA_TEMPLATE.md` buyer links; Vitest | Trustworthiness P0 — **V1**; with **TB-1676**; pairs **TB-1235** | S |
 | TB-1678 | DPA help — placeholder / negotiation-template first-viewport honesty; see ## TB-1678 below | Trustworthiness P1 — **V1**; with **TB-1676** | S |
 | TB-1679 | DPA help — Help Center discovery + Trust/subprocessors IA; see ## TB-1679 below | Adoption friction P1 — **V1**; with **TB-1676** | S |
 | TB-1680 | DPA help — runs jargon + dense clause dump defer; see ## TB-1680 below | Adoption friction P1 — **V1**; with **TB-1676** | S |
@@ -41870,11 +41870,11 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1677 — DPA help — contributor / .md path leakage strip (P0)
 
-**Window:** V1 — Trustworthiness. **Status:** Not started. **Priority:** P0.
+**Window:** V1 — Trustworthiness. **Status:** **Done** 2026-07-30. **Priority:** P0.
 
 **Problem:** In-product body links `SECURITY.md`, `PII_RETENTION_CONVERSATIONS.md`, `START_HERE.md`, pack filenames, incident policy paths — contributor diligence framing.
 
-**Approach:** Presentation strip / specialty rewrite to buyer evidence labels + in-app Trust/subprocessors/data-handling links. Vitest: no `.md` / `START_HERE` in rendered help HTML. Pairs **TB-1235**.
+**Shipped:** `stripDpaTemplateContributorLeakage()` in `help-markdown-presentation.ts` (wired for `dpa_template.md`); source `DPA_TEMPLATE.md` contributor links replaced with in-app `/help/security-trust`, `/help/subprocessors`, `/help/procurement`; Vitest in `help-markdown-presentation.test.tsx` and `HelpTopicDpaTemplate.test.tsx`.
 
 **Acceptance:** Buyer surface shows contract topics, not repo paths. **Size estimate:** S.
 

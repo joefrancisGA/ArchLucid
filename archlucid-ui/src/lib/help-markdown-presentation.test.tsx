@@ -19,6 +19,7 @@ import {
   alignCaiqSigAssuranceHonesty,
   alignDataHandlingIsolationHonesty,
   stripTenantIsolationContributorLeakage,
+  stripDpaTemplateContributorLeakage,
   stripAcceleratorChooserContributorLeakage,
   stripAcceleratorChooserContributorSections,
   stripAzureBoardsContributorLeakage,
@@ -667,6 +668,41 @@ describe("help-markdown-presentation", () => {
     expect(prepared).not.toContain("scripts/");
     expect(prepared).toContain("sql row-level security is not the production isolation boundary");
     expect(prepared).toContain("/help/security-trust");
+  });
+
+  it("strips DPA template contributor .md and pack-path leakage (TB-1677)", () => {
+    const source = [
+      "> **Spine doc:** [`START_HERE.md`](../START_HERE.md).",
+      "",
+      "See [SECURITY.md](../library/contributor-reference/SECURITY.md) and [PII_RETENTION_CONVERSATIONS.md](../security/PII_RETENTION_CONVERSATIONS.md).",
+      "",
+      "[BUYER_SECURITY_PROCUREMENT_PACKET.md#tenant-isolation-buyer-overview](BUYER_SECURITY_PROCUREMENT_PACKET.md#tenant-isolation-buyer-overview)",
+    ].join("\n");
+
+    const prepared = stripDpaTemplateContributorLeakage(source);
+
+    expect(prepared).not.toContain("START_HERE");
+    expect(prepared).not.toContain("SECURITY.md");
+    expect(prepared).not.toContain("PII_RETENTION_CONVERSATIONS");
+    expect(prepared).not.toContain("BUYER_SECURITY_PROCUREMENT_PACKET");
+    expect(prepared).toContain("/help/procurement");
+  });
+
+  it("keeps presented DPA template help buyer-safe (TB-1677)", () => {
+    const loaded = tryLoadProductDocumentation("dpa-template");
+
+    expect(loaded).not.toBeNull();
+
+    const sourcePath = loaded!.entry.sourcePaths[0] ?? "";
+    const prepared = prepareHelpMarkdownForPresentation(loaded!.markdown, sourcePath).toLowerCase();
+
+    expect(prepared).not.toContain("start_here");
+    expect(prepared).not.toContain("security.md");
+    expect(prepared).not.toContain("pii_retention_conversations");
+    expect(prepared).not.toContain("buyer_security_procurement_packet");
+    expect(prepared).not.toContain("incident_communications_policy.md");
+    expect(prepared).toContain("/help/security-trust");
+    expect(prepared).toContain("/help/subprocessors");
   });
 
   it("strips eng CLI, Evidence tier, and JwtBearer from enterprise onboarding (TB-1339)", () => {

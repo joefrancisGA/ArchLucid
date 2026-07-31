@@ -465,7 +465,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1674 | Finding badges + secondary surfaces — StatusTag-as-link cue + export/ID/pinned inventory | Adoption friction P1 **V1** — with **TB-1671** |
 | TB-1675 | Vitest — bare navigational `<a>`/`<Link>` affordance allowlist + ban inherit-only body links | Testability P2 **V1** — after **TB-1672**–**TB-1674**; pairs **TB-1671** / **TB-1556** / **TB-1576** / **TB-1650** / **TB-1665** / **TB-1670** |
 | TB-1676 | `/help/dpa-template` specialty buyer DPA guide + request/download CTA | Adoption friction P1 **V1** — HDP ~40 |
-| TB-1677 | DPA help — contributor / .md path leakage strip | Trustworthiness P0 **V1** — with **TB-1676** |
 | TB-1678 | DPA help — placeholder / negotiation-template first-viewport honesty | Trustworthiness P1 **V1** — with **TB-1676** |
 | TB-1679 | DPA help — Help Center discovery + Trust/subprocessors IA | Adoption friction P1 **V1** — with **TB-1676** |
 | TB-1680 | DPA help — runs jargon + dense clause dump defer | Adoption friction P1 **V1** — with **TB-1676** |
