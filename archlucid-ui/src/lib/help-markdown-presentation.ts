@@ -2072,6 +2072,218 @@ export function stripPriorManifestRetrievalContributorLeakage(markdown: string):
     .trimEnd();
 }
 
+function isProductOverviewContributorLeakageLine(line: string): boolean {
+  if (/ExplainabilityTrace/i.test(line)) {
+    return true;
+  }
+
+  if (/JSON\/YAML/i.test(line)) {
+    return true;
+  }
+
+  if (/78 typed audit events/i.test(line)) {
+    return true;
+  }
+
+  if (/POLICY_PACK_CONTENT_BACKLOG/i.test(line)) {
+    return true;
+  }
+
+  if (/architecture\/adrs\//i.test(line)) {
+    return true;
+  }
+
+  if (/ADR 0020/i.test(line)) {
+    return true;
+  }
+
+  if (/REFERENCE_SAAS_STACK_ORDER/i.test(line)) {
+    return true;
+  }
+
+  if (/POSITIONING\.md/i.test(line)) {
+    return true;
+  }
+
+  if (/V1_DEFERRED\.md/i.test(line)) {
+    return true;
+  }
+
+  if (/ELEVATOR_PITCH\.md/i.test(line)) {
+    return true;
+  }
+
+  if (/\bM-245\b/i.test(line)) {
+    return true;
+  }
+
+  if (/GTM \*\*M-/i.test(line)) {
+    return true;
+  }
+
+  if (/\(M-\d+/i.test(line)) {
+    return true;
+  }
+
+  if (/GTM_BACKLOG/i.test(line)) {
+    return true;
+  }
+
+  if (/BUYER_PERSONAS/i.test(line)) {
+    return true;
+  }
+
+  if (/QUOTE_TO_PROOF_PACKET/i.test(line)) {
+    return true;
+  }
+
+  if (/ORDER_FORM_TEMPLATE/i.test(line)) {
+    return true;
+  }
+
+  if (/PUBLIC_CLAIM_BOUNDARY/i.test(line)) {
+    return true;
+  }
+
+  if (/Administrator \/ contributor related links/i.test(line)) {
+    return true;
+  }
+
+  if (/START_HERE\.md|REPOSITORY_README|DEMO_QUICKSTART|PRODUCT_PACKAGING|FIRST_PILOT_OPERATOR_PATH|INTEGRATION_CATALOG|SPONSOR_BANNER|API_CONTRACTS/i.test(line)) {
+    return true;
+  }
+
+  if (/docs\/go-to-market\/ELEVATOR_PITCH/i.test(line)) {
+    return true;
+  }
+
+  if (/Former standalone:/i.test(line)) {
+    return true;
+  }
+
+  if (/docs\/library\//i.test(line) && /\.md/i.test(line)) {
+    return true;
+  }
+
+  if (/docs\/runbooks\//i.test(line)) {
+    return true;
+  }
+
+  if (/Talk-track companions/i.test(line)) {
+    return true;
+  }
+
+  if (/Persona-flavored openers/i.test(line)) {
+    return true;
+  }
+
+  if (/Track 20 sends privately/i.test(line)) {
+    return true;
+  }
+
+  if (/Framing rules/i.test(line)) {
+    return true;
+  }
+
+  if (/LinkedIn connection-request note/i.test(line)) {
+    return true;
+  }
+
+  if (/Warm outreach \(1st-degree/i.test(line)) {
+    return true;
+  }
+
+  if (/Follow-up bump \(once/i.test(line)) {
+    return true;
+  }
+
+  if (/M-18 outreach message templates/i.test(line)) {
+    return true;
+  }
+
+  if (/Founder-led "20 warm contacts"/i.test(line)) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * TB-1738 — product-overview help: strip eng/GTM paths, type names, and backlog IDs; buyer-safe pillars.
+ */
+export function stripProductOverviewContributorLeakage(markdown: string): string {
+  const lines = markdown.split("\n");
+  const result: string[] = [];
+  let detailsBuffer: string[] | null = null;
+  let omitM18Templates = false;
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+
+    if (/^### M-18 outreach message templates/i.test(trimmed)) {
+      omitM18Templates = true;
+      continue;
+    }
+
+    if (omitM18Templates && /^## /i.test(trimmed)) {
+      omitM18Templates = false;
+    }
+
+    if (omitM18Templates) {
+      continue;
+    }
+
+    if (/^<details\b/i.test(trimmed)) {
+      detailsBuffer = [line];
+      continue;
+    }
+
+    if (detailsBuffer !== null) {
+      detailsBuffer.push(line);
+
+      if (/^<\/details>/i.test(trimmed)) {
+        detailsBuffer = null;
+      }
+
+      continue;
+    }
+
+    if (isProductOverviewContributorLeakageLine(line)) {
+      continue;
+    }
+
+    if (/^\*\*Platform intent:\*\*/i.test(trimmed)) {
+      result.push(
+        "**Platform intent:** Production reference deployments and first-party operations are **Azure-native** (identity, data, messaging, and hosting). Hosted evaluation uses the public ArchLucid SaaS endpoints when your tenant is provisioned.",
+      );
+      continue;
+    }
+
+    result.push(line);
+  }
+
+  return result
+    .join("\n")
+    .replace(
+      /Every architecture recommendation ArchLucid produces comes with a complete chain of evidence\.[\s\S]*?and here is the full trail\./i,
+      "Every architecture recommendation ArchLucid produces comes with a complete chain of evidence: what was examined, which rules applied, what was concluded, and why — linked to review artifacts, not a chat transcript.",
+    )
+    .replace(
+      /Architecture decisions in ArchLucid are not just analyzed — they are governed\.[\s\S]*?regulators and auditors expect\./i,
+      "Architecture decisions in ArchLucid are not just analyzed — they are governed. **Policy packs** encode your governance rules. Approval workflows enforce segregation of duties. Pre-finalize gates can block architecture packages when findings exceed severity thresholds. An append-only audit log records governance and review events for downstream audit.",
+    )
+    .replace(/`?POSITIONING\.md`?/gi, "positioning guide")
+    .replace(/POSITIONING\.md/gi, "positioning guide")
+    .replace(/`?V1_DEFERRED\.md`?/gi, "deferred capability documentation")
+    .replace(/V1_DEFERRED\.md/gi, "deferred capability documentation")
+    .replace(/ExplainabilityTrace/gi, "explainability trail")
+    .replace(/\bM-\d+\b/gi, "")
+    .replace(/open\s+\*\*\*\*/gi, "")
+    .replace(/GTM\s+\*\*\*\*/gi, "go-to-market planning")
+    .replace(/\n{3,}/g, "\n\n")
+    .trimEnd();
+}
+
 export function stripPathChooserContributorLeakage(markdown: string): string {
   return markdown
     .replace(/> \*\*Start operators here:\*\*[^\n]*\n?/gi, "")
@@ -2371,6 +2583,11 @@ export function prepareHelpMarkdownForPresentation(
     normalizedSourcePath.includes("prior_manifest_retrieval_guide.md")
   ) {
     afterAudienceStrip = stripPriorManifestRetrievalContributorLeakage(sanitized);
+  } else if (
+    options?.helpTopicSlug === "product-overview" &&
+    normalizedSourcePath.includes("executive_sponsor_brief.md")
+  ) {
+    afterAudienceStrip = stripProductOverviewContributorLeakage(sanitized);
   }
 
   const afterIsolationHonesty = alignDataHandlingIsolationHonesty(afterAudienceStrip);

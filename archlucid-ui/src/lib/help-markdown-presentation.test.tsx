@@ -26,6 +26,7 @@ import {
   stripPilotFeedbackContributorLeakage,
   stripPolicyPackDeltaContributorLeakage,
   stripPriorManifestRetrievalContributorLeakage,
+  stripProductOverviewContributorLeakage,
   stripAcceleratorChooserContributorLeakage,
   stripAcceleratorChooserContributorSections,
   stripAzureBoardsContributorLeakage,
@@ -947,6 +948,48 @@ describe("help-markdown-presentation", () => {
     expect(prepared).not.toContain("deployment configuration");
     expect(prepared).toContain("five");
     expect(prepared).toContain("finalize");
+  });
+
+  it("strips product-overview eng/GTM path and type leakage (TB-1738)", () => {
+    const source = [
+      "The `ExplainabilityTrace` on every finding records what was examined.",
+      "",
+      "Injected as JSON/YAML rules with 78 typed audit events.",
+      "",
+      "See [`POSITIONING.md`](POSITIONING.md) and [`V1_DEFERRED.md`](../library/V1_DEFERRED.md).",
+      "",
+      "Do not claim calendar wins (open **M-245**).",
+    ].join("\n");
+
+    const prepared = stripProductOverviewContributorLeakage(source);
+
+    expect(prepared).not.toContain("ExplainabilityTrace");
+    expect(prepared).not.toContain("JSON/YAML");
+    expect(prepared).not.toContain("78 typed audit");
+    expect(prepared).not.toContain("POSITIONING.md");
+    expect(prepared).not.toContain("V1_DEFERRED");
+    expect(prepared).not.toContain("M-245");
+  });
+
+  it("keeps presented product-overview help buyer-safe (TB-1738)", () => {
+    const loaded = tryLoadProductDocumentation("product-overview");
+
+    expect(loaded).not.toBeNull();
+
+    const sourcePath = loaded!.entry.sourcePaths[0] ?? "";
+    const prepared = prepareHelpMarkdownForPresentation(loaded!.markdown, sourcePath, {
+      helpTopicSlug: "product-overview",
+    }).toLowerCase();
+
+    expect(prepared).not.toContain("explainabilitytrace");
+    expect(prepared).not.toContain("json/yaml");
+    expect(prepared).not.toContain("78 typed audit");
+    expect(prepared).not.toContain("positioning.md");
+    expect(prepared).not.toContain("v1_deferred");
+    expect(prepared).not.toContain("m-245");
+    expect(prepared).not.toContain("elevator_pitch.md");
+    expect(prepared).toContain("core value pillars");
+    expect(prepared).toContain("architecture package");
   });
 
   it("strips eng CLI, Evidence tier, and JwtBearer from enterprise onboarding (TB-1339)", () => {

@@ -515,7 +515,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1730 | Policy-pack-delta help — 5-min arc first-viewport before Phase dump | Adoption friction P1 **V1** — with **TB-1726** |
 | TB-1731 | `/help/prior-manifest-retrieval` specialty Ask-memory guide + Open Ask CTA | Adoption friction P1 **V1** — HEP ~50 |
 | TB-1732 | Prior-manifest help — manifest/retrieval jargon honesty | Trustworthiness P1 **V1** — with **TB-1731** |
-| TB-1733 | Prior-manifest help — host config key leakage strip | Trustworthiness P0 **V1** — with **TB-1731** |
 | TB-1734 | Prior-manifest help — IA dual with repeat-review / compare | Adoption friction P1 **V1** — with **TB-1731** |
 | TB-1735 | Prior-manifest help — Related + finalize-success inbound copy | Adoption friction P1 **V1** — with **TB-1731** |
 | TB-1736 | `/help/product-overview` specialty buyer overview + Start CTA | Adoption friction P1 **V1** — HPR ~42 |

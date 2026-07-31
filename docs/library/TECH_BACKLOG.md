@@ -1,4 +1,4 @@
-**Updated:** 2026-07-30 (**TB-1733** **Done** — prior-manifest help strips host config keys; default limit in operator language; Vitest). Prior: 2026-07-30 (**TB-1727** **Done** — policy-pack-delta help strips HTTP/config/script/GUID leakage; UI-first Admin demo guide; Vitest).
+**Updated:** 2026-07-30 (**TB-1738** **Done** — product-overview help strips eng/GTM paths, type names, backlog IDs; buyer-safe pillars; Vitest). Prior: 2026-07-30 (**TB-1733** **Done** — prior-manifest help strips host config keys; default limit in operator language; Vitest).
 
 > **Scope:** Engineering-owned technical backlog items deferred from current sessions; audience is contributors and the AI assistant; not a buyer or operator document. Not a substitute for ADRs or the pending-questions owner decisions file.
 
@@ -1306,7 +1306,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1735 | Prior-manifest help — Related + finalize-success inbound copy; see ## TB-1735 below | Adoption friction P1 — **V1**; with **TB-1731** | S |
 | TB-1736 | `/help/product-overview` specialty buyer overview + Start CTA; see ## TB-1736 below | Adoption friction P1 — **V1**; owner review ~42/100 2026-07-27; traffic **HPR**; pairs **TB-1414** | M |
 | TB-1737 | Product-overview help — title honesty (sponsor brief vs product overview); see ## TB-1737 below | Trustworthiness P1 — **V1**; with **TB-1736** | S |
-| TB-1738 | Product-overview help — eng/GTM path + type leakage strip; see ## TB-1738 below | Trustworthiness P0 — **V1**; with **TB-1736**; pairs **TB-1235** | S |
+| TB-1738 | **Done** (2026-07-30) — Product-overview help — eng/GTM path + type leakage strip; see `## TB-1738` below | Trustworthiness P0 — **V1**; with **TB-1736**; pairs **TB-1235** | S |
 | TB-1739 | Product-overview help — IA dual with executive-summary / path-chooser; see ## TB-1739 below | Adoption friction P1 — **V1**; with **TB-1736**; pairs **TB-1686**/**TB-1711** | S |
 | TB-1740 | Product-overview help — elevator/M-18 outreach dump vs overview job; see ## TB-1740 below | Adoption friction P1 — **V1**; with **TB-1736** | S |
 | TB-1741 | `/help/report-a-problem` specialty support guide + Open Settings Support CTA; see ## TB-1741 below | Adoption friction P1 — **V1**; owner review ~55/100 2026-07-27; traffic **HRE**; after Done **TB-790**; pairs **TB-1414** | M |
@@ -42638,7 +42638,9 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1738 — Product-overview help — eng/GTM path + type leakage strip (P0)
 
-**Window:** V1 — Trustworthiness. **Status:** Not started. **Priority:** P0.
+**Window:** V1 — Trustworthiness. **Status:** **Done** (2026-07-30). **Priority:** P0.
+
+**Shipped:** `stripProductOverviewContributorLeakage()` in `help-markdown-presentation.ts` — buyer-safe pillar rewrites; strips `ExplainabilityTrace`, JSON/YAML, audit-event counts, `.md`/ADR/GTM paths, backlog IDs, contributor details, and M-18 template dump; Vitest in `help-markdown-presentation.test.tsx` + `HelpTopicProductOverview.test.tsx`.
 
 **Problem:** Pillars and pitches expose `ExplainabilityTrace`, JSON/YAML injection, “78 typed audit events”, ADR / `V1_DEFERRED.md` / `POSITIONING.md` / former `ELEVATOR_PITCH.md`, and open GTM **M-245**.
 
