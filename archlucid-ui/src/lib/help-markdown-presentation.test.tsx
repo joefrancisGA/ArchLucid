@@ -489,7 +489,7 @@ describe("help-markdown-presentation", () => {
     expect(prepared.toLowerCase()).not.toContain("walkthroughs/");
     expect(prepared.toLowerCase()).not.toContain("## policy packs");
     expect(prepared.toLowerCase()).not.toContain("## canonical references");
-    expect(prepared).toContain("/help/core-pilot");
+    expect(prepared).toContain("/help/first-architecture-review");
     expect(prepared).toContain("regulated-saas-soc-procurement");
     expect(prepared).toContain("**Out of scope for all V1-ready packs:**");
   });
@@ -731,7 +731,7 @@ describe("help-markdown-presentation", () => {
     expect(prepared).not.toContain("ArchLucid.Contracts");
     expect(prepared).not.toMatch(/\bTB-\d+\b/i);
     expect(prepared).not.toContain("INTEGRATION_CATALOG");
-    expect(prepared).toContain("/help/core-pilot");
+    expect(prepared).toContain("/help/first-architecture-review");
   });
 
   it("keeps presented executive-summary help buyer-safe (TB-1688)", () => {
@@ -750,7 +750,7 @@ describe("help-markdown-presentation", () => {
     expect(prepared).not.toContain("archlucid.contracts");
     expect(prepared).not.toMatch(/\btb-\d+\b/i);
     expect(prepared).toContain("/help/security-trust");
-    expect(prepared).toContain("/help/core-pilot");
+    expect(prepared).toContain("/help/first-architecture-review");
   });
 
   it("strips first-value-20 CLI/dotnet and runbook-path leakage (TB-1693)", () => {

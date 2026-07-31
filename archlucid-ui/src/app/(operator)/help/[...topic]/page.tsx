@@ -82,7 +82,7 @@ function renderHelpTopicView(
   loaded: NonNullable<ReturnType<typeof tryLoadProductDocumentation>>,
   searchParams?: Record<string, string | string[] | undefined>,
 ): React.ReactElement {
-  if (loaded.entry.slug === "core-pilot") {
+  if (loaded.entry.slug === "first-architecture-review") {
     return <HelpCorePilotGuideView entry={loaded.entry} />;
   }
 

@@ -18,7 +18,7 @@ describe("first-review 90-minute playbook alignment", () => {
     expect(entry?.sourcePaths[0]).toBe(FIRST_RUN_EVIDENCE_CHECKLIST_DOC_PATH);
     expect(entry?.contentKind).toBe("internal-runbook");
     expect(FIRST_REVIEW_90MIN_HELP_HREF).toBe("/help/first-review");
-    expect(BUYER_FIRST_REVIEW_HELP_HREF).toBe("/help/core-pilot");
+    expect(BUYER_FIRST_REVIEW_HELP_HREF).toBe("/help/first-architecture-review");
   });
 
   it("links checklist steps to required operator routes", () => {

@@ -75,7 +75,7 @@ describe("HelpSearchPanel", () => {
   });
 
   it("on core-pilot recommends next steps instead of first-review relaunches (TB-1044)", () => {
-    pathnameMock.value = "/help/core-pilot";
+    pathnameMock.value = "/help/first-architecture-review";
     render(<HelpSearchPanel open onOpenChange={() => {}} />);
 
     expect(within(screen.getByTestId("help-search-do-this-now")).getByText("Create your first review")).toBeInTheDocument();
@@ -88,7 +88,7 @@ describe("HelpSearchPanel", () => {
   });
 
   it("elevates Do this now and caps recommended at two more topics (TB-1045)", () => {
-    pathnameMock.value = "/help/core-pilot";
+    pathnameMock.value = "/help/first-architecture-review";
     render(<HelpSearchPanel open onOpenChange={() => {}} />);
 
     expect(screen.getByRole("heading", { name: HELP_SEARCH_PANEL_DO_THIS_NOW_HEADING })).toBeInTheDocument();
@@ -105,7 +105,7 @@ describe("HelpSearchPanel", () => {
   });
 
   it("uses help-on-help copy and on-this-page anchors on /help/* (TB-1046)", () => {
-    pathnameMock.value = "/help/core-pilot";
+    pathnameMock.value = "/help/first-architecture-review";
     render(<HelpSearchPanel open onOpenChange={() => {}} />);
 
     expect(screen.getByText(HELP_ON_HELP_SUBTITLE)).toBeInTheDocument();
@@ -118,7 +118,7 @@ describe("HelpSearchPanel", () => {
   });
 
   it("jumps to a current-page hash instead of loading an inline article (TB-1046)", () => {
-    pathnameMock.value = "/help/core-pilot";
+    pathnameMock.value = "/help/first-architecture-review";
     const onOpenChange = vi.fn();
     render(<HelpSearchPanel open onOpenChange={onOpenChange} />);
 

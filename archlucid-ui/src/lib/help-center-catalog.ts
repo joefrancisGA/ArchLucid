@@ -69,7 +69,7 @@ const HELP_CENTER_TIER_BY_SLUG: Readonly<Record<string, HelpCenterTier>> = {
   "first-hour-operator-path": "product",
   "review-guide": "product",
   "first-pilot-path": "product",
-  "core-pilot": "product",
+  "first-architecture-review": "product",
   "first-review": "internal",
   "first-value-20-minutes": "internal",
   "cli-usage": "internal",
@@ -95,7 +95,7 @@ const HELP_CENTER_DISPLAY_OVERRIDES: Readonly<Partial<Record<string, HelpCenterD
     summary:
       "Configure an enterprise tenant — SSO, roles, governance, policy packs, audit export, and optional cloud connector evidence.",
   },
-  "core-pilot": {
+  "first-architecture-review": {
     title: "Your first architecture review",
     summary:
       "Your guided path from evidence intake to a finalized architecture review and sponsor-ready exports.",

@@ -4,12 +4,12 @@ import { resolveInAppDocHref, tryResolveInAppDocHref } from "./in-app-doc-href";
 
 describe("resolveInAppDocHref", () => {
   it("maps registry primary paths to /help/{slug}", () => {
-    expect(resolveInAppDocHref("docs/CORE_PILOT.md")).toBe("/help/core-pilot");
+    expect(resolveInAppDocHref("docs/CORE_PILOT.md")).toBe("/help/first-architecture-review");
     expect(resolveInAppDocHref("/docs/library/CLI_USAGE.md")).toBe("/help/cli-usage");
   });
 
   it("preserves hash fragments", () => {
-    expect(resolveInAppDocHref("/docs/CORE_PILOT.md#checklist")).toBe("/help/core-pilot#checklist");
+    expect(resolveInAppDocHref("/docs/CORE_PILOT.md#checklist")).toBe("/help/first-architecture-review#checklist");
   });
 
   it("maps alias paths from help topics", () => {

@@ -31,12 +31,12 @@ import { cn } from "@/lib/utils";
 const SECONDARY_HELP_LINKS = [
   {
     label: OPERATOR_HOME_LEARN_HOW_REVIEWS_WORK_CTA,
-    href: inAppHelpHref("core-pilot"),
+    href: inAppHelpHref("first-architecture-review"),
     testId: "operator-home-do-this-next-learn-how",
   },
   {
     label: OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_CTA,
-    href: inAppHelpHref("core-pilot"),
+    href: inAppHelpHref("first-architecture-review"),
     testId: "operator-home-do-this-next-view-workflow",
   },
 ] as const;

@@ -187,7 +187,7 @@ const endpoint = "https://claims.example.internal/v1/intake";
         </span>
         <a
           class="font-medium text-al-text-primary underline decoration-al-text-secondary/35 underline-offset-2 hover:text-[var(--al-accent-link)] hover:decoration-[var(--al-accent-link)] rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)]"
-          href="/help/core-pilot"
+          href="/help/first-architecture-review"
         >
           <span>
             operator help

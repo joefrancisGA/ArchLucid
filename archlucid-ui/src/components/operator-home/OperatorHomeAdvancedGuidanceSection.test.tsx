@@ -22,7 +22,7 @@ describe("OperatorHomeAdvancedGuidanceSection", () => {
     const titleLink = screen.getByRole("link", { name: OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE });
 
     expect(titleLink).toBeInTheDocument();
-    expect(titleLink).toHaveAttribute("href", "/help/core-pilot");
+    expect(titleLink).toHaveAttribute("href", "/help/first-architecture-review");
     expect(screen.queryByText("How ArchLucid works")).toBeNull();
     expect(screen.queryByTestId("buyer-cto-demo-readiness-panel")).toBeNull();
     expect(screen.queryByText("Demo readiness")).toBeNull();

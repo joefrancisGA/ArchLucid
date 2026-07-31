@@ -170,7 +170,7 @@ describe("getBreadcrumbs", () => {
   });
 
   it("maps core-pilot breadcrumb to the buyer page title (TB-1041)", () => {
-    expect(getBreadcrumbs("/help/core-pilot")).toEqual([
+    expect(getBreadcrumbs("/help/first-architecture-review")).toEqual([
       { label: "Help", href: "/help" },
       { label: "Your first architecture review" },
     ]);

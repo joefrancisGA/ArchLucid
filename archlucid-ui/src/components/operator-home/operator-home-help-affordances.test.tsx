@@ -10,6 +10,6 @@ describe("OperatorHomeGuidanceLink", () => {
     const link = screen.getByRole("link", { name: "Open Core Pilot guide" });
 
     expect(link).toHaveTextContent("Open Core Pilot guide");
-    expect(link).toHaveAttribute("href", "/help/core-pilot");
+    expect(link).toHaveAttribute("href", "/help/first-architecture-review");
   });
 });

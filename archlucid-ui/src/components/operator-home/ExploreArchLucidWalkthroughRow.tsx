@@ -20,7 +20,7 @@ export function ExploreArchLucidWalkthroughRow(): React.JSX.Element {
         variant="outline"
         size="sm"
         className="h-8 w-fit border-0 px-0 font-medium text-teal-800 underline underline-offset-2 shadow-none dark:text-teal-300"
-        href={inAppHelpHref("core-pilot")}
+        href={inAppHelpHref("first-architecture-review")}
         idleLabel={OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_CTA}
         loadingLabel={OPERATOR_HOME_OPENING_WORKFLOW_LABEL}
         data-testid="explore-archlucid-view-workflow"

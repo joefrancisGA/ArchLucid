@@ -116,6 +116,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   "how-it-works": "How ArchLucid works",
   "data-handling": "What ArchLucid does with your data",
   "core-pilot": "Your first architecture review",
+  "first-architecture-review": "Your first architecture review",
 };
 
 /**

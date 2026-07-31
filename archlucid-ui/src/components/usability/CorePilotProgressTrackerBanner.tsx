@@ -76,7 +76,7 @@ export function CorePilotProgressTrackerBanner(props: CorePilotProgressTrackerBa
             <>
               {" · "}
               <Link
-                href={canOpenInternalRunbook ? "/help/first-value-20-minutes" : "/help/core-pilot"}
+                href={canOpenInternalRunbook ? "/help/first-value-20-minutes" : "/help/first-architecture-review"}
                 className="font-medium text-teal-800 underline dark:text-teal-300"
               >
                 Complete one review in about {FIRST_VALUE_MINUTES_ESTIMATE} minutes

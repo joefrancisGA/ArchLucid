@@ -24,6 +24,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/compare", topic: { slug: "comparison-replay", label: "Compare and replay" } },
   { prefix: "/replay", topic: { slug: "comparison-replay", label: "Validate review" } },
   { prefix: "/governance/findings", topic: { slug: "governance-approval", label: OPERATOR_NAV_LINK_LABELS.findings } },
+  { prefix: "/governance/audit", topic: { slug: "audit-trail", label: "Audit trail" } },
   {
     prefix: "/governance/alert-rules",
     topic: { slug: "alerts", label: ALERTS_HOW_ALERTS_WORK_LABEL },

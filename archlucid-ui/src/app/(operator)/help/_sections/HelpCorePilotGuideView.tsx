@@ -56,7 +56,7 @@ function HelpDisclosure(props: {
   );
 }
 
-/** Guided first-review workflow for `/help/core-pilot` — action-oriented, not prose documentation. */
+/** Guided first-review workflow for `/help/first-architecture-review` — action-oriented, not prose documentation. */
 export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): React.ReactElement {
   const { entry } = props;
 

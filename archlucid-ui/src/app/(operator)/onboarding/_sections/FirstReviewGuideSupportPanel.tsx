@@ -102,7 +102,7 @@ export function FirstReviewGuideSupportPanel() {
             </Link>
           </li>
           <li>
-            <Link className={OPERATOR_LINK.inline} href={inAppHelpHref("core-pilot")}>
+            <Link className={OPERATOR_LINK.inline} href={inAppHelpHref("first-architecture-review")}>
               Open Help
             </Link>
           </li>

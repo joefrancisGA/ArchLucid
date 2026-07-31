@@ -247,7 +247,7 @@ describe("client-runtime-diagnostics", () => {
     const handle = installClientRuntimeDiagnostics(report, { hardNavigateOnStuck: false });
 
     const anchor = document.createElement("a");
-    anchor.setAttribute("href", "/help/core-pilot");
+    anchor.setAttribute("href", "/help/first-architecture-review");
     document.body.appendChild(anchor);
     anchor.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
 
@@ -256,7 +256,7 @@ describe("client-runtime-diagnostics", () => {
     expect(report).toHaveBeenCalledWith(
       expect.objectContaining({
         kind: "navigation-stuck",
-        href: "/help/core-pilot",
+        href: "/help/first-architecture-review",
       }),
     );
     expect(assign).not.toHaveBeenCalled();
@@ -270,7 +270,7 @@ describe("client-runtime-diagnostics", () => {
     const handle = installClientRuntimeDiagnostics(report);
 
     const anchor = document.createElement("a");
-    anchor.setAttribute("href", "/help/core-pilot");
+    anchor.setAttribute("href", "/help/first-architecture-review");
     document.body.appendChild(anchor);
     anchor.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
 

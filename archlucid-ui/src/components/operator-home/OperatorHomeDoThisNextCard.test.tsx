@@ -107,7 +107,7 @@ describe("OperatorHomeDoThisNextCard", () => {
     );
     expect(screen.getByTestId("operator-home-do-this-next-learn-how")).toHaveAttribute(
       "href",
-      inAppHelpHref("core-pilot"),
+      inAppHelpHref("first-architecture-review"),
     );
   });
 

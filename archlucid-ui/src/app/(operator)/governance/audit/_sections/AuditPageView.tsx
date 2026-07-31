@@ -1,12 +1,10 @@
 import Link from "next/link";
 
 import { cn } from "@/lib/utils";
-import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { AuditLogRankCue } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { auditExportExecuteRankAuditorRoleNote } from "@/lib/enterprise-controls-context-copy";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -20,11 +18,9 @@ import {
   AUDIT_TRAIL_EXPORTING_ACTION,
   AUDIT_TRAIL_HOW_IT_WORKS_TITLE,
   AUDIT_TRAIL_OPEN_REVIEW_PACKAGE_ACTION,
-  AUDIT_TRAIL_PAGE_SUBTITLE,
-  AUDIT_TRAIL_PRODUCT_SAFE_INTRO,
-  AUDIT_TRAIL_REFRESH_ACTION,
-  AUDIT_TRAIL_REFRESHING_ACTION,
+  AUDIT_TRAIL_PAGE_TITLE,
   AUDIT_TRAIL_TECHNICAL_DETAILS_TITLE,
+  auditTrailPageSubtitle,
 } from "@/lib/audit-trail-page-copy";
 import {
   formatAuditTrailPageTitle,
@@ -39,6 +35,7 @@ import { CtoDemoAuditIntegrityVerifyButton } from "@/components/cto-demo/CtoDemo
 import { AuditTrailIntegrityNote } from "@/components/audit/AuditTrailIntegrityNote";
 import { AuditBuyerHeaderMetrics } from "./AuditBuyerHeaderMetrics";
 import { AuditOperatorExportSection } from "./AuditOperatorExportSection";
+import { AuditPageHeader } from "./AuditPageHeader";
 import { AuditResultsSection } from "./AuditResultsSection";
 import { AuditSearchSection } from "./AuditSearchSection";
 import type { AuditPageViewProps } from "./audit-page-view-props";
@@ -65,10 +62,14 @@ export function AuditPageView(props: AuditPageViewProps) {
         density={buyerPolishedShell ? "compact" : "default"}
         collapsibleGuidance={buyerPolishedShell ? AUDIT_TRAIL_HOW_IT_WORKS_TITLE : undefined}
       />
-      <OperatorPageHeader
-        title={buyerPolishedShell ? formatAuditTrailPageTitle(props.runId) : "Audit trail"}
-        subtitle={buyerPolishedShell ? AUDIT_TRAIL_PAGE_SUBTITLE : undefined}
-        titleTestId="audit-page-title"
+      <AuditPageHeader
+        title={buyerPolishedShell ? formatAuditTrailPageTitle(props.runId) : AUDIT_TRAIL_PAGE_TITLE}
+        subtitle={auditTrailPageSubtitle(buyerPolishedShell)}
+        searching={props.searching}
+        lastRefreshedAt={props.lastRefreshedAt}
+        onRefresh={() => {
+          void props.runSearch();
+        }}
         metadata={
           buyerPolishedShell && isTechnicalAuditRunIdentifier(effectiveRunId) ? (
             <details data-testid="audit-page-technical-details">
@@ -94,16 +95,6 @@ export function AuditPageView(props: AuditPageViewProps) {
               >
                 {props.exporting ? AUDIT_TRAIL_EXPORTING_ACTION : AUDIT_TRAIL_EXPORT_ACTION}
               </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                disabled={props.searching}
-                onClick={() => void props.runSearch()}
-                data-testid="audit-header-refresh-button"
-              >
-                {props.searching ? AUDIT_TRAIL_REFRESHING_ACTION : AUDIT_TRAIL_REFRESH_ACTION}
-              </Button>
               <Button type="button" variant="outline" size="sm" asChild data-testid="audit-header-open-review-button">
                 <Link href={reviewPackageHref}>{AUDIT_TRAIL_OPEN_REVIEW_PACKAGE_ACTION}</Link>
               </Button>
@@ -114,14 +105,10 @@ export function AuditPageView(props: AuditPageViewProps) {
             <>
               <CtoDemoAuditIntegrityExportButton />
               <CtoDemoAuditIntegrityVerifyButton />
-              <InAppHelpLink helpSlug="audit-trail" label="Audit coverage matrix documentation" />
             </>
           )
         }
       />
-      {buyerPolishedShell ? (
-        <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{AUDIT_TRAIL_PRODUCT_SAFE_INTRO}</p>
-      ) : null}
       {buyerPolishedShell && props.buyerAuditTrailMetrics !== null ? (
         <AuditBuyerHeaderMetrics buyerAuditTrailMetrics={props.buyerAuditTrailMetrics} />
       ) : null}

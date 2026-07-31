@@ -44,7 +44,7 @@ describe("HelpTopicMarkdownView evaluator workbook (TB-1346)", () => {
       expect(prepared, `banned substring still present: ${banned}`).not.toContain(banned);
     }
 
-    expect(prepared).toContain("/help/core-pilot");
+    expect(prepared).toContain("/help/first-architecture-review");
     expect(prepared).toContain("architecture analysis");
     expect(prepared).toContain("optional cloud inventory");
     expect(prepared).toContain("pilot host integrity");

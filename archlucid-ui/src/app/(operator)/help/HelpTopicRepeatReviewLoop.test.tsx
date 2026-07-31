@@ -73,7 +73,7 @@ describe("HelpTopicRepeatReviewLoop (TB-1396)", () => {
     );
     expect(screen.getAllByRole("link", { name: /Your first architecture review/i })[0]).toHaveAttribute(
       "href",
-      "/help/core-pilot",
+      "/help/first-architecture-review",
     );
     expect(screen.getByRole("heading", { name: /Recommended loop/i })).toBeInTheDocument();
     expect(screen.queryByText(/collect-first-pilot-proof/i)).toBeNull();

@@ -27,7 +27,7 @@ export function OperatorHomeAdvancedGuidanceSection(
   return (
     <OperatorHomeDisclosureSection
       title={OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE}
-      titleHref={props.buyerPolishedShell ? inAppHelpHref("core-pilot") : undefined}
+      titleHref={props.buyerPolishedShell ? inAppHelpHref("first-architecture-review") : undefined}
       titleId="operator-home-advanced-guidance-heading"
       sectionTestId="operator-home-advanced-guidance"
       storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.advancedGuidance}

@@ -37,7 +37,7 @@ export const PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG: Readonly<
   "comparison-replay": "product-help",
   /** TB-1329 — full eng key catalog Admin-gated until specialty guide (TB-1326). */
   "configuration-reference": "internal-runbook",
-  "core-pilot": "product-help",
+  "first-architecture-review": "product-help",
   "data-handling": "product-help",
   "data-handling-tenant-isolation": "product-help",
   "developer-troubleshooting": "internal-runbook",

@@ -5,7 +5,7 @@ export const FIRST_RUN_EVIDENCE_CHECKLIST_DOC_PATH = "docs/runbooks/FIRST_RUN_EV
 export const FIRST_REVIEW_90MIN_HELP_HREF = "/help/first-review";
 
 /** Buyer-facing guided first-review help — preferred over the SE checklist on operator home. */
-export const BUYER_FIRST_REVIEW_HELP_HREF = "/help/core-pilot";
+export const BUYER_FIRST_REVIEW_HELP_HREF = "/help/first-architecture-review";
 
 /**
  * Routes the home checklist must link to — mirrors buyer steps aligned with

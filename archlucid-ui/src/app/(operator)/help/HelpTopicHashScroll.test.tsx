@@ -2,7 +2,7 @@ import { render } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/help/core-pilot",
+  usePathname: () => "/help/first-architecture-review",
 }));
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";

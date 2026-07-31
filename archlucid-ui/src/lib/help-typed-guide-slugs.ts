@@ -4,7 +4,7 @@
  */
 
 const TYPED_HELP_GUIDE_SLUGS = new Set<string>([
-  "core-pilot",
+  "first-architecture-review",
   "getting-started",
   "how-it-works",
   "troubleshooting",

@@ -28,7 +28,7 @@ const timeoutMs = 30_000;
 const endpoint = "https://claims.example.internal/v1/intake";
 \`\`\`
 
-See [operator help](/help/core-pilot) and reject \`javascript:alert(1)\` links.`;
+See [operator help](/help/first-architecture-review) and reject \`javascript:alert(1)\` links.`;
 
 describe("ArchitectureNarrativeMarkdownView", () => {
   it("renders headings, paragraphs, lists, tables, and code without raw markdown tokens", () => {
@@ -40,7 +40,7 @@ describe("ArchitectureNarrativeMarkdownView", () => {
     expect(screen.getByText("Claims API")).toBeInTheDocument();
     expect(screen.getByText("Partner outage during month-end close")).toBeInTheDocument();
     expect(screen.getByText(/const timeoutMs = 30_000;/)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "operator help" })).toHaveAttribute("href", "/help/core-pilot");
+    expect(screen.getByRole("link", { name: "operator help" })).toHaveAttribute("href", "/help/first-architecture-review");
 
     const visibleText = container.textContent ?? "";
     expect(visibleText).not.toMatch(/^\s*##\s/m);

@@ -160,7 +160,7 @@ export function CorePilotBuyerStepHint() {
         </p>
       </div>
       <OperatorHomeGuidanceLinks className="mt-2">
-        <OperatorHomeGuidanceLink helpSlug="core-pilot" label={`${BUYER_ONBOARDING_PAGE_TITLE} — guide`} />
+        <OperatorHomeGuidanceLink helpSlug="first-architecture-review" label={`${BUYER_ONBOARDING_PAGE_TITLE} — guide`} />
         <OperatorHomeGuidanceLink helpSlug="first-pilot-path" label="Full review walkthrough" />
       </OperatorHomeGuidanceLinks>
     </section>

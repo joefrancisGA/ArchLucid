@@ -192,7 +192,7 @@ export function RunDetailPageHeader({
               ) : null}
             </div>
             <div className="flex shrink-0 items-center gap-1.5">
-              <InAppHelpLink helpSlug="core-pilot" label="Architecture review steps — guide" />
+              <InAppHelpLink helpSlug="first-architecture-review" label="Architecture review steps — guide" />
             </div>
           </div>
           {buyerPolishedShell === true && executionFlavorBuyerSummary ? (

@@ -88,7 +88,7 @@ describe("contextualHelpByKey", () => {
   it("toDocsBlobUrl resolves in-app help routes", () => {
     const url = toDocsBlobUrl("/docs/CORE_PILOT.md#x");
 
-    expect(url).toBe("/help/core-pilot#x");
+    expect(url).toBe("/help/first-architecture-review#x");
   });
 
   it("governance-gate learn-more link resolves to a real heading anchor (not a dead fragment)", () => {
@@ -143,7 +143,7 @@ describe("contextualHelpTriggerAriaLabel", () => {
 
 describe("toDocsBlobUrl", () => {
   it("maps core pilot path to in-app help", () => {
-    expect(toDocsBlobUrl("/docs/CORE_PILOT.md#h")).toBe("/help/core-pilot#h");
+    expect(toDocsBlobUrl("/docs/CORE_PILOT.md#h")).toBe("/help/first-architecture-review#h");
   });
 
   it("falls back to help index for unknown paths", () => {

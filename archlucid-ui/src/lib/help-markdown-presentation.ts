@@ -585,7 +585,7 @@ export function stripEvaluatorWorkbookContributorLeakage(markdown: string): stri
     .replace(/\bTier-1\b/g, "optional")
     .replace(/\bPilotStrict\b/g, "pilot host integrity")
     .replace(/\bauthority pipeline\b/gi, "architecture analysis")
-    .replace(/\[`?BUYER_FIRST_30_MINUTES\.md`?\]\([^)]+\)/gi, "[Your first architecture review](/help/core-pilot)")
+    .replace(/\[`?BUYER_FIRST_30_MINUTES\.md`?\]\([^)]+\)/gi, "[Your first architecture review](/help/first-architecture-review)")
     .replace(/\[`?SECOND_RUN\.md`?\]\([^)]+\)/gi, "[Repeat a review](/help/repeat-review-loop)")
     .replace(
       /\[`?FIRST_PILOT_OPERATOR_PATH\.md`?\]\([^)]+\)/gi,
@@ -1542,11 +1542,11 @@ export function stripExecutiveSummaryContributorLeakage(markdown: string): strin
       /\*\*How do I try it locally\?\*\*[\s\S]*?(?=\n\n\*\*|\n## |\n---\n|$)/i,
       [
         "**How do I evaluate ArchLucid?**",
-        "Start a guided pilot or first architecture review — see [Your first architecture review](/help/core-pilot).",
+        "Start a guided pilot or first architecture review — see [Your first architecture review](/help/first-architecture-review).",
       ].join("\n"),
     )
-    .replace(/`?day-one-developer\.md`?/gi, "[Getting started](/help/core-pilot)")
-    .replace(/day-one-developer\.md/gi, "/help/core-pilot")
+    .replace(/`?day-one-developer\.md`?/gi, "[Getting started](/help/first-architecture-review)")
+    .replace(/day-one-developer\.md/gi, "/help/first-architecture-review")
     .replace(/\*\*ArchLucid\.Api\*\*/g, "the hosted service")
     .replace(/`?archlucid-ui`?/gi, "the web application")
     .replace(/`?FIRST_REAL_VALUE\.md`?/gi, "deployment configuration documentation")
@@ -1619,10 +1619,10 @@ export function stripFirstValue20ContributorLeakage(markdown: string): string {
     .replace(/`GET \/health\/live`/gi, "health check endpoint")
     .replace(/`?ROLE_INDEX\.md`?/gi, "role index")
     .replace(/ROLE_INDEX\.md/gi, "role index")
-    .replace(/`?CANONICAL_FIRST_RUN_PATH\.md`?/gi, "[Your first architecture review](/help/core-pilot)")
-    .replace(/CANONICAL_FIRST_RUN_PATH\.md/gi, "/help/core-pilot")
-    .replace(/`?CORE_PILOT\.md`?/gi, "[Your first architecture review](/help/core-pilot)")
-    .replace(/CORE_PILOT\.md/gi, "/help/core-pilot")
+    .replace(/`?CANONICAL_FIRST_RUN_PATH\.md`?/gi, "[Your first architecture review](/help/first-architecture-review)")
+    .replace(/CANONICAL_FIRST_RUN_PATH\.md/gi, "/help/first-architecture-review")
+    .replace(/`?CORE_PILOT\.md`?/gi, "[Your first architecture review](/help/first-architecture-review)")
+    .replace(/CORE_PILOT\.md/gi, "/help/first-architecture-review")
     .replace(/`?PILOT_PREREQUISITES\.md`?/gi, "pilot prerequisites checklist")
     .replace(/PILOT_PREREQUISITES\.md/gi, "pilot prerequisites checklist")
     .replace(/`?FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT\.md`?/gi, "production-like preflight checklist")
@@ -2648,8 +2648,8 @@ export function stripPathChooserContributorLeakage(markdown: string): string {
     .replace(/> \*\*Start operators here:\*\*[^\n]*\n?/gi, "")
     .replace(/`?FIRST_PILOT_OPERATOR_PATH\.md`?/gi, "[Complete review workflow](/help/first-pilot-path)")
     .replace(/FIRST_PILOT_OPERATOR_PATH\.md/gi, "/help/first-pilot-path")
-    .replace(/`?CORE_PILOT\.md`?/gi, "[Your first architecture review](/help/core-pilot)")
-    .replace(/CORE_PILOT\.md/gi, "/help/core-pilot")
+    .replace(/`?CORE_PILOT\.md`?/gi, "[Your first architecture review](/help/first-architecture-review)")
+    .replace(/CORE_PILOT\.md/gi, "/help/first-architecture-review")
     .replace(/`?EXECUTIVE_SPONSOR_BRIEF\.md`?/gi, "[Executive summary](/help/executive-summary)")
     .replace(/EXECUTIVE_SPONSOR_BRIEF\.md/gi, "/help/executive-summary")
     .replace(/`?DIFFERENTIATION_PROOF_PACKET\.md`?/gi, "differentiation proof documentation")

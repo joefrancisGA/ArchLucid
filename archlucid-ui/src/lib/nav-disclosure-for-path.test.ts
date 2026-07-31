@@ -45,7 +45,7 @@ describe("effectiveNavDisclosureForPathname", () => {
     "/settings/extract-upload",
     "/graph",
     "/help",
-    "/help/core-pilot",
+    "/help/first-architecture-review",
     "/help/troubleshooting",
     "/settings",
     "/settings/tenant",

@@ -64,6 +64,8 @@ describe("product-documentation-registry", () => {
     expect(inAppHelpHref("cloud-connections-azure")).toBe("/help/cloud-connections/azure");
     expect(inAppHelpHref("cloud-connections-aws")).toBe("/help/cloud-connections/aws");
     expect(inAppHelpHref("cloud-connections-gcp")).toBe("/help/cloud-connections/gcp");
+    expect(inAppHelpHref("core-pilot")).toBe("/help/first-architecture-review");
+    expect(getProductDocumentationEntry("core-pilot")?.slug).toBe("first-architecture-review");
   });
 
   it("loads markdown for every registry topic from the monorepo", () => {
@@ -163,7 +165,7 @@ describe("product-documentation-registry", () => {
 
   it("maps initial PDF strategy slugs to expected pdfStatus (TB-722)", () => {
     const expected: Readonly<Record<string, ProductDocumentationEntry["pdfStatus"]>> = {
-      "core-pilot": "public",
+      "first-architecture-review": "public",
       "first-hour-operator-path": "public",
       "how-it-works": "public",
       "data-handling": "public",

@@ -24,7 +24,7 @@ describe("help-search-panel-catalog", () => {
   });
 
   it("recommends next-step actions on core-pilot instead of first-review relaunches (TB-1044)", () => {
-    expect(recommendedHelpSearchPanelTopicIds("/help/core-pilot")).toEqual([
+    expect(recommendedHelpSearchPanelTopicIds("/help/first-architecture-review")).toEqual([
       "create-first-review",
       "sample-review",
       "upload-evidence",
@@ -32,7 +32,7 @@ describe("help-search-panel-catalog", () => {
       "troubleshoot",
     ]);
 
-    const titles = recommendedHelpSearchPanelTopics("/help/core-pilot", false).map((topic) => topic.title);
+    const titles = recommendedHelpSearchPanelTopics("/help/first-architecture-review", false).map((topic) => topic.title);
 
     expect(titles).not.toContain("Getting started");
     expect(titles).not.toContain("How ArchLucid works");
@@ -42,7 +42,7 @@ describe("help-search-panel-catalog", () => {
   });
 
   it("caps recommended topics at three and splits Do this now (TB-1045)", () => {
-    const topics = recommendedHelpSearchPanelTopics("/help/core-pilot", false);
+    const topics = recommendedHelpSearchPanelTopics("/help/first-architecture-review", false);
 
     expect(topics).toHaveLength(HELP_SEARCH_PANEL_MAX_RECOMMENDED);
     expect(topics.map((topic) => topic.id)).toEqual([

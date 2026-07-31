@@ -18,7 +18,7 @@ describe("docs-search-index", () => {
   });
 
   it("resolves curated docs to in-app help routes", () => {
-    expect(resolveDocumentationHref("docs/CORE_PILOT.md")).toBe("/help/core-pilot");
+    expect(resolveDocumentationHref("docs/CORE_PILOT.md")).toBe("/help/first-architecture-review");
     expect(resolveDocumentationHref("docs/runbooks/TROUBLESHOOTING.md")).toMatch(/^\/help\//);
   });
 

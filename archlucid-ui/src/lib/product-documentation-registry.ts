@@ -45,6 +45,7 @@ export const HELP_TOPIC_SLUG_ALIASES: Readonly<Record<string, string>> = {
   "users-and-roles": "users-and-roles",
   "operator-auth-roles": "users-and-roles",
   "creating-runs": "starting-reviews",
+  "core-pilot": "first-architecture-review",
 };
 
 export function normalizeHelpTopicSlug(slug: string): string {
@@ -422,7 +423,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     sourcePaths: ["docs/library/customer-facing/BILLING_AND_PLANS.md"],
   },
   {
-    slug: "core-pilot",
+    slug: "first-architecture-review",
     title: "Your first architecture review",
     summary:
       "Your guided path from evidence intake to a finalized architecture review and sponsor-ready exports.",

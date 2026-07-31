@@ -67,7 +67,7 @@ describe("ContextualHelp", () => {
     });
 
     const more = screen.getByRole("link", { name: /learn more/i });
-    expect(more.getAttribute("href")).toBe("/help/core-pilot#commit");
+    expect(more.getAttribute("href")).toBe("/help/first-architecture-review#commit");
     expect(more).toHaveAttribute("target", "_blank");
   });
 
