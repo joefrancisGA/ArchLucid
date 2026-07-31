@@ -19,11 +19,21 @@ api_max_replicas = 10
 ui_min_replicas  = 2
 ui_max_replicas  = 6
 
+# TB-2016 — same-image marketing UI (apex) + operator UI (app subdomain); no Front Door.
+enable_marketing_ui_container_app = true
+marketing_ui_container_app_name   = "archlucid-ui-marketing"
+marketing_ui_min_replicas         = 2
+marketing_ui_max_replicas         = 6
+# After DNS TXT/CNAME: bind via az containerapp hostname bind (README).
+# ui_custom_domain_name            = "app.archlucid.net"
+# marketing_ui_custom_domain_name  = "www.archlucid.net"
+
 worker_min_replicas = 2
 worker_max_replicas = 30
 
 api_scale_concurrent_requests = 20
 ui_scale_concurrent_requests  = 10
+marketing_ui_scale_concurrent_requests = 10
 
 # TB-755: required before CD canary traffic split (cd.yml CD_CANARY_ENABLED). Does not raise min_replicas.
 api_revision_mode = "Multiple"

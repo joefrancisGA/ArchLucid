@@ -87,17 +87,39 @@ api_key_project_id   = "33333333-3333-3333-3333-333333333333"
 
 Without all three claims, UI Overview calls fail with **403** and body text about scope resolved from identity claims.
 
-## Custom domain without Front Door (`ui_custom_domain_name` / `api_custom_domain_name`)
+## Marketing vs operator UI (same image, no Front Door) — TB-2016
 
-Azure Container Apps supports binding a custom hostname directly to an app with an Azure-managed certificate — no edge tier required. This is the cost-aware option for environments where **`infra/terraform-edge`**'s WAF/CDN base fee ($35–330/month) is not warranted (see [`PILOT_PROFILE.md`](../../docs/deployment/PILOT_PROFILE.md)); the default `*.azurecontainerapps.io` FQDN (**`ui_https_url`** / **`api_https_url`**) remains available either way.
+Preferred production topology (owner 2026-07-31): **two UI Container Apps**, one ACR image, **no Azure Front Door**.
 
-**Apply order matters — Azure verifies domain ownership before Terraform can bind the domain:**
+| App | Variable | Default name | Intended hostname |
+|-----|----------|--------------|-------------------|
+| Operator UI | `ui_container_app_name` | `archlucid-ui` | `app.archlucid.net` (`ui_custom_domain_name`) |
+| Marketing UI | `marketing_ui_container_app_name` | `archlucid-ui-marketing` | apex / `www` (`marketing_ui_custom_domain_name`) |
 
-1. Leave **`ui_custom_domain_name`** / **`api_custom_domain_name`** unset and run `terraform apply` once (or read existing state) to get the **`ui_custom_domain_verification_id`** / **`api_custom_domain_verification_id`** outputs.
-2. At your DNS host, create a **TXT** record `asuid.<hostname>` with that value, and a **CNAME** for `<hostname>` pointing at **`ui_container_app_fqdn`** (or `api_container_app_fqdn`).
-3. Wait for DNS propagation, then set **`ui_custom_domain_name`** (and/or **`api_custom_domain_name`**) and re-apply. Terraform creates the `azurerm_container_app_custom_domain` and requests an `azurerm_container_app_environment_managed_certificate` for that hostname.
+- Toggle: **`enable_marketing_ui_container_app`** (default **true**).
+- Both apps use **`ui_container_image`**. CD updates both when GitHub secrets **`CONTAINER_APP_UI_NAME`** and **`CONTAINER_APP_MARKETING_UI_NAME`** are set.
+- Per-app runtime env (set via `az containerapp update --set-env-vars`, ignored by Terraform lifecycle):
+  - Marketing: `ARCHLUCID_PUBLIC_SITE_URL`, `ARCHLUCID_APP_SITE_URL`, `ARCHLUCID_API_BASE_URL`, `ARCHLUCID_UI_ROLE=marketing`
+  - Operator: same site URL pair + `ARCHLUCID_API_BASE_URL`, `ARCHLUCID_UI_ROLE=operator`
+- API CORS must list both origins (`Cors__AllowedOrigins__0`…), e.g. `https://www.archlucid.net` + `https://app.archlucid.net` (+ apex if used).
 
-**Known provider caveat:** some `azurerm` versions do not reliably auto-bind the managed certificate to the domain once issued (the domain can stay in a disabled/HTTP-only state — see [hashicorp/terraform-provider-azurerm#27362](https://github.com/hashicorp/terraform-provider-azurerm/issues/27362)). If HTTPS on the custom domain doesn't come up after apply, run the one-off fallback: `az containerapp hostname bind --hostname <hostname> -g <rg> -n <app-name> --environment <env-name> --validation-method CNAME`.
+Docs: [`PUBLIC_MARKETING_SITE_TOPOLOGY.md`](../../docs/library/PUBLIC_MARKETING_SITE_TOPOLOGY.md), [`MARKETING_PRODUCT_SEPARATION_ASSESSMENT.md`](../../docs/library/MARKETING_PRODUCT_SEPARATION_ASSESSMENT.md).
+
+## Custom domain without Front Door (`ui_custom_domain_name` / `marketing_ui_custom_domain_name` / `api_custom_domain_name`)
+
+Azure Container Apps supports binding a custom hostname directly to an app with an Azure-managed certificate — no edge tier required. This is the cost-aware option for environments where **`infra/terraform-edge`**'s WAF/CDN base fee ($35–330/month) is not warranted (see [`PILOT_PROFILE.md`](../../docs/deployment/PILOT_PROFILE.md)); the default `*.azurecontainerapps.io` FQDN (**`ui_https_url`** / **`marketing_ui_https_url`** / **`api_https_url`**) remains available either way.
+
+**Apply order matters — Azure verifies domain ownership before a hostname can be bound:**
+
+1. Leave hostname vars empty and run `terraform apply` once (or read existing state) to get **`container_app_environment_custom_domain_verification_id`** (aliases: `ui_custom_domain_verification_id`, `marketing_ui_custom_domain_verification_id`, `api_custom_domain_verification_id`).
+2. At your DNS host, create a **TXT** record `asuid.<hostname>` with that value, and a **CNAME** for `<hostname>` pointing at the matching app FQDN (`marketing_ui_container_app_fqdn` for apex/www, `ui_container_app_fqdn` for `app.`, `api_container_app_fqdn` for API).
+3. Wait for DNS propagation, set the hostname vars in tfvars (documentation / outputs), and bind the managed certificate with Azure CLI:
+
+```bash
+az containerapp hostname bind --hostname <hostname> -g <rg> -n <app-name> --environment <env-name> --validation-method CNAME
+```
+
+**Provider note:** azurerm managed-certificate resources have been unreliable (domain can stay HTTP-only — see [hashicorp/terraform-provider-azurerm#27362](https://github.com/hashicorp/terraform-provider-azurerm/issues/27362)). ArchLucid uses the CLI bind path above; Terraform records intended hostnames via variables/outputs only.
 
 ## Background services and replicas
 

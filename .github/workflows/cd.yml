@@ -953,6 +953,7 @@ jobs:
           CONTAINER_APP_API_NAME: ${{ secrets.CONTAINER_APP_API_NAME }}
           CONTAINER_APP_WORKER_NAME: ${{ secrets.CONTAINER_APP_WORKER_NAME }}
           CONTAINER_APP_UI_NAME: ${{ secrets.CONTAINER_APP_UI_NAME }}
+          CONTAINER_APP_MARKETING_UI_NAME: ${{ secrets.CONTAINER_APP_MARKETING_UI_NAME }}
           CD_CANARY_ENABLED: ${{ vars.CD_CANARY_ENABLED }}
           ARCHLUCID_CONTENT_SAFETY_ENDPOINT: ${{ secrets.ARCHLUCID_CONTENT_SAFETY_ENDPOINT }}
           ARCHLUCID_CONTENT_SAFETY_API_KEY: ${{ secrets.ARCHLUCID_CONTENT_SAFETY_API_KEY }}
@@ -961,7 +962,7 @@ jobs:
           # Digest-only deploy — never resolve latest, never rebuild, never re-infer tag from github.sha.
           API_IMAGE="${ACR_LOGIN_SERVER}/archlucid-api@${API_IMAGE_DIGEST}"
           UI_IMAGE=""
-          if [ -n "${CONTAINER_APP_UI_NAME:-}" ]; then
+          if [ -n "${CONTAINER_APP_UI_NAME:-}" ] || [ -n "${CONTAINER_APP_MARKETING_UI_NAME:-}" ]; then
             UI_IMAGE="${ACR_LOGIN_SERVER}/archlucid-ui@${UI_IMAGE_DIGEST}"
           fi
           DEPLOY_STAMP="${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT:-1}"

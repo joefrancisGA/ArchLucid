@@ -81,13 +81,13 @@ describe("PilotCommandCenterCard", () => {
     });
 
     expect(screen.getAllByTestId("operator-home-do-this-next-primary")).toHaveLength(1);
-    expect(screen.getByRole("link", { name: OPERATOR_HOME_LEARN_HOW_REVIEWS_WORK_CTA })).toBeInTheDocument();
+    expect(screen.queryByTestId("operator-home-do-this-next-secondary")).toBeNull();
+    expect(screen.getByTestId("pilot-command-center-help")).toBeInTheDocument();
     expect(screen.queryByTestId("operator-home-dual-path-cards")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-open-completed-sample")).toBeNull();
     expect(screen.queryByTestId("pilot-next-best-action")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-example")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-try-sample")).toBeNull();
-    expect(screen.queryByTestId("pilot-command-center-help")).toBeNull();
     expect(screen.queryByTestId("pilot-path-preview-stepper")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-cta-row")).toBeNull();
   });
