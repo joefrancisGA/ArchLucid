@@ -1,7 +1,9 @@
-> **Scope:** Contributor-reference — 1-page decision tree for new contributors, plus a high-signal path table (formerly `CODE_MAP.md`).
-> **Reviewed:** 2026-07-23
+> **Scope:** Contributor-reference — 1-page decision tree for new contributors, plus a high-signal path table (formerly `CODE_MAP.md`), and the golden change-path minimum-touch checklists (formerly the body of `GOLDEN_CHANGE_PATH.md`; that filename remains a path-stable alias for templates / onboarding).
+> **Reviewed:** 2026-07-31
 
 # Contributor Code Map
+
+**Last reviewed:** 2026-07-31
 
 Use this quick-reference to find where to make changes in the ArchLucid codebase based on your goal.
 
@@ -52,7 +54,121 @@ Use this quick-reference to find where to make changes in the ArchLucid codebase
 **"What else must I update for this change type?"**
 - **Checklist:** [`CHANGE_IMPACT_CHECKLIST.md`](CHANGE_IMPACT_CHECKLIST.md) covers API routes/DTOs, SQL, config, architect workspace, commercial tiers, audit events, retrieval/agent behavior, pricing/trust docs, and V1 scope boundaries.
 - **Generated map:** [`MAINTAINABILITY_BOUNDARY_MAP.generated.md`](MAINTAINABILITY_BOUNDARY_MAP.generated.md) (regenerate with `python scripts/ci/generate_maintainability_boundary_map.py`).
-- **Change checklist (controller → app → SQL → audit):** [`GOLDEN_CHANGE_PATH.md`](GOLDEN_CHANGE_PATH.md).
+- **Change checklist (controller → app → SQL → audit):** [`#golden-change-path`](#golden-change-path) (`GOLDEN_CHANGE_PATH.md` alias).
+
+## Golden change path — extend ArchLucid safely {#golden-change-path}
+
+Former standalone body: `docs/library/GOLDEN_CHANGE_PATH.md` → this section (filename kept as a path-stable alias for `templates/archlucid-api-endpoint` and onboarding callers). Minimum file touch list per change type so work stays inside the right **interfaces → services → data models → orchestration** boundaries (see [ARCHITECTURE_ON_ONE_PAGE.md](../ARCHITECTURE_ON_ONE_PAGE.md)).
+
+**Path-stable alias:** [`GOLDEN_CHANGE_PATH.md`](GOLDEN_CHANGE_PATH.md).
+
+**Last reviewed:** 2026-07-31
+
+**Audience:** Engineers adding HTTP features, persistence, or audit signals without re-reading the entire repo.
+
+**First run / week one:** If you haven't shipped a change here yet, do [onboarding/day-one-developer.md](../onboarding/day-one-developer.md) first — it covers clone → build → test → your first small PR. Come back to **this section** once you're ready to add a real feature and want the minimum file touch list per change type.
+
+### Assumptions
+
+- You are on **`main`** with a green **fast core** (`Suite=Core&Category!=Slow&Category!=Integration`) before pushing.
+- **Storage** is either `Sql` (production-like) or `InMemory` (local/tests); parity matters for both when the feature touches workflow data ([ADR 0011](../architecture/adrs/0011-inmemory-vs-sql-storage-provider.md)).
+- **OpenAPI** drift fails CI until the snapshot is regenerated ([OPENAPI_CONTRACT_DRIFT.md](OPENAPI_CONTRACT_DRIFT.md)).
+
+### Constraints
+
+- Prefer **one class per file**; match existing controller and repository patterns.
+- **Do not edit historical migrations** (001–028); add new migrations and update **`ArchLucid.Persistence/Scripts/ArchLucid.sql`** for the consolidated DDL story ([SQL_SCRIPTS.md](SQL_SCRIPTS.md)).
+- **Durable audit:** use `IAuditService` + `AuditEventTypes.*`; update [AUDIT_COVERAGE_MATRIX.md](AUDIT_COVERAGE_MATRIX.md) and the **`audit-core-const-count`** HTML comment when adding Core constants.
+
+### Architecture overview (change routing)
+
+```mermaid
+flowchart TB
+  subgraph http [HTTP]
+    C[Controller ArchLucid.Api]
+  end
+  subgraph app [Application]
+    S[Service / orchestrator]
+  end
+  subgraph ports [Ports]
+    R[IRepository / I*Service in Contracts or Application]
+  end
+  subgraph data [Persistence]
+    I[InMemory* or Sql* implementation]
+    M[Migrations + ArchLucid.sql]
+  end
+  C --> S
+  S --> R
+  R --> I
+  I --> M
+```
+
+### Minimum touches by change type
+
+#### A. New versioned HTTP endpoint (read or write)
+
+| Step | Location | Notes |
+|------|----------|--------|
+| 1 | `ArchLucid.Api/Controllers/{Area}/*Controller.cs` | Use `v{version:apiVersion}`, `[ApiVersion("1.0")]`, policies from `ArchLucidPolicies`, rate limiting per area ([CONTROLLER_AREA_MAP.md](CONTROLLER_AREA_MAP.md)). |
+| 2 | `ArchLucid.Application/` | Application service if logic is non-trivial; keep controllers thin. |
+| 3 | `ArchLucid.Contracts/` | DTOs / request-response types shared with clients. |
+| 4 | `ArchLucid.Host.Composition/` | DI registration only if new interfaces or decorators ([DI_REGISTRATION_MAP.md](DI_REGISTRATION_MAP.md)). |
+| 5 | `ArchLucid.Api.Tests/` | Integration or unit tests; `[Trait("Suite","Core")]` when appropriate. |
+| 6 | Regenerate OpenAPI snapshot | `ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1` per [TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md). |
+
+**Scaffold:** `dotnet new archlucid-api-endpoint -n YourFeature` then copy the generated controller into the correct `Controllers/{Area}/` folder and adjust namespace, route, and policies ([templates/archlucid-api-endpoint/README.md](../../templates/archlucid-api-endpoint/README.md)).
+
+#### B. New SQL-backed repository or column
+
+| Step | Location | Notes |
+|------|----------|--------|
+| 1 | `ArchLucid.Persistence/` or `ArchLucid.Persistence.Data/` | Interface if cross-cutting; Dapper repository implementation. |
+| 2 | New migration `ArchLucid.Persistence/Migrations/NNN_*.sql` + rollback | Forward-only numbering. |
+| 3 | `ArchLucid.Persistence/Scripts/ArchLucid.sql` | Master DDL alignment. |
+| 4 | `ArchLucid.Persistence/**/InMemory*.cs` | When `StorageProvider=InMemory` must behave for dev/tests. |
+| 5 | `ArchLucid.Persistence.Tests` or `ArchLucid.Api.Tests` | SQL integration or repository tests. |
+| 6 | `docs/TENANT_SCOPED_TABLES_INVENTORY.md` | If table carries tenant scope — document triple vs run-only FK ([MULTI_TENANT_RLS.md](../security/MULTI_TENANT_RLS.md)). |
+
+#### C. New durable audit event
+
+| Step | Location | Notes |
+|------|----------|--------|
+| 1 | `ArchLucid.Core/Audit/AuditEventTypes.cs` | New `public const string`. |
+| 2 | Call site | `IAuditService.LogAsync` (fire-and-forget acceptable only where already documented). |
+| 3 | `docs/AUDIT_COVERAGE_MATRIX.md` | New row + bump **`<!-- audit-core-const-count:N -->`**. |
+
+#### D. Agent / LLM path change
+
+| Step | Location | Notes |
+|------|----------|--------|
+| 1 | `ArchLucid.AgentRuntime/` | Handlers, completion client usage. |
+| 2 | `ArchLucid.Core/Diagnostics/ArchLucidInstrumentation.cs` | New metrics / activity sources if needed ([OBSERVABILITY.md](OBSERVABILITY.md)). |
+| 3 | `docs/AGENT_TRACE_FORENSICS.md` / eval baselines | When prompts or trace shape change. |
+
+### Data flow (happy path)
+
+1. **Request** hits controller → authZ policy → application service.
+2. **Service** uses repository port; SQL path sets **RLS session context** when enabled.
+3. **Response** maps to contract DTO; errors use [API_ERROR_CONTRACT.md](API_ERROR_CONTRACT.md) (`ProblemDetails`).
+
+For a fully worked example of this happy path — from HTTP through the coordinator, authority orchestrator, and persistence — see the **`POST /v1/architecture/request`** mental-model walkthrough (with sequence diagram) in [onboarding/day-one-developer.md](../onboarding/day-one-developer.md#mental-model-post-v1architecturerequest).
+
+### Security model
+
+- **Default deny** on controllers; `AllowAnonymous` only for health/version/OpenAPI where already established.
+- **Production:** CORS must not be `*`; RLS session context required for `Sql` (see `ProductionSafetyRules` in the API host validation layer).
+- Optional **Entra-only** posture: `ArchLucidAuth:RequireJwtBearerInProduction=true` ([SECURITY.md](contributor-reference/SECURITY.md)).
+
+### Operational considerations
+
+- Run **full regression** with SQL before merge when touching persistence ([TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md)).
+- **Storage provider parity:** DI registration parity is tested in `StorageProviderRegistrationParityTests`; HTTP surface parity in `StorageProviderPublicSurfaceParityIntegrationTests`.
+
+### Related (golden change path)
+
+- [CANONICAL_PIPELINE.md](CANONICAL_PIPELINE.md) — coordinator vs authority.
+- [FIRST_RUN_WIZARD.md](FIRST_RUN_WIZARD.md) — operator-first run (UI).
+- [onboarding/day-one-developer.md](../onboarding/day-one-developer.md) — week-one checklist and create-run mental model.
 
 ## 8. High-signal paths (open first)
 

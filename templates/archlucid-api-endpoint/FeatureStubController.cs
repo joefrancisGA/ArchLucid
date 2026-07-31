@@ -24,6 +24,6 @@ public sealed class FeatureStubController : ControllerBase
     [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
     public IActionResult GetSample()
     {
-        return Ok(new { message = "Replace FeatureStub with your feature; see docs/GOLDEN_CHANGE_PATH.md." });
+        return Ok(new { message = "Replace FeatureStub with your feature; see docs/library/CONTRIBUTOR_CODE_MAP.md#golden-change-path." });
     }
 }

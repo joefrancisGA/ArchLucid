@@ -17,7 +17,7 @@ Then:
 1. Copy `BillingExport/BillingExportController.cs` into `ArchLucid.Api/Controllers/{Area}/`.
 2. Fix **namespace** to match the folder (`Admin`, `Planning`, `Authority`, etc.).
 3. Replace **route**, **policies** (`ArchLucidPolicies`), and **rate limiting** to match the area.
-4. Add application services, contracts, persistence, and tests per **`docs/GOLDEN_CHANGE_PATH.md`**.
+4. Add application services, contracts, persistence, and tests per **`docs/library/CONTRIBUTOR_CODE_MAP.md#golden-change-path`** (`GOLDEN_CHANGE_PATH.md` alias).
 5. Regenerate the OpenAPI snapshot when the route is exposed in production builds.
 
 Uninstall:

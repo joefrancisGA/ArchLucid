@@ -264,7 +264,9 @@ Human readers and agents should follow **canonical** paths below. This file is t
 
 | Former path | Canonical path | Notes |
 |-------------|----------------|-------|
-| `docs/archive/ONBOARDING_GOLDEN_CHANGE_PATH_2026_04_17.md` | [`docs/library/GOLDEN_CHANGE_PATH.md`](library/GOLDEN_CHANGE_PATH.md) | Engineer "extend safely" checklists |
+| `docs/archive/ONBOARDING_GOLDEN_CHANGE_PATH_2026_04_17.md` | [`docs/library/CONTRIBUTOR_CODE_MAP.md`](library/CONTRIBUTOR_CODE_MAP.md#golden-change-path) | Engineer "extend safely" checklists → canon section |
+| `docs/library/GOLDEN_CHANGE_PATH.md` (body) | [`docs/library/CONTRIBUTOR_CODE_MAP.md`](library/CONTRIBUTOR_CODE_MAP.md#golden-change-path) | Golden change-path checklists folded into contributor code map; filename kept as path-stable template alias |
+| `docs/GOLDEN_CHANGE_PATH.md` | [`docs/library/CONTRIBUTOR_CODE_MAP.md`](library/CONTRIBUTOR_CODE_MAP.md#golden-change-path) | Legacy root bookmark for golden change path |
 | `docs/archive/ONBOARDING_HAPPY_PATH_2026_04_17.md` | [`docs/onboarding/day-one-developer.md`](onboarding/day-one-developer.md#following-the-request-past-create-execute--commit--retrieval--ask) | Single-request lifecycle narrative |
 | `docs/archive/ONBOARDING_GOLDEN_PATH_2026_04_17.md` | [`docs/library/GOLDEN_PATH.md`](library/GOLDEN_PATH.md) | Environment maturity sequencing (Zero â†’ Azure) |
 | `docs/integrations/SSO_AUTH0_CONFIGURATION.md` | [`docs/integrations/IDP_PROVISIONING.md`](integrations/IDP_PROVISIONING.md) | Auth0 SSO (Â§2) |
