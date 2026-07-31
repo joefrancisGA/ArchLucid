@@ -165,7 +165,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | HSX | `/help/scope` | 0.05% | 0 | 0 | 5 | Help topic | None |
 | HSE | `/help/security-trust` | 0.05% | 0 | 0 | 5 | Help topic | None |
 | HUX | `/help/users-and-roles` | 0.05% | 0 | 0 | 5 | Help alias | None |
-| IIO | `/integrations/itsm/oauth/callback` | 0.05% | 0 | 0 | 5 | Integrations | None |
+| IIO | `/integrations/itsm/oauth/callback` | 0.05% | 0 | 0 | 5 | Integrations | Atlassian OAuth consent return — live App Router page; not redirect-blocked (TB-1776 hub carve-out). Score UX after TB-1782+. |
 | RXX | `/internal-operations/recommendation-learning` | 0.05% | 0 | 0 | 5 | Marketing | None |
 | OAX | `/operate/architecture-graph` | 0.05% | 0 | 0 | 5 | Advisory | None |
 | QXX | `/quick-scan` | 0.05% | 0 | 0 | 5 | Marketing | None |

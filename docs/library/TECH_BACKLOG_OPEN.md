@@ -556,8 +556,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1778 | ITSM legacy path — retire or quarantine dead ItsmIntegrationPageClient | Maintainability P2 **V1** — with **TB-1776** |
 | TB-1779 | ITSM legacy traffic — mark INT redirect-only + fold workbook notes | Adoption friction P1 **V1** — with **TB-1776** |
 | TB-1780 | ITSM legacy — canonicalize product deep-links to readiness / jira / servicenow | Trustworthiness P1 **V1** — with **TB-1776** |
-| TB-1781 | INA OAuth callback — blocked until TB-1776 carve; traffic honesty | Correctness P0 **V1** — INA ~10 |
-| TB-1782 | Atlassian OAuth callback — brand shell + loading honesty | Adoption friction P1 **V1** — with **TB-1781** |
+| TB-1782 | Atlassian OAuth callback — brand shell + loading honesty | Adoption friction P1 **V1** — after **TB-1781** |
 | TB-1783 | Atlassian OAuth callback — success copy + primary Open Jira CTA | Adoption friction P1 **V1** — with **TB-1781** |
 | TB-1784 | Atlassian OAuth callback — error copy honesty (no raw IdP/engine dump) | Trustworthiness P1 **V1** — with **TB-1781** |
 | TB-1785 | Atlassian OAuth callback — Vitest success/fail/cancel states | Testability P2 **V1** — with **TB-1781** |
@@ -950,7 +949,7 @@ Canonical: [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) only (see wave-3 c
 | Azure cloud connection detail (`/integrations/cloud-connections/azure`) | **TB-1766**–**TB-1770** (open P1/P2 **V1**) | Tier jargon; Validate/Activity stubs; help IA; connected CTA; Vitest; ~72/100; traffic **INZ**; reference for AWS **TB-1761** |
 | GCP cloud connection detail (`/integrations/cloud-connections/gcp`) | **TB-1771**–**TB-1775** (open P1 **V1**) | Preview honesty; wizard parity; Validate/Activity stubs; Tier jargon; WIF starter; ~44/100; traffic **IGC**; pairs hub **TB-1140** / AWS **TB-1761** / help **TB-1239**–**TB-1243** |
 | Legacy ITSM hub (`/integrations/itsm`) | **TB-1777**–**TB-1780** (open P1 **V1**) | OAuth carve-out **Done TB-1776**; CI; retire dead client; traffic redirect-only; canonicalize links; ~12/100; traffic **INT**/**INA**; do not reopen **TB-1146**/**TB-1161**/**TB-1429** |
-| Atlassian OAuth callback (`/integrations/itsm/oauth/callback`) | **TB-1781**–**TB-1785** (open P1 **V1**) | Redirect carve **Done TB-1776**; brand/loading; success CTA copy; error honesty; Vitest; ~10/100; traffic **INA**; do not reopen **TB-600** |
+| Atlassian OAuth callback (`/integrations/itsm/oauth/callback`) | **TB-1782**–**TB-1785** (open P1 **V1**) | Traffic honesty **Done TB-1781**; brand/loading; success CTA copy; error honesty; Vitest; ~10/100; traffic **IIO**; do not reopen **TB-600** |
 | Recommendation-learning ops (`/internal-operations/recommendation-learning`) | **TB-1786**–**TB-1790** (open P1/P2 **V1**) | Traffic/SEO Internal Ops; retire orphan UI; toolbar honesty; enterprise chrome; Vitest; ~52/100; traffic **INR** |
 | Legacy `/login` | **TB-1791**–**TB-1795** (open P1/P2 **V1**) | Vitest redirect; query fidelity; noindex; traffic redirect-only; docs canonicalize; ~12/100; traffic **LOX**; real UX on `/auth/signin` |
 | Legacy `/onboard` | **TB-1796**–**TB-1800** (open P1/P2 **V1**) | Query Vitest; noindex; traffic redirect-only; canonicalize; SEO drop; ~12/100; traffic **ON**; peer ONS; hub Done **TB-674**–**TB-680** |
