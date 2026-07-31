@@ -29,6 +29,7 @@ describe("example-roi-bulletin marketing page", () => {
     expect(pageSource).not.toContain("Operator-only");
     expect(pageSource).not.toContain("docs/CLI_USAGE.md");
     expect(pageSource).toContain("index: false");
-    expect(pageSource).toContain(EXAMPLE_ROI_BULLETIN_METHODOLOGY_HELP_HREF);
+    expect(pageSource).toContain("EXAMPLE_ROI_BULLETIN_METHODOLOGY_HELP_HREF");
+    expect(EXAMPLE_ROI_BULLETIN_METHODOLOGY_HELP_HREF).toBe("/help/pilot-roi-model");
   });
 });

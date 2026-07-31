@@ -58,7 +58,7 @@ describe("buildValueReportPreviewMetrics", () => {
     expect(metrics.reviewsIncluded).toBe(3);
     expect(metrics.findingsGenerated).toBe(12);
     expect(metrics.decisionsRecorded).toBe(5);
-    expect(metrics.estimatedHoursSaved).toBe("17.0 h");
+    expect(metrics.estimatedHoursSaved).toBe("17 h");
     expect(metrics.openGovernanceRisks).toBe(2);
   });
 });
