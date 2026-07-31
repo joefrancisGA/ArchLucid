@@ -1,6 +1,6 @@
 > **Reviewed:** 2026-07-25
 
-> **Scope:** ArchLucid — reference-customers index — status table, how to add a real reference, per-customer tracking checklist, plus the publication runbook / named-reference capture / evidence pack template (formerly the body of `REFERENCE_PUBLICATION_RUNBOOK.md`; that filename remains a path-stable alias for CI first-contact pins).
+> **Scope:** ArchLucid — reference-customers index — status table, how to add a real reference, per-customer tracking checklist, plus the publication runbook / named-reference capture / evidence pack template (formerly the body of `REFERENCE_PUBLICATION_RUNBOOK.md`; that filename remains a path-stable alias). CI Batch 5BC pins first-contact template strings on this README canon.
 
 > **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 
@@ -80,7 +80,7 @@ Operational checklist from pilot-complete to **Published** (owner, sales, CS). C
 
 ## Reference publication runbook {#reference-publication-runbook}
 
-Former standalone body: `docs/go-to-market/reference-customers/REFERENCE_PUBLICATION_RUNBOOK.md` → this section (filename kept as a path-stable alias for CI first-contact pins). Includes named-reference capture and the evidence pack template.
+Former standalone body: `docs/go-to-market/reference-customers/REFERENCE_PUBLICATION_RUNBOOK.md` → this section (filename kept as a path-stable alias). Includes named-reference capture and the evidence pack template. First-contact email strings are pinned here by CI Batch 5BC.
 
 **Audience:** Product marketing, customer success, sales engineering, and the owner who signs legal agreements.  
 **Path-stable alias:** [`REFERENCE_PUBLICATION_RUNBOOK.md`](REFERENCE_PUBLICATION_RUNBOOK.md).

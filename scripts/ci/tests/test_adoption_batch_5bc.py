@@ -10,12 +10,13 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 
 class TestAdoptionBatch5BC(unittest.TestCase):
     def test_tb_229_first_contact_template(self) -> None:
+        # Canon body lives in README; REFERENCE_PUBLICATION_RUNBOOK.md is a path-stable alias.
         path = (
             REPO_ROOT
             / "docs"
             / "go-to-market"
             / "reference-customers"
-            / "REFERENCE_PUBLICATION_RUNBOOK.md"
+            / "README.md"
         )
         text = path.read_text(encoding="utf-8")
         self.assertIn("<<PILOT_OUTCOME_SENTENCE>>", text)
