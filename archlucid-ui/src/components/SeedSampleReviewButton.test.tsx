@@ -3,29 +3,40 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const pushMock = vi.fn();
 const refreshMock = vi.fn();
+const pathnameMock = vi.fn(() => "/reviews");
 
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
   return {
     ...actual,
-  useRouter: (): { push: (path: string) => void; refresh: () => void } => ({
-    push: pushMock,
-    refresh: refreshMock,
-  }),
-  redirect: vi.fn(),
+    useRouter: (): { push: (path: string) => void; refresh: () => void } => ({
+      push: pushMock,
+      refresh: refreshMock,
+    }),
+    usePathname: () => pathnameMock(),
+    redirect: vi.fn(),
     permanentRedirect: vi.fn(),
     notFound: vi.fn(),
   };
 });
 
 const showErrorMock = vi.fn();
+const showSuccessMock = vi.fn();
+const invalidateExecutiveMock = vi.fn(async () => undefined);
+const invalidateHomeRunsMock = vi.fn(async () => undefined);
 
 vi.mock("@/lib/toast", () => ({
   showError: (...args: unknown[]) => showErrorMock(...args),
-  showSuccess: vi.fn(),
+  showSuccess: (...args: unknown[]) => showSuccessMock(...args),
   showInfo: vi.fn(),
 }));
 
+vi.mock("@/lib/operator-query-invalidation", () => ({
+  invalidateOperatorExecutiveRoiCaches: () => invalidateExecutiveMock(),
+  invalidateOperatorHomeRunsCaches: () => invalidateHomeRunsMock(),
+}));
+
+import { BUYER_SEED_SAMPLE_WORKSPACE_SUCCESS } from "@/lib/buyer-polish-copy";
 import { SeedSampleReviewButton } from "./SeedSampleReviewButton";
 
 /**
@@ -39,6 +50,11 @@ describe("SeedSampleReviewButton", () => {
     pushMock.mockReset();
     refreshMock.mockReset();
     showErrorMock.mockReset();
+    showSuccessMock.mockReset();
+    invalidateExecutiveMock.mockClear();
+    invalidateHomeRunsMock.mockClear();
+    pathnameMock.mockReset();
+    pathnameMock.mockReturnValue("/reviews");
     fetchMock.mockReset();
     vi.stubGlobal("fetch", fetchMock);
   });
@@ -80,9 +96,32 @@ describe("SeedSampleReviewButton", () => {
     expect((init as RequestInit).method).toBe("POST");
 
     await waitFor(() => {
+      expect(invalidateExecutiveMock).toHaveBeenCalledTimes(1);
+      expect(invalidateHomeRunsMock).toHaveBeenCalledTimes(1);
       expect(pushMock).toHaveBeenCalledWith("/dashboard");
+      expect(refreshMock).toHaveBeenCalledTimes(1);
+      expect(showSuccessMock).toHaveBeenCalledWith(BUYER_SEED_SAMPLE_WORKSPACE_SUCCESS);
     });
-    expect(refreshMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("refreshes in place without push when already on the redirect target", async () => {
+    pathnameMock.mockReturnValue("/dashboard");
+    fetchMock.mockResolvedValue(
+      new Response(JSON.stringify({ redirectTo: "/dashboard" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    render(<SeedSampleReviewButton />);
+
+    fireEvent.click(screen.getByRole("button", { name: /load sample workspace/i }));
+
+    await waitFor(() => {
+      expect(pushMock).not.toHaveBeenCalled();
+      expect(refreshMock).toHaveBeenCalledTimes(1);
+      expect(showSuccessMock).toHaveBeenCalledWith(BUYER_SEED_SAMPLE_WORKSPACE_SUCCESS);
+    });
   });
 
   it("falls back to /dashboard when the response omits a redirectTo", async () => {

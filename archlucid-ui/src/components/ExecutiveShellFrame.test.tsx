@@ -7,9 +7,9 @@ vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
   return {
     ...actual,
-  usePathname: () => "/executive/dashboard",
-  useSearchParams: () => new URLSearchParams(),
-  redirect: vi.fn(),
+    usePathname: () => "/dashboard",
+    useSearchParams: () => new URLSearchParams(),
+    redirect: vi.fn(),
     permanentRedirect: vi.fn(),
     notFound: vi.fn(),
   };
@@ -37,7 +37,7 @@ describe("ExecutiveShellFrame", () => {
       </ExecutiveShellFrame>,
     );
 
-    expect(screen.getByTestId("executive-shell-nav-dashboard")).toHaveAttribute("href", "/executive/dashboard");
+    expect(screen.getByTestId("executive-shell-nav-dashboard")).toHaveAttribute("href", "/dashboard");
     expect(screen.getByTestId("executive-shell-nav-scorecard")).toHaveAttribute("href", "/executive/scorecard");
   });
 

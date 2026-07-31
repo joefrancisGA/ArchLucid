@@ -44,14 +44,15 @@ export function ExecutiveDashboardPageHero({
                 {v.emptyStatePrimaryAction}
               </Link>
             </Button>
-          ) : null}
-          <Link
-            href={v.portfolioPageLearnMoreHref}
-            className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.micro)}
-            data-testid="executive-dashboard-hero-learn-more"
-          >
-            {v.portfolioPageLearnMoreLabel}
-          </Link>
+          ) : (
+            <Link
+              href={v.portfolioPageLearnMoreHref}
+              className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.micro)}
+              data-testid="executive-dashboard-hero-learn-more"
+            >
+              {v.portfolioPageLearnMoreLabel}
+            </Link>
+          )}
         </div>
       </div>
     </header>

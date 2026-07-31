@@ -1,20 +1,23 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import type { ButtonProps } from "@/components/ui/button";
-import { BUYER_SEED_SAMPLE_WORKSPACE_CTA } from "@/lib/buyer-polish-copy";
-import { showError } from "@/lib/toast";
+import { BUYER_SEED_SAMPLE_WORKSPACE_CTA, BUYER_SEED_SAMPLE_WORKSPACE_SUCCESS } from "@/lib/buyer-polish-copy";
+import {
+  invalidateOperatorExecutiveRoiCaches,
+  invalidateOperatorHomeRunsCaches,
+} from "@/lib/operator-query-invalidation";
+import { showError, showSuccess } from "@/lib/toast";
 
 /**
  * V1 Operator Shell — OS-1 (LATEST.md improvement #1).
  *
  * Reviews-empty-state CTA that POSTs to the internal `/api/seed-sample` route handler. On success the route
- * returns `{ redirectTo: "/dashboard" }`; we forward there with `router.push` so the freshly-seeded executive ROI
- * dashboard is visible. Errors surface via the shared sonner toast (`showError`) — the button stays interactive so the
- * operator can retry without a page reload.
+ * returns `{ redirectTo: "/dashboard" }`; we invalidate dashboard caches, then navigate when the target differs
+ * from the current path. Errors surface via the shared sonner toast (`showError`) — the button stays interactive.
  *
  * Static showcase / `SampleFirstReviewPackageCard` flows are intentionally untouched.
  */
@@ -56,6 +59,10 @@ function readRedirectTarget(payload: unknown): string | null {
   return trimmed.length > 0 ? trimmed : null;
 }
 
+function pathnameOnly(href: string): string {
+  return href.split("?")[0]?.split("#")[0] ?? href;
+}
+
 async function readErrorDetail(response: Response): Promise<string> {
   try {
     const body: unknown = await response.json();
@@ -81,6 +88,7 @@ export function SeedSampleReviewButton({
   size = "default",
 }: SeedSampleReviewButtonProps) {
   const router = useRouter();
+  const pathname = usePathname() ?? "/";
   const [busy, setBusy] = useState(false);
 
   const onClick = useCallback(async () => {
@@ -102,16 +110,24 @@ export function SeedSampleReviewButton({
 
       const payload: unknown = await response.json();
       const target = readRedirectTarget(payload) ?? "/dashboard";
+      const targetPathname = pathnameOnly(target);
+      const currentPathname = pathnameOnly(pathname);
 
-      router.push(target);
+      await Promise.all([invalidateOperatorExecutiveRoiCaches(), invalidateOperatorHomeRunsCaches()]);
+
+      if (currentPathname !== targetPathname) {
+        router.push(target);
+      }
+
       router.refresh();
+      showSuccess(BUYER_SEED_SAMPLE_WORKSPACE_SUCCESS);
     } catch (err: unknown) {
       const message = err instanceof Error && err.message.trim().length > 0 ? err.message : FALLBACK_ERROR_MESSAGE;
       showError(message);
     } finally {
       setBusy(false);
     }
-  }, [router]);
+  }, [pathname, router]);
 
   return (
     <Button

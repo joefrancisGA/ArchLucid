@@ -37,6 +37,10 @@ function executiveNavLinkClassName(isActive: boolean): string {
   return `${base} font-semibold underline underline-offset-4`;
 }
 
+function isExecutiveDashboardNavActive(pathname: string): boolean {
+  return pathname === "/dashboard" || pathname.startsWith("/dashboard/");
+}
+
 export function ExecutiveShellFrame({ children }: ExecutiveShellFrameProps) {
   const pathname = usePathname();
 
@@ -64,9 +68,9 @@ export function ExecutiveShellFrame({ children }: ExecutiveShellFrameProps) {
                 asChild
                 variant="ghost"
                 size="sm"
-                className={executiveNavLinkClassName(pathname.startsWith("/executive/dashboard"))}
+                className={executiveNavLinkClassName(isExecutiveDashboardNavActive(pathname))}
               >
-                <Link href="/executive/dashboard" data-testid="executive-shell-nav-dashboard">
+                <Link href="/dashboard" data-testid="executive-shell-nav-dashboard">
                   Dashboard
                 </Link>
               </Button>

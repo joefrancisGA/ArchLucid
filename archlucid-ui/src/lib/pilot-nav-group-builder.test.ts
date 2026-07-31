@@ -4,7 +4,6 @@ import { describe, expect, it, vi, afterEach } from "vitest";
 import { OperatorAdminNavGroupBuilder } from "@/lib/operator-admin-nav-group-builder";
 import { OperateGovernanceNavGroupBuilder } from "@/lib/operate-governance-nav-group-builder";
 import { PilotNavGroupBuilder } from "@/lib/pilot-nav-group-builder";
-import { getShowcaseExecutiveHref } from "@/lib/buyer-safe-review-navigation";
 
 describe("PilotNavGroupBuilder", () => {
   afterEach(() => {
@@ -31,14 +30,14 @@ describe("PilotNavGroupBuilder", () => {
     expect(dashboardLink?.href).toBe("/dashboard");
   });
 
-  it("points portfolio overview nav at showcase executive href in CTO presenter safe mode", () => {
+  it("points portfolio overview nav at /dashboard in CTO presenter safe mode", () => {
     vi.stubEnv("NEXT_PUBLIC_DEMO_MODE", "true");
     vi.stubEnv("NEXT_PUBLIC_DEMO_STATIC_OPERATOR", "");
 
     const group = new PilotNavGroupBuilder().build();
     const dashboardLink = group.links.find((link) => link.label === "Executive dashboard");
 
-    expect(dashboardLink?.href).toBe(getShowcaseExecutiveHref());
+    expect(dashboardLink?.href).toBe("/dashboard");
   });
 
   it("includes recurrence schedules in the governance nav group (TB-406)", () => {

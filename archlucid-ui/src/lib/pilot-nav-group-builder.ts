@@ -11,8 +11,6 @@ import type { NavGroupConfig } from "@/lib/nav-config.types";
 import { BUYER_ONBOARDING_NAV_TOOLTIP } from "@/lib/buyer-polish-copy";
 import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
 import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
-import { getShowcaseExecutiveHref } from "@/lib/buyer-safe-review-navigation";
-import { isCtoDemoPresenterSafeModeEnv } from "@/lib/cto-demo-presenter-pack";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { resolveStartReviewPrimaryNavTitle } from "@/lib/operator-nav-labels";
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
@@ -64,7 +62,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
           defaultVisibleInCollapsedSidebar: true,
         },
         {
-          href: isCtoDemoPresenterSafeModeEnv() ? getShowcaseExecutiveHref() : "/dashboard",
+          href: "/dashboard",
           label: OPERATOR_NAV_LINK_LABELS.portfolioOverview,
           title: PORTFOLIO_OVERVIEW_NAV_TITLE,
           icon: LayoutDashboard,

@@ -16,7 +16,7 @@ import { ExecutiveDashboardPageHero } from "@/components/executive/ExecutiveDash
 describe("ExecutiveDashboardPageHero", () => {
   const v = BUYER_EXECUTIVE_SUMMARY_VOCABULARY;
 
-  it("renders h1, help, header Start, and quiet learn-more when the dashboard is empty", () => {
+  it("renders h1, help, and header Start only when the dashboard is empty", () => {
     render(<ExecutiveDashboardPageHero dashboardEmpty />);
 
     expect(screen.getByTestId("executive-dashboard-page-hero")).toHaveAttribute("data-dashboard-empty", "true");
@@ -26,10 +26,7 @@ describe("ExecutiveDashboardPageHero", () => {
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("executive-dashboard-hero-start-review")).toHaveAttribute("href", "/reviews/new");
     expect(screen.getByTestId("executive-dashboard-hero-start-review")).toHaveTextContent(v.emptyStatePrimaryAction);
-    expect(screen.getByRole("link", { name: v.portfolioPageLearnMoreLabel })).toHaveAttribute(
-      "href",
-      v.portfolioPageLearnMoreHref,
-    );
+    expect(screen.queryByRole("link", { name: v.portfolioPageLearnMoreLabel })).toBeNull();
     expect(screen.queryByRole("button", { name: v.emptyStateSecondaryAction })).not.toBeInTheDocument();
   });
 
