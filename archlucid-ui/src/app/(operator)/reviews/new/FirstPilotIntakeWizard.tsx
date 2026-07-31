@@ -24,8 +24,12 @@ import { FirstRunIntakeStepGuide } from "@/components/wizard/FirstRunIntakeStepG
 import { FocusedPilotPolicyPackAppliedCallout } from "@/components/wizard/FocusedPilotPolicyPackAppliedCallout";
 import { PilotModePolicyPackToggle } from "@/components/wizard/PilotModePolicyPackToggle";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
-import { useReviewCreationProgress } from "@/hooks/use-review-creation-progress";
+import {
+  REVIEW_CREATION_PROGRESS_TIMEOUT_MS,
+  useReviewCreationProgress,
+} from "@/hooks/use-review-creation-progress";
 import { createArchitectureRun, type CreateArchitectureRunRequestPayload } from "@/lib/api";
+import { isApiRequestError } from "@/lib/api-request-error";
 import { ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH } from "@/lib/architecture-request-limits";
 import { BUYER_NEW_REVIEW_TOAST_CATEGORY, BUYER_START_ARCHITECTURE_REVIEW_CTA, CREATE_REVIEW_PACKAGE_HEADING } from "@/lib/buyer-polish-copy";
 import { REVIEW_START_CREATION_FAILED_MESSAGE, REVIEW_START_PREPARING_LABEL } from "@/lib/review-start-progress-copy";
@@ -44,12 +48,18 @@ import {
 } from "@/lib/first-pilot-intake";
 import { resolveReviewIntakeExampleTemplateFromSearchParams } from "@/lib/operator-home-example-request";
 import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
+import { PROXY_UPSTREAM_UPLOAD_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
 import { showError, showSuccess } from "@/lib/toast";
+import { uploadWizardPendingDocumentEvidence } from "@/lib/wizard-pending-evidence-upload";
 
 import { WizardEvidenceUploadZone } from "./QuickReviewWizardDeferredPanels";
 
 const V1_DEFAULT_CLOUD_PROVIDER: CreateArchitectureRunRequestPayload["cloudProvider"] = "None";
 const DEFAULT_PROOF_SCOPE: QuickReviewProofScopeId[] = ["cost", "compliance", "topology"];
+
+/** Create + multipart evidence upload can exceed the default soft-fail budget on slow links. */
+const FIRST_PILOT_WITH_UPLOAD_TIMEOUT_MS =
+  REVIEW_CREATION_PROGRESS_TIMEOUT_MS + PROXY_UPSTREAM_UPLOAD_FETCH_TIMEOUT_MS;
 
 export const FIRST_PILOT_INTAKE_SUBMIT_VALIDATION_MESSAGE =
   "Add a review title and upload at least one architecture document, or fill in the description.";
@@ -147,7 +157,11 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
       return;
     }
 
-    creationProgress.begin({ hasTemplate: exampleTemplate !== null });
+    const filesToUpload = [...evidenceFiles];
+    creationProgress.begin({
+      hasTemplate: exampleTemplate !== null,
+      timeoutMs: filesToUpload.length > 0 ? FIRST_PILOT_WITH_UPLOAD_TIMEOUT_MS : undefined,
+    });
 
     try {
       const body = buildFirstPilotPayload(
@@ -165,6 +179,18 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
         return;
       }
 
+      if (filesToUpload.length > 0) {
+        const uploadResult = await uploadWizardPendingDocumentEvidence(id, filesToUpload);
+
+        if (!uploadResult.ok) {
+          creationProgress.fail(uploadResult.message);
+
+          return;
+        }
+
+        setEvidenceFiles([]);
+      }
+
       recordFirstTenantFunnelEvent("first_run_started");
       creationProgress.markPreparingQuestions();
       creationProgress.markOpeningReview();
@@ -177,8 +203,12 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
       }
 
       router.push(buildReviewGenerationRedirect(id, "quick-review"));
-    } catch {
-      creationProgress.fail(REVIEW_START_CREATION_FAILED_MESSAGE);
+    } catch (error) {
+      const message =
+        isApiRequestError(error) && error.message.trim().length > 0
+          ? error.message
+          : REVIEW_START_CREATION_FAILED_MESSAGE;
+      creationProgress.fail(message);
     }
   };
 
@@ -221,7 +251,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
           </div>
 
           <WizardEvidenceUploadZone
-            title="Upload one architecture diagram"
+            title="Upload one diagram or document"
             description="Required for your first review — a diagram, PDF export, or architecture document. Additional files are optional."
             onFilesSelected={(files) => {
               setEvidenceFiles(files);

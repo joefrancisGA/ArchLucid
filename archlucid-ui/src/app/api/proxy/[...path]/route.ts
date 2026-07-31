@@ -9,10 +9,16 @@ import {
 import { resolveUpstreamApiBaseUrlForProxy } from "@/lib/config";
 import { readServerSideApiKey } from "@/lib/legacy-arch-env";
 import { isAnonymousMarketingProxyPath } from "@/lib/proxy-anonymous-marketing-paths";
-import { declaredPostBodyExceedsLimit, readRequestBodyWithLimit } from "@/lib/proxy-body-read";
-import { PROXY_MAX_BODY_BYTES } from "@/lib/proxy-constants";
+import { declaredPostBodyExceedsLimit, readRequestBodyBytesWithLimit } from "@/lib/proxy-body-read";
+import {
+  isProxyLargeUploadRequest,
+  resolveProxyMaxBodyBytes,
+} from "@/lib/proxy-constants";
 import { enforceProxyRateLimit } from "@/lib/proxy-rate-limit";
-import { PROXY_UPSTREAM_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
+import {
+  PROXY_UPSTREAM_FETCH_TIMEOUT_MS,
+  PROXY_UPSTREAM_UPLOAD_FETCH_TIMEOUT_MS,
+} from "@/lib/server-fetch-timeouts";
 import { trySandboxProxyMock } from "@/lib/sandbox-proxy-mocks";
 import { resolveProxyUpstreamScopeHeaders } from "@/lib/proxy-scope-resolution";
 import { fetchWithWarmupRetry } from "@/lib/warmup-retry";
@@ -117,7 +123,7 @@ function respondWithProxyProblem(
   return res;
 }
 
-/** Forwards `POST`/`PUT`/`PATCH` with JSON (or other) body and size limits identical to historical POST behavior. */
+/** Forwards `POST`/`PUT`/`PATCH` with JSON or multipart body; multipart evidence uploads allow up to 100 MB. */
 async function forwardMutatingWithBody(
   request: NextRequest,
   method: "POST" | "PUT" | "PATCH",
@@ -126,9 +132,16 @@ async function forwardMutatingWithBody(
   targetUrl: string,
   headers: Headers,
 ): Promise<NextResponse> {
+  const contentType = request.headers.get("content-type");
+  const maxBodyBytes = resolveProxyMaxBodyBytes(pathForLog, contentType);
+  const isLargeUpload = isProxyLargeUploadRequest(pathForLog, contentType);
+  const upstreamTimeoutMs = isLargeUpload
+    ? PROXY_UPSTREAM_UPLOAD_FETCH_TIMEOUT_MS
+    : PROXY_UPSTREAM_FETCH_TIMEOUT_MS;
+
   const tooLargeByHeader = declaredPostBodyExceedsLimit(
     request.headers.get("content-length"),
-    PROXY_MAX_BODY_BYTES,
+    maxBodyBytes,
   );
 
   if (tooLargeByHeader !== false) {
@@ -136,7 +149,7 @@ async function forwardMutatingWithBody(
       method,
       path: pathForLog,
       declaredLength: tooLargeByHeader.declaredLength,
-      maxBytes: PROXY_MAX_BODY_BYTES,
+      maxBytes: maxBodyBytes,
       correlationId,
     });
     return respondWithProxyProblem(
@@ -145,25 +158,24 @@ async function forwardMutatingWithBody(
         type: "about:blank",
         title: "Payload too large",
         status: 413,
-        detail: `Request body (${tooLargeByHeader.declaredLength} bytes) exceeds the proxy limit of ${PROXY_MAX_BODY_BYTES} bytes.`,
+        detail: `Request body (${tooLargeByHeader.declaredLength} bytes) exceeds the proxy limit of ${maxBodyBytes} bytes.`,
       },
       correlationId,
     );
   }
 
-  const contentType = request.headers.get("content-type");
-
   if (contentType) {
     headers.set("Content-Type", contentType);
   }
 
-  const body = await readRequestBodyWithLimit(request.body, PROXY_MAX_BODY_BYTES);
+  // Binary-safe buffer so DOCX/PDF/ZIP multipart parts are not UTF-8 mangled.
+  const body = await readRequestBodyBytesWithLimit(request.body, maxBodyBytes);
 
   if (body === null) {
     logProxyDiagnostic("body_too_large_streaming", {
       method,
       path: pathForLog,
-      maxBytes: PROXY_MAX_BODY_BYTES,
+      maxBytes: maxBodyBytes,
       correlationId,
     });
     return respondWithProxyProblem(
@@ -172,7 +184,7 @@ async function forwardMutatingWithBody(
         type: "about:blank",
         title: "Payload too large",
         status: 413,
-        detail: `Request body exceeded the proxy limit of ${PROXY_MAX_BODY_BYTES} bytes during streaming read.`,
+        detail: `Request body exceeded the proxy limit of ${maxBodyBytes} bytes during streaming read.`,
       },
       correlationId,
     );
@@ -186,7 +198,7 @@ async function forwardMutatingWithBody(
       headers,
       body,
       cache: "no-store",
-      signal: AbortSignal.timeout(PROXY_UPSTREAM_FETCH_TIMEOUT_MS),
+      signal: AbortSignal.timeout(upstreamTimeoutMs),
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
@@ -452,6 +464,9 @@ async function handleRateLimitedForward(
 
   return forward(request, path ?? [], method);
 }
+
+/** Allow long-running multipart evidence forwards (up to 100 MB) on hosted Node runtimes. */
+export const maxDuration = 600;
 
 /** Handles GET requests from browser components → forwards to C# API with server-side credentials. */
 export async function GET(

@@ -1,7 +1,8 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const createRun = vi.fn();
+const uploadDocuments = vi.fn();
 const push = vi.fn();
 
 vi.mock("next/navigation", async (importOriginal) => {
@@ -18,6 +19,10 @@ vi.mock("next/navigation", async (importOriginal) => {
 
 vi.mock("@/lib/api", () => ({
   createArchitectureRun: (...args: unknown[]) => createRun(...args),
+}));
+
+vi.mock("@/lib/wizard-pending-evidence-upload", () => ({
+  uploadWizardPendingDocumentEvidence: (...args: unknown[]) => uploadDocuments(...args),
 }));
 
 vi.mock("@/lib/first-tenant-funnel-telemetry", () => ({
@@ -55,6 +60,13 @@ import { FOCUSED_PILOT_MODE_POLICY_REFERENCE } from "@/lib/focused-pilot-mode-po
 import { FirstPilotIntakeWizard, FIRST_PILOT_INTAKE_SUBMIT_VALIDATION_MESSAGE } from "./FirstPilotIntakeWizard";
 
 describe("FirstPilotIntakeWizard", () => {
+  beforeEach(() => {
+    createRun.mockReset();
+    uploadDocuments.mockReset();
+    push.mockReset();
+    vi.mocked(showError).mockReset();
+  });
+
   it("uses buyer-safe submit validation copy without evidence-file jargon", () => {
     expect(FIRST_PILOT_INTAKE_SUBMIT_VALIDATION_MESSAGE).toBe(
       "Add a review title and upload at least one architecture document, or fill in the description.",
@@ -86,6 +98,7 @@ describe("FirstPilotIntakeWizard", () => {
 
   it("enables start with title and evidence file without a long brief", async () => {
     createRun.mockResolvedValue({ run: { runId: "first-pilot-run-1" } });
+    uploadDocuments.mockResolvedValue({ ok: true });
 
     render(<FirstPilotIntakeWizard />);
 
@@ -108,6 +121,13 @@ describe("FirstPilotIntakeWizard", () => {
       expect(createRun).toHaveBeenCalled();
     });
 
+    await waitFor(() => {
+      expect(uploadDocuments).toHaveBeenCalledWith(
+        "first-pilot-run-1",
+        expect.arrayContaining([expect.objectContaining({ name: "network-topology.pdf" })]),
+      );
+    });
+
     const body = createRun.mock.calls[0][0] as {
       description: string;
       systemName: string;
@@ -118,6 +138,31 @@ describe("FirstPilotIntakeWizard", () => {
     expect(body.description.length).toBeGreaterThanOrEqual(100);
     expect(body.policyReferences).toContain(FOCUSED_PILOT_MODE_POLICY_REFERENCE);
     expect(push).toHaveBeenCalledWith(buildReviewGenerationRedirect("first-pilot-run-1", "quick-review"));
+  });
+
+  it("surfaces document upload failure without navigating away", async () => {
+    createRun.mockResolvedValue({ run: { runId: "first-pilot-run-2" } });
+    uploadDocuments.mockResolvedValue({
+      ok: false,
+      message: "Document evidence upload failed.",
+      problem: null,
+      correlationId: null,
+    });
+
+    render(<FirstPilotIntakeWizard />);
+
+    fireEvent.change(screen.getByTestId("first-pilot-title"), {
+      target: { value: "Retail API review" },
+    });
+    fireEvent.click(screen.getByTestId("first-pilot-upload-stub"));
+    fireEvent.click(screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("first-pilot-submit-error")).toHaveTextContent(
+        /document evidence upload failed/i,
+      );
+    });
+    expect(push).not.toHaveBeenCalled();
   });
 
   it("keeps review scope accordion collapsed by default", () => {

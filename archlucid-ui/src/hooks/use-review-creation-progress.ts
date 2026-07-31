@@ -19,6 +19,8 @@ export const REVIEW_CREATION_PROGRESS_TIMEOUT_MS = SOFT_NAVIGATION_TIMEOUT_MS + 
 
 export type ReviewCreationProgressBeginInput = {
   readonly hasTemplate: boolean;
+  /** Override soft-fail budget (e.g. longer when evidence upload follows create). */
+  readonly timeoutMs?: number;
 };
 
 export function useReviewCreationProgress() {
@@ -71,6 +73,8 @@ export function useReviewCreationProgress() {
       setActiveStageId("creating-workspace");
       setShowStagedPanel(false);
 
+      const timeoutMs = input.timeoutMs ?? REVIEW_CREATION_PROGRESS_TIMEOUT_MS;
+
       activityTimeoutIdRef.current = window.setTimeout(() => {
         clearTimers();
         setIsActive(false);
@@ -79,7 +83,7 @@ export function useReviewCreationProgress() {
         setShowStagedPanel(false);
         setError(REVIEW_START_CREATION_FAILED_MESSAGE);
         activityTimeoutIdRef.current = null;
-      }, REVIEW_CREATION_PROGRESS_TIMEOUT_MS);
+      }, timeoutMs);
 
       timerIdsRef.current.push(
         window.setTimeout(() => {

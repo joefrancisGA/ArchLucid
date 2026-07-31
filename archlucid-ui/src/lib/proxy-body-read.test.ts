@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { declaredPostBodyExceedsLimit, readRequestBodyWithLimit } from "./proxy-body-read";
+import {
+  declaredPostBodyExceedsLimit,
+  readRequestBodyBytesWithLimit,
+  readRequestBodyWithLimit,
+} from "./proxy-body-read";
 
 describe("declaredPostBodyExceedsLimit", () => {
   it("returns false when header is missing", () => {
@@ -70,5 +74,32 @@ describe("readRequestBodyWithLimit", () => {
     });
 
     await expect(readRequestBodyWithLimit(stream, 5)).resolves.toBeNull();
+  });
+});
+
+describe("readRequestBodyBytesWithLimit", () => {
+  it("preserves binary bytes under the limit", async () => {
+    const bytes = new Uint8Array([0, 255, 128, 1]);
+    const stream = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(bytes);
+        controller.close();
+      },
+    });
+
+    const result = await readRequestBodyBytesWithLimit(stream, 100);
+
+    expect(result).toEqual(bytes);
+  });
+
+  it("returns null when over the limit", async () => {
+    const stream = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(new Uint8Array(8));
+        controller.close();
+      },
+    });
+
+    await expect(readRequestBodyBytesWithLimit(stream, 4)).resolves.toBeNull();
   });
 });

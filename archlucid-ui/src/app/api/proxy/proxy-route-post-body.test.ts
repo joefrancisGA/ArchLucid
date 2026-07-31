@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { POST } from "./[...path]/route";
-import { PROXY_MAX_BODY_BYTES } from "@/lib/proxy-constants";
+import { PROXY_MAX_BODY_BYTES, PROXY_MAX_MULTIPART_BODY_BYTES } from "@/lib/proxy-constants";
 
 describe("POST /api/proxy/[...path] body limits", () => {
   const fetchMock = vi.fn();
@@ -17,7 +17,7 @@ describe("POST /api/proxy/[...path] body limits", () => {
     vi.restoreAllMocks();
   });
 
-  it("returns 413 when Content-Length declares a body larger than the cap", async () => {
+  it("returns 413 when Content-Length declares a body larger than the JSON cap", async () => {
     const req = new NextRequest("http://localhost/api/proxy/health/live", {
       method: "POST",
       headers: {
@@ -35,7 +35,7 @@ describe("POST /api/proxy/[...path] body limits", () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  it("returns 413 when streamed body exceeds the cap", async () => {
+  it("returns 413 when streamed JSON body exceeds the JSON cap", async () => {
     const oversized = new Uint8Array(PROXY_MAX_BODY_BYTES + 1);
     const req = new NextRequest("http://localhost/api/proxy/health/live", {
       method: "POST",
@@ -60,5 +60,45 @@ describe("POST /api/proxy/[...path] body limits", () => {
 
     expect(res.status).toBe(200);
     expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("allows multipart evidence uploads larger than the JSON cap and under 100 MB", async () => {
+    const payload = new Uint8Array(PROXY_MAX_BODY_BYTES + 2_048);
+    const req = new NextRequest("http://localhost/api/proxy/v1/architecture/run/r1/evidence/bulk", {
+      method: "POST",
+      headers: {
+        "content-type": "multipart/form-data; boundary=----x",
+        "content-length": String(payload.byteLength),
+      },
+      body: payload,
+    });
+
+    const res = await POST(req, {
+      params: Promise.resolve({ path: ["v1", "architecture", "run", "r1", "evidence", "bulk"] }),
+    });
+
+    expect(res.status).toBe(200);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const init = fetchMock.mock.calls[0]?.[1] as { body?: Uint8Array } | undefined;
+    expect(init?.body).toBeInstanceOf(Uint8Array);
+    expect((init?.body as Uint8Array).byteLength).toBe(payload.byteLength);
+  });
+
+  it("returns 413 when multipart evidence upload exceeds the 100 MB cap", async () => {
+    const req = new NextRequest("http://localhost/api/proxy/v1/architecture/run/r1/evidence/bulk", {
+      method: "POST",
+      headers: {
+        "content-type": "multipart/form-data; boundary=----x",
+        "content-length": String(PROXY_MAX_MULTIPART_BODY_BYTES + 1),
+      },
+      body: "x",
+    });
+
+    const res = await POST(req, {
+      params: Promise.resolve({ path: ["v1", "architecture", "run", "r1", "evidence", "bulk"] }),
+    });
+
+    expect(res.status).toBe(413);
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });
