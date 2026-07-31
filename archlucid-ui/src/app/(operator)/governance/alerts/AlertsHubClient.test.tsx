@@ -23,6 +23,43 @@ vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => true,
 }));
 
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: () => false,
+  };
+});
+
+vi.mock("@/lib/use-nav-surface", () => ({
+  useNavSurface: () => ({
+    links: [],
+    mutationCapability: false,
+    layerGuidance: {
+      layerBadge: "Governance",
+      headline: "Risk and compliance signals that need triage.",
+      useWhen: "Work the inbox first; configure rules and routing on Alert rules.",
+      firstPilotNote: null,
+      enterpriseFootnote: "Inbox first; configuration tabs when your role allows.",
+    },
+    contextHints: {
+      enterpriseNavGroupHint: "",
+      enterpriseExecutePageHint: null,
+      layerHeaderEnterpriseRankCue: null,
+      governanceResolutionRank: "",
+      alertsInboxRank: "",
+      auditLogRank: "",
+      alertOperatorToolingRank: "",
+      governanceDashboardReaderAction: null,
+    },
+    callerAuthorityRank: 2,
+    showExtended: true,
+    showAdvanced: true,
+    mounted: true,
+  }),
+}));
+
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
 }));
@@ -50,8 +87,9 @@ describe("AlertsHubClient", () => {
     expect(screen.getByTestId("alerts-page-title")).toHaveTextContent("Alert inbox");
     expect(screen.getByText(ALERTS_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.getByText(ALERTS_CONTEXT_NOTE)).toBeInTheDocument();
-    expect(screen.getByTestId("alerts-how-alerts-work-link")).toHaveAttribute("href", "/help/alerts");
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+    expect(screen.getByTestId("alerts-configure-rules-link")).toHaveAttribute("href", "/governance/alert-rules");
     expect(screen.queryByRole("tab")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("alerts-how-alerts-work-link")).toBeNull();
   });
 });

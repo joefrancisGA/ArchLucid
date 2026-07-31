@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { isAlertConfigurationTabParam } from "@/lib/alerts-hub-tab";
+import { isAlertConfigurationTabParam, shouldCanonicalizeAlertsInboxTabParam, buildAlertsInboxCanonicalHref } from "@/lib/alerts-hub-tab";
 import { governanceAlertRulesTabHref } from "@/lib/governance-route-paths";
 
 import { loadAlertsInboxPageModel } from "./_sections/load-alerts-inbox-page-model";
@@ -29,6 +29,15 @@ export default async function AlertsPage(props: AlertsPageProps) {
 
   if (isAlertConfigurationTabParam(tab)) {
     redirect(governanceAlertRulesTabHref(tab ?? "rules"));
+  }
+
+  if (shouldCanonicalizeAlertsInboxTabParam(tab)) {
+    redirect(
+      buildAlertsInboxCanonicalHref({
+        status: readSearchParam(resolved, "status"),
+        page: readSearchParam(resolved, "page"),
+      }),
+    );
   }
 
   const initialInboxModel = await loadAlertsInboxPageModel({

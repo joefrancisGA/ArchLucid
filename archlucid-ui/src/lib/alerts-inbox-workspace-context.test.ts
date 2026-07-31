@@ -44,6 +44,7 @@ describe("buildAlertsInboxEmptyStateProps", () => {
     const props = buildAlertsInboxEmptyStateProps("healthy_clear", true);
     expect(props.title).toBe(ALERTS_EMPTY_HEALTHY_TITLE);
     expect(props.actions?.[0]?.label).toBe("Open reviews");
+    expect(props.actions?.[0]?.href).toBe("/reviews");
   });
 
   it("maps no_rules to configure alert rules CTA", () => {

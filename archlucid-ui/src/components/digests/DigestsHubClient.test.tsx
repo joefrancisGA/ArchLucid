@@ -13,6 +13,15 @@ vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => true,
 }));
 
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: () => false,
+  };
+});
+
 vi.mock("@/lib/api", () => ({
   fetchWeeklyDigestHealth: vi.fn(),
   listArchitectureDigests: vi.fn(),
@@ -74,7 +83,9 @@ describe("DigestsHubClient", () => {
     ).toBeInTheDocument();
     expect(screen.getByTestId("digests-hub-tablist")).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: "Browse" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByTestId("digests-header-actions")).toBeInTheDocument();
     expect(screen.getByTestId("digests-refresh-button")).toBeEnabled();
+    expect(screen.getByTestId("digests-last-updated")).toHaveTextContent(/Last updated:/i);
     expect(screen.getByTestId("digests-privacy-note")).toBeInTheDocument();
     expect(screen.getByTestId("digests-primary-action")).toHaveTextContent("Configure schedule");
     expect(screen.getByTestId("digests-preview-action")).toBeDisabled();
@@ -115,6 +126,7 @@ describe("DigestsHubClient", () => {
       ),
     ).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: "Schedule" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByTestId("digests-refresh-button")).toBeInTheDocument();
     expect(screen.queryByTestId("digests-primary-action")).not.toBeInTheDocument();
     expect(screen.queryByTestId("digests-preview-action")).not.toBeInTheDocument();
     expect(screen.queryByTestId("digests-send-test-action")).not.toBeInTheDocument();

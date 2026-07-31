@@ -1,6 +1,15 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: () => false,
+  };
+});
+
 import { PlanningPageView } from "@/app/(operator)/planning/_sections/PlanningPageView";
 import type { PlanningPageViewModel } from "@/app/(operator)/planning/_sections/planning-page-view-model";
 import {
@@ -52,6 +61,7 @@ describe("PlanningPageView", () => {
     expect(screen.getByRole("heading", { name: IMPROVEMENT_PLANNING_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByText(/Convert review feedback into recurring themes/i)).toBeInTheDocument();
     expect(screen.getByText(/Planning insights are generated from captured review feedback/i)).toBeInTheDocument();
+    expect(screen.getByTestId("planning-header-actions")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: IMPROVEMENT_PLANNING_REFRESH_LABEL })).toBeInTheDocument();
     expect(screen.getByTestId("planning-last-updated")).toBeInTheDocument();
     expect(screen.queryByText(/GET \/v1\/learning\/report/i)).not.toBeInTheDocument();

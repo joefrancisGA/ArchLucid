@@ -7,8 +7,7 @@ import Link from "next/link";
 import { useCallback, useMemo, useState, type ReactElement } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
@@ -17,13 +16,16 @@ import {
   resolveDigestNextBestAction,
 } from "@/lib/digest-setup-gap-actions";
 import {
-  DIGESTS_BROWSE_PAGE_SUBTITLE,
   DIGESTS_BROWSE_PREVIEW_DISABLED_TITLE,
   DIGESTS_BROWSE_SEND_TEST_LABEL,
   DIGESTS_BROWSE_SEND_TEST_TITLE,
-  DIGESTS_PAGE_SUBTITLE,
+  DIGESTS_PRIVACY_DETAILS_TRIGGER,
+  DIGESTS_PRIVACY_NOTE,
   DIGESTS_SCHEDULE_PREVIEW_LABEL,
+  digestsBrowsePageSubtitle,
+  digestsSchedulePageSubtitle,
 } from "@/lib/digests-browse-copy";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   DIGESTS_BROWSE_TAB_RESPONSIBILITY,
   DIGESTS_SCHEDULE_TAB_RESPONSIBILITY,
@@ -39,6 +41,7 @@ import type { WeeklyDigestHealthDto } from "@/types/operate-rhythm";
 import { DigestsBrowseContent } from "./DigestsBrowseContent";
 import { DigestSubscriptionsContent } from "./DigestSubscriptionsContent";
 import { ExecDigestScheduleContent } from "./ExecDigestScheduleContent";
+import { DigestsPageHeader } from "./DigestsPageHeader";
 import { WeeklyDigestHealthBanner } from "./WeeklyDigestHealthBanner";
 
 const TAB_PARAM = "tab";
@@ -60,9 +63,6 @@ const SUBSCRIPTIONS_TAB_READER_TITLE =
 const SCHEDULE_TAB_READER_TITLE =
   "Schedule is readable; saving or enabling delivery requires a role that can manage digests.";
 
-const DIGEST_PRIVACY_NOTE =
-  "Digest emails include summaries and links back to ArchLucid. Sensitive evidence content is not included unless explicitly configured.";
-
 /**
  * Single `/digests` surface: browse, subscriptions, and executive digest schedule. Tab state in `?tab=` for deep links.
  */
@@ -71,6 +71,7 @@ export function DigestsHubClient(): ReactElement {
   const pathname: string = usePathname();
   const searchParams = useSearchParams();
   const canMutate: boolean = useOperateCapability();
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const rawTab: string | null = searchParams.get(TAB_PARAM);
 
   const [healthSnap, setHealthSnap] = useState<WeeklyDigestHealthDto | null>(null);
@@ -135,95 +136,55 @@ export function DigestsHubClient(): ReactElement {
     ? `/digests?tab=browse#digest-${encodeURIComponent(previewDigestId)}`
     : "/digests";
 
-  const lastUpdatedLabel: string =
-    lastUpdatedUtc === null
-      ? "—"
-      : new Date(lastUpdatedUtc).toLocaleString(undefined, {
-          hour: "numeric",
-          minute: "2-digit",
-          second: "2-digit",
-        });
-
-  const pageSubtitle: string = activeTab === "schedule" ? DIGESTS_PAGE_SUBTITLE : DIGESTS_BROWSE_PAGE_SUBTITLE;
+  const pageSubtitle: string =
+    activeTab === "schedule"
+      ? digestsSchedulePageSubtitle(buyerPolishedShell)
+      : digestsBrowsePageSubtitle(buyerPolishedShell);
   const showBrowseHeaderActions: boolean = activeTab === "browse";
+
+  const browseHeaderActions =
+    showBrowseHeaderActions ? (
+      <>
+        <Button asChild size="sm" variant="primary" data-testid="digests-primary-action">
+          <Link href={primaryHref}>{primaryLabel}</Link>
+        </Button>
+        <Button
+          asChild={hasPreviewDigest}
+          size="sm"
+          variant="outline"
+          data-testid="digests-preview-action"
+          title={previewActionTitle}
+          disabled={!hasPreviewDigest}
+        >
+          {hasPreviewDigest ? (
+            <Link href={previewHref}>{DIGESTS_SCHEDULE_PREVIEW_LABEL}</Link>
+          ) : (
+            <span>{DIGESTS_SCHEDULE_PREVIEW_LABEL}</span>
+          )}
+        </Button>
+        <Button
+          asChild
+          size="sm"
+          variant="outline"
+          data-testid="digests-send-test-action"
+          title={sendTestActionTitle}
+        >
+          <Link href="/governance/advisory-scans?tab=schedules">{DIGESTS_BROWSE_SEND_TEST_LABEL}</Link>
+        </Button>
+      </>
+    ) : null;
 
   return (
     <div className="px-0" data-testid="digests-hub">
-      <OperatorPageHeader
-        title="Architecture digests"
+      <DigestsPageHeader
         subtitle={pageSubtitle}
-        titleTestId="digests-page-title"
-        actions={
-          <>
-            <PageContextualHelpButton />
-            {showBrowseHeaderActions ? (
-            <>
-              <Button asChild size="sm" variant="primary" data-testid="digests-primary-action">
-                <Link href={primaryHref}>{primaryLabel}</Link>
-              </Button>
-              <Button
-                asChild={hasPreviewDigest}
-                size="sm"
-                variant="outline"
-                data-testid="digests-preview-action"
-                title={previewActionTitle}
-                disabled={!hasPreviewDigest}
-              >
-                {hasPreviewDigest ? (
-                  <Link href={previewHref}>{DIGESTS_SCHEDULE_PREVIEW_LABEL}</Link>
-                ) : (
-                  <span>{DIGESTS_SCHEDULE_PREVIEW_LABEL}</span>
-                )}
-              </Button>
-              <Button
-                asChild
-                size="sm"
-                variant="outline"
-                data-testid="digests-send-test-action"
-                title={sendTestActionTitle}
-              >
-                <Link href="/governance/advisory-scans?tab=schedules">{DIGESTS_BROWSE_SEND_TEST_LABEL}</Link>
-              </Button>
-              <div className="flex flex-wrap items-center gap-2">
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="secondary"
-                  onClick={onRefresh}
-                  disabled={refreshing}
-                  data-testid="digests-refresh-button"
-                  title={
-                    canMutate
-                      ? digestsListRefreshButtonTitleOperator
-                      : digestsListRefreshButtonTitleReader
-                  }
-                >
-                  {refreshing ? "Refreshing…" : "Refresh"}
-                </Button>
-                <span
-                  className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
-                  data-testid="digests-last-updated"
-                >
-                  Last updated: {lastUpdatedLabel}
-                </span>
-              </div>
-            </>
-          ) : activeTab === "subscriptions" ? (
-            <div className="flex flex-wrap items-center gap-2">
-              <Button
-                type="button"
-                size="sm"
-                variant="secondary"
-                onClick={onRefresh}
-                disabled={refreshing}
-                data-testid="digests-refresh-button"
-              >
-                {refreshing ? "Refreshing…" : "Refresh"}
-              </Button>
-            </div>
-          ) : null}
-          </>
+        refreshing={refreshing}
+        lastUpdatedUtc={lastUpdatedUtc}
+        onRefresh={onRefresh}
+        refreshButtonTitle={
+          canMutate ? digestsListRefreshButtonTitleOperator : digestsListRefreshButtonTitleReader
         }
+        actions={browseHeaderActions}
       />
 
       {activeTab === "schedule" ? (
@@ -242,15 +203,25 @@ export function DigestsHubClient(): ReactElement {
       )}
 
       {activeTab !== "subscriptions" && activeTab !== "schedule" ? (
-        <p
-          className={cn(
-            "mb-4 m-0 max-w-3xl rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400",
-            OPERATOR_TYPOGRAPHY.helper,
-          )}
-          data-testid="digests-privacy-note"
-        >
-          {DIGEST_PRIVACY_NOTE}
-        </p>
+        buyerPolishedShell ? (
+          <CollapsibleSection
+            title={DIGESTS_PRIVACY_DETAILS_TRIGGER}
+            defaultOpen={false}
+            sectionTestId="digests-privacy-details"
+          >
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{DIGESTS_PRIVACY_NOTE}</p>
+          </CollapsibleSection>
+        ) : (
+          <p
+            className={cn(
+              "mb-4 m-0 max-w-3xl rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400",
+              OPERATOR_TYPOGRAPHY.helper,
+            )}
+            data-testid="digests-privacy-note"
+          >
+            {DIGESTS_PRIVACY_NOTE}
+          </p>
+        )
       ) : null}
 
       <Tabs value={activeTab} onValueChange={onSelectTab} className="mb-4">

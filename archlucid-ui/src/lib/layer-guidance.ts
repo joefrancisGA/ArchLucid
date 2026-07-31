@@ -138,7 +138,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   alerts: {
     layerBadge: "Governance",
     headline: "Risk and compliance signals that need triage.",
-    useWhen: "Work the inbox; rules, routing, composite, and simulation & tuning are tabs on the same Alerts page.",
+    useWhen: "Work the inbox first; configure rules and routing on Alert rules.",
     firstPilotNote: "Inbox first; rule tooling after Pilot proof when volume warrants it.",
     enterpriseFootnote: "Inbox first; configuration tabs when your role allows.",
   },

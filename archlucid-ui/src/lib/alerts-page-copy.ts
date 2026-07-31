@@ -2,6 +2,17 @@
 export const ALERTS_PAGE_SUBTITLE =
   "Triage governance and architecture-risk signals from review findings.";
 
+export const BUYER_ALERTS_PAGE_SUBTITLE =
+  "Triage governance signals from review findings in your workspace.";
+
+export const ALERTS_LAYER_GUIDANCE_TRIGGER = "About alert triage";
+
+export const ALERTS_CONFIGURE_RULES_LINK_LABEL = "Configure alert rules";
+
+export function alertsPageSubtitle(buyerPolishedShell: boolean): string {
+  return buyerPolishedShell ? BUYER_ALERTS_PAGE_SUBTITLE : ALERTS_PAGE_SUBTITLE;
+}
+
 export const ALERTS_CONTEXT_NOTE =
   "Alerts appear when enabled rules detect findings that require acknowledgement, resolution, or governance review.";
 
@@ -51,7 +62,7 @@ export const ALERTS_ACTION_OPEN_GOVERNANCE_WORKFLOW = "Open governance workflow"
 /** @deprecated Use {@link ALERTS_ACTION_CONFIGURE_ALERT_RULES}. */
 export const ALERTS_ACTION_OPEN_STANDARDS_AND_RULES = ALERTS_ACTION_CONFIGURE_ALERT_RULES;
 
-export const ALERTS_ACTION_OPEN_REVIEW_PACKAGES_HREF = "/reviews?projectId=default";
+export const ALERTS_ACTION_OPEN_REVIEW_PACKAGES_HREF = "/reviews";
 export const ALERTS_ACTION_START_ARCHITECTURE_REVIEW_HREF = "/reviews/new";
 export const ALERTS_ACTION_OPEN_GOVERNANCE_WORKFLOW_HREF = "/governance";
 export const ALERTS_ACTION_OPEN_GOVERNANCE_SETUP_GUIDE_HREF = "/governance/setup";

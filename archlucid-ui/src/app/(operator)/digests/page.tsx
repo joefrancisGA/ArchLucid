@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { DigestsHubClient } from "@/components/digests/DigestsHubClient";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { DIGESTS_PAGE_TITLE } from "@/lib/digests-browse-copy";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -20,12 +21,20 @@ export default function DigestsPage() {
   return (
     <Suspense
       fallback={
-        <p
-          className={cn("p-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-          data-testid="digests-hub-suspense-fallback"
-        >
-          Loading digests...
-        </p>
+        <header className="mb-6 border-b border-neutral-200 pb-4 dark:border-neutral-800">
+          <h1
+            className={cn("m-0 text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.pageTitle)}
+            data-testid="digests-page-title"
+          >
+            {DIGESTS_PAGE_TITLE}
+          </h1>
+          <p
+            className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="digests-hub-suspense-fallback"
+          >
+            Loading digests…
+          </p>
+        </header>
       }
     >
       <DigestsHubClient />

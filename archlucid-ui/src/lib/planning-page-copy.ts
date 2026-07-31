@@ -3,11 +3,20 @@ export const IMPROVEMENT_PLANNING_PAGE_TITLE = "Improvement planning" as const;
 export const IMPROVEMENT_PLANNING_PAGE_SUBTITLE =
   "Convert review feedback into recurring themes, prioritized improvement plans, and exportable action summaries." as const;
 
+export const IMPROVEMENT_PLANNING_PAGE_SUBTITLE_BUYER =
+  "Recurring themes and prioritized plans from captured review feedback." as const;
+
+export function planningPageSubtitle(buyerPolishedShell: boolean): string {
+  return buyerPolishedShell ? IMPROVEMENT_PLANNING_PAGE_SUBTITLE_BUYER : IMPROVEMENT_PLANNING_PAGE_SUBTITLE;
+}
+
 export const IMPROVEMENT_PLANNING_PRODUCT_SAFE_INTRO =
   "Planning insights are generated from captured review feedback." as const;
 
 export const IMPROVEMENT_PLANNING_SCOPE_LINE =
   "Showing planning insights for the current workspace and selected project." as const;
+
+export const IMPROVEMENT_PLANNING_SCOPE_DETAILS_TRIGGER = "About planning scope" as const;
 
 export const IMPROVEMENT_PLANNING_TECHNICAL_SCOPE_TITLE = "Technical scope details" as const;
 

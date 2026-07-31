@@ -7,30 +7,27 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
 import { OperatorLoadingNotice, OperatorTryNext } from "@/components/OperatorShellMessage";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { PlanningExportReadinessNote } from "@/components/planning/PlanningExportReadinessNote";
 import { PlanningPlansTable } from "@/components/planning/PlanningPlansTable";
 import { PlanningSummarySection } from "@/components/planning/PlanningSummarySection";
 import { PlanningThemesTable } from "@/components/planning/PlanningThemesTable";
 import { Button } from "@/components/ui/button";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
 import {
   IMPROVEMENT_PLANNING_DEMO_DESCRIPTION,
   IMPROVEMENT_PLANNING_FAILURE_TRY_NEXT,
-  IMPROVEMENT_PLANNING_LAST_UPDATED_PREFIX,
-  IMPROVEMENT_PLANNING_PAGE_SUBTITLE,
   IMPROVEMENT_PLANNING_PAGE_TITLE,
   IMPROVEMENT_PLANNING_PRODUCT_SAFE_INTRO,
-  IMPROVEMENT_PLANNING_REFRESH_LABEL,
-  IMPROVEMENT_PLANNING_REFRESHING_LABEL,
+  IMPROVEMENT_PLANNING_SCOPE_DETAILS_TRIGGER,
   IMPROVEMENT_PLANNING_SCOPE_LINE,
   IMPROVEMENT_PLANNING_TECHNICAL_SCOPE_BODY,
   IMPROVEMENT_PLANNING_TECHNICAL_SCOPE_TITLE,
+  planningPageSubtitle,
 } from "@/lib/planning-page-copy";
 
 import { PlanningPageEmptyState } from "./PlanningPageEmptyState";
+import { PlanningPageHeader } from "./PlanningPageHeader";
 import type { PlanningPageViewModel } from "./planning-page-view-model";
 
 type Props = {
@@ -39,6 +36,7 @@ type Props = {
 
 export function PlanningPageView(props: Props) {
   const m = props.model;
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   if (m.isDemo) {
     return (
@@ -51,47 +49,49 @@ export function PlanningPageView(props: Props) {
 
   return (
     <div className="max-w-5xl">
-      <OperatorPageHeader
-        title={IMPROVEMENT_PLANNING_PAGE_TITLE}
-        subtitle={IMPROVEMENT_PLANNING_PAGE_SUBTITLE}
-        actions={<PageContextualHelpButton />}
+      <PlanningPageHeader
+        subtitle={planningPageSubtitle(buyerPolishedShell)}
+        refreshing={m.refreshing}
+        generatedUtc={m.generatedUtc}
+        onRefresh={() => {
+          void m.load();
+        }}
       />
 
-      <p className={cn("max-w-3xl leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-        {IMPROVEMENT_PLANNING_PRODUCT_SAFE_INTRO}
-      </p>
+      {!buyerPolishedShell ? (
+        <>
+          <p className={cn("max-w-3xl leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            {IMPROVEMENT_PLANNING_PRODUCT_SAFE_INTRO}
+          </p>
 
-      <p className={cn("mt-3 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{IMPROVEMENT_PLANNING_SCOPE_LINE}</p>
+          <p className={cn("mt-3 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            {IMPROVEMENT_PLANNING_SCOPE_LINE}
+          </p>
 
-      <CollapsibleSection
-        title={IMPROVEMENT_PLANNING_TECHNICAL_SCOPE_TITLE}
-        defaultOpen={false}
-        sectionTestId="planning-technical-scope-details"
-      >
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{IMPROVEMENT_PLANNING_TECHNICAL_SCOPE_BODY}</p>
-      </CollapsibleSection>
+          <CollapsibleSection
+            title={IMPROVEMENT_PLANNING_TECHNICAL_SCOPE_TITLE}
+            defaultOpen={false}
+            sectionTestId="planning-technical-scope-details"
+          >
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{IMPROVEMENT_PLANNING_TECHNICAL_SCOPE_BODY}</p>
+          </CollapsibleSection>
+        </>
+      ) : (
+        <CollapsibleSection
+          title={IMPROVEMENT_PLANNING_SCOPE_DETAILS_TRIGGER}
+          defaultOpen={false}
+          sectionTestId="planning-scope-details"
+        >
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{IMPROVEMENT_PLANNING_SCOPE_LINE}</p>
+          <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>{IMPROVEMENT_PLANNING_TECHNICAL_SCOPE_BODY}</p>
+        </CollapsibleSection>
+      )}
 
       {m.usedPlanningDemoFallback ? (
         <div className="mt-4 max-w-3xl">
           <OperatorDemoStaticBanner />
         </div>
       ) : null}
-
-      <div className="mt-4 mb-5 flex flex-wrap items-center gap-3">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => void m.load()}
-          disabled={m.refreshing}
-          data-testid="planning-refresh-button"
-        >
-          {m.refreshing ? IMPROVEMENT_PLANNING_REFRESHING_LABEL : IMPROVEMENT_PLANNING_REFRESH_LABEL}
-        </Button>
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="planning-last-updated">
-          {IMPROVEMENT_PLANNING_LAST_UPDATED_PREFIX}{" "}
-          {m.generatedUtc ? formatIsoUtcForDisplay(m.generatedUtc) : "—"}
-        </p>
-      </div>
 
       {m.loading && m.summary === null ? (
         <OperatorLoadingNotice>

@@ -1,8 +1,31 @@
+export const DIGESTS_PAGE_TITLE = "Architecture digests" as const;
+
 export const DIGESTS_PAGE_SUBTITLE =
   "Configure the weekly executive digest for direct recipients. Architecture digests for subscription destinations are managed separately." as const;
 
+export const DIGESTS_PAGE_SUBTITLE_BUYER =
+  "Weekly executive digest for sponsor recipients in this workspace." as const;
+
 export const DIGESTS_BROWSE_PAGE_SUBTITLE =
   "Send scheduled summaries of review activity, governance signals, findings, and advisory scans." as const;
+
+export const DIGESTS_BROWSE_PAGE_SUBTITLE_BUYER =
+  "Scheduled summaries of review activity, governance signals, and findings." as const;
+
+export function digestsBrowsePageSubtitle(buyerPolishedShell: boolean): string {
+  return buyerPolishedShell ? DIGESTS_BROWSE_PAGE_SUBTITLE_BUYER : DIGESTS_BROWSE_PAGE_SUBTITLE;
+}
+
+export function digestsSchedulePageSubtitle(buyerPolishedShell: boolean): string {
+  return buyerPolishedShell ? DIGESTS_PAGE_SUBTITLE_BUYER : DIGESTS_PAGE_SUBTITLE;
+}
+
+export const DIGESTS_LAST_UPDATED_PREFIX = "Last updated" as const;
+
+export const DIGESTS_PRIVACY_NOTE =
+  "Digest emails include summaries and links back to ArchLucid. Sensitive evidence content is not included unless explicitly configured." as const;
+
+export const DIGESTS_PRIVACY_DETAILS_TRIGGER = "About digest content" as const;
 
 export const DIGESTS_SCHEDULE_PREVIEW_LABEL = "Preview latest generated digest" as const;
 
