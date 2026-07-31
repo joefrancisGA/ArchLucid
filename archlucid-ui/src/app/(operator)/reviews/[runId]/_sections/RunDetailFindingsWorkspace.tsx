@@ -27,6 +27,7 @@ export type RunDetailFindingsWorkspaceProps = {
     readonly architectureOverview: string;
     readonly ownerLabel: string | null;
   } | null;
+  readonly packageCommitted?: boolean;
 };
 
 /** Findings list with workspace toolbar filters for the review detail page. */
@@ -74,6 +75,7 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
         defaultExpandLowSeverity={false}
         providerNeutralWorkItems={props.providerNeutralWorkItems}
         architectureWorkItemContext={props.architectureWorkItemContext}
+        packageCommitted={props.packageCommitted}
       />
     </div>
   );

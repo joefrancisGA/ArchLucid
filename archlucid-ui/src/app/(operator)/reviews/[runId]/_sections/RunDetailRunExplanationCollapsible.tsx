@@ -42,6 +42,7 @@ type RunDetailRunExplanationCollapsibleProps = {
     readonly architectureOverview: string;
     readonly ownerLabel: string | null;
   } | null;
+  readonly packageCommitted?: boolean;
 };
 
 export function RunDetailRunExplanationCollapsible(
@@ -65,6 +66,7 @@ export function RunDetailRunExplanationCollapsible(
     manifestRuleSetVersion,
     providerNeutralWorkItems,
     architectureWorkItemContext,
+    packageCommitted,
   } = props;
 
   return (
@@ -114,6 +116,7 @@ export function RunDetailRunExplanationCollapsible(
           manifestRuleSetVersion={manifestRuleSetVersion}
           providerNeutralWorkItems={providerNeutralWorkItems}
           architectureWorkItemContext={architectureWorkItemContext}
+          packageCommitted={packageCommitted}
         />
       </CollapsibleSection>
 

@@ -632,7 +632,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1851 | Traffic honesty — `archTab=findings` create-home only | Trustworthiness P1 **V1** — REF ~48 |
 | TB-1852 | Create-home Findings — pre-commit assessment orientation | Adoption friction P1 **V1** — with **TB-1851** |
 | TB-1853 | Create-home Findings empty when assessment incomplete | Adoption friction P1 **V1** — with **TB-1851** |
-| TB-1854 | Create-home Findings — demote work-item chrome before commit | Trustworthiness P0 **V1** — with **TB-1851** |
 | TB-1855 | Findings tab — Vitest orientation + traffic honesty | Testability P2 **V1** — with **TB-1851** |
 | TB-1856 | Traffic honesty — `archTab=governance` create-home only | Trustworthiness P1 **V1** — REG ~40 |
 | TB-1857 | Create-home Governance — pre-commit honesty (not approval theater) | Trustworthiness P0 **V1** — with **TB-1856** |

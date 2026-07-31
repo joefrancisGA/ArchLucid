@@ -90,6 +90,8 @@ export type QuickDecisionSummaryProps = {
     readonly architectureOverview: string;
     readonly ownerLabel: string | null;
   } | null;
+  /** When false, hide work-item / ITSM integration chrome until a committed manifest exists (TB-1854). */
+  readonly packageCommitted?: boolean;
 };
 
 /** Top severity-ranked actionable findings from run detail agent results (no extra API calls). */
@@ -355,7 +357,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
             className="mt-2 border-t border-neutral-100 pt-2 dark:border-neutral-800"
             data-testid={`finding-itsm-sync-${f.findingId}`}
           >
-            {props.providerNeutralWorkItems === true && props.architectureWorkItemContext ? (
+            {props.packageCommitted === false ? null : props.providerNeutralWorkItems === true && props.architectureWorkItemContext ? (
               <FindingCreateWorkItemActions
                 runId={props.runId}
                 finding={f}
@@ -421,7 +423,11 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
     return sortQuickDecisionFindings(combined);
   }
 
-  function renderWorkspaceIntegrations(f: QuickDecisionFinding): ReactElement {
+  function renderWorkspaceIntegrations(f: QuickDecisionFinding): ReactElement | null {
+    if (props.packageCommitted === false) {
+      return null;
+    }
+
     return (
       <details
         className="rounded-md border border-neutral-200 p-2 dark:border-neutral-800"

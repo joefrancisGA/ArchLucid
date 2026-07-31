@@ -29,6 +29,7 @@ type RunDetailExplanationDeferredProps = {
     readonly architectureOverview: string;
     readonly ownerLabel: string | null;
   } | null;
+  readonly packageCommitted?: boolean;
 };
 
 /**
@@ -54,6 +55,7 @@ export async function RunDetailExplanationDeferred(
     manifestRuleSetVersion,
     providerNeutralWorkItems,
     architectureWorkItemContext,
+    packageCommitted,
   } = props;
 
   const quickDecisionFindings = resolveQuickDecisionFindingsForRunDetail(resolvedDetail, explanationSummary);
@@ -90,6 +92,7 @@ export async function RunDetailExplanationDeferred(
       manifestRuleSetVersion={manifestRuleSetVersion}
       providerNeutralWorkItems={providerNeutralWorkItems}
       architectureWorkItemContext={architectureWorkItemContext}
+      packageCommitted={packageCommitted}
     />
   );
 }

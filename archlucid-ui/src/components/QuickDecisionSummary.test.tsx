@@ -371,6 +371,45 @@ describe("QuickDecisionSummary", () => {
     expect(within(primaryCard).getByTestId("itsm-sync-jira")).not.toBeVisible();
   });
 
+  it("hides work-item integrations before package commit on create-home", () => {
+    const findings: QuickDecisionFinding[] = [
+      {
+        findingId: "f-high",
+        title: "High title",
+        recommendation: "Fix immediately.",
+        severityValue: 2,
+        findingOrder: 0,
+        aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+        isMuted: false,
+        muteReason: null,
+        enforcementTier: "PolicyViolation",
+      },
+    ];
+
+    render(
+      <QuickDecisionSummary
+        runId="run-create"
+        findings={findings}
+        workspaceCardMode
+        packageCommitted={false}
+        providerNeutralWorkItems
+        architectureWorkItemContext={{
+          architectureName: "Test architecture",
+          architectureOverview: "Overview",
+          ownerLabel: "Owner",
+        }}
+      />,
+    );
+
+    const primaryCard = screen.getByTestId("finding-workspace-card-f-high");
+
+    fireEvent.click(within(primaryCard).getByText("Supporting detail"));
+
+    expect(within(primaryCard).queryByText("Create work item / Integrations")).not.toBeInTheDocument();
+    expect(within(primaryCard).queryByTestId("finding-itsm-sync-f-high")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("itsm-sync-jira")).not.toBeInTheDocument();
+  });
+
   it("workspace mode exposes integrations inside collapsed supporting detail", async () => {
     const findings: QuickDecisionFinding[] = [
       {

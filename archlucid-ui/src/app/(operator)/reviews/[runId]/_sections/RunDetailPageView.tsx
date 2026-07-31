@@ -678,12 +678,17 @@ export function RunDetailPageView(props: {
                           goldenManifestJsonForExport={m.goldenManifestJsonForExport}
                           manifestRuleSetId={m.manifestSummaryForUi?.ruleSetId ?? null}
                           manifestRuleSetVersion={m.manifestSummaryForUi?.ruleSetVersion ?? null}
-                          providerNeutralWorkItems
-                          architectureWorkItemContext={{
-                            architectureName: architectureCreatedBaseline.architectureName,
-                            architectureOverview: architectureCreatedBaseline.architectureOverview,
-                            ownerLabel: architectureCreatedBaseline.ownerLabel,
-                          }}
+                          packageCommitted={Boolean(m.manifestId)}
+                          providerNeutralWorkItems={Boolean(m.manifestId)}
+                          architectureWorkItemContext={
+                            m.manifestId
+                              ? {
+                                  architectureName: architectureCreatedBaseline.architectureName,
+                                  architectureOverview: architectureCreatedBaseline.architectureOverview,
+                                  ownerLabel: architectureCreatedBaseline.ownerLabel,
+                                }
+                              : null
+                          }
                         />
                       ),
                       evidence: (
