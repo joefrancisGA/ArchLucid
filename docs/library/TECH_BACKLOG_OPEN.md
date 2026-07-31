@@ -566,7 +566,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1789 | Recommendation-learning ops — enterprise chrome (header/StatusTag/EnterpriseTable) | Adoption friction P1 **V1** — with **TB-1786** |
 | TB-1790 | Recommendation-learning ops — Vitest preview/rebuild/rollback + Execute gate | Testability P2 **V1** — with **TB-1786** |
 | TB-1791 | `/login` Vitest redirect matrix (signin + idle-timeout) | Testability P2 **V1** — LOX ~12 |
-| TB-1792 | `/login` — multi-value searchParams fidelity | Correctness P0 **V1** — with **TB-1791** |
 | TB-1793 | `/login` — robots/noindex + metadata honesty (shim not a page) | Trustworthiness P1 **V1** — with **TB-1791** |
 | TB-1794 | `/login` — traffic redirect-only + canonicalize inbound links | Adoption friction P1 **V1** — with **TB-1791** |
 | TB-1795 | Docs/help — login language → `/auth/signin` (keep shim) | Trustworthiness P1 **V1** — with **TB-1791** |

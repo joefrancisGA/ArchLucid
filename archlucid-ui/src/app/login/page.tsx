@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 
+import { buildLoginRedirectPath } from "@/lib/legacy-login-redirect";
 import { buildSessionExpiredHref } from "@/lib/navigation/auth-sign-in-href";
 
 type PageProps = {
@@ -31,15 +32,5 @@ export default async function LoginPage({ searchParams }: PageProps) {
     redirect(buildSessionExpiredHref(returnUrl));
   }
 
-  const qs = new URLSearchParams();
-
-  for (const [key, value] of Object.entries(params)) {
-    if (typeof value === "string") {
-      qs.set(key, value);
-    }
-  }
-
-  const query = qs.toString();
-
-  redirect(`/auth/signin${query.length > 0 ? `?${query}` : ""}`);
+  redirect(buildLoginRedirectPath(params));
 }
