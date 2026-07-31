@@ -1,4 +1,4 @@
-**Updated:** 2026-07-30 (**TB-1693** **Done** — first-value-20 help strips CLI/dotnet/runbook-path leakage; 20-min section extract; Vitest). Prior: 2026-07-30 (**TB-1688** **Done** — executive-summary help strips contributor FAQ `.md`/eng-path leakage; `helpTopicSlug` gate; Vitest).
+**Updated:** 2026-07-30 (**TB-1712** **Done** — path-chooser help strips GTM/runbook `.md` and `artifacts/` leakage; in-app trust links; Vitest). Prior: 2026-07-30 (**TB-1693** **Done** — first-value-20 help strips CLI/dotnet/runbook-path leakage; 20-min section extract; Vitest).
 
 > **Scope:** Engineering-owned technical backlog items deferred from current sessions; audience is contributors and the AI assistant; not a buyer or operator document. Not a substitute for ADRs or the pending-questions owner decisions file.
 
@@ -1280,7 +1280,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1709 | HEO alias — anti-reintro product deep-link CI; see ## TB-1709 below | Testability P2 — **V1**; after **TB-1706** | S |
 | TB-1710 | HEO alias — Vitest/e2e alias→`/help/users-and-roles`; see ## TB-1710 below | Testability P2 — **V1**; after **TB-1706** | S |
 | TB-1711 | `/help/path-chooser` specialty next-step chooser (not full orientation dump); see ## TB-1711 below | Adoption friction P1 — **V1**; owner review ~35/100 2026-07-27; traffic **HPX**; pairs **TB-1414** | M |
-| TB-1712 | Path-chooser help — GTM/runbook .md leakage strip; see ## TB-1712 below | Trustworthiness P0 — **V1**; with **TB-1711**; pairs **TB-1235** | S |
+| TB-1712 | ~~Path-chooser help — GTM/runbook .md leakage strip~~ **Done** 2026-07-30 — `stripPathChooserContributorLeakage`; `helpTopicSlug` gate; Vitest | Trustworthiness P0 — **V1**; with **TB-1711**; pairs **TB-1235** | S |
 | TB-1713 | Path-chooser help — branch primary CTAs (in-app only); see ## TB-1713 below | Adoption friction P1 — **V1**; with **TB-1711** | S |
 | TB-1714 | Path-chooser help — deferred ITSM + eng-help link honesty; see ## TB-1714 below | Trustworthiness P1 — **V1**; with **TB-1711**; pairs **TB-1689** | S |
 | TB-1715 | Path-chooser help — slug/title honesty + Related density; see ## TB-1715 below | Adoption friction P1 — **V1**; with **TB-1711** | S |
@@ -42308,11 +42308,11 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1712 — Path-chooser help — GTM/runbook .md leakage strip (P0)
 
-**Window:** V1 — Trustworthiness. **Status:** Not started. **Priority:** P0.
+**Window:** V1 — Trustworthiness. **Status:** **Done** 2026-07-30. **Priority:** P0.
 
 **Problem:** Body links FIRST_PILOT_OPERATOR_PATH, EXECUTIVE_SPONSOR_BRIEF, DIFFERENTIATION_PROOF_PACKET, PROCUREMENT_PACK_INDEX, V1_DEFERRED, artifact `.md` filenames, `artifacts/first-pilot-proof/`.
 
-**Approach:** Buyer presentation: in-app help + Trust Center only; strip repo paths. Vitest: no `.md` / `artifacts/` in rendered help. Pairs **TB-1235**.
+**Shipped:** `stripPathChooserContributorLeakage()` in `help-markdown-presentation.ts` (gated by `helpTopicSlug: path-chooser`); Vitest in `help-markdown-presentation.test.tsx` and `HelpTopicPathChooser.test.tsx`.
 
 **Acceptance:** Chooser shows product next steps, not a doc tree. **Size estimate:** S.
 

@@ -497,7 +497,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1709 | HEO alias — anti-reintro product deep-link CI | Testability P2 **V1** — after **TB-1706** |
 | TB-1710 | HEO alias — Vitest/e2e alias→`/help/users-and-roles` | Testability P2 **V1** — after **TB-1706** |
 | TB-1711 | `/help/path-chooser` specialty next-step chooser | Adoption friction P1 **V1** — HPX ~35 |
-| TB-1712 | Path-chooser help — GTM/runbook .md leakage strip | Trustworthiness P0 **V1** — with **TB-1711** |
 | TB-1713 | Path-chooser help — branch primary CTAs | Adoption friction P1 **V1** — with **TB-1711** |
 | TB-1714 | Path-chooser help — deferred ITSM + eng-help link honesty | Trustworthiness P1 **V1** — with **TB-1711** |
 | TB-1715 | Path-chooser help — slug/title honesty + Related density | Adoption friction P1 **V1** — with **TB-1711** |

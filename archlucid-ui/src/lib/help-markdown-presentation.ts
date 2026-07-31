@@ -1483,6 +1483,52 @@ export function stripFirstValue20ContributorLeakage(markdown: string): string {
 }
 
 /**
+ * TB-1712 — path-chooser help: strip GTM/runbook .md and artifacts/ leakage; in-app trust links.
+ */
+export function stripPathChooserContributorLeakage(markdown: string): string {
+  return markdown
+    .replace(/> \*\*Start operators here:\*\*[^\n]*\n?/gi, "")
+    .replace(/`?FIRST_PILOT_OPERATOR_PATH\.md`?/gi, "[Complete review workflow](/help/first-pilot-path)")
+    .replace(/FIRST_PILOT_OPERATOR_PATH\.md/gi, "/help/first-pilot-path")
+    .replace(/`?CORE_PILOT\.md`?/gi, "[Your first architecture review](/help/core-pilot)")
+    .replace(/CORE_PILOT\.md/gi, "/help/core-pilot")
+    .replace(/`?EXECUTIVE_SPONSOR_BRIEF\.md`?/gi, "[Executive summary](/help/executive-summary)")
+    .replace(/EXECUTIVE_SPONSOR_BRIEF\.md/gi, "/help/executive-summary")
+    .replace(/`?DIFFERENTIATION_PROOF_PACKET\.md`?/gi, "differentiation proof documentation")
+    .replace(/DIFFERENTIATION_PROOF_PACKET\.md/gi, "differentiation proof documentation")
+    .replace(/`first-pilot-command-center\.md`/gi, "pilot command center summary")
+    .replace(/`go-no-go-summary\.md`/gi, "go/no-go summary")
+    .replace(/`quote-to-proof-packet\.md`/gi, "quote-to-proof summary")
+    .replace(/`commercial-closeout\.md`/gi, "commercial closeout summary")
+    .replace(/`?FIRST_PILOT_EVIDENCE_BUNDLE\.md`?/gi, "first-pilot evidence bundle guide")
+    .replace(/FIRST_PILOT_EVIDENCE_BUNDLE\.md/gi, "first-pilot evidence bundle guide")
+    .replace(/artifacts\/first-pilot-proof\/?/gi, "proof working folder")
+    .replace(/artifacts\/[^\s`|)]+/gi, "proof output folder")
+    .replace(/`?V1_DEFERRED\.md`?/gi, "deferred capability documentation")
+    .replace(/V1_DEFERRED\.md/gi, "deferred capability documentation")
+    .replace(/`?PROCUREMENT_PACK_INDEX\.md[^`\s)]*`?/gi, "[Procurement FAQ](/help/procurement)")
+    .replace(/PROCUREMENT_PACK_INDEX\.md[^\s)`]*/gi, "/help/procurement")
+    .replace(/`?BUYER_SECURITY_PROCUREMENT_PACKET\.md[^`\s)]*`?/gi, "[Procurement FAQ](/help/procurement)")
+    .replace(/BUYER_SECURITY_PROCUREMENT_PACKET\.md[^\s)`]*/gi, "/help/procurement")
+    .replace(/`?AI_READINESS_POSTURE\.md[^`\s)]*`?/gi, "[Security and trust](/help/security-trust)")
+    .replace(/AI_READINESS_POSTURE\.md[^\s)`]*/gi, "/help/security-trust")
+    .replace(/\[trust-center\.md\]\(trust-center\.md\)/gi, "[Security and trust](/help/security-trust)")
+    .replace(/trust-center\.md/gi, "/help/security-trust")
+    .replace(/`?CLAIM_READINESS_STATUS\.md[^`\s)]*`?/gi, "claim readiness documentation")
+    .replace(/CLAIM_READINESS_STATUS\.md[^\s)`]*/gi, "claim readiness documentation")
+    .replace(/`?GTM_BACKLOG\.md`?/gi, "go-to-market planning documentation")
+    .replace(/GTM_BACKLOG\.md/gi, "go-to-market planning documentation")
+    .replace(/`?PRODUCT_PACKAGING\.md`?/gi, "product packaging guide")
+    .replace(/PRODUCT_PACKAGING\.md/gi, "product packaging guide")
+    .replace(/`?QUOTE_TO_PROOF_PACKET\.md[^`\s)]*`?/gi, "quote-to-proof documentation")
+    .replace(/QUOTE_TO_PROOF_PACKET\.md[^\s)`]*/gi, "quote-to-proof documentation")
+    .replace(/`?docs\/library\/[^`\s)]+`?/gi, "product documentation")
+    .replace(/`?docs\/go-to-market\/[^`\s)]+`?/gi, "go-to-market documentation")
+    .replace(/\n{3,}/g, "\n\n")
+    .trimEnd();
+}
+
+/**
  * TB-1653 / TB-1284 — soften absolute cross-tenant isolation claims in data-handling help.
  */
 export function alignDataHandlingIsolationHonesty(markdown: string): string {
@@ -1718,6 +1764,11 @@ export function prepareHelpMarkdownForPresentation(
     normalizedSourcePath.includes("first_pilot_operator_path.md")
   ) {
     afterAudienceStrip = stripFirstValue20ContributorLeakage(sanitized);
+  } else if (
+    options?.helpTopicSlug === "path-chooser" &&
+    normalizedSourcePath.includes("buyer_orientation_one_screen.md")
+  ) {
+    afterAudienceStrip = stripPathChooserContributorLeakage(sanitized);
   }
 
   const afterIsolationHonesty = alignDataHandlingIsolationHonesty(afterAudienceStrip);

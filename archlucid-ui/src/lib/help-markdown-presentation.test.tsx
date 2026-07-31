@@ -22,6 +22,7 @@ import {
   stripDpaTemplateContributorLeakage,
   stripExecutiveSummaryContributorLeakage,
   stripFirstValue20ContributorLeakage,
+  stripPathChooserContributorLeakage,
   stripAcceleratorChooserContributorLeakage,
   stripAcceleratorChooserContributorSections,
   stripAzureBoardsContributorLeakage,
@@ -784,6 +785,44 @@ describe("help-markdown-presentation", () => {
     expect(prepared).not.toContain("phase a — platform ready");
     expect(prepared).toContain("first value in 20 minutes");
     expect(prepared).toContain("archlucid doctor");
+  });
+
+  it("strips path-chooser GTM/runbook .md and artifacts leakage (TB-1712)", () => {
+    const source = [
+      "**Start operators here:** [`FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md).",
+      "",
+      "See [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md) and `artifacts/first-pilot-proof/`.",
+      "",
+      "Deferred: [`V1_DEFERRED.md`](../library/V1_DEFERRED.md).",
+    ].join("\n");
+
+    const prepared = stripPathChooserContributorLeakage(source);
+
+    expect(prepared).not.toContain("FIRST_PILOT_OPERATOR_PATH");
+    expect(prepared).not.toContain("EXECUTIVE_SPONSOR_BRIEF");
+    expect(prepared).not.toContain("artifacts/");
+    expect(prepared).not.toContain("V1_DEFERRED");
+    expect(prepared).toContain("/help/first-pilot-path");
+    expect(prepared).toContain("/help/executive-summary");
+  });
+
+  it("keeps presented path-chooser help buyer-safe (TB-1712)", () => {
+    const loaded = tryLoadProductDocumentation("path-chooser");
+
+    expect(loaded).not.toBeNull();
+
+    const sourcePath = loaded!.entry.sourcePaths[0] ?? "";
+    const prepared = prepareHelpMarkdownForPresentation(loaded!.markdown, sourcePath, {
+      helpTopicSlug: "path-chooser",
+    }).toLowerCase();
+
+    expect(prepared).not.toContain("first_pilot_operator_path");
+    expect(prepared).not.toContain("differentiation_proof_packet");
+    expect(prepared).not.toContain("procurement_pack_index.md");
+    expect(prepared).not.toContain("v1_deferred");
+    expect(prepared).not.toContain("artifacts/");
+    expect(prepared).toContain("choose your next step");
+    expect(prepared).toContain("/help/security-trust");
   });
 
   it("strips eng CLI, Evidence tier, and JwtBearer from enterprise onboarding (TB-1339)", () => {
