@@ -1569,7 +1569,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-2016 | **Done** (2026-07-31) — Marketing UI Container App (`ui_marketing`), same `ui_container_image`, no Front Door; see ## TB-2016 below | Deployability P1 — **V1**; owner dual-CA override; pairs **TB-2017**–**TB-2020** | M |
 | TB-2017 | **Done** (2026-07-31) — Custom-domain vars/outputs + CLI bind runbook (apex marketing / `app.` operator); see ## TB-2017 below | Deployability P1 — **V1**; with **TB-2016** | S |
 | TB-2018 | **Done** (2026-07-31) — `site-urls.ts` + cross-host Sign in / welcome / signup CTAs; Vitest; see ## TB-2018 below | Adoption friction P1 — **V1**; with **TB-2016** | S |
-| TB-2019 | Host-gate middleware — redirect operator paths off marketing host (and optional marketing-only path nudge on app host); see ## TB-2019 below | Trustworthiness P1 — **V1**; after **TB-2016**/**TB-2018** | M |
+| TB-2019 | **Done** (2026-07-31) — Host-gate middleware — redirect operator paths off marketing host (+ marketing paths off app host); Vitest; see ## TB-2019 below | Trustworthiness P1 — **V1**; after **TB-2016**/**TB-2018** | M |
 | TB-2020 | **Done** (2026-07-31) — CD dual UI update + CORS dual-origin check; see ## TB-2020 below | Deployability P1 — **V1**; with **TB-2016** | S |
 | TB-1565 | Advisory Scans tab — keep `?tab=scans` deep-link stable; see ## TB-1565 below | Adoption friction P1 — **V1**; owner review ~52/100 2026-07-27; traffic **ADS**; pairs **TB-1505** | XS |
 | TB-1566 | Advisory recommendation disposition — replace `window.prompt` with on-system dialog; see ## TB-1566 below | Adoption friction P1 — **V1**; with **TB-1565**; after Done **TB-1127** affordance | S |
@@ -46479,17 +46479,11 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ---
 
-## TB-2019 — Host-gate middleware for marketing vs app hosts (P1)
+## TB-2019 — Host-gate middleware for marketing vs app hosts (P1) — **Done** (2026-07-31)
 
 **Window:** V1 — Trustworthiness.
 
-**Status:** Not started.
-
-**Problem:** Same image still serves operator routes on the marketing hostname until middleware redirects; buyers can deep-link `/reviews` on apex.
-
-**Approach:** Next.js middleware: if `Host` matches public site and path is operator-only → 307 to `ARCHLUCID_APP_SITE_URL`; optional reverse nudge for marketing-only paths on app host. Keep relative local-dev when split env unset.
-
-**Acceptance:** Marketing host does not render operator shell for `/reviews`, `/settings`, `/auth/signin` (redirect); Vitest or e2e host cases.
+**Status:** **Done** — `archlucid-ui/src/middleware.ts` + `host-gate.ts` / Vitest. Marketing host `/` → `/welcome`; operator paths → app origin; marketing-only paths on app host → public origin. `/api/*` stays on both hosts for proxy. No-op when split env unset.
 
 **Depends on:** **TB-2016**, **TB-2018**.
 

@@ -12,6 +12,13 @@ import {
   modelExecutionProfileLabel,
   type ModelExecutionProfile,
 } from "@/lib/model-execution-profile";
+import {
+  MODEL_GOVERNANCE_CLEAR_OVERRIDE_FAILED_COPY,
+  MODEL_GOVERNANCE_UNEXPECTED_ERROR_COPY,
+  MODEL_GOVERNANCE_UNEXPECTED_RESPONSE_COPY,
+  MODEL_GOVERNANCE_UPDATE_FAILED_COPY,
+  modelGovernanceLoadBlockedMessage,
+} from "@/lib/model-governance-copy";
 import type {
   ModelGovernanceCatalogResponse,
   WorkspaceModelExecutionProfileResponse,
@@ -138,10 +145,7 @@ export function ModelGovernanceSettingsCard() {
 
         setState({
           status: "blocked",
-          note:
-            failed.status === 401 || failed.status === 403
-              ? "Admin session required to manage model governance (`AdminAuthority`)."
-              : `Model governance settings unavailable (HTTP ${failed.status}).`,
+          note: modelGovernanceLoadBlockedMessage(failed.status),
         });
 
         return;
@@ -151,7 +155,7 @@ export function ModelGovernanceSettingsCard() {
       const catalogBody = parseCatalogResponse(await catalogRes.json());
 
       if (profileBody == null || catalogBody == null) {
-        setState({ status: "blocked", note: "Unexpected model governance response from the API." });
+        setState({ status: "blocked", note: MODEL_GOVERNANCE_UNEXPECTED_RESPONSE_COPY });
 
         return;
       }
@@ -164,7 +168,7 @@ export function ModelGovernanceSettingsCard() {
         },
       });
     } catch (e: unknown) {
-      setState({ status: "blocked", note: e instanceof Error ? e.message : String(e) });
+      setState({ status: "blocked", note: MODEL_GOVERNANCE_UNEXPECTED_ERROR_COPY });
     }
   }, []);
 
@@ -188,7 +192,7 @@ export function ModelGovernanceSettingsCard() {
         if (!res.ok) {
           setState({
             status: "blocked",
-            note: `Could not update workspace profile (HTTP ${res.status}).`,
+            note: MODEL_GOVERNANCE_UPDATE_FAILED_COPY,
           });
 
           return;
@@ -216,7 +220,7 @@ export function ModelGovernanceSettingsCard() {
       if (!res.ok) {
         setState({
           status: "blocked",
-          note: `Could not clear workspace profile override (HTTP ${res.status}).`,
+          note: MODEL_GOVERNANCE_CLEAR_OVERRIDE_FAILED_COPY,
         });
 
         return;

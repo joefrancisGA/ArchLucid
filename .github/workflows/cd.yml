@@ -901,7 +901,7 @@ jobs:
           else
             is_exact "Demo__Enabled" "false" \
               || fail "Demo__Enabled must be 'false'"
-            # staging/production: allow marketing apex (+ www) and operator app host (TB-2016 dual-CA, no Front Door).
+            # staging/production: marketing apex (+ www) required; app host required once dual-CA is wired (TB-2016).
             # Dev uses Container Apps FQDN or an operator-chosen custom domain (PILOT_PROFILE.md).
             cors0=$(env_value "Cors__AllowedOrigins__0")
             cors1=$(env_value "Cors__AllowedOrigins__1")
@@ -909,8 +909,11 @@ jobs:
             cors_joined="${cors0}|${cors1}|${cors2}"
             echo "$cors_joined" | grep -Eq '(^|[|])https://(www\.)?archlucid\.net([|]|$)' \
               || fail "Cors__AllowedOrigins must include https://archlucid.net or https://www.archlucid.net"
-            echo "$cors_joined" | grep -Eq '(^|[|])https://app\.archlucid\.net([|]|$)' \
-              || fail "Cors__AllowedOrigins must include https://app.archlucid.net (operator UI host)"
+            if echo "$cors_joined" | grep -Eq '(^|[|])https://app\.archlucid\.net([|]|$)'; then
+              echo "Cors includes https://app.archlucid.net (operator UI host)."
+            else
+              echo "::warning::Cors__AllowedOrigins does not yet include https://app.archlucid.net — set before cutover to dual-CA operator host (TB-2016)."
+            fi
           fi
           is_exact "Billing__Provider" "None" \
             || fail "Billing__Provider must be 'None'"

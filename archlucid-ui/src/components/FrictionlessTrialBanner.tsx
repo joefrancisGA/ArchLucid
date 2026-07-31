@@ -1,12 +1,13 @@
 "use client";
-import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 import { useSyncExternalStore } from "react";
 
 import { Button } from "@/components/ui/button";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { readFrictionlessTrialSessionEnabled } from "@/lib/frictionless-trial-session";
+import { appSiteHref } from "@/lib/site-urls";
+import { cn } from "@/lib/utils";
 
 function subscribe(callback: () => void): () => void {
   const handler = (): void => callback();
@@ -38,7 +39,12 @@ export function FrictionlessTrialBanner() {
 
   return (
     <div
-      className={cn("border-b border-teal-700/30 bg-teal-950/90 px-4 py-2 text-teal-50", OPERATOR_TYPOGRAPHY.body)}
+      className={cn(
+        // Put explicit fg after OPERATOR_TYPOGRAPHY.body — body includes text-al-text-primary and
+        // would otherwise win over a leading light-on-dark color via tailwind-merge.
+        OPERATOR_TYPOGRAPHY.body,
+        "border-b border-teal-700/25 bg-teal-50 px-4 py-2 text-teal-950 dark:border-teal-800/60 dark:bg-teal-950 dark:text-teal-50",
+      )}
       data-testid="frictionless-trial-banner"
       role="status"
     >
@@ -47,11 +53,17 @@ export function FrictionlessTrialBanner() {
           You are inspecting a sample review — fabricated data only, no sign-in required.
         </p>
         <div className="flex flex-wrap gap-2">
-          <Button type="button" size="sm" variant="secondary" asChild>
+          <Button type="button" size="sm" variant="primary" asChild>
             <Link href="/signup">Start an evaluation</Link>
           </Button>
-          <Button type="button" size="sm" variant="outline" asChild>
-            <Link href="/auth/signin">Sign in</Link>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            asChild
+            className="border-teal-800/30 bg-white text-teal-950 hover:bg-teal-100/80 dark:border-teal-200/40 dark:bg-transparent dark:text-teal-50 dark:hover:bg-teal-900"
+          >
+            <Link href={appSiteHref("/auth/signin")}>Sign in</Link>
           </Button>
         </div>
       </div>

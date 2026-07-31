@@ -1,0 +1,169 @@
+import { MARKETING_SITEMAP_PATHNAMES } from "@/lib/marketing/public-marketing-seo-paths";
+import { isSplitSiteHostingEnabled, resolveAppSiteOrigin, resolvePublicSiteOrigin } from "@/lib/site-urls";
+
+/** Extra marketing paths not always in the sitemap (noindex / funnel). */
+const EXTRA_MARKETING_EXACT_PATHS: readonly string[] = [
+  "/faq",
+  "/try",
+  "/quick-scan",
+  "/live-demo",
+  "/example-roi-bulletin",
+];
+
+const EXTRA_MARKETING_PREFIXES: readonly string[] = ["/showcase/", "/signup/"];
+
+/** Operator / workspace path prefixes that must not render on the marketing host. */
+const OPERATOR_PATH_PREFIXES: readonly string[] = [
+  "/auth/",
+  // Keep `/api/*` on both hosts — marketing signup/quote/quick-scan use same-origin `/api/proxy`.
+  "/reviews",
+  "/runs",
+  "/manifests",
+  "/signed-records",
+  "/why-archlucid",
+  "/compare",
+  "/replay",
+  "/executive",
+  "/alerts",
+  "/admin",
+  "/settings",
+  "/graph",
+  "/governance",
+  "/onboard",
+  "/onboarding",
+  "/planning",
+  "/policy-packs",
+  "/product-learning",
+  "/internal-operations",
+  "/digest-subscriptions",
+  "/advisory-scheduling",
+  "/integrations",
+  "/help",
+  "/search",
+  "/scorecard",
+  "/ask",
+  "/demo",
+  "/getting-started",
+  "/evolution-review",
+  "/audit",
+  "/value-report",
+  "/digests",
+  "/workspace",
+  "/architectures",
+  "/sponsor-report",
+  "/login",
+];
+
+function hostnameFromOrigin(origin: string | null): string | null {
+  if (origin == null) return null;
+
+  try {
+    return new URL(origin).host.toLowerCase();
+  } catch {
+    return null;
+  }
+}
+
+function normalizeRequestHost(hostHeader: string | null): string | null {
+  if (hostHeader == null) return null;
+
+  const trimmed = hostHeader.trim().toLowerCase();
+
+  if (trimmed === "") return null;
+
+  // Strip port for local comparisons (localhost:3000).
+  const withoutPort = trimmed.replace(/:\d+$/, "");
+
+  return withoutPort;
+}
+
+/** Treat www.example.com as matching example.com for marketing-host decisions. */
+function hostsMatch(requestHost: string, configuredHost: string): boolean {
+  if (requestHost === configuredHost) return true;
+
+  if (requestHost === `www.${configuredHost}`) return true;
+
+  if (configuredHost.startsWith("www.") && requestHost === configuredHost.slice(4)) return true;
+
+  return false;
+}
+
+function pathMatchesPrefix(pathname: string, prefix: string): boolean {
+  if (prefix.endsWith("/")) return pathname === prefix.slice(0, -1) || pathname.startsWith(prefix);
+
+  return pathname === prefix || pathname.startsWith(`${prefix}/`);
+}
+
+export function isMarketingOnlyPath(pathname: string): boolean {
+  if (pathname === "/welcome" || pathname === "/pricing" || pathname === "/signup") return true;
+
+  if (MARKETING_SITEMAP_PATHNAMES.includes(pathname)) return true;
+
+  if (EXTRA_MARKETING_EXACT_PATHS.includes(pathname)) return true;
+
+  for (const prefix of EXTRA_MARKETING_PREFIXES) {
+    if (pathname.startsWith(prefix)) return true;
+  }
+
+  return false;
+}
+
+export function isOperatorPath(pathname: string): boolean {
+  if (pathname === "/") return true;
+
+  for (const prefix of OPERATOR_PATH_PREFIXES) {
+    if (pathMatchesPrefix(pathname, prefix)) return true;
+  }
+
+  return false;
+}
+
+export type HostGateDecision =
+  | { readonly kind: "next" }
+  | { readonly kind: "redirect"; readonly location: string };
+
+/**
+ * When split hosting is configured, keep marketing paths on the public host and operator paths on the app host.
+ * Marketing `/` redirects to `/welcome` on the same public origin (not to the app host).
+ */
+export function decideHostGateRedirect(input: {
+  readonly hostHeader: string | null;
+  readonly pathname: string;
+  readonly search: string;
+}): HostGateDecision {
+  if (!isSplitSiteHostingEnabled()) return { kind: "next" };
+
+  const publicOrigin = resolvePublicSiteOrigin();
+  const appOrigin = resolveAppSiteOrigin();
+  const requestHost = normalizeRequestHost(input.hostHeader);
+  const publicHost = hostnameFromOrigin(publicOrigin);
+  const appHost = hostnameFromOrigin(appOrigin);
+
+  if (requestHost == null || publicHost == null || appHost == null || publicOrigin == null || appOrigin == null) {
+    return { kind: "next" };
+  }
+
+  const pathAndQuery = `${input.pathname}${input.search}`;
+
+  if (hostsMatch(requestHost, publicHost)) {
+    if (input.pathname === "/") {
+      return { kind: "redirect", location: `${publicOrigin}/welcome${input.search}` };
+    }
+
+    if (isOperatorPath(input.pathname)) {
+      return { kind: "redirect", location: `${appOrigin}${pathAndQuery}` };
+    }
+
+    return { kind: "next" };
+  }
+
+  if (hostsMatch(requestHost, appHost)) {
+    if (isMarketingOnlyPath(input.pathname)) {
+      return { kind: "redirect", location: `${publicOrigin}${pathAndQuery}` };
+    }
+
+    return { kind: "next" };
+  }
+
+  return { kind: "next" };
+}

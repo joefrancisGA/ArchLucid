@@ -17,12 +17,9 @@ export function SignupAccessRequestPanel() {
         ArchLucid evaluation access is by invitation during private beta. Request access and we will
         send you an invitation when a seat is available.
       </p>
-      <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
+      <div className="mt-6 flex justify-center">
         <Button asChild variant="default">
           <Link href="/get-started">Request access</Link>
-        </Button>
-        <Button asChild variant="outline">
-          <Link href="/auth/signin">Sign in</Link>
         </Button>
       </div>
     </div>

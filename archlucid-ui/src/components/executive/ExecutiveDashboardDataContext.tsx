@@ -1,10 +1,12 @@
 "use client";
 
-import { createContext, useContext, useMemo, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { useComplianceDriftTrendQuery } from "@/hooks/use-compliance-drift-trend-query";
 import { useExecutiveRoiSummaryQuery } from "@/hooks/use-executive-roi-summary-query";
 import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
+import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import type { ComplianceDriftTrendPoint } from "@/types/governance-dashboard";
 
 export type ExecutiveDashboardData = {
@@ -14,14 +16,20 @@ export type ExecutiveDashboardData = {
   driftPoints: ComplianceDriftTrendPoint[];
   driftLoading: boolean;
   driftError: boolean;
+  refreshing: boolean;
+  lastRefreshedAt: Date | null;
+  refreshDashboard: () => Promise<void>;
 };
 
 const ExecutiveDashboardDataContext = createContext<ExecutiveDashboardData | undefined>(undefined);
 
 /** Fetches executive-summary and compliance-drift once; children read via `useExecutiveDashboardData()`. */
 export function ExecutiveDashboardDataProvider({ children }: { children: ReactNode }): React.JSX.Element {
+  const queryClient = useQueryClient();
   const summaryQuery = useExecutiveRoiSummaryQuery();
   const driftQuery = useComplianceDriftTrendQuery();
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(null);
 
   const summary = summaryQuery.data ?? null;
   const summaryLoading =
@@ -41,6 +49,30 @@ export function ExecutiveDashboardDataProvider({ children }: { children: ReactNo
     (driftPoints.length === 0 && !driftQuery.isFetched);
   const driftError = driftQuery.isError;
 
+  useEffect(() => {
+    if (summaryQuery.isFetched && driftQuery.isFetched && lastRefreshedAt === null) {
+      setLastRefreshedAt(new Date());
+    }
+  }, [summaryQuery.isFetched, driftQuery.isFetched, lastRefreshedAt]);
+
+  const refreshDashboard = useCallback(async () => {
+    setRefreshing(true);
+
+    try {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: operatorQueryKeys.executiveRoiSummary }),
+        queryClient.invalidateQueries({ queryKey: operatorQueryKeys.complianceDriftTrend30d }),
+      ]);
+      await Promise.all([
+        queryClient.refetchQueries({ queryKey: operatorQueryKeys.executiveRoiSummary }),
+        queryClient.refetchQueries({ queryKey: operatorQueryKeys.complianceDriftTrend30d }),
+      ]);
+      setLastRefreshedAt(new Date());
+    } finally {
+      setRefreshing(false);
+    }
+  }, [queryClient]);
+
   const value = useMemo<ExecutiveDashboardData>(
     () => ({
       summary,
@@ -49,8 +81,21 @@ export function ExecutiveDashboardDataProvider({ children }: { children: ReactNo
       driftPoints,
       driftLoading,
       driftError,
+      refreshing,
+      lastRefreshedAt,
+      refreshDashboard,
     }),
-    [summary, summaryLoading, summaryError, driftPoints, driftLoading, driftError],
+    [
+      summary,
+      summaryLoading,
+      summaryError,
+      driftPoints,
+      driftLoading,
+      driftError,
+      refreshing,
+      lastRefreshedAt,
+      refreshDashboard,
+    ],
   );
 
   return (

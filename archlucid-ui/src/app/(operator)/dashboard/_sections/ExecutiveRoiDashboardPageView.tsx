@@ -1,6 +1,7 @@
 "use client";
 
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
+import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { ExecutiveDashboardDataProvider, useExecutiveDashboardData } from "@/components/executive/ExecutiveDashboardDataContext";
 import { ExecutiveDashboardEmptyState } from "@/components/executive/ExecutiveDashboardEmptyState";
 import { ExecutiveDashboardHowItWorks } from "@/components/executive/ExecutiveDashboardHowItWorks";
@@ -9,11 +10,14 @@ import { ExecutiveDashboardSampleWorkspaceBanner } from "@/components/executive/
 import { OperatorWelcomeOnboarding } from "@/components/OperatorWelcomeOnboarding";
 import type { ExecutiveTimeRange } from "@/lib/executive-time-range";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   hasExecutiveCommittedReviews,
   isExecutiveDashboardEmpty,
   isExecutiveSampleWorkspaceData,
 } from "@/lib/executive-dashboard-workspace-state";
+import { EXECUTIVE_DASHBOARD_SCOPE_DETAILS_TRIGGER } from "@/lib/executive-dashboard-page-copy";
+import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { ExecutiveComplianceDriftTrendSection } from "./ExecutiveComplianceDriftTrendSection";
@@ -53,6 +57,7 @@ function ExecutiveRoiDashboardPortfolioSections({
   driftError,
 }: DashboardSectionsProps): React.JSX.Element {
   const v = BUYER_EXECUTIVE_SUMMARY_VOCABULARY;
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const dashboardEmpty = isExecutiveDashboardEmpty(summary, summaryLoading ?? false);
   const hasCommittedReviews = hasExecutiveCommittedReviews(summary);
   const showSampleBanner = isExecutiveSampleWorkspaceData(summary);
@@ -68,10 +73,21 @@ function ExecutiveRoiDashboardPortfolioSections({
 
       <ExecutiveDashboardPageHero dashboardEmpty={dashboardEmpty} />
 
+      {buyerPolishedShell && dashboardEmpty ? (
+        <CollapsibleSection
+          title={EXECUTIVE_DASHBOARD_SCOPE_DETAILS_TRIGGER}
+          defaultOpen={false}
+          sectionTestId="executive-dashboard-scope-details"
+        >
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{v.portfolioPageLead}</p>
+          <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>{v.howItWorksDescription}</p>
+        </CollapsibleSection>
+      ) : null}
+
       {dashboardEmpty ? (
         <>
           <ExecutiveDashboardEmptyState />
-          <ExecutiveDashboardHowItWorks />
+          {!buyerPolishedShell ? <ExecutiveDashboardHowItWorks /> : null}
         </>
       ) : (
         <>
