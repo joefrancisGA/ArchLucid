@@ -4838,7 +4838,7 @@ Answers are pointers only; pull quotations from targets during diligence.
 |33 | Data Subject Access Request (DSAR) operator process? | Self-asserted | [DSAR_PROCESS.md](../security/DSAR_PROCESS.md) |
 |34 | SLA **targets** (pre-contract narrative)? | Self-asserted | [SLA_SUMMARY.md#hosted-saas-availability-target](SLA_SUMMARY.md#hosted-saas-availability-target) (`SLA_TARGETS.md` alias) |
 |35 | API SLO framing? | Self-asserted | [API_SLOS.md](../library/API_SLOS.md) |
-|36 | Scalability / load-test narrative for buyers? | Self-asserted | [BUYER_SCALABILITY_FAQ.md](../library/BUYER_SCALABILITY_FAQ.md) |
+|36 | Scalability / load-test narrative for buyers? | Self-asserted | [trust-center.md#v1-scalability-and-load-evidence](trust-center.md#v1-scalability-and-load-evidence) (`BUYER_SCALABILITY_FAQ.md` alias) |
 | 37 | Dynamic application security scanning (baseline rules narrative)? | Implemented | [ZAP_BASELINE_RULES.md](../security/ZAP_BASELINE_RULES.md) · [`infra/zap/README.md`](../security/ZAP_BASELINE_RULES.md) |
 |38 | External penetration-test **UI / scope** checklist? | Self-asserted | [PENTEST_EXTERNAL_UI_CHECKLIST.md](../security/PENTEST_EXTERNAL_UI_CHECKLIST.md) |
 
