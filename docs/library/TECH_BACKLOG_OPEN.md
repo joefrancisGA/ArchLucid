@@ -669,7 +669,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1894 | Sign-in domains — checklist/StatusTag + settings wayfinding + auth-help CTA | Adoption friction P1 **V1** — with **TB-1891** |
 | TB-1895 | Sign-in domains — Vitest enum labels + busy + confirms + empty | Testability P2 **V1** — with **TB-1891** |
 | TB-1896 | Internal developer tools — traffic honesty (gated / not buyer Settings) | Trustworthiness P1 **V1** — SED ~42 |
-| TB-1897 | Internal developer tools — catalog/diagnostics overclaim vs theme+CLI only | Trustworthiness P0 **V1** — with **TB-1896** |
 | TB-1898 | Internal developer tools — demote TryCliDemoCard localhost CLI theater | Trustworthiness P0 **V1** — with **TB-1896**; pairs **TB-1357** |
 | TB-1899 | Internal developer tools — Authority/ReadAuthority + internal-shell discovery honesty | Adoption friction P1 **V1** — with **TB-1896** |
 | TB-1900 | Internal developer tools — Vitest gate + catalog + CLI copy | Testability P2 **V1** — with **TB-1896** |

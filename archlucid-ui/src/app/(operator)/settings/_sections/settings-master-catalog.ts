@@ -1,6 +1,7 @@
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { SETTINGS_SECURITY_TRUST_PATH } from "@/lib/settings-admin-route-paths";
 
+import { INTERNAL_DEVELOPER_TOOLS_CATALOG_DESCRIPTION } from "../developer/developer-settings-copy";
 import type { SettingsMasterSection } from "./settings-master-types";
 
 /** Searchable master settings index — hub links; detail pages own editable controls. */
@@ -423,13 +424,13 @@ export const SETTINGS_MASTER_SECTIONS: readonly SettingsMasterSection[] = [
     navLabel: "Developer / internal",
     title: "Developer / internal",
     description: "Internal operator tools for demos and support workflows.",
-    keywords: ["developer", "internal", "cli", "diagnostics"],
+    keywords: ["developer", "internal", "cli", "theme"],
     tier: "internal",
     destinations: [
       {
         id: "developer-tools",
         title: "Internal developer tools",
-        description: "Support-only CLI, diagnostics, and branded theme evaluation.",
+        description: INTERNAL_DEVELOPER_TOOLS_CATALOG_DESCRIPTION,
         href: "/settings/developer",
         cta: "Open internal developer tools",
         keywords: ["developer", "cli", "demo"],

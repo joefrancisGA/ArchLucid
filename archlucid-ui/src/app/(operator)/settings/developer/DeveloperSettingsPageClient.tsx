@@ -8,6 +8,8 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
+import { INTERNAL_DEVELOPER_TOOLS_INTRO } from "./developer-settings-copy";
+
 /** Internal operator developer tools — not linked from customer settings navigation. */
 export function DeveloperSettingsPageClient() {
   return (
@@ -18,7 +20,7 @@ export function DeveloperSettingsPageClient() {
         </Button>
         <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Internal developer tools</h1>
         <p className={cn("mt-1 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          Support and engineering workflows for demos, diagnostics, and local tooling.
+          {INTERNAL_DEVELOPER_TOOLS_INTRO}
         </p>
       </div>
 

@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
 
+import {
+  INTERNAL_DEVELOPER_TOOLS_CATALOG_DESCRIPTION,
+  INTERNAL_DEVELOPER_TOOLS_SHIPPED_INVENTORY,
+} from "../developer/developer-settings-copy";
 import { SETTINGS_MASTER_SECTIONS } from "./settings-master-catalog";
 
 /** Static hub copy must not claim a destination is empty without a verified readiness signal. */
@@ -31,5 +35,21 @@ describe("settings-master-catalog (TB-1198)", () => {
       expect(destination, id).toBeDefined();
       expect(destination?.emptyStateHint, id).toBeUndefined();
     }
+  });
+
+  it("TB-1897: internal developer tools catalog matches shipped page inventory", () => {
+    const destination = SETTINGS_MASTER_SECTIONS.flatMap((section) => section.destinations).find(
+      (entry) => entry.id === "developer-tools",
+    );
+
+    expect(destination).toBeDefined();
+    expect(destination?.description).toBe(INTERNAL_DEVELOPER_TOOLS_CATALOG_DESCRIPTION);
+    expect(destination?.description?.toLowerCase()).not.toContain("diagnostics");
+    expect(destination?.description?.toLowerCase()).toContain("theme");
+    expect(destination?.description?.toLowerCase()).toContain("cli");
+
+    const section = SETTINGS_MASTER_SECTIONS.find((entry) => entry.id === "developer-internal");
+    expect(section?.keywords).not.toContain("diagnostics");
+    expect(INTERNAL_DEVELOPER_TOOLS_SHIPPED_INVENTORY).toHaveLength(2);
   });
 });
