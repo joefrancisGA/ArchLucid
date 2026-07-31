@@ -509,8 +509,8 @@ Score each dimension 1–3 before advancing to intake.
 | --- | --- | --- |
 | Cold/warm outreach | [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md) one-pager | Link or attach; do not attach full procurement pack unsolicited |
 | Discovery call follow-up | [`#should-you-evaluate`](#should-you-evaluate) | Helps prospect self-qualify |
-| Qualification confirmed | [`QUOTE_TO_PROOF_PACKET.md#productized-service-offers`](QUOTE_TO_PROOF_PACKET.md#productized-service-offers) SKU summary + [`PAID_PILOT_OFFERS.md`](PAID_PILOT_OFFERS.md) §2 talk track | Name the offer; do not just say "ArchLucid platform" |
-| Pilot proposal | [`PAID_PILOT_OFFERS.md`](PAID_PILOT_OFFERS.md) Option A or B → [`QUOTE_TO_PROOF_PACKET.md#private-quote--sow-template`](QUOTE_TO_PROOF_PACKET.md#private-quote--sow-template) | Owner reviews each SOW before sending; convert with [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md) Addendum D |
+| Qualification confirmed | [`QUOTE_TO_PROOF_PACKET.md#productized-service-offers`](QUOTE_TO_PROOF_PACKET.md#productized-service-offers) SKU summary + [`QUOTE_TO_PROOF_PACKET.md#paid-pilot-offers-draft`](QUOTE_TO_PROOF_PACKET.md#paid-pilot-offers-draft) talk track | Name the offer; do not just say "ArchLucid platform" |
+| Pilot proposal | [`QUOTE_TO_PROOF_PACKET.md#paid-pilot-offers-draft`](QUOTE_TO_PROOF_PACKET.md#paid-pilot-offers-draft) Option A or B → [`QUOTE_TO_PROOF_PACKET.md#private-quote--sow-template`](QUOTE_TO_PROOF_PACKET.md#private-quote--sow-template) | Owner reviews each SOW before sending; convert with [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md) Addendum D |
 
 ### 6. Pilot intake form
 

@@ -5,7 +5,7 @@
 # Upwork service listings (draft)
 
 **Last reviewed:** 2026-07-29  
-**SKU lock:** [`PAID_PILOT_OFFERS.md`](PAID_PILOT_OFFERS.md) §1 · canonical menu [`QUOTE_TO_PROOF_PACKET.md#productized-service-offers`](QUOTE_TO_PROOF_PACKET.md#productized-service-offers)  
+**SKU lock:** [`QUOTE_TO_PROOF_PACKET.md#paid-pilot-offers-draft`](QUOTE_TO_PROOF_PACKET.md#paid-pilot-offers-draft) (`PAID_PILOT_OFFERS.md` alias) · canonical menu [`QUOTE_TO_PROOF_PACKET.md#productized-service-offers`](QUOTE_TO_PROOF_PACKET.md#productized-service-offers)  
 **Claim gates:** [`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md) · [`CLAIM_READINESS_STATUS.md`](CLAIM_READINESS_STATUS.md)
 
 **Status**
@@ -220,6 +220,6 @@ with a scoped SOW outline.
 
 ## Related
 
-- [`PAID_PILOT_OFFERS.md`](PAID_PILOT_OFFERS.md) — Option A/B + SKU talk track  
+- [`QUOTE_TO_PROOF_PACKET.md#paid-pilot-offers-draft`](QUOTE_TO_PROOF_PACKET.md#paid-pilot-offers-draft) — Option A/B + SKU talk track (`PAID_PILOT_OFFERS.md` alias) 
 - [`GTM_BACKLOG.md`](GTM_BACKLOG.md) — **M-24** / **M-25** / **M-26** / **M-27**  
 - [`ELEVATOR_PITCH.md`](ELEVATOR_PITCH.md) — outreach templates (**M-18**)

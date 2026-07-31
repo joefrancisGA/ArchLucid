@@ -13,7 +13,7 @@
 
 **What this form is:** SaaS **subscription** (Team / Professional / Enterprise). It is **not** the service SOW for a paid review package.
 
-**Service / pilot first?** Use the named SKUs and private SOW in [`QUOTE_TO_PROOF_PACKET.md#productized-service-offers`](QUOTE_TO_PROOF_PACKET.md#productized-service-offers) / [`#private-quote--sow-template`](QUOTE_TO_PROOF_PACKET.md#private-quote--sow-template). Draft packages: [`PAID_PILOT_OFFERS.md`](PAID_PILOT_OFFERS.md) (**M-22** / **M-23**). After the engagement, convert with **Addendum D** below (**M-34**).
+**Service / pilot first?** Use the named SKUs and private SOW in [`QUOTE_TO_PROOF_PACKET.md#productized-service-offers`](QUOTE_TO_PROOF_PACKET.md#productized-service-offers) / [`#private-quote--sow-template`](QUOTE_TO_PROOF_PACKET.md#private-quote--sow-template). Draft packages: [`QUOTE_TO_PROOF_PACKET.md#paid-pilot-offers-draft`](QUOTE_TO_PROOF_PACKET.md#paid-pilot-offers-draft) (`PAID_PILOT_OFFERS.md` alias — **M-22** / **M-23**). After the engagement, convert with **Addendum D** below (**M-34**).
 
 **Pricing source:** All current list prices (platform fee, seat price, run overage, pilot fee) are in [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md). The worked examples in this document compute totals from those locked prices — the numbers are derived here for convenience, but the prices themselves live only in that file. The CI guard `scripts/ci/check_pricing_single_source.py` allows price literals in this file.
 
@@ -269,7 +269,7 @@ A **chargeback** is a bank-initiated dispute after the card network’s rules-ba
 | Field | Value |
 |-------|-------|
 | **Prior SOW / quote ID** | __________________ |
-| **Prior engagement** | ☐ Option A — architecture review package ([`PAID_PILOT_OFFERS.md`](PAID_PILOT_OFFERS.md) §3)  ☐ Option B — 30–60 day pilot ([`PAID_PILOT_OFFERS.md`](PAID_PILOT_OFFERS.md) §4)  ☐ Other: __________________ |
+| **Prior engagement** | ☐ Option A — architecture review package ([`QUOTE_TO_PROOF_PACKET.md#paid-pilot-offers-draft`](QUOTE_TO_PROOF_PACKET.md#paid-pilot-offers-draft))  ☐ Option B — 30–60 day pilot (same)  ☐ Other: __________________ |
 | **Named SKU delivered** | ☐ ArchLucid AI & Cloud Architecture Readiness Review  ☐ ArchLucid Evidence Pack  ☐ ArchLucid Architecture Board / ARB Report  ☐ ArchLucid Cloud Governance Review (Azure-first) |
 | **Commercial closeout** | ☐ SEND  ☐ HOLD  ☐ DEFERRED_SCOPE (per [`QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist`](QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist)) |
 | **Pilot / service fee credit** | ☐ None  ☐ Credited $_______ against first annual invoice (guided-pilot credit per [PRICING_PHILOSOPHY.md §4](PRICING_PHILOSOPHY.md) — confirm amount before signing) |
@@ -295,7 +295,7 @@ A **chargeback** is a bank-initiated dispute after the card network’s rules-ba
 |-----|-----|
 | [MSA_TEMPLATE.md](MSA_TEMPLATE.md) | Master Service Agreement (this Order Form is governed by the MSA) |
 | [PRICING_PHILOSOPHY.md](PRICING_PHILOSOPHY.md) | **Single source of truth** for all list prices, pilot pricing, re-rate gates, and sensitivity playbook |
-| [PAID_PILOT_OFFERS.md](PAID_PILOT_OFFERS.md) | Draft Option A/B paid packages + SKU outreach talk track (**M-22** / **M-23** / **M-34**) |
+| [QUOTE_TO_PROOF_PACKET.md#paid-pilot-offers-draft](QUOTE_TO_PROOF_PACKET.md#paid-pilot-offers-draft) · [PAID_PILOT_OFFERS.md](PAID_PILOT_OFFERS.md) (alias) | Draft Option A/B paid packages + SKU outreach talk track (**M-22** / **M-23** / **M-34**) |
 | [QUOTE_TO_PROOF_PACKET.md#productized-service-offers](QUOTE_TO_PROOF_PACKET.md#productized-service-offers) | Canonical service SKU menu + private SOW |
 | [DPA_TEMPLATE.md](DPA_TEMPLATE.md) | Data processing terms |
 | [SLA_SUMMARY.md](SLA_SUMMARY.md) | Service level objectives |

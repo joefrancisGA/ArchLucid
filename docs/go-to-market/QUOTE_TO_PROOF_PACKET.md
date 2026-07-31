@@ -1,6 +1,6 @@
 > **Reviewed:** 2026-07-27
 
-> **Scope:** Sales-led packet index for moving from first-pilot proof to annual order readiness, plus the commercial conversion checklist / decision-cycle telemetry (formerly `COMMERCIAL_CONVERSION_CHECKLIST.md`), the ROI baseline SEND policy / baseline-capture checklist (formerly `ROI_BASELINE_SEND_POLICY.md`), productized service SKUs / SOW template (formerly the body of `SERVICE_LED_OFFERS.md`; that filename remains a path-stable alias for CI), the transactable procurement path / legal terms packet (formerly the body of `TRANSACTABLE_PROCUREMENT_PATH.md`; that filename remains a path-stable alias), and the paid-pilot evidence ledger / ROI session / decision-delta / addendum (formerly the body of `validation/PAID_PILOT_EVIDENCE_LEDGER.md`; that filename remains a path-stable alias for CLI/UI). Not legal advice, pricing authority, or procurement attestation.
+> **Scope:** Sales-led packet index for moving from first-pilot proof to annual order readiness, plus the commercial conversion checklist / decision-cycle telemetry (formerly `COMMERCIAL_CONVERSION_CHECKLIST.md`), the ROI baseline SEND policy / baseline-capture checklist (formerly `ROI_BASELINE_SEND_POLICY.md`), productized service SKUs / SOW template (formerly the body of `SERVICE_LED_OFFERS.md`; that filename remains a path-stable alias for CI), paid pilot Option A/B drafts + SKU outreach talk track (formerly the body of `PAID_PILOT_OFFERS.md`; that filename remains a path-stable alias for GTM **M-22** / **M-23** / **M-34**), the transactable procurement path / legal terms packet (formerly the body of `TRANSACTABLE_PROCUREMENT_PATH.md`; that filename remains a path-stable alias), and the paid-pilot evidence ledger / ROI session / decision-delta / addendum (formerly the body of `validation/PAID_PILOT_EVIDENCE_LEDGER.md`; that filename remains a path-stable alias for CLI/UI). Not legal advice, pricing authority, or procurement attestation.
 
 # Quote-to-proof packet
 
@@ -461,7 +461,7 @@ Former standalone body: `docs/go-to-market/SERVICE_LED_OFFERS.md` → this secti
 
 **Purpose:** V1 already ships **Architecture Review Report** export (DOCX/PDF), **consultant whitelabel**, **bulk evidence attach**, **default policy packs**, and **curated demo workspaces**. This section names **buyable SKUs** so GTM leads with **relief from pain** and a **defensible report**, not a platform feature tour.
 
-**Related:** [`GTM_BACKLOG.md`](GTM_BACKLOG.md) (tasks M-22–M-28, M-34), [`PAID_PILOT_OFFERS.md`](PAID_PILOT_OFFERS.md) (Option A/B drafts + SKU talk track — **M-22** / **M-23** / **M-34**), [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md) (subscription + Addendum D conversion), [`POSITIONING.md`](POSITIONING.md), [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md) (public pricing posture; **Marketing alignment Q8** companion). Private SOW + paid-offer test live below.
+**Related:** [`GTM_BACKLOG.md`](GTM_BACKLOG.md) (tasks M-22–M-28, M-34), [Paid pilot offers + SKU talk track](#paid-pilot-offers-draft) (`PAID_PILOT_OFFERS.md` alias — **M-22** / **M-23** / **M-34**), [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md) (subscription + Addendum D conversion), [`POSITIONING.md`](POSITIONING.md), [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md) (public pricing posture; **Marketing alignment Q8** companion). Private SOW + paid-offer test live below.
 
 ### Positioning guardrails
 
@@ -557,6 +557,147 @@ Feed results into **engineering backlog** / **`GTM_BACKLOG.md` retros** and pack
 ### Change control
 
 When a SKU name, band, or deliverable list becomes **public** on `archlucid.net`, update **`PRICING_PHILOSOPHY.md`** / procurement templates if numbers are no longer private — and refresh **`GTM_BACKLOG.md`** notes if **Marketing alignment** posture (Q7) changes.
+
+### Paid pilot offers + SKU talk track (M-22 / M-23 / M-34) {#paid-pilot-offers-draft}
+
+Former standalone body: `docs/go-to-market/PAID_PILOT_OFFERS.md` → this subsection (filename kept as a path-stable alias for GTM **M-22** / **M-23** / **M-34**). Not legal advice; not a public price list. Ready for owner personalization and counsel review before customer send.
+
+**Path-stable alias:** [`PAID_PILOT_OFFERS.md`](PAID_PILOT_OFFERS.md).
+
+**Canonical SKU menu:** [Named offers](#productized-service-offers) above. **Service SOW shell:** [`#private-quote--sow-template`](#private-quote--sow-template). **Subscription order form:** [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md) (Addendum D). **Public SaaS list prices:** [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md) §5 — do **not** put private service bands on the public landing page (Marketing alignment Q7).
+
+#### SKU name lock (M-34)
+
+Use these **exact** names in SOWs, order-form addenda, Upwork drafts, LinkedIn, and outreach. Do not invent synonyms that sound like different products.
+
+| Short label (internal) | Buyer-facing SKU name (lock) | Typical next commercial step |
+|------------------------|------------------------------|------------------------------|
+| **Readiness Review** | **ArchLucid AI & Cloud Architecture Readiness Review** | Default first paid engagement; convert to Team/Professional subscription via [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md) |
+| **Evidence Pack** | **ArchLucid Evidence Pack** | Often bundled inside Readiness Review; standalone when procurement needs a dossier before ARB |
+| **ARB Report** | **ArchLucid Architecture Board / ARB Report** | When sponsor needs one executive-/ARB-ready narrative |
+| **Azure-first** | **ArchLucid Cloud Governance Review (Azure-first)** | Azure-heavy estates; aligns with Upwork listing **M-25** |
+
+**Conversion path (say this consistently):**  
+Readiness Review (or Azure-first) → optional Evidence Pack / ARB Report → annual **Team / Professional / Enterprise** subscription order form ([`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md) + MSA/DPA).
+
+**Do not say in outreach:** “buy ArchLucid,” “platform subscription starts at…,” or “AI governance platform” as the offer name. Name the **package**.
+
+#### Outreach talk track (M-34)
+
+**One-sentence offer (cold / warm):**
+
+> We run a fixed-scope **ArchLucid AI & Cloud Architecture Readiness Review** — evidence intake through a sponsor-safe Architecture Review Report — so your next cloud/AI architecture decision has a committed package, not another slide deck.
+
+**Qualification bridge (after interest):**
+
+1. Name the decision the review must support in 30–60 days.
+2. Confirm they can provide an architecture packet in week 1 (or accept a labeled demo-workspace path).
+3. Name the sponsor who will read the export.
+4. Pick **one** SKU from the lock table for the first engagement (default: Readiness Review).
+5. Defer CPA SOC 2 / published pen test / Marketplace self-serve / V1.1 connectors unless separately contracted — see [`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md).
+
+**Disqualify:** Chatbot-only buyers; no sponsor; V1.1 connectors as go-live blocker before any review value. Full checklist: [`#paid-offer-test-private`](#paid-offer-test-private).
+
+**Follow-up email skeleton — Subject:** ArchLucid Readiness Review — scoped package (not a platform tour)
+
+```text
+[Name] —
+
+Following our conversation: the first paid step is an ArchLucid AI & Cloud Architecture
+Readiness Review (fixed scope, private quote). Deliverables are an executive summary,
+evidence inventory, risk/decision registers, and an Architecture Review Report (DOCX/PDF)
+with a finalized architecture package and audit trail.
+
+If you need a procurement dossier first, we can bundle an ArchLucid Evidence Pack.
+If the sponsor needs a single board narrative, we scope an ArchLucid Architecture Board /
+ARB Report instead (or after).
+
+Next step: 20-minute scope call → private SOW for owner review → start.
+
+Indicative private band (not a public list price): see paid-offer test in our quote packet.
+SaaS subscription (Team / Professional) is a separate order form after the review proves value.
+```
+
+#### Option A — Architecture review package (M-22)
+
+**Maps to SKU:** **ArchLucid AI & Cloud Architecture Readiness Review**  
+**Optional add-ons (same SOW checkboxes):** Evidence Pack · ARB Report · Azure-first variant when the estate is Azure-primary.
+
+**Positioning:** A **time-boxed, fixed-fee architecture review package** delivered with ArchLucid as the proof engine. Buyer purchases relief and a defensible report — not seats.
+
+| Element | Default |
+|---------|---------|
+| Duration | **2–3 weeks** calendar |
+| Domains | **1** architecture domain / system boundary |
+| Reviews | **1** finalized architecture package (second compare optional as change order) |
+| Seats during engagement | Operator seats as needed for delivery; **not** a SaaS seat sale |
+| Report | Architecture Review Report (DOCX/PDF); whitelabel optional |
+| Proof | Finalized package + audit trail; execution mode labeled |
+
+**Buyer gets:** Executive summary; architecture evidence inventory; decision register; risk register; policy/finding summary; recommended actions; Architecture Review Report (DOCX/PDF); finalized architecture package with export/proof-packet artifacts; 30-minute findings / sponsor debrief.
+
+**Buyer does not get (unless addendum):** SOC 2 CPA attestation; published third-party pen test; live Marketplace / Stripe self-serve; V1.1 first-party Jira/ServiceNow/Teams/Slack; guaranteed ROI dollars without buyer baselines; production remediation execution.
+
+| Shape | Indicative USD (private) |
+|-------|--------------------------|
+| Narrowly bounded | **$1,500–$3,000** |
+| Standard (default quote) | **$5,000–$10,000** |
+| Multi-system / team | Upper bands per [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md) §5 / custom |
+
+Fill the SOW “Indicative fee” line; owner reviews every send. Source bands: [`#paid-offer-test-private`](#paid-offer-test-private).
+
+**Acceptance criteria:** (1) Signed SOW with **Readiness Review** (or Azure-first) selected; (2) baseline capture started; (3) first finalize within **10 business days** of kickoff; (4) sponsor export reviewed in debrief; (5) payment per SOW schedule.
+
+**Assemble customer packet:** Copy [`#private-quote--sow-template`](#private-quote--sow-template) → check Readiness Review → paste scope/exclusions → set private fee → owner sign-off → after SEND/PASS offer subscription via [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md) Addendum D.
+
+#### Option B — 30–60 day pilot (M-23)
+
+**Maps to SKUs:** Guided delivery that **starts** as Readiness Review capacity and may include Evidence Pack / ARB Report milestones; conversion target is **Professional** (or Team) subscription + optional design-partner path ([`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md) §4).
+
+**Positioning:** A **30–60 day paid pilot** with setup, demo or customer workspace, repeated review workflow, and sample/sponsor reports — still named against the SKU menu, never “unlimited platform access.”
+
+| Element | Default |
+|---------|---------|
+| Duration | **30–60 days** (pick one in the SOW) |
+| Setup | Tenant/workspace setup; policy-pack pin; IdP path per procurement packet |
+| Workspace | Customer evidence **or** labeled demo-workspace acceptance (disclose which) |
+| Reviews | Target **2–4** finalized architecture packages (name the number in the SOW) |
+| Workflow | Capture → Evidence → Review → Findings → Decisions → Report with human sign-off |
+| Sample reports | At least **one** sponsor-safe Architecture Review Report; optional ARB Report milestone |
+| Training | One operator walkthrough + one sponsor readout |
+| Conversion | Written commercial closeout → Team/Professional order form |
+
+| Week | Milestone | SKU alignment |
+|------|-----------|---------------|
+| 1 | Setup complete; first scoped request; first finalize | Readiness Review kickoff |
+| 2–3 | Second review or compare; Evidence Pack curated if contracted | Evidence Pack (if checked) |
+| 3–6 | Sponsor report + optional ARB narrative; conversion checklist | ARB Report (if checked) |
+| End | Commercial closeout (SEND/HOLD/DEFERRED_SCOPE); subscription order draft | [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md) |
+
+**Private fee posture:** Prefer a **fixed pilot fee** credited toward the first annual invoice on conversion to Professional/Enterprise (guided pilot pattern in [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md) §4 — confirm current figure before quoting), **or** a **time-boxed package fee** in the Readiness Review upper band when consulting-shaped. Do not invent a third public list price.
+
+**Buyer does not get (unless addendum):** Same exclusions as Option A, plus production SLA credits; unlimited architecture packages beyond the named count; design-partner discount without a confirmed slot ([`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md) Addendum B).
+
+**Acceptance criteria:** (1) Signed SOW naming Option B duration and review count; (2) setup + first finalize within **10 business days**; (3) named review count delivered (or waived in writing); (4) sponsor readout + commercial closeout filed; (5) payment per SOW; conversion order form offered within **10 business days** of pilot end.
+
+**Assemble customer packet:** Private SOW → check Readiness Review (+ Evidence Pack / ARB Report as needed) → attach Option B scope as exhibit → state duration, review count, workspace type, fee/credit rule → owner review → on conversion complete [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md) §2 + Addendum D.
+
+#### Option A vs Option B — when to offer which
+
+| Signal | Offer |
+|--------|-------|
+| Single decision / one domain / need a report in ~2–3 weeks | **Option A** (Readiness Review package) |
+| Buyer wants habit + compare runs + conversion path before ARR | **Option B** (30–60 day pilot) |
+| Azure ZIP / cost+security baseline is the wedge | Option A or B with **Azure-first** SKU checked |
+| Procurement needs dossier before any narrative | Bundle **Evidence Pack**; keep Readiness Review as parent SKU |
+
+#### Owner send checklist
+
+- [ ] Exact SKU name from the lock table on the SOW
+- [ ] Private fee filled; no public landing-page band
+- [ ] Exclusions match [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise)
+- [ ] Owner reviewed SOW before send ([`G-COMMERCE-02`](GTM_BACKLOG.md) / [commercial conversion checklist](#commercial-conversion-checklist))
+- [ ] After acceptance: decision-delta interview within 7 days ([`#decision-delta-interview-paid-pilots`](#decision-delta-interview-paid-pilots))
 
 ### Paid offer test (private) {#paid-offer-test-private}
 
@@ -1164,6 +1305,7 @@ Former standalone runbook: `docs/go-to-market/validation/PILOT_ROI_VALIDATION_SE
 - [`#commercial-conversion-checklist`](#commercial-conversion-checklist)
 - [`#roi-baseline-send-policy`](#roi-baseline-send-policy)
 - [`#productized-service-offers`](#productized-service-offers) · [`SERVICE_LED_OFFERS.md`](SERVICE_LED_OFFERS.md) (alias)
+- [`#paid-pilot-offers-draft`](#paid-pilot-offers-draft) · [`PAID_PILOT_OFFERS.md`](PAID_PILOT_OFFERS.md) (alias)
 - [`#transactable-procurement-path`](#transactable-procurement-path) · [`TRANSACTABLE_PROCUREMENT_PATH.md`](TRANSACTABLE_PROCUREMENT_PATH.md) (alias)
 - [`#paid-pilot-evidence-ledger`](#paid-pilot-evidence-ledger) · [`validation/PAID_PILOT_EVIDENCE_LEDGER.md`](validation/PAID_PILOT_EVIDENCE_LEDGER.md) (alias)
 - [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md)
