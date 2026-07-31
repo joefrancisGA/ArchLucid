@@ -190,13 +190,17 @@ async function forwardMutatingWithBody(
     );
   }
 
+  // DOM BodyInit expects Uint8Array<ArrayBuffer>; stream chunks may be ArrayBufferLike.
+  const fetchBody: BodyInit | undefined =
+    body.byteLength === 0 ? undefined : new Uint8Array(body);
+
   let res: Response;
 
   try {
     res = await fetch(targetUrl, {
       method,
       headers,
-      body,
+      body: fetchBody,
       cache: "no-store",
       signal: AbortSignal.timeout(upstreamTimeoutMs),
     });
