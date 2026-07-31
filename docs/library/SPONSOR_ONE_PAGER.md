@@ -1,13 +1,17 @@
-> **Scope:** Buyer — Sponsor one-pager PDF — API, CLI, tier gate, and how it relates to pilot ROI docs.
+> **Reviewed:** 2026-07-31
+
+> **Scope:** Buyer — Sponsor one-pager PDF — API, CLI, tier gate, and how it relates to pilot ROI docs. Distinct from the executive sponsor narrative (KEEP [`EXECUTIVE_SPONSOR_BRIEF.md`](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md)).
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
 # Sponsor one-pager PDF
 
+**Last reviewed:** 2026-07-31
+
 ## Objective
 
-Give sponsors a **single-page** PDF that ties one committed (or in-flight) architecture run to **30-day pilot aggregates** — without replacing canonical ROI narratives in `docs/EXECUTIVE_SPONSOR_BRIEF.md` or `docs/go-to-market/ROI_MODEL.md`.
+Give sponsors a **single-page** PDF that ties one committed (or in-flight) architecture run to **30-day pilot aggregates** — without replacing canonical ROI narratives in [`EXECUTIVE_SPONSOR_BRIEF.md`](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md) or [`ROI_MODEL.md`](../go-to-market/ROI_MODEL.md).
 
 ## API
 
