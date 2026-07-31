@@ -39,7 +39,7 @@ Recommended optional fields used in-repo:
 ## Chooser surfaces
 
 - Repo table: [`templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md`](../../templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md)
-- Docs: [`ACCELERATOR_CHOOSER.md`](ACCELERATOR_CHOOSER.md)
+- Docs: [`DEMO_QUICKSTART.md#accelerator-chooser`](../go-to-market/DEMO_QUICKSTART.md#accelerator-chooser) (`ACCELERATOR_CHOOSER.md` alias)
 - In-app: `/help/accelerator-chooser` and operator home `AcceleratorChooserCard`
 
 ## Golden walkthrough

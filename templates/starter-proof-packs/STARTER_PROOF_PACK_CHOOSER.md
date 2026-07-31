@@ -1,5 +1,5 @@
 > **Reviewed:** 2026-07-23
-> **Scope:** Pack-tree chooser for starter proof packs (CI-checked). Help/docs twin: [`docs/library/ACCELERATOR_CHOOSER.md`](../../docs/library/ACCELERATOR_CHOOSER.md).
+> **Scope:** Pack-tree chooser for starter proof packs (CI-checked). Help/docs twin: [`DEMO_QUICKSTART.md#accelerator-chooser`](../../docs/go-to-market/DEMO_QUICKSTART.md#accelerator-chooser) (`ACCELERATOR_CHOOSER.md` alias).
 
 # Starter proof pack chooser
 

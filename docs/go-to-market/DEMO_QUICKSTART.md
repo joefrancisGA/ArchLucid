@@ -1,6 +1,6 @@
 ﻿> **Reviewed:** 2026-07-31
 
-> **Scope:** ArchLucid demo quickstart (buyer-facing), screenshot capture brief for marketing/demo PNGs (formerly ``SCREENSHOT_GALLERY.md``), live-call / video demo scripts plus storyboard (formerly ``DEMO_VIDEO_SCRIPT.md``), hosted GA demo workspaces / welcome-hero analytics (formerly the body of ``DEMO_WORKSPACES.md``; that filename remains a path-stable alias for fixture GUID CI), GTM synthetic samples / architecture review board export how-to (formerly the body of ``samples/README.md``; that filename remains a path-stable alias next to the DOCX/PDF binaries), the sample-package funnel ID matrix (formerly the body of ``SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md``; that filename remains a path-stable alias for GTM **M-134**), the showcase naming hierarchy + Contoso/Northwind matrix (formerly the body of ``SHOWCASE_NAMING_HIERARCHY.md``; that filename remains a path-stable alias for GTM **M-135**), the anonymous `/demo/preview` route contract + cache/privacy boundaries (formerly the body of ``docs/library/DEMO_PREVIEW.md``; that filename remains a path-stable alias for ADR / **TB-887** / **M-133** callers), and the golden accelerator walkthrough for regulated SaaS procurement (formerly the body of ``docs/library/walkthroughs/GOLDEN_ACCELERATOR_WALKTHROUGH.md``; that filename remains a path-stable alias for starter-pack choosers). Full detail, tables, and links in the sections below.
+> **Scope:** ArchLucid demo quickstart (buyer-facing), screenshot capture brief for marketing/demo PNGs (formerly ``SCREENSHOT_GALLERY.md``), live-call / video demo scripts plus storyboard (formerly ``DEMO_VIDEO_SCRIPT.md``), hosted GA demo workspaces / welcome-hero analytics (formerly the body of ``DEMO_WORKSPACES.md``; that filename remains a path-stable alias for fixture GUID CI), GTM synthetic samples / architecture review board export how-to (formerly the body of ``samples/README.md``; that filename remains a path-stable alias next to the DOCX/PDF binaries), the sample-package funnel ID matrix (formerly the body of ``SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md``; that filename remains a path-stable alias for GTM **M-134**), the showcase naming hierarchy + Contoso/Northwind matrix (formerly the body of ``SHOWCASE_NAMING_HIERARCHY.md``; that filename remains a path-stable alias for GTM **M-135**), the anonymous `/demo/preview` route contract + cache/privacy boundaries (formerly the body of ``docs/library/DEMO_PREVIEW.md``; that filename remains a path-stable alias for ADR / **TB-887** / **M-133** callers), the golden accelerator walkthrough for regulated SaaS procurement (formerly the body of ``docs/library/walkthroughs/GOLDEN_ACCELERATOR_WALKTHROUGH.md``; that filename remains a path-stable alias for starter-pack choosers), and the accelerator / starter-proof-pack chooser (formerly the body of ``docs/library/ACCELERATOR_CHOOSER.md``; that filename remains a path-stable alias for help-center / policy-pack index callers). Full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -510,7 +510,7 @@ Marketing, trial, showcase, and SQL seeds are **not** one fictional universe. Tr
 | Northwind compare / creation bridge | **Off-funnel** | e.g. `northwind-copilot-rag-platform` in longer scripts | Fixture slugs only | Do **not** use in welcome → `/see-it` → primary CTA |
 | Why-ArchLucid / measured ROI demo pin | Contoso string key | API snapshot fields | `ContosoRetailDemoIdentifiers.RunBaseline` = `6e8c4a102b1f4c9a9d3e10b2a4f0c501` | Sponsor numbers labeled demo — replace before publish |
 
-Pinned Workspace A/B GUID table (CI): [`DEMO_WORKSPACES.md`](DEMO_WORKSPACES.md) → [Demo workspaces](#demo-workspaces). Route tiers: [`../architecture/ui_routes.md`](../architecture/ui_routes.md).
+Pinned Workspace A/B GUID table (CI): [Demo workspaces — pinned fixture anchors](#demo-workspaces-pinned-fixture-anchors) (`DEMO_WORKSPACES.md` alias). Route tiers: [`../architecture/ui_routes.md`](../architecture/ui_routes.md).
 
 ### Forbidden mixes (toxic)
 
@@ -700,7 +700,21 @@ Until **TB-981**, public creatives that open Claims must name **Healthcare Claim
 
 Former standalone body: `docs/go-to-market/DEMO_WORKSPACES.md` → this section (filename kept as a path-stable alias for GUID CI / smoke pins).
 
-**Last reviewed:** 2026-07-26
+**Last reviewed:** 2026-07-31
+
+### Pinned fixture anchors (CI) {#demo-workspaces-pinned-fixture-anchors}
+
+| Label | GUID |
+|-------|------|
+| defaultTenantId | `11111111-1111-1111-1111-111111111111` |
+| workspaceA.runId | `b6ab57c8-84b1-8ac6-28d8-d790efcd1dbf` |
+| workspaceA.workspaceId | `2b2571e1-1884-62a2-1e8b-15a2a70a0342` |
+| workspaceA.projectId | `9beb918c-83d4-1385-0486-21f341806c5c` |
+| workspaceB.runId | `61c60d76-2b80-93f9-46bb-2f66fd608b9b` |
+| workspaceB.workspaceId | `3f1a16c3-172e-5632-c53a-3ed16446f603` |
+| workspaceB.projectId | `49074cdf-bdab-a5fa-789b-09a3e556a8f2` |
+
+Manifest: `fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json`. CI validates these GUID strings in this document via `scripts/demo-workspaces/Validate-DemoWorkspacesDoc.ps1` (path-stable alias `DEMO_WORKSPACES.md` still points here).
 
 ## Cross-navigation (marketing + onboarding)
 
@@ -1113,6 +1127,52 @@ Optional: **`ARCHLUCID_REPO_ROOT`** when the test cannot walk to a directory con
 
 ---
 
+## Accelerator chooser {#accelerator-chooser}
+
+Former standalone body: `docs/library/ACCELERATOR_CHOOSER.md` → this section (filename kept as a path-stable alias for help-center / policy-pack index callers). Buyer / evaluator map **after** Core Pilot first finalize — picks an **existing** starter proof pack under `templates/starter-proof-packs/` (no new templates). Not a certification catalog.
+
+**Path-stable alias:** [`../library/ACCELERATOR_CHOOSER.md`](../library/ACCELERATOR_CHOOSER.md).
+
+**CI pack-tree twin:** [`templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md`](../../templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md).
+
+**Last reviewed:** 2026-07-31
+
+| Buyer job | Starter pack | Target persona | Required inputs | Expected proof outputs | Scope | When **not** to use |
+| --- | --- | --- | --- | --- | --- | --- |
+| Regulated SaaS procurement / SOC-style diligence language | [`regulated-saas-soc-procurement`](../../templates/starter-proof-packs/regulated-saas-soc-procurement/) | Security / procurement lead | `second-run.json`, `policy-context.json` | Policy-pack findings, proof checklist, sponsor-safe caveats (not CPA SOC 2) | **V1-ready** | Before any finalize; buyer demands CPA attestation |
+| Healthcare data workflow / PHI storyline | [`healthcare-data-workflow`](../../templates/starter-proof-packs/healthcare-data-workflow/) | Clinical platform or compliance lead | `second-run.json`, `policy-context.json` | Healthcare pack findings, checklist | **V1-ready** | Real PHI in inputs; HIPAA certification claims |
+| Azure cost / orphan / governance review | [`azure-cost-governance`](../../templates/starter-proof-packs/azure-cost-governance/) | FinOps or platform owner | `second-run.json`, optional extractor ZIP | Cost/orphan-oriented findings, ROI source labels | **V1-ready** | Non-Azure-only architecture with no Azure evidence |
+| AI / LLM workload governance | [`ai-llm-workload`](../../templates/starter-proof-packs/ai-llm-workload/) | AI governance or platform lead | `second-run.json`, `policy-context.json` | AI governance findings, faithfulness-friendly citations | **V1-ready** | Generic chat comparison only; no LLM in scope |
+| Multi-tier web architecture (greenfield) | Wizard preset **Greenfield web app** (in-app) | Engineering lead / architect | Architecture request via new-review wizard | Topology/compliance findings on your inputs | **V1-ready** | Buyer needs specialty pack above instead |
+
+Each pack folder includes `starter-pack.json` with `scopeLabel`, `doNotUseWhen`, and `deferredScopeNotes`.
+
+### How to start in the architect workspace
+
+1. Confirm a Core Pilot finalize exists (signed review record on an architecture package).
+2. Pick one row from the table.
+3. Open **New architecture review** with baseline ZIP intake (`/reviews/new?baseline=1`) when the pack lists `second-run.json`, or use **Quick review** / **Detailed wizard** for greenfield presets.
+4. Attach pack JSON/ZIP from the pack folder as evidence; run the assessment; finalize; export the proof checklist in the pack folder.
+
+### Policy packs (governance templates)
+
+Vertical **policy-pack** templates (assign in governance, dry-run in the architect workspace) are indexed separately from starter proof ZIP packs:
+
+- [`POLICY_PACK_DRY_RUN_INDEX.md`](../library/POLICY_PACK_DRY_RUN_INDEX.md) — buyer job → pack ID, inputs, caveats (TB-176)
+- Metadata contract: [`POLICY_PACK_METADATA_CONTRACT.md`](../library/POLICY_PACK_METADATA_CONTRACT.md)
+
+Bundled **platform default** packs (23+ categories seeded per tenant) are listed in [`DEFAULT_POLICY_PACKS_V1.md`](DEFAULT_POLICY_PACKS_V1.md).
+
+### Canonical references (accelerator)
+
+- Pack chooser (templates tree): [`STARTER_PROOF_PACK_CHOOSER.md`](../../templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md)
+- Golden walkthrough (one pack): [`#golden-accelerator-walkthrough-regulated-saas`](#golden-accelerator-walkthrough-regulated-saas) (`GOLDEN_ACCELERATOR_WALKTHROUGH.md` alias)
+- First-pilot path: [Your first architecture review](/help/core-pilot)
+
+**Out of scope for all V1-ready packs:** live Stripe/Marketplace checkout, CPA SOC 2, public reference customers, MCP, first-party Jira/ServiceNow/Teams/Slack connectors (V1.1 unless separately promoted).
+
+---
+
 ## Golden accelerator walkthrough — regulated SaaS procurement {#golden-accelerator-walkthrough-regulated-saas}
 
 Former standalone body: `docs/library/walkthroughs/GOLDEN_ACCELERATOR_WALKTHROUGH.md` → this section (filename kept as a path-stable alias for starter-pack choosers / first-pilot runbook). One canonical accelerator path after Core Pilot first finalize — regulated SaaS procurement pack (**TB-118**). Fictional names only.
@@ -1125,7 +1185,7 @@ Former standalone body: `docs/library/walkthroughs/GOLDEN_ACCELERATOR_WALKTHROUG
 
 - Finalized Core Pilot architecture package completed ([`CORE_PILOT.md`](../CORE_PILOT.md))
 - Pack: [`templates/starter-proof-packs/regulated-saas-soc-procurement/`](../../templates/starter-proof-packs/regulated-saas-soc-procurement/)
-- Chooser: [`templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md`](../../templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md)
+- Chooser: [`#accelerator-chooser`](#accelerator-chooser) (`ACCELERATOR_CHOOSER.md` alias) · pack-tree twin [`STARTER_PROOF_PACK_CHOOSER.md`](../../templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md)
 
 ### Steps
 
@@ -1162,5 +1222,6 @@ See [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAI
 | [#sample-package-funnel-id-matrix](#sample-package-funnel-id-matrix) · [SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md](SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md) (alias) | Sample-package funnel ID matrix (M-134) |
 | [#showcase-naming-hierarchy-m-135](#showcase-naming-hierarchy-m-135) · [SHOWCASE_NAMING_HIERARCHY.md](SHOWCASE_NAMING_HIERARCHY.md) (alias) | Showcase naming hierarchy + Contoso/Northwind matrix (M-135) |
 | [#demo-preview-route-contract-and-safety](#demo-preview-route-contract-and-safety) · [`DEMO_PREVIEW.md`](../library/DEMO_PREVIEW.md) (alias) | Anonymous `/demo/preview` route contract + cache/privacy |
+| [#accelerator-chooser](#accelerator-chooser) · [`ACCELERATOR_CHOOSER.md`](../library/ACCELERATOR_CHOOSER.md) (alias) | Starter proof pack chooser after Core Pilot |
 | [#golden-accelerator-walkthrough-regulated-saas](#golden-accelerator-walkthrough-regulated-saas) · [`GOLDEN_ACCELERATOR_WALKTHROUGH.md`](../library/walkthroughs/GOLDEN_ACCELERATOR_WALKTHROUGH.md) (alias) | Post–Core Pilot regulated SaaS accelerator (TB-118) |
 | [`#gtm-samples`](#gtm-samples) · [`samples/README.md`](samples/README.md) (alias) | Synthetic ARB DOCX/PDF samples + export how-to |

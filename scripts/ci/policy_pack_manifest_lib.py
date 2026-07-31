@@ -234,7 +234,7 @@ def render_dry_run_index_markdown(rows: list[dict[str, object]]) -> str:
             "",
             "## Related surfaces",
             "",
-            "- Starter proof packs (ZIP evidence path): [`ACCELERATOR_CHOOSER.md`](ACCELERATOR_CHOOSER.md)",
+            "- Starter proof packs (ZIP evidence path): [`DEMO_QUICKSTART.md#accelerator-chooser`](../go-to-market/DEMO_QUICKSTART.md#accelerator-chooser) (`ACCELERATOR_CHOOSER.md` alias)",
             "- Bundled default packs (tenant seed): [`DEFAULT_POLICY_PACKS_V1.md`](../go-to-market/DEFAULT_POLICY_PACKS_V1.md)",
             "- Metadata contract: [`POLICY_PACK_METADATA_CONTRACT.md`](POLICY_PACK_METADATA_CONTRACT.md)",
             "- First-pilot governance proof: [`../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md`](../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md)",

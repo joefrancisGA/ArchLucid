@@ -35,5 +35,5 @@ Each vertical template folder includes `policy-pack.json` with:
 ## Surfaces
 
 - Generated index: [`POLICY_PACK_DRY_RUN_INDEX.md`](POLICY_PACK_DRY_RUN_INDEX.md)
-- Starter packs (ZIP path): [`ACCELERATOR_CHOOSER.md`](ACCELERATOR_CHOOSER.md)
+- Starter packs (ZIP path): [`DEMO_QUICKSTART.md#accelerator-chooser`](../go-to-market/DEMO_QUICKSTART.md#accelerator-chooser) (`ACCELERATOR_CHOOSER.md` alias)
 - Bundled tenant defaults: [`DEFAULT_POLICY_PACKS_V1.md`](../go-to-market/DEFAULT_POLICY_PACKS_V1.md)
