@@ -116,6 +116,12 @@ export async function skipAllSocraticClarificationsInUi(page: Page, options?: { 
         const skipResponse = await skipResponsePromise;
 
         if (!skipResponse.ok()) {
+          if (skipResponse.status() === 429) {
+            // Extended-matrix shards share one API — backoff and let expect.poll retry.
+            await page.waitForTimeout(2_000);
+            return false;
+          }
+
           throw new Error(
             `Skip clarification failed ${skipResponse.status()}: ${(await skipResponse.text()).slice(0, 400)}`,
           );
