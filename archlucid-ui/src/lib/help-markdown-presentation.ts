@@ -1760,6 +1760,252 @@ export function stripPilotFeedbackContributorLeakage(markdown: string): string {
     .trimEnd();
 }
 
+/** H2 sections omitted from in-app policy-pack-delta help (scripts, CI rehearsal, GTM index). */
+const POLICY_PACK_DELTA_OMITTED_SECTION_PREFIXES = [
+  "local automation",
+  "policy-to-decision proof pilot",
+  "related",
+] as const;
+
+/**
+ * TB-1727 — drops script/CI/GTM appendix sections from in-app policy-pack-delta help.
+ */
+export function stripPolicyPackDeltaContributorSections(markdown: string): string {
+  const lines = markdown.split("\n");
+  const result: string[] = [];
+  let omitSection = false;
+
+  for (const line of lines) {
+    if (line.startsWith("## ") && !line.startsWith("###")) {
+      const title = line.slice(3).trim().toLowerCase();
+      omitSection = POLICY_PACK_DELTA_OMITTED_SECTION_PREFIXES.some((prefix) => title.startsWith(prefix));
+    }
+
+    if (!omitSection) {
+      result.push(line);
+    }
+  }
+
+  return result.join("\n");
+}
+
+function isPolicyPackDeltaContributorLeakageLine(line: string): boolean {
+  if (/\/v1\//i.test(line)) {
+    return true;
+  }
+
+  if (/demo-policy-pack-delta\.ps1/i.test(line)) {
+    return true;
+  }
+
+  if (/PreCommitGateEnabled/i.test(line)) {
+    return true;
+  }
+
+  if (/ArchLucid:/i.test(line)) {
+    return true;
+  }
+
+  if (/ReadAuthority|PolicyPackMutationAuthority|RequireAuditor/i.test(line)) {
+    return true;
+  }
+
+  if (/x-tenant-id|x-workspace-id|x-project-id/i.test(line)) {
+    return true;
+  }
+
+  if (/\bscripts\//i.test(line)) {
+    return true;
+  }
+
+  if (/dotnet test|npx vitest|FullyQualifiedName/i.test(line)) {
+    return true;
+  }
+
+  if (/tests\/fixtures\//i.test(line)) {
+    return true;
+  }
+
+  if (/artifacts\/policy-pack-delta/i.test(line)) {
+    return true;
+  }
+
+  if (/127\.0\.0\.1:5128/i.test(line)) {
+    return true;
+  }
+
+  if (/policy-ab-demo-fixture/i.test(line)) {
+    return true;
+  }
+
+  if (/PolicyAbDemoRegressionTests/i.test(line)) {
+    return true;
+  }
+
+  if (/PolicyPackBeforeAfterDiffDemoTests/i.test(line)) {
+    return true;
+  }
+
+  if (/\*\*Automation:\*\*/i.test(line)) {
+    return true;
+  }
+
+  if (/\*\*Pilot sequencing:\*\*/i.test(line)) {
+    return true;
+  }
+
+  if (/GTM_BACKLOG|QUOTE_TO_PROOF_PACKET|BUYER_SECURITY_PROCUREMENT|DIFFERENTIATION_PROOF_PACKET/i.test(line)) {
+    return true;
+  }
+
+  if (/LATEST_GPT55|assessments\//i.test(line)) {
+    return true;
+  }
+
+  if (/gateResult\.blocked|wouldBlockCommit|blockCommitMinimumSeverity|blockCommitOnCritical/i.test(line)) {
+    return true;
+  }
+
+  if (/policyPackContentJson|syntheticSeverity|syntheticCount|proposedThresholds|evaluateAgainstRunIds/i.test(line)) {
+    return true;
+  }
+
+  if (/^### API\b/i.test(line.trim())) {
+    return true;
+  }
+
+  if (/^```http\b/i.test(line.trim())) {
+    return true;
+  }
+
+  if (/^```powershell\b/i.test(line.trim())) {
+    return true;
+  }
+
+  if (/^\|\s*[-:| ]+\|\s*$/i.test(line.trim())) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * TB-1727 — policy-pack-delta help: strip HTTP/config/script/GUID leakage; UI-first Admin demo guide.
+ */
+export function stripPolicyPackDeltaContributorLeakage(markdown: string): string {
+  const sectionStripped = stripPolicyPackDeltaContributorSections(markdown);
+  const lines = sectionStripped.split("\n");
+  const result: string[] = [];
+  let inFence = false;
+  let fenceBuffer: string[] = [];
+  let fenceLanguage = "";
+  let omitApiSubsection = false;
+
+  const flushFenceBuffer = (): void => {
+    if (fenceBuffer.length === 0) {
+      return;
+    }
+
+    const block = fenceBuffer.join("\n");
+    fenceBuffer = [];
+
+    if (/^```http/i.test(block) || /\/v1\//i.test(block) || /demo-policy-pack-delta/i.test(block)) {
+      return;
+    }
+
+    for (const bufferedLine of block.split("\n")) {
+      result.push(bufferedLine);
+    }
+  };
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    const trimmedStart = line.trimStart();
+
+    if (/^### API\b/i.test(trimmed)) {
+      omitApiSubsection = true;
+      continue;
+    }
+
+    if (/^### /i.test(trimmed)) {
+      omitApiSubsection = false;
+    }
+
+    if (omitApiSubsection) {
+      continue;
+    }
+
+    if (trimmedStart.startsWith("```")) {
+      if (inFence) {
+        fenceBuffer.push(line);
+        flushFenceBuffer();
+        inFence = false;
+        fenceLanguage = "";
+        continue;
+      }
+
+      inFence = true;
+      fenceLanguage = trimmedStart.slice(3).trim().toLowerCase();
+      fenceBuffer = [line];
+
+      if (fenceLanguage === "http" || fenceLanguage === "powershell") {
+        fenceBuffer = [];
+        inFence = true;
+        continue;
+      }
+
+      continue;
+    }
+
+    if (inFence) {
+      if (fenceLanguage === "http" || fenceLanguage === "powershell") {
+        if (trimmedStart.startsWith("```")) {
+          inFence = false;
+          fenceLanguage = "";
+        }
+
+        continue;
+      }
+
+      fenceBuffer.push(line);
+      continue;
+    }
+
+    if (isPolicyPackDeltaContributorLeakageLine(line)) {
+      continue;
+    }
+
+    if (/^\| \*\*Committed run\*\*/i.test(line)) {
+      result.push(
+        "| **Committed run** | A finalized architecture review with a findings snapshot (demo workspace or your pilot run). |",
+      );
+      continue;
+    }
+
+    if (/^\| \*\*Scope headers\*\*/i.test(line)) {
+      continue;
+    }
+
+    result.push(line);
+  }
+
+  flushFenceBuffer();
+
+  return result
+    .join("\n")
+    .replace(/\b[a-f0-9]{32}\b/gi, "a-committed-review-run-id")
+    .replace(/`eb81dd4972ad429e8d4e214f9934bfc0`/gi, "a committed review run id")
+    .replace(/`?\{runId\}`?/gi, "the review run")
+    .replace(/`?\{tenantId\}`?/gi, "your tenant")
+    .replace(/`?\{workspaceId\}`?/gi, "your workspace")
+    .replace(/`?\{projectId\}`?/gi, "your project")
+    .replace(/`?\{token\}`?/gi, "your session")
+    .replace(/`?\{policyPackId\}`?/gi, "the policy pack")
+    .replace(/#governance-pre-commit-blocked/gi, "governance pre-commit block")
+    .replace(/\n{3,}/g, "\n\n")
+    .trimEnd();
+}
+
 export function stripPathChooserContributorLeakage(markdown: string): string {
   return markdown
     .replace(/> \*\*Start operators here:\*\*[^\n]*\n?/gi, "")
@@ -2049,6 +2295,11 @@ export function prepareHelpMarkdownForPresentation(
     normalizedSourcePath.includes("product_learning.md")
   ) {
     afterAudienceStrip = stripPilotFeedbackContributorLeakage(sanitized);
+  } else if (
+    options?.helpTopicSlug === "policy-pack-delta-demo" &&
+    normalizedSourcePath.includes("policy_pack_delta_demo_script.md")
+  ) {
+    afterAudienceStrip = stripPolicyPackDeltaContributorLeakage(sanitized);
   }
 
   const afterIsolationHonesty = alignDataHandlingIsolationHonesty(afterAudienceStrip);

@@ -510,7 +510,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1724 | Workspace-nav help — IA dual with core-pilot / first-hour | Adoption friction P1 **V1** — with **TB-1721** |
 | TB-1725 | Workspace-nav help — Related density + executive-shell copy honesty | Adoption friction P1 **V1** — with **TB-1721** |
 | TB-1726 | `/help/policy-pack-delta-demo` specialty Admin demo guide + Open policy-packs CTA | Adoption friction P1 **V1** — POL ~38 |
-| TB-1727 | Policy-pack-delta help — HTTP/config/script/GUID leakage strip | Trustworthiness P0 **V1** — with **TB-1726** |
 | TB-1728 | Policy-pack-delta help — title honesty | Trustworthiness P1 **V1** — with **TB-1726** |
 | TB-1729 | Policy-pack-delta help — IA dual with governance-approval / alerts | Adoption friction P1 **V1** — with **TB-1726** |
 | TB-1730 | Policy-pack-delta help — 5-min arc first-viewport before Phase dump | Adoption friction P1 **V1** — with **TB-1726** |

@@ -1,4 +1,4 @@
-**Updated:** 2026-07-30 (**TB-1717** **Done** — pilot-feedback help strips API/SQL/StorageProvider/Swagger leakage; UI-first Admin guide; Vitest). Prior: 2026-07-30 (**TB-1712** **Done** — path-chooser help strips GTM/runbook `.md` and `artifacts/` leakage; in-app trust links; Vitest).
+**Updated:** 2026-07-30 (**TB-1727** **Done** — policy-pack-delta help strips HTTP/config/script/GUID leakage; UI-first Admin demo guide; Vitest). Prior: 2026-07-30 (**TB-1717** **Done** — pilot-feedback help strips API/SQL/StorageProvider/Swagger leakage; UI-first Admin guide; Vitest).
 
 > **Scope:** Engineering-owned technical backlog items deferred from current sessions; audience is contributors and the AI assistant; not a buyer or operator document. Not a substitute for ADRs or the pending-questions owner decisions file.
 
@@ -1295,7 +1295,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1724 | Workspace-nav help — IA dual with core-pilot / first-hour; see ## TB-1724 below | Adoption friction P1 — **V1**; with **TB-1721**; pairs **TB-1374** | S |
 | TB-1725 | Workspace-nav help — Related density + executive-shell copy honesty; see ## TB-1725 below | Adoption friction P1 — **V1**; with **TB-1721** | S |
 | TB-1726 | `/help/policy-pack-delta-demo` specialty Admin demo guide + Open policy-packs CTA; see ## TB-1726 below | Adoption friction P1 — **V1**; owner review ~38/100 2026-07-27; traffic **POL**; internal-runbook; pairs **TB-1414** | M |
-| TB-1727 | Policy-pack-delta help — HTTP/config/script/GUID leakage strip; see ## TB-1727 below | Trustworthiness P0 — **V1**; with **TB-1726**; pairs **TB-1235** | S |
+| TB-1727 | **Done** (2026-07-30) — Policy-pack-delta help — HTTP/config/script/GUID leakage strip; see `## TB-1727` below | Trustworthiness P0 — **V1**; with **TB-1726**; pairs **TB-1235** | S |
 | TB-1728 | Policy-pack-delta help — title honesty (demo script vs in-app help); see ## TB-1728 below | Trustworthiness P1 — **V1**; with **TB-1726** | S |
 | TB-1729 | Policy-pack-delta help — IA dual with governance-approval / alerts; see ## TB-1729 below | Adoption friction P1 — **V1**; with **TB-1726** | S |
 | TB-1730 | Policy-pack-delta help — 5-min arc first-viewport before Phase dump; see ## TB-1730 below | Adoption friction P1 — **V1**; with **TB-1726** | S |
@@ -42498,7 +42498,9 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1727 — Policy-pack-delta help — HTTP/config/script/GUID leakage strip (P0)
 
-**Window:** V1 — Trustworthiness. **Status:** Not started. **Priority:** P0.
+**Window:** V1 — Trustworthiness. **Status:** **Done** (2026-07-30). **Priority:** P0.
+
+**Shipped:** `stripPolicyPackDeltaContributorLeakage()` in `help-markdown-presentation.ts` — omits local automation / pilot run-sheet / related GTM sections; drops HTTP fences, script paths, config keys, authority enums, sample GUIDs; keeps UI phase talk-track; Vitest in `help-markdown-presentation.test.tsx` + `HelpTopicPolicyPackDeltaDemo.test.tsx`.
 
 **Problem:** Body exposes raw HTTP POST bodies, host config keys, PowerShell demo script paths, example run GUIDs, authority enum names — eng theater even for Admin help.
 

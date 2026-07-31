@@ -24,6 +24,7 @@ import {
   stripFirstValue20ContributorLeakage,
   stripPathChooserContributorLeakage,
   stripPilotFeedbackContributorLeakage,
+  stripPolicyPackDeltaContributorLeakage,
   stripAcceleratorChooserContributorLeakage,
   stripAcceleratorChooserContributorSections,
   stripAzureBoardsContributorLeakage,
@@ -867,6 +868,48 @@ describe("help-markdown-presentation", () => {
     expect(prepared).toContain("trusted");
     expect(prepared).toContain("/product-learning");
     expect(prepared).toContain("planning bridge");
+  });
+
+  it("strips policy-pack-delta HTTP/config/script/GUID leakage (TB-1727)", () => {
+    const source = [
+      "**Automation:** [`scripts/demo-policy-pack-delta.ps1`](../../scripts/demo-policy-pack-delta.ps1).",
+      "",
+      "Enable **`ArchLucid:Governance:PreCommitGateEnabled=true`** on the host.",
+      "",
+      "Example run: `eb81dd4972ad429e8d4e214f9934bfc0`.",
+      "",
+      "### API",
+      "",
+      "```http",
+      "GET /v1/policy-packs/effective",
+      "```",
+    ].join("\n");
+
+    const prepared = stripPolicyPackDeltaContributorLeakage(source);
+
+    expect(prepared).not.toContain("demo-policy-pack-delta");
+    expect(prepared).not.toContain("PreCommitGateEnabled");
+    expect(prepared).not.toContain("/v1/");
+    expect(prepared).not.toContain("eb81dd4972ad429e8d4e214f9934bfc0");
+  });
+
+  it("keeps presented policy-pack-delta help UI-first (TB-1727)", () => {
+    const loaded = tryLoadProductDocumentation("policy-pack-delta-demo");
+
+    expect(loaded).not.toBeNull();
+
+    const sourcePath = loaded!.entry.sourcePaths[0] ?? "";
+    const prepared = prepareHelpMarkdownForPresentation(loaded!.markdown, sourcePath, {
+      helpTopicSlug: "policy-pack-delta-demo",
+    }).toLowerCase();
+
+    expect(prepared).not.toContain("demo-policy-pack-delta");
+    expect(prepared).not.toContain("precommitgateenabled");
+    expect(prepared).not.toContain("/v1/");
+    expect(prepared).not.toContain("readauthority");
+    expect(prepared).not.toContain("eb81dd4972ad429e8d4e214f9934bfc0");
+    expect(prepared).toContain("policy packs");
+    expect(prepared).toContain("/policy-packs");
   });
 
   it("strips eng CLI, Evidence tier, and JwtBearer from enterprise onboarding (TB-1339)", () => {
