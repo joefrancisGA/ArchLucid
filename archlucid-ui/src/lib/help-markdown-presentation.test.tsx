@@ -27,6 +27,7 @@ import {
   stripPolicyPackDeltaContributorLeakage,
   stripPriorManifestRetrievalContributorLeakage,
   stripProductOverviewContributorLeakage,
+  stripSoc2SelfAssessmentContributorLeakage,
   stripAcceleratorChooserContributorLeakage,
   stripAcceleratorChooserContributorSections,
   stripAzureBoardsContributorLeakage,
@@ -990,6 +991,50 @@ describe("help-markdown-presentation", () => {
     expect(prepared).not.toContain("elevator_pitch.md");
     expect(prepared).toContain("core value pillars");
     expect(prepared).toContain("architecture package");
+  });
+
+  it("strips SOC2 self-assessment contributor repo paths (TB-1747)", () => {
+    const source = [
+      "> **Spine doc:** [`START_HERE.md`](../START_HERE.md).",
+      "",
+      "| Security — logical access | Entra; `AuthSafetyGuard`; [`AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md) | Partial |",
+      "",
+      "| G-002 | pen test | Security | V2 | **Open** — [`pen-test-summaries/2026-Q2-SOW.md`](pen-test-summaries/2026-Q2-SOW.md) |",
+      "",
+      "## Related",
+      "",
+      "- [`COMPLIANCE_MATRIX.md`](COMPLIANCE_MATRIX.md)",
+    ].join("\n");
+
+    const prepared = stripSoc2SelfAssessmentContributorLeakage(source);
+
+    expect(prepared).not.toContain("START_HERE");
+    expect(prepared).not.toContain("AuthSafetyGuard");
+    expect(prepared).not.toContain("AUDIT_COVERAGE_MATRIX");
+    expect(prepared).not.toContain("pen-test-summaries");
+    expect(prepared).not.toContain("COMPLIANCE_MATRIX");
+    expect(prepared).toContain("product audit log");
+  });
+
+  it("keeps presented SOC2 self-assessment help buyer-safe (TB-1747)", () => {
+    const loaded = tryLoadProductDocumentation("soc2-self-assessment");
+
+    expect(loaded).not.toBeNull();
+
+    const sourcePath = loaded!.entry.sourcePaths[0] ?? "";
+    const prepared = prepareHelpMarkdownForPresentation(loaded!.markdown, sourcePath, {
+      helpTopicSlug: "soc2-self-assessment",
+    }).toLowerCase();
+
+    expect(prepared).not.toContain("start_here");
+    expect(prepared).not.toContain("authsafetyguard");
+    expect(prepared).not.toContain("codeql");
+    expect(prepared).not.toContain("audit_coverage_matrix");
+    expect(prepared).not.toContain("v1_deferred");
+    expect(prepared).not.toContain("pen-test-summaries");
+    expect(prepared).not.toContain("compliance_matrix");
+    expect(prepared).toContain("self-assessment");
+    expect(prepared).toContain("/help/caiq-sig-response");
   });
 
   it("strips eng CLI, Evidence tier, and JwtBearer from enterprise onboarding (TB-1339)", () => {

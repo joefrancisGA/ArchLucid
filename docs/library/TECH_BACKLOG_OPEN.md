@@ -519,7 +519,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1735 | Prior-manifest help — Related + finalize-success inbound copy | Adoption friction P1 **V1** — with **TB-1731** |
 | TB-1736 | `/help/product-overview` specialty buyer overview + Start CTA | Adoption friction P1 **V1** — HPR ~42 |
 | TB-1737 | Product-overview help — title honesty (sponsor brief vs product overview) | Trustworthiness P1 **V1** — with **TB-1736** |
-| TB-1738 | Product-overview help — eng/GTM path + type leakage strip | Trustworthiness P0 **V1** — with **TB-1736** |
 | TB-1739 | Product-overview help — IA dual with executive-summary / path-chooser | Adoption friction P1 **V1** — with **TB-1736** |
 | TB-1740 | Product-overview help — elevator/M-18 outreach dump vs overview job | Adoption friction P1 **V1** — with **TB-1736** |
 | TB-1741 | `/help/report-a-problem` specialty support guide + Open Settings Support CTA | Adoption friction P1 **V1** — HRE ~55 |

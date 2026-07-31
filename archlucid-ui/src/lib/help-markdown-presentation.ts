@@ -2284,6 +2284,152 @@ export function stripProductOverviewContributorLeakage(markdown: string): string
     .trimEnd();
 }
 
+/** H2 sections omitted from in-app SOC 2 self-assessment help (contributor/GTM index). */
+const SOC2_SELF_ASSESSMENT_OMITTED_SECTION_PREFIXES = ["related", "pending questions"] as const;
+
+/**
+ * TB-1747 — drops contributor Related / Pending Questions sections from SOC 2 self-assessment help.
+ */
+export function stripSoc2SelfAssessmentContributorSections(markdown: string): string {
+  const lines = markdown.split("\n");
+  const result: string[] = [];
+  let omitSection = false;
+
+  for (const line of lines) {
+    if (line.startsWith("## ") && !line.startsWith("###")) {
+      const title = line.slice(3).trim().toLowerCase();
+      omitSection = SOC2_SELF_ASSESSMENT_OMITTED_SECTION_PREFIXES.some((prefix) => title.startsWith(prefix));
+    }
+
+    if (!omitSection) {
+      result.push(line);
+    }
+  }
+
+  return result.join("\n");
+}
+
+function isSoc2SelfAssessmentContributorLeakageLine(line: string): boolean {
+  if (/START_HERE\.md/i.test(line)) {
+    return true;
+  }
+
+  if (/Spine doc:/i.test(line)) {
+    return true;
+  }
+
+  if (/AUDIT_COVERAGE_MATRIX/i.test(line)) {
+    return true;
+  }
+
+  if (/ADR 0037/i.test(line)) {
+    return true;
+  }
+
+  if (/AuthSafetyGuard/i.test(line)) {
+    return true;
+  }
+
+  if (/CodeQL/i.test(line)) {
+    return true;
+  }
+
+  if (/Terraform/i.test(line)) {
+    return true;
+  }
+
+  if (/V1_DEFERRED/i.test(line)) {
+    return true;
+  }
+
+  if (/pen-test-summaries/i.test(line)) {
+    return true;
+  }
+
+  if (/SecurityAssessmentPublished/i.test(line)) {
+    return true;
+  }
+
+  if (/COMPLIANCE_MATRIX/i.test(line)) {
+    return true;
+  }
+
+  if (/ASSURANCE_STATUS_CANONICAL/i.test(line)) {
+    return true;
+  }
+
+  if (/CAIQ_LITE_2026|SIG_CORE_2026/i.test(line)) {
+    return true;
+  }
+
+  if (/Schemathesis|OWASP ZAP/i.test(line)) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * TB-1747 — SOC 2 self-assessment help: strip contributor repo paths and eng control names; buyer-safe summary.
+ */
+export function stripSoc2SelfAssessmentContributorLeakage(markdown: string): string {
+  const sectionStripped = stripSoc2SelfAssessmentContributorSections(markdown);
+  const lines = sectionStripped.split("\n");
+  const result: string[] = [];
+
+  for (const line of lines) {
+    if (/^\| G-002 \|/i.test(line)) {
+      result.push(
+        "| G-002 | Third-party pen-test redacted summary not yet published | Security | Execute vendor programme when funded | **Open** — V1 uses owner-conducted testing; independent third-party publication when a funded programme completes (not CPA SOC 2 attestation) |",
+      );
+      continue;
+    }
+
+    if (/^\| G-003 \|/i.test(line)) {
+      result.push(
+        "| G-003 | CAIQ / SIG not pre-filled | Security | Publish alongside trust center | **Closed (artifacts)** — [CAIQ / SIG questionnaire responses](/help/caiq-sig-response) |",
+      );
+      continue;
+    }
+
+    if (/^\| Security — logical access \|/i.test(line)) {
+      result.push(
+        "| Security — logical access | Entra / JWT roles, API keys, RBAC policies; privileged operations recorded in the product audit log | Partial |",
+      );
+      continue;
+    }
+
+    if (/^\| Security — data protection \|/i.test(line)) {
+      result.push(
+        "| Security — data protection | Database-per-tenant catalogs with defense-in-depth; private endpoint posture in hosted deployments | Partial |",
+      );
+      continue;
+    }
+
+    if (/^\| Security — secure SDLC \|/i.test(line)) {
+      result.push(
+        "| Security — secure SDLC | Automated security testing in CI (static analysis, contract tests, unit/integration tiers) | Strong |",
+      );
+      continue;
+    }
+
+    if (isSoc2SelfAssessmentContributorLeakageLine(line)) {
+      continue;
+    }
+
+    if (/^> \*\*Scope:\*\*/i.test(line.trim())) {
+      result.push(
+        "> **Scope:** SOC 2 Trust Services Criteria — **self-assessment only** (not CPA attestation). CAIQ/SIG pre-fills are available; Type I scoping remains a **readiness planning** milestone (not yet an opinion).",
+      );
+      continue;
+    }
+
+    result.push(line);
+  }
+
+  return result.join("\n").replace(/\n{3,}/g, "\n\n").trimEnd();
+}
+
 export function stripPathChooserContributorLeakage(markdown: string): string {
   return markdown
     .replace(/> \*\*Start operators here:\*\*[^\n]*\n?/gi, "")
@@ -2588,6 +2734,11 @@ export function prepareHelpMarkdownForPresentation(
     normalizedSourcePath.includes("executive_sponsor_brief.md")
   ) {
     afterAudienceStrip = stripProductOverviewContributorLeakage(sanitized);
+  } else if (
+    options?.helpTopicSlug === "soc2-self-assessment" &&
+    normalizedSourcePath.includes("soc2_self_assessment_2026.md")
+  ) {
+    afterAudienceStrip = stripSoc2SelfAssessmentContributorLeakage(sanitized);
   }
 
   const afterIsolationHonesty = alignDataHandlingIsolationHonesty(afterAudienceStrip);
