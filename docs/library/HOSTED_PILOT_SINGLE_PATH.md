@@ -68,5 +68,5 @@ When attaching sponsor packet evidence for a named environment run:
 ## Related
 
 - [`customer-facing/PILOT_GUIDE.md`](customer-facing/PILOT_GUIDE.md) — redirect spine
-- [`MINIMUM_VIABLE_PILOT_SUCCESS.md`](MINIMUM_VIABLE_PILOT_SUCCESS.md) — five-step buyer success lane
+- [`PILOT_SUCCESS_SCORECARD.md#minimum-viable-pilot-success-lane`](../go-to-market/PILOT_SUCCESS_SCORECARD.md#minimum-viable-pilot-success-lane) (`MINIMUM_VIABLE_PILOT_SUCCESS.md` alias) — five-step buyer success lane
 - [`EXECUTIVE_SPONSOR_BRIEF.md`](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md) — sponsor narrative of record

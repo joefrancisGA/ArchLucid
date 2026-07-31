@@ -79,6 +79,6 @@ This checkpoint prevents ceremony completion without value signal — the most c
 | Path | When to use instead |
 | --- | --- |
 | [`FIRST_HOUR_OPERATOR_PATH.md`](FIRST_HOUR_OPERATOR_PATH.md) | New tenant operator — four-step first hour |
-| [`MINIMUM_VIABLE_PILOT_SUCCESS.md`](MINIMUM_VIABLE_PILOT_SUCCESS.md) | Naive operator — five-step guided intake |
+| [`PILOT_SUCCESS_SCORECARD.md#minimum-viable-pilot-success-lane`](../go-to-market/PILOT_SUCCESS_SCORECARD.md#minimum-viable-pilot-success-lane) (`MINIMUM_VIABLE_PILOT_SUCCESS.md` alias) | Naive operator — five-step guided intake |
 | [`HOSTED_PILOT_SINGLE_PATH.md`](HOSTED_PILOT_SINGLE_PATH.md) | Platform engineer — strict RC script path |
 | [`CANONICAL_FIRST_RUN_PATH.md`](CANONICAL_FIRST_RUN_PATH.md) | Full pilot with proof scripts and sponsor-send gates |

@@ -1,6 +1,6 @@
-> **Reviewed:** 2026-07-27
+> **Reviewed:** 2026-07-31
 
-> **Scope:** ArchLucid pilot success scorecard — full detail, tables, and links below — plus the steering / ARB decision memo template (formerly `STEERING_DECISION_MEMO_TEMPLATE.md`), the customer onboarding operating playbook (formerly `CUSTOMER_ONBOARDING_PLAYBOOK.md`), the pilot ROI measurement model (formerly the body of `docs/library/PILOT_ROI_MODEL.md`; that filename remains a path-stable alias for product/CI strings), and the renewal/expansion playbook plus customer health scoring (formerly the body of `RENEWAL_EXPANSION_PLAYBOOK.md`; that filename remains a path-stable alias).
+> **Scope:** ArchLucid pilot success scorecard — full detail, tables, and links below — plus the steering / ARB decision memo template (formerly `STEERING_DECISION_MEMO_TEMPLATE.md`), the customer onboarding operating playbook (formerly `CUSTOMER_ONBOARDING_PLAYBOOK.md`), the pilot ROI measurement model (formerly the body of `docs/library/PILOT_ROI_MODEL.md`; that filename remains a path-stable alias for product/CI strings), the renewal/expansion playbook plus customer health scoring (formerly the body of `RENEWAL_EXPANSION_PLAYBOOK.md`; that filename remains a path-stable alias), and the minimum viable pilot success lane (formerly the body of `docs/library/MINIMUM_VIABLE_PILOT_SUCCESS.md`; that filename remains a path-stable alias for operator cookbooks).
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -9,7 +9,7 @@
 
 **Audience:** Pilot champions, architecture team leads, and sales engineers who need to measure whether a pilot succeeded — and present the results to leadership for a purchase decision.
 
-**Last reviewed:** 2026-07-27
+**Last reviewed:** 2026-07-31
 
 **Grounding rule:** Metrics reference shipped V1 capabilities per [V1_SCOPE.md](../library/V1_SCOPE.md) and existing data collection per [PRODUCT_LEARNING.md](../library/PRODUCT_LEARNING.md).
 
@@ -24,6 +24,61 @@
 ## 1. Purpose
 
 This scorecard defines **what to measure, when to measure it, and what "good" looks like** during an ArchLucid pilot. Use it alongside the [ROI_MODEL.md](ROI_MODEL.md) to translate pilot results into a business case.
+
+---
+
+## Minimum viable pilot success lane {#minimum-viable-pilot-success-lane}
+
+Former standalone body: `docs/library/MINIMUM_VIABLE_PILOT_SUCCESS.md` → this section (filename kept as a path-stable alias for operator cookbooks / Improvement #8). Complements [Customer onboarding operating playbook](#customer-onboarding-operating-playbook). Does **not** replace KEEP [`PILOT_ACCEPTANCE_THRESHOLDS.md`](PILOT_ACCEPTANCE_THRESHOLDS.md).
+
+**Path-stable alias:** [`../library/MINIMUM_VIABLE_PILOT_SUCCESS.md`](../library/MINIMUM_VIABLE_PILOT_SUCCESS.md).
+
+**Last reviewed:** 2026-07-31
+
+This lane minimizes decisions and produces a **finalized architecture package** plus **sponsor-safe proof artifacts**. Optional paths (real AOAI, full RC evidence bundle, custom integrations) come **after** this baseline passes.
+
+### Prerequisites (one-time)
+
+| Step | Command / doc | Pass criterion |
+| --- | --- | --- |
+| API reachable | `dotnet run --project ArchLucid.Cli -- doctor` | Connected + schema OK |
+| SQL configured | `ConnectionStrings:ArchLucid` documented in run notes | `/health/ready` includes database healthy |
+| Architect login | [OPERATOR_QUICKSTART.md](../library/customer-facing/OPERATOR_QUICKSTART.md) | Can open architect workspace |
+
+### The five-step lane (first-time architect — guided intake recommended)
+
+1. **Guided intake** — open `/reviews/new`, use **Guided intake (recommended)**, enter intent/outcome/actors, admit the draft, answer or skip MUST questions, submit to spawn a review. Capture `runId`.
+2. **Execute** — `POST /v1/architecture/run/{runId}/execute` (or UI equivalent) to ready-to-finalize state.
+3. **Finalize** — finalize architecture package (API: `commit` / golden manifest); confirm `goldenManifestId` on review detail.
+4. **Artifacts** — `GET /v1/artifacts/manifests/{manifestId}` returns ≥ 1 descriptor.
+5. **Proof packet** — `dotnet run --project ArchLucid.Cli -- pilot proof-packet <runId> --out artifacts/proof-packet/<runId>`; read `sponsor-proof-packet-index.md` and `limitations.md`.
+
+**Expert/API shortcut:** `POST /v1/architecture/request` remains valid when the architect already has a complete brief.
+
+**Time budget (lane):** first-value timing targets PASS ≤ 10 minutes create→finalize→artifact per `V1_RELEASE_CHECKLIST.md`. That is the **operator first-win** gate for this lane — complementary to §2.4 operational metrics (**Average run duration** < 5 min target; **Wizard-to-finalize** aspirational p50 ≤ 15 min), not a substitute for those scorecard rows.
+
+### Strict verification (recommended before sponsor handoff)
+
+| Gate | Command | Notes |
+| --- | --- | --- |
+| Release smoke (RC profile) | `.\scripts\release-smoke-rc.ps1 -ResultOut artifacts/release-smoke/result.json` | Requires SQL + Node; proves live UI↔SQL parity |
+| Strict RC evidence | `.\scripts\Invoke-FirstPilotStrictPath.ps1` | Default for release candidates — non-strict is preliminary only |
+| Readiness (fast) | `.\scripts\run-readiness-check.ps1` | Use when SQL not wired yet |
+
+### Explicit non-goals for this lane
+
+- Real Azure OpenAI / PilotStrict real-mode evidence (see [FIRST_REAL_VALUE.md](../library/FIRST_REAL_VALUE.md) as a **second** lane).
+- Full merge-blocking SQL regression (CI job — not required for first local win).
+- Commerce checkout or reference-customer publication.
+
+### When the lane fails
+
+Copy the **`--- FAILURE (triage) ---`** block from the failing script ([PILOT_GUIDE.md](../library/customer-facing/PILOT_GUIDE.md#when-you-report-an-issue)) and include `GET /version` + correlation id.
+
+### Related (minimum viable lane)
+
+- V1 scope core path: [V1_SCOPE.md](../library/V1_SCOPE.md) §4
+- Differentiator talking points: [DIFFERENTIATION_PROOF_PACKET.md](DIFFERENTIATION_PROOF_PACKET.md#deal-cycle-heuristic-matrix)
 
 ---
 
@@ -755,6 +810,7 @@ If a customer churns:
 
 | Doc | Use |
 |-----|-----|
+| [`#minimum-viable-pilot-success-lane`](#minimum-viable-pilot-success-lane) · [`../library/MINIMUM_VIABLE_PILOT_SUCCESS.md`](../library/MINIMUM_VIABLE_PILOT_SUCCESS.md) (alias) | Five-step operator first-win lane |
 | [`#pilot-roi-measurement`](#pilot-roi-measurement) · [`../library/PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md) (alias) | Pilot measurement companion (formerly standalone) |
 | [ROI_MODEL.md](ROI_MODEL.md) | Fill in with actual pilot numbers to calculate ROI (includes operational cost guide) |
 | [BUYER_PERSONAS.md](BUYER_PERSONAS.md) | Which persona presents the report (Section 6) and to whom |
