@@ -13,7 +13,12 @@ import {
   presentCostEvidenceFreshness,
   presentExecutiveKpiCount,
 } from "@/lib/executive-roi-kpi-display";
-import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_KPI_CARD_TITLE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  OPERATOR_KPI_CARD_DESCRIPTION,
+  OPERATOR_KPI_CARD_TITLE,
+  OPERATOR_LINK,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
 import {
   buildExecutiveServerSavingsSummary,
   resolveRunSavingsUsd,
@@ -111,9 +116,9 @@ export function ExecutiveDashboardPrimaryMetricsSection(
           <CardContent>
             <Link
               href={EXECUTIVE_KPI_DRILL_THROUGH.decisionsNeeded}
-              className="block rounded-sm no-underline outline-none transition-shadow hover:ring-2 hover:ring-primary/30 focus-visible:ring-2 focus-visible:ring-primary/40"
+              className="block rounded-sm outline-none transition-shadow hover:ring-2 hover:ring-primary/30 focus-visible:ring-2 focus-visible:ring-primary/40"
             >
-              <p className={OPERATOR_TYPOGRAPHY.executiveDashboardMetric}>{decisionsNeeded.display}</p>
+              <p className={cn(OPERATOR_TYPOGRAPHY.executiveDashboardMetric, OPERATOR_LINK.nav)}>{decisionsNeeded.display}</p>
             </Link>
           </CardContent>
         </Card>
@@ -130,13 +135,13 @@ export function ExecutiveDashboardPrimaryMetricsSection(
           <CardContent className={cn("space-y-2", OPERATOR_TYPOGRAPHY.body)}>
             <div className="flex items-baseline justify-between gap-2">
               <span className="text-neutral-600 dark:text-neutral-400">{v.staleArchitectureRisksMetric.title}</span>
-              <Link href={EXECUTIVE_KPI_DRILL_THROUGH.staleArchitectureRisks} className="font-semibold tabular-nums text-al-text-primary underline-offset-2 hover:underline">
+              <Link href={EXECUTIVE_KPI_DRILL_THROUGH.staleArchitectureRisks} className={cn(OPERATOR_LINK.nav, "shrink-0 tabular-nums")}>
                 {staleRisks.display}
               </Link>
             </div>
             <div className="flex items-baseline justify-between gap-2">
               <span className="text-neutral-600 dark:text-neutral-400">{v.expiringWaiversMetric.title}</span>
-              <Link href={EXECUTIVE_KPI_DRILL_THROUGH.expiringWaivers} className="font-semibold tabular-nums text-al-text-primary underline-offset-2 hover:underline">
+              <Link href={EXECUTIVE_KPI_DRILL_THROUGH.expiringWaivers} className={cn(OPERATOR_LINK.nav, "shrink-0 tabular-nums")}>
                 {expiringWaivers.display}
               </Link>
             </div>
@@ -170,9 +175,9 @@ export function ExecutiveDashboardPrimaryMetricsSection(
           <CardContent>
             <Link
               href={EXECUTIVE_KPI_DRILL_THROUGH.costEvidenceFreshness}
-              className="block rounded-sm no-underline outline-none transition-shadow hover:ring-2 hover:ring-primary/30 focus-visible:ring-2 focus-visible:ring-primary/40"
+              className="block rounded-sm outline-none transition-shadow hover:ring-2 hover:ring-primary/30 focus-visible:ring-2 focus-visible:ring-primary/40"
             >
-              <p className="text-2xl font-semibold tabular-nums text-al-text-primary">{costFreshness.display}</p>
+              <p className={cn("text-2xl font-semibold tabular-nums", OPERATOR_LINK.nav)}>{costFreshness.display}</p>
             </Link>
             {costFreshness.footnote ? (
               <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>{costFreshness.footnote}</p>

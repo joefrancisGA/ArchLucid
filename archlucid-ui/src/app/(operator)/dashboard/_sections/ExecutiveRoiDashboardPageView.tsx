@@ -5,7 +5,6 @@ import { ExecutiveDashboardDataProvider, useExecutiveDashboardData } from "@/com
 import { ExecutiveDashboardEmptyState } from "@/components/executive/ExecutiveDashboardEmptyState";
 import { ExecutiveDashboardHowItWorks } from "@/components/executive/ExecutiveDashboardHowItWorks";
 import { ExecutiveDashboardPageHero } from "@/components/executive/ExecutiveDashboardPageHero";
-import { ExecutiveDashboardPreviewMetricCards } from "@/components/executive/ExecutiveDashboardPreviewMetricCards";
 import { ExecutiveDashboardSampleWorkspaceBanner } from "@/components/executive/ExecutiveDashboardSampleWorkspaceBanner";
 import { OperatorWelcomeOnboarding } from "@/components/OperatorWelcomeOnboarding";
 import type { ExecutiveTimeRange } from "@/lib/executive-time-range";
@@ -71,7 +70,6 @@ function ExecutiveRoiDashboardPortfolioSections({
 
       {dashboardEmpty ? (
         <>
-          <ExecutiveDashboardPreviewMetricCards />
           <ExecutiveDashboardEmptyState />
           <ExecutiveDashboardHowItWorks />
         </>
@@ -86,7 +84,9 @@ function ExecutiveRoiDashboardPortfolioSections({
         </>
       )}
 
-      <SponsorExportsSection surface={surface} hasCommittedReviews={hasCommittedReviews} />
+      {hasCommittedReviews ? (
+        <SponsorExportsSection surface={surface} hasCommittedReviews={hasCommittedReviews} />
+      ) : null}
 
       {hasCommittedReviews ? (
         <section aria-labelledby="executive-findings-heading" className="space-y-4">

@@ -160,6 +160,7 @@ export const BUYER_EXECUTIVE_SUMMARY_VOCABULARY = {
   sampleWorkspaceBannerDescription:
     "Figures below come from the demonstration workspace — not your production inventory.",
   nextActionSectionTitle: "Next action",
+  nextActionLinkLabel: "Take action",
   primaryMetricsSectionTitle: "At a glance",
   primaryMetricsSectionSrOnly: "Risk posture, ROI impact, and governance readiness",
   supportingMetricsSectionTitle: "Supporting metrics and trends",

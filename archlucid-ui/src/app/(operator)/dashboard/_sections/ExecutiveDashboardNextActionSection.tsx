@@ -76,11 +76,8 @@ export function ExecutiveDashboardNextActionSection(
       <CardContent className="space-y-2">
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{action.headline}</p>
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{action.explanation}</p>
-        <Link
-          href={action.href}
-          className={cn("inline-flex", OPERATOR_LINK.inline)}
-        >
-          {action.headline}
+        <Link href={action.href} className={cn("inline-flex", OPERATOR_LINK.inline)} data-testid="executive-dashboard-next-action-link">
+          {v.nextActionLinkLabel}
         </Link>
       </CardContent>
     </Card>

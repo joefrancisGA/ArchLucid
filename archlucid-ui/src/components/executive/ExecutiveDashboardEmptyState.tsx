@@ -7,7 +7,7 @@ import { SeedSampleReviewButton } from "@/components/SeedSampleReviewButton";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-/** Compact empty state when portfolio metrics are not yet populated — primary actions live here. */
+/** Compact empty state when portfolio metrics are not yet populated — header owns Start. */
 export function ExecutiveDashboardEmptyState(): React.JSX.Element {
   const v = BUYER_EXECUTIVE_SUMMARY_VOCABULARY;
 
@@ -17,9 +17,6 @@ export function ExecutiveDashboardEmptyState(): React.JSX.Element {
         title={v.emptyStateTitle}
         description={v.emptyStateDescription}
         testId="executive-dashboard-empty-state"
-        actions={[
-          { label: v.emptyStatePrimaryAction, href: "/reviews/new", variant: "primary" },
-        ]}
         footer={
           <div className="flex w-full flex-col gap-2">
             <div className="flex flex-col gap-1">

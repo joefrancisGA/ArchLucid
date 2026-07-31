@@ -10,7 +10,7 @@ vi.mock("@/components/SeedSampleReviewButton", () => ({
 import { ExecutiveDashboardEmptyState } from "@/components/executive/ExecutiveDashboardEmptyState";
 
 describe("ExecutiveDashboardEmptyState", () => {
-  it("renders empty copy with review-package actions and sample helper", () => {
+  it("renders copy-only empty with sample and reviews links — no second Start", () => {
     const vocabulary = BUYER_EXECUTIVE_SUMMARY_VOCABULARY;
 
     render(<ExecutiveDashboardEmptyState />);
@@ -18,7 +18,7 @@ describe("ExecutiveDashboardEmptyState", () => {
     expect(screen.getByTestId("executive-dashboard-empty-state")).toBeInTheDocument();
     expect(screen.getByText(vocabulary.emptyStateTitle)).toBeInTheDocument();
     expect(screen.getByText(vocabulary.emptyStateDescription)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: vocabulary.emptyStatePrimaryAction })).toHaveAttribute("href", "/reviews/new");
+    expect(screen.queryByRole("link", { name: vocabulary.emptyStatePrimaryAction })).toBeNull();
     expect(screen.getByRole("button", { name: vocabulary.emptyStateSecondaryAction })).toBeInTheDocument();
     expect(screen.getByText(vocabulary.emptyStateSecondaryHelper)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: vocabulary.emptyStateTertiaryAction })).toHaveAttribute("href", "/reviews");
