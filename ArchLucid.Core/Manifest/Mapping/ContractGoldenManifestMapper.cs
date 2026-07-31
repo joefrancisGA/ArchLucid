@@ -54,7 +54,12 @@ public static class ContractGoldenManifestMapper
             RuleSetHash = keying.RuleSetHash,
             Metadata = new ManifestMetadata
             {
-                Name = contract.SystemName, Version = contract.Metadata.ManifestVersion, Status = "Draft", Summary = contract.Metadata.ChangeDescription
+                // Contract-only saves (no authorityPersistBody) are the committed-chain path
+                // (demo/replay PersistCommittedChain). Operator UI maps Committed → Finalized.
+                Name = contract.SystemName,
+                Version = contract.Metadata.ManifestVersion,
+                Status = "Committed",
+                Summary = contract.Metadata.ChangeDescription
             },
             Topology =
             {

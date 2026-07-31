@@ -18,7 +18,12 @@ public sealed class InMemoryScimTenantTokenRepository : IScimTenantTokenReposito
 
         List<ScimTokenRotationCandidate> list = _byPublicKey.Values
             .Where(r => r.RevokedUtc is null && r.CreatedUtc <= createdUtcUpperBoundInclusive)
-            .Select(static r => new ScimTokenRotationCandidate(r.Id, r.TenantId, r.CreatedUtc))
+            .Select(static r => new ScimTokenRotationCandidate
+            {
+                Id = r.Id,
+                TenantId = r.TenantId,
+                CreatedUtc = r.CreatedUtc
+            })
             .ToList();
 
         return Task.FromResult<IReadOnlyList<ScimTokenRotationCandidate>>(list);

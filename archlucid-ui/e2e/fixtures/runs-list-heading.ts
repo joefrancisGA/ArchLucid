@@ -12,7 +12,7 @@ function escapeRegExpLiteral(value: string): string {
 
 /**
  * Primary page title on the reviews index server page (`src/app/(operator)/reviews/page.tsx`): rendered as
- * {@code <h2>} by {@link OperatorPageHeader}. Canonical URL is `/reviews`; `/runs` permanently redirects there
+ * {@code <h1>} by {@link OperatorPageHeader}. Canonical URL is `/reviews`; `/runs` permanently redirects there
  * (`next.config.ts`).
  */
 export const RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN = new RegExp(
@@ -38,17 +38,17 @@ export const GOVERNANCE_PAGE_PRIMARY_HEADING_PATTERN = new RegExp(
   "i",
 );
 
-/** `/architectures/new` page H2 — {@link CREATE_ARCHITECTURE_LABEL}. */
+/** `/architectures/new` page H1 — {@link CREATE_ARCHITECTURE_LABEL}. */
 export const CREATE_ARCHITECTURE_PAGE_HEADING_PATTERN = new RegExp(
   `^${escapeRegExpLiteral(CREATE_ARCHITECTURE_LABEL)}$`,
   "i",
 );
 
-/** `/reviews/new` page H2 — {@link START_REVIEW_LABEL}. */
+/** `/reviews/new` page H1 — {@link START_REVIEW_LABEL}. */
 export const START_REVIEW_PAGE_HEADING_PATTERN = new RegExp(
   `^${escapeRegExpLiteral(START_REVIEW_LABEL)}$`,
   "i",
 );
 
-/** `/governance/audit` page H2 — buyer-polished titles append the review label; search chrome uses H3 "Filter audit trail". */
+/** `/governance/audit` page H1 — buyer-polished titles append the review label; search chrome uses H3 "Filter audit trail". */
 export const AUDIT_PAGE_PRIMARY_HEADING_PATTERN = /^Audit trail( for .+)?$/i;

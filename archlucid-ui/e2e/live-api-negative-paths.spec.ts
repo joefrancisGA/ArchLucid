@@ -21,6 +21,7 @@ import {
   resolveLiveAuthActorName,
   liveE2eArchitectureDescription,
   liveE2eArchitectureRunCyclePlaywrightTimeoutMs,
+  liveE2eCommitWaitMs,
   searchAudit,
   waitForAuthorityRunSummaryReady,
   waitForReadyForCommit,

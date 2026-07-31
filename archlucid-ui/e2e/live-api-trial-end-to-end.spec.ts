@@ -279,13 +279,16 @@ test.describe("live-api-trial-end-to-end", () => {
       { waitUntil: "domcontentloaded" },
     );
 
-    await expect(page.getByRole("heading", { name: START_REVIEW_LABEL, level: 2 })).toBeVisible({
+    await expect(page.getByRole("heading", { name: START_REVIEW_LABEL, level: 1 })).toBeVisible({
       timeout: 60_000,
     });
     await expect(page.getByTestId("reviews-new-path-detailed")).toHaveAttribute("aria-selected", "true", {
       timeout: 30_000,
     });
 
+    // NewRunWizardClient is dynamic-imported on the detailed tab — wait before interacting.
+    await expect(page.locator("[data-wizard-ready='true']")).toBeAttached({ timeout: 120_000 });
+    await expect(page.getByTestId("wizard-start-blank")).toBeVisible({ timeout: 120_000 });
     // Renamed from "Use defaults" — advances off the starting-point step via onStartingPointCommitted.
     await page.getByTestId("wizard-start-blank").click();
 

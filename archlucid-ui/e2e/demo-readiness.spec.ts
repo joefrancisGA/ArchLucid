@@ -51,7 +51,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
   test("runs list shows Claims Intake example without mock-provider leakage", async ({ page }) => {
     await page.goto("/reviews?projectId=default");
     await expect(
-      page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
+      page.getByRole("heading", { level: 1, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
     ).toBeVisible();
     await expect(page.getByText(/Claims Intake Modernization/i).first()).toBeVisible();
     await expect(page.getByText(/mock API/i)).toHaveCount(0);
@@ -149,7 +149,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
 
     await page.goto("/reviews?projectId=default");
     await expect(
-      page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
+      page.getByRole("heading", { level: 1, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
     ).toBeVisible();
     // Buyer-polished table rows expose two Action links ("View review", "View signed manifest");
     // target the primary explore link via stable test id (Playwright strict mode).

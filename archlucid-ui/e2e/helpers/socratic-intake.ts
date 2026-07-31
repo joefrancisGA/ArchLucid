@@ -115,6 +115,19 @@ export async function skipAllSocraticClarificationsInUi(page: Page, options?: { 
 
         const skipResponse = await skipResponsePromise;
 
+        if (skipResponse.status() === 429) {
+          // Live matrix can trip per-route windows; wait and let poll retry instead of failing the suite.
+          const retryAfterHeader = skipResponse.headers()["retry-after"];
+          const retryAfterSec = Number.parseInt(retryAfterHeader ?? "", 10);
+          const waitMs = Number.isFinite(retryAfterSec) && retryAfterSec > 0
+            ? Math.min(retryAfterSec * 1000, 60_000)
+            : 5_000;
+
+          await page.waitForTimeout(waitMs);
+
+          return false;
+        }
+
         if (!skipResponse.ok()) {
           throw new Error(
             `Skip clarification failed ${skipResponse.status()}: ${(await skipResponse.text()).slice(0, 400)}`,

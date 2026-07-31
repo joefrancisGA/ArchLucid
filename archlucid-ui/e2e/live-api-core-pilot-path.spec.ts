@@ -51,13 +51,13 @@ test.describe("live-api-core-pilot-path", { tag: ["@founder", "@buyer-journey"] 
     ).toBeVisible();
 
     await page.goto("/reviews/new");
-    await expect(page.getByRole("heading", { name: START_REVIEW_LABEL, level: 2 })).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByRole("heading", { name: START_REVIEW_LABEL, level: 1 })).toBeVisible({ timeout: 60_000 });
     await expect(page.getByTestId("reviews-new-page-lead")).toBeVisible({ timeout: 60_000 });
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
 
     await page.goto(liveReviewsListHref);
     await expect(
-      page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
+      page.getByRole("heading", { level: 1, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
     ).toBeVisible({ timeout: 90_000 });
     await expectLiveReviewsHubListReady(page, {
       timeoutMs: 90_000,

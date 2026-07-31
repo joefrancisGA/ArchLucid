@@ -31,7 +31,7 @@ test.describe("operator shell smoke", () => {
     await page.goto("/reviews?projectId=default");
 
     await expect(
-      page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
+      page.getByRole("heading", { level: 1, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
     ).toBeVisible();
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
     await expect(reviewsHubFirstPackageRow(getAppMain(page))).toBeVisible();
@@ -41,7 +41,7 @@ test.describe("operator shell smoke", () => {
     await page.goto("/reviews");
 
     await expect(
-      page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
+      page.getByRole("heading", { level: 1, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
     ).toBeVisible();
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
   });
@@ -64,7 +64,7 @@ test.describe("operator shell smoke", () => {
     await page.goto("/reviews/new");
 
     await expect(
-      page.getByRole("heading", { level: 2, name: START_REVIEW_PAGE_HEADING_PATTERN }),
+      page.getByRole("heading", { level: 1, name: START_REVIEW_PAGE_HEADING_PATTERN }),
     ).toBeVisible();
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
   });
@@ -77,7 +77,7 @@ test.describe("operator shell smoke — core proof path", () => {
 
     await page.goto("/reviews?projectId=default");
     await expect(
-      page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
+      page.getByRole("heading", { level: 1, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
     ).toBeVisible();
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
 

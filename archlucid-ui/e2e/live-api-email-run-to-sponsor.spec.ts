@@ -87,7 +87,9 @@ test.describe("live-api-email-run-to-sponsor", () => {
     const banner = page.getByTestId("email-run-to-sponsor-banner");
 
     await expect(banner).toBeVisible({ timeout: 60_000 });
-    await expect(banner).toContainText(/Time to value/i);
+    // Buyer-polished shell uses Downstream deliverable; full shell uses Sponsor distribution.
+    // Optional time-to-first-commit chip only appears when trial-status returns seconds > 0.
+    await expect(banner).toContainText(/Downstream deliverable|Sponsor distribution/i);
 
     const primary = page.getByTestId("email-run-to-sponsor-primary-action");
 

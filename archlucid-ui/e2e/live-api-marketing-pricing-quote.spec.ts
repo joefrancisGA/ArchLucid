@@ -66,14 +66,24 @@ test.describe("live-api-marketing-pricing-quote", () => {
     await submit.click();
 
     const quoteResponse = await quoteResponsePromise;
-    expect(
-      quoteResponse.status(),
-      `quote-request proxy status ${quoteResponse.status()}: ${(await quoteResponse.text()).slice(0, 400)}`,
-    ).toBe(204);
+    const quoteStatus = quoteResponse.status();
+
+    // 204 No Content has no body — Playwright's response.text() throws Protocol error if we read it.
+    let quoteBodyPreview = "";
+
+    if (quoteStatus !== 204) {
+      try {
+        quoteBodyPreview = (await quoteResponse.text()).slice(0, 400);
+      } catch {
+        quoteBodyPreview = "(body unavailable)";
+      }
+    }
+
+    expect(quoteStatus, `quote-request proxy status ${quoteStatus}: ${quoteBodyPreview}`).toBe(204);
 
     await expect(page.getByTestId("pricing-quote-request-confirmation")).toBeVisible({ timeout: 30_000 });
     await expect(page.getByTestId("pricing-quote-request-confirmation")).toContainText(
-      "Thanks — your request was received.",
+      /Thanks .+ your request was received/i,
     );
   });
 });
