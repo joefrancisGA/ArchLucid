@@ -3,7 +3,7 @@
  * Default `playwright.config.ts` is live-backed; run `npx playwright test` (or mock: `-c playwright.mock.config.ts`).
  * Set `LIVE_API_URL` if the API is not on http://127.0.0.1:5128.
  *
- * Covers the **Time-to-Value** in-product CTA on `/runs/[runId]`:
+ * Covers the post-commit sponsor deliverables banner on `/runs/[runId]`:
  *   - Drive a full create → execute → commit cycle so the run-detail page renders the post-commit
  *     `EmailRunToSponsorBanner`.
  *   - Click the banner's primary action and assert the browser receives an `application/pdf` download
@@ -87,7 +87,9 @@ test.describe("live-api-email-run-to-sponsor", () => {
     const banner = page.getByTestId("email-run-to-sponsor-banner");
 
     await expect(banner).toBeVisible({ timeout: 60_000 });
-    await expect(banner).toContainText(/Time to value/i);
+    // Buyer-polished shell uses Downstream deliverable; full shell uses Sponsor distribution.
+    // Optional time-to-first-commit chip only appears when trial-status returns seconds > 0.
+    await expect(banner).toContainText(/Downstream deliverable|Sponsor distribution/i);
 
     const primary = page.getByTestId("email-run-to-sponsor-primary-action");
 

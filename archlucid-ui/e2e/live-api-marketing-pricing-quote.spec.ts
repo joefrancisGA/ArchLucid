@@ -83,7 +83,7 @@ test.describe("live-api-marketing-pricing-quote", () => {
 
     await expect(page.getByTestId("pricing-quote-request-confirmation")).toBeVisible({ timeout: 30_000 });
     await expect(page.getByTestId("pricing-quote-request-confirmation")).toContainText(
-      "Thanks â€” your request was received.",
+      /Thanks .+ your request was received/i,
     );
   });
 });
