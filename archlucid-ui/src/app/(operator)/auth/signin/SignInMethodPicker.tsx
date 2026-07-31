@@ -1,10 +1,9 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { recordEmailOtpAuthAnalytics } from "@/lib/auth/email-otp-analytics";
 import { SIGN_IN_PAGE_COPY } from "@/lib/auth/sign-in-page-copy";
 import type { SignInMethodOptions } from "@/lib/auth/sign-in-method-options";
@@ -80,11 +79,6 @@ export function SignInMethodPicker({
         data-testid="sign-in-non-sso-orientation"
       >
         {SIGN_IN_PAGE_COPY.optionsOrientation}
-      </p>
-      <p className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-        <Link className={OPERATOR_LINK.nav} href="/help/authentication-sign-in">
-          Need help signing in?
-        </Link>
       </p>
     </div>
   );

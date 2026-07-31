@@ -105,28 +105,32 @@ export function SignInCodeStep({
         {onBotChallengeTokenChange ? (
           <TurnstileBotChallenge onTokenChange={onBotChallengeTokenChange} />
         ) : null}
-        <div className="flex flex-wrap items-center gap-3">
-          <Button type="submit" variant="primary" disabled={pending} data-testid="sign-in-code-continue">
+        <div className="flex flex-col gap-3">
+          <Button type="submit" variant="primary" disabled={pending} className="w-full sm:w-fit" data-testid="sign-in-code-continue">
             {pending ? SIGN_IN_PAGE_COPY.completingSignIn : SIGN_IN_PAGE_COPY.continue}
           </Button>
-          <Button
-            type="button"
-            variant="outline"
-            disabled={resendDisabled}
-            onClick={onResend}
-            data-testid="sign-in-code-resend"
-          >
-            {SIGN_IN_PAGE_COPY.sendNewCode}
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={onDifferentEmail}
-            disabled={pending}
-            data-testid="sign-in-code-different-email"
-          >
-            {SIGN_IN_PAGE_COPY.useDifferentEmail}
-          </Button>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={resendDisabled}
+              onClick={onResend}
+              data-testid="sign-in-code-resend"
+            >
+              {SIGN_IN_PAGE_COPY.sendNewCode}
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={onDifferentEmail}
+              disabled={pending}
+              data-testid="sign-in-code-different-email"
+            >
+              {SIGN_IN_PAGE_COPY.useDifferentEmail}
+            </Button>
+          </div>
         </div>
         {resendSecondsRemaining > 0 ? (
           <p role="status" aria-live="polite" className="text-sm text-al-text-secondary">

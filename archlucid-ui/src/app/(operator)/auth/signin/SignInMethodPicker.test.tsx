@@ -27,6 +27,7 @@ describe("SignInMethodPicker", () => {
 
     expect(emailButton.compareDocumentPosition(workSchoolButton)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
     expect(emailButton.className).toContain("var(--al-primary-action-bg)");
+    expect(screen.queryByRole("link", { name: /Need help signing in/i })).not.toBeInTheDocument();
 
     fireEvent.click(emailButton);
     expect(onEmailCode).toHaveBeenCalledTimes(1);

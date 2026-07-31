@@ -37,4 +37,14 @@ describe("AuthFlowShell", () => {
     expect(screen.queryByRole("link", { name: /Start an evaluation/i })).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: /Authentication help/i })).toBeInTheDocument();
   });
+
+  it("shows return destination hint when the user arrived from a deep link", () => {
+    render(
+      <AuthFlowShell hasReturnDestination>
+        <p>Sign-in content</p>
+      </AuthFlowShell>,
+    );
+
+    expect(screen.getByTestId("auth-flow-return-destination-hint")).toBeInTheDocument();
+  });
 });

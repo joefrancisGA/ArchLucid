@@ -21,7 +21,7 @@ export function SignInClient() {
 
   if (showsSessionMessage && !sessionAcknowledged) {
     return (
-      <AuthFlowShell>
+      <AuthFlowShell hasReturnDestination={hasReturnDestination}>
         <SessionExpiredView
           reason={reason}
           onSignIn={() => {

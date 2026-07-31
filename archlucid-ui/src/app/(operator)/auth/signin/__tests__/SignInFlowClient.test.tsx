@@ -78,6 +78,13 @@ describe("SignInFlowClient", () => {
     expect(screen.getByTestId("sign-in-method-picker")).toBeInTheDocument();
     expect(screen.getByTestId("sign-in-work-school")).toBeInTheDocument();
     expect(screen.getByTestId("sign-in-email-code")).toBeInTheDocument();
+    expect(screen.getByTestId("auth-flow-return-destination-hint")).toBeInTheDocument();
+  });
+
+  it("omits return destination hint for root return URLs", () => {
+    render(<SignInFlowClient returnUrl="/" />);
+
+    expect(screen.queryByTestId("auth-flow-return-destination-hint")).toBeNull();
   });
 
   it("starts OIDC for work/school selection", async () => {

@@ -34,11 +34,11 @@ export function SessionExpiredView({
 
   return (
     <div data-testid="session-expired-view">
-      <h2 className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)} data-testid="session-expired-heading">
+      <h1 className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)} data-testid="session-expired-heading">
         {copy.title}
-      </h2>
+      </h1>
       <p className={cn("mt-3 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{copy.body}</p>
-      {copy.showsReturnDestinationHint ? (
+      {copy.showsReturnDestinationHint || hasReturnDestination ? (
         <p className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           {hasReturnDestination
             ? "Sign in again to continue. If you were working on a review, ArchLucid will try to return you to the last page you visited."

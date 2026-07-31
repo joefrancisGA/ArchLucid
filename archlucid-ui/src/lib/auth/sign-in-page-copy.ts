@@ -16,7 +16,7 @@ export const SIGN_IN_PAGE_COPY = {
   googleSupplemental: "Continue with Google",
   emailTitle: "Sign in with email",
   emailLead:
-    "Enter your email address and ArchLucid will send you a one-time sign-in code. No password is required. Use this path for Architect plan and other accounts that do not use company SSO.",
+    "Enter your email and ArchLucid will send a one-time sign-in code. Use this for Architect plan and other accounts without company SSO.",
   emailLabel: "Email address",
   sendCode: "Send code",
   backToOptions: "Back to sign-in options",
@@ -33,6 +33,7 @@ export const SIGN_IN_PAGE_COPY = {
   ssoPrimary: "Continue to organization sign-in",
   ssoUseAnotherEmail: "Use another email",
   codeSentAnnouncement: "If that address can receive email, we sent a sign-in code.",
+  returnDestinationHint: "After you sign in, ArchLucid will return you to the page you were viewing.",
   sendingCode: "Sending your sign-in code…",
   completingSignIn: "Completing sign-in…",
 } as const;

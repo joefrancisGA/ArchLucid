@@ -61,6 +61,18 @@ describe("SessionExpiredView — copy per reason", () => {
 
     expect(screen.queryByText(/last page you visited/i)).toBeNull();
   });
+
+  it("mentions returning to the last page when unauthorized with a return destination", () => {
+    render(<SessionExpiredView reason="unauthorized" onSignIn={vi.fn()} hasReturnDestination />);
+
+    expect(screen.getByText(/return you to the last page you visited/i)).toBeInTheDocument();
+  });
+
+  it("exposes session recovery title as the page heading", () => {
+    render(<SessionExpiredView reason="idle-timeout" onSignIn={vi.fn()} />);
+
+    expect(screen.getByRole("heading", { level: 1, name: "Your session expired" })).toBeInTheDocument();
+  });
 });
 
 describe("SessionExpiredView — sign-in action", () => {

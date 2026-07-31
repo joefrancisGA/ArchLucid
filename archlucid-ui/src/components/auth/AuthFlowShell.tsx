@@ -3,12 +3,15 @@ import Link from "next/link";
 
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { SIGN_IN_PAGE_COPY } from "@/lib/auth/sign-in-page-copy";
 import { cn } from "@/lib/utils";
 
 export type AuthFlowShellProps = {
   readonly children: ReactNode;
   /** When false, omits evaluation signup footer (e.g. invitation-only context). Defaults to true. */
   readonly showEvaluationSignupLink?: boolean;
+  /** When true, shows a post-sign-in return promise above the panel. */
+  readonly hasReturnDestination?: boolean;
 };
 
 /**
@@ -16,7 +19,11 @@ export type AuthFlowShellProps = {
  * and anyone whose organization has not configured SSO). Keeps touch targets and
  * side padding usable on narrow phones without changing step internals.
  */
-export function AuthFlowShell({ children, showEvaluationSignupLink = true }: AuthFlowShellProps) {
+export function AuthFlowShell({
+  children,
+  showEvaluationSignupLink = true,
+  hasReturnDestination = false,
+}: AuthFlowShellProps) {
   return (
     <div
       className="min-h-[100dvh] bg-al-surface-base text-al-text-primary"
@@ -35,8 +42,17 @@ export function AuthFlowShell({ children, showEvaluationSignupLink = true }: Aut
           </p>
         </header>
 
+        {hasReturnDestination ? (
+          <p
+            className={cn("mt-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="auth-flow-return-destination-hint"
+          >
+            {SIGN_IN_PAGE_COPY.returnDestinationHint}
+          </p>
+        ) : null}
+
         <div
-          className={cn(DESIGN_TOKENS.surface.card, "mt-6 p-5 sm:p-6")}
+          className={cn(DESIGN_TOKENS.surface.card, hasReturnDestination ? "mt-4 p-5 sm:p-6" : "mt-6 p-5 sm:p-6")}
           data-testid="auth-flow-panel"
         >
           {children}
