@@ -51,7 +51,7 @@ ArchLucid coordinates **architecture requests → authority pipeline → finaliz
 |-------|---------------------|
 | **Buyer / sponsor narrative** | You need procurement-safe language before touching the repo — **[`EXECUTIVE_SPONSOR_BRIEF.md`](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md)** |
 | **Contributor path** | You will implement, operate, or govern ArchLucid — see `START_HERE.md` |
-| **Architect workspace wizard** | You want `/reviews/new` semantics without screenshots — **[`library/FIRST_RUN_WIZARD.md`](FIRST_RUN_WIZARD.md)** + checklist **[`CANONICAL_FIRST_RUN_PATH.md#first-architecture-review-walkthrough`](CANONICAL_FIRST_RUN_PATH.md#first-architecture-review-walkthrough)** (`FIRST_RUN_WALKTHROUGH.md` alias) |
+| **Architect workspace wizard** | You want `/reviews/new` semantics without screenshots — design **[`CANONICAL_FIRST_RUN_PATH.md#first-run-wizard-architect-workspace`](CANONICAL_FIRST_RUN_PATH.md#first-run-wizard-architect-workspace)** (`FIRST_RUN_WIZARD.md` alias) + checklist **[`CANONICAL_FIRST_RUN_PATH.md#first-architecture-review-walkthrough`](CANONICAL_FIRST_RUN_PATH.md#first-architecture-review-walkthrough)** (`FIRST_RUN_WALKTHROUGH.md` alias) |
 | **Deeper engineering index** | You already ran the spine and need maps — **[`architecture/README.md`](../architecture/README.md)** |
 | **Everything else** | Search or browse **[`docs/library/`](.)** (~150+ reference markdown files moved 2026-04-23 to keep `/docs` root small) |
 

@@ -154,7 +154,7 @@ flowchart LR
 ```
 
 1. **Authenticate** — API key (`X-Api-Key`) or JWT (Entra), per environment. Scope: `x-tenant-id`, `x-workspace-id`, `x-project-id` (or claims).
-2. **Create run** — covered in the mental model above. For the **architect workspace** guided flow (presets → review → pipeline tracking), see [`FIRST_RUN_WIZARD.md`](../library/FIRST_RUN_WIZARD.md).
+2. **Create run** — covered in the mental model above. For the **architect workspace** guided flow (presets → review → pipeline tracking), see [`CANONICAL_FIRST_RUN_PATH.md#first-run-wizard-architect-workspace`](../library/CANONICAL_FIRST_RUN_PATH.md#first-run-wizard-architect-workspace).
 3. **Execute authority** — Pipeline stages ingest context, graph, findings, decisioning, artifacts (see traces: `ArchLucid.AuthorityRun` in logs/telemetry).
 4. **Agents** — `AgentExecution:Mode` `Simulator` (deterministic) or `Real` (Azure OpenAI). Token usage and optional per-tenant metrics: [`OPERATIONS_LLM_QUOTA.md`](../library/OPERATIONS_LLM_QUOTA.md).
 5. **Commit** — `POST /v1/architecture/run/{runId}/commit` when the run is ready; handle `409` for invalid state.

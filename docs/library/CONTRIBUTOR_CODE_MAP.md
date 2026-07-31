@@ -167,7 +167,7 @@ For a fully worked example of this happy path — from HTTP through the coordina
 ### Related (golden change path)
 
 - [CANONICAL_PIPELINE.md](CANONICAL_PIPELINE.md) — coordinator vs authority.
-- [FIRST_RUN_WIZARD.md](FIRST_RUN_WIZARD.md) — operator-first run (UI).
+- [CANONICAL_FIRST_RUN_PATH.md#first-run-wizard-architect-workspace](CANONICAL_FIRST_RUN_PATH.md#first-run-wizard-architect-workspace) — operator-first run wizard (UI; `FIRST_RUN_WIZARD.md` alias).
 - [onboarding/day-one-developer.md](../onboarding/day-one-developer.md) — week-one checklist and create-run mental model.
 
 ## 8. High-signal paths (open first)

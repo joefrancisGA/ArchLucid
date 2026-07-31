@@ -276,7 +276,8 @@ Human readers and agents should follow **canonical** paths below. This file is t
 | `docs/archive/FIRST_FIVE_DOCS.md` | [`docs/START_HERE.md`](START_HERE.md) | Alternate spelling of `FIRST_5_DOCS` stub |
 | `docs/READ_THIS_FIRST.md` | [`docs/START_HERE.md`](START_HERE.md) | Deprecated Y/N routing stub (2026-04-27) |
 | `docs/archive/READ_THIS_FIRST.md` | [`docs/START_HERE.md`](START_HERE.md) | Archive duplicate of root decision-tree stub |
-| `docs/archive/FIRST_RUN_WIZARD.md` | [`docs/library/FIRST_RUN_WIZARD.md`](library/FIRST_RUN_WIZARD.md) | Legacy wizard design-note bookmark stub |
+| `docs/archive/FIRST_RUN_WIZARD.md` | [`docs/library/CANONICAL_FIRST_RUN_PATH.md`](library/CANONICAL_FIRST_RUN_PATH.md#first-run-wizard-architect-workspace) | Legacy wizard design-note bookmark stub → canon section |
+| `docs/library/FIRST_RUN_WIZARD.md` (body) | [`docs/library/CANONICAL_FIRST_RUN_PATH.md`](library/CANONICAL_FIRST_RUN_PATH.md#first-run-wizard-architect-workspace) | First-run wizard design notes folded into canonical first-run path; filename kept as path-stable alias |
 | `docs/archive/FIRST_RUN_WALKTHROUGH.md` | [`docs/library/CANONICAL_FIRST_RUN_PATH.md`](library/CANONICAL_FIRST_RUN_PATH.md#first-architecture-review-walkthrough) | Legacy first-run walkthrough bookmark stub → canon section |
 | `docs/library/FIRST_RUN_WALKTHROUGH.md` (body) | [`docs/library/CANONICAL_FIRST_RUN_PATH.md`](library/CANONICAL_FIRST_RUN_PATH.md#first-architecture-review-walkthrough) | Architect UI first-review walkthrough folded into canonical first-run path; filename kept as path-stable alias |
 | `docs/archive/FIRST_FIVE_DOCS_SUPERSEDED_2026_04_22.md` | [`docs/START_HERE.md`](START_HERE.md) | Archived pre-spine reading-order table |

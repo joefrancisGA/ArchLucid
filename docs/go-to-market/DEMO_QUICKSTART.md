@@ -256,7 +256,7 @@ This is a **capture brief**: what to show on screen, data state, annotations, an
 - **Annotation style:** Semi-transparent dark overlay badges with white text. Pointer arrows from callout to UI element. Consistent font (system sans-serif or brand font once established).
 - **Storage:** Place raw screenshots in `docs/go-to-market/screenshots/` and annotated versions in `docs/go-to-market/screenshots/annotated/`.
 
-**Related for captions / framing:** [`PRODUCT_DATASHEET.md`](PRODUCT_DATASHEET.md) Â· [`POSITIONING.md`](POSITIONING.md) Â· [`BUYER_PERSONAS.md`](BUYER_PERSONAS.md) Â· [`../library/operator-shell.md`](../library/operator-shell.md) Â· [`FIRST_RUN_WIZARD.md`](../library/FIRST_RUN_WIZARD.md)
+**Related for captions / framing:** [`PRODUCT_DATASHEET.md`](PRODUCT_DATASHEET.md) Â· [`POSITIONING.md`](POSITIONING.md) Â· [`BUYER_PERSONAS.md`](BUYER_PERSONAS.md) Â· [`../library/operator-shell.md`](../library/operator-shell.md) Â· [`CANONICAL_FIRST_RUN_PATH.md#first-run-wizard-architect-workspace`](../library/CANONICAL_FIRST_RUN_PATH.md#first-run-wizard-architect-workspace)
 
 ---
 
