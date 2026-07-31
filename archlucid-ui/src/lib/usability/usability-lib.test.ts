@@ -54,6 +54,8 @@ describe("usability lib", () => {
   });
 
   it("pageHelpTopicForPathname maps review routes", () => {
+    expect(pageHelpTopicForPathname("/")?.slug).toBe("first-architecture-review");
+    expect(pageHelpTopicForPathname("/")?.label).toBe("Architecture workflow");
     expect(pageHelpTopicForPathname("/reviews/new")?.slug).toBe("evidence-intake");
     expect(pageHelpTopicForPathname("/alerts")?.slug).toBe("alerts");
     expect(pageHelpTopicForPathname("/alert-rules")?.slug).toBe("alerts");
@@ -68,6 +70,10 @@ describe("usability lib", () => {
     expect(pageHelpTopicForPathname("/architectures/draft-id-123")?.slug).toBe("getting-started");
     expect(pageHelpTopicForPathname("/digests")?.slug).toBe("how-it-works");
     expect(pageHelpTopicForPathname("/planning")?.slug).toBe("pilot-feedback");
+    expect(pageHelpTopicForPathname("/help/billing-and-plans")?.slug).toBe("billing-and-plans");
+    expect(pageHelpTopicForPathname("/help/billing-and-plans")?.label).toBe("Billing and plans");
+    expect(pageHelpTopicForPathname("/evolution-review")?.slug).toBe("how-it-works");
+    expect(pageHelpTopicForPathname("/evolution-review")?.label).toBe("Impact preview");
     expect(pageHelpTopicForPathname("/governance/advisory-scans")?.slug).toBe("how-it-works");
   });
 

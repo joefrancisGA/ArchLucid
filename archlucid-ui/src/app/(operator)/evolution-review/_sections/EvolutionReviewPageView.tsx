@@ -2,27 +2,31 @@
 
 import { cn } from "@/lib/utils";
 
+import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   IMPACT_PREVIEW_ORIENTATION,
-  IMPACT_PREVIEW_PAGE_SUBTITLE,
   IMPACT_PREVIEW_PAGE_TITLE,
   IMPACT_PREVIEW_PLANNING_HREF,
+  IMPACT_PREVIEW_SCOPE_DETAILS_TRIGGER,
   IMPACT_PREVIEW_TRUST_NOTICE,
+  impactPreviewPageSubtitle,
 } from "@/lib/impact-preview-page-copy";
 import { resolveImpactPreviewPageState } from "@/lib/resolve-impact-preview-page-state";
 import { resolveImpactPreviewRecommendation } from "@/lib/resolve-impact-preview-recommendation";
 import { resolveImpactPreviewSummaryMetrics } from "@/lib/resolve-impact-preview-summary-metrics";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import type { EvolutionReviewPageViewModel } from "./evolution-review-view-model";
 import { ImpactPreviewEmptyState } from "./ImpactPreviewEmptyState";
 import { ImpactPreviewEvidenceBasisSection } from "./ImpactPreviewEvidenceBasisSection";
 import { ImpactPreviewHowItWorksSection } from "./ImpactPreviewHowItWorksSection";
 import { ImpactPreviewOutputPreviewPanel } from "./ImpactPreviewOutputPreviewPanel";
+import { ImpactPreviewPageHeader } from "./ImpactPreviewPageHeader";
 import { ImpactPreviewRecommendationSection } from "./ImpactPreviewRecommendationSection";
 import { ImpactPreviewResultActions } from "./ImpactPreviewResultActions";
 import { ImpactPreviewSetupCard } from "./ImpactPreviewSetupCard";
@@ -40,6 +44,7 @@ type Props = {
  */
 export function EvolutionReviewPageView(props: Props): React.JSX.Element {
   const m = props.model;
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const canSimulate = useOperateCapability();
   const planningReachable = useIsOperatorNavHrefReachable(IMPACT_PREVIEW_PLANNING_HREF);
   const baselineAvailability = useImpactPreviewBaselineAvailability();
@@ -47,7 +52,7 @@ export function EvolutionReviewPageView(props: Props): React.JSX.Element {
   if (m.isDemo) {
     return (
       <DemoWorkspaceCapabilityUnavailablePanel
-        capability="Impact preview"
+        capability={IMPACT_PREVIEW_PAGE_TITLE}
         description="In a connected tenant, operators preview the estimated impact of a proposed architecture change with a before-and-after comparison."
       />
     );
@@ -74,14 +79,30 @@ export function EvolutionReviewPageView(props: Props): React.JSX.Element {
 
   return (
     <div className="max-w-5xl space-y-5" data-testid="impact-preview-page">
-      <header className="space-y-2">
-        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{IMPACT_PREVIEW_PAGE_TITLE}</h1>
-        <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{IMPACT_PREVIEW_PAGE_SUBTITLE}</p>
-        <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{IMPACT_PREVIEW_ORIENTATION}</p>
-        <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{IMPACT_PREVIEW_TRUST_NOTICE}</p>
-      </header>
+      <ImpactPreviewPageHeader
+        subtitle={impactPreviewPageSubtitle(buyerPolishedShell)}
+        listLoading={m.listLoading}
+        lastRefreshedAt={m.lastRefreshedAt}
+        onRefresh={() => {
+          void m.loadList();
+        }}
+      />
 
-      <ImpactPreviewHowItWorksSection />
+      {buyerPolishedShell ? (
+        <CollapsibleSection
+          title={IMPACT_PREVIEW_SCOPE_DETAILS_TRIGGER}
+          defaultOpen={false}
+          sectionTestId="impact-preview-scope-details"
+        >
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{IMPACT_PREVIEW_ORIENTATION}</p>
+          <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>{IMPACT_PREVIEW_TRUST_NOTICE}</p>
+        </CollapsibleSection>
+      ) : (
+        <>
+          <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{IMPACT_PREVIEW_ORIENTATION}</p>
+          <ImpactPreviewHowItWorksSection />
+        </>
+      )}
 
       {m.listLoading && m.candidates.length === 0 && pageState === "ready" ? (
         <OperatorLoadingNotice>
@@ -130,9 +151,6 @@ export function EvolutionReviewPageView(props: Props): React.JSX.Element {
             canSimulate={canSimulate}
             simulateBusy={m.simulateBusy}
             listLoading={m.listLoading}
-            onRefresh={() => {
-              void m.loadList();
-            }}
             onSimulate={() => {
               void m.onSimulate();
             }}

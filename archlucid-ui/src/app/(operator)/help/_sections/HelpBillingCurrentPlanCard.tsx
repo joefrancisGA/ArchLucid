@@ -48,7 +48,7 @@ function formatSeatSummary(seatsUsed: number | undefined, seatsLimit: number | n
 }
 
 /** Compact plan context and primary billing actions for `/help/billing-and-plans`. */
-export function HelpBillingCurrentPlanCard(): React.ReactElement {
+export function HelpBillingCurrentPlanCard(props: { readonly refreshToken?: number }): React.ReactElement {
   const canMutate = useNavCallerAuthorityRank() >= AUTHORITY_RANK.AdminAuthority;
   const { data: trialPayload } = useTenantTrialStatusQuery();
   const [workspaceLabel, setWorkspaceLabel] = useState<string | null>(null);
@@ -72,7 +72,9 @@ export function HelpBillingCurrentPlanCard(): React.ReactElement {
 
     void (async () => {
       try {
-        const usage = await fetchTenantUsageStatusCached();
+        const usage = await fetchTenantUsageStatusCached({
+          force: (props.refreshToken ?? 0) > 0,
+        });
 
         if (!cancelled) {
           setSeatSummary(formatSeatSummary(usage?.seatsUsed, usage?.seatsLimit));
@@ -87,7 +89,7 @@ export function HelpBillingCurrentPlanCard(): React.ReactElement {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [props.refreshToken]);
 
   const view = useMemo(
     () =>

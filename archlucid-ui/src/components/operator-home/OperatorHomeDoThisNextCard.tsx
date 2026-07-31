@@ -6,17 +6,13 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useFeaturedCompletedSampleQuery } from "@/hooks/use-featured-completed-sample-query";
 import { useFinishSetupReadinessContext } from "@/hooks/use-finish-setup-readiness-context";
-import {
-  OPERATOR_HOME_DO_THIS_NEXT_HEADING,
-  OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_CTA,
-  OPERATOR_HOME_LEARN_HOW_REVIEWS_WORK_CTA,
-} from "@/lib/buyer-polish-copy";
+import { OPERATOR_HOME_DO_THIS_NEXT_HEADING } from "@/lib/buyer-polish-copy";
 import {
   isDemoSeededOverviewWorkspaceLabel,
   resolveDemoSeededOverviewSamplePackage,
   shouldInjectDemoSeededOverviewSample,
 } from "@/lib/demo-seeded-overview";
-import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { featuredCompletedSampleReviewHref } from "@/lib/fetch-tenant-homepage-settings-client";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import {
@@ -24,22 +20,8 @@ import {
   getEffectiveBrowserProxyScopeHeaders,
   readOperatorScopeFromStorage,
 } from "@/lib/operator-scope-storage";
-import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { resolveEmptyHomeDoThisNext } from "@/lib/resolve-empty-home-do-this-next";
 import { cn } from "@/lib/utils";
-
-const SECONDARY_HELP_LINKS = [
-  {
-    label: OPERATOR_HOME_LEARN_HOW_REVIEWS_WORK_CTA,
-    href: inAppHelpHref("first-architecture-review"),
-    testId: "operator-home-do-this-next-learn-how",
-  },
-  {
-    label: OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_CTA,
-    href: inAppHelpHref("first-architecture-review"),
-    testId: "operator-home-do-this-next-view-workflow",
-  },
-] as const;
 
 function resolveFeaturedSampleHref(
   sample:
@@ -143,23 +125,6 @@ export function OperatorHomeDoThisNextCard(): React.JSX.Element {
           </Link>
         </Button>
       )}
-
-      <nav
-        aria-label="Secondary help"
-        className="flex flex-wrap items-center gap-x-4 gap-y-1"
-        data-testid="operator-home-do-this-next-secondary"
-      >
-        {SECONDARY_HELP_LINKS.map((link) => (
-          <Link
-            key={link.testId}
-            href={link.href}
-            className={OPERATOR_LINK.optional}
-            data-testid={link.testId}
-          >
-            {link.label}
-          </Link>
-        ))}
-      </nav>
     </div>
   );
 }

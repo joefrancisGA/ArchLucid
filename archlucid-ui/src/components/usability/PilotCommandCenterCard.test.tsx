@@ -6,8 +6,8 @@ import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 import {
   OPERATOR_HOME_COMMAND_CENTER_TAGLINE,
   OPERATOR_HOME_DO_THIS_NEXT_HEADING,
+  OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_HEADING,
   OPERATOR_HOME_INTENT_CHOOSER_HEADING,
-  OPERATOR_HOME_LEARN_HOW_REVIEWS_WORK_CTA,
   OPERATOR_HOME_OPEN_SAMPLE_PACKAGE_CTA,
   OPERATOR_HOME_WORKSPACE_OVERVIEW_HEADING,
 } from "@/lib/buyer-polish-copy";
@@ -141,7 +141,15 @@ describe("PilotCommandCenterCard", () => {
       "href",
       `/reviews/${SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId}`,
     );
-    expect(screen.getByRole("link", { name: OPERATOR_HOME_LEARN_HOW_REVIEWS_WORK_CTA })).toBeInTheDocument();
+    expect(screen.queryByTestId("operator-home-do-this-next-secondary")).toBeNull();
+    expect(screen.getByTestId("pilot-command-center-help")).toBeInTheDocument();
+    expect(screen.getByTestId("page-contextual-help-button")).toHaveAttribute(
+      "href",
+      "/help/first-architecture-review",
+    );
+    expect(screen.getByTestId("page-contextual-help-button")).toHaveTextContent(
+      OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_HEADING,
+    );
     expect(screen.queryByTestId("operator-home-dual-path-cards")).toBeNull();
     expect(screen.queryByTestId("pilot-next-best-action")).toBeNull();
     expect(screen.queryByTestId("inline-guidance-recommended-next")).toBeNull();

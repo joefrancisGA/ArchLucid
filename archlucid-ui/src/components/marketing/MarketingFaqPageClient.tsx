@@ -4,8 +4,14 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
-import { Button } from "@/components/ui/button";
 import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  MARKETING_FAQ_EMPTY_SEARCH_MESSAGE,
+  MARKETING_FAQ_SEARCH_LABEL,
+  MARKETING_FAQ_SEARCH_PLACEHOLDER,
+  MARKETING_FAQ_SECURITY_TRUST_LINK_LABEL,
+  MARKETING_FAQ_VIEW_PRICING_LABEL,
+} from "@/lib/marketing/marketing-faq-page-copy";
 import {
   filterMarketingFaqItems,
   MARKETING_FAQ_CATEGORIES,
@@ -13,18 +19,7 @@ import {
   marketingFaqItemsByCategory,
 } from "@/lib/marketing-faq";
 
-function MarketingFaqCtaRow(props: { readonly testId: string }): React.JSX.Element {
-  return (
-    <div className="flex flex-wrap gap-2" data-testid={props.testId}>
-      <Button asChild size="sm" variant="primary">
-        <Link href="/signup">Start evaluation</Link>
-      </Button>
-      <Button asChild size="sm" variant="outline">
-        <Link href="/pricing#pricing-quote-request">Request guided trial</Link>
-      </Button>
-    </div>
-  );
-}
+import { MarketingFaqCtaRow, MarketingFaqPageHero } from "./MarketingFaqPageHero";
 
 export function MarketingFaqPageClient(): React.JSX.Element {
   const [query, setQuery] = useState("");
@@ -35,23 +30,10 @@ export function MarketingFaqPageClient(): React.JSX.Element {
   return (
     <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_12.5rem] lg:items-start">
       <div className="min-w-0">
-        <header className="border-b border-neutral-200 pb-6 dark:border-neutral-800">
-          <h1 className={MARKETING_TYPOGRAPHY.pageTitle}>Product FAQ</h1>
-          <p className={cn("mt-2 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>
-            Answers for architects and sponsors evaluating ArchLucid.
-          </p>
-          <p className={cn("mt-3", MARKETING_TYPOGRAPHY.meta)}>
-            <Link className={MARKETING_SURFACES.inlineLink} href="/welcome">
-              Back to overview
-            </Link>
-          </p>
-          <div className="mt-5">
-            <MarketingFaqCtaRow testId="marketing-faq-cta-top" />
-          </div>
-        </header>
+        <MarketingFaqPageHero />
 
         <label className={cn("mt-8 block font-medium text-al-text-primary", MARKETING_TYPOGRAPHY.cardTitle)} htmlFor="marketing-faq-search">
-          Search FAQ
+          {MARKETING_FAQ_SEARCH_LABEL}
         </label>
         <input
           id="marketing-faq-search"
@@ -60,7 +42,7 @@ export function MarketingFaqPageClient(): React.JSX.Element {
           onChange={(event) => {
             setQuery(event.target.value);
           }}
-          placeholder="Search questions about evaluation, pricing, evidence, or security"
+          placeholder={MARKETING_FAQ_SEARCH_PLACEHOLDER}
           className={cn(
             "mt-2 w-full max-w-xl rounded-md border border-neutral-300 bg-white px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-600 dark:border-neutral-700 dark:bg-neutral-950",
             MARKETING_TYPOGRAPHY.body,
@@ -71,7 +53,7 @@ export function MarketingFaqPageClient(): React.JSX.Element {
 
         {grouped.length === 0 ? (
           <p className={cn("mt-8 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)} data-testid="marketing-faq-empty">
-            No questions match your search.
+            {MARKETING_FAQ_EMPTY_SEARCH_MESSAGE}
           </p>
         ) : (
           <div className="mt-8 space-y-10">
@@ -114,10 +96,10 @@ export function MarketingFaqPageClient(): React.JSX.Element {
           <MarketingFaqCtaRow testId="marketing-faq-cta-bottom" />
           <div className={cn("flex flex-wrap gap-x-4 gap-y-2", MARKETING_TYPOGRAPHY.body)}>
             <Link className={MARKETING_SURFACES.inlineLink} href="/pricing">
-              View pricing
+              {MARKETING_FAQ_VIEW_PRICING_LABEL}
             </Link>
             <Link className={MARKETING_SURFACES.inlineLink} href="/security-trust">
-              Open Security and trust
+              {MARKETING_FAQ_SECURITY_TRUST_LINK_LABEL}
             </Link>
           </div>
         </footer>

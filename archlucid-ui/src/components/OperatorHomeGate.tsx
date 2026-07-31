@@ -7,6 +7,7 @@ import { AUTH_MODE } from "@/lib/auth-config";
 import { operatorHomeGateAllowsInitialPaint } from "@/lib/operator-shell-access-gate";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { isLikelySignedIn } from "@/lib/oidc/session";
+import { publicSiteHref } from "@/lib/site-urls";
 
 /**
  * When OIDC JWT mode is enabled and the browser has no session, the operator home (`/`)
@@ -26,7 +27,7 @@ export function OperatorHomeGate({ children }: { children: ReactNode }) {
     }
 
     if (!isLikelySignedIn()) {
-      window.location.replace("/welcome");
+      window.location.replace(publicSiteHref("/welcome"));
 
       return;
     }

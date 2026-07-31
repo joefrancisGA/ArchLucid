@@ -4,11 +4,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { OperatorHomeDoThisNextCard } from "@/components/operator-home/OperatorHomeDoThisNextCard";
 import {
   OPERATOR_HOME_DO_THIS_NEXT_HEADING,
-  OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_CTA,
-  OPERATOR_HOME_LEARN_HOW_REVIEWS_WORK_CTA,
   OPERATOR_HOME_OPEN_SAMPLE_PACKAGE_CTA,
 } from "@/lib/buyer-polish-copy";
-import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { SHOWCASE_SAMPLE_REVIEW_REGISTRY } from "@/lib/showcase-sample-review-registry";
 
 const shouldInjectDemoSeededOverviewSample = vi.fn();
@@ -98,17 +95,7 @@ describe("OperatorHomeDoThisNextCard", () => {
 
     const card = screen.getByTestId("operator-home-do-this-next");
     expect(within(card).getAllByTestId("operator-home-do-this-next-primary")).toHaveLength(1);
-
-    expect(screen.getByTestId("operator-home-do-this-next-learn-how")).toHaveTextContent(
-      OPERATOR_HOME_LEARN_HOW_REVIEWS_WORK_CTA,
-    );
-    expect(screen.getByTestId("operator-home-do-this-next-view-workflow")).toHaveTextContent(
-      OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_CTA,
-    );
-    expect(screen.getByTestId("operator-home-do-this-next-learn-how")).toHaveAttribute(
-      "href",
-      inAppHelpHref("first-architecture-review"),
-    );
+    expect(screen.queryByTestId("operator-home-do-this-next-secondary")).toBeNull();
   });
 
   it("promotes admin setup when readiness blocks beginning on a real empty tenant", async () => {

@@ -28,4 +28,5 @@ export type EvolutionReviewPageViewModel = {
   readonly loadList: () => Promise<void>;
   readonly onSimulate: () => Promise<void>;
   readonly planSnapshot: EvolutionPlanSnapshot | null;
+  readonly lastRefreshedAt: Date | null;
 };

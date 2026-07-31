@@ -12,6 +12,7 @@ import { OperatorHomeDoThisNextCard } from "@/components/operator-home/OperatorH
 import { OperatorHomeDualPathCards } from "@/components/operator-home/OperatorHomeDualPathCards";
 import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/operator-home-workspace-activity-context";
 import { Button } from "@/components/ui/button";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   OPERATOR_HOME_COMMAND_CENTER_TAGLINE,
   OPERATOR_HOME_INTENT_CHOOSER_HEADING,
@@ -94,12 +95,19 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
       data-testid={cardTestId}
     >
       <div className="heroHeader space-y-3">
-        <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")} data-testid="pilot-command-center-tagline">
-          {OPERATOR_HOME_COMMAND_CENTER_TAGLINE}
-        </p>
-        <OperatorHomeCardSectionTitle id="pilot-command-center-heading">
-          {heroHeading}
-        </OperatorHomeCardSectionTitle>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0 space-y-3">
+            <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")} data-testid="pilot-command-center-tagline">
+              {OPERATOR_HOME_COMMAND_CENTER_TAGLINE}
+            </p>
+            <OperatorHomeCardSectionTitle id="pilot-command-center-heading">
+              {heroHeading}
+            </OperatorHomeCardSectionTitle>
+          </div>
+          <div className="shrink-0" data-testid="pilot-command-center-help">
+            <PageContextualHelpButton />
+          </div>
+        </div>
       </div>
 
       {isEmptyHome ? (

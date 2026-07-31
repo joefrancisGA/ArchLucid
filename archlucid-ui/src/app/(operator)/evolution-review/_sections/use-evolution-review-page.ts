@@ -70,6 +70,9 @@ export function useEvolutionReviewPage(serverLoad: EvolutionReviewPageServerLoad
     serverLoad.mode === "live" ? serverLoad.detailFailure : null,
   );
   const [simulateFailure, setSimulateFailure] = useState<ApiLoadFailureState | null>(null);
+  const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(
+    serverLoad.mode === "live" && serverLoad.listFailure === null ? new Date() : null,
+  );
 
   const skipInitialClientListFetchRef = useRef(serverLoad.mode === "live");
   const skipInitialDetailFetchRef = useRef(
@@ -95,6 +98,7 @@ export function useEvolutionReviewPage(serverLoad: EvolutionReviewPageServerLoad
 
         return rows.length > 0 ? rows[0].candidateChangeSetId : null;
       });
+      setLastRefreshedAt(new Date());
     } catch (e) {
       setListFailure(toApiLoadFailure(e));
       setCandidates([]);
@@ -259,5 +263,6 @@ export function useEvolutionReviewPage(serverLoad: EvolutionReviewPageServerLoad
     loadList,
     onSimulate,
     planSnapshot,
+    lastRefreshedAt,
   };
 }

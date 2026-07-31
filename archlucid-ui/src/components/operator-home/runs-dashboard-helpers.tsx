@@ -1,6 +1,5 @@
 "use client";
 
-import { RunStatusBadge } from "@/components/RunStatusBadge";
 import { StatusTag } from "@/components/ui/status-tag";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
 import {
@@ -12,15 +11,12 @@ import {
   BUYER_RUNS_DASHBOARD_TAB_UNDER_MONITORING,
 } from "@/lib/buyer-polish-copy";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { RUNS_DASHBOARD_LABELS } from "@/lib/i18n";
-import { BUYER_GOVERNANCE_MONITORING_BADGE } from "@/lib/buyer-home-status-copy";
 import {
   resolveRunSummaryPackageOrigin,
   type ArchitecturePackageOriginToken,
 } from "@/lib/architecture-package-origin";
 import { OPERATOR_HOME_EXAMPLE_RUN_DESCRIPTION_TOKEN } from "@/lib/operator-home-example-request";
-import { resolveRunFindingCountDisplay } from "@/lib/operator-home-run-list-insight";
 import { SHOWCASE_BUYER_REVIEW_TITLE, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
 
@@ -84,20 +80,6 @@ export function runsDashboardTabLabel(tabId: RunsDashboardTabId, buyerPolishedSh
   return RUNS_DASHBOARD_LABELS.tabOutcomes;
 }
 
-export function RunGovernanceWarningIndicator(props: { readonly buyerPolishedShell: boolean }) {
-  const title = props.buyerPolishedShell
-    ? BUYER_GOVERNANCE_MONITORING_BADGE
-    : RUNS_DASHBOARD_LABELS.governanceWarningTitle;
-
-  return (
-    <StatusTag
-      kind={props.buyerPolishedShell ? "approved-with-monitoring" : "needs-attention"}
-      label={title}
-      data-testid="run-governance-warning-indicator"
-    />
-  );
-}
-
 function packageOriginBadgeLabel(origin: ArchitecturePackageOriginToken): string {
   if (origin === "created") {
     return BUYER_ARCHITECTURE_PACKAGE_ORIGIN_CREATED_BADGE;
@@ -128,36 +110,6 @@ export function ArchitecturePackageOriginBadge(props: {
       className={props.className}
       data-testid={`architecture-package-origin-${origin}`}
     />
-  );
-}
-
-export function RunListRowBadges(props: {
-  readonly run: RunSummary;
-  readonly className?: string;
-  readonly buyerPolishedShell?: boolean;
-}) {
-  const findingCount = resolveRunFindingCountDisplay(props.run);
-  const buyerPolishedShell = props.buyerPolishedShell ?? isBuyerPolishedOperatorShellEnv();
-
-  return (
-    <div className="flex flex-wrap items-center gap-1.5">
-      <ArchitecturePackageOriginBadge
-        run={props.run}
-        buyerPolishedShell={buyerPolishedShell}
-        className={props.className}
-      />
-      <RunStatusBadge run={props.run} className={props.className} />
-      {findingCount !== null ? (
-        <StatusTag
-          kind={props.run.hasGoldenManifest === true ? "ready" : "needs-attention"}
-          label={`${findingCount} finding${findingCount === 1 ? "" : "s"}`}
-          className="text-[0.6rem]"
-        />
-      ) : null}
-      {props.run.hasGovernanceWarnings === true ? (
-        <RunGovernanceWarningIndicator buyerPolishedShell={buyerPolishedShell} />
-      ) : null}
-    </div>
   );
 }
 

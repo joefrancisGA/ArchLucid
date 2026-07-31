@@ -6,6 +6,23 @@ export const BILLING_HELP_PAGE_TITLE = "Billing and plans";
 export const BILLING_HELP_PAGE_SUBTITLE =
   "Manage your ArchLucid subscription, payment method, invoices, seats, and usage from Billing and plans.";
 
+export const BILLING_HELP_PAGE_SUBTITLE_BUYER =
+  "Manage subscription, seats, and billing from workspace settings.";
+
+export const BILLING_HELP_PAGE_SUBTITLE_OPERATOR = BILLING_HELP_PAGE_SUBTITLE;
+
+export function billingHelpPageSubtitle(buyerPolishedShell: boolean): string {
+  return buyerPolishedShell ? BILLING_HELP_PAGE_SUBTITLE_BUYER : BILLING_HELP_PAGE_SUBTITLE_OPERATOR;
+}
+
+export const BILLING_HELP_LAST_REFRESHED_PREFIX = "Last refreshed" as const;
+
+export const BILLING_HELP_ACTION_REFRESH = "Refresh" as const;
+
+export const BILLING_HELP_ACTION_REFRESHING = "Refreshing…" as const;
+
+export const BILLING_HELP_SCOPE_DETAILS_TRIGGER = "About billing and plans" as const;
+
 export const BILLING_HELP_OVERVIEW =
   "ArchLucid billing is managed from your workspace settings. Compare public plans on the pricing page, then complete purchase or ongoing subscription changes from Billing and plans.";
 

@@ -22,6 +22,7 @@ import { BUYER_MARKETING_PRICING_PAGE_INTRO } from "@/lib/buyer-polish-copy";
 import { BRAND_CATEGORY } from "@/lib/brand-category";
 import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { CANONICAL_ANONYMOUS_PROOF_HREF } from "@/lib/showcase-static-demo";
+import { appSiteHref } from "@/lib/site-urls";
 
 type WelcomeVerifyLink = {
   readonly label: string;
@@ -176,7 +177,7 @@ export function WelcomeMarketingPage(props: { readonly serverStaticSections?: Re
               <Link href="/signup">Start an evaluation</Link>
             </Button>
             <Button asChild variant="ghost" size="sm">
-              <Link href="/auth/signin">Sign in</Link>
+              <Link href={appSiteHref("/auth/signin")}>Sign in</Link>
             </Button>
           </div>
         </div>

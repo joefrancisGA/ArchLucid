@@ -8,6 +8,7 @@ import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { ColorModeToggle } from "@/components/ColorModeToggle";
 import { MarketingResourcesMenu } from "@/components/marketing/MarketingResourcesMenu";
 import { Button } from "@/components/ui/button";
+import { appSiteHref } from "@/lib/site-urls";
 import { cn } from "@/lib/utils";
 
 type MarketingPublicHeaderProps = {
@@ -83,7 +84,7 @@ export function MarketingPublicHeader(props: MarketingPublicHeaderProps): React.
           {hideThemeToggle || focusAuth ? null : <ColorModeToggle />}
           {focusAuth ? null : (
             <Button asChild variant="outline" size="sm">
-              <Link href="/auth/signin">Sign in</Link>
+              <Link href={appSiteHref("/auth/signin")}>Sign in</Link>
             </Button>
           )}
         </div>

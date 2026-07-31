@@ -26,11 +26,16 @@ resource "azurerm_monitor_diagnostic_setting" "container_apps_environment" {
 }
 
 locals {
-  container_app_metric_resource_ids = var.enable_container_app_diagnostics && local.enabled ? {
-    api    = azurerm_container_app.api[0].id
-    worker = azurerm_container_app.worker[0].id
-    ui     = azurerm_container_app.ui[0].id
-  } : {}
+  container_app_metric_resource_ids = var.enable_container_app_diagnostics && local.enabled ? merge(
+    {
+      api    = azurerm_container_app.api[0].id
+      worker = azurerm_container_app.worker[0].id
+      ui     = azurerm_container_app.ui[0].id
+    },
+    var.enable_marketing_ui_container_app ? {
+      ui_marketing = azurerm_container_app.ui_marketing[0].id
+    } : {}
+  ) : {}
 }
 
 resource "azurerm_monitor_diagnostic_setting" "container_apps" {

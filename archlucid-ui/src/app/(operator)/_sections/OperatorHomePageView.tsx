@@ -24,12 +24,10 @@ import { OperatorHomeWorkspaceActivityProvider } from "@/components/operator-hom
 import { PilotCommandCenterCard } from "@/components/usability/PilotCommandCenterCard";
 import { OperatorHomeGate } from "@/components/OperatorHomeGate";
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
-import { OPERATOR_HOME_PRIMARY_SECTION_HEADING, OPERATOR_LAYOUT, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
+import { OPERATOR_HOME_PRIMARY_SECTION_HEADING, OPERATOR_LAYOUT } from "@/lib/design-tokens";
 import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_HOME_RECENT_REVIEWS_HEADING } from "@/lib/operator-home-recent-reviews-heading";
-import { formatOperatorHomeRecentReviewsOutcome } from "@/lib/operator-home-recent-reviews-outcome";
 import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator-home-workspace-metrics";
-import { cn } from "@/lib/utils";
 
 import type { OperatorHomePageViewModel } from "./operator-home-page-view-model";
 
@@ -46,21 +44,10 @@ function HomeSectionHeading(props: { readonly id?: string; readonly children: st
 }
 
 function HomeRecentReviewsSection(props: { readonly model: OperatorHomePageViewModel }) {
-  const metrics = deriveOperatorHomeWorkspaceMetrics(
-    props.model.runsDashboard.items,
-    props.model.runsDashboard.totalCount,
-  );
-  const outcomeLine = formatOperatorHomeRecentReviewsOutcome(metrics);
-
   return (
     <section aria-labelledby="operator-home-reviews-heading" className={OPERATOR_LAYOUT.sectionHeadingStack}>
       <HomeSectionHeading id="operator-home-reviews-heading">{OPERATOR_HOME_RECENT_REVIEWS_HEADING}</HomeSectionHeading>
-      <p
-        className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}
-        data-testid="operator-home-recent-reviews-outcome"
-      >
-        {outcomeLine}
-      </p>
+      {/* Outcome line renders inside the runs panel from live list rows (avoids empty vs sample mismatch). */}
       <OperatorHomeRunsPanel hideHeading initialModel={props.model.runsDashboard} />
     </section>
   );

@@ -10,7 +10,8 @@
 #   NUGET_API_KEY — optional; pushes ArchLucid.Api.Client when set (production path)
 #   AZURE_RESOURCE_GROUP, CONTAINER_APP_API_NAME — optional; `az containerapp update` after image push (TB-657: CD owns runtime image tags; Terraform `lifecycle.ignore_changes` on container image)
 #   CONTAINER_APP_WORKER_NAME — optional; worker uses the same image as the API (ArchLucid.Api Dockerfile publishes Worker.dll; CA command is already set in Terraform)
-#   CONTAINER_APP_UI_NAME — optional second Container App for the UI image
+#   CONTAINER_APP_UI_NAME — optional operator UI Container App (same archlucid-ui image)
+#   CONTAINER_APP_MARKETING_UI_NAME — optional marketing UI Container App (same image; TB-2016 dual-CA split)
 #   SMOKE_TEST_BASE_URL — required for staging/production post-deploy smoke; optional skip for dev only
 #   ARCHLUCID_API_KEY — required for product-path smoke + deployment-evidence OpenAPI (admin X-Api-Key; not break-glass)
 #   ARCHLUCID_CONTENT_SAFETY_ENDPOINT / ARCHLUCID_CONTENT_SAFETY_API_KEY — optional but required for Staging/Production-like
@@ -900,10 +901,16 @@ jobs:
           else
             is_exact "Demo__Enabled" "false" \
               || fail "Demo__Enabled must be 'false'"
-            # staging/production are pinned to the buyer-facing apex (dev uses Container Apps FQDN
-            # or an operator-chosen custom domain, per PILOT_PROFILE.md "omit Front Door for pilots").
-            is_exact "Cors__AllowedOrigins__0" "https://www.archlucid.net" \
-              || fail "Cors__AllowedOrigins__0 must be 'https://www.archlucid.net'"
+            # staging/production: allow marketing apex (+ www) and operator app host (TB-2016 dual-CA, no Front Door).
+            # Dev uses Container Apps FQDN or an operator-chosen custom domain (PILOT_PROFILE.md).
+            cors0=$(env_value "Cors__AllowedOrigins__0")
+            cors1=$(env_value "Cors__AllowedOrigins__1")
+            cors2=$(env_value "Cors__AllowedOrigins__2")
+            cors_joined="${cors0}|${cors1}|${cors2}"
+            echo "$cors_joined" | grep -Eq '(^|[|])https://(www\.)?archlucid\.net([|]|$)' \
+              || fail "Cors__AllowedOrigins must include https://archlucid.net or https://www.archlucid.net"
+            echo "$cors_joined" | grep -Eq '(^|[|])https://app\.archlucid\.net([|]|$)' \
+              || fail "Cors__AllowedOrigins must include https://app.archlucid.net (operator UI host)"
           fi
           is_exact "Billing__Provider" "None" \
             || fail "Billing__Provider must be 'None'"
@@ -1007,6 +1014,12 @@ jobs:
               --revision-suffix "$REV_SFX" --set-env-vars "CD_DEPLOY_RUN=$DEPLOY_STAMP" \
               --query "properties.latestRevisionName" -o tsv)
           fi
+          if [ -n "${CONTAINER_APP_MARKETING_UI_NAME:-}" ] && [ -n "${UI_IMAGE}" ]; then
+            echo "Deploy marketing UI (same digest): ${UI_IMAGE}"
+            M_LATEST=$(az containerapp update -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_MARKETING_UI_NAME" --image "$UI_IMAGE" \
+              --revision-suffix "$REV_SFX" --set-env-vars "CD_DEPLOY_RUN=$DEPLOY_STAMP" \
+              --query "properties.latestRevisionName" -o tsv)
+          fi
           # Pin 100% ingress when multiple revisions exist (traffic can stay on an older revision). Skip API when canary
           # is enabled — the canary step splits API traffic next. Revision names come from the update calls above.
           if [ "${CD_CANARY_ENABLED:-}" != "true" ]; then
@@ -1027,10 +1040,17 @@ jobs:
                 || echo "UI: ingress traffic set skipped (no ingress or single-revision)."
             fi
           fi
+          if [ -n "${CONTAINER_APP_MARKETING_UI_NAME:-}" ]; then
+            if [ -n "${M_LATEST:-}" ]; then
+              az containerapp ingress traffic set -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_MARKETING_UI_NAME" --revision-weight "${M_LATEST}=100" \
+                || echo "Marketing UI: ingress traffic set skipped (no ingress or single-revision)."
+            fi
+          fi
           # Export revision names for subsequent verification steps.
           echo "a_latest=${A_LATEST:-}" >> "$GITHUB_OUTPUT"
           echo "w_latest=${W_LATEST:-}" >> "$GITHUB_OUTPUT"
           echo "u_latest=${U_LATEST:-}" >> "$GITHUB_OUTPUT"
+          echo "m_latest=${M_LATEST:-}" >> "$GITHUB_OUTPUT"
 
       # Hard-fail if the deployed revision's image does not contain the expected digest from this run.
       # Soft-skip only when deploy_ran=false (Azure deploy not configured for this environment).

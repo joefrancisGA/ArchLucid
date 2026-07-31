@@ -37,6 +37,15 @@ describe("operator-home-run-list-insight", () => {
     );
   });
 
+  it("mentions monitoring on finalized packages with governance warnings", () => {
+    const run = stubRun({
+      hasGoldenManifest: true,
+      hasGovernanceWarnings: true,
+    });
+
+    expect(formatRunHomeListInsightLine(run)).toBe("Package finalized · monitoring active");
+  });
+
   it("formats relative updated labels from createdUtc", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-06-16T12:00:00Z"));

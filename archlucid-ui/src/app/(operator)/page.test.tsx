@@ -141,8 +141,6 @@ vi.mock("@/components/operator-home/OperatorHomeExamplesPlacement", async () => 
 });
 
 vi.mock("@/components/operator-home/OperatorHomeDeferredPanels", async () => {
-  const Link = (await import("next/link")).default;
-
   return {
     OperatorHomeRunsPanel: ({
       initialModel,
@@ -151,7 +149,11 @@ vi.mock("@/components/operator-home/OperatorHomeDeferredPanels", async () => {
     }) => (
       <div data-testid="runs-dashboard-panel">
         {(initialModel?.items?.length ?? 0) > 0 ? (
-          <Link href="/reviews?projectId=default">Open all reviews</Link>
+          <div data-testid="runs-dashboard-status-filters" role="tablist" aria-label="Review views">
+            <button type="button" role="tab" aria-selected data-testid="runs-dashboard-tab-all">
+              All
+            </button>
+          </div>
         ) : null}
       </div>
     ),
@@ -405,7 +407,7 @@ describe("HomePage (55R smoke — landing)", () => {
     expect(screen.getByRole("link", { name: OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA })).toBeInTheDocument();
   });
 
-  it("exposes primary workflow destinations matching shell review paths", async () => {
+  it("exposes recent-reviews filter pills instead of an Open all reviews footer link", async () => {
     mockLoadOperatorHomeRunsDashboardModel.mockResolvedValue(runsDashboardWithSampleRun());
     listRunsByProjectPaged.mockResolvedValue({
       items: [sampleHomeRun],
@@ -418,10 +420,8 @@ describe("HomePage (55R smoke — landing)", () => {
     await renderHomePage();
 
     await waitFor(() => {
-      expect(screen.getByRole("link", { name: "Open all reviews" })).toHaveAttribute(
-        "href",
-        "/reviews?projectId=default",
-      );
+      expect(screen.getByTestId("runs-dashboard-tab-all")).toBeInTheDocument();
     });
+    expect(screen.queryByRole("link", { name: "Open all reviews" })).toBeNull();
   });
 });

@@ -5,7 +5,10 @@
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture-routes";
 import { ALERTS_HOW_ALERTS_WORK_LABEL } from "@/lib/alerts-page-copy";
 import { START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
-import { BUYER_ONBOARDING_PAGE_TITLE } from "@/lib/buyer-polish-copy";
+import {
+  BUYER_ONBOARDING_PAGE_TITLE,
+  OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_HEADING,
+} from "@/lib/buyer-polish-copy";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 export type PageHelpTopic = {
@@ -14,7 +17,11 @@ export type PageHelpTopic = {
 };
 
 const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
-  { prefix: "/", topic: { slug: "getting-started", label: "Getting started" } },
+  // Overview hero help — same topic the former "Learn / View workflow" links opened.
+  {
+    prefix: "/",
+    topic: { slug: "first-architecture-review", label: OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_HEADING },
+  },
   { prefix: "/onboarding", topic: { slug: "getting-started", label: BUYER_ONBOARDING_PAGE_TITLE } },
   { prefix: ARCHITECTURES_LIST_PATH, topic: { slug: "getting-started", label: "Getting started" } },
   { prefix: "/reviews/new", topic: { slug: "evidence-intake", label: START_REVIEW_LABEL } },
@@ -38,6 +45,8 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/value-report", topic: { slug: "executive-summary", label: "Executive summary" } },
   { prefix: "/digests", topic: { slug: "how-it-works", label: "Architecture digests" } },
   { prefix: "/planning", topic: { slug: "pilot-feedback", label: "Improvement planning" } },
+  { prefix: "/help/billing-and-plans", topic: { slug: "billing-and-plans", label: "Billing and plans" } },
+  { prefix: "/evolution-review", topic: { slug: "how-it-works", label: "Impact preview" } },
   { prefix: "/internal-operations/recommendation-learning", topic: { slug: "how-it-works", label: "How recommendation learning works" } },
   { prefix: "/governance/advisory-scans", topic: { slug: "how-it-works", label: "Advisory scans" } },
   { prefix: "/integrations/cloud-connections/azure", topic: { slug: "azure-permissions", label: "Azure permissions" } },

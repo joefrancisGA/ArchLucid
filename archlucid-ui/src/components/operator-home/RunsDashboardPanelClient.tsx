@@ -31,7 +31,6 @@ import {
 } from "@/lib/buyer-safe-review-navigation";
 import {
   BUYER_RUNS_DASHBOARD_NO_APPROVED_PACKAGES,
-  BUYER_RUNS_DASHBOARD_OPEN_REVIEW_PACKAGES_CTA,
   BUYER_RUNS_DASHBOARD_RECENT_LABEL_EMPTY,
   BUYER_RUNS_DASHBOARD_RECENT_SUMMARY,
   BUYER_RUNS_DASHBOARD_SECTION_HEADING,
@@ -47,6 +46,12 @@ import {
 } from "@/lib/design-tokens";
 import { RUNS_DASHBOARD_LABELS } from "@/lib/i18n";
 import { OPERATOR_HOME_GOVERNANCE_WARNINGS_PARAM } from "@/lib/operator-home-metric-hrefs";
+import {
+  filterTenantOverviewRuns,
+  formatOperatorHomeRecentReviewsOutcome,
+  isExampleOnlyOverviewRunList,
+} from "@/lib/operator-home-recent-reviews-outcome";
+import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator-home-workspace-metrics";
 import { coerceRunSummaryPaged } from "@/lib/operator-response-guards";
 import {
   buildDemoSeededOverviewRunSummary,
@@ -338,6 +343,18 @@ export function RunsDashboardPanelClient({
 
   const isRecentListTab = tab === "all" || tab === "approved";
 
+  const recentReviewsOutcomeLine = useMemo(() => {
+    if (phase !== "ready" && phase !== "error") {
+      return null;
+    }
+
+    const exampleReviewOnly = isExampleOnlyOverviewRunList(effectiveItems);
+    const tenantItems = filterTenantOverviewRuns(effectiveItems);
+    const metrics = deriveOperatorHomeWorkspaceMetrics(tenantItems, tenantItems.length);
+
+    return formatOperatorHomeRecentReviewsOutcome(metrics, { exampleReviewOnly });
+  }, [effectiveItems, phase]);
+
   const buyerFilterPillClass = (active: boolean, disabled: boolean = false) =>
     cn(
       "inline-flex min-h-[22px] items-center rounded-full border px-3 py-1 transition-colors",
@@ -356,6 +373,14 @@ export function RunsDashboardPanelClient({
         <h3 id="runs-dashboard-heading" className={cn(OPERATOR_LAYOUT.sectionHeadingMargin, OPERATOR_HOME_SECTION_HEADING)}>
           {buyerPolishedShell ? BUYER_RUNS_DASHBOARD_SECTION_HEADING : RUNS_DASHBOARD_LABELS.sectionHeading}
         </h3>
+      ) : null}
+      {hideHeading && recentReviewsOutcomeLine !== null ? (
+        <p
+          className={cn("m-0 mb-3", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}
+          data-testid="operator-home-recent-reviews-outcome"
+        >
+          {recentReviewsOutcomeLine}
+        </p>
       ) : null}
       <Tabs
         value={tab}
@@ -531,17 +556,6 @@ export function RunsDashboardPanelClient({
             <TabsContent value="outcomes" className="pt-0" data-testid="runs-dashboard-panel-outcomes">
               <RunsDashboardOutcomesTab buyerPolishedShell={buyerPolishedShell} showcaseDemoRun={showcaseDemoRun} />
             </TabsContent>
-            {buyerPolishedShell && effectiveItems.length > 0 ? (
-              <div className="border-t border-neutral-100 pt-3 dark:border-neutral-800">
-                <Link
-                  href={openAllReviewsHref}
-                  data-testid="runs-dashboard-open-review-packages"
-                  className={cn("inline-block font-semibold", OPERATOR_LINK.nav)}
-                >
-                  {BUYER_RUNS_DASHBOARD_OPEN_REVIEW_PACKAGES_CTA}
-                </Link>
-              </div>
-            ) : null}
           </CardContent>
         </Card>
       </Tabs>

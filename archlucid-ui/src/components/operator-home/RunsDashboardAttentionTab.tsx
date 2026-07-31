@@ -4,7 +4,6 @@ import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import {
   isRunNeedingAttention,
   runListPrimaryTitle,
-  RunListRowBadges,
 } from "@/components/operator-home/runs-dashboard-helpers";
 import type { RunsDashboardLoadPhase } from "@/components/operator-home/runs-dashboard-load-phase";
 import { RUNS_DASHBOARD_LABELS } from "@/lib/i18n";
@@ -59,9 +58,9 @@ export function RunsDashboardAttentionTab(props: RunsDashboardAttentionTabProps)
                 {attentionPreview.map((run) => (
                   <li
                     key={run.runId}
-                    className="flex flex-wrap items-start gap-2 border-b border-neutral-100 pb-2 last:border-b-0 last:pb-0 dark:border-neutral-800"
+                    className="flex flex-col gap-0.5 border-b border-neutral-100 pb-2 last:border-b-0 last:pb-0 dark:border-neutral-800"
                   >
-                    <span className={cn("min-w-0 flex-1 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.helper)}>
+                    <span className={cn("min-w-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.helper)}>
                       {runListPrimaryTitle(run)}
                     </span>
                     {(() => {
@@ -72,12 +71,11 @@ export function RunsDashboardAttentionTab(props: RunsDashboardAttentionTabProps)
                       }
 
                       return (
-                        <p className={cn("m-0 w-full basis-full text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.navHelper)}>
+                        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.navHelper)}>
                           {insightLine}
                         </p>
                       );
                     })()}
-                    <RunListRowBadges run={run} className="text-[0.6rem]" />
                   </li>
                 ))}
               </ul>

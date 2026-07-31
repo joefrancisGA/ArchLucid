@@ -3,6 +3,19 @@ export const IMPACT_PREVIEW_PAGE_TITLE = "Impact preview" as const;
 export const IMPACT_PREVIEW_PAGE_SUBTITLE =
   "Preview how a proposed architecture change may affect findings, risk, cost, and governance posture before implementation." as const;
 
+export const IMPACT_PREVIEW_PAGE_SUBTITLE_BUYER =
+  "Compare a proposed change against a baseline review before implementation." as const;
+
+export const IMPACT_PREVIEW_PAGE_SUBTITLE_OPERATOR = IMPACT_PREVIEW_PAGE_SUBTITLE;
+
+export function impactPreviewPageSubtitle(buyerPolishedShell: boolean): string {
+  return buyerPolishedShell ? IMPACT_PREVIEW_PAGE_SUBTITLE_BUYER : IMPACT_PREVIEW_PAGE_SUBTITLE_OPERATOR;
+}
+
+export const IMPACT_PREVIEW_LAST_REFRESHED_PREFIX = "Last refreshed" as const;
+
+export const IMPACT_PREVIEW_SCOPE_DETAILS_TRIGGER = "About impact preview" as const;
+
 export const IMPACT_PREVIEW_ORIENTATION =
   "Select a proposed change and baseline review to compare expected before-and-after outcomes." as const;
 
@@ -10,6 +23,7 @@ export const IMPACT_PREVIEW_TRUST_NOTICE =
   "Impact preview estimates likely effects from existing review evidence and policy signals. It is not a production deployment validation." as const;
 
 export const IMPACT_PREVIEW_ACTION_REFRESH = "Refresh" as const;
+export const IMPACT_PREVIEW_ACTION_REFRESHING = "Refreshing…" as const;
 export const IMPACT_PREVIEW_ACTION_SIMULATE = "Simulate impact" as const;
 export const IMPACT_PREVIEW_ACTION_CREATE_PROPOSED_CHANGE = "Create proposed change" as const;
 export const IMPACT_PREVIEW_ACTION_OPEN_PLANNING = "Open Planning" as const;

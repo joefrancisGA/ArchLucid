@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SIGN_IN_PAGE_COPY } from "@/lib/auth/sign-in-page-copy";
+import { publicSiteHref } from "@/lib/site-urls";
 import { cn } from "@/lib/utils";
 
 export type AuthFlowShellProps = {
@@ -32,7 +33,7 @@ export function AuthFlowShell({
       <div className="mx-auto flex min-h-[100dvh] w-full max-w-[480px] flex-col justify-center px-4 py-8 sm:px-6 sm:py-10">
         <header className="flex flex-col gap-2">
           <ArchLucidWordmarkLink
-            href="/welcome"
+            href={publicSiteHref("/welcome")}
             aria-label="ArchLucid — welcome"
             variant="marketing"
             className="self-start"
@@ -67,7 +68,7 @@ export function AuthFlowShell({
             {showEvaluationSignupLink ? (
               <>
                 New to ArchLucid?{" "}
-                <Link className={OPERATOR_LINK.nav} href="/signup">
+                <Link className={OPERATOR_LINK.nav} href={publicSiteHref("/signup")}>
                   Start an evaluation
                 </Link>
                 {" · "}

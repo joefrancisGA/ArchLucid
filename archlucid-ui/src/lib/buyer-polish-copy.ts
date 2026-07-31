@@ -174,6 +174,10 @@ export const OPERATOR_HOME_WORKSPACE_EMPTY_TITLE = "No reviews yet";
 export const OPERATOR_HOME_WORKSPACE_EMPTY_BODY =
   "Your in-progress and completed architecture reviews will appear here.";
 
+/** Recent reviews outcome when only a demo/seeded or showcase sample is visible. */
+export const OPERATOR_HOME_RECENT_REVIEWS_EXAMPLE_ONLY_OUTCOME =
+  "Showing a completed example review. Your own reviews will appear here.";
+
 export const OPERATOR_HOME_LEARN_HOW_REVIEWS_WORK_CTA = "Learn how reviews work";
 
 /** Empty Overview primary card title — single next step (TB-1038). */

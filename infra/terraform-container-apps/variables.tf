@@ -80,7 +80,7 @@ variable "api_container_app_name" {
 
 variable "ui_container_app_name" {
   type        = string
-  description = "Name of the Operator UI container app."
+  description = "Name of the Operator UI container app (app.<domain> when custom domains are bound)."
   default     = "archlucid-ui"
 }
 
@@ -430,6 +430,84 @@ variable "ui_revision_mode" {
     condition     = contains(["Single", "Multiple"], var.ui_revision_mode)
     error_message = "ui_revision_mode must be Single or Multiple."
   }
+}
+
+# TB-2016 — same-image marketing UI (apex) alongside operator UI (app subdomain). No Front Door.
+variable "enable_marketing_ui_container_app" {
+  type        = bool
+  description = "When true, provision a second UI Container App from ui_container_image for public marketing (apex). Operator UI remains ui_container_app_name."
+  default     = true
+}
+
+variable "marketing_ui_container_app_name" {
+  type        = string
+  description = "Name of the marketing UI container app (same image as operator UI)."
+  default     = "archlucid-ui-marketing"
+}
+
+variable "marketing_ui_min_replicas" {
+  type        = number
+  description = "Minimum marketing UI replicas."
+  default     = 1
+}
+
+variable "marketing_ui_max_replicas" {
+  type        = number
+  description = "Maximum marketing UI replicas (public traffic burst headroom)."
+  default     = 6
+}
+
+variable "marketing_ui_scale_concurrent_requests" {
+  type        = number
+  description = "HTTP scale rule concurrent-request target for the marketing UI app."
+  default     = 10
+}
+
+variable "marketing_ui_cpu" {
+  type        = number
+  description = "Marketing UI container vCPU."
+  default     = 0.25
+}
+
+variable "marketing_ui_memory" {
+  type        = string
+  description = "Marketing UI container memory."
+  default     = "0.5Gi"
+}
+
+variable "marketing_ui_ingress_external" {
+  type        = bool
+  description = "When true, marketing UI ingress allows external access."
+  default     = true
+}
+
+variable "marketing_ui_revision_mode" {
+  type        = string
+  description = "Container Apps revision mode for the marketing UI app."
+  default     = "Single"
+
+  validation {
+    condition     = contains(["Single", "Multiple"], var.marketing_ui_revision_mode)
+    error_message = "marketing_ui_revision_mode must be Single or Multiple."
+  }
+}
+
+variable "ui_custom_domain_name" {
+  type        = string
+  description = "Operator UI custom hostname (e.g. app.archlucid.net). Empty = default *.azurecontainerapps.io only. Bind cert via az CLI after DNS (see README)."
+  default     = ""
+}
+
+variable "marketing_ui_custom_domain_name" {
+  type        = string
+  description = "Marketing UI custom hostname (e.g. archlucid.net or www.archlucid.net). Empty until DNS ready. Bind cert via az CLI after DNS (see README)."
+  default     = ""
+}
+
+variable "api_custom_domain_name" {
+  type        = string
+  description = "API custom hostname (e.g. api.archlucid.net). Empty until DNS ready. Bind cert via az CLI after DNS (see README)."
+  default     = ""
 }
 
 variable "secondary_region_stack_enabled" {

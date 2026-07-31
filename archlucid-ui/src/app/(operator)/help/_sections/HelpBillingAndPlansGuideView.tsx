@@ -1,17 +1,24 @@
+"use client";
+
 import Link from "next/link";
+import { useCallback, useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { HelpBillingCurrentPlanCard } from "@/app/(operator)/help/_sections/HelpBillingCurrentPlanCard";
+import { HelpBillingAndPlansPageHeader } from "@/app/(operator)/help/_sections/HelpBillingAndPlansPageHeader";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   BILLING_HELP_FAQ_ITEMS,
   BILLING_HELP_HOW_BILLING_WORKS_ITEMS,
   BILLING_HELP_OVERVIEW,
-  BILLING_HELP_PAGE_SUBTITLE,
-  BILLING_HELP_PAGE_TITLE,
+  BILLING_HELP_SCOPE_DETAILS_TRIGGER,
   BILLING_HELP_SUPPORT_ACTION,
   BILLING_HELP_SUPPORT_INTRO,
+  billingHelpPageSubtitle,
   type BillingHelpFaqItem,
 } from "@/lib/billing-help-guide-content";
 import { cn } from "@/lib/utils";
@@ -22,8 +29,9 @@ import {
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
+import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { fetchTenantUsageStatusCached } from "@/lib/tenant-usage-status-client";
 
 type HelpBillingAndPlansGuideViewProps = {
   readonly entry: ProductDocumentationEntry;
@@ -69,25 +77,65 @@ function BillingFaqItemCard(props: { readonly item: BillingHelpFaqItem }): React
 export function HelpBillingAndPlansGuideView(props: HelpBillingAndPlansGuideViewProps): React.ReactElement {
   void props.entry;
 
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const queryClient = useQueryClient();
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(null);
+  const [refreshToken, setRefreshToken] = useState(0);
+
+  useEffect(() => {
+    setLastRefreshedAt(new Date());
+  }, []);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+
+    try {
+      await queryClient.invalidateQueries({ queryKey: operatorQueryKeys.tenantTrialStatus });
+      await fetchTenantUsageStatusCached({ force: true });
+      setRefreshToken((previous) => previous + 1);
+      setLastRefreshedAt(new Date());
+    } finally {
+      setRefreshing(false);
+    }
+  }, [queryClient]);
+
   return (
     <article
       className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")}
       data-testid="help-billing-and-plans-guide"
     >
       <HelpTopicHashScroll />
-      <header className={HELP_PAGE_LAYOUT.articleHeader}>
-        <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{BILLING_HELP_PAGE_TITLE}</h1>
-        <p className={cn("m-0 max-w-[42rem]", OPERATOR_TYPOGRAPHY.helper)}>{BILLING_HELP_PAGE_SUBTITLE}</p>
-      </header>
+
+      <HelpBillingAndPlansPageHeader
+        subtitle={billingHelpPageSubtitle(buyerPolishedShell)}
+        refreshing={refreshing}
+        lastRefreshedAt={lastRefreshedAt}
+        onRefresh={() => {
+          void onRefresh();
+        }}
+      />
 
       <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
-        <HelpBillingCurrentPlanCard />
+        <HelpBillingCurrentPlanCard refreshToken={refreshToken} />
       </div>
 
       <div className="max-w-[42rem] space-y-8 lg:max-w-none">
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-billing-overview">
-          {BILLING_HELP_OVERVIEW}
-        </p>
+        {buyerPolishedShell ? (
+          <CollapsibleSection
+            title={BILLING_HELP_SCOPE_DETAILS_TRIGGER}
+            defaultOpen={false}
+            sectionTestId="help-billing-scope-details"
+          >
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-billing-overview">
+              {BILLING_HELP_OVERVIEW}
+            </p>
+          </CollapsibleSection>
+        ) : (
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-billing-overview">
+            {BILLING_HELP_OVERVIEW}
+          </p>
+        )}
 
         <section
           aria-labelledby="how-billing-works-heading"

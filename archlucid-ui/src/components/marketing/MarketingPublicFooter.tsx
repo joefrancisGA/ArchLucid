@@ -2,15 +2,18 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
+import { appSiteHref } from "@/lib/site-urls";
 import { cn } from "@/lib/utils";
 
-const FOOTER_LINKS = [
-  { label: "Security", href: "/security-trust" },
-  { label: "Privacy", href: "/privacy" },
-  { label: "Product FAQ", href: "/faq" },
-  { label: "Trust Center", href: "/trust" },
-  { label: "Sign in", href: "/auth/signin" },
-] as const;
+function marketingPublicFooterLinks(): readonly { readonly label: string; readonly href: string }[] {
+  return [
+    { label: "Security", href: "/security-trust" },
+    { label: "Privacy", href: "/privacy" },
+    { label: "Product FAQ", href: "/faq" },
+    { label: "Trust Center", href: "/trust" },
+    { label: "Sign in", href: appSiteHref("/auth/signin") },
+  ];
+}
 
 type MarketingPublicFooterProps = {
   readonly excludeHrefs?: readonly string[];
@@ -19,7 +22,9 @@ type MarketingPublicFooterProps = {
 /** Shared public-site footer links for marketing trust surfaces. */
 export function MarketingPublicFooter(props: MarketingPublicFooterProps = {}): ReactNode {
   const excluded = new Set(props.excludeHrefs ?? []);
-  const links = FOOTER_LINKS.filter((link) => !excluded.has(link.href));
+  const links = marketingPublicFooterLinks().filter(
+    (link) => !excluded.has(link.href) && !excluded.has("/auth/signin"),
+  );
 
   return (
     <footer

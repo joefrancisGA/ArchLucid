@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/select";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
-  IMPACT_PREVIEW_ACTION_REFRESH,
   IMPACT_PREVIEW_ACTION_SIMULATE,
   IMPACT_PREVIEW_BASELINE_LABEL,
   IMPACT_PREVIEW_COMPARISON_SCOPE_LABEL,
@@ -41,7 +40,6 @@ export type ImpactPreviewSetupCardProps = {
   readonly canSimulate: boolean;
   readonly simulateBusy: boolean;
   readonly listLoading: boolean;
-  readonly onRefresh: () => void;
   readonly onSimulate: () => void;
 };
 
@@ -59,12 +57,7 @@ export function ImpactPreviewSetupCard(props: ImpactPreviewSetupCardProps): Reac
   return (
     <Card data-testid="impact-preview-setup-card">
       <CardHeader className="pb-3">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{IMPACT_PREVIEW_SETUP_CARD_TITLE}</CardTitle>
-          <Button type="button" variant="outline" size="sm" disabled={props.listLoading} onClick={() => props.onRefresh()}>
-            {props.listLoading ? "Refreshing…" : IMPACT_PREVIEW_ACTION_REFRESH}
-          </Button>
-        </div>
+        <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{IMPACT_PREVIEW_SETUP_CARD_TITLE}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid gap-4 md:grid-cols-2">

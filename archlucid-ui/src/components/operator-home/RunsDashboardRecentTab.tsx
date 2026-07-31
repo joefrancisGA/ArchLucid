@@ -9,7 +9,6 @@ import {
   isRunNeedingAttention,
   runListPrimaryRequestId,
   runListPrimaryTitle,
-  RunListRowBadges,
 } from "@/components/operator-home/runs-dashboard-helpers";
 import type { RunsDashboardLoadPhase } from "@/components/operator-home/runs-dashboard-load-phase";
 import { Button } from "@/components/ui/button";
@@ -22,6 +21,7 @@ import {
 import { BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK } from "@/lib/buyer-polish-copy";
 import {
   OPERATOR_CARD,
+  OPERATOR_LINK,
   OPERATOR_SURFACE_CARD_CLASS,
   OPERATOR_TYPOGRAPHY,
   OPERATOR_TYPE_SCALE,
@@ -98,12 +98,26 @@ export function RunsDashboardRecentTab(props: RunsDashboardRecentTabProps) {
     });
   }, [props.filteredItems]);
 
+  const showBuyerProofSummary =
+    (props.phase === "ready" || props.phase === "error") &&
+    props.showcaseDemoRun !== undefined &&
+    props.buyerPolishedShell;
+  const showcaseRunId = props.showcaseDemoRun?.runId;
+
   // Overview shows a short featured set; Architecture packages owns the full inventory.
-  const featuredItems = useMemo(
-    () => sortedItems.slice(0, OPERATOR_HOME_RECENT_FEATURED_LIMIT),
-    [sortedItems],
-  );
-  const hiddenFeaturedCount = Math.max(0, sortedItems.length - featuredItems.length);
+  // When the buyer proof card already names the showcase sample, omit that row from the list.
+  const { featuredItems, hiddenFeaturedCount } = useMemo(() => {
+    const listItems =
+      showBuyerProofSummary && showcaseRunId !== undefined
+        ? sortedItems.filter((run) => run.runId !== showcaseRunId)
+        : sortedItems;
+    const featured = listItems.slice(0, OPERATOR_HOME_RECENT_FEATURED_LIMIT);
+
+    return {
+      featuredItems: featured,
+      hiddenFeaturedCount: Math.max(0, listItems.length - featured.length),
+    };
+  }, [showcaseRunId, showBuyerProofSummary, sortedItems]);
 
   return (
     <div data-testid={panelTestId}>
@@ -194,13 +208,23 @@ export function RunsDashboardRecentTab(props: RunsDashboardRecentTabProps) {
         </p>
       ) : null}
 
-      {(props.phase === "ready" || props.phase === "error") && props.showcaseDemoRun !== undefined && props.buyerPolishedShell ? (
+      {showBuyerProofSummary && props.showcaseDemoRun !== undefined ? (
         <section
           aria-label="Featured review summary"
           className={cn("space-y-2", OPERATOR_CARD.nested, OPERATOR_SURFACE_CARD_CLASS)}
           data-testid="runs-dashboard-buyer-proof-summary"
         >
-          <p className={cn("m-0", OPERATOR_TYPE_SCALE.cardTitle, "text-neutral-900 dark:text-neutral-100")}>
+          <Link
+            href={`/reviews/${encodeURIComponent(props.showcaseDemoRun.runId)}`}
+            className={cn("m-0 inline-block", OPERATOR_LINK.nav, OPERATOR_TYPE_SCALE.cardTitle)}
+            data-testid="runs-dashboard-buyer-proof-title"
+          >
+            {SHOWCASE_BUYER_REVIEW_TITLE}
+          </Link>
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.navHelper)}>
+            Completed example review · Approved with monitoring
+          </p>
+          <p className={cn("m-0", OPERATOR_TYPE_SCALE.sectionTitle, "text-neutral-900 dark:text-neutral-100")}>
             Decision: Package finalized
           </p>
           <p className={cn("m-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
@@ -234,18 +258,17 @@ export function RunsDashboardRecentTab(props: RunsDashboardRecentTabProps) {
                   className="flex flex-wrap items-start gap-2 border-b border-neutral-100 pb-2 last:border-b-0 last:pb-0 dark:border-neutral-800"
                 >
                   <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-                    <div className="flex min-w-0 flex-wrap items-center gap-2">
-                      <Link
-                        href={`/reviews/${encodeURIComponent(run.runId)}`}
-                        className={cn(
-                          "min-w-0 font-semibold text-teal-900 underline decoration-teal-300/80 hover:text-teal-950 dark:text-teal-100 dark:hover:text-teal-50",
-                          OPERATOR_TYPE_SCALE.body,
-                        )}
-                      >
-                        {runListPrimaryTitle(run)}
-                      </Link>
-                      <RunListRowBadges run={run} className="text-[0.6rem]" />
-                    </div>
+                    {/*
+                      Title uses OPERATOR_LINK.nav so it matches other home links.
+                      Status stays in the insight lines below — inline Reviewed/READY/findings tags
+                      duplicated that copy and crowded the row.
+                    */}
+                    <Link
+                      href={`/reviews/${encodeURIComponent(run.runId)}`}
+                      className={cn("min-w-0", OPERATOR_LINK.nav, OPERATOR_TYPE_SCALE.body)}
+                    >
+                      {runListPrimaryTitle(run)}
+                    </Link>
                     {isShowcaseStaticDemoRunId(run.runId ?? "") ? (
                       <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.navHelper)}>
                         Completed example review · Approved with monitoring
@@ -292,7 +315,7 @@ export function RunsDashboardRecentTab(props: RunsDashboardRecentTabProps) {
           </ul>
           {hiddenFeaturedCount > 0 ? (
             <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
-              <Link href="/reviews" className="font-medium underline underline-offset-2">
+              <Link href="/reviews" className={OPERATOR_LINK.nav}>
                 View all reviews
               </Link>
               {` (${hiddenFeaturedCount} more on this page)`}

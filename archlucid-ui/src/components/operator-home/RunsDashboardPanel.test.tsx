@@ -40,7 +40,12 @@ vi.mock("@/lib/demo-seeded-overview", async (importOriginal) => {
 });
 
 import { listRunsByProjectPaged } from "@/lib/api";
-import { BUYER_RUNS_DASHBOARD_OPEN_REVIEW_PACKAGES_CTA, OPERATOR_HOME_WORKSPACE_EMPTY_BODY, OPERATOR_HOME_WORKSPACE_EMPTY_TITLE } from "@/lib/buyer-polish-copy";
+import {
+  BUYER_RUNS_DASHBOARD_OPEN_REVIEW_PACKAGES_CTA,
+  OPERATOR_HOME_RECENT_REVIEWS_EXAMPLE_ONLY_OUTCOME,
+  OPERATOR_HOME_WORKSPACE_EMPTY_BODY,
+  OPERATOR_HOME_WORKSPACE_EMPTY_TITLE,
+} from "@/lib/buyer-polish-copy";
 import * as operatorStaticDemo from "@/lib/operator-static-demo";
 
 import { OperatorHomeWorkspaceActivityProvider } from "@/components/operator-home/operator-home-workspace-activity-context";
@@ -169,8 +174,10 @@ describe("RunsDashboardPanel", () => {
     expect(await screen.findByTestId(`run-home-list-insight-${run.runId}`)).toHaveTextContent(
       "4 findings · 1 monitored risk · package finalized",
     );
-    expect(screen.getByText("4 findings")).toBeInTheDocument();
-    expect(screen.getByTestId("run-governance-warning-indicator")).toBeInTheDocument();
+    // Home recent rows keep status in the insight line only — no inline Reviewed/READY/findings tags.
+    expect(screen.queryByTestId("run-governance-warning-indicator")).toBeNull();
+    expect(screen.queryByTestId("architecture-package-origin-reviewed")).toBeNull();
+    expect(screen.queryByTestId("architecture-package-origin-created")).toBeNull();
   });
 
   it("shows empty state when there are no runs", async () => {
@@ -217,7 +224,7 @@ describe("RunsDashboardPanel", () => {
     }
   });
 
-  it("shows pipeline status for runs needing attention tab", async () => {
+  it("shows insight status for runs needing attention tab", async () => {
     const run: RunSummary = {
       runId: "00000000-0000-0000-0000-000000000099",
       projectId: "default",
@@ -243,8 +250,9 @@ describe("RunsDashboardPanel", () => {
     fireEvent.click(screen.getByRole("tab", { name: /needs attention/i }));
 
     expect(
-      await screen.findByLabelText(/Review status: Needs attention/i),
+      await screen.findByText("Findings ready · finalize manifest to lock governance posture"),
     ).toBeInTheDocument();
+    expect(screen.queryByLabelText(/Review status:/i)).toBeNull();
   });
 
   it("filters to governance-warning runs when checkbox is checked", async () => {
@@ -283,7 +291,7 @@ describe("RunsDashboardPanel", () => {
     expect(screen.getByRole("link", { name: "Needs follow-up" })).toBeInTheDocument();
   });
 
-  it("shows governance warning indicator when run hasGovernanceWarnings is true", async () => {
+  it("surfaces monitoring in the insight line when run hasGovernanceWarnings is true", async () => {
     const run: RunSummary = {
       runId: "00000000-0000-0000-0000-000000000099",
       projectId: "default",
@@ -304,7 +312,10 @@ describe("RunsDashboardPanel", () => {
 
     renderRunsDashboardPanel();
 
-    expect(await screen.findByTestId("run-governance-warning-indicator")).toBeInTheDocument();
+    expect(await screen.findByTestId(`run-home-list-insight-${run.runId}`)).toHaveTextContent(
+      "Package finalized · monitoring active",
+    );
+    expect(screen.queryByTestId("run-governance-warning-indicator")).toBeNull();
   });
 
   it("buyer-polished recent tab features sample review, omits showcase banner, and hides full list when only sample run", async () => {
@@ -337,17 +348,54 @@ describe("RunsDashboardPanel", () => {
       expect(screen.getByText("Decision: Package finalized")).toBeInTheDocument();
       expect(screen.queryByTestId("operator-home-showcase-demo-banner")).toBeNull();
       expect(screen.queryByRole("link", { name: "Jump to review journey" })).toBeNull();
-      expect(screen.getByRole("link", { name: "Claims Intake Modernization Review" })).toHaveAttribute(
+      expect(screen.getByTestId("runs-dashboard-buyer-proof-title")).toHaveAttribute(
         "href",
         "/reviews/claims-intake-modernization",
       );
+      expect(screen.getByTestId("runs-dashboard-buyer-proof-title")).toHaveTextContent(
+        "Claims Intake Modernization Review",
+      );
+      // Showcase title lives on the proof card — do not repeat it as a trailing list row.
+      expect(screen.queryByTestId("recent-runs-home-panel")).toBeNull();
       expect(screen.queryByRole("link", { name: "Signed manifest summary" })).toBeNull();
       expect(screen.queryByRole("link", { name: "Full review detail" })).toBeNull();
-      expect(screen.getByRole("link", { name: BUYER_RUNS_DASHBOARD_OPEN_REVIEW_PACKAGES_CTA })).toHaveAttribute(
-        "data-testid",
-        "runs-dashboard-open-review-packages",
-      );
+      // All / Approved / Action needed pills already cover list scope — no duplicate footer CTA.
+      expect(screen.queryByTestId("runs-dashboard-open-review-packages")).toBeNull();
+      expect(screen.queryByRole("link", { name: BUYER_RUNS_DASHBOARD_OPEN_REVIEW_PACKAGES_CTA })).toBeNull();
       expect(screen.queryByRole("link", { name: "All" })).toBeNull();
+    } finally {
+      runsDashBuyerPolishedForced.on = false;
+    }
+  });
+
+  it("shows example-aware outcome copy when hideHeading and only a showcase sample is listed", async () => {
+    runsDashBuyerPolishedForced.on = true;
+
+    try {
+      const run: RunSummary = {
+        runId: "claims-intake-modernization",
+        projectId: "default",
+        description: "Claims Intake sample",
+        createdUtc: "2026-01-15T12:00:00.000Z",
+        hasFindingsSnapshot: true,
+        hasGoldenManifest: true,
+        demoSeededOverviewInject: true,
+      };
+      listRuns.mockResolvedValue({
+        items: [run],
+        totalCount: 1,
+        page: 1,
+        pageSize: 5,
+        hasMore: false,
+      });
+      stubFetchForDashboard();
+
+      renderRunsDashboardPanel(<RunsDashboardPanel hideHeading />);
+
+      expect(await screen.findByTestId("operator-home-recent-reviews-outcome")).toHaveTextContent(
+        OPERATOR_HOME_RECENT_REVIEWS_EXAMPLE_ONLY_OUTCOME,
+      );
+      expect(screen.queryByText("No reviews in this workspace yet.")).toBeNull();
     } finally {
       runsDashBuyerPolishedForced.on = false;
     }
@@ -455,10 +503,7 @@ describe("RunsDashboardPanel", () => {
     const archivedFilter = await screen.findByTestId("runs-dashboard-show-archived");
     expect(archivedFilter).toHaveTextContent("Archived 0");
     expect(archivedFilter).toBeDisabled();
-    expect(screen.getByRole("link", { name: BUYER_RUNS_DASHBOARD_OPEN_REVIEW_PACKAGES_CTA })).toHaveAttribute(
-      "data-testid",
-      "runs-dashboard-open-review-packages",
-    );
+    expect(screen.queryByTestId("runs-dashboard-open-review-packages")).toBeNull();
     expect(screen.queryByTestId("runs-dashboard-archived-unsupported")).toBeNull();
     expect(screen.queryByText(/contact your administrator/i)).toBeNull();
 

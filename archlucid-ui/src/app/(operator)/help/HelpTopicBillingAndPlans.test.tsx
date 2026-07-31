@@ -1,6 +1,8 @@
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
+
 const useNavCallerAuthorityRank = vi.hoisted(() => vi.fn(() => 3));
 const startBillingPortal = vi.hoisted(() => vi.fn().mockResolvedValue("redirected"));
 const fetchTenantUsageStatusCached = vi.hoisted(() =>
@@ -45,6 +47,7 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   return {
     ...actual,
     isNextPublicDemoMode: () => false,
+    isBuyerPolishedOperatorShellEnv: () => false,
   };
 });
 
@@ -133,10 +136,12 @@ describe("HelpBillingAndPlansGuideView", () => {
       throw new Error("Expected billing-and-plans documentation entry.");
     }
 
-    render(<HelpBillingAndPlansGuideView entry={entry} />);
+    renderWithOperatorQuery(<HelpBillingAndPlansGuideView entry={entry} />);
 
     expect(screen.getByRole("heading", { level: 1, name: BILLING_HELP_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByText(BILLING_HELP_PAGE_SUBTITLE)).toBeInTheDocument();
+    expect(screen.getByTestId("help-billing-refresh-button")).toBeInTheDocument();
+    expect(screen.getByTestId("help-billing-last-refreshed")).toHaveTextContent(/Last refreshed:/i);
     expect(screen.getByTestId("help-billing-action-panel")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "How billing works" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Common questions" })).toBeInTheDocument();
@@ -150,7 +155,7 @@ describe("HelpBillingAndPlansGuideView", () => {
       throw new Error("Expected billing-and-plans documentation entry.");
     }
 
-    render(<HelpBillingAndPlansGuideView entry={entry} />);
+    renderWithOperatorQuery(<HelpBillingAndPlansGuideView entry={entry} />);
 
     const actionPanel = screen.getByTestId("help-billing-action-panel");
 
@@ -169,7 +174,7 @@ describe("HelpBillingAndPlansGuideView", () => {
       throw new Error("Expected billing-and-plans documentation entry.");
     }
 
-    render(<HelpBillingAndPlansGuideView entry={entry} />);
+    renderWithOperatorQuery(<HelpBillingAndPlansGuideView entry={entry} />);
 
     const actionPanel = screen.getByTestId("help-billing-action-panel");
     const context = screen.getByTestId("help-billing-current-plan-context");
@@ -190,7 +195,7 @@ describe("HelpBillingAndPlansGuideView", () => {
 
     useTenantTrialStatusQuery.mockReturnValue({ data: { status: "Expired", daysRemaining: 0 } });
 
-    render(<HelpBillingAndPlansGuideView entry={entry} />);
+    renderWithOperatorQuery(<HelpBillingAndPlansGuideView entry={entry} />);
 
     const context = screen.getByTestId("help-billing-current-plan-context");
 
@@ -205,7 +210,7 @@ describe("HelpBillingAndPlansGuideView", () => {
 
     useNavCallerAuthorityRank.mockReturnValue(1);
 
-    render(<HelpBillingAndPlansGuideView entry={entry} />);
+    renderWithOperatorQuery(<HelpBillingAndPlansGuideView entry={entry} />);
 
     const actionPanel = screen.getByTestId("help-billing-action-panel");
 
@@ -235,7 +240,7 @@ describe("HelpBillingAndPlansGuideView", () => {
         }),
     );
 
-    render(<HelpBillingAndPlansGuideView entry={entry} />);
+    renderWithOperatorQuery(<HelpBillingAndPlansGuideView entry={entry} />);
 
     const manageBillingButton = screen.getByTestId("help-billing-manage-billing");
 
@@ -262,7 +267,7 @@ describe("HelpBillingAndPlansGuideView", () => {
 
     startBillingPortal.mockResolvedValueOnce("failed");
 
-    render(<HelpBillingAndPlansGuideView entry={entry} />);
+    renderWithOperatorQuery(<HelpBillingAndPlansGuideView entry={entry} />);
 
     const manageBillingButton = screen.getByTestId("help-billing-manage-billing");
 
@@ -280,7 +285,7 @@ describe("HelpBillingAndPlansGuideView", () => {
       throw new Error("Expected billing-and-plans documentation entry.");
     }
 
-    render(<HelpBillingAndPlansGuideView entry={entry} />);
+    renderWithOperatorQuery(<HelpBillingAndPlansGuideView entry={entry} />);
 
     const firstFaq = screen.getByTestId("help-billing-faq-trial-ends");
     const summary = within(firstFaq).getByText("What happens when my trial ends?");
@@ -299,7 +304,7 @@ describe("HelpBillingAndPlansGuideView", () => {
       throw new Error("Expected billing-and-plans documentation entry.");
     }
 
-    render(<HelpBillingAndPlansGuideView entry={entry} />);
+    renderWithOperatorQuery(<HelpBillingAndPlansGuideView entry={entry} />);
 
     const pageText = document.body.textContent?.toLowerCase() ?? "";
 

@@ -59,7 +59,17 @@ export function formatRunHomeListInsightLine(run: RunSummary): string | null {
     }
 
     if (findings !== null) {
-      return `${findings} finding${findings === 1 ? "" : "s"} · package finalized`;
+      const withFindings = `${findings} finding${findings === 1 ? "" : "s"} · package finalized`;
+
+      if (run.hasGovernanceWarnings === true) {
+        return `${withFindings} · monitoring active`;
+      }
+
+      return withFindings;
+    }
+
+    if (run.hasGovernanceWarnings === true) {
+      return "Package finalized · monitoring active";
     }
 
     return "Package finalized";
