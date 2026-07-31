@@ -1,6 +1,6 @@
-﻿> **Reviewed:** 2026-07-27
+﻿> **Reviewed:** 2026-07-31
 
-> **Scope:** ArchLucid demo quickstart (buyer-facing), screenshot capture brief for marketing/demo PNGs (formerly ``SCREENSHOT_GALLERY.md``), live-call / video demo scripts plus storyboard (formerly ``DEMO_VIDEO_SCRIPT.md``), hosted GA demo workspaces / welcome-hero analytics (formerly the body of ``DEMO_WORKSPACES.md``; that filename remains a path-stable alias for fixture GUID CI), GTM synthetic samples / architecture review board export how-to (formerly the body of ``samples/README.md``; that filename remains a path-stable alias next to the DOCX/PDF binaries), the sample-package funnel ID matrix (formerly the body of ``SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md``; that filename remains a path-stable alias for GTM **M-134**), and the showcase naming hierarchy + Contoso/Northwind matrix (formerly the body of ``SHOWCASE_NAMING_HIERARCHY.md``; that filename remains a path-stable alias for GTM **M-135**). Full detail, tables, and links in the sections below.
+> **Scope:** ArchLucid demo quickstart (buyer-facing), screenshot capture brief for marketing/demo PNGs (formerly ``SCREENSHOT_GALLERY.md``), live-call / video demo scripts plus storyboard (formerly ``DEMO_VIDEO_SCRIPT.md``), hosted GA demo workspaces / welcome-hero analytics (formerly the body of ``DEMO_WORKSPACES.md``; that filename remains a path-stable alias for fixture GUID CI), GTM synthetic samples / architecture review board export how-to (formerly the body of ``samples/README.md``; that filename remains a path-stable alias next to the DOCX/PDF binaries), the sample-package funnel ID matrix (formerly the body of ``SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md``; that filename remains a path-stable alias for GTM **M-134**), the showcase naming hierarchy + Contoso/Northwind matrix (formerly the body of ``SHOWCASE_NAMING_HIERARCHY.md``; that filename remains a path-stable alias for GTM **M-135**), and the anonymous `/demo/preview` route contract + cache/privacy boundaries (formerly the body of ``docs/library/DEMO_PREVIEW.md``; that filename remains a path-stable alias for ADR / **TB-887** / **M-133** callers). Full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -9,7 +9,7 @@
 
 **Audience:** Evaluators and champions who want to see the product in minutes without installing the .NET SDK, SQL Server, or Node.js locally. Capture operators also use the [screenshot brief](#screenshot-capture-brief) below.
 
-**Last reviewed:** 2026-07-27
+**Last reviewed:** 2026-07-31
 
 **Grounding:** Same demo data as [demo-quickstart.md](../archive/onboarding/demo-quickstart.md) (Contoso Retail) and [V1_SCOPE.md](../library/V1_SCOPE.md). The Docker path uses **Development** environment, **simulator** agent mode (no Azure OpenAI charges), and **startup demo seed** after DbUp.
 
@@ -477,9 +477,11 @@ Constant in UI: `CANONICAL_ANONYMOUS_PROOF_HREF` in `archlucid-ui/src/lib/showca
 | Contoso / Northwind in primary one-sentence or primary CTA org chrome | **Forbidden** |
 | Until **TB-981** | Cold funnel + routes stay on Claims spine (**M-107**); this ratification is naming/portfolio intent only |
 
-Full owner note: [`DEMO_PREVIEW.md`](../library/DEMO_PREVIEW.md) § Owner ratification — showcase Option D. Assessment: [`showcase_scenario_strategy_assessment_2026_07_23.md`](../architecture/showcase_scenario_strategy_assessment_2026_07_23.md) §17–§19.
+**PA one-sentence:** ArchLucid’s primary buyer-facing sample is Enterprise Customer Intake Modernization — a governed architecture proof package for modernizing how an enterprise intakes and processes customer work, with evidence-backed findings you can commit and export. **Never in that sentence:** Contoso, Northwind.
 
-**PA one-sentence:** ArchLucid’s primary buyer-facing sample is Enterprise Customer Intake Modernization — a governed architecture proof package for modernizing how an enterprise intakes and processes customer work, with evidence-backed findings you can commit and export.
+**Does not authorize:** rename-in-place of routes/slugs/SQL seeds, deleting Contoso Product Tour internals, or flipping get-started/SEO defaults before **TB-980**/**TB-981**. Authoring the Enterprise Customer Intake package is **TB-980**; naming hierarchy / toxic-org matrix prose is **M-135**.
+
+Route contract / cache / privacy for Contoso `/demo/preview`: [Demo commit-page preview route contract](#demo-preview-route-contract-and-safety). Assessment: [`showcase_scenario_strategy_assessment_2026_07_23.md`](../architecture/showcase_scenario_strategy_assessment_2026_07_23.md) §17–§19.
 
 ### Verdict (what “aligned” means today)
 
@@ -538,7 +540,77 @@ Pinned Workspace A/B GUID table (CI): [`DEMO_WORKSPACES.md`](DEMO_WORKSPACES.md)
 | Naming hierarchy + safe/toxic org matrix prose | **M-135** **Done** — [Showcase naming hierarchy](#showcase-naming-hierarchy-m-135) |
 | Screenshots / video on ratified creatives | **M-108** / **M-07** / **M-16** |
 
-**Related:** [Showcase naming hierarchy (M-135)](#showcase-naming-hierarchy-m-135) · [Demo workspaces](#demo-workspaces) · [Marketing static vs live boundary (M-179)](BUYER_SECURITY_PROCUREMENT_PACKET.md#marketing-static-vs-live-demo-boundary-m-179) · [`/live-demo` vs `/see-it` ladder (M-260)](BUYER_SECURITY_PROCUREMENT_PACKET.md#live-demo-see-it-ladder-m-260) · [`DEMO_PREVIEW.md`](../library/DEMO_PREVIEW.md) · [`GTM_BACKLOG.md`](GTM_BACKLOG.md).
+**Related:** [Showcase naming hierarchy (M-135)](#showcase-naming-hierarchy-m-135) · [Demo workspaces](#demo-workspaces) · [Demo commit-page preview route contract](#demo-preview-route-contract-and-safety) · [Marketing static vs live boundary (M-179)](BUYER_SECURITY_PROCUREMENT_PACKET.md#marketing-static-vs-live-demo-boundary-m-179) · [`/live-demo` vs `/see-it` ladder (M-260)](BUYER_SECURITY_PROCUREMENT_PACKET.md#live-demo-see-it-ladder-m-260) · [`GTM_BACKLOG.md`](GTM_BACKLOG.md).
+
+## Demo commit-page preview route contract (`/demo/preview`) {#demo-preview-route-contract-and-safety}
+
+Former standalone body: `docs/library/DEMO_PREVIEW.md` → this section (filename kept as a path-stable alias for ADR / **TB-887** / **M-133** callers). Complements [Sample-package funnel ID matrix (M-134)](#sample-package-funnel-id-matrix) and [Showcase naming hierarchy (M-135)](#showcase-naming-hierarchy-m-135).
+
+**Path-stable alias:** [`../library/DEMO_PREVIEW.md`](../library/DEMO_PREVIEW.md).
+
+**Last reviewed:** 2026-07-31
+
+### Objective
+
+Give **marketing visitors** a **read-only** view of what the operator **commit page** looks like for the latest **committed demo-seed** run — sourced from the same ArchLucid services as production (`IRunRepository`, `IAuthorityQueryService`, `IRunExplanationSummaryService`, artifacts, pipeline timeline), **without** an account, API key, or operator install.
+
+### Why it exists
+
+- **Buyer outcome:** Contoso **`/demo/preview`** remains a secondary Product Tour surface; the **canonical anonymous proof** path is Claims showcase (**M-107** Option A) — welcome → `/see-it` → `/showcase/claims-intake-modernization`.
+- **Anchored in real services:** the payload is assembled server-side under the hard-pinned demo scope (same pattern as **`GET /v1/demo/explain`**).
+- **Cheap under spikes:** marketing links can go viral; the route is **cached** so repeat views do not hammer SQL.
+
+### API contract (`GET /v1/demo/preview`)
+
+- **Auth:** **`[AllowAnonymous]`** — no `Authorization` header.
+- **Gate:** **`[FeatureGate(FeatureGateKey.DemoEnabled)]`** — when **`Demo:Enabled`** is not **`true`**, the deployment returns **`404`** (no route hint).
+- **Rate limit:** **`[EnableRateLimiting("fixed")]`** — same window as **`/v1/demo/explain`**.
+- **Body:** **`DemoCommitPagePreviewResponse`** (camelCase JSON) — run header, authority chain ids, manifest summary, first **10** pipeline timeline rows, artifact descriptors (no download URLs), aggregate **`RunExplanationSummary`**.
+- **HTTP cache:** **`Cache-Control: public, max-age=300, s-maxage=300, stale-while-revalidate=60`**; **`ETag`** = SHA-256 over the serialized JSON body; **`304 Not Modified`** when **`If-None-Match`** matches.
+- **In-process cache:** **`IHotPathReadCache`** with TTL **`Demo:PreviewCacheSeconds`** (default **300**, clamped **30–3600**). Stable key **`demo-preview:bundle:v1:latest`** — the **resolved run id and manifest** live **inside** the cached value so a **re-seed** that creates a new run id still hot-swaps on the **next cache miss** (there is **no** manual flush API).
+
+### Marketing UI (`archlucid-ui`)
+
+- **Route:** **`src/app/(marketing)/demo/preview/page.tsx`** — **no** operator sidebar; uses the marketing chrome from **`(marketing)/layout.tsx`**.
+- **Fast path:** **`src/app/(marketing)/see-it/page.tsx`** (`/see-it`) — same **`GET /v1/demo/preview`** JSON with a checked-in fallback at **`public/demo-preview-snapshot.json`** when the API is unreachable; optional ETag from **`public/demo-preview-snapshot.etag`** (regenerate via **`scripts/ops/refresh-demo-preview-snapshot.ps1`**). Also honors **`NEXT_PUBLIC_DEMO_API_BASE`** before the preview base chain.
+- **Fetch:** server-side **`fetch`** to **`NEXT_PUBLIC_DEMO_PREVIEW_API_BASE`** (trimmed, no trailing slash), falling back to **`ARCHLUCID_API_BASE_URL`** then **`NEXT_PUBLIC_ARCHLUCID_API_BASE_URL`** — **not** `/api/proxy` (proxy adds operator auth).
+- **ISR:** **`export const revalidate = 300`** aligns with the API TTL.
+- **Robots:** metadata sets **`noindex, nofollow`** so demo numbers are not indexed as production telemetry.
+- **Banner:** amber **demo tenant** strip (same wording family as **`/demo/explain`**).
+
+### Cache staleness after re-seed
+
+There is **no** distributed invalidation hook. After **`POST /v1/demo/seed`** (or **`archlucid try`**), **`/demo/preview`** may show **pre-reseed** data for up to **TTL** (default five minutes) on each API instance.
+
+### Privacy / data shape
+
+- Demo seed uses **fictional Contoso** identifiers; responses always include **`isDemoData: true`**.
+- **No** anonymous artifact downloads — the artifacts table is **read-only**.
+
+### Production safety
+
+Hosts without **`Demo:Enabled=true`** return **`404`** for the API route; the marketing page renders the friendly “not available” notice on **HTTP 404**.
+
+### Telemetry
+
+Counters (no `tenant_id` label — single demo tenant):
+
+- **`archlucid.demo.preview.cache_hit_total`**
+- **`archlucid.demo.preview.cache_miss_total`**
+
+### Follow-ups
+
+- **Playwright E2E** for `/demo/preview` in a seeded CI host (not implemented here); track when marketing E2E harness exists.
+
+### Marketing showcase (`/showcase/[runId]`)
+
+Curated slug **`claims-intake-modernization`** is **static-first**: the UI serves `getShowcaseStaticDemoPayload()` without blocking on `GET /v1/marketing/showcase/{runId}` when the slug is in the curated set (`showcase-page-resolution.ts`). If the marketing API returns **404** or an invalid body for a slug that has bundled static data, the page falls back to that payload instead of `DemoPreviewNotAvailable`.
+
+**Deploy posture:** set **`SHOWCASE_STATIC_ONLY=1`** (or **`NEXT_PUBLIC_SHOWCASE_STATIC_ONLY=1`**) when production intentionally serves showcase pages from bundled static JSON only — the UI skips all upstream showcase fetches (same effect as leaving `ARCHLUCID_API_BASE_URL` unset for showcase resolution). Live Contoso GUID slugs still use the marketing API when a base URL is configured and static-only is off.
+
+**E2E:** `archlucid-ui/e2e/showcase-static-first.spec.ts` asserts API **404** + static slug still renders body; `live-api-marketing-showcase.spec.ts` covers live Contoso baseline when demo seed + `IsPublicShowcase` are present.
+
+**Related:** [Sample-package funnel ID matrix (M-134)](#sample-package-funnel-id-matrix) · [Showcase naming hierarchy (M-135)](#showcase-naming-hierarchy-m-135) · [Marketing static vs live boundary (M-179)](BUYER_SECURITY_PROCUREMENT_PACKET.md#marketing-static-vs-live-demo-boundary-m-179) · ADR [`0027-demo-preview-cached-anonymous-commit-page.md`](../architecture/adrs/0027-demo-preview-cached-anonymous-commit-page.md).
 
 ## Showcase naming hierarchy + Contoso/Northwind matrix (M-135) {#showcase-naming-hierarchy-m-135}
 
@@ -622,7 +694,7 @@ Until **TB-981**, public creatives that open Claims must name **Healthcare Claim
 4. Product Tour / self-demo links are Contoso-labeled and secondary.
 5. Screenshot / video filenames and captions match the package actually on screen (**M-108**).
 
-**Related:** [Sample-package funnel ID matrix (M-134)](#sample-package-funnel-id-matrix) · [`DEMO_PREVIEW.md`](../library/DEMO_PREVIEW.md) · [`COPY_TERMINOLOGY_AUDIT.md`](../ux-audits/COPY_TERMINOLOGY_AUDIT.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) · [`GTM_BACKLOG.md`](GTM_BACKLOG.md).
+**Related:** [Sample-package funnel ID matrix (M-134)](#sample-package-funnel-id-matrix) · [Demo commit-page preview route contract](#demo-preview-route-contract-and-safety) · [`COPY_TERMINOLOGY_AUDIT.md`](../ux-audits/COPY_TERMINOLOGY_AUDIT.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) · [`GTM_BACKLOG.md`](GTM_BACKLOG.md).
 
 ## Demo workspaces {#demo-workspaces}
 
@@ -1052,4 +1124,5 @@ Optional: **`ARCHLUCID_REPO_ROOT`** when the test cannot walk to a directory con
 | [#demo-workspaces](#demo-workspaces) · [DEMO_WORKSPACES.md](DEMO_WORKSPACES.md) (alias) | Hosted GA Workspace A/B pins + welcome hero |
 | [#sample-package-funnel-id-matrix](#sample-package-funnel-id-matrix) · [SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md](SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md) (alias) | Sample-package funnel ID matrix (M-134) |
 | [#showcase-naming-hierarchy-m-135](#showcase-naming-hierarchy-m-135) · [SHOWCASE_NAMING_HIERARCHY.md](SHOWCASE_NAMING_HIERARCHY.md) (alias) | Showcase naming hierarchy + Contoso/Northwind matrix (M-135) |
+| [#demo-preview-route-contract-and-safety](#demo-preview-route-contract-and-safety) · [`DEMO_PREVIEW.md`](../library/DEMO_PREVIEW.md) (alias) | Anonymous `/demo/preview` route contract + cache/privacy |
 | [`#gtm-samples`](#gtm-samples) · [`samples/README.md`](samples/README.md) (alias) | Synthetic ARB DOCX/PDF samples + export how-to |

@@ -102,7 +102,7 @@ The unauthenticated proof route **`/demo/explain`** (architect workspace / marke
 
 - Staging deep link: `https://staging.archlucid.example.com/demo/explain` (replace host with the active staging deployment)
 - Backing API: **`GET /v1/demo/explain`** — same demo-tenant scope as other anonymous demo reads; response includes **`IsDemoData=true`** and a **demo tenant — replace before publishing** banner so screenshots are not quoted as production telemetry
-- Wiring, rate limits, and feature gates: **[`SYSTEM_THREAT_MODEL.md`](../security/SYSTEM_THREAT_MODEL.md)** · demo payload patterns: **[`DEMO_PREVIEW.md`](../library/DEMO_PREVIEW.md)**
+- Wiring, rate limits, and feature gates: **[`SYSTEM_THREAT_MODEL.md`](../security/SYSTEM_THREAT_MODEL.md)** · demo payload patterns: **[`DEMO_QUICKSTART.md#demo-preview-route-contract-and-safety`](DEMO_QUICKSTART.md#demo-preview-route-contract-and-safety)** (`DEMO_PREVIEW.md` alias)
 
 ### Pillar 3: Enterprise governance
 

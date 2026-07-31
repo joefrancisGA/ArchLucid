@@ -166,7 +166,7 @@ For the future-state map, see **[FUTURE_PACKAGING_ENFORCEMENT.md](FUTURE_PACKAGI
 
 Every pilot starts here. The architect workspace presents this layer by default with no progressive disclosure required. **Home**, **onboarding**, and **review detail** copy keep **Operate (analysis workloads)** and **Operate (governance and trust)** explicitly **optional to first-pilot proof** so deeper shaping does not widen the default mental model.
 
-**Marketing proof (no operator install):** the public **`/demo/preview`** page (and **`GET /v1/demo/preview`**) shows a read-only commit-page projection of the latest committed **demo seed** run — complementing the operator-shell **`/demo/explain`** route, which focuses on provenance + citations side-by-side. See **`docs/DEMO_PREVIEW.md`**.
+**Marketing proof (no operator install):** the public **`/demo/preview`** page (and **`GET /v1/demo/preview`**) shows a read-only commit-page projection of the latest committed **demo seed** run — complementing the operator-shell **`/demo/explain`** route, which focuses on provenance + citations side-by-side. See **[`DEMO_QUICKSTART.md#demo-preview-route-contract-and-safety`](../go-to-market/DEMO_QUICKSTART.md#demo-preview-route-contract-and-safety)** (`docs/library/DEMO_PREVIEW.md` alias).
 
 **Real-tenant proof / PoV packs:** before any run-sourced artifact crosses the customer trust boundary, assign a redaction profile from **`docs/library/PROOF_PACK_REDACTION_PROFILES.md`** (default external posture: **`customer-approved-external`** with written approver + checklist).
 
