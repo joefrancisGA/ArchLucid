@@ -3,6 +3,29 @@ import { expect, type Page } from "@playwright/test";
 import { expectAnyLocatorVisible } from "./locator-readiness";
 import { waitForAppReady } from "./waits";
 
+/** Full guided wizard (`wizard-start-blank`) only mounts when mode is "full" — quick start hides the preset step. */
+export async function ensureFullGuidedWizardMode(page: Page): Promise<void> {
+  const modeToggle = page.getByTestId("new-run-wizard-mode-toggle");
+  const allStepsButton = modeToggle.getByRole("button", { name: /All steps/i });
+
+  if (await modeToggle.isVisible().catch(() => false)) {
+    if ((await allStepsButton.getAttribute("aria-pressed")) !== "true") {
+      await allStepsButton.click();
+      await expect(allStepsButton).toHaveAttribute("aria-pressed", "true", { timeout: 15_000 });
+    }
+
+    return;
+  }
+
+  const advancedOptIn = page.getByTestId("new-run-wizard-advanced-opt-in");
+  const showAllButton = advancedOptIn.getByRole("button", { name: /Show all wizard steps/i });
+
+  if (await showAllButton.isVisible().catch(() => false)) {
+    await showAllButton.click();
+    await expect(page.getByTestId("wizard-start-blank")).toBeVisible({ timeout: 30_000 });
+  }
+}
+
 /** `/reviews/new?baseline=1` now routes through the path switcher into `NewRunWizardClient` (detailed tab). */
 export async function waitForReviewsNewBaselineSimplifiedWizard(page: Page): Promise<void> {
   await waitForAppReady(page);

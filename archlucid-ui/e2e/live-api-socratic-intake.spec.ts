@@ -18,6 +18,7 @@ import {
 import { L0_ACTOR_ADDITIONAL_KINDS_QUESTION_KEY } from "./helpers/draft-intake-question-keys";
 import { runIdFromReviewsHref } from "./helpers/run-id-from-href";
 import {
+  clickSocraticAdmitWithRetry,
   skipAllSocraticClarificationsInUi,
   waitForSocraticClarificationsStep,
 } from "./helpers/socratic-intake";
@@ -58,24 +59,7 @@ test.describe("live-api-socratic-intake", { tag: ["@founder", "@buyer-journey"] 
     await page.getByTestId("socratic-outcome").fill(OUTCOME);
     await page.getByTestId("draft-intake-actor-add").click();
     await page.getByTestId("draft-intake-actor-label-0").fill("Primary operator");
-    await expect(page.getByTestId("socratic-admit")).toBeEnabled({ timeout: 15_000 });
-
-    const admitResponsePromise = page.waitForResponse(
-      (response) =>
-        response.url().includes("/api/proxy/v1/architecture/draft/")
-        && response.url().includes("/admit")
-        && response.request().method() === "POST",
-      { timeout: 90_000 },
-    );
-
-    await page.getByTestId("socratic-admit").click();
-
-    const admitResponse = await admitResponsePromise;
-    expect(
-      admitResponse.ok(),
-      `draft admit failed ${admitResponse.status()}: ${(await admitResponse.text()).slice(0, 400)}`,
-    ).toBe(true);
-
+    await clickSocraticAdmitWithRetry(page, { timeoutMs: 180_000 });
     await waitForSocraticClarificationsStep(page, 90_000);
 
     // One-at-a-time clarifications: poll skip until Review answers enables (do not one-shot count).
