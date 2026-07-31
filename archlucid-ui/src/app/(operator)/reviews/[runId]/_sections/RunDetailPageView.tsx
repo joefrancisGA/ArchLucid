@@ -644,7 +644,6 @@ export function RunDetailPageView(props: {
               <RunDetailWorkspaceStickyActions
                 runId={m.resolvedDetail.run.runId}
                 primaryAction={reviewPackagePrimaryAction}
-                hasGoldenManifest={Boolean(m.manifestId)}
                 commitBlockedReason={commitBlockedReason}
                 showProgressTracker={m.showProgressTracker}
                 manifestId={m.manifestId}
