@@ -29,6 +29,10 @@ import { cn } from "@/lib/utils";
 const ENFORCEMENT_WARNING =
   "Requiring SSO may prevent users from signing in through other methods. Confirm that the configured identity provider and recovery access have been tested.";
 
+type RefreshOptions = {
+  readonly surfaceError?: boolean;
+};
+
 export function AuthDomainsPageClient() {
   const [domains, setDomains] = useState<TenantAuthDomainRecord[]>([]);
   const [selectedDomain, setSelectedDomain] = useState<string | null>(null);
@@ -42,6 +46,7 @@ export function AuthDomainsPageClient() {
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
 
   const refreshDomains = useCallback(async () => {
     setLoading(true);
@@ -57,21 +62,33 @@ export function AuthDomainsPageClient() {
     }
   }, []);
 
-  const refreshRecoveryAdmins = useCallback(async (normalizedDomain: string) => {
+  const refreshRecoveryAdmins = useCallback(async (normalizedDomain: string, options?: RefreshOptions) => {
     try {
       const rows = await fetchTenantAuthDomainRecoveryAdmins(normalizedDomain);
       setRecoveryAdmins(rows);
-    } catch {
+    } catch (error) {
       setRecoveryAdmins([]);
+
+      if (options?.surfaceError) {
+        const message = error instanceof Error ? error.message : String(error);
+        setErrorMessage(message);
+        throw error;
+      }
     }
   }, []);
 
-  const refreshReadiness = useCallback(async (normalizedDomain: string) => {
+  const refreshReadiness = useCallback(async (normalizedDomain: string, options?: RefreshOptions) => {
     try {
       const row = await fetchTenantAuthDomainEnforcementReadiness(normalizedDomain);
       setReadiness(row);
-    } catch {
+    } catch (error) {
       setReadiness(null);
+
+      if (options?.surfaceError) {
+        const message = error instanceof Error ? error.message : String(error);
+        setErrorMessage(message);
+        throw error;
+      }
     }
   }, []);
 
@@ -93,8 +110,14 @@ export function AuthDomainsPageClient() {
   const selected = domains.find((row) => row.normalizedDomain === selectedDomain) ?? null;
 
   async function handleProposeDomain() {
+    if (busy || !newDomain.trim()) {
+      return;
+    }
+
     setErrorMessage(null);
     setStatusMessage(null);
+
+    setBusy(true);
 
     try {
       const response = await proposeTenantAuthDomain(newDomain.trim());
@@ -105,16 +128,20 @@ export function AuthDomainsPageClient() {
       await refreshDomains();
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : String(error));
+    } finally {
+      setBusy(false);
     }
   }
 
   async function runForSelected(action: (domain: string) => Promise<{ dnsVerificationInstruction?: string }>) {
-    if (selectedDomain === null) {
+    if (selectedDomain === null || busy) {
       return;
     }
 
     setErrorMessage(null);
     setStatusMessage(null);
+
+    setBusy(true);
 
     try {
       const response = await action(selectedDomain);
@@ -127,6 +154,141 @@ export function AuthDomainsPageClient() {
       await refreshDomains();
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : String(error));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handlePreviewRouting() {
+    if (selectedDomain === null || busy) {
+      return;
+    }
+
+    setErrorMessage(null);
+    setStatusMessage(null);
+
+    setBusy(true);
+
+    try {
+      const preview = await testTenantAuthDomainRouting(selectedDomain, testEmail.trim());
+      setStatusMessage(
+        preview.ssoRequired
+          ? "Preview: SSO would be required for this email."
+          : "Preview: email code would remain available.",
+      );
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : String(error));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleMarkRoutingTested() {
+    if (selectedDomain === null || busy) {
+      return;
+    }
+
+    setErrorMessage(null);
+    setStatusMessage(null);
+
+    setBusy(true);
+
+    try {
+      await markTenantAuthDomainRoutingTested(selectedDomain, testEmail.trim());
+      setStatusMessage("Routing test recorded.");
+      await refreshDomains();
+      await refreshReadiness(selectedDomain, { surfaceError: true });
+      await refreshRecoveryAdmins(selectedDomain, { surfaceError: true });
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : String(error));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleEnableEnforcement() {
+    if (selectedDomain === null || busy) {
+      return;
+    }
+
+    if (!window.confirm(ENFORCEMENT_WARNING)) {
+      return;
+    }
+
+    setErrorMessage(null);
+    setStatusMessage(null);
+
+    setBusy(true);
+
+    try {
+      await enableTenantAuthDomainEnforcement(selectedDomain, true);
+      setStatusMessage("SSO enforcement enabled.");
+      await refreshDomains();
+      await refreshReadiness(selectedDomain, { surfaceError: true });
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : String(error));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleRemoveRecoveryAdmin(row: TenantAuthDomainRecoveryAdminRecord) {
+    if (selectedDomain === null || busy) {
+      return;
+    }
+
+    setErrorMessage(null);
+    setStatusMessage(null);
+
+    setBusy(true);
+
+    try {
+      const result = await removeTenantAuthDomainRecoveryAdmin(
+        selectedDomain,
+        row.normalizedRecoveryAdminEmail,
+        false,
+      );
+
+      if (!result.removed && result.warningMessage) {
+        if (!window.confirm(result.warningMessage)) {
+          return;
+        }
+
+        await removeTenantAuthDomainRecoveryAdmin(
+          selectedDomain,
+          row.normalizedRecoveryAdminEmail,
+          true,
+        );
+      }
+
+      await refreshRecoveryAdmins(selectedDomain, { surfaceError: true });
+      await refreshReadiness(selectedDomain, { surfaceError: true });
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : String(error));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleAddRecoveryAdmin() {
+    if (selectedDomain === null || busy || !recoveryEmail.trim()) {
+      return;
+    }
+
+    setErrorMessage(null);
+    setStatusMessage(null);
+
+    setBusy(true);
+
+    try {
+      await addTenantAuthDomainRecoveryAdmin(selectedDomain, recoveryEmail.trim());
+      setRecoveryEmail("");
+      await refreshRecoveryAdmins(selectedDomain, { surfaceError: true });
+      await refreshReadiness(selectedDomain, { surfaceError: true });
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : String(error));
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -174,7 +336,13 @@ export function AuthDomainsPageClient() {
               aria-label="Domain name"
               data-testid="auth-domains-new-domain"
             />
-            <Button type="button" variant="primary" onClick={() => void handleProposeDomain()} data-testid="auth-domains-add">
+            <Button
+              type="button"
+              variant="primary"
+              onClick={() => void handleProposeDomain()}
+              disabled={busy || !newDomain.trim()}
+              data-testid="auth-domains-add"
+            >
               Add domain
             </Button>
           </div>
@@ -230,10 +398,22 @@ export function AuthDomainsPageClient() {
             ) : null}
 
             <div className="flex flex-wrap gap-2">
-              <Button type="button" variant="secondary" onClick={() => void runForSelected(startTenantAuthDomainVerification)}>
+              <Button
+                type="button"
+                variant="secondary"
+                disabled={busy}
+                data-testid="auth-domains-start-verification"
+                onClick={() => void runForSelected(startTenantAuthDomainVerification)}
+              >
                 Start verification
               </Button>
-              <Button type="button" variant="secondary" onClick={() => void runForSelected(checkTenantAuthDomainVerification)}>
+              <Button
+                type="button"
+                variant="secondary"
+                disabled={busy}
+                data-testid="auth-domains-check-dns"
+                onClick={() => void runForSelected(checkTenantAuthDomainVerification)}
+              >
                 Check DNS verification
               </Button>
             </div>
@@ -253,47 +433,18 @@ export function AuthDomainsPageClient() {
                 <Button
                   type="button"
                   variant="secondary"
-                  onClick={async () => {
-                    if (selectedDomain === null) {
-                      return;
-                    }
-
-                    setErrorMessage(null);
-
-                    try {
-                      const preview = await testTenantAuthDomainRouting(selectedDomain, testEmail.trim());
-                      setStatusMessage(
-                        preview.ssoRequired
-                          ? "Preview: SSO would be required for this email."
-                          : "Preview: email code would remain available.",
-                      );
-                    } catch (error) {
-                      setErrorMessage(error instanceof Error ? error.message : String(error));
-                    }
-                  }}
+                  disabled={busy}
+                  data-testid="auth-domains-preview-routing"
+                  onClick={() => void handlePreviewRouting()}
                 >
                   Preview routing
                 </Button>
                 <Button
                   type="button"
                   variant="secondary"
-                  onClick={async () => {
-                    if (selectedDomain === null) {
-                      return;
-                    }
-
-                    setErrorMessage(null);
-
-                    try {
-                      await markTenantAuthDomainRoutingTested(selectedDomain, testEmail.trim());
-                      setStatusMessage("Routing test recorded.");
-                      await refreshDomains();
-                      await refreshReadiness(selectedDomain);
-                      await refreshRecoveryAdmins(selectedDomain);
-                    } catch (error) {
-                      setErrorMessage(error instanceof Error ? error.message : String(error));
-                    }
-                  }}
+                  disabled={busy}
+                  data-testid="auth-domains-mark-routing-tested"
+                  onClick={() => void handleMarkRoutingTested()}
                 >
                   Mark routing tested
                 </Button>
@@ -319,6 +470,7 @@ export function AuthDomainsPageClient() {
                   type="checkbox"
                   checked={sessionAcknowledged}
                   onChange={(event) => setSessionAcknowledged(event.target.checked)}
+                  disabled={busy}
                   data-testid="auth-domains-session-ack"
                 />
                 I confirm I am signed in with authority to enable SSO enforcement for this organization.
@@ -336,6 +488,8 @@ export function AuthDomainsPageClient() {
                 <Button
                   type="button"
                   variant="ghost"
+                  disabled={busy}
+                  data-testid="auth-domains-enforcement-optional"
                   onClick={() =>
                     void runForSelected((domain) =>
                       setTenantAuthDomainEnforcement(domain, "SsoOptional", false),
@@ -347,6 +501,8 @@ export function AuthDomainsPageClient() {
                 <Button
                   type="button"
                   variant="ghost"
+                  disabled={busy}
+                  data-testid="auth-domains-enforcement-required"
                   onClick={() =>
                     void runForSelected((domain) =>
                       setTenantAuthDomainEnforcement(domain, "SsoRequiredForVerifiedDomain", false),
@@ -358,6 +514,8 @@ export function AuthDomainsPageClient() {
                 <Button
                   type="button"
                   variant="ghost"
+                  disabled={busy}
+                  data-testid="auth-domains-enforcement-recovery"
                   onClick={() =>
                     void runForSelected((domain) =>
                       setTenantAuthDomainEnforcement(domain, "SsoRequiredWithRecoveryException", true),
@@ -377,27 +535,8 @@ export function AuthDomainsPageClient() {
                 type="button"
                 variant="primary"
                 data-testid="auth-domains-enable-enforcement"
-                disabled={!sessionAcknowledged || readiness?.canEnableEnforcement === false}
-                onClick={async () => {
-                  if (selectedDomain === null) {
-                    return;
-                  }
-
-                  if (!window.confirm(ENFORCEMENT_WARNING)) {
-                    return;
-                  }
-
-                  setErrorMessage(null);
-
-                  try {
-                    await enableTenantAuthDomainEnforcement(selectedDomain, true);
-                    setStatusMessage("SSO enforcement enabled.");
-                    await refreshDomains();
-                    await refreshReadiness(selectedDomain);
-                  } catch (error) {
-                    setErrorMessage(error instanceof Error ? error.message : String(error));
-                  }
-                }}
+                disabled={busy || !sessionAcknowledged || readiness?.canEnableEnforcement === false}
+                onClick={() => void handleEnableEnforcement()}
               >
                 Enable enforcement
               </Button>
@@ -415,32 +554,9 @@ export function AuthDomainsPageClient() {
                         type="button"
                         variant="ghost"
                         className="ml-2"
-                        onClick={async () => {
-                          if (selectedDomain === null) {
-                            return;
-                          }
-
-                          const result = await removeTenantAuthDomainRecoveryAdmin(
-                            selectedDomain,
-                            row.normalizedRecoveryAdminEmail,
-                            false,
-                          );
-
-                          if (!result.removed && result.warningMessage) {
-                            if (!window.confirm(result.warningMessage)) {
-                              return;
-                            }
-
-                            await removeTenantAuthDomainRecoveryAdmin(
-                              selectedDomain,
-                              row.normalizedRecoveryAdminEmail,
-                              true,
-                            );
-                          }
-
-                          await refreshRecoveryAdmins(selectedDomain);
-                          await refreshReadiness(selectedDomain);
-                        }}
+                        disabled={busy}
+                        data-testid={`auth-domains-remove-recovery-${row.normalizedRecoveryAdminEmail}`}
+                        onClick={() => void handleRemoveRecoveryAdmin(row)}
                       >
                         Remove
                       </Button>
@@ -457,21 +573,9 @@ export function AuthDomainsPageClient() {
                   <Button
                     type="button"
                     variant="secondary"
-                    onClick={async () => {
-                      if (selectedDomain === null) {
-                        return;
-                      }
-
-                      setErrorMessage(null);
-
-                      try {
-                        await addTenantAuthDomainRecoveryAdmin(selectedDomain, recoveryEmail.trim());
-                        setRecoveryEmail("");
-                        await refreshRecoveryAdmins(selectedDomain);
-                      } catch (error) {
-                        setErrorMessage(error instanceof Error ? error.message : String(error));
-                      }
-                    }}
+                    disabled={busy || !recoveryEmail.trim()}
+                    data-testid="auth-domains-add-recovery-admin"
+                    onClick={() => void handleAddRecoveryAdmin()}
                   >
                     Add recovery admin
                   </Button>

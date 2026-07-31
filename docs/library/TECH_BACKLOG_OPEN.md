@@ -665,7 +665,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1889 | Canonicalize `/settings/alerts` docs to `/governance/alert-rules` | Trustworthiness P1 **V1** — with **TB-1886** |
 | TB-1890 | `/settings/alerts` — Vitest redirect + docs destination | Testability P2 **V1** — with **TB-1886** |
 | TB-1891 | Sign-in domains — humanize verificationStatus / enforcementMode enums | Trustworthiness P1 **V1** — SAU ~48 |
-| TB-1892 | Sign-in domains — in-flight disable on propose/verify/routing/enforcement | Correctness P0 **V1** — with **TB-1891** |
 | TB-1893 | Sign-in domains — in-page confirm for enable enforcement + recovery remove | Trustworthiness P1 **V1** — with **TB-1891** |
 | TB-1894 | Sign-in domains — checklist/StatusTag + settings wayfinding + auth-help CTA | Adoption friction P1 **V1** — with **TB-1891** |
 | TB-1895 | Sign-in domains — Vitest enum labels + busy + confirms + empty | Testability P2 **V1** — with **TB-1891** |
