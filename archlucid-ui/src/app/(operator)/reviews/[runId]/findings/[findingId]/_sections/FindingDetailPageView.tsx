@@ -45,6 +45,7 @@ import { FindingInspectRecommendedActionSection } from "../FindingInspectRecomme
 import { FindingInspectWhyMattersSection } from "../FindingInspectWhyMattersSection";
 import { FindingDetailDecisionSummary } from "./FindingDetailDecisionSummary";
 import { FindingDetailOperationalActions } from "./FindingDetailOperationalActions";
+import { FindingDetailWayfinding } from "./FindingDetailWayfinding";
 import {
   deriveFindingDecisionSummary,
   fallbackSeverity,
@@ -113,25 +114,17 @@ export function FindingDetailPageView(props: Props) {
       : [];
   const buyerRecommendedActionParagraph =
     inspectPayload !== null ? findingRecommendedActionParagraph(inspectPayload, decodedFindingId) : null;
+  const showBuyerPolishedBody = buyerPolishedShell && inspectFailure === null;
 
   return (
     <div className="w-full max-w-[1440px] space-y-4 p-4">
-      <nav
-        className={cn("flex flex-wrap items-center gap-x-4 gap-y-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-        aria-label="Finding wayfinding"
-      >
-        <Link href={reviewPackageHref} className={OPERATOR_LINK.nav}>
-          Back to review
-        </Link>
-        <Link href={reviewFindingsHref} className={OPERATOR_LINK.nav}>
-          Findings list
-        </Link>
-        <Link href={inspectHref} className={OPERATOR_LINK.nav}>
-          {buyerPolishedShell ? "Open evidence trace" : "Technical inspection trail"}
-        </Link>
-      </nav>
+      <FindingDetailWayfinding
+        reviewPackageHref={reviewPackageHref}
+        reviewFindingsHref={reviewFindingsHref}
+        currentPageLabel={pageTitle}
+      />
 
-      {buyerPolishedShell ? (
+      {showBuyerPolishedBody ? (
         <div className="space-y-4">
           <section className={cn("overflow-hidden rounded-lg border p-5", DESIGN_TOKENS.surface.card)}>
             <div className="max-w-3xl space-y-3">
@@ -139,13 +132,6 @@ export function FindingDetailPageView(props: Props) {
                 {findingDetailPageEyebrow(inspectPayload, decodedFindingId)}
               </p>
               <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{pageTitle}</h1>
-              {policyProvenanceModel !== null &&
-              (policyProvenanceModel.pack !== null || policyProvenanceModel.policy !== null) ? (
-                <FindingPolicyCitationHero
-                  model={policyProvenanceModel}
-                  traceExcerpt={policyTraceExcerpt}
-                />
-              ) : null}
               <p className={cn("m-0 max-w-2xl leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
                 {inspectPayload !== null
                   ? findingDetailLeadSentence(inspectPayload)
@@ -155,6 +141,13 @@ export function FindingDetailPageView(props: Props) {
                 <p className={cn("m-0 max-w-2xl leading-snug text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                   {severityRationale}
                 </p>
+              ) : null}
+              {policyProvenanceModel !== null &&
+              (policyProvenanceModel.pack !== null || policyProvenanceModel.policy !== null) ? (
+                <FindingPolicyCitationHero
+                  model={policyProvenanceModel}
+                  traceExcerpt={policyTraceExcerpt}
+                />
               ) : null}
             </div>
 
@@ -321,22 +314,34 @@ export function FindingDetailPageView(props: Props) {
             </CollapsibleSection>
           ) : null}
 
-          {inspectPayload !== null && isOperatorExperienceFullShellEnv() ? (
-            <ProductLearningFeedbackControls
-              runId={runId}
-              manifestVersion={inspectPayload.manifestVersion}
-              subjectType="Finding"
-              artifactHint={`finding:${decodedFindingId}`}
-              patternKey={inspectPayload.decisionRuleId ? `finding-rule:${inspectPayload.decisionRuleId}` : "finding"}
-              detail={{
-                findingId: decodedFindingId,
-                decisionRuleId: inspectPayload.decisionRuleId,
-              }}
-              title="Was this finding useful?"
-            />
+          {inspectPayload !== null ? (
+            <CollapsibleSection
+              title="Work with this finding"
+              defaultOpen={false}
+              summaryLine="Ask, ITSM workflow, and feedback"
+            >
+              <div className="space-y-4">
+                <FindingAskInlinePanel findingId={decodedFindingId} />
+                <FindingInspectItsmWorkflowPanel findingId={decodedFindingId} />
+                {isOperatorExperienceFullShellEnv() ? (
+                  <ProductLearningFeedbackControls
+                    runId={runId}
+                    manifestVersion={inspectPayload.manifestVersion}
+                    subjectType="Finding"
+                    artifactHint={`finding:${decodedFindingId}`}
+                    patternKey={inspectPayload.decisionRuleId ? `finding-rule:${inspectPayload.decisionRuleId}` : "finding"}
+                    detail={{
+                      findingId: decodedFindingId,
+                      decisionRuleId: inspectPayload.decisionRuleId,
+                    }}
+                    title="Was this finding useful?"
+                  />
+                ) : null}
+              </div>
+            </CollapsibleSection>
           ) : null}
         </div>
-      ) : (
+      ) : !buyerPolishedShell ? (
         <header className="space-y-3">
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>
             Finding detail
@@ -393,19 +398,16 @@ export function FindingDetailPageView(props: Props) {
             </p>
           ) : null}
         </header>
-      )}
+      ) : null}
 
       {inspectFailure !== null ? (
         buyerPolishedShell ? (
           <FindingOptionalArtifactUnavailable
             heading="Finding detail temporarily unavailable"
             body="ArchLucid could not load the full finding record right now. Your review summary and evidence graph remain available."
-            tryNext="Open the evidence trace or return to the review findings list."
+            tryNext="Return to the review findings list to pick another finding or open the review summary."
             showRetry={false}
-            recoveryLinks={[
-              { href: inspectHref, label: "Open evidence trace" },
-              { href: reviewFindingsHref, label: "Back to findings" },
-            ]}
+            recoveryLinks={[{ href: reviewFindingsHref, label: "Back to findings" }]}
             failure={inspectFailure}
             buyerPolishedShell
           />
@@ -439,7 +441,7 @@ export function FindingDetailPageView(props: Props) {
         />
       ) : null}
 
-      {inspectPayload !== null ? (
+      {inspectPayload !== null && !buyerPolishedShell ? (
         <FindingAskInlinePanel findingId={decodedFindingId} />
       ) : null}
 
@@ -447,7 +449,7 @@ export function FindingDetailPageView(props: Props) {
         <FindingIacStubPanel runId={runId} findingId={decodedFindingId} />
       ) : null}
 
-      {inspectPayload !== null ? (
+      {inspectPayload !== null && !buyerPolishedShell ? (
         <FindingInspectItsmWorkflowPanel findingId={decodedFindingId} />
       ) : null}
 
@@ -500,7 +502,7 @@ export function FindingDetailPageView(props: Props) {
 
       <OperatorEvidenceLimitsFooter
         runId={runId}
-        findingIdForInspectLink={decodedFindingId}
+        findingIdForInspectLink={buyerPolishedShell ? null : decodedFindingId}
         execution={runExecutionFootnote}
         inspectMetadata={
           inspectPayload !== null

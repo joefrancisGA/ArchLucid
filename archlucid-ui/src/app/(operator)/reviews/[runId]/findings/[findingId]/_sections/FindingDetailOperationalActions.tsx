@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { CopyFindingAsWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
+import { Button } from "@/components/ui/button";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
@@ -29,7 +30,10 @@ export function FindingDetailOperationalActions(props: FindingDetailOperationalA
       <p className={cn("m-0 mb-2 font-medium text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         Actions
       </p>
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <Button variant="default" size="sm" asChild data-testid="finding-detail-primary-evidence-trace">
+          <Link href={props.inspectHref}>Open evidence trace</Link>
+        </Button>
         {props.graphEvidenceHref !== null ? (
           <Link href={props.graphEvidenceHref} className={OPERATOR_LINK.nav}>
             {BUYER_SURFACE_VOCABULARY.evidenceGraphNav}
@@ -40,9 +44,6 @@ export function FindingDetailOperationalActions(props: FindingDetailOperationalA
             {`Open ${SIGNED_MANIFEST_LABEL.toLowerCase()}`}
           </Link>
         ) : null}
-        <Link href={props.inspectHref} className={OPERATOR_LINK.nav}>
-          Open evidence trace
-        </Link>
         <CopyFindingAsWorkItemButton
           runId={props.runId}
           findingId={props.findingId}

@@ -21,7 +21,7 @@ describe("FindingDetailDecisionSummary", () => {
     );
 
     expect(screen.getByTestId("finding-detail-decision-summary")).toBeTruthy();
-    expect(screen.getByText("High")).toBeTruthy();
+    expect(screen.getByLabelText("Severity: High")).toBeTruthy();
     expect(screen.getByText("Accepted with monitoring")).toBeTruthy();
     expect(screen.getByText("Non-blocking for package approval")).toBeTruthy();
     expect(screen.getByText("Weekly exception monitoring")).toBeTruthy();

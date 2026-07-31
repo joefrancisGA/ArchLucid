@@ -43,5 +43,6 @@ describe("FindingDetailOperationalActions", () => {
       "href",
       "/reviews/run-1/findings/finding-1/evidence-trace",
     );
+    expect(screen.getByTestId("finding-detail-primary-evidence-trace")).toBeInTheDocument();
   });
 });

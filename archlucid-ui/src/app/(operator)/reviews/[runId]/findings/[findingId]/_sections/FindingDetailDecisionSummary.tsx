@@ -1,7 +1,10 @@
 import { cn } from "@/lib/utils";
 
 import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
+import { SeverityTag } from "@/components/ui/severity-tag";
+import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_KPI_CARD_TITLE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { findingStatusTagKind } from "./finding-detail-route-display";
 import type { FindingDecisionSummary } from "./finding-detail-route-display";
 
 export type FindingDetailDecisionSummaryProps = {
@@ -24,11 +27,15 @@ export function FindingDetailDecisionSummary(props: FindingDetailDecisionSummary
       <dl className={cn("m-0 grid gap-3 sm:grid-cols-2 lg:grid-cols-4", OPERATOR_TYPOGRAPHY.body)}>
         <div>
           <dt className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_KPI_CARD_TITLE)}>Severity</dt>
-          <dd className="m-0 mt-0.5 font-semibold text-al-text-primary">{summary.severity}</dd>
+          <dd className="m-0 mt-0.5">
+            <SeverityTag severity={summary.severity} />
+          </dd>
         </div>
         <div>
           <dt className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_KPI_CARD_TITLE)}>Disposition</dt>
-          <dd className="m-0 mt-0.5 font-semibold text-al-text-primary">{summary.disposition}</dd>
+          <dd className="m-0 mt-0.5">
+            <StatusTag kind={findingStatusTagKind(summary.disposition)} label={summary.disposition} />
+          </dd>
         </div>
         <div className="sm:col-span-2">
           <dt className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_KPI_CARD_TITLE)}>Business impact</dt>
