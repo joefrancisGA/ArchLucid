@@ -62,7 +62,6 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
 
   "/product-learning": "advanced-only",
   "/internal-operations/recommendation-learning": "advanced-only",
-  "/digest-subscriptions": "advanced-only",
   "/admin/health": "admin-only",
   "/admin/deployment-status": "admin-only",
   "/admin/configuration": "admin-only",
@@ -82,7 +81,6 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/settings/webhooks": "advanced-only",
   "/settings/roles": "admin-only",
   "/settings/api-keys": "admin-only",
-  "/admin/ai-usage-cost": "admin-only",
 };
 
 /**
@@ -145,7 +143,6 @@ const PRESENTER_SAFE_MODE_NAV_HIDE = new Set<string>([
   "/integrations/webhooks",
   "/integrations/cloud-connections",
   "/settings/cloud-connections",
-  "/admin/ai-usage-cost",
   "/settings/identity-providers",
   "/settings/identity-providers/saml",
   "/settings/identity-providers/oidc",
