@@ -88,6 +88,47 @@ describe("PilotValueReportPageView", () => {
     expect(screen.queryByText("Severity distribution")).not.toBeInTheDocument();
   });
 
+  it("deep-links empty-state most recent finalized review CTA to the run (TB-1967)", () => {
+    render(
+      <PilotValueReportPageView
+        model={buildModel({
+          data: {
+            tenantId: "tenant-1",
+            fromUtc: "2026-03-01T00:00:00.000Z",
+            toUtc: "2026-04-01T00:00:00.000Z",
+            totalRunsCommitted: 0,
+            runDetailsTruncated: false,
+            runDetailCap: 50,
+            totalFindings: 0,
+            findingsBySeverity: { critical: 0, high: 0, medium: 0, low: 0, info: 0 },
+            totalRecommendationsProduced: 0,
+            averagePipelineCompletionSeconds: null,
+            governanceApprovals: 0,
+            governanceRejections: 0,
+            policyPackAssignments: 0,
+            comparisonOrDriftDetections: 0,
+            uniqueAgentTypes: [],
+            committedRunsTimeline: [
+              {
+                runId: "run-most-recent",
+                createdUtc: "2026-03-10T08:00:00.000Z",
+                committedUtc: "2026-03-11T08:00:00.000Z",
+                systemName: "Claims Intake",
+              },
+            ],
+            governancePendingApprovalsNow: 0,
+            auditExportTruncated: false,
+          },
+        })}
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: "Open most recent finalized review" })).toHaveAttribute(
+      "href",
+      "/reviews/run-most-recent",
+    );
+  });
+
   it("renders populated pilot summary when finalized reviews exist", () => {
     render(
       <PilotValueReportPageView

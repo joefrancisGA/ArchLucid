@@ -5,7 +5,10 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import type { PilotOutcomesEmptyDiagnostics } from "@/lib/pilot-outcomes-report-diagnostics";
+import {
+  buildPilotOutcomesMostRecentFinalizedReviewHref,
+  type PilotOutcomesEmptyDiagnostics,
+} from "@/lib/pilot-outcomes-report-diagnostics";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
 
 type Props = {
@@ -30,6 +33,9 @@ function formatOptionalDate(iso: string | null): string {
 
 export function PilotOutcomesEmptyState(props: Props) {
   const { diagnostics } = props;
+  const mostRecentFinalizedReviewHref = buildPilotOutcomesMostRecentFinalizedReviewHref(
+    diagnostics.mostRecentFinalizedRunId,
+  );
 
   return (
     <section
@@ -86,8 +92,8 @@ export function PilotOutcomesEmptyState(props: Props) {
         <Button type="button" variant="outline" asChild>
           <Link href="/reviews/new">{BUYER_START_ARCHITECTURE_REVIEW_CTA}</Link>
         </Button>
-        {diagnostics.mostRecentFinalizedUtc !== null && props.diagnostics.reviewsInTimeline > 0 ? (
-          <Link href="/reviews" className={cn(OPERATOR_LINK.inline, "self-center")}>
+        {mostRecentFinalizedReviewHref !== null && diagnostics.reviewsInTimeline > 0 ? (
+          <Link href={mostRecentFinalizedReviewHref} className={cn(OPERATOR_LINK.inline, "self-center")}>
             Open most recent finalized review
           </Link>
         ) : null}
