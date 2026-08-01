@@ -12,4 +12,6 @@
 
 This filename remains path-stable for smoke callers. CI GUID checks run against the demo quickstart canon (`Validate-DemoWorkspacesDoc.ps1`).
 
+**Startup seed:** When `Demo:AnonymousViewer:Enabled = true`, `DemoSeedStartupHostedService` applies showcase demo seed on API startup (see `ArchLucid.Api/Hosting/DemoSeedStartupHostedService.cs`).
+
 **Fixture flag (canon):** `Demo:AnonymousViewer:Enabled = true` — see [`DEMO_QUICKSTART.md#demo-workspaces`](DEMO_QUICKSTART.md#demo-workspaces).

@@ -1061,6 +1061,7 @@ export function stripRepeatReviewLoopContributorLeakage(markdown: string): strin
     .join("\n")
     .replace(/\s*\(TB-\d+\)/gi, "")
     .replace(/\bTB-\d+\b/gi, "")
+    .replace(/\]\(\/help\/core-pilot\)/gi, "](/help/first-architecture-review)")
     .replace(/`?CORE_PILOT\.md`?/gi, "Your first architecture review")
     .replace(/`?API_CONTRACTS\.md`?/gi, "API contracts reference")
     .replace(/`?PRODUCT_LEARNING\.md`?/gi, "product learning analytics")
@@ -2874,7 +2875,9 @@ export function prepareHelpMarkdownForPresentation(
   const isGovernanceApiContracts = normalizedSourcePath.includes("api_contracts.md");
   const isPilotRoiModel = normalizedSourcePath.includes("pilot_roi_model.md");
   const isRepeatReviewLoop = normalizedSourcePath.includes("repeat_review_loop.md");
-  const isAcceleratorChooser = normalizedSourcePath.includes("accelerator_chooser.md");
+  const isAcceleratorChooser =
+    normalizedSourcePath.includes("accelerator_chooser.md") ||
+    options?.helpTopicSlug === "accelerator-chooser";
   const isAzureBoardsIntegration = normalizedSourcePath.includes("azure_boards_integration.md");
   const isCaiqSigResponse =
     normalizedSourcePath.includes("caiq_lite_2026.md") ||

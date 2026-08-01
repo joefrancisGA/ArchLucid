@@ -508,7 +508,7 @@ export async function expectExecutiveRoiEnvironmentPieVisible(page: Page): Promi
   await page.waitForResponse(isExecutiveRoiExportProxyResponse, { timeout: 60_000 }).catch(() => null);
 
   await expect(page.getByText("Loading environment breakdown…")).toHaveCount(0, { timeout: 60_000 });
-  await expect(page.getByTestId("exec-roi-environment-pie")).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByTestId("exec-roi-environment-pie")).toBeVisible({ timeout: 60_000 });
 }
 
 

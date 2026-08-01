@@ -848,6 +848,8 @@ export function RunDetailPageView(props: {
                 />
               ) : null}
 
+              {!showArchitectureCreatedHome ? executiveBottomLineEl : null}
+
               {tabbedWorkspaceEl}
             </>
           }
@@ -1012,7 +1014,6 @@ export function RunDetailPageView(props: {
       ) : null}
 
       {governanceAlertsEl}
-      {executiveBottomLineEl}
 
       {m.buyerPolishedArtifactTable ? (
         <RunDetailBuyerModeFallbackBanner
