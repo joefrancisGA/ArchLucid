@@ -418,8 +418,10 @@ Human readers and agents should follow **canonical** paths below. This file is t
 |-------------|----------------|-------|
 | `docs/archive/PRODUCT_PACKAGING_THREE_LAYERS_2026_04_23.md` | [`docs/library/PRODUCT_PACKAGING.md`](library/PRODUCT_PACKAGING.md) | Three-layer buyer narrative superseded by Pilot + Operate |
 | `docs/archive/TECH_BACKLOG_DONE_ARCHIVE.md` | [`docs/library/TECH_BACKLOG.md`](library/TECH_BACKLOG.md) | Empty stub headings removed; summary **Done** rows retained |
-| `docs/archive/artifacts-phase3-2026-04-23/gate-verification.md` | [`docs/archive/artifacts-phase3-2026-04-23/PHASE3_EVIDENCE_SERIES_2026_04_23.md`](archive/artifacts-phase3-2026-04-23/PHASE3_EVIDENCE_SERIES_2026_04_23.md) | Â§Gate verification |
-| `docs/archive/artifacts-phase3-2026-04-23/pr-a2-cohort-parity.md` | [`docs/archive/artifacts-phase3-2026-04-23/PHASE3_EVIDENCE_SERIES_2026_04_23.md`](archive/artifacts-phase3-2026-04-23/PHASE3_EVIDENCE_SERIES_2026_04_23.md) | Â§PR A2 cohort parity |
+| `docs/archive/artifacts-phase3-2026-04-23/gate-verification.md` | [`docs/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md`](runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md#phase-3-gate-status) | Former archive gate receipt → live parity runbook |
+| `docs/archive/artifacts-phase3-2026-04-23/pr-a2-cohort-parity.md` | [`docs/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md`](runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md#pr-a2-cohort-parity-evidence) | Former archive PR A2 receipt → live parity runbook |
+| `docs/archive/artifacts-phase3-2026-04-23/PHASE3_EVIDENCE_SERIES_2026_04_23.md` | [`docs/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md`](runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md#phase-3-gate-status) | Consolidated Phase 3 evidence series deleted 2026-07-31; live gate table is the parity runbook |
+| `docs/archive/assessments/2026-05-21-LATEST-archive.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Point-in-time 2026-05-21 assessment snapshot deleted 2026-07-31; use live LATEST |
 
 ## 2026-07-22 assessment prompt consolidation
 

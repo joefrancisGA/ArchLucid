@@ -1,6 +1,6 @@
-> **Reviewed:** 2026-07-23
-> **Scope:** Path-stable stub — full content consolidated under [`docs/archive/artifacts-phase3-2026-04-23/PHASE3_EVIDENCE_SERIES_2026_04_23.md`](../../archive/artifacts-phase3-2026-04-23/PHASE3_EVIDENCE_SERIES_2026_04_23.md#gate-verification-historical-snapshot).
+> **Last reviewed:** 2026-07-31
+> **Scope:** Path-stable stub — Phase 3 gate narrative lives in the parity runbook.
 
 # Phase 3 gate verification (stub)
 
-See [§Gate verification (historical snapshot)](../../archive/artifacts-phase3-2026-04-23/PHASE3_EVIDENCE_SERIES_2026_04_23.md#gate-verification-historical-snapshot) in the consolidated Phase 3 evidence series.
+See [`COORDINATOR_TO_AUTHORITY_PARITY.md#phase-3-gate-status`](../../runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md#phase-3-gate-status).
