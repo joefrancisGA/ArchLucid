@@ -3,7 +3,6 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
-import { MarketingPublicFooter } from "@/components/marketing/MarketingPublicFooter";
 import { Button } from "@/components/ui/button";
 import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -261,8 +260,6 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
           <SecurityTrustPrimaryActions />
         </div>
       </section>
-
-      <MarketingPublicFooter />
     </MarketingPageShell>
   );
 }

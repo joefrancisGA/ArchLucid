@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { MARKETING_LAYOUT, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 
 import {
@@ -14,13 +14,13 @@ export function WelcomeMarketingUseCasesSection() {
   return (
     <section
       aria-labelledby="welcome-use-cases-heading"
-      className="mb-12"
+      className={MARKETING_LAYOUT.sectionStack}
       data-testid="welcome-use-cases"
     >
-      <h2 id="welcome-use-cases-heading" className={cn("font-semibold tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>
+      <h2 id="welcome-use-cases-heading" className={MARKETING_TYPOGRAPHY.sectionTitle}>
         Use cases — bundled policy packs
       </h2>
-      <p className={cn("mt-2 max-w-3xl leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+      <p className={cn("mt-3 max-w-3xl text-al-text-secondary", MARKETING_TYPOGRAPHY.lead)}>
         Every net-new tenant ships curated governance packs — including AWS, Azure, and Google Cloud framework themes — so
         pilots start with review-ready rules instead of an empty library.
       </p>
@@ -31,8 +31,8 @@ export function WelcomeMarketingUseCasesSection() {
             className="rounded-lg border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
             data-testid={`welcome-use-case-${useCase.id}`}
           >
-            <h3 className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{useCase.title}</h3>
-            <p className={cn("mt-2 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{useCase.body}</p>
+            <h3 className={MARKETING_TYPOGRAPHY.cardTitle}>{useCase.title}</h3>
+            <p className={cn("mt-2 leading-relaxed text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>{useCase.body}</p>
             <p className="mt-3">
               <Link
                 className="text-teal-700 underline underline-offset-2 dark:text-teal-300"
@@ -46,7 +46,7 @@ export function WelcomeMarketingUseCasesSection() {
         ))}
       </ul>
       <p
-        className={cn("mt-4 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+        className={cn("mt-4 text-al-text-secondary", MARKETING_TYPOGRAPHY.meta)}
         data-testid="welcome-policy-pack-disclaimer"
       >
         {WELCOME_DEFAULT_POLICY_PACK_BASELINE_NOTE}{" "}

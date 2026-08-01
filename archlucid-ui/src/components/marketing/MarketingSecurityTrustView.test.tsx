@@ -86,16 +86,11 @@ describe("MarketingSecurityTrustView", () => {
     );
   });
 
-  it("uses semantic heading order and public footer links", () => {
+  it("uses semantic heading order", () => {
     render(<MarketingSecurityTrustView />);
 
     const headings = screen.getAllByRole("heading").map((node) => node.tagName);
     expect(headings[0]).toBe("H1");
-
-    const footer = screen.getByTestId("marketing-public-footer");
-    expect(within(footer).getByRole("link", { name: "Privacy" })).toHaveAttribute("href", "/privacy");
-    expect(within(footer).getByRole("link", { name: "Trust Center" })).toHaveAttribute("href", "/trust");
-    expect(within(footer).getByRole("link", { name: "Sign in" })).toHaveAttribute("href", "/auth/signin");
   });
 
   it("renders desktop assurance grids by maturity tier", () => {

@@ -302,6 +302,42 @@ kbd {
   }
 }
 
+@keyframes marketing-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.marketing-reveal-in {
+  animation: marketing-fade-up 520ms ease-out both;
+}
+
+.marketing-hero-visual {
+  transition: transform 220ms ease, box-shadow 220ms ease;
+}
+
+.marketing-hero-visual:hover {
+  transform: translateY(-2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marketing-reveal-in {
+    animation: none;
+  }
+
+  .marketing-hero-visual,
+  .marketing-hero-visual:hover {
+    transform: none;
+    transition: none;
+  }
+}
+
 /* ── Print stylesheet ────────────────────────────────────────────────
    Hides operator chrome so document views (value report, explanation,
    provenance, finding audit) and `/help/{topic}` buyer docs (TB-721)

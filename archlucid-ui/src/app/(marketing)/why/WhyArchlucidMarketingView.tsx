@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { BUYER_OUTCOME_LED_VALUE_PROPOSITION } from "@/lib/buyer-polish-copy";
 import { BRAND_CATEGORY } from "@/lib/brand-category";
 import { MARKETING_LAYOUT, MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { WHY_MARKET_LANDSCAPE_MARKETING_ROWS } from "@/lib/why-market-landscape-comparison";
 import { type WhyVerifyLink, WHY_COMPARISON_VERIFY_LINK_ROWS } from "@/lib/why-comparison-verify-points";
 import { type WhyHardComparisonRow, whyHardCellDisplay } from "@/lib/why-comparison";
@@ -63,9 +64,9 @@ export type WhyArchlucidMarketingViewProps = {
 export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true }: WhyArchlucidMarketingViewProps) {
   return (
     <MarketingPageShell>
-      <h1 className={MARKETING_TYPOGRAPHY.pageTitle}>Why ArchLucid</h1>
+      <h1 className={MARKETING_TYPOGRAPHY.heroTitle}>Why ArchLucid</h1>
       <p
-        className={`mt-3 max-w-3xl ${MARKETING_TYPOGRAPHY.body} text-al-text-secondary`}
+        className={cn("mt-4 max-w-3xl", MARKETING_TYPOGRAPHY.lead)}
         data-testid="why-brand-category-paragraph"
       >
         {`ArchLucid is an ${BRAND_CATEGORY}: governed architecture reviews whose findings, signed decisions, approvals, and exports share one traceable evidence trail — durable evidence before emphasizing agent-assisted acceleration. Comparisons below summarize typical fit versus adjacent tooling. The downloadable evidence bundle carries the citation-backed drill-down for diligence teams who need paperwork parity.`}

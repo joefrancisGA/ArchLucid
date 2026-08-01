@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
 import { MarketingProofChainStrip } from "@/components/marketing/MarketingProofChainStrip";
 import { Button } from "@/components/ui/button";
 import { BUYER_OUTCOME_LED_VALUE_PROPOSITION } from "@/lib/buyer-polish-copy";
-import { MARKETING_CAPTION_TEXT_CLASS, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
+import { MARKETING_CAPTION_TEXT_CLASS, MARKETING_MOTION, MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import {
   MARKETING_SEE_IT_OG_DESCRIPTION,
@@ -37,20 +38,15 @@ export default async function SeeItMarketingPage() {
   const normalized = normalizeSeeItMarketingPayload(payload);
 
   return (
-    <main className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className={MARKETING_TYPOGRAPHY.heroTitle}>
-        See a finalized review in 30 seconds
-      </h1>
-      <p
-        className={cn("mt-2", MARKETING_TYPOGRAPHY.body, MARKETING_CAPTION_TEXT_CLASS)}
-        data-testid="see-it-outcome-led-lead"
-      >
+    <MarketingPageShell variant="reading" className={MARKETING_MOTION.revealIn}>
+      <h1 className={MARKETING_TYPOGRAPHY.heroTitle}>See a finalized sample review</h1>
+      <p className={cn("mt-4 max-w-3xl", MARKETING_TYPOGRAPHY.lead)} data-testid="see-it-outcome-led-lead">
         {BUYER_OUTCOME_LED_VALUE_PROPOSITION}
       </p>
-      <div className="mt-6">
+      <div className="mt-8">
         <MarketingProofChainStrip />
       </div>
-      <p className={cn("mt-3", MARKETING_TYPOGRAPHY.meta)}>
+      <p className={cn("mt-4", MARKETING_TYPOGRAPHY.meta)}>
         Sample data.{" "}
         <Link className="text-teal-800 underline underline-offset-2 dark:text-teal-200" href="/WORKED_EXAMPLE_ROI.pdf">
           See worked example ROI (PDF)
@@ -58,7 +54,7 @@ export default async function SeeItMarketingPage() {
         .
       </p>
 
-      <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mt-6 p-4">
+      <div className={cn(MARKETING_SURFACES.sectionPanel, "mt-8")}>
         <p className={cn("m-0", MARKETING_TYPOGRAPHY.cardTitle)}>
           Continue with a full sample review — no sign-in
         </p>
@@ -76,6 +72,6 @@ export default async function SeeItMarketingPage() {
       <div className="mt-8">
         <SeeItMarketingBody source={source} payload={normalized} />
       </div>
-    </main>
+    </MarketingPageShell>
   );
 }

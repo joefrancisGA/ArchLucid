@@ -5,10 +5,12 @@ import type { ReactNode } from "react";
 import { MarketingAnalyticsConsentBanner } from "@/components/MarketingAnalyticsConsentBanner";
 import { MarketingFirstTouchCapture } from "@/components/MarketingFirstTouchCapture";
 import { MarketingJsonLd } from "@/components/MarketingJsonLd";
+import { MarketingPublicFooter } from "@/components/marketing/MarketingPublicFooter";
 import { MarketingPublicHeader } from "@/components/marketing/MarketingPublicHeader";
 import { MicrosoftClarityLoader } from "@/components/MicrosoftClarityLoader";
 import { ShellReadySurface } from "@/components/ShellReadySurface";
-import { MARKETING_LAYOUT } from "@/lib/design-tokens";import { getMarketingClarityProjectId } from "@/lib/marketing-analytics-consent";
+import { MARKETING_LAYOUT } from "@/lib/design-tokens";
+import { getMarketingClarityProjectId } from "@/lib/marketing-analytics-consent";
 import { resolveMarketingLiveDemoApiBase } from "@/lib/marketing-live-demo-api-base";
 import { isMarketingLiveDemoLinkEnabled } from "@/lib/public-demo-mode";
 
@@ -32,6 +34,9 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
       <MicrosoftClarityLoader projectId={clarityProjectId} />
       <MarketingPublicHeader liveDemoLinked={liveDemoLinked} />
       {children}
+      <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
+        <MarketingPublicFooter />
+      </div>
       <MarketingAnalyticsConsentBanner clarityProjectId={clarityProjectId} />
     </ShellReadySurface>
   );

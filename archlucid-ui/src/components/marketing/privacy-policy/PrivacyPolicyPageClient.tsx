@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
-import { MarketingPublicFooter } from "@/components/marketing/MarketingPublicFooter";
 import { PrivacyPolicyRelatedDocuments } from "@/components/marketing/privacy-policy/PrivacyPolicyRelatedDocuments";
 import { PrivacyPolicyTableOfContents } from "@/components/marketing/privacy-policy/PrivacyPolicyTableOfContents";
 import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
@@ -203,10 +202,6 @@ export function PrivacyPolicyPageClient(props: PrivacyPolicyPageClientProps): Re
           )}
 
           <PrivacyPolicyRelatedDocuments documents={props.relatedDocuments} />
-
-          <div className="privacy-policy-no-print mt-10">
-            <MarketingPublicFooter excludeHrefs={["/privacy"]} />
-          </div>
         </article>
 
         <div className="hidden xl:block">

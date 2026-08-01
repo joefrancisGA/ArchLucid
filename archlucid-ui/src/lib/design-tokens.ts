@@ -294,30 +294,44 @@ export const DESIGN_TOKENS = {
   },
 } as const;
 
-/** Public marketing chrome — shares operator al-* palette; compact enterprise density (TB-120 parity). */
+/** Public marketing chrome — shares operator al-* palette; wider rail and type scale than operator views. */
 export const MARKETING_LAYOUT = {
   page: OPERATOR_LAYOUT.page,
-  main: "mx-auto w-full max-w-5xl px-4 py-10",
+  main: "mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 sm:py-12",
   /** Public trust and assurance pages — wider rail aligned with marketing header (max-w-6xl). */
   mainTrust: "mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-10",
   mainReading: `${OPERATOR_PAGE_CONTAINER.variant.reading} px-4 py-10`,
   /** Public onboarding / get-started — wider centered rail for path cards and milestone grids. */
   mainOnboarding: "mx-auto w-full max-w-[72rem] px-4 py-10 sm:px-6",
-  sectionStack: OPERATOR_LAYOUT.majorSectionGap,
-  sectionGap: "mt-8",
-  majorSectionGap: "mt-10",
+  /** Full-bleed welcome hero band — sits above the main content rail. */
+  heroBand:
+    "relative w-full border-b border-neutral-200 bg-neutral-50/80 dark:border-neutral-800 dark:bg-neutral-950/60",
+  heroBandInner: "mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 sm:py-16 lg:py-20",
+  sectionStack: "mb-16",
+  sectionGap: "mt-10",
+  majorSectionGap: "mt-12",
 } as const;
 
 export const MARKETING_TYPOGRAPHY = {
-  pageTitle: OPERATOR_TYPOGRAPHY.pageTitle,
-  /** Welcome hero only — still compact vs legacy marketing scale. */
-  heroTitle: `${OPERATOR_TYPOGRAPHY.pageTitle} sm:text-2xl`,
-  sectionTitle: OPERATOR_TYPE_SCALE.sectionTitle,
+  /** In-app marketing pages (pricing header, FAQ) — one step above operator page titles. */
+  pageTitle: "text-2xl font-semibold leading-8 tracking-tight text-al-text-primary sm:text-3xl",
+  /** Welcome / see-it hero headlines. */
+  heroTitle:
+    "text-3xl font-semibold leading-tight tracking-tight text-al-text-primary sm:text-4xl lg:text-5xl",
+  sectionTitle: "text-2xl font-semibold leading-tight tracking-tight text-al-text-primary",
   cardTitle: OPERATOR_TYPOGRAPHY.cardTitle,
   body: OPERATOR_TYPOGRAPHY.body,
+  /** Hero and pricing intros — slightly larger than operator body copy. */
+  lead: "text-base leading-relaxed text-al-text-secondary sm:text-lg",
   meta: OPERATOR_TYPOGRAPHY.helper,
   eyebrow: `${OPERATOR_TYPOGRAPHY.helper} font-semibold uppercase tracking-wide text-teal-800 dark:text-teal-300`,
   formLabel: `${OPERATOR_TYPE_SCALE.body} font-medium text-al-text-primary`,
+} as const;
+
+/** Motion-safe marketing entrance — pair with globals `.marketing-reveal-in`. */
+export const MARKETING_MOTION = {
+  revealIn: "marketing-reveal-in",
+  heroVisual: "marketing-hero-visual",
 } as const;
 
 /** Executive buyer shell — reuses operator scale; eyebrow matches marketing entry surfaces. */

@@ -163,21 +163,24 @@ describe("WelcomeMarketingPage", () => {
       expect(href.toLowerCase()).not.toContain("pre_commit_governance");
     }
 
-    expect(within(pillars as HTMLElement).getByRole("link", { name: /^Product overview$/i })).toHaveAttribute(
-      "href",
-      "/help/product-overview",
-    );
     expect(within(pillars as HTMLElement).getByRole("link", { name: /^Evidence trail$/i })).toHaveAttribute(
       "href",
       "/help/evidence-trail",
     );
-    expect(within(pillars as HTMLElement).getByRole("link", { name: /^Audit trail$/i })).toHaveAttribute(
+    expect(within(pillars as HTMLElement).getByRole("link", { name: /^Trust center$/i })).toHaveAttribute(
       "href",
-      "/help/audit-trail",
+      "/trust",
     );
-    expect(within(pillars as HTMLElement).getByRole("link", { name: /^Governance approval$/i })).toHaveAttribute(
+    expect(within(pillars as HTMLElement).getByRole("link", { name: /Healthcare Claims sample review/i })).toHaveAttribute(
       "href",
-      "/help/governance-approval",
+      expect.stringMatching(/\/showcase\//),
     );
+  });
+
+  it("renders a hero product visual linking to the see-it proof slice", () => {
+    renderWelcomePage();
+
+    expect(screen.getByTestId("welcome-hero-band")).toBeInTheDocument();
+    expect(screen.getByTestId("welcome-hero-product-visual")).toHaveAttribute("href", WELCOME_SEE_IT_HREF);
   });
 });
