@@ -120,6 +120,14 @@
           "type": "string",
           "minLength": 1
         },
+        "economyDeploymentName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "premiumDeploymentName": {
+          "type": "string",
+          "minLength": 1
+        },
         "embeddingDeploymentName": {
           "type": "string",
           "minLength": 1
