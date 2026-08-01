@@ -1859,23 +1859,28 @@ jobs:
       - ci-path-lanes
       - dotnet-fast-core-build
     runs-on: ubuntu-latest
-    # Blame-hang (5m/test) fails a deadlocked shard fast with a named culprit; 30m is a generous
-    # backstop for healthy shards (heaviest historically ~19m) without burning a 75m budget on a hang.
-    timeout-minutes: 30
+    # Blame-hang (5m/test) fails a deadlocked shard fast with a named culprit. Per-shard job timeout
+    # is matrix-driven (surface-misc historically the heaviest shard — 45m cap).
+    timeout-minutes: ${{ matrix.job_timeout_minutes }}
     strategy:
       fail-fast: false
       matrix:
         include:
           - shard_id: api
             shard_label: Api.Tests
+            job_timeout_minutes: 30
           - shard_id: host-application
             shard_label: Application + runtime + host
+            job_timeout_minutes: 30
           - shard_id: host-composition
             shard_label: Host composition (full DI graph)
+            job_timeout_minutes: 30
           - shard_id: data-core
             shard_label: Core + persistence stack
+            job_timeout_minutes: 30
           - shard_id: surface-misc
             shard_label: Contracts + integrations + misc
+            job_timeout_minutes: 45
     steps:
       - uses: actions/checkout@v5
 
