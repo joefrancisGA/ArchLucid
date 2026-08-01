@@ -6,7 +6,6 @@ import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProv
 import { OperatorHomeCompletedSampleAction } from "@/components/operator-home/OperatorHomeCompletedSampleAction";
 import { OperatorHomeNavigateLoadingButton } from "@/components/operator-home/OperatorHomeNavigateLoadingButton";
 import { OperatorHomeReadinessStrip } from "@/components/operator-home/OperatorHomeReadinessStrip";
-import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/operator-home-workspace-activity-context";
 import { ReviewStartInlineError } from "@/components/review-intake/ReviewStartInlineError";
 import { ReviewStartLoadingButton } from "@/components/review-intake/ReviewStartLoadingButton";
 import { ReviewStartStagedProgress } from "@/components/review-intake/ReviewStartStagedProgress";
@@ -24,12 +23,14 @@ import {
   OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_TITLE,
   OPERATOR_HOME_EXPLORE_COMPLETED_REVIEW_BODY,
   OPERATOR_HOME_EXPLORE_COMPLETED_REVIEW_TITLE,
+  OPERATOR_HOME_LIFECYCLE_RECOMMENDED_BADGE,
   OPERATOR_HOME_READ_ONLY_INTENT_HINT,
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY,
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_TITLE,
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA,
 } from "@/lib/buyer-polish-copy";
-import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
+import { OPERATOR_CARD, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
+import type { OperatorHomeLifecyclePath } from "@/lib/resolve-operator-home-workspace-phase";
 import { trackOperatorHomeLifecyclePathClick } from "@/lib/operator-home-lifecycle-path-telemetry";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
@@ -45,21 +46,66 @@ type SelectedHomePath = "explore-completed-review" | "create-architecture" | "re
 
 type OperatorHomeDualPathCardsProps = {
   readonly variant?: "prominent" | "compact";
+  readonly emphasizedPath?: OperatorHomeLifecyclePath | null;
 };
+
+function lifecycleCardClassName(
+  path: Exclude<SelectedHomePath, null>,
+  emphasizedPath: OperatorHomeLifecyclePath | null | undefined,
+  selectedPath: SelectedHomePath,
+  extraClassName?: string,
+): string {
+  const isEmphasized = emphasizedPath === path;
+
+  return cn(
+    OPERATOR_SURFACE_CARD_CLASS,
+    "flex flex-col gap-3 border border-neutral-200 p-4 dark:border-neutral-800",
+    isEmphasized && OPERATOR_CARD.lifecycleEmphasized,
+    selectedPath === path && "ring-2 ring-teal-700/40 ring-offset-2",
+    extraClassName,
+  );
+}
+
+function lifecycleRecommendedBadge(
+  path: OperatorHomeLifecyclePath,
+  emphasizedPath: OperatorHomeLifecyclePath | null | undefined,
+  isCompact: boolean,
+): React.JSX.Element | null {
+  if (isCompact || emphasizedPath !== path) {
+    return null;
+  }
+
+  if (path === "explore-completed-review") {
+    return (
+      <StatusTag
+        kind="ready"
+        label={OPERATOR_HOME_BEST_FOR_EVALUATING_BADGE}
+        data-testid="operator-home-explore-recommended-badge"
+      />
+    );
+  }
+
+  return (
+    <StatusTag
+      kind="ready"
+      label={OPERATOR_HOME_LIFECYCLE_RECOMMENDED_BADGE}
+      data-testid={`operator-home-lifecycle-recommended-${path}`}
+    />
+  );
+}
 
 /** Overview lifecycle entry — Step 1 draft, Step 2 review, plus an optional completed-sample explore path. */
 export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps): React.JSX.Element {
   const variant = props.variant ?? "prominent";
+  const emphasizedPath = props.emphasizedPath ?? null;
   const reviewNavigation = useReviewIntakeNavigation();
   const createArchitectureNavigation = useCreateArchitectureNavigation();
   const canExecute = useOperateCapability();
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const readiness = useFinishSetupReadinessContext();
-  const { hasWorkspaceReviews } = useOperatorHomeWorkspaceActivity();
   const [selectedPath, setSelectedPath] = useState<SelectedHomePath>(null);
 
   const canManageCloudConnections = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
-  const showEvaluationBadge = !hasWorkspaceReviews && variant === "prominent";
   const isCompact = variant === "compact";
 
   const workspaceReadiness =
@@ -98,16 +144,13 @@ export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps)
         aria-live="polite"
       >
         <article
-          className={cn(
-            OPERATOR_SURFACE_CARD_CLASS,
-            "flex flex-col gap-3 border border-neutral-200 p-4 dark:border-neutral-800",
-            selectedPath === "create-architecture" && "ring-2 ring-teal-700/40 ring-offset-2",
-          )}
+          className={lifecycleCardClassName("create-architecture", emphasizedPath, selectedPath)}
           data-testid="operator-home-create-architecture-card"
           aria-labelledby="operator-home-create-architecture-title"
           aria-current={selectedPath === "create-architecture" ? "true" : undefined}
         >
           <div className="min-w-0 space-y-1">
+            {lifecycleRecommendedBadge("create-architecture", emphasizedPath, isCompact)}
             <h3
               className={cn("m-0", isCompact ? OPERATOR_TYPE_SCALE.helper : OPERATOR_TYPE_SCALE.sectionTitle)}
               id="operator-home-create-architecture-title"
@@ -139,16 +182,13 @@ export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps)
         </article>
 
         <article
-          className={cn(
-            OPERATOR_SURFACE_CARD_CLASS,
-            "flex flex-col gap-3 border border-neutral-200 p-4 dark:border-neutral-800",
-            selectedPath === "review-architecture" && "ring-2 ring-teal-700/40 ring-offset-2",
-          )}
+          className={lifecycleCardClassName("review-architecture", emphasizedPath, selectedPath)}
           data-testid="operator-home-review-architecture-card"
           aria-labelledby="operator-home-review-architecture-title"
           aria-current={selectedPath === "review-architecture" ? "true" : undefined}
         >
           <div className="min-w-0 space-y-1">
+            {lifecycleRecommendedBadge("review-architecture", emphasizedPath, isCompact)}
             <h3
               className={cn("m-0", isCompact ? OPERATOR_TYPE_SCALE.helper : OPERATOR_TYPE_SCALE.sectionTitle)}
               id="operator-home-review-architecture-title"
@@ -193,25 +233,17 @@ export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps)
         </article>
 
         <article
-          className={cn(
-            OPERATOR_SURFACE_CARD_CLASS,
-            "flex flex-col gap-3 p-4 sm:col-span-2 md:col-span-1",
-            isCompact
-              ? "border border-neutral-200 dark:border-neutral-800"
-              : "border-2 border-teal-800/25 dark:border-teal-500/30",
-            selectedPath === "explore-completed-review" && "ring-2 ring-teal-700/40 ring-offset-2",
+          className={lifecycleCardClassName(
+            "explore-completed-review",
+            emphasizedPath,
+            selectedPath,
+            "sm:col-span-2 md:col-span-1",
           )}
           data-testid="operator-home-explore-completed-review-card"
           aria-labelledby="operator-home-explore-completed-review-title"
         >
           <div className="min-w-0 space-y-2">
-            {showEvaluationBadge ? (
-              <StatusTag
-                kind="ready"
-                label={OPERATOR_HOME_BEST_FOR_EVALUATING_BADGE}
-                data-testid="operator-home-explore-recommended-badge"
-              />
-            ) : null}
+            {lifecycleRecommendedBadge("explore-completed-review", emphasizedPath, isCompact)}
             <h3
               className={cn("m-0", isCompact ? OPERATOR_TYPE_SCALE.helper : OPERATOR_TYPE_SCALE.sectionTitle)}
               id="operator-home-explore-completed-review-title"

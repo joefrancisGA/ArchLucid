@@ -74,9 +74,45 @@ export const OPERATOR_HOME_GUIDED_REVIEW_EXAMPLE_BODY =
   "See how ArchLucid evaluates a sample architecture.";
 
 export const OPERATOR_HOME_COMMAND_CENTER_TAGLINE =
-  "Describe your architecture, run a governed review, or explore a completed example. ArchLucid produces evidence-backed findings, decisions, and a record stakeholders can use.";
+  "Create architecture drafts, govern AI-assisted reviews, track evidence, and produce auditable decisions your organization can trust.";
 
 export const OPERATOR_HOME_INTENT_CHOOSER_HEADING = "Start the architecture review lifecycle";
+
+export const OPERATOR_HOME_CONTINUE_ARCHITECTURE_HEADING = "Continue your architecture";
+
+export const OPERATOR_HOME_ACTIVE_REVIEWS_HEADING = "Reviews in progress";
+
+export const OPERATOR_HOME_ACTIVE_REVIEWS_LEAD =
+  "Open an in-progress review or start another governed review when your architecture is ready.";
+
+export const OPERATOR_HOME_LIFECYCLE_RECOMMENDED_BADGE = "Recommended next";
+
+export const OPERATOR_HOME_RESUME_LATEST_DRAFT_CTA = "Resume latest draft";
+
+export function formatOperatorHomeContinueArchitectureLead(draftCount: number): string {
+  const safeCount = Number.isFinite(draftCount) ? Math.max(0, Math.trunc(draftCount)) : 0;
+
+  if (safeCount === 1) {
+    return "1 draft saved — start a review when you are ready.";
+  }
+
+  return `${safeCount} drafts saved — start a review when you are ready.`;
+}
+
+export function formatOperatorHomeResumeDraftBridge(displayName: string, draftCount: number): string {
+  const trimmedName = displayName.trim();
+  const safeCount = Number.isFinite(draftCount) ? Math.max(0, Math.trunc(draftCount)) : 0;
+
+  if (trimmedName.length > 0 && safeCount === 1) {
+    return `Pick up "${trimmedName}" or start a governed review from the lifecycle steps below.`;
+  }
+
+  if (trimmedName.length > 0) {
+    return `Pick up "${trimmedName}" — your most recent draft — or start a governed review from the lifecycle steps below.`;
+  }
+
+  return "Resume your most recent draft or start a governed review from the lifecycle steps below.";
+}
 
 export const OPERATOR_HOME_EXPLORE_COMPLETED_REVIEW_TITLE = "Explore a completed review";
 
@@ -235,9 +271,9 @@ export const OPERATOR_HOME_CONTINUE_SETUP_BODY =
   "No additional setup is required to create or review an architecture.";
 
 /** Compact readiness strip beside primary home choices. */
-export const OPERATOR_HOME_READY_STRIP_LABEL = "Ready to begin · No additional setup required";
+export const OPERATOR_HOME_READY_STRIP_LABEL = "Ready to begin · Workspace configured";
 
-export const OPERATOR_HOME_READY_STRIP_SUPPORT = "No additional setup required";
+export const OPERATOR_HOME_READY_STRIP_SUPPORT = "Workspace configured";
 
 export const OPERATOR_HOME_READY_TO_BEGIN_TITLE = "Ready to begin";
 

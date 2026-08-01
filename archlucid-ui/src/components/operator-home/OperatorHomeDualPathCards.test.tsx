@@ -109,7 +109,7 @@ const featuredSampleRunId = "dddddddd-dddd-dddd-dddd-dddddddddddd";
 
 describe("OperatorHomeDualPathCards", () => {
   it("shows lifecycle steps plus an evaluation explore card", () => {
-    render(<OperatorHomeDualPathCards />);
+    render(<OperatorHomeDualPathCards emphasizedPath="explore-completed-review" />);
 
     expect(screen.getByText(OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO)).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-explore-recommended-badge")).toHaveTextContent(
@@ -132,8 +132,17 @@ describe("OperatorHomeDualPathCards", () => {
     expect(screen.queryByText(/Recommended next/i)).not.toBeInTheDocument();
   });
 
+  it("emphasizes the review card when requested", () => {
+    render(<OperatorHomeDualPathCards emphasizedPath="review-architecture" />);
+
+    expect(screen.getByTestId("operator-home-lifecycle-recommended-review-architecture")).toHaveTextContent(
+      "Recommended next",
+    );
+    expect(screen.queryByTestId("operator-home-explore-recommended-badge")).toBeNull();
+  });
+
   it("shows immediate loading feedback when starting the review architecture path", () => {
-    render(<OperatorHomeDualPathCards />);
+    render(<OperatorHomeDualPathCards emphasizedPath="review-architecture" />);
 
     fireEvent.click(screen.getByTestId("operator-home-review-architecture-cta"));
 

@@ -43,6 +43,9 @@ export const OPERATOR_CARD = {
   body: "p-4",
   /** Nested raised surface inside a card (metrics, run rows, empty states). */
   nested: "p-3",
+  /** Lifecycle path card that matches the current workspace phase (left accent only). */
+  lifecycleEmphasized:
+    "border-l-4 border-l-teal-700 dark:border-l-teal-500",
 } as const;
 
 /** Tailwind class bundles for layout and surfaces (operator shell). */

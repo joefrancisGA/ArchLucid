@@ -8,7 +8,9 @@ import {
   OPERATOR_HOME_DO_THIS_NEXT_HEADING,
   OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_HEADING,
   OPERATOR_HOME_INTENT_CHOOSER_HEADING,
+  OPERATOR_HOME_CONTINUE_ARCHITECTURE_HEADING,
   OPERATOR_HOME_OPEN_SAMPLE_PACKAGE_CTA,
+  OPERATOR_HOME_RESUME_LATEST_DRAFT_CTA,
   OPERATOR_HOME_WORKSPACE_OVERVIEW_HEADING,
 } from "@/lib/buyer-polish-copy";
 import { OPERATOR_HOME_CARD_SECTION_HEADING } from "@/lib/design-tokens";
@@ -43,8 +45,36 @@ vi.mock("@/components/operator-home/operator-home-workspace-activity-context", (
   }),
 }));
 
+vi.mock("@/hooks/use-architecture-draft-registry-entries", () => ({
+  useArchitectureDraftRegistryEntries: vi.fn(() => []),
+}));
+
 vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => true,
+}));
+
+vi.mock("@/hooks/use-review-intake-navigation", () => ({
+  useReviewIntakeNavigation: () => ({
+    navigate: vi.fn(),
+    reset: vi.fn(),
+    isNavigating: false,
+    isPending: false,
+    activeStageId: null,
+    showStagedPanel: false,
+    stages: [],
+    loadingLabel: "Starting review…",
+    error: null,
+  }),
+}));
+
+vi.mock("@/hooks/use-create-architecture-navigation", () => ({
+  useCreateArchitectureNavigation: () => ({
+    navigate: vi.fn(),
+    reset: vi.fn(),
+    isNavigating: false,
+    loadingLabel: "Starting architecture…",
+    error: null,
+  }),
 }));
 
 vi.mock("@/hooks/use-featured-completed-sample-query", () => ({
@@ -90,6 +120,7 @@ vi.mock("@/lib/core-pilot-commit-context", async (importOriginal) => {
 
 import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
+import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 
 const emptyCommitContext = {
   hasCommittedManifest: false,
@@ -104,6 +135,7 @@ describe("PilotCommandCenterCard", () => {
   beforeEach(() => {
     vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(false);
     vi.mocked(fetchCorePilotCommitContext).mockResolvedValue(emptyCommitContext);
+    vi.mocked(useArchitectureDraftRegistryEntries).mockReturnValue([]);
   });
 
   it("shows a single Do-this-next card on empty Overview (TB-1038 / TB-1039)", async () => {
@@ -157,11 +189,45 @@ describe("PilotCommandCenterCard", () => {
     expect(screen.queryByText(/Recommended next/i)).toBeNull();
   });
 
+  it("shows resume-draft callout and lifecycle cards when drafts exist without reviews", () => {
+    vi.mocked(useArchitectureDraftRegistryEntries).mockReturnValue([
+      {
+        architectureId: "draft-001",
+        displayName: "Claims intake",
+        customerStatus: "draft",
+        ownerLabel: "You",
+        lastUpdatedUtc: "2026-01-01T00:00:00.000Z",
+        linkedReviewId: null,
+        serverUpdatedUtc: "2026-01-01T00:00:00.000Z",
+      },
+    ]);
+
+    renderWithOperatorQuery(<PilotCommandCenterCard />);
+
+    expect(screen.getByTestId("pilot-command-center-card")).toHaveAttribute(
+      "data-workspace-phase",
+      "eval-with-drafts",
+    );
+    expect(
+      screen.getByRole("heading", { level: 2, name: OPERATOR_HOME_CONTINUE_ARCHITECTURE_HEADING }),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-resume-draft-primary")).toHaveAttribute(
+      "href",
+      "/architectures/draft-001",
+    );
+    expect(screen.getByTestId("operator-home-resume-draft-primary")).toHaveTextContent(
+      OPERATOR_HOME_RESUME_LATEST_DRAFT_CTA,
+    );
+    expect(screen.getByTestId("operator-home-dual-path-cards")).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-lifecycle-recommended-review-architecture")).toBeInTheDocument();
+    expect(screen.queryByTestId("operator-home-do-this-next")).toBeNull();
+  });
+
   it("shows workspace overview hero copy after committed workspace activity", () => {
     vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(true);
     vi.mocked(fetchCorePilotCommitContext).mockResolvedValue(PUBLIC_DEMO_CORE_PILOT_COMMIT_CONTEXT);
 
-    renderWithOperatorQuery(<PilotCommandCenterCard />);
+    renderWithOperatorQuery(<PilotCommandCenterCard hasWorkspaceReviews />);
 
     expect(
       screen.getByRole("heading", { level: 2, name: OPERATOR_HOME_WORKSPACE_OVERVIEW_HEADING }),
