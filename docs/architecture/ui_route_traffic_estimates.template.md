@@ -89,7 +89,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | P | `/pricing` | 0.25% | 0 | 0 | 25 | Marketing | None |
 | RRP | `/reviews/[runId]/provenance` | 0.25% | 0 | 0 | 25 | Core review | None |
 | SBE | `/settings/billing` | 0.25% | 0 | 0 | 25 | Settings | None |
-| GOR | `/governance/alert-rules?tab=routing` | 0.22% | 0 | 0 | 22 | Tab surface | Redirect-only legacy `/alert-routing` (AL2) merged here; do not score `/alert-routing` as a product page (TB-1443) |
+| GOR | `/governance/alert-rules?tab=routing` | 0.22% | 0 | 0 | 22 | Tab surface | Alert rules Routing tab (left nav Alert rules). |
 | GRX | `/governance/recurrence-schedules` | 0.2% | 0 | 0 | 20 | Alerts/gov | None |
 | HGX | `/help/getting-started` | 0.2% | 0 | 0 | 20 | Help topic | None |
 | LOG | `/login` | 0.2% | 0 | 0 | 20 | Auth | None |
@@ -158,7 +158,6 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | AFX | `/admin/fleet-llm-cogs` | 0.05% | 0 | 0 | 5 | Admin | None |
 | APX | `/admin/pricing-quote-aging` | 0.05% | 0 | 0 | 5 | Admin | None |
 | ATD | `/admin/trial-funnel` | 0.05% | 0 | 0 | 5 | Admin | None |
-| DIG | `/digest-subscriptions` | 0.05% | 0 | 0 | 5 | Digests | None |
 | GXX | `/get-started` | 0.05% | 0 | 0 | 5 | Marketing | None |
 | HSX | `/help/scope` | 0.05% | 0 | 0 | 5 | Help topic | None |
 | HSE | `/help/security-trust` | 0.05% | 0 | 0 | 5 | Help topic | None |
@@ -257,7 +256,6 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | INR | `/integrations/readiness` | 0.02% | 0 | 0 | 2 | Integrations | None |
 | PAP | `/patterns/[patternKey]` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | PRB | `/privacy` | 0.02% | 0 | 0 | 2 | Marketing | None |
-| QUI | `/quick-start` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | REX | `/recommendation-learning` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | RER | `/reviews/[runId]/artifacts/[artifactId]` | 0.02% | 0 | 0 | 2 | Core review | None |
 | ERU | `/reviews/[runId]/findings/[findingId]/evidence-trace` | 0.02% | 0 | 0 | 2 | Core review | None |
