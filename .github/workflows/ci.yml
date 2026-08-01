@@ -1299,7 +1299,7 @@ jobs:
 
       - name: Path-skip Terraform private validate
         if: needs.ci-path-lanes.outputs.run_terraform != 'true'
-        run: echo "Path-skip: Terraform private validate not required for this PR lane set."
+        run: "echo 'Path-skip: Terraform private validate not required for this PR lane set.'"
 
       - uses: hashicorp/setup-terraform@v4
         if: needs.ci-path-lanes.outputs.run_terraform == 'true'
@@ -1359,7 +1359,7 @@ jobs:
 
       - name: Path-skip Terraform public validate
         if: needs.ci-path-lanes.outputs.run_terraform != 'true'
-        run: echo "Path-skip: Terraform ${{ matrix.directory }} not required for this PR lane set."
+        run: "echo 'Path-skip: Terraform ${{ matrix.directory }} not required for this PR lane set.'"
 
       - uses: hashicorp/setup-terraform@v4
         if: needs.ci-path-lanes.outputs.run_terraform == 'true'
@@ -1488,7 +1488,7 @@ jobs:
 
       - name: Path-skip OpenAPI contract snapshot
         if: needs.ci-path-lanes.outputs.run_openapi != 'true'
-        run: echo "Path-skip: OpenAPI contract snapshot not required for this PR lane set."
+        run: "echo 'Path-skip: OpenAPI contract snapshot not required for this PR lane set.'"
 
       - name: Setup .NET
         if: needs.ci-path-lanes.outputs.run_openapi == 'true'
@@ -1819,7 +1819,7 @@ jobs:
 
       - name: Path-skip fast-core build
         if: needs.ci-path-lanes.outputs.run_dotnet != 'true'
-        run: echo "Path-skip: .NET fast-core build not required for this PR lane set."
+        run: "echo 'Path-skip: .NET fast-core build not required for this PR lane set.'"
 
       - name: Fetch default branch for diff guards (manual CI)
         if: github.event_name == 'workflow_dispatch' && needs.ci-path-lanes.outputs.run_dotnet == 'true'
@@ -1881,7 +1881,7 @@ jobs:
 
       - name: Path-skip fast-core test shard
         if: needs.ci-path-lanes.outputs.run_dotnet != 'true'
-        run: echo "Path-skip: .NET fast-core test shard not required for this PR lane set."
+        run: "echo 'Path-skip: .NET fast-core test shard not required for this PR lane set.'"
 
       - name: Setup .NET
         if: needs.ci-path-lanes.outputs.run_dotnet == 'true'
