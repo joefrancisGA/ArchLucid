@@ -287,7 +287,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | MAM | `/signed-records/[manifestId]/artifacts/[artifactId]` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | SPA | `/sponsor-report/architecture-scorecard` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | SPE | `/sponsor-report/executive-summary` | 0.02% | 0 | 0 | 2 | Marketing | None |
-| SPP | `/sponsor-report/pilot-outcomes` | 0.02% | 0 | 0 | 2 | Marketing | None |
+| SPP | `/sponsor-report/pilot-outcomes` | 0.02% | 0 | 0 | 2 | Sponsor report | Sponsor pilot outcomes report (canonical); `/value-report/pilot` redirects here for bookmark compat. |
 | SPR | `/sponsor-report/roi-summary` | 0.02% | 0 | 0 | 2 | Marketing | None |
 
 ---
