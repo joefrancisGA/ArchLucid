@@ -7,6 +7,7 @@ import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorksp
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { DocumentLayout } from "@/components/DocumentLayout";
 import { LayerHeader } from "@/components/LayerHeader";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { ValueReportOutcomesNav } from "@/components/usability/ValueReportOutcomesNav";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { RoiTelemetryCard } from "@/components/RoiTelemetryCard";
@@ -98,6 +99,9 @@ export function RoiSummaryPageView(props: Props) {
   return (
     <OperatorPageContainer variant="dashboard" className="space-y-4">
       {layerHeader}
+      <div className="flex flex-wrap items-center justify-end gap-2 print:hidden">
+        <PageContextualHelpButton />
+      </div>
       <ValueReportOutcomesNav />
       <DocumentLayout>
         <div className="flex flex-wrap items-start justify-between gap-3">

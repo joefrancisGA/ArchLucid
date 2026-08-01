@@ -16,6 +16,10 @@ vi.mock("@/components/usability/ValueReportOutcomesNav", () => ({
   ValueReportOutcomesNav: () => <nav data-testid="value-report-outcomes-nav" />,
 }));
 
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+}));
+
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const mod = await importOriginal<typeof import("@/lib/demo-ui-env")>();
 
@@ -92,6 +96,12 @@ function buildModel(overrides: Partial<RoiSummaryPageViewModel> = {}): RoiSummar
 }
 
 describe("RoiSummaryPageView", () => {
+  it("mounts contextual help on ready state (TB-1973)", () => {
+    render(<RoiSummaryPageView model={buildModel()} />);
+
+    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+  });
+
   it("zero-state primary CTA uses buyer Start architecture review label (TB-1972)", () => {
     render(<RoiSummaryPageView model={buildModel()} />);
 

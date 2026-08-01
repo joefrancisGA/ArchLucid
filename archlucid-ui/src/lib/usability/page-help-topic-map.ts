@@ -50,6 +50,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/alerts", topic: { slug: "alerts", label: "Alerts" } },
   { prefix: "/alert-rules", topic: { slug: "alerts", label: "How alerts work" } },
   { prefix: "/policy-packs", topic: { slug: "governance-approval", label: "Governance approval" } },
+  {
+    prefix: "/sponsor-report/roi-summary",
+    topic: { slug: "pilot-roi-model", label: "View ROI methodology" },
+  },
   { prefix: "/sponsor-report", topic: { slug: "executive-summary", label: "Executive summary" } },
   { prefix: "/value-report", topic: { slug: "executive-summary", label: "Executive summary" } },
   { prefix: "/digests", topic: { slug: "how-it-works", label: "Architecture digests" } },

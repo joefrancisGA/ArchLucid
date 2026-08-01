@@ -85,6 +85,9 @@ describe("usability lib", () => {
     expect(pageHelpTopicForPathname("/signed-records/manifest-1/artifacts/cost-summary")?.slug).toBe(
       "review-artifacts",
     );
+    expect(pageHelpTopicForPathname("/sponsor-report/roi-summary")?.slug).toBe("pilot-roi-model");
+    expect(pageHelpTopicForPathname("/sponsor-report/roi-summary")?.label).toBe("View ROI methodology");
+    expect(pageHelpTopicForPathname("/sponsor-report/pilot-outcomes")?.slug).toBe("executive-summary");
   });
 
   it("searchHelpTopics finds pilot guide", () => {
