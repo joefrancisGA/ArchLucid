@@ -751,7 +751,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1968 | Pilot outcomes — mount PageContextualHelp with **TB-1668** | Adoption friction P1 **V1** — with **TB-1966** |
 | TB-1969 | Pilot outcomes — collapse strip + LayerHeader + subtitle with **TB-1437** | Adoption friction P1 **V1** — with **TB-1966** |
 | TB-1970 | Pilot outcomes — Vitest traffic + empty deep-link + help mount | Testability P2 **V1** — with **TB-1966** |
-| TB-1971 | ROI summary — traffic section honesty (Sponsor report, not Marketing) | Trustworthiness P1 **V1** — SPR ~45 |
 | TB-1972 | ROI summary zero CTA — Start review → buyer Start architecture review | Trustworthiness P1 **V1** — with **TB-1971** |
 | TB-1973 | ROI summary — mount PageContextualHelp with **TB-1668** | Adoption friction P1 **V1** — with **TB-1971** |
 | TB-1974 | ROI summary — collapse strip + LayerHeader + subtitle with **TB-1437** | Adoption friction P1 **V1** — with **TB-1971** |
@@ -963,7 +962,7 @@ Canonical: [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) only (see wave-3 c
 | Architecture scorecard (`/sponsor-report/architecture-scorecard`) | **TB-1956**–**TB-1960** (open **V1**) | Traffic section; sample href; empty CTA; help with **TB-1668**; Vitest; ~48/100; traffic **SPA**; siblings SPE/SPP/SPR |
 | Executive summary (`/sponsor-report/executive-summary`) | **TB-1961**–**TB-1965** (open **V1**) | Traffic section; title vocabulary; canonical deep-links; chrome with **TB-1437**; Vitest; ~50/100; traffic **SPE**; siblings SPP/SPR |
 | Pilot outcomes (`/sponsor-report/pilot-outcomes`) | **TB-1966**, **TB-1968**–**TB-1970** (open **V1**) | Traffic section; help with **TB-1668**; chrome with **TB-1437**; Vitest; ~46/100; traffic **SPP**; sibling SPR; **TB-1967** Done |
-| ROI summary (`/sponsor-report/roi-summary`) | **TB-1971**–**TB-1975** (open **V1**) | Traffic section; zero CTA; help with **TB-1668**; chrome with **TB-1437**; Vitest; ~45/100; traffic **SPR**; completes SPA/SPE/SPP/SPR |
+| ROI summary (`/sponsor-report/roi-summary`) | **TB-1972**–**TB-1975** (open **V1**) | Zero CTA; help with **TB-1668**; chrome with **TB-1437**; Vitest; ~45/100; traffic **SPR**; **TB-1971** Done |
 | Finding evidence-trace (`/…/evidence-trace`) | **TB-1826**–**TB-1830** (open P1/P2 **V1**) | Finding-first H1; no footer self-link; back to finding detail; heading hierarchy; Vitest + **TB-987**; ~54/100; traffic **ERU** |
 | Create-home Activity (`archTab=activity`) | **TB-1831**–**TB-1835** (open P1/P2 **V1**) | Traffic dual-param honesty; orientation; no forced create-intent; density; Vitest; ~42/100; traffic **REA**; siblings **REC**–**REO** |
 | Create-home Clarifications (`archTab=clarifications`) | **TB-1836**–**TB-1840** (open P1 **V1**) | Traffic honesty; run-scoped CTAs; badge count; empty composition; Vitest; ~44/100; traffic **REC**; pairs **TB-1831**/**TB-1833** |
