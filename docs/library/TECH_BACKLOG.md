@@ -45453,11 +45453,11 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1967 — Pilot outcomes empty — “Open most recent finalized review” must deep-link the run (P0)
 
-**Window:** V1 — Correctness. **Status:** Not started. **Priority:** P0.
+**Window:** V1 — Correctness. **Status:** **Done** (2026-07-31). **Priority:** P0.
 
 **Problem:** Empty CTA “Open most recent finalized review” links to `/reviews` even when `mostRecentFinalizedUtc` is known — no run deep-link.
 
-**Approach:** Pass most-recent run id into empty state; href `/reviews/{runId}`. Vitest.
+**Shipped:** `mostRecentFinalizedRunId` on empty diagnostics; empty-state CTA href `/reviews/{runId}`; Vitest in `pilot-outcomes-report-diagnostics.test.ts` and `PilotValueReportPageView.test.tsx`.
 
 **Acceptance:** CTA opens the most recent finalized review when known. **Size estimate:** S.
 
