@@ -14,9 +14,9 @@ Do **not** edit archived change-set bodies. If a decision changes, write a new A
 | File | What it covers |
 |------|---------------|
 | [CHANGE_SET_SERIES_55R_59R.md](CHANGE_SET_SERIES_55R_59R.md) | **Consolidated** 55R–59R prompt logs (operator shell, RC hardening, Playwright E2E, product learning, planning bridge) |
-| [MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md](MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md) | **Consolidated** April 2026 marketability snapshots (mixed + SaaS-only framing) |
-| [QUALITY_ASSESSMENT_SERIES_2026_04_23.md](QUALITY_ASSESSMENT_SERIES_2026_04_23.md) | **Consolidated** 2026-04-23 quality assessment (73.20%) + Cursor prompts |
-| [USABILITY_ASSESSMENT_SERIES_2026_04_25.md](USABILITY_ASSESSMENT_SERIES_2026_04_25.md) | **Consolidated** 2026-04-25 usability assessment (69.52%) + Cursor prompts |
+| [../assessments/LATEST_GPT55.md](../assessments/LATEST_GPT55.md) | **Consolidated** April 2026 marketability snapshots (mixed + SaaS-only framing) |
+| [../assessments/LATEST_GPT55.md](../assessments/LATEST_GPT55.md) | **Consolidated** 2026-04-23 quality assessment (73.20%) + Cursor prompts |
+| [../assessments/LATEST_GPT55.md](../assessments/LATEST_GPT55.md) | **Consolidated** 2026-04-25 usability assessment (69.52%) + Cursor prompts |
 
 **Live assessments** (not under this folder): [`../assessments/LATEST_GPT55.md`](../assessments/LATEST_GPT55.md) · [`../assessments/LATEST_EXPOSURE.md`](../assessments/LATEST_EXPOSURE.md). Historical weighted passes live in the consolidated series rows above (former `archive/assessments/` tree removed).
 

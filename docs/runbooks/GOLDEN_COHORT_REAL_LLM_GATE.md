@@ -1,4 +1,4 @@
-﻿> **Scope:** End-to-end operator instructions for the optional **real-LLM** golden-cohort nightly path: how to flip the gate from disabled to required, how to respond when the **kill-switch** trips, and how to read the cost-and-latency Workbook. Pair with [`GOLDEN_COHORT_BUDGET.md`](./GOLDEN_COHORT_BUDGET.md) for the budget mechanics.
+> **Scope:** End-to-end operator instructions for the optional **real-LLM** golden-cohort nightly path: how to flip the gate from disabled to required, how to respond when the **kill-switch** trips, and how to read the cost-and-latency Workbook. Pair with [`GOLDEN_COHORT_BUDGET.md`](./GOLDEN_COHORT_BUDGET.md) for the budget mechanics.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -92,7 +92,7 @@ The cost-and-latency Workbook is provisioned by the Terraform module [`infra/mod
 
 ## 6. Stop-and-ask boundaries (do **not** automate these)
 
-These are explicitly listed in [`docs/archive/QUALITY_ASSESSMENT_SERIES_2026_04_23.md`](../archive/QUALITY_ASSESSMENT_SERIES_2026_04_23.md) §Cursor prompts — Prompt 11. They remain owner-only:
+These are explicitly listed in [`docs/archive/../assessments/LATEST_GPT55.md`](../archive/../assessments/LATEST_GPT55.md) §Cursor prompts — Prompt 11. They remain owner-only:
 
 * **Provisioning the dedicated Azure OpenAI deployment** â€” Cognitive Services account, deployment name, model SKU, region quota.
 * **Injecting the Azure OpenAI secret** into the protected GitHub Environment.

@@ -8,8 +8,8 @@ These files were **`docs/*.md`** and are **archived here** so `docs/` stays alig
 | File | Notes |
 |------|---------|
 | `ARCHLUCID_RENAME_CHECKLIST.md` | **Removed 2026-05-18** — canonical rename posture: [V1_DEFERRED.md](../../library/V1_DEFERRED.md) §3 · [CHANGELOG.md](../../CHANGELOG.md) |
-| [QUALITY_ASSESSMENT_SERIES_2026_04_23.md](../QUALITY_ASSESSMENT_SERIES_2026_04_23.md) | **Consolidated** 2026-04-23 quality assessment (73.20%) + Cursor prompts |
-| [USABILITY_ASSESSMENT_SERIES_2026_04_25.md](../USABILITY_ASSESSMENT_SERIES_2026_04_25.md) | **Consolidated** 2026-04-25 usability assessment (69.52%) + Cursor prompts |
+| [../assessments/LATEST_GPT55.md](../../assessments/LATEST_GPT55.md) | **Consolidated** 2026-04-23 quality assessment (73.20%) + Cursor prompts |
+| [../assessments/LATEST_GPT55.md](../../assessments/LATEST_GPT55.md) | **Consolidated** 2026-04-25 usability assessment (69.52%) + Cursor prompts |
 
 **Also relocated (not in this folder):**
 

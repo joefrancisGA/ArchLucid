@@ -1,4 +1,4 @@
-﻿> **Scope:** Canonical redirect map for the documentation audit â€” former paths, where content lives now, and why the old file was removed. Use this instead of keeping redirect stub markdown files in the tree; update inbound links to the **canonical** column when you touch a caller.
+> **Scope:** Canonical redirect map for the documentation audit â€” former paths, where content lives now, and why the old file was removed. Use this instead of keeping redirect stub markdown files in the tree; update inbound links to the **canonical** column when you touch a caller.
 
 > **Spine doc:** [`START_HERE.md`](START_HERE.md).
 
@@ -383,12 +383,12 @@ Human readers and agents should follow **canonical** paths below. This file is t
 
 | Former path | Canonical path | Notes |
 |-------------|----------------|-------|
-| `docs/archive/MARKETABILITY_ASSESSMENT_2026_04_15_PRE_M2.md` | [`docs/archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md`](archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md) | Mixed framing â€” pre-M2 |
-| `docs/archive/MARKETABILITY_ASSESSMENT_2026_04_15_PRE_M3.md` | [`docs/archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md`](archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md) | Mixed framing â€” post-M1+M2 |
-| `docs/archive/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY_PRE_TRUST_CENTER.md` | [`docs/archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md`](archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md) | SaaS-only â€” pre-Trust Center |
-| `docs/archive/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY_PRE_IMP2_6.md` | [`docs/archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md`](archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md) | SaaS-only â€” post-Trust Center |
-| `docs/MARKETABILITY_ASSESSMENT_2026_04_15.md` | [`docs/archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md`](archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md) | Legacy root alias (mixed framing) |
-| `docs/archive/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY_PRE_trust-center.md` | [`docs/archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md`](archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md) | Old filename casing alias |
+| `docs/archive/MARKETABILITY_ASSESSMENT_2026_04_15_PRE_M2.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Mixed framing â€” pre-M2 |
+| `docs/archive/MARKETABILITY_ASSESSMENT_2026_04_15_PRE_M3.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Mixed framing â€” post-M1+M2 |
+| `docs/archive/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY_PRE_TRUST_CENTER.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | SaaS-only â€” pre-Trust Center |
+| `docs/archive/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY_PRE_IMP2_6.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | SaaS-only â€” post-Trust Center |
+| `docs/MARKETABILITY_ASSESSMENT_2026_04_15.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Legacy root alias (mixed framing) |
+| `docs/archive/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY_PRE_trust-center.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Old filename casing alias |
 | `docs/archive/IMPROVEMENTS_COMPLETE_2026_04_21.md` | [`docs/archive/assessments/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](archive/assessments/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md) | Superseded schema-validation summary; see `docs/CHANGELOG.md` for component history |
 | `docs/archive/NEXT_REFACTORINGS_ARCHIVE_2026_04_15.md` | [`docs/library/TECH_BACKLOG.md`](library/TECH_BACKLOG.md) | April 2026 refactor snapshot removed; canonical engineering backlog |
 
@@ -396,14 +396,14 @@ Human readers and agents should follow **canonical** paths below. This file is t
 
 | Former path | Canonical path | Notes |
 |-------------|----------------|-------|
-| `docs/archive/root-superseded-2026-05-01/QUALITY_ASSESSMENT_2026_04_23_INDEPENDENT_73_20.md` | [`docs/archive/QUALITY_ASSESSMENT_SERIES_2026_04_23.md`](archive/QUALITY_ASSESSMENT_SERIES_2026_04_23.md) | Â§Weighted assessment |
-| `docs/archive/root-superseded-2026-05-01/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_23_73_20.md` | [`docs/archive/QUALITY_ASSESSMENT_SERIES_2026_04_23.md`](archive/QUALITY_ASSESSMENT_SERIES_2026_04_23.md) | Â§Cursor prompts |
-| `docs/QUALITY_ASSESSMENT_2026_04_23_INDEPENDENT_73_20.md` | [`docs/archive/QUALITY_ASSESSMENT_SERIES_2026_04_23.md`](archive/QUALITY_ASSESSMENT_SERIES_2026_04_23.md) | Legacy root path |
-| `docs/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_23_73_20.md` | [`docs/archive/QUALITY_ASSESSMENT_SERIES_2026_04_23.md`](archive/QUALITY_ASSESSMENT_SERIES_2026_04_23.md) | Legacy root path |
-| `docs/archive/root-superseded-2026-05-01/USABILITY_SOLUTION_QUALITY_ASSESSMENT_2026_04_25_69_52.md` | [`docs/archive/USABILITY_ASSESSMENT_SERIES_2026_04_25.md`](archive/USABILITY_ASSESSMENT_SERIES_2026_04_25.md) | Â§Weighted assessment |
-| `docs/archive/root-superseded-2026-05-01/CURSOR_PROMPTS_USABILITY_ASSESSMENT_2026_04_25_69_52.md` | [`docs/archive/USABILITY_ASSESSMENT_SERIES_2026_04_25.md`](archive/USABILITY_ASSESSMENT_SERIES_2026_04_25.md) | Â§Cursor prompts |
-| `docs/USABILITY_SOLUTION_QUALITY_ASSESSMENT_2026_04_25_69_52.md` | [`docs/archive/USABILITY_ASSESSMENT_SERIES_2026_04_25.md`](archive/USABILITY_ASSESSMENT_SERIES_2026_04_25.md) | Legacy root path |
-| `docs/CURSOR_PROMPTS_USABILITY_ASSESSMENT_2026_04_25_69_52.md` | [`docs/archive/USABILITY_ASSESSMENT_SERIES_2026_04_25.md`](archive/USABILITY_ASSESSMENT_SERIES_2026_04_25.md) | Legacy root path |
+| `docs/archive/root-superseded-2026-05-01/QUALITY_ASSESSMENT_2026_04_23_INDEPENDENT_73_20.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Â§Weighted assessment |
+| `docs/archive/root-superseded-2026-05-01/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_23_73_20.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Â§Cursor prompts |
+| `docs/QUALITY_ASSESSMENT_2026_04_23_INDEPENDENT_73_20.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Legacy root path |
+| `docs/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_23_73_20.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Legacy root path |
+| `docs/archive/root-superseded-2026-05-01/USABILITY_SOLUTION_QUALITY_ASSESSMENT_2026_04_25_69_52.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Â§Weighted assessment |
+| `docs/archive/root-superseded-2026-05-01/CURSOR_PROMPTS_USABILITY_ASSESSMENT_2026_04_25_69_52.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Â§Cursor prompts |
+| `docs/USABILITY_SOLUTION_QUALITY_ASSESSMENT_2026_04_25_69_52.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Legacy root path |
+| `docs/CURSOR_PROMPTS_USABILITY_ASSESSMENT_2026_04_25_69_52.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Legacy root path |
 
 ## Renamed (not deleted)
 
@@ -464,6 +464,89 @@ Human readers and agents should follow **canonical** paths below. This file is t
 | `docs/archive/assessments/ARCHLUCID_ASSESSMENT_WEIGHTED_READINESS_2026_05_06_FIRST_PRINCIPLES_73_67.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | First-principles weighted readiness 73.67% (2026-05-06) deleted 2026-08-01; use live LATEST |
 | `docs/archive/assessments/ArchLucid_Assessment_Weighted_Readiness_2026_05_06_First_Principles_78_07.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | First-principles weighted readiness 78.07% (2026-05-06) deleted 2026-08-01; use live LATEST |
 | `docs/archive/assessments/ArchLucid_Assessment_Weighted_Readiness_2026_05_06_INDEPENDENT.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Independent weighted readiness 81.55% (2026-05-06) deleted 2026-08-01; use live LATEST |
+| `docs/archive/assessments/ARCHLUCID_ASSESSMENT_WEIGHTED_READINESS_2026_05_06_INDEPENDENT__docs_library.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Corrupted ~40MB independent assessment dump deleted 2026-08-01; use live LATEST |
+
+
+## 2026-08-01 bulk archive *assessment*.md retirement
+
+| Former path | Canonical path | Notes |
+|-------------|----------------|-------|| `docs/archive/assessments/ArchLucid_Assessment_Weighted_Readiness_2026_05_06_Independent_First_Principles_76_35.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/ArchLucid_Assessment_Weighted_Readiness_2026_05_07_Independent_First_Principles_78_33.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/ARCHLUCID_ASSESSMENT_WEIGHTED_READINESS_2026_05_07_INDEPENDENT_FIRST_PRINCIPLES_78_33__docs_library.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/ArchLucid_Assessment_Weighted_Readiness_2026_05_07_Independent_First_Principles_78_39.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/ArchLucid_Assessment_Weighted_Readiness_2026_05_07_Independent_First_Principles_78_59.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/ArchLucid_Assessment_Weighted_Readiness_2026_05_07_Independent_First_Principles_79_24.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/ArchLucid_Assessment_Weighted_Readiness_2026_05_08_Independent_First_Principles_76_83.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/ArchLucid_Assessment_Weighted_Readiness_2026_05_09_Independent_First_Principles_76_02.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/ArchLucid_Assessment_Weighted_Readiness_2026_05_10_Independent_First_Principles_69_82.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/ArchLucid_Assessment_Weighted_Readiness_2026_05_10_Independent_First_Principles_69_95.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/ArchLucid_Assessment_Weighted_Readiness_2026_05_10_Independent_First_Principles_70_28.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/ArchLucid_Assessment_Weighted_Readiness_2026_05_10_Independent_First_Principles_72_25.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/ArchLucid_Assessment_Weighted_Readiness_2026_05_10_Independent_First_Principles_74_43.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/ASSESSMENT_PROMPT_V2.md` | [`docs/assessments/ASSESSMENT_PROMPT_SERIES.md`](assessments/ASSESSMENT_PROMPT_SERIES.md) | Archived assessment prompt deleted 2026-08-01; use live prompt series |
+| `docs/archive/assessments/COGNITIVE_LOAD_SOLUTION_QUALITY_ASSESSMENT_2026_05_02_71_39.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/CORRECTNESS_QUALITY_ASSESSMENT_2026_04_15.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21.md` | [`docs/assessments/ASSESSMENT_PROMPT_SERIES.md`](assessments/ASSESSMENT_PROMPT_SERIES.md) | Archived assessment prompt deleted 2026-08-01; use live prompt series |
+| `docs/archive/assessments/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_67_61.md` | [`docs/assessments/ASSESSMENT_PROMPT_SERIES.md`](assessments/ASSESSMENT_PROMPT_SERIES.md) | Archived assessment prompt deleted 2026-08-01; use live prompt series |
+| `docs/archive/assessments/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md` | [`docs/assessments/ASSESSMENT_PROMPT_SERIES.md`](assessments/ASSESSMENT_PROMPT_SERIES.md) | Archived assessment prompt deleted 2026-08-01; use live prompt series |
+| `docs/archive/assessments/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_26.md` | [`docs/assessments/ASSESSMENT_PROMPT_SERIES.md`](assessments/ASSESSMENT_PROMPT_SERIES.md) | Archived assessment prompt deleted 2026-08-01; use live prompt series |
+| `docs/archive/assessments/DECISION_VELOCITY_SOLUTION_QUALITY_ASSESSMENT_2026_05_02_1.29.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/FIRST_PRINCIPLES_ASSESSMENT_2026.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/INDEPENDENT_ASSESSMENT_79_38.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/LATEST_2026_05_29_1303_clean_slate_pre_assessment.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/LATEST_2026_05_29_154312_clean_slate_pre_assessment.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/LATEST_2026_05_29_2033_clean_slate_pre_assessment.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/LATEST_2026_05_29_224055_pre_clean_slate_assessment.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/LATEST_2026_05_29_232106_pre_clean_slate_assessment.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/LATEST_2026_05_30_0606_pre_clean_slate_assessment.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/LATEST_2026_05_30_163000_pre_clean_slate_assessment.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/MARKETABILITY_ASSESSMENT_2026_04_18.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/PROCUREMENT_READINESS_QUALITY_ASSESSMENT_2026_05_01_INDEPENDENT_64_98.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_67_61.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/QUALITY_ASSESSMENT_2026_04_24_COGNITIVE_LOAD_63_65.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/QUALITY_ASSESSMENT_2026_04_24_INDEPENDENT_65_99.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/QUALITY_ASSESSMENT_2026_04_24_INDEPENDENT_67_41.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/QUALITY_ASSESSMENT_2026_04_24_INDEPENDENT_68_49.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/QUALITY_ASSESSMENT_2026_04_25_INDEPENDENT_61_91.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/QUALITY_ASSESSMENT_2026_04_25_INDEPENDENT_62_18.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/QUALITY_ASSESSMENT_2026_04_25_INDEPENDENT_71_35.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/QUALITY_ASSESSMENT_2026_04_26_INDEPENDENT_60_18.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/QUALITY_ASSESSMENT_2026_04_26_INDEPENDENT_62_65.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/QUALITY_ASSESSMENT_2026_04_27.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/QUALITY_ASSESSMENT_2026_04_27_INDEPENDENT_66_74.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/QUALITY_ASSESSMENT_2026_04_27_INDEPENDENT_67_89.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/QUALITY_ASSESSMENT_2026_04_27_INDEPENDENT_B_64_63.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/QUALITY_ASSESSMENT_2026_04_28_INDEPENDENT.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/QUALITY_ASSESSMENT_2026_04_28_INDEPENDENT_66_25.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/QUALITY_ASSESSMENT_2026_04_28_INDEPENDENT_66_63.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/QUALITY_ASSESSMENT_2026_04_28_INDEPENDENT_67_23.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/QUALITY_ASSESSMENT_2026_04_28_INDEPENDENT_67_28.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/QUALITY_ASSESSMENT_2026_04_28_INDEPENDENT_67_86.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/QUALITY_ASSESSMENT_2026_04_29_INDEPENDENT_66_70.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/QUALITY_ASSESSMENT_2026_04_29_INDEPENDENT_72_55.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/QUALITY_ASSESSMENT_2026_04_29_INDEPENDENT_73_52.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/QUALITY_ASSESSMENT_2026_04_29_INDEPENDENT_73_97.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/QUALITY_ASSESSMENT_2026_04_29_INDEPENDENT_74_19.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/QUALITY_ASSESSMENT_2026_04_30_INDEPENDENT_82_40.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/QUALITY_ASSESSMENT_2026_04_30_INDEPENDENT_C_64_57.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/QUALITY_ASSESSMENT_2026_04_30_INDEPENDENT_D_65_32.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/QUALITY_ASSESSMENT_2026_04_30_INDEPENDENT_INTEROP_64_27.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/QUALITY_ASSESSMENT_2026_05_01_INDEPENDENT_66_12.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/QUALITY_ASSESSMENT_2026_05_01_INDEPENDENT_68_20.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/QUALITY_ASSESSMENT_2026_05_01_INDEPENDENT_76_76.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/QUALITY_ASSESSMENT_2026_05_01_INDEPENDENT_FIRST_PRINCIPLES_70_89.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/QUALITY_ASSESSMENT_2026_05_02_INDEPENDENT_FIRST_PRINCIPLES_66_58.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/QUALITY_ASSESSMENT_2026_05_16.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/QUALITY_ASSESSMENT_2026_05_17_PREVIOUS.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/QUALITY_ASSESSMENT_PRE_ITSM_REMOVAL.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/STICKINESS_SOLUTION_QUALITY_ASSESSMENT_2026_05_02_69_96.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/gtm-internal/OPENAI_UI_SCREENSHOT_ASSESSMENT_PROMPT.md` | [`docs/assessments/ASSESSMENT_PROMPT_SERIES.md`](assessments/ASSESSMENT_PROMPT_SERIES.md) | Archived assessment prompt deleted 2026-08-01; use live prompt series |
+| `docs/archive/../assessments/LATEST_GPT55.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/../assessments/LATEST_GPT55.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/../assessments/LATEST_GPT55.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
 
 ## 2026-07-22 assessment prompt consolidation
 
@@ -504,8 +587,8 @@ Human readers and agents should follow **canonical** paths below. This file is t
 | `docs/library/MARKETING_PRODUCT_SEPARATION_TECHNICAL_BACKLOG.md` | [`docs/library/TECH_BACKLOG.md`](library/TECH_BACKLOG.md) (TB-729â€“731) | Superseded satellite removed |
 | `docs/library/IA_TAXONOMY_TECHNICAL_BACKLOG.md` | [`docs/library/TECH_BACKLOG.md`](library/TECH_BACKLOG.md) (TB-732â€“737) | Superseded satellite removed |
 | `docs/go-to-market/BULK_EVIDENCE_UPLOAD_V1.md` | [`docs/library/V1_DEFERRED.md`](library/V1_DEFERRED.md#6k-evidence-bulk-upload--limits-and-batching) | Thin orphan; GA cap/ZIP rule lives in deferred inventory |
-| `docs/archive/assessments/MARKETABILITY_ASSESSMENT_2026_04_15.md` | [`docs/archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md`](archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md) | Duplicate of consolidated series |
-| `docs/archive/assessments/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY.md` | [`docs/archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md`](archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md) | Duplicate of consolidated series |
+| `docs/archive/assessments/MARKETABILITY_ASSESSMENT_2026_04_15.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Duplicate of consolidated series |
+| `docs/archive/assessments/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Duplicate of consolidated series |
 | docs/go-to-market/DEMO_WORKSPACES.md (body) | [docs/go-to-market/DEMO_QUICKSTART.md](go-to-market/DEMO_QUICKSTART.md#demo-workspaces) | Demo workspaces folded into demo quickstart; filename kept as path-stable GUID CI alias |
 | `docs/go-to-market/SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md` (body) | [`docs/go-to-market/DEMO_QUICKSTART.md`](go-to-market/DEMO_QUICKSTART.md#sample-package-funnel-id-matrix) | Sample-package funnel ID matrix folded into demo quickstart; filename kept as path-stable M-134 alias |
 | `docs/go-to-market/SHOWCASE_NAMING_HIERARCHY.md` (body) | [`docs/go-to-market/DEMO_QUICKSTART.md`](go-to-market/DEMO_QUICKSTART.md#showcase-naming-hierarchy-m-135) | Showcase naming hierarchy folded into demo quickstart; filename kept as path-stable M-135 alias |
