@@ -27,19 +27,23 @@ export const REVIEWS_HUB_SUMMARY_OPEN_RISKS_LABEL = "Open risks";
 
 export const REVIEWS_HUB_SUMMARY_READY_FOR_GOVERNANCE_LABEL = "Awaiting approval";
 
+export const REVIEWS_HUB_SUMMARY_DRAFTS_READY_LABEL = "Drafts ready";
+
 export const REVIEWS_HUB_SUMMARY_EMPTY_HINT =
-  "These counts cover started and finalized reviews — not architecture drafts.";
+  "Counts update as you start and finalize reviews. Drafts ready counts architectures that can start a review.";
 
 export const REVIEWS_HUB_PRIMARY_START_LABEL = BUYER_START_ARCHITECTURE_REVIEW_CTA;
 
-export const REVIEWS_HUB_RESUME_DRAFTS_TITLE = "Resume a draft";
+export const REVIEWS_HUB_RESUME_DRAFTS_TITLE = "Architectures ready for review";
 
 export const REVIEWS_HUB_RESUME_DRAFTS_BODY =
-  "Saved architecture drafts stay editable until you start a review from them.";
+  "Architecture drafts appear here as inputs — continue editing or start a review when ready.";
 
 export const REVIEWS_HUB_RESUME_DRAFTS_VIEW_ALL_LABEL = "View all drafts";
 
 export const REVIEWS_HUB_RESUME_DRAFTS_CONTINUE_LABEL = "Continue editing";
+
+export const REVIEWS_HUB_RESUME_DRAFTS_START_LABEL = "Start review";
 
 export const REVIEWS_HUB_EXPLORE_SAMPLES_TITLE = "Explore samples";
 
@@ -57,25 +61,29 @@ export const REVIEWS_HUB_COMPARE_HINT = "Compare changes between finalized revie
 
 export const REVIEWS_HUB_RECENT_SECTION_TITLE = "Your reviews";
 
-export const REVIEWS_HUB_RECENT_EMPTY_TITLE = "Start your first architecture review";
+export const REVIEWS_HUB_RECENT_EMPTY_TITLE = "No reviews yet";
 
 export const REVIEWS_HUB_RECENT_EMPTY_BODY =
-  `Describe or import an architecture, gather evidence, evaluate it against your policies, and record decisions in one review. ${REVIEWS_HUB_DURABLE_WORK_ITEM_HINT}`;
+  `Architecture reviews are where findings, evidence, approvals, and governance decisions are recorded. ${REVIEWS_HUB_DURABLE_WORK_ITEM_HINT}`;
 
 export const REVIEWS_HUB_RECENT_EMPTY_PRIMARY_LABEL = BUYER_START_ARCHITECTURE_REVIEW_CTA;
 
 export const REVIEWS_HUB_RECENT_EMPTY_SECONDARY_LABEL = "Explore the sample review";
 
+export const REVIEWS_HUB_RECENT_EMPTY_HELP_LABEL = "Learn how reviews work";
+
+export const REVIEWS_HUB_RECENT_EMPTY_HELP_HREF = "/help/first-architecture-review";
+
 /** Empty "Your reviews" copy when architecture drafts exist but no review runs yet. */
 export const REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_TITLE = "No reviews yet";
 
-/** Empty inventory when exactly one draft — header Continue owns the CTA. */
+/** Empty inventory when exactly one draft — header Continue owns the draft chooser. */
 export const REVIEWS_HUB_RECENT_EMPTY_WITH_SOLE_DRAFT_BODY =
-  "Continue editing from the header, then start a review to gather evidence and record decisions.";
+  "Architecture reviews are where findings, evidence, approvals, and governance decisions are recorded. Continue editing from the header, then start a review when ready.";
 
-/** Empty inventory when multiple drafts — resume strip is the chooser. */
+/** Empty inventory when multiple drafts — supporting strip lists architectures ready for review. */
 export const REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFTS_BODY =
-  "Pick a draft above, then start a review to gather evidence and record decisions.";
+  "Architecture reviews are where findings, evidence, approvals, and governance decisions are recorded. Pick an architecture ready for review below, or start a new review.";
 
 /** @deprecated Prefer sole/multi bodies; kept for callers that only know drafts exist. */
 export const REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_BODY = REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFTS_BODY;

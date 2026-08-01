@@ -77,12 +77,11 @@ export function RunsPageView(props: Props) {
         actions={<ReviewsHubHeaderActions />}
       />
 
-      <ReviewsHubResumeDrafts elevateAsPrimaryJob={!hasReviews} />
-
       {hubLoadOk ? (
         <>
-          {hasReviews ? <ReviewsHubSummaryRow summary={workspaceSummary} /> : null}
+          <ReviewsHubSummaryRow summary={workspaceSummary} />
           <ReviewsHubReviewInventory runs={m.runs} />
+          <ReviewsHubResumeDrafts />
           {hasReviews ? (
             <CollapsibleSection
               title={REVIEWS_HUB_MORE_WAYS_TITLE}

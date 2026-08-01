@@ -44,13 +44,13 @@ describe("ReviewsHubResumeDrafts", () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it("renders a multi-draft chooser with wrapped titles and view-all", () => {
+  it("renders a supporting multi-draft strip with status, relative time, and actions", () => {
     listArchitectureDraftRegistryEntries.mockReturnValue([
       {
         architectureId: "draft-001",
         displayName:
           "# Architecture Review Packet — Contoso Claims Intake Platform Modernization (Phase 1)",
-        customerStatus: "draft",
+        customerStatus: "ready-for-review",
         ownerLabel: "You",
         lastUpdatedUtc: "2026-01-15T12:00:00.000Z",
         linkedReviewId: null,
@@ -67,19 +67,19 @@ describe("ReviewsHubResumeDrafts", () => {
       },
     ]);
 
-    render(<ReviewsHubResumeDrafts elevateAsPrimaryJob />);
+    render(<ReviewsHubResumeDrafts />);
 
-    const section = screen.getByTestId("reviews-hub-resume-drafts");
-    expect(section).toHaveAttribute("data-elevate-primary", "true");
-    const longTitleLink = screen.getByRole("link", {
-      name: /Architecture Review Packet/i,
-    });
-    expect(longTitleLink).toHaveAttribute("href", "/architectures/draft-001");
-    expect(longTitleLink).toHaveAttribute(
-      "title",
-      "# Architecture Review Packet — Contoso Claims Intake Platform Modernization (Phase 1)",
+    expect(screen.getByTestId("reviews-hub-resume-drafts")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Architectures ready for review" })).toBeInTheDocument();
+    expect(screen.getByText("Ready for review")).toBeInTheDocument();
+    expect(screen.getByTestId("reviews-hub-resume-draft-continue-draft-001")).toHaveAttribute(
+      "href",
+      "/architectures/draft-001",
     );
-    expect(longTitleLink.querySelector(".line-clamp-2")).not.toBeNull();
+    expect(screen.getByTestId("reviews-hub-resume-draft-start-draft-001").getAttribute("href")).toContain(
+      "/reviews/new",
+    );
     expect(screen.getByTestId("reviews-hub-resume-drafts-view-all")).toHaveAttribute("href", "/architectures");
+    expect(screen.getAllByText(/Updated /i).length).toBeGreaterThanOrEqual(2);
   });
 });

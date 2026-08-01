@@ -20,7 +20,7 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import { showcaseSampleReviewPackageHref } from "@/lib/showcase-sample-review-registry";
 import { buyerFilterChipClass } from "@/lib/buyer-shell-home-present";
-import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import { reviewPackageOwnerLabel } from "@/lib/review-package-validation-picker";
 import type { RunSummary } from "@/types/authority";
@@ -32,6 +32,9 @@ import {
   REVIEWS_HUB_FILTER_SEARCH_PLACEHOLDER,
   REVIEWS_HUB_FILTER_UPDATED_RECENTLY_LABEL,
   REVIEWS_HUB_RECENT_EMPTY_BODY,
+  REVIEWS_HUB_RECENT_EMPTY_HELP_HREF,
+  REVIEWS_HUB_RECENT_EMPTY_HELP_LABEL,
+  REVIEWS_HUB_RECENT_EMPTY_PRIMARY_LABEL,
   REVIEWS_HUB_RECENT_EMPTY_SECONDARY_LABEL,
   REVIEWS_HUB_RECENT_EMPTY_TITLE,
   REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_TITLE,
@@ -158,7 +161,6 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
   const rows = useMemo(() => props.runs.map(toReviewsHubReviewRowDisplay), [props.runs]);
   const draftCount = draftEntries.length;
   const hasDrafts = draftCount > 0;
-  const demoteSectionHeading = rows.length === 0 && hasDrafts;
   const moreFilterSelected = MORE_FILTER_OPTIONS.some((option) => option.id === activeFilter);
 
   const filteredRuns = useMemo(() => {
@@ -169,14 +171,7 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
 
   return (
     <section className="mt-8" data-testid="reviews-hub-recent-packages">
-      <h2
-        className={cn(
-          "m-0",
-          demoteSectionHeading
-            ? cn(OPERATOR_NAV_GROUP_LABEL, "text-al-text-secondary")
-            : cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle),
-        )}
-      >
+      <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
         {REVIEWS_HUB_RECENT_SECTION_TITLE}
       </h2>
 
@@ -186,27 +181,26 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
             testId="reviews-hub-recent-empty"
             title={hasDrafts ? REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_TITLE : REVIEWS_HUB_RECENT_EMPTY_TITLE}
             description={emptyInventoryDescription(draftCount)}
-            actions={
-              hasDrafts
-                ? undefined
-                : [
-                    {
-                      label: REVIEWS_HUB_RECENT_EMPTY_SECONDARY_LABEL,
-                      href: sampleHref,
-                      variant: "outline",
-                    },
-                  ]
-            }
+            actions={[
+              {
+                label: REVIEWS_HUB_RECENT_EMPTY_PRIMARY_LABEL,
+                href: "/reviews/new",
+                variant: "primary",
+              },
+              {
+                label: REVIEWS_HUB_RECENT_EMPTY_SECONDARY_LABEL,
+                href: sampleHref,
+                variant: "outline",
+              },
+            ]}
             footer={
-              hasDrafts ? (
-                <Link
-                  href={sampleHref}
-                  className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.helper)}
-                  data-testid="reviews-hub-recent-empty-sample-link"
-                >
-                  {REVIEWS_HUB_RECENT_EMPTY_SECONDARY_LABEL}
-                </Link>
-              ) : null
+              <Link
+                href={REVIEWS_HUB_RECENT_EMPTY_HELP_HREF}
+                className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="reviews-hub-recent-empty-help-link"
+              >
+                {REVIEWS_HUB_RECENT_EMPTY_HELP_LABEL}
+              </Link>
             }
           />
         </div>
@@ -258,11 +252,12 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
                   <EnterpriseTableHeaderCell>Review</EnterpriseTableHeaderCell>
                   <EnterpriseTableHeaderCell>Architecture / system</EnterpriseTableHeaderCell>
                   <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>Governance</EnterpriseTableHeaderCell>
                   <EnterpriseTableHeaderCell>Stage</EnterpriseTableHeaderCell>
                   <EnterpriseTableHeaderCell>Owner</EnterpriseTableHeaderCell>
                   <EnterpriseTableHeaderCell>Last updated</EnterpriseTableHeaderCell>
                   <EnterpriseTableHeaderCell className="text-right">Findings</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell className="text-right">Attention</EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell className="text-right">Risks</EnterpriseTableHeaderCell>
                 </EnterpriseTableHeadRow>
               </EnterpriseTableHead>
               <EnterpriseTableBody>
@@ -298,9 +293,10 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
                           label={row.overallStatus}
                         />
                       </EnterpriseTableCell>
+                      <EnterpriseTableCell>{row.governanceState}</EnterpriseTableCell>
                       <EnterpriseTableCell>{row.lifecycleStage}</EnterpriseTableCell>
                       <EnterpriseTableCell>{reviewPackageOwnerLabel(run)}</EnterpriseTableCell>
-                      <EnterpriseTableCell>{row.lastUpdated}</EnterpriseTableCell>
+                      <EnterpriseTableCell title={run.createdUtc}>{row.lastUpdated}</EnterpriseTableCell>
                       <EnterpriseTableCell className="text-right tabular-nums">
                         {finiteIntegerCountDisplay(row.findingsCount)}
                       </EnterpriseTableCell>

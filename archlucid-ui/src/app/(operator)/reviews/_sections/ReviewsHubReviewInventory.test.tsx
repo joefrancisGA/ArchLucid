@@ -33,18 +33,23 @@ beforeEach(() => {
 });
 
 describe("ReviewsHubReviewInventory", () => {
-  it("renders Compact empty with sample outline only when no drafts exist", () => {
+  it("renders a rich empty state with start, sample, and help actions when no drafts exist", () => {
     render(<ReviewsHubReviewInventory runs={[]} />);
 
-    expect(screen.getByText("Start your first architecture review")).toBeInTheDocument();
+    expect(screen.getByText("No reviews yet")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-hub-recent-empty")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Start an architecture review" })).toHaveAttribute(
+      "href",
+      "/reviews/new",
+    );
     expect(screen.getByRole("link", { name: "Explore the sample review" })).toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "Start an architecture review" })).toBeNull();
-    expect(screen.queryByTestId("reviews-hub-recent-empty-start-review")).toBeNull();
-    expect(screen.queryByTestId("reviews-hub-recent-empty-sample-link")).toBeNull();
+    expect(screen.getByTestId("reviews-hub-recent-empty-help-link")).toHaveAttribute(
+      "href",
+      "/help/first-architecture-review",
+    );
   });
 
-  it("keeps draft-aware empty copy-only with a quiet sample link", () => {
+  it("keeps rich empty CTAs when drafts exist", () => {
     listArchitectureDraftRegistryEntries.mockReturnValue([
       {
         architectureId: "draft-001",
@@ -61,14 +66,15 @@ describe("ReviewsHubReviewInventory", () => {
 
     expect(screen.getByText("No reviews yet")).toBeInTheDocument();
     expect(screen.getByText(/Continue editing from the header/i)).toBeInTheDocument();
-    expect(screen.queryByText("Start your first architecture review")).toBeNull();
-    expect(screen.getByTestId("reviews-hub-recent-empty-sample-link")).toHaveTextContent(
-      "Explore the sample review",
+    expect(screen.getByRole("link", { name: "Start an architecture review" })).toHaveAttribute(
+      "href",
+      "/reviews/new",
     );
-    expect(screen.queryByRole("link", { name: "Continue editing draft" })).toBeNull();
+    expect(screen.getByRole("link", { name: "Explore the sample review" })).toBeInTheDocument();
+    expect(screen.getByTestId("reviews-hub-recent-empty-help-link")).toBeInTheDocument();
   });
 
-  it("renders review rows with StatusTag and resting title underline", () => {
+  it("renders review rows with governance, risks, and StatusTag", () => {
     render(
       <ReviewsHubReviewInventory
         runs={[
@@ -86,6 +92,8 @@ describe("ReviewsHubReviewInventory", () => {
 
     expect(screen.getByRole("columnheader", { name: "Review" })).toBeInTheDocument();
     expect(screen.getByRole("columnheader", { name: "Architecture / system" })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Governance" })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Risks" })).toBeInTheDocument();
     expect(screen.getByTestId("reviews-hub-row-review-001")).toBeInTheDocument();
     const titleLink = screen.getByTestId("reviews-hub-primary-action-review-001");
     expect(titleLink).toHaveAttribute("href");

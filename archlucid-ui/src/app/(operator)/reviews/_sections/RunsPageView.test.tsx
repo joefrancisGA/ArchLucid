@@ -150,24 +150,26 @@ describe("RunsPageView page chrome", () => {
     expect(screen.getByTestId("runs-page-project-label").querySelector("strong")).toHaveTextContent("Project:");
   });
 
-  it("keeps a single header Start on empty hub and collapses empty theater", () => {
+  it("leads with summary and Your reviews empty state on an empty hub", () => {
     render(<RunsPageView model={baseModel({ totalCount: 0 })} />);
 
     expect(screen.getByTestId("runs-page-header-actions")).toBeInTheDocument();
     expect(screen.getByTestId("runs-page-start-review")).toHaveAttribute("href", "/reviews/new");
     expect(screen.getByTestId("runs-page-start-review")).toHaveTextContent(REVIEWS_HUB_PRIMARY_START_LABEL);
-    expect(screen.queryByTestId("reviews-hub-summary-row")).toBeNull();
+    expect(screen.getByTestId("reviews-hub-summary-row")).toBeInTheDocument();
+    expect(screen.getByTestId("reviews-hub-summary-empty-hint")).toBeInTheDocument();
     expect(screen.queryByTestId("reviews-hub-more-ways")).toBeNull();
     expect(screen.queryByTestId("reviews-hub-explore-samples")).toBeNull();
     expect(screen.queryByTestId("reviews-hub-package-includes")).toBeNull();
     expect(screen.getByTestId("reviews-hub-recent-empty")).toBeInTheDocument();
     expect(screen.getByText(REVIEWS_HUB_RECENT_EMPTY_TITLE)).toBeInTheDocument();
-    expect(screen.getAllByRole("link", { name: REVIEWS_HUB_PRIMARY_START_LABEL })).toHaveLength(1);
+    expect(screen.getAllByRole("link", { name: REVIEWS_HUB_PRIMARY_START_LABEL }).length).toBeGreaterThanOrEqual(2);
     expect(screen.queryByRole("link", { name: "Create architecture" })).toBeNull();
     expect(screen.queryByTestId("runs-list-advanced")).toBeNull();
+    expect(screen.queryByTestId("reviews-hub-resume-drafts")).toBeNull();
   });
 
-  it("puts inventory first and parks samples/includes under a disclosure when packages exist", () => {
+  it("puts summary and inventory first and parks samples/includes under a disclosure when reviews exist", () => {
     render(
       <RunsPageView
         model={baseModel({

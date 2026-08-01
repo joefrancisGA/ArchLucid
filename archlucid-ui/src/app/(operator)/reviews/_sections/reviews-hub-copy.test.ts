@@ -6,6 +6,8 @@ import {
   REVIEWS_HUB_RECENT_EMPTY_BODY,
   REVIEWS_HUB_RECENT_EMPTY_TITLE,
   REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_TITLE,
+  REVIEWS_HUB_RESUME_DRAFTS_TITLE,
+  REVIEWS_HUB_SUMMARY_DRAFTS_READY_LABEL,
   REVIEWS_HUB_SUMMARY_EMPTY_HINT,
 } from "./reviews-hub-copy";
 
@@ -15,13 +17,16 @@ const BANNED_PACKAGE_PHRASES = [
 ] as const;
 
 describe("reviews-hub-copy", () => {
-  it("centers the hub on architecture reviews", () => {
+  it("centers the hub on managing architecture reviews", () => {
     expect(REVIEWS_HUB_PAGE_TITLE).toBe("Reviews");
     expect(REVIEWS_HUB_PAGE_SUBTITLE).toBe("Create, refine, evaluate, and approve architecture reviews.");
-    expect(REVIEWS_HUB_RECENT_EMPTY_TITLE).toBe("Start your first architecture review");
-    expect(REVIEWS_HUB_RECENT_EMPTY_BODY.toLowerCase()).toContain("describe or import an architecture");
+    expect(REVIEWS_HUB_RECENT_EMPTY_TITLE).toBe("No reviews yet");
+    expect(REVIEWS_HUB_RECENT_EMPTY_BODY.toLowerCase()).toContain("findings");
+    expect(REVIEWS_HUB_RECENT_EMPTY_BODY.toLowerCase()).toContain("governance");
     expect(REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_TITLE).toBe("No reviews yet");
-    expect(REVIEWS_HUB_SUMMARY_EMPTY_HINT.toLowerCase()).toContain("not architecture drafts");
+    expect(REVIEWS_HUB_RESUME_DRAFTS_TITLE).toBe("Architectures ready for review");
+    expect(REVIEWS_HUB_SUMMARY_DRAFTS_READY_LABEL).toBe("Drafts ready");
+    expect(REVIEWS_HUB_SUMMARY_EMPTY_HINT.toLowerCase()).toContain("drafts ready");
   });
 
   it("avoids retired package terminology in hub copy", () => {
@@ -31,6 +36,7 @@ describe("reviews-hub-copy", () => {
       REVIEWS_HUB_RECENT_EMPTY_TITLE,
       REVIEWS_HUB_RECENT_EMPTY_BODY,
       REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_TITLE,
+      REVIEWS_HUB_RESUME_DRAFTS_TITLE,
       REVIEWS_HUB_SUMMARY_EMPTY_HINT,
     ]
       .join(" ")
