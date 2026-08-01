@@ -430,6 +430,20 @@ Human readers and agents should follow **canonical** paths below. This file is t
 | `docs/archive/assessments/AI_AGENT_READINESS_06012026.MD` | [`docs/library/TECH_BACKLOG.md`](library/TECH_BACKLOG.md) | AI/Agent Readiness dimension assessment deleted 2026-07-31; TB-177–190 origin note remains in TECH_BACKLOG |
 | `docs/archive/assessments/ARCHIVE_2026_05_20_V4.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Point-in-time 93.07% assessment snapshot deleted 2026-08-01; use live LATEST |
 | `docs/archive/assessments/ARCHIVE_2026_05_22_V2.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Point-in-time 82.05% assessment snapshot deleted 2026-08-01; use live LATEST |
+| `docs/archive/assessments/ARCHIVE_2026_05_24.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Point-in-time 86.19% assessment snapshot deleted 2026-08-01; use live LATEST |
+| `docs/archive/assessments/ARCHIVE_2026_05_26_LATEST_PRE_CLEAN_SLATE.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Point-in-time 100% pre-clean-slate snapshot deleted 2026-08-01; use live LATEST |
+| `docs/archive/assessments/ARCHIVE_2026_05_27_LATEST_PRE_CLEAN_SLATE.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Point-in-time 82.70% pre-clean-slate snapshot deleted 2026-08-01; use live LATEST |
+| `docs/archive/assessments/ARCHIVE_2026_06_07_BACKLOG_RESOLUTION.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | 2026-06-07 backlog-resolution archive deleted 2026-08-01; use live LATEST / TECH_BACKLOG |
+| `docs/archive/assessments/ARCHIVE_2026_06_24_PRE_FIRST_PRINCIPLES_GPT55.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Point-in-time 84% GPT-5.5 assessment snapshot deleted 2026-08-01; use live LATEST |
+| `docs/archive/assessments/ARCHIVE_2026_06_25_PRE_ASSESSMENT_GPT55.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Point-in-time 84.95% GPT-5.5 assessment snapshot deleted 2026-08-01; use live LATEST |
+| `docs/archive/assessments/ARCHIVE_2026_06_26_PRE_ASSESSMENT_GPT55.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Point-in-time 91.26% GPT-5.5 assessment snapshot deleted 2026-08-01; use live LATEST |
+| `docs/archive/assessments/ARCHIVE_2026_06_26_PRE_LATEST_GPT55_V2_PASS.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Point-in-time 93.33% GPT-5.5 v2 pass deleted 2026-08-01; use live LATEST |
+| `docs/archive/assessments/ARCHIVE_2026_07_02_ASSESSMENT_PROMPT_V2.md` | [`docs/assessments/ASSESSMENT_PROMPT_SERIES.md`](assessments/ASSESSMENT_PROMPT_SERIES.md) | Archived assessment prompt v2 deleted 2026-08-01; use live prompt series |
+| `docs/archive/assessments/ARCHIVE_2026_07_02_PRE_V3_PASS.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Point-in-time 100% pre-v3 assessment pass deleted 2026-08-01; use live LATEST |
+| `docs/archive/assessments/ArchLucid_Assessment.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Legacy 73.25% weighted assessment deleted 2026-08-01; use live LATEST |
+| `docs/archive/assessments/ArchLucid_Assessment_2026_05_04.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Point-in-time 75.80% assessment deleted 2026-08-01; use live LATEST |
+| `docs/archive/assessments/ArchLucid_Assessment_AI_Agent_Readiness_Solution_Quality_2026_05_08_61_60.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | AI Agent Readiness 61.60 dimension assessment deleted 2026-08-01; use live LATEST |
+| `docs/archive/assessments/ArchLucid_Assessment_AI_Agent_Readiness_Solution_Quality_2026_05_08_70_24.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | AI Agent Readiness 70.24 dimension assessment deleted 2026-08-01; use live LATEST |
 
 ## 2026-07-22 assessment prompt consolidation
 
