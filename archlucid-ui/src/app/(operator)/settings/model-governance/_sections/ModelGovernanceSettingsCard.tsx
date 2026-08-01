@@ -243,7 +243,7 @@ export function ModelGovernanceSettingsCard() {
   return (
     <Card data-testid="model-governance-settings-card">
       <CardHeader>
-        <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>AI and model governance</CardTitle>
+        <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Workspace catalog</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {state.status === "loading" || state.status === "idle" ? (

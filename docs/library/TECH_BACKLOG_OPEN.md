@@ -53,7 +53,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | OIDC/JWT identity (`/settings/identity-providers/oidc`) | **TB-1911**–**TB-1915** (open **V1**) | Title honesty; shell with **TB-1906**; StatusTag; CTA/loading; Vitest; ~44/100; traffic **SOI**; siblings SEI/SSA/SEO |
 | Role mapping (`/settings/identity-providers/role-mapping`) | **TB-1916**–**TB-1920** (open **V1**) | Status-hub honesty; shell/dedupe; StatusTag/examples; protocol CTAs; Vitest; ~43/100; traffic **SEO**; siblings SEI/SOI/SSA |
 | SAML identity (`/settings/identity-providers/saml`) | **TB-1921**–**TB-1925** (open **V1**) | Metadata-fetch label; in-page confirm; shell density; Select/regex/health; Vitest; ~52/100; traffic **SSA**; siblings SEI/SOI/SEO |
-| AI and model governance (`/settings/model-governance`) | **TB-1928**–**TB-1930** (open **V1**) | Title/back; isolate fetch; Vitest; ~48/100; traffic **SEM**; **TB-1927** Done |
+| AI and model governance (`/settings/model-governance`) | **TB-1929**–**TB-1930** (open **V1**) | Isolate fetch; Vitest; ~48/100; traffic **SEM**; **TB-1927**/**TB-1928** Done |
 | Connect AWS securely help (`/help/cloud-connections/aws`) | **TB-1234**–**TB-1238** (open P1 **V1**) | Specialty guide view (Azure parity); purge Tier/hosted-pull jargon; IAM + Resource Explorer actionability; OIDC trust-policy template; workflow CTAs + classification sections; owner review ~52/100 2026-07-26 |
 | Connect GCP securely help (`/help/cloud-connections/gcp`) | **TB-1239**–**TB-1243** (open P1 **V1**) | Specialty guide view (Azure parity); purge Tier/hosted-pull jargon; Cloud Asset roles + WIF enablement; WIF pool-provider template; workflow CTAs + classification sections; owner review ~51/100 2026-07-26 |
 | Engineering troubleshooting help exposure | **TB-1248** (open; **TB-1246**/**TB-1247**/**TB-1249**/**TB-1250** Done) | Align route with “Engineering troubleshooting runbook”; owner review ~32/100 2026-07-26 |
@@ -106,7 +106,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | Alerts inbox tab (`/governance/alerts?tab=inbox`) | **TB-1594**–**TB-1598** (open P1 **V1**) | Canonicalize `?tab=inbox`; traffic/CI; zero-theater summary; default-project CTA + skeleton; ~53/100; traffic **GOI** |
 | Help catch-all (`/help/[...topic]`) | **TB-1599**–**TB-1603** (open P1/P2 **V1**) | NotFound recovery; loading/dynamic honesty; fallthrough↔**TB-1414**; traffic router-meta; dispatch CI; ~49/100; traffic **HE.** |
 | Accelerator chooser (`/help/accelerator-chooser`) | **TB-1604**–**TB-1608** (open P1 **V1**) | Specialty + Start CTAs; title/tier; leak purge; TS SoT; home inbound; ~42/100; traffic **HAX** |
-| Admin diagnostics (`/help/admin-diagnostics`) | **TB-1609**–**TB-1613** (open P1 **V1**) | Specialty + `/health` CTA; title; kind/tier; eng Related demote; inbound/doc-href; ~48/100; traffic **HAE** |
+| Admin diagnostics (`/help/admin-diagnostics`) | **TB-1609**–**TB-1613** (open P1 **V1**) | Specialty + `/administration/system-health` CTA; title; kind/tier; eng Related demote; inbound/doc-href; ~48/100; traffic **HAE** |
 | Authentication sign-in (`/help/authentication-sign-in`) | **TB-1614**–**TB-1618** (open P1 **V1**) | Specialty + Sign in CTA; eval/invite CTAs; viewport density; Related; auth-shell label; ~55/100; traffic **HEU** |
 | Azure Boards help (`/help/azure-boards`) | **TB-1619**–**TB-1623** (open P1 **V1**) | Specialty + Open CTA; setup links; smoke leak; Phase-1 jargon; HEZ alias; ~51/100; traffic **HAZ** |
 | Azure permissions (`/help/azure-permissions`) | **TB-1626**–**TB-1630** (open P1 **V1**) | Primary CTA; viewport density; Tier/contract jargon; Connect-Azure IA; skeleton; ~63/100; traffic **HEA** |
@@ -403,7 +403,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1605 | Accelerator chooser help — title/tier honesty | Trustworthiness P1 **V1** — with **TB-1604** |
 | TB-1607 | Accelerator chooser help — single SoT with ACCELERATOR_CHOOSER_ENTRIES | Adoption friction P1 **V1** — with **TB-1604** |
 | TB-1608 | Accelerator chooser — home inbound jargon + repo honesty | Adoption friction P1 **V1** — with **TB-1604** |
-| TB-1609 | `/help/admin-diagnostics` specialty platform-health companion + Open `/health` CTA | Adoption friction P1 **V1** — HAE ~48/100 |
+| TB-1609 | `/help/admin-diagnostics` specialty platform-health companion + Open `/administration/system-health` CTA | Adoption friction P1 **V1** — HAE ~48/100 |
 | TB-1610 | Admin diagnostics help — title honesty | Adoption friction P1 **V1** — with **TB-1609** |
 | TB-1611 | Admin diagnostics help — contentKind/tier honesty | Trustworthiness P1 **V1** — with **TB-1609**; pairs **TB-1250** |
 | TB-1612 | Admin diagnostics help — Related eng deep-link demote | Trustworthiness P1 **V1** — with **TB-1609** |
@@ -712,7 +712,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1923 | SAML tab — shell Configure override + Card title density with **TB-1906** | Trustworthiness P1 **V1** — with **TB-1921** |
 | TB-1924 | SAML tab — DS Select + advanced regex disclosure + optional health strip | Adoption friction P1 **V1** — with **TB-1921** |
 | TB-1925 | SAML tab — Vitest fetch label + confirm + shell | Testability P2 **V1** — with **TB-1921** |
-| TB-1928 | Model governance — demote duplicate H1/CardTitle + Settings back link | Trustworthiness P1 **V1** — with **TB-1926** |
 | TB-1929 | Model governance — isolate catalog/profile fetch + empty registry | Adoption friction P1 **V1** — with **TB-1926** |
 | TB-1930 | Model governance — Vitest error honesty + labels + chrome | Testability P2 **V1** — with **TB-1926** |
 | TB-1931 | Users API keys tab — job honesty (roles vs credential lifecycle) | Trustworthiness P1 **V1** — SEU ~45 |
