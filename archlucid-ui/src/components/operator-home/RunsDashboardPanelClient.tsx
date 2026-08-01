@@ -13,6 +13,7 @@ import { RunsDashboardOutcomesTab } from "@/components/operator-home/RunsDashboa
 import { RunsDashboardRecentTab } from "@/components/operator-home/RunsDashboardRecentTab";
 import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/operator-home-workspace-activity-context";
 import {
+  deriveRunsDashboardTabCounts,
   isRunApprovedPackage,
   isRunApprovedWithMonitoringPackage,
   isRunNeedingAttention,
@@ -327,6 +328,8 @@ export function RunsDashboardPanelClient({
     [filteredItems],
   );
 
+  const statusTabCounts = useMemo(() => deriveRunsDashboardTabCounts(filteredItems), [filteredItems]);
+
   const allTabShowcase = resolveShowcaseDemoRunForItems(filteredItems, showcaseDemoRun);
   const approvedTabShowcase = resolveShowcaseDemoRunForItems(approvedTabItems, showcaseDemoRun);
   const attentionTabShowcase = resolveShowcaseDemoRunForItems(attentionTabItems, showcaseDemoRun);
@@ -445,7 +448,7 @@ export function RunsDashboardPanelClient({
                     data-testid="runs-dashboard-status-filters"
                   >
                     {statusTabIds.map((id) => {
-                      const label = runsDashboardTabLabel(id, buyerPolishedShell);
+                      const label = runsDashboardTabLabel(id, buyerPolishedShell, statusTabCounts[id]);
                       const selected = tab === id && !showArchived;
 
                       return (
@@ -496,7 +499,7 @@ export function RunsDashboardPanelClient({
                         data-testid={`runs-dashboard-tab-${id}`}
                         className="shrink-0"
                       >
-                        {runsDashboardTabLabel(id, buyerPolishedShell)}
+                        {runsDashboardTabLabel(id, buyerPolishedShell, statusTabCounts[id])}
                       </TabsTrigger>
                     ))}
                   </TabsList>

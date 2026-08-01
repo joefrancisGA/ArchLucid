@@ -2,9 +2,12 @@ import { describe, expect, it } from "vitest";
 
 import {
   ArchitecturePackageOriginBadge,
+  deriveRunsDashboardTabCounts,
+  formatRunsDashboardTabLabelWithCount,
   isRunApprovedPackage,
   isRunApprovedWithMonitoringPackage,
   isRunNeedingAttention,
+  resolveRunHomeStatusTag,
   resolveShowcaseDemoRunForItems,
   runsDashboardTabLabel,
 } from "@/components/operator-home/runs-dashboard-helpers";
@@ -23,6 +26,12 @@ describe("runsDashboardTabLabel (TB-667)", () => {
     expect(runsDashboardTabLabel("approved", true)).toBe("Approved");
     expect(runsDashboardTabLabel("attention", true)).toBe("Action needed");
     expect(runsDashboardTabLabel("outcomes", true)).toBe("Approved with monitoring");
+  });
+
+  it("appends counts when provided", () => {
+    expect(runsDashboardTabLabel("all", true, 7)).toBe("All (7)");
+    expect(runsDashboardTabLabel("approved", true, 0)).toBe("Approved (0)");
+    expect(formatRunsDashboardTabLabelWithCount("Monitoring", 2)).toBe("Monitoring (2)");
   });
 });
 
@@ -54,6 +63,54 @@ describe("runs dashboard status filters", () => {
     expect(isRunApprovedWithMonitoringPackage(monitoredRun)).toBe(true);
     expect(isRunApprovedWithMonitoringPackage(approvedRun)).toBe(false);
     expect(isRunNeedingAttention(attentionRun)).toBe(true);
+  });
+
+  it("derives tab counts from run summary flags", () => {
+    const approvedRun: RunSummary = {
+      runId: "approved-run",
+      projectId: "default",
+      hasGoldenManifest: true,
+      hasGovernanceWarnings: false,
+    };
+    const monitoredRun: RunSummary = {
+      runId: "monitored-run",
+      projectId: "default",
+      hasGoldenManifest: true,
+      hasGovernanceWarnings: true,
+    };
+    const attentionRun: RunSummary = {
+      runId: "attention-run",
+      projectId: "default",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: false,
+    };
+
+    expect(deriveRunsDashboardTabCounts([approvedRun, monitoredRun, attentionRun])).toEqual({
+      all: 3,
+      approved: 1,
+      attention: 1,
+      outcomes: 1,
+    });
+  });
+
+  it("maps review rows to canonical status tags", () => {
+    expect(
+      resolveRunHomeStatusTag({
+        runId: "attention",
+        projectId: "default",
+        hasFindingsSnapshot: true,
+        hasGoldenManifest: false,
+      }).kind,
+    ).toBe("needs-attention");
+
+    expect(
+      resolveRunHomeStatusTag({
+        runId: "approved",
+        projectId: "default",
+        hasGoldenManifest: true,
+        hasGovernanceWarnings: false,
+      }).kind,
+    ).toBe("approved");
   });
 
   it("resolves showcase demo only when that run is in the active filter set", () => {

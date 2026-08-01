@@ -12,6 +12,7 @@ import {
 } from "@/lib/buyer-polish-copy";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { RUNS_DASHBOARD_LABELS } from "@/lib/i18n";
+import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import {
   resolveRunSummaryPackageOrigin,
   type ArchitecturePackageOriginToken,
@@ -66,7 +67,49 @@ export function resolveShowcaseDemoRunForItems(
   return undefined;
 }
 
-export function runsDashboardTabLabel(tabId: RunsDashboardTabId, buyerPolishedShell: boolean): string {
+export type RunsDashboardTabCounts = Readonly<Record<RunsDashboardTabId, number>>;
+
+export type RunHomeStatusTag = {
+  readonly kind: EnterpriseStatusKind;
+  readonly label?: string;
+};
+
+export function resolveRunHomeStatusTag(run: RunSummary): RunHomeStatusTag {
+  if (isRunNeedingAttention(run)) {
+    return { kind: "needs-attention" };
+  }
+
+  if (isRunApprovedWithMonitoringPackage(run)) {
+    return { kind: "approved-with-monitoring" };
+  }
+
+  if (isRunApprovedPackage(run)) {
+    return { kind: "approved" };
+  }
+
+  if (run.hasFindingsSnapshot === true) {
+    return { kind: "in-progress" };
+  }
+
+  return { kind: "in-progress", label: "Review started" };
+}
+
+export function deriveRunsDashboardTabCounts(items: readonly RunSummary[]): RunsDashboardTabCounts {
+  return {
+    all: items.length,
+    approved: items.filter(isRunApprovedPackage).length,
+    attention: items.filter(isRunNeedingAttention).length,
+    outcomes: items.filter(isRunApprovedWithMonitoringPackage).length,
+  };
+}
+
+export function formatRunsDashboardTabLabelWithCount(label: string, count: number): string {
+  const safeCount = Number.isFinite(count) ? Math.max(0, Math.trunc(count)) : 0;
+
+  return `${label} (${safeCount})`;
+}
+
+function resolveRunsDashboardTabBaseLabel(tabId: RunsDashboardTabId, buyerPolishedShell: boolean): string {
   if (buyerPolishedShell) {
     if (tabId === "all") {
       return BUYER_RUNS_DASHBOARD_FILTER_ALL;
@@ -96,6 +139,20 @@ export function runsDashboardTabLabel(tabId: RunsDashboardTabId, buyerPolishedSh
   }
 
   return RUNS_DASHBOARD_LABELS.tabOutcomes;
+}
+
+export function runsDashboardTabLabel(
+  tabId: RunsDashboardTabId,
+  buyerPolishedShell: boolean,
+  count?: number,
+): string {
+  const baseLabel = resolveRunsDashboardTabBaseLabel(tabId, buyerPolishedShell);
+
+  if (count === undefined) {
+    return baseLabel;
+  }
+
+  return formatRunsDashboardTabLabelWithCount(baseLabel, count);
 }
 
 function packageOriginBadgeLabel(origin: ArchitecturePackageOriginToken): string {

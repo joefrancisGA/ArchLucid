@@ -3,22 +3,20 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorHomeReviewSummaryCard } from "@/components/operator-home/OperatorHomeReviewSummaryCard";
 import { OperatorHomeWorkspaceArchivedEmptyState } from "@/components/operator-home/OperatorHomeWorkspaceArchivedEmptyState";
 import { OperatorHomeWorkspaceEmptyState } from "@/components/operator-home/OperatorHomeWorkspaceEmptyState";
 import {
   isRunNeedingAttention,
   runListPrimaryRequestId,
-  runListPrimaryTitle,
 } from "@/components/operator-home/runs-dashboard-helpers";
 import type { RunsDashboardLoadPhase } from "@/components/operator-home/runs-dashboard-load-phase";
 import { Button } from "@/components/ui/button";
-import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import {
   getCanonicalReviewWorkspaceHref,
   getShowcaseManifestHref,
   getShowcaseWalkthroughHref,
 } from "@/lib/buyer-safe-review-navigation";
-import { BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK } from "@/lib/buyer-polish-copy";
 import {
   OPERATOR_CARD,
   OPERATOR_LINK,
@@ -27,15 +25,10 @@ import {
   OPERATOR_TYPE_SCALE,
 } from "@/lib/design-tokens";
 import { RUNS_DASHBOARD_LABELS } from "@/lib/i18n";
-import {
-  formatRunHomeListInsightLine,
-  formatRunHomeListUpdatedLabel,
-} from "@/lib/operator-home-run-list-insight";
 import { OPERATOR_HOME_RECENT_FEATURED_LIMIT } from "@/lib/operator-home-recent-reviews-outcome";
 import {
   SHOWCASE_BUYER_REVIEW_TITLE,
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
-  SHOWCASE_STATIC_DEMO_SPINE_COUNTS,
 } from "@/lib/showcase-static-demo";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import type { RunSummary } from "@/types/authority";
@@ -209,40 +202,14 @@ export function RunsDashboardRecentTab(props: RunsDashboardRecentTabProps) {
       ) : null}
 
       {showBuyerProofSummary && props.showcaseDemoRun !== undefined ? (
-        <section
-          aria-label="Featured review summary"
-          className={cn("space-y-2", OPERATOR_CARD.nested, OPERATOR_SURFACE_CARD_CLASS)}
-          data-testid="runs-dashboard-buyer-proof-summary"
-        >
-          <Link
+        <section aria-label="Featured review summary">
+          <OperatorHomeReviewSummaryCard
+            run={props.showcaseDemoRun}
             href={`/reviews/${encodeURIComponent(props.showcaseDemoRun.runId)}`}
-            className={cn("m-0 inline-block", OPERATOR_LINK.nav, OPERATOR_TYPE_SCALE.cardTitle)}
-            data-testid="runs-dashboard-buyer-proof-title"
-          >
-            {SHOWCASE_BUYER_REVIEW_TITLE}
-          </Link>
-          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.navHelper)}>
-            Completed example review · Approved with monitoring
-          </p>
-          <p className={cn("m-0", OPERATOR_TYPE_SCALE.sectionTitle, "text-neutral-900 dark:text-neutral-100")}>
-            Decision: Package finalized
-          </p>
-          <p className={cn("m-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
-            Governance approval: Approved with monitoring
-          </p>
-          <p className={cn("m-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
-            {BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK(
-              SHOWCASE_STATIC_DEMO_SPINE_COUNTS.findingCount,
-              SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount,
-            )}
-          </p>
-          <p className={cn("m-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>Evidence trail: Ready</p>
-          <p className={cn("m-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>Audit trail: Complete</p>
-          {props.showcasePrimaryCta !== null ? (
-            <Button asChild variant="primary" size="sm" className="mt-1 h-8">
-              <Link href={props.showcasePrimaryCta.href}>{props.showcasePrimaryCta.label}</Link>
-            </Button>
-          ) : null}
+            buyerPolishedShell={props.buyerPolishedShell}
+            variant="featured"
+            primaryAction={props.showcasePrimaryCta}
+          />
         </section>
       ) : null}
 
@@ -253,44 +220,13 @@ export function RunsDashboardRecentTab(props: RunsDashboardRecentTabProps) {
               const requestId = runListPrimaryRequestId(run);
 
               return (
-                <li
-                  key={run.runId}
-                  className="flex flex-wrap items-start gap-2 border-b border-neutral-100 pb-2 last:border-b-0 last:pb-0 dark:border-neutral-800"
-                >
-                  <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-                    {/*
-                      Title uses OPERATOR_LINK.nav so it matches other home links.
-                      Status stays in the insight lines below — inline Reviewed/READY/findings tags
-                      duplicated that copy and crowded the row.
-                    */}
-                    <Link
+                <li key={run.runId} className="flex flex-wrap items-start gap-2">
+                  <div className="min-w-0 flex-1">
+                    <OperatorHomeReviewSummaryCard
+                      run={run}
                       href={`/reviews/${encodeURIComponent(run.runId)}`}
-                      className={cn("min-w-0", OPERATOR_LINK.nav, OPERATOR_TYPE_SCALE.body)}
-                    >
-                      {runListPrimaryTitle(run)}
-                    </Link>
-                    {isShowcaseStaticDemoRunId(run.runId ?? "") ? (
-                      <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.navHelper)}>
-                        Completed example review · Approved with monitoring
-                      </p>
-                    ) : null}
-                    {(() => {
-                      const insightLine = formatRunHomeListInsightLine(run);
-                      const updatedLabel = formatRunHomeListUpdatedLabel(run);
-
-                      if (insightLine === null && updatedLabel === null) {
-                        return null;
-                      }
-
-                      return (
-                        <p
-                          className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.navHelper)}
-                          data-testid={`run-home-list-insight-${run.runId}`}
-                        >
-                          {[insightLine, updatedLabel].filter((part) => part !== null).join(" · ")}
-                        </p>
-                      );
-                    })()}
+                      buyerPolishedShell={props.buyerPolishedShell}
+                    />
                   </div>
                   {props.showArchived && requestId !== null ? (
                     <Button

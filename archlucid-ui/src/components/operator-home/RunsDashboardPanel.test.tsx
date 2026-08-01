@@ -509,6 +509,10 @@ describe("RunsDashboardPanel", () => {
       expect(screen.getByRole("group", { name: "Filter reviews" })).toBeInTheDocument();
       expect(screen.queryByRole("tablist")).toBeNull();
       expect(screen.getByTestId("runs-dashboard-filter-all")).toHaveAttribute("aria-pressed", "true");
+      expect(screen.getByTestId("runs-dashboard-filter-all")).toHaveTextContent("All (1)");
+      expect(screen.getByTestId("runs-dashboard-filter-approved")).toHaveTextContent("Approved (1)");
+      expect(screen.getByTestId("runs-dashboard-filter-attention")).toHaveTextContent("Action needed (0)");
+      expect(screen.getByTestId("runs-dashboard-filter-outcomes")).toHaveTextContent("Approved with monitoring (0)");
       expect(screen.getByTestId("runs-dashboard-filter-approved")).toBeInTheDocument();
       expect(screen.getByTestId("runs-dashboard-filter-attention")).toBeInTheDocument();
       expect(screen.getByTestId("runs-dashboard-filter-outcomes")).toBeInTheDocument();
