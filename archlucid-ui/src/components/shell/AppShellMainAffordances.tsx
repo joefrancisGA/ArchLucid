@@ -1,46 +1,12 @@
 "use client";
 
-import dynamic from "next/dynamic";
-
+import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { ContextualPageHintStrip } from "@/components/ContextualPageHintStrip";
+import { OperatorRecentViewsTracker } from "@/components/OperatorRecentViewsTracker";
 import { BuyerGoldenJourneyLayerContextStrip } from "@/components/shell/BuyerGoldenJourneyLayerContextStrip";
 import { ExplainThisViewBanner } from "@/components/usability/ExplainThisViewBanner";
-
-const Breadcrumbs = dynamic(
-  () => import("@/components/Breadcrumbs").then((module) => module.Breadcrumbs),
-  { loading: () => null },
-);
-
-const OperatorRecentViewsTracker = dynamic(
-  () =>
-    import("@/components/OperatorRecentViewsTracker").then(
-      (module) => module.OperatorRecentViewsTracker,
-    ),
-  { loading: () => null },
-);
-
-const ReviewsListReturnStateTracker = dynamic(
-  () =>
-    import("@/components/usability/ReviewsListReturnStateTracker").then(
-      (module) => module.ReviewsListReturnStateTracker,
-    ),
-  { loading: () => null },
-);
-
-const FirstVisitHelpAutoOpen = dynamic(
-  () =>
-    import("@/components/usability/FirstVisitHelpAutoOpen").then(
-      (module) => module.FirstVisitHelpAutoOpen,
-    ),
-  { loading: () => null },
-);
-
-const ContextualPageHintStrip = dynamic(
-  () =>
-    import("@/components/ContextualPageHintStrip").then(
-      (module) => module.ContextualPageHintStrip,
-    ),
-  { loading: () => null },
-);
+import { FirstVisitHelpAutoOpen } from "@/components/usability/FirstVisitHelpAutoOpen";
+import { ReviewsListReturnStateTracker } from "@/components/usability/ReviewsListReturnStateTracker";
 
 /** Non-critical main-column affordances loaded after the shell paints. */
 export function AppShellMainAffordances() {
