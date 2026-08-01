@@ -12,6 +12,9 @@ import type { PilotValueReportJson, PilotValueReportSeverityJson } from "@/types
 
 export const ROI_SUMMARY_METHODOLOGY_HELP_HREF = "/help/pilot-roi-model";
 
+export const ROI_SUMMARY_PAGE_SUBTITLE =
+  "Estimate review-time savings from finalized findings, governance blocks, and avoided rework.";
+
 const SPONSOR_DATE = new Intl.DateTimeFormat("en-US", {
   month: "short",
   day: "numeric",

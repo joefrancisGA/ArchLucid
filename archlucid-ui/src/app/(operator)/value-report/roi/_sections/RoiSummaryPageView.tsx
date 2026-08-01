@@ -19,6 +19,7 @@ import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   ROI_SUMMARY_METHODOLOGY_HELP_HREF,
+  ROI_SUMMARY_PAGE_SUBTITLE,
   computeRoiSummaryPeriodMetrics,
   deriveRoiSummaryDataNeeds,
   formatRoiSummaryWindowTitle,
@@ -107,9 +108,11 @@ export function RoiSummaryPageView(props: Props) {
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>ROI summary</h1>
-            <p className={cn("m-0 mt-2 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-              Estimate review-time savings from finalized findings, governance blocks, and avoided rework.
-            </p>
+            {buyerPolishedShell ? (
+              <p className={cn("m-0 mt-2 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                {ROI_SUMMARY_PAGE_SUBTITLE}
+              </p>
+            ) : null}
           </div>
           <nav
             aria-label="Related value reports"

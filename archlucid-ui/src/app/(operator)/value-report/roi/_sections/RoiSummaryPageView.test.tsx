@@ -3,6 +3,8 @@ import type { ReactNode } from "react";
 import { beforeAll, describe, expect, it, vi } from "vitest";
 
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
+import { LAYER_PAGE_GUIDANCE } from "@/lib/layer-guidance";
+import { ROI_SUMMARY_PAGE_SUBTITLE } from "@/lib/roi-summary-sponsor-presentation";
 import type { PilotValueReportJson } from "@/types/pilot-value-report";
 
 import { RoiSummaryPageView } from "./RoiSummaryPageView";
@@ -111,5 +113,26 @@ describe("RoiSummaryPageView", () => {
       "/reviews/new",
     );
     expect(screen.queryByRole("link", { name: "Start review" })).not.toBeInTheDocument();
+  });
+});
+
+describe("RoiSummaryPageView buyer-polished chrome (TB-1974)", () => {
+  it("shows one page hero — no LayerHeader guidance above the metrics strip", async () => {
+    const { isBuyerPolishedOperatorShellEnv } = await import("@/lib/demo-ui-env");
+    vi.mocked(isBuyerPolishedOperatorShellEnv).mockReturnValue(true);
+
+    render(<RoiSummaryPageView model={buildModel()} />);
+
+    expect(screen.getAllByText(ROI_SUMMARY_PAGE_SUBTITLE)).toHaveLength(1);
+    expect(screen.queryByText(LAYER_PAGE_GUIDANCE["value-report-roi"].headline)).not.toBeInTheDocument();
+    expect(screen.queryByTestId("layer-header")).not.toBeInTheDocument();
+    expect(screen.getByTestId("roi-summary-hero-strip")).toBeInTheDocument();
+  });
+
+  it("omits page subtitle when LayerHeader owns the lead in enterprise shell", () => {
+    render(<RoiSummaryPageView model={buildModel()} />);
+
+    expect(screen.getByTestId("layer-header")).toBeInTheDocument();
+    expect(screen.queryByText(ROI_SUMMARY_PAGE_SUBTITLE)).not.toBeInTheDocument();
   });
 });
