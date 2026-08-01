@@ -3,14 +3,23 @@ import { NextResponse } from "next/server";
 
 import { demoRunAliasRedirectDestinationPath } from "@/lib/demo-run-alias-path-redirect";
 import { findingEvidenceTraceLegacyRedirectPath } from "@/lib/finding-evidence-navigation";
+import { decideHostGateRedirect } from "@/lib/host-gate";
 import { sponsorReportLegacyRedirectPath } from "@/lib/sponsor-report-navigation";
 
 /**
- * Next.js proxy (formerly "middleware"): demo run id aliases (bookmark slugs → canonical showcase id) MUST
- * preserve pathname tails (`/findings/.../evidence-trace`, `/provenance`, …). Matching logic also lives alongside
- * {@link canonicalizeDemoRunId}.
+ * Next.js proxy (formerly "middleware"): host gating (TB-2019), legacy path redirects, and demo run aliases.
  */
 export function proxy(request: NextRequest) {
+  const hostGate = decideHostGateRedirect({
+    hostHeader: request.headers.get("host"),
+    pathname: request.nextUrl.pathname,
+    search: request.nextUrl.search,
+  });
+
+  if (hostGate.kind === "redirect") {
+    return NextResponse.redirect(hostGate.location, 307);
+  }
+
   const legacySponsorReport = sponsorReportLegacyRedirectPath(request.nextUrl.pathname);
 
   if (legacySponsorReport !== null) {
@@ -48,22 +57,9 @@ export function proxy(request: NextRequest) {
   return NextResponse.next();
 }
 
-/** Routes that pass through this proxy (authority, artifact, and comparison flows). */
+/** Routes that pass through this proxy (host gate + authority, artifact, and comparison flows). */
 export const config = {
   matcher: [
-    "/403",
-    "/value-report",
-    "/value-report/:path*",
-    "/scorecard",
-    "/scorecard/:path*",
-    "/sponsor-report",
-    "/sponsor-report/:path*",
-    "/reviews/:path*",
-    "/executive/scorecard",
-    "/runs/:path*",
-    "/compare",
-    "/replay",
-    "/manifests/:path*",
-    "/signed-records/:path*",
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|txt|xml|json)$).*)",
   ],
 };
