@@ -479,7 +479,9 @@ describe("help-markdown-presentation", () => {
     expect(loaded).not.toBeNull();
 
     const sourcePath = loaded!.entry.sourcePaths[0] ?? "";
-    const prepared = prepareHelpMarkdownForPresentation(loaded!.markdown, sourcePath);
+    const prepared = prepareHelpMarkdownForPresentation(loaded!.markdown, sourcePath, {
+      helpTopicSlug: "accelerator-chooser",
+    });
 
     expect(prepared).not.toMatch(/\bTB-\d+\b/i);
     expect(prepared.toLowerCase()).not.toContain("templates/starter-proof-packs");

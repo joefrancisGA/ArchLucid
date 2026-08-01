@@ -1095,11 +1095,19 @@ export function stripAcceleratorChooserContributorSections(markdown: string): st
     }
 
     if (line.startsWith("## ") && !line.startsWith("###")) {
-      const title = line.slice(3).trim().toLowerCase();
+      const title = line.slice(3).trim().toLowerCase().split("{#")[0]?.trim() ?? "";
       omitSection = ACCELERATOR_CHOOSER_OMITTED_SECTION_PREFIXES.some((prefix) => title.startsWith(prefix));
     }
 
-    if (!omitSection) {
+    if (line.startsWith("### ")) {
+      const title = line.slice(4).trim().toLowerCase().split("{#")[0]?.trim() ?? "";
+      omitSection = ACCELERATOR_CHOOSER_OMITTED_SECTION_PREFIXES.some((prefix) => title.startsWith(prefix));
+    }
+
+    const keepDespiteOmit =
+      omitSection && line.includes("/help/first-architecture-review");
+
+    if (!omitSection || keepDespiteOmit) {
       result.push(line);
     }
   }
