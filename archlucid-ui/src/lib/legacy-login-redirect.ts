@@ -1,5 +1,7 @@
+import { LEGACY_LOGIN_PATH } from "@/lib/legacy-login-route";
+
 /**
- * Builds `/auth/signin` plus the same query string as the incoming legacy `/login` shim
+ * Builds `/auth/signin` plus the same query string as the incoming legacy {@link LEGACY_LOGIN_PATH} shim
  * so bookmarks and handoffs keep deep-link params, including repeated keys.
  */
 export function buildLoginRedirectPath(

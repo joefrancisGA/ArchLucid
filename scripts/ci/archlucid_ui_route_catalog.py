@@ -41,6 +41,11 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/governance/first-30-days": "/governance/setup",
     # TB-1441 / TB-1443: /alert-routing is next.config-only → Alert rules Routing tab.
     "/alert-routing": "/governance/alert-rules?tab=routing",
+    # TB-1887 / TB-1886: /settings/alerts is next.config-only → Alert rules hub.
+    "/settings/alerts": "/governance/alert-rules",
+    # TB-1902 / TB-1901: /settings/exec-digest is next.config-only → Digests Schedule tab.
+    "/settings/exec-digest": "/digests?tab=schedule",
+    "/help/core-pilot": "/help/first-architecture-review",
 }
 
 # Legacy App Router redirect stubs — canonical nav hrefs live under /governance/advisory-scans (TB-1124).
@@ -50,6 +55,14 @@ REDIRECT_ONLY_APP_PATHS = frozenset(
         "/advisory",
         "/advisory-scheduling",
         "/alert-routing",
+    }
+)
+
+# Next.config-only redirect bookmarks that stay in the owner traffic workbook (TB-1887).
+TRAFFIC_TRACKED_REDIRECT_BOOKMARKS = frozenset(
+    {
+        "/settings/alerts",
+        "/settings/exec-digest",
     }
 )
 
@@ -195,6 +208,8 @@ def infer_section(path: str, *, help_alias_paths: set[str]) -> str:
         return "Core review"
     if path.startswith("/architectures"):
         return "Core review"
+    if path.startswith("/architecture-intelligence"):
+        return "Core review"
     if path in ("/", "/dashboard", "/ask"):
         return "Core review"
     if path.startswith("/governance/advisory-scans") or path.startswith("/operate"):
@@ -244,6 +259,14 @@ def build_catalog() -> dict[str, CatalogEntry]:
 
     for path in discover_tab_paths():
         catalog[path] = CatalogEntry(path=path, section="Tab surface", source="tab_surface")
+
+    for path in TRAFFIC_TRACKED_REDIRECT_BOOKMARKS:
+        if path not in catalog:
+            catalog[path] = CatalogEntry(
+                path=path,
+                section=infer_section(path, help_alias_paths=help_alias_paths),
+                source="redirect_bookmark",
+            )
 
     return catalog
 

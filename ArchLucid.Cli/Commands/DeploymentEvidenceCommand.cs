@@ -53,9 +53,13 @@ internal static class DeploymentEvidenceCommand
             ArchLucidApiClient.CreateSharedApiHttpClient(baseUrl, cli);
 
         string? syntheticProbeApiKey = Environment.GetEnvironmentVariable("ARCHLUCID_API_KEY")?.Trim();
+        string? syntheticProbeBearerToken = Environment.GetEnvironmentVariable("ARCHLUCID_BEARER_TOKEN")?.Trim();
 
         if (string.IsNullOrWhiteSpace(syntheticProbeApiKey))
             syntheticProbeApiKey = null;
+
+        if (string.IsNullOrWhiteSpace(syntheticProbeBearerToken))
+            syntheticProbeBearerToken = null;
 
         // Ready/live must stay anonymous. A valid Admin X-Api-Key with Authentication:ApiKey:TenantId
         // binds tenant-scoped SQL on /health/ready; when that tenant has no active catalog binding,
@@ -85,6 +89,7 @@ internal static class DeploymentEvidenceCommand
                     options.SyntheticPath,
                     options.AllowMissingOpenApi,
                     syntheticProbeApiKey,
+                    syntheticProbeBearerToken,
                     cancellationToken)
                 .ConfigureAwait(false);
 

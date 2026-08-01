@@ -25,9 +25,5 @@ export function pathnameTouchesPlatformAdminSurface(pathname: string): boolean {
     return true;
   }
 
-  if (pathname.startsWith("/settings/exec-digest")) {
-    return true;
-  }
-
   return false;
 }

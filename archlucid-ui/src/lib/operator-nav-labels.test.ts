@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
-import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
+import { ARCHITECTURE_DRAFTS_LIST_LABEL, CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
+import { ARCHITECTURES_LIST_PATH, ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
 import {
   BUYER_NEW_REVIEW_NAV_LABEL,
   OPERATOR_START_REVIEW_QUICK_ACTION_LABEL,
@@ -18,6 +18,17 @@ describe("operator-nav-labels", () => {
     expect(resolveNewReviewNavLinkLabel(true)).toBe(BUYER_NEW_REVIEW_NAV_LABEL);
     expect(resolveNewReviewNavLinkLabel(false)).toBe(BUYER_NEW_REVIEW_NAV_LABEL);
     expect(BUYER_NEW_REVIEW_NAV_LABEL).toBe(START_REVIEW_LABEL);
+  });
+
+  it("overrides /architectures list presentation for buyer shells", () => {
+    const source = {
+      href: ARCHITECTURES_LIST_PATH,
+      label: "Drafts",
+      title: "Architecture drafts",
+    };
+
+    expect(resolveNavLinkPresentation(source, true).label).toBe(ARCHITECTURE_DRAFTS_LIST_LABEL);
+    expect(resolveNavLinkPresentation(source, false).label).toBe(ARCHITECTURE_DRAFTS_LIST_LABEL);
   });
 
   it("overrides /architectures/new presentation when buyer vocabulary pass is active", () => {

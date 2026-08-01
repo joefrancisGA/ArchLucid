@@ -1,11 +1,12 @@
 import { describe, expect, it } from "vitest";
 
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import { getLayerForRoute } from "./getLayerForRoute";
 
 describe("getLayerForRoute", () => {
   it("returns pilot for the home path", () => {
     expect(getLayerForRoute("/")).toBe("pilot");
-    expect(getLayerForRoute("/dashboard")).toBe("pilot");
+    expect(getLayerForRoute(EXECUTIVE_DASHBOARD_HREF)).toBe("pilot");
   });
 
   it("returns operate-analysis for evidence graph routes", () => {
@@ -31,6 +32,7 @@ describe("getLayerForRoute", () => {
     expect(getLayerForRoute("/settings/ai-usage")).toBe("operator-admin");
     expect(getLayerForRoute("/settings/cost-reporting")).toBe("operator-admin");
     expect(getLayerForRoute("/administration/connection-status")).toBe("operator-admin");
+    expect(getLayerForRoute("/administration/system-health")).toBe("operator-admin");
     expect(getLayerForRoute("/workspace/security-trust")).toBe("operator-admin");
   });
 

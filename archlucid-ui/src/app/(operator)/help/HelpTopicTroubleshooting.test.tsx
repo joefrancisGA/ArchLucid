@@ -50,7 +50,7 @@ describe("HelpTroubleshootingGuideView", () => {
     expect(screen.getByText(TROUBLESHOOTING_HELP_SUBTITLE)).toBeInTheDocument();
 
     const startHere = screen.getByTestId("troubleshooting-start-here-card");
-    expect(within(startHere).getByRole("link", { name: "Open System health" })).toHaveAttribute("href", "/health");
+    expect(within(startHere).getByRole("link", { name: "Open System health" })).toHaveAttribute("href", "/administration/system-health");
     expect(within(startHere).getByRole("button", { name: "Download support bundle" })).toBeInTheDocument();
     expect(
       within(startHere).getByRole("link", { name: TROUBLESHOOTING_PRIMARY_ACTIONS.contactSupport.label }),

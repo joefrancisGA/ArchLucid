@@ -10,6 +10,9 @@ export const SETTINGS_USERS_USERS_TAB_PATH = `${SETTINGS_USERS_PATH}?tab=users`;
 /** Legacy roles index — permanent redirect to canonical users tab URL (TB-522). */
 export const LEGACY_SETTINGS_ROLES_PATH = "/settings/roles";
 
+/** Canonical Digests hub Schedule tab (traffic row DIS; left nav Digests → Schedule). */
+export const DIGESTS_SCHEDULE_TAB_PATH = "/digests?tab=schedule";
+
 export const SETTINGS_SECURITY_TRUST_PATH = "/settings/security-trust";
 
 export const SETTINGS_SUPPORT_PATH = "/settings/support";

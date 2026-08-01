@@ -1,5 +1,6 @@
 import type { NavLinkItem } from "@/lib/nav-config";
 import { ARCHITECTURES_LIST_PATH, ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 
 /**
  * Sidebar/palette narrowing before the first committed golden-manifest review (`CurrentPrincipal.hasCommittedArchitectureReview`).
@@ -29,7 +30,7 @@ export function pathnameEligibleBeforeFirstCommittedArchitectureReview(pathWitho
     return true;
   }
 
-  if (pathWithoutQuery === "/dashboard") {
+  if (pathWithoutQuery === EXECUTIVE_DASHBOARD_HREF || pathWithoutQuery.startsWith(`${EXECUTIVE_DASHBOARD_HREF}/`)) {
     return true;
   }
 
@@ -65,12 +66,12 @@ function preCommitNavLinkSortRank(pathWithoutQuery: string): number {
     return 0;
   }
 
-  if (pathWithoutQuery === ARCHITECTURES_NEW_PATH || pathWithoutQuery.startsWith(`${ARCHITECTURES_LIST_PATH}/`)) {
+  if (
+    pathWithoutQuery === ARCHITECTURES_LIST_PATH
+    || pathWithoutQuery === ARCHITECTURES_NEW_PATH
+    || pathWithoutQuery.startsWith(`${ARCHITECTURES_LIST_PATH}/`)
+  ) {
     return 1;
-  }
-
-  if (pathWithoutQuery === "/reviews/new") {
-    return 2;
   }
 
   if (pathWithoutQuery === "/graph" || pathWithoutQuery.startsWith("/graph/")) {
@@ -78,10 +79,10 @@ function preCommitNavLinkSortRank(pathWithoutQuery: string): number {
   }
 
   if (pathWithoutQuery === "/reviews" || pathWithoutQuery.startsWith("/reviews/")) {
-    return 4;
+    return 2;
   }
 
-  if (pathWithoutQuery === "/dashboard") {
+  if (pathWithoutQuery === EXECUTIVE_DASHBOARD_HREF || pathWithoutQuery.startsWith(`${EXECUTIVE_DASHBOARD_HREF}/`)) {
     return 5;
   }
 

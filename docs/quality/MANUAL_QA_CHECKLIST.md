@@ -489,13 +489,13 @@ Legacy bookmarks **`/runs/*`** permanently redirect to **`/reviews/*`** — clea
 | **Evolution candidates** | `/evolution-review` | [ ] |
 | **Pilot value report** | `/value-report/pilot` | [ ] |
 | **ROI summary** | `/value-report/roi` | [ ] |
-| **Connector operations** | `/integrations/operations` | [ ] |
-| **System health (operator)** | `/health` | [ ] |
+| **Connection status** | `/administration/connection-status` | [ ] |
+| **System health (operator)** | `/administration/system-health` | [ ] |
 | **Digests — browse** | `/digests` | [ ] |
 | **Digests — subscriptions** | `/digests?tab=subscriptions` | [ ] |
 | **Digests — schedule** | `/digests?tab=schedule` | [ ] |
 | **Alerts — inbox** | `/alerts` | [ ] |
-| **Alerts — rules** | `/alerts?tab=rules` | [ ] |
+| **Alerts — rules** | `/governance/alert-rules` | [ ] |
 | **Alerts — routing** | `/alerts?tab=routing` | [ ] |
 | **Alerts — composite** | `/alerts?tab=composite` | [ ] |
 | **Alerts — simulation & tuning** | `/alerts?tab=simulation` | [ ] |
@@ -554,7 +554,6 @@ Legacy bookmarks **`/runs/*`** permanently redirect to **`/reviews/*`** — clea
 | **Marketing demo preview** | `/demo/preview` | [ ] |
 | **Marketing live demo** | `/live-demo` | [ ] |
 | **Marketing quick scan** | `/quick-scan` | [ ] |
-| **Marketing quick start** | `/quick-start` | [ ] |
 | **Marketing showcase** | `/showcase/{runId}` | [ ] |
 | **Marketing example ROI bulletin** | `/example-roi-bulletin` | [ ] |
 | **Marketing accessibility** | `/accessibility` | [ ] |
@@ -568,12 +567,11 @@ Legacy bookmarks **`/runs/*`** permanently redirect to **`/reviews/*`** — clea
 |--------------|--------------|
 | `/runs`, `/runs/*` | `/reviews`, `/reviews/*` |
 | `/getting-started`, `/onboarding/start`, `/onboard` | `/onboarding` (query preserved) |
+| `/quick-start` | `/get-started` (query preserved) |
 | `/advisory-scheduling` | `/advisory?tab=schedules` |
 | `/digest-subscriptions` | `/digests?tab=subscriptions` |
-| `/settings/exec-digest` | `/digests?tab=schedule` |
-| `/settings/alerts` | `/alerts?tab=rules` |
 | `/governance/policy-packs` (list) | `/policy-packs` |
-| `/operate/architecture-graph` | `/graph` |
+| `/operate/architecture-graph` | `/graph` (query preserved) |
 
 ---
 
@@ -699,8 +697,8 @@ Expand **Analysis** in the sidebar (many links are *extended* or *advanced*).
 | Executive dashboard (portfolio overview) | `/dashboard` | **Analysis → Executive dashboard** (legacy `/portfolio` redirects here). |
 | Pilot value report | `/value-report/pilot` | **Analysis → Pilot value report**. |
 | ROI summary | `/value-report/roi` | **Analysis → ROI report**. |
-| Connector operations | `/integrations/operations` | **Analysis → Connector operations**. |
-| System health | `/health` | **Analysis → System health**. |
+| Connection status | `/administration/connection-status` | **Administration → Connection status**. |
+| System health | `/administration/system-health` | **Administration → System health**. |
 | Digests browse | `/digests` | **Analysis → Digests**. |
 | Digests subscriptions | `/digests?tab=subscriptions` | **Digests** → **Subscriptions** tab. |
 | Digests schedule | `/digests?tab=schedule` | **Digests** → **Schedule** tab. |
@@ -712,7 +710,7 @@ Expand **Analysis** in the sidebar (many links are *extended* or *advanced*).
 | Page | Route | Click-through from `/` |
 |------|-------|------------------------|
 | Alerts inbox | `/alerts` | **Governance → Alerts** (Alt+L) → default **Inbox** tab. |
-| Alerts rules | `/alerts?tab=rules` | **Alerts** → **Rules** tab (legacy **Settings → Alerts** redirects here). |
+| Alerts rules | `/governance/alert-rules` | **Governance** → **Alert rules** hub (legacy **Settings → Alerts** redirects here). |
 | Alerts routing | `/alerts?tab=routing` | **Alerts** → **Routing** tab, or sidebar-adjacent **Alert routing** bookmark at `/alert-routing`. |
 | Alerts composite | `/alerts?tab=composite` | **Alerts** → **Composite** tab. |
 | Alerts simulation | `/alerts?tab=simulation` | **Alerts** → **Simulation & tuning** tab. |
@@ -801,7 +799,7 @@ These pages are **not** linked from operator home `/`. Reach them by signing out
 | Compliance journey | `/compliance-journey` | Marketing content links. |
 | Demo preview | `/demo/preview` | Marketing **See it** / trial funnel. |
 | Live demo | `/live-demo` | Marketing campaigns. |
-| Quick scan / quick start | `/quick-scan`, `/quick-start` | Marketing CTAs. |
+| Quick scan | `/quick-scan` | Marketing CTA. |
 | Showcase | `/showcase/{runId}` | Shared demo links (`/showcase/claims-intake-modernization`). |
 | Example ROI bulletin | `/example-roi-bulletin` | Marketing sample download page. |
 | Accessibility | `/accessibility` | Marketing footer. |

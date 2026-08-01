@@ -8,7 +8,7 @@ namespace ArchLucid.Cli.Commands;
     "CLI run subcommand orchestrates HTTP and filesystem via ArchLucidApiClient (excluded from coverage); exercised via manual CLI.")]
 internal static class RunCommand
 {
-    public static async Task<int> RunAsync(bool quick, string? idempotencyKey = null)
+    public static async Task<int> RunAsync(string? idempotencyKey = null)
     {
         string projectRoot = Directory.GetCurrentDirectory();
         ArchLucidProjectScaffolder.ArchLucidCliConfig config;
@@ -96,51 +96,6 @@ internal static class RunCommand
         }
 
         Console.WriteLine();
-
-        if (quick)
-        {
-            Console.WriteLine("Quick mode: seeding fake results and committing...");
-            ArchLucidApiClient.SeedFakeResultsResult? seedResult = await client.SeedFakeResultsAsync(resp.Run.RunId);
-
-            if (seedResult is null || !seedResult.Success)
-            {
-                Console.WriteLine($"Warning: Seed failed. {seedResult?.Error ?? "Unknown"}");
-                Console.WriteLine("Note: Seed is only available when the API runs in Development.");
-                CliOperatorHints.WriteAfterApiFailure(seedResult?.HttpStatusCode, seedResult?.Error);
-                Console.WriteLine(
-                    $"Continue with: archlucid seed {resp.Run.RunId} then archlucid commit {resp.Run.RunId}");
-
-                return CliExitCode.Success;
-            }
-
-            Console.WriteLine($"Seeded {seedResult.ResultCount} fake results.");
-            ArchLucidApiClient.CommitRunResult? commitResult = await client.CommitRunAsync(resp.Run.RunId);
-
-            if (commitResult is null || !commitResult.Success)
-            {
-                Console.WriteLine($"Error: Commit failed. {commitResult?.Error ?? "Unknown"}");
-
-                return CliExitCode.OperationFailed;
-            }
-
-            string version = commitResult.Response?.Manifest.Metadata.ManifestVersion ?? "unknown";
-            Console.WriteLine($"Committed. Manifest version: {version}");
-
-            CliCommandShared.WriteRunSummary(
-                summaryPath,
-                baseUrl,
-                resp.Run.RunId,
-                resp.Run.RequestId,
-                resp.Run.Status,
-                resp.Run.CreatedUtc,
-                resp.Tasks,
-                version);
-
-            Console.WriteLine($"Use 'archlucid artifacts {resp.Run.RunId}' to view the manifest.");
-
-            return CliExitCode.Success;
-        }
-
         Console.WriteLine(
             $"Next: Submit agent results, then commit. Use 'archlucid status {resp.Run.RunId}' to check progress.");
 

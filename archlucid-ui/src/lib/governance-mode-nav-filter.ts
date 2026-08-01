@@ -28,7 +28,6 @@ export const GOVERNANCE_MODE_HIDDEN_NAV_HREFS = new Set<string>([
   GOVERNANCE_ALERTS_PATH,
   LEGACY_ALERTS_PATH,
   "/administration/connection-status",
-  "/integrations/operations",
 ]);
 
 const GOVERNANCE_NAV_GROUP_IDS = new Set<string>(["operate-governance"]);

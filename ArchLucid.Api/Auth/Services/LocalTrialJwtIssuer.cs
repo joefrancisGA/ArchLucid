@@ -86,25 +86,7 @@ public sealed class LocalTrialJwtIssuer : ILocalTrialJwtIssuer
     private RsaSecurityKey LoadPrivateKey()
     {
         TrialLocalIdentityOptions local = _trialOptions.Value.LocalIdentity;
-        string path = local.JwtPrivateKeyPemPath.Trim();
 
-        if (string.IsNullOrEmpty(path))
-            throw new InvalidOperationException("Auth:Trial:LocalIdentity:JwtPrivateKeyPemPath is not configured.");
-
-        string resolved = Path.IsPathRooted(path)
-            ? path
-            : Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), path));
-
-        if (!File.Exists(resolved))
-            throw new InvalidOperationException(
-                $"Auth:Trial:LocalIdentity:JwtPrivateKeyPemPath points to a missing file: '{resolved}'.");
-
-        string pem = File.ReadAllText(resolved);
-
-        using RSA rsa = RSA.Create();
-
-        rsa.ImportFromPem(pem);
-
-        return new RsaSecurityKey(rsa.ExportParameters(true));
+        return JwtPemKeyMaterial.LoadPrivateKey(local.JwtPrivateKeyPemPath, local.JwtPrivateKeyPem);
     }
 }

@@ -49,13 +49,14 @@ public static class AuthServiceCollectionExtensions
         // when the first Resolve snapshot still shows DevelopmentBypass, and re-Resolve IConfiguration when applying
         // JwtBearer options so PEM path and iss/aud are never stale.
         string pemPathFromConfiguration = configuration["ArchLucidAuth:JwtSigningPublicKeyPemPath"]?.Trim() ?? string.Empty;
+        string pemInlineFromConfiguration = configuration["ArchLucidAuth:JwtSigningPublicKeyPem"]?.Trim() ?? string.Empty;
 
         bool jwtByMode = string.Equals(authOptions.Mode, "JwtBearer", StringComparison.OrdinalIgnoreCase);
 
         // ArchLucidAuth:JwtSigningPublicKeyPemPath is an explicit CI / WebApplicationFactory bootstrap: nominate Jwt bearer
         // validation regardless of nominal Mode layering (defaults surface Mode=ApiKey in appsettings.json). Do not veto on
         // ApiKey here — Bearer minted against the PEM would otherwise hit the ApiKey scheme and return 401.
-        bool jwtByLocalPem = pemPathFromConfiguration.Length > 0;
+        bool jwtByLocalPem = JwtPemKeyMaterial.HasAnyPemSource(pemPathFromConfiguration, pemInlineFromConfiguration);
 
         if (jwtByMode || jwtByLocalPem)
         {

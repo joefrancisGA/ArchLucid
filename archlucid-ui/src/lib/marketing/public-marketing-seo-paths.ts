@@ -1,3 +1,8 @@
+import { LEGACY_OPERATE_ARCHITECTURE_GRAPH_PATH } from "@/lib/legacy-architecture-graph-route";
+import { LEGACY_ONBOARD_PATH } from "@/lib/legacy-onboard-route";
+import { LEGACY_ONBOARDING_START_PATH } from "@/lib/legacy-onboarding-start-route";
+import { LEGACY_QUICK_START_PATH } from "@/lib/legacy-quick-start-route";
+import { LEGACY_SNAPSHOT_PATH_PREFIX } from "@/lib/legacy-snapshot-route";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 /** Pathnames emitted in `app/sitemap.ts`. Prefix "/", no trailing slash. */
@@ -36,9 +41,12 @@ export const MARKETING_ROBOTS_DISALLOW_PREFIXES: readonly string[] = [
   "/admin/",
   "/settings/",
   "/graph",
+  LEGACY_OPERATE_ARCHITECTURE_GRAPH_PATH,
   "/governance/",
   "/governance-resolution/",
-  "/onboard",
+  LEGACY_ONBOARD_PATH,
+  LEGACY_ONBOARDING_START_PATH,
+  LEGACY_QUICK_START_PATH,
   "/onboarding/",
   "/planning/",
   "/policy-packs/",
@@ -61,10 +69,11 @@ export const MARKETING_ROBOTS_DISALLOW_PREFIXES: readonly string[] = [
   "/workspace",
   "/v1",
   "/v2",
-  "/health",
+  "/administration/system-health",
   "/openapi/",
   "/swagger/",
   "/scalar/",
   "/metrics",
   "/live-demo",
+  LEGACY_SNAPSHOT_PATH_PREFIX,
 ];

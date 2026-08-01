@@ -131,3 +131,23 @@ output "content_safety_endpoint" {
   description = "HTTPS endpoint for ArchLucid:ContentSafety:Endpoint when the account is managed here; otherwise null."
   value       = try(azurerm_cognitive_account.content_safety[0].endpoint, null)
 }
+
+output "communication_email_service_id" {
+  description = "ARM id of the Communication Service when enable_communication_email_account is true; otherwise null."
+  value       = try(azurerm_communication_service.communication_email[0].id, null)
+}
+
+output "communication_email_endpoint" {
+  description = "HTTPS ACS endpoint for Email:AzureCommunicationServicesEndpoint (set GitHub var DEV_ACS_EMAIL_ENDPOINT)."
+  value = local.communication_email_enabled ? "https://${azurerm_communication_service.communication_email[0].hostname}" : null
+}
+
+output "communication_email_from_address" {
+  description = "Verified sender address for Email:FromAddress (e.g. noreply@archlucid.net)."
+  value       = local.communication_email_from_address
+}
+
+output "communication_email_domain_verification_records" {
+  description = "DNS records to publish at your DNS host before mail sends. Set communication_email_initiate_domain_verification = true after publishing."
+  value       = try(azurerm_email_communication_service_domain.communication_email_custom[0].verification_records, null)
+}

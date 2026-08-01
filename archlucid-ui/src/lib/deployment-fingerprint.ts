@@ -1,4 +1,4 @@
-/** Build-time deployment fingerprint surfaced in the operator shell footer and /health page. */
+/** Build-time deployment fingerprint surfaced in the operator shell footer and System health page. */
 export type ClientDeploymentFingerprint = {
   readonly frontendCommitSha: string;
   readonly buildTimestamp: string;

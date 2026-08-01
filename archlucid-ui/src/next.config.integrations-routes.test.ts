@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import nextConfig from "../next.config";
 
 describe("next.config integrations routes (TB-407 / TB-750)", () => {
-  it("keeps permanent redirects for legacy integrations URLs", async () => {
+  it("keeps permanent redirects for legacy cloud-connections URL", async () => {
     const redirectRules = await nextConfig.redirects?.();
 
     expect(redirectRules).toBeDefined();
@@ -15,22 +15,23 @@ describe("next.config integrations routes (TB-407 / TB-750)", () => {
           && rule.destination === "/integrations/cloud-connections",
       )?.permanent,
     ).toBe(true);
+  });
+
+  it("does not keep pre-release Integration readiness / operations / ITSM hub redirects", async () => {
+    const redirectRules = await nextConfig.redirects?.();
+
+    expect(redirectRules).toBeDefined();
 
     expect(
-      redirectRules?.find(
+      redirectRules?.some(
         (rule) =>
           rule.source === "/integrations/operations"
-          && rule.destination === "/administration/connection-status",
-      )?.permanent,
-    ).toBe(true);
-
-    expect(
-      redirectRules?.find(
-        (rule) =>
-          rule.source === "/integrations/readiness"
-          && rule.destination === "/administration/connection-status",
-      )?.permanent,
-    ).toBe(true);
+          || rule.source === "/integrations/operations/:path*"
+          || rule.source === "/integrations/readiness"
+          || rule.source === "/integrations/readiness/:path*"
+          || rule.source === "/integrations/itsm",
+      ),
+    ).toBe(false);
   });
 
   it("does not rewrite canonical integrations URLs to legacy App Router trees (TB-750)", async () => {

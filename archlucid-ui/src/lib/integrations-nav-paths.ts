@@ -6,16 +6,16 @@ export const ADMINISTRATION_CONNECTION_STATUS_PATH = "/administration/connection
 /** @deprecated Prefer {@link ADMINISTRATION_CONNECTION_STATUS_PATH}. */
 export const INTEGRATIONS_READINESS_PATH = ADMINISTRATION_CONNECTION_STATUS_PATH;
 
-/** Former Integration readiness URL — permanent redirect to {@link ADMINISTRATION_CONNECTION_STATUS_PATH}. */
-export const LEGACY_INTEGRATIONS_READINESS_PATH = "/integrations/readiness";
+/**
+ * Former combined ITSM hub — removed pre-release (no redirect).
+ * Product surfaces use Jira/ServiceNow pages; OAuth callback remains below.
+ */
+export const REMOVED_INTEGRATIONS_ITSM_HUB_PATH = "/integrations/itsm";
 
-/** Legacy browser path — permanent redirect to {@link ADMINISTRATION_CONNECTION_STATUS_PATH} (TB-408). */
-export const LEGACY_INTEGRATIONS_OPERATIONS_PATH = "/integrations/operations";
+/** @deprecated Prefer {@link REMOVED_INTEGRATIONS_ITSM_HUB_PATH}. */
+export const LEGACY_INTEGRATIONS_ITSM_PATH = REMOVED_INTEGRATIONS_ITSM_HUB_PATH;
 
-/** Legacy combined operator route — hub redirects to Connection status; OAuth callback stays reachable (TB-1776). */
-export const LEGACY_INTEGRATIONS_ITSM_PATH = "/integrations/itsm";
-
-/** Atlassian OAuth return URL — must not be covered by the ITSM hub readiness redirect (TB-1776 / TB-600). */
+/** Atlassian OAuth return URL — live App Router page under the former hub segment. */
 export const ITSM_ATLASSIAN_OAUTH_CALLBACK_PATH = "/integrations/itsm/oauth/callback";
 
 export const INTEGRATIONS_JIRA_PATH = "/integrations/jira";
@@ -44,10 +44,5 @@ export function pathMatchesCloudConnections(pathname: string): boolean {
 }
 
 export function pathMatchesIntegrationsReadiness(pathname: string): boolean {
-  return (
-    pathMatchesRoutePrefix(pathname, ADMINISTRATION_CONNECTION_STATUS_PATH)
-    || pathMatchesRoutePrefix(pathname, LEGACY_INTEGRATIONS_READINESS_PATH)
-    || pathMatchesRoutePrefix(pathname, LEGACY_INTEGRATIONS_OPERATIONS_PATH)
-    || pathMatchesRoutePrefix(pathname, LEGACY_INTEGRATIONS_ITSM_PATH)
-  );
+  return pathMatchesRoutePrefix(pathname, ADMINISTRATION_CONNECTION_STATUS_PATH);
 }

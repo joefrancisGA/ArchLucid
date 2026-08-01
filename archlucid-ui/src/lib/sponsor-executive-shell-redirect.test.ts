@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import {
   isSponsorOnlyPrincipal,
   resolveSponsorExecutiveRedirectTarget,
@@ -48,7 +49,7 @@ describe("resolveSponsorExecutiveRedirectTarget", () => {
   it("returns null for the consolidated dashboard route", () => {
     expect(
       resolveSponsorExecutiveRedirectTarget({
-        pathname: "/dashboard",
+        pathname: EXECUTIVE_DASHBOARD_HREF,
       }),
     ).toBeNull();
   });
@@ -66,6 +67,6 @@ describe("resolveSponsorExecutiveRedirectTarget", () => {
       resolveSponsorExecutiveRedirectTarget({
         pathname: "/policy-packs",
       }),
-    ).toBe("/dashboard");
+    ).toBe(EXECUTIVE_DASHBOARD_HREF);
   });
 });

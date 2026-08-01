@@ -118,7 +118,8 @@ Notation — **Nav:** P = primary sidebar (when gates pass), S = secondary/in-pa
 | `/governance/dashboard` | Workspace-health KPI tiles | D only (consolidated omission) | **Remove now** — redirect to `/dashboard`, fold unique tiles in (IA-009 D6 carve-out; resolved 2026-07-14) |
 | `/governance/approval-requests/[id]/lineage` | Approval lineage graph | D | Retain; add parent detail route (IA-015) |
 | `/advisory` (`?tab=scans\|schedules`) | Recommendations from finalized reviews | P ("Advisory scans", Governance group) | Move within navigation? Borderline — retain, monitor (IA-022) |
-| `/alert-routing`, `/advisory-scheduling`, `/settings/alerts` | Legacy redirects | R | Retain redirects; remove page files where config covers them (IA-014) |
+| `/alert-routing`, `/advisory-scheduling` | Legacy redirects | R | Retain redirects; remove page files where config covers them (IA-014) |
+| `/settings/alerts` | Retired pre-release path | — | Removed (no redirect); use left nav Alert rules (`/governance/alert-rules`) |
 
 ### 4.4 Reporting (persona: executive, sponsor)
 
@@ -131,7 +132,8 @@ Notation — **Nav:** P = primary sidebar (when gates pass), S = secondary/in-pa
 | `/value-report/pilot` | Evaluation value report | D (consolidated omission) | Convert to tab of `/value-report` — defer (IA-009) |
 | `/value-report/roi` | ROI hours estimate | D (consolidated omission) | Convert to tab of `/value-report` — defer (IA-009) |
 | `/digests` (`?tab=browse\|subscriptions\|schedule`) | Digests hub | D (consolidated omission; palette lists it) | Align palette/nav visibility (IA-011) |
-| `/digest-subscriptions`, `/settings/exec-digest` | Legacy redirects | R | Retain redirects; remove page files (IA-014) |
+| `/digest-subscriptions` | Legacy redirect | R | Retain redirect; remove page files (IA-014) |
+| `/settings/exec-digest` | Retired pre-release path | — | Removed (no redirect); use Digests → Schedule (`/digests?tab=schedule`) |
 | `/example-roi-bulletin` | Synthetic ROI bulletin sample | D (marketing) | Hide from private beta operator space — Requires product decision |
 
 ### 4.5 Integrations (persona: admin, operator)

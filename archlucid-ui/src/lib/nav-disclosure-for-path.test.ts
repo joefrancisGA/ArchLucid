@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import { effectiveNavDisclosureForPathname } from "./nav-disclosure-for-path";
 import {
   NAV_DISCLOSURE,
@@ -38,7 +39,7 @@ describe("nav disclosure copy", () => {
 describe("effectiveNavDisclosureForPathname", () => {
   it.each([
     "/",
-    "/dashboard",
+    EXECUTIVE_DASHBOARD_HREF,
     "/onboarding",
     "/reviews/new",
     "/reviews",

@@ -786,3 +786,51 @@ variable "content_safety_public_network_access_enabled" {
   description = "Public network access on the Content Safety account. Keep true for lab/dev Container Apps without private endpoints; prefer false with private endpoints in production-like stacks."
   default     = true
 }
+
+variable "enable_communication_email_account" {
+  type        = bool
+  description = "When true with enable_container_apps, provision Azure Communication Services Email (custom domain + noreply sender) and grant API/Worker managed identities Contributor on the Communication Service. Wire Email:* onto Container Apps via CD (DEV_ACS_EMAIL_ENDPOINT / DEV_EMAIL_FROM_ADDRESS)."
+  default     = false
+}
+
+variable "communication_email_email_service_name" {
+  type        = string
+  description = "Globally unique Email Communication Service name. Required when enable_communication_email_account = true."
+  default     = ""
+}
+
+variable "communication_email_communication_service_name" {
+  type        = string
+  description = "Globally unique Communication Service name linked to the email domain. Required when enable_communication_email_account = true."
+  default     = ""
+}
+
+variable "communication_email_data_location" {
+  type        = string
+  description = "ACS data residency geography (e.g. United States, Europe). Not the same as azure_location."
+  default     = "United States"
+}
+
+variable "communication_email_custom_domain_name" {
+  type        = string
+  description = "Verified custom mail domain (e.g. archlucid.net). Sender becomes {communication_email_sender_username}@{this domain}."
+  default     = "archlucid.net"
+}
+
+variable "communication_email_sender_username" {
+  type        = string
+  description = "Local-part for the transactional sender address (noreply -> noreply@archlucid.net)."
+  default     = "noreply"
+}
+
+variable "communication_email_sender_display_name" {
+  type        = string
+  description = "Display name on outbound ArchLucid transactional email."
+  default     = "ArchLucid"
+}
+
+variable "communication_email_initiate_domain_verification" {
+  type        = bool
+  description = "When true, call ACS initiateVerification(Domain) after DNS records exist. Leave false on first apply; publish verification_records to DNS, then set true and re-apply."
+  default     = false
+}

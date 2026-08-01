@@ -5,6 +5,7 @@ import {
 } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
+import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture-intelligence-route";
 import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
@@ -39,7 +40,7 @@ export class OperateArchitectAdvancedNavGroupBuilder extends NavGroupBuilderBase
           requiredAuthority: "ReadAuthority",
         },
         {
-          href: "/architecture-intelligence",
+          href: ARCHITECTURE_INTELLIGENCE_PATH,
           label: "Architecture intelligence",
           title: "Architecture intelligence — closed-loop reasoning and golden regression checks",
           icon: Brain,

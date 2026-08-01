@@ -10,6 +10,7 @@ import {
   SETTINGS_USERS_PATH,
   SETTINGS_USERS_ROLES_TAB_PATH,
   SETTINGS_USERS_USERS_TAB_PATH,
+  DIGESTS_SCHEDULE_TAB_PATH,
   pathMatchesSettingsSecurityTrust,
   pathMatchesSettingsSupport,
   pathMatchesSettingsUsers,
@@ -34,8 +35,9 @@ describe("settings-admin-route-paths (TB-406 / TB-751)", () => {
     expect(pathMatchesSettingsSupport("/admin/support")).toBe(true);
   });
 
-  it("documents legacy redirect sources", () => {
+  it("documents legacy redirect sources and canonical Digests Schedule path", () => {
     expect(LEGACY_ADMIN_USERS_PATH).toBe("/admin/users");
+    expect(DIGESTS_SCHEDULE_TAB_PATH).toBe("/digests?tab=schedule");
     expect(LEGACY_SETTINGS_ROLES_PATH).toBe("/settings/roles");
     expect(LEGACY_WORKSPACE_SECURITY_TRUST_PATH).toBe("/workspace/security-trust");
     expect(LEGACY_ADMIN_SUPPORT_PATH).toBe("/admin/support");

@@ -1,6 +1,9 @@
+import { LEGACY_ONBOARD_PATH } from "@/lib/legacy-onboard-route";
+import { LEGACY_ONBOARDING_START_PATH } from "@/lib/legacy-onboarding-start-route";
+
 /**
  * Builds `/onboarding` plus the same query string as the incoming legacy onboarding route
- * (`/getting-started`, `/onboarding/start`, `/onboard`) so bookmarks and handoffs keep deep-link params.
+ * (`/getting-started`, {@link LEGACY_ONBOARDING_START_PATH}, {@link LEGACY_ONBOARD_PATH}) so bookmarks and handoffs keep deep-link params.
  */
 export function buildOnboardingRedirectPath(
   searchParams: Record<string, string | string[] | undefined>,

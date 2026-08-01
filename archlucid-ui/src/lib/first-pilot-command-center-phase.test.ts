@@ -58,7 +58,7 @@ describe("resolveFirstPilotCommandCenterPhase", () => {
 
     expect(phase.sponsorDisposition).toBe("readiness-only");
 
-    expect(phase.href).toBe("/health");
+    expect(phase.href).toBe("/administration/system-health");
 
   });
 

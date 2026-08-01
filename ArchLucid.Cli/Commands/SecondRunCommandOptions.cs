@@ -7,7 +7,7 @@ internal sealed class SecondRunCommandOptions
 
     public const string DefaultUiBaseUrl = "";
 
-    public static readonly TimeSpan DefaultCommitDeadline = TryCommandOptions.DefaultCommitDeadline;
+    public static readonly TimeSpan DefaultCommitDeadline = TimeSpan.FromSeconds(180);
 
     public required string InputPath
     {

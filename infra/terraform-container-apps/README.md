@@ -25,12 +25,21 @@ Production-like API hosts (`ASPNETCORE_ENVIRONMENT=Staging` / `Production`) requ
 - Set **`enable_content_safety_account = true`** to create (or import) a **Content Safety** Cognitive Services account in this resource group. See **`dev.tfvars.example`** for ArchLucid DEV names.
 - **Do not** point DEV at accounts in other product RGs (e.g. historical `longevity-safety`).
 - Container App secret/env wiring on DEV is **CD-owned**: GitHub Environment secrets **`ARCHLUCID_CONTENT_SAFETY_ENDPOINT`** and **`ARCHLUCID_CONTENT_SAFETY_API_KEY`**. Secret name on the app is **`al-cs-key`** (≤20 characters — Azure CLI limit).
-- Brownfield import:
+  - Brownfield import:
 
   ```bash
   terraform import 'azurerm_cognitive_account.content_safety[0]' \
     /subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.CognitiveServices/accounts/<name>
   ```
+
+## Azure Communication Services Email (transactional)
+
+Private-beta **email OTP**, invites, and trial lifecycle mail use **`Email:Provider=AzureCommunicationServices`** with **managed identity** (no connection string).
+
+- Set **`enable_communication_email_account = true`** to create the Email Communication Service, custom domain (**`archlucid.net`**), **`noreply@archlucid.net`** sender username, linked Communication Service, and **Contributor** RBAC for API + Worker system-assigned identities.
+- **DNS:** after first apply, read **`communication_email_domain_verification_records`** and publish TXT/CNAME at your DNS host (apex **`archlucid.net`**, not `www`). Then set **`communication_email_initiate_domain_verification = true`** and re-apply.
+- **CD wiring:** set GitHub repo vars **`DEV_ACS_EMAIL_ENDPOINT`** (from output **`communication_email_endpoint`**) and **`DEV_EMAIL_FROM_ADDRESS=noreply@archlucid.net`**. CD heals `Email__*` on the API Container App when **`DEV_PRIVATE_BETA_AUTH_ENABLED=true`**.
+- Container App **`template.env`** is **CD-owned** (`lifecycle.ignore_changes`); Terraform does not inject `Email:*` env vars directly.
 
 ## Defaults
 
@@ -104,6 +113,8 @@ Preferred production topology (owner 2026-07-31): **two UI Container Apps**, one
 - API CORS must list both origins (`Cors__AllowedOrigins__0`…), e.g. `https://www.archlucid.net` + `https://app.archlucid.net` (+ apex if used).
 
 Docs: [`PUBLIC_MARKETING_SITE_TOPOLOGY.md`](../../docs/library/PUBLIC_MARKETING_SITE_TOPOLOGY.md), [`MARKETING_PRODUCT_SEPARATION_ASSESSMENT.md`](../../docs/library/MARKETING_PRODUCT_SEPARATION_ASSESSMENT.md).
+
+**Ops cutover (DNS / env / CORS / hostname bind / GitHub secret):** dry-run-first script [`scripts/ops/Invoke-MarketingOperatorHostCutover.ps1`](../../scripts/ops/Invoke-MarketingOperatorHostCutover.ps1) and runbook [`docs/runbooks/MARKETING_OPERATOR_HOST_CUTOVER.md`](../../docs/runbooks/MARKETING_OPERATOR_HOST_CUTOVER.md).
 
 ## Custom domain without Front Door (`ui_custom_domain_name` / `marketing_ui_custom_domain_name` / `api_custom_domain_name`)
 

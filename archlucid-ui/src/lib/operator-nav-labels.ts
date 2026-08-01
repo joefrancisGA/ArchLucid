@@ -1,5 +1,9 @@
-import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
-import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
+import {
+  ARCHITECTURE_DRAFTS_LIST_LABEL,
+  CREATE_ARCHITECTURE_LABEL,
+  START_REVIEW_LABEL,
+} from "@/lib/architecture-workflow-labels";
+import { ARCHITECTURES_LIST_PATH, ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
 import { applyBuyerDemoVocabulary } from "@/lib/buyer-demo-vocabulary";
 import { isBuyerVocabularyPassActive } from "@/lib/demo-ui-env";
 import { governanceModeVocabulary } from "@/lib/governance-mode-vocabulary";
@@ -33,6 +37,11 @@ export function resolveStartReviewPrimaryNavTitle(): string {
 /** Sidebar / pilot nav tooltip for `/architectures/new`. */
 export function resolveCreateArchitecturePrimaryNavTitle(): string {
   return CREATE_ARCHITECTURE_NAV_TOOLTIP;
+}
+
+/** Sidebar / pilot nav tooltip for `/architectures` — architecture draft inventory. */
+export function resolveArchitecturesListNavTitle(): string {
+  return `${ARCHITECTURE_DRAFTS_LIST_LABEL} — saved architecture drafts; create and resume without starting a review`;
 }
 
 /** @deprecated Use {@link resolveStartReviewPrimaryNavTitle} for `/reviews/new`. */
@@ -83,6 +92,14 @@ export function resolveNavLinkPresentation(
   isGovernanceModeEnabled = false,
 ): NavLinkPresentationSource {
   const vocabularyPassActive = isBuyerVocabularyPassActive();
+
+  if (link.href === ARCHITECTURES_LIST_PATH) {
+    return applyBuyerNavVocabulary({
+      href: link.href,
+      label: ARCHITECTURE_DRAFTS_LIST_LABEL,
+      title: resolveArchitecturesListNavTitle(),
+    });
+  }
 
   if (link.href === ARCHITECTURES_NEW_PATH && (buyerPolishedShell || vocabularyPassActive)) {
     return applyBuyerNavVocabulary({

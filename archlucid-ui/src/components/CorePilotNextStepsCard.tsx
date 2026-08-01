@@ -16,6 +16,7 @@ import {
   type CorePilotCommitProgressState,
 } from "@/lib/core-pilot-commit-progress";
 import { fetchCorePilotCommitContextCached } from "@/lib/core-pilot-commit-context";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-disclosure-storage";
 import { OPERATOR_START_REVIEW_QUICK_ACTION_LABEL } from "@/lib/operator-nav-labels";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -83,7 +84,7 @@ function buildFirstReviewCheckpointStrip(
     { id: "execute", label: "Execute", href: reviewHref, status: statusById.execute },
     { id: "commit", label: "Finalize", href: reviewHref, status: statusById.commit },
     { id: "export", label: "Export", href: committedReviewHref, status: statusById.export },
-    { id: "sponsor-ready", label: "Sponsor-ready", href: "/dashboard", status: statusById["sponsor-ready"] },
+    { id: "sponsor-ready", label: "Sponsor-ready", href: EXECUTIVE_DASHBOARD_HREF, status: statusById["sponsor-ready"] },
   ] as const;
 }
 
@@ -423,7 +424,7 @@ export function CorePilotNextStepsCard() {
             <span aria-hidden className={cn("mt-0.5 shrink-0 text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>4.</span>
             <span>
               Report — sponsor-facing summary on{" "}
-              <Link href="/dashboard" className="font-medium text-blue-700 underline dark:text-blue-400">
+              <Link href={EXECUTIVE_DASHBOARD_HREF} className="font-medium text-blue-700 underline dark:text-blue-400">
                 Report
               </Link>{" "}
               after outputs land.

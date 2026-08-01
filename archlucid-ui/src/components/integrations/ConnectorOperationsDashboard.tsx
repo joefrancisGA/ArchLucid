@@ -83,7 +83,7 @@ export function ConnectorOperationsDashboard(): ReactElement {
   if (loading && !data) {
     return (
       <OperatorLoadingNotice>
-        <strong>Loading integration readiness.</strong>
+        <strong>Loading connection status.</strong>
       </OperatorLoadingNotice>
     );
   }

@@ -1,3 +1,4 @@
+import type { ResolvedBuyerGoldenJourneyNav } from "@/lib/buyer-golden-journey-nav";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 export type BuyerOperateBackLink = {
@@ -31,6 +32,29 @@ export function buyerPolishedOperateBackLink(pathnameWithSearch: string): BuyerO
 }
 
 /** True when shell breadcrumbs already expose the same review-package href (via scoped `runId`). */
+export function resolveBuyerOperateBackLinkWhenShellBreadcrumbsHidden(options: {
+  readonly pathnameWithSearch: string;
+  readonly searchRunId: string;
+  readonly showShellBreadcrumbs: boolean;
+  readonly buyerGoldenJourneyNav: ResolvedBuyerGoldenJourneyNav | null;
+}): BuyerOperateBackLink | null {
+  if (options.showShellBreadcrumbs || options.buyerGoldenJourneyNav !== null) {
+    return null;
+  }
+
+  const backLink = buyerPolishedOperateBackLink(options.pathnameWithSearch);
+
+  if (backLink === null) {
+    return null;
+  }
+
+  if (isBuyerOperateBackLinkRedundantWithBreadcrumbs(options.searchRunId, backLink)) {
+    return null;
+  }
+
+  return backLink;
+}
+
 export function isBuyerOperateBackLinkRedundantWithBreadcrumbs(
   queryRunId: string,
   backLink: BuyerOperateBackLink,

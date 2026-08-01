@@ -42,7 +42,7 @@ test.describe.configure({ mode: "serial", timeout: 120_000 });
 
 
 
-test.describe("executive ROI dashboard — operator /dashboard", () => {
+test.describe("executive ROI dashboard — operator /architecture/executive-dashboard", () => {
 
   test("renders portfolio summary, KPI tiles, and trend chart without error boundary @smoke @executive-roi-dashboard", async ({
 
@@ -156,25 +156,25 @@ test.describe("executive ROI dashboard — operator /dashboard", () => {
 
 
 
-  test("retired /executive/dashboard route redirects to /dashboard @executive-roi-dashboard", async ({ page }) => {
+  test("retired /executive/dashboard route redirects to executive dashboard @executive-roi-dashboard", async ({ page }) => {
 
     await page.goto(EXECUTIVE_ROI_DASHBOARD_PATHS.legacyExecutive);
 
 
 
-    await expect(page).toHaveURL(/\/dashboard$/);
+    await expect(page).toHaveURL(/\/architecture\/executive-dashboard$/);
 
     await expectExecutiveRoiDashboardShell(page);
 
   });
 
-  test("retired /portfolio route redirects to /dashboard @executive-roi-dashboard", async ({ page }) => {
+  test("retired /portfolio route redirects to executive dashboard @executive-roi-dashboard", async ({ page }) => {
 
     await page.goto(EXECUTIVE_ROI_DASHBOARD_PATHS.legacyPortfolio);
 
 
 
-    await expect(page).toHaveURL(/\/dashboard$/);
+    await expect(page).toHaveURL(/\/architecture\/executive-dashboard$/);
 
     await expectExecutiveRoiDashboardShell(page);
 

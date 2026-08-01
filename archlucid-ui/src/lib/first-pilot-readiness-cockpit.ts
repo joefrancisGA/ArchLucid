@@ -100,7 +100,7 @@ export function buildFirstPilotReadinessRows(input: {
       group: "platform" as const,
       status: statusFromHealth(input.healthStatus, input.healthLoadFailed),
       summary: shellHealthReadinessSummary(input.healthLoadFailed, input.healthStatus),
-      href: "/health",
+      href: "/administration/system-health",
       cta: FIRST_PILOT_READINESS_SYSTEM_STATUS_CTA,
     },
     {
@@ -120,7 +120,7 @@ export function buildFirstPilotReadinessRows(input: {
       summary: input.signals.setupReady
         ? "Storage is ready enough for pilot work."
         : "Confirm SQL/storage readiness before relying on persisted reviews.",
-      href: "/health",
+      href: "/administration/system-health",
       cta: "Check readiness",
     },
     {
@@ -231,7 +231,7 @@ export function buildFirstPilotReadinessRows(input: {
       }),
       summary:
         "Review-readiness status has not been collected yet. Use diagnostics after finalize to refresh readiness — platform health is a coarse signal only.",
-      href: "/health",
+      href: "/administration/system-health",
       cta: FIRST_PILOT_READINESS_SYSTEM_STATUS_CTA,
     },
     {

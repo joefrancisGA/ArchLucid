@@ -10,6 +10,8 @@ import {
 import { MARKETING_SITEMAP_PATHNAMES } from "./public-marketing-seo-paths";
 
 const REPO_ROOT = resolve(__dirname, "../../../..");
+const QUICK_START_APP_PAGE = join(REPO_ROOT, "archlucid-ui/src/app/(marketing)/quick-start/page.tsx");
+const QUICK_START_CLIENT = join(REPO_ROOT, "archlucid-ui/src/app/(marketing)/quick-start/QuickStartClient.tsx");
 
 describe("marketing-surface-hygiene (TB-736)", () => {
   it("has no internal-link, backlog-label, or Operator-voice leaks in marketing surfaces", () => {
@@ -29,6 +31,15 @@ describe("marketing-surface-hygiene (TB-736)", () => {
     expect(nextConfig).toContain('source: "/quick-start"');
     expect(nextConfig).toContain('destination: "/get-started"');
     expect(nextConfig).toContain("permanent: true");
+  });
+
+  it("keeps /quick-start as redirect-only without competing marketing UI (TB-1820)", () => {
+    const pageSource = readFileSync(QUICK_START_APP_PAGE, "utf8");
+
+    expect(pageSource).toContain("permanentRedirect(");
+    expect(pageSource).toContain("buildQuickStartRedirectPath");
+    expect(pageSource).not.toContain("QuickStartClient");
+    expect(() => readFileSync(QUICK_START_CLIENT, "utf8")).toThrow();
   });
 
   it("documents banned internal marketing link patterns for regression clarity", () => {

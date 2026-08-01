@@ -2384,6 +2384,25 @@ function isProductOverviewContributorLeakageLine(line: string): boolean {
 }
 
 /**
+ * TB-1686 — executive-summary help: sponsor-brief sections with buyer-safe ROI link rewrites.
+ */
+export function stripExecutiveSummarySponsorBriefLeakage(markdown: string): string {
+  return stripProductOverviewContributorLeakage(markdown)
+    .replace(/`?API_CONTRACTS\.md`?/gi, "[Configuration reference](/help/configuration-reference)")
+    .replace(/API_CONTRACTS\.md/gi, "/help/configuration-reference")
+    .replace(/`?PILOT_ROI_MODEL\.md`?/gi, "[Pilot ROI model](/help/pilot-roi-model)")
+    .replace(/PILOT_ROI_MODEL\.md/gi, "/help/pilot-roi-model")
+    .replace(/`?ROI_MODEL\.md`?/gi, "[Pilot ROI model](/help/pilot-roi-model)")
+    .replace(/ROI_MODEL\.md/gi, "/help/pilot-roi-model")
+    .replace(/`?PRODUCT_PACKAGING\.md`?/gi, "[Product overview](/help/product-overview)")
+    .replace(/PRODUCT_PACKAGING\.md/gi, "/help/product-overview")
+    .replace(/`\/value-report`/gi, "`/sponsor-report/executive-summary`")
+    .replace(/\/value-report/gi, "/sponsor-report/executive-summary")
+    .replace(/`?SPONSOR_BANNER_FIRST_COMMIT_BADGE\.md`?/gi, "sponsor banner documentation")
+    .replace(/SPONSOR_BANNER_FIRST_COMMIT_BADGE\.md/gi, "sponsor banner documentation");
+}
+
+/**
  * TB-1738 — product-overview help: strip eng/GTM paths, type names, and backlog IDs; buyer-safe pillars.
  */
 export function stripProductOverviewContributorLeakage(markdown: string): string {
@@ -2947,6 +2966,11 @@ export function prepareHelpMarkdownForPresentation(
     normalizedSourcePath.includes("prior_manifest_retrieval_guide.md")
   ) {
     afterAudienceStrip = stripPriorManifestRetrievalContributorLeakage(sanitized);
+  } else if (
+    options?.helpTopicSlug === "executive-summary" &&
+    normalizedSourcePath.includes("executive_sponsor_brief.md")
+  ) {
+    afterAudienceStrip = stripExecutiveSummarySponsorBriefLeakage(sanitized);
   } else if (
     options?.helpTopicSlug === "product-overview" &&
     normalizedSourcePath.includes("executive_sponsor_brief.md")

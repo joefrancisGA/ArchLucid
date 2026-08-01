@@ -32,6 +32,7 @@ import {
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
 
+import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
@@ -237,7 +238,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
         {
 
-          href: "/health",
+          href: ADMINISTRATION_SYSTEM_HEALTH_PATH,
 
           label: OPERATOR_NAV_LINK_LABELS.systemHealth,
 

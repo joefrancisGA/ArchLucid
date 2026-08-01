@@ -6,11 +6,12 @@ import {
   ARCHITECTURES_NEW_PATH,
   parseArchitectureDraftIdFromPath,
 } from "@/lib/architecture-routes";
-import { ARCHITECTURE_DRAFTS_LIST_LABEL, CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import { resolvePolicyPackDetailBreadcrumbLabel } from "@/lib/policy-pack-detail-resolver";
 import { ITSM_CONNECTORS_ADMIN_LABEL, ITSM_CONNECTORS_ADMIN_PATH } from "@/lib/itsm-connectors-admin-scope";
 import { GOVERNANCE_ALERT_RULES_PATH, GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
 import { ALERTS_CONFIGURATION_PAGE_TITLE } from "@/lib/alerts-page-copy";
+import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
 import {
   pathMatchesCloudConnections,
   pathMatchesIntegrationsReadiness,
@@ -133,8 +134,11 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
     return [{ label: OPERATOR_NAV_LINK_LABELS.home }];
   }
 
-  if (normalized === "/dashboard") {
-    return [{ label: OPERATOR_NAV_LINK_LABELS.portfolioOverview }];
+  if (normalized === EXECUTIVE_DASHBOARD_HREF || normalized.startsWith(`${EXECUTIVE_DASHBOARD_HREF}/`)) {
+    return [
+      { label: "Architecture" },
+      { label: OPERATOR_NAV_LINK_LABELS.portfolioOverview },
+    ];
   }
 
   if (normalized === "/internal-operations/recommendation-learning") {
@@ -244,6 +248,13 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
     return [
       { label: "Administration" },
       { label: OPERATOR_NAV_LINK_LABELS.integrationReadiness },
+    ];
+  }
+
+  if (normalized === ADMINISTRATION_SYSTEM_HEALTH_PATH) {
+    return [
+      { label: "Administration" },
+      { label: OPERATOR_NAV_LINK_LABELS.systemHealth },
     ];
   }
 

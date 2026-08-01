@@ -6,12 +6,7 @@ import {
   LEGACY_GOVERNANCE_RESOLUTION_PATH,
   LEGACY_POLICY_PACKS_PATH,
 } from "@/lib/governance-route-paths";
-import {
-  ITSM_ATLASSIAN_OAUTH_CALLBACK_PATH,
-  LEGACY_CLOUD_CONNECTIONS_PATH,
-  LEGACY_INTEGRATIONS_ITSM_PATH,
-  LEGACY_INTEGRATIONS_OPERATIONS_PATH,
-} from "@/lib/integrations-nav-paths";
+import { LEGACY_CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import {
   LEGACY_ADMIN_SUPPORT_PATH,
   LEGACY_ADMIN_USERS_PATH,
@@ -32,8 +27,6 @@ export const NEXT_CONFIG_PERMANENT_REDIRECT_SOURCE_PATHS: readonly string[] = [
   LEGACY_ALERTS_PATH,
   LEGACY_ALERT_ROUTING_PATH,
   "/settings/webhooks",
-  LEGACY_INTEGRATIONS_ITSM_PATH,
-  LEGACY_INTEGRATIONS_OPERATIONS_PATH,
   LEGACY_CLOUD_CONNECTIONS_PATH,
   AI_USAGE_LEGACY_ADMIN_PATH,
   "/settings/cost-reporting",
@@ -41,6 +34,7 @@ export const NEXT_CONFIG_PERMANENT_REDIRECT_SOURCE_PATHS: readonly string[] = [
   LEGACY_ADMIN_USERS_PATH,
   LEGACY_ADMIN_SUPPORT_PATH,
   LEGACY_SETTINGS_ROLES_PATH,
+  "/dashboard",
   "/executive/dashboard",
   "/portfolio",
   "/executive/reviews",
@@ -71,17 +65,6 @@ export function hrefTargetsPermanentRedirectSource(
       return true;
     }
 
-    if (!pathname.startsWith(`${source}/`)) {
-      return false;
-    }
-
-    if (
-      source === LEGACY_INTEGRATIONS_ITSM_PATH
-      && pathname.startsWith(`${ITSM_ATLASSIAN_OAUTH_CALLBACK_PATH}`)
-    ) {
-      return false;
-    }
-
-    return true;
+    return pathname.startsWith(`${source}/`);
   });
 }

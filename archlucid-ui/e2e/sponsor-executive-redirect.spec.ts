@@ -35,6 +35,6 @@ test.describe("Sponsor executive shell redirect @sponsor-redirect", () => {
     await stubSponsorOnlyPrincipal(page);
     await page.goto("/governance?runId=claims-intake-modernization");
 
-    await expect(page).toHaveURL(/\/dashboard(\?runId=claims-intake-modernization)?$/, { timeout: 15_000 });
+    await expect(page).toHaveURL(/\/architecture\/executive-dashboard(\?runId=claims-intake-modernization)?$/, { timeout: 15_000 });
   });
 });

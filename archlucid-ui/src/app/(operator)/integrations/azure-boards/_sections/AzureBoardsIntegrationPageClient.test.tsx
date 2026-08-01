@@ -21,6 +21,10 @@ vi.mock("@/lib/features", () => ({
   isShowSystemAdministrationNavEnabled: () => false,
 }));
 
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+}));
+
 vi.mock("@/lib/api/azure-boards-api", () => ({
   fetchAzureBoardsHealth: (...args: unknown[]) => mockFetchAzureHealth(...args),
   fetchAzureBoardsSettings: (...args: unknown[]) => mockFetchAzureSettings(...args),
@@ -39,8 +43,8 @@ vi.mock("@/lib/api/itsm-outbound-api", () => ({
 import { AzureBoardsIntegrationPageClient } from "./AzureBoardsIntegrationPageClient";
 import {
   AZURE_BOARDS_BANNED_UI_PATTERNS,
-  AZURE_BOARDS_PAGE_CLOUD_NEUTRALITY_NOTE,
-  AZURE_BOARDS_PAGE_DESCRIPTION,
+  AZURE_BOARDS_HELP_TOPIC_HREF,
+  AZURE_BOARDS_PAGE_SUBTITLE,
   AZURE_BOARDS_PAGE_TITLE,
   AZURE_BOARDS_TEST_CONNECTION_LABEL,
 } from "@/lib/azure-boards-page-copy";
@@ -99,9 +103,9 @@ describe("AzureBoardsIntegrationPageClient", () => {
   it("renders customer-facing header without banned API terminology", async () => {
     render(<AzureBoardsIntegrationPageClient />);
 
-    expect(await screen.findByRole("heading", { name: AZURE_BOARDS_PAGE_TITLE })).toBeInTheDocument();
-    expect(screen.getByText(AZURE_BOARDS_PAGE_DESCRIPTION)).toBeInTheDocument();
-    expect(screen.getByText(AZURE_BOARDS_PAGE_CLOUD_NEUTRALITY_NOTE)).toBeInTheDocument();
+    expect(await screen.findByTestId("azure-boards-page-title")).toHaveTextContent(AZURE_BOARDS_PAGE_TITLE);
+    expect(screen.getByText(AZURE_BOARDS_PAGE_SUBTITLE)).toBeInTheDocument();
+    expect(screen.getByTestId("azure-boards-refresh-button")).toBeInTheDocument();
 
     const page = screen.getByTestId("integrations-azure-boards-page");
     const text = page.textContent ?? "";
@@ -109,6 +113,57 @@ describe("AzureBoardsIntegrationPageClient", () => {
     for (const pattern of AZURE_BOARDS_BANNED_UI_PATTERNS) {
       expect(text).not.toMatch(pattern);
     }
+  });
+
+  it("TB-1758: shows loading skeleton on first paint then content", async () => {
+    let resolveSettings: (value: unknown) => void = () => undefined;
+    const settingsPromise = new Promise((resolve) => {
+      resolveSettings = resolve;
+    });
+    mockFetchAzureSettings.mockReturnValue(settingsPromise);
+
+    render(<AzureBoardsIntegrationPageClient />);
+
+    expect(screen.getByTestId("azure-boards-loading-skeleton")).toBeInTheDocument();
+
+    resolveSettings(baseSettings());
+    expect(await screen.findByTestId("azure-boards-page-content")).toBeInTheDocument();
+    expect(screen.queryByTestId("azure-boards-loading-skeleton")).not.toBeInTheDocument();
+  });
+
+  it("TB-1758: refresh keeps visible content when a slice fails", async () => {
+    mockFetchConnection.mockResolvedValue(
+      baseConnection({
+        isConfigured: true,
+        instanceBaseUrl: "https://dev.azure.com/example",
+        credentialKeyVaultSecretName: "kv-pat",
+      }),
+    );
+
+    render(<AzureBoardsIntegrationPageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("azure-boards-organization-url")).toHaveValue("https://dev.azure.com/example");
+    });
+
+    mockFetchAzureSettings.mockRejectedValueOnce(new Error("temporary failure"));
+    fireEvent.click(screen.getByTestId("azure-boards-refresh-button"));
+
+    expect(screen.getByTestId("azure-boards-page-content")).toBeInTheDocument();
+    expect(screen.queryByTestId("azure-boards-loading-skeleton")).not.toBeInTheDocument();
+    expect(screen.getByTestId("azure-boards-organization-url")).toHaveValue("https://dev.azure.com/example");
+  });
+
+  it("TB-1757/1759: setup progress uses StatusTag and help link stays canonical", async () => {
+    render(<AzureBoardsIntegrationPageClient />);
+
+    await screen.findByTestId("azure-boards-setup-progress");
+    expect(screen.getByTestId("azure-boards-setup-step-credentials")).toBeInTheDocument();
+    expect(screen.getByTestId("azure-boards-help-guide-link")).toHaveAttribute("href", AZURE_BOARDS_HELP_TOPIC_HREF);
+    expect(AZURE_BOARDS_HELP_TOPIC_HREF).not.toContain("integrations/azure-boards");
+
+    const aside = screen.getByTestId("azure-boards-integration-aside");
+    expect(aside.textContent ?? "").not.toContain("/help/integrations/azure-boards");
   });
 
   it("shows setup incomplete and disables connection test without credentials", async () => {

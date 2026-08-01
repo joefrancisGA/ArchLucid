@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import { ARCHITECTURE_DRAFTS_LIST_LABEL, CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
 
 import { ALERTS_CONFIGURATION_PAGE_TITLE } from "./alerts-page-copy";
@@ -95,7 +96,8 @@ describe("getBreadcrumbs", () => {
   });
 
   it("maps operator ROI dashboard as portfolio overview", () => {
-    expect(getBreadcrumbs("/dashboard")).toEqual([
+    expect(getBreadcrumbs(EXECUTIVE_DASHBOARD_HREF)).toEqual([
+      { label: "Architecture" },
       { label: "Executive dashboard" },
     ]);
   });
@@ -134,6 +136,13 @@ describe("getBreadcrumbs", () => {
     expect(getBreadcrumbs("/administration/connection-status")).toEqual([
       { label: "Administration" },
       { label: "Connection status" },
+    ]);
+  });
+
+  it("maps system health under Administration", () => {
+    expect(getBreadcrumbs("/administration/system-health")).toEqual([
+      { label: "Administration" },
+      { label: "System health" },
     ]);
   });
 

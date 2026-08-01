@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import {
   EXECUTIVE_DASHBOARD_PAGE_SUBTITLE_OPERATOR,
@@ -10,7 +11,7 @@ import {
 const refreshDashboard = vi.fn(async () => undefined);
 
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/dashboard",
+  usePathname: () => EXECUTIVE_DASHBOARD_HREF,
 }));
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {

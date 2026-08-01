@@ -35,6 +35,15 @@ def test_discover_tab_paths_includes_architecture_workspace_tabs() -> None:
     assert "/advisory?tab=scans" not in tab_paths
 
 
+def test_build_catalog_classifies_architecture_intelligence_as_core_review() -> None:
+    catalog = build_catalog()
+    assert catalog["/architecture-intelligence"].section == "Core review"
+
+
+def test_migrate_workbook_path_maps_legacy_core_pilot_help_slug() -> None:
+    assert migrate_workbook_path("/help/core-pilot") == "/help/first-architecture-review"
+
+
 def test_build_catalog_excludes_redirect_only_legacy_paths() -> None:
     catalog = build_catalog()
     assert "/alerts" not in catalog
@@ -69,6 +78,28 @@ def test_migrate_workbook_path_maps_legacy_advisory_routes() -> None:
 
 def test_migrate_workbook_path_maps_legacy_alert_routing() -> None:
     assert migrate_workbook_path("/alert-routing") == "/governance/alert-rules?tab=routing"
+
+
+def test_migrate_workbook_path_maps_legacy_settings_alerts() -> None:
+    assert migrate_workbook_path("/settings/alerts") == "/governance/alert-rules"
+
+
+def test_build_catalog_tracks_next_config_only_settings_alerts_bookmark() -> None:
+    catalog = build_catalog()
+    assert "/settings/alerts" in catalog
+    assert catalog["/settings/alerts"].section == "Settings"
+    assert catalog["/settings/alerts"].source == "redirect_bookmark"
+
+
+def test_build_catalog_tracks_next_config_only_settings_exec_digest_bookmark() -> None:
+    catalog = build_catalog()
+    assert "/settings/exec-digest" in catalog
+    assert catalog["/settings/exec-digest"].section == "Settings"
+    assert catalog["/settings/exec-digest"].source == "redirect_bookmark"
+
+
+def test_migrate_workbook_path_maps_legacy_settings_exec_digest() -> None:
+    assert migrate_workbook_path("/settings/exec-digest") == "/digests?tab=schedule"
 
 
 def test_suggest_row_id_is_unique_and_three_chars() -> None:

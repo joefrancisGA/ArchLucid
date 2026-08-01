@@ -284,4 +284,38 @@ describe("PilotCommandCenterCard", () => {
     expect(screen.queryByTestId("pilot-command-center-connect-azure")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-invite-reviewer")).toBeNull();
   });
+
+  it("shows hero KPI strip when the workspace already has reviews", () => {
+    renderWithOperatorQuery(
+      <PilotCommandCenterCard
+        hasWorkspaceReviews
+        runsDashboard={{
+          projectId: "default",
+          page: 1,
+          pageSize: 5,
+          items: [
+            {
+              runId: "review-001",
+              projectId: "default",
+              createdUtc: "2026-01-15T12:00:00.000Z",
+              hasFindingsSnapshot: true,
+              hasGoldenManifest: false,
+              findingCount: 1,
+            },
+          ],
+          totalCount: 1,
+          loadFailure: null,
+          malformedMessage: null,
+          usedStaticRunsFallback: false,
+          buyerPolishedShell: true,
+        }}
+      />,
+    );
+
+    expect(screen.getByTestId("operator-home-hero-kpi-strip")).toBeInTheDocument();
+    expect(screen.getByTestId("pilot-command-center-card")).toHaveAttribute(
+      "data-workspace-phase",
+      "active-reviews",
+    );
+  });
 });

@@ -2,12 +2,8 @@ namespace ArchLucid.Cli.Commands;
 
 internal static class NewCommand
 {
-    /// <summary>
-    ///     Scaffolds a new ArchLucid project directory. Optional <paramref name="quickStartEvaluation" /> writes
-    ///     <c>local/archlucid.quickstart.appsettings.json</c> (<c>InMemory</c> storage) and
-    ///     <c>local/archlucid-evaluation.sqlite</c> so evaluators can start without SQL Server; see CLI help text.
-    /// </summary>
-    public static Task<int> RunAsync(string projectName, bool quickStartEvaluation)
+    /// <summary>Scaffolds a new ArchLucid project directory.</summary>
+    public static Task<int> RunAsync(string projectName)
     {
         Console.WriteLine("Creating ArchLucid project " + projectName);
 
@@ -16,8 +12,7 @@ internal static class NewCommand
             ProjectName = projectName,
             BaseDirectory = null,
             OverwriteExistingFiles = true,
-            IncludeTerraformStubs = true,
-            QuickStartEvaluation = quickStartEvaluation
+            IncludeTerraformStubs = true
         };
 
         ArchLucidProjectScaffolder.CreateProject(scaffoldOptions);

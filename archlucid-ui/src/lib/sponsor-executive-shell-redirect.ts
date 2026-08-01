@@ -1,3 +1,8 @@
+import {
+  EXECUTIVE_DASHBOARD_HREF,
+  isExecutiveDashboardPath,
+} from "@/lib/executive-dashboard-route";
+
 const EXECUTE_LEVEL_ROLE_KEYS = new Set([
   "admin",
   "workspaceadmin",
@@ -44,7 +49,7 @@ export function resolveSponsorExecutiveRedirectTarget(input: SponsorExecutiveRed
     return null;
   }
 
-  if (pathname === "/dashboard") {
+  if (isExecutiveDashboardPath(pathname)) {
     return null;
   }
 
@@ -68,5 +73,5 @@ export function resolveSponsorExecutiveRedirectTarget(input: SponsorExecutiveRed
     return null;
   }
 
-  return `/dashboard${querySuffix}`;
+  return `${EXECUTIVE_DASHBOARD_HREF}${querySuffix}`;
 }

@@ -106,4 +106,4 @@ Write-Host "2. UI terminal:   Set-Location '$RepoRoot\archlucid-ui'; npm run dev
 Write-Host "3. Open http://localhost:3000/auth/signin - expect Email code + (optional) Work/school after OIDC vars are set."
 Write-Host ""
 Write-Host "Email OTP with Email:Provider=Noop does not deliver codes. Use SMTP/Mailpit or ACS for inbox delivery." -ForegroundColor Yellow
-Write-Host "Dev Azure CD currently enforces ArchLucidAuth__Mode=ApiKey; see docs for dev-host steps." -ForegroundColor Yellow
+Write-Host "Dev Azure: set DEV_PRIVATE_BETA_AUTH_ENABLED=true and GitHub vars/secrets - see docs/operations/GITHUB_CD_ENVIRONMENTS.md" -ForegroundColor Yellow

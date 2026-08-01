@@ -3,6 +3,7 @@
  */
 
 import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
+import { isExecutiveDashboardPath } from "@/lib/executive-dashboard-route";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 export const OPERATOR_RECENT_VIEWS_STORAGE_KEY = "archlucid.operatorRecentViews.v1";
@@ -107,7 +108,7 @@ export function recentViewLabelFromPathname(pathname: string): string | null {
     return "Audit trail";
   }
 
-  if (path.startsWith("/dashboard")) {
+  if (isExecutiveDashboardPath(path)) {
     return BUYER_TERMINOLOGY.portfolioOverview;
   }
 

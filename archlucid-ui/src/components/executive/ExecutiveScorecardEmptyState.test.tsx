@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 
 vi.mock("@/components/SeedSampleReviewButton", () => ({
@@ -24,7 +25,7 @@ describe("ExecutiveScorecardEmptyState", () => {
     );
     expect(screen.getByRole("link", { name: vocabulary.scorecardEmptyStateTertiaryAction })).toHaveAttribute(
       "href",
-      "/dashboard",
+      EXECUTIVE_DASHBOARD_HREF,
     );
     expect(screen.getByTestId("executive-scorecard-empty-preview")).toBeInTheDocument();
   });

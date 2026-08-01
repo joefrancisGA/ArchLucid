@@ -58,8 +58,10 @@ internal static class AuthenticationRules
 
         string? pemPath =
             ArchLucidConfigurationBridge.ResolveAuthConfigurationValue(configuration, "JwtSigningPublicKeyPemPath");
+        string? pemInline =
+            ArchLucidConfigurationBridge.ResolveAuthConfigurationValue(configuration, "JwtSigningPublicKeyPem");
 
-        if (string.IsNullOrWhiteSpace(pemPath))
+        if (string.IsNullOrWhiteSpace(pemPath) && string.IsNullOrWhiteSpace(pemInline))
             return;
 
         if (string.IsNullOrWhiteSpace(

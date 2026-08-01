@@ -13,6 +13,7 @@ import { RoiTelemetryCard } from "@/components/RoiTelemetryCard";
 import { Button } from "@/components/ui/button";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { useRoiLoadedHourlyUsd } from "@/hooks/use-roi-loaded-hourly-usd";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
@@ -136,7 +137,7 @@ export function RoiSummaryPageView(props: Props) {
             <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{roiSummaryZeroStateBody()}</p>
             <div className="mt-4 flex flex-wrap gap-2">
               <Button asChild>
-                <Link href="/reviews/new">Start review</Link>
+                <Link href="/reviews/new">{BUYER_START_ARCHITECTURE_REVIEW_CTA}</Link>
               </Button>
               <Button asChild variant="secondary">
                 <Link href="/sponsor-report/pilot-outcomes">Open sample pilot outcomes</Link>

@@ -1,21 +1,21 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  ADMINISTRATION_CONNECTION_STATUS_PATH,
   CLOUD_CONNECTIONS_PATH,
   INTEGRATIONS_READINESS_PATH,
   ITSM_ATLASSIAN_OAUTH_CALLBACK_PATH,
   LEGACY_CLOUD_CONNECTIONS_PATH,
-  LEGACY_INTEGRATIONS_ITSM_PATH,
-  LEGACY_INTEGRATIONS_OPERATIONS_PATH,
+  REMOVED_INTEGRATIONS_ITSM_HUB_PATH,
   pathMatchesCloudConnections,
   pathMatchesIntegrationsReadiness,
 } from "@/lib/integrations-nav-paths";
 
 describe("integrations-nav-paths (TB-407 / TB-408 / TB-750)", () => {
-  it("exposes canonical integrations paths under /integrations/*", () => {
+  it("exposes canonical connection-status and integrations product paths", () => {
     expect(CLOUD_CONNECTIONS_PATH).toBe("/integrations/cloud-connections");
-    expect(INTEGRATIONS_READINESS_PATH).toBe("/administration/connection-status");
-    expect(LEGACY_INTEGRATIONS_OPERATIONS_PATH).toBe("/integrations/operations");
+    expect(ADMINISTRATION_CONNECTION_STATUS_PATH).toBe("/administration/connection-status");
+    expect(INTEGRATIONS_READINESS_PATH).toBe(ADMINISTRATION_CONNECTION_STATUS_PATH);
   });
 
   it("matches canonical and legacy cloud-connections paths", () => {
@@ -23,16 +23,16 @@ describe("integrations-nav-paths (TB-407 / TB-408 / TB-750)", () => {
     expect(pathMatchesCloudConnections("/settings/cloud-connections")).toBe(true);
   });
 
-  it("matches integration readiness, operations, and legacy ITSM redirect sources", () => {
+  it("matches only the canonical connection-status path", () => {
     expect(pathMatchesIntegrationsReadiness("/administration/connection-status")).toBe(true);
-    expect(pathMatchesIntegrationsReadiness("/integrations/readiness")).toBe(true);
-    expect(pathMatchesIntegrationsReadiness("/integrations/operations")).toBe(true);
-    expect(pathMatchesIntegrationsReadiness("/integrations/itsm")).toBe(true);
+    expect(pathMatchesIntegrationsReadiness("/integrations/readiness")).toBe(false);
+    expect(pathMatchesIntegrationsReadiness("/integrations/operations")).toBe(false);
+    expect(pathMatchesIntegrationsReadiness("/integrations/itsm")).toBe(false);
   });
 
-  it("documents legacy redirect sources", () => {
+  it("documents removed hub vs live OAuth callback", () => {
     expect(LEGACY_CLOUD_CONNECTIONS_PATH).toBe("/settings/cloud-connections");
-    expect(LEGACY_INTEGRATIONS_ITSM_PATH).toBe("/integrations/itsm");
+    expect(REMOVED_INTEGRATIONS_ITSM_HUB_PATH).toBe("/integrations/itsm");
     expect(ITSM_ATLASSIAN_OAUTH_CALLBACK_PATH).toBe("/integrations/itsm/oauth/callback");
   });
 });

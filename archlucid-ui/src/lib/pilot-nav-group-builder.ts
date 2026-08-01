@@ -1,18 +1,17 @@
 import {
   Compass,
-  FileSearch,
   Home,
+  Layers,
   LayoutDashboard,
   ListOrdered,
-  Rocket,
 } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
 import { BUYER_ONBOARDING_NAV_TOOLTIP } from "@/lib/buyer-polish-copy";
-import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
-import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
+import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture-routes";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
-import { resolveStartReviewPrimaryNavTitle } from "@/lib/operator-nav-labels";
+import { resolveArchitecturesListNavTitle } from "@/lib/operator-nav-labels";
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
 
 const PORTFOLIO_OVERVIEW_NAV_TITLE = "Track ROI, risks, and governance posture";
@@ -25,7 +24,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
       label: OPERATOR_NAV_GROUP_LABELS.reviewWork,
       surface: "review-workflow",
       caption:
-        "Buyer-first path: Overview → Create architecture → Start review → Reviews → Executive dashboard; then First review guide and governance follow-up.",
+        "Buyer-first path: Overview → Architectures → Reviews → Executive dashboard; then First review guide and governance follow-up.",
       links: [
         {
           href: "/",
@@ -36,19 +35,10 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
           defaultVisibleInCollapsedSidebar: true,
         },
         {
-          href: ARCHITECTURES_NEW_PATH,
-          label: CREATE_ARCHITECTURE_LABEL,
-          title: `${CREATE_ARCHITECTURE_LABEL} — capture system design and save drafts over multiple sessions`,
-          icon: Rocket,
-          tier: "essential",
-          defaultVisibleInCollapsedSidebar: true,
-        },
-        {
-          href: "/reviews/new",
-          label: START_REVIEW_LABEL,
-          title: resolveStartReviewPrimaryNavTitle(),
-          keyShortcut: "alt+n",
-          icon: FileSearch,
+          href: ARCHITECTURES_LIST_PATH,
+          label: OPERATOR_NAV_LINK_LABELS.architectures,
+          title: resolveArchitecturesListNavTitle(),
+          icon: Layers,
           tier: "essential",
           defaultVisibleInCollapsedSidebar: true,
         },
@@ -62,7 +52,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
           defaultVisibleInCollapsedSidebar: true,
         },
         {
-          href: "/dashboard",
+          href: EXECUTIVE_DASHBOARD_HREF,
           label: OPERATOR_NAV_LINK_LABELS.portfolioOverview,
           title: PORTFOLIO_OVERVIEW_NAV_TITLE,
           icon: LayoutDashboard,

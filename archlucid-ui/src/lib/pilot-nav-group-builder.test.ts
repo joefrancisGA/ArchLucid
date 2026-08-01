@@ -1,4 +1,5 @@
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
+import { ARCHITECTURE_DRAFTS_LIST_LABEL } from "@/lib/architecture-workflow-labels";
 import { describe, expect, it, vi, afterEach } from "vitest";
 
 import { OperatorAdminNavGroupBuilder } from "@/lib/operator-admin-nav-group-builder";
@@ -20,24 +21,24 @@ describe("PilotNavGroupBuilder", () => {
     expect(dashboardLink?.title?.toLowerCase()).not.toContain("until api lands");
   });
 
-  it("points portfolio overview nav at /dashboard outside demo packaging", () => {
+  it("points portfolio overview nav at executive dashboard outside demo packaging", () => {
     vi.stubEnv("NEXT_PUBLIC_DEMO_MODE", "");
     vi.stubEnv("NEXT_PUBLIC_DEMO_STATIC_OPERATOR", "");
 
     const group = new PilotNavGroupBuilder().build();
     const dashboardLink = group.links.find((link) => link.label === "Executive dashboard");
 
-    expect(dashboardLink?.href).toBe("/dashboard");
+    expect(dashboardLink?.href).toBe(EXECUTIVE_DASHBOARD_HREF);
   });
 
-  it("points portfolio overview nav at /dashboard in CTO presenter safe mode", () => {
+  it("points portfolio overview nav at executive dashboard in CTO presenter safe mode", () => {
     vi.stubEnv("NEXT_PUBLIC_DEMO_MODE", "true");
     vi.stubEnv("NEXT_PUBLIC_DEMO_STATIC_OPERATOR", "");
 
     const group = new PilotNavGroupBuilder().build();
     const dashboardLink = group.links.find((link) => link.label === "Executive dashboard");
 
-    expect(dashboardLink?.href).toBe("/dashboard");
+    expect(dashboardLink?.href).toBe(EXECUTIVE_DASHBOARD_HREF);
   });
 
   it("includes recurrence schedules in the governance nav group (TB-406)", () => {
@@ -77,8 +78,7 @@ describe("PilotNavGroupBuilder", () => {
 
     expect(group.links.map((link) => link.label)).toEqual([
       "Overview",
-      CREATE_ARCHITECTURE_LABEL,
-      "Start review",
+      ARCHITECTURE_DRAFTS_LIST_LABEL,
       "Reviews",
       "Executive dashboard",
       "First review guide",
@@ -86,21 +86,14 @@ describe("PilotNavGroupBuilder", () => {
     expect(group.links.some((link) => link.href === "/graph")).toBe(false);
   });
 
-  it("uses Reviews as the reviews-list nav source label", () => {
+  it("lists Architectures and Reviews as peer object nav destinations", () => {
     const group = new PilotNavGroupBuilder().build();
+    const architecturesLink = group.links.find((link) => link.href === "/architectures");
     const reviewsListLink = group.links.find((link) => link.href === "/reviews?projectId=default");
 
+    expect(architecturesLink?.label).toBe(ARCHITECTURE_DRAFTS_LIST_LABEL);
     expect(reviewsListLink?.label).toBe("Reviews");
-  });
-
-  it("TB-646: uses Start review nav label for /reviews/new in pilot nav", () => {
-    const group = new PilotNavGroupBuilder().build();
-    const createArchitectureLink = group.links.find((link) => link.href === "/architectures/new");
-    const startReviewLink = group.links.find((link) => link.href === "/reviews/new");
-
-    expect(createArchitectureLink?.label).toBe(CREATE_ARCHITECTURE_LABEL);
-    expect(startReviewLink?.label).toBe("Start review");
-    expect(startReviewLink?.title?.toLowerCase()).toContain("start review");
-    expect(startReviewLink?.title?.toLowerCase()).not.toContain("create architecture");
+    expect(group.links.some((link) => link.href === "/architectures/new")).toBe(false);
+    expect(group.links.some((link) => link.href === "/reviews/new")).toBe(false);
   });
 });

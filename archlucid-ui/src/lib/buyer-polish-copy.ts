@@ -315,6 +315,11 @@ export const OPERATOR_HOME_SETUP_NEXT_CHOOSE_PATH = "Continue the architecture r
 
 export const OPERATOR_HOME_EXAMPLES_AND_LEARNING_HEADING = "Examples and learning";
 
+export const OPERATOR_HOME_LEARNING_RESOURCES_HEADING = "Learning resources";
+
+export const OPERATOR_HOME_LEARNING_RESOURCES_LEAD =
+  "Walk through creation and review examples without starting a live review.";
+
 export const OPERATOR_HOME_SETUP_NEXT_CONNECT_CLOUD = "Connect cloud";
 
 export const OPERATOR_HOME_SETUP_NEXT_INVITE_REVIEWER = "Invite reviewer";
@@ -1144,7 +1149,7 @@ export const BUYER_DEMO_EVALUATION_WORKSPACE_STATUS = "Claims Intake Demo · Buy
 
 export const BUYER_SEED_SAMPLE_WORKSPACE_CTA = "Load sample workspace";
 
-/** Toast after demo seed succeeds — dashboard may stay on `/dashboard` while caches refresh. */
+/** Toast after demo seed succeeds — dashboard may stay on executive dashboard while caches refresh. */
 export const BUYER_SEED_SAMPLE_WORKSPACE_SUCCESS = "Sample workspace loaded.";
 
 export const BUYER_TRY_SAMPLE_REVIEW_CTA = "Try sample review";

@@ -41,6 +41,13 @@ public sealed class TrialLocalIdentityOptions
         set;
     } = string.Empty;
 
+    /// <summary>Inline RSA private key PEM (alternative to <see cref="JwtPrivateKeyPemPath" />).</summary>
+    public string JwtPrivateKeyPem
+    {
+        get;
+        set;
+    } = string.Empty;
+
     /// <summary>
     ///     Issuer and audience copied into minted JWTs; must match ArchLucidAuth JwtLocalIssuer / JwtLocalAudience when
     ///     using local PEM validation.

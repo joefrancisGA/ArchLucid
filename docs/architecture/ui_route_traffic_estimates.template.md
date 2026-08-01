@@ -104,7 +104,6 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | GAI | `/governance/approval-requests/[id]/lineage` | 0.15% | 0 | 0 | 15 | Alerts/gov | None |
 | GRS | `/governance/resolution` | 0.15% | 0 | 0 | 15 | Alerts/gov | None |
 | HCE | `/help/cloud-connections` | 0.15% | 0 | 0 | 15 | Help topic | None |
-| SAX | `/settings/alerts` | 0.15% | 0 | 0 | 15 | Settings | None |
 | STX | `/settings/tenant` | 0.15% | 0 | 0 | 15 | Settings | None |
 | AUX | `/settings/users` | 0.15% | 0 | 0 | 15 | Settings | None |
 | MMX | `/signed-records/[manifestId]` | 0.15% | 0 | 0 | 15 | Marketing | None |
@@ -131,7 +130,6 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | SEC | `/security-trust` | 0.1% | 0 | 0 | 10 | Marketing | None |
 | SC | `/settings/ai-usage` | 0.1% | 0 | 0 | 10 | Settings | None |
 | SDX | `/settings/developer` | 0.1% | 0 | 0 | 10 | Settings | None |
-| SEX | `/settings/exec-digest` | 0.1% | 0 | 0 | 10 | Settings | None |
 | TXX | `/trust` | 0.1% | 0 | 0 | 10 | Marketing | None |
 | VRX | `/value-report/roi` | 0.1% | 0 | 0 | 10 | Marketing | None |
 | AAX | `/admin/ai-usage-cost` | 0.08% | 0 | 0 | 8 | Admin | None |
@@ -145,7 +143,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | SVX | `/signup/verify` | 0.08% | 0 | 0 | 8 | Marketing | None |
 | GET | `/getting-started` | 0.07% | 0 | 0 | 7 | Onboarding | None |
 | AD | `/governance/advisory-scans?tab=schedules` | 0.07% | 0 | 0 | 7 | Tab surface | None |
-| HBX | `/help/billing-and-plans` | 0.07% | 0 | 0 | 7 | Help topic | None |
+| HBX | `/help/billing-and-plans` | 0.07% | 0 | 0 | 7 | Help topic | Specialty billing orientation guide - HelpBillingAndPlansGuideView with current-plan card, how-billing-works steps, FAQ, and CTAs to /settings/billing (SBE) and /pricing. Not bare HelpTopicMarkdownView. |
 | HP | `/help/pilot-guide` | 0.07% | 0 | 0 | 7 | Help topic | None |
 | IWX | `/integrations/webhooks` | 0.07% | 0 | 0 | 7 | Integrations | None |
 | SE | `/settings/extract-upload` | 0.07% | 0 | 0 | 7 | Settings | None |
@@ -212,12 +210,12 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | AUI | `/auth/invite` | 0.02% | 0 | 0 | 2 | Auth | None |
 | COM | `/compliance-journey` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | DIB | `/digests?tab=browse` | 0.02% | 0 | 0 | 2 | Tab surface | None |
-| DIS | `/digests?tab=schedule` | 0.02% | 0 | 0 | 2 | Tab surface | None |
+| DIS | `/digests?tab=schedule` | 0.02% | 0 | 0 | 2 | Tab surface | Digests Schedule tab (left nav Digests → Schedule). |
 | DIX | `/digests?tab=subscriptions` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | EXA | `/example-roi-bulletin` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | EXD | `/executive/dashboard` | 0.02% | 0 | 0 | 2 | Executive | None |
 | ADS | `/governance/advisory-scans?tab=scans` | 0.02% | 0 | 0 | 2 | Tab surface | None |
-| GOA | `/governance/alert-rules` | 0.02% | 0 | 0 | 2 | Alerts/gov | None |
+| GOA | `/governance/alert-rules` | 0.02% | 0 | 0 | 2 | Alerts/gov | Alert rules hub (left nav Alert rules). |
 | GOC | `/governance/alert-rules?tab=composite` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | GLR | `/governance/alert-rules?tab=rules` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | GOS | `/governance/alert-rules?tab=simulation` | 0.02% | 0 | 0 | 2 | Tab surface | None |
@@ -237,7 +235,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | HDA | `/help/data-handling-tenant-isolation` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HDP | `/help/dpa-template` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HEV | `/help/evidence-only-review` | 0.02% | 0 | 0 | 2 | Help topic | None |
-| EXE | `/help/executive-summary` | 0.02% | 0 | 0 | 2 | Help topic | None |
+| EXE | `/help/executive-summary` | 0.02% | 0 | 0 | 2 | Help topic | Specialty sponsor ROI guide - HelpExecutiveSummaryGuideView on EXECUTIVE_SPONSOR_BRIEF sponsor sections with CTAs to /sponsor-report/executive-summary (SPE) and executive dashboard. Not bare FAQ HelpTopicMarkdownView. |
 | HEG | `/help/glossary` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HEI | `/help/integration-readiness` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | EIN | `/help/integrations/azure-boards` | 0.02% | 0 | 0 | 2 | Help alias | None |

@@ -34,7 +34,6 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/digests": "advanced-only",
   "/evolution-review": "advanced-only",
   "/integrations/teams": "advanced-only",
-  "/integrations/itsm": "advanced-only",
   "/integrations/cloud-connections": "admin-only",
   "/settings/cloud-connections": "admin-only",
   "/integrations/slack": "advanced-only",
@@ -43,7 +42,6 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/integrations/servicenow": "admin-only",
   "/integrations/webhooks": "advanced-only",
   "/administration/connection-status": "advanced-only",
-  "/integrations/operations": "advanced-only",
   "/settings/ai-usage": "admin-only",
   "/settings/cost-reporting": "admin-only",
   "/governance/setup": "advanced-only",
@@ -57,7 +55,7 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/governance-resolution": "advanced-only",
   "/policy-packs": "advanced-only",
   "/audit": "advanced-only",
-  "/health": "demo-ready",
+  "/administration/system-health": "demo-ready",
   "/alerts": "advanced-only",
   "/alert-rules": "advanced-only",
   "/demo/explain": "hidden",
@@ -81,13 +79,10 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/settings/baseline": "advanced-only",
   "/settings/developer": "advanced-only",
   "/settings/billing": "advanced-only",
-  "/settings/exec-digest": "advanced-only",
   "/settings/webhooks": "advanced-only",
   "/settings/roles": "admin-only",
   "/settings/api-keys": "admin-only",
   "/admin/ai-usage-cost": "admin-only",
-  /** Alias to Alert rules hub for settings-style bookmarks. */
-  "/settings/alerts": "advanced-only",
 };
 
 /**

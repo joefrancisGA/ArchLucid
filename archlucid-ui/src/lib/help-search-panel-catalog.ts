@@ -359,10 +359,6 @@ const ROUTE_RECOMMENDED_TOPIC_IDS: readonly { readonly prefix: string; readonly 
     topicIds: ["integration-readiness", "cloud-connections", "troubleshoot"],
   },
   {
-    prefix: "/integrations/operations",
-    topicIds: ["integration-readiness", "cloud-connections", "troubleshoot"],
-  },
-  {
     prefix: "/settings/cloud-connections",
     topicIds: ["cloud-connections", "connect-azure", "azure-permissions", "connect-aws", "connect-gcp", "troubleshoot"],
   },

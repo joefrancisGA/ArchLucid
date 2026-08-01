@@ -77,7 +77,7 @@ describe("OperatorLayeredConnectivityError", () => {
       "href",
       "/help/troubleshooting#overview-workspace-empty",
     );
-    expect(screen.getByRole("link", { name: "System health" })).toHaveAttribute("href", "/health");
+    expect(screen.getByRole("link", { name: "System health" })).toHaveAttribute("href", "/administration/system-health");
   });
 
   it("reloads the page when Retry is clicked", () => {

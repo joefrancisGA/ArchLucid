@@ -15,10 +15,11 @@ internal static class ArchLucidJwtBearerConfiguration
     internal static void Apply(JwtBearerOptions options, ArchLucidAuthOptions authOptions, IConfiguration configuration)
     {
         string pemPath = (authOptions.JwtSigningPublicKeyPemPath ?? string.Empty).Trim();
+        string pemInline = (authOptions.JwtSigningPublicKeyPem ?? string.Empty).Trim();
 
-        if (!string.IsNullOrEmpty(pemPath))
+        if (JwtPemKeyMaterial.HasAnyPemSource(pemPath, pemInline))
         {
-            ApplyWithLocalPublicKey(options, authOptions, pemPath);
+            ApplyWithLocalPublicKey(options, authOptions, pemPath, pemInline);
 
             return;
         }
@@ -49,25 +50,10 @@ internal static class ArchLucidJwtBearerConfiguration
     private static void ApplyWithLocalPublicKey(
         JwtBearerOptions options,
         ArchLucidAuthOptions authOptions,
-        string configuredPemPath)
+        string configuredPemPath,
+        string configuredPemInline)
     {
-        string resolvedPath = Path.IsPathRooted(configuredPemPath)
-            ? configuredPemPath
-            : Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), configuredPemPath));
-
-        if (!File.Exists(resolvedPath))
-            throw new InvalidOperationException(
-                $"ArchLucidAuth:JwtSigningPublicKeyPemPath points to a missing file: '{resolvedPath}'.");
-
-        string pemText = File.ReadAllText(resolvedPath);
-        RsaSecurityKey signingKey;
-
-        using (RSA rsa = RSA.Create())
-        {
-            rsa.ImportFromPem(pemText);
-            // Export parameters so validation does not hold a disposed RSA instance (using block ends before the host runs).
-            signingKey = new RsaSecurityKey(rsa.ExportParameters(false));
-        }
+        RsaSecurityKey signingKey = JwtPemKeyMaterial.LoadPublicKey(configuredPemPath, configuredPemInline);
 
         string issuer = authOptions.JwtLocalIssuer.Trim();
         string audience = authOptions.JwtLocalAudience.Trim();

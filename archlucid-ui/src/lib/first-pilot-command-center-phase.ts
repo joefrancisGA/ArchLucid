@@ -108,7 +108,7 @@ export function resolveFirstPilotCommandCenterPhase(input: {
 
         "Confirm SQL, auth, and API readiness before ingesting evidence or creating the first architecture review.",
 
-      href: "/health",
+      href: "/administration/system-health",
 
       cta: "Check readiness",
 

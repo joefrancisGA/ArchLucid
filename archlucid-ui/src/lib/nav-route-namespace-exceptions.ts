@@ -6,12 +6,6 @@ import type { NavRouteNamespaceException } from "@/lib/nav-route-namespace-polic
  */
 export const NAV_ROUTE_NAMESPACE_EXCEPTIONS: readonly NavRouteNamespaceException[] = [
   {
-    navGroupId: "operator-admin",
-    href: "/health",
-    canonicalPrefixes: ["/settings", "/administration"],
-    exceptionReason: "Buyer-safe system health dashboard uses a top-level route; grouped under Administration for tenant admins.",
-  },
-  {
     navGroupId: "operator-system-admin",
     href: "/operate/integration-events/dlq",
     canonicalPrefixes: ["/admin"],

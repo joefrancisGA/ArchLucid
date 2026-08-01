@@ -7,7 +7,7 @@ using Newtonsoft.Json.Linq;
 
 namespace ArchLucid.Cli.Commands;
 
-/// <summary>Builds merged appsettings JSON for <see cref="InitCommand" /> (unit-tested without console I/O).</summary>
+/// <summary>Builds merged appsettings JSON for <see cref="ConfigBootstrapCommand" /> (unit-tested without console I/O).</summary>
 public static class InitAppsettingsDocumentBuilder
 {
     /// <summary>Formats JSON matching typical ArchLucid Api host sections for SQL + auth startup.</summary>

@@ -149,3 +149,15 @@ check "content_safety_account_requires_names" {
     error_message = "enable_content_safety_account = true requires content_safety_account_name and content_safety_custom_subdomain_name (2+ characters)."
   }
 }
+
+check "communication_email_requires_names" {
+  assert {
+    condition = !var.enable_communication_email_account || !var.enable_container_apps || (
+      length(trimspace(var.communication_email_email_service_name)) >= 2 &&
+      length(trimspace(var.communication_email_communication_service_name)) >= 2 &&
+      length(trimspace(var.communication_email_custom_domain_name)) >= 3 &&
+      length(trimspace(var.communication_email_sender_username)) >= 1
+    )
+    error_message = "enable_communication_email_account = true requires communication_email_email_service_name, communication_email_communication_service_name, communication_email_custom_domain_name, and communication_email_sender_username."
+  }
+}

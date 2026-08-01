@@ -3,8 +3,23 @@ export const AZURE_BOARDS_PAGE_TITLE = "Azure Boards";
 export const AZURE_BOARDS_PAGE_DESCRIPTION =
   "Connect an Azure DevOps organization and create work items from ArchLucid findings.";
 
+export const AZURE_BOARDS_PAGE_SUBTITLE =
+  "Connect an Azure DevOps organization and create work items from ArchLucid findings. Azure Boards is work management — independent of whether your reviews run on Azure, AWS, or Google Cloud.";
+
 export const AZURE_BOARDS_PAGE_CLOUD_NEUTRALITY_NOTE =
   "Azure Boards is work management — it is independent of whether your reviews run on Azure, AWS, or Google Cloud.";
+
+export const AZURE_BOARDS_ACTION_REFRESH = "Refresh";
+
+export const AZURE_BOARDS_ACTION_REFRESHING = "Refreshing…";
+
+export const AZURE_BOARDS_LAST_REFRESHED_PREFIX = "Last refreshed";
+
+export const AZURE_BOARDS_READINESS_LINK_LABEL = "Integration readiness";
+
+export const AZURE_BOARDS_HELP_TOPIC_HREF = "/help/azure-boards";
+
+export const AZURE_BOARDS_HELP_TOPIC_LABEL = "Azure Boards integration guide";
 
 export const AZURE_BOARDS_CONNECTION_STATUS_HEADING = "Connection status";
 

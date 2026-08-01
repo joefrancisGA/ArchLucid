@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import { NAV_GROUPS } from "@/lib/nav-config";
 import {
   pathnameEligibleBeforeFirstCommittedArchitectureReview,
@@ -16,7 +17,7 @@ describe("pathnameEligibleBeforeFirstCommittedArchitectureReview", () => {
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/reviews/new")).toBe(true);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/reviews/abc/def")).toBe(true);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/graph")).toBe(true);
-    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/dashboard")).toBe(true);
+    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview(EXECUTIVE_DASHBOARD_HREF)).toBe(true);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/help")).toBe(true);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/onboarding")).toBe(true);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/settings/baseline")).toBe(true);
@@ -51,10 +52,9 @@ describe("filterNavLinksByCommittedArchitectureReviewGate", () => {
     );
     expect(hrefs).toEqual([
       "/",
-      "/architectures/new",
-      "/reviews/new",
+      "/architectures",
       "/reviews",
-      "/dashboard",
+      EXECUTIVE_DASHBOARD_HREF,
       "/onboarding",
     ]);
   });

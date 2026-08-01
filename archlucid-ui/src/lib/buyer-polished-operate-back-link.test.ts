@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   buyerPolishedOperateBackLink,
   isBuyerOperateBackLinkRedundantWithBreadcrumbs,
+  resolveBuyerOperateBackLinkWhenShellBreadcrumbsHidden,
 } from "./buyer-polished-operate-back-link";
 
 describe("buyerPolishedOperateBackLink", () => {
@@ -30,6 +31,46 @@ describe("buyerPolishedOperateBackLink", () => {
     expect(buyerPolishedOperateBackLink("/reviews/claims-intake-modernization")).toBeNull();
     expect(buyerPolishedOperateBackLink("/reviews/claims-intake-modernization/findings/f1")).toBeNull();
     expect(buyerPolishedOperateBackLink("/")).toBeNull();
+  });
+});
+
+describe("resolveBuyerOperateBackLinkWhenShellBreadcrumbsHidden", () => {
+  it("returns back link on buyer satellite routes when shell breadcrumbs and journey stepper are absent", () => {
+    expect(
+      resolveBuyerOperateBackLinkWhenShellBreadcrumbsHidden({
+        pathnameWithSearch: "/ask",
+        searchRunId: "",
+        showShellBreadcrumbs: false,
+        buyerGoldenJourneyNav: null,
+      }),
+    ).toEqual({
+      label: "Back to review",
+      href: "/reviews/claims-intake-modernization",
+    });
+  });
+
+  it("returns null when shell breadcrumbs or golden journey already orient the route", () => {
+    expect(
+      resolveBuyerOperateBackLinkWhenShellBreadcrumbsHidden({
+        pathnameWithSearch: "/ask",
+        searchRunId: "",
+        showShellBreadcrumbs: true,
+        buyerGoldenJourneyNav: null,
+      }),
+    ).toBeNull();
+    expect(
+      resolveBuyerOperateBackLinkWhenShellBreadcrumbsHidden({
+        pathnameWithSearch: "/graph?runId=claims-intake-modernization",
+        searchRunId: "claims-intake-modernization",
+        showShellBreadcrumbs: false,
+        buyerGoldenJourneyNav: {
+          summaryLine: "Step 3 of 5 · Evidence trail",
+          prev: null,
+          next: null,
+          currentStepIndex: 2,
+        },
+      }),
+    ).toBeNull();
   });
 });
 

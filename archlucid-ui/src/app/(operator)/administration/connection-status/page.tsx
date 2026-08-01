@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 
 import { ConnectorOperationsDashboard } from "@/components/integrations/ConnectorOperationsDashboard";
@@ -7,10 +6,6 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
-
-export const metadata: Metadata = {
-  title: OPERATOR_NAV_LINK_LABELS.integrationReadiness,
-};
 
 export default function AdministrationConnectionStatusPage() {
   return (

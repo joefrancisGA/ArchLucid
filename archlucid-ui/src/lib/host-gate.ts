@@ -1,3 +1,6 @@
+import { LEGACY_OPERATE_ARCHITECTURE_GRAPH_PATH } from "@/lib/legacy-architecture-graph-route";
+import { LEGACY_ONBOARD_PATH } from "@/lib/legacy-onboard-route";
+import { LEGACY_LOGIN_PATH } from "@/lib/legacy-login-route";
 import { MARKETING_SITEMAP_PATHNAMES } from "@/lib/marketing/public-marketing-seo-paths";
 import { isSplitSiteHostingEnabled, resolveAppSiteOrigin, resolvePublicSiteOrigin } from "@/lib/site-urls";
 
@@ -28,8 +31,9 @@ const OPERATOR_PATH_PREFIXES: readonly string[] = [
   "/admin",
   "/settings",
   "/graph",
+  LEGACY_OPERATE_ARCHITECTURE_GRAPH_PATH,
   "/governance",
-  "/onboard",
+  LEGACY_ONBOARD_PATH,
   "/onboarding",
   "/planning",
   "/policy-packs",
@@ -51,7 +55,7 @@ const OPERATOR_PATH_PREFIXES: readonly string[] = [
   "/workspace",
   "/architectures",
   "/sponsor-report",
-  "/login",
+  LEGACY_LOGIN_PATH,
 ];
 
 function hostnameFromOrigin(origin: string | null): string | null {

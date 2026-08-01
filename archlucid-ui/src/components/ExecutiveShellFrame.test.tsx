@@ -1,13 +1,14 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import { PERSONA_SHELL_WORKSPACE_LABEL } from "@/lib/persona-shell-vocabulary";
 
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
   return {
     ...actual,
-    usePathname: () => "/dashboard",
+    usePathname: () => EXECUTIVE_DASHBOARD_HREF,
     useSearchParams: () => new URLSearchParams(),
     redirect: vi.fn(),
     permanentRedirect: vi.fn(),
@@ -37,7 +38,7 @@ describe("ExecutiveShellFrame", () => {
       </ExecutiveShellFrame>,
     );
 
-    expect(screen.getByTestId("executive-shell-nav-dashboard")).toHaveAttribute("href", "/dashboard");
+    expect(screen.getByTestId("executive-shell-nav-dashboard")).toHaveAttribute("href", EXECUTIVE_DASHBOARD_HREF);
     expect(screen.getByTestId("executive-shell-nav-scorecard")).toHaveAttribute("href", "/executive/scorecard");
   });
 

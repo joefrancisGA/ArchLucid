@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import { NAV_GROUPS, type NavGroupConfig } from "@/lib/nav-config";
 import { isAuditNavPath } from "@/lib/audit-nav-paths";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
@@ -556,7 +557,7 @@ describe("listNavGroupsVisibleInOperatorShell — platform-admin surface", () =>
 
     expect(rows.map((r) => r.group.id)).toEqual(["operator-admin"]);
     expect(rows[0]!.visibleLinks.some((l) => l.href === "/administration/connection-status")).toBe(true);
-    expect(rows[0]!.visibleLinks.some((l) => l.href === "/health")).toBe(true);
+    expect(rows[0]!.visibleLinks.some((l) => l.href === "/administration/system-health")).toBe(true);
     expect(rows[0]!.visibleLinks.some((l) => l.href === "/settings/users")).toBe(true);
     expect(rows[0]!.visibleLinks.some((l) => l.href === "/admin/pricing-quote-aging")).toBe(false);
   });
@@ -572,7 +573,7 @@ describe("listNavGroupsVisibleInOperatorShell — platform-admin surface", () =>
       true,
     );
 
-    expect(readRows.flatMap((r) => r.visibleLinks).some((l) => l.href === "/health")).toBe(false);
+    expect(readRows.flatMap((r) => r.visibleLinks).some((l) => l.href === "/administration/system-health")).toBe(false);
     expect(readRows.flatMap((r) => r.visibleLinks).some((l) => l.href === "/administration/connection-status")).toBe(false);
 
     const executeRows = listNavGroupsVisibleInOperatorShell(
@@ -585,7 +586,7 @@ describe("listNavGroupsVisibleInOperatorShell — platform-admin surface", () =>
       true,
     );
 
-    expect(executeRows.flatMap((r) => r.visibleLinks).some((l) => l.href === "/health")).toBe(false);
+    expect(executeRows.flatMap((r) => r.visibleLinks).some((l) => l.href === "/administration/system-health")).toBe(false);
     expect(executeRows.flatMap((r) => r.visibleLinks).some((l) => l.href === "/administration/connection-status")).toBe(false);
   });
 
@@ -695,10 +696,9 @@ describe("committed architecture review gate — operator shell composition", ()
     expect(rows.map((r) => r.group.id)).toEqual(["pilot", "operator-admin"]);
     expect(rows[0]!.visibleLinks.map((l) => l.href)).toEqual([
       "/",
-      "/architectures/new",
-      "/reviews/new",
+      "/architectures",
       "/reviews?projectId=default",
-      "/dashboard",
+      EXECUTIVE_DASHBOARD_HREF,
       "/onboarding",
     ]);
     expect(rows[1]!.visibleLinks.map((l) => l.href)).toEqual([

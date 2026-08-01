@@ -77,7 +77,7 @@ internal static class SecondRunCommand
         await Console.Out.WriteLineAsync();
         await Console.Out.WriteLineAsync(
             $"Step 3/4: Poll until ReadyForCommit (deadline {options.CommitDeadline.TotalSeconds:n0}s)...");
-        ArchitectureRunStatus reached = await TryCommand.PollForCommittableStatusAsync(
+        ArchitectureRunStatus reached = await ArchitectureRunCommitPoller.PollForCommittableStatusAsync(
             async ct =>
             {
                 ArchLucidApiClient.GetRunResult? detail = await client.GetRunAsync(runId, ct);
@@ -91,48 +91,53 @@ internal static class SecondRunCommand
             options.PollInterval,
             cancellationToken);
 
-        if (reached < ArchitectureRunStatus.ReadyForCommit)
+        if (reached is not ArchitectureRunStatus.ReadyForCommit and not ArchitectureRunStatus.Committed)
         {
-            await Console.Out.WriteLineAsync(
-                $"  Run did not reach ReadyForCommit (observed {reached}). Trying seed-fake-results (Development hosts only)...");
-            ArchLucidApiClient.SeedFakeResultsResult?
-                seed = await client.SeedFakeResultsAsync(runId, ct: cancellationToken);
+            string message =
+                $"Error: Run did not reach ReadyForCommit on the hosted API within {options.CommitDeadline.TotalSeconds:n0}s "
+                + $"(last status: {reached}). Set ARCHLUCID_API_URL to a healthy hosted environment and retry.";
 
-            if (seed is null || !seed.Success)
-            {
-                await Console.Out.WriteLineAsync($"Error: Seed fallback failed. {seed?.Error ?? "Unknown error."}");
-                await SecondRunDiagnostics.WriteAsync(
-                    Console.Out,
-                    "seed-fake-results",
-                    seed?.HttpStatusCode,
-                    null,
-                    seed?.Error);
-
-                return CliExitCode.OperationFailed;
-            }
-
-            await Console.Out.WriteLineAsync($"  Seeded {seed.ResultCount} fake results.");
-        }
-
-        await Console.Out.WriteLineAsync();
-        await Console.Out.WriteLineAsync("Step 4/4: POST /v1/architecture/run/{runId}/commit...");
-        ArchLucidApiClient.CommitRunResult? commit = await client.CommitRunAsync(runId, cancellationToken);
-
-        if (commit is null || !commit.Success)
-        {
-            await Console.Out.WriteLineAsync($"Error: Commit failed. {commit?.Error ?? "Unknown error."}");
+            await Console.Out.WriteLineAsync(message);
             await SecondRunDiagnostics.WriteAsync(
                 Console.Out,
-                "commit",
-                commit?.HttpStatusCode,
-                commit?.CorrelationId,
-                commit?.Error);
+                "poll-for-commit",
+                null,
+                null,
+                message);
 
             return CliExitCode.OperationFailed;
         }
 
-        string version = commit.Response?.Manifest.Metadata.ManifestVersion ?? "(unknown)";
-        await Console.Out.WriteLineAsync($"  Committed. Manifest version: {version}");
+        string version;
+
+        if (reached == ArchitectureRunStatus.Committed)
+        {
+            await Console.Out.WriteLineAsync();
+            await Console.Out.WriteLineAsync("Step 4/4: Run already committed on the hosted API.");
+            version = "(already committed)";
+        }
+        else
+        {
+            await Console.Out.WriteLineAsync();
+            await Console.Out.WriteLineAsync("Step 4/4: POST /v1/architecture/run/{runId}/commit...");
+            ArchLucidApiClient.CommitRunResult? commit = await client.CommitRunAsync(runId, cancellationToken);
+
+            if (commit is null || !commit.Success)
+            {
+                await Console.Out.WriteLineAsync($"Error: Commit failed. {commit?.Error ?? "Unknown error."}");
+                await SecondRunDiagnostics.WriteAsync(
+                    Console.Out,
+                    "commit",
+                    commit?.HttpStatusCode,
+                    commit?.CorrelationId,
+                    commit?.Error);
+
+                return CliExitCode.OperationFailed;
+            }
+
+            version = commit.Response?.Manifest.Metadata.ManifestVersion ?? "(unknown)";
+            await Console.Out.WriteLineAsync($"  Committed. Manifest version: {version}");
+        }
 
         string reportPath = Path.Combine(Directory.GetCurrentDirectory(), $"first-value-{runId}.md");
         bool reportSaved = await DownloadFirstValueReportAsync(baseUrl, runId, reportPath, cancellationToken);

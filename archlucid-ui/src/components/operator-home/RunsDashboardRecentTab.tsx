@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorHomeReviewSummaryCard } from "@/components/operator-home/OperatorHomeReviewSummaryCard";
+import { OperatorHomeRunsDashboardListSkeleton } from "@/components/operator-home/OperatorHomeRunsDashboardListSkeleton";
 import { OperatorHomeWorkspaceArchivedEmptyState } from "@/components/operator-home/OperatorHomeWorkspaceArchivedEmptyState";
 import { OperatorHomeWorkspaceEmptyState } from "@/components/operator-home/OperatorHomeWorkspaceEmptyState";
 import {
@@ -114,11 +115,7 @@ export function RunsDashboardRecentTab(props: RunsDashboardRecentTabProps) {
 
   return (
     <div data-testid={panelTestId}>
-      {props.phase === "loading" ? (
-        <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          {RUNS_DASHBOARD_LABELS.loadingReviews}
-        </p>
-      ) : null}
+      {props.phase === "loading" ? <OperatorHomeRunsDashboardListSkeleton /> : null}
 
       {props.runListError && props.failure !== null ? (
         <div className={cn(OPERATOR_TYPOGRAPHY.helper, "[&_strong]:font-semibold")} data-testid="runs-dashboard-recent-error">

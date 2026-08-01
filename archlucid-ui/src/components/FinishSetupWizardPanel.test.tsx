@@ -73,6 +73,6 @@ describe("FinishSetupWizardPanel", () => {
 
     render(<FinishSetupWizardPanel variant="optional" />);
 
-    expect(screen.getByRole("link", { name: /Open system health/i })).toHaveAttribute("href", "/health");
+    expect(screen.getByRole("link", { name: /Open system health/i })).toHaveAttribute("href", "/administration/system-health");
   });
 });

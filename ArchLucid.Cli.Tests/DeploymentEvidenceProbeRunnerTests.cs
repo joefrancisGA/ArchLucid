@@ -67,6 +67,7 @@ public sealed class DeploymentEvidenceProbeRunnerTests
             "/version",
             allowMissingOpenApi: false,
             syntheticProbeApiKey: null,
+            syntheticProbeBearerToken: null,
             CancellationToken.None);
 
         bundle.AllRequiredPassed.Should().BeTrue();
@@ -111,6 +112,7 @@ public sealed class DeploymentEvidenceProbeRunnerTests
             "/version",
             allowMissingOpenApi: true,
             syntheticProbeApiKey: null,
+            syntheticProbeBearerToken: null,
             CancellationToken.None);
 
         bundle.AllRequiredPassed.Should().BeTrue();
@@ -168,6 +170,7 @@ public sealed class DeploymentEvidenceProbeRunnerTests
             "/api/auth/me",
             allowMissingOpenApi: false,
             syntheticProbeApiKey: "smoke-key",
+            syntheticProbeBearerToken: null,
             CancellationToken.None);
 
         bundle.AllRequiredPassed.Should().BeTrue();

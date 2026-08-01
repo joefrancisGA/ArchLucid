@@ -1,6 +1,6 @@
 namespace ArchLucid.Cli.Commands;
 
-/// <summary>Authentication branch chosen in <see cref="InitCommand" />.</summary>
+/// <summary>Authentication branch chosen in <see cref="ConfigBootstrapCommand" />.</summary>
 public enum InitAuthWizardKind
 {
     JwtBearer,

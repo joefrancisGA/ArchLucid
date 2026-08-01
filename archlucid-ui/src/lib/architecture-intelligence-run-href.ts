@@ -1,3 +1,5 @@
+import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture-intelligence-route";
+
 export type ArchitectureIntelligenceFrom = "reviews" | "findings" | "direct";
 
 export type BuildArchitectureIntelligenceRunHrefInput = {
@@ -22,5 +24,7 @@ export function buildArchitectureIntelligenceRunHref(
 
   const query = params.toString();
 
-  return query.length > 0 ? `/architecture-intelligence?${query}` : "/architecture-intelligence";
+  return query.length > 0
+    ? `${ARCHITECTURE_INTELLIGENCE_PATH}?${query}`
+    : ARCHITECTURE_INTELLIGENCE_PATH;
 }

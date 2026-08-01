@@ -26,7 +26,7 @@ Removed **workflow-mode presets** (Pilot operator, Full navigator, Governance re
 | Control | Changed permissions? | Changed routes? | Changed data / workflows? | Changed page behavior? | Effect |
 |---------|---------------------|-----------------|---------------------------|------------------------|--------|
 | Workflow-mode toolbar + sidebar preset radios | No | No | No | No | **Sidebar link visibility only** — `localStorage` filter by href prefix; API `[Authorize]` unchanged |
-| **Operator \| Executive** (retained) | No | Yes (shell destination) | No | No | Switches between operator workspace (`/`) and executive dashboard (`/executive/dashboard`) |
+| **Operator \| Executive** (retained) | No | Yes (shell destination) | No | No | Switches between operator workspace (`/`) and executive dashboard (`/architecture/executive-dashboard`) |
 
 **Retained shaping:** progressive disclosure tiers (`essential` / `extended` / `advanced`), authority rank from `GET /api/auth/me`, collapsed-pilot **Show all features**, and per-group **N more** disclosure in the sidebar.
 
@@ -73,7 +73,7 @@ Hub surfaces (`/onboarding`, operator home setup cards, Core Pilot checklist, op
 |------|-----------|
 | Every action has **exactly one owning page** | Avoid duplicate SSO, health, or role-management flows across hubs. |
 | Hub pages may show **completion status** and **deep-link** only | No embedded forms, wizards, or mutation controls for actions owned elsewhere. |
-| Hub pages must **not** link to `operator-system-admin` cluster routes in default customer shells | e.g. `/admin/health`, `/admin/configuration`, `/operate/integration-events/dlq`, internal value-report tabs. Use buyer-safe `/health` when platform health is linked (see **TB-677**). |
+| Hub pages must **not** link to `operator-system-admin` cluster routes in default customer shells | e.g. `/admin/health`, `/admin/configuration`, `/operate/integration-events/dlq`, internal value-report tabs. Use buyer-safe `/administration/system-health` when platform health is linked (see **TB-677**). |
 | Role-gated blocks use **authority flags**, not disclosure alone | Optional setup stays collapsed **and** non-admins see delegation copy only (**TB-678**). |
 
 **Contract module:** `src/lib/onboarding-hub-contract.ts`  
@@ -84,6 +84,8 @@ Cross-ref: First review guide redundancy audit (**TB-674**–**TB-679**).
 ### Breadcrumb contract
 
 `breadcrumb-map.ts` may show a logical parent label that differs from the URL prefix **only** when the href is listed in `NAV_ROUTE_NAMESPACE_EXCEPTIONS`. Do not invent ad hoc breadcrumb remaps for undocumented cross-namespace paths.
+
+**Shell visibility:** `shouldShowBreadcrumbTrail` in `breadcrumb-visibility.ts` gates the global `<Breadcrumbs />` affordance. Shallow two-level trails that mirror sidebar active state (e.g. `/governance/findings`, `/settings/billing`) are **hidden**; detail, help, cross-namespace, run-scoped, and deep trails remain **visible** unless the route already has page-local wayfinding (`hasPageLocalBreadcrumbWayfinding`) or the buyer-polished golden-journey stepper is active. When shell breadcrumbs are hidden on buyer-polished satellite routes, `BuyerGoldenJourneyLayerContextStrip` may show a contextual **Back to review** link via `resolveBuyerOperateBackLinkWhenShellBreadcrumbsHidden`. Page-local wayfinding (e.g. finding detail `FindingDetailWayfinding`, manifest detail) is unchanged.
 
 ### Cross-module Vitest anchors
 

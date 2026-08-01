@@ -26,7 +26,7 @@ export const FIRST_PILOT_OPERATING_RAIL_STEPS: FirstPilotOperatingRailStepDefini
     id: "verify-setup",
     title: "Verify platform setup",
     shortBody: "Confirm API readiness and sign-in before you ingest evidence or start a review.",
-    primaryHref: "/health",
+    primaryHref: "/administration/system-health",
     primaryLabel: "Open system health",
     troubleshootHelpSlug: "troubleshooting",
   },

@@ -46,7 +46,7 @@ describe("FirstPilotProofStatusStrip", () => {
       render(<FirstPilotProofStatusStrip />);
 
       expect(await screen.findByText(FIRST_PILOT_PROOF_STATUS_UNAVAILABLE)).toBeInTheDocument();
-      expect(screen.getByRole("link", { name: FIRST_PILOT_READINESS_SYSTEM_STATUS_CTA })).toHaveAttribute("href", "/health");
+      expect(screen.getByRole("link", { name: FIRST_PILOT_READINESS_SYSTEM_STATUS_CTA })).toHaveAttribute("href", "/administration/system-health");
       expect(screen.queryByText(/Proof status not loaded/i)).not.toBeInTheDocument();
       expect(cliCommand()).not.toBeVisible();
     });
@@ -75,7 +75,7 @@ describe("FirstPilotProofStatusStrip", () => {
       render(<FirstPilotProofStatusStrip />);
 
       expect(await screen.findByText(BUYER_PILOT_EVIDENCE_PENDING)).toBeInTheDocument();
-      expect(screen.getByRole("link", { name: FIRST_PILOT_READINESS_SYSTEM_STATUS_CTA })).toHaveAttribute("href", "/health");
+      expect(screen.getByRole("link", { name: FIRST_PILOT_READINESS_SYSTEM_STATUS_CTA })).toHaveAttribute("href", "/administration/system-health");
       expect(screen.queryByText(/Proof status not loaded/i)).not.toBeInTheDocument();
       expect(
         screen.getByText(FIRST_PILOT_TECHNICAL_COMMAND_DISCLOSURE_SUMMARY).closest("details"),

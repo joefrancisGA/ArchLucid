@@ -32,6 +32,7 @@ import { COMMAND_PALETTE_CURATED_TASKS } from "@/lib/command-palette-curated-tas
 import { DOCUMENTATION_SEARCH_ITEMS, resolveDocumentationHref } from "@/lib/docs-search-index";
 import { NAV_GROUPS } from "@/lib/nav-config";
 import { effectiveNavDisclosureForPathname } from "@/lib/nav-disclosure-for-path";
+import { isExecutiveDashboardPath } from "@/lib/executive-dashboard-route";
 import { resetBuyerCtoDemoSession } from "@/lib/buyer-cto-demo-orchestration";
 import {
   ARCHLUCID_BUYER_CTO_DEMO_TOUR_START_EVENT,
@@ -552,7 +553,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
       return "Jump to audit trail, findings, executive summary…";
     }
 
-    if (path.startsWith("/dashboard")) {
+    if (isExecutiveDashboardPath(path)) {
       return "Jump to signed review record, evidence graph, audit…";
     }
 

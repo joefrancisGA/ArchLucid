@@ -188,7 +188,17 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     title: "Executive summary",
     summary: "Sponsor-safe summaries, ROI basis labels, and what executives should expect in exports.",
     audience: "buyer",
-    sourcePaths: ["docs/library/customer-facing/FAQ.md"],
+    sourcePaths: ["docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md"],
+    sectionAnchors: [
+      "what-pilot-proves",
+      "measurable-pilot-value",
+      "what-operate-adds",
+      "what-expansion-would-look-like",
+      "what-not-to-over-claim-yet",
+      "sponsor-success-outcome",
+      "limits-of-ai-explanations",
+    ],
+    includeIntroWithSections: false,
   },
   {
     slug: "evidence-trail",
@@ -211,7 +221,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     title: "Audit trail",
     summary: "Immutable audit events, correlation identifiers, and buyer-safe export posture.",
     audience: "buyer",
-    sourcePaths: ["docs/library/customer-facing/FAQ.md", "docs/library/AUDIT_COVERAGE_MATRIX.md"],
+    sourcePaths: ["docs/library/AUDIT_EVENT_MODEL.md"],
     pdfStatus: "customer",
   },
   {

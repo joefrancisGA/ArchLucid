@@ -151,7 +151,6 @@ const nextConfig: NextConfig = {
       // Governance setup (TB-1134) — next.config-only; no App Router stub pages.
       { source: "/governance/first-30-days", destination: "/governance/setup", permanent: true },
       { source: "/governance/first-30-days/:path*", destination: "/governance/setup/:path*", permanent: true },
-      { source: "/settings/exec-digest", destination: "/digests?tab=schedule", permanent: true },
       { source: "/digest-subscriptions", destination: "/digests?tab=subscriptions", permanent: true },
       { source: "/composite-alert-rules", destination: "/governance/alert-rules?tab=composite", permanent: false },
       { source: "/alert-simulation", destination: "/governance/alert-rules?tab=simulation", permanent: false },
@@ -165,13 +164,11 @@ const nextConfig: NextConfig = {
       { source: "/alerts", destination: "/governance/alert-rules", has: [{ type: "query", key: "tab", value: "composite" }], permanent: false },
       { source: "/alerts", destination: "/governance/alert-rules", has: [{ type: "query", key: "tab", value: "simulation" }], permanent: false },
       { source: "/settings/webhooks", destination: "/integrations/webhooks", permanent: true },
-      // ITSM legacy hub only — OAuth callback subpath must remain a real page (TB-1776).
-      { source: "/integrations/itsm", destination: "/administration/connection-status", permanent: true },
-      { source: "/integrations/operations", destination: "/administration/connection-status", permanent: true },
-      { source: "/integrations/operations/:path*", destination: "/administration/connection-status/:path*", permanent: true },
-      { source: "/integrations/readiness", destination: "/administration/connection-status", permanent: true },
-      { source: "/integrations/readiness/:path*", destination: "/administration/connection-status/:path*", permanent: true },
       // Integrations route namespace reconciliation (TB-407).
+      // Pre-release: former /integrations/itsm hub, /integrations/operations, and
+      // /integrations/readiness were removed (no redirects). OAuth callback stays at
+      // /integrations/itsm/oauth/callback. Canonical hub: /administration/connection-status.
+
       { source: "/settings/cloud-connections", destination: "/integrations/cloud-connections", permanent: true },
       { source: "/settings/cloud-connections/:path*", destination: "/integrations/cloud-connections/:path*", permanent: true },
       { source: "/admin/ai-usage-cost", destination: "/settings/ai-usage", permanent: true },
@@ -188,10 +185,12 @@ const nextConfig: NextConfig = {
       { source: "/settings/roles", destination: "/settings/users?tab=roles", permanent: true },
       { source: "/settings/roles/:path*", destination: "/settings/users/:path*", permanent: true },
       // Executive dashboard consolidation (TB-608) — same ExecutiveRoiDashboardPageView content as
-      // the operator-shell /dashboard nav item; the standalone executive-chrome page is retired.
-      { source: "/executive/dashboard", destination: "/dashboard", permanent: true },
-      // Cross-tenant portfolio page retired — portfolio overview nav already targets /dashboard.
-      { source: "/portfolio", destination: "/dashboard", permanent: true },
+      // the operator-shell executive dashboard nav item; the standalone executive-chrome page is retired.
+      { source: "/dashboard", destination: "/architecture/executive-dashboard", permanent: true },
+      { source: "/dashboard/:path*", destination: "/architecture/executive-dashboard/:path*", permanent: true },
+      { source: "/executive/dashboard", destination: "/architecture/executive-dashboard", permanent: true },
+      // Cross-tenant portfolio page retired — portfolio overview nav already targets executive dashboard.
+      { source: "/portfolio", destination: "/architecture/executive-dashboard", permanent: true },
       // Executive reviews retired — operator /reviews tree is canonical (TB-608 follow-on).
       { source: "/executive/reviews", destination: "/reviews", permanent: true },
       { source: "/executive/reviews/:path*", destination: "/reviews/:path*", permanent: true },

@@ -101,7 +101,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Admin diagnostics",
     "sectionSlug": "start-here",
     "sectionHeading": "Start here",
-    "excerpt": "1. Open System status (`/health`) in the workspace — live/ready checks and version identity. 2. On Overview, expand Workspace readiness — per-area status and next actions. 3. Open Assistant readiness diagnostics on Overview when LLM or assistant features fail."
+    "excerpt": "1. Open System status (`/administration/system-health`) in the workspace — live/ready checks and version identity. 2. On Overview, expand Workspace readiness — per-area status and next actions. 3. Open Assistant readiness diagnostics on Overview when LLM or assistant features fail."
   },
   {
     "docPath": "docs/library/customer-facing/OPERATOR_ADMIN_DIAGNOSTICS.md",

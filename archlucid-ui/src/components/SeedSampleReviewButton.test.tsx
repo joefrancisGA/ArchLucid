@@ -36,6 +36,7 @@ vi.mock("@/lib/operator-query-invalidation", () => ({
   invalidateOperatorHomeRunsCaches: () => invalidateHomeRunsMock(),
 }));
 
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import { BUYER_SEED_SAMPLE_WORKSPACE_SUCCESS } from "@/lib/buyer-polish-copy";
 import { SeedSampleReviewButton } from "./SeedSampleReviewButton";
 
@@ -77,7 +78,7 @@ describe("SeedSampleReviewButton", () => {
 
   it("posts to /api/seed-sample and pushes the redirectTo target on success", async () => {
     fetchMock.mockResolvedValue(
-      new Response(JSON.stringify({ redirectTo: "/dashboard" }), {
+      new Response(JSON.stringify({ redirectTo: EXECUTIVE_DASHBOARD_HREF }), {
         status: 200,
         headers: { "Content-Type": "application/json" },
       }),
@@ -98,16 +99,16 @@ describe("SeedSampleReviewButton", () => {
     await waitFor(() => {
       expect(invalidateExecutiveMock).toHaveBeenCalledTimes(1);
       expect(invalidateHomeRunsMock).toHaveBeenCalledTimes(1);
-      expect(pushMock).toHaveBeenCalledWith("/dashboard");
+      expect(pushMock).toHaveBeenCalledWith(EXECUTIVE_DASHBOARD_HREF);
       expect(refreshMock).toHaveBeenCalledTimes(1);
       expect(showSuccessMock).toHaveBeenCalledWith(BUYER_SEED_SAMPLE_WORKSPACE_SUCCESS);
     });
   });
 
   it("refreshes in place without push when already on the redirect target", async () => {
-    pathnameMock.mockReturnValue("/dashboard");
+    pathnameMock.mockReturnValue(EXECUTIVE_DASHBOARD_HREF);
     fetchMock.mockResolvedValue(
-      new Response(JSON.stringify({ redirectTo: "/dashboard" }), {
+      new Response(JSON.stringify({ redirectTo: EXECUTIVE_DASHBOARD_HREF }), {
         status: 200,
         headers: { "Content-Type": "application/json" },
       }),
@@ -124,7 +125,7 @@ describe("SeedSampleReviewButton", () => {
     });
   });
 
-  it("falls back to /dashboard when the response omits a redirectTo", async () => {
+  it("falls back to executive dashboard when the response omits a redirectTo", async () => {
     fetchMock.mockResolvedValue(
       new Response(JSON.stringify({}), {
         status: 200,
@@ -137,7 +138,7 @@ describe("SeedSampleReviewButton", () => {
     fireEvent.click(screen.getByRole("button", { name: /load sample workspace/i }));
 
     await waitFor(() => {
-      expect(pushMock).toHaveBeenCalledWith("/dashboard");
+      expect(pushMock).toHaveBeenCalledWith(EXECUTIVE_DASHBOARD_HREF);
     });
   });
 

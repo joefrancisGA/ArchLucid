@@ -73,8 +73,7 @@ const PAGES = [
   { name: "Digest subscriptions", path: "/digests?tab=subscriptions" },
   { name: "Workspace settings", path: "/settings/tenant" },
   { name: "Settings baseline", path: "/settings/baseline" },
-  /** Canonical hub URL — `/settings/exec-digest` redirects here (same class of flake as legacy digest-subscriptions). */
-  { name: "Settings exec digest", path: "/digests?tab=schedule" },
+  { name: "Digests schedule", path: "/digests?tab=schedule" },
   { name: "Review feedback", path: "/product-learning" },
   { name: "Advisory scheduling", path: "/advisory-scheduling" },
   { name: "Recommendation learning", path: "/internal-operations/recommendation-learning" },

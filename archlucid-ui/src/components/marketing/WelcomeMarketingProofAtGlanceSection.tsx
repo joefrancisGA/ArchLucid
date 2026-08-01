@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { WELCOME_SEE_IT_CTA_LABEL, WELCOME_SEE_IT_HREF } from "@/components/marketing/welcome-marketing-copy";
 import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -32,8 +33,8 @@ export function WelcomeMarketingProofAtGlanceSection(): React.JSX.Element {
             Trace graph tie-outs and audit milestones—not an ephemeral chat transcript.
           </p>
           <p className={cn("m-0 mt-3 font-medium", OPERATOR_TYPOGRAPHY.helper)}>
-            <Link className={MARKETING_SURFACES.inlineLink} href="/see-it">
-              See it in 30 seconds
+            <Link className={MARKETING_SURFACES.inlineLink} href={WELCOME_SEE_IT_HREF}>
+              {WELCOME_SEE_IT_CTA_LABEL}
             </Link>
           </p>
         </li>

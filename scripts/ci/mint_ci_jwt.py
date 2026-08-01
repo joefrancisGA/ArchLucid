@@ -33,8 +33,17 @@ def main() -> int:
     )
     parser.add_argument("--workspace-id", default="", help="Optional workspace_id claim (GUID).")
     parser.add_argument("--project-id", default="", help="Optional project_id claim (GUID).")
-    parser.add_argument("--out-token", required=True, help="Write JWT string to this file.")
+    parser.add_argument("--out-token", default="", help="Write JWT string to this file.")
+    parser.add_argument(
+        "--print-token",
+        action="store_true",
+        help="Print JWT to stdout (for CD smoke; do not log in public CI output).",
+    )
     args = parser.parse_args()
+
+    if not args.print_token and not args.out_token:
+        print("Either --out-token or --print-token is required.", file=sys.stderr)
+        return 2
 
     try:
         import jwt
@@ -70,8 +79,15 @@ def main() -> int:
 
     encoded = jwt.encode(payload, private_pem, algorithm="RS256")
     token_str = encoded if isinstance(encoded, str) else encoded.decode("ascii")
-    Path(args.out_token).write_text(token_str.strip() + "\n", encoding="utf-8")
-    print(f"Wrote JWT to {args.out_token}")
+    token_str = token_str.strip()
+
+    if args.out_token:
+        Path(args.out_token).write_text(token_str + "\n", encoding="utf-8")
+        print(f"Wrote JWT to {args.out_token}")
+
+    if args.print_token:
+        print(token_str)
+
     return 0
 
 

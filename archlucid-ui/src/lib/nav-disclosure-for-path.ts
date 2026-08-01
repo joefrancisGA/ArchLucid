@@ -1,7 +1,9 @@
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
+
 /** Core Pilot surfaces: essential-tier nav only (no Show more / extended / advanced links). */
 const CORE_PILOT_ESSENTIAL_ONLY_PATHS = new Set<string>([
   "/",
-  "/dashboard",
+  EXECUTIVE_DASHBOARD_HREF,
   "/onboarding",
   "/reviews/new",
   "/reviews",

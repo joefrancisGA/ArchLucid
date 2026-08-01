@@ -1,0 +1,57 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
+import { describe, expect, it } from "vitest";
+
+import { FIRST_ARCHITECTURE_REVIEW_HELP_ROUTE_METADATA } from "@/lib/first-architecture-review-help-route-metadata";
+import {
+  FIRST_ARCHITECTURE_REVIEW_HELP_PATH,
+  LEGACY_CORE_PILOT_HELP_PATH,
+} from "@/lib/first-architecture-review-help-route";
+import { BUYER_FIRST_REVIEW_HELP_HREF } from "@/lib/first-review-90min-playbook-alignment";
+import {
+  MARKETING_ROBOTS_DISALLOW_PREFIXES,
+  MARKETING_SITEMAP_PATHNAMES,
+} from "@/lib/marketing/public-marketing-seo-paths";
+
+const HELP_TOPIC_PAGE = join(process.cwd(), "src", "app", "(operator)", "help", "[...topic]", "page.tsx");
+
+const PRODUCT_FIRST_REVIEW_HELP_SURFACES = [
+  "archlucid-ui/src/lib/first-review-90min-playbook-alignment.ts",
+  "archlucid-ui/src/components/operator-home/operator-home-help-affordances.test.tsx",
+  "archlucid-ui/src/components/CorePilotNextStepsCard.tsx",
+  "archlucid-ui/src/lib/help-search-panel-catalog.ts",
+] as const;
+
+describe("first-architecture-review-help-route (HFI)", () => {
+  it("marks the specialty guide as noindex with honest metadata", () => {
+    expect(FIRST_ARCHITECTURE_REVIEW_HELP_ROUTE_METADATA.robots).toEqual({ index: false, follow: false });
+    expect(FIRST_ARCHITECTURE_REVIEW_HELP_ROUTE_METADATA.title).toBe("Your first architecture review");
+    expect(FIRST_ARCHITECTURE_REVIEW_HELP_ROUTE_METADATA.description?.toLowerCase()).toContain("guided path");
+  });
+
+  it("routes the canonical slug through HelpCorePilotGuideView instead of bare markdown", () => {
+    const pageSource = readFileSync(HELP_TOPIC_PAGE, "utf8");
+
+    expect(pageSource).toContain('loaded.entry.slug === "first-architecture-review"');
+    expect(pageSource).toContain("HelpCorePilotGuideView");
+    expect(pageSource).toContain("FIRST_ARCHITECTURE_REVIEW_HELP_ROUTE_METADATA");
+  });
+
+  it("keeps marketing SEO inventory off the in-app help path", () => {
+    expect(MARKETING_SITEMAP_PATHNAMES).not.toContain(FIRST_ARCHITECTURE_REVIEW_HELP_PATH);
+    expect(MARKETING_ROBOTS_DISALLOW_PREFIXES).not.toContain(FIRST_ARCHITECTURE_REVIEW_HELP_PATH);
+  });
+
+  it("keeps product handoffs on canonical /help/first-architecture-review", () => {
+    const repoRoot = join(process.cwd(), "..");
+
+    expect(BUYER_FIRST_REVIEW_HELP_HREF).toBe(FIRST_ARCHITECTURE_REVIEW_HELP_PATH);
+
+    for (const relativePath of PRODUCT_FIRST_REVIEW_HELP_SURFACES) {
+      const source = readFileSync(join(repoRoot, relativePath), "utf8");
+      expect(source).toContain("first-architecture-review");
+      expect(source).not.toContain(`href="${LEGACY_CORE_PILOT_HELP_PATH}"`);
+    }
+  });
+});

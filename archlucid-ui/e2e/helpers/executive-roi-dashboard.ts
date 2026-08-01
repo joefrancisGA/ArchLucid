@@ -4,6 +4,7 @@ import { getAppMain } from "./app-main";
 
 
 
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 
 
@@ -23,7 +24,7 @@ import {
 
 export const EXECUTIVE_ROI_DASHBOARD_PATHS = {
 
-  operator: "/dashboard",
+  operator: EXECUTIVE_DASHBOARD_HREF,
 
   // Retired standalone route (TB-608) — now redirects to `operator`; kept only to assert the redirect.
 

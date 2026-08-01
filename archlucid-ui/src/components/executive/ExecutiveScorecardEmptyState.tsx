@@ -3,6 +3,7 @@
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { SeedSampleReviewButton } from "@/components/SeedSampleReviewButton";
 import { ExecutiveScorecardEmptyStatePreview } from "@/components/executive/ExecutiveScorecardEmptyStatePreview";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 
 /** Global empty state when the executive scorecard has no committed reviews. */
@@ -18,7 +19,7 @@ export function ExecutiveScorecardEmptyState(): React.JSX.Element {
           { label: v.scorecardEmptyStatePrimaryAction, href: "/reviews/new", variant: "primary" },
           {
             label: v.scorecardEmptyStateTertiaryAction,
-            href: "/dashboard",
+            href: EXECUTIVE_DASHBOARD_HREF,
             variant: "outline",
           },
         ]}

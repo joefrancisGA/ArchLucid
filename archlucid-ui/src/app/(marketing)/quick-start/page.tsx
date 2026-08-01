@@ -1,19 +1,14 @@
-import type { Metadata } from "next";
-import type { ReactElement } from "react";
+import { permanentRedirect } from "next/navigation";
 
-import { QuickStartClient } from "./QuickStartClient";
+import { buildQuickStartRedirectPath } from "@/lib/legacy-quick-start-redirect";
 
-export const metadata: Metadata = {
-  title: "Quick start · ArchLucid",
-  description:
-    "Run a deterministic simulator pass with no sign-in: create a demo-scoped architecture review, finalize a review, and open the review workspace.",
-  robots: { index: true, follow: true },
+type QuickStartRedirectPageProps = {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-export default function QuickStartMarketingPage(): ReactElement {
-  return (
-    <main>
-      <QuickStartClient />
-    </main>
-  );
+/** @deprecated The canonical public first-run surface is `/get-started`. */
+export default async function QuickStartRedirectPage({ searchParams }: QuickStartRedirectPageProps) {
+  const resolved = await searchParams;
+
+  permanentRedirect(buildQuickStartRedirectPath(resolved));
 }

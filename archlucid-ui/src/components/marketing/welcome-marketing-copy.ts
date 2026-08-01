@@ -2,9 +2,20 @@
 
 import { DEMO_WORKSPACE_B_RUN_ID } from "@/lib/demo-workspace-scope";
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
+import { CANONICAL_ANONYMOUS_PROOF_HREF } from "@/lib/showcase-static-demo";
 
+/** TB-1294: metadata title beyond bare “Welcome”. */
+export const WELCOME_PAGE_METADATA_TITLE = "ArchLucid · Defensible architecture, on demand";
+
+/**
+ * TB-1295 owner choice: hero primary conversion = self-demo inspect (Workspace A sample).
+ * Signup, walkthrough, and early access stay reachable below the fold.
+ */
+export const WELCOME_PRIMARY_CONVERSION_PATH = "self-demo" as const;
+
+/** TB-1294: one supporting sentence above the fold — detail lives in problem/solution. */
 export const WELCOME_HERO_PITCH =
-  "Turn scattered architecture evidence into an evidence-backed review your ARB can trust — prioritized findings, explicit limits where we do not conclude, and an exportable report in days instead of weeks. ArchLucid runs a governed workflow from capture through report so every claim traces to proof, not a chat transcript that disappears.";
+  "Turn scattered architecture evidence into a prioritized, evidence-linked architecture review your ARB can trust — with exportable proof in days instead of weeks.";
 
 export const WELCOME_HERO_CTA_SUBHEADING =
   "See an architecture review built for governance — not slide decks alone.";
@@ -25,6 +36,31 @@ export const WELCOME_HERO_CTA_SUBHEADING =
  */
 export const WELCOME_HERO_EVALUATION_REASSURANCE =
   "Inspect a governed sample review with fabricated data, then bring your own architecture evidence when ready. Every finding traces to evidence; every governance decision leaves an audit trail. No sales call required.";
+
+/** TB-1298 / TB-1280: honest see-it framing — no bare “30 seconds” / “30s”. */
+export const WELCOME_SEE_IT_CTA_LABEL = "See a finalized sample review";
+
+export const WELCOME_SEE_IT_HREF = "/see-it" as const;
+
+/**
+ * TB-1296 Option A (M-107): Claims-static primary anonymous proof; Contoso / longer walkthrough secondary.
+ * Ladder: see-it → Claims showcase → guided walkthrough → Contoso ROI (labeled).
+ */
+export const WELCOME_PROOF_LADDER_PRIMARY_HREF = WELCOME_SEE_IT_HREF;
+
+export const WELCOME_PROOF_LADDER_SAMPLE_HREF = CANONICAL_ANONYMOUS_PROOF_HREF;
+
+export const WELCOME_PROOF_LADDER_SAMPLE_LABEL = "Healthcare Claims sample review";
+
+export const WELCOME_PROOF_LADDER_SECONDARY_WALKTHROUGH_HREF = "/live-demo" as const;
+
+export const WELCOME_PROOF_LADDER_SECONDARY_WALKTHROUGH_LABEL = "Prefer a longer walkthrough?";
+
+export const WELCOME_CONTOSO_ROI_PDF_HREF = "/WORKED_EXAMPLE_ROI.pdf" as const;
+
+export const WELCOME_CONTOSO_ROI_PDF_LABEL = "Contoso worked example (PDF)";
+
+export const WELCOME_ENGAGEMENT_PATHS_HEADING = "Other ways to engage";
 
 export const WELCOME_PROBLEM_HEADING = "Architecture review is broken when diagrams are the only artifact";
 

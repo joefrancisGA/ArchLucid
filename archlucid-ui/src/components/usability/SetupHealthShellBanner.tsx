@@ -45,7 +45,7 @@ export function SetupHealthShellBanner(props: SetupHealthShellBannerProps): Reac
           Open troubleshooting
         </Link>{" "}
         or review{" "}
-        <Link href="/health" className="font-medium text-amber-950 underline underline-offset-2 dark:text-amber-100">
+        <Link href="/administration/system-health" className="font-medium text-amber-950 underline underline-offset-2 dark:text-amber-100">
           system health
         </Link>
         .

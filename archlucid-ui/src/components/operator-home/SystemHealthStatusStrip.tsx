@@ -95,7 +95,7 @@ export function SystemHealthStatusStrip({ className }: SystemHealthStatusStripPr
         <span className="text-al-text-primary">
           Platform services: <span className="font-medium">{overall}</span>
         </span>
-        <Link href="/health" className={cn("ml-auto inline-block font-semibold", OPERATOR_LINK.nav)}>
+        <Link href="/administration/system-health" className={cn("ml-auto inline-block font-semibold", OPERATOR_LINK.nav)}>
           Details
         </Link>
       </div>

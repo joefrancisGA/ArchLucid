@@ -1,4 +1,4 @@
-import { tryResolveInAppDocHref } from "./in-app-doc-href";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 
 /**
  * Static contextual help index for the architect workspace. Doc paths are relative to the repository root.
@@ -48,7 +48,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     summary:
       "Admin-only SE/ops printable checklist — extractor ZIP, finalize, ROI proof, and audit export. Buyers should use Your first architecture review instead.",
     docPath: "docs/runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md",
-    routes: ["/", "/onboarding", "/reviews/new", "/dashboard"],
+    routes: ["/", "/onboarding", "/reviews/new", EXECUTIVE_DASHBOARD_HREF],
   },
   {
     id: "pilot-nav-profile",
@@ -142,7 +142,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     keywords: ["ready", "health", "circuit", "diagnostics", "metrics"],
     summary: "In-app readiness checks, circuit breaker gates, and onboarding funnel counters — same signals as CLI doctor without leaving the workspace.",
     docPath: "docs/library/customer-facing/OPERATOR_ADMIN_DIAGNOSTICS.md",
-    routes: ["/health", "/admin/health"],
+    routes: ["/administration/system-health", "/admin/health"],
   },
   {
     id: "admin-configuration",

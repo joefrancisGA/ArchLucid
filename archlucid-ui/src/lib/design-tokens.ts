@@ -46,6 +46,9 @@ export const OPERATOR_CARD = {
   /** Lifecycle path card that matches the current workspace phase (left accent only). */
   lifecycleEmphasized:
     "border-l-4 border-l-teal-700 dark:border-l-teal-500",
+  /** Grouped examples / learning resources below workspace activity. */
+  learningResourcesSurface:
+    "rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-800 dark:bg-neutral-900/50",
 } as const;
 
 /** Tailwind class bundles for layout and surfaces (operator shell). */

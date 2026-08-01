@@ -26,7 +26,7 @@ describe("finish-setup-wizard-steps", () => {
     const steps = resolveFinishSetupWizardSteps({ selfHosted: true });
     const healthStep = steps.find((step) => step.id === "health");
 
-    expect(healthStep?.href).toBe("/health");
+    expect(healthStep?.href).toBe("/administration/system-health");
   });
 
   it("does not include cloud inventory evidence — Core Pilot walkthrough owns that link", () => {

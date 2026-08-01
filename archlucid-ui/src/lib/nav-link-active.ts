@@ -13,12 +13,8 @@ export function isNavLinkActive(pathname: string, href: string): boolean {
     return pathname === "/reviews/new";
   }
 
-  if (pathPart === "/architectures/new") {
-    return pathname === "/architectures/new" || (pathname.startsWith("/architectures/") && pathname !== "/architectures");
-  }
-
   if (pathPart === "/architectures") {
-    return pathname === "/architectures";
+    return pathname === "/architectures" || pathname.startsWith("/architectures/");
   }
 
   if (pathPart === "/reviews") {

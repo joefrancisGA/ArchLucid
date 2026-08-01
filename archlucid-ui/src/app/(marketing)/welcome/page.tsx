@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 
 // Public marketing home is `/welcome` (not `app/(marketing)/page.tsx`) because `app/(operator)/page.tsx` already owns `/`.
+import { WelcomeMarketingEngagementPathsSection } from "@/components/marketing/WelcomeMarketingEngagementPathsSection";
 import { WelcomeMarketingFirstTimeVisitorSection } from "@/components/marketing/WelcomeMarketingFirstTimeVisitorSection";
 import { WelcomeMarketingPage } from "@/components/marketing/WelcomeMarketingPage";
 import { WelcomeMarketingProofAtGlanceSection } from "@/components/marketing/WelcomeMarketingProofAtGlanceSection";
-import { BRAND_CATEGORY, BRAND_CATEGORY_LEGACY } from "@/lib/brand-category";
+import { WELCOME_PAGE_METADATA_TITLE } from "@/components/marketing/welcome-marketing-copy";
+import { BRAND_CATEGORY_LEGACY } from "@/lib/brand-category";
 import {
   MARKETING_WELCOME_OG_DESCRIPTION,
   buildMarketingSocialMetadata,
@@ -13,9 +15,9 @@ import {
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: "Welcome",
-  description: `ArchLucid ${BRAND_CATEGORY} — trial signup and product overview.`,
-  ...buildMarketingSocialMetadata("Welcome", MARKETING_WELCOME_OG_DESCRIPTION, "/welcome"),
+  title: WELCOME_PAGE_METADATA_TITLE,
+  description: MARKETING_WELCOME_OG_DESCRIPTION,
+  ...buildMarketingSocialMetadata(WELCOME_PAGE_METADATA_TITLE, MARKETING_WELCOME_OG_DESCRIPTION, "/welcome"),
   other: {
     "x-archlucid-brand-category-legacy": BRAND_CATEGORY_LEGACY,
   },
@@ -28,6 +30,7 @@ export default function WelcomePage() {
       serverStaticSections={
         <>
           <WelcomeMarketingProofAtGlanceSection />
+          <WelcomeMarketingEngagementPathsSection />
           <WelcomeMarketingFirstTimeVisitorSection />
         </>
       }

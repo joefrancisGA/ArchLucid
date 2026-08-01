@@ -3,6 +3,7 @@ import { BUYER_VALUE_REPORT_PAGE_SUBTITLE } from "@/lib/buyer-polish-copy";
 import { ADVISORY_SCANS_PAGE_LEAD } from "@/lib/advisory-copy";
 import { AUDIT_TRAIL_PAGE_SUBTITLE } from "@/lib/audit-trail-page-copy";
 import { ALERTS_CONFIGURATION_PAGE_SUBTITLE } from "@/lib/alerts-page-copy";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import {
   BUYER_EXECUTIVE_SUMMARY_VOCABULARY,
   PILOT_FEEDBACK_VOCABULARY,
@@ -31,7 +32,7 @@ export type BuyerPolishedRoutePageLeadInventoryEntry = {
 
 export const BUYER_POLISHED_ROUTE_PAGE_LEAD_INVENTORY: readonly BuyerPolishedRoutePageLeadInventoryEntry[] = [
   { route: "/search", operatorPageLead: SEARCH_PAGE_SUBTITLE },
-  { route: "/dashboard", operatorPageLead: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.portfolioPageLead },
+  { route: EXECUTIVE_DASHBOARD_HREF, operatorPageLead: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.portfolioPageLead },
   { route: "/product-learning", operatorPageLead: PILOT_FEEDBACK_VOCABULARY.pageLead },
   { route: "/product-learning", operatorPageLead: PILOT_FEEDBACK_VOCABULARY.layerContextLine },
   { route: "/governance", operatorPageLead: GOVERNANCE_OVERVIEW_PAGE_LEAD },

@@ -125,6 +125,16 @@ public class ArchLucidAuthOptions
         set;
     } = string.Empty;
 
+    /// <summary>
+    ///     Inline RSA <strong>public</strong> key PEM (alternative to <see cref="JwtSigningPublicKeyPemPath" /> for
+    ///     Container App secretref env vars).
+    /// </summary>
+    public string JwtSigningPublicKeyPem
+    {
+        get;
+        set;
+    } = string.Empty;
+
     /// <summary><c>iss</c> claim value when using <see cref="JwtSigningPublicKeyPemPath" />.</summary>
     public string JwtLocalIssuer
     {

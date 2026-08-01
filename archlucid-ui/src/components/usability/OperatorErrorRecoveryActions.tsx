@@ -38,7 +38,7 @@ export function OperatorErrorRecoveryActions(props: OperatorErrorRecoveryActions
         </Link>
       )}
       {props.showSystemHealth === true ? (
-        <Link href="/health" className={cn("font-medium text-teal-800 underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)}>
+        <Link href="/administration/system-health" className={cn("font-medium text-teal-800 underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)}>
           System health
         </Link>
       ) : null}

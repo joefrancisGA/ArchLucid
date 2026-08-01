@@ -31,6 +31,8 @@ Document how **modest marketing** pages share **the same apex domain and operati
 
 TLS via Container Apps managed certificates + DNS CNAME (see `infra/terraform-container-apps/README.md`). CD rolls both apps from one digest (`CONTAINER_APP_UI_NAME` + `CONTAINER_APP_MARKETING_UI_NAME`). Cross-host links: `archlucid-ui/src/lib/site-urls.ts`. API CORS must allow both origins. Backlog **TB-2016 – TB-2020**.
 
+**Cutover automation:** [`docs/runbooks/MARKETING_OPERATOR_HOST_CUTOVER.md`](../runbooks/MARKETING_OPERATOR_HOST_CUTOVER.md) + [`scripts/ops/Invoke-MarketingOperatorHostCutover.ps1`](../../scripts/ops/Invoke-MarketingOperatorHostCutover.ps1) (dry-run by default; `-Apply` to mutate).
+
 **Option A** (legacy single-app): one Next.js build serves marketing + operator + executive on one hostname; optional Front Door path rules. Still valid for pilots that omit a second UI app (`enable_marketing_ui_container_app = false`).
 
 **Option B** (Front Door dual origin): same image twice with **`marketing_backend_hostname`** + `frontdoor-marketing-routes.tf`. Available if WAF/CDN is later required — not the default cost path.

@@ -241,7 +241,7 @@ describe("nav-config structure", () => {
     expect(adminHrefs).toContain("/settings/support");
     expect(adminHrefs).toContain("/settings/ai-usage");
     expect(adminHrefs).toContain("/administration/connection-status");
-    expect(adminHrefs).toContain("/health");
+    expect(adminHrefs).toContain("/administration/system-health");
     expect(adminHrefs).toContain("/settings/identity-providers");
     expect(adminHrefs).toContain("/settings/identity/sso-wizard");
     expect(adminHrefs).toContain("/settings/api-keys");

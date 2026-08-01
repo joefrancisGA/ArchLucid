@@ -172,7 +172,7 @@ describe("OperatorApiProblem", () => {
     expect(primary.queryByText(/ARCHLUCID_API_BASE_URL/i)).toBeNull();
     expect(primary.queryByText("req-layered-502")).toBeNull();
     expect(primary.queryByText(/First-pilot triage cards/i)).toBeNull();
-    expect(primary.getByRole("link", { name: "System health" })).toHaveAttribute("href", "/health");
+    expect(primary.getByRole("link", { name: "System health" })).toHaveAttribute("href", "/administration/system-health");
 
     const detailsEl = screen.getByTestId("operator-connectivity-technical-details");
     expect(detailsEl).not.toHaveAttribute("open");

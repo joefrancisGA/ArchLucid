@@ -48,4 +48,13 @@ describe("resolveInAppDocHref", () => {
     expect(tryResolveInAppDocHref("docs/library/PRODUCT_PACKAGING.md")).toBeNull();
     expect(tryResolveInAppDocHref("docs/library/OPERATOR_ATLAS.md")).toBe("/help/pilot-nav-profile");
   });
+
+  it("maps executive-summary diligence docs to the correct help topics (TB-1689)", () => {
+    expect(resolveInAppDocHref("docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md")).toBe("/help/executive-summary");
+    expect(resolveInAppDocHref("docs/go-to-market/HOW_TO_REQUEST_PROCUREMENT_PACK.md")).toBe("/help/procurement");
+    expect(resolveInAppDocHref("docs/go-to-market/PRICING_PHILOSOPHY.md")).toBe("/help/procurement");
+    expect(resolveInAppDocHref("docs/go-to-market/ROI_MODEL.md")).toBe("/help/pilot-roi-model");
+    expect(resolveInAppDocHref("docs/library/customer-facing/FAQ.md")).toBe("/help/troubleshooting");
+    expect(resolveInAppDocHref("docs/go-to-market/COMPETITIVE_COMPARISON.md")).toBe("/help/product-overview");
+  });
 });

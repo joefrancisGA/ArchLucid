@@ -75,7 +75,9 @@ export function OperatorHomeReviewSummaryCard(props: OperatorHomeReviewSummaryCa
     <article
       className={cn(
         OPERATOR_SURFACE_CARD_CLASS,
-        variant === "featured" ? cn(OPERATOR_CARD.nested, "space-y-2") : cn(OPERATOR_CARD.nested, "space-y-2"),
+        variant === "featured"
+          ? cn(OPERATOR_CARD.nested, "space-y-2")
+          : cn(OPERATOR_CARD.nested, "space-y-2 transition-shadow hover:shadow-sm"),
       )}
       data-testid={variant === "featured" ? "runs-dashboard-buyer-proof-summary" : `operator-home-review-summary-${props.run.runId}`}
     >

@@ -62,7 +62,7 @@ export function GraphBuyerEvidenceTrailError(props: GraphBuyerEvidenceTrailError
           <Link href={troubleshootingHref}>Open troubleshooting</Link>
         </Button>
         <Button type="button" variant="ghost" size="sm" asChild>
-          <Link href="/health">System health</Link>
+          <Link href="/administration/system-health">System health</Link>
         </Button>
       </div>
       <details className={cn("mt-4 rounded-md border border-neutral-200 bg-white/60 p-3 dark:border-neutral-700 dark:bg-neutral-900/50", OPERATOR_TYPOGRAPHY.micro)}>

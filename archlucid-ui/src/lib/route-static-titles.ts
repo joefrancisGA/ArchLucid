@@ -1,5 +1,6 @@
 import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
 import { ARCHITECTURES_LIST_PATH, ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 
 import { ALERTS_CONFIGURATION_PAGE_TITLE } from "@/lib/alerts-page-copy";
@@ -41,7 +42,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/ask": "Ask",
   "/replay": "Replay",
   "/audit": "Audit",
-  "/health": "System health",
+  "/administration/system-health": "System health",
   "/planning": "Improvement planning",
   "/onboarding": OPERATOR_NAV_LINK_LABELS.onboarding,
   "/settings/billing": "Billing & plans",
@@ -56,8 +57,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/integrations/jira": OPERATOR_NAV_LINK_LABELS.jira,
   "/integrations/servicenow": OPERATOR_NAV_LINK_LABELS.servicenow,
   [INTEGRATIONS_READINESS_PATH]: OPERATOR_NAV_LINK_LABELS.integrationReadiness,
-  "/integrations/operations": OPERATOR_NAV_LINK_LABELS.integrationReadiness,
-  "/dashboard": BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle,
+  [EXECUTIVE_DASHBOARD_HREF]: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle,
   "/executive/scorecard": BUYER_EXECUTIVE_SUMMARY_VOCABULARY.scorecardPageTitle,
   "/digests": "Digests",
   "/sponsor-report/executive-summary": "Executive summary",

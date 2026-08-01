@@ -1,10 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { PageHeading } from "@/components/PageHeading";
-import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -57,13 +54,8 @@ import {
   AZURE_BOARDS_FIELD_PROJECT,
   AZURE_BOARDS_FIELD_TOKEN_REFERENCE,
   AZURE_BOARDS_FIELD_WORK_ITEM_TYPE,
-  AZURE_BOARDS_LOADING_MESSAGE,
   AZURE_BOARDS_MUTATION_DISABLED_HELPER,
   AZURE_BOARDS_ORGANIZATION_URL_PLACEHOLDER,
-  AZURE_BOARDS_PAGE_CLOUD_NEUTRALITY_NOTE,
-  AZURE_BOARDS_PAGE_DESCRIPTION,
-  AZURE_BOARDS_PAGE_TITLE,
-  AZURE_BOARDS_RELOAD_BUTTON,
   AZURE_BOARDS_SAVE_CONNECTION_LABEL,
   AZURE_BOARDS_SAVE_SETTINGS_LABEL,
   AZURE_BOARDS_SAVE_SUCCESS,
@@ -76,12 +68,13 @@ import {
   AZURE_BOARDS_TOKEN_REFERENCE_PLACEHOLDER,
 } from "@/lib/azure-boards-page-copy";
 import { cn } from "@/lib/utils";
-import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
-import { INTEGRATIONS_AZURE_BOARDS_PATH, INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 
 import { AzureBoardsIntegrationAside } from "./AzureBoardsIntegrationAside";
+import { AzureBoardsIntegrationPageHeader } from "./AzureBoardsIntegrationPageHeader";
+import { AzureBoardsIntegrationPageLoadingSkeleton } from "./AzureBoardsIntegrationPageLoadingSkeleton";
 
 function statusTagKind(
   status: ReturnType<typeof resolveAzureBoardsConnectionStatus>["status"],
@@ -131,6 +124,8 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
   const [lastTestAt, setLastTestAt] = useState<string | null>(null);
   const [lastTestSummary, setLastTestSummary] = useState<string | null>(null);
   const [lastTestSuccess, setLastTestSuccess] = useState<boolean | null>(null);
+  const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(null);
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
 
   const applySettings = useCallback((loaded: AzureBoardsOutboundSettingsResponse | null) => {
     setSettings(loaded);
@@ -188,6 +183,8 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
     }
 
     setLoadError(loaded.loadError);
+    setLastRefreshedAt(new Date());
+    setHasLoadedOnce(true);
     setIsLoading(false);
   }, [applyConnection, applySettings]);
 
@@ -375,41 +372,28 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
 
   const credentialStatus = resolveAzureBoardsCredentialStatusLabel(connection, credentialsReady);
   const organizationDisplay = formatAzureBoardsOrganizationUrl(connection);
+  const isInitialLoad = isLoading && !hasLoadedOnce;
 
   return (
     <div
-      className="w-full max-w-[68rem] space-y-8 px-4 py-8 sm:px-6 lg:px-8"
+      className={cn("w-full max-w-[68rem] px-4 py-6 sm:px-6 lg:px-8", OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="integrations-azure-boards-page"
     >
-      <PageHeading
-        navHref={INTEGRATIONS_AZURE_BOARDS_PATH}
-        title={AZURE_BOARDS_PAGE_TITLE}
-        variant="integration"
-        bordered
-        description={
-          <>
-            <p className={`m-0 max-w-2xl leading-relaxed ${OPERATOR_TYPOGRAPHY.helper}`}>
-              {AZURE_BOARDS_PAGE_DESCRIPTION}
-            </p>
-            <p className={`m-0 max-w-2xl ${OPERATOR_TYPOGRAPHY.helper}`}>{AZURE_BOARDS_PAGE_CLOUD_NEUTRALITY_NOTE}</p>
-            <p className={`m-0 max-w-2xl ${OPERATOR_TYPOGRAPHY.helper}`}>
-              <Link
-                href={INTEGRATIONS_READINESS_PATH}
-                className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}
-              >
-                Integration readiness
-              </Link>
-              {" — status across Azure Boards, Jira, ServiceNow, Teams, Slack, and webhooks."}
-            </p>
-          </>
-        }
+      <AzureBoardsIntegrationPageHeader
+        refreshing={isLoading}
+        lastRefreshedAt={lastRefreshedAt}
+        onRefresh={() => void refresh()}
       />
 
-      {isLoading && health === null && settings === null ? (
-        <OperatorLoadingNotice>{AZURE_BOARDS_LOADING_MESSAGE}</OperatorLoadingNotice>
+      {isInitialLoad ? (
+        <AzureBoardsIntegrationPageLoadingSkeleton />
       ) : (
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_17.5rem] lg:items-start">
-          <div className="min-w-0 space-y-8">
+        <div
+          className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_17.5rem] lg:items-start"
+          aria-busy={isLoading}
+          data-testid="azure-boards-page-content"
+        >
+          <div className={cn("min-w-0", OPERATOR_LAYOUT.majorSectionGap)}>
             <section aria-labelledby="azure-boards-status-heading" className="space-y-3" data-testid="azure-boards-connection-status">
               <div className="flex flex-wrap items-center gap-3">
                 <h2 id="azure-boards-status-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
@@ -427,7 +411,7 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
 
             <section
               aria-labelledby="azure-boards-connection-settings-heading"
-              className="space-y-4 rounded-md border border-neutral-200 p-5 dark:border-neutral-800"
+              className={cn("space-y-4 rounded-md border border-neutral-200 p-4 dark:border-neutral-800", OPERATOR_LAYOUT.sectionHeadingStack)}
               data-testid="azure-boards-connection-settings"
             >
               <div>
@@ -517,7 +501,7 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
 
             <section
               aria-labelledby="azure-boards-default-behavior-heading"
-              className="space-y-4 rounded-md border border-neutral-200 p-5 dark:border-neutral-800"
+              className={cn("space-y-4 rounded-md border border-neutral-200 p-4 dark:border-neutral-800", OPERATOR_LAYOUT.sectionHeadingStack)}
               data-testid="azure-boards-default-behavior"
             >
               <div>
@@ -628,15 +612,12 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
                 >
                   {isSaving ? AZURE_BOARDS_SAVING_SETTINGS_LABEL : AZURE_BOARDS_SAVE_SETTINGS_LABEL}
                 </Button>
-                <Button type="button" variant="outline" onClick={() => void refresh()} disabled={isSaving || isTesting}>
-                  {AZURE_BOARDS_RELOAD_BUTTON}
-                </Button>
               </div>
             </section>
 
             <section
               aria-labelledby="azure-boards-test-heading"
-              className="space-y-4 rounded-md border border-neutral-200 p-5 dark:border-neutral-800"
+              className={cn("space-y-4 rounded-md border border-neutral-200 p-4 dark:border-neutral-800", OPERATOR_LAYOUT.sectionHeadingStack)}
               data-testid="azure-boards-connection-test"
             >
               <div>

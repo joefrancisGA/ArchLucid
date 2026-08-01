@@ -16,6 +16,10 @@ import { ScopeSwitcher } from "@/components/ScopeSwitcher";
 import { ShellReadySurface } from "@/components/ShellReadySurface";
 import { Button } from "@/components/ui/button";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import {
+  EXECUTIVE_DASHBOARD_HREF,
+  isExecutiveDashboardPath,
+} from "@/lib/executive-dashboard-route";
 import { OPERATOR_SHELL_MAX_WIDTH_CLASS } from "@/lib/design-tokens";
 import { PERSONA_SHELL_WORKSPACE_LABEL } from "@/lib/persona-shell-vocabulary";
 import { isUiAuthorityThemeEvalEnabledEnv } from "@/lib/ui-authority-theme";
@@ -38,7 +42,7 @@ function executiveNavLinkClassName(isActive: boolean): string {
 }
 
 function isExecutiveDashboardNavActive(pathname: string): boolean {
-  return pathname === "/dashboard" || pathname.startsWith("/dashboard/");
+  return isExecutiveDashboardPath(pathname);
 }
 
 export function ExecutiveShellFrame({ children }: ExecutiveShellFrameProps) {
@@ -70,7 +74,7 @@ export function ExecutiveShellFrame({ children }: ExecutiveShellFrameProps) {
                 size="sm"
                 className={executiveNavLinkClassName(isExecutiveDashboardNavActive(pathname))}
               >
-                <Link href="/dashboard" data-testid="executive-shell-nav-dashboard">
+                <Link href={EXECUTIVE_DASHBOARD_HREF} data-testid="executive-shell-nav-dashboard">
                   Dashboard
                 </Link>
               </Button>

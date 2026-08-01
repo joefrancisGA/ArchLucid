@@ -6,7 +6,7 @@
 
 `GET /v1/roi/cross-tenant-portfolio` aggregates ROI and risk metrics across every tenant an identity can access, subject to **k-anonymity** (at least five active tenants).
 
-The standalone **Portfolio Dashboard** route (`/portfolio`) is **retired**; it permanently redirects to **Executive dashboard** (`/dashboard`), which is the canonical portfolio-overview surface in the architect workspace.
+The standalone **Portfolio Dashboard** route (`/portfolio`) is **retired**; it permanently redirects to **Executive dashboard** (`/architecture/executive-dashboard`), which is the canonical portfolio-overview surface in the architect workspace.
 
 ## Prerequisites
 

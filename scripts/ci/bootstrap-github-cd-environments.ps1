@@ -19,6 +19,7 @@
     -AcrLoginServer 'acrarchluciddev.azurecr.io' `
     -AzureResourceGroup 'rg-ArchLucid-dev' `
     -ContainerAppApiName 'archlucid-api' `
+    -ContainerAppMarketingUiName 'archlucid-ui-marketing' `
     -SmokeTestBaseUrl 'https://archlucid-api.<region>.azurecontainerapps.io'
 #>
 [CmdletBinding()]
@@ -35,6 +36,7 @@ param(
     [string]$ContainerAppApiName = 'archlucid-api',
     [string]$ContainerAppWorkerName = 'archlucid-worker',
     [string]$ContainerAppUiName = 'archlucid-ui',
+    [string]$ContainerAppMarketingUiName = 'archlucid-ui-marketing',
     [string]$SmokeTestBaseUrl,
     [string]$TfWorkingDirectory = 'infra/terraform-container-apps',
 
@@ -120,6 +122,7 @@ foreach ($envName in $Environments) {
     Set-EnvSecretIfPresent -Environment $envName -Name 'CONTAINER_APP_API_NAME' -Value $ContainerAppApiName
     Set-EnvSecretIfPresent -Environment $envName -Name 'CONTAINER_APP_WORKER_NAME' -Value $ContainerAppWorkerName
     Set-EnvSecretIfPresent -Environment $envName -Name 'CONTAINER_APP_UI_NAME' -Value $ContainerAppUiName
+    Set-EnvSecretIfPresent -Environment $envName -Name 'CONTAINER_APP_MARKETING_UI_NAME' -Value $ContainerAppMarketingUiName
     Set-EnvSecretIfPresent -Environment $envName -Name 'SMOKE_TEST_BASE_URL' -Value $SmokeTestBaseUrl
     Set-EnvSecretIfPresent -Environment $envName -Name 'TF_WORKING_DIRECTORY' -Value $TfWorkingDirectory
 }

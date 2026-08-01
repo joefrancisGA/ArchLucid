@@ -4,6 +4,7 @@ import {
   SPONSOR_REPORT_PILOT_OUTCOMES_PATH,
   SPONSOR_REPORT_ROI_SUMMARY_PATH,
 } from "@/lib/sponsor-report-navigation";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import { pathMatchesGovernanceAlerts, pathMatchesGovernanceAlertRules, pathMatchesGovernanceAudit } from "@/lib/governance-route-paths";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isPinnedDemoWorkspaceRunId } from "@/lib/demo-workspace-scope";
@@ -128,7 +129,7 @@ export function buyerPolishedRouteOrientation(
     };
   }
 
-  if (path === "/dashboard") {
+  if (path === EXECUTIVE_DASHBOARD_HREF || path.startsWith(`${EXECUTIVE_DASHBOARD_HREF}/`)) {
     // Executive dashboard carries its own portfolioPageLead hero (TB-1439) — not strip + body twins.
     return null;
   }

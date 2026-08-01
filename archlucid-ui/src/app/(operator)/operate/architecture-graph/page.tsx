@@ -1,6 +1,16 @@
 import { redirect } from "next/navigation";
 
-/** Tenant-level architecture graph entry (redirects to interactive React Flow viewer). */
-export default function ArchitectureGraphOperatePage() {
-  redirect("/graph");
+import { buildGraphRedirectPath } from "@/lib/legacy-architecture-graph-redirect";
+
+type ArchitectureGraphOperateRedirectPageProps = {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
+
+/** Legacy Operate entry — canonical Evidence graph lives on `/graph`. */
+export default async function ArchitectureGraphOperateRedirectPage({
+  searchParams,
+}: ArchitectureGraphOperateRedirectPageProps): Promise<never> {
+  const params = await searchParams;
+
+  redirect(buildGraphRedirectPath(params));
 }

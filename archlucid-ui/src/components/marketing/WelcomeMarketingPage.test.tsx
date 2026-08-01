@@ -5,21 +5,34 @@ vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
   return {
     ...actual,
-  useSearchParams: () => new URLSearchParams(),
-  redirect: vi.fn(),
+    useSearchParams: () => new URLSearchParams(),
+    redirect: vi.fn(),
     permanentRedirect: vi.fn(),
     notFound: vi.fn(),
   };
 });
 
-import { WELCOME_HERO_PITCH, WELCOME_WORKFLOW_STEPS } from "@/components/marketing/welcome-marketing-copy";
+import {
+  WELCOME_HERO_PITCH,
+  WELCOME_SEE_IT_CTA_LABEL,
+  WELCOME_SEE_IT_HREF,
+  WELCOME_WORKFLOW_STEPS,
+} from "@/components/marketing/welcome-marketing-copy";
 
+import { WelcomeMarketingEngagementPathsSection } from "./WelcomeMarketingEngagementPathsSection";
 import { WelcomeMarketingProofAtGlanceSection } from "./WelcomeMarketingProofAtGlanceSection";
 import { WelcomeMarketingPage } from "./WelcomeMarketingPage";
 
 function renderWelcomePage() {
   return render(
-    <WelcomeMarketingPage serverStaticSections={<WelcomeMarketingProofAtGlanceSection />} />,
+    <WelcomeMarketingPage
+      serverStaticSections={
+        <>
+          <WelcomeMarketingProofAtGlanceSection />
+          <WelcomeMarketingEngagementPathsSection />
+        </>
+      }
+    />,
   );
 }
 
@@ -59,7 +72,6 @@ describe("WelcomeMarketingPage", () => {
 
     expect(screen.getByRole("heading", { level: 1, name: /Defensible architecture, on demand/i })).toBeInTheDocument();
     expect(screen.getByTestId("welcome-hero-pitch")).toHaveTextContent(WELCOME_HERO_PITCH);
-    expect(screen.getByRole("button", { name: /join early access/i })).toBeInTheDocument();
     expect(screen.getByTestId("welcome-problem-solution")).toBeInTheDocument();
     expect(screen.getByTestId("welcome-core-workflow")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /Core workflow/i })).toBeInTheDocument();
@@ -91,36 +103,46 @@ describe("WelcomeMarketingPage", () => {
     });
   });
 
-  it("hero stack: subheading, self-serve inspection before optional walkthrough, correct hrefs, tertiary, FAQ cross-links", () => {
+  it("TB-1294/1295: hero budget — one primary conversion CTA and one secondary proof CTA above the fold", () => {
     renderWelcomePage();
 
-    expect(screen.getByTestId("welcome-hero-cta-subheading")).toHaveTextContent(
-      /architecture review built for governance/i,
-    );
-    expect(screen.getByTestId("welcome-hero-evaluation-reassurance")).toHaveTextContent(/no sales call required/i);
-
+    const heroStack = screen.getByTestId("welcome-hero-cta-stack");
     const primaryRow = screen.getByTestId("welcome-hero-primary-secondary-row");
-    const rowLinks = within(primaryRow).getAllByRole("link");
 
-    expect(rowLinks[0]).toHaveAttribute("data-testid", "welcome-self-demo-cta");
-    expect(rowLinks[0].getAttribute("href")).toContain("b6ab57c8-84b1-8ac6-28d8-d790efcd1dbf");
+    expect(within(heroStack).queryByTestId("welcome-hero-cta-subheading")).not.toBeInTheDocument();
+    expect(within(heroStack).queryByTestId("welcome-hero-evaluation-reassurance")).not.toBeInTheDocument();
+    expect(within(heroStack).queryByTestId("welcome-hero-tertiary-region")).not.toBeInTheDocument();
+    expect(within(heroStack).queryByTestId("welcome-hero-secondary-actions")).not.toBeInTheDocument();
+    expect(within(heroStack).queryByRole("button", { name: /join early access/i })).not.toBeInTheDocument();
 
-    expect(rowLinks[1]).toHaveAttribute("data-testid", "welcome-request-walkthrough-cta");
-    expect(rowLinks[1].getAttribute("href")).toMatch(/^mailto:/);
+    expect(within(primaryRow).getByTestId("welcome-self-demo-cta")).toBeInTheDocument();
+    expect(within(primaryRow).getByTestId("welcome-hero-see-it-cta")).toHaveAttribute("href", WELCOME_SEE_IT_HREF);
+    expect(within(primaryRow).queryByTestId("welcome-request-walkthrough-cta")).not.toBeInTheDocument();
+  });
 
-    const walkthroughAnchor = screen.getByTestId("welcome-request-walkthrough-cta");
-    const selfDemoAnchor = screen.getByTestId("welcome-self-demo-cta");
-    const earlyAccessControl = screen.getByRole("button", { name: /join early access/i });
+  it("TB-1296/1298: demoted engagement paths + honest see-it copy (no 30-second claim)", () => {
+    renderWelcomePage();
 
-    expect(selfDemoAnchor.compareDocumentPosition(walkthroughAnchor) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(walkthroughAnchor.compareDocumentPosition(earlyAccessControl) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    const engagement = screen.getByTestId("welcome-engagement-paths");
 
-    expect(screen.getByRole("link", { name: /how many files can i upload\?/i })).toHaveAttribute(
+    expect(within(engagement).getByTestId("welcome-request-walkthrough-cta")).toBeInTheDocument();
+    expect(within(engagement).getByRole("button", { name: /join early access/i })).toBeInTheDocument();
+    expect(within(engagement).getByRole("link", { name: /start an evaluation/i })).toHaveAttribute("href", "/signup");
+    expect(within(engagement).getByRole("link", { name: /^sign in$/i })).toBeInTheDocument();
+    expect(within(engagement).getByRole("link", { name: /prefer a longer walkthrough/i })).toHaveAttribute(
       "href",
-      "/faq#how-many-files-upload",
+      "/live-demo",
     );
-    expect(screen.getByRole("link", { name: /^demo workspaces$/i })).toHaveAttribute("href", "/faq#demo-workspaces");
-    expect(screen.getByRole("link", { name: /^product faq$/i })).toHaveAttribute("href", "/faq");
+    expect(within(engagement).getByRole("link", { name: /contoso worked example/i })).toHaveAttribute(
+      "href",
+      "/WORKED_EXAMPLE_ROI.pdf",
+    );
+
+    const pageText = document.body.textContent ?? "";
+
+    expect(pageText.toLowerCase()).not.toMatch(/see it in 30 seconds/);
+    expect(pageText.toLowerCase()).not.toMatch(/see it \(30s\)/);
+    expect(screen.getAllByRole("link", { name: WELCOME_SEE_IT_CTA_LABEL }).length).toBeGreaterThan(0);
   });
 
   it("pillar Verify links stay on buyer surfaces without docs/library contributor paths (TB-1297)", () => {

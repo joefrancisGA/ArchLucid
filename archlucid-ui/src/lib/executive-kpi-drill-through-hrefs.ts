@@ -1,5 +1,7 @@
 /** Drill-through targets for executive dashboard KPI tiles (TB-244). */
 
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
+
 export const EXECUTIVE_KPI_DRILL_THROUGH = {
   resolvedFindings30d: "/reviews",
   newlyDiscoveredFindings30d: "/governance/findings",
@@ -9,6 +11,6 @@ export const EXECUTIVE_KPI_DRILL_THROUGH = {
   findingsRemediated30d: "/governance/findings",
   costEvidenceFreshness: "/sponsor-report/pilot-outcomes",
   orphanCandidates: "/reviews?filter=orphan-candidates",
-  sqlBackupRegion: "/dashboard#executive-sql-backup-region-verification",
+  sqlBackupRegion: `${EXECUTIVE_DASHBOARD_HREF}#executive-sql-backup-region-verification`,
   complianceDrift: "/governance/dashboard",
 } as const;

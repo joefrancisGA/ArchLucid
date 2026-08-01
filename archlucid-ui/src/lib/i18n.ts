@@ -113,9 +113,11 @@ export const OPERATOR_NAV_GROUP_LABELS = {
 export const OPERATOR_NAV_LINK_LABELS = {
   /** Operator workspace landing (`/`) — left nav label; logo also routes here. */
   home: "Overview",
-  /** Operator-shell ROI dashboard (`/dashboard`); the standalone executive-chrome duplicate was retired (TB-608). */
+  /** Operator-shell ROI dashboard (`/architecture/executive-dashboard`); the standalone executive-chrome duplicate was retired (TB-608). */
   portfolioOverview: "Executive dashboard",
   executiveSummary: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.reviewExecutiveSummaryLabel,
+  /** Architecture draft inventory (`/architectures`). */
+  architectures: "Architectures",
   reviewPackage: "Reviews",
   evidenceTrail: BUYER_SURFACE_VOCABULARY.evidenceGraphNav,
   /** Left nav destination for `/reviews/new` — creation intake (brief, diagram, document, optional cloud). */

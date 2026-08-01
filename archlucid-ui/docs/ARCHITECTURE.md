@@ -161,7 +161,7 @@ The shell **does** shape navigation (and light Enterprise copy) using the authen
 | `/search` | `SearchPage` | Client | Semantic search across run content |
 | `/governance/advisory-scans` | `GovernanceAdvisoryScansPage` (hub) | Server shell + `AdvisoryHubClient` | `?tab=` — **scans** (default; improvement advisor), **schedules** (scan windows; legacy `/advisory` + `/advisory-scheduling` via next.config — TB-1124). |
 | `/alerts` | `AlertsPage` (hub) | Client | `?tab=` — **inbox** (default), **rules**, **routing**, **composite**, **simulation** (simulation + tuning). Legacy `/alert-*` paths redirect here. |
-| `/digests` | `DigestsPage` (hub) | Server shell + `DigestsHubClient` | `?tab=` — **browse** (default; digest list), **subscriptions** (email delivery), **schedule** (exec digest prefs; legacy `/digest-subscriptions` and `/settings/exec-digest` redirect). |
+| `/digests` | `DigestsPage` (hub) | Server shell + `DigestsHubClient` | `?tab=` — **browse** (default; digest list), **subscriptions** (email delivery), **schedule** (exec digest prefs; legacy `/digest-subscriptions` redirect). |
 | `/recommendation-learning` | `LearningPage` | Client | Learning profile display + rebuild |
 | `/policy-packs` | `PolicyPacksPage` | Client | Pack creation, publishing, assignment |
 | `/governance-resolution` | `GovernanceResolutionPage` | Client | Effective resolution display |

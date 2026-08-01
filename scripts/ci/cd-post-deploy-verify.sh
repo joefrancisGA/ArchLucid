@@ -74,12 +74,16 @@ http_get() {
   curl -sS -o "$out" -w "%{http_code}" --connect-timeout 20 --max-time 120 "$url"
 }
 
-# Optional X-Api-Key for authenticated synthetic warm-path probes (TB-758).
-http_get_with_optional_api_key() {
+# Optional X-Api-Key or Authorization: Bearer for authenticated synthetic warm-path probes (TB-758).
+http_get_with_optional_auth() {
   local url=$1
   local out=$2
 
-  if [ -n "${ARCHLUCID_API_KEY:-}" ]; then
+  if [ -n "${ARCHLUCID_BEARER_TOKEN:-}" ]; then
+    curl -sS -o "$out" -w "%{http_code}" --connect-timeout 20 --max-time 120 \
+      -H "Authorization: Bearer ${ARCHLUCID_BEARER_TOKEN}" \
+      "$url"
+  elif [ -n "${ARCHLUCID_API_KEY:-}" ]; then
     curl -sS -o "$out" -w "%{http_code}" --connect-timeout 20 --max-time 120 \
       -H "X-Api-Key: ${ARCHLUCID_API_KEY}" \
       "$url"
@@ -190,7 +194,7 @@ run_one_attempt() {
   if [ "$SYN" != "/version" ]; then
     echo ""
     echo "---- GET $BASE$SYN (SMOKE_SYNTHETIC_PATH) ----"
-    code=$(http_get_with_optional_api_key "$BASE$SYN" "$tmp/syn.txt") || {
+    code=$(http_get_with_optional_auth "$BASE$SYN" "$tmp/syn.txt") || {
       annotate_error "curl failed for $SYN"
       return 1
     }

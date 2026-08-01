@@ -7,6 +7,8 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { useSyncExternalStore } from "react";
 
 import { getBreadcrumbs } from "@/lib/breadcrumb-map";
+import { shouldShowBreadcrumbTrail } from "@/lib/breadcrumb-visibility";
+import { resolveBuyerGoldenJourneyNav } from "@/lib/buyer-golden-journey-nav";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { readReviewsListReturnHref } from "@/lib/usability/reviews-list-return-state";
 
@@ -23,8 +25,9 @@ function subscribeReviewsListReturnHref(onStoreChange: () => void): () => void {
 }
 
 /**
- * Location-aware breadcrumb trail (client — uses `usePathname`). Hidden on home only.
- * Rendered above page content so the trail aligns with the main column and stays on one line.
+ * Location-aware breadcrumb trail (client — uses `usePathname`). Omitted on shallow routes where
+ * sidebar active state and the page header already orient the user; shown for detail, deep, help,
+ * cross-namespace, and run-scoped trails.
  */
 export function Breadcrumbs() {
   const pathname = usePathname() ?? "/";
@@ -37,13 +40,24 @@ export function Breadcrumbs() {
     () => "/reviews?projectId=default",
   );
 
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerGoldenJourneyNav = buyerPolishedShell
+    ? resolveBuyerGoldenJourneyNav(pathname, { searchRunId: runIdTrimmed })
+    : null;
+
   const items = getBreadcrumbs(pathname, {
-    buyerPolishedShell: isBuyerPolishedOperatorShellEnv(),
+    buyerPolishedShell,
     queryRunId: runIdTrimmed,
     reviewsListReturnHref,
   });
 
-  if (items.length <= 1) {
+  if (
+    !shouldShowBreadcrumbTrail(pathname, items, {
+      queryRunId: runIdTrimmed,
+      reviewsListReturnHref,
+      buyerGoldenJourneyNav,
+    })
+  ) {
     return null;
   }
 

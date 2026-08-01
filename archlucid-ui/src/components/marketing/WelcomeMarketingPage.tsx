@@ -4,25 +4,22 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-import { HeroEarlyAccessCta } from "@/components/marketing/HeroEarlyAccessCta";
+import { CtaButton } from "@/components/marketing/CtaButton";
 import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
 import { MarketingTierPricingSection } from "@/components/marketing/MarketingTierPricingSection";
 import { SelfDemoRequestCta } from "@/components/marketing/SelfDemoRequestCta";
-import { WalkthroughRequestCta } from "@/components/marketing/WalkthroughRequestCta";
 import { WelcomeMarketingProblemSolutionSection } from "@/components/marketing/WelcomeMarketingProblemSolutionSection";
 import { WelcomeMarketingUseCasesSection } from "@/components/marketing/WelcomeMarketingUseCasesSection";
 import { WelcomeMarketingWorkflowSection } from "@/components/marketing/WelcomeMarketingWorkflowSection";
 import {
-  WELCOME_HERO_CTA_SUBHEADING,
-  WELCOME_HERO_EVALUATION_REASSURANCE,
   WELCOME_HERO_PITCH,
+  WELCOME_PROOF_LADDER_PRIMARY_HREF,
+  WELCOME_SEE_IT_CTA_LABEL,
 } from "@/components/marketing/welcome-marketing-copy";
-import { Button } from "@/components/ui/button";
 import { BUYER_MARKETING_PRICING_PAGE_INTRO } from "@/lib/buyer-polish-copy";
 import { BRAND_CATEGORY } from "@/lib/brand-category";
-import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { MARKETING_HERO_SECONDARY_CTA_CLASS, MARKETING_SURFACES, MARKETING_TYPOGRAPHY, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { CANONICAL_ANONYMOUS_PROOF_HREF } from "@/lib/showcase-static-demo";
-import { appSiteHref } from "@/lib/site-urls";
 
 type WelcomeVerifyLink = {
   readonly label: string;
@@ -74,7 +71,7 @@ const PILLARS: readonly WelcomePillar[] = [
     title: "AI-native architecture analysis",
     body: "Specialized agents run the Capture → Evidence → Review path on real architecture context — topology, cost, compliance, and design quality — and produce a versioned review with structured findings, not a chat thread that disappears.",
     verify: [
-      { label: "See it in 30 seconds", href: "/see-it" },
+      { label: WELCOME_SEE_IT_CTA_LABEL, href: WELCOME_PROOF_LADDER_PRIMARY_HREF },
       { label: "Security & trust", href: "/security-trust" },
       { label: "Claims sample review", href: CANONICAL_ANONYMOUS_PROOF_HREF },
       { label: "Product overview", href: "/help/product-overview" },
@@ -122,98 +119,22 @@ export function WelcomeMarketingPage(props: { readonly serverStaticSections?: Re
         >
           {WELCOME_HERO_PITCH}
         </p>
-        <div data-testid="welcome-hero-cta-stack" className="mt-8 flex w-full flex-col items-center gap-5">
-          <p
-            id="hero-cta-subheading"
-            className={cn("max-w-2xl text-lg font-semibold leading-snug text-neutral-800 dark:text-neutral-100 sm:", OPERATOR_TYPOGRAPHY.pageTitle)}
-            data-testid="welcome-hero-cta-subheading"
-          >
-            {WELCOME_HERO_CTA_SUBHEADING}
-          </p>
-
-          <p
-            className={cn("max-w-2xl text-center leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}
-            data-testid="welcome-hero-evaluation-reassurance"
-          >
-            {WELCOME_HERO_EVALUATION_REASSURANCE}
-          </p>
-
+        <div data-testid="welcome-hero-cta-stack" className="mt-8 flex w-full flex-col items-center gap-4">
           <div
             className="flex w-full max-w-2xl flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-center"
             data-testid="welcome-hero-primary-secondary-row"
-            aria-labelledby="hero-cta-subheading"
           >
             <SelfDemoRequestCta />
-            <WalkthroughRequestCta />
+            <CtaButton
+              href={WELCOME_PROOF_LADDER_PRIMARY_HREF}
+              variant="outline"
+              size="lg"
+              className={MARKETING_HERO_SECONDARY_CTA_CLASS}
+              data-testid="welcome-hero-see-it-cta"
+            >
+              {WELCOME_SEE_IT_CTA_LABEL}
+            </CtaButton>
           </div>
-
-          <div data-testid="welcome-hero-tertiary-region" className="flex w-full max-w-2xl flex-col items-center">
-            <HeroEarlyAccessCta className="max-w-md" />
-            <p className={cn("mt-2 max-w-lg text-center leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-              <span className="font-medium text-neutral-700 dark:text-neutral-300">FAQ:</span>{" "}
-              <Link
-                className={MARKETING_SURFACES.inlineLink}
-                href="/faq#how-many-files-upload"
-              >
-                How many files can I upload?
-              </Link>
-              {" · "}
-              <Link className={MARKETING_SURFACES.inlineLink} href="/faq#demo-workspaces">
-                Demo workspaces
-              </Link>
-              {" · "}
-              <Link className={MARKETING_SURFACES.inlineLink} href="/faq">
-                Product FAQ
-              </Link>
-              .
-            </p>
-          </div>
-
-          <div className="flex w-full flex-wrap items-center justify-center gap-2 sm:gap-3" data-testid="welcome-hero-secondary-actions">
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/see-it">See it in 30 seconds</Link>
-            </Button>
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/signup">Start an evaluation</Link>
-            </Button>
-            <Button asChild variant="ghost" size="sm">
-              <Link href={appSiteHref("/auth/signin")}>Sign in</Link>
-            </Button>
-          </div>
-        </div>
-
-        <div className="mt-6 text-center">
-          <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-            Canonical public sample:{" "}
-            <Link className={MARKETING_SURFACES.inlineLink} href={CANONICAL_ANONYMOUS_PROOF_HREF}>
-              Healthcare Claims Intake Modernization
-            </Link>{" "}
-            — illustrative sample review, no signup.{" "}
-            <Link className={MARKETING_SURFACES.inlineLink} href="/see-it">
-              See it in 30 seconds
-            </Link>
-            .
-          </p>
-          <p className={cn("mt-3 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-            <Link className={MARKETING_SURFACES.inlineLink} href="/WORKED_EXAMPLE_ROI.pdf">
-              See worked example (PDF)
-            </Link>{" "}
-            — fictional Contoso ROI numbers for illustration only (not the Claims showcase package).
-          </p>
-          <p className={cn("mt-3 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            <span className="font-semibold text-neutral-600 dark:text-neutral-300">Verify:</span>{" "}
-            <Link className={MARKETING_SURFACES.inlineLink} href="/why">
-              Why ArchLucid
-            </Link>
-            {" · "}
-            <Link className={MARKETING_SURFACES.inlineLink} href="/trust">
-              Trust center
-            </Link>
-            {" · "}
-            <Link className={MARKETING_SURFACES.inlineLink} href={CANONICAL_ANONYMOUS_PROOF_HREF}>
-              Claims sample review
-            </Link>
-          </p>
         </div>
       </section>
 

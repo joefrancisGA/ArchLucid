@@ -29,7 +29,7 @@ vi.mock("@/components/executive/ExecutiveDashboardDataContext", () => ({
   }),
 }));
 
-vi.mock("@/app/(operator)/dashboard/_sections/ExecutiveDashboardBaselineWarningBanner", () => ({
+vi.mock("@/app/(operator)/architecture/executive-dashboard/_sections/ExecutiveDashboardBaselineWarningBanner", () => ({
   ExecutiveDashboardBaselineWarningBanner: () => null,
   EXECUTIVE_DASHBOARD_BASELINE_UPLOAD_WIZARD_HREF: "/reviews/new?baseline=1",
 }));
@@ -42,19 +42,19 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
 }));
 
-vi.mock("@/app/(operator)/dashboard/_sections/ExecutiveComplianceDriftTrendSection", () => ({
+vi.mock("@/app/(operator)/architecture/executive-dashboard/_sections/ExecutiveComplianceDriftTrendSection", () => ({
   ExecutiveComplianceDriftTrendSection: () => <div data-testid="compliance-drift-section" />,
 }));
 
-vi.mock("@/app/(operator)/dashboard/_sections/SponsorExportsSection", () => ({
+vi.mock("@/app/(operator)/architecture/executive-dashboard/_sections/SponsorExportsSection", () => ({
   SponsorExportsSection: () => null,
 }));
 
-vi.mock("@/app/(operator)/dashboard/_sections/ExecutiveDashboardSupportingMetricsSection", () => ({
+vi.mock("@/app/(operator)/architecture/executive-dashboard/_sections/ExecutiveDashboardSupportingMetricsSection", () => ({
   ExecutiveDashboardSupportingMetricsSection: () => null,
 }));
 
-import { ExecutiveRoiDashboardPageView } from "@/app/(operator)/dashboard/_sections/ExecutiveRoiDashboardPageView";
+import { ExecutiveRoiDashboardPageView } from "@/app/(operator)/architecture/executive-dashboard/_sections/ExecutiveRoiDashboardPageView";
 import {
   EXECUTIVE_DASHBOARD_PAGE_SUBTITLE_BUYER,
   EXECUTIVE_DASHBOARD_PAGE_SUBTITLE_OPERATOR,

@@ -37,6 +37,33 @@ Copy the **same values** into all three environments until infra diverges.
 | Secret | Purpose |
 |--------|---------|
 | `DEV_TFVARS` | Multiline HCL body for `dev.tfvars` when planning/applying container-apps Terraform |
+| `DEV_JWT_PRIVATE_KEY_PEM` | RSA private key PEM (email OTP JWT minting + CD smoke Bearer token) |
+| `DEV_JWT_PUBLIC_KEY_PEM` | Matching RSA public key PEM (`ArchLucidAuth:JwtSigningPublicKeyPem` via `secretref:al-jwt-pub`) |
+| `DEV_EMAIL_OTP_HASH_PEPPER` | Pepper for OTP code hashes (`Auth:EmailOtp:HashPepper` via `secretref:al-otp-pepper`) |
+
+### Dev private-beta auth (optional)
+
+When **`DEV_PRIVATE_BETA_AUTH_ENABLED=true`** (repo variable), CD on `target=dev` switches the API from ApiKey to **JwtBearer + email OTP**, bakes **`NEXT_PUBLIC_ARCHLUCID_AUTH_MODE=jwt`** into the UI image, and mints a **Bearer JWT** for post-deploy smoke (instead of `ARCHLUCID_API_KEY`).
+
+| Name | Where | Example / notes |
+|------|-------|-----------------|
+| `DEV_PRIVATE_BETA_AUTH_ENABLED` | Repo variable | `true` to enable |
+| `DEV_OPERATOR_UI_BASE_URL` | Repo variable | `https://www.archlucid.net` — CORS, `Email:OperatorBaseUrl`, OIDC redirect base |
+| `DEV_JWT_LOCAL_ISSUER` | Repo variable | `https://www.archlucid.net` |
+| `DEV_JWT_LOCAL_AUDIENCE` | Repo variable | `api://archlucid-dev` |
+| `DEV_ACS_EMAIL_ENDPOINT` | Repo variable | From Terraform output `communication_email_endpoint` after `enable_communication_email_account` apply |
+| `DEV_EMAIL_FROM_ADDRESS` | Repo variable | `noreply@archlucid.net` (apex domain; requires ACS domain verification) |
+| `NEXT_PUBLIC_OIDC_AUTHORITY` | Repo variable (optional) | Entra v2.0 issuer for work/school sign-in button |
+| `NEXT_PUBLIC_OIDC_CLIENT_ID` | Repo variable (optional) | SPA client id |
+| `NEXT_PUBLIC_OIDC_SCOPES` | Repo variable (optional) | `openid profile offline_access api://…/access_as_user` |
+| `NEXT_PUBLIC_OIDC_REDIRECT_URI` | Repo variable (optional) | `{DEV_OPERATOR_UI_BASE_URL}/auth/callback` |
+| `NEXT_PUBLIC_OIDC_POST_LOGOUT_REDIRECT_URI` | Repo variable (optional) | `{DEV_OPERATOR_UI_BASE_URL}/` |
+
+Generate keys locally: `.\scripts\dev\enable-local-private-beta-auth.ps1` (writes `.local/dev-auth/`). Copy the PEM files and pepper into the GitHub secrets above.
+
+**Transactional email:** provision ACS with `infra/terraform-container-apps` (`enable_communication_email_account = true`), verify **`archlucid.net`** DNS, then set **`DEV_ACS_EMAIL_ENDPOINT`** and **`DEV_EMAIL_FROM_ADDRESS=noreply@archlucid.net`**. CD heals `Email:Provider=AzureCommunicationServices` on the API Container App.
+
+**OIDC note:** the UI can show a work/school button when `NEXT_PUBLIC_OIDC_*` are set, but the API validates **local PEM JWTs** in this profile. Entra access tokens are not accepted until dual-issuer validation ships or you switch the API to Entra `Authority` mode.
 
 ## Repository variables (recommended)
 

@@ -3,10 +3,13 @@
 import Link from "next/link";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   AZURE_BOARDS_CONNECTION_VERIFICATION_HELP_LABEL,
   AZURE_BOARDS_DOCUMENTATION_ASIDE_TITLE,
+  AZURE_BOARDS_HELP_TOPIC_HREF,
+  AZURE_BOARDS_HELP_TOPIC_LABEL,
   AZURE_BOARDS_LATEST_TEST_TITLE,
   AZURE_BOARDS_PERMISSIONS_ASIDE_BODY,
   AZURE_BOARDS_PERMISSIONS_ASIDE_TITLE,
@@ -37,21 +40,16 @@ export function AzureBoardsIntegrationAside(props: Props): React.ReactElement {
         <ol
           className={cn("m-0 mt-3 list-none space-y-2 p-0", OPERATOR_TYPOGRAPHY.body)}
           aria-label="Azure Boards setup progress"
+          data-testid="azure-boards-setup-progress"
         >
           {props.setupSteps.map((step) => (
-            <li key={step.id} className="flex items-start gap-2">
-              <span
-                aria-hidden="true"
-                className={cn(
-                  "mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-semibold",
-                  step.complete
-                    ? "bg-teal-100 text-teal-900 dark:bg-teal-950 dark:text-teal-100"
-                    : "bg-neutral-100 text-neutral-600 dark:bg-neutral-900 dark:text-neutral-300",
-                )}
-              >
-                {step.complete ? "✓" : "·"}
-              </span>
+            <li key={step.id} className="flex items-start justify-between gap-3">
               <span className={step.complete ? "text-al-text-primary" : "text-al-text-secondary"}>{step.label}</span>
+              <StatusTag
+                kind={step.complete ? "ready" : "neutral"}
+                label={step.complete ? "Done" : "Pending"}
+                data-testid={`azure-boards-setup-step-${step.id}`}
+              />
             </li>
           ))}
         </ol>
@@ -94,8 +92,12 @@ export function AzureBoardsIntegrationAside(props: Props): React.ReactElement {
         <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{AZURE_BOARDS_DOCUMENTATION_ASIDE_TITLE}</h2>
         <ul className={cn("m-0 mt-2 list-none space-y-2 p-0", OPERATOR_TYPOGRAPHY.helper)}>
           <li>
-            <Link href={inAppHelpHref("integrations/azure-boards")} className={cn(OPERATOR_LINK.inline)}>
-              Azure Boards integration guide
+            <Link
+              href={AZURE_BOARDS_HELP_TOPIC_HREF}
+              className={cn(OPERATOR_LINK.inline)}
+              data-testid="azure-boards-help-guide-link"
+            >
+              {AZURE_BOARDS_HELP_TOPIC_LABEL}
             </Link>
           </li>
           <li>

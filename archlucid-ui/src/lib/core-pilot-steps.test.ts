@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import { CORE_PILOT_STEP_COUNT, CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
 
 describe("core-pilot-steps", () => {
@@ -19,7 +20,7 @@ describe("core-pilot-steps", () => {
     const hrefs = CORE_PILOT_STEPS.map((step) => step.primaryHref);
 
     expect(hrefs).toContain("/settings/extract-upload");
-    expect(hrefs).toContain("/dashboard");
+    expect(hrefs).toContain(EXECUTIVE_DASHBOARD_HREF);
     expect(CORE_PILOT_STEPS.some((step) => step.title.toLowerCase().includes("audit"))).toBe(true);
   });
 

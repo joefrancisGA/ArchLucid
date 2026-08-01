@@ -14,6 +14,10 @@
 #   CONTAINER_APP_MARKETING_UI_NAME — optional marketing UI Container App (same image; TB-2016 dual-CA split)
 #   SMOKE_TEST_BASE_URL — required for staging/production post-deploy smoke; optional skip for dev only
 #   ARCHLUCID_API_KEY — required for product-path smoke + deployment-evidence OpenAPI (admin X-Api-Key; not break-glass)
+#   Dev private-beta auth (optional): set repo var DEV_PRIVATE_BETA_AUTH_ENABLED=true + vars/secrets below; CD switches
+#     dev API to JwtBearer + email OTP and bakes jwt/OIDC NEXT_PUBLIC_* into the UI image. Smoke mints a Bearer JWT.
+#     Vars: DEV_OPERATOR_UI_BASE_URL, DEV_JWT_LOCAL_ISSUER, DEV_JWT_LOCAL_AUDIENCE, NEXT_PUBLIC_OIDC_* (optional)
+#     Secrets (dev environment): DEV_JWT_PRIVATE_KEY_PEM, DEV_JWT_PUBLIC_KEY_PEM, DEV_EMAIL_OTP_HASH_PEPPER
 #   ARCHLUCID_CONTENT_SAFETY_ENDPOINT / ARCHLUCID_CONTENT_SAFETY_API_KEY — optional but required for Staging/Production-like
 #     API hosts; CD heals ArchLucid__ContentSafety__* + Container App secret al-cs-key (ArchLucid-owned account only)
 #   Product-path smoke: scripts/ci/cd_post_deploy_product_smoke.py (workspaces + why-archlucid read, UI /api/health, BFF)
@@ -283,6 +287,13 @@ jobs:
             NEXT_PUBLIC_BUILD_TIMESTAMP=${{ env.BUILD_TIMESTAMP }}
             NEXT_PUBLIC_DEPLOY_ENV=${{ env.DEPLOY_ENV }}
             NEXT_PUBLIC_API_UPSTREAM_HOST=${{ vars.API_UPSTREAM_HOST }}
+            NEXT_PUBLIC_ARCHLUCID_AUTH_MODE=${{ vars.DEV_PRIVATE_BETA_AUTH_ENABLED == 'true' && 'jwt' || '' }}
+            NEXT_PUBLIC_ARCHLUCID_EMAIL_OTP_ENABLED=${{ vars.DEV_PRIVATE_BETA_AUTH_ENABLED == 'true' && 'true' || '' }}
+            NEXT_PUBLIC_OIDC_AUTHORITY=${{ vars.NEXT_PUBLIC_OIDC_AUTHORITY }}
+            NEXT_PUBLIC_OIDC_CLIENT_ID=${{ vars.NEXT_PUBLIC_OIDC_CLIENT_ID }}
+            NEXT_PUBLIC_OIDC_SCOPES=${{ vars.NEXT_PUBLIC_OIDC_SCOPES }}
+            NEXT_PUBLIC_OIDC_REDIRECT_URI=${{ vars.NEXT_PUBLIC_OIDC_REDIRECT_URI }}
+            NEXT_PUBLIC_OIDC_POST_LOGOUT_REDIRECT_URI=${{ vars.NEXT_PUBLIC_OIDC_POST_LOGOUT_REDIRECT_URI }}
           push: true
           pull: true
           provenance: false
@@ -825,6 +836,8 @@ jobs:
         env:
           AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
           CONTAINER_APP_API_NAME: ${{ secrets.CONTAINER_APP_API_NAME }}
+          DEV_PRIVATE_BETA_AUTH_ENABLED: ${{ vars.DEV_PRIVATE_BETA_AUTH_ENABLED }}
+          DEV_OPERATOR_UI_BASE_URL: ${{ vars.DEV_OPERATOR_UI_BASE_URL }}
         run: |
           if [ -z "${AZURE_RESOURCE_GROUP:-}" ] || [ -z "${CONTAINER_APP_API_NAME:-}" ]; then
             echo "Config check skipped (AZURE_RESOURCE_GROUP or CONTAINER_APP_API_NAME not set)."
@@ -859,20 +872,47 @@ jobs:
             || fail "ConnectionStrings__ArchLucidSystem is not set"
           is_set "ArchLucid__SqlTopology__TenantCatalogConnectionStringTemplate" \
             || fail "ArchLucid__SqlTopology__TenantCatalogConnectionStringTemplate is not set"
-          is_exact "ArchLucidAuth__Mode" "ApiKey" \
-            || fail "ArchLucidAuth__Mode must be 'ApiKey'"
-          is_exact "Authentication__ApiKey__Enabled" "true" \
-            || fail "Authentication__ApiKey__Enabled must be 'true'"
-          is_set "Authentication__ApiKey__AdminKey" \
-            || fail "Authentication__ApiKey__AdminKey is not set"
-          is_guid "Authentication__ApiKey__TenantId" \
-            || fail "Authentication__ApiKey__TenantId is not a valid GUID"
+          TARGET="${{ github.event.inputs.target || 'dev' }}"
+          if [ "${DEV_PRIVATE_BETA_AUTH_ENABLED:-}" = "true" ] && [ "$TARGET" = "dev" ]; then
+            is_exact "ArchLucidAuth__Mode" "JwtBearer" \
+              || fail "ArchLucidAuth__Mode must be 'JwtBearer' when DEV_PRIVATE_BETA_AUTH_ENABLED=true"
+            if ! is_set "ArchLucidAuth__JwtSigningPublicKeyPem"; then
+              is_set "ArchLucidAuth__JwtSigningPublicKeyPemPath" \
+                || fail "ArchLucidAuth__JwtSigningPublicKeyPem or JwtSigningPublicKeyPemPath is not set"
+            fi
+            is_set "ArchLucidAuth__JwtLocalIssuer" \
+              || fail "ArchLucidAuth__JwtLocalIssuer is not set"
+            is_set "ArchLucidAuth__JwtLocalAudience" \
+              || fail "ArchLucidAuth__JwtLocalAudience is not set"
+            is_exact "Auth__EmailOtp__Enabled" "true" \
+              || fail "Auth__EmailOtp__Enabled must be 'true'"
+            is_set "Auth__EmailOtp__HashPepper" \
+              || fail "Auth__EmailOtp__HashPepper is not set"
+            is_set "Email__OperatorBaseUrl" \
+              || fail "Email__OperatorBaseUrl is not set"
+            is_exact "Email__Provider" "AzureCommunicationServices" \
+              || fail "Email__Provider must be 'AzureCommunicationServices'"
+            is_set "Email__AzureCommunicationServicesEndpoint" \
+              || fail "Email__AzureCommunicationServicesEndpoint is not set"
+            is_set "Email__FromAddress" \
+              || fail "Email__FromAddress is not set"
+            is_set "Cors__AllowedOrigins__0" \
+              || fail "Cors__AllowedOrigins__0 is not set"
+          else
+            is_exact "ArchLucidAuth__Mode" "ApiKey" \
+              || fail "ArchLucidAuth__Mode must be 'ApiKey'"
+            is_exact "Authentication__ApiKey__Enabled" "true" \
+              || fail "Authentication__ApiKey__Enabled must be 'true'"
+            is_set "Authentication__ApiKey__AdminKey" \
+              || fail "Authentication__ApiKey__AdminKey is not set"
+            is_guid "Authentication__ApiKey__TenantId" \
+              || fail "Authentication__ApiKey__TenantId is not a valid GUID"
+          fi
           # Hosted RC/dev keeps Contoso showcase seed on every API revision (sample-run deep links).
           # Staging/production must never enable Demo — buyer/pilot hosts stay seed-free.
           # ASPNETCORE_ENVIRONMENT=Staging (not Production) so Demo:Enabled passes production-profile safety rules.
           # Demo__SaaSGuestSeedEnabled allows idempotent POST /v1/demo/seed on Staging (startup seed alone is EnableShowcaseSeed).
           if [ "${{ github.event.inputs.target || 'dev' }}" = "dev" ]; then
-            # Auto-heal before assert so the first CD after this policy lands is not blocked by Demo__Enabled=false.
             if ! is_exact "Demo__Enabled" "true" \
               || ! is_exact "Demo__EnableShowcaseSeed" "true" \
               || ! is_exact "Demo__SaaSGuestSeedEnabled" "true" \
@@ -960,6 +1000,15 @@ jobs:
           CD_CANARY_ENABLED: ${{ vars.CD_CANARY_ENABLED }}
           ARCHLUCID_CONTENT_SAFETY_ENDPOINT: ${{ secrets.ARCHLUCID_CONTENT_SAFETY_ENDPOINT }}
           ARCHLUCID_CONTENT_SAFETY_API_KEY: ${{ secrets.ARCHLUCID_CONTENT_SAFETY_API_KEY }}
+          DEV_PRIVATE_BETA_AUTH_ENABLED: ${{ vars.DEV_PRIVATE_BETA_AUTH_ENABLED }}
+          DEV_OPERATOR_UI_BASE_URL: ${{ vars.DEV_OPERATOR_UI_BASE_URL }}
+          DEV_JWT_LOCAL_ISSUER: ${{ vars.DEV_JWT_LOCAL_ISSUER }}
+          DEV_JWT_LOCAL_AUDIENCE: ${{ vars.DEV_JWT_LOCAL_AUDIENCE }}
+          DEV_JWT_PRIVATE_KEY_PEM: ${{ secrets.DEV_JWT_PRIVATE_KEY_PEM }}
+          DEV_JWT_PUBLIC_KEY_PEM: ${{ secrets.DEV_JWT_PUBLIC_KEY_PEM }}
+          DEV_EMAIL_OTP_HASH_PEPPER: ${{ secrets.DEV_EMAIL_OTP_HASH_PEPPER }}
+          DEV_ACS_EMAIL_ENDPOINT: ${{ vars.DEV_ACS_EMAIL_ENDPOINT }}
+          DEV_EMAIL_FROM_ADDRESS: ${{ vars.DEV_EMAIL_FROM_ADDRESS }}
         run: |
           set -euo pipefail
           # Digest-only deploy — never resolve latest, never rebuild, never re-infer tag from github.sha.
@@ -980,6 +1029,28 @@ jobs:
               --secrets "al-cs-key=${ARCHLUCID_CONTENT_SAFETY_API_KEY}" \
               -o none
           fi
+          if [ "${DEV_PRIVATE_BETA_AUTH_ENABLED:-}" = "true" ] && [ "${{ github.event.inputs.target || 'dev' }}" = "dev" ]; then
+            if [ -z "${DEV_JWT_PRIVATE_KEY_PEM:-}" ] || [ -z "${DEV_JWT_PUBLIC_KEY_PEM:-}" ] || [ -z "${DEV_EMAIL_OTP_HASH_PEPPER:-}" ]; then
+              echo "::error::DEV_PRIVATE_BETA_AUTH_ENABLED=true requires secrets DEV_JWT_PRIVATE_KEY_PEM, DEV_JWT_PUBLIC_KEY_PEM, DEV_EMAIL_OTP_HASH_PEPPER"
+              exit 1
+            fi
+            if [ -z "${DEV_OPERATOR_UI_BASE_URL:-}" ] || [ -z "${DEV_JWT_LOCAL_ISSUER:-}" ] || [ -z "${DEV_JWT_LOCAL_AUDIENCE:-}" ]; then
+              echo "::error::DEV_PRIVATE_BETA_AUTH_ENABLED=true requires vars DEV_OPERATOR_UI_BASE_URL, DEV_JWT_LOCAL_ISSUER, DEV_JWT_LOCAL_AUDIENCE"
+              exit 1
+            fi
+            if [ -z "${DEV_ACS_EMAIL_ENDPOINT:-}" ] || [ -z "${DEV_EMAIL_FROM_ADDRESS:-}" ]; then
+              echo "::error::DEV_PRIVATE_BETA_AUTH_ENABLED=true requires vars DEV_ACS_EMAIL_ENDPOINT and DEV_EMAIL_FROM_ADDRESS (ACS transactional email for OTP)."
+              exit 1
+            fi
+            OPERATOR_BASE="${DEV_OPERATOR_UI_BASE_URL%/}"
+            echo "Healing dev private-beta auth secrets/env on API Container App..."
+            az containerapp secret set -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" \
+              --secrets \
+                "al-jwt-priv=${DEV_JWT_PRIVATE_KEY_PEM}" \
+                "al-jwt-pub=${DEV_JWT_PUBLIC_KEY_PEM}" \
+                "al-otp-pepper=${DEV_EMAIL_OTP_HASH_PEPPER}" \
+              -o none
+          fi
           # target=dev: pin Contoso showcase seed env on every API roll (idempotent startup seed).
           API_ENV_VARS=(
             "CD_DEPLOY_RUN=$DEPLOY_STAMP"
@@ -994,6 +1065,27 @@ jobs:
               "Demo__SaaSGuestSeedEnabled=true"
             )
             echo "Dev Contoso seed env: ASPNETCORE_ENVIRONMENT=Staging Demo__Enabled=true Demo__EnableShowcaseSeed=true Demo__SaaSGuestSeedEnabled=true"
+          fi
+          if [ "${DEV_PRIVATE_BETA_AUTH_ENABLED:-}" = "true" ] && [ "${{ github.event.inputs.target || 'dev' }}" = "dev" ]; then
+            OPERATOR_BASE="${DEV_OPERATOR_UI_BASE_URL%/}"
+            API_ENV_VARS+=(
+              "ArchLucidAuth__Mode=JwtBearer"
+              "ArchLucidAuth__JwtSigningPublicKeyPem=secretref:al-jwt-pub"
+              "ArchLucidAuth__JwtLocalIssuer=${DEV_JWT_LOCAL_ISSUER}"
+              "ArchLucidAuth__JwtLocalAudience=${DEV_JWT_LOCAL_AUDIENCE}"
+              "Auth__Trial__LocalIdentity__JwtPrivateKeyPem=secretref:al-jwt-priv"
+              "Auth__Trial__LocalIdentity__JwtIssuer=${DEV_JWT_LOCAL_ISSUER}"
+              "Auth__Trial__LocalIdentity__JwtAudience=${DEV_JWT_LOCAL_AUDIENCE}"
+              "Auth__EmailOtp__Enabled=true"
+              "Auth__EmailOtp__HashPepper=secretref:al-otp-pepper"
+              "Email__OperatorBaseUrl=${OPERATOR_BASE}"
+              "Cors__AllowedOrigins__0=${OPERATOR_BASE}"
+              "Email__Provider=AzureCommunicationServices"
+              "Email__AzureCommunicationServicesEndpoint=${DEV_ACS_EMAIL_ENDPOINT}"
+              "Email__FromAddress=${DEV_EMAIL_FROM_ADDRESS}"
+              "Email__FromDisplayName=ArchLucid"
+            )
+            echo "Dev private-beta auth env: JwtBearer + email OTP + ACS From=${DEV_EMAIL_FROM_ADDRESS}"
           fi
           if [ -n "${ARCHLUCID_CONTENT_SAFETY_ENDPOINT:-}" ] && [ -n "${ARCHLUCID_CONTENT_SAFETY_API_KEY:-}" ]; then
             API_ENV_VARS+=(
@@ -1285,6 +1377,31 @@ jobs:
             global.json
             **/*.csproj
 
+      - name: Mint smoke Bearer JWT (dev private-beta auth)
+        if: vars.DEV_PRIVATE_BETA_AUTH_ENABLED == 'true' && (github.event.inputs.target || 'dev') == 'dev'
+        env:
+          DEV_JWT_PRIVATE_KEY_PEM: ${{ secrets.DEV_JWT_PRIVATE_KEY_PEM }}
+          DEV_JWT_LOCAL_ISSUER: ${{ vars.DEV_JWT_LOCAL_ISSUER }}
+          DEV_JWT_LOCAL_AUDIENCE: ${{ vars.DEV_JWT_LOCAL_AUDIENCE }}
+        run: |
+          set -euo pipefail
+          if [ -z "${DEV_JWT_PRIVATE_KEY_PEM:-}" ] || [ -z "${DEV_JWT_LOCAL_ISSUER:-}" ] || [ -z "${DEV_JWT_LOCAL_AUDIENCE:-}" ]; then
+            echo "::error::Cannot mint smoke JWT — set DEV_JWT_PRIVATE_KEY_PEM secret and DEV_JWT_LOCAL_ISSUER / DEV_JWT_LOCAL_AUDIENCE vars."
+            exit 1
+          fi
+          pip install --quiet PyJWT cryptography
+          printf '%s' "$DEV_JWT_PRIVATE_KEY_PEM" > /tmp/dev-smoke-jwt-priv.pem
+          TOKEN=$(python3 scripts/ci/mint_ci_jwt.py \
+            --private-key /tmp/dev-smoke-jwt-priv.pem \
+            --issuer "$DEV_JWT_LOCAL_ISSUER" \
+            --audience "$DEV_JWT_LOCAL_AUDIENCE" \
+            --name "CdSmokeAdmin" \
+            --roles Admin \
+            --print-token)
+          rm -f /tmp/dev-smoke-jwt-priv.pem
+          echo "ARCHLUCID_BEARER_TOKEN=$TOKEN" >> "$GITHUB_ENV"
+          echo "Minted smoke Bearer JWT for dev private-beta auth (not printed)."
+
       - name: Azure login (OIDC) for canary promotion
         if: vars.CD_CANARY_ENABLED == 'true'
         uses: azure/login@v2
@@ -1394,6 +1511,7 @@ jobs:
         env:
           SMOKE_TEST_BASE_URL: ${{ secrets.SMOKE_TEST_BASE_URL }}
           ARCHLUCID_API_KEY: ${{ secrets.ARCHLUCID_API_KEY }}
+          ARCHLUCID_BEARER_TOKEN: ${{ env.ARCHLUCID_BEARER_TOKEN }}
           BUILD_ID: ${{ needs.build-push-images.outputs.build_id }}
           UI_FQDN: ${{ needs.deploy-container-apps.outputs.ui_fqdn }}
           CD_POST_DEPLOY_MAX_ATTEMPTS: ${{ vars.CD_POST_DEPLOY_MAX_ATTEMPTS }}
@@ -1411,6 +1529,7 @@ jobs:
             --expected-build-id "${BUILD_ID}" \
             --api-base-url "${SMOKE_TEST_BASE_URL:-}" \
             --api-key "${ARCHLUCID_API_KEY:-}" \
+            --bearer-token "${ARCHLUCID_BEARER_TOKEN:-}" \
             --ui-base-url "${UI_BASE}" \
             --max-attempts "${CD_POST_DEPLOY_MAX_ATTEMPTS:-6}" \
             --retry-wait-seconds "${CD_POST_DEPLOY_RETRY_WAIT_SECONDS:-10}" \
@@ -1432,6 +1551,7 @@ jobs:
         env:
           SMOKE_TEST_BASE_URL: ${{ secrets.SMOKE_TEST_BASE_URL }}
           ARCHLUCID_API_KEY: ${{ secrets.ARCHLUCID_API_KEY }}
+          ARCHLUCID_BEARER_TOKEN: ${{ env.ARCHLUCID_BEARER_TOKEN }}
           SMOKE_SYNTHETIC_PATH: ${{ vars.SMOKE_SYNTHETIC_PATH }}
           CD_POST_DEPLOY_MAX_ATTEMPTS: ${{ vars.CD_POST_DEPLOY_MAX_ATTEMPTS }}
           CD_POST_DEPLOY_RETRY_WAIT_SECONDS: ${{ vars.CD_POST_DEPLOY_RETRY_WAIT_SECONDS }}
@@ -1447,8 +1567,8 @@ jobs:
             echo "SMOKE_TEST_BASE_URL not set — skipping post-deploy validation (dev only)."
             exit 0
           fi
-          if [ -z "${ARCHLUCID_API_KEY:-}" ]; then
-            echo "::error::ARCHLUCID_API_KEY not set — deployment-evidence OpenAPI probe requires admin X-Api-Key."
+          if [ -z "${ARCHLUCID_API_KEY:-}" ] && [ -z "${ARCHLUCID_BEARER_TOKEN:-}" ]; then
+            echo "::error::ARCHLUCID_API_KEY or ARCHLUCID_BEARER_TOKEN must be set — deployment-evidence synthetic probe requires authenticated access."
             exit 1
           fi
           OUT="artifacts/deployment-evidence-${{ github.event.inputs.target || 'dev' }}-${{ github.run_id }}.md"

@@ -121,9 +121,9 @@ Configured in `archlucid-ui/next.config.ts`:
 | `/alert-routing` | `/alerts?tab=routing` |
 | `/composite-alert-rules` | `/alerts?tab=composite` |
 | `/alert-simulation`, `/alert-tuning` | `/alerts?tab=simulation` |
-| `/login` | `/auth/signin` (page redirect; query preserved) |
+| `/login` | `/auth/signin` or `/auth/session-expired` when `reason=idle-timeout` (App Router shim; query preserved) |
 | `/onboard`, `/getting-started` | `/onboarding` (page redirect) |
-| `/settings/alerts` | `/alerts?tab=rules` (page redirect) |
+| `/quick-start`, `/quick-start/*` | `/get-started` (301; App Router shim preserves query) |
 | `/portfolio` | `/dashboard` (301) |
 | `/executive/reviews`, `/executive/reviews/*` | `/reviews`, `/reviews/*` (301) |
 
@@ -152,7 +152,7 @@ Columns:
 | `/pricing` | Packaging and pricing overview | Open directly |
 | `/privacy` | Privacy policy | Open directly |
 | `/quick-scan` | Quick scan marketing entry | Open directly |
-| `/quick-start` | Quick start guide | Open directly |
+| `/quick-start` | Deprecated alias | App Router shim permanently redirects to `/get-started` (query preserved; canonical UX on **GXX**) |
 | `/security-trust` | Public Security & trust (metadata only) | Open directly |
 | `/see-it` | “See it in 30 seconds” pitch | Open directly |
 | `/showcase/[runId]` | Public completed review showcase | T1: `/showcase/claims-intake-modernization`. QuickNav deep-links into `/reviews/*` only when demo static fallback is active; otherwise sign-in CTA (`showcase-quick-nav-contract.ts`). |
@@ -169,7 +169,7 @@ Columns:
 |-----|---------|-------------|
 | `/auth/signin` | Start OIDC/JWT sign-in | Set `NEXT_PUBLIC_ARCHLUCID_AUTH_MODE=jwt` + IdP; dev-bypass shows notice on home otherwise |
 | `/auth/callback` | OAuth redirect handler | Only during real OIDC flow |
-| `/login` | Legacy shim | Redirects to `/auth/signin` |
+| `/login` | Legacy shim | Redirects to `/auth/signin`; `reason=idle-timeout` → `/auth/session-expired` (canonical sign-in UX on **ASI**) |
 
 ### Architect home and core workflow
 
@@ -186,14 +186,14 @@ Columns:
 | `/manifests/[manifestId]` | Manifest summary, artifacts, bundle | T1: `a1c2e3f4-a5b6-7890-abcd-ef1234567890` |
 | `/graph` | Evidence / architecture graph | T1: `/graph?runId=claims-intake-modernization` → **Load graph** |
 | `/onboarding` | In-product onboarding | T1/T2; T2 may show `trialSampleRunId` from API |
-| `/onboarding/start` | Onboarding start step | From onboarding or direct |
-| `/onboard` | Deprecated alias | Redirects to `/onboarding` |
-| `/getting-started` | Deprecated alias | Redirects to `/onboarding` |
+| `/onboarding/start` | Deprecated alias | App Router shim permanently redirects to `/onboarding` (query preserved; canonical UX on **ONB**) |
+| `/onboard` | Deprecated alias | App Router shim permanently redirects to `/onboarding` (query preserved; canonical UX on **ONB**) |
+| `/getting-started` | Deprecated alias | App Router shim permanently redirects to `/onboarding` (query preserved) |
 | `/help` | In-app help index | Open directly |
-| `/help/[topic]` | Rendered help topic | e.g. `/help/getting-started`, `/help/knowledge-graph`, `/help/alerts` (slugs in `product-documentation-registry.ts`) |
+| `/help/[topic]` | Rendered help topic | e.g. `/help/getting-started`, `/help/first-architecture-review` (specialty `HelpCorePilotGuideView`), `/help/billing-and-plans` (specialty `HelpBillingAndPlansGuideView`), `/help/executive-summary` (specialty `HelpExecutiveSummaryGuideView`), `/help/alerts` (slugs in `product-documentation-registry.ts`) |
 | `/demo` | CTO demo tour entry | CTO demo pack env; else redirects `/` |
 | `/demo/explain` | Internal demo explanation | T2: `GET /v1/demo/explain`; T3 mock; blocked in strict T1 |
-| `/snapshot/[runId]` | Leave-behind → executive summary | T1: `/snapshot/claims-intake-modernization` |
+| `/snapshot/[runId]` | Deprecated leave-behind | App Router shim redirects to `/reviews/{runId}?readOnly=1` (query preserved). Showcase run uses Claims Intake spine. CTO recap still emits `/snapshot/...` links. T1: `/snapshot/claims-intake-modernization?v=demo` |
 | `/403` | Unauthorized (no recognized app role) | Hard to hit under dev-bypass |
 | `/why-archlucid` | Internal proof (live instrumentation) | T2 Docker seed; hidden in buyer-polished demo |
 
@@ -239,9 +239,9 @@ Layer guidance copy for many governance/analysis routes: `archlucid-ui/src/lib/l
 | `/scorecard` | Review scorecard | T1 showcase context; T3 mock |
 | `/recommendation-learning` | Recommendation tuning | T3 mock; blocked in strict demo |
 | `/product-learning` | Pilot feedback capture | T3 mock |
-| `/integrations/operations` | Connector readiness health | T3 mock or T2 |
+| `/administration/connection-status` | Connection status (connector readiness hub) | Administration nav; `ConnectorOperationsDashboard` + contextual help. T3 mock or T2 |
 | `/integrations/teams` | Microsoft Teams wiring | T3 mock |
-| `/health` | System health dashboard | T2 live health; T1 partial |
+| `/administration/system-health` | System health dashboard | T2 live health; T1 partial |
 | `/replay` | Replay authority chain | `/replay?runId=claims-intake-modernization`; T2 for real replay |
 | `/planning` | Planning hub | T1/T3 |
 | `/planning/plans/[planId]` | Plan detail | T1: `claims-intake-modernization-plan` |
@@ -252,7 +252,8 @@ Layer guidance copy for many governance/analysis routes: `archlucid-ui/src/lib/l
 | `/digest-subscriptions` | Digest subscriptions | T3 mock |
 | `/patterns` | Architecture pattern library | T3 mock or API if seeded |
 | `/portfolio` | Retired — redirects to `/dashboard` | Legacy bookmark only |
-| `/operate/architecture-graph` | Tenant graph entry | Redirects to `/graph` |
+| `/operate/architecture-graph` | Legacy Operate shim | App Router redirect to `/graph` (query preserved; canonical UX on **GRA**) |
+| `/architecture-intelligence` | Closed-loop architecture reasoning lab | Execute role; deep-link with `?runId=` from reviews/findings. Golden fixture + publish round trip. |
 | `/operate/integration-events/dlq` | Integration event DLQ | Full architect workspace + Admin + T2 API |
 
 ### Executive route group
@@ -282,10 +283,7 @@ Lighter chrome than the full architect workspace; `(executive)` route group does
 | `/settings/webhooks` | Webhooks | Admin + API |
 | `/settings/roles` | Role assignment | Admin + API |
 | `/settings/baseline` | ROI baseline config | T3 mock |
-| `/settings/exec-digest` | Executive digest settings | T3 mock |
 | `/settings/extract-upload` | Extract/upload config | Allowed in CTO demo (`DEMO_ALLOWED_SETTINGS_PATHS`) |
-| `/settings/alerts` | Legacy alias | Redirects to `/alerts?tab=rules` |
-
 ### Admin
 
 Requires **Admin authority**, full architect workspace, no demo nav blockers, and Tier 2 API (or Tier 3 mock with E2E bypass).

@@ -24,7 +24,7 @@ type OperatorHomeWorkspaceMetricsSummaryProps = {
   readonly setupTotalCount: number;
   readonly setupReadinessLoading: boolean;
   /** Primary KPIs stay visible; secondary metrics render inside View details. */
-  readonly variant?: "primary" | "secondary";
+  readonly variant?: "primary" | "secondary" | "hero-inline";
 };
 
 type MetricItemProps = {
@@ -92,6 +92,30 @@ export function OperatorHomeWorkspaceMetricsSummary(props: OperatorHomeWorkspace
         >
           {OPERATOR_HOME_WORKSPACE_METRICS_EMPTY_COPY}
         </p>
+      </div>
+    );
+  }
+
+  if (variant === "hero-inline") {
+    return (
+      <div data-testid="operator-home-hero-kpi-strip" aria-label="Workspace summary">
+        <dl className="m-0 flex flex-wrap gap-x-4 gap-y-2">
+          <MetricItem
+            label="Reviews"
+            value={buildReviewPackagesValue(metrics)}
+            href={OPERATOR_HOME_ARCHITECTURE_PACKAGES_HREF}
+          />
+          <MetricItem
+            label="Open findings"
+            value={String(metrics.openFindings)}
+            href={OPERATOR_HOME_OPEN_FINDINGS_HREF}
+          />
+          <MetricItem
+            label="Governance warnings"
+            value={String(metrics.governanceWarnings)}
+            href={OPERATOR_HOME_GOVERNANCE_WARNINGS_HREF}
+          />
+        </dl>
       </div>
     );
   }

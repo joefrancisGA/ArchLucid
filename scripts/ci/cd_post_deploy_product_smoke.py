@@ -154,11 +154,14 @@ def default_http_get(url: str, headers: dict[str, str], timeout_sec: float) -> t
         return 0, f"{type(exc).__name__}: {exc}"
 
 
-def redact_secrets(text: str, api_key: str) -> str:
+def redact_secrets(text: str, api_key: str, bearer_token: str = "") -> str:
     redacted = text
 
     if api_key:
         redacted = redacted.replace(api_key, "***")
+
+    if bearer_token:
+        redacted = redacted.replace(bearer_token, "***")
 
     return redacted[:400]
 
@@ -239,6 +242,7 @@ def run_product_smoke(
     expected_build_id: str,
     api_base_url: str,
     api_key: str,
+    bearer_token: str = "",
     ui_base_url: str = "",
     max_attempts: int = 6,
     retry_wait_seconds: float = 10.0,
@@ -252,6 +256,7 @@ def run_product_smoke(
     )
     api_base = normalize(api_base_url)
     key = normalize(api_key)
+    bearer = normalize(bearer_token)
     ui_base = normalize(ui_base_url)
     strict = is_strict_environment(environment)
     attempts = max(1, int(max_attempts))
@@ -275,16 +280,16 @@ def run_product_smoke(
 
         return report
 
-    if not key:
+    if not key and not bearer:
         report.checks.append(
             SmokeCheckResult(
                 "config_api_key",
                 required=strict,
                 passed=not strict,
                 duration_ms=0,
-                detail="ARCHLUCID_API_KEY required for authenticated product read"
+                detail="ARCHLUCID_API_KEY or ARCHLUCID_BEARER_TOKEN required for authenticated product read"
                 if strict
-                else "API key unset — skipping authenticated product checks (dev)",
+                else "API key / bearer token unset — skipping authenticated product checks (dev)",
                 skipped=not strict,
             )
         )
@@ -294,7 +299,9 @@ def run_product_smoke(
 
     auth_headers = {"Accept": "application/json"}
 
-    if key:
+    if bearer:
+        auth_headers["Authorization"] = f"Bearer {bearer}"
+    elif key:
         auth_headers["X-Api-Key"] = key
 
     anon_headers = {"Accept": "application/json"}
@@ -305,7 +312,7 @@ def run_product_smoke(
     # --- required API infrastructure (also summarized here for one table) ---
     def check_live() -> tuple[bool, str]:
         code, body = get(join_url(api_base, "/health/live"), anon_headers)
-        return code == 200, redact_secrets(f"HTTP {code}", key)
+        return code == 200, redact_secrets(f"HTTP {code}", key, bearer)
 
     report.checks.append(
         run_with_retries(
@@ -321,7 +328,7 @@ def run_product_smoke(
         code, body = get(join_url(api_base, "/health/ready"), anon_headers)
 
         if code != 200:
-            return False, redact_secrets(f"HTTP {code}", key)
+            return False, redact_secrets(f"HTTP {code}", key, bearer)
 
         try:
             status = json.loads(body).get("status")
@@ -408,7 +415,7 @@ def run_product_smoke(
         code, body = get(join_url(api_base, "/v1/tenant/workspaces"), auth_headers)
 
         if code != 200:
-            return False, redact_secrets(f"HTTP {code} {body[:160]}", key)
+            return False, redact_secrets(f"HTTP {code} {body[:160]}", key, bearer)
 
         try:
             payload = json.loads(body)
@@ -440,7 +447,7 @@ def run_product_smoke(
         code, body = get(join_url(api_base, "/v1/pilots/why-archlucid-snapshot"), auth_headers)
 
         if code != 200:
-            return False, redact_secrets(f"HTTP {code} {body[:160]}", key)
+            return False, redact_secrets(f"HTTP {code} {body[:160]}", key, bearer)
 
         try:
             payload = json.loads(body)
@@ -482,7 +489,7 @@ def run_product_smoke(
             return False, f"{detail} — optional"
 
         if code != 200:
-            return False, redact_secrets(f"HTTP {code}", key)
+            return False, redact_secrets(f"HTTP {code}", key, bearer)
 
         return True, "Contoso baseline summary HTTP 200"
 
@@ -545,7 +552,7 @@ def run_product_smoke(
         code, body = get(join_url(ui_base, "/api/proxy/health/ready"), anon_headers)
 
         if code != 200:
-            return False, redact_secrets(f"HTTP {code} {body[:160]}", key)
+            return False, redact_secrets(f"HTTP {code} {body[:160]}", key, bearer)
 
         try:
             status = json.loads(body).get("status")
@@ -684,6 +691,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--expected-build-id", default=_env("BUILD_ID") or _env("GITHUB_SHA"))
     parser.add_argument("--api-base-url", default=_env("SMOKE_TEST_BASE_URL"))
     parser.add_argument("--api-key", default=_env("ARCHLUCID_API_KEY"))
+    parser.add_argument("--bearer-token", default=_env("ARCHLUCID_BEARER_TOKEN"))
     parser.add_argument("--ui-base-url", default=_env("SMOKE_UI_BASE_URL"))
     parser.add_argument("--max-attempts", type=int, default=int(_env("CD_POST_DEPLOY_MAX_ATTEMPTS") or "6"))
     parser.add_argument(
@@ -718,6 +726,7 @@ def main(argv: list[str] | None = None) -> int:
         expected_build_id=args.expected_build_id,
         api_base_url=args.api_base_url,
         api_key=args.api_key,
+        bearer_token=args.bearer_token,
         ui_base_url=args.ui_base_url,
         max_attempts=args.max_attempts,
         retry_wait_seconds=args.retry_wait_seconds,

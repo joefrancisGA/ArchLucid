@@ -1,4 +1,4 @@
-/** Page copy for `/health` (System health). */
+/** Page copy for `/administration/system-health` (System health). */
 
 export const SYSTEM_HEALTH_PAGE_TITLE = "System health";
 

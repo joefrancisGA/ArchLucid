@@ -54,7 +54,7 @@ public static class Program
                         }
 
                         if (TryParseNewCommandArgs(normalized.Skip(1).ToArray(), out string? projectName))
-                            return await NewCommand.RunAsync(projectName, false);
+                            return await NewCommand.RunAsync(projectName);
 
                         WriteNewUsage();
 
@@ -376,20 +376,24 @@ public static class Program
                 {
                     if (normalized.Contains("--quick"))
                     {
-                        const string quickMessage =
-                            "run --quick is not supported. Use archlucid run without --quick (local seed/quick paths are contributor-only).";
+                        const string quickRemoved =
+                            "run --quick is not supported. Use archlucid run without --quick against your hosted API.";
 
                         if (CliExecutionContext.JsonOutput)
-                            CliJson.WriteFailureLine(Console.Error, CliExitCode.UsageError, "usage", quickMessage);
+                            CliJson.WriteFailureLine(
+                                Console.Error,
+                                CliExitCode.UsageError,
+                                "usage",
+                                quickRemoved);
                         else
-                            Console.WriteLine(quickMessage);
+                            Console.WriteLine(quickRemoved);
 
                         return CliExitCode.UsageError;
                     }
 
                     string? idempotencyKey = CliCommandShared.TryGetOptionValue(normalized, "--idempotency-key");
 
-                    return await RunCommand.RunAsync(false, idempotencyKey);
+                    return await RunCommand.RunAsync(idempotencyKey);
                 }
 
                 case "status":

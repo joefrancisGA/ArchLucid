@@ -25,7 +25,7 @@
 
 - **Entry:** net-new tenant with platform health `ready`.
 - **Exit:** phase 4 **Completed** — lane complete banner shown in UI.
-- **Blocked:** platform health not ready — resolve `/health` before continuing.
+- **Blocked:** platform health not ready — resolve `/administration/system-health` before continuing.
 
 ---
 

@@ -1,4 +1,5 @@
 import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
+import { SETTINGS_BILLING_PATH } from "@/lib/billing-and-plans-help-route";
 import { ARCHLUCID_SUPPORT_EMAIL } from "@/lib/support-workspace-present";
 
 export const BILLING_HELP_PAGE_TITLE = "Billing and plans";
@@ -29,7 +30,7 @@ export const BILLING_HELP_OVERVIEW =
 export const BILLING_HELP_PRIMARY_ACTIONS = {
   manageBilling: {
     label: "Manage billing",
-    href: "/settings/billing",
+    href: SETTINGS_BILLING_PATH,
   },
   viewPricing: {
     label: "View current pricing",

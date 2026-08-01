@@ -52,7 +52,7 @@ describe("resolveFirstPilotOperatingRailSteps", () => {
     const resolved = resolveFirstPilotOperatingRailSteps(signals);
 
     expect(resolved[0]?.status).toBe("attention");
-    expect(resolved[0]?.primaryHref).toBe("/health");
+    expect(resolved[0]?.primaryHref).toBe("/administration/system-health");
   });
 
   it("deep-links execute and sponsor steps to the latest run when available", () => {

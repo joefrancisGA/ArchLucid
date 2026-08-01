@@ -80,7 +80,7 @@ Test every way a private-beta user can be provisioned and told to show up:
 ### 4. Routing and deep-link validation
 
 - Deep-link every route an invited user will plausibly be sent in a beta email or Slack message while **signed out**: `/reviews`, `/reviews/[runId]`, `/reviews/new`, `/dashboard`, `/governance/findings`, `/onboarding`. Each must round-trip through sign-in and return to the original target (or a documented landing) — not `/welcome`, not a loop, not a 404.
-- Legacy/shim routes: `/login` → `/auth/signin`, `/getting-started` → `/onboarding`. Verify redirects preserve intent.
+- Legacy/shim routes: `/login` → `/auth/signin` (or `/auth/session-expired` when `reason=idle-timeout`), `/getting-started` → `/onboarding`. Verify redirects preserve intent.
 - Signed-in deep links to resources in a **different** tenant (see section 5) and to nonexistent IDs (`/reviews/does-not-exist`): correct 403/404 experience with a way back.
 - Verify the home gate (`OperatorHomeGate.tsx`) does not misroute a signed-in-but-slow-token user to marketing pages.
 

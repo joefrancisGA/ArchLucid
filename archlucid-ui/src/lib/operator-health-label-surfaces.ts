@@ -1,6 +1,6 @@
 /**
  * Operator-facing health label modules scanned by {@link ./operator-health-label-guard.test.ts}.
- * Admin diagnostics (`/admin/health`, `/health` dependency tables) intentionally allow infra names.
+ * Admin diagnostics (`/admin/health`, `/administration/system-health` dependency tables) intentionally allow infra names.
  */
 export const OPERATOR_HEALTH_LABEL_EXPORTS = [
   "SERVICE_BUS_HEALTH_LABELS",

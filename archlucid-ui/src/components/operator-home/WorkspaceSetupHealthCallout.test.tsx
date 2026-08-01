@@ -22,6 +22,6 @@ describe("WorkspaceSetupHealthCallout", () => {
       "href",
       "/help/troubleshooting",
     );
-    expect(screen.getByRole("link", { name: "system health" })).toHaveAttribute("href", "/health");
+    expect(screen.getByRole("link", { name: "system health" })).toHaveAttribute("href", "/administration/system-health");
   });
 });

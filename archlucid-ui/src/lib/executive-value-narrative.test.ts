@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import { buildExecutiveValueNarrative } from "@/lib/executive-value-narrative";
 
 describe("buildExecutiveValueNarrative", () => {
@@ -13,7 +14,7 @@ describe("buildExecutiveValueNarrative", () => {
         id: "orphan",
         headline: "Review orphan candidates",
         explanation: "Unused resources may be accruing cost.",
-        href: "/dashboard",
+        href: EXECUTIVE_DASHBOARD_HREF,
         sortWeight: 100,
       },
     });

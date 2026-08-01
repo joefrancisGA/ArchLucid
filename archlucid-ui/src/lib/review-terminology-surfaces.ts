@@ -25,7 +25,6 @@ export const REVIEW_TERMINOLOGY_HIGH_TRAFFIC_SURFACE_PATHS = [
   "src/app/(operator)/scorecard/_sections/PilotScorecardPageView.tsx",
   "src/app/(operator)/value-report/pilot/_sections/PilotValueReportPageView.tsx",
   "src/app/(operator)/governance/policy-packs/_sections/PolicyRuleAuthoringWizard.tsx",
-  "src/app/(marketing)/quick-start/QuickStartClient.tsx",
   "src/app/(executive)/executive/scorecard/ExecutiveScorecardClient.tsx",
 ] as const;
 

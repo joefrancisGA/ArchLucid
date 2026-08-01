@@ -2,7 +2,7 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-describe("artifact preview App Router existence (TB-1825 / MAM)", () => {
+describe("artifact preview App Router existence (TB-1825 / MAM / RER)", () => {
   it("has physical pages for manifest-scoped and run-scoped artifact preview entry points", () => {
     const appRoot = join(process.cwd(), "src", "app", "(operator)");
     const mamPage = join(

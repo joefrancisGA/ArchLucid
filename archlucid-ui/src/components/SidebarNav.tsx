@@ -94,7 +94,10 @@ export function SidebarNav() {
     // Buyer/demo Overview: keep Integrations + Administration collapsed unless the route is inside them.
     if (buyerPolishedShell || resolvedDemoUi) {
       const onIntegrationsRoute = route.startsWith("/integrations");
-      const onAdminRoute = route.startsWith("/settings") || route.startsWith("/admin") || route.startsWith("/health");
+      const onAdminRoute =
+        route.startsWith("/settings")
+        || route.startsWith("/admin")
+        || route.startsWith("/administration");
 
       if (!onIntegrationsRoute) {
         setGroupExpanded("operate-integrations", false);

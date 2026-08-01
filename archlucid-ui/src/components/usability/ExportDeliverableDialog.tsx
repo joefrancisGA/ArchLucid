@@ -2,7 +2,7 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import Link from "next/link";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -38,7 +38,7 @@ export function ExportDeliverableDialog(props: ExportDeliverableDialogProps) {
       ? `/value-report?runId=${encodedRun}`
       : audience === "grc"
         ? `/audit?runId=${encodedRun}`
-        : `/dashboard?runId=${encodedRun}`;
+        : `${EXECUTIVE_DASHBOARD_HREF}?runId=${encodedRun}`;
 
   return (
     <Dialog>

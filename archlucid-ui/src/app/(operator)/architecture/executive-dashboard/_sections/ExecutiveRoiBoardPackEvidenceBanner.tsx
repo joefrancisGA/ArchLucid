@@ -5,7 +5,7 @@ import Link from "next/link";
 import type { ReactElement } from "react";
 
 import { StatusTag } from "@/components/ui/status-tag";
-import { EXECUTIVE_ROI_PROOF_STATUS_HELP_HREF } from "@/app/(operator)/dashboard/_sections/ExecutiveRoiProofStatusStrip";
+import { EXECUTIVE_ROI_PROOF_STATUS_HELP_HREF } from "@/app/(operator)/architecture/executive-dashboard/_sections/ExecutiveRoiProofStatusStrip";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   boardPackClusterPostureLabel,

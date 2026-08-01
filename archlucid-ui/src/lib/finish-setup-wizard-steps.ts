@@ -1,8 +1,9 @@
+import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
 import { SETTINGS_USERS_PATH } from "@/lib/settings-admin-route-paths";
 import { isSelfHostedDeploymentEnv } from "@/lib/finish-setup-deployment";
 
 /** Buyer-safe readiness route (`ReadAuthority`) — not Internal Operations diagnostics. */
-export const FINISH_SETUP_SYSTEM_HEALTH_PATH = "/health";
+export const FINISH_SETUP_SYSTEM_HEALTH_PATH = ADMINISTRATION_SYSTEM_HEALTH_PATH;
 
 const FINISH_SETUP_HEALTH_STEP_ID = "health";
 

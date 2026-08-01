@@ -9,6 +9,7 @@ import {
   BUYER_ONBOARDING_PAGE_TITLE,
   OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_HEADING,
 } from "@/lib/buyer-polish-copy";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 export type PageHelpTopic = {
@@ -30,7 +31,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     prefix: "/signed-records",
     topic: { slug: "review-packages", label: "Signed review records" },
   },
-  { prefix: "/dashboard", topic: { slug: "executive-summary", label: "Executive dashboard" } },
+  { prefix: EXECUTIVE_DASHBOARD_HREF, topic: { slug: "executive-summary", label: "Executive dashboard" } },
   { prefix: "/graph", topic: { slug: "evidence-trail", label: OPERATOR_NAV_LINK_LABELS.evidenceTrail } },
   { prefix: "/compare", topic: { slug: "comparison-replay", label: "Compare and replay" } },
   { prefix: "/replay", topic: { slug: "comparison-replay", label: "Validate review" } },
@@ -53,11 +54,13 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/value-report", topic: { slug: "executive-summary", label: "Executive summary" } },
   { prefix: "/digests", topic: { slug: "how-it-works", label: "Architecture digests" } },
   { prefix: "/planning", topic: { slug: "pilot-feedback", label: "Improvement planning" } },
+  { prefix: "/settings/billing", topic: { slug: "billing-and-plans", label: "Billing and plans" } },
   { prefix: "/help/billing-and-plans", topic: { slug: "billing-and-plans", label: "Billing and plans" } },
   {
     prefix: "/help/repeat-review-loop",
     topic: { slug: "repeat-review-loop", label: "Repeat-review loop" },
   },
+  { prefix: "/help/audit-trail", topic: { slug: "audit-trail", label: "Audit trail" } },
   { prefix: "/evolution-review", topic: { slug: "how-it-works", label: "Impact preview" } },
   { prefix: "/internal-operations/recommendation-learning", topic: { slug: "how-it-works", label: "How recommendation learning works" } },
   { prefix: "/governance/advisory-scans", topic: { slug: "how-it-works", label: "Advisory scans" } },
@@ -66,9 +69,9 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/integrations/cloud-connections/aws", topic: { slug: "cloud-connections-aws", label: "AWS cloud connection" } },
   { prefix: "/integrations/cloud-connections/gcp", topic: { slug: "cloud-connections-gcp", label: "GCP cloud connection" } },
   { prefix: "/integrations/cloud-connections", topic: { slug: "cloud-connections", label: "Cloud connections" } },
+  { prefix: "/integrations/azure-boards", topic: { slug: "azure-boards", label: "Azure Boards integration" } },
   { prefix: "/administration/connection-status", topic: { slug: "integration-readiness", label: "How integration readiness works" } },
-  { prefix: "/health", topic: { slug: "troubleshooting", label: "Troubleshooting" } },
-  { prefix: "/integrations/operations", topic: { slug: "integration-readiness", label: "How integration readiness works" } },
+  { prefix: "/administration/system-health", topic: { slug: "troubleshooting", label: "Troubleshooting" } },
   { prefix: "/admin/integrations/itsm", topic: { slug: "integration-readiness", label: "How integration readiness works" } },
   { prefix: "/settings/cloud-connections/aws", topic: { slug: "cloud-connections-aws", label: "AWS cloud connection" } },
   { prefix: "/settings/cloud-connections/gcp", topic: { slug: "cloud-connections-gcp", label: "GCP cloud connection" } },
@@ -82,8 +85,17 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/help", topic: { slug: "getting-started", label: "Help" } },
 ];
 
+const ARTIFACT_PREVIEW_HELP_TOPIC: PageHelpTopic = {
+  slug: "review-artifacts",
+  label: "Review artifacts",
+};
+
 export function pageHelpTopicForPathname(pathname: string): PageHelpTopic | null {
   const path = (pathname ?? "").split("?")[0] ?? "";
+
+  if (path.includes("/artifacts/")) {
+    return ARTIFACT_PREVIEW_HELP_TOPIC;
+  }
 
   if (path === "/") {
     return PAGE_HELP_TOPICS.find((row) => row.prefix === "/")?.topic ?? null;

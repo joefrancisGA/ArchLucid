@@ -46,14 +46,14 @@ function reviewDetailHref(runId: string | null | undefined): string | null {
 
 function inAppHrefForFinding(name: string, runId: string | null | undefined): string | null {
   if (name.startsWith("pilot-preflight")) {
-    return "/health";
+    return "/administration/system-health";
   }
 
   switch (name) {
     case "data-consistency-readiness":
     case "environment-reliability-rollup":
     case "telemetry-export-readiness":
-      return "/health";
+      return "/administration/system-health";
     case "committed-run-evidence":
     case "real-llm-sponsor-evidence":
     case "ai-quality-proof":

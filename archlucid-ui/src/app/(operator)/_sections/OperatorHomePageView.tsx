@@ -89,7 +89,7 @@ function BuyerPolishedHomePageBody(props: { readonly model: OperatorHomePageView
 
     <OperatorHomeWorkspaceActivityProvider initialHasReviews={initialHasReviews}>
 
-      <BuyerPolishedHomeHeroSection />
+      <BuyerPolishedHomeHeroSection runsDashboard={props.model.runsDashboard} />
 
       <HomeRecentReviewsSection model={props.model} />
 
@@ -130,7 +130,9 @@ function OperatorHomePageBody(props: { readonly model: OperatorHomePageViewModel
 
         <PilotCommandCenterCard
           openFindingsCount={workspaceMetrics.openFindings}
+          governanceWarningsCount={workspaceMetrics.governanceWarnings}
           hasWorkspaceReviews={workspaceMetrics.hasReviews}
+          runsDashboard={props.model.runsDashboard}
           suppressLeadCopy
           showContextualHelp={false}
         />

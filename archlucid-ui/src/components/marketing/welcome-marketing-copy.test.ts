@@ -1,9 +1,19 @@
 import { describe, expect, it } from "vitest";
 
-import { WELCOME_USE_CASE_CARDS, WELCOME_DEFAULT_POLICY_PACK_BASELINE_NOTE } from "@/components/marketing/welcome-marketing-copy";
+import {
+  WELCOME_SEE_IT_CTA_LABEL,
+  WELCOME_USE_CASE_CARDS,
+  WELCOME_DEFAULT_POLICY_PACK_BASELINE_NOTE,
+} from "@/components/marketing/welcome-marketing-copy";
 import { DEMO_WORKSPACE_B_RUN_ID } from "@/lib/demo-workspace-scope";
 
 describe("welcome-marketing-copy", () => {
+  it("TB-1298: see-it CTA label avoids bare 30-second time claim", () => {
+    expect(WELCOME_SEE_IT_CTA_LABEL.toLowerCase()).not.toMatch(/30\s*seconds?/);
+    expect(WELCOME_SEE_IT_CTA_LABEL.toLowerCase()).not.toMatch(/\(30s\)/);
+    expect(WELCOME_SEE_IT_CTA_LABEL).toMatch(/sample review/i);
+  });
+
   it("TB-769: use-case cards present AWS and Google Cloud framework peers", () => {
     const titles = WELCOME_USE_CASE_CARDS.map((card) => card.title);
 

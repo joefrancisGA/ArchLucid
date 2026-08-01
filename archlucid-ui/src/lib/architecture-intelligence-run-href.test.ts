@@ -1,10 +1,11 @@
 import { describe, expect, it } from "vitest";
 
+import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture-intelligence-route";
 import { buildArchitectureIntelligenceRunHref } from "./architecture-intelligence-run-href";
 
 describe("buildArchitectureIntelligenceRunHref", () => {
   it("returns the bare route when no run or from is supplied", () => {
-    expect(buildArchitectureIntelligenceRunHref()).toBe("/architecture-intelligence");
+    expect(buildArchitectureIntelligenceRunHref()).toBe(ARCHITECTURE_INTELLIGENCE_PATH);
   });
 
   it("includes runId and from for review deep links", () => {

@@ -8,10 +8,10 @@ describe("OperatorAdminNavGroupBuilder", () => {
     const links = new OperatorAdminNavGroupBuilder().build().links;
 
     expect(links.map((link) => link.href)).toContain("/administration/connection-status");
-    expect(links.map((link) => link.href)).toContain("/health");
+    expect(links.map((link) => link.href)).toContain("/administration/system-health");
     expect(
       links
-        .filter((link) => link.href === "/administration/connection-status" || link.href === "/health")
+        .filter((link) => link.href === "/administration/connection-status" || link.href === "/administration/system-health")
         .every((link) => link.requiredAuthority === "AdminAuthority"),
     ).toBe(true);
   });

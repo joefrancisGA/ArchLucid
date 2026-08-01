@@ -24,13 +24,8 @@ describe("next.config hub bookmark redirects", () => {
       )?.permanent,
     ).toBe(true);
 
-    expect(
-      redirectRules?.find(
-        (rule) =>
-          rule.source === "/settings/exec-digest"
-          && rule.destination === "/digests?tab=schedule",
-      )?.permanent,
-    ).toBe(true);
+    expect(redirectRules?.find((rule) => rule.source === "/settings/exec-digest")).toBeUndefined();
+    expect(redirectRules?.find((rule) => rule.source === "/settings/alerts")).toBeUndefined();
 
     expect(
       redirectRules?.find(

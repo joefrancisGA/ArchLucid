@@ -76,7 +76,7 @@ export function FirstPilotProofStatusStrip() {
       >
         <p className="m-0">{FIRST_PILOT_PROOF_STATUS_UNAVAILABLE}</p>
         <p className="m-0 mt-2">
-          <Link href="/health" className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300">
+          <Link href="/administration/system-health" className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300">
             {FIRST_PILOT_READINESS_SYSTEM_STATUS_CTA}
           </Link>
         </p>
@@ -95,7 +95,7 @@ export function FirstPilotProofStatusStrip() {
       >
         <p className="m-0">{firstPilotProofNotRunCopy()}</p>
         <p className="m-0 mt-2">
-          <Link href="/health" className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300">
+          <Link href="/administration/system-health" className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300">
             {FIRST_PILOT_READINESS_SYSTEM_STATUS_CTA}
           </Link>
         </p>

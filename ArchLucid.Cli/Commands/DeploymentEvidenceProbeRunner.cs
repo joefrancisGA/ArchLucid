@@ -15,6 +15,7 @@ internal static class DeploymentEvidenceProbeRunner
         string syntheticPath,
         bool allowMissingOpenApi,
         string? syntheticProbeApiKey,
+        string? syntheticProbeBearerToken,
         CancellationToken cancellationToken)
     {
         string redactedBase = SupportBundleRedactor.RedactHttpUrl(apiBaseUrl);
@@ -27,6 +28,7 @@ internal static class DeploymentEvidenceProbeRunner
             code => code == 200,
             redactedBase,
             apiKey: null,
+            bearerToken: null,
             cancellationToken).ConfigureAwait(false);
 
         probes.Add(live);
@@ -56,6 +58,7 @@ internal static class DeploymentEvidenceProbeRunner
                 code => code == 200,
                 redactedBase,
                 syntheticProbeApiKey,
+                syntheticProbeBearerToken,
                 cancellationToken).ConfigureAwait(false);
 
             probes.Add(syn);
@@ -85,13 +88,16 @@ internal static class DeploymentEvidenceProbeRunner
         Func<int, bool> isPass,
         string redactedBase,
         string? apiKey,
+        string? bearerToken,
         CancellationToken cancellationToken)
     {
         try
         {
             using HttpRequestMessage request = new(HttpMethod.Get, path);
 
-            if (!string.IsNullOrWhiteSpace(apiKey))
+            if (!string.IsNullOrWhiteSpace(bearerToken))
+                request.Headers.TryAddWithoutValidation("Authorization", "Bearer " + bearerToken.Trim());
+            else if (!string.IsNullOrWhiteSpace(apiKey))
                 request.Headers.TryAddWithoutValidation("X-Api-Key", apiKey.Trim());
 
             using HttpResponseMessage response =

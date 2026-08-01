@@ -196,7 +196,7 @@ Track 20 sends privately (contact, channel, date, response, outcome). Hand posit
 
 ---
 
-## 5. What Pilot proves
+## 5. What Pilot proves {#what-pilot-proves}
 
 A successful Pilot should prove that a team can:
 
@@ -220,7 +220,7 @@ That is the main V1 buying motion.
 
 ---
 
-## 6. What measurable value a pilot should show
+## 6. What measurable value a pilot should show {#measurable-pilot-value}
 
 A credible pilot should show improvement in a few concrete areas:
 
@@ -237,7 +237,7 @@ For the scorecard and measurement model, see [PILOT_ROI_MODEL.md](../library/PIL
 
 ---
 
-## 7. What Operate adds
+## 7. What Operate adds {#what-operate-adds}
 
 After **Pilot** is proven, **Operate** is the second buyer-facing layer. It combines everything that helps teams go deeper after the first finalized architecture package:
 
@@ -249,7 +249,7 @@ Progressive disclosure still applies: deeper governance and write-oriented contr
 
 ---
 
-## 8. What expansion would look like
+## 8. What expansion would look like {#what-expansion-would-look-like}
 
 A practical adoption path is:
 
@@ -260,7 +260,7 @@ That sequence keeps adoption disciplined and makes value easier to defend intern
 
 ---
 
-## 9. What not to over-claim yet
+## 9. What not to over-claim yet {#what-not-to-over-claim-yet}
 
 ArchLucid should not be sold as a magic answer to every architecture or governance problem.
 
@@ -278,7 +278,7 @@ The strongest V1 claim is simpler:
 
 ---
 
-## 10. What success should allow a sponsor to say
+## 10. What success should allow a sponsor to say {#sponsor-success-outcome}
 
 After a strong pilot, a sponsor should be able to say:
 
@@ -288,7 +288,7 @@ That is a credible sponsor-level outcome.
 
 ---
 
-## 11. Limits of AI explanations (citations vs. proof)
+## 11. Limits of AI explanations (citations vs. proof) {#limits-of-ai-explanations}
 
 Explanations in ArchLucid combine **LLM-generated narrative** with **persisted artifacts** (manifests, findings, decision traces, optional bundles). The UI surfaces **citation links** to those artifacts so reviewers know **where the system grounded** an answer. That improves transparency; it does **not** turn an LLM paragraph into a **legal attestation** or a **formal verification**. The sponsor-safe stance: treat AI text as **decision support**; treat manifests, findings, traces, and governance records as **reviewable evidence** for human sign-off.
 

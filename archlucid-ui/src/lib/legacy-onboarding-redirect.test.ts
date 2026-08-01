@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { buildOnboardingRedirectPath } from "./legacy-onboarding-redirect";
 
-describe("buildOnboardingRedirectPath", () => {
+describe("buildOnboardingRedirectPath (TB-1796)", () => {
   it("returns bare /onboarding when search is empty", () => {
     expect(buildOnboardingRedirectPath({})).toBe("/onboarding");
   });

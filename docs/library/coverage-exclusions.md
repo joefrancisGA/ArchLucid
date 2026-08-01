@@ -250,13 +250,11 @@ These `internal static` command entry points wire console output to `ArchLucidAp
 | `ComparisonsCommand` | Cli | Comparisons / replay / diagnostics against API |
 | `DoctorCommand` | Cli | Multi-probe readiness against API |
 | `RunCommand` | Cli | Run workflow + API + filesystem |
-| `DevUpCommand` | Cli | Host `docker compose`; environment-specific |
 | `SupportBundleCommand` | Cli | Thin wrapper over `SupportBundleCollector` (tested) |
 | `ArtifactsCommand` | Cli | Artifact download via API |
 | `StatusCommand` | Cli | Run status via API |
 | `SubmitCommand` | Cli | Agent result POST via API |
 | `CommitCommand` | Cli | Commit manifest via API |
-| `SeedCommand` | Cli | Seed path via API |
 | `HealthCommand` | Cli | Reachability via `ArchLucidApiClient` |
 
 ## Category 9: Method-Level Exclusions

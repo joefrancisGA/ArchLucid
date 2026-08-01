@@ -7,15 +7,16 @@ import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAutho
 import {
   OPERATOR_HOME_CREATION_EXAMPLE_BODY,
   OPERATOR_HOME_CREATION_EXAMPLE_TITLE,
-  OPERATOR_HOME_EXAMPLES_AND_LEARNING_HEADING,
   OPERATOR_HOME_EXPLORE_SAMPLE_HEADING,
   OPERATOR_HOME_EXPLORE_SAMPLE_LEAD,
   OPERATOR_HOME_GUIDED_REVIEW_EXAMPLE_BODY,
   OPERATOR_HOME_GUIDED_REVIEW_EXAMPLE_TITLE,
+  OPERATOR_HOME_LEARNING_RESOURCES_HEADING,
+  OPERATOR_HOME_LEARNING_RESOURCES_LEAD,
   OPERATOR_HOME_OPEN_CREATION_EXAMPLE_CTA,
   OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA,
 } from "@/lib/buyer-polish-copy";
-import { OPERATOR_LAYOUT, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
+import { OPERATOR_CARD, OPERATOR_LAYOUT, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import {
   OPERATOR_HOME_EXAMPLE_TEMPLATE_ID,
   reviewIntakeExampleTemplateHref,
@@ -44,8 +45,11 @@ export function OperatorHomeExploreSampleSection(): React.JSX.Element | null {
 
   const reducedProminence = hasWorkspaceReviews;
   const sectionHeading = reducedProminence
-    ? OPERATOR_HOME_EXAMPLES_AND_LEARNING_HEADING
+    ? OPERATOR_HOME_LEARNING_RESOURCES_HEADING
     : OPERATOR_HOME_EXPLORE_SAMPLE_HEADING;
+  const sectionLead = reducedProminence
+    ? OPERATOR_HOME_LEARNING_RESOURCES_LEAD
+    : OPERATOR_HOME_EXPLORE_SAMPLE_LEAD;
 
   return (
     <section
@@ -53,7 +57,7 @@ export function OperatorHomeExploreSampleSection(): React.JSX.Element | null {
       className={cn(
         OPERATOR_LAYOUT.sectionHeadingStack,
         reducedProminence
-          ? "border-t border-neutral-200 pt-4 dark:border-neutral-800"
+          ? OPERATOR_CARD.learningResourcesSurface
           : "rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900",
       )}
       data-testid="operator-home-explore-sample-section"
@@ -64,7 +68,7 @@ export function OperatorHomeExploreSampleSection(): React.JSX.Element | null {
           {sectionHeading}
         </OperatorHomeCardSectionTitle>
         <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
-          {OPERATOR_HOME_EXPLORE_SAMPLE_LEAD}
+          {sectionLead}
         </p>
       </div>
       <div className={cn("grid gap-3 sm:grid-cols-2", reducedProminence ? "mt-3" : "mt-4", OPERATOR_LAYOUT.inlineGap)}>

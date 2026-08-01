@@ -33,11 +33,11 @@ const BANNED_INTERNAL_COPY = [
 ] as const;
 
 describe("HelpCorePilotGuideView", () => {
-  const entry = getProductDocumentationEntry("core-pilot");
+  const entry = getProductDocumentationEntry("first-architecture-review");
 
   it("registers the core pilot guide entry", () => {
     expect(entry?.title).toBe("Your first architecture review");
-    expect(entry?.slug).toBe("core-pilot");
+    expect(entry?.slug).toBe("first-architecture-review");
     expect(entry?.summary).toMatch(/guided path from evidence intake/i);
     expect(entry?.summary).not.toMatch(/core[- ]?pilot/i);
   });

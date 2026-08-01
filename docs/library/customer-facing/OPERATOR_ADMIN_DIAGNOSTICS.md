@@ -6,7 +6,7 @@ Use these checks when a workspace symptom points to platform health rather than 
 
 ## Start here
 
-1. Open **System status** (`/health`) in the workspace — live/ready checks and version identity.
+1. Open **System health** (`/administration/system-health`) in the workspace — live/ready checks and version identity.
 2. On Overview, expand **Workspace readiness** — per-area status and next actions.
 3. Open **Assistant readiness diagnostics** on Overview when LLM or assistant features fail.
 

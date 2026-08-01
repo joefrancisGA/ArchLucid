@@ -8,6 +8,7 @@
  */
 import { describe, expect, it } from "vitest";
 
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import {
   normalizeAuthMeResponse,
   operatorNavOutsideProviderPrincipal,
@@ -130,8 +131,8 @@ describe("authority seam regression", () => {
     );
     const hrefs = new Set(visible.map((l) => l.href));
 
-    expect(hrefs.has("/dashboard")).toBe(true);
-    expect(hrefs.has("/reviews/new")).toBe(true);
+    expect(hrefs.has(EXECUTIVE_DASHBOARD_HREF)).toBe(true);
+    expect(hrefs.has("/architectures")).toBe(true);
     expect(hrefs.has("/reviews?projectId=default")).toBe(true);
   });
 
