@@ -41,7 +41,10 @@ export default async function SignedRecordArtifactPage({
   if (result.kind === "descriptor-malformed") {
     return (
       <div className="w-full max-w-[1200px] space-y-4 px-1 py-2 sm:px-0">
-        <OperatorMalformedCallout message={result.message} />
+        <OperatorMalformedCallout>
+          <strong>Signed-record artifact response was not usable.</strong>
+          <p className="mt-2">{result.message}</p>
+        </OperatorMalformedCallout>
       </div>
     );
   }

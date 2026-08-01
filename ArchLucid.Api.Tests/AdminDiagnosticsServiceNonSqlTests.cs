@@ -55,6 +55,7 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
             cacheTelemetry.Object,
             out _,
             out _,
+            out _,
             out _);
 
         AdminCacheDiagnosticsResponse response = await sut.GetCacheDiagnosticsAsync(CancellationToken.None);
@@ -114,6 +115,7 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
                 actor,
                 out _,
                 out _,
+                out _,
                 out _);
 
         DataConsistencyOrphanCounts counts =
@@ -135,6 +137,7 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
                 InMemoryOptions(),
                 audit,
                 actor,
+                out _,
                 out _,
                 out _,
                 out _);
@@ -160,6 +163,7 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
                 InMemoryOptions(),
                 audit,
                 actor,
+                out _,
                 out _,
                 out _,
                 out _);
@@ -189,6 +193,7 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
                 actor,
                 out _,
                 out _,
+                out _,
                 out _);
 
         OrphanGoldenManifestRemediationResult result =
@@ -214,6 +219,7 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
                 InMemoryOptions(),
                 audit,
                 actor,
+                out _,
                 out _,
                 out _,
                 out _);
@@ -517,6 +523,7 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
             SqlOptions(),
             audit,
             actor,
+            out _,
             out _,
             out Mock<IHostLeaderLeaseRepository> hostLeases,
             out _);
