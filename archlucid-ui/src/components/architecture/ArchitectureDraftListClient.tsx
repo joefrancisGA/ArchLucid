@@ -1,12 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { Button } from "@/components/ui/button";
+import { FilterChip } from "@/components/ui/filter-chip";
+import { Input } from "@/components/ui/input";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
   ARCHITECTURE_DRAFT_STATUS_LABELS,
+  architectureDraftCustomerStatusTagKind,
   type ArchitectureDraftCustomerStatus,
 } from "@/lib/architecture-draft-status";
 import {
@@ -19,93 +23,281 @@ import {
   reviewDetailPath,
   startReviewFromArchitectureHref,
 } from "@/lib/architecture-routes";
+import {
+  ARCHITECTURES_HUB_EMPTY_BODY,
+  ARCHITECTURES_HUB_EMPTY_FILTER_BODY,
+  ARCHITECTURES_HUB_EMPTY_FILTER_TITLE,
+  ARCHITECTURES_HUB_EMPTY_TITLE,
+  ARCHITECTURES_HUB_FILTER_ALL_LABEL,
+  ARCHITECTURES_HUB_FILTER_ARCHIVED_LABEL,
+  ARCHITECTURES_HUB_FILTER_DRAFT_LABEL,
+  ARCHITECTURES_HUB_FILTER_NO_REVIEW_LABEL,
+  ARCHITECTURES_HUB_FILTER_READY_LABEL,
+  ARCHITECTURES_HUB_FILTER_SEARCH_PLACEHOLDER,
+  ARCHITECTURES_HUB_SORT_NAME_ASC_LABEL,
+  ARCHITECTURES_HUB_SORT_NAME_DESC_LABEL,
+  ARCHITECTURES_HUB_SORT_UPDATED_ASC_LABEL,
+  ARCHITECTURES_HUB_SORT_UPDATED_DESC_LABEL,
+} from "@/lib/architectures-hub-copy";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { buyerFilterChipClass } from "@/lib/buyer-shell-home-present";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { formatRelativeTime } from "@/lib/relative-time";
 import { cn } from "@/lib/utils";
 
-function statusTagKind(status: ArchitectureDraftCustomerStatus): "ready" | "in-progress" | "needs-attention" {
-  if (status === "ready-for-review") {
-    return "ready";
-  }
+type ArchitectureFilterId =
+  | "all"
+  | ArchitectureDraftCustomerStatus
+  | "no-review";
 
-  if (status === "archived") {
-    return "needs-attention";
-  }
+type ArchitectureSortId = "updated-desc" | "updated-asc" | "name-asc" | "name-desc";
 
-  return "in-progress";
-}
+const FILTER_OPTIONS: ReadonlyArray<{ id: ArchitectureFilterId; label: string }> = [
+  { id: "all", label: ARCHITECTURES_HUB_FILTER_ALL_LABEL },
+  { id: "draft", label: ARCHITECTURES_HUB_FILTER_DRAFT_LABEL },
+  { id: "ready-for-review", label: ARCHITECTURES_HUB_FILTER_READY_LABEL },
+  { id: "no-review", label: ARCHITECTURES_HUB_FILTER_NO_REVIEW_LABEL },
+  { id: "archived", label: ARCHITECTURES_HUB_FILTER_ARCHIVED_LABEL },
+];
 
-function formatUpdatedLabel(updatedUtc: string): string {
+const SORT_OPTIONS: ReadonlyArray<{ id: ArchitectureSortId; label: string }> = [
+  { id: "updated-desc", label: ARCHITECTURES_HUB_SORT_UPDATED_DESC_LABEL },
+  { id: "updated-asc", label: ARCHITECTURES_HUB_SORT_UPDATED_ASC_LABEL },
+  { id: "name-asc", label: ARCHITECTURES_HUB_SORT_NAME_ASC_LABEL },
+  { id: "name-desc", label: ARCHITECTURES_HUB_SORT_NAME_DESC_LABEL },
+];
+
+function formatAbsoluteUpdatedLabel(updatedUtc: string): string {
   return new Date(updatedUtc).toLocaleString();
 }
 
-/** Client-side architecture draft registry — resume saved work without mixing drafts into reviews. */
+function matchesSearch(entry: ArchitectureDraftRegistryEntry, query: string): boolean {
+  const normalized = query.trim().toLowerCase();
+
+  if (normalized.length === 0) {
+    return true;
+  }
+
+  const haystack = [entry.displayName, entry.ownerLabel, entry.architectureId].join(" ").toLowerCase();
+
+  return haystack.includes(normalized);
+}
+
+function matchesFilter(entry: ArchitectureDraftRegistryEntry, filter: ArchitectureFilterId): boolean {
+  if (filter === "all") {
+    return true;
+  }
+
+  if (filter === "no-review") {
+    return entry.linkedReviewId === null;
+  }
+
+  return entry.customerStatus === filter;
+}
+
+function countForFilter(
+  entries: readonly ArchitectureDraftRegistryEntry[],
+  filter: ArchitectureFilterId,
+): number {
+  return entries.filter((entry) => matchesFilter(entry, filter)).length;
+}
+
+function compareEntries(
+  left: ArchitectureDraftRegistryEntry,
+  right: ArchitectureDraftRegistryEntry,
+  sort: ArchitectureSortId,
+): number {
+  if (sort === "updated-desc") {
+    return right.lastUpdatedUtc.localeCompare(left.lastUpdatedUtc);
+  }
+
+  if (sort === "updated-asc") {
+    return left.lastUpdatedUtc.localeCompare(right.lastUpdatedUtc);
+  }
+
+  if (sort === "name-asc") {
+    return left.displayName.localeCompare(right.displayName, undefined, { sensitivity: "base" });
+  }
+
+  return right.displayName.localeCompare(left.displayName, undefined, { sensitivity: "base" });
+}
+
+function ArchitectureFilterChip(props: {
+  readonly option: { id: ArchitectureFilterId; label: string };
+  readonly count: number;
+  readonly selected: boolean;
+  readonly onSelect: (id: ArchitectureFilterId) => void;
+}): React.JSX.Element {
+  const labelWithCount = `${props.option.label} (${props.count})`;
+
+  return (
+    <FilterChip
+      className={buyerFilterChipClass(props.selected, false)}
+      aria-pressed={props.selected}
+      aria-label={`Filter architectures: ${labelWithCount}`}
+      onClick={() => props.onSelect(props.option.id)}
+    >
+      {labelWithCount}
+    </FilterChip>
+  );
+}
+
+/** Client-side architecture draft registry — search, filter, and sort saved drafts. */
 export function ArchitectureDraftListClient(): React.JSX.Element {
   const [entries, setEntries] = useState<ArchitectureDraftRegistryEntry[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeFilter, setActiveFilter] = useState<ArchitectureFilterId>("all");
+  const [activeSort, setActiveSort] = useState<ArchitectureSortId>("updated-desc");
 
   useEffect(() => {
     setEntries(listArchitectureDraftRegistryEntries());
   }, []);
 
+  const filterCounts = useMemo(() => {
+    const counts = new Map<ArchitectureFilterId, number>();
+
+    for (const option of FILTER_OPTIONS) {
+      counts.set(option.id, countForFilter(entries, option.id));
+    }
+
+    return counts;
+  }, [entries]);
+
+  const filteredEntries = useMemo(() => {
+    return entries
+      .filter((entry) => matchesSearch(entry, searchQuery) && matchesFilter(entry, activeFilter))
+      .slice()
+      .sort((left, right) => compareEntries(left, right, activeSort));
+  }, [activeFilter, activeSort, entries, searchQuery]);
+
   if (entries.length === 0) {
     return (
-      <div className="space-y-3" data-testid="architecture-draft-list-empty">
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-          No saved architecture drafts yet. Start one to capture your system design and return later.
-        </p>
-        <Button type="button" variant="primary" size="sm" asChild>
-          <Link href={ARCHITECTURES_NEW_PATH}>{CREATE_ARCHITECTURE_LABEL}</Link>
-        </Button>
+      <div className="mt-4" data-testid="architecture-draft-list-empty">
+        <EnterpriseCompactEmptyState
+          title={ARCHITECTURES_HUB_EMPTY_TITLE}
+          description={ARCHITECTURES_HUB_EMPTY_BODY}
+          primaryAction={
+            <Button type="button" variant="primary" size="sm" asChild>
+              <Link href={ARCHITECTURES_NEW_PATH}>{CREATE_ARCHITECTURE_LABEL}</Link>
+            </Button>
+          }
+        />
       </div>
     );
   }
 
   return (
-    <div className="space-y-3" data-testid="architecture-draft-list">
-      <ul className="m-0 list-none space-y-3 p-0">
-        {entries.map((entry) => (
-          <li
-            key={entry.architectureId}
-            className="rounded-lg border border-al-border-subtle bg-al-surface-raised p-4"
-            data-testid={`architecture-draft-row-${entry.architectureId}`}
+    <div className="mt-4 space-y-4" data-testid="architecture-draft-list">
+      <div
+        className="flex flex-col gap-2 lg:flex-row lg:flex-wrap lg:items-center"
+        data-testid="architecture-draft-list-toolbar"
+      >
+        <Input
+          type="search"
+          value={searchQuery}
+          onChange={(event) => setSearchQuery(event.target.value)}
+          placeholder={ARCHITECTURES_HUB_FILTER_SEARCH_PLACEHOLDER}
+          aria-label={ARCHITECTURES_HUB_FILTER_SEARCH_PLACEHOLDER}
+          className="w-full lg:min-w-[12rem] lg:max-w-sm lg:flex-1"
+          data-testid="architecture-draft-list-search"
+        />
+        <div className="flex flex-wrap items-center gap-2">
+          {FILTER_OPTIONS.map((option) => (
+            <ArchitectureFilterChip
+              key={option.id}
+              option={option}
+              count={filterCounts.get(option.id) ?? 0}
+              selected={activeFilter === option.id}
+              onSelect={setActiveFilter}
+            />
+          ))}
+        </div>
+        <div className="flex flex-wrap items-center gap-2 lg:ml-auto">
+          <label htmlFor="architecture-draft-list-sort" className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+            Sort by
+          </label>
+          <select
+            id="architecture-draft-list-sort"
+            value={activeSort}
+            onChange={(event) => setActiveSort(event.target.value as ArchitectureSortId)}
+            className={cn(
+              "rounded-md border border-al-border-subtle bg-al-surface-raised px-2 py-1",
+              OPERATOR_TYPOGRAPHY.helper,
+            )}
+            data-testid="architecture-draft-list-sort"
           >
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <div className="min-w-0 space-y-1">
-                <p className={cn("m-0 font-medium text-al-text-primary")}>{entry.displayName}</p>
-                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}>
-                  Owner: {entry.ownerLabel} · Updated {formatUpdatedLabel(entry.lastUpdatedUtc)}
-                </p>
-                <div className="flex flex-wrap items-center gap-2">
-                  <StatusTag
-                    kind={statusTagKind(entry.customerStatus)}
-                    label={ARCHITECTURE_DRAFT_STATUS_LABELS[entry.customerStatus]}
-                  />
-                  {entry.linkedReviewId !== null ? (
-                    <Link
-                      href={reviewDetailPath(entry.linkedReviewId)}
-                      className={cn(OPERATOR_TYPOGRAPHY.helper, "font-medium text-teal-800 underline dark:text-teal-300")}
+            {SORT_OPTIONS.map((option) => (
+              <option key={option.id} value={option.id}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {filteredEntries.length === 0 ? (
+        <EnterpriseCompactEmptyState
+          title={ARCHITECTURES_HUB_EMPTY_FILTER_TITLE}
+          description={ARCHITECTURES_HUB_EMPTY_FILTER_BODY}
+        />
+      ) : (
+        <ul className="m-0 list-none space-y-3 p-0">
+          {filteredEntries.map((entry) => {
+            const absoluteUpdated = formatAbsoluteUpdatedLabel(entry.lastUpdatedUtc);
+
+            return (
+              <li
+                key={entry.architectureId}
+                className="rounded-lg border border-al-border-subtle bg-al-surface-raised p-4 transition-shadow hover:border-neutral-300 hover:shadow-sm dark:hover:border-neutral-600"
+                data-testid={`architecture-draft-row-${entry.architectureId}`}
+              >
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0 space-y-1">
+                    <p className={cn("m-0 font-medium text-al-text-primary")}>{entry.displayName}</p>
+                    <p
+                      className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}
+                      title={absoluteUpdated}
                     >
-                      Review linked
-                    </Link>
-                  ) : (
-                    <span className={cn(OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}>No review yet</span>
-                  )}
+                      Owner: {entry.ownerLabel} · Updated {formatRelativeTime(entry.lastUpdatedUtc)}
+                    </p>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <StatusTag
+                        kind={architectureDraftCustomerStatusTagKind(entry.customerStatus)}
+                        label={ARCHITECTURE_DRAFT_STATUS_LABELS[entry.customerStatus]}
+                      />
+                      {entry.linkedReviewId !== null ? (
+                        <Link
+                          href={reviewDetailPath(entry.linkedReviewId)}
+                          className={cn(
+                            OPERATOR_TYPOGRAPHY.helper,
+                            "font-medium text-teal-800 underline dark:text-teal-300",
+                          )}
+                        >
+                          Review linked
+                        </Link>
+                      ) : (
+                        <span className={cn(OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}>
+                          No review yet
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <Button type="button" variant="outline" size="sm" asChild>
+                      <Link href={architectureDraftPath(entry.architectureId)}>Continue editing</Link>
+                    </Button>
+                    {entry.linkedReviewId === null && entry.customerStatus !== "archived" ? (
+                      <Button type="button" variant="primary" size="sm" asChild>
+                        <Link href={startReviewFromArchitectureHref(entry.architectureId)}>Start review</Link>
+                      </Button>
+                    ) : null}
+                  </div>
                 </div>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <Button type="button" variant="outline" size="sm" asChild>
-                  <Link href={architectureDraftPath(entry.architectureId)}>Continue editing</Link>
-                </Button>
-                {entry.linkedReviewId === null && entry.customerStatus !== "archived" ? (
-                  <Button type="button" variant="primary" size="sm" asChild>
-                    <Link href={startReviewFromArchitectureHref(entry.architectureId)}>Start review</Link>
-                  </Button>
-                ) : null}
-              </div>
-            </div>
-          </li>
-        ))}
-      </ul>
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </div>
   );
 }

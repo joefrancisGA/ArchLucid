@@ -9,3 +9,6 @@ export const ARCHITECTURE_DRAFT_GUIDANCE_DISCLOSURE_LEAD = GUIDED_INTAKE_CREATIO
 /** Resumable draft behavior and the explicit review start action. */
 export const ARCHITECTURE_DRAFT_GUIDANCE_DISCLOSURE_DETAIL =
   "Save and return anytime from Architectures. Starting an architecture review is a separate step — use Start architecture review when the draft is ready." as const;
+
+/** Permanent dismiss for veterans who no longer need the draft-vs-review explanation. */
+export const ARCHITECTURE_DRAFT_GUIDANCE_DISMISS_LABEL = "Don't show again" as const;

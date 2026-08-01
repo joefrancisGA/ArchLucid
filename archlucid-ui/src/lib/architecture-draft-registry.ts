@@ -64,7 +64,7 @@ export function listArchitectureDraftRegistryEntries(): ArchitectureDraftRegistr
     .sort((left, right) => right.lastUpdatedUtc.localeCompare(left.lastUpdatedUtc))
     .map((entry) => ({
       ...entry,
-      displayName: customerFacingArchitectureDraftTitle(entry.displayName),
+      displayName: customerFacingArchitectureDraftTitle(entry.displayName, entry.lastUpdatedUtc),
     }));
 }
 

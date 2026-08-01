@@ -3,8 +3,12 @@ import { describe, expect, it } from "vitest";
 import { ARCHITECTURE_CREATION_BOOTSTRAP_INTENT } from "@/lib/architecture-creation-bootstrap";
 
 import {
+  architectureDraftCustomerStatusTagKind,
   architectureDraftDisplayName,
+  architectureDraftPlaceholderTitle,
   customerFacingArchitectureDraftTitle,
+  LEGACY_UNTITLED_ARCHITECTURE_LABEL,
+  stripLeadingMarkdownHeading,
   UNTITLED_ARCHITECTURE_LABEL,
 } from "./architecture-draft-status";
 
@@ -30,22 +34,77 @@ describe("architectureDraftDisplayName", () => {
     expect(architectureDraftDisplayName(undefined, longIntent)).toBe(`${"A".repeat(61)}…`);
   });
 
-  it("falls back to Untitled architecture when intent is empty", () => {
+  it("strips a leading markdown heading from intent used as the title", () => {
+    expect(
+      architectureDraftDisplayName(
+        undefined,
+        "# Architecture Review Packet: B2B SaaS Tenant Migration Platform",
+      ),
+    ).toBe("Architecture Review Packet: B2B SaaS Tenant Migration Platform");
+  });
+
+  it("falls back to Architecture draft when intent is empty", () => {
     expect(architectureDraftDisplayName(undefined, "   ")).toBe(UNTITLED_ARCHITECTURE_LABEL);
   });
 });
 
 describe("customerFacingArchitectureDraftTitle", () => {
-  it("replaces stored bootstrap marker titles", () => {
+  it("replaces stored bootstrap marker titles with a dated placeholder", () => {
     const leaked = `${ARCHITECTURE_CREATION_BOOTSTRAP_INTENT.slice(0, 61)}…`;
+    const referenceUtc = "2026-07-12T23:42:05.000Z";
 
-    expect(customerFacingArchitectureDraftTitle(leaked)).toBe(UNTITLED_ARCHITECTURE_LABEL);
-    expect(customerFacingArchitectureDraftTitle(ARCHITECTURE_CREATION_BOOTSTRAP_INTENT)).toBe(
-      UNTITLED_ARCHITECTURE_LABEL,
+    expect(customerFacingArchitectureDraftTitle(leaked, referenceUtc)).toBe(
+      architectureDraftPlaceholderTitle(referenceUtc),
+    );
+    expect(customerFacingArchitectureDraftTitle(ARCHITECTURE_CREATION_BOOTSTRAP_INTENT, referenceUtc)).toBe(
+      architectureDraftPlaceholderTitle(referenceUtc),
+    );
+  });
+
+  it("upgrades legacy Untitled architecture labels", () => {
+    const referenceUtc = "2026-07-12T23:42:05.000Z";
+
+    expect(customerFacingArchitectureDraftTitle(LEGACY_UNTITLED_ARCHITECTURE_LABEL, referenceUtc)).toBe(
+      architectureDraftPlaceholderTitle(referenceUtc),
+    );
+  });
+
+  it("strips leading markdown headings from stored titles", () => {
+    expect(customerFacingArchitectureDraftTitle("# Healthcare Claims Platform")).toBe(
+      "Healthcare Claims Platform",
     );
   });
 
   it("keeps meaningful stored titles", () => {
     expect(customerFacingArchitectureDraftTitle("Payments platform")).toBe("Payments platform");
+  });
+});
+
+describe("stripLeadingMarkdownHeading", () => {
+  it("removes ATX heading markers", () => {
+    expect(stripLeadingMarkdownHeading("## Foo")).toBe("Foo");
+    expect(stripLeadingMarkdownHeading("Foo")).toBe("Foo");
+  });
+});
+
+describe("architectureDraftCustomerStatusTagKind", () => {
+  it("maps draft to gray draft, ready-for-review to blue in-progress, archived to neutral", () => {
+    expect(architectureDraftCustomerStatusTagKind("draft")).toBe("draft");
+    expect(architectureDraftCustomerStatusTagKind("ready-for-review")).toBe("in-progress");
+    expect(architectureDraftCustomerStatusTagKind("archived")).toBe("neutral");
+  });
+});
+
+describe("architectureDraftPlaceholderTitle", () => {
+  it("includes a created date when the reference timestamp is valid", () => {
+    const title = architectureDraftPlaceholderTitle("2026-07-12T23:42:05.000Z");
+
+    expect(title.startsWith(`${UNTITLED_ARCHITECTURE_LABEL} · Created `)).toBe(true);
+    expect(title).toContain("2026");
+  });
+
+  it("falls back to the base label when the timestamp is missing", () => {
+    expect(architectureDraftPlaceholderTitle(null)).toBe(UNTITLED_ARCHITECTURE_LABEL);
+    expect(architectureDraftPlaceholderTitle("not-a-date")).toBe(UNTITLED_ARCHITECTURE_LABEL);
   });
 });
