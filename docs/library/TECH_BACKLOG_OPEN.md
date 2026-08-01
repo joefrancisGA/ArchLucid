@@ -52,7 +52,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | OIDC/JWT identity (`/settings/identity-providers/oidc`) | **TB-1911**–**TB-1915** (open **V1**) | Title honesty; shell with **TB-1906**; StatusTag; CTA/loading; Vitest; ~44/100; traffic **SOI**; siblings SEI/SSA/SEO |
 | Role mapping (`/settings/identity-providers/role-mapping`) | **TB-1916**–**TB-1920** (open **V1**) | Status-hub honesty; shell/dedupe; StatusTag/examples; protocol CTAs; Vitest; ~43/100; traffic **SEO**; siblings SEI/SOI/SSA |
 | SAML identity (`/settings/identity-providers/saml`) | **TB-1921**–**TB-1925** (open **V1**) | Metadata-fetch label; in-page confirm; shell density; Select/regex/health; Vitest; ~52/100; traffic **SSA**; siblings SEI/SOI/SEO |
-| AI and model governance (`/settings/model-governance`) | **TB-1926**–**TB-1930** (open **V1**) | Error honesty; enum labels; title/back; isolate fetch; Vitest; ~48/100; traffic **SEM**; after Done **TB-871** |
+| AI and model governance (`/settings/model-governance`) | **TB-1927**–**TB-1930** (open **V1**) | Enum labels; title/back; isolate fetch; Vitest; ~48/100; traffic **SEM**; after Done **TB-871** / **TB-1926** |
 | Connect AWS securely help (`/help/cloud-connections/aws`) | **TB-1234**–**TB-1238** (open P1 **V1**) | Specialty guide view (Azure parity); purge Tier/hosted-pull jargon; IAM + Resource Explorer actionability; OIDC trust-policy template; workflow CTAs + classification sections; owner review ~52/100 2026-07-26 |
 | Connect GCP securely help (`/help/cloud-connections/gcp`) | **TB-1239**–**TB-1243** (open P1 **V1**) | Specialty guide view (Azure parity); purge Tier/hosted-pull jargon; Cloud Asset roles + WIF enablement; WIF pool-provider template; workflow CTAs + classification sections; owner review ~51/100 2026-07-26 |
 | Engineering troubleshooting help exposure | **TB-1248** (open; **TB-1246**/**TB-1247**/**TB-1249**/**TB-1250** Done) | Align route with “Engineering troubleshooting runbook”; owner review ~32/100 2026-07-26 |
@@ -697,7 +697,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1923 | SAML tab — shell Configure override + Card title density with **TB-1906** | Trustworthiness P1 **V1** — with **TB-1921** |
 | TB-1924 | SAML tab — DS Select + advanced regex disclosure + optional health strip | Adoption friction P1 **V1** — with **TB-1921** |
 | TB-1925 | SAML tab — Vitest fetch label + confirm + shell | Testability P2 **V1** — with **TB-1921** |
-| TB-1926 | Model governance — purge AdminAuthority / HTTP status from buyer errors | Trustworthiness P0 **V1** — SEM ~48 |
 | TB-1927 | Model governance — humanize effectiveProfile + agentType enums | Trustworthiness P1 **V1** — with **TB-1926** |
 | TB-1928 | Model governance — demote duplicate H1/CardTitle + Settings back link | Trustworthiness P1 **V1** — with **TB-1926** |
 | TB-1929 | Model governance — isolate catalog/profile fetch + empty registry | Adoption friction P1 **V1** — with **TB-1926** |
