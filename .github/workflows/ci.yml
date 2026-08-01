@@ -52,6 +52,12 @@ concurrency:
   group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
+# PR path lanes (ci-path-lanes): soft-skip OpenAPI / .NET corset / Terraform validate steps when the
+# diff does not touch those surfaces (docs/UI-only PRs). Jobs still report success so required checks
+# are not left Pending/Skipped. workflow_dispatch always runs full lanes.
+# Corset test shards download packed bin/obj from the build job (artifact) instead of relying only on
+# actions/cache same-SHA restore.
+
 # Opt into Node 24 for JavaScript actions (GitHub default June 2026). Docker Buildx / build-push use
 # setup-buildx-action@v4 + build-push-action@v7 (Node 24 runtimes; runner â‰¥ v2.327.1). Prefer
 # `actions/setup-python@v6` here (matches Node 24; v5 targeted Node 20). Other third-party actions may still
@@ -84,6 +90,39 @@ jobs:
         with:
           version: "8.30.1"
           config-path: .gitleaks.toml
+
+  ci-path-lanes:
+    name: "CI: path lanes (PR scope)"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      run_openapi: ${{ steps.detect.outputs.run_openapi }}
+      run_dotnet: ${{ steps.detect.outputs.run_dotnet }}
+      run_terraform: ${{ steps.detect.outputs.run_terraform }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Fetch PR base for path lanes
+        if: github.event_name == 'pull_request'
+        run: git fetch origin "${{ github.event.pull_request.base.ref }}" --no-tags
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Detect CI path lanes
+        id: detect
+        run: |
+          python scripts/ci/detect_ci_path_lanes.py \
+            --base-ref "origin/${{ github.event.pull_request.base.ref || github.event.repository.default_branch }}" \
+            --event-name "${{ github.event_name }}" \
+            --json-out artifacts/ci/ci-path-lanes.json \
+            --write-github-output
+
+      - name: Path-lane detector unit tests
+        run: python -m unittest discover -s scripts/ci/tests -p "test_detect_ci_path_lanes.py"
 
   public-pdf-buyer-safety:
     name: "Docs: public PDF buyer-safety"
@@ -1249,37 +1288,49 @@ jobs:
   terraform-validate-private:
     name: "Terraform: validate private stack (no backend)"
     # Hard gate: do not wait on warn-only docs — start with OpenAPI / guards after gitleaks.
+    # Soft-skip when PR path lanes exclude Terraform (job still succeeds for required checks).
     needs:
       - gitleaks
+      - ci-path-lanes
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v5
 
+      - name: Path-skip Terraform private validate
+        if: needs.ci-path-lanes.outputs.run_terraform != 'true'
+        run: echo "Path-skip: Terraform private validate not required for this PR lane set."
+
       - uses: hashicorp/setup-terraform@v4
+        if: needs.ci-path-lanes.outputs.run_terraform == 'true'
         with:
           terraform_wrapper: false
 
       - uses: ./.github/actions/terraform-init
+        if: needs.ci-path-lanes.outputs.run_terraform == 'true'
         with:
           working-directory: infra/terraform-private
 
       - name: terraform validate
+        if: needs.ci-path-lanes.outputs.run_terraform == 'true'
         working-directory: infra/terraform-private
         run: terraform validate
 
       - name: terraform fmt (check only)
+        if: needs.ci-path-lanes.outputs.run_terraform == 'true'
         # Warn-only: formatting drift is cosmetic and must not block a deploy. Run `terraform fmt -recursive` to fix.
         continue-on-error: true
         working-directory: infra/terraform-private
         run: terraform fmt -check -recursive
 
       - name: Install Trivy CLI
+        if: needs.ci-path-lanes.outputs.run_terraform == 'true'
         uses: ./.github/actions/install-trivy
         with:
           version: v0.69.3
 
       - name: Trivy IaC (Terraform misconfigurations)
+        if: needs.ci-path-lanes.outputs.run_terraform == 'true'
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           skip-setup-trivy: true
@@ -1292,8 +1343,10 @@ jobs:
   terraform-validate-public-stacks:
     name: "Terraform: validate main / edge / entra (no backend)"
     # Hard gate: do not wait on warn-only docs — start with OpenAPI / guards after gitleaks.
+    # Soft-skip when PR path lanes exclude Terraform (job still succeeds for required checks).
     needs:
       - gitleaks
+      - ci-path-lanes
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -1304,30 +1357,40 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - name: Path-skip Terraform public validate
+        if: needs.ci-path-lanes.outputs.run_terraform != 'true'
+        run: echo "Path-skip: Terraform ${{ matrix.directory }} not required for this PR lane set."
+
       - uses: hashicorp/setup-terraform@v4
+        if: needs.ci-path-lanes.outputs.run_terraform == 'true'
         with:
           terraform_wrapper: false
 
       - uses: ./.github/actions/terraform-init
+        if: needs.ci-path-lanes.outputs.run_terraform == 'true'
         with:
           working-directory: ${{ matrix.directory }}
 
       - name: terraform validate
+        if: needs.ci-path-lanes.outputs.run_terraform == 'true'
         working-directory: ${{ matrix.directory }}
         run: terraform validate
 
       - name: terraform fmt (check only)
+        if: needs.ci-path-lanes.outputs.run_terraform == 'true'
         # Warn-only: formatting drift is cosmetic and must not block a deploy. Run `terraform fmt -recursive` to fix.
         continue-on-error: true
         working-directory: ${{ matrix.directory }}
         run: terraform fmt -check -recursive
 
       - name: Install Trivy CLI
+        if: needs.ci-path-lanes.outputs.run_terraform == 'true'
         uses: ./.github/actions/install-trivy
         with:
           version: v0.69.3
 
       - name: Trivy IaC (Terraform misconfigurations)
+        if: needs.ci-path-lanes.outputs.run_terraform == 'true'
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           skip-setup-trivy: true
@@ -1414,14 +1477,21 @@ jobs:
   openapi-contract-snapshot:
     name: ".NET: OpenAPI v1 contract snapshot (fail-fast)"
     # Hard gate: do not wait on warn-only docs — longest pre-corset pole; start right after gitleaks.
+    # Soft-skip when PR path lanes exclude OpenAPI (job still succeeds for required checks).
     needs:
       - gitleaks
+      - ci-path-lanes
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v5
 
+      - name: Path-skip OpenAPI contract snapshot
+        if: needs.ci-path-lanes.outputs.run_openapi != 'true'
+        run: echo "Path-skip: OpenAPI contract snapshot not required for this PR lane set."
+
       - name: Setup .NET
+        if: needs.ci-path-lanes.outputs.run_openapi == 'true'
         uses: actions/setup-dotnet@v5.2.0
         with:
           global-json-file: global.json
@@ -1432,23 +1502,27 @@ jobs:
             **/*.csproj
 
       - name: Build + OpenAPI contract snapshot tests (v1 + buyer)
+        if: needs.ci-path-lanes.outputs.run_openapi == 'true'
         env:
           ARCHLUCID_OPENAPI_SNAPSHOT_ARTIFACT_PATH: ${{ runner.temp }}/openapi-contract/openapi-v1.generated.canonical.json
         run: bash scripts/ci/check_openapi_contract_snapshot.sh
 
       - name: Assert ArchLucid.Api.Client NSwag output in sync
+        if: needs.ci-path-lanes.outputs.run_openapi == 'true'
         run: bash scripts/ci/assert_api_client_in_sync.sh
 
       - name: Setup Node (for openapi-typescript TypeScript drift check)
+        if: needs.ci-path-lanes.outputs.run_openapi == 'true'
         uses: actions/setup-node@v6
         with:
           node-version: "22"
 
       - name: Assert TypeScript api-types.generated.ts in sync with OpenAPI snapshot
+        if: needs.ci-path-lanes.outputs.run_openapi == 'true'
         run: bash scripts/ci/assert_api_types_in_sync.sh
 
       - name: Upload generated OpenAPI contract artifact
-        if: always()
+        if: always() && needs.ci-path-lanes.outputs.run_openapi == 'true'
         uses: actions/upload-artifact@v7
         with:
           name: openapi-v1-generated-canonical
@@ -1728,8 +1802,10 @@ jobs:
     name: ".NET: fast core — build"
     # Hard-gate fan-in only. Warn-only docs/IaC/demo jobs stay visible but off this critical path
     # (continue-on-error does not unblock needs — listing them here used to serialize ~docs+OpenAPI).
+    # Soft-skip when PR path lanes exclude .NET (job still succeeds for required checks).
     needs:
       - gitleaks
+      - ci-path-lanes
       - openapi-contract-snapshot
       - terraform-validate-private
       - terraform-validate-public-stacks
@@ -1741,11 +1817,16 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Path-skip fast-core build
+        if: needs.ci-path-lanes.outputs.run_dotnet != 'true'
+        run: echo "Path-skip: .NET fast-core build not required for this PR lane set."
+
       - name: Fetch default branch for diff guards (manual CI)
-        if: github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'workflow_dispatch' && needs.ci-path-lanes.outputs.run_dotnet == 'true'
         run: git fetch origin "${{ github.event.repository.default_branch }}" --no-tags
 
       - name: Setup .NET
+        if: needs.ci-path-lanes.outputs.run_dotnet == 'true'
         uses: actions/setup-dotnet@v5.2.0
         with:
           global-json-file: global.json
@@ -1755,25 +1836,28 @@ jobs:
             global.json
             **/*.csproj
 
-      - name: Cache Release obj + bin + NuGet (for parallel test shards)
-        uses: actions/cache@v4
-        with:
-          # bin is keyed to the exact SHA so test shards reuse this job's compiled output
-          # (their `dotnet build` becomes an up-to-date no-op instead of a full ~7m recompile).
-          path: |
-            ~/.nuget/packages
-            **/obj
-            **/bin
-          key: corset-build-${{ github.sha }}-${{ hashFiles('Directory.Packages.props', 'global.json') }}
-          restore-keys: |
-            corset-build-${{ hashFiles('Directory.Packages.props', 'global.json') }}-
-
       - name: Restore, audit, build, CLI config lint
+        if: needs.ci-path-lanes.outputs.run_dotnet == 'true'
         run: bash scripts/ci/run_dotnet_fast_core_build.sh
+
+      - name: Pack bin/obj for test shards
+        if: needs.ci-path-lanes.outputs.run_dotnet == 'true'
+        run: bash scripts/ci/pack_corset_build_outputs.sh "${{ runner.temp }}/corset-build-outputs.tgz"
+
+      - name: Upload corset build outputs artifact
+        if: needs.ci-path-lanes.outputs.run_dotnet == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: corset-build-outputs-${{ github.sha }}
+          path: ${{ runner.temp }}/corset-build-outputs.tgz
+          if-no-files-found: error
+          retention-days: 1
 
   dotnet-fast-core-test:
     name: ".NET: fast core — test (${{ matrix.shard_label }})"
-    needs: dotnet-fast-core-build
+    needs:
+      - ci-path-lanes
+      - dotnet-fast-core-build
     runs-on: ubuntu-latest
     # Blame-hang (5m/test) fails a deadlocked shard fast with a named culprit; 30m is a generous
     # backstop for healthy shards (heaviest historically ~19m) without burning a 75m budget on a hang.
@@ -1795,7 +1879,12 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - name: Path-skip fast-core test shard
+        if: needs.ci-path-lanes.outputs.run_dotnet != 'true'
+        run: echo "Path-skip: .NET fast-core test shard not required for this PR lane set."
+
       - name: Setup .NET
+        if: needs.ci-path-lanes.outputs.run_dotnet == 'true'
         uses: actions/setup-dotnet@v5.2.0
         with:
           global-json-file: global.json
@@ -1805,40 +1894,39 @@ jobs:
             global.json
             **/*.csproj
 
-      - name: Restore cached Release obj + bin + NuGet
-        uses: actions/cache@v4
+      - name: Download corset build outputs artifact
+        if: needs.ci-path-lanes.outputs.run_dotnet == 'true'
+        uses: actions/download-artifact@v7
         with:
-          path: |
-            ~/.nuget/packages
-            **/obj
-            **/bin
-          key: corset-build-${{ github.sha }}-${{ hashFiles('Directory.Packages.props', 'global.json') }}
-          restore-keys: |
-            corset-build-${{ hashFiles('Directory.Packages.props', 'global.json') }}-
+          name: corset-build-outputs-${{ github.sha }}
+          path: ${{ runner.temp }}/corset-build-outputs
 
-      # With bin cached at this SHA, the build is an up-to-date no-op; it stays as a safety net
-      # if the cache ever misses, in which case it performs a full compile.
-      - name: Ensure solution is built (no-op when SHA bin cache hit)
-        run: |
-          dotnet restore ArchLucid.sln
-          dotnet build ArchLucid.sln --no-restore -c Release /p:SourceRevisionId=$(git rev-parse HEAD)
+      - name: Unpack corset build outputs
+        if: needs.ci-path-lanes.outputs.run_dotnet == 'true'
+        run: bash scripts/ci/unpack_corset_build_outputs.sh "${{ runner.temp }}/corset-build-outputs/corset-build-outputs.tgz"
+
+      # NuGet packages come from setup-dotnet cache; bin/obj come from the build artifact.
+      # Restore is cheap with a warm package cache; avoid a full recompile on cache miss.
+      - name: Restore solution packages
+        if: needs.ci-path-lanes.outputs.run_dotnet == 'true'
+        run: dotnet restore ArchLucid.sln
 
       # OpenApiContractSnapshotTests excluded via DOTNET_FAST_CORE_TEST_FILTER; job openapi-contract-snapshot already gates drift.
       - name: Test — fast core shard (with coverage)
-        if: github.event_name != 'pull_request'
+        if: needs.ci-path-lanes.outputs.run_dotnet == 'true' && github.event_name != 'pull_request'
         env:
           ARCHLUCID_FAST_CORE_COLLECT_COVERAGE: "1"
         run: bash scripts/ci/run_fast_core_corset_shard.sh "${{ matrix.shard_id }}"
 
       - uses: actions/upload-artifact@v7
-        if: github.event_name != 'pull_request'
+        if: needs.ci-path-lanes.outputs.run_dotnet == 'true' && github.event_name != 'pull_request'
         with:
           name: coverage-fast-core-${{ matrix.shard_id }}
           path: ${{ runner.temp }}/coverage-fast-core/**/coverage.cobertura.xml
           if-no-files-found: warn
 
       - name: Test — fast core shard (PR trimmed — no coverage collection)
-        if: github.event_name == 'pull_request'
+        if: needs.ci-path-lanes.outputs.run_dotnet == 'true' && github.event_name == 'pull_request'
         run: bash scripts/ci/run_fast_core_corset_shard.sh "${{ matrix.shard_id }}"
 
   # Branch protection / downstream `needs` target: fails when build or any test shard fails.

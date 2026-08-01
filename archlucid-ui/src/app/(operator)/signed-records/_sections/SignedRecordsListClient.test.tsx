@@ -71,6 +71,37 @@ describe("SignedRecordsListClient", () => {
     );
   });
 
+  it("shows record unavailable honesty when enrich leaves signedRecordHref null (TB-1943)", async () => {
+    listRunsByProjectPaged.mockResolvedValue({
+      items: [finalizedRun],
+      totalCount: 1,
+      page: 1,
+      pageSize: 100,
+      hasMore: false,
+    });
+    enrichSignedRecordsListRows.mockImplementation(async (rows: readonly { runId: string; reviewHref: string }[]) =>
+      rows.map((row) => ({
+        runId: row.runId,
+        reviewTitle: "Claims modernization",
+        committedUtc: finalizedRun.createdUtc,
+        manifestVersion: "—",
+        manifestId: null,
+        reviewHref: row.reviewHref,
+        signedRecordHref: null,
+      })),
+    );
+
+    render(<SignedRecordsListClient />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Record unavailable")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByRole("link", { name: "Open signed record" })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open review" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Retry" })).toBeInTheDocument();
+  });
+
   it("shows an empty state when no finalized runs exist", async () => {
     listRunsByProjectPaged.mockResolvedValue({
       items: [],

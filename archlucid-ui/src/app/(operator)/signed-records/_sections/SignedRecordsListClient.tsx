@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
+import { StatusTag } from "@/components/ui/status-tag";
 import {
   EnterpriseTable,
   EnterpriseTableBody,
@@ -34,6 +35,8 @@ import {
   SIGNED_RECORDS_LIST_OPEN_REVIEW_ACTION,
   SIGNED_RECORDS_LIST_PAGE_SUBTITLE,
   SIGNED_RECORDS_LIST_PAGE_TITLE,
+  SIGNED_RECORDS_LIST_RECORD_UNAVAILABLE_LABEL,
+  SIGNED_RECORDS_LIST_RETRY_RECORD_ACTION,
   SIGNED_RECORDS_LIST_TABLE_ACTIONS_COLUMN,
   SIGNED_RECORDS_LIST_TABLE_COMMITTED_COLUMN,
   SIGNED_RECORDS_LIST_TABLE_REVIEW_COLUMN,
@@ -61,6 +64,7 @@ export default function SignedRecordsListClient() {
   const [rows, setRows] = useState<readonly SignedRecordsListRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [retryingRunId, setRetryingRunId] = useState<string | null>(null);
 
   const loadRows = useCallback(async () => {
     setLoading(true);
@@ -99,6 +103,24 @@ export default function SignedRecordsListClient() {
       setLoading(false);
     }
   }, []);
+
+  const retryRow = useCallback(async (runId: string) => {
+    const existingRow = rows.find((row) => row.runId === runId);
+
+    if (existingRow === undefined) {
+      return;
+    }
+
+    setRetryingRunId(runId);
+
+    try {
+      const [enrichedRow] = await enrichSignedRecordsListRows([existingRow]);
+
+      setRows((currentRows) => currentRows.map((row) => (row.runId === runId ? enrichedRow : row)));
+    } finally {
+      setRetryingRunId(null);
+    }
+  }, [rows]);
 
   useEffect(() => {
     void loadRows();
@@ -150,7 +172,10 @@ export default function SignedRecordsListClient() {
             </EnterpriseTableHeadRow>
           </EnterpriseTableHead>
           <EnterpriseTableBody>
-            {rows.map((row) => (
+            {rows.map((row) => {
+              const signedRecordHref = row.signedRecordHref;
+
+              return (
               <EnterpriseTableRow key={row.runId}>
                 <EnterpriseTableCell>
                   <Link href={row.reviewHref} className={OPERATOR_LINK.nav}>
@@ -160,19 +185,37 @@ export default function SignedRecordsListClient() {
                 <EnterpriseTableCell>{row.manifestVersion}</EnterpriseTableCell>
                 <EnterpriseTableCell>{formatCommittedDate(row.committedUtc)}</EnterpriseTableCell>
                 <EnterpriseTableCell>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <Button asChild variant="outline" size="sm">
                       <Link href={row.reviewHref}>{SIGNED_RECORDS_LIST_OPEN_REVIEW_ACTION}</Link>
                     </Button>
-                    {row.signedRecordHref !== null ? (
+                    {signedRecordHref !== null ? (
                       <Button asChild variant="default" size="sm">
-                        <Link href={row.signedRecordHref}>{SIGNED_RECORDS_LIST_OPEN_RECORD_ACTION}</Link>
+                        <Link href={signedRecordHref}>{SIGNED_RECORDS_LIST_OPEN_RECORD_ACTION}</Link>
                       </Button>
-                    ) : null}
+                    ) : (
+                      <>
+                        <StatusTag
+                          kind="needs-attention"
+                          label={SIGNED_RECORDS_LIST_RECORD_UNAVAILABLE_LABEL}
+                          data-testid={`signed-record-unavailable-${row.runId}`}
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          disabled={retryingRunId === row.runId}
+                          onClick={() => void retryRow(row.runId)}
+                        >
+                          {SIGNED_RECORDS_LIST_RETRY_RECORD_ACTION}
+                        </Button>
+                      </>
+                    )}
                   </div>
                 </EnterpriseTableCell>
               </EnterpriseTableRow>
-            ))}
+              );
+            })}
           </EnterpriseTableBody>
         </EnterpriseTable>
       ) : null}

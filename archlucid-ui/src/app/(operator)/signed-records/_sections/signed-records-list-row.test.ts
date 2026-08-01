@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import type { RunSummary } from "@/types/authority";
 
-import { buildSignedRecordsListRowsFromRuns } from "./signed-records-list-row";
+import { buildSignedRecordsListRowsFromRuns, isSignedRecordsListRowOpenable } from "./signed-records-list-row";
 
 const finalizedRun: RunSummary = {
   runId: "00000000-0000-0000-0000-000000000099",
@@ -29,5 +29,6 @@ describe("buildSignedRecordsListRowsFromRuns", () => {
     expect(rows[0]?.runId).toBe(finalizedRun.runId);
     expect(rows[0]?.reviewHref).toBe(`/reviews/${encodeURIComponent(finalizedRun.runId)}`);
     expect(rows[0]?.signedRecordHref).toBeNull();
+    expect(isSignedRecordsListRowOpenable(rows[0]!)).toBe(false);
   });
 });

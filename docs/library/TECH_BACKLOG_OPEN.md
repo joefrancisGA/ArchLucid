@@ -40,7 +40,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | Users & roles (3 tabs) | **TB-1210**–**TB-1215** (open P1 **V1**) | Operator vs Architect honesty; tab-specific empty copy; breadcrumb/nav title; API keys empty + CTA; invite empty composition; PageContextualHelpButton; owner screenshots ~49/100 2026-07-25 |
 | Users API keys tab (`/settings/users?tab=keys`) | **TB-1931**–**TB-1935** (open **V1**) | Job honesty; execute **TB-1213** CTA; keys empty/error; columns; Vitest; ~45/100; traffic **SEU**; pairs **TB-1210**–**TB-1215**; sibling **SSU** |
 | Users invitations tab (`/settings/users?tab=users`) | **TB-1936**–**TB-1940** (open **V1**) | URL sync; execute **TB-1214**; principals purge; density; Vitest; ~46/100; traffic **SSU**; pairs **TB-1210**–**TB-1215**; sibling **SEU** |
-| Signed review records (`/signed-records`) | **TB-1941**–**TB-1945** (open **V1**) | Traffic section; empty projectId; href honesty; CTA/pagination/enrich; Vitest; ~50/100; traffic **SI**; sibling **MAM** via **TB-1824** |
+| Signed review records (`/signed-records`) | **TB-1941**–**TB-1942**, **TB-1944**–**TB-1945** (open **V1**) | Traffic section; empty projectId; CTA/pagination/enrich; Vitest; ~50/100; traffic **SI**; sibling **MAM** via **TB-1824**; **TB-1943** Done |
 | AI usage (`/settings/ai-usage`) | **TB-1216**–**TB-1220** (open P1 **V1**) | Administration breadcrumb honesty; suppress zero-usage theater; PageHeading/help; budget CTA dedupe; hide Highest-cost when $0; owner screenshot ~51/100 2026-07-25 |
 | Security & trust (`/settings/security-trust`) | **TB-1223**–**TB-1227**, **TB-1285**–**TB-1286** (open; **TB-1284** Done) | Administration breadcrumb honesty; collapse triple intro; PageHeading/help; Available-now CTA; contact dedupe; StatusTag badges; density/legend; owner reviews ~53/100 2026-07-25/26; traffic **WSX** |
 | Account security (`/settings/account-security`) | **TB-1881**–**TB-1885** (open **V1**) | Scope honesty; busy disables; in-page remove; empty/help; Vitest; ~52/100; traffic **SEA**; pairs **TB-1614** |
@@ -713,7 +713,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1940 | Users tab — Vitest URL sync + empty composition | Testability P2 **V1** — with **TB-1936** |
 | TB-1941 | Signed records list — traffic section honesty (not Marketing) | Trustworthiness P1 **V1** — SI ~50 |
 | TB-1942 | Signed records list — empty Browse reviews drop `projectId=default` | Trustworthiness P1 **V1** — with **TB-1941** |
-| TB-1943 | Signed records list — rows without signedRecordHref honesty | Trustworthiness P0 **V1** — with **TB-1941** |
 | TB-1944 | Signed records list — dedupe Open review CTAs + page-1/100 + N+1 enrich | Adoption friction P1 **V1** — with **TB-1941** |
 | TB-1945 | Signed records list — Vitest empty href + row honesty + traffic note | Testability P2 **V1** — with **TB-1941** |
 | TB-1946 | MAM artifact preview — traffic ghost-route workbook honesty | Trustworthiness P1 **V1** — MAM ~10 |

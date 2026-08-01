@@ -11,6 +11,10 @@ export type SignedRecordsListRow = {
   readonly signedRecordHref: string | null;
 };
 
+export function isSignedRecordsListRowOpenable(row: SignedRecordsListRow): boolean {
+  return row.signedRecordHref !== null;
+}
+
 export function buildSignedRecordsListRowsFromRuns(runs: readonly RunSummary[]): SignedRecordsListRow[] {
   return runs
     .filter((run) => run.hasGoldenManifest === true)
