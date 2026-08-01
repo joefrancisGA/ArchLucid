@@ -81,115 +81,86 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
         if (row is null)
             return null;
 
-        const string relatedSql = """
-                                  SELECT frn.NodeId
-                                  FROM dbo.FindingRelatedNodes frn
-                                  INNER JOIN dbo.FindingRecords fr ON fr.FindingRecordId = frn.FindingRecordId
-                                  INNER JOIN dbo.FindingsSnapshots fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
-                                  INNER JOIN dbo.Runs r ON r.RunId = fs.RunId
-                                  WHERE fr.FindingId = @FindingId
-                                    AND r.TenantId = @TenantId
-                                    AND r.WorkspaceId = @WorkspaceId
-                                    AND r.ScopeProjectId = @ScopeProjectId
-                                  ORDER BY frn.SortOrder;
-                                  """;
+        object queryParams = new
+        {
+            FindingId = findingId.Trim(),
+            scope.TenantId,
+            scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            row.RunId,
+            EventType = AuditEventTypes.AuthorityCommittedChainPersisted,
+            ActiveStatus = "Active",
+        };
 
-        List<string> relatedNodes = (await connection.QueryAsync<string>(
-                new CommandDefinition(
-                    relatedSql,
-                    new { FindingId = findingId.Trim(), scope.TenantId, scope.WorkspaceId, ScopeProjectId = scope.ProjectId },
-                    cancellationToken: ct)))
-            .ToList();
+        const string followUpBatchSql = """
+                                        SELECT frn.NodeId
+                                        FROM dbo.FindingRelatedNodes frn
+                                        INNER JOIN dbo.FindingRecords fr ON fr.FindingRecordId = frn.FindingRecordId
+                                        INNER JOIN dbo.FindingsSnapshots fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
+                                        INNER JOIN dbo.Runs r ON r.RunId = fs.RunId
+                                        WHERE fr.FindingId = @FindingId
+                                          AND r.TenantId = @TenantId
+                                          AND r.WorkspaceId = @WorkspaceId
+                                          AND r.ScopeProjectId = @ScopeProjectId
+                                        ORDER BY frn.SortOrder;
 
-        const string ruleSql = """
-                               SELECT TOP 1 tra.RuleText
-                               FROM dbo.FindingTraceRulesApplied tra
-                               INNER JOIN dbo.FindingRecords fr ON fr.FindingRecordId = tra.FindingRecordId
-                               INNER JOIN dbo.FindingsSnapshots fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
-                               INNER JOIN dbo.Runs r ON r.RunId = fs.RunId
-                               WHERE fr.FindingId = @FindingId
-                                 AND r.TenantId = @TenantId
-                                 AND r.WorkspaceId = @WorkspaceId
-                                 AND r.ScopeProjectId = @ScopeProjectId
-                               ORDER BY tra.SortOrder;
-                               """;
+                                        SELECT TOP 1 tra.RuleText
+                                        FROM dbo.FindingTraceRulesApplied tra
+                                        INNER JOIN dbo.FindingRecords fr ON fr.FindingRecordId = tra.FindingRecordId
+                                        INNER JOIN dbo.FindingsSnapshots fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
+                                        INNER JOIN dbo.Runs r ON r.RunId = fs.RunId
+                                        WHERE fr.FindingId = @FindingId
+                                          AND r.TenantId = @TenantId
+                                          AND r.WorkspaceId = @WorkspaceId
+                                          AND r.ScopeProjectId = @ScopeProjectId
+                                        ORDER BY tra.SortOrder;
 
-        string? firstRuleText = await connection.QuerySingleOrDefaultAsync<string>(
-            new CommandDefinition(
-                ruleSql,
-                new { FindingId = findingId.Trim(), scope.TenantId, scope.WorkspaceId, ScopeProjectId = scope.ProjectId },
-                cancellationToken: ct));
+                                        SELECT fra.ActionText
+                                        FROM dbo.FindingRecommendedActions fra
+                                        INNER JOIN dbo.FindingRecords fr ON fr.FindingRecordId = fra.FindingRecordId
+                                        INNER JOIN dbo.FindingsSnapshots fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
+                                        INNER JOIN dbo.Runs r ON r.RunId = fs.RunId
+                                        WHERE fr.FindingId = @FindingId
+                                          AND r.TenantId = @TenantId
+                                          AND r.WorkspaceId = @WorkspaceId
+                                          AND r.ScopeProjectId = @ScopeProjectId
+                                        ORDER BY fra.SortOrder;
 
-        const string actionsSql = """
-                                  SELECT fra.ActionText
-                                  FROM dbo.FindingRecommendedActions fra
-                                  INNER JOIN dbo.FindingRecords fr ON fr.FindingRecordId = fra.FindingRecordId
-                                  INNER JOIN dbo.FindingsSnapshots fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
-                                  INNER JOIN dbo.Runs r ON r.RunId = fs.RunId
-                                  WHERE fr.FindingId = @FindingId
-                                    AND r.TenantId = @TenantId
-                                    AND r.WorkspaceId = @WorkspaceId
-                                    AND r.ScopeProjectId = @ScopeProjectId
-                                  ORDER BY fra.SortOrder;
-                                  """;
+                                        SELECT TOP 1 ae.EventId
+                                        FROM dbo.AuditEvents ae
+                                        WHERE ae.RunId = @RunId
+                                          AND ae.TenantId = @TenantId
+                                          AND ae.EventType = @EventType
+                                        ORDER BY ae.OccurredUtc DESC, ae.EventId DESC;
 
-        List<string> recommendedActions = (await connection.QueryAsync<string>(
-                new CommandDefinition(
-                    actionsSql,
-                    new { FindingId = findingId.Trim(), scope.TenantId, scope.WorkspaceId, ScopeProjectId = scope.ProjectId },
-                    cancellationToken: ct)))
+                                        SELECT TOP 1 Disposition, OccurredAtUtc
+                                        FROM dbo.FindingReviewEvents
+                                        WHERE TenantId = @TenantId
+                                          AND FindingId = @FindingId
+                                          AND Disposition IS NOT NULL
+                                        ORDER BY OccurredAtUtc DESC;
+
+                                        SELECT COUNT_BIG(1)
+                                        FROM dbo.RiskExceptions
+                                        WHERE TenantId = @TenantId
+                                          AND FindingId = @FindingId
+                                          AND Status = @ActiveStatus
+                                          AND ExpiresAtUtc > SYSUTCDATETIME();
+                                        """;
+
+        await using SqlMapper.GridReader multi = await connection.QueryMultipleAsync(
+            new CommandDefinition(followUpBatchSql, queryParams, cancellationToken: ct));
+
+        List<string> relatedNodes = (await multi.ReadAsync<string>()).ToList();
+        string? firstRuleText = await multi.ReadSingleOrDefaultAsync<string>();
+
+        List<string> recommendedActions = (await multi.ReadAsync<string>())
             .Where(static a => !string.IsNullOrWhiteSpace(a))
             .ToList();
 
-        const string auditSql = """
-                                SELECT TOP 1 ae.EventId
-                                FROM dbo.AuditEvents ae
-                                WHERE ae.RunId = @RunId
-                                  AND ae.TenantId = @TenantId
-                                  AND ae.EventType = @EventType
-                                ORDER BY ae.OccurredUtc DESC, ae.EventId DESC;
-                                """;
-
-        Guid? auditRowId = await connection.QuerySingleOrDefaultAsync<Guid?>(
-            new CommandDefinition(
-                auditSql,
-                new { row.RunId, scope.TenantId, EventType = AuditEventTypes.AuthorityCommittedChainPersisted },
-                cancellationToken: ct));
-
-        const string dispositionSql = """
-                                      SELECT TOP 1 Disposition, OccurredAtUtc
-                                      FROM dbo.FindingReviewEvents
-                                      WHERE TenantId = @TenantId
-                                        AND FindingId = @FindingId
-                                        AND Disposition IS NOT NULL
-                                      ORDER BY OccurredAtUtc DESC;
-                                      """;
-
-        DispositionRow? dispositionRow = await connection.QuerySingleOrDefaultAsync<DispositionRow>(
-            new CommandDefinition(
-                dispositionSql,
-                new { scope.TenantId, FindingId = findingId.Trim() },
-                cancellationToken: ct));
-
-        const string waiverSql = """
-                                 SELECT COUNT_BIG(1)
-                                 FROM dbo.RiskExceptions
-                                 WHERE TenantId = @TenantId
-                                   AND FindingId = @FindingId
-                                   AND Status = @ActiveStatus
-                                   AND ExpiresAtUtc > SYSUTCDATETIME();
-                                 """;
-
-        long activeWaiverCount = await connection.ExecuteScalarAsync<long>(
-            new CommandDefinition(
-                waiverSql,
-                new
-                {
-                    scope.TenantId,
-                    FindingId = findingId.Trim(),
-                    ActiveStatus = "Active", // matches SqlRiskExceptionRepository N'Active'
-                },
-                cancellationToken: ct));
+        Guid? auditRowId = await multi.ReadSingleOrDefaultAsync<Guid?>();
+        DispositionRow? dispositionRow = await multi.ReadSingleOrDefaultAsync<DispositionRow>();
+        long activeWaiverCount = await multi.ReadSingleAsync<long>();
 
         (string? ruleId, string? ruleName) = ResolveRuleFields(row.AppliedRuleIdsJson, firstRuleText);
 

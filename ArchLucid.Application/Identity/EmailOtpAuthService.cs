@@ -592,30 +592,25 @@ public sealed class EmailOtpAuthService(
         CancellationToken cancellationToken)
     {
         DateTimeOffset since = now.AddHours(-1);
+        string? clientIpHash = EmailOtpRequestMetadataHasher.HashOptional(clientIp);
 
-        int emailCount =
-            await _challenges.CountRecentRequestsByEmailAsync(normalizedEmail, since, cancellationToken)
-                .ConfigureAwait(false);
+        EmailOtpRecentRequestCounts counts = await _challenges
+            .CountRecentRequestsForRateLimitAsync(normalizedEmail, clientIpHash, since, cancellationToken)
+            .ConfigureAwait(false);
 
-        if (emailCount >= _options.MaxCodeRequestsPerEmailPerHour)
+        if (counts.EmailRequestCount >= _options.MaxCodeRequestsPerEmailPerHour)
         {
             await LogRateLimitAsync(emailCorrelation, "email_request_hourly", cancellationToken).ConfigureAwait(false);
 
             return true;
         }
 
-        string? clientIpHash = EmailOtpRequestMetadataHasher.HashOptional(clientIp);
-
         if (clientIpHash is null)
         {
             return false;
         }
 
-        int ipCount =
-            await _challenges.CountRecentRequestsByClientIpHashAsync(clientIpHash, since, cancellationToken)
-                .ConfigureAwait(false);
-
-        if (ipCount >= _options.MaxCodeRequestsPerIpPerHour)
+        if (counts.ClientIpRequestCount >= _options.MaxCodeRequestsPerIpPerHour)
         {
             await LogRateLimitAsync(emailCorrelation, "ip_request_hourly", cancellationToken).ConfigureAwait(false);
 

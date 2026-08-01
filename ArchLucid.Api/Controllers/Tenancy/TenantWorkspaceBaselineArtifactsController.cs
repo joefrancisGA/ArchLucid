@@ -1,6 +1,7 @@
 using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Data.Repositories;
@@ -44,16 +45,13 @@ public sealed class TenantWorkspaceBaselineArtifactsController(
         if (tenant is null)
             return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
 
-        bool hasBaselineArtifacts =
-            await _azureExtractorPackageRepository.HasAnyInWorkspaceAsync(scope, cancellationToken);
-
-        string? scriptVersion =
-            await _azureExtractorPackageRepository.TryGetLatestScriptVersionInScopeAsync(scope, cancellationToken);
+        WorkspaceBaselineExtractorArtifacts baselineArtifacts =
+            await _azureExtractorPackageRepository.GetWorkspaceBaselineArtifactsAsync(scope, cancellationToken);
 
         return Ok(new TenantWorkspaceBaselineArtifactsResponse
         {
-            HasBaselineArtifacts = hasBaselineArtifacts,
-            ExtractorScriptVersion = scriptVersion,
+            HasBaselineArtifacts = baselineArtifacts.HasAnyInWorkspace,
+            ExtractorScriptVersion = baselineArtifacts.LatestScriptVersion,
         });
     }
 }

@@ -1,3 +1,4 @@
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -30,6 +31,7 @@ public sealed class DapperWeeklyArchitectureCriticalFindingSummaryRepository(
             ct => ListRecentCriticalCoreAsync(cutoffUtc, criticalSeverityLiteral, maxSampleRows, ct),
             cancellationToken);
 
+    [TenantScopeExempt(TenantScopeExemptReason.Operational, "Weekly digest critical-finding sample spans all tenants.")]
     private async Task<WeeklyArchitectureCriticalFindingsSlice> ListRecentCriticalCoreAsync(
         DateTime cutoffUtc,
         string criticalSeverityLiteral,
@@ -43,52 +45,43 @@ public sealed class DapperWeeklyArchitectureCriticalFindingSummaryRepository(
         await using SqlConnection connection =
             await _readConnectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
-        CommandDefinition countCommand = new(
-            """
-            SELECT COUNT_BIG(1)
-            FROM dbo.FindingRecords AS fr WITH (NOLOCK)
-            INNER JOIN dbo.FindingsSnapshots AS fs WITH (NOLOCK) ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
-            WHERE fs.CreatedUtc >= @CutoffUtc
-              AND fs.ArchivedUtc IS NULL
-              AND fr.Severity = @Severity;
-            """,
-            new
-            {
-                CutoffUtc = cutoffUtc,
-                Severity = criticalSeverityLiteral,
-            },
-            cancellationToken: cancellationToken);
+        object parameters = new
+        {
+            MaxSample = maxSampleRows,
+            CutoffUtc = cutoffUtc,
+            Severity = criticalSeverityLiteral,
+        };
 
-        long total = await connection.ExecuteScalarAsync<long>(countCommand).ConfigureAwait(false);
+        const string batchSql = """
+                                SELECT COUNT_BIG(1)
+                                FROM dbo.FindingRecords AS fr WITH (NOLOCK)
+                                INNER JOIN dbo.FindingsSnapshots AS fs WITH (NOLOCK) ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
+                                WHERE fs.CreatedUtc >= @CutoffUtc
+                                  AND fs.ArchivedUtc IS NULL
+                                  AND fr.Severity = @Severity;
 
-        CommandDefinition sampleCommand = new(
-            """
-            SELECT TOP (@MaxSample)
-                   fr.FindingId,
-                   fr.Title,
-                   fr.Category,
-                   fr.TenantId,
-                   fs.CreatedUtc AS SnapshotCreatedUtc
-            FROM dbo.FindingRecords AS fr WITH (NOLOCK)
-            INNER JOIN dbo.FindingsSnapshots AS fs WITH (NOLOCK) ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
-            WHERE fs.CreatedUtc >= @CutoffUtc
-              AND fs.ArchivedUtc IS NULL
-              AND fr.Severity = @Severity
-            ORDER BY fs.CreatedUtc DESC,
-                     fr.SortOrder ASC;
-            """,
-            new
-            {
-                MaxSample = maxSampleRows,
-                CutoffUtc = cutoffUtc,
-                Severity = criticalSeverityLiteral,
-            },
-            cancellationToken: cancellationToken);
+                                SELECT TOP (@MaxSample)
+                                       fr.FindingId,
+                                       fr.Title,
+                                       fr.Category,
+                                       fr.TenantId,
+                                       fs.CreatedUtc AS SnapshotCreatedUtc
+                                FROM dbo.FindingRecords AS fr WITH (NOLOCK)
+                                INNER JOIN dbo.FindingsSnapshots AS fs WITH (NOLOCK) ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
+                                WHERE fs.CreatedUtc >= @CutoffUtc
+                                  AND fs.ArchivedUtc IS NULL
+                                  AND fr.Severity = @Severity
+                                ORDER BY fs.CreatedUtc DESC,
+                                         fr.SortOrder ASC;
+                                """;
+
+        await using SqlMapper.GridReader multi = await connection.QueryMultipleAsync(
+            new CommandDefinition(batchSql, parameters, cancellationToken: cancellationToken)).ConfigureAwait(false);
+
+        long total = await multi.ReadSingleAsync<long>().ConfigureAwait(false);
 
         IReadOnlyList<WeeklyArchitectureCriticalFindingDto> rows =
-            (await connection
-                .QueryAsync<WeeklyArchitectureCriticalFindingDto>(sampleCommand)
-                .ConfigureAwait(false)).AsList();
+            (await multi.ReadAsync<WeeklyArchitectureCriticalFindingDto>().ConfigureAwait(false)).AsList();
 
         return new WeeklyArchitectureCriticalFindingsSlice { ApproximateMatchingCount = total, SampleRows = rows };
     }

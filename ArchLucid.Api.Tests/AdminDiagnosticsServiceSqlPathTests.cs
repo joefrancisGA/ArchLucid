@@ -11,6 +11,7 @@ using ArchLucid.Core.Pagination;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Persistence.Coordination.Retrieval;
 using ArchLucid.Persistence.Data.Infrastructure;
+using ArchLucid.Persistence.Admin;
 using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Orchestration;
@@ -663,8 +664,7 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
         IDbConnectionFactory connectionFactory,
         IAuditService? audit = null)
     {
-        Mock<IAuthorityPipelineWorkRepository> authority = new();
-        Mock<IRetrievalIndexingOutboxRepository> retrieval = new();
+        Mock<IAdminOutboxSnapshotReader> outboxSnapshot = new();
         Mock<IIntegrationEventOutboxRepository> integration = new();
         Mock<IHostLeaderLeaseRepository> hostLeases = new();
         Mock<IRunRepository> runs = new();
@@ -681,8 +681,7 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
         actor.Setup(ctx => ctx.GetActor()).Returns("sql-path-test");
 
         return new AdminDiagnosticsService(
-            authority.Object,
-            retrieval.Object,
+            outboxSnapshot.Object,
             integration.Object,
             hostLeases.Object,
             runs.Object,

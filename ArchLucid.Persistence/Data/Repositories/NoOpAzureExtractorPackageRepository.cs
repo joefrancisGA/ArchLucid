@@ -1,3 +1,4 @@
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Models;
 
@@ -17,6 +18,11 @@ public sealed class NoOpAzureExtractorPackageRepository : IAzureExtractorPackage
 
     public Task<bool> HasAnyInWorkspaceAsync(ScopeContext scope, CancellationToken cancellationToken = default)
         => Task.FromResult(false);
+
+    public Task<WorkspaceBaselineExtractorArtifacts> GetWorkspaceBaselineArtifactsAsync(
+        ScopeContext scope,
+        CancellationToken cancellationToken = default)
+        => Task.FromResult(new WorkspaceBaselineExtractorArtifacts(false, null));
 
     public Task<DateTime?> TryGetLatestCollectionTimestampUtcInScopeAsync(
         ScopeContext scope,

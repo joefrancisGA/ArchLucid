@@ -37,6 +37,7 @@ using ArchLucid.Core.Persistence.ApplicationPorts.FineTuning;
 using ArchLucid.Core.Persistence.ApplicationPorts.Integrations;
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Core.Search;
+using ArchLucid.Persistence.Admin;
 using ArchLucid.Persistence.Authorization;
 using ArchLucid.Persistence.AwsExtractor;
 using ArchLucid.Persistence.GcpExtractor;
@@ -71,7 +72,6 @@ using ArchLucid.Persistence.AdminNotifications;
 using ArchLucid.Persistence.Advisory;
 using ArchLucid.Persistence.Alerts;
 using ArchLucid.Persistence.Archival;
-using ArchLucid.Persistence.Admin;
 using ArchLucid.Persistence.Support;
 using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.BlobStore;
@@ -320,6 +320,7 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         ArchLucidStorageServiceCollectionExtensions.RegisterSharedDistributedCacheAndLlmCompletion(services, configuration);
 
         services.AddSingleton<IOutboxOperationalMetricsReader, InMemoryOutboxOperationalMetricsReader>();
+        services.AddScoped<IAdminOutboxSnapshotReader, InMemoryAdminOutboxSnapshotReader>();
         services.AddSingleton<ITrialFunnelOperationalMetricsReader, InMemoryTrialFunnelOperationalMetricsReader>();
         services.AddSingleton<IInternalCrossTenantMetricsCollector, InMemoryInternalCrossTenantMetricsCollector>();
         services.AddSingleton<IInternalCrossTenantRollupRepository, InMemoryInternalCrossTenantRollupRepository>();

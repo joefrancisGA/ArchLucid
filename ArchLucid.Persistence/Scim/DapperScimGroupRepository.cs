@@ -30,14 +30,6 @@ public sealed class DapperScimGroupRepository(ISqlConnectionFactory connectionFa
                                 WHERE g.TenantId = @TenantId;
                                 """;
 
-        int total = await connection.ExecuteScalarAsync<int>(
-            new CommandDefinition(countSql, new { TenantId = tenantId }, cancellationToken: cancellationToken));
-
-        if (count <= 0)
-            return ([], total);
-
-        int offset = Math.Max(0, startIndex1Based - 1);
-
         const string listSql = """
                                SELECT g.Id, g.TenantId, g.ExternalId, g.DisplayName, g.CreatedUtc, g.UpdatedUtc
                                FROM dbo.ScimGroups g
@@ -46,11 +38,26 @@ public sealed class DapperScimGroupRepository(ISqlConnectionFactory connectionFa
                                OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY;
                                """;
 
-        IEnumerable<GroupRow> rows = await connection.QueryAsync<GroupRow>(
+        if (count <= 0)
+        {
+            int totalOnly = await connection.ExecuteScalarAsync<int>(
+                new CommandDefinition(countSql, new { TenantId = tenantId }, cancellationToken: cancellationToken));
+
+            return ([], totalOnly);
+        }
+
+        int offset = Math.Max(0, startIndex1Based - 1);
+
+        const string batchSql = countSql + "\n" + listSql;
+
+        await using SqlMapper.GridReader multi = await connection.QueryMultipleAsync(
             new CommandDefinition(
-                listSql,
+                batchSql,
                 new { TenantId = tenantId, Offset = offset, PageSize = count },
                 cancellationToken: cancellationToken));
+
+        int total = await multi.ReadSingleAsync<int>();
+        IEnumerable<GroupRow> rows = await multi.ReadAsync<GroupRow>();
 
         return (rows.Select(static r => r.ToRecord()).ToList(), total);
     }

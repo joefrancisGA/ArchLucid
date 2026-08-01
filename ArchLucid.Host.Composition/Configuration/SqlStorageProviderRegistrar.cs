@@ -62,6 +62,7 @@ using ArchLucid.Host.Core.DataConsistency;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Jobs;
 using ArchLucid.Core.Persistence.Ports;
+using ArchLucid.Persistence.Admin;
 using ArchLucid.Persistence.AdminNotifications;
 using ArchLucid.Persistence.Advisory;
 using ArchLucid.Persistence.Alerts;
@@ -73,7 +74,6 @@ using ArchLucid.Persistence.AzureExtractor;
 using ArchLucid.Persistence.AwsExtractor;
 using ArchLucid.Persistence.GcpExtractor;
 using ArchLucid.Persistence.Search;
-using ArchLucid.Persistence.Admin;
 using ArchLucid.Persistence.Support;
 using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.BlobStore;
@@ -596,6 +596,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IFirstSessionLifecycleHook, SqlFirstSessionLifecycleHook>();
 
         services.AddScoped<IOutboxOperationalMetricsReader, DapperOutboxOperationalMetricsReader>();
+        services.AddScoped<IAdminOutboxSnapshotReader, DapperAdminOutboxSnapshotReader>();
         services.AddHostedService<OutboxOperationalMetricsHostedService>();
         services.AddHostedService<LlmTenantBudgetUtilizationMetricsHostedService>();
         services.AddHostedService<MarketingPricingQuoteAgingMetricsHostedService>();

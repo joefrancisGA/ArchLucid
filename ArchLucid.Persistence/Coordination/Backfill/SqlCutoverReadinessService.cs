@@ -19,19 +19,24 @@ public sealed class SqlCutoverReadinessService(
     ISqlConnectionFactory connectionFactory,
     ILogger<SqlCutoverReadinessService> logger) : ICutoverReadinessService
 {
+    private static readonly string BatchSql = BuildBatchSql();
+
     public async Task<CutoverReadinessReport> AssessAsync(CancellationToken ct)
     {
         logger.LogInformation("Cutover readiness assessment starting.");
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
 
+        await using SqlMapper.GridReader multi = await connection.QueryMultipleAsync(
+            new CommandDefinition(BatchSql, cancellationToken: ct));
+
         List<CutoverSliceReadiness> slices =
         [
-            .. await AssessContextSnapshotsAsync(connection, ct),
-            .. await AssessGraphSnapshotsAsync(connection, ct),
-            .. await AssessFindingsSnapshotsAsync(connection, ct),
-            .. await AssessGoldenManifestsAsync(connection, ct),
-            .. await AssessArtifactBundlesAsync(connection, ct)
+            .. await ReadContextSnapshotSlicesAsync(multi),
+            .. await ReadGraphSnapshotSlicesAsync(multi),
+            .. await ReadFindingsSnapshotSlicesAsync(multi),
+            .. await ReadGoldenManifestSlicesAsync(multi),
+            .. await ReadArtifactBundleSlicesAsync(multi)
         ];
 
         CutoverReadinessReport report = new() { Slices = slices };
@@ -45,108 +50,96 @@ public sealed class SqlCutoverReadinessService(
         return report;
     }
 
-    private static async Task<List<CutoverSliceReadiness>> AssessContextSnapshotsAsync(
-        SqlConnection connection, CancellationToken ct)
+    private static async Task<IEnumerable<CutoverSliceReadiness>> ReadContextSnapshotSlicesAsync(SqlMapper.GridReader multi)
     {
-        int totalHeaders = await CountAsync(connection,
-            "SELECT COUNT(1) FROM dbo.ContextSnapshots;", ct);
+        int totalHeaders = await ReadCountAsync(multi);
 
         return
         [
-            await AssessSliceAsync(connection, "ContextSnapshot.CanonicalObjects", totalHeaders,
-                CountHeadersWithChildrenSql("ContextSnapshots", "SnapshotId", "ContextSnapshotCanonicalObjects",
-                    "SnapshotId"), ct),
-
-            await AssessSliceAsync(connection, "ContextSnapshot.Warnings", totalHeaders,
-                CountHeadersWithChildrenSql("ContextSnapshots", "SnapshotId", "ContextSnapshotWarnings", "SnapshotId"),
-                ct),
-
-            await AssessSliceAsync(connection, "ContextSnapshot.Errors", totalHeaders,
-                CountHeadersWithChildrenSql("ContextSnapshots", "SnapshotId", "ContextSnapshotErrors", "SnapshotId"),
-                ct),
-
-            await AssessSliceAsync(connection, "ContextSnapshot.SourceHashes", totalHeaders,
-                CountHeadersWithChildrenSql("ContextSnapshots", "SnapshotId", "ContextSnapshotSourceHashes",
-                    "SnapshotId"), ct)
+            Slice("ContextSnapshot.CanonicalObjects", totalHeaders, await ReadCountAsync(multi)),
+            Slice("ContextSnapshot.Warnings", totalHeaders, await ReadCountAsync(multi)),
+            Slice("ContextSnapshot.Errors", totalHeaders, await ReadCountAsync(multi)),
+            Slice("ContextSnapshot.SourceHashes", totalHeaders, await ReadCountAsync(multi))
         ];
     }
 
-    private static async Task<List<CutoverSliceReadiness>> AssessGraphSnapshotsAsync(
-        SqlConnection connection, CancellationToken ct)
+    private static async Task<IEnumerable<CutoverSliceReadiness>> ReadGraphSnapshotSlicesAsync(SqlMapper.GridReader multi)
     {
-        int totalHeaders = await CountAsync(connection,
-            "SELECT COUNT(1) FROM dbo.GraphSnapshots;", ct);
+        int totalHeaders = await ReadCountAsync(multi);
 
         return
         [
-            await AssessSliceAsync(connection, "GraphSnapshot.Nodes", totalHeaders,
-                CountHeadersWithChildrenSql("GraphSnapshots", "GraphSnapshotId", "GraphSnapshotNodes",
-                    "GraphSnapshotId"), ct),
-
-            await AssessSliceAsync(connection, "GraphSnapshot.Edges", totalHeaders,
-                CountHeadersWithChildrenSql("GraphSnapshots", "GraphSnapshotId", "GraphSnapshotEdges",
-                    "GraphSnapshotId"), ct),
-
-            await AssessSliceAsync(connection, "GraphSnapshot.Warnings", totalHeaders,
-                CountHeadersWithChildrenSql("GraphSnapshots", "GraphSnapshotId", "GraphSnapshotWarnings",
-                    "GraphSnapshotId"), ct),
-
-            await AssessSliceAsync(connection, "GraphSnapshot.EdgeProperties", totalHeaders,
-                CountHeadersWithChildrenSql("GraphSnapshots", "GraphSnapshotId", "GraphSnapshotEdgeProperties",
-                    "GraphSnapshotId"), ct)
+            Slice("GraphSnapshot.Nodes", totalHeaders, await ReadCountAsync(multi)),
+            Slice("GraphSnapshot.Edges", totalHeaders, await ReadCountAsync(multi)),
+            Slice("GraphSnapshot.Warnings", totalHeaders, await ReadCountAsync(multi)),
+            Slice("GraphSnapshot.EdgeProperties", totalHeaders, await ReadCountAsync(multi))
         ];
     }
 
-    private static async Task<List<CutoverSliceReadiness>> AssessFindingsSnapshotsAsync(
-        SqlConnection connection, CancellationToken ct)
+    private static async Task<IEnumerable<CutoverSliceReadiness>> ReadFindingsSnapshotSlicesAsync(SqlMapper.GridReader multi)
     {
-        int totalHeaders = await CountAsync(connection,
-            "SELECT COUNT(1) FROM dbo.FindingsSnapshots;", ct);
+        int totalHeaders = await ReadCountAsync(multi);
+
+        return [Slice("FindingsSnapshot.Findings", totalHeaders, await ReadCountAsync(multi))];
+    }
+
+    private static async Task<IEnumerable<CutoverSliceReadiness>> ReadGoldenManifestSlicesAsync(SqlMapper.GridReader multi)
+    {
+        int totalHeaders = await ReadCountAsync(multi);
 
         return
         [
-            await AssessSliceAsync(connection, "FindingsSnapshot.Findings", totalHeaders,
-                CountHeadersWithChildrenSql("FindingsSnapshots", "FindingsSnapshotId", "FindingRecords",
-                    "FindingsSnapshotId"), ct)
+            Slice("GoldenManifest.Assumptions", totalHeaders, await ReadCountAsync(multi)),
+            Slice("GoldenManifest.Warnings", totalHeaders, await ReadCountAsync(multi)),
+            Slice("GoldenManifest.Decisions", totalHeaders, await ReadCountAsync(multi)),
+            Slice("GoldenManifest.Provenance", totalHeaders, await ReadCountAsync(multi))
         ];
     }
 
-    private static async Task<List<CutoverSliceReadiness>> AssessGoldenManifestsAsync(
-        SqlConnection connection, CancellationToken ct)
+    private static async Task<IEnumerable<CutoverSliceReadiness>> ReadArtifactBundleSlicesAsync(SqlMapper.GridReader multi)
     {
-        int totalHeaders = await CountAsync(connection,
-            "SELECT COUNT(1) FROM dbo.GoldenManifests;", ct);
+        int totalHeaders = await ReadCountAsync(multi);
 
-        return
-        [
-            await AssessSliceAsync(connection, "GoldenManifest.Assumptions", totalHeaders,
-                CountHeadersWithChildrenSql("GoldenManifests", "ManifestId", "GoldenManifestAssumptions", "ManifestId"),
-                ct),
-
-            await AssessSliceAsync(connection, "GoldenManifest.Warnings", totalHeaders,
-                CountHeadersWithChildrenSql("GoldenManifests", "ManifestId", "GoldenManifestWarnings", "ManifestId"),
-                ct),
-
-            await AssessSliceAsync(connection, "GoldenManifest.Decisions", totalHeaders,
-                CountHeadersWithChildrenSql("GoldenManifests", "ManifestId", "GoldenManifestDecisions", "ManifestId"),
-                ct),
-
-            await AssessSliceAsync(connection, "GoldenManifest.Provenance", totalHeaders,
-                CountHeadersWithAnyProvenanceChildSql(), ct)
-        ];
+        return [Slice("ArtifactBundle.Artifacts", totalHeaders, await ReadCountAsync(multi))];
     }
 
-    private static async Task<List<CutoverSliceReadiness>> AssessArtifactBundlesAsync(
-        SqlConnection connection, CancellationToken ct)
-    {
-        int totalHeaders = await CountAsync(connection,
-            "SELECT COUNT(1) FROM dbo.ArtifactBundles;", ct);
+    private static async Task<int> ReadCountAsync(SqlMapper.GridReader multi) =>
+        await multi.ReadSingleAsync<int>();
 
-        return
+    private static CutoverSliceReadiness Slice(string sliceName, int totalHeaders, int headersWithChildren) =>
+        new()
+        {
+            SliceName = sliceName,
+            TotalHeaderRows = totalHeaders,
+            HeadersWithRelationalRows = headersWithChildren
+        };
+
+    private static string BuildBatchSql()
+    {
+        string[] statements =
         [
-            await AssessSliceAsync(connection, "ArtifactBundle.Artifacts", totalHeaders,
-                CountHeadersWithChildrenSql("ArtifactBundles", "BundleId", "ArtifactBundleArtifacts", "BundleId"), ct)
+            "SELECT COUNT(1) FROM dbo.ContextSnapshots;",
+            CountHeadersWithChildrenSql("ContextSnapshots", "SnapshotId", "ContextSnapshotCanonicalObjects", "SnapshotId"),
+            CountHeadersWithChildrenSql("ContextSnapshots", "SnapshotId", "ContextSnapshotWarnings", "SnapshotId"),
+            CountHeadersWithChildrenSql("ContextSnapshots", "SnapshotId", "ContextSnapshotErrors", "SnapshotId"),
+            CountHeadersWithChildrenSql("ContextSnapshots", "SnapshotId", "ContextSnapshotSourceHashes", "SnapshotId"),
+            "SELECT COUNT(1) FROM dbo.GraphSnapshots;",
+            CountHeadersWithChildrenSql("GraphSnapshots", "GraphSnapshotId", "GraphSnapshotNodes", "GraphSnapshotId"),
+            CountHeadersWithChildrenSql("GraphSnapshots", "GraphSnapshotId", "GraphSnapshotEdges", "GraphSnapshotId"),
+            CountHeadersWithChildrenSql("GraphSnapshots", "GraphSnapshotId", "GraphSnapshotWarnings", "GraphSnapshotId"),
+            CountHeadersWithChildrenSql("GraphSnapshots", "GraphSnapshotId", "GraphSnapshotEdgeProperties", "GraphSnapshotId"),
+            "SELECT COUNT(1) FROM dbo.FindingsSnapshots;",
+            CountHeadersWithChildrenSql("FindingsSnapshots", "FindingsSnapshotId", "FindingRecords", "FindingsSnapshotId"),
+            "SELECT COUNT(1) FROM dbo.GoldenManifests;",
+            CountHeadersWithChildrenSql("GoldenManifests", "ManifestId", "GoldenManifestAssumptions", "ManifestId"),
+            CountHeadersWithChildrenSql("GoldenManifests", "ManifestId", "GoldenManifestWarnings", "ManifestId"),
+            CountHeadersWithChildrenSql("GoldenManifests", "ManifestId", "GoldenManifestDecisions", "ManifestId"),
+            CountHeadersWithAnyProvenanceChildSql(),
+            "SELECT COUNT(1) FROM dbo.ArtifactBundles;",
+            CountHeadersWithChildrenSql("ArtifactBundles", "BundleId", "ArtifactBundleArtifacts", "BundleId")
         ];
+
+        return string.Join("\n", statements);
     }
 
     /// <summary>
@@ -184,22 +177,5 @@ public sealed class SqlCutoverReadinessService(
                    SELECT 1 FROM dbo.GoldenManifestProvenanceAppliedRules c WHERE c.ManifestId = h.ManifestId
                );
                """;
-    }
-
-    private static async Task<CutoverSliceReadiness> AssessSliceAsync(
-        SqlConnection connection, string sliceName, int totalHeaders, string countSql, CancellationToken ct)
-    {
-        int headersWithChildren = await CountAsync(connection, countSql, ct);
-
-        return new CutoverSliceReadiness
-        {
-            SliceName = sliceName, TotalHeaderRows = totalHeaders, HeadersWithRelationalRows = headersWithChildren
-        };
-    }
-
-    private static async Task<int> CountAsync(SqlConnection connection, string sql, CancellationToken ct)
-    {
-        return await connection.ExecuteScalarAsync<int>(
-            new CommandDefinition(sql, cancellationToken: ct));
     }
 }

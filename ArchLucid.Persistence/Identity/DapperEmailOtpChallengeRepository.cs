@@ -109,6 +109,44 @@ public sealed class DapperEmailOtpChallengeRepository(ISqlConnectionFactory conn
                 cancellationToken: cancellationToken));
     }
 
+    public async Task<EmailOtpRecentRequestCounts> CountRecentRequestsForRateLimitAsync(
+        string normalizedEmail,
+        string? clientIpHash,
+        DateTimeOffset sinceUtc,
+        CancellationToken cancellationToken)
+    {
+        const string batchSql = """
+                                SELECT COUNT(1)
+                                FROM dbo.EmailOtpChallenges
+                                WHERE NormalizedEmail = @NormalizedEmail
+                                  AND CreatedUtc >= @SinceUtc;
+
+                                SELECT COUNT(1)
+                                FROM dbo.EmailOtpChallenges
+                                WHERE ClientIpHash = @ClientIpHash
+                                  AND CreatedUtc >= @SinceUtc
+                                  AND @ClientIpHash IS NOT NULL;
+                                """;
+
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        await using SqlMapper.GridReader multi = await connection.QueryMultipleAsync(
+            new CommandDefinition(
+                batchSql,
+                new
+                {
+                    NormalizedEmail = normalizedEmail,
+                    ClientIpHash = clientIpHash,
+                    SinceUtc = sinceUtc.UtcDateTime,
+                },
+                cancellationToken: cancellationToken));
+
+        int emailCount = await multi.ReadSingleAsync<int>();
+        int ipCount = await multi.ReadSingleAsync<int>();
+
+        return new EmailOtpRecentRequestCounts(emailCount, ipCount);
+    }
+
     public async Task<int> CountRecentFailedVerificationsByEmailAsync(
         string normalizedEmail,
         DateTimeOffset sinceUtc,

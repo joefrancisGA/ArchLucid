@@ -35,11 +35,13 @@ public sealed class DapperScimUserRepository(ISqlConnectionFactory connectionFac
                            WHERE u.TenantId = @TenantId AND u.DirectoryRemovedUtc IS NULL AND ({whereExtra});
                            """;
 
-        int total = await connection.ExecuteScalarAsync<int>(
-            new CommandDefinition(countSql, parameters, cancellationToken: cancellationToken));
-
         if (count <= 0)
-            return ([], total);
+        {
+            int totalOnly = await connection.ExecuteScalarAsync<int>(
+                new CommandDefinition(countSql, parameters, cancellationToken: cancellationToken));
+
+            return ([], totalOnly);
+        }
 
         int offset = Math.Max(0, startIndex1Based - 1);
         parameters.Add("Offset", offset);
@@ -54,8 +56,13 @@ public sealed class DapperScimUserRepository(ISqlConnectionFactory connectionFac
                           OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY;
                           """;
 
-        IEnumerable<UserRow> rows = await connection.QueryAsync<UserRow>(
-            new CommandDefinition(listSql, parameters, cancellationToken: cancellationToken));
+        string batchSql = countSql + "\n" + listSql;
+
+        await using SqlMapper.GridReader multi = await connection.QueryMultipleAsync(
+            new CommandDefinition(batchSql, parameters, cancellationToken: cancellationToken));
+
+        int total = await multi.ReadSingleAsync<int>();
+        IEnumerable<UserRow> rows = await multi.ReadAsync<UserRow>();
 
         return (rows.Select(static r => r.ToRecord()).ToList(), total);
     }

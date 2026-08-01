@@ -8,13 +8,12 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.DataConsistency;
-using ArchLucid.Persistence.Coordination.Retrieval;
+using ArchLucid.Persistence.Admin;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
-using ArchLucid.Persistence.Orchestration;
 
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Diagnostics;
@@ -24,8 +23,7 @@ namespace ArchLucid.Api.Services.Admin;
 
 /// <inheritdoc cref="IAdminDiagnosticsService" />
 public sealed class AdminDiagnosticsService(
-    IAuthorityPipelineWorkRepository authorityPipelineWork,
-    IRetrievalIndexingOutboxRepository retrievalIndexingOutbox,
+    IAdminOutboxSnapshotReader adminOutboxSnapshotReader,
     IIntegrationEventOutboxRepository integrationEventOutbox,
     IHostLeaderLeaseRepository hostLeaderLeases,
     IRunRepository runRepository,
@@ -36,6 +34,8 @@ public sealed class AdminDiagnosticsService(
     IActorContext actorContext,
     IAuditService auditService) : IAdminDiagnosticsService
 {
+    private readonly IAdminOutboxSnapshotReader _adminOutboxSnapshotReader =
+        adminOutboxSnapshotReader ?? throw new ArgumentNullException(nameof(adminOutboxSnapshotReader));
     private readonly IActorContext _actorContext =
         actorContext ?? throw new ArgumentNullException(nameof(actorContext));
 
@@ -51,9 +51,6 @@ public sealed class AdminDiagnosticsService(
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
 
-    private readonly IAuthorityPipelineWorkRepository _authorityPipelineWork =
-        authorityPipelineWork ?? throw new ArgumentNullException(nameof(authorityPipelineWork));
-
     private readonly IDbConnectionFactory _connectionFactory =
         connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
 
@@ -63,25 +60,20 @@ public sealed class AdminDiagnosticsService(
     private readonly IIntegrationEventOutboxRepository _integrationEventOutbox =
         integrationEventOutbox ?? throw new ArgumentNullException(nameof(integrationEventOutbox));
 
-    private readonly IRetrievalIndexingOutboxRepository _retrievalIndexingOutbox =
-        retrievalIndexingOutbox ?? throw new ArgumentNullException(nameof(retrievalIndexingOutbox));
-
     private readonly IRunRepository _runRepository =
         runRepository ?? throw new ArgumentNullException(nameof(runRepository));
 
     /// <inheritdoc />
     public async Task<AdminOutboxSnapshot> GetOutboxSnapshotAsync(CancellationToken cancellationToken = default)
     {
-        long authorityActionable =
-            await _authorityPipelineWork.CountActionablePendingAsync(cancellationToken);
-        long authorityDead = await _authorityPipelineWork.CountDeadLetteredAsync(cancellationToken);
-        long retrievalPending = await _retrievalIndexingOutbox.CountPendingAsync(cancellationToken);
-        long integrationPending =
-            await _integrationEventOutbox.CountIntegrationOutboxPublishPendingAsync(cancellationToken);
-        long integrationDead = await _integrationEventOutbox.CountIntegrationOutboxDeadLetterAsync(cancellationToken);
+        AdminOutboxSnapshotCounts counts = await _adminOutboxSnapshotReader.ReadAsync(cancellationToken);
 
-        return new AdminOutboxSnapshot(authorityActionable, authorityDead, retrievalPending, integrationPending,
-            integrationDead);
+        return new AdminOutboxSnapshot(
+            counts.AuthorityPipelineWorkPending,
+            counts.AuthorityPipelineWorkDeadLetter,
+            counts.RetrievalIndexingPending,
+            counts.IntegrationEventOutboxPublishPending,
+            counts.IntegrationEventOutboxDeadLetter);
     }
 
     /// <inheritdoc />

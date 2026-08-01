@@ -80,6 +80,70 @@ public sealed class DapperValueReportMetricsReader(IReadOnlyDbConnectionFactory 
         + NonDemoRunsFilterRunsAliasR
         + ";";
 
+    private static readonly string GovernanceSql =
+        """
+        SELECT COUNT_BIG(*)
+        FROM dbo.AuditEvents WITH (NOLOCK)
+        WHERE TenantId = @TenantId
+          AND WorkspaceId = @WorkspaceId
+          AND ProjectId = @ProjectId
+          AND OccurredUtc >= @FromUtc
+          AND OccurredUtc < @ToUtc
+          AND EventType IN @GovTypes;
+        """;
+
+    private static readonly string DriftSql =
+        """
+        SELECT COUNT_BIG(*)
+        FROM dbo.AuditEvents WITH (NOLOCK)
+        WHERE TenantId = @TenantId
+          AND WorkspaceId = @WorkspaceId
+          AND ProjectId = @ProjectId
+          AND OccurredUtc >= @FromUtc
+          AND OccurredUtc < @ToUtc
+          AND EventType IN @DriftTypes;
+        """;
+
+    private static readonly string FindingFeedbackSql =
+        """
+        SELECT COALESCE(SUM(CAST(Score AS BIGINT)), 0) AS NetScore, COUNT_BIG(*) AS VoteCount
+        FROM dbo.FindingFeedback WITH (NOLOCK)
+        WHERE TenantId = @TenantId
+          AND WorkspaceId = @WorkspaceId
+          AND ProjectId = @ProjectId
+          AND CreatedUtc >= @FromUtc
+          AND CreatedUtc < @ToUtc;
+        """;
+
+    private static readonly string TenantBaselineSql =
+        """
+        SELECT BaselineReviewCycleHours,
+               BaselineReviewCycleSource,
+               BaselineReviewCycleCapturedUtc,
+               BaselineManualPrepHoursPerReview,
+               BaselinePeoplePerReview,
+               ArchitectureTeamSize
+        FROM dbo.Tenants WITH (NOLOCK)
+        WHERE Id = @TenantId;
+        """;
+
+    private static readonly string BatchSql =
+        RunsByStatusSql
+        + "\n"
+        + RunsCompletedSql
+        + "\n"
+        + ManifestsSql
+        + "\n"
+        + GovernanceSql
+        + "\n"
+        + DriftSql
+        + "\n"
+        + FindingFeedbackSql
+        + "\n"
+        + TenantBaselineSql
+        + "\n"
+        + ReviewCycleSql;
+
     private readonly IReadOnlyDbConnectionFactory _connectionFactory =
         connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
 
@@ -92,28 +156,6 @@ public sealed class DapperValueReportMetricsReader(IReadOnlyDbConnectionFactory 
         CancellationToken cancellationToken)
     {
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-
-        const string governanceSql = """
-                                     SELECT COUNT_BIG(*)
-                                     FROM dbo.AuditEvents WITH (NOLOCK)
-                                     WHERE TenantId = @TenantId
-                                       AND WorkspaceId = @WorkspaceId
-                                       AND ProjectId = @ProjectId
-                                       AND OccurredUtc >= @FromUtc
-                                       AND OccurredUtc < @ToUtc
-                                       AND EventType IN @GovTypes
-                                     """;
-
-        const string driftSql = """
-                                SELECT COUNT_BIG(*)
-                                FROM dbo.AuditEvents WITH (NOLOCK)
-                                WHERE TenantId = @TenantId
-                                  AND WorkspaceId = @WorkspaceId
-                                  AND ProjectId = @ProjectId
-                                  AND OccurredUtc >= @FromUtc
-                                  AND OccurredUtc < @ToUtc
-                                  AND EventType IN @DriftTypes
-                                """;
 
         object parameters = new
         {
@@ -128,58 +170,21 @@ public sealed class DapperValueReportMetricsReader(IReadOnlyDbConnectionFactory 
             CanonicalShowcaseRunHardenedId = DemoRunSqlPredicates.CanonicalShowcaseRunHardenedId,
         };
 
-        IEnumerable<RunStatusSqlRow> rows = await connection.QueryAsync<RunStatusSqlRow>(
-            new CommandDefinition(RunsByStatusSql, parameters, cancellationToken: cancellationToken));
+        await using SqlMapper.GridReader multi = await connection.QueryMultipleAsync(
+            new CommandDefinition(BatchSql, parameters, cancellationToken: cancellationToken));
 
-        List<ValueReportRunStatusCount> statusCounts = rows
+        List<ValueReportRunStatusCount> statusCounts = (await multi.ReadAsync<RunStatusSqlRow>())
             .Select(static r =>
                 new ValueReportRunStatusCount(r.LegacyRunStatusLabel, (int)Math.Min(int.MaxValue, r.Cnt)))
             .ToList();
 
-        long runsCompleted = await connection.QuerySingleAsync<long>(
-            new CommandDefinition(RunsCompletedSql, parameters, cancellationToken: cancellationToken));
-
-        long manifests = await connection.QuerySingleAsync<long>(
-            new CommandDefinition(ManifestsSql, parameters, cancellationToken: cancellationToken));
-
-        long governance = await connection.QuerySingleAsync<long>(
-            new CommandDefinition(governanceSql, parameters, cancellationToken: cancellationToken));
-
-        long drift = await connection.QuerySingleAsync<long>(
-            new CommandDefinition(driftSql, parameters, cancellationToken: cancellationToken));
-
-        const string findingFeedbackSql = """
-                                          SELECT COALESCE(SUM(CAST(Score AS BIGINT)), 0) AS NetScore, COUNT_BIG(*) AS VoteCount
-                                          FROM dbo.FindingFeedback WITH (NOLOCK)
-                                          WHERE TenantId = @TenantId
-                                            AND WorkspaceId = @WorkspaceId
-                                            AND ProjectId = @ProjectId
-                                            AND CreatedUtc >= @FromUtc
-                                            AND CreatedUtc < @ToUtc;
-                                          """;
-
-        FindingFeedbackAggRow feedbackAgg = await connection.QuerySingleAsync<FindingFeedbackAggRow>(
-            new CommandDefinition(findingFeedbackSql, parameters, cancellationToken: cancellationToken));
-
-        const string tenantBaselineSql = """
-                                         SELECT BaselineReviewCycleHours,
-                                                BaselineReviewCycleSource,
-                                                BaselineReviewCycleCapturedUtc,
-                                                BaselineManualPrepHoursPerReview,
-                                                BaselinePeoplePerReview,
-                                                ArchitectureTeamSize
-                                         FROM dbo.Tenants WITH (NOLOCK)
-                                         WHERE Id = @TenantId;
-                                         """;
-
-        TenantBaselineRow? tenantBaseline = await connection.QuerySingleOrDefaultAsync<TenantBaselineRow>(
-            new CommandDefinition(
-                tenantBaselineSql,
-                new { TenantId = tenantId },
-                cancellationToken: cancellationToken));
-
-        ReviewCycleMeasureRow measure = await connection.QuerySingleAsync<ReviewCycleMeasureRow>(
-            new CommandDefinition(ReviewCycleSql, parameters, cancellationToken: cancellationToken));
+        long runsCompleted = await multi.ReadSingleAsync<long>();
+        long manifests = await multi.ReadSingleAsync<long>();
+        long governance = await multi.ReadSingleAsync<long>();
+        long drift = await multi.ReadSingleAsync<long>();
+        FindingFeedbackAggRow feedbackAgg = await multi.ReadSingleAsync<FindingFeedbackAggRow>();
+        TenantBaselineRow? tenantBaseline = await multi.ReadSingleOrDefaultAsync<TenantBaselineRow>();
+        ReviewCycleMeasureRow measure = await multi.ReadSingleAsync<ReviewCycleMeasureRow>();
 
         decimal? measuredAvg = measure.Cnt == 0 ? null : measure.AvgHours;
         int sampleSize = measure.Cnt > int.MaxValue ? int.MaxValue : (int)measure.Cnt;

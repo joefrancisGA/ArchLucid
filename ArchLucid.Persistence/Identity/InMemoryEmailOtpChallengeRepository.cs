@@ -69,6 +69,25 @@ public sealed class InMemoryEmailOtpChallengeRepository : IEmailOtpChallengeRepo
         return Task.FromResult(count);
     }
 
+    public Task<EmailOtpRecentRequestCounts> CountRecentRequestsForRateLimitAsync(
+        string normalizedEmail,
+        string? clientIpHash,
+        DateTimeOffset sinceUtc,
+        CancellationToken cancellationToken)
+    {
+        _ = cancellationToken;
+
+        int emailCount = _byId.Values.Count(row =>
+            row.NormalizedEmail == normalizedEmail && row.CreatedUtc >= sinceUtc);
+
+        int ipCount = clientIpHash is null
+            ? 0
+            : _byId.Values.Count(row =>
+                row.ClientIpHash == clientIpHash && row.CreatedUtc >= sinceUtc);
+
+        return Task.FromResult(new EmailOtpRecentRequestCounts(emailCount, ipCount));
+    }
+
     public Task<int> CountRecentFailedVerificationsByEmailAsync(
         string normalizedEmail,
         DateTimeOffset sinceUtc,

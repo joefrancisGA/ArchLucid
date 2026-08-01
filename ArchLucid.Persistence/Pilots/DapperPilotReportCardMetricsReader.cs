@@ -139,7 +139,7 @@ public sealed class DapperPilotReportCardMetricsReader(IReadOnlyDbConnectionFact
         SummaryRow summary = await connection.QuerySingleAsync<SummaryRow>(
             new CommandDefinition(summarySql, parameters, cancellationToken: cancellationToken));
 
-        string findingSql =
+        string followUpBatchSql =
             """
 
             SELECT COALESCE(fr.Severity, '(unknown)') AS Severity,
@@ -149,28 +149,14 @@ public sealed class DapperPilotReportCardMetricsReader(IReadOnlyDbConnectionFact
                                 ON gm.FindingsSnapshotId = fr.FindingsSnapshotId
                                    AND gm.ArchivedUtc IS NULL
                      INNER JOIN dbo.Runs AS r WITH (NOLOCK) ON r.RunId = gm.RunId
-
             WHERE 
 
             """
-
-            +
-            CommittedRunsScopeFilterRuns
-            +
-            """
+            + CommittedRunsScopeFilterRuns
+            + """
 
             GROUP BY fr.Severity
             ORDER BY fr.Severity;
-
-            """;
-
-        List<PilotReportCardSeverityCountRow> severityBuckets =
-            (await connection.QueryAsync<PilotReportCardSeverityCountRow>(
-                    new CommandDefinition(findingSql, parameters, cancellationToken: cancellationToken)))
-                .AsList();
-
-        const string govApprovedSql =
-            """
 
             SELECT COUNT_BIG(*)
             FROM dbo.GovernanceApprovalRequests g WITH (NOLOCK)
@@ -179,11 +165,6 @@ public sealed class DapperPilotReportCardMetricsReader(IReadOnlyDbConnectionFact
               AND g.ProjectId = @ScopeProjectId
               AND g.Status IN @ApprovedStatuses;
 
-            """;
-
-        const string govRejectedSql =
-            """
-
             SELECT COUNT_BIG(*)
             FROM dbo.GovernanceApprovalRequests g WITH (NOLOCK)
             WHERE g.TenantId = @TenantId
@@ -191,23 +172,12 @@ public sealed class DapperPilotReportCardMetricsReader(IReadOnlyDbConnectionFact
               AND g.ProjectId = @ScopeProjectId
               AND g.Status = @RejectedStatus;
 
-            """;
-
-        const string exportAuditSql =
-            """
-
             SELECT COUNT_BIG(*)
             FROM dbo.AuditEvents ae WITH (NOLOCK)
             WHERE ae.TenantId = @TenantId
               AND ae.WorkspaceId = @WorkspaceId
               AND ae.ProjectId = @ScopeProjectId
               AND ae.EventType IN @ExportKinds;
-
-            """;
-
-
-        string artifactTypeSql =
-            """
 
             SELECT COUNT_BIG(DISTINCT abRow.ArtifactType)
             FROM (
@@ -220,15 +190,10 @@ public sealed class DapperPilotReportCardMetricsReader(IReadOnlyDbConnectionFact
                               INNER JOIN dbo.ArtifactBundles AS abInner WITH (NOLOCK) ON abInner.BundleId = art.BundleId
                               INNER JOIN dbo.Runs AS rInner WITH (NOLOCK) ON rInner.RunId = abInner.RunId
                      WHERE abInner.ArchivedUtc IS NULL
-
                        AND 
-
             """
-
-            +
-            CommittedRunsScopeFilterRunsInner
-            +
-            """
+            + CommittedRunsScopeFilterRunsInner
+            + """
 
                        AND EXISTS (
                      SELECT 1
@@ -239,31 +204,21 @@ public sealed class DapperPilotReportCardMetricsReader(IReadOnlyDbConnectionFact
                        AND gmProbe.WorkspaceId = abInner.WorkspaceId
                        AND gmProbe.ProjectId = abInner.ProjectId
                        AND gmProbe.ArchivedUtc IS NULL
-
                  )) AS abRow;
-
             """;
 
+        await using SqlMapper.GridReader multi = await connection.QueryMultipleAsync(
+            new CommandDefinition(followUpBatchSql, parameters, cancellationToken: cancellationToken));
+
+        List<PilotReportCardSeverityCountRow> severityBuckets =
+            (await multi.ReadAsync<PilotReportCardSeverityCountRow>()).AsList();
+
+        int governanceApproved = SafeToInt(await multi.ReadSingleAsync<object?>());
+        int governanceRejected = SafeToInt(await multi.ReadSingleAsync<object?>());
+        long exportsGenerated = await multi.ReadSingleAsync<long>();
+        int artifactKinds = SafeToInt(await multi.ReadSingleAsync<object?>());
+
         int totalFindingRows = SafeToInt(summary.TotalFindingRowsSnapshot);
-
-        int governanceApproved =
-            SafeToInt(
-                await connection.QuerySingleAsync<object?>(
-                    new CommandDefinition(govApprovedSql, parameters, cancellationToken: cancellationToken)));
-
-        int governanceRejected =
-            SafeToInt(
-                await connection.QuerySingleAsync<object?>(
-                    new CommandDefinition(govRejectedSql, parameters, cancellationToken: cancellationToken)));
-
-        long exportsGenerated =
-            await connection.QuerySingleAsync<long>(
-                new CommandDefinition(exportAuditSql, parameters, cancellationToken: cancellationToken));
-
-        int artifactKinds =
-            SafeToInt(
-                await connection.QuerySingleAsync<object?>(
-                    new CommandDefinition(artifactTypeSql, parameters, cancellationToken: cancellationToken)));
 
         int derivedSum =
             severityBuckets.Sum(static row =>

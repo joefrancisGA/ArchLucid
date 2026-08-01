@@ -197,16 +197,6 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
         take = Math.Clamp(take, 1, PaginationDefaults.MaxPageSize);
         skip = Math.Max(skip, 0);
 
-        const string countSql = """
-            SELECT COUNT(*)
-            FROM dbo.AlertRecords
-            WHERE TenantId = @TenantId
-              AND WorkspaceId = @WorkspaceId
-              AND ProjectId = @ProjectId
-              AND (@Status IS NULL OR Status = @Status)
-              AND (@IncludeArchived = 1 OR IsArchived = 0);
-            """;
-
         const string pageSql = $"""
             SELECT {SelectColumns}
             FROM dbo.AlertRecords
@@ -218,6 +208,18 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
             ORDER BY CreatedUtc DESC
             OFFSET @Skip ROWS FETCH NEXT @Take ROWS ONLY;
             """;
+
+        const string batchSql = """
+            SELECT COUNT(*)
+            FROM dbo.AlertRecords
+            WHERE TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId
+              AND (@Status IS NULL OR Status = @Status)
+              AND (@IncludeArchived = 1 OR IsArchived = 0);
+
+            """
+            + pageSql;
 
         object parameters = new
         {
@@ -231,10 +233,12 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
         };
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        int total = await connection.ExecuteScalarAsync<int>(
-            new CommandDefinition(countSql, parameters, cancellationToken: ct));
-        IEnumerable<AlertRecord> rows = await connection.QueryAsync<AlertRecord>(
-            new CommandDefinition(pageSql, parameters, cancellationToken: ct));
+
+        await using SqlMapper.GridReader multi = await connection.QueryMultipleAsync(
+            new CommandDefinition(batchSql, parameters, cancellationToken: ct));
+
+        int total = await multi.ReadSingleAsync<int>();
+        IEnumerable<AlertRecord> rows = await multi.ReadAsync<AlertRecord>();
 
         return (rows.ToList(), total);
     }

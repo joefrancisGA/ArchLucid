@@ -101,15 +101,6 @@ public sealed class DapperConversationThreadRepository(ISqlConnectionFactory con
         take = Math.Clamp(take, 1, PaginationDefaults.MaxPageSize);
         skip = Math.Max(skip, 0);
 
-        const string countSql = """
-                                SELECT COUNT(*)
-                                FROM dbo.ConversationThreads
-                                WHERE TenantId = @TenantId
-                                  AND WorkspaceId = @WorkspaceId
-                                  AND ProjectId = @ProjectId
-                                  AND ArchivedUtc IS NULL;
-                                """;
-
         const string pageSql = """
                                SELECT
                                    ThreadId, TenantId, WorkspaceId, ProjectId,
@@ -124,6 +115,17 @@ public sealed class DapperConversationThreadRepository(ISqlConnectionFactory con
                                OFFSET @Skip ROWS FETCH NEXT @Take ROWS ONLY;
                                """;
 
+        const string batchSql = """
+                                SELECT COUNT(*)
+                                FROM dbo.ConversationThreads
+                                WHERE TenantId = @TenantId
+                                  AND WorkspaceId = @WorkspaceId
+                                  AND ProjectId = @ProjectId
+                                  AND ArchivedUtc IS NULL;
+
+                                """
+                                + pageSql;
+
         object parameters = new
         {
             TenantId = tenantId,
@@ -134,10 +136,12 @@ public sealed class DapperConversationThreadRepository(ISqlConnectionFactory con
         };
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        int total = await connection.ExecuteScalarAsync<int>(
-            new CommandDefinition(countSql, parameters, cancellationToken: ct));
-        IEnumerable<ConversationThread> rows = await connection.QueryAsync<ConversationThread>(
-            new CommandDefinition(pageSql, parameters, cancellationToken: ct));
+
+        await using SqlMapper.GridReader multi = await connection.QueryMultipleAsync(
+            new CommandDefinition(batchSql, parameters, cancellationToken: ct));
+
+        int total = await multi.ReadSingleAsync<int>();
+        IEnumerable<ConversationThread> rows = await multi.ReadAsync<ConversationThread>();
 
         return (rows.ToList(), total);
     }

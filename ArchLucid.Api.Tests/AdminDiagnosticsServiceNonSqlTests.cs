@@ -8,12 +8,11 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Integration;
 using ArchLucid.Host.Core.Configuration;
-using ArchLucid.Persistence.Coordination.Retrieval;
+using ArchLucid.Persistence.Admin;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
-using ArchLucid.Persistence.Orchestration;
 
 using Microsoft.Extensions.Options;
 
@@ -56,8 +55,6 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
             cacheTelemetry.Object,
             out _,
             out _,
-            out _,
-            out _,
             out _);
 
         AdminCacheDiagnosticsResponse response = await sut.GetCacheDiagnosticsAsync(CancellationToken.None);
@@ -85,21 +82,13 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
             SqlOptions(),
             audit,
             actor,
-            out Mock<IAuthorityPipelineWorkRepository> authority,
-            out Mock<IRetrievalIndexingOutboxRepository> retrieval,
-            out Mock<IIntegrationEventOutboxRepository> integration,
+            out Mock<IAdminOutboxSnapshotReader> outboxSnapshot,
+            out _,
             out _,
             out _);
 
-        _ = authority.Setup(a => a.CountActionablePendingAsync(It.IsAny<CancellationToken>())).ReturnsAsync(4);
-        _ = authority.Setup(a => a.CountDeadLetteredAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
-        _ = retrieval.Setup(r => r.CountPendingAsync(It.IsAny<CancellationToken>())).ReturnsAsync(2);
-
-        _ = integration.Setup(i => i.CountIntegrationOutboxPublishPendingAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(8);
-
-        _ = integration.Setup(i => i.CountIntegrationOutboxDeadLetterAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(3);
+        _ = outboxSnapshot.Setup(r => r.ReadAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AdminOutboxSnapshotCounts(4, 1, 2, 8, 3));
 
         AdminOutboxSnapshot snap = await sut.GetOutboxSnapshotAsync(CancellationToken.None);
 
@@ -125,8 +114,6 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
                 actor,
                 out _,
                 out _,
-                out _,
-                out _,
                 out _);
 
         DataConsistencyOrphanCounts counts =
@@ -148,8 +135,6 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
                 InMemoryOptions(),
                 audit,
                 actor,
-                out _,
-                out _,
                 out _,
                 out _,
                 out _);
@@ -175,8 +160,6 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
                 InMemoryOptions(),
                 audit,
                 actor,
-                out _,
-                out _,
                 out _,
                 out _,
                 out _);
@@ -206,8 +189,6 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
                 actor,
                 out _,
                 out _,
-                out _,
-                out _,
                 out _);
 
         OrphanGoldenManifestRemediationResult result =
@@ -235,8 +216,6 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
                 actor,
                 out _,
                 out _,
-                out _,
-                out _,
                 out _);
 
         OrphanFindingsSnapshotRemediationResult result =
@@ -259,7 +238,6 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
             SqlOptions(),
             audit,
             actor,
-            out _,
             out _,
             out _,
             out _,
@@ -295,7 +273,6 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
             SqlOptions(),
             audit,
             actor,
-            out _,
             out _,
             out _,
             out _,
@@ -350,7 +327,6 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
             out _,
             out _,
             out _,
-            out _,
             out Mock<IRunRepository> runs);
 
         Guid requestId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
@@ -388,7 +364,6 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
             SqlOptions(),
             audit,
             actor,
-            out _,
             out _,
             out _,
             out _,
@@ -448,7 +423,6 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
             out _,
             out _,
             out _,
-            out _,
             out Mock<IRunRepository> runs);
 
         List<Guid> runIds = Enumerable.Range(0, 65)
@@ -494,7 +468,6 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
             SqlOptions(),
             audit,
             actor,
-            out _,
             out _,
             out _,
             out _,
@@ -545,8 +518,6 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
             audit,
             actor,
             out _,
-            out _,
-            out _,
             out Mock<IHostLeaderLeaseRepository> hostLeases,
             out _);
 
@@ -581,7 +552,6 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
             SqlOptions(),
             audit,
             actor,
-            out _,
             out _,
             out Mock<IIntegrationEventOutboxRepository> integration,
             out _,
@@ -625,7 +595,6 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
             audit,
             actor,
             out _,
-            out _,
             out Mock<IIntegrationEventOutboxRepository> integration,
             out _,
             out _);
@@ -660,7 +629,6 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
             SqlOptions(),
             audit,
             actor,
-            out _,
             out _,
             out Mock<IIntegrationEventOutboxRepository> integration,
             out _,
@@ -699,7 +667,6 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
             SqlOptions(),
             audit,
             actor,
-            out _,
             out _,
             out Mock<IIntegrationEventOutboxRepository> integration,
             out _,
@@ -811,8 +778,7 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
         IOptions<ArchLucidOptions> archLucidOptions,
         Mock<IAuditService> audit,
         Mock<IActorContext> actor,
-        out Mock<IAuthorityPipelineWorkRepository> authority,
-        out Mock<IRetrievalIndexingOutboxRepository> retrieval,
+        out Mock<IAdminOutboxSnapshotReader> outboxSnapshot,
         out Mock<IIntegrationEventOutboxRepository> integration,
         out Mock<IHostLeaderLeaseRepository> hostLeases,
         out Mock<IRunRepository> runRepository)
@@ -823,8 +789,7 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
             audit,
             actor,
             CacheTelemetryProvider(),
-            out authority,
-            out retrieval,
+            out outboxSnapshot,
             out integration,
             out hostLeases,
             out runRepository);
@@ -836,21 +801,18 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
         Mock<IAuditService> audit,
         Mock<IActorContext> actor,
         ICacheTelemetrySnapshotProvider cacheTelemetrySnapshotProvider,
-        out Mock<IAuthorityPipelineWorkRepository> authority,
-        out Mock<IRetrievalIndexingOutboxRepository> retrieval,
+        out Mock<IAdminOutboxSnapshotReader> outboxSnapshot,
         out Mock<IIntegrationEventOutboxRepository> integration,
         out Mock<IHostLeaderLeaseRepository> hostLeases,
         out Mock<IRunRepository> runRepository)
     {
-        authority = new Mock<IAuthorityPipelineWorkRepository>();
-        retrieval = new Mock<IRetrievalIndexingOutboxRepository>();
+        outboxSnapshot = new Mock<IAdminOutboxSnapshotReader>();
         integration = new Mock<IIntegrationEventOutboxRepository>();
         hostLeases = new Mock<IHostLeaderLeaseRepository>();
         runRepository = new Mock<IRunRepository>();
 
         return new AdminDiagnosticsService(
-            authority.Object,
-            retrieval.Object,
+            outboxSnapshot.Object,
             integration.Object,
             hostLeases.Object,
             runRepository.Object,

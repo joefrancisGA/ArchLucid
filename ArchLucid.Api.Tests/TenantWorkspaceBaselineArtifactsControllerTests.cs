@@ -2,6 +2,7 @@ using ArchLucid.Api.Controllers.Tenancy;
 using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
@@ -67,11 +68,8 @@ public sealed class TenantWorkspaceBaselineArtifactsControllerTests
 
         Mock<IAzureExtractorPackageRepository> packages = new();
         packages
-            .Setup(r => r.HasAnyInWorkspaceAsync(Scope, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
-        packages
-            .Setup(r => r.TryGetLatestScriptVersionInScopeAsync(Scope, It.IsAny<CancellationToken>()))
-            .ReturnsAsync("2.4.1");
+            .Setup(r => r.GetWorkspaceBaselineArtifactsAsync(Scope, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new WorkspaceBaselineExtractorArtifacts(true, "2.4.1"));
 
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);

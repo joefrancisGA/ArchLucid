@@ -1,3 +1,4 @@
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Configuration;
 using ArchLucid.Persistence.Connections;
@@ -111,27 +112,49 @@ public sealed class SqlAzureExtractorPackageRepository(ISqlConnectionFactory con
 
     public async Task<bool> HasAnyInWorkspaceAsync(ScopeContext scope, CancellationToken cancellationToken = default)
     {
+        WorkspaceBaselineExtractorArtifacts artifacts =
+            await GetWorkspaceBaselineArtifactsAsync(scope, cancellationToken);
+
+        return artifacts.HasAnyInWorkspace;
+    }
+
+    public async Task<WorkspaceBaselineExtractorArtifacts> GetWorkspaceBaselineArtifactsAsync(
+        ScopeContext scope,
+        CancellationToken cancellationToken = default)
+    {
         ArgumentNullException.ThrowIfNull(scope);
 
-        const string sql = """
-                           SELECT CASE WHEN EXISTS (
-                               SELECT 1
-                               FROM dbo.AzureExtractorPackages
-                               WHERE TenantId = @TenantId
-                                   AND WorkspaceId = @WorkspaceId
-                           ) THEN CAST(1 AS bit) ELSE CAST(0 AS bit) END;
-                           """;
+        const string batchSql = """
+                                SELECT CASE WHEN EXISTS (
+                                    SELECT 1
+                                    FROM dbo.AzureExtractorPackages
+                                    WHERE TenantId = @TenantId
+                                        AND WorkspaceId = @WorkspaceId
+                                ) THEN CAST(1 AS bit) ELSE CAST(0 AS bit) END;
+
+                                SELECT TOP (1) ScriptVersion
+                                FROM dbo.AzureExtractorPackages
+                                WHERE TenantId = @TenantId
+                                    AND WorkspaceId = @WorkspaceId
+                                    AND ProjectId = @ProjectId
+                                    AND ScriptVersion IS NOT NULL
+                                ORDER BY CollectionTimestampUtc DESC, CreatedUtc DESC;
+                                """;
 
         using System.Data.IDbConnection conn =
             await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        bool exists = await conn.ExecuteScalarAsync<bool>(
+        SqlMapper.GridReader multi = await conn.QueryMultipleAsync(
             new CommandDefinition(
-                sql,
-                new { scope.TenantId, scope.WorkspaceId },
+                batchSql,
+                new { scope.TenantId, scope.WorkspaceId, scope.ProjectId },
                 cancellationToken: cancellationToken));
 
-        return exists;
+        bool hasAny = await multi.ReadSingleAsync<bool>();
+        string? scriptVersion = await multi.ReadSingleOrDefaultAsync<string?>();
+        multi.Dispose();
+
+        return new WorkspaceBaselineExtractorArtifacts(hasAny, scriptVersion);
     }
 
     public async Task<DateTime?> TryGetLatestCollectionTimestampUtcInScopeAsync(
