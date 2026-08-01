@@ -1869,18 +1869,23 @@ jobs:
           - shard_id: api
             shard_label: Api.Tests
             job_timeout_minutes: 30
+            step_timeout_minutes: 27
           - shard_id: host-application
             shard_label: Application + runtime + host
             job_timeout_minutes: 30
+            step_timeout_minutes: 27
           - shard_id: host-composition
             shard_label: Host composition (full DI graph)
             job_timeout_minutes: 30
+            step_timeout_minutes: 27
           - shard_id: data-core
             shard_label: Core + persistence stack
             job_timeout_minutes: 30
+            step_timeout_minutes: 27
           - shard_id: surface-misc
             shard_label: Contracts + integrations + misc
             job_timeout_minutes: 45
+            step_timeout_minutes: 42
     steps:
       - uses: actions/checkout@v5
 
@@ -1917,22 +1922,38 @@ jobs:
         run: dotnet restore ArchLucid.sln
 
       # OpenApiContractSnapshotTests excluded via DOTNET_FAST_CORE_TEST_FILTER; job openapi-contract-snapshot already gates drift.
+      # Step timeout is under job timeout so if: always() diagnostic uploads still run after a hang.
       - name: Test — fast core shard (with coverage)
         if: needs.ci-path-lanes.outputs.run_dotnet == 'true' && github.event_name != 'pull_request'
+        timeout-minutes: ${{ matrix.step_timeout_minutes }}
         env:
           ARCHLUCID_FAST_CORE_COLLECT_COVERAGE: "1"
         run: bash scripts/ci/run_fast_core_corset_shard.sh "${{ matrix.shard_id }}"
 
+      - name: Test — fast core shard (PR trimmed — no coverage collection)
+        if: needs.ci-path-lanes.outputs.run_dotnet == 'true' && github.event_name == 'pull_request'
+        timeout-minutes: ${{ matrix.step_timeout_minutes }}
+        run: bash scripts/ci/run_fast_core_corset_shard.sh "${{ matrix.shard_id }}"
+
       - uses: actions/upload-artifact@v7
-        if: needs.ci-path-lanes.outputs.run_dotnet == 'true' && github.event_name != 'pull_request'
+        if: always() && needs.ci-path-lanes.outputs.run_dotnet == 'true' && github.event_name != 'pull_request'
         with:
           name: coverage-fast-core-${{ matrix.shard_id }}
           path: ${{ runner.temp }}/coverage-fast-core/**/coverage.cobertura.xml
           if-no-files-found: warn
 
-      - name: Test — fast core shard (PR trimmed — no coverage collection)
-        if: needs.ci-path-lanes.outputs.run_dotnet == 'true' && github.event_name == 'pull_request'
-        run: bash scripts/ci/run_fast_core_corset_shard.sh "${{ matrix.shard_id }}"
+      # Hang forensics: current-project.txt names the stuck project when the step is killed;
+      # project-timing.log + TRX show how far the shard got (see run_fast_core_corset_shard.sh).
+      - uses: actions/upload-artifact@v7
+        if: always() && needs.ci-path-lanes.outputs.run_dotnet == 'true'
+        with:
+          name: fast-core-diag-${{ matrix.shard_id }}
+          path: |
+            ${{ runner.temp }}/coverage-fast-core/current-project.txt
+            ${{ runner.temp }}/coverage-fast-core/project-timing.log
+            ${{ runner.temp }}/coverage-fast-core/**/*.trx
+            ${{ runner.temp }}/coverage-fast-core/**/Sequence_*.xml
+          if-no-files-found: warn
 
   # Branch protection / downstream `needs` target: fails when build or any test shard fails.
   dotnet-fast-core:
