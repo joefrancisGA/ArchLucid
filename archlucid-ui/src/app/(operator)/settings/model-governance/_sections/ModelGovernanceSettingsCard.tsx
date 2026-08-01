@@ -14,6 +14,9 @@ import {
 } from "@/lib/model-execution-profile";
 import {
   MODEL_GOVERNANCE_CLEAR_OVERRIDE_FAILED_COPY,
+  MODEL_GOVERNANCE_CATALOG_UNAVAILABLE_COPY,
+  MODEL_GOVERNANCE_PROFILE_MAPPINGS_EMPTY_COPY,
+  MODEL_GOVERNANCE_REGISTRY_EMPTY_COPY,
   MODEL_GOVERNANCE_UNEXPECTED_ERROR_COPY,
   MODEL_GOVERNANCE_UNEXPECTED_RESPONSE_COPY,
   MODEL_GOVERNANCE_UPDATE_FAILED_COPY,
@@ -28,11 +31,21 @@ import type {
 type LoadState =
   | { status: "idle" }
   | { status: "loading" }
-  | { status: "ready"; catalog: ModelGovernanceCatalogResponse }
+  | { status: "ready"; catalog: ModelGovernanceCatalogResponse; catalogUnavailableNote?: string }
   | { status: "blocked"; note: string };
 
 const profileEndpoint = "/api/proxy/v1/admin/settings/model-execution-profile";
 const catalogEndpoint = "/api/proxy/v1/admin/settings/model-governance-catalog";
+
+function emptyModelGovernanceCatalog(
+  profile: WorkspaceModelExecutionProfileResponse,
+): ModelGovernanceCatalogResponse {
+  return {
+    workspaceProfile: profile,
+    registryEntries: [],
+    profileMappings: [],
+  };
+}
 
 function parseProfileResponse(body: unknown): WorkspaceModelExecutionProfileResponse | null {
   if (body == null || typeof body !== "object") {
@@ -148,32 +161,45 @@ export function ModelGovernanceSettingsCard() {
         fetch(catalogEndpoint, fetchOpts),
       ]);
 
-      if (!profileRes.ok || !catalogRes.ok) {
-        const failed = !profileRes.ok ? profileRes : catalogRes;
-
+      if (!profileRes.ok) {
         setState({
           status: "blocked",
-          note: modelGovernanceLoadBlockedMessage(failed.status),
+          note: modelGovernanceLoadBlockedMessage(profileRes.status),
         });
 
         return;
       }
 
       const profileBody = parseProfileResponse(await profileRes.json());
-      const catalogBody = parseCatalogResponse(await catalogRes.json());
 
-      if (profileBody == null || catalogBody == null) {
+      if (profileBody == null) {
         setState({ status: "blocked", note: MODEL_GOVERNANCE_UNEXPECTED_RESPONSE_COPY });
 
         return;
       }
 
+      let catalogBody: ModelGovernanceCatalogResponse | null = null;
+      let catalogUnavailableNote: string | undefined;
+
+      if (!catalogRes.ok) {
+        catalogUnavailableNote = MODEL_GOVERNANCE_CATALOG_UNAVAILABLE_COPY;
+      } else {
+        catalogBody = parseCatalogResponse(await catalogRes.json());
+
+        if (catalogBody == null) {
+          catalogUnavailableNote = MODEL_GOVERNANCE_CATALOG_UNAVAILABLE_COPY;
+        }
+      }
+
       setState({
         status: "ready",
-        catalog: {
-          ...catalogBody,
-          workspaceProfile: profileBody,
-        },
+        catalog: catalogBody
+          ? {
+              ...catalogBody,
+              workspaceProfile: profileBody,
+            }
+          : emptyModelGovernanceCatalog(profileBody),
+        catalogUnavailableNote,
       });
     } catch (e: unknown) {
       setState({ status: "blocked", note: MODEL_GOVERNANCE_UNEXPECTED_ERROR_COPY });
@@ -265,6 +291,15 @@ export function ModelGovernanceSettingsCard() {
               onClearOverride={clearOverride}
             />
 
+            {state.catalogUnavailableNote ? (
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+                data-testid="model-governance-catalog-unavailable"
+              >
+                {state.catalogUnavailableNote}
+              </p>
+            ) : null}
+
             <div className="space-y-2" data-testid="model-governance-registry">
               <h3 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
                 Governed model aliases
@@ -272,28 +307,37 @@ export function ModelGovernanceSettingsCard() {
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                 Read-only registry entries. Deployment names are never shown here.
               </p>
-              <div className="overflow-x-auto">
-                <table className={cn("w-full border-collapse", OPERATOR_TYPOGRAPHY.body)}>
-                  <thead>
-                    <tr className="border-b border-neutral-200 text-left dark:border-neutral-700">
-                      <th className="px-2 py-2">Alias</th>
-                      <th className="px-2 py-2">Connection</th>
-                      <th className="px-2 py-2">Capabilities</th>
-                      <th className="px-2 py-2">Approved tasks</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {state.catalog.registryEntries.map((entry) => (
-                      <tr key={entry.aliasId} className="border-b border-neutral-100 dark:border-neutral-800">
-                        <td className="px-2 py-2 font-mono">{entry.aliasId}</td>
-                        <td className="px-2 py-2">{entry.providerConnectionKind}</td>
-                        <td className="px-2 py-2">{entry.capabilityTags.join(", ") || "—"}</td>
-                        <td className="px-2 py-2">{entry.approvedTaskTypes.join(", ") || "—"}</td>
+              {state.catalog.registryEntries.length === 0 ? (
+                <p
+                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+                  data-testid="model-governance-registry-empty"
+                >
+                  {MODEL_GOVERNANCE_REGISTRY_EMPTY_COPY}
+                </p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className={cn("w-full border-collapse", OPERATOR_TYPOGRAPHY.body)}>
+                    <thead>
+                      <tr className="border-b border-neutral-200 text-left dark:border-neutral-700">
+                        <th className="px-2 py-2">Alias</th>
+                        <th className="px-2 py-2">Connection</th>
+                        <th className="px-2 py-2">Capabilities</th>
+                        <th className="px-2 py-2">Approved tasks</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {state.catalog.registryEntries.map((entry) => (
+                        <tr key={entry.aliasId} className="border-b border-neutral-100 dark:border-neutral-800">
+                          <td className="px-2 py-2 font-mono">{entry.aliasId}</td>
+                          <td className="px-2 py-2">{entry.providerConnectionKind}</td>
+                          <td className="px-2 py-2">{entry.capabilityTags.join(", ") || "—"}</td>
+                          <td className="px-2 py-2">{entry.approvedTaskTypes.join(", ") || "—"}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
 
             <div className="space-y-2" data-testid="model-governance-profile-mappings">
@@ -303,24 +347,33 @@ export function ModelGovernanceSettingsCard() {
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                 Resolved alias per agent role for each execution profile tier.
               </p>
-              {state.catalog.profileMappings.map((mapping) => (
-                <details
-                  key={mapping.profile}
-                  className="rounded-md border border-neutral-200 p-3 dark:border-neutral-700"
+              {state.catalog.profileMappings.length === 0 ? (
+                <p
+                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+                  data-testid="model-governance-profile-mappings-empty"
                 >
-                  <summary className="cursor-pointer font-medium text-al-text-primary">
-                    {modelExecutionProfileLabel(mapping.profile)}
-                  </summary>
-                  <ul className={cn("m-0 mt-2 list-inside list-disc", OPERATOR_TYPOGRAPHY.body)}>
-                    {mapping.agentAliasMappings.map((row) => (
-                      <li key={`${mapping.profile}-${row.agentType}`} data-agent-type={row.agentType}>
-                        {modelGovernanceAgentTypeLabel(row.agentType)}:{" "}
-                        <span className="font-mono">{row.aliasId}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </details>
-              ))}
+                  {MODEL_GOVERNANCE_PROFILE_MAPPINGS_EMPTY_COPY}
+                </p>
+              ) : (
+                state.catalog.profileMappings.map((mapping) => (
+                  <details
+                    key={mapping.profile}
+                    className="rounded-md border border-neutral-200 p-3 dark:border-neutral-700"
+                  >
+                    <summary className="cursor-pointer font-medium text-al-text-primary">
+                      {modelExecutionProfileLabel(mapping.profile)}
+                    </summary>
+                    <ul className={cn("m-0 mt-2 list-inside list-disc", OPERATOR_TYPOGRAPHY.body)}>
+                      {mapping.agentAliasMappings.map((row) => (
+                        <li key={`${mapping.profile}-${row.agentType}`} data-agent-type={row.agentType}>
+                          {modelGovernanceAgentTypeLabel(row.agentType)}:{" "}
+                          <span className="font-mono">{row.aliasId}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </details>
+                ))
+              )}
             </div>
           </Fragment>
         ) : null}

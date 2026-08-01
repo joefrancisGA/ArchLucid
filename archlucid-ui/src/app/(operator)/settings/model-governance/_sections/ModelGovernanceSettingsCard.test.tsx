@@ -4,7 +4,9 @@ import { describe, expect, it, vi } from "vitest";
 import { ModelGovernanceSettingsCard } from "@/app/(operator)/settings/model-governance/_sections/ModelGovernanceSettingsCard";
 import {
   MODEL_GOVERNANCE_ADMIN_REQUIRED_COPY,
+  MODEL_GOVERNANCE_CATALOG_UNAVAILABLE_COPY,
   MODEL_GOVERNANCE_LOAD_UNAVAILABLE_COPY,
+  MODEL_GOVERNANCE_REGISTRY_EMPTY_COPY,
   MODEL_GOVERNANCE_UPDATE_FAILED_COPY,
 } from "@/lib/model-governance-copy";
 
@@ -216,5 +218,89 @@ describe("ModelGovernanceSettingsCard", () => {
     });
 
     expectAlertWithoutEngineeringLeakage();
+  });
+
+  it("keeps profile controls when catalog fetch fails (TB-1929)", async () => {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+
+      if (url.includes("model-execution-profile")) {
+        return new Response(
+          JSON.stringify({
+            effectiveProfile: "Balanced",
+            source: "WorkspaceDefault",
+            workspaceDefaultProfile: "Balanced",
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+
+      if (url.includes("model-governance-catalog")) {
+        return new Response("error", { status: 503 });
+      }
+
+      return new Response("not found", { status: 404 });
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<ModelGovernanceSettingsCard />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("model-execution-profile-controls")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("model-governance-catalog-unavailable")).toHaveTextContent(
+      MODEL_GOVERNANCE_CATALOG_UNAVAILABLE_COPY,
+    );
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "High assurance" })).toBeInTheDocument();
+  });
+
+  it("shows guided empty state when governed alias registry is empty (TB-1929)", async () => {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+
+      if (url.includes("model-execution-profile")) {
+        return new Response(
+          JSON.stringify({
+            effectiveProfile: "Balanced",
+            source: "WorkspaceDefault",
+            workspaceDefaultProfile: "Balanced",
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+
+      if (url.includes("model-governance-catalog")) {
+        return new Response(
+          JSON.stringify({
+            workspaceProfile: {
+              effectiveProfile: "Balanced",
+              source: "WorkspaceDefault",
+              workspaceDefaultProfile: "Balanced",
+            },
+            registryEntries: [],
+            profileMappings: [],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+
+      return new Response("not found", { status: 404 });
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<ModelGovernanceSettingsCard />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("model-governance-registry-empty")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("model-governance-registry-empty")).toHaveTextContent(
+      MODEL_GOVERNANCE_REGISTRY_EMPTY_COPY,
+    );
+    expect(screen.getByTestId("model-governance-profile-mappings-empty")).toBeInTheDocument();
   });
 });

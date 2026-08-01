@@ -16,6 +16,15 @@ export const MODEL_GOVERNANCE_UNEXPECTED_RESPONSE_COPY =
 export const MODEL_GOVERNANCE_UNEXPECTED_ERROR_COPY =
   "Could not load model governance settings. Try again in a few minutes.";
 
+export const MODEL_GOVERNANCE_CATALOG_UNAVAILABLE_COPY =
+  "Governed alias catalog is temporarily unavailable. You can still change the workspace execution profile below.";
+
+export const MODEL_GOVERNANCE_REGISTRY_EMPTY_COPY =
+  "No governed model aliases are registered for this workspace yet. Alias entries appear here after platform configuration.";
+
+export const MODEL_GOVERNANCE_PROFILE_MAPPINGS_EMPTY_COPY =
+  "No profile-to-alias mappings are available yet. Mappings appear here when the governed alias catalog is configured.";
+
 export function modelGovernanceLoadBlockedMessage(status: number): string {
   if (status === 401 || status === 403) {
     return MODEL_GOVERNANCE_ADMIN_REQUIRED_COPY;
