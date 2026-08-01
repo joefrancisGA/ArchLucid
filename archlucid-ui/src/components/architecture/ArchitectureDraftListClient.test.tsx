@@ -65,7 +65,7 @@ describe("ArchitectureDraftListClient", () => {
     expect(screen.getByRole("button", { name: "Filter architectures: Archived (1)" })).toBeInTheDocument();
   });
 
-  it("renders ready-for-review with in-progress status semantics and relative updated time", async () => {
+  it("renders ready-for-review with in-progress status semantics and hybrid updated time", async () => {
     listArchitectureDraftRegistryEntries.mockReturnValue([
       entry({
         architectureId: "a1",
@@ -88,8 +88,8 @@ describe("ArchitectureDraftListClient", () => {
 
     const updated = within(row).getByText(/Updated/i);
 
-    expect(updated.getAttribute("title")).toBeTruthy();
-    expect(updated.textContent ?? "").toMatch(/Updated /);
+    expect(updated.getAttribute("title")).toMatch(/2026/);
+    expect(updated.textContent ?? "").toMatch(/Updated .+ · /);
   });
 
   it("keeps search, filters, and sort in one toolbar", async () => {

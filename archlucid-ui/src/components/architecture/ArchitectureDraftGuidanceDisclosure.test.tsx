@@ -33,7 +33,7 @@ describe("ArchitectureDraftGuidanceDisclosure", () => {
     );
   });
 
-  it("hides permanently after Don't show again", async () => {
+  it("hides permanently after Hide this tip", async () => {
     const { rerender } = render(<ArchitectureDraftGuidanceDisclosure />);
 
     await waitFor(() => {

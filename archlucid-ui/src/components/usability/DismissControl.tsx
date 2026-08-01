@@ -19,12 +19,18 @@ export type DismissControlProps = {
   readonly className?: string;
   readonly "data-testid"?: string;
   readonly size?: ComponentProps<typeof Button>["size"];
+  /**
+   * Visual weight for text dismiss. Default `ghost` for dense banners;
+   * use `outline` when the control must read as clickable next to plain copy.
+   */
+  readonly variant?: "ghost" | "outline";
   readonly disabled?: boolean;
 };
 
-/** Low-priority ghost button for in-place banner, hint, and callout dismissal — never a link. */
+/** Low-priority button for in-place banner, hint, and callout dismissal — never a link. */
 export function DismissControl(props: DismissControlProps): React.JSX.Element {
   const label = props.label ?? DISMISS_CONTROL_LABEL;
+  const variant = props.variant ?? "ghost";
 
   if (props.iconOnly) {
     if (props.ariaLabel === undefined || props.ariaLabel.trim().length === 0) {
@@ -34,7 +40,7 @@ export function DismissControl(props: DismissControlProps): React.JSX.Element {
     return (
       <Button
         type="button"
-        variant="ghost"
+        variant={variant}
         size={props.size ?? "icon"}
         className={cn("h-8 w-8 shrink-0", props.className)}
         aria-label={props.ariaLabel}
@@ -50,7 +56,7 @@ export function DismissControl(props: DismissControlProps): React.JSX.Element {
   return (
     <Button
       type="button"
-      variant="ghost"
+      variant={variant}
       size={props.size ?? "sm"}
       className={cn("h-7 shrink-0", props.className)}
       data-testid={props["data-testid"]}

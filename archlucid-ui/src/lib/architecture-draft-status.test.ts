@@ -43,30 +43,31 @@ describe("architectureDraftDisplayName", () => {
     ).toBe("Architecture Review Packet: B2B SaaS Tenant Migration Platform");
   });
 
-  it("falls back to Architecture draft when intent is empty", () => {
+  it("falls back to Untitled architecture when intent is empty", () => {
     expect(architectureDraftDisplayName(undefined, "   ")).toBe(UNTITLED_ARCHITECTURE_LABEL);
   });
 });
 
 describe("customerFacingArchitectureDraftTitle", () => {
-  it("replaces stored bootstrap marker titles with a dated placeholder", () => {
+  it("replaces stored bootstrap marker titles with the untitled placeholder", () => {
     const leaked = `${ARCHITECTURE_CREATION_BOOTSTRAP_INTENT.slice(0, 61)}…`;
     const referenceUtc = "2026-07-12T23:42:05.000Z";
 
-    expect(customerFacingArchitectureDraftTitle(leaked, referenceUtc)).toBe(
-      architectureDraftPlaceholderTitle(referenceUtc),
-    );
+    expect(customerFacingArchitectureDraftTitle(leaked, referenceUtc)).toBe(UNTITLED_ARCHITECTURE_LABEL);
     expect(customerFacingArchitectureDraftTitle(ARCHITECTURE_CREATION_BOOTSTRAP_INTENT, referenceUtc)).toBe(
-      architectureDraftPlaceholderTitle(referenceUtc),
+      UNTITLED_ARCHITECTURE_LABEL,
     );
   });
 
-  it("upgrades legacy Untitled architecture labels", () => {
+  it("normalizes legacy Architecture draft labels and dated placeholders", () => {
     const referenceUtc = "2026-07-12T23:42:05.000Z";
 
     expect(customerFacingArchitectureDraftTitle(LEGACY_UNTITLED_ARCHITECTURE_LABEL, referenceUtc)).toBe(
-      architectureDraftPlaceholderTitle(referenceUtc),
+      UNTITLED_ARCHITECTURE_LABEL,
     );
+    expect(
+      customerFacingArchitectureDraftTitle(`${LEGACY_UNTITLED_ARCHITECTURE_LABEL} · Created Jul 12, 2026`),
+    ).toBe(UNTITLED_ARCHITECTURE_LABEL);
   });
 
   it("strips leading markdown headings from stored titles", () => {
@@ -96,14 +97,8 @@ describe("architectureDraftCustomerStatusTagKind", () => {
 });
 
 describe("architectureDraftPlaceholderTitle", () => {
-  it("includes a created date when the reference timestamp is valid", () => {
-    const title = architectureDraftPlaceholderTitle("2026-07-12T23:42:05.000Z");
-
-    expect(title.startsWith(`${UNTITLED_ARCHITECTURE_LABEL} · Created `)).toBe(true);
-    expect(title).toContain("2026");
-  });
-
-  it("falls back to the base label when the timestamp is missing", () => {
+  it("uses a date-free untitled label so created dates stay in metadata", () => {
+    expect(architectureDraftPlaceholderTitle("2026-07-12T23:42:05.000Z")).toBe(UNTITLED_ARCHITECTURE_LABEL);
     expect(architectureDraftPlaceholderTitle(null)).toBe(UNTITLED_ARCHITECTURE_LABEL);
     expect(architectureDraftPlaceholderTitle("not-a-date")).toBe(UNTITLED_ARCHITECTURE_LABEL);
   });

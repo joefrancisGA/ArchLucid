@@ -72,6 +72,7 @@ export function ArchitectureDraftGuidanceDisclosure(
       </details>
       <DismissControl
         className="shrink-0 self-start"
+        variant="outline"
         label={ARCHITECTURE_DRAFT_GUIDANCE_DISMISS_LABEL}
         ariaLabel={ARCHITECTURE_DRAFT_GUIDANCE_DISMISS_LABEL}
         onDismiss={dismiss}

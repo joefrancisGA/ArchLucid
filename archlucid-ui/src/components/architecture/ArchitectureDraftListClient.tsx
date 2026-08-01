@@ -11,6 +11,7 @@ import { StatusTag } from "@/components/ui/status-tag";
 import {
   ARCHITECTURE_DRAFT_STATUS_LABELS,
   architectureDraftCustomerStatusTagKind,
+  formatArchitectureDraftCreatedLabel,
   type ArchitectureDraftCustomerStatus,
 } from "@/lib/architecture-draft-status";
 import {
@@ -67,8 +68,15 @@ const SORT_OPTIONS: ReadonlyArray<{ id: ArchitectureSortId; label: string }> = [
   { id: "name-desc", label: ARCHITECTURES_HUB_SORT_NAME_DESC_LABEL },
 ];
 
-function formatAbsoluteUpdatedLabel(updatedUtc: string): string {
-  return new Date(updatedUtc).toLocaleString();
+function formatUpdatedListLabel(updatedUtc: string): string {
+  const absolute = formatArchitectureDraftCreatedLabel(updatedUtc);
+  const relative = formatRelativeTime(updatedUtc);
+
+  if (absolute === null) {
+    return `Updated ${relative}`;
+  }
+
+  return `Updated ${absolute} · ${relative}`;
 }
 
 function matchesSearch(entry: ArchitectureDraftRegistryEntry, query: string): boolean {
@@ -200,10 +208,10 @@ export function ArchitectureDraftListClient(): React.JSX.Element {
           onChange={(event) => setSearchQuery(event.target.value)}
           placeholder={ARCHITECTURES_HUB_FILTER_SEARCH_PLACEHOLDER}
           aria-label={ARCHITECTURES_HUB_FILTER_SEARCH_PLACEHOLDER}
-          className="w-full lg:min-w-[12rem] lg:max-w-sm lg:flex-1"
+          className="w-full lg:min-w-[12rem] lg:max-w-xs lg:flex-1"
           data-testid="architecture-draft-list-search"
         />
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-3">
           {FILTER_OPTIONS.map((option) => (
             <ArchitectureFilterChip
               key={option.id}
@@ -245,7 +253,8 @@ export function ArchitectureDraftListClient(): React.JSX.Element {
       ) : (
         <ul className="m-0 list-none space-y-3 p-0">
           {filteredEntries.map((entry) => {
-            const absoluteUpdated = formatAbsoluteUpdatedLabel(entry.lastUpdatedUtc);
+            const absoluteUpdated = formatArchitectureDraftCreatedLabel(entry.lastUpdatedUtc);
+            const updatedLabel = formatUpdatedListLabel(entry.lastUpdatedUtc);
 
             return (
               <li
@@ -258,9 +267,9 @@ export function ArchitectureDraftListClient(): React.JSX.Element {
                     <p className={cn("m-0 font-medium text-al-text-primary")}>{entry.displayName}</p>
                     <p
                       className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}
-                      title={absoluteUpdated}
+                      title={absoluteUpdated ?? undefined}
                     >
-                      Owner: {entry.ownerLabel} · Updated {formatRelativeTime(entry.lastUpdatedUtc)}
+                      Owner: {entry.ownerLabel} · {updatedLabel}
                     </p>
                     <div className="flex flex-wrap items-center gap-2">
                       <StatusTag

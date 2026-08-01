@@ -11,10 +11,13 @@ export const ARCHITECTURE_DRAFT_STATUS_LABELS: Record<ArchitectureDraftCustomerS
 };
 
 /** Customer-facing placeholder when a draft has no system name. */
-export const UNTITLED_ARCHITECTURE_LABEL = "Architecture draft" as const;
+export const UNTITLED_ARCHITECTURE_LABEL = "Untitled architecture" as const;
 
-/** Legacy stored / displayed untitled label — still sanitized on read. */
-export const LEGACY_UNTITLED_ARCHITECTURE_LABEL = "Untitled architecture" as const;
+/**
+ * Prior untitled labels still present in local registries — sanitized on read.
+ * Includes dated "Architecture draft · Created …" titles from an earlier list layout.
+ */
+export const LEGACY_UNTITLED_ARCHITECTURE_LABEL = "Architecture draft" as const;
 
 /**
  * Maps draft lifecycle to StatusTag kind.
@@ -41,7 +44,7 @@ export function architectureDraftCustomerStatusTagKind(
   }
 }
 
-/** Short calendar date for placeholder titles (e.g. Jul 12, 2026). */
+/** Short calendar date for list metadata (e.g. Jul 12, 2026). */
 export function formatArchitectureDraftCreatedLabel(
   referenceUtc: string | null | undefined,
 ): string | null {
@@ -68,15 +71,12 @@ export function formatArchitectureDraftCreatedLabel(
   }).format(new Date(ms));
 }
 
-/** Placeholder title with optional created date for unnamed drafts. */
-export function architectureDraftPlaceholderTitle(referenceUtc?: string | null): string {
-  const createdLabel = formatArchitectureDraftCreatedLabel(referenceUtc ?? null);
-
-  if (createdLabel === null) {
-    return UNTITLED_ARCHITECTURE_LABEL;
-  }
-
-  return `${UNTITLED_ARCHITECTURE_LABEL} · Created ${createdLabel}`;
+/**
+ * Placeholder title for unnamed drafts.
+ * Created/updated dates belong in metadata — not in the title string.
+ */
+export function architectureDraftPlaceholderTitle(_referenceUtc?: string | null): string {
+  return UNTITLED_ARCHITECTURE_LABEL;
 }
 
 /** Strips a leading markdown ATX heading marker so paste-as-title stays readable. */
@@ -90,6 +90,10 @@ function isUntitledArchitectureTitle(title: string): boolean {
   }
 
   if (title.startsWith(`${UNTITLED_ARCHITECTURE_LABEL} · Created `)) {
+    return true;
+  }
+
+  if (title.startsWith(`${LEGACY_UNTITLED_ARCHITECTURE_LABEL} · Created `)) {
     return true;
   }
 

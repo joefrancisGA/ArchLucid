@@ -43,4 +43,12 @@ describe("DismissControl", () => {
 
     expect(screen.getByRole("button", { name: "Dismiss for this session" })).toBeInTheDocument();
   });
+
+  it("supports outline variant when dismiss must read as a control", () => {
+    render(<DismissControl variant="outline" label="Hide this tip" onDismiss={vi.fn()} />);
+
+    const control = screen.getByRole("button", { name: "Hide this tip" });
+
+    expect(control.className).toMatch(/border/);
+  });
 });
