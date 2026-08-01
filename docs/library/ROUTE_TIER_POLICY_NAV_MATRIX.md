@@ -205,8 +205,8 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Integrations/ItsmOutboundIssuesController.cs` | `/v1/integrations/itsm/outbound/issues` | none | ExecuteAuthority |  |  |
 | `Integrations/SlackInteractivityController.cs` | `/v1/integrations/webhooks/slack` | none | AllowAnonymous |  | partner_webhook_ingest |
 | `Integrations/TeamsIncomingWebhookConnectionsController.cs` | `/v1/integrations/teams` | standard | Authorize |  |  |
-| `Integrations/TenantItsmConnectorConnectionsController.cs` | `/v1/integrations/itsm/connections` | standard | Authorize | /integrations/readiness |  |
-| `Integrations/TenantItsmOutboundSettingsController.cs` | `/v1/integrations/itsm/settings` | standard | Authorize | /integrations/readiness |  |
+| `Integrations/TenantItsmConnectorConnectionsController.cs` | `/v1/integrations/itsm/connections` | standard | Authorize | /administration/connection-status |  |
+| `Integrations/TenantItsmOutboundSettingsController.cs` | `/v1/integrations/itsm/settings` | standard | Authorize | /administration/connection-status |  |
 | `Integrations/WebhookConnectionsController.cs` | `/v1/integrations/webhooks` | standard | ReadAuthority |  |  |
 | `Integrations/WebhookSimulationController.cs` | `/v1/integrations/webhooks` | none | ExecuteAuthority |  |  |
 | `Internal/PlatformIdentityRecoveryController.cs` | `/v1/internal/identity/recovery` | none | PlatformIdentityRecoveryAuthority |  |  |

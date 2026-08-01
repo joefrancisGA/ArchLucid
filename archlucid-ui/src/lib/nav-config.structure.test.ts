@@ -240,7 +240,7 @@ describe("nav-config structure", () => {
     expect(adminHrefs).not.toContain("/settings/roles");
     expect(adminHrefs).toContain("/settings/support");
     expect(adminHrefs).toContain("/settings/ai-usage");
-    expect(adminHrefs).toContain("/integrations/readiness");
+    expect(adminHrefs).toContain("/administration/connection-status");
     expect(adminHrefs).toContain("/health");
     expect(adminHrefs).toContain("/settings/identity-providers");
     expect(adminHrefs).toContain("/settings/identity/sso-wizard");
@@ -262,7 +262,7 @@ describe("nav-config structure", () => {
     }
   });
 
-  it("keeps administration nav hrefs under /settings/* (TB-406)", () => {
+  it("keeps administration nav hrefs under /settings/* or /administration/* (TB-406)", () => {
     const admin = NAV_GROUPS.find((group) => group.id === "operator-admin");
 
     expect(admin).toBeDefined();
@@ -275,8 +275,13 @@ describe("nav-config structure", () => {
 
     for (const link of admin!.links) {
       const isSettingsHref = link.href.startsWith("/settings/") || link.href === "/settings";
+      const isAdministrationHref =
+        link.href.startsWith("/administration/") || link.href === "/administration";
 
-      expect(isSettingsHref || adminNamespaceExceptions.has(link.href), link.href).toBe(true);
+      expect(
+        isSettingsHref || isAdministrationHref || adminNamespaceExceptions.has(link.href),
+        link.href,
+      ).toBe(true);
     }
   });
 

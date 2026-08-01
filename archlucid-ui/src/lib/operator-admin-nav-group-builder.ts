@@ -221,7 +221,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
         {
 
-          href: "/integrations/readiness",
+          href: "/administration/connection-status",
 
           label: OPERATOR_NAV_LINK_LABELS.integrationReadiness,
 

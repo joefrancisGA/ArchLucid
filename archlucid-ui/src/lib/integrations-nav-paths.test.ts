@@ -14,7 +14,7 @@ import {
 describe("integrations-nav-paths (TB-407 / TB-408 / TB-750)", () => {
   it("exposes canonical integrations paths under /integrations/*", () => {
     expect(CLOUD_CONNECTIONS_PATH).toBe("/integrations/cloud-connections");
-    expect(INTEGRATIONS_READINESS_PATH).toBe("/integrations/readiness");
+    expect(INTEGRATIONS_READINESS_PATH).toBe("/administration/connection-status");
     expect(LEGACY_INTEGRATIONS_OPERATIONS_PATH).toBe("/integrations/operations");
   });
 
@@ -24,6 +24,7 @@ describe("integrations-nav-paths (TB-407 / TB-408 / TB-750)", () => {
   });
 
   it("matches integration readiness, operations, and legacy ITSM redirect sources", () => {
+    expect(pathMatchesIntegrationsReadiness("/administration/connection-status")).toBe(true);
     expect(pathMatchesIntegrationsReadiness("/integrations/readiness")).toBe(true);
     expect(pathMatchesIntegrationsReadiness("/integrations/operations")).toBe(true);
     expect(pathMatchesIntegrationsReadiness("/integrations/itsm")).toBe(true);

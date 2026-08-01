@@ -87,7 +87,7 @@ public sealed class ShipGateUiBaseUrlResolverTests
     }
 
     [Fact]
-    public void Resolve_DefaultLocalhost_WhenNoOverrides()
+    public void Resolve_DefaultUnconfigured_WhenNoOverrides()
     {
         string? priorEnv = Environment.GetEnvironmentVariable("ARCHLUCID_UI_BASE_URL");
 
@@ -99,8 +99,8 @@ public sealed class ShipGateUiBaseUrlResolverTests
                 ["--run-id", "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"],
                 null);
 
-            resolution.BaseUrl.Should().Be(TryCommandOptions.DefaultUiBaseUrl);
-            resolution.Source.Should().Be(ShipGateUiBaseUrlResolution.DefaultSource);
+            resolution.BaseUrl.Should().BeNull();
+            resolution.Source.Should().Be(ShipGateUiBaseUrlResolution.UnconfiguredSource);
         }
         finally
         {

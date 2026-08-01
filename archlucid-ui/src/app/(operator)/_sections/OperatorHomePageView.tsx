@@ -1,6 +1,7 @@
 "use client";
 
 import { DevTestingQuickSwitchPanel } from "@/components/dev-testing/DevTestingQuickSwitchPanel";
+import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OperatorHomeAdvancedGuidancePanel } from "@/components/operator-home/OperatorHomeAdvancedGuidancePanel";
 import {
   OperatorHomeDeferredOnboarding,
@@ -24,11 +25,19 @@ import { OperatorHomeWorkspaceActivityProvider } from "@/components/operator-hom
 import { PilotCommandCenterCard } from "@/components/usability/PilotCommandCenterCard";
 import { OperatorHomeGate } from "@/components/OperatorHomeGate";
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
-import { OPERATOR_HOME_PRIMARY_SECTION_HEADING, OPERATOR_LAYOUT } from "@/lib/design-tokens";
+import { OPERATOR_HOME_PRIMARY_SECTION_HEADING, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
+import {
+  OPERATOR_HOME_SCOPE_DETAILS_TRIGGER,
+  OPERATOR_HOME_SCOPE_OVERVIEW,
+  operatorHomePageSubtitle,
+} from "@/lib/operator-home-page-copy";
+import { OperatorHomeRefreshProvider } from "@/lib/operator-home-refresh-context";
 import { OPERATOR_HOME_RECENT_REVIEWS_HEADING } from "@/lib/operator-home-recent-reviews-heading";
 import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator-home-workspace-metrics";
+import { cn } from "@/lib/utils";
 
+import { OperatorHomePageHeader } from "./OperatorHomePageHeader";
 import type { OperatorHomePageViewModel } from "./operator-home-page-view-model";
 
 type OperatorHomePageViewProps = {
@@ -40,6 +49,26 @@ function HomeSectionHeading(props: { readonly id?: string; readonly children: st
     <h2 id={props.id} className={OPERATOR_HOME_PRIMARY_SECTION_HEADING}>
       {props.children}
     </h2>
+  );
+}
+
+function OperatorHomePageChrome(props: { readonly buyerPolishedShell: boolean }): React.JSX.Element {
+  return (
+    <>
+      <OperatorHomePageHeader subtitle={operatorHomePageSubtitle(props.buyerPolishedShell)} />
+
+      {props.buyerPolishedShell ? (
+        <CollapsibleSection
+          title={OPERATOR_HOME_SCOPE_DETAILS_TRIGGER}
+          defaultOpen={false}
+          sectionTestId="operator-home-scope-details"
+        >
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="operator-home-scope-overview">
+            {OPERATOR_HOME_SCOPE_OVERVIEW}
+          </p>
+        </CollapsibleSection>
+      ) : null}
+    </>
   );
 }
 
@@ -102,6 +131,8 @@ function OperatorHomePageBody(props: { readonly model: OperatorHomePageViewModel
         <PilotCommandCenterCard
           openFindingsCount={workspaceMetrics.openFindings}
           hasWorkspaceReviews={workspaceMetrics.hasReviews}
+          suppressLeadCopy
+          showContextualHelp={false}
         />
 
       </section>

@@ -39,7 +39,7 @@ internal sealed class SecurityTrustPublishCommandOptions
     {
         get;
         init;
-    } = TryCommandOptions.DefaultUiBaseUrl;
+    } = string.Empty;
 
     public static SecurityTrustPublishCommandOptions? Parse(string[] args, out string? error)
     {
@@ -59,7 +59,7 @@ internal sealed class SecurityTrustPublishCommandOptions
         string? summaryUrl = null;
         string assessor = "ArchLucid internal";
         string assessmentCode = "2026-Q2";
-        string uiBaseUrl = TryCommandOptions.DefaultUiBaseUrl;
+        string uiBaseUrl = string.Empty;
 
         for (int i = 0; i < args.Length; i++)
         {

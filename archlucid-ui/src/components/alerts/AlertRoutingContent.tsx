@@ -9,6 +9,7 @@ import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { AlertRoutingCriteriaFields } from "@/components/alerts/AlertRoutingCriteriaFields";
 import { AlertRoutingDestinationList } from "@/components/alerts/AlertRoutingDestinationList";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
+import { useOptionalAlertRulesHubRefresh } from "@/lib/alerts-hub-refresh-context";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
@@ -53,6 +54,7 @@ const DEFAULT_SUBSCRIPTION_NAME = "Primary notification destination";
 
 export function AlertRoutingContent() {
   const canMutateRouting = useOperateCapability();
+  const refreshContext = useOptionalAlertRulesHubRefresh();
   const formSectionRef = useRef<HTMLElement | null>(null);
   const statusRegionId = useId();
   const [items, setItems] = useState<AlertRoutingSubscription[]>([]);
@@ -86,6 +88,14 @@ export function AlertRoutingContent() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  useEffect(() => {
+    if (refreshContext === null) {
+      return;
+    }
+
+    return refreshContext.registerTabLoader("routing", load);
+  }, [load, refreshContext]);
 
   function scrollToForm() {
     formSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });

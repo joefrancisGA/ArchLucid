@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { HelpTopicMarkdownView } from "@/app/(operator)/help/HelpTopicMarkdownView";
+import { HelpRepeatReviewLoopGuideView } from "@/app/(operator)/help/_sections/HelpRepeatReviewLoopGuideView";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
@@ -49,7 +49,7 @@ describe("HelpTopicRepeatReviewLoop (TB-1396)", () => {
       );
     }
 
-    render(<HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />);
+    render(<HelpRepeatReviewLoopGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
     const visible = (document.body.textContent ?? "").toLowerCase();
 
@@ -65,7 +65,7 @@ describe("HelpTopicRepeatReviewLoop (TB-1396)", () => {
       throw new Error("Expected repeat-review-loop documentation to load.");
     }
 
-    render(<HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />);
+    render(<HelpRepeatReviewLoopGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
     expect(screen.getAllByRole("link", { name: /Compare and replay/i })[0]).toHaveAttribute(
       "href",

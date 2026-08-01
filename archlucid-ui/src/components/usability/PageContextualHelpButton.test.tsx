@@ -30,7 +30,7 @@ describe("PageContextualHelpButton", () => {
   });
 
   it("falls back to a direct help link when the route is not migrated", () => {
-    mockUsePathname.mockReturnValue("/integrations/readiness");
+    mockUsePathname.mockReturnValue("/administration/connection-status");
 
     render(<PageContextualHelpButton />);
 

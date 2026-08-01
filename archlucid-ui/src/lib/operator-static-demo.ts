@@ -14,6 +14,7 @@ import {
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_TITLE,
   SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
+  SHOWCASE_STATIC_DEMO_SPINE_COUNTS,
   SHOWCASE_STATIC_DEMO_WARNING_SYNOPSES,
 } from "@/lib/showcase-static-demo";
 import {
@@ -274,6 +275,10 @@ export function tryStaticDemoRunSummariesPaged(
     hasGraphSnapshot: !!chain.graphSnapshotId,
     hasFindingsSnapshot: !!chain.findingsSnapshotId,
     hasGoldenManifest: true,
+    // Showcase narrative is approved-with-monitoring (PHI residual risk under sampling).
+    hasGovernanceWarnings: true,
+    findingCount: SHOWCASE_STATIC_DEMO_SPINE_COUNTS.findingCount,
+    warningCount: SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount,
     packageOrigin: "Reviewed",
   };
 

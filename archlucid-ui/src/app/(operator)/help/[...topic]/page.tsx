@@ -13,6 +13,7 @@ import { HelpGovernanceApprovalGuideView } from "../_sections/HelpGovernanceAppr
 import { HelpAzurePermissionsGuideView } from "../_sections/HelpAzurePermissionsGuideView";
 import { HelpConnectAzureSecurelyGuideView } from "../_sections/HelpConnectAzureSecurelyGuideView";
 import { HelpCorePilotGuideView } from "../_sections/HelpCorePilotGuideView";
+import { HelpRepeatReviewLoopGuideView } from "../_sections/HelpRepeatReviewLoopGuideView";
 import { HelpSpecialtyWalkthroughTemplatesView } from "../_sections/HelpSpecialtyWalkthroughTemplatesView";
 import { HelpGettingStartedGuideView } from "../_sections/HelpGettingStartedGuideView";
 import { HelpHowArchLucidWorksGuideView } from "../_sections/HelpHowArchLucidWorksGuideView";
@@ -147,6 +148,10 @@ function renderHelpTopicView(
 
   if (loaded.entry.slug === "specialty-walkthroughs") {
     return <HelpSpecialtyWalkthroughTemplatesView entry={loaded.entry} />;
+  }
+
+  if (loaded.entry.slug === "repeat-review-loop") {
+    return <HelpRepeatReviewLoopGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
 
   return <HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />;

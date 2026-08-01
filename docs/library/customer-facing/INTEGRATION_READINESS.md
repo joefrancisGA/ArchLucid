@@ -2,7 +2,7 @@
 
 # Integration readiness
 
-The **Integration readiness** page (`/integrations/readiness`) shows which notification, ticketing, publishing, and delivery integrations are configured for the current workspace — and what to set up first when you want them.
+The **Connection status** page (`/administration/connection-status`) shows which notification, ticketing, publishing, and delivery integrations are configured for the current workspace — and what to set up first when you want them.
 
 ## What integration readiness means {#what-integration-readiness-means}
 

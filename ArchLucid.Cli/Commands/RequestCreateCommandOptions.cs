@@ -3,7 +3,7 @@ namespace ArchLucid.Cli.Commands;
 /// <summary>Parsed arguments for <see cref="RequestCreateCommand" />.</summary>
 internal sealed class RequestCreateCommandOptions
 {
-    public const string DefaultApiBaseUrl = TryCommandOptions.DefaultApiBaseUrl;
+    public const string DefaultApiBaseUrl = "";
 
     public required string InputPath
     {

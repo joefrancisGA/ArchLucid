@@ -20,7 +20,10 @@ import {
   DEV_SCOPE_TENANT_ID,
   DEV_SCOPE_WORKSPACE_ID,
 } from "@/lib/scope";
-import { SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE } from "@/lib/showcase-static-demo";
+import {
+  SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
+  SHOWCASE_STATIC_DEMO_SPINE_COUNTS,
+} from "@/lib/showcase-static-demo";
 import {
   SHOWCASE_SAMPLE_REVIEW_REGISTRY,
   showcaseSampleReviewPackageHref,
@@ -245,6 +248,10 @@ export function buildDemoSeededOverviewRunSummary(
     hasGraphSnapshot: true,
     hasFindingsSnapshot: true,
     hasGoldenManifest: true,
+    // Matches showcase proof copy: finalized with monitored residual risk.
+    hasGovernanceWarnings: true,
+    findingCount: SHOWCASE_STATIC_DEMO_SPINE_COUNTS.findingCount,
+    warningCount: SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount,
     packageOrigin: "Reviewed",
     // Marks synthetic inject so empty-home still shows Do-this-next (not real tenant activity).
     demoSeededOverviewInject: true,

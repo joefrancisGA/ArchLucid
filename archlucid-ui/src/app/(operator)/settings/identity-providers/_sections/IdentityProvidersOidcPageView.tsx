@@ -34,7 +34,13 @@ export function IdentityProvidersOidcPageView(props: IdentityProvidersOidcPageVi
           : IDENTITY_PROVIDERS_STATUS_NOT_CONFIGURED;
 
   return (
-    <IdentityProvidersSettingsShell pageTitle={IDENTITY_PROVIDERS_OIDC_PAGE_TITLE} pageIntro={IDENTITY_PROVIDERS_OIDC_PAGE_INTRO}>
+    <IdentityProvidersSettingsShell
+      pageTitle={IDENTITY_PROVIDERS_OIDC_PAGE_TITLE}
+      pageIntro={IDENTITY_PROVIDERS_OIDC_PAGE_INTRO}
+      refreshing={props.model.refreshing}
+      lastRefreshedAt={props.model.lastRefreshedAt}
+      onRefresh={() => void props.model.refresh()}
+    >
       <Card data-testid="identity-providers-oidc-status-card">
         <CardHeader>
           <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>OIDC/JWT status</CardTitle>

@@ -30,6 +30,7 @@ export type PolicyPacksPageViewModel = {
   readonly effective: EffectivePolicyPackSet | null;
   readonly effectiveContent: PolicyPackContentDocument | null;
   readonly loading: boolean;
+  readonly lastRefreshedAt: Date | null;
   readonly failure: ApiLoadFailureState | null;
   readonly name: string;
   readonly setName: Dispatch<SetStateAction<string>>;

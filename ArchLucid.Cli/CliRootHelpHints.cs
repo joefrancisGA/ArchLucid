@@ -6,7 +6,7 @@ namespace ArchLucid.Cli;
 internal static class CliRootHelpHints
 {
     internal const string TryPilotLoopBanner =
-        "New here? Run `archlucid try` for a one-shot pilot loop.";
+        "New here? Set ARCHLUCID_API_URL to your hosted API, then run `archlucid trial smoke --staging ...` or `archlucid second-run <file>`.";
 
     internal static void WriteTryPilotLoopBanner(TextWriter? stderr = null)
     {

@@ -36,6 +36,9 @@ export function IdentityProvidersDiagnosticsPageView(
     <IdentityProvidersSettingsShell
       pageTitle={IDENTITY_PROVIDERS_DIAGNOSTICS_PAGE_TITLE}
       pageIntro={IDENTITY_PROVIDERS_DIAGNOSTICS_PAGE_INTRO}
+      refreshing={props.model.refreshing}
+      lastRefreshedAt={props.model.lastRefreshedAt}
+      onRefresh={() => void props.model.refresh()}
     >
       <Card data-testid="identity-providers-diagnostics-intro">
         <CardContent className={cn("py-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>

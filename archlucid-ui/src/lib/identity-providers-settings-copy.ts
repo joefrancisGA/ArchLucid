@@ -3,6 +3,29 @@ export const IDENTITY_PROVIDERS_PAGE_TITLE = "Identity providers";
 export const IDENTITY_PROVIDERS_PAGE_SUBTITLE =
   "Configure workspace sign-in, SSO, and role mapping.";
 
+export const BUYER_IDENTITY_PROVIDERS_PAGE_SUBTITLE =
+  "Sign-in, SSO, and role mapping for this workspace.";
+
+export const IDENTITY_PROVIDERS_PAGE_SUBTITLE_OPERATOR = IDENTITY_PROVIDERS_PAGE_SUBTITLE;
+
+export function identityProvidersPageSubtitle(buyerPolishedShell: boolean): string {
+  return buyerPolishedShell
+    ? BUYER_IDENTITY_PROVIDERS_PAGE_SUBTITLE
+    : IDENTITY_PROVIDERS_PAGE_SUBTITLE_OPERATOR;
+}
+
+export const IDENTITY_PROVIDERS_LAST_REFRESHED_PREFIX = "Last refreshed" as const;
+
+export const IDENTITY_PROVIDERS_ACTION_REFRESH = "Refresh" as const;
+
+export const IDENTITY_PROVIDERS_ACTION_REFRESHING = "Refreshing…" as const;
+
+export const IDENTITY_PROVIDERS_SCOPE_DETAILS_TRIGGER = "About identity providers" as const;
+
+export const IDENTITY_PROVIDERS_DIAGNOSTICS_LINK_LABEL = "Open diagnostics" as const;
+
+export const IDENTITY_PROVIDERS_DIAGNOSTICS_LINK_HREF = "/settings/identity-providers/diagnostics" as const;
+
 export const IDENTITY_PROVIDERS_PAGE_INTRO =
   "Configure sign-in, single sign-on, and role mapping for this workspace.";
 

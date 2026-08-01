@@ -93,6 +93,7 @@ describe("demo-seeded-overview (TB-1039)", () => {
     const row = buildDemoSeededOverviewRunSummary("default", null);
     expect(row.runId).toBe(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId);
     expect(row.hasGoldenManifest).toBe(true);
+    expect(row.hasGovernanceWarnings).toBe(true);
     expect(isDemoSeededOverviewInjectedRun(row)).toBe(true);
   });
 });

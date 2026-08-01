@@ -11,7 +11,10 @@ import { resolvePolicyPackDetailBreadcrumbLabel } from "@/lib/policy-pack-detail
 import { ITSM_CONNECTORS_ADMIN_LABEL, ITSM_CONNECTORS_ADMIN_PATH } from "@/lib/itsm-connectors-admin-scope";
 import { GOVERNANCE_ALERT_RULES_PATH, GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
 import { ALERTS_CONFIGURATION_PAGE_TITLE } from "@/lib/alerts-page-copy";
-import { pathMatchesCloudConnections } from "@/lib/integrations-nav-paths";
+import {
+  pathMatchesCloudConnections,
+  pathMatchesIntegrationsReadiness,
+} from "@/lib/integrations-nav-paths";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { resolveNewReviewWizardBreadcrumbLabel } from "@/lib/operator-nav-labels";
 import { isInvalidDynamicRouteToken } from "@/lib/route-dynamic-param";
@@ -237,10 +240,17 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
     ];
   }
 
+  if (pathMatchesIntegrationsReadiness(normalized)) {
+    return [
+      { label: "Administration" },
+      { label: OPERATOR_NAV_LINK_LABELS.integrationReadiness },
+    ];
+  }
+
   // Azure cloud connection lives under Integrations nav — not Settings admin chrome.
   if (pathMatchesCloudConnections(normalized)) {
     return [
-      { label: OPERATOR_NAV_GROUP_LABELS.integrations, href: "/integrations/readiness" },
+      { label: OPERATOR_NAV_GROUP_LABELS.integrations },
       { label: OPERATOR_NAV_LINK_LABELS.cloudConnections },
     ];
   }

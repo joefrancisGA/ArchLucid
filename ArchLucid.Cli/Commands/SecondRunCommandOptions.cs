@@ -3,9 +3,9 @@ namespace ArchLucid.Cli.Commands;
 /// <summary>Parsed arguments for <see cref="SecondRunCommand" />.</summary>
 internal sealed class SecondRunCommandOptions
 {
-    public const string DefaultApiBaseUrl = TryCommandOptions.DefaultApiBaseUrl;
+    public const string DefaultApiBaseUrl = "";
 
-    public const string DefaultUiBaseUrl = TryCommandOptions.DefaultUiBaseUrl;
+    public const string DefaultUiBaseUrl = "";
 
     public static readonly TimeSpan DefaultCommitDeadline = TryCommandOptions.DefaultCommitDeadline;
 

@@ -11,6 +11,15 @@ vi.mock("next/navigation", () => ({
   }),
 }));
 
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: () => false,
+  };
+});
+
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
 }));
@@ -29,7 +38,6 @@ vi.mock("@/components/alerts/AlertSimulationTuningSection", () => ({
 }));
 
 import { ALERTS_CONFIGURATION_PAGE_SUBTITLE } from "@/lib/alerts-page-copy";
-import { GOVERNANCE_OVERVIEW_PAGE_LEAD } from "@/lib/governance-overview-copy";
 
 import { AlertRulesHubClient } from "./AlertRulesHubClient";
 
@@ -44,7 +52,9 @@ describe("AlertRulesHubClient", () => {
     expect(screen.getByTestId("stub-rules")).toBeInTheDocument();
     expect(screen.getByTestId("alert-rules-page-title")).toHaveTextContent("Alerts");
     expect(screen.getByText(ALERTS_CONFIGURATION_PAGE_SUBTITLE)).toBeInTheDocument();
-    expect(screen.queryByText(GOVERNANCE_OVERVIEW_PAGE_LEAD)).not.toBeInTheDocument();
+    expect(screen.getByTestId("alert-rules-refresh-button")).toBeInTheDocument();
+    expect(screen.getByTestId("alert-rules-last-refreshed")).toHaveTextContent(/Last refreshed:/i);
+    expect(screen.getByTestId("alert-rules-open-inbox-link")).toHaveAttribute("href", "/governance/alerts");
     expect(screen.getByTestId("alert-rules-hub-tab-rules")).toHaveTextContent("Conditions");
     expect(screen.getByRole("tab", { name: /Conditions/i })).toHaveAttribute("aria-selected", "true");
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();

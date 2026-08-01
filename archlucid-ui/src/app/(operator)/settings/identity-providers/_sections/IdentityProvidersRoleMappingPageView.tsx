@@ -38,6 +38,9 @@ export function IdentityProvidersRoleMappingPageView(
     <IdentityProvidersSettingsShell
       pageTitle={IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_TITLE}
       pageIntro={IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_INTRO}
+      refreshing={props.model.refreshing}
+      lastRefreshedAt={props.model.lastRefreshedAt}
+      onRefresh={() => void props.model.refresh()}
     >
       <Card data-testid="identity-providers-role-mapping-status">
         <CardHeader>

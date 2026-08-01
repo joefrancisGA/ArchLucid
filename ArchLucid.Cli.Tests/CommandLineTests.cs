@@ -107,22 +107,24 @@ public sealed class CommandLineTests
     }
 
     [Fact]
-    public async Task Health_WhenApiUnreachable_Returns3()
+    public async Task Health_WhenApiUrlUnset_ReturnsConfigurationError()
     {
+        string? prior = Environment.GetEnvironmentVariable("ARCHLUCID_API_URL");
+
         RedirectConsole(out StringWriter outWriter, out StringWriter errWriter, out TextWriter prevOut,
             out TextWriter prevErr);
         try
         {
+            Environment.SetEnvironmentVariable("ARCHLUCID_API_URL", null);
             int exitCode = await Program.RunAsync(["health"]);
 
-            exitCode.Should().Be(CliExitCode.ApiUnavailable);
+            exitCode.Should().Be(CliExitCode.ConfigurationError);
             string output = outWriter + errWriter.ToString();
-            (output.Contains("FAIL") || output.Contains("Cannot connect") || output.Contains("Cannot reach") ||
-             output.Contains("api_unreachable"))
-                .Should().BeTrue("output should contain unreachable guidance or JSON error code");
+            output.ToLowerInvariant().Should().Contain("empty");
         }
         finally
         {
+            Environment.SetEnvironmentVariable("ARCHLUCID_API_URL", prior);
             RestoreConsole(prevOut, prevErr);
         }
     }
@@ -150,22 +152,26 @@ public sealed class CommandLineTests
     }
 
     [Fact]
-    public async Task LeadingGlobalJson_HealthUnreachable_WritesJsonToStderr()
+    public async Task LeadingGlobalJson_HealthUnsetApiUrl_WritesConfigurationJsonToStderr()
     {
+        string? prior = Environment.GetEnvironmentVariable("ARCHLUCID_API_URL");
+
         RedirectConsole(out _, out StringWriter errWriter, out TextWriter prevOut,
             out TextWriter prevErr);
         try
         {
+            Environment.SetEnvironmentVariable("ARCHLUCID_API_URL", null);
             int exitCode = await Program.RunAsync(["--json", "health"]);
 
-            exitCode.Should().Be(CliExitCode.ApiUnavailable);
+            exitCode.Should().Be(CliExitCode.ConfigurationError);
             string err = errWriter.ToString();
             err.Should().Contain("\"ok\":false");
-            err.Should().Contain("\"exitCode\":3");
-            err.Should().Contain("api_unreachable");
+            err.Should().Contain("\"exitCode\":2");
+            err.Should().Contain("configuration");
         }
         finally
         {
+            Environment.SetEnvironmentVariable("ARCHLUCID_API_URL", prior);
             RestoreConsole(prevOut, prevErr);
         }
     }
@@ -207,7 +213,7 @@ public sealed class CommandLineTests
     }
 
     [Fact]
-    public async Task New_with_quickstart_before_name_creates_local_evaluation_artifacts()
+    public async Task New_with_quickstart_returns_usage_error()
     {
         using TempDirectory temp = new();
 
@@ -218,48 +224,14 @@ public sealed class CommandLineTests
         {
             Directory.SetCurrentDirectory(temp.Path);
 
-            RedirectConsole(out _, out _, out TextWriter prevOut, out TextWriter prevErr);
+            RedirectConsole(out StringWriter outWriter, out StringWriter errWriter, out TextWriter prevOut,
+                out TextWriter prevErr);
             try
             {
                 int exitCode = await Program.RunAsync(["new", "--quickstart", "QuickProj"]);
 
-                exitCode.Should().Be(CliExitCode.Success);
-                string projectDir = Path.Combine(temp.Path, "QuickProj");
-                File.Exists(Path.Combine(projectDir, "local", "archlucid-evaluation.sqlite")).Should().BeTrue();
-                File.Exists(Path.Combine(projectDir, "local", "archlucid.quickstart.appsettings.json")).Should()
-                    .BeTrue();
-            }
-            finally
-            {
-                RestoreConsole(prevOut, prevErr);
-            }
-        }
-        finally
-        {
-            Directory.SetCurrentDirectory(prevCwd);
-        }
-    }
-
-    [Fact]
-    public async Task New_with_quickstart_after_name_creates_local_evaluation_artifacts()
-    {
-        using TempDirectory temp = new();
-
-        CliTestWorkingDirectory.EnsureReadableUsingExistingDirectory(temp.Path);
-
-        string prevCwd = Directory.GetCurrentDirectory();
-        try
-        {
-            Directory.SetCurrentDirectory(temp.Path);
-
-            RedirectConsole(out _, out _, out TextWriter prevOut, out TextWriter prevErr);
-            try
-            {
-                int exitCode = await Program.RunAsync(["new", "QuickProj2", "--quickstart"]);
-
-                exitCode.Should().Be(CliExitCode.Success);
-                string projectDir = Path.Combine(temp.Path, "QuickProj2");
-                File.Exists(Path.Combine(projectDir, "local", "archlucid-evaluation.sqlite")).Should().BeTrue();
+                exitCode.Should().Be(CliExitCode.UsageError);
+                (outWriter + errWriter.ToString()).Should().Contain("--quickstart is not supported");
             }
             finally
             {
@@ -291,7 +263,7 @@ public sealed class CommandLineTests
                 int exitCode = await Program.RunAsync(["new", "--not-a-real-flag", "P"]);
 
                 exitCode.Should().Be(CliExitCode.UsageError);
-                (outWriter + errWriter.ToString()).Should().Contain("Usage").And.Contain("--quickstart");
+                (outWriter + errWriter.ToString()).Should().Contain("Usage").And.Contain("new <projectName>");
             }
             finally
             {
@@ -305,26 +277,7 @@ public sealed class CommandLineTests
     }
 
     [Fact]
-    public async Task Init_with_global_json_flag_returns_usage_error()
-    {
-        RedirectConsole(out StringWriter outWriter, out StringWriter errWriter, out TextWriter prevOut,
-            out TextWriter prevErr);
-        try
-        {
-            int exitCode = await Program.RunAsync(["--json", "init"]);
-
-            exitCode.Should().Be(CliExitCode.UsageError);
-            string combined = outWriter + errWriter.ToString();
-            combined.Should().Contain("--json");
-        }
-        finally
-        {
-            RestoreConsole(prevOut, prevErr);
-        }
-    }
-
-    [Fact]
-    public async Task Init_with_unknown_flag_prints_usage()
+    public async Task Init_is_unknown_command()
     {
         RedirectConsole(out StringWriter outWriter, out StringWriter errWriter, out TextWriter prevOut,
             out TextWriter prevErr);
@@ -333,9 +286,88 @@ public sealed class CommandLineTests
             int exitCode = await Program.RunAsync(["init", "--not-a-flag"]);
 
             exitCode.Should().Be(CliExitCode.UsageError);
+            (outWriter + errWriter.ToString()).Should().Contain("Unknown command");
+        }
+        finally
+        {
+            RestoreConsole(prevOut, prevErr);
+        }
+    }
+
+    [Theory]
+    [InlineData("try")]
+    [InlineData("seed-demo-data")]
+    public async Task Removed_local_commands_are_unknown(string command)
+    {
+        RedirectConsole(out StringWriter outWriter, out StringWriter errWriter, out TextWriter prevOut,
+            out TextWriter prevErr);
+        try
+        {
+            int exitCode = await Program.RunAsync([command]);
+
+            exitCode.Should().Be(CliExitCode.UsageError);
+            (outWriter + errWriter.ToString()).Should().Contain("Unknown command");
+        }
+        finally
+        {
+            RestoreConsole(prevOut, prevErr);
+        }
+    }
+
+    [Fact]
+    public async Task Dev_up_is_unknown_command()
+    {
+        RedirectConsole(out StringWriter outWriter, out StringWriter errWriter, out TextWriter prevOut,
+            out TextWriter prevErr);
+        try
+        {
+            int exitCode = await Program.RunAsync(["dev", "up"]);
+
+            exitCode.Should().Be(CliExitCode.UsageError);
+            (outWriter + errWriter.ToString()).Should().Contain("Unknown command");
+        }
+        finally
+        {
+            RestoreConsole(prevOut, prevErr);
+        }
+    }
+
+    [Fact]
+    public async Task Pilot_up_is_rejected_as_contributor_only()
+    {
+        RedirectConsole(out StringWriter outWriter, out StringWriter errWriter, out TextWriter prevOut,
+            out TextWriter prevErr);
+        try
+        {
+            int exitCode = await Program.RunAsync(["pilot", "up"]);
+
+            exitCode.Should().Be(CliExitCode.UsageError);
             string combined = outWriter + errWriter.ToString();
-            combined.Should().Contain("Usage");
-            combined.Should().Contain("init");
+            combined.Should().Contain("not available in the product CLI");
+            combined.Should().Contain("ARCHLUCID_API_URL");
+        }
+        finally
+        {
+            RestoreConsole(prevOut, prevErr);
+        }
+    }
+
+    [Fact]
+    public async Task Root_help_does_not_advertise_local_product_commands()
+    {
+        RedirectConsole(out StringWriter outWriter, out StringWriter errWriter, out TextWriter prevOut,
+            out TextWriter prevErr);
+        try
+        {
+            int exitCode = await Program.RunAsync(["--help"]);
+
+            exitCode.Should().Be(CliExitCode.UsageError);
+            string combined = (outWriter + errWriter.ToString()).ToLowerInvariant();
+            combined.Should().NotContain("docker compose");
+            combined.Should().NotContain("pilot up");
+            combined.Should().NotContain("localhost");
+            combined.Should().NotContain("seed-demo-data");
+            combined.Should().NotContain(" archlucid try");
         }
         finally
         {

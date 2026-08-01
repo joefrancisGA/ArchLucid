@@ -15,6 +15,7 @@ public sealed class ArchLucidApiClientBaseUrlTests
 
         reason.Should().NotBeNull();
         reason.ToLowerInvariant().Should().Contain("empty");
+        reason.Should().Contain("staging.archlucid.net");
     }
 
     [Fact]

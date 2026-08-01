@@ -1,45 +1,26 @@
-import { notFound, redirect } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 
-import { getRunDetail } from "@/lib/api";
-import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";
-import { tryStaticDemoRunDetail } from "@/lib/operator-static-demo";
-import { isInvalidDynamicRouteToken, isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
+import { isInvalidDynamicRouteToken } from "@/lib/route-dynamic-param";
+import { resolveGoldenManifestIdForRun } from "@/lib/resolve-golden-manifest-id-for-run";
 import { signedRecordArtifactPath } from "@/lib/signed-records-paths";
 
-/** Run-scoped artifact entry resolves golden manifest id then redirects to canonical artifact review URL. */
-export default async function RunScopedArtifactReviewPage({
+/** Run-scoped artifact preview resolves to canonical signed-record artifact URL (RER → MAM). */
+export default async function RunArtifactPreviewRedirectPage({
   params,
 }: {
   params: Promise<{ runId: string; artifactId: string }>;
-}) {
+}): Promise<never> {
   const { runId, artifactId } = await params;
 
-  if (isInvalidGuidOrSlugRouteToken(runId) || isInvalidDynamicRouteToken(artifactId)) {
+  if (isInvalidDynamicRouteToken(runId) || isInvalidDynamicRouteToken(artifactId)) {
     notFound();
   }
 
-  let manifestId: string | null = null;
+  const manifestId = await resolveGoldenManifestIdForRun(runId);
 
-  try {
-    const response = await getRunDetail(runId);
-    manifestId = response.data.run.goldenManifestId?.trim() ?? null;
-  } catch (error) {
-    const demoDetail = tryStaticDemoRunDetail(runId);
-
-    if (demoDetail !== null) {
-      manifestId = demoDetail.run.goldenManifestId?.trim() ?? null;
-    } else {
-      const failure = toApiLoadFailure(error);
-
-      if (isApiNotFoundFailure(failure)) {
-        notFound();
-      }
-    }
+  if (manifestId === null) {
+    notFound();
   }
 
-  if (manifestId === null || manifestId.length === 0) {
-    redirect(`/reviews/${encodeURIComponent(runId)}#artifacts-exports`);
-  }
-
-  redirect(signedRecordArtifactPath(manifestId, artifactId));
+  permanentRedirect(signedRecordArtifactPath(manifestId, artifactId));
 }

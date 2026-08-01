@@ -138,7 +138,9 @@ public sealed class ArchLucidApiClient
 
     public static string GetDefaultBaseUrl()
     {
-        return Environment.GetEnvironmentVariable("ARCHLUCID_API_URL") ?? "http://localhost:5128";
+        string? fromEnv = Environment.GetEnvironmentVariable("ARCHLUCID_API_URL");
+
+        return string.IsNullOrWhiteSpace(fromEnv) ? string.Empty : fromEnv.Trim();
     }
 
     /// <summary>
@@ -149,14 +151,14 @@ public sealed class ArchLucidApiClient
         if (string.IsNullOrWhiteSpace(baseUrl))
 
             return
-                "API base URL is empty. Set apiUrl in archlucid.json in the project folder or ARCHLUCID_API_URL (example: http://localhost:5128).";
+                "API base URL is empty. Set apiUrl in archlucid.json in the project folder or ARCHLUCID_API_URL (example: https://staging.archlucid.net).";
 
         string trimmed = baseUrl.Trim();
 
         if (!Uri.TryCreate(trimmed, UriKind.Absolute, out Uri? uri))
 
             return
-                $"API base URL is not a valid absolute URL: '{trimmed}'. Use http:// or https:// with a host (example: http://localhost:5128).";
+                $"API base URL is not a valid absolute URL: '{trimmed}'. Use http:// or https:// with a host (example: https://staging.archlucid.net).";
 
         if (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)
             return $"API base URL must use http or https (got '{uri.Scheme}').";
@@ -164,12 +166,18 @@ public sealed class ArchLucidApiClient
         return null;
     }
 
-    /// <summary>Resolve API base URL: config.ApiUrl (when set) &gt; ARCHLUCID_API_URL &gt; default.</summary>
+    /// <summary>
+    ///     Resolve API base URL: <c>config.ApiUrl</c> (when set) &gt; <c>ARCHLUCID_API_URL</c>.
+    ///     There is no localhost default — set <c>apiUrl</c> or <c>ARCHLUCID_API_URL</c> for hosted targets.
+    /// </summary>
     public static string ResolveBaseUrl(ArchLucidProjectScaffolder.ArchLucidCliConfig? config)
     {
-        return !string.IsNullOrWhiteSpace(config?.ApiUrl)
-            ? config.ApiUrl.Trim().TrimEnd('/')
-            : GetDefaultBaseUrl().TrimEnd('/');
+        if (!string.IsNullOrWhiteSpace(config?.ApiUrl))
+            return config.ApiUrl.Trim().TrimEnd('/');
+
+        string fromEnv = GetDefaultBaseUrl();
+
+        return string.IsNullOrEmpty(fromEnv) ? fromEnv : fromEnv.TrimEnd('/');
     }
 
     private static void LogCliFailure(string operation, Exception ex)

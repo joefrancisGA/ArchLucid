@@ -49,7 +49,7 @@ describe("contextual-help-registry (TB-733)", () => {
   });
 
   it("returns null for routes not yet migrated", () => {
-    expect(contextualHelpForPathname("/integrations/readiness")).toBeNull();
+    expect(contextualHelpForPathname("/administration/connection-status")).toBeNull();
     expect(contextualHelpForPathname("/architectures")).toBeNull();
   });
 

@@ -57,7 +57,7 @@ describe("AdminItsmConnectorsPageClient", () => {
     expect(screen.getByRole("heading", { name: "ITSM connectors", level: 1 })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Integration readiness" })).toHaveAttribute(
       "href",
-      "/integrations/readiness",
+      "/administration/connection-status",
     );
 
     await waitFor(() => {
@@ -303,7 +303,7 @@ describe("AdminItsmConnectorsPageClient", () => {
     );
     expect(screen.getByRole("link", { name: "ITSM live smoke scaffold" })).toHaveAttribute(
       "href",
-      "/integrations/readiness",
+      "/administration/connection-status",
     );
     expect(screen.queryByRole("link", { name: /troubleshooting/i })).not.toBeInTheDocument();
   });

@@ -21,6 +21,7 @@ function buildModel(overrides: Partial<PolicyPacksPageViewModel> = {}): PolicyPa
     effective: null,
     effectiveContent: null,
     loading: false,
+    lastRefreshedAt: new Date("2026-07-09T12:00:00.000Z"),
     failure: null,
     name: "",
     setName: vi.fn(),

@@ -13,8 +13,14 @@ type Props = {
 export function IdentityProvidersSamlPageClient(props: Props): React.JSX.Element {
   return (
     <IdentityProvidersSettingsGate loaded={props.loaded}>
-      {() => (
-        <IdentityProvidersSettingsShell pageTitle={IDENTITY_PROVIDERS_SAML_PAGE_TITLE} pageIntro={IDENTITY_PROVIDERS_SAML_PAGE_INTRO}>
+      {(model) => (
+        <IdentityProvidersSettingsShell
+          pageTitle={IDENTITY_PROVIDERS_SAML_PAGE_TITLE}
+          pageIntro={IDENTITY_PROVIDERS_SAML_PAGE_INTRO}
+          refreshing={model.refreshing}
+          lastRefreshedAt={model.lastRefreshedAt}
+          onRefresh={() => void model.refresh()}
+        >
           <SamlSpConfigurationForm />
         </IdentityProvidersSettingsShell>
       )}

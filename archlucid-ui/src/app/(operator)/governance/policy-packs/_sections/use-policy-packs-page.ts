@@ -70,6 +70,7 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
     serverLoad.effectiveContent,
   );
   const [loading, setLoading] = useState(false);
+  const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(() => new Date());
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(serverLoad.failure);
 
   const [pageTab, setPageTab] = useState<PolicyPacksPageTab>(pageTabFromUrl);
@@ -135,6 +136,7 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
       }
     } finally {
       setLoading(false);
+      setLastRefreshedAt(new Date());
     }
   }, [buyerPolishedShell]);
 
@@ -511,6 +513,7 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
     effective,
     effectiveContent,
     loading,
+    lastRefreshedAt,
     failure,
     name,
     setName,

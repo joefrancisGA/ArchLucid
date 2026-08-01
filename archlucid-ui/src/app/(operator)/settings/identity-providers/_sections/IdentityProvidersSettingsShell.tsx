@@ -4,6 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { cn } from "@/lib/utils";
+
+import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { Button } from "@/components/ui/button";
 import {
   IDENTITY_PROVIDERS_NAV_DIAGNOSTICS,
@@ -12,12 +14,16 @@ import {
   IDENTITY_PROVIDERS_NAV_ROLE_MAPPING,
   IDENTITY_PROVIDERS_NAV_SAML,
   IDENTITY_PROVIDERS_PAGE_INTRO,
-  IDENTITY_PROVIDERS_PAGE_SUBTITLE,
   IDENTITY_PROVIDERS_PAGE_TITLE,
   IDENTITY_PROVIDERS_SAFETY_NOTICE,
+  IDENTITY_PROVIDERS_SCOPE_DETAILS_TRIGGER,
+  identityProvidersPageSubtitle,
 } from "@/lib/identity-providers-settings-copy";
 import type { IdentityProvidersNavId } from "@/lib/identity-providers-settings-types";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+
+import { IdentityProvidersSettingsPageHeader } from "./IdentityProvidersSettingsPageHeader";
 
 const NAV_ITEMS: ReadonlyArray<{ readonly id: IdentityProvidersNavId; readonly label: string; readonly href: string }> = [
   { id: "overview", label: IDENTITY_PROVIDERS_NAV_OVERVIEW, href: "/settings/identity-providers" },
@@ -49,33 +55,65 @@ function resolveActiveNavId(pathname: string): IdentityProvidersNavId {
 
 export type IdentityProvidersSettingsShellProps = {
   readonly pageTitle?: string;
+  readonly pageSubtitle?: string;
   readonly pageIntro?: string;
+  readonly refreshing: boolean;
+  readonly lastRefreshedAt: Date | null;
+  readonly onRefresh: () => void;
   readonly children: React.ReactNode;
 };
 
 export function IdentityProvidersSettingsShell(props: IdentityProvidersSettingsShellProps): React.JSX.Element {
   const pathname = usePathname();
   const activeNavId = resolveActiveNavId(pathname);
-  const pageTitle = props.pageTitle ?? IDENTITY_PROVIDERS_PAGE_TITLE;
-  const pageIntro = props.pageIntro ?? IDENTITY_PROVIDERS_PAGE_INTRO;
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const resolvedTitle = props.pageTitle ?? IDENTITY_PROVIDERS_PAGE_TITLE;
+  const isOverviewPage = resolvedTitle === IDENTITY_PROVIDERS_PAGE_TITLE;
+  const headerSubtitle =
+    props.pageSubtitle ??
+    (isOverviewPage
+      ? identityProvidersPageSubtitle(buyerPolishedShell)
+      : (props.pageIntro ?? IDENTITY_PROVIDERS_PAGE_INTRO));
+  const scopeOverview = isOverviewPage
+    ? `${IDENTITY_PROVIDERS_PAGE_INTRO} ${IDENTITY_PROVIDERS_SAFETY_NOTICE}`
+    : `${props.pageIntro ?? ""} ${IDENTITY_PROVIDERS_SAFETY_NOTICE}`.trim();
 
   return (
     <div className="w-full max-w-4xl space-y-6" data-testid="identity-providers-settings-shell">
-      <header className="space-y-3">
-        <Button asChild variant="ghost" size="sm" className="h-8 px-0 text-teal-800 dark:text-teal-300">
-          <Link href="/settings#settings-section-advanced">← Settings</Link>
-        </Button>
-        <div>
-          <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{pageTitle}</h1>
-          <p className={cn("mt-1 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-            {IDENTITY_PROVIDERS_PAGE_SUBTITLE}
+      <Button asChild variant="ghost" size="sm" className="h-8 px-0 text-teal-800 dark:text-teal-300">
+        <Link href="/settings#settings-section-advanced">← Settings</Link>
+      </Button>
+
+      <IdentityProvidersSettingsPageHeader
+        pageTitle={resolvedTitle}
+        subtitle={headerSubtitle}
+        refreshing={props.refreshing}
+        lastRefreshedAt={props.lastRefreshedAt}
+        onRefresh={props.onRefresh}
+      />
+
+      {buyerPolishedShell ? (
+        <CollapsibleSection
+          title={IDENTITY_PROVIDERS_SCOPE_DETAILS_TRIGGER}
+          defaultOpen={false}
+          sectionTestId="identity-providers-scope-details"
+        >
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="identity-providers-scope-overview">
+            {scopeOverview}
           </p>
-          <p className={cn("mt-2 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{pageIntro}</p>
-          <p className={cn("mt-2 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        </CollapsibleSection>
+      ) : null}
+
+      {!buyerPolishedShell && isOverviewPage ? (
+        <div className="space-y-2">
+          <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            {IDENTITY_PROVIDERS_PAGE_INTRO}
+          </p>
+          <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             {IDENTITY_PROVIDERS_SAFETY_NOTICE}
           </p>
         </div>
-      </header>
+      ) : null}
 
       <nav aria-label="Identity provider sections" data-testid="identity-providers-settings-nav">
         <ul className="flex flex-wrap gap-2">

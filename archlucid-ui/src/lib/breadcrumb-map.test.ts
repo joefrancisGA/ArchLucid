@@ -125,8 +125,15 @@ describe("getBreadcrumbs", () => {
 
   it("maps cloud connections under Integrations (not Settings)", () => {
     expect(getBreadcrumbs("/integrations/cloud-connections")).toEqual([
-      { label: "Integrations", href: "/integrations/readiness" },
+      { label: "Integrations" },
       { label: "Cloud connections" },
+    ]);
+  });
+
+  it("maps connection status under Administration", () => {
+    expect(getBreadcrumbs("/administration/connection-status")).toEqual([
+      { label: "Administration" },
+      { label: "Connection status" },
     ]);
   });
 

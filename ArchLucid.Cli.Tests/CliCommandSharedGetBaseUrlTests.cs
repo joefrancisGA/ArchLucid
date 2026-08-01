@@ -20,8 +20,18 @@ public sealed class CliCommandSharedGetBaseUrlTests
     }
 
     [Fact]
-    public void GetBaseUrl_falls_back_to_localhost_when_config_is_null()
+    public void GetBaseUrl_returns_empty_when_config_is_null_and_env_unset()
     {
-        CliCommandShared.GetBaseUrl(null).Should().Contain("localhost");
+        string? prior = Environment.GetEnvironmentVariable("ARCHLUCID_API_URL");
+
+        try
+        {
+            Environment.SetEnvironmentVariable("ARCHLUCID_API_URL", null);
+            CliCommandShared.GetBaseUrl(null).Should().Be(string.Empty);
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable("ARCHLUCID_API_URL", prior);
+        }
     }
 }

@@ -65,7 +65,7 @@ describe("GovernanceSetupGuidePageView", () => {
     expect(screen.getByTestId("governance-setup-step-2-cta")).toHaveAttribute("data-cta-variant", "primary");
     expect(screen.getByRole("link", { name: "Check connector readiness" })).toHaveAttribute(
       "href",
-      "/integrations/readiness",
+      "/administration/connection-status",
     );
     // TB-1138: foundation panel appears once a mapped indicator is complete.
     expect(screen.getByTestId("governance-setup-foundation-panel")).toBeInTheDocument();

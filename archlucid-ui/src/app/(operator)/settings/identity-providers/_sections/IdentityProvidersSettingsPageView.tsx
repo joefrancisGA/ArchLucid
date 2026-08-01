@@ -55,7 +55,11 @@ export function IdentityProvidersSettingsPageView(props: IdentityProvidersSettin
   const { model } = props;
 
   return (
-    <IdentityProvidersSettingsShell>
+    <IdentityProvidersSettingsShell
+      refreshing={model.refreshing}
+      lastRefreshedAt={model.lastRefreshedAt}
+      onRefresh={() => void model.refresh()}
+    >
       {model.note !== null ? (
         <p
           className={cn("m-0 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)}

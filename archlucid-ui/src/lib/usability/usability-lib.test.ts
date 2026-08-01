@@ -61,8 +61,8 @@ describe("usability lib", () => {
     expect(pageHelpTopicForPathname("/alert-rules")?.slug).toBe("alerts");
     expect(pageHelpTopicForPathname("/governance/alert-rules")?.slug).toBe("alerts");
     expect(pageHelpTopicForPathname("/governance/alert-rules")?.label).toBe("How alerts work");
-    expect(pageHelpTopicForPathname("/integrations/readiness")?.slug).toBe("integration-readiness");
-    expect(pageHelpTopicForPathname("/integrations/readiness")?.label).toBe("How integration readiness works");
+    expect(pageHelpTopicForPathname("/administration/connection-status")?.slug).toBe("integration-readiness");
+    expect(pageHelpTopicForPathname("/administration/connection-status")?.label).toBe("How integration readiness works");
     expect(pageHelpTopicForPathname("/health")?.slug).toBe("troubleshooting");
     expect(pageHelpTopicForPathname("/health")?.label).toBe("Troubleshooting");
     expect(pageHelpTopicForPathname("/architectures")?.slug).toBe("getting-started");
@@ -72,6 +72,8 @@ describe("usability lib", () => {
     expect(pageHelpTopicForPathname("/planning")?.slug).toBe("pilot-feedback");
     expect(pageHelpTopicForPathname("/help/billing-and-plans")?.slug).toBe("billing-and-plans");
     expect(pageHelpTopicForPathname("/help/billing-and-plans")?.label).toBe("Billing and plans");
+    expect(pageHelpTopicForPathname("/help/repeat-review-loop")?.slug).toBe("repeat-review-loop");
+    expect(pageHelpTopicForPathname("/help/repeat-review-loop")?.label).toBe("Repeat-review loop");
     expect(pageHelpTopicForPathname("/evolution-review")?.slug).toBe("how-it-works");
     expect(pageHelpTopicForPathname("/evolution-review")?.label).toBe("Impact preview");
     expect(pageHelpTopicForPathname("/governance/advisory-scans")?.slug).toBe("how-it-works");

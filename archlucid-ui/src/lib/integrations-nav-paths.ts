@@ -1,12 +1,18 @@
 import { pathMatchesRoutePrefix } from "@/lib/governance-route-paths";
 
-/** Canonical integration readiness hub URL (TB-408 / TB-750). */
-export const INTEGRATIONS_READINESS_PATH = "/integrations/readiness";
+/** Canonical Administration → Connection status hub (nav label alignment). */
+export const ADMINISTRATION_CONNECTION_STATUS_PATH = "/administration/connection-status";
 
-/** Legacy browser path — permanent redirect to {@link INTEGRATIONS_READINESS_PATH} (TB-408). */
+/** @deprecated Prefer {@link ADMINISTRATION_CONNECTION_STATUS_PATH}. */
+export const INTEGRATIONS_READINESS_PATH = ADMINISTRATION_CONNECTION_STATUS_PATH;
+
+/** Former Integration readiness URL — permanent redirect to {@link ADMINISTRATION_CONNECTION_STATUS_PATH}. */
+export const LEGACY_INTEGRATIONS_READINESS_PATH = "/integrations/readiness";
+
+/** Legacy browser path — permanent redirect to {@link ADMINISTRATION_CONNECTION_STATUS_PATH} (TB-408). */
 export const LEGACY_INTEGRATIONS_OPERATIONS_PATH = "/integrations/operations";
 
-/** Legacy combined operator route — hub redirects to Integration readiness; OAuth callback stays reachable (TB-1776). */
+/** Legacy combined operator route — hub redirects to Connection status; OAuth callback stays reachable (TB-1776). */
 export const LEGACY_INTEGRATIONS_ITSM_PATH = "/integrations/itsm";
 
 /** Atlassian OAuth return URL — must not be covered by the ITSM hub readiness redirect (TB-1776 / TB-600). */
@@ -39,7 +45,8 @@ export function pathMatchesCloudConnections(pathname: string): boolean {
 
 export function pathMatchesIntegrationsReadiness(pathname: string): boolean {
   return (
-    pathMatchesRoutePrefix(pathname, INTEGRATIONS_READINESS_PATH)
+    pathMatchesRoutePrefix(pathname, ADMINISTRATION_CONNECTION_STATUS_PATH)
+    || pathMatchesRoutePrefix(pathname, LEGACY_INTEGRATIONS_READINESS_PATH)
     || pathMatchesRoutePrefix(pathname, LEGACY_INTEGRATIONS_OPERATIONS_PATH)
     || pathMatchesRoutePrefix(pathname, LEGACY_INTEGRATIONS_ITSM_PATH)
   );

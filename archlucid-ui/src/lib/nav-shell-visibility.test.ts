@@ -555,7 +555,7 @@ describe("listNavGroupsVisibleInOperatorShell — platform-admin surface", () =>
     );
 
     expect(rows.map((r) => r.group.id)).toEqual(["operator-admin"]);
-    expect(rows[0]!.visibleLinks.some((l) => l.href === "/integrations/readiness")).toBe(true);
+    expect(rows[0]!.visibleLinks.some((l) => l.href === "/administration/connection-status")).toBe(true);
     expect(rows[0]!.visibleLinks.some((l) => l.href === "/health")).toBe(true);
     expect(rows[0]!.visibleLinks.some((l) => l.href === "/settings/users")).toBe(true);
     expect(rows[0]!.visibleLinks.some((l) => l.href === "/admin/pricing-quote-aging")).toBe(false);
@@ -573,7 +573,7 @@ describe("listNavGroupsVisibleInOperatorShell — platform-admin surface", () =>
     );
 
     expect(readRows.flatMap((r) => r.visibleLinks).some((l) => l.href === "/health")).toBe(false);
-    expect(readRows.flatMap((r) => r.visibleLinks).some((l) => l.href === "/integrations/readiness")).toBe(false);
+    expect(readRows.flatMap((r) => r.visibleLinks).some((l) => l.href === "/administration/connection-status")).toBe(false);
 
     const executeRows = listNavGroupsVisibleInOperatorShell(
       NAV_GROUPS,
@@ -586,7 +586,7 @@ describe("listNavGroupsVisibleInOperatorShell — platform-admin surface", () =>
     );
 
     expect(executeRows.flatMap((r) => r.visibleLinks).some((l) => l.href === "/health")).toBe(false);
-    expect(executeRows.flatMap((r) => r.visibleLinks).some((l) => l.href === "/integrations/readiness")).toBe(false);
+    expect(executeRows.flatMap((r) => r.visibleLinks).some((l) => l.href === "/administration/connection-status")).toBe(false);
   });
 
   it("scopes governance audit nav when review context is known (TB-649)", () => {

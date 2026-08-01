@@ -11,11 +11,8 @@ public static class CompletionsCommand
     private static readonly string[] TopLevelCommands =
     [
         "new",
-        "dev",
         "pilot",
-        "seed-demo-data",
         "explain-operator-model",
-        "try",
         "second-run",
         "draft",
         "request",
@@ -29,7 +26,6 @@ public static class CompletionsCommand
         "run-support-packet",
         "submit",
         "commit",
-        "seed",
         "artifacts",
         "az-roles",
         "az-token-test",
@@ -50,7 +46,6 @@ public static class CompletionsCommand
         "manifest",
         "marketplace",
         "golden-cohort",
-        "init",
         "procurement-pack",
         "deployment-evidence",
         "doctor",

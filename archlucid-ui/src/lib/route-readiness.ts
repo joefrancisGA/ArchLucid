@@ -42,7 +42,7 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/integrations/azure-boards": "admin-only",
   "/integrations/servicenow": "admin-only",
   "/integrations/webhooks": "advanced-only",
-  "/integrations/readiness": "advanced-only",
+  "/administration/connection-status": "advanced-only",
   "/integrations/operations": "advanced-only",
   "/settings/ai-usage": "admin-only",
   "/settings/cost-reporting": "admin-only",

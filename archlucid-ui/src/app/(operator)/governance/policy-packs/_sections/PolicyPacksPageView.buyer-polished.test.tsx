@@ -1,9 +1,17 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+}));
+
 import { PolicyPacksPageView } from "./PolicyPacksPageView";
 import type { PolicyPacksPageViewModel } from "./policy-packs-page-view-model";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
+import {
+  BUYER_POLICY_PACKS_PAGE_SUBTITLE,
+  POLICY_PACKS_VIEW_EXPLANATION_SUMMARY,
+} from "@/lib/policy-packs-page";
 import type { EffectivePolicyPackSet, PolicyPack, PolicyPackContentDocument } from "@/types/policy-packs";
 
 const selectedPack: PolicyPack = {
@@ -61,6 +69,7 @@ function buildModel(overrides: Partial<PolicyPacksPageViewModel> = {}): PolicyPa
     effective,
     effectiveContent,
     loading: false,
+    lastRefreshedAt: new Date("2026-07-09T12:00:00.000Z"),
     failure: null,
     name: "",
     setName: vi.fn(),
@@ -132,16 +141,18 @@ vi.mock("@/components/PolicyPackImpactPreviewPanel", () => ({
 }));
 
 describe("PolicyPacksPageView buyer-polished shell", () => {
-  it("surfaces active pack summary, enforced rules table, and policy-pack basis banner", () => {
+  it("surfaces header chrome, scope details, active pack summary, and enforced rules table", () => {
     render(<PolicyPacksPageView model={buildModel()} />);
 
     expect(screen.getByTestId("policy-pack-basis-status-banner")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Policy packs", level: 2 })).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        /Review the policy pack currently applied to this workspace and the rules enforced for this review/,
-      ),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Policy packs", level: 1 })).toBeInTheDocument();
+    expect(screen.getByText(BUYER_POLICY_PACKS_PAGE_SUBTITLE)).toBeInTheDocument();
+    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+    expect(screen.getByTestId("policy-packs-refresh-button")).toBeInTheDocument();
+    expect(screen.getByTestId("policy-packs-scope-details")).toBeInTheDocument();
+    expect(screen.getByTestId("policy-packs-scope-overview")).toHaveTextContent(
+      POLICY_PACKS_VIEW_EXPLANATION_SUMMARY,
+    );
     expect(screen.getByTestId("policy-packs-active-pack-summary")).toBeInTheDocument();
     expect(screen.getByTestId("policy-packs-enforced-rules-table")).toBeInTheDocument();
     expect(screen.getByText("PHI minimization on intake APIs")).toBeInTheDocument();

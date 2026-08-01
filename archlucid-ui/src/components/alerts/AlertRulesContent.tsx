@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
+import { useOptionalAlertRulesHubRefresh } from "@/lib/alerts-hub-refresh-context";
 import { createAlertRule, listAlertRoutingSubscriptions, listAlertRules } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -40,7 +41,6 @@ import {
   ALERT_RULES_LIST_EMPTY_TITLE,
   ALERT_RULES_LIST_HEADING,
   ALERT_RULES_NAME_LABEL,
-  ALERT_RULES_REFRESH_BUTTON_LABEL,
   ALERT_RULES_RULE_TYPE_LABEL,
   ALERT_RULES_SAMPLE_MODE_BANNER,
   ALERT_RULES_SAMPLE_MODE_CTA_HREF,
@@ -67,6 +67,7 @@ const SCOPE_PREVIEW_RULE: Pick<AlertRule, "projectId"> = { projectId: "default" 
 
 export function AlertRulesContent() {
   const canMutateAlertRules = useOperateCapability();
+  const refreshContext = useOptionalAlertRulesHubRefresh();
   const sampleModeBlocked: boolean =
     isBuyerPolishedOperatorShellEnv() && !isOperatorExperienceFullShellEnv();
   const canEdit: boolean = canMutateAlertRules && !sampleModeBlocked;
@@ -126,6 +127,14 @@ export function AlertRulesContent() {
     void load();
   }, [load]);
 
+  useEffect(() => {
+    if (refreshContext === null) {
+      return;
+    }
+
+    return refreshContext.registerTabLoader("rules", load);
+  }, [load, refreshContext]);
+
   async function onCreate() {
     if (!canEdit || createInFlightRef.current) {
       return;
@@ -166,13 +175,16 @@ export function AlertRulesContent() {
   );
 
   const draftReadinessRule = useMemo(() => ({ isEnabled: true }), []);
+  const showConditionsLead = !isBuyerPolishedOperatorShellEnv();
 
   return (
     <div className="min-w-0">
       <h2 className="mt-0">Alert conditions</h2>
-      <p className={cn("mb-2 max-w-prose leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-        {ALERT_RULES_CONDITIONS_PAGE_LEAD}
-      </p>
+      {showConditionsLead ? (
+        <p className={cn("mb-2 max-w-prose leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+          {ALERT_RULES_CONDITIONS_PAGE_LEAD}
+        </p>
+      ) : null}
       <p className={cn("mb-2 max-w-prose leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         {ALERT_RULES_CONDITIONS_FINDINGS_HELPER}
       </p>
@@ -214,14 +226,9 @@ export function AlertRulesContent() {
       <div className="grid gap-8 xl:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)]">
         <div className="flex min-w-0 flex-col gap-8">
           <section aria-labelledby="alert-rules-list-heading">
-            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-              <h3 id="alert-rules-list-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-                {ALERT_RULES_LIST_HEADING}
-              </h3>
-              <Button type="button" variant="outline" size="sm" onClick={() => void load()} disabled={loading}>
-                {loading ? "Loading…" : ALERT_RULES_REFRESH_BUTTON_LABEL}
-              </Button>
-            </div>
+            <h3 id="alert-rules-list-heading" className={cn("m-0 mb-3", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+              {ALERT_RULES_LIST_HEADING}
+            </h3>
 
             <div className="grid gap-3">
               {items.length === 0 ? (

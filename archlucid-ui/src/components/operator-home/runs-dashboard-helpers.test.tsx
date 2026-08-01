@@ -3,7 +3,9 @@ import { describe, expect, it } from "vitest";
 import {
   ArchitecturePackageOriginBadge,
   isRunApprovedPackage,
+  isRunApprovedWithMonitoringPackage,
   isRunNeedingAttention,
+  resolveShowcaseDemoRunForItems,
   runsDashboardTabLabel,
 } from "@/components/operator-home/runs-dashboard-helpers";
 import { render, screen } from "@testing-library/react";
@@ -49,7 +51,27 @@ describe("runs dashboard status filters", () => {
 
     expect(isRunApprovedPackage(approvedRun)).toBe(true);
     expect(isRunApprovedPackage(monitoredRun)).toBe(false);
+    expect(isRunApprovedWithMonitoringPackage(monitoredRun)).toBe(true);
+    expect(isRunApprovedWithMonitoringPackage(approvedRun)).toBe(false);
     expect(isRunNeedingAttention(attentionRun)).toBe(true);
+  });
+
+  it("resolves showcase demo only when that run is in the active filter set", () => {
+    const showcase: RunSummary = {
+      runId: "claims-intake-modernization",
+      projectId: "default",
+      hasGoldenManifest: true,
+      hasGovernanceWarnings: true,
+    };
+    const other: RunSummary = {
+      runId: "other-run",
+      projectId: "default",
+      hasGoldenManifest: true,
+    };
+
+    expect(resolveShowcaseDemoRunForItems([showcase, other], showcase)?.runId).toBe(showcase.runId);
+    expect(resolveShowcaseDemoRunForItems([other], showcase)).toBeUndefined();
+    expect(resolveShowcaseDemoRunForItems([showcase], undefined)).toBeUndefined();
   });
 });
 

@@ -35,8 +35,26 @@ public static class Program
             {
                 case "new":
                     {
-                        if (TryParseNewCommandArgs(normalized.Skip(1).ToArray(), out string? projectName, out bool quickstart))
-                            return await NewCommand.RunAsync(projectName, quickstart);
+                        if (normalized.Skip(1).Any(static a =>
+                                string.Equals(a, "--quickstart", StringComparison.OrdinalIgnoreCase)))
+                        {
+                            const string quickstartMessage =
+                                "--quickstart is not supported. Use archlucid new <name> and set apiUrl in archlucid.json or ARCHLUCID_API_URL.";
+
+                            if (CliExecutionContext.JsonOutput)
+                                CliJson.WriteFailureLine(
+                                    Console.Error,
+                                    CliExitCode.UsageError,
+                                    "usage",
+                                    quickstartMessage);
+                            else
+                                Console.WriteLine(quickstartMessage);
+
+                            return CliExitCode.UsageError;
+                        }
+
+                        if (TryParseNewCommandArgs(normalized.Skip(1).ToArray(), out string? projectName))
+                            return await NewCommand.RunAsync(projectName, false);
 
                         WriteNewUsage();
 
@@ -44,24 +62,25 @@ public static class Program
 
                     }
 
-                case "dev":
-                    if (normalized.Length > 1 && normalized[1] == "up")
-                    {
-                        bool sqlOnly = normalized.Skip(2).Any(static a =>
-                            string.Equals(a, "--sql-only", StringComparison.OrdinalIgnoreCase));
-
-                        return await DevUpCommand.RunAsync(sqlOnly);
-                    }
-
-                    Console.WriteLine("Expected: archlucid dev up [--sql-only]");
-
-                    return CliExitCode.UsageError;
-
                 case "pilot":
                     if (normalized.Length > 1)
                     {
                         if (normalized[1] == "up")
-                            return await PilotUpCommand.RunAsync();
+                        {
+                            const string pilotUpRemoved =
+                                "pilot up is not available in the product CLI (local Docker bring-up is contributor-only). Set ARCHLUCID_API_URL to your hosted API instead.";
+
+                            if (CliExecutionContext.JsonOutput)
+                                CliJson.WriteFailureLine(
+                                    Console.Error,
+                                    CliExitCode.UsageError,
+                                    "usage",
+                                    pilotUpRemoved);
+                            else
+                                Console.WriteLine(pilotUpRemoved);
+
+                            return CliExitCode.UsageError;
+                        }
 
                         if (normalized[1] == "success-criteria-template")
                             return await PilotSuccessCriteriaTemplateCommand.RunAsync();
@@ -106,18 +125,12 @@ public static class Program
                             return await PilotReadinessBundleCommand.RunAsync(normalized.Skip(2).ToArray());
                     }
 
-                    Console.WriteLine("Expected: archlucid pilot up | archlucid pilot init | archlucid pilot success-criteria-template | archlucid pilot preflight [--no-api] [--include-itsm] [--simulate-production] [--md] [--markdown-out <path>] | archlucid pilot proof [-- args for collect-first-pilot-proof.ps1] | archlucid pilot proof-packet <runId> [--out <dir>] | archlucid pilot ship-gate-evidence --run-id <guid> [--json-out <path>] [--markdown-out <path>] [--no-write-artifacts] [--ui-base-url <url>] | archlucid pilot frontier-ai-baseline [--scoreboard <path>] [--init-scoreboard] [--json-out <path>] [--markdown-out <path>] [--no-write-artifacts] | archlucid pilot itsm-pull-forward-gate [--ledger-dir <path>] [--evidence <path>] [--include-api] [--json-out <path>] [--markdown-out <path>] [--no-write-artifacts] | archlucid pilot citation-integrity [--fixtures-dir <path>] [--manifest <path>] [--sample-size <n>] [--fail-threshold <n>] [--include-api] [--json-out <path>] [--markdown-out <path>] [--no-write-artifacts] | archlucid pilot tenant-isolation-negative-test [--run-id <guid>] [--alternate-tenant-id <guid>] [--alternate-workspace-id <guid>] [--alternate-project-id <guid>] [--manifest <path>] [--json-out <path>] [--markdown-out <path>] [--no-write-artifacts] | archlucid pilot return-trigger-telemetry [--ledger-dir <path>] [--rules <path>] [--json-out <path>] [--markdown-out <path>] [--no-write-artifacts] | archlucid pilot buyer-proof-evidence-ledger [--proof-dir <path>] [--rules <path>] [--json-out <path>] [--markdown-out <path>] [--no-write-artifacts] | archlucid pilot decision-owner-scoreboard [--ledger-dir <path>] [--rules <path>] [--json-out <path>] [--markdown-out <path>] [--sponsor-markdown-out <path>] [--no-write-artifacts] | archlucid pilot readiness-bundle [--run-id <guid>] [--include-api] [--ui-base-url <url>] [--json-out <path>] [--markdown-out <path>] [--no-write-artifacts]");
+                    Console.WriteLine("Expected: archlucid pilot init | archlucid pilot success-criteria-template | archlucid pilot preflight [--no-api] [--include-itsm] [--simulate-production] [--md] [--markdown-out <path>] | archlucid pilot proof [-- args for collect-first-pilot-proof.ps1] | archlucid pilot proof-packet <runId> [--out <dir>] | archlucid pilot ship-gate-evidence --run-id <guid> [--json-out <path>] [--markdown-out <path>] [--no-write-artifacts] [--ui-base-url <url>] | archlucid pilot frontier-ai-baseline [--scoreboard <path>] [--init-scoreboard] [--json-out <path>] [--markdown-out <path>] [--no-write-artifacts] | archlucid pilot itsm-pull-forward-gate [--ledger-dir <path>] [--evidence <path>] [--include-api] [--json-out <path>] [--markdown-out <path>] [--no-write-artifacts] | archlucid pilot citation-integrity [--fixtures-dir <path>] [--manifest <path>] [--sample-size <n>] [--fail-threshold <n>] [--include-api] [--json-out <path>] [--markdown-out <path>] [--no-write-artifacts] | archlucid pilot tenant-isolation-negative-test [--run-id <guid>] [--alternate-tenant-id <guid>] [--alternate-workspace-id <guid>] [--alternate-project-id <guid>] [--manifest <path>] [--json-out <path>] [--markdown-out <path>] [--no-write-artifacts] | archlucid pilot return-trigger-telemetry [--ledger-dir <path>] [--rules <path>] [--json-out <path>] [--markdown-out <path>] [--no-write-artifacts] | archlucid pilot buyer-proof-evidence-ledger [--proof-dir <path>] [--rules <path>] [--json-out <path>] [--markdown-out <path>] [--no-write-artifacts] | archlucid pilot decision-owner-scoreboard [--ledger-dir <path>] [--rules <path>] [--json-out <path>] [--markdown-out <path>] [--sponsor-markdown-out <path>] [--no-write-artifacts] | archlucid pilot readiness-bundle [--run-id <guid>] [--include-api] [--ui-base-url <url>] [--json-out <path>] [--markdown-out <path>] [--no-write-artifacts]");
 
                     return CliExitCode.UsageError;
 
-                case "seed-demo-data":
-                    return await SeedDemoDataCommand.RunAsync();
-
                 case "explain-operator-model":
                     return await ExplainOperatorModelCommand.RunAsync();
-
-                case "try":
-                    return await TryCommand.RunAsync(normalized.Skip(1).ToArray());
 
                 case "second-run":
                     return await SecondRunCommand.RunAsync(normalized.Skip(1).ToArray());
@@ -322,14 +335,6 @@ public static class Program
                 case "procurement-pack":
                     return await ProcurementPackCommand.RunAsync(normalized.Skip(1).ToArray());
 
-                case "demo":
-                    if (normalized.Length > 1 && string.Equals(normalized[1], "export", StringComparison.OrdinalIgnoreCase))
-                        return await DemoCommand.RunAsync(normalized.Skip(2).ToArray());
-
-                    Console.WriteLine("Usage: archlucid demo export [--out <dir>]");
-
-                    return CliExitCode.UsageError;
-
                 case "buyer-proof-pack":
                     return await BuyerProofPackCommand.RunAsync(normalized.Skip(1).ToArray());
 
@@ -369,10 +374,22 @@ public static class Program
 
                 case "run":
                 {
-                    bool quick = normalized.Contains("--quick");
+                    if (normalized.Contains("--quick"))
+                    {
+                        const string quickMessage =
+                            "run --quick is not supported. Use archlucid run without --quick (local seed/quick paths are contributor-only).";
+
+                        if (CliExecutionContext.JsonOutput)
+                            CliJson.WriteFailureLine(Console.Error, CliExitCode.UsageError, "usage", quickMessage);
+                        else
+                            Console.WriteLine(quickMessage);
+
+                        return CliExitCode.UsageError;
+                    }
+
                     string? idempotencyKey = CliCommandShared.TryGetOptionValue(normalized, "--idempotency-key");
 
-                    return await RunCommand.RunAsync(quick, idempotencyKey);
+                    return await RunCommand.RunAsync(false, idempotencyKey);
                 }
 
                 case "status":
@@ -415,14 +432,6 @@ public static class Program
 
                     return CliExitCode.UsageError;
 
-                case "seed":
-                    if (normalized.Length > 1)
-                        return await SeedCommand.RunAsync(normalized[1]);
-
-                    Console.WriteLine("Usage: archlucid seed <runId>");
-
-                    return CliExitCode.UsageError;
-
                 case "artifacts":
                     if (normalized.Length <= 1)
                     {
@@ -458,9 +467,6 @@ public static class Program
 
                 case "health":
                     return await HealthCommand.RunAsync();
-
-                case "init":
-                    return await InitCommand.RunAsync(normalized.Skip(1).ToArray());
 
                 case "validate-config":
                     return await ValidateConfigCommand.RunAsync(
@@ -697,7 +703,7 @@ public static class Program
         CliRootHelpHints.WriteTryPilotLoopBanner();
 
         const string plain =
-            "Please provide a command. Available commands: new [--quickstart], init [--out <path>] [--force], dev up [--sql-only], pilot up | pilot success-criteria-template, seed-demo-data, explain-operator-model, try [--api-base-url <url>] [--ui-base-url <url>] [--no-open] [--readiness-deadline <secs>] [--commit-deadline <secs>], second-run <SECOND_RUN.toml|json> [--api-base-url <url>] [--ui-base-url <url>] [--no-open] [--commit-deadline <secs>], draft new [--text <intent>] [--system-name <name>] [--business-outcome <text>] [--api-base-url <url>] [--skip-must-questions] [--no-auto-execute], request create --from-file <path> [--request-id <id>], trial smoke --org <name> --email <email> [--baseline-hours <n>] [--baseline-source <text>] [--api-base-url <url>] [--skip-pilot-run-deltas], roi export [--out <file.csv>] [--api-base-url <url>], roi board-pack [--format md|pdf] [--out <path>] [--api-base-url <url>], roi-bulletin --quarter <Q-YYYY> [--min-tenants <n>] [--out <file.md>] [--synthetic] [--explain], auth validate-saml --metadata <file.xml> --claim-mapping <file.json>, integration retry-dead-letter [--tenant-id <guid>] [--event-type <type>] | integration simulate-webhook --event-type <alias> --target-url <url>, compliance export-drift --start-date <utc> --end-date <utc> [--format csv|md], agent-eval rollup --from-json <agent-evaluation.json> [--json], real-llm-evidence summarize --from-json <path>, security-trust publish --kind pen-test --date <YYYY-MM-DD> --summary-url <URL> [--assessor <name>] [--assessment-code <code>] [--ui-base-url <url>], marketplace preflight [--repo <dir>], azure terraform-export --subscription <subId> --resource-group <name> --out <bundle.zip>, az-roles (--subscription|--scope, --assignee, [--shell bash|powershell|both]), az-token-test (ARCHLUCID_AZURE_TOKEN_TEST_SCOPE optional), manifest validate --file <path.json>, golden-cohort lock-baseline [--cohort <path>] [--write] | golden-cohort drift [--cohort <path>] [--strict-real] [--structural-only], templates list [--repo-root <dir>], run [--quick], status <runId>, trace <runId>, run-support-packet <runId>, submit <runId> <result.json>, commit <runId>, seed <runId>, artifacts <runId>, first-value-report <runId> [--save], buyer-proof-pack <runId> --out <path.zip> [--repo-root <dir>], proof-packet --runId <runId> --out <path.zip>, sponsor-one-pager <runId> [--save], reference-evidence | proof-pack (--run or --tenant; same CLI), comparisons list [filters], comparisons replay <comparisonRecordId> [--format <f>] [--mode <m>] [--profile <p>] [--persist], cost-estimate [--live-pricing] <manifest.json|extractor.zip>, data-consistency orphans [--api-base-url <url>] | data-consistency remediate <target> [--execute] [--max-rows <n>] [--api-base-url <url>], health, validate-config, saml test-config, compliance-report [--out <file.md>] [--repo <dir>] [--with-live-audit], policy validate <file.json> | policy-pack validate <file.json>, pack export-scaffold [--output <path>] [--force], graph export <runId> [--format mermaid|graphml] [--decision <key>] [--out <path>], rules simulate --run <runGuid> [--severity Warning] [--count 3], webhooks test [--url <url>] [--secret <s>] [--payload <path>] [--help], config check [--no-api], config lint [--simulate-production] [--hosting-advisor], config bootstrap [--out <path>] [--force], doctor (or check), deployment-evidence --environment <staging|production|dev> --api-base-url <url> [--out <path>] [--repo <dir>] [--synthetic-path <path>] [--allow-missing-openapi], support-bundle [--output <dir>] [--zip], completions bash|zsh|powershell. Global: --json for machine-readable output where supported.";
+            "Please provide a command. Available commands: second-run <SECOND_RUN.toml|json> [--api-base-url <url>] [--ui-base-url <url>] [--no-open] [--commit-deadline <secs>], trial smoke --org <name> --email <email> [--display-name <name>] [--baseline-hours <n>] [--baseline-source <text>] [--api-base-url <url>] [--staging] [--skip-pilot-run-deltas], run [--idempotency-key <uuid>], status <runId>, trace <runId>, run-support-packet <runId>, submit <runId> <result.json>, commit <runId>, artifacts <runId> [--save], draft new [--text <intent>] [--system-name <name>] [--business-outcome <text>] [--api-base-url <url>] [--skip-must-questions] [--no-auto-execute], request create --from-file <path> [--request-id <id>], new <projectName>, explain-operator-model, roi export [--out <file.csv>] [--api-base-url <url>], roi board-pack [--format md|pdf] [--out <path>] [--api-base-url <url>], roi-bulletin --quarter <Q-YYYY> [--min-tenants <n>] [--out <file.md>] [--synthetic] [--explain], auth validate-saml --metadata <file.xml> --claim-mapping <file.json>, integration retry-dead-letter [--tenant-id <guid>] [--event-type <type>] | integration simulate-webhook --event-type <alias> --target-url <url>, compliance export-drift --start-date <utc> --end-date <utc> [--format csv|md], agent-eval rollup --from-json <agent-evaluation.json> [--json], real-llm-evidence summarize --from-json <path>, security-trust publish --kind pen-test --date <YYYY-MM-DD> --summary-url <URL> [--assessor <name>] [--assessment-code <code>] [--ui-base-url <url>], marketplace preflight [--repo <dir>], azure terraform-export --subscription <subId> --resource-group <name> --out <bundle.zip>, az-roles (--subscription|--scope, --assignee, [--shell bash|powershell|both]), az-token-test (ARCHLUCID_AZURE_TOKEN_TEST_SCOPE optional), manifest validate --file <path.json>, golden-cohort lock-baseline [--cohort <path>] [--write] | golden-cohort drift [--cohort <path>] [--strict-real] [--structural-only], templates list [--repo-root <dir>], first-value-report <runId> [--save], buyer-proof-pack <runId> --out <path.zip> [--repo-root <dir>], proof-packet --runId <runId> --out <path.zip>, sponsor-one-pager <runId> [--save], reference-evidence | proof-pack (--run or --tenant; same CLI), comparisons list [filters], comparisons replay <comparisonRecordId> [--format <f>] [--mode <m>] [--profile <p>] [--persist], cost-estimate [--live-pricing] <manifest.json|extractor.zip>, data-consistency orphans [--api-base-url <url>] | data-consistency remediate <target> [--execute] [--max-rows <n>] [--api-base-url <url>], health, validate-config, saml test-config, compliance-report [--out <file.md>] [--repo <dir>] [--with-live-audit], policy validate <file.json> | policy-pack validate <file.json>, pack export-scaffold [--output <path>] [--force], graph export <runId> [--format mermaid|graphml] [--decision <key>] [--out <path>], rules simulate --run <runGuid> [--severity Warning] [--count 3], webhooks test [--url <url>] [--secret <s>] [--payload <path>] [--help], config check [--no-api], config lint [--simulate-production] [--hosting-advisor], config bootstrap [--out <path>] [--force], doctor (or check), deployment-evidence --environment <staging|production|dev> --api-base-url <url> [--out <path>] [--repo <dir>] [--synthetic-path <path>] [--allow-missing-openapi], support-bundle [--output <dir>] [--zip], completions bash|zsh|powershell, pilot init | pilot success-criteria-template | pilot preflight | pilot proof | pilot proof-packet | pilot ship-gate-evidence | pilot frontier-ai-baseline | pilot itsm-pull-forward-gate | pilot citation-integrity | pilot tenant-isolation-negative-test | pilot return-trigger-telemetry | pilot buyer-proof-evidence-ledger | pilot decision-owner-scoreboard | pilot readiness-bundle. Global: --json for machine-readable output where supported. Set ARCHLUCID_API_URL or apiUrl in archlucid.json (example: https://staging.archlucid.net).";
 
         if (CliExecutionContext.JsonOutput)
 
@@ -711,10 +717,8 @@ public static class Program
     private static void WriteNewUsage()
     {
         string plain =
-            "Usage: archlucid new <projectName> [--quickstart]" + Environment.NewLine
-                                                                + "  --quickstart  Provision local/quickstart artifacts: SQLite CLI registry (local/archlucid-evaluation.sqlite) "
-                                                                + "and an appsettings fragment (local/archlucid.quickstart.appsettings.json) that sets "
-                                                                + "ArchLucid:StorageProvider=InMemory so hosts run without SQL Server for initial evaluation.";
+            "Usage: archlucid new <projectName>" + Environment.NewLine
+            + "  Creates archlucid.json, inputs/brief.md, outputs/, and docs/README.md in a new project folder.";
 
         if (CliExecutionContext.JsonOutput)
 
@@ -727,11 +731,9 @@ public static class Program
 
     private static bool TryParseNewCommandArgs(
         string[] args,
-        [NotNullWhen(true)] out string? projectName,
-        out bool quickStartEvaluation)
+        [NotNullWhen(true)] out string? projectName)
     {
         projectName = null;
-        quickStartEvaluation = false;
 
         if (args.Length == 0)
             return false;
@@ -740,13 +742,6 @@ public static class Program
 
         foreach (string arg in args)
         {
-            if (string.Equals(arg, "--quickstart", StringComparison.OrdinalIgnoreCase))
-            {
-                quickStartEvaluation = true;
-
-                continue;
-            }
-
             if (arg.StartsWith('-'))
                 return false;
 

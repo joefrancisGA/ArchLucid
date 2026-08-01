@@ -27,7 +27,7 @@ public sealed class ArchLucidApiClientTests
         {
             Environment.SetEnvironmentVariable("ARCHLUCID_API_URL", null);
             string result = ArchLucidApiClient.ResolveBaseUrl(null);
-            result.Should().Be("http://localhost:5128");
+            result.Should().Be(string.Empty);
         }
         finally
         {

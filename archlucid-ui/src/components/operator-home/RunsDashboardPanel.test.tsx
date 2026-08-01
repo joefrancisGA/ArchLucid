@@ -41,6 +41,7 @@ vi.mock("@/lib/demo-seeded-overview", async (importOriginal) => {
 
 import { listRunsByProjectPaged } from "@/lib/api";
 import {
+  BUYER_RUNS_DASHBOARD_NO_APPROVED_PACKAGES,
   BUYER_RUNS_DASHBOARD_OPEN_REVIEW_PACKAGES_CTA,
   OPERATOR_HOME_RECENT_REVIEWS_EXAMPLE_ONLY_OUTCOME,
   OPERATOR_HOME_WORKSPACE_EMPTY_BODY,
@@ -329,6 +330,7 @@ describe("RunsDashboardPanel", () => {
         createdUtc: "2026-01-15T12:00:00.000Z",
         hasFindingsSnapshot: true,
         hasGoldenManifest: true,
+        hasGovernanceWarnings: true,
       };
       listRuns.mockResolvedValue({
         items: [run],
@@ -363,6 +365,85 @@ describe("RunsDashboardPanel", () => {
       expect(screen.queryByTestId("runs-dashboard-open-review-packages")).toBeNull();
       expect(screen.queryByRole("link", { name: BUYER_RUNS_DASHBOARD_OPEN_REVIEW_PACKAGES_CTA })).toBeNull();
       expect(screen.queryByRole("link", { name: "All" })).toBeNull();
+    } finally {
+      runsDashBuyerPolishedForced.on = false;
+    }
+  });
+
+  it("buyer status pills use the same featured review card UX as All", async () => {
+    runsDashBuyerPolishedForced.on = true;
+
+    try {
+      const monitoredShowcase: RunSummary = {
+        runId: "claims-intake-modernization",
+        projectId: "default",
+        description: "Claims Intake sample",
+        createdUtc: "2026-01-15T12:00:00.000Z",
+        hasFindingsSnapshot: true,
+        hasGoldenManifest: true,
+        hasGovernanceWarnings: true,
+      };
+      listRuns.mockResolvedValue({
+        items: [monitoredShowcase],
+        totalCount: 1,
+        page: 1,
+        pageSize: 5,
+        hasMore: false,
+      });
+      stubFetchForDashboard();
+
+      renderRunsDashboardPanel();
+
+      expect(await screen.findByTestId("runs-dashboard-buyer-proof-summary")).toBeInTheDocument();
+
+      fireEvent.click(screen.getByTestId("runs-dashboard-filter-outcomes"));
+
+      const monitoringPanel = await screen.findByTestId("runs-dashboard-panel-outcomes");
+      expect(monitoringPanel).toBeInTheDocument();
+      expect(monitoringPanel.querySelector('[data-testid="runs-dashboard-buyer-proof-summary"]')).not.toBeNull();
+      expect(screen.queryByTestId("runs-dashboard-buyer-outcome-cards")).toBeNull();
+
+      fireEvent.click(screen.getByTestId("runs-dashboard-filter-approved"));
+
+      const approvedPanel = await screen.findByTestId("runs-dashboard-panel-approved");
+      expect(approvedPanel).toHaveTextContent(BUYER_RUNS_DASHBOARD_NO_APPROVED_PACKAGES);
+      expect(approvedPanel.querySelector('[data-testid="runs-dashboard-buyer-proof-summary"]')).toBeNull();
+    } finally {
+      runsDashBuyerPolishedForced.on = false;
+    }
+  });
+
+  it("buyer Approved pill shows the same featured card when the sample is clean-approved", async () => {
+    runsDashBuyerPolishedForced.on = true;
+
+    try {
+      const approvedShowcase: RunSummary = {
+        runId: "claims-intake-modernization",
+        projectId: "default",
+        description: "Claims Intake sample",
+        createdUtc: "2026-01-15T12:00:00.000Z",
+        hasFindingsSnapshot: true,
+        hasGoldenManifest: true,
+        hasGovernanceWarnings: false,
+      };
+      listRuns.mockResolvedValue({
+        items: [approvedShowcase],
+        totalCount: 1,
+        page: 1,
+        pageSize: 5,
+        hasMore: false,
+      });
+      stubFetchForDashboard();
+
+      renderRunsDashboardPanel();
+
+      expect(await screen.findByTestId("runs-dashboard-buyer-proof-summary")).toBeInTheDocument();
+
+      fireEvent.click(screen.getByTestId("runs-dashboard-filter-approved"));
+
+      const approvedPanel = await screen.findByTestId("runs-dashboard-panel-approved");
+      expect(approvedPanel.querySelector('[data-testid="runs-dashboard-buyer-proof-summary"]')).not.toBeNull();
+      expect(approvedPanel.querySelector('[data-testid="recent-runs-home-panel"]')).toBeNull();
     } finally {
       runsDashBuyerPolishedForced.on = false;
     }
@@ -425,16 +506,12 @@ describe("RunsDashboardPanel", () => {
     renderRunsDashboardPanel();
 
     await waitFor(() => {
-      expect(screen.getByRole("tab", { name: "All" })).toHaveAttribute("data-testid", "runs-dashboard-tab-all");
-      expect(screen.getByRole("tab", { name: "Approved" })).toHaveAttribute("data-testid", "runs-dashboard-tab-approved");
-      expect(screen.getByRole("tab", { name: "Action needed" })).toHaveAttribute(
-        "data-testid",
-        "runs-dashboard-tab-attention",
-      );
-      expect(screen.getByRole("tab", { name: "Approved with monitoring" })).toHaveAttribute(
-        "data-testid",
-        "runs-dashboard-tab-outcomes",
-      );
+      expect(screen.getByRole("group", { name: "Filter reviews" })).toBeInTheDocument();
+      expect(screen.queryByRole("tablist")).toBeNull();
+      expect(screen.getByTestId("runs-dashboard-filter-all")).toHaveAttribute("aria-pressed", "true");
+      expect(screen.getByTestId("runs-dashboard-filter-approved")).toBeInTheDocument();
+      expect(screen.getByTestId("runs-dashboard-filter-attention")).toBeInTheDocument();
+      expect(screen.getByTestId("runs-dashboard-filter-outcomes")).toBeInTheDocument();
       expect(screen.queryByTestId("runs-dashboard-view-all-reviews")).toBeNull();
       expect(screen.queryByTestId("runs-dashboard-show-archived")).toBeNull();
       expect(screen.queryByTestId("runs-dashboard-open-all-reviews")).toBeNull();

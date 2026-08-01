@@ -7,6 +7,10 @@ vi.mock("next/navigation", () => ({
   usePathname: () => "/settings/identity-providers",
 }));
 
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+}));
+
 vi.mock("./_sections/load-identity-providers-settings-page-data", () => ({
   loadIdentityProvidersSettingsPageData: () => Promise.resolve(hoistedIdentityProvidersLoad),
 }));
@@ -117,6 +121,9 @@ describe("IdentityProvidersSettingsPage", () => {
     render(page);
 
     expect(await screen.findByRole("heading", { name: IDENTITY_PROVIDERS_PAGE_TITLE })).toBeInTheDocument();
+    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+    expect(screen.getByTestId("identity-providers-refresh-button")).toBeInTheDocument();
+    expect(screen.getByTestId("identity-providers-last-refreshed")).toHaveTextContent(/Last refreshed:/i);
     expect(screen.getByTestId("identity-providers-settings-nav")).toBeInTheDocument();
     expect(screen.getByTestId("identity-providers-overview-summary")).toBeInTheDocument();
     expect(screen.getByTestId("identity-providers-recommended-next-card")).toBeInTheDocument();

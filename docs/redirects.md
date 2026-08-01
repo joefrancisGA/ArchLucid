@@ -422,6 +422,14 @@ Human readers and agents should follow **canonical** paths below. This file is t
 | `docs/archive/artifacts-phase3-2026-04-23/pr-a2-cohort-parity.md` | [`docs/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md`](runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md#pr-a2-cohort-parity-evidence) | Former archive PR A2 receipt → live parity runbook |
 | `docs/archive/artifacts-phase3-2026-04-23/PHASE3_EVIDENCE_SERIES_2026_04_23.md` | [`docs/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md`](runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md#phase-3-gate-status) | Consolidated Phase 3 evidence series deleted 2026-07-31; live gate table is the parity runbook |
 | `docs/archive/assessments/2026-05-21-LATEST-archive.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Point-in-time 2026-05-21 assessment snapshot deleted 2026-07-31; use live LATEST |
+| `docs/archive/assessments/2026-05-31-87.24-post-tier2-pre-explainability.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Point-in-time 87.24% assessment snapshot deleted 2026-07-31; use live LATEST |
+| `docs/archive/assessments/2026-05-31-88.04-pre-tier2.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Point-in-time 88.04% assessment snapshot deleted 2026-07-31; use live LATEST |
+| `docs/archive/assessments/2026-05-31-88.42-post-tier2.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Point-in-time 88.42% assessment snapshot deleted 2026-07-31; use live LATEST |
+| `docs/archive/assessments/2026-05-31-89.08-post-operator-security-layering.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Point-in-time 89.08% assessment snapshot deleted 2026-07-31; use live LATEST |
+| `docs/archive/assessments/2026-05-31-89.19-improvement-7-layering.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Point-in-time 89.19% assessment snapshot deleted 2026-07-31; use live LATEST |
+| `docs/archive/assessments/AI_AGENT_READINESS_06012026.MD` | [`docs/library/TECH_BACKLOG.md`](library/TECH_BACKLOG.md) | AI/Agent Readiness dimension assessment deleted 2026-07-31; TB-177–190 origin note remains in TECH_BACKLOG |
+| `docs/archive/assessments/ARCHIVE_2026_05_20_V4.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Point-in-time 93.07% assessment snapshot deleted 2026-08-01; use live LATEST |
+| `docs/archive/assessments/ARCHIVE_2026_05_22_V2.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Point-in-time 82.05% assessment snapshot deleted 2026-08-01; use live LATEST |
 
 ## 2026-07-22 assessment prompt consolidation
 

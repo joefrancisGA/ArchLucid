@@ -1,7 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import IntegrationsReadinessPage from "@/app/(operator)/integrations/readiness/page";
+import AdministrationConnectionStatusPage from "@/app/(operator)/administration/connection-status/page";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 vi.mock("@/components/integrations/ConnectorOperationsDashboard", () => ({
   ConnectorOperationsDashboard: () => <div data-testid="connector-operations-dashboard" />,
@@ -11,11 +12,13 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
 }));
 
-describe("IntegrationsReadinessPage", () => {
+describe("AdministrationConnectionStatusPage", () => {
   it("renders operational intro and contextual help without inline layer guidance", () => {
-    render(<IntegrationsReadinessPage />);
+    render(<AdministrationConnectionStatusPage />);
 
-    expect(screen.getByRole("heading", { name: "Integration readiness" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: OPERATOR_NAV_LINK_LABELS.integrationReadiness }),
+    ).toBeInTheDocument();
     expect(
       screen.getByText(/which notification, ticketing, publishing, and delivery integrations are configured/i),
     ).toBeInTheDocument();

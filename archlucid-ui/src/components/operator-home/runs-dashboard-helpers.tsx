@@ -48,6 +48,24 @@ export function isRunApprovedWithMonitoringPackage(run: RunSummary): boolean {
   return run.hasGoldenManifest === true && run.hasGovernanceWarnings === true;
 }
 
+/** Featured showcase card only when that run is in the active status filter. */
+export function resolveShowcaseDemoRunForItems(
+  items: readonly RunSummary[],
+  showcaseDemoRun: RunSummary | undefined,
+): RunSummary | undefined {
+  if (showcaseDemoRun === undefined) {
+    return undefined;
+  }
+
+  const showcaseRunId = showcaseDemoRun.runId;
+
+  if (items.some((run) => run.runId === showcaseRunId)) {
+    return showcaseDemoRun;
+  }
+
+  return undefined;
+}
+
 export function runsDashboardTabLabel(tabId: RunsDashboardTabId, buyerPolishedShell: boolean): string {
   if (buyerPolishedShell) {
     if (tabId === "all") {

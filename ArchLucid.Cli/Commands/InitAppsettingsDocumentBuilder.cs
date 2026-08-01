@@ -33,7 +33,7 @@ public static class InitAppsettingsDocumentBuilder
                 },
                 ["WriteTo"] = new JArray(new JObject { ["Name"] = "Console" }),
             },
-            ["Cors"] = new JObject { ["AllowedOrigins"] = new JArray("http://localhost:3000") },
+            ["Cors"] = new JObject { ["AllowedOrigins"] = new JArray("https://your-operator-ui.example.com") },
         };
 
         switch (answers.AuthKind)

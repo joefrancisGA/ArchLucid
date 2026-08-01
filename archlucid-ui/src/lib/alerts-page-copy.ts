@@ -7,6 +7,8 @@ export const BUYER_ALERTS_PAGE_SUBTITLE =
 
 export const ALERTS_LAYER_GUIDANCE_TRIGGER = "About alert triage";
 
+export const ALERTS_CONFIGURATION_LAYER_GUIDANCE_TRIGGER = "About alert rules";
+
 export const ALERTS_CONFIGURE_RULES_LINK_LABEL = "Configure alert rules";
 
 export function alertsPageSubtitle(buyerPolishedShell: boolean): string {
@@ -22,6 +24,29 @@ export const ALERTS_CONFIGURATION_PAGE_TITLE = "Alerts";
 
 export const ALERTS_CONFIGURATION_PAGE_SUBTITLE =
   "Configure which review conditions generate alerts and where notifications are delivered.";
+
+export const BUYER_ALERTS_CONFIGURATION_PAGE_SUBTITLE =
+  "Configure alert conditions and where notifications are delivered.";
+
+export const ALERTS_CONFIGURATION_PAGE_SUBTITLE_OPERATOR = ALERTS_CONFIGURATION_PAGE_SUBTITLE;
+
+export function alertsConfigurationPageSubtitle(buyerPolishedShell: boolean): string {
+  return buyerPolishedShell
+    ? BUYER_ALERTS_CONFIGURATION_PAGE_SUBTITLE
+    : ALERTS_CONFIGURATION_PAGE_SUBTITLE_OPERATOR;
+}
+
+export const ALERTS_CONFIGURATION_LAST_REFRESHED_PREFIX = "Last refreshed" as const;
+
+export const ALERTS_CONFIGURATION_ACTION_REFRESH = "Refresh" as const;
+
+export const ALERTS_CONFIGURATION_ACTION_REFRESHING = "Refreshing…" as const;
+
+export const ALERTS_CONFIGURATION_SCOPE_DETAILS_TRIGGER = "About alert configuration" as const;
+
+export const ALERTS_OPEN_INBOX_LINK_LABEL = "Open alert inbox" as const;
+
+export const ALERTS_OPEN_INBOX_LINK_HREF = "/governance/alerts" as const;
 
 export const ALERTS_RULES_PAGE_SUBTITLE = ALERTS_CONFIGURATION_PAGE_SUBTITLE;
 

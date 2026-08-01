@@ -166,9 +166,11 @@ const nextConfig: NextConfig = {
       { source: "/alerts", destination: "/governance/alert-rules", has: [{ type: "query", key: "tab", value: "simulation" }], permanent: false },
       { source: "/settings/webhooks", destination: "/integrations/webhooks", permanent: true },
       // ITSM legacy hub only — OAuth callback subpath must remain a real page (TB-1776).
-      { source: "/integrations/itsm", destination: "/integrations/readiness", permanent: true },
-      { source: "/integrations/operations", destination: "/integrations/readiness", permanent: true },
-      { source: "/integrations/operations/:path*", destination: "/integrations/readiness/:path*", permanent: true },
+      { source: "/integrations/itsm", destination: "/administration/connection-status", permanent: true },
+      { source: "/integrations/operations", destination: "/administration/connection-status", permanent: true },
+      { source: "/integrations/operations/:path*", destination: "/administration/connection-status/:path*", permanent: true },
+      { source: "/integrations/readiness", destination: "/administration/connection-status", permanent: true },
+      { source: "/integrations/readiness/:path*", destination: "/administration/connection-status/:path*", permanent: true },
       // Integrations route namespace reconciliation (TB-407).
       { source: "/settings/cloud-connections", destination: "/integrations/cloud-connections", permanent: true },
       { source: "/settings/cloud-connections/:path*", destination: "/integrations/cloud-connections/:path*", permanent: true },

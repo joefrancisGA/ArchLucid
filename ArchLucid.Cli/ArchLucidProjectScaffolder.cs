@@ -174,7 +174,7 @@ public static class ArchLucidProjectScaffolder
         ArchLucidCliConfig config = new()
         {
             ProjectName = projectName,
-            ApiUrl = "http://localhost:5128",
+            ApiUrl = string.Empty,
             Infra =
                 new InfraSection { Terraform = new TerraformSection { Enabled = false, Path = "infra/terraform" } },
             Architecture = new ArchitectureSection

@@ -7,6 +7,7 @@ import { GettingStartedSteps } from "@/components/GettingStartedSteps";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
+import { useOptionalAlertRulesHubRefresh } from "@/lib/alerts-hub-refresh-context";
 import { createCompositeAlertRule, listCompositeAlertRules } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -65,6 +66,7 @@ const DEDUPE = [
 
 export function CompositeAlertRulesContent() {
   const canMutateComposite = useOperateCapability();
+  const refreshContext = useOptionalAlertRulesHubRefresh();
   const [items, setItems] = useState<CompositeAlertRule[]>([]);
   const [loading, setLoading] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
@@ -101,6 +103,14 @@ export function CompositeAlertRulesContent() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  useEffect(() => {
+    if (refreshContext === null) {
+      return;
+    }
+
+    return refreshContext.registerTabLoader("composite", load);
+  }, [load, refreshContext]);
 
   async function onCreate() {
     if (!canMutateComposite) {

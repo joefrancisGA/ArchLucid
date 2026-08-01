@@ -12,6 +12,7 @@ export type FilterChipProps = {
   readonly "aria-label"?: string;
   readonly "aria-pressed"?: boolean | "true" | "false";
   readonly disabled?: boolean;
+  readonly "data-testid"?: string;
 };
 
 /**
@@ -23,7 +24,12 @@ export function FilterChip(props: FilterChipProps): ReactElement {
 
   if (props.href !== undefined && props.href.trim().length > 0) {
     return (
-      <Link href={props.href} className={shell} aria-label={props["aria-label"]}>
+      <Link
+        href={props.href}
+        className={shell}
+        aria-label={props["aria-label"]}
+        data-testid={props["data-testid"]}
+      >
         {props.children}
       </Link>
     );
@@ -37,6 +43,7 @@ export function FilterChip(props: FilterChipProps): ReactElement {
       aria-label={props["aria-label"]}
       aria-pressed={props["aria-pressed"]}
       disabled={props.disabled}
+      data-testid={props["data-testid"]}
     >
       {props.children}
     </button>

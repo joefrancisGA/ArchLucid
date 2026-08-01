@@ -375,7 +375,7 @@ internal sealed class ShipGateEvidenceRunner(
                 Name = "Operator UI does not break during first-review / demo path",
                 Verdict = ShipGateEvidenceVerdict.Unknown,
                 Evidence =
-                    $"{skipDetail}; omit --skip-ui-route-smoke to probe canonical routes (default http://localhost:3000, ARCHLUCID_UI_BASE_URL, archlucid.json uiUrl, or --ui-base-url).",
+                    $"{skipDetail}; omit --skip-ui-route-smoke to probe canonical routes (ARCHLUCID_UI_BASE_URL, archlucid.json uiUrl, or --ui-base-url).",
                 FastestResolution =
                     "Rerun without --skip-ui-route-smoke while the operator UI is reachable, or attach Playwright first-review smoke output separately.",
             };

@@ -150,8 +150,8 @@ vi.mock("@/components/operator-home/OperatorHomeDeferredPanels", async () => {
     }) => (
       <div data-testid="runs-dashboard-panel">
         {(initialModel?.items?.length ?? 0) > 0 ? (
-          <div data-testid="runs-dashboard-status-filters" role="tablist" aria-label="Review views">
-            <button type="button" role="tab" aria-selected data-testid="runs-dashboard-tab-all">
+          <div data-testid="runs-dashboard-status-filters" role="group" aria-label="Filter reviews">
+            <button type="button" aria-pressed="true" data-testid="runs-dashboard-filter-all">
               All
             </button>
           </div>
@@ -418,7 +418,7 @@ describe("HomePage (55R smoke — landing)", () => {
     await renderHomePage();
 
     await waitFor(() => {
-      expect(screen.getByTestId("runs-dashboard-tab-all")).toBeInTheDocument();
+      expect(screen.getByTestId("runs-dashboard-filter-all")).toBeInTheDocument();
     });
     expect(screen.queryByRole("link", { name: "Open all reviews" })).toBeNull();
   });

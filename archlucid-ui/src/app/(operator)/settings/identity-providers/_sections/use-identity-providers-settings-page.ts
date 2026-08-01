@@ -39,6 +39,9 @@ export type UseIdentityProvidersSettingsPageModel = {
   readonly samlOperationalHealthNote: string | null;
   readonly samlOperationalHealthLoaded: boolean;
   readonly dataLoaded: boolean;
+  readonly refreshing: boolean;
+  readonly lastRefreshedAt: Date | null;
+  readonly refresh: () => Promise<void>;
   readonly accessDenied: boolean;
   readonly overview: IdentityProvidersOverviewModel;
 };
@@ -55,6 +58,8 @@ export function useIdentityProvidersSettingsPage(
   const [rows, setRows] = useState<ConfigSummaryKeyRow[] | null>(null);
   const [note, setNote] = useState<string | null>(null);
   const [accessDenied, setAccessDenied] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(() => new Date());
 
   const [identityProviderDiagnostics, setIdentityProviderDiagnostics] =
     useState<AdminIdentityProviderDiagnosticsResponse | null>(null);
@@ -74,6 +79,7 @@ export function useIdentityProvidersSettingsPage(
   const [samlOperationalHealthLoaded, setSamlOperationalHealthLoaded] = useState(false);
 
   const load = useCallback(async () => {
+    setRefreshing(true);
     setNote(null);
     setRows(null);
     setAccessDenied(false);
@@ -185,6 +191,8 @@ export function useIdentityProvidersSettingsPage(
       setSamlOperationalHealth(null);
       setSamlOperationalHealthNote(IDENTITY_PROVIDERS_LOAD_ERROR_NOTE);
     } finally {
+      setRefreshing(false);
+      setLastRefreshedAt(new Date());
       setIdentityProviderDiagnosticsLoaded(true);
       setAuthConfigurationDiagnosticsLoaded(true);
       setOidcDiagnosticsLoaded(true);
@@ -228,6 +236,9 @@ export function useIdentityProvidersSettingsPage(
     samlOperationalHealthNote,
     samlOperationalHealthLoaded,
     dataLoaded,
+    refreshing,
+    lastRefreshedAt,
+    refresh: load,
     accessDenied,
     overview,
   };

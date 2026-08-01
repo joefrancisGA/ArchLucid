@@ -1339,7 +1339,7 @@
       "commercial_tier": "standard",
       "class_policy": "Authorize",
       "exemption": null,
-      "nav_operator_href": "/integrations/readiness"
+      "nav_operator_href": "/administration/connection-status"
     },
     {
       "controller_file": "Integrations/TenantItsmOutboundSettingsController.cs",
@@ -1349,7 +1349,7 @@
       "commercial_tier": "standard",
       "class_policy": "Authorize",
       "exemption": null,
-      "nav_operator_href": "/integrations/readiness"
+      "nav_operator_href": "/administration/connection-status"
     },
     {
       "controller_file": "Integrations/WebhookConnectionsController.cs",

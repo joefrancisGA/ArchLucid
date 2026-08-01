@@ -10,7 +10,7 @@ internal sealed record ShipGateUiBaseUrlResolution(string? BaseUrl, string Sourc
 
     internal const string ConfigSource = "archlucid.json";
 
-    internal const string DefaultSource = "default-localhost";
+    internal const string UnconfiguredSource = "unconfigured";
 }
 
 internal static class ShipGateUiBaseUrlResolver
@@ -51,9 +51,7 @@ internal static class ShipGateUiBaseUrlResolver
                 ShipGateUiBaseUrlResolution.ConfigSource);
         }
 
-        return new ShipGateUiBaseUrlResolution(
-            TryCommandOptions.DefaultUiBaseUrl,
-            ShipGateUiBaseUrlResolution.DefaultSource);
+        return new ShipGateUiBaseUrlResolution(null, ShipGateUiBaseUrlResolution.UnconfiguredSource);
     }
 
     private static bool HasFlag(IReadOnlyList<string> args, string flagName)

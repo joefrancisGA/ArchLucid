@@ -46,6 +46,10 @@ type PilotCommandCenterCardProps = {
   readonly openFindingsCount?: number;
   /** SSR/live signal that the workspace already has review packages. */
   readonly hasWorkspaceReviews?: boolean;
+  /** When the page header already carries the lead copy, omit the in-card tagline. */
+  readonly suppressLeadCopy?: boolean;
+  /** When the page header already exposes contextual help, omit the in-card help button. */
+  readonly showContextualHelp?: boolean;
 };
 
 /**

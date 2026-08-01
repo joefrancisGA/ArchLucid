@@ -20,7 +20,15 @@ describe("next.config integrations routes (TB-407 / TB-750)", () => {
       redirectRules?.find(
         (rule) =>
           rule.source === "/integrations/operations"
-          && rule.destination === "/integrations/readiness",
+          && rule.destination === "/administration/connection-status",
+      )?.permanent,
+    ).toBe(true);
+
+    expect(
+      redirectRules?.find(
+        (rule) =>
+          rule.source === "/integrations/readiness"
+          && rule.destination === "/administration/connection-status",
       )?.permanent,
     ).toBe(true);
   });
@@ -41,8 +49,8 @@ describe("next.config integrations routes (TB-407 / TB-750)", () => {
     expect(
       rewriteRules?.some(
         (rule) =>
-          rule.source === "/integrations/readiness"
-          || rule.source === "/integrations/readiness/:path*",
+          rule.source === "/administration/connection-status"
+          || rule.source === "/administration/connection-status/:path*",
       ),
     ).toBe(false);
   });

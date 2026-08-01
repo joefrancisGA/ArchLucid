@@ -1,0 +1,17 @@
+import { describe, expect, it } from "vitest";
+
+import {
+  BUYER_IDENTITY_PROVIDERS_PAGE_SUBTITLE,
+  IDENTITY_PROVIDERS_PAGE_SUBTITLE,
+  identityProvidersPageSubtitle,
+} from "@/lib/identity-providers-settings-copy";
+
+describe("identity-providers-settings-copy", () => {
+  it("uses shorter buyer identity providers subtitle", () => {
+    expect(identityProvidersPageSubtitle(true)).toBe(BUYER_IDENTITY_PROVIDERS_PAGE_SUBTITLE);
+    expect(identityProvidersPageSubtitle(false)).toBe(IDENTITY_PROVIDERS_PAGE_SUBTITLE);
+    expect(BUYER_IDENTITY_PROVIDERS_PAGE_SUBTITLE.length).toBeLessThan(
+      IDENTITY_PROVIDERS_PAGE_SUBTITLE.length,
+    );
+  });
+});

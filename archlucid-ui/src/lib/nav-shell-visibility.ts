@@ -55,7 +55,7 @@ const DEMO_MODE_OMIT_OPERATOR_HREFS = new Set<string>([
   "/governance",
   "/governance/setup",
   "/audit",
-  "/integrations/readiness",
+  "/administration/connection-status",
   "/integrations/operations",
   "/integrations/cloud-connections",
   "/integrations/webhooks",

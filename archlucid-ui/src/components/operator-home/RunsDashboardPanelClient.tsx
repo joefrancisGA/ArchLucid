@@ -14,12 +14,16 @@ import { RunsDashboardRecentTab } from "@/components/operator-home/RunsDashboard
 import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/operator-home-workspace-activity-context";
 import {
   isRunApprovedPackage,
+  isRunApprovedWithMonitoringPackage,
+  isRunNeedingAttention,
+  resolveShowcaseDemoRunForItems,
   runIsShowcaseHomeExampleStory,
   runSummaryHasArchivedField,
   runsDashboardTabLabel,
 } from "@/components/operator-home/runs-dashboard-helpers";
 import type { RunsDashboardLoadPhase, RunsDashboardTabId } from "@/components/operator-home/runs-dashboard-load-phase";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FilterChip } from "@/components/ui/filter-chip";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { listRunsByProjectPaged, restoreArchitectureRequest } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -313,6 +317,21 @@ export function RunsDashboardPanelClient({
     [filteredItems],
   );
 
+  const monitoringTabItems = useMemo(
+    () => filteredItems.filter(isRunApprovedWithMonitoringPackage),
+    [filteredItems],
+  );
+
+  const attentionTabItems = useMemo(
+    () => filteredItems.filter(isRunNeedingAttention),
+    [filteredItems],
+  );
+
+  const allTabShowcase = resolveShowcaseDemoRunForItems(filteredItems, showcaseDemoRun);
+  const approvedTabShowcase = resolveShowcaseDemoRunForItems(approvedTabItems, showcaseDemoRun);
+  const attentionTabShowcase = resolveShowcaseDemoRunForItems(attentionTabItems, showcaseDemoRun);
+  const monitoringTabShowcase = resolveShowcaseDemoRunForItems(monitoringTabItems, showcaseDemoRun);
+
   const runListError = phase === "error" && failure !== null && effectiveItems.length === 0;
   const showReviewFilters =
     effectiveItems.length > 0 && (phase === "ready" || phase === "error");
@@ -341,7 +360,11 @@ export function RunsDashboardPanelClient({
   const operatorStatusTabIds: readonly RunsDashboardTabId[] = ["all", "attention", "outcomes"];
   const statusTabIds = buyerPolishedShell ? buyerStatusTabIds : operatorStatusTabIds;
 
-  const isRecentListTab = tab === "all" || tab === "approved";
+  // Buyer status pills are all filtered review lists; operator keeps Outcomes as metrics.
+  const isRecentListTab =
+    tab === "all" ||
+    tab === "approved" ||
+    (buyerPolishedShell && (tab === "attention" || tab === "outcomes"));
 
   const recentReviewsOutcomeLine = useMemo(() => {
     if (phase !== "ready" && phase !== "error") {
@@ -354,13 +377,6 @@ export function RunsDashboardPanelClient({
 
     return formatOperatorHomeRecentReviewsOutcome(metrics, { exampleReviewOnly });
   }, [effectiveItems, phase]);
-
-  const buyerFilterPillClass = (active: boolean, disabled: boolean = false) =>
-    cn(
-      "inline-flex min-h-[22px] items-center rounded-full border px-3 py-1 transition-colors",
-      OPERATOR_TYPOGRAPHY.badge,
-      buyerFilterChipClass(active, disabled),
-    );
 
   const selectDashboardTab = (next: RunsDashboardTabId) => {
     setTab(next);
@@ -421,51 +437,70 @@ export function RunsDashboardPanelClient({
               </div>
               )}
               <div className={cn("flex flex-wrap items-center gap-2", buyerPolishedShell ? "" : OPERATOR_LAYOUT.inlineGap)}>
-                <TabsList
-                  aria-label={buyerPolishedShell ? "Review views" : "Review views"}
-                  data-testid="runs-dashboard-status-filters"
-                  className={cn(
-                    buyerPolishedShell ? "gap-1 border-0" : "-mb-px overflow-x-auto",
-                  )}
-                >
-                  {statusTabIds.map((id) => (
-                    <TabsTrigger
-                      key={id}
-                      value={id}
-                      data-testid={`runs-dashboard-tab-${id}`}
-                      className={
-                        buyerPolishedShell
-                          ? cn(
-                              buyerFilterPillClass(tab === id && !showArchived),
-                              "!mb-0 min-h-[22px] rounded-full border px-3 py-1 !border-b-2",
-                              OPERATOR_TYPOGRAPHY.badge,
-                            )
-                          : "shrink-0"
-                      }
-                    >
-                      {runsDashboardTabLabel(id, buyerPolishedShell)}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
-                {buyerPolishedShell && archivedFieldSupported ? (
-                  <button
-                    type="button"
-                    aria-pressed={showArchived}
-                    disabled={archivedFilterDisabled}
-                    data-testid="runs-dashboard-show-archived"
-                    onClick={() => {
-                      if (archivedFilterDisabled) {
-                        return;
-                      }
-
-                      setTab("all");
-                      setShowArchived(!showArchived);
-                    }}
-                    className={buyerFilterPillClass(showArchived, archivedFilterDisabled)}
+                {buyerPolishedShell ? (
+                  <div
+                    className="flex flex-wrap gap-1.5"
+                    role="group"
+                    aria-label="Filter reviews"
+                    data-testid="runs-dashboard-status-filters"
                   >
-                    Archived {archivedCount}
-                  </button>
-                ) : null}
+                    {statusTabIds.map((id) => {
+                      const label = runsDashboardTabLabel(id, buyerPolishedShell);
+                      const selected = tab === id && !showArchived;
+
+                      return (
+                        <FilterChip
+                          key={id}
+                          data-testid={`runs-dashboard-filter-${id}`}
+                          className={buyerFilterChipClass(selected, false)}
+                          aria-pressed={selected}
+                          aria-label={`Filter reviews: ${label}`}
+                          onClick={() => {
+                            selectDashboardTab(id);
+                          }}
+                        >
+                          {label}
+                        </FilterChip>
+                      );
+                    })}
+                    {archivedFieldSupported ? (
+                      <FilterChip
+                        data-testid="runs-dashboard-show-archived"
+                        className={buyerFilterChipClass(showArchived, archivedFilterDisabled)}
+                        aria-pressed={showArchived}
+                        aria-label={`Filter reviews: Archived ${archivedCount}`}
+                        disabled={archivedFilterDisabled}
+                        onClick={() => {
+                          if (archivedFilterDisabled) {
+                            return;
+                          }
+
+                          setTab("all");
+                          setShowArchived(!showArchived);
+                        }}
+                      >
+                        Archived {archivedCount}
+                      </FilterChip>
+                    ) : null}
+                  </div>
+                ) : (
+                  <TabsList
+                    aria-label="Review views"
+                    data-testid="runs-dashboard-status-filters"
+                    className="-mb-px overflow-x-auto"
+                  >
+                    {statusTabIds.map((id) => (
+                      <TabsTrigger
+                        key={id}
+                        value={id}
+                        data-testid={`runs-dashboard-tab-${id}`}
+                        className="shrink-0"
+                      >
+                        {runsDashboardTabLabel(id, buyerPolishedShell)}
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+                )}
               </div>
               <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-neutral-600 dark:text-neutral-400")}>
                 {isRecentListTab
@@ -473,15 +508,13 @@ export function RunsDashboardPanelClient({
                     ? BUYER_RUNS_DASHBOARD_RECENT_SUMMARY
                     : RUNS_DASHBOARD_LABELS.recentSummary
                   : null}
-                {tab === "attention"
+                {!isRecentListTab && tab === "attention"
                   ? buyerPolishedShell
                     ? RUNS_DASHBOARD_LABELS.attentionSummaryBuyer
                     : RUNS_DASHBOARD_LABELS.attentionSummary
                   : null}
-                {tab === "outcomes"
-                  ? buyerPolishedShell && showcaseDemoRun !== undefined
-                    ? "Representative governance posture for this workspace."
-                    : "Reviews finalized, findings surfaced, and average time to finalization."
+                {!isRecentListTab && tab === "outcomes"
+                  ? "Reviews finalized, findings surfaced, and average time to finalization."
                   : null}
               </p>
             </CardHeader>
@@ -509,9 +542,9 @@ export function RunsDashboardPanelClient({
                 filteredItems={filteredItems}
                 effectiveItems={effectiveItems}
                 buyerPolishedShell={buyerPolishedShell}
-                showcaseDemoRun={showcaseDemoRun}
-                showcasePrimaryCta={showcasePrimaryCta}
-                buyerSafeHighlight={buyerSafeHighlight}
+                showcaseDemoRun={allTabShowcase}
+                showcasePrimaryCta={allTabShowcase !== undefined ? showcasePrimaryCta : null}
+                buyerSafeHighlight={allTabShowcase !== undefined && buyerSafeHighlight}
                 showArchived={showArchived}
                 archivedFieldSupported={archivedFieldSupported}
                 restoreBusyRequestId={restoreBusyRequestId}
@@ -530,9 +563,9 @@ export function RunsDashboardPanelClient({
                 filteredItems={approvedTabItems}
                 effectiveItems={effectiveItems}
                 buyerPolishedShell={buyerPolishedShell}
-                showcaseDemoRun={undefined}
-                showcasePrimaryCta={null}
-                buyerSafeHighlight={false}
+                showcaseDemoRun={approvedTabShowcase}
+                showcasePrimaryCta={approvedTabShowcase !== undefined ? showcasePrimaryCta : null}
+                buyerSafeHighlight={approvedTabShowcase !== undefined && buyerSafeHighlight}
                 showArchived={showArchived}
                 archivedFieldSupported={archivedFieldSupported}
                 restoreBusyRequestId={restoreBusyRequestId}
@@ -545,16 +578,60 @@ export function RunsDashboardPanelClient({
             </TabsContent>
 
             <TabsContent value="attention" className="pt-0" data-testid="runs-dashboard-panel-attention">
-              <RunsDashboardAttentionTab
-                phase={phase}
-                failure={failure}
-                runListError={runListError}
-                filteredItems={filteredItems}
-              />
+              {buyerPolishedShell ? (
+                <RunsDashboardRecentTab
+                  phase={phase}
+                  failure={failure}
+                  runListError={runListError}
+                  filteredItems={attentionTabItems}
+                  effectiveItems={effectiveItems}
+                  buyerPolishedShell={buyerPolishedShell}
+                  showcaseDemoRun={attentionTabShowcase}
+                  showcasePrimaryCta={attentionTabShowcase !== undefined ? showcasePrimaryCta : null}
+                  buyerSafeHighlight={attentionTabShowcase !== undefined && buyerSafeHighlight}
+                  showArchived={showArchived}
+                  archivedFieldSupported={archivedFieldSupported}
+                  restoreBusyRequestId={restoreBusyRequestId}
+                  contentTestId="runs-dashboard-tab-attention"
+                  statusFilterEmptyMessage={RUNS_DASHBOARD_LABELS.noReviewsNeedAttention}
+                  onRestoreArchivedRequest={(requestId) => {
+                    void restoreArchivedRequest(requestId);
+                  }}
+                />
+              ) : (
+                <RunsDashboardAttentionTab
+                  phase={phase}
+                  failure={failure}
+                  runListError={runListError}
+                  filteredItems={filteredItems}
+                />
+              )}
             </TabsContent>
 
             <TabsContent value="outcomes" className="pt-0" data-testid="runs-dashboard-panel-outcomes">
-              <RunsDashboardOutcomesTab buyerPolishedShell={buyerPolishedShell} showcaseDemoRun={showcaseDemoRun} />
+              {buyerPolishedShell ? (
+                <RunsDashboardRecentTab
+                  phase={phase}
+                  failure={failure}
+                  runListError={runListError}
+                  filteredItems={monitoringTabItems}
+                  effectiveItems={effectiveItems}
+                  buyerPolishedShell={buyerPolishedShell}
+                  showcaseDemoRun={monitoringTabShowcase}
+                  showcasePrimaryCta={monitoringTabShowcase !== undefined ? showcasePrimaryCta : null}
+                  buyerSafeHighlight={monitoringTabShowcase !== undefined && buyerSafeHighlight}
+                  showArchived={showArchived}
+                  archivedFieldSupported={archivedFieldSupported}
+                  restoreBusyRequestId={restoreBusyRequestId}
+                  contentTestId="runs-dashboard-tab-outcomes"
+                  statusFilterEmptyMessage={BUYER_RUNS_DASHBOARD_NO_APPROVED_PACKAGES}
+                  onRestoreArchivedRequest={(requestId) => {
+                    void restoreArchivedRequest(requestId);
+                  }}
+                />
+              ) : (
+                <RunsDashboardOutcomesTab buyerPolishedShell={buyerPolishedShell} showcaseDemoRun={showcaseDemoRun} />
+              )}
             </TabsContent>
           </CardContent>
         </Card>

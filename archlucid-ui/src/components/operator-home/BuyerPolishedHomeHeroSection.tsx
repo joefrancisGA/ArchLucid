@@ -7,7 +7,7 @@ export function BuyerPolishedHomeHeroSection(): React.JSX.Element {
       aria-label="Overview command center"
       data-testid="operator-home-hero-section"
     >
-      <PilotCommandCenterCard />
+      <PilotCommandCenterCard suppressLeadCopy showContextualHelp={false} />
     </section>
   );
 }

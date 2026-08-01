@@ -17,12 +17,12 @@ describe("OperateIntegrationsNavGroupBuilder", () => {
   it("omits connector readiness from Integrations — surfaced in Administration (TB-647)", () => {
     const group = new OperateIntegrationsNavGroupBuilder().build();
 
-    expect(group.links.some((link) => link.href === "/integrations/readiness")).toBe(false);
+    expect(group.links.some((link) => link.href === "/administration/connection-status")).toBe(false);
   });
 
   it("labels integration readiness nav as Connection status in Administration (TB-530)", () => {
     const group = new OperatorAdminNavGroupBuilder().build();
-    const readinessLink = group.links.find((link) => link.href === "/integrations/readiness");
+    const readinessLink = group.links.find((link) => link.href === "/administration/connection-status");
 
     expect(readinessLink?.label).toBe("Connection status");
   });
