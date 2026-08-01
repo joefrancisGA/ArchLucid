@@ -1,13 +1,11 @@
 import type { Page } from "@playwright/test";
 
-/** Legacy bookmark paths → URL pattern after HTTP or App Router redirect (see next.config.ts + page.tsx shims). */
+/**
+ * Remaining rename redirects that screenshot harness may still hit.
+ * Pre-release bookmark shims (advisory, digests, settings alerts, etc.) were retired.
+ */
 export const SCREENSHOT_LEGACY_REDIRECT_URL_PATTERNS: Readonly<Record<string, RegExp>> = {
-  "/advisory": /\/governance\/advisory-scans(?:\?[^#]*)?(?:$|#)/,
-  "/advisory-scheduling": /\/governance\/advisory-scans\?tab=schedules(?:&[^#]*)?(?:$|#)/,
-  "/governance/first-30-days": /\/governance\/setup(?:\?[^#]*)?(?:$|#)/,
-  "/digest-subscriptions": /\/digests\?tab=subscriptions(?:&[^#]*)?(?:$|#)/,
   "/audit": /\/governance\/audit(?:\?|$|#)/,
-  // Bare `/alerts` inbox bookmark → `/governance/alerts` (tab deep-links may land on alert-rules; see next.config.ts).
   "/alerts": /\/governance\/(?:alerts|alert-rules)(?:\?|$|#)/,
   "/governance-resolution": /\/governance\/resolution(?:\?|$|#)/,
 };
@@ -17,8 +15,7 @@ const DEMO_RUN_ALIAS_CANONICAL_PATTERN =
   /\/reviews\/claims-intake-modernization(?:\/|$|\?|#)/;
 
 /**
- * Wait until navigation settles on the canonical URL for legacy shims and `/runs` → `/reviews` renames.
- * Uses `load`/`commit` friendly checks so standalone Next does not race App Router `redirect()`.
+ * Wait until navigation settles on the canonical URL for remaining rename redirects and `/runs` → `/reviews`.
  */
 export async function waitForScreenshotLegacyRedirects(page: Page, href: string): Promise<void> {
   const pathOnly = href.split("?", 1)[0] ?? href;

@@ -1,12 +1,16 @@
-import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
-import { SPONSOR_REPORT_SECTION_LABEL } from "@/lib/sponsor-report-navigation";
-import { compareRunBuyerDisplayLabel } from "@/lib/compare-run-display-label";
+import {
+  ARCHITECTURE_DRAFTS_LIST_LABEL,
+  CREATE_ARCHITECTURE_LABEL,
+} from "@/lib/architecture-workflow-labels";
 import {
   ARCHITECTURES_LIST_PATH,
   ARCHITECTURES_NEW_PATH,
   parseArchitectureDraftIdFromPath,
 } from "@/lib/architecture-routes";
+import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
+import { compareRunBuyerDisplayLabel } from "@/lib/compare-run-display-label";
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
+import { SPONSOR_REPORT_SECTION_LABEL } from "@/lib/sponsor-report-navigation";
 import { resolvePolicyPackDetailBreadcrumbLabel } from "@/lib/policy-pack-detail-resolver";
 import { ITSM_CONNECTORS_ADMIN_LABEL, ITSM_CONNECTORS_ADMIN_PATH } from "@/lib/itsm-connectors-admin-scope";
 import { GOVERNANCE_ALERT_RULES_PATH, GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";

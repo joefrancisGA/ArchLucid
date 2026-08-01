@@ -3,7 +3,6 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { governanceAlertRulesTabHref, LEGACY_ALERT_ROUTING_PATH } from "@/lib/governance-route-paths";
 import {
   hrefTargetsPermanentRedirectSource,
   NEXT_CONFIG_PERMANENT_REDIRECT_SOURCE_PATHS,
@@ -11,24 +10,22 @@ import {
 
 import nextConfig from "../../next.config";
 
-const LEGACY_ALERT_ROUTING_APP_DIR = join(process.cwd(), "src", "app", "(operator)", "alert-routing");
+const RETIRED_ALERT_ROUTING_PATH = "/alert-routing";
+const RETIRED_APP_DIR = join(process.cwd(), "src", "app", "(operator)", "alert-routing");
 
-describe("alert-routing legacy route (TB-1441 / TB-1442)", () => {
-  it("redirects via next.config only to Alert rules Routing tab", async () => {
+describe("alert-routing retired route (pre-release prune)", () => {
+  it("does not ship a next.config redirect", async () => {
     const redirectRules = await nextConfig.redirects?.();
-    const rule = redirectRules?.find((entry) => entry.source === LEGACY_ALERT_ROUTING_PATH);
 
-    expect(rule?.destination).toBe(governanceAlertRulesTabHref("routing"));
-    expect(rule?.permanent).toBe(true);
+    expect(redirectRules?.find((entry) => entry.source === RETIRED_ALERT_ROUTING_PATH)).toBeUndefined();
   });
 
-  it("lists /alert-routing among permanent redirect sources (TB-1442)", () => {
-    expect(NEXT_CONFIG_PERMANENT_REDIRECT_SOURCE_PATHS).toContain(LEGACY_ALERT_ROUTING_PATH);
-    expect(hrefTargetsPermanentRedirectSource(LEGACY_ALERT_ROUTING_PATH)).toBe(true);
+  it("is not listed among permanent redirect sources", () => {
+    expect(NEXT_CONFIG_PERMANENT_REDIRECT_SOURCE_PATHS).not.toContain(RETIRED_ALERT_ROUTING_PATH);
+    expect(hrefTargetsPermanentRedirectSource(RETIRED_ALERT_ROUTING_PATH)).toBe(false);
   });
 
-  it("does not ship an App Router stub page or force-dynamic layout", () => {
-    expect(existsSync(join(LEGACY_ALERT_ROUTING_APP_DIR, "page.tsx"))).toBe(false);
-    expect(existsSync(join(LEGACY_ALERT_ROUTING_APP_DIR, "layout.tsx"))).toBe(false);
+  it("does not ship an App Router stub", () => {
+    expect(existsSync(join(RETIRED_APP_DIR, "page.tsx"))).toBe(false);
   });
 });

@@ -566,12 +566,7 @@ Legacy bookmarks **`/runs/*`** permanently redirect to **`/reviews/*`** — clea
 | Legacy route | Redirects to |
 |--------------|--------------|
 | `/runs`, `/runs/*` | `/reviews`, `/reviews/*` |
-| `/getting-started`, `/onboarding/start`, `/onboard` | `/onboarding` (query preserved) |
-| `/quick-start` | `/get-started` (query preserved) |
-| `/advisory-scheduling` | `/advisory?tab=schedules` |
-| `/digest-subscriptions` | `/digests?tab=subscriptions` |
 | `/governance/policy-packs` (list) | `/policy-packs` |
-| `/operate/architecture-graph` | `/graph` (query preserved) |
 
 ---
 

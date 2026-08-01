@@ -459,6 +459,11 @@ Human readers and agents should follow **canonical** paths below. This file is t
 | `docs/archive/assessments/ARCHLUCID_ASSESSMENT_WEIGHTED_READINESS_2026_05_02_SESSION_INDEPENDENT_74_27.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Session-independent weighted readiness 74.27% deleted 2026-08-01; use live LATEST |
 | `docs/archive/assessments/ARCHLUCID_ASSESSMENT_WEIGHTED_READINESS_2026_05_03_INDEPENDENT.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Independent weighted readiness 68.80% (2026-05-03) deleted 2026-08-01; use live LATEST |
 | `docs/archive/assessments/ARCHLUCID_ASSESSMENT_WEIGHTED_READINESS_2026_05_04_FIRST_PRINCIPLES.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | First-principles weighted readiness 70.21% (2026-05-04) deleted 2026-08-01; use live LATEST |
+| `docs/archive/assessments/ARCHLUCID_ASSESSMENT_WEIGHTED_READINESS_2026_05_05_FIRST_PRINCIPLES.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | First-principles weighted readiness 79.35% (2026-05-05) deleted 2026-08-01; use live LATEST |
+| `docs/archive/assessments/ARCHLUCID_ASSESSMENT_WEIGHTED_READINESS_2026_05_05_INDEPENDENT.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Independent weighted readiness 75.54% (2026-05-05) deleted 2026-08-01; use live LATEST |
+| `docs/archive/assessments/ARCHLUCID_ASSESSMENT_WEIGHTED_READINESS_2026_05_06_FIRST_PRINCIPLES_73_67.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | First-principles weighted readiness 73.67% (2026-05-06) deleted 2026-08-01; use live LATEST |
+| `docs/archive/assessments/ArchLucid_Assessment_Weighted_Readiness_2026_05_06_First_Principles_78_07.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | First-principles weighted readiness 78.07% (2026-05-06) deleted 2026-08-01; use live LATEST |
+| `docs/archive/assessments/ArchLucid_Assessment_Weighted_Readiness_2026_05_06_INDEPENDENT.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Independent weighted readiness 81.55% (2026-05-06) deleted 2026-08-01; use live LATEST |
 
 ## 2026-07-22 assessment prompt consolidation
 

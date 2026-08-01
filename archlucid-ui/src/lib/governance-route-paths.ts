@@ -18,7 +18,7 @@ export const LEGACY_AUDIT_PATH = "/audit";
 
 export const LEGACY_ALERTS_PATH = "/alerts";
 
-/** Legacy alert routing path — permanent redirect to alert-rules Routing tab (TB-1442). */
+/** Retired pre-release path — no redirect; use alert-rules Routing tab. */
 export const LEGACY_ALERT_ROUTING_PATH = "/alert-routing";
 
 export function pathMatchesRoutePrefix(pathname: string, prefix: string): boolean {

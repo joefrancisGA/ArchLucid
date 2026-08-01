@@ -1,6 +1,4 @@
-import { AI_USAGE_LEGACY_ADMIN_PATH } from "@/lib/ai-usage-nav-paths";
 import {
-  LEGACY_ALERT_ROUTING_PATH,
   LEGACY_ALERTS_PATH,
   LEGACY_AUDIT_PATH,
   LEGACY_GOVERNANCE_RESOLUTION_PATH,
@@ -17,6 +15,7 @@ import {
 /**
  * Base path prefixes for `permanent: true` redirects in `next.config.ts`.
  * Keep in sync when adding customer-facing redirect sources.
+ * Pre-release legacy bookmark shims (alert-routing, digests, advisory, quick-start, etc.) were retired.
  */
 export const NEXT_CONFIG_PERMANENT_REDIRECT_SOURCE_PATHS: readonly string[] = [
   "/runs",
@@ -25,11 +24,8 @@ export const NEXT_CONFIG_PERMANENT_REDIRECT_SOURCE_PATHS: readonly string[] = [
   LEGACY_GOVERNANCE_RESOLUTION_PATH,
   LEGACY_AUDIT_PATH,
   LEGACY_ALERTS_PATH,
-  LEGACY_ALERT_ROUTING_PATH,
   "/settings/webhooks",
   LEGACY_CLOUD_CONNECTIONS_PATH,
-  AI_USAGE_LEGACY_ADMIN_PATH,
-  "/settings/cost-reporting",
   LEGACY_WORKSPACE_SECURITY_TRUST_PATH,
   LEGACY_ADMIN_USERS_PATH,
   LEGACY_ADMIN_SUPPORT_PATH,

@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 
 import { describe, expect, it } from "vitest";
@@ -25,21 +25,12 @@ describe("marketing-surface-hygiene (TB-736)", () => {
     expect(MARKETING_SITEMAP_PATHNAMES).toContain("/get-started");
   });
 
-  it("permanently redirects /quick-start to /get-started", () => {
-    const nextConfig = readFileSync(join(REPO_ROOT, "archlucid-ui/next.config.ts"), "utf8");
+  it("does not ship /quick-start redirect or competing marketing UI", () => {
+    const nextConfigText = readFileSync(join(REPO_ROOT, "archlucid-ui/next.config.ts"), "utf8");
 
-    expect(nextConfig).toContain('source: "/quick-start"');
-    expect(nextConfig).toContain('destination: "/get-started"');
-    expect(nextConfig).toContain("permanent: true");
-  });
-
-  it("keeps /quick-start as redirect-only without competing marketing UI (TB-1820)", () => {
-    const pageSource = readFileSync(QUICK_START_APP_PAGE, "utf8");
-
-    expect(pageSource).toContain("permanentRedirect(");
-    expect(pageSource).toContain("buildQuickStartRedirectPath");
-    expect(pageSource).not.toContain("QuickStartClient");
-    expect(() => readFileSync(QUICK_START_CLIENT, "utf8")).toThrow();
+    expect(nextConfigText).not.toContain('source: "/quick-start"');
+    expect(existsSync(QUICK_START_APP_PAGE)).toBe(false);
+    expect(existsSync(QUICK_START_CLIENT)).toBe(false);
   });
 
   it("documents banned internal marketing link patterns for regression clarity", () => {

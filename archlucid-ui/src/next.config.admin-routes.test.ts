@@ -58,15 +58,9 @@ describe("next.config administration routes (TB-406 / TB-522 / TB-751)", () => {
     ).toBe(false);
   });
 
-  it("keeps temporary redirect for legacy recommendation learning URL", async () => {
+  it("does not ship a redirect for retired /recommendation-learning bookmark", async () => {
     const redirectRules = await nextConfig.redirects?.();
 
-    expect(
-      redirectRules?.find(
-        (rule) =>
-          rule.source === "/recommendation-learning"
-          && rule.destination === "/internal-operations/recommendation-learning",
-      )?.permanent,
-    ).toBe(false);
+    expect(redirectRules?.find((rule) => rule.source === "/recommendation-learning")).toBeUndefined();
   });
 });

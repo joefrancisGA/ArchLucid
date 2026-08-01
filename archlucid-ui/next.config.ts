@@ -142,27 +142,6 @@ const nextConfig: NextConfig = {
       { source: "/alerts", destination: "/governance/alerts", permanent: true },
       { source: "/alerts/:path*", destination: "/governance/alerts/:path*", permanent: true },
       { source: "/alert-rules", destination: "/governance/alert-rules", permanent: false },
-      // Alert routing legacy path (TB-1441) — next.config-only; no App Router stub pages.
-      { source: "/alert-routing", destination: "/governance/alert-rules?tab=routing", permanent: true },
-      // Advisory scans under Governance (TB-1124) — next.config-only; no App Router stub pages.
-      { source: "/advisory", destination: "/governance/advisory-scans", permanent: true },
-      { source: "/advisory/:path*", destination: "/governance/advisory-scans/:path*", permanent: true },
-      { source: "/advisory-scheduling", destination: "/governance/advisory-scans?tab=schedules", permanent: true },
-      // Governance setup (TB-1134) — next.config-only; no App Router stub pages.
-      { source: "/governance/first-30-days", destination: "/governance/setup", permanent: true },
-      { source: "/governance/first-30-days/:path*", destination: "/governance/setup/:path*", permanent: true },
-      { source: "/digest-subscriptions", destination: "/digests?tab=subscriptions", permanent: true },
-      { source: "/composite-alert-rules", destination: "/governance/alert-rules?tab=composite", permanent: false },
-      { source: "/alert-simulation", destination: "/governance/alert-rules?tab=simulation", permanent: false },
-      { source: "/alert-tuning", destination: "/governance/alert-rules?tab=simulation", permanent: false },
-      { source: "/governance/alerts", destination: "/governance/alert-rules", has: [{ type: "query", key: "tab", value: "rules" }], permanent: false },
-      { source: "/governance/alerts", destination: "/governance/alert-rules", has: [{ type: "query", key: "tab", value: "routing" }], permanent: false },
-      { source: "/governance/alerts", destination: "/governance/alert-rules", has: [{ type: "query", key: "tab", value: "composite" }], permanent: false },
-      { source: "/governance/alerts", destination: "/governance/alert-rules", has: [{ type: "query", key: "tab", value: "simulation" }], permanent: false },
-      { source: "/alerts", destination: "/governance/alert-rules", has: [{ type: "query", key: "tab", value: "rules" }], permanent: false },
-      { source: "/alerts", destination: "/governance/alert-rules", has: [{ type: "query", key: "tab", value: "routing" }], permanent: false },
-      { source: "/alerts", destination: "/governance/alert-rules", has: [{ type: "query", key: "tab", value: "composite" }], permanent: false },
-      { source: "/alerts", destination: "/governance/alert-rules", has: [{ type: "query", key: "tab", value: "simulation" }], permanent: false },
       { source: "/settings/webhooks", destination: "/integrations/webhooks", permanent: true },
       // Integrations route namespace reconciliation (TB-407).
       // Pre-release: former /integrations/itsm hub, /integrations/operations, and
@@ -171,9 +150,6 @@ const nextConfig: NextConfig = {
 
       { source: "/settings/cloud-connections", destination: "/integrations/cloud-connections", permanent: true },
       { source: "/settings/cloud-connections/:path*", destination: "/integrations/cloud-connections/:path*", permanent: true },
-      { source: "/admin/ai-usage-cost", destination: "/settings/ai-usage", permanent: true },
-      { source: "/settings/cost-reporting", destination: "/settings/ai-usage", permanent: true },
-      { source: "/settings/cost-reporting/:path*", destination: "/settings/ai-usage/:path*", permanent: true },
       // Administration route namespace reconciliation (TB-406).
       { source: "/workspace/security-trust", destination: "/settings/security-trust", permanent: true },
       { source: "/workspace/security-trust/:path*", destination: "/settings/security-trust/:path*", permanent: true },
@@ -198,15 +174,6 @@ const nextConfig: NextConfig = {
       { source: "/help/cloud-connections-azure", destination: "/help/cloud-connections/azure", permanent: true },
       { source: "/help/cloud-connections-aws", destination: "/help/cloud-connections/aws", permanent: true },
       { source: "/help/cloud-connections-gcp", destination: "/help/cloud-connections/gcp", permanent: true },
-      // Marketing first-run consolidation (TB-736) — single public CTA at /get-started.
-      { source: "/quick-start", destination: "/get-started", permanent: true },
-      { source: "/quick-start/:path*", destination: "/get-started", permanent: true },
-      // Internal Operations — recommendation learning canonical route (temporary during migration).
-      {
-        source: "/recommendation-learning",
-        destination: "/internal-operations/recommendation-learning",
-        permanent: false,
-      },
     ];
   },
   async rewrites() {
