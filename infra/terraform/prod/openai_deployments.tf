@@ -1,4 +1,4 @@
-# Azure OpenAI model deployments (TB-093) — GPT-5.6 Luna / Terra / Sol tier stack.
+# Azure OpenAI model deployments (TB-093).
 resource "azurerm_cognitive_deployment" "chat" {
   count = var.openai_compose_mode == "create" && var.openai_enable_chat_deployment ? 1 : 0
 
@@ -12,44 +12,8 @@ resource "azurerm_cognitive_deployment" "chat" {
   }
 
   sku {
-    name     = var.openai_chat_sku_name
+    name     = "Standard"
     capacity = var.openai_chat_capacity
-  }
-}
-
-resource "azurerm_cognitive_deployment" "economy" {
-  count = var.openai_compose_mode == "create" && var.openai_enable_economy_deployment ? 1 : 0
-
-  name                 = var.openai_economy_deployment_name
-  cognitive_account_id = azurerm_cognitive_account.openai[0].id
-
-  model {
-    format  = "OpenAI"
-    name    = var.openai_economy_model_name
-    version = var.openai_economy_model_version
-  }
-
-  sku {
-    name     = var.openai_chat_sku_name
-    capacity = var.openai_economy_capacity
-  }
-}
-
-resource "azurerm_cognitive_deployment" "premium" {
-  count = var.openai_compose_mode == "create" && var.openai_enable_premium_deployment ? 1 : 0
-
-  name                 = var.openai_premium_deployment_name
-  cognitive_account_id = azurerm_cognitive_account.openai[0].id
-
-  model {
-    format  = "OpenAI"
-    name    = var.openai_premium_model_name
-    version = var.openai_premium_model_version
-  }
-
-  sku {
-    name     = var.openai_chat_sku_name
-    capacity = var.openai_premium_capacity
   }
 }
 

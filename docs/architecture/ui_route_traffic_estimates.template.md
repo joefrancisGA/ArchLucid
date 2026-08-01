@@ -160,6 +160,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | AFX | `/admin/fleet-llm-cogs` | 0.05% | 0 | 0 | 5 | Admin | None |
 | APX | `/admin/pricing-quote-aging` | 0.05% | 0 | 0 | 5 | Admin | None |
 | ATD | `/admin/trial-funnel` | 0.05% | 0 | 0 | 5 | Admin | None |
+| AIN | `/architecture-intelligence` | 0.05% | 0 | 0 | 5 | Marketing | None |
 | DIG | `/digest-subscriptions` | 0.05% | 0 | 0 | 5 | Digests | None |
 | GXX | `/get-started` | 0.05% | 0 | 0 | 5 | Marketing | None |
 | HSX | `/help/scope` | 0.05% | 0 | 0 | 5 | Help topic | None |
@@ -189,7 +190,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | ASU | `/auth/session-expired` | 0.03% | 0 | 0 | 3 | Auth | None |
 | DEX | `/demo/explain` | 0.03% | 0 | 0 | 3 | Learning | None |
 | CON | `/help/configuration-reference` | 0.03% | 0 | 0 | 3 | Help topic | None |
-| COR | `/help/core-pilot` | 0.03% | 0 | 0 | 3 | Help topic | None |
+| COR | `/help/core-pilot` | 0.03% | 0 | 0 | 3 | Help alias | None |
 | HEX | `/help/enterprise-onboarding` | 0.03% | 0 | 0 | 3 | Help topic | None |
 | HEE | `/help/evaluator-workbook` | 0.03% | 0 | 0 | 3 | Help topic | None |
 | EVI | `/help/evidence-intake` | 0.03% | 0 | 0 | 3 | Help topic | None |
@@ -205,7 +206,6 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | ADD | `/admin/demo-readiness` | 0.02% | 0 | 0 | 2 | Admin | None |
 | ADE | `/admin/deployment-status` | 0.02% | 0 | 0 | 2 | Admin | None |
 | AR | `/architectures` | 0.02% | 0 | 0 | 2 | Core review | None |
-| AIN | `/architecture-intelligence` | 0.05% | 0 | 0 | 5 | Core review | None |
 | ARA | `/architectures/[architectureId]` | 0.02% | 0 | 0 | 2 | Core review | None |
 | ARN | `/architectures/new` | 0.02% | 0 | 0 | 2 | Core review | None |
 | AUB | `/auth/bootstrap` | 0.02% | 0 | 0 | 2 | Auth | None |
@@ -215,7 +215,6 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | DIS | `/digests?tab=schedule` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | DIX | `/digests?tab=subscriptions` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | EXA | `/example-roi-bulletin` | 0.02% | 0 | 0 | 2 | Marketing | None |
-| EXD | `/executive/dashboard` | 0.02% | 0 | 0 | 2 | Executive | None |
 | ADS | `/governance/advisory-scans?tab=scans` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | GOA | `/governance/alert-rules` | 0.02% | 0 | 0 | 2 | Alerts/gov | None |
 | GOC | `/governance/alert-rules?tab=composite` | 0.02% | 0 | 0 | 2 | Tab surface | None |
@@ -238,6 +237,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | HDP | `/help/dpa-template` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HEV | `/help/evidence-only-review` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | EXE | `/help/executive-summary` | 0.02% | 0 | 0 | 2 | Help topic | None |
+| HEF | `/help/first-architecture-review` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HEG | `/help/glossary` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HEI | `/help/integration-readiness` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | EIN | `/help/integrations/azure-boards` | 0.02% | 0 | 0 | 2 | Help alias | None |

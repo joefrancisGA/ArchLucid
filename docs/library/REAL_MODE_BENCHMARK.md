@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — path-stable compatibility stub; canonical body moved to the linked document.
+
 > **Last reviewed:** 2026-07-31
 
 # Real-mode end-to-end benchmark — path-stable alias

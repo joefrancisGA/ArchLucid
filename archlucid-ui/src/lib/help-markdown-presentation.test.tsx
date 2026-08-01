@@ -122,7 +122,7 @@ describe("help-markdown-presentation", () => {
 
     expect(prepared.includes(".md")).toBe(false);
     expect(prepared).toContain("[Workspace route map](/help/pilot-nav-profile)");
-    expect(prepared).toMatch(/\[Your first architecture review\]\(\/help\/core-pilot\)/);
+    expect(prepared).toMatch(/\[Your first architecture review\]\(\/help\/first-architecture-review\)/);
   });
 
   it("strips markdown horizontal rules from prepared help copy", () => {

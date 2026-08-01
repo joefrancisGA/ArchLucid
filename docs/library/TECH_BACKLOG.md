@@ -1,6 +1,7 @@
+> **Scope:** Engineering-owned technical backlog items deferred from current sessions; audience is contributors and the AI assistant; not a buyer or operator document. Not a substitute for ADRs or the pending-questions owner decisions file.
+
 **Updated:** 2026-07-31 (**TB-1755** **Done** — subprocessors help residency honesty; no contributor to-do voice; Vitest). Prior: 2026-07-31 (**TB-1752** **Done** — subprocessors help strips contributor/repo paths; in-app trust/DPA links; Vitest).
 
-> **Scope:** Engineering-owned technical backlog items deferred from current sessions; audience is contributors and the AI assistant; not a buyer or operator document. Not a substitute for ADRs or the pending-questions owner decisions file.
 
 ## Cursor-actionable backlog ? remaining by architectural quality
 

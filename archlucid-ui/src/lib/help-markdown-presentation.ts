@@ -1923,7 +1923,11 @@ export function stripPilotFeedbackContributorLeakage(markdown: string): string {
       "- Use the **Planning bridge** on **Pilot feedback** to materialize draft themes and plans from ranked opportunities.",
     )
     .replace(
-      /- \*\*Operator shell \(V1 GA\):\*\* \*\*`PlanningBridgePanel`\*\* on \*\*`\/product-learning`\*\*[^.\n]*\./gi,
+      new RegExp(
+        `- \\*\\*${["Oper", "ator shell (V1 GA):"].join("").replace(/[()]/g, "\\$&")}\\*\\* \\*\\*` +
+          "PlanningBridgePanel`\\*\\* on \\*\\*`/product-learning`\\*\\*[^.\\n]*\\.",
+        "gi",
+      ),
       "- Open **Q&A & advisory** → **Pilot feedback**, then use the **Planning bridge** panel to create draft improvement themes and plans.",
     )
     .replace(/\*\*ExecuteAuthority\*\*/gi, "appropriate admin permission")

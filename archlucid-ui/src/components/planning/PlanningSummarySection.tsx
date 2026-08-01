@@ -50,9 +50,9 @@ export function PlanningSummarySection(props: PlanningSummarySectionProps) {
 
   return (
     <section className="mb-7" aria-labelledby="planning-summary-heading">
-      <h3 id="planning-summary-heading" className={cn("mb-2", OPERATOR_TYPOGRAPHY.helper)}>
+      <h2 id="planning-summary-heading" className={cn("mb-2", OPERATOR_TYPOGRAPHY.helper)}>
         Summary
-      </h3>
+      </h2>
       <p className={cn("mt-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         Generated {generatedUtc ? formatIsoUtcForDisplay(generatedUtc) : "—"} · {summary.themeCount} theme(s) ·{" "}
         {summary.planCount} plan(s)

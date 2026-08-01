@@ -1,3 +1,5 @@
+> **Scope:** Buyer-evaluator — path-stable alias; canonical buyer-facing body lives in the linked Trust Center or GTM document.
+
 > **Last reviewed:** 2026-07-31
 
 # Buyer scalability FAQ — path-stable alias
