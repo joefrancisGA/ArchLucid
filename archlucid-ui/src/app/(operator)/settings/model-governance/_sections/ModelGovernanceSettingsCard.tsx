@@ -19,6 +19,7 @@ import {
   MODEL_GOVERNANCE_UPDATE_FAILED_COPY,
   modelGovernanceLoadBlockedMessage,
 } from "@/lib/model-governance-copy";
+import { modelGovernanceAgentTypeLabel } from "@/lib/model-governance-labels";
 import type {
   ModelGovernanceCatalogResponse,
   WorkspaceModelExecutionProfileResponse,
@@ -89,13 +90,20 @@ function ProfileControls(props: ProfileControlsProps) {
       data-testid="model-execution-profile-controls"
     >
       <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-        Effective profile: <span className="font-mono">{profile.effectiveProfile}</span>
+        Effective profile:{" "}
+        <span data-effective-profile={profile.effectiveProfile}>
+          {modelExecutionProfileLabel(profile.effectiveProfile)}
+        </span>
         {usingOverride ? (
           <span className="text-al-text-secondary"> (tenant override)</span>
         ) : (
           <span className="text-al-text-secondary">
             {" "}
-            (workspace default: {profile.workspaceDefaultProfile})
+            (workspace default:{" "}
+            <span data-workspace-default-profile={profile.workspaceDefaultProfile}>
+              {modelExecutionProfileLabel(profile.workspaceDefaultProfile)}
+            </span>
+            )
           </span>
         )}
       </p>
@@ -305,8 +313,9 @@ export function ModelGovernanceSettingsCard() {
                   </summary>
                   <ul className={cn("m-0 mt-2 list-inside list-disc", OPERATOR_TYPOGRAPHY.body)}>
                     {mapping.agentAliasMappings.map((row) => (
-                      <li key={`${mapping.profile}-${row.agentType}`}>
-                        {row.agentType}: <span className="font-mono">{row.aliasId}</span>
+                      <li key={`${mapping.profile}-${row.agentType}`} data-agent-type={row.agentType}>
+                        {modelGovernanceAgentTypeLabel(row.agentType)}:{" "}
+                        <span className="font-mono">{row.aliasId}</span>
                       </li>
                     ))}
                   </ul>

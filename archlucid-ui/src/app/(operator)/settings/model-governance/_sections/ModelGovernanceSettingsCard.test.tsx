@@ -70,6 +70,69 @@ describe("ModelGovernanceSettingsCard", () => {
     });
 
     expect(screen.getByTestId("model-governance-registry")).toHaveTextContent("balanced-default");
+    expect(screen.getByTestId("model-execution-profile-controls")).toHaveTextContent("Effective profile: Balanced");
+    expect(screen.getByTestId("model-execution-profile-controls")).not.toHaveTextContent("HighAssurance");
+    expect(screen.getByTestId("model-governance-profile-mappings")).toHaveTextContent("Topology:");
+    expect(screen.getByTestId("model-governance-profile-mappings").querySelector('[data-agent-type="Topology"]')).not.toBeNull();
+  });
+
+  it("humanizes effective profile and agent type labels without raw enum chrome (TB-1927)", async () => {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+
+      if (url.includes("model-execution-profile")) {
+        return new Response(
+          JSON.stringify({
+            effectiveProfile: "HighAssurance",
+            source: "WorkspaceDefault",
+            workspaceDefaultProfile: "HighAssurance",
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+
+      if (url.includes("model-governance-catalog")) {
+        return new Response(
+          JSON.stringify({
+            workspaceProfile: {
+              effectiveProfile: "HighAssurance",
+              source: "WorkspaceDefault",
+              workspaceDefaultProfile: "HighAssurance",
+            },
+            registryEntries: [],
+            profileMappings: [
+              {
+                profile: "HighAssurance",
+                agentAliasMappings: [{ agentType: "SecurityReviewer", aliasId: "high-assurance-security" }],
+              },
+            ],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+
+      return new Response("not found", { status: 404 });
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<ModelGovernanceSettingsCard />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("model-execution-profile-controls")).toBeInTheDocument();
+    });
+
+    const profileControls = screen.getByTestId("model-execution-profile-controls");
+
+    expect(profileControls).toHaveTextContent("High assurance");
+    expect(profileControls).not.toHaveTextContent("HighAssurance");
+    expect(profileControls.querySelector('[data-effective-profile="HighAssurance"]')).not.toBeNull();
+
+    const mappings = screen.getByTestId("model-governance-profile-mappings");
+
+    expect(mappings).toHaveTextContent("Security Reviewer:");
+    expect(mappings).not.toHaveTextContent("SecurityReviewer:");
+    expect(mappings.querySelector('[data-agent-type="SecurityReviewer"]')).not.toBeNull();
   });
 
   it("shows buyer-safe admin-required copy on 403 without AdminAuthority or HTTP leakage (TB-1926)", async () => {
