@@ -176,11 +176,13 @@ export function ArchitectureDraftListClient(): React.JSX.Element {
         <EnterpriseCompactEmptyState
           title={ARCHITECTURES_HUB_EMPTY_TITLE}
           description={ARCHITECTURES_HUB_EMPTY_BODY}
-          primaryAction={
-            <Button type="button" variant="primary" size="sm" asChild>
-              <Link href={ARCHITECTURES_NEW_PATH}>{CREATE_ARCHITECTURE_LABEL}</Link>
-            </Button>
-          }
+          actions={[
+            {
+              label: CREATE_ARCHITECTURE_LABEL,
+              href: ARCHITECTURES_NEW_PATH,
+              variant: "primary",
+            },
+          ]}
         />
       </div>
     );
