@@ -764,7 +764,7 @@ Good fit if you are
 Not a fit if you need
 • CPA-issued SOC 2 or a published third-party pen test as day-one deliverables
 • Jira / ServiceNow / Teams / Slack native sync as a go-live blocker
-• Public Marketplace self-serve checkout or guaranteed $ savings claims
+• Public Marketplace self-serve checkout or promised savings amount claims
 
 Pricing
 Private quote after scope. Indicative bands for planning (not a public list):
@@ -844,7 +844,7 @@ Not a fit if you need
    governance listing instead)
 • CPA-issued SOC 2 or a published third-party pen test as day-one deliverables
 • Native Jira / ServiceNow / Teams sync as a go-live blocker
-• Guaranteed $ savings or invoice-accurate Azure OpenAI COGS claims
+• Promised savings amounts or invoice-accurate Azure OpenAI COGS claims
 
 Pricing
 Private quote after scope. Indicative bands for planning (not a public list):

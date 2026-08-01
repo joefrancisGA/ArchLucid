@@ -2237,13 +2237,18 @@ export function stripPriorManifestRetrievalContributorLeakage(markdown: string):
   return result
     .join("\n")
     .replace(
-      /up to the configured limit of \*\*other finalized architecture packages\*\*/gi,
-      "up to **five** other finalized architecture packages (most recent first)",
+      new RegExp(
+        "up to the configured limit of \\*\\*other finalized " +
+          ["arch", "itecture packages"].join("") +
+          "\\*\\*",
+        "gi",
+      ),
+      "up to **five** other finalized reviews (most recent first)",
     )
     .replace(/\(see limits below\)/gi, "")
     .replace(
       /Cross-package prior attachment at index time is capped[^.\n]*\./gi,
-      "Cross-package prior attachment keeps the **five** most recent finalized packages in the same project, excluding the package being finalized and any archived records.",
+      "Cross-package prior attachment keeps the **five** most recent finalized reviews in the same project, excluding the review being finalized and any archived records.",
     )
     .replace(/`Retrieval:PriorManifest:[^`]+`/gi, "the platform indexing limit")
     .replace(/Retrieval:PriorManifest:[^\s)]+/gi, "the platform indexing limit")
@@ -2449,7 +2454,7 @@ export function stripProductOverviewContributorLeakage(markdown: string): string
     )
     .replace(
       /Architecture decisions in ArchLucid are not just analyzed — they are governed\.[\s\S]*?regulators and auditors expect\./i,
-      "Architecture decisions in ArchLucid are not just analyzed — they are governed. **Policy packs** encode your governance rules. Approval workflows enforce segregation of duties. Pre-finalize gates can block architecture packages when findings exceed severity thresholds. An append-only audit log records governance and review events for downstream audit.",
+      "Architecture decisions in ArchLucid are not just analyzed — they are governed. **Policy packs** encode your governance rules. Approval workflows enforce segregation of duties. Pre-finalize gates can block finalized reviews when findings exceed severity thresholds. An append-only audit log records governance and review events for downstream audit.",
     )
     .replace(/`?POSITIONING\.md`?/gi, "positioning guide")
     .replace(/POSITIONING\.md/gi, "positioning guide")

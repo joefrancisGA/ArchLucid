@@ -18,6 +18,7 @@ import { BUYER_GOVERNANCE_DECISION_REGISTER_TITLE } from "@/lib/buyer-polish-cop
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { DecisionRegisterDecisionCard } from "./DecisionRegisterDecisionCard";
+import { DecisionRegisterViewEmptyShell } from "./DecisionRegisterViewEmptyShell";
 import { DecisionRegisterFiltersPanel } from "./DecisionRegisterFiltersPanel";
 import { DecisionRegisterSummaryRow } from "./DecisionRegisterSummaryRow";
 import { DecisionRegisterViewSwitcher, type DecisionRegisterViewMode } from "./DecisionRegisterViewSwitcher";
@@ -218,29 +219,33 @@ export default function DecisionRegisterClient() {
       ) : null}
 
       {!loading && !loadError && !hasWorkspaceDecisions ? (
-        <EnterpriseCompactEmptyState
-          testId="decision-register-empty-state"
-          title={DECISION_REGISTER_EMPTY_TITLE}
-          description={DECISION_REGISTER_EMPTY_BODY}
-          actions={[
-            { label: DECISION_REGISTER_EMPTY_ACTION_REVIEW_PACKAGES, href: "/reviews?projectId=default", variant: "primary" },
-            { label: DECISION_REGISTER_EMPTY_ACTION_START_REVIEW, href: "/reviews/new", variant: "outline" },
-            { label: DECISION_REGISTER_EMPTY_ACTION_GOVERNANCE, href: "/governance", variant: "outline" },
-          ]}
-        />
+        <DecisionRegisterViewEmptyShell viewMode={viewMode}>
+          <EnterpriseCompactEmptyState
+            testId="decision-register-empty-state"
+            title={DECISION_REGISTER_EMPTY_TITLE}
+            description={DECISION_REGISTER_EMPTY_BODY}
+            actions={[
+              { label: DECISION_REGISTER_EMPTY_ACTION_REVIEW_PACKAGES, href: "/reviews?projectId=default", variant: "primary" },
+              { label: DECISION_REGISTER_EMPTY_ACTION_START_REVIEW, href: "/reviews/new", variant: "outline" },
+              { label: DECISION_REGISTER_EMPTY_ACTION_GOVERNANCE, href: "/governance", variant: "outline" },
+            ]}
+          />
+        </DecisionRegisterViewEmptyShell>
       ) : null}
 
       {!loading && !loadError && filtersExcludeMatches ? (
-        <EnterpriseCompactEmptyState
-          testId="decision-register-filter-no-match-empty-state"
-          title={DECISION_REGISTER_FILTER_NO_MATCH_TITLE}
-          description={DECISION_REGISTER_FILTER_NO_MATCH_BODY}
-          footer={
-            <Button type="button" variant="outline" size="sm" data-testid="decision-register-clear-filters-empty" onClick={resetFilters}>
-              Clear filters
-            </Button>
-          }
-        />
+        <DecisionRegisterViewEmptyShell viewMode={viewMode}>
+          <EnterpriseCompactEmptyState
+            testId="decision-register-filter-no-match-empty-state"
+            title={DECISION_REGISTER_FILTER_NO_MATCH_TITLE}
+            description={DECISION_REGISTER_FILTER_NO_MATCH_BODY}
+            footer={
+              <Button type="button" variant="outline" size="sm" data-testid="decision-register-clear-filters-empty" onClick={resetFilters}>
+                Clear filters
+              </Button>
+            }
+          />
+        </DecisionRegisterViewEmptyShell>
       ) : null}
 
       {!loading && !loadError && hasFilteredResults && viewMode === "timeline" ? (

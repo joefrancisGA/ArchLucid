@@ -11,3 +11,5 @@
 **Showcase naming (M-135):** [`DEMO_QUICKSTART.md#showcase-naming-hierarchy-m-135`](DEMO_QUICKSTART.md#showcase-naming-hierarchy-m-135)
 
 This filename remains path-stable for smoke callers. CI GUID checks run against the demo quickstart canon (`Validate-DemoWorkspacesDoc.ps1`).
+
+**Fixture flag (canon):** `Demo:AnonymousViewer:Enabled = true` — see [`DEMO_QUICKSTART.md#demo-workspaces`](DEMO_QUICKSTART.md#demo-workspaces).

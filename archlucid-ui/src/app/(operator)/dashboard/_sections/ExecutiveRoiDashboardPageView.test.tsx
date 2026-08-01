@@ -75,7 +75,7 @@ describe("ExecutiveRoiDashboardPageView executive surface", () => {
     expect(screen.getByTestId("executive-dashboard-how-it-works")).toBeInTheDocument();
     expect(screen.queryByTestId("executive-primary-decisions-needed")).not.toBeInTheDocument();
     expect(screen.queryByTestId("sponsor-exports-section")).toBeNull();
-    expect(screen.getByRole("heading", { level: 1, name: "Executive dashboard" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Executive dashboard" })).toBeInTheDocument();
   });
 });
 
@@ -84,7 +84,7 @@ describe("ExecutiveRoiDashboardPageView operator surface (TB-608 consolidation)"
     render(<ExecutiveRoiDashboardPageView />);
 
     expect(screen.getByTestId("executive-dashboard-empty-state")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { level: 1, name: "Executive dashboard" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Executive dashboard" })).toBeInTheDocument();
     expect(screen.queryByTestId("sponsor-exports-section")).toBeNull();
   });
 });

@@ -26,7 +26,7 @@ describe("SystemHealthPageHeader", () => {
       />,
     );
 
-    expect(screen.getByRole("heading", { level: 1, name: "System health" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "System health" })).toBeInTheDocument();
     expect(screen.getByText(SYSTEM_HEALTH_PAGE_SUBTITLE_OPERATOR)).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("system-health-refresh")).toBeInTheDocument();

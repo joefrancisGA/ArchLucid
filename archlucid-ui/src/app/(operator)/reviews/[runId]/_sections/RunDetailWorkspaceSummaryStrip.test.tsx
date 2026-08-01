@@ -17,7 +17,7 @@ describe("RunDetailWorkspaceSummaryStrip", () => {
     );
 
     expect(screen.getByTestId("run-detail-workspace-summary")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Review status" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Decision snapshot" })).toBeInTheDocument();
     expect(screen.getByText("Approved with monitoring")).toBeInTheDocument();
     expect(screen.getByText("PHI Minimization Risk")).toBeInTheDocument();
     expect(screen.getByText(/Confirm evidence and remediation ownership/)).toBeInTheDocument();

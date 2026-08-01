@@ -27,7 +27,7 @@ describe("DigestsPageHeader", () => {
       />,
     );
 
-    expect(screen.getByRole("heading", { level: 1, name: "Architecture digests" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Architecture digests" })).toBeInTheDocument();
     expect(screen.getByText(DIGESTS_BROWSE_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("digests-header-actions")).toBeInTheDocument();

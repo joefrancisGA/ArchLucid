@@ -26,7 +26,7 @@ class TestAiReadinessBatch5S(unittest.TestCase):
         text = path.read_text(encoding="utf-8")
         self.assertIn('["Topology"] = nameof(LlmModelTier.Economy)', text)
         self.assertIn('["Cost"] = nameof(LlmModelTier.Economy)', text)
-        self.assertIn('["Compliance"] = nameof(LlmModelTier.Premium)', text)
+        self.assertIn('["Compliance"] = nameof(LlmModelTier.Standard)', text)
         self.assertIn('["Critic"] = nameof(LlmModelTier.Premium)', text)
 
     def test_tb_179_llm_deployments_config_aliases_exist(self) -> None:

@@ -705,9 +705,10 @@ Demo body.
     class="border-t border-neutral-200 pt-3 dark:border-neutral-800 text-xs font-normal leading-[18px] text-al-text-secondary"
   >
     Aggregated sponsor-facing proof from measured ROI, sponsor evidence pack, value report, and aggregate explanation services.
-     See repo 
+     See repo
+     
     <code>
-      docs/SPONSOR_ONE_PAGER.md
+      docs/library/SPONSOR_ONE_PAGER.md
     </code>
      and
      

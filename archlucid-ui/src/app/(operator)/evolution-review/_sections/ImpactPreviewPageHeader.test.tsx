@@ -26,7 +26,7 @@ describe("ImpactPreviewPageHeader", () => {
       />,
     );
 
-    expect(screen.getByRole("heading", { level: 1, name: "Impact preview" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Impact preview" })).toBeInTheDocument();
     expect(screen.getByText(impactPreviewPageSubtitle(false))).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("impact-preview-header-actions")).toBeInTheDocument();

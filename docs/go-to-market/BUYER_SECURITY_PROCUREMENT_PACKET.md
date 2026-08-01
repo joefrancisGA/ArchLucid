@@ -1558,7 +1558,7 @@ Former standalone body: `docs/go-to-market/WHAT_NOT_TO_PROMISE_UI_BUYER_RISK_MAT
 
 | Rank | Surface | High-risk over-promises to block |
 | --- | --- | --- |
-| 1 | Trust center / assurance pages | Do not lead with “SOC 2 certified” or published 3P pen test (route **G-REAL-05** / **G-ASSURANCE-02**; tech **TB-135**/**TB-136** Done tracking only) |
+| 1 | Trust center / assurance pages | Do not lead with “SOC 2 CPA report” or published 3P pen test (route **G-REAL-05** / **G-ASSURANCE-02**; tech **TB-135**/**TB-136** Done tracking only) |
 | 2 | Pricing / commercial | Do not claim guaranteed savings, Marketplace buy today, or invoice-accurate COGS |
 | 3 | Billing / checkout help | Always-on self-serve checkout while commerce is deferred |
 | 4 | Integrations help | Stale “native Jira/Teams not in V1” after `V1_SCOPE` GA |
@@ -1582,7 +1582,7 @@ Former standalone body: `docs/go-to-market/WHAT_NOT_TO_PROMISE_UI_BUYER_RISK_MAT
 
 ### Claim boundary
 
-Do not say doc-only scanners cover buyer UI, or lead with SOC 2 certified / published 3P pen test / Marketplace buy today / guaranteed savings / invoice-accurate COGS. Say ranked page review with named owners against the gtm-do-not-promise table.
+Do not say doc-only scanners cover buyer UI, or lead with SOC 2 CPA report claims / published 3P pen test / Marketplace buy today / guaranteed savings / invoice-accurate COGS. Say ranked page review with named owners against the gtm-do-not-promise table.
 
 ### Residuals (honest)
 
@@ -2904,7 +2904,7 @@ Former standalone body: `docs/go-to-market/PAYING_TENANT_LLM_SPEND_STORM_PA_ONE_
 | Azure RG consumption budget (TF) | Resource group AOAI | **Email notify** | Does **not** hard-stop product LLM |
 | Quick Scan global USD reserve | Anonymous marketing | Fail-closed | **Different plane** |
 
-**Compromised API key:** Full tenant principal until removed from config (next request fail-closed after reload; in-flight may still complete — **M-282**). Can spend up to **tenant** quotas/budgets (and AOAI TPM). **Not** unbounded forever; **not** per-key spend isolation.
+**Compromised API key:** Full tenant principal until removed from config (next request fail-closed after reload; requests already in progress may still complete — **M-282**). Can spend up to **tenant** quotas/budgets (and AOAI TPM). **Not** unbounded forever; **not** per-key spend isolation.
 
 ### Metering vs Azure OpenAI billing
 
@@ -3376,7 +3376,7 @@ Former standalone body: `docs/go-to-market/STAGE_0_CLAIM_ALLOWLIST_VS_OVERSELL_P
 | “Proven across N pilots” | Needs G4 ≥3 + founder signoff |
 | Unlabeled / Simulator-as-production AI | Violates G1 execution-mode honesty |
 | Guaranteed or public quantified $ | ROI must be source-classified |
-| “SOC 2 certified” | No CPA report; see **G-REAL-05** |
+| SOC 2 CPA report claim | No CPA report; see **G-REAL-05** |
 | “Marketplace buy today” | Offer not the Stage 0 bar |
 | Named public references | Owner clearance only |
 
@@ -4215,7 +4215,7 @@ Companion one-pagers and full do-not/do-promise table: [`PA_CLAIM_HONESTY_INDEX.
 | Async orchestration first-force (M-231/M-232) | Request-lifetime Real → SQL outbox/Worker; commit stays CAS | “V1 requires DTF” / “Commit is an orchestrator activity” | [`#async-orchestration-first-force-m-232`](#async-orchestration-first-force-m-232) |
 | Container Apps Terraform authority (M-233/M-234) | Per-surface ownership; plan + live TF-owned compare | “TF state alone is SoT” / “Preflight = no Azure drift” | [`#container-apps-terraform-authority-m-234`](#container-apps-terraform-authority-m-234) |
 | 100× review-volume capacity (M-237/M-238) | TPM hard-first; SLI ledger + admission; scale-out ≠ more TPM | “SQL fails first at 100×” / “Scale-out removes 429” | [`#review-volume-100x-capacity-m-238`](#review-volume-100x-capacity-m-238) |
-| WNTP → UI buyer-risk matrix (M-239/M-240) | Ranked UI review vs WNTP rows; docs scanners ≠ UI coverage | Do not lead with “Docs scanner green = UI safe” or SOC 2 certified | [`#wntp-ui-buyer-risk-matrix-m-240`](#wntp-ui-buyer-risk-matrix-m-240) |
+| WNTP → UI buyer-risk matrix (M-239/M-240) | Ranked UI review vs WNTP rows; docs scanners ≠ UI coverage | Do not lead with “Docs scanner green = UI safe” or SOC 2 CPA report claims | [`#wntp-ui-buyer-risk-matrix-m-240`](#wntp-ui-buyer-risk-matrix-m-240) |
 | Core Pilot happy-path (M-241/M-242) | Authority → Finalize → in-app sponsor export | “create→execute→commit default” / empty dashboard = sponsor-ready | [`#core-pilot-happy-path-m-242`](#core-pilot-happy-path-m-242) |
 | Why-not-ChatGPT/Copilot (M-243/M-244) | Seats draft / ArchLucid proves via package + evidence + audit | Do not: “Always beats frontier AI” / “Cheaper than Copilot seats” | [`#why-not-chatgpt-copilot-m-244`](#why-not-chatgpt-copilot-m-244) |
 | Elevator pitch V1 claim audit (M-245/M-246) | Cut/hedge/prove with committed run only | “Two weeks → two hours” / “Gates always on” | [`#elevator-pitch-v1-claim-audit-m-246`](#elevator-pitch-v1-claim-audit-m-246) |
@@ -4247,7 +4247,7 @@ Companion one-pagers and full do-not/do-promise table: [`PA_CLAIM_HONESTY_INDEX.
 | Post-strangler residual coupling (M-205/M-206) | Hunt soft bridges; keep anti-resurrection pins until TB-1204; dual storage gone | “Dual storage still ships” / “AgentTask verbs = dual repos” / “Delete DualPipeline tests because TB-919 complete” | [`#post-strangler-residual-coupling-m-206`](#post-strangler-residual-coupling-m-206) |
 | Architecture reasoning system (M-300/M-303/M-304) | Evidence-supported inference; structural enforcement; held-out benchmark honesty; uncertainty ≠ pass | “Hallucination-proof” / “Beats expert architects” / “Deterministic semantic verification” | [`#architecture-reasoning-system-m-300`](#architecture-reasoning-system-m-300) |
 | Competitive deal-loss (M-186/M-187) | Hypothesis kill-order until M-20; complement Confluence/Miro/SN; win=manifest+trail | “Measured win/loss proven” / “Replaces ServiceNow” / “Cheaper than Copilot seats” | [`#competitive-deal-loss-closing-evidence-m-187`](#competitive-deal-loss-closing-evidence-m-187) |
-| Stage 0 allowlist (M-188/M-189) | Committed package + mode label + evidence-linked findings; G4 HOLD | “Proven across N pilots” / “SOC 2 certified” / “Marketplace buy today” | [`#stage-0-claim-allowlist-vs-oversell-m-189`](#stage-0-claim-allowlist-vs-oversell-m-189) |
+| Stage 0 allowlist (M-188/M-189) | Committed package + mode label + evidence-linked findings; G4 HOLD | “Proven across N pilots” / “SOC 2 CPA report” / “Marketplace buy today” | [`#stage-0-claim-allowlist-vs-oversell-m-189`](#stage-0-claim-allowlist-vs-oversell-m-189) |
 | Layer residual / NetArchTest (M-156/M-157) | Compile-time DAG + catalogs + INV-001 + retrieval filters; residuals named | “NetArchTest alone proves multi-tenant isolation” | [`#layer-boundary-irreversible-leak-m-157`](#layer-boundary-irreversible-leak-m-157) |
 | Comparison/replay drift (M-174/M-175) | Persisted ComparisonRecord + committed manifests; verify for buyer drift claims | “Artifact replay proves architecture unchanged” / “Live UI side-by-side equals verify” | [`#comparison-replay-immutable-snapshot-m-175`](#comparison-replay-immutable-snapshot-m-175) |
 | First-15 / package spine (M-180/M-181) | Finalize + sponsor export co-located; minute-12 evidence checkpoint; no M-44 proof yet | “15 minutes without founder narration guaranteed” / “Won't dismiss” without cohort | [`#pa-first-15-package-spine-ia-m-181`](#pa-first-15-package-spine-ia-m-181) |

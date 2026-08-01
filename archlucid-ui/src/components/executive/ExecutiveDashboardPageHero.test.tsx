@@ -43,7 +43,7 @@ describe("ExecutiveDashboardPageHero", () => {
     render(<ExecutiveDashboardPageHero dashboardEmpty />);
 
     expect(screen.getByTestId("executive-dashboard-page-hero")).toHaveAttribute("data-dashboard-empty", "true");
-    expect(screen.getByRole("heading", { level: 1, name: v.portfolioPageTitle })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: v.portfolioPageTitle })).toBeInTheDocument();
     expect(screen.getByText(executiveDashboardPageSubtitle(false))).toBeInTheDocument();
     expect(screen.getByText(EXECUTIVE_DASHBOARD_PAGE_SUBTITLE_OPERATOR)).toBeInTheDocument();
     expect(screen.queryByText(v.portfolioPageNextStep)).not.toBeInTheDocument();
