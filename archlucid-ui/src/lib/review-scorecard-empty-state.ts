@@ -1,3 +1,5 @@
+import { SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH } from "@/lib/sponsor-report-navigation";
+
 export const REVIEW_SCORECARD_EMPTY_HEADING = "No committed reviews yet";
 
 export const REVIEW_SCORECARD_EMPTY_DESCRIPTION =
@@ -27,7 +29,8 @@ export const REVIEW_SCORECARD_DATA_REQUIREMENT_NOTE =
 
 export const REVIEW_SCORECARD_SAMPLE_QUERY_PARAM = "sample";
 
-export const REVIEW_SCORECARD_SAMPLE_HREF = "/scorecard?sample=1";
+export const REVIEW_SCORECARD_SAMPLE_HREF =
+  `${SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH}?${REVIEW_SCORECARD_SAMPLE_QUERY_PARAM}=1`;
 
 export const REVIEW_SCORECARD_SAMPLE_BANNER_COPY =
   "Sample scorecard — illustrative metrics for evaluation. ROI assumptions are read-only in sample mode.";

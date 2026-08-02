@@ -1,8 +1,16 @@
 import { permanentRedirect } from "next/navigation";
 
-import { SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH } from "@/lib/sponsor-report-navigation";
+import { buildScorecardRedirectPath } from "@/lib/legacy-scorecard-redirect";
+
+type LegacyArchitectureScorecardRedirectPageProps = {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
 
 /** Legacy architecture scorecard URL — permanently redirects to canonical sponsor report scorecard. */
-export default function LegacyArchitectureScorecardRedirectPage(): never {
-  permanentRedirect(SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH);
+export default async function LegacyArchitectureScorecardRedirectPage(
+  props: LegacyArchitectureScorecardRedirectPageProps,
+): Promise<never> {
+  const searchParams = await props.searchParams;
+
+  permanentRedirect(buildScorecardRedirectPath(searchParams));
 }
