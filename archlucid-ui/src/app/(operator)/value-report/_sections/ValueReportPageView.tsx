@@ -84,12 +84,16 @@ export function ValueReportPageView({ model }: ValueReportPageViewProps) {
       <DocumentLayout>
         <header className="space-y-2">
           <h1 className={`m-0 ${OPERATOR_TYPOGRAPHY.pageTitle}`}>{BUYER_VALUE_REPORT_PAGE_TITLE}</h1>
-          <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-            {BUYER_VALUE_REPORT_PAGE_SUBTITLE}
-          </p>
-          <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            {BUYER_VALUE_REPORT_OUTCOME_LEAD}
-          </p>
+          {buyerPolishedShell ? (
+            <>
+              <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                {BUYER_VALUE_REPORT_PAGE_SUBTITLE}
+              </p>
+              <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                {BUYER_VALUE_REPORT_OUTCOME_LEAD}
+              </p>
+            </>
+          ) : null}
         </header>
 
         <CollapsibleSection title={BUYER_VALUE_REPORT_HOW_IT_WORKS_TITLE} defaultOpen={false} sectionTestId="value-report-how-it-works">

@@ -4,8 +4,12 @@ import { beforeAll, describe, expect, it, vi } from "vitest";
 
 import type { UseValueReportPageModel } from "./use-value-report-page";
 import { ValueReportPageView } from "./ValueReportPageView";
-import { BUYER_VALUE_REPORT_PAGE_SUBTITLE } from "@/lib/buyer-polish-copy";
+import { BUYER_VALUE_REPORT_OUTCOME_LEAD, BUYER_VALUE_REPORT_PAGE_SUBTITLE } from "@/lib/buyer-polish-copy";
 import { LAYER_PAGE_GUIDANCE } from "@/lib/layer-guidance";
+
+vi.mock("@/components/LayerHeader", () => ({
+  LayerHeader: () => <div data-testid="layer-header" />,
+}));
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const mod = await importOriginal<typeof import("@/lib/demo-ui-env")>();
@@ -87,7 +91,19 @@ describe("ValueReportPageView buyer-polished chrome (TB-1437)", () => {
     render(<ValueReportPageView model={buildModel()} />);
 
     expect(screen.getAllByText(BUYER_VALUE_REPORT_PAGE_SUBTITLE)).toHaveLength(1);
+    expect(screen.getAllByText(BUYER_VALUE_REPORT_OUTCOME_LEAD)).toHaveLength(1);
     expect(screen.queryByText(LAYER_PAGE_GUIDANCE["value-report"].headline)).not.toBeInTheDocument();
+    expect(screen.queryByTestId("layer-header")).not.toBeInTheDocument();
     expect(screen.getByTestId("value-report-export-panel")).toBeInTheDocument();
+  });
+});
+
+describe("ValueReportPageView buyer-polished chrome (TB-1964)", () => {
+  it("omits page subtitle and outcome lead when LayerHeader owns the lead in enterprise shell", () => {
+    render(<ValueReportPageView model={buildModel()} />);
+
+    expect(screen.getByTestId("layer-header")).toBeInTheDocument();
+    expect(screen.queryByText(BUYER_VALUE_REPORT_PAGE_SUBTITLE)).not.toBeInTheDocument();
+    expect(screen.queryByText(BUYER_VALUE_REPORT_OUTCOME_LEAD)).not.toBeInTheDocument();
   });
 });

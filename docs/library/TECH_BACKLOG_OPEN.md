@@ -733,7 +733,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1961 | Executive summary — traffic section honesty (Sponsor report, not Marketing) | Trustworthiness P1 **V1** — SPE ~50 |
 | TB-1962 | Executive summary — metadata vs H1 vocabulary (Executive summary vs Executive value report) | Trustworthiness P1 **V1** — with **TB-1961** |
 | TB-1963 | Executive summary — command palette / deep-links use canonical SPE path | Trustworthiness P1 **V1** — with **TB-1961** |
-| TB-1964 | Executive summary — collapse strip + LayerHeader + subtitle stack with **TB-1437** | Adoption friction P1 **V1** — with **TB-1961** |
 | TB-1965 | Executive summary — Vitest traffic + vocabulary + canonical hrefs | Testability P2 **V1** — with **TB-1961** |
 | TB-1661 | Operator line-tabs visual contract — document in UI_DESIGN_SYSTEM (+ UI ARCHITECTURE pointer) | Adoption friction P1 **V1** — owner tabs consistency pass 2026-07-27; after Done **TB-665**; pairs **TB-1552**–**TB-1556** / **TB-1572**–**TB-1576** / **TB-1646**–**TB-1650** |
 | TB-1662 | Strip TabsList/TabsTrigger chrome overrides (Advisory, Help×2, Deliverables, buyer RunsDashboard) | Adoption friction P1 **V1** — with **TB-1661**; after Done **TB-667**/**TB-670** |
@@ -940,7 +939,7 @@ Canonical: [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) only (see wave-3 c
 | Ghost signed-record artifact preview (`/signed-records/.../artifacts/...`) | **TB-1946**–**TB-1950** (open P1 **V1**) | Traffic ghost; execute **TB-1824**; hrefs; docs; Vitest with **TB-1825**; ~10/100; traffic **MAM**; peer **RER** |
 | Snapshot leave-behind (`/snapshot/[runId]`) | **TB-1951**–**TB-1955** (open **V1**) | Redirect traffic; destination honesty; next.config/query; docs; Vitest; ~30/100; traffic **SNU** |
 | Architecture scorecard (`/sponsor-report/architecture-scorecard`) | **TB-1956**–**TB-1960** (open **V1**) | Traffic section; sample href; empty CTA; help with **TB-1668**; Vitest; ~48/100; traffic **SPA**; siblings SPE/SPP/SPR |
-| Executive summary (`/sponsor-report/executive-summary`) | **TB-1961**–**TB-1965** (open **V1**) | Traffic section; title vocabulary; canonical deep-links; chrome with **TB-1437**; Vitest; ~50/100; traffic **SPE**; siblings SPP/SPR |
+| Executive summary (`/sponsor-report/executive-summary`) | **TB-1961**–**TB-1963**, **TB-1965** (open **V1**) | Traffic section; title vocabulary; canonical deep-links; Vitest; ~50/100; traffic **SPE**; siblings SPP/SPR; **TB-1964** Done |
 | Pilot outcomes (`/sponsor-report/pilot-outcomes`) | — | **TB-1966**–**TB-1970** Done; traffic **SPP**; sibling SPR |
 | ROI summary (`/sponsor-report/roi-summary`) | — | **TB-1971**–**TB-1975** Done; traffic **SPR** |
 | Finding evidence-trace (`/…/evidence-trace`) | **TB-1826**–**TB-1830** (open P1/P2 **V1**) | Finding-first H1; no footer self-link; back to finding detail; heading hierarchy; Vitest + **TB-987**; ~54/100; traffic **ERU** |
