@@ -116,12 +116,21 @@ describe("pricing-catalog-display", () => {
       summary: "Team",
       overageReviewUsd: 10,
       seatMonthlyUsd: 79,
+      maxArchitectSeats: 10,
+      workspaceMonthlyUsd: 199,
     });
 
     expect(addonLines.map((line) => line.label)).toEqual([
       BILLING_ADDITIONAL_ARCHITECTURE_PACKAGES_LABEL,
       "Additional users",
+      "Additional workspaces",
     ]);
+    expect(addonLines.find((line) => line.label === "Additional users")?.value).toBe(
+      "$79 / user / mo (plan max 10 seats)",
+    );
+    expect(addonLines.find((line) => line.label === "Additional workspaces")?.value).toBe(
+      "$199 / workspace / mo",
+    );
   });
 
   it("formats included architecture packages for public pricing cards", () => {

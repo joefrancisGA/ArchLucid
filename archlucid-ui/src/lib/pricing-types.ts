@@ -7,11 +7,16 @@ export type PricingPackage = {
   planMonthlyUsd?: number;
   /** When `"custom"`, public surfaces show Custom instead of a list price. */
   pricingDisplay?: "monthly" | "custom";
+  /**
+   * Buyer-facing included seat/user count (wins for display).
+   * When `includedArchitectSeats` is also set, CI/coherence requires the two values to match.
+   */
   includedUsers?: number;
   includedWorkspaces?: number;
   monthlyAiCredits?: number;
   workspaceMonthlyUsd?: number;
   maxWorkspaces?: number;
+  /** Alias of included seats for architect-seat SKUs — must match `includedUsers` when both are present. */
   includedArchitectSeats?: number;
   /** Hard seat ceiling for the plan (included + add-on); beyond this the tenant must upgrade tiers. */
   maxArchitectSeats?: number;

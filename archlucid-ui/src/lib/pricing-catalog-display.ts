@@ -148,9 +148,21 @@ export function buildOperatorBillingAddonLines(pricing: PricingDoc, pkg: Pricing
   }
 
   if (typeof pkg.seatMonthlyUsd === "number") {
+    const seatCapSuffix =
+      typeof pkg.maxArchitectSeats === "number" && pkg.maxArchitectSeats > 0
+        ? ` (plan max ${pkg.maxArchitectSeats} seats)`
+        : "";
+
     lines.push({
       label: "Additional users",
-      value: `${formatPricingMoney(pkg.seatMonthlyUsd, pricing.currency)} / user / mo`,
+      value: `${formatPricingMoney(pkg.seatMonthlyUsd, pricing.currency)} / user / mo${seatCapSuffix}`,
+    });
+  }
+
+  if (typeof pkg.workspaceMonthlyUsd === "number") {
+    lines.push({
+      label: "Additional workspaces",
+      value: `${formatPricingMoney(pkg.workspaceMonthlyUsd, pricing.currency)} / workspace / mo`,
     });
   }
 

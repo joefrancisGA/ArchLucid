@@ -64,11 +64,14 @@ describe("operator-billing-pricing-lines", () => {
       summary: "Team",
       seatMonthlyUsd: 79,
       overageReviewUsd: 10,
+      workspaceMonthlyUsd: 199,
+      maxArchitectSeats: 10,
     });
 
     expect(addonLines.map((line) => line.label)).toEqual([
       BILLING_ADDITIONAL_ARCHITECTURE_PACKAGES_LABEL,
       "Additional users",
+      "Additional workspaces",
     ]);
   });
 });
