@@ -11,6 +11,7 @@ import {
 import { loadSeeItDemoPreview } from "./load-see-it-demo-preview";
 import { createMinimalDemoPreviewPayload } from "./see-it.fixtures";
 import { resolveSeeItDemoUniverse, seeItUniverseBannerTitle } from "./see-it-demo-universe";
+import { SeeItDeliverablePreview } from "./SeeItDeliverablePreview";
 import { SeeItMarketingBody } from "./SeeItMarketingBody";
 
 describe("loadSeeItDemoPreview", () => {
@@ -183,11 +184,15 @@ describe("SeeItMarketingBody", () => {
     expect(screen.getByTestId("see-it-demo-banner-title")).toHaveTextContent("Public sample preview");
     expect(screen.getByTestId("see-it-demo-banner-title")).not.toHaveTextContent(/Healthcare claims/i);
     expect(screen.queryByTestId("see-it-snapshot-notice")).toBeNull();
-    expect(screen.getByTestId("see-it-finding-counts")).toHaveTextContent("7 findings recorded · 2 monitored risks");
+    expect(screen.getByTestId("see-it-finding-counts")).toHaveTextContent("7 findings");
+    expect(screen.getByTestId("see-it-finding-counts")).toHaveTextContent("2 monitored risks");
+    expect(screen.getByTestId("see-it-summary-status")).toHaveTextContent(/Approved/i);
+    expect(screen.getByTestId("marketing-proof-chain-strip")).toBeInTheDocument();
     expect(screen.getByTestId("see-it-proof-pack-download")).toHaveAttribute(
       "href",
       "/api/proxy/v1/marketing/why-archlucid-pack.pdf",
     );
+    expect(screen.getByTestId("see-it-proof-pack-download")).toHaveTextContent(/sample overview/i);
   });
 
   it("never shows Claims banner chrome over a Contoso payload (TB-1279)", () => {
@@ -237,5 +242,33 @@ describe("SeeItMarketingBody", () => {
     render(<SeeItMarketingBody source="snapshot" payload={malformed} />);
 
     expect(screen.getByTestId("see-it-no-artifacts")).toBeInTheDocument();
+    expect(screen.getByText(/Executive sponsor briefing/i)).toBeInTheDocument();
+  });
+
+  it("keeps a single text-link path to the interactive sample (not a competing primary button)", () => {
+    const payload = createMinimalDemoPreviewPayload();
+    payload.run.runId = SHOWCASE_STATIC_DEMO_RUN_ID;
+    payload.run.description = "Claims Intake Modernization Review";
+
+    render(<SeeItMarketingBody source="live" payload={payload} />);
+
+    const sampleLink = screen.getByTestId("see-it-full-preview-link");
+
+    expect(sampleLink).toHaveAttribute("href", CANONICAL_ANONYMOUS_PROOF_HREF);
+    expect(sampleLink.tagName).toBe("A");
+    expect(screen.getByTestId("see-it-cta-demo-preview")).toHaveAttribute("href", "/demo/preview");
+  });
+});
+
+describe("SeeItDeliverablePreview", () => {
+  it("links the visual proof stack to the Claims showcase", () => {
+    render(<SeeItDeliverablePreview />);
+
+    expect(screen.getByTestId("see-it-deliverable-preview")).toHaveAttribute(
+      "href",
+      CANONICAL_ANONYMOUS_PROOF_HREF,
+    );
+    expect(screen.getByText(/Executive summary/i)).toBeInTheDocument();
+    expect(screen.getByText(/Audit trail/i)).toBeInTheDocument();
   });
 });

@@ -1,8 +1,9 @@
 import Link from "next/link";
 
+import { MarketingProofChainStrip } from "@/components/marketing/MarketingProofChainStrip";
 import { Button } from "@/components/ui/button";
-import { getArtifactBusinessLabel } from "@/lib/artifact-review-helpers";
 import {
+  MARKETING_CAPTION_TEXT_CLASS,
   MARKETING_MOTION,
   MARKETING_SURFACES,
   MARKETING_TYPOGRAPHY,
@@ -14,6 +15,9 @@ import {
 } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
+
+import { SeeItKeyDeliverables } from "./SeeItKeyDeliverables";
+import { SeeItPackageSummary } from "./SeeItPackageSummary";
 import type { SeeItPreviewSource } from "./load-see-it-demo-preview";
 import { resolveSeeItDemoUniverse, seeItUniverseBannerTitle } from "./see-it-demo-universe";
 
@@ -36,10 +40,10 @@ function formatCount(value: number | null | undefined): string {
 
 /**
  * Anonymous marketing slice — only fields present on `DemoCommitPagePreviewResponse`.
+ * Narrative order: deliverable summary → richness → chat differentiation → secondary CTAs.
  */
 export function SeeItMarketingBody({ source, payload }: SeeItMarketingBodyProps) {
   const artifactList = Array.isArray(payload.artifacts) ? payload.artifacts : [];
-  const firstArtifacts = artifactList.slice(0, 3);
   const ruleSetId = payload.manifest?.ruleSetId ?? "";
   const ruleSetVersion = payload.manifest?.ruleSetVersion ?? "";
   const policyPackLabel = policyPackBuyerLabel(ruleSetId, ruleSetVersion);
@@ -86,65 +90,38 @@ export function SeeItMarketingBody({ source, payload }: SeeItMarketingBodyProps)
             className={cn("m-0 mt-2 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}
             data-testid="see-it-preview-disclosure"
           >
-            {source === "snapshot" ? <span data-testid="see-it-snapshot-notice">{previewDisclosure}</span> : previewDisclosure}
-            {" "}
+            {source === "snapshot" ? (
+              <span data-testid="see-it-snapshot-notice">{previewDisclosure}</span>
+            ) : (
+              previewDisclosure
+            )}{" "}
             Numbers and outcomes are illustrative only until you run the same path on buyer evidence.
           </p>
         </details>
       </div>
 
-      <section data-testid="see-it-summary" className={MARKETING_SURFACES.cardComfort}>
-        <h2 className={MARKETING_TYPOGRAPHY.sectionTitle}>Finalized sample architecture proof export (read-only)</h2>
-        <p className={cn("mt-3 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>
-          One package links the review, evidence-backed findings, policy pack, artifacts, and sponsor-ready export so
-          the proof is understandable before the platform depth.
-        </p>
-        <dl className={cn("mt-4 space-y-3", MARKETING_TYPOGRAPHY.body)}>
-          <div>
-            <dt className={cn("font-medium text-al-text-secondary", MARKETING_TYPOGRAPHY.meta)}>Review</dt>
-            <dd className="text-al-text-primary">{reviewTitle}</dd>
-          </div>
-          <div>
-            <dt className={cn("font-medium text-al-text-secondary", MARKETING_TYPOGRAPHY.meta)}>Policy pack</dt>
-            <dd className="text-al-text-primary">{policyPackLabel}</dd>
-          </div>
-          <div>
-            <dt className={cn("font-medium text-al-text-secondary", MARKETING_TYPOGRAPHY.meta)}>Findings</dt>
-            <dd className="text-al-text-primary" data-testid="see-it-finding-counts">
-              {findingCountDisplay} finding{findingCountDisplay === "1" ? "" : "s"} recorded
-              {complianceGapDisplay !== "—" && complianceGapDisplay !== "0"
-                ? ` · ${complianceGapDisplay} monitored risk${complianceGapDisplay === "1" ? "" : "s"}`
-                : ""}
-            </dd>
-          </div>
-        </dl>
-      </section>
+      <SeeItPackageSummary
+        reviewTitle={reviewTitle}
+        policyPackLabel={policyPackLabel}
+        findingCountDisplay={findingCountDisplay}
+        complianceGapDisplay={complianceGapDisplay}
+      />
 
-      <section data-testid="see-it-artifacts" className={MARKETING_SURFACES.cardComfort}>
-        <h2 className={MARKETING_TYPOGRAPHY.sectionTitle}>Key deliverables (preview)</h2>
-        <ul className={cn("mt-4 list-disc space-y-2 pl-5 text-al-text-primary", MARKETING_TYPOGRAPHY.body)}>
-          {firstArtifacts.length ? (
-            firstArtifacts.map((artifact) => (
-              <li key={artifact.artifactId}>
-                <span className="font-medium">{getArtifactBusinessLabel(artifact.artifactType)}</span>
-              </li>
-            ))
-          ) : (
-            <li data-testid="see-it-no-artifacts">
-              Artifact descriptors will appear here once the preview payload includes generated outputs.
-            </li>
-          )}
-        </ul>
-      </section>
+      <SeeItKeyDeliverables artifacts={artifactList} />
 
-      <section className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-        <Button asChild variant="primary">
+      <MarketingProofChainStrip />
+
+      <section
+        aria-label="Secondary sample actions"
+        className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center"
+      >
+        <Button asChild variant="outline">
           <a
             data-testid="see-it-proof-pack-download"
             href="/api/proxy/v1/marketing/why-archlucid-pack.pdf"
             download="why-archlucid-pack.pdf"
           >
-            Download evidence bundle (PDF)
+            Download sample overview (PDF)
           </a>
         </Button>
         <Link
@@ -156,14 +133,15 @@ export function SeeItMarketingBody({ source, payload }: SeeItMarketingBodyProps)
         </Link>
         <Link
           data-testid="see-it-full-preview-link"
-          className="inline-flex min-h-11 items-center justify-center rounded-md border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-900 hover:bg-neutral-50 dark:border-neutral-600 dark:text-neutral-100 dark:hover:bg-neutral-900"
+          className={cn(MARKETING_SURFACES.inlineLink, "min-h-11 content-center text-sm")}
           href={CANONICAL_ANONYMOUS_PROOF_HREF}
         >
-          Open healthcare claims sample review
+          Open interactive sample review
         </Link>
       </section>
-      <p className={cn("text-al-text-secondary", MARKETING_TYPOGRAPHY.meta)}>
-        The PDF is a no-sign-in marketing bundle aligned with this sample.
+      <p className={cn("text-al-text-secondary", MARKETING_TYPOGRAPHY.meta, MARKETING_CAPTION_TEXT_CLASS)}>
+        The PDF is a no-sign-in marketing overview aligned with this sample — not the full governed evidence
+        bundle from a signed-in workspace.
       </p>
     </div>
   );
