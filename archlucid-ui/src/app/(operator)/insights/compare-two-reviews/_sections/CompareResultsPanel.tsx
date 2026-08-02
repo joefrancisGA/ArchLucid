@@ -26,6 +26,7 @@ import { BUYER_COMPARE_TECHNICAL_APPENDIX_LABEL } from "@/lib/buyer-polish-copy"
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ComparedPair } from "@/app/(operator)/insights/compare-two-reviews/_sections/compare-page-helpers";
 import { CompareGovernanceDiffSection } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareGovernanceDiffSection";
+import { ComparePairEvidenceCiteStrip } from "@/app/(operator)/insights/compare-two-reviews/_sections/ComparePairEvidenceCiteStrip";
 
 export type CompareResultsPanelProps = {
   showStaleInputsWarning: boolean;
@@ -95,8 +96,16 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
     }
   };
 
+  const citeBaselineRunId = lastComparedPair?.left ?? leftTrim;
+  const citeUpdatedRunId = lastComparedPair?.right ?? rightTrim;
+  const showPairCiteStrip =
+    hasResultsToNavigate && citeBaselineRunId.trim().length > 0 && citeUpdatedRunId.trim().length > 0;
+
   return (
     <section className="space-y-6" aria-label="Comparison results">
+      {showPairCiteStrip ? (
+        <ComparePairEvidenceCiteStrip baselineRunId={citeBaselineRunId} updatedRunId={citeUpdatedRunId} />
+      ) : null}
       {showStaleInputsWarning && (
         <OperatorWarningCallout>
           <strong>Selections no longer match the comparison shown here.</strong>
@@ -147,7 +156,7 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
           <OperatorApiProblem failure={legacyFailure} />
           <OperatorTryNext>
             Confirm both reviews exist and are in scope (same tenant/project as the shell). Re-pick reviews from{" "}
-            <Link className={OPERATOR_LINK.nav} href="/reviews?projectId=default">Reviews</Link> or review detail, then click <strong>Compare</strong>{" "}
+            <Link className={OPERATOR_LINK.nav} href="/architecture/reviews?projectId=default">Reviews</Link> or review detail, then click <strong>Compare</strong>{" "}
             again. Use the correlation ID in API logs if you escalate.
           </OperatorTryNext>
         </>

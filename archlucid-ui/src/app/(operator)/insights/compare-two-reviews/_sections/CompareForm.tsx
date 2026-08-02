@@ -7,6 +7,7 @@ import { useSearchParams } from "next/navigation";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { ShortcutHint } from "@/components/ShortcutHint";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { coerceComparisonExplanation, coerceGoldenManifestComparison, coerceRunComparison } from "@/lib/operator-response-guards";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -416,8 +417,7 @@ export function CompareForm() {
         title={buyerPolished ? BUYER_COMPARE_PAGE_TITLE : "Compare two reviews"}
         titleTestId="compare-page-heading"
         subtitle={COMPARE_PAGE_SUBTITLE}
-        helpKey="compare-runs"
-        docsPageKey="/insights/compare-two-reviews"
+        actions={<PageContextualHelpButton />}
         metadata={
           isBuyerPolishedOperatorShellEnv() ? undefined : (
             <ShortcutHint shortcut="Alt+C" className="text-[0.75rem] text-neutral-500" />
@@ -441,7 +441,11 @@ export function CompareForm() {
           <div className="flex flex-col gap-4">
             <CompareComparisonDimensionsPreview />
             <div className="flex flex-wrap items-center gap-2">
-              <CompareRelatedReviewLinks />
+              <CompareRelatedReviewLinks
+                baselineRunId={leftTrim}
+                updatedRunId={rightTrim}
+                preferredRunId={lastComparedPair?.right ?? rightTrim}
+              />
               {showEmptyComparisonOutput ? (
                 <CompareSampleComparisonAction onLoadSampleComparison={loadBuyerSampleComparison} />
               ) : null}

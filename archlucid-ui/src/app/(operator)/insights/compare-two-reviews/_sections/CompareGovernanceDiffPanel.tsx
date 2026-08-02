@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
+import Link from "next/link";
 
 import { StatusTag } from "@/components/ui/status-tag";
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
@@ -9,7 +10,9 @@ import {
   type CompareGovernanceDiffView,
   type CompareManifestGovernanceSnapshot,
 } from "@/lib/compare-effective-governance-diff";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { governancePolicyPackDetailPath } from "@/lib/governance-route-paths";
+import { policyPackBuyerGovernanceDetailHref } from "@/lib/policy-pack-buyer-label";
 
 export type CompareGovernanceDiffPanelProps = {
   readonly view: CompareGovernanceDiffView | null;
@@ -76,15 +79,23 @@ function renderAtCommitSnapshot(
       </p>
       {snapshot.packAssignments.length > 0 ? (
         <ul className="m-0 mt-2 list-none space-y-1 p-0">
-          {snapshot.packAssignments.map((row) => (
-            <li
-              key={`${row.policyPackId}-${row.policyPackVersion}-${row.scopeLevel}`}
-              className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-            >
-              <code className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{row.policyPackId}</code> · v{row.policyPackVersion} ·{" "}
-              {row.scopeLevel}
-            </li>
-          ))}
+          {snapshot.packAssignments.map((row) => {
+            const packHref =
+              policyPackBuyerGovernanceDetailHref(row.policyPackId) ??
+              governancePolicyPackDetailPath(row.policyPackId);
+
+            return (
+              <li
+                key={`${row.policyPackId}-${row.policyPackVersion}-${row.scopeLevel}`}
+                className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              >
+                <Link className={cn(OPERATOR_LINK.inline, "font-mono", OPERATOR_TYPOGRAPHY.micro)} href={packHref}>
+                  {row.policyPackId}
+                </Link>{" "}
+                · v{row.policyPackVersion} · {row.scopeLevel}
+              </li>
+            );
+          })}
         </ul>
       ) : null}
     </div>

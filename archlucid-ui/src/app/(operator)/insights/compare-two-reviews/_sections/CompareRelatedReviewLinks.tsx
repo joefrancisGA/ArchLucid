@@ -5,13 +5,58 @@ import {
   BUYER_COMPARE_OPEN_EVIDENCE_TRAIL_CTA,
   BUYER_COMPARE_OPEN_SIGNED_REVIEW_RECORD_CTA,
 } from "@/lib/buyer-polish-copy";
+import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
+import { evidenceGraphHref } from "@/lib/evidence-graph-route";
 import {
   getShowcaseEvidenceTrailHref,
   getShowcaseManifestHref,
 } from "@/lib/buyer-safe-review-navigation";
+import { reviewSignedRecordPath } from "@/lib/signed-records-paths";
+import {
+  SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID,
+  SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID,
+} from "@/lib/showcase-static-demo";
 
-/** Secondary navigation to related review artifacts — normal links, not journey arrows. */
-export function CompareRelatedReviewLinks() {
+export type CompareRelatedReviewLinksProps = {
+  /** Preferred run for signed-record / evidence CTAs — usually the updated (later) selection. */
+  readonly preferredRunId?: string;
+  readonly baselineRunId?: string;
+  readonly updatedRunId?: string;
+};
+
+function resolvePreferredRunId(props: CompareRelatedReviewLinksProps): string {
+  const updated = canonicalizeDemoRunId((props.updatedRunId ?? "").trim());
+  const preferred = canonicalizeDemoRunId((props.preferredRunId ?? "").trim());
+  const baseline = canonicalizeDemoRunId((props.baselineRunId ?? "").trim());
+
+  if (preferred.length > 0) {
+    return preferred;
+  }
+
+  if (updated.length > 0) {
+    return updated;
+  }
+
+  if (baseline.length > 0) {
+    return baseline;
+  }
+
+  return SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID;
+}
+
+/** Secondary navigation to related review artifacts — pair-scoped when run ids are known. */
+export function CompareRelatedReviewLinks(props: CompareRelatedReviewLinksProps = {}) {
+  const runId = resolvePreferredRunId(props);
+  const isShowcasePair =
+    runId === SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID ||
+    runId === SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID ||
+    canonicalizeDemoRunId((props.baselineRunId ?? "").trim()) === SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID;
+
+  const signedHref = isShowcasePair ? getShowcaseManifestHref() : reviewSignedRecordPath(runId);
+  const evidenceHref = isShowcasePair
+    ? getShowcaseEvidenceTrailHref()
+    : evidenceGraphHref({ runId });
+
   return (
     <nav
       aria-label="Related review views"
@@ -19,10 +64,10 @@ export function CompareRelatedReviewLinks() {
       data-testid="compare-related-review-links"
     >
       <Button type="button" variant="outline" size="sm" asChild>
-        <Link href={getShowcaseManifestHref()}>{BUYER_COMPARE_OPEN_SIGNED_REVIEW_RECORD_CTA}</Link>
+        <Link href={signedHref}>{BUYER_COMPARE_OPEN_SIGNED_REVIEW_RECORD_CTA}</Link>
       </Button>
       <Button type="button" variant="outline" size="sm" asChild>
-        <Link href={getShowcaseEvidenceTrailHref()}>{BUYER_COMPARE_OPEN_EVIDENCE_TRAIL_CTA}</Link>
+        <Link href={evidenceHref}>{BUYER_COMPARE_OPEN_EVIDENCE_TRAIL_CTA}</Link>
       </Button>
     </nav>
   );

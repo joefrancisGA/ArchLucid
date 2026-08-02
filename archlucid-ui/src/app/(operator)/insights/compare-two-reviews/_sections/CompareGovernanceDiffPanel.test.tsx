@@ -47,6 +47,10 @@ describe("CompareGovernanceDiffPanel", () => {
 
     expect(screen.getByTestId("compare-governance-at-commit-section")).toBeInTheDocument();
     expect(screen.getByTestId("compare-governance-baseline-at-commit")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "pack-a" })).toHaveAttribute(
+      "href",
+      "/governance/policy-packs/pack-a",
+    );
     expect(screen.queryByTestId("compare-governance-current-effective-disclaimer")).not.toBeInTheDocument();
   });
 

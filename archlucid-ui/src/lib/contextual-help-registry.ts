@@ -17,7 +17,7 @@ type PageContextualHelpRow = {
 
 const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
   {
-    prefix: "/reviews",
+    prefix: "/architecture/reviews",
     entry: {
       whatIsThisPage: "Create, refine, evaluate, and approve architecture reviews from one hub.",
       whatToDoNext: "Start a review, resume a draft, or explore a sample workspace.",
@@ -34,6 +34,39 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whyEmpty: "Rows appear after findings are accepted or governance decisions are recorded in reviews.",
       whereToConfigurePrerequisite:
         "Policy packs and governance workflow settings shape what becomes a tracked risk.",
+    },
+  },
+  {
+    prefix: "/insights/ask-review-questions",
+    entry: {
+      whatIsThisPage:
+        "Ask plain-language questions about a finalized review; answers use the signed record and cite findings when available.",
+      whatToDoNext:
+        "Select a review, ask about risk or evidence, then open cited findings or the evidence trail under the answer.",
+      whyEmpty: "Threads appear after you ask a question against a selected review.",
+      whereToConfigurePrerequisite: "Finalize or open a review so Ask can ground answers in its evidence.",
+    },
+  },
+  {
+    prefix: "/insights/compare-two-reviews",
+    entry: {
+      whatIsThisPage:
+        "Compare two finalized reviews to see what changed in scope, findings, decisions, governance, and evidence.",
+      whatToDoNext:
+        "Pick baseline and updated reviews, run Compare, then open Sources for each side before briefing sponsors.",
+      whyEmpty: "Results appear after you compare two finalized reviews.",
+      whereToConfigurePrerequisite: "Finalize at least two reviews in this workspace first.",
+    },
+  },
+  {
+    prefix: "/governance/standards-and-rules",
+    entry: {
+      whatIsThisPage:
+        "Inspect standards and policy rules applied to a review, including enforcement mode, source pack, and linked evidence.",
+      whatToDoNext:
+        "Open linked findings or the evidence trail for a rule, then export a resolution snapshot when you need a citeable record.",
+      whyEmpty: "Rules appear after a policy pack or governance configuration applies checks to a review.",
+      whereToConfigurePrerequisite: "Assign and order policy packs for the current workspace and project scope.",
     },
   },
   {

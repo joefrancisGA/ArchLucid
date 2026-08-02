@@ -29,12 +29,15 @@ function wordCount(text: string): number {
 }
 
 describe("contextual-help-registry (TB-733)", () => {
-  it("covers the six starting operator pages", () => {
+  it("covers the starting operator pages", () => {
     const prefixes = allPageContextualHelpRows().map((row) => row.prefix);
 
     expect(prefixes).toEqual([
-      "/reviews",
+      "/architecture/reviews",
       "/governance/findings",
+      "/insights/ask-review-questions",
+      "/insights/compare-two-reviews",
+      "/governance/standards-and-rules",
       "/digests",
       "/planning",
       "/governance/advisory-scans",
@@ -43,14 +46,14 @@ describe("contextual-help-registry (TB-733)", () => {
   });
 
   it("resolves nested paths from the longest matching prefix", () => {
-    expect(contextualHelpForPathname("/reviews/new")?.whatIsThisPage).toContain("architecture reviews");
+    expect(contextualHelpForPathname("/architecture/reviews/new")?.whatIsThisPage).toContain("architecture reviews");
     expect(contextualHelpForPathname("/governance/findings?filter=open")?.whatToDoNext).toContain("Assign owners");
     expect(contextualHelpForPathname("/value-report/pilot")?.whatIsThisPage).toContain("sponsor-ready");
   });
 
   it("returns null for routes not yet migrated", () => {
     expect(contextualHelpForPathname("/administration/connection-status")).toBeNull();
-    expect(contextualHelpForPathname("/architectures")).toBeNull();
+    expect(contextualHelpForPathname("/architecture/architectures")).toBeNull();
   });
 
   it("keeps each page within the Category 1 word budget", () => {
