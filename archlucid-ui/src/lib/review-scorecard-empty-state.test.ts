@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
 import {
   REVIEW_SCORECARD_EMPTY_PRIMARY_CTA,
   REVIEW_SCORECARD_EMPTY_TERTIARY_CTA,
@@ -16,7 +17,7 @@ describe("review-scorecard-empty-state", () => {
   });
 
   it("exposes stable CTA labels and sample href", () => {
-    expect(REVIEW_SCORECARD_EMPTY_PRIMARY_CTA).toBe("Create review");
+    expect(REVIEW_SCORECARD_EMPTY_PRIMARY_CTA).toBe(BUYER_START_ARCHITECTURE_REVIEW_CTA);
     expect(REVIEW_SCORECARD_EMPTY_TERTIARY_CTA).toBe("View sample scorecard");
     expect(buildReviewScorecardSampleHref()).toBe(REVIEW_SCORECARD_SAMPLE_HREF);
   });

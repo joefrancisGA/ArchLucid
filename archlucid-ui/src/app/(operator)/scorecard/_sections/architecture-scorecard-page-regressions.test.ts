@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
 import { ARCHITECTURE_SCORECARD_TRAFFIC_PATH } from "@/lib/ui-route-traffic-architecture-scorecard";
-import { REVIEW_SCORECARD_SAMPLE_HREF } from "@/lib/review-scorecard-empty-state";
+import {
+  REVIEW_SCORECARD_EMPTY_PRIMARY_CTA,
+  REVIEW_SCORECARD_SAMPLE_HREF,
+} from "@/lib/review-scorecard-empty-state";
 import { SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH } from "@/lib/sponsor-report-navigation";
 import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
 
@@ -19,5 +23,10 @@ describe("architecture-scorecard sponsor-report regressions (TB-1959)", () => {
 
   it("contextual help maps architecture scorecard to pilot-roi-model (TB-1959)", () => {
     expect(pageHelpTopicForPathname(SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH)?.slug).toBe("pilot-roi-model");
+  });
+
+  it("empty primary CTA uses buyer Start architecture review label (TB-1958)", () => {
+    expect(REVIEW_SCORECARD_EMPTY_PRIMARY_CTA).toBe(BUYER_START_ARCHITECTURE_REVIEW_CTA);
+    expect(REVIEW_SCORECARD_EMPTY_PRIMARY_CTA).not.toBe("Create review");
   });
 });
