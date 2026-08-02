@@ -14,7 +14,7 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 import { PlanningPageHeader } from "@/app/(operator)/planning/_sections/PlanningPageHeader";
 
 describe("PlanningPageHeader", () => {
-  it("renders h1, help, refresh, and last-updated metadata", () => {
+  it("renders h2, help, refresh, and last-updated metadata", () => {
     const onRefresh = vi.fn();
 
     render(
@@ -26,7 +26,7 @@ describe("PlanningPageHeader", () => {
       />,
     );
 
-    expect(screen.getByRole("heading", { level: 1, name: "Improvement planning" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Improvement planning" })).toBeInTheDocument();
     expect(screen.getByText(IMPROVEMENT_PLANNING_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("planning-refresh-button")).toBeInTheDocument();

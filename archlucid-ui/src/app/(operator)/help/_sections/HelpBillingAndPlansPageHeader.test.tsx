@@ -26,7 +26,7 @@ describe("HelpBillingAndPlansPageHeader", () => {
       />,
     );
 
-    expect(screen.getByRole("heading", { level: 1, name: "Billing and plans" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Billing and plans" })).toBeInTheDocument();
     expect(screen.getByText(billingHelpPageSubtitle(false))).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("help-billing-header-actions")).toBeInTheDocument();

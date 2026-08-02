@@ -71,7 +71,7 @@ describe("EvolutionReviewPageView", () => {
       />,
     );
 
-    expect(screen.getByRole("heading", { name: IMPACT_PREVIEW_PAGE_TITLE, level: 1 })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: IMPACT_PREVIEW_PAGE_TITLE, level: 2 })).toBeInTheDocument();
     expect(screen.getByTestId("impact-preview-refresh-button")).toBeInTheDocument();
     expect(screen.getByTestId("impact-preview-setup-card")).toBeInTheDocument();
     expect(screen.getByTestId("impact-preview-output-preview")).toBeInTheDocument();

@@ -29,7 +29,7 @@ export type OperatorPageHeaderProps = {
   docsPageKey?: string;
   metadata?: ReactNode;
   actions?: ReactNode;
-  /** Page heading level when `navHref` renders {@link PageHeading}. Defaults to `h1`. */
+  /** Page heading level when `navHref` renders {@link PageHeading}. Defaults to `h2` (shell chrome owns the document `h1`). */
   headingLevel?: "h1" | "h2";
   children?: ReactNode;
 };
@@ -45,7 +45,7 @@ export function OperatorPageHeader({
   titleTestId,
   metadata,
   actions,
-  headingLevel = "h1",
+  headingLevel = "h2",
   children,
 }: OperatorPageHeaderProps) {
   if (navHref !== undefined) {
@@ -69,12 +69,12 @@ export function OperatorPageHeader({
   return (
     <header className="mb-6 border-b border-neutral-200 pb-4 dark:border-neutral-800">
       <div className="flex flex-wrap items-center gap-2">
-        <h1
+        <h2
           className={cn("m-0 text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.pageTitle)}
           {...(titleTestId !== undefined ? { "data-testid": titleTestId } : {})}
         >
           {title}
-        </h1>
+        </h2>
         {actions != null && (
           <div className="ml-auto flex flex-wrap items-center gap-2">{actions}</div>
         )}

@@ -44,7 +44,7 @@ describe("HelpCorePilotGuideView", () => {
 
   it("renders buyer title and subtitle without Core-pilot jargon (TB-1041)", () => {
     if (entry === undefined) {
-      throw new Error("Expected core-pilot documentation entry.");
+      throw new Error("Expected first-architecture-review documentation entry.");
     }
 
     render(<HelpCorePilotGuideView entry={entry} />);
@@ -56,7 +56,7 @@ describe("HelpCorePilotGuideView", () => {
 
   it("renders the guided first-review path near the top", () => {
     if (entry === undefined) {
-      throw new Error("Expected core-pilot documentation entry.");
+      throw new Error("Expected first-architecture-review documentation entry.");
     }
 
     render(<HelpCorePilotGuideView entry={entry} />);
@@ -78,7 +78,7 @@ describe("HelpCorePilotGuideView", () => {
 
   it("does not link recursively to View pilot guide anywhere on the page (TB-1040)", () => {
     if (entry === undefined) {
-      throw new Error("Expected core-pilot documentation entry.");
+      throw new Error("Expected first-architecture-review documentation entry.");
     }
 
     render(<HelpCorePilotGuideView entry={entry} />);
@@ -89,7 +89,7 @@ describe("HelpCorePilotGuideView", () => {
 
   it("renders a five-step workflow stepper with action links", () => {
     if (entry === undefined) {
-      throw new Error("Expected core-pilot documentation entry.");
+      throw new Error("Expected first-architecture-review documentation entry.");
     }
 
     render(<HelpCorePilotGuideView entry={entry} />);
@@ -105,7 +105,7 @@ describe("HelpCorePilotGuideView", () => {
 
   it("gates steps 3–5 away from empty reviews list when no active run (TB-1042)", () => {
     if (entry === undefined) {
-      throw new Error("Expected core-pilot documentation entry.");
+      throw new Error("Expected first-architecture-review documentation entry.");
     }
 
     render(<HelpCorePilotGuideView entry={entry} />);
@@ -123,7 +123,7 @@ describe("HelpCorePilotGuideView", () => {
 
   it("frames cloud connectors as optional and shows fast-path evidence-only review", () => {
     if (entry === undefined) {
-      throw new Error("Expected core-pilot documentation entry.");
+      throw new Error("Expected first-architecture-review documentation entry.");
     }
 
     render(<HelpCorePilotGuideView entry={entry} />);
@@ -140,7 +140,7 @@ describe("HelpCorePilotGuideView", () => {
 
   it("uses customer-facing deferral copy and closing CTAs", () => {
     if (entry === undefined) {
-      throw new Error("Expected core-pilot documentation entry.");
+      throw new Error("Expected first-architecture-review documentation entry.");
     }
 
     render(<HelpCorePilotGuideView entry={entry} />);
@@ -160,7 +160,7 @@ describe("HelpCorePilotGuideView", () => {
 
   it("compresses first viewport to hero + stepper and trims related guides (TB-1043)", () => {
     if (entry === undefined) {
-      throw new Error("Expected core-pilot documentation entry.");
+      throw new Error("Expected first-architecture-review documentation entry.");
     }
 
     render(<HelpCorePilotGuideView entry={entry} />);
@@ -182,7 +182,7 @@ describe("HelpCorePilotGuideView", () => {
 
   it("renders sticky on-this-page navigation when enough sections exist", () => {
     if (entry === undefined) {
-      throw new Error("Expected core-pilot documentation entry.");
+      throw new Error("Expected first-architecture-review documentation entry.");
     }
 
     render(<HelpCorePilotGuideView entry={entry} />);

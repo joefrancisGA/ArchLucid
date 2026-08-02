@@ -14,7 +14,7 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 import { AuditPageHeader } from "@/app/(operator)/governance/audit/_sections/AuditPageHeader";
 
 describe("AuditPageHeader", () => {
-  it("renders h1, help, refresh, and last-refreshed metadata", () => {
+  it("renders h2, help, refresh, and last-refreshed metadata", () => {
     const onRefresh = vi.fn();
 
     render(
@@ -27,7 +27,7 @@ describe("AuditPageHeader", () => {
       />,
     );
 
-    expect(screen.getByRole("heading", { level: 1, name: "Audit trail" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Audit trail" })).toBeInTheDocument();
     expect(screen.getByText(auditTrailPageSubtitle(false))).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("audit-header-actions")).toBeInTheDocument();

@@ -92,7 +92,7 @@ describe("SystemHealthPage", () => {
     expect(screen.getByText("Application liveness")).toBeInTheDocument();
     expect(screen.getByText("Responding")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { level: 1, name: "System health" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "System health" })).toBeInTheDocument();
 
     vi.unstubAllGlobals();
   });
@@ -104,7 +104,7 @@ describe("SystemHealthPage", () => {
     render(<SystemHealthPage />);
 
     expect(screen.getByTestId("system-health-demo-page")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { level: 1, name: "System health" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "System health" })).toBeInTheDocument();
     expect(screen.getByText(/Platform readiness and operational checks/i)).toBeInTheDocument();
     expect(screen.getByTestId("system-health-demo-scope-note")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();

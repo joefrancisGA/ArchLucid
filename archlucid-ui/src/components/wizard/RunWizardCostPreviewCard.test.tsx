@@ -51,9 +51,9 @@ describe("RunWizardCostPreviewCard", () => {
         json: async () => ({
           mode: "Real",
           maxCompletionTokens: 1024,
-          estimatedCostUsd: 0.137216,
-          estimatedCostUsdLow: 0.005632,
-          estimatedCostUsdHigh: 0.137216,
+          estimatedCostUsd: 0.7168,
+          estimatedCostUsdLow: 0.03584,
+          estimatedCostUsdHigh: 0.7168,
           estimatedCostBasis: "Starter run = 4 parallel agents.",
           pricingUsesIllustrativeUsdRates: true,
           deploymentName: "gpt-test",
@@ -67,8 +67,8 @@ describe("RunWizardCostPreviewCard", () => {
       expect(screen.getByTestId("run-cost-preview-card")).toBeInTheDocument();
     });
 
-    expect(screen.getByTestId("run-cost-preview-amount")).toHaveTextContent("$0.01");
-    expect(screen.getByTestId("run-cost-preview-amount")).toHaveTextContent("$0.14");
+    expect(screen.getByTestId("run-cost-preview-amount")).toHaveTextContent("$0.04");
+    expect(screen.getByTestId("run-cost-preview-amount")).toHaveTextContent("$0.72");
     expect(screen.getByTestId("run-cost-preview-headline")).toHaveTextContent("MaxCompletionTokens");
     expect(screen.getByTestId("run-cost-preview-headline")).toHaveTextContent("=1024");
     expect(screen.getByTestId("run-cost-preview-headline")).toHaveTextContent("gpt-test");

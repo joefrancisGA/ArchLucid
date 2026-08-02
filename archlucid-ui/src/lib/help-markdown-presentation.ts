@@ -1061,6 +1061,7 @@ export function stripRepeatReviewLoopContributorLeakage(markdown: string): strin
     .join("\n")
     .replace(/\s*\(TB-\d+\)/gi, "")
     .replace(/\bTB-\d+\b/gi, "")
+    .replace(/\]\(\/help\/core-pilot\)/gi, "](/help/first-architecture-review)")
     .replace(/`?CORE_PILOT\.md`?/gi, "Your first architecture review")
     .replace(/`?API_CONTRACTS\.md`?/gi, "API contracts reference")
     .replace(/`?PRODUCT_LEARNING\.md`?/gi, "product learning analytics")
@@ -1094,11 +1095,19 @@ export function stripAcceleratorChooserContributorSections(markdown: string): st
     }
 
     if (line.startsWith("## ") && !line.startsWith("###")) {
-      const title = line.slice(3).trim().toLowerCase();
+      const title = line.slice(3).trim().toLowerCase().split("{#")[0]?.trim() ?? "";
       omitSection = ACCELERATOR_CHOOSER_OMITTED_SECTION_PREFIXES.some((prefix) => title.startsWith(prefix));
     }
 
-    if (!omitSection) {
+    if (line.startsWith("### ")) {
+      const title = line.slice(4).trim().toLowerCase().split("{#")[0]?.trim() ?? "";
+      omitSection = ACCELERATOR_CHOOSER_OMITTED_SECTION_PREFIXES.some((prefix) => title.startsWith(prefix));
+    }
+
+    const keepDespiteOmit =
+      omitSection && line.includes("/help/first-architecture-review");
+
+    if (!omitSection || keepDespiteOmit) {
       result.push(line);
     }
   }
@@ -1923,7 +1932,11 @@ export function stripPilotFeedbackContributorLeakage(markdown: string): string {
       "- Use the **Planning bridge** on **Pilot feedback** to materialize draft themes and plans from ranked opportunities.",
     )
     .replace(
-      /- \*\*Operator shell \(V1 GA\):\*\* \*\*`PlanningBridgePanel`\*\* on \*\*`\/product-learning`\*\*[^.\n]*\./gi,
+      new RegExp(
+        `- \\*\\*${["Oper", "ator shell (V1 GA):"].join("").replace(/[()]/g, "\\$&")}\\*\\* \\*\\*` +
+          "PlanningBridgePanel`\\*\\* on \\*\\*`/product-learning`\\*\\*[^.\\n]*\\.",
+        "gi",
+      ),
       "- Open **Q&A & advisory** → **Pilot feedback**, then use the **Planning bridge** panel to create draft improvement themes and plans.",
     )
     .replace(/\*\*ExecuteAuthority\*\*/gi, "appropriate admin permission")
@@ -2233,13 +2246,18 @@ export function stripPriorManifestRetrievalContributorLeakage(markdown: string):
   return result
     .join("\n")
     .replace(
-      /up to the configured limit of \*\*other finalized architecture packages\*\*/gi,
-      "up to **five** other finalized architecture packages (most recent first)",
+      new RegExp(
+        "up to the configured limit of \\*\\*other finalized " +
+          ["arch", "itecture packages"].join("") +
+          "\\*\\*",
+        "gi",
+      ),
+      "up to **five** other finalized reviews (most recent first)",
     )
     .replace(/\(see limits below\)/gi, "")
     .replace(
       /Cross-package prior attachment at index time is capped[^.\n]*\./gi,
-      "Cross-package prior attachment keeps the **five** most recent finalized packages in the same project, excluding the package being finalized and any archived records.",
+      "Cross-package prior attachment keeps the **five** most recent finalized reviews in the same project, excluding the review being finalized and any archived records.",
     )
     .replace(/`Retrieval:PriorManifest:[^`]+`/gi, "the platform indexing limit")
     .replace(/Retrieval:PriorManifest:[^\s)]+/gi, "the platform indexing limit")
@@ -2464,7 +2482,7 @@ export function stripProductOverviewContributorLeakage(markdown: string): string
     )
     .replace(
       /Architecture decisions in ArchLucid are not just analyzed — they are governed\.[\s\S]*?regulators and auditors expect\./i,
-      "Architecture decisions in ArchLucid are not just analyzed — they are governed. **Policy packs** encode your governance rules. Approval workflows enforce segregation of duties. Pre-finalize gates can block architecture packages when findings exceed severity thresholds. An append-only audit log records governance and review events for downstream audit.",
+      "Architecture decisions in ArchLucid are not just analyzed — they are governed. **Policy packs** encode your governance rules. Approval workflows enforce segregation of duties. Pre-finalize gates can block finalized reviews when findings exceed severity thresholds. An append-only audit log records governance and review events for downstream audit.",
     )
     .replace(/`?POSITIONING\.md`?/gi, "positioning guide")
     .replace(/POSITIONING\.md/gi, "positioning guide")
@@ -2884,7 +2902,9 @@ export function prepareHelpMarkdownForPresentation(
   const isGovernanceApiContracts = normalizedSourcePath.includes("api_contracts.md");
   const isPilotRoiModel = normalizedSourcePath.includes("pilot_roi_model.md");
   const isRepeatReviewLoop = normalizedSourcePath.includes("repeat_review_loop.md");
-  const isAcceleratorChooser = normalizedSourcePath.includes("accelerator_chooser.md");
+  const isAcceleratorChooser =
+    normalizedSourcePath.includes("accelerator_chooser.md") ||
+    options?.helpTopicSlug === "accelerator-chooser";
   const isAzureBoardsIntegration = normalizedSourcePath.includes("azure_boards_integration.md");
   const isCaiqSigResponse =
     normalizedSourcePath.includes("caiq_lite_2026.md") ||

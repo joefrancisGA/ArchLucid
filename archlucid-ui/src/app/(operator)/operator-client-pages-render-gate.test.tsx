@@ -271,7 +271,7 @@ describe("operator client pages — render gate", () => {
   it("EvolutionReviewPage renders primary heading", async () => {
     const page = await EvolutionReviewPage();
     render(page);
-    expect(screen.getByRole("heading", { level: 1, name: "Impact preview" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Impact preview" })).toBeInTheDocument();
   });
 
   it("EvolutionReviewPage does not render internal codename '60R' in user-visible output", async () => {

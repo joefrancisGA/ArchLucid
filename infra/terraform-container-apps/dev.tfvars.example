@@ -14,7 +14,7 @@ ui_container_image  = "acrarchluciddev.azurecr.io/archlucid-ui:latest-dev"
 acr_resource_id = "/subscriptions/<sub-id>/resourceGroups/rg-ArchLucid-dev/providers/Microsoft.ContainerRegistry/registries/acrarchluciddev"
 
 # Pilot-friendly replica floor for cost (duplicate advisory acceptable in personal dev).
-api_min_replicas = 1
+api_min_replicas = 0
 api_max_replicas = 3
 ui_min_replicas  = 1
 ui_max_replicas  = 2

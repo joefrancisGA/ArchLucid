@@ -41,7 +41,8 @@ test.describe("Core pilot path (mock API, buyer-polished shell)", () => {
       page.getByTestId("operator-home-hero-section").getByTestId("pilot-command-center-card"),
     ).toBeVisible();
     await expect(page.getByTestId("pilot-next-best-action")).toBeVisible();
-    await expect(page.getByTestId("operator-home-advanced-guidance")).toBeVisible({ timeout: 60_000 });
+    // Buyer-polished Overview omits the collapsed advanced-guidance rail (hero contextual help covers onboarding).
+    await expect(page.getByTestId("operator-home-advanced-guidance")).toHaveCount(0);
 
     // Mock Playwright config sets NEXT_PUBLIC_CTO_DEMO_NAV_EXPANDED — advanced nav is visible without unlock panel.
     await expect(page.getByTestId("operate-features-unlock-panel")).toHaveCount(0);

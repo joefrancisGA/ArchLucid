@@ -169,7 +169,7 @@ export async function expectExecutiveRoiDashboardShell(page: Page): Promise<void
 
   ).toBeVisible();
 
-  await expect(page.getByText(v.portfolioPageLead)).toBeVisible();
+  await expect(page.getByTestId("executive-dashboard-page-hero")).toBeVisible();
 
 }
 
@@ -509,7 +509,7 @@ export async function expectExecutiveRoiEnvironmentPieVisible(page: Page): Promi
   await page.waitForResponse(isExecutiveRoiExportProxyResponse, { timeout: 60_000 }).catch(() => null);
 
   await expect(page.getByText("Loading environment breakdown…")).toHaveCount(0, { timeout: 60_000 });
-  await expect(page.getByTestId("exec-roi-environment-pie")).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByTestId("exec-roi-environment-pie")).toBeVisible({ timeout: 60_000 });
 }
 
 

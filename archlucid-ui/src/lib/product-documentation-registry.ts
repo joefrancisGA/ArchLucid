@@ -485,7 +485,8 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     summary:
       "Map buyer jobs to existing starter proof packs after your first finalized architecture review — inputs, outputs, and V1 scope labels.",
     audience: "operator",
-    sourcePaths: ["docs/library/ACCELERATOR_CHOOSER.md"],
+    sourcePaths: ["docs/go-to-market/DEMO_QUICKSTART.md"],
+    sectionAnchors: ["accelerator-chooser"],
   },
   {
     slug: "specialty-walkthroughs",

@@ -15,14 +15,6 @@ locals {
     var.openai_compose_mode == "create" && var.openai_enable_chat_deployment ? try(azurerm_cognitive_deployment.chat[0].name, "") : ""
   )
 
-  openai_economy_deployment_effective = local.openai_existing_mode ? trimspace(var.openai_existing_economy_deployment_name) : (
-    var.openai_compose_mode == "create" && var.openai_enable_economy_deployment ? try(azurerm_cognitive_deployment.economy[0].name, "") : ""
-  )
-
-  openai_premium_deployment_effective = local.openai_existing_mode ? trimspace(var.openai_existing_premium_deployment_name) : (
-    var.openai_compose_mode == "create" && var.openai_enable_premium_deployment ? try(azurerm_cognitive_deployment.premium[0].name, "") : ""
-  )
-
   openai_embedding_deployment_effective = local.openai_existing_mode ? trimspace(var.openai_existing_embedding_deployment_name) : (
     var.openai_compose_mode == "create" && var.openai_enable_embedding_deployment ? try(azurerm_cognitive_deployment.embedding[0].name, "") : ""
   )

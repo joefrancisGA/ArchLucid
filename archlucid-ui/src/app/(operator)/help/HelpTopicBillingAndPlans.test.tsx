@@ -138,7 +138,7 @@ describe("HelpBillingAndPlansGuideView", () => {
 
     renderWithOperatorQuery(<HelpBillingAndPlansGuideView entry={entry} />);
 
-    expect(screen.getByRole("heading", { level: 1, name: BILLING_HELP_PAGE_TITLE })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: BILLING_HELP_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByText(BILLING_HELP_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.getByTestId("help-billing-refresh-button")).toBeInTheDocument();
     expect(screen.getByTestId("help-billing-last-refreshed")).toHaveTextContent(/Last refreshed:/i);

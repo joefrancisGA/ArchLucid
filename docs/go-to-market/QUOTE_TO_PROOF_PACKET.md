@@ -640,8 +640,8 @@ SaaS subscription (Team / Professional) is a separate order form after the revie
 
 | Shape | Indicative USD (private) |
 |-------|--------------------------|
-| Narrowly bounded | **$1,500–$3,000** |
-| Standard (default quote) | **$5,000–$10,000** |
+| Narrowly bounded | **Low four figures (private band)** |
+| Standard (default quote) | **Mid four figures (private band)** |
 | Multi-system / team | Upper bands per [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md) §5 / custom |
 
 Fill the SOW “Indicative fee” line; owner reviews every send. Source bands: [`#paid-offer-test-private`](#paid-offer-test-private).
@@ -764,11 +764,11 @@ Good fit if you are
 Not a fit if you need
 • CPA-issued SOC 2 or a published third-party pen test as day-one deliverables
 • Jira / ServiceNow / Teams / Slack native sync as a go-live blocker
-• Public Marketplace self-serve checkout or guaranteed $ savings claims
+• Public Marketplace self-serve checkout or promised savings amount claims
 
 Pricing
 Private quote after scope. Indicative bands for planning (not a public list):
-lightweight $1,500–$3,000 · standard $5,000–$10,000 · larger multi-system
+lightweight low-four-figures · standard mid-four-figures · larger multi-system
 pilots quoted separately. SaaS subscription is a separate commercial step
 after the review proves value.
 
@@ -844,11 +844,11 @@ Not a fit if you need
    governance listing instead)
 • CPA-issued SOC 2 or a published third-party pen test as day-one deliverables
 • Native Jira / ServiceNow / Teams sync as a go-live blocker
-• Guaranteed $ savings or invoice-accurate Azure OpenAI COGS claims
+• Promised savings amounts or invoice-accurate Azure OpenAI COGS claims
 
 Pricing
 Private quote after scope. Indicative bands for planning (not a public list):
-lightweight $1,500–$3,000 · standard $5,000–$10,000 · larger multi-subscription
+lightweight low-four-figures · standard mid-four-figures · larger multi-subscription
 estates quoted separately. SaaS subscription is a separate commercial step
 after the review proves value.
 

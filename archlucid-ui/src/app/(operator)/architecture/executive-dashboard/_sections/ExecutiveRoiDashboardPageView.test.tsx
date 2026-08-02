@@ -41,7 +41,7 @@ vi.mock("@/components/ExecutiveValueNarrativeBanner", () => ({
 vi.mock("@/components/executive/ExecutiveDashboardPageHero", () => ({
   ExecutiveDashboardPageHero: ({ dashboardEmpty }: { dashboardEmpty: boolean }) => (
     <header data-testid="executive-dashboard-page-hero" data-dashboard-empty={dashboardEmpty ? "true" : "false"}>
-      <h1 data-testid="executive-summary-heading">Executive dashboard</h1>
+      <h2 data-testid="executive-summary-heading">Executive dashboard</h2>
       <button type="button" data-testid="executive-dashboard-refresh-button">
         Refresh
       </button>
@@ -75,16 +75,16 @@ describe("ExecutiveRoiDashboardPageView executive surface", () => {
     expect(screen.getByTestId("executive-dashboard-how-it-works")).toBeInTheDocument();
     expect(screen.queryByTestId("executive-primary-decisions-needed")).not.toBeInTheDocument();
     expect(screen.queryByTestId("sponsor-exports-section")).toBeNull();
-    expect(screen.getByRole("heading", { level: 1, name: "Executive dashboard" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Executive dashboard" })).toBeInTheDocument();
   });
 });
 
 describe("ExecutiveRoiDashboardPageView operator surface (TB-608 consolidation)", () => {
-  it("renders the same portfolio empty state and h1 as the executive surface", () => {
+  it("renders the same portfolio empty state and h2 as the executive surface", () => {
     render(<ExecutiveRoiDashboardPageView />);
 
     expect(screen.getByTestId("executive-dashboard-empty-state")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { level: 1, name: "Executive dashboard" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Executive dashboard" })).toBeInTheDocument();
     expect(screen.queryByTestId("sponsor-exports-section")).toBeNull();
   });
 });

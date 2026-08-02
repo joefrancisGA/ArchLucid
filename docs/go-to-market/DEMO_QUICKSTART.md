@@ -1167,7 +1167,7 @@ Bundled **platform default** packs (23+ categories seeded per tenant) are listed
 
 - Pack chooser (templates tree): [`STARTER_PROOF_PACK_CHOOSER.md`](../../templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md)
 - Golden walkthrough (one pack): [`#golden-accelerator-walkthrough-regulated-saas`](#golden-accelerator-walkthrough-regulated-saas) (`GOLDEN_ACCELERATOR_WALKTHROUGH.md` alias)
-- First-pilot path: [Your first architecture review](/help/core-pilot)
+- First-pilot path: [Your first architecture review](/help/first-architecture-review)
 
 **Out of scope for all V1-ready packs:** live Stripe/Marketplace checkout, CPA SOC 2, public reference customers, MCP, first-party Jira/ServiceNow/Teams/Slack connectors (V1.1 unless separately promoted).
 

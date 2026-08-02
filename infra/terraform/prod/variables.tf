@@ -63,19 +63,7 @@ variable "openai_existing_endpoint" {
 
 variable "openai_existing_chat_deployment_name" {
   type        = string
-  description = "Standard (Terra) chat/completion deployment name on the consumed account (maps to AzureOpenAI:DeploymentName)."
-  default     = ""
-}
-
-variable "openai_existing_economy_deployment_name" {
-  type        = string
-  description = "Economy (Luna) deployment name on the consumed account (maps to ArchLucid:AgentModelTiers:EconomyDeploymentName)."
-  default     = ""
-}
-
-variable "openai_existing_premium_deployment_name" {
-  type        = string
-  description = "Premium (Sol) deployment name on the consumed account (maps to ArchLucid:AgentModelTiers:PremiumDeploymentName)."
+  description = "Chat/completion deployment name on the consumed account (maps to AzureOpenAI:DeploymentName)."
   default     = ""
 }
 
@@ -210,91 +198,25 @@ variable "openai_enable_chat_deployment" {
 
 variable "openai_chat_deployment_name" {
   type        = string
-  description = "Azure OpenAI Standard (Terra) chat deployment name."
-  default     = "gpt-5.6-terra"
+  description = "Azure OpenAI chat deployment name."
+  default     = "gpt-4o"
 }
 
 variable "openai_chat_model_name" {
   type        = string
-  description = "OpenAI model name for Standard chat deployment — confirm regional availability."
-  default     = "gpt-5.6-terra"
+  description = "OpenAI model name for chat deployment â€” confirm regional availability."
+  default     = "gpt-4o"
 }
 
 variable "openai_chat_model_version" {
   type        = string
-  description = "OpenAI model version for Standard chat deployment."
-  default     = "2026-07-09"
-}
-
-variable "openai_chat_sku_name" {
-  type        = string
-  description = "SKU for chat deployments (GlobalStandard for GPT-5.6 Global Standard PAYG)."
-  default     = "GlobalStandard"
+  description = "OpenAI model version for chat deployment."
+  default     = "2024-08-06"
 }
 
 variable "openai_chat_capacity" {
   type        = number
-  description = "TPM capacity units for Standard (Terra) chat deployment SKU."
-  default     = 10
-}
-
-variable "openai_enable_economy_deployment" {
-  type        = bool
-  description = "When true and openai_compose_mode = create, provision the Economy (Luna) chat deployment."
-  default     = true
-}
-
-variable "openai_economy_deployment_name" {
-  type        = string
-  description = "Azure OpenAI Economy (Luna) chat deployment name."
-  default     = "gpt-5.6-luna"
-}
-
-variable "openai_economy_model_name" {
-  type        = string
-  description = "OpenAI model name for Economy chat deployment."
-  default     = "gpt-5.6-luna"
-}
-
-variable "openai_economy_model_version" {
-  type        = string
-  description = "OpenAI model version for Economy chat deployment."
-  default     = "2026-07-09"
-}
-
-variable "openai_economy_capacity" {
-  type        = number
-  description = "TPM capacity units for Economy (Luna) chat deployment SKU."
-  default     = 10
-}
-
-variable "openai_enable_premium_deployment" {
-  type        = bool
-  description = "When true and openai_compose_mode = create, provision the Premium (Sol) chat deployment."
-  default     = true
-}
-
-variable "openai_premium_deployment_name" {
-  type        = string
-  description = "Azure OpenAI Premium (Sol) chat deployment name."
-  default     = "gpt-5.6-sol"
-}
-
-variable "openai_premium_model_name" {
-  type        = string
-  description = "OpenAI model name for Premium chat deployment."
-  default     = "gpt-5.6-sol"
-}
-
-variable "openai_premium_model_version" {
-  type        = string
-  description = "OpenAI model version for Premium chat deployment."
-  default     = "2026-07-09"
-}
-
-variable "openai_premium_capacity" {
-  type        = number
-  description = "TPM capacity units for Premium (Sol) chat deployment SKU."
+  description = "TPM capacity units for chat deployment SKU."
   default     = 10
 }
 

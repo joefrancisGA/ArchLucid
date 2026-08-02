@@ -21,7 +21,7 @@ describe("RunDetailGovernanceDecisionSection", () => {
     render(<RunDetailGovernanceDecisionSection {...baseProps} manifestId={null} />);
 
     expect(screen.getByTestId("run-detail-governance-decision")).toHaveAttribute("data-package-committed", "false");
-    expect(screen.getByText(/after you finalize this architecture package/i)).toBeInTheDocument();
+    expect(screen.getByText(/after you finalize this architecture review/i)).toBeInTheDocument();
     expect(screen.queryByText("Record governance decision")).not.toBeInTheDocument();
     expect(screen.queryByText("No governance decision recorded")).not.toBeInTheDocument();
 

@@ -1,0 +1,56 @@
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import {
+  DECISION_REGISTER_VIEW_CARDS_LABEL,
+  DECISION_REGISTER_VIEW_TIMELINE_LABEL,
+} from "./decision-register-copy";
+import DecisionRegisterClient from "./DecisionRegisterClient";
+
+vi.mock("@/lib/api/governance-stickiness-api", () => ({
+  getArchitectureDecisionRegister: vi.fn(),
+}));
+
+vi.mock("@/lib/operator-scope-storage", () => ({
+  getEffectiveBrowserProxyScopeHeaders: () => ({}),
+}));
+
+vi.mock("@/lib/operator-resource-scope", () => ({
+  projectIdFromScopeHeaders: () => "default",
+}));
+
+import { getArchitectureDecisionRegister } from "@/lib/api/governance-stickiness-api";
+
+const mockedGetRegister = vi.mocked(getArchitectureDecisionRegister);
+
+describe("DecisionRegisterClient view switcher", () => {
+  beforeEach(() => {
+    mockedGetRegister.mockReset();
+    mockedGetRegister.mockResolvedValue({ decisions: [] });
+  });
+
+  it("switches empty-state chrome between cards and timeline", async () => {
+    render(<DecisionRegisterClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("decision-register-empty-state")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("decision-register-cards")).toBeInTheDocument();
+    expect(screen.queryByTestId("decision-register-timeline-panel")).not.toBeInTheDocument();
+
+    const cardsButton = screen.getByRole("button", { name: DECISION_REGISTER_VIEW_CARDS_LABEL });
+    const timelineButton = screen.getByRole("button", { name: DECISION_REGISTER_VIEW_TIMELINE_LABEL });
+
+    expect(cardsButton).toHaveAttribute("aria-pressed", "true");
+    expect(timelineButton).toHaveAttribute("aria-pressed", "false");
+
+    fireEvent.click(timelineButton);
+
+    expect(timelineButton).toHaveAttribute("aria-pressed", "true");
+    expect(cardsButton).toHaveAttribute("aria-pressed", "false");
+    expect(screen.getByTestId("decision-register-timeline-panel")).toBeInTheDocument();
+    expect(screen.queryByTestId("decision-register-cards")).not.toBeInTheDocument();
+    expect(screen.getByTestId("decision-register-empty-state")).toBeInTheDocument();
+  });
+});

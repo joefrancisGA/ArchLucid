@@ -117,7 +117,7 @@ describe("RunDetailPageView progressive disclosure", () => {
 
   it("places executive context immediately after the decision snapshot in standard review mode", () => {
     const summaryIndex = source.indexOf("<RunDetailWorkspaceSummaryStrip");
-    const executiveAfterSummary = source.indexOf("{executiveBottomLineEl}", summaryIndex);
+    const executiveAfterSummary = source.indexOf("executiveBottomLineEl", summaryIndex);
     const tabbedWorkspaceIndex = source.indexOf("{tabbedWorkspaceEl}");
 
     expect(summaryIndex).toBeGreaterThan(-1);

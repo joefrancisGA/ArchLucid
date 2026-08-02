@@ -204,7 +204,6 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | ADD | `/admin/demo-readiness` | 0.02% | 0 | 0 | 2 | Admin | None |
 | ADE | `/admin/deployment-status` | 0.02% | 0 | 0 | 2 | Admin | None |
 | AR | `/architectures` | 0.02% | 0 | 0 | 2 | Core review | None |
-| AIN | `/architecture-intelligence` | 0.05% | 0 | 0 | 5 | Core review | None |
 | ARA | `/architectures/[architectureId]` | 0.02% | 0 | 0 | 2 | Core review | None |
 | ARE | `/architecture/executive-dashboard` | 0.02% | 0 | 0 | 2 | Executive | Canonical executive ROI portfolio dashboard — ExecutiveRoiDashboardPageView with hero, KPI tiles, trend charts, sponsor exports, and PageContextualHelp → executive-summary. Legacy /dashboard (DSH), /executive/dashboard (EXD), and /portfolio redirect here (TB-608). |
 | AUB | `/auth/bootstrap` | 0.02% | 0 | 0 | 2 | Auth | None |

@@ -62,7 +62,7 @@ vi.mock("@/components/OperatorPageHeader", () => ({
     actions?: ReactNode;
   }) => (
     <div>
-      <h1>{title}</h1>
+      <h2>{title}</h2>
       {subtitle ? <p data-testid="runs-page-subtitle">{subtitle}</p> : null}
       {metadata ? <div data-testid="runs-page-metadata">{metadata}</div> : null}
       {actions ? <div data-testid="runs-page-header-actions">{actions}</div> : null}
@@ -131,7 +131,7 @@ describe("RunsPageView page chrome", () => {
   it("renders synchronized title and hub subtitle without default project metadata", () => {
     render(<RunsPageView model={baseModel()} />);
 
-    expect(screen.getByRole("heading", { level: 1, name: REVIEWS_HUB_PAGE_TITLE })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: REVIEWS_HUB_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("runs-page-subtitle")).toHaveTextContent(REVIEWS_HUB_PAGE_SUBTITLE);
     expect(screen.queryByTestId("runs-page-project-label")).toBeNull();
   });

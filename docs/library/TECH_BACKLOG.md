@@ -1,6 +1,7 @@
+> **Scope:** Engineering-owned technical backlog items deferred from current sessions; audience is contributors and the AI assistant; not a buyer or operator document. Not a substitute for ADRs or the pending-questions owner decisions file.
+
 **Updated:** 2026-07-31 (Open **P1** summary rows reordered - human-impact ship order for /ship-next-improvement; 723 open P1s; see `### P1 - human-impact ship order`).
 
-> **Scope:** Engineering-owned technical backlog items deferred from current sessions; audience is contributors and the AI assistant; not a buyer or operator document. Not a substitute for ADRs or the pending-questions owner decisions file.
 
 ## Cursor-actionable backlog ? remaining by architectural quality
 
