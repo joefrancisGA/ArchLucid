@@ -1,4 +1,5 @@
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
+import { tryResolveInAppDocHref } from "@/lib/in-app-doc-href";
 
 /**
  * Static contextual help index for the architect workspace. Doc paths are relative to the repository root.
