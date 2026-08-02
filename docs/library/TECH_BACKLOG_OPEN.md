@@ -728,7 +728,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1956 | Architecture scorecard — traffic section honesty (Sponsor report, not Marketing) | Trustworthiness P1 **V1** — SPA ~48 |
 | TB-1957 | Scorecard sample mode — canonical SPA href + preserve `?sample=1` | Trustworthiness P1 **V1** — with **TB-1956** |
 | TB-1958 | Scorecard empty CTA buyer vocabulary (Create review → Start…) | Trustworthiness P1 **V1** — with **TB-1956** |
-| TB-1959 | Scorecard — mount PageContextualHelp with **TB-1668** | Adoption friction P1 **V1** — with **TB-1956** |
 | TB-1960 | Scorecard — Vitest sample href + traffic + empty CTA | Testability P2 **V1** — with **TB-1956** |
 | TB-1961 | Executive summary — traffic section honesty (Sponsor report, not Marketing) | Trustworthiness P1 **V1** — SPE ~50 |
 | TB-1962 | Executive summary — metadata vs H1 vocabulary (Executive summary vs Executive value report) | Trustworthiness P1 **V1** — with **TB-1961** |
@@ -938,7 +937,7 @@ Canonical: [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) only (see wave-3 c
 | Ghost artifact preview (`/reviews/.../artifacts/...`) | **TB-1821**–**TB-1825** (open P1 **V1**) | Restore/redirect Preview; fix ArtifactListTable hrefs; traffic honesty; pair MAM; CI existence guard; ~10/100; traffic **RER**; after Done **TB-752** |
 | Ghost signed-record artifact preview (`/signed-records/.../artifacts/...`) | **TB-1946**–**TB-1950** (open P1 **V1**) | Traffic ghost; execute **TB-1824**; hrefs; docs; Vitest with **TB-1825**; ~10/100; traffic **MAM**; peer **RER** |
 | Snapshot leave-behind (`/snapshot/[runId]`) | **TB-1951**–**TB-1955** (open **V1**) | Redirect traffic; destination honesty; next.config/query; docs; Vitest; ~30/100; traffic **SNU** |
-| Architecture scorecard (`/sponsor-report/architecture-scorecard`) | **TB-1956**–**TB-1960** (open **V1**) | Traffic section; sample href; empty CTA; help with **TB-1668**; Vitest; ~48/100; traffic **SPA**; siblings SPE/SPP/SPR |
+| Architecture scorecard (`/sponsor-report/architecture-scorecard`) | **TB-1956**–**TB-1958**, **TB-1960** (open **V1**) | Traffic section; sample href; empty CTA; Vitest; ~48/100; traffic **SPA**; siblings SPE/SPP/SPR; **TB-1959** Done |
 | Executive summary (`/sponsor-report/executive-summary`) | **TB-1961**–**TB-1963**, **TB-1965** (open **V1**) | Traffic section; title vocabulary; canonical deep-links; Vitest; ~50/100; traffic **SPE**; siblings SPP/SPR; **TB-1964** Done |
 | Pilot outcomes (`/sponsor-report/pilot-outcomes`) | — | **TB-1966**–**TB-1970** Done; traffic **SPP**; sibling SPR |
 | ROI summary (`/sponsor-report/roi-summary`) | — | **TB-1971**–**TB-1975** Done; traffic **SPR** |

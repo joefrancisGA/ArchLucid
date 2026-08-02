@@ -22,6 +22,10 @@ vi.mock("@/components/usability/ValueReportOutcomesNav", () => ({
   ValueReportOutcomesNav: () => <nav data-testid="value-report-outcomes-nav" />,
 }));
 
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+}));
+
 const mockUseSearchParams = vi.mocked(useSearchParams);
 
 const scorecardData: PilotScorecardJson = {
@@ -62,6 +66,12 @@ function buildModel(overrides: Partial<UsePilotScorecardPageModel> = {}): UsePil
 describe("PilotScorecardPageView", () => {
   beforeEach(() => {
     mockUseSearchParams.mockReturnValue(new URLSearchParams());
+  });
+
+  it("mounts contextual help (TB-1959)", () => {
+    render(<PilotScorecardPageView model={buildModel()} />);
+
+    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
   });
 
   it("uses consistent Architecture scorecard labeling and customer-safe subtitle", () => {

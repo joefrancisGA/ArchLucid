@@ -54,6 +54,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     prefix: "/sponsor-report/roi-summary",
     topic: { slug: "pilot-roi-model", label: "View ROI methodology" },
   },
+  {
+    prefix: "/sponsor-report/architecture-scorecard",
+    topic: { slug: "pilot-roi-model", label: "View ROI methodology" },
+  },
   { prefix: "/sponsor-report", topic: { slug: "executive-summary", label: "Executive summary" } },
   { prefix: "/value-report", topic: { slug: "executive-summary", label: "Executive summary" } },
   { prefix: "/digests", topic: { slug: "how-it-works", label: "Architecture digests" } },

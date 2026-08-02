@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { ValueReportOutcomesNav } from "@/components/usability/ValueReportOutcomesNav";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -91,6 +92,9 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
 
   return (
     <div className="w-full max-w-[1440px] space-y-8 px-4 py-8" data-testid="review-scorecard-page">
+      <div className="flex flex-wrap items-center justify-end gap-2 print:hidden">
+        <PageContextualHelpButton />
+      </div>
       <ValueReportOutcomesNav />
       <header className="space-y-2">
         <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{REVIEW_SCORECARD_PAGE_TITLE}</h1>
