@@ -102,7 +102,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | AHX | `/admin/health` | 0.15% | 0 | 0 | 15 | Admin | None |
 | ADV | `/governance/advisory-scans` | 0.15% | 0 | 0 | 15 | Advisory | None |
 | GAI | `/governance/approval-requests/[id]/lineage` | 0.15% | 0 | 0 | 15 | Alerts/gov | None |
-| GRS | `/governance/resolution` | 0.15% | 0 | 0 | 15 | Alerts/gov | None |
+| GRS | `/governance/standards-and-rules` | 0.15% | 0 | 0 | 15 | Alerts/gov | Formerly `/governance/resolution` (retired; no redirect). `/governance-resolution` still redirects. |
 | HCE | `/help/cloud-connections` | 0.15% | 0 | 0 | 15 | Help topic | None |
 | STX | `/settings/tenant` | 0.15% | 0 | 0 | 15 | Settings | None |
 | AUX | `/settings/users` | 0.15% | 0 | 0 | 15 | Settings | None |
@@ -119,7 +119,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | ASX | `/settings/support` | 0.12% | 0 | 0 | 12 | Settings | None |
 | ACX | `/admin/configuration` | 0.1% | 0 | 0 | 10 | Admin | None |
 | ARX | `/admin/rag-health` | 0.1% | 0 | 0 | 10 | Admin | None |
-| EXX | `/evolution-review` | 0.1% | 0 | 0 | 10 | Marketing | None |
+| EXX | `/insights/impact-preview` | 0.1% | 0 | 0 | 10 | Marketing | Formerly `/evolution-review` (retired; no redirect). |
 | ESX | `/executive/scorecard` | 0.1% | 0 | 0 | 10 | Executive | None |
 | GFX | `/governance/setup` | 0.1% | 0 | 0 | 10 | Alerts/gov | None |
 | HA | `/help/alerts` | 0.1% | 0 | 0 | 10 | Help topic | None |
@@ -284,7 +284,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | MA | `/signed-records` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | MAM | `/signed-records/[manifestId]/artifacts/[artifactId]` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | SPA | `/sponsor-report/architecture-scorecard` | 0.02% | 0 | 0 | 2 | Sponsor report | Sponsor architecture scorecard report (canonical); `/scorecard` redirects here for bookmark compat. |
-| SPE | `/sponsor-report/executive-summary` | 0.02% | 0 | 0 | 2 | Marketing | None |
+| SPE | `/sponsor-report/executive-summary` | 0.02% | 0 | 0 | 2 | Sponsor report | Sponsor executive summary report (canonical); `/value-report` redirects here for bookmark compat. |
 | SPP | `/sponsor-report/pilot-outcomes` | 0.02% | 0 | 0 | 2 | Sponsor report | Sponsor pilot outcomes report (canonical); `/value-report/pilot` redirects here for bookmark compat. |
 | SPR | `/sponsor-report/roi-summary` | 0.02% | 0 | 0 | 2 | Sponsor report | Sponsor ROI summary report (canonical); `/value-report/roi` redirects here for bookmark compat. |
 
