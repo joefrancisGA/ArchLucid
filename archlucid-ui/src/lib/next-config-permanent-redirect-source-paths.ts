@@ -16,7 +16,8 @@ import {
  * Base path prefixes for `permanent: true` redirects in `next.config.ts`.
  * Keep in sync when adding customer-facing redirect sources.
  * Pre-release legacy bookmark shims and IA renames without redirects
- * (`/onboarding`, `/graph`, `/ask`, `/search`, alert-routing, digests, etc.) were retired — no redirect.
+ * (`/onboarding`, `/graph`, `/ask`, `/search`, `/snapshot`, alert-routing, digests, etc.) use App Router
+ * pages when destination logic or query preservation requires it — no `next.config` redirect.
  */
 export const NEXT_CONFIG_PERMANENT_REDIRECT_SOURCE_PATHS: readonly string[] = [
   "/runs",

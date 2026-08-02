@@ -3,8 +3,11 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
+import nextConfig from "../../next.config";
+
 import { LEGACY_SNAPSHOT_ROUTE_METADATA } from "@/lib/legacy-snapshot-route-metadata";
 import {
+  LEGACY_SNAPSHOT_INBOUND_QUERY_POLICY_NOTE,
   LEGACY_SNAPSHOT_PATH_PATTERN,
   LEGACY_SNAPSHOT_PATH_PREFIX,
 } from "@/lib/legacy-snapshot-route";
@@ -36,7 +39,7 @@ const BANNED_CLIENT_IMPORT_PATTERNS = ['"use client"', "SnapshotPageClient", "Ex
 
 const SNAPSHOT_LEAVE_BEHIND_SURFACES = ["archlucid-ui/src/lib/buyer-cto-demo-recap.ts"] as const;
 
-describe("legacy-snapshot-route (TB-1951 / TB-1952 / TB-1954)", () => {
+describe("legacy-snapshot-route (TB-1951 / TB-1952 / TB-1953 / TB-1954)", () => {
   it("marks the legacy shim as noindex with honest metadata", () => {
     expect(LEGACY_SNAPSHOT_ROUTE_METADATA.robots).toEqual({ index: false, follow: false });
     expect(LEGACY_SNAPSHOT_ROUTE_METADATA.title).toContain("Redirect");
@@ -72,5 +75,21 @@ describe("legacy-snapshot-route (TB-1951 / TB-1952 / TB-1954)", () => {
       expect(source).toContain("/reviews/");
       expect(source).toContain("SHOWCASE_STATIC_DEMO_RUN_ID");
     }
+  });
+
+  it("documents inbound query preservation and keeps /snapshot off next.config redirects (TB-1953)", async () => {
+    expect(LEGACY_SNAPSHOT_INBOUND_QUERY_POLICY_NOTE).toContain("v=demo");
+    expect(LEGACY_SNAPSHOT_INBOUND_QUERY_POLICY_NOTE).toContain("readOnly=1");
+    expect(LEGACY_SNAPSHOT_ROUTE_METADATA.description).toContain("v=demo");
+
+    const redirectRules = await nextConfig.redirects?.();
+
+    expect(
+      redirectRules?.some(
+        (rule) =>
+          rule.source === LEGACY_SNAPSHOT_PATH_PREFIX ||
+          rule.source.startsWith(`${LEGACY_SNAPSHOT_PATH_PREFIX}/`),
+      ),
+    ).toBe(false);
   });
 });
