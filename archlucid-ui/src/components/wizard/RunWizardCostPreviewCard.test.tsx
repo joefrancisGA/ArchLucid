@@ -67,8 +67,8 @@ describe("RunWizardCostPreviewCard", () => {
       expect(screen.getByTestId("run-cost-preview-card")).toBeInTheDocument();
     });
 
-    expect(screen.getByTestId("run-cost-preview-amount")).toHaveTextContent("$0.01");
-    expect(screen.getByTestId("run-cost-preview-amount")).toHaveTextContent("$0.14");
+    expect(screen.getByTestId("run-cost-preview-amount")).toHaveTextContent("$0.04");
+    expect(screen.getByTestId("run-cost-preview-amount")).toHaveTextContent("$0.72");
     expect(screen.getByTestId("run-cost-preview-headline")).toHaveTextContent("MaxCompletionTokens");
     expect(screen.getByTestId("run-cost-preview-headline")).toHaveTextContent("=1024");
     expect(screen.getByTestId("run-cost-preview-headline")).toHaveTextContent("gpt-test");
