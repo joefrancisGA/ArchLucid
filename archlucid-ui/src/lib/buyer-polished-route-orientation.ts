@@ -28,7 +28,7 @@ import {
 } from "@/lib/showcase-static-demo";
 
 export type BuyerPolishedRouteOrientationOptions = {
-  /** When `/search` or `/governance` carries `runId`, header copy can reflect a scoped review. */
+  /** When `/insights/search-review-evidence` or `/governance` carries `runId`, header copy can reflect a scoped review. */
   readonly searchRunId?: string;
 };
 
@@ -261,7 +261,7 @@ export function buyerPolishedRouteOrientation(
     };
   }
 
-  if (path.startsWith("/search")) {
+  if (path.startsWith("/insights/search-review-evidence")) {
     const searchRunId = options?.searchRunId?.trim() ?? "";
 
     if (searchRunId.length > 0) {

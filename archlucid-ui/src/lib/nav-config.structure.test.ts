@@ -168,7 +168,7 @@ describe("nav-config structure", () => {
     expect(analysisHrefs).toEqual([
       "/insights/evidence-graph",
       "/insights/ask-review-questions",
-      "/search",
+      "/insights/search-review-evidence",
       "/compare",
       "/evolution-review",
       "/scorecard",

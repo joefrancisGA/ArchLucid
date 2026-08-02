@@ -17,7 +17,7 @@ import {
   ASK_BUYER_PROMPT_GROUPS,
   ASK_DEEP_LINK_RUN_PROMPTS,
   ASK_EXAMPLE_PROMPTS,
-} from "@/app/(operator)/ask/_sections/ask-page-constants";
+} from "@/app/(operator)/insights/ask-review-questions/_sections/ask-page-constants";
 
 export type AskQuestionFormProps = {
   questionRef: RefObject<HTMLTextAreaElement | null>;

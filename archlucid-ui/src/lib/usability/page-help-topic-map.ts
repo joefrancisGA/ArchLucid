@@ -33,6 +33,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   { prefix: EXECUTIVE_DASHBOARD_HREF, topic: { slug: "executive-summary", label: "Executive dashboard" } },
   { prefix: "/insights/evidence-graph", topic: { slug: "evidence-trail", label: OPERATOR_NAV_LINK_LABELS.evidenceTrail } },
+  {
+    prefix: "/insights/search-review-evidence",
+    topic: { slug: "evidence-trail", label: OPERATOR_NAV_LINK_LABELS.searchEvidence },
+  },
   { prefix: "/compare", topic: { slug: "comparison-replay", label: "Compare and replay" } },
   { prefix: "/replay", topic: { slug: "comparison-replay", label: "Validate review" } },
   { prefix: "/governance/findings", topic: { slug: "governance-approval", label: OPERATOR_NAV_LINK_LABELS.findings } },

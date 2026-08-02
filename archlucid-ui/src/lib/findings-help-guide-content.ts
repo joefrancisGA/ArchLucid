@@ -21,7 +21,7 @@ export const FINDINGS_HELP_PRIMARY_ACTIONS = {
   },
   searchEvidence: {
     label: "Search review evidence",
-    href: "/search",
+    href: "/insights/search-review-evidence",
   },
   governanceDecisions: {
     label: "View governance decisions",

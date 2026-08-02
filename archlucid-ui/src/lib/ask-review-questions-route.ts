@@ -1,7 +1,7 @@
-/** Canonical Ask review questions (left-nav label); formerly `/ask`. */
+/** Canonical Ask review questions (left-nav label); formerly `/ask` (retired — no redirect). */
 export const ASK_REVIEW_QUESTIONS_PATH = "/insights/ask-review-questions" as const;
 
-/** Legacy bookmark path — `next.config` permanent redirect to {@link ASK_REVIEW_QUESTIONS_PATH}. */
+/** Retired pre-release path — no App Router page and no next.config redirect. */
 export const LEGACY_ASK_PATH = "/ask" as const;
 
 export function isAskReviewQuestionsPath(pathname: string): boolean {

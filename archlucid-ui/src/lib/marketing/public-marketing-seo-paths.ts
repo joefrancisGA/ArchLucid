@@ -57,7 +57,7 @@ export const MARKETING_ROBOTS_DISALLOW_PREFIXES: readonly string[] = [
   "/advisory-scheduling",
   "/integrations/",
   "/help",
-  "/search",
+  "/insights/search-review-evidence",
   "/scorecard",
   "/insights/ask-review-questions",
   "/demo/",

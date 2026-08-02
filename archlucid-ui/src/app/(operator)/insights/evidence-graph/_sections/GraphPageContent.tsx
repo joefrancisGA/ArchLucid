@@ -43,17 +43,17 @@ import {
   shouldShowGraphIdleCard,
   type AskRunListAvailability,
 } from "@/lib/graph-page-state";
-import { GraphSampleModeBanner } from "@/app/(operator)/graph/_sections/GraphSampleModeBanner";
+import { GraphSampleModeBanner } from "@/app/(operator)/insights/evidence-graph/_sections/GraphSampleModeBanner";
 import { coerceGraphViewModel } from "@/lib/operator-response-guards";
 import { provenanceLinkageToGraphViewModel } from "@/lib/provenance-linkage-to-graph-vm";
 import {
   SHOWCASE_STATIC_DEMO_RUN_ID,
 } from "@/lib/showcase-static-demo";
 import type { GraphViewModel } from "@/types/graph";
-import { GraphArchitectureNoteBanner } from "@/app/(operator)/graph/_sections/GraphArchitectureNoteBanner";
-import { GraphEvidenceTrailGuidanceDisclosure } from "@/app/(operator)/graph/_sections/GraphEvidenceTrailGuidanceDisclosure";
-import { GraphFetchStatusAlerts } from "@/app/(operator)/graph/_sections/GraphFetchStatusAlerts";
-import { GraphIdlePlaceholder } from "@/app/(operator)/graph/_sections/GraphIdlePlaceholder";
+import { GraphArchitectureNoteBanner } from "@/app/(operator)/insights/evidence-graph/_sections/GraphArchitectureNoteBanner";
+import { GraphEvidenceTrailGuidanceDisclosure } from "@/app/(operator)/insights/evidence-graph/_sections/GraphEvidenceTrailGuidanceDisclosure";
+import { GraphFetchStatusAlerts } from "@/app/(operator)/insights/evidence-graph/_sections/GraphFetchStatusAlerts";
+import { GraphIdlePlaceholder } from "@/app/(operator)/insights/evidence-graph/_sections/GraphIdlePlaceholder";
 import {
   applyProvenanceDemoPresentationIfEligible,
   buildGraphSavedViewPayload,
@@ -61,11 +61,11 @@ import {
   type EvidenceTrailPresentationView,
   type GraphMode,
   type GraphSavedViewState,
-} from "@/app/(operator)/graph/_sections/graph-page-helpers";
-import { GraphLoadedExperience } from "@/app/(operator)/graph/_sections/GraphLoadedExperience";
-import { GraphModeAuxiliaryFields } from "@/app/(operator)/graph/_sections/GraphModeAuxiliaryFields";
-import { GraphPageControls } from "@/app/(operator)/graph/_sections/GraphPageControls";
-import { EvidenceTrailTracePanel } from "@/app/(operator)/graph/_sections/EvidenceTrailTracePanel";
+} from "@/app/(operator)/insights/evidence-graph/_sections/graph-page-helpers";
+import { GraphLoadedExperience } from "@/app/(operator)/insights/evidence-graph/_sections/GraphLoadedExperience";
+import { GraphModeAuxiliaryFields } from "@/app/(operator)/insights/evidence-graph/_sections/GraphModeAuxiliaryFields";
+import { GraphPageControls } from "@/app/(operator)/insights/evidence-graph/_sections/GraphPageControls";
+import { EvidenceTrailTracePanel } from "@/app/(operator)/insights/evidence-graph/_sections/EvidenceTrailTracePanel";
 import { OperatorSavedViewsBar } from "@/components/OperatorSavedViewsBar";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import type { OperatorSavedView } from "@/lib/api/operator-saved-views";

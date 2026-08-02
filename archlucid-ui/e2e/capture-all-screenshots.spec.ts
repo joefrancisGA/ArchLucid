@@ -86,7 +86,7 @@ const HREFS: string[] = [
   `/runs/${encodeURIComponent(SCREENSHOT_RUN_ID)}/findings/${encodeURIComponent(SCREENSHOT_FINDING_ID)}`,
   `/runs/${encodeURIComponent(SCREENSHOT_RUN_ID)}/findings/${encodeURIComponent(SCREENSHOT_FINDING_ID)}/inspect`,
   `/runs/${encodeURIComponent(SCREENSHOT_RUN_ID)}/provenance`,
-  "/search",
+  "/insights/search-review-evidence",
   "/security-trust",
   "/see-it",
   `/showcase/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`,

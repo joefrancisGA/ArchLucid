@@ -15,6 +15,7 @@ import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n"
 
 import { ASK_REVIEW_QUESTIONS_PATH } from "@/lib/ask-review-questions-route";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
+import { SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
 
 /** Operate · analysis — Q&A, search, and comparison over review evidence. */
@@ -40,7 +41,7 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
         requiredAuthority: "ReadAuthority",
       },
       {
-        href: "/search",
+        href: SEARCH_REVIEW_EVIDENCE_PATH,
         label: OPERATOR_NAV_LINK_LABELS.searchEvidence,
         title: "Find evidence, findings, and decisions",
         icon: Search,

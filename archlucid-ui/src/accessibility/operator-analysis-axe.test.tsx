@@ -49,7 +49,7 @@ vi.mock("@/lib/toast", () => ({
 
 import ComparePage from "@/app/(operator)/compare/page";
 import ReplayPage from "@/app/(operator)/replay/page";
-import GraphPage from "@/app/(operator)/graph/page";
+import GraphPage from "@/app/(operator)/insights/evidence-graph/page";
 import EvolutionReviewPage from "@/app/(operator)/evolution-review/page";
 
 expect.extend(toHaveNoViolations);

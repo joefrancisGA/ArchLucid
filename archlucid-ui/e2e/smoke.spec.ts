@@ -131,7 +131,7 @@ test.describe("operator shell smoke — advanced surface path", () => {
     await expect(page.getByRole("heading", { name: /^Validate review$/i })).toBeVisible();
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
 
-    await page.goto("/search");
+    await page.goto("/insights/search-review-evidence");
     // Tenant-wide or scoped search headings depending on optional review filter.
     await expect(
       page.getByRole("heading", {

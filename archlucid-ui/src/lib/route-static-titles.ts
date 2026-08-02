@@ -39,7 +39,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/governance/audit": "Audit",
   "/governance/alerts": "Alerts",
   "/governance/advisory-scans": "Advisory scans",
-  "/search": "Search",
+  "/insights/search-review-evidence": "Search",
   "/insights/ask-review-questions": "Ask",
   "/replay": "Replay",
   "/audit": "Audit",

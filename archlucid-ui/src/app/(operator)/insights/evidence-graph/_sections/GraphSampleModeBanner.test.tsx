@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { GraphSampleModeBanner } from "@/app/(operator)/graph/_sections/GraphSampleModeBanner";
+import { GraphSampleModeBanner } from "@/app/(operator)/insights/evidence-graph/_sections/GraphSampleModeBanner";
 import {
   BUYER_EVIDENCE_GRAPH_SAMPLE_BANNER_BODY,
   BUYER_EVIDENCE_GRAPH_SAMPLE_BANNER_TITLE,

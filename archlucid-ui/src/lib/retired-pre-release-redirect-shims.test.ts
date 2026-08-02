@@ -22,8 +22,12 @@ const RETIRED_SHIMS: readonly RetiredShim[] = [
   { source: "/recommendation-learning", appPageRelativePath: "src/app/(operator)/recommendation-learning/page.tsx" },
   { source: "/login", appPageRelativePath: "src/app/login/page.tsx" },
   { source: "/onboard", appPageRelativePath: "src/app/(operator)/onboard/page.tsx" },
+  { source: "/onboarding", appPageRelativePath: "src/app/(operator)/onboarding/page.tsx" },
   { source: "/onboarding/start", appPageRelativePath: "src/app/(operator)/onboarding/start/page.tsx" },
   { source: "/getting-started", appPageRelativePath: "src/app/(operator)/getting-started/page.tsx" },
+  { source: "/graph", appPageRelativePath: "src/app/(operator)/graph/page.tsx" },
+  { source: "/ask", appPageRelativePath: "src/app/(operator)/ask/page.tsx" },
+  { source: "/search", appPageRelativePath: "src/app/(operator)/search/page.tsx" },
   {
     source: "/operate/architecture-graph",
     appPageRelativePath: "src/app/(operator)/operate/architecture-graph/page.tsx",

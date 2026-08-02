@@ -10,9 +10,10 @@ import {
 import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
 import { compareRunBuyerDisplayLabel } from "@/lib/compare-run-display-label";
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
-import { ASK_REVIEW_QUESTIONS_PATH, isAskReviewQuestionsPath } from "@/lib/ask-review-questions-route";
+import { isAskReviewQuestionsPath } from "@/lib/ask-review-questions-route";
 import { isEvidenceGraphPath } from "@/lib/evidence-graph-route";
 import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
+import { isSearchReviewEvidencePath } from "@/lib/search-review-evidence-route";
 import { SPONSOR_REPORT_SECTION_LABEL } from "@/lib/sponsor-report-navigation";
 import { resolvePolicyPackDetailBreadcrumbLabel } from "@/lib/policy-pack-detail-resolver";
 import { ITSM_CONNECTORS_ADMIN_LABEL, ITSM_CONNECTORS_ADMIN_PATH } from "@/lib/itsm-connectors-admin-scope";
@@ -57,8 +58,10 @@ const BUYER_HUB_RUN_SCOPED_SEGMENTS = new Set<string>([
   "evidence-graph",
   "audit",
   "ask",
+  "ask-review-questions",
   "governance",
   "search",
+  "search-review-evidence",
 ]);
 
 /** Governance routes that mirror review workflow context when `runId` is on the query string. */
@@ -77,6 +80,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   ask: "Ask",
   "ask-review-questions": OPERATOR_NAV_LINK_LABELS.askReview,
   search: "Search",
+  "search-review-evidence": OPERATOR_NAV_LINK_LABELS.searchEvidence,
   advisory: "Advisory",
   "advisory-scans": OPERATOR_NAV_LINK_LABELS.architectureAdvisory,
   "recommendation-learning": OPERATOR_NAV_LINK_LABELS.recommendationTuning,
@@ -145,12 +149,29 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
     return [{ label: OPERATOR_NAV_LINK_LABELS.home }];
   }
 
+  // Single buyer crumb (skip Insights parent); still inject showcase run package when `runId` is set.
   if (isEvidenceGraphPath(normalized)) {
-    return [{ label: OPERATOR_NAV_LINK_LABELS.evidenceTrail }];
+    return injectBuyerShowcaseReviewPackageCrumb(
+      [{ label: OPERATOR_NAV_LINK_LABELS.evidenceTrail }],
+      normalized,
+      options,
+    );
   }
 
   if (isAskReviewQuestionsPath(normalized)) {
-    return [{ label: OPERATOR_NAV_LINK_LABELS.askReview }];
+    return injectBuyerShowcaseReviewPackageCrumb(
+      [{ label: OPERATOR_NAV_LINK_LABELS.askReview }],
+      normalized,
+      options,
+    );
+  }
+
+  if (isSearchReviewEvidencePath(normalized)) {
+    return injectBuyerShowcaseReviewPackageCrumb(
+      [{ label: OPERATOR_NAV_LINK_LABELS.searchEvidence }],
+      normalized,
+      options,
+    );
   }
 
   if (normalized === EXECUTIVE_DASHBOARD_HREF || normalized.startsWith(`${EXECUTIVE_DASHBOARD_HREF}/`)) {
@@ -529,14 +550,22 @@ function injectBuyerShowcaseReviewPackageCrumb(
 
   const pathFromSegments = `/${rawSegments.join("/")}`;
 
-  if (rawSegments.length !== 1 && !isEvidenceGraphPath(pathFromSegments)) {
+  if (
+    rawSegments.length !== 1
+    && !isEvidenceGraphPath(pathFromSegments)
+    && !isAskReviewQuestionsPath(pathFromSegments)
+    && !isSearchReviewEvidencePath(pathFromSegments)
+  ) {
     return items;
   }
 
   const hub = rawSegments[0] ?? "";
 
   const isRunScopedHub =
-    BUYER_HUB_RUN_SCOPED_SEGMENTS.has(hub) || isEvidenceGraphPath(pathFromSegments);
+    BUYER_HUB_RUN_SCOPED_SEGMENTS.has(hub)
+    || isEvidenceGraphPath(pathFromSegments)
+    || isAskReviewQuestionsPath(pathFromSegments)
+    || isSearchReviewEvidencePath(pathFromSegments);
 
   if (!isRunScopedHub) {
     return items;

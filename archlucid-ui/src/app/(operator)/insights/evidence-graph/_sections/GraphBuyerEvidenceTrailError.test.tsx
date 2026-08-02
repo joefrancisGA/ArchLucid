@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { GraphBuyerEvidenceTrailError } from "@/app/(operator)/graph/_sections/GraphBuyerEvidenceTrailError";
+import { GraphBuyerEvidenceTrailError } from "@/app/(operator)/insights/evidence-graph/_sections/GraphBuyerEvidenceTrailError";
 
 describe("GraphBuyerEvidenceTrailError", () => {
   it("hides raw HTTP and request details until Technical details is expanded", () => {

@@ -9,10 +9,10 @@ import type { BuyerAskGroundingLink } from "@/lib/ask-buyer-grounding-links";
 import { BUYER_ASK_SYNTHETIC_SAMPLE_HINT } from "@/lib/buyer-polish-copy";
 import type { ConversationMessage } from "@/types/conversation";
 import { OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
-import { AskCompareReviewsCollapsible } from "@/app/(operator)/ask/_sections/AskCompareReviewsCollapsible";
-import { AskMessageThreadPanel } from "@/app/(operator)/ask/_sections/AskMessageThreadPanel";
-import { AskQuestionForm } from "@/app/(operator)/ask/_sections/AskQuestionForm";
-import { AskReviewScopeStrip } from "@/app/(operator)/ask/_sections/AskReviewScopeStrip";
+import { AskCompareReviewsCollapsible } from "@/app/(operator)/insights/ask-review-questions/_sections/AskCompareReviewsCollapsible";
+import { AskMessageThreadPanel } from "@/app/(operator)/insights/ask-review-questions/_sections/AskMessageThreadPanel";
+import { AskQuestionForm } from "@/app/(operator)/insights/ask-review-questions/_sections/AskQuestionForm";
+import { AskReviewScopeStrip } from "@/app/(operator)/insights/ask-review-questions/_sections/AskReviewScopeStrip";
 
 export type AskMainPanelProps = {
   runId: string;

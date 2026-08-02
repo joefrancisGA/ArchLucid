@@ -3,6 +3,7 @@ import { EVIDENCE_GRAPH_PATH, LEGACY_GRAPH_PATH } from "@/lib/evidence-graph-rou
 import { LEGACY_OPERATE_ARCHITECTURE_GRAPH_PATH } from "@/lib/legacy-architecture-graph-route";
 import { LEGACY_ONBOARD_PATH } from "@/lib/legacy-onboard-route";
 import { LEGACY_LOGIN_PATH } from "@/lib/legacy-login-route";
+import { LEGACY_SEARCH_PATH, SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
 import { MARKETING_SITEMAP_PATHNAMES } from "@/lib/marketing/public-marketing-seo-paths";
 import { isSplitSiteHostingEnabled, resolveAppSiteOrigin, resolvePublicSiteOrigin } from "@/lib/site-urls";
 
@@ -47,7 +48,8 @@ const OPERATOR_PATH_PREFIXES: readonly string[] = [
   "/advisory-scheduling",
   "/integrations",
   "/help",
-  "/search",
+  SEARCH_REVIEW_EVIDENCE_PATH,
+  LEGACY_SEARCH_PATH,
   "/scorecard",
   ASK_REVIEW_QUESTIONS_PATH,
   LEGACY_ASK_PATH,

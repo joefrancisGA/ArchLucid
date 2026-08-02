@@ -1,7 +1,7 @@
-/** Canonical Evidence graph (left-nav label); formerly `/graph`. */
+/** Canonical Evidence graph (left-nav label); formerly `/graph` (retired — no redirect). */
 export const EVIDENCE_GRAPH_PATH = "/insights/evidence-graph" as const;
 
-/** Legacy bookmark path — `next.config` permanent redirect to {@link EVIDENCE_GRAPH_PATH}. */
+/** Retired pre-release path — no App Router page and no next.config redirect. */
 export const LEGACY_GRAPH_PATH = "/graph" as const;
 
 export function isEvidenceGraphPath(pathname: string): boolean {

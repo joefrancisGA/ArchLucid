@@ -15,6 +15,10 @@ const RETIRED_HUB_REDIRECT_SOURCES = [
   "/settings/cost-reporting",
   "/quick-start",
   "/recommendation-learning",
+  "/onboarding",
+  "/graph",
+  "/ask",
+  "/search",
 ] as const;
 
 describe("next.config hub bookmark redirects", () => {

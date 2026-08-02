@@ -187,7 +187,7 @@ import { AdvisorySchedulesContent } from "@/components/advisory/AdvisorySchedule
 import { DigestsBrowseContent } from "@/components/digests/DigestsBrowseContent";
 import { DigestSubscriptionsContent } from "@/components/digests/DigestSubscriptionsContent";
 
-import AskPage from "./ask/page";
+import AskPage from "./insights/ask-review-questions/page";
 import EvolutionReviewPage from "./evolution-review/page";
 import GovernanceResolutionPage from "./governance/resolution/page";
 import OnboardingPage from "./architecture/first-review-guide/page";
@@ -195,7 +195,7 @@ import PolicyPacksPage from "./governance/policy-packs/page";
 import PlanningPage from "./planning/page";
 import ProductLearningPage from "./product-learning/page";
 import RecommendationLearningOpsPage from "./internal-operations/recommendation-learning/page";
-import SearchPage from "./search/page";
+import SearchPage from "./insights/search-review-evidence/page";
 
 /**
  * Render-gate: first paint + import chain for client-only operator pages that had no tests.

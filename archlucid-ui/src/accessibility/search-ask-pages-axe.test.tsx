@@ -2,8 +2,8 @@ import { render } from "@testing-library/react";
 import { axe, toHaveNoViolations } from "jest-axe";
 import { describe, expect, it, vi } from "vitest";
 
-import AskPage from "@/app/(operator)/ask/page";
-import SearchPage from "@/app/(operator)/search/page";
+import AskPage from "@/app/(operator)/insights/ask-review-questions/page";
+import SearchPage from "@/app/(operator)/insights/search-review-evidence/page";
 
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();

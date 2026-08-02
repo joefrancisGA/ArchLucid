@@ -1,4 +1,4 @@
-import { SEARCH_PAGE_SUBTITLE } from "@/app/(operator)/search/_sections/search-page-copy";
+import { SEARCH_PAGE_SUBTITLE } from "@/app/(operator)/insights/search-review-evidence/_sections/search-page-copy";
 import { BUYER_VALUE_REPORT_PAGE_SUBTITLE } from "@/lib/buyer-polish-copy";
 import { ADVISORY_SCANS_PAGE_LEAD } from "@/lib/advisory-copy";
 import { AUDIT_TRAIL_PAGE_SUBTITLE } from "@/lib/audit-trail-page-copy";
@@ -31,7 +31,7 @@ export type BuyerPolishedRoutePageLeadInventoryEntry = {
 };
 
 export const BUYER_POLISHED_ROUTE_PAGE_LEAD_INVENTORY: readonly BuyerPolishedRoutePageLeadInventoryEntry[] = [
-  { route: "/search", operatorPageLead: SEARCH_PAGE_SUBTITLE },
+  { route: "/insights/search-review-evidence", operatorPageLead: SEARCH_PAGE_SUBTITLE },
   { route: EXECUTIVE_DASHBOARD_HREF, operatorPageLead: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.portfolioPageLead },
   { route: "/product-learning", operatorPageLead: PILOT_FEEDBACK_VOCABULARY.pageLead },
   { route: "/product-learning", operatorPageLead: PILOT_FEEDBACK_VOCABULARY.layerContextLine },

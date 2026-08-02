@@ -13,7 +13,7 @@ import {
   BUYER_ASK_RETRIEVAL_DEGRADED_LABEL,
 } from "@/lib/buyer-polish-copy";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { ASK_BUYER_PROMPT_GROUPS } from "@/app/(operator)/ask/_sections/ask-page-constants";
+import { ASK_BUYER_PROMPT_GROUPS } from "@/app/(operator)/insights/ask-review-questions/_sections/ask-page-constants";
 import type { ConversationMessage } from "@/types/conversation";
 
 export type AskMessageThreadPanelProps = {

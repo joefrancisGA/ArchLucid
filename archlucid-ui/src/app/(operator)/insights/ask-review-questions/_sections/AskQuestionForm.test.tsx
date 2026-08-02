@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { AskQuestionForm } from "@/app/(operator)/ask/_sections/AskQuestionForm";
+import { AskQuestionForm } from "@/app/(operator)/insights/ask-review-questions/_sections/AskQuestionForm";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 describe("AskQuestionForm", () => {

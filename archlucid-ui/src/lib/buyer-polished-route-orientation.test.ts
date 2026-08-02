@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import { GOVERNANCE_OVERVIEW_PAGE_LEAD } from "@/lib/governance-overview-copy";
-import { SEARCH_PAGE_SUBTITLE } from "@/app/(operator)/search/_sections/search-page-copy";
+import { SEARCH_PAGE_SUBTITLE } from "@/app/(operator)/insights/search-review-evidence/_sections/search-page-copy";
 import { BUYER_VALUE_REPORT_PAGE_SUBTITLE } from "@/lib/buyer-polish-copy";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, PILOT_FEEDBACK_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import {
@@ -17,13 +17,13 @@ import { buyerPolishedRouteOrientation } from "./buyer-polished-route-orientatio
 describe("buyerPolishedRouteOrientation", () => {
   it("scopes search copy when searchRunId is set", () => {
     expect(
-      buyerPolishedRouteOrientation("/search", { searchRunId: SHOWCASE_STATIC_DEMO_RUN_ID })?.label,
+      buyerPolishedRouteOrientation("/insights/search-review-evidence", { searchRunId: SHOWCASE_STATIC_DEMO_RUN_ID })?.label,
     ).toBe("Search this review's evidence");
   });
 
   it("returns null for unscoped /search — OperatorPageHeader owns SEARCH_PAGE_SUBTITLE (TB-1436)", () => {
-    expect(buyerPolishedRouteOrientation("/search")).toBeNull();
-    expect(buyerPolishedRouteOrientation("/search")?.line).not.toBe(SEARCH_PAGE_SUBTITLE);
+    expect(buyerPolishedRouteOrientation("/insights/search-review-evidence")).toBeNull();
+    expect(buyerPolishedRouteOrientation("/insights/search-review-evidence")?.line).not.toBe(SEARCH_PAGE_SUBTITLE);
   });
 
   it("keeps executive summary orientation for the showcase run", () => {

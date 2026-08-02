@@ -13,7 +13,7 @@ const sampleLinks: NavLinkItem[] = [
     requiredAuthority: "ReadAuthority",
   },
   {
-    href: "/search",
+    href: "/insights/search-review-evidence",
     label: "Search review evidence",
     title: "Search",
     tier: "advanced",
@@ -43,7 +43,7 @@ describe("filterSidebarNavClusterLinks", () => {
       effectiveOperateUnlockPhase: 2,
     });
 
-    expect(filtered.map((link) => link.href)).toEqual(["/compare", "/search"]);
+    expect(filtered.map((link) => link.href)).toEqual(["/compare", "/insights/search-review-evidence"]);
   });
 });
 

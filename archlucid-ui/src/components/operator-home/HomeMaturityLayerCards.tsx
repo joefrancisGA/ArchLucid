@@ -74,7 +74,7 @@ export function HomeMaturityLayerCards() {
           icon={<Search className="h-5 w-5 text-amber-600 dark:text-amber-400" aria-hidden />}
           title="Search & Insights"
           items={[...searchItems]}
-          href="/search"
+          href="/insights/search-review-evidence"
         />
       </div>
     </section>

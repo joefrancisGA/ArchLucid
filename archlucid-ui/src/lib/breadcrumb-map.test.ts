@@ -288,7 +288,7 @@ describe("getBreadcrumbs", () => {
 
   it("buyer-polished: search hub with showcase runId inserts review title before search crumb", () => {
     expect(
-      getBreadcrumbs("/search", {
+      getBreadcrumbs("/insights/search-review-evidence", {
         buyerPolishedShell: true,
         queryRunId: SHOWCASE_STATIC_DEMO_RUN_ID,
       }),

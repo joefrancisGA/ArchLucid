@@ -59,10 +59,8 @@ describe("appendBuyerCtoDemoTourStartQuery", () => {
 
     );
 
-    expect(appendBuyerCtoDemoTourStartQuery("/graph?runId=x")).toBe(
-
+    expect(appendBuyerCtoDemoTourStartQuery("/insights/evidence-graph?runId=x")).toBe(
       `/insights/evidence-graph?runId=x&${BUYER_CTO_DEMO_TOUR_QUERY_PARAM}=1`,
-
     );
 
   });

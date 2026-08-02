@@ -201,7 +201,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
       "/governance",
       "/governance/advisory-scans",
       "/replay",
-      "/search",
+      "/insights/search-review-evidence",
       "/governance/policy-packs",
     ] as const;
 

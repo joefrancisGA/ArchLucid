@@ -119,6 +119,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   /** Architecture draft inventory (`/architectures`). */
   architectures: "Architectures",
   reviewPackage: "Reviews",
+  /** Evidence graph (`/insights/evidence-graph`). */
   evidenceTrail: BUYER_SURFACE_VOCABULARY.evidenceGraphNav,
   /** Left nav destination for `/reviews/new` — creation intake (brief, diagram, document, optional cloud). */
   capture: CREATE_ARCHITECTURE_LABEL,
@@ -149,7 +150,9 @@ export const OPERATOR_NAV_LINK_LABELS = {
   valueReport: "Executive summary",
   compareTwoReviews: "Compare two reviews",
   replayReview: "Validate review",
+  /** Ask review questions (`/insights/ask-review-questions`). */
   askReview: "Ask review questions",
+  /** Search review evidence (`/insights/search-review-evidence`). */
   searchEvidence: "Search review evidence",
   architectureAdvisory: "Advisory scans",
   recommendationTuning: "Recommendation learning",

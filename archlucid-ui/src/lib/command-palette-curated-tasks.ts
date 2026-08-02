@@ -19,7 +19,7 @@ export const COMMAND_PALETTE_CURATED_TASKS: CuratedPaletteTask[] = [
   { label: "Compare two reviews", href: "/compare", searchValue: "task I want compare diff N N+1 delta" },
   { label: OPERATOR_NAV_LINK_LABELS.evidenceTrail, href: "/insights/evidence-graph", searchValue: "task I want graph visualization trail" },
   { label: "Ask ArchLucid", href: "/insights/ask-review-questions", searchValue: "task I want ask question chat" },
-  { label: "Semantic search", href: "/search", searchValue: "task I want search find architecture" },
+  { label: "Semantic search", href: "/insights/search-review-evidence", searchValue: "task I want search find architecture" },
   { label: "Alerts inbox", href: "/governance/alerts", searchValue: "task I want alerts triage inbox" },
   { label: "Alert rules (configure)", href: "/governance/alert-rules", searchValue: "task I want alert rules configure" },
   { label: "Audit Trail", href: "/governance/audit", searchValue: "task I want audit compliance csv export evidence" },

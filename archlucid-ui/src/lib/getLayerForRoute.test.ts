@@ -15,7 +15,7 @@ describe("getLayerForRoute", () => {
 
   it("returns operate-analysis for a known analysis nav path", () => {
     expect(getLayerForRoute("/insights/ask-review-questions")).toBe("operate-analysis");
-    expect(getLayerForRoute("/search")).toBe("operate-analysis");
+    expect(getLayerForRoute("/insights/search-review-evidence")).toBe("operate-analysis");
   });
 
   it("returns operator-admin for tenant admin nav paths", () => {
@@ -30,7 +30,6 @@ describe("getLayerForRoute", () => {
     expect(getLayerForRoute("/settings/roles")).toBe("operator-admin");
     expect(getLayerForRoute("/settings/users/invite-reviewer")).toBe("operator-admin");
     expect(getLayerForRoute("/settings/ai-usage")).toBe("operator-admin");
-    expect(getLayerForRoute("/settings/cost-reporting")).toBe("operator-admin");
     expect(getLayerForRoute("/administration/connection-status")).toBe("operator-admin");
     expect(getLayerForRoute("/administration/system-health")).toBe("operator-admin");
     expect(getLayerForRoute("/workspace/security-trust")).toBe("operator-admin");

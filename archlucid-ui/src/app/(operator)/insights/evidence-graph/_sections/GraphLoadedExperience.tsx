@@ -8,7 +8,7 @@ import { GRAPH_MODE_NATIVE_TITLES } from "@/components/GraphIdleLegend";
 import { Button } from "@/components/ui/button";
 import { TabsContent } from "@/components/ui/tabs";
 import { GraphViewerLegend } from "@/components/usability/GraphViewerLegend";
-import { EvidenceTrailTracePanel } from "@/app/(operator)/graph/_sections/EvidenceTrailTracePanel";
+import { EvidenceTrailTracePanel } from "@/app/(operator)/insights/evidence-graph/_sections/EvidenceTrailTracePanel";
 import {
   BUYER_GRAPH_GOVERNANCE_NEXT_APPROVED,
   BUYER_GRAPH_GOVERNANCE_NEXT_PENDING,
@@ -26,9 +26,9 @@ import {
 } from "@/lib/graph-view-model-export";
 import { graphViewModelFilteredByNodeType } from "@/lib/graph-view-model-type-filter";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import type { EvidenceTrailPresentationView, GraphMode } from "@/app/(operator)/graph/_sections/graph-page-helpers";
-import { BUYER_EVIDENCE_TRAIL_GRAPH_MODE_OPTIONS } from "@/app/(operator)/graph/_sections/graph-page-helpers";
-import { GraphInteractiveCanvas } from "@/app/(operator)/graph/_sections/GraphInteractiveCanvas";
+import type { EvidenceTrailPresentationView, GraphMode } from "@/app/(operator)/insights/evidence-graph/_sections/graph-page-helpers";
+import { BUYER_EVIDENCE_TRAIL_GRAPH_MODE_OPTIONS } from "@/app/(operator)/insights/evidence-graph/_sections/graph-page-helpers";
+import { GraphInteractiveCanvas } from "@/app/(operator)/insights/evidence-graph/_sections/GraphInteractiveCanvas";
 import type { GraphViewModel } from "@/types/graph";
 
 export type GraphLoadedExperienceProps = {

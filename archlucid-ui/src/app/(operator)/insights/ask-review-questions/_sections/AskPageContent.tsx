@@ -21,9 +21,9 @@ import { formatConversationListDate, formatConversationListDatePolished } from "
 import { BUYER_ASK_PAGE_HERO, BUYER_ASK_PAGE_TITLE } from "@/lib/buyer-polish-copy";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { ConversationMessage, ConversationThread } from "@/types/conversation";
-import { AskMainPanel } from "@/app/(operator)/ask/_sections/AskMainPanel";
-import { AskNoReviewEmptyState } from "@/app/(operator)/ask/_sections/AskNoReviewEmptyState";
-import { AskThreadHistoryPanel } from "@/app/(operator)/ask/_sections/AskThreadHistoryPanel";
+import { AskMainPanel } from "@/app/(operator)/insights/ask-review-questions/_sections/AskMainPanel";
+import { AskNoReviewEmptyState } from "@/app/(operator)/insights/ask-review-questions/_sections/AskNoReviewEmptyState";
+import { AskThreadHistoryPanel } from "@/app/(operator)/insights/ask-review-questions/_sections/AskThreadHistoryPanel";
 
 const ASK_PAGE_SUBTITLE =
   "Ask questions about a finalized review. Answers use the signed review record and cite evidence when available.";

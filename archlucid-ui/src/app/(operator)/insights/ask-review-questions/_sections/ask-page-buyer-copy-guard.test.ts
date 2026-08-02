@@ -3,11 +3,11 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const ASK_SECTION_PATHS = [
-  "src/app/(operator)/ask/_sections/AskPageContent.tsx",
-  "src/app/(operator)/ask/_sections/AskMainPanel.tsx",
-  "src/app/(operator)/ask/_sections/AskQuestionForm.tsx",
-  "src/app/(operator)/ask/_sections/AskReviewScopeStrip.tsx",
-  "src/app/(operator)/ask/_sections/AskMessageThreadPanel.tsx",
+  "src/app/(operator)/insights/ask-review-questions/_sections/AskPageContent.tsx",
+  "src/app/(operator)/insights/ask-review-questions/_sections/AskMainPanel.tsx",
+  "src/app/(operator)/insights/ask-review-questions/_sections/AskQuestionForm.tsx",
+  "src/app/(operator)/insights/ask-review-questions/_sections/AskReviewScopeStrip.tsx",
+  "src/app/(operator)/insights/ask-review-questions/_sections/AskMessageThreadPanel.tsx",
 ] as const;
 
 const ASK_BANNED_CUSTOMER_PHRASES: readonly string[] = [

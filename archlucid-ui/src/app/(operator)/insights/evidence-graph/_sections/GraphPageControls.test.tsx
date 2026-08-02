@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { Tabs } from "@/components/ui/tabs";
-import { GraphPageControls } from "@/app/(operator)/graph/_sections/GraphPageControls";
+import { GraphPageControls } from "@/app/(operator)/insights/evidence-graph/_sections/GraphPageControls";
 
 vi.mock("@/components/AskRunIdPicker", () => ({
   AskRunIdPicker: () => <div data-testid="ask-run-id-picker-stub" />,

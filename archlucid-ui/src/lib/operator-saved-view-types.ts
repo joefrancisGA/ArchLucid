@@ -1,4 +1,4 @@
-import type { GraphMode } from "@/app/(operator)/graph/_sections/graph-page-helpers";
+import type { GraphMode } from "@/app/(operator)/insights/evidence-graph/_sections/graph-page-helpers";
 
 /** Supported operator UI surfaces for saved views. */
 export type OperatorSavedViewSurface = "audit" | "graph";

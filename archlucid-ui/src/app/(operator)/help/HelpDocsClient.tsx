@@ -49,7 +49,7 @@ const HELP_DOCS_STATIC_ENTRIES: readonly DocIndexEntry[] = [
     title: "Indexed search",
     summary: "Search reviews, findings, and related records where enabled.",
     category: "Operations",
-    url: "/search",
+    url: "/insights/search-review-evidence",
   },
   {
     title: "Troubleshooting",

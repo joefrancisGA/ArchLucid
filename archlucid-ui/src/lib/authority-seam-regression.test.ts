@@ -259,7 +259,7 @@ describe("authority seam regression", () => {
 
     const tierVisible = filterNavLinksByTier(analysis!.links, false, false);
 
-    expect(tierVisible.map((l) => l.href)).toEqual(["/insights/evidence-graph", "/insights/ask-review-questions", "/search"]);
+    expect(tierVisible.map((l) => l.href)).toEqual(["/insights/evidence-graph", "/insights/ask-review-questions", "/insights/search-review-evidence"]);
   });
 
   /**

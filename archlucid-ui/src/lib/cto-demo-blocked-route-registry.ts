@@ -6,7 +6,7 @@ export const DEMO_ALLOWED_SETTINGS_PATHS = new Set<string>(["/settings/extract-u
 export const CTO_DEMO_BLOCKED_ROUTES: readonly BlockedRouteEntry[] = [
   { prefix: "/admin", label: "Admin console", description: "Tenant configuration, user management, and system health monitoring." },
   { prefix: "/settings", label: "Settings", description: "Workspace preferences, API keys, and integration configuration." },
-  { prefix: "/search", label: "Search", description: "Full-text search across all reviews, findings, and decisions." },
+  { prefix: "/insights/search-review-evidence", label: "Search", description: "Full-text search across all reviews, findings, and decisions." },
   { prefix: "/replay", label: "Validate review", description: "Check whether stored review output for a finalized package still validates." },
   { prefix: "/planning", label: "Planning", description: "Multi-quarter governance roadmap and remediation scheduling." },
   { prefix: "/integrations", label: "Integrations", description: "Connect Jira, ServiceNow, Slack, and CI/CD pipelines. Native one-click ITSM ticket creation depends on deployment settings." },

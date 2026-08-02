@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { GraphEvidenceTrailGuidanceDisclosure } from "@/app/(operator)/graph/_sections/GraphEvidenceTrailGuidanceDisclosure";
+import { GraphEvidenceTrailGuidanceDisclosure } from "@/app/(operator)/insights/evidence-graph/_sections/GraphEvidenceTrailGuidanceDisclosure";
 
 describe("GraphEvidenceTrailGuidanceDisclosure", () => {
   it("uses buyer-safe evidence graph framing without manifest vocabulary", () => {

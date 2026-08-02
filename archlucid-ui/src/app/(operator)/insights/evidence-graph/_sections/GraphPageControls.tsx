@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label";
 
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import { GraphReviewPickerStatus } from "@/app/(operator)/graph/_sections/GraphReviewPickerStatus";
+import { GraphReviewPickerStatus } from "@/app/(operator)/insights/evidence-graph/_sections/GraphReviewPickerStatus";
 
 import {
   BUYER_EVIDENCE_GRAPH_EMPTY_LIST_HINT,
@@ -39,7 +39,7 @@ import type { GraphReviewPickerState } from "@/lib/graph-page-state";
 
 import type { AskRunListAvailability } from "@/lib/graph-page-state";
 
-import type { GraphMode } from "@/app/(operator)/graph/_sections/graph-page-helpers";
+import type { GraphMode } from "@/app/(operator)/insights/evidence-graph/_sections/graph-page-helpers";
 
 
 

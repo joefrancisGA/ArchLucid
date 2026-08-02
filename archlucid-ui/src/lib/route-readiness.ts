@@ -13,7 +13,7 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/reviews?projectId=default": "demo-ready",
   "/help": "demo-ready",
   "/insights/ask-review-questions": "demo-ready",
-  "/search": "demo-ready",
+  "/insights/search-review-evidence": "demo-ready",
   "/scorecard": "demo-ready",
   "/executive/scorecard": "demo-ready",
   "/reviews": "demo-ready",
@@ -163,7 +163,7 @@ const PRESENTER_SAFE_MODE_NAV_HIDE = new Set<string>([
 /** Pilot-tier links that are hidden in buyer demo nav (reduce noise vs core review story). */
 const DEMO_MODE_EXPLICIT_NAV_HIDE = new Set<string>([
   "/scorecard",
-  "/search",
+  "/insights/search-review-evidence",
   "/settings/tenant/recycle-bin",
 ]);
 
