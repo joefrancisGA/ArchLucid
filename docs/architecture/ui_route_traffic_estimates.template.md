@@ -62,7 +62,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | DSH | `/dashboard` | 8% | 0 | 0 | 800 | Core review | Deprecated operator bookmark — merged to canonical executive dashboard on **ARE** (`/architecture/executive-dashboard`, TB-608). |
 | ACB | `/auth/callback` | 5% | 0 | 0 | 500 | Auth | None |
 | ASI | `/auth/signin` | 5% | 0 | 0 | 500 | Auth | None |
-| ASK | `/insights/ask-review-questions` | 4% | 0 | 0 | 400 | Core review | None |
+| ASK | `/insights/ask-review-questions` | 4% | 0 | 0 | 400 | Core review | Formerly `/ask` (retired; no redirect). |
 | HOM | `/` | 3% | 0 | 0 | 300 | Core review | None |
 | AL | `/governance/alerts` | 3% | 0 | 0 | 300 | Alerts/gov | None |
 | GFN | `/governance/findings` | 2% | 0 | 0 | 200 | Alerts/gov | None |
@@ -72,9 +72,9 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | HEL | `/help` | 1% | 0 | 0 | 100 | Help hub | None |
 | PLA | `/planning` | 0.8% | 0 | 0 | 80 | Planning | None |
 | SET | `/settings` | 0.8% | 0 | 0 | 80 | Settings | None |
-| SXX | `/search` | 0.7% | 0 | 0 | 70 | Marketing | None |
+| SXX | `/insights/search-review-evidence` | 0.7% | 0 | 0 | 70 | Marketing | Formerly `/search` (retired; no redirect). |
 | DI | `/digests` | 0.6% | 0 | 0 | 60 | Digests | None |
-| GRA | `/insights/evidence-graph` | 0.6% | 0 | 0 | 60 | Planning | None |
+| GRA | `/insights/evidence-graph` | 0.6% | 0 | 0 | 60 | Planning | Formerly `/graph` (retired; no redirect). |
 | PPP | `/planning/plans/[planId]` | 0.6% | 0 | 0 | 60 | Planning | None |
 | AUD | `/governance/audit` | 0.5% | 0 | 0 | 50 | Alerts/gov | None |
 | HXX | `/health` | 0.5% | 0 | 0 | 50 | Marketing | Deprecated operator bookmark — merged to Administration System health on **ADY** (`/administration/system-health`). |
@@ -123,11 +123,11 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | ESX | `/executive/scorecard` | 0.1% | 0 | 0 | 10 | Executive | None |
 | GFX | `/governance/setup` | 0.1% | 0 | 0 | 10 | Alerts/gov | None |
 | HA | `/help/alerts` | 0.1% | 0 | 0 | 10 | Help topic | None |
-| HFX | `/help/findings` | 0.1% | 0 | 0 | 10 | Help topic | None |
+| HFX | `/help/findings` | 0.1% | 0 | 0 | 10 | Help topic | Specialty findings guide — HelpFindingsGuideView with anatomy panel, severity table, lifecycle sections, and HelpFindingsWorkspaceReadinessStrip (live governance queue). Featured help-center product tier. Primary CTAs to /governance/findings, evidence search, and decision register. Related docs link to audit-trail not API contracts (TB-1250 / TB-1387). Not bare HelpTopicMarkdownView. |
 | IJX | `/integrations/jira` | 0.1% | 0 | 0 | 10 | Integrations | None |
 | ISN | `/integrations/slack` | 0.1% | 0 | 0 | 10 | Integrations | None |
 | ITX | `/integrations/teams` | 0.1% | 0 | 0 | 10 | Integrations | None |
-| ONB | `/architecture/first-review-guide` | 0.1% | 0 | 0 | 10 | Onboarding | Formerly `/onboarding` (permanent redirect). |
+| ONB | `/architecture/first-review-guide` | 0.1% | 0 | 0 | 10 | Onboarding | Formerly `/onboarding` (retired; no redirect). |
 | REP | `/replay` | 0.1% | 0 | 0 | 10 | Marketing | None |
 | SEC | `/security-trust` | 0.1% | 0 | 0 | 10 | Marketing | None |
 | SC | `/settings/ai-usage` | 0.1% | 0 | 0 | 10 | Settings | None |
@@ -188,7 +188,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | ASU | `/auth/session-expired` | 0.03% | 0 | 0 | 3 | Auth | None |
 | DEX | `/demo/explain` | 0.03% | 0 | 0 | 3 | Learning | None |
 | CON | `/help/configuration-reference` | 0.03% | 0 | 0 | 3 | Help topic | None |
-| ECO | `/help/core-pilot` | 0.02% | 0 | 0 | 2 | Help alias | Deprecated operator bookmark — merged to Your first architecture review on **HCO** (`/help/first-architecture-review`). |
+| ECO | `/help/core-pilot` | 0.02% | 0 | 0 | 2 | Help alias | Deprecated operator bookmark — merged to Your first architecture review on **HCO** (`/help/first-architecture-review`). Slug alias `core-pilot` → `first-architecture-review` in HELP_TOPIC_SLUG_ALIASES; catalog migration merges workbook Hit% onto HCO. |
 | HEX | `/help/enterprise-onboarding` | 0.03% | 0 | 0 | 3 | Help topic | None |
 | HEE | `/help/evaluator-workbook` | 0.03% | 0 | 0 | 3 | Help topic | None |
 | EVI | `/help/evidence-intake` | 0.03% | 0 | 0 | 3 | Help topic | None |
@@ -240,7 +240,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | HEG | `/help/glossary` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HEI | `/help/integration-readiness` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | EIN | `/help/integrations/azure-boards` | 0.02% | 0 | 0 | 2 | Help alias | None |
-| HPX | `/help/path-chooser` | 0.02% | 0 | 0 | 2 | Help topic | None |
+| HPX | `/help/path-chooser` | 0.02% | 0 | 0 | 2 | Help topic | Buyer path chooser — HelpTopicMarkdownView on BUYER_ORIENTATION_ONE_SCREEN.md with stripPathChooserContributorLeakage (TB-1712). Help search panel + HelpDocsClient static entry; product Help Center tier, not featured grid. Open P1 specialty chooser rewrite (TB-1711). Not a specialty guide yet. |
 | HPE | `/help/pilot-feedback` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | PIL | `/help/pilot-nav-profile` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | POL | `/help/policy-pack-delta-demo` | 0.02% | 0 | 0 | 2 | Help topic | None |
@@ -283,7 +283,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | SSU | `/settings/users?tab=users` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | MA | `/signed-records` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | MAM | `/signed-records/[manifestId]/artifacts/[artifactId]` | 0.02% | 0 | 0 | 2 | Marketing | None |
-| SPA | `/sponsor-report/architecture-scorecard` | 0.02% | 0 | 0 | 2 | Marketing | None |
+| SPA | `/sponsor-report/architecture-scorecard` | 0.02% | 0 | 0 | 2 | Sponsor report | Sponsor architecture scorecard report (canonical); `/scorecard` redirects here for bookmark compat. |
 | SPE | `/sponsor-report/executive-summary` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | SPP | `/sponsor-report/pilot-outcomes` | 0.02% | 0 | 0 | 2 | Sponsor report | Sponsor pilot outcomes report (canonical); `/value-report/pilot` redirects here for bookmark compat. |
 | SPR | `/sponsor-report/roi-summary` | 0.02% | 0 | 0 | 2 | Sponsor report | Sponsor ROI summary report (canonical); `/value-report/roi` redirects here for bookmark compat. |
