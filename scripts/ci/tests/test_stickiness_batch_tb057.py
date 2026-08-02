@@ -43,7 +43,8 @@ class TestStickinessBatchTb057(unittest.TestCase):
             "ARCHITECTURE_RISK_REGISTER_PAGE_TITLE = OPERATOR_NAV_LINK_LABELS.findings",
             page_constants_text,
         )
-        self.assertIn('findings: "Risk register"', i18n_text)
+        # Nav/menu label is Findings (owner rename); TB-057 still owns the risk-register surface.
+        self.assertIn('findings: "Findings"', i18n_text)
         self.assertIn("getArchitectureDecisionRegister", findings_query_text)
         self.assertIn("decisionRegisterRows", findings_query_text)
         self.assertIn("fetchGovernanceFindingQueueRows", findings_query_text)
