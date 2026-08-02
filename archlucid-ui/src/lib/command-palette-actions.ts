@@ -3,6 +3,7 @@
  */
 
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH } from "@/lib/sponsor-report-navigation";
 
 export type CommandPaletteAction = {
   id: string;
@@ -27,7 +28,7 @@ export const COMMAND_PALETTE_ACTIONS: readonly CommandPaletteAction[] = [
   {
     id: "action-export-value",
     label: "Open value report",
-    href: "/value-report",
+    href: SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
     searchValue: "action export roi sponsor value report",
   },
   {

@@ -7,6 +7,7 @@ import {
   TROUBLESHOOTING_PRIMARY_ACTIONS,
   TROUBLESHOOTING_REPORT_PROBLEM_LINK,
 } from "@/lib/troubleshooting-help-guide-content";
+import { SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH } from "@/lib/sponsor-report-navigation";
 
 const ENG_RUNBOOK_HREF_MARKERS = [
   "developer-troubleshooting",
@@ -59,5 +60,14 @@ describe("troubleshooting-help-guide-content", () => {
         expect(lower, href).not.toContain(marker);
       }
     }
+  });
+
+  it("routes missing reports to canonical sponsor executive summary (TB-1963)", () => {
+    const outputsStep = TROUBLESHOOTING_DECISION_TREE_STEPS.find((step) => step.id === "decision-outputs");
+    const reportsBranch = outputsStep?.branches.find((branch) => branch.label === "Reports missing");
+
+    expect(reportsBranch).toBeDefined();
+    expect(reportsBranch!.href).toBe(SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH);
+    expect(reportsBranch!.href).not.toBe("/value-report");
   });
 });
