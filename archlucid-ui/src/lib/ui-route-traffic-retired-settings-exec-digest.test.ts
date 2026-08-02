@@ -5,11 +5,9 @@ import { describe, expect, it } from "vitest";
 
 import {
   CANONICAL_EXEC_DIGEST_SCHEDULE_TRAFFIC_PATH,
+  REMOVED_SETTINGS_EXEC_DIGEST_LEGACY_TRAFFIC_ROW_ID,
   REMOVED_SETTINGS_EXEC_DIGEST_TRAFFIC_ROW_ID,
-  RETIRED_SETTINGS_EXEC_DIGEST_TRAFFIC_NOTE,
   RETIRED_SETTINGS_EXEC_DIGEST_TRAFFIC_PATH,
-  RETIRED_SETTINGS_EXEC_DIGEST_TRAFFIC_ROW_ID,
-  RETIRED_SETTINGS_EXEC_DIGEST_TRAFFIC_SECTION,
 } from "@/lib/ui-route-traffic-retired-settings-exec-digest";
 
 const TEMPLATE_PATH = "docs/architecture/ui_route_traffic_estimates.template.md";
@@ -17,7 +15,6 @@ const TEMPLATE_PATH = "docs/architecture/ui_route_traffic_estimates.template.md"
 type TrafficWorkbookRow = {
   id: string;
   path: string;
-  section: string;
   notes: string;
 };
 
@@ -49,7 +46,6 @@ function extractMasterTableRows(markdown: string): TrafficWorkbookRow[] {
     rows.push({
       id: cells[1],
       path: cells[2].replace(/^`|`$/g, ""),
-      section: cells[7],
       notes: cells[8],
     });
   }
@@ -57,25 +53,20 @@ function extractMasterTableRows(markdown: string): TrafficWorkbookRow[] {
   return rows;
 }
 
-function findTrafficRowById(rows: TrafficWorkbookRow[], rowId: string): TrafficWorkbookRow | undefined {
-  return rows.find((row) => row.id === rowId);
-}
-
-describe("ui-route-traffic-retired-settings-exec-digest (EEX)", () => {
-  it("tracks the retired settings bookmark with honest workbook notes", () => {
+describe("ui-route-traffic-retired-settings-exec-digest (EEX removed)", () => {
+  it("does not track retired EEX; Digests Schedule stays on DIS", () => {
     const rows = extractMasterTableRows(readTemplateMarkdown());
-    const eexRow = findTrafficRowById(rows, RETIRED_SETTINGS_EXEC_DIGEST_TRAFFIC_ROW_ID);
-    const disRow = findTrafficRowById(rows, "DIS");
-    const sexRow = findTrafficRowById(rows, REMOVED_SETTINGS_EXEC_DIGEST_TRAFFIC_ROW_ID);
+    const eexRow = rows.find((row) => row.id === REMOVED_SETTINGS_EXEC_DIGEST_TRAFFIC_ROW_ID);
+    const sexRow = rows.find((row) => row.id === REMOVED_SETTINGS_EXEC_DIGEST_LEGACY_TRAFFIC_ROW_ID);
+    const disRow = rows.find((row) => row.id === "DIS");
+    const retiredPathRow = rows.find((row) => row.path === RETIRED_SETTINGS_EXEC_DIGEST_TRAFFIC_PATH);
 
+    expect(eexRow).toBeUndefined();
     expect(sexRow).toBeUndefined();
-    expect(eexRow).toBeDefined();
-    expect(eexRow?.path).toBe(RETIRED_SETTINGS_EXEC_DIGEST_TRAFFIC_PATH);
-    expect(eexRow?.section).toBe(RETIRED_SETTINGS_EXEC_DIGEST_TRAFFIC_SECTION);
-    expect(eexRow?.notes).toBe(RETIRED_SETTINGS_EXEC_DIGEST_TRAFFIC_NOTE);
-    expect(eexRow?.notes).toContain("SEX");
-    expect(eexRow?.notes).toContain("DIS");
+    expect(retiredPathRow).toBeUndefined();
     expect(disRow?.path).toBe(CANONICAL_EXEC_DIGEST_SCHEDULE_TRAFFIC_PATH);
+    expect(disRow?.notes.toLowerCase()).not.toContain("eex");
     expect(disRow?.notes.toLowerCase()).not.toContain("sex");
+    expect(disRow?.notes.toLowerCase()).not.toContain("/settings/exec-digest");
   });
 });

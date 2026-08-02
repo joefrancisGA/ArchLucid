@@ -63,10 +63,10 @@ REDIRECT_ONLY_APP_PATHS = frozenset(
 )
 
 # Next.config-only redirect bookmarks that stay in the owner traffic workbook (TB-1887).
+# /settings/exec-digest retired from the workbook (EEX removed); migration still maps to DIS.
 TRAFFIC_TRACKED_REDIRECT_BOOKMARKS = frozenset(
     {
         "/settings/alerts",
-        "/settings/exec-digest",
     }
 )
 

@@ -1,20 +1,10 @@
 "use client";
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
-import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
+
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import Link from "next/link";
-
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { GovernanceInteractiveQuickstartContent } from "@/components/GovernanceInteractiveQuickstartContent";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 type GovernanceInteractiveQuickstartCardProps = {
   /** Hide the First 30 days onboarding link (buyer-polished workflow surface). */
@@ -38,52 +28,15 @@ export function GovernanceInteractiveQuickstartCard({
         "mb-6 border-neutral-200 bg-al-surface-raised dark:border-neutral-800",
         className,
       )}
-      data-testid="governance-interactive-quickstart"
     >
       <CardHeader className={cn("space-y-1 pb-2", suppressCardTitle && "pt-0")}>
         {suppressCardTitle ? null : (
           <CardTitle className={OPERATOR_TYPOGRAPHY.body}>How governance approval works</CardTitle>
         )}
-        <CardDescription>
-          Use this sequence the first time you move a finalized review record through approval. Skipping steps is fine once
-          your team knows the rhythm.
-        </CardDescription>
       </CardHeader>
-      <CardContent className="pb-3 pt-0">
-        <ol className={cn("m-0 list-decimal space-y-2 pl-5 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
-          <li>
-            <Link href="/policy-packs" className="font-medium text-teal-800 underline dark:text-teal-300">
-              Open policy packs
-            </Link>
-            — assign or publish the rule set that governs your scope.
-          </li>
-          <li>
-            <Link href="/reviews/new" className="font-medium text-teal-800 underline dark:text-teal-300">
-              Run an architecture review
-            </Link>
-            {" — "}
-            finalize so you have a review record version to submit below.
-          </li>
-          <li>Request governance approval, then approve and advance the review when your role allows.</li>
-          <li>Record go-live by releasing the approved review record to the target environment.</li>
-        </ol>
+      <CardContent className={cn("pb-3 pt-0", suppressCardTitle && "pt-0")}>
+        <GovernanceInteractiveQuickstartContent hideFirst30DaysLink={hideFirst30DaysLink} />
       </CardContent>
-      {hideFirst30DaysLink ? null : (
-        <p className={cn("m-0 px-6 pb-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          Onboarding preset (optional):{" "}
-          <Link href="/governance/setup" className="font-medium text-teal-800 underline dark:text-teal-300">
-            Governance setup
-          </Link>
-        </p>
-      )}
-      <CardFooter className="flex flex-wrap gap-2 border-t border-teal-200/60 pt-3 dark:border-teal-900/50">
-        <Button asChild size="sm" variant="secondary">
-          <Link href="/policy-packs">Policy packs</Link>
-        </Button>
-        <Button asChild size="sm" variant="outline">
-          <Link href={ARCHITECTURES_NEW_PATH}>{CREATE_ARCHITECTURE_LABEL}</Link>
-        </Button>
-      </CardFooter>
     </Card>
   );
 }

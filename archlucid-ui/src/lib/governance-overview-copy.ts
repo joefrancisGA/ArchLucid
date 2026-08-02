@@ -51,6 +51,34 @@ export const GOVERNANCE_OVERVIEW_RECENT_DECISIONS_SECTION_TITLE = "Recent decisi
 
 export const GOVERNANCE_OVERVIEW_NO_PENDING = "No approval requests are waiting for review.";
 
+export const GOVERNANCE_OVERVIEW_NO_PENDING_TITLE = "No reviews are awaiting approval";
+
+export const GOVERNANCE_OVERVIEW_NO_PENDING_DESCRIPTION =
+  "Start by selecting a completed review below and submitting it into the governance workflow.";
+
+export const GOVERNANCE_OVERVIEW_IDLE_WORKSPACE_HINT =
+  "Your workspace has no active governance items yet — load a completed review to begin the approval lifecycle.";
+
+export const GOVERNANCE_OVERVIEW_LOAD_REVIEW_SECTION_TITLE = "Load a review";
+
+export const GOVERNANCE_OVERVIEW_LOAD_REVIEW_SECTION_LEAD =
+  "Select a completed review to inspect approval requests, releases, and activation history.";
+
+export const GOVERNANCE_OVERVIEW_LOAD_REVIEW_DISABLED_HINT = "Select a review to enable this action.";
+
+export const GOVERNANCE_OVERVIEW_QUICKSTART_CHECKLIST_HEADING = "First-time approval checklist";
+
+export const GOVERNANCE_OVERVIEW_QUICKSTART_CHECKLIST_LEAD =
+  "Use this sequence the first time you move a finalized review record through approval. Skipping steps is fine once your team knows the rhythm.";
+
+export const GOVERNANCE_OVERVIEW_APPROVAL_LIFECYCLE_STEPS = [
+  "Review",
+  "Submit",
+  "Pending approval",
+  "Approved",
+  "Released",
+] as const;
+
 export const GOVERNANCE_OVERVIEW_HOW_IT_WORKS_TRIGGER = "How governance approvals work";
 
 export const GOVERNANCE_OVERVIEW_HEADER_NEXT_ACTION =

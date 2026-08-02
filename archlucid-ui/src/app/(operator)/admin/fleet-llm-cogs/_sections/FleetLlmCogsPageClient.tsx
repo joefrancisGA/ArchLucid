@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { FLEET_LLM_COGS_PAGE_LEAD, FLEET_LLM_COGS_PAGE_TITLE } from "@/lib/fleet-llm-cogs-page-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { fetchAdminFleetLlmCogsDashboard, type AdminFleetLlmCogsDashboard } from "@/lib/trial-funnel-ops";
 
@@ -54,10 +55,9 @@ export function FleetLlmCogsPageClient() {
   return (
     <div className="w-full max-w-[1440px] space-y-6" data-testid="fleet-llm-cogs-page">
       <div>
-        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Fleet LLM COGS</h1>
+        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{FLEET_LLM_COGS_PAGE_TITLE}</h1>
         <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          Per-tenant estimated UTC-month LLM pressure, budget cap utilization, and gross-margin risk labels. Values are
-          internal COGS estimates — not Azure invoice totals or customer charges.
+          {FLEET_LLM_COGS_PAGE_LEAD}
         </p>
         <Button type="button" variant="outline" size="sm" className="mt-3" disabled={loading} onClick={() => void refresh()}>
           {loading ? "Refreshing…" : "Refresh"}

@@ -27,6 +27,7 @@ import { principalCanAccessHelpTopic } from "@/lib/product-documentation-access"
 import { BILLING_AND_PLANS_HELP_ROUTE_METADATA } from "@/lib/billing-and-plans-help-route-metadata";
 import { EXECUTIVE_SUMMARY_HELP_ROUTE_METADATA } from "@/lib/executive-summary-help-route-metadata";
 import { FINDINGS_HELP_ROUTE_METADATA } from "@/lib/findings-help-route-metadata";
+import { CORE_PILOT_HELP_ALIAS_ROUTE_METADATA } from "@/lib/core-pilot-help-alias-route-metadata";
 import { FIRST_ARCHITECTURE_REVIEW_HELP_ROUTE_METADATA } from "@/lib/first-architecture-review-help-route-metadata";
 import { GOVERNANCE_APPROVAL_HELP_ROUTE_METADATA } from "@/lib/governance-approval-help-route-metadata";
 import { PATH_CHOOSER_HELP_ROUTE_METADATA } from "@/lib/path-chooser-help-route-metadata";
@@ -187,6 +188,10 @@ export async function generateMetadata(props: HelpTopicPageProps): Promise<Metad
 
   if (entry.slug === "first-architecture-review") {
     return FIRST_ARCHITECTURE_REVIEW_HELP_ROUTE_METADATA;
+  }
+
+  if (helpSlugFromTopicSegments(topic) === "core-pilot") {
+    return CORE_PILOT_HELP_ALIAS_ROUTE_METADATA;
   }
 
   if (entry.slug === "billing-and-plans") {

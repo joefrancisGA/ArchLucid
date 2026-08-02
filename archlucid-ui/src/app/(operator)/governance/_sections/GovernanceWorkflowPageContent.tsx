@@ -12,7 +12,7 @@ import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion"
 import { MutationErrorBoundary } from "@/components/MutationErrorBoundary";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Separator } from "@/components/ui/separator";
-import { GovernanceInteractiveQuickstartCard } from "@/components/GovernanceInteractiveQuickstartCard";
+import { GovernanceInteractiveQuickstartContent } from "@/components/GovernanceInteractiveQuickstartContent";
 import { GovernanceApprovalStoryCard } from "@/components/GovernanceApprovalStoryCard";
 import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
@@ -518,13 +518,16 @@ export function GovernanceWorkflowPageContent() {
     <MutationErrorBoundary title="Governance workflow failed to render">
     <TooltipProvider delayDuration={300}>
     <div className="w-full max-w-[1200px]">
-      {(isReviewContext || buyerPolishedShell) ? (
-        <LayerHeader
-          pageKey="governance-workflow"
-          density="compact"
-          collapsibleGuidance={GOVERNANCE_OVERVIEW_HOW_IT_WORKS_TRIGGER}
-        />
-      ) : null}
+      <LayerHeader
+        pageKey="governance-workflow"
+        density="compact"
+        collapsibleGuidance={GOVERNANCE_OVERVIEW_HOW_IT_WORKS_TRIGGER}
+        collapsibleChildren={
+          !isReviewContext ? (
+            <GovernanceInteractiveQuickstartContent hideFirst30DaysLink={buyerPolishedShell} />
+          ) : undefined
+        }
+      />
       {isReviewContext ? <CtoDemoBuyerValueStrip stepIndex={3} /> : null}
       {isReviewContext ? <CtoDemoSegregationCallout /> : null}
       {isReviewContext ? <CtoDemoGovernancePreviewHint /> : null}

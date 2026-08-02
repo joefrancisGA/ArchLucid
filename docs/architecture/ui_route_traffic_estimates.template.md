@@ -157,7 +157,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | OXX | `/onboard` | 0.06% | 0 | 0 | 6 | Onboarding | None |
 | PRC | `/product-learning` | 0.06% | 0 | 0 | 6 | Onboarding | None |
 | AEX | `/admin/evidence-proposals` | 0.05% | 0 | 0 | 5 | Admin | None |
-| AFX | `/admin/fleet-llm-cogs` | 0.05% | 0 | 0 | 5 | Admin | None |
+| AFX | `/admin/fleet-llm-cogs` | 0.05% | 0 | 0 | 5 | Admin | Platform admin fleet LLM COGS dashboard — FleetLlmCogsPageClient gated on AdminAuthority with per-tenant UTC-month estimated pressure, hard-cap utilization, gross-margin risk labels, and budget completeness table. GET /v1/admin/operational/fleet-llm-cogs via fetchAdminFleetLlmCogsDashboard. Internal COGS estimates only (not Azure invoice or customer charges). System Admin nav (features.showSystemAdministrationNav). route-readiness hidden. |
 | APX | `/admin/pricing-quote-aging` | 0.05% | 0 | 0 | 5 | Admin | None |
 | ATD | `/admin/trial-funnel` | 0.05% | 0 | 0 | 5 | Admin | None |
 | GXX | `/get-started` | 0.05% | 0 | 0 | 5 | Marketing | None |
@@ -211,8 +211,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | AUI | `/auth/invite` | 0.02% | 0 | 0 | 2 | Auth | None |
 | COM | `/compliance-journey` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | DIB | `/digests?tab=browse` | 0.02% | 0 | 0 | 2 | Tab surface | None |
-| DIS | `/digests?tab=schedule` | 0.02% | 0 | 0 | 2 | Tab surface | Canonical executive digest schedule — ExecDigestScheduleContent with recipient delivery settings and GET/POST /v1/tenant/exec-digest-preferences. Left nav Digests → Schedule. Retired /settings/exec-digest tracked on **EEX** (no redirect). |
-| EEX | `/settings/exec-digest` | 0.02% | 0 | 0 | 2 | Settings | Retired pre-release executive digest settings bookmark — no App Router page or next.config redirect (TB-1901–TB-1905). Canonical schedule UX on **DIS** (`/digests?tab=schedule`) via ExecDigestScheduleContent. Former workbook row SEX. |
+| DIS | `/digests?tab=schedule` | 0.02% | 0 | 0 | 2 | Tab surface | Canonical executive digest schedule — ExecDigestScheduleContent with recipient delivery settings and GET/POST /v1/tenant/exec-digest-preferences. Left nav Digests → Schedule. |
 | DIX | `/digests?tab=subscriptions` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | EXA | `/example-roi-bulletin` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | EXD | `/executive/dashboard` | 0.02% | 0 | 0 | 2 | Executive | Deprecated executive-shell bookmark — merged to canonical executive dashboard on **ARE** (`/architecture/executive-dashboard`, TB-608). |
@@ -283,7 +282,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | SEK | `/administration/settings/users?tab=keys` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | SSU | `/administration/settings/users?tab=users` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | MA | `/signed-records` | 0.02% | 0 | 0 | 2 | Marketing | None |
-| MAM | `/signed-records/[manifestId]/artifacts/[artifactId]` | 0.02% | 0 | 0 | 2 | Marketing | None |
+| MAM | `/signed-records/[manifestId]/artifacts/[artifactId]` | 0.02% | 0 | 0 | 2 | Marketing | Manifest-scoped artifact preview — ghost route (no App Router page.tsx); Preview hrefs 404 pending restore TB-1824/TB-1947. Pairs run-scoped RER. Download/proxy paths may still work. |
 | SPE | `/sponsor-report/executive-summary` | 0.02% | 0 | 0 | 2 | Sponsor report | Sponsor executive summary report (canonical); `/value-report` redirects here for bookmark compat. |
 | SPP | `/sponsor-report/pilot-outcomes` | 0.02% | 0 | 0 | 2 | Sponsor report | Sponsor pilot outcomes report (canonical); `/value-report/pilot` redirects here for bookmark compat. |
 | SPR | `/sponsor-report/roi-summary` | 0.02% | 0 | 0 | 2 | Sponsor report | Sponsor ROI summary report (canonical); `/value-report/roi` redirects here for bookmark compat. |

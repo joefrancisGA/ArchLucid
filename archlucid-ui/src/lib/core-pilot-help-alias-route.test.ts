@@ -3,14 +3,15 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
+import { CORE_PILOT_HELP_ALIAS_ROUTE_METADATA } from "@/lib/core-pilot-help-alias-route-metadata";
+import {
+  CORE_PILOT_HELP_ALIAS_CANONICAL_PATH,
+  CORE_PILOT_HELP_ALIAS_PATH,
+} from "@/lib/core-pilot-help-alias-route";
 import {
   FIRST_ARCHITECTURE_REVIEW_HELP_PATH,
   LEGACY_CORE_PILOT_HELP_PATH,
 } from "@/lib/first-architecture-review-help-route";
-import {
-  CORE_PILOT_HELP_ALIAS_CANONICAL_PATH,
-  CORE_PILOT_HELP_ALIAS_TRAFFIC_PATH,
-} from "@/lib/ui-route-traffic-core-pilot-help-alias";
 import {
   HELP_TOPIC_SLUG_ALIASES,
   normalizeHelpTopicSlug,
@@ -29,9 +30,14 @@ const CORE_PILOT_ALIAS_SURFACES = [
 
 describe("core-pilot-help-alias-route (ECO)", () => {
   it("tracks the legacy bookmark path separately from the canonical HCO path", () => {
-    expect(CORE_PILOT_HELP_ALIAS_TRAFFIC_PATH).toBe(LEGACY_CORE_PILOT_HELP_PATH);
+    expect(CORE_PILOT_HELP_ALIAS_PATH).toBe(LEGACY_CORE_PILOT_HELP_PATH);
     expect(CORE_PILOT_HELP_ALIAS_CANONICAL_PATH).toBe(FIRST_ARCHITECTURE_REVIEW_HELP_PATH);
-    expect(CORE_PILOT_HELP_ALIAS_TRAFFIC_PATH).not.toBe(CORE_PILOT_HELP_ALIAS_CANONICAL_PATH);
+    expect(CORE_PILOT_HELP_ALIAS_PATH).not.toBe(CORE_PILOT_HELP_ALIAS_CANONICAL_PATH);
+  });
+
+  it("reuses the HCO specialty metadata for the legacy alias slug", () => {
+    expect(CORE_PILOT_HELP_ALIAS_ROUTE_METADATA.robots).toEqual({ index: false, follow: false });
+    expect(CORE_PILOT_HELP_ALIAS_ROUTE_METADATA.title).toBe("Your first architecture review");
   });
 
   it("resolves the core-pilot slug alias to first-architecture-review", () => {
@@ -44,6 +50,7 @@ describe("core-pilot-help-alias-route (ECO)", () => {
     const catalogSource = readFileSync(ROUTE_CATALOG, "utf8");
 
     expect(pageSource).toContain("HELP_TOPIC_SLUG_ALIASES");
+    expect(pageSource).toContain("CORE_PILOT_HELP_ALIAS_ROUTE_METADATA");
     expect(pageSource).toContain('loaded.entry.slug === "first-architecture-review"');
     expect(catalogSource).toContain('"/help/core-pilot": "/help/first-architecture-review"');
   });

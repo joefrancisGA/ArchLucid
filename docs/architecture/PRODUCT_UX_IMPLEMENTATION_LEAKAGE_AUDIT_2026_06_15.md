@@ -2,7 +2,7 @@
 > **Reviewed:** 2026-07-22
 >
 > **Assessment date:** 2026-06-15  
-> **Related:** [`PRODUCT_DRIFT_ONBOARDING_NARRATIVE_2026_06_15.md`](PRODUCT_DRIFT_ONBOARDING_NARRATIVE_2026_06_15.md) (Azure-first onboarding drift); [`UI_DESIGN_SYSTEM.md`](../library/UI_DESIGN_SYSTEM.md) (visual standard); [`archlucid-ui/AGENTS.md`](../../archlucid-ui/AGENTS.md) (canonical product language)
+> **Related:** [`TECH_BACKLOG.md`](../library/TECH_BACKLOG.md) (TB-337–344; former onboarding narrative assessment) (Azure-first onboarding drift); [`UI_DESIGN_SYSTEM.md`](../library/UI_DESIGN_SYSTEM.md) (visual standard); [`archlucid-ui/AGENTS.md`](../../archlucid-ui/AGENTS.md) (canonical product language)
 
 # UX audit — implementation leakage into the product experience
 

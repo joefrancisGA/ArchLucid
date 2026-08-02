@@ -195,7 +195,9 @@ Columns:
 | `/onboard` | Deprecated alias | App Router shim permanently redirects to `/onboarding` (query preserved; canonical UX on **ARF**) |
 | `/getting-started` | Deprecated alias | App Router shim permanently redirects to `/onboarding` (query preserved) |
 | `/help` | In-app help index | Open directly |
-| `/help/[topic]` | Rendered help topic | e.g. `/help/getting-started`, `/help/first-architecture-review` (specialty `HelpCorePilotGuideView`, **HCO**; legacy `/help/core-pilot` → **ECO**), `/help/billing-and-plans` (specialty `HelpBillingAndPlansGuideView`, **HBX**), `/help/executive-summary` (specialty `HelpExecutiveSummaryGuideView`, **EXE**), `/help/findings` (specialty `HelpFindingsGuideView`, **HFX**), `/help/governance-approval` (specialty `HelpGovernanceApprovalGuideView`, **GO**), `/help/path-chooser` (buyer markdown chooser, **HPX**), `/help/developer-troubleshooting` (Admin-gated internal-runbook, **HDX**), `/help/governance-api-contracts` (Admin-gated API contracts reference, **HG**), `/help/alerts` (slugs in `product-documentation-registry.ts`) |
+| `/help/first-architecture-review` | Your first architecture review (specialty guide) | `HelpCorePilotGuideView` with stepper + gated finalize CTAs (**HCO**) |
+| `/help/core-pilot` | Legacy help slug alias | Resolves to **HCO** (`first-architecture-review`); same `HelpCorePilotGuideView` (**ECO**) |
+| `/help/[topic]` | Rendered help topic | e.g. `/help/getting-started`, `/help/billing-and-plans` (specialty `HelpBillingAndPlansGuideView`, **HBX**), `/help/executive-summary` (specialty `HelpExecutiveSummaryGuideView`, **EXE**), `/help/findings` (specialty `HelpFindingsGuideView`, **HFX**), `/help/governance-approval` (specialty `HelpGovernanceApprovalGuideView`, **GO**), `/help/path-chooser` (buyer markdown chooser, **HPX**), `/help/developer-troubleshooting` (Admin-gated internal-runbook, **HDX**), `/help/governance-api-contracts` (Admin-gated API contracts reference, **HG**), `/help/alerts` (slugs in `product-documentation-registry.ts`) |
 | `/demo` | CTO demo tour entry | CTO demo pack env; else redirects `/` |
 | `/demo/explain` | Internal demo explanation | T2: `GET /v1/demo/explain`; T3 mock; blocked in strict T1 |
 | `/snapshot/[runId]` | Deprecated legacy bookmark alias | App Router redirect-only shim (not a page tier). Showcase spine → `/reviews/claims-intake-modernization?readOnly=1`; other runs → `/reviews/{runId}?readOnly=1` (query preserved, e.g. `v=demo`). Example bookmark: `/snapshot/claims-intake-modernization?v=demo` |
@@ -256,7 +258,7 @@ Layer guidance copy for many governance/analysis routes: `archlucid-ui/src/lib/l
 | `/value-report/roi` | ROI / hours summary | T1 illustrative; T2 with seed |
 | `/digests` | Digests hub (Browse + Subscriptions + Schedule) | T3 mock; Schedule tab (**DIS**) hosts ExecDigestScheduleContent |
 | `/digests?tab=schedule` | Executive digest schedule | ExecDigestScheduleContent; preferences via `/v1/tenant/exec-digest-preferences` (**DIS**) |
-| `/settings/exec-digest` | Retired pre-release bookmark | No redirect or App Router page; canonical schedule on **DIS** (**EEX**, TB-1901–TB-1905) |
+| `/settings/exec-digest` | Retired pre-release bookmark | No redirect or App Router page; canonical schedule on **DIS** (`/digests?tab=schedule`, TB-1901–TB-1905); former traffic row **EEX** removed |
 | `/digest-subscriptions` | Digest subscriptions | T3 mock |
 | `/patterns` | Architecture pattern library | T3 mock or API if seeded |
 | `/portfolio` | Retired — redirects to `/architecture/executive-dashboard` | Legacy bookmark only |
@@ -302,7 +304,7 @@ Requires **Admin authority**, full architect workspace, no demo nav blockers, an
 | `/admin/configuration` | Effective configuration snapshot | Same |
 | `/admin/pricing-quote-aging` | Pricing quote SLA dashboard | Same |
 | `/admin/trial-funnel` | Trial funnel operations | Same |
-| `/admin/fleet-llm-cogs` | Fleet LLM COGS visibility | Same |
+| `/admin/fleet-llm-cogs` | Fleet LLM COGS visibility | AdminAuthority + System Admin nav; per-tenant UTC-month COGS pressure table (**AFX**) |
 | `/admin/tenant-health` | Per-tenant health admin | Same |
 | `/admin/rag-health` | RAG / retrieval health | Same |
 | `/admin/support` | Admin support tools | Same |

@@ -91,11 +91,9 @@ def test_build_catalog_tracks_next_config_only_settings_alerts_bookmark() -> Non
     assert catalog["/settings/alerts"].source == "redirect_bookmark"
 
 
-def test_build_catalog_tracks_next_config_only_settings_exec_digest_bookmark() -> None:
+def test_build_catalog_does_not_track_retired_settings_exec_digest_bookmark() -> None:
     catalog = build_catalog()
-    assert "/settings/exec-digest" in catalog
-    assert catalog["/settings/exec-digest"].section == "Settings"
-    assert catalog["/settings/exec-digest"].source == "redirect_bookmark"
+    assert "/settings/exec-digest" not in catalog
 
 
 def test_migrate_workbook_path_maps_legacy_settings_exec_digest() -> None:

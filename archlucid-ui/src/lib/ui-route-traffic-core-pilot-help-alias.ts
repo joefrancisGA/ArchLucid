@@ -1,7 +1,5 @@
-import {
-  FIRST_ARCHITECTURE_REVIEW_HELP_PATH,
-  LEGACY_CORE_PILOT_HELP_PATH,
-} from "@/lib/first-architecture-review-help-route";
+import { CORE_PILOT_HELP_ALIAS_PATH } from "@/lib/core-pilot-help-alias-route";
+import { FIRST_ARCHITECTURE_REVIEW_HELP_PATH } from "@/lib/first-architecture-review-help-route";
 
 /**
  * Traffic workbook row ID for the legacy Core Pilot help bookmark.
@@ -10,7 +8,7 @@ import {
 export const CORE_PILOT_HELP_ALIAS_TRAFFIC_ROW_ID = "ECO";
 
 /** Legacy alias path tracked on the ECO workbook row. */
-export const CORE_PILOT_HELP_ALIAS_TRAFFIC_PATH = LEGACY_CORE_PILOT_HELP_PATH;
+export const CORE_PILOT_HELP_ALIAS_TRAFFIC_PATH = CORE_PILOT_HELP_ALIAS_PATH;
 
 /** Canonical first-review help path that ECO resolves to (workbook row HCO). */
 export const CORE_PILOT_HELP_ALIAS_CANONICAL_PATH = FIRST_ARCHITECTURE_REVIEW_HELP_PATH;

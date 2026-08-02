@@ -2,6 +2,8 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
+import type { ReactNode } from "react";
+
 import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
 import { InlineGuidanceText } from "@/components/InlineGuidanceText";
 import { ARCHITECTURE_REVIEW_VOCABULARY } from "@/lib/architecture-review-vocabulary";
@@ -19,6 +21,8 @@ export type LayerHeaderProps = {
   density?: "default" | "compact";
   /** When set, wraps guidance in a collapsed `<details>` so primary page actions stay above the fold. */
   collapsibleGuidance?: string;
+  /** Optional content below layer guidance inside the collapsible panel (e.g. first-time checklist). */
+  collapsibleChildren?: ReactNode;
 };
 
 /**
@@ -39,6 +43,7 @@ export function LayerHeader({
   className,
   density = "default",
   collapsibleGuidance,
+  collapsibleChildren,
 }: LayerHeaderProps) {
   const surface = useNavSurface(pageKey);
   const buyerDemoShell = isBuyerPolishedOperatorShellEnv();
@@ -133,7 +138,12 @@ export function LayerHeader({
         <summary className={cn("cursor-pointer font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
           {collapsibleGuidance}
         </summary>
-        <div className="mt-3">{guidanceAside}</div>
+        <div className="mt-3">
+          {guidanceAside}
+          {collapsibleChildren ? (
+            <div className="mt-4 border-t border-neutral-200 pt-4 dark:border-neutral-700">{collapsibleChildren}</div>
+          ) : null}
+        </div>
       </details>
     );
   }
