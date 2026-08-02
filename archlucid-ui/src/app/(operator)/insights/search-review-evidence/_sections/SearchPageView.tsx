@@ -6,12 +6,15 @@ import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmpty
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { RunIdPicker } from "@/components/RunIdPicker";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SEARCH_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
+import { evidenceGraphHref } from "@/lib/evidence-graph-route";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
 
 import type { SearchPageViewModel } from "./search-page-view-model";
 import {
@@ -22,6 +25,7 @@ import {
   SEARCH_REVIEW_FILTER_PLACEHOLDER,
 } from "./search-page-copy";
 import { SearchRetrievalHitCard } from "./SearchRetrievalHitCard";
+import { SearchReviewEvidenceCiteStrip } from "./SearchReviewEvidenceCiteStrip";
 
 type SearchPageViewProps = {
   model: SearchPageViewModel;
@@ -29,6 +33,15 @@ type SearchPageViewProps = {
 
 function searchPageTitle(runId: string): string {
   return runId.trim().length > 0 ? "Search this review's evidence" : "Search review evidence";
+}
+
+function searchEmptyStateActions(scopedRunId: string) {
+  const evidenceHref =
+    scopedRunId.length > 0 ? evidenceGraphHref({ runId: scopedRunId }) : evidenceGraphHref();
+
+  return SEARCH_EMPTY_COMPACT.actions?.map((action) =>
+    action.label === "Evidence graph" ? { ...action, href: evidenceHref } : action,
+  );
 }
 
 export function SearchPageView({ model }: SearchPageViewProps) {
@@ -52,7 +65,13 @@ export function SearchPageView({ model }: SearchPageViewProps) {
   if (isDemo) {
     return (
       <div className="max-w-4xl">
-        <OperatorPageHeader title={pageTitle} helpKey="semantic-search" subtitle={SEARCH_PAGE_SUBTITLE} />
+        <OperatorPageHeader
+          title={pageTitle}
+          helpKey="semantic-search"
+          subtitle={SEARCH_PAGE_SUBTITLE}
+          navHref={SEARCH_REVIEW_EVIDENCE_PATH}
+          actions={<PageContextualHelpButton />}
+        />
 
         <DemoWorkspaceCapabilityUnavailablePanel
           layout="embedded"
@@ -65,7 +84,15 @@ export function SearchPageView({ model }: SearchPageViewProps) {
 
   return (
     <div className="max-w-4xl">
-      <OperatorPageHeader title={pageTitle} helpKey="semantic-search" subtitle={SEARCH_PAGE_SUBTITLE} />
+      <OperatorPageHeader
+        title={pageTitle}
+        helpKey="semantic-search"
+        subtitle={SEARCH_PAGE_SUBTITLE}
+        navHref={SEARCH_REVIEW_EVIDENCE_PATH}
+        actions={<PageContextualHelpButton />}
+      />
+
+      {scopedRunId.length > 0 ? <SearchReviewEvidenceCiteStrip runId={scopedRunId} /> : null}
 
       <Card className="mb-6 max-w-xl border-neutral-200 dark:border-neutral-700">
         <CardContent className="grid gap-4 p-4">
@@ -142,7 +169,10 @@ export function SearchPageView({ model }: SearchPageViewProps) {
       ) : null}
 
       {hasSearched && failure === null && results.length === 0 ? (
-        <EnterpriseCompactEmptyState {...SEARCH_EMPTY_COMPACT} />
+        <EnterpriseCompactEmptyState
+          {...SEARCH_EMPTY_COMPACT}
+          actions={searchEmptyStateActions(scopedRunId)}
+        />
       ) : null}
 
       <div className="grid gap-3">

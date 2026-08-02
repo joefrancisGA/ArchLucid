@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   buildRetrievalHitActionLink,
+  buildRetrievalHitEvidenceTrailHref,
   resolveRetrievalHitRunId,
   retrievalHitRelevanceTier,
   retrievalHitSourceTypeLabel,
@@ -62,7 +63,7 @@ describe("buildRetrievalHitActionLink", () => {
     );
 
     expect(link).toEqual({
-      href: `/reviews/${SAMPLE_RUN_ID}/findings/phi-minimization-risk/evidence-trace`,
+      href: `/architecture/reviews/${SAMPLE_RUN_ID}/findings/phi-minimization-risk/evidence-trace`,
       label: "Open finding",
     });
   });
@@ -80,5 +81,37 @@ describe("buildRetrievalHitActionLink", () => {
       href: `/signed-records/${SAMPLE_MANIFEST_ID}`,
       label: "Open signed review record",
     });
+  });
+
+  it("links provenance graph hits to the evidence graph", () => {
+    const link = buildRetrievalHitActionLink(
+      hit({
+        sourceType: "ProvenanceGraph",
+        sourceId: SAMPLE_RUN_ID,
+        documentId: `provenance-${SAMPLE_RUN_ID}`,
+        findingId: undefined,
+      }),
+    );
+
+    expect(link).toEqual({
+      href: `/insights/evidence-graph?runId=${SAMPLE_RUN_ID}`,
+      label: "Open evidence trail",
+    });
+  });
+});
+
+describe("buildRetrievalHitEvidenceTrailHref", () => {
+  it("builds an evidence graph href from a resolved run id", () => {
+    expect(
+      buildRetrievalHitEvidenceTrailHref(
+        hit({
+          documentId: `manifest-${SAMPLE_RUN_ID}-finding-phi-minimization-risk`,
+        }),
+      ),
+    ).toBe(`/insights/evidence-graph?runId=${SAMPLE_RUN_ID}`);
+  });
+
+  it("returns null when no run id can be resolved", () => {
+    expect(buildRetrievalHitEvidenceTrailHref(hit({ documentId: "" }))).toBeNull();
   });
 });

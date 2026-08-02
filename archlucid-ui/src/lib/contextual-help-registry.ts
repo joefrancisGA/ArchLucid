@@ -59,6 +59,17 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/insights/search-review-evidence",
+    entry: {
+      whatIsThisPage:
+        "Search findings, decisions, and signed review evidence across the workspace index, optionally scoped to one review.",
+      whatToDoNext:
+        "Enter a phrase, optionally limit to a review, then open the hit, Evidence trail, or Sources cites before briefing.",
+      whyEmpty: "Matches appear after committed review evidence is indexed and your query finds relevant chunks.",
+      whereToConfigurePrerequisite: "Finalize reviews so findings and signed records are available to search.",
+    },
+  },
+  {
     prefix: "/governance/standards-and-rules",
     entry: {
       whatIsThisPage:

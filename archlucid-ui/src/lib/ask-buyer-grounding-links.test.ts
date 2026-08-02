@@ -10,17 +10,28 @@ describe("buyerAskGroundingLinksForRun", () => {
     expect(links).not.toBeNull();
     expect(links!.length).toBe(7);
     expect(links![0]?.label).toBe("Executive summary");
-    expect(links![0]?.href).toContain("/reviews/");
+    expect(links![0]?.href).toContain("/architecture/reviews/");
     expect(links![1]?.href).toContain("/signed-record");
     expect(links!.some((l) => l.href.includes("/findings/phi-minimization-risk"))).toBe(true);
     expect(links!.some((l) => l.href.includes("/insights/evidence-graph?"))).toBe(true);
-    expect(links!.some((l) => l.href.includes("/audit?"))).toBe(true);
+    expect(links!.some((l) => l.href.includes("/governance/audit?"))).toBe(true);
     expect(links!.some((l) => l.href.includes("/insights/compare-two-reviews?"))).toBe(true);
     expect(links!.some((l) => l.href.includes("/governance/policy-packs/"))).toBe(true);
   });
 
-  it("returns null for unrelated reviews", () => {
-    expect(buyerAskGroundingLinksForRun("some-other-run")).toBeNull();
+  it("returns baseline review / evidence / audit cites for non-showcase reviews", () => {
+    const links = buyerAskGroundingLinksForRun("some-other-run");
+
+    expect(links).not.toBeNull();
+    expect(links!.length).toBe(3);
+    expect(links![0]?.label).toBe("Open review");
+    expect(links!.some((l) => l.href.includes("/insights/evidence-graph?"))).toBe(true);
+    expect(links!.some((l) => l.href.includes("/governance/audit?"))).toBe(true);
+  });
+
+  it("returns null when the run id is empty", () => {
+    expect(buyerAskGroundingLinksForRun("")).toBeNull();
+    expect(buyerAskGroundingLinksForRun("   ")).toBeNull();
   });
 
   it("normalizes known demo aliases to the showcase spine", () => {

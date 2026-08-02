@@ -7,6 +7,7 @@ import {
 } from "@/lib/buyer-safe-review-navigation";
 import { BUYER_COMPARE_OPEN_FULL_LINK_LABEL } from "@/lib/buyer-polish-copy";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
 import {
   SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF,
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
@@ -18,15 +19,36 @@ export type BuyerAskGroundingLink = {
   readonly href: string;
 };
 
+function baselineGroundingLinksForRun(runId: string): readonly BuyerAskGroundingLink[] {
+  return [
+    {
+      label: "Open review",
+      href: `/architecture/reviews/${encodeURIComponent(runId)}`,
+    },
+    {
+      label: BUYER_SURFACE_VOCABULARY.evidenceGraph,
+      href: evidenceGraphHref({ runId }),
+    },
+    {
+      label: BUYER_SURFACE_VOCABULARY.auditTrail,
+      href: `${GOVERNANCE_AUDIT_PATH}?runId=${encodeURIComponent(runId)}`,
+    },
+  ];
+}
+
 /**
- * Deterministic anchors shown under Ask assistant replies on the Claims Intake demo spine — makes grounding visible
- * without depending on model prose (Illustrative seeded threads still apply).
+ * Deterministic Sources cites for a review — baseline review / evidence / audit for any run id,
+ * plus Claims Intake showcase spine anchors when the canonical demo review is selected.
  */
 export function buyerAskGroundingLinksForRun(runIdRaw: string): readonly BuyerAskGroundingLink[] | null {
   const runId = canonicalizeDemoRunId(runIdRaw.trim());
 
-  if (runId !== SHOWCASE_STATIC_DEMO_RUN_ID) {
+  if (runId.length === 0) {
     return null;
+  }
+
+  if (runId !== SHOWCASE_STATIC_DEMO_RUN_ID) {
+    return baselineGroundingLinksForRun(runId);
   }
 
   return [
@@ -44,7 +66,7 @@ export function buyerAskGroundingLinksForRun(runIdRaw: string): readonly BuyerAs
     },
     {
       label: BUYER_SURFACE_VOCABULARY.phiMinimizationRisk,
-      href: `/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`,
+      href: `/architecture/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`,
     },
     {
       label: BUYER_SURFACE_VOCABULARY.evidenceGraph,
@@ -52,7 +74,7 @@ export function buyerAskGroundingLinksForRun(runIdRaw: string): readonly BuyerAs
     },
     {
       label: BUYER_SURFACE_VOCABULARY.auditTrail,
-      href: `/audit?runId=${encodeURIComponent(runId)}`,
+      href: `${GOVERNANCE_AUDIT_PATH}?runId=${encodeURIComponent(runId)}`,
     },
     {
       label: BUYER_COMPARE_OPEN_FULL_LINK_LABEL,

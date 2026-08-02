@@ -17,8 +17,8 @@ export const RUNS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
   description:
     "Start an architecture review to gather evidence, evaluate findings, and record decisions. Or explore the sample review.",
   actions: [
-    { label: BUYER_START_ARCHITECTURE_REVIEW_CTA, href: "/reviews/new", variant: "primary" },
-    { label: AZURE_REFERENCE_SAMPLE_REVIEW_CTA_LABEL, href: "/reviews/claims-intake-modernization", variant: "outline" },
+    { label: BUYER_START_ARCHITECTURE_REVIEW_CTA, href: "/architecture/reviews/new", variant: "primary" },
+    { label: AZURE_REFERENCE_SAMPLE_REVIEW_CTA_LABEL, href: "/architecture/reviews/claims-intake-modernization", variant: "outline" },
   ],
 };
 
@@ -44,7 +44,8 @@ export const SEARCH_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
     "Try different wording, clear the review filter, or ensure your workspace has committed review evidence indexed for search.",
   actions: [
     { label: "Open Ask", href: "/insights/ask-review-questions", variant: "outline" },
-    { label: "View reviews", href: "/reviews?projectId=default", variant: "outline" },
+    { label: "Evidence graph", href: "/insights/evidence-graph", variant: "outline" },
+    { label: "View reviews", href: "/architecture/reviews?projectId=default", variant: "outline" },
   ],
 };
 
@@ -56,7 +57,7 @@ export const PLANNING_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
     "Capture review feedback or run pilot feedback analysis to generate themes and prioritized plans.",
   actions: [
     { label: "Capture review feedback", href: "/product-learning", variant: "primary" },
-    { label: "View reviews", href: "/reviews", variant: "outline" },
+    { label: "View reviews", href: "/architecture/reviews", variant: "outline" },
   ],
 };
 
@@ -66,7 +67,7 @@ export const COMPARE_WAITING_COMPACT: EnterpriseCompactEmptyStateProps = {
   title: "Select two reviews to compare",
   description: "Choose a baseline and updated review to continue.",
   actions: [
-    { label: "Open reviews", href: "/reviews?projectId=default", variant: "primary" },
+    { label: "Open reviews", href: "/architecture/reviews?projectId=default", variant: "primary" },
   ],
 };
 
@@ -77,8 +78,8 @@ export const COMPARE_ZERO_FINALIZED_COMPACT: EnterpriseCompactEmptyStateProps = 
   description:
     "You need at least two finalized reviews before ArchLucid can compare changes over time.",
   actions: [
-    { label: BUYER_START_ARCHITECTURE_REVIEW_CTA, href: "/reviews/new", variant: "primary" },
-    { label: "Open reviews", href: "/reviews?projectId=default", variant: "outline" },
+    { label: BUYER_START_ARCHITECTURE_REVIEW_CTA, href: "/architecture/reviews/new", variant: "primary" },
+    { label: "Open reviews", href: "/architecture/reviews?projectId=default", variant: "outline" },
   ],
 };
 
@@ -88,8 +89,8 @@ export const COMPARE_INSUFFICIENT_FINALIZED_COMPACT: EnterpriseCompactEmptyState
   title: "One finalized review available",
   description: "Finalize one more review to compare changes over time.",
   actions: [
-    { label: "Open reviews", href: "/reviews?projectId=default", variant: "primary" },
-    { label: BUYER_START_ARCHITECTURE_REVIEW_CTA, href: "/reviews/new", variant: "outline" },
+    { label: "Open reviews", href: "/architecture/reviews?projectId=default", variant: "primary" },
+    { label: BUYER_START_ARCHITECTURE_REVIEW_CTA, href: "/architecture/reviews/new", variant: "outline" },
   ],
 };
 
@@ -119,8 +120,8 @@ export const DECISION_REGISTER_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps =
   description:
     "Finalize a review to lock its signed review record. Architecture decisions from that package then appear here with findings and evidence lineage.",
   actions: [
-    { label: "Open reviews", href: "/reviews?projectId=default", variant: "primary" },
-    { label: "Start architecture review", href: "/reviews/new", variant: "outline" },
+    { label: "Open reviews", href: "/architecture/reviews?projectId=default", variant: "primary" },
+    { label: "Start architecture review", href: "/architecture/reviews/new", variant: "outline" },
     { label: "Open governance workflow", href: "/governance", variant: "outline" },
   ],
 };
@@ -133,7 +134,7 @@ export const EXECUTIVE_REVIEWS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps =
     "Finalized reviews appear here after you finalize the review and lock the architecture review.",
   actions: [
     { label: "See a completed sample review", href: "/see-it", variant: "primary" },
-    { label: "Start a review", href: "/reviews/new", variant: "outline" },
+    { label: "Start a review", href: "/architecture/reviews/new", variant: "outline" },
   ],
 };
 
@@ -160,6 +161,6 @@ export const COMPARE_WAITING_BUYER_COMPACT: EnterpriseCompactEmptyStateProps = {
   title: "Select two reviews to compare",
   description: "Choose a baseline and updated review to continue.",
   actions: [
-    { label: "Open reviews", href: "/reviews?projectId=default", variant: "primary" },
+    { label: "Open reviews", href: "/architecture/reviews?projectId=default", variant: "primary" },
   ],
 };

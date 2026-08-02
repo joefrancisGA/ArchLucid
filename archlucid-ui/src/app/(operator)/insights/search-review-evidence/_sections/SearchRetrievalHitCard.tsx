@@ -1,11 +1,13 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
+import { FindingEvidenceLinkChip } from "@/components/usability/FindingEvidenceLinkChip";
 import { Card, CardContent } from "@/components/ui/card";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import {
   buildRetrievalHitActionLink,
+  buildRetrievalHitEvidenceTrailHref,
   resolveRetrievalHitRunId,
   retrievalHitRelevanceLabel,
   retrievalHitRelevanceTier,
@@ -25,6 +27,7 @@ export function SearchRetrievalHitCard(props: SearchRetrievalHitCardProps) {
   const relevanceLabel = retrievalHitRelevanceLabel(relevanceTier);
   const runId = resolveRetrievalHitRunId(hit, scopedRunId);
   const actionLink = buildRetrievalHitActionLink(hit, scopedRunId);
+  const evidenceTrailHref = buildRetrievalHitEvidenceTrailHref(hit, scopedRunId);
 
   return (
     <Card data-testid="search-retrieval-hit-card">
@@ -65,11 +68,14 @@ export function SearchRetrievalHitCard(props: SearchRetrievalHitCardProps) {
           {hit.text}
         </p>
 
-        {actionLink !== null ? (
-          <Link href={actionLink.href} className={cn("inline-flex", OPERATOR_LINK.nav)}>
-            {actionLink.label}
-          </Link>
-        ) : null}
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          {actionLink !== null ? (
+            <Link href={actionLink.href} className={cn("inline-flex", OPERATOR_LINK.nav)}>
+              {actionLink.label}
+            </Link>
+          ) : null}
+          {evidenceTrailHref !== null ? <FindingEvidenceLinkChip href={evidenceTrailHref} /> : null}
+        </div>
       </CardContent>
     </Card>
   );

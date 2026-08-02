@@ -1,3 +1,4 @@
+import { evidenceGraphHref } from "@/lib/evidence-graph-route";
 import { findingInspectHref } from "@/lib/finding-policy-evidence-citations";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
@@ -114,7 +115,7 @@ export function resolveRetrievalHitRunId(hit: RetrievalHit, scopedRunId?: string
 
 function reviewPackageHref(runId: string): RetrievalHitActionLink {
   return {
-    href: `/reviews/${encodeURIComponent(runId)}`,
+    href: `/architecture/reviews/${encodeURIComponent(runId)}`,
     label: "Open review",
   };
 }
@@ -157,14 +158,14 @@ export function buildRetrievalHitActionLink(
 
   if (sourceType === "ManifestDecision" && runId !== null) {
     return {
-      href: `/reviews/${encodeURIComponent(runId)}/manifest`,
+      href: `/architecture/reviews/${encodeURIComponent(runId)}/manifest`,
       label: "Open decision in review",
     };
   }
 
   if (sourceType === "ProvenanceGraph" && runId !== null) {
     return {
-      href: `/reviews/${encodeURIComponent(runId)}/provenance`,
+      href: evidenceGraphHref({ runId }),
       label: "Open evidence trail",
     };
   }
@@ -175,7 +176,7 @@ export function buildRetrievalHitActionLink(
 
   if (decisionId.length > 0 && runId !== null) {
     return {
-      href: `/reviews/${encodeURIComponent(runId)}/manifest`,
+      href: `/architecture/reviews/${encodeURIComponent(runId)}/manifest`,
       label: "Open decision in review",
     };
   }
@@ -185,4 +186,18 @@ export function buildRetrievalHitActionLink(
   }
 
   return null;
+}
+
+/** Evidence graph href for a hit when a review id can be resolved — used by Evidence trail chips. */
+export function buildRetrievalHitEvidenceTrailHref(
+  hit: RetrievalHit,
+  scopedRunId?: string,
+): string | null {
+  const runId = resolveRetrievalHitRunId(hit, scopedRunId);
+
+  if (runId === null) {
+    return null;
+  }
+
+  return evidenceGraphHref({ runId });
 }
