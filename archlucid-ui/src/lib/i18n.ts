@@ -125,7 +125,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   capture: CREATE_ARCHITECTURE_LABEL,
   /** First review guide (`/architecture/first-review-guide`). */
   onboarding: BUYER_ONBOARDING_PAGE_TITLE,
-  findings: "Findings",
+  findings: "Risk register",
   riskExceptions: "Risk exceptions",
   decisionRegister: "Decision register",
   signedReviewRecords: "Signed review records",
