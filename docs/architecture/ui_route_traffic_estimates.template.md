@@ -93,7 +93,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | GRX | `/governance/recurrence-schedules` | 0.2% | 0 | 0 | 20 | Alerts/gov | None |
 | HGX | `/help/getting-started` | 0.2% | 0 | 0 | 20 | Help topic | None |
 | LOG | `/login` | 0.2% | 0 | 0 | 20 | Auth | None |
-| PXX | `/patterns` | 0.2% | 0 | 0 | 20 | Marketing | None |
+| PXX | `/insights/patterns` | 0.2% | 0 | 0 | 20 | Marketing | None |
 | SAE | `/administration/settings/api-keys` | 0.2% | 0 | 0 | 20 | Settings | None |
 | SRX | `/administration/settings/users?tab=roles` | 0.2% | 0 | 0 | 20 | Tab surface | None |
 | SIG | `/signup` | 0.2% | 0 | 0 | 20 | Marketing | None |
@@ -232,7 +232,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | CO | `/help/comparison-replay` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HER | `/help/creating-runs` | 0.02% | 0 | 0 | 2 | Help alias | None |
 | HED | `/help/data-handling` | 0.02% | 0 | 0 | 2 | Help topic | None |
-| HDA | `/help/data-handling-tenant-isolation` | 0.02% | 0 | 0 | 2 | Help topic | None |
+| HDA | `/help/data-handling-tenant-isolation` | 0.02% | 0 | 0 | 2 | Help topic | Specialty data-handling + tenant isolation guide — HelpDataHandlingTenantIsolationGuideView with Trust Center / security-trust / audit primary CTAs, Sources diligence strip (trust, audit-trail, data-handling overview, subprocessors, DPA, procurement), residency honesty callout, PageContextualHelp, and prepared markdown (three-layer isolation, TB-1659 leakage strip, TB-1653 honesty). Not bare HelpTopicMarkdownView. Does not imply CPA SOC 2 or third-party pen-test publication. |
 | HDP | `/help/dpa-template` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HEV | `/help/evidence-only-review` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | EXE | `/help/executive-summary` | 0.02% | 0 | 0 | 2 | Help topic | Specialty sponsor ROI guide - HelpExecutiveSummaryGuideView on EXECUTIVE_SPONSOR_BRIEF sponsor sections with CTAs to /sponsor-report/executive-summary (SPE) and executive dashboard. Not bare FAQ HelpTopicMarkdownView. |
@@ -255,7 +255,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | INZ | `/integrations/cloud-connections/azure` | 0.02% | 0 | 0 | 2 | Integrations | None |
 | IGC | `/integrations/cloud-connections/gcp` | 0.02% | 0 | 0 | 2 | Integrations | None |
 | INR | `/integrations/readiness` | 0.02% | 0 | 0 | 2 | Integrations | None |
-| PAP | `/patterns/[patternKey]` | 0.02% | 0 | 0 | 2 | Marketing | None |
+| PAP | `/insights/patterns/[patternKey]` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | PRB | `/privacy` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | REX | `/recommendation-learning` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | RER | `/reviews/[runId]/artifacts/[artifactId]` | 0.02% | 0 | 0 | 2 | Core review | None |

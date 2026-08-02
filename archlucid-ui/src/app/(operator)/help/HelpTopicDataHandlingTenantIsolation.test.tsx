@@ -1,15 +1,27 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
-import { HelpTopicMarkdownView } from "@/app/(operator)/help/HelpTopicMarkdownView";
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button">Help</div>,
+}));
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/help/data-handling-tenant-isolation",
+}));
+
+import { HelpDataHandlingTenantIsolationGuideView } from "@/app/(operator)/help/_sections/HelpDataHandlingTenantIsolationGuideView";
+import {
+  DATA_HANDLING_TENANT_ISOLATION_HELP_PRIMARY_ACTIONS,
+  DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES,
+} from "@/lib/data-handling-tenant-isolation-help-guide-content";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
-describe("HelpTopicMarkdownView data-handling-tenant-isolation", () => {
+describe("HelpDataHandlingTenantIsolationGuideView", () => {
   const loaded = tryLoadProductDocumentation("data-handling-tenant-isolation");
 
   it("loads tenant-isolation help from the monorepo", () => {
@@ -17,15 +29,17 @@ describe("HelpTopicMarkdownView data-handling-tenant-isolation", () => {
     expect(loaded?.entry.title).toBe("Data handling and tenant isolation");
   });
 
-  it("renders three-layer isolation without contributor repo paths (TB-1659)", () => {
+  it("renders specialty diligence chrome with three-layer isolation (TB-1659)", () => {
     if (loaded === null) {
       throw new Error("Expected data-handling-tenant-isolation documentation to load.");
     }
 
     const sourcePath = loaded.entry.sourcePaths[0] ?? "";
-    const preparedMarkdown = prepareHelpMarkdownForPresentation(loaded.markdown, sourcePath);
+    const preparedMarkdown = prepareHelpMarkdownForPresentation(loaded.markdown, sourcePath, {
+      helpTopicSlug: loaded.entry.slug,
+    });
 
-    render(<HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />);
+    render(<HelpDataHandlingTenantIsolationGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
     const visible = (document.body.textContent ?? "").toLowerCase();
 
@@ -33,6 +47,29 @@ describe("HelpTopicMarkdownView data-handling-tenant-isolation", () => {
     expect(visible).not.toContain("scripts/");
     expect(visible).toContain("three layers");
     expect(visible).toContain("sql row-level security is not the production isolation boundary");
+    expect(screen.getByTestId("help-data-handling-tenant-isolation-guide")).toBeInTheDocument();
+    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+    expect(screen.getByTestId("help-data-handling-tenant-isolation-residency")).toBeInTheDocument();
+
+    const actionPanel = screen.getByTestId("help-data-handling-tenant-isolation-action-panel");
+
+    expect(
+      within(actionPanel).getByRole("link", {
+        name: DATA_HANDLING_TENANT_ISOLATION_HELP_PRIMARY_ACTIONS.openTrustCenter.label,
+      }),
+    ).toHaveAttribute("href", DATA_HANDLING_TENANT_ISOLATION_HELP_PRIMARY_ACTIONS.openTrustCenter.href);
+    expect(
+      within(actionPanel).getByRole("link", {
+        name: DATA_HANDLING_TENANT_ISOLATION_HELP_PRIMARY_ACTIONS.securityTrust.label,
+      }),
+    ).toHaveAttribute("href", DATA_HANDLING_TENANT_ISOLATION_HELP_PRIMARY_ACTIONS.securityTrust.href);
+
+    const sources = screen.getByTestId("help-data-handling-tenant-isolation-sources");
+
+    for (const link of DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES) {
+      expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
+    }
+
     expect(screen.getAllByRole("link", { name: /security and trust/i }).length).toBeGreaterThan(0);
   });
 });

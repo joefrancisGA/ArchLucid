@@ -38,6 +38,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/insights/ask-review-questions",
       "/insights/compare-two-reviews",
       "/insights/search-review-evidence",
+      "/help/data-handling-tenant-isolation",
       "/governance/standards-and-rules",
       "/digests",
       "/planning",

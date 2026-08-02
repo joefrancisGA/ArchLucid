@@ -2731,7 +2731,7 @@ export function alignDataHandlingIsolationHonesty(markdown: string): string {
   return markdown
     .replace(
       /Each customer tenant uses a dedicated database\.\s*Cross-tenant data access is not part of the product design\./gi,
-      "Each customer tenant uses a dedicated database catalog. Tenant identity is decided at the host boundary, and API requests carry a tenant scope that the data layer enforces on tenant-facing queries — that is the standard customer path, not a claim that every staff or platform surface is free of cross-tenant aggregation. For isolation and assurance detail, see [Security and trust](/help/security-trust) and [Data handling and tenant isolation](/help/data-handling-tenant-isolation).",
+      "Each customer tenant uses a dedicated database catalog. Tenant identity is decided at the host boundary, and API requests carry a tenant scope that the data layer enforces on tenant-facing queries — that is the standard customer path, not a claim that every staff or platform surface is free of cross-tenant aggregation. For isolation and assurance detail, see [Security and trust](/help/security-trust). For the three-layer isolation deep-dive, see [Data handling and tenant isolation](/help/data-handling-tenant-isolation).",
     )
     .replace(/\n{3,}/g, "\n\n");
 }

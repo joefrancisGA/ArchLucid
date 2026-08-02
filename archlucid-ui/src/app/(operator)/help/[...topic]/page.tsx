@@ -13,6 +13,7 @@ import { HelpCliUsageTechnicalReferenceView } from "../_sections/HelpCliUsageTec
 import { HelpGovernanceApprovalGuideView } from "../_sections/HelpGovernanceApprovalGuideView";
 import { HelpAzurePermissionsGuideView } from "../_sections/HelpAzurePermissionsGuideView";
 import { HelpAuditTrailGuideView } from "../_sections/HelpAuditTrailGuideView";
+import { HelpDataHandlingTenantIsolationGuideView } from "../_sections/HelpDataHandlingTenantIsolationGuideView";
 import { HelpConnectAzureSecurelyGuideView } from "../_sections/HelpConnectAzureSecurelyGuideView";
 import { HelpCorePilotGuideView } from "../_sections/HelpCorePilotGuideView";
 import { HelpRepeatReviewLoopGuideView } from "../_sections/HelpRepeatReviewLoopGuideView";
@@ -30,6 +31,7 @@ import { FINDINGS_HELP_ROUTE_METADATA } from "@/lib/findings-help-route-metadata
 import { CORE_PILOT_HELP_ALIAS_ROUTE_METADATA } from "@/lib/core-pilot-help-alias-route-metadata";
 import { FIRST_ARCHITECTURE_REVIEW_HELP_ROUTE_METADATA } from "@/lib/first-architecture-review-help-route-metadata";
 import { GOVERNANCE_APPROVAL_HELP_ROUTE_METADATA } from "@/lib/governance-approval-help-route-metadata";
+import { DATA_HANDLING_TENANT_ISOLATION_HELP_ROUTE_METADATA } from "@/lib/data-handling-tenant-isolation-help-route-metadata";
 import { PATH_CHOOSER_HELP_ROUTE_METADATA } from "@/lib/path-chooser-help-route-metadata";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 import {
@@ -171,6 +173,10 @@ function renderHelpTopicView(
     return <HelpAuditTrailGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
 
+  if (loaded.entry.slug === "data-handling-tenant-isolation") {
+    return <HelpDataHandlingTenantIsolationGuideView entry={loaded.entry} markdown={loaded.markdown} />;
+  }
+
   return <HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />;
 }
 
@@ -212,6 +218,10 @@ export async function generateMetadata(props: HelpTopicPageProps): Promise<Metad
 
   if (entry.slug === "path-chooser") {
     return PATH_CHOOSER_HELP_ROUTE_METADATA;
+  }
+
+  if (entry.slug === "data-handling-tenant-isolation") {
+    return DATA_HANDLING_TENANT_ISOLATION_HELP_ROUTE_METADATA;
   }
 
   return {

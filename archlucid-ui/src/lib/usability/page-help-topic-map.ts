@@ -25,8 +25,8 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   { prefix: "/architecture/first-review-guide", topic: { slug: "getting-started", label: BUYER_ONBOARDING_PAGE_TITLE } },
   { prefix: ARCHITECTURES_LIST_PATH, topic: { slug: "getting-started", label: "Getting started" } },
-  { prefix: "/reviews/new", topic: { slug: "evidence-intake", label: START_REVIEW_LABEL } },
-  { prefix: "/reviews", topic: { slug: "review-packages", label: "Reviews" } },
+  { prefix: "/architecture/reviews/new", topic: { slug: "evidence-intake", label: START_REVIEW_LABEL } },
+  { prefix: "/architecture/reviews", topic: { slug: "review-packages", label: "Reviews" } },
   {
     prefix: "/signed-records",
     topic: { slug: "review-packages", label: "Signed review records" },
@@ -73,6 +73,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "repeat-review-loop", label: "Repeat-review loop" },
   },
   { prefix: "/help/audit-trail", topic: { slug: "audit-trail", label: "Audit trail" } },
+  {
+    prefix: "/help/data-handling-tenant-isolation",
+    topic: { slug: "data-handling-tenant-isolation", label: "Data handling and tenant isolation" },
+  },
   { prefix: "/insights/impact-preview", topic: { slug: "how-it-works", label: "Impact preview" } },
   { prefix: "/internal-operations/recommendation-learning", topic: { slug: "how-it-works", label: "How recommendation learning works" } },
   { prefix: "/governance/advisory-scans", topic: { slug: "how-it-works", label: "Advisory scans" } },

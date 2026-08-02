@@ -70,6 +70,17 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/help/data-handling-tenant-isolation",
+    entry: {
+      whatIsThisPage:
+        "Explain how review evidence is handled, what stays in your tenant, and how three-layer isolation works.",
+      whatToDoNext:
+        "Open Trust Center or Security and trust for diligence artifacts, then review Sources before sponsor briefings.",
+      whyEmpty: "This guide always shows isolation and data-handling content when the help topic loads.",
+      whereToConfigurePrerequisite: "Confirm residency and subprocessors during procurement with your account team.",
+    },
+  },
+  {
     prefix: "/governance/standards-and-rules",
     entry: {
       whatIsThisPage:
