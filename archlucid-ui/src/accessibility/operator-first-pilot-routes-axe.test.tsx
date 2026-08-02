@@ -2,9 +2,9 @@ import { render } from "@testing-library/react";
 import { axe, toHaveNoViolations } from "jest-axe";
 import { beforeAll, describe, expect, it } from "vitest";
 
-import SettingsPage from "@/app/(operator)/settings/page";
+import SettingsPage from "@/app/(operator)/administration/settings/page";
 import { FirstPilotReadinessCockpit } from "@/components/FirstPilotReadinessCockpit";
-import { IdentityProvidersSettingsPageView } from "@/app/(operator)/settings/identity-providers/_sections/IdentityProvidersSettingsPageView";
+import { IdentityProvidersSettingsPageView } from "@/app/(operator)/administration/settings/identity-providers/_sections/IdentityProvidersSettingsPageView";
 
 expect.extend(toHaveNoViolations);
 
@@ -64,7 +64,7 @@ describe("first-pilot operator routes — axe (Vitest)", () => {
             roleMappingStatus: "Enabled",
             lastValidationLabel: "Healthy",
             recommendedNextStep: "Configure SAML metadata",
-            recommendedNextHref: "/settings/identity-providers/saml",
+            recommendedNextHref: "/administration/settings/identity-providers/saml",
             usesLocalDevelopmentSignIn: false,
           },
         }}

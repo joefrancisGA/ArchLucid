@@ -29,7 +29,7 @@ describe("resolveIdentityProvidersOverview", () => {
 
     expect(overview.samlStatus).toBe(IDENTITY_PROVIDERS_STATUS_NOT_CONFIGURED);
     expect(overview.recommendedNextStep).toBe(IDENTITY_PROVIDERS_RECOMMENDED_CONFIGURE_SAML);
-    expect(overview.recommendedNextHref).toBe("/settings/identity-providers/saml");
+    expect(overview.recommendedNextHref).toBe("/administration/settings/identity-providers/saml");
   });
 
   it("maps local development sign-in without exposing DevelopmentBypass", () => {

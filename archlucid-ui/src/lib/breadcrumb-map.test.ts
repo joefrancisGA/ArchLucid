@@ -103,24 +103,24 @@ describe("getBreadcrumbs", () => {
   });
 
   it("maps settings billing as Settings / Billing & plans", () => {
-    expect(getBreadcrumbs("/settings/billing")).toEqual([
-      { label: "Settings", href: "/settings" },
+    expect(getBreadcrumbs("/administration/settings/billing")).toEqual([
+      { label: "Settings", href: "/administration/settings" },
       { label: "Billing & plans" },
     ]);
   });
 
   it("maps SSO wizard as Settings / Identity providers / Configure SSO", () => {
-    expect(getBreadcrumbs("/settings/identity/sso-wizard")).toEqual([
-      { label: "Settings", href: "/settings" },
-      { label: "Identity providers", href: "/settings/identity-providers" },
+    expect(getBreadcrumbs("/administration/settings/identity/sso-wizard")).toEqual([
+      { label: "Settings", href: "/administration/settings" },
+      { label: "Identity providers", href: "/administration/settings/identity-providers" },
       { label: "Configure SSO" },
     ]);
   });
 
   it("maps SCIM provisioning as Settings / Identity providers / SCIM provisioning", () => {
-    expect(getBreadcrumbs("/settings/scim-provisioning")).toEqual([
-      { label: "Settings", href: "/settings" },
-      { label: "Identity providers", href: "/settings/identity-providers" },
+    expect(getBreadcrumbs("/administration/settings/scim-provisioning")).toEqual([
+      { label: "Settings", href: "/administration/settings" },
+      { label: "Identity providers", href: "/administration/settings/identity-providers" },
       { label: "SCIM provisioning" },
     ]);
   });
@@ -268,14 +268,14 @@ describe("getBreadcrumbs", () => {
     ).toEqual([
       { label: SHOWCASE_BUYER_REVIEW_TITLE, href: `/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}` },
       { label: "Governance", href: "/governance" },
-      { label: "Risk register" },
+      { label: "Findings" },
     ]);
   });
 
-  it("maps governance findings as Risk register breadcrumb", () => {
+  it("maps governance findings as Findings breadcrumb", () => {
     expect(getBreadcrumbs("/governance/findings")).toEqual([
       { label: "Governance", href: "/governance" },
-      { label: "Risk register" },
+      { label: "Findings" },
     ]);
   });
 

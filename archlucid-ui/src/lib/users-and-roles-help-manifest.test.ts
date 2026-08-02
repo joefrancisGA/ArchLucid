@@ -6,7 +6,7 @@ import {
   USERS_AND_ROLES_FAQ,
   USERS_AND_ROLES_ROLE_OVERVIEW,
 } from "@/lib/users-and-roles-help-manifest";
-import { BUILTIN_ROLE_ORDER } from "@/app/(operator)/settings/users/_sections/roles-matrix-constants";
+import { BUILTIN_ROLE_ORDER } from "@/app/(operator)/administration/settings/users/_sections/roles-matrix-constants";
 
 describe("users-and-roles-help-manifest", () => {
   it("covers the four built-in assignable workspace roles", () => {

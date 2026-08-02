@@ -234,7 +234,14 @@ def infer_section(path: str, *, help_alias_paths: set[str]) -> str:
         return "Executive"
     if path.startswith("/digests") or path == "/digest-subscriptions":
         return "Digests"
-    if path.startswith("/onboard") or path.startswith("/getting-started") or path == "/product-learning":
+    if path.startswith("/insights/evidence-graph"):
+        return "Planning"
+    if (
+        path == "/architecture/first-review-guide"
+        or path.startswith("/onboard")
+        or path.startswith("/getting-started")
+        or path == "/product-learning"
+    ):
         return "Onboarding"
     if path.startswith("/planning") or path.startswith("/graph") or path == "/compare":
         return "Planning"

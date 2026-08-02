@@ -46,7 +46,7 @@ alpha|beta|gamma|delta|epsilon|zeta|eta`}
     expect(screen.getByRole("button", { name: "Retry structuring" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Report issue" })).toHaveAttribute(
       "href",
-      "/settings/support?topic=architecture-structuring&runId=run-2",
+      "/administration/settings/support?topic=architecture-structuring&runId=run-2",
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Retry structuring" }));

@@ -430,7 +430,7 @@ export function EmailRunToSponsorBanner({
           <p className="m-0 font-semibold">Projected dollar claims not sponsor-safe</p>
           <p className={cn("m-0 mt-1 leading-relaxed opacity-95", OPERATOR_TYPOGRAPHY.helper)}>
             ROI baseline fields are defaulted or incomplete. Capture buyer-provided baselines on{" "}
-            <Link className="font-medium text-teal-900 underline underline-offset-2 dark:text-teal-200" href="/scorecard#roi-baselines">
+            <Link className="font-medium text-teal-900 underline underline-offset-2 dark:text-teal-200" href="/insights/architecture-scorecard#roi-baselines">
               the scorecard
             </Link>{" "}
             before downloading a sponsor PDF with dollar-led readouts.
@@ -470,7 +470,7 @@ export function EmailRunToSponsorBanner({
             </Button>
             <Link
               className={cn("font-semibold text-teal-900 underline underline-offset-2 dark:text-teal-200", OPERATOR_TYPOGRAPHY.helper)}
-              href="/settings/baseline"
+              href="/administration/settings/baseline"
             >
               Baseline settings
             </Link>
@@ -684,7 +684,7 @@ export function EmailRunToSponsorBanner({
           {" · "}
           {buyerPolishedShell ? null : (
             <>
-              <Link className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300" href="/scorecard">
+              <Link className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300" href="/insights/architecture-scorecard">
                 In-product pilot scorecard
               </Link>
               {" · "}

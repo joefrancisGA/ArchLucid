@@ -53,7 +53,7 @@ describe("buyerPolishedRouteOrientation", () => {
   });
 
   it("orients the operator review scorecard route without repeating scorecard in the layer label", () => {
-    const o = buyerPolishedRouteOrientation("/scorecard");
+    const o = buyerPolishedRouteOrientation("/insights/architecture-scorecard");
 
     expect(o?.label).toBe("Insights");
     expect(o?.line).toBe("Value metrics and recommended actions.");
@@ -84,7 +84,7 @@ describe("buyerPolishedRouteOrientation", () => {
   });
 
   it("returns null for standards & rules — the page carries its own governance banner", () => {
-    expect(buyerPolishedRouteOrientation("/governance/resolution")).toBeNull();
+    expect(buyerPolishedRouteOrientation("/governance/standards-and-rules")).toBeNull();
   });
 
   it("returns null for alerts — the page carries its own governance context header", () => {
@@ -133,7 +133,7 @@ describe("buyerPolishedRouteOrientation", () => {
   });
 
   it("orients the operator security-trust route for procurement reviewers", () => {
-    const canonical = buyerPolishedRouteOrientation("/settings/security-trust");
+    const canonical = buyerPolishedRouteOrientation("/administration/settings/security-trust");
     const legacy = buyerPolishedRouteOrientation("/workspace/security-trust");
 
     expect(canonical?.label).toBe("Security & trust");

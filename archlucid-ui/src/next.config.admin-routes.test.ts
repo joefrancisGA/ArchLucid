@@ -12,13 +12,13 @@ describe("next.config administration routes (TB-406 / TB-522 / TB-751)", () => {
       redirectRules?.find(
         (rule) =>
           rule.source === "/workspace/security-trust"
-          && rule.destination === "/settings/security-trust",
+          && rule.destination === "/administration/settings/security-trust",
       )?.permanent,
     ).toBe(true);
 
     expect(
       redirectRules?.find(
-        (rule) => rule.source === "/admin/users" && rule.destination === "/settings/users",
+        (rule) => rule.source === "/admin/users" && rule.destination === "/administration/settings/users",
       )?.permanent,
     ).toBe(true);
 
@@ -26,7 +26,7 @@ describe("next.config administration routes (TB-406 / TB-522 / TB-751)", () => {
       redirectRules?.find(
         (rule) =>
           rule.source === "/settings/roles"
-          && rule.destination === "/settings/users?tab=roles",
+          && rule.destination === "/administration/settings/users?tab=roles",
       )?.permanent,
     ).toBe(true);
   });
@@ -39,21 +39,21 @@ describe("next.config administration routes (TB-406 / TB-522 / TB-751)", () => {
     expect(
       rewriteRules?.some(
         (rule) =>
-          rule.source === "/settings/security-trust"
-          || rule.source === "/settings/security-trust/:path*",
+          rule.source === "/administration/settings/security-trust"
+          || rule.source === "/administration/settings/security-trust/:path*",
       ),
     ).toBe(false);
 
     expect(
       rewriteRules?.some(
-        (rule) => rule.source === "/settings/users" || rule.source === "/settings/users/:path*",
+        (rule) => rule.source === "/administration/settings/users" || rule.source === "/administration/settings/users/:path*",
       ),
     ).toBe(false);
 
     expect(
       rewriteRules?.some(
         (rule) =>
-          rule.source === "/settings/support" || rule.source === "/settings/support/:path*",
+          rule.source === "/administration/settings/support" || rule.source === "/administration/settings/support/:path*",
       ),
     ).toBe(false);
   });

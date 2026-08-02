@@ -19,7 +19,7 @@ describe("core-pilot-steps", () => {
   it("includes upload, dashboard ROI, and audit export steps", () => {
     const hrefs = CORE_PILOT_STEPS.map((step) => step.primaryHref);
 
-    expect(hrefs).toContain("/settings/extract-upload");
+    expect(hrefs).toContain("/administration/settings/extract-upload");
     expect(hrefs).toContain(EXECUTIVE_DASHBOARD_HREF);
     expect(CORE_PILOT_STEPS.some((step) => step.title.toLowerCase().includes("audit"))).toBe(true);
   });
@@ -33,7 +33,7 @@ describe("core-pilot-steps", () => {
     );
     expect(uploadStep.detail).toContain("brief, document, or diagram evidence only");
     expect(uploadStep.primaryLabel).toBe("Upload inventory ZIP");
-    expect(uploadStep.primaryHref).toBe("/settings/extract-upload");
+    expect(uploadStep.primaryHref).toBe("/administration/settings/extract-upload");
   });
 
   it("keeps default-visible shortBody lines free of manifest jargon (detail may stay technical)", () => {

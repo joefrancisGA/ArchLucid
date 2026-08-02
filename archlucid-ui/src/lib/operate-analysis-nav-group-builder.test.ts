@@ -28,8 +28,8 @@ describe("OperateAnalysisNavGroupBuilder", () => {
       "/insights/ask-review-questions",
       "/insights/search-review-evidence",
       "/insights/compare-two-reviews",
-      "/evolution-review",
-      "/scorecard",
+      "/insights/impact-preview",
+      "/insights/architecture-scorecard",
       "/patterns",
     ]);
     expect(group.links.at(-1)?.label).toBe("Pattern library");

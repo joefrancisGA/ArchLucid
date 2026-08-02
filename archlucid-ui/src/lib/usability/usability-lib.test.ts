@@ -70,16 +70,16 @@ describe("usability lib", () => {
     expect(pageHelpTopicForPathname("/architectures/draft-id-123")?.slug).toBe("getting-started");
     expect(pageHelpTopicForPathname("/digests")?.slug).toBe("how-it-works");
     expect(pageHelpTopicForPathname("/planning")?.slug).toBe("pilot-feedback");
-    expect(pageHelpTopicForPathname("/settings/billing")?.slug).toBe("billing-and-plans");
-    expect(pageHelpTopicForPathname("/settings/billing")?.label).toBe("Billing and plans");
+    expect(pageHelpTopicForPathname("/administration/settings/billing")?.slug).toBe("billing-and-plans");
+    expect(pageHelpTopicForPathname("/administration/settings/billing")?.label).toBe("Billing and plans");
     expect(pageHelpTopicForPathname("/help/billing-and-plans")?.slug).toBe("billing-and-plans");
     expect(pageHelpTopicForPathname("/help/billing-and-plans")?.label).toBe("Billing and plans");
     expect(pageHelpTopicForPathname("/help/repeat-review-loop")?.slug).toBe("repeat-review-loop");
     expect(pageHelpTopicForPathname("/help/repeat-review-loop")?.label).toBe("Repeat-review loop");
     expect(pageHelpTopicForPathname("/help/audit-trail")?.slug).toBe("audit-trail");
     expect(pageHelpTopicForPathname("/help/audit-trail")?.label).toBe("Audit trail");
-    expect(pageHelpTopicForPathname("/evolution-review")?.slug).toBe("how-it-works");
-    expect(pageHelpTopicForPathname("/evolution-review")?.label).toBe("Impact preview");
+    expect(pageHelpTopicForPathname("/insights/impact-preview")?.slug).toBe("how-it-works");
+    expect(pageHelpTopicForPathname("/insights/impact-preview")?.label).toBe("Impact preview");
     expect(pageHelpTopicForPathname("/governance/advisory-scans")?.slug).toBe("how-it-works");
     expect(pageHelpTopicForPathname("/reviews/run-1/artifacts/cost-summary")?.slug).toBe("review-artifacts");
     expect(pageHelpTopicForPathname("/signed-records/manifest-1/artifacts/cost-summary")?.slug).toBe(

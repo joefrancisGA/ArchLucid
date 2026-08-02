@@ -3,5 +3,5 @@ import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 /** Legacy Operate bookmark path — retired pre-release shim (no redirect). */
 export const LEGACY_OPERATE_ARCHITECTURE_GRAPH_PATH = "/operate/architecture-graph";
 
-/** Canonical Evidence graph tracked on traffic row GRA. */
+/** Canonical Evidence graph tracked on traffic row INE. */
 export const CANONICAL_GRAPH_PATH = EVIDENCE_GRAPH_PATH;

@@ -21,7 +21,7 @@ import { getProductDocumentationEntry } from "@/lib/product-documentation-regist
 const BANNED_DEVELOPER_COPY = [
   "/governance/findings",
   "/governance/decision-register",
-  "/governance/resolution",
+  "/governance/standards-and-rules",
   "/insights/evidence-graph",
   "/insights/search-review-evidence",
   "/v1/",

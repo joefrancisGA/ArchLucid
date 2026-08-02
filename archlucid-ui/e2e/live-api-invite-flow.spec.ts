@@ -35,7 +35,7 @@ test.describe("live-api-invite-flow", { tag: ["@founder"] }, () => {
 
     const inviteEmail = `e2e-invite-${Date.now()}@example.com`;
 
-    await page.goto("/settings/users", { waitUntil: "domcontentloaded" });
+    await page.goto("/administration/settings/users", { waitUntil: "domcontentloaded" });
 
     await expect(page.getByTestId("settings-roles-page")).toBeVisible({ timeout: 60_000 });
     await expect(page.getByTestId("settings-roles-invite-form")).toBeVisible({ timeout: 60_000 });

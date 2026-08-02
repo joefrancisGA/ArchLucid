@@ -132,7 +132,7 @@ export function resolveFirstPilotCommandCenterPhase(input: {
       summary:
         "Add architecture evidence — brief, documents, diagrams, IaC, or a cloud inventory ZIP (AWS, Azure, or GCP) — or acknowledge the sample review before starting the first architecture review.",
 
-      href: "/settings/extract-upload",
+      href: "/administration/settings/extract-upload",
 
       cta: "Add evidence",
 
@@ -236,7 +236,7 @@ export function resolveFirstPilotCommandCenterPhase(input: {
 
           : "A review is finalized, but the current principal cannot complete sponsor handoff steps.",
 
-      href: !baselinesEntered ? "/scorecard" : committedReviewHref(signals),
+      href: !baselinesEntered ? "/insights/architecture-scorecard" : committedReviewHref(signals),
 
       cta: !baselinesEntered ? "Open scorecard" : "Review handoff blockers",
 

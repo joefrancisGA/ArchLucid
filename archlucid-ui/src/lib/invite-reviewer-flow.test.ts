@@ -11,8 +11,8 @@ import {
 
 describe("invite-reviewer-flow", () => {
   it("exposes canonical invite-reviewer and roles users tab paths", () => {
-    expect(INVITE_REVIEWER_PATH).toBe("/settings/users/invite-reviewer");
-    expect(SETTINGS_ROLES_USERS_TAB_PATH).toBe("/settings/users?tab=users");
+    expect(INVITE_REVIEWER_PATH).toBe("/administration/settings/users/invite-reviewer");
+    expect(SETTINGS_ROLES_USERS_TAB_PATH).toBe("/administration/settings/users?tab=users");
   });
 
   it("uses buyer-safe invite-reviewer footer lead copy", () => {

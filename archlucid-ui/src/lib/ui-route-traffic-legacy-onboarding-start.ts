@@ -13,4 +13,4 @@ export const LEGACY_ONBOARDING_START_TRAFFIC_PATH = LEGACY_ONBOARDING_START_PATH
  * Owner workbook Notes for OSX — documents that the shim permanently redirects to `/onboarding`.
  */
 export const LEGACY_ONBOARDING_START_TRAFFIC_NOTE =
-  "Legacy onboarding start bookmark — App Router shim permanently redirects to /onboarding (query preserved, TB-1801). Canonical UX on ONB.";
+  "Legacy onboarding start bookmark — App Router shim permanently redirects to /onboarding (query preserved, TB-1801). Canonical UX on ARF (`/architecture/first-review-guide`).";

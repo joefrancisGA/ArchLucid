@@ -241,7 +241,7 @@ export function ExecutiveRoiDashboardLiveKpiCards({
           <CardDescription className={OPERATOR_KPI_CARD_DESCRIPTION}>
             {v.staleArchitectureRisksMetric.description}{" "}
             <Link href="/governance/findings" className="underline">
-              Risk register
+              Findings
             </Link>
           </CardDescription>
         </CardHeader>
@@ -269,7 +269,7 @@ export function ExecutiveRoiDashboardLiveKpiCards({
           <CardDescription className={OPERATOR_KPI_CARD_DESCRIPTION}>
             {v.decisionsNeededMetric.description}{" "}
             <Link href="/governance/findings" className="underline">
-              Risk register
+              Findings
             </Link>
           </CardDescription>
         </CardHeader>

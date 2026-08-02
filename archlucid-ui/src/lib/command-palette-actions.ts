@@ -46,7 +46,7 @@ export const COMMAND_PALETTE_ACTIONS: readonly CommandPaletteAction[] = [
   {
     id: "action-quality-settings",
     label: "Configure AI quality gates",
-    href: "/settings/tenant",
+    href: "/administration/settings/tenant",
     searchValue: "action quality gate llm judge settings",
   },
 ];

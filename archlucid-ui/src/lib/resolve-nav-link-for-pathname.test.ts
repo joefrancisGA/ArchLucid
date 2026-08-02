@@ -40,8 +40,8 @@ describe("resolveNavLinkForPathname", () => {
 
   it("keeps Microsoft Teams distinct from Users & roles", () => {
     expect(resolveNavIconForHref(INTEGRATIONS_TEAMS_PATH)).toBe(TEAMS_SURFACE_ICON);
-    expect(resolveNavIconForHref("/settings/users")).toBe(Users);
-    expect(resolveNavIconForHref(INTEGRATIONS_TEAMS_PATH)).not.toBe(resolveNavIconForHref("/settings/users"));
+    expect(resolveNavIconForHref("/administration/settings/users")).toBe(Users);
+    expect(resolveNavIconForHref(INTEGRATIONS_TEAMS_PATH)).not.toBe(resolveNavIconForHref("/administration/settings/users"));
   });
 
   it("does not duplicate route identity for the same href", () => {

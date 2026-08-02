@@ -59,7 +59,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
         {
 
-          href: "/settings/tenant",
+          href: "/administration/settings/tenant",
 
           label: OPERATOR_NAV_LINK_LABELS.settings,
 
@@ -75,7 +75,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
         {
 
-          href: "/settings/users",
+          href: "/administration/settings/users",
 
           label: "Users & roles",
 
@@ -91,7 +91,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
         {
 
-          href: "/settings/identity-providers",
+          href: "/administration/settings/identity-providers",
 
           label: "Identity providers",
 
@@ -107,7 +107,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
         {
 
-          href: "/settings/identity/sso-wizard",
+          href: "/administration/settings/identity/sso-wizard",
 
           label: "SSO wizard",
 
@@ -123,7 +123,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
         {
 
-          href: "/settings/api-keys",
+          href: "/administration/settings/api-keys",
 
           label: "API keys",
 
@@ -139,7 +139,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
         {
 
-          href: "/settings/scim-provisioning",
+          href: "/administration/settings/scim-provisioning",
 
           label: "SCIM provisioning",
 
@@ -155,7 +155,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
         {
 
-          href: "/settings/billing",
+          href: "/administration/settings/billing",
 
           label: "Billing & plans",
 
@@ -171,7 +171,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
         {
 
-          href: "/settings/ai-usage",
+          href: "/administration/settings/ai-usage",
 
           label: OPERATOR_NAV_LINK_LABELS.aiUsage,
 
@@ -188,7 +188,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
         {
 
-          href: "/settings/security-trust",
+          href: "/administration/settings/security-trust",
 
           label: OPERATOR_NAV_LINK_LABELS.securityTrust,
 
@@ -206,7 +206,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
         {
 
-          href: "/settings/tenant/recycle-bin",
+          href: "/administration/settings/tenant/recycle-bin",
 
           label: "Projects recycle bin",
 
@@ -254,7 +254,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
         {
 
-          href: "/settings/support",
+          href: "/administration/settings/support",
 
           label: "Support",
 

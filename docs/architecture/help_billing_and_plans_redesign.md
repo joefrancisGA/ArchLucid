@@ -1,7 +1,7 @@
 # Help `/help/billing-and-plans` redesign report
 
 **Date:** 2026-07-12  
-**Scope:** Customer help page only — no changes to `/pricing` or `/settings/billing` workflows.
+**Scope:** Customer help page only — no changes to `/pricing` or `/administration/settings/billing` workflows.
 
 ## Original page responsibility problems
 
@@ -14,7 +14,7 @@ Concrete mismatches:
 | Title/summary promised billing | Registry: "Team, Professional, and Enterprise packaging — plans, limits, and upgrade paths." |
 | Body was product packaging | ~398 lines, 10 top-level `##` sections, 8 tables, engineering seam maps |
 | Auto-generated TOC | ~30 headings → always-visible right-rail "On this page" |
-| No billing actions | No link to `/settings/billing`, no manage-billing CTA |
+| No billing actions | No link to `/administration/settings/billing`, no manage-billing CTA |
 | No dedicated tests | Zero route-specific test coverage |
 | Doc-index bug | "Product packaging" previously indexed to `/help` instead of a topic URL |
 
@@ -33,7 +33,7 @@ Three customer surfaces were conflated: public pricing, in-app billing, and inte
 | Packaging boundaries, future commercial enforcement, change control | **Move to internal documentation** |
 | Plan names, prices, seat limits, AI credits | **Link to `/pricing`** (authoritative `pricing.json`) — **not** duplicated on help |
 | Trial behavior (high level) | **Keep on help page** (no hard-coded day counts) |
-| Subscription, payment method, invoices, cancellation | **Keep on help page** + link to `/settings/billing` |
+| Subscription, payment method, invoices, cancellation | **Keep on help page** + link to `/administration/settings/billing` |
 | Stripe checkout / portal implementation | **Move to in-app billing** — customer copy uses "Manage billing" only |
 | Entitlement keys, API routes, config keys | **Remove entirely** from customer help |
 
@@ -72,17 +72,17 @@ No plan comparison matrix. No prices. No entitlement tables.
 | Current plan headline | `resolveOperatorBillingCurrentPlan` (trial/demo/no-paid) | **Dynamic** |
 | Paid subscription tier in UI | `dbo.BillingSubscriptions` + subscription API | **Not shown** — `hasPaidPlan` is always `false` in resolver today |
 | AI allowances (marketing credits) | `pricing.json` `monthlyAiCredits` | **Not shown** (display-only; not enforced) |
-| AI usage (runtime) | `TenantAiBudgetPolicy` / LLM monthly budget APIs | **Not on help page** — referenced in FAQ, detailed in `/settings/billing` |
+| AI usage (runtime) | `TenantAiBudgetPolicy` / LLM monthly budget APIs | **Not on help page** — referenced in FAQ, detailed in `/administration/settings/billing` |
 | Feature entitlements | `dbo.Tenants.Tier` + `[RequiresCommercialTenantTier]` | **Not shown** on help |
 
 ## Links added
 
 | Label | Target | When shown |
 |-------|--------|------------|
-| Manage billing | `/settings/billing` | Workspace administrators |
+| Manage billing | `/administration/settings/billing` | Workspace administrators |
 | Manage billing (async) | Secure billing session via `POST /v1/tenant/billing/portal` | Administrators with `AdminAuthority` |
 | View current pricing | `/pricing` | All users |
-| Open Billing and plans | `/settings/billing` | Non-administrators (read-only path) |
+| Open Billing and plans | `/administration/settings/billing` | Non-administrators (read-only path) |
 | Contact billing support | `mailto:support@archlucid.net?subject=Billing%20support` | All users |
 
 ## Role and permission behavior
@@ -154,7 +154,7 @@ npx vitest run \
 Coverage highlights:
 
 - Reduced structure, no TOC
-- `/pricing` and `/settings/billing` links
+- `/pricing` and `/administration/settings/billing` links
 - Trial and no-paid-plan context
 - Admin vs non-admin permission behavior
 - Portal pending state, duplicate prevention, failure recovery
@@ -183,7 +183,7 @@ Coverage highlights:
 ```mermaid
 flowchart LR
   pricing["/pricing"]
-  billingSettings["/settings/billing"]
+  billingSettings["/administration/settings/billing"]
   helpBilling["/help/billing-and-plans"]
   packaging["/help/product-packaging"]
 

@@ -8,10 +8,13 @@ import { filterNavLinksByPublishReadiness } from "@/lib/nav-publish-readiness";
 import { isApiKeysSettingsSurfaceEnabled } from "@/lib/api-keys-settings-access";
 import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
+import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
 import { isCtoDemoNavExpandedEnv } from "@/lib/cto-demo-presenter-pack";
 import {
   GOVERNANCE_AUDIT_PATH,
+  GOVERNANCE_STANDARDS_AND_RULES_PATH,
+  LEGACY_GOVERNANCE_RESOLUTION_PATH,
 } from "@/lib/governance-route-paths";
 import {
   filterNavLinksByOperateUnlockPhase,
@@ -23,14 +26,14 @@ import {
  * Buyer-polished shell nav omissions. Empty: Compare (and other advanced destinations) stay reachable
  * inside their collapsed groups so buyers keep full product depth (route-level demo gating is separate).
  */
-const BUYER_POLISHED_SHELL_OMIT_NAV_HREFS = new Set<string>(["/settings/api-keys"]);
+const BUYER_POLISHED_SHELL_OMIT_NAV_HREFS = new Set<string>(["/administration/settings/api-keys"]);
 
 /** In buyer-polished operator builds, omit routes that read as unfinished operator tooling or leak internal surfaces. */
 const DEMO_MODE_OMIT_OPERATOR_HREFS = new Set<string>([
   "/planning",
   "/product-learning",
   "/internal-operations/recommendation-learning",
-  "/evolution-review",
+  IMPACT_PREVIEW_PATH,
   "/replay",
   "/insights/search-review-evidence",
   COMPARE_TWO_REVIEWS_PATH,
@@ -40,19 +43,19 @@ const DEMO_MODE_OMIT_OPERATOR_HREFS = new Set<string>([
   "/admin/configuration",
   "/admin/support",
   "/admin/users",
-  "/settings/support",
-  "/settings/users",
-  "/settings/security-trust",
+  "/administration/settings/support",
+  "/administration/settings/users",
+  "/administration/settings/security-trust",
   "/workspace/security-trust",
   "/governance/alerts",
   "/governance/alert-rules",
   "/governance/policy-packs",
-  "/governance/resolution",
+  GOVERNANCE_STANDARDS_AND_RULES_PATH,
   "/governance/audit",
   "/alerts",
   "/alert-rules",
   "/policy-packs",
-  "/governance-resolution",
+  LEGACY_GOVERNANCE_RESOLUTION_PATH,
   "/governance",
   "/governance/setup",
   "/audit",
@@ -61,13 +64,13 @@ const DEMO_MODE_OMIT_OPERATOR_HREFS = new Set<string>([
   "/integrations/webhooks",
   "/digests",
   "/settings/cloud-connections",
-  "/settings/tenant",
-  "/settings/tenant/recycle-bin",
-  "/settings/baseline",
+  "/administration/settings/tenant",
+  "/administration/settings/tenant/recycle-bin",
+  "/administration/settings/baseline",
   "/settings/webhooks",
   "/integrations/webhooks",
-  "/settings/api-keys",
-  "/settings/ai-usage",
+  "/administration/settings/api-keys",
+  "/administration/settings/ai-usage",
   "/sponsor-report/executive-summary",
   "/sponsor-report/pilot-outcomes",
   "/sponsor-report/roi-summary",
@@ -123,7 +126,7 @@ function omitApiKeysSettingsWhenSurfaceDisabled(links: NavLinkItem[]): NavLinkIt
     return links;
   }
 
-  return links.filter((l) => l.href !== "/settings/api-keys");
+  return links.filter((l) => l.href !== "/administration/settings/api-keys");
 }
 
 /** One nav group after **tier → authority** filtering, only emitted when at least one link remains. */

@@ -158,7 +158,7 @@ const GOVERNANCE_TOPICS: readonly HelpSearchPanelTopic[] = [
   },
   {
     id: "risk-register",
-    title: "Risk register",
+    title: "Findings",
     description: "Track accepted risks, owners, exceptions, and follow-up.",
     keywords: ["risk", "register", "exceptions", "accepted risk", "findings queue"],
     action: { kind: "route", href: "/governance/findings", helpSlug: null },
@@ -366,9 +366,9 @@ const ROUTE_RECOMMENDED_TOPIC_IDS: readonly { readonly prefix: string; readonly 
   { prefix: "/policy-packs", topicIds: ["policy-packs", "governance-workflow"] },
   { prefix: "/reviews/new", topicIds: ["create-first-review", "upload-evidence", "first-review-guide"] },
   { prefix: "/reviews", topicIds: ["review-findings", "finalize-review", "review-artifacts"] },
-  { prefix: "/settings/users", topicIds: ["users-and-roles", "sso-identity"] },
+  { prefix: "/administration/settings/users", topicIds: ["users-and-roles", "sso-identity"] },
   { prefix: "/settings/roles", topicIds: ["users-and-roles", "sso-identity"] },
-  { prefix: "/settings/identity", topicIds: ["sso-identity", "users-and-roles"] },
+  { prefix: "/administration/settings/identity", topicIds: ["sso-identity", "users-and-roles"] },
 ];
 
 function normalizePathname(pathname: string): string {

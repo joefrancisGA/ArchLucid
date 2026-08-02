@@ -9,7 +9,7 @@ const CORE_PILOT_ESSENTIAL_ONLY_PATHS = new Set<string>([
   FIRST_REVIEW_GUIDE_PATH,
   "/reviews/new",
   "/reviews",
-  "/settings/extract-upload",
+  "/administration/settings/extract-upload",
   EVIDENCE_GRAPH_PATH,
 ]);
 
@@ -22,7 +22,7 @@ function isCorePilotEssentialOnlyPathname(pathname: string): boolean {
     return true;
   }
 
-  if (pathname === "/settings" || pathname.startsWith("/settings/")) {
+  if (pathname === "/administration/settings" || pathname.startsWith("/administration/settings/")) {
     return true;
   }
 

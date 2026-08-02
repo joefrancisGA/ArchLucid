@@ -38,7 +38,7 @@ describe("value-report-outcomes-nav-tabs", () => {
     expect(isValueReportOutcomesSurface(SPONSOR_REPORT_PILOT_OUTCOMES_PATH)).toBe(true);
     expect(isValueReportOutcomesSurface("/value-report/pilot")).toBe(true);
     expect(isValueReportOutcomesSurface("/value-report/roi")).toBe(true);
-    expect(isValueReportOutcomesSurface("/scorecard")).toBe(true);
+    expect(isValueReportOutcomesSurface("/insights/architecture-scorecard")).toBe(true);
     expect(isValueReportOutcomesSurface("/reviews")).toBe(false);
   });
 });

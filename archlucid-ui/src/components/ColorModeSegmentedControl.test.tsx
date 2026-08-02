@@ -9,6 +9,7 @@ import { ColorModeSegmentedControl } from "./ColorModeSegmentedControl";
 vi.mock("@/lib/api/user-preferences", () => ({
   getUserPreferences: vi.fn().mockRejectedValue(new Error("anonymous")),
   setUserAppearancePreference: vi.fn(),
+  invalidateUserPreferencesCache: vi.fn(),
 }));
 
 function renderSegmentedControl() {

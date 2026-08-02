@@ -52,6 +52,6 @@ describe("not-found", () => {
       "href",
       "/reviews/claims-intake-modernization",
     );
-    expect(screen.queryByRole("link", { name: "Risk register" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Findings" })).not.toBeInTheDocument();
   });
 });

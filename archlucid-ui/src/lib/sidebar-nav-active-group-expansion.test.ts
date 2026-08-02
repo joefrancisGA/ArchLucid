@@ -20,13 +20,13 @@ describe("findSidebarNavGroupIdsForActivePath", () => {
     const rows = listNavGroupsVisibleInOperatorShell(NAV_GROUPS, true, true, 3, false, "all", true, 2);
 
     expect(findSidebarNavGroupIdsForActivePath(rows, "/governance/policy-packs")).toEqual(["operate-governance"]);
-    expect(findSidebarNavGroupIdsForActivePath(rows, "/governance/resolution")).toEqual(["operate-governance"]);
+    expect(findSidebarNavGroupIdsForActivePath(rows, "/governance/standards-and-rules")).toEqual(["operate-governance"]);
   });
 
   it("returns administration when security and trust is active", () => {
     const rows = listNavGroupsVisibleInOperatorShell(NAV_GROUPS, true, true, 3, false, "all", true, 2);
 
-    expect(findSidebarNavGroupIdsForActivePath(rows, "/settings/security-trust")).toEqual(["operator-admin"]);
+    expect(findSidebarNavGroupIdsForActivePath(rows, "/administration/settings/security-trust")).toEqual(["operator-admin"]);
   });
 
   it("returns analysis when evidence graph is active", () => {

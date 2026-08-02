@@ -24,7 +24,7 @@ export const IDENTITY_PROVIDERS_SCOPE_DETAILS_TRIGGER = "About identity provider
 
 export const IDENTITY_PROVIDERS_DIAGNOSTICS_LINK_LABEL = "Open diagnostics" as const;
 
-export const IDENTITY_PROVIDERS_DIAGNOSTICS_LINK_HREF = "/settings/identity-providers/diagnostics" as const;
+export const IDENTITY_PROVIDERS_DIAGNOSTICS_LINK_HREF = "/administration/settings/identity-providers/diagnostics" as const;
 
 export const IDENTITY_PROVIDERS_PAGE_INTRO =
   "Configure sign-in, single sign-on, and role mapping for this workspace.";

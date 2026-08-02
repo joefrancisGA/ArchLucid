@@ -1,7 +1,6 @@
 import {
   LEGACY_ALERTS_PATH,
   LEGACY_AUDIT_PATH,
-  LEGACY_GOVERNANCE_RESOLUTION_PATH,
   LEGACY_POLICY_PACKS_PATH,
 } from "@/lib/governance-route-paths";
 import { LEGACY_CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
@@ -23,7 +22,6 @@ export const NEXT_CONFIG_PERMANENT_REDIRECT_SOURCE_PATHS: readonly string[] = [
   "/runs",
   "/manifests",
   LEGACY_POLICY_PACKS_PATH,
-  LEGACY_GOVERNANCE_RESOLUTION_PATH,
   LEGACY_AUDIT_PATH,
   LEGACY_ALERTS_PATH,
   "/settings/webhooks",

@@ -20,7 +20,7 @@ describe("shouldShowBreadcrumbTrail", () => {
     expect(shouldShowBreadcrumbTrail("/governance/dashboard", trail("/governance/dashboard"))).toBe(false);
     expect(shouldShowBreadcrumbTrail("/governance/findings", trail("/governance/findings"))).toBe(false);
     expect(shouldShowBreadcrumbTrail("/governance/alert-rules", trail("/governance/alert-rules"))).toBe(false);
-    expect(shouldShowBreadcrumbTrail("/settings/billing", trail("/settings/billing"))).toBe(false);
+    expect(shouldShowBreadcrumbTrail("/administration/settings/billing", trail("/administration/settings/billing"))).toBe(false);
     expect(
       shouldShowBreadcrumbTrail("/integrations/cloud-connections", trail("/integrations/cloud-connections")),
     ).toBe(false);
@@ -47,7 +47,7 @@ describe("shouldShowBreadcrumbTrail", () => {
       ),
     ).toBe(true);
     expect(shouldShowBreadcrumbTrail("/architectures/new", trail("/architectures/new"))).toBe(true);
-    expect(shouldShowBreadcrumbTrail("/settings/identity/sso-wizard", trail("/settings/identity/sso-wizard"))).toBe(
+    expect(shouldShowBreadcrumbTrail("/administration/settings/identity/sso-wizard", trail("/administration/settings/identity/sso-wizard"))).toBe(
       true,
     );
   });

@@ -22,13 +22,13 @@ const adminRows: NavGroupWithVisibleLinks[] = [
     },
     visibleLinks: [
       {
-        href: "/settings/tenant",
+        href: "/administration/settings/tenant",
         label: "Settings",
         title: "Workspace settings",
         tier: "extended",
       },
       {
-        href: "/settings/tenant/recycle-bin",
+        href: "/administration/settings/tenant/recycle-bin",
         label: "Projects recycle bin",
         title: "Projects recycle bin",
         tier: "extended",
@@ -94,10 +94,10 @@ describe("SidebarAdministrationSection", () => {
     expect(screen.queryByText("Hide administration")).toBeNull();
     expect(screen.getByTestId("sidebar-administration-section")).toBeInTheDocument();
     expect(toggle.textContent).not.toMatch(/\b2\b/);
-    expect(screen.getByRole("link", { name: "Settings" })).toHaveAttribute("href", "/settings/tenant");
+    expect(screen.getByRole("link", { name: "Settings" })).toHaveAttribute("href", "/administration/settings/tenant");
     expect(screen.getByRole("link", { name: "Projects recycle bin" })).toHaveAttribute(
       "href",
-      "/settings/tenant/recycle-bin",
+      "/administration/settings/tenant/recycle-bin",
     );
     expect(screen.queryByText("Admin tools")).toBeNull();
   });

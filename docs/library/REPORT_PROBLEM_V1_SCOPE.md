@@ -71,7 +71,7 @@ Report Problem must **never** silently attach or scrape:
 
 - **Optional redacted support bundle** attach only (**TB-787**) — operator must opt in per report.
 - **Never** auto-attach diagnostics.
-- Manual download at `/settings/support` remains the operator-controlled path (**TB-628** Done).
+- Manual download at `/administration/settings/support` remains the operator-controlled path (**TB-628** Done).
 
 ---
 

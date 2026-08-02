@@ -48,7 +48,7 @@ export const SHORTCUTS: ShortcutEntry[] = [
   },
   {
     key: "alt+g",
-    label: "Risk register",
+    label: "Findings",
     route: "/governance/findings",
     description: "Open architecture risk register",
   },

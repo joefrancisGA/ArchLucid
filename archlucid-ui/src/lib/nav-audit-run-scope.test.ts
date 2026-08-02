@@ -14,7 +14,7 @@ describe("applyAuditNavRunScope", () => {
     },
     {
       href: "/governance/findings",
-      label: "Risk register",
+      label: "Findings",
       title: "Track owned architecture risks",
       tier: "extended",
       requiredAuthority: "ReadAuthority",

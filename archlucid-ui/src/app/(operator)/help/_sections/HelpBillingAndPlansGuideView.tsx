@@ -191,7 +191,7 @@ export function HelpBillingAndPlansGuideView(props: HelpBillingAndPlansGuideView
                 <a href={BILLING_HELP_SUPPORT_ACTION.href}>{BILLING_HELP_SUPPORT_ACTION.label}</a>
               </Button>
               <Link
-                href="/settings/billing"
+                href="/administration/settings/billing"
                 className={cn(
                   "mt-3 inline-block text-sm underline-offset-2 hover:underline",
                   DESIGN_TOKENS.accent.link,

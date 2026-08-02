@@ -48,7 +48,10 @@ function matchesRoiSummary(path: string): boolean {
 function matchesArchitectureScorecard(path: string): boolean {
   const normalized = normalizeOutcomesPath(path);
 
-  return normalized === SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH || normalized.startsWith("/scorecard");
+  return (
+    normalized === SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH
+    || normalized.startsWith(`${SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH}/`)
+  );
 }
 
 export const VALUE_REPORT_OUTCOMES_TABS: readonly ValueReportOutcomesTab[] = [

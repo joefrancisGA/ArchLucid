@@ -10,7 +10,7 @@ export type StartBillingPortalResult = "redirected" | "failed";
 
 function resolveBillingSettingsReturnUrl(): string {
   if (typeof window === "undefined") {
-    return "/settings/billing";
+    return "/administration/settings/billing";
   }
 
   return `${window.location.origin}/settings/billing`;

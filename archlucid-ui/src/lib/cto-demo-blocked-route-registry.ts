@@ -1,16 +1,19 @@
+import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
+import { SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
+
 export type BlockedRouteEntry = { readonly prefix: string; readonly label: string; readonly description: string };
 
 /** Core Pilot step 1 — reachable in packaged demos so empty-state CTAs and checklist links work. */
-export const DEMO_ALLOWED_SETTINGS_PATHS = new Set<string>(["/settings/extract-upload"]);
+export const DEMO_ALLOWED_SETTINGS_PATHS = new Set<string>([`${SETTINGS_ROOT_PATH}/extract-upload`]);
 
 export const CTO_DEMO_BLOCKED_ROUTES: readonly BlockedRouteEntry[] = [
   { prefix: "/admin", label: "Admin console", description: "Tenant configuration, user management, and system health monitoring." },
-  { prefix: "/settings", label: "Settings", description: "Workspace preferences, API keys, and integration configuration." },
+  { prefix: SETTINGS_ROOT_PATH, label: "Settings", description: "Workspace preferences, API keys, and integration configuration." },
   { prefix: "/insights/search-review-evidence", label: "Search", description: "Full-text search across all reviews, findings, and decisions." },
   { prefix: "/replay", label: "Validate review", description: "Check whether stored review output for a finalized package still validates." },
   { prefix: "/planning", label: "Planning", description: "Multi-quarter governance roadmap and remediation scheduling." },
   { prefix: "/integrations", label: "Integrations", description: "Connect Jira, ServiceNow, Slack, and CI/CD pipelines. Native one-click ITSM ticket creation depends on deployment settings." },
-  { prefix: "/evolution-review", label: "Change simulation", description: "Preview the expected impact of proposed architecture changes before implementation." },
+  { prefix: IMPACT_PREVIEW_PATH, label: "Change simulation", description: "Preview the expected impact of proposed architecture changes before implementation." },
   { prefix: "/digests", label: "Digests", description: "Scheduled governance digests and notification subscriptions." },
   { prefix: "/governance/advisory-scans", label: "Advisory scans", description: "Scheduled advisory scans and improvement recommendations." },
   { prefix: "/product-learning", label: "Pilot feedback", description: "Feedback on review outputs and recurring improvement opportunities." },

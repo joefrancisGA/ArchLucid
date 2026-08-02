@@ -98,7 +98,7 @@ vi.mock("./internal-operations/recommendation-learning/_sections/load-recommenda
     }),
 }));
 
-vi.mock("./governance/resolution/_sections/load-governance-resolution-page-data", () => ({
+vi.mock("./governance/standards-and-rules/_sections/load-governance-resolution-page-data", () => ({
   loadGovernanceResolutionPageData: () =>
     Promise.resolve({
       data: {
@@ -138,7 +138,7 @@ vi.mock("./governance/policy-packs/_sections/load-policy-packs-page-data", () =>
     }),
 }));
 
-vi.mock("./evolution-review/_sections/load-evolution-review-page-data", () => ({
+vi.mock("./insights/impact-preview/_sections/load-evolution-review-page-data", () => ({
   loadEvolutionReviewPageData: () =>
     Promise.resolve({
       mode: "live" as const,
@@ -188,8 +188,8 @@ import { DigestsBrowseContent } from "@/components/digests/DigestsBrowseContent"
 import { DigestSubscriptionsContent } from "@/components/digests/DigestSubscriptionsContent";
 
 import AskPage from "./insights/ask-review-questions/page";
-import EvolutionReviewPage from "./evolution-review/page";
-import GovernanceResolutionPage from "./governance/resolution/page";
+import EvolutionReviewPage from "./insights/impact-preview/page";
+import GovernanceResolutionPage from "./governance/standards-and-rules/page";
 import OnboardingPage from "./architecture/first-review-guide/page";
 import PolicyPacksPage from "./governance/policy-packs/page";
 import PlanningPage from "./planning/page";

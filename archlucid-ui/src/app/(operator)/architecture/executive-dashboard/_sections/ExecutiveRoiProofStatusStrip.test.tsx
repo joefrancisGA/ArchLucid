@@ -42,7 +42,7 @@ describe("ExecutiveRoiProofStatusStrip", () => {
       "href",
       EXECUTIVE_ROI_PROOF_STATUS_HELP_HREF,
     );
-    expect(screen.getByTestId("exec-roi-proof-baseline-settings-link")).toHaveAttribute("href", "/settings/baseline");
+    expect(screen.getByTestId("exec-roi-proof-baseline-settings-link")).toHaveAttribute("href", "/administration/settings/baseline");
     expect(screen.getByText(/Per-system rows do not sum to headline/i)).toBeInTheDocument();
   });
 

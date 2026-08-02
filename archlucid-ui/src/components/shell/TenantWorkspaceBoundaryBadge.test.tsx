@@ -40,7 +40,7 @@ describe("TenantWorkspaceBoundaryBadge", () => {
     expect(screen.getByTestId("active-tenant-context-badge")).toHaveTextContent(
       /Active tenant: aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/i,
     );
-    expect(screen.getByTestId("active-tenant-context-badge")).toHaveAttribute("href", "/settings/tenant");
+    expect(screen.getByTestId("active-tenant-context-badge")).toHaveAttribute("href", "/administration/settings/tenant");
   });
 
   it("shows showcase tenant name in buyer-polished mode", () => {

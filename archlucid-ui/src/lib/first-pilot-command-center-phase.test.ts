@@ -82,7 +82,7 @@ describe("resolveFirstPilotCommandCenterPhase", () => {
 
     expect(phase.phase).toBe("evidence-needed");
 
-    expect(phase.href).toBe("/settings/extract-upload");
+    expect(phase.href).toBe("/administration/settings/extract-upload");
 
   });
 
@@ -192,7 +192,7 @@ describe("resolveFirstPilotCommandCenterPhase", () => {
 
     expect(phase.sponsorDisposition).toBe("hold");
 
-    expect(phase.href).toBe("/scorecard");
+    expect(phase.href).toBe("/insights/architecture-scorecard");
 
   });
 

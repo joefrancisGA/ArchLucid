@@ -2,8 +2,8 @@
 
 import { useCallback, useState } from "react";
 
-import { defaultSupportBundleFilename } from "@/app/(operator)/settings/support/_sections/default-support-bundle-filename";
-import { parseFilenameFromContentDisposition } from "@/app/(operator)/settings/support/_sections/parse-filename-from-content-disposition";
+import { defaultSupportBundleFilename } from "@/app/(operator)/administration/settings/support/_sections/default-support-bundle-filename";
+import { parseFilenameFromContentDisposition } from "@/app/(operator)/administration/settings/support/_sections/parse-filename-from-content-disposition";
 import {
   classifySupportBundleDownloadError,
   formatSupportBundleDownloadError,

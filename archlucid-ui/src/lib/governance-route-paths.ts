@@ -1,7 +1,11 @@
 /** Canonical governance nav URLs (TB-405). */
 export const GOVERNANCE_POLICY_PACKS_PATH = "/governance/policy-packs";
 
-export const GOVERNANCE_RESOLUTION_PATH = "/governance/resolution";
+/** Canonical Standards & rules (left-nav); formerly `/governance/resolution` (retired — no redirect). */
+export const GOVERNANCE_STANDARDS_AND_RULES_PATH = "/governance/standards-and-rules" as const;
+
+/** Alias kept for existing imports — prefer {@link GOVERNANCE_STANDARDS_AND_RULES_PATH}. */
+export const GOVERNANCE_RESOLUTION_PATH = GOVERNANCE_STANDARDS_AND_RULES_PATH;
 
 export const GOVERNANCE_AUDIT_PATH = "/governance/audit";
 
@@ -12,7 +16,11 @@ export const GOVERNANCE_ALERT_RULES_PATH = "/governance/alert-rules";
 /** Legacy browser paths — permanent redirects to canonical (TB-405). */
 export const LEGACY_POLICY_PACKS_PATH = "/policy-packs";
 
-export const LEGACY_GOVERNANCE_RESOLUTION_PATH = "/governance-resolution";
+/** Retired flat UI bookmark — no App Router page and no next.config redirect. */
+export const LEGACY_GOVERNANCE_RESOLUTION_PATH = "/governance-resolution" as const;
+
+/** Retired nested UI path — no App Router page and no next.config redirect. */
+export const LEGACY_GOVERNANCE_RESOLUTION_NESTED_PATH = "/governance/resolution" as const;
 
 export const LEGACY_AUDIT_PATH = "/audit";
 
@@ -37,10 +45,7 @@ export function pathMatchesGovernancePolicyPacks(pathname: string): boolean {
 }
 
 export function pathMatchesGovernanceResolution(pathname: string): boolean {
-  return (
-    pathMatchesRoutePrefix(pathname, GOVERNANCE_RESOLUTION_PATH)
-    || pathMatchesRoutePrefix(pathname, LEGACY_GOVERNANCE_RESOLUTION_PATH)
-  );
+  return pathMatchesRoutePrefix(pathname, GOVERNANCE_STANDARDS_AND_RULES_PATH);
 }
 
 export function pathMatchesGovernanceAudit(pathname: string): boolean {

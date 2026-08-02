@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
+import { GOVERNANCE_STANDARDS_AND_RULES_PATH } from "@/lib/governance-route-paths";
 import { GOVERNANCE_SETUP_HREF } from "@/lib/governance-setup-route";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
@@ -68,7 +69,8 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
           requiredAuthority: "ReadAuthority",
         },
         {
-          href: "/governance/resolution",
+          // String literal required: scripts/ci/assert_route_tier_policy_nav.py parses href:"..." only.
+          href: GOVERNANCE_STANDARDS_AND_RULES_PATH as typeof GOVERNANCE_STANDARDS_AND_RULES_PATH & "/governance/standards-and-rules",
           label: OPERATOR_NAV_LINK_LABELS.governanceResolution,
           title: "Diagnose effective policy, conflicts, and precedence for this scope",
           icon: Scale,

@@ -164,7 +164,7 @@ The shell **does** shape navigation (and light Enterprise copy) using the authen
 | `/digests` | `DigestsPage` (hub) | Server shell + `DigestsHubClient` | `?tab=` — **browse** (default; digest list), **subscriptions** (email delivery), **schedule** (exec digest prefs; legacy `/digest-subscriptions` redirect). |
 | `/recommendation-learning` | `LearningPage` | Client | Learning profile display + rebuild |
 | `/policy-packs` | `PolicyPacksPage` | Client | Pack creation, publishing, assignment |
-| `/governance-resolution` | `GovernanceResolutionPage` | Client | Effective resolution display |
+| `/governance/standards-and-rules` | `GovernanceResolutionPage` | Client | Effective resolution display |
 
 ### 5.2 Shared components (src/components/)
 

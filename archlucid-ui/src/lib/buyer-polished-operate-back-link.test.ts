@@ -60,7 +60,7 @@ describe("resolveBuyerOperateBackLinkWhenShellBreadcrumbsHidden", () => {
     ).toBeNull();
     expect(
       resolveBuyerOperateBackLinkWhenShellBreadcrumbsHidden({
-        pathnameWithSearch: "/graph?runId=claims-intake-modernization",
+        pathnameWithSearch: "/insights/evidence-graph?runId=claims-intake-modernization",
         searchRunId: "claims-intake-modernization",
         showShellBreadcrumbs: false,
         buyerGoldenJourneyNav: {

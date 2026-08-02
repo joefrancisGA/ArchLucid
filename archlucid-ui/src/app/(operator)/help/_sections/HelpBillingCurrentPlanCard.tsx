@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
-import { OperatorBillingManageBillingAction } from "@/app/(operator)/settings/billing/OperatorBillingManageBillingAction";
+import { OperatorBillingManageBillingAction } from "@/app/(operator)/administration/settings/billing/OperatorBillingManageBillingAction";
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

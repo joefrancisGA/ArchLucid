@@ -17,7 +17,7 @@ export type CorePilotStepBase = {
  */
 export const CORE_PILOT_STEP_COUNT = 7;
 
-export const EXTRACT_UPLOAD_SETTINGS_PATH = "/settings/extract-upload";
+export const EXTRACT_UPLOAD_SETTINGS_PATH = "/administration/settings/extract-upload";
 
 export const CORE_PILOT_STEPS: CorePilotStepBase[] = [
   {

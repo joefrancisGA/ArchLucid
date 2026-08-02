@@ -125,17 +125,19 @@ export const OPERATOR_NAV_LINK_LABELS = {
   capture: CREATE_ARCHITECTURE_LABEL,
   /** First review guide (`/architecture/first-review-guide`). */
   onboarding: BUYER_ONBOARDING_PAGE_TITLE,
-  findings: "Risk register",
+  findings: "Findings",
   riskExceptions: "Risk exceptions",
   decisionRegister: "Decision register",
   signedReviewRecords: "Signed review records",
   recurrenceSchedules: "Recurrence schedules",
   help: "Help",
   pilotBaselines: "ROI baselines",
+  /** Architecture scorecard (`/insights/architecture-scorecard`). */
   scorecard: BUYER_TERMINOLOGY.reviewScorecard,
   alerts: "Alert inbox",
   alertRules: "Alerts",
   policyPacks: "Policy packs",
+  /** Standards & rules (`/governance/standards-and-rules`). */
   governanceResolution: "Standards & rules",
   governanceWorkflow: "Approval queue",
   auditTrail: BUYER_SURFACE_VOCABULARY.auditTrail,
@@ -159,6 +161,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   recommendationTuning: "Recommendation learning",
   pilotFeedback: BUYER_TERMINOLOGY.evaluationFeedback,
   planning: "Improvement planning",
+  /** Impact preview (`/insights/impact-preview`). */
   evolutionCandidates: "Impact preview",
   pilotValueReport: BUYER_TERMINOLOGY.evaluationValueReport,
   roiReport: "ROI report",
@@ -176,7 +179,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   cloudConnections: "Cloud connections",
   systemHealth: "System health",
   digests: "Digests",
-  /** Administration nav — `/settings/tenant` (customer-facing; route keeps tenant segment). */
+  /** Settings hub (`/administration/settings`); workspace entry often `/administration/settings/tenant`. */
   settings: "Settings",
   workspaceSettings: "Workspace settings",
 } as const;

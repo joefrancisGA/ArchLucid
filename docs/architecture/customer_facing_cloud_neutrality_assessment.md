@@ -66,7 +66,7 @@ However, **Azure, AWS, and Google Cloud are not currently presented as first-cla
 | `/integrations/webhooks` | Execute+ advanced | Generic |
 | `/integrations/readiness` | Admin | Read-only dashboard |
 | `/integrations/itsm` | — | **Redirects** to `/integrations/readiness` |
-| `/settings/*` (tenant, users, IdP, billing, etc.) | Admin / mixed | Identity diagnostics use “probe” language |
+| `/administration/settings/*` (tenant, users, IdP, billing, etc.) | Admin / mixed | Identity diagnostics use “probe” language |
 | `/health` | Admin | “Key vault connectivity”, “Service probes” |
 
 ### 2.4 Internal operations (gated)

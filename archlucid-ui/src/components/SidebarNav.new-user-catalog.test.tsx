@@ -77,7 +77,7 @@ const REVIEW_WORK_HREFS: ReadonlyArray<string> = [
 const COLLAPSED_GROUPS: ReadonlyArray<RequestedGroup> = [
   {
     toggleTestId: "sidebar-group-toggle-operate-analysis",
-    hrefs: ["/insights/evidence-graph", "/insights/ask-review-questions", "/insights/compare-two-reviews", "/scorecard"],
+    hrefs: ["/insights/evidence-graph", "/insights/ask-review-questions", "/insights/compare-two-reviews", "/insights/architecture-scorecard"],
   },
   {
     toggleTestId: "sidebar-group-toggle-operate-governance",
@@ -89,7 +89,7 @@ const COLLAPSED_GROUPS: ReadonlyArray<RequestedGroup> = [
   },
   {
     toggleTestId: "sidebar-group-toggle-operator-admin",
-    hrefs: ["/settings/tenant", "/settings/billing", "/settings/support"],
+    hrefs: ["/administration/settings/tenant", "/administration/settings/billing", "/administration/settings/support"],
   },
 ];
 

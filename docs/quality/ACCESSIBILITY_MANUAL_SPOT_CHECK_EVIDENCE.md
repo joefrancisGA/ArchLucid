@@ -17,7 +17,7 @@ Use this checklist when a PR touches `archlucid-ui/src/app/(operator)/`, shared 
 | Architecture snapshot / artifact review `/manifests/{manifestId}` | Required | Required | Required | Required | Recommended | Metadata, preview, raw disclosure, sibling artifact list. |
 | Compare `/compare` | Required | Required | Required | Required | Optional | Side-by-side content and overflow behavior. Automated: `operator-analysis-axe.test.tsx`. |
 | Audit `/audit` | Required | Required | Required | Required | Recommended | Search/filter controls, timeline cards, and download actions. |
-| Settings `/settings` and identity `/settings/identity-providers` | Required | Required | Required | Required | Recommended | Support bundle and read-only auth catalog rows. Automated: `operator-first-pilot-routes-axe.test.tsx`. |
+| Settings `/administration/settings` and identity `/administration/settings/identity-providers` | Required | Required | Required | Required | Recommended | Support bundle and read-only auth catalog rows. Automated: `operator-first-pilot-routes-axe.test.tsx`. |
 | Accessibility statement `/accessibility` | Required | Required | Required | Required | Recommended | Public policy route and target-conformance wording. |
 
 ## Author Checklist

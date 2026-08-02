@@ -28,7 +28,7 @@ export function CtoDemoCustomerStartError(props: CtoDemoCustomerStartErrorProps)
           {BUYER_CTO_DEMO_TRY_AGAIN_CTA}
         </Button>
         <Button asChild type="button" size="sm" variant="outline">
-          <Link href="/settings/support">{BUYER_CTO_DEMO_CONTACT_SUPPORT_CTA}</Link>
+          <Link href="/administration/settings/support">{BUYER_CTO_DEMO_CONTACT_SUPPORT_CTA}</Link>
         </Button>
       </div>
     </div>

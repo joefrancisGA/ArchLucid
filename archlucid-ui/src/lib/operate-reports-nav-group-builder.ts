@@ -11,7 +11,7 @@ import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
 
 /**
  * Operate · reports — sponsor-facing value summaries and digest subscriptions.
- * Architecture scorecard lives under Insights (`/scorecard` → sponsor-report path); do not list it here.
+ * Architecture scorecard lives under Insights (`/insights/architecture-scorecard`); do not list it here.
  */
 export class OperateReportsNavGroupBuilder extends NavGroupBuilderBase {
   build(): NavGroupConfig {

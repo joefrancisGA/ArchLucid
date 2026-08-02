@@ -287,7 +287,7 @@ Use when capturing **API-not-running** or **empty DB** evidence. Pick **one** sc
 | 10.6 Governance | `/governance`, `/findings`, `/dashboard`, policy pack, lineage | Static rows vs error |
 | 10.7 Audit | `/audit` default + dated search | Zero vs sample |
 | 10.8 Alerts | `/alerts` inbox + rules tab | Empty console |
-| 10.9 Optional | `/compare`, `/replay`, `/admin/*`, `/settings/tenant` | Partial UI |
+| 10.9 Optional | `/compare`, `/replay`, `/admin/*`, `/administration/settings/tenant` | Partial UI |
 
 **Coverage definition:** At least one shot each for home, reviews, detail+finding+inspect+provenance, manifest, graph, ask, governance (workflow+findings+one deep link), audit, alerts.
 
@@ -475,7 +475,7 @@ Legacy bookmarks **`/runs/*`** permanently redirect to **`/reviews/*`** — clea
 | **Onboarding** | `/onboarding` | [ ] |
 | **Risk register (governance findings)** | `/governance/findings` | [ ] |
 | **Help** | `/help` | [ ] |
-| **Pilot scorecard** | `/scorecard` | [ ] |
+| **Pilot scorecard** | `/insights/architecture-scorecard` | [ ] |
 | **Compare two reviews** | `/compare` | [ ] |
 | **Replay a review** | `/replay` | [ ] |
 | **Ask review questions** | `/ask` | [ ] |
@@ -486,7 +486,7 @@ Legacy bookmarks **`/runs/*`** permanently redirect to **`/reviews/*`** — clea
 | **Pilot feedback** | `/product-learning` | [ ] |
 | **Planning** | `/planning` | [ ] |
 | **Planning plan detail** | `/planning/plans/{planId}` | [ ] |
-| **Evolution candidates** | `/evolution-review` | [ ] |
+| **Impact preview** | `/insights/impact-preview` | [ ] |
 | **Pilot value report** | `/value-report/pilot` | [ ] |
 | **ROI summary** | `/value-report/roi` | [ ] |
 | **Connection status** | `/administration/connection-status` | [ ] |
@@ -514,19 +514,19 @@ Legacy bookmarks **`/runs/*`** permanently redirect to **`/reviews/*`** — clea
 | **Value report (DOCX)** | `/value-report` | [ ] |
 | **Executive reviews (retired)** | `/executive/reviews` → `/reviews` | [ ] |
 | **Executive scorecard** | `/executive/scorecard` | [ ] |
-| **Settings hub** | `/settings` | [ ] |
-| **Tenant settings** | `/settings/tenant` | [ ] |
-| **Projects recycle bin** | `/settings/tenant/recycle-bin` | [ ] |
-| **Billing & plans** | `/settings/billing` | [ ] |
-| **Baseline settings** | `/settings/baseline` | [ ] |
+| **Settings hub** | `/administration/settings` | [ ] |
+| **Tenant settings** | `/administration/settings/tenant` | [ ] |
+| **Projects recycle bin** | `/administration/settings/tenant/recycle-bin` | [ ] |
+| **Billing & plans** | `/administration/settings/billing` | [ ] |
+| **Baseline settings** | `/administration/settings/baseline` | [ ] |
 | **Webhooks** | `/settings/webhooks` | [ ] |
 | **Cloud connections** | `/settings/cloud-connections` | [ ] |
-| **Extract upload** | `/settings/extract-upload` | [ ] |
+| **Extract upload** | `/administration/settings/extract-upload` | [ ] |
 | **Cost reporting** | `/settings/cost-reporting` | [ ] |
-| **Identity providers** | `/settings/identity-providers` | [ ] |
-| **SSO wizard** | `/settings/identity/sso-wizard` | [ ] |
-| **API keys** | `/settings/api-keys` | [ ] |
-| **SCIM provisioning** | `/settings/scim-provisioning` | [ ] |
+| **Identity providers** | `/administration/settings/identity-providers` | [ ] |
+| **SSO wizard** | `/administration/settings/identity/sso-wizard` | [ ] |
+| **API keys** | `/administration/settings/api-keys` | [ ] |
+| **SCIM provisioning** | `/administration/settings/scim-provisioning` | [ ] |
 | **Role management** | `/settings/roles` | [ ] |
 | **Admin — system health** | `/admin/health` | [ ] |
 | **Admin — configuration** | `/admin/configuration` | [ ] |
@@ -628,7 +628,7 @@ You are already here after sign-in. No clicks required.
 
 **From home:** header **Help** icon (question mark), **HelpLink** chips on home sections, or Core Pilot checklist **Help** step.
 
-### Pilot scorecard (`/scorecard`)
+### Pilot scorecard (`/insights/architecture-scorecard`)
 
 **Sidebar → Review work → Scorecard** (expand **Show more** if collapsed; requires Read authority).
 
@@ -688,7 +688,7 @@ Expand **Analysis** in the sidebar (many links are *extended* or *advanced*).
 | Pilot feedback | `/product-learning` | **Analysis → Pilot feedback**. |
 | Planning | `/planning` | **Analysis → Planning** (Execute authority). |
 | Planning plan detail | `/planning/plans/{planId}` | **Planning** → open a plan row. |
-| Evolution candidates | `/evolution-review` | **Analysis → Evolution candidates** (Execute authority). |
+| Impact preview | `/insights/impact-preview` | **Insights → Impact preview** (ReadAuthority; Simulate stays Execute-gated). |
 | Executive dashboard (portfolio overview) | `/dashboard` | **Analysis → Executive dashboard** (legacy `/portfolio` redirects here). |
 | Pilot value report | `/value-report/pilot` | **Analysis → Pilot value report**. |
 | ROI summary | `/value-report/roi` | **Analysis → ROI report**. |
@@ -746,22 +746,22 @@ Requires **Admin** or **Execute** authority per link. Expand **Admin** group.
 | Pricing quote aging | `/admin/pricing-quote-aging` | **Admin → Pricing quote aging**. |
 | Evidence proposals | `/admin/evidence-proposals` | **Admin → Evidence proposals**. |
 | Users & roles | `/admin/users` | **Admin → Users & roles**. |
-| Support bundle | `/admin/support` | **Admin → Support**, or **Settings hub** (`/settings`) support card. |
+| Support bundle | `/admin/support` | **Admin → Support**, or **Settings hub** (`/administration/settings`) support card. |
 | Integration DLQ | `/operate/integration-events/dlq` | **Admin → Integration DLQ**. |
-| Identity providers | `/settings/identity-providers` | **Admin → Identity providers**. |
-| SSO wizard | `/settings/identity/sso-wizard` | **Admin → SSO wizard**. |
-| API keys | `/settings/api-keys` | **Admin → API keys**. |
-| SCIM provisioning | `/settings/scim-provisioning` | **Admin → SCIM provisioning**. |
+| Identity providers | `/administration/settings/identity-providers` | **Admin → Identity providers**. |
+| SSO wizard | `/administration/settings/identity/sso-wizard` | **Admin → SSO wizard**. |
+| API keys | `/administration/settings/api-keys` | **Admin → API keys**. |
+| SCIM provisioning | `/administration/settings/scim-provisioning` | **Admin → SCIM provisioning**. |
 | Role management | `/settings/roles` | **Admin → Role management**. |
-| Billing & plans | `/settings/billing` | **Admin → Billing & plans**. |
-| Baseline settings | `/settings/baseline` | **Admin → Baseline settings** (Execute). |
+| Billing & plans | `/administration/settings/billing` | **Admin → Billing & plans**. |
+| Baseline settings | `/administration/settings/baseline` | **Admin → Baseline settings** (Execute). |
 | Webhooks | `/settings/webhooks` | **Admin → Webhooks** (Execute). |
 | Cloud connections | `/settings/cloud-connections` | **Admin → Cloud connections** (Execute). |
-| Tenant settings | `/settings/tenant` | **Admin → Tenant settings** (Execute). |
-| Projects recycle bin | `/settings/tenant/recycle-bin` | **Tenant settings** → **Recycle bin** link. |
+| Tenant settings | `/administration/settings/tenant` | **Admin → Tenant settings** (Execute). |
+| Projects recycle bin | `/administration/settings/tenant/recycle-bin` | **Tenant settings** → **Recycle bin** link. |
 | Cost reporting | `/settings/cost-reporting` | **Admin → Cost reporting**. |
-| Settings hub | `/settings` | **Ctrl+K** → “Settings” (general hub; most items are under **Admin** in sidebar). |
-| Extract upload | `/settings/extract-upload` | **Ctrl+K** or tenant settings cross-links (not primary sidebar). |
+| Settings hub | `/administration/settings` | **Ctrl+K** → “Settings” (general hub; most items are under **Admin** in sidebar). |
+| Extract upload | `/administration/settings/extract-upload` | **Ctrl+K** or tenant settings cross-links (not primary sidebar). |
 
 ---
 

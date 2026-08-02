@@ -106,7 +106,7 @@ export function OperatorHomeExecutiveRoiStrip(): React.JSX.Element | null {
         {scopeLabel}
         {"). "}
         <Link
-          href="/scorecard"
+          href="/insights/architecture-scorecard"
           className={OPERATOR_LINK.optional}
           data-testid="operator-home-roi-strip-open-scorecard"
         >

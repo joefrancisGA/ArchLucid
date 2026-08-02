@@ -170,8 +170,8 @@ describe("nav-config structure", () => {
       "/insights/ask-review-questions",
       "/insights/search-review-evidence",
       "/insights/compare-two-reviews",
-      "/evolution-review",
-      "/scorecard",
+      "/insights/impact-preview",
+      "/insights/architecture-scorecard",
       "/patterns",
     ]);
     const architectAdvancedHrefs = NAV_GROUPS.find((group) => group.id === "operate-architect-advanced")!.links.map(
@@ -188,7 +188,7 @@ describe("nav-config structure", () => {
       "/governance/findings",
       "/governance/risk-exceptions",
       "/governance/policy-packs",
-      "/governance/resolution",
+      "/governance/standards-and-rules",
       "/governance/decision-register",
       "/signed-records",
       "/governance/advisory-scans",
@@ -218,7 +218,7 @@ describe("nav-config structure", () => {
     expect(systemAdminHrefs).toContain("/replay");
     expect(systemAdminHrefs).not.toContain("/health");
     expect(systemAdminHrefs).not.toContain("/governance/advisory-scans");
-    expect(systemAdminHrefs).not.toContain("/settings/tenant");
+    expect(systemAdminHrefs).not.toContain("/administration/settings/tenant");
     expect(systemAdminHrefs).not.toContain("/workspace/security-trust");
     // Tenant-tier-gated features (RequiresCommercialTenantTier) moved out of the employee-only,
     // showSystemAdministrationNav-gated group so real customers can discover them (nav placement audit, 2026-07-05).
@@ -228,24 +228,24 @@ describe("nav-config structure", () => {
     expect(systemAdminHrefs).not.toContain("/digests");
     expect(systemAdminHrefs).not.toContain("/sponsor-report/pilot-outcomes");
     expect(systemAdminHrefs).not.toContain("/sponsor-report/roi-summary");
-    expect(systemAdminHrefs).not.toContain("/settings/identity-providers");
-    expect(systemAdminHrefs).not.toContain("/settings/identity/sso-wizard");
-    expect(systemAdminHrefs).not.toContain("/settings/api-keys");
-    expect(systemAdminHrefs).not.toContain("/settings/scim-provisioning");
+    expect(systemAdminHrefs).not.toContain("/administration/settings/identity-providers");
+    expect(systemAdminHrefs).not.toContain("/administration/settings/identity/sso-wizard");
+    expect(systemAdminHrefs).not.toContain("/administration/settings/api-keys");
+    expect(systemAdminHrefs).not.toContain("/administration/settings/scim-provisioning");
 
     const adminHrefs = NAV_GROUPS.find((group) => group.id === "operator-admin")!.links.map((link) => link.href);
 
-    expect(adminHrefs).toContain("/settings/security-trust");
-    expect(adminHrefs).toContain("/settings/users");
+    expect(adminHrefs).toContain("/administration/settings/security-trust");
+    expect(adminHrefs).toContain("/administration/settings/users");
     expect(adminHrefs).not.toContain("/settings/roles");
-    expect(adminHrefs).toContain("/settings/support");
-    expect(adminHrefs).toContain("/settings/ai-usage");
+    expect(adminHrefs).toContain("/administration/settings/support");
+    expect(adminHrefs).toContain("/administration/settings/ai-usage");
     expect(adminHrefs).toContain("/administration/connection-status");
     expect(adminHrefs).toContain("/administration/system-health");
-    expect(adminHrefs).toContain("/settings/identity-providers");
-    expect(adminHrefs).toContain("/settings/identity/sso-wizard");
-    expect(adminHrefs).toContain("/settings/api-keys");
-    expect(adminHrefs).toContain("/settings/scim-provisioning");
+    expect(adminHrefs).toContain("/administration/settings/identity-providers");
+    expect(adminHrefs).toContain("/administration/settings/identity/sso-wizard");
+    expect(adminHrefs).toContain("/administration/settings/api-keys");
+    expect(adminHrefs).toContain("/administration/settings/scim-provisioning");
     expect(adminHrefs).not.toContain("/governance/recurrence-schedules");
   });
 
@@ -262,7 +262,7 @@ describe("nav-config structure", () => {
     }
   });
 
-  it("keeps administration nav hrefs under /settings/* or /administration/* (TB-406)", () => {
+  it("keeps administration nav hrefs under /administration/* (TB-406)", () => {
     const admin = NAV_GROUPS.find((group) => group.id === "operator-admin");
 
     expect(admin).toBeDefined();
@@ -274,12 +274,11 @@ describe("nav-config structure", () => {
     );
 
     for (const link of admin!.links) {
-      const isSettingsHref = link.href.startsWith("/settings/") || link.href === "/settings";
       const isAdministrationHref =
         link.href.startsWith("/administration/") || link.href === "/administration";
 
       expect(
-        isSettingsHref || isAdministrationHref || adminNamespaceExceptions.has(link.href),
+        isAdministrationHref || adminNamespaceExceptions.has(link.href),
         link.href,
       ).toBe(true);
     }

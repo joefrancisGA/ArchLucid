@@ -17,7 +17,7 @@ export const BUYER_FIRST_REVIEW_HELP_HREF = FIRST_ARCHITECTURE_REVIEW_HELP_PATH;
 export const FIRST_REVIEW_90MIN_REQUIRED_ROUTES = [
   "/reviews/new",
   "/reviews",
-  "/settings/extract-upload",
+  "/administration/settings/extract-upload",
   EXECUTIVE_DASHBOARD_HREF,
 ] as const;
 

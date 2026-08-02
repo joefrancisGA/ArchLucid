@@ -44,11 +44,11 @@ export function pathnameEligibleBeforeFirstCommittedArchitectureReview(pathWitho
     return true;
   }
 
-  if (pathWithoutQuery === "/settings/baseline" || pathWithoutQuery.startsWith("/settings/baseline/")) {
+  if (pathWithoutQuery === "/administration/settings/baseline" || pathWithoutQuery.startsWith("/administration/settings/baseline/")) {
     return true;
   }
 
-  if (pathWithoutQuery === "/settings/tenant" || pathWithoutQuery.startsWith("/settings/tenant/")) {
+  if (pathWithoutQuery === "/administration/settings/tenant" || pathWithoutQuery.startsWith("/administration/settings/tenant/")) {
     return true;
   }
 
@@ -96,7 +96,7 @@ function preCommitNavLinkSortRank(pathWithoutQuery: string): number {
     return 7;
   }
 
-  if (pathWithoutQuery === "/settings/baseline" || pathWithoutQuery.startsWith("/settings/baseline/")) {
+  if (pathWithoutQuery === "/administration/settings/baseline" || pathWithoutQuery.startsWith("/administration/settings/baseline/")) {
     return 8;
   }
 

@@ -6,7 +6,7 @@ import {
   BUILTIN_ROLE_ORDER,
   BUILTIN_ROLE_SUMMARIES,
   type BuiltinRoleName,
-} from "@/app/(operator)/settings/users/_sections/roles-matrix-constants";
+} from "@/app/(operator)/administration/settings/users/_sections/roles-matrix-constants";
 import { SETTINGS_USERS_USERS_TAB_PATH } from "@/lib/settings-admin-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 

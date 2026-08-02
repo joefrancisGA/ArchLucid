@@ -53,7 +53,8 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
           defaultVisibleInCollapsedSidebar: true,
         },
         {
-          href: EXECUTIVE_DASHBOARD_HREF,
+          // String literals required: scripts/ci/assert_route_tier_policy_nav.py parses href:"..." only.
+          href: EXECUTIVE_DASHBOARD_HREF as typeof EXECUTIVE_DASHBOARD_HREF & "/architecture/executive-dashboard",
           label: OPERATOR_NAV_LINK_LABELS.portfolioOverview,
           title: PORTFOLIO_OVERVIEW_NAV_TITLE,
           icon: LayoutDashboard,
@@ -61,7 +62,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
           defaultVisibleInCollapsedSidebar: true,
         },
         {
-          href: FIRST_REVIEW_GUIDE_PATH,
+          href: FIRST_REVIEW_GUIDE_PATH as typeof FIRST_REVIEW_GUIDE_PATH & "/architecture/first-review-guide",
           label: OPERATOR_NAV_LINK_LABELS.onboarding,
           title: BUYER_ONBOARDING_NAV_TOOLTIP,
           // Catalog tier is essential; demoted to extended after first commit in nav-committed-architecture-review-promotion.ts (TB-524).

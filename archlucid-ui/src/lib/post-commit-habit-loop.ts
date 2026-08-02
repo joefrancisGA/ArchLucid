@@ -137,7 +137,7 @@ export function buildPostCommitHabitLoop(input: PostCommitHabitLoopInput): PostC
     id: "value-delta",
     kind: "optional",
     label: "Review value delta on scorecard",
-    href: "/scorecard",
+    href: "/insights/architecture-scorecard",
     description: "Compare cumulative tenant metrics and ROI baselines after this commit.",
   });
 

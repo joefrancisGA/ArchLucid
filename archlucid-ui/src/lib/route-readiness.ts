@@ -2,8 +2,11 @@
  * Product-facing readiness tiers for operator routes (nav gating, demo shell copy).
  * API policy and `[Authorize]` remain authoritative; this is UX-only.
  */
+import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture-scorecard-route";
 import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
+import { GOVERNANCE_STANDARDS_AND_RULES_PATH } from "@/lib/governance-route-paths";
+import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
 
 export type RouteReadinessTier = "demo-ready" | "advanced-only" | "admin-only" | "hidden";
 
@@ -15,17 +18,16 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/help": "demo-ready",
   "/insights/ask-review-questions": "demo-ready",
   "/insights/search-review-evidence": "demo-ready",
-  "/scorecard": "demo-ready",
+  [ARCHITECTURE_SCORECARD_PATH]: "demo-ready",
   "/executive/scorecard": "demo-ready",
   "/reviews": "demo-ready",
   "/governance/findings": "advanced-only",
-  "/settings/security-trust": "demo-ready",
-  "/settings/preferences": "demo-ready",
+  "/administration/settings/security-trust": "demo-ready",
+  "/administration/settings/preferences": "demo-ready",
   "/workspace/security-trust": "demo-ready",
   "/sponsor-report/executive-summary": "advanced-only",
   "/sponsor-report/pilot-outcomes": "advanced-only",
   "/sponsor-report/roi-summary": "advanced-only",
-  "/sponsor-report/architecture-scorecard": "demo-ready",
   "/value-report": "advanced-only",
   "/value-report/pilot": "advanced-only",
   "/value-report/roi": "advanced-only",
@@ -35,7 +37,7 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/governance/advisory-scans": "advanced-only",
   "/planning": "advanced-only",
   "/digests": "advanced-only",
-  "/evolution-review": "advanced-only",
+  [IMPACT_PREVIEW_PATH]: "advanced-only",
   "/integrations/teams": "advanced-only",
   "/integrations/cloud-connections": "admin-only",
   "/settings/cloud-connections": "admin-only",
@@ -45,17 +47,16 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/integrations/servicenow": "admin-only",
   "/integrations/webhooks": "advanced-only",
   "/administration/connection-status": "advanced-only",
-  "/settings/ai-usage": "admin-only",
+  "/administration/settings/ai-usage": "admin-only",
   "/settings/cost-reporting": "admin-only",
   "/governance/setup": "advanced-only",
   "/governance": "advanced-only",
   "/governance/dashboard": "advanced-only",
-  "/governance/resolution": "advanced-only",
+  [GOVERNANCE_STANDARDS_AND_RULES_PATH]: "advanced-only",
   "/governance/policy-packs": "advanced-only",
   "/governance/audit": "advanced-only",
   "/governance/alerts": "advanced-only",
   "/governance/alert-rules": "advanced-only",
-  "/governance-resolution": "advanced-only",
   "/policy-packs": "advanced-only",
   "/audit": "advanced-only",
   "/administration/system-health": "demo-ready",
@@ -74,16 +75,16 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/admin/tenant-health": "hidden",
   "/admin/support": "admin-only",
   "/admin/users": "admin-only",
-  "/settings/support": "admin-only",
-  "/settings/users": "admin-only",
-  "/settings/tenant": "admin-only",
-  "/settings/tenant/recycle-bin": "admin-only",
-  "/settings/baseline": "advanced-only",
-  "/settings/developer": "advanced-only",
-  "/settings/billing": "advanced-only",
+  "/administration/settings/support": "admin-only",
+  "/administration/settings/users": "admin-only",
+  "/administration/settings/tenant": "admin-only",
+  "/administration/settings/tenant/recycle-bin": "admin-only",
+  "/administration/settings/baseline": "advanced-only",
+  "/administration/settings/developer": "advanced-only",
+  "/administration/settings/billing": "advanced-only",
   "/settings/webhooks": "advanced-only",
   "/settings/roles": "admin-only",
-  "/settings/api-keys": "admin-only",
+  "/administration/settings/api-keys": "admin-only",
 };
 
 /**
@@ -135,24 +136,24 @@ import { isCtoDemoPresenterSafeModeEnv } from "@/lib/cto-demo-presenter-pack";
 
 /** Presenter safe mode hides billing, settings, and admin surfaces (#10). */
 const PRESENTER_SAFE_MODE_NAV_HIDE = new Set<string>([
-  "/settings",
-  "/settings/billing",
-  "/settings/tenant",
-  "/settings/api-keys",
+  "/administration/settings",
+  "/administration/settings/billing",
+  "/administration/settings/tenant",
+  "/administration/settings/api-keys",
   "/settings/roles",
-  "/settings/baseline",
-  "/settings/developer",
+  "/administration/settings/baseline",
+  "/administration/settings/developer",
   "/settings/webhooks",
   "/integrations/webhooks",
   "/integrations/cloud-connections",
   "/settings/cloud-connections",
-  "/settings/identity-providers",
-  "/settings/identity-providers/saml",
-  "/settings/identity-providers/oidc",
-  "/settings/identity-providers/role-mapping",
-  "/settings/identity-providers/diagnostics",
-  "/settings/identity/sso-wizard",
-  "/settings/scim-provisioning",
+  "/administration/settings/identity-providers",
+  "/administration/settings/identity-providers/saml",
+  "/administration/settings/identity-providers/oidc",
+  "/administration/settings/identity-providers/role-mapping",
+  "/administration/settings/identity-providers/diagnostics",
+  "/administration/settings/identity/sso-wizard",
+  "/administration/settings/scim-provisioning",
   "/sponsor-report/executive-summary",
   "/sponsor-report/pilot-outcomes",
   "/sponsor-report/roi-summary",
@@ -163,9 +164,9 @@ const PRESENTER_SAFE_MODE_NAV_HIDE = new Set<string>([
 
 /** Pilot-tier links that are hidden in buyer demo nav (reduce noise vs core review story). */
 const DEMO_MODE_EXPLICIT_NAV_HIDE = new Set<string>([
-  "/scorecard",
+  ARCHITECTURE_SCORECARD_PATH,
   "/insights/search-review-evidence",
-  "/settings/tenant/recycle-bin",
+  "/administration/settings/tenant/recycle-bin",
 ]);
 
 function normalizeOperatorNavHrefForDemo(href: string): string {
@@ -190,7 +191,7 @@ function shouldHideOperatorNavLinkInPresenterSafeMode(href: string): boolean {
     return true;
   }
 
-  if (navKey.startsWith("/settings/") || navKey.startsWith("/admin")) {
+  if (navKey.startsWith("/administration/settings/") || navKey.startsWith("/admin")) {
     return true;
   }
 

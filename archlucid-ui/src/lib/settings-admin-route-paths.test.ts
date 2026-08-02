@@ -17,21 +17,21 @@ import {
 } from "@/lib/settings-admin-route-paths";
 
 describe("settings-admin-route-paths (TB-406 / TB-751)", () => {
-  it("exposes canonical tenant-admin paths under /settings/*", () => {
-    expect(SETTINGS_USERS_PATH).toBe("/settings/users");
-    expect(SETTINGS_USERS_ROLES_TAB_PATH).toBe("/settings/users?tab=roles");
-    expect(SETTINGS_USERS_USERS_TAB_PATH).toBe("/settings/users?tab=users");
-    expect(SETTINGS_SECURITY_TRUST_PATH).toBe("/settings/security-trust");
-    expect(SETTINGS_SUPPORT_PATH).toBe("/settings/support");
+  it("exposes canonical tenant-admin paths under /administration/settings/*", () => {
+    expect(SETTINGS_USERS_PATH).toBe("/administration/settings/users");
+    expect(SETTINGS_USERS_ROLES_TAB_PATH).toBe("/administration/settings/users?tab=roles");
+    expect(SETTINGS_USERS_USERS_TAB_PATH).toBe("/administration/settings/users?tab=users");
+    expect(SETTINGS_SECURITY_TRUST_PATH).toBe("/administration/settings/security-trust");
+    expect(SETTINGS_SUPPORT_PATH).toBe("/administration/settings/support");
   });
 
   it("matches canonical and legacy users, security-trust, and support paths", () => {
-    expect(pathMatchesSettingsUsers("/settings/users")).toBe(true);
+    expect(pathMatchesSettingsUsers("/administration/settings/users")).toBe(true);
     expect(pathMatchesSettingsUsers("/admin/users")).toBe(true);
     expect(pathMatchesSettingsUsers("/settings/roles")).toBe(true);
-    expect(pathMatchesSettingsSecurityTrust("/settings/security-trust")).toBe(true);
+    expect(pathMatchesSettingsSecurityTrust("/administration/settings/security-trust")).toBe(true);
     expect(pathMatchesSettingsSecurityTrust("/workspace/security-trust")).toBe(true);
-    expect(pathMatchesSettingsSupport("/settings/support")).toBe(true);
+    expect(pathMatchesSettingsSupport("/administration/settings/support")).toBe(true);
     expect(pathMatchesSettingsSupport("/admin/support")).toBe(true);
   });
 

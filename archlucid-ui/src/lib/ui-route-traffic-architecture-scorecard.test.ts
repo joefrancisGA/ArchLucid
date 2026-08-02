@@ -60,7 +60,7 @@ function findTrafficRowById(rows: TrafficWorkbookRow[], rowId: string): TrafficW
 }
 
 describe("ui-route-traffic-architecture-scorecard (TB-1956)", () => {
-  it("tracks SPA under Sponsor report with canonical-path notes", () => {
+  it("tracks SCX under Insights with canonical-path notes", () => {
     const rows = extractMasterTableRows(readTemplateMarkdown());
     const row = findTrafficRowById(rows, ARCHITECTURE_SCORECARD_TRAFFIC_ROW_ID);
 

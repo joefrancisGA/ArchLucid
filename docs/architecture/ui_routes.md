@@ -5,7 +5,7 @@
 **App root:** `archlucid-ui/src/app/`  
 **Route count:** 142 `page.tsx` files (verified by `scripts/ci/assert_archlucid_ui_app_router_unique_paths.py`).
 
-**Route groups** ΓÇö folders named `(marketing)`, `(operator)`, or `(executive)` ΓÇö **do not** appear in the URL. Two pages under different groups that resolve to the same path will fail `next build`.
+**Route groups** — folders named `(marketing)`, `(operator)`, or `(executive)` — **do not** appear in the URL. Two pages under different groups that resolve to the same path will fail `next build`.
 
 Dynamic segments are written as `[param]` below.
 
@@ -15,7 +15,7 @@ Dynamic segments are written as `[param]` below.
 
 Pick one tier before walking routes. Tiers are ordered from fastest (UI-only) to fullest (SQL + admin).
 
-### Tier 1 ΓÇö UI-only static demo (no SQL)
+### Tier 1 — UI-only static demo (no SQL)
 
 Best for review workflow, graph, compare, governance mock tiles, and buyer-polished architect workspace.
 
@@ -33,7 +33,7 @@ Opens **http://localhost:3001** with:
 
 When the API is absent or errors, the UI serves the **Claims Intake** static payload (`archlucid-ui/src/lib/showcase-static-demo.ts`, `operator-static-demo.ts`).
 
-### Tier 2 ΓÇö Full SQL-backed demo (real API data)
+### Tier 2 — Full SQL-backed demo (real API data)
 
 Best for live pipeline, Contoso compare pair, governance rows, audit, and admin surfaces.
 
@@ -49,7 +49,7 @@ From the repository root:
 
 See also [DEMO_QUICKSTART.md](../go-to-market/DEMO_QUICKSTART.md) and [DEMO_WORKSPACES.md](../go-to-market/DEMO_WORKSPACES.md).
 
-### Tier 3 ΓÇö Mock API harness (widest route coverage)
+### Tier 3 — Mock API harness (widest route coverage)
 
 Best when you need **every operator route** populated without hand-seeding each surface.
 
@@ -71,7 +71,7 @@ To browse interactively, run `e2e/start-e2e-with-mock.ts` (see `playwright.mock.
 
 ## Canonical deep links
 
-### Tier 1 ΓÇö Claims Intake static spine
+### Tier 1 — Claims Intake static spine
 
 | What | URL |
 |------|-----|
@@ -94,7 +94,7 @@ To browse interactively, run `e2e/start-e2e-with-mock.ts` (see `playwright.mock.
 
 Constants live in `archlucid-ui/src/lib/showcase-static-demo.ts` and `archlucid-ui/e2e/fixtures/ids.ts`.
 
-### Tier 2 ΓÇö SQL seed identifiers
+### Tier 2 — SQL seed identifiers
 
 | Story | Run ID | Example URL |
 |-------|--------|---------------|
@@ -106,7 +106,7 @@ Constants live in `archlucid-ui/src/lib/showcase-static-demo.ts` and `archlucid-
 
 **Reviews list:** `/reviews?projectId=default` after seed completes.
 
-**New review with live pipeline:** `/reviews/new` ΓåÆ leave defaults ΓåÆ **Submit** (simulator agents). See [FIRST_30_MINUTES.md](../engineering/FIRST_30_MINUTES.md).
+**New review with live pipeline:** `/reviews/new` → leave defaults → **Submit** (simulator agents). See [FIRST_30_MINUTES.md](../engineering/FIRST_30_MINUTES.md).
 
 ---
 
@@ -137,8 +137,8 @@ Configured in `archlucid-ui/next.config.ts`:
 
 Columns:
 
-- **Purpose** ΓÇö what the screen is for  
-- **How to view** ΓÇö fastest path to a reasonable populated screen (`T1` = Tier 1, `T2` = Tier 2, `T3` = Tier 3 mock harness)
+- **Purpose** — what the screen is for  
+- **How to view** — fastest path to a reasonable populated screen (`T1` = Tier 1, `T2` = Tier 2, `T3` = Tier 3 mock harness)
 
 ### Marketing and public
 
@@ -156,7 +156,7 @@ Columns:
 | `/quick-scan` | Quick scan marketing entry | Open directly |
 | `/quick-start` | Deprecated alias | App Router shim permanently redirects to `/get-started` (query preserved; canonical UX on **GXX**) |
 | `/security-trust` | Public Security & trust (metadata only) | Open directly |
-| `/see-it` | ΓÇ£See it in 30 secondsΓÇ¥ pitch | Open directly |
+| `/see-it` | “See it in 30 seconds” pitch | Open directly |
 | `/showcase/[runId]` | Public completed review showcase | T1: `/showcase/claims-intake-modernization`. QuickNav deep-links into `/reviews/*` only when demo static fallback is active; otherwise sign-in CTA (`showcase-quick-nav-contract.ts`). |
 | `/signup` | Self-service trial signup | Open directly; submit needs backend |
 | `/signup/verify` | Email verification | Layout only unless signup completed |
@@ -171,57 +171,60 @@ Columns:
 |-----|---------|-------------|
 | `/auth/signin` | Start OIDC/JWT sign-in | Set `NEXT_PUBLIC_ARCHLUCID_AUTH_MODE=jwt` + IdP; dev-bypass shows notice on home otherwise |
 | `/auth/callback` | OAuth redirect handler | Only during real OIDC flow |
-| `/login` | Legacy shim | Redirects to `/auth/signin`; `reason=idle-timeout` ΓåÆ `/auth/session-expired` (canonical sign-in UX on **ASI**) |
+| `/login` | Legacy shim | Redirects to `/auth/signin`; `reason=idle-timeout` → `/auth/session-expired` (canonical sign-in UX on **ASI**) |
 
 ### Architect home and core workflow
 
 | URL | Purpose | How to view |
 |-----|---------|-------------|
-| `/` | Architect home ΓÇö checklist and quick links | T1 or T2 |
-| `/architecture/executive-dashboard` | Portfolio overview / executive ROI dashboard (**ARE**) | T1 static tiles; T2 after seed; PageContextualHelp ΓåÆ executive-summary |
-| `/dashboard` | Retired ΓÇö redirects to `/architecture/executive-dashboard` | Legacy bookmark (**DSH**) |
+| `/` | Architect home — checklist and quick links | T1 or T2 |
+| `/architecture/executive-dashboard` | Portfolio overview / executive ROI dashboard (**ARE**) | T1 static tiles; T2 after seed; PageContextualHelp → executive-summary |
+| `/dashboard` | Retired — redirects to `/architecture/executive-dashboard` | Legacy bookmark (**DSH**) |
 | `/reviews` | List architecture packages | T2: `/reviews?projectId=default`; T1: static paged list |
 | `/reviews/new` | New architecture review wizard | T2: submit default run; T1: wizard UI (submit needs API) |
 | `/reviews/[runId]` | Architecture package detail | T1: `claims-intake-modernization`; T2: seed GUIDs above |
 | `/reviews/[runId]/provenance` | Evidence provenance diagram | Append to populated review URL |
-| `/reviews/[runId]/findings/[findingId]` | Finding detail | T1: `ΓÇª/findings/phi-minimization-risk` |
+| `/reviews/[runId]/findings/[findingId]` | Finding detail | T1: `…/findings/phi-minimization-risk` |
 | `/reviews/[runId]/findings/[findingId]/inspect` | Finding evidence trace inspect | Same finding + `/inspect` |
 | `/manifests/[manifestId]` | Manifest summary, artifacts, bundle | T1: `a1c2e3f4-a5b6-7890-abcd-ef1234567890` |
-| `/graph` | Evidence / architecture graph | T1: `/graph?runId=claims-intake-modernization` ΓåÆ **Load graph** |
+| `/graph` | Deprecated alias | Retired pre-release bookmark — no App Router page or redirect; canonical UX on **INE** (`/insights/evidence-graph`) |
+| `/insights/evidence-graph` | Evidence graph (trace table + interactive graph) | T1: `?runId=claims-intake-modernization` → **Load graph**; deep links via `runId` + `graphNodeId` (**INE**) |
 | `/onboarding` | In-product onboarding | T1/T2; T2 may show `trialSampleRunId` from API |
-| `/onboarding/start` | Deprecated alias | App Router shim permanently redirects to `/onboarding` (query preserved; canonical UX on **ONB**) |
-| `/onboard` | Deprecated alias | App Router shim permanently redirects to `/onboarding` (query preserved; canonical UX on **ONB**) |
+| `/architecture/first-review-guide` | First review guide (onboarding checklist) | Trial card when `?source=registration`; core walkthrough wizard (**ARF**); legacy `/onboarding` retired (no redirect) |
+| `/onboarding/start` | Deprecated alias | App Router shim permanently redirects to `/onboarding` (query preserved; canonical UX on **ARF**) |
+| `/onboard` | Deprecated alias | App Router shim permanently redirects to `/onboarding` (query preserved; canonical UX on **ARF**) |
 | `/getting-started` | Deprecated alias | App Router shim permanently redirects to `/onboarding` (query preserved) |
 | `/help` | In-app help index | Open directly |
-| `/help/[topic]` | Rendered help topic | e.g. `/help/getting-started`, `/help/first-architecture-review` (specialty `HelpCorePilotGuideView`, **HCO**; legacy `/help/core-pilot` ΓåÆ **ECO**), `/help/billing-and-plans` (specialty `HelpBillingAndPlansGuideView`, **HBX**), `/help/executive-summary` (specialty `HelpExecutiveSummaryGuideView`, **EXE**), `/help/findings` (specialty `HelpFindingsGuideView`, **HFX**), `/help/governance-approval` (specialty `HelpGovernanceApprovalGuideView`, **GO**), `/help/path-chooser` (buyer markdown chooser, **HPX**), `/help/developer-troubleshooting` (Admin-gated internal-runbook, **HDX**), `/help/governance-api-contracts` (Admin-gated API contracts reference, **HG**), `/help/alerts` (slugs in `product-documentation-registry.ts`) |
+| `/help/[topic]` | Rendered help topic | e.g. `/help/getting-started`, `/help/first-architecture-review` (specialty `HelpCorePilotGuideView`, **HCO**; legacy `/help/core-pilot` → **ECO**), `/help/billing-and-plans` (specialty `HelpBillingAndPlansGuideView`, **HBX**), `/help/executive-summary` (specialty `HelpExecutiveSummaryGuideView`, **EXE**), `/help/findings` (specialty `HelpFindingsGuideView`, **HFX**), `/help/governance-approval` (specialty `HelpGovernanceApprovalGuideView`, **GO**), `/help/path-chooser` (buyer markdown chooser, **HPX**), `/help/developer-troubleshooting` (Admin-gated internal-runbook, **HDX**), `/help/governance-api-contracts` (Admin-gated API contracts reference, **HG**), `/help/alerts` (slugs in `product-documentation-registry.ts`) |
 | `/demo` | CTO demo tour entry | CTO demo pack env; else redirects `/` |
 | `/demo/explain` | Internal demo explanation | T2: `GET /v1/demo/explain`; T3 mock; blocked in strict T1 |
 | `/snapshot/[runId]` | Deprecated legacy bookmark alias | App Router redirect-only shim (not a page tier). Showcase spine → `/reviews/claims-intake-modernization?readOnly=1`; other runs → `/reviews/{runId}?readOnly=1` (query preserved, e.g. `v=demo`). Example bookmark: `/snapshot/claims-intake-modernization?v=demo` |
 | `/403` | Unauthorized (no recognized app role) | Hard to hit under dev-bypass |
 | `/why-archlucid` | Internal proof (live instrumentation) | T2 Docker seed; hidden in buyer-polished demo |
 
-### Operate ┬╖ analysis
+### Operate · analysis
 
 | URL | Purpose | How to view |
 |-----|---------|-------------|
 | `/compare` | Compare two finalized reviews | T1 compare URL; T2 Contoso pair |
+| `/insights/evidence-graph` | Evidence graph — provenance trail for one review | T1: `?runId=claims-intake-modernization`; table + graph tabs (**INE**) |
 | `/ask` | Ask questions about a review | T1: `/ask`; T2: `/ask?runId=<seeded-run>` |
 | `/search` | Search review evidence | T1/T3: `/search` + run `claims-intake-modernization` |
 
-Query keys for compare: `priorRunId`/`laterRunId` (buyer) or `leftRunId`/`rightRunId` (technical) ΓÇö see `compare-url-query-params.ts`.
+Query keys for compare: `priorRunId`/`laterRunId` (buyer) or `leftRunId`/`rightRunId` (technical) — see `compare-url-query-params.ts`.
 
-### Operate ┬╖ governance
+### Operate · governance
 
 | URL | Purpose | How to view |
 |-----|---------|-------------|
-| `/governance/advisory-scans` | Advisory scans hub (Scans + Schedules tabs) | T3 mock or T2 API; blocked in strict T1 nav; legacy `/advisory` + `/advisory-scheduling` ΓåÆ next.config redirects here; **AD** = `?tab=schedules`, **ADS** = default Scans tab |
+| `/governance/advisory-scans` | Advisory scans hub (Scans + Schedules tabs) | T3 mock or T2 API; blocked in strict T1 nav; legacy `/advisory` + `/advisory-scheduling` → next.config redirects here; **AD** = `?tab=schedules`, **ADS** = default Scans tab |
 | `/governance/findings` | Architecture risk register | T1 static; T2: `?runId=<seeded-run>` for review context |
 | `/governance/risk-exceptions` | Risk exceptions / waivers | T3 mock or T2 seed |
 | `/policy-packs` | Policy pack inventory | T1 static list |
 | `/governance/policy-packs` | Governance-scoped pack registry | Same as hub in demo |
 | `/governance/policy-packs/[id]` | Policy pack detail | T1: `healthcare-claims-v3-pack` |
 | `/governance-resolution` | Effective policy stack (read-only) | T1/T3 |
-| `/governance` | Governance workflow (submit ΓåÆ promote) | T1 static; T2 with governance seed |
+| `/governance` | Governance workflow (submit → promote) | T1 static; T2 with governance seed |
 | `/governance/approval-requests/[id]/lineage` | Approval request lineage | T1: `claims-intake-approval-001` |
 | `/audit` | Tenant audit trail | T1 static events; T2 seeded audit |
 | `/governance/decision-register` | Decision register | T1/T3 |
@@ -235,27 +238,29 @@ Query keys for compare: `priorRunId`/`laterRunId` (buyer) or `leftRunId`/`rightR
 
 Layer guidance copy for many governance/analysis routes: `archlucid-ui/src/lib/layer-guidance.ts`. Sidebar source of truth: `archlucid-ui/src/lib/nav-config.ts` and `archlucid-ui/docs/NAV_CONFIG_CONTRACT.md`.
 
-### Operate ┬╖ operations and value
+### Operate · operations and value
 
 | URL | Purpose | How to view |
 |-----|---------|-------------|
-| `/scorecard` | Review scorecard | T1 showcase context; T3 mock |
+| `/insights/architecture-scorecard` | Review scorecard | T1 showcase context; T3 mock |
 | `/recommendation-learning` | Recommendation tuning | T3 mock; blocked in strict demo |
 | `/product-learning` | Pilot feedback capture | T3 mock |
 | `/administration/connection-status` | Connection status (connector readiness hub) | Administration nav; `ConnectorOperationsDashboard` + contextual help. T3 mock or T2 |
 | `/integrations/teams` | Microsoft Teams wiring | T3 mock |
-| `/administration/system-health` | System health dashboard | Live/ready checks, build identity, buyer-polished demo variant; contextual help ΓåÆ troubleshooting (**ADY**) |
+| `/administration/system-health` | System health dashboard | Live/ready checks, build identity, buyer-polished demo variant; contextual help → troubleshooting (**ADY**) |
 | `/replay` | Replay authority chain | `/replay?runId=claims-intake-modernization`; T2 for real replay |
 | `/planning` | Planning hub | T1/T3 |
 | `/planning/plans/[planId]` | Plan detail | T1: `claims-intake-modernization-plan` |
-| `/evolution-review` | Evolution candidates | T3 mock |
+| `/insights/impact-preview` | Impact preview | T3 mock |
 | `/value-report/pilot` | Sponsor proof snapshot (no DOCX) | T1/T2 after finalized architecture package |
 | `/value-report/roi` | ROI / hours summary | T1 illustrative; T2 with seed |
-| `/digests` | Digests | T3 mock |
+| `/digests` | Digests hub (Browse + Subscriptions + Schedule) | T3 mock; Schedule tab (**DIS**) hosts ExecDigestScheduleContent |
+| `/digests?tab=schedule` | Executive digest schedule | ExecDigestScheduleContent; preferences via `/v1/tenant/exec-digest-preferences` (**DIS**) |
+| `/settings/exec-digest` | Retired pre-release bookmark | No redirect or App Router page; canonical schedule on **DIS** (**EEX**, TB-1901–TB-1905) |
 | `/digest-subscriptions` | Digest subscriptions | T3 mock |
 | `/patterns` | Architecture pattern library | T3 mock or API if seeded |
-| `/portfolio` | Retired ΓÇö redirects to `/architecture/executive-dashboard` | Legacy bookmark only |
-| `/operate/architecture-graph` | Legacy Operate shim | App Router redirect to `/graph` (query preserved; canonical UX on **GRA**) |
+| `/portfolio` | Retired — redirects to `/architecture/executive-dashboard` | Legacy bookmark only |
+| `/operate/architecture-graph` | Legacy Operate shim | App Router redirect to `/insights/evidence-graph` (query preserved; canonical UX on **INE**) |
 | `/architecture-intelligence` | Closed-loop architecture reasoning lab | Execute role; deep-link with `?runId=` from reviews/findings. Golden fixture + publish round trip. |
 | `/operate/integration-events/dlq` | Integration event DLQ | Full architect workspace + Admin + T2 API |
 
@@ -265,28 +270,28 @@ Lighter chrome than the full architect workspace; `(executive)` route group does
 
 | URL | Purpose | How to view |
 |-----|---------|-------------|
-| `/executive/dashboard` | Retired ΓÇö redirects to `/architecture/executive-dashboard` | Legacy bookmark (**EXD**) |
-| `/executive/reviews`, `/executive/reviews/*` | Retired ΓÇö redirect to `/reviews` | Legacy bookmark only |
+| `/executive/dashboard` | Retired — redirects to `/architecture/executive-dashboard` | Legacy bookmark (**EXD**) |
+| `/executive/reviews`, `/executive/reviews/*` | Retired — redirect to `/reviews` | Legacy bookmark only |
 | `/executive/scorecard` | Executive scorecard | T1/T3 with showcase run |
 
 ### Settings
 
 | URL | Purpose | How to view |
 |-----|---------|-------------|
-| `/settings` | General settings (appearance, support bundle) | Layout OK T1; blocked in strict demo ΓÇö T3 bypass or full architect workspace |
-| `/settings/billing` | Billing and plans | Admin + full architect workspace + API |
-| `/settings/identity-providers` | Identity provider config | Admin + API |
-| `/settings/identity/sso-wizard` | SSO setup wizard | Admin + API |
-| `/settings/api-keys` | API key management | Admin + API |
-| `/settings/scim-provisioning` | SCIM provisioning | Admin + API |
+| `/administration/settings` | General settings (appearance, support bundle) | Layout OK T1; blocked in strict demo — T3 bypass or full architect workspace |
+| `/administration/settings/billing` | Billing and plans | Admin + full architect workspace + API |
+| `/administration/settings/identity-providers` | Identity provider config | Admin + API |
+| `/administration/settings/identity/sso-wizard` | SSO setup wizard | Admin + API |
+| `/administration/settings/api-keys` | API key management | Admin + API |
+| `/administration/settings/scim-provisioning` | SCIM provisioning | Admin + API |
 | `/settings/cloud-connections` | Cloud connections | Admin + API |
-| `/settings/tenant` | Tenant settings | Admin + API |
-| `/settings/tenant/recycle-bin` | Tenant recycle bin | Admin + API |
+| `/administration/settings/tenant` | Tenant settings | Admin + API |
+| `/administration/settings/tenant/recycle-bin` | Tenant recycle bin | Admin + API |
 | `/settings/cost-reporting` | Cost reporting | Admin + API |
 | `/settings/webhooks` | Webhooks | Admin + API |
 | `/settings/roles` | Role assignment | Admin + API |
-| `/settings/baseline` | ROI baseline config | T3 mock |
-| `/settings/extract-upload` | Extract/upload config | Allowed in CTO demo (`DEMO_ALLOWED_SETTINGS_PATHS`) |
+| `/administration/settings/baseline` | ROI baseline config | T3 mock |
+| `/administration/settings/extract-upload` | Extract/upload config | Allowed in CTO demo (`DEMO_ALLOWED_SETTINGS_PATHS`) |
 ### Admin
 
 Requires **Admin authority**, full architect workspace, no demo nav blockers, and Tier 2 API (or Tier 3 mock with E2E bypass).
@@ -310,9 +315,9 @@ Requires **Admin authority**, full architect workspace, no demo nav blockers, an
 
 | Goal | Fastest path |
 |------|----------------|
-| Architecture package with findings, manifest, artifacts | T1 ΓåÆ `/reviews/claims-intake-modernization` |
-| Side-by-side compare | T1 ΓåÆ `/compare?priorRunId=claims-intake-run-v1&laterRunId=claims-intake-run-v2` |
-| Evidence graph | T1 ΓåÆ `/graph?runId=claims-intake-modernization` + **Load graph** |
+| Architecture package with findings, manifest, artifacts | T1 → `/reviews/claims-intake-modernization` |
+| Side-by-side compare | T1 → `/compare?priorRunId=claims-intake-run-v1&laterRunId=claims-intake-run-v2` |
+| Evidence graph | T1 → `/graph?runId=claims-intake-modernization` + **Load graph** |
 | Governance, audit, alerts | T1 static or T3 mock harness |
 | Real pipeline + SQL truth | T2 `.\scripts\demo-start.ps1` |
 | Every route for design review | T3 `npm run screenshots:all:prebuilt` |
@@ -326,14 +331,14 @@ Requires **Admin authority**, full architect workspace, no demo nav blockers, an
 When adding or moving a route:
 
 1. Add `page.tsx` under a **unique** URL path (run `python scripts/ci/assert_archlucid_ui_app_router_unique_paths.py` from repo root).
-2. If the route appears in the architect workspace, update `nav-config.ts` and follow the drift guard in `docs/library/PRODUCT_PACKAGING.md` ┬º3.
+2. If the route appears in the architect workspace, update `nav-config.ts` and follow the drift guard in `docs/library/PRODUCT_PACKAGING.md` §3.
 3. Update this document and, if applicable, `archlucid-ui/e2e/capture-all-screenshots.spec.ts` `HREFS`.
 
 **Related docs:**
 
-- [INFORMATION_ARCHITECTURE.md](INFORMATION_ARCHITECTURE.md) ΓÇö five-category content taxonomy for `/help`, contextual help, marketing, and trust surfaces
-- [archlucid-ui/README.md](../../archlucid-ui/README.md) ΓÇö run commands and legacy route table  
-- [NAV_CONFIG_CONTRACT.md](../../archlucid-ui/docs/NAV_CONFIG_CONTRACT.md) ΓÇö sidebar and authority contract  
-- [DEMO_QUICKSTART.md](../go-to-market/DEMO_QUICKSTART.md) ΓÇö Docker demo stack  
-- [DEMO_WORKSPACES.md](../go-to-market/DEMO_WORKSPACES.md) ΓÇö Workspace A/B stable GUIDs  
-- [DEMO_QUICKSTART.md#screenshot-capture-brief](../go-to-market/DEMO_QUICKSTART.md#screenshot-capture-brief) ΓÇö capture brief for marketing PNGs  
+- [INFORMATION_ARCHITECTURE.md](INFORMATION_ARCHITECTURE.md) — five-category content taxonomy for `/help`, contextual help, marketing, and trust surfaces
+- [archlucid-ui/README.md](../../archlucid-ui/README.md) — run commands and legacy route table  
+- [NAV_CONFIG_CONTRACT.md](../../archlucid-ui/docs/NAV_CONFIG_CONTRACT.md) — sidebar and authority contract  
+- [DEMO_QUICKSTART.md](../go-to-market/DEMO_QUICKSTART.md) — Docker demo stack  
+- [DEMO_WORKSPACES.md](../go-to-market/DEMO_WORKSPACES.md) — Workspace A/B stable GUIDs  
+- [DEMO_QUICKSTART.md#screenshot-capture-brief](../go-to-market/DEMO_QUICKSTART.md#screenshot-capture-brief) — capture brief for marketing PNGs  

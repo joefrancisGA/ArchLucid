@@ -1,3 +1,4 @@
+import { GOVERNANCE_STANDARDS_AND_RULES_PATH } from "@/lib/governance-route-paths";
 import {
   trackUnlockPhaseChanged,
   type OperateNavUnlockPhaseChangeReason,
@@ -39,7 +40,7 @@ const GOVERNANCE_EXTENDED_PHASE_HREFS = new Set<string>([
   "/governance/findings",
   "/governance/risk-exceptions",
   "/governance/policy-packs",
-  "/governance/resolution",
+  GOVERNANCE_STANDARDS_AND_RULES_PATH,
   "/governance/decision-register",
   "/governance/alerts",
   "/alerts",

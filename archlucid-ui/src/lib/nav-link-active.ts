@@ -21,8 +21,8 @@ export function isNavLinkActive(pathname: string, href: string): boolean {
     return pathname === "/reviews";
   }
 
-  if (pathPart === "/settings/tenant") {
-    return pathname === "/settings/tenant";
+  if (pathPart === "/administration/settings/tenant") {
+    return pathname === "/administration/settings/tenant";
   }
 
   return pathname === pathPart || pathname.startsWith(`${pathPart}/`);

@@ -269,7 +269,7 @@ Available immediately after a first finalized architecture package. Enabled by c
 | Pilot feedback rollups | `GET /v1/product-learning/rollups` | Pilot feedback (`/product-learning`) |
 | Recommendation learning profiles | `GET /v1/recommendation-learning/profiles` | Recommendation learning (`/recommendation-learning`) |
 | Improvement themes and planning | `GET /v1/planning/themes` | Planning (`/planning`) |
-| Evolution candidates (before/after) | `GET /v1/evolution-review/candidates` | Evolution candidates (`/evolution-review`) |
+| Evolution candidates (before/after) | `GET /v1/evolution-review/candidates` | Impact preview (`/insights/impact-preview`) |
 | Integration events (Azure Service Bus, CloudEvents) | Outbox → Service Bus topic | — |
 | Webhooks and digest delivery | `POST /v1/webhooks/subscriptions` | — |
 

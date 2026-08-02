@@ -2,7 +2,7 @@ import type { MarketingPricingTierId } from "@/lib/marketing/marketing-public-pr
 
 /** Operator billing route with optional pre-selected catalog plan. */
 export function buildOperatorBillingPlanPath(planId: MarketingPricingTierId): string {
-  return `/settings/billing?plan=${encodeURIComponent(planId)}`;
+  return `/administration/settings/billing?plan=${encodeURIComponent(planId)}`;
 }
 
 /**

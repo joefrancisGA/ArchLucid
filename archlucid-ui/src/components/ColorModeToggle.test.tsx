@@ -6,6 +6,7 @@ import { ColorModePreferenceProvider } from "@/components/ColorModePreferencePro
 vi.mock("@/lib/api/user-preferences", () => ({
   getUserPreferences: vi.fn().mockRejectedValue(new Error("offline")),
   setUserAppearancePreference: vi.fn().mockResolvedValue(undefined),
+  invalidateUserPreferencesCache: vi.fn(),
 }));
 
 import {

@@ -38,7 +38,7 @@ export const UX_AUDIT_OPERATOR_BUYER_ROUTES: readonly UxAuditRouteEntry[] = [
     persona: "vp-engineering",
   },
   { slug: "trust", href: "/trust", persona: "security-architect" },
-  { slug: "settings-security-trust", href: "/settings/security-trust", persona: "security-architect" },
+  { slug: "settings-security-trust", href: "/administration/settings/security-trust", persona: "security-architect" },
   { slug: "policy-packs", href: "/governance/policy-packs", persona: "security-architect" },
   { slug: "governance", href: "/governance", persona: "governance-reviewer" },
   { slug: "governance-dashboard", href: "/governance/dashboard", persona: "governance-reviewer" },

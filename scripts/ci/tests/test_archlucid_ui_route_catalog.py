@@ -112,6 +112,18 @@ def test_migrate_workbook_path_maps_legacy_executive_dashboard_bookmarks() -> No
     assert migrate_workbook_path("/portfolio") == "/architecture/executive-dashboard"
 
 
+def test_build_catalog_tracks_evidence_graph_as_planning() -> None:
+    catalog = build_catalog()
+    assert "/insights/evidence-graph" in catalog
+    assert catalog["/insights/evidence-graph"].section == "Planning"
+
+
+def test_build_catalog_tracks_first_review_guide_as_onboarding() -> None:
+    catalog = build_catalog()
+    assert "/architecture/first-review-guide" in catalog
+    assert catalog["/architecture/first-review-guide"].section == "Onboarding"
+
+
 def test_suggest_row_id_is_unique_and_three_chars() -> None:
     used = {"HOM", "RE"}
     row_id = suggest_row_id("/architectures/new", used)

@@ -95,7 +95,7 @@ export function SidebarNav() {
     if (buyerPolishedShell || resolvedDemoUi) {
       const onIntegrationsRoute = route.startsWith("/integrations");
       const onAdminRoute =
-        route.startsWith("/settings")
+        route.startsWith("/administration/settings")
         || route.startsWith("/admin")
         || route.startsWith("/administration");
 

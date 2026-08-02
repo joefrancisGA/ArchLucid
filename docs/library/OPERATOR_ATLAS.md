@@ -54,7 +54,7 @@
 | Recommendation learning | — | learning APIs | `/recommendation-learning` | Read | [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) |
 | Pilot feedback | — | feedback APIs | `/product-learning` | Read | [PILOT_GUIDE.md](customer-facing/PILOT_GUIDE.md) |
 | Planning themes | — | planning writes | `/planning` | Execute | [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) |
-| Evolution candidates | — | evolution APIs | `/evolution-review` | Execute | [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) |
+| Impact preview | — | evolution APIs | `/insights/impact-preview` | Read (simulate Execute) | [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) |
 
 ---
 

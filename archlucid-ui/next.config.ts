@@ -135,8 +135,6 @@ const nextConfig: NextConfig = {
       // Governance route tree consolidation (TB-405).
       { source: "/policy-packs", destination: "/governance/policy-packs", permanent: true },
       { source: "/policy-packs/:path*", destination: "/governance/policy-packs/:path*", permanent: true },
-      { source: "/governance-resolution", destination: "/governance/resolution", permanent: true },
-      { source: "/governance-resolution/:path*", destination: "/governance/resolution/:path*", permanent: true },
       { source: "/audit", destination: "/governance/audit", permanent: true },
       { source: "/audit/:path*", destination: "/governance/audit/:path*", permanent: true },
       { source: "/alerts", destination: "/governance/alerts", permanent: true },
@@ -151,15 +149,15 @@ const nextConfig: NextConfig = {
       { source: "/settings/cloud-connections", destination: "/integrations/cloud-connections", permanent: true },
       { source: "/settings/cloud-connections/:path*", destination: "/integrations/cloud-connections/:path*", permanent: true },
       // Administration route namespace reconciliation (TB-406).
-      { source: "/workspace/security-trust", destination: "/settings/security-trust", permanent: true },
-      { source: "/workspace/security-trust/:path*", destination: "/settings/security-trust/:path*", permanent: true },
-      { source: "/admin/users", destination: "/settings/users", permanent: true },
-      { source: "/admin/users/:path*", destination: "/settings/users/:path*", permanent: true },
-      { source: "/admin/support", destination: "/settings/support", permanent: true },
-      { source: "/admin/support/:path*", destination: "/settings/support/:path*", permanent: true },
+      { source: "/workspace/security-trust", destination: "/administration/settings/security-trust", permanent: true },
+      { source: "/workspace/security-trust/:path*", destination: "/administration/settings/security-trust/:path*", permanent: true },
+      { source: "/admin/users", destination: "/administration/settings/users", permanent: true },
+      { source: "/admin/users/:path*", destination: "/administration/settings/users/:path*", permanent: true },
+      { source: "/admin/support", destination: "/administration/settings/support", permanent: true },
+      { source: "/admin/support/:path*", destination: "/administration/settings/support/:path*", permanent: true },
       // Administration users/roles nav consolidation (TB-522).
-      { source: "/settings/roles", destination: "/settings/users?tab=roles", permanent: true },
-      { source: "/settings/roles/:path*", destination: "/settings/users/:path*", permanent: true },
+      { source: "/settings/roles", destination: "/administration/settings/users?tab=roles", permanent: true },
+      { source: "/settings/roles/:path*", destination: "/administration/settings/users/:path*", permanent: true },
       // Executive dashboard consolidation (TB-608) — same ExecutiveRoiDashboardPageView content as
       // the operator-shell executive dashboard nav item; the standalone executive-chrome page is retired.
       { source: "/dashboard", destination: "/architecture/executive-dashboard", permanent: true },

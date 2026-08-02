@@ -130,7 +130,7 @@ vi.mock("@/lib/toast", () => ({
 
 import GovernanceWorkflowPage from "@/app/(operator)/governance/page";
 import GovernanceDashboardPage from "@/app/(operator)/governance/dashboard/page";
-import GovernanceResolutionPage from "@/app/(operator)/governance/resolution/page";
+import GovernanceResolutionPage from "@/app/(operator)/governance/standards-and-rules/page";
 import GovernanceFindingsPage from "@/app/(operator)/governance/findings/page";
 import PolicyPacksPage from "@/app/(operator)/governance/policy-packs/page";
 

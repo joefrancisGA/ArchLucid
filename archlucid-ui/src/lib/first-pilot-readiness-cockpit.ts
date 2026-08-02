@@ -187,7 +187,7 @@ export function buildFirstPilotReadinessRows(input: {
         : canExecute
           ? "Capture review hours, reviews per quarter, and loaded architect cost before sponsor export."
           : "ROI baselines are available for review. Editing requires elevated access.",
-      href: "/scorecard#roi-assumptions",
+      href: "/insights/architecture-scorecard#roi-assumptions",
       cta: "Add ROI baseline",
     },
     {

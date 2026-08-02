@@ -44,7 +44,7 @@
 |-------|-----------|-----------|
 | `/graph` | `GraphPageContent` | `OperatorPageHeader navHref="/graph"` |
 | `/governance` | `GovernanceWorkflowPageContent` | `OperatorPageHeader navHref="/governance"` |
-| `/settings/users` | `SettingsRolesPageView` | `PageHeading` |
+| `/administration/settings/users` | `SettingsRolesPageView` | `PageHeading` |
 | `/architectures/new` | `architectures/new/page.tsx` | `PageHeading` (server component) |
 
 ## Routes deliberately excluded

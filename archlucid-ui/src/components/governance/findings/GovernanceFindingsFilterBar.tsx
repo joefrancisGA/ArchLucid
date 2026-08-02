@@ -44,7 +44,7 @@ function GovernanceFindingsFilterBarComponent(props: GovernanceFindingsFilterBar
       <div
         className="flex flex-wrap items-center gap-2"
         data-testid="architecture-risk-register-filters"
-        aria-label="Risk register filters"
+        aria-label="Findings filters"
       >
         <Button
           type="button"

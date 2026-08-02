@@ -104,7 +104,7 @@ describe("SidebarNav (primary navigation)", () => {
       "href",
       "/architecture/first-review-guide",
     );
-    expect(within(reviewNav).queryByRole("link", { name: "Risk register" })).toBeNull();
+    expect(within(reviewNav).queryByRole("link", { name: "Findings" })).toBeNull();
     expect(within(reviewNav).queryByRole("link", { name: "Scorecard" })).toBeNull();
 
     expect(screen.getByTestId("operate-features-unlock-panel")).toBeInTheDocument();
@@ -185,7 +185,7 @@ describe("SidebarNav (primary navigation)", () => {
     });
 
     const adminNav = screen.getByRole("navigation", { name: "Administration" });
-    expect(within(adminNav).getByRole("link", { name: "Settings" })).toHaveAttribute("href", "/settings/tenant");
+    expect(within(adminNav).getByRole("link", { name: "Settings" })).toHaveAttribute("href", "/administration/settings/tenant");
   });
 
   it("does not duplicate the numbered first-hour journey strip in the sidebar (TB-345)", () => {

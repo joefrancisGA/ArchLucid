@@ -16,8 +16,13 @@ describe("sponsor-report-navigation", () => {
   it("redirects legacy ROI and executive summary paths", () => {
     expect(sponsorReportLegacyRedirectPath("/value-report/roi")).toBe(SPONSOR_REPORT_ROI_SUMMARY_PATH);
     expect(sponsorReportLegacyRedirectPath("/value-report")).toBe(SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH);
-    expect(sponsorReportLegacyRedirectPath("/scorecard")).toBe(SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH);
     expect(sponsorReportLegacyRedirectPath("/sponsor-report")).toBe(SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH);
+  });
+
+  it("does not redirect retired architecture scorecard bookmarks", () => {
+    expect(sponsorReportLegacyRedirectPath("/scorecard")).toBeNull();
+    expect(sponsorReportLegacyRedirectPath("/sponsor-report/architecture-scorecard")).toBeNull();
+    expect(sponsorReportLegacyRedirectPath(SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH)).toBeNull();
   });
 
   it("returns null for unrelated paths", () => {

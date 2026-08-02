@@ -7,11 +7,13 @@ import {
   hrefTargetsPermanentRedirectSource,
   NEXT_CONFIG_PERMANENT_REDIRECT_SOURCE_PATHS,
 } from "@/lib/next-config-permanent-redirect-source-paths";
+import {
+  CANONICAL_EXEC_DIGEST_SCHEDULE_PATH,
+  RETIRED_SETTINGS_EXEC_DIGEST_PATH,
+} from "@/lib/settings-exec-digest-legacy-route";
+import { DIGESTS_SCHEDULE_TAB_PATH } from "@/lib/settings-admin-route-paths";
 
 import nextConfig from "../../next.config";
-
-/** Retired pre-release path — do not reintroduce redirect or App Router stub (TB-1901–TB-1905). */
-const RETIRED_SETTINGS_EXEC_DIGEST_PATH = "/settings/exec-digest";
 
 const RETIRED_SETTINGS_EXEC_DIGEST_APP_DIR = join(
   process.cwd(),
@@ -22,7 +24,12 @@ const RETIRED_SETTINGS_EXEC_DIGEST_APP_DIR = join(
   "exec-digest",
 );
 
-describe("settings-exec-digest retired route (TB-1901–TB-1905)", () => {
+describe("settings-exec-digest retired route (EEX / TB-1901–TB-1905)", () => {
+  it("keeps canonical schedule on Digests Schedule tab", () => {
+    expect(CANONICAL_EXEC_DIGEST_SCHEDULE_PATH).toBe(DIGESTS_SCHEDULE_TAB_PATH);
+    expect(CANONICAL_EXEC_DIGEST_SCHEDULE_PATH).toBe("/digests?tab=schedule");
+  });
+
   it("does not ship a next.config redirect for /settings/exec-digest", async () => {
     const redirectRules = await nextConfig.redirects?.();
 

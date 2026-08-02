@@ -1,15 +1,17 @@
-/** Traffic workbook row ID for sponsor architecture scorecard. */
-export const ARCHITECTURE_SCORECARD_TRAFFIC_ROW_ID = "SPA";
+import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture-scorecard-route";
 
-/** Canonical browser path for the sponsor architecture scorecard report. */
-export const ARCHITECTURE_SCORECARD_TRAFFIC_PATH = "/sponsor-report/architecture-scorecard";
+/** Traffic workbook row ID for architecture scorecard. */
+export const ARCHITECTURE_SCORECARD_TRAFFIC_ROW_ID = "SCX";
+
+/** Canonical browser path for the architecture scorecard. */
+export const ARCHITECTURE_SCORECARD_TRAFFIC_PATH = ARCHITECTURE_SCORECARD_PATH;
 
 /**
- * Owner workbook Notes for SPA — sponsor-report surface, not marketing.
- * `/scorecard` remains a bookmark-compat redirect to this path.
+ * Owner workbook Notes for SCX — Insights surface.
+ * Formerly `/scorecard` and `/sponsor-report/architecture-scorecard` (retired; no redirect).
  */
 export const ARCHITECTURE_SCORECARD_TRAFFIC_NOTE =
-  "Sponsor architecture scorecard report (canonical); `/scorecard` redirects here for bookmark compat.";
+  "Formerly `/scorecard` and `/sponsor-report/architecture-scorecard` (retired; no redirect).";
 
-/** Workbook Section column value — operator sponsor-report job, not pre-login marketing. */
-export const ARCHITECTURE_SCORECARD_TRAFFIC_SECTION = "Sponsor report";
+/** Workbook Section column value. */
+export const ARCHITECTURE_SCORECARD_TRAFFIC_SECTION = "Insights";

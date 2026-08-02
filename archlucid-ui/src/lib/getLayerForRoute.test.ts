@@ -19,17 +19,17 @@ describe("getLayerForRoute", () => {
   });
 
   it("returns operator-admin for tenant admin nav paths", () => {
-    expect(getLayerForRoute("/settings/billing")).toBe("operator-admin");
-    expect(getLayerForRoute("/settings/baseline")).toBe("pilot");
+    expect(getLayerForRoute("/administration/settings/billing")).toBe("operator-admin");
+    expect(getLayerForRoute("/administration/settings/baseline")).toBe("pilot");
     expect(getLayerForRoute("/integrations/cloud-connections")).toBe("operate-analysis");
     expect(getLayerForRoute("/settings/cloud-connections")).toBe("operate-analysis");
-    expect(getLayerForRoute("/settings/tenant")).toBe("operator-admin");
-    expect(getLayerForRoute("/settings/tenant/recycle-bin")).toBe("operator-admin");
-    expect(getLayerForRoute("/settings/support")).toBe("operator-admin");
-    expect(getLayerForRoute("/settings/users")).toBe("operator-admin");
+    expect(getLayerForRoute("/administration/settings/tenant")).toBe("operator-admin");
+    expect(getLayerForRoute("/administration/settings/tenant/recycle-bin")).toBe("operator-admin");
+    expect(getLayerForRoute("/administration/settings/support")).toBe("operator-admin");
+    expect(getLayerForRoute("/administration/settings/users")).toBe("operator-admin");
     expect(getLayerForRoute("/settings/roles")).toBe("operator-admin");
-    expect(getLayerForRoute("/settings/users/invite-reviewer")).toBe("operator-admin");
-    expect(getLayerForRoute("/settings/ai-usage")).toBe("operator-admin");
+    expect(getLayerForRoute("/administration/settings/users/invite-reviewer")).toBe("operator-admin");
+    expect(getLayerForRoute("/administration/settings/ai-usage")).toBe("operator-admin");
     expect(getLayerForRoute("/administration/connection-status")).toBe("operator-admin");
     expect(getLayerForRoute("/administration/system-health")).toBe("operator-admin");
     expect(getLayerForRoute("/workspace/security-trust")).toBe("operator-admin");
@@ -41,7 +41,7 @@ describe("getLayerForRoute", () => {
     expect(getLayerForRoute("/governance/approval-requests/1")).toBe("operate-governance");
     expect(getLayerForRoute("/governance/dashboard/weekly")).toBe("operate-governance");
     expect(getLayerForRoute("/governance/findings")).toBe("operate-governance");
-    expect(getLayerForRoute("/governance/resolution")).toBe("operate-governance");
+    expect(getLayerForRoute("/governance/standards-and-rules")).toBe("operate-governance");
     expect(getLayerForRoute("/governance/audit")).toBe("operate-governance");
     expect(getLayerForRoute("/governance/policy-packs")).toBe("operate-governance");
   });
@@ -57,7 +57,7 @@ describe("getLayerForRoute", () => {
   });
 
   it("returns operate-analysis for reports and system-admin nav paths", () => {
-    expect(getLayerForRoute("/scorecard")).toBe("operate-analysis");
+    expect(getLayerForRoute("/insights/architecture-scorecard")).toBe("operate-analysis");
     expect(getLayerForRoute("/integrations/teams")).toBe("operate-analysis");
     expect(getLayerForRoute("/product-learning")).toBe("operate-analysis");
     expect(getLayerForRoute("/governance/advisory-scans")).toBe("operate-governance");

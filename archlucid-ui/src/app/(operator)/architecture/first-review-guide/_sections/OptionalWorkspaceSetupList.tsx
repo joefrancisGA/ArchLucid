@@ -34,7 +34,7 @@ function resolveOptionalWorkspaceSetupRows(context: FinishSetupWizardContext): O
       benefit: "Allow users to sign in with corporate credentials.",
       statusLabel: "Optional",
       statusKind: "neutral",
-      href: "/settings/identity/sso-wizard",
+      href: "/administration/settings/identity/sso-wizard",
       actionLabel: "Open SSO wizard",
     },
     {
@@ -68,7 +68,7 @@ function resolveOptionalWorkspaceSetupRows(context: FinishSetupWizardContext): O
     benefit: "Add assumptions used in executive and portfolio value reporting.",
     statusLabel: "Optional",
     statusKind: "neutral",
-    href: "/settings/baseline",
+    href: "/administration/settings/baseline",
     actionLabel: "Configure ROI baseline",
   });
 

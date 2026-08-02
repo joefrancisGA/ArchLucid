@@ -115,7 +115,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     enterpriseFootnote: "Read-only tiles; writes stay in workflow, findings queue, and audit.",
   },
   "governance-findings": {
-    layerBadge: "Risk register",
+    layerBadge: "Findings",
     headline:
       "Track architecture risks created from accepted findings, waivers, exceptions, and governance decisions.",
     useWhen:

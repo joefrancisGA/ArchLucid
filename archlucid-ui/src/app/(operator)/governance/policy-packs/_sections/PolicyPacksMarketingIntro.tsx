@@ -75,7 +75,7 @@ export function PolicyPacksMarketingIntro(props: PolicyPacksMarketingIntroProps)
             A <GlossaryTooltip termKey="policy_pack">policy pack</GlossaryTooltip> defines which compliance checks apply
             to reviews in this workspace —{" "}
             {canMutatePacks ? policyPacksPageLeadOperatorBuyerPolished : policyPacksPageLeadReaderBuyerPolished}{" "}
-            <Link href="/governance/resolution" className={OPERATOR_LINK.inline}>
+            <Link href="/governance/standards-and-rules" className={OPERATOR_LINK.inline}>
               How conflicts are resolved
             </Link>
             .
@@ -84,7 +84,7 @@ export function PolicyPacksMarketingIntro(props: PolicyPacksMarketingIntroProps)
           <>
             A <GlossaryTooltip termKey="policy_pack">policy pack</GlossaryTooltip> bundles versioned controls and
             advisory defaults for your scope — {canMutatePacks ? policyPacksPageLeadOperator : policyPacksPageLeadReader}{" "}
-            <Link href="/governance/resolution" className={OPERATOR_LINK.inline}>
+            <Link href="/governance/standards-and-rules" className={OPERATOR_LINK.inline}>
               Policy resolution
             </Link>
             .

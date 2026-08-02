@@ -79,7 +79,7 @@ Use **optimistic concurrency** in production tools if you extend this to an admi
 - **`GET /v1/billing/wallet`** — balance, cap, auto-replenish state, last refill, Stripe publishable key.
 - **`PUT /v1/billing/wallet`** — toggle auto-replenish, set **`MonthlyCapUsd`** in **$50** steps (**$0–$500**), attach Stripe customer/payment-method ids.
 - **`POST /v1/billing/webhooks/stripe`** — idempotent **`payment_intent.succeeded`** / **`payment_intent.payment_failed`** (existing billing webhook route).
-- **`archlucid-ui`** — **`/settings/billing`**: balance, cap slider, auto-replenish toggle; Stripe TEST customer/payment-method ids (Stripe Elements card form is a follow-on).
+- **`archlucid-ui`** — **`/administration/settings/billing`**: balance, cap slider, auto-replenish toggle; Stripe TEST customer/payment-method ids (Stripe Elements card form is a follow-on).
 
 ### Metrics (shipped)
 

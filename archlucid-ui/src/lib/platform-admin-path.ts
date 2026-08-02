@@ -17,11 +17,11 @@ export function pathnameTouchesPlatformAdminSurface(pathname: string): boolean {
     return true;
   }
 
-  if (pathname.startsWith("/settings/baseline")) {
+  if (pathname.startsWith("/administration/settings/baseline")) {
     return true;
   }
 
-  if (pathname === "/settings/tenant" || pathname.startsWith("/settings/tenant/")) {
+  if (pathname === "/administration/settings/tenant" || pathname.startsWith("/administration/settings/tenant/")) {
     return true;
   }
 

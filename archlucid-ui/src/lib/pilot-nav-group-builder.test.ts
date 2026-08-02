@@ -51,7 +51,7 @@ describe("PilotNavGroupBuilder", () => {
 
   it("includes security and trust in the administration nav group", () => {
     const group = new OperatorAdminNavGroupBuilder().build();
-    const securityTrustLink = group.links.find((link) => link.href === "/settings/security-trust");
+    const securityTrustLink = group.links.find((link) => link.href === "/administration/settings/security-trust");
 
     expect(securityTrustLink).toBeDefined();
     expect(securityTrustLink?.label).toBe("Security & trust");

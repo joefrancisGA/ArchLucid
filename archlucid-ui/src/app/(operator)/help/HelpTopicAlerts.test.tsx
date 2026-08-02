@@ -20,7 +20,7 @@ import { getProductDocumentationEntry } from "@/lib/product-documentation-regist
 
 const BANNED_DEVELOPER_COPY = [
   "/governance/alerts",
-  "/governance/resolution",
+  "/governance/standards-and-rules",
   "/governance/policy-packs",
   "/governance/alert-rules",
   "deduplicated signal",

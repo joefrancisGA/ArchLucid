@@ -18,6 +18,8 @@ const RETIRED_SHIMS: readonly RetiredShim[] = [
   { source: "/governance/first-30-days", appPageRelativePath: null },
   { source: "/admin/ai-usage-cost", appPageRelativePath: "src/app/(operator)/admin/ai-usage-cost/page.tsx" },
   { source: "/settings/cost-reporting", appPageRelativePath: null },
+  { source: "/settings", appPageRelativePath: "src/app/(operator)/settings/page.tsx" },
+  { source: "/settings/tenant", appPageRelativePath: "src/app/(operator)/settings/tenant/page.tsx" },
   { source: "/quick-start", appPageRelativePath: "src/app/(marketing)/quick-start/page.tsx" },
   { source: "/recommendation-learning", appPageRelativePath: "src/app/(operator)/recommendation-learning/page.tsx" },
   { source: "/login", appPageRelativePath: "src/app/login/page.tsx" },
@@ -29,6 +31,20 @@ const RETIRED_SHIMS: readonly RetiredShim[] = [
   { source: "/ask", appPageRelativePath: "src/app/(operator)/ask/page.tsx" },
   { source: "/search", appPageRelativePath: "src/app/(operator)/search/page.tsx" },
   { source: "/compare", appPageRelativePath: "src/app/(operator)/compare/page.tsx" },
+  { source: "/evolution-review", appPageRelativePath: "src/app/(operator)/evolution-review/page.tsx" },
+  {
+    source: "/governance/resolution",
+    appPageRelativePath: "src/app/(operator)/governance/resolution/page.tsx",
+  },
+  {
+    source: "/governance-resolution",
+    appPageRelativePath: "src/app/(operator)/governance-resolution/page.tsx",
+  },
+  { source: "/scorecard", appPageRelativePath: "src/app/(operator)/scorecard/page.tsx" },
+  {
+    source: "/sponsor-report/architecture-scorecard",
+    appPageRelativePath: "src/app/(operator)/sponsor-report/architecture-scorecard/page.tsx",
+  },
   {
     source: "/operate/architecture-graph",
     appPageRelativePath: "src/app/(operator)/operate/architecture-graph/page.tsx",

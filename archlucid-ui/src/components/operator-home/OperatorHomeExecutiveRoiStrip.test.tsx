@@ -48,7 +48,7 @@ describe("OperatorHomeExecutiveRoiStrip", () => {
     expect(await screen.findByTestId("operator-home-roi-strip")).toBeInTheDocument();
     expect(screen.getByText(/125,000/)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Help: Executive ROI" })).toBeInTheDocument();
-    expect(screen.getByTestId("operator-home-roi-strip-open-scorecard")).toHaveAttribute("href", "/scorecard");
+    expect(screen.getByTestId("operator-home-roi-strip-open-scorecard")).toHaveAttribute("href", "/insights/architecture-scorecard");
   });
 
   it("hides zero or missing savings chrome (TB-1037)", async () => {

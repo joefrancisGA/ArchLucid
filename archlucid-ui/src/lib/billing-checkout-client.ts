@@ -25,7 +25,7 @@ export type StartBillingCheckoutResult = "redirected" | "not_configured" | "fail
 
 function resolveBillingSettingsUrl(): string {
   if (typeof window === "undefined") {
-    return "/settings/billing";
+    return "/administration/settings/billing";
   }
 
   return `${window.location.origin}/settings/billing`;

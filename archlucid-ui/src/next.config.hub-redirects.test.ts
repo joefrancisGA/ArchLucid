@@ -13,6 +13,8 @@ const RETIRED_HUB_REDIRECT_SOURCES = [
   "/digest-subscriptions",
   "/admin/ai-usage-cost",
   "/settings/cost-reporting",
+  "/settings",
+  "/settings/tenant",
   "/quick-start",
   "/recommendation-learning",
   "/onboarding",
@@ -20,6 +22,11 @@ const RETIRED_HUB_REDIRECT_SOURCES = [
   "/ask",
   "/search",
   "/compare",
+  "/evolution-review",
+  "/governance/resolution",
+  "/governance-resolution",
+  "/scorecard",
+  "/sponsor-report/architecture-scorecard",
 ] as const;
 
 describe("next.config hub bookmark redirects", () => {

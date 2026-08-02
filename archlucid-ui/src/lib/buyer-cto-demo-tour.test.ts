@@ -182,7 +182,7 @@ describe("resolveBuyerCtoDemoTourNavigation", () => {
 
   it("returns off-path guidance for unrelated routes", () => {
 
-    const nav = resolveBuyerCtoDemoTourNavigation("/settings");
+    const nav = resolveBuyerCtoDemoTourNavigation("/administration/settings");
 
 
 

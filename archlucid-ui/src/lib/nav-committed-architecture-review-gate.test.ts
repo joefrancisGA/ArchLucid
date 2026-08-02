@@ -20,7 +20,7 @@ describe("pathnameEligibleBeforeFirstCommittedArchitectureReview", () => {
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview(EXECUTIVE_DASHBOARD_HREF)).toBe(true);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/help")).toBe(true);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/architecture/first-review-guide")).toBe(true);
-    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/settings/baseline")).toBe(true);
+    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/administration/settings/baseline")).toBe(true);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/governance/findings")).toBe(false);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/alerts")).toBe(false);
   });

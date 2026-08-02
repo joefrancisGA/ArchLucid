@@ -1,7 +1,13 @@
 import { pathMatchesRoutePrefix } from "@/lib/governance-route-paths";
 
+/** Canonical Settings hub under Administration (left-nav); formerly `/settings` (retired — no redirect). */
+export const SETTINGS_ROOT_PATH = "/administration/settings" as const;
+
+/** Retired Settings hub root — no App Router page and no next.config redirect. */
+export const LEGACY_SETTINGS_ROOT_PATH = "/settings" as const;
+
 /** Canonical tenant-administration URLs (TB-406). */
-export const SETTINGS_USERS_PATH = "/settings/users";
+export const SETTINGS_USERS_PATH = `${SETTINGS_ROOT_PATH}/users`;
 
 export const SETTINGS_USERS_ROLES_TAB_PATH = `${SETTINGS_USERS_PATH}?tab=roles`;
 
@@ -13,9 +19,16 @@ export const LEGACY_SETTINGS_ROLES_PATH = "/settings/roles";
 /** Canonical Digests hub Schedule tab (traffic row DIS; left nav Digests → Schedule). */
 export const DIGESTS_SCHEDULE_TAB_PATH = "/digests?tab=schedule";
 
-export const SETTINGS_SECURITY_TRUST_PATH = "/settings/security-trust";
+export const SETTINGS_SECURITY_TRUST_PATH = `${SETTINGS_ROOT_PATH}/security-trust`;
 
-export const SETTINGS_SUPPORT_PATH = "/settings/support";
+export const SETTINGS_SUPPORT_PATH = `${SETTINGS_ROOT_PATH}/support`;
+
+export function pathMatchesSettingsRoot(pathname: string): boolean {
+  return (
+    pathMatchesRoutePrefix(pathname, SETTINGS_ROOT_PATH)
+    || pathMatchesRoutePrefix(pathname, LEGACY_SETTINGS_ROOT_PATH)
+  );
+}
 
 /** Legacy browser paths — permanent redirects to canonical (TB-406). */
 export const LEGACY_ADMIN_USERS_PATH = "/admin/users";

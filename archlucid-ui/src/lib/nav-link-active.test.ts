@@ -33,8 +33,8 @@ describe("isNavLinkActive", () => {
   });
 
   it("matches tenant settings but not projects recycle bin", () => {
-    expect(isNavLinkActive("/settings/tenant", "/settings/tenant")).toBe(true);
-    expect(isNavLinkActive("/settings/tenant/recycle-bin", "/settings/tenant")).toBe(false);
-    expect(isNavLinkActive("/settings/tenant/recycle-bin", "/settings/tenant/recycle-bin")).toBe(true);
+    expect(isNavLinkActive("/administration/settings/tenant", "/administration/settings/tenant")).toBe(true);
+    expect(isNavLinkActive("/administration/settings/tenant/recycle-bin", "/administration/settings/tenant")).toBe(false);
+    expect(isNavLinkActive("/administration/settings/tenant/recycle-bin", "/administration/settings/tenant/recycle-bin")).toBe(true);
   });
 });

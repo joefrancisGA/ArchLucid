@@ -2,4 +2,4 @@
 export const BILLING_AND_PLANS_HELP_PATH = "/help/billing-and-plans";
 
 /** Live subscription management surface (workbook row SBE). */
-export const SETTINGS_BILLING_PATH = "/settings/billing";
+export const SETTINGS_BILLING_PATH = "/administration/settings/billing";

@@ -1,6 +1,8 @@
+import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture-scorecard-route";
 import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
 import { EXECUTIVE_SUMMARY_PAGE_TITLE } from "@/lib/sponsor-report-navigation";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
+import { GOVERNANCE_STANDARDS_AND_RULES_PATH } from "@/lib/governance-route-paths";
 import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
 import { ARCHITECTURES_LIST_PATH, ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
@@ -37,7 +39,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   [SIGNED_RECORDS_LIST_PATH]: "Signed review records",
   "/manifests": "Signed review records",
   "/governance/policy-packs": "Policy packs",
-  "/governance/resolution": OPERATOR_NAV_LINK_LABELS.governanceResolution,
+  [GOVERNANCE_STANDARDS_AND_RULES_PATH]: OPERATOR_NAV_LINK_LABELS.governanceResolution,
   "/governance/audit": "Audit",
   "/governance/alerts": "Alerts",
   "/governance/advisory-scans": "Advisory scans",
@@ -48,15 +50,15 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/administration/system-health": "System health",
   "/planning": "Improvement planning",
   "/architecture/first-review-guide": OPERATOR_NAV_LINK_LABELS.onboarding,
-  "/settings/billing": "Billing & plans",
-  "/settings/tenant": OPERATOR_NAV_LINK_LABELS.settings,
-  "/settings/tenant/recycle-bin": "Projects recycle bin",
+  "/administration/settings/billing": "Billing & plans",
+  "/administration/settings/tenant": OPERATOR_NAV_LINK_LABELS.settings,
+  "/administration/settings/tenant/recycle-bin": "Projects recycle bin",
   [CLOUD_CONNECTIONS_PATH]: OPERATOR_NAV_LINK_LABELS.cloudConnections,
   "/settings/cloud-connections": OPERATOR_NAV_LINK_LABELS.cloudConnections,
   [AI_USAGE_SETTINGS_PATH]: OPERATOR_NAV_LINK_LABELS.aiUsage,
   "/settings/cost-reporting": OPERATOR_NAV_LINK_LABELS.aiUsage,
-  "/settings/api-keys": API_KEYS_PAGE_TITLE,
-  "/settings/preferences": "Preferences",
+  "/administration/settings/api-keys": API_KEYS_PAGE_TITLE,
+  "/administration/settings/preferences": "Preferences",
   "/integrations/jira": OPERATOR_NAV_LINK_LABELS.jira,
   "/integrations/servicenow": OPERATOR_NAV_LINK_LABELS.servicenow,
   [INTEGRATIONS_READINESS_PATH]: OPERATOR_NAV_LINK_LABELS.integrationReadiness,
@@ -66,7 +68,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/sponsor-report/executive-summary": EXECUTIVE_SUMMARY_PAGE_TITLE,
   "/sponsor-report/pilot-outcomes": "Pilot outcomes",
   "/sponsor-report/roi-summary": "ROI summary",
-  "/sponsor-report/architecture-scorecard": "Architecture scorecard",
+  [ARCHITECTURE_SCORECARD_PATH]: OPERATOR_NAV_LINK_LABELS.scorecard,
   "/value-report/roi": "ROI summary",
   "/admin/demo-readiness": "Demo readiness",
   [ITSM_CONNECTORS_ADMIN_PATH]: ITSM_CONNECTORS_ADMIN_LABEL,

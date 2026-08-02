@@ -59,7 +59,7 @@ vi.mock("@/lib/use-nav-surface", () => ({
     links: [],
     mutationCapability: false,
     layerGuidance: {
-      layerBadge: "Risk register",
+      layerBadge: "Findings",
       headline: "Track architecture risks created from accepted findings, waivers, exceptions, and governance decisions.",
       useWhen: "Start with open risks, expiring exceptions, or risks without owners.",
       firstPilotNote: null,
@@ -126,10 +126,10 @@ describe("GovernanceFindingsQueueClient", () => {
     vi.mocked(governanceApi.getArchitectureDecisionRegister).mockResolvedValue({ decisions: [] });
   });
 
-  it("maps governance findings breadcrumb to Governance / Risk register", () => {
+  it("maps governance findings breadcrumb to Governance / Findings", () => {
     expect(getBreadcrumbs("/governance/findings")).toEqual([
       { label: "Governance", href: "/governance" },
-      { label: "Risk register" },
+      { label: "Findings" },
     ]);
   });
 

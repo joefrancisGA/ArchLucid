@@ -7,7 +7,6 @@ import type { Page } from "@playwright/test";
 export const SCREENSHOT_LEGACY_REDIRECT_URL_PATTERNS: Readonly<Record<string, RegExp>> = {
   "/audit": /\/governance\/audit(?:\?|$|#)/,
   "/alerts": /\/governance\/(?:alerts|alert-rules)(?:\?|$|#)/,
-  "/governance-resolution": /\/governance\/resolution(?:\?|$|#)/,
 };
 
 /** Demo run alias slugs normalize to canonical showcase ids (see demo-run-alias-path-redirect.ts). */

@@ -116,7 +116,8 @@ const SEGMENT_LABELS: Record<string, string> = {
   "executive-summary": EXECUTIVE_SUMMARY_PAGE_TITLE,
   "pilot-outcomes": "Pilot outcomes",
   "roi-summary": "ROI summary",
-  "architecture-scorecard": "Architecture scorecard",
+  "architecture-scorecard": OPERATOR_NAV_LINK_LABELS.scorecard,
+  scorecard: OPERATOR_NAV_LINK_LABELS.scorecard,
   pilot: "Pilot outcomes",
   roi: "ROI summary",
   "approval-requests": "Approval requests",
@@ -325,29 +326,29 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
     ];
   }
 
-  if (normalized === "/settings/tenant") {
+  if (normalized === "/administration/settings/tenant") {
     return [{ label: OPERATOR_NAV_LINK_LABELS.settings }];
   }
 
-  if (normalized === "/settings/tenant/recycle-bin") {
+  if (normalized === "/administration/settings/tenant/recycle-bin") {
     return [
-      { label: OPERATOR_NAV_LINK_LABELS.settings, href: "/settings/tenant" },
+      { label: OPERATOR_NAV_LINK_LABELS.settings, href: "/administration/settings/tenant" },
       { label: "Projects recycle bin" },
     ];
   }
 
-  if (normalized === "/settings/identity/sso-wizard") {
+  if (normalized === "/administration/settings/identity/sso-wizard") {
     return [
-      { label: "Settings", href: "/settings" },
-      { label: "Identity providers", href: "/settings/identity-providers" },
+      { label: "Settings", href: "/administration/settings" },
+      { label: "Identity providers", href: "/administration/settings/identity-providers" },
       { label: "Configure SSO" },
     ];
   }
 
-  if (normalized === "/settings/scim-provisioning") {
+  if (normalized === "/administration/settings/scim-provisioning") {
     return [
-      { label: "Settings", href: "/settings" },
-      { label: "Identity providers", href: "/settings/identity-providers" },
+      { label: "Settings", href: "/administration/settings" },
+      { label: "Identity providers", href: "/administration/settings/identity-providers" },
       { label: "SCIM provisioning" },
     ];
   }

@@ -253,31 +253,31 @@ Use **Pass / Fail / Notes** when executing manually. **API** = mostly API calls;
 | 33 | Alerts — composite tab | `/alerts?tab=composite` |
 | 34 | Executive Workspace Health | `/governance/dashboard` |
 | 35 | Governance workflow | `/governance` |
-| 36 | Policy resolution | `/governance/resolution` |
+| 36 | Policy resolution | `/governance/standards-and-rules` |
 | 37 | Governance findings queue | `/governance/findings` |
 | 38 | Planning | `/planning` |
 | 39 | Planning plan detail | `/planning/plans/claims-intake-modernization-plan` |
 | 40 | Digests | `/digests` |
 | 41 | Digest subscriptions tab | `/digests?tab=subscriptions` |
 | 42 | Settings exec digest tab | `/digests?tab=schedule` |
-| 43 | Workspace settings | `/settings/tenant` |
-| 44 | Settings baseline | `/settings/baseline` |
+| 43 | Workspace settings | `/administration/settings/tenant` |
+| 44 | Settings baseline | `/administration/settings/baseline` |
 | 45 | Review feedback | `/product-learning` |
 | 46 | Advisory scheduling | `/advisory-scheduling` |
 | 47 | Recommendation learning | `/recommendation-learning` |
-| 48 | Evolution review | `/evolution-review` |
-| 49 | Scorecard | `/scorecard` |
+| 48 | Impact preview | `/insights/impact-preview` |
+| 49 | Scorecard | `/insights/architecture-scorecard` |
 | 50 | Value report | `/value-report` |
 | 51 | Value report pilot | `/value-report/pilot` |
 | 52 | ROI summary | `/value-report/roi` |
 | 53 | Help | `/help` |
-| 54 | Settings security & trust | `/settings/security-trust` |
+| 54 | Settings security & trust | `/administration/settings/security-trust` |
 | 55 | Why ArchLucid (operator) | `/why-archlucid` |
 | 56 | Demo explain | `/demo/explain` |
 | 57 | Microsoft Teams integration | `/integrations/teams` |
-| 58 | Settings users | `/settings/users` |
+| 58 | Settings users | `/administration/settings/users` |
 | 59 | Role management | `/settings/roles` |
-| 60 | Settings support | `/settings/support` |
+| 60 | Settings support | `/administration/settings/support` |
 | 61 | Admin health | `/admin/health` |
 | 62 | Admin configuration | `/admin/configuration` |
 | 63 | Executive reviews list | `/executive/reviews` |

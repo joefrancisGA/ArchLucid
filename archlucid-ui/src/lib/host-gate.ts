@@ -1,6 +1,8 @@
 import { ASK_REVIEW_QUESTIONS_PATH, LEGACY_ASK_PATH } from "@/lib/ask-review-questions-route";
 import { COMPARE_TWO_REVIEWS_PATH, LEGACY_COMPARE_PATH } from "@/lib/compare-two-reviews-route";
 import { EVIDENCE_GRAPH_PATH, LEGACY_GRAPH_PATH } from "@/lib/evidence-graph-route";
+import { ARCHITECTURE_SCORECARD_PATH, LEGACY_SCORECARD_PATH } from "@/lib/architecture-scorecard-route";
+import { IMPACT_PREVIEW_PATH, LEGACY_EVOLUTION_REVIEW_PATH } from "@/lib/impact-preview-route";
 import { LEGACY_OPERATE_ARCHITECTURE_GRAPH_PATH } from "@/lib/legacy-architecture-graph-route";
 import { LEGACY_ONBOARD_PATH } from "@/lib/legacy-onboard-route";
 import { LEGACY_LOGIN_PATH } from "@/lib/legacy-login-route";
@@ -34,7 +36,7 @@ const OPERATOR_PATH_PREFIXES: readonly string[] = [
   "/executive",
   "/alerts",
   "/admin",
-  "/settings",
+  "/administration/settings",
   EVIDENCE_GRAPH_PATH,
   LEGACY_GRAPH_PATH,
   LEGACY_OPERATE_ARCHITECTURE_GRAPH_PATH,
@@ -52,12 +54,14 @@ const OPERATOR_PATH_PREFIXES: readonly string[] = [
   "/help",
   SEARCH_REVIEW_EVIDENCE_PATH,
   LEGACY_SEARCH_PATH,
-  "/scorecard",
+  ARCHITECTURE_SCORECARD_PATH,
+  LEGACY_SCORECARD_PATH,
   ASK_REVIEW_QUESTIONS_PATH,
   LEGACY_ASK_PATH,
   "/demo",
   "/getting-started",
-  "/evolution-review",
+  IMPACT_PREVIEW_PATH,
+  LEGACY_EVOLUTION_REVIEW_PATH,
   "/audit",
   "/value-report",
   "/digests",

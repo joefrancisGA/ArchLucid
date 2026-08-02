@@ -14,7 +14,7 @@ export function pilotNavLinkTestId(href: string): string | undefined {
     return "nav-pilot-reviews-list";
   }
 
-  if (path === "/settings/baseline") {
+  if (path === "/administration/settings/baseline") {
     return "nav-pilot-baseline-settings";
   }
 

@@ -65,7 +65,7 @@ Choose **one** workforce authentication path for the tenant (many customers run 
 | Map IdP groups → ArchLucid roles (Admin, Architect, Reader, Auditor) | Joint | At least one Admin can sign in — see **[SAML claim-mapping reference](#saml-claim-mapping-reference)** |
 | Smoke test: Admin + Architect login | Customer admin | Both roles reach expected UI surfaces |
 
-**Workspace settings:** [`/settings/identity-providers`](/settings/identity-providers) (read-only catalog) · [`/settings/identity/sso-wizard`](/settings/identity/sso-wizard) (guided tenant row — **not** a claim-mapping wizard).
+**Workspace settings:** [`/administration/settings/identity-providers`](/settings/identity-providers) (read-only catalog) · [`/administration/settings/identity/sso-wizard`](/settings/identity/sso-wizard) (guided tenant row — **not** a claim-mapping wizard).
 
 ### SAML claim-mapping reference {#saml-claim-mapping-reference}
 

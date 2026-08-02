@@ -19,7 +19,7 @@
       "commercial_tier": "none",
       "class_policy": "AdminAuthority",
       "exemption": null,
-      "nav_operator_href": "/settings/api-keys"
+      "nav_operator_href": "/administration/settings/api-keys"
     },
     {
       "controller_file": "Admin/AdminAuthDiagnosticsController.cs",
@@ -109,7 +109,7 @@
       "commercial_tier": "none",
       "class_policy": "AdminAuthority",
       "exemption": null,
-      "nav_operator_href": "/settings/ai-usage"
+      "nav_operator_href": "/administration/settings/ai-usage"
     },
     {
       "controller_file": "Admin/AdminLlmMonthlyDollarBudgetStatusController.cs",
@@ -159,7 +159,7 @@
       "commercial_tier": "none",
       "class_policy": "PlatformTenantDeletionAuthority",
       "exemption": null,
-      "nav_operator_href": "/settings/users"
+      "nav_operator_href": "/administration/settings/users"
     },
     {
       "controller_file": "Admin/AdminTrialFunnelOperationalController.cs",
@@ -419,7 +419,7 @@
       "commercial_tier": "none",
       "class_policy": "AdminAuthority",
       "exemption": null,
-      "nav_operator_href": "/settings/security-trust"
+      "nav_operator_href": "/administration/settings/security-trust"
     },
     {
       "controller_file": "Admin/SettingsController.cs",
@@ -429,7 +429,7 @@
       "commercial_tier": "none",
       "class_policy": "AdminAuthority",
       "exemption": null,
-      "nav_operator_href": "/settings/tenant"
+      "nav_operator_href": "/administration/settings/tenant"
     },
     {
       "controller_file": "Admin/SupportBundleController.cs",
@@ -439,7 +439,7 @@
       "commercial_tier": "none",
       "class_policy": "ExecuteAuthority",
       "exemption": null,
-      "nav_operator_href": "/settings/support"
+      "nav_operator_href": "/administration/settings/support"
     },
     {
       "controller_file": "Admin/TenantAuthDomainAdminController.cs",
@@ -459,7 +459,7 @@
       "commercial_tier": "none",
       "class_policy": "AdminAuthority",
       "exemption": null,
-      "nav_operator_href": "/settings/users"
+      "nav_operator_href": "/administration/settings/users"
     },
     {
       "controller_file": "Admin/UsersAdminController.cs",
@@ -939,7 +939,7 @@
       "commercial_tier": "standard",
       "class_policy": "ReadAuthority",
       "exemption": null,
-      "nav_operator_href": "/compare"
+      "nav_operator_href": "/insights/compare-two-reviews"
     },
     {
       "controller_file": "Authority/RunCoverageController.cs",
@@ -1019,7 +1019,7 @@
       "commercial_tier": "none",
       "class_policy": "AdminAuthority",
       "exemption": null,
-      "nav_operator_href": "/settings/tenant"
+      "nav_operator_href": "/administration/settings/tenant"
     },
     {
       "controller_file": "Billing/BillingMarketplaceWebhookController.cs",
@@ -1139,7 +1139,7 @@
       "commercial_tier": "standard",
       "class_policy": "ReadAuthority",
       "exemption": null,
-      "nav_operator_href": "/evolution-review"
+      "nav_operator_href": "/insights/impact-preview"
     },
     {
       "controller_file": "Findings/ArchitectureFindingAskController.cs",
@@ -1229,7 +1229,7 @@
       "commercial_tier": "standard",
       "class_policy": "ReadAuthority",
       "exemption": null,
-      "nav_operator_href": "/governance/resolution"
+      "nav_operator_href": "/governance/standards-and-rules"
     },
     {
       "controller_file": "Governance/GovernanceStickinessController.cs",
@@ -1509,7 +1509,7 @@
       "commercial_tier": "standard",
       "class_policy": "ExecuteAuthority",
       "exemption": null,
-      "nav_operator_href": "/scorecard"
+      "nav_operator_href": "/insights/architecture-scorecard"
     },
     {
       "controller_file": "Pilots/PilotsController.cs",
@@ -1529,7 +1529,7 @@
       "commercial_tier": "standard",
       "class_policy": "ReadAuthority",
       "exemption": null,
-      "nav_operator_href": "/ask"
+      "nav_operator_href": "/insights/ask-review-questions"
     },
     {
       "controller_file": "Planning/ComparisonController.cs",
@@ -1539,7 +1539,7 @@
       "commercial_tier": "standard",
       "class_policy": "ReadAuthority",
       "exemption": null,
-      "nav_operator_href": "/compare"
+      "nav_operator_href": "/insights/compare-two-reviews"
     },
     {
       "controller_file": "Planning/ComparisonsController.cs",
@@ -1589,7 +1589,7 @@
       "commercial_tier": "standard",
       "class_policy": "ReadAuthority",
       "exemption": null,
-      "nav_operator_href": "/graph"
+      "nav_operator_href": "/insights/evidence-graph"
     },
     {
       "controller_file": "Planning/ProvenanceController.cs",
@@ -1619,7 +1619,7 @@
       "commercial_tier": "standard",
       "class_policy": "ReadAuthority",
       "exemption": null,
-      "nav_operator_href": "/search"
+      "nav_operator_href": "/insights/search-review-evidence"
     },
     {
       "controller_file": "RegistrationController.cs",
@@ -1649,7 +1649,7 @@
       "commercial_tier": "none",
       "class_policy": "ReadAuthority",
       "exemption": null,
-      "nav_operator_href": "/dashboard"
+      "nav_operator_href": "/architecture/executive-dashboard"
     },
     {
       "controller_file": "Scim/ScimDiscoveryController.cs",
@@ -1709,7 +1709,7 @@
       "commercial_tier": "standard",
       "class_policy": "Authorize",
       "exemption": null,
-      "nav_operator_href": "/onboarding"
+      "nav_operator_href": "/architecture/first-review-guide"
     },
     {
       "controller_file": "Tenancy/TenantBaselineController.cs",
@@ -1819,7 +1819,7 @@
       "commercial_tier": "none",
       "class_policy": "Authorize",
       "exemption": null,
-      "nav_operator_href": "/settings/tenant"
+      "nav_operator_href": "/administration/settings/tenant"
     },
     {
       "controller_file": "Tenancy/TenantUsageStatusController.cs",

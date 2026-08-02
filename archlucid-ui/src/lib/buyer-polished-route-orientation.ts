@@ -5,7 +5,12 @@ import {
   SPONSOR_REPORT_ROI_SUMMARY_PATH,
 } from "@/lib/sponsor-report-navigation";
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
-import { pathMatchesGovernanceAlerts, pathMatchesGovernanceAlertRules, pathMatchesGovernanceAudit } from "@/lib/governance-route-paths";
+import {
+  GOVERNANCE_STANDARDS_AND_RULES_PATH,
+  pathMatchesGovernanceAlerts,
+  pathMatchesGovernanceAlertRules,
+  pathMatchesGovernanceAudit,
+} from "@/lib/governance-route-paths";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isPinnedDemoWorkspaceRunId } from "@/lib/demo-workspace-scope";
 import {
@@ -157,7 +162,7 @@ export function buyerPolishedRouteOrientation(
     return null;
   }
 
-  if (path === "/governance/resolution" || path.startsWith("/governance/resolution/")) {
+  if (path === GOVERNANCE_STANDARDS_AND_RULES_PATH || path.startsWith(`${GOVERNANCE_STANDARDS_AND_RULES_PATH}/`)) {
     return null;
   }
 
@@ -284,7 +289,7 @@ export function buyerPolishedRouteOrientation(
     return null;
   }
 
-  if (path === "/settings/security-trust" || path === "/workspace/security-trust") {
+  if (path === "/administration/settings/security-trust" || path === "/workspace/security-trust") {
     return {
       label: "Security & trust",
       line: "Procurement-facing security posture, trust center, and assessment materials.",
@@ -296,7 +301,7 @@ export function buyerPolishedRouteOrientation(
     return null;
   }
 
-  if (path.startsWith("/scorecard") || path.startsWith(SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH)) {
+  if (path.startsWith("/insights/architecture-scorecard") || path.startsWith(SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH)) {
     return {
       label: "Insights",
       line: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.scorecardLayerContextLine,

@@ -15,7 +15,7 @@ describe("home-readiness-row-present", () => {
         label: "ROI baseline readiness",
         status: "attention",
         summary: "x",
-        href: "/scorecard",
+        href: "/insights/architecture-scorecard",
         cta: "Add ROI baseline",
         group: "evidence",
       },

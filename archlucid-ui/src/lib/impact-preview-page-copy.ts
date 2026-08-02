@@ -103,4 +103,4 @@ export const IMPACT_PREVIEW_PLANNING_HREF = "/planning" as const;
 export const IMPACT_PREVIEW_CREATE_REVIEW_HREF = "/reviews/new" as const;
 export const IMPACT_PREVIEW_ADVISORY_HREF = "/governance/advisory-scans" as const;
 export const IMPACT_PREVIEW_GOVERNANCE_HREF = "/governance" as const;
-export const IMPACT_PREVIEW_SETTINGS_ROLES_HREF = "/settings/roles" as const;
+export const IMPACT_PREVIEW_SETTINGS_ROLES_HREF = "/administration/settings/users?tab=roles" as const;

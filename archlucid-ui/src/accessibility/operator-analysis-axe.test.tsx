@@ -23,7 +23,7 @@ vi.mock("@/lib/api", () => ({
   postEvolutionSimulate: vi.fn().mockResolvedValue({}),
 }));
 
-vi.mock("@/app/(operator)/evolution-review/_sections/load-evolution-review-page-data", () => ({
+vi.mock("@/app/(operator)/insights/impact-preview/_sections/load-evolution-review-page-data", () => ({
   loadEvolutionReviewPageData: () =>
     Promise.resolve({
       mode: "live" as const,
@@ -50,7 +50,7 @@ vi.mock("@/lib/toast", () => ({
 import ComparePage from "@/app/(operator)/insights/compare-two-reviews/page";
 import ReplayPage from "@/app/(operator)/replay/page";
 import GraphPage from "@/app/(operator)/insights/evidence-graph/page";
-import EvolutionReviewPage from "@/app/(operator)/evolution-review/page";
+import EvolutionReviewPage from "@/app/(operator)/insights/impact-preview/page";
 
 expect.extend(toHaveNoViolations);
 

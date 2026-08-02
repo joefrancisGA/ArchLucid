@@ -8,6 +8,7 @@ import { COLOR_MODE_STORAGE_KEY } from "@/lib/color-mode-preference";
 vi.mock("@/lib/api/user-preferences", () => ({
   getUserPreferences: vi.fn().mockRejectedValue(new Error("anonymous")),
   setUserAppearancePreference: vi.fn().mockResolvedValue(undefined),
+  invalidateUserPreferencesCache: vi.fn(),
 }));
 
 type MatchMediaController = {

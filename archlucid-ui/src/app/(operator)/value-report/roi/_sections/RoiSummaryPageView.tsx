@@ -121,7 +121,7 @@ export function RoiSummaryPageView(props: Props) {
             <Link href="/sponsor-report/pilot-outcomes" className={OPERATOR_LINK.inline}>
               Pilot value report
             </Link>
-            <Link href="/settings/baseline" className={OPERATOR_LINK.inline}>
+            <Link href="/administration/settings/baseline" className={OPERATOR_LINK.inline}>
 
               Baseline settings
 

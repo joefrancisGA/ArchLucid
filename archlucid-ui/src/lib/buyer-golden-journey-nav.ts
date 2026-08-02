@@ -11,7 +11,11 @@ import {
   SHOWCASE_STATIC_DEMO_RUN_ID,
 } from "@/lib/showcase-static-demo";
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
-import { pathMatchesGovernanceAlerts, pathMatchesGovernanceAudit } from "@/lib/governance-route-paths";
+import {
+  GOVERNANCE_STANDARDS_AND_RULES_PATH,
+  pathMatchesGovernanceAlerts,
+  pathMatchesGovernanceAudit,
+} from "@/lib/governance-route-paths";
 
 const showcaseRunEnc = encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID);
 
@@ -137,7 +141,10 @@ export function resolveBuyerGoldenJourneyNav(
       return null;
     } else if (path === "/governance/policy-packs" || path.startsWith("/governance/policy-packs/")) {
       return null;
-    } else if (path === "/governance/resolution" || path.startsWith("/governance/resolution/")) {
+    } else if (
+      path === GOVERNANCE_STANDARDS_AND_RULES_PATH
+      || path.startsWith(`${GOVERNANCE_STANDARDS_AND_RULES_PATH}/`)
+    ) {
       return null;
     } else if (path === "/governance/findings" || path.startsWith("/governance/findings/")) {
       return null;

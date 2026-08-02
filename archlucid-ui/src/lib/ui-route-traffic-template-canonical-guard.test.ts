@@ -12,7 +12,6 @@ const REDIRECT_ONLY_PATHS = [
   "/admin/users",
   "/admin/support",
   "/workspace/security-trust",
-  "/governance-resolution",
   "/help/cloud-connections-azure",
   "/help/cloud-connections-aws",
   "/help/cloud-connections-gcp",

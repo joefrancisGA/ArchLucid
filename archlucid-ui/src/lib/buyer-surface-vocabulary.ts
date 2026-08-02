@@ -216,7 +216,7 @@ export const BUYER_EXECUTIVE_SUMMARY_VOCABULARY = {
   },
   staleArchitectureRisksMetric: {
     title: "Stale architecture risks",
-    description: "Risk register entries needing revisit",
+    description: "Findings needing revisit",
   },
   expiringWaiversMetric: {
     title: "Waivers expiring (14 days)",
