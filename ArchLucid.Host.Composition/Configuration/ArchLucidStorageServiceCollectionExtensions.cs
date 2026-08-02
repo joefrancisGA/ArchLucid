@@ -23,6 +23,14 @@ using ArchLucid.Host.Composition.Caching;
 using KgProjectionCacheOptions = ArchLucid.KnowledgeGraph.Configuration.KnowledgeGraphProjectionCacheOptions;
 using ArchLucid.KnowledgeGraph.Caching;
 using ArchLucid.KnowledgeGraph.Configuration;
+using ArchLucid.Core.AiUsage;
+using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Identity;
+using ArchLucid.Core.Persistence.Ports;
+using ArchLucid.Core.Scim;
+using ArchLucid.Persistence.AiUsage;
+using ArchLucid.Persistence.Alerts;
+using ArchLucid.Persistence.Authorization;
 using ArchLucid.Persistence.AzureExtractorChunkUpload;
 using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.BlobStore;
@@ -31,10 +39,13 @@ using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Coordination.Caching;
 using ArchLucid.Persistence.Cosmos;
 using ArchLucid.Persistence.Governance;
+using ArchLucid.Persistence.Identity;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Notifications;
 using ArchLucid.Persistence.Notifications.Email;
 using ArchLucid.Persistence.Repositories;
+using ArchLucid.Persistence.Roi;
+using ArchLucid.Persistence.Scim;
 using ArchLucid.Persistence.Tenancy;
 
 using Azure.Core;
@@ -435,6 +446,100 @@ public static class ArchLucidStorageServiceCollectionExtensions
         services.AddScoped<IAuditRepository>(sp => new CachingAuditRepository(
             sp.GetRequiredService<DapperAuditRepository>(),
             sp.GetRequiredService<IHotPathReadCache>()));
+    }
+
+    /// <summary>
+    ///     Registers slowly changing / reference-data repository decorators when <c>HotPathCache:Enabled</c>
+    ///     (authz middleware, tenant gate, settings, policy-pack versions/catalog, alert rules, IdP/sign-in domains).
+    /// </summary>
+    internal static void RegisterReferenceDataHotPathRepositories(
+        IServiceCollection services,
+        IConfiguration configuration)
+    {
+        HotPathCacheOptions hotPath = configuration
+                                          .GetSection(HotPathCacheOptions.SectionName)
+                                          .Get<HotPathCacheOptions>()
+                                      ?? new HotPathCacheOptions();
+
+        if (!hotPath.Enabled)
+        {
+            services.AddScoped<ICustomRoleRepository, SqlCustomRoleRepository>();
+            services.AddScoped<IScimUserRepository, DapperScimUserRepository>();
+            services.AddScoped<ITenantRepository, DapperTenantRepository>();
+            services.AddScoped<ITenantSettingsRepository, SqlTenantSettingsRepository>();
+            services.AddScoped<IPolicyPackVersionRepository, DapperPolicyPackVersionRepository>();
+            services.AddScoped<IPolicyPackCatalogRepository, DapperPolicyPackCatalogRepository>();
+            services.AddScoped<IAlertRuleRepository, DapperAlertRuleRepository>();
+            services.AddScoped<ICompositeAlertRuleRepository, DapperCompositeAlertRuleRepository>();
+            services.AddScoped<ITenantAiBudgetPolicyRepository, SqlTenantAiBudgetPolicyRepository>();
+            services.AddScoped<ITenantCostSettingsRepository, DapperTenantCostSettingsRepository>();
+            services.AddScoped<ITenantIdentityProviderConfigurationRepository, SqlTenantIdentityProviderConfigurationRepository>();
+            services.AddScoped<ITenantSignInEmailDomainRepository, DapperTenantSignInEmailDomainRepository>();
+
+            return;
+        }
+
+        services.AddScoped<SqlCustomRoleRepository>();
+        services.AddScoped<ICustomRoleRepository>(static sp => new CachingCustomRoleRepository(
+            sp.GetRequiredService<SqlCustomRoleRepository>(),
+            sp.GetRequiredService<IHotPathReadCache>()));
+
+        services.AddScoped<DapperScimUserRepository>();
+        services.AddScoped<IScimUserRepository>(static sp => new CachingScimUserRepository(
+            sp.GetRequiredService<DapperScimUserRepository>(),
+            sp.GetRequiredService<IHotPathReadCache>()));
+
+        services.AddScoped<DapperTenantRepository>();
+        services.AddScoped<ITenantRepository>(static sp => new CachingTenantRepository(
+            sp.GetRequiredService<DapperTenantRepository>(),
+            sp.GetRequiredService<IHotPathReadCache>()));
+
+        services.AddScoped<SqlTenantSettingsRepository>();
+        services.AddScoped<ITenantSettingsRepository>(static sp => new CachingTenantSettingsRepository(
+            sp.GetRequiredService<SqlTenantSettingsRepository>(),
+            sp.GetRequiredService<IHotPathReadCache>()));
+
+        services.AddScoped<DapperPolicyPackVersionRepository>();
+        services.AddScoped<IPolicyPackVersionRepository>(static sp => new CachingPolicyPackVersionRepository(
+            sp.GetRequiredService<DapperPolicyPackVersionRepository>(),
+            sp.GetRequiredService<IHotPathReadCache>()));
+
+        services.AddScoped<DapperPolicyPackCatalogRepository>();
+        services.AddScoped<IPolicyPackCatalogRepository>(static sp => new CachingPolicyPackCatalogRepository(
+            sp.GetRequiredService<DapperPolicyPackCatalogRepository>(),
+            sp.GetRequiredService<IHotPathReadCache>()));
+
+        services.AddScoped<DapperAlertRuleRepository>();
+        services.AddScoped<IAlertRuleRepository>(static sp => new CachingAlertRuleRepository(
+            sp.GetRequiredService<DapperAlertRuleRepository>(),
+            sp.GetRequiredService<IHotPathReadCache>()));
+
+        services.AddScoped<DapperCompositeAlertRuleRepository>();
+        services.AddScoped<ICompositeAlertRuleRepository>(static sp => new CachingCompositeAlertRuleRepository(
+            sp.GetRequiredService<DapperCompositeAlertRuleRepository>(),
+            sp.GetRequiredService<IHotPathReadCache>()));
+
+        services.AddScoped<SqlTenantAiBudgetPolicyRepository>();
+        services.AddScoped<ITenantAiBudgetPolicyRepository>(static sp => new CachingTenantAiBudgetPolicyRepository(
+            sp.GetRequiredService<SqlTenantAiBudgetPolicyRepository>(),
+            sp.GetRequiredService<IHotPathReadCache>()));
+
+        services.AddScoped<DapperTenantCostSettingsRepository>();
+        services.AddScoped<ITenantCostSettingsRepository>(static sp => new CachingTenantCostSettingsRepository(
+            sp.GetRequiredService<DapperTenantCostSettingsRepository>(),
+            sp.GetRequiredService<IHotPathReadCache>()));
+
+        services.AddScoped<SqlTenantIdentityProviderConfigurationRepository>();
+        services.AddScoped<ITenantIdentityProviderConfigurationRepository>(static sp =>
+            new CachingTenantIdentityProviderConfigurationRepository(
+                sp.GetRequiredService<SqlTenantIdentityProviderConfigurationRepository>(),
+                sp.GetRequiredService<IHotPathReadCache>()));
+
+        services.AddScoped<DapperTenantSignInEmailDomainRepository>();
+        services.AddScoped<ITenantSignInEmailDomainRepository>(static sp =>
+            new CachingTenantSignInEmailDomainRepository(
+                sp.GetRequiredService<DapperTenantSignInEmailDomainRepository>(),
+                sp.GetRequiredService<IHotPathReadCache>()));
     }
 
     internal static void RegisterArtifactLargePayloadBlobStore(IServiceCollection services, IConfiguration configuration)

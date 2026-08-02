@@ -55,6 +55,16 @@ public sealed class CustomRoleRecord
 /// <summary>Row shape for <c>dbo.UserCustomRoleAssignments</c>.</summary>
 public sealed class UserCustomRoleAssignmentRecord
 {
+    /// <summary>
+    ///     Tenant that owns <see cref="CustomRoleId" />. Not a SQL column on the assignment row; used for cache
+    ///     invalidation and caller scoping.
+    /// </summary>
+    public Guid TenantId
+    {
+        get;
+        init;
+    }
+
     public Guid UserId
     {
         get;

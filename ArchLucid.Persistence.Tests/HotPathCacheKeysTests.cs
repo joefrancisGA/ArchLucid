@@ -113,4 +113,22 @@ public sealed class HotPathCacheKeysTests
         key.Should().StartWith("al:hot:fs:");
         key.Should().Contain("55555555555555555555555555555555");
     }
+
+    [SkippableFact]
+    public void Reference_data_keys_are_stable()
+    {
+        Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Guid userId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        Guid packId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+
+        HotPathCacheKeys.TenantById(tenantId).Should().Be("al:hot:tenant:11111111111111111111111111111111");
+        HotPathCacheKeys.ScimUserByExternalId(tenantId, "sub-1")
+            .Should().Be("al:hot:scim-ext:11111111111111111111111111111111:sub-1");
+        HotPathCacheKeys.CustomRoleAssignmentsForUser(tenantId, userId, 9)
+            .Should().EndWith(":r9");
+        HotPathCacheKeys.PolicyPackVersion(packId, "1.2.3")
+            .Should().Be("al:hot:ppv:33333333333333333333333333333333:1.2.3");
+        HotPathCacheKeys.TenantSignInEmailDomainByNormalized("Example.COM")
+            .Should().Be("al:hot:tsignin-dom:EXAMPLE.COM");
+    }
 }

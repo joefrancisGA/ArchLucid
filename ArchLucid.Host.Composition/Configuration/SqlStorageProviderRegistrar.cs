@@ -422,7 +422,6 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IPilotScorecardMetricsReader, DapperPilotScorecardMetricsReader>();
         services.AddScoped<IPilotReportCardMetricsReader, DapperPilotReportCardMetricsReader>();
         services.AddScoped<IPilotBaselineRepository, DapperPilotBaselineRepository>();
-        services.AddScoped<ITenantCostSettingsRepository, DapperTenantCostSettingsRepository>();
         services.AddScoped<IPilotCloseoutRepository, DapperPilotCloseoutRepository>();
         services.AddScoped<IMarketingPricingQuoteRequestRepository, SqlMarketingPricingQuoteRequestRepository>();
         services.AddScoped<IMarketingPricingQuoteRequestAgingReader, SqlMarketingPricingQuoteRequestAgingReader>();
@@ -435,14 +434,11 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<ITenantItsmOutboundSettingsRepository, SqlTenantItsmOutboundSettingsRepository>();
         services.AddScoped<ITenantAzureBoardsOutboundSettingsRepository, SqlTenantAzureBoardsOutboundSettingsRepository>();
         services.AddScoped<ITenantItsmConnectorConnectionRepository, SqlTenantItsmConnectorConnectionRepository>();
-        services.AddScoped<ITenantSettingsRepository, SqlTenantSettingsRepository>();
         services.AddScoped<IFineTuningManifestConsentReader, TenantSettingsFineTuningManifestConsentReader>();
         services.AddScoped<IFineTuningTrainingExportAuditRepository, SqlFineTuningTrainingExportAuditRepository>();
-        services.AddScoped<ITenantIdentityProviderConfigurationRepository, SqlTenantIdentityProviderConfigurationRepository>();
         services.AddScoped<ITenantHostedExtractorConfigurationRepository, SqlTenantHostedExtractorConfigurationRepository>();
         services.AddScoped<ITenantAwsConnectionRepository, SqlTenantAwsConnectionRepository>();
         services.AddScoped<ITenantGcpConnectionRepository, SqlTenantGcpConnectionRepository>();
-        services.AddScoped<ICustomRoleRepository, SqlCustomRoleRepository>();
         services.AddScoped<IGlobalSearchRepository, SqlGlobalSearchRepository>();
         services.AddScoped<ITenantFirstValueReportBrandingRepository, SqlTenantFirstValueReportBrandingRepository>();
         services.AddScoped<ItsmInboundDispositionSync>();
@@ -467,16 +463,13 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IArchitectureDigestRepository, DapperArchitectureDigestRepository>();
         services.AddScoped<IDigestSubscriptionRepository, DapperDigestSubscriptionRepository>();
         services.AddScoped<IDigestDeliveryAttemptRepository, DapperDigestDeliveryAttemptRepository>();
-        services.AddScoped<IAlertRuleRepository, DapperAlertRuleRepository>();
         services.AddScoped<IAlertRecordRepository, DapperAlertRecordRepository>();
         services.AddScoped<IAlertRoutingSubscriptionRepository, DapperAlertRoutingSubscriptionRepository>();
         services.AddScoped<IAlertDeliveryAttemptRepository, DapperAlertDeliveryAttemptRepository>();
-        services.AddScoped<ICompositeAlertRuleRepository, DapperCompositeAlertRuleRepository>();
-        services.AddScoped<IPolicyPackVersionRepository, DapperPolicyPackVersionRepository>();
         services.AddScoped<IPolicyPackAssignmentRepository, DapperPolicyPackAssignmentRepository>();
         services.AddScoped<IPolicyPackChangeLogRepository, DapperPolicyPackChangeLogRepository>();
         services.AddScoped<IComplianceDriftFindingsTrendReader, DapperComplianceDriftFindingsTrendReader>();
-        services.AddScoped<IPolicyPackCatalogRepository, DapperPolicyPackCatalogRepository>();
+        ArchLucidStorageServiceCollectionExtensions.RegisterReferenceDataHotPathRepositories(services, configuration);
         services.AddScoped<IDataArchivalCoordinator, DataArchivalCoordinator>();
         services.AddScoped<IAgentTraceOrphanBlobCleanupService>(static sp => new AgentTraceOrphanBlobCleanupService(
             sp.GetRequiredService<IRunRepository>(),
@@ -484,11 +477,9 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
             sp.GetService<ITenantRegionalArtifactBlobClients>(),
             sp.GetService<BlobServiceClient>(),
             sp.GetRequiredService<ILogger<AgentTraceOrphanBlobCleanupService>>()));
-        services.AddScoped<ITenantRepository, DapperTenantRepository>();
         services.AddScoped<IArchitectureProjectRepository, DapperArchitectureProjectRepository>();
         services.AddScoped<IArchitectureProjectRetentionPurgeService, SqlArchitectureProjectRetentionPurgeService>();
         services.AddScoped<IScimTenantTokenRepository, DapperScimTenantTokenRepository>();
-        services.AddScoped<IScimUserRepository, DapperScimUserRepository>();
         services.AddScoped<IPlatformUserRepository, DapperPlatformUserRepository>();
         services.AddScoped<IAuthenticationIdentityRepository, DapperAuthenticationIdentityRepository>();
         services.AddScoped<IWorkspaceMembershipRepository, DapperWorkspaceMembershipRepository>();
@@ -497,7 +488,6 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IEmailOtpChallengeRepository, DapperEmailOtpChallengeRepository>();
         services.AddScoped<ISelfServiceTrialAbuseRepository, DapperSelfServiceTrialAbuseRepository>();
         services.AddScoped<ISchemaVersionsJournalReader, DapperSchemaVersionsJournalReader>();
-        services.AddScoped<ITenantSignInEmailDomainRepository, DapperTenantSignInEmailDomainRepository>();
         services.AddScoped<ITenantSignInEmailDomainRecoveryAdminRepository, DapperTenantSignInEmailDomainRecoveryAdminRepository>();
         services.AddScoped<IPlatformTenantAuthRecoveryGrantRepository, DapperPlatformTenantAuthRecoveryGrantRepository>();
         services.AddScoped<IAuthenticationIdentityLinkProposalRepository, DapperAuthenticationIdentityLinkProposalRepository>();
@@ -539,7 +529,6 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IUsageEventRepository, DapperUsageEventRepository>();
         services.AddScoped<ILlmTenantBudgetRepository, SqlLlmTenantBudgetRepository>();
         services.AddScoped<IAiUsageEventRepository, Persistence.AiUsage.SqlAiUsageEventRepository>();
-        services.AddScoped<ITenantAiBudgetPolicyRepository, Persistence.AiUsage.SqlTenantAiBudgetPolicyRepository>();
         services.AddScoped<ILlmTenantWalletRepository, SqlLlmTenantWalletRepository>();
         services.AddScoped<IReferenceEvidenceRunLookup, SqlReferenceEvidenceRunLookup>();
         services.AddScoped<IArchitectureIntelligencePersistence, DapperArchitectureIntelligencePersistence>();

@@ -111,6 +111,7 @@ public sealed class CustomRoleService(
 
         UserCustomRoleAssignmentRecord assignment = new()
         {
+            TenantId = scope.TenantId,
             UserId = userId,
             CustomRoleId = roleId,
             AssignedUtc = TimeProvider.System.GetUtcNow(),
