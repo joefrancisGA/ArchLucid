@@ -1859,8 +1859,10 @@ jobs:
       - ci-path-lanes
       - dotnet-fast-core-build
     runs-on: ubuntu-latest
-    # Blame-hang (5m/test) fails a deadlocked shard fast with a named culprit. Per-shard job timeout
-    # is matrix-driven (surface-misc historically the heaviest shard — 45m cap).
+    # Three nested ceilings, innermost first: blame-hang (5m/test) → per-project cap in
+    # run_fast_core_corset_shard.sh (9m, names the stuck project) → step timeout → job timeout.
+    # Step stays >=6m under the job so the killed step still leaves room for the if: always() uploads;
+    # a 3m gap was not enough in run 30729657151, where the forced job kill dropped every diagnostic.
     timeout-minutes: ${{ matrix.job_timeout_minutes }}
     strategy:
       fail-fast: false
@@ -1869,23 +1871,24 @@ jobs:
           - shard_id: api
             shard_label: Api.Tests
             job_timeout_minutes: 30
-            step_timeout_minutes: 27
+            step_timeout_minutes: 24
           - shard_id: host-application
             shard_label: Application + runtime + host
             job_timeout_minutes: 30
-            step_timeout_minutes: 27
+            step_timeout_minutes: 24
           - shard_id: host-composition
             shard_label: Host composition (full DI graph)
             job_timeout_minutes: 30
-            step_timeout_minutes: 27
+            step_timeout_minutes: 24
           - shard_id: data-core
             shard_label: Core + persistence stack
             job_timeout_minutes: 30
-            step_timeout_minutes: 27
+            step_timeout_minutes: 24
           - shard_id: surface-misc
             shard_label: Contracts + integrations + misc
-            job_timeout_minutes: 45
-            step_timeout_minutes: 42
+            # Heaviest shard: 11 projects, ~23m of test work. Budget = 23m + one 9m project kill + uploads.
+            job_timeout_minutes: 50
+            step_timeout_minutes: 38
     steps:
       - uses: actions/checkout@v5
 
