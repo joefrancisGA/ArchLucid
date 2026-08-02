@@ -15,7 +15,7 @@ export function PricingPageHero(): React.JSX.Element {
     <header className="mb-10" data-testid="pricing-page-hero">
       <h1
         id="pricing-page-heading"
-        className={cn("m-0", MARKETING_TYPOGRAPHY.pageTitle)}
+        className={cn("m-0 text-3xl font-semibold leading-9 tracking-tight text-al-text-primary sm:text-4xl")}
         data-testid="pricing-page-title"
       >
         {PRICING_PAGE_TITLE}

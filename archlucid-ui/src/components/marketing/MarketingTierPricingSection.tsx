@@ -6,10 +6,16 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { BILLING_TIER_FEATURE_BULLETS } from "@/lib/billing-plan-tier-features";
+import { MarketingPricingFitMatrix } from "@/components/marketing/MarketingPricingFitMatrix";
 import { BUYER_EARLY_ADOPTER_PRICING_NOTE } from "@/lib/buyer-polish-copy";
 import { isPublicStripeTeamCheckoutEnabled } from "@/lib/marketing/is-public-stripe-team-checkout-enabled";
 import { buildMarketingSelfServeBillingHref } from "@/lib/marketing/marketing-billing-plan-href";
+import {
+  MARKETING_PRICING_TIER_BEST_FOR,
+  MARKETING_PRICING_TIER_HIGHLIGHTS,
+  buildMarketingPricingIncludedLines,
+  resolveMarketingTierPrimaryCtaVariant,
+} from "@/lib/marketing/marketing-pricing-tier-display";
 import {
   BUYER_MARKETING_PRICING_AI_USAGE_NOTE,
   MARKETING_PRICING_RECOMMENDED_TIER,
@@ -18,13 +24,7 @@ import {
   type MarketingPricingTierId,
 } from "@/lib/marketing/marketing-public-pricing";
 import type { PricingDoc } from "@/lib/pricing-types";
-import {
-  formatIncludedUsersAndWorkspaces,
-  formatIncludedArchitecturePackagesPerMonth,
-  formatMonthlyAiCredits,
-  formatPlanPrice,
-  pricingTierSortIndex,
-} from "@/lib/pricing-catalog-display";
+import { formatPlanPrice, pricingTierSortIndex } from "@/lib/pricing-catalog-display";
 
 export type MarketingTierPricingSectionProps = {
   /** Element id for the section heading (accessibility). */
@@ -47,14 +47,21 @@ export type MarketingTierPricingSectionProps = {
   preferSalesLedQuoteCta?: boolean;
   /** When true, show the monthly AI credits explainer under the tier grid. */
   showAiUsageNote?: boolean;
+  /**
+   * Server-read `public/pricing.json`. When supplied, tiers render in the initial HTML and the
+   * client fetch is skipped, so buyers never see the loading skeleton and mistake it for
+   * unfinished placeholder content.
+   */
+  initialPricing?: PricingDoc | null;
 };
 
-/** Loads `/pricing.json` and renders tier cards — shared by welcome and `/pricing`. */
+/** Renders tier cards from server-supplied pricing, falling back to a client `/pricing.json` fetch. */
 export function MarketingTierPricingSection(props: MarketingTierPricingSectionProps): React.JSX.Element {
   const quoteSectionDomId = props.quoteSectionDomId ?? "pricing-quote-request";
-  const [pricing, setPricing] = useState<PricingDoc | null>(null);
+  const initialPricing = props.initialPricing ?? null;
+  const [pricing, setPricing] = useState<PricingDoc | null>(initialPricing);
   const [pricingError, setPricingError] = useState(false);
-  const [pricingLoading, setPricingLoading] = useState(true);
+  const [pricingLoading, setPricingLoading] = useState(initialPricing === null);
   const selfServeCheckoutEnabled = isPublicStripeTeamCheckoutEnabled();
 
   const scrollToQuote = useCallback(() => {
@@ -66,6 +73,10 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
   }, [quoteSectionDomId]);
 
   useEffect(() => {
+    if (initialPricing !== null) {
+      return;
+    }
+
     let cancelled = false;
 
     void (async () => {
@@ -93,7 +104,7 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [initialPricing]);
 
   return (
     <section
@@ -140,21 +151,22 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
 
       {pricing && !pricingError ? (
         <>
-          <ul className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+          <ul className="grid items-stretch gap-6 md:grid-cols-2 xl:grid-cols-4">
             {[...pricing.packages]
               .sort((a, b) => pricingTierSortIndex(a.id) - pricingTierSortIndex(b.id))
               .map((pkg) => {
                 const tierId: MarketingPricingTierId | null = isMarketingPricingTierId(pkg.id) ? pkg.id : null;
                 const cta = tierId !== null ? MARKETING_PRICING_TIER_CTAS[tierId] : undefined;
                 const isRecommended = tierId === MARKETING_PRICING_RECOMMENDED_TIER;
-                const includedLine = formatIncludedUsersAndWorkspaces(pkg);
-                const packagesLine = formatIncludedArchitecturePackagesPerMonth(pkg);
-                const aiCreditsLine = formatMonthlyAiCredits(pkg);
+                const includedLines = buildMarketingPricingIncludedLines(pkg);
+                const highlights = tierId !== null ? MARKETING_PRICING_TIER_HIGHLIGHTS[tierId] : [];
+                const bestFor = tierId !== null ? MARKETING_PRICING_TIER_BEST_FOR[tierId] : null;
+                const primaryCtaVariant =
+                  tierId !== null ? resolveMarketingTierPrimaryCtaVariant(tierId, isRecommended) : "primary";
                 const billingHref =
                   tierId !== null && selfServeCheckoutEnabled
                     ? buildMarketingSelfServeBillingHref(tierId)
                     : null;
-                const bullets = BILLING_TIER_FEATURE_BULLETS[pkg.id] ?? [];
 
                 return (
                   <li
@@ -162,61 +174,93 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                     data-testid={pkg.id === "team" ? "pricing-tier-team" : pkg.id === "architect" ? "pricing-tier-architect" : undefined}
                     className={
                       isRecommended
-                        ? "flex flex-col rounded-lg border-2 border-teal-600 bg-white p-5 shadow-md ring-1 ring-teal-600/20 dark:border-teal-500 dark:bg-neutral-900 dark:ring-teal-500/25"
+                        ? "flex h-full flex-col rounded-lg border-2 border-teal-600 bg-white p-5 shadow-md ring-1 ring-teal-600/20 dark:border-teal-500 dark:bg-neutral-900 dark:ring-teal-500/25"
                         : pkg.id === "enterprise"
-                          ? "flex flex-col rounded-lg border border-teal-700/80 bg-white p-5 shadow-sm dark:border-teal-800 dark:bg-neutral-900"
-                          : "flex flex-col rounded-lg border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
+                          ? "flex h-full flex-col rounded-lg border border-teal-700/80 bg-white p-5 shadow-sm dark:border-teal-800 dark:bg-neutral-900"
+                          : "flex h-full flex-col rounded-lg border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
                     }
                   >
-                    <h3 className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                      {pkg.title}
-                      {isRecommended ? (
-                        <span
-                          className={cn(
-                            "ms-2 align-middle font-semibold uppercase tracking-wide text-teal-800 dark:text-teal-200",
-                            OPERATOR_TYPOGRAPHY.helper,
-                          )}
-                        >
-                          Recommended
-                        </span>
+                    <div className="flex flex-1 flex-col">
+                      <h3 className={cn("text-lg font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                        {pkg.title}
+                        {isRecommended ? (
+                          <span
+                            className={cn(
+                              "ms-2 align-middle font-semibold uppercase tracking-wide text-teal-800 dark:text-teal-200",
+                              OPERATOR_TYPOGRAPHY.helper,
+                            )}
+                          >
+                            Recommended
+                          </span>
+                        ) : null}
+                      </h3>
+                      <p
+                        className={cn("mt-4 text-xl font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
+                        data-testid={`pricing-tier-price-${pkg.id}`}
+                      >
+                        {formatPlanPrice(pkg, pricing.currency)}
+                      </p>
+                      {bestFor !== null ? (
+                        <div className="mt-4">
+                          <p className={cn("m-0 font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                            Best for
+                          </p>
+                          <p className={cn("m-0 mt-1 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>{bestFor}</p>
+                        </div>
+                      ) : (
+                        <p className={cn("mt-4 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{pkg.summary}</p>
+                      )}
+                      {includedLines.length > 0 ? (
+                        <div className="mt-4">
+                          <p className={cn("m-0 font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                            Included
+                          </p>
+                          <ul className={cn("m-0 mt-2 list-none space-y-1 p-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
+                            {includedLines.map((line) => (
+                              <li key={line} className="flex gap-2">
+                                <span aria-hidden className="text-teal-700 dark:text-teal-300">
+                                  ✓
+                                </span>
+                                <span>{line}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
                       ) : null}
-                    </h3>
-                    <p className={cn("mt-3 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)} data-testid={`pricing-tier-price-${pkg.id}`}>
-                      {formatPlanPrice(pkg, pricing.currency)}
-                    </p>
-                    <p className={cn("mt-2 flex-1 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{pkg.summary}</p>
-                    {includedLine !== null ? (
-                      <p className={cn("mt-2 font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>{includedLine}</p>
-                    ) : null}
-                    {packagesLine !== null ? (
-                      <p className={cn("mt-1 font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>{packagesLine}</p>
-                    ) : null}
-                    {aiCreditsLine !== null ? (
-                      <p className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{aiCreditsLine}</p>
-                    ) : null}
-                    {bullets.length > 0 ? (
-                      <ul className={cn("mt-3 list-disc space-y-1 pl-5 leading-snug text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
-                        {bullets.slice(0, 5).map((line) => (
-                          <li key={line}>{line}</li>
-                        ))}
-                      </ul>
-                    ) : null}
+                      {highlights.length > 0 ? (
+                        <div className="mt-4">
+                          <p className={cn("m-0 font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                            Highlights
+                          </p>
+                          <ul className={cn("m-0 mt-2 list-none space-y-1 p-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
+                            {highlights.map((line) => (
+                              <li key={line} className="flex gap-2">
+                                <span aria-hidden className="text-teal-700 dark:text-teal-300">
+                                  ✓
+                                </span>
+                                <span>{line}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ) : null}
+                    </div>
                     {cta !== undefined ? (
-                    <div className="mt-4 flex flex-col gap-2">
+                    <div className="mt-auto flex flex-col gap-2 pt-5">
                       {cta.primaryKind === "quote" ? (
-                        <Button type="button" variant={isRecommended ? "primary" : "outline"} className="w-full" onClick={() => scrollToQuote()}>
+                        <Button type="button" variant={primaryCtaVariant} className="w-full" onClick={() => scrollToQuote()}>
                           {cta.primaryLabel}
                         </Button>
                       ) : null}
 
                       {cta.primaryKind === "stripe" && props.preferSalesLedQuoteCta ? (
-                        <Button type="button" variant="primary" className="w-full" onClick={() => scrollToQuote()}>
+                        <Button type="button" variant={primaryCtaVariant} className="w-full" onClick={() => scrollToQuote()}>
                           {cta.primaryLabel}
                         </Button>
                       ) : null}
 
                       {cta.primaryKind === "stripe" && !props.preferSalesLedQuoteCta && billingHref !== null ? (
-                        <Button asChild variant="primary" className="w-full">
+                        <Button asChild variant={primaryCtaVariant} className="w-full">
                           <Link
                             data-testid={pkg.id === "team" ? "pricing-team-subscribe-stripe" : `pricing-${pkg.id}-subscribe-stripe`}
                             href={billingHref}
@@ -227,7 +271,7 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                       ) : null}
 
                       {cta.primaryKind === "stripe" && !props.preferSalesLedQuoteCta && billingHref === null ? (
-                        <Button asChild variant="primary" className="w-full">
+                        <Button asChild variant={primaryCtaVariant} className="w-full">
                           <Link href={props.signupHref}>{cta.primaryLabel}</Link>
                         </Button>
                       ) : null}
@@ -254,17 +298,18 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                 );
               })}
           </ul>
-          <p
-            className={cn("mt-6 max-w-3xl text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
+          <MarketingPricingFitMatrix />
+          <div
+            className="mt-6 rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-3 dark:border-neutral-800 dark:bg-neutral-900/50"
             data-testid="pricing-early-adopter-framing"
           >
-            {BUYER_EARLY_ADOPTER_PRICING_NOTE}
-          </p>
-          {props.showAiUsageNote === true ? (
-            <p className={cn("mt-6 max-w-3xl text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)} data-testid="pricing-ai-usage-note">
-              {BUYER_MARKETING_PRICING_AI_USAGE_NOTE}
-            </p>
-          ) : null}
+            <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{BUYER_EARLY_ADOPTER_PRICING_NOTE}</p>
+            {props.showAiUsageNote === true ? (
+              <p className={cn("m-0 mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)} data-testid="pricing-ai-usage-note">
+                {BUYER_MARKETING_PRICING_AI_USAGE_NOTE}
+              </p>
+            ) : null}
+          </div>
           {props.showSignupCallToAction !== false ? (
             <div className="mt-8 flex justify-center">
               <Button asChild variant="primary" size="lg">

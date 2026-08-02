@@ -14,14 +14,26 @@ export function MarketingPricingUsageFaqSection(): React.JSX.Element {
       <h2 id="pricing-usage-faq-heading" className={cn("m-0 font-semibold text-al-text-primary", MARKETING_TYPOGRAPHY.sectionTitle)}>
         {MARKETING_PRICING_USAGE_FAQ_TITLE}
       </h2>
-      <dl className="mt-4 space-y-4">
-        {MARKETING_PRICING_USAGE_FAQ_ITEMS.map((item) => (
-          <div key={item.question}>
-            <dt className={cn("font-medium text-al-text-primary", MARKETING_TYPOGRAPHY.cardTitle)}>{item.question}</dt>
-            <dd className={cn("m-0 mt-1 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>{item.answer}</dd>
-          </div>
+      <div className="mt-4 divide-y divide-neutral-200 rounded-lg border border-neutral-200 bg-white dark:divide-neutral-800 dark:border-neutral-800 dark:bg-neutral-950/40">
+        {MARKETING_PRICING_USAGE_FAQ_ITEMS.map((item, index) => (
+          <details key={item.question} className="group px-4 py-3" open={index === 0}>
+            <summary
+              className={cn(
+                "cursor-pointer select-none font-medium text-al-text-primary marker:content-none [&::-webkit-details-marker]:hidden",
+                MARKETING_TYPOGRAPHY.cardTitle,
+              )}
+            >
+              <span className="inline-flex items-center gap-2">
+                <span aria-hidden className="text-teal-800 transition-transform group-open:rotate-90 dark:text-teal-300">
+                  ▸
+                </span>
+                {item.question}
+              </span>
+            </summary>
+            <p className={cn("m-0 mt-2 ps-5 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>{item.answer}</p>
+          </details>
         ))}
-      </dl>
+      </div>
     </section>
   );
 }

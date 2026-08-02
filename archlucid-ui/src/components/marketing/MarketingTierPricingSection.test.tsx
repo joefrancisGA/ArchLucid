@@ -78,9 +78,26 @@ describe("MarketingTierPricingSection", () => {
     });
 
     const architectCard = screen.getByTestId("pricing-tier-architect");
+    within(architectCard).getByText(/Best for/i);
     within(architectCard).getByRole("link", { name: /start architect plan/i });
     expect(screen.getByTestId("pricing-tier-price-enterprise")).toHaveTextContent("Custom");
+    expect(screen.getByTestId("pricing-fit-matrix")).toBeInTheDocument();
     expect(screen.queryByTestId("pricing-early-adopter-framing")).toHaveTextContent(/Early adopter pricing/i);
+  });
+
+  it("renders server-supplied pricing synchronously without the loading skeleton or a client fetch", () => {
+    render(
+      <MarketingTierPricingSection
+        sectionHeadingId="pricing-heading"
+        sectionTitle="Pricing"
+        signupHref="/signup"
+        initialPricing={mockPricingDoc as never}
+      />,
+    );
+
+    expect(screen.getByRole("heading", { name: "Architect" })).toBeInTheDocument();
+    expect(screen.queryAllByTestId("pricing-tier-skeleton")).toHaveLength(0);
+    expect(globalThis.fetch).not.toHaveBeenCalled();
   });
 
   it("routes Team primary CTA to in-app billing when self-serve checkout is enabled", async () => {
