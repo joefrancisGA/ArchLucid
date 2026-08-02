@@ -1,5 +1,7 @@
 import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
+import { EXECUTIVE_SUMMARY_PAGE_TITLE } from "@/lib/sponsor-report-navigation";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
+import { GOVERNANCE_STANDARDS_AND_RULES_PATH } from "@/lib/governance-route-paths";
 import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
 import { ARCHITECTURES_LIST_PATH, ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
@@ -36,7 +38,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   [SIGNED_RECORDS_LIST_PATH]: "Signed review records",
   "/manifests": "Signed review records",
   "/governance/policy-packs": "Policy packs",
-  "/governance/resolution": OPERATOR_NAV_LINK_LABELS.governanceResolution,
+  [GOVERNANCE_STANDARDS_AND_RULES_PATH]: OPERATOR_NAV_LINK_LABELS.governanceResolution,
   "/governance/audit": "Audit",
   "/governance/alerts": "Alerts",
   "/governance/advisory-scans": "Advisory scans",
@@ -62,7 +64,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   [EXECUTIVE_DASHBOARD_HREF]: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle,
   "/executive/scorecard": BUYER_EXECUTIVE_SUMMARY_VOCABULARY.scorecardPageTitle,
   "/digests": "Digests",
-  "/sponsor-report/executive-summary": "Executive summary",
+  "/sponsor-report/executive-summary": EXECUTIVE_SUMMARY_PAGE_TITLE,
   "/sponsor-report/pilot-outcomes": "Pilot outcomes",
   "/sponsor-report/roi-summary": "ROI summary",
   "/sponsor-report/architecture-scorecard": "Architecture scorecard",

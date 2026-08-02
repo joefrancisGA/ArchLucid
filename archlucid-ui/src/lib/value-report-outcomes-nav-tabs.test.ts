@@ -6,6 +6,7 @@ import {
   VALUE_REPORT_OUTCOMES_TABS,
 } from "@/lib/value-report-outcomes-nav-tabs";
 import {
+  EXECUTIVE_SUMMARY_PAGE_TITLE,
   SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH,
   SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
   SPONSOR_REPORT_PILOT_OUTCOMES_PATH,
@@ -28,7 +29,7 @@ describe("value-report-outcomes-nav-tabs", () => {
       SPONSOR_REPORT_ROI_SUMMARY_PATH,
       SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH,
     ]);
-    expect(visible[0]?.label).toBe("Executive summary");
+    expect(visible[0]?.label).toBe(EXECUTIVE_SUMMARY_PAGE_TITLE);
     expect(visible[1]?.label).toBe("Pilot outcomes");
   });
 

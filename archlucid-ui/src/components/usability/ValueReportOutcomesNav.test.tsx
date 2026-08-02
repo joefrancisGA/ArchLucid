@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
+import { EXECUTIVE_SUMMARY_PAGE_TITLE } from "@/lib/sponsor-report-navigation";
 
 import { ValueReportOutcomesNav } from "./ValueReportOutcomesNav";
 
@@ -30,7 +31,7 @@ describe("ValueReportOutcomesNav", () => {
 
     expect(screen.getByTestId("value-report-outcomes-nav")).toBeInTheDocument();
     expect(screen.getByRole("tablist", { name: "Sponsor report sections" })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "Executive summary" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("tab", { name: EXECUTIVE_SUMMARY_PAGE_TITLE })).toHaveAttribute("aria-selected", "true");
     expect(screen.getByRole("tab", { name: "Pilot outcomes" })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: "ROI summary" })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: "Architecture scorecard" })).toBeInTheDocument();
@@ -41,7 +42,7 @@ describe("ValueReportOutcomesNav", () => {
 
     render(<ValueReportOutcomesNav />);
 
-    expect(screen.getByRole("tab", { name: "Executive summary" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: EXECUTIVE_SUMMARY_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: "Architecture scorecard" })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: "Pilot outcomes" })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: "ROI summary" })).toBeInTheDocument();

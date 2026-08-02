@@ -1,4 +1,5 @@
 import {
+  EXECUTIVE_SUMMARY_PAGE_TITLE,
   SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH,
   SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
   SPONSOR_REPORT_PILOT_OUTCOMES_PATH,
@@ -53,7 +54,7 @@ function matchesArchitectureScorecard(path: string): boolean {
 export const VALUE_REPORT_OUTCOMES_TABS: readonly ValueReportOutcomesTab[] = [
   {
     href: SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
-    label: "Executive summary",
+    label: EXECUTIVE_SUMMARY_PAGE_TITLE,
     match: matchesExecutiveSummary,
   },
   {

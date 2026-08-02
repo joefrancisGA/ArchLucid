@@ -3,6 +3,7 @@ import { FileCheck2, FileText, Newspaper, TrendingUp } from "lucide-react";
 import type { NavGroupConfig } from "@/lib/nav-config.types";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import {
+  EXECUTIVE_SUMMARY_PAGE_TITLE,
   SPONSOR_REPORT_SECTION_LABEL,
 } from "@/lib/sponsor-report-navigation";
 
@@ -22,8 +23,8 @@ export class OperateReportsNavGroupBuilder extends NavGroupBuilderBase {
       links: [
         {
           href: "/sponsor-report/executive-summary",
-          label: "Executive summary",
-          title: `${SPONSOR_REPORT_SECTION_LABEL} — executive summary and exports`,
+          label: EXECUTIVE_SUMMARY_PAGE_TITLE,
+          title: `${SPONSOR_REPORT_SECTION_LABEL} — executive value report and exports`,
           icon: FileText,
           tier: "advanced",
           requiredAuthority: "ExecuteAuthority",

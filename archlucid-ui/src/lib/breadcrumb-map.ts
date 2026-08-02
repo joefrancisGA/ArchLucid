@@ -14,8 +14,9 @@ import { isAskReviewQuestionsPath } from "@/lib/ask-review-questions-route";
 import { isCompareTwoReviewsPath } from "@/lib/compare-two-reviews-route";
 import { isEvidenceGraphPath } from "@/lib/evidence-graph-route";
 import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
+import { isImpactPreviewPath } from "@/lib/impact-preview-route";
 import { isSearchReviewEvidencePath } from "@/lib/search-review-evidence-route";
-import { SPONSOR_REPORT_SECTION_LABEL } from "@/lib/sponsor-report-navigation";
+import { SPONSOR_REPORT_SECTION_LABEL, EXECUTIVE_SUMMARY_PAGE_TITLE } from "@/lib/sponsor-report-navigation";
 import { resolvePolicyPackDetailBreadcrumbLabel } from "@/lib/policy-pack-detail-resolver";
 import { ITSM_CONNECTORS_ADMIN_LABEL, ITSM_CONNECTORS_ADMIN_PATH } from "@/lib/itsm-connectors-admin-scope";
 import { GOVERNANCE_ALERT_RULES_PATH, GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
@@ -65,6 +66,8 @@ const BUYER_HUB_RUN_SCOPED_SEGMENTS = new Set<string>([
   "search-review-evidence",
   "compare",
   "compare-two-reviews",
+  "evolution-review",
+  "impact-preview",
 ]);
 
 /** Governance routes that mirror review workflow context when `runId` is on the query string. */
@@ -91,7 +94,8 @@ const SEGMENT_LABELS: Record<string, string> = {
   "internal-operations": "Internal Operations",
   "product-learning": OPERATOR_NAV_LINK_LABELS.pilotFeedback,
   planning: "Improvement planning",
-  "evolution-review": "Impact preview",
+  "evolution-review": OPERATOR_NAV_LINK_LABELS.evolutionCandidates,
+  "impact-preview": OPERATOR_NAV_LINK_LABELS.evolutionCandidates,
   "advisory-scheduling": "Schedules",
   digests: "Digests",
   "digest-subscriptions": "Subscriptions",
@@ -104,6 +108,8 @@ const SEGMENT_LABELS: Record<string, string> = {
   "policy-packs": "Policy packs",
   setup: "Governance setup",
   "governance-resolution": OPERATOR_NAV_LINK_LABELS.governanceResolution,
+  resolution: OPERATOR_NAV_LINK_LABELS.governanceResolution,
+  "standards-and-rules": OPERATOR_NAV_LINK_LABELS.governanceResolution,
   governance: "Governance",
   findings: "Findings",
   dashboard: "Dashboard",
@@ -113,7 +119,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   provenance: "Evidence provenance",
   "value-report": SPONSOR_REPORT_SECTION_LABEL,
   "sponsor-report": SPONSOR_REPORT_SECTION_LABEL,
-  "executive-summary": "Executive summary",
+  "executive-summary": EXECUTIVE_SUMMARY_PAGE_TITLE,
   "pilot-outcomes": "Pilot outcomes",
   "roi-summary": "ROI summary",
   "architecture-scorecard": "Architecture scorecard",
@@ -181,6 +187,14 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
   if (isCompareTwoReviewsPath(normalized)) {
     return injectBuyerShowcaseReviewPackageCrumb(
       [{ label: OPERATOR_NAV_LINK_LABELS.compareTwoReviews }],
+      normalized,
+      options,
+    );
+  }
+
+  if (isImpactPreviewPath(normalized)) {
+    return injectBuyerShowcaseReviewPackageCrumb(
+      [{ label: OPERATOR_NAV_LINK_LABELS.evolutionCandidates }],
       normalized,
       options,
     );
@@ -568,6 +582,7 @@ function injectBuyerShowcaseReviewPackageCrumb(
     && !isAskReviewQuestionsPath(pathFromSegments)
     && !isSearchReviewEvidencePath(pathFromSegments)
     && !isCompareTwoReviewsPath(pathFromSegments)
+    && !isImpactPreviewPath(pathFromSegments)
   ) {
     return items;
   }
@@ -579,7 +594,8 @@ function injectBuyerShowcaseReviewPackageCrumb(
     || isEvidenceGraphPath(pathFromSegments)
     || isAskReviewQuestionsPath(pathFromSegments)
     || isSearchReviewEvidencePath(pathFromSegments)
-    || isCompareTwoReviewsPath(pathFromSegments);
+    || isCompareTwoReviewsPath(pathFromSegments)
+    || isImpactPreviewPath(pathFromSegments);
 
   if (!isRunScopedHub) {
     return items;
