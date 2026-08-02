@@ -3,12 +3,13 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { ClipboardCheck } from "lucide-react";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { RunIdPicker } from "@/components/RunIdPicker";
+import { EmptyState } from "@/components/EmptyState";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getGovernanceDashboard, getGovernanceDecisionsNeededSummary } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -16,8 +17,13 @@ import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
 import {
   GOVERNANCE_OVERVIEW_APPROVED_PACKAGES_LABEL,
   GOVERNANCE_OVERVIEW_BLOCKING_ALERTS_LABEL,
+  GOVERNANCE_OVERVIEW_IDLE_WORKSPACE_HINT,
   GOVERNANCE_OVERVIEW_LOAD_REVIEW_ACTION,
-  GOVERNANCE_OVERVIEW_NO_PENDING,
+  GOVERNANCE_OVERVIEW_LOAD_REVIEW_DISABLED_HINT,
+  GOVERNANCE_OVERVIEW_LOAD_REVIEW_SECTION_LEAD,
+  GOVERNANCE_OVERVIEW_LOAD_REVIEW_SECTION_TITLE,
+  GOVERNANCE_OVERVIEW_NO_PENDING_DESCRIPTION,
+  GOVERNANCE_OVERVIEW_NO_PENDING_TITLE,
   GOVERNANCE_OVERVIEW_PENDING_ACTION,
   GOVERNANCE_OVERVIEW_PENDING_APPROVALS_LABEL,
   GOVERNANCE_OVERVIEW_PENDING_SECTION_TITLE,
@@ -35,6 +41,7 @@ import {
   buildGovernanceOverviewSummaryMetrics,
   type GovernanceOverviewSummaryMetrics,
 } from "./governance-overview-summary";
+import { GovernanceOverviewWorkflowStrip } from "./GovernanceOverviewWorkflowStrip";
 
 type GovernanceOverviewPanelProps = {
   readonly buyerPolishedShell: boolean;
@@ -158,6 +165,15 @@ export function GovernanceOverviewPanel(props: GovernanceOverviewPanelProps): Re
     pendingSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
+  const loadReviewDisabled = listsLoading || queryRunId.trim().length === 0;
+  const workspaceIsIdle =
+    loadState.status === "ready" &&
+    loadState.metrics.pendingApprovalRequests === 0 &&
+    loadState.metrics.approvedReviewPackages === 0 &&
+    loadState.metrics.blockingGovernanceAlerts === 0 &&
+    loadState.metrics.recentDecisions === 0 &&
+    loadState.metrics.policyActivations === 0;
+
   return (
     <div className="mb-8 space-y-6" data-testid="governance-overview-panel">
       <section aria-labelledby="governance-overview-summary-heading">
@@ -246,15 +262,33 @@ export function GovernanceOverviewPanel(props: GovernanceOverviewPanelProps): Re
                 </>
               )}
             </div>
+
+            {workspaceIsIdle ? (
+              <p
+                className={cn("m-0 mt-4 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="governance-overview-idle-hint"
+              >
+                {GOVERNANCE_OVERVIEW_IDLE_WORKSPACE_HINT}
+              </p>
+            ) : null}
           </>
         ) : null}
       </section>
 
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Load a review</CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-3">
+      <GovernanceOverviewWorkflowStrip />
+
+      <section
+        aria-labelledby="governance-overview-load-review-heading"
+        className="rounded-md border border-neutral-200 bg-white px-3 py-3 dark:border-neutral-800 dark:bg-neutral-950/40"
+        data-testid="governance-overview-load-review-section"
+      >
+        <h2 id="governance-overview-load-review-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          {GOVERNANCE_OVERVIEW_LOAD_REVIEW_SECTION_TITLE}
+        </h2>
+        <p className={cn("m-0 mt-1 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          {GOVERNANCE_OVERVIEW_LOAD_REVIEW_SECTION_LEAD}
+        </p>
+        <div className="mt-3 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
           <RunIdPicker
             inputId="governance-overview-run"
             label="Review"
@@ -263,20 +297,25 @@ export function GovernanceOverviewPanel(props: GovernanceOverviewPanelProps): Re
             useBuyerFacingRunLabels={buyerPolishedShell}
             onChange={setQueryRunId}
           />
-          <div>
+          <div className="space-y-1">
             <Button
               type="button"
               variant="secondary"
               size="sm"
               data-testid="governance-overview-load-review"
-              disabled={listsLoading || queryRunId.trim().length === 0}
+              disabled={loadReviewDisabled}
               onClick={onLoadReview}
             >
               {listsLoading ? "Loading…" : GOVERNANCE_OVERVIEW_LOAD_REVIEW_ACTION}
             </Button>
+            {loadReviewDisabled && !listsLoading ? (
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="governance-overview-load-review-hint">
+                {GOVERNANCE_OVERVIEW_LOAD_REVIEW_DISABLED_HINT}
+              </p>
+            ) : null}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </section>
 
       {loadState.status === "ready" ? (
         <section
@@ -288,7 +327,13 @@ export function GovernanceOverviewPanel(props: GovernanceOverviewPanelProps): Re
             {GOVERNANCE_OVERVIEW_PENDING_SECTION_TITLE}
           </h2>
           {loadState.dashboard.pendingApprovals.length === 0 ? (
-            <p className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{GOVERNANCE_OVERVIEW_NO_PENDING}</p>
+            <div className="mt-3" data-testid="governance-overview-no-pending">
+              <EmptyState
+                icon={ClipboardCheck}
+                title={GOVERNANCE_OVERVIEW_NO_PENDING_TITLE}
+                description={GOVERNANCE_OVERVIEW_NO_PENDING_DESCRIPTION}
+              />
+            </div>
           ) : (
             <ul className="m-0 mt-3 list-none space-y-2 p-0">
               {loadState.dashboard.pendingApprovals.slice(0, 5).map((row) => (

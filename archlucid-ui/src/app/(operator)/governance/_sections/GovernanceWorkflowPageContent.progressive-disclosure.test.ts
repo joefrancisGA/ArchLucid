@@ -10,9 +10,10 @@ const source = readFileSync(
 );
 
 describe("GovernanceWorkflowPageContent progressive disclosure", () => {
-  it("collapses operator quickstart behind advanced accordion", () => {
-    expect(source).toContain(`triggerLabel={GOVERNANCE_OVERVIEW_HOW_IT_WORKS_TRIGGER}`);
-    expect(source).toContain("GovernanceInteractiveQuickstartCard");
+  it("merges first-time quickstart into the layer header accordion on overview", () => {
+    expect(source).toContain("collapsibleChildren={");
+    expect(source).toContain("GovernanceInteractiveQuickstartContent");
+    expect(source).not.toContain("AdvancedOptionsAccordion triggerLabel={GOVERNANCE_OVERVIEW_HOW_IT_WORKS_TRIGGER}");
     expect(source).not.toMatch(/\)\s*:\s*\(\s*\n\s*<GovernanceInteractiveQuickstartCard \/>/);
   });
 

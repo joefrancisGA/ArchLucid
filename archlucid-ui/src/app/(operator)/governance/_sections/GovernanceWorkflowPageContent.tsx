@@ -741,10 +741,6 @@ export function GovernanceWorkflowPageContent() {
         </>
       ) : null}
 
-      <AdvancedOptionsAccordion triggerLabel={GOVERNANCE_OVERVIEW_HOW_IT_WORKS_TRIGGER} defaultOpen={false} className="mb-6">
-        <GovernanceInteractiveQuickstartCard hideFirst30DaysLink suppressCardTitle className="mb-0" />
-      </AdvancedOptionsAccordion>
-
       <GovernanceWorkflowDialogs
         pendingPromote={pendingPromote}
         setPendingPromote={setPendingPromote}

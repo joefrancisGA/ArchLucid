@@ -104,6 +104,18 @@ describe("LayerHeader", () => {
     expect(screen.queryByText(/Review and evidence trail/i)).not.toBeVisible();
   });
 
+  it("renders optional collapsibleChildren below guidance in the details panel", () => {
+    render(
+      <LayerHeader
+        pageKey="compare"
+        collapsibleGuidance="How compare works"
+        collapsibleChildren={<p data-testid="layer-header-child">Extra guidance</p>}
+      />,
+    );
+
+    expect(screen.getByTestId("layer-header-child")).toBeInTheDocument();
+  });
+
   it("omits review vocabulary on integration readiness pages", () => {
     render(<LayerHeader pageKey="integrations-operations" />);
 
