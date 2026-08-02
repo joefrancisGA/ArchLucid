@@ -39,6 +39,15 @@ const BANNED_CLIENT_IMPORT_PATTERNS = ['"use client"', "SnapshotPageClient", "Ex
 
 const SNAPSHOT_LEAVE_BEHIND_SURFACES = ["archlucid-ui/src/lib/buyer-cto-demo-recap.ts"] as const;
 
+const UI_ROUTES_DOC = join(process.cwd(), "..", "docs", "architecture", "ui_routes.md");
+const IA_ASSESSMENT_DOC = join(
+  process.cwd(),
+  "..",
+  "docs",
+  "architecture",
+  "information_architecture_assessment_and_backlog.md",
+);
+
 describe("legacy-snapshot-route (TB-1951 / TB-1952 / TB-1953 / TB-1954)", () => {
   it("marks the legacy shim as noindex with honest metadata", () => {
     expect(LEGACY_SNAPSHOT_ROUTE_METADATA.robots).toEqual({ index: false, follow: false });
@@ -75,6 +84,27 @@ describe("legacy-snapshot-route (TB-1951 / TB-1952 / TB-1953 / TB-1954)", () => 
       expect(source).toContain("/reviews/");
       expect(source).toContain("SHOWCASE_STATIC_DEMO_RUN_ID");
     }
+  });
+
+  it("canonicalizes /snapshot docs as redirect-only shim, not a T1 page (TB-1954)", () => {
+    const uiRoutes = readFileSync(UI_ROUTES_DOC, "utf8");
+    const snapshotRow = uiRoutes
+      .split("\n")
+      .find((line) => line.includes("`/snapshot/[runId]`"));
+
+    expect(snapshotRow).toBeDefined();
+    expect(snapshotRow).toContain("redirect-only shim");
+    expect(snapshotRow).toContain("readOnly=1");
+    expect(snapshotRow).not.toMatch(/\bT1:/);
+
+    const iaAssessment = readFileSync(IA_ASSESSMENT_DOC, "utf8");
+    const iaSnapshotRow = iaAssessment
+      .split("\n")
+      .find((line) => line.includes("`/snapshot/[runId]`"));
+
+    expect(iaSnapshotRow).toBeDefined();
+    expect(iaSnapshotRow).toContain("redirect only");
+    expect(iaSnapshotRow).not.toContain("executive leave-behind");
   });
 
   it("documents inbound query preservation and keeps /snapshot off next.config redirects (TB-1953)", async () => {

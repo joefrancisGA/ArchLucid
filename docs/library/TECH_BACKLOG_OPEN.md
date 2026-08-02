@@ -720,7 +720,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1948 | Manifest-scoped Preview hrefs must resolve (signedRecordArtifactPath) | Trustworthiness P0 **V1** — with **TB-1946** |
 | TB-1949 | MAM — section/docs honesty (not live Marketing UI) | Trustworthiness P1 **V1** — with **TB-1946** |
 | TB-1950 | MAM — Vitest App Router existence with **TB-1825** | Testability P2 **V1** — with **TB-1946** |
-| TB-1954 | Canonicalize `/snapshot/[runId]` docs (leave-behind redirect, not T1 page) | Trustworthiness P1 **V1** — with **TB-1951** |
 | TB-1955 | Snapshot — Vitest redirect matrix (showcase + runId) | Testability P2 **V1** — with **TB-1951** |
 | TB-1661 | Operator line-tabs visual contract — document in UI_DESIGN_SYSTEM (+ UI ARCHITECTURE pointer) | Adoption friction P1 **V1** — owner tabs consistency pass 2026-07-27; after Done **TB-665**; pairs **TB-1552**–**TB-1556** / **TB-1572**–**TB-1576** / **TB-1646**–**TB-1650** |
 | TB-1662 | Strip TabsList/TabsTrigger chrome overrides (Advisory, Help×2, Deliverables, buyer RunsDashboard) | Adoption friction P1 **V1** — with **TB-1661**; after Done **TB-667**/**TB-670** |
@@ -925,7 +924,7 @@ Canonical: [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) only (see wave-3 c
 | Retired marketing `/quick-start` | **TB-1816**–**TB-1820** (open P1/P2 **V1**) | Traffic redirect-only; retire orphan page; noindex; canonicalize; anti-reintro Vitest; ~12/100; traffic **QUI**; after Done **TB-736** |
 | Ghost artifact preview (`/reviews/.../artifacts/...`) | **TB-1821**–**TB-1825** (open P1 **V1**) | Restore/redirect Preview; fix ArtifactListTable hrefs; traffic honesty; pair MAM; CI existence guard; ~10/100; traffic **RER**; after Done **TB-752** |
 | Ghost signed-record artifact preview (`/signed-records/.../artifacts/...`) | **TB-1946**–**TB-1950** (open P1 **V1**) | Traffic ghost; execute **TB-1824**; hrefs; docs; Vitest with **TB-1825**; ~10/100; traffic **MAM**; peer **RER** |
-| Snapshot leave-behind (`/snapshot/[runId]`) | **TB-1954**–**TB-1955** (open **V1**); Done **TB-1951**–**TB-1953** | Redirect traffic; destination honesty; next.config/query; docs; Vitest; ~30/100; traffic **SNU** |
+| Snapshot leave-behind (`/snapshot/[runId]`) | **TB-1955** (open **V1**); Done **TB-1951**–**TB-1954** | Redirect traffic; destination honesty; next.config/query; docs; Vitest; ~30/100; traffic **SNU** |
 | Architecture scorecard (`/sponsor-report/architecture-scorecard`) | — (cluster **Done**) | **TB-1956**–**TB-1960** Done; ~48/100; traffic **SPA**; siblings SPE/SPP/SPR |
 | Executive summary (`/sponsor-report/executive-summary`) | — (cluster **Done** **TB-1961**–**TB-1965**) | SPE sponsor-report cluster complete; siblings SPP/SPR |
 | Pilot outcomes (`/sponsor-report/pilot-outcomes`) | — | **TB-1966**–**TB-1970** Done; traffic **SPP**; sibling SPR |
