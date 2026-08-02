@@ -7,6 +7,7 @@ import { useMemo, useRef } from "react";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { DocumentLayout } from "@/components/DocumentLayout";
 import { LayerHeader } from "@/components/LayerHeader";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { ValueReportOutcomesNav } from "@/components/usability/ValueReportOutcomesNav";
@@ -77,6 +78,9 @@ export function PilotValueReportPageView(props: Props) {
   return (
     <div className="w-full max-w-[1440px] space-y-4 print:w-full" data-testid="pilot-outcomes-page">
       {buyerPolishedShell ? null : <LayerHeader pageKey="value-report-pilot" />}
+      <div className="flex flex-wrap items-center justify-end gap-2 print:hidden">
+        <PageContextualHelpButton />
+      </div>
       <ValueReportOutcomesNav />
       <DocumentLayout>
         <header className="space-y-2">

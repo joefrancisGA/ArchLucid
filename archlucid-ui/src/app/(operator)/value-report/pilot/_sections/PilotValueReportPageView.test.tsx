@@ -12,6 +12,10 @@ vi.mock("@/components/usability/ValueReportOutcomesNav", () => ({
   ValueReportOutcomesNav: () => <nav data-testid="value-report-outcomes-nav" />,
 }));
 
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+}));
+
 vi.mock("@/components/pilots/PilotRoiValidationHandoffCard", () => ({
   PilotRoiValidationHandoffClient: () => null,
 }));
@@ -44,6 +48,12 @@ function buildModel(overrides: Partial<PilotValueReportPilotPageViewModel> = {})
 }
 
 describe("PilotValueReportPageView", () => {
+  it("mounts contextual help (TB-1968)", () => {
+    render(<PilotValueReportPageView model={buildModel()} />);
+
+    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+  });
+
   it("renders pilot outcomes title and reporting period controls", () => {
     render(<PilotValueReportPageView model={buildModel()} />);
 
