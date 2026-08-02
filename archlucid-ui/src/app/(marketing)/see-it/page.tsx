@@ -2,26 +2,29 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
+import { WELCOME_SEE_IT_CTA_LABEL } from "@/components/marketing/welcome-marketing-copy";
 import { Button } from "@/components/ui/button";
-import { BUYER_OUTCOME_LED_VALUE_PROPOSITION } from "@/lib/buyer-polish-copy";
 import {
   MARKETING_CAPTION_TEXT_CLASS,
   MARKETING_LAYOUT,
   MARKETING_MOTION,
   MARKETING_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
-import { WELCOME_SEE_IT_CTA_LABEL } from "@/components/marketing/welcome-marketing-copy";
 import {
   MARKETING_SEE_IT_OG_DESCRIPTION,
   buildMarketingSocialMetadata,
 } from "@/lib/marketing-open-graph";
 import { CANONICAL_ANONYMOUS_PROOF_HREF } from "@/lib/showcase-static-demo";
+import { cn } from "@/lib/utils";
 
 import { SeeItDeliverablePreview } from "./SeeItDeliverablePreview";
 import { loadSeeItDemoPreview } from "./load-see-it-demo-preview";
 import { normalizeSeeItMarketingPayload } from "./normalize-see-it-payload";
 import { SeeItMarketingBody } from "./SeeItMarketingBody";
+
+/** Shorter than the shared outcome-led line — hero visuals carry the rest. */
+const SEE_IT_HERO_LEAD =
+  "Evidence-backed proof export — signed review record, findings, and audit trail — not a chat transcript.";
 
 export const revalidate = 300;
 
@@ -51,14 +54,10 @@ export default async function SeeItMarketingPage() {
             See a finalized sample review
           </h1>
           <p
-            className={cn("mt-4 max-w-2xl", MARKETING_TYPOGRAPHY.lead)}
+            className={cn("mt-4 max-w-xl", MARKETING_TYPOGRAPHY.lead)}
             data-testid="see-it-outcome-led-lead"
           >
-            {BUYER_OUTCOME_LED_VALUE_PROPOSITION}
-          </p>
-          <p className={cn("mt-3 max-w-2xl text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>
-            Inspect a read-only healthcare claims package — signed review record, findings, artifacts, and
-            audit trail — before you create an account.
+            {SEE_IT_HERO_LEAD}
           </p>
           <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center">
             <Button asChild variant="primary" size="lg" data-testid="see-it-cta-showcase">
@@ -84,15 +83,18 @@ export default async function SeeItMarketingPage() {
       </section>
 
       <div
-        className={cn(MARKETING_LAYOUT.majorSectionGap, "border-t border-neutral-200 pt-10 dark:border-neutral-800")}
+        className={cn(
+          MARKETING_LAYOUT.majorSectionGap,
+          "mt-14 border-t border-neutral-200 pt-12 dark:border-neutral-800",
+        )}
         data-testid="see-it-sample-transition"
       >
         <p className={cn("m-0", MARKETING_TYPOGRAPHY.eyebrow)}>Sample review preview</p>
         <p className={cn("mt-2 m-0 max-w-3xl text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>
-          Below is the evaluation slice for this sample — the same proof shape buyers use on the executive
-          summary and review pages.
+          Evaluation slice for this sample — the same proof shape buyers use on executive summary and review
+          pages.
         </p>
-        <div className="mt-6">
+        <div className="mt-8">
           <SeeItMarketingBody source={source} payload={normalized} />
         </div>
       </div>

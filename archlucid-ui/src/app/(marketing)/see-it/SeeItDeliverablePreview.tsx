@@ -56,7 +56,7 @@ export function SeeItDeliverablePreview(): React.JSX.Element {
           <p className={cn("m-0 font-semibold text-al-text-primary", MARKETING_TYPOGRAPHY.cardTitle)}>
             Healthcare Claims intake modernization
           </p>
-          <StatusTag kind="approved" />
+          <StatusTag kind="approved" className="px-2.5 py-1 text-sm font-semibold" />
         </div>
         <p className={cn("m-0 mt-1 text-al-text-secondary", MARKETING_TYPOGRAPHY.meta)}>
           Signed review record · Policy pack · Fabricated sample data

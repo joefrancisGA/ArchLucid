@@ -33,7 +33,7 @@ test.describe("marketing-demo-preview", () => {
     await expect(page.getByRole("heading", { name: "Review summary" })).toHaveCount(0);
   });
 
-  test("/see-it links to full demo preview with no-sign-in copy", async ({ page }) => {
+  test("/see-it links to full demo preview from the secondary CTA row", async ({ page }) => {
     await page.goto("/see-it", { waitUntil: "load" });
     await page.locator("main").waitFor({ state: "visible", timeout: 60_000 });
 
@@ -41,6 +41,6 @@ test.describe("marketing-demo-preview", () => {
 
     await expect(demoCta).toBeVisible();
     await expect(demoCta).toHaveAttribute("href", "/demo/preview");
-    await expect(demoCta).toHaveText("See a full sample review output — no sign-in");
+    await expect(demoCta).toHaveText("View sample review output");
   });
 });

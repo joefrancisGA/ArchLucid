@@ -184,10 +184,12 @@ describe("SeeItMarketingBody", () => {
     expect(screen.getByTestId("see-it-demo-banner-title")).toHaveTextContent("Public sample preview");
     expect(screen.getByTestId("see-it-demo-banner-title")).not.toHaveTextContent(/Healthcare claims/i);
     expect(screen.queryByTestId("see-it-snapshot-notice")).toBeNull();
-    expect(screen.getByTestId("see-it-finding-counts")).toHaveTextContent("7 findings");
+    expect(screen.getByTestId("see-it-finding-counts")).toHaveTextContent("7");
+    expect(screen.getByTestId("see-it-finding-counts")).toHaveTextContent("findings");
     expect(screen.getByTestId("see-it-finding-counts")).toHaveTextContent("2 monitored risks");
     expect(screen.getByTestId("see-it-summary-status")).toHaveTextContent(/Approved/i);
     expect(screen.getByTestId("marketing-proof-chain-strip")).toBeInTheDocument();
+    expect(screen.getByTestId("marketing-proof-chain-pipeline")).toBeInTheDocument();
     expect(screen.getByTestId("see-it-proof-pack-download")).toHaveAttribute(
       "href",
       "/api/proxy/v1/marketing/why-archlucid-pack.pdf",
@@ -245,7 +247,7 @@ describe("SeeItMarketingBody", () => {
     expect(screen.getByText(/Executive sponsor briefing/i)).toBeInTheDocument();
   });
 
-  it("keeps a single text-link path to the interactive sample (not a competing primary button)", () => {
+  it("normalizes the secondary CTA row to outline buttons (no mixed hyperlink)", () => {
     const payload = createMinimalDemoPreviewPayload();
     payload.run.runId = SHOWCASE_STATIC_DEMO_RUN_ID;
     payload.run.description = "Claims Intake Modernization Review";
@@ -253,10 +255,15 @@ describe("SeeItMarketingBody", () => {
     render(<SeeItMarketingBody source="live" payload={payload} />);
 
     const sampleLink = screen.getByTestId("see-it-full-preview-link");
+    const demoPreview = screen.getByTestId("see-it-cta-demo-preview");
+    const pdf = screen.getByTestId("see-it-proof-pack-download");
 
     expect(sampleLink).toHaveAttribute("href", CANONICAL_ANONYMOUS_PROOF_HREF);
     expect(sampleLink.tagName).toBe("A");
-    expect(screen.getByTestId("see-it-cta-demo-preview")).toHaveAttribute("href", "/demo/preview");
+    expect(demoPreview).toHaveAttribute("href", "/demo/preview");
+    expect(demoPreview.tagName).toBe("A");
+    expect(pdf.tagName).toBe("A");
+    expect(screen.getByTestId("see-it-secondary-cta-row").querySelectorAll("a")).toHaveLength(3);
   });
 });
 

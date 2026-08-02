@@ -15,8 +15,7 @@ export type SeeItPackageSummaryProps = {
 export function SeeItPackageSummary(props: SeeItPackageSummaryProps): React.JSX.Element {
   const { reviewTitle, policyPackLabel, findingCountDisplay, complianceGapDisplay } = props;
 
-  const findingsLabel =
-    findingCountDisplay === "1" ? "1 finding" : `${findingCountDisplay} findings`;
+  const findingsUnit = findingCountDisplay === "1" ? "finding" : "findings";
 
   let monitoredLabel: string | null = null;
 
@@ -36,46 +35,56 @@ export function SeeItPackageSummary(props: SeeItPackageSummaryProps): React.JSX.
             Finalized sample architecture proof export (read-only)
           </p>
         </div>
-        <StatusTag kind="approved" data-testid="see-it-summary-status" />
+        <StatusTag
+          kind="approved"
+          data-testid="see-it-summary-status"
+          className="px-2.5 py-1 text-sm font-semibold"
+        />
       </div>
 
       <dl
-        className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3"
+        className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3"
         data-testid="see-it-summary-stats"
       >
-        <div className="rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-3 dark:border-neutral-800 dark:bg-neutral-950/50">
+        <div className="rounded-md border border-neutral-200 bg-neutral-50/80 px-4 py-4 dark:border-neutral-800 dark:bg-neutral-950/50">
           <dt className={cn("font-medium text-al-text-secondary", MARKETING_TYPOGRAPHY.meta)}>
             Findings
           </dt>
-          <dd
-            className={cn("mt-1 m-0 text-al-text-primary", MARKETING_TYPOGRAPHY.cardTitle)}
-            data-testid="see-it-finding-counts"
-          >
-            {findingsLabel}
+          <dd className="mt-2 m-0" data-testid="see-it-finding-counts">
+            <span className="block text-3xl font-semibold tabular-nums tracking-tight text-al-text-primary">
+              {findingCountDisplay}
+            </span>
+            <span className={cn("mt-1 block text-al-text-primary", MARKETING_TYPOGRAPHY.cardTitle)}>
+              {findingsUnit}
+            </span>
             {monitoredLabel ? (
-              <span className={cn("mt-1 block font-normal text-al-text-secondary", MARKETING_TYPOGRAPHY.meta)}>
+              <span className={cn("mt-1 block text-al-text-secondary", MARKETING_TYPOGRAPHY.meta)}>
                 {monitoredLabel}
               </span>
             ) : null}
           </dd>
         </div>
 
-        <div className="rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-3 dark:border-neutral-800 dark:bg-neutral-950/50">
+        <div className="rounded-md border border-neutral-200 bg-neutral-50/80 px-4 py-4 dark:border-neutral-800 dark:bg-neutral-950/50">
           <dt className={cn("font-medium text-al-text-secondary", MARKETING_TYPOGRAPHY.meta)}>
             Policy pack
           </dt>
-          <dd className={cn("mt-1 m-0 text-al-text-primary", MARKETING_TYPOGRAPHY.cardTitle)}>
+          <dd className={cn("mt-2 m-0 text-al-text-primary", MARKETING_TYPOGRAPHY.cardTitle)}>
             {policyPackLabel}
           </dd>
         </div>
 
-        <div className="rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-3 dark:border-neutral-800 dark:bg-neutral-950/50 sm:col-span-2 lg:col-span-1">
+        <div className="rounded-md border border-neutral-200 bg-neutral-50/80 px-4 py-4 dark:border-neutral-800 dark:bg-neutral-950/50 sm:col-span-2 lg:col-span-1">
           <dt className={cn("font-medium text-al-text-secondary", MARKETING_TYPOGRAPHY.meta)}>
             Package readiness
           </dt>
-          <dd className={cn("mt-1 m-0 space-y-1 text-al-text-primary", MARKETING_TYPOGRAPHY.meta)}>
-            <p className="m-0">Evidence complete</p>
-            <p className="m-0">Audit trail ready</p>
+          <dd className="mt-2 m-0 space-y-1">
+            <p className={cn("m-0 font-semibold text-al-text-primary", MARKETING_TYPOGRAPHY.cardTitle)}>
+              Evidence complete
+            </p>
+            <p className={cn("m-0 font-semibold text-al-text-primary", MARKETING_TYPOGRAPHY.cardTitle)}>
+              Audit trail ready
+            </p>
           </dd>
         </div>
       </dl>

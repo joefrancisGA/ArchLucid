@@ -67,14 +67,17 @@ export function SeeItMarketingBody({ source, payload }: SeeItMarketingBodyProps)
       : "Public read-only evaluation preview. Tenant-accurate reviews and full artifact bytes use a signed-in workspace.";
 
   return (
-    <div className={cn("space-y-8", MARKETING_MOTION.revealIn)}>
+    <div className={cn("space-y-10", MARKETING_MOTION.revealIn)}>
       <div
         role="status"
         data-testid="see-it-demo-banner"
         data-see-it-universe={universe}
         className={cn(MARKETING_SURFACES.mutedPanel, "border border-neutral-200 dark:border-neutral-800")}
       >
-        <p className={cn("m-0", MARKETING_TYPOGRAPHY.cardTitle)} data-testid="see-it-demo-banner-title">
+        <p
+          className={cn("m-0", MARKETING_TYPOGRAPHY.sectionTitle)}
+          data-testid="see-it-demo-banner-title"
+        >
           {bannerTitle}
         </p>
         <details className="mt-3 group">
@@ -114,6 +117,7 @@ export function SeeItMarketingBody({ source, payload }: SeeItMarketingBodyProps)
       <section
         aria-label="Secondary sample actions"
         className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center"
+        data-testid="see-it-secondary-cta-row"
       >
         <Button asChild variant="outline">
           <a
@@ -124,20 +128,16 @@ export function SeeItMarketingBody({ source, payload }: SeeItMarketingBodyProps)
             Download sample overview (PDF)
           </a>
         </Button>
-        <Link
-          data-testid="see-it-cta-demo-preview"
-          className="inline-flex min-h-11 items-center justify-center rounded-md border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-900 hover:bg-neutral-50 dark:border-neutral-600 dark:text-neutral-100 dark:hover:bg-neutral-900"
-          href="/demo/preview"
-        >
-          See a full sample review output — no sign-in
-        </Link>
-        <Link
-          data-testid="see-it-full-preview-link"
-          className={cn(MARKETING_SURFACES.inlineLink, "min-h-11 content-center text-sm")}
-          href={CANONICAL_ANONYMOUS_PROOF_HREF}
-        >
-          Open interactive sample review
-        </Link>
+        <Button asChild variant="outline">
+          <Link data-testid="see-it-cta-demo-preview" href="/demo/preview">
+            View sample review output
+          </Link>
+        </Button>
+        <Button asChild variant="outline">
+          <Link data-testid="see-it-full-preview-link" href={CANONICAL_ANONYMOUS_PROOF_HREF}>
+            Open interactive sample review
+          </Link>
+        </Button>
       </section>
       <p className={cn("text-al-text-secondary", MARKETING_TYPOGRAPHY.meta, MARKETING_CAPTION_TEXT_CLASS)}>
         The PDF is a no-sign-in marketing overview aligned with this sample — not the full governed evidence
