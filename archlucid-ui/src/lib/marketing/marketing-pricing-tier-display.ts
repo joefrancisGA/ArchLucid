@@ -43,6 +43,27 @@ export type MarketingPricingFitRow = {
   readonly tiers: Readonly<Record<MarketingPricingTierId, boolean>>;
 };
 
+/** Core value buyers keep on every paid tier — shown above the plan grid. */
+export const MARKETING_PRICING_UNIVERSAL_INCLUDES: readonly string[] = [
+  "Evidence-backed architecture reviews",
+  "AI-assisted analysis and evidence Q&A",
+  "Exportable signed review records",
+  "Audit trail and evidence graph",
+  "Policy packs",
+];
+
+export type MarketingPricingFitRecommendation = {
+  readonly teamType: string;
+  readonly recommendedPlan: string;
+};
+
+/** Explicit plan guidance — complements the tier grid without replacing it. */
+export const MARKETING_PRICING_FIT_RECOMMENDATIONS: readonly MarketingPricingFitRecommendation[] = [
+  { teamType: "Solo architect", recommendedPlan: "Architect" },
+  { teamType: "Small review team", recommendedPlan: "Team" },
+  { teamType: "Governance program", recommendedPlan: "Professional / Enterprise" },
+];
+
 /** Lightweight persona fit matrix — scan before comparing feature bullets. */
 export const MARKETING_PRICING_FIT_MATRIX: readonly MarketingPricingFitRow[] = [
   {
@@ -99,4 +120,15 @@ export function resolveMarketingTierPrimaryCtaVariant(
   }
 
   return "primary";
+}
+
+export function resolveMarketingTierPrimaryCtaSize(
+  tierId: MarketingPricingTierId,
+  isRecommended: boolean,
+): "default" | "lg" {
+  if (isRecommended && tierId === "professional") {
+    return "lg";
+  }
+
+  return "default";
 }

@@ -7,7 +7,7 @@ import { MARKETING_PRICING_USAGE_FAQ_ITEMS, MARKETING_PRICING_USAGE_FAQ_TITLE } 
 export function MarketingPricingUsageFaqSection(): React.JSX.Element {
   return (
     <section
-      className="mb-10 rounded-xl border border-neutral-200 bg-neutral-50 p-6 dark:border-neutral-800 dark:bg-neutral-900/40"
+      className="mb-12 mt-12 rounded-xl border border-neutral-200 bg-neutral-50 p-6 dark:border-neutral-800 dark:bg-neutral-900/40"
       aria-labelledby="pricing-usage-faq-heading"
       data-testid="pricing-usage-faq-section"
     >

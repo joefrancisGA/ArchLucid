@@ -6,18 +6,19 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { MarketingPricingEarlyAdopterBanner } from "@/components/marketing/MarketingPricingEarlyAdopterBanner";
 import { MarketingPricingFitMatrix } from "@/components/marketing/MarketingPricingFitMatrix";
-import { BUYER_EARLY_ADOPTER_PRICING_NOTE } from "@/lib/buyer-polish-copy";
+import { MarketingPricingUniversalIncludesStrip } from "@/components/marketing/MarketingPricingUniversalIncludesStrip";
 import { isPublicStripeTeamCheckoutEnabled } from "@/lib/marketing/is-public-stripe-team-checkout-enabled";
 import { buildMarketingSelfServeBillingHref } from "@/lib/marketing/marketing-billing-plan-href";
 import {
   MARKETING_PRICING_TIER_BEST_FOR,
   MARKETING_PRICING_TIER_HIGHLIGHTS,
   buildMarketingPricingIncludedLines,
+  resolveMarketingTierPrimaryCtaSize,
   resolveMarketingTierPrimaryCtaVariant,
 } from "@/lib/marketing/marketing-pricing-tier-display";
 import {
-  BUYER_MARKETING_PRICING_AI_USAGE_NOTE,
   MARKETING_PRICING_RECOMMENDED_TIER,
   MARKETING_PRICING_TIER_CTAS,
   isMarketingPricingTierId,
@@ -151,6 +152,7 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
 
       {pricing && !pricingError ? (
         <>
+          <MarketingPricingUniversalIncludesStrip />
           <ul className="grid items-stretch gap-6 md:grid-cols-2 xl:grid-cols-4">
             {[...pricing.packages]
               .sort((a, b) => pricingTierSortIndex(a.id) - pricingTierSortIndex(b.id))
@@ -163,6 +165,8 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                 const bestFor = tierId !== null ? MARKETING_PRICING_TIER_BEST_FOR[tierId] : null;
                 const primaryCtaVariant =
                   tierId !== null ? resolveMarketingTierPrimaryCtaVariant(tierId, isRecommended) : "primary";
+                const primaryCtaSize =
+                  tierId !== null ? resolveMarketingTierPrimaryCtaSize(tierId, isRecommended) : "default";
                 const billingHref =
                   tierId !== null && selfServeCheckoutEnabled
                     ? buildMarketingSelfServeBillingHref(tierId)
@@ -174,7 +178,7 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                     data-testid={pkg.id === "team" ? "pricing-tier-team" : pkg.id === "architect" ? "pricing-tier-architect" : undefined}
                     className={
                       isRecommended
-                        ? "flex h-full flex-col rounded-lg border-2 border-teal-600 bg-white p-5 shadow-md ring-1 ring-teal-600/20 dark:border-teal-500 dark:bg-neutral-900 dark:ring-teal-500/25"
+                        ? "relative z-10 flex h-full flex-col rounded-lg border-2 border-teal-600 border-t-4 border-t-teal-700 bg-white p-5 shadow-md ring-1 ring-teal-600/20 xl:scale-[1.02] dark:border-teal-500 dark:border-t-teal-400 dark:bg-neutral-900 dark:ring-teal-500/25"
                         : pkg.id === "enterprise"
                           ? "flex h-full flex-col rounded-lg border border-teal-700/80 bg-white p-5 shadow-sm dark:border-teal-800 dark:bg-neutral-900"
                           : "flex h-full flex-col rounded-lg border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
@@ -195,23 +199,25 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                         ) : null}
                       </h3>
                       <p
-                        className={cn("mt-4 text-xl font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
+                        className={cn("mt-4 text-2xl font-semibold tracking-tight text-al-text-primary sm:text-[1.75rem]", OPERATOR_TYPOGRAPHY.cardTitle)}
                         data-testid={`pricing-tier-price-${pkg.id}`}
                       >
                         {formatPlanPrice(pkg, pricing.currency)}
                       </p>
                       {bestFor !== null ? (
-                        <div className="mt-4">
-                          <p className={cn("m-0 font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                        <div className="mt-5 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-3 dark:border-neutral-800 dark:bg-neutral-900/50">
+                          <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                             Best for
                           </p>
-                          <p className={cn("m-0 mt-1 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>{bestFor}</p>
+                          <p className={cn("m-0 mt-2 text-base font-medium leading-snug text-al-text-primary sm:text-lg", OPERATOR_TYPOGRAPHY.body)}>
+                            {bestFor}
+                          </p>
                         </div>
                       ) : (
                         <p className={cn("mt-4 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{pkg.summary}</p>
                       )}
                       {includedLines.length > 0 ? (
-                        <div className="mt-4">
+                        <div className="mt-5 min-h-[5.5rem]">
                           <p className={cn("m-0 font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                             Included
                           </p>
@@ -228,7 +234,7 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                         </div>
                       ) : null}
                       {highlights.length > 0 ? (
-                        <div className="mt-4">
+                        <div className="mt-4 min-h-[5.5rem]">
                           <p className={cn("m-0 font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                             Highlights
                           </p>
@@ -246,21 +252,21 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                       ) : null}
                     </div>
                     {cta !== undefined ? (
-                    <div className="mt-auto flex flex-col gap-2 pt-5">
+                    <div className="mt-auto flex min-h-[3.25rem] flex-col justify-end gap-2 pt-5">
                       {cta.primaryKind === "quote" ? (
-                        <Button type="button" variant={primaryCtaVariant} className="w-full" onClick={() => scrollToQuote()}>
+                        <Button type="button" variant={primaryCtaVariant} size={primaryCtaSize} className="w-full" onClick={() => scrollToQuote()}>
                           {cta.primaryLabel}
                         </Button>
                       ) : null}
 
                       {cta.primaryKind === "stripe" && props.preferSalesLedQuoteCta ? (
-                        <Button type="button" variant={primaryCtaVariant} className="w-full" onClick={() => scrollToQuote()}>
+                        <Button type="button" variant={primaryCtaVariant} size={primaryCtaSize} className="w-full" onClick={() => scrollToQuote()}>
                           {cta.primaryLabel}
                         </Button>
                       ) : null}
 
                       {cta.primaryKind === "stripe" && !props.preferSalesLedQuoteCta && billingHref !== null ? (
-                        <Button asChild variant={primaryCtaVariant} className="w-full">
+                        <Button asChild variant={primaryCtaVariant} size={primaryCtaSize} className="w-full">
                           <Link
                             data-testid={pkg.id === "team" ? "pricing-team-subscribe-stripe" : `pricing-${pkg.id}-subscribe-stripe`}
                             href={billingHref}
@@ -271,7 +277,7 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                       ) : null}
 
                       {cta.primaryKind === "stripe" && !props.preferSalesLedQuoteCta && billingHref === null ? (
-                        <Button asChild variant={primaryCtaVariant} className="w-full">
+                        <Button asChild variant={primaryCtaVariant} size={primaryCtaSize} className="w-full">
                           <Link href={props.signupHref}>{cta.primaryLabel}</Link>
                         </Button>
                       ) : null}
@@ -299,17 +305,7 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
               })}
           </ul>
           <MarketingPricingFitMatrix />
-          <div
-            className="mt-6 rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-3 dark:border-neutral-800 dark:bg-neutral-900/50"
-            data-testid="pricing-early-adopter-framing"
-          >
-            <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{BUYER_EARLY_ADOPTER_PRICING_NOTE}</p>
-            {props.showAiUsageNote === true ? (
-              <p className={cn("m-0 mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)} data-testid="pricing-ai-usage-note">
-                {BUYER_MARKETING_PRICING_AI_USAGE_NOTE}
-              </p>
-            ) : null}
-          </div>
+          <MarketingPricingEarlyAdopterBanner showAiUsageNote={props.showAiUsageNote === true} />
           {props.showSignupCallToAction !== false ? (
             <div className="mt-8 flex justify-center">
               <Button asChild variant="primary" size="lg">

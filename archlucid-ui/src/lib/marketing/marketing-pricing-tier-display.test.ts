@@ -2,8 +2,10 @@ import { describe, expect, it } from "vitest";
 
 import {
   MARKETING_PRICING_FIT_MATRIX,
+  MARKETING_PRICING_FIT_RECOMMENDATIONS,
   MARKETING_PRICING_TIER_BEST_FOR,
   buildMarketingPricingIncludedLines,
+  resolveMarketingTierPrimaryCtaSize,
   resolveMarketingTierPrimaryCtaVariant,
 } from "@/lib/marketing/marketing-pricing-tier-display";
 import type { PricingPackage } from "@/lib/pricing-types";
@@ -45,5 +47,15 @@ describe("marketing-pricing-tier-display", () => {
     expect(resolveMarketingTierPrimaryCtaVariant("architect", false)).toBe("outline");
     expect(resolveMarketingTierPrimaryCtaVariant("enterprise", false)).toBe("outline");
     expect(resolveMarketingTierPrimaryCtaVariant("professional", true)).toBe("primary");
+  });
+
+  it("uses a larger CTA for the recommended professional tier", () => {
+    expect(resolveMarketingTierPrimaryCtaSize("professional", true)).toBe("lg");
+    expect(resolveMarketingTierPrimaryCtaSize("team", false)).toBe("default");
+  });
+
+  it("maps each persona to an explicit recommended plan", () => {
+    expect(MARKETING_PRICING_FIT_RECOMMENDATIONS).toHaveLength(3);
+    expect(MARKETING_PRICING_FIT_RECOMMENDATIONS[0]?.recommendedPlan).toBe("Architect");
   });
 });

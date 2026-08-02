@@ -790,7 +790,7 @@ export const BUYER_GOVERNANCE_STATUS_BANNER_VIEW_DISPOSITIONS = "View dispositio
 
 export const BUYER_GOVERNANCE_STATUS_BANNER_VIEW_AUDIT = "View audit trail";
 
-export const BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE = "Risk register";
+export const BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE = "Findings";
 
 export const BUYER_GOVERNANCE_FINDINGS_PAGE_LEAD =
   "Track architecture risks created from findings, waivers, exceptions, and governance decisions for this review.";
@@ -870,7 +870,11 @@ export const FORBIDDEN_WORKSPACE_ADMIN_ACCESS_MESSAGE =
 export const FORBIDDEN_WORKSPACE_ADMIN_ACCESS_MESSAGE_SHORT =
   "This page requires a workspace administrator.";
 
-/** Early-access pricing transparency — below tier grid on public /pricing. */
+/** Compact early-adopter banner — one-line summary above expandable full terms on /pricing. */
+export const BUYER_EARLY_ADOPTER_PRICING_BANNER_SUMMARY =
+  "Current pricing is discounted during the early-access period and locked for the life of your initial subscription.";
+
+/** Early-access pricing transparency — expanded detail on public /pricing. */
 export const BUYER_EARLY_ADOPTER_PRICING_NOTE =
   "Early adopter pricing. Current prices reflect ArchLucid's early-access period. List prices are intentionally set at approximately 50% of fair value to reward early adopters who help us build our first reference cases. Prices will increase as we publish independent security attestations and customer case studies — your rate is locked for the life of your initial subscription.";
 

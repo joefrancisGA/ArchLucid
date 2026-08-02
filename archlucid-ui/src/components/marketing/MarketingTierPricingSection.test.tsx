@@ -82,6 +82,8 @@ describe("MarketingTierPricingSection", () => {
     within(architectCard).getByRole("link", { name: /start architect plan/i });
     expect(screen.getByTestId("pricing-tier-price-enterprise")).toHaveTextContent("Custom");
     expect(screen.getByTestId("pricing-fit-matrix")).toBeInTheDocument();
+    expect(screen.getByTestId("pricing-universal-includes-strip")).toBeInTheDocument();
+    expect(screen.getByText(/Recommended plan/i)).toBeInTheDocument();
     expect(screen.queryByTestId("pricing-early-adopter-framing")).toHaveTextContent(/Early adopter pricing/i);
   });
 
