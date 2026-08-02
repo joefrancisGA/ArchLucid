@@ -7,10 +7,24 @@ import argparse
 import sys
 from pathlib import Path
 
-from archlucid_ui_route_catalog import WORKBOOK_PATH_MIGRATIONS, build_catalog, migrate_workbook_path
+from archlucid_ui_route_catalog import (
+    TRAFFIC_TRACKED_REDIRECT_BOOKMARKS,
+    WORKBOOK_PATH_MIGRATIONS,
+    build_catalog,
+    migrate_workbook_path,
+)
 from archlucid_ui_route_traffic_table import REPO_ROOT, TEMPLATE_DOC, parse_rows, split_document
 
-REDIRECT_ONLY_PATHS = frozenset(WORKBOOK_PATH_MIGRATIONS.keys())
+# Tracked next.config bookmarks may remain as workbook rows; other migration keys must not.
+REDIRECT_ONLY_PATHS = frozenset(WORKBOOK_PATH_MIGRATIONS.keys()) - TRAFFIC_TRACKED_REDIRECT_BOOKMARKS
+
+
+def _effective_workbook_path(path: str) -> str:
+    """Keep traffic-tracked redirect bookmarks; migrate every other legacy path."""
+    if path in TRAFFIC_TRACKED_REDIRECT_BOOKMARKS:
+        return path
+
+    return migrate_workbook_path(path)
 
 
 def workbook_paths(doc: Path) -> tuple[list[str], list[str]]:
@@ -19,7 +33,7 @@ def workbook_paths(doc: Path) -> tuple[list[str], list[str]]:
     _, table_body, _ = split_document(text, doc)
     rows = parse_rows(table_body)
     raw_paths = [row["path"] for row in rows]
-    migrated_paths = [migrate_workbook_path(path) for path in raw_paths]
+    migrated_paths = [_effective_workbook_path(path) for path in raw_paths]
     return raw_paths, migrated_paths
 
 

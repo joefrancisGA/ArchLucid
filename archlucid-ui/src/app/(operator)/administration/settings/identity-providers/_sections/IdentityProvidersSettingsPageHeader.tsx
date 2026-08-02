@@ -34,7 +34,7 @@ export function IdentityProvidersSettingsPageHeader(
   const pageTitle = props.pageTitle ?? IDENTITY_PROVIDERS_PAGE_TITLE;
   const onDiagnosticsPage = pathname.startsWith(IDENTITY_PROVIDERS_DIAGNOSTICS_LINK_HREF);
   const lastRefreshedLabel =
-    props.lastRefreshedAt === null ? "Not refreshed yet" : props.lastRefreshedAt.toLocaleString();
+    props.lastRefreshedAt == null ? "Not refreshed yet" : props.lastRefreshedAt.toLocaleString();
 
   return (
     <OperatorPageHeader

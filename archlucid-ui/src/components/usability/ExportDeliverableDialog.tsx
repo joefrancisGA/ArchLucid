@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
+import Link from "next/link";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
