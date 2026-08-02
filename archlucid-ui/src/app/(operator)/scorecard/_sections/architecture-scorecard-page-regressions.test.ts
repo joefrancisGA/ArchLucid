@@ -10,9 +10,12 @@ import { SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH } from "@/lib/sponsor-report
 import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
 
 /**
- * Bundle guard for TB-1956–TB-1959: traffic workbook + view tests in sibling modules.
+ * Bundle guard for TB-1956–TB-1959 (TB-1960): traffic workbook + view tests in sibling modules.
+ * Traffic workbook drift: `ui-route-traffic-architecture-scorecard.test.ts`.
+ * Sample redirect: `legacy-scorecard-redirect.test.ts`.
+ * Empty CTA + sample mode UI: `ReviewScorecardEmptyState.test.tsx`, `PilotScorecardPageView.test.tsx`.
  */
-describe("architecture-scorecard sponsor-report regressions (TB-1959)", () => {
+describe("architecture-scorecard sponsor-report regressions (TB-1960)", () => {
   it("traffic workbook path matches canonical sponsor-report route (TB-1956)", () => {
     expect(ARCHITECTURE_SCORECARD_TRAFFIC_PATH).toBe(SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH);
   });
