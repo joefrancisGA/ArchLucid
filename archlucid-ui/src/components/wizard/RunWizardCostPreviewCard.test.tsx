@@ -51,9 +51,9 @@ describe("RunWizardCostPreviewCard", () => {
         json: async () => ({
           mode: "Real",
           maxCompletionTokens: 1024,
-          estimatedCostUsd: 0.137216,
-          estimatedCostUsdLow: 0.005632,
-          estimatedCostUsdHigh: 0.137216,
+          estimatedCostUsd: 0.7168,
+          estimatedCostUsdLow: 0.03584,
+          estimatedCostUsdHigh: 0.7168,
           estimatedCostBasis: "Starter run = 4 parallel agents.",
           pricingUsesIllustrativeUsdRates: true,
           deploymentName: "gpt-test",

@@ -61,11 +61,11 @@ public sealed class AgentExecutionCostPreviewIntegrationTests
         body.EstimatedCostBasis.Should().Contain("65536");
         body.PricingUsesIllustrativeUsdRates.Should().BeTrue();
 
-        // Default LlmCostEstimation rates: low = one completion at 8192 in @ 0.5/M + 1024 out @ 1.5/M
-        body.EstimatedCostUsdLow!.Value.Should().BeApproximately(0.005632, 0.000001);
+        // Default LlmCostEstimation rates (GPT-5.6 Terra): low = one completion at 8192 in @ 2.5/M + 1024 out @ 15/M
+        body.EstimatedCostUsdLow!.Value.Should().BeApproximately(0.03584, 0.000001);
 
-        // High = 4 Ã— (65536 in @ 0.5/M + 1024 out @ 1.5/M)
-        body.EstimatedCostUsdHigh!.Value.Should().BeApproximately(0.137216, 0.000001);
+        // High = 4 × (65536 in @ 2.5/M + 1024 out @ 15/M)
+        body.EstimatedCostUsdHigh!.Value.Should().BeApproximately(0.7168, 0.000001);
     }
 
     private sealed class AgentExecutionCostPreviewDto
