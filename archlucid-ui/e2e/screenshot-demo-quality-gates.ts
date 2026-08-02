@@ -18,7 +18,7 @@ const REGISTERED_PACKS_EMPTY_KPI_REGEX = /Registered packs\r?\n0\r?\nVisible in 
  * so we poll until both the chunk shell is gone and the body no longer carries that copy.
  */
 async function waitForGraphScreenshotSettled(page: Page, href: string): Promise<void> {
-  if (href !== "/graph" && !href.startsWith("/graph?")) {
+  if (href !== "/insights/evidence-graph" && !href.startsWith("/graph?")) {
     return;
   }
 

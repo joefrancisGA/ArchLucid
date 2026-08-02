@@ -676,7 +676,7 @@ export function GraphPageContent() {
       ) : (
         <CtoDemoBuyerValueStrip stepIndex={2} />
       )}
-      <OperatorPageHeader title={pageTitle} subtitle={pageSubtitle} navHref="/graph" />
+      <OperatorPageHeader title={pageTitle} subtitle={pageSubtitle} navHref="/insights/evidence-graph" />
       <GraphEvidenceTrailGuidanceDisclosure className={buyerPolishedShell ? "hidden" : undefined} />
       {buyerGraphBody}
       {!buyerPolishedShell && showOperatorControls && effectiveGraph === null ? (

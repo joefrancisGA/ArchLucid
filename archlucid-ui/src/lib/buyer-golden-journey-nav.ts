@@ -35,7 +35,7 @@ export const BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS = [
   {
     step: 3,
     label: "Evidence trail",
-    href: `/graph?runId=${showcaseRunEnc}&graphNodeId=${encodeURIComponent(SHOWCASE_PHI_FINDING_GRAPH_NODE_ID)}`,
+    href: `/insights/evidence-graph?runId=${showcaseRunEnc}&graphNodeId=${encodeURIComponent(SHOWCASE_PHI_FINDING_GRAPH_NODE_ID)}`,
     chipTooltip: "Interactive graph linking evidence → findings → decisions → signed review record outputs.",
   },
   {
@@ -120,7 +120,7 @@ export function resolveBuyerGoldenJourneyNav(
 
     if (reviewExecutive !== null && isBuyerGoldenSpineRunId(reviewExecutive[1])) {
       stepIdx = 0;
-    } else if (path.startsWith("/graph")) {
+    } else if (path.startsWith("/insights/evidence-graph")) {
       const graphRunId =
         options?.searchRunId?.trim() ??
         new URL(pathname, "http://archlucid.local").searchParams.get("runId")?.trim() ??
@@ -131,7 +131,7 @@ export function resolveBuyerGoldenJourneyNav(
       } else {
         return null;
       }
-    } else if (path.startsWith("/ask")) {
+    } else if (path.startsWith("/insights/ask-review-questions")) {
       return null;
     } else if (path.startsWith("/compare")) {
       return null;

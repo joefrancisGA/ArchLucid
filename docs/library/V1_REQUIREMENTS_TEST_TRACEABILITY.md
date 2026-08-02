@@ -64,5 +64,5 @@ V1_SCOPE emphasizes functional clauses **2.1–2.10**; the rows below map **cros
 | Doc | Use |
 |-----|-----|
 | [`V1_SCOPE.md`](V1_SCOPE.md) | Source contract for rows above |
-| [`QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md`](../archive/assessments/QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md) | Weighted gaps and improvement targets |
-| [`CURSOR_PROMPTS_WEIGHTED_IMPROVEMENTS_3_TO_6.md`](../archive/assessments/CURSOR_PROMPTS_WEIGHTED_IMPROVEMENTS_3_TO_6.md) | Paste-ready prompts for this workstream |
+| [`LATEST_GPT55.md`](../assessments/LATEST_GPT55.md) | Live weighted readiness / improvement targets |
+| [`ASSESSMENT_PROMPT_SERIES.md`](../assessments/ASSESSMENT_PROMPT_SERIES.md) | Paste-ready assessment / improvement prompts |

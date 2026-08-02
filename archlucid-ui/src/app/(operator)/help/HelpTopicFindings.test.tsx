@@ -22,7 +22,7 @@ const BANNED_DEVELOPER_COPY = [
   "/governance/findings",
   "/governance/decision-register",
   "/governance/resolution",
-  "/graph",
+  "/insights/evidence-graph",
   "/search",
   "/v1/",
   "POST /",

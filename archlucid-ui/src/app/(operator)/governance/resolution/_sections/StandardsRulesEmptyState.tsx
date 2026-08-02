@@ -24,7 +24,7 @@ export function StandardsRulesEmptyState() {
           <Link href="/governance/policy-packs">Open policy packs</Link>
         </Button>
         <Button asChild type="button" size="sm" variant="outline">
-          <Link href={`/graph?runId=${showcaseRunEnc}`}>View review evidence</Link>
+          <Link href={`/insights/evidence-graph?runId=${showcaseRunEnc}`}>View review evidence</Link>
         </Button>
       </div>
     </section>

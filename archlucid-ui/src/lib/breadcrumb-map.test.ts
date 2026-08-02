@@ -228,7 +228,7 @@ describe("getBreadcrumbs", () => {
 
   it("buyer-polished: showcase runId on hub inserts review title before the hub crumb", () => {
     expect(
-      getBreadcrumbs("/graph", {
+      getBreadcrumbs("/insights/evidence-graph", {
         buyerPolishedShell: true,
         queryRunId: SHOWCASE_STATIC_DEMO_RUN_ID,
       }),
@@ -240,7 +240,7 @@ describe("getBreadcrumbs", () => {
 
   it("does not inject review crumb when runId is not a known demo or compare slug", () => {
     expect(
-      getBreadcrumbs("/graph", {
+      getBreadcrumbs("/insights/evidence-graph", {
         buyerPolishedShell: true,
         queryRunId: "other-review",
       }),

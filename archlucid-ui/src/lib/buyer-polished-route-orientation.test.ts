@@ -35,7 +35,7 @@ describe("buyerPolishedRouteOrientation", () => {
   });
 
   it("returns null for evidence graph — the page carries its own lifecycle banner and header", () => {
-    expect(buyerPolishedRouteOrientation("/graph")).toBeNull();
+    expect(buyerPolishedRouteOrientation("/insights/evidence-graph")).toBeNull();
   });
 
   it("returns null for executive dashboard — portfolioPageLead owns the intro (TB-1439)", () => {
@@ -60,7 +60,7 @@ describe("buyerPolishedRouteOrientation", () => {
   });
 
   it("returns null for ask — the page carries its own hero copy", () => {
-    expect(buyerPolishedRouteOrientation("/ask")).toBeNull();
+    expect(buyerPolishedRouteOrientation("/insights/ask-review-questions")).toBeNull();
   });
 
   it("orients architecture intelligence", () => {

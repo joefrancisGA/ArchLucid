@@ -18,12 +18,12 @@ export function buyerPolishedOperateBackLink(pathnameWithSearch: string): BuyerO
   }
 
   if (
-    path.startsWith("/graph") ||
+    path.startsWith("/insights/evidence-graph") ||
     path.startsWith("/governance") ||
     path.startsWith("/audit") ||
     path.startsWith("/signed-records/") ||
     path.startsWith("/showcase/") ||
-    path.startsWith("/ask")
+    path.startsWith("/insights/ask-review-questions")
   ) {
     return { label: "Back to review", href: packageHref };
   }

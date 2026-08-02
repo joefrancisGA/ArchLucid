@@ -42,7 +42,7 @@ export const SHORTCUTS: ShortcutEntry[] = [
   {
     key: "alt+a",
     label: "Ask review questions",
-    route: "/ask",
+    route: "/insights/ask-review-questions",
     description: "Open Ask (scoped Q&A)",
   },
   {
@@ -54,7 +54,7 @@ export const SHORTCUTS: ShortcutEntry[] = [
   {
     key: "alt+y",
     label: "Graph",
-    route: "/graph",
+    route: "/insights/evidence-graph",
     description: "Open graph",
   },
   {

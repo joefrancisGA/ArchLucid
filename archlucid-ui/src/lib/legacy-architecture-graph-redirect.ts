@@ -1,7 +1,7 @@
 import { CANONICAL_GRAPH_PATH } from "@/lib/legacy-architecture-graph-route";
 
 /**
- * Builds `/graph` plus the same query string as the incoming legacy Operate architecture-graph shim
+ * Builds {@link EVIDENCE_GRAPH_PATH} plus the same query string as the incoming legacy Operate architecture-graph shim
  * so bookmarks and handoffs keep deep-link params such as `runId`.
  */
 export function buildGraphRedirectPath(

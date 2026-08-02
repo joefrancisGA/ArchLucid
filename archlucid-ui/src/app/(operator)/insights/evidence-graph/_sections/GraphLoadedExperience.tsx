@@ -153,7 +153,7 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
                 <Link href={`/reviews/${encodeURIComponent(runTrim)}`}>{BUYER_EVIDENCE_TRAIL_OPEN_PACKAGE}</Link>
               </Button>
               <Button type="button" asChild variant="outline" size="sm">
-                <Link href={`/graph?runId=${encodeURIComponent(runTrim)}&presentation=trace`}>
+                <Link href={`/insights/evidence-graph?runId=${encodeURIComponent(runTrim)}&presentation=trace`}>
                   {BUYER_EVIDENCE_GRAPH_EXPORT_EVIDENCE_TRAIL_CTA}
                 </Link>
               </Button>

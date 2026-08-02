@@ -375,7 +375,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
             or{" "}
             <Link
               className="font-medium text-teal-800 underline dark:text-teal-300"
-              href={`/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}
+              href={`/insights/evidence-graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}
             >
               {BUYER_EVIDENCE_GRAPH_SAMPLE_LINK_LABEL}
             </Link>

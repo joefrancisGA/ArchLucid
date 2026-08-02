@@ -47,7 +47,7 @@ function DailyUsageEmptyState(): ReactNode {
       </p>
       <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
         <Button asChild variant="outline" size="sm">
-          <Link href="/ask">Open review questions</Link>
+          <Link href="/insights/ask-review-questions">Open review questions</Link>
         </Button>
         <Button asChild variant="primary" size="sm">
           <Link href="/reviews/new">Start a review</Link>

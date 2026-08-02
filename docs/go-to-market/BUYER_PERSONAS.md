@@ -612,4 +612,4 @@ Maintain a simple record for each active prospect:
 | [REFERENCE_NARRATIVE_TEMPLATE.md](REFERENCE_NARRATIVE_TEMPLATE.md) | Case study templates per ICP segment |
 | [../PILOT_GUIDE.md](../library/customer-facing/PILOT_GUIDE.md) | Technical pilot onboarding |
 | [../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md) | Security posture for enterprise buyers |
-| [../archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md](../archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md) | Full marketability quality assessment (archived series)
+| [../archive/../assessments/LATEST_GPT55.md](../archive/../assessments/LATEST_GPT55.md) | Full marketability quality assessment (archived series)

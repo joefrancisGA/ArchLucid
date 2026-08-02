@@ -21,12 +21,16 @@ describe("GovernanceResolutionPageView buyer-polished shell", () => {
     render(<GovernanceResolutionPageView model={buildModel()} />);
 
     expect(screen.getByTestId("standards-rules-governance-status-banner")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Standards & rules", level: 2 })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Standards & rules", level: 1 })).toBeInTheDocument();
     expect(
       screen.getByText(/Review the standards, policy rules, and checks applied to this review/),
     ).toBeInTheDocument();
     expect(screen.getByTestId("standards-rules-summary-strip")).toBeInTheDocument();
     expect(screen.getByTestId("standards-rules-table")).toBeInTheDocument();
+    expect(screen.getAllByLabelText("Severity: High").length).toBeGreaterThan(0);
+    expect(screen.getAllByLabelText("Status: Required").length).toBeGreaterThan(0);
+    expect(screen.getByTestId("finding-evidence-link-chip")).toBeInTheDocument();
+    expect(screen.getByTestId("standards-rules-refresh")).toBeInTheDocument();
     expect(screen.getByText("PHI minimization required")).toBeInTheDocument();
     expect(screen.queryByText(/Submit for governance approval/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Approval queue/i)).not.toBeInTheDocument();

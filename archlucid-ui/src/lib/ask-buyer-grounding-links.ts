@@ -1,4 +1,5 @@
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { evidenceGraphHref } from "@/lib/evidence-graph-route";
 import {
   getShowcaseCompareHref,
   getShowcaseExecutiveHref,
@@ -47,7 +48,7 @@ export function buyerAskGroundingLinksForRun(runIdRaw: string): readonly BuyerAs
     },
     {
       label: BUYER_SURFACE_VOCABULARY.evidenceGraph,
-      href: `/graph?runId=${encodeURIComponent(runId)}`,
+      href: evidenceGraphHref({ runId }),
     },
     {
       label: BUYER_SURFACE_VOCABULARY.auditTrail,

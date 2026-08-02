@@ -83,7 +83,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
       ? formatInstantForBuyerGovernance(run.createdUtc)
       : formatInstantForLocale(run.createdUtc);
   const compareHref = comparePageHrefAdaptive(run.runId);
-  const graphEvidenceHref = `/graph?runId=${encodeURIComponent(run.runId)}`;
+  const graphEvidenceHref = `/insights/evidence-graph?runId=${encodeURIComponent(run.runId)}`;
   const replayHref = `/replay?runId=${encodeURIComponent(run.runId)}`;
   const manifestHref = signedManifestExplore.href;
   const findingHref = showcaseStory
@@ -288,7 +288,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
                   <Link href={`/audit?runId=${encodeURIComponent(run.runId)}`}>View audit trail</Link>
                 </Button>
                 <Button variant="outline" size="sm" className="w-full" asChild>
-                  <Link href={`/ask?runId=${encodeURIComponent(run.runId)}`}>Ask about this review</Link>
+                  <Link href={`/insights/ask-review-questions?runId=${encodeURIComponent(run.runId)}`}>Ask about this review</Link>
                 </Button>
               </div>
             </details>

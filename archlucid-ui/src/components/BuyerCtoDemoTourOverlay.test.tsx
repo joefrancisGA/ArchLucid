@@ -116,7 +116,7 @@ describe("BuyerCtoDemoTourOverlay", () => {
 
   it("shows compare drift link on evidence trail step", async () => {
     sessionStorage.setItem("archlucid.buyerCtoDemoTour.preflightAck.v1", "1");
-    pathnameMock.mockReturnValue(`/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`);
+    pathnameMock.mockReturnValue(`/insights/evidence-graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`);
 
     render(<BuyerCtoDemoTourOverlay />);
 

@@ -26,7 +26,7 @@ import {
   governanceResolutionResolutionDetailsHeadingReader,
 } from "@/lib/enterprise-controls-context-copy";
 import { triggerGovernanceResolutionMarkdownDownload } from "@/lib/governance-resolution-markdown";
-import { OPERATOR_LAYOUT, OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import {
   buildStandardsRuleRows,
@@ -222,7 +222,18 @@ export function GovernanceResolutionPageView(props: Props) {
           </div>
         ) : null}
         <StandardsRulesSummaryStrip summary={summary} />
-        <StandardsRulesFilters filters={filters} options={filterOptions} onChange={setFilters} />
+        <StandardsRulesFilters
+          filters={filters}
+          options={filterOptions}
+          onChange={setFilters}
+          onReset={() => {
+            setFilters(EMPTY_STANDARDS_RULES_FILTER_STATE);
+          }}
+          onRefresh={() => {
+            void m.load();
+          }}
+          refreshing={m.loading}
+        />
         {allRuleRows.length === 0 ? (
           <StandardsRulesEmptyState />
         ) : filteredRuleRows.length === 0 ? (
@@ -230,11 +241,6 @@ export function GovernanceResolutionPageView(props: Props) {
         ) : (
           <StandardsRulesTable rows={filteredRuleRows} />
         )}
-        <div className={cn("mt-4", OPERATOR_LAYOUT.sectionStack)}>
-          <Button type="button" variant="ghost" size="sm" onClick={() => void m.load()} disabled={m.loading}>
-            {m.loading ? "Refreshing…" : "Refresh"}
-          </Button>
-        </div>
       </div>
     );
   }

@@ -138,7 +138,7 @@ export function HelpProductGuide() {
             </li>
             <li>
               Use{" "}
-              <Link className={OPERATOR_LINK.inline} href="/ask">
+              <Link className={OPERATOR_LINK.inline} href="/insights/ask-review-questions">
                 Ask
               </Link>{" "}
               for evidence-backed questions in the context of the active review.

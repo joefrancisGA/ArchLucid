@@ -14,8 +14,10 @@ describe("get-started-content", () => {
   });
 
   it("builds guided trial links that hand off to onboarding", () => {
-    expect(buildGuidedTrialHref()).toBe("/onboarding?source=get-started");
-    expect(buildGuidedTrialHref("retail")).toBe("/onboarding?source=get-started&vertical=retail");
+    expect(buildGuidedTrialHref()).toBe("/architecture/first-review-guide?source=get-started");
+    expect(buildGuidedTrialHref("retail")).toBe(
+      "/architecture/first-review-guide?source=get-started&vertical=retail",
+    );
     expect(buildGuidedTrialHref("retail")).not.toContain("templates");
   });
 

@@ -67,7 +67,7 @@ When adding a nav link whose URL prefix differs from its sidebar group, **add a 
 
 ### Hub pages (TB-680)
 
-Hub surfaces (`/onboarding`, operator home setup cards, Core Pilot checklist, optional workspace setup) are **status + deep-link** pages — not second homes for settings wizards or Internal Operations tooling.
+Hub surfaces (`/architecture/first-review-guide`, operator home setup cards, Core Pilot checklist, optional workspace setup) are **status + deep-link** pages — not second homes for settings wizards or Internal Operations tooling.
 
 | Rule | Rationale |
 |------|-----------|

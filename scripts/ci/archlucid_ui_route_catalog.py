@@ -45,7 +45,11 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/settings/alerts": "/governance/alert-rules",
     # TB-1902 / TB-1901: /settings/exec-digest is next.config-only → Digests Schedule tab.
     "/settings/exec-digest": "/digests?tab=schedule",
+    "/health": "/administration/system-health",
     "/help/core-pilot": "/help/first-architecture-review",
+    "/dashboard": "/architecture/executive-dashboard",
+    "/executive/dashboard": "/architecture/executive-dashboard",
+    "/portfolio": "/architecture/executive-dashboard",
 }
 
 # Legacy App Router redirect stubs — canonical nav hrefs live under /governance/advisory-scans (TB-1124).

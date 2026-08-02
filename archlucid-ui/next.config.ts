@@ -170,6 +170,19 @@ const nextConfig: NextConfig = {
       // Executive reviews retired — operator /reviews tree is canonical (TB-608 follow-on).
       { source: "/executive/reviews", destination: "/reviews", permanent: true },
       { source: "/executive/reviews/:path*", destination: "/reviews/:path*", permanent: true },
+      // First review guide IA rename — label-aligned path; exact `/onboarding` only (no catch-all;
+      // retired `/onboarding/start` stays 404).
+      {
+        source: "/onboarding",
+        destination: "/architecture/first-review-guide",
+        permanent: true,
+      },
+      // Evidence graph IA rename — label-aligned path under Insights.
+      { source: "/graph", destination: "/insights/evidence-graph", permanent: true },
+      { source: "/graph/:path*", destination: "/insights/evidence-graph/:path*", permanent: true },
+      // Ask review questions IA rename — label-aligned path under Insights.
+      { source: "/ask", destination: "/insights/ask-review-questions", permanent: true },
+      { source: "/ask/:path*", destination: "/insights/ask-review-questions/:path*", permanent: true },
       // Per-cloud help topics — slash aliases are canonical (retired hyphen slug URLs).
       { source: "/help/cloud-connections-azure", destination: "/help/cloud-connections/azure", permanent: true },
       { source: "/help/cloud-connections-aws", destination: "/help/cloud-connections/aws", permanent: true },

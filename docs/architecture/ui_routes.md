@@ -124,7 +124,9 @@ Configured in `archlucid-ui/next.config.ts`:
 | `/login` | `/auth/signin` or `/auth/session-expired` when `reason=idle-timeout` (App Router shim; query preserved) |
 | `/onboard`, `/getting-started` | `/onboarding` (page redirect) |
 | `/quick-start`, `/quick-start/*` | `/get-started` (301; App Router shim preserves query) |
-| `/portfolio` | `/dashboard` (301) |
+| `/portfolio` | `/architecture/executive-dashboard` (301) |
+| `/dashboard` | `/architecture/executive-dashboard` (301) |
+| `/executive/dashboard` | `/architecture/executive-dashboard` (301) |
 | `/executive/reviews`, `/executive/reviews/*` | `/reviews`, `/reviews/*` (301) |
 
 **Note:** README and older docs may reference `/manifests/[manifestId]/artifacts/[artifactId]`; that route no longer has a `page.tsx`. Artifact review is reached from review or manifest detail.
@@ -176,7 +178,8 @@ Columns:
 | URL | Purpose | How to view |
 |-----|---------|-------------|
 | `/` | Architect home — checklist and quick links | T1 or T2 |
-| `/dashboard` | Portfolio overview / executive ROI dashboard | T1 static tiles; T2 after seed |
+| `/architecture/executive-dashboard` | Portfolio overview / executive ROI dashboard (**ARE**) | T1 static tiles; T2 after seed; PageContextualHelp → executive-summary |
+| `/dashboard` | Retired — redirects to `/architecture/executive-dashboard` | Legacy bookmark (**DSH**) |
 | `/reviews` | List architecture packages | T2: `/reviews?projectId=default`; T1: static paged list |
 | `/reviews/new` | New architecture review wizard | T2: submit default run; T1: wizard UI (submit needs API) |
 | `/reviews/[runId]` | Architecture package detail | T1: `claims-intake-modernization`; T2: seed GUIDs above |
@@ -190,7 +193,7 @@ Columns:
 | `/onboard` | Deprecated alias | App Router shim permanently redirects to `/onboarding` (query preserved; canonical UX on **ONB**) |
 | `/getting-started` | Deprecated alias | App Router shim permanently redirects to `/onboarding` (query preserved) |
 | `/help` | In-app help index | Open directly |
-| `/help/[topic]` | Rendered help topic | e.g. `/help/getting-started`, `/help/first-architecture-review` (specialty `HelpCorePilotGuideView`), `/help/billing-and-plans` (specialty `HelpBillingAndPlansGuideView`), `/help/executive-summary` (specialty `HelpExecutiveSummaryGuideView`), `/help/alerts` (slugs in `product-documentation-registry.ts`) |
+| `/help/[topic]` | Rendered help topic | e.g. `/help/getting-started`, `/help/first-architecture-review` (specialty `HelpCorePilotGuideView`, **HCO**; legacy `/help/core-pilot` → **ECO**), `/help/billing-and-plans` (specialty `HelpBillingAndPlansGuideView`, **HBX**), `/help/executive-summary` (specialty `HelpExecutiveSummaryGuideView`, **EXE**), `/help/developer-troubleshooting` (Admin-gated internal-runbook, **HDX**), `/help/governance-api-contracts` (Admin-gated API contracts reference, **HG**), `/help/alerts` (slugs in `product-documentation-registry.ts`) |
 | `/demo` | CTO demo tour entry | CTO demo pack env; else redirects `/` |
 | `/demo/explain` | Internal demo explanation | T2: `GET /v1/demo/explain`; T3 mock; blocked in strict T1 |
 | `/snapshot/[runId]` | Deprecated leave-behind | App Router shim redirects to `/reviews/{runId}?readOnly=1` (query preserved). Showcase run uses Claims Intake spine. CTO recap still emits `/snapshot/...` links. T1: `/snapshot/claims-intake-modernization?v=demo` |
@@ -241,7 +244,7 @@ Layer guidance copy for many governance/analysis routes: `archlucid-ui/src/lib/l
 | `/product-learning` | Pilot feedback capture | T3 mock |
 | `/administration/connection-status` | Connection status (connector readiness hub) | Administration nav; `ConnectorOperationsDashboard` + contextual help. T3 mock or T2 |
 | `/integrations/teams` | Microsoft Teams wiring | T3 mock |
-| `/administration/system-health` | System health dashboard | T2 live health; T1 partial |
+| `/administration/system-health` | System health dashboard | Live/ready checks, build identity, buyer-polished demo variant; contextual help → troubleshooting (**ADY**) |
 | `/replay` | Replay authority chain | `/replay?runId=claims-intake-modernization`; T2 for real replay |
 | `/planning` | Planning hub | T1/T3 |
 | `/planning/plans/[planId]` | Plan detail | T1: `claims-intake-modernization-plan` |
@@ -251,7 +254,7 @@ Layer guidance copy for many governance/analysis routes: `archlucid-ui/src/lib/l
 | `/digests` | Digests | T3 mock |
 | `/digest-subscriptions` | Digest subscriptions | T3 mock |
 | `/patterns` | Architecture pattern library | T3 mock or API if seeded |
-| `/portfolio` | Retired — redirects to `/dashboard` | Legacy bookmark only |
+| `/portfolio` | Retired — redirects to `/architecture/executive-dashboard` | Legacy bookmark only |
 | `/operate/architecture-graph` | Legacy Operate shim | App Router redirect to `/graph` (query preserved; canonical UX on **GRA**) |
 | `/architecture-intelligence` | Closed-loop architecture reasoning lab | Execute role; deep-link with `?runId=` from reviews/findings. Golden fixture + publish round trip. |
 | `/operate/integration-events/dlq` | Integration event DLQ | Full architect workspace + Admin + T2 API |
@@ -262,7 +265,7 @@ Lighter chrome than the full architect workspace; `(executive)` route group does
 
 | URL | Purpose | How to view |
 |-----|---------|-------------|
-| `/executive/dashboard` | Retired — redirects to `/dashboard` | Legacy bookmark only |
+| `/executive/dashboard` | Retired — redirects to `/architecture/executive-dashboard` | Legacy bookmark (**EXD**) |
 | `/executive/reviews`, `/executive/reviews/*` | Retired — redirect to `/reviews` | Legacy bookmark only |
 | `/executive/scorecard` | Executive scorecard | T1/T3 with showcase run |
 

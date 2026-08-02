@@ -20,7 +20,7 @@ describe("resolveBuyerGoldenJourneyNav", () => {
   it("recognizes pinned SQL demo workspace executive and spine query routes", () => {
     expect(resolveBuyerGoldenJourneyNav(getShowcaseExecutiveHref())?.currentStepIndex).toBe(0);
     expect(resolveBuyerGoldenJourneyNav(getShowcaseManifestHref())?.currentStepIndex).toBe(1);
-    expect(resolveBuyerGoldenJourneyNav(`/graph?runId=${showcaseRunEnc}`)?.currentStepIndex).toBe(2);
+    expect(resolveBuyerGoldenJourneyNav(`/insights/evidence-graph?runId=${showcaseRunEnc}`)?.currentStepIndex).toBe(2);
     expect(
       resolveBuyerGoldenJourneyNav(
         `/reviews/${showcaseRunEnc}/findings/${encodeURIComponent("phi-minimization-risk")}/inspect`,
@@ -43,7 +43,7 @@ describe("resolveBuyerGoldenJourneyNav", () => {
 
     expect(resolveBuyerGoldenJourneyNav(`/reviews/${liveRunEnc}`)?.currentStepIndex).toBe(0);
     expect(resolveBuyerGoldenJourneyNav(`/reviews/${liveRunEnc}/signed-record`)?.currentStepIndex).toBe(1);
-    expect(resolveBuyerGoldenJourneyNav(`/graph?runId=${liveRunEnc}`)?.currentStepIndex).toBe(2);
+    expect(resolveBuyerGoldenJourneyNav(`/insights/evidence-graph?runId=${liveRunEnc}`)?.currentStepIndex).toBe(2);
     expect(resolveBuyerGoldenJourneyNav(`/governance?runId=${liveRunEnc}`)?.currentStepIndex).toBe(3);
     expect(resolveBuyerGoldenJourneyNav(`/audit?runId=${liveRunEnc}`)?.currentStepIndex).toBe(4);
     expect(resolveBuyerGoldenJourneyNav(`/governance/audit?runId=${liveRunEnc}`)?.currentStepIndex).toBe(4);

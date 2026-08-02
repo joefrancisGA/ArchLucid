@@ -1,5 +1,7 @@
-/** Legacy bookmark path — App Router shim forwards to canonical onboarding (TB-1796). */
+import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
+
+/** Legacy bookmark path — retired pre-release shim (no redirect). */
 export const LEGACY_ONBOARD_PATH = "/onboard";
 
-/** Canonical in-product onboarding hub tracked on traffic row ONB. */
-export const CANONICAL_ONBOARDING_PATH = "/onboarding";
+/** Canonical First review guide tracked on traffic row ONB. */
+export const CANONICAL_ONBOARDING_PATH = FIRST_REVIEW_GUIDE_PATH;

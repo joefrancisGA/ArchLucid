@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/operator-home-runs-dashboard-model";
@@ -23,6 +23,13 @@ import {
   runsDashboardTabLabel,
 } from "@/components/operator-home/runs-dashboard-helpers";
 import type { RunsDashboardLoadPhase, RunsDashboardTabId } from "@/components/operator-home/runs-dashboard-load-phase";
+import { useOptionalOperatorHomeRefresh } from "@/lib/operator-home-refresh-context";
+import {
+  resolveRunsDashboardClientLoadMode,
+  shouldShowRunsDashboardInitialSkeleton,
+  shouldSkipRunsDashboardClientFetchOnMount,
+  type RunsDashboardClientLoadMode,
+} from "@/lib/operator-home-runs-dashboard-client-fetch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FilterChip } from "@/components/ui/filter-chip";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -107,6 +114,9 @@ export function RunsDashboardPanelClient({
   );
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(initialModel?.loadFailure ?? null);
   const [runsListAuthorityUnusable, setRunsListAuthorityUnusable] = useState(initialModel?.loadFailure !== null);
+  const itemsRef = useRef(items);
+
+  itemsRef.current = items;
 
   const buyerPolishedShell = initialModel?.buyerPolishedShell ?? isBuyerPolishedOperatorShellEnv();
   const projectId =
@@ -117,6 +127,7 @@ export function RunsDashboardPanelClient({
     );
   const pageSize = initialModel?.pageSize ?? OPERATOR_HOME_RUNS_DASHBOARD_PAGE_SIZE;
   const { reportWorkspaceReviews } = useOperatorHomeWorkspaceActivity();
+  const homeRefresh = useOptionalOperatorHomeRefresh();
 
   useEffect(() => {
     // Deep-link from Workspace metrics "Governance warnings" (`/?warnings=1`).
@@ -126,9 +137,14 @@ export function RunsDashboardPanelClient({
     }
   }, [searchParams]);
 
-  const load = useCallback(async () => {
-    setPhase("loading");
-    setFailure(null);
+  const load = useCallback(async (options?: { readonly mode?: RunsDashboardClientLoadMode }) => {
+    const mode = options?.mode ?? "initial";
+    const paintedItemCount = itemsRef.current.length;
+
+    if (mode === "initial" && paintedItemCount === 0) {
+      setPhase("loading");
+      setFailure(null);
+    }
 
     let nextItems: RunSummary[] = [];
     let nextFailure: ApiLoadFailureState | null = null;
@@ -204,23 +220,29 @@ export function RunsDashboardPanelClient({
     setFailure(nextFailure);
     setRunsListAuthorityUnusable(authorityUnusable);
     setPhase(nextFailure !== null && nextItems.length === 0 ? "error" : "ready");
-  }, [pageSize, projectId, showArchived]);
+  }, [pageSize, projectId]);
 
-  const matchesInitialSnapshot =
-    initialModel !== null && showArchived === false && projectId === initialModel.projectId;
-  const shouldSkipInitialClientFetch =
-    matchesInitialSnapshot &&
-    initialModel !== null &&
-    initialModel.loadFailure === null &&
-    initialModel.items.length > 0;
+  const skipClientFetchOnMount = shouldSkipRunsDashboardClientFetchOnMount(initialModel, projectId);
 
   useEffect(() => {
-    if (shouldSkipInitialClientFetch) {
+    if (skipClientFetchOnMount) {
       return;
     }
 
-    void load();
-  }, [initialModel, load, shouldSkipInitialClientFetch]);
+    const mode = resolveRunsDashboardClientLoadMode(initialModel?.items.length ?? 0);
+
+    void load({ mode });
+  }, [initialModel, load, skipClientFetchOnMount]);
+
+  useEffect(() => {
+    if (homeRefresh === null) {
+      return;
+    }
+
+    return homeRefresh.registerRefreshLoader(async () => {
+      await load({ mode: "background" });
+    });
+  }, [homeRefresh, load]);
 
   const effectiveItems = useMemo(() => {
     if (items.length > 0) {
@@ -336,6 +358,7 @@ export function RunsDashboardPanelClient({
   const monitoringTabShowcase = resolveShowcaseDemoRunForItems(monitoringTabItems, showcaseDemoRun);
 
   const runListError = phase === "error" && failure !== null && effectiveItems.length === 0;
+  const showInitialLoadingSkeleton = shouldShowRunsDashboardInitialSkeleton(phase, effectiveItems.length);
   const showReviewFilters =
     effectiveItems.length > 0 && (phase === "ready" || phase === "error");
 
@@ -350,7 +373,7 @@ export function RunsDashboardPanelClient({
 
     try {
       await restoreArchitectureRequest(requestId);
-      await load();
+      await load({ mode: "background" });
       setShowArchived(false);
     } finally {
       setRestoreBusyRequestId(null);
@@ -540,6 +563,7 @@ export function RunsDashboardPanelClient({
             <TabsContent value="all" className="pt-0" data-testid="runs-dashboard-panel-all">
               <RunsDashboardRecentTab
                 phase={phase}
+                showInitialLoadingSkeleton={showInitialLoadingSkeleton}
                 failure={failure}
                 runListError={runListError}
                 filteredItems={filteredItems}
@@ -561,6 +585,7 @@ export function RunsDashboardPanelClient({
             <TabsContent value="approved" className="pt-0" data-testid="runs-dashboard-panel-approved">
               <RunsDashboardRecentTab
                 phase={phase}
+                showInitialLoadingSkeleton={showInitialLoadingSkeleton}
                 failure={failure}
                 runListError={runListError}
                 filteredItems={approvedTabItems}
@@ -584,6 +609,7 @@ export function RunsDashboardPanelClient({
               {buyerPolishedShell ? (
                 <RunsDashboardRecentTab
                   phase={phase}
+                  showInitialLoadingSkeleton={showInitialLoadingSkeleton}
                   failure={failure}
                   runListError={runListError}
                   filteredItems={attentionTabItems}
@@ -615,6 +641,7 @@ export function RunsDashboardPanelClient({
               {buyerPolishedShell ? (
                 <RunsDashboardRecentTab
                   phase={phase}
+                  showInitialLoadingSkeleton={showInitialLoadingSkeleton}
                   failure={failure}
                   runListError={runListError}
                   filteredItems={monitoringTabItems}

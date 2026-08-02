@@ -51,7 +51,7 @@ export function RunDetailArchitectureGraphSection(
                 This review links to a persisted graph snapshot used for audit and evidence navigation.
               </p>
               <Button type="button" variant="default" size="sm" asChild>
-                <Link href={`/graph?runId=${encodeURIComponent(runId)}`}>Open evidence graph</Link>
+                <Link href={`/insights/evidence-graph?runId=${encodeURIComponent(runId)}`}>Open evidence graph</Link>
               </Button>
             </div>
           ) : (

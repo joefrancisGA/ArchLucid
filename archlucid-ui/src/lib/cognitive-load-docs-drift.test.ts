@@ -19,14 +19,14 @@ describe("cognitive-load docs drift guard", () => {
     }
   });
 
-  it("legacy onboarding redirects target /onboarding and preserve query params", () => {
-    expect(buildOnboardingRedirectPath({})).toBe("/onboarding");
+  it("legacy onboarding redirects target first-review-guide and preserve query params", () => {
+    expect(buildOnboardingRedirectPath({})).toBe("/architecture/first-review-guide");
 
     const withParams = buildOnboardingRedirectPath({ tenant: "acme", tag: ["a", "b"] });
-    expect(withParams.startsWith("/onboarding?")).toBe(true);
+    expect(withParams.startsWith("/architecture/first-review-guide?")).toBe(true);
 
     const u = new URL(withParams, "http://localhost");
-    expect(u.pathname).toBe("/onboarding");
+    expect(u.pathname).toBe("/architecture/first-review-guide");
     expect(u.searchParams.getAll("tenant")).toEqual(["acme"]);
     expect(u.searchParams.getAll("tag")).toEqual(["a", "b"]);
   });

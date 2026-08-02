@@ -1,5 +1,7 @@
-/** Legacy Operate bookmark path — App Router shim forwards to canonical Evidence graph (TB-1806). */
+import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
+
+/** Legacy Operate bookmark path — retired pre-release shim (no redirect). */
 export const LEGACY_OPERATE_ARCHITECTURE_GRAPH_PATH = "/operate/architecture-graph";
 
-/** Canonical interactive architecture graph tracked on traffic row GRA. */
-export const CANONICAL_GRAPH_PATH = "/graph";
+/** Canonical Evidence graph tracked on traffic row GRA. */
+export const CANONICAL_GRAPH_PATH = EVIDENCE_GRAPH_PATH;

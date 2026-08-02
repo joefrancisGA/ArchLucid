@@ -40,6 +40,6 @@ describe("live-demo-public-links", () => {
       true,
     );
 
-    expect(href).toBe(`/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`);
+    expect(href).toBe(`/insights/evidence-graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`);
   });
 });

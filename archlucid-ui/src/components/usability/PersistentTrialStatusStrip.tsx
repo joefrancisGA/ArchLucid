@@ -38,7 +38,10 @@ function resolveTrialNextAction(payload: TenantTrialStatusPayload | null): Trial
     return { label: "Convert to paid", href: "/pricing#pricing-quote-request" };
   }
 
-  return { label: "Open onboarding checklist", href: "/onboarding?source=registration" };
+  return {
+    label: "Open onboarding checklist",
+    href: "/architecture/first-review-guide?source=registration",
+  };
 }
 
 /** Persistent trial strip with days remaining and a single primary next action (all operator routes). */

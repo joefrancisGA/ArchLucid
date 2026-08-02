@@ -166,7 +166,7 @@ export function AskQuestionForm(props: AskQuestionFormProps) {
       {runMissing ? (
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="ask-prompts-sample-callout">
           Open the{" "}
-          <Link className={OPERATOR_LINK.nav} href={`/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}>
+          <Link className={OPERATOR_LINK.nav} href={`/insights/evidence-graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}>
             {BUYER_EVIDENCE_GRAPH_SAMPLE_LINK_LABEL}
           </Link>{" "}
           (not your tenant workspace) to try these questions.

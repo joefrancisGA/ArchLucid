@@ -446,7 +446,7 @@ export function HelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPan
         <footer className="shrink-0 border-t border-neutral-100 px-5 py-3 dark:border-neutral-800">
           <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             In-app:{" "}
-            <Link href="/onboarding" className={OPERATOR_LINK.nav} onClick={() => onOpenChange(false)}>
+            <Link href="/architecture/first-review-guide" className={OPERATOR_LINK.nav} onClick={() => onOpenChange(false)}>
               Getting started
             </Link>{" "}
             (first-review checklist on Overview)

@@ -40,7 +40,7 @@ export const BUYER_COMMAND_PALETTE_CURATED_TASKS: readonly CuratedPaletteTask[] 
   },
   {
     label: BUYER_SURFACE_VOCABULARY.evidenceGraphNav,
-    href: `/graph?runId=${showcaseRunEnc}`,
+    href: `/insights/evidence-graph?runId=${showcaseRunEnc}`,
     searchValue: "evidence trail graph traceability",
   },
   {
@@ -65,7 +65,7 @@ export const BUYER_COMMAND_PALETTE_CURATED_TASKS: readonly CuratedPaletteTask[] 
   },
   {
     label: "Ask review questions",
-    href: `/ask?runId=${showcaseRunEnc}`,
+    href: `/insights/ask-review-questions?runId=${showcaseRunEnc}`,
     searchValue: "ask question evidence qna",
   },
 ];

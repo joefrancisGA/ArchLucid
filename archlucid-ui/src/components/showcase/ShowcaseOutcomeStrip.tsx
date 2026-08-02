@@ -80,7 +80,7 @@ export function ShowcaseOutcomeStrip(props: ShowcaseOutcomeStripProps): ReactEle
       )}
 
       {isRunDetailAvailable ? (
-        <Link className={cardClass} href={`/graph?runId=${encRun}`}>
+        <Link className={cardClass} href={`/insights/evidence-graph?runId=${encRun}`}>
           <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>
             {`3 · ${BUYER_SURFACE_VOCABULARY.evidenceGraphNav}`}
           </span>

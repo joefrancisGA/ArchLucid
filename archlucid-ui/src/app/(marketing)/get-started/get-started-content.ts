@@ -168,14 +168,14 @@ export function buildGuidedTrialHref(verticalSlug?: BuyerGetStartedVerticalSlug)
     params.set("vertical", verticalSlug);
   }
 
-  return `/onboarding?${params.toString()}`;
+  return `/architecture/first-review-guide?${params.toString()}`;
 }
 
 export function buildSignInTrialHref(verticalSlug?: BuyerGetStartedVerticalSlug): string {
   const onboardingPath =
     verticalSlug === undefined
-      ? "/onboarding?source=get-started"
-      : `/onboarding?source=get-started&vertical=${encodeURIComponent(verticalSlug)}`;
+      ? "/architecture/first-review-guide?source=get-started"
+      : `/architecture/first-review-guide?source=get-started&vertical=${encodeURIComponent(verticalSlug)}`;
 
   return `/auth/signin?returnUrl=${encodeURIComponent(onboardingPath)}`;
 }

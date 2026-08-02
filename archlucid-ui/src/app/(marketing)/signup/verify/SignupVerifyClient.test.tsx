@@ -126,7 +126,7 @@ describe("SignupVerifyClient", () => {
     });
 
     fireEvent.click(screen.getByTestId("signup-verify-continue-onboarding"));
-    expect(pushMock).toHaveBeenCalledWith("/onboarding?source=registration");
+    expect(pushMock).toHaveBeenCalledWith("/architecture/first-review-guide?source=registration");
   });
 
   it("shows loading then pending state", async () => {
@@ -238,7 +238,7 @@ describe("SignupVerifyClient", () => {
     fireEvent.click(screen.getByTestId("signup-verify-continue-onboarding"));
 
     await waitFor(() => {
-      expect(pushMock).toHaveBeenCalledWith("/onboarding?source=registration");
+      expect(pushMock).toHaveBeenCalledWith("/architecture/first-review-guide?source=registration");
     });
   });
 
@@ -296,7 +296,7 @@ describe("SignupVerifyClient", () => {
     fireEvent.click(screen.getByTestId("signup-verify-continue-onboarding"));
 
     await waitFor(() => {
-      expect(initiateOidcRedirect).toHaveBeenCalledWith("/onboarding?source=registration");
+      expect(initiateOidcRedirect).toHaveBeenCalledWith("/architecture/first-review-guide?source=registration");
     });
   });
 

@@ -190,7 +190,7 @@ import { DigestSubscriptionsContent } from "@/components/digests/DigestSubscript
 import AskPage from "./ask/page";
 import EvolutionReviewPage from "./evolution-review/page";
 import GovernanceResolutionPage from "./governance/resolution/page";
-import OnboardingPage from "./onboarding/page";
+import OnboardingPage from "./architecture/first-review-guide/page";
 import PolicyPacksPage from "./governance/policy-packs/page";
 import PlanningPage from "./planning/page";
 import ProductLearningPage from "./product-learning/page";

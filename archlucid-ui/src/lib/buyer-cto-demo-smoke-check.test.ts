@@ -27,7 +27,7 @@ describe("runBuyerCtoDemoSmokeCheck", () => {
       vi.fn(async (input: RequestInfo | URL) => {
         const url = String(input);
 
-        if (url.includes("/graph")) {
+        if (url.includes("/insights/evidence-graph")) {
           return new Response(null, { status: 404 });
         }
 
@@ -36,7 +36,7 @@ describe("runBuyerCtoDemoSmokeCheck", () => {
     );
 
     const results = await runBuyerCtoDemoSmokeCheck("https://demo.example");
-    const graphStep = results.find((row) => row.href.includes("/graph"));
+    const graphStep = results.find((row) => row.href.includes("/insights/evidence-graph"));
 
     expect(graphStep?.ok).toBe(false);
     expect(graphStep?.statusCode).toBe(404);

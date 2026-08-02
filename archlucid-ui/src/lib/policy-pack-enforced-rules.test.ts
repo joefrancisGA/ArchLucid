@@ -45,7 +45,7 @@ describe("buildPolicyPackEnforcedRuleRows", () => {
     expect(rows[0]?.enforcementMode).toBe("Required");
     expect(rows[0]?.sourcePackLabel).toBe(policyPackBuyerLabel("healthcare-claims-v3", "3.4.1"));
     expect(rows[0]?.evidenceHref).toBe(
-      `/graph?runId=${showcaseRunEnc}&graphNodeId=${encodeURIComponent(SHOWCASE_PHI_FINDING_GRAPH_NODE_ID)}`,
+      `/insights/evidence-graph?runId=${showcaseRunEnc}&graphNodeId=${encodeURIComponent(SHOWCASE_PHI_FINDING_GRAPH_NODE_ID)}`,
     );
   });
 

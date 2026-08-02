@@ -10,6 +10,7 @@ import type { NavGroupConfig } from "@/lib/nav-config.types";
 import { BUYER_ONBOARDING_NAV_TOOLTIP } from "@/lib/buyer-polish-copy";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture-routes";
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
+import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { resolveArchitecturesListNavTitle } from "@/lib/operator-nav-labels";
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
@@ -60,7 +61,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
           defaultVisibleInCollapsedSidebar: true,
         },
         {
-          href: "/onboarding",
+          href: FIRST_REVIEW_GUIDE_PATH,
           label: OPERATOR_NAV_LINK_LABELS.onboarding,
           title: BUYER_ONBOARDING_NAV_TOOLTIP,
           // Catalog tier is essential; demoted to extended after first commit in nav-committed-architecture-review-promotion.ts (TB-524).

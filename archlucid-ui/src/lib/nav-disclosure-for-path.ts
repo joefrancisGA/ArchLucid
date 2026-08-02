@@ -1,14 +1,16 @@
+import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
+import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
 
 /** Core Pilot surfaces: essential-tier nav only (no Show more / extended / advanced links). */
 const CORE_PILOT_ESSENTIAL_ONLY_PATHS = new Set<string>([
   "/",
   EXECUTIVE_DASHBOARD_HREF,
-  "/onboarding",
+  FIRST_REVIEW_GUIDE_PATH,
   "/reviews/new",
   "/reviews",
   "/settings/extract-upload",
-  "/graph",
+  EVIDENCE_GRAPH_PATH,
 ]);
 
 function isCorePilotEssentialOnlyPathname(pathname: string): boolean {

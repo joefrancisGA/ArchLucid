@@ -15,7 +15,19 @@ export const WELCOME_PRIMARY_CONVERSION_PATH = "self-demo" as const;
 
 /** TB-1294: one supporting sentence above the fold — detail lives in problem/solution. */
 export const WELCOME_HERO_PITCH =
-  "Turn scattered architecture evidence into a prioritized, evidence-linked architecture review your ARB can trust — with exportable proof in days instead of weeks.";
+  "Turn scattered architecture evidence into a prioritized, evidence-linked review your ARB can defend — exportable proof in days, not weeks.";
+
+/**
+ * Above-the-fold differentiators answering "why this and not a chat assistant" without scrolling.
+ * Each line must name shipped behavior already evidenced elsewhere on the page (pillars, Trust Center);
+ * never add outcome claims here that the sample review cannot demonstrate.
+ */
+export const WELCOME_HERO_DIFFERENTIATORS: readonly string[] = [
+  "Every finding traces to evidence",
+  "Signed review records with an audit trail",
+  "Governance policy packs included",
+  "Exports for ARB, audit, and procurement",
+];
 
 export const WELCOME_HERO_CTA_SUBHEADING =
   "See an architecture review built for governance — not slide decks alone.";
@@ -35,7 +47,7 @@ export const WELCOME_HERO_CTA_SUBHEADING =
  * TB-473/474 renamed badges, so keep marketing copy on "sample review" for consistency.
  */
 export const WELCOME_HERO_EVALUATION_REASSURANCE =
-  "Inspect a governed sample review with fabricated data, then bring your own architecture evidence when ready. Every finding traces to evidence; every governance decision leaves an audit trail. No sales call required.";
+  "Inspect a governed sample review built on fabricated data, then bring your own architecture evidence when ready. No sales call required.";
 
 /** TB-1298 / TB-1280: honest see-it framing — no bare “30 seconds” / “30s”. */
 export const WELCOME_SEE_IT_CTA_LABEL = "See a finalized sample review";
@@ -65,12 +77,12 @@ export const WELCOME_ENGAGEMENT_PATHS_HEADING = "Other ways to engage";
 export const WELCOME_PROBLEM_HEADING = "Architecture review is broken when diagrams are the only artifact";
 
 export const WELCOME_PROBLEM_BODY =
-  "Manual reviews are slow, inconsistent, and hard to defend under audit. Ad-hoc AI tools produce fluent prose without evidence links, policy context, or a durable record. Teams still ship decisions on opinions buried in email and Confluence — not a review stakeholders can replay.";
+  "Manual reviews are slow, inconsistent, and hard to defend under audit. Ad-hoc AI tools produce fluent prose with no evidence links, policy context, or durable record — leaving decisions buried in email and Confluence.";
 
 export const WELCOME_SOLUTION_HEADING = "The outcome is a defensible review";
 
 export const WELCOME_SOLUTION_BODY =
-  "ArchLucid delivers a prioritized, evidence-linked architecture review: structured findings, recorded decisions, stated limits, and exports your ARB and security partners can follow. Same hosted workflow whether you start a trial, open the self-demo, or engage us for a service-led review.";
+  "ArchLucid produces structured findings, recorded decisions, stated limits, and exports your ARB and security partners can follow — the same hosted workflow for a trial, the self-demo, or a service-led review.";
 
 export type WelcomeWorkflowStep = {
   readonly id: string;
@@ -83,37 +95,37 @@ export const WELCOME_WORKFLOW_STEPS: readonly WelcomeWorkflowStep[] = [
   {
     id: "capture",
     label: "Capture",
-    summary: "Ingest architecture requests, topology, and supporting artifacts — including bulk evidence upload.",
+    summary: "Architecture requests, topology, and supporting artifacts.",
   },
   {
     id: "evidence",
     label: "Evidence",
-    summary: "Build an evidence graph that ties sources to what the pipeline examined.",
+    summary: "An evidence graph linking sources to analysis.",
   },
   {
     id: "review",
     label: "Review",
-    summary: "Run governed multi-agent analysis with quality gates — not a one-shot chat.",
+    summary: "Governed multi-agent analysis with quality gates.",
   },
   {
     id: "findings",
     label: "Findings",
-    summary: "Surface prioritized issues with severity, category, and traceable claims.",
+    summary: "Prioritized issues with severity and traceable claims.",
   },
   {
     id: "decisions",
     label: "Decisions",
-    summary: "Record approvals, overrides, and rationale on the decision trail.",
+    summary: "Approvals, overrides, and rationale — recorded.",
   },
   {
     id: "report",
     label: "Report",
-    summary: "Export DOCX/PDF and whitelabeled packages for ARB, audit, and procurement.",
+    summary: "DOCX/PDF exports for ARB, audit, and procurement.",
   },
 ] as const;
 
 export const WELCOME_WORKFLOW_INTRO =
-  "Every service-led engagement and self-demo walkthrough follows the same six-stage vocabulary — so buyers, operators, and governance partners share one mental model.";
+  "One six-stage vocabulary shared by buyers, operators, and governance partners.";
 
 export type WelcomeUseCaseCard = {
   readonly id: string;
@@ -130,7 +142,7 @@ export const WELCOME_USE_CASE_CARDS: readonly WelcomeUseCaseCard[] = [
   {
     id: "ai-governance-security",
     title: "AI governance + security baseline",
-    body: "Default bundled policy packs seed responsible-AI and security-architecture rules on every new tenant — ready for regulated and cloud-native reviews without building packs from scratch.",
+    body: "Responsible-AI and security-architecture rules seed every new tenant, so regulated reviews start review-ready instead of with an empty library.",
     // Workspace B Meridian/Alpine storyline — not WAF/CAF findings (M-06 C8).
     href: `/reviews/${DEMO_WORKSPACE_B_RUN_ID}`,
     ctaLabel: "Open regulated sample",
@@ -138,7 +150,7 @@ export const WELCOME_USE_CASE_CARDS: readonly WelcomeUseCaseCard[] = [
   {
     id: "aws-waf",
     title: "AWS Well-Architected Framework",
-    body: "Curated Well-Architected themed compliance rules accelerate cloud posture reviews across operational excellence, security, reliability, performance, cost, and sustainability — mapped to architecture evidence, not checkbox theater.",
+    body: "Well-Architected themed rules across operational excellence, security, reliability, performance, cost, and sustainability — mapped to evidence, not checkboxes.",
     href: DEFAULT_POLICY_PACKS_HREF,
     ctaLabel: "View bundled policy packs",
   },

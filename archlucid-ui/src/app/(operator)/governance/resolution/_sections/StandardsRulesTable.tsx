@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { FindingEvidenceLinkChip } from "@/components/usability/FindingEvidenceLinkChip";
 import {
   EnterpriseTable,
   EnterpriseTableBody,
@@ -9,9 +10,12 @@ import {
   EnterpriseTableHeaderCell,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
+import { SeverityTag } from "@/components/ui/severity-tag";
+import { StatusTag } from "@/components/ui/status-tag";
 import type { StandardsRuleRow } from "@/lib/standards-rules-rows";
 import { STANDARDS_RULES_TABLE_TITLE } from "@/lib/standards-rules-page";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { standardsRuleEnforcementStatusKind } from "@/lib/standards-rules-table-presentation";
+import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 export type StandardsRulesTableProps = {
@@ -40,34 +44,43 @@ export function StandardsRulesTable(props: StandardsRulesTableProps) {
           </EnterpriseTableHeadRow>
         </EnterpriseTableHead>
         <EnterpriseTableBody>
-          {rows.map((row) => (
-            <EnterpriseTableRow key={row.ruleKey}>
-              <EnterpriseTableCell>{row.ruleName}</EnterpriseTableCell>
-              <EnterpriseTableCell>{row.standardFramework}</EnterpriseTableCell>
-              <EnterpriseTableCell>{row.category}</EnterpriseTableCell>
-              <EnterpriseTableCell>{row.severity}</EnterpriseTableCell>
-              <EnterpriseTableCell>{row.enforcementMode}</EnterpriseTableCell>
-              <EnterpriseTableCell>{row.sourcePolicyPack}</EnterpriseTableCell>
-              <EnterpriseTableCell>
-                {row.linkedFindingsHref !== null && row.linkedFindingsLabel !== null ? (
-                  <Link className={OPERATOR_LINK.inline} href={row.linkedFindingsHref}>
-                    {row.linkedFindingsLabel}
-                  </Link>
-                ) : (
-                  <span className="text-al-text-secondary">—</span>
-                )}
-              </EnterpriseTableCell>
-              <EnterpriseTableCell>
-                {row.evidenceHref !== null ? (
-                  <Link className={OPERATOR_LINK.inline} href={row.evidenceHref}>
-                    View evidence
-                  </Link>
-                ) : (
-                  <span className="text-al-text-secondary">—</span>
-                )}
-              </EnterpriseTableCell>
-            </EnterpriseTableRow>
-          ))}
+          {rows.map((row) => {
+            const hasLinkedFindings = row.linkedFindingsHref !== null && row.linkedFindingsLabel !== null;
+
+            return (
+              <EnterpriseTableRow key={row.ruleKey} selected={hasLinkedFindings}>
+                <EnterpriseTableCell className={DESIGN_TOKENS.table.rowLabel}>{row.ruleName}</EnterpriseTableCell>
+                <EnterpriseTableCell>{row.standardFramework}</EnterpriseTableCell>
+                <EnterpriseTableCell>{row.category}</EnterpriseTableCell>
+                <EnterpriseTableCell>
+                  <SeverityTag severity={row.severity} label={row.severity} />
+                </EnterpriseTableCell>
+                <EnterpriseTableCell>
+                  <StatusTag
+                    kind={standardsRuleEnforcementStatusKind(row.enforcementMode)}
+                    label={row.enforcementMode}
+                  />
+                </EnterpriseTableCell>
+                <EnterpriseTableCell>{row.sourcePolicyPack}</EnterpriseTableCell>
+                <EnterpriseTableCell>
+                  {hasLinkedFindings ? (
+                    <Link className={cn(OPERATOR_LINK.inline, "font-semibold")} href={row.linkedFindingsHref}>
+                      {row.linkedFindingsLabel}
+                    </Link>
+                  ) : (
+                    <span className="text-al-text-secondary">—</span>
+                  )}
+                </EnterpriseTableCell>
+                <EnterpriseTableCell>
+                  {row.evidenceHref !== null ? (
+                    <FindingEvidenceLinkChip href={row.evidenceHref} />
+                  ) : (
+                    <span className="text-al-text-secondary">—</span>
+                  )}
+                </EnterpriseTableCell>
+              </EnterpriseTableRow>
+            );
+          })}
         </EnterpriseTableBody>
       </EnterpriseTable>
     </section>

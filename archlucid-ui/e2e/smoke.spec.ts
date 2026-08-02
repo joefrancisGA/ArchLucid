@@ -47,7 +47,7 @@ test.describe("operator shell smoke", () => {
   });
 
   test("Ask page renders without generic error boundary", async ({ page }) => {
-    await page.goto("/ask");
+    await page.goto("/insights/ask-review-questions");
 
     await expect(askPageMainHeading(page)).toBeVisible();
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
@@ -95,7 +95,7 @@ test.describe("operator shell smoke — core proof path", () => {
     await page.goto("/showcase/claims-intake-modernization");
     await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible();
 
-    await page.goto("/ask");
+    await page.goto("/insights/ask-review-questions");
     await expect(askPageMainHeading(page)).toBeVisible();
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
 
@@ -107,11 +107,11 @@ test.describe("operator shell smoke — core proof path", () => {
 
 test.describe("operator shell smoke — advanced surface path", () => {
   test("analysis and controls routes render primary headings @smoke-advanced-path", async ({ page }) => {
-    await page.goto("/ask");
+    await page.goto("/insights/ask-review-questions");
     await expect(askPageMainHeading(page)).toBeVisible();
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
 
-    await page.goto("/graph");
+    await page.goto("/insights/evidence-graph");
     await expectGraphPageReadySurface(page, { timeout: 25_000 });
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
 

@@ -2,15 +2,17 @@
  * Product-facing readiness tiers for operator routes (nav gating, demo shell copy).
  * API policy and `[Authorize]` remain authoritative; this is UX-only.
  */
+import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
+
 export type RouteReadinessTier = "demo-ready" | "advanced-only" | "admin-only" | "hidden";
 
 const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/": "demo-ready",
-  "/onboarding": "demo-ready",
+  "/architecture/first-review-guide": "demo-ready",
   "/reviews/new": "demo-ready",
   "/reviews?projectId=default": "demo-ready",
   "/help": "demo-ready",
-  "/ask": "demo-ready",
+  "/insights/ask-review-questions": "demo-ready",
   "/search": "demo-ready",
   "/scorecard": "demo-ready",
   "/executive/scorecard": "demo-ready",
@@ -26,7 +28,7 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/value-report": "advanced-only",
   "/value-report/pilot": "advanced-only",
   "/value-report/roi": "advanced-only",
-  "/graph": "advanced-only",
+  [EVIDENCE_GRAPH_PATH]: "advanced-only",
   "/compare": "advanced-only",
   "/replay": "advanced-only",
   "/governance/advisory-scans": "advanced-only",
@@ -115,8 +117,8 @@ export function operatorRouteReadiness(href: string): RouteReadinessTier {
  * Curated static samples exist for policy packs and alerts so evaluators can open them without a seeded API.
  */
 const DEMO_MODE_ADVANCED_NAV_ALLOWLIST = new Set<string>([
-  "/graph",
-  "/ask",
+  EVIDENCE_GRAPH_PATH,
+  "/insights/ask-review-questions",
   "/governance",
   "/governance/audit",
   "/governance/policy-packs",

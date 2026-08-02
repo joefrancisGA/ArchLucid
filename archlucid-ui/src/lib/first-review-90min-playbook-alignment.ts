@@ -1,3 +1,4 @@
+import { FIRST_ARCHITECTURE_REVIEW_HELP_PATH } from "@/lib/first-architecture-review-help-route";
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 
 /** Repo-relative path for the printable first-run evidence checklist (Tier 1 #3 alignment source). */

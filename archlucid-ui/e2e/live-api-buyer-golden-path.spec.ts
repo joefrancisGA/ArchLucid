@@ -39,11 +39,11 @@ const productTourRunEnc = encodeURIComponent(productTourRunId);
 const liveBuyerGoldenPathHrefs = {
   executive: `/reviews/${productTourRunEnc}`,
   reviewPackage: `/reviews/${productTourRunEnc}`,
-  evidenceGraph: `/graph?runId=${productTourRunEnc}`,
+  evidenceGraph: `/insights/evidence-graph?runId=${productTourRunEnc}`,
   governanceApproval: `/governance?runId=${productTourRunEnc}`,
   auditTrail: `/governance/audit?runId=${productTourRunEnc}`,
   compare: `/compare?leftRunId=${productTourRunEnc}&rightRunId=${productTourRunEnc}`,
-  ask: `/ask?runId=${productTourRunEnc}`,
+  ask: `/insights/ask-review-questions?runId=${productTourRunEnc}`,
 } as const;
 
 let liveProductTourGoldenManifestId = "";

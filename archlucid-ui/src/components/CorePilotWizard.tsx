@@ -56,7 +56,7 @@ const BLUEPRINT_STEPS: WizardBlueprintStep[] = [
         </p>
         <p className="m-0">
           <Link
-            href="/onboarding"
+            href="/architecture/first-review-guide"
             className="font-medium text-teal-700 underline-offset-4 hover:underline dark:text-teal-400"
           >
             Open {BUYER_ONBOARDING_PAGE_TITLE} →

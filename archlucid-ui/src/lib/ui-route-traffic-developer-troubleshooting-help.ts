@@ -1,0 +1,19 @@
+import { DEVELOPER_TROUBLESHOOTING_HELP_PATH } from "@/lib/developer-troubleshooting-help-route";
+
+/**
+ * Traffic workbook row ID for Engineering troubleshooting runbook help.
+ * Owner backlog shorthand: HDX.
+ */
+export const DEVELOPER_TROUBLESHOOTING_HELP_TRAFFIC_ROW_ID = "HDX";
+
+/** Canonical path tracked on the HDX workbook row. */
+export const DEVELOPER_TROUBLESHOOTING_HELP_TRAFFIC_PATH = DEVELOPER_TROUBLESHOOTING_HELP_PATH;
+
+/** Workbook Section column value — in-app help, not marketing. */
+export const DEVELOPER_TROUBLESHOOTING_HELP_TRAFFIC_SECTION = "Help topic";
+
+/**
+ * Owner workbook Notes for HDX — documents the Admin-gated internal-runbook surface.
+ */
+export const DEVELOPER_TROUBLESHOOTING_HELP_TRAFFIC_NOTE =
+  "Admin-gated internal-runbook (TB-1246) — HelpTopicAuthorityGate + HelpTopicMarkdownClient; engineering CLI/env/log runbook from TROUBLESHOOTING.md + COMMON_ERRORS.md. Help search Advanced diagnostics (adminOnly). Not in customer Help Center featured grid. Customer Troubleshooting (HTX) does not deep-link here (TB-1249). Not a specialty guide.";

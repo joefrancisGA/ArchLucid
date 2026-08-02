@@ -20,7 +20,7 @@ import { applyBuyerLabelsToProvenanceGraphViewModel } from "@/lib/provenance-gra
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { GraphViewModel } from "@/types/graph";
 
-const evidenceGraphSampleHref = `/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
+const evidenceGraphSampleHref = `/insights/evidence-graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
 
 const EVIDENCE_GRAPH_IDLE_ACTIONS: EmptyStateProps["actions"] = [
   { label: EVIDENCE_GRAPH_EMPTY_PRIMARY_ACTION, href: evidenceGraphSampleHref },

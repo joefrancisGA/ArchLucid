@@ -1,3 +1,5 @@
+import { ASK_REVIEW_QUESTIONS_PATH, LEGACY_ASK_PATH } from "@/lib/ask-review-questions-route";
+import { EVIDENCE_GRAPH_PATH, LEGACY_GRAPH_PATH } from "@/lib/evidence-graph-route";
 import { LEGACY_OPERATE_ARCHITECTURE_GRAPH_PATH } from "@/lib/legacy-architecture-graph-route";
 import { LEGACY_ONBOARD_PATH } from "@/lib/legacy-onboard-route";
 import { LEGACY_LOGIN_PATH } from "@/lib/legacy-login-route";
@@ -30,11 +32,13 @@ const OPERATOR_PATH_PREFIXES: readonly string[] = [
   "/alerts",
   "/admin",
   "/settings",
-  "/graph",
+  EVIDENCE_GRAPH_PATH,
+  LEGACY_GRAPH_PATH,
   LEGACY_OPERATE_ARCHITECTURE_GRAPH_PATH,
   "/governance",
   LEGACY_ONBOARD_PATH,
   "/onboarding",
+  "/architecture/first-review-guide",
   "/planning",
   "/policy-packs",
   "/product-learning",
@@ -45,7 +49,8 @@ const OPERATOR_PATH_PREFIXES: readonly string[] = [
   "/help",
   "/search",
   "/scorecard",
-  "/ask",
+  ASK_REVIEW_QUESTIONS_PATH,
+  LEGACY_ASK_PATH,
   "/demo",
   "/getting-started",
   "/evolution-review",

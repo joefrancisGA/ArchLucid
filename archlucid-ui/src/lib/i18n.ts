@@ -122,6 +122,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   evidenceTrail: BUYER_SURFACE_VOCABULARY.evidenceGraphNav,
   /** Left nav destination for `/reviews/new` — creation intake (brief, diagram, document, optional cloud). */
   capture: CREATE_ARCHITECTURE_LABEL,
+  /** First review guide (`/architecture/first-review-guide`). */
   onboarding: BUYER_ONBOARDING_PAGE_TITLE,
   findings: "Risk register",
   riskExceptions: "Risk exceptions",

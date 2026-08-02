@@ -96,11 +96,11 @@ describe("shouldShowBreadcrumbTrail", () => {
   it("shows run-scoped hub trails only when golden journey stepper is absent", () => {
     expect(
       shouldShowBreadcrumbTrail(
-        "/graph",
-        trail("/graph", { buyerPolishedShell: true, queryRunId: SHOWCASE_STATIC_DEMO_RUN_ID }),
+        "/insights/evidence-graph",
+        trail("/insights/evidence-graph", { buyerPolishedShell: true, queryRunId: SHOWCASE_STATIC_DEMO_RUN_ID }),
         {
           queryRunId: SHOWCASE_STATIC_DEMO_RUN_ID,
-          buyerGoldenJourneyNav: resolveBuyerGoldenJourneyNav("/graph", {
+          buyerGoldenJourneyNav: resolveBuyerGoldenJourneyNav("/insights/evidence-graph", {
             searchRunId: SHOWCASE_STATIC_DEMO_RUN_ID,
           }),
         },
@@ -135,7 +135,7 @@ describe("shouldShowBreadcrumbTrail", () => {
 
   it("hides run-scoped hub trails when runId does not inject a review parent crumb", () => {
     expect(
-      shouldShowBreadcrumbTrail("/graph", trail("/graph", { buyerPolishedShell: true, queryRunId: "other-review" }), {
+      shouldShowBreadcrumbTrail("/insights/evidence-graph", trail("/insights/evidence-graph", { buyerPolishedShell: true, queryRunId: "other-review" }), {
         queryRunId: "other-review",
       }),
     ).toBe(false);

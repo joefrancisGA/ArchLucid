@@ -423,7 +423,7 @@ export function HelpSpecialtyWalkthroughTemplatesClient(
                   <Link href={specialtyReviewTemplatesCompareHref()}>Compare templates</Link>
                 </Button>
                 <Button asChild size="sm" variant="outline">
-                  <Link href="/onboarding">Open first review guide</Link>
+                  <Link href="/architecture/first-review-guide">Open first review guide</Link>
                 </Button>
                 <Button asChild size="sm" variant="outline">
                   <Link href={`mailto:${ARCHLUCID_SUPPORT_EMAIL}`}>Contact support</Link>

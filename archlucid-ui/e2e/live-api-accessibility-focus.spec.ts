@@ -24,10 +24,11 @@ const trialWelcomeHomeRedirectSuppressValue = "__suppress__";
 
 /**
  * Stable non-home operator surface with the full sidebar. Home (`/`) remains a separate regression
- * case (heavy Overview + `loading.tsx` soft-nav stall on Next 16.2.x); prefer `/onboarding` for
- * focus/announcer soft-nav checks that must stay reliable across framework versions.
+ * case (heavy Overview + `loading.tsx` soft-nav stall on Next 16.2.x); prefer
+ * `/architecture/first-review-guide` for focus/announcer soft-nav checks that must stay reliable
+ * across framework versions.
  */
-const clientNavigationStartPath = "/onboarding";
+const clientNavigationStartPath = "/architecture/first-review-guide";
 
 async function waitForOperatorShellReady(page: Page): Promise<void> {
   await page.locator('[data-app-ready="true"]').waitFor({ state: "attached", timeout: 60_000 });

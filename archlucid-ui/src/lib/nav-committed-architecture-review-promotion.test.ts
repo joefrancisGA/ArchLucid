@@ -22,7 +22,7 @@ describe("committed architecture review nav promotion", () => {
       false,
     );
 
-    expect(beforeCommit.some((l) => l.href === "/onboarding")).toBe(true);
+    expect(beforeCommit.some((l) => l.href === "/architecture/first-review-guide")).toBe(true);
 
     const afterCommitCollapsed = filterNavLinksForOperatorShell(
       pilot!.links,
@@ -33,7 +33,7 @@ describe("committed architecture review nav promotion", () => {
       true,
     );
 
-    expect(afterCommitCollapsed.some((l) => l.href === "/onboarding")).toBe(false);
+    expect(afterCommitCollapsed.some((l) => l.href === "/architecture/first-review-guide")).toBe(false);
 
     const afterCommitExtended = filterNavLinksForOperatorShell(
       pilot!.links,
@@ -44,7 +44,7 @@ describe("committed architecture review nav promotion", () => {
       true,
     );
 
-    const onboarding = afterCommitExtended.find((l) => l.href === "/onboarding");
+    const onboarding = afterCommitExtended.find((l) => l.href === "/architecture/first-review-guide");
 
     expect(onboarding?.tier).toBe("extended");
     expect(onboarding?.defaultVisibleInCollapsedSidebar).toBeUndefined();
@@ -63,7 +63,7 @@ describe("committed architecture review nav promotion", () => {
 
     const pilotRow = rows.find((row) => row.group.id === "pilot");
 
-    expect(pilotRow?.visibleLinks.some((l) => l.href === "/onboarding")).toBe(false);
+    expect(pilotRow?.visibleLinks.some((l) => l.href === "/architecture/first-review-guide")).toBe(false);
 
     const rowsExtended = listNavGroupsVisibleInOperatorShell(
       NAV_GROUPS,
@@ -76,7 +76,7 @@ describe("committed architecture review nav promotion", () => {
     );
 
     expect(
-      rowsExtended.find((row) => row.group.id === "pilot")?.visibleLinks.some((l) => l.href === "/onboarding"),
+      rowsExtended.find((row) => row.group.id === "pilot")?.visibleLinks.some((l) => l.href === "/architecture/first-review-guide"),
     ).toBe(true);
   });
 

@@ -83,7 +83,7 @@ describe("PilotNavGroupBuilder", () => {
       "Executive dashboard",
       "First review guide",
     ]);
-    expect(group.links.some((link) => link.href === "/graph")).toBe(false);
+    expect(group.links.some((link) => link.href === "/insights/evidence-graph")).toBe(false);
   });
 
   it("lists Architectures and Reviews as peer object nav destinations", () => {

@@ -26,3 +26,7 @@ export const STANDARDS_RULES_VIEW_EXPLANATION_SUMMARY =
 
 export const STANDARDS_RULES_VIEW_EXPLANATION_NEXT_ACTION =
   "Start with enforced rules, then open linked findings or evidence to understand why each rule mattered.";
+
+export const STANDARDS_RULES_RESET_FILTERS = "Reset filters";
+
+export const STANDARDS_RULES_REFRESH = "Refresh";

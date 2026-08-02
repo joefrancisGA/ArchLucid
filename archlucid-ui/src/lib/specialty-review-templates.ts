@@ -201,7 +201,7 @@ export const SPECIALTY_REVIEW_TEMPLATES: readonly SpecialtyReviewTemplateDefinit
 ] as const;
 
 export const SPECIALTY_REVIEW_TEMPLATES_RELATED_LINKS = [
-  { label: "First review guide", href: "/onboarding" },
+  { label: "First review guide", href: "/architecture/first-review-guide" },
   { label: "Standard review", href: "/reviews/new" },
   { label: "Pattern library", href: "/patterns" },
   { label: "Policy packs", href: "/governance/policy-packs" },

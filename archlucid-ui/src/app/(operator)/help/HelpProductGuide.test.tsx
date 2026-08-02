@@ -21,7 +21,7 @@ describe("HelpProductGuide", () => {
 
     expect(screen.getByRole("link", { name: "Start a review" })).toHaveAttribute("href", "/reviews/new");
     expect(screen.getByRole("link", { name: "Open executive summary" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Ask" })).toHaveAttribute("href", "/ask");
+    expect(screen.getByRole("link", { name: "Ask" })).toHaveAttribute("href", "/insights/ask-review-questions");
     expect(screen.getByRole("link", { name: "Sign in" })).toHaveAttribute("href", "/auth/signin");
     expect(screen.getByRole("link", { name: "Open full troubleshooting guide" })).toHaveAttribute(
       "href",

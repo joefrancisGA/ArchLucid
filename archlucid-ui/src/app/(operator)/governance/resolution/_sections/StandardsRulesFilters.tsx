@@ -1,4 +1,10 @@
 import type { StandardsRulesFilterState } from "@/lib/standards-rules-rows";
+import {
+  STANDARDS_RULES_REFRESH,
+  STANDARDS_RULES_RESET_FILTERS,
+} from "@/lib/standards-rules-page";
+import { standardsRulesFiltersAreActive } from "@/lib/standards-rules-table-presentation";
+import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -11,6 +17,9 @@ export type StandardsRulesFiltersProps = {
     readonly policyPacks: readonly string[];
   };
   readonly onChange: (next: StandardsRulesFilterState) => void;
+  readonly onReset: () => void;
+  readonly onRefresh: () => void;
+  readonly refreshing: boolean;
 };
 
 function FilterSelect(props: {
@@ -41,22 +50,47 @@ function FilterSelect(props: {
 }
 
 export function StandardsRulesFilters(props: StandardsRulesFiltersProps) {
-  const { filters, options, onChange } = props;
+  const { filters, options, onChange, onReset, onRefresh, refreshing } = props;
+  const filtersActive = standardsRulesFiltersAreActive(filters);
 
   return (
     <div className="mb-4 flex flex-col gap-3" data-testid="standards-rules-filters">
-      <label className={cn("flex flex-col gap-1", OPERATOR_TYPOGRAPHY.helper)}>
-        <span className="text-al-text-secondary">Search rules</span>
-        <input
-          type="search"
-          className="max-w-xl rounded-md border border-neutral-300 bg-white px-3 py-2 text-al-text-primary dark:border-neutral-600 dark:bg-neutral-900"
-          placeholder="Search by rule, standard, category, or pack"
-          value={filters.searchQuery}
-          onChange={(event) => {
-            onChange({ ...filters, searchQuery: event.target.value });
-          }}
-        />
-      </label>
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+        <label className={cn("flex min-w-0 flex-1 flex-col gap-1", OPERATOR_TYPOGRAPHY.helper)}>
+          <span className="text-al-text-secondary">Search rules</span>
+          <input
+            type="search"
+            className="max-w-xl rounded-md border border-neutral-300 bg-white px-3 py-2 text-al-text-primary dark:border-neutral-600 dark:bg-neutral-900"
+            placeholder="Search by rule, standard, category, or pack"
+            value={filters.searchQuery}
+            onChange={(event) => {
+              onChange({ ...filters, searchQuery: event.target.value });
+            }}
+          />
+        </label>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            data-testid="standards-rules-reset-filters"
+            disabled={!filtersActive}
+            onClick={onReset}
+          >
+            {STANDARDS_RULES_RESET_FILTERS}
+          </Button>
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            data-testid="standards-rules-refresh"
+            disabled={refreshing}
+            onClick={onRefresh}
+          >
+            {refreshing ? "Refreshing…" : STANDARDS_RULES_REFRESH}
+          </Button>
+        </div>
+      </div>
       <div className="flex flex-wrap gap-3">
         <FilterSelect
           label="Standard / framework"

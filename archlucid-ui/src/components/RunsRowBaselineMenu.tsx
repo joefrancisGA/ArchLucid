@@ -50,7 +50,7 @@ export function RunsRowBaselineMenu(props: { runId: string }) {
         <Link href={`/audit?runId=${runEnc}`} className="text-teal-800 underline underline-offset-2 dark:text-teal-300">
           View audit trail
         </Link>
-        <Link href={`/ask?runId=${runEnc}`} className="text-teal-800 underline underline-offset-2 dark:text-teal-300">
+        <Link href={`/insights/ask-review-questions?runId=${runEnc}`} className="text-teal-800 underline underline-offset-2 dark:text-teal-300">
           Ask about this review
         </Link>
       </div>

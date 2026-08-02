@@ -162,7 +162,7 @@ export function OnboardingStartClient() {
               <Link href="/reviews/new">Start new review request</Link>
             </Button>
             <Button asChild type="button" variant="outline" size="sm">
-              <Link href="/onboarding">Open onboarding checklist</Link>
+              <Link href="/architecture/first-review-guide">Open onboarding checklist</Link>
             </Button>
           </div>
         </section>

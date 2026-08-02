@@ -22,7 +22,7 @@ export const ONBOARDING_TOUR_READY_BODY =
 
 export const ONBOARDING_TOUR_DONE_LINK_LABEL = "Open pilot checklist";
 
-export const ONBOARDING_TOUR_DONE_LINK_HREF = "/onboarding";
+export const ONBOARDING_TOUR_DONE_LINK_HREF = "/architecture/first-review-guide";
 
 export type OperatorOnboardingTourStepCopy = {
   readonly id: string;

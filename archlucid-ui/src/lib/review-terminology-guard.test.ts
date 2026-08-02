@@ -157,7 +157,7 @@ describe("review terminology guard", () => {
 
   it("IA-006: converged surfaces share one nav label per route family", () => {
     const alignedRoutes = [
-      { path: "/graph", navLabel: OPERATOR_NAV_LINK_LABELS.evidenceTrail, paletteHref: "/graph" },
+      { path: "/insights/evidence-graph", navLabel: OPERATOR_NAV_LINK_LABELS.evidenceTrail, paletteHref: "/insights/evidence-graph" },
       { path: "/governance/findings", navLabel: OPERATOR_NAV_LINK_LABELS.findings, paletteHref: null },
       { path: "/settings/tenant", navLabel: OPERATOR_NAV_LINK_LABELS.settings, paletteHref: null },
     ] as const;

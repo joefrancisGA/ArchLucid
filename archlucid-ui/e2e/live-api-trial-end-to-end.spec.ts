@@ -240,7 +240,7 @@ test.describe("live-api-trial-end-to-end", () => {
       },
     );
 
-    await page.goto("/onboarding?source=registration");
+    await page.goto("/architecture/first-review-guide?source=registration");
     await expect(page.getByTestId("onboarding-open-sample-run")).toBeVisible({ timeout: 120_000 });
 
     const sampleHref = (await page.getByTestId("onboarding-open-sample-run").getAttribute("href")) ?? "";

@@ -9,7 +9,7 @@ describe("cto-demo-blocked-route-registry", () => {
   });
 
   it("returns null for golden journey spine routes", () => {
-    expect(findBlockedRouteEntry("/graph")).toBeNull();
+    expect(findBlockedRouteEntry("/insights/evidence-graph")).toBeNull();
     expect(findBlockedRouteEntry("/governance")).toBeNull();
     expect(findBlockedRouteEntry("/audit")).toBeNull();
   });

@@ -28,7 +28,7 @@ export const FOUNDER_AUTHENTICATED_ROUTES: readonly FounderAcceptanceRoute[] = [
   { name: "Reviews list", path: "/reviews", requiresAuth: true },
   { name: "New review", path: "/reviews/new", requiresAuth: true },
   { name: "Governance", path: "/governance", requiresAuth: true },
-  { name: "Evidence graph", path: "/graph", requiresAuth: true },
+  { name: "Evidence graph", path: "/insights/evidence-graph", requiresAuth: true },
   { name: "Workspace settings", path: "/settings/tenant", requiresAuth: true },
 ] as const;
 

@@ -60,7 +60,7 @@ describe("AfterCorePilotChecklistHint", () => {
     expect(await screen.findByTestId("after-core-pilot-whats-next")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /ready for more/i })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Compare two reviews" })).toHaveAttribute("href", "/compare");
-    expect(screen.getByRole("link", { name: "Explore the architecture graph" })).toHaveAttribute("href", "/graph");
+    expect(screen.getByRole("link", { name: "Explore the architecture graph" })).toHaveAttribute("href", "/insights/evidence-graph");
     expect(screen.getByRole("link", { name: "Set up governance alerts" })).toHaveAttribute(
       "href",
       "/governance/alert-rules",

@@ -11,7 +11,7 @@ const analysisGroup: NavGroupConfig = {
   caption: "Explore evidence",
   links: [
     {
-      href: "/graph",
+      href: "/insights/evidence-graph",
       label: "Evidence graph",
       title: "Graph",
       tier: "essential",
@@ -38,7 +38,7 @@ describe("applyPatternLibraryNavGate", () => {
 
     const gated = applyPatternLibraryNavGate(rows, false);
 
-    expect(gated[0]?.visibleLinks.map((link) => link.href)).toEqual(["/graph"]);
+    expect(gated[0]?.visibleLinks.map((link) => link.href)).toEqual(["/insights/evidence-graph"]);
   });
 
   it("keeps Pattern library when threshold is met", () => {
@@ -51,14 +51,14 @@ describe("applyPatternLibraryNavGate", () => {
 
     const gated = applyPatternLibraryNavGate(rows, true);
 
-    expect(gated[0]?.visibleLinks.map((link) => link.href)).toEqual(["/graph", "/patterns"]);
+    expect(gated[0]?.visibleLinks.map((link) => link.href)).toEqual(["/insights/evidence-graph", "/patterns"]);
   });
 });
 
 describe("applyPatternLibraryHrefSetGate", () => {
   it("removes /patterns from the href set when hidden", () => {
-    const gated = applyPatternLibraryHrefSetGate(new Set(["/graph", "/patterns"]), false);
+    const gated = applyPatternLibraryHrefSetGate(new Set(["/insights/evidence-graph", "/patterns"]), false);
 
-    expect([...gated]).toEqual(["/graph"]);
+    expect([...gated]).toEqual(["/insights/evidence-graph"]);
   });
 });

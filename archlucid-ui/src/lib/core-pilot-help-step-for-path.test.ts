@@ -6,7 +6,9 @@ import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
 describe("corePilotHelpStepForPath", () => {
   it("maps home and onboarding to step 0", () => {
     expect(corePilotHelpStepForPath("/")?.stepIndex).toBe(0);
-    expect(corePilotHelpStepForPath("/onboarding")?.step.title).toBe(CORE_PILOT_STEPS[0].title);
+    expect(corePilotHelpStepForPath("/architecture/first-review-guide")?.step.title).toBe(
+      CORE_PILOT_STEPS[0].title,
+    );
   });
 
   it("maps new review wizard to step 0", () => {

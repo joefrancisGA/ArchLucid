@@ -76,7 +76,7 @@ export async function expectMainHasNoHardFailureChrome(page: Page): Promise<void
   await expect(main.getByText(/Aggregate explanation could not be loaded/i)).toHaveCount(0);
 }
 
-/** Primary `/ask` H1 from {@link OperatorPageHeader} (buyer-polished vs full-operator titles). */
+/** Primary `/insights/ask-review-questions` H1 from {@link OperatorPageHeader} (buyer-polished vs full-operator titles). */
 export function askPageMainHeading(page: Page): Locator {
   return page.getByRole("heading", { level: 1, name: ASK_PAGE_PRIMARY_HEADING_PATTERN });
 }
@@ -200,7 +200,7 @@ export async function clickAuditSearchAndWaitForSuccessfulResponse(
 }
 
 /**
- * `/graph` readiness: interactive canvas, explicit load affordance, or buyer-polished trace-table default.
+ * `/insights/evidence-graph` readiness: interactive canvas, explicit load affordance, or buyer-polished trace-table default.
  * Buyer-polished demo builds default to the trace table before graph view — older specs only matched canvas / Load graph.
  */
 export function graphPageReadySurfaceCandidates(page: Page): Locator[] {

@@ -40,11 +40,11 @@ describe("effectiveNavDisclosureForPathname", () => {
   it.each([
     "/",
     EXECUTIVE_DASHBOARD_HREF,
-    "/onboarding",
+    "/architecture/first-review-guide",
     "/reviews/new",
     "/reviews",
     "/settings/extract-upload",
-    "/graph",
+    "/insights/evidence-graph",
     "/help",
     "/help/first-architecture-review",
     "/help/troubleshooting",

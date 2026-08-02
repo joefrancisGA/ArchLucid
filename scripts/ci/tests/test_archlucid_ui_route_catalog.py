@@ -102,6 +102,16 @@ def test_migrate_workbook_path_maps_legacy_settings_exec_digest() -> None:
     assert migrate_workbook_path("/settings/exec-digest") == "/digests?tab=schedule"
 
 
+def test_migrate_workbook_path_maps_legacy_operator_system_health() -> None:
+    assert migrate_workbook_path("/health") == "/administration/system-health"
+
+
+def test_migrate_workbook_path_maps_legacy_executive_dashboard_bookmarks() -> None:
+    assert migrate_workbook_path("/dashboard") == "/architecture/executive-dashboard"
+    assert migrate_workbook_path("/executive/dashboard") == "/architecture/executive-dashboard"
+    assert migrate_workbook_path("/portfolio") == "/architecture/executive-dashboard"
+
+
 def test_suggest_row_id_is_unique_and_three_chars() -> None:
     used = {"HOM", "RE"}
     row_id = suggest_row_id("/architectures/new", used)

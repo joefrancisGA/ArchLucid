@@ -470,7 +470,17 @@ Human readers and agents should follow **canonical** paths below. This file is t
 ## 2026-08-01 bulk archive *assessment*.md retirement
 
 | Former path | Canonical path | Notes |
-|-------------|----------------|-------|| `docs/archive/assessments/ArchLucid_Assessment_Weighted_Readiness_2026_05_06_Independent_First_Principles_76_35.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+|-------------|----------------|-------|
+| `docs/archive/assessments/ArchLucid_Assessment_Weighted_Readiness_2026_05_06_Independent_First_Principles_76_35.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
+| `docs/archive/assessments/CURSOR_PROMPTS_WEIGHTED_IMPROVEMENTS_3_TO_6.md` | [`docs/assessments/ASSESSMENT_PROMPT_SERIES.md`](assessments/ASSESSMENT_PROMPT_SERIES.md) | Weighted improvements 3–6 Cursor prompts deleted 2026-08-01; use live prompt series |
+| `docs/archive/assessments/LATEST_2026_05_18.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Point-in-time 84.94% LATEST snapshot deleted 2026-08-01; use live LATEST |
+| `docs/archive/assessments/LATEST_2026_05_26_backup.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Backup 89.18% LATEST snapshot deleted 2026-08-01; use live LATEST |
+| `docs/archive/assessments/LATEST_2026_05_29_1152_pre_clean_slate.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Pre-clean-slate 80.67% LATEST snapshot deleted 2026-08-01; use live LATEST |
+| `docs/archive/assessments/LATEST_2026_05_29_1216_pre_implementation_rescore.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Pre-implementation rescore 78.71% deleted 2026-08-01; use live LATEST |
+| `docs/archive/assessments/LATEST_2026_05_29_1221_pre_clean_slate.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Pre-clean-slate / post-impl 79.85% snapshot deleted 2026-08-01; use live LATEST |
+| `docs/archive/assessments/LATEST_2026_05_29_163334_pre_rescore_backup.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Pre-rescore backup 81.20% deleted 2026-08-01; use live LATEST |
+| `docs/archive/assessments/LATEST_2026_05_29_230432_pre_rescore_backup.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Pre-rescore backup 76.47% deleted 2026-08-01; use live LATEST |
+| `docs/archive/assessments/LATEST_2026_05_29_234426_pre_consolidation_backup.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Pre-consolidation backup 80.62% deleted 2026-08-01; use live LATEST |
 | `docs/archive/assessments/ArchLucid_Assessment_Weighted_Readiness_2026_05_07_Independent_First_Principles_78_33.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
 | `docs/archive/assessments/ARCHLUCID_ASSESSMENT_WEIGHTED_READINESS_2026_05_07_INDEPENDENT_FIRST_PRINCIPLES_78_33__docs_library.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
 | `docs/archive/assessments/ArchLucid_Assessment_Weighted_Readiness_2026_05_07_Independent_First_Principles_78_39.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |

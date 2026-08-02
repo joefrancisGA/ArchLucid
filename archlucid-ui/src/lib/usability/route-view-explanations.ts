@@ -28,7 +28,7 @@ export function routeViewExplanationForPathname(pathname: string): RouteViewExpl
     return null;
   }
 
-  if (path === "/graph" || path.startsWith("/graph/")) {
+  if (path === "/insights/evidence-graph" || path.startsWith("/insights/evidence-graph/")) {
     return null;
   }
 

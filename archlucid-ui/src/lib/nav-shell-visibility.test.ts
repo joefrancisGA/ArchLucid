@@ -699,7 +699,7 @@ describe("committed architecture review gate — operator shell composition", ()
       "/architectures",
       "/reviews?projectId=default",
       EXECUTIVE_DASHBOARD_HREF,
-      "/onboarding",
+      "/architecture/first-review-guide",
     ]);
     expect(rows[1]!.visibleLinks.map((l) => l.href)).toEqual([
       "/settings/tenant",
@@ -757,7 +757,7 @@ describe("buyer-polished shell nav narrowing", () => {
     const visible = filterNavLinksForOperatorShell(op!.links, true, true, AUTHORITY_RANK.AdminAuthority, false, true);
 
     expect(visible.map((l) => l.href)).toEqual(
-      expect.arrayContaining(["/ask", "/search", "/compare"]),
+      expect.arrayContaining(["/insights/ask-review-questions", "/search", "/compare"]),
     );
 
     vi.unstubAllEnvs();

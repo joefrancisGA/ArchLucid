@@ -324,11 +324,11 @@ export const OPERATOR_HOME_SETUP_NEXT_CONNECT_CLOUD = "Connect cloud";
 
 export const OPERATOR_HOME_SETUP_NEXT_INVITE_REVIEWER = "Invite reviewer";
 
-/** Collapsed summary on `/onboarding` optional setup disclosure (TB-679). */
+/** Collapsed summary on `/architecture/first-review-guide` optional setup disclosure (TB-679). */
 export const ONBOARDING_OPTIONAL_SETUP_COLLAPSED_SUMMARY =
   "Identity, administrator access, platform health, and ROI baseline — optional before your first review.";
 
-/** Post-registration trial handoff on `/onboarding` (TB-679). */
+/** Post-registration trial handoff on `/architecture/first-review-guide` (TB-679). */
 export const GETTING_STARTED_TRIAL_POST_REGISTRATION_LEAD =
   "Confirm trial limits below, then use the checklist on this page or start a review with the sample highlighted on step one.";
 
@@ -721,7 +721,7 @@ export const BUYER_ONBOARDING_NAV_TOOLTIP = "First review guide — checklist an
 
 export const OPERATOR_HOME_OPEN_FIRST_REVIEW_GUIDE_CTA = "Open guide";
 
-/** Shown on `/onboarding` when the caller is not a workspace admin (TB-678). */
+/** Shown on `/architecture/first-review-guide` when the caller is not a workspace admin (TB-678). */
 export const ONBOARDING_WORKSPACE_SETUP_ADMIN_DELEGATION =
   "Workspace identity and ROI setup requires a workspace admin. Ask your administrator to finish optional setup when you are ready.";
 

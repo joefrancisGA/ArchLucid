@@ -1,4 +1,5 @@
 import { BUYER_VIEW_SIGNED_RECORD_CTA } from "@/lib/buyer-polish-copy";
+import { evidenceGraphHref } from "@/lib/evidence-graph-route";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
 import { SHOWCASE_PHI_FINDING_GRAPH_NODE_ID } from "@/lib/finding-inspect-graph-evidence";
@@ -28,9 +29,10 @@ export function getShowcaseManifestHref(): string {
 
 /** Evidence trail graph for the Claims Intake static spine (pre-focused finding node when available). */
 export function getShowcaseEvidenceTrailHref(): string {
-  const runId = encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID);
-
-  return `/graph?runId=${runId}&graphNodeId=${encodeURIComponent(SHOWCASE_PHI_FINDING_GRAPH_NODE_ID)}`;
+  return evidenceGraphHref({
+    runId: SHOWCASE_STATIC_DEMO_RUN_ID,
+    graphNodeId: SHOWCASE_PHI_FINDING_GRAPH_NODE_ID,
+  });
 }
 
 /** Executive view (concise risk summary and outcomes) for the Claims Intake static spine. */

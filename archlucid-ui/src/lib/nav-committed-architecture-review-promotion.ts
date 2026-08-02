@@ -1,17 +1,19 @@
 import type { NavLinkItem } from "@/lib/nav-config";
+import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
+import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
 
 /** Analytical destinations promoted to essential tier after the first committed review. */
 const COMMITTED_ARCHITECTURE_REVIEW_PROMOTED_HREFS = new Set<string>([
   "/compare",
-  "/graph",
+  EVIDENCE_GRAPH_PATH,
   "/sponsor-report/pilot-outcomes",
 ]);
 
 /** Pilot essentials demoted to extended tier after the first committed review (TB-524). */
-const COMMITTED_ARCHITECTURE_REVIEW_DEMOTED_HREFS = new Set<string>(["/onboarding"]);
+const COMMITTED_ARCHITECTURE_REVIEW_DEMOTED_HREFS = new Set<string>([FIRST_REVIEW_GUIDE_PATH]);
 
 /** Pilot-group essentials that stay visible before Architecture nav disclosure expands. */
-const COMMITTED_ARCHITECTURE_REVIEW_COLLAPSED_SIDEBAR_HREFS = new Set<string>(["/graph"]);
+const COMMITTED_ARCHITECTURE_REVIEW_COLLAPSED_SIDEBAR_HREFS = new Set<string>([EVIDENCE_GRAPH_PATH]);
 
 function navPathWithoutQuery(href: string): string {
   return href.split("?")[0] ?? "";

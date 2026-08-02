@@ -141,7 +141,7 @@ export function buyerPolishedRouteOrientation(
     };
   }
 
-  if (path.startsWith("/graph")) {
+  if (path.startsWith("/insights/evidence-graph")) {
     return null;
   }
 
@@ -250,7 +250,7 @@ export function buyerPolishedRouteOrientation(
     return null;
   }
 
-  if (path.startsWith("/ask")) {
+  if (path.startsWith("/insights/ask-review-questions")) {
     return null;
   }
 

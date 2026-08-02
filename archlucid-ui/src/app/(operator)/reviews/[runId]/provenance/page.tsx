@@ -73,7 +73,7 @@ export default async function RunProvenancePage({
           correlationId={loadFailure?.correlationId ?? null}
         />
         <p className={cn("mt-3", OPERATOR_TYPOGRAPHY.helper)}>
-          Open the <Link href="/graph">architecture graph</Link> for this review for an interactive trail, or use the
+          Open the <Link href="/insights/evidence-graph">architecture graph</Link> for this review for an interactive trail, or use the
           public sample walkthrough when this coordinator view is unavailable.
         </p>
       </div>

@@ -26,7 +26,7 @@ describe("AskQuestionForm", () => {
     expect(screen.getByTestId("ask-prompts-sample-callout")).toHaveTextContent("not your tenant workspace");
     expect(screen.getByRole("link", { name: "Claims Intake sample graph" })).toHaveAttribute(
       "href",
-      `/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
+      `/insights/evidence-graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
     );
   });
 });

@@ -28,7 +28,7 @@ export const ASK_NO_REVIEW_PACKAGE_EMPTY: EnterpriseCompactEmptyStateProps = {
     { label: CREATE_ARCHITECTURE_LABEL, href: ARCHITECTURES_NEW_PATH, variant: "primary" },
     {
       label: "Load sample workspace",
-      href: `/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
+      href: `/insights/evidence-graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
       variant: "outline",
     },
   ],

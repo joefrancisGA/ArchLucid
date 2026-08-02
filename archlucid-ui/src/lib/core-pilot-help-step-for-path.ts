@@ -12,7 +12,7 @@ export type CorePilotHelpStepContext = {
 export function corePilotHelpStepForPath(pathname: string): CorePilotHelpStepContext | null {
   const normalized = (pathname.trim().length === 0 ? "/" : pathname) || "/";
 
-  if (normalized === "/" || normalized === "/onboarding") {
+  if (normalized === "/" || normalized === "/architecture/first-review-guide") {
     return { stepIndex: 0, step: CORE_PILOT_STEPS[0] };
   }
 

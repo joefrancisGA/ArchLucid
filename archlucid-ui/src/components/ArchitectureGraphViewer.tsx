@@ -227,7 +227,7 @@ export function ArchitectureGraphViewer(props: ArchitectureGraphViewerProps) {
         <div className="mt-3">
           <OperatorTryNext>
             Confirm the review exists and you have access. You can still open the full{" "}
-            <Link href={`/graph?runId=${encodeURIComponent(props.runId.trim())}`} className="font-medium underline">
+            <Link href={`/insights/evidence-graph?runId=${encodeURIComponent(props.runId.trim())}`} className="font-medium underline">
               graph explorer
             </Link>{" "}
             to try other graph modes (review trail, neighborhoods).
@@ -241,7 +241,7 @@ export function ArchitectureGraphViewer(props: ArchitectureGraphViewerProps) {
     return null;
   }
 
-  const explorerHref = `/graph?runId=${encodeURIComponent(props.runId.trim())}`;
+  const explorerHref = `/insights/evidence-graph?runId=${encodeURIComponent(props.runId.trim())}`;
   const scrubValueMs = Math.min(Math.max(effectiveAsOfMs ?? maxMs, minMs), maxMs);
   const showScrubber = useTemporal && maxMs > minMs;
 

@@ -16,10 +16,10 @@ describe("pathnameEligibleBeforeFirstCommittedArchitectureReview", () => {
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/architectures/draft-1")).toBe(true);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/reviews/new")).toBe(true);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/reviews/abc/def")).toBe(true);
-    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/graph")).toBe(true);
+    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/insights/evidence-graph")).toBe(true);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview(EXECUTIVE_DASHBOARD_HREF)).toBe(true);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/help")).toBe(true);
-    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/onboarding")).toBe(true);
+    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/architecture/first-review-guide")).toBe(true);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/settings/baseline")).toBe(true);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/governance/findings")).toBe(false);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/alerts")).toBe(false);
@@ -55,7 +55,7 @@ describe("filterNavLinksByCommittedArchitectureReviewGate", () => {
       "/architectures",
       "/reviews",
       EXECUTIVE_DASHBOARD_HREF,
-      "/onboarding",
+      "/architecture/first-review-guide",
     ]);
   });
 

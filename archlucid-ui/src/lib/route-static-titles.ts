@@ -1,3 +1,4 @@
+import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
 import { ARCHITECTURES_LIST_PATH, ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
@@ -24,7 +25,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/alert-rules": ALERTS_CONFIGURATION_PAGE_TITLE,
   "/governance/alert-rules": ALERTS_CONFIGURATION_PAGE_TITLE,
   "/compare": "Compare",
-  "/graph": OPERATOR_NAV_LINK_LABELS.evidenceTrail,
+  [EVIDENCE_GRAPH_PATH]: OPERATOR_NAV_LINK_LABELS.evidenceTrail,
   "/patterns": PATTERN_LIBRARY_PAGE_TITLE,
   "/architecture-intelligence": "Architecture intelligence",
   "/governance": GOVERNANCE_OVERVIEW_PAGE_TITLE,
@@ -39,12 +40,12 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/governance/alerts": "Alerts",
   "/governance/advisory-scans": "Advisory scans",
   "/search": "Search",
-  "/ask": "Ask",
+  "/insights/ask-review-questions": "Ask",
   "/replay": "Replay",
   "/audit": "Audit",
   "/administration/system-health": "System health",
   "/planning": "Improvement planning",
-  "/onboarding": OPERATOR_NAV_LINK_LABELS.onboarding,
+  "/architecture/first-review-guide": OPERATOR_NAV_LINK_LABELS.onboarding,
   "/settings/billing": "Billing & plans",
   "/settings/tenant": OPERATOR_NAV_LINK_LABELS.settings,
   "/settings/tenant/recycle-bin": "Projects recycle bin",

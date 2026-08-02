@@ -10,6 +10,9 @@ import {
 import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
 import { compareRunBuyerDisplayLabel } from "@/lib/compare-run-display-label";
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
+import { ASK_REVIEW_QUESTIONS_PATH, isAskReviewQuestionsPath } from "@/lib/ask-review-questions-route";
+import { isEvidenceGraphPath } from "@/lib/evidence-graph-route";
+import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
 import { SPONSOR_REPORT_SECTION_LABEL } from "@/lib/sponsor-report-navigation";
 import { resolvePolicyPackDetailBreadcrumbLabel } from "@/lib/policy-pack-detail-resolver";
 import { ITSM_CONNECTORS_ADMIN_LABEL, ITSM_CONNECTORS_ADMIN_PATH } from "@/lib/itsm-connectors-admin-scope";
@@ -39,7 +42,7 @@ export type GetBreadcrumbsOptions = {
   /** Buyer-polished shell uses calmer create-flow labels on the wizard path. */
   readonly buyerPolishedShell?: boolean;
   /**
-   * When set (e.g. `runId` on graph, audit, ask, search, `/governance`, or `/governance/findings`),
+   * When set (e.g. `runId` on evidence graph, audit, ask, search, `/governance`, or `/governance/findings`),
    * buyer-polished shell can insert the active review title after **Overview**.
    */
   readonly queryRunId?: string;
@@ -51,7 +54,7 @@ function newReviewWizardCrumbLabel(): string {
   return resolveNewReviewWizardBreadcrumbLabel();
 }
 const BUYER_HUB_RUN_SCOPED_SEGMENTS = new Set<string>([
-  "graph",
+  "evidence-graph",
   "audit",
   "ask",
   "governance",
@@ -63,12 +66,16 @@ const BUYER_GOVERNANCE_RUN_SCOPED_PATHS = new Set<string>(["/governance/findings
 
 const SEGMENT_LABELS: Record<string, string> = {
   onboarding: OPERATOR_NAV_LINK_LABELS.onboarding,
+  "first-review-guide": OPERATOR_NAV_LINK_LABELS.onboarding,
   reviews: "Reviews",
   new: "New request",
+  insights: OPERATOR_NAV_GROUP_LABELS.analysis,
+  "evidence-graph": OPERATOR_NAV_LINK_LABELS.evidenceTrail,
   graph: OPERATOR_NAV_LINK_LABELS.evidenceTrail,
   compare: "Compare",
   replay: "Validate review",
   ask: "Ask",
+  "ask-review-questions": OPERATOR_NAV_LINK_LABELS.askReview,
   search: "Search",
   advisory: "Advisory",
   "advisory-scans": OPERATOR_NAV_LINK_LABELS.architectureAdvisory,
@@ -138,10 +145,25 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
     return [{ label: OPERATOR_NAV_LINK_LABELS.home }];
   }
 
+  if (isEvidenceGraphPath(normalized)) {
+    return [{ label: OPERATOR_NAV_LINK_LABELS.evidenceTrail }];
+  }
+
+  if (isAskReviewQuestionsPath(normalized)) {
+    return [{ label: OPERATOR_NAV_LINK_LABELS.askReview }];
+  }
+
   if (normalized === EXECUTIVE_DASHBOARD_HREF || normalized.startsWith(`${EXECUTIVE_DASHBOARD_HREF}/`)) {
     return [
       { label: "Architecture" },
       { label: OPERATOR_NAV_LINK_LABELS.portfolioOverview },
+    ];
+  }
+
+  if (normalized === FIRST_REVIEW_GUIDE_PATH || normalized.startsWith(`${FIRST_REVIEW_GUIDE_PATH}/`)) {
+    return [
+      { label: "Architecture" },
+      { label: OPERATOR_NAV_LINK_LABELS.onboarding },
     ];
   }
 
@@ -505,13 +527,18 @@ function injectBuyerShowcaseReviewPackageCrumb(
     ];
   }
 
-  if (rawSegments.length !== 1) {
+  const pathFromSegments = `/${rawSegments.join("/")}`;
+
+  if (rawSegments.length !== 1 && !isEvidenceGraphPath(pathFromSegments)) {
     return items;
   }
 
   const hub = rawSegments[0] ?? "";
 
-  if (!BUYER_HUB_RUN_SCOPED_SEGMENTS.has(hub)) {
+  const isRunScopedHub =
+    BUYER_HUB_RUN_SCOPED_SEGMENTS.has(hub) || isEvidenceGraphPath(pathFromSegments);
+
+  if (!isRunScopedHub) {
     return items;
   }
 

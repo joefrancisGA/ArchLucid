@@ -262,7 +262,7 @@ describe("CorePilotNextStepsCard", () => {
         "href",
         "/governance/dashboard",
       );
-      expect(screen.getByRole("link", { name: /open ask \(operate\)/i })).toHaveAttribute("href", "/ask");
+      expect(screen.getByRole("link", { name: /open ask \(operate\)/i })).toHaveAttribute("href", "/insights/ask-review-questions");
     });
 
     it("deeper Operate guidance is present but visually secondary (behind separator section)", async () => {

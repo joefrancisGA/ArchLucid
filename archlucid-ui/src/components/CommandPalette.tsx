@@ -60,11 +60,11 @@ const RUN_ID_LIKE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{1
 function buyerPolishedCommandPaletteLabel(pathname: string): string {
   const path = (pathname ?? "").split("?")[0] ?? "";
 
-  if (path.startsWith("/graph")) {
+  if (path.startsWith("/insights/evidence-graph")) {
     return "Search evidence trail";
   }
 
-  if (path.startsWith("/ask")) {
+  if (path.startsWith("/insights/ask-review-questions")) {
     return "Search review evidence";
   }
 
@@ -533,11 +533,11 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
   const polishedPalettePlaceholder = useMemo(() => {
     const path = (pathname ?? "").split("?")[0] ?? "";
 
-    if (path.startsWith("/graph")) {
+    if (path.startsWith("/insights/evidence-graph")) {
       return "Jump to audit, signed review record, governance, or type another destination…";
     }
 
-    if (path.startsWith("/ask")) {
+    if (path.startsWith("/insights/ask-review-questions")) {
       return "Jump to executive summary, signed review record, evidence trail, or governance…";
     }
 

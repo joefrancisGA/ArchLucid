@@ -59,10 +59,10 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | RE | `/reviews` | 12% | 0 | 0 | 1200 | Core review | None |
 | RRE | `/reviews/[runId]` | 10% | 0 | 0 | 1000 | Core review | None |
 | RRF | `/reviews/[runId]/findings/[findingId]` | 9% | 0 | 0 | 900 | Core review | None |
-| DSH | `/dashboard` | 8% | 0 | 0 | 800 | Core review | None |
+| DSH | `/dashboard` | 8% | 0 | 0 | 800 | Core review | Deprecated operator bookmark — merged to canonical executive dashboard on **ARE** (`/architecture/executive-dashboard`, TB-608). |
 | ACB | `/auth/callback` | 5% | 0 | 0 | 500 | Auth | None |
 | ASI | `/auth/signin` | 5% | 0 | 0 | 500 | Auth | None |
-| ASK | `/ask` | 4% | 0 | 0 | 400 | Core review | None |
+| ASK | `/insights/ask-review-questions` | 4% | 0 | 0 | 400 | Core review | None |
 | HOM | `/` | 3% | 0 | 0 | 300 | Core review | None |
 | AL | `/governance/alerts` | 3% | 0 | 0 | 300 | Alerts/gov | None |
 | GFN | `/governance/findings` | 2% | 0 | 0 | 200 | Alerts/gov | None |
@@ -74,10 +74,10 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | SET | `/settings` | 0.8% | 0 | 0 | 80 | Settings | None |
 | SXX | `/search` | 0.7% | 0 | 0 | 70 | Marketing | None |
 | DI | `/digests` | 0.6% | 0 | 0 | 60 | Digests | None |
-| GRA | `/graph` | 0.6% | 0 | 0 | 60 | Planning | None |
+| GRA | `/insights/evidence-graph` | 0.6% | 0 | 0 | 60 | Planning | None |
 | PPP | `/planning/plans/[planId]` | 0.6% | 0 | 0 | 60 | Planning | None |
 | AUD | `/governance/audit` | 0.5% | 0 | 0 | 50 | Alerts/gov | None |
-| HXX | `/health` | 0.5% | 0 | 0 | 50 | Marketing | None |
+| HXX | `/health` | 0.5% | 0 | 0 | 50 | Marketing | Deprecated operator bookmark — merged to Administration System health on **ADY** (`/administration/system-health`). |
 | RNX | `/reviews/new` | 0.5% | 0 | 0 | 50 | Core review | None |
 | GPP | `/governance/policy-packs` | 0.4% | 0 | 0 | 40 | Alerts/gov | None |
 | RR | `/reviews/[runId]/findings/[findingId]/inspect` | 0.4% | 0 | 0 | 40 | Core review | None |
@@ -108,9 +108,11 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | AUX | `/settings/users` | 0.15% | 0 | 0 | 15 | Settings | None |
 | MMX | `/signed-records/[manifestId]` | 0.15% | 0 | 0 | 15 | Marketing | None |
 | ATX | `/admin/tenant-health` | 0.12% | 0 | 0 | 12 | Admin | None |
+| ADY | `/administration/system-health` | 0.12% | 0 | 0 | 12 | Admin | Administration System health hub — live/ready dependency checks, build identity, and demo-safe buyer shell variant. PageContextualHelpButton + troubleshooting help. Canonical path /administration/system-health (legacy /health retired). |
 | FXX | `/faq` | 0.12% | 0 | 0 | 12 | Marketing | None |
 | HHX | `/help/how-it-works` | 0.12% | 0 | 0 | 12 | Help topic | None |
 | HTX | `/help/troubleshooting` | 0.12% | 0 | 0 | 12 | Help topic | None |
+| HCO | `/help/first-architecture-review` | 0.11% | 0 | 0 | 11 | Help topic | Specialty first-review guide — HelpCorePilotGuideView with hero Start review CTA, five-step stepper, and gated finalize steps (TB-1040). Legacy alias /help/core-pilot (ECO). Not bare HelpTopicMarkdownView. |
 | IIX | `/integrations/itsm` | 0.12% | 0 | 0 | 12 | Integrations | None |
 | SBX | `/settings/baseline` | 0.12% | 0 | 0 | 12 | Settings | None |
 | SIX | `/settings/identity-providers` | 0.12% | 0 | 0 | 12 | Settings | None |
@@ -125,7 +127,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | IJX | `/integrations/jira` | 0.1% | 0 | 0 | 10 | Integrations | None |
 | ISN | `/integrations/slack` | 0.1% | 0 | 0 | 10 | Integrations | None |
 | ITX | `/integrations/teams` | 0.1% | 0 | 0 | 10 | Integrations | None |
-| ONB | `/onboarding` | 0.1% | 0 | 0 | 10 | Onboarding | None |
+| ONB | `/architecture/first-review-guide` | 0.1% | 0 | 0 | 10 | Onboarding | Formerly `/onboarding` (permanent redirect). |
 | REP | `/replay` | 0.1% | 0 | 0 | 10 | Marketing | None |
 | SEC | `/security-trust` | 0.1% | 0 | 0 | 10 | Marketing | None |
 | SC | `/settings/ai-usage` | 0.1% | 0 | 0 | 10 | Settings | None |
@@ -171,7 +173,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | VPX | `/value-report/pilot` | 0.05% | 0 | 0 | 5 | Marketing | None |
 | H | `/help/audit-trail` | 0.04% | 0 | 0 | 4 | Help topic | None |
 | HCX | `/help/cli-usage` | 0.04% | 0 | 0 | 4 | Help topic | None |
-| HDX | `/help/developer-troubleshooting` | 0.04% | 0 | 0 | 4 | Help topic | None |
+| HDX | `/help/developer-troubleshooting` | 0.04% | 0 | 0 | 4 | Help topic | Admin-gated internal-runbook (TB-1246) — HelpTopicAuthorityGate + HelpTopicMarkdownClient; engineering CLI/env/log runbook from TROUBLESHOOTING.md + COMMON_ERRORS.md. Help search Advanced diagnostics (adminOnly). Not in customer Help Center featured grid. Customer Troubleshooting (HTX) does not deep-link here (TB-1249). Not a specialty guide. |
 | F | `/help/first-value-20-minutes` | 0.04% | 0 | 0 | 4 | Help topic | None |
 | PRO | `/help/procurement` | 0.04% | 0 | 0 | 4 | Help topic | None |
 | LXX | `/live-demo` | 0.04% | 0 | 0 | 4 | Marketing | None |
@@ -186,14 +188,14 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | ASU | `/auth/session-expired` | 0.03% | 0 | 0 | 3 | Auth | None |
 | DEX | `/demo/explain` | 0.03% | 0 | 0 | 3 | Learning | None |
 | CON | `/help/configuration-reference` | 0.03% | 0 | 0 | 3 | Help topic | None |
-| COR | `/help/core-pilot` | 0.03% | 0 | 0 | 3 | Help topic | None |
+| ECO | `/help/core-pilot` | 0.02% | 0 | 0 | 2 | Help alias | Deprecated operator bookmark — merged to Your first architecture review on **HCO** (`/help/first-architecture-review`). |
 | HEX | `/help/enterprise-onboarding` | 0.03% | 0 | 0 | 3 | Help topic | None |
 | HEE | `/help/evaluator-workbook` | 0.03% | 0 | 0 | 3 | Help topic | None |
 | EVI | `/help/evidence-intake` | 0.03% | 0 | 0 | 3 | Help topic | None |
 | EV | `/help/evidence-trail` | 0.03% | 0 | 0 | 3 | Help topic | None |
 | HFE | `/help/first-hour-operator-path` | 0.03% | 0 | 0 | 3 | Help topic | None |
 | FIR | `/help/first-pilot-path` | 0.03% | 0 | 0 | 3 | Help topic | None |
-| HG | `/help/governance-api-contracts` | 0.03% | 0 | 0 | 3 | Help topic | None |
+| HG | `/help/governance-api-contracts` | 0.03% | 0 | 0 | 3 | Help topic | Admin-gated internal-runbook (TB-1384) — HelpTopicAuthorityGate + HelpTopicMarkdownView with contributor-section strip (TB-1388). API_CONTRACTS.md technical reference; not buyer governance help. Help center internal tier; not featured. Buyer Findings/Governance guides link to audit-trail instead (TB-1387). Not a specialty guide. |
 | PI | `/help/pilot-roi-model` | 0.03% | 0 | 0 | 3 | Help topic | None |
 | HRX | `/help/repeat-review-loop` | 0.03% | 0 | 0 | 3 | Help topic | None |
 | REV | `/help/review-packages` | 0.03% | 0 | 0 | 3 | Help topic | None |
@@ -204,7 +206,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | AR | `/architectures` | 0.02% | 0 | 0 | 2 | Core review | None |
 | AIN | `/architecture-intelligence` | 0.05% | 0 | 0 | 5 | Core review | None |
 | ARA | `/architectures/[architectureId]` | 0.02% | 0 | 0 | 2 | Core review | None |
-| ARN | `/architectures/new` | 0.02% | 0 | 0 | 2 | Core review | None |
+| ARE | `/architecture/executive-dashboard` | 0.02% | 0 | 0 | 2 | Executive | Canonical executive ROI portfolio dashboard — ExecutiveRoiDashboardPageView with hero, KPI tiles, trend charts, sponsor exports, and PageContextualHelp → executive-summary. Legacy /dashboard (DSH), /executive/dashboard (EXD), and /portfolio redirect here (TB-608). |
 | AUB | `/auth/bootstrap` | 0.02% | 0 | 0 | 2 | Auth | None |
 | AUI | `/auth/invite` | 0.02% | 0 | 0 | 2 | Auth | None |
 | COM | `/compliance-journey` | 0.02% | 0 | 0 | 2 | Marketing | None |
@@ -212,7 +214,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | DIS | `/digests?tab=schedule` | 0.02% | 0 | 0 | 2 | Tab surface | Digests Schedule tab (left nav Digests → Schedule). |
 | DIX | `/digests?tab=subscriptions` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | EXA | `/example-roi-bulletin` | 0.02% | 0 | 0 | 2 | Marketing | None |
-| EXD | `/executive/dashboard` | 0.02% | 0 | 0 | 2 | Executive | None |
+| EXD | `/executive/dashboard` | 0.02% | 0 | 0 | 2 | Executive | Deprecated executive-shell bookmark — merged to canonical executive dashboard on **ARE** (`/architecture/executive-dashboard`, TB-608). |
 | ADS | `/governance/advisory-scans?tab=scans` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | GOA | `/governance/alert-rules` | 0.02% | 0 | 0 | 2 | Alerts/gov | Alert rules hub (left nav Alert rules). |
 | GOC | `/governance/alert-rules?tab=composite` | 0.02% | 0 | 0 | 2 | Tab surface | None |

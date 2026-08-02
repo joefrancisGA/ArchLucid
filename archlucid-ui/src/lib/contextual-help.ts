@@ -11,7 +11,7 @@ const PAGE_KEY_TO_DOC_REF: Readonly<Record<string, string>> = {
   "/governance": "docs/library/PRE_COMMIT_GOVERNANCE_GATE.md",
   "/audit": "docs/library/AUDIT_COVERAGE_MATRIX.md",
   "/alerts": "docs/library/ALERTS.md",
-  "/graph": "docs/library/KNOWLEDGE_GRAPH.md",
+  "/insights/evidence-graph": "docs/library/KNOWLEDGE_GRAPH.md",
 };
 
 /** Page keys with a documentation mapping (for tests and drift checks). */

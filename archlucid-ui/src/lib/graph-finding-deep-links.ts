@@ -1,3 +1,4 @@
+import { evidenceGraphHref } from "@/lib/evidence-graph-route";
 import { getFindingEvidenceTraceHref } from "@/lib/finding-evidence-navigation";
 import { SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID } from "@/lib/showcase-static-demo";
 import type { GraphNodeVm } from "@/types/graph";
@@ -6,15 +7,12 @@ import type { GraphNodeVm } from "@/types/graph";
 export const GRAPH_NODE_FOCUS_QUERY_PARAM = "graphNodeId";
 
 export function graphTrailHrefWithOptionalNode(runId: string, graphNodeId: string | null): string {
-  const params = new URLSearchParams();
-  params.set("runId", runId.trim());
   const nid = graphNodeId?.trim() ?? "";
 
-  if (nid.length > 0) {
-    params.set(GRAPH_NODE_FOCUS_QUERY_PARAM, nid);
-  }
-
-  return `/graph?${params.toString()}`;
+  return evidenceGraphHref({
+    runId: runId.trim(),
+    ...(nid.length > 0 ? { [GRAPH_NODE_FOCUS_QUERY_PARAM]: nid } : {}),
+  });
 }
 
 /**

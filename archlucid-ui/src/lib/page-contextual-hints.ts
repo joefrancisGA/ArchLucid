@@ -34,7 +34,7 @@ const HINTS: readonly { prefix: string; hint: PageContextualHint }[] = [
     },
   },
   {
-    prefix: "/ask",
+    prefix: "/insights/ask-review-questions",
     hint: {
       id: "ask-review",
       message: "Ask plain-language questions scoped to the active review.",

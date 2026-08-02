@@ -9,7 +9,7 @@ export const SEARCH_EMPTY: EmptyStateProps = {
   description:
     "Try different wording, clear the review filter, or ensure your workspace has committed review evidence indexed for search.",
   actions: [
-    { label: "Open Ask", href: "/ask", variant: "outline" },
+    { label: "Open Ask", href: "/insights/ask-review-questions", variant: "outline" },
     { label: "View reviews", href: "/reviews?projectId=default", variant: "outline" },
   ],
 };

@@ -1,6 +1,8 @@
 import type { NavLinkItem } from "@/lib/nav-config";
 import { ARCHITECTURES_LIST_PATH, ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
+import { isEvidenceGraphPath } from "@/lib/evidence-graph-route";
+import { isFirstReviewGuidePath } from "@/lib/first-review-guide-route";
 
 /**
  * Sidebar/palette narrowing before the first committed golden-manifest review (`CurrentPrincipal.hasCommittedArchitectureReview`).
@@ -26,7 +28,7 @@ export function pathnameEligibleBeforeFirstCommittedArchitectureReview(pathWitho
     return true;
   }
 
-  if (pathWithoutQuery === "/graph" || pathWithoutQuery.startsWith("/graph/")) {
+  if (isEvidenceGraphPath(pathWithoutQuery)) {
     return true;
   }
 
@@ -38,7 +40,7 @@ export function pathnameEligibleBeforeFirstCommittedArchitectureReview(pathWitho
     return true;
   }
 
-  if (pathWithoutQuery === "/onboarding" || pathWithoutQuery.startsWith("/onboarding/")) {
+  if (isFirstReviewGuidePath(pathWithoutQuery)) {
     return true;
   }
 
@@ -74,7 +76,7 @@ function preCommitNavLinkSortRank(pathWithoutQuery: string): number {
     return 1;
   }
 
-  if (pathWithoutQuery === "/graph" || pathWithoutQuery.startsWith("/graph/")) {
+  if (isEvidenceGraphPath(pathWithoutQuery)) {
     return 3;
   }
 
@@ -86,7 +88,7 @@ function preCommitNavLinkSortRank(pathWithoutQuery: string): number {
     return 5;
   }
 
-  if (pathWithoutQuery === "/onboarding" || pathWithoutQuery.startsWith("/onboarding/")) {
+  if (isFirstReviewGuidePath(pathWithoutQuery)) {
     return 6;
   }
 

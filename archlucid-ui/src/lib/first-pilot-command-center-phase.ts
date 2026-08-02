@@ -1,4 +1,5 @@
 import type { FirstPilotOperatingRailSignals } from "@/lib/first-pilot-operating-rail-status";
+import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 
 
@@ -108,7 +109,7 @@ export function resolveFirstPilotCommandCenterPhase(input: {
 
         "Confirm SQL, auth, and API readiness before ingesting evidence or creating the first architecture review.",
 
-      href: "/administration/system-health",
+      href: ADMINISTRATION_SYSTEM_HEALTH_PATH,
 
       cta: "Check readiness",
 

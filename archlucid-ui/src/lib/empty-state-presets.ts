@@ -52,7 +52,7 @@ export const GRAPH_IDLE: EmptyStateProps = {
     { label: CREATE_ARCHITECTURE_LABEL, href: ARCHITECTURES_NEW_PATH },
     {
       label: AZURE_REFERENCE_SAMPLE_GRAPH_CTA_LABEL,
-      href: `/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
+      href: `/insights/evidence-graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
       variant: "outline" as const,
     },
   ],
@@ -67,7 +67,7 @@ export const GRAPH_IDLE_BUYER: EmptyStateProps = {
   actions: [
     {
       label: AZURE_REFERENCE_SAMPLE_GRAPH_CTA_LABEL,
-      href: `/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
+      href: `/insights/evidence-graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
     },
     { label: CREATE_ARCHITECTURE_LABEL, href: ARCHITECTURES_NEW_PATH, variant: "outline" as const },
     { label: "Upload evidence", href: "/reviews/new", variant: "outline" as const },

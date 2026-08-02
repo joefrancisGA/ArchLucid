@@ -58,7 +58,7 @@ describe("PageHeading nav identity", () => {
 
   it("renders representative Insights, Governance, and Administration headings from nav identity", () => {
     for (const [navHref, testId] of [
-      ["/graph", "insights-heading"],
+      ["/insights/evidence-graph", "insights-heading"],
       ["/governance", "governance-heading"],
       ["/settings/users", "admin-heading"],
     ] as const) {
@@ -100,8 +100,8 @@ describe("PageHeading nav identity", () => {
   });
 
   it("delegates nav identity from OperatorPageHeader", () => {
-    render(<OperatorPageHeader navHref="/graph" title="Evidence graph" subtitle="Trace evidence" />);
+    render(<OperatorPageHeader navHref="/insights/evidence-graph" title="Evidence graph" subtitle="Trace evidence" />);
     expect(screen.getByTestId("page-heading-icon")).toBeInTheDocument();
-    expect(resolveNavIconForHref("/graph")).toBeDefined();
+    expect(resolveNavIconForHref("/insights/evidence-graph")).toBeDefined();
   });
 });

@@ -107,7 +107,7 @@ describe("QuickDecisionSummary", () => {
     const findingDetailLinks = screen.getAllByRole("link").filter((el) => {
       const href = el.getAttribute("href") ?? "";
 
-      return href.includes("/reviews/run-abc/findings/") && !href.includes("/graph");
+      return href.includes("/reviews/run-abc/findings/") && !href.includes("/insights/evidence-graph");
     });
 
     expect(findingDetailLinks).toHaveLength(3);

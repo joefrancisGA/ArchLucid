@@ -184,7 +184,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
     await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible();
     await expectMainHasNoHardFailureChrome(page);
 
-    await page.goto("/ask");
+    await page.goto("/insights/ask-review-questions");
     await expectMainHasNoHardFailureChrome(page);
 
     await page.goto("/help");
@@ -195,8 +195,8 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
     page,
   }) => {
     const routes = [
-      "/ask",
-      "/graph",
+      "/insights/ask-review-questions",
+      "/insights/evidence-graph",
       "/compare",
       "/governance",
       "/governance/advisory-scans",
@@ -208,7 +208,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
     for (const path of routes) {
       await page.goto(path);
 
-      if (path === "/graph") {
+      if (path === "/insights/evidence-graph") {
         await expectGraphPageReadySurface(page, { timeout: 25_000 });
       }
 

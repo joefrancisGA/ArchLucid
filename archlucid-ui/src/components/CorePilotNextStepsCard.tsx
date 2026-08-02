@@ -365,7 +365,7 @@ export function CorePilotNextStepsCard() {
           >
             Workspace health (sponsor view)
           </Link>
-          <Link href="/ask" className="font-medium text-blue-700 underline dark:text-blue-400">
+          <Link href="/insights/ask-review-questions" className="font-medium text-blue-700 underline dark:text-blue-400">
             Open Ask (Operate)
           </Link>
         </div>
@@ -403,7 +403,7 @@ export function CorePilotNextStepsCard() {
           <li className="flex items-start gap-2" aria-label="Step 2 active">
             <span aria-hidden className={cn("mt-0.5 shrink-0 font-bold text-teal-700 dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)}>▶</span>
             <Link
-              href={latestRunId !== null ? `/graph?runId=${encodeURIComponent(latestRunId)}` : "/graph"}
+              href={latestRunId !== null ? `/insights/evidence-graph?runId=${encodeURIComponent(latestRunId)}` : "/insights/evidence-graph"}
               className="font-medium text-blue-700 underline dark:text-blue-400"
               data-testid="pilot-active-evidence-link"
             >

@@ -5,12 +5,12 @@
 
 /** Relative to `archlucid-ui/` — scanned by `onboarding-hub-drift-guard.test.ts`. */
 export const HUB_PAGE_DRIFT_GUARD_SOURCES = [
-  "src/app/(operator)/onboarding/_sections/FirstReviewGuidePageClient.tsx",
-  "src/app/(operator)/onboarding/_sections/FirstReviewGuideWalkthrough.tsx",
-  "src/app/(operator)/onboarding/_sections/FirstReviewGuideSupportPanel.tsx",
-  "src/app/(operator)/onboarding/_sections/FirstReviewGuideRequiredSetupPanel.tsx",
-  "src/app/(operator)/onboarding/_sections/OnboardingOptionalSetupSection.tsx",
-  "src/app/(operator)/onboarding/_sections/OptionalWorkspaceSetupList.tsx",
+  "src/app/(operator)/architecture/first-review-guide/_sections/FirstReviewGuidePageClient.tsx",
+  "src/app/(operator)/architecture/first-review-guide/_sections/FirstReviewGuideWalkthrough.tsx",
+  "src/app/(operator)/architecture/first-review-guide/_sections/FirstReviewGuideSupportPanel.tsx",
+  "src/app/(operator)/architecture/first-review-guide/_sections/FirstReviewGuideRequiredSetupPanel.tsx",
+  "src/app/(operator)/architecture/first-review-guide/_sections/OnboardingOptionalSetupSection.tsx",
+  "src/app/(operator)/architecture/first-review-guide/_sections/OptionalWorkspaceSetupList.tsx",
   "src/components/GettingStartedTrialSection.tsx",
   "src/components/operator-home/OperatorHomeContinueSetupCard.tsx",
   "src/components/CorePilotChecklist.tsx",

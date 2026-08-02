@@ -6,8 +6,9 @@ type OnboardingPageProps = {
 };
 
 /**
- * Canonical onboarding orientation: trial card when `?source=registration` is set,
- * followed by the core first-review checklist wizard.
+ * Canonical First review guide (`/architecture/first-review-guide`): trial card when
+ * `?source=registration` is set, followed by the core first-review checklist wizard.
+ * Legacy `/onboarding` permanently redirects here.
  */
 export default async function OnboardingPage({ searchParams }: OnboardingPageProps) {
   const p = await searchParams;

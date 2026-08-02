@@ -4,7 +4,7 @@ import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 const showcaseRunEnc = encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID);
-const showcaseGraphBase = `/graph?runId=${showcaseRunEnc}`;
+const showcaseGraphBase = `/insights/evidence-graph?runId=${showcaseRunEnc}`;
 
 export type PolicyPackEnforcedRuleRow = {
   readonly ruleKey: string;

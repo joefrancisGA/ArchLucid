@@ -100,7 +100,7 @@ function omitThinRoutesInPublicDemoMode(links: NavLinkItem[]): NavLinkItem[] {
   return links.filter((l) => {
     if (
       keepExpandedDemoSpine
-      && (l.href === "/graph" || l.href === "/governance" || l.href === GOVERNANCE_AUDIT_PATH)
+      && (l.href === "/insights/evidence-graph" || l.href === "/governance" || l.href === GOVERNANCE_AUDIT_PATH)
     ) {
       return true;
     }
@@ -163,7 +163,7 @@ export type NavGroupWithVisibleLinks = {
  * Stage 1 (not entitlements): [COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md](../../../docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md) §4.
  *
  * @see `authority-seam-regression.test.ts` — tier + authority composition vs caller rank (Core Pilot invariants; ordering;
- *   rank **0** vs **`ReadAuthority`**; **`/alerts`** **`advanced`** (+ progressive disclosure toggle); Enterprise href **monotonicity**; Advanced default **`/ask`**-only;
+ *   rank **0** vs **`ReadAuthority`**; **`/alerts`** **`advanced`** (+ progressive disclosure toggle); Enterprise href **monotonicity**; Advanced default **`/insights/ask-review-questions`**-only;
  *   **`/governance`** gated on **`showAdvanced`** at Execute rank; **`LAYER_PAGE_GUIDANCE`** Enterprise vs Advanced **`enterpriseFootnote`**).
  * @see `authority-execute-floor-regression.test.ts` — **Execute floor** parity (nav **`ExecuteAuthority`** row vs mutation boolean) + **`operate-governance`** config invariants under **`filterNavLinksByAuthority`** alone (complements tier∩rank tests above).
  * @see `authority-shaped-ui-regression.test.ts` — catalog **`ExecuteAuthority`** links vs Read/Execute rank (this module composes those links after **tier**).

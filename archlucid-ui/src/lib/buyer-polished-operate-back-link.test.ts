@@ -20,7 +20,7 @@ describe("buyerPolishedOperateBackLink", () => {
       label: "Back to review",
       href: "/reviews/claims-intake-modernization",
     });
-    expect(buyerPolishedOperateBackLink("/ask")).toEqual({
+    expect(buyerPolishedOperateBackLink("/insights/ask-review-questions")).toEqual({
       label: "Back to review",
       href: "/reviews/claims-intake-modernization",
     });
@@ -38,7 +38,7 @@ describe("resolveBuyerOperateBackLinkWhenShellBreadcrumbsHidden", () => {
   it("returns back link on buyer satellite routes when shell breadcrumbs and journey stepper are absent", () => {
     expect(
       resolveBuyerOperateBackLinkWhenShellBreadcrumbsHidden({
-        pathnameWithSearch: "/ask",
+        pathnameWithSearch: "/insights/ask-review-questions",
         searchRunId: "",
         showShellBreadcrumbs: false,
         buyerGoldenJourneyNav: null,
@@ -52,7 +52,7 @@ describe("resolveBuyerOperateBackLinkWhenShellBreadcrumbsHidden", () => {
   it("returns null when shell breadcrumbs or golden journey already orient the route", () => {
     expect(
       resolveBuyerOperateBackLinkWhenShellBreadcrumbsHidden({
-        pathnameWithSearch: "/ask",
+        pathnameWithSearch: "/insights/ask-review-questions",
         searchRunId: "",
         showShellBreadcrumbs: true,
         buyerGoldenJourneyNav: null,

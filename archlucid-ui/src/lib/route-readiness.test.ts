@@ -9,7 +9,7 @@ describe("shouldHideOperatorNavLinkInDemo", () => {
   });
 
   it("keeps governance, graph, ask, audit, policy packs, and alerts on the demo allowlist", () => {
-    for (const href of ["/graph", "/ask", "/governance", "/audit", "/policy-packs", "/alerts"]) {
+    for (const href of ["/insights/evidence-graph", "/insights/ask-review-questions", "/governance", "/audit", "/policy-packs", "/alerts"]) {
       expect(shouldHideOperatorNavLinkInDemo(href, true)).toBe(false);
     }
   });
@@ -25,7 +25,7 @@ describe("presenter safe mode nav hiding", () => {
     vi.stubEnv("NEXT_PUBLIC_OPERATOR_EXPERIENCE", "");
 
     expect(shouldHideOperatorNavLinkInDemo("/settings/billing", true)).toBe(true);
-    expect(shouldHideOperatorNavLinkInDemo("/graph", true)).toBe(false);
+    expect(shouldHideOperatorNavLinkInDemo("/insights/evidence-graph", true)).toBe(false);
 
     vi.unstubAllEnvs();
   });

@@ -8,7 +8,7 @@ export function buyerGoldenPathSecondaryRouteHint(pathname: string): string | nu
     return "Viewing supporting detail — finding evidence for this review.";
   }
 
-  if (path === "/ask" || path.startsWith("/ask?")) {
+  if (path === "/insights/ask-review-questions" || path.startsWith("/ask?")) {
     return "Viewing supporting detail — evidence-backed questions for this review.";
   }
 

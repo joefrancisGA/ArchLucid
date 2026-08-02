@@ -1,3 +1,4 @@
+import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
 import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
 import { ARCHLUCID_SUPPORT_EMAIL } from "@/lib/support-workspace-present";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
@@ -59,7 +60,7 @@ export const TROUBLESHOOTING_START_HERE_ITEMS = [
 ] as const;
 
 export const TROUBLESHOOTING_PRIMARY_ACTIONS = {
-  systemHealth: { href: "/administration/system-health", label: "Open System health" },
+  systemHealth: { href: ADMINISTRATION_SYSTEM_HEALTH_PATH, label: "Open System health" },
   reportProblem: TROUBLESHOOTING_REPORT_PROBLEM_LINK,
   contactSupport: TROUBLESHOOTING_EMAIL_SUPPORT_LINK,
 } as const;
@@ -74,7 +75,7 @@ export const TROUBLESHOOTING_COMMON_ISSUES: readonly TroubleshootingIssue[] = [
     tryFirst: "Refresh the page and confirm you are in the intended workspace.",
     ifStillBlocked: "Open System health. If readiness stays red, download a support bundle and contact support.",
     nextSteps: [
-      { label: "Open System health", href: "/administration/system-health" },
+      { label: "Open System health", href: ADMINISTRATION_SYSTEM_HEALTH_PATH },
       { label: "Open reviews", href: "/reviews" },
       ...supportEscalationLinks(),
     ],
@@ -103,7 +104,7 @@ export const TROUBLESHOOTING_COMMON_ISSUES: readonly TroubleshootingIssue[] = [
     ifStillBlocked: "Use the decision tree below, then download a support bundle if the issue repeats after refresh.",
     nextSteps: [
       { label: "Open reviews", href: "/reviews" },
-      { label: "Open System health", href: "/administration/system-health" },
+      { label: "Open System health", href: ADMINISTRATION_SYSTEM_HEALTH_PATH },
       { label: "Decision tree", href: "#decision-tree" },
     ],
   },
@@ -329,7 +330,7 @@ export const TROUBLESHOOTING_ADVANCED_DIAGNOSTICS_ITEMS: readonly Troubleshootin
   {
     title: "Service readiness",
     body: "Open System health for live and ready checks. Workspace administrators can review dependency status before escalating.",
-    href: "/administration/system-health",
+    href: ADMINISTRATION_SYSTEM_HEALTH_PATH,
     linkLabel: "Open System health",
   },
   {

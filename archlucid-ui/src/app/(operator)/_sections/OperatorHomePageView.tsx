@@ -175,10 +175,12 @@ export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
 
   return (
     <OperatorHomeGate>
-      <OperatorHomeDeferredOnboarding />
-      <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.majorSectionGap}>
-        {buyerPolishedShell ? <BuyerPolishedHomePageBody model={model} /> : <OperatorHomePageBody model={model} />}
-      </OperatorPageContainer>
+      <OperatorHomeRefreshProvider>
+        <OperatorHomeDeferredOnboarding />
+        <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.majorSectionGap}>
+          {buyerPolishedShell ? <BuyerPolishedHomePageBody model={model} /> : <OperatorHomePageBody model={model} />}
+        </OperatorPageContainer>
+      </OperatorHomeRefreshProvider>
     </OperatorHomeGate>
   );
 }

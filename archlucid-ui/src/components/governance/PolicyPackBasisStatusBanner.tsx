@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 
 const showcaseRunEnc = encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID);
 const signedRecordHref = getShowcaseManifestHref();
-const evidenceTrailHref = `/graph?runId=${showcaseRunEnc}&graphNodeId=${encodeURIComponent(SHOWCASE_PHI_FINDING_GRAPH_NODE_ID)}`;
+const evidenceTrailHref = `/insights/evidence-graph?runId=${showcaseRunEnc}&graphNodeId=${encodeURIComponent(SHOWCASE_PHI_FINDING_GRAPH_NODE_ID)}`;
 const auditTrailHref = `/audit?runId=${showcaseRunEnc}`;
 
 export type PolicyPackBasisStatusBannerProps = {

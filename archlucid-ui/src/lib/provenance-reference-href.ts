@@ -1,3 +1,4 @@
+import { evidenceGraphHref } from "@/lib/evidence-graph-route";
 import { signedRecordArtifactPath, signedRecordDetailPath } from "@/lib/signed-records-paths";
 import { getFindingEvidenceTraceHref } from "@/lib/finding-evidence-navigation";
 import type { ArchitectureLinkageNode } from "@/types/architecture-provenance";
@@ -59,7 +60,7 @@ function nodeHref(
     }
 
     case "GraphSnapshot":
-      return `/graph?runId=${encodeRunPath(runId)}`;
+      return evidenceGraphHref({ runId });
 
     case "FindingsSnapshot":
       return `/reviews/${encodeRunPath(runId)}#findings-queue`;

@@ -5,6 +5,6 @@ import type { Metadata } from "next";
  */
 export const LEGACY_ARCHITECTURE_GRAPH_ROUTE_METADATA: Metadata = {
   title: "Redirecting to architecture graph",
-  description: "Legacy Operate architecture-graph bookmark — redirects immediately to the canonical /graph viewer.",
+  description: "Legacy Operate architecture-graph bookmark — redirects immediately to the canonical evidence graph viewer.",
   robots: { index: false, follow: false },
 };

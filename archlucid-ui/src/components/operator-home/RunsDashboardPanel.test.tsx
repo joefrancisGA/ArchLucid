@@ -51,11 +51,30 @@ import * as operatorStaticDemo from "@/lib/operator-static-demo";
 
 import { OperatorHomeWorkspaceActivityProvider } from "@/components/operator-home/operator-home-workspace-activity-context";
 
+import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/operator-home-runs-dashboard-model";
+
 import { RunsDashboardPanel } from "./RunsDashboardPanel";
 
 import type { RunSummary } from "@/types/authority";
 
 const listRuns = vi.mocked(listRunsByProjectPaged);
+
+function buildInitialModel(
+  overrides: Partial<OperatorHomeRunsDashboardModel> = {},
+): OperatorHomeRunsDashboardModel {
+  return {
+    projectId: "default",
+    page: 1,
+    pageSize: 5,
+    items: [],
+    totalCount: 0,
+    loadFailure: null,
+    malformedMessage: null,
+    usedStaticRunsFallback: false,
+    buyerPolishedShell: false,
+    ...overrides,
+  };
+}
 
 const originalFetch = globalThis.fetch;
 
@@ -721,5 +740,93 @@ describe("RunsDashboardPanel", () => {
     expect(screen.getByText("No archived reviews yet.")).toBeInTheDocument();
     expect(screen.getByText("Archived reviews will appear here.")).toBeInTheDocument();
     expect(screen.queryByTestId("runs-dashboard-archived-unsupported")).toBeNull();
+  });
+
+  it("skips client fetch when the server snapshot is fresh enough", async () => {
+    const run: RunSummary = {
+      runId: "11111111-1111-1111-1111-111111111111",
+      projectId: "default",
+      description: "Server painted review",
+      createdUtc: "2026-01-15T12:00:00.000Z",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+    };
+
+    listRuns.mockResolvedValue({
+      items: [run],
+      totalCount: 1,
+      page: 1,
+      pageSize: 5,
+      hasMore: false,
+    });
+    stubFetchForDashboard();
+
+    renderRunsDashboardPanel(
+      <RunsDashboardPanel
+        hideHeading
+        initialModel={buildInitialModel({
+          items: [run],
+          totalCount: 1,
+        })}
+      />,
+    );
+
+    expect(await screen.findByRole("link", { name: "Server painted review" })).toBeInTheDocument();
+    expect(screen.queryByTestId("runs-dashboard-recent-loading")).toBeNull();
+    expect(listRuns).not.toHaveBeenCalled();
+  });
+
+  it("keeps painted reviews visible during background refresh", async () => {
+    const run: RunSummary = {
+      runId: "11111111-1111-1111-1111-111111111111",
+      projectId: "default",
+      description: "Server painted review",
+      createdUtc: "2026-01-15T12:00:00.000Z",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+    };
+
+    let resolveFetch: ((value: Awaited<ReturnType<typeof listRunsByProjectPaged>>) => void) | null = null;
+    listRuns.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveFetch = resolve;
+        }),
+    );
+    stubFetchForDashboard();
+
+    renderRunsDashboardPanel(
+      <RunsDashboardPanel
+        hideHeading
+        initialModel={buildInitialModel({
+          loadFailure: {
+            message: "temporary",
+            problem: null,
+            correlationId: null,
+            httpStatus: 503,
+            retryAfterSeconds: null,
+          },
+          items: [run],
+          totalCount: 1,
+        })}
+      />,
+    );
+
+    expect(await screen.findByRole("link", { name: "Server painted review" })).toBeInTheDocument();
+    expect(screen.queryByTestId("runs-dashboard-recent-loading")).toBeNull();
+    expect(listRuns).toHaveBeenCalledTimes(1);
+
+    resolveFetch?.({
+      items: [run],
+      totalCount: 1,
+      page: 1,
+      pageSize: 5,
+      hasMore: false,
+    });
+
+    await waitFor(() => {
+      expect(screen.getByRole("link", { name: "Server painted review" })).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId("runs-dashboard-recent-loading")).toBeNull();
   });
 });

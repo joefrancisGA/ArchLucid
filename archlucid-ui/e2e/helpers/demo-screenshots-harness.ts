@@ -60,8 +60,8 @@ export const DEMO_SCREENSHOT_ROUTES: readonly string[] = [
   "/runs/claims-intake-modernization-run",
   "/manifests/a1c2e3f4-a5b6-7890-abcd-ef1234567890",
   "/runs/claims-intake-modernization-run/findings/phi-minimization-risk",
-  "/graph",
-  "/ask",
+  "/insights/evidence-graph",
+  "/insights/ask-review-questions",
   "/governance",
   "/governance/audit",
   "/governance/alerts",
@@ -311,7 +311,7 @@ export async function settleDemoRoute(page: Page, routePath: string): Promise<vo
   const effectiveHref = screenshotEffectiveHref(page.url());
   const p = (effectiveHref.split("?")[0] ?? effectiveHref).trim() || "/";
 
-  if (p === "/graph" || p.startsWith("/graph")) {
+  if (p === "/insights/evidence-graph" || p.startsWith("/insights/evidence-graph")) {
     const graphLoading = page.getByText(/loading graph viewer/i).first();
     if ((await graphLoading.count()) > 0)
       await graphLoading.waitFor({ state: "hidden", timeout: 120_000 });
@@ -342,7 +342,7 @@ export async function settleDemoRoute(page: Page, routePath: string): Promise<vo
     return;
   }
 
-  if (p === "/ask" || p.startsWith("/ask")) {
+  if (p === "/insights/ask-review-questions" || p.startsWith("/insights/ask-review-questions")) {
     // Full-operator title is "Ask review questions"; buyer-polished uses Evidence-backed…
     await page
       .getByRole("heading", {

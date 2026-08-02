@@ -12,7 +12,7 @@ type FindingEvidenceTrailLinkProps = {
 export function FindingEvidenceTrailLink(props: FindingEvidenceTrailLinkProps) {
   const encodedRun = encodeURIComponent(props.runId);
   const encodedFinding = encodeURIComponent(props.findingId);
-  const href = `/graph?runId=${encodedRun}&findingId=${encodedFinding}&mode=review-trail`;
+  const href = `/insights/evidence-graph?runId=${encodedRun}&findingId=${encodedFinding}&mode=review-trail`;
 
   return (
     <Link

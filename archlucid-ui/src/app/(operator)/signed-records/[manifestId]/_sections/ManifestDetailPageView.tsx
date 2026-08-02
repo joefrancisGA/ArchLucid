@@ -191,7 +191,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
             Product &amp; evidence questions
           </p>
           <Button variant="primary" size="sm" asChild>
-            <Link href={`/ask?runId=${encodeURIComponent(summary.runId)}`}>Ask about this review</Link>
+            <Link href={`/insights/ask-review-questions?runId=${encodeURIComponent(summary.runId)}`}>Ask about this review</Link>
           </Button>
         </div>
         <div className="flex flex-col gap-1.5">

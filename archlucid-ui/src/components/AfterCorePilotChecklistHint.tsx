@@ -34,7 +34,7 @@ const suggestions: Suggestion[] = [
   },
   {
     title: "Explore the architecture graph",
-    href: "/graph",
+    href: "/insights/evidence-graph",
     description: "Provenance or architecture graph for a review ID when a list view is not enough.",
     sidebarNote: `Requires “${NAV_DISCLOSURE.extended.show}” in the sidebar.`,
   },

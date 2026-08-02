@@ -292,7 +292,7 @@ export function RunTrustEvidenceCardSection(props: {
               </p>
               <div className="mt-3">
                 <Button variant="primary" size="sm" asChild>
-                  <Link href={`/ask?runId=${encodeURIComponent(trimmedAskRun)}`}>Ask about this review</Link>
+                  <Link href={`/insights/ask-review-questions?runId=${encodeURIComponent(trimmedAskRun)}`}>Ask about this review</Link>
                 </Button>
               </div>
             </div>

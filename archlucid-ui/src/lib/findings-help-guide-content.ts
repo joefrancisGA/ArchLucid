@@ -115,7 +115,7 @@ export const FINDINGS_HELP_EVIDENCE_ACTIONS = [
   {
     label: "Open evidence graph",
     description: "Explore provenance and relationships across the review.",
-    href: "/graph",
+    href: "/insights/evidence-graph",
   },
 ] as const;
 

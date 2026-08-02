@@ -17,7 +17,7 @@ export function RegistrationOnboardingTourAutoStart() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    if (pathname !== "/" && !pathname.startsWith("/onboarding")) {
+    if (pathname !== "/" && !pathname.startsWith("/architecture/first-review-guide")) {
       return;
     }
 

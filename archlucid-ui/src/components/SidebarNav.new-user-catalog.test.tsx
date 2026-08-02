@@ -71,13 +71,13 @@ const REVIEW_WORK_HREFS: ReadonlyArray<string> = [
   "/reviews/new",
   "/reviews?projectId=default",
   EXECUTIVE_DASHBOARD_HREF,
-  "/onboarding",
+  "/architecture/first-review-guide",
 ];
 
 const COLLAPSED_GROUPS: ReadonlyArray<RequestedGroup> = [
   {
     toggleTestId: "sidebar-group-toggle-operate-analysis",
-    hrefs: ["/graph", "/ask", "/compare", "/scorecard"],
+    hrefs: ["/insights/evidence-graph", "/insights/ask-review-questions", "/compare", "/scorecard"],
   },
   {
     toggleTestId: "sidebar-group-toggle-operate-governance",

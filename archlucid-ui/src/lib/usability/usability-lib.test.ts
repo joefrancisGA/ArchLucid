@@ -9,11 +9,11 @@ import { shouldAutoStartRegistrationTour } from "@/lib/usability/onboarding-regi
 describe("usability lib", () => {
   it("navLinkQuestionSubtitle returns compare and ask copy", () => {
     expect(navLinkQuestionSubtitle("/compare")).toContain("changed");
-    expect(navLinkQuestionSubtitle("/ask")).toContain("plain language");
+    expect(navLinkQuestionSubtitle("/insights/ask-review-questions")).toContain("plain language");
   });
 
   it("navLinkQuestionSubtitle omits dense helpers for self-explanatory nav items", () => {
-    expect(navLinkQuestionSubtitle("/graph")).toBeNull();
+    expect(navLinkQuestionSubtitle("/insights/evidence-graph")).toBeNull();
     expect(navLinkQuestionSubtitle("/governance")).toBeNull();
     expect(navLinkQuestionSubtitle("/replay")).toBeNull();
     expect(navLinkQuestionSubtitle("/governance/advisory-scans")).toBeNull();

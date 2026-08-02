@@ -166,8 +166,8 @@ describe("nav-config structure", () => {
     const systemAdminHrefs = NAV_GROUPS.find((group) => group.id === "operator-system-admin")!.links.map((link) => link.href);
 
     expect(analysisHrefs).toEqual([
-      "/graph",
-      "/ask",
+      "/insights/evidence-graph",
+      "/insights/ask-review-questions",
       "/search",
       "/compare",
       "/evolution-review",

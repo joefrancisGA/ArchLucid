@@ -40,6 +40,6 @@ describe("graph-finding-deep-links", () => {
 
   it("graphTrailHrefWithOptionalNode adds graphNodeId only when focused id is non-empty", () => {
     expect(graphTrailHrefWithOptionalNode("run-z", null)).toBe("/graph?runId=run-z");
-    expect(graphTrailHrefWithOptionalNode("run-z", "n-phi")).toBe(`/graph?runId=run-z&${GRAPH_NODE_FOCUS_QUERY_PARAM}=n-phi`);
+    expect(graphTrailHrefWithOptionalNode("run-z", "n-phi")).toBe(`/insights/evidence-graph?runId=run-z&${GRAPH_NODE_FOCUS_QUERY_PARAM}=n-phi`);
   });
 });

@@ -164,7 +164,7 @@ export function TrialBanner() {
             Convert to paid
           </Button>
           <Button asChild type="button" size="sm" variant="outline">
-            <Link href="/onboarding?source=registration">Trial checklist</Link>
+            <Link href="/architecture/first-review-guide?source=registration">Trial checklist</Link>
           </Button>
         </div>
       </div>

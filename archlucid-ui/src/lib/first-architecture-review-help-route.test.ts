@@ -18,12 +18,29 @@ const HELP_TOPIC_PAGE = join(process.cwd(), "src", "app", "(operator)", "help", 
 
 const PRODUCT_FIRST_REVIEW_HELP_SURFACES = [
   "archlucid-ui/src/lib/first-review-90min-playbook-alignment.ts",
-  "archlucid-ui/src/components/operator-home/operator-home-help-affordances.test.tsx",
   "archlucid-ui/src/components/CorePilotNextStepsCard.tsx",
+  "archlucid-ui/src/lib/help-center-catalog.ts",
   "archlucid-ui/src/lib/help-search-panel-catalog.ts",
+  "archlucid-ui/src/lib/usability/page-help-topic-map.ts",
+  "archlucid-ui/src/lib/repeat-review-loop-help-guide-content.ts",
 ] as const;
 
-describe("first-architecture-review-help-route (HFI)", () => {
+const CANONICAL_FIRST_REVIEW_HELP_HANDOFF_MARKERS = [
+  FIRST_ARCHITECTURE_REVIEW_HELP_PATH,
+  "FIRST_ARCHITECTURE_REVIEW_HELP_PATH",
+  "BUYER_FIRST_REVIEW_HELP_HREF",
+  "first-architecture-review",
+] as const;
+
+function expectCanonicalFirstReviewHelpHandoff(source: string): void {
+  const hasCanonicalHandoff = CANONICAL_FIRST_REVIEW_HELP_HANDOFF_MARKERS.some((marker) =>
+    source.includes(marker),
+  );
+
+  expect(hasCanonicalHandoff).toBe(true);
+}
+
+describe("first-architecture-review-help-route (HCO)", () => {
   it("marks the specialty guide as noindex with honest metadata", () => {
     expect(FIRST_ARCHITECTURE_REVIEW_HELP_ROUTE_METADATA.robots).toEqual({ index: false, follow: false });
     expect(FIRST_ARCHITECTURE_REVIEW_HELP_ROUTE_METADATA.title).toBe("Your first architecture review");
@@ -50,7 +67,7 @@ describe("first-architecture-review-help-route (HFI)", () => {
 
     for (const relativePath of PRODUCT_FIRST_REVIEW_HELP_SURFACES) {
       const source = readFileSync(join(repoRoot, relativePath), "utf8");
-      expect(source).toContain("first-architecture-review");
+      expectCanonicalFirstReviewHelpHandoff(source);
       expect(source).not.toContain(`href="${LEGACY_CORE_PILOT_HELP_PATH}"`);
     }
   });

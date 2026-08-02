@@ -36,6 +36,7 @@ import type { RunSummary } from "@/types/authority";
 
 export type RunsDashboardRecentTabProps = {
   readonly phase: RunsDashboardLoadPhase;
+  readonly showInitialLoadingSkeleton: boolean;
   readonly failure: ApiLoadFailureState | null;
   readonly runListError: boolean;
   readonly filteredItems: RunSummary[];
@@ -115,7 +116,7 @@ export function RunsDashboardRecentTab(props: RunsDashboardRecentTabProps) {
 
   return (
     <div data-testid={panelTestId}>
-      {props.phase === "loading" ? <OperatorHomeRunsDashboardListSkeleton /> : null}
+      {props.showInitialLoadingSkeleton ? <OperatorHomeRunsDashboardListSkeleton /> : null}
 
       {props.runListError && props.failure !== null ? (
         <div className={cn(OPERATOR_TYPOGRAPHY.helper, "[&_strong]:font-semibold")} data-testid="runs-dashboard-recent-error">

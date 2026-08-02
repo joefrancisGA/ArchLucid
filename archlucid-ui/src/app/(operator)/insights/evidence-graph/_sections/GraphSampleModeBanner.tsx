@@ -33,7 +33,7 @@ export function GraphSampleModeBanner(props: GraphSampleModeBannerProps) {
       {props.showUseMyReviewAction ? (
         <div className="mt-3">
           <Button type="button" variant="outline" size="sm" asChild>
-            <Link href="/graph">{BUYER_EVIDENCE_GRAPH_USE_MY_REVIEW_CTA}</Link>
+            <Link href="/insights/evidence-graph">{BUYER_EVIDENCE_GRAPH_USE_MY_REVIEW_CTA}</Link>
           </Button>
         </div>
       ) : null}

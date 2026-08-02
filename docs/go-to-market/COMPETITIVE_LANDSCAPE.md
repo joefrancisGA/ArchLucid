@@ -261,4 +261,4 @@ Cloud-native posture tools deliver **platform-specific recommendations** with va
 | [POSITIONING.md](POSITIONING.md) | Positioning statement and elevator pitches |
 | [../V1_SCOPE.md](../library/V1_SCOPE.md) | What V1 actually ships |
 | [../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md) | Security and access architecture for enterprise buyers |
-| [../archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md](../archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md) | Full marketability quality assessment (archived series)
+| [../archive/../assessments/LATEST_GPT55.md](../archive/../assessments/LATEST_GPT55.md) | Full marketability quality assessment (archived series)

@@ -53,7 +53,7 @@ describe("usability improvements", () => {
   });
 
   it("routeViewExplanationForPathname returns null for evidence graph — header owns help copy", () => {
-    expect(routeViewExplanationForPathname("/graph")).toBeNull();
+    expect(routeViewExplanationForPathname("/insights/evidence-graph")).toBeNull();
   });
 
   it("routeViewExplanationForPathname returns null for alerts — the page carries its own governance context header", () => {

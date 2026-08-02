@@ -64,4 +64,4 @@ flowchart LR
 ## Related docs
 
 - **[API_CONTRACTS.md](API_CONTRACTS.md)** — versioning, pagination, artifact semantics.
-- **`docs/CURSOR_PROMPTS_WEIGHTED_IMPROVEMENTS_3_TO_6.md`** — prompt **`rfc9457-controller-sweep`** for remaining controller audits.
+- **[`ASSESSMENT_PROMPT_SERIES.md`](../assessments/ASSESSMENT_PROMPT_SERIES.md)** — historical Cursor improvement-prompt series (RFC9457 controller sweep lived in the retired weighted-improvements 3–6 pack).

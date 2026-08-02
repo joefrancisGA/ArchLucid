@@ -13,7 +13,7 @@ export type NavLinkQuestionSubtitle = {
  */
 export const NAV_LINK_QUESTION_SUBTITLES: readonly NavLinkQuestionSubtitle[] = [
   { href: "/compare", subtitle: "What changed between two reviews?" },
-  { href: "/ask", subtitle: "Query this review in plain language" },
+  { href: "/insights/ask-review-questions", subtitle: "Query this review in plain language" },
 ] as const;
 
 export function navLinkQuestionSubtitle(href: string): string | null {

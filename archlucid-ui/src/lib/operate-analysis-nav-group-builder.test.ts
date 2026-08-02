@@ -15,7 +15,7 @@ describe("OperateAnalysisNavGroupBuilder", () => {
     const group = new OperateAnalysisNavGroupBuilder().build();
     const graphLink = group.links[0];
 
-    expect(graphLink?.href).toBe("/graph");
+    expect(graphLink?.href).toBe("/insights/evidence-graph");
     expect(graphLink?.label).toBe("Evidence graph");
     expect(graphLink?.keyShortcut).toBe("alt+y");
   });
@@ -24,8 +24,8 @@ describe("OperateAnalysisNavGroupBuilder", () => {
     const group = new OperateAnalysisNavGroupBuilder().build();
 
     expect(group.links.map((link) => link.href)).toEqual([
-      "/graph",
-      "/ask",
+      "/insights/evidence-graph",
+      "/insights/ask-review-questions",
       "/search",
       "/compare",
       "/evolution-review",

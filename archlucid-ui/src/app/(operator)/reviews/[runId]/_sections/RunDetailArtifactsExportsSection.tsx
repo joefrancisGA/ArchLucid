@@ -294,7 +294,7 @@ export function RunDetailArtifactsExportsSection(
                   <Link href={comparePageHrefAdaptive(runId)}>Compare with another review</Link>
                 </Button>
                 <Button variant="ghost" size="sm" className="text-teal-800 dark:text-teal-300" asChild>
-                  <Link href={`/ask?runId=${encodeURIComponent(runId)}`}>Ask about this review</Link>
+                  <Link href={`/insights/ask-review-questions?runId=${encodeURIComponent(runId)}`}>Ask about this review</Link>
                 </Button>
               </div>
             )}

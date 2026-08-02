@@ -100,7 +100,10 @@ describe("SidebarNav (primary navigation)", () => {
       "href",
       "/reviews?projectId=default",
     );
-    expect(within(reviewNav).getByRole("link", { name: "First review guide" })).toHaveAttribute("href", "/onboarding");
+    expect(within(reviewNav).getByRole("link", { name: "First review guide" })).toHaveAttribute(
+      "href",
+      "/architecture/first-review-guide",
+    );
     expect(within(reviewNav).queryByRole("link", { name: "Risk register" })).toBeNull();
     expect(within(reviewNav).queryByRole("link", { name: "Scorecard" })).toBeNull();
 
@@ -133,7 +136,7 @@ describe("SidebarNav (primary navigation)", () => {
 
     const analysisNav = screen.getByRole("navigation", { name: "Insights" });
     expect(within(analysisNav).getByRole("link", { name: "Compare two reviews" })).toHaveAttribute("href", "/compare");
-    expect(within(analysisNav).getByRole("link", { name: "Ask review questions" })).toHaveAttribute("href", "/ask");
+    expect(within(analysisNav).getByRole("link", { name: "Ask review questions" })).toHaveAttribute("href", "/insights/ask-review-questions");
   });
 
   it("persists saved group expansion without overwriting on reload", async () => {

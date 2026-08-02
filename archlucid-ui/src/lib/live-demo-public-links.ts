@@ -1,4 +1,5 @@
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
+import { evidenceGraphHref } from "@/lib/evidence-graph-route";
 
 export type LiveDemoInspectDestination =
   | "executive"
@@ -40,7 +41,7 @@ export function resolveLiveDemoInspectHref(
 
       return showcaseHref;
     case "evidence-graph":
-      return `/graph?runId=${enc(effectiveRunId)}`;
+      return evidenceGraphHref({ runId: effectiveRunId });
     case "governance":
       return `/governance?runId=${enc(effectiveRunId)}`;
     case "audit-trail":

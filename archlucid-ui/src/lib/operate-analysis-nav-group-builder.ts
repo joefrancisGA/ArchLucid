@@ -13,6 +13,8 @@ import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
 import { PATTERN_LIBRARY_NAV_BADGE, PATTERN_LIBRARY_NAV_LINK_LABEL } from "@/lib/pattern-library-copy";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
+import { ASK_REVIEW_QUESTIONS_PATH } from "@/lib/ask-review-questions-route";
+import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
 
 /** Operate · analysis — Q&A, search, and comparison over review evidence. */
@@ -20,7 +22,7 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
   build(): NavGroupConfig {
     const links: NavGroupConfig["links"] = [
       {
-        href: "/graph",
+        href: EVIDENCE_GRAPH_PATH,
         label: OPERATOR_NAV_LINK_LABELS.evidenceTrail,
         title: this.shortcutTitle("Trace evidence, findings, and decisions", "alt+y"),
         keyShortcut: "alt+y",
@@ -29,7 +31,7 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
         requiredAuthority: "ReadAuthority",
       },
       {
-        href: "/ask",
+        href: ASK_REVIEW_QUESTIONS_PATH,
         label: OPERATOR_NAV_LINK_LABELS.askReview,
         title: this.shortcutTitle("Ask questions about a review", "alt+a"),
         keyShortcut: "alt+a",

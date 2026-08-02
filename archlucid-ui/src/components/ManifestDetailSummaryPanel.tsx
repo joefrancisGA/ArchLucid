@@ -300,7 +300,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
                 {SHOWCASE_STATIC_DEMO_GRAPH_LINKED_RECORD_COUNT} {BUYER_EXAMPLE_COUNT_SUFFIX}
               </p>
               <Link
-                href={`/graph?runId=${encodeURIComponent(canonicalizeDemoRunId(summary.runId))}`}
+                href={`/insights/evidence-graph?runId=${encodeURIComponent(canonicalizeDemoRunId(summary.runId))}`}
                 className={cn("m-0 mt-2 inline-block", OPERATOR_LINK.nav)}
               >
                 Explore decision traceability graph
@@ -392,7 +392,7 @@ function countsGridTiles(summary: ManifestSummary, options: CountsGridTilesOptio
     ? "grid grid-cols-2 gap-3 sm:grid-cols-3"
     : "grid grid-cols-2 gap-3 sm:grid-cols-4";
 
-  const graphHref = `/graph?runId=${encodeURIComponent(summary.runId)}`;
+  const graphHref = `/insights/evidence-graph?runId=${encodeURIComponent(summary.runId)}`;
   const auditHref = `/audit?runId=${encodeURIComponent(summary.runId)}`;
 
   const manifestTileLabelClass = cn("m-0", OPERATOR_NAV_GROUP_LABEL, "font-medium text-neutral-500 dark:text-neutral-400");

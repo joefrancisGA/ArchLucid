@@ -74,7 +74,7 @@ export function recordRecentView(
 export function recentViewLabelFromPathname(pathname: string): string | null {
   const path = pathname.split("?")[0] ?? "";
 
-  if (path === "/" || path === "/onboarding") {
+  if (path === "/" || path === "/architecture/first-review-guide") {
     return null;
   }
 
@@ -96,7 +96,7 @@ export function recentViewLabelFromPathname(pathname: string): string | null {
     return "Architecture snapshot";
   }
 
-  if (path === "/graph") {
+  if (path === "/insights/evidence-graph") {
     return OPERATOR_NAV_LINK_LABELS.evidenceTrail;
   }
 

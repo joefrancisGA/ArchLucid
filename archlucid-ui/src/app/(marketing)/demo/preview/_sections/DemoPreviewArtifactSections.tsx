@@ -151,7 +151,7 @@ export function DemoPreviewEvidenceGraphSection(props: DemoPreviewExecutiveConcl
       {runId.length > 0 ? (
         <p className="mt-4">
           <Link
-            href={`/graph?runId=${encodeURIComponent(runId)}`}
+            href={`/insights/evidence-graph?runId=${encodeURIComponent(runId)}`}
             className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
           >
             View evidence graph

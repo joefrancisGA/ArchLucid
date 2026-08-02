@@ -32,7 +32,7 @@ describe("findSidebarNavGroupIdsForActivePath", () => {
   it("returns analysis when evidence graph is active", () => {
     const rows = listNavGroupsVisibleInOperatorShell(NAV_GROUPS, true, true, 3, false, "all", true, 2);
 
-    expect(findSidebarNavGroupIdsForActivePath(rows, "/graph")).toEqual(["operate-analysis"]);
+    expect(findSidebarNavGroupIdsForActivePath(rows, "/insights/evidence-graph")).toEqual(["operate-analysis"]);
   });
 
   it("returns analysis when architecture advisory is active", () => {

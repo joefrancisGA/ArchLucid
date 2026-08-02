@@ -48,7 +48,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     summary:
       "Admin-only SE/ops printable checklist — extractor ZIP, finalize, ROI proof, and audit export. Buyers should use Your first architecture review instead.",
     docPath: "docs/runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md",
-    routes: ["/", "/onboarding", "/reviews/new", EXECUTIVE_DASHBOARD_HREF],
+    routes: ["/", "/architecture/first-review-guide", "/reviews/new", EXECUTIVE_DASHBOARD_HREF],
   },
   {
     id: "pilot-nav-profile",
@@ -57,7 +57,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     summary:
       "The first-review path stays focused until your first architecture review is finalized; analysis and governance groups unlock on demand or automatically after finalize.",
     docPath: "docs/library/customer-facing/WORKSPACE_NAVIGATION_GUIDE.md",
-    routes: ["/", "/reviews", "/onboarding"],
+    routes: ["/", "/reviews", "/architecture/first-review-guide"],
   },
   {
     id: "first-run",
@@ -66,7 +66,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     summary:
       "Create a request, track progress, finalize the signed review record, and review artifacts, findings, and the review trail.",
     docPath: "docs/library/FIRST_RUN_WIZARD.md",
-    routes: ["/reviews/new", "/", "/onboarding"],
+    routes: ["/reviews/new", "/", "/architecture/first-review-guide"],
   },
   {
     id: "artifacts",
@@ -99,7 +99,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     summary:
       "Visual review trail for one architecture review — evidence map and provenance tied to the selected review context.",
     docPath: "docs/library/KNOWLEDGE_GRAPH.md",
-    routes: ["/graph"],
+    routes: ["/insights/evidence-graph"],
   },
   {
     id: "ask-archlucid",
@@ -108,7 +108,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     summary:
       "Attach the sample architecture review (or your workspace review), ask sponsor-ready questions, and follow threaded answers.",
     docPath: "docs/library/operator-shell.md",
-    routes: ["/ask"],
+    routes: ["/insights/ask-review-questions"],
   },
   {
     id: "governance-workflow",

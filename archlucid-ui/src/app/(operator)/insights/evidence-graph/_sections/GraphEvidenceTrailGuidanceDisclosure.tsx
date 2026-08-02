@@ -16,7 +16,7 @@ export type GraphEvidenceTrailGuidanceDisclosureProps = {
   className?: string;
 };
 
-const GRAPH_PAGE_HELP_TOPIC = pageHelpTopicForPathname("/graph");
+const GRAPH_PAGE_HELP_TOPIC = pageHelpTopicForPathname("/insights/evidence-graph");
 
 /** Collapses long graph explanation so the page leads with selection and load actions. */
 export function GraphEvidenceTrailGuidanceDisclosure(props: GraphEvidenceTrailGuidanceDisclosureProps) {

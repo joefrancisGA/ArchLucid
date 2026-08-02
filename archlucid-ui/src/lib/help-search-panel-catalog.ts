@@ -343,7 +343,7 @@ const CORE_PILOT_NEXT_STEP_TOPIC_IDS: readonly string[] = [
 
 const ROUTE_RECOMMENDED_TOPIC_IDS: readonly { readonly prefix: string; readonly topicIds: readonly string[] }[] = [
   { prefix: "/", topicIds: ["getting-started-help", "how-archlucid-works", "first-review-guide", "product-faq", "create-first-review"] },
-  { prefix: "/onboarding", topicIds: ["how-archlucid-works", "first-review-guide", "product-faq", "create-first-review", "sample-review"] },
+  { prefix: "/architecture/first-review-guide", topicIds: ["how-archlucid-works", "first-review-guide", "product-faq", "create-first-review", "sample-review"] },
   { prefix: "/help/first-architecture-review", topicIds: CORE_PILOT_NEXT_STEP_TOPIC_IDS },
   { prefix: "/help/core-pilot", topicIds: CORE_PILOT_NEXT_STEP_TOPIC_IDS },
   { prefix: "/help", topicIds: ["getting-started-help", "how-archlucid-works", "path-chooser", "first-review-guide", "product-faq", "cloud-connections", "data-handling-help", "security-trust-help", "troubleshoot"] },
