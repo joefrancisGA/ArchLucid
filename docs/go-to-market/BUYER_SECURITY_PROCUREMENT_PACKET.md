@@ -3156,7 +3156,7 @@ Do not promise Healthcare Claims sample while serving Contoso `demo/preview`, im
 
 ### Residuals (honest)
 
-- **TB-1028** / **TB-1029** own the boundary contract and language guards.
+- **TB-1028** **Done** (engineering contract + Option A CTA purity). **TB-1029** owns language / honesty CI guards.
 - Cite ADR 0027 + `ui_routes.md` Tier 1/2; sample matrix [`DEMO_QUICKSTART.md#sample-package-funnel-id-matrix`](DEMO_QUICKSTART.md#sample-package-funnel-id-matrix) (`SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md` alias).
 - Complements **M-260** (ladder) without replacing rung rename / Resources copy work.
 - Does not reopen Done **M-107** / **M-134**.

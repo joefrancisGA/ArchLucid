@@ -2,6 +2,8 @@
 
 # V1 workflow handoff — GitHub and Azure DevOps
 
+**Last reviewed:** 2026-08-02
+
 **Audience:** operators and architecture reviewers attaching ArchLucid proof artifacts to an existing PR, issue, architecture decision, or Azure DevOps work item / pipeline summary.
 
 ## When to use this
@@ -90,7 +92,28 @@ Attached:
 Deferred scope not required for this V1 handoff: Jira/ServiceNow/Confluence/Slack/Teams connectors, CloudEvents, MCP, live marketplace checkout, SOC 2 CPA attestation, public reference customer.
 ```
 
-## 3. Azure DevOps work item / pipeline summary template
+## 3. Azure DevOps work item / pipeline summary
+
+### Sponsor-packet minimum attach set
+
+| Artifact | Purpose |
+| --- | --- |
+| `first-pilot-command-center.md` | Operator status + next action |
+| `go-no-go-summary.md` | Sponsor-send disposition |
+| `buyer-decision-brief.md` | One-page buyer decision summary |
+| `first-value-report.md` | Committed-run narrative |
+| `provenance-references.json` | Audit/artifact ids only |
+
+**Steps**
+
+1. Run `archlucid sponsor-packet <runId> --out artifacts/sponsor-packet/<runId>`.
+2. Review `limitations.md` and `buyer-decision-brief.md`.
+3. Attach the minimum set to the Azure DevOps work item or pipeline run summary.
+4. Use the sample comment in [`fixtures/v1-workflow-handoff-azdo-comment.sample.md`](fixtures/v1-workflow-handoff-azdo-comment.sample.md).
+
+**Contract:** Do not attach secrets, raw prompts, or internal diagnostics. **HOLD** disposition blocks external circulation until resolved.
+
+### Work item / pipeline summary template
 
 See filled sample: [`fixtures/v1-workflow-handoff-azdo-comment.sample.md`](fixtures/v1-workflow-handoff-azdo-comment.sample.md).
 

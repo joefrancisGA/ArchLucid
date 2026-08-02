@@ -2,7 +2,7 @@
 
 **Date:** 2026-07-18  
 **Audience:** Operators enabling enterprise SSO for a customer domain  
-**Related:** ADR (host SAML), `docs/runbooks/PLATFORM_IDENTITY_SUPPORT.md`, `docs/runbooks/SSO_ENFORCEMENT_AND_RECOVERY_DRILL.md`
+**Related:** ADR (host SAML), `docs/runbooks/PLATFORM_IDENTITY_SUPPORT.md` (§ [SSO enforcement and recovery drill](PLATFORM_IDENTITY_SUPPORT.md#sso-enforcement-and-recovery-drill-evidence-e3))
 
 ## Summary
 
@@ -26,7 +26,7 @@
 
 1. One live customer IdP (SAML or OIDC) end-to-end under JwtBearer (not DevelopmentBypass).
 2. DNS verify → route → enforce drill recorded.
-3. SSO enforcement + recovery drill (`SSO_ENFORCEMENT_AND_RECOVERY_DRILL.md`) pass.
+3. SSO enforcement + recovery drill ([`PLATFORM_IDENTITY_SUPPORT.md`](../runbooks/PLATFORM_IDENTITY_SUPPORT.md#sso-enforcement-and-recovery-drill-evidence-e3)) pass.
 4. Public marketing claims list only IdPs enabled in that environment.
 
 ## Security / reliability / cost

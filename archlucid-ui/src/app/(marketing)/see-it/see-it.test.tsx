@@ -255,15 +255,27 @@ describe("SeeItMarketingBody", () => {
     render(<SeeItMarketingBody source="live" payload={payload} />);
 
     const sampleLink = screen.getByTestId("see-it-full-preview-link");
-    const demoPreview = screen.getByTestId("see-it-cta-demo-preview");
     const pdf = screen.getByTestId("see-it-proof-pack-download");
 
     expect(sampleLink).toHaveAttribute("href", CANONICAL_ANONYMOUS_PROOF_HREF);
     expect(sampleLink.tagName).toBe("A");
-    expect(demoPreview).toHaveAttribute("href", "/demo/preview");
-    expect(demoPreview.tagName).toBe("A");
     expect(pdf.tagName).toBe("A");
-    expect(screen.getByTestId("see-it-secondary-cta-row").querySelectorAll("a")).toHaveLength(3);
+    expect(screen.getByTestId("see-it-secondary-cta-row").querySelectorAll("a")).toHaveLength(2);
+  });
+
+  it("never deep-links Contoso /demo/preview from Claims /see-it (TB-1028 Option A)", () => {
+    const payload = createMinimalDemoPreviewPayload();
+    payload.run.runId = SHOWCASE_STATIC_DEMO_RUN_ID;
+    payload.run.description = "Claims Intake Modernization Review";
+
+    const { container } = render(<SeeItMarketingBody source="live" payload={payload} />);
+
+    expect(screen.queryByTestId("see-it-cta-demo-preview")).toBeNull();
+    expect(container.querySelector('a[href="/demo/preview"]')).toBeNull();
+    expect(screen.getByTestId("see-it-full-preview-link")).toHaveAttribute(
+      "href",
+      CANONICAL_ANONYMOUS_PROOF_HREF,
+    );
   });
 });
 

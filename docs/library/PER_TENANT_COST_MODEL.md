@@ -2,6 +2,10 @@
 
 # Per-tenant cost model (estimation)
 
+**Last reviewed:** 2026-08-02
+
+**Companion (sponsor line-item sketch):** [`../deployment/PER_TENANT_COST_MODEL.md`](../deployment/PER_TENANT_COST_MODEL.md) — Pilot / Standard / Heavy order-of-magnitude tables for procurement conversations.
+
 This document describes how ArchLucid **approximates** Azure OpenAI spend for operators and FinOps workflows. It is **not** a substitute for Azure Cost Management + invoice reconciliation.
 
 ## Host-level rates (`AgentExecution:LlmCostEstimation`)

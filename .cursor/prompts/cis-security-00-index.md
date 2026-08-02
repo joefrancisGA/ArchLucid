@@ -21,7 +21,7 @@ Run in order. Each engineering step must leave compile/tests green for its scope
 Optional follow-ons (not in this batch unless owner directs):
 
 - Per-tenant SSO initiation vs host OIDC (**M-04**) — architecture decision  
-- SSO + recovery live drill (**E3**) — `docs/runbooks/SSO_ENFORCEMENT_AND_RECOVERY_DRILL.md`  
+- SSO + recovery live drill (**E3**) — `docs/runbooks/PLATFORM_IDENTITY_SUPPORT.md` (§ SSO enforcement and recovery drill)  
 - Consumer-domain / ClientIp abuse options (**M-06**) — `pss-identity-02` residual  
 - Billing return-URL allowlist (**M-07**)  
 
