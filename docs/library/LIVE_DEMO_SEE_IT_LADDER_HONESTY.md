@@ -51,7 +51,7 @@ Demote “Review integrity” / sponsor-governance readiness language to sample-
 | Ladder UI (live-demo ↔ see-it) | **TB-1267**, **TB-1282** |
 | Stepper / continuous density | **TB-1268**, **TB-1269** |
 | See-it universe / time / CTA | **TB-1279**–**TB-1283** |
-| Static vs live boundary | **TB-1028**, **TB-1029**, **M-178**/**M-179** |
+| Static vs live boundary | **TB-1028** (Done), **TB-1029**, **M-178**/**M-179** |
 | Funnel IA owner decision | **M-107** |
 | Fused PA contract + honesty CI | **TB-1427**, **TB-1428** |
 | GTM claim honesty + one-pager | **M-259**, **M-260** |

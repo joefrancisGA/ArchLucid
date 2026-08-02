@@ -129,11 +129,6 @@ export function SeeItMarketingBody({ source, payload }: SeeItMarketingBodyProps)
           </a>
         </Button>
         <Button asChild variant="outline">
-          <Link data-testid="see-it-cta-demo-preview" href="/demo/preview">
-            View sample review output
-          </Link>
-        </Button>
-        <Button asChild variant="outline">
           <Link data-testid="see-it-full-preview-link" href={CANONICAL_ANONYMOUS_PROOF_HREF}>
             Open interactive sample review
           </Link>
