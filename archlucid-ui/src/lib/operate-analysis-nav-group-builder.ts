@@ -14,6 +14,7 @@ import { PATTERN_LIBRARY_NAV_BADGE, PATTERN_LIBRARY_NAV_LINK_LABEL } from "@/lib
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 import { ASK_REVIEW_QUESTIONS_PATH } from "@/lib/ask-review-questions-route";
+import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 import { SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
@@ -49,7 +50,7 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
         requiredAuthority: "ReadAuthority",
       },
       {
-        href: "/compare",
+        href: COMPARE_TWO_REVIEWS_PATH,
         label: OPERATOR_NAV_LINK_LABELS.compareTwoReviews,
         title: this.shortcutTitle("See what changed between reviews", "alt+c"),
         keyShortcut: "alt+c",

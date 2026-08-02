@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { COMPARE_HOW_IT_WORKS_SUMMARY } from "@/app/(operator)/compare/_sections/compare-workspace-copy";
+import { COMPARE_HOW_IT_WORKS_SUMMARY } from "@/app/(operator)/insights/compare-two-reviews/_sections/compare-workspace-copy";
 
 /** Collapsed page help — contextual help on the header remains the primary explanation surface. */
 export function CompareHowComparisonWorksSection() {

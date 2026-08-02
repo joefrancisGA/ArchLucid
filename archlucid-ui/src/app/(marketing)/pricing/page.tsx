@@ -10,6 +10,7 @@ import { TrialNudgePricingQuoteFocus } from "@/components/marketing/TrialNudgePr
 import { BRAND_CATEGORY, BRAND_CATEGORY_LEGACY } from "@/lib/brand-category";
 import { MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { loadPricingDoc } from "@/lib/marketing/load-pricing-doc";
 import { buildPricingSignupHref } from "@/lib/marketing/pricing-signup-href";
 import {
   CUSTOM_POLICY_PACK_QUOTE_INTEREST,
@@ -64,6 +65,7 @@ export default async function PricingPage(props: PricingPageProps) {
         showSignupCallToAction={false}
         preferSalesLedQuoteCta={preferSalesLedQuoteCta}
         showAiUsageNote
+        initialPricing={loadPricingDoc()}
       />
       <MarketingPricingUsageFaqSection />
       <MarketingCustomPolicyPackAuthoringSection quoteSectionDomId="pricing-quote-request" />

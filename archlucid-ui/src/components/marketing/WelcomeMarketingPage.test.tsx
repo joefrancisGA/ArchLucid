@@ -13,6 +13,7 @@ vi.mock("next/navigation", async (importOriginal) => {
 });
 
 import {
+  WELCOME_HERO_DIFFERENTIATORS,
   WELCOME_HERO_PITCH,
   WELCOME_SEE_IT_CTA_LABEL,
   WELCOME_SEE_IT_HREF,
@@ -72,6 +73,13 @@ describe("WelcomeMarketingPage", () => {
 
     expect(screen.getByRole("heading", { level: 1, name: /Defensible architecture, on demand/i })).toBeInTheDocument();
     expect(screen.getByTestId("welcome-hero-pitch")).toHaveTextContent(WELCOME_HERO_PITCH);
+
+    const differentiators = screen.getByTestId("welcome-hero-differentiators");
+
+    for (const line of WELCOME_HERO_DIFFERENTIATORS) {
+      expect(within(differentiators).getByText(line)).toBeInTheDocument();
+    }
+
     expect(screen.getByTestId("welcome-problem-solution")).toBeInTheDocument();
     expect(screen.getByTestId("welcome-core-workflow")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /Core workflow/i })).toBeInTheDocument();

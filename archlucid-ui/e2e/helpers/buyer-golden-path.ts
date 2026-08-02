@@ -41,7 +41,7 @@ export const BUYER_GOLDEN_PATH_HREFS = {
   governanceFindings: "/governance/findings",
   policyPackDetail: "/governance/policy-packs/demo-healthcare-claims-pack",
   ask: `/insights/ask-review-questions?runId=${showcaseRunEnc}`,
-  compare: `/compare?${new URLSearchParams({
+  compare: `/insights/compare-two-reviews?${new URLSearchParams({
     leftRunId: SCREENSHOT_LEFT_RUN_ID,
     rightRunId: SCREENSHOT_RIGHT_RUN_ID,
   }).toString()}`,

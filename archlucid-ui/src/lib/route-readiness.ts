@@ -2,6 +2,7 @@
  * Product-facing readiness tiers for operator routes (nav gating, demo shell copy).
  * API policy and `[Authorize]` remain authoritative; this is UX-only.
  */
+import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 
 export type RouteReadinessTier = "demo-ready" | "advanced-only" | "admin-only" | "hidden";
@@ -29,7 +30,7 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/value-report/pilot": "advanced-only",
   "/value-report/roi": "advanced-only",
   [EVIDENCE_GRAPH_PATH]: "advanced-only",
-  "/compare": "advanced-only",
+  [COMPARE_TWO_REVIEWS_PATH]: "advanced-only",
   "/replay": "advanced-only",
   "/governance/advisory-scans": "advanced-only",
   "/planning": "advanced-only",

@@ -28,7 +28,7 @@ export const REPEAT_REVIEW_LOOP_HELP_OVERVIEW =
 export const REPEAT_REVIEW_LOOP_HELP_PRIMARY_ACTIONS = {
   compareReviews: {
     label: "Compare two reviews",
-    href: "/compare",
+    href: "/insights/compare-two-reviews",
   },
   startNextReview: {
     label: "Start next review",

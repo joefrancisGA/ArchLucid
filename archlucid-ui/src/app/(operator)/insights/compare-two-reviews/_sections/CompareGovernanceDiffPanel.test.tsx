@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { CompareGovernanceDiffPanel } from "@/app/(operator)/compare/_sections/CompareGovernanceDiffPanel";
+import { CompareGovernanceDiffPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareGovernanceDiffPanel";
 import {
   buildCompareEffectiveGovernanceSnapshot,
   buildCompareGovernanceDiffView,

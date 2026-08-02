@@ -2,8 +2,8 @@
 
 import type { ReactElement } from "react";
 
-import { CompareGovernanceDiffPanel } from "@/app/(operator)/compare/_sections/CompareGovernanceDiffPanel";
-import { useCompareGovernanceDiff } from "@/app/(operator)/compare/_sections/useCompareGovernanceDiff";
+import { CompareGovernanceDiffPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareGovernanceDiffPanel";
+import { useCompareGovernanceDiff } from "@/app/(operator)/insights/compare-two-reviews/_sections/useCompareGovernanceDiff";
 
 export type CompareGovernanceDiffSectionProps = {
   readonly baselineRunId: string | null;

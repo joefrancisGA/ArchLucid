@@ -100,7 +100,7 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
 
     await expect(analysisNav).toBeVisible({ timeout: 15_000 });
     await expect(reviewNav.getByRole("link", { name: "Compare two reviews" })).toHaveCount(0);
-    await expect(analysisNav.getByRole("link", { name: "Compare two reviews" })).toHaveAttribute("href", "/compare");
+    await expect(analysisNav.getByRole("link", { name: "Compare two reviews" })).toHaveAttribute("href", "/insights/compare-two-reviews");
     await expect(page.getByRole("navigation", { name: "Governance", exact: true })).toHaveCount(0);
 
     await page.evaluate((storageKey) => {

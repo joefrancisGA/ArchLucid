@@ -34,7 +34,7 @@ export const MARKETING_ROBOTS_DISALLOW_PREFIXES: readonly string[] = [
   "/manifests/",
   "/signed-records/",
   "/why-archlucid",
-  "/compare",
+  "/insights/compare-two-reviews",
   "/replay",
   "/executive/",
   "/alerts/",

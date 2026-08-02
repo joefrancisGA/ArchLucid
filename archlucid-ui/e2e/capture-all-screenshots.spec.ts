@@ -51,7 +51,7 @@ const HREFS: string[] = [
   "/audit",
   "/auth/callback",
   "/auth/signin",
-  `/compare?${new URLSearchParams({ leftRunId: SCREENSHOT_LEFT_RUN_ID, rightRunId: SCREENSHOT_RIGHT_RUN_ID }).toString()}`,
+  `/insights/compare-two-reviews?${new URLSearchParams({ leftRunId: SCREENSHOT_LEFT_RUN_ID, rightRunId: SCREENSHOT_RIGHT_RUN_ID }).toString()}`,
   "/compliance-journey",
   "/demo/explain",
   "/demo/preview",

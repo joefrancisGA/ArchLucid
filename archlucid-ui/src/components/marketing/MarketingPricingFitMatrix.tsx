@@ -75,7 +75,7 @@ export function MarketingPricingFitMatrix(): React.JSX.Element {
               <th
                 key={tierId}
                 scope="col"
-                className={cn("px-3 py-2 text-center font-medium text-al-text-primary", MARKETING_TYPOGRAPHY.helper)}
+                className={cn("px-3 py-2 text-center font-medium text-al-text-primary", MARKETING_TYPOGRAPHY.meta)}
               >
                 {FIT_MATRIX_TIER_LABELS[tierId]}
               </th>

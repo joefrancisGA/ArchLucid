@@ -5,6 +5,7 @@
  * Alt+letter is rarely bound in the page content area on Chrome/Edge/Firefox, which suits an
  * internal operator UI. See also `useKeyboardShortcuts.ts`.
  */
+import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
 import { BUYER_NEW_REVIEW_NAV_LABEL, OPERATOR_START_REVIEW_QUICK_ACTION_LABEL } from "@/lib/operator-nav-labels";
 
 export type ShortcutEntry = {
@@ -30,7 +31,7 @@ export const SHORTCUTS: ShortcutEntry[] = [
   {
     key: "alt+c",
     label: "Compare",
-    route: "/compare",
+    route: COMPARE_TWO_REVIEWS_PATH,
     description: "Compare two reviews",
   },
   {

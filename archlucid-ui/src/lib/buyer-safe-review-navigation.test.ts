@@ -74,7 +74,7 @@ describe("buyer-safe-review-navigation", () => {
     const mod = await import("./buyer-safe-review-navigation");
 
     expect(mod.getShowcaseCompareHref()).toBe(
-      "/compare?priorRunId=claims-intake-run-v1&laterRunId=claims-intake-run-v2",
+      "/insights/compare-two-reviews?priorRunId=claims-intake-run-v1&laterRunId=claims-intake-run-v2",
     );
   });
 

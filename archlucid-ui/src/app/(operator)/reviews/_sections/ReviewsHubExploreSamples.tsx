@@ -55,7 +55,7 @@ export function ReviewsHubExploreSamples(): React.JSX.Element {
         {!compareBlocked ? (
           <ExploreSampleAction testId="reviews-hub-compare-action" hint={REVIEWS_HUB_COMPARE_HINT}>
             <Button variant="outline" size="sm" asChild>
-              <Link href="/compare" className="no-underline" data-testid="reviews-hub-compare-reviews">
+              <Link href="/insights/compare-two-reviews" className="no-underline" data-testid="reviews-hub-compare-reviews">
                 {REVIEWS_HUB_COMPARE_LABEL}
               </Link>
             </Button>

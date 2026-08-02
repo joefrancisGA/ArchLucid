@@ -26,7 +26,7 @@ import { useDeltaQuery } from "./useDeltaQuery";
  *
  * The 25-row window matches the server's hard ceiling so any prior commit that
  * is still in the recent window will be visible; older priors are invisible to
- * this variant by design (use `/compare` for the full history).
+ * this variant by design (use `/insights/compare-two-reviews` for the full history).
  */
 export type BeforeAfterDeltaInlinePanelProps = {
   runId: string;

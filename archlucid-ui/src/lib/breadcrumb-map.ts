@@ -11,6 +11,7 @@ import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
 import { compareRunBuyerDisplayLabel } from "@/lib/compare-run-display-label";
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import { isAskReviewQuestionsPath } from "@/lib/ask-review-questions-route";
+import { isCompareTwoReviewsPath } from "@/lib/compare-two-reviews-route";
 import { isEvidenceGraphPath } from "@/lib/evidence-graph-route";
 import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
 import { isSearchReviewEvidencePath } from "@/lib/search-review-evidence-route";
@@ -62,6 +63,8 @@ const BUYER_HUB_RUN_SCOPED_SEGMENTS = new Set<string>([
   "governance",
   "search",
   "search-review-evidence",
+  "compare",
+  "compare-two-reviews",
 ]);
 
 /** Governance routes that mirror review workflow context when `runId` is on the query string. */
@@ -76,6 +79,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   "evidence-graph": OPERATOR_NAV_LINK_LABELS.evidenceTrail,
   graph: OPERATOR_NAV_LINK_LABELS.evidenceTrail,
   compare: "Compare",
+  "compare-two-reviews": OPERATOR_NAV_LINK_LABELS.compareTwoReviews,
   replay: "Validate review",
   ask: "Ask",
   "ask-review-questions": OPERATOR_NAV_LINK_LABELS.askReview,
@@ -169,6 +173,14 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
   if (isSearchReviewEvidencePath(normalized)) {
     return injectBuyerShowcaseReviewPackageCrumb(
       [{ label: OPERATOR_NAV_LINK_LABELS.searchEvidence }],
+      normalized,
+      options,
+    );
+  }
+
+  if (isCompareTwoReviewsPath(normalized)) {
+    return injectBuyerShowcaseReviewPackageCrumb(
+      [{ label: OPERATOR_NAV_LINK_LABELS.compareTwoReviews }],
       normalized,
       options,
     );
@@ -555,6 +567,7 @@ function injectBuyerShowcaseReviewPackageCrumb(
     && !isEvidenceGraphPath(pathFromSegments)
     && !isAskReviewQuestionsPath(pathFromSegments)
     && !isSearchReviewEvidencePath(pathFromSegments)
+    && !isCompareTwoReviewsPath(pathFromSegments)
   ) {
     return items;
   }
@@ -565,7 +578,8 @@ function injectBuyerShowcaseReviewPackageCrumb(
     BUYER_HUB_RUN_SCOPED_SEGMENTS.has(hub)
     || isEvidenceGraphPath(pathFromSegments)
     || isAskReviewQuestionsPath(pathFromSegments)
-    || isSearchReviewEvidencePath(pathFromSegments);
+    || isSearchReviewEvidencePath(pathFromSegments)
+    || isCompareTwoReviewsPath(pathFromSegments);
 
   if (!isRunScopedHub) {
     return items;

@@ -1,3 +1,4 @@
+import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
 import { ARCHITECTURES_LIST_PATH, ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
@@ -24,7 +25,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/alerts": "Alerts",
   "/alert-rules": ALERTS_CONFIGURATION_PAGE_TITLE,
   "/governance/alert-rules": ALERTS_CONFIGURATION_PAGE_TITLE,
-  "/compare": "Compare",
+  [COMPARE_TWO_REVIEWS_PATH]: OPERATOR_NAV_LINK_LABELS.compareTwoReviews,
   [EVIDENCE_GRAPH_PATH]: OPERATOR_NAV_LINK_LABELS.evidenceTrail,
   "/patterns": PATTERN_LIBRARY_PAGE_TITLE,
   "/architecture-intelligence": "Architecture intelligence",

@@ -155,7 +155,7 @@ The shell **does** shape navigation (and light Enterprise copy) using the authen
 | `/manifests/[manifestId]` | `ManifestDetailPage` | Server | Manifest summary, artifact table, bundle download |
 | `/manifests/[manifestId]/artifacts/[artifactId]` | (artifact review page) | Server | Artifact metadata, content preview (pretty + raw), sibling navigation |
 | `/graph` | `GraphPage` | Client | Run ID input, mode selector, graph loading, React Flow rendering |
-| `/compare` | `ComparePage` | Client | Two run IDs, parallel fetch (legacy + structured + AI), three result views |
+| `/insights/compare-two-reviews` | `ComparePage` | Client | Two run IDs, parallel fetch (legacy + structured + AI), three result views |
 | `/replay` | `ReplayPage` | Client | Run ID input, mode selector, replay submission, validation display |
 | `/ask` | `AskPage` | Client | Conversational AI interface for architecture questions |
 | `/search` | `SearchPage` | Client | Semantic search across run content |

@@ -14,7 +14,7 @@ import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 /**
- * When a baseline run id is stored for this browser, surfaces a one-click navigation to `/compare`
+ * When a baseline run id is stored for this browser, surfaces a one-click navigation to `/insights/compare-two-reviews`
  * (baseline vs this review). Hidden when this review is the baseline or no baseline is set.
  */
 export function CompareToBaselineCta(props: { currentRunId: string }) {

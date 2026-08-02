@@ -10,7 +10,7 @@ describe("OperatorPageHeader", () => {
         title="Test Title"
         helpKey="some-key"
         buyerTitleHint="Section purpose line."
-        docsPageKey="/compare"
+        docsPageKey="/insights/compare-two-reviews"
       />,
     );
 

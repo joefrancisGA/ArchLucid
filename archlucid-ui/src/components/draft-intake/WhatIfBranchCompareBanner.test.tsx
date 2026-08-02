@@ -29,7 +29,7 @@ describe("WhatIfBranchCompareBanner", () => {
     expect(screen.getByTestId("what-if-branch-compare-banner")).toBeInTheDocument();
     expect(screen.getByTestId("what-if-branch-compare-link")).toHaveAttribute(
       "href",
-      "/compare?priorRunId=parent-run&laterRunId=branch-run",
+      "/insights/compare-two-reviews?priorRunId=parent-run&laterRunId=branch-run",
     );
   });
 

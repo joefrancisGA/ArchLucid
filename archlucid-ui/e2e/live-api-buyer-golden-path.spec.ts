@@ -42,7 +42,7 @@ const liveBuyerGoldenPathHrefs = {
   evidenceGraph: `/insights/evidence-graph?runId=${productTourRunEnc}`,
   governanceApproval: `/governance?runId=${productTourRunEnc}`,
   auditTrail: `/governance/audit?runId=${productTourRunEnc}`,
-  compare: `/compare?leftRunId=${productTourRunEnc}&rightRunId=${productTourRunEnc}`,
+  compare: `/insights/compare-two-reviews?leftRunId=${productTourRunEnc}&rightRunId=${productTourRunEnc}`,
   ask: `/insights/ask-review-questions?runId=${productTourRunEnc}`,
 } as const;
 

@@ -24,21 +24,21 @@ import {
   tryStaticDemoGoldenManifestComparison,
   tryStaticDemoRunComparison,
 } from "@/lib/operator-static-demo";
-import { CompareComparisonDimensionsPreview } from "@/app/(operator)/compare/_sections/CompareComparisonDimensionsPreview";
-import { CompareEmptyResultsPlaceholder } from "@/app/(operator)/compare/_sections/CompareEmptyResultsPlaceholder";
-import { CompareHowComparisonWorksSection } from "@/app/(operator)/compare/_sections/CompareHowComparisonWorksSection";
-import { CompareRelatedReviewLinks } from "@/app/(operator)/compare/_sections/CompareRelatedReviewLinks";
-import { CompareSampleComparisonAction } from "@/app/(operator)/compare/_sections/CompareSampleComparisonAction";
-import { CompareDemoQuickPick } from "@/app/(operator)/compare/_sections/CompareDemoQuickPick";
-import { CompareInsufficientFinalizedEmptyState } from "@/app/(operator)/compare/_sections/CompareInsufficientFinalizedEmptyState";
-import { CompareLastRequestOutcomeDetails } from "@/app/(operator)/compare/_sections/CompareLastRequestOutcomeDetails";
-import { COMPARE_PAGE_SUBTITLE } from "@/app/(operator)/compare/_sections/ComparePageIntro";
-import { CompareResultsPanel } from "@/app/(operator)/compare/_sections/CompareResultsPanel";
-import { CompareAdvancedDiagnosticsSection } from "@/app/(operator)/compare/_sections/CompareAdvancedDiagnosticsSection";
-import { CompareRunPickersSection } from "@/app/(operator)/compare/_sections/CompareRunPickersSection";
-import { useCompareFinalizedRunAvailability } from "@/app/(operator)/compare/_sections/useCompareFinalizedRunAvailability";
-import type { ComparedPair } from "@/app/(operator)/compare/_sections/compare-page-helpers";
-import { comparePickerFootnote } from "@/app/(operator)/compare/_sections/compare-page-helpers";
+import { CompareComparisonDimensionsPreview } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareComparisonDimensionsPreview";
+import { CompareEmptyResultsPlaceholder } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareEmptyResultsPlaceholder";
+import { CompareHowComparisonWorksSection } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareHowComparisonWorksSection";
+import { CompareRelatedReviewLinks } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareRelatedReviewLinks";
+import { CompareSampleComparisonAction } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareSampleComparisonAction";
+import { CompareDemoQuickPick } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareDemoQuickPick";
+import { CompareInsufficientFinalizedEmptyState } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareInsufficientFinalizedEmptyState";
+import { CompareLastRequestOutcomeDetails } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareLastRequestOutcomeDetails";
+import { COMPARE_PAGE_SUBTITLE } from "@/app/(operator)/insights/compare-two-reviews/_sections/ComparePageIntro";
+import { CompareResultsPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareResultsPanel";
+import { CompareAdvancedDiagnosticsSection } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareAdvancedDiagnosticsSection";
+import { CompareRunPickersSection } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareRunPickersSection";
+import { useCompareFinalizedRunAvailability } from "@/app/(operator)/insights/compare-two-reviews/_sections/useCompareFinalizedRunAvailability";
+import type { ComparedPair } from "@/app/(operator)/insights/compare-two-reviews/_sections/compare-page-helpers";
+import { comparePickerFootnote } from "@/app/(operator)/insights/compare-two-reviews/_sections/compare-page-helpers";
 import type { GoldenManifestComparison } from "@/types/comparison";
 import type { ComparisonExplanation } from "@/types/explanation";
 import type { RunComparison, RunSummary } from "@/types/authority";
@@ -417,7 +417,7 @@ export function CompareForm() {
         titleTestId="compare-page-heading"
         subtitle={COMPARE_PAGE_SUBTITLE}
         helpKey="compare-runs"
-        docsPageKey="/compare"
+        docsPageKey="/insights/compare-two-reviews"
         metadata={
           isBuyerPolishedOperatorShellEnv() ? undefined : (
             <ShortcutHint shortcut="Alt+C" className="text-[0.75rem] text-neutral-500" />

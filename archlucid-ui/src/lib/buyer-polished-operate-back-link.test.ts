@@ -8,7 +8,7 @@ import {
 
 describe("buyerPolishedOperateBackLink", () => {
   it("returns showcase package link for golden-path satellites", () => {
-    expect(buyerPolishedOperateBackLink("/graph?runId=x")).toEqual({
+    expect(buyerPolishedOperateBackLink("/insights/evidence-graph?runId=x")).toEqual({
       label: "Back to review",
       href: "/reviews/claims-intake-modernization",
     });
@@ -24,7 +24,7 @@ describe("buyerPolishedOperateBackLink", () => {
       label: "Back to review",
       href: "/reviews/claims-intake-modernization",
     });
-    expect(buyerPolishedOperateBackLink("/compare?prior=claims-intake-run-v1&later=claims-intake-run-v2")).toBeNull();
+    expect(buyerPolishedOperateBackLink("/insights/compare-two-reviews?prior=claims-intake-run-v1&later=claims-intake-run-v2")).toBeNull();
   });
 
   it("returns null when already on or under the showcase package", () => {

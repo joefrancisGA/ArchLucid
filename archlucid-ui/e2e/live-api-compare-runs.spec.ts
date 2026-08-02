@@ -86,7 +86,7 @@ test.describe("live-api-compare-runs", { tag: ["@founder"] }, () => {
     expect(typeof body.runLevelDiffCount).toBe("number");
 
     await injectDemoWorkspaceOperatorScope(page, tenantScope);
-    await page.goto(`/compare?leftRunId=${encodeURIComponent(runIdA)}&rightRunId=${encodeURIComponent(runIdB)}`, {
+    await page.goto(`/insights/compare-two-reviews?leftRunId=${encodeURIComponent(runIdA)}&rightRunId=${encodeURIComponent(runIdB)}`, {
       waitUntil: "domcontentloaded",
     });
 

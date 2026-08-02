@@ -6,6 +6,7 @@ import { WelcomeMarketingPage } from "@/components/marketing/WelcomeMarketingPag
 import { WelcomeMarketingProofAtGlanceSection } from "@/components/marketing/WelcomeMarketingProofAtGlanceSection";
 import { WELCOME_PAGE_METADATA_TITLE } from "@/components/marketing/welcome-marketing-copy";
 import { BRAND_CATEGORY_LEGACY } from "@/lib/brand-category";
+import { loadPricingDoc } from "@/lib/marketing/load-pricing-doc";
 import {
   MARKETING_WELCOME_OG_DESCRIPTION,
   buildMarketingSocialMetadata,
@@ -26,6 +27,7 @@ export const metadata: Metadata = {
 export default function WelcomePage() {
   return (
     <WelcomeMarketingPage
+      initialPricing={loadPricingDoc()}
       serverStaticSections={
         <>
           <WelcomeMarketingProofAtGlanceSection />

@@ -148,6 +148,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   teamsNotifications: "Teams notifications",
   itsmConnectors: "Jira & ServiceNow",
   valueReport: "Executive summary",
+  /** Compare two reviews (`/insights/compare-two-reviews`). */
   compareTwoReviews: "Compare two reviews",
   replayReview: "Validate review",
   /** Ask review questions (`/insights/ask-review-questions`). */

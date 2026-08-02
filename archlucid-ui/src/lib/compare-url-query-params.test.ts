@@ -69,12 +69,12 @@ describe("compareRunIdsAreSameAfterDemoCanonicalization", () => {
 
 describe("comparePageHref", () => {
   it("friendly mode emits prior/later labels and omits empty later side", () => {
-    expect(comparePageHref("  x  ", "", "friendly")).toBe("/compare?priorRunId=x");
-    expect(comparePageHref("a", "b", "friendly")).toBe("/compare?priorRunId=a&laterRunId=b");
+    expect(comparePageHref("  x  ", "", "friendly")).toBe("/insights/compare-two-reviews?priorRunId=x");
+    expect(comparePageHref("a", "b", "friendly")).toBe("/insights/compare-two-reviews?priorRunId=a&laterRunId=b");
   });
 
   it("technical mode emits left/right and omits empty later side", () => {
-    expect(comparePageHref("x", "", "technical")).toBe("/compare?leftRunId=x");
-    expect(comparePageHref("a", "b", "technical")).toBe("/compare?leftRunId=a&rightRunId=b");
+    expect(comparePageHref("x", "", "technical")).toBe("/insights/compare-two-reviews?leftRunId=x");
+    expect(comparePageHref("a", "b", "technical")).toBe("/insights/compare-two-reviews?leftRunId=a&rightRunId=b");
   });
 });

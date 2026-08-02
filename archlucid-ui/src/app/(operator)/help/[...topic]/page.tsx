@@ -26,7 +26,10 @@ import { HelpTroubleshootingGuideView } from "../_sections/HelpTroubleshootingGu
 import { principalCanAccessHelpTopic } from "@/lib/product-documentation-access";
 import { BILLING_AND_PLANS_HELP_ROUTE_METADATA } from "@/lib/billing-and-plans-help-route-metadata";
 import { EXECUTIVE_SUMMARY_HELP_ROUTE_METADATA } from "@/lib/executive-summary-help-route-metadata";
+import { FINDINGS_HELP_ROUTE_METADATA } from "@/lib/findings-help-route-metadata";
 import { FIRST_ARCHITECTURE_REVIEW_HELP_ROUTE_METADATA } from "@/lib/first-architecture-review-help-route-metadata";
+import { GOVERNANCE_APPROVAL_HELP_ROUTE_METADATA } from "@/lib/governance-approval-help-route-metadata";
+import { PATH_CHOOSER_HELP_ROUTE_METADATA } from "@/lib/path-chooser-help-route-metadata";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 import {
   getProductDocumentationEntry,
@@ -192,6 +195,18 @@ export async function generateMetadata(props: HelpTopicPageProps): Promise<Metad
 
   if (entry.slug === "executive-summary") {
     return EXECUTIVE_SUMMARY_HELP_ROUTE_METADATA;
+  }
+
+  if (entry.slug === "findings") {
+    return FINDINGS_HELP_ROUTE_METADATA;
+  }
+
+  if (entry.slug === "governance-approval") {
+    return GOVERNANCE_APPROVAL_HELP_ROUTE_METADATA;
+  }
+
+  if (entry.slug === "path-chooser") {
+    return PATH_CHOOSER_HELP_ROUTE_METADATA;
   }
 
   return {

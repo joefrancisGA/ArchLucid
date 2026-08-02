@@ -1,5 +1,5 @@
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
-import { CompareSampleComparisonAction } from "@/app/(operator)/compare/_sections/CompareSampleComparisonAction";
+import { CompareSampleComparisonAction } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareSampleComparisonAction";
 import {
   COMPARE_INSUFFICIENT_FINALIZED_COMPACT,
   COMPARE_ZERO_FINALIZED_COMPACT,

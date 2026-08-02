@@ -39,7 +39,7 @@ export function ReplayFormView(props: Props) {
       <OperatorPageHeader title="Validate review" helpKey="replay-run" />
       <p className={cn("m-0 max-w-4xl leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{REPLAY_PAGE_INTRO}</p>
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-        <Link href="/compare" className={OPERATOR_LINK.nav}>
+        <Link href="/insights/compare-two-reviews" className={OPERATOR_LINK.nav}>
           {REPLAY_COMPARE_LINK_LABEL}
         </Link>
       </p>

@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn() }),
-  usePathname: () => "/compare",
+  usePathname: () => "/insights/compare-two-reviews",
   useSearchParams: () => ({
     get: () => null,
     toString: () => "",
@@ -47,7 +47,7 @@ vi.mock("@/lib/toast", () => ({
   showSuccess: vi.fn(),
 }));
 
-import ComparePage from "@/app/(operator)/compare/page";
+import ComparePage from "@/app/(operator)/insights/compare-two-reviews/page";
 import ReplayPage from "@/app/(operator)/replay/page";
 import GraphPage from "@/app/(operator)/insights/evidence-graph/page";
 import EvolutionReviewPage from "@/app/(operator)/evolution-review/page";

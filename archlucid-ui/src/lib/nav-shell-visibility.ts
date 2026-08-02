@@ -6,6 +6,7 @@ import { applyCommittedArchitectureReviewNavPromotions } from "@/lib/nav-committ
 import { filterNavLinksByTier } from "@/lib/nav-tier";
 import { filterNavLinksByPublishReadiness } from "@/lib/nav-publish-readiness";
 import { isApiKeysSettingsSurfaceEnabled } from "@/lib/api-keys-settings-access";
+import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
 import { isCtoDemoNavExpandedEnv } from "@/lib/cto-demo-presenter-pack";
@@ -32,7 +33,7 @@ const DEMO_MODE_OMIT_OPERATOR_HREFS = new Set<string>([
   "/evolution-review",
   "/replay",
   "/insights/search-review-evidence",
-  "/compare",
+  COMPARE_TWO_REVIEWS_PATH,
   "/governance/advisory-scans",
   "/demo/explain",
   "/admin/health",

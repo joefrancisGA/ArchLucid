@@ -77,7 +77,7 @@ const REVIEW_WORK_HREFS: ReadonlyArray<string> = [
 const COLLAPSED_GROUPS: ReadonlyArray<RequestedGroup> = [
   {
     toggleTestId: "sidebar-group-toggle-operate-analysis",
-    hrefs: ["/insights/evidence-graph", "/insights/ask-review-questions", "/compare", "/scorecard"],
+    hrefs: ["/insights/evidence-graph", "/insights/ask-review-questions", "/insights/compare-two-reviews", "/scorecard"],
   },
   {
     toggleTestId: "sidebar-group-toggle-operate-governance",

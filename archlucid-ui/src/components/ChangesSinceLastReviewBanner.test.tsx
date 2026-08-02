@@ -40,7 +40,7 @@ describe("ChangesSinceLastReviewBanner", () => {
 
     expect(link).toHaveAttribute(
       "href",
-      "/compare?priorRunId=prior-run&laterRunId=current-run",
+      "/insights/compare-two-reviews?priorRunId=prior-run&laterRunId=current-run",
     );
   });
 
@@ -67,7 +67,7 @@ describe("ChangesSinceLastReviewBanner", () => {
 
     expect(link).toHaveAttribute(
       "href",
-      "/compare?priorRunId=claims-intake-run-v1&laterRunId=claims-intake-modernization",
+      "/insights/compare-two-reviews?priorRunId=claims-intake-run-v1&laterRunId=claims-intake-modernization",
     );
   });
 

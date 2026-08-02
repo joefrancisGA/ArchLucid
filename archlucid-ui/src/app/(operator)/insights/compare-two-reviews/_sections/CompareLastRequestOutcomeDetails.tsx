@@ -3,7 +3,7 @@ import { compareRunHeadingLabel } from "@/lib/compare-run-display";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import type { GoldenManifestComparison } from "@/types/comparison";
 import type { RunComparison, RunSummary } from "@/types/authority";
-import { outcomeLabel, type ComparedPair } from "@/app/(operator)/compare/_sections/compare-page-helpers";
+import { outcomeLabel, type ComparedPair } from "@/app/(operator)/insights/compare-two-reviews/_sections/compare-page-helpers";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type CompareLastRequestOutcomeDetailsProps = {

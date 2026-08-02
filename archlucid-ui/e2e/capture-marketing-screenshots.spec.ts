@@ -23,7 +23,7 @@ test.describe("marketing screenshots (mock API)", () => {
       { file: `${OUT}/02-runs-list.png`, href: "/runs?projectId=default" },
       { file: `${OUT}/03-reviews-new.png`, href: "/reviews/new" },
       { file: `${OUT}/04-run-detail.png`, href: `/runs/${encodeURIComponent(FIXTURE_RUN_ID)}` },
-      { file: `${OUT}/05-compare.png`, href: "/compare" },
+      { file: `${OUT}/05-compare.png`, href: "/insights/compare-two-reviews" },
       { file: `${OUT}/06-graph.png`, href: "/insights/evidence-graph" },
       { file: `${OUT}/07-audit.png`, href: "/audit" },
       { file: `${OUT}/08-alerts.png`, href: "/alerts" },

@@ -84,7 +84,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | GDO | `/governance/decision-register` | 0.3% | 0 | 0 | 30 | Alerts/gov | None |
 | GPI | `/governance/policy-packs/[id]` | 0.3% | 0 | 0 | 30 | Alerts/gov | None |
 | GRO | `/governance/risk-exceptions` | 0.3% | 0 | 0 | 30 | Alerts/gov | None |
-| CXX | `/compare` | 0.25% | 0 | 0 | 25 | Planning | None |
+| CXX | `/insights/compare-two-reviews` | 0.25% | 0 | 0 | 25 | Planning | Formerly `/compare` (retired; no redirect). |
 | SCE | `/integrations/cloud-connections` | 0.25% | 0 | 0 | 25 | Integrations | None |
 | P | `/pricing` | 0.25% | 0 | 0 | 25 | Marketing | None |
 | RRP | `/reviews/[runId]/provenance` | 0.25% | 0 | 0 | 25 | Core review | None |
@@ -137,14 +137,14 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | AAX | `/admin/ai-usage-cost` | 0.08% | 0 | 0 | 8 | Admin | None |
 | AII | `/admin/integrations/itsm` | 0.08% | 0 | 0 | 8 | Admin | None |
 | DXX | `/demo` | 0.08% | 0 | 0 | 8 | Marketing | None |
-| GO | `/help/governance-approval` | 0.08% | 0 | 0 | 8 | Help topic | None |
+| GO | `/help/governance-approval` | 0.08% | 0 | 0 | 8 | Help topic | Specialty governance approval guide — HelpGovernanceApprovalGuideView with workflow stepper, role guides, status table, decision outcomes, and collapsed HelpGovernanceApprovalTechnicalReference. Featured help-center product tier (pdfStatus customer). Primary CTAs to /governance, /governance/dashboard, and /governance/findings. Related docs link to audit-trail not API contracts (TB-1250 / TB-1387). Not bare HelpTopicMarkdownView. |
 | HR | `/help/review-guide` | 0.08% | 0 | 0 | 8 | Help topic | None |
 | ISX | `/integrations/servicenow` | 0.08% | 0 | 0 | 8 | Integrations | None |
 | OSX | `/onboarding/start` | 0.08% | 0 | 0 | 8 | Onboarding | None |
 | SRI | `/settings/users/invite-reviewer` | 0.08% | 0 | 0 | 8 | Settings | None |
 | SVX | `/signup/verify` | 0.08% | 0 | 0 | 8 | Marketing | None |
 | GET | `/getting-started` | 0.07% | 0 | 0 | 7 | Onboarding | None |
-| AD | `/governance/advisory-scans?tab=schedules` | 0.07% | 0 | 0 | 7 | Tab surface | None |
+| AD | `/governance/advisory-scans?tab=schedules` | 0.07% | 0 | 0 | 7 | Tab surface | Advisory scans Schedules tab (left nav Governance → Advisory scans → Schedules). AdvisorySchedulesContent + AdvisoryScheduleCreateForm; digest send-test and setup-gap handoffs. Legacy /advisory-scheduling redirects via TB-1124. Sibling ADS row = default Scans tab. |
 | HBX | `/help/billing-and-plans` | 0.07% | 0 | 0 | 7 | Help topic | Specialty billing orientation guide - HelpBillingAndPlansGuideView with current-plan card, how-billing-works steps, FAQ, and CTAs to /settings/billing (SBE) and /pricing. Not bare HelpTopicMarkdownView. |
 | HP | `/help/pilot-guide` | 0.07% | 0 | 0 | 7 | Help topic | None |
 | IWX | `/integrations/webhooks` | 0.07% | 0 | 0 | 7 | Integrations | None |

@@ -394,7 +394,7 @@ The checked-in Playwright suite under **`e2e/`** is **smoke / operator-journey**
 | **`e2e/smoke.spec.ts`** | Home renders **ArchLucid** (h1) and **Operator home** (h2). |
 | **`e2e/run-manifest-journey.spec.ts`** | Run detail (mock API) → open manifest link → manifest summary, artifacts table, bundle affordance → **Run detail** back. |
 | **`e2e/manifest-empty-artifacts.spec.ts`** | Manifest whose artifact list is **`200` + `[]`**: valid-empty status region and copy; **no** “could not be loaded” failure callouts; bundle link present; no artifact table headers. |
-| **`e2e/compare-journey.spec.ts`** | **`/compare?leftRunId&rightRunId`** prefills inputs; **Compare** runs mocked legacy + structured responses; structured-before-legacy guidance and **Review order** nav; **Last compare request** outcome region. |
+| **`e2e/compare-journey.spec.ts`** | **`/insights/compare-two-reviews?leftRunId&rightRunId`** prefills inputs; **Compare** runs mocked legacy + structured responses; structured-before-legacy guidance and **Review order** nav; **Last compare request** outcome region. |
 | **`e2e/compare-stale-input-warning.spec.ts`** | After a successful compare, changing a run ID shows the stale-input warning; restoring the prior left ID clears it. |
 | **`e2e/compare-proxy-mock.spec.ts`** | Client compare + **Explain changes (AI)** with mocked proxy responses (legacy + structured + explanation). |
 

@@ -135,7 +135,7 @@ describe("SidebarNav (primary navigation)", () => {
     });
 
     const analysisNav = screen.getByRole("navigation", { name: "Insights" });
-    expect(within(analysisNav).getByRole("link", { name: "Compare two reviews" })).toHaveAttribute("href", "/compare");
+    expect(within(analysisNav).getByRole("link", { name: "Compare two reviews" })).toHaveAttribute("href", "/insights/compare-two-reviews");
     expect(within(analysisNav).getByRole("link", { name: "Ask review questions" })).toHaveAttribute("href", "/insights/ask-review-questions");
   });
 

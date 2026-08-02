@@ -36,7 +36,7 @@ export function routeViewExplanationForPathname(pathname: string): RouteViewExpl
     return null;
   }
 
-  if (path === "/compare" || path.startsWith("/compare/")) {
+  if (path === "/insights/compare-two-reviews" || path.startsWith("/insights/compare-two-reviews/")) {
     return null;
   }
 

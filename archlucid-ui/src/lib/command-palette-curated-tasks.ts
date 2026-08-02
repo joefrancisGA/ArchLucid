@@ -16,7 +16,7 @@ export const COMMAND_PALETTE_CURATED_TASKS: CuratedPaletteTask[] = [
   { label: "Onboarding checklist", href: "/architecture/first-review-guide", searchValue: "task I want onboarding first run checklist" },
   { label: "New architecture review", href: "/reviews/new", searchValue: "task I want new review wizard" },
   { label: "Reviews list", href: "/reviews?projectId=default", searchValue: "task I want reviews list projects" },
-  { label: "Compare two reviews", href: "/compare", searchValue: "task I want compare diff N N+1 delta" },
+  { label: "Compare two reviews", href: "/insights/compare-two-reviews", searchValue: "task I want compare diff N N+1 delta" },
   { label: OPERATOR_NAV_LINK_LABELS.evidenceTrail, href: "/insights/evidence-graph", searchValue: "task I want graph visualization trail" },
   { label: "Ask ArchLucid", href: "/insights/ask-review-questions", searchValue: "task I want ask question chat" },
   { label: "Semantic search", href: "/insights/search-review-evidence", searchValue: "task I want search find architecture" },

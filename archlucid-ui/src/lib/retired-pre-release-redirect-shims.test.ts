@@ -28,6 +28,7 @@ const RETIRED_SHIMS: readonly RetiredShim[] = [
   { source: "/graph", appPageRelativePath: "src/app/(operator)/graph/page.tsx" },
   { source: "/ask", appPageRelativePath: "src/app/(operator)/ask/page.tsx" },
   { source: "/search", appPageRelativePath: "src/app/(operator)/search/page.tsx" },
+  { source: "/compare", appPageRelativePath: "src/app/(operator)/compare/page.tsx" },
   {
     source: "/operate/architecture-graph",
     appPageRelativePath: "src/app/(operator)/operate/architecture-graph/page.tsx",

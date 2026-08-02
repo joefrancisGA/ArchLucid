@@ -1,3 +1,4 @@
+import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
@@ -16,7 +17,7 @@ export function compareRunIdsAreSameAfterDemoCanonicalization(priorRunId: string
   return canonicalizeDemoRunId(priorTrim).toLowerCase() === canonicalizeDemoRunId(laterTrim).toLowerCase();
 }
 
-/** How `/compare` URLs encode the prior vs later run id in the query string. */
+/** How `/insights/compare-two-reviews` URLs encode the prior vs later run id in the query string. */
 export type CompareHrefQueryMode = "friendly" | "technical";
 
 const PRIOR_QUERY_KEYS_ORDERED = ["leftRunId", "fromRunId", "priorRunId", "baselineRunId"] as const;
@@ -49,7 +50,7 @@ export function readCompareRunIdsFromSearchParams(searchParams: Pick<URLSearchPa
 }
 
 /**
- * Builds `/compare?…` with either friendly (`priorRunId`/`laterRunId`) or technical (`leftRunId`/`rightRunId`) keys.
+ * Builds `/insights/compare-two-reviews?…` with either friendly (`priorRunId`/`laterRunId`) or technical (`leftRunId`/`rightRunId`) keys.
  * Empty `laterRunId` omits the second parameter (picker prefill-only links).
  */
 export function comparePageHref(
@@ -68,7 +69,7 @@ export function comparePageHref(
       qs.set("laterRunId", later);
     }
 
-    return `/compare?${qs.toString()}`;
+    return `${COMPARE_TWO_REVIEWS_PATH}?${qs.toString()}`;
   }
 
   qs.set("leftRunId", prior);
@@ -77,7 +78,7 @@ export function comparePageHref(
     qs.set("rightRunId", later);
   }
 
-  return `/compare?${qs.toString()}`;
+  return `${COMPARE_TWO_REVIEWS_PATH}?${qs.toString()}`;
 }
 
 /** Friendly query names in buyer-polished builds; technical names in full-operator mode. */

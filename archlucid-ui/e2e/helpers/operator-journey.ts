@@ -23,7 +23,7 @@ import {
 
 // --- Navigation (deterministic operator paths; defaults match shared fixtures) ---
 
-/** Query string for `/compare` using the standard E2E run pair. */
+/** Query string for `/insights/compare-two-reviews` using the standard E2E run pair. */
 export function comparePairSearchParams(
   leftRunId: string = FIXTURE_LEFT_RUN_ID,
   rightRunId: string = FIXTURE_RIGHT_RUN_ID,
@@ -37,20 +37,20 @@ export async function gotoComparePageWithFixturePair(
   leftRunId: string = FIXTURE_LEFT_RUN_ID,
   rightRunId: string = FIXTURE_RIGHT_RUN_ID,
 ): Promise<void> {
-  await page.goto(`/compare?${comparePairSearchParams(leftRunId, rightRunId)}`);
+  await page.goto(`/insights/compare-two-reviews?${comparePairSearchParams(leftRunId, rightRunId)}`);
 }
 
-/** Stable `/compare` page anchor — decoupled from buyer-polished vs full-operator title copy. */
+/** Stable `/insights/compare-two-reviews` page anchor — decoupled from buyer-polished vs full-operator title copy. */
 export function comparePageReady(page: Page): Locator {
   return page.getByTestId("compare-page-ready");
 }
 
-/** Primary `/compare` H2 from {@link OperatorPageHeader} (`titleTestId="compare-page-heading"`). */
+/** Primary `/insights/compare-two-reviews` H2 from {@link OperatorPageHeader} (`titleTestId="compare-page-heading"`). */
 export function comparePageMainHeading(page: Page): Locator {
   return page.getByTestId("compare-page-heading");
 }
 
-/** Waits for `/compare` to finish Suspense hydration and render the interactive form shell. */
+/** Waits for `/insights/compare-two-reviews` to finish Suspense hydration and render the interactive form shell. */
 export async function waitForComparePageReady(page: Page, options?: { timeout?: number }): Promise<void> {
   const timeout = options?.timeout ?? 15_000;
 
@@ -233,14 +233,14 @@ export async function expectGraphPageReadySurface(page: Page, options?: { timeou
 }
 
 /**
- * Optional narrative action on `/compare` — buyer-polished shell labels this **Summarize for leadership**;
+ * Optional narrative action on `/insights/compare-two-reviews` — buyer-polished shell labels this **Summarize for leadership**;
  * full-operator shell uses **Summarize for sponsor**.
  */
 export function comparePageSummarizeNarrativeButton(page: Page): Locator {
   return page.getByRole("button", { name: /Summarize for (sponsor|leadership)/i });
 }
 
-/** Stable combobox inputs on `/compare` (`inputId` on the left `RunIdPicker`). */
+/** Stable combobox inputs on `/insights/compare-two-reviews` (`inputId` on the left `RunIdPicker`). */
 export function comparePageLeftRunInput(page: Page) {
   return page.locator("#compare-left-run-id");
 }
@@ -291,12 +291,12 @@ export async function selectCompareLeftRunOptionByPrimaryLabel(page: Page, prima
   await option.click();
 }
 
-/** Right-hand run combobox on `/compare`. */
+/** Right-hand run combobox on `/insights/compare-two-reviews`. */
 export function comparePageRightRunInput(page: Page) {
   return page.locator("#compare-right-run-id");
 }
 
-/** Primary **Compare** control on `/compare` (`CompareRunPickersSection`). Label toggles to “Comparing…” while loading. */
+/** Primary **Compare** control on `/insights/compare-two-reviews` (`CompareRunPickersSection`). Label toggles to “Comparing…” while loading. */
 export function comparePageSubmitButton(page: Page) {
   return page.getByTestId("compare-submit-button");
 }

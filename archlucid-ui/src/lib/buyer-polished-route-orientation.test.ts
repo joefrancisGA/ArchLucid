@@ -93,7 +93,7 @@ describe("buyerPolishedRouteOrientation", () => {
   });
 
   it("returns null for compare — the page carries its own workspace header", () => {
-    expect(buyerPolishedRouteOrientation("/compare")).toBeNull();
+    expect(buyerPolishedRouteOrientation("/insights/compare-two-reviews")).toBeNull();
   });
 
   it("returns null for create-architecture intake at /reviews/new", () => {

@@ -82,7 +82,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     keywords: ["diff", "delta", "replay"],
     summary: "Use Compare to diff two reviews’ reviews and persisted comparison records.",
     docPath: "docs/library/COMPARISON_REPLAY.md",
-    routes: ["/compare"],
+    routes: ["/insights/compare-two-reviews"],
   },
   {
     id: "replay",

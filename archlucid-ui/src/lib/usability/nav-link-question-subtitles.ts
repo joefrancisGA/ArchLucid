@@ -12,7 +12,7 @@ export type NavLinkQuestionSubtitle = {
  * Keep this list short — dense helper copy makes the sidebar typographically busy.
  */
 export const NAV_LINK_QUESTION_SUBTITLES: readonly NavLinkQuestionSubtitle[] = [
-  { href: "/compare", subtitle: "What changed between two reviews?" },
+  { href: "/insights/compare-two-reviews", subtitle: "What changed between two reviews?" },
   { href: "/insights/ask-review-questions", subtitle: "Query this review in plain language" },
 ] as const;
 

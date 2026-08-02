@@ -1,10 +1,11 @@
 import type { NavLinkItem } from "@/lib/nav-config";
+import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
 
 /** Analytical destinations promoted to essential tier after the first committed review. */
 const COMMITTED_ARCHITECTURE_REVIEW_PROMOTED_HREFS = new Set<string>([
-  "/compare",
+  COMPARE_TWO_REVIEWS_PATH,
   EVIDENCE_GRAPH_PATH,
   "/sponsor-report/pilot-outcomes",
 ]);

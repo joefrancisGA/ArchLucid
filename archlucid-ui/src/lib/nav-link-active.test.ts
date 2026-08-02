@@ -27,7 +27,7 @@ describe("isNavLinkActive", () => {
   });
 
   it("matches exact path or nested segments for other routes", () => {
-    expect(isNavLinkActive("/compare", "/compare")).toBe(true);
+    expect(isNavLinkActive("/insights/compare-two-reviews", "/insights/compare-two-reviews")).toBe(true);
     expect(isNavLinkActive("/governance/dashboard", "/governance/dashboard")).toBe(true);
     expect(isNavLinkActive("/governance/dashboard/extra", "/governance/dashboard")).toBe(true);
   });

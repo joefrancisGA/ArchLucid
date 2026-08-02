@@ -70,7 +70,7 @@ describe("usability improvements", () => {
   });
 
   it("routeViewExplanationForPathname returns null for compare — header and contextual help own orientation", () => {
-    expect(routeViewExplanationForPathname("/compare")).toBeNull();
+    expect(routeViewExplanationForPathname("/insights/compare-two-reviews")).toBeNull();
   });
 
   it("routeViewExplanationForPathname keeps audit orientation strips", () => {

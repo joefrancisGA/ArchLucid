@@ -27,7 +27,7 @@ describe("OperateAnalysisNavGroupBuilder", () => {
       "/insights/evidence-graph",
       "/insights/ask-review-questions",
       "/insights/search-review-evidence",
-      "/compare",
+      "/insights/compare-two-reviews",
       "/evolution-review",
       "/scorecard",
       "/patterns",

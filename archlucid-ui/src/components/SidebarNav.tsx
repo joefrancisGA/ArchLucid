@@ -27,7 +27,7 @@ import {
   type SidebarCollapsibleNavGroupId,
 } from "@/lib/sidebar-nav-group-expansion-storage";
 
-const FIRST_RUN_WORKFLOW_ROUTE_PREFIXES = ["/insights/ask-review-questions", "/compare"] as const;
+const FIRST_RUN_WORKFLOW_ROUTE_PREFIXES = ["/insights/ask-review-questions", "/insights/compare-two-reviews"] as const;
 
 /**
  * Grouped sidebar navigation (desktop). Architecture defaults open; deeper groups collapse by default

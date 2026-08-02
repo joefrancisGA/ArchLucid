@@ -19,7 +19,7 @@ export const FIRST_ARCHITECTURE_REVIEW_HELP_TRAFFIC_SECTION = "Help topic";
  * Owner workbook Notes for HCO - documents the specialty HelpCorePilotGuideView surface.
  */
 export const FIRST_ARCHITECTURE_REVIEW_HELP_TRAFFIC_NOTE =
-  "Specialty first-review guide - HelpCorePilotGuideView with hero Start review CTA, five-step stepper, and gated finalize steps (TB-1040). Legacy alias /help/core-pilot resolves to this slug. Not bare HelpTopicMarkdownView.";
+  "Specialty first-review guide — HelpCorePilotGuideView with hero Start review CTA, five-step stepper, and gated finalize steps (TB-1040). Legacy alias /help/core-pilot (ECO). Not bare HelpTopicMarkdownView.";
 
 /** Alias path tracked separately as Help alias when present in the workbook. */
 export const LEGACY_CORE_PILOT_HELP_TRAFFIC_ALIAS_PATH = LEGACY_CORE_PILOT_HELP_PATH;

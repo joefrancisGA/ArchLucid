@@ -31,7 +31,7 @@ Global shortcuts apply from the main content region wrapped by [`KeyboardShortcu
 |-------|--------|--------------|
 | **Alt+N** | New review wizard | `/reviews/new` |
 | **Alt+R** | Runs list | `/runs?projectId=default` |
-| **Alt+C** | Compare | `/compare` |
+| **Alt+C** | Compare | `/insights/compare-two-reviews` |
 | **Alt+P** | Replay | `/replay` |
 | **Alt+A** | Ask (Q&A) | `/ask` |
 | **Alt+G** | Governance findings | `/governance/findings` |

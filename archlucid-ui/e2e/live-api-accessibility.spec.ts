@@ -41,7 +41,7 @@ const PAGES = [
   },
   { name: "Manifest detail", path: `/signed-records/${FIXTURE_MANIFEST_ID}` },
   { name: "Manifest detail (empty artifacts fixture)", path: `/signed-records/${FIXTURE_MANIFEST_EMPTY_ARTIFACTS_ID}` },
-  { name: "Compare", path: "/compare" },
+  { name: "Compare", path: "/insights/compare-two-reviews" },
   { name: "Replay", path: "/replay" },
   { name: "Ask", path: "/insights/ask-review-questions" },
   { name: "Search", path: "/insights/search-review-evidence" },
@@ -103,7 +103,7 @@ const PAGES = [
   { name: "Replay (pre-filled runId)", path: `/replay?runId=${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}` },
   {
     name: "Compare (fixture left/right)",
-    path: `/compare?leftRunId=${encodeURIComponent(FIXTURE_LEFT_RUN_ID)}&rightRunId=${encodeURIComponent(FIXTURE_RIGHT_RUN_ID)}`,
+    path: `/insights/compare-two-reviews?leftRunId=${encodeURIComponent(FIXTURE_LEFT_RUN_ID)}&rightRunId=${encodeURIComponent(FIXTURE_RIGHT_RUN_ID)}`,
   },
   { name: "Operator sign in", path: "/auth/signin" },
   { name: "Marketing accessibility statement", path: "/accessibility" },

@@ -15,6 +15,7 @@ import {
   digestsHaveExistingConfiguration,
   resolveDigestNextBestAction,
 } from "@/lib/digest-setup-gap-actions";
+import { ADVISORY_SCANS_SCHEDULES_HREF } from "@/lib/advisory-scans-route";
 import {
   DIGESTS_BROWSE_PREVIEW_DISABLED_TITLE,
   DIGESTS_BROWSE_SEND_TEST_LABEL,
@@ -169,7 +170,7 @@ export function DigestsHubClient(): ReactElement {
           data-testid="digests-send-test-action"
           title={sendTestActionTitle}
         >
-          <Link href="/governance/advisory-scans?tab=schedules">{DIGESTS_BROWSE_SEND_TEST_LABEL}</Link>
+          <Link href={ADVISORY_SCANS_SCHEDULES_HREF}>{DIGESTS_BROWSE_SEND_TEST_LABEL}</Link>
         </Button>
       </>
     ) : null;

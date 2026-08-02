@@ -157,7 +157,7 @@ export const WELCOME_USE_CASE_CARDS: readonly WelcomeUseCaseCard[] = [
   {
     id: "gcp-architecture-framework",
     title: "Google Cloud Architecture Framework",
-    body: "Google Cloud architecture and security themes help teams sanity-check platform design, identity, and network patterns before ARB — especially for Google Cloud–first estates.",
+    body: "Google Cloud architecture and security themes for checking platform design, identity, and network patterns before ARB.",
     href: DEFAULT_POLICY_PACKS_HREF,
     ctaLabel: "View bundled policy packs",
   },

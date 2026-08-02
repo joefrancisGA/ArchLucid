@@ -1,6 +1,7 @@
 import { SEARCH_PAGE_SUBTITLE } from "@/app/(operator)/insights/search-review-evidence/_sections/search-page-copy";
 import { BUYER_VALUE_REPORT_PAGE_SUBTITLE } from "@/lib/buyer-polish-copy";
 import { ADVISORY_SCANS_PAGE_LEAD } from "@/lib/advisory-copy";
+import { ADVISORY_SCANS_SCHEDULES_HREF } from "@/lib/advisory-scans-route";
 import { AUDIT_TRAIL_PAGE_SUBTITLE } from "@/lib/audit-trail-page-copy";
 import { ALERTS_CONFIGURATION_PAGE_SUBTITLE } from "@/lib/alerts-page-copy";
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
@@ -43,7 +44,7 @@ export const BUYER_POLISHED_ROUTE_PAGE_LEAD_INVENTORY: readonly BuyerPolishedRou
   { route: "/governance/alert-rules", operatorPageLead: GOVERNANCE_OVERVIEW_PAGE_LEAD },
   { route: "/governance/advisory-scans", operatorPageLead: ADVISORY_SCANS_PAGE_LEAD },
   { route: "/advisory", operatorPageLead: ADVISORY_SCANS_PAGE_LEAD },
-  { route: "/governance/advisory-scans?tab=schedules", operatorPageLead: ADVISORY_SCANS_PAGE_LEAD },
+  { route: ADVISORY_SCANS_SCHEDULES_HREF, operatorPageLead: ADVISORY_SCANS_PAGE_LEAD },
   { route: "/governance/recurrence-schedules", operatorPageLead: RECURRENCE_SCHEDULES_PAGE_SUBTITLE },
   { route: "/governance/recurrence-schedules/", operatorPageLead: RECURRENCE_SCHEDULES_PAGE_SUBTITLE },
   { route: "/governance/setup", operatorPageLead: GOVERNANCE_SETUP_PAGE_SUBTITLE },

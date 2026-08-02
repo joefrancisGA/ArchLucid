@@ -109,7 +109,7 @@ export function isDemoStrictNavigationRedirectsBypassedForE2E(): boolean {
 }
 
 /**
- * Packaged demos (public demo mode or static-operator) hide `/compare` for buyer-safe navigation unless explicitly allowed.
+ * Packaged demos (public demo mode or static-operator) hide `/insights/compare-two-reviews` for buyer-safe navigation unless explicitly allowed.
  * **`NEXT_PUBLIC_DEMO_ALLOW_COMPARE_ROUTE`:** set `"true"` or `"1"` to keep Compare reachable in strict demo redirects.
  *
  * Also unblocked at runtime when the CTO demo tour is active — the tour overlay shows a compare link on step 3

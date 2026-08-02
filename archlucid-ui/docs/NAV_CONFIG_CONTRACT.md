@@ -52,7 +52,7 @@ Operator sidebar groups imply a URL prefix in the address bar. **57** nav hrefs 
 | Nav group `id` | Canonical prefix(es) | Notes |
 |----------------|----------------------|--------|
 | `pilot` | *(none — heterogeneous top-level review paths)* | Portfolio overview may use CTO demo executive showcase href (registered exception). |
-| `operate-analysis` | *(none)* | `/ask`, `/compare`, … |
+| `operate-analysis` | *(none)* | `/insights/ask-review-questions`, `/insights/compare-two-reviews`, … |
 | `operate-governance` | `/governance` | All governance nav hrefs are under `/governance/*` (TB-405). |
 | `operate-reports` | `/sponsor-report`, `/value-report` | Architecture scorecard is Insights-only (`/scorecard`); digests exception in registry |
 | `operate-integrations` | `/integrations` | All Integrations nav hrefs under `/integrations/*` (TB-407). |

@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { COMPARE_DIMENSION_PREVIEW_ITEMS } from "@/app/(operator)/compare/_sections/compare-workspace-copy";
+import { COMPARE_DIMENSION_PREVIEW_ITEMS } from "@/app/(operator)/insights/compare-two-reviews/_sections/compare-workspace-copy";
 
 /** Compact preview of what a review comparison will surface — helps buyers grasp value before selecting reviews. */
 export function CompareComparisonDimensionsPreview() {

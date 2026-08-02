@@ -1,4 +1,5 @@
 import { isConnectorReady } from "@/lib/connector-operations-present";
+import { ADVISORY_SCANS_SCHEDULES_HREF } from "@/lib/advisory-scans-route";
 import { DIGEST_TYPE_OPTIONS } from "@/lib/digest-subscription-form";
 import { formatDigestInstant } from "@/lib/digest-setup-gap-actions";
 import type { DigestSubscription } from "@/types/digest-subscriptions";
@@ -14,7 +15,7 @@ export const DIGEST_SUBSCRIPTIONS_SENSITIVE_CONTENT_NOTE =
 
 export const DIGEST_SUBSCRIPTIONS_SENSITIVE_CONTENT_HELP_HREF = "/help/data-handling-tenant-isolation" as const;
 
-export const DIGEST_SUBSCRIPTIONS_SEND_TEST_HREF = "/governance/advisory-scans?tab=schedules" as const;
+export const DIGEST_SUBSCRIPTIONS_SEND_TEST_HREF = ADVISORY_SCANS_SCHEDULES_HREF;
 
 export type DigestSubscriptionReadinessRow = {
   readonly id: string;
@@ -189,7 +190,7 @@ export function buildDigestSubscriptionReadinessSummary(
       label: "Digest schedule",
       value: scheduleStatus,
       detail: scheduleDetail,
-      href: scheduleEnabled ? null : "/governance/advisory-scans?tab=schedules",
+      href: scheduleEnabled ? null : ADVISORY_SCANS_SCHEDULES_HREF,
     },
     {
       id: "last-delivery",
@@ -203,7 +204,7 @@ export function buildDigestSubscriptionReadinessSummary(
       label: "Next scheduled generation",
       value: nextScheduled,
       detail: "Subscriptions receive the next generated digest once the schedule runs.",
-      href: scheduleEnabled ? null : "/governance/advisory-scans?tab=schedules",
+      href: scheduleEnabled ? null : ADVISORY_SCANS_SCHEDULES_HREF,
     },
   ];
 
@@ -214,7 +215,7 @@ export function buildDigestSubscriptionReadinessSummary(
   if (!scheduleEnabled) {
     blockingIssue = "No advisory scan schedule is enabled — digests will not be generated automatically.";
     nextActionLabel = "Configure schedule";
-    nextActionHref = "/governance/advisory-scans?tab=schedules";
+    nextActionHref = ADVISORY_SCANS_SCHEDULES_HREF;
   } else if (activeDestinations === 0) {
     blockingIssue = "No active delivery destinations — generated digests have no outbound recipients.";
     nextActionLabel = "Add delivery destination";

@@ -19,7 +19,7 @@ test.describe("operator journey — compare proxy mocks", () => {
       leftRunId: FIXTURE_LEFT_RUN_ID,
       rightRunId: FIXTURE_RIGHT_RUN_ID,
     });
-    await page.goto(`/compare?${q.toString()}`);
+    await page.goto(`/insights/compare-two-reviews?${q.toString()}`);
 
     await waitForCompareResultsReady(page);
 

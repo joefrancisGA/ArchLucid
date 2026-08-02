@@ -47,7 +47,7 @@ export function WelcomeMarketingProofAtGlanceSection(): React.JSX.Element {
         <li className={cn(MARKETING_SURFACES.cardComfort, "lg:col-span-1")}>
           <p className={cn("m-0", MARKETING_TYPOGRAPHY.cardTitle)}>Procurement-ready posture</p>
           <p className={cn("m-0 mt-2 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>
-            Published Trust Center materials and downloadable diligence anchors—know what to verify.
+            Published Trust Center materials and downloadable diligence anchors.
           </p>
           <p className={cn("m-0 mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 font-medium", MARKETING_TYPOGRAPHY.meta)}>
             <Link className={MARKETING_SURFACES.inlineLink} href="/trust">
@@ -69,8 +69,8 @@ export function WelcomeMarketingProofAtGlanceSection(): React.JSX.Element {
           First-time visitor path
         </h3>
         <p className={cn("mt-2 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>
-          Hosted SaaS evaluation workspace: create an architecture review request, let the pipeline finish, finalize when ready,
-          then open your review — no local Docker required for the buyer story.
+          Create an architecture review request, let the pipeline finish, finalize when ready, then open your review — hosted
+          SaaS, no local Docker required.
         </p>
         <ol className={cn("mt-4 list-decimal space-y-2 pl-5 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>
           <li>

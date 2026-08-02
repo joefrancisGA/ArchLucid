@@ -12,6 +12,7 @@ import { WelcomeMarketingWorkflowSection } from "@/components/marketing/WelcomeM
 import { WELCOME_SEE_IT_CTA_LABEL, WELCOME_PROOF_LADDER_PRIMARY_HREF } from "@/components/marketing/welcome-marketing-copy";
 import { BUYER_MARKETING_PRICING_PAGE_INTRO } from "@/lib/buyer-polish-copy";
 import { MARKETING_LAYOUT, MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
+import type { PricingDoc } from "@/lib/pricing-types";
 import { CANONICAL_ANONYMOUS_PROOF_HREF } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
 
@@ -26,19 +27,19 @@ type WelcomePillar = {
 const PILLARS: readonly WelcomePillar[] = [
   {
     title: "AI-native architecture analysis",
-    body: "Specialized agents run the Capture → Evidence → Review path on real architecture context — topology, cost, compliance, and design quality — and produce a versioned review with structured findings, not a chat thread that disappears.",
+    body: "Specialized agents analyze topology, cost, compliance, and design quality, then produce a versioned review with structured findings — not a chat thread that disappears.",
     verifyLabel: WELCOME_SEE_IT_CTA_LABEL,
     verifyHref: WELCOME_PROOF_LADDER_PRIMARY_HREF,
   },
   {
     title: "Auditable decision trail",
-    body: "Every recommendation ships with a chain of evidence: what was examined, which rules fired, what was decided, and why. Provenance and graph surfaces connect evidence to decisions for investigation — not an anonymous “AI said so” reply.",
+    body: "Every recommendation carries its chain of evidence: what was examined, which rules fired, what was decided, and why — not an anonymous “AI said so” reply.",
     verifyLabel: "Evidence trail",
     verifyHref: "/help/evidence-trail",
   },
   {
     title: "Enterprise governance",
-    body: "Policy packs, approval workflows with segregation of duties, optional pre-commit gates, SLA tracking with webhook escalation, and typed audit events in an append-only store — the evidence profile buyers use for diligence.",
+    body: "Policy packs, approvals with segregation of duties, SLA tracking, and typed audit events in an append-only store — the evidence profile buyers use for diligence.",
     verifyLabel: "Trust center",
     verifyHref: "/trust",
   },
@@ -64,8 +65,12 @@ function WelcomePillarVerifyLink(props: { readonly label: string; readonly href:
 }
 
 /** Public marketing landing: hero, problem/solution, workflow, use cases, proof, pillars, pricing. */
-export function WelcomeMarketingPage(props: { readonly serverStaticSections?: ReactNode }) {
-  const { serverStaticSections } = props;
+export function WelcomeMarketingPage(props: {
+  readonly serverStaticSections?: ReactNode;
+  /** Server-read pricing catalog passed through to the tier grid (skips the loading skeleton). */
+  readonly initialPricing?: PricingDoc | null;
+}) {
+  const { serverStaticSections, initialPricing } = props;
 
   return (
     <>
@@ -109,6 +114,7 @@ export function WelcomeMarketingPage(props: { readonly serverStaticSections?: Re
           sectionIntro={BUYER_MARKETING_PRICING_PAGE_INTRO}
           signupHref="/signup"
           showSignupCallToAction={false}
+          initialPricing={initialPricing}
         />
       </MarketingPageShell>
     </>

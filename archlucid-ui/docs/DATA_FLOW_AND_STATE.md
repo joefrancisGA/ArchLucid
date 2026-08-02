@@ -501,7 +501,7 @@ ArtifactReviewPage({ params: { manifestId, artifactId } })
           └── ArtifactListTable (currentArtifactId highlighted)
 ```
 
-### `/compare` — Compare runs (client)
+### `/insights/compare-two-reviews` — Compare runs (client)
 
 ```
 ComparePage() — "use client"

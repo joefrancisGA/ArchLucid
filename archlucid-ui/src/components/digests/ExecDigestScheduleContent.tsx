@@ -17,6 +17,7 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { getExecDigestPreferences, saveExecDigestPreferences } from "@/lib/api";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
+import { ADVISORY_SCANS_SCHEDULES_HREF } from "@/lib/advisory-scans-route";
 import { formatDigestInstant } from "@/lib/digest-setup-gap-actions";
 import {
   DIGESTS_SCHEDULE_GENERATE_TEST_LABEL,
@@ -835,7 +836,7 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
               {!sampleModeBlocked ? (
                 <div className="mt-4 border-t border-neutral-200 pt-3 dark:border-neutral-800">
                   <Button asChild size="sm" variant="outline" data-testid="exec-digest-test-action">
-                    <Link href="/governance/advisory-scans?tab=schedules" title={EXEC_DIGEST_TEST_GENERATION_HELPER}>
+                    <Link href={ADVISORY_SCANS_SCHEDULES_HREF} title={EXEC_DIGEST_TEST_GENERATION_HELPER}>
                       {DIGESTS_SCHEDULE_GENERATE_TEST_LABEL}
                     </Link>
                   </Button>

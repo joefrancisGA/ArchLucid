@@ -5,7 +5,7 @@ import {
   COMPARE_DIMENSION_PREVIEW_ITEMS,
   COMPARE_EMPTY_OUTPUT_BODY,
   COMPARE_EMPTY_OUTPUT_TITLE,
-} from "@/app/(operator)/compare/_sections/compare-workspace-copy";
+} from "@/app/(operator)/insights/compare-two-reviews/_sections/compare-workspace-copy";
 
 export type CompareEmptyResultsPlaceholderProps = {
   readonly className?: string;

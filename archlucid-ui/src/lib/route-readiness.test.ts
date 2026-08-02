@@ -5,7 +5,7 @@ import { isOperatorNavLinkAdvancedInDemo, shouldHideOperatorNavLinkInDemo } from
 describe("shouldHideOperatorNavLinkInDemo", () => {
   it("hides non-allowlisted advanced routes in demo mode", () => {
     expect(shouldHideOperatorNavLinkInDemo("/replay", true)).toBe(true);
-    expect(shouldHideOperatorNavLinkInDemo("/compare", true)).toBe(true);
+    expect(shouldHideOperatorNavLinkInDemo("/insights/compare-two-reviews", true)).toBe(true);
   });
 
   it("keeps governance, graph, ask, audit, policy packs, and alerts on the demo allowlist", () => {

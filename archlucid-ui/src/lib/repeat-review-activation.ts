@@ -69,7 +69,7 @@ export function resolveRepeatReviewActivation(input: {
       ? comparePageHrefAdaptive(input.firstCommittedRunId!, input.latestRunId)
       : secondHref !== null && latestHref !== null
         ? comparePageHrefAdaptive(input.secondCommittedRunId!, input.latestRunId)
-        : "/compare";
+        : "/insights/compare-two-reviews";
 
   return {
     headline: "Repeat reviews unlocked",

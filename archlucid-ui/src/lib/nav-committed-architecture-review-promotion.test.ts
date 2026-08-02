@@ -93,7 +93,7 @@ describe("committed architecture review nav promotion", () => {
       true,
     );
 
-    expect(collapsedAnalysis.some((l) => l.href === "/compare")).toBe(false);
+    expect(collapsedAnalysis.some((l) => l.href === "/insights/compare-two-reviews")).toBe(false);
 
     const collapsedReports = filterNavLinksForOperatorShell(
       reports!.links,
@@ -115,7 +115,7 @@ describe("committed architecture review nav promotion", () => {
       true,
     );
 
-    expect(expandedAnalysis.some((l) => l.href === "/compare")).toBe(true);
+    expect(expandedAnalysis.some((l) => l.href === "/insights/compare-two-reviews")).toBe(true);
 
     const expandedReports = filterNavLinksForOperatorShell(
       reports!.links,
@@ -141,6 +141,6 @@ describe("committed architecture review nav promotion", () => {
       false,
     );
 
-    expect(visible.some((l) => l.href === "/compare")).toBe(false);
+    expect(visible.some((l) => l.href === "/insights/compare-two-reviews")).toBe(false);
   });
 });

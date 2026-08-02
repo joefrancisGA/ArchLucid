@@ -26,6 +26,6 @@ describe("corePilotHelpStepForPath", () => {
   });
 
   it("returns null for unrelated routes", () => {
-    expect(corePilotHelpStepForPath("/compare")).toBeNull();
+    expect(corePilotHelpStepForPath("/insights/compare-two-reviews")).toBeNull();
   });
 });

@@ -8,7 +8,7 @@ import { shouldAutoStartRegistrationTour } from "@/lib/usability/onboarding-regi
 
 describe("usability lib", () => {
   it("navLinkQuestionSubtitle returns compare and ask copy", () => {
-    expect(navLinkQuestionSubtitle("/compare")).toContain("changed");
+    expect(navLinkQuestionSubtitle("/insights/compare-two-reviews")).toContain("changed");
     expect(navLinkQuestionSubtitle("/insights/ask-review-questions")).toContain("plain language");
   });
 
@@ -20,7 +20,7 @@ describe("usability lib", () => {
   });
 
   it("filterNavLinksByOperateUnlockPhase hides all Operate links at phase 0", () => {
-    const links = [{ href: "/compare" }, { href: "/audit" }];
+    const links = [{ href: "/insights/compare-two-reviews" }, { href: "/audit" }];
     const phase0 = filterNavLinksByOperateUnlockPhase(links, false, 0);
 
     expect(phase0).toEqual([]);
@@ -28,26 +28,26 @@ describe("usability lib", () => {
 
   it("filterNavLinksByOperateUnlockPhase keeps governance workflow and audit at phase 1", () => {
     const links = [
-      { href: "/compare" },
+      { href: "/insights/compare-two-reviews" },
       { href: "/governance" },
       { href: "/governance/audit" },
       { href: "/governance/findings" },
     ];
     const phase1 = filterNavLinksByOperateUnlockPhase(links, true, 1);
 
-    expect(phase1.map((l) => l.href)).toEqual(["/compare", "/governance", "/governance/audit"]);
+    expect(phase1.map((l) => l.href)).toEqual(["/insights/compare-two-reviews", "/governance", "/governance/audit"]);
   });
 
   it("filterNavLinksByOperateUnlockPhase keeps recurrence schedules visible in phase 1", () => {
     const links = [
-      { href: "/compare" },
+      { href: "/insights/compare-two-reviews" },
       { href: "/governance/recurrence-schedules" },
       { href: "/governance/audit" },
     ];
     const phase1 = filterNavLinksByOperateUnlockPhase(links, true, 1);
 
     expect(phase1.map((l) => l.href)).toEqual([
-      "/compare",
+      "/insights/compare-two-reviews",
       "/governance/recurrence-schedules",
       "/governance/audit",
     ]);

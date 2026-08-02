@@ -3,7 +3,7 @@
  * real browser traffic through `/api/proxy/**` (no `page.route` stubs), backend execute, then canonical review findings UI.
  *
  * Additional operator slices (still real API via {@link helpers/live-api-client}): policy pack assignment (effective packs + `/policy-packs`),
- * and authority compare + `/compare` hydrate against seeded workspace A baseline.
+ * and authority compare + `/insights/compare-two-reviews` hydrate against seeded workspace A baseline.
  *
  * **Auth / env**
  * - **DevelopmentBypass:** default CI — no browser login form; scope comes from {@link injectDemoWorkspaceOperatorScope}.
@@ -332,7 +332,7 @@ test.describe("live-api-smoke", { tag: ["@founder", "@critical", "@release-smoke
     await injectDemoWorkspaceOperatorScope(page, scope);
 
     await page.goto(
-      `/compare?leftRunId=${encodeURIComponent(runId)}&rightRunId=${encodeURIComponent(seededBaselineRunId)}`,
+      `/insights/compare-two-reviews?leftRunId=${encodeURIComponent(runId)}&rightRunId=${encodeURIComponent(seededBaselineRunId)}`,
       {
         waitUntil: "domcontentloaded",
       },

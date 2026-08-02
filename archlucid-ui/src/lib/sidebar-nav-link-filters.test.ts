@@ -6,7 +6,7 @@ import { filterSidebarNavClusterLinks, presentSidebarNavLinkForCluster } from "@
 
 const sampleLinks: NavLinkItem[] = [
   {
-    href: "/compare",
+    href: "/insights/compare-two-reviews",
     label: "Compare two reviews",
     title: "Compare",
     tier: "extended",
@@ -43,7 +43,7 @@ describe("filterSidebarNavClusterLinks", () => {
       effectiveOperateUnlockPhase: 2,
     });
 
-    expect(filtered.map((link) => link.href)).toEqual(["/compare", "/insights/search-review-evidence"]);
+    expect(filtered.map((link) => link.href)).toEqual(["/insights/compare-two-reviews", "/insights/search-review-evidence"]);
   });
 });
 
@@ -67,7 +67,7 @@ describe("presentSidebarNavLinkForCluster", () => {
   it("preserves review-workflow nav titles outside Internal Operations", () => {
     const presented = presentSidebarNavLinkForCluster(
       {
-        href: "/compare",
+        href: "/insights/compare-two-reviews",
         label: "Compare two reviews",
         title: "See what changed between reviews (Alt+C)",
         tier: "extended",

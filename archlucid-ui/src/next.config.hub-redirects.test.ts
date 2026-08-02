@@ -19,6 +19,7 @@ const RETIRED_HUB_REDIRECT_SOURCES = [
   "/graph",
   "/ask",
   "/search",
+  "/compare",
 ] as const;
 
 describe("next.config hub bookmark redirects", () => {

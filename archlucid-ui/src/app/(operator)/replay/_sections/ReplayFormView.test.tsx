@@ -41,7 +41,7 @@ describe("ReplayFormView", () => {
     render(<ReplayFormView model={buildModel()} />);
 
     expect(screen.getByText(REPLAY_PAGE_INTRO)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /Open Compare reviews/i })).toHaveAttribute("href", "/compare");
+    expect(screen.getByRole("link", { name: /Open Compare reviews/i })).toHaveAttribute("href", "/insights/compare-two-reviews");
     expect(screen.queryByText(/Advanced operations/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/No review selected/i)).not.toBeInTheDocument();
   });

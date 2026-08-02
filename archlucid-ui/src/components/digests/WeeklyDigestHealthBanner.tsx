@@ -9,6 +9,7 @@ import { useCallback, useEffect, useState, type ReactElement } from "react";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
+import { ADVISORY_SCANS_SCHEDULES_HREF } from "@/lib/advisory-scans-route";
 import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 import {
   digestsHaveExistingConfiguration,
@@ -205,7 +206,7 @@ export function WeeklyDigestHealthBanner(props: WeeklyDigestHealthBannerProps): 
         {variant === "full" ? (
           <div className="flex flex-wrap gap-2" data-testid="digests-browse-related-actions">
             <Button asChild size="sm" variant="outline">
-              <Link href="/governance/advisory-scans?tab=schedules">{DIGESTS_BROWSE_RELATED_ADVISORY_LABEL}</Link>
+              <Link href={ADVISORY_SCANS_SCHEDULES_HREF}>{DIGESTS_BROWSE_RELATED_ADVISORY_LABEL}</Link>
             </Button>
             <Button asChild size="sm" variant="outline">
               <Link href={INTEGRATIONS_READINESS_PATH}>{DIGESTS_BROWSE_RELATED_INTEGRATIONS_LABEL}</Link>
@@ -216,7 +217,7 @@ export function WeeklyDigestHealthBanner(props: WeeklyDigestHealthBannerProps): 
             Related:{" "}
             <Link
               className="text-al-link underline-offset-2 hover:underline"
-              href="/governance/advisory-scans?tab=schedules"
+              href={ADVISORY_SCANS_SCHEDULES_HREF}
             >
               Advisory schedules
             </Link>

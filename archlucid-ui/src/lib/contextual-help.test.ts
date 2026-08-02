@@ -22,7 +22,7 @@ describe("contextual-help", () => {
   });
 
   it("maps compare to the comparison replay help topic", () => {
-    expect(getHelpUrl("/compare")).toBe("/help/comparison-replay");
+    expect(getHelpUrl("/insights/compare-two-reviews")).toBe("/help/comparison-replay");
   });
 
   it("includes fragments for runs list and run detail keys", () => {

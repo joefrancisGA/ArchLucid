@@ -28,7 +28,7 @@ export const UX_AUDIT_OPERATOR_BUYER_ROUTES: readonly UxAuditRouteEntry[] = [
   { slug: "provenance", href: `/reviews/${showcaseRunEnc}/provenance`, persona: "enterprise-architect" },
   {
     slug: "compare",
-    href: `/compare?${comparePairSearchParams(SCREENSHOT_LEFT_RUN_ID, SCREENSHOT_RIGHT_RUN_ID)}`,
+    href: `/insights/compare-two-reviews?${comparePairSearchParams(SCREENSHOT_LEFT_RUN_ID, SCREENSHOT_RIGHT_RUN_ID)}`,
     persona: "vp-engineering",
   },
   { slug: "graph", href: `/insights/evidence-graph?runId=${showcaseRunEnc}`, persona: "vp-engineering" },

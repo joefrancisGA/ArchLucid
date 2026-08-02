@@ -4,7 +4,7 @@ import {
   FIXTURE_RIGHT_RUN_ID,
 } from "./ids";
 
-/** Matches {@link RunIdPicker} default on `/compare` (`projectId` prop defaults to `"default"`). */
+/** Matches {@link RunIdPicker} default on `/insights/compare-two-reviews` (`projectId` prop defaults to `"default"`). */
 const COMPARE_PICKER_PROJECT_ID = "default";
 
 /** Buyer-polished picker shows this as the primary line (via {@link RunIdPicker} + description fallback). */

@@ -72,7 +72,7 @@ function buyerPolishedCommandPaletteLabel(pathname: string): string {
     return "Search audit trail";
   }
 
-  if (path.startsWith("/compare")) {
+  if (path.startsWith("/insights/compare-two-reviews")) {
     return "Search review change comparison";
   }
 
@@ -541,7 +541,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
       return "Jump to executive summary, signed review record, evidence trail, or governance…";
     }
 
-    if (path.startsWith("/compare")) {
+    if (path.startsWith("/insights/compare-two-reviews")) {
       return "Jump to review, signed review record, or evidence trail…";
     }
 

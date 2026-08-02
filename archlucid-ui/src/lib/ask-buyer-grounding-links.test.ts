@@ -13,9 +13,9 @@ describe("buyerAskGroundingLinksForRun", () => {
     expect(links![0]?.href).toContain("/reviews/");
     expect(links![1]?.href).toContain("/signed-record");
     expect(links!.some((l) => l.href.includes("/findings/phi-minimization-risk"))).toBe(true);
-    expect(links!.some((l) => l.href.includes("/graph?"))).toBe(true);
+    expect(links!.some((l) => l.href.includes("/insights/evidence-graph?"))).toBe(true);
     expect(links!.some((l) => l.href.includes("/audit?"))).toBe(true);
-    expect(links!.some((l) => l.href.includes("/compare?"))).toBe(true);
+    expect(links!.some((l) => l.href.includes("/insights/compare-two-reviews?"))).toBe(true);
     expect(links!.some((l) => l.href.includes("/governance/policy-packs/"))).toBe(true);
   });
 

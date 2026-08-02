@@ -7,7 +7,7 @@ import { getDocHref } from "@/lib/help-topics";
 const PAGE_KEY_TO_DOC_REF: Readonly<Record<string, string>> = {
   "/runs": "docs/library/customer-facing/OPERATOR_QUICKSTART.md#operator-ui",
   "/runs/[id]": "docs/library/customer-facing/WORKSPACE_NAVIGATION_GUIDE.md#main-workflow",
-  "/compare": "docs/library/COMPARISON_REPLAY.md",
+  "/insights/compare-two-reviews": "docs/library/COMPARISON_REPLAY.md",
   "/governance": "docs/library/PRE_COMMIT_GOVERNANCE_GATE.md",
   "/audit": "docs/library/AUDIT_COVERAGE_MATRIX.md",
   "/alerts": "docs/library/ALERTS.md",

@@ -35,8 +35,8 @@ export function DemoStrictNavigationGate(props: DemoStrictNavigationGateProps): 
       return null;
     }
 
-    if (isCompareRouteBlockedUnderDemoStrictShell() && (pathname === "/compare" || pathname.startsWith("/compare/"))) {
-      return resolveDemoBlockedRoutePanel("/compare");
+    if (isCompareRouteBlockedUnderDemoStrictShell() && (pathname === "/insights/compare-two-reviews" || pathname.startsWith("/insights/compare-two-reviews/"))) {
+      return resolveDemoBlockedRoutePanel("/insights/compare-two-reviews");
     }
 
     return findBlockedRouteEntry(pathname);

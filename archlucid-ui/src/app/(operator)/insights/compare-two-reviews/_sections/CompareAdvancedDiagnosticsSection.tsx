@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { ArchitectureComparisonReplayCostSection } from "@/app/(operator)/compare/_sections/ArchitectureComparisonReplayCostSection";
+import { ArchitectureComparisonReplayCostSection } from "@/app/(operator)/insights/compare-two-reviews/_sections/ArchitectureComparisonReplayCostSection";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 /** Collapsed advanced tooling on Compare — comparison replay cost estimate and related diagnostics. */

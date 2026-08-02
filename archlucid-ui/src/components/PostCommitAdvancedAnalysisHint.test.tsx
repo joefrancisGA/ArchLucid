@@ -28,7 +28,7 @@ describe("PostCommitAdvancedAnalysisHint", () => {
 
     expect(compareCta).toHaveAttribute(
       "href",
-      "/compare?priorRunId=claims-intake-run-v1&laterRunId=claims-intake-run-v2",
+      "/insights/compare-two-reviews?priorRunId=claims-intake-run-v1&laterRunId=claims-intake-run-v2",
     );
     expect(compareCta).toHaveTextContent(/view review change comparison/i);
   });

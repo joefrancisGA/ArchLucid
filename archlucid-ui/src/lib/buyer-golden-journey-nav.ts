@@ -133,7 +133,7 @@ export function resolveBuyerGoldenJourneyNav(
       }
     } else if (path.startsWith("/insights/ask-review-questions")) {
       return null;
-    } else if (path.startsWith("/compare")) {
+    } else if (path.startsWith("/insights/compare-two-reviews")) {
       return null;
     } else if (path === "/governance/policy-packs" || path.startsWith("/governance/policy-packs/")) {
       return null;

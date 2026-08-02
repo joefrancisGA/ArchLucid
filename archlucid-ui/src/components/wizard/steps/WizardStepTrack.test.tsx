@@ -208,7 +208,7 @@ describe("WizardStepTrack", () => {
 
     expect(screen.getByRole("link", { name: "Compare two reviews" })).toHaveAttribute(
       "href",
-      "/compare?priorRunId=run-encode-9",
+      "/insights/compare-two-reviews?priorRunId=run-encode-9",
     );
   });
 });

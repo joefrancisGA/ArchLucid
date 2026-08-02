@@ -197,7 +197,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
     const routes = [
       "/insights/ask-review-questions",
       "/insights/evidence-graph",
-      "/compare",
+      "/insights/compare-two-reviews",
       "/governance",
       "/governance/advisory-scans",
       "/replay",

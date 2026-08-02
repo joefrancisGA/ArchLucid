@@ -193,7 +193,7 @@ Columns:
 | `/onboard` | Deprecated alias | App Router shim permanently redirects to `/onboarding` (query preserved; canonical UX on **ONB**) |
 | `/getting-started` | Deprecated alias | App Router shim permanently redirects to `/onboarding` (query preserved) |
 | `/help` | In-app help index | Open directly |
-| `/help/[topic]` | Rendered help topic | e.g. `/help/getting-started`, `/help/first-architecture-review` (specialty `HelpCorePilotGuideView`, **HCO**; legacy `/help/core-pilot` → **ECO**), `/help/billing-and-plans` (specialty `HelpBillingAndPlansGuideView`, **HBX**), `/help/executive-summary` (specialty `HelpExecutiveSummaryGuideView`, **EXE**), `/help/findings` (specialty `HelpFindingsGuideView`, **HFX**), `/help/path-chooser` (buyer markdown chooser, **HPX**), `/help/developer-troubleshooting` (Admin-gated internal-runbook, **HDX**), `/help/governance-api-contracts` (Admin-gated API contracts reference, **HG**), `/help/alerts` (slugs in `product-documentation-registry.ts`) |
+| `/help/[topic]` | Rendered help topic | e.g. `/help/getting-started`, `/help/first-architecture-review` (specialty `HelpCorePilotGuideView`, **HCO**; legacy `/help/core-pilot` → **ECO**), `/help/billing-and-plans` (specialty `HelpBillingAndPlansGuideView`, **HBX**), `/help/executive-summary` (specialty `HelpExecutiveSummaryGuideView`, **EXE**), `/help/findings` (specialty `HelpFindingsGuideView`, **HFX**), `/help/governance-approval` (specialty `HelpGovernanceApprovalGuideView`, **GO**), `/help/path-chooser` (buyer markdown chooser, **HPX**), `/help/developer-troubleshooting` (Admin-gated internal-runbook, **HDX**), `/help/governance-api-contracts` (Admin-gated API contracts reference, **HG**), `/help/alerts` (slugs in `product-documentation-registry.ts`) |
 | `/demo` | CTO demo tour entry | CTO demo pack env; else redirects `/` |
 | `/demo/explain` | Internal demo explanation | T2: `GET /v1/demo/explain`; T3 mock; blocked in strict T1 |
 | `/snapshot/[runId]` | Deprecated leave-behind | App Router shim redirects to `/reviews/{runId}?readOnly=1` (query preserved). Showcase run uses Claims Intake spine. CTO recap still emits `/snapshot/...` links. T1: `/snapshot/claims-intake-modernization?v=demo` |
@@ -214,7 +214,7 @@ Query keys for compare: `priorRunId`/`laterRunId` (buyer) or `leftRunId`/`rightR
 
 | URL | Purpose | How to view |
 |-----|---------|-------------|
-| `/governance/advisory-scans` | Advisory scans hub (Scans + Schedules tabs) | T3 mock or T2 API; blocked in strict T1 nav; legacy `/advisory` + `/advisory-scheduling` → next.config redirects here |
+| `/governance/advisory-scans` | Advisory scans hub (Scans + Schedules tabs) | T3 mock or T2 API; blocked in strict T1 nav; legacy `/advisory` + `/advisory-scheduling` → next.config redirects here; **AD** = `?tab=schedules`, **ADS** = default Scans tab |
 | `/governance/findings` | Architecture risk register | T1 static; T2: `?runId=<seeded-run>` for review context |
 | `/governance/risk-exceptions` | Risk exceptions / waivers | T3 mock or T2 seed |
 | `/policy-packs` | Policy pack inventory | T1 static list |

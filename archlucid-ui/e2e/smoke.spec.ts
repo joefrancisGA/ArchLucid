@@ -115,7 +115,7 @@ test.describe("operator shell smoke — advanced surface path", () => {
     await expectGraphPageReadySurface(page, { timeout: 25_000 });
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
 
-    await page.goto("/compare");
+    await page.goto("/insights/compare-two-reviews");
     await expect(comparePageMainHeading(page)).toBeVisible();
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
 

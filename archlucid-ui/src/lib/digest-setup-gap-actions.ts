@@ -1,4 +1,5 @@
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
+import { ADVISORY_SCANS_SCHEDULES_HREF } from "@/lib/advisory-scans-route";
 import { DIGESTS_BROWSE_SEND_TEST_LABEL } from "@/lib/digests-browse-copy";
 import type { WeeklyDigestHealthDto } from "@/types/operate-rhythm";
 
@@ -29,7 +30,7 @@ export function mapDigestSetupGap(gap: string): DigestSetupGapAction {
       title: "No advisory scan schedule",
       impact: "Weekly digests will not be generated automatically.",
       actionLabel: "Open schedules",
-      href: "/governance/advisory-scans?tab=schedules",
+      href: ADVISORY_SCANS_SCHEDULES_HREF,
     };
   }
 
@@ -105,7 +106,7 @@ export function resolveDigestNextBestAction(snap: WeeklyDigestHealthDto): Digest
       title: "Configure schedule",
       impact: "Enable an advisory scan schedule to generate digests on a cadence.",
       actionLabel: "Configure schedule",
-      href: "/governance/advisory-scans?tab=schedules",
+      href: ADVISORY_SCANS_SCHEDULES_HREF,
     };
   }
 
@@ -136,7 +137,7 @@ export function resolveDigestNextBestAction(snap: WeeklyDigestHealthDto): Digest
       title: "Send test digest",
       impact: "Generate the first digest to verify delivery and preview content.",
       actionLabel: DIGESTS_BROWSE_SEND_TEST_LABEL,
-      href: "/governance/advisory-scans?tab=schedules",
+      href: ADVISORY_SCANS_SCHEDULES_HREF,
     };
   }
 
@@ -158,7 +159,7 @@ export function buildDigestSetupChecklistItems(
     {
       id: "schedule",
       label: "Configure schedule",
-      href: "/governance/advisory-scans?tab=schedules",
+      href: ADVISORY_SCANS_SCHEDULES_HREF,
       complete: hasSchedule,
       detail: hasSchedule ? "Advisory scan schedule enabled." : "Enable a cadence for digest generation.",
     },
@@ -172,7 +173,7 @@ export function buildDigestSetupChecklistItems(
     {
       id: "test",
       label: DIGESTS_BROWSE_SEND_TEST_LABEL,
-      href: "/governance/advisory-scans?tab=schedules",
+      href: ADVISORY_SCANS_SCHEDULES_HREF,
       complete: hasTestDigest,
       detail: hasTestDigest ? "At least one digest has been generated." : "Verify delivery with a test digest.",
     },

@@ -743,7 +743,7 @@ describe("buyer-polished shell nav narrowing", () => {
 
     const visible = filterNavLinksForOperatorShell(op!.links, true, true, AUTHORITY_RANK.AdminAuthority, false, true);
 
-    expect(visible.map((l) => l.href)).toContain("/compare");
+    expect(visible.map((l) => l.href)).toContain("/insights/compare-two-reviews");
   });
 
   it("keeps operate-analysis links in buyer-polished shell when public demo thinning would hide them", () => {
@@ -757,7 +757,7 @@ describe("buyer-polished shell nav narrowing", () => {
     const visible = filterNavLinksForOperatorShell(op!.links, true, true, AUTHORITY_RANK.AdminAuthority, false, true);
 
     expect(visible.map((l) => l.href)).toEqual(
-      expect.arrayContaining(["/insights/ask-review-questions", "/insights/search-review-evidence", "/compare"]),
+      expect.arrayContaining(["/insights/ask-review-questions", "/insights/search-review-evidence", "/insights/compare-two-reviews"]),
     );
 
     vi.unstubAllEnvs();

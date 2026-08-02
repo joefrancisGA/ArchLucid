@@ -26,7 +26,7 @@ describe("operate-nav-progressive-unlock", () => {
   });
 
   it("hides all Operate links at phase 0", () => {
-    const links = [{ href: "/compare" }, { href: "/audit" }];
+    const links = [{ href: "/insights/compare-two-reviews" }, { href: "/audit" }];
     expect(filterNavLinksByOperateUnlockPhase(links, false, 0)).toEqual([]);
   });
 

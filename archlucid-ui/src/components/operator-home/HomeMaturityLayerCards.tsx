@@ -62,7 +62,7 @@ export function HomeMaturityLayerCards() {
           icon={<BarChart3 className="h-5 w-5 text-sky-600 dark:text-sky-400" aria-hidden />}
           title="Advanced Analysis"
           items={[...advancedItems]}
-          href="/compare"
+          href="/insights/compare-two-reviews"
         />
         <LayerCard
           icon={<Shield className="h-5 w-5 text-violet-600 dark:text-violet-400" aria-hidden />}

@@ -280,7 +280,7 @@ export function buyerPolishedRouteOrientation(
     return null;
   }
 
-  if (path.startsWith("/compare")) {
+  if (path.startsWith("/insights/compare-two-reviews")) {
     return null;
   }
 

@@ -325,7 +325,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
         <div className="mt-2 flex flex-wrap gap-1.5">
           <Link
             className={cn("inline-flex rounded-full border border-neutral-200 bg-white px-2 py-0.5 font-medium text-teal-800 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper)}
-            href="/compare"
+            href="/insights/compare-two-reviews"
           >
             Compare
           </Link>
@@ -386,7 +386,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
             </Link>
             <Link
               className={cn("inline-flex rounded-full border border-neutral-300 bg-al-surface-raised px-2 py-0.5 font-medium text-al-text-primary no-underline hover:bg-[var(--al-layer-hover)] dark:border-neutral-600", OPERATOR_TYPOGRAPHY.helper)}
-              href="/compare"
+              href="/insights/compare-two-reviews"
             >
               Compare
             </Link>

@@ -1,13 +1,35 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  WELCOME_HERO_DIFFERENTIATORS,
   WELCOME_SEE_IT_CTA_LABEL,
   WELCOME_USE_CASE_CARDS,
+  WELCOME_WORKFLOW_STEPS,
   WELCOME_DEFAULT_POLICY_PACK_BASELINE_NOTE,
 } from "@/components/marketing/welcome-marketing-copy";
 import { DEMO_WORKSPACE_B_RUN_ID } from "@/lib/demo-workspace-scope";
 
+function wordCount(text: string): number {
+  return text.split(/\s+/).filter((token) => token.length > 0).length;
+}
+
 describe("welcome-marketing-copy", () => {
+  it("keeps above-the-fold differentiators scannable and free of unverifiable claims", () => {
+    expect(WELCOME_HERO_DIFFERENTIATORS.length).toBeGreaterThanOrEqual(3);
+
+    for (const line of WELCOME_HERO_DIFFERENTIATORS) {
+      expect(wordCount(line)).toBeLessThanOrEqual(8);
+      // Guard against social-proof language we cannot substantiate pre-first-customer.
+      expect(line.toLowerCase()).not.toMatch(/customers?|trusted by|fortune|leading|award/);
+    }
+  });
+
+  it("keeps workflow step summaries short enough to scan as a timeline", () => {
+    for (const step of WELCOME_WORKFLOW_STEPS) {
+      expect(wordCount(step.summary)).toBeLessThanOrEqual(9);
+    }
+  });
+
   it("TB-1298: see-it CTA label avoids bare 30-second time claim", () => {
     expect(WELCOME_SEE_IT_CTA_LABEL.toLowerCase()).not.toMatch(/30\s*seconds?/);
     expect(WELCOME_SEE_IT_CTA_LABEL.toLowerCase()).not.toMatch(/\(30s\)/);

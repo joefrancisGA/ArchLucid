@@ -39,7 +39,7 @@ describe("useWhatIfBranchAutoCompare", () => {
 
     await waitFor(() => {
       expect(routerPush).toHaveBeenCalledWith(
-        "/compare?priorRunId=parent-run&laterRunId=branch-run",
+        "/insights/compare-two-reviews?priorRunId=parent-run&laterRunId=branch-run",
       );
     });
   });

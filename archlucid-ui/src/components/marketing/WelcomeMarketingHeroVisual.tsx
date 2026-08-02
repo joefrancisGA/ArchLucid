@@ -36,7 +36,7 @@ export function WelcomeMarketingHeroVisual(): React.JSX.Element {
             </p>
           </div>
           <p className={cn("m-0 mt-2 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>
-            PHI processing region does not match the declared backup residency control in the architecture package.
+            PHI processing region does not match the declared backup residency control in the submitted evidence.
           </p>
           <p className={cn("m-0 mt-3", MARKETING_TYPOGRAPHY.meta)}>
             <span className="font-semibold text-al-text-primary">Evidence:</span>{" "}

@@ -91,7 +91,7 @@ Use these when the next question is analytical:
 - or how to inspect architecture/provenance more deeply.
 
 - **Evidence graph** (`/insights/evidence-graph`) — provenance or architecture graph for one run ID.
-- **Compare** (`/compare`) — structured manifest diff between two runs.
+- **Compare two reviews** (`/insights/compare-two-reviews`) — structured manifest diff between two runs.
 - **Replay** (`/replay`) — re-validate the authority chain for a run.
 - **Export** — bundle ZIP and run-export ZIP from run detail → Artifacts.
 - **Ask / Advisory / Pilot feedback** — Q&A, advisory scans, and pilot signal collection.
@@ -231,7 +231,7 @@ For **`npm run screenshots`**, **`npm run screenshots:all`**, **`npm run screens
 | `/manifests/[manifestId]` | Manifest summary, artifact list, bundle download |
 | `/manifests/[manifestId]/artifacts/[artifactId]` | Artifact review (metadata + preview + siblings) |
 | `/insights/evidence-graph` | Provenance / architecture graph for a run |
-| `/compare` | Compare two runs (structured + legacy + optional AI) |
+| `/insights/compare-two-reviews` | Compare two runs (structured + legacy + optional AI) |
 | `/replay` | Replay authority chain for a run |
 | `/auth/signin` | Start OIDC sign-in (JWT mode only) |
 | `/auth/callback` | OAuth redirect handler (PKCE token exchange) |

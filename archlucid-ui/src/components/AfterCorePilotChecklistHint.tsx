@@ -28,7 +28,7 @@ type Suggestion = {
 const suggestions: Suggestion[] = [
   {
     title: "Compare two reviews",
-    href: "/compare",
+    href: "/insights/compare-two-reviews",
     description: "Structured architecture snapshot diff between a baseline review and a target review when you need to know what changed.",
     sidebarNote: `Requires “${NAV_DISCLOSURE.extended.show}” in the sidebar (extended analysis links).`,
   },

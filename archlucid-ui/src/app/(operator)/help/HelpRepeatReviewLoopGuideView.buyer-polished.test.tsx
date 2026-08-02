@@ -56,6 +56,6 @@ describe("HelpRepeatReviewLoopGuideView buyer-polished shell", () => {
       REPEAT_REVIEW_LOOP_HELP_OVERVIEW,
     );
     expect(screen.getByTestId("help-repeat-review-loop-action-panel")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Compare two reviews" })).toHaveAttribute("href", "/compare");
+    expect(screen.getByRole("link", { name: "Compare two reviews" })).toHaveAttribute("href", "/insights/compare-two-reviews");
   });
 });

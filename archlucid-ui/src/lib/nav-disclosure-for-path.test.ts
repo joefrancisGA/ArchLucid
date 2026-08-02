@@ -66,7 +66,7 @@ describe("effectiveNavDisclosureForPathname", () => {
       showExtended: true,
       showAdvanced: true,
     });
-    expect(effectiveNavDisclosureForPathname("/compare", false, false)).toEqual({
+    expect(effectiveNavDisclosureForPathname("/insights/compare-two-reviews", false, false)).toEqual({
       showExtended: false,
       showAdvanced: false,
     });
