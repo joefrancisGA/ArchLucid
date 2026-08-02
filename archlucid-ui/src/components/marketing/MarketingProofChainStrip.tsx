@@ -1,7 +1,12 @@
 import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  MARKETING_MOTION,
+  MARKETING_SURFACES,
+  MARKETING_TYPOGRAPHY,
+} from "@/lib/design-tokens";
+
 const PROOF_CHAIN_STEPS = [
   "Evidence",
   "Finding",
@@ -15,24 +20,22 @@ export function MarketingProofChainStrip(): ReactElement {
   return (
     <section
       aria-label="Architecture proof chain"
-      className="rounded-xl border border-neutral-200 bg-white px-4 py-4 dark:border-neutral-800 dark:bg-neutral-950"
+      className={cn(MARKETING_SURFACES.cardComfort, MARKETING_MOTION.revealIn)}
       data-testid="marketing-proof-chain-strip"
     >
-      <h2 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>
-        Why this is not a chat answer
-      </h2>
-      <p className={cn("m-0 mt-2 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+      <h2 className={cn("m-0", MARKETING_TYPOGRAPHY.cardTitle)}>Why this is not a chat answer</h2>
+      <p className={cn("m-0 mt-2 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>
         Each sponsor-facing claim can trace through stored evidence, a finding, a committed review record, an exportable
         artifact, and durable audit metadata — not a disposable LLM thread.
       </p>
-      <ol className="m-0 mt-4 flex list-none flex-wrap items-center gap-2 p-0">
+      <ol className="m-0 mt-4 flex list-none flex-wrap items-center gap-2 p-0 lg:flex-nowrap lg:gap-1">
         {PROOF_CHAIN_STEPS.map((step, index) => (
           <li key={step} className="flex items-center gap-2">
-            <span className={cn("inline-flex rounded-md border border-neutral-300 bg-al-surface-raised px-2 py-1 font-semibold text-al-text-primary dark:border-neutral-600", OPERATOR_TYPOGRAPHY.helper)}>
+            <span className={cn(MARKETING_SURFACES.stepIndicator, MARKETING_TYPOGRAPHY.meta)}>
               {`${index + 1}. ${step}`}
             </span>
             {index < PROOF_CHAIN_STEPS.length - 1 ? (
-              <span className={cn("font-medium text-neutral-400 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)} aria-hidden>
+              <span className={cn("font-medium text-neutral-400", MARKETING_TYPOGRAPHY.meta)} aria-hidden>
                 →
               </span>
             ) : null}

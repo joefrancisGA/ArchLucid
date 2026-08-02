@@ -1,10 +1,13 @@
 import Link from "next/link";
 
-import { WELCOME_SEE_IT_CTA_LABEL, WELCOME_SEE_IT_HREF } from "@/components/marketing/welcome-marketing-copy";
+import {
+  WELCOME_SEE_IT_CTA_LABEL,
+  WELCOME_SEE_IT_HREF,
+} from "@/components/marketing/welcome-marketing-copy";
 import { MARKETING_LAYOUT, MARKETING_MOTION, MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
-/** Server-rendered proof cards for `/welcome` (TB-566). */
+/** Server-rendered proof cards and first-time visitor path for `/welcome` (TB-566). */
 export function WelcomeMarketingProofAtGlanceSection(): React.JSX.Element {
   return (
     <section
@@ -56,6 +59,44 @@ export function WelcomeMarketingProofAtGlanceSection(): React.JSX.Element {
           </p>
         </li>
       </ul>
+
+      <div
+        className={cn(MARKETING_SURFACES.sectionPanel, "mt-8")}
+        data-testid="welcome-first-time-visitor-path"
+        aria-labelledby="walkthrough-heading"
+      >
+        <h3 id="walkthrough-heading" className={MARKETING_TYPOGRAPHY.cardTitle}>
+          First-time visitor path
+        </h3>
+        <p className={cn("mt-2 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>
+          Hosted SaaS evaluation workspace: create an architecture review request, let the pipeline finish, finalize when ready,
+          then open your review — no local Docker required for the buyer story.
+        </p>
+        <ol className={cn("mt-4 list-decimal space-y-2 pl-5 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>
+          <li>
+            <Link className={MARKETING_SURFACES.inlineLink} href={WELCOME_SEE_IT_HREF}>
+              {WELCOME_SEE_IT_CTA_LABEL}
+            </Link>{" "}
+            — fastest visual proof; then{" "}
+            <Link className={MARKETING_SURFACES.inlineLink} href="/why">
+              Why ArchLucid
+            </Link>{" "}
+            for positioning depth.
+          </li>
+          <li>
+            <Link className={MARKETING_SURFACES.inlineLink} href="/compliance-journey">
+              Compliance journey
+            </Link>{" "}
+            — how reviewers map controls to shipped mechanisms.
+          </li>
+          <li>
+            <Link className={MARKETING_SURFACES.inlineLink} href="/trust">
+              Trust Center
+            </Link>
+            , privacy, and procurement-linked evidence.
+          </li>
+        </ol>
+      </div>
     </section>
   );
 }

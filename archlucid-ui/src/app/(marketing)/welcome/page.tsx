@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 
 // Public marketing home is `/welcome` (not `app/(marketing)/page.tsx`) because `app/(operator)/page.tsx` already owns `/`.
 import { WelcomeMarketingEngagementPathsSection } from "@/components/marketing/WelcomeMarketingEngagementPathsSection";
-import { WelcomeMarketingFirstTimeVisitorSection } from "@/components/marketing/WelcomeMarketingFirstTimeVisitorSection";
 import { WelcomeMarketingPage } from "@/components/marketing/WelcomeMarketingPage";
 import { WelcomeMarketingProofAtGlanceSection } from "@/components/marketing/WelcomeMarketingProofAtGlanceSection";
 import { WELCOME_PAGE_METADATA_TITLE } from "@/components/marketing/welcome-marketing-copy";
@@ -31,7 +30,6 @@ export default function WelcomePage() {
         <>
           <WelcomeMarketingProofAtGlanceSection />
           <WelcomeMarketingEngagementPathsSection />
-          <WelcomeMarketingFirstTimeVisitorSection />
         </>
       }
     />

@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 
 import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -15,15 +18,40 @@ function marketingPublicFooterLinks(): readonly { readonly label: string; readon
   ];
 }
 
+function shouldExcludeFooterLink(pathname: string, href: string, excluded: ReadonlySet<string>): boolean {
+  if (excluded.has(href)) {
+    return true;
+  }
+
+  if (href === appSiteHref("/auth/signin") && excluded.has("/auth/signin")) {
+    return true;
+  }
+
+  if (!href.startsWith("/")) {
+    return false;
+  }
+
+  if (pathname === href) {
+    return true;
+  }
+
+  if (pathname.startsWith(`${href}/`)) {
+    return true;
+  }
+
+  return false;
+}
+
 type MarketingPublicFooterProps = {
   readonly excludeHrefs?: readonly string[];
 };
 
 /** Shared public-site footer links for marketing trust surfaces. */
 export function MarketingPublicFooter(props: MarketingPublicFooterProps = {}): ReactNode {
+  const pathname = usePathname() ?? "";
   const excluded = new Set(props.excludeHrefs ?? []);
   const links = marketingPublicFooterLinks().filter(
-    (link) => !excluded.has(link.href) && !excluded.has("/auth/signin"),
+    (link) => !shouldExcludeFooterLink(pathname, link.href, excluded),
   );
 
   return (

@@ -1,0 +1,21 @@
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+
+import { MarketingPublicFooter } from "./MarketingPublicFooter";
+
+vi.mock("next/navigation", () => ({
+  usePathname: vi.fn(() => "/welcome"),
+}));
+
+describe("MarketingPublicFooter", () => {
+  it("omits the current route from footer links", async () => {
+    const { usePathname } = await import("next/navigation");
+    vi.mocked(usePathname).mockReturnValue("/privacy");
+
+    render(<MarketingPublicFooter />);
+
+    expect(screen.getByRole("link", { name: "Security" })).toHaveAttribute("href", "/security-trust");
+    expect(screen.queryByRole("link", { name: "Privacy" })).toBeNull();
+    expect(screen.getByRole("link", { name: "Product FAQ" })).toHaveAttribute("href", "/faq");
+  });
+});

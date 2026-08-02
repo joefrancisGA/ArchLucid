@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { BUYER_OUTCOME_LED_VALUE_PROPOSITION } from "@/lib/buyer-polish-copy";
 import { MARKETING_CAPTION_TEXT_CLASS, MARKETING_MOTION, MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { WELCOME_SEE_IT_CTA_LABEL } from "@/components/marketing/welcome-marketing-copy";
 import {
   MARKETING_SEE_IT_OG_DESCRIPTION,
   buildMarketingSocialMetadata,
@@ -20,13 +21,9 @@ import { SeeItMarketingBody } from "./SeeItMarketingBody";
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: "ArchLucid · See it in 30 seconds",
+  title: `ArchLucid · ${WELCOME_SEE_IT_CTA_LABEL}`,
   description: MARKETING_SEE_IT_OG_DESCRIPTION,
-  ...buildMarketingSocialMetadata(
-    "See it in 30 seconds",
-    MARKETING_SEE_IT_OG_DESCRIPTION,
-    "/see-it",
-  ),
+  ...buildMarketingSocialMetadata(WELCOME_SEE_IT_CTA_LABEL, MARKETING_SEE_IT_OG_DESCRIPTION, "/see-it"),
   robots: { index: true, follow: true },
   other: {
     "data-demo": "true",

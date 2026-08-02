@@ -6,7 +6,7 @@ import { MarketingProofChainStrip } from "@/components/marketing/MarketingProofC
 import { Button } from "@/components/ui/button";
 import { BUYER_OUTCOME_LED_VALUE_PROPOSITION } from "@/lib/buyer-polish-copy";
 import { BRAND_CATEGORY } from "@/lib/brand-category";
-import { MARKETING_LAYOUT, MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
+import { MARKETING_LAYOUT, MARKETING_MOTION, MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { WHY_MARKET_LANDSCAPE_MARKETING_ROWS } from "@/lib/why-market-landscape-comparison";
 import { type WhyVerifyLink, WHY_COMPARISON_VERIFY_LINK_ROWS } from "@/lib/why-comparison-verify-points";
@@ -63,7 +63,7 @@ export type WhyArchlucidMarketingViewProps = {
  */
 export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true }: WhyArchlucidMarketingViewProps) {
   return (
-    <MarketingPageShell>
+    <MarketingPageShell className={MARKETING_MOTION.revealIn}>
       <h1 className={MARKETING_TYPOGRAPHY.heroTitle}>Why ArchLucid</h1>
       <p
         className={cn("mt-4 max-w-3xl", MARKETING_TYPOGRAPHY.lead)}

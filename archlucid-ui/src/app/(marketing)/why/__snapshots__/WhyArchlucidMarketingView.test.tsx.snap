@@ -2,17 +2,17 @@
 
 exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + proof pack download) 1`] = `
 <main
-  class="mx-auto w-full max-w-5xl px-4 py-10"
+  class="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 sm:py-12 marketing-reveal-in"
   id="main-content"
   tabindex="-1"
 >
   <h1
-    class="text-xl font-semibold leading-7 tracking-tight text-al-text-primary"
+    class="text-3xl font-semibold leading-tight tracking-tight text-al-text-primary sm:text-4xl lg:text-5xl"
   >
     Why ArchLucid
   </h1>
   <p
-    class="mt-3 max-w-3xl text-[13px] font-normal leading-5 text-al-text-primary text-al-text-secondary"
+    class="mt-4 max-w-3xl text-base leading-relaxed text-al-text-secondary sm:text-lg"
     data-testid="why-brand-category-paragraph"
   >
     ArchLucid is an Architecture Proof Engine: governed architecture reviews whose findings, signed decisions, approvals, and exports share one traceable evidence trail — durable evidence before emphasizing agent-assisted acceleration. Comparisons below summarize typical fit versus adjacent tooling. The downloadable evidence bundle carries the citation-backed drill-down for diligence teams who need paperwork parity.
@@ -22,33 +22,33 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
   >
     <section
       aria-label="Architecture proof chain"
-      class="rounded-xl border border-neutral-200 bg-white px-4 py-4 dark:border-neutral-800 dark:bg-neutral-950"
+      class="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-5 marketing-reveal-in"
       data-testid="marketing-proof-chain-strip"
     >
       <h2
-        class="m-0 dark:text-neutral-50 text-[15px] font-semibold leading-[22px] text-al-text-primary"
+        class="m-0 text-[15px] font-semibold leading-[22px] text-al-text-primary"
       >
         Why this is not a chat answer
       </h2>
       <p
-        class="m-0 mt-2 dark:text-neutral-400 text-[13px] font-normal leading-5 text-al-text-primary"
+        class="m-0 mt-2 text-[13px] font-normal leading-5 text-al-text-primary"
       >
         Each sponsor-facing claim can trace through stored evidence, a finding, a committed review record, an exportable artifact, and durable audit metadata — not a disposable LLM thread.
       </p>
       <ol
-        class="m-0 mt-4 flex list-none flex-wrap items-center gap-2 p-0"
+        class="m-0 mt-4 flex list-none flex-wrap items-center gap-2 p-0 lg:flex-nowrap lg:gap-1"
       >
         <li
           class="flex items-center gap-2"
         >
           <span
-            class="inline-flex rounded-md border border-neutral-300 bg-al-surface-raised px-2 py-1 dark:border-neutral-600 text-xs font-normal leading-[18px] text-al-text-secondary"
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 text-xs font-normal leading-[18px] text-al-text-secondary"
           >
             1. Evidence
           </span>
           <span
             aria-hidden="true"
-            class="dark:text-neutral-400 text-xs font-normal leading-[18px] text-al-text-secondary"
+            class="text-xs font-normal leading-[18px] text-al-text-secondary"
           >
             →
           </span>
@@ -57,13 +57,13 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
           class="flex items-center gap-2"
         >
           <span
-            class="inline-flex rounded-md border border-neutral-300 bg-al-surface-raised px-2 py-1 dark:border-neutral-600 text-xs font-normal leading-[18px] text-al-text-secondary"
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 text-xs font-normal leading-[18px] text-al-text-secondary"
           >
             2. Finding
           </span>
           <span
             aria-hidden="true"
-            class="dark:text-neutral-400 text-xs font-normal leading-[18px] text-al-text-secondary"
+            class="text-xs font-normal leading-[18px] text-al-text-secondary"
           >
             →
           </span>
@@ -72,13 +72,13 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
           class="flex items-center gap-2"
         >
           <span
-            class="inline-flex rounded-md border border-neutral-300 bg-al-surface-raised px-2 py-1 dark:border-neutral-600 text-xs font-normal leading-[18px] text-al-text-secondary"
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 text-xs font-normal leading-[18px] text-al-text-secondary"
           >
             3. Review record
           </span>
           <span
             aria-hidden="true"
-            class="dark:text-neutral-400 text-xs font-normal leading-[18px] text-al-text-secondary"
+            class="text-xs font-normal leading-[18px] text-al-text-secondary"
           >
             →
           </span>
@@ -87,13 +87,13 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
           class="flex items-center gap-2"
         >
           <span
-            class="inline-flex rounded-md border border-neutral-300 bg-al-surface-raised px-2 py-1 dark:border-neutral-600 text-xs font-normal leading-[18px] text-al-text-secondary"
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 text-xs font-normal leading-[18px] text-al-text-secondary"
           >
             4. Artifact
           </span>
           <span
             aria-hidden="true"
-            class="dark:text-neutral-400 text-xs font-normal leading-[18px] text-al-text-secondary"
+            class="text-xs font-normal leading-[18px] text-al-text-secondary"
           >
             →
           </span>
@@ -102,7 +102,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
           class="flex items-center gap-2"
         >
           <span
-            class="inline-flex rounded-md border border-neutral-300 bg-al-surface-raised px-2 py-1 dark:border-neutral-600 text-xs font-normal leading-[18px] text-al-text-secondary"
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 text-xs font-normal leading-[18px] text-al-text-secondary"
           >
             5. Audit
           </span>
@@ -111,7 +111,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
     </section>
   </div>
   <section
-    class="mt-10 rounded-xl border border-neutral-200 border-l-4 border-l-[var(--al-accent-interactive)] bg-al-surface-raised px-5 py-4 shadow-sm dark:border-neutral-800"
+    class="mt-12 rounded-xl border border-neutral-200 border-l-4 border-l-[var(--al-accent-interactive)] bg-al-surface-raised px-5 py-4 shadow-sm dark:border-neutral-800"
   >
     <p
       class="text-xs font-normal leading-[18px] text-al-text-secondary font-semibold uppercase tracking-wide text-teal-800 dark:text-teal-300"
@@ -119,7 +119,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
       First-principles outcome
     </p>
     <h2
-      class="mt-2 text-lg font-semibold leading-[26px] text-al-text-primary"
+      class="mt-2 text-2xl font-semibold leading-tight tracking-tight text-al-text-primary"
       id="why-hero-outcome-heading"
     >
       One buyer problem, one proof export
@@ -142,7 +142,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
     data-testid="why-vs-chat-assistant"
   >
     <h2
-      class="text-lg font-semibold leading-[26px] text-al-text-primary"
+      class="text-2xl font-semibold leading-tight tracking-tight text-al-text-primary"
       id="why-vs-chat-assistant-heading"
     >
       vs a chat assistant (ChatGPT, Copilot, Claude)
@@ -320,7 +320,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
     class="mt-12"
   >
     <h2
-      class="text-lg font-semibold leading-[26px] text-al-text-primary"
+      class="text-2xl font-semibold leading-tight tracking-tight text-al-text-primary"
       id="why-market-landscape-heading"
     >
       Where ArchLucid fits (adjacent tooling)
@@ -472,7 +472,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
     class="rounded-md border border-neutral-200 bg-neutral-100/80 dark:border-neutral-800 dark:bg-neutral-900/50 p-4"
   >
     <h2
-      class="text-lg font-semibold leading-[26px] text-al-text-primary"
+      class="text-2xl font-semibold leading-tight tracking-tight text-al-text-primary"
     >
       Side-by-side audit evidence bundle
     </h2>
@@ -508,7 +508,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
     class="mt-10"
   >
     <h2
-      class="text-lg font-semibold leading-[26px] text-al-text-primary"
+      class="text-2xl font-semibold leading-tight tracking-tight text-al-text-primary"
       id="why-demo-heading"
     >
       See a finalized sample review page
@@ -549,7 +549,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
     class="mt-12"
   >
     <h2
-      class="text-lg font-semibold leading-[26px] text-al-text-primary"
+      class="text-2xl font-semibold leading-tight tracking-tight text-al-text-primary"
       id="why-hard-compare-heading"
     >
       Governance capability comparison
