@@ -370,11 +370,11 @@ export function RunsListClient({
   }, [page, pages, totalCount]);
 
   const baseQuery = `projectId=${encodeURIComponent(projectId)}&pageSize=${pageSize}`;
-  const previousHref = `/reviews?${baseQuery}&page=1`;
+  const previousHref = `/architecture/reviews?${baseQuery}&page=1`;
   const nextHref =
     nextCursor !== null && nextCursor !== undefined && nextCursor.length > 0
-      ? `/reviews?${baseQuery}&page=${page + 1}&cursor=${encodeURIComponent(nextCursor)}`
-      : `/reviews?${baseQuery}&page=${page + 1}`;
+      ? `/architecture/reviews?${baseQuery}&page=${page + 1}&cursor=${encodeURIComponent(nextCursor)}`
+      : `/architecture/reviews?${baseQuery}&page=${page + 1}`;
 
   const onRowActivate = useCallback((run: RunSummary, e: React.MouseEvent<HTMLTableRowElement>) => {
     if ((e.target as HTMLElement).closest("a")) {
