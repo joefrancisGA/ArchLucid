@@ -32,7 +32,7 @@ class TestAiReadinessBatch5N(unittest.TestCase):
         self.assertIn("TOKEN_FLUSH_MS", text)
 
     def test_tb_178_ask_page_uses_use_ask_stream_hook(self) -> None:
-        path = REPO_ROOT / "archlucid-ui" / "src" / "app" / "(operator)" / "ask" / "_sections" / "AskPageContent.tsx"
+        path = REPO_ROOT / "archlucid-ui" / "src" / "app" / "(operator)" / "insights" / "ask-review-questions" / "_sections" / "AskPageContent.tsx"
         text = path.read_text(encoding="utf-8")
         self.assertIn("useAskStream", text)
         self.assertNotIn("askArchLucidStream", text)

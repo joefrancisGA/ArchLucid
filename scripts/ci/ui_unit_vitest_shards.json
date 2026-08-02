@@ -3,12 +3,16 @@
     {
       "id": "lib",
       "label": "lib (1/9)",
-      "paths": ["src/lib"]
+      "paths": [
+        "src/lib"
+      ]
     },
     {
       "id": "components",
       "label": "components (2/9)",
-      "paths": ["src/components"]
+      "paths": [
+        "src/components"
+      ]
     },
     {
       "id": "app-operator-a",
@@ -20,7 +24,8 @@
         "src/app/(operator)/admin",
         "src/app/(operator)/integrations",
         "src/app/(operator)/help",
-        "src/app/(operator)/settings"
+        "src/app/(operator)/settings",
+        "src/app/(operator)/administration"
       ]
     },
     {
@@ -57,31 +62,35 @@
       "paths": [
         "src/app/(operator)/compare",
         "src/app/(operator)/dashboard",
-        "src/app/(operator)/graph"
+        "src/app/(operator)/graph",
+        "src/app/(operator)/architecture",
+        "src/app/(operator)/insights",
+        "src/app/(operator)/snapshot"
       ]
     },
     {
       "id": "app-operator-d",
       "label": "app-operator-d (6/9)",
       "paths": [
-        "src/app/(operator)/_sections/OperatorHomePageView.overview-vocabulary.test.tsx",
-        "src/app/(operator)/_sections/OperatorHomePageView.progressive-disclosure.test.ts",
         "src/app/(operator)/authority-shaped-layout-regression.test.tsx",
         "src/app/(operator)/operate-authority-ui-shaping.test.tsx",
-        "src/app/(operator)/operator-client-pages-render-gate.test.tsx"
+        "src/app/(operator)/operator-client-pages-render-gate.test.tsx",
+        "src/app/(operator)/_sections"
       ]
     },
     {
       "id": "app-operator-e",
       "label": "app-operator-e (7/9)",
       "paths": [
-        "src/app/(operator)/_sections/OperatorHomePageView.test.tsx"
+        "src/app/(operator)/sponsor-report"
       ]
     },
     {
       "id": "app-marketing",
       "label": "app-marketing (8/9)",
-      "paths": ["src/app/(marketing)"]
+      "paths": [
+        "src/app/(marketing)"
+      ]
     },
     {
       "id": "surface",

@@ -1,7 +1,7 @@
 > **Scope:** Product-design and architecture assessment — customer-facing cloud neutrality and implementation-language exposure.  
 > **Assessment date:** 2026-07-12  
 > **Method:** Repository-wide evidence review (UI routes, copy constants, help registry, customer-facing docs, integration backends, guard tests). No code or content was modified during this pass.  
-> **Related prior work:** [`PRODUCT_UX_IMPLEMENTATION_LEAKAGE_AUDIT_2026_06_15.md`](../archive/assessments/PRODUCT_UX_IMPLEMENTATION_LEAKAGE_AUDIT_2026_06_15.md) (implementation leakage); [`help_review_and_architecture_guidance_assessment.md`](help_review_and_architecture_guidance_assessment.md) (help parity).  
+> **Related prior work:** [`PRODUCT_UX_IMPLEMENTATION_LEAKAGE_AUDIT_2026_06_15.md`](../architecture/PRODUCT_UX_IMPLEMENTATION_LEAKAGE_AUDIT_2026_06_15.md) (implementation leakage); [`help_review_and_architecture_guidance_assessment.md`](help_review_and_architecture_guidance_assessment.md) (help parity).  
 **P0 implementation:** shipped as **TB-767**–**TB-780** in [`TECH_BACKLOG.md`](../library/TECH_BACKLOG.md) (one-shot implementation prompts removed after closure).
 
 # Customer-facing cloud neutrality and implementation-language assessment

@@ -15,7 +15,7 @@
       "controller_file": "Planning/AskController.cs",
       "expected_commercial_tier": "standard",
       "expected_class_policy": "ReadAuthority",
-      "expected_nav_operator_href": "/ask",
+      "expected_nav_operator_href": "/insights/ask-review-questions",
       "trial_limit_behavior": "Operate Ask remains a paid-tier surface; trial tenants should see progressive disclosure rather than unrestricted capability promises."
     },
     {

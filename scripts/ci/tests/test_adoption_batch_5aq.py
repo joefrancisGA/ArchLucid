@@ -26,7 +26,7 @@ class TestAdoptionBatch5AQ(unittest.TestCase):
         self.assertIn("generateNarrative", text)
 
     def test_tb_241_ui_toggle(self) -> None:
-        path = REPO_ROOT / "archlucid-ui" / "src" / "app" / "(operator)" / "dashboard" / "_sections" / "ExecutiveRoiSummarySection.tsx"
+        path = REPO_ROOT / "archlucid-ui" / "src" / "app" / "(operator)" / "architecture" / "executive-dashboard" / "_sections" / "ExecutiveRoiSummarySection.tsx"
         text = path.read_text(encoding="utf-8")
         self.assertIn("exec-roi-board-pack-narrative-toggle", text)
         self.assertIn("downloadExecutiveRoiBoardPack", text)

@@ -2,7 +2,7 @@
 
 **Date:** 2026-07-18  
 **Audience:** Operators enabling enterprise SSO for a customer domain  
-**Related:** ADR (host SAML), `docs/runbooks/PLATFORM_IDENTITY_SUPPORT.md` (§ [SSO enforcement and recovery drill](PLATFORM_IDENTITY_SUPPORT.md#sso-enforcement-and-recovery-drill-evidence-e3))
+**Related:** ADR (host SAML), `docs/runbooks/PLATFORM_IDENTITY_SUPPORT.md` (§ [SSO enforcement and recovery drill](../runbooks/PLATFORM_IDENTITY_SUPPORT.md#sso-enforcement-and-recovery-drill-evidence-e3))
 
 ## Summary
 

@@ -1,64 +1,66 @@
-"""TB-239 executive ROI history run-mode label drift guards (Batch 5AL)."""
-
-from __future__ import annotations
-
-import unittest
-from pathlib import Path
-
-
-REPO_ROOT = Path(__file__).resolve().parents[3]
-
-
-class TestAdoptionBatch5AL(unittest.TestCase):
-    def test_tb_239_history_contract_exposes_run_mode_fields(self) -> None:
-        path = REPO_ROOT / "ArchLucid.Contracts" / "Roi" / "ExecutiveRoiHistoryResponse.cs"
-        text = path.read_text(encoding="utf-8")
-        self.assertIn("RealRunCount", text)
-        self.assertIn("SimulatorRunCount", text)
-        self.assertIn("RealModeSavingsUsd", text)
-        self.assertIn("IsMixedMode", text)
-
-    def test_tb_239_run_mode_calculator_exists(self) -> None:
-        path = REPO_ROOT / "ArchLucid.Application" / "Roi" / "ExecutiveRoiHistoryRunModeCalculator.cs"
-        text = path.read_text(encoding="utf-8")
-        self.assertIn("ComputeRealModeSavingsUsd", text)
-        self.assertIn("IsMixedMode", text)
-
-    def test_tb_239_trend_section_labels_mixed_and_simulator_only(self) -> None:
-        path = (
-            REPO_ROOT
-            / "archlucid-ui"
-            / "src"
-            / "app"
-            / "(operator)"
-            / "dashboard"
-            / "_sections"
-            / "ExecutiveRoiTrendSection.tsx"
-        )
-        text = path.read_text(encoding="utf-8")
-        self.assertIn("realRunCount", text)
-        self.assertIn("exec-roi-trend-mixed-mode-footnote", text)
-        self.assertIn("Simulator-only", text)
-
-    def test_tb_239_extended_service_test_covers_pro_rated_savings(self) -> None:
-        path = REPO_ROOT / "ArchLucid.Application.Tests" / "Roi" / "ExecutiveRoiSummaryServiceExtendedTests.cs"
-        text = path.read_text(encoding="utf-8")
-        self.assertIn("BuildHistoryAsync_pro_rates_savings_by_real_and_simulator_run_counts", text)
-
-    def test_tb_239_vitest_covers_trend_section(self) -> None:
-        path = (
-            REPO_ROOT
-            / "archlucid-ui"
-            / "src"
-            / "app"
-            / "(operator)"
-            / "dashboard"
-            / "_sections"
-            / "ExecutiveRoiTrendSection.test.tsx"
-        )
-        text = path.read_text(encoding="utf-8")
-        self.assertIn("exec-roi-trend-mixed-mode-footnote", text)
-
-
-if __name__ == "__main__":
-    unittest.main()
+"""TB-239 executive ROI history run-mode label drift guards (Batch 5AL)."""
+
+from __future__ import annotations
+
+import unittest
+from pathlib import Path
+
+
+REPO_ROOT = Path(__file__).resolve().parents[3]
+
+
+class TestAdoptionBatch5AL(unittest.TestCase):
+    def test_tb_239_history_contract_exposes_run_mode_fields(self) -> None:
+        path = REPO_ROOT / "ArchLucid.Contracts" / "Roi" / "ExecutiveRoiHistoryResponse.cs"
+        text = path.read_text(encoding="utf-8")
+        self.assertIn("RealRunCount", text)
+        self.assertIn("SimulatorRunCount", text)
+        self.assertIn("RealModeSavingsUsd", text)
+        self.assertIn("IsMixedMode", text)
+
+    def test_tb_239_run_mode_calculator_exists(self) -> None:
+        path = REPO_ROOT / "ArchLucid.Application" / "Roi" / "ExecutiveRoiHistoryRunModeCalculator.cs"
+        text = path.read_text(encoding="utf-8")
+        self.assertIn("ComputeRealModeSavingsUsd", text)
+        self.assertIn("IsMixedMode", text)
+
+    def test_tb_239_trend_section_labels_mixed_and_simulator_only(self) -> None:
+        path = (
+            REPO_ROOT
+            / "archlucid-ui"
+            / "src"
+            / "app"
+            / "(operator)"
+            / "architecture"
+            / "executive-dashboard"
+            / "_sections"
+            / "ExecutiveRoiTrendSection.tsx"
+        )
+        text = path.read_text(encoding="utf-8")
+        self.assertIn("realRunCount", text)
+        self.assertIn("exec-roi-trend-mixed-mode-footnote", text)
+        self.assertIn("Simulator-only", text)
+
+    def test_tb_239_extended_service_test_covers_pro_rated_savings(self) -> None:
+        path = REPO_ROOT / "ArchLucid.Application.Tests" / "Roi" / "ExecutiveRoiSummaryServiceExtendedTests.cs"
+        text = path.read_text(encoding="utf-8")
+        self.assertIn("BuildHistoryAsync_pro_rates_savings_by_real_and_simulator_run_counts", text)
+
+    def test_tb_239_vitest_covers_trend_section(self) -> None:
+        path = (
+            REPO_ROOT
+            / "archlucid-ui"
+            / "src"
+            / "app"
+            / "(operator)"
+            / "architecture"
+            / "executive-dashboard"
+            / "_sections"
+            / "ExecutiveRoiTrendSection.test.tsx"
+        )
+        text = path.read_text(encoding="utf-8")
+        self.assertIn("exec-roi-trend-mixed-mode-footnote", text)
+
+
+if __name__ == "__main__":
+    unittest.main()

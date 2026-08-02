@@ -19,7 +19,7 @@ class TestAdoptionBatch5BB(unittest.TestCase):
         path = REPO_ROOT / "archlucid-ui" / "next.config.ts"
         text = path.read_text(encoding="utf-8")
         self.assertIn('source: "/portfolio"', text)
-        self.assertIn('destination: "/dashboard"', text)
+        self.assertIn('destination: "/architecture/executive-dashboard"', text)
 
     def test_tb_249_doc(self) -> None:
         path = REPO_ROOT / "docs" / "library" / "MULTI_TENANT_PORTFOLIO.md"

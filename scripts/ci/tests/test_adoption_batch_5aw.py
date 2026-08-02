@@ -12,7 +12,7 @@ class TestAdoptionBatch5AW(unittest.TestCase):
     def test_tb_246_nav_links(self) -> None:
         path = REPO_ROOT / "archlucid-ui" / "src" / "components" / "ExecutiveShellFrame.tsx"
         text = path.read_text(encoding="utf-8")
-        self.assertIn("/dashboard", text)
+        self.assertIn("EXECUTIVE_DASHBOARD_HREF", text)
         self.assertIn("/executive/scorecard", text)
         self.assertIn("usePathname", text)
 
