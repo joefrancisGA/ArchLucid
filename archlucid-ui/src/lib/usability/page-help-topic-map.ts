@@ -77,6 +77,14 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     prefix: "/help/data-handling-tenant-isolation",
     topic: { slug: "data-handling-tenant-isolation", label: "Data handling and tenant isolation" },
   },
+  {
+    prefix: "/help/path-chooser",
+    topic: { slug: "path-chooser", label: "Choose your next step" },
+  },
+  {
+    prefix: "/help/policy-pack-delta-demo",
+    topic: { slug: "policy-pack-delta-demo", label: "Policy-pack delta demo" },
+  },
   { prefix: "/insights/impact-preview", topic: { slug: "how-it-works", label: "Impact preview" } },
   { prefix: "/internal-operations/recommendation-learning", topic: { slug: "how-it-works", label: "How recommendation learning works" } },
   { prefix: "/governance/advisory-scans", topic: { slug: "how-it-works", label: "Advisory scans" } },

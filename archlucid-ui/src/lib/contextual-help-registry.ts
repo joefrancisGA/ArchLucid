@@ -81,6 +81,28 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/help/path-chooser",
+    entry: {
+      whatIsThisPage:
+        "Map your current goal to one primary next action for evaluate, pilot, procurement, sponsor, or engineering support.",
+      whatToDoNext:
+        "Pick the matching goal branch, open the primary cite, then use Sources before treating orientation as diligence.",
+      whyEmpty: "Branches always appear when this help topic loads.",
+      whereToConfigurePrerequisite: "Start or finalize a review when your goal needs product evidence, not just orientation.",
+    },
+  },
+  {
+    prefix: "/help/policy-pack-delta-demo",
+    entry: {
+      whatIsThisPage:
+        "SE and Admin demo script showing how stricter policy-pack enforcement changes finalize-gate outcomes on one review.",
+      whatToDoNext:
+        "Open policy packs, run the dry-run arc, then cite the audit trail before treating simulation as certification.",
+      whyEmpty: "This runbook always shows the demo arc when the help topic loads.",
+      whereToConfigurePrerequisite: "Use a committed review with findings and Admin access to policy packs and audit export.",
+    },
+  },
+  {
     prefix: "/governance/standards-and-rules",
     entry: {
       whatIsThisPage:

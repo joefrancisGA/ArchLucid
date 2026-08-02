@@ -239,10 +239,10 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | HEG | `/help/glossary` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HEI | `/help/integration-readiness` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | EIN | `/help/integrations/azure-boards` | 0.02% | 0 | 0 | 2 | Help alias | None |
-| HPX | `/help/path-chooser` | 0.02% | 0 | 0 | 2 | Help topic | Buyer path chooser — HelpTopicMarkdownView on BUYER_ORIENTATION_ONE_SCREEN.md with stripPathChooserContributorLeakage (TB-1712). Help search panel + HelpDocsClient static entry; product Help Center tier, not featured grid. Open P1 specialty chooser rewrite (TB-1711). Not a specialty guide yet. |
+| HPX | `/help/path-chooser` | 0.02% | 0 | 0 | 2 | Help topic | Specialty path chooser — HelpPathChooserGuideView with goal-branch primary/fallback CTAs (reviews/new, security-trust, first-pilot-path, executive-summary, CLI), Sources diligence strip (getting-started, first-architecture-review, trust, procurement, tenant isolation), claim-discipline callout, PageContextualHelp, and prepared BUYER_ORIENTATION_ONE_SCREEN.md (TB-1712 leakage strip). Not bare HelpTopicMarkdownView. Does not imply CPA SOC 2 or third-party pen-test publication. |
 | HPE | `/help/pilot-feedback` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | PIL | `/help/pilot-nav-profile` | 0.02% | 0 | 0 | 2 | Help topic | None |
-| POL | `/help/policy-pack-delta-demo` | 0.02% | 0 | 0 | 2 | Help topic | None |
+| POL | `/help/policy-pack-delta-demo` | 0.02% | 0 | 0 | 2 | Help topic | Specialty policy-pack delta demo (internal runbook) — HelpPolicyPackDeltaDemoGuideView with policy-packs / standards-and-rules / audit primary CTAs, Sources diligence strip (findings, audit-trail help, governance-approval, alerts), 5-minute narrative arc, claim-discipline callout (dry-run ≠ certification), PageContextualHelp, and prepared POLICY_PACK_DELTA_DEMO_SCRIPT.md (TB-1727 leakage strip). Not bare HelpTopicMarkdownView. Admin-gated internal Help Center tier. Does not imply CPA SOC 2 or third-party pen-test publication. |
 | HEP | `/help/prior-manifest-retrieval` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HPR | `/help/product-overview` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HRE | `/help/report-a-problem` | 0.02% | 0 | 0 | 2 | Help topic | None |
