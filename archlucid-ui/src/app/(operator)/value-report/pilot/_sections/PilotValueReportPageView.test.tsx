@@ -3,6 +3,17 @@ import { describe, expect, it, vi } from "vitest";
 
 import { PilotValueReportPageView } from "./PilotValueReportPageView";
 import type { PilotValueReportPilotPageViewModel } from "./pilot-value-report-pilot-page-view-model";
+import { LAYER_PAGE_GUIDANCE } from "@/lib/layer-guidance";
+import { PILOT_OUTCOMES_PAGE_SUBTITLE } from "@/lib/sponsor-report-navigation";
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const mod = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...mod,
+    isBuyerPolishedOperatorShellEnv: vi.fn(() => false),
+  };
+});
 
 vi.mock("@/components/LayerHeader", () => ({
   LayerHeader: () => <div data-testid="layer-header" />,
@@ -178,5 +189,26 @@ describe("PilotValueReportPageView", () => {
     expect(screen.getByRole("heading", { name: "Finalized reviews" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Download report" })).toBeEnabled();
     expect(screen.queryByTestId("pilot-outcomes-empty-state")).not.toBeInTheDocument();
+  });
+});
+
+describe("PilotValueReportPageView buyer-polished chrome (TB-1969)", () => {
+  it("shows one page hero — no LayerHeader guidance above the reporting period controls", async () => {
+    const { isBuyerPolishedOperatorShellEnv } = await import("@/lib/demo-ui-env");
+    vi.mocked(isBuyerPolishedOperatorShellEnv).mockReturnValue(true);
+
+    render(<PilotValueReportPageView model={buildModel()} />);
+
+    expect(screen.getAllByText(PILOT_OUTCOMES_PAGE_SUBTITLE)).toHaveLength(1);
+    expect(screen.queryByText(LAYER_PAGE_GUIDANCE["value-report-pilot"].headline)).not.toBeInTheDocument();
+    expect(screen.queryByTestId("layer-header")).not.toBeInTheDocument();
+    expect(screen.getByLabelText("Start date")).toBeInTheDocument();
+  });
+
+  it("omits page subtitle when LayerHeader owns the lead in enterprise shell", () => {
+    render(<PilotValueReportPageView model={buildModel()} />);
+
+    expect(screen.getByTestId("layer-header")).toBeInTheDocument();
+    expect(screen.queryByText(PILOT_OUTCOMES_PAGE_SUBTITLE)).not.toBeInTheDocument();
   });
 });

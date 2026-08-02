@@ -85,9 +85,11 @@ export function PilotValueReportPageView(props: Props) {
       <DocumentLayout>
         <header className="space-y-2">
           <h1 className={`m-0 ${OPERATOR_TYPOGRAPHY.pageTitle}`}>{PILOT_OUTCOMES_PAGE_TITLE}</h1>
-          <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-            {PILOT_OUTCOMES_PAGE_SUBTITLE}
-          </p>
+          {buyerPolishedShell ? (
+            <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+              {PILOT_OUTCOMES_PAGE_SUBTITLE}
+            </p>
+          ) : null}
         </header>
 
         {m.includesSampleData ? (
