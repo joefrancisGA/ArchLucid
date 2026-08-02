@@ -6,7 +6,7 @@ import {
 } from "@/lib/legacy-snapshot-redirect";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
-describe("legacy-snapshot-redirect (TB-1952)", () => {
+describe("legacy-snapshot-redirect (TB-1952 / TB-1955)", () => {
   it("resolves showcase leave-behind to the Claims Intake canonical review workspace", () => {
     expect(resolveSnapshotRedirectDestination(SHOWCASE_STATIC_DEMO_RUN_ID)).toBe(
       `/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`,
