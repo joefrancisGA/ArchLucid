@@ -32,7 +32,7 @@
 |---------------------|------------------------------|-----------|
 | `IUnifiedGoldenManifestReader` | Contract: **[`ArchLucid.Core/Persistence/Ports/IUnifiedGoldenManifestReader.cs`](../../ArchLucid.Core/Persistence/Ports/IUnifiedGoldenManifestReader.cs)** · impl: **`UnifiedGoldenManifestReader`** (**[`ArchLucid.Persistence/Reads/UnifiedGoldenManifestReader.cs`](../../ArchLucid.Persistence/Reads/UnifiedGoldenManifestReader.cs)**) | Authority-only post-PR A3 read façade; DI resolves Persistence concrete (see **`UnifiedGoldenManifestReader_resolves_from_Persistence_namespace`** in [`DualPipelineRegistrationDisciplineTests`](../../ArchLucid.Api.Tests/Startup/DualPipelineRegistrationDisciplineTests.cs)). |
 | `DualPipelineRegistrationDisciplineTests` | **[`ArchLucid.Api.Tests/Startup/DualPipelineRegistrationDisciplineTests.cs`](../../ArchLucid.Api.Tests/Startup/DualPipelineRegistrationDisciplineTests.cs)** | Pins ADR 0030 PR A3 closure — no resurrected **`ICoordinatorGoldenManifestRepository`** / **`ICoordinatorDecisionTraceRepository`**; authority repos from **Decisioning** or **Persistence** namespaces; **`IArchitectureRunCommitOrchestrator`** → **`AuthorityDrivenArchitectureRunCommitOrchestrator`**. |
-| **`MvcControllerCoordinatorRepositoryFamilyGuardTests`** | **[`ArchLucid.Api.Tests/Startup/MvcControllerCoordinatorRepositoryFamilyGuardTests.cs`](../../ArchLucid.Api.Tests/Startup/MvcControllerCoordinatorRepositoryFamilyGuardTests.cs)** | [**`V1_SCOPE` Section 3**](../library/V1_SCOPE.md); [**ADR 0021**](adrs/0021-coordinator-pipeline-strangler-plan.md); [**ADR 0030**](adrs/0030-coordinator-authority-pipeline-unification.md) — rejects **exported** MVC **`ControllerBase`** types whose constructors take retired coordinator-family dependencies (narrow allow-list in source + ADR if an escape hatch is ever required). |
+| **`MvcControllerCoordinatorRepositoryFamilyGuardTests`** | **[`ArchLucid.Api.Tests/Startup/MvcControllerCoordinatorRepositoryFamilyGuardTests.cs`](../../ArchLucid.Api.Tests/Startup/MvcControllerCoordinatorRepositoryFamilyGuardTests.cs)** | [**`V1_SCOPE` Section 3**](../library/V1_SCOPE.md); [**ADR 0030**](adrs/0030-coordinator-authority-pipeline-unification.md) — rejects **exported** MVC **`ControllerBase`** types whose constructors take retired coordinator-family dependencies (narrow allow-list in source + ADR if an escape hatch is ever required). |
 | **`AuditEventTypesDoNotCollideAcrossPipelinesTests`** | **[`ArchLucid.Core.Tests/Audit/AuditEventTypes_DoNotCollideAcrossPipelinesTests.cs`](../../ArchLucid.Core.Tests/Audit/AuditEventTypes_DoNotCollideAcrossPipelinesTests.cs)** | Non-collision / uniqueness invariants across **`AuditEventTypes.Run.*`**, **`RunStarted`** / **`RunCompleted`**, **`Baseline`** nesting — aligned to [`AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md). |
 
 ---
@@ -50,17 +50,17 @@
 
 | Item | Resolution |
 |------|------------|
-| Phase 3 **PR B** (audit-constant retirement checklist) | **Closed** on [ADR 0029](adrs/0029-coordinator-strangler-acceleration-2026-05-15.md) § Lifecycle § PR B; former working-surface file **`PHASE_3_PR_B_TODO.md`** and **`assert_pr_b_tracker_in_sync.py`** retired; [ADR 0010](adrs/0010-dual-manifest-trace-repository-contracts.md) + [ADR 0021](adrs/0021-coordinator-pipeline-strangler-plan.md) superseded by [ADR 0030](adrs/0030-coordinator-authority-pipeline-unification.md). |
+| Phase 3 **PR B** (audit-constant retirement checklist) | **Closed** 2026-05-05; former working-surface file **`PHASE_3_PR_B_TODO.md`** and **`assert_pr_b_tracker_in_sync.py`** retired; ADRs 0010, 0021, 0022, 0028, 0029 superseded by [ADR 0030](adrs/0030-coordinator-authority-pipeline-unification.md) (removed ADRs listed in [`redirects.md`](../redirects.md#historical-adrs-removed-2026-08-02)). |
 
 ---
 
 ## Remaining product / ADR follow-up
 
-**None outstanding as of 2026-07-20 (TB-919).** The one previously-open item — the deprecated `v1/runs/*` / `v1/requests` alias routes and ADR 0021 gate (iv) — is **closed**:
+**None outstanding as of 2026-07-20 (TB-919).** The one previously-open item — the deprecated `v1/runs/*` / `v1/requests` alias routes and strangler gate (iv) — is **closed**:
 
 | Item | Notes |
 |------|-------|
-| Operator **`POST /v1/architecture/*`** lifecycle | Routes **persist**; this is the one canonical run-lifecycle write family. The deprecated aliases (`v1/requests`, `v1/runs/{runId}/submit`, `v1/runs/{runId}/manifest/finalize`) that TB-305/ADR 0042 kept routable were **deleted** (**TB-919**, 2026-07-20) — pre-release, no paying customer, safe to close now rather than wait for a customer-traffic trigger. `RunAliasDeprecationMiddleware` and the `archlucid_run_lifecycle_deprecated_alias_requests_total` metric were removed along with the routes. ADR 0021 gate (iv) is resolved by removing the surface it was gating, not by accumulating 14 zero-write days. |
+| Operator **`POST /v1/architecture/*`** lifecycle | Routes **persist**; this is the one canonical run-lifecycle write family. The deprecated aliases (`v1/requests`, `v1/runs/{runId}/submit`, `v1/runs/{runId}/manifest/finalize`) that TB-305/ADR 0042 kept routable were **deleted** (**TB-919**, 2026-07-20) — pre-release, no paying customer, safe to close now rather than wait for a customer-traffic trigger. `RunAliasDeprecationMiddleware` and the `archlucid_run_lifecycle_deprecated_alias_requests_total` metric were removed along with the routes. Strangler gate (iv) is resolved by removing the surface it was gating, not by accumulating 14 zero-write days. |
 
 ---
 
@@ -70,7 +70,7 @@
 - Integration tests canonical run-write guard (Improvement 3, 2026-06-23; **retired TB-919** 2026-07-20 once the alias routes it guarded were deleted): formerly `scripts/ci/assert_integration_tests_canonical_run_writes.py`.
 - Architecture closure pins: [`CoordinatorStranglerCompletionArchitectureTests`](../../ArchLucid.Architecture.Tests/CoordinatorStranglerCompletionArchitectureTests.cs) — retired coordinator types absent, single `AuthorityDrivenArchitectureRunCommitOrchestrator`, `RegisterAuthorityDecisionEngineAndRepositories` naming.
 - Archived dual-path map: `docs/archive/dual-pipeline-navigator-superseded.md`
-- Superseded completion scaffold: `docs/architecture/adrs/0028-coordinator-strangler-completion.md` (**Superseded by** [ADR 0029](adrs/0029-coordinator-strangler-acceleration-2026-05-15.md))
+- Removed historical ADRs: [`redirects.md`](../redirects.md#historical-adrs-removed-2026-08-02)
 
 ---
 

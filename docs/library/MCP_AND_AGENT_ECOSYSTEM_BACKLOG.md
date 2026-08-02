@@ -91,7 +91,7 @@ The plan resolves to three architectural decisions:
 
 ### 4.3 Dual-pipeline alignment
 
-The membrane sits **outside** the persistence seam described in [dual-pipeline-navigator-superseded.md](../archive/dual-pipeline-navigator-superseded.md). It calls into the unified read façade for queries and into the Authority pipeline for proposal writes. It does **not** invoke the Coordinator string-run path directly. This keeps the membrane on the right side of [adr/0021-coordinator-pipeline-strangler-plan.md](../architecture/adrs/0021-coordinator-pipeline-strangler-plan.md).
+The membrane sits **outside** the persistence seam described in [dual-pipeline-navigator-superseded.md](../archive/dual-pipeline-navigator-superseded.md). It calls into the unified read façade for queries and into the Authority pipeline for proposal writes. It does **not** invoke the Coordinator string-run path directly. This keeps the membrane on the right side of [ADR 0030](../architecture/adrs/0030-coordinator-authority-pipeline-unification.md).
 
 ---
 
@@ -128,7 +128,7 @@ This subsection is the **contractual V1.1 minimum** for inbound MCP. Anything no
 | **Outbound MCP** | **Out of scope:** `ArchLucid.Mcp.Client` and any ArchLucid-as-MCP-client allowlist remain **V2** unless a **new** owner row promotes them ([V1_DEFERRED.md](V1_DEFERRED.md) §6d). |
 | **NuGet MCP SDK** | **Pin at V1.1 engineering kickoff** with verification before merge (§9.2 item **9**); pre-1.0 churn risk stays acknowledged in §2 **Assumptions**. |
 
-**Explicit non-goals for this slice:** marketplace agent stores; MCP tool descriptions templated from `Retrieval`; LLM-self-classified approval classes; coordinator-only HTTP bypass ([ADR 0021](../architecture/adrs/0021-coordinator-pipeline-strangler-plan.md)); SMB/445 or public-internet MCP without private endpoints (§9.5).
+**Explicit non-goals for this slice:** marketplace agent stores; MCP tool descriptions templated from `Retrieval`; LLM-self-classified approval classes; coordinator-only HTTP bypass ([ADR 0030](../architecture/adrs/0030-coordinator-authority-pipeline-unification.md)); SMB/445 or public-internet MCP without private endpoints (§9.5).
 
 ---
 

@@ -130,5 +130,5 @@ When scoring tenant isolation **do not** ask “is RLS enabled?” Instead verif
 ## Related ADRs and migrations
 
 - [ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md) — **current decision**
-- [ADR 0003](../architecture/adrs/0003-sql-rls-session-context.md) — **superseded** (historical)
+- [`redirects.md`](../redirects.md#historical-adrs-removed-2026-08-02) — ADR 0003 (SQL RLS) removed 2026-08-02
 - `148_RemoveRowLevelSecurity.sql` — DDL removal

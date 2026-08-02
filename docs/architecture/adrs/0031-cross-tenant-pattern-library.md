@@ -145,7 +145,7 @@ sequenceDiagram
 
 - [`docs/PENDING_QUESTIONS.md`](../../PENDING_QUESTIONS.md) — Resolved tables (**Cross-tenant pattern library**), item **14**
 - [`docs/go-to-market/DPA_TEMPLATE.md`](../../go-to-market/DPA_TEMPLATE.md) — **Section 10 — Cross-tenant patterns opt-in**
-- [ADR 0003 — SQL RLS and SESSION_CONTEXT](0003-sql-rls-session-context.md)
+- [ADR 0037 — Tenant isolation without SQL RLS](0037-tenant-isolation-without-rls-defense-in-depth.md)
 - [ADR 0018 — Background workloads (Container Apps Jobs)](0018-background-workloads-container-apps-jobs.md)
 - [`docs/security/MULTI_TENANT_RLS.md`](../../security/MULTI_TENANT_RLS.md)
 - [`docs/go-to-market/trust-center.md`](../../go-to-market/trust-center.md) (buyer-facing honesty on aggregates — update when GA)

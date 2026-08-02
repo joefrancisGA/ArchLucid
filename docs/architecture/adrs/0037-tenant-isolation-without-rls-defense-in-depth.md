@@ -6,13 +6,13 @@
 
 - **Status:** Accepted
 - **Date:** 2026-06-06
-- **Supersedes:** [ADR 0003](0003-sql-rls-session-context.md) *(production posture only; ADR 0003 remains historical record)*
+- **Supersedes:** ADR 0003 *(production posture only; ADR 0003 removed 2026-08-02 — see [`redirects.md`](../../redirects.md#historical-adrs-removed-2026-08-02))*
 - **Superseded by:** *(none)*
 - **Amends:** *(none)*
 
 ## Context
 
-ArchLucid is multi-tenant on Azure SQL. [ADR 0003](0003-sql-rls-session-context.md) (2026-04-04) required RLS + `SESSION_CONTEXT` in Production when `StorageProvider=Sql`. Since then:
+ArchLucid is multi-tenant on Azure SQL. ADR 0003 (2026-04-04, removed 2026-08-02) required RLS + `SESSION_CONTEXT` in Production when `StorageProvider=Sql`. Since then:
 
 - Migration **`148_RemoveRowLevelSecurity.sql`** dropped `rls.ArchLucidTenantScope` and related predicates; RLS is **not deployed** on greenfield or migrated catalogs.
 - Production topology is **`SystemWithPerTenantCatalogs`**: one **product SQL catalog per tenant**, resolved via `ITenantDatabaseResolver` and `TenantDatabaseBindings` ([`TENANT_DATABASE_TOPOLOGY.md`](../../library/TENANT_DATABASE_TOPOLOGY.md)).
@@ -82,4 +82,4 @@ ArchLucid is multi-tenant on Azure SQL. [ADR 0003](0003-sql-rls-session-context.
 - [`docs/library/TENANT_DATABASE_TOPOLOGY.md`](../../library/TENANT_DATABASE_TOPOLOGY.md)
 - [`docs/library/ARCHITECTURE_INVARIANTS.md`](../../library/ARCHITECTURE_INVARIANTS.md) — INV-001
 - Migration `148_RemoveRowLevelSecurity.sql`
-- Superseded: [ADR 0003](0003-sql-rls-session-context.md)
+- Superseded: ADR 0003 (removed 2026-08-02 — see [`redirects.md`](../../redirects.md#historical-adrs-removed-2026-08-02))

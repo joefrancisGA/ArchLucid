@@ -13,7 +13,7 @@
 
 **Assumptions**: You are working in the .NET solution (`ArchLucid.*` assemblies, renaming incrementally to ArchLucid). Storage is SQL-backed with optional in-memory providers in tests.
 
-**Constraints**: The pipelines intentionally share contracts (manifest shape, findings model) but use **different persistence ports** for some artifacts (see ADR `0010-dual-manifest-trace-repository-contracts.md`).
+**Constraints**: The pipelines historically shared contracts but used **different persistence ports** for some artifacts (see [ADR 0030](../architecture/adrs/0030-coordinator-authority-pipeline-unification.md); ADRs 0010/0021 removed 2026-08-02).
 
 ---
 
@@ -40,19 +40,17 @@ If the answer is "I want to delete one pipeline outright", that is **proposed AD
 
 ## Why we have not collapsed these
 
-The two pipelines look duplicative on first read. They are not. The boundary is governed by two ADRs and one open proposal:
+The two pipelines looked duplicative on first read. **Closed 2026-04-29** — see [ADR 0030](../architecture/adrs/0030-coordinator-authority-pipeline-unification.md) and [`redirects.md`](../redirects.md#historical-adrs-removed-2026-08-02) for removed ADRs 0010, 0012, 0021, 0028, 0029.
 
-- **[ADR 0010 — Dual manifest and decision-trace repository contracts](../architecture/adrs/0010-dual-manifest-trace-repository-contracts.md)** (`Status: Accepted`). Records the explicit decision to keep two interface families. The Coordinator side carries operator orchestration semantics; the Authority side carries rule-engine provenance. Collapsing them in a single refactor PR would require superseding this ADR.
-- **[ADR 0012 — Runs / authority convergence write-freeze](../architecture/adrs/0012-runs-authority-convergence-write-freeze.md)** (`Status: Accepted`). Records the partial unification of the underlying `Runs` storage. The remaining duplication after ADR 0012 is *deliberate* and lives at the contract / repository boundary, not at the data row.
-- **[ADR 0021 — Coordinator pipeline strangler plan](../architecture/adrs/0021-coordinator-pipeline-strangler-plan.md)** (`Status: Accepted` as of 2026-04-20). Phase 0 shipped earlier; **Phase 1** now includes `IUnifiedGoldenManifestReader` (read façade) and the first HTTP read path (`ManifestsController`) consuming it. **Authority remains the supported long-term operator pipeline**; Coordinator contracts stay until Phase 3 exit gates clear. The two regression tests below continue to pin the boundary against silent drift:
+- **[ADR 0030 — Coordinator → Authority pipeline unification](../architecture/adrs/0030-coordinator-authority-pipeline-unification.md)**. Authoritative closure record: coordinator repository family deleted, `dbo.GoldenManifestVersions` dropped, Authority path is canonical.
   - `ArchLucid.Core.Tests/Audit/AuditEventTypes_DoNotCollideAcrossPipelinesTests.cs` — coordinator and authority audit constants stay distinct on the wire.
   - `ArchLucid.Api.Tests/Startup/DualPipelineRegistrationDisciplineTests.cs` — coordinator and authority repositories stay distinct concrete types in the container; the renamed `ICoordinator*` family does not silently regrow into the unprefixed namespace.
 
-The right way to challenge this boundary is to write a superseding ADR that extends ADR 0021 with concrete migration evidence (run-volume parity, replay parity, perf comparison, customer-visible audit shape). The wrong way is a "while I'm in here" refactor PR.
+The right way to challenge this boundary today is a **new ADR** — the strangler is closed.
 
-**Strangler inventory + CI ceiling (2026-04-21 follow-on).** See [`architecture/COORDINATOR_STRANGLER_INVENTORY.md`](../architecture/COORDINATOR_STRANGLER_INVENTORY.md) for migrate / keep / delete rows, [`scripts/ci/assert_coordinator_reference_ceiling.py`](../../scripts/ci/assert_coordinator_reference_ceiling.py) for non-test reference-count regression (paired with—not a duplicate of—the type allow list in `DualPipelineRegistrationDisciplineTests`), and draft [`adr/0028-coordinator-strangler-completion.md`](../architecture/adrs/0028-coordinator-strangler-completion.md) for exit gates.
+**Strangler inventory + CI ceiling (2026-04-21 follow-on).** See [`architecture/COORDINATOR_STRANGLER_INVENTORY.md`](../architecture/COORDINATOR_STRANGLER_INVENTORY.md) for migrate / keep / delete rows and [`scripts/ci/assert_coordinator_reference_ceiling.py`](../../scripts/ci/assert_coordinator_reference_ceiling.py) for non-test reference-count regression.
 
-**Unification plan (2026-04-21 amendment — [ADR 0030](../architecture/adrs/0030-coordinator-authority-pipeline-unification.md)).** The original "single PR A deletion" framing in [ADR 0021](../architecture/adrs/0021-coordinator-pipeline-strangler-plan.md) § Phase 3 mechanism (a) is replaced by the sequenced **PR A0 → PR A4** plan in ADR 0030. Reason: the two pipelines persist incompatible domain models (`Contracts.Manifest.GoldenManifest` vs `Decisioning.Models.GoldenManifest`) into incompatible SQL tables (`dbo.GoldenManifestVersions` vs `dbo.GoldenManifests` + 6 satellite tables) using different decision engines. This page **collapses to a single-pipeline page when PR A3 merges** (per ADR 0030 § Lifecycle); until then it stays as the dual-pipeline map.
+**Unification plan (shipped — [ADR 0030](../architecture/adrs/0030-coordinator-authority-pipeline-unification.md)).** The sequenced **PR A0 → PR A4** plan replaced the original single-PR-A deletion framing. This archived page remains for historical context only.
 
 ---
 
@@ -155,8 +153,8 @@ Both paths honor **scope** (`TenantId` / `WorkspaceId` / `ProjectId`) and **auth
 
 ## Related docs
 
-- `docs/architecture/adrs/0002-dual-persistence-architecture-runs-and-runs.md`
-- `docs/architecture/adrs/0010-dual-manifest-trace-repository-contracts.md`
+- [`docs/redirects.md`](../redirects.md#historical-adrs-removed-2026-08-02) — removed ADRs 0002, 0010, 0012, 0021
+- [ADR 0030](../architecture/adrs/0030-coordinator-authority-pipeline-unification.md)
 - `docs/CONTEXT_INGESTION.md`
 - `docs/ARCHITECTURE_FLOWS.md` — narrative run lifecycle
 - [`../onboarding/ONBOARDING_HAPPY_PATH.md`](../onboarding/ONBOARDING_HAPPY_PATH.md) — HTTP spine redirect; [`../library/LIVE_E2E_HAPPY_PATH.md`](../library/LIVE_E2E_HAPPY_PATH.md) — scripted parity.

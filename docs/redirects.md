@@ -636,6 +636,21 @@ Human readers and agents should follow **canonical** paths below. This file is t
 | `docs/SPONSOR_ONE_PAGER.md` | [`docs/library/SPONSOR_ONE_PAGER.md`](library/SPONSOR_ONE_PAGER.md) | Legacy root bookmark for sponsor one-pager PDF API/CLI contract |
 | `docs/library/REAL_MODE_BENCHMARK.md` (body) | [`docs/library/FIRST_REAL_VALUE.md`](library/FIRST_REAL_VALUE.md#real-mode-e2e-benchmark) | Real-mode E2E wall-clock benchmark folded into first-real-value; filename kept as path-stable alias |
 
+## Historical ADRs removed 2026-08-02 {#historical-adrs-removed-2026-08-02}
+
+Superseded or completed ADRs deleted during docs hygiene. **Do not reuse these numbers.** Use the **canonical** column for current decisions.
+
+| Former path | Canonical path | Notes |
+|-------------|----------------|-------|
+| `docs/architecture/adrs/0002-dual-persistence-architecture-runs-and-runs.md` | [`docs/library/DATA_CONSISTENCY_MATRIX.md`](library/DATA_CONSISTENCY_MATRIX.md#runs-authority-convergence-complete) | Dual `ArchitectureRuns` vs `Runs` persistence — retired 2026-04-12 |
+| `docs/architecture/adrs/0012-runs-authority-convergence-write-freeze.md` | [`docs/library/DATA_CONSISTENCY_MATRIX.md`](library/DATA_CONSISTENCY_MATRIX.md#runs-authority-convergence-complete) | `dbo.Runs` is sole run header table |
+| `docs/architecture/adrs/0003-sql-rls-session-context.md` | [`docs/architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md`](architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md) | SQL RLS removed; per-tenant catalog + defense-in-depth |
+| `docs/architecture/adrs/0010-dual-manifest-trace-repository-contracts.md` | [`docs/architecture/adrs/0030-coordinator-authority-pipeline-unification.md`](architecture/adrs/0030-coordinator-authority-pipeline-unification.md) | Coordinator repository family retired |
+| `docs/architecture/adrs/0021-coordinator-pipeline-strangler-plan.md` | [`docs/architecture/adrs/0030-coordinator-authority-pipeline-unification.md`](architecture/adrs/0030-coordinator-authority-pipeline-unification.md) | Strangler plan — shipped via PR A0–A4 + PR B |
+| `docs/architecture/adrs/0022-coordinator-phase3-deferred.md` | [`docs/architecture/adrs/0030-coordinator-authority-pipeline-unification.md`](architecture/adrs/0030-coordinator-authority-pipeline-unification.md) | Phase 3 gate record — superseded on PR A3 merge |
+| `docs/architecture/adrs/0028-coordinator-strangler-completion.md` | [`docs/architecture/adrs/0030-coordinator-authority-pipeline-unification.md`](architecture/adrs/0030-coordinator-authority-pipeline-unification.md) | Draft scaffold superseded by ADR 0029, then 0030 |
+| `docs/architecture/adrs/0029-coordinator-strangler-acceleration-2026-05-15.md` | [`docs/architecture/adrs/0030-coordinator-authority-pipeline-unification.md`](architecture/adrs/0030-coordinator-authority-pipeline-unification.md) | 2026-05-15 acceleration + PR B checklist — closed 2026-05-05 |
+
 ## 2026-08-02 runbook and doc consolidation
 
 | Former path | Canonical path | Notes |

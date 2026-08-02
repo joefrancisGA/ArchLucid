@@ -5,24 +5,20 @@
 
 # Architecture Decision Records (ADR)
 
-**Last reviewed:** 2026-06-14
+**Last reviewed:** 2026-08-02
 
-Short, durable decisions for ArchLucid. Each file is **immutable** once accepted; supersede with a new ADR rather than rewriting history.
+Short, durable decisions for ArchLucid. Each file is **immutable** once accepted; supersede with a new ADR rather than rewriting history. Historical ADRs removed 2026-08-02 are listed in [`redirects.md`](../../redirects.md#historical-adrs-removed-2026-08-02).
 
 | ADR | Title |
 |-----|--------|
 | [0001](0001-hosting-roles-api-worker-combined.md) | Hosting roles: Api, Worker, Combined |
-| [0002](0002-dual-persistence-architecture-runs-and-runs.md) | Dual persistence (historical — **Superseded** by 0012) |
-| [0003](0003-sql-rls-session-context.md) | SQL RLS and SESSION_CONTEXT |
 | [0004](0004-transactional-outbox-retrieval-indexing.md) | Transactional outbox for retrieval indexing |
 | [0005](0005-llm-completion-pipeline.md) | LLM completion pipeline, cache, quota, metrics |
 | [0006](0006-url-path-api-versioning.md) | URL-path API versioning (`/v1`) |
 | [0007](0007-effective-governance-merge.md) | Effective governance merge (policy pack resolution) |
 | [0008](0008-alert-dedupe-scopes.md) | Alert deduplication scopes |
 | [0009](0009-digest-delivery-failure-semantics.md) | Digest delivery failure semantics |
-| [0010](0010-dual-manifest-trace-repository-contracts.md) | Dual manifest and decision-trace repository contracts |
 | [0011](0011-inmemory-vs-sql-storage-provider.md) | `ArchLucid:StorageProvider` — InMemory vs Sql |
-| [0012](0012-runs-authority-convergence-write-freeze.md) | Runs convergence — legacy table removal (**Completed** 2026-04-12) |
 | [0013](0013-api-versioning-and-json-schema-versioning.md) | API versioning (Asp.Versioning) + JSON **`schemaVersion`** on aggregates |
 | [0014](0014-trial-enforcement-boundary.md) | Trial enforcement — server-side gate, run UoW increment, idempotent seats |
 | [0015](0015-trial-tier-authentication-model.md) | Trial-tier authentication — External ID (MSA/Google) + optional local email/password |
@@ -31,17 +27,15 @@ Short, durable decisions for ArchLucid. Each file is **immutable** once accepted
 | [0018](0018-background-workloads-container-apps-jobs.md) | Background workloads — **Container Apps Jobs** + `ArchLucid.Jobs.Cli` (not Functions); offload manifest + first job `advisory-scan` |
 | [0019](0019-logic-apps-standard-edge-orchestration.md) | Azure Logic Apps (Standard) — narrow edge orchestration + human-in-the-loop; complements ADR 0016 / 0018 |
 | [0020](0020-azure-primary-platform-permanent.md) | **Azure** as primary and permanent platform — narrative + ops alignment (not multi-cloud hedge) |
-| [0021](0021-coordinator-pipeline-strangler-plan.md) | Coordinator pipeline strangler plan — phased retirement of the Coordinator interface family (**Status: Accepted**); Phase 3 code deletion merge-blocked until exit gates in ADR 0021 § Phase 3 |
-| [0022](0022-coordinator-phase3-deferred.md) | Phase 3 coordinator retirement **blocked** (2026-04-21) — failed gates: (iv) parity TBD; Phase 2 `AuditEventTypes.Run` catalog not found — see ADR |
 | [0024](0024-azure-devops-pipeline-task-parity-with-github-action.md) | Azure DevOps pipeline YAML parity with GitHub Actions — manifest delta job summary + sticky PR thread + PR status (**Status: Accepted**) |
 | [0027](0027-demo-preview-cached-anonymous-commit-page.md) | Cached anonymous marketing **`GET /v1/demo/preview`** + **`/demo/preview`** page (**Status: Accepted**) |
-| [0030](0030-coordinator-authority-pipeline-unification.md) | Coordinator → Authority pipeline unification (golden manifest / PR sequencing) |
-| [0031](0031-cross-tenant-pattern-library.md) | Cross-tenant pattern library — anonymised vertical guidance (**Status: Proposed** — owner sign-off pending) |
+| [0030](0030-coordinator-authority-pipeline-unification.md) | Coordinator → Authority pipeline unification (golden manifest / PR sequencing; supersedes removed ADRs 0010, 0021–0022, 0028–0029) |
+| [0031](0031-cross-tenant-pattern-library.md) | Cross-tenant pattern library — anonymised vertical guidance (**Status: Accepted** 2026-05-03) |
 | [0032](0032-scim-v2-service-provider.md) | SCIM 2.0 inbound provisioning (Enterprise automation) |
 | [0033](0033-first-real-value-single-env-var-flip.md) | First real value — `archlucid try --real` + **`ARCHLUCID_REAL_AOAI`** gate |
 | [0034](0034-segregation-of-duties-entra-oid-actor-keys.md) | Segregation of duties — Entra JWT `tid`/`oid` canonical actor keys + additive DB columns (**Status: Accepted**) |
 | [0035](0035-architecture-invariant-catalog.md) | Architecture invariant catalog — `INV-*` registry + enforcement waves via `TECH_BACKLOG` (**Status: Proposed**) |
-| [0037](0037-tenant-isolation-without-rls-defense-in-depth.md) | Tenant isolation without SQL RLS — catalog boundary + layered controls (**Status: Accepted**; supersedes 0003 production posture) |
+| [0037](0037-tenant-isolation-without-rls-defense-in-depth.md) | Tenant isolation without SQL RLS — catalog boundary + layered controls (**Status: Accepted**; supersedes removed ADR 0003) |
 | [0038](0038-run-durability-multi-store-outbox-production-secrets.md) | Run durability — async SQL default, transactional authority outbox, unified create UoW, Cosmos graph outbox, production-like Key Vault + SQL MI (**Status: Accepted**) |
 | [0039](0039-commit-sealed-evidence-immutability.md) | Commit-sealed evidence immutability — DENY on sealed tables, agent-result enrichments overlay, startup probe (**Status: Accepted**) |
 | [0040](0040-tamper-evident-lineage-without-worm-storage.md) | Tamper-evident proof lineage in application layer; **WORM storage tier out of scope** (**Status: Accepted**) |
@@ -58,10 +52,13 @@ Short, durable decisions for ArchLucid. Each file is **immutable** once accepted
 | [0051](0051-question-selection-engine.md) | Question selection engine — deterministic-first, LLM as **bounded selector**, packs own questions, k-anon learning (**Status: Accepted**; L0/L1 shipped, L2/VoI OPEN per O1-remainder; debate R7–R10) |
 | [0052](0052-monetization-posture-decision-as-product.md) | Monetization posture — **decision-as-product**, seat license for the expert operator (**Status: Accepted**; debate R6/R13) |
 | [0053](0053-enterprise-diagnostic-logging-observability-posture.md) | Enterprise diagnostic logging and observability posture — near-perfect structured, correlated, privacy-safe telemetry for V1 supportability (**Status: Accepted**; enforcement **TB-329–TB-336**) |
+| [0054](0054-warm-standby-pool-sizing-sufficient.md) | Warm standby catalog pool sizing sufficient for V1 (**Status: Accepted**) |
+| [0055](0055-pre-run-socratic-intake-loop.md) | Pre-run Socratic intake loop — absolute V1 requirement (**Status: Accepted**) |
 | [0056](0056-manifest-online-fine-tuning-governance.md) | Manifest online fine-tuning governance (RAG-V2-003 / TB-594) (**Status: Accepted**) |
 | [0057](0057-graph-rag-community-summarization-scope-decision.md) | Graph-RAG community summarization (RAG-V2-001 remainder) scope decision — options record; recommends keeping deferred pending G-REAL-06 pilot signal (**Status: Accepted** — decision-only, no feature code authorized) |
 | [0058](0058-bounded-generative-question-tier.md) | Bounded generative question tier (L2g) + retrospective question mining (**Status: Proposed**) |
 | [0059](0059-spa-bff-http-only-session-plan.md) | SPA BFF / HttpOnly session plan for GA (XSS residual H-10) (**Status: Proposed**) |
+| [0060](0060-ai-model-chooser-provider-scope.md) | AI model chooser — provider scope, BYO Azure OpenAI, activation gates (**Status: Accepted** 2026-07-18) |
 | [0061](0061-ddos-protection-posture-v1.md) | DDoS protection posture for V1 — Front Door platform DDoS; defer Network Protection (~$2,944/mo) until revisit triggers (**Status: Accepted** 2026-07-21; TB-908) |
 | [**Template (strict sections)**](template.md) | **MUST** include Trade-offs, Constraints, Expected |
 | [**Template (full skeleton)**](adr-template-full.md) | Longer skeleton for new numbered ADRs *(not an ADR)* |

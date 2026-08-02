@@ -12,7 +12,7 @@
 
 ## Context
 
-The codebase is large (↑30 assemblies), heavily instrumented for agents and connectors, and multi-tenant. Several cross-cutting guards (startup validation, RLS session context per [ADR 0003](0003-sql-rls-session-context.md), LLM pipelines per [ADR 0005](0005-llm-completion-pipeline.md)) exist, but **desired invariants today mix convention, tests, and documentation** rather than repeatable CI gates. External reviews repeatedly surface the same risk themes: tenancy clarity, execution-mode honesty, multi-replica cost accounting, webhook ordering, and production misconfiguration resilience.
+The codebase is large (↑30 assemblies), heavily instrumented for agents and connectors, and multi-tenant. Several cross-cutting guards (startup validation, tenant isolation per [ADR 0037](0037-tenant-isolation-without-rls-defense-in-depth.md), LLM pipelines per [ADR 0005](0005-llm-completion-pipeline.md)) exist, but **desired invariants today mix convention, tests, and documentation** rather than repeatable CI gates. External reviews repeatedly surface the same risk themes: tenancy clarity, execution-mode honesty, multi-replica cost accounting, webhook ordering, and production misconfiguration resilience.
 
 Separate decisions have already narrowed some areas (example: **`TB-001`** — async informational audit is **best-effort** with retries and metrics rather than failing user flows). Any invariant that contradicts **`TB-001`** or another accepted backlog decision requires **that decision to be reopened via a superseding ADR or backlog amendment**, not silent reinterpretation below.
 

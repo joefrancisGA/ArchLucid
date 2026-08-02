@@ -57,7 +57,7 @@ Mechanical counts from `dbo.AuditEvents` (last 24h window): **legacy coordinator
 
 ## Phase 3 gate status (2026-04-21, updated 2026-04-22) {#phase-3-gate-status}
 
-**ADR 0021 Phase 3 is unblocked for the pre-release window.** Gates **(i)** (30-day post-PR-A soak) and **(iv)** (14 contiguous green daily rows in the parity table above) are both **waived** per [ADR 0029](../architecture/adrs/0029-coordinator-strangler-acceleration-2026-05-15.md) (owner Q&A 2026-04-21 + follow-up). Gate (iv) was waived because pre-release there is no customer traffic on either pipeline, the daily probe needs a SQL secret that only meaningfully exists post-V1, and holding the gate would create a chicken-and-egg block on shipping V1. Gate **(ii)** (`dotnet test --filter "Suite=Core|Suite=Integration"` green on `main`) **remains in force**. Gate **(iii)** is satisfied for PR A2 by the **cohort parity integration tests** described in the gate table below (`ArchitectureRunCommitPathParityIntegrationTests`); the live-API E2E workflow remains an additional regression signal on `main` but is not the sole owner of gate (iii) for this sub-PR.
+**ADR 0030 Phase 3 is unblocked for the pre-release window.** Gates **(i)** (30-day post-PR-A soak) and **(iv)** (14 contiguous green daily rows in the parity table above) are both **waived** per ADR 0029 (owner Q&A 2026-04-21 + follow-up; historical ADR removed — see [`redirects.md`](../redirects.md#historical-adrs-removed-2026-08-02)). Gate (iv) was waived because pre-release there is no customer traffic on either pipeline, the daily probe needs a SQL secret that only meaningfully exists post-V1, and holding the gate would create a chicken-and-egg block on shipping V1. Gate **(ii)** (`dotnet test --filter "Suite=Core|Suite=Integration"` green on `main`) **remains in force**. Gate **(iii)** is satisfied for PR A2 by the **cohort parity integration tests** described in the gate table below (`ArchitectureRunCommitPathParityIntegrationTests`); the live-API E2E workflow remains an additional regression signal on `main` but is not the sole owner of gate (iii) for this sub-PR.
 
 **PR A2 (2026-04-22) — sub-PR evidence for gates (ii) and (iii) framing:**
 
@@ -66,13 +66,13 @@ Mechanical counts from `dbo.AuditEvents` (last 24h window): **legacy coordinator
 | **(ii)** | `dotnet test --filter "Suite=Core|Suite=Integration"` green on `main` (full Core + Integration CI slice). |
 | **(iii)** {#pr-a2-cohort-parity-evidence} | `ArchitectureRunCommitPathParityIntegrationTests` in `ArchLucid.Api.Tests`: two factories (`Coordinator:LegacyRunCommitPath` true vs false) run the same simulator create → execute → commit idempotency key, assert identical **traceability-bundle.zip** entry names, and assert **stable** `PilotRunDeltasResponse` fields match (findings-by-severity histogram, audit row count + truncation flag, LLM call count, demo flag, top severity string). Clocks, seconds-to-commit, `topFindingId`, and evidence-chain pointers are intentionally out of scope. Live workflow E2E remains additional signal but PR A2 satisfies gate (iii) for the pre-release waiver window via this cohort. |
 
-**Cut-over date: 2026-05-15** (latest-by; PR A may merge earlier once gates (ii) and (iii) clear). ADR 0029 Supersedes the earlier Draft [ADR 0028 — completion scaffold](../architecture/adrs/0028-coordinator-strangler-completion.md).
+**Cut-over date: 2026-05-15** (latest-by; PR A may merge earlier once gates (ii) and (iii) clear). See [ADR 0030](../architecture/adrs/0030-coordinator-authority-pipeline-unification.md) for the closed migration record.
 
-**Both waivers expire automatically** if ArchLucid ships V1 to a paying customer before PR A merges — at that point the assistant amends ADR 0029 to restore both gates and recomputes the cut-over date. After V1 ships, any *future* coordinator-style refactor (none currently planned) must satisfy gates (i)–(iv) in full; the daily probe and runbook stay live for that purpose.
+**Both waivers expire automatically** if ArchLucid ships V1 to a paying customer before PR A merges — at that point [ADR 0030](../architecture/adrs/0030-coordinator-authority-pipeline-unification.md) would be amended to restore both gates and recomputes the cut-over date. After V1 ships, any *future* coordinator-style refactor (none currently planned) must satisfy gates (i)–(iv) in full; the daily probe and runbook stay live for that purpose.
 
 **Daily probe status.** **Retired 2026-05-05** with PR B — `coordinator-parity-daily.yml` removed; no nightly auto-append. Historical sample rows remain in the table above. If V1 ships and a future change restores gate (iv), reintroduce automation via a new ADR/workflow.
 
-**Closing report (2026-07-20, TB-919):** Gate (iv) is resolved without a 14-day soak — the surface it was gating (the deprecated alias routes) no longer exists. The coordinator strangler migration (ADR 0021) has no open items: the data/orchestrator layer closed 2026-04-29 (PR A4), the HTTP write surface collapsed to one canonical family 2026-06-06 (ADR 0042/TB-305), and the deprecated aliases from that collapse were deleted 2026-07-20 (TB-919). Reopen this subsection only if a future coordinator-style refactor is proposed (none currently planned) and gate (iv) needs to be satisfied against real customer traffic post-V1.
+**Closing report (2026-07-20, TB-919):** Gate (iv) is resolved without a 14-day soak — the surface it was gating (the deprecated alias routes) no longer exists. The coordinator strangler migration ([ADR 0030](../architecture/adrs/0030-coordinator-authority-pipeline-unification.md)) has no open items: the data/orchestrator layer closed 2026-04-29 (PR A4), the HTTP write surface collapsed to one canonical family 2026-06-06 (ADR 0042/TB-305), and the deprecated aliases from that collapse were deleted 2026-07-20 (TB-919). Reopen this subsection only if a future coordinator-style refactor is proposed (none currently planned) and gate (iv) needs to be satisfied against real customer traffic post-V1.
 
 ## HTTP write-surface collapse (2026-06-06, ADR 0042 / TB-305)
 
@@ -88,5 +88,5 @@ This closed the **code-level** half of ADR 0021 on 2026-06-06; the remaining gat
 
 ## Related
 
-- [ADR 0021 — Coordinator pipeline strangler plan](../architecture/adrs/0021-coordinator-pipeline-strangler-plan.md)
+- [ADR 0030 — Coordinator → Authority pipeline unification](../architecture/adrs/0030-coordinator-authority-pipeline-unification.md)
 - [dual-pipeline-navigator-superseded.md](../archive/dual-pipeline-navigator-superseded.md)

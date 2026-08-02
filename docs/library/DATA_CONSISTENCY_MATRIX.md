@@ -43,8 +43,8 @@ Make explicit which paths are **strongly consistent** (read-your-writes within a
 
 Dual persistence (**`ArchitectureRuns`** vs **`Runs`**) is **retired** in supported deployments:
 
-- **ADR 0012** — **Completed** (2026-04-12): **`IArchitectureRunRepository`** and **`dbo.ArchitectureRuns`** removed; reads and writes use **`IRunRepository`** / **`dbo.Runs`** (see `docs/architecture/adrs/0012-runs-authority-convergence-write-freeze.md`).
-- **ADR 0002** — **Superseded** by ADR 0012 completion; historical note retained in `docs/architecture/adrs/0002-dual-persistence-architecture-runs-and-runs.md`.
+- **ADR 0012** — **Completed** (2026-04-12): **`IArchitectureRunRepository`** and **`dbo.ArchitectureRuns`** removed; reads and writes use **`IRunRepository`** / **`dbo.Runs`**.
+- **ADR 0002** — **Superseded** by ADR 0012 completion (both ADRs removed 2026-08-02 — see [`redirects.md`](../redirects.md#historical-adrs-removed-2026-08-02)).
 
 ## Read-replica staleness expectations
 
@@ -117,6 +117,5 @@ Applies only in `SqlTopologyMode.SystemWithPerTenantCatalogs`. In `SingleCatalog
 
 ## Related
 
-- `docs/architecture/adrs/0002-dual-persistence-architecture-runs-and-runs.md`
-- `docs/architecture/adrs/0012-runs-authority-convergence-write-freeze.md`
+- [`docs/redirects.md`](../redirects.md#historical-adrs-removed-2026-08-02) — removed ADRs 0002, 0012
 - `docs/library/LIVE_E2E_HAPPY_PATH.md` — scripted HTTP happy path references.
