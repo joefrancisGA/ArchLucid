@@ -735,7 +735,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1963 | Executive summary — command palette / deep-links use canonical SPE path | Trustworthiness P1 **V1** — with **TB-1961** |
 | TB-1964 | Executive summary — collapse strip + LayerHeader + subtitle stack with **TB-1437** | Adoption friction P1 **V1** — with **TB-1961** |
 | TB-1965 | Executive summary — Vitest traffic + vocabulary + canonical hrefs | Testability P2 **V1** — with **TB-1961** |
-| TB-1970 | Pilot outcomes — Vitest traffic + empty deep-link + help mount | Testability P2 **V1** — with **TB-1966** |
 | TB-1661 | Operator line-tabs visual contract — document in UI_DESIGN_SYSTEM (+ UI ARCHITECTURE pointer) | Adoption friction P1 **V1** — owner tabs consistency pass 2026-07-27; after Done **TB-665**; pairs **TB-1552**–**TB-1556** / **TB-1572**–**TB-1576** / **TB-1646**–**TB-1650** |
 | TB-1662 | Strip TabsList/TabsTrigger chrome overrides (Advisory, Help×2, Deliverables, buyer RunsDashboard) | Adoption friction P1 **V1** — with **TB-1661**; after Done **TB-667**/**TB-670** |
 | TB-1663 | Alert rules hub — migrate hand-rolled folder tabs onto shared Tabs | Adoption friction P1 **V1** — with **TB-1661**; pairs **TB-1584**/**TB-1589** (do not reopen content UX) |
@@ -942,7 +941,7 @@ Canonical: [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) only (see wave-3 c
 | Snapshot leave-behind (`/snapshot/[runId]`) | **TB-1951**–**TB-1955** (open **V1**) | Redirect traffic; destination honesty; next.config/query; docs; Vitest; ~30/100; traffic **SNU** |
 | Architecture scorecard (`/sponsor-report/architecture-scorecard`) | **TB-1956**–**TB-1960** (open **V1**) | Traffic section; sample href; empty CTA; help with **TB-1668**; Vitest; ~48/100; traffic **SPA**; siblings SPE/SPP/SPR |
 | Executive summary (`/sponsor-report/executive-summary`) | **TB-1961**–**TB-1965** (open **V1**) | Traffic section; title vocabulary; canonical deep-links; chrome with **TB-1437**; Vitest; ~50/100; traffic **SPE**; siblings SPP/SPR |
-| Pilot outcomes (`/sponsor-report/pilot-outcomes`) | **TB-1970** (open **V1**) | Vitest; ~46/100; traffic **SPP**; sibling SPR; **TB-1966**–**TB-1969** Done |
+| Pilot outcomes (`/sponsor-report/pilot-outcomes`) | — | **TB-1966**–**TB-1970** Done; traffic **SPP**; sibling SPR |
 | ROI summary (`/sponsor-report/roi-summary`) | — | **TB-1971**–**TB-1975** Done; traffic **SPR** |
 | Finding evidence-trace (`/…/evidence-trace`) | **TB-1826**–**TB-1830** (open P1/P2 **V1**) | Finding-first H1; no footer self-link; back to finding detail; heading hierarchy; Vitest + **TB-987**; ~54/100; traffic **ERU** |
 | Create-home Activity (`archTab=activity`) | **TB-1831**–**TB-1835** (open P1/P2 **V1**) | Traffic dual-param honesty; orientation; no forced create-intent; density; Vitest; ~42/100; traffic **REA**; siblings **REC**–**REO** |
