@@ -28,7 +28,7 @@ describe("Start review page", () => {
     const ui = await NewRunPage({ searchParams: Promise.resolve({}) });
     render(ui);
 
-    expect(screen.getByRole("heading", { level: 2, name: START_REVIEW_LABEL }).parentElement).toHaveClass(
+    expect(screen.getByRole("heading", { level: 1, name: START_REVIEW_LABEL }).parentElement).toHaveClass(
       "mt-6",
     );
     expect(document.querySelector("[data-help-tooltip-trigger]")).toBeNull();
