@@ -2,6 +2,8 @@
 
 # First-pilot support and audit triage
 
+**Last reviewed:** 2026-08-02
+
 Use this page when a pilot stalls, proof collection fails, or sponsor handoff is **HOLD**.
 
 ## Inputs you need
@@ -39,6 +41,46 @@ When proof has already been collected, open artifacts in this order:
 ## Seeded triage drills
 
 Rehearse common failure modes using the synthetic drill catalog emitted by `SupportBundleTriageDrillCatalog` (`auth-loop`, `sql-not-ready`, `aoai-missing`, `proof-packet-hold`, `missing-artifact-after-commit`). Each drill lists likely cause, evidence path, correlation fields, and the next command — no live customer data required.
+
+## Support triage drill (operator rehearsal)
+
+Practice routing customer-impacting issues to the right owner with evidence, without guessing at root cause.
+
+**Assumptions:** ArchLucid API and UI are reachable; you have read access to logs, SQL (when applicable), and the customer’s tenant scope identifiers.
+
+**Constraints:** Do not paste secrets, API keys, or full payloads into public tickets; use correlation IDs and redacted excerpts only.
+
+### Roles
+
+- **Dispatcher:** Owns the timeline, communication, and severity.
+- **Resolver:** Owns technical diagnosis (may be same person in small teams).
+
+### Severity sketch
+
+- **SEV1:** Total loss of authority/commit path for multiple tenants, or confirmed data loss.
+- **SEV2:** Degraded commit or execute for a single tenant; workaround exists.
+- **SEV3:** Single-user workflow issue; no data risk.
+
+### Triage checklist (15 minutes)
+
+1. **Capture context** — UTC timestamp range, environment (prod/pilot), tenant id, workspace/project ids, run id(s), correlation ID from response headers.
+2. **Classify the seam** — UI-only, API 4xx/5xx, background worker, SQL timeout, outbound integration (Confluence, ITSM webhook, AOAI), or auth.
+3. **Health gates** — `GET /health/ready` (or load balancer equivalent); database connectivity; configured feature flags that gate the path.
+4. **Reproduce narrowly** — minimal API call or CLI (`archlucid status <runId>`, `archlucid trace <runId>`) scoped to the same tenant headers.
+5. **Data-consistency signal (admin)** — `archlucid data-consistency orphans` with `ARCHLUCID_API_KEY`; follow org change process before `remediate --execute`.
+6. **Escalation packet** — one-paragraph summary, timeline, suspected seam, what you tried, what you need next.
+
+### Post-incident (same week)
+
+Link to runbook updates or monitoring gaps; if AOAI-related, note whether `scripts/Invoke-RealLlmEvidenceGate.ps1` would have caught it in pre-release.
+
+### Incident readiness drill (dry-run)
+
+```powershell
+archlucid support incident-readiness-drill --out ./_drill-evidence/support-incident
+```
+
+See also [`../go-to-market/INCIDENT_COMMUNICATIONS_POLICY.md`](../go-to-market/INCIDENT_COMMUNICATIONS_POLICY.md).
 
 ## Buyer-safe vs internal-only
 

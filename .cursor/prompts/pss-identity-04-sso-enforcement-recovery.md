@@ -47,7 +47,7 @@ Named tests proving deny for enforced verified domain:
 
 ### 3. Drill checklist (Evidence E3)
 
-Create `docs/runbooks/SSO_ENFORCEMENT_AND_RECOVERY_DRILL.md`:
+Drill checklist lives in [`docs/runbooks/PLATFORM_IDENTITY_SUPPORT.md`](../../docs/runbooks/PLATFORM_IDENTITY_SUPPORT.md#sso-enforcement-and-recovery-drill-evidence-e3) (Evidence E3).
 
 1. Verify domain → configure IdP → enable enforcement.  
 2. Prove personal Email OTP blocked for that domain.  

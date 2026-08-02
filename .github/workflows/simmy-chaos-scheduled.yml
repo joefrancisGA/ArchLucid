@@ -65,10 +65,7 @@ jobs:
           echo "- **Calendar:** docs/quality/game-day-log/README.md" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "### Attach this workflow run to the closing report" >> "$GITHUB_STEP_SUMMARY"
-          echo "Paste the run URL into the **Workflow** / evidence section of the matching date:" >> "$GITHUB_STEP_SUMMARY"
-          echo "- **2026-04-29:** \`docs/quality/game-day-log/2026-04-29-staging-sql-pool-exhaustion.md\`" >> "$GITHUB_STEP_SUMMARY"
-          echo "- **2026-07-29:** \`docs/quality/game-day-log/2026-07-29-staging-placeholder.md\`" >> "$GITHUB_STEP_SUMMARY"
-          echo "- **2026-10-28:** \`docs/quality/game-day-log/2026-10-28-staging-placeholder.md\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "Paste the run URL into the **Workflow** / evidence section of the matching date row in \`docs/quality/game-day-log/README.md\` (2026-04-29, 2026-07-29, 2026-10-28)." >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "**This run:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> "$GITHUB_STEP_SUMMARY"
 

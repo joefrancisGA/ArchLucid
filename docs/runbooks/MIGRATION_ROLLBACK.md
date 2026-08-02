@@ -5,7 +5,7 @@
 
 # SQL migration rollback (DbUp / ArchLucid.Persistence)
 
-**Last reviewed:** 2026-07-21
+**Last reviewed:** 2026-08-02
 
 ## Objective
 
@@ -94,6 +94,18 @@ Annotate new risky migrations in [`SQL_SCRIPTS.md`](../library/SQL_SCRIPTS.md) ย
 - `DROP INDEX` before replacement `CREATE UNIQUE INDEX`
 
 Historical scripts above are allow-listed. New violations fail CI unless explicitly allow-listed with a header comment justification.
+
+## Paired rollback scripts (`Migrations/Rollback/`)
+
+Forward schema changes ship via DbUp under `ArchLucid.Persistence/Migrations/`. **DbUp does not run rollback scripts automatically.**
+
+**Greenfield baseline:** `Migrations/Baseline/000_Baseline_2026_04_17.sql` is a **one-shot** cumulative script for **empty** catalogs only (see [`SQL_SCRIPTS.md`](../library/SQL_SCRIPTS.md) ยง4.0). There is **no** paired `Rollback/R000_*.sql`; recovery for a failed baseline attempt is **restore from backup** or drop/recreate the database.
+
+**Rollback scripts** live in `ArchLucid.Persistence/Migrations/Rollback/` as `RNNN_Description.sql`, paired with the forward script `NNN_Description.sql`. They are **operator-only**: run manually with `sqlcmd` or SSMS during a controlled recovery when a deployment must be reversed. See also [`sql/rollbacks/README.md`](../../sql/rollbacks/README.md).
+
+**CI guard:** the **ten most recent** numbered forward migrations each require at least one matching `Rollback/RNNN_*.sql` file (`scripts/ci/assert_rollback_scripts_exist.py`). Older migrations may still carry paired rollbacks for manual recovery outside that window.
+
+**Risk:** rollback scripts that `DROP TABLE` or `DROP COLUMN` **destroy data**. Use only with backups and an approved incident record.
 
 ## Cost / scalability / reliability
 

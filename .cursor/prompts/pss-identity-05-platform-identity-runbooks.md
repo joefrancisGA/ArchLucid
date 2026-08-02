@@ -31,9 +31,7 @@ Create focused files (prefer separate files, cross-linked):
 |------|----------|
 | `PLATFORM_IDENTITY_SUPPORT.md` | Index: symptoms → which child runbook; severity; SLA pointer |
 | `EMAIL_OTP_DELIVERY_AND_ABUSE.md` | User didn’t get code; delayed mail; rate limited; how to read audits/metrics; when to suspect ESP vs abuse; link to abuse drill |
-| `AUTH_DOMAIN_SSO_ENFORCEMENT.md` | Verify domain, test routing, enable enforcement, common misconfig, diagnostics commands |
-| `PLATFORM_AUTH_RECOVERY.md` | Recovery admin vs platform grant; lockout drill link; how to issue break-glass; audit expectations; what never to do |
-| `IDENTITY_LINKING_SUPPORT.md` | User can’t link Microsoft/Google/email; disputed link; how to inspect proposals safely |
+| `PLATFORM_IDENTITY_SUPPORT.md` | Canonical index + body for auth domain SSO, recovery, identity linking, and E3 drill (former child runbooks merged 2026-08-02) |
 
 Each runbook must include:
 

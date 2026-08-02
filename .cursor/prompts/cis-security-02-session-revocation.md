@@ -54,7 +54,7 @@ Prefer the **simplest viable** approach that reuses existing stores:
 
 ### 4. Docs
 
-- Short section in `docs/runbooks/IDENTITY_LINKING_SUPPORT.md` or `PLATFORM_AUTH_RECOVERY.md`: “after remove sign-in method, ArchLucid-issued tokens invalid; IdP refresh may still exist until IdP revoke.”
+- Short section in `docs/runbooks/PLATFORM_IDENTITY_SUPPORT.md` (§ Identity linking / Platform auth recovery): “after remove sign-in method, ArchLucid-issued tokens invalid; IdP refresh may still exist until IdP revoke.”
 
 ## Tests
 

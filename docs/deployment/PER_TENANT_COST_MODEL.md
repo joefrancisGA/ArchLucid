@@ -5,6 +5,10 @@
 
 # Per-tenant cost model (sketch)
 
+**Last reviewed:** 2026-08-02
+
+**Companion (estimation methodology):** [`../library/PER_TENANT_COST_MODEL.md`](../library/PER_TENANT_COST_MODEL.md) — host rates, wizard preview, and invoice reconciliation caveats.
+
 ## Objective
 
 Give sponsors a **defensible order-of-magnitude** for monthly Azure + LLM spend for ArchLucid **without** turning the pilot into a FinOps science project.

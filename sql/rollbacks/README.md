@@ -17,4 +17,4 @@ They are **not** run by DbUp automatically.
 | `062_rollback.sql` | `062_AgentExecutionTrace_InlineFullPrompts.sql` |
 | `061_rollback.sql` | `061_RunsScopeCreatedUtcCoveringIndex.sql` |
 
-See **[docs/DATABASE_MIGRATION_ROLLBACK.md](../docs/DATABASE_MIGRATION_ROLLBACK.md)** for procedure and risk notes.
+See **[`docs/runbooks/MIGRATION_ROLLBACK.md`](../docs/runbooks/MIGRATION_ROLLBACK.md#paired-rollback-scripts-migrationsrollback)** for procedure and risk notes.

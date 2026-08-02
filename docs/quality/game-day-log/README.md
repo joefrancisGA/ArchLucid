@@ -16,8 +16,8 @@ When `dry_run=false`, capture the GitHub Actions run URL and TRX summaries in th
 | Date (UTC) | Environment | Scenario | Owner | Expected blast radius | RTO/RPO target (staging) | Observed RTO/RPO | Closing report |
 |------------|-------------|----------|-------|------------------------|--------------------------|------------------|----------------|
 | **2026-04-29** | **Staging only** | **SQL connection pool exhaustion** under live trial-signup load (synthetic k6 or controlled parallel `POST /v1/register` against staging) | Platform / on-call (assign before run) | Trial-signup path + SQL pool; **no** production traffic; Simmy/LLM chaos suites unchanged | **RTO ≤ 4h**, **RPO ≤ 1h** ([RTO_RPO_TARGETS.md](../../library/RTO_RPO_TARGETS.md) § tier table) | _Fill after run_ | [2026-04-29 — staging — SQL pool exhaustion](2026-04-29-staging-sql-pool-exhaustion.md) |
-| **2026-07-29** | **Staging only** | _Scenario TBD (Q3)_ — reserve slot | Platform | Staging only | Same staging targets | _TBD_ | [2026-07-29 — staging — placeholder](2026-07-29-staging-placeholder.md) |
-| **2026-10-28** | **Staging only** | _Scenario TBD (Q4)_ — reserve slot | Platform | Staging only | Same staging targets | _TBD_ | [2026-10-28 — staging — placeholder](2026-10-28-staging-placeholder.md) |
+| **2026-07-29** | **Staging only** | _Scenario TBD (Q3)_ — reserve slot | Platform | Staging only | Same staging targets | _TBD_ | _Create closing report at game-day close; paste workflow URL into [`README.md`](README.md)_ |
+| **2026-10-28** | **Staging only** | _Scenario TBD (Q4)_ — reserve slot | Platform | Staging only | Same staging targets | _TBD_ | _Create closing report at game-day close; paste workflow URL into [`README.md`](README.md)_ |
 
 ### First run scenario — expected behaviour (2026-04-29)
 

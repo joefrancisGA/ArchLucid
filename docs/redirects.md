@@ -4,7 +4,7 @@
 
 # Documentation redirects
 
-**Last reviewed:** 2026-07-24
+**Last reviewed:** 2026-08-02
 
 Human readers and agents should follow **canonical** paths below. This file is the only redirect surface â€” do not recreate thin "moved" stub files.
 
@@ -635,3 +635,17 @@ Human readers and agents should follow **canonical** paths below. This file is t
 | `docs/library/PROOF_OF_VALUE_SNAPSHOT.md` (body) | [`docs/go-to-market/PILOT_SUCCESS_SCORECARD.md`](go-to-market/PILOT_SUCCESS_SCORECARD.md#proof-of-value-snapshot-assembly) | Proof-of-value snapshot assembly folded into pilot success scorecard; filename kept as path-stable alias |
 | `docs/SPONSOR_ONE_PAGER.md` | [`docs/library/SPONSOR_ONE_PAGER.md`](library/SPONSOR_ONE_PAGER.md) | Legacy root bookmark for sponsor one-pager PDF API/CLI contract |
 | `docs/library/REAL_MODE_BENCHMARK.md` (body) | [`docs/library/FIRST_REAL_VALUE.md`](library/FIRST_REAL_VALUE.md#real-mode-e2e-benchmark) | Real-mode E2E wall-clock benchmark folded into first-real-value; filename kept as path-stable alias |
+
+## 2026-08-02 runbook and doc consolidation
+
+| Former path | Canonical path | Notes |
+|-------------|----------------|-------|
+| `docs/runbooks/V1_WORKFLOW_HANDOFF_AZURE_DEVOPS.md` | [`docs/runbooks/V1_WORKFLOW_HANDOFF_GITHUB_AZDO.md`](runbooks/V1_WORKFLOW_HANDOFF_GITHUB_AZDO.md#3-azure-devops-work-item--pipeline-summary) | Azure DevOps sponsor-packet handoff folded into combined GitHub+ADO runbook |
+| `docs/runbooks/support-triage-drill.md` | [`docs/runbooks/FIRST_PILOT_SUPPORT_TRIAGE.md`](runbooks/FIRST_PILOT_SUPPORT_TRIAGE.md#support-triage-drill-operator-rehearsal) | Operator triage drill rehearsal |
+| `docs/runbooks/AUTH_DOMAIN_SSO_ENFORCEMENT.md` | [`docs/runbooks/PLATFORM_IDENTITY_SUPPORT.md`](runbooks/PLATFORM_IDENTITY_SUPPORT.md#auth-domain-sso-enforcement) | SSO domain enforcement |
+| `docs/runbooks/PLATFORM_AUTH_RECOVERY.md` | [`docs/runbooks/PLATFORM_IDENTITY_SUPPORT.md`](runbooks/PLATFORM_IDENTITY_SUPPORT.md#platform-auth-recovery) | Tenant lockout / recovery admin |
+| `docs/runbooks/IDENTITY_LINKING_SUPPORT.md` | [`docs/runbooks/PLATFORM_IDENTITY_SUPPORT.md`](runbooks/PLATFORM_IDENTITY_SUPPORT.md#identity-linking) | Identity linking disputes |
+| `docs/runbooks/SSO_ENFORCEMENT_AND_RECOVERY_DRILL.md` | [`docs/runbooks/PLATFORM_IDENTITY_SUPPORT.md`](runbooks/PLATFORM_IDENTITY_SUPPORT.md#sso-enforcement-and-recovery-drill-evidence-e3) | Evidence E3 staging drill |
+| `docs/library/DATABASE_MIGRATION_ROLLBACK.md` | [`docs/runbooks/MIGRATION_ROLLBACK.md`](runbooks/MIGRATION_ROLLBACK.md#paired-rollback-scripts-migrationsrollback) | Paired `Rollback/RNNN_*.sql` scripts and CI guard |
+| `docs/quality/game-day-log/2026-07-29-staging-placeholder.md` | [`docs/quality/game-day-log/README.md`](quality/game-day-log/README.md) | Placeholder stub removed — create closing report at game-day close |
+| `docs/quality/game-day-log/2026-10-28-staging-placeholder.md` | [`docs/quality/game-day-log/README.md`](quality/game-day-log/README.md) | Placeholder stub removed — create closing report at game-day close |

@@ -69,10 +69,10 @@ def main() -> int:
     if not differentiation.is_file():
         errors.append("Missing docs/go-to-market/DIFFERENTIATION_PROOF_PACKET.md")
 
-    azdo_handoff = root / "docs" / "runbooks" / "V1_WORKFLOW_HANDOFF_AZURE_DEVOPS.md"
+    azdo_handoff = root / "docs" / "runbooks" / "V1_WORKFLOW_HANDOFF_GITHUB_AZDO.md"
 
     if not azdo_handoff.is_file():
-        errors.append("Missing docs/runbooks/V1_WORKFLOW_HANDOFF_AZURE_DEVOPS.md")
+        errors.append("Missing docs/runbooks/V1_WORKFLOW_HANDOFF_GITHUB_AZDO.md")
 
     canonical_docs = [
         root / "docs" / "START_HERE.md",
