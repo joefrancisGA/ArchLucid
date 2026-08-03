@@ -35,7 +35,8 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
       caption: "Approve findings, track risks, policies, decisions, audit, and alerts.",
       links: [
         {
-          href: GOVERNANCE_APPROVAL_QUEUE_PATH,
+          // String literal required: scripts/ci/assert_route_tier_policy_nav.py parses href:"..." only.
+          href: "/governance/approval-queue" as typeof GOVERNANCE_APPROVAL_QUEUE_PATH,
           label: OPERATOR_NAV_LINK_LABELS.governanceWorkflow,
           title: "Approve, defer, waive, or promote findings",
           icon: GitBranch,

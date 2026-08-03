@@ -1189,7 +1189,7 @@
       "commercial_tier": "standard",
       "class_policy": "ReadAuthority",
       "exemption": null,
-      "nav_operator_href": "/governance"
+      "nav_operator_href": "/governance/approval-queue"
     },
     {
       "controller_file": "Governance/GovernanceCoverageController.cs",

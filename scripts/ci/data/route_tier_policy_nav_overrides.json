@@ -61,7 +61,7 @@
     "Findings/FindingInspectController.cs": "/governance/findings",
     "Findings/FindingMuteController.cs": "/governance/findings",
     "Findings/FindingRemediationAssignmentController.cs": "/governance/findings",
-    "Governance/GovernanceController.cs": "/governance",
+    "Governance/GovernanceController.cs": "/governance/approval-queue",
     "Governance/GovernanceResolutionController.cs": "/governance/standards-and-rules",
     "Governance/PolicyPacksController.cs": "/governance/policy-packs",
     "Integrations/TenantItsmOutboundSettingsController.cs": "/administration/connection-status",
