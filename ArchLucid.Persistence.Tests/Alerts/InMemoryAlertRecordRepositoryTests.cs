@@ -272,6 +272,64 @@ public sealed class InMemoryAlertRecordRepositoryTests
     }
 
     [SkippableFact]
+    public async Task GetInboxSummaryByScopeAsync_aggregates_status_blocking_and_last_evaluated()
+    {
+        InMemoryAlertRecordRepository repo = new();
+
+        AlertRecord openHigh = BuildAlert(
+            Guid.Parse("40000000-0000-0000-0000-000000000001"),
+            AlertStatus.Open,
+            BaseUtc,
+            "o1");
+        openHigh.Severity = AlertSeverity.High;
+
+        AlertRecord openCritical = BuildAlert(
+            Guid.Parse("40000000-0000-0000-0000-000000000002"),
+            AlertStatus.Open,
+            BaseUtc.AddHours(1),
+            "o2");
+        openCritical.Severity = AlertSeverity.Critical;
+        openCritical.LastUpdatedUtc = BaseUtc.AddHours(2);
+
+        AlertRecord acknowledged = BuildAlert(
+            Guid.Parse("40000000-0000-0000-0000-000000000003"),
+            AlertStatus.Acknowledged,
+            BaseUtc.AddMinutes(30),
+            "a1");
+
+        AlertRecord resolved = BuildAlert(
+            Guid.Parse("40000000-0000-0000-0000-000000000004"),
+            AlertStatus.Resolved,
+            BaseUtc.AddMinutes(45),
+            "r1");
+
+        AlertRecord archivedOpen = BuildAlert(
+            Guid.Parse("40000000-0000-0000-0000-000000000005"),
+            AlertStatus.Open,
+            BaseUtc.AddHours(3),
+            "arch");
+        archivedOpen.IsArchived = true;
+
+        await repo.CreateAsync(openHigh, CancellationToken.None);
+        await repo.CreateAsync(openCritical, CancellationToken.None);
+        await repo.CreateAsync(acknowledged, CancellationToken.None);
+        await repo.CreateAsync(resolved, CancellationToken.None);
+        await repo.CreateAsync(archivedOpen, CancellationToken.None);
+
+        ArchLucid.Contracts.Alerts.AlertsInboxSummaryDto summary = await repo.GetInboxSummaryByScopeAsync(
+            TenantId,
+            WorkspaceId,
+            ProjectId,
+            CancellationToken.None);
+
+        summary.OpenCount.Should().Be(2);
+        summary.AcknowledgedCount.Should().Be(1);
+        summary.ResolvedCount.Should().Be(1);
+        summary.BlockingCount.Should().Be(2);
+        summary.LastEvaluatedUtc.Should().Be(BaseUtc.AddHours(2));
+    }
+
+    [SkippableFact]
     public async Task CreateAsync_with_null_alert_throws()
     {
         InMemoryAlertRecordRepository repo = new();

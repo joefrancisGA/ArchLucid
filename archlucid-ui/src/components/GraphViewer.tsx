@@ -283,6 +283,7 @@ export function GraphViewer({
   const [showPathOnly, setShowPathOnly] = useState(false);
   const [pathNodeIds, setPathNodeIds] = useState<Set<string> | null>(null);
   const [fitViewTrigger, setFitViewTrigger] = useState(0);
+  const [zoom100Trigger, setZoom100Trigger] = useState(0);
 
   const pathScopedGraph = useMemo(() => {
     if (!showPathOnly || pathNodeIds === null || pathNodeIds.size === 0) {
@@ -294,27 +295,8 @@ export function GraphViewer({
 
   const { nodes, edges } = useMemo(() => {
     const mapped = mapGraphToReactFlow(pathScopedGraph, flowPresentation);
-    const selectedId = selectedNode?.id;
 
-    if (selectedId === undefined || selectedId.length === 0) {
-      return mapped;
-    }
-
-    return {
-      nodes: mapped.nodes.map((node) =>
-        node.id === selectedId
-          ? {
-              ...node,
-              style: {
-                ...node.style,
-                border: "4px solid #0f766e",
-                boxShadow: "0 0 0 3px rgba(15, 118, 110, 0.25)",
-              },
-            }
-          : node,
-      ),
-      edges: mapped.edges,
-    };
+    return applyGraphSelectionFocus(mapped.nodes, mapped.edges, selectedNode?.id);
   }, [flowPresentation, pathScopedGraph, selectedNode?.id]);
 
   const buyerTrailPanel = flowPresentation === "buyerTrail";
