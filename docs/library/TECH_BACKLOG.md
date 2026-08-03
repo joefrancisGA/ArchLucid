@@ -25664,7 +25664,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1.
 
-**Status:** Done (2026-08-03).
+**Status:** Not started.
 
 **Priority:** P1.
 
@@ -25672,11 +25672,14 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Problem:** Global gauges can look healthy while one tenant’s runs fail or stall; the tenant may file support before any page.
 
-**Shipped:**
+**Approach:**
 
-1. Fleet gauges `archlucid_runs_stale_in_flight_count` / `archlucid_runs_stale_in_flight_oldest_age_seconds` (no `tenant_id` label) via `StaleInFlightRunMetricsHostedService` + Dapper reader aligned to `StaleInFlightRuns` SQL.
-2. Structured log samples (top 5) with `TenantId` / `RunId` for triage when count &gt; 0.
-3. P0 PromQL `ArchLucidStaleInFlightRunsTf` → critical AG (`prometheus_p0_rules.tf`); cardinality notes in [`OBSERVABILITY.md`](OBSERVABILITY.md); runbook [`STALE_IN_FLIGHT_RUNS.md`](../runbooks/STALE_IN_FLIGHT_RUNS.md).
+1. Design cardinality-safe signals (e.g. sticky “stuck run age” top-N, or error-rate anomaly vs tenant baseline — **not** unbounded `tenant_id` on every Prom series).
+2. Prefer App Insights scheduled query / Log Analytics alert and/or bounded PromQL; document cardinality budget.
+3. Page or high-severity warn with tenant/run id in payload for triage (uses **TB-329** tags).
+4. Runbook: how to confirm tenant impact vs noisy neighbor.
+
+**Acceptance:** At least one alert path catches a synthetic single-tenant stuck/fail scenario while fleet metrics stay green; cardinality notes in OBSERVABILITY.
 
 **Depends on:** **TB-957** (page path). Pairs **TB-329** Done.
 
@@ -25688,7 +25691,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1.
 
-**Status:** Done (2026-08-03).
+**Status:** Not started.
 
 **Priority:** P1.
 
@@ -25696,13 +25699,16 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Problem:** Existing synthetics cover auth (`TB-758`) and showcase (`TB-889`), not a private-tenant **review journey**. Regressions in execute/finalize can reach real tenants first.
 
-**Shipped:**
+**Approach:**
 
-1. Sibling workflow [`.github/workflows/review-path-canary.yml`](../../.github/workflows/review-path-canary.yml) runs [`scripts/staging-smoke.ps1`](../../scripts/staging-smoke.ps1) (create → execute → **commit**) every 6h when opt-in.
-2. Failure → [`scripts/ops/page-critical-canary-failure.sh`](../../scripts/ops/page-critical-canary-failure.sh) (PagerDuty Events API v2 routing key preferred; webhook fallback).
-3. Cost/safety: 6h cadence, kill-switch var, simulator/Economy tenant guidance; documented in [`REVIEW_PATH_CANARY.md`](../runbooks/REVIEW_PATH_CANARY.md) + MVO checklist.
+1. Scheduled canary against staging/prod using a dedicated canary tenant (harness secret / e2e user): create → execute → finalize (or commit) with timeouts.
+2. Failure → same critical action group as P0 (or dedicated canary P0).
+3. Cost/safety: bounded frequency, Economy tier, kill-switch; no customer data.
+4. Document in MVO checklist (**TB-957**); extend `hosted-saas-probe` or sibling workflow — do not fork a second observability stack.
 
-**Depends on:** **TB-957**. Reuses staging smoke tenant key (**not** prod E2E harness).
+**Acceptance:** Canary green in staging; failure pages founder; cost envelope documented.
+
+**Depends on:** **TB-957**. Reuses private-beta / e2e harness patterns (**TB-797**/**TB-927**) carefully.
 
 **Size estimate:** M.
 
