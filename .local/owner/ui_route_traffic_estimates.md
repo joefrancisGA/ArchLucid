@@ -45,18 +45,17 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 
 ---
 
-**OVERALL WEIGHT SCORE:** 51.93%
+**OVERALL WEIGHT SCORE:** 52.05%
 
 ## Master table (score 0 first; then Deficit desc; ties A→Z by path)
 
 | ID | Path | Hit% | Scores | Weight | Deficit | Section | Notes |
 |----|------|------|--------|--------|---------|---------|-------|
-| P | `/pricing` | 0.25% | 0 | 0 | 25 | Marketing | None |
 | RRP | `/reviews/[runId]/provenance` | 0.25% | 0 | 0 | 25 | Core review | None |
+| SPE | `/sponsor-report/executive-summary` | 0.22% | 0 | 0 | 22 | Sponsor report | Sponsor executive summary report (canonical). Absorbs former VXX hit share from retired legacy `/value-report` bookmark row (LegacyValueReportRedirectPage still permanentRedirects here). Does not imply CPA SOC 2 or third-party pen-test publication. |
 | ALE | `/governance/alert-rules?tab=routing` | 0.2% | 0 | 0 | 20 | Tab surface | None |
 | HGX | `/help/getting-started` | 0.2% | 0 | 0 | 20 | Help topic | None |
 | SIG | `/signup` | 0.2% | 0 | 0 | 20 | Marketing | None |
-| VXX | `/value-report` | 0.2% | 0 | 0 | 20 | Marketing | None |
 | AUX | `/administration/settings/users` | 0.15% | 0 | 0 | 15 | Admin | None |
 | ADV | `/governance/advisory-scans` | 0.15% | 0 | 0 | 15 | Advisory | None |
 | SAX | `/governance/alert-rules` | 0.15% | 0 | 0 | 15 | Alerts/gov | None |
@@ -217,7 +216,6 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | SSU | `/settings/users?tab=users` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | SI | `/signed-records` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | SIM | `/signed-records/[manifestId]/artifacts/[artifactId]` | 0.02% | 0 | 0 | 2 | Marketing | None |
-| SPE | `/sponsor-report/executive-summary` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | SPP | `/sponsor-report/pilot-outcomes` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | SPR | `/sponsor-report/roi-summary` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | RE | `/reviews` | 12% | 58 | 696 | 504 | Core review | None |
@@ -246,6 +244,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | GPP | `/governance/policy-packs` | 0.4% | 48 | 19.2 | 20.8 | Alerts/gov | None |
 | GPI | `/governance/policy-packs/[id]` | 0.3% | 48 | 14.4 | 15.6 | Alerts/gov | Policy pack detail - PolicyPackDetailClient with PolicyPackDetailEvidenceChrome (PageContextualHelpButton; topic map governance-approval / Policy packs; Category-1 registry), Sources follow-up strip + claim-discipline callout (pack rules, not diligence trail), specialty/generic pack narratives. Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 48/100 (2026-08-03) — pack narrative launcher hard-caps higher Evidence. |
 | GDO | `/governance/decision-register` | 0.3% | 50 | 15 | 15 | Alerts/gov | Decision register - DecisionRegisterClient with OperatorPageHeader PageContextualHelpButton (topic map how-it-works / Decision register, not governance-approval catch-all), Category-1 registry, Sources follow-up strip + claim-discipline callout (register browse, not diligence pack), filters/summary/cards/timeline. Not a signed-record Sources trail by itself. Does not imply CPA SOC 2 or third-party pen-test publication. Score 50/100 (2026-08-03) — register browse hard-caps without per-decision signed-record package. |
+| P | `/pricing` | 0.25% | 42 | 10.5 | 14.5 | Marketing | Pricing (Marketing) - PricingPageHero + tier grid/FAQ/quote with PricingEvidenceOrientationStrip (evaluation Sources + claim-discipline: commercial packaging only; not diligence / CPA SOC 2 / third-party pen-test). Not an operator PageContextualHelp surface. Does not imply CPA SOC 2 or third-party pen-test publication. Score 42/100 (2026-08-03) - marketing commercial page hard-caps higher Evidence. |
 | SCE | `/integrations/cloud-connections` | 0.25% | 50 | 12.5 | 12.5 | Integrations | Cloud connections (Integrations) - landing hub with PageContextualHelpButton (topic map cloud-connections; Category-1 registry), workspace Sources + claim-discipline orientation strip, platform scope panel, provider summary cards + evidence-only upload. Legacy /settings/cloud-connections redirects here. Not a signed-record Sources trail by itself. Does not imply CPA SOC 2 or third-party pen-test publication. Score 50/100 (2026-08-03) - connection-hub hard-caps higher Evidence. |
 | CXX | `/insights/compare-two-reviews` | 0.25% | 52 | 13 | 12 | Insights | Compare two reviews (Insights) - CompareForm with OperatorPageHeader PageContextualHelpButton (topic map comparison-replay; Category-1 registry), workspace Sources + claim-discipline orientation strip, pair Cite Sources after Compare (ComparePairEvidenceCiteStrip), run pickers/results. Formerly /compare (retired; no redirect). Not a signed-record Sources trail by itself. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-03) — directional-diff launcher hard-caps higher Evidence. |
 | GRO | `/governance/risk-exceptions` | 0.3% | 62 | 18.6 | 11.4 | Alerts/gov | None |

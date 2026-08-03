@@ -5,6 +5,7 @@ import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
 import { MarketingPricingQuotePanel } from "@/components/marketing/MarketingPricingQuotePanel";
 import { MarketingPricingUsageFaqSection } from "@/components/marketing/MarketingPricingUsageFaqSection";
 import { MarketingTierPricingSection } from "@/components/marketing/MarketingTierPricingSection";
+import { PricingEvidenceOrientationStrip } from "@/components/marketing/PricingEvidenceOrientationStrip";
 import { PricingPageHero } from "@/components/marketing/PricingPageHero";
 import { TrialNudgePricingQuoteFocus } from "@/components/marketing/TrialNudgePricingQuoteFocus";
 import { BRAND_CATEGORY, BRAND_CATEGORY_LEGACY } from "@/lib/brand-category";
@@ -56,6 +57,7 @@ export default async function PricingPage(props: PricingPageProps) {
     <MarketingPageShell>
       {preferSalesLedQuoteCta ? <TrialNudgePricingQuoteFocus quoteSectionDomId="pricing-quote-request" /> : null}
       <PricingPageHero />
+      <PricingEvidenceOrientationStrip />
       <MarketingTierPricingSection
         sectionHeadingId="pricing-tier-grid-heading"
         sectionTitle="Pricing"
