@@ -112,6 +112,8 @@ describe("help topic slug aliases", () => {
     expect(getProductDocumentationEntry("api-contracts")?.title).toBe("API contracts (technical reference)");
     expect(normalizeHelpTopicSlug("evaluator-workbook")).toBe("path-chooser");
     expect(getProductDocumentationEntry("evaluator-workbook")?.slug).toBe("path-chooser");
+    expect(normalizeHelpTopicSlug("first-hour-operator-path")).toBe("first-architecture-review");
+    expect(getProductDocumentationEntry("first-hour-operator-path")?.slug).toBe("first-architecture-review");
   });
 });
 

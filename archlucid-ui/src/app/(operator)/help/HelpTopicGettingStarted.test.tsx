@@ -54,7 +54,7 @@ describe("HelpGettingStartedGuideView", () => {
     expect(within(quickStart).getByRole("link", { name: "Open completed sample" })).toBeInTheDocument();
     expect(within(quickStart).getByRole("link", { name: "View first review guide" })).toHaveAttribute(
       "href",
-      "/help/first-hour-operator-path",
+      "/help/first-architecture-review",
     );
   });
 

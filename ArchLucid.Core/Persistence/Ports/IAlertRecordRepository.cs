@@ -60,4 +60,13 @@ public interface IAlertRecordRepository
         int take,
         bool includeArchived = false,
         CancellationToken ct = default);
+
+    /// <summary>
+    ///     Inbox summary card aggregates for the scope (status counts + blocking + last evaluation), excluding archived.
+    /// </summary>
+    Task<AlertsInboxSummaryDto> GetInboxSummaryByScopeAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        CancellationToken ct = default);
 }

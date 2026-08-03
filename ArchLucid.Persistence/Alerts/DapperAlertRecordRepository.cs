@@ -242,4 +242,43 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
 
         return (rows.ToList(), total);
     }
+
+    /// <inheritdoc />
+    public async Task<AlertsInboxSummaryDto> GetInboxSummaryByScopeAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        CancellationToken ct = default)
+    {
+        const string sql = """
+            SELECT
+                SUM(CASE WHEN Status = N'Open' THEN 1 ELSE 0 END) AS OpenCount,
+                SUM(CASE WHEN Status = N'Acknowledged' THEN 1 ELSE 0 END) AS AcknowledgedCount,
+                SUM(CASE WHEN Status = N'Resolved' THEN 1 ELSE 0 END) AS ResolvedCount,
+                SUM(CASE
+                    WHEN Status = N'Open' AND Severity IN (N'Critical', N'High') THEN 1
+                    ELSE 0
+                END) AS BlockingCount,
+                MAX(COALESCE(LastUpdatedUtc, CreatedUtc)) AS LastEvaluatedUtc
+            FROM dbo.AlertRecords
+            WHERE TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId
+              AND IsArchived = 0;
+            """;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        AlertsInboxSummaryDto? row = await connection.QuerySingleOrDefaultAsync<AlertsInboxSummaryDto>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId,
+                },
+                cancellationToken: ct));
+
+        return row ?? new AlertsInboxSummaryDto();
+    }
 }

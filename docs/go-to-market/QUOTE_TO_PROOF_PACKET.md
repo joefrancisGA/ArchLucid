@@ -306,7 +306,7 @@ python scripts/ci/build_decision_cycle_telemetry.py `
 | Hotspot segment | Typical remediation focus |
 | --- | --- |
 | Demo → pilot start | Procurement / environment prerequisites |
-| Pilot start → first finalize | First-hour architect friction (see [`FIRST_HOUR_OPERATOR_PATH.md`](../library/FIRST_HOUR_OPERATOR_PATH.md)) |
+| Pilot start → first finalize | First-hour architect friction (see [`CORE_PILOT.md`](../CORE_PILOT.md); `FIRST_HOUR_OPERATOR_PATH.md` alias) |
 | First commit → sponsor send | Proof packet / ROI baseline SEND gates ([§3](#commercial-conversion-checklist)) |
 | Sponsor send → decision | Executive value narrative and faithfulness guardrails |
 

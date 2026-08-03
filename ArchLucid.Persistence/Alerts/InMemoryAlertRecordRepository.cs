@@ -147,4 +147,54 @@ public sealed class InMemoryAlertRecordRepository : IAlertRecordRepository
             return Task.FromResult<(IReadOnlyList<AlertRecord>, int)>((page, total));
         }
     }
+
+    /// <inheritdoc />
+    public Task<AlertsInboxSummaryDto> GetInboxSummaryByScopeAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        CancellationToken ct = default)
+    {
+        ct.ThrowIfCancellationRequested();
+
+        lock (_gate)
+        {
+            List<AlertRecord> scoped = _items
+                .Where(x =>
+                    x.TenantId == tenantId
+                    && x.WorkspaceId == workspaceId
+                    && x.ProjectId == projectId
+                    && !x.IsArchived)
+                .ToList();
+
+            int open = scoped.Count(x =>
+                string.Equals(x.Status, AlertStatus.Open, StringComparison.OrdinalIgnoreCase));
+            int acknowledged = scoped.Count(x =>
+                string.Equals(x.Status, AlertStatus.Acknowledged, StringComparison.OrdinalIgnoreCase));
+            int resolved = scoped.Count(x =>
+                string.Equals(x.Status, AlertStatus.Resolved, StringComparison.OrdinalIgnoreCase));
+            int blocking = scoped.Count(x =>
+                string.Equals(x.Status, AlertStatus.Open, StringComparison.OrdinalIgnoreCase)
+                && (string.Equals(x.Severity, AlertSeverity.Critical, StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(x.Severity, AlertSeverity.High, StringComparison.OrdinalIgnoreCase)));
+
+            DateTime? lastEvaluated = scoped
+                .Select(x => x.LastUpdatedUtc ?? x.CreatedUtc)
+                .DefaultIfEmpty()
+                .Max();
+
+            if (scoped.Count == 0)
+                lastEvaluated = null;
+
+            return Task.FromResult(
+                new AlertsInboxSummaryDto
+                {
+                    OpenCount = open,
+                    AcknowledgedCount = acknowledged,
+                    ResolvedCount = resolved,
+                    BlockingCount = blocking,
+                    LastEvaluatedUtc = lastEvaluated,
+                });
+        }
+    }
 }
