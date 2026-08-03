@@ -1,7 +1,10 @@
 /**
- * Live API + SQL: list filter by system name, knowledge graph, Ask, and operator /search + /ask pages.
+ * Live API + SQL: list filter by system name, knowledge graph, Ask, and operator Search + Ask pages.
  */
 import { expect, test } from "@playwright/test";
+
+import { ASK_REVIEW_QUESTIONS_PATH } from "@/lib/ask-review-questions-route";
+import { SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
 
 import { runAxe } from "./helpers/axe-helper";
 import { getAppMain } from "./helpers/app-main";
@@ -98,13 +101,14 @@ test.describe("live-api-search-ask-graph", { tag: ["@founder"] }, () => {
       console.log(`[live-api-search-ask-graph] POST /v1/ask returned ${askRes.status()} — non-fatal for CI`);
     }
 
-    await page.goto("/search?projectId=default", { waitUntil: "load" });
+    // Legacy /search and /ask were retired (no redirect) — use Insights routes.
+    await page.goto(`${SEARCH_REVIEW_EVIDENCE_PATH}?projectId=default`, { waitUntil: "load" });
     await getAppMain(page).waitFor({ state: "visible", timeout: 60_000 });
     const searchAxe = await runAxe(page);
     const searchCritical = searchAxe.violations.filter((v) => v.impact === "critical" || v.impact === "serious");
     expect(searchCritical, "search page axe").toHaveLength(0);
 
-    await page.goto("/ask?projectId=default", { waitUntil: "load" });
+    await page.goto(`${ASK_REVIEW_QUESTIONS_PATH}?projectId=default`, { waitUntil: "load" });
     await getAppMain(page).waitFor({ state: "visible", timeout: 60_000 });
     const askAxe = await runAxe(page);
     const askCritical = askAxe.violations.filter((v) => v.impact === "critical" || v.impact === "serious");
