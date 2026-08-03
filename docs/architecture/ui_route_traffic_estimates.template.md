@@ -59,7 +59,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | ID | Path | Hit% | Scores | Weight | Deficit | Section | Notes |
 |----|------|------|--------|--------|---------|---------|-------|
 | RE | `/reviews` | 12% | 0 | 0 | 1200 | Core review | None |
-| RRE | `/reviews/[runId]` | 10% | 0 | 0 | 1000 | Core review | None |
+| RRE | `/reviews/[runId]` | 10.04% | 0 | 0 | 1004 | Core review | Review workspace detail. Absorbs former SRN hit share from retired legacy `/snapshot/[runId]` bookmark row (SnapshotPage still redirects here with readOnly=1; showcase Claims Intake spine). Canonical leave-behind UX. Does not imply CPA SOC 2 or third-party pen-test publication. |
 | RRF | `/reviews/[runId]/findings/[findingId]` | 9% | 0 | 0 | 900 | Core review | None |
 | DSH | `/dashboard` | 8% | 0 | 0 | 800 | Core review | Deprecated operator bookmark — merged to canonical executive dashboard on **ARE** (`/architecture/executive-dashboard`, TB-608). |
 | ACB | `/auth/callback` | 5% | 0 | 0 | 500 | Auth | None |
@@ -183,7 +183,6 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | SEE | `/see-it` | 0.04% | 0 | 0 | 4 | Marketing | None |
 | WSX | `/administration/settings/security-trust` | 0.04% | 0 | 0 | 4 | Settings | None |
 | STR | `/administration/settings/tenant/recycle-bin` | 0.04% | 0 | 0 | 4 | Settings | None |
-| SRN | `/snapshot/[runId]` | 0.04% | 0 | 0 | 4 | Marketing | Legacy snapshot leave-behind — App Router shim redirects to /reviews/{runId} with readOnly=1 (query preserved, TB-1951). Showcase run uses Claims Intake spine. Canonical UX on review workspace rows. |
 | WXX | `/welcome` | 0.04% | 0 | 0 | 4 | Marketing | None |
 | WHY | `/why` | 0.04% | 0 | 0 | 4 | Marketing | None |
 | WH | `/why-archlucid` | 0.04% | 0 | 0 | 4 | Learning | None |

@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-03 — Docs: Retire SRN traffic row; fold hit share into RRE
+
+Legacy `/snapshot/[runId]` bookmark row **SRN** removed from the UI route traffic workbook. Hit% **0.04%** folded into canonical review workspace **RRE** (Hit **10.04%**, Weight **552.2**, Deficit **451.8**). App Router shim still redirects `/snapshot/...` ? review workspace with `readOnly=1`. No CPA / third-party pen-test implication.
+
 ## 2026-08-03 — Ops: ArchLucid DEV sandbox primary region ? **centralus**
 
 DEV CD target aligned with staging/production: `dev.tfvars.example` + [`AZURE_SUBSCRIPTIONS.md`](library/AZURE_SUBSCRIPTIONS.md) now specify **`centralus`**, with example runtime RG **`rg-ArchLucid-dev-cus`** (`create_resource_group = true`). Operators must update GitHub Environment secret **`DEV_TFVARS`**, **`EXPECTED_AZURE_LOCATION=centralus`**, and **`AZURE_RESOURCE_GROUP`** for the centralus stack. ACR may remain in legacy **`rg-ArchLucid-dev`**.
