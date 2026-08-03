@@ -13,6 +13,10 @@ Release entries newest-first. Each section condenses the detailed prompt logs pr
 ## 2026-08-03 — Ops: ArchLucid DEV sandbox primary region ? **centralus**
 
 DEV CD target aligned with staging/production: `dev.tfvars.example` + [`AZURE_SUBSCRIPTIONS.md`](library/AZURE_SUBSCRIPTIONS.md) now specify **`centralus`**, with example runtime RG **`rg-ArchLucid-dev-cus`** (`create_resource_group = true`). Operators must update GitHub Environment secret **`DEV_TFVARS`**, **`EXPECTED_AZURE_LOCATION=centralus`**, and **`AZURE_RESOURCE_GROUP`** for the centralus stack. ACR may remain in legacy **`rg-ArchLucid-dev`**.
+## 2026-08-03 — UI: Improvement plan detail Evidence chrome (PPP)
+
+/planning/plans/[planId] ships OperatorPageHeader with PageContextualHelp, Category-1 registry for /planning/plans, Sources follow-up strip + claim-discipline callout (derived plan, not a diligence trail), and enriched traffic Notes. Plan-detail launcher hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-03 — UI: Architecture digests Evidence chrome (DI)
 
 `/digests` ships Sources follow-up strip + claim-discipline callout (scheduled summaries, not a diligence trail), Category-1 contextual-help registry (pre-existing), DigestsPageHeader help, and enriched traffic Notes. Digest hub launcher hard-caps higher Evidence; no CPA / third-party pen-test implication.

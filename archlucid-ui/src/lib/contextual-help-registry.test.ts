@@ -53,6 +53,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/governance-api-contracts",
       "/governance/standards-and-rules",
       "/digests",
+      "/planning/plans",
       "/planning",
       "/governance/advisory-scans",
       "/value-report",
@@ -63,6 +64,7 @@ describe("contextual-help-registry (TB-733)", () => {
     expect(contextualHelpForPathname("/architecture/reviews/new")?.whatIsThisPage).toContain("architecture reviews");
     expect(contextualHelpForPathname("/governance/findings?filter=open")?.whatToDoNext).toContain("Assign owners");
     expect(contextualHelpForPathname("/value-report/pilot")?.whatIsThisPage).toContain("sponsor-ready");
+    expect(contextualHelpForPathname("/planning/plans/plan-1")?.whatIsThisPage).toContain("one prioritized improvement plan");
   });
 
   it("resolves Overview home without stealing other routes (HOM / TB-1667)", () => {

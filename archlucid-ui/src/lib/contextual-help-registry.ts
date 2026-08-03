@@ -238,6 +238,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/planning/plans",
+    entry: {
+      whatIsThisPage:
+        "Review one prioritized improvement plan derived from captured feedback, including status and linked themes.",
+      whatToDoNext:
+        "Return to Improvement planning for peer plans, or open reviews and findings when this plan needs follow-up.",
+      whyEmpty: "Plan detail appears after a plan is generated from captured feedback.",
+      whereToConfigurePrerequisite:
+        "Plans respect the workspace and project selected in the header switcher.",
+    },
+  },
+  {
     prefix: "/planning",
     entry: {
       whatIsThisPage:

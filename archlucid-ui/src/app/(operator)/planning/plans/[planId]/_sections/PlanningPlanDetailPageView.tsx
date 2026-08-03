@@ -1,13 +1,19 @@
 "use client";
 
+import Link from "next/link";
+
 import { cn } from "@/lib/utils";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorBrandedRouteLoadFailure } from "@/components/OperatorBrandedRouteLoadFailure";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
+import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { resolveApiLoadFailurePresentation } from "@/lib/api-load-failure";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { PLANNING_PLAN_DETAIL_PAGE_TITLE } from "@/lib/planning-plan-detail-evidence-copy";
 
 import { PlanningPlanDetailSections } from "./PlanningPlanDetailSections";
+import { PlanningPlanDetailSourcesStrip } from "./PlanningPlanDetailSourcesStrip";
 import type { UsePlanningPlanDetailPageModel } from "./use-planning-plan-detail-page";
 
 type PlanningPlanDetailPageViewProps = {
@@ -23,7 +29,19 @@ export function PlanningPlanDetailPageView({ model }: PlanningPlanDetailPageView
         <OperatorBrandedRouteLoadFailure failure={failure} retryLabel="Retry loading plan" />
       ) : (
         <>
-          <h2 className={cn("mt-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>Improvement plan</h2>
+          <OperatorPageHeader
+            title={PLANNING_PLAN_DETAIL_PAGE_TITLE}
+            titleTestId="planning-plan-detail-title"
+            subtitle="Derived improvement plan from captured review feedback."
+            actions={<PageContextualHelpButton />}
+            metadata={
+              <Link className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.helper)} href="/planning">
+                Back to Improvement planning
+              </Link>
+            }
+          />
+
+          <PlanningPlanDetailSourcesStrip />
 
           {!planId.trim() ? (
             <p role="alert" className="text-red-700 dark:text-red-400">
