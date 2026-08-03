@@ -45,14 +45,13 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 
 ---
 
-**OVERALL WEIGHT SCORE:** 52.22%
+**OVERALL WEIGHT SCORE:** 52.33%
 
 ## Master table (score 0 first; then Deficit desc; ties A→Z by path)
 
 | ID | Path | Hit% | Scores | Weight | Deficit | Section | Notes |
 |----|------|------|--------|--------|---------|---------|-------|
 | SPE | `/sponsor-report/executive-summary` | 0.22% | 0 | 0 | 22 | Sponsor report | Sponsor executive summary report (canonical). Absorbs former VXX hit share from retired legacy `/value-report` bookmark row (LegacyValueReportRedirectPage still permanentRedirects here). Does not imply CPA SOC 2 or third-party pen-test publication. |
-| ALE | `/governance/alert-rules?tab=routing` | 0.2% | 0 | 0 | 20 | Tab surface | None |
 | HGX | `/help/getting-started` | 0.2% | 0 | 0 | 20 | Help topic | None |
 | SIG | `/signup` | 0.2% | 0 | 0 | 20 | Marketing | None |
 | AUX | `/administration/settings/users` | 0.15% | 0 | 0 | 15 | Admin | None |
@@ -248,6 +247,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | GRO | `/governance/risk-exceptions` | 0.3% | 62 | 18.6 | 11.4 | Alerts/gov | None |
 | RRP | `/reviews/[runId]/provenance` | 0.25% | 55 | 13.75 | 11.25 | Core review | Run provenance (Core review) - ProvenancePageWorkspace with PageContextualHelpButton (topic map evidence-trail; Category-1 registry via /provenance path match), workspace Sources + claim-discipline orientation strip, graph/timeline/table views. Coordinator linkage for one run — not a full diligence Sources export alone. Does not imply CPA SOC 2 or third-party pen-test publication. Score 55/100 (2026-08-03) - coordinator provenance hard-caps higher Evidence without diligence export packing. |
 | GRA | `/insights/evidence-graph` | 0.6% | 82 | 49.2 | 10.8 | Planning | None |
+| ALE | `/governance/alert-rules?tab=routing` | 0.2% | 48 | 9.6 | 10.4 | Tab surface | Alert rules Notifications/routing tab (Tab surface) - AlertRoutingContent with hub PageContextualHelpButton (topic map alerts), workspace Sources + claim-discipline orientation strip when ?tab=routing. Delivery destinations only — not diligence Sources. Sibling SAX/GOA = hub; Conditions/Advanced/Test tabs are separate rows. Does not imply CPA SOC 2 or third-party pen-test publication. Score 48/100 (2026-08-03) - tab-surface delivery config hard-caps higher Evidence. |
 | GRS | `/governance/standards-and-rules` | 0.15% | 48 | 7.2 | 7.8 | Alerts/gov | None |
 | GRX | `/governance/recurrence-schedules` | 0.2% | 62 | 12.4 | 7.6 | Alerts/gov | None |
 | FI | `/help/first-review` | 0.18% | 61 | 10.98 | 7.02 | Help topic | Specialty first-run evidence checklist (Admin internal-runbook) - HelpFirstReviewEvidenceChecklistGuideView with first-architecture-review / Start architecture review / audit primary CTAs, Sources diligence strip (complete review workflow, Azure connect, audit-trail, troubleshooting, configuration-reference), evidence arc, claim-discipline callout (checklist is not certification), PageContextualHelp, and prepared FIRST_RUN_EVIDENCE_CHECKLIST.md (API/runbook/script leakage strip). Not bare HelpTopicMarkdownView. Admin-gated internal Help Center tier. Not a redirect to buyer core-pilot. Does not imply CPA SOC 2 or third-party pen-test publication. |

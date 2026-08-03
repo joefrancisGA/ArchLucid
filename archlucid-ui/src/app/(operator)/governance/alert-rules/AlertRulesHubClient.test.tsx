@@ -64,6 +64,13 @@ describe("AlertRulesHubClient", () => {
     tabValue.current = "routing";
     render(<AlertRulesHubClient />);
     expect(screen.getByTestId("stub-routing")).toBeInTheDocument();
+    expect(screen.getByTestId("alert-routing-sources")).toBeInTheDocument();
+    expect(screen.getByTestId("alert-routing-claim-discipline")).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: /Notifications/i })).toHaveAttribute("aria-selected", "true");
+  });
+
+  it("hides routing Evidence strip on the Conditions tab", () => {
+    render(<AlertRulesHubClient />);
+    expect(screen.queryByTestId("alert-routing-sources")).not.toBeInTheDocument();
   });
 });
