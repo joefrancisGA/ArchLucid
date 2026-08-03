@@ -21,8 +21,15 @@ import { RunDetailPreFinalizedEmptyState } from "./RunDetailPreFinalizedEmptySta
 import { RunDetailProvenanceSummaryCard } from "./RunDetailProvenanceSummaryCard";
 import { RunDetailRunActionsSection } from "./RunDetailRunActionsSection";
 import { RunDetailExplanationDeferred } from "./RunDetailExplanationDeferred";
-import { RunDetailExplanationSkeleton } from "./RunDetailDeferredSkeleton";
-import { loadRunDetailBelowFoldDeferredModel } from "./load-run-detail-deferred-model";
+import {
+  RunDetailBelowFoldPipelineSkeleton,
+  RunDetailBelowFoldProjectContextSkeleton,
+  RunDetailExplanationSkeleton,
+} from "./RunDetailDeferredSkeleton";
+import {
+  loadRunDetailBelowFoldPipelineModel,
+  loadRunDetailBelowFoldProjectContextModel,
+} from "./load-run-detail-deferred-model";
 import { RunDetailArtifactsExportsSectionDeferred } from "./run-detail-page-view-deferred-chunks";
 import type { RunDetailDeferredSectionContext, RunDetailPageModel } from "./run-detail-page-model";
 
@@ -86,12 +93,68 @@ type RunDetailBelowFoldSectionsProps = {
   readonly skipArtifactsExports?: boolean;
 };
 
-/** Streams pipeline, graph, and technical appendices after first-screen run detail chrome. */
-export async function RunDetailBelowFoldSections(
-  props: RunDetailBelowFoldSectionsProps,
+type BelowFoldAsyncProps = {
+  readonly model: RunDetailPageModel;
+  readonly context: RunDetailDeferredSectionContext;
+};
+
+async function RunDetailBelowFoldPipelineAsync(props: BelowFoldAsyncProps): Promise<React.JSX.Element> {
+  const m = props.model;
+  const pipeline = await loadRunDetailBelowFoldPipelineModel(props.context);
+
+  return (
+    <>
+      <RunDetailPipelineTimelineSection
+        runId={m.routeRunId}
+        buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
+        pipelineTimelineFailure={pipeline.pipelineTimelineFailure}
+        pipelineTimelineForUi={pipeline.pipelineTimelineForUi}
+      />
+
+      <RunDetailPipelineStagesSection
+        stageTimeline={pipeline.stageTimelineForUi}
+        otelTraceId={m.resolvedDetail.run.otelTraceId ?? m.runDetailTraceId}
+      />
+    </>
+  );
+}
+
+async function RunDetailBelowFoldProjectContextAsync(
+  props: BelowFoldAsyncProps,
 ): Promise<React.JSX.Element> {
   const m = props.model;
-  const deferred = await loadRunDetailBelowFoldDeferredModel(props.context);
+  const projectContext = await loadRunDetailBelowFoldProjectContextModel(props.context);
+
+  return (
+    <>
+      {m.resolvedDetail.run.graphSnapshotId ? (
+        <RunDetailArchitectureGraphSection
+          runId={m.routeRunId}
+          buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
+          anchorRunCreatedUtc={m.resolvedDetail.run.createdUtc}
+          graphHistoryMinCreatedUtc={projectContext.architectureGraphTemporalMinUtc}
+          disableTemporalBrowsing={m.usedStaticDemoRun}
+        />
+      ) : null}
+
+      {m.manifestId ? (
+        <PostCommitHabitLoopCard
+          runId={m.routeRunId}
+          showCompareCta={projectContext.canShowCompareReviewButton}
+          buyerShowcaseQuickLinks={m.usedStaticDemoRun}
+          goldenManifestId={m.manifestId}
+        />
+      ) : null}
+    </>
+  );
+}
+
+/**
+ * Streams pipeline, graph, and technical appendices after first-screen run detail chrome.
+ * Sync shell + nested Suspense so independent below-fold fetches do not block each other (TB-2026).
+ */
+export function RunDetailBelowFoldSections(props: RunDetailBelowFoldSectionsProps): React.JSX.Element {
+  const m = props.model;
   const findingCoverageSummary = m.resolvedDetail.findingCoverageSummary ?? null;
 
   return (
@@ -113,27 +176,9 @@ export async function RunDetailBelowFoldSections(
         </Suspense>
       ) : null}
 
-      <RunDetailPipelineTimelineSection
-        runId={m.routeRunId}
-        buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
-        pipelineTimelineFailure={deferred.pipelineTimelineFailure}
-        pipelineTimelineForUi={deferred.pipelineTimelineForUi}
-      />
-
-      <RunDetailPipelineStagesSection
-        stageTimeline={deferred.stageTimelineForUi}
-        otelTraceId={m.resolvedDetail.run.otelTraceId ?? m.runDetailTraceId}
-      />
-
-      {m.resolvedDetail.run.graphSnapshotId ? (
-        <RunDetailArchitectureGraphSection
-          runId={m.routeRunId}
-          buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
-          anchorRunCreatedUtc={m.resolvedDetail.run.createdUtc}
-          graphHistoryMinCreatedUtc={deferred.architectureGraphTemporalMinUtc}
-          disableTemporalBrowsing={m.usedStaticDemoRun}
-        />
-      ) : null}
+      <Suspense fallback={<RunDetailBelowFoldPipelineSkeleton />}>
+        <RunDetailBelowFoldPipelineAsync model={m} context={props.context} />
+      </Suspense>
 
       <GovernanceModePresentationGate>
         <RunDetailAuthorityChainSection run={m.resolvedDetail.run} manifestId={m.manifestId} />
@@ -189,14 +234,12 @@ export async function RunDetailBelowFoldSections(
             runId={m.routeRunId}
             hasStickinessPrompt={Boolean(m.manifestId)}
           />
-          <PostCommitHabitLoopCard
-            runId={m.routeRunId}
-            showCompareCta={deferred.canShowCompareReviewButton}
-            buyerShowcaseQuickLinks={m.usedStaticDemoRun}
-            goldenManifestId={m.manifestId}
-          />
         </>
       ) : null}
+
+      <Suspense fallback={<RunDetailBelowFoldProjectContextSkeleton />}>
+        <RunDetailBelowFoldProjectContextAsync model={m} context={props.context} />
+      </Suspense>
 
       {m.manifestId && props.skipArtifactsExports !== true ? (
         <RunDetailArtifactsExportsSectionDeferred

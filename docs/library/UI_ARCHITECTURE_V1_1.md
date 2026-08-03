@@ -47,11 +47,15 @@ The items below remain **out of scope for V1** and are intentionally deferred to
 
 **V1.1 intent:** Add `not-found` per high-traffic segment (`reviews/[runId]`, manifests, policy packs) using `notFound()` from loaders.
 
-## 7. Streaming and nested `Suspense` on heavy pages
+## 7. Streaming and nested `Suspense` on heavy pages — **Done (2026-08-03, TB-2026)**
 
-**Why deferred:** `loading.tsx` exists for primary routes; further splitting is polish, not a gate for request → execute → commit.
+**Shipped pattern (TB-2026):**
 
-**V1.1 intent:** Wrap independent sections on run detail and governance hubs for faster first paint on slow networks.
+1. **Governance alerts hub** (`/governance/alerts`) — sync redirects + `AlertsHubChrome`, then `Suspense` + `AlertsInboxStreamingBody` (async RSC loader) with `AlertsInboxPanelSkeleton` fallback so inbox fetch does not block chrome.
+2. **Run detail below-fold** — sync `RunDetailBelowFoldSections` shell; nested `Suspense` for pipeline timeline/stages vs project-run context (graph temporal min / compare habit CTA), each with a compact skeleton. Combined loader still `Promise.all`s when used as one model.
+3. Route-level `loading.tsx` remains for full soft navigations; nested boundaries improve FCP when the page shell is already committed.
+
+**Why originally deferred (superseded):** Further splitting was polish vs request → execute → commit; owner UI speed ask promoted nesting to V1.
 
 ## 8. Next.js major upgrade (`15.5.x` → `16.x`) — **Done (2026-07-05, TB-641)**
 

@@ -127,4 +127,13 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021)", () =>
     expect(belowFoldSource).toContain('import("./RunDetailAuthorityChainSection")');
     expect(belowFoldSource).toContain('import("./RunDetailRetrievalGroundingSection")');
   });
+
+  it("splits below-fold into nested Suspense boundaries (TB-2026)", () => {
+    expect(belowFoldSource).toContain("RunDetailBelowFoldPipelineAsync");
+    expect(belowFoldSource).toContain("RunDetailBelowFoldProjectContextAsync");
+    expect(belowFoldSource).toContain("RunDetailBelowFoldPipelineSkeleton");
+    expect(belowFoldSource).toContain("RunDetailBelowFoldProjectContextSkeleton");
+    expect(belowFoldSource).toMatch(/export function RunDetailBelowFoldSections/);
+    expect(belowFoldSource).not.toContain("loadRunDetailBelowFoldDeferredModel");
+  });
 });

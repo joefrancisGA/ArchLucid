@@ -21,7 +21,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | Cluster | IDs | Summary |
 | --- | --- | --- |
 | Marketing / operator dual Container App (no Front Door) | **TB-2016**–**TB-2020** **Done** | Same-image marketing CA + custom-domain runbook + `site-urls` CTAs + host-gate middleware + CD/CORS; owner override 2026-07-31; ops: DNS bind + GitHub `CONTAINER_APP_MARKETING_UI_NAME` + API CORS dual origins |
-| UI performance wave 3 (owner top-10 ask) | **TB-2026**–**TB-2030** (open); **TB-2021**–**TB-2025**/**TB-2031**/**TB-2032** **Done**; peers **TB-934**/**TB-935** (open) | Suspense streaming; loader/proxy waterfalls; `/welcome` shell cut; SSE/poll hygiene; First Load JS baseline expansion. **TB-2021**–**TB-2025** Done; **TB-2031** field CWV triage Done; **TB-2032** marketing `next/image` **waived**. Does not recreate Done **TB-933**/**TB-930**. Owner ask 2026-07-31 |
+| UI performance wave 3 (owner top-10 ask) | **TB-2027**–**TB-2030** (open); **TB-2021**–**TB-2026**/**TB-2031**/**TB-2032** **Done**; peers **TB-934**/**TB-935** (open) | Loader/proxy waterfalls; `/welcome` shell cut; SSE/poll hygiene; First Load JS baseline expansion. **TB-2021**–**TB-2026** Done (incl. nested Suspense); **TB-2031** field CWV triage Done; **TB-2032** marketing `next/image` **waived**. Does not recreate Done **TB-933**/**TB-930**. Owner ask 2026-07-31 |
 | Closed-loop architecture reasoning system | **TB-1976**–**TB-1993** (**Done** foundation 2026-07-27 — in-memory/heuristic additive lane + SQL DDL; LLM-depth follow-ons remain product work) | Immutable source layer; architecture ontology; difficulty-routed extraction + fidelity benchmark; progressive interviewing; five-stage evidence-validation pipeline; specialist reviews (2–3 dims); two-lane adversarial; two-axis provenance; three state machines; recommendations + trade-off resolutions; change-impact; golden end-to-end case; incremental re-review + invariants; benchmark pyramid + holdout; must-not-fail structural enforcement; dependency-manifest caching + tier budgets; managed round-tripping. Source `generation_quality_analysis.md` Second Revision; GTM **M-300**–**M-304** |
 | Multi-cloud analysis §2.19 remainder | **TB-874** – **TB-876** (open P1) | AWS/GCP analysis-path parity |
 | Advisory scans UX + route rename | **TB-1124**–**TB-1128** (**TB-1124**/**TB-1125**/**TB-1126**/**TB-1127**/**TB-1128** Done; cluster closed) | Route rename + triple-description collapse + empty/demo + disposition + primary CTA shipped; owner screenshot ~51/100 2026-07-25 |
@@ -56,7 +56,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | Connect GCP securely help (`/help/cloud-connections/gcp`) | **TB-1239**–**TB-1243** (open P1 **V1**) | Specialty guide view (Azure parity); purge Tier/hosted-pull jargon; Cloud Asset roles + WIF enablement; WIF pool-provider template; workflow CTAs + classification sections; owner review ~51/100 2026-07-26 |
 | Engineering troubleshooting help exposure | **TB-1248** (open; **TB-1246**/**TB-1247**/**TB-1249**/**TB-1250** Done; specialty chrome shipped 2026-08-02) | Align route slug with “Engineering troubleshooting runbook”; specialty Admin guide + Sources shipped; traffic **HDX** |
 | Procurement FAQ help (`/help/procurement`) | **TB-1253**/**TB-1256**–**TB-1257** (open; **TB-1254**/**TB-1255** Done) | Specialty buyer FAQ guide; diligence CTAs (trust/pack/DPA); in-app-only links + shorten SSO; owner review ~49/100 2026-07-26 |
-| Starting reviews help (`/help/starting-reviews`) | **TB-1259**/**TB-1262** open; **TB-1258**/**TB-1260**/**TB-1261**/**TB-1643** shipped 2026-08-03 | Canon `/help/review-guide`; aliases `starting-reviews` + `creating-runs`; empty-state → review-guide. Residual: wizard CTA (**TB-1259**), Related density (**TB-1262**); traffic **HER**/**HET** → **HR** |
+| Starting reviews help (`/help/starting-reviews`) | **TB-1259**/**TB-1262** open; **TB-1258**/**TB-1260**/**TB-1261**/**TB-1643** shipped 2026-08-03 | Canon `/help/review-guide`; aliases `starting-reviews` + `creating-runs`. Residual: empty-state pointer (dirty-blocked), wizard CTA (**TB-1259**), Related density (**TB-1262**); traffic **HER**/**HET** → **HR** |
 | Live demo marketing (`/live-demo`) | **TB-1265**–**TB-1269** (open P1 **V1**) | Honest sample-walkthrough title; first-viewport hero budget; see-it journey ladder; compact stepper + early CTA; continuous-mode density; owner review ~61/100 2026-07-26; traffic **LXX** |
 | Integration dead letters (`/operate/integration-events/dlq`) | **TB-1273**–**TB-1276** (open; **TB-1272** Done) | Align Failed integration messages naming; EnterpriseTable + review links; empty/error density; mutation CTA hierarchy + Dialog + filters; owner review ~49/100 2026-07-26; traffic **OID** |
 | See it marketing (`/see-it`) | **TB-1280**–**TB-1283** (open; **TB-1279** Done) | Honest time copy; hero budget; single CTA + `/live-demo` ladder + purge manifest jargon; download label honesty; owner review ~55/100 2026-07-26; traffic **SEE**; elevates UI ship of **TB-1028** |
@@ -176,7 +176,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-931 | Typed columns for hot scalars from JSON | Performance P2 **V1** — after **TB-929** inventory |
 | TB-934 | First Load JS cut for `/reviews` hub + `/governance` shell | Performance P2 **V1** — after **TB-933** Done; peer wave-3 **TB-2021**–**TB-2032** |
 | TB-935 | TanStack Query + virtualization for alerts / reviews hub / audit lists | Performance P2 **V1** — extends **TB-694**/**TB-695**; peer **TB-2023** |
-| TB-2026 | Nested Suspense / section streaming on run detail + governance hubs | Performance P2 **V1** — `UI_ARCHITECTURE_V1_1` §7 |
 | TB-2027 | Parallelize operator server loaders; collapse `/api/proxy` waterfalls | Performance P2 **V1** — owner UI speed ask 2026-07-31 |
 | TB-2028 | Marketing `/welcome` First Load JS — shed shared operator shell chunks | Performance P2 **V1** — owner UI speed ask 2026-07-31 |
 | TB-2029 | SSE-first run progress + shell banner poll hygiene | Performance P2 **V1** — owner UI speed ask 2026-07-31 |
@@ -423,7 +422,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1640 | Compare/replay help — Related density + inbound labels | Adoption friction P1 **V1** — with **TB-1636** |
 | TB-1641 | `/help/creating-runs` permanent redirect to canonical review guide | Adoption friction P1 **V1** — HCR ~46 |
 | TB-1642 | creating-runs alias — “runs” URL jargon honesty | Trustworthiness P1 **V1** — with **TB-1641** |
-| TB-1643 | creating-runs alias — chain to same slug as TB-1258 | Adoption friction P1 **V1** — with **TB-1641** |
+| TB-1643 | ~~creating-runs alias — chain to same slug as TB-1258~~ **Done** 2026-08-03 | Adoption friction P1 **V1** — with **TB-1641**; `creating-runs` → `review-guide` |
 | TB-1644 | creating-runs alias — traffic workbook fold HCR→HER/HR | Adoption friction P2 **V1** — with **TB-1641** |
 | TB-1645 | creating-runs alias — anti-reintro product deep-link CI | Testability P2 **V1** — after **TB-1641** |
 | TB-1481 | Alert routing — empty destinations+GettingStarted+create-card first viewport | Adoption friction P1 **V1** — with **TB-1477**; pairs **TB-1441** |
@@ -452,14 +451,14 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1648 | Slack + Webhooks — unify destination inventory on EnterpriseTable | Adoption friction P1 **V1** — with **TB-1646**; pairs **TB-1185**/**TB-1191** |
 | TB-1649 | Inventory honesty + action budget + raw-table migrate inventory | Adoption friction P1 **V1** — after **TB-1646**; Recurrence/Digests/Reviews/artifacts/users |
 | TB-1650 | Vitest — EnterpriseTable allowlist + ban inventing card/raw inventory | Testability P2 **V1** — after **TB-1647**–**TB-1649**; pairs **TB-1556** / **TB-1576** |
-| TB-1651 | `/help/data-handling` specialty buyer guide + Trust/security CTA | Adoption friction P1 **V1** — HED ~52 |
-| TB-1652 | Data-handling help — IA dual with data-handling-tenant-isolation | Adoption friction P1 **V1** — with **TB-1651** |
-| TB-1654 | Data-handling help — leaves/stays first-viewport job chrome | Adoption friction P1 **V1** — with **TB-1651** |
-| TB-1655 | Data-handling help — Related + security-trust / Trust Center discovery | Adoption friction P1 **V1** — with **TB-1651** |
-| TB-1656 | `/help/data-handling-tenant-isolation` retarget SoT after TENANT_ISOLATION stub | Trustworthiness P1 **V1** — HDA ~38 |
-| TB-1657 | Tenant-isolation help — specialty guide + Trust/HED CTA | Adoption friction P1 **V1** — with **TB-1656** |
-| TB-1658 | Tenant-isolation help — IA dual with `/help/data-handling` | Adoption friction P1 **V1** — with **TB-1656** |
-| TB-1660 | Tenant-isolation help — Vitest Three-layers load + anti-stub-only | Testability P2 **V1** — after **TB-1656** |
+| TB-1651 | ~~`/help/data-handling` specialty buyer guide + Trust/security CTA~~ **Done** 2026-08-03 | Adoption friction P1 **V1** — HED ~52; specialty retargeted from HDA |
+| TB-1652 | ~~Data-handling help — IA dual with data-handling-tenant-isolation~~ **Done** 2026-08-03 | Adoption friction P1 **V1** — with **TB-1651**; alias → `data-handling` |
+| TB-1654 | Data-handling help — leaves/stays first-viewport job chrome | Adoption friction P1 **V1** — after **TB-1651** |
+| TB-1655 | Data-handling help — Related + security-trust / Trust Center discovery | Adoption friction P1 **V1** — after **TB-1651** |
+| TB-1656 | ~~`/help/data-handling-tenant-isolation` retarget SoT after TENANT_ISOLATION stub~~ **Done** 2026-08-03 | Trustworthiness P1 **V1** — HDA ~38; three-layers in `DATA_HANDLING.md` |
+| TB-1657 | ~~Tenant-isolation help — specialty guide + Trust/HED CTA~~ **Done** 2026-08-03 | Adoption friction P1 **V1** — specialty now on `/help/data-handling` |
+| TB-1658 | ~~Tenant-isolation help — IA dual with `/help/data-handling`~~ **Done** 2026-08-03 | Adoption friction P1 **V1** — with **TB-1656**; alias → `data-handling` |
+| TB-1660 | Tenant-isolation help — Vitest Three-layers load + anti-stub-only | Testability P2 **V1** — after **TB-1656**; strengthen if needed |
 | TB-1666 | Operator page contextual-help contract — document in UI_DESIGN_SYSTEM (+ UI ARCHITECTURE pointer) | Adoption friction P1 **V1** — owner OPH inventory 2026-07-27; traffic **OPH**; pairs **TB-1184**/**TB-1458** (do not reopen) |
 | TB-1667 | Pilot + analysis — mount PageContextualHelpButton on mapped-but-unmounted hubs — **Partial** HOM `/` Done 2026-08-03 | Adoption friction P1 **V1** — with **TB-1666**; remaining hubs open |
 | TB-1668 | Governance + sponsor-report — mount help icon + fix alerts topic mapping — **Partial** GDX topic/Sources + alerts map Done 2026-08-03 | Adoption friction P1 **V1** — with **TB-1666**; pairs **TB-1134**/**TB-1434**; remaining mounts open |
@@ -716,10 +715,10 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1254 | ~~Procurement FAQ — purge contributor/repo leakage from rendered help~~ **Done** 2026-07-29 | Trustworthiness P0 **V1** — with **TB-1253**; banned-copy parity |
 | TB-1256 | Procurement FAQ — diligence CTA chrome (trust / pack / DPA) | Adoption friction P1 **V1** — with **TB-1253** |
 | TB-1257 | Procurement FAQ — in-app-only link map + shorten SSO answer | Trustworthiness P1 **V1** — with **TB-1253**; pairs **TB-1254** |
-| TB-1258 | `/help/starting-reviews` — canonicalize into `/help/review-guide` | Adoption friction P1 **V1** — owner starting-reviews ~52/100; traffic **HER** |
-| TB-1259 | Starting/review guide — wizard companion CTA to `/reviews/new` | Adoption friction P1 **V1** — with **TB-1258** |
-| TB-1260 | Starting/review guide — single title hierarchy (no dual H1) | Adoption friction P1 **V1** — with **TB-1258** |
-| TB-1261 | Starting/review guide — unify empty-state / alias / search discovery | Adoption friction P1 **V1** — with **TB-1258** |
+| TB-1258 | ~~`/help/starting-reviews` — canonicalize into `/help/review-guide`~~ **Done** 2026-08-03 | Adoption friction P1 **V1** — owner starting-reviews ~52/100; traffic **HER**→**HR** |
+| TB-1259 | Starting/review guide — wizard companion CTA to `/reviews/new` | Adoption friction P1 **V1** — after **TB-1258** |
+| TB-1260 | ~~Starting/review guide — single title hierarchy (no dual H1)~~ **Done** 2026-08-03 | Adoption friction P1 **V1** — with **TB-1258** |
+| TB-1261 | Starting/review guide — unify empty-state / alias / search discovery | Adoption friction P1 **V1** — empty-state still dirty-blocked; aliases shipped with **TB-1258** |
 | TB-1262 | Starting/review guide — collapse Related guides density | Adoption friction P1 **V1** — with **TB-1259** |
 | TB-1265 | `/live-demo` — honest sample-walkthrough title (not “Live demo”) | Trustworthiness P1 **V1** — owner live-demo ~61/100; traffic **LXX** |
 | TB-1266 | `/live-demo` — first-viewport hero budget (start before disclosure wall) | Adoption friction P1 **V1** — with **TB-1265** |
@@ -863,8 +862,8 @@ Canonical: [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) only (see wave-3 c
 | CAIQ / SIG questionnaire (/help/caiq-sig-response) | **TB-1631**–**TB-1635** (open P1 **V1**) | Specialty guide; leakage; pen-test honesty; dual-doc density; Help Center IA; ~41/100; traffic **HCA** |
 | Compare and replay (`/help/comparison-replay`) | **TB-1636**–**TB-1640** (open P1 **V1**) | Specialty + Open Compare CTA; tier honesty; vs repeat-review IA; job chrome; Related/inbound; ~48/100; traffic **CO** |
 | creating-runs help alias (`/help/creating-runs`) | **TB-1641**–**TB-1645** (open P1/P2 **V1**) | Permanent redirect; runs jargon; alias→TB-1258 chain; traffic fold; anti-reintro CI; ~46/100; traffic **HCR**; pairs **TB-1258**/**TB-1261** |
-| Data handling (`/help/data-handling`) | **TB-1651**–**TB-1652**, **TB-1654**–**TB-1655** (open P1 **V1**) | Specialty + Trust CTA; vs HDA dual; isolation honesty **Done TB-1653**; leaves/stays chrome; Related; ~52/100; traffic **HED** |
-| Data handling + tenant isolation (`/help/data-handling-tenant-isolation`) | **TB-1656**–**TB-1658**, **TB-1660** (open P1/P2 **V1**) | Retarget SoT after stub; specialty CTA; vs HED IA; leakage **Done TB-1659**; Vitest anti-stub; ~38/100; traffic **HDA** |
+| Data handling (`/help/data-handling`) | **TB-1654**–**TB-1655** open; **TB-1651**/**TB-1652**/**TB-1656**/**TB-1658** shipped 2026-08-03 | Canon specialty guide; three-layer isolation folded into `DATA_HANDLING.md`; alias HDA→HED. Residual: leaves/stays chrome; Related; presentation rewriter still cites legacy twin path (dirty-blocked). ~52/100; traffic **HED** |
+| Data handling + tenant isolation (`/help/data-handling-tenant-isolation`) | **TB-1660** open; **TB-1656**–**TB-1658** Done 2026-08-03 | Alias → `data-handling`. Residual: Vitest anti-stub polish; traffic fold HDA→HED; leakage **Done TB-1659** |
 | DPA template (`/help/dpa-template`) | **TB-1676**–**TB-1680** (**Done** 2026-08-02) | Specialty guide + Trust CTA; leakage strip; placeholder honesty; Help Center IA; clause defer; traffic **HDP** |
 | Evidence-only review (`/help/evidence-only-review`) | **TB-1681**–**TB-1685** (open P1 **V1**) | Specialty + Start CTA; drop CORE_PILOT intro; vs core-pilot IA; extract-upload honesty; step chrome; ~42/100; traffic **HEV** |
 | Executive summary (`/help/executive-summary`) | **TB-1686**–**TB-1690** (open P1 **V1**) | Retarget off FAQ; specialty CTA; leakage; doc-href catch-all; title honesty; ~30/100; traffic **EXE** |

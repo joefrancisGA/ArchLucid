@@ -55,13 +55,35 @@ export async function loadRunDetailMidDeferredModel(
 export async function loadRunDetailBelowFoldDeferredModel(
   context: RunDetailDeferredLoadContext,
 ): Promise<RunDetailBelowFoldDeferredModel> {
-  const projectRunContext = await loadProjectRunContext(context);
-  const pipelineSections = await loadPipelineTimelineSections(context);
+  // Independent fetches — keep parallel when a caller still wants one combined model.
+  const [projectRunContext, pipelineSections] = await Promise.all([
+    loadProjectRunContext(context),
+    loadPipelineTimelineSections(context),
+  ]);
 
   return {
     ...projectRunContext,
     ...pipelineSections,
   };
+}
+
+/** Pipeline timeline + stages for an independent below-fold Suspense boundary (TB-2026). */
+export async function loadRunDetailBelowFoldPipelineModel(
+  context: RunDetailDeferredLoadContext,
+): Promise<
+  Pick<
+    RunDetailBelowFoldDeferredModel,
+    "pipelineTimelineForUi" | "pipelineTimelineFailure" | "stageTimelineForUi"
+  >
+> {
+  return loadPipelineTimelineSections(context);
+}
+
+/** Project-run context for graph/habit CTAs under a second Suspense boundary (TB-2026). */
+export async function loadRunDetailBelowFoldProjectContextModel(
+  context: RunDetailDeferredLoadContext,
+): Promise<Pick<RunDetailBelowFoldDeferredModel, "canShowCompareReviewButton" | "architectureGraphTemporalMinUtc">> {
+  return loadProjectRunContext(context);
 }
 
 async function loadChangesSinceLastReviewBanner(

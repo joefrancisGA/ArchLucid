@@ -9,10 +9,6 @@ vi.mock("next/navigation", () => ({
   },
 }));
 
-vi.mock("./_sections/load-alerts-inbox-page-model", () => ({
-  loadAlertsInboxPageModel: vi.fn(async () => null),
-}));
-
 import AlertsPage from "./page";
 
 describe("AlertsPage", () => {

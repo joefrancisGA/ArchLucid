@@ -29,3 +29,24 @@ export function RunDetailBelowFoldDeferredSkeleton(): React.JSX.Element {
     </div>
   );
 }
+
+/** Compact skeleton while pipeline timeline/stages stream (TB-2026 nested boundary). */
+export function RunDetailBelowFoldPipelineSkeleton(): React.JSX.Element {
+  return (
+    <div className="space-y-3" role="status" aria-label="Loading pipeline timeline">
+      <div className="h-28 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800" />
+      <div className="h-20 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800" />
+    </div>
+  );
+}
+
+/** Compact skeleton while graph temporal context streams (TB-2026 nested boundary). */
+export function RunDetailBelowFoldProjectContextSkeleton(): React.JSX.Element {
+  return (
+    <div
+      className="h-64 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
+      role="status"
+      aria-label="Loading architecture graph context"
+    />
+  );
+}
