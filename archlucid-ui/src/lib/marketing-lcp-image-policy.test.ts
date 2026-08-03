@@ -51,11 +51,11 @@ describe("marketing LCP image policy (TB-2032 waiver)", () => {
   it("does not reference marketing raster paths from marketing UI source", () => {
     const sources = [...collectSourceFiles(MARKETING_APP), ...collectSourceFiles(MARKETING_COMPONENTS)];
     const offenders = sources.filter((filePath) => {
-      if (!statSync(filePath).isFile()) {
+      try {
+        return MARKETING_RASTER_REF.test(readFileSync(filePath, "utf8"));
+      } catch {
         return false;
       }
-
-      return MARKETING_RASTER_REF.test(readFileSync(filePath, "utf8"));
     });
 
     expect(offenders).toEqual([]);
@@ -64,11 +64,11 @@ describe("marketing LCP image policy (TB-2032 waiver)", () => {
   it("does not paint marketing first-viewport rasters via raw <img>", () => {
     const sources = [...collectSourceFiles(MARKETING_APP), ...collectSourceFiles(MARKETING_COMPONENTS)];
     const offenders = sources.filter((filePath) => {
-      if (!statSync(filePath).isFile()) {
+      try {
+        return RAW_RASTER_IMG.test(readFileSync(filePath, "utf8"));
+      } catch {
         return false;
       }
-
-      return RAW_RASTER_IMG.test(readFileSync(filePath, "utf8"));
     });
 
     expect(offenders).toEqual([]);
