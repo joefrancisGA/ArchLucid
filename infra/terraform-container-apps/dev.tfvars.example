@@ -1,10 +1,13 @@
 # Copy to dev.tfvars (gitignored). Used by CD when workflow target is `dev` and this file exists in TF_WORKING_DIRECTORY.
-# ArchLucid DEV subscription: see docs/library/AZURE_SUBSCRIPTIONS.md. Align region with your existing RG/ACR (eastus2 below matches rg-ArchLucid-dev + acrarchluciddev).
+# ArchLucid DEV subscription: see docs/library/AZURE_SUBSCRIPTIONS.md.
+# Primary region is centralus (same as staging/production). When create_resource_group = false, Terraform
+# uses the existing RG's location — so rg-ArchLucid-dev (and ACR / Content Safety in that RG) must live
+# in centralus. Paste the updated file into GitHub Environment secret DEV_TFVARS before the next CD run.
 
 enable_container_apps = true
 create_resource_group   = false
 resource_group_name     = "rg-ArchLucid-dev"
-location                = "eastus2"
+location                = "centralus"
 
 # After first CD image push: use your ACR login server and the tag CD produced (or :latest-dev).
 api_container_image = "acrarchluciddev.azurecr.io/archlucid-api:latest-dev"
@@ -56,7 +59,7 @@ tags = {
 enable_content_safety_account         = true
 content_safety_account_name           = "archlucid-dev-contentsafety"
 content_safety_custom_subdomain_name  = "archlucid-dev-contentsafety"
-content_safety_location               = "eastus2"
+content_safety_location               = "centralus"
 content_safety_sku_name               = "S0"
 content_safety_public_network_access_enabled = true
 
