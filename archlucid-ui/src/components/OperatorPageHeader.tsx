@@ -11,6 +11,8 @@ export type OperatorPageHeaderProps = {
   navHref?: string;
   /** Stable Playwright anchor for the primary page title. */
   titleTestId?: string;
+  /** Stable Playwright anchor for the subtitle / page lead. */
+  subtitleTestId?: string;
   /**
    * @deprecated Heading-level contextual help icons are not rendered. Use `subtitle` or in-page guidance links.
    */
@@ -43,6 +45,7 @@ export function OperatorPageHeader({
   subtitle,
   navHref,
   titleTestId,
+  subtitleTestId,
   metadata,
   actions,
   headingLevel = "h2",
@@ -83,7 +86,10 @@ export function OperatorPageHeader({
       </div>
 
       {subtitle != null && (
-        <p className={cn("m-0 mt-2 max-w-2xl text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+        <p
+          className={cn("m-0 mt-2 max-w-2xl text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}
+          {...(subtitleTestId !== undefined ? { "data-testid": subtitleTestId } : {})}
+        >
           {subtitle}
         </p>
       )}

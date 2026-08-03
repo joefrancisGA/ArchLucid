@@ -15,6 +15,7 @@ export function ReviewsNewPageChrome(): React.JSX.Element {
         title={START_REVIEW_LABEL}
         titleTestId="reviews-new-page-title"
         subtitle={REVIEWS_NEW_PAGE_LEAD}
+        subtitleTestId="reviews-new-page-lead"
         headingLevel="h1"
         actions={<PageContextualHelpButton />}
       />
