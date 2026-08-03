@@ -1632,18 +1632,20 @@ export function stripExecutiveSummaryContributorLeakage(markdown: string): strin
   return result.replace(/\n{3,}/g, "\n\n").trimEnd();
 }
 
-const FIRST_VALUE_20_MINUTES_SECTION_HEADING = "## First value in 20 minutes (time-boxed)";
+const FIRST_VALUE_20_MINUTES_SECTION_HEADING_RE =
+  /^## First value in 20 minutes \(time-boxed\)(?:\s*\{#[^}]+\})?\s*$/im;
 
 /**
  * TB-1693 — keep only the first 20-minute time-box section from the full operator runbook.
  */
 function extractFirstValue20MinutesSection(markdown: string): string {
-  const sectionStart = markdown.indexOf(FIRST_VALUE_20_MINUTES_SECTION_HEADING);
+  const headingMatch = FIRST_VALUE_20_MINUTES_SECTION_HEADING_RE.exec(markdown);
 
-  if (sectionStart < 0) {
+  if (headingMatch === null || headingMatch.index === undefined) {
     return markdown;
   }
 
+  const sectionStart = headingMatch.index;
   const afterHeading = markdown.slice(sectionStart);
   const nextMajorSection = afterHeading.search(/\n## (?!#)/);
 

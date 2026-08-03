@@ -57,7 +57,7 @@ Use this small vocabulary across cockpit rows, proof summaries, and sponsor hand
 Every step below maps to a **shipped** API, architect workspace route, or CLI verb. Optional accelerators use only V1 policy packs and ingest paths — **Jira**, **ServiceNow**, **Confluence**, **Slack**, **Teams**, and broad outbound webhooks are **V1.1** and appear only under *Optional later*.
 
 
-## First value in 20 minutes (time-boxed)
+## First value in 20 minutes (time-boxed) {#first-value-in-20-minutes}
 
 Shortest path from zero to a sponsor-safe artifact when platform wiring is already green. For the full phased checklist, continue with § **Phase A** below.
 

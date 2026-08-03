@@ -1,6 +1,6 @@
 > **Scope:** Engineering-owned technical backlog items deferred from current sessions; audience is contributors and the AI assistant; not a buyer or operator document. Not a substitute for ADRs or the pending-questions owner decisions file.
 
-**Updated:** 2026-08-02 (**TB-1676**/**TB-1678**/**TB-1679**/**TB-1680** **Done** — `/help/dpa-template` specialty buyer DPA guide; Vitest; traffic **HDP**). Prior: 2026-07-31 (Open **P1** summary rows reordered - human-impact ship order for /ship-next-improvement; 723 open P1s; see `### P1 - human-impact ship order`).
+**Updated:** 2026-08-02 (**TB-1691**/**TB-1692**/**TB-1694**/**TB-1695** **Done** — `/help/first-value-20-minutes` Admin specialty guide; Vitest; traffic **HEF**). Prior: 2026-08-02 (**TB-1676**/**TB-1678**/**TB-1679**/**TB-1680** **Done** — `/help/dpa-template` specialty buyer DPA guide; Vitest; traffic **HDP**). Prior: 2026-07-31 (Open **P1** summary rows reordered - human-impact ship order for /ship-next-improvement; 723 open P1s; see `### P1 - human-impact ship order`).
 
 
 ## Cursor-actionable backlog ? remaining by architectural quality
@@ -378,7 +378,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 
 **TB-1686 — TB-1690** were added 2026-07-27 from an **owner review of Executive summary** at `/help/executive-summary` (~30/100; traffic **EXE**). Strengths: buyer audience + product Help Center tier; registry summary promises sponsor-safe summaries / ROI basis. Residual: `sourcePaths` is the entire customer `FAQ.md` (H1 **Frequently asked questions**) with zero executive/ROI content — day-one-developer, RLS-as-control, `ArchLucid.Contracts`, **TB-600**, V1_SCOPE paths; bare `HelpTopicMarkdownView`; `in-app-doc-href.ts` uses this slug as a catch-all for procurement pack, pricing philosophy, cost model, competitive comparison, order form, etc. Retarget to `EXECUTIVE_SPONSOR_BRIEF.md` (or sectionAnchors) + specialty CTA; stop FAQ dump. IDs skip HEV **TB-1681**–**TB-1685**. No new GTM IDs.
 
-**TB-1691 — TB-1695** were added 2026-07-27 from an **owner review of First value in 20 minutes (internal runbook)** at `/help/first-value-20-minutes` (~40/100; traffic **HEF**). Strengths: `contentKind: internal-runbook` + Help Center `internal` (Admin gate via **TB-735**); summary steers customers to core-pilot / first-pilot-path; Scope says not default customer path. Residual: `sourcePaths` loads entire `FIRST_PILOT_OPERATOR_PATH.md` (phased A–D checklist, artifact tables, CLI) while slug/title promise a 20-minute path — `FIRST_VALUE_20_MINUTES.md` exists but is unused; bare `HelpTopicMarkdownView`; `dotnet run --project ArchLucid.Cli`, `archlucid.json`, proof-folder theater; dual with `/help/core-pilot`, `/help/first-pilot-path`, `/help/first-run`. IDs skip EXE **TB-1686**–**TB-1690**. No new GTM IDs.
+**TB-1691 — TB-1695** were added 2026-07-27 from an **owner review of First value in 20 minutes (internal runbook)** at `/help/first-value-20-minutes` (~40/100; traffic **HEF**). **Done** 2026-08-02 — specialty `HelpFirstValue20GuideView`, 20-min sectionAnchors retarget, job-matrix IA dual, Admin title honesty; **TB-1693** leakage strip retained. IDs skip EXE **TB-1686**–**TB-1690**. No new GTM IDs.
 
 **TB-1696 — TB-1700** were added 2026-07-27 from an **owner review of Integration readiness** at `/help/integration-readiness` (~50/100; traffic **HEI**). Strengths: short customer-facing `INTEGRATION_READINESS.md`; honest “reviews do not require integrations”; in-app setup links; clear Ready/Recommended/Optional vocabulary. Residual: bare `HelpTopicMarkdownView` with no primary Open `/integrations/readiness` CTA; Help Center tier `admin` while `contentKind: product-help` / audience operator (**TB-735** does not gate); Architecture digests → `/advisory` may miss Digests hub; status-label table dominates first viewport; weak Related vs cloud-connections / ITSM help. Pairs **TB-1414** (do not reopen). IDs skip HEF **TB-1691**–**TB-1695**. No new GTM IDs.
 
@@ -1294,10 +1294,10 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1687 | Executive-summary help — specialty guide + Open ROI/sponsor CTA; see ## TB-1687 below | Adoption friction P1 — **V1**; with **TB-1686** | M |
 | TB-1689 | Executive-summary help — fix in-app-doc-href catch-all mappings; see ## TB-1689 below | Trustworthiness P1 — **V1**; with **TB-1686**; pairs **TB-1253** | S |
 | TB-1690 | Executive-summary help — title/body honesty (not Frequently asked questions); see ## TB-1690 below | Trustworthiness P1 — **V1**; with **TB-1686** | S |
-| TB-1691 | `/help/first-value-20-minutes` retarget body to 20-min section (not full pilot path); see ## TB-1691 below | Adoption friction P1 — **V1**; owner review ~40/100 2026-07-27; traffic **HEF**; internal-runbook | M |
-| TB-1692 | First-value-20 help — specialty Admin chrome + customer-path CTA; see ## TB-1692 below | Adoption friction P1 — **V1**; with **TB-1691**; pairs **TB-1414** | M |
-| TB-1694 | First-value-20 help — IA dual with core-pilot / first-pilot-path / first-run; see ## TB-1694 below | Adoption friction P1 — **V1**; with **TB-1691** | S |
-| TB-1695 | First-value-20 help — slug/title vs FIRST_PILOT_OPERATOR_PATH honesty; see ## TB-1695 below | Trustworthiness P1 — **V1**; with **TB-1691** | S |
+| TB-1691 | ~~`/help/first-value-20-minutes` retarget body to 20-min section~~ **Done** 2026-08-02 — `{#first-value-in-20-minutes}` + `sectionAnchors` + strip extract; Vitest; see ## TB-1691 below | Adoption friction P1 — **V1**; owner review ~40/100 2026-07-27; traffic **HEF**; internal-runbook | M |
+| TB-1692 | ~~First-value-20 help — specialty Admin chrome + customer-path CTA~~ **Done** 2026-08-02 — `HelpFirstValue20GuideView` + buyer CTA; Vitest; see ## TB-1692 below | Adoption friction P1 — **V1**; with **TB-1691**; pairs **TB-1414** | M |
+| TB-1694 | ~~First-value-20 help — IA dual with core-pilot / first-pilot-path / first-run~~ **Done** 2026-08-02 — job matrix + Sources; Vitest; see ## TB-1694 below | Adoption friction P1 — **V1**; with **TB-1691** | S |
+| TB-1695 | ~~First-value-20 help — slug/title vs FIRST_PILOT_OPERATOR_PATH honesty~~ **Done** 2026-08-02 — Admin runbook H1 chrome; Vitest; see ## TB-1695 below | Trustworthiness P1 — **V1**; with **TB-1691** | S |
 | TB-1696 | `/help/integration-readiness` specialty guide + Open readiness CTA; see ## TB-1696 below | Adoption friction P1 — **V1**; owner review ~50/100 2026-07-27; traffic **HEI**; pairs **TB-1414** | M |
 | TB-1697 | Integration-readiness help — Help Center tier honesty (admin vs product-help); see ## TB-1697 below | Trustworthiness P1 — **V1**; with **TB-1696**; pairs **TB-1395** | S |
 | TB-1698 | Integration-readiness help — digests/advisory configure-href honesty; see ## TB-1698 below | Trustworthiness P1 — **V1**; with **TB-1696** | S |
@@ -42072,13 +42072,13 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1691 — `/help/first-value-20-minutes` retarget body to 20-min section (P0)
 
-**Window:** V1 — Adoption friction. **Status:** Not started. **Priority:** P0.
+**Window:** V1 — Adoption friction. **Status:** **Done** 2026-08-02. **Priority:** P0.
 
 **Source:** Owner HEF ~40/100 2026-07-27.
 
 **Problem:** Slug/title say 20 minutes, but registry loads the full `FIRST_PILOT_OPERATOR_PATH.md` runbook (all phases). Separate `FIRST_VALUE_20_MINUTES.md` is unused.
 
-**Approach:** Either `sectionAnchors` on the “First value in 20 minutes” section only, or switch `sourcePaths` to `FIRST_VALUE_20_MINUTES.md` (+ short Admin lead). Vitest: no Phase A–D full dump; 20-min path present. Keep `internal-runbook` gate.
+**Shipped:** `{#first-value-in-20-minutes}` on the 20-minute H2; registry `sectionAnchors`; `stripFirstValue20ContributorLeakage` still extracts as defense in depth; Vitest: no Phase A dump.
 
 **Acceptance:** In-app body matches the 20-minute job. **Size estimate:** M.
 
@@ -42086,11 +42086,11 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1692 — First-value-20 help — specialty Admin chrome + customer-path CTA (P0)
 
-**Window:** V1 — Adoption friction. **Status:** Not started. **Priority:** P0.
+**Window:** V1 — Adoption friction. **Status:** **Done** 2026-08-02. **Priority:** P0.
 
 **Problem:** Admin-gated topic still uses bare `HelpTopicMarkdownView` — no Admin runbook hero; no primary CTA sending non-SE readers to `/help/core-pilot`.
 
-**Approach:** Specialty companion (pair **TB-1414**): Admin SE/ops lead; primary Open Your first architecture review → `/help/core-pilot` (secondary: Home checklist). Vitest: specialty testid + Button.
+**Shipped:** `HelpFirstValue20GuideView` with primary CTA → `/help/first-architecture-review`, Start architecture review, Troubleshooting; Vitest specialty testid + Button.
 
 **Acceptance:** First job is clear for Admins; customers redirected. **Size estimate:** M.
 
@@ -42110,11 +42110,11 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1694 — First-value-20 help — IA dual with core-pilot / first-pilot-path / first-run (P0)
 
-**Window:** V1 — Adoption friction. **Status:** Not started. **Priority:** P0.
+**Window:** V1 — Adoption friction. **Status:** **Done** 2026-08-02. **Priority:** P0.
 
 **Problem:** Four “first value / first pilot / first review” help URLs compete; Home strip may deep-link this Admin slug.
 
-**Approach:** Explicit job matrix + inbound: customers → core-pilot; SE time-box → this slug; full phases → first-pilot-path / first-run. Vitest: mutual links; Home strip does not send non-Admin to a 404 theater without copy.
+**Shipped:** Job matrix + Sources covering first-architecture-review, first-pilot-path, first-review, and this Admin slug; Home strip already gates internal-runbook behind Admin; Vitest.
 
 **Acceptance:** Operators know which guide for which job. **Size estimate:** S.
 
@@ -42122,11 +42122,11 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1695 — First-value-20 help — slug/title vs FIRST_PILOT_OPERATOR_PATH honesty (P0)
 
-**Window:** V1 — Trustworthiness. **Status:** Not started. **Priority:** P0.
+**Window:** V1 — Trustworthiness. **Status:** **Done** 2026-08-02. **Priority:** P0.
 
 **Problem:** Registry title “First value in 20 minutes” vs markdown H1 “First-pilot operator path (internal runbook)” — dual headline after load.
 
-**Approach:** Align H1/title after retarget; demote or strip markdown H1 when chrome emits title. Vitest: single h1 matching 20-minute / Admin runbook job.
+**Shipped:** Registry + specialty chrome title “First value in 20 minutes (Admin runbook)”; section extract drops full-path H1; Vitest single h1.
 
 **Acceptance:** One honest page title. **Size estimate:** S.
 

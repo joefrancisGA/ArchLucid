@@ -107,6 +107,11 @@ const HELP_CENTER_DISPLAY_OVERRIDES: Readonly<Partial<Record<string, HelpCenterD
     summary:
       "Negotiation template for counsel — request the diligence pack from Trust Center; not your countersigned DPA.",
   },
+  "first-value-20-minutes": {
+    title: "First value in 20 minutes (Admin runbook)",
+    summary:
+      "Admin/SE time-boxed checklist when platform wiring is green — not the default customer first-review path.",
+  },
   subprocessors: {
     title: "Subprocessors",
     summary: "Hosted ArchLucid subprocessors register — use with the DPA template and Trust Center pack.",

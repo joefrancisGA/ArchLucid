@@ -98,6 +98,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "first-review", label: "First-run evidence checklist" },
   },
   {
+    prefix: "/help/first-value-20-minutes",
+    topic: { slug: "first-value-20-minutes", label: "First value in 20 minutes (Admin runbook)" },
+  },
+  {
     prefix: "/help/developer-troubleshooting",
     topic: { slug: "developer-troubleshooting", label: "Engineering troubleshooting runbook" },
   },

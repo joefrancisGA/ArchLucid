@@ -9,6 +9,10 @@
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
+## 2026-08-02 — UI/help: First value in 20 minutes Admin specialty guide (HEF / TB-1691–TB-1695)
+
+`/help/first-value-20-minutes` ships `HelpFirstValue20GuideView` — buyer first-architecture-review primary CTA, job-matrix IA dual, orientation + claim-discipline chrome, and the 20-minute section only from `FIRST_PILOT_OPERATOR_PATH.md` (sectionAnchors + TB-1693 strip). Admin-gated internal-runbook; not the default customer path. Does not imply CPA SOC 2 or third-party pen-test publication.
+
 ## 2026-08-02 — UI/help: DPA template specialty guide (HDP / TB-1676–TB-1680)
 
 `/help/dpa-template` ships `HelpDpaTemplateGuideView` — Trust Center / Subprocessors / Procurement CTAs, Sources strip, orientation + claim-discipline chrome, full `DPA_TEMPLATE.md` deferred behind collapsed disclosure. Buyer “architecture reviews” wording (TB-1680); Help Center product-tier discovery for DPA + subprocessors (TB-1679). Does not imply a countersigned DPA, CPA SOC 2, or third-party pen-test publication.

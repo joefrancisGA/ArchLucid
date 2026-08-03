@@ -18,6 +18,7 @@ import { HelpDataHandlingTenantIsolationGuideView } from "../_sections/HelpDataH
 import { HelpDpaTemplateGuideView } from "../_sections/HelpDpaTemplateGuideView";
 import { HelpEngineeringTroubleshootingGuideView } from "../_sections/HelpEngineeringTroubleshootingGuideView";
 import { HelpFirstReviewEvidenceChecklistGuideView } from "../_sections/HelpFirstReviewEvidenceChecklistGuideView";
+import { HelpFirstValue20GuideView } from "../_sections/HelpFirstValue20GuideView";
 import { HelpPolicyPackDeltaDemoGuideView } from "../_sections/HelpPolicyPackDeltaDemoGuideView";
 import { HelpConnectAzureSecurelyGuideView } from "../_sections/HelpConnectAzureSecurelyGuideView";
 import { HelpCorePilotGuideView } from "../_sections/HelpCorePilotGuideView";
@@ -200,6 +201,10 @@ function renderHelpTopicView(
 
   if (loaded.entry.slug === "first-review") {
     return <HelpFirstReviewEvidenceChecklistGuideView entry={loaded.entry} markdown={loaded.markdown} />;
+  }
+
+  if (loaded.entry.slug === "first-value-20-minutes") {
+    return <HelpFirstValue20GuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
 
   if (loaded.entry.slug === "developer-troubleshooting") {

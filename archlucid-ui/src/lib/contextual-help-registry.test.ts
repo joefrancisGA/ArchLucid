@@ -44,6 +44,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/policy-pack-delta-demo",
       "/help/configuration-reference",
       "/help/first-review",
+      "/help/first-value-20-minutes",
       "/help/developer-troubleshooting",
       "/governance/standards-and-rules",
       "/digests",

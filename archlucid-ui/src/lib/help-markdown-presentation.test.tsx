@@ -763,7 +763,7 @@ describe("help-markdown-presentation", () => {
 
   it("strips first-value-20 CLI/dotnet and runbook-path leakage (TB-1693)", () => {
     const source = [
-      "## First value in 20 minutes (time-boxed)",
+      "## First value in 20 minutes (time-boxed) {#first-value-in-20-minutes}",
       "",
       "`dotnet run --project ArchLucid.Cli -- doctor`",
       "",
@@ -784,10 +784,11 @@ describe("help-markdown-presentation", () => {
     expect(prepared).toContain("/help/troubleshooting");
   });
 
-  it("keeps presented first-value-20 help buyer-safe (TB-1693)", () => {
+  it("keeps presented first-value-20 help buyer-safe (TB-1691 / TB-1693)", () => {
     const loaded = tryLoadProductDocumentation("first-value-20-minutes");
 
     expect(loaded).not.toBeNull();
+    expect(loaded!.entry.sectionAnchors).toEqual(["first-value-in-20-minutes"]);
 
     const sourcePath = loaded!.entry.sourcePaths[0] ?? "";
     const prepared = prepareHelpMarkdownForPresentation(loaded!.markdown, sourcePath, {

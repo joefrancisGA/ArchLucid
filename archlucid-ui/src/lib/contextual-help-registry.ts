@@ -136,6 +136,17 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/help/first-value-20-minutes",
+    entry: {
+      whatIsThisPage:
+        "Admin SE time-boxed checklist for first value in about 20 minutes when platform wiring is already green.",
+      whatToDoNext:
+        "Send customers to Your first architecture review; use this runbook only for Admin SE proof collection.",
+      whyEmpty: "Orientation and the 20-minute checklist always show when this Admin help topic loads.",
+      whereToConfigurePrerequisite: "Admin access with healthy API and persistence before starting the time box.",
+    },
+  },
+  {
     prefix: "/help/developer-troubleshooting",
     entry: {
       whatIsThisPage:

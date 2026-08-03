@@ -487,10 +487,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1687 | Executive-summary help — specialty guide + Open ROI/sponsor CTA | Adoption friction P1 **V1** — with **TB-1686** |
 | TB-1689 | Executive-summary help — fix in-app-doc-href catch-all mappings | Trustworthiness P1 **V1** — with **TB-1686** |
 | TB-1690 | Executive-summary help — title/body honesty | Trustworthiness P1 **V1** — with **TB-1686** |
-| TB-1691 | `/help/first-value-20-minutes` retarget body to 20-min section | Adoption friction P1 **V1** — HEF ~40 |
-| TB-1692 | First-value-20 help — specialty Admin chrome + customer-path CTA | Adoption friction P1 **V1** — with **TB-1691** |
-| TB-1694 | First-value-20 help — IA dual with core-pilot / first-pilot-path / first-run | Adoption friction P1 **V1** — with **TB-1691** |
-| TB-1695 | First-value-20 help — slug/title vs FIRST_PILOT_OPERATOR_PATH honesty | Trustworthiness P1 **V1** — with **TB-1691** |
 | TB-1696 | `/help/integration-readiness` specialty guide + Open readiness CTA | Adoption friction P1 **V1** — HEI ~50 |
 | TB-1697 | Integration-readiness help — Help Center tier honesty | Trustworthiness P1 **V1** — with **TB-1696** |
 | TB-1698 | Integration-readiness help — digests/advisory configure-href honesty | Trustworthiness P1 **V1** — with **TB-1696** |
@@ -884,7 +880,7 @@ Canonical: [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) only (see wave-3 c
 | DPA template (`/help/dpa-template`) | **TB-1676**–**TB-1680** (**Done** 2026-08-02) | Specialty guide + Trust CTA; leakage strip; placeholder honesty; Help Center IA; clause defer; traffic **HDP** |
 | Evidence-only review (`/help/evidence-only-review`) | **TB-1681**–**TB-1685** (open P1 **V1**) | Specialty + Start CTA; drop CORE_PILOT intro; vs core-pilot IA; extract-upload honesty; step chrome; ~42/100; traffic **HEV** |
 | Executive summary (`/help/executive-summary`) | **TB-1686**–**TB-1690** (open P1 **V1**) | Retarget off FAQ; specialty CTA; leakage; doc-href catch-all; title honesty; ~30/100; traffic **EXE** |
-| First value 20 minutes (`/help/first-value-20-minutes`) | **TB-1691**–**TB-1695** (open P1 **V1**) | Retarget 20-min body; Admin specialty CTA; CLI leakage; IA dual; title honesty; ~40/100; traffic **HEF**; internal-runbook |
+| First value 20 minutes (`/help/first-value-20-minutes`) | **TB-1691**–**TB-1695** (**Done** 2026-08-02) | Specialty Admin guide + buyer CTA; 20-min retarget; leakage strip; IA dual; title honesty; traffic **HEF**; internal-runbook |
 | Integration readiness (`/help/integration-readiness`) | **TB-1696**–**TB-1700** (open P1 **V1**) | Specialty + Open CTA; tier honesty; digests href; viewport density; Related IA; ~50/100; traffic **HEI** |
 | Azure Boards help alias (`/help/integrations/azure-boards`) | **TB-1701**–**TB-1705** (open P1/P2 **V1**) | Permanent redirect (execute **TB-1623**); traffic fold; anti-reintro; URL honesty; e2e; ~48/100; traffic **HEZ** |
 | operator-auth-roles help alias (`/help/operator-auth-roles`) | **TB-1706**–**TB-1710** (open P1/P2 **V1**) | Permanent redirect→users-and-roles; jargon; traffic fold→HOE; anti-reintro; e2e; ~47/100; traffic **HEO** |

@@ -443,11 +443,12 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   },
   {
     slug: "first-value-20-minutes",
-    title: "First value in 20 minutes (internal runbook)",
+    title: "First value in 20 minutes (Admin runbook)",
     summary:
       "Admin-only SE/ops checklist for time-boxed first value when platform wiring is already green. Customer architects should use Your first architecture review or Complete review workflow instead.",
     audience: "operator",
     sourcePaths: ["docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md"],
+    sectionAnchors: ["first-value-in-20-minutes"],
   },
   {
     slug: "evaluator-workbook",
