@@ -1,4 +1,4 @@
-> **Scope:** First architecture review — shortest path from starting a new review to a finalized architecture package with findings, evidence, and sponsor exports. Absorbs the former first-hour / first-review guide body (`FIRST_HOUR_OPERATOR_PATH.md`).
+> **Scope:** First architecture review — shortest path from starting a new review to a finalized architecture package with findings, evidence, and sponsor exports. Absorbs the former first-hour / first-review guide body (`FIRST_HOUR_OPERATOR_PATH.md`) and the former complete review workflow body (`COMPLETE_REVIEW_WORKFLOW.md`).
 
 # Your first architecture review
 
@@ -18,11 +18,61 @@ Start with evidence, run the review, finalize the architecture package, then sha
 
 ## Run the first review
 
-1. **Start review** — open **New architecture review** and name what you want reviewed. Saving an architecture draft is optional and separate from starting a review.
-2. **Add evidence** — attach briefs, diagrams, documents, IaC, or exports. Cloud connectors are optional.
-3. **Run analysis** — execute the assessment on review detail until ready to finalize.
+1. **Start review** — open **New architecture review** and name what you want reviewed. Saving an architecture draft is optional and separate from starting a review. Choose a cloud target only when the review needs provider-specific mapping — otherwise select **No cloud / evidence-only**.
+2. **Add evidence** — attach briefs, diagrams, documents, IaC, or exports. Add architecture context (goals, constraints, integrations) in the wizard when useful. Cloud connectors are optional.
+3. **Run analysis** — execute the assessment on review detail until ready to finalize. Read findings — severity, business impact, rationale, and evidence citations — and use the evidence trail to trace each finding back to uploaded artifacts.
 4. **Finalize package** — finalize the architecture package to lock the signed review record, findings, and export surfaces.
 5. **Share outputs** — download sponsor exports and share proof with stakeholders.
+
+## Complete review lifecycle {#complete-review-workflow}
+
+Former complete review workflow depth for teams that need the full create → evidence → findings → decisions → finalize → export path (filename `COMPLETE_REVIEW_WORKFLOW.md` remains a path-stable alias).
+
+### Overview
+
+| | What you do | What ArchLucid does | What you get |
+| --- | --- | --- | --- |
+| **Purpose** | Provide evidence and context for one architecture decision | Evaluates design, records findings, and packages a signed review record | An architecture review you can export and share |
+| **Typical duration** | One working session for a first review; longer when governance sign-off is required | Runs the assessment pipeline and attaches evidence citations | Findings, decisions, and sponsor-ready exports |
+
+**Good to know:** You can start with briefs, diagrams, documents, or IaC only — cloud connectors for Azure, AWS, or GCP are optional accelerators. See [Pilot guide](/help/pilot-guide) to prepare.
+
+### Resolve decisions and risks {#resolve-decisions-and-risks}
+
+When governance is in scope for your workspace:
+
+1. Review blocking or warning findings against your policy pack.
+2. Record disposition decisions (accept, mitigate, defer, or reject) where your process requires it.
+3. Complete any approval steps before finalize if your tenant enables governance workflow.
+
+**Optional:** Skip deep governance on your first review — finalize when findings are understood and you are ready to share internally.
+
+**What success looks like:** Material risks have an explicit disposition or approval path before external circulation.
+
+### Export and share artifacts {#export-and-share-artifacts}
+
+From review detail after finalize:
+
+| Output | Use when |
+| --- | --- |
+| **Sponsor packet** | Executives or program sponsors need a shareable summary |
+| **Executive summary** | ROI or disposition labels matter for the conversation |
+| **Board pack / markdown exports** | You need editable narrative for internal review |
+| **Audit export** | Compliance or security wants a scoped event CSV |
+| **Email this review to your sponsor** | Your workspace enables one-click sponsor handoff |
+
+**What success looks like:** Downloads succeed and labels clearly show whether cost or ROI figures are measured vs illustrative.
+
+### Review states {#review-states}
+
+ArchLucid uses a small set of labels on Home and review detail to show what to do next:
+
+| State | Meaning | Typical next step |
+| --- | --- | --- |
+| **In progress** | Assessment running or findings not yet finalized | Stay on review detail until ready to finalize |
+| **Ready to finalize** | Findings exist; signed record not locked yet | Finalize when disposition and evidence review are complete |
+| **Finalized** | Architecture package is committed | Open exports and share with stakeholders |
+| **Needs attention** | Blocking findings, stale evidence, or governance hold | Resolve blockers before sponsor send |
 
 ## Cloud connectors are optional for your first review
 
@@ -65,7 +115,7 @@ Former first-hour guide success signals for a first session:
 - Decisions are recorded when your workflow requires them.
 - Risks or exceptions are created only when needed.
 - The signed review record is understandable.
-- The proof packet can be shared without embarrassment.
+- The sponsor packet can be shared without embarrassment.
 
 ## Recommended first session {#recommended-first-session}
 
@@ -107,10 +157,12 @@ Compare, replay, portfolio graph, advanced policy packs, and ITSM or chat connec
 
 | Need | Doc |
 |------|-----|
-| End-to-end review lifecycle | [Complete review workflow](/help/first-pilot-path) |
+| Pilot prep and support | [Pilot guide](/help/pilot-guide) |
 | Review templates | [Specialty walkthroughs](/help/specialty-walkthroughs) |
+| Wizard field reference | [Review guide](/help/review-guide) |
 | Step-by-step evaluator orientation | [Choose your next step](/help/path-chooser) |
 | First-session checklist in the product | [First review guide](/onboarding) |
+| Governance when enabled | [Governance approval](/help/governance-approval) |
 
 </details>
 

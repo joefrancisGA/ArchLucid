@@ -22,7 +22,7 @@ const OPERATOR_SHELL_COPY: FirstPilotOperatingRailShellCopy = {
   intro:
     "Six steps from setup verification to a finalized review. Operate compare, governance dashboards, and V1.1 connectors stay secondary until you have a finalized review.",
   showHeaderHelpLink: true,
-  headerHelpSlug: "first-pilot-path",
+  headerHelpSlug: "first-architecture-review",
   headerHelpLabel: "Architecture review walkthrough",
   showStepTroubleshootLinks: true,
   minimizedExpandLabel: "Show full operating path",
@@ -36,7 +36,7 @@ const BUYER_SHELL_COPY: FirstPilotOperatingRailShellCopy = {
   intro:
     "Six steps from workspace readiness to a signed review. Complete the core review workflow first — governance, comparison, and audit views are most useful once the evidence record is finalized.",
   showHeaderHelpLink: false,
-  headerHelpSlug: "first-pilot-path",
+  headerHelpSlug: "first-architecture-review",
   headerHelpLabel: "Architecture review walkthrough",
   showStepTroubleshootLinks: false,
   minimizedExpandLabel: "Show guided workflow",

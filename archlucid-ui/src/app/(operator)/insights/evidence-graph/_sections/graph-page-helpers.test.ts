@@ -6,7 +6,10 @@ import {
   GRAPH_IDLE,
 } from "@/lib/empty-state-presets";
 
-import { resolveGraphIdleEmptyPreset } from "./graph-page-helpers";
+import {
+  resolveEvidenceTrailPresentationView,
+  resolveGraphIdleEmptyPreset,
+} from "./graph-page-helpers";
 
 describe("resolveGraphIdleEmptyPreset", () => {
   it("returns operator GRAPH_IDLE when not buyer-polished and not demo idle", () => {
@@ -47,5 +50,26 @@ describe("resolveGraphIdleEmptyPreset", () => {
     expect(preset.title).toBe("No completed reviews yet");
     expect(preset.actions?.[0]?.label).toBe(AZURE_REFERENCE_SAMPLE_GRAPH_CTA_LABEL);
     expect(preset.actions?.[1]?.label).toBe(CREATE_ARCHITECTURE_LABEL);
+  });
+
+  it("uses awaiting-selection copy when packages exist but no review is chosen", () => {
+    const preset = resolveGraphIdleEmptyPreset({
+      buyerPolished: true,
+      demoUi: true,
+      showIdleCard: true,
+      awaitingSelection: true,
+    });
+
+    expect(preset.title).toBe("Select a review");
+    expect(preset.description).toContain("Choose a completed review");
+  });
+});
+
+describe("resolveEvidenceTrailPresentationView", () => {
+  it("defaults buyer shells to graph and honors explicit URL presentation", () => {
+    expect(resolveEvidenceTrailPresentationView(null, true)).toBe("graph");
+    expect(resolveEvidenceTrailPresentationView(undefined, false)).toBe("trace");
+    expect(resolveEvidenceTrailPresentationView("trace", true)).toBe("trace");
+    expect(resolveEvidenceTrailPresentationView("graph", false)).toBe("graph");
   });
 });

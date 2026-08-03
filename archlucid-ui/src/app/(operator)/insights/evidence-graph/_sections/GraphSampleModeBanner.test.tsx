@@ -19,4 +19,14 @@ describe("GraphSampleModeBanner (TB-1363)", () => {
     expect(banner).toHaveTextContent("not your workspace");
     expect(banner).toHaveTextContent("not a review from your tenant");
   });
+
+  it("collapses to a one-line status with disclosure when compact", () => {
+    render(<GraphSampleModeBanner compact />);
+
+    const banner = screen.getByTestId("graph-sample-mode-banner");
+
+    expect(banner).toHaveAttribute("data-compact", "true");
+    expect(banner).toHaveTextContent(BUYER_EVIDENCE_GRAPH_SAMPLE_BANNER_TITLE);
+    expect(screen.getByText("Why am I seeing this?")).toBeInTheDocument();
+  });
 });

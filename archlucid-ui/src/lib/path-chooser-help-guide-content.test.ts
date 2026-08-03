@@ -12,7 +12,8 @@ describe("path-chooser-help-guide-content", () => {
   it("keeps primary CTAs on review start, security-trust, and first-pilot path", () => {
     expect(PATH_CHOOSER_HELP_PRIMARY_ACTIONS.startReview.href).toBe("/architecture/reviews/new");
     expect(PATH_CHOOSER_HELP_PRIMARY_ACTIONS.securityTrust.href).toBe("/help/security-trust");
-    expect(PATH_CHOOSER_HELP_PRIMARY_ACTIONS.firstPilotPath.href).toBe("/help/first-pilot-path");
+    expect(PATH_CHOOSER_HELP_PRIMARY_ACTIONS.firstPilotPath.href).toBe("/help/first-architecture-review");
+    expect(PATH_CHOOSER_HELP_PRIMARY_ACTIONS.firstPilotPath.label).toBe("Your first architecture review");
   });
 
   it("maps five goal branches to in-app primary and fallback hrefs", () => {

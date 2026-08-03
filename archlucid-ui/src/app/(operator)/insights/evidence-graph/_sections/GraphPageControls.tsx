@@ -166,7 +166,7 @@ export function GraphPageControls(props: GraphPageControlsProps) {
               "rounded-md border border-neutral-200/80 bg-neutral-50/60 p-2 opacity-90 dark:border-neutral-800 dark:bg-neutral-900/40",
           )}
         >
-          <div className={cn("min-w-[12rem] flex-1", compactEmptyWorkspace ? "lg:max-w-md" : "lg:max-w-sm")}>
+          <div className={cn("min-w-[14rem] flex-1", compactEmptyWorkspace ? "lg:max-w-lg" : "lg:max-w-md")}>
             <AskRunIdPicker
               value={runId}
               onChange={onRunIdChange}
@@ -174,8 +174,8 @@ export function GraphPageControls(props: GraphPageControlsProps) {
               fieldId="graph-run"
               label="Review"
               committedOnly
-              preferAutoPick={false}
-              autoSelectSyntheticSample={false}
+              preferAutoPick
+              autoSelectSyntheticSample
               hideFieldHelper
               reviewsLoadErrorPlaceholder={BUYER_EVIDENCE_TRAIL_REVIEWS_LOAD_PLACEHOLDER}
               reviewsLoadErrorHint={BUYER_EVIDENCE_TRAIL_REVIEWS_LOAD_HINT}
@@ -228,11 +228,11 @@ export function GraphPageControls(props: GraphPageControlsProps) {
           <div className="space-y-1">
             <div className="flex flex-wrap items-center gap-2">
               <TabsList aria-label="Evidence graph view" data-testid="graph-presentation-tabs" className="gap-1 border-0">
-                <TabsTrigger value="trace" data-testid="graph-presentation-tab-trace" className="shrink-0">
-                  {BUYER_EVIDENCE_TRAIL_VIEW_TRACE}
-                </TabsTrigger>
                 <TabsTrigger value="graph" data-testid="graph-presentation-tab-graph" className="shrink-0">
                   {BUYER_EVIDENCE_TRAIL_VIEW_GRAPH}
+                </TabsTrigger>
+                <TabsTrigger value="trace" data-testid="graph-presentation-tab-trace" className="shrink-0">
+                  {BUYER_EVIDENCE_TRAIL_VIEW_TRACE}
                 </TabsTrigger>
               </TabsList>
               {runTrim.length > 0 && !sampleGraphActive ? (

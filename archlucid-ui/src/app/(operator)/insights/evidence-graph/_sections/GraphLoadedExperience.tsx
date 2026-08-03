@@ -25,7 +25,7 @@ import {
   safeGraphExportFilenameSegment,
 } from "@/lib/graph-view-model-export";
 import { graphViewModelFilteredByNodeType } from "@/lib/graph-view-model-type-filter";
-import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { EvidenceTrailPresentationView, GraphMode } from "@/app/(operator)/insights/evidence-graph/_sections/graph-page-helpers";
 import { BUYER_EVIDENCE_TRAIL_GRAPH_MODE_OPTIONS } from "@/app/(operator)/insights/evidence-graph/_sections/graph-page-helpers";
 import { GraphInteractiveCanvas } from "@/app/(operator)/insights/evidence-graph/_sections/GraphInteractiveCanvas";
@@ -73,8 +73,10 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
     controls,
     defaultSelectedGraphNodeId,
     onPresentationViewChange,
-    sampleGraphActive = false,
+    sampleGraphActive: _sampleGraphActive = false,
   } = props;
+
+  void _sampleGraphActive;
 
   const runTrim = runId.trim();
   const showcaseRun = canonicalizeDemoRunId(runTrim) === canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID);
@@ -83,15 +85,17 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
   return (
     <>
       {buyerPolishedShell ? (
-        <div className={cn("mb-6 space-y-3", graphMainColumnMaxClass)}>
+        <div className="mb-4 space-y-2">
           <TabsContent value="trace" className="pt-0" data-testid="graph-presentation-panel-trace">
-            <EvidenceTrailTracePanel
-              runId={runTrim}
-              onOpenGraphView={() => onPresentationViewChange?.("graph")}
-            />
+            <div className={graphMainColumnMaxClass}>
+              <EvidenceTrailTracePanel
+                runId={runTrim}
+                onOpenGraphView={() => onPresentationViewChange?.("graph")}
+              />
+            </div>
           </TabsContent>
           <TabsContent value="graph" className="pt-0" data-testid="graph-presentation-panel-graph">
-            <div className="mb-4 flex flex-wrap gap-2" role="group" aria-label="Graph scope" data-testid="graph-scope-pills">
+            <div className={cn("mb-2 flex flex-wrap gap-2", graphMainColumnMaxClass)} role="group" aria-label="Graph scope" data-testid="graph-scope-pills">
               {BUYER_EVIDENCE_TRAIL_GRAPH_MODE_OPTIONS.map((option) => (
                 <Button
                   key={option.mode}
@@ -106,17 +110,7 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
                 </Button>
               ))}
             </div>
-            {graphLooksLikeCoordinatorProvenanceTrail(graph) && demoUi && !sampleGraphActive ? (
-              <div>
-                <p className={cn("m-0 mb-1.5", OPERATOR_NAV_GROUP_LABEL)}>
-                  How to read this graph
-                </p>
-                <p className={cn("m-0 max-w-prose", OPERATOR_TYPOGRAPHY.body)}>
-                  Trace how architecture evidence supports findings, decisions, approvals, and the final review.
-                </p>
-              </div>
-            ) : null}
-            <div className="mb-3 flex flex-wrap items-center gap-3">
+            <div className={cn("mb-2 flex flex-wrap items-center gap-3", graphMainColumnMaxClass)}>
               <span className={OPERATOR_TYPOGRAPHY.helper}>
                 {graphInteractiveReady && !loading
                   ? `${graph.nodes.length} linked evidence and decision nodes in this view`
@@ -124,9 +118,9 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
               </span>
             </div>
             {graphInteractiveReady && !loading ? (
-              <div className={cn("mb-3 space-y-2", graphMainColumnMaxClass)}>
+              <div className={cn("mb-2 space-y-2", graphMainColumnMaxClass)}>
                 {graphLooksLikeCoordinatorProvenanceTrail(graph) && demoUi ? (
-                  <GraphReviewTrailLegendChips buyerPolished />
+                  <GraphReviewTrailLegendChips buyerPolished showRoles={false} />
                 ) : (
                   <GraphNodeKindLegendChips />
                 )}
@@ -143,7 +137,7 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
               onInteractiveSurfaceReady={buyerPolishedShell ? onGraphInteractiveSurfaceReady : undefined}
               defaultSelectedGraphNodeId={defaultSelectedGraphNodeId}
             />
-            <div className={cn("mt-6 flex flex-wrap gap-2", graphMainColumnMaxClass)}>
+            <div className={cn("mt-4 flex flex-wrap gap-2", graphMainColumnMaxClass)}>
               <Button type="button" asChild variant="default" size="sm">
                 <Link href={`/governance/approval-queue?runId=${encodeURIComponent(runTrim)}`}>
                   {showcaseRun ? BUYER_GRAPH_GOVERNANCE_NEXT_APPROVED : BUYER_GRAPH_GOVERNANCE_NEXT_PENDING}

@@ -29,7 +29,7 @@ export const EVIDENCE_GRAPH_AWAITING_SELECTION_TITLE = "Select a review";
 export const EVIDENCE_GRAPH_AWAITING_SELECTION_BODY =
   "Choose a completed review to visualize how evidence connects to findings, decisions, approvals, and audit records.";
 
-export const EVIDENCE_GRAPH_IDLE_PREVIEW_TITLE = "What you’ll see";
+export const EVIDENCE_GRAPH_IDLE_PREVIEW_TITLE = "What you'll see";
 
 export const EVIDENCE_GRAPH_IDLE_PREVIEW_STEPS = [
   "Evidence",

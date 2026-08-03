@@ -57,6 +57,7 @@ import { GraphIdlePlaceholder } from "@/app/(operator)/insights/evidence-graph/_
 import {
   applyProvenanceDemoPresentationIfEligible,
   buildGraphSavedViewPayload,
+  resolveEvidenceTrailPresentationView,
   resolveGraphIdleEmptyPreset,
   type EvidenceTrailPresentationView,
   type GraphMode,
@@ -75,6 +76,7 @@ export function GraphPageContent() {
   const searchParams = useSearchParams();
   const urlRunId = searchParams.get("runId")?.trim() ?? "";
   const urlGraphNodeId = searchParams.get("graphNodeId")?.trim() ?? "";
+  const urlPresentation = searchParams.get("presentation");
   const workspaceRun = useWorkspaceActiveRun();
   const [decisionId, setDecisionId] = useState("");
   const [nodeId, setNodeId] = useState("");
@@ -88,7 +90,7 @@ export function GraphPageContent() {
   const [architectureGraphNote, setArchitectureGraphNote] = useState<string | null>(null);
   const [graphInteractiveReady, setGraphInteractiveReady] = useState(false);
   const [presentationView, setPresentationView] = useState<EvidenceTrailPresentationView>(() =>
-    isBuyerPolishedOperatorShellEnv() ? "graph" : "trace",
+    resolveEvidenceTrailPresentationView(urlPresentation, isBuyerPolishedOperatorShellEnv()),
   );
   const [reviewsListLoadError, setReviewsListLoadError] = useState(false);
   const [reviewListAvailability, setReviewListAvailability] = useState<AskRunListAvailability>({
@@ -151,6 +153,18 @@ export function GraphPageContent() {
     setReviewListAvailability(availability);
   }, []);
 
+  const handleRunIdChange = useCallback((value: string) => {
+    setRunId(value);
+
+    if (value.trim().length > 0) {
+      setGraphLoadRequested(true);
+      return;
+    }
+
+    setGraphLoadRequested(false);
+    setGraph(null);
+  }, []);
+
   useEffect(() => {
     if (urlRunId.length === 0) {
       return;
@@ -159,6 +173,12 @@ export function GraphPageContent() {
     setRunId(urlRunId);
     setGraphLoadRequested(true);
   }, [urlRunId]);
+
+  useEffect(() => {
+    setPresentationView(
+      resolveEvidenceTrailPresentationView(urlPresentation, isBuyerPolishedOperatorShellEnv()),
+    );
+  }, [urlPresentation]);
 
   useEffect(() => {
     if (urlRunId.length > 0) {
@@ -466,8 +486,9 @@ export function GraphPageContent() {
         buyerPolished: buyerPolishedShell,
         demoUi,
         showIdleCard,
+        awaitingSelection: reviewPickerState === "no-selection",
       }),
-    [buyerPolishedShell, demoUi, showIdleCard],
+    [buyerPolishedShell, demoUi, reviewPickerState, showIdleCard],
   );
 
   const pageTitle = buyerPolishedShell ? EVIDENCE_GRAPH_PAGE_TITLE : BUYER_SURFACE_VOCABULARY.evidenceGraph;
@@ -487,6 +508,8 @@ export function GraphPageContent() {
         runId,
         graphLoadRequested,
         effectiveGraph,
+        loading,
+        loadFailure,
       })
     : !(demoUi && mode === "provenance-full") &&
       (!demoUi || mode !== "provenance-full" || effectiveGraph === null);
@@ -560,7 +583,7 @@ export function GraphPageContent() {
     <GraphPageControls
       graphMainColumnMaxClass={graphMainColumnMaxClass}
       runId={runId}
-      onRunIdChange={setRunId}
+      onRunIdChange={handleRunIdChange}
       mode={mode}
       onModeChange={setMode}
       demoUi={demoUi}
@@ -628,6 +651,7 @@ export function GraphPageContent() {
           <GraphSampleModeBanner
             className={graphMainColumnMaxClass}
             showUseMyReviewAction={reviewListAvailability.packageCount > 0}
+            compact
           />
         ) : null}
         <TabsContent value="trace" className="pt-0" data-testid="graph-presentation-panel-trace">

@@ -31,6 +31,12 @@ public sealed class AgentTypeKeysTests
     }
 
     [Fact]
+    public void UnrestrictedDispatch_sentinel_is_star()
+    {
+        AgentTypeKeys.UnrestrictedDispatch.Should().Be("*");
+    }
+
+    [Fact]
     public void ResolveDispatchKey_trims_explicit_key_when_present()
     {
         AgentTask task = new()

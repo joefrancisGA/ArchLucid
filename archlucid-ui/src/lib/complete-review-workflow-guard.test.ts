@@ -1,25 +1,18 @@
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import {
   isDocumentationMaintenanceMetadataLine,
   prepareHelpMarkdownForPresentation,
 } from "@/lib/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
+import {
+  getProductDocumentationEntry,
+  inAppHelpHref,
+  normalizeHelpTopicSlug,
+} from "@/lib/product-documentation-registry";
 
-const COMPLETE_REVIEW_WORKFLOW_PATH = join(
-  process.cwd(),
-  "..",
-  "docs",
-  "library",
-  "customer-facing",
-  "COMPLETE_REVIEW_WORKFLOW.md",
-);
-
-/** Customer-facing complete review workflow must not leak internal runbook or operator jargon. */
-const COMPLETE_REVIEW_WORKFLOW_BANNED_PHRASES: readonly string[] = [
+/** Customer-facing Core Pilot body must not leak internal runbook or operator jargon. */
+const CORE_PILOT_BANNED_PHRASES: readonly string[] = [
   "pilot deployment",
   "deep-default shell",
   "operator status",
@@ -37,47 +30,51 @@ const COMPLETE_REVIEW_WORKFLOW_BANNED_PHRASES: readonly string[] = [
   "archlucid pilot",
 ] as const;
 
-function readCompleteReviewWorkflowMarkdown(): string {
-  return readFileSync(COMPLETE_REVIEW_WORKFLOW_PATH, "utf8");
-}
+/**
+ * TB-1379: first-pilot-path / COMPLETE_REVIEW_WORKFLOW folded into Your first architecture review.
+ */
+describe("complete review workflow → Core Pilot (TB-1379)", () => {
+  const aliasSlug = "first-pilot-path";
+  const canonicalSlug = "first-architecture-review";
 
-describe("complete review workflow help copy guard", () => {
-  it("registers first-pilot-path as buyer-facing product help", () => {
-    const entry = getProductDocumentationEntry("first-pilot-path");
+  it("aliases first-pilot-path to first-architecture-review", () => {
+    expect(normalizeHelpTopicSlug(aliasSlug)).toBe(canonicalSlug);
 
-    expect(entry).not.toBeUndefined();
+    const entry = getProductDocumentationEntry(aliasSlug);
+
+    expect(entry?.slug).toBe(canonicalSlug);
+    expect(entry?.title).toBe("Your first architecture review");
     expect(entry?.audience).toBe("buyer");
-    expect(entry?.title).toBe("Complete review workflow");
-    expect(entry?.sourcePaths[0]).toContain("COMPLETE_REVIEW_WORKFLOW.md");
+    expect(entry?.sourcePaths).toEqual(["docs/CORE_PILOT.md"]);
+    expect(inAppHelpHref(aliasSlug)).toBe(`/help/${canonicalSlug}`);
   });
 
-  it("keeps customer workflow body free of internal operator and runbook phrases", () => {
-    const normalized = readCompleteReviewWorkflowMarkdown().toLowerCase();
-    const violations = COMPLETE_REVIEW_WORKFLOW_BANNED_PHRASES.filter((phrase) => normalized.includes(phrase));
+  it("keeps Core Pilot markdown free of internal operator and runbook phrases", () => {
+    const loaded = tryLoadProductDocumentation(canonicalSlug);
+
+    expect(loaded).not.toBeNull();
+
+    const normalized = loaded!.markdown.toLowerCase();
+    const violations = CORE_PILOT_BANNED_PHRASES.filter((phrase) => normalized.includes(phrase));
 
     expect(violations).toEqual([]);
   });
 
-  it("uses lifecycle step headings instead of markdown horizontal rules", () => {
-    const source = readCompleteReviewWorkflowMarkdown();
+  it("retains complete-lifecycle depth sections in Core Pilot", () => {
+    const loaded = tryLoadProductDocumentation(canonicalSlug);
 
-    expect(source.split("\n").some((line) => /^---\s*$/.test(line.trim()))).toBe(false);
-    expect(source).toContain("## Step 1: Create a review");
-    expect(source).toContain("## Step 6: Export and share artifacts");
-    expect(source).toContain("## Review states");
-    expect(source).toContain("## Related help");
-  });
-
-  it("includes the customer-facing intro sentence", () => {
-    const text = readCompleteReviewWorkflowMarkdown();
-
-    expect(text).toContain(
+    expect(loaded).not.toBeNull();
+    expect(loaded!.markdown).toContain("Complete review lifecycle");
+    expect(loaded!.markdown).toContain("Resolve decisions and risks");
+    expect(loaded!.markdown).toContain("Export and share artifacts");
+    expect(loaded!.markdown).toContain("Review states");
+    expect(loaded!.markdown).toContain(
       "ArchLucid turns architecture evidence into a review with findings, decisions, evidence traceability, and export-ready artifacts.",
     );
   });
 
   it("hides maintenance metadata when prepared for buyer help presentation", () => {
-    const loaded = tryLoadProductDocumentation("first-pilot-path");
+    const loaded = tryLoadProductDocumentation(aliasSlug);
 
     expect(loaded).not.toBeNull();
 

@@ -154,7 +154,7 @@ export const CORE_PILOT_HELP_DISCLOSURE = {
 } as const;
 
 export const CORE_PILOT_HELP_DEPTH_GUIDES: readonly { readonly label: string; readonly href: string }[] = [
-  { label: "Complete review workflow", href: inAppHelpHref("first-pilot-path") },
+  { label: "Pilot guide", href: inAppHelpHref("pilot-guide") },
   { label: "First review guide in the product", href: "/architecture/first-review-guide" },
 ];
 

@@ -47,7 +47,6 @@ export const PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG: Readonly<
   "evidence-trail": "product-help",
   "executive-summary": "product-help",
   findings: "product-help",
-  "first-pilot-path": "product-help",
   "first-review": "internal-runbook",
   "first-value-20-minutes": "internal-runbook",
   "getting-started": "product-help",

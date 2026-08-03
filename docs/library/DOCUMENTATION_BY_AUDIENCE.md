@@ -67,7 +67,7 @@ Two **documentation planes** coexist: **outward-facing product + trust narration
 ### Contributor-vendor-internal (toolchain + CI)
 
 1. **`engineering/INSTALL_ORDER.md`** (see [`../engineering/INSTALL_ORDER.md`](../engineering/INSTALL_ORDER.md)) — Docker / .NET / Node order.
-2. **[`../onboarding/day-one-developer.md`](../onboarding/day-one-developer.md)** + **[`CONTRIBUTOR_CODE_MAP.md`](CONTRIBUTOR_CODE_MAP.md)** + **[`CHANGE_IMPACT_CHECKLIST.md`](CHANGE_IMPACT_CHECKLIST.md)** — where to edit safely and what follow-through to check.
+2. **[`../onboarding/day-one-developer.md`](../onboarding/day-one-developer.md)** + **[`CONTRIBUTOR_CODE_MAP.md`](CONTRIBUTOR_CODE_MAP.md)** ([#change-impact-checklist](CONTRIBUTOR_CODE_MAP.md#change-impact-checklist); `CHANGE_IMPACT_CHECKLIST.md` alias) — where to edit safely and what follow-through to check.
 3. **[`BUILD.md`](../engineering/BUILD.md)**, **[`TEST_STRUCTURE.md`](TEST_STRUCTURE.md)** — local correctness loop.
 
 Deep narrative for both columns together — **[`START_HERE_DEPTH.md`](START_HERE_DEPTH.md)**.

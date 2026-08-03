@@ -40,7 +40,7 @@ describe("GraphPageControls buyer presentation tabs (TB-669)", () => {
     const onPresentationViewChange = vi.fn();
 
     render(
-      <Tabs value="trace" onValueChange={onPresentationViewChange}>
+      <Tabs value="graph" onValueChange={onPresentationViewChange}>
         <GraphPageControls
           graphMainColumnMaxClass="max-w-3xl"
           runId="demo-run"
@@ -63,14 +63,14 @@ describe("GraphPageControls buyer presentation tabs (TB-669)", () => {
     );
 
     expect(screen.getByRole("tablist", { name: "Evidence graph view" })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "Trace table" })).toHaveAttribute("aria-selected", "true");
-    expect(screen.getByRole("tab", { name: "Graph view" })).toHaveAttribute("aria-selected", "false");
-    expect(screen.queryByRole("button", { name: "Trace table" })).toBeNull();
+    expect(screen.getByRole("tab", { name: "Graph view" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("tab", { name: "Trace table" })).toHaveAttribute("aria-selected", "false");
+    expect(screen.queryByRole("button", { name: "Graph view" })).toBeNull();
 
-    const traceTab = screen.getByRole("tab", { name: "Trace table" });
-    traceTab.focus();
+    const graphTab = screen.getByRole("tab", { name: "Graph view" });
+    graphTab.focus();
     fireEvent.keyDown(screen.getByRole("tablist", { name: "Evidence graph view" }), { key: "ArrowRight" });
 
-    expect(onPresentationViewChange).toHaveBeenCalledWith("graph");
+    expect(onPresentationViewChange).toHaveBeenCalledWith("trace");
   });
 });

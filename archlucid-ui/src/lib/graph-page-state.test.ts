@@ -144,4 +144,27 @@ describe("graph-page-state", () => {
       }),
     ).toBe(false);
   });
+
+  it("hides buyer load button while auto-load is in flight and shows it again after failure", () => {
+    expect(
+      shouldShowBuyerEvidenceGraphLoadButton({
+        reviewPickerState: "real-review",
+        runId: "review-42",
+        graphLoadRequested: true,
+        effectiveGraph: null,
+        loading: true,
+      }),
+    ).toBe(false);
+
+    expect(
+      shouldShowBuyerEvidenceGraphLoadButton({
+        reviewPickerState: "real-review",
+        runId: "review-42",
+        graphLoadRequested: true,
+        effectiveGraph: null,
+        loading: false,
+        loadFailure: { kind: "http", httpStatus: 500, message: "failed" },
+      }),
+    ).toBe(true);
+  });
 });

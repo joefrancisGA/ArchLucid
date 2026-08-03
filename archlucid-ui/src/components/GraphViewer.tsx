@@ -335,6 +335,17 @@ export function GraphViewer({
     handleTracePath();
   };
 
+  const handleResetView = (): void => {
+    setShowPathOnly(false);
+    setPathNodeIds(null);
+    setFitViewTrigger((current) => current + 1);
+  };
+
+  const selectionBreadcrumb =
+    buyerTrailPanel && selectedNode !== null
+      ? resolveBuyerTrailPathBreadcrumb(filtered, selectedNode.id)
+      : [];
+
   useEffect(() => {
     setInteractiveSurfaceReady(false);
   }, [filtered.nodes.length, filtered.edges.length, flowPresentation]);
@@ -395,16 +406,17 @@ export function GraphViewer({
     <div
       className={
         buyerTrailPanel
-          ? "grid grid-cols-[1fr_minmax(280px,340px)] gap-4"
+          ? "grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(320px,28%)]"
           : compactChrome
             ? "grid grid-cols-1 gap-4 lg:grid-cols-[1fr_280px]"
             : "grid grid-cols-[1fr_320px] gap-4"
       }
+      data-testid={buyerTrailPanel ? "graph-buyer-workspace" : "graph-operator-workspace"}
     >
       <div
         className={
           buyerTrailPanel
-            ? "h-[min(76vh,820px)] min-h-[440px] w-full rounded-xl border-2 border-slate-200 bg-slate-50/80 shadow-inner dark:border-slate-700 dark:bg-slate-950/50"
+            ? "h-[min(88vh,960px)] min-h-[520px] w-full rounded-xl border-2 border-slate-200 bg-slate-50/80 shadow-inner dark:border-slate-700 dark:bg-slate-950/50"
             : compactChrome
               ? "h-[min(55vh,520px)] min-h-[300px] w-full border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-950"
               : "h-[70vh] w-full border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-950"
@@ -414,6 +426,8 @@ export function GraphViewer({
           <div className="border-b border-slate-200 px-3 py-2 dark:border-slate-700">
             <GraphBuyerCanvasToolbar
               onFitGraph={() => setFitViewTrigger((current) => current + 1)}
+              onZoom100={() => setZoom100Trigger((current) => current + 1)}
+              onResetView={handleResetView}
               onTracePath={handleTracePath}
               onTogglePathOnly={handleTogglePathOnly}
               showPathOnly={showPathOnly}
@@ -421,7 +435,7 @@ export function GraphViewer({
             />
           </div>
         ) : null}
-        <div className={buyerTrailPanel ? "h-[calc(100%-3rem)] min-h-[380px]" : "h-full"}>
+        <div className={buyerTrailPanel ? "h-[calc(100%-3.25rem)] min-h-[460px]" : "h-full"}>
         <ReactFlowProvider>
           <ReactFlow
             nodes={nodes as Node[]}
@@ -467,6 +481,7 @@ export function GraphViewer({
               fitMaxZoom={fitMaxZoom}
               trigger={fitViewTrigger}
             />
+            <GraphBuyerZoom100Trigger trigger={zoom100Trigger} />
             {buyerTrailPanel ? null : compactChrome ? null : <MiniMap />}
 
             <Controls
@@ -490,7 +505,7 @@ export function GraphViewer({
         aria-label="Graph settings and selection details"
         className={
           buyerTrailPanel
-            ? "max-h-[min(88vh,960px)] flex flex-col gap-4 overflow-auto rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950"
+            ? "max-h-[min(88vh,960px)] flex min-h-[520px] flex-col gap-4 overflow-auto rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950"
             : compactChrome
               ? "max-h-[min(55vh,520px)] flex flex-col gap-4 overflow-auto rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950 lg:max-h-[min(55vh,520px)]"
               : "max-h-[70vh] flex flex-col gap-4 overflow-auto rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950"
@@ -637,6 +652,15 @@ export function GraphViewer({
             <>
               {buyerTrailPanel ? (
                 <div className="space-y-3">
+                  {selectionBreadcrumb.length > 0 ? (
+                    <p
+                      className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+                      data-testid="graph-selection-breadcrumb"
+                      aria-label="Path context for selected node"
+                    >
+                      {selectionBreadcrumb.join(" → ")}
+                    </p>
+                  ) : null}
                   <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
                     {graphBuyerTrailPanelTitle(selectedNode)}
                   </h3>

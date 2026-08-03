@@ -4,16 +4,15 @@ import { describe, expect, it } from "vitest";
 import { OperatorPilotOrientationBanner } from "@/components/OperatorPilotOrientationBanner";
 
 describe("OperatorPilotOrientationBanner", () => {
-  it("shows one primary action and three secondary links", () => {
+  it("links the walkthrough to Your first architecture review help once", () => {
     render(<OperatorPilotOrientationBanner />);
 
-    expect(screen.getByTestId("operator-pilot-primary-action")).toHaveAttribute("href", "/architecture/reviews/new");
+    expect(screen.getByRole("heading", { name: "Your first architecture review" })).toBeInTheDocument();
     expect(screen.getByTestId("operator-pilot-secondary-first-run")).toHaveAttribute(
       "href",
-      "/help/first-pilot-path",
+      "/help/first-architecture-review",
     );
-    expect(screen.getByTestId("operator-pilot-secondary-help")).toHaveAttribute("href", "/help/first-pilot-path");
+    expect(screen.queryByTestId("operator-pilot-secondary-help")).toBeNull();
     expect(screen.getByTestId("operator-pilot-secondary-reviews")).toHaveAttribute("href", "/architecture/reviews");
-    expect(screen.getAllByRole("link")).toHaveLength(4);
   });
 });

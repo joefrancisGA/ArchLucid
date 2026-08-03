@@ -363,6 +363,7 @@ Human readers and agents should follow **canonical** paths below. This file is t
 | `docs/onboarding/EVALUATOR_WORKBOOK.md` (body) | [`docs/go-to-market/BUYER_ORIENTATION_ONE_SCREEN.md`](go-to-market/BUYER_ORIENTATION_ONE_SCREEN.md) | Pass/hold + stop rules folded into buyer orientation; filename kept as path-stable alias; in-app slug `evaluator-workbook` → `path-chooser` |
 | `docs/runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md` (body) | [`docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md#printable-first-run-evidence-checklist`](runbooks/FIRST_PILOT_OPERATOR_PATH.md#printable-first-run-evidence-checklist) | Printable SE kickoff table folded into operator path; filename kept as path-stable alias; `/help/first-review` loads section via `sectionAnchors` |
 | `docs/library/FIRST_HOUR_OPERATOR_PATH.md` (body) | [`docs/CORE_PILOT.md`](CORE_PILOT.md) | First-hour / first-review guide folded into Core Pilot; filename kept as path-stable alias; in-app slug `first-hour-operator-path` → `first-architecture-review` |
+| `docs/library/CHANGE_IMPACT_CHECKLIST.md` (body) | [`docs/library/CONTRIBUTOR_CODE_MAP.md#change-impact-checklist`](library/CONTRIBUTOR_CODE_MAP.md#change-impact-checklist) | PR follow-through by change type folded into contributor code map; filename kept as path-stable alias |
 
 ## 2026-07-22 runbook consolidation
 

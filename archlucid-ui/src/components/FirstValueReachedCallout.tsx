@@ -103,7 +103,7 @@ export function FirstValueReachedCallout(props: FirstValueReachedCalloutProps) {
           </Link>
         </Button>
         <Button asChild size="sm" variant="outline">
-          <Link href="/help/first-pilot-path">What this means</Link>
+          <Link href="/help/first-architecture-review">What this means</Link>
         </Button>
         <DismissControl data-testid="first-value-reached-dismiss" onDismiss={dismiss} />
       </div>

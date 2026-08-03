@@ -94,7 +94,11 @@ export function FirstReviewGuideSupportPanel() {
         </h2>
         <ul className={cn("m-0 mt-2 space-y-2", OPERATOR_TYPOGRAPHY.body)}>
           <li>
-            <InAppHelpLink helpSlug="first-pilot-path" label="Read the first-review FAQ" variant="text" />
+            <InAppHelpLink
+              helpSlug="first-architecture-review"
+              label="Your first architecture review"
+              variant="text"
+            />
           </li>
           <li>
             <Link className={OPERATOR_LINK.inline} href={sampleHref}>

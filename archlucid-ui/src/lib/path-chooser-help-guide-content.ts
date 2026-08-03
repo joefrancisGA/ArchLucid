@@ -23,8 +23,8 @@ export const PATH_CHOOSER_HELP_PRIMARY_ACTIONS = {
     href: inAppHelpHref("security-trust"),
   },
   firstPilotPath: {
-    label: "Complete review workflow",
-    href: inAppHelpHref("first-pilot-path"),
+    label: "Your first architecture review",
+    href: inAppHelpHref("first-architecture-review"),
   },
 } as const;
 
@@ -50,8 +50,8 @@ export const PATH_CHOOSER_HELP_BRANCHES: readonly PathChooserHelpBranch[] = [
     id: "stuck",
     goal: "I am stuck mid-pilot",
     primary: {
-      label: "Complete review workflow",
-      href: inAppHelpHref("first-pilot-path"),
+      label: "Your first architecture review",
+      href: inAppHelpHref("first-architecture-review"),
     },
     fallback: { label: "Troubleshooting", href: inAppHelpHref("troubleshooting") },
   },

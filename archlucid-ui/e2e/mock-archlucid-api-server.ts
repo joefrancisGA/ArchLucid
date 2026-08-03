@@ -357,17 +357,6 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
         return;
       }
 
-      if (req.method === "GET" && pathname === "/v1/alerts/inbox-summary") {
-        sendJson(res, 200, {
-          openCount: 0,
-          acknowledgedCount: 0,
-          resolvedCount: 0,
-          blockingCount: 0,
-          lastEvaluatedUtc: null,
-        });
-        return;
-      }
-
       if (req.method === "GET" && pathname === "/v1/alerts") {
         const pageNum = Math.max(1, Number.parseInt(u.searchParams.get("page") ?? "1", 10) || 1);
         const pageSize = Math.min(200, Math.max(1, Number.parseInt(u.searchParams.get("pageSize") ?? "25", 10) || 25));

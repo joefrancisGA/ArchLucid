@@ -70,7 +70,6 @@ const HELP_CENTER_TIER_BY_SLUG: Readonly<Record<string, HelpCenterTier>> = {
   alerts: "admin",
   "specialty-walkthroughs": "admin",
   "review-guide": "product",
-  "first-pilot-path": "product",
   "first-architecture-review": "product",
   "first-review": "internal",
   "first-value-20-minutes": "internal",
@@ -129,11 +128,6 @@ const HELP_CENTER_DISPLAY_OVERRIDES: Readonly<Partial<Record<string, HelpCenterD
     title: "Pilot guide",
     summary:
       "Prepare for a pilot, run the first review, interpret outputs, report issues, and get help.",
-  },
-  "first-pilot-path": {
-    title: "Complete review workflow",
-    summary:
-      "Create a review, attach evidence, review findings, finalize, and export sponsor-ready artifacts.",
   },
 };
 

@@ -173,7 +173,7 @@ describe("HelpCorePilotGuideView", () => {
 
     const related = screen.getByTestId("core-pilot-related-guides");
     expect(within(related).getAllByRole("link")).toHaveLength(3);
-    expect(within(related).getByRole("link", { name: "Complete review workflow" })).toBeInTheDocument();
+    expect(within(related).getByRole("link", { name: "Pilot guide" })).toBeInTheDocument();
     expect(within(related).getByRole("link", { name: "First review guide in the product" })).toBeInTheDocument();
     expect(within(related).getByRole("link", { name: "Troubleshooting" })).toBeInTheDocument();
     expect(within(related).queryByRole("link", { name: "Review templates" })).toBeNull();

@@ -17,7 +17,7 @@ Bookmark these canonical paths (**no stub yet**):
 | Where-to-patch atlas | [`CONTRIBUTOR_CODE_MAP.md`](../CONTRIBUTOR_CODE_MAP.md) |
 | Security engineering index | [`contributor-reference/SECURITY.md`](SECURITY.md) |
 | Contributor quick ramp | [`day-one-developer.md`](../../onboarding/day-one-developer.md) |
-| PR follow-through by change type | [`CHANGE_IMPACT_CHECKLIST.md`](../CHANGE_IMPACT_CHECKLIST.md) |
+| PR follow-through by change type | [`CONTRIBUTOR_CODE_MAP.md#change-impact-checklist`](../CONTRIBUTOR_CODE_MAP.md#change-impact-checklist) (`CHANGE_IMPACT_CHECKLIST.md` alias) |
 | Apex marketing + Front Door coexistence (`archlucid.net`) | [`PUBLIC_MARKETING_SITE_TOPOLOGY.md`](../PUBLIC_MARKETING_SITE_TOPOLOGY.md) |
 
 ## Phase roadmap

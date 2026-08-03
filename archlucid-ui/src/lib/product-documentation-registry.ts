@@ -52,6 +52,8 @@ export const HELP_TOPIC_SLUG_ALIASES: Readonly<Record<string, string>> = {
   "evaluator-workbook": "path-chooser",
   /** First-hour / first-review guide folded into Core Pilot (2026-08-03; TB-1374). */
   "first-hour-operator-path": "first-architecture-review",
+  /** Complete review workflow folded into Core Pilot (2026-08-03; TB-1379). */
+  "first-pilot-path": "first-architecture-review",
 };
 
 export function normalizeHelpTopicSlug(slug: string): string {
@@ -98,14 +100,6 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
       "Create an architecture review: name the review, upload evidence, add context, confirm scope, and finalize the review.",
     audience: "buyer",
     sourcePaths: ["docs/library/customer-facing/REVIEW_GUIDE.md"],
-  },
-  {
-    slug: "first-pilot-path",
-    title: "Complete review workflow",
-    summary:
-      "End-to-end review lifecycle — create a review, attach evidence, review findings, finalize, and export sponsor-ready artifacts.",
-    audience: "buyer",
-    sourcePaths: ["docs/library/customer-facing/COMPLETE_REVIEW_WORKFLOW.md"],
   },
   {
     slug: "pilot-guide",
@@ -443,7 +437,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     slug: "first-value-20-minutes",
     title: "First value in 20 minutes (Admin runbook)",
     summary:
-      "Admin-only SE/ops checklist for time-boxed first value when platform wiring is already green. Customer architects should use Your first architecture review or Complete review workflow instead.",
+      "Admin-only SE/ops checklist for time-boxed first value when platform wiring is already green. Customer architects should use Your first architecture review instead.",
     audience: "operator",
     sourcePaths: ["docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md"],
     sectionAnchors: ["first-value-in-20-minutes"],

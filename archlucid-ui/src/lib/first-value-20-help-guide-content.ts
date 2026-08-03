@@ -27,8 +27,8 @@ export const FIRST_VALUE_20_HELP_JOB_MATRIX = [
     when: "Default path for customer architects",
   },
   {
-    label: "Complete review workflow",
-    href: inAppHelpHref("first-pilot-path"),
+    label: "Your first architecture review",
+    href: inAppHelpHref("first-architecture-review"),
     when: "End-to-end lifecycle without the Admin time box",
   },
   {
@@ -66,7 +66,7 @@ export type FirstValue20HelpSourceLink = {
 /** Admin Sources — no self-href to this topic. */
 export const FIRST_VALUE_20_HELP_SOURCES: readonly FirstValue20HelpSourceLink[] = [
   { label: "Your first architecture review", href: FIRST_ARCHITECTURE_REVIEW_HELP_PATH },
-  { label: "Complete review workflow", href: inAppHelpHref("first-pilot-path") },
+  { label: "Your first architecture review", href: inAppHelpHref("first-architecture-review") },
   { label: "First-run evidence checklist", href: inAppHelpHref("first-review") },
   { label: "Troubleshooting", href: inAppHelpHref("troubleshooting") },
   { label: "Configuration reference", href: inAppHelpHref("configuration-reference") },
