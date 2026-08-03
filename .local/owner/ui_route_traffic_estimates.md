@@ -45,13 +45,12 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 
 ---
 
-**OVERALL WEIGHT SCORE:** 53.26%
+**OVERALL WEIGHT SCORE:** 53.37%
 
 ## Master table (score 0 first; then Deficit desc; ties A→Z by path)
 
 | ID | Path | Hit% | Scores | Weight | Deficit | Section | Notes |
 |----|------|------|--------|--------|---------|---------|-------|
-| MMX | `/signed-records/[manifestId]` | 0.15% | 0 | 0 | 15 | Marketing | None |
 | ATX | `/admin/tenant-health` | 0.12% | 0 | 0 | 12 | Admin | None |
 | FXX | `/faq` | 0.12% | 0 | 0 | 12 | Marketing | None |
 | HC | `/help/cloud-connections/azure` | 0.12% | 0 | 0 | 12 | Help alias | None |
@@ -71,7 +70,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | SRI | `/administration/settings/users/invite-reviewer` | 0.08% | 0 | 0 | 8 | Admin | None |
 | DXX | `/demo` | 0.08% | 0 | 0 | 8 | Marketing | None |
 | GO | `/help/governance-approval` | 0.08% | 0 | 0 | 8 | Help topic | None |
-| HR | `/help/review-guide` | 0.08% | 0 | 0 | 8 | Help topic | None |
+| HR | `/help/review-guide` | 0.08% | 0 | 0 | 8 | Help topic | Canon for wizard field-reference (`REVIEW_GUIDE.md`). Absorbs former HET (`/help/starting-reviews`) registry twin + HER (`/help/creating-runs`) alias chain (TB-1258 / TB-1643; 2026-08-03). |
 | ISX | `/integrations/servicenow` | 0.08% | 0 | 0 | 8 | Integrations | None |
 | SVX | `/signup/verify` | 0.08% | 0 | 0 | 8 | Marketing | None |
 | HBX | `/help/billing-and-plans` | 0.07% | 0 | 0 | 7 | Help topic | None |
@@ -163,7 +162,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | HGC | `/help/cloud-connections/gcp` | 0.02% | 0 | 0 | 2 | Help alias | None |
 | CO | `/help/comparison-replay` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HEO | `/help/core-pilot` | 0.02% | 0 | 0 | 2 | Help alias | None |
-| HER | `/help/creating-runs` | 0.02% | 0 | 0 | 2 | Help alias | None |
+| HER | `/help/creating-runs` | 0.02% | 0 | 0 | 2 | Help alias | Alias → `/help/review-guide` (HR). Fold hit share into HR on next `/al-ui-tableupdate` pass (TB-1644). |
 | HED | `/help/data-handling` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HDA | `/help/data-handling-tenant-isolation` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HEV | `/help/evidence-only-review` | 0.02% | 0 | 0 | 2 | Help topic | None |
@@ -178,7 +177,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | EPR | `/help/product-overview` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HRE | `/help/report-a-problem` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HS | `/help/specialty-walkthroughs` | 0.02% | 0 | 0 | 2 | Help topic | None |
-| HET | `/help/starting-reviews` | 0.02% | 0 | 0 | 2 | Help topic | None |
+| HET | `/help/starting-reviews` | 0.02% | 0 | 0 | 2 | Help alias | Alias → `/help/review-guide` (HR) after TB-1258 canonicalize (2026-08-03). Fold hit share into HR on next `/al-ui-tableupdate` pass. |
 | HEU | `/help/subprocessors` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | INI | `/insights/impact-preview` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | INP | `/insights/patterns` | 0.02% | 0 | 0 | 2 | Marketing | None |
@@ -248,6 +247,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | HCE | `/help/cloud-connections` | 0.15% | 52 | 7.8 | 7.2 | Help topic | Cloud connections help (Help topic) - HelpCloudConnectionsGuideView with PageContextualHelpButton (topic map cloud-connections; Category-1 registry), workspace Sources + claim-discipline orientation, hub/Azure CTAs, curated CLOUD_CONNECTIONS.md body. Orientation guide - not a signed-record Sources trail. Sibling HC = Azure secure-connect alias. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-03) - help-topic orientation hard-caps higher Evidence. |
 | FI | `/help/first-review` | 0.18% | 61 | 10.98 | 7.02 | Help topic | Specialty first-run evidence checklist (Admin internal-runbook) - HelpFirstReviewEvidenceChecklistGuideView with first-architecture-review / Start architecture review / audit primary CTAs, Sources diligence strip (complete review workflow, Azure connect, audit-trail, troubleshooting, configuration-reference), evidence arc, claim-discipline callout (checklist is not certification), PageContextualHelp, and prepared FIRST_RUN_EVIDENCE_CHECKLIST.md (API/runbook/script leakage strip). Not bare HelpTopicMarkdownView. Admin-gated internal Help Center tier. Not a redirect to buyer core-pilot. Does not imply CPA SOC 2 or third-party pen-test publication. |
 | GAI | `/governance/approval-requests/[id]/lineage` | 0.15% | 55 | 8.25 | 6.75 | Alerts/gov | Approval lineage (Alerts/gov) - GovernanceApprovalLineageDetailContent with PageContextualHelpButton (topic map governance-approval; Category-1 registry on /governance/approval-requests), workspace Sources + claim-discipline orientation strip, approval status/risk, review + signed-record version links, findings/completeness. Governance linkage view - not a full diligence Sources package alone. Does not imply CPA SOC 2 or third-party pen-test publication. Score 55/100 (2026-08-03) - lineage linkage hard-caps higher Evidence without audit export depth. |
+| MMX | `/signed-records/[manifestId]` | 0.15% | 58 | 8.7 | 6.3 | Marketing | Signed review record detail (Marketing/owner section) - ManifestDetailPageView with PageContextualHelpButton (topic map review-packages; Category-1 registry on /signed-records), workspace Sources + claim-discipline orientation strip, summary/decisions/artifacts/bundle downloads, OperatorEvidenceLimitsFooter. Application-layer package lineage - not CPA SOC 2 or third-party pen-test publication. Score 58/100 (2026-08-03) - package detail hard-caps higher Evidence without Trust Center attestation artifacts. |
 | SPR | `/sponsor-report/roi-summary` | 0.12% | 50 | 6 | 6 | Sponsor report | Sponsor ROI summary report (canonical). Absorbs former VRX hit share from retired legacy `/value-report/roi` bookmark row (LegacyRoiSummaryRedirectPage still permanentRedirects here). Does not imply CPA SOC 2 or third-party pen-test publication. Score 50/100 — transferred from VRX Evidence hard-cap; hit share folded from VRX (2026-08-03). |
 | AHX | `/admin/health` | 0.15% | 62 | 9.3 | 5.7 | Admin | None |
 | GRA | `/insights/evidence-graph` | 0.6% | 93 | 55.8 | 4.2 | Insights | Evidence graph (Insights) — GraphPageContent buyer workspace: Graph view default + URL presentation, auto-load on review select / demo sample auto-pick, process-graph canvas as hero (~88vh) with wider inspector, selection focus dimming, path breadcrumb, Fit/100%/Highlight/Focus/Reset toolbar, compact sample banner, idle teaching frame (GraphIdleLegend). Trace table remains alternate. Signature evidence↔finding↔decision↔approval trail — not a full diligence Sources export package alone. Does not imply CPA SOC 2 or third-party pen-test publication. Score 93/100 (2026-08-03) — post workspace-hero pass; remaining gap is lifecycle count-strip + denser diligence packing. |

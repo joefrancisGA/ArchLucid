@@ -66,6 +66,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/value-report",
       "/governance/alert-rules",
       "/governance/approval-requests",
+      "/signed-records",
       "/help/getting-started",
       "/help/cloud-connections/azure",
       "/help/cloud-connections",
@@ -155,6 +156,15 @@ describe("contextual-help-registry (TB-733)", () => {
     );
     expect(contextualHelpForPathname("/help/cloud-connections")?.whatToDoNext).toContain(
       "Cloud connections hub",
+    );
+  });
+
+  it("resolves signed-record detail Category-1 help (MMX)", () => {
+    expect(contextualHelpForPathname("/signed-records/demo-manifest")?.whatIsThisPage).toContain(
+      "Signed review record",
+    );
+    expect(contextualHelpForPathname("/signed-records/demo-manifest")?.whatToDoNext).toContain(
+      "export the review bundle",
     );
   });
 

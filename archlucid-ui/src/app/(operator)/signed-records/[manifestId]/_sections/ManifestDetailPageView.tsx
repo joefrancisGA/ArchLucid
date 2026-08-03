@@ -47,6 +47,7 @@ import {
 } from "@/lib/design-tokens";
 
 import type { ManifestDetailPageSuccessModel } from "./manifest-detail-page-model";
+import { SignedRecordEvidenceOrientationStrip } from "./SignedRecordEvidenceOrientationStrip";
 
 type ManifestDetailPageViewProps = {
   readonly model: ManifestDetailPageSuccessModel;
@@ -278,6 +279,8 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
           </>
         )}
       </p>
+
+      <SignedRecordEvidenceOrientationStrip />
 
       {showcaseBuyerManifestHeadline === true ? (
         <section

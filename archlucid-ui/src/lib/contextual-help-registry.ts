@@ -392,6 +392,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/signed-records",
+    entry: {
+      whatIsThisPage:
+        "Signed review record — the finalized package of decisions, findings, and downloadable artifacts for one architecture review.",
+      whatToDoNext:
+        "Review the summary and decisions, open related findings, or export the review bundle when downloads are ready.",
+      whyEmpty: "A signed review record appears after you finalize an architecture review package.",
+      whereToConfigurePrerequisite:
+        "Finalize a review from the architecture review workspace before opening its signed record.",
+    },
+  },
+  {
     prefix: "/help/getting-started",
     entry: {
       whatIsThisPage:

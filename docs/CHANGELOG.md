@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-03 - UI: Signed review record Evidence chrome (MMX)
+
+/signed-records/[manifestId] ships PageContextualHelpButton, Category-1 registry, workspace Sources + claim-discipline orientation strip, traffic Notes under Marketing, and honest Evidence score 58. Package detail hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-03 - UI: Cloud connections help Evidence chrome (HCE)
 
 /help/cloud-connections ships HelpCloudConnectionsGuideView with PageContextualHelpButton, Category-1 registry, Sources + claim-discipline orientation, hub/Azure CTAs, traffic Notes under Help topic, and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.
