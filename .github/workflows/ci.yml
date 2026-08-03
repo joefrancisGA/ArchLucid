@@ -2954,10 +2954,10 @@ jobs:
           head -n 50 "${OUT}/Summary.txt" | grep -E 'Line coverage:|Branch coverage:' | sed 's/^[[:space:]]*//' > "${{ runner.temp }}/coverage-metrics.txt"
           ART_DIR="${{ runner.temp }}/coverage-metrics-artifact"
           mkdir -p "${ART_DIR}"
-          # Interim floors match measured RC20 merged Cobertura (~75.1% line / ~59.8% branch) until test
-          # batches close Cli/Host/Persistence/Application/AgentRuntime/Composition gaps (V1.1 toward 95).
+          # Interim floors: merged line 84% (ratchet via .coverage-floor); branch/package unchanged until
+          # Cli/Host/Persistence/Application/AgentRuntime/Composition gaps close (V1.1 toward 95).
           python3 scripts/ci/assert_merged_line_coverage_min.py \
-            "${OUT}/Cobertura.xml" 79 \
+            "${OUT}/Cobertura.xml" 84 \
             --min-branch-pct 81 \
             --min-package-line-pct 83 \
             --skip-package-line-gate ArchLucid.Mcp \
