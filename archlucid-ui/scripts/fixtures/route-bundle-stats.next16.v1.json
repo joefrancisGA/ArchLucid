@@ -15,7 +15,7 @@
     "firstLoadChunkPaths": [".next/static/chunks/run-detail.js"]
   },
   {
-    "route": "/governance",
+    "route": "/governance/approval-queue",
     "firstLoadUncompressedJsBytes": 1372672,
     "firstLoadChunkPaths": [".next/static/chunks/governance.js"]
   }

@@ -12,7 +12,7 @@
     "/reviews/[runId]": {
       "firstLoadJsKb": 2255.2
     },
-    "/governance": {
+    "/governance/approval-queue": {
       "firstLoadJsKb": 1417
     }
   },

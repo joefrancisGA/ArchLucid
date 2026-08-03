@@ -23,7 +23,7 @@ export const TRACKED_ROUTES = [
   "/welcome",
   "/reviews",
   "/reviews/[runId]",
-  "/governance",
+  "/governance/approval-queue",
 ];
 
 const ROUTE_LINE =

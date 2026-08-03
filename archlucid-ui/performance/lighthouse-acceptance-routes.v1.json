@@ -15,7 +15,7 @@
     "/",
     "/reviews",
     "/reviews/new",
-    "/governance",
+    "/governance/approval-queue",
     "/graph",
     "/settings/tenant"
   ]
