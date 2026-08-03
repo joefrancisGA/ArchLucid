@@ -45,13 +45,12 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 
 ---
 
-**OVERALL WEIGHT SCORE:** 50.53%
+**OVERALL WEIGHT SCORE:** 50.86%
 
 ## Master table (score 0 first; then Deficit desc; ties A→Z by path)
 
 | ID | Path | Hit% | Scores | Weight | Deficit | Section | Notes |
 |----|------|------|--------|--------|---------|---------|-------|
-| AUD | `/governance/audit` | 0.5% | 0 | 0 | 50 | Alerts/gov | None |
 | RNX | `/reviews/new` | 0.5% | 0 | 0 | 50 | Core review | None |
 | RR | `/reviews/[runId]/findings/[findingId]/inspect` | 0.4% | 0 | 0 | 40 | Core review | None |
 | GDO | `/governance/decision-register` | 0.3% | 0 | 0 | 30 | Alerts/gov | None |
@@ -249,6 +248,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | DI | `/digests` | 0.6% | 46 | 27.6 | 32.4 | Digests | Architecture digests - DigestsHubClient with DigestsPageHeader PageContextualHelp (topic map how-it-works / Architecture digests; Category-1 registry), Sources follow-up strip + claim-discipline callout (scheduled summaries, not diligence trail), browse/subscriptions/schedule tabs, weekly health banner. Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 46/100 (2026-08-03) — digest hub launcher hard-caps higher Evidence. |
 | SXX | `/insights/search-review-evidence` | 0.7% | 55 | 38.5 | 31.5 | Marketing | None |
 | ADY | `/administration/system-health` | 0.5% | 48 | 24 | 26 | Admin | Administration System health hub - SystemHealthPageView with PageContextualHelpButton (topic map troubleshooting; Category-1 registry), Sources follow-up strip + claim-discipline callout (operational readiness, not diligence trail), live/ready dependency checks, build identity, demo-safe buyer shell variant. Canonical path /administration/system-health (legacy /health on HXX). Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 48/100 (2026-08-03) — operational readiness launcher hard-caps higher Evidence. |
+| AUD | `/governance/audit` | 0.5% | 55 | 27.5 | 22.5 | Alerts/gov | Governance audit trail - AuditPageView with AuditPageHeader PageContextualHelpButton (topic map audit-trail; Category-1 registry), Sources follow-up strip + claim-discipline callout (activity log, not diligence pack), search/filters, integrity export/verify when available. Not a signed-record Sources trail by itself. Does not imply CPA SOC 2 or third-party pen-test publication. Score 55/100 (2026-08-03) — activity-log Evidence hard-caps without signed-record package. |
 | GPP | `/governance/policy-packs` | 0.4% | 48 | 19.2 | 20.8 | Alerts/gov | None |
 | GRO | `/governance/risk-exceptions` | 0.3% | 62 | 18.6 | 11.4 | Alerts/gov | None |
 | GRA | `/insights/evidence-graph` | 0.6% | 82 | 49.2 | 10.8 | Planning | None |

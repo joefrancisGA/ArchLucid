@@ -48,6 +48,8 @@ customEvents
 Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 `/reviews/[runId]`, `/governance/findings`.
 
+**Before the next UI bundle cut:** follow [`FIELD_WEB_VITALS_TRIAGE.md`](../runbooks/FIELD_WEB_VITALS_TRIAGE.md) (**TB-2031**) so p75 LCP/INP/TTFB maps to the right backlog cluster (JS vs network vs interaction).
+
 ---
 
 **OVERALL WEIGHT SCORE:** 0.00%
@@ -76,7 +78,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | DI | `/digests` | 0.6% | 0 | 0 | 60 | Digests | Architecture digests - DigestsHubClient with DigestsPageHeader PageContextualHelp (topic map how-it-works / Architecture digests; Category-1 registry), Sources follow-up strip + claim-discipline callout (scheduled summaries, not diligence trail), browse/subscriptions/schedule tabs, weekly health banner. Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. |
 | INE | `/insights/evidence-graph` | 0.6% | 0 | 0 | 60 | Planning | Canonical evidence trail operator hub — GraphPageContent with runId/graphNodeId query handoffs, trace table vs interactive graph tabs, provenance/decision/architecture graph modes, sample-mode banner, and OperatorSavedViewsBar. Left nav Evidence graph. Legacy /graph retired (no redirect). Deep links from findings, standards rules, golden journey. Former workbook row GRA. |
 | PPP | `/planning/plans/[planId]` | 0.6% | 0 | 0 | 60 | Planning | Improvement plan detail - PlanningPlanDetailPageView with OperatorPageHeader PageContextualHelp (topic map how-it-works / Improvement planning; Category-1 registry for /planning/plans), Sources follow-up strip + claim-discipline callout (derived plan, not diligence trail), plan sections. Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. |
-| AUD | `/governance/audit` | 0.5% | 0 | 0 | 50 | Alerts/gov | None |
+| AUD | `/governance/audit` | 0.5% | 0 | 0 | 50 | Alerts/gov | Governance audit trail - AuditPageView with AuditPageHeader PageContextualHelpButton (topic map audit-trail; Category-1 registry), Sources follow-up strip + claim-discipline callout (activity log, not diligence pack), search/filters, integrity export/verify when available. Not a signed-record Sources trail by itself. Does not imply CPA SOC 2 or third-party pen-test publication. |
 | HXX | `/health` | 0.5% | 0 | 0 | 50 | Marketing | Deprecated operator bookmark — merged to Administration System health on **ADY** (`/administration/system-health`). |
 | RNX | `/reviews/new` | 0.5% | 0 | 0 | 50 | Core review | None |
 | GPP | `/governance/policy-packs` | 0.4% | 0 | 0 | 40 | Alerts/gov | None |

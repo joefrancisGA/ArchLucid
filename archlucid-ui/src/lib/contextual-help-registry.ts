@@ -227,6 +227,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/governance/audit",
+    entry: {
+      whatIsThisPage:
+        "Search and export operator audit events for reviews, governance actions, and integrity checks in this workspace.",
+      whatToDoNext:
+        "Filter by review or action, refresh the trail, then export or open the related review package when needed.",
+      whyEmpty: "Events appear after operators take actions that the audit coverage matrix records.",
+      whereToConfigurePrerequisite:
+        "Audit retention and export privileges follow workspace role and enterprise controls.",
+    },
+  },
+  {
     prefix: "/administration/system-health",
     entry: {
       whatIsThisPage:
