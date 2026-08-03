@@ -69,7 +69,8 @@ describe("ui-route-traffic-governance-api-contracts-help (HG)", () => {
     expect(row?.section).toBe(GOVERNANCE_API_CONTRACTS_HELP_TRAFFIC_SECTION);
     expect(row?.notes).toBe(GOVERNANCE_API_CONTRACTS_HELP_TRAFFIC_NOTE);
     expect(row?.section.toLowerCase()).not.toBe("marketing");
-    expect(row?.notes).toContain("HelpTopicAuthorityGate");
+    expect(row?.notes).toContain("HelpApiContractsGuideView");
+    expect(row?.notes).toContain("TB-1386");
     expect(row?.notes).toContain("TB-1388");
   });
 });

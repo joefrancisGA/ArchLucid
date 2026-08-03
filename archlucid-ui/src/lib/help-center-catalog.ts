@@ -112,6 +112,11 @@ const HELP_CENTER_DISPLAY_OVERRIDES: Readonly<Partial<Record<string, HelpCenterD
     summary:
       "Admin/SE time-boxed checklist when platform wiring is green — not the default customer first-review path.",
   },
+  "governance-api-contracts": {
+    title: "API contracts (technical reference)",
+    summary:
+      "Admin/developer HTTP and OpenAPI contract reference — not buyer governance-approval help.",
+  },
   subprocessors: {
     title: "Subprocessors",
     summary: "Hosted ArchLucid subprocessors register — use with the DPA template and Trust Center pack.",

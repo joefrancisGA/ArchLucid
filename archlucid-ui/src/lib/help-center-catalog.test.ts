@@ -108,6 +108,8 @@ describe("help topic slug aliases", () => {
     expect(getProductDocumentationEntry("cloud-connections/azure")?.title).toBe("Connect Azure securely");
     expect(getProductDocumentationEntry("users-and-roles")?.slug).toBe("users-and-roles");
     expect(getProductDocumentationEntry("operator-auth-roles")?.slug).toBe("users-and-roles");
+    expect(normalizeHelpTopicSlug("api-contracts")).toBe("governance-api-contracts");
+    expect(getProductDocumentationEntry("api-contracts")?.title).toBe("API contracts (technical reference)");
   });
 });
 

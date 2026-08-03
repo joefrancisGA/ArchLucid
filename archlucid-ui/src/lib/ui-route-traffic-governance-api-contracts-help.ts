@@ -1,7 +1,7 @@
 import { GOVERNANCE_API_CONTRACTS_HELP_PATH } from "@/lib/governance-api-contracts-help-route";
 
 /**
- * Traffic workbook row ID for Governance and API contracts help.
+ * Traffic workbook row ID for API contracts technical reference help.
  * Owner backlog shorthand: HG.
  */
 export const GOVERNANCE_API_CONTRACTS_HELP_TRAFFIC_ROW_ID = "HG";
@@ -13,7 +13,7 @@ export const GOVERNANCE_API_CONTRACTS_HELP_TRAFFIC_PATH = GOVERNANCE_API_CONTRAC
 export const GOVERNANCE_API_CONTRACTS_HELP_TRAFFIC_SECTION = "Help topic";
 
 /**
- * Owner workbook Notes for HG — documents the Admin-gated API contracts reference.
+ * Owner workbook Notes for HG — documents the specialty Admin API contracts surface.
  */
 export const GOVERNANCE_API_CONTRACTS_HELP_TRAFFIC_NOTE =
-  "Admin-gated internal-runbook (TB-1384) — HelpTopicAuthorityGate + HelpTopicMarkdownView with contributor-section strip (TB-1388). API_CONTRACTS.md technical reference; not buyer governance help. Help center internal tier; not featured. Buyer Findings/Governance guides link to audit-trail instead (TB-1387). Not a specialty guide.";
+  "Specialty Admin API contracts technical reference - HelpApiContractsGuideView with CLI / configuration-reference / buyer governance-approval primary CTAs, Sources strip (eng troubleshooting, audit-trail, admin-diagnostics), orientation + claim-discipline callout, PageContextualHelp, and prepared API_CONTRACTS.md (TB-1388 contributor strip). Title honesty API contracts not Governance FAQ (TB-1386). Admin-gated internal-runbook (TB-1384); de-indexed from product search (TB-1385); buyer Findings/Governance deep-links retargeted (TB-1387). Alias /help/api-contracts. Not bare HelpTopicMarkdownView. Does not imply CPA SOC 2 or third-party pen-test publication.";

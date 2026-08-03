@@ -195,7 +195,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | EV | `/help/evidence-trail` | 0.03% | 0 | 0 | 3 | Help topic | None |
 | HFE | `/help/first-hour-operator-path` | 0.03% | 0 | 0 | 3 | Help topic | None |
 | FIR | `/help/first-pilot-path` | 0.03% | 0 | 0 | 3 | Help topic | None |
-| HG | `/help/governance-api-contracts` | 0.03% | 0 | 0 | 3 | Help topic | Admin-gated internal-runbook (TB-1384) — HelpTopicAuthorityGate + HelpTopicMarkdownView with contributor-section strip (TB-1388). API_CONTRACTS.md technical reference; not buyer governance help. Help center internal tier; not featured. Buyer Findings/Governance guides link to audit-trail instead (TB-1387). Not a specialty guide. |
+| HG | `/help/governance-api-contracts` | 0.03% | 0 | 0 | 3 | Help topic | Specialty Admin API contracts technical reference - HelpApiContractsGuideView with CLI / configuration-reference / buyer governance-approval primary CTAs, Sources strip (eng troubleshooting, audit-trail, admin-diagnostics), orientation + claim-discipline callout, PageContextualHelp, and prepared API_CONTRACTS.md (TB-1388 contributor strip). Title honesty API contracts not Governance FAQ (TB-1386). Admin-gated internal-runbook (TB-1384); de-indexed from product search (TB-1385); buyer Findings/Governance deep-links retargeted (TB-1387). Alias /help/api-contracts. Not bare HelpTopicMarkdownView. Does not imply CPA SOC 2 or third-party pen-test publication. |
 | PI | `/help/pilot-roi-model` | 0.03% | 0 | 0 | 3 | Help topic | None |
 | HRX | `/help/repeat-review-loop` | 0.03% | 0 | 0 | 3 | Help topic | None |
 | REV | `/help/review-packages` | 0.03% | 0 | 0 | 3 | Help topic | None |

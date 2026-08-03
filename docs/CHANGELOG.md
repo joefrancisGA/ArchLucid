@@ -9,6 +9,10 @@
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
+## 2026-08-03 — UI/help: API contracts Admin specialty guide (HG / TB-1386)
+
+`/help/governance-api-contracts` ships `HelpApiContractsGuideView` — title honesty “API contracts (technical reference)”, CLI / configuration / buyer Governance approval CTAs, Sources strip, orientation + claim discipline, and TB-1388-stripped `API_CONTRACTS.md`. Alias `/help/api-contracts`. Admin-gated internal-runbook; not buyer governance FAQ. Does not imply CPA SOC 2 or third-party pen-test publication.
+
 ## 2026-08-02 — UI/help: First value in 20 minutes Admin specialty guide (HEF / TB-1691–TB-1695)
 
 `/help/first-value-20-minutes` ships `HelpFirstValue20GuideView` — buyer first-architecture-review primary CTA, job-matrix IA dual, orientation + claim-discipline chrome, and the 20-minute section only from `FIRST_PILOT_OPERATOR_PATH.md` (sectionAnchors + TB-1693 strip). Admin-gated internal-runbook; not the default customer path. Does not imply CPA SOC 2 or third-party pen-test publication.

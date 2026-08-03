@@ -46,6 +46,8 @@ export const HELP_TOPIC_SLUG_ALIASES: Readonly<Record<string, string>> = {
   "operator-auth-roles": "users-and-roles",
   "creating-runs": "starting-reviews",
   "core-pilot": "first-architecture-review",
+  /** TB-1386 — honest API-contracts URL; canonical slug stays governance-api-contracts. */
+  "api-contracts": "governance-api-contracts",
 };
 
 export function normalizeHelpTopicSlug(slug: string): string {
@@ -571,9 +573,9 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   },
   {
     slug: "governance-api-contracts",
-    title: "Governance and API contracts (technical reference)",
+    title: "API contracts (technical reference)",
     summary:
-      "Developer/Admin technical reference — versioned HTTP behavior, auth, governance endpoints, and OpenAPI as contract of record. Not buyer self-serve help.",
+      "Admin/developer HTTP contract reference — versioned endpoint behavior, auth, and OpenAPI as contract of record. Not buyer governance-approval help.",
     audience: "developer",
     sourcePaths: ["docs/library/API_CONTRACTS.md"],
   },

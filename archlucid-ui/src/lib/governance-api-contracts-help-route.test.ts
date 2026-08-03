@@ -34,9 +34,12 @@ function expectCanonicalGovernanceApiContractsHandoff(source: string): void {
 }
 
 describe("governance-api-contracts-help-route (HG)", () => {
-  it("marks the API contracts reference as noindex with honest metadata", () => {
+  it("marks the API contracts reference as noindex with honest metadata (TB-1386)", () => {
     expect(GOVERNANCE_API_CONTRACTS_HELP_ROUTE_METADATA.robots).toEqual({ index: false, follow: false });
-    expect(GOVERNANCE_API_CONTRACTS_HELP_ROUTE_METADATA.title).toContain("API contracts");
+    expect(GOVERNANCE_API_CONTRACTS_HELP_ROUTE_METADATA.title).toBe("API contracts (technical reference)");
+    expect(String(GOVERNANCE_API_CONTRACTS_HELP_ROUTE_METADATA.title).toLowerCase()).not.toMatch(
+      /^governance/,
+    );
     expect(GOVERNANCE_API_CONTRACTS_HELP_ROUTE_METADATA.description?.toLowerCase()).toContain("openapi");
   });
 

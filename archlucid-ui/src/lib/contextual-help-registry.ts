@@ -158,6 +158,17 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/help/governance-api-contracts",
+    entry: {
+      whatIsThisPage:
+        "Admin HTTP and OpenAPI contract reference for integrators — not the buyer Governance approval FAQ.",
+      whatToDoNext:
+        "Open CLI usage or Configuration reference for tooling, or Governance approval if you need buyer approval workflows.",
+      whyEmpty: "Orientation and stripped contract reference always show when this Admin help topic loads.",
+      whereToConfigurePrerequisite: "Admin access; treat OpenAPI as the contract of record when prose disagrees.",
+    },
+  },
+  {
     prefix: "/governance/standards-and-rules",
     entry: {
       whatIsThisPage:

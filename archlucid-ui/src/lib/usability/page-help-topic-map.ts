@@ -105,6 +105,14 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     prefix: "/help/developer-troubleshooting",
     topic: { slug: "developer-troubleshooting", label: "Engineering troubleshooting runbook" },
   },
+  {
+    prefix: "/help/governance-api-contracts",
+    topic: { slug: "governance-api-contracts", label: "API contracts (technical reference)" },
+  },
+  {
+    prefix: "/help/api-contracts",
+    topic: { slug: "governance-api-contracts", label: "API contracts (technical reference)" },
+  },
   { prefix: "/insights/impact-preview", topic: { slug: "how-it-works", label: "Impact preview" } },
   { prefix: "/internal-operations/recommendation-learning", topic: { slug: "how-it-works", label: "How recommendation learning works" } },
   { prefix: "/governance/advisory-scans", topic: { slug: "how-it-works", label: "Advisory scans" } },

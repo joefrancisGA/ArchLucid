@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 
 import { HelpTopicMarkdownView } from "../HelpTopicMarkdownView";
 import { HelpAlertsGuideView } from "../_sections/HelpAlertsGuideView";
+import { HelpApiContractsGuideView } from "../_sections/HelpApiContractsGuideView";
 import { HelpBillingAndPlansGuideView } from "../_sections/HelpBillingAndPlansGuideView";
 import { HelpExecutiveSummaryGuideView } from "../_sections/HelpExecutiveSummaryGuideView";
 import { HelpFindingsGuideView } from "../_sections/HelpFindingsGuideView";
@@ -209,6 +210,10 @@ function renderHelpTopicView(
 
   if (loaded.entry.slug === "developer-troubleshooting") {
     return <HelpEngineeringTroubleshootingGuideView entry={loaded.entry} markdown={loaded.markdown} />;
+  }
+
+  if (loaded.entry.slug === "governance-api-contracts") {
+    return <HelpApiContractsGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
 
   return <HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />;
