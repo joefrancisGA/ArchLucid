@@ -348,6 +348,16 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/sponsor-report/executive-summary",
+    entry: {
+      whatIsThisPage:
+        "Sponsor executive summary — period preview of finalized reviews, findings, governance activity, and directional ROI for exports.",
+      whatToDoNext: "Set the report period, refresh the preview, then generate sponsor exports when data is ready.",
+      whyEmpty: "The preview fills in after you finalize reviews in the selected period.",
+      whereToConfigurePrerequisite: "ROI estimates use baseline settings from workspace configuration.",
+    },
+  },
+  {
     prefix: "/value-report",
     entry: {
       whatIsThisPage:

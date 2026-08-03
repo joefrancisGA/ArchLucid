@@ -11,6 +11,10 @@ vi.mock("@/components/LayerHeader", () => ({
   LayerHeader: () => <div data-testid="layer-header" />,
 }));
 
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+}));
+
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const mod = await importOriginal<typeof import("@/lib/demo-ui-env")>();
 
@@ -106,6 +110,8 @@ describe("ValueReportPageView buyer-polished chrome (TB-1964)", () => {
     render(<ValueReportPageView model={buildModel()} />);
 
     expect(screen.getByTestId("layer-header")).toBeInTheDocument();
+    expect(screen.getByTestId("value-report-sources")).toBeInTheDocument();
+    expect(screen.getByTestId("value-report-claim-discipline")).toBeInTheDocument();
     expect(screen.queryByText(BUYER_VALUE_REPORT_PAGE_SUBTITLE)).not.toBeInTheDocument();
     expect(screen.queryByText(BUYER_VALUE_REPORT_OUTCOME_LEAD)).not.toBeInTheDocument();
   });

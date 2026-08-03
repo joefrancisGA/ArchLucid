@@ -27,6 +27,7 @@ import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import type { UseValueReportPageModel } from "./use-value-report-page";
 import { ValueReportEmptyState } from "./ValueReportEmptyState";
+import { ValueReportEvidenceOrientationStrip } from "./ValueReportEvidenceOrientationStrip";
 import { ValueReportIncludesSection } from "./ValueReportIncludesSection";
 import { ValueReportPreviewSection } from "./ValueReportPreviewSection";
 
@@ -81,6 +82,7 @@ export function ValueReportPageView({ model }: ValueReportPageViewProps) {
         <PageContextualHelpButton />
       </div>
       <ValueReportOutcomesNav />
+      <ValueReportEvidenceOrientationStrip />
       <DocumentLayout>
         <header className="space-y-2">
           <h1 className={`m-0 ${OPERATOR_TYPOGRAPHY.pageTitle}`}>{BUYER_VALUE_REPORT_PAGE_TITLE}</h1>

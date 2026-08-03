@@ -62,6 +62,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/planning/plans",
       "/planning",
       "/governance/advisory-scans",
+      "/sponsor-report/executive-summary",
       "/value-report",
       "/governance/alert-rules",
       "/help/getting-started",
@@ -128,6 +129,13 @@ describe("contextual-help-registry (TB-733)", () => {
   it("resolves getting-started Category-1 help (HGX)", () => {
     expect(contextualHelpForPathname("/help/getting-started")?.whatIsThisPage).toContain("Getting started guide");
     expect(contextualHelpForPathname("/help/getting-started")?.whatToDoNext).toContain("Start a review");
+  });
+
+  it("resolves sponsor executive summary Category-1 help (SPE)", () => {
+    expect(contextualHelpForPathname("/sponsor-report/executive-summary")?.whatIsThisPage).toContain(
+      "Sponsor executive summary",
+    );
+    expect(contextualHelpForPathname("/value-report")?.whatIsThisPage).toContain("sponsor-ready");
   });
 
   it("returns null for routes not yet migrated", () => {
