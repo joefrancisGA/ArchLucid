@@ -22,7 +22,6 @@ import {
   auditLogRankOperatorLine,
   auditLogRankReaderLine,
   enterpriseExecutePageHintReaderRank,
-  enterpriseNavHintOperatorRank,
   governanceDashboardReaderActionLine,
   governanceResolutionRankOperatorLine,
   governanceResolutionRankReaderLine,
@@ -93,18 +92,17 @@ describe("OperateCapabilityHints authority shaping", () => {
   });
 
   describe("OperateCapabilityNavGroupHint", () => {
-    it("omits reader nav line when copy is empty", () => {
+    it("omits nav group micro-copy at every authority rank", () => {
       navCallerAuthorityRank.current = AUTHORITY_RANK.ReadAuthority;
-      const { container } = render(<OperateCapabilityNavGroupHint />);
+      const { container: readerContainer, unmount } = render(<OperateCapabilityNavGroupHint />);
 
-      expect(container.textContent).toBe("");
-    });
+      expect(readerContainer.textContent).toBe("");
 
-    it("uses operator nav copy at Execute+", () => {
+      unmount();
       navCallerAuthorityRank.current = AUTHORITY_RANK.ExecuteAuthority;
-      render(<OperateCapabilityNavGroupHint />);
+      const { container: operatorContainer } = render(<OperateCapabilityNavGroupHint />);
 
-      expect(screen.getByText(enterpriseNavHintOperatorRank)).toBeInTheDocument();
+      expect(operatorContainer.textContent).toBe("");
     });
   });
 

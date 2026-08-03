@@ -30,11 +30,14 @@ export const enterpriseMutationControlDisabledTitle =
 export const auditExportControlDisabledTitle =
   "Available to authorized audit users in this workspace; adjust date filters or roles if export stays unavailable.";
 
-/** Sidebar / mobile: optional micro-copy when Reader-ranked shell shows fewer nav items (empty = omit line). */
+/**
+ * Sidebar / mobile: optional micro-copy under the Governance nav group.
+ * Empty for all ranks — labels alone carry the section; page cues stay on-route.
+ */
 export const enterpriseNavHintReaderRank = "";
 
-/** Sidebar / mobile: operator+ framing for Enterprise group (`operate-governance`; aligns with PRODUCT_PACKAGING §Layer B — not the first-session Pilot wedge). */
-export const enterpriseNavHintOperatorRank = "Controls, approvals, alerts, and audit";
+/** Same omit policy as {@link enterpriseNavHintReaderRank} (kept for rank-pairing call sites). */
+export const enterpriseNavHintOperatorRank = "";
 
 /**
  * `LayerHeader` rank-aware line under `enterpriseFootnote` on Enterprise Controls pages (same threshold as nav hints:

@@ -32,11 +32,8 @@ const pageCueClassName =
   (cn("mb-2 max-w-3xl leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper));
 
 /**
- * Second line under **Operate · governance** in the sidebar and mobile drawer.
- *
- * **Layer model** (`docs/library/PRODUCT_PACKAGING.md`): **Pilot** is the default wedge (request → run → commit → review).
- * **Operate** deepens afterward—here the **governance slice** (`operate-governance`) for policy, workflow, alerts, audit, and trust.
- * At **Execute+** (`AUTHORITY_RANK.ExecuteAuthority`), the line contrasts that slice with Pilot; Readers get an empty string (omit line).
+ * Second line under **Operate · governance** in the sidebar (legacy hook).
+ * Copy is intentionally empty for all ranks — nav stays label-only; page cues remain on-route.
  */
 export function OperateCapabilityNavGroupHint(): ReactNode {
   const rank = useNavCallerAuthorityRank();

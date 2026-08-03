@@ -5,7 +5,6 @@ import { ChevronDown, ChevronRight } from "lucide-react";
 import type { ReactElement } from "react";
 
 import { GovernanceReviewsAwaitingNavBadge } from "@/components/governance/GovernanceReviewsAwaitingNavBadge";
-import { OperateCapabilityNavGroupHint } from "@/components/OperateCapabilityHints";
 import { SidebarNavLink } from "@/components/sidebar-nav/SidebarNavLink";
 import type { NavGroupWithVisibleLinks } from "@/lib/nav-shell-visibility";
 import { OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
@@ -41,8 +40,6 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
     hasCommittedArchitectureReview: props.hasCommittedArchitectureReview,
     effectiveOperateUnlockPhase: props.effectiveOperateUnlockPhase,
   });
-  const suppressQuestionSubtitles = group.surface === "system-admin";
-
   const groupHeadingLabel = group.label;
   const demoOrBuyer = props.demoUi || props.buyerPolishedShell;
   const contentId = `sidebar-group-${group.id}-content`;
@@ -101,12 +98,6 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
         </div>
       )}
 
-      {group.id === "operate-governance" && props.isExpanded ? (
-        <div id="sidebar-governance-nav-hint-slot" className="px-2 pb-1">
-          <OperateCapabilityNavGroupHint />
-        </div>
-      ) : null}
-
       {props.isExpanded ? (
         <nav
           id={contentId}
@@ -129,7 +120,6 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
                 active={isNavLinkActive(props.pathname, presented.href)}
                 advancedDemo={isSidebarNavLinkAdvancedInDemo(presented.href, demoOrBuyer)}
                 buyerPolishedShell={props.buyerPolishedShell}
-                showQuestionSubtitle={!suppressQuestionSubtitles}
                 navGroupId={group.id}
                 unlockPhase={props.effectiveOperateUnlockPhase}
                 onNavigate={props.onNavLinkNavigate}

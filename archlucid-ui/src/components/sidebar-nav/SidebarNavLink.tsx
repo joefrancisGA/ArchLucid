@@ -13,40 +13,12 @@ import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { onboardingTourAnchorForHref } from "@/lib/onboarding-tour";
 import { pilotNavLinkTestId } from "@/lib/pilot-nav-link-test-ids";
 import { registryKeyToAriaKeyShortcuts } from "@/lib/shortcut-registry";
-import { navLinkQuestionSubtitle } from "@/lib/usability/nav-link-question-subtitles";
-
-type SidebarNavLinkLabelProps = {
-  readonly presented: NavLinkItem;
-  readonly showQuestionSubtitle?: boolean;
-};
-
-export function SidebarNavLinkLabel(props: SidebarNavLinkLabelProps): ReactElement {
-  const subtitle =
-    props.showQuestionSubtitle === false ? null : navLinkQuestionSubtitle(props.presented.href);
-
-  if (subtitle === null) {
-    return <>{props.presented.label}</>;
-  }
-
-  return (
-    <span className="flex min-w-0 flex-col">
-      <span>{props.presented.label}</span>
-      <span
-        aria-hidden="true"
-        className={OPERATOR_TYPOGRAPHY.navHelper}
-      >
-        {subtitle}
-      </span>
-    </span>
-  );
-}
 
 type SidebarNavLinkProps = {
   readonly presented: NavLinkItem;
   readonly active: boolean;
   readonly advancedDemo: boolean;
   readonly buyerPolishedShell: boolean;
-  readonly showQuestionSubtitle?: boolean;
   readonly afterLabel?: ReactNode;
   readonly navGroupId?: string;
   readonly unlockPhase?: OperateNavUnlockPhase;
@@ -95,7 +67,7 @@ export function SidebarNavLink(props: SidebarNavLinkProps): ReactElement {
       }}
     >
       {Icon ? <Icon className="h-4 w-4 shrink-0 opacity-90" aria-hidden /> : null}
-      <SidebarNavLinkLabel presented={presented} showQuestionSubtitle={props.showQuestionSubtitle} />
+      <span className="min-w-0 truncate">{presented.label}</span>
       {presented.navBadge ? (
         <Badge variant="outline" className={cn("ml-auto shrink-0", OPERATOR_TYPOGRAPHY.badge)}>
           {presented.navBadge}

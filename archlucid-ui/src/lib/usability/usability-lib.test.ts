@@ -1,24 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { navLinkQuestionSubtitle } from "@/lib/usability/nav-link-question-subtitles";
 import { filterNavLinksByOperateUnlockPhase } from "@/lib/usability/operate-nav-progressive-unlock";
 import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
 import { searchHelpTopics } from "@/lib/usability/search-help-topics";
 import { shouldAutoStartRegistrationTour } from "@/lib/usability/onboarding-registration-tour";
 
 describe("usability lib", () => {
-  it("navLinkQuestionSubtitle returns compare and ask copy", () => {
-    expect(navLinkQuestionSubtitle("/insights/compare-two-reviews")).toContain("changed");
-    expect(navLinkQuestionSubtitle("/insights/ask-review-questions")).toContain("plain language");
-  });
-
-  it("navLinkQuestionSubtitle omits dense helpers for self-explanatory nav items", () => {
-    expect(navLinkQuestionSubtitle("/insights/evidence-graph")).toBeNull();
-    expect(navLinkQuestionSubtitle("/governance/approval-queue")).toBeNull();
-    expect(navLinkQuestionSubtitle("/replay")).toBeNull();
-    expect(navLinkQuestionSubtitle("/governance/advisory-scans")).toBeNull();
-  });
-
   it("filterNavLinksByOperateUnlockPhase hides all Operate links at phase 0", () => {
     const links = [{ href: "/insights/compare-two-reviews" }, { href: "/audit" }];
     const phase0 = filterNavLinksByOperateUnlockPhase(links, false, 0);

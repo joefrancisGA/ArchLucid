@@ -34,7 +34,7 @@ import {
  * would render today. `null` means "this hint is intentionally hidden at this rank for this route".
  */
 export type NavSurfaceContextHints = {
-  /** Sidebar / mobile drawer second line under the **Operate · governance** nav group caption. */
+  /** Sidebar second line under Governance — empty string omits (label-only nav). */
   readonly enterpriseNavGroupHint: string;
   /** Page cue on Execute-floor mutation pages — only rendered when caller is below Execute. */
   readonly enterpriseExecutePageHint: string | null;
