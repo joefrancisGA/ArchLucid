@@ -91,7 +91,7 @@ export function auditPageMainHeading(page: Page): Locator {
   return page.getByRole("heading", { level: 2, name: AUDIT_PAGE_PRIMARY_HEADING_PATTERN });
 }
 
-/** `/governance?runId=` review context — query picker is hidden; approvals load via URL param. */
+/** `/governance/approval-queue?runId=` review context — query picker is hidden; approvals load via URL param. */
 export async function expectGovernanceRunWorkflowVisible(
   page: Page,
   approvalRequestId: string,

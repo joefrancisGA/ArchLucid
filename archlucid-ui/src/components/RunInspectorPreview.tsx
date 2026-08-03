@@ -36,6 +36,7 @@ import {
 } from "@/lib/design-tokens";
 import { buyerDemoPackageCardMeta } from "@/lib/buyer-demo-package-card-meta";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
+import { governanceApprovalQueueHref } from "@/lib/governance-route-paths";
 import {
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
@@ -282,7 +283,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
                   </Button>
                 ) : null}
                 <Button variant="outline" size="sm" className="w-full" asChild>
-                  <Link href={`/governance?runId=${encodeURIComponent(run.runId)}`}>View governance approval</Link>
+                  <Link href={governanceApprovalQueueHref(run.runId)}>View governance approval</Link>
                 </Button>
                 <Button variant="outline" size="sm" className="w-full" asChild>
                   <Link href={`/audit?runId=${encodeURIComponent(run.runId)}`}>View audit trail</Link>

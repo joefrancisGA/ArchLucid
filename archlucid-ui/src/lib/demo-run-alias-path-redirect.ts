@@ -3,40 +3,46 @@ import { canonicalizeDemoRunId, demoRunUrlRequiresCanonicalRedirect } from "@/li
 /**
  * When a URL uses a known demo run id alias (see {@link canonicalizeDemoRunId}), return the same path with the
  * canonical run segment and **all trailing segments preserved** (findings, inspect, provenance, ...).
- * Otherwise return `null` so routing can fall through to normal `/runs` → `/reviews` redirects, etc.
+ * Otherwise return `null` so routing can fall through to normal `/runs` → `/architecture/reviews` redirects, etc.
+ *
+ * Destinations use the public `/architecture/reviews/*` namespace (see `next.config.ts` redirects).
  */
 export function demoRunAliasRedirectDestinationPath(pathname: string): string | null {
   if (pathname.length === 0) {
     return null;
   }
 
+  const architectureReviews = /^\/architecture\/reviews\/([^/]+)(\/.*)?$/.exec(pathname);
+
+  if (architectureReviews !== null) {
+    return aliasDestinationIfNeeded(architectureReviews[1], architectureReviews[2] ?? "");
+  }
+
   const runs = /^\/runs\/([^/]+)(\/.*)?$/.exec(pathname);
 
   if (runs !== null) {
-    const runIdSegment = safeDecodePathSegment(runs[1]);
-    const tail = runs[2] ?? "";
-
-    if (demoRunUrlRequiresCanonicalRedirect(runIdSegment)) {
-      const canon = canonicalizeDemoRunId(runIdSegment);
-
-      return `/reviews/${encodeURIComponent(canon)}${tail}`;
-    }
+    return aliasDestinationIfNeeded(runs[1], runs[2] ?? "");
   }
 
   const reviews = /^\/reviews\/([^/]+)(\/.*)?$/.exec(pathname);
 
   if (reviews !== null) {
-    const runIdSegment = safeDecodePathSegment(reviews[1]);
-    const tail = reviews[2] ?? "";
-
-    if (demoRunUrlRequiresCanonicalRedirect(runIdSegment)) {
-      const canon = canonicalizeDemoRunId(runIdSegment);
-
-      return `/reviews/${encodeURIComponent(canon)}${tail}`;
-    }
+    return aliasDestinationIfNeeded(reviews[1], reviews[2] ?? "");
   }
 
   return null;
+}
+
+function aliasDestinationIfNeeded(runIdSegmentRaw: string, tail: string): string | null {
+  const runIdSegment = safeDecodePathSegment(runIdSegmentRaw);
+
+  if (!demoRunUrlRequiresCanonicalRedirect(runIdSegment)) {
+    return null;
+  }
+
+  const canon = canonicalizeDemoRunId(runIdSegment);
+
+  return `/architecture/reviews/${encodeURIComponent(canon)}${tail}`;
 }
 
 function safeDecodePathSegment(segment: string): string {

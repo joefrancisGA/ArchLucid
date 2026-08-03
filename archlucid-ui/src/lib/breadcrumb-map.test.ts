@@ -81,7 +81,7 @@ describe("getBreadcrumbs", () => {
 
   it("maps governance approval lineage with demo request title", () => {
     expect(getBreadcrumbs("/governance/approval-requests/e2e-approval-001/lineage")).toEqual([
-      { label: "Governance", href: "/governance" },
+      { label: "Governance", href: "/governance/approval-queue" },
       { label: "Approval requests", href: "/governance/approval-requests" },
       { label: "Sample approval record", href: "/governance/approval-requests/e2e-approval-001" },
       { label: "Lineage" },
@@ -90,7 +90,7 @@ describe("getBreadcrumbs", () => {
 
   it("maps governance dashboard segments", () => {
     expect(getBreadcrumbs("/governance/dashboard")).toEqual([
-      { label: "Governance", href: "/governance" },
+      { label: "Governance", href: "/governance/approval-queue" },
       { label: "Governance dashboard" },
     ]);
   });
@@ -222,7 +222,7 @@ describe("getBreadcrumbs", () => {
 
   it("buyer-polished: audit crumb reads Audit trail under governance", () => {
     expect(getBreadcrumbs("/governance/audit", { buyerPolishedShell: true })).toEqual([
-      { label: "Governance", href: "/governance" },
+      { label: "Governance", href: "/governance/approval-queue" },
       { label: "Audit trail" },
     ]);
   });
@@ -268,21 +268,21 @@ describe("getBreadcrumbs", () => {
       }),
     ).toEqual([
       { label: SHOWCASE_BUYER_REVIEW_TITLE, href: `/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}` },
-      { label: "Governance", href: "/governance" },
+      { label: "Governance", href: "/governance/approval-queue" },
       { label: "Findings" },
     ]);
   });
 
   it("maps governance findings as Findings breadcrumb", () => {
     expect(getBreadcrumbs("/governance/findings")).toEqual([
-      { label: "Governance", href: "/governance" },
+      { label: "Governance", href: "/governance/approval-queue" },
       { label: "Findings" },
     ]);
   });
 
   it("maps governance risk exceptions breadcrumb", () => {
     expect(getBreadcrumbs("/governance/risk-exceptions")).toEqual([
-      { label: "Governance", href: "/governance" },
+      { label: "Governance", href: "/governance/approval-queue" },
       { label: "Risk exceptions" },
     ]);
   });
@@ -356,7 +356,7 @@ describe("getBreadcrumbs", () => {
 
   it("TB-528: maps governance with runId to Reviews · title · Governance", () => {
     expect(
-      getBreadcrumbs("/governance", {
+      getBreadcrumbs("/governance/approval-queue", {
         queryRunId: SHOWCASE_STATIC_DEMO_RUN_ID,
       }),
     ).toEqual([
@@ -371,14 +371,14 @@ describe("getBreadcrumbs", () => {
 
   it("TB-528: legacy /audit path maps to Governance · Audit trail", () => {
     expect(getBreadcrumbs("/audit")).toEqual([
-      { label: "Governance", href: "/governance" },
+      { label: "Governance", href: "/governance/approval-queue" },
       { label: "Audit trail" },
     ]);
   });
 
   it("maps alert configuration route to Governance / Alerts", () => {
     expect(getBreadcrumbs("/governance/alert-rules")).toEqual([
-      { label: "Governance", href: "/governance" },
+      { label: "Governance", href: "/governance/approval-queue" },
       { label: ALERTS_CONFIGURATION_PAGE_TITLE },
     ]);
   });

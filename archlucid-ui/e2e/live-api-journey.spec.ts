@@ -308,7 +308,7 @@ test.describe("live-api-journey", { tag: ["@founder", "@critical"] }, () => {
     expect(listed, `run ${runId} should appear in GET /v1/architecture/runs`).toBeTruthy();
     expect.soft(listed?.status).toMatch(/^committed$/i);
 
-    await page.goto(`/governance?runId=${encodeURIComponent(runId)}`);
+    await page.goto(`/governance/approval-queue?runId=${encodeURIComponent(runId)}`);
 
     await expect(governancePageMainHeading(page)).toBeVisible({
       timeout: 60_000,

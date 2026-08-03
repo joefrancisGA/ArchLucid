@@ -43,7 +43,7 @@ export function resolveLiveDemoInspectHref(
     case "evidence-graph":
       return evidenceGraphHref({ runId: effectiveRunId });
     case "governance":
-      return `/governance?runId=${enc(effectiveRunId)}`;
+      return `/governance/approval-queue?runId=${enc(effectiveRunId)}`;
     case "audit-trail":
       return `/audit?runId=${enc(effectiveRunId)}`;
     default: {

@@ -13,6 +13,7 @@ import {
 } from "@/lib/demo-preview-page-copy";
 import { buildDemoPreviewConditionsText } from "@/lib/demo-preview-present";
 import { MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
+import { governanceApprovalQueueHref } from "@/lib/governance-route-paths";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 import { isDeterministicExplanationFallback } from "@/types/explanation";
 import { cn } from "@/lib/utils";
@@ -203,7 +204,7 @@ export function DemoPreviewGovernanceSection(props: DemoPreviewExecutiveConclusi
       {runId.length > 0 ? (
         <p className="mt-4">
           <Link
-            href={`/governance?runId=${encodeURIComponent(runId)}`}
+            href={governanceApprovalQueueHref(runId)}
             className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
           >
             View approval

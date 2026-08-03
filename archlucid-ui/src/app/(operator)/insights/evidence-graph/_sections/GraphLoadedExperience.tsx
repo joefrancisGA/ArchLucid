@@ -16,6 +16,7 @@ import {
   BUYER_EVIDENCE_TRAIL_OPEN_PACKAGE,
 } from "@/lib/buyer-polish-copy";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
+import { governanceApprovalQueueHref } from "@/lib/governance-route-paths";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { graphLooksLikeCoordinatorProvenanceTrail } from "@/lib/graph-mapper";
 import {
@@ -145,7 +146,7 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
             />
             <div className={cn("mt-6 flex flex-wrap gap-2", graphMainColumnMaxClass)}>
               <Button type="button" asChild variant="default" size="sm">
-                <Link href={`/governance?runId=${encodeURIComponent(runTrim)}`}>
+                <Link href={governanceApprovalQueueHref(runTrim)}>
                   {showcaseRun ? BUYER_GRAPH_GOVERNANCE_NEXT_APPROVED : BUYER_GRAPH_GOVERNANCE_NEXT_PENDING}
                 </Link>
               </Button>

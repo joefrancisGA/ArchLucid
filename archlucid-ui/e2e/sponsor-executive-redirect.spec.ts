@@ -33,7 +33,7 @@ test.describe("Sponsor executive shell redirect @sponsor-redirect", () => {
 
   test("Sponsor-only principal is redirected from governance workflow to dashboard", async ({ page }) => {
     await stubSponsorOnlyPrincipal(page);
-    await page.goto("/governance?runId=claims-intake-modernization");
+    await page.goto("/governance/approval-queue?runId=claims-intake-modernization");
 
     await expect(page).toHaveURL(/\/architecture\/executive-dashboard(\?runId=claims-intake-modernization)?$/, { timeout: 15_000 });
   });

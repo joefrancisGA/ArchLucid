@@ -33,6 +33,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/patterns": PATTERN_LIBRARY_PAGE_TITLE,
   "/architecture-intelligence": "Architecture intelligence",
   "/governance": GOVERNANCE_OVERVIEW_PAGE_TITLE,
+  "/governance/approval-queue": GOVERNANCE_OVERVIEW_PAGE_TITLE,
   "/governance/dashboard": "Executive Workspace Health",
   "/governance/findings": OPERATOR_NAV_LINK_LABELS.findings,
   "/governance/decision-register": "Decision register",

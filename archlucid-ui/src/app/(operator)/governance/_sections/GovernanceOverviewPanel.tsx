@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { getGovernanceDashboard, getGovernanceDecisionsNeededSummary } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_POLICY_PACKS_PATH, governanceApprovalQueueHref } from "@/lib/governance-route-paths";
 import {
   GOVERNANCE_OVERVIEW_APPROVED_PACKAGES_LABEL,
   GOVERNANCE_OVERVIEW_BLOCKING_ALERTS_LABEL,
@@ -340,7 +340,7 @@ export function GovernanceOverviewPanel(props: GovernanceOverviewPanelProps): Re
                 <li key={row.approvalRequestId}>
                   <Link
                     className={cn(OPERATOR_LINK.nav, "block rounded-md border border-neutral-200 px-3 py-2 dark:border-neutral-800")}
-                    href={`/governance?runId=${encodeURIComponent(row.runId)}`}
+                    href={governanceApprovalQueueHref(row.runId)}
                   >
                     <span className="font-medium">{row.manifestVersion}</span>
                     <span className="text-al-text-secondary"> · {row.status}</span>
@@ -362,7 +362,7 @@ export function GovernanceOverviewPanel(props: GovernanceOverviewPanelProps): Re
               <li key={row.approvalRequestId}>
                 <Link
                   className={cn(OPERATOR_LINK.nav, "block rounded-md border border-neutral-200 px-3 py-2 dark:border-neutral-800")}
-                  href={`/governance?runId=${encodeURIComponent(row.runId)}`}
+                  href={governanceApprovalQueueHref(row.runId)}
                 >
                   <span className="font-medium">{row.manifestVersion}</span>
                   <span className="text-al-text-secondary"> · {row.status}</span>

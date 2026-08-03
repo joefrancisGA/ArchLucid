@@ -12,6 +12,7 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { BUYER_VIEW_SIGNED_RECORD_CTA } from "@/lib/buyer-polish-copy";
 import { POST_COMMIT_INTEGRATION_LINK_TITLES } from "@/lib/operator-health-labels";
 import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
+import { governanceApprovalQueueHref } from "@/lib/governance-route-paths";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
@@ -60,7 +61,7 @@ export function PostCommitRetentionRail({
               Executive summary is already the prominent CTA on review detail; this rail continues the package path.
             */}
             <Button type="button" asChild variant="default" size="sm" className="justify-center sm:justify-start">
-              <Link href={`/governance?runId=${encodeURIComponent(runId)}`}>View governance approval</Link>
+              <Link href={governanceApprovalQueueHref(runId)}>View governance approval</Link>
             </Button>
             {goldenManifestId !== null && goldenManifestId.trim().length > 0 ? (
               <Button type="button" asChild variant="secondary" size="sm" className="justify-center sm:justify-start">

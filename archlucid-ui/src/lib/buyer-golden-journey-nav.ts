@@ -13,7 +13,9 @@ import {
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import {
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
+  governanceApprovalQueueHref,
   pathMatchesGovernanceAlerts,
+  pathMatchesGovernanceApprovalQueue,
   pathMatchesGovernanceAudit,
 } from "@/lib/governance-route-paths";
 
@@ -45,7 +47,7 @@ export const BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS = [
   {
     step: 4,
     label: "Governance approval",
-    href: `/governance?runId=${showcaseRunEnc}`,
+    href: governanceApprovalQueueHref(SHOWCASE_STATIC_DEMO_RUN_ID),
     chipTooltip: "Governance posture, approvals, and monitoring hooks tied to this review.",
   },
   {
@@ -155,7 +157,7 @@ export function resolveBuyerGoldenJourneyNav(
     } else if (pathMatchesGovernanceAudit(path)) {
       // Must run before the `/governance` catch-all — `/audit` permanently redirects to `/governance/audit`.
       stepIdx = 4;
-    } else if (path === "/governance") {
+    } else if (pathMatchesGovernanceApprovalQueue(path) || path === "/governance") {
       const governanceRunId =
         options?.searchRunId?.trim() ??
         new URL(pathname, "http://archlucid.local").searchParams.get("runId")?.trim() ??

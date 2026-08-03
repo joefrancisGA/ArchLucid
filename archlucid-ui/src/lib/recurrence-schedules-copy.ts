@@ -68,7 +68,7 @@ export const RECURRENCE_SCHEDULE_EXAMPLES: readonly RecurrenceScheduleExample[] 
 export const RECURRENCE_SCHEDULES_REVIEW_PACKAGES_HREF = "/reviews?projectId=default";
 
 /** Pending approvals live on the governance workflow page (no standalone list route yet). */
-export const RECURRENCE_SCHEDULES_PENDING_APPROVALS_HREF = "/governance";
+export const RECURRENCE_SCHEDULES_PENDING_APPROVALS_HREF = "/governance/approval-queue";
 
 /** Architecture risk register. */
 export const RECURRENCE_SCHEDULES_RISK_REGISTER_HREF = "/governance/findings";

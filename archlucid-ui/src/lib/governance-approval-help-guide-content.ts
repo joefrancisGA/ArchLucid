@@ -16,7 +16,7 @@ export const GOVERNANCE_APPROVAL_HELP_OVERVIEW =
 export const GOVERNANCE_APPROVAL_HELP_PRIMARY_ACTIONS = {
   openWorkflow: {
     label: "Open governance workflow",
-    href: "/governance",
+    href: "/governance/approval-queue",
   },
   openDashboard: {
     label: "Open governance dashboard",
@@ -218,7 +218,7 @@ export const GOVERNANCE_APPROVAL_HELP_COMMON_ACTIONS: readonly GovernanceApprova
   {
     label: "Submit for approval",
     description: "Start an approval request on a finalized review.",
-    href: "/governance",
+    href: "/governance/approval-queue",
   },
   {
     label: "Review pending requests",
@@ -228,7 +228,7 @@ export const GOVERNANCE_APPROVAL_HELP_COMMON_ACTIONS: readonly GovernanceApprova
   {
     label: "Record a governance decision",
     description: "Approve or reject submitted requests on the workflow page.",
-    href: "/governance",
+    href: "/governance/approval-queue",
   },
   {
     label: "Open the governance dashboard",

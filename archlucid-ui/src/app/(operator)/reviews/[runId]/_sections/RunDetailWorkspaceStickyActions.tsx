@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import { governanceApprovalQueueHref } from "@/lib/governance-route-paths";
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import { ReviewPackagePrimaryAction } from "./ReviewPackagePrimaryAction";
 import type { ReviewPackagePrimaryAction as ReviewPackagePrimaryActionModel } from "./resolve-review-package-primary-action";
@@ -34,7 +35,7 @@ export function RunDetailWorkspaceStickyActions(
         ) : null}
         {props.manifestId ? (
           <Button variant="outline" size="sm" asChild>
-            <Link href={`/governance?runId=${encodeURIComponent(props.runId)}`}>Record decision</Link>
+            <Link href={governanceApprovalQueueHref(props.runId)}>Record decision</Link>
           </Button>
         ) : null}
       </div>

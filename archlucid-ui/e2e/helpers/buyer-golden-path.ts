@@ -36,7 +36,7 @@ export const BUYER_GOLDEN_PATH_HREFS = {
   signedManifestFriendly: `/reviews/${showcaseRunEnc}/signed-record`,
   signedManifestCanonical: `/signed-records/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`,
   evidenceGraph: `/insights/evidence-graph?runId=${showcaseRunEnc}`,
-  governanceApproval: `/governance?runId=${showcaseRunEnc}`,
+  governanceApproval: `/governance/approval-queue?runId=${showcaseRunEnc}`,
   auditTrail: `/governance/audit?runId=${showcaseRunEnc}`,
   governanceFindings: "/governance/findings",
   policyPackDetail: "/governance/policy-packs/demo-healthcare-claims-pack",

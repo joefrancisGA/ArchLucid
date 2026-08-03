@@ -40,7 +40,7 @@ const liveBuyerGoldenPathHrefs = {
   executive: `/reviews/${productTourRunEnc}`,
   reviewPackage: `/reviews/${productTourRunEnc}`,
   evidenceGraph: `/insights/evidence-graph?runId=${productTourRunEnc}`,
-  governanceApproval: `/governance?runId=${productTourRunEnc}`,
+  governanceApproval: `/governance/approval-queue?runId=${productTourRunEnc}`,
   auditTrail: `/governance/audit?runId=${productTourRunEnc}`,
   compare: `/insights/compare-two-reviews?leftRunId=${productTourRunEnc}&rightRunId=${productTourRunEnc}`,
   ask: `/insights/ask-review-questions?runId=${productTourRunEnc}`,

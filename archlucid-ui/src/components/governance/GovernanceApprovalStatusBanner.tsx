@@ -8,10 +8,11 @@ import {
   BUYER_GOVERNANCE_STATUS_BANNER_VIEW_DISPOSITIONS,
 } from "@/lib/buyer-polish-copy";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { governanceApprovalQueueHref } from "@/lib/governance-route-paths";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
 
-const showcaseRunHref = `/governance?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
+const showcaseRunHref = governanceApprovalQueueHref(SHOWCASE_STATIC_DEMO_RUN_ID);
 const showcaseAuditHref = `/audit?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
 const riskRegisterHref = "/governance/findings";
 

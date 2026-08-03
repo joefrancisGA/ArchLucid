@@ -18,7 +18,7 @@ export function pilotNavLinkTestId(href: string): string | undefined {
     return "nav-pilot-baseline-settings";
   }
 
-  if (path === "/governance") {
+  if (path === "/governance" || path === "/governance/approval-queue") {
     return "nav-operate-governance-workflow";
   }
 

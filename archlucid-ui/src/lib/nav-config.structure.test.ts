@@ -184,7 +184,7 @@ describe("nav-config structure", () => {
       "/architecture-intelligence",
     ]);
     expect(governanceHrefs).toEqual([
-      "/governance",
+      "/governance/approval-queue",
       "/governance/findings",
       "/governance/risk-exceptions",
       "/governance/policy-packs",
@@ -293,6 +293,7 @@ describe("nav-config structure", () => {
     for (const link of governance!.links) {
       expect(
         link.href === "/governance"
+          || link.href === "/governance/approval-queue"
           || link.href.startsWith("/governance/")
           || governanceNamespaceExceptions.has(link.href),
         link.href,

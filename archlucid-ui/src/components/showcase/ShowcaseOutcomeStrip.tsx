@@ -3,6 +3,7 @@ import type { ReactElement } from "react";
 
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { MARKETING_CAPTION_TEXT_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { governanceApprovalQueueHref } from "@/lib/governance-route-paths";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import { cn } from "@/lib/utils";
 
@@ -103,7 +104,7 @@ export function ShowcaseOutcomeStrip(props: ShowcaseOutcomeStripProps): ReactEle
       )}
 
       {isRunDetailAvailable ? (
-        <Link className={cardClass} href={`/governance?runId=${encRun}`}>
+        <Link className={cardClass} href={governanceApprovalQueueHref(runId)}>
           <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>4 · Governance approval</span>
           <span className={outcomeCaptionClass}>{governanceSubtitle}</span>
         </Link>

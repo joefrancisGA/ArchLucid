@@ -8,7 +8,7 @@ describe("OperateGovernanceNavGroupBuilder", () => {
     const group = new OperateGovernanceNavGroupBuilder().build();
     const workflowLink = group.links[0];
 
-    expect(workflowLink?.href).toBe("/governance");
+    expect(workflowLink?.href).toBe("/governance/approval-queue");
     expect(workflowLink?.label).toBe("Approval queue");
   });
 

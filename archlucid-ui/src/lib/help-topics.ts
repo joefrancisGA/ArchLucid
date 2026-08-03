@@ -118,7 +118,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     summary:
       "Submit → review → approve → promote: walk approvals for a finalized review when your workspace enables governance.",
     docPath: "docs/library/customer-facing/GOVERNANCE_APPROVAL_OPERATOR_GUIDE.md",
-    routes: ["/governance"],
+    routes: ["/governance/approval-queue"],
   },
   {
     id: "alerts",

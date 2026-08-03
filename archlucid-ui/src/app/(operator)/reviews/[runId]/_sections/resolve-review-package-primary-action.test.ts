@@ -47,7 +47,7 @@ describe("resolveReviewPackagePrimaryAction", () => {
     });
 
     expect(action.kind).toBe("open-governance-decision");
-    expect(action.href).toBe("/governance?runId=run-abc");
+    expect(action.href).toBe("/governance/approval-queue?runId=run-abc");
   });
 
   it("defaults finalized packages to export proof packet when no blockers remain", () => {

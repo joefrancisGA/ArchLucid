@@ -1,4 +1,5 @@
 import { governanceGateLabelFromManifestStatus } from "@/lib/governance-gate-display";
+import { governanceApprovalQueueHref } from "@/lib/governance-route-paths";
 
 export const RUN_DETAIL_GOVERNANCE_CTA_LABEL = "Submit for governance approval →";
 
@@ -37,5 +38,5 @@ export function shouldShowRunDetailGovernanceCta(input: RunDetailGovernanceCtaVi
 }
 
 export function runDetailGovernanceWorkflowHref(runId: string): string {
-  return `/governance?runId=${encodeURIComponent(runId.trim())}`;
+  return governanceApprovalQueueHref(runId);
 }

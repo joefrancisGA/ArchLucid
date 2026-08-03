@@ -9,7 +9,7 @@ describe("BUYER_COMMAND_PALETTE_CURATED_TASKS", () => {
 
     expect(hrefs).toContain(`/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`);
     expect(hrefs.some((h) => h.includes("/insights/compare-two-reviews?"))).toBe(true);
-    expect(hrefs.some((h) => h.includes(`/governance?runId=`))).toBe(true);
+    expect(hrefs.some((h) => h.includes(`/governance/approval-queue?runId=`))).toBe(true);
     expect(hrefs).toContain("/governance/findings");
     expect(hrefs.some((h) => h.includes(`/audit?runId=`))).toBe(true);
   });

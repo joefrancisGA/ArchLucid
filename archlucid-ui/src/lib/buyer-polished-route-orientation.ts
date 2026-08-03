@@ -208,10 +208,10 @@ export function buyerPolishedRouteOrientation(
     return null;
   }
 
-  if (path === "/governance") {
+  if (path === "/governance" || path === "/governance/approval-queue") {
     const searchRunId = options?.searchRunId?.trim() ?? "";
 
-    // Governance overview carries its own OperatorPageHeader subtitle (TB-1434) — not strip + header twins.
+    // Approval queue carries its own OperatorPageHeader subtitle (TB-1434) — not strip + header twins.
     if (searchRunId.length === 0) {
       return null;
     }

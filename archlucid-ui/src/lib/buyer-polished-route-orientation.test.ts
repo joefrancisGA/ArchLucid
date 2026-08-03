@@ -156,13 +156,15 @@ describe("buyerPolishedRouteOrientation", () => {
     expect(buyerPolishedRouteOrientation("/product-learning")?.line).not.toBe(PILOT_FEEDBACK_VOCABULARY.layerContextLine);
   });
 
-  it("returns null for bare /governance — OperatorPageHeader owns the overview lead (TB-1434)", () => {
-    expect(buyerPolishedRouteOrientation("/governance")).toBeNull();
-    expect(buyerPolishedRouteOrientation("/governance")?.line).not.toBe(GOVERNANCE_OVERVIEW_PAGE_LEAD);
+  it("returns null for bare approval-queue — OperatorPageHeader owns the overview lead (TB-1434)", () => {
+    expect(buyerPolishedRouteOrientation("/governance/approval-queue")).toBeNull();
+    expect(buyerPolishedRouteOrientation("/governance/approval-queue")?.line).not.toBe(GOVERNANCE_OVERVIEW_PAGE_LEAD);
   });
 
-  it("orients /governance with showcase runId as sample review context", () => {
-    const o = buyerPolishedRouteOrientation("/governance", { searchRunId: SHOWCASE_STATIC_DEMO_RUN_ID });
+  it("orients approval-queue with showcase runId as sample review context", () => {
+    const o = buyerPolishedRouteOrientation("/governance/approval-queue", {
+      searchRunId: SHOWCASE_STATIC_DEMO_RUN_ID,
+    });
 
     expect(o?.label).toBe("Sample review context");
     expect(o?.line).toContain("Claims Intake sample review");

@@ -7,6 +7,7 @@ import {
 import { BUYER_COMPARE_OPEN_FULL_LINK_LABEL } from "@/lib/buyer-polish-copy";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
+import { governanceApprovalQueueHref } from "@/lib/governance-route-paths";
 import {
   SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF,
   SHOWCASE_STATIC_DEMO_RUN_ID,
@@ -45,7 +46,7 @@ export const BUYER_COMMAND_PALETTE_CURATED_TASKS: readonly CuratedPaletteTask[] 
   },
   {
     label: "Governance approval",
-    href: `/governance?runId=${showcaseRunEnc}`,
+    href: governanceApprovalQueueHref(SHOWCASE_STATIC_DEMO_RUN_ID),
     searchValue: "governance approval workflow sign-off",
   },
   {

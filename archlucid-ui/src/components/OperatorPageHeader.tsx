@@ -66,15 +66,17 @@ export function OperatorPageHeader({
     );
   }
 
+  const TitleTag = headingLevel === "h1" ? "h1" : "h2";
+
   return (
     <header className="mb-6 border-b border-neutral-200 pb-4 dark:border-neutral-800">
       <div className="flex flex-wrap items-center gap-2">
-        <h2
+        <TitleTag
           className={cn("m-0 text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.pageTitle)}
           {...(titleTestId !== undefined ? { "data-testid": titleTestId } : {})}
         >
           {title}
-        </h2>
+        </TitleTag>
         {actions != null && (
           <div className="ml-auto flex flex-wrap items-center gap-2">{actions}</div>
         )}

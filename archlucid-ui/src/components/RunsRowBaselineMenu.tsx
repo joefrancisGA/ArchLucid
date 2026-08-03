@@ -8,6 +8,7 @@ import { useRef } from "react";
 
 import { persistCompareBaselineRunId } from "@/lib/compare-baseline-run";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { governanceApprovalQueueHref } from "@/lib/governance-route-paths";
 import { showSuccess } from "@/lib/toast";
 
 function closeDetails(ref: RefObject<HTMLDetailsElement | null>): void {
@@ -42,7 +43,7 @@ export function RunsRowBaselineMenu(props: { runId: string }) {
         }}
       >
         <Link
-          href={`/governance?runId=${runEnc}`}
+          href={governanceApprovalQueueHref(props.runId)}
           className="text-teal-800 underline underline-offset-2 dark:text-teal-300"
         >
           View governance approval

@@ -122,7 +122,7 @@ export const DECISION_REGISTER_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps =
   actions: [
     { label: "Open reviews", href: "/architecture/reviews?projectId=default", variant: "primary" },
     { label: "Start architecture review", href: "/architecture/reviews/new", variant: "outline" },
-    { label: "Open governance workflow", href: "/governance", variant: "outline" },
+    { label: "Open governance workflow", href: "/governance/approval-queue", variant: "outline" },
   ],
 };
 

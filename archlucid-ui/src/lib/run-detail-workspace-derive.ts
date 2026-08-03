@@ -4,6 +4,7 @@ import { governanceGateLabelFromManifestStatus } from "@/lib/governance-gate-dis
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
 import { PIPELINE_STATUS_LABELS } from "@/lib/pipeline-status-labels";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
+import { governanceApprovalQueueHref } from "@/lib/governance-route-paths";
 import { shouldShowRunDetailGovernanceCta } from "@/lib/run-detail-governance-cta-visibility";
 import {
   humanReviewStatusDisplay,
@@ -409,7 +410,7 @@ export function deriveRecommendedWorkspaceActions(input: {
       reason: "Governance approval has not been recorded for this finalized review.",
       relatedFindingCount: null,
       ownerOrRole: "Governance approver",
-      href: `/governance?runId=${encodeURIComponent(input.runId)}`,
+      href: governanceApprovalQueueHref(input.runId),
       actionLabel: "Record decision",
     });
   }

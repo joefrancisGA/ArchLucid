@@ -60,7 +60,7 @@ const HREFS: string[] = [
   "/insights/impact-preview",
   "/example-roi-bulletin",
   "/architecture/first-review-guide",
-  "/governance",
+  "/governance/approval-queue",
   "/governance/dashboard",
   "/governance/findings",
   `/governance/approval-requests/${encodeURIComponent(SCREENSHOT_APPROVAL_ID)}/lineage`,
