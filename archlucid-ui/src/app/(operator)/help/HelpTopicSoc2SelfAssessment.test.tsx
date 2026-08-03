@@ -1,15 +1,28 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
-import { HelpTopicMarkdownView } from "@/app/(operator)/help/HelpTopicMarkdownView";
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button">Help</div>,
+}));
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/help/soc2-self-assessment",
+}));
+
+import { HelpSoc2SelfAssessmentGuideView } from "@/app/(operator)/help/_sections/HelpSoc2SelfAssessmentGuideView";
+import {
+  SOC2_SELF_ASSESSMENT_HELP_PAGE_TITLE,
+  SOC2_SELF_ASSESSMENT_HELP_PRIMARY_ACTIONS,
+  SOC2_SELF_ASSESSMENT_HELP_SOURCES,
+} from "@/lib/soc2-self-assessment-help-guide-content";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
-describe("HelpTopicMarkdownView soc2-self-assessment", () => {
+describe("HelpSoc2SelfAssessmentGuideView", () => {
   const loaded = tryLoadProductDocumentation("soc2-self-assessment");
 
   it("loads SOC2 self-assessment from security source", () => {
@@ -17,7 +30,7 @@ describe("HelpTopicMarkdownView soc2-self-assessment", () => {
     expect(loaded?.entry.title).toBe("SOC 2 self-assessment");
   });
 
-  it("renders SOC2 self-assessment without contributor leakage (TB-1747)", () => {
+  it("renders specialty diligence chrome without contributor leakage (TB-1746 / TB-1747)", () => {
     if (loaded === null) {
       throw new Error("Expected soc2-self-assessment documentation to load.");
     }
@@ -27,7 +40,7 @@ describe("HelpTopicMarkdownView soc2-self-assessment", () => {
       helpTopicSlug: "soc2-self-assessment",
     });
 
-    render(<HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />);
+    render(<HelpSoc2SelfAssessmentGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
     const visible = (document.body.textContent ?? "").toLowerCase();
 
@@ -35,6 +48,34 @@ describe("HelpTopicMarkdownView soc2-self-assessment", () => {
     expect(preparedMarkdown.toLowerCase()).not.toContain("codeql");
     expect(preparedMarkdown.toLowerCase()).not.toContain("audit_coverage_matrix");
     expect(visible).toContain("self-assessment");
+    expect(visible).toContain("not a soc 2 type i");
+    expect(screen.getByTestId("help-soc2-self-assessment-guide")).toBeInTheDocument();
+    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+    expect(screen.getByTestId("help-soc2-self-assessment-claim-discipline")).toBeInTheDocument();
+    expect(screen.getByTestId("help-soc2-self-assessment-job-matrix")).toBeInTheDocument();
+    expect(screen.getByTestId("help-soc2-self-assessment-page-title")).toHaveTextContent(
+      SOC2_SELF_ASSESSMENT_HELP_PAGE_TITLE,
+    );
+
+    const actionPanel = screen.getByTestId("help-soc2-self-assessment-action-panel");
+
+    expect(
+      within(actionPanel).getByRole("link", {
+        name: SOC2_SELF_ASSESSMENT_HELP_PRIMARY_ACTIONS.openTrustCenter.label,
+      }),
+    ).toHaveAttribute("href", SOC2_SELF_ASSESSMENT_HELP_PRIMARY_ACTIONS.openTrustCenter.href);
+    expect(
+      within(actionPanel).getByRole("link", {
+        name: SOC2_SELF_ASSESSMENT_HELP_PRIMARY_ACTIONS.openCaiqSig.label,
+      }),
+    ).toHaveAttribute("href", SOC2_SELF_ASSESSMENT_HELP_PRIMARY_ACTIONS.openCaiqSig.href);
+
+    const sources = screen.getByTestId("help-soc2-self-assessment-sources");
+
+    for (const link of SOC2_SELF_ASSESSMENT_HELP_SOURCES) {
+      expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
+    }
+
     expect(screen.getAllByRole("link", { name: /caiq/i }).length).toBeGreaterThan(0);
   });
 
@@ -48,7 +89,7 @@ describe("HelpTopicMarkdownView soc2-self-assessment", () => {
       helpTopicSlug: "soc2-self-assessment",
     });
 
-    render(<HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />);
+    render(<HelpSoc2SelfAssessmentGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
     const visible = (document.body.textContent ?? "").toLowerCase();
 

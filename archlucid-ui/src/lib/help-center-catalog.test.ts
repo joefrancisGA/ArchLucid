@@ -135,4 +135,15 @@ describe("help center tiers", () => {
     expect(advanced).toContain("dpa-template");
     expect(advanced).toContain("subprocessors");
   });
+
+  it("exposes SOC 2 self-assessment as a product advanced guide (TB-1750)", () => {
+    const soc2 = getProductDocumentationEntry("soc2-self-assessment");
+
+    expect(soc2).not.toBeNull();
+    expect(getHelpCenterTier(soc2!)).toBe("product");
+
+    const advanced = listHelpCenterTopics({ showAdvanced: true, isAdmin: false }).map((entry) => entry.slug);
+
+    expect(advanced).toContain("soc2-self-assessment");
+  });
 });

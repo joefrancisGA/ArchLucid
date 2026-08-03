@@ -1,6 +1,6 @@
 > **Scope:** Engineering-owned technical backlog items deferred from current sessions; audience is contributors and the AI assistant; not a buyer or operator document. Not a substitute for ADRs or the pending-questions owner decisions file.
 
-**Updated:** 2026-08-03 (**TB-1386** **Done** — `/help/governance-api-contracts` specialty API contracts guide + title honesty; Vitest; traffic **HG**). Prior: 2026-08-02 (**TB-1691**/**TB-1692**/**TB-1694**/**TB-1695** **Done** — `/help/first-value-20-minutes` Admin specialty guide; Vitest; traffic **HEF**). Prior: 2026-08-02 (**TB-1676**/**TB-1678**/**TB-1679**/**TB-1680** **Done** — `/help/dpa-template` specialty buyer DPA guide; Vitest; traffic **HDP**). Prior: 2026-07-31 (Open **P1** summary rows reordered - human-impact ship order for /ship-next-improvement; 723 open P1s; see `### P1 - human-impact ship order`).
+**Updated:** 2026-08-03 (**TB-1746**/**TB-1749**/**TB-1750** **Done** — `/help/soc2-self-assessment` specialty buyer guide + Trust CTA / IA dual / Help Center; Vitest; traffic **HES**; **TB-1747**/**TB-1748** retained). Prior: 2026-08-03 (**TB-1386** **Done** — `/help/governance-api-contracts` specialty API contracts guide + title honesty; Vitest; traffic **HG**). Prior: 2026-08-02 (**TB-1691**/**TB-1692**/**TB-1694**/**TB-1695** **Done** — `/help/first-value-20-minutes` Admin specialty guide; Vitest; traffic **HEF**). Prior: 2026-08-02 (**TB-1676**/**TB-1678**/**TB-1679**/**TB-1680** **Done** — `/help/dpa-template` specialty buyer DPA guide; Vitest; traffic **HDP**). Prior: 2026-07-31 (Open **P1** summary rows reordered - human-impact ship order for /ship-next-improvement; 723 open P1s; see `### P1 - human-impact ship order`).
 
 
 ## Cursor-actionable backlog ? remaining by architectural quality
@@ -400,7 +400,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 
 **TB-1741 — TB-1745** were added 2026-07-27 from an **owner review of Report a problem** at `/help/report-a-problem` (~55/100; traffic **HRE**) after Done **TB-790**. Strengths: short customer-facing `REPORT_A_PROBLEM.md`; honest next-business-day SLA (copy-guarded); clear consent / never-silent capture; product Help Center tier; Related to troubleshooting + `/administration/settings/support`. Residual: bare `HelpTopicMarkdownView` with no primary Open Settings → Support CTA; Help topic itself cannot open Report problem — readers without a failure surface hit a dead end; weak job split vs troubleshooting “try fixes first”; capture field table dominates before “where Report problem appears”; Related includes security-trust and omits visible mailto fallback. Pairs **TB-1414**. IDs skip HPR **TB-1736**–**TB-1740**. No new GTM IDs.
 
-**TB-1746 — TB-1750** were added 2026-07-27 from an **owner review of SOC 2 self-assessment** at `/help/soc2-self-assessment` (~40/100; traffic **HES**). Strengths: registry summary and IMPORTANT banner correctly deny CPA Type I/II opinion; buyer audience + `pdfStatus: public`; linked from Trust Center assurance artifacts. Residual: bare `HelpTopicMarkdownView` dumps full `SOC2_SELF_ASSESSMENT_2026.md` with `START_HERE` / `AUDIT_COVERAGE_MATRIX` / ADR / `AuthSafetyGuard` / CodeQL / pen-test SoW / GTM `.md` leakage; Type I table shows calendar targets (2026-09-01 / 2026-Q4) plus CFO Pending Questions; no Open `/trust` CTA; slug absent from `HELP_CENTER_TIER_BY_SLUG`; dual H1 “Owner self-assessment (2026)” vs registry title; overlaps CAIQ/SIG (**HCA**) and procurement without job chrome. Do **not** reopen Done **TB-135**/**TB-136** — CPA/3P stay GTM **G-REAL-05** / **G-ASSURANCE-02**. Pairs **TB-1414**. IDs skip HRE **TB-1741**–**TB-1745**. No new GTM IDs.
+**TB-1746 — TB-1750** were added 2026-07-27 from an **owner review of SOC 2 self-assessment** at `/help/soc2-self-assessment` (~40/100; traffic **HES**). **Done** 2026-08-03 — specialty `HelpSoc2SelfAssessmentGuideView`, Trust/CAIQ/procurement CTAs, job-matrix IA dual, Help Center product discovery + title honesty; **TB-1747**/**TB-1748** leakage/roadmap strips retained. Do **not** reopen Done **TB-135**/**TB-136** — CPA/3P stay GTM **G-REAL-05** / **G-ASSURANCE-02**. Pairs **TB-1414**. IDs skip HRE **TB-1741**–**TB-1745**. No new GTM IDs.
 
 **TB-1751 — TB-1755** were added 2026-07-27 from an **owner review of Subprocessors** at `/help/subprocessors` (~44/100; traffic **HSU**). Strengths: short buyer-facing register; honest 30-day notice; Microsoft/Azure OpenAI rows; buyer audience + `pdfStatus: public`; Trust Center related-help already links here. Residual: bare `HelpTopicMarkdownView`; Scope/`START_HERE` / `CUSTOMER_TRUST_AND_ACCESS` / `SYSTEM_THREAT_MODEL` / `infra/` / Terraform variables / `GEO_FAILOVER_DRILL` / relative `DPA_TEMPLATE.md` leakage; contributor “update this table before production use”; residency still “confirm in order form”; dual H1 “ArchLucid — Subprocessors”; slug absent from `help-center-catalog`; no Open `/trust` or DPA CTA; overlaps open **TB-1676**/**TB-1679**. Pairs **TB-1414**. IDs skip HES **TB-1746**–**TB-1750**. No new GTM IDs.
 
@@ -1335,9 +1335,9 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1743 | Report-a-problem help — IA dual with troubleshooting; see ## TB-1743 below | Adoption friction P1 — **V1**; with **TB-1741** | S |
 | TB-1744 | Report-a-problem help — first-viewport where-it-appears before field dump; see ## TB-1744 below | Adoption friction P1 — **V1**; with **TB-1741** | S |
 | TB-1745 | Report-a-problem help — Related density + email fallback CTA; see ## TB-1745 below | Adoption friction P1 — **V1**; with **TB-1741** | S |
-| TB-1746 | `/help/soc2-self-assessment` specialty buyer guide + Trust CTA; see ## TB-1746 below | Adoption friction P1 — **V1**; owner review ~40/100 2026-07-27; traffic **HES**; pairs **TB-1414**/**TB-1631**; do not reopen **TB-135**/**TB-136** | M |
-| TB-1749 | SOC2 self-assessment help — IA dual with CAIQ / Trust / procurement; see ## TB-1749 below | Adoption friction P1 — **V1**; with **TB-1746**; pairs **TB-1635**/**TB-1253** | S |
-| TB-1750 | SOC2 self-assessment help — title + Help Center discovery; see ## TB-1750 below | Adoption friction P1 — **V1**; with **TB-1746** | S |
+| TB-1746 | ~~`/help/soc2-self-assessment` specialty buyer guide + Trust CTA~~ **Done** 2026-08-03 — `HelpSoc2SelfAssessmentGuideView` + Trust/CAIQ/procurement CTAs; Vitest; see ## TB-1746 below | Adoption friction P1 — **V1**; owner review ~40/100 2026-07-27; traffic **HES**; pairs **TB-1414**/**TB-1631**; do not reopen **TB-135**/**TB-136** | M |
+| TB-1749 | ~~SOC2 self-assessment help — IA dual with CAIQ / Trust / procurement~~ **Done** 2026-08-03 — job matrix + Sources; Vitest; see ## TB-1749 below | Adoption friction P1 — **V1**; with **TB-1746**; pairs **TB-1635**/**TB-1253** | S |
+| TB-1750 | ~~SOC2 self-assessment help — title + Help Center discovery~~ **Done** 2026-08-03 — product-tier catalog + display; Vitest; see ## TB-1750 below | Adoption friction P1 — **V1**; with **TB-1746** | S |
 | TB-1751 | `/help/subprocessors` specialty buyer register + Trust CTA; see ## TB-1751 below | Adoption friction P1 — **V1**; owner review ~44/100 2026-07-27; traffic **HSU**; pairs **TB-1414**/**TB-1679** | M |
 | TB-1753 | Subprocessors help — IA dual with DPA / Trust; see ## TB-1753 below | Adoption friction P1 — **V1**; with **TB-1751**; pairs **TB-1676**/**TB-1679** | S |
 | TB-1754 | Subprocessors help — title + Help Center discovery; see ## TB-1754 below | Adoption friction P1 — **V1**; with **TB-1751** | S |
@@ -42764,13 +42764,13 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1746 — `/help/soc2-self-assessment` specialty buyer guide + Trust CTA (P0)
 
-**Window:** V1 — Adoption friction. **Status:** Not started. **Priority:** P0.
+**Window:** V1 — Adoption friction. **Status:** **Done** 2026-08-03. **Priority:** P0.
 
 **Source:** Owner HES ~40/100 2026-07-27.
 
 **Problem:** Honest self-assessment still falls through to generic markdown — Print/PDF, no specialty hero, no primary Open Trust Center / evidence-pack CTA (unlike Trust `/trust` surface).
 
-**Approach:** Specialty companion (pair **TB-1414**): self-assessment ≠ CPA attestation lead; primary Open Trust → `/trust`; secondary CAIQ/SIG / procurement. Vitest: specialty testid + Button. Keep honesty banner.
+**Shipped:** `HelpSoc2SelfAssessmentGuideView` with Trust Center / CAIQ-SIG / Procurement primary CTAs, Sources strip, orientation, PageContextualHelp; wired in `[...topic]/page.tsx`; Vitest `HelpTopicSoc2SelfAssessment.test.tsx`. **TB-1747**/**TB-1748** strips retained.
 
 **Acceptance:** First job is Trust diligence, not a security dump. **Size estimate:** M.
 
@@ -42808,11 +42808,11 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1749 — SOC2 self-assessment help — IA dual with CAIQ / Trust / procurement (P0)
 
-**Window:** V1 — Adoption friction. **Status:** Not started. **Priority:** P0.
+**Window:** V1 — Adoption friction. **Status:** **Done** 2026-08-03. **Priority:** P0.
 
 **Problem:** CAIQ/SIG (**TB-1631**), Trust Center, and procurement FAQ also serve diligence — four surfaces without a split on this page.
 
-**Approach:** Job split: this page = SOC 2 TSC self-map; questionnaires = caiq-sig-response; pack/index = `/trust`; FAQ = procurement. Mutual Related once. Do not reopen **TB-1631**/**TB-1253**. Vitest: distinct lead + cross-links.
+**Shipped:** Job matrix + Sources strip on `HelpSoc2SelfAssessmentGuideView` — this page = TSC self-map; questionnaires = caiq-sig-response; pack/index = `/trust`; FAQ = procurement. Vitest in `HelpTopicSoc2SelfAssessment.test.tsx` + guide-content tests. Do not reopen **TB-1631**/**TB-1253**.
 
 **Acceptance:** Clear which diligence artifact for which job. **Size estimate:** S.
 
@@ -42820,11 +42820,11 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1750 — SOC2 self-assessment help — title + Help Center discovery (P0)
 
-**Window:** V1 — Adoption friction. **Status:** Not started. **Priority:** P0.
+**Window:** V1 — Adoption friction. **Status:** **Done** 2026-08-03. **Priority:** P0.
 
 **Problem:** Markdown H1 “SOC 2 — Owner self-assessment (2026)” fights registry “SOC 2 self-assessment”; slug missing from `HELP_CENTER_TIER_BY_SLUG` (defaults product but no explicit card map like **TB-1635**).
 
-**Approach:** Single H1 aligned with catalog; add product-tier Help Center entry. Vitest: one h1; catalog includes `soc2-self-assessment`.
+**Shipped:** Specialty chrome H1 `SOC 2 self-assessment`; `HELP_CENTER_TIER_BY_SLUG` + display override; Vitest in `help-center-catalog.test.tsx` + guide view title testid.
 
 **Acceptance:** Discoverable titled self-assessment help. **Size estimate:** S.
 

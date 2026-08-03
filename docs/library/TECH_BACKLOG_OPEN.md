@@ -531,9 +531,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1743 | Report-a-problem help — IA dual with troubleshooting | Adoption friction P1 **V1** — with **TB-1741** |
 | TB-1744 | Report-a-problem help — first-viewport where-it-appears before field dump | Adoption friction P1 **V1** — with **TB-1741** |
 | TB-1745 | Report-a-problem help — Related density + email fallback CTA | Adoption friction P1 **V1** — with **TB-1741** |
-| TB-1746 | `/help/soc2-self-assessment` specialty buyer guide + Trust CTA | Adoption friction P1 **V1** — HES ~40 |
-| TB-1749 | SOC2 self-assessment help — IA dual with CAIQ / Trust / procurement | Adoption friction P1 **V1** — with **TB-1746** |
-| TB-1750 | SOC2 self-assessment help — title + Help Center discovery | Adoption friction P1 **V1** — with **TB-1746** |
 | TB-1751 | `/help/subprocessors` specialty buyer register + Trust CTA | Adoption friction P1 **V1** — HSU ~44 |
 | TB-1753 | Subprocessors help — IA dual with DPA / Trust | Adoption friction P1 **V1** — with **TB-1751** |
 | TB-1754 | Subprocessors help — title + Help Center discovery | Adoption friction P1 **V1** — with **TB-1751** |
@@ -890,7 +887,7 @@ Canonical: [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) only (see wave-3 c
 | Prior manifest retrieval (`/help/prior-manifest-retrieval`) | **TB-1731**–**TB-1735** (open P1 **V1**) | Specialty + Open Ask CTA; manifest jargon; config leakage; vs repeat/compare IA; Related/finalize copy; ~50/100; traffic **HEP** |
 | Product overview (`/help/product-overview`) | **TB-1736**–**TB-1740** (open P1 **V1**) | Specialty + Start CTA; title dual; eng/GTM leakage; vs EXE/path-chooser IA; M-18 pitch dump; ~42/100; traffic **HPR** |
 | Report a problem (`/help/report-a-problem`) | **TB-1741**–**TB-1745** (open P1 **V1**) | Specialty + Support CTA; button-absent dead-end; vs troubleshooting IA; first-viewport; Related/email; ~55/100; traffic **HRE**; after Done **TB-790** |
-| SOC 2 self-assessment (`/help/soc2-self-assessment`) | **TB-1746**–**TB-1750** (open P1 **V1**) | Specialty + Trust CTA; repo leakage; Type I calendar honesty; vs CAIQ/Trust IA; title/Help Center; ~40/100; traffic **HES**; do not reopen **TB-135**/**TB-136** |
+| SOC 2 self-assessment (`/help/soc2-self-assessment`) | **TB-1746**/**TB-1749**/**TB-1750** **Done** 2026-08-03; **TB-1747**/**TB-1748** retained | Specialty guide + Trust CTA; IA dual; Help Center; traffic **HES**; do not reopen **TB-135**/**TB-136** |
 | Subprocessors (`/help/subprocessors`) | **TB-1751**–**TB-1755** (open P1 **V1**) | Specialty + Trust CTA; repo leakage; vs DPA/Trust IA; title/Help Center; residency honesty; ~44/100; traffic **HSU** |
 | Azure Boards product (`/integrations/azure-boards`) | **TB-1756**–**TB-1760** (open P1 **V1** incremental) + ship open **TB-1151**–**TB-1155** first | Density; aside chips; skeleton; help canonical; Vitest guards; ~38/100; traffic **IAZ** |
 | AWS cloud connection detail (`/integrations/cloud-connections/aws`) | **TB-1761**–**TB-1765** (open P1 **V1**) | Wizard parity; Validate/Activity stubs; Tier jargon; CTA; trust-policy starter; ~44/100; traffic **INC**; hub **TB-1139**–**TB-1143** / help **TB-1234**–**TB-1238** stay open |

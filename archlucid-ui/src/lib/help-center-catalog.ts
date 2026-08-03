@@ -45,6 +45,7 @@ const HELP_CENTER_TIER_BY_SLUG: Readonly<Record<string, HelpCenterTier>> = {
   "data-handling": "product",
   "data-handling-tenant-isolation": "product",
   "dpa-template": "product",
+  "soc2-self-assessment": "product",
   subprocessors: "product",
   "cloud-connections": "product",
   "cloud-connections-azure": "product",
@@ -106,6 +107,11 @@ const HELP_CENTER_DISPLAY_OVERRIDES: Readonly<Partial<Record<string, HelpCenterD
     title: "Data Processing Agreement (template)",
     summary:
       "Negotiation template for counsel — request the diligence pack from Trust Center; not your countersigned DPA.",
+  },
+  "soc2-self-assessment": {
+    title: "SOC 2 self-assessment",
+    summary:
+      "Owner TSC readiness mapping — not a CPA Type I/II attestation; open Trust Center for the diligence pack.",
   },
   "first-value-20-minutes": {
     title: "First value in 20 minutes (Admin runbook)",

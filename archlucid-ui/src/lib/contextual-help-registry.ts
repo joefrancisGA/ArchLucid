@@ -92,6 +92,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/help/soc2-self-assessment",
+    entry: {
+      whatIsThisPage:
+        "Owner SOC 2 Trust Services Criteria self-assessment — not a CPA Type I or Type II attestation.",
+      whatToDoNext:
+        "Open Trust Center for the diligence pack, use CAIQ/SIG for questionnaires, then read the control summary as readiness mapping only.",
+      whyEmpty: "Orientation and CTAs always appear when this help topic loads.",
+      whereToConfigurePrerequisite:
+        "CPA attestation and third-party pen-test publication remain owner programs outside this page.",
+    },
+  },
+  {
     prefix: "/help/path-chooser",
     entry: {
       whatIsThisPage:

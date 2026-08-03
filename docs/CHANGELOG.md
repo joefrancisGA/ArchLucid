@@ -9,6 +9,10 @@
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
+## 2026-08-03 — UI/help: SOC 2 self-assessment specialty guide (HES / TB-1746 / TB-1749 / TB-1750)
+
+`/help/soc2-self-assessment` ships `HelpSoc2SelfAssessmentGuideView` — Trust Center / CAIQ-SIG / Procurement CTAs, Sources strip, job-matrix IA dual, orientation + claim-discipline chrome (self-assessment ≠ CPA Type I/II), and prepared `SOC2_SELF_ASSESSMENT_2026.md` (TB-1747/1748 strips retained). Help Center product-tier discovery + title honesty. Does not imply CPA SOC 2 or third-party pen-test publication.
+
 ## 2026-08-03 — UI/help: API contracts Admin specialty guide (HG / TB-1386)
 
 `/help/governance-api-contracts` ships `HelpApiContractsGuideView` — title honesty “API contracts (technical reference)”, CLI / configuration / buyer Governance approval CTAs, Sources strip, orientation + claim discipline, and TB-1388-stripped `API_CONTRACTS.md`. Alias `/help/api-contracts`. Admin-gated internal-runbook; not buyer governance FAQ. Does not imply CPA SOC 2 or third-party pen-test publication.

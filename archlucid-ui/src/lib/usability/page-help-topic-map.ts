@@ -82,6 +82,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "dpa-template", label: "Data Processing Agreement (template)" },
   },
   {
+    prefix: "/help/soc2-self-assessment",
+    topic: { slug: "soc2-self-assessment", label: "SOC 2 self-assessment" },
+  },
+  {
     prefix: "/help/path-chooser",
     topic: { slug: "path-chooser", label: "Choose your next step" },
   },

@@ -246,9 +246,9 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | HEP | `/help/prior-manifest-retrieval` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HPR | `/help/product-overview` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HRE | `/help/report-a-problem` | 0.02% | 0 | 0 | 2 | Help topic | None |
-| HEO | `/help/soc2-self-assessment` | 0.02% | 0 | 0 | 2 | Help topic | None |
+| HEO | `/help/starting-reviews` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HS | `/help/specialty-walkthroughs` | 0.02% | 0 | 0 | 2 | Help topic | None |
-| HES | `/help/starting-reviews` | 0.02% | 0 | 0 | 2 | Help topic | None |
+| HES | `/help/soc2-self-assessment` | 0.02% | 0 | 0 | 2 | Help topic | Specialty SOC 2 self-assessment guide - HelpSoc2SelfAssessmentGuideView with Trust Center / CAIQ-SIG / procurement primary CTAs, Sources diligence strip (security-trust, DPA, subprocessors, tenant-isolation), job-matrix IA dual (TB-1749), orientation steps, claim-discipline callout (self-assessment is not CPA Type I/II; Type I dates illustrative), PageContextualHelp, and prepared SOC2_SELF_ASSESSMENT_2026.md (TB-1747 leakage strip + TB-1748 roadmap honesty). Title + Help Center product discovery (TB-1750). Not bare HelpTopicMarkdownView. Does not imply CPA SOC 2 or third-party pen-test publication. |
 | HEU | `/help/subprocessors` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | INA | `/integrations/azure-boards` | 0.02% | 0 | 0 | 2 | Integrations | None |
 | INC | `/integrations/cloud-connections/aws` | 0.02% | 0 | 0 | 2 | Integrations | None |

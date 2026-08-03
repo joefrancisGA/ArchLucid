@@ -17,6 +17,7 @@ import { HelpAuditTrailGuideView } from "../_sections/HelpAuditTrailGuideView";
 import { HelpConfigurationReferenceGuideView } from "../_sections/HelpConfigurationReferenceGuideView";
 import { HelpDataHandlingTenantIsolationGuideView } from "../_sections/HelpDataHandlingTenantIsolationGuideView";
 import { HelpDpaTemplateGuideView } from "../_sections/HelpDpaTemplateGuideView";
+import { HelpSoc2SelfAssessmentGuideView } from "../_sections/HelpSoc2SelfAssessmentGuideView";
 import { HelpEngineeringTroubleshootingGuideView } from "../_sections/HelpEngineeringTroubleshootingGuideView";
 import { HelpFirstReviewEvidenceChecklistGuideView } from "../_sections/HelpFirstReviewEvidenceChecklistGuideView";
 import { HelpFirstValue20GuideView } from "../_sections/HelpFirstValue20GuideView";
@@ -41,6 +42,7 @@ import { GOVERNANCE_APPROVAL_HELP_ROUTE_METADATA } from "@/lib/governance-approv
 import { CONFIGURATION_REFERENCE_HELP_ROUTE_METADATA } from "@/lib/configuration-reference-help-route-metadata";
 import { DATA_HANDLING_TENANT_ISOLATION_HELP_ROUTE_METADATA } from "@/lib/data-handling-tenant-isolation-help-route-metadata";
 import { DPA_TEMPLATE_HELP_ROUTE_METADATA } from "@/lib/dpa-template-help-route-metadata";
+import { SOC2_SELF_ASSESSMENT_HELP_ROUTE_METADATA } from "@/lib/soc2-self-assessment-help-route-metadata";
 import { FIRST_REVIEW_HELP_ROUTE_METADATA } from "@/lib/first-review-help-route-metadata";
 import { POLICY_PACK_DELTA_DEMO_HELP_ROUTE_METADATA } from "@/lib/policy-pack-delta-demo-help-route-metadata";
 import { PATH_CHOOSER_HELP_ROUTE_METADATA } from "@/lib/path-chooser-help-route-metadata";
@@ -192,6 +194,10 @@ function renderHelpTopicView(
     return <HelpDpaTemplateGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
 
+  if (loaded.entry.slug === "soc2-self-assessment") {
+    return <HelpSoc2SelfAssessmentGuideView entry={loaded.entry} markdown={loaded.markdown} />;
+  }
+
   if (loaded.entry.slug === "policy-pack-delta-demo") {
     return <HelpPolicyPackDeltaDemoGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
@@ -265,6 +271,10 @@ export async function generateMetadata(props: HelpTopicPageProps): Promise<Metad
 
   if (entry.slug === "dpa-template") {
     return DPA_TEMPLATE_HELP_ROUTE_METADATA;
+  }
+
+  if (entry.slug === "soc2-self-assessment") {
+    return SOC2_SELF_ASSESSMENT_HELP_ROUTE_METADATA;
   }
 
   if (entry.slug === "policy-pack-delta-demo") {
