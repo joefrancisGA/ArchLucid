@@ -26,15 +26,20 @@ GitHub `dev` secrets already set:
 
 1. **DNS:** Point `www.archlucid.net` CNAME at  
    `archlucid-ui.purplebush-a4794286.centralus.azurecontainerapps.io`  
-   (and `asuid.www` TXT = UI custom domain verification id if required).
-2. **Cert bind** (retry until managed cert Succeeded):
+   (and `asuid.www` TXT = UI custom domain verification id if required). — **done**
+2. **Cert bind** (retry until managed cert Succeeded): — **done** (`SniEnabled`)
 
    ```powershell
    az containerapp hostname bind -g rg-ArchLucid-dev-cus -n archlucid-ui `
      --hostname www.archlucid.net --environment cae-archlucid --validation-method CNAME
    ```
 
-3. **Budget** (apply failed once: start date before current month). In `DEV_TFVARS` / local `dev.tfvars`:
+3. **ApiKey scope + UI proxy auth** (TB-304 / Staging): API must have
+   `Authentication__ApiKey__TenantId` **and** `WorkspaceId` **and** `ProjectId` (ScopeIds defaults).
+   UI must have `ARCHLUCID_API_BASE_URL` + `ARCHLUCID_API_KEY` (secret `al-ui-apikey`).
+   CD heals these on `target=dev` when `DEV_PRIVATE_BETA_AUTH_ENABLED` is false — **applied live 2026-08-03**.
+
+4. **Budget** (apply failed once: start date before current month). In `DEV_TFVARS` / local `dev.tfvars`:
 
    ```hcl
    container_apps_consumption_budget_time_period_start = "2026-08-01T00:00:00Z"
@@ -46,15 +51,15 @@ GitHub `dev` secrets already set:
    terraform -chdir=infra/terraform-container-apps apply -input=false "-var-file=dev.tfvars" -auto-approve
    ```
 
-4. **CD heal** (secrets / image digest onto new apps; no Terraform):
+5. **CD heal** (secrets / image digest onto new apps; no Terraform):
 
    ```powershell
    gh variable set CD_MAINTENANCE_WINDOW_OVERRIDE --body 'true'
    gh workflow run cd.yml -f action=deploy -f target=dev -f run_terraform_apply=false
    ```
 
-5. Smoke API `/health` + UI; one SQL-backed call.
-6. Clear `CD_MAINTENANCE_WINDOW_OVERRIDE` when done.
+6. Smoke API `/health` + UI proxy `/api/proxy/api/auth/me` (200) + Reviews list; one SQL-backed call.
+7. Clear `CD_MAINTENANCE_WINDOW_OVERRIDE` when done.
 
 ## Code fixes (local, not yet committed)
 

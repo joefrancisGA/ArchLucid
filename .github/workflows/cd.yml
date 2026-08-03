@@ -13,7 +13,8 @@
 #   CONTAINER_APP_UI_NAME — optional operator UI Container App (same archlucid-ui image)
 #   CONTAINER_APP_MARKETING_UI_NAME — optional marketing UI Container App (same image; TB-2016 dual-CA split)
 #   SMOKE_TEST_BASE_URL — required for staging/production post-deploy smoke; optional skip for dev only
-#   ARCHLUCID_API_KEY — required for product-path smoke + deployment-evidence OpenAPI (admin X-Api-Key; not break-glass)
+#   ARCHLUCID_API_KEY — required for product-path smoke + deployment-evidence OpenAPI; also healed onto UI/marketing
+#                       Container Apps as secret al-ui-apikey → ARCHLUCID_API_KEY (Staging ApiKey proxy auth)
 #   Dev private-beta auth (optional): set repo var DEV_PRIVATE_BETA_AUTH_ENABLED=true + vars/secrets below; CD switches
 #     dev API to JwtBearer + email OTP and bakes jwt/OIDC NEXT_PUBLIC_* into the UI image. Smoke mints a Bearer JWT.
 #     Vars: DEV_OPERATOR_UI_BASE_URL, DEV_JWT_LOCAL_ISSUER, DEV_JWT_LOCAL_AUDIENCE, NEXT_PUBLIC_OIDC_* (optional)
@@ -907,6 +908,26 @@ jobs:
               || fail "Authentication__ApiKey__AdminKey is not set"
             is_guid "Authentication__ApiKey__TenantId" \
               || fail "Authentication__ApiKey__TenantId is not a valid GUID"
+            # TB-304: Staging-like hosts reject header/default scope — ApiKey must mint workspace+project claims too.
+            # target=dev: heal ScopeIds defaults when missing (Central US cutover left TenantId-only).
+            if [ "$TARGET" = "dev" ]; then
+              if ! is_guid "Authentication__ApiKey__WorkspaceId" \
+                || ! is_guid "Authentication__ApiKey__ProjectId"; then
+                echo "Healing ApiKey workspace/project scope claims on target=dev (ScopeIds defaults)..."
+                az containerapp update -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" \
+                  --set-env-vars \
+                    "Authentication__ApiKey__TenantId=11111111-1111-1111-1111-111111111111" \
+                    "Authentication__ApiKey__WorkspaceId=22222222-2222-2222-2222-222222222222" \
+                    "Authentication__ApiKey__ProjectId=33333333-3333-3333-3333-333333333333" \
+                  -o none
+                ENV_JSON=$(az containerapp show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" \
+                  --query "properties.template.containers[0].env" -o json 2>/dev/null || echo "[]")
+              fi
+            fi
+            is_guid "Authentication__ApiKey__WorkspaceId" \
+              || fail "Authentication__ApiKey__WorkspaceId is not a valid GUID (required with TenantId for TB-304)"
+            is_guid "Authentication__ApiKey__ProjectId" \
+              || fail "Authentication__ApiKey__ProjectId is not a valid GUID (required with TenantId for TB-304)"
           fi
           # Hosted RC/dev keeps Contoso showcase seed on every API revision (sample-run deep links).
           # Staging/production must never enable Demo — buyer/pilot hosts stay seed-free.
@@ -1009,6 +1030,7 @@ jobs:
           DEV_EMAIL_OTP_HASH_PEPPER: ${{ secrets.DEV_EMAIL_OTP_HASH_PEPPER }}
           DEV_ACS_EMAIL_ENDPOINT: ${{ vars.DEV_ACS_EMAIL_ENDPOINT }}
           DEV_EMAIL_FROM_ADDRESS: ${{ vars.DEV_EMAIL_FROM_ADDRESS }}
+          ARCHLUCID_API_KEY: ${{ secrets.ARCHLUCID_API_KEY }}
         run: |
           set -euo pipefail
           # Digest-only deploy — never resolve latest, never rebuild, never re-infer tag from github.sha.
@@ -1086,6 +1108,14 @@ jobs:
               "Email__FromDisplayName=ArchLucid"
             )
             echo "Dev private-beta auth env: JwtBearer + email OTP + ACS From=${DEV_EMAIL_FROM_ADDRESS}"
+          elif [ "${{ github.event.inputs.target || 'dev' }}" = "dev" ]; then
+            # ApiKey + Staging: pin TB-304 trusted scope claims (ScopeIds defaults) on every API roll.
+            API_ENV_VARS+=(
+              "Authentication__ApiKey__TenantId=11111111-1111-1111-1111-111111111111"
+              "Authentication__ApiKey__WorkspaceId=22222222-2222-2222-2222-222222222222"
+              "Authentication__ApiKey__ProjectId=33333333-3333-3333-3333-333333333333"
+            )
+            echo "Dev ApiKey scope claims: Tenant/Workspace/Project ScopeIds defaults (TB-304)"
           fi
           if [ -n "${ARCHLUCID_CONTENT_SAFETY_ENDPOINT:-}" ] && [ -n "${ARCHLUCID_CONTENT_SAFETY_API_KEY:-}" ]; then
             API_ENV_VARS+=(
@@ -1103,17 +1133,44 @@ jobs:
                 "ARCHLUCID_BUILD_TIMESTAMP=$BUILD_TIMESTAMP" "ARCHLUCID_BUILD_COMMIT_SHA=$BUILD_ID" \
               --query "properties.latestRevisionName" -o tsv)
           fi
+          API_FQDN=$(az containerapp show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" \
+            --query "properties.configuration.ingress.fqdn" -o tsv 2>/dev/null || true)
+          UI_ENV_VARS=(
+            "CD_DEPLOY_RUN=$DEPLOY_STAMP"
+          )
+          if [ -n "${API_FQDN:-}" ]; then
+            UI_ENV_VARS+=("ARCHLUCID_API_BASE_URL=https://${API_FQDN}")
+            echo "UI ARCHLUCID_API_BASE_URL=https://${API_FQDN}"
+          else
+            echo "::warning::Could not resolve API ingress FQDN — UI ARCHLUCID_API_BASE_URL not healed this run."
+          fi
+          if [ -n "${ARCHLUCID_API_KEY:-}" ]; then
+            echo "Healing ARCHLUCID_API_KEY secret on UI Container App(s)..."
+            if [ -n "${CONTAINER_APP_UI_NAME:-}" ]; then
+              az containerapp secret set -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_UI_NAME" \
+                --secrets "al-ui-apikey=${ARCHLUCID_API_KEY}" \
+                -o none
+            fi
+            if [ -n "${CONTAINER_APP_MARKETING_UI_NAME:-}" ]; then
+              az containerapp secret set -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_MARKETING_UI_NAME" \
+                --secrets "al-ui-apikey=${ARCHLUCID_API_KEY}" \
+                -o none
+            fi
+            UI_ENV_VARS+=("ARCHLUCID_API_KEY=secretref:al-ui-apikey")
+          else
+            echo "::warning::ARCHLUCID_API_KEY secret unset — UI proxy will 403 on Staging ApiKey hosts without server-side key."
+          fi
           if [ -n "${CONTAINER_APP_UI_NAME:-}" ] && [ -n "${UI_IMAGE}" ]; then
             echo "Deploy UI image (digest): ${UI_IMAGE}"
             echo "Deploy UI tag (lineage): ${ACR_LOGIN_SERVER}/archlucid-ui:${IMAGE_TAG}"
             U_LATEST=$(az containerapp update -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_UI_NAME" --image "$UI_IMAGE" \
-              --revision-suffix "$REV_SFX" --set-env-vars "CD_DEPLOY_RUN=$DEPLOY_STAMP" \
+              --revision-suffix "$REV_SFX" --set-env-vars "${UI_ENV_VARS[@]}" \
               --query "properties.latestRevisionName" -o tsv)
           fi
           if [ -n "${CONTAINER_APP_MARKETING_UI_NAME:-}" ] && [ -n "${UI_IMAGE}" ]; then
             echo "Deploy marketing UI (same digest): ${UI_IMAGE}"
             M_LATEST=$(az containerapp update -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_MARKETING_UI_NAME" --image "$UI_IMAGE" \
-              --revision-suffix "$REV_SFX" --set-env-vars "CD_DEPLOY_RUN=$DEPLOY_STAMP" \
+              --revision-suffix "$REV_SFX" --set-env-vars "${UI_ENV_VARS[@]}" \
               --query "properties.latestRevisionName" -o tsv)
           fi
           # Pin 100% ingress when multiple revisions exist (traffic can stay on an older revision). Skip API when canary
