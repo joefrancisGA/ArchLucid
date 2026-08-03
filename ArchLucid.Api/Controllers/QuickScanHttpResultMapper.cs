@@ -42,35 +42,7 @@ internal static class QuickScanHttpResultMapper
 
         if (result.FailureKind == QuickScanExecutionFailureKind.GuardRejected)
         {
-            return result.GuardRejectionReason switch
-            {
-                QuickScanGuardRejectionReason.Disabled
-                    or QuickScanGuardRejectionReason.GlobalHourlySpendCeiling
-                    or QuickScanGuardRejectionReason.GlobalDailySpendCeiling
-                    or QuickScanGuardRejectionReason.ConcurrentScanLimit =>
-                    controller.ServiceUnavailableProblem("Quick Scan has reached its demonstration capacity for today."),
-
-                QuickScanGuardRejectionReason.SignInRequired =>
-                    controller.StatusCode(
-                        StatusCodes.Status403Forbidden,
-                        new Microsoft.AspNetCore.Mvc.ProblemDetails
-                        {
-                            Title = "Sign-in required",
-                            Detail = "Additional Quick Scan attempts require sign-in.",
-                            Type = ProblemTypes.BusinessRuleViolation,
-                            Status = StatusCodes.Status403Forbidden,
-                        }),
-
-                _ => controller.StatusCode(
-                    StatusCodes.Status429TooManyRequests,
-                    new Microsoft.AspNetCore.Mvc.ProblemDetails
-                    {
-                        Title = "Too many requests",
-                        Detail = "Quick Scan is temporarily unavailable. Try again later or view the sample result.",
-                        Type = ProblemTypes.LlmTokenQuotaExceeded,
-                        Status = StatusCodes.Status429TooManyRequests,
-                    }),
-            };
+            return MapGuardRejected(controller, result.GuardRejectionReason!.Value);
         }
 
         if (result.FailureKind == QuickScanExecutionFailureKind.CapacityReached)
@@ -80,6 +52,55 @@ internal static class QuickScanHttpResultMapper
 
         return controller.ServiceUnavailableProblem(
             "Quick Scan could not be completed. View the sample result or try again later.");
+    }
+
+    private static IActionResult MapGuardRejected(
+        ControllerBase controller,
+        QuickScanGuardRejectionReason reason)
+    {
+        return reason switch
+        {
+            QuickScanGuardRejectionReason.Disabled
+                or QuickScanGuardRejectionReason.GlobalHourlySpendCeiling
+                or QuickScanGuardRejectionReason.GlobalDailySpendCeiling
+                or QuickScanGuardRejectionReason.ConcurrentScanLimit =>
+                controller.ServiceUnavailableProblem("Quick Scan has reached its demonstration capacity for today."),
+
+            QuickScanGuardRejectionReason.SignInRequired =>
+                controller.ForbiddenProblemWithErrorCode(
+                    "Sign-in required",
+                    "Additional Quick Scan attempts require sign-in.",
+                    QuickScanIdentityAbuseErrorCodes.SignInRequired),
+
+            QuickScanGuardRejectionReason.CaptchaRequired =>
+                controller.ForbiddenProblemWithErrorCode(
+                    "Verification required",
+                    "Complete the security check to continue with Quick Scan.",
+                    QuickScanIdentityAbuseErrorCodes.CaptchaRequired),
+
+            QuickScanGuardRejectionReason.DuplicatePayload =>
+                controller.TooManyRequestsProblemWithErrorCode(
+                    "This request looks like a recent duplicate. Try again later or view the sample result.",
+                    QuickScanIdentityAbuseErrorCodes.DuplicateLimit),
+
+            QuickScanGuardRejectionReason.SuspiciousActivity =>
+                controller.TooManyRequestsProblemWithErrorCode(
+                    "Quick Scan is temporarily unavailable due to unusual activity. Try again later or view the sample result.",
+                    QuickScanIdentityAbuseErrorCodes.SuspiciousActivity),
+
+            QuickScanGuardRejectionReason.GlobalHourlyRequestLimit
+                or QuickScanGuardRejectionReason.GlobalDailyRequestLimit
+                or QuickScanGuardRejectionReason.PerIpHourlyLimit
+                or QuickScanGuardRejectionReason.PerIpDailyLimit
+                or QuickScanGuardRejectionReason.PerSessionDailyLimit =>
+                controller.TooManyRequestsProblemWithErrorCode(
+                    "Quick Scan is temporarily unavailable. Try again later or view the sample result.",
+                    QuickScanIdentityAbuseErrorCodes.RateLimited),
+
+            _ => controller.TooManyRequestsProblemWithErrorCode(
+                "Quick Scan is temporarily unavailable. Try again later or view the sample result.",
+                QuickScanIdentityAbuseErrorCodes.RateLimited),
+        };
     }
 
     private static IActionResult MapConcurrencyRejected(

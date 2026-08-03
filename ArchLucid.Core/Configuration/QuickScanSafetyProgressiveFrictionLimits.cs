@@ -5,7 +5,8 @@ public sealed class QuickScanSafetyProgressiveFrictionLimits
 {
     public int ScansBeforeCaptchaRequired { get; set; } = 2;
 
-    public int ScansBeforeSignInRequired { get; set; } = 2;
+    /// <summary>Must be greater than <see cref="ScansBeforeCaptchaRequired" /> when both frictions are enabled.</summary>
+    public int ScansBeforeSignInRequired { get; set; } = 4;
 
     public bool CaptchaEnabled { get; set; }
 

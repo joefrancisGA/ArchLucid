@@ -29,6 +29,8 @@ internal sealed class QuickScanAdversarialOrchestratorTestFixture
 
     public Mock<IQuickScanDistributedConcurrencyService> Concurrency { get; } = new();
 
+    public Mock<IQuickScanIdentityAbuseService> IdentityAbuse { get; } = new();
+
     public Mock<IQuickScanSafetyOperationalStateProvider> Operational { get; } = new();
 
     public Mock<IAuditService> Audit { get; } = new();
@@ -64,6 +66,13 @@ internal sealed class QuickScanAdversarialOrchestratorTestFixture
         Concurrency
             .Setup(c => c.WaitForAdmissionAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(QuickScanDistributedConcurrencyAdmissionResult.NoOp());
+
+        IdentityAbuse
+            .Setup(a => a.TryAdmitAsync(It.IsAny<QuickScanIdentityAbuseAdmitContext>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(QuickScanIdentityAbuseDecision.Permit());
+        IdentityAbuse
+            .Setup(a => a.EvaluateAsync(It.IsAny<QuickScanIdentityAbuseAdmitContext>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(QuickScanIdentityAbuseDecision.Permit());
 
         Operational
             .Setup(p => p.GetSnapshotAsync(It.IsAny<CancellationToken>()))
@@ -108,6 +117,7 @@ internal sealed class QuickScanAdversarialOrchestratorTestFixture
             CostEstimator.Object,
             GlobalBudget.Object,
             Concurrency.Object,
+            IdentityAbuse.Object,
             Operational.Object,
             Audit.Object,
             LlmCostEstimator.Object,

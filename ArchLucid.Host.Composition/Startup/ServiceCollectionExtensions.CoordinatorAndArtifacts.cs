@@ -146,6 +146,9 @@ public static partial class ServiceCollectionExtensions
             services.AddSingleton<InMemoryQuickScanDistributedConcurrencyStore>();
             services.AddSingleton<IQuickScanDistributedConcurrencyStore>(sp =>
                 sp.GetRequiredService<InMemoryQuickScanDistributedConcurrencyStore>());
+            services.AddSingleton<InMemoryQuickScanIdentityAbuseStore>();
+            services.AddSingleton<IQuickScanIdentityAbuseStore>(sp =>
+                sp.GetRequiredService<InMemoryQuickScanIdentityAbuseStore>());
             services.AddSingleton<InMemoryQuickScanSafetyOperationalStateStore>();
             services.AddSingleton<IQuickScanSafetyOperationalStateStore>(sp =>
                 sp.GetRequiredService<InMemoryQuickScanSafetyOperationalStateStore>());
@@ -160,6 +163,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IIdempotencyRecordRepository, IdempotencyRecordRepository>();
         services.AddSingleton<IQuickScanGlobalBudgetReservationStore, DapperQuickScanGlobalBudgetReservationStore>();
         services.AddSingleton<IQuickScanDistributedConcurrencyStore, DapperQuickScanDistributedConcurrencyStore>();
+        services.AddSingleton<IQuickScanIdentityAbuseStore, DapperQuickScanIdentityAbuseStore>();
         services.AddSingleton<IQuickScanSafetyOperationalStateStore, DapperQuickScanSafetyOperationalStateStore>();
         services.AddSingleton<IRunScopedLlmBudgetReservationStore, DapperRunScopedLlmBudgetReservationStore>();
         services.AddScoped<IProjectRoleAssignmentRepository, ProjectRoleAssignmentRepository>();

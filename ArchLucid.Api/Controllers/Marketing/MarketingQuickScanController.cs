@@ -28,6 +28,7 @@ public sealed class MarketingQuickScanController(
     IQuickScanGuard quickScanGuard,
     IQuickScanTelemetry quickScanTelemetry,
     IQuickScanExecutionOrchestrator quickScanExecutionOrchestrator,
+    IQuickScanIdentityAbuseService quickScanIdentityAbuseService,
     IQuickScanSafetyOperationalStateProvider quickScanSafetyOperationalStateProvider,
     IOptionsMonitor<QuickScanSafetyOptions> quickScanSafetyOptions,
     IScopeContextProvider scopeContextProvider,
@@ -40,9 +41,23 @@ public sealed class MarketingQuickScanController(
     {
         QuickScanGuardContext context = BuildGuardContext(string.Empty);
         QuickScanGuardDecision guardDecision = quickScanGuard.TryBeginScan(context);
+
+        QuickScanSafetyOptions safetyOptions = quickScanSafetyOptions.CurrentValue;
+
+        if (safetyOptions.Enabled)
+        {
+            QuickScanIdentityAbuseDecision abuseDecision = await quickScanIdentityAbuseService.EvaluateAsync(
+                BuildIdentityAbuseContext(description: string.Empty),
+                cancellationToken).ConfigureAwait(false);
+
+            if (!abuseDecision.Allowed)
+            {
+                guardDecision = QuickScanGuardDecision.Reject(abuseDecision.RejectionReason!.Value);
+            }
+        }
+
         QuickScanSafetyOperationalSnapshot operational =
             await quickScanSafetyOperationalStateProvider.GetSnapshotAsync(cancellationToken).ConfigureAwait(false);
-        QuickScanSafetyOptions safetyOptions = quickScanSafetyOptions.CurrentValue;
         QuickScanPublicCapacityStateResolver.Resolution capacity =
             QuickScanPublicCapacityStateResolver.Resolve(operational, guardDecision, safetyOptions);
 
@@ -116,14 +131,20 @@ public sealed class MarketingQuickScanController(
     {
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
 
+        string sessionId = Request.Headers["X-Quick-Scan-Session"].FirstOrDefault()
+            ?? Request.Headers["X-ArchLucid-Anonymous-Session"].FirstOrDefault()
+            ?? Request.Cookies["al_quick_scan_session"]
+            ?? HttpContext.Connection.RemoteIpAddress?.ToString()
+            ?? "unknown";
+
+        string? browserId = Request.Headers["X-Quick-Scan-Browser"].FirstOrDefault()
+            ?? Request.Cookies["al_quick_scan_browser"];
+
         return new QuickScanExecutionRequestContext
         {
             ClientIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
-            SessionId = Request.Headers["X-Quick-Scan-Session"].FirstOrDefault()
-                ?? Request.Headers["X-ArchLucid-Anonymous-Session"].FirstOrDefault()
-                ?? Request.Cookies["al_quick_scan_session"]
-                ?? HttpContext.Connection.RemoteIpAddress?.ToString()
-                ?? "unknown",
+            SessionId = sessionId,
+            BrowserId = string.IsNullOrWhiteSpace(browserId) ? sessionId : browserId,
             TraceIdentifier = HttpContext.TraceIdentifier,
             ClientRequestedModelId = Request.Headers["X-Quick-Scan-Model"].FirstOrDefault(),
             TenantId = scope.TenantId,
@@ -153,11 +174,7 @@ public sealed class MarketingQuickScanController(
     private QuickScanGuardContext BuildGuardContext(string description)
     {
         string clientIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-        string sessionId = Request.Headers["X-Quick-Scan-Session"].FirstOrDefault()
-            ?? Request.Headers["X-ArchLucid-Anonymous-Session"].FirstOrDefault()
-            ?? Request.Cookies["al_quick_scan_session"]
-            ?? clientIp;
-
+        string sessionId = ResolveSessionId(clientIp);
         string fingerprint = QuickScanGuardContextFactory.ComputeFingerprint(description, sessionId);
 
         return new QuickScanGuardContext
@@ -165,7 +182,30 @@ public sealed class MarketingQuickScanController(
             ClientIp = clientIp,
             SessionId = sessionId,
             PayloadFingerprint = fingerprint,
+            UseDistributedIdentityAbuseLimit = quickScanSafetyOptions.CurrentValue.Enabled,
         };
     }
+
+    private QuickScanIdentityAbuseAdmitContext BuildIdentityAbuseContext(string description)
+    {
+        string clientIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        string sessionId = ResolveSessionId(clientIp);
+        string? browserId = Request.Headers["X-Quick-Scan-Browser"].FirstOrDefault()
+            ?? Request.Cookies["al_quick_scan_browser"];
+
+        return new QuickScanIdentityAbuseAdmitContext
+        {
+            ClientIp = clientIp,
+            SessionId = sessionId,
+            BrowserId = string.IsNullOrWhiteSpace(browserId) ? sessionId : browserId,
+            Description = description,
+        };
+    }
+
+    private string ResolveSessionId(string clientIp) =>
+        Request.Headers["X-Quick-Scan-Session"].FirstOrDefault()
+        ?? Request.Headers["X-ArchLucid-Anonymous-Session"].FirstOrDefault()
+        ?? Request.Cookies["al_quick_scan_session"]
+        ?? clientIp;
 }
 

@@ -172,7 +172,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-872 | Customer-provided Azure OpenAI connection (first BYO path) | AI model chooser P2 **V1.1** |
 | TB-881 | ~~RC12 registration duplicate-organization conflict~~ **Done** (2026-07-21) — CI serialize Api.Tests; not pilot ship blocker | Correctness P1 **RC12** — closed; see PA **TB-1371**/**TB-1372** |
 | TB-891 | Showcase render-mode telemetry | Traceability P1 **V1** |
-| TB-897 | Layered Quick Scan identity rate limits + duplicate abuse | Abuse P1 **V1** — not a spend substitute |
 | TB-899 | Quick Scan cost telemetry, dashboards, reconciliation, alerts | Operability P1 **V1** |
 | TB-931 | Typed columns for hot scalars from JSON | Performance P2 **V1** — after **TB-929** inventory |
 | TB-934 | First Load JS cut for `/reviews` hub + `/governance` shell | Performance P2 **V1** — after **TB-933** Done; peer wave-3 **TB-2021**–**TB-2032** |

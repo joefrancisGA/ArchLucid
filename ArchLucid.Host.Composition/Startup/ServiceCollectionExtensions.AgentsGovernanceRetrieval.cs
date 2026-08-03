@@ -38,6 +38,7 @@ using ArchLucid.Core.AiUsage;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Http;
 using ArchLucid.Core.Llm;
 using ArchLucid.Core.Llm.Redaction;
 using IAgentCompletionClient = ArchLucid.AgentRuntime.IAgentCompletionClient;
@@ -677,6 +678,15 @@ public static partial class ServiceCollectionExtensions
         // Scoped: SQL ILlmTenantBudgetRepository is scoped; cross-request state lives on IRunScopedLlmBudgetReservationStore (singleton).
         services.AddScoped<IRunScopedLlmBudgetReservationService, RunScopedLlmBudgetReservationService>();
         services.AddSingleton<IQuickScanDistributedConcurrencyService, QuickScanDistributedConcurrencyService>();
+        services.AddHttpClient(
+            nameof(TurnstileQuickScanBotChallengeVerifier),
+            static client =>
+            {
+                client.Timeout = TimeSpan.FromSeconds(OutboundHttpClientTimeoutSeconds.ExternalIntegration);
+            });
+        services.AddSingleton<IQuickScanBotChallengeVerifier, TurnstileQuickScanBotChallengeVerifier>();
+        // Scoped: orchestrator is scoped; store + Turnstile verifier remain singleton-safe.
+        services.AddScoped<IQuickScanIdentityAbuseService, QuickScanIdentityAbuseService>();
         services.AddSingleton<IQuickScanSafetyOperationalStateProvider, QuickScanSafetyOperationalStateProvider>();
         services.AddSingleton<IQuickScanSafetyOperationalAdminService, QuickScanSafetyOperationalAdminService>();
         services.AddSingleton<IQuickScanGuard, QuickScanGuard>();

@@ -10,7 +10,8 @@ public static class QuickScanGuardContextFactory
         string clientIp,
         string sessionId,
         string description,
-        bool useDistributedConcurrencyLimit = false)
+        bool useDistributedConcurrencyLimit = false,
+        bool useDistributedIdentityAbuseLimit = false)
     {
         return new QuickScanGuardContext
         {
@@ -18,6 +19,7 @@ public static class QuickScanGuardContextFactory
             SessionId = sessionId,
             PayloadFingerprint = ComputeFingerprint(description, sessionId),
             UseDistributedConcurrencyLimit = useDistributedConcurrencyLimit,
+            UseDistributedIdentityAbuseLimit = useDistributedIdentityAbuseLimit,
         };
     }
 

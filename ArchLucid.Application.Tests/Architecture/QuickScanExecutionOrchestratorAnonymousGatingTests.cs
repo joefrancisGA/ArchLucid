@@ -62,6 +62,10 @@ public sealed class QuickScanExecutionOrchestratorAnonymousGatingTests
             c => c.WaitForAdmissionAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Never);
 
+        fixture.IdentityAbuse.Verify(
+            a => a.TryAdmitAsync(It.IsAny<QuickScanIdentityAbuseAdmitContext>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+
         fixture.Guard.Verify(
             g => g.TryBeginScan(It.Is<QuickScanGuardContext>(ctx => !ctx.UseDistributedConcurrencyLimit)),
             Times.Once);
@@ -137,8 +141,13 @@ public sealed class QuickScanExecutionOrchestratorAnonymousGatingTests
             c => c.WaitForAdmissionAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Once);
 
+        fixture.IdentityAbuse.Verify(
+            a => a.TryAdmitAsync(It.IsAny<QuickScanIdentityAbuseAdmitContext>(), It.IsAny<CancellationToken>()),
+            Times.Once);
+
         fixture.Guard.Verify(
-            g => g.TryBeginScan(It.Is<QuickScanGuardContext>(ctx => ctx.UseDistributedConcurrencyLimit)),
+            g => g.TryBeginScan(It.Is<QuickScanGuardContext>(ctx =>
+                ctx.UseDistributedConcurrencyLimit && ctx.UseDistributedIdentityAbuseLimit)),
             Times.Once);
     }
 

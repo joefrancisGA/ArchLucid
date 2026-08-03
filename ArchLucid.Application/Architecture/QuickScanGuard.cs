@@ -54,39 +54,42 @@ public sealed class QuickScanGuard(IOptionsMonitor<QuickScanOptions> optionsMoni
 
         lock (_globalLock)
         {
-            if (IsDuplicatePayload(context.PayloadFingerprint, now))
-                return QuickScanGuardDecision.Reject(QuickScanGuardRejectionReason.DuplicatePayload);
+            if (!context.UseDistributedIdentityAbuseLimit)
+            {
+                if (IsDuplicatePayload(context.PayloadFingerprint, now))
+                    return QuickScanGuardDecision.Reject(QuickScanGuardRejectionReason.DuplicatePayload);
 
-            if (GetCount(_globalHourlyRequests, hourKey) >= options.GlobalMaxRequestsPerHour)
-                return QuickScanGuardDecision.Reject(QuickScanGuardRejectionReason.GlobalHourlyRequestLimit);
+                if (GetCount(_globalHourlyRequests, hourKey) >= options.GlobalMaxRequestsPerHour)
+                    return QuickScanGuardDecision.Reject(QuickScanGuardRejectionReason.GlobalHourlyRequestLimit);
 
-            if (GetCount(_globalDailyRequests, dayKey) >= options.GlobalMaxRequestsPerDay)
-                return QuickScanGuardDecision.Reject(QuickScanGuardRejectionReason.GlobalDailyRequestLimit);
+                if (GetCount(_globalDailyRequests, dayKey) >= options.GlobalMaxRequestsPerDay)
+                    return QuickScanGuardDecision.Reject(QuickScanGuardRejectionReason.GlobalDailyRequestLimit);
+
+                string ipHourKey = $"{context.ClientIp}:{hourKey}";
+                string ipDayKey = $"{context.ClientIp}:{dayKey}";
+                string sessionDayKey = $"{context.SessionId}:{dayKey}";
+
+                if (GetCount(_ipHourly, ipHourKey) >= options.MaxScansPerIpPerHour)
+                    return QuickScanGuardDecision.Reject(QuickScanGuardRejectionReason.PerIpHourlyLimit);
+
+                if (GetCount(_ipDaily, ipDayKey) >= options.MaxScansPerIpPerDay)
+                    return QuickScanGuardDecision.Reject(QuickScanGuardRejectionReason.PerIpDailyLimit);
+
+                if (GetCount(_sessionDaily, sessionDayKey) >= options.MaxScansPerSessionPerDay)
+                    return QuickScanGuardDecision.Reject(QuickScanGuardRejectionReason.PerSessionDailyLimit);
+
+                if (options.SignInRequiredAfterSessionScans > 0
+                    && GetCount(_sessionDaily, sessionDayKey) >= options.SignInRequiredAfterSessionScans)
+                {
+                    return QuickScanGuardDecision.Reject(QuickScanGuardRejectionReason.SignInRequired);
+                }
+            }
 
             if (GetSpend(_globalHourlySpend, hourKey) >= options.GlobalMaxSpendUsdPerHour)
                 return QuickScanGuardDecision.Reject(QuickScanGuardRejectionReason.GlobalHourlySpendCeiling);
 
             if (GetSpend(_globalDailySpend, dayKey) >= options.GlobalMaxSpendUsdPerDay)
                 return QuickScanGuardDecision.Reject(QuickScanGuardRejectionReason.GlobalDailySpendCeiling);
-
-            string ipHourKey = $"{context.ClientIp}:{hourKey}";
-            string ipDayKey = $"{context.ClientIp}:{dayKey}";
-            string sessionDayKey = $"{context.SessionId}:{dayKey}";
-
-            if (GetCount(_ipHourly, ipHourKey) >= options.MaxScansPerIpPerHour)
-                return QuickScanGuardDecision.Reject(QuickScanGuardRejectionReason.PerIpHourlyLimit);
-
-            if (GetCount(_ipDaily, ipDayKey) >= options.MaxScansPerIpPerDay)
-                return QuickScanGuardDecision.Reject(QuickScanGuardRejectionReason.PerIpDailyLimit);
-
-            if (GetCount(_sessionDaily, sessionDayKey) >= options.MaxScansPerSessionPerDay)
-                return QuickScanGuardDecision.Reject(QuickScanGuardRejectionReason.PerSessionDailyLimit);
-
-            if (options.SignInRequiredAfterSessionScans > 0
-                && GetCount(_sessionDaily, sessionDayKey) >= options.SignInRequiredAfterSessionScans)
-            {
-                return QuickScanGuardDecision.Reject(QuickScanGuardRejectionReason.SignInRequired);
-            }
 
             if (!context.UseDistributedConcurrencyLimit
                 && Volatile.Read(ref _concurrentScans) >= options.MaxConcurrentScans)
@@ -110,20 +113,23 @@ public sealed class QuickScanGuard(IOptionsMonitor<QuickScanOptions> optionsMoni
             Interlocked.Increment(ref _concurrentScans);
         }
 
-        lock (_globalLock)
+        if (!context.UseDistributedIdentityAbuseLimit)
         {
-            Increment(_globalHourlyRequests, hourKey);
-            Increment(_globalDailyRequests, dayKey);
+            lock (_globalLock)
+            {
+                Increment(_globalHourlyRequests, hourKey);
+                Increment(_globalDailyRequests, dayKey);
 
-            string ipHourKey = $"{context.ClientIp}:{hourKey}";
-            string ipDayKey = $"{context.ClientIp}:{dayKey}";
-            string sessionDayKey = $"{context.SessionId}:{dayKey}";
+                string ipHourKey = $"{context.ClientIp}:{hourKey}";
+                string ipDayKey = $"{context.ClientIp}:{dayKey}";
+                string sessionDayKey = $"{context.SessionId}:{dayKey}";
 
-            Increment(_ipHourly, ipHourKey);
-            Increment(_ipDaily, ipDayKey);
-            Increment(_sessionDaily, sessionDayKey);
-            _recentPayloads[context.PayloadFingerprint] = now;
-            PruneRecentPayloads(now);
+                Increment(_ipHourly, ipHourKey);
+                Increment(_ipDaily, ipDayKey);
+                Increment(_sessionDaily, sessionDayKey);
+                _recentPayloads[context.PayloadFingerprint] = now;
+                PruneRecentPayloads(now);
+            }
         }
 
         _ = options;

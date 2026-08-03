@@ -305,6 +305,51 @@ public static class ProblemDetailsExtensions
         return new ObjectResult(problem) { StatusCode = problem.Status, ContentTypes = { ProblemJsonMediaType } };
     }
 
+    /// <summary>Returns 429 with an explicit <c>extensions.errorCode</c> (TB-897 Quick Scan identity/abuse).</summary>
+    public static IActionResult TooManyRequestsProblemWithErrorCode(
+        this ControllerBase controller,
+        string detail,
+        string errorCode,
+        string? instance = null)
+    {
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()
+        {
+            Type = ProblemTypes.LlmTokenQuotaExceeded,
+            Title = "Too many requests",
+            Status = StatusCodes.Status429TooManyRequests,
+            Detail = detail,
+            Instance = instance ?? controller.Request.Path,
+        };
+        problem.Extensions["errorCode"] = errorCode;
+        AttachAudienceSupportHint(problem, controller.HttpContext);
+        ProblemCorrelation.Attach(problem, controller.HttpContext);
+
+        return new ObjectResult(problem) { StatusCode = problem.Status, ContentTypes = { ProblemJsonMediaType } };
+    }
+
+    /// <summary>Returns 403 with an explicit <c>extensions.errorCode</c> (TB-897 Quick Scan friction).</summary>
+    public static IActionResult ForbiddenProblemWithErrorCode(
+        this ControllerBase controller,
+        string title,
+        string detail,
+        string errorCode,
+        string? instance = null)
+    {
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()
+        {
+            Type = ProblemTypes.BusinessRuleViolation,
+            Title = title,
+            Status = StatusCodes.Status403Forbidden,
+            Detail = detail,
+            Instance = instance ?? controller.Request.Path,
+        };
+        problem.Extensions["errorCode"] = errorCode;
+        AttachAudienceSupportHint(problem, controller.HttpContext);
+        ProblemCorrelation.Attach(problem, controller.HttpContext);
+
+        return new ObjectResult(problem) { StatusCode = problem.Status, ContentTypes = { ProblemJsonMediaType } };
+    }
+
     private static void AttachAudienceSupportHint(Microsoft.AspNetCore.Mvc.ProblemDetails problem, HttpContext httpContext)
     {
         ProblemSupportHints.AttachForProblemType(problem, ProblemDetailsAudienceHttpContext.Resolve(httpContext));

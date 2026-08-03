@@ -32,4 +32,10 @@ public sealed class QuickScanExecutionRequestContext
 
     /// <summary>When true, distributed concurrency + queue admission runs before budget reservation (TB-896).</summary>
     public bool RequiresAnonymousDistributedConcurrency { get; init; }
+
+    /// <summary>Signed browser cookie/header id for layered identity limits (TB-897).</summary>
+    public string? BrowserId { get; init; }
+
+    /// <summary>Optional Turnstile (or equivalent) token when progressive CAPTCHA friction is enabled.</summary>
+    public string? BotChallengeToken { get; init; }
 }

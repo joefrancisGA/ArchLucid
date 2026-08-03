@@ -84,12 +84,25 @@ public static class QuickScanPublicCapacityStateResolver
         QuickScanGuardRejectionReason reason,
         bool sampleAvailable)
     {
-        if (reason == QuickScanGuardRejectionReason.SignInRequired)
+        if (reason is QuickScanGuardRejectionReason.SignInRequired
+            or QuickScanGuardRejectionReason.CaptchaRequired)
         {
             return Build(
                 QuickScanPublicCapacityState.VerificationRequired,
                 publicMessage: null,
-                "Additional Quick Scan attempts require sign-in.",
+                reason == QuickScanGuardRejectionReason.CaptchaRequired
+                    ? "Complete the security check to continue with Quick Scan."
+                    : "Additional Quick Scan attempts require sign-in.",
+                aiExecutionAllowed: false,
+                sampleAvailable: sampleAvailable);
+        }
+
+        if (reason == QuickScanGuardRejectionReason.SuspiciousActivity)
+        {
+            return Build(
+                QuickScanPublicCapacityState.AnonymousLimit,
+                publicMessage: null,
+                "Quick Scan is temporarily unavailable due to unusual activity. View the sample result or try again later.",
                 aiExecutionAllowed: false,
                 sampleAvailable: sampleAvailable);
         }

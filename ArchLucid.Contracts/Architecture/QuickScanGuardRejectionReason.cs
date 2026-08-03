@@ -14,4 +14,6 @@ public enum QuickScanGuardRejectionReason
     ConcurrentScanLimit,
     SignInRequired,
     DuplicatePayload,
+    CaptchaRequired,
+    SuspiciousActivity,
 }

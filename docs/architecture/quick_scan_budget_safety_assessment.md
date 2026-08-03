@@ -32,7 +32,7 @@ The LLM path is intentionally simple (**one completion call**, no agent run life
 | TB-894 | Global hourly/daily USD reservation | **Done** (2026-07-20) | **Done** |
 | TB-895 | Anonymous endpoint + per-request bounds | **Done** (2026-07-20) | **Done** |
 | TB-896 | Distributed concurrency + queue | **Done** (2026-07-20) | **Done** |
-| TB-897 | Identity rate limits / CAPTCHA progression | Partial (config model) | **Not yet** |
+| TB-897 | Identity rate limits / CAPTCHA progression | **Done** (2026-08-03) — distributed counters + content-hash duplicate/burst + progressive CAPTCHA/sign-in codes; **abuse controls ≠ spend ceiling** (TB-894 remains authoritative for money) | **Done** |
 | TB-898 | Emergency kill switch | **Done** (2026-07-20) | **Done** |
 | TB-899 | Telemetry / dashboards / alerts | Not yet | **Not yet** |
 | TB-900 | Sample fallback UX | **Done** (2026-07-21) | **Done** |

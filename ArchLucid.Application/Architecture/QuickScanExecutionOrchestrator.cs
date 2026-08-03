@@ -24,6 +24,7 @@ public sealed class QuickScanExecutionOrchestrator(
     IQuickScanCostEstimator quickScanCostEstimator,
     IQuickScanGlobalBudgetReservationService quickScanGlobalBudgetReservationService,
     IQuickScanDistributedConcurrencyService quickScanDistributedConcurrencyService,
+    IQuickScanIdentityAbuseService quickScanIdentityAbuseService,
     IQuickScanSafetyOperationalStateProvider quickScanSafetyOperationalStateProvider,
     IAuditService auditService,
     ILlmCostEstimator costEstimator,
@@ -76,11 +77,46 @@ public sealed class QuickScanExecutionOrchestrator(
             }
         }
 
+        bool useDistributedIdentityAbuse =
+            safetyOptions.Enabled && context.RequiresAnonymousDistributedConcurrency;
+
+        if (useDistributedIdentityAbuse)
+        {
+            QuickScanIdentityAbuseDecision abuseDecision = await quickScanIdentityAbuseService.TryAdmitAsync(
+                new QuickScanIdentityAbuseAdmitContext
+                {
+                    ClientIp = context.ClientIp,
+                    SessionId = context.SessionId,
+                    BrowserId = string.IsNullOrWhiteSpace(context.BrowserId)
+                        ? context.SessionId
+                        : context.BrowserId,
+                    Description = validated!.Description,
+                    BotChallengeToken = context.BotChallengeToken ?? request?.BotChallengeToken,
+                },
+                cancellationToken).ConfigureAwait(false);
+
+            if (!abuseDecision.Allowed)
+            {
+                QuickScanGuardContext rejectedContext = QuickScanGuardContextFactory.Create(
+                    context.ClientIp,
+                    context.SessionId,
+                    validated.Description,
+                    useDistributedConcurrencyLimit: true,
+                    useDistributedIdentityAbuseLimit: true);
+                quickScanTelemetry.RecordAttempt(rejectedContext);
+                quickScanTelemetry.RecordRejection(rejectedContext, abuseDecision.RejectionReason!.Value);
+                quickScanGuard.RecordRejection(rejectedContext, abuseDecision.RejectionReason.Value);
+
+                return QuickScanExecutionResult.GuardRejected(abuseDecision.RejectionReason.Value);
+            }
+        }
+
         QuickScanGuardContext guardContext = QuickScanGuardContextFactory.Create(
             context.ClientIp,
             context.SessionId,
             validated!.Description,
-            useDistributedConcurrencyLimit: context.RequiresAnonymousDistributedConcurrency);
+            useDistributedConcurrencyLimit: context.RequiresAnonymousDistributedConcurrency,
+            useDistributedIdentityAbuseLimit: useDistributedIdentityAbuse);
         quickScanTelemetry.RecordAttempt(guardContext);
 
         QuickScanGuardDecision decision = quickScanGuard.TryBeginScan(guardContext);

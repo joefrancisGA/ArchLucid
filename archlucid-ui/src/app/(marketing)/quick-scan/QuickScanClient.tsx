@@ -26,6 +26,7 @@ import {
 import { QuickScanForm } from "./QuickScanForm";
 
 const SESSION_STORAGE_KEY = "al_quick_scan_session";
+const BROWSER_STORAGE_KEY = "al_quick_scan_browser";
 
 function ensureSessionId(): string {
   if (typeof window === "undefined") {
@@ -42,6 +43,54 @@ function ensureSessionId(): string {
   window.localStorage.setItem(SESSION_STORAGE_KEY, created);
 
   return created;
+}
+
+function ensureBrowserId(): string {
+  if (typeof window === "undefined") {
+    return "server";
+  }
+
+  const existing = window.localStorage.getItem(BROWSER_STORAGE_KEY);
+
+  if (existing && existing.trim().length > 0) {
+    return existing;
+  }
+
+  const created = crypto.randomUUID();
+  window.localStorage.setItem(BROWSER_STORAGE_KEY, created);
+
+  return created;
+}
+
+function tryReadErrorCode(body: string): string | null {
+  if (body.trim().length === 0) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(body) as { errorCode?: unknown; extensions?: { errorCode?: unknown } };
+    const direct = typeof parsed.errorCode === "string" ? parsed.errorCode : null;
+    const nested =
+      parsed.extensions && typeof parsed.extensions.errorCode === "string" ? parsed.extensions.errorCode : null;
+
+    return direct ?? nested;
+  } catch {
+    return null;
+  }
+}
+
+function tryReadProblemDetail(body: string): string | null {
+  if (body.trim().length === 0) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(body) as { detail?: unknown };
+
+    return typeof parsed.detail === "string" && parsed.detail.trim().length > 0 ? parsed.detail : null;
+  } catch {
+    return null;
+  }
 }
 
 function environmentLabel(value: string): string {
@@ -182,6 +231,7 @@ export function QuickScanClient(): ReactElement {
 
     try {
       const sessionId = ensureSessionId();
+      const browserId = ensureBrowserId();
       const response = await fetch("/api/proxy/v1/marketing/quick-scan", {
         method: "POST",
         credentials: "include",
@@ -189,20 +239,29 @@ export function QuickScanClient(): ReactElement {
           Accept: "application/json",
           "Content-Type": "application/json",
           "X-Quick-Scan-Session": sessionId,
+          "X-Quick-Scan-Browser": browserId,
         },
         cache: "no-store",
         body: JSON.stringify(buildQuickScanRequestBody(formValues)),
       });
 
       const text = await response.text();
+      const problemDetail = tryReadProblemDetail(text);
+      const errorCode = tryReadErrorCode(text);
 
       if (response.status === 503 || response.status === 429) {
-        setCapacityMessage(resolveQuickScanCapacityMessage(status) ?? "Quick Scan is temporarily unavailable.");
-        throw new Error("Quick Scan is temporarily unavailable.");
+        setCapacityMessage(
+          problemDetail ?? resolveQuickScanCapacityMessage(status) ?? "Quick Scan is temporarily unavailable.",
+        );
+        throw new Error(problemDetail ?? "Quick Scan is temporarily unavailable.");
       }
 
       if (response.status === 403) {
-        throw new Error("Additional Quick Scan attempts require sign-in.");
+        if (errorCode === "QUICK_SCAN_CAPTCHA_REQUIRED") {
+          throw new Error(problemDetail ?? "Complete the security check to continue with Quick Scan.");
+        }
+
+        throw new Error(problemDetail ?? "Additional Quick Scan attempts require sign-in.");
       }
 
       if (!response.ok) {
@@ -471,7 +530,7 @@ export function QuickScanClient(): ReactElement {
 
           <div className="flex flex-wrap gap-3">
             <Link
-              href="/reviews/new"
+              href="/architecture/reviews/new"
               className="rounded-md bg-sky-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-700 dark:bg-sky-500"
               onClick={() => {
                 onConversionClick("workspace");

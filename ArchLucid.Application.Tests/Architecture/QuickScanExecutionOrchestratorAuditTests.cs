@@ -83,6 +83,11 @@ public sealed class QuickScanExecutionOrchestratorAuditTests
             .Setup(c => c.WaitForAdmissionAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(QuickScanDistributedConcurrencyAdmissionResult.NoOp());
 
+        Mock<IQuickScanIdentityAbuseService> identityAbuse = new();
+        identityAbuse
+            .Setup(a => a.TryAdmitAsync(It.IsAny<QuickScanIdentityAbuseAdmitContext>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(QuickScanIdentityAbuseDecision.Permit());
+
         Mock<IQuickScanSafetyOperationalStateProvider> operational = new();
         operational
             .Setup(p => p.GetSnapshotAsync(It.IsAny<CancellationToken>()))
@@ -107,6 +112,7 @@ public sealed class QuickScanExecutionOrchestratorAuditTests
             preExecCostEstimator.Object,
             globalBudget.Object,
             concurrency.Object,
+            identityAbuse.Object,
             operational.Object,
             audit.Object,
             costEstimator.Object,

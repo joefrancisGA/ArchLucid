@@ -27,4 +27,7 @@ public sealed class ArchitectureQuickScanRequest
 
     /// <summary>Optional focus areas (max three validated values).</summary>
     public List<string> ArchitectureConcerns { get; init; } = [];
+
+    /// <summary>Optional bot-challenge token when anonymous progressive CAPTCHA friction is enabled (TB-897).</summary>
+    public string? BotChallengeToken { get; init; }
 }
