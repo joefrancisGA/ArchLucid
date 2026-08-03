@@ -13,6 +13,10 @@ Release entries newest-first. Each section condenses the detailed prompt logs pr
 ## 2026-08-03 — Ops: ArchLucid DEV sandbox primary region ? **centralus**
 
 DEV CD target aligned with staging/production: `dev.tfvars.example` + [`AZURE_SUBSCRIPTIONS.md`](library/AZURE_SUBSCRIPTIONS.md) now specify **`centralus`**, with example runtime RG **`rg-ArchLucid-dev-cus`** (`create_resource_group = true`). Operators must update GitHub Environment secret **`DEV_TFVARS`**, **`EXPECTED_AZURE_LOCATION=centralus`**, and **`AZURE_RESOURCE_GROUP`** for the centralus stack. ACR may remain in legacy **`rg-ArchLucid-dev`**.
+## 2026-08-03 — UI: Start review Evidence chrome (RNX)
+
+/reviews/new ships ReviewsNewPageChrome (OperatorPageHeader + PageContextualHelpButton), Category-1 registry for /reviews/new and /architecture/reviews/new, topic map evidence-intake, Sources follow-up strip + claim-discipline callout (intake only, not a diligence trail), and enriched traffic Notes. Intake wizard launcher hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-03 — UI: Governance audit trail Evidence chrome (AUD)
 
 /governance/audit ships Sources follow-up strip + claim-discipline callout (activity log, not a diligence pack), Category-1 contextual-help registry, pre-existing AuditPageHeader help (audit-trail), and enriched traffic Notes. Activity-log Evidence hard-caps without a signed-record package; no CPA / third-party pen-test implication.

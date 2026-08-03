@@ -12,6 +12,7 @@ vi.mock("@/components/usability/NewReviewSampleEscapeLink", () => ({
 }));
 
 vi.mock("next/navigation", () => ({
+  usePathname: () => "/reviews/new",
   redirect: vi.fn((path: string) => {
     throw new Error(`REDIRECT:${path}`);
   }),
@@ -24,17 +25,20 @@ import { redirect } from "next/navigation";
 import NewRunPage from "./page";
 
 describe("Start review page", () => {
-  it("renders the title without an adjacent tooltip trigger", async () => {
+  it("renders Evidence chrome with help and Sources strip", async () => {
     const ui = await NewRunPage({ searchParams: Promise.resolve({}) });
     render(ui);
 
-    expect(screen.getByRole("heading", { level: 1, name: START_REVIEW_LABEL }).parentElement).toHaveClass(
-      "mt-6",
+    expect(screen.getByTestId("reviews-new-page-title")).toHaveTextContent(START_REVIEW_LABEL);
+    expect(screen.getByText(REVIEWS_NEW_PAGE_LEAD)).toBeInTheDocument();
+    expect(screen.getByTestId("reviews-new-sources")).toBeInTheDocument();
+    expect(screen.getByTestId("reviews-new-claim-discipline")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Review guide help" })).toHaveAttribute(
+      "href",
+      "/help/review-guide",
     );
     expect(document.querySelector("[data-help-tooltip-trigger]")).toBeNull();
-    expect(screen.getByRole("link", { name: "Review guide" })).toHaveAttribute("href", "/help/review-guide");
     expect(screen.queryByText(/pilot guidance/i)).not.toBeInTheDocument();
-    expect(screen.getByTestId("reviews-new-page-lead")).toHaveTextContent(REVIEWS_NEW_PAGE_LEAD);
     expect(screen.queryByText(/Guided intake/i)).not.toBeInTheDocument();
     expect(screen.getByTestId("new-review-sample-escape")).toBeInTheDocument();
   });
