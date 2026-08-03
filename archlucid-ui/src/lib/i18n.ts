@@ -126,7 +126,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   /** First review guide (`/architecture/first-review-guide`). */
   onboarding: BUYER_ONBOARDING_PAGE_TITLE,
   findings: "Findings",
-  riskExceptions: "Risk exceptions",
+  riskExceptions: "Exceptions",
   decisionRegister: "Decision register",
   signedReviewRecords: "Signed review records",
   recurrenceSchedules: "Recurrence schedules",
