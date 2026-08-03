@@ -1818,4 +1818,13 @@ public sealed class DemoSeedService(
         };
         await runExportRecordRepository.CreateAsync(record, cancellationToken);
     }
+
+    /// <summary>
+    ///     Seeded tasks must list the agent dispatch key explicitly (TB-950) — empty AllowedTools is deny on
+    ///     production-like hosts.
+    /// </summary>
+    private static List<string> SeedAllowedTools(AgentType agentType)
+    {
+        return [AgentTypeKeys.FromEnum(agentType)];
+    }
 }
