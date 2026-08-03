@@ -173,7 +173,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | VPX | `/value-report/pilot` | 0.05% | 0 | 0 | 5 | Marketing | None |
 | H | `/help/audit-trail` | 0.04% | 0 | 0 | 4 | Help topic | None |
 | HCX | `/help/cli-usage` | 0.04% | 0 | 0 | 4 | Help topic | None |
-| HDX | `/help/developer-troubleshooting` | 0.04% | 0 | 0 | 4 | Help topic | Admin-gated internal-runbook (TB-1246) — HelpTopicAuthorityGate + HelpTopicMarkdownClient; engineering CLI/env/log runbook from TROUBLESHOOTING.md + COMMON_ERRORS.md. Help search Advanced diagnostics (adminOnly). Not in customer Help Center featured grid. Customer Troubleshooting (HTX) does not deep-link here (TB-1249). Not a specialty guide. |
+| HDX | `/help/developer-troubleshooting` | 0.04% | 0 | 0 | 4 | Help topic | Specialty engineering troubleshooting runbook (Admin internal-runbook, TB-1246) - HelpEngineeringTroubleshootingGuideView with Customer Troubleshooting / System health / Report a problem / CLI primary CTAs, Sources diligence strip (admin-diagnostics, configuration-reference), claim-discipline callout, PageContextualHelp, HelpTopicAuthorityGate + HelpTopicMarkdownClient specialty branch, and prepared TROUBLESHOOTING.md + COMMON_ERRORS.md (contributor ADR/TB link strip). Help search Advanced diagnostics (adminOnly). Not in customer Help Center featured grid. Customer Troubleshooting (HTX) does not deep-link here (TB-1249). Slug remains developer-troubleshooting pending TB-1248 rename. Does not imply CPA SOC 2 or third-party pen-test publication. |
 | F | `/help/first-value-20-minutes` | 0.04% | 0 | 0 | 4 | Help topic | None |
 | PRO | `/help/procurement` | 0.04% | 0 | 0 | 4 | Help topic | None |
 | LXX | `/live-demo` | 0.04% | 0 | 0 | 4 | Marketing | None |
@@ -258,7 +258,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | PAP | `/insights/patterns/[patternKey]` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | PRB | `/privacy` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | REX | `/recommendation-learning` | 0.02% | 0 | 0 | 2 | Marketing | None |
-| RER | `/reviews/[runId]/artifacts/[artifactId]` | 0.02% | 0 | 0 | 2 | Core review | None |
+| RER | `/reviews/[runId]/artifacts/[artifactId]` | 0.02% | 0 | 0 | 2 | Core review | Run-scoped artifact Preview entry — App Router redirect to canonical `/signed-records/[manifestId]/artifacts/[artifactId]` (TB-1821). |
 | ERU | `/reviews/[runId]/findings/[findingId]/evidence-trace` | 0.02% | 0 | 0 | 2 | Core review | None |
 | REA | `/reviews/[runId]?archTab=activity` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | REC | `/reviews/[runId]?archTab=clarifications` | 0.02% | 0 | 0 | 2 | Tab surface | None |

@@ -1740,6 +1740,27 @@ export function stripFirstReviewEvidenceChecklistContributorLeakage(markdown: st
     .trimEnd();
 }
 
+/**
+ * HDX — map eng-library hrefs to in-app Admin/customer help where safe; keep CLI/env triage body.
+ */
+export function stripDeveloperTroubleshootingContributorLeakage(markdown: string): string {
+  return markdown
+    .replace(/\[([^\]]*)\]\(\.\.\/library\/CONFIGURATION_REFERENCE\.md\)/gi, "[Configuration reference](/help/configuration-reference)")
+    .replace(/\[([^\]]*)\]\(CONFIGURATION_REFERENCE\.md\)/gi, "[Configuration reference](/help/configuration-reference)")
+    .replace(/\[([^\]]*)\]\(\.\.\/library\/CLI_USAGE\.md\)/gi, "[CLI usage](/help/cli-usage)")
+    .replace(/\[([^\]]*)\]\(CLI_USAGE\.md\)/gi, "[CLI usage](/help/cli-usage)")
+    .replace(/\[([^\]]*)\]\([^)]*contributor-reference\/[^)]+\)/gi, "$1")
+    .replace(/\[([^\]]*)\]\(\.\.\/architecture\/adrs\/[^)]+\)/gi, "$1")
+    .replace(/\[([^\]]*)\]\([^)]*architecture\/adrs\/[^)]+\)/gi, "$1")
+    .replace(/\[([^\]]*)\]\(\.\.\/library\/V1_SCOPE\.md[^)]*\)/gi, "V1 product scope")
+    .replace(/\[([^\]]*)\]\(V1_SCOPE\.md[^)]*\)/gi, "V1 product scope")
+    .replace(/\[([^\]]*)\]\(\.\.\/go-to-market\/[^)]+\)/gi, "$1")
+    .replace(/\bTB-\d+\b/gi, "")
+    .replace(/\s*\(TB-\d+\)/gi, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .trimEnd();
+}
+
 export function stripFirstValue20ContributorLeakage(markdown: string): string {
   const focused = extractFirstValue20MinutesSection(markdown);
 
@@ -3017,6 +3038,7 @@ export function prepareHelpMarkdownForPresentation(
   const isFirstReviewEvidenceChecklist =
     options?.helpTopicSlug === "first-review" ||
     normalizedSourcePath.includes("first_run_evidence_checklist.md");
+  const isDeveloperTroubleshooting = options?.helpTopicSlug === "developer-troubleshooting";
   const isEnterpriseOnboarding = normalizedSourcePath.includes(
     "hosted_enterprise_onboarding_checklist.md",
   );
@@ -3061,6 +3083,8 @@ export function prepareHelpMarkdownForPresentation(
     afterAudienceStrip = stripConfigurationReferenceContributorLeakage(sanitized);
   } else if (isFirstReviewEvidenceChecklist) {
     afterAudienceStrip = stripFirstReviewEvidenceChecklistContributorLeakage(sanitized);
+  } else if (isDeveloperTroubleshooting) {
+    afterAudienceStrip = stripDeveloperTroubleshootingContributorLeakage(sanitized);
   } else if (isEnterpriseOnboarding) {
     afterAudienceStrip = stripEnterpriseOnboardingContributorLeakage(sanitized);
   } else if (isGovernanceApiContracts) {

@@ -526,7 +526,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     slug: "developer-troubleshooting",
     title: "Engineering troubleshooting runbook",
     summary:
-      "CLI commands, environment variables, log patterns, and deep failure signatures for engineering support.",
+      "Admin-only specialty guide for CLI, environment, and log triage. Operators should use Troubleshooting; customers never deep-link here.",
     audience: "developer",
     sourcePaths: ["docs/runbooks/TROUBLESHOOTING.md", "docs/runbooks/COMMON_ERRORS.md"],
   },

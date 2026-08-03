@@ -70,6 +70,8 @@ describe("ui-route-traffic-developer-troubleshooting-help (HDX)", () => {
     expect(row?.notes).toBe(DEVELOPER_TROUBLESHOOTING_HELP_TRAFFIC_NOTE);
     expect(row?.section.toLowerCase()).not.toBe("marketing");
     expect(row?.notes).toContain("HelpTopicAuthorityGate");
+    expect(row?.notes).toContain("HelpEngineeringTroubleshootingGuideView");
     expect(row?.notes).toContain("TB-1249");
+    expect(row?.notes).not.toContain("Not a specialty guide");
   });
 });

@@ -15,6 +15,7 @@ import { HelpAzurePermissionsGuideView } from "../_sections/HelpAzurePermissions
 import { HelpAuditTrailGuideView } from "../_sections/HelpAuditTrailGuideView";
 import { HelpConfigurationReferenceGuideView } from "../_sections/HelpConfigurationReferenceGuideView";
 import { HelpDataHandlingTenantIsolationGuideView } from "../_sections/HelpDataHandlingTenantIsolationGuideView";
+import { HelpEngineeringTroubleshootingGuideView } from "../_sections/HelpEngineeringTroubleshootingGuideView";
 import { HelpFirstReviewEvidenceChecklistGuideView } from "../_sections/HelpFirstReviewEvidenceChecklistGuideView";
 import { HelpPolicyPackDeltaDemoGuideView } from "../_sections/HelpPolicyPackDeltaDemoGuideView";
 import { HelpConnectAzureSecurelyGuideView } from "../_sections/HelpConnectAzureSecurelyGuideView";
@@ -193,6 +194,10 @@ function renderHelpTopicView(
 
   if (loaded.entry.slug === "first-review") {
     return <HelpFirstReviewEvidenceChecklistGuideView entry={loaded.entry} markdown={loaded.markdown} />;
+  }
+
+  if (loaded.entry.slug === "developer-troubleshooting") {
+    return <HelpEngineeringTroubleshootingGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
 
   return <HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />;

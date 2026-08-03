@@ -5,6 +5,8 @@ import {
 import {
   ARCHITECTURES_LIST_PATH,
   ARCHITECTURES_NEW_PATH,
+  REVIEWS_LIST_PATH,
+  REVIEWS_NEW_PATH,
   parseArchitectureDraftIdFromPath,
 } from "@/lib/architecture-routes";
 import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
@@ -18,7 +20,13 @@ import { isSearchReviewEvidencePath } from "@/lib/search-review-evidence-route";
 import { SPONSOR_REPORT_SECTION_LABEL, EXECUTIVE_SUMMARY_PAGE_TITLE } from "@/lib/sponsor-report-navigation";
 import { resolvePolicyPackDetailBreadcrumbLabel } from "@/lib/policy-pack-detail-resolver";
 import { ITSM_CONNECTORS_ADMIN_LABEL, ITSM_CONNECTORS_ADMIN_PATH } from "@/lib/itsm-connectors-admin-scope";
-import { GOVERNANCE_ALERT_RULES_PATH, GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
+import {
+  GOVERNANCE_ALERT_RULES_PATH,
+  GOVERNANCE_APPROVAL_QUEUE_PATH,
+  GOVERNANCE_POLICY_PACKS_PATH,
+  pathMatchesGovernanceApprovalQueue,
+} from "@/lib/governance-route-paths";
+import { GOVERNANCE_OVERVIEW_PAGE_TITLE } from "@/lib/governance-overview-copy";
 import { ALERTS_CONFIGURATION_PAGE_TITLE } from "@/lib/alerts-page-copy";
 import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
 import {
@@ -44,7 +52,7 @@ export type GetBreadcrumbsOptions = {
   /** Buyer-polished shell uses calmer create-flow labels on the wizard path. */
   readonly buyerPolishedShell?: boolean;
   /**
-   * When set (e.g. `runId` on evidence graph, audit, ask, search, `/governance`, or `/governance/findings`),
+   * When set (e.g. `runId` on evidence graph, audit, ask, search, approval queue, or `/governance/findings`),
    * buyer-polished shell can insert the active review title after **Overview**.
    */
   readonly queryRunId?: string;
@@ -55,6 +63,7 @@ export type GetBreadcrumbsOptions = {
 function newReviewWizardCrumbLabel(): string {
   return resolveNewReviewWizardBreadcrumbLabel();
 }
+
 const BUYER_HUB_RUN_SCOPED_SEGMENTS = new Set<string>([
   "evidence-graph",
   "audit",
@@ -121,6 +130,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   pilot: "Pilot outcomes",
   roi: "ROI summary",
   "approval-requests": "Approval requests",
+  "approval-queue": "Approval queue",
   lineage: "Lineage",
   auth: "Auth",
   signin: "Sign in",
@@ -141,6 +151,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   "data-handling": "What ArchLucid does with your data",
   "core-pilot": "Your first architecture review",
   "first-architecture-review": "Your first architecture review",
+  "developer-troubleshooting": "Engineering troubleshooting runbook",
 };
 
 /**
@@ -154,7 +165,6 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
     return [{ label: OPERATOR_NAV_LINK_LABELS.home }];
   }
 
-  // Single buyer crumb (skip Insights parent); still inject showcase run package when `runId` is set.
   if (isEvidenceGraphPath(normalized)) {
     return injectBuyerShowcaseReviewPackageCrumb(
       [{ label: OPERATOR_NAV_LINK_LABELS.evidenceTrail }],
@@ -216,22 +226,35 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
     ];
   }
 
-  // Product path: wizard crumb only — sidebar nav covers workspace overview.
-  if (normalized === "/reviews/new") {
+  if (normalized === REVIEWS_NEW_PATH || normalized === "/reviews/new") {
     return [{ label: newReviewWizardCrumbLabel() }];
   }
 
-  if (normalized === ARCHITECTURES_LIST_PATH) {
+  if (normalized === ARCHITECTURES_LIST_PATH || normalized === "/architectures") {
     return [{ label: ARCHITECTURE_DRAFTS_LIST_LABEL }];
   }
 
-  // Create-architecture entry and draft editor — parent crumb is Architectures (nav), not "Drafts".
-  if (normalized === ARCHITECTURES_NEW_PATH || normalized.startsWith(`${ARCHITECTURES_LIST_PATH}/`)) {
+  if (
+    normalized === ARCHITECTURES_NEW_PATH
+    || normalized === "/architectures/new"
+    || normalized.startsWith(`${ARCHITECTURES_LIST_PATH}/`)
+    || normalized.startsWith("/architectures/")
+  ) {
     const architectureId = parseArchitectureDraftIdFromPath(normalized);
 
-    if (normalized === ARCHITECTURES_NEW_PATH || architectureId !== null) {
+    if (
+      normalized === ARCHITECTURES_NEW_PATH
+      || normalized === "/architectures/new"
+      || architectureId !== null
+      || /^\/architectures\/[^/]+$/.test(normalized)
+    ) {
+      const listHref =
+        normalized.startsWith("/architectures") && !normalized.startsWith("/architecture/")
+          ? "/architectures"
+          : ARCHITECTURES_LIST_PATH;
+
       return [
-        { label: ARCHITECTURE_DRAFTS_LIST_LABEL, href: ARCHITECTURES_LIST_PATH },
+        { label: ARCHITECTURE_DRAFTS_LIST_LABEL, href: listHref },
         { label: CREATE_ARCHITECTURE_LABEL },
       ];
     }
@@ -239,7 +262,7 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
 
   if (normalized === GOVERNANCE_ALERT_RULES_PATH || normalized.startsWith(`${GOVERNANCE_ALERT_RULES_PATH}/`)) {
     return [
-      { label: "Governance", href: "/governance" },
+      { label: "Governance", href: GOVERNANCE_APPROVAL_QUEUE_PATH },
       { label: ALERTS_CONFIGURATION_PAGE_TITLE },
     ];
   }
@@ -250,18 +273,21 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
     return governanceRunTrail;
   }
 
+  if (pathMatchesGovernanceApprovalQueue(normalized)) {
+    return [{ label: GOVERNANCE_OVERVIEW_PAGE_TITLE }];
+  }
+
   if (normalized === "/audit" || normalized.startsWith("/audit/")) {
     const runId = options?.queryRunId?.trim();
 
     if (runId === undefined || runId.length === 0) {
       return [
-        { label: "Governance", href: "/governance" },
+        { label: "Governance", href: GOVERNANCE_APPROVAL_QUEUE_PATH },
         { label: "Audit trail" },
       ];
     }
   }
 
-  // Cloud connection help — avoid generic multi-cloud breadcrumb segments.
   if (normalized === "/help/glossary") {
     return [
       { label: "Support", href: "/help" },
@@ -293,10 +319,10 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
   }
 
   if (
-    normalized === "/help/cloud-connections/aws" ||
-    normalized === "/help/cloud-connections-aws" ||
-    normalized === "/help/cloud-connections/gcp" ||
-    normalized === "/help/cloud-connections-gcp"
+    normalized === "/help/cloud-connections/aws"
+    || normalized === "/help/cloud-connections-aws"
+    || normalized === "/help/cloud-connections/gcp"
+    || normalized === "/help/cloud-connections-gcp"
   ) {
     return [
       { label: "Help", href: "/help" },
@@ -318,7 +344,6 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
     ];
   }
 
-  // Azure cloud connection lives under Integrations nav — not Settings admin chrome.
   if (pathMatchesCloudConnections(normalized)) {
     return [
       { label: OPERATOR_NAV_GROUP_LABELS.integrations },
@@ -360,7 +385,6 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
     return items;
   }
 
-  // `/governance/policy-packs/[id]` is governance-scoped pack tooling (TB-405 canonical list + detail).
   const governancePolicyPacksPrefix = GOVERNANCE_POLICY_PACKS_PATH;
 
   if (normalized === governancePolicyPacksPrefix || normalized === `${governancePolicyPacksPrefix}/`) {
@@ -384,22 +408,42 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
     ];
   }
 
-  let cumulative = "";
+  // Skip the Architecture segment so `/architecture/reviews/...` crumbs start at Reviews.
+  const skipArchitectureReviewsPrefix =
+    rawSegments[0] === "architecture" && rawSegments[1] === "reviews";
+  const trailSegments = skipArchitectureReviewsPrefix ? rawSegments.slice(1) : rawSegments;
+  const cumulativePrefix = skipArchitectureReviewsPrefix ? "/architecture" : "";
 
-  for (let i = 0; i < rawSegments.length; i++) {
-    const segment = rawSegments[i];
+  let cumulative = cumulativePrefix;
+
+  for (let i = 0; i < trailSegments.length; i++) {
+    const segment = trailSegments[i];
     cumulative += `/${segment}`;
-    const isLast = i === rawSegments.length - 1;
+    const isLast = i === trailSegments.length - 1;
 
-    const label = labelForSegment(segment, rawSegments, i, options);
+    const label = labelForSegment(
+      segment,
+      skipArchitectureReviewsPrefix ? ["architecture", ...trailSegments] : trailSegments,
+      skipArchitectureReviewsPrefix ? i + 1 : i,
+      options,
+    );
 
     if (isLast) {
       items.push({ label });
     } else {
       let href = cumulative;
 
-      if (segment === "reviews" && options?.reviewsListReturnHref !== undefined && options.reviewsListReturnHref.length > 0) {
+      if (
+        segment === "reviews"
+        && options?.reviewsListReturnHref !== undefined
+        && options.reviewsListReturnHref.length > 0
+      ) {
         href = options.reviewsListReturnHref;
+      }
+
+      // Parent "Governance" crumb opens the Approval queue (legacy `/governance` index redirects there).
+      if (cumulative === "/governance") {
+        href = GOVERNANCE_APPROVAL_QUEUE_PATH;
       }
 
       items.push({ label, href });
@@ -415,18 +459,24 @@ function injectReviewPackagePathCrumbs(
 ): BreadcrumbItem[] {
   const segments = normalizedPath.split("/").filter(Boolean);
 
-  if (segments[0] !== "reviews" || segments.length < 3) {
+  let runId = "";
+  let reviewHref = "";
+
+  if (segments[0] === "architecture" && segments[1] === "reviews" && segments.length >= 4) {
+    runId = segments[2] ?? "";
+    reviewHref = `${REVIEWS_LIST_PATH}/${encodeURIComponent(runId)}`;
+  } else if (segments[0] === "reviews" && segments.length >= 3) {
+    runId = segments[1] ?? "";
+    reviewHref = `/reviews/${encodeURIComponent(runId)}`;
+  } else {
     return items;
   }
-
-  const runId = segments[1] ?? "";
 
   if (runId.length === 0 || runId === "new") {
     return items;
   }
 
   const packageTitle = resolveBuyerHubRunPackageTitle(runId) ?? "Review";
-  const reviewHref = `/reviews/${encodeURIComponent(runId)}`;
 
   return items.map((item, index) => {
     if (index === 0 || item.href !== reviewHref) {
@@ -448,10 +498,10 @@ function injectGovernanceLineageCrumbs(
   const segments = normalizedPath.split("/").filter(Boolean);
 
   if (
-    segments.length !== 4 ||
-    segments[0] !== "governance" ||
-    segments[1] !== "approval-requests" ||
-    segments[3] !== "lineage"
+    segments.length !== 4
+    || segments[0] !== "governance"
+    || segments[1] !== "approval-requests"
+    || segments[3] !== "lineage"
   ) {
     return items;
   }
@@ -553,7 +603,7 @@ function injectBuyerShowcaseReviewPackageCrumb(
   const rawSegments = normalizedPath.split("/").filter(Boolean);
 
   if (BUYER_GOVERNANCE_RUN_SCOPED_PATHS.has(normalizedNoTrailing)) {
-    const reviewHref = `/reviews/${encodeURIComponent(runId)}`;
+    const reviewHref = `${REVIEWS_LIST_PATH}/${encodeURIComponent(runId)}`;
 
     return [
       { label: reviewTitle, href: reviewHref },
@@ -586,7 +636,7 @@ function injectBuyerShowcaseReviewPackageCrumb(
     return items;
   }
 
-  const reviewHref = `/reviews/${encodeURIComponent(runId)}`;
+  const reviewHref = `${REVIEWS_LIST_PATH}/${encodeURIComponent(runId)}`;
 
   return [
     { label: reviewTitle, href: reviewHref },
@@ -635,7 +685,6 @@ function labelForSegment(
     return SHOWCASE_BUYER_REVIEW_TITLE;
   }
 
-
   if (prev === "policy-packs" && isInvalidDynamicRouteToken(segment)) {
     return "Policy pack detail";
   }
@@ -644,18 +693,20 @@ function labelForSegment(
     return resolvePolicyPackDetailBreadcrumbLabel(segment, null);
   }
 
-  const demoTitle = buyer ? BUYER_DEMO_PATH_SEGMENT_TITLES[segment] ?? DEMO_PATH_SEGMENT_TITLES[segment] : DEMO_PATH_SEGMENT_TITLES[segment];
+  const demoTitle = buyer
+    ? BUYER_DEMO_PATH_SEGMENT_TITLES[segment] ?? DEMO_PATH_SEGMENT_TITLES[segment]
+    : DEMO_PATH_SEGMENT_TITLES[segment];
 
   if (
-    demoTitle !== undefined &&
-    (prev === "reviews" ||
-      prev === "manifests" ||
-      prev === "signed-records" ||
-      prev === "showcase" ||
-      prev === "findings" ||
-      prev === "plans" ||
-      prev === "approval-requests" ||
-      prev === "policy-packs")
+    demoTitle !== undefined
+    && (prev === "reviews"
+      || prev === "manifests"
+      || prev === "signed-records"
+      || prev === "showcase"
+      || prev === "findings"
+      || prev === "plans"
+      || prev === "approval-requests"
+      || prev === "policy-packs")
   ) {
     if (buyer && segment === "phi-minimization-risk") {
       return "PHI minimization finding (High)";
@@ -693,7 +744,6 @@ function labelForSegment(
   const mapped = SEGMENT_LABELS[segment];
 
   if (mapped !== undefined && mapped !== null) {
-
     if (buyer === true && (segment === "manifests" || segment === "signed-records")) {
       return "Signed review records";
     }
@@ -703,19 +753,14 @@ function labelForSegment(
     }
 
     if (buyer === true && segment === "reviews") {
-
       return "Reviews";
     }
 
-
     if (buyer === true && segment === "audit") {
-
       return "Audit trail";
     }
 
-
     if (buyer === true && segment === "search") {
-
       return "Search review evidence";
     }
 
@@ -730,14 +775,14 @@ function resolveReviewsListBreadcrumbHref(options?: GetBreadcrumbsOptions): stri
     return options.reviewsListReturnHref;
   }
 
-  return "/reviews";
+  return REVIEWS_LIST_PATH;
 }
 
 function tryBuildGovernanceRunScopedBreadcrumbs(
   normalizedPath: string,
   options?: GetBreadcrumbsOptions,
 ): BreadcrumbItem[] | null {
-  if (normalizedPath !== "/governance") {
+  if (!pathMatchesGovernanceApprovalQueue(normalizedPath)) {
     return null;
   }
 
@@ -749,7 +794,7 @@ function tryBuildGovernanceRunScopedBreadcrumbs(
 
   const reviewsListHref = resolveReviewsListBreadcrumbHref(options);
   const packageTitle = resolveBuyerHubRunPackageTitle(runId) ?? "Review";
-  const reviewHref = `/reviews/${encodeURIComponent(runId)}`;
+  const reviewHref = `${REVIEWS_LIST_PATH}/${encodeURIComponent(runId)}`;
 
   return [
     { label: "Reviews", href: reviewsListHref },

@@ -125,6 +125,17 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/help/developer-troubleshooting",
+    entry: {
+      whatIsThisPage:
+        "Admin engineering troubleshooting runbook for CLI, environment, and log triage after customer Troubleshooting.",
+      whatToDoNext:
+        "Prefer Customer Troubleshooting and System health first, then use eng CLI/env detail; open Report a problem when filing a ticket.",
+      whyEmpty: "This runbook always shows when the help topic loads for Admins.",
+      whereToConfigurePrerequisite: "Admin access; Operators should use /help/troubleshooting instead.",
+    },
+  },
+  {
     prefix: "/governance/standards-and-rules",
     entry: {
       whatIsThisPage:

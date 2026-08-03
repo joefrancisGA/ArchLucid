@@ -47,6 +47,8 @@ describe("developer-troubleshooting-help-route (HDX)", () => {
     expect(pageSource).toContain('entry.contentKind === "internal-runbook"');
     expect(pageSource).toContain("HelpTopicAuthorityGate");
     expect(pageSource).toContain("HelpTopicMarkdownClient");
+    expect(pageSource).toContain("HelpEngineeringTroubleshootingGuideView");
+    expect(pageSource).toContain('loaded.entry.slug === "developer-troubleshooting"');
     expect(pageSource).toContain('return { title: "Help topic not found" };');
   });
 
