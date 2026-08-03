@@ -233,7 +233,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | HER | `/help/creating-runs` | 0.02% | 0 | 0 | 2 | Help alias | None |
 | HED | `/help/data-handling` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HDA | `/help/data-handling-tenant-isolation` | 0.02% | 0 | 0 | 2 | Help topic | Specialty data-handling + tenant isolation guide — HelpDataHandlingTenantIsolationGuideView with Trust Center / security-trust / audit primary CTAs, Sources diligence strip (trust, audit-trail, data-handling overview, subprocessors, DPA, procurement), residency honesty callout, PageContextualHelp, and prepared markdown (three-layer isolation, TB-1659 leakage strip, TB-1653 honesty). Not bare HelpTopicMarkdownView. Does not imply CPA SOC 2 or third-party pen-test publication. |
-| HDP | `/help/dpa-template` | 0.02% | 0 | 0 | 2 | Help topic | None |
+| HDP | `/help/dpa-template` | 0.02% | 0 | 0 | 2 | Help topic | Specialty DPA negotiation template guide - HelpDpaTemplateGuideView with Trust Center / subprocessors / procurement primary CTAs, Sources diligence strip (security-trust, data-handling, tenant-isolation), orientation steps, claim-discipline callout (template is not countersigned; SOC 2 when available is not CPA attestation), PageContextualHelp, and full DPA_TEMPLATE.md deferred behind collapsed disclosure (TB-1676/1678/1680). TB-1677 leakage strip retained. Help Center product tier + advanced discovery (TB-1679). Not bare HelpTopicMarkdownView. Does not imply CPA SOC 2 or third-party pen-test publication. |
 | HEV | `/help/evidence-only-review` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | EXE | `/help/executive-summary` | 0.02% | 0 | 0 | 2 | Help topic | Specialty sponsor ROI guide - HelpExecutiveSummaryGuideView on EXECUTIVE_SPONSOR_BRIEF sponsor sections with CTAs to /sponsor-report/executive-summary (SPE) and executive dashboard. Not bare FAQ HelpTopicMarkdownView. |
 | HEG | `/help/glossary` | 0.02% | 0 | 0 | 2 | Help topic | None |
@@ -281,7 +281,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | SEK | `/administration/settings/users?tab=keys` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | SSU | `/administration/settings/users?tab=users` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | MA | `/signed-records` | 0.02% | 0 | 0 | 2 | Marketing | None |
-| MAM | `/signed-records/[manifestId]/artifacts/[artifactId]` | 0.02% | 0 | 0 | 2 | Marketing | Manifest-scoped artifact preview — ghost route (no App Router page.tsx); Preview hrefs 404 pending restore TB-1824/TB-1947. Pairs run-scoped RER. Download/proxy paths may still work. |
+| MAM | `/signed-records/[manifestId]/artifacts/[artifactId]` | 0.02% | 0 | 0 | 2 | Marketing | Manifest-scoped artifact preview — App Router page under signed-records (TB-1821 SoT). Run-scoped RER redirects here. Download/proxy paths remain available. |
 | SPE | `/sponsor-report/executive-summary` | 0.02% | 0 | 0 | 2 | Sponsor report | Sponsor executive summary report (canonical); `/value-report` redirects here for bookmark compat. |
 | SPP | `/sponsor-report/pilot-outcomes` | 0.02% | 0 | 0 | 2 | Sponsor report | Sponsor pilot outcomes report (canonical); `/value-report/pilot` redirects here for bookmark compat. |
 | SPR | `/sponsor-report/roi-summary` | 0.02% | 0 | 0 | 2 | Sponsor report | Sponsor ROI summary report (canonical); `/value-report/roi` redirects here for bookmark compat. |
