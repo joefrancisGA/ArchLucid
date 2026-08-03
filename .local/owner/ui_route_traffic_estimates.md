@@ -45,13 +45,12 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 
 ---
 
-**OVERALL WEIGHT SCORE:** 49.60%
+**OVERALL WEIGHT SCORE:** 49.93%
 
 ## Master table (score 0 first; then Deficit desc; ties A→Z by path)
 
 | ID | Path | Hit% | Scores | Weight | Deficit | Section | Notes |
 |----|------|------|--------|--------|---------|---------|-------|
-| DI | `/digests` | 0.6% | 0 | 0 | 60 | Digests | None |
 | PPP | `/planning/plans/[planId]` | 0.6% | 0 | 0 | 60 | Planning | None |
 | HXX | `/administration/system-health` | 0.5% | 0 | 0 | 50 | Admin | None |
 | AUD | `/governance/audit` | 0.5% | 0 | 0 | 50 | Alerts/gov | None |
@@ -248,6 +247,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | PLA | `/planning` | 0.8% | 48 | 38.4 | 41.6 | Planning | Improvement planning - PlanningPageView with PageContextualHelp (topic map how-it-works / Improvement planning; Category-1 registry), Sources follow-up strip + claim-discipline callout (derived themes/plans, not diligence trail), themes/plans tables, export readiness. Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 48/100 (2026-08-03) — aggregate planning launcher hard-caps higher Evidence. |
 | SET | `/administration/settings` | 0.8% | 55 | 44 | 36 | Admin | None |
 | HEL | `/help` | 1% | 67 | 67 | 33 | Help hub | None |
+| DI | `/digests` | 0.6% | 46 | 27.6 | 32.4 | Digests | Architecture digests - DigestsHubClient with DigestsPageHeader PageContextualHelp (topic map how-it-works / Architecture digests; Category-1 registry), Sources follow-up strip + claim-discipline callout (scheduled summaries, not diligence trail), browse/subscriptions/schedule tabs, weekly health banner. Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 46/100 (2026-08-03) — digest hub launcher hard-caps higher Evidence. |
 | SXX | `/insights/search-review-evidence` | 0.7% | 55 | 38.5 | 31.5 | Marketing | None |
 | GPP | `/governance/policy-packs` | 0.4% | 48 | 19.2 | 20.8 | Alerts/gov | None |
 | GRO | `/governance/risk-exceptions` | 0.3% | 62 | 18.6 | 11.4 | Alerts/gov | None |
