@@ -176,7 +176,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 
 **TB-933 — TB-935** were added 2026-07-22 from the owner follow-up on **UI performance** after **TB-560–TB-573** / **TB-691–TB-698** shipped the first bundle/CWV/Lighthouse wave. Easy static-import wins are largely done; this cluster is the next engineering wave: cut remaining First Load JS on `/reviews/[runId]` (**TB-933**, still ~2.2 MB per `reviews_run_detail_bundle_composition_tb697.md`), then `/reviews` + `/governance` (**TB-934**), then TanStack Query + virtualization for remaining high-churn operator lists beyond findings (**TB-935**). Does **not** duplicate API/SQL payload work (**TB-929**/**TB-930**) — if field LCP/INP is fine but the page feels slow, triage to those first. Owner cadence for field Web Vitals and pre-cut triage lives in GTM **G-QA-06** / **G-QA-07** / **M-112**. Cross-ref [`UI_LIGHTHOUSE_CI.md`](../architecture/UI_LIGHTHOUSE_CI.md), [`ui_dependency_assessment.md`](../architecture/ui_dependency_assessment.md). **TB-933** **Done** (2026-07-24); **TB-934**/**TB-935** remain open. Wave-3 follow-ons: **TB-2021**–**TB-2032** (2026-07-31).
 
-**TB-2021 — TB-2032** were added 2026-07-31 from an **owner ask** for quantified UI speedups (top-10 + follow-up audit of alerts/home/alert-rules). Baseline still shows `/reviews/[runId]` **2,255 kB**, `/reviews` **1,695 kB**, `/governance` **1,417 kB**, `/welcome` **736 kB** First Load JS. Does **not** recreate open **TB-934** (hub First Load JS) or **TB-935** (list Query + virtualization) — execute those as peers. Does **not** reopen Done **TB-933**/**TB-930**/**TB-560**–**TB-573**/**TB-691**–**TB-698**. **TB-2021** (P1) post-933 run-detail sync shell cut — **Done** (2026-08-03; baseline remeasure pending). **TB-2022** (P1) operator slim first-paint — **Done** (2026-08-03; always buyer-summary). **TB-2023** (P1) alerts inbox mount fan-out — **Done** (2026-08-03; `GET /v1/alerts/inbox-summary`). **TB-2024** (P2) alert-rules tab code-split — **Done** (2026-08-03). **TB-2025** (P2) home empty-SSR refetch skip. **TB-2026**–**TB-2029** (P2) Suspense streaming, loader/proxy waterfalls, `/welcome` shell cut, SSE/poll hygiene. **TB-2030** (P2) baseline expansion. **TB-2031** (P2) field CWV triage gate — **Done** (2026-08-03; [`FIELD_WEB_VITALS_TRIAGE.md`](../runbooks/FIELD_WEB_VITALS_TRIAGE.md); pairs GTM **G-QA-06**/**G-QA-07**). **TB-2032** (P3) marketing `next/image` — **Done** (2026-08-03, **waived**; [`tb2032_marketing_lcp_image_waiver.md`](../architecture/tb2032_marketing_lcp_image_waiver.md)). No new GTM IDs. Cross-ref [`reviews_run_detail_bundle_composition_tb697.md`](../architecture/reviews_run_detail_bundle_composition_tb697.md), [`UI_ARCHITECTURE_V1_1.md`](UI_ARCHITECTURE_V1_1.md) §1/§7, [`run_detail_summary_lazy_load_tb930.md`](../architecture/run_detail_summary_lazy_load_tb930.md).
+**TB-2021 — TB-2032** were added 2026-07-31 from an **owner ask** for quantified UI speedups (top-10 + follow-up audit of alerts/home/alert-rules). Baseline still shows `/reviews/[runId]` **2,255 kB**, `/reviews` **1,695 kB**, `/governance` **1,417 kB**, `/welcome` **736 kB** First Load JS. Does **not** recreate open **TB-934** (hub First Load JS) or **TB-935** (list Query + virtualization) — execute those as peers. Does **not** reopen Done **TB-933**/**TB-930**/**TB-560**–**TB-573**/**TB-691**–**TB-698**. **TB-2021** (P1) post-933 run-detail sync shell cut — **Done** (2026-08-03; baseline remeasure pending). **TB-2022** (P1) operator slim first-paint — **Done** (2026-08-03; always buyer-summary). **TB-2023** (P1) alerts inbox mount fan-out — **Done** (2026-08-03; `GET /v1/alerts/inbox-summary`). **TB-2024** (P2) alert-rules tab code-split — **Done** (2026-08-03). **TB-2025** (P2) home empty-SSR refetch skip — **Done** (2026-08-03; authoritative empty SSR). **TB-2026**–**TB-2029** (P2) Suspense streaming, loader/proxy waterfalls, `/welcome` shell cut, SSE/poll hygiene. **TB-2030** (P2) baseline expansion. **TB-2031** (P2) field CWV triage gate — **Done** (2026-08-03; [`FIELD_WEB_VITALS_TRIAGE.md`](../runbooks/FIELD_WEB_VITALS_TRIAGE.md); pairs GTM **G-QA-06**/**G-QA-07**). **TB-2032** (P3) marketing `next/image` — **Done** (2026-08-03, **waived**; [`tb2032_marketing_lcp_image_waiver.md`](../architecture/tb2032_marketing_lcp_image_waiver.md)). No new GTM IDs. Cross-ref [`reviews_run_detail_bundle_composition_tb697.md`](../architecture/reviews_run_detail_bundle_composition_tb697.md), [`UI_ARCHITECTURE_V1_1.md`](UI_ARCHITECTURE_V1_1.md) §1/§7, [`run_detail_summary_lazy_load_tb930.md`](../architecture/run_detail_summary_lazy_load_tb930.md).
 
 **TB-937 — TB-945** were added 2026-07-22 from the owner question on what **Polly retries + circuit breaker + 429 backoff** do *not* cover for a multi-step agent pipeline (partial completion, poisoned cache, mid-run budget exhaustion, plus related orchestration gaps). Transport resilience stays as-is ([`LLM_RETRY_AND_CIRCUIT_BREAKER.md`](LLM_RETRY_AND_CIRCUIT_BREAKER.md), ADR 0005). This cluster adds **run-level** semantics: partial-run contract + UI (**TB-937**), selective re-execute (**TB-938**), run-scoped budget reservation modeled on Quick Scan **TB-894** (**TB-939**), completion-cache admission/poison bust (**TB-940**), per-`(RunId,TaskId)` spend cap (**TB-941**), downstream consistency after partial/re-execute (**TB-942**), zombie execute reconciliation (**TB-943**), semantic-failure classification (**TB-944**), and a chaos/integration suite (**TB-945**). Does **not** reopen **TB-039** (idempotent skip Done), **TB-043** (remediation Polly decoupling Done), or pull the gated DTF epic (**TB-920**–**TB-924**) unless reservation + selective re-execute prove insufficient. Suggested order: **937 → 940 → 939 → 938 → 941 → 942 → 943 → 944 → 945**. **ACA Worker host layer** (replica death / scale-in / buyer-visible interrupt): **TB-960**–**TB-962** (2026-07-23).
 
@@ -1618,7 +1618,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-2022 | ~~Operator (non-buyer) run-detail slim first-paint — extend **TB-930**~~ — **Done** (2026-08-03); see ## TB-2022 below | Performance P1 — **V1**; after **TB-930** Done; owner UI speed ask 2026-07-31 | L |
 | TB-2023 | ~~Alerts inbox mount fan-out — consolidate 4–6 list/summary RTTs~~ — **Done** (2026-08-03); see ## TB-2023 below | Performance P1 — **V1**; owner UI speed ask 2026-07-31; pairs **TB-935** | S |
 | TB-2024 | ~~Alert-rules hub — `dynamic()` tab panels + parallel rules/routing fetches~~ — **Done** (2026-08-03); see ## TB-2024 below | Performance P2 — **V1**; owner UI speed ask 2026-07-31; traffic **GOA**/**GLR** | S |
-| TB-2025 | Operator home — skip client refetch when SSR empty snapshot is authoritative; see ## TB-2025 below | Performance P2 — **V1**; owner UI speed ask 2026-07-31; pairs **TB-564** | S |
+| TB-2025 | ~~Operator home — skip client refetch when SSR empty snapshot is authoritative~~ — **Done** (2026-08-03); see ## TB-2025 below | Performance P2 — **V1**; owner UI speed ask 2026-07-31; pairs **TB-564** | S |
 | TB-2026 | Nested Suspense / section streaming on run detail + governance hubs; see ## TB-2026 below | Performance P2 — **V1**; `UI_ARCHITECTURE_V1_1` §7; owner UI speed ask 2026-07-31 | M |
 | TB-2027 | Parallelize operator server loaders; collapse sequential `/api/proxy` waterfalls; see ## TB-2027 below | Performance P2 — **V1**; owner UI speed ask 2026-07-31 | M |
 | TB-2028 | Marketing `/welcome` First Load JS — shed shared operator shell chunks; see ## TB-2028 below | Performance P2 — **V1**; owner UI speed ask 2026-07-31; pairs **TB-1294** | M |
@@ -26828,7 +26828,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
    - **Into the model:** architecture request; evidence package prose; technology ledger; host-selected retrieval citations; task objective / tool-key hints; Ask question + chunks.
    - **Hygiene (not the boundary):** Content Safety, `PromptFieldRedactor`, evidence sanitizer, static-first (**TB-681**), future DATA delimiters (**TB-949**).
    - **Structurally impossible today:** model-invoked arbitrary HTTP/shell/file exfil; ITSM/ADO/email writes from the completion; governance accept/waive/finalize; unconstrained handler dispatch when `AllowedTools` is non-empty (**TB-082**).
-   - **Residual / backlog:** empty-`AllowedTools` unrestricted (**TB-950**); indirect doc injection (**TB-951**); side-effect inventory arch test (**TB-952**); delimiter hygiene (**TB-949**).
+   - **Residual / backlog:** side-effect inventory arch test (**TB-952**); delimiter hygiene (**TB-949** Done); AllowedTools fail-closed (**TB-950** Done); indirect corpus (**TB-951** Done).
 2. Explicit non-goals: “injection-proof PDFs”; claiming the model cannot influence finding wording.
 3. Cross-link GTM **M-115**/**M-116**/**M-148**/**M-149**.
 
@@ -46635,25 +46635,25 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 — Performance.
 
-**Status:** Not started.
+**Status:** Done (2026-08-03).
 
-**Source:** Owner UI speed ask 2026-07-31; `RunsDashboardPanelClient` skips client fetch only when SSR snapshot `items.length > 0`.
+**Source:** Owner UI speed ask 2026-07-31; earlier home client skipped only when SSR `items.length > 0`.
 
-**Why:** Empty / first-use Overview (common pilot path) re-fetches the same list — **1 redundant RTT**.
+**Why:** Empty / first-use Overview re-fetched the same empty list — **1 redundant RTT**.
 
-**Approach:**
+**Shipped:**
 
-1. Treat SSR snapshot as authoritative when loader completed successfully (including empty), unless stale markers / error / explicit refresh.
-2. Keep refresh / soft-nav invalidation via `OperatorHomeRefreshProvider` / Query.
-3. Vitest: empty SSR snapshot does not trigger immediate client list fetch.
+1. `isOperatorHomeRunsDashboardServerSnapshotFresh` / `shouldSkipRunsDashboardClientFetchOnMount` — successful SSR (including **empty**) skips mount fetch; mismatch / `loadFailure` / `malformedMessage` still refetch.
+2. `RunsDashboardPanelClient` wires skip + `OperatorHomeRefreshProvider` background refresh.
+3. Vitest covers empty + populated fresh snapshots and rejection of failed snapshots.
 
-**Acceptance:**
+**Acceptance (met):**
 
 - Empty successful SSR → no duplicate mount fetch.
-- Explicit refresh still refetches.
+- Explicit refresh still refetches via registered loader.
 - Error/partial SSR still recovers via client fetch.
 
-**Affected files:** `RunsDashboardPanelClient.tsx`, home loaders, Vitest.
+**Affected files:** `operator-home-runs-dashboard-client-fetch.ts`, `RunsDashboardPanelClient.tsx`, Vitest.
 
 **Depends on:** **TB-564** Done (SSR home slice).
 
