@@ -15,19 +15,22 @@ const routes = founderAcceptanceRoutes({
 
 
 async function expectNoCriticalOrSeriousAxeViolations(page: Page, path: string): Promise<void> {
-  // Match live-api accessibility: scan the public brand palette in light appearance.
-  // System-dark on the runner applies `.dark` tokens that fail AA on marketing surfaces.
-  await page.emulateMedia({ colorScheme: "light" });
+  // Light + reduced-motion: CI runners often prefer dark, and marketing-reveal-in starts at
+  // opacity 0 (fill-mode both) which makes axe color-contrast fail mid-entrance.
+  await page.emulateMedia({ colorScheme: "light", reducedMotion: "reduce" });
   await page.addInitScript(() => {
     try {
       window.localStorage.setItem("archlucid_color_mode", "light");
     } catch {
       // ignore quota / private-mode failures
     }
+
+    document.documentElement.classList.remove("dark");
   });
 
   await page.goto(path, { waitUntil: "domcontentloaded" });
   await expect(page.locator("body")).toBeVisible({ timeout: 60_000 });
+  await page.evaluate(() => document.documentElement.classList.remove("dark"));
 
   const results = await runAxe(page, { disableRules: axeLiveE2eDisableRuleIdsNow() });
   const critical = results.violations.filter(

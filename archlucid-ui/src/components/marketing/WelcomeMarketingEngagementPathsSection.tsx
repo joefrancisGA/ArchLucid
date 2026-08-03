@@ -31,13 +31,13 @@ export function WelcomeMarketingEngagementPathsSection(): React.JSX.Element {
         {WELCOME_ENGAGEMENT_PATHS_HEADING}
       </h2>
       <p
-        className={cn("mt-3 max-w-3xl text-al-text-primary", MARKETING_TYPOGRAPHY.lead)}
+        className={cn("mt-3 max-w-3xl", MARKETING_TYPOGRAPHY.lead)}
         data-testid="welcome-engagement-subheading"
       >
         {WELCOME_HERO_CTA_SUBHEADING}
       </p>
       <p
-        className={cn("mt-3 max-w-3xl text-al-text-primary", MARKETING_TYPOGRAPHY.body)}
+        className={cn("mt-3 max-w-3xl text-neutral-700 dark:text-neutral-300", MARKETING_TYPOGRAPHY.body)}
         data-testid="welcome-engagement-reassurance"
       >
         {WELCOME_HERO_EVALUATION_REASSURANCE}
