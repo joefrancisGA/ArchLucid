@@ -1,3 +1,4 @@
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Persistence.Coordination.Caching;
 
 using Microsoft.Extensions.Caching.Hybrid;
