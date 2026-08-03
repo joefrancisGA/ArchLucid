@@ -34,15 +34,13 @@ describe("pilot-scorecard-present", () => {
 
   it("builds executive summary copy without implementation jargon", () => {
     expect(REVIEW_SCORECARD_PAGE_SUBTITLE).not.toMatch(/ROI_MODEL|GET|null/i);
-    expect(REVIEW_SCORECARD_PAGE_SUBTITLE).toMatch(/at a glance/i);
 
     const summary = buildReviewScorecardSummaryRow(baseScorecard, null);
 
-    expect(summary.estimatedReviewTimeSavingsReady).toBe(false);
-    expect(summary.estimatedReviewTimeSavingsDetail).toContain("Save ROI assumptions");
+    expect(summary.estimatedReviewTimeSavingsDetail).toContain("ROI estimate available after baselines are saved");
   });
 
-  it("uses executive-friendly operational metric labels and empty-state dashes", () => {
+  it("uses executive-friendly operational metric labels and zero states", () => {
     const metrics = buildReviewScorecardOperationalMetrics({
       ...baseScorecard,
       totalRunsCommitted: 0,
@@ -57,9 +55,7 @@ describe("pilot-scorecard-present", () => {
       "Governance approvals completed",
       "Audit events recorded",
     ]);
-    expect(metrics[0]?.value).toBe("—");
-    expect(metrics[0]?.empty).toBe(true);
-    expect(metrics[0]?.detail).toContain("Commit a review");
-    expect(metrics[1]?.detail).toContain("Finalize a package");
+    expect(metrics[0]?.detail).toBe("No committed reviews yet.");
+    expect(metrics[1]?.detail).toBe("No finalized reviews yet.");
   });
 });

@@ -46,7 +46,7 @@ export function ValueReportOutcomesNav(): React.JSX.Element | null {
                 OPERATOR_TYPOGRAPHY.body,
                 "font-medium",
                 active
-                  ? "border-neutral-200 border-b-2 border-b-[var(--al-accent-interactive)] bg-white text-al-text-primary dark:border-neutral-700 dark:bg-neutral-950"
+                  ? "border-neutral-200 bg-white text-al-text-primary dark:border-neutral-700 dark:bg-neutral-950"
                   : "border-transparent bg-transparent text-al-text-secondary hover:bg-neutral-100 hover:text-al-text-primary dark:hover:bg-neutral-900",
               )}
             >
