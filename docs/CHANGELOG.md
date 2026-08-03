@@ -11,7 +11,7 @@ Release entries newest-first. Each section condenses the detailed prompt logs pr
 
 ## 2026-08-03 — Ops: ArchLucid DEV sandbox primary region → **centralus**
 
-DEV CD target aligned with staging/production: `dev.tfvars.example` + [`AZURE_SUBSCRIPTIONS.md`](library/AZURE_SUBSCRIPTIONS.md) now specify **`centralus`**. Operators must update GitHub Environment secret **`DEV_TFVARS`** / **`EXPECTED_AZURE_LOCATION`** and ensure `rg-ArchLucid-dev` (ACR, Content Safety) actually live in Central US — with `create_resource_group = false`, Terraform follows the existing RG location.
+DEV CD target aligned with staging/production: `dev.tfvars.example` + [`AZURE_SUBSCRIPTIONS.md`](library/AZURE_SUBSCRIPTIONS.md) now specify **`centralus`**, with example runtime RG **`rg-ArchLucid-dev-cus`** (`create_resource_group = true`). Operators must update GitHub Environment secret **`DEV_TFVARS`**, **`EXPECTED_AZURE_LOCATION=centralus`**, and **`AZURE_RESOURCE_GROUP`** for the centralus stack. ACR may remain in legacy **`rg-ArchLucid-dev`**.
 
 ## 2026-07-30 — UI/docs: signed review record vs decision vocabulary cleanup
 
