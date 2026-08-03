@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-03 — Docs: Retire VXX traffic row; fold hit share into SPE
+
+Legacy `/value-report` bookmark row **VXX** removed from the UI route traffic workbook. Hit% **0.2%** folded into canonical sponsor executive summary **SPE** (Hit **0.22%**, Deficit **22**). App Router shim still permanentRedirects `/value-report` ? `/sponsor-report/executive-summary`. No CPA / third-party pen-test implication.
+
 ## 2026-08-03 — Docs: Retire SRN traffic row; fold hit share into RRE
 
 Legacy `/snapshot/[runId]` bookmark row **SRN** removed from the UI route traffic workbook. Hit% **0.04%** folded into canonical review workspace **RRE** (Hit **10.04%**, Weight **552.2**, Deficit **451.8**). App Router shim still redirects `/snapshot/...` ? review workspace with `readOnly=1`. No CPA / third-party pen-test implication.

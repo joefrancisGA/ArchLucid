@@ -6,10 +6,10 @@ export const EXECUTIVE_SUMMARY_TRAFFIC_PATH = "/sponsor-report/executive-summary
 
 /**
  * Owner workbook Notes for SPE — sponsor-report surface, not marketing.
- * `/value-report` remains a bookmark-compat redirect to this path.
+ * Absorbs former VXX (legacy `/value-report` redirect) hit share.
  */
 export const EXECUTIVE_SUMMARY_TRAFFIC_NOTE =
-  "Sponsor executive summary report (canonical); `/value-report` redirects here for bookmark compat.";
+  "Sponsor executive summary report (canonical). Absorbs former VXX hit share from retired legacy `/value-report` bookmark row (LegacyValueReportRedirectPage still permanentRedirects here). Does not imply CPA SOC 2 or third-party pen-test publication.";
 
 /** Workbook Section column value — operator sponsor-report job, not pre-login marketing. */
 export const EXECUTIVE_SUMMARY_TRAFFIC_SECTION = "Sponsor report";

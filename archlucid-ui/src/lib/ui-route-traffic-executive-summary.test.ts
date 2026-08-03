@@ -15,6 +15,7 @@ const TEMPLATE_PATH = "docs/architecture/ui_route_traffic_estimates.template.md"
 type TrafficWorkbookRow = {
   id: string;
   path: string;
+  hitPct: string;
   section: string;
   notes: string;
 };
@@ -45,29 +46,30 @@ function extractMasterTableRows(markdown: string): TrafficWorkbookRow[] {
     }
 
     rows.push({
-      id: cells[1],
-      path: cells[2].replace(/^`|`$/g, ""),
-      section: cells[7],
-      notes: cells[8],
+      id: cells[1] ?? "",
+      path: (cells[2] ?? "").replace(/^`|`$/g, ""),
+      hitPct: cells[3] ?? "",
+      section: cells[7] ?? "",
+      notes: cells[8] ?? "",
     });
   }
 
   return rows;
 }
 
-function findTrafficRowById(rows: TrafficWorkbookRow[], rowId: string): TrafficWorkbookRow | undefined {
-  return rows.find((row) => row.id === rowId);
-}
-
 describe("ui-route-traffic-executive-summary (TB-1961)", () => {
-  it("tracks SPE under Sponsor report with canonical-path notes", () => {
+  it("tracks SPE with former VXX hit share and no VXX row", () => {
     const rows = extractMasterTableRows(readTemplateMarkdown());
-    const row = findTrafficRowById(rows, EXECUTIVE_SUMMARY_TRAFFIC_ROW_ID);
+    const spe = rows.find((candidate) => candidate.id === EXECUTIVE_SUMMARY_TRAFFIC_ROW_ID);
+    const vxx = rows.find((candidate) => candidate.id === "VXX");
 
-    expect(row).toBeDefined();
-    expect(row?.path).toBe(EXECUTIVE_SUMMARY_TRAFFIC_PATH);
-    expect(row?.section).toBe(EXECUTIVE_SUMMARY_TRAFFIC_SECTION);
-    expect(row?.notes).toBe(EXECUTIVE_SUMMARY_TRAFFIC_NOTE);
-    expect(row?.section.toLowerCase()).not.toBe("marketing");
+    expect(vxx).toBeUndefined();
+    expect(spe).toBeDefined();
+    expect(spe?.path).toBe(EXECUTIVE_SUMMARY_TRAFFIC_PATH);
+    expect(spe?.hitPct).toBe("0.22%");
+    expect(spe?.section).toBe(EXECUTIVE_SUMMARY_TRAFFIC_SECTION);
+    expect(spe?.notes).toBe(EXECUTIVE_SUMMARY_TRAFFIC_NOTE);
+    expect(spe?.notes).toContain("Absorbs former VXX");
+    expect(spe?.section.toLowerCase()).not.toBe("marketing");
   });
 });
