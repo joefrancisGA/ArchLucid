@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-03 - Docs: Retire VRX traffic row; fold hit share into SPR
+
+Legacy `/value-report/roi` bookmark row **VRX** removed from the UI route traffic workbook. Hit% **0.1%** (plus SPR's **0.02%**) folded into canonical sponsor ROI summary **SPR** (Hit **0.12%**, Score **50**, Weight **6**, Deficit **6**). App Router shim still permanentRedirects `/value-report/roi` → `/sponsor-report/roi-summary`. No CPA / third-party pen-test implication.
+
 ## 2026-08-03 - UI: Advisory scans Evidence chrome (ADV)
 
 /governance/advisory-scans ships workspace Sources + claim-discipline orientation on AdvisoryHubClient (Category-1 help pre-existing), traffic Notes under Advisory, and honest Evidence score 50. Recommendation-launcher hard-caps higher Evidence; no CPA / third-party pen-test implication.

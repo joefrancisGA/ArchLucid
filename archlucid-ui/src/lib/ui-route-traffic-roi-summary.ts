@@ -6,10 +6,10 @@ export const ROI_SUMMARY_TRAFFIC_PATH = "/sponsor-report/roi-summary";
 
 /**
  * Owner workbook Notes for SPR — sponsor-report surface, not marketing.
- * `/value-report/roi` remains a bookmark-compat redirect to this path.
+ * Absorbs former VRX (legacy `/value-report/roi` redirect) hit share.
  */
 export const ROI_SUMMARY_TRAFFIC_NOTE =
-  "Sponsor ROI summary report (canonical); `/value-report/roi` redirects here for bookmark compat.";
+  "Sponsor ROI summary report (canonical). Absorbs former VRX hit share from retired legacy `/value-report/roi` bookmark row (LegacyRoiSummaryRedirectPage still permanentRedirects here). Does not imply CPA SOC 2 or third-party pen-test publication.";
 
 /** Workbook Section column value — operator sponsor-report job, not pre-login marketing. */
 export const ROI_SUMMARY_TRAFFIC_SECTION = "Sponsor report";

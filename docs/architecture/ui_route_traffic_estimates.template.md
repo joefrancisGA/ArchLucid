@@ -103,6 +103,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | FI | `/help/first-review` | 0.18% | 0 | 0 | 18 | Help topic | Specialty first-run evidence checklist (Admin internal-runbook) - HelpFirstReviewEvidenceChecklistGuideView with first-architecture-review / Start architecture review / audit primary CTAs, Sources diligence strip (complete review workflow, Azure connect, audit-trail, troubleshooting, configuration-reference), evidence arc, claim-discipline callout (checklist is not certification), PageContextualHelp, and prepared FIRST_PILOT_OPERATOR_PATH.md printable section only (`sectionAnchors` + API/runbook/script leakage strip). `FIRST_RUN_EVIDENCE_CHECKLIST.md` is a path-stable alias. Not bare HelpTopicMarkdownView. Admin-gated internal Help Center tier. Not a redirect to buyer core-pilot. Does not imply CPA SOC 2 or third-party pen-test publication. |
 | AHX | `/admin/health` | 0.15% | 0 | 0 | 15 | Admin | None |
 | ADV | `/governance/advisory-scans` | 0.15% | 0 | 0 | 15 | Advisory | Advisory scans hub (Governance) - AdvisoryHubClient with PageContextualHelpButton (Category-1 registry), workspace Sources + claim-discipline orientation strip, Scans/Schedules tabs, recommendation generate + schedules. Follow-up recommendations — not a signed-record Sources trail. Sibling AD = Schedules tab deep link. Does not imply CPA SOC 2 or third-party pen-test publication. Score 50/100 (2026-08-03) — recommendation-launcher hard-caps higher Evidence. |
+| SAX | `/governance/alert-rules` | 0.15% | 0 | 0 | 15 | Alerts/gov | Alert rules hub (Alerts/gov) - AlertRulesHubClient with PageContextualHelpButton (topic map alerts; Category-1 registry), workspace Sources + claim-discipline orientation strip on non-routing tabs (Notifications keeps AlertRoutingEvidenceOrientationStrip for GOR), Conditions/Notifications/Advanced/Test tabs. Alert configuration — not a signed-record Sources trail. Sibling GOR = routing tab; GOA = low-hit hub duplicate in template. Does not imply CPA SOC 2 or third-party pen-test publication. Score 48/100 (2026-08-03) — alert-config hub hard-caps higher Evidence. |
 | GAI | `/governance/approval-requests/[id]/lineage` | 0.15% | 0 | 0 | 15 | Alerts/gov | None |
 | GRS | `/governance/standards-and-rules` | 0.15% | 0 | 0 | 15 | Alerts/gov | Formerly `/governance/resolution` and `/governance-resolution` (retired; no redirect). |
 | HCE | `/help/cloud-connections` | 0.15% | 0 | 0 | 15 | Help topic | None |
@@ -119,6 +120,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | SBX | `/administration/settings/baseline` | 0.12% | 0 | 0 | 12 | Settings | None |
 | SIX | `/administration/settings/identity-providers` | 0.12% | 0 | 0 | 12 | Settings | None |
 | ASX | `/administration/settings/support` | 0.12% | 0 | 0 | 12 | Settings | None |
+| SPR | `/sponsor-report/roi-summary` | 0.12% | 0 | 0 | 12 | Sponsor report | Sponsor ROI summary report (canonical). Absorbs former VRX hit share from retired legacy `/value-report/roi` bookmark row (LegacyRoiSummaryRedirectPage still permanentRedirects here). Does not imply CPA SOC 2 or third-party pen-test publication. |
 | ACX | `/admin/configuration` | 0.1% | 0 | 0 | 10 | Admin | None |
 | ARX | `/admin/rag-health` | 0.1% | 0 | 0 | 10 | Admin | None |
 | EXX | `/insights/impact-preview` | 0.1% | 0 | 0 | 10 | Marketing | Formerly `/evolution-review` (retired; no redirect). |
@@ -135,7 +137,6 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | SC | `/administration/settings/ai-usage` | 0.1% | 0 | 0 | 10 | Settings | None |
 | SDX | `/administration/settings/developer` | 0.1% | 0 | 0 | 10 | Settings | None |
 | TXX | `/trust` | 0.1% | 0 | 0 | 10 | Marketing | None |
-| VRX | `/value-report/roi` | 0.1% | 0 | 0 | 10 | Marketing | None |
 | AAX | `/admin/ai-usage-cost` | 0.08% | 0 | 0 | 8 | Admin | None |
 | AII | `/admin/integrations/itsm` | 0.08% | 0 | 0 | 8 | Admin | None |
 | DXX | `/demo` | 0.08% | 0 | 0 | 8 | Marketing | None |
@@ -282,8 +283,6 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | SSU | `/administration/settings/users?tab=users` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | MA | `/signed-records` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | MAM | `/signed-records/[manifestId]/artifacts/[artifactId]` | 0.02% | 0 | 0 | 2 | Marketing | Manifest-scoped artifact preview — App Router page under signed-records (TB-1821 SoT). Run-scoped RER redirects here. Download/proxy paths remain available. |
-| SPR | `/sponsor-report/roi-summary` | 0.02% | 0 | 0 | 2 | Sponsor report | Sponsor ROI summary report (canonical); `/value-report/roi` redirects here for bookmark compat. |
-
 ---
 
 ## Frequency rationale

@@ -15,6 +15,7 @@ const TEMPLATE_PATH = "docs/architecture/ui_route_traffic_estimates.template.md"
 type TrafficWorkbookRow = {
   id: string;
   path: string;
+  hitPct: string;
   section: string;
   notes: string;
 };
@@ -40,34 +41,35 @@ function extractMasterTableRows(markdown: string): TrafficWorkbookRow[] {
 
     const cells = line.split("|").map((cell) => cell.trim());
 
-    if (cells.length < 9 || cells[1] === "ID") {
+    if (cells.length < 9 || cells[1] === "ID" || cells[1] === "----") {
       continue;
     }
 
     rows.push({
-      id: cells[1],
-      path: cells[2].replace(/^`|`$/g, ""),
-      section: cells[7],
-      notes: cells[8],
+      id: cells[1] ?? "",
+      path: (cells[2] ?? "").replace(/^`|`$/g, ""),
+      hitPct: cells[3] ?? "",
+      section: cells[7] ?? "",
+      notes: cells[8] ?? "",
     });
   }
 
   return rows;
 }
 
-function findTrafficRowById(rows: TrafficWorkbookRow[], rowId: string): TrafficWorkbookRow | undefined {
-  return rows.find((row) => row.id === rowId);
-}
-
 describe("ui-route-traffic-roi-summary (TB-1971)", () => {
-  it("tracks SPR under Sponsor report with canonical-path notes", () => {
+  it("tracks SPR with former VRX hit share and no VRX row", () => {
     const rows = extractMasterTableRows(readTemplateMarkdown());
-    const row = findTrafficRowById(rows, ROI_SUMMARY_TRAFFIC_ROW_ID);
+    const spr = rows.find((candidate) => candidate.id === ROI_SUMMARY_TRAFFIC_ROW_ID);
+    const vrx = rows.find((candidate) => candidate.id === "VRX");
 
-    expect(row).toBeDefined();
-    expect(row?.path).toBe(ROI_SUMMARY_TRAFFIC_PATH);
-    expect(row?.section).toBe(ROI_SUMMARY_TRAFFIC_SECTION);
-    expect(row?.notes).toBe(ROI_SUMMARY_TRAFFIC_NOTE);
-    expect(row?.section.toLowerCase()).not.toBe("marketing");
+    expect(vrx).toBeUndefined();
+    expect(spr).toBeDefined();
+    expect(spr?.path).toBe(ROI_SUMMARY_TRAFFIC_PATH);
+    expect(spr?.hitPct).toBe("0.12%");
+    expect(spr?.section).toBe(ROI_SUMMARY_TRAFFIC_SECTION);
+    expect(spr?.notes).toBe(ROI_SUMMARY_TRAFFIC_NOTE);
+    expect(spr?.notes).toContain("Absorbs former VRX");
+    expect(spr?.section.toLowerCase()).not.toBe("marketing");
   });
 });
