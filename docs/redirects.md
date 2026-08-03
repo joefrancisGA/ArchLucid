@@ -364,6 +364,7 @@ Human readers and agents should follow **canonical** paths below. This file is t
 | `docs/runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md` (body) | [`docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md#printable-first-run-evidence-checklist`](runbooks/FIRST_PILOT_OPERATOR_PATH.md#printable-first-run-evidence-checklist) | Printable SE kickoff table folded into operator path; filename kept as path-stable alias; `/help/first-review` loads section via `sectionAnchors` |
 | `docs/library/FIRST_HOUR_OPERATOR_PATH.md` (body) | [`docs/CORE_PILOT.md`](CORE_PILOT.md) | First-hour / first-review guide folded into Core Pilot; filename kept as path-stable alias; in-app slug `first-hour-operator-path` → `first-architecture-review` |
 | `docs/library/CHANGE_IMPACT_CHECKLIST.md` (body) | [`docs/library/CONTRIBUTOR_CODE_MAP.md#change-impact-checklist`](library/CONTRIBUTOR_CODE_MAP.md#change-impact-checklist) | PR follow-through by change type folded into contributor code map; filename kept as path-stable alias |
+| `docs/library/customer-facing/COMPLETE_REVIEW_WORKFLOW.md` (body) | [`docs/CORE_PILOT.md#complete-review-workflow`](CORE_PILOT.md#complete-review-workflow) | Complete review workflow folded into Core Pilot; filename kept as path-stable alias; in-app slug `first-pilot-path` → `first-architecture-review` |
 
 ## 2026-07-22 runbook consolidation
 

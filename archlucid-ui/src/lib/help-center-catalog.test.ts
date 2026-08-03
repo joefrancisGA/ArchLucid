@@ -114,6 +114,8 @@ describe("help topic slug aliases", () => {
     expect(getProductDocumentationEntry("evaluator-workbook")?.slug).toBe("path-chooser");
     expect(normalizeHelpTopicSlug("first-hour-operator-path")).toBe("first-architecture-review");
     expect(getProductDocumentationEntry("first-hour-operator-path")?.slug).toBe("first-architecture-review");
+    expect(normalizeHelpTopicSlug("first-pilot-path")).toBe("first-architecture-review");
+    expect(getProductDocumentationEntry("first-pilot-path")?.slug).toBe("first-architecture-review");
   });
 });
 

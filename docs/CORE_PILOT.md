@@ -28,6 +28,8 @@ Start with evidence, run the review, finalize the architecture package, then sha
 
 Former complete review workflow depth for teams that need the full create → evidence → findings → decisions → finalize → export path (filename `COMPLETE_REVIEW_WORKFLOW.md` remains a path-stable alias).
 
+ArchLucid turns architecture evidence into a review with findings, decisions, evidence traceability, and export-ready artifacts.
+
 ### Overview
 
 | | What you do | What ArchLucid does | What you get |

@@ -1,4 +1,4 @@
-> **Scope:** Internal SE/ops runbook — platform readiness, printable first-run evidence checklist, pilot proof collection, phase-level recovery, and time-boxed first value in 20 minutes. Absorbs the former `FIRST_RUN_EVIDENCE_CHECKLIST.md` body. **Not the default customer help path.** Customer architects: use [Your first architecture review](/help/core-pilot) or [Complete review workflow](/help/first-pilot-path).
+> **Scope:** Internal SE/ops runbook — platform readiness, printable first-run evidence checklist, pilot proof collection, phase-level recovery, and time-boxed first value in 20 minutes. Absorbs the former `FIRST_RUN_EVIDENCE_CHECKLIST.md` body. **Not the default customer help path.** Customer architects: use [Your first architecture review](/help/first-architecture-review).
 
 # First-pilot operator path (internal runbook)
 
@@ -61,7 +61,7 @@ Every step below maps to a **shipped** API, architect workspace route, or CLI ve
 
 Former standalone body: `docs/runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md` → this section (filename kept as a path-stable alias). Use before a sponsor demo or design-partner kickoff when you want a **printable table** under two pages; Phases A–D below are the same work with failure recovery.
 
-**Audience:** Sales engineers and platform admins (Azure extractor Tier 1, no vendor-held cloud credentials). **In-app:** Admin-only `/help/first-review`. Customer architects: [Your first architecture review](/help/core-pilot) or [Complete review workflow](/help/first-pilot-path).
+**Audience:** Sales engineers and platform admins (Azure extractor Tier 1, no vendor-held cloud credentials). **In-app:** Admin-only `/help/first-review`. Customer architects: [Your first architecture review](/help/first-architecture-review).
 
 | Step | Action | Success signal | Deeper doc |
 |------|--------|----------------|------------|

@@ -114,6 +114,6 @@ Optional review-cycle baseline fields may be captured during workspace registrat
 
 ### Complete first-session operator path
 
-Platform teams implementing the full storage → evidence → finalize → export sequence should follow [Complete review workflow](/help/first-pilot-path).
+Platform teams implementing the full storage → evidence → finalize → export sequence should follow [Your first architecture review](/help/first-architecture-review) ([#complete-review-workflow](/help/first-architecture-review#complete-review-workflow)).
 
 </details>

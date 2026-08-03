@@ -5,7 +5,7 @@
 
 # Architect / evaluator quickstart — ArchLucid
 
-**Buyer UI path:** [Your first architecture review](/help/core-pilot) · [Complete review workflow](/help/first-pilot-path)
+**Buyer UI path:** [Your first architecture review](/help/first-architecture-review)
 
 **SE/ops phases:** [FIRST_PILOT_OPERATOR_PATH.md](../../runbooks/FIRST_PILOT_OPERATOR_PATH.md) · **Stuck:** [FIRST_PILOT_TROUBLESHOOTING.md](../../runbooks/FIRST_PILOT_TROUBLESHOOTING.md) · [Troubleshooting](/help/troubleshooting)
 
