@@ -82,7 +82,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | HXX | `/health` | 0.5% | 0 | 0 | 50 | Marketing | Deprecated operator bookmark — merged to Administration System health on **ADY** (`/administration/system-health`). |
 | RNX | `/reviews/new` | 0.5% | 0 | 0 | 50 | Core review | Start review intake - ReviewsNewPageChrome with OperatorPageHeader PageContextualHelpButton (topic map evidence-intake / Start review; Category-1 registry), Sources follow-up strip + claim-discipline callout (intake only, not diligence trail), path switcher wizards. Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. |
 | GPP | `/governance/policy-packs` | 0.4% | 0 | 0 | 40 | Alerts/gov | None |
-| RR | `/reviews/[runId]/findings/[findingId]/inspect` | 0.4% | 0 | 0 | 40 | Core review | None |
+| RR | `/reviews/[runId]/findings/[findingId]/inspect` | 0.4% | 0 | 0 | 40 | Core review | Legacy finding inspect bookmark - FindingInspectLegacyRedirectPage permanentRedirects to canonical evidence-trace (ERU / architecture reviews path via getFindingEvidenceTraceHref). No standalone Evidence chrome on the shim. Redirect/shim hard-caps Evidence. Does not imply CPA SOC 2 or third-party pen-test publication. |
 | GDO | `/governance/decision-register` | 0.3% | 0 | 0 | 30 | Alerts/gov | None |
 | GPI | `/governance/policy-packs/[id]` | 0.3% | 0 | 0 | 30 | Alerts/gov | None |
 | GRO | `/governance/risk-exceptions` | 0.3% | 0 | 0 | 30 | Alerts/gov | None |
