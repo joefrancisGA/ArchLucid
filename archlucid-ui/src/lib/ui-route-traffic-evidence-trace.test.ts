@@ -4,17 +4,18 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
-  FINDING_INSPECT_REDIRECT_TRAFFIC_NOTE,
-  FINDING_INSPECT_REDIRECT_TRAFFIC_PATH,
-  FINDING_INSPECT_REDIRECT_TRAFFIC_ROW_ID,
-  FINDING_INSPECT_REDIRECT_TRAFFIC_SECTION,
-} from "@/lib/ui-route-traffic-finding-inspect-redirect";
+  EVIDENCE_TRACE_TRAFFIC_NOTE,
+  EVIDENCE_TRACE_TRAFFIC_PATH,
+  EVIDENCE_TRACE_TRAFFIC_ROW_ID,
+  EVIDENCE_TRACE_TRAFFIC_SECTION,
+} from "@/lib/ui-route-traffic-evidence-trace";
 
 const TEMPLATE_PATH = "docs/architecture/ui_route_traffic_estimates.template.md";
 
 type TrafficWorkbookRow = {
   id: string;
   path: string;
+  hitPct: string;
   section: string;
   notes: string;
 };
@@ -40,13 +41,14 @@ function extractMasterTableRows(markdown: string): TrafficWorkbookRow[] {
 
     const cells = line.split("|").map((cell) => cell.trim());
 
-    if (cells.length < 9 || cells[1] === "ID") {
+    if (cells.length < 9 || cells[1] === "ID" || cells[1] === "----") {
       continue;
     }
 
     rows.push({
       id: cells[1] ?? "",
       path: (cells[2] ?? "").replace(/^`|`$/g, ""),
+      hitPct: cells[3] ?? "",
       section: cells[7] ?? "",
       notes: cells[8] ?? "",
     });
@@ -55,15 +57,18 @@ function extractMasterTableRows(markdown: string): TrafficWorkbookRow[] {
   return rows;
 }
 
-describe("ui-route-traffic-finding-inspect-redirect (RR)", () => {
-  it("tracks legacy inspect redirect with honest workbook notes", () => {
+describe("ui-route-traffic-evidence-trace (ERU)", () => {
+  it("tracks evidence-trace with former RR hit share and no RR row", () => {
     const rows = extractMasterTableRows(readTemplateMarkdown());
-    const row = rows.find((candidate) => candidate.id === FINDING_INSPECT_REDIRECT_TRAFFIC_ROW_ID);
+    const eru = rows.find((candidate) => candidate.id === EVIDENCE_TRACE_TRAFFIC_ROW_ID);
+    const rr = rows.find((candidate) => candidate.id === "RR");
 
-    expect(row).toBeDefined();
-    expect(row?.path).toBe(FINDING_INSPECT_REDIRECT_TRAFFIC_PATH);
-    expect(row?.section).toBe(FINDING_INSPECT_REDIRECT_TRAFFIC_SECTION);
-    expect(row?.notes).toBe(FINDING_INSPECT_REDIRECT_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("permanentRedirect");
+    expect(rr).toBeUndefined();
+    expect(eru).toBeDefined();
+    expect(eru?.path).toBe(EVIDENCE_TRACE_TRAFFIC_PATH);
+    expect(eru?.hitPct).toBe("0.4%");
+    expect(eru?.section).toBe(EVIDENCE_TRACE_TRAFFIC_SECTION);
+    expect(eru?.notes).toBe(EVIDENCE_TRACE_TRAFFIC_NOTE);
+    expect(eru?.notes).toContain("Absorbs former RR");
   });
 });

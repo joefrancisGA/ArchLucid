@@ -17,9 +17,9 @@ DEV CD target aligned with staging/production: `dev.tfvars.example` + [`AZURE_SU
 
 /governance/decision-register ships PageContextualHelpButton, topic-map honesty (how-it-works / Decision register), Category-1 registry, Sources follow-up strip + claim-discipline callout (register browse, not a diligence pack), and enriched traffic Notes. Register browse hard-caps higher Evidence; no CPA / third-party pen-test implication.
 
-## 2026-08-03 — UI: Legacy finding inspect redirect honesty (RR)
+## 2026-08-03 — Docs: Retire RR traffic row; fold weights into ERU
 
-/reviews/[runId]/findings/[findingId]/inspect documented as permanentRedirect shim to canonical evidence-trace; traffic Notes + honest Evidence score 18 (redirect hard-cap). Canonical evidence-trace Evidence chrome remains a follow-on (ERU). No CPA / third-party pen-test implication.
+Legacy `/inspect` bookmark row **RR** removed from the UI route traffic workbook. Hit% **0.4%**, Evidence score **18**, Weight **7.2**, and Deficit **32.8** transferred to canonical evidence-trace **ERU**. App Router shim still permanentRedirects `/inspect` ? evidence-trace. No CPA / third-party pen-test implication.
 
 ## 2026-08-03 — UI: Start review Evidence chrome (RNX)
 
