@@ -1,8 +1,8 @@
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
-import { writeOperateNavUnlockPhase } from "@/lib/usability/operate-nav-progressive-unlock";
+import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture-routes";
 
 import { SidebarNav } from "./SidebarNav";
 
@@ -43,6 +43,14 @@ vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: (): boolean => false,
 }));
 
+vi.mock("@/components/WorkspaceActiveRunContext", () => ({
+  useWorkspaceActiveRun: () => null,
+}));
+
+vi.mock("@/hooks/use-pattern-library-nav-visible", () => ({
+  usePatternLibraryNavVisible: () => true,
+}));
+
 vi.mock("next/link", () => ({
   default: ({
     href,
@@ -68,8 +76,8 @@ type RequestedGroup = {
 };
 
 const REVIEW_WORK_HREFS: ReadonlyArray<string> = [
-  "/reviews/new",
-  "/reviews?projectId=default",
+  ARCHITECTURES_LIST_PATH,
+  "/architecture/reviews?projectId=default",
   EXECUTIVE_DASHBOARD_HREF,
   "/architecture/first-review-guide",
 ];
@@ -103,12 +111,6 @@ function hrefRendered(href: string): boolean {
   return document.querySelector(`a[href="${href}"]`) !== null;
 }
 
-function unlockAllOperateFeatures(): void {
-  act(() => {
-    writeOperateNavUnlockPhase(2);
-  });
-}
-
 describe("SidebarNav — new-user buyer-polished catalog (no committed review)", () => {
   beforeEach(() => {
     mockPathname.mockReturnValue("/");
@@ -123,25 +125,20 @@ describe("SidebarNav — new-user buyer-polished catalog (no committed review)",
     }
   });
 
-  it("hides Operate groups until the user unlocks them while keeping Administration visible", () => {
+  it("shows Operate groups without unlock panel while keeping Administration visible", () => {
     render(<SidebarNav />);
 
-    expect(screen.getByTestId("operate-features-unlock-panel")).toBeInTheDocument();
+    expect(screen.queryByTestId("operate-features-unlock-panel")).toBeNull();
 
     for (const group of OPERATE_COLLAPSED_GROUPS) {
-      expect(screen.queryByTestId(group.toggleTestId)).toBeNull();
+      expect(screen.getByTestId(group.toggleTestId)).toBeInTheDocument();
     }
 
     expect(screen.getByTestId("sidebar-group-toggle-operator-admin")).toBeInTheDocument();
   });
 
-  it("exposes every requested destination once Operate features are unlocked and groups expanded", async () => {
+  it("exposes every requested destination once groups are expanded", async () => {
     render(<SidebarNav />);
-    unlockAllOperateFeatures();
-
-    await waitFor(() => {
-      expect(screen.getByTestId("sidebar-group-toggle-operate-analysis")).toBeInTheDocument();
-    });
 
     for (const group of OPERATE_COLLAPSED_GROUPS) {
       const toggle = screen.getByTestId(group.toggleTestId);
@@ -169,15 +166,5 @@ describe("SidebarNav — new-user buyer-polished catalog (no committed review)",
     for (const href of ADMIN_GROUP!.hrefs) {
       expect(hrefRendered(href)).toBe(true);
     }
-  });
-
-  it("restores previously unlocked Operate groups without showing the unlock panel again", async () => {
-    writeOperateNavUnlockPhase(1);
-    render(<SidebarNav />);
-
-    await waitFor(() => {
-      expect(screen.queryByTestId("operate-features-unlock-panel")).toBeNull();
-      expect(screen.getByTestId("sidebar-group-toggle-operate-analysis")).toBeInTheDocument();
-    });
   });
 });

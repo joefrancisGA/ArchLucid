@@ -10,12 +10,12 @@ import {
 describe("pathnameEligibleBeforeFirstCommittedArchitectureReview", () => {
   it("allows the pilot path and help/onboarding before first commit, not operate hubs", () => {
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/")).toBe(true);
-    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/reviews")).toBe(true);
-    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/architectures")).toBe(true);
-    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/architectures/new")).toBe(true);
-    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/architectures/draft-1")).toBe(true);
-    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/reviews/new")).toBe(true);
-    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/reviews/abc/def")).toBe(true);
+    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/architecture/reviews")).toBe(true);
+    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/architecture/architectures")).toBe(true);
+    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/architecture/architectures/new")).toBe(true);
+    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/architecture/architectures/draft-1")).toBe(true);
+    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/architecture/reviews/new")).toBe(true);
+    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/architecture/reviews/abc/def")).toBe(true);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/insights/evidence-graph")).toBe(true);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview(EXECUTIVE_DASHBOARD_HREF)).toBe(true);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/help")).toBe(true);
@@ -37,29 +37,18 @@ describe("filterNavLinksByCommittedArchitectureReviewGate", () => {
     expect(full).toEqual([...pilot.links]);
   });
 
-  it("keeps only eligible hrefs when false", () => {
+  it("returns all pilot links when uncommitted (gate retired — authority-only visibility)", () => {
     const pilot = NAV_GROUPS.find((g) => g.id === "pilot");
     if (pilot === undefined) {
       throw new Error("nav smoke: missing pilot group");
     }
 
     const thin = filterNavLinksByCommittedArchitectureReviewGate(pilot.links, false);
-    const hrefs = thin.map((l) => l.href.split("?")[0]);
 
-    expect(thin.length).toBeGreaterThan(0);
-    expect(thin.every((l) => pathnameEligibleBeforeFirstCommittedArchitectureReview(l.href.split("?")[0] ?? ""))).toBe(
-      true,
-    );
-    expect(hrefs).toEqual([
-      "/",
-      "/architectures",
-      "/reviews",
-      EXECUTIVE_DASHBOARD_HREF,
-      "/architecture/first-review-guide",
-    ]);
+    expect(thin).toEqual(pilot.links);
   });
 
-  it("hides operate-governance links until the first committed review", () => {
+  it("returns all operate-governance links when uncommitted (gate retired)", () => {
     const governance = NAV_GROUPS.find((g) => g.id === "operate-governance");
     if (governance === undefined) {
       throw new Error("nav smoke: missing operate-governance group");
@@ -67,6 +56,6 @@ describe("filterNavLinksByCommittedArchitectureReviewGate", () => {
 
     const thin = filterNavLinksByCommittedArchitectureReviewGate(governance.links, false);
 
-    expect(thin).toHaveLength(0);
+    expect(thin).toEqual(governance.links);
   });
 });

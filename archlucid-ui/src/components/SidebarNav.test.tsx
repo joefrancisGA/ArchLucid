@@ -1,41 +1,25 @@
+/** @vitest-environment jsdom */
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import { SidebarNav } from "@/components/SidebarNav";
 import { ARCHITECTURE_DRAFTS_LIST_LABEL } from "@/lib/architecture-workflow-labels";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture-routes";
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
-
 import {
   SIDEBAR_NAV_GROUP_DEFAULT_EXPANSION,
   SIDEBAR_NAV_GROUP_EXPANSION_STORAGE_KEY,
 } from "@/lib/sidebar-nav-group-expansion-storage";
 import { writeOperateNavUnlockPhase } from "@/lib/usability/operate-nav-progressive-unlock";
 
-import { SidebarNav } from "./SidebarNav";
-
-const { mockPathname, committedReviewMock, governanceModeMock } = vi.hoisted(() => ({
-  mockPathname: vi.fn((): string => "/"),
-  committedReviewMock: { value: false },
-  governanceModeMock: { enabled: true },
-}));
-
+const mockPathname = vi.hoisted(() => vi.fn(() => "/"));
 const buyerPolishedMock = vi.hoisted(() => ({ value: false }));
-
-vi.mock("@/hooks/use-governance-mode", async () => {
-  const { governanceModeVocabulary } = await import("@/lib/governance-mode-vocabulary");
-
-  return {
-    useGovernanceMode: () => ({
-      mounted: true,
-      isGovernanceModeEnabled: governanceModeMock.enabled,
-      setGovernanceModeEnabled: vi.fn(),
-      vocabulary: governanceModeVocabulary(governanceModeMock.enabled),
-    }),
-    GovernanceModeProvider: ({ children }: { children: React.ReactNode }) => children,
-  };
-});
+const committedReviewMock = vi.hoisted(() => ({ value: false }));
+const governanceModeMock = vi.hoisted(() => ({ enabled: true }));
 
 vi.mock("next/navigation", () => ({
-  usePathname: (): string => mockPathname(),
-  useSearchParams: (): URLSearchParams => new URLSearchParams(),
+  usePathname: () => mockPathname(),
+  useSearchParams: () => new URLSearchParams(),
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
 }));
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
@@ -48,8 +32,23 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 });
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
-  useNavCallerAuthorityRank: (): number => 3,
-  useNavCommittedArchitectureReview: (): boolean => committedReviewMock.value,
+  useNavCallerAuthorityRank: () => 1,
+  useNavCommittedArchitectureReview: () => committedReviewMock.value,
+}));
+
+vi.mock("@/hooks/use-governance-mode", () => ({
+  useGovernanceMode: () => ({
+    isGovernanceModeEnabled: governanceModeMock.enabled,
+    setGovernanceModeEnabled: vi.fn(),
+  }),
+}));
+
+vi.mock("@/components/WorkspaceActiveRunContext", () => ({
+  useWorkspaceActiveRun: () => null,
+}));
+
+vi.mock("@/hooks/use-pattern-library-nav-visible", () => ({
+  usePatternLibraryNavVisible: () => true,
 }));
 
 vi.mock("next/link", () => ({
@@ -71,11 +70,11 @@ vi.mock("next/link", () => ({
   ),
 }));
 
-function unlockOperateFeatures(): void {
-  fireEvent.click(screen.getByTestId("nav-advanced-unlock"));
-}
-
 describe("SidebarNav (primary navigation)", () => {
+  afterEach(() => {
+    cleanup();
+  });
+
   beforeEach(() => {
     buyerPolishedMock.value = false;
     committedReviewMock.value = false;
@@ -85,12 +84,11 @@ describe("SidebarNav (primary navigation)", () => {
     localStorage.clear();
   });
 
-  it("shows a calm first-run nav: Architecture expanded, Operate hidden until unlock", () => {
+  it("shows Architecture and Operate groups for role-eligible destinations without unlock panel", () => {
     render(<SidebarNav />);
 
     const reviewNav = screen.getByRole("navigation", { name: "Architecture" });
     expect(reviewNav).toBeInTheDocument();
-    expect(screen.queryByText("Review work")).toBeNull();
     expect(within(reviewNav).getByRole("link", { name: "Overview" })).toHaveAttribute("href", "/");
     expect(within(reviewNav).getByRole("link", { name: ARCHITECTURE_DRAFTS_LIST_LABEL })).toHaveAttribute(
       "href",
@@ -98,35 +96,17 @@ describe("SidebarNav (primary navigation)", () => {
     );
     expect(within(reviewNav).getByRole("link", { name: "Reviews" })).toHaveAttribute(
       "href",
-      "/reviews?projectId=default",
+      "/architecture/reviews?projectId=default",
     );
-    expect(within(reviewNav).getByRole("link", { name: "First review guide" })).toHaveAttribute(
-      "href",
-      "/architecture/first-review-guide",
-    );
-    expect(within(reviewNav).queryByRole("link", { name: "Findings" })).toBeNull();
-    expect(within(reviewNav).queryByRole("link", { name: "Scorecard" })).toBeNull();
 
-    expect(screen.getByTestId("operate-features-unlock-panel")).toBeInTheDocument();
-    expect(screen.queryByTestId("sidebar-group-toggle-operate-analysis")).toBeNull();
-    expect(screen.queryByTestId("sidebar-group-toggle-operate-governance")).toBeNull();
-    expect(screen.queryByTestId("sidebar-group-toggle-operate-reports")).toBeNull();
-    expect(screen.queryByTestId("sidebar-group-toggle-operate-integrations")).toBeNull();
+    expect(screen.queryByTestId("operate-features-unlock-panel")).toBeNull();
+    expect(screen.getByTestId("sidebar-group-toggle-operate-analysis")).toBeInTheDocument();
+    expect(screen.getByTestId("sidebar-group-toggle-operate-governance")).toBeInTheDocument();
     expect(screen.getByTestId("sidebar-group-toggle-operator-admin")).toHaveAttribute("aria-expanded", "false");
-
-    expect(screen.queryByRole("navigation", { name: "Insights" })).toBeNull();
-    expect(screen.queryByRole("navigation", { name: "Governance" })).toBeNull();
-    expect(screen.queryByRole("navigation", { name: "Reports" })).toBeNull();
-    expect(screen.queryByRole("navigation", { name: "Integrations" })).toBeNull();
   });
 
-  it("expands Analysis with a chevron disclosure after Operate features are unlocked", async () => {
+  it("expands Analysis with a chevron disclosure", async () => {
     render(<SidebarNav />);
-    unlockOperateFeatures();
-
-    await waitFor(() => {
-      expect(screen.getByTestId("sidebar-group-toggle-operate-analysis")).toBeInTheDocument();
-    });
 
     fireEvent.click(screen.getByTestId("sidebar-group-toggle-operate-analysis"));
 
@@ -135,15 +115,19 @@ describe("SidebarNav (primary navigation)", () => {
     });
 
     const analysisNav = screen.getByRole("navigation", { name: "Insights" });
-    expect(within(analysisNav).getByRole("link", { name: "Compare two reviews" })).toHaveAttribute("href", "/insights/compare-two-reviews");
-    expect(within(analysisNav).getByRole("link", { name: "Ask review questions" })).toHaveAttribute("href", "/insights/ask-review-questions");
+    expect(within(analysisNav).getByRole("link", { name: "Compare two reviews" })).toHaveAttribute(
+      "href",
+      "/insights/compare-two-reviews",
+    );
+    expect(within(analysisNav).getByRole("link", { name: "Ask review questions" })).toHaveAttribute(
+      "href",
+      "/insights/ask-review-questions",
+    );
   });
 
   it("persists saved group expansion without overwriting on reload", async () => {
     committedReviewMock.value = true;
     writeOperateNavUnlockPhase(2);
-    localStorage.setItem("archlucid_nav_show_extended", "1");
-    localStorage.setItem("archlucid_nav_show_advanced", "1");
     localStorage.setItem(
       SIDEBAR_NAV_GROUP_EXPANSION_STORAGE_KEY,
       JSON.stringify({
@@ -162,11 +146,11 @@ describe("SidebarNav (primary navigation)", () => {
     expect(screen.getByTestId("sidebar-group-toggle-operate-analysis")).toHaveAttribute("aria-expanded", "false");
   });
 
-  it("shows the Operate unlock affordance instead of legacy advanced-feature copy", () => {
+  it("does not show progressive-disclosure unlock or more-destinations chrome", () => {
     render(<SidebarNav />);
 
     expect(screen.queryByText("Enable advanced features")).toBeNull();
-    expect(screen.getByTestId("nav-advanced-unlock")).toHaveTextContent("Show analysis tools");
+    expect(screen.queryByTestId("nav-advanced-unlock")).toBeNull();
     expect(screen.queryByTestId("sidebar-governance-disclosure")).toBeNull();
     expect(screen.queryByRole("button", { name: /Show \d+ more destinations/ })).toBeNull();
   });
@@ -185,7 +169,11 @@ describe("SidebarNav (primary navigation)", () => {
     });
 
     const adminNav = screen.getByRole("navigation", { name: "Administration" });
-    expect(within(adminNav).getByRole("link", { name: "Settings" })).toHaveAttribute("href", "/administration/settings/tenant");
+    // Reader mock rank: Settings (Execute) is hidden; Billing (Read) remains.
+    expect(within(adminNav).getByRole("link", { name: "Billing & plans" })).toHaveAttribute(
+      "href",
+      "/administration/settings/billing",
+    );
   });
 
   it("does not duplicate the numbered first-hour journey strip in the sidebar (TB-345)", () => {
@@ -195,23 +183,19 @@ describe("SidebarNav (primary navigation)", () => {
     expect(screen.queryByText("First-hour path")).not.toBeInTheDocument();
   });
 
-  it("shows dismissible auto-unlock hint after first committed review", async () => {
+  it("does not show operate unlock auto-hint chrome after first committed review", () => {
     committedReviewMock.value = true;
     render(<SidebarNav />);
 
-    await waitFor(() => {
-      expect(screen.getByTestId("operate-unlock-auto-hint")).toBeInTheDocument();
-    });
-
-    fireEvent.click(screen.getByTestId("operate-unlock-auto-hint-dismiss"));
-
-    await waitFor(() => {
-      expect(screen.queryByTestId("operate-unlock-auto-hint")).toBeNull();
-    });
+    expect(screen.queryByTestId("operate-unlock-auto-hint")).toBeNull();
   });
 });
 
 describe("SidebarNav buyer-polished desktop shell", () => {
+  afterEach(() => {
+    cleanup();
+  });
+
   beforeEach(() => {
     buyerPolishedMock.value = true;
     committedReviewMock.value = false;
@@ -221,7 +205,7 @@ describe("SidebarNav buyer-polished desktop shell", () => {
     localStorage.clear();
   });
 
-  it("keeps Architecture expanded with Operate hidden until unlock", async () => {
+  it("shows Architecture and Operate groups without unlock panel", () => {
     render(<SidebarNav />);
 
     expect(screen.getByTestId("sidebar-group-toggle-pilot")).toHaveAttribute("aria-expanded", "true");
@@ -233,23 +217,9 @@ describe("SidebarNav buyer-polished desktop shell", () => {
       "href",
       ARCHITECTURES_LIST_PATH,
     );
-    expect(within(nav).getByRole("link", { name: "Reviews" })).toHaveAttribute(
-      "href",
-      "/reviews?projectId=default",
-    );
-    expect(within(nav).queryByRole("link", { name: "Evidence graph" })).toBeNull();
 
-    expect(screen.getByTestId("operate-features-unlock-panel")).toBeInTheDocument();
-    expect(screen.queryByTestId("sidebar-group-toggle-operate-analysis")).toBeNull();
-    expect(screen.queryByRole("navigation", { name: "Insights" })).toBeNull();
-
-    unlockOperateFeatures();
-
-    await waitFor(() => {
-      expect(screen.getByTestId("sidebar-group-toggle-operate-analysis")).toBeInTheDocument();
-      expect(screen.getByTestId("sidebar-group-toggle-operate-governance")).toBeInTheDocument();
-    });
-
-    expect(screen.queryByRole("navigation", { name: "Governance" })).toBeNull();
+    expect(screen.queryByTestId("operate-features-unlock-panel")).toBeNull();
+    expect(screen.getByTestId("sidebar-group-toggle-operate-analysis")).toBeInTheDocument();
+    expect(screen.getByTestId("sidebar-group-toggle-operate-governance")).toBeInTheDocument();
   });
 });

@@ -12,6 +12,7 @@ import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
 import { isCtoDemoNavExpandedEnv } from "@/lib/cto-demo-presenter-pack";
 import {
+  GOVERNANCE_APPROVAL_QUEUE_PATH,
   GOVERNANCE_AUDIT_PATH,
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
   LEGACY_GOVERNANCE_RESOLUTION_PATH,
@@ -56,7 +57,7 @@ const DEMO_MODE_OMIT_OPERATOR_HREFS = new Set<string>([
   "/alert-rules",
   "/policy-packs",
   LEGACY_GOVERNANCE_RESOLUTION_PATH,
-  "/governance",
+  GOVERNANCE_APPROVAL_QUEUE_PATH,
   "/governance/setup",
   "/audit",
   "/administration/connection-status",
@@ -104,7 +105,7 @@ function omitThinRoutesInPublicDemoMode(links: NavLinkItem[]): NavLinkItem[] {
   return links.filter((l) => {
     if (
       keepExpandedDemoSpine
-      && (l.href === "/insights/evidence-graph" || l.href === "/governance" || l.href === GOVERNANCE_AUDIT_PATH)
+      && (l.href === "/insights/evidence-graph" || l.href === GOVERNANCE_APPROVAL_QUEUE_PATH || l.href === GOVERNANCE_AUDIT_PATH)
     ) {
       return true;
     }
@@ -144,13 +145,10 @@ export type NavGroupWithVisibleLinks = {
  *
  * ## Composition order (do not reorder)
  *
- * Within each **`NAV_GROUPS`** block from **`nav-config.ts`**: **tier** (`nav-tier.ts`) runs first (**progressive disclosure**
- * — Core Pilot first; Advanced after “Show more”; deeper Enterprise after extended/advanced toggles). **Authority**
- * (`filterNavLinksByAuthority` in **`nav-authority.ts`**) runs second so link visibility matches policy **names** aligned
- * with **`ArchLucid.Api`**, not a parallel matrix. **Rank never substitutes extended/advanced disclosure:** an
- * **Execute+** caller still sees only **essential**-tier Enterprise links until the user opts into extended/advanced
- * (`nav-tier.ts` gates apply before authority). **Packaging map:** **docs/PRODUCT_PACKAGING.md** §3 *Code seams* table
- * (**`NAV_GROUPS[].id`** → layer); this module owns only the **composition** step (**tier → authority →** drop empty groups).
+ * Within each **`NAV_GROUPS`** block from **`nav-config.ts`**: **Authority** (`filterNavLinksByAuthority`) is the
+ * visibility gate (owner 2026-08-03 — progressive **tier** / operate-unlock / pre-commit spine retired for sidebar
+ * shaping). Demo/buyer packaging omissions and system-admin feature flags still apply. **Packaging map:**
+ * **docs/PRODUCT_PACKAGING.md** §3 *Code seams* table (**`NAV_GROUPS[].id`** → layer).
  *
  * Pass **`useNavCallerAuthorityRank()`** (or **`CurrentPrincipal.authorityRank`**) and **`useNavCommittedArchitectureReview()`**
  * so filtering matches **`OperatorNavAuthorityProvider`**. Call sites must **omit empty groups** when iterating **`listNavGroupsVisibleInOperatorShell`**
@@ -183,26 +181,24 @@ export function filterNavLinksForOperatorShell(
   showExtended: boolean,
   showAdvanced: boolean,
   callerAuthorityRank: number,
-  /** Pilot default sidebar: fewer links until the user expands “Show all features” (**localStorage** `archlucid-nav-expanded`). */
-  applyCollapsedSidebarPilotFilter = false,
+  /** @deprecated Collapsed-pilot link filtering retired — argument ignored (owner 2026-08-03). */
+  _applyCollapsedSidebarPilotFilter = false,
   hasCommittedArchitectureReview = true,
 ): NavLinkItem[] {
+  // Tier / pre-commit / collapsed-pilot disclosure retired: role (authority) is the visibility gate.
   const promoted = applyCommittedArchitectureReviewNavPromotions(links, hasCommittedArchitectureReview);
   const gated = filterNavLinksByCommittedArchitectureReviewGate(promoted, hasCommittedArchitectureReview);
 
-  let tiered: NavLinkItem[] = filterNavLinksByAuthority(
+  let visible: NavLinkItem[] = filterNavLinksByAuthority(
     filterNavLinksByTier(gated, showExtended, showAdvanced),
     callerAuthorityRank,
   );
 
-  tiered = omitThinRoutesInPublicDemoMode(tiered);
-  tiered = omitBuyerPolishedShellNonGoldenNavLinks(tiered);
-  tiered = omitApiKeysSettingsWhenSurfaceDisabled(tiered);
+  visible = omitThinRoutesInPublicDemoMode(visible);
+  visible = omitBuyerPolishedShellNonGoldenNavLinks(visible);
+  visible = omitApiKeysSettingsWhenSurfaceDisabled(visible);
 
-  if (!applyCollapsedSidebarPilotFilter)
-    return tiered;
-
-  return tiered.filter((l) => l.defaultVisibleInCollapsedSidebar === true);
+  return visible;
 }
 
 /**
@@ -222,9 +218,7 @@ export function listNavGroupsVisibleInOperatorShell(
   const out: NavGroupWithVisibleLinks[] = [];
 
   for (const group of groups) {
-    if (operateNavUnlockPhase === 0 && isOperateNavGroupId(group.id)) {
-      continue;
-    }
+    // Operate unlock phase no longer hides whole groups — authority filters per link below.
 
     if (group.surface === "system-admin") {
       if (!isShowSystemAdministrationNavEnabled()) {
@@ -240,20 +234,18 @@ export function listNavGroupsVisibleInOperatorShell(
       continue;
     }
 
-    const useCollapsedPilot =
-      applyCollapsedSidebarPilotFilter && group.surface === "review-workflow";
-
     const shellLinks = filterNavLinksByPublishReadiness(
       filterNavLinksForOperatorShell(
         group.links,
         showExtended,
         showAdvanced,
         callerAuthorityRank,
-        useCollapsedPilot,
+        applyCollapsedSidebarPilotFilter,
         hasCommittedArchitectureReview,
       ),
     );
 
+    // Keep call for API compat; filter is a no-op (authority-only visibility).
     const visibleLinks = isOperateNavGroupId(group.id)
       ? filterNavLinksByOperateUnlockPhase(
           shellLinks,

@@ -14,7 +14,10 @@ export type NavLinkItem = {
   href: string;
   label: string;
   title: string;
-  /** Progressive disclosure: essential always; extended after “Show more”; advanced after gear toggle. */
+  /**
+   * Legacy progressive-disclosure tag (essential / extended / advanced).
+   * **Not used for sidebar visibility** (owner 2026-08-03) — authority/`requiredAuthority` gates the shell.
+   */
   tier: NavTier;
   /** When sidebar is in default collapsed pilot mode (“fewer sidebar links”), only links with **true** here stay visible before “Show all features”. Omit = hidden when collapsed (after tier ∩ authority). See **docs/library/PRODUCT_PACKAGING.md** §3 Improvement 7. */
   defaultVisibleInCollapsedSidebar?: boolean;

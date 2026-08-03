@@ -39,7 +39,7 @@ describe("authority seam regression", () => {
     // GovernanceController's class-level [Authorize(ReadAuthority)] default; approve/reject/promote/activate stay
     // Execute-gated via canMutateWorkflow inside GovernanceWorkflowPageContent, not the nav link itself.
     expect(hrefsRead.has("/governance/alerts")).toBe(true);
-    expect(hrefsRead.has("/governance")).toBe(true);
+    expect(hrefsRead.has("/governance/approval-queue")).toBe(true);
   });
 
   /**
@@ -132,8 +132,8 @@ describe("authority seam regression", () => {
     const hrefs = new Set(visible.map((l) => l.href));
 
     expect(hrefs.has(EXECUTIVE_DASHBOARD_HREF)).toBe(true);
-    expect(hrefs.has("/architectures")).toBe(true);
-    expect(hrefs.has("/reviews?projectId=default")).toBe(true);
+    expect(hrefs.has("/architecture/architectures")).toBe(true);
+    expect(hrefs.has("/architecture/reviews?projectId=default")).toBe(true);
   });
 
   /**
@@ -162,7 +162,7 @@ describe("authority seam regression", () => {
    * Findings lives in the Governance group at extended tier. System health stays under **`operator-admin`**
    * (`platform-admin` surface).
    */
-  it("Reader default shell lists Pilot and omits operate-governance until advanced disclosure is enabled", () => {
+  it("Reader default shell lists Pilot and operate-governance (tier/unlock retired — authority-only)", () => {
     const rows = listNavGroupsVisibleInOperatorShell(
       NAV_GROUPS,
       false,
@@ -176,23 +176,19 @@ describe("authority seam regression", () => {
     const ids = rows.map((r) => r.group.id);
 
     expect(ids).toContain("pilot");
-    expect(ids).not.toContain("operate-governance");
+    expect(ids).toContain("operate-governance");
   });
 
-  /**
-   * Findings link lives in the Governance group at extended tier so it appears after "Show more".
-   * Confirm it is visible for a Reader with extended links enabled.
-   */
-  it("Reader with extended links sees Findings in the Governance group after Operate unlock", () => {
+  it("Reader sees Findings in the Governance group without disclosure toggles", () => {
     const rows = listNavGroupsVisibleInOperatorShell(
       NAV_GROUPS,
-      true,
+      false,
       false,
       AUTHORITY_RANK.ReadAuthority,
       false,
       "all",
       true,
-      2, // Phase 2 required for extended governance links (findings, policy packs, risk exceptions)
+      0,
     );
 
     const governance = rows.find((r) => r.group.id === "operate-governance");
@@ -252,21 +248,17 @@ describe("authority seam regression", () => {
    * feature) stay visible before "Show more", while deeper links (Compare, Impact preview, Advisory) stay behind
    * extended/advanced. Regression: moving these off essential or mis-tiering would change first-pilot noise.
    */
-  it("keeps Operate analysis to Evidence graph, Ask, and Search in the default Reader shell (tier gates before authority)", () => {
+  it("keeps full Operate analysis link set when disclosure flags are off (tiering retired)", () => {
     const analysis = NAV_GROUPS.find((g) => g.id === "operate-analysis");
 
     expect(analysis, "Operate analysis group should remain configured").toBeDefined();
 
     const tierVisible = filterNavLinksByTier(analysis!.links, false, false);
 
-    expect(tierVisible.map((l) => l.href)).toEqual(["/insights/evidence-graph", "/insights/ask-review-questions", "/insights/search-review-evidence"]);
+    expect(tierVisible.map((l) => l.href)).toEqual(analysis!.links.map((l) => l.href));
   });
 
-  /**
-   * Operator path: Execute rank exposes governance workflow hubs only behind the advanced-tier progressive disclosure gate.
-   * Extended tiers are independent (`nav-tier.ts` before authority).
-   */
-  it("surfaces governance workflow in Operate governance strip only when advanced disclosure is on for Execute rank", () => {
+  it("surfaces governance workflow for Execute rank without advanced disclosure", () => {
     expect(enterpriseLinks).toBeDefined();
 
     const gatedOff = filterNavLinksForOperatorShell(
@@ -278,7 +270,7 @@ describe("authority seam regression", () => {
       true,
     );
 
-    expect(gatedOff.some((l) => l.href === "/governance")).toBe(false);
+    expect(gatedOff.some((l) => l.href === "/governance/approval-queue")).toBe(true);
 
     const gatedAdvancedOnly = filterNavLinksForOperatorShell(
       enterpriseLinks!,
@@ -289,7 +281,7 @@ describe("authority seam regression", () => {
       true,
     );
 
-    expect(gatedAdvancedOnly.some((l) => l.href === "/governance")).toBe(true);
+    expect(gatedAdvancedOnly.some((l) => l.href === "/governance/approval-queue")).toBe(true);
 
     const gatedExtendedAndAdvanced = filterNavLinksForOperatorShell(
       enterpriseLinks!,
@@ -300,7 +292,7 @@ describe("authority seam regression", () => {
       true,
     );
 
-    expect(gatedExtendedAndAdvanced.some((l) => l.href === "/governance")).toBe(true);
+    expect(gatedExtendedAndAdvanced.some((l) => l.href === "/governance/approval-queue")).toBe(true);
   });
 
   /**

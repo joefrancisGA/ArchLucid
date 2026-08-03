@@ -1,11 +1,11 @@
-import { GOVERNANCE_STANDARDS_AND_RULES_PATH } from "@/lib/governance-route-paths";
 import {
   trackUnlockPhaseChanged,
   type OperateNavUnlockPhaseChangeReason,
 } from "@/lib/operator-navigation-telemetry";
 
 /**
- * Progressive Operate nav unlock: pilot-only (0) → analysis (1) → governance (2).
+ * Progressive Operate nav unlock phase (persisted for telemetry / legacy callers).
+ * **Sidebar visibility no longer uses this** (owner 2026-08-03) — role/authority only.
  */
 
 export type OperateNavUnlockPhase = 0 | 1 | 2;
@@ -34,27 +34,6 @@ const LEGACY_SIDEBAR_PREFERENCE_KEYS = [
   "archlucid-nav-expanded",
   "archlucid-nav-collapsed-pilot-expanded",
 ] as const;
-
-/** Extended governance hrefs hidden until phase 2; workflow + audit trail unlock at phase 1 (TB-517). */
-const GOVERNANCE_EXTENDED_PHASE_HREFS = new Set<string>([
-  "/governance/findings",
-  "/governance/risk-exceptions",
-  "/governance/policy-packs",
-  GOVERNANCE_STANDARDS_AND_RULES_PATH,
-  "/governance/decision-register",
-  "/governance/alerts",
-  "/alerts",
-  "/policy-packs",
-]);
-
-/** Duplicate/near-duplicate routes hidden from primary nav (deep links still work). */
-const NAV_CONSOLIDATED_OMIT_HREFS = new Set<string>([
-  "/governance/dashboard",
-  "/sponsor-report/pilot-outcomes",
-  "/sponsor-report/roi-summary",
-  "/digests",
-  "/digest-subscriptions",
-]);
 
 export function isOperateNavGroupId(groupId: string): boolean {
   return OPERATE_NAV_GROUP_IDS.has(groupId);
@@ -193,20 +172,14 @@ export function advanceOperateNavUnlockToGovernance(
   writeOperateNavUnlockPhase(2, reason);
 }
 
+/**
+ * Previously hid Operate groups until unlock phase 1/2 and omitted consolidated hrefs.
+ * **Retired for visibility (owner 2026-08-03):** returns all links; sidebar shaping is authority-only.
+ */
 export function filterNavLinksByOperateUnlockPhase<T extends { href: string }>(
   links: readonly T[],
   _hasCommittedArchitectureReview: boolean,
-  unlockPhase: OperateNavUnlockPhase,
+  _unlockPhase: OperateNavUnlockPhase,
 ): T[] {
-  if (unlockPhase === 0) {
-    return [];
-  }
-
-  const filtered = links.filter((link) => !NAV_CONSOLIDATED_OMIT_HREFS.has(link.href.split("?")[0] ?? ""));
-
-  if (unlockPhase >= 2) {
-    return filtered;
-  }
-
-  return filtered.filter((link) => !GOVERNANCE_EXTENDED_PHASE_HREFS.has(link.href.split("?")[0] ?? ""));
+  return [...links];
 }

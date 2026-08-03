@@ -1,32 +1,21 @@
 /**
- * Progressive disclosure tier for operator shell navigation (sidebar + mobile drawer).
+ * Progressive disclosure tier metadata on nav links.
  *
- * **Product packaging:** tiers express **how much surface** to show within a nav group before the user opts in—aligned
- * with **Core Pilot** (essential-first), then **Advanced Analysis** / **Enterprise Controls** extended and advanced
- * links (`docs/PRODUCT_PACKAGING.md` §2 UI progressive disclosure). Composed **after** group membership and **before**
- * authority filtering in `filterNavLinksForOperatorShell` (`nav-shell-visibility.ts`).
- *
- * Composed with optional `requiredAuthority` on `NavLinkItem` (`nav-config` + `nav-authority`).
+ * **Retired for visibility (owner 2026-08-03):** `filterNavLinksByTier` no longer hides links.
+ * Operator shell visibility is **role/authority only** (`filterNavLinksByAuthority` in
+ * `nav-shell-visibility.ts`). The `tier` field remains on `NavLinkItem` for packaging docs and
+ * legacy localStorage keys; it is not used to omit sidebar rows.
  */
 export type NavTier = "essential" | "extended" | "advanced";
 
 /**
- * Returns links visible for the current disclosure flags. Extended requires essential; advanced requires extended.
+ * Previously filtered by progressive-disclosure flags. Always returns every link so callers that
+ * still pass `showExtended` / `showAdvanced` keep compiling without shaping the sidebar.
  */
 export function filterNavLinksByTier<T extends { tier: NavTier }>(
   links: ReadonlyArray<T>,
-  showExtended: boolean,
-  showAdvanced: boolean,
+  _showExtended: boolean,
+  _showAdvanced: boolean,
 ): T[] {
-  return links.filter((link) => {
-    if (link.tier === "essential") {
-      return true;
-    }
-
-    if (link.tier === "extended") {
-      return showExtended;
-    }
-
-    return showAdvanced;
-  });
+  return [...links];
 }

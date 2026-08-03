@@ -17,7 +17,7 @@ import {
 describe("filterNavLinksForOperatorShell", () => {
   const enterprise = NAV_GROUPS.find((g) => g.id === "operate-governance");
 
-  it("omits operate-governance links for Reader when extended and advanced tiers are both off", () => {
+  it("shows ReadAuthority governance links for Reader when disclosure flags are off (tiering retired)", () => {
     expect(enterprise).toBeDefined();
 
     const visible = filterNavLinksForOperatorShell(
@@ -29,16 +29,14 @@ describe("filterNavLinksForOperatorShell", () => {
       true,
     );
 
-    expect(visible.some((l) => l.href === "/governance/alerts")).toBe(false);
-    expect(visible.some((l) => l.href === "/governance/policy-packs")).toBe(false);
-    expect(visible).toHaveLength(0);
+    expect(visible.some((l) => l.href === "/governance/alerts")).toBe(true);
+    expect(visible.some((l) => l.href === "/governance/policy-packs")).toBe(true);
+    expect(visible.some((l) => l.href === "/governance/findings")).toBe(true);
+    expect(visible.some((l) => l.href === "/governance/approval-queue")).toBe(true);
+    expect(visible.length).toBeGreaterThan(0);
   });
 
-  /**
-   * Default shell (no extended / no advanced): the Governance group has no visible links at Read rank, so the cluster
-   * is omitted from `listNavGroupsVisibleInOperatorShell` (progressive disclosure for pilot / new operators).
-   */
-  it("exposes read-tier extended Enterprise links for Reader when extended disclosure is on without advanced", () => {
+  it("keeps the same Reader governance set when extended disclosure is on (tiering retired)", () => {
     expect(enterprise).toBeDefined();
 
     const visible = filterNavLinksForOperatorShell(
@@ -51,13 +49,13 @@ describe("filterNavLinksForOperatorShell", () => {
     );
 
     expect(visible.some((l) => l.href === "/governance/policy-packs")).toBe(true);
-    expect(visible.some((l) => l.href === "/governance/alerts")).toBe(false);
-    expect(visible.some((l) => l.href === "/governance/audit")).toBe(false);
+    expect(visible.some((l) => l.href === "/governance/alerts")).toBe(true);
+    expect(visible.some((l) => l.href === "/governance/audit")).toBe(true);
     expect(visible.some((l) => l.href === "/governance/findings")).toBe(true);
-    expect(visible.some((l) => l.href === "/governance")).toBe(false);
+    expect(visible.some((l) => l.href === "/governance/approval-queue")).toBe(true);
   });
 
-  it("exposes Alerts, Audit, and the approval queue for Reader when advanced disclosure is on even if extended is off", () => {
+  it("keeps Alerts, Audit, approval queue, and policy packs for Reader when only advanced flag is on", () => {
     expect(enterprise).toBeDefined();
 
     const visible = filterNavLinksForOperatorShell(
@@ -69,12 +67,10 @@ describe("filterNavLinksForOperatorShell", () => {
       true,
     );
 
-    // Approval-queue (/governance) browsing moved to ReadAuthority — it's visible here alongside Alerts/Audit once
-    // the "advanced" tier is on; approve/reject/promote/activate stay Execute-gated inside the page itself.
     expect(visible.some((l) => l.href === "/governance/alerts")).toBe(true);
     expect(visible.some((l) => l.href === "/governance/audit")).toBe(true);
-    expect(visible.some((l) => l.href === "/governance")).toBe(true);
-    expect(visible.some((l) => l.href === "/governance/policy-packs")).toBe(false);
+    expect(visible.some((l) => l.href === "/governance/approval-queue")).toBe(true);
+    expect(visible.some((l) => l.href === "/governance/policy-packs")).toBe(true);
   });
 
   it("shows policy packs for Admin rank when extended links are enabled", () => {
@@ -108,48 +104,25 @@ describe("filterNavLinksForOperatorShell", () => {
       true,
     );
 
-    expect(visible.some((l) => l.href === "/governance")).toBe(true);
+    expect(visible.some((l) => l.href === "/governance/approval-queue")).toBe(true);
     expect(visible.some((l) => l.href === "/governance/findings")).toBe(true);
   });
 
-  /**
-   * Tier runs before authority (`nav-shell-visibility`): higher rank must not “punch through” extended disclosure.
-   * Regression: reordering filters or mis-stating tiers would expose `/policy-packs` without extended disclosure.
-   */
-  it("keeps extended-tier Enterprise links hidden when showExtended is off even for Execute rank and advanced on", () => {
+  it("shows extended and advanced governance links when disclosure flags are off (tiering retired)", () => {
     expect(enterprise).toBeDefined();
 
     const visible = filterNavLinksForOperatorShell(
       enterprise!.links,
       false,
-      true,
+      false,
       AUTHORITY_RANK.ExecuteAuthority,
       false,
       true,
     );
 
-    expect(visible.some((l) => l.href === "/governance/policy-packs")).toBe(false);
-    expect(visible.some((l) => l.href === "/governance")).toBe(true);
+    expect(visible.some((l) => l.href === "/governance/policy-packs")).toBe(true);
+    expect(visible.some((l) => l.href === "/governance/approval-queue")).toBe(true);
     expect(visible.some((l) => l.href === "/governance/alerts")).toBe(true);
-  });
-
-  /**
-   * Default shell (no extended, no advanced): Execute-ranked operators see no Operate governance links until advanced
-   * operations are enabled — same progressive disclosure as Reader (tier before authority).
-   */
-  it("omits Operate governance links for Execute rank when extended and advanced are off", () => {
-    expect(enterprise).toBeDefined();
-
-    const visible = filterNavLinksForOperatorShell(
-      enterprise!.links,
-      false,
-      false,
-      AUTHORITY_RANK.ExecuteAuthority,
-      false,
-      true,
-    );
-
-    expect(visible).toEqual([]);
   });
 
   it("shows system health in System Administration for Admin rank when advanced and extended disclosure are on", () => {
@@ -170,11 +143,7 @@ describe("filterNavLinksForOperatorShell", () => {
     expect(visible.some((l) => l.href === "/admin/configuration")).toBe(true);
   });
 
-  /**
-   * Same tier gate as Enterprise extended links: `/replay` is **extended** + **ExecuteAuthority** — Admin rank must
-   * not surface it until **Show analysis & investigation tools** (`nav-tier` before `nav-authority`).
-   */
-  it("hides System Administration extended Execute link (/replay) until showExtended even for Admin rank", () => {
+  it("shows System Administration Execute link (/replay) for Admin even when showExtended is off", () => {
     const systemAdmin = NAV_GROUPS.find((g) => g.id === "operator-system-admin");
 
     expect(systemAdmin).toBeDefined();
@@ -188,7 +157,7 @@ describe("filterNavLinksForOperatorShell", () => {
       true,
     );
 
-    expect(extendedOff.some((l) => l.href === "/replay")).toBe(false);
+    expect(extendedOff.some((l) => l.href === "/replay")).toBe(true);
 
     const extendedOn = filterNavLinksForOperatorShell(
       systemAdmin!.links,
@@ -238,7 +207,7 @@ describe("listNavGroupsVisibleInOperatorShell", () => {
     }
   });
 
-  it("omits a group when tier filtering removes every link", () => {
+  it("keeps extended-only groups when disclosure flags are off (tiering retired)", () => {
     const rowsOff = listNavGroupsVisibleInOperatorShell(
       syntheticExtendedOnly,
       false,
@@ -249,24 +218,12 @@ describe("listNavGroupsVisibleInOperatorShell", () => {
       true,
     );
 
-    expect(rowsOff).toEqual([]);
-
-    const rowsOn = listNavGroupsVisibleInOperatorShell(
-      syntheticExtendedOnly,
-      true,
-      false,
-      AUTHORITY_RANK.ReadAuthority,
-      false,
-      "all",
-      true,
-    );
-
-    expect(rowsOn).toHaveLength(1);
-    expect(rowsOn[0]!.group.id).toBe("synthetic-extended-only");
-    expect(rowsOn[0]!.visibleLinks.some((l) => l.href === "/synthetic-extended")).toBe(true);
+    expect(rowsOff).toHaveLength(1);
+    expect(rowsOff[0]!.group.id).toBe("synthetic-extended-only");
+    expect(rowsOff[0]!.visibleLinks.some((l) => l.href === "/synthetic-extended")).toBe(true);
   });
 
-  // Complements the tier-only empty-group case: authority can zero a group even when tiers would allow the hrefs.
+  // Authority can still zero a group when every link requires a higher rank.
   it("omits a group when authority filtering removes every link (Execute-only group, Read caller)", () => {
     const executeOnlyGroup: NavGroupConfig[] = [
       {
@@ -349,7 +306,7 @@ describe("countLinksHiddenByProgressiveDisclosure", () => {
     expect(n).toBe(0);
   });
 
-  it("is positive when extended links are off but exist at full disclosure", () => {
+  it("is zero when disclosure flags are off (tiering retired)", () => {
     const enterprise = NAV_GROUPS.find((g) => g.id === "operate-governance") as NavGroupConfig;
 
     const n = countLinksHiddenByProgressiveDisclosure(
@@ -359,28 +316,12 @@ describe("countLinksHiddenByProgressiveDisclosure", () => {
       AUTHORITY_RANK.ReadAuthority,
       true,
     );
-    expect(n).toBeGreaterThan(0);
+    expect(n).toBe(0);
   });
 });
 
 describe("collapsed pilot sidebar filter", () => {
-  it("shows at most eight visible links for default Reader shell when collapsed filter is applied", () => {
-    const rows = listNavGroupsVisibleInOperatorShell(
-      NAV_GROUPS,
-      false,
-      false,
-      AUTHORITY_RANK.ReadAuthority,
-      true,
-      "all",
-      true,
-    );
-    const count = rows.reduce((sum, row) => sum + row.visibleLinks.length, 0);
-
-    expect(count).toBeGreaterThan(0);
-    expect(count).toBeLessThanOrEqual(8);
-  });
-
-  it("exposes more links when collapsed filter is off at the same tier and rank", () => {
+  it("ignores collapsed-pilot filter (retired with tiering)", () => {
     const collapsed = listNavGroupsVisibleInOperatorShell(
       NAV_GROUPS,
       false,
@@ -399,34 +340,17 @@ describe("collapsed pilot sidebar filter", () => {
       "all",
       true,
     );
-    let c = 0;
-    let f = 0;
+    const collapsedCount = collapsed.reduce((sum, row) => sum + row.visibleLinks.length, 0);
+    const fullCount = full.reduce((sum, row) => sum + row.visibleLinks.length, 0);
 
-    for (const row of collapsed) {
-      c += row.visibleLinks.length;
-    }
-
-    for (const row of full) {
-      f += row.visibleLinks.length;
-    }
-
-    expect(f).toBeGreaterThanOrEqual(c);
-    expect(countSidebarLinksHiddenByCollapsedPilot(NAV_GROUPS, false, false, AUTHORITY_RANK.ReadAuthority, true)).toBe(
-      f - c,
-    );
+    expect(collapsedCount).toBe(fullCount);
+    expect(collapsedCount).toBeGreaterThan(0);
+    expect(countSidebarLinksHiddenByCollapsedPilot(NAV_GROUPS, false, false, AUTHORITY_RANK.ReadAuthority, true)).toBe(0);
   });
 });
 
 describe("countSidebarLinksRevealedByShowAllFeatures", () => {
-  it("matches collapsed-pilot delta without navigation presets", () => {
-    const collapsedOnly = countSidebarLinksHiddenByCollapsedPilot(
-      NAV_GROUPS,
-      false,
-      false,
-      AUTHORITY_RANK.ReadAuthority,
-      true,
-      1,
-    );
+  it("reports zero when collapsed-pilot filtering is retired", () => {
     const revealed = countSidebarLinksRevealedByShowAllFeatures(
       NAV_GROUPS,
       false,
@@ -436,8 +360,7 @@ describe("countSidebarLinksRevealedByShowAllFeatures", () => {
       1,
     );
 
-    expect(revealed).toBe(collapsedOnly);
-    expect(revealed).toBeGreaterThan(0);
+    expect(revealed).toBe(0);
   });
 });
 
@@ -682,7 +605,7 @@ describe("listNavGroupsVisibleInOperatorShell — system-admin surface", () => {
 });
 
 describe("committed architecture review gate — operator shell composition", () => {
-  it("narrows to Architecture reviews essentials until first committed review even at Admin + full tier disclosure", () => {
+  it("keeps Operate groups before first committed review (gate retired — authority-only)", () => {
     const rows = listNavGroupsVisibleInOperatorShell(
       NAV_GROUPS,
       true,
@@ -692,19 +615,12 @@ describe("committed architecture review gate — operator shell composition", ()
       "all",
       false,
     );
+    const ids = rows.map((r) => r.group.id);
 
-    expect(rows.map((r) => r.group.id)).toEqual(["pilot", "operator-admin"]);
-    expect(rows[0]!.visibleLinks.map((l) => l.href)).toEqual([
-      "/",
-      "/architectures",
-      "/reviews?projectId=default",
-      EXECUTIVE_DASHBOARD_HREF,
-      "/architecture/first-review-guide",
-    ]);
-    expect(rows[1]!.visibleLinks.map((l) => l.href)).toEqual([
-      "/administration/settings/tenant",
-      "/administration/settings/tenant/recycle-bin",
-    ]);
+    expect(ids).toContain("pilot");
+    expect(ids).toContain("operate-analysis");
+    expect(ids).toContain("operate-governance");
+    expect(ids).toContain("operator-admin");
   });
 });
 

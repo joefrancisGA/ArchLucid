@@ -25,12 +25,14 @@ describe("operate-nav-progressive-unlock", () => {
     expect(isOperateNavGroupId("operator-admin")).toBe(false);
   });
 
-  it("hides all Operate links at phase 0", () => {
+  it("does not hide Operate links by unlock phase (visibility is authority-only)", () => {
     const links = [{ href: "/insights/compare-two-reviews" }, { href: "/audit" }];
-    expect(filterNavLinksByOperateUnlockPhase(links, false, 0)).toEqual([]);
+
+    expect(filterNavLinksByOperateUnlockPhase(links, false, 0)).toEqual(links);
+    expect(filterNavLinksByOperateUnlockPhase(links, true, 2)).toEqual(links);
   });
 
-  it("omits Operate groups from the operator shell at phase 0", () => {
+  it("keeps Operate groups in the operator shell at phase 0 when authority allows", () => {
     const rows = listNavGroupsVisibleInOperatorShell(
       NAV_GROUPS,
       true,
@@ -44,15 +46,14 @@ describe("operate-nav-progressive-unlock", () => {
     const ids = rows.map((row) => row.group.id);
 
     expect(ids).toContain("pilot");
-    expect(ids).not.toContain("operate-analysis");
-    expect(ids).not.toContain("operate-architect-advanced");
-    expect(ids).not.toContain("operate-governance");
-    expect(ids).not.toContain("operate-reports");
-    expect(ids).not.toContain("operate-integrations");
+    expect(ids).toContain("operate-analysis");
+    expect(ids).toContain("operate-governance");
+    expect(ids).toContain("operate-reports");
+    expect(ids).toContain("operate-integrations");
     expect(ids).toContain("operator-admin");
   });
 
-  it("shows governance workflow and audit at phase 1 but keeps extended governance until phase 2", () => {
+  it("shows extended governance hrefs regardless of unlock phase when authority allows", () => {
     const rows = listNavGroupsVisibleInOperatorShell(
       NAV_GROUPS,
       true,
@@ -63,22 +64,17 @@ describe("operate-nav-progressive-unlock", () => {
       true,
       1,
     );
-    const ids = rows.map((row) => row.group.id);
-
-    expect(ids).toContain("operate-analysis");
-    expect(ids).toContain("operate-governance");
-
     const governance = rows.find((row) => row.group.id === "operate-governance");
     const hrefs = governance?.visibleLinks.map((link) => link.href) ?? [];
 
-    expect(hrefs).toContain("/governance");
+    expect(hrefs).toContain("/governance/approval-queue");
     expect(hrefs).toContain("/governance/audit");
-    expect(hrefs).not.toContain("/governance/findings");
-    expect(hrefs).not.toContain("/governance/policy-packs");
-    expect(hrefs).not.toContain("/governance/risk-exceptions");
+    expect(hrefs).toContain("/governance/findings");
+    expect(hrefs).toContain("/governance/policy-packs");
+    expect(hrefs).toContain("/governance/risk-exceptions");
   });
 
-  it("pilot-nav E2E: phase 2 with extended disclosure only hides advanced-tier approval queue", () => {
+  it("shows advanced-tier approval queue without showAdvanced when authority allows", () => {
     const rows = listNavGroupsVisibleInOperatorShell(
       NAV_GROUPS,
       true,
@@ -93,7 +89,7 @@ describe("operate-nav-progressive-unlock", () => {
     const hrefs = governance?.visibleLinks.map((link) => link.href) ?? [];
 
     expect(hrefs).toContain("/governance/findings");
-    expect(hrefs).not.toContain("/governance");
+    expect(hrefs).toContain("/governance/approval-queue");
   });
 
   it("defaults stored phase to 0 for new users", () => {
@@ -119,10 +115,13 @@ describe("operate-nav-progressive-unlock", () => {
     expect(shouldShowOperateNavAutoUnlockHint()).toBe(false);
   });
 
-  it("clears pending auto-unlock hint on manual unlock", () => {
+  it("clearOperateNavAutoUnlockHintPending allows a later hint", () => {
     localStorage.clear();
     markOperateNavAutoUnlockHintPending();
+    dismissOperateNavAutoUnlockHint();
     clearOperateNavAutoUnlockHintPending();
-    expect(shouldShowOperateNavAutoUnlockHint()).toBe(false);
+    localStorage.removeItem("archlucid.operateNavAutoUnlockHintDismissed.v1");
+    markOperateNavAutoUnlockHintPending();
+    expect(shouldShowOperateNavAutoUnlockHint()).toBe(true);
   });
 });

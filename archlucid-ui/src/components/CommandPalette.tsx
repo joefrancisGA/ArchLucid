@@ -23,7 +23,6 @@ import {
 } from "@/lib/keyboard-shortcut-display";
 import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { useOperatorShellAuditRunId } from "@/hooks/useOperatorShellAuditRunId";
-import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
 import { auditTrailNavHref, isAuditNavPath } from "@/lib/audit-nav-paths";
 import { scopeOperatorShellHrefSet, scopeOperatorShellNavRows } from "@/lib/nav-audit-run-scope";
 import { BUYER_COMMAND_PALETTE_CURATED_TASKS } from "@/lib/command-palette-buyer-curated-tasks";
@@ -31,7 +30,6 @@ import { COMMAND_PALETTE_ACTIONS } from "@/lib/command-palette-actions";
 import { COMMAND_PALETTE_CURATED_TASKS } from "@/lib/command-palette-curated-tasks";
 import { DOCUMENTATION_SEARCH_ITEMS, resolveDocumentationHref } from "@/lib/docs-search-index";
 import { NAV_GROUPS } from "@/lib/nav-config";
-import { effectiveNavDisclosureForPathname } from "@/lib/nav-disclosure-for-path";
 import { isExecutiveDashboardPath } from "@/lib/executive-dashboard-route";
 import { resetBuyerCtoDemoSession } from "@/lib/buyer-cto-demo-orchestration";
 import {
@@ -49,7 +47,6 @@ import { applyPatternLibraryHrefSetGate, applyPatternLibraryNavGate } from "@/li
 import { useOperateNavUnlockPhase } from "@/hooks/useOperateNavUnlockPhase";
 import { usePatternLibraryNavVisible } from "@/hooks/use-pattern-library-nav-visible";
 import { resolveOperateNavUnlockPhase } from "@/lib/usability/operate-advanced-features-disclosure";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { CommandPaletteRecentViewsGroup } from "@/components/usability/CommandPaletteRecentViewsGroup";
 import { stampRouteReferrer } from "@/lib/operator-navigation-referrer";
 import { OPEN_COMMAND_PALETTE_EVENT, SHORTCUTS } from "@/lib/shortcut-registry";
@@ -81,9 +78,9 @@ function buyerPolishedCommandPaletteLabel(pathname: string): string {
   }
 
   const reviewPackageSubtree =
-    /^\/reviews\/[^/]+(?:\/|$)/u.test(path) ||
+    /^\/architecture\/reviews\/[^/]+(?:\/|$)/u.test(path) ||
     /^\/signed-records\/[^/]/u.test(path) ||
-    /^\/reviews\/[^/]+\/architecture/u.test(path) ||
+    /^\/architecture\/reviews\/[^/]+\/architecture/u.test(path) ||
     /^\/executive\/reviews\/[^/]/u.test(path);
 
   if (reviewPackageSubtree) {
@@ -412,7 +409,7 @@ function RunIdQuickOpen({
       <CommandItem
         value={`open-review-${trimmed}`}
         onSelect={() => {
-          onNavigate(`/reviews/${trimmed}`);
+          onNavigate(`/architecture/reviews/${trimmed}`);
         }}
       >
         Open linked review
@@ -436,23 +433,16 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
   const router = useRouter();
   const pathname = usePathname();
   const auditRunId = useOperatorShellAuditRunId();
-  const { showExtended, showAdvanced } = useNavProgressiveDisclosure();
+  // Tier disclosure retired: palette lists every authority-eligible href (same as sidebar).
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
-  const { showExtended: shellShowExtended, showAdvanced: shellShowAdvanced } = effectiveNavDisclosureForPathname(
-    pathname,
-    showExtended,
-    showAdvanced,
-  );
-  const demoUi = isStaticDemoPayloadFallbackEnabled();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const paletteExtended = buyerPolishedShell ? false : demoUi ? true : shellShowExtended;
-  const paletteAdvanced = buyerPolishedShell ? false : demoUi ? true : shellShowAdvanced;
+  const paletteExtended = true;
+  const paletteAdvanced = true;
   const { effectiveOperateUnlockPhase } = useOperateNavUnlockPhase();
-  const operatorAdvancedModeOn = showExtended && showAdvanced;
   const operateNavUnlockPhase = resolveOperateNavUnlockPhase(
     effectiveOperateUnlockPhase,
-    operatorAdvancedModeOn,
+    true,
     hasCommittedArchitectureReview,
   );
   const patternLibraryNavVisible = usePatternLibraryNavVisible();

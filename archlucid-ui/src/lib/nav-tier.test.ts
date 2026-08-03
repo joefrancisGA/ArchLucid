@@ -9,15 +9,9 @@ describe("filterNavLinksByTier", () => {
     { href: "/c", label: "C", tier: "advanced" as const },
   ];
 
-  it("returns only essential when extended and advanced are off", () => {
-    expect(filterNavLinksByTier(links, false, false)).toEqual([links[0]]);
-  });
-
-  it("includes extended when showExtended is true", () => {
-    expect(filterNavLinksByTier(links, true, false)).toEqual([links[0], links[1]]);
-  });
-
-  it("includes advanced only when showAdvanced is true", () => {
+  it("returns every link regardless of disclosure flags (tiering retired)", () => {
+    expect(filterNavLinksByTier(links, false, false)).toEqual(links);
+    expect(filterNavLinksByTier(links, true, false)).toEqual(links);
     expect(filterNavLinksByTier(links, true, true)).toEqual(links);
   });
 });

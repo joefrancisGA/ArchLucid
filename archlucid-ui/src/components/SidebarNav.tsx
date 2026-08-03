@@ -4,16 +4,10 @@ import { usePathname } from "next/navigation";
 import { Fragment, useEffect, useLayoutEffect, useState } from "react";
 
 import { SidebarRecentActivityCard } from "@/components/SidebarRecentActivityCard";
-import { GovernanceAvailableSidebarNudge } from "@/components/sidebar-nav/GovernanceAvailableSidebarNudge";
 import { SidebarNavCluster } from "@/components/sidebar-nav/SidebarNavCluster";
-import { OperateFeaturesUnlockPanel } from "@/components/usability/OperateFeaturesUnlockPanel";
-import { OperateUnlockAutoHint } from "@/components/usability/OperateUnlockAutoHint";
-import { SidebarNavLayoutSettingsPanel } from "@/components/sidebar-nav/SidebarNavLayoutSettingsPanel";
-import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
 import { useGovernanceMode } from "@/hooks/use-governance-mode";
 import { useOperatorShellNavRows } from "@/hooks/useOperatorShellNavRows";
 import { useSidebarNavGroupExpansion } from "@/hooks/useSidebarNavGroupExpansion";
-import { V1_SIDEBAR_CUSTOMIZATION_VISIBLE } from "@/lib/nav-disclosure-copy";
 import {
   ARCHLUCID_CTO_DEMO_PANIC_CHANGED_EVENT,
   isOperatorDemoStaticMode,
@@ -37,7 +31,6 @@ export function SidebarNav() {
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   const { isGovernanceModeEnabled } = useGovernanceMode();
-  const { showExtended, showAdvanced, setShowExtended, setShowAdvanced } = useNavProgressiveDisclosure();
   const { expansion, toggleGroupExpanded, setGroupExpanded } = useSidebarNavGroupExpansion();
   const {
     allRows,
@@ -45,19 +38,10 @@ export function SidebarNav() {
     demoUi,
     effectiveHasCommittedArchitectureReview,
     effectiveOperateUnlockPhase,
-    unlockOperateFeatures,
-    showAutoUnlockHint,
-    dismissAutoUnlockHint,
-    navExpanded,
-    navAdvanced,
-    shellShowAdvanced,
   } = useOperatorShellNavRows();
-  const [settingsOpen, setSettingsOpen] = useState(false);
   const demoUiEnv = isOperatorDemoStaticMode() || isPublicDemoModeEnv();
   const [runtimeDemoUi, setRuntimeDemoUi] = useState(demoUiEnv);
   const resolvedDemoUi = runtimeDemoUi;
-  const showSidebarCustomizationChrome =
-    !resolvedDemoUi && !buyerPolishedShell && V1_SIDEBAR_CUSTOMIZATION_VISIBLE;
 
   useLayoutEffect(() => {
     setMounted(true);
@@ -152,34 +136,9 @@ export function SidebarNav() {
                   : undefined
               }
             />
-            {row.group.id === "pilot" ? (
-              <GovernanceAvailableSidebarNudge
-                hasCommittedArchitectureReview={effectiveHasCommittedArchitectureReview}
-                operateNavUnlockPhase={effectiveOperateUnlockPhase}
-              />
-            ) : null}
           </Fragment>
         );
       })}
-
-      <OperateFeaturesUnlockPanel phase={effectiveOperateUnlockPhase} onUnlock={unlockOperateFeatures} />
-
-      <OperateUnlockAutoHint visible={showAutoUnlockHint} onDismiss={dismissAutoUnlockHint} />
-
-      <SidebarNavLayoutSettingsPanel
-        showSidebarCustomizationChrome={showSidebarCustomizationChrome}
-        settingsOpen={settingsOpen}
-        onSettingsOpenChange={setSettingsOpen}
-        navAllFeaturesExpanded={navExpanded && navAdvanced}
-        shellShowAdvanced={shellShowAdvanced}
-        showExtended={showExtended}
-        showAdvanced={showAdvanced}
-        onToggleShowAdvanced={() => {
-          setShowAdvanced(!showAdvanced);
-        }}
-        onShowExtendedChange={setShowExtended}
-        onShowAdvancedChange={setShowAdvanced}
-      />
     </div>
   );
 }
