@@ -1,5 +1,9 @@
 import { cn } from "@/lib/utils";
-import { OPERATOR_SHELL_MAX_WIDTH_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  OPERATOR_SHELL_CONTENT_PADDING_X_CLASS,
+  OPERATOR_SHELL_MAX_WIDTH_CLASS,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
@@ -219,7 +223,7 @@ export function LayerContextStrip({
         data-testid="layer-context-strip"
         role="region"
       >
-        <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, (cn("flex min-h-9 w-full flex-col gap-1 px-4 py-1.5 font-normal leading-tight text-neutral-800 dark:text-neutral-200 lg:px-6", OPERATOR_TYPOGRAPHY.body)))}>
+        <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, OPERATOR_SHELL_CONTENT_PADDING_X_CLASS, (cn("flex min-h-9 w-full flex-col gap-1 py-1.5 font-normal leading-tight text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)))}>
           <div className="flex h-full min-h-9 flex-wrap items-center gap-x-2 gap-y-0.5">
             <p className={cn("m-0 min-w-0 flex-1", OPERATOR_TYPOGRAPHY.body)} id="operator-layer-context-text">
               <span className={cn("font-medium", baseStrip.labelClass)}>{orientation.label}</span>
@@ -262,8 +266,9 @@ export function LayerContextStrip({
         <div
           className={cn(
             OPERATOR_SHELL_MAX_WIDTH_CLASS,
+            OPERATOR_SHELL_CONTENT_PADDING_X_CLASS,
             cn(
-              "flex min-h-9 w-full flex-col gap-1 px-4 py-1.5 font-normal leading-tight text-neutral-800 dark:text-neutral-200 lg:px-6",
+              "flex min-h-9 w-full flex-col gap-1 py-1.5 font-normal leading-tight text-neutral-800 dark:text-neutral-200",
               OPERATOR_TYPOGRAPHY.body,
             ),
           )}
@@ -291,7 +296,7 @@ export function LayerContextStrip({
       data-testid="layer-context-strip"
       role="region"
     >
-      <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, (cn("flex h-full min-h-9 flex-wrap items-center gap-x-2 gap-y-0.5 px-4 py-1.5 font-normal leading-tight text-neutral-800 dark:text-neutral-200 lg:px-6", OPERATOR_TYPOGRAPHY.body)))}>
+      <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, OPERATOR_SHELL_CONTENT_PADDING_X_CLASS, (cn("flex h-full min-h-9 flex-wrap items-center gap-x-2 gap-y-0.5 py-1.5 font-normal leading-tight text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)))}>
         <p className={cn("m-0 min-w-0 flex-1", OPERATOR_TYPOGRAPHY.body)} id="operator-layer-context-text" title={copy.question}>
           <span className={cn("font-medium", copy.labelClass)}>{copy.label}</span>
         </p>

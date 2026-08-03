@@ -4,7 +4,11 @@ import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
 
 import { DismissControl } from "@/components/usability/DismissControl";
-import { OPERATOR_SHELL_MAX_WIDTH_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  OPERATOR_SHELL_CONTENT_PADDING_X_CLASS,
+  OPERATOR_SHELL_MAX_WIDTH_CLASS,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
 
 const DISMISS_KEY = "archlucid_executive_shell_orientation_dismissed_v1";
 
@@ -46,7 +50,7 @@ export function ExecutiveShellOrientationCallout(props: ExecutiveShellOrientatio
       data-testid="executive-shell-orientation-callout"
       role="status"
     >
-      <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, "border-b border-neutral-200 bg-al-surface-raised px-4 py-3 shadow-sm dark:border-neutral-800 lg:px-6")}>
+      <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, OPERATOR_SHELL_CONTENT_PADDING_X_CLASS, "border-b border-neutral-200 bg-al-surface-raised py-3 shadow-sm dark:border-neutral-800")}>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className={cn("space-y-1 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
             <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">Executive view</p>

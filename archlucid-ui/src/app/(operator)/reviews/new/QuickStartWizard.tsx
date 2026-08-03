@@ -19,7 +19,7 @@ import { createArchitectureRun } from "@/lib/api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
 import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_SHELL_CONTENT_BLEED_X_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import { showError, showSuccess } from "@/lib/toast";
 import { wizardValuesToCreateRunPayload } from "@/lib/wizard-payload";
@@ -290,7 +290,10 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
       {quickStep === 2 ? <WizardStepReview /> : null}
 
       <div
-        className="sticky bottom-0 z-10 -mx-4 mt-8 border-t border-neutral-200/60 bg-neutral-50/98 px-4 py-3 shadow-[0_-2px_8px_-2px_rgba(0,0,0,0.06)] backdrop-blur supports-[backdrop-filter]:bg-neutral-50/85 dark:border-neutral-800/60 dark:bg-neutral-950/98 dark:shadow-[0_-2px_8px_-2px_rgba(0,0,0,0.25)] dark:supports-[backdrop-filter]:bg-neutral-950/85 lg:-mx-6 lg:px-6"
+        className={cn(
+          "sticky bottom-0 z-10 mt-8 border-t border-neutral-200/60 bg-neutral-50/98 py-3 shadow-[0_-2px_8px_-2px_rgba(0,0,0,0.06)] backdrop-blur supports-[backdrop-filter]:bg-neutral-50/85 dark:border-neutral-800/60 dark:bg-neutral-950/98 dark:shadow-[0_-2px_8px_-2px_rgba(0,0,0,0.25)] dark:supports-[backdrop-filter]:bg-neutral-950/85",
+          OPERATOR_SHELL_CONTENT_BLEED_X_CLASS,
+        )}
         data-testid="quick-start-footer"
       >
         {isReviewStep && submitError !== null ? (

@@ -3,7 +3,10 @@
 import dynamic from "next/dynamic";
 
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
-import { OPERATOR_SHELL_MAX_WIDTH_CLASS } from "@/lib/design-tokens";
+import {
+  OPERATOR_SHELL_CONTENT_PADDING_X_CLASS,
+  OPERATOR_SHELL_MAX_WIDTH_CLASS,
+} from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 const TrustCenterShellLink = dynamic(
@@ -42,7 +45,7 @@ export function AppShellWorkspaceFooter({ hideWorkspaceHealthFooter }: AppShellW
         className="border-t border-neutral-200 bg-neutral-50/90 py-2 print:hidden dark:border-neutral-800 dark:bg-neutral-950/90"
         aria-label="Trust and compliance"
       >
-        <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, "flex flex-col items-end gap-1 px-4 lg:px-6")}>
+        <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, OPERATOR_SHELL_CONTENT_PADDING_X_CLASS, "flex flex-col items-end gap-1")}>
           <TrustCenterShellLink variant="footer" />
         </div>
       </footer>
@@ -58,7 +61,7 @@ export function AppShellWorkspaceFooter({ hideWorkspaceHealthFooter }: AppShellW
       className="border-t border-neutral-200 bg-neutral-50/90 py-2 print:hidden dark:border-neutral-800 dark:bg-neutral-950/90"
       aria-label="Workspace footer"
     >
-      <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, "flex flex-col gap-1 px-4 lg:px-6")}>
+      <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, OPERATOR_SHELL_CONTENT_PADDING_X_CLASS, "flex flex-col gap-1")}>
         <SystemHealthStatusStrip className="mb-0 min-w-0 flex-1" />
         <DeploymentBuildFingerprintStrip />
       </div>

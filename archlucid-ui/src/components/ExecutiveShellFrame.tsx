@@ -20,7 +20,11 @@ import {
   EXECUTIVE_DASHBOARD_HREF,
   isExecutiveDashboardPath,
 } from "@/lib/executive-dashboard-route";
-import { OPERATOR_SHELL_MAX_WIDTH_CLASS } from "@/lib/design-tokens";
+import {
+  OPERATOR_SHELL_CONTENT_PADDING_X_CLASS,
+  OPERATOR_SHELL_MAIN_PADDING_CLASS,
+  OPERATOR_SHELL_MAX_WIDTH_CLASS,
+} from "@/lib/design-tokens";
 import { PERSONA_SHELL_WORKSPACE_LABEL } from "@/lib/persona-shell-vocabulary";
 import { isUiAuthorityThemeEvalEnabledEnv } from "@/lib/ui-authority-theme";
 
@@ -59,7 +63,7 @@ export function ExecutiveShellFrame({ children }: ExecutiveShellFrameProps) {
           data-testid="executive-shell-topbar"
           className="overflow-x-hidden border-b border-neutral-200 bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-950"
         >
-          <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, "flex flex-wrap items-center justify-between gap-3 px-4 py-2.5 lg:px-6")}>
+          <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, OPERATOR_SHELL_CONTENT_PADDING_X_CLASS, "flex flex-wrap items-center justify-between gap-3 py-2.5")}>
             <div className="flex min-w-0 flex-wrap items-center gap-2">
               <Button variant="ghost" className="h-auto shrink-0 p-0" asChild>
                 <ArchLucidWordmarkLink
@@ -110,7 +114,8 @@ export function ExecutiveShellFrame({ children }: ExecutiveShellFrameProps) {
           tabIndex={-1}
           className={cn(
             OPERATOR_SHELL_MAX_WIDTH_CLASS,
-            "px-4 py-4 outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 dark:focus-visible:ring-neutral-600 lg:px-6 lg:py-6",
+            OPERATOR_SHELL_MAIN_PADDING_CLASS,
+            "outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 dark:focus-visible:ring-neutral-600",
           )}
         >
           <Suspense fallback={null}>

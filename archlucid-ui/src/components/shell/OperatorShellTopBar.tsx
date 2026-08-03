@@ -18,6 +18,7 @@ import { ToolbarHelpTooltip } from "@/components/ToolbarHelpTooltip";
 import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_HELP_ARIA_KEYSHORTCUTS, OPERATOR_HELP_ARIA_LABEL, OPERATOR_HELP_TOOLTIP } from "@/lib/keyboard-shortcut-display";
 import {
+  OPERATOR_SHELL_CONTENT_PADDING_X_CLASS,
   OPERATOR_SHELL_MAX_WIDTH_CLASS,
   OPERATOR_SHELL_SIDEBAR_WIDTH_LG_CLASS,
 } from "@/lib/design-tokens";
@@ -64,7 +65,7 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
           </h1>
         </div>
 
-        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-3 gap-y-2 px-4 py-2.5 lg:px-6">
+        <div className={cn("flex min-w-0 flex-1 flex-wrap items-center gap-x-3 gap-y-2 py-2.5", OPERATOR_SHELL_CONTENT_PADDING_X_CLASS)}>
           <div className="min-w-0 flex-1 basis-full sm:basis-auto sm:max-w-md lg:max-w-lg xl:max-w-xl">
             <GlobalSearchBar />
           </div>
