@@ -93,6 +93,8 @@ export function AdvisoryHubClient({ initialTab, initialRunId = null }: AdvisoryH
         </p>
       </OperatorPageHeader>
 
+      <AdvisoryScansEvidenceOrientationStrip />
+
       <CollapsibleSection title={ADVISORY_SCANS_HOW_IT_WORKS_TITLE} sectionTestId="advisory-scans-how-it-works">
         <p className={cn("m-0 max-w-3xl text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           {ADVISORY_SCANS_HOW_IT_WORKS_BODY}
