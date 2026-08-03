@@ -6,10 +6,10 @@ export const PILOT_OUTCOMES_TRAFFIC_PATH = "/sponsor-report/pilot-outcomes";
 
 /**
  * Owner workbook Notes for SPP — sponsor-report surface, not marketing.
- * `/value-report/pilot` remains a bookmark-compat redirect to this path.
+ * Absorbs former VPX (legacy `/value-report/pilot` redirect) hit share.
  */
 export const PILOT_OUTCOMES_TRAFFIC_NOTE =
-  "Sponsor pilot outcomes report (canonical); `/value-report/pilot` redirects here for bookmark compat.";
+  "Sponsor pilot outcomes report (canonical). Absorbs former VPX hit share from retired legacy `/value-report/pilot` bookmark row (LegacyPilotValueReportRedirectPage still permanentRedirects here). Does not imply CPA SOC 2 or third-party pen-test publication.";
 
 /** Workbook Section column value — operator sponsor-report job, not pre-login marketing. */
 export const PILOT_OUTCOMES_TRAFFIC_SECTION = "Sponsor report";

@@ -100,7 +100,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | SRX | `/administration/settings/users?tab=roles` | 0.2% | 0 | 0 | 20 | Tab surface | None |
 | SPE | `/sponsor-report/executive-summary` | 0.22% | 0 | 0 | 22 | Sponsor report | Sponsor executive summary report (canonical). Absorbs former VXX hit share from retired legacy `/value-report` bookmark row (LegacyValueReportRedirectPage still permanentRedirects here). Does not imply CPA SOC 2 or third-party pen-test publication. |
 | SIG | `/signup` | 0.2% | 0 | 0 | 20 | Marketing | None |
-| FI | `/help/first-review` | 0.18% | 0 | 0 | 18 | Help topic | Specialty first-run evidence checklist (Admin internal-runbook) - HelpFirstReviewEvidenceChecklistGuideView with first-architecture-review / Start architecture review / audit primary CTAs, Sources diligence strip (complete review workflow, Azure connect, audit-trail, troubleshooting, configuration-reference), evidence arc, claim-discipline callout (checklist is not certification), PageContextualHelp, and prepared FIRST_RUN_EVIDENCE_CHECKLIST.md (API/runbook/script leakage strip). Not bare HelpTopicMarkdownView. Admin-gated internal Help Center tier. Not a redirect to buyer core-pilot. Does not imply CPA SOC 2 or third-party pen-test publication. |
+| FI | `/help/first-review` | 0.18% | 0 | 0 | 18 | Help topic | Specialty first-run evidence checklist (Admin internal-runbook) - HelpFirstReviewEvidenceChecklistGuideView with first-architecture-review / Start architecture review / audit primary CTAs, Sources diligence strip (complete review workflow, Azure connect, audit-trail, troubleshooting, configuration-reference), evidence arc, claim-discipline callout (checklist is not certification), PageContextualHelp, and prepared FIRST_PILOT_OPERATOR_PATH.md printable section only (`sectionAnchors` + API/runbook/script leakage strip). `FIRST_RUN_EVIDENCE_CHECKLIST.md` is a path-stable alias. Not bare HelpTopicMarkdownView. Admin-gated internal Help Center tier. Not a redirect to buyer core-pilot. Does not imply CPA SOC 2 or third-party pen-test publication. |
 | AHX | `/admin/health` | 0.15% | 0 | 0 | 15 | Admin | None |
 | ADV | `/governance/advisory-scans` | 0.15% | 0 | 0 | 15 | Advisory | None |
 | GAI | `/governance/approval-requests/[id]/lineage` | 0.15% | 0 | 0 | 15 | Alerts/gov | None |
@@ -153,6 +153,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | SE | `/administration/settings/extract-upload` | 0.07% | 0 | 0 | 7 | Settings | None |
 | SIS | `/administration/settings/identity/sso-wizard` | 0.07% | 0 | 0 | 7 | Settings | None |
 | SSX | `/administration/settings/scim-provisioning` | 0.07% | 0 | 0 | 7 | Settings | None |
+| SPP | `/sponsor-report/pilot-outcomes` | 0.07% | 0 | 0 | 7 | Sponsor report | Sponsor pilot outcomes report (canonical). Absorbs former VPX hit share from retired legacy `/value-report/pilot` bookmark row (LegacyPilotValueReportRedirectPage still permanentRedirects here). Does not imply CPA SOC 2 or third-party pen-test publication. |
 | DPX | `/demo/preview` | 0.06% | 0 | 0 | 6 | Marketing | None |
 | HCA | `/help/cloud-connections/azure` | 0.06% | 0 | 0 | 6 | Help alias | None |
 | HOE | `/help/operator-auth-roles` | 0.06% | 0 | 0 | 6 | Help alias | None |
@@ -172,7 +173,6 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | QXX | `/quick-scan` | 0.05% | 0 | 0 | 5 | Marketing | None |
 | SRH | `/showcase/[runId]` | 0.05% | 0 | 0 | 5 | Marketing | None |
 | TRY | `/try` | 0.05% | 0 | 0 | 5 | Marketing | None |
-| VPX | `/value-report/pilot` | 0.05% | 0 | 0 | 5 | Marketing | None |
 | H | `/help/audit-trail` | 0.04% | 0 | 0 | 4 | Help topic | None |
 | HCX | `/help/cli-usage` | 0.04% | 0 | 0 | 4 | Help topic | None |
 | HDX | `/help/developer-troubleshooting` | 0.04% | 0 | 0 | 4 | Help topic | Specialty engineering troubleshooting runbook (Admin internal-runbook, TB-1246) - HelpEngineeringTroubleshootingGuideView with Customer Troubleshooting / System health / Report a problem / CLI primary CTAs, Sources diligence strip (admin-diagnostics, configuration-reference), claim-discipline callout, PageContextualHelp, HelpTopicAuthorityGate + HelpTopicMarkdownClient specialty branch, and prepared TROUBLESHOOTING.md + COMMON_ERRORS.md (contributor ADR/TB link strip). Help search Advanced diagnostics (adminOnly). Not in customer Help Center featured grid. Customer Troubleshooting (HTX) does not deep-link here (TB-1249). Slug remains developer-troubleshooting pending TB-1248 rename. Does not imply CPA SOC 2 or third-party pen-test publication. |
@@ -282,7 +282,6 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | SSU | `/administration/settings/users?tab=users` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | MA | `/signed-records` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | MAM | `/signed-records/[manifestId]/artifacts/[artifactId]` | 0.02% | 0 | 0 | 2 | Marketing | Manifest-scoped artifact preview — App Router page under signed-records (TB-1821 SoT). Run-scoped RER redirects here. Download/proxy paths remain available. |
-| SPP | `/sponsor-report/pilot-outcomes` | 0.02% | 0 | 0 | 2 | Sponsor report | Sponsor pilot outcomes report (canonical); `/value-report/pilot` redirects here for bookmark compat. |
 | SPR | `/sponsor-report/roi-summary` | 0.02% | 0 | 0 | 2 | Sponsor report | Sponsor ROI summary report (canonical); `/value-report/roi` redirects here for bookmark compat. |
 
 ---
