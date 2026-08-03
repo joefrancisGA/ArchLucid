@@ -119,26 +119,6 @@ public sealed class AlertsController(
         return Ok(PagedResponseBuilder.FromDatabasePage(alerts, alerts.Count, 1, take));
     }
 
-    /// <summary>
-    ///     Inbox summary card aggregates for the current scope (status counts, blocking, last evaluation).
-    ///     One round trip replaces N× page-size-1 list calls on the operator alerts inbox (TB-2023).
-    /// </summary>
-    [HttpGet("inbox-summary")]
-    [ProducesResponseType(typeof(AlertsInboxSummaryDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<ActionResult<AlertsInboxSummaryDto>> GetInboxSummary(CancellationToken ct = default)
-    {
-        ScopeContext scope = scopeProvider.GetCurrentScope();
-        AlertsInboxSummaryDto summary = await alertRepository.GetInboxSummaryByScopeAsync(
-            scope.TenantId,
-            scope.WorkspaceId,
-            scope.ProjectId,
-            ct);
-
-        return Ok(summary);
-    }
-
     /// <summary>Archives an alert in the current scope (hidden from default listings).</summary>
     [HttpPatch("{alertId:guid}/archive")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
