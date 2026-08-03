@@ -26,6 +26,14 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   { prefix: "/architecture/first-review-guide", topic: { slug: "getting-started", label: BUYER_ONBOARDING_PAGE_TITLE } },
   { prefix: "/help/getting-started", topic: { slug: "getting-started", label: "Getting started" } },
+  {
+    prefix: "/help/cloud-connections/azure",
+    topic: { slug: "cloud-connections-azure", label: "Connect Azure securely" },
+  },
+  {
+    prefix: "/help/cloud-connections",
+    topic: { slug: "cloud-connections", label: "Cloud connections" },
+  },
   { prefix: ARCHITECTURES_LIST_PATH, topic: { slug: "getting-started", label: "Getting started" } },
   { prefix: "/architecture/reviews/new", topic: { slug: "evidence-intake", label: START_REVIEW_LABEL } },
   { prefix: "/reviews/new", topic: { slug: "evidence-intake", label: START_REVIEW_LABEL } },

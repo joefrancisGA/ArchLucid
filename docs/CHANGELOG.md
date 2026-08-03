@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-03 - UI: Cloud connections help Evidence chrome (HCE)
+
+/help/cloud-connections ships HelpCloudConnectionsGuideView with PageContextualHelpButton, Category-1 registry, Sources + claim-discipline orientation, hub/Azure CTAs, traffic Notes under Help topic, and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-03 - UI: Approval lineage Evidence chrome (GAI)
 
 /governance/approval-requests/[id]/lineage ships PageContextualHelpButton, Category-1 registry, workspace Sources + claim-discipline orientation strip, traffic Notes under Alerts/gov, and honest Evidence score 55. Lineage linkage hard-caps higher Evidence; no CPA / third-party pen-test implication.
@@ -29,6 +33,10 @@ Legacy `/value-report/roi` bookmark row **VRX** removed from the UI route traffi
 ## 2026-08-03 - UI: Users and roles Evidence chrome (AUX)
 
 /administration/settings/users ships PageContextualHelpButton, Category-1 registry, workspace Sources + claim-discipline orientation strip, traffic Notes under Settings/Admin, and honest Evidence score 50. Access-hub hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
+## 2026-08-03 - Security: Indirect prompt-injection adversarial corpus (TB-951)
+
+README/ADR/architecture-doc shaped injection fixtures in eval-corpus + `indirect-doc-injection.json`, with honest `expectedContained` residuals (not 100% phrase detection). CI assert + strict dataset validation wired. No CPA / third-party pen-test implication.
 
 ## 2026-08-03 - Security: AllowedTools fail-closed on production-like hosts (TB-950)
 

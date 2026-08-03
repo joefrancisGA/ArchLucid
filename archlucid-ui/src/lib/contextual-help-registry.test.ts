@@ -67,6 +67,8 @@ describe("contextual-help-registry (TB-733)", () => {
       "/governance/alert-rules",
       "/governance/approval-requests",
       "/help/getting-started",
+      "/help/cloud-connections/azure",
+      "/help/cloud-connections",
       "/administration/settings/users",
       "/integrations/cloud-connections",
       "/settings/cloud-connections",
@@ -145,6 +147,15 @@ describe("contextual-help-registry (TB-733)", () => {
     expect(
       contextualHelpForPathname("/governance/approval-requests/e2e-approval-001/lineage")?.whatToDoNext,
     ).toContain("approval queue");
+  });
+
+  it("resolves cloud-connections help Category-1 help (HCE)", () => {
+    expect(contextualHelpForPathname("/help/cloud-connections")?.whatIsThisPage).toContain(
+      "Cloud connections help",
+    );
+    expect(contextualHelpForPathname("/help/cloud-connections")?.whatToDoNext).toContain(
+      "Cloud connections hub",
+    );
   });
 
   it("resolves sponsor executive summary Category-1 help (SPE)", () => {

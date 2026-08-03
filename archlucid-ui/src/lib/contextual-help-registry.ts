@@ -404,6 +404,30 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/help/cloud-connections/azure",
+    entry: {
+      whatIsThisPage:
+        "Connect Azure securely — workload identity federation, read-only roles, and validation without long-lived secrets.",
+      whatToDoNext:
+        "Follow the federation steps, then open the Azure cloud connection wizard to validate the attachment.",
+      whyEmpty: "This guide is always available; live Azure connection status appears on the Cloud connections hub.",
+      whereToConfigurePrerequisite:
+        "Azure attachment is optional — evidence-only reviews work without a cloud connector.",
+    },
+  },
+  {
+    prefix: "/help/cloud-connections",
+    entry: {
+      whatIsThisPage:
+        "Cloud connections help — how optional Azure, AWS, and GCP connectors supply read-only evidence for reviews.",
+      whatToDoNext:
+        "Open the Cloud connections hub to configure a provider, or read Connect Azure securely for federation steps.",
+      whyEmpty: "This guide is always available; live connection status appears on the Cloud connections hub.",
+      whereToConfigurePrerequisite:
+        "Cloud connectors are optional — evidence-only reviews work without attaching a cloud account.",
+    },
+  },
+  {
     prefix: "/administration/settings/users",
     entry: {
       whatIsThisPage:
