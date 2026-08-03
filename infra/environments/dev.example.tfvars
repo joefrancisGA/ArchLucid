@@ -2,7 +2,7 @@
 # Uncomment and align variable names with the target root (see infra/<root>/variables.tf).
 
 # azure_subscription_id = "00000000-0000-0000-0000-000000000000"
-# location              = "eastus2"
+# location              = "centralus"
 
 # terraform-container-apps
 # enable_container_apps   = true
