@@ -63,7 +63,7 @@ export function RunDetailPageFetchErrorView(props: {
         correlationId={props.loadFailure?.correlationId ?? null}
       />
       <p>
-        <Link className={OPERATOR_LINK.nav} href="/reviews?projectId=default">
+        <Link className={OPERATOR_LINK.nav} href="/architecture/reviews?projectId=default">
           ← Back to reviews
         </Link>
       </p>

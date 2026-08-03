@@ -76,7 +76,7 @@ describe("RunInspectorPreview", () => {
     fireEvent.click(screen.getByText("Related actions"));
     expect(screen.getByRole("link", { name: "View signed record" })).toHaveAttribute(
       "href",
-      "/reviews/claims-intake-modernization/signed-record",
+      "/architecture/reviews/claims-intake-modernization/signed-record",
     );
     expect(screen.getByRole("link", { name: "View evidence graph" })).toHaveAttribute(
       "href",
@@ -84,7 +84,7 @@ describe("RunInspectorPreview", () => {
     );
     expect(screen.getByRole("link", { name: "View governance approval" })).toHaveAttribute(
       "href",
-      "/governance?runId=claims-intake-modernization",
+      "/governance/approval-queue?runId=claims-intake-modernization",
     );
     expect(screen.getByRole("link", { name: "View audit trail" })).toHaveAttribute(
       "href",
@@ -98,7 +98,7 @@ describe("RunInspectorPreview", () => {
 
     expect(screen.getByRole("link", { name: "Executive summary" })).toHaveAttribute(
       "href",
-      "/reviews/claims-intake-modernization",
+      "/architecture/reviews/claims-intake-modernization",
     );
     expect(screen.getByRole("link", { name: "Read-only walkthrough" })).toHaveAttribute(
       "href",
@@ -107,11 +107,11 @@ describe("RunInspectorPreview", () => {
     expect(screen.queryByRole("link", { name: "Full review detail" })).toBeNull();
     expect(screen.getByRole("link", { name: "Findings" })).toHaveAttribute(
       "href",
-      "/reviews/claims-intake-modernization#run-explanation",
+      "/architecture/reviews/claims-intake-modernization#run-explanation",
     );
     expect(screen.getByRole("link", { name: "Timeline" })).toHaveAttribute(
       "href",
-      "/reviews/claims-intake-modernization#pipeline-timeline",
+      "/architecture/reviews/claims-intake-modernization#pipeline-timeline",
     );
   });
 

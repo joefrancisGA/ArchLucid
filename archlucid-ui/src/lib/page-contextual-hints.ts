@@ -18,7 +18,7 @@ const HINTS: readonly { prefix: string; hint: PageContextualHint }[] = [
     },
   },
   {
-    prefix: "/reviews/",
+    prefix: "/architecture/reviews/",
     hint: {
       id: "review-detail",
       message: "Watch the pipeline timeline while agents run; after commit, use sponsor handoff and exports.",

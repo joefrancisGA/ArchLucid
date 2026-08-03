@@ -80,7 +80,7 @@ function recoveryCopyForNetworkError(): RecoveryCopy {
 
 /**
  * Post-registration entry: reads `GET /v1/tenant/trial-status` using registration scope headers (pre-OIDC),
- * surfaces limits and the seeded sample run, and links into `/reviews/new` with `sampleRunId` for the wizard.
+ * surfaces limits and the seeded sample run, and links into `/architecture/reviews/new` with `sampleRunId` for the wizard.
  */
 export function OnboardingStartClient() {
   const [status, setStatus] = useState<TenantTrialStatusResponse | null>(null);
@@ -125,7 +125,7 @@ export function OnboardingStartClient() {
   const reg = readLastRegistrationPayload();
   const sampleId = status?.trialSampleRunId?.trim() ?? "";
   const hasSample = sampleId.length > 0;
-  const wizardHref = hasSample ? `/reviews/new?sampleRunId=${encodeURIComponent(sampleId)}` : "/reviews/new";
+  const wizardHref = hasSample ? `/architecture/reviews/new?sampleRunId=${encodeURIComponent(sampleId)}` : "/architecture/reviews/new";
 
   const sampleAzureDeployHref =
     typeof window !== "undefined"
@@ -159,7 +159,7 @@ export function OnboardingStartClient() {
               Retry trial status
             </Button>
             <Button asChild type="button" variant="outline" size="sm">
-              <Link href="/reviews/new">Start new review request</Link>
+              <Link href="/architecture/reviews/new">Start new review request</Link>
             </Button>
             <Button asChild type="button" variant="outline" size="sm">
               <Link href="/architecture/first-review-guide">Open onboarding checklist</Link>
@@ -242,13 +242,13 @@ export function OnboardingStartClient() {
             ) : null}
             {hasSample ? (
               <Button asChild variant="outline">
-                <Link href={`/reviews/${sampleId}`} data-testid="onboarding-open-sample-run">
+                <Link href={`/architecture/reviews/${sampleId}`} data-testid="onboarding-open-sample-run">
                   Open example review
                 </Link>
               </Button>
             ) : null}
             <Button asChild variant="outline">
-              <Link href="/reviews/new">Open new review wizard</Link>
+              <Link href="/architecture/reviews/new">Open new review wizard</Link>
             </Button>
           </div>
         </section>

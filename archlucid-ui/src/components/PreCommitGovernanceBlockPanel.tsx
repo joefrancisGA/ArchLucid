@@ -15,7 +15,7 @@ export type PreCommitGovernanceBlockPanelProps = {
 };
 
 function findingInspectHref(runId: string, findingId: string): string {
-  return `/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(findingId)}`;
+  return `/architecture/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(findingId)}`;
 }
 
 /** Structured pre-commit governance block surfaced after finalize returns HTTP 409. */

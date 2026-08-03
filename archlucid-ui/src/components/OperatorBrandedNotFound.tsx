@@ -7,9 +7,9 @@ import { OperatorEmptyState } from "@/components/OperatorShellMessage";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
-const REVIEW_PACKAGES_HREF = "/reviews?projectId=default";
-const START_REVIEW_HREF = "/reviews/new";
-const SAMPLE_REVIEW_HREF = `/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
+const REVIEW_PACKAGES_HREF = "/architecture/reviews?projectId=default";
+const START_REVIEW_HREF = "/architecture/reviews/new";
+const SAMPLE_REVIEW_HREF = `/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
 
 export type OperatorBrandedNotFoundProps = {
   /**

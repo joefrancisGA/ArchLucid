@@ -20,7 +20,7 @@ describe("specialty-review-templates", () => {
       buildSpecialtyReviewUseTemplateHref({
         intakeTemplateId: "ai-governance",
       }),
-    ).toBe("/reviews/new?path=guided-intake&template=ai-governance");
+    ).toBe("/architecture/reviews/new?path=guided-intake&template=ai-governance");
   });
 
   it("builds detailed wizard href when cloud context is selected", () => {
@@ -29,7 +29,7 @@ describe("specialty-review-templates", () => {
         intakeTemplateId: "saas-readiness",
         cloudContext: "Aws",
       }),
-    ).toBe("/reviews/new?path=detailed&cloud=aws&template=saas-readiness");
+    ).toBe("/architecture/reviews/new?path=detailed&cloud=aws&template=saas-readiness");
   });
 
   it("resolves cloud query values for review intake", () => {

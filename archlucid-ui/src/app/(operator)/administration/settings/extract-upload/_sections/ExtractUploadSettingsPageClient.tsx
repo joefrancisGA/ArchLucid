@@ -356,7 +356,7 @@ export function ExtractUploadSettingsPageClient() {
             </p>
           ) : null}
           <Button asChild type="button" variant="outline" size="sm">
-            <Link href="/reviews" data-testid="extract-upload-go-reviews">
+            <Link href="/architecture/reviews" data-testid="extract-upload-go-reviews">
               Go to Reviews
             </Link>
           </Button>

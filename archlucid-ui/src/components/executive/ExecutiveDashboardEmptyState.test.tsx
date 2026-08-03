@@ -21,6 +21,6 @@ describe("ExecutiveDashboardEmptyState", () => {
     expect(screen.queryByRole("link", { name: vocabulary.emptyStatePrimaryAction })).toBeNull();
     expect(screen.getByRole("button", { name: vocabulary.emptyStateSecondaryAction })).toBeInTheDocument();
     expect(screen.getByText(vocabulary.emptyStateSecondaryHelper)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: vocabulary.emptyStateTertiaryAction })).toHaveAttribute("href", "/reviews");
+    expect(screen.getByRole("link", { name: vocabulary.emptyStateTertiaryAction })).toHaveAttribute("href", "/architecture/reviews");
   });
 });

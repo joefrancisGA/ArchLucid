@@ -172,19 +172,21 @@ describe("nav-config structure", () => {
       "/insights/compare-two-reviews",
       "/insights/impact-preview",
       "/insights/architecture-scorecard",
-      "/patterns",
+      "/insights/patterns",
     ]);
     const architectAdvancedHrefs = NAV_GROUPS.find((group) => group.id === "operate-architect-advanced")!.links.map(
       (link) => link.href,
     );
 
     expect(architectAdvancedHrefs).toEqual([
-      "/product-learning",
       "/planning",
-      "/architecture-intelligence",
     ]);
+
+    const pilotHrefs = NAV_GROUPS.find((group) => group.id === "pilot")!.links.map((link) => link.href);
+
+    expect(pilotHrefs).toContain("/architecture-intelligence");
     expect(governanceHrefs).toEqual([
-      "/governance",
+      "/governance/approval-queue",
       "/governance/findings",
       "/governance/risk-exceptions",
       "/governance/policy-packs",
@@ -220,10 +222,10 @@ describe("nav-config structure", () => {
     expect(systemAdminHrefs).not.toContain("/governance/advisory-scans");
     expect(systemAdminHrefs).not.toContain("/administration/settings/tenant");
     expect(systemAdminHrefs).not.toContain("/workspace/security-trust");
-    // Tenant-tier-gated features (RequiresCommercialTenantTier) moved out of the employee-only,
-    // showSystemAdministrationNav-gated group so real customers can discover them (nav placement audit, 2026-07-05).
+    // Recommendation learning and Review feedback stay under Internal Operations (employee-only /
+    // showSystemAdministrationNav). Planning remains in Programs for customer discoverability.
     expect(systemAdminHrefs).toContain("/internal-operations/recommendation-learning");
-    expect(systemAdminHrefs).not.toContain("/product-learning");
+    expect(systemAdminHrefs).toContain("/product-learning");
     expect(systemAdminHrefs).not.toContain("/planning");
     expect(systemAdminHrefs).not.toContain("/digests");
     expect(systemAdminHrefs).not.toContain("/sponsor-report/pilot-outcomes");
@@ -292,7 +294,7 @@ describe("nav-config structure", () => {
 
     for (const link of governance!.links) {
       expect(
-        link.href === "/governance"
+        link.href === "/governance/approval-queue"
           || link.href.startsWith("/governance/")
           || governanceNamespaceExceptions.has(link.href),
         link.href,

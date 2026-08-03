@@ -48,7 +48,7 @@ describe("SignedRecordsListClient", () => {
         committedUtc: finalizedRun.createdUtc,
         manifestVersion: "1.0.0",
         manifestId: "manifest-abc",
-        reviewHref: `/reviews/${row.runId}`,
+        reviewHref: `/architecture/reviews/${row.runId}`,
         signedRecordHref: `/signed-records/manifest-abc`,
       })),
     );

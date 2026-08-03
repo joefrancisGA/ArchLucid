@@ -42,7 +42,7 @@ export function GovernanceInteractiveQuickstartContent({
           {" — assign or publish the rule set that governs your scope."}
         </li>
         <li>
-          <Link href="/reviews/new" className="font-medium text-teal-800 underline dark:text-teal-300">
+          <Link href="/architecture/reviews/new" className="font-medium text-teal-800 underline dark:text-teal-300">
             Run an architecture review
           </Link>
           {" — finalize so you have a review record version to submit."}

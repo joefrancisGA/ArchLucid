@@ -12,7 +12,7 @@ export type ShowcaseOutcomeStripProps = {
   /** When set (demo spine), adds a direct finding deep-link card */
   primaryFindingId?: string | null | undefined;
   /**
-   * When false, omit authenticated `/reviews/...` deep links (use manifest-only CTAs). Public marketing surfaces pass
+   * When false, omit authenticated `/architecture/reviews/...` deep links (use manifest-only CTAs). Public marketing surfaces pass
    * {@link import("@/lib/operator-static-demo").isStaticDemoPayloadFallbackEnabled} from a server parent.
    */
   readonly isRunDetailAvailable?: boolean;
@@ -50,7 +50,7 @@ export function ShowcaseOutcomeStrip(props: ShowcaseOutcomeStripProps): ReactEle
   return (
     <section aria-label="Open completed output" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
       {isRunDetailAvailable ? (
-        <Link className={cardClass} href={`/reviews/${encRun}`}>
+        <Link className={cardClass} href={`/architecture/reviews/${encRun}`}>
           <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>
             {`1 · ${BUYER_EXECUTIVE_SUMMARY_VOCABULARY.reviewExecutiveSummaryLabel}`}
           </span>
@@ -103,7 +103,7 @@ export function ShowcaseOutcomeStrip(props: ShowcaseOutcomeStripProps): ReactEle
       )}
 
       {isRunDetailAvailable ? (
-        <Link className={cardClass} href={`/governance?runId=${encRun}`}>
+        <Link className={cardClass} href={`/governance/approval-queue?runId=${encRun}`}>
           <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>4 · Governance approval</span>
           <span className={outcomeCaptionClass}>{governanceSubtitle}</span>
         </Link>

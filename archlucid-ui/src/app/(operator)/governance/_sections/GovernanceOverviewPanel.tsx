@@ -340,7 +340,7 @@ export function GovernanceOverviewPanel(props: GovernanceOverviewPanelProps): Re
                 <li key={row.approvalRequestId}>
                   <Link
                     className={cn(OPERATOR_LINK.nav, "block rounded-md border border-neutral-200 px-3 py-2 dark:border-neutral-800")}
-                    href={`/governance?runId=${encodeURIComponent(row.runId)}`}
+                    href={`/governance/approval-queue?runId=${encodeURIComponent(row.runId)}`}
                   >
                     <span className="font-medium">{row.manifestVersion}</span>
                     <span className="text-al-text-secondary"> · {row.status}</span>
@@ -362,7 +362,7 @@ export function GovernanceOverviewPanel(props: GovernanceOverviewPanelProps): Re
               <li key={row.approvalRequestId}>
                 <Link
                   className={cn(OPERATOR_LINK.nav, "block rounded-md border border-neutral-200 px-3 py-2 dark:border-neutral-800")}
-                  href={`/governance?runId=${encodeURIComponent(row.runId)}`}
+                  href={`/governance/approval-queue?runId=${encodeURIComponent(row.runId)}`}
                 >
                   <span className="font-medium">{row.manifestVersion}</span>
                   <span className="text-al-text-secondary"> · {row.status}</span>

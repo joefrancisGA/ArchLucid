@@ -147,8 +147,8 @@ describe("OperatorHomeDualPathCards", () => {
     fireEvent.click(screen.getByTestId("operator-home-review-architecture-cta"));
 
     expect(screen.getByRole("button", { name: REVIEW_START_LOADING_LABEL })).toBeDisabled();
-    expect(prefetch).toHaveBeenCalledWith("/reviews/new");
-    expect(push).toHaveBeenCalledWith("/reviews/new");
+    expect(prefetch).toHaveBeenCalledWith("/architecture/reviews/new");
+    expect(push).toHaveBeenCalledWith("/architecture/reviews/new");
   });
 
   it("navigates to the workspace featured completed sample from the explore card", () => {

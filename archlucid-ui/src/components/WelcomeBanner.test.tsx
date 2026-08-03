@@ -100,8 +100,8 @@ describe("WelcomeBanner — renders heading and CTAs", () => {
         );
       }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Create from evidence" })).toHaveAttribute("href", "/reviews/new");
-    expect(screen.getByRole("link", { name: "Describe the architecture" })).toHaveAttribute("href", "/reviews/new?intent=describe");
+    expect(screen.getByRole("link", { name: "Create from evidence" })).toHaveAttribute("href", "/architecture/reviews/new");
+    expect(screen.getByRole("link", { name: "Describe the architecture" })).toHaveAttribute("href", "/architecture/reviews/new?intent=describe");
     expect(screen.getByText("Signed review record")).toBeInTheDocument();
     expect(screen.getByText(/one request produces everything needed for review/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/What one completed architecture review delivers/i)).toBeInTheDocument();
@@ -136,7 +136,7 @@ describe("WelcomeBanner — renders heading and CTAs", () => {
     });
 
     expect(within(screen.getByRole("banner", { name: "Welcome" })).getByText(/Open in-progress architecture reviews/i)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Create from evidence" })).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByRole("link", { name: "Create from evidence" })).toHaveAttribute("href", "/architecture/reviews/new");
     expect(screen.getByRole("link", { name: /see completed example/i })).toHaveAttribute(
       "href",
       "/showcase/claims-intake-modernization",

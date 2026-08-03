@@ -61,7 +61,7 @@ export function RunDetailDecisionDeltaPanel(props: RunDetailDecisionDeltaPanelPr
                 </span>
                 <SeverityTag severity={row.severityLabel} label={row.severityLabel} />
                 <Link
-                  href={`/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(row.findingId)}`}
+                  href={`/architecture/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(row.findingId)}`}
                   className={cn(OPERATOR_LINK.inline, "min-w-0 flex-1 font-medium")}
                 >
                   {row.title}

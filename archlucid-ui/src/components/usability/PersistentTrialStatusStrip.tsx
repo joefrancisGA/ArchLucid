@@ -26,12 +26,12 @@ function resolveTrialNextAction(payload: TenantTrialStatusPayload | null): Trial
   if (payload?.trialSampleRunId !== null && payload?.trialSampleRunId !== undefined && payload.trialSampleRunId.trim().length > 0) {
     return {
       label: "Explore sample review",
-      href: `/reviews/${encodeURIComponent(payload.trialSampleRunId.trim())}`,
+      href: `/architecture/reviews/${encodeURIComponent(payload.trialSampleRunId.trim())}`,
     };
   }
 
   if (payload?.status === "Active") {
-    return { label: "Commit your first review", href: "/reviews?projectId=default" };
+    return { label: "Commit your first review", href: "/architecture/reviews?projectId=default" };
   }
 
   if (payload?.status === "Expired" || payload?.status === "ReadOnly" || payload?.status === "ExportOnly") {
@@ -76,7 +76,7 @@ export function PersistentTrialStatusStrip() {
           <span className="text-neutral-700 dark:text-neutral-300">{BUYER_DEMO_EVALUATION_WORKSPACE_STATUS}</span>
         </div>
         <Button asChild type="button" size="sm" variant="outline" className={cn("h-7", OPERATOR_TYPOGRAPHY.button)}>
-          <Link href={`/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}>{BUYER_TRY_SAMPLE_REVIEW_CTA}</Link>
+          <Link href={`/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}>{BUYER_TRY_SAMPLE_REVIEW_CTA}</Link>
         </Button>
       </div>
     );

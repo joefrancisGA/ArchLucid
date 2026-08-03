@@ -24,8 +24,8 @@ describe("buildInspectFindingWorkItemBody", () => {
     expect(text).toContain("## Finding: Compliance — Exposed egress");
     expect(text).toContain("`f1`");
     expect(text).toContain("`r1`");
-    expect(text).toContain("- ArchLucid run: https://demo.example.org/reviews/r1");
-    expect(text).toContain("- Finding (explain page): https://demo.example.org/reviews/r1/findings/f1");
+    expect(text).toContain("- ArchLucid run: https://demo.example.org/architecture/reviews/r1");
+    expect(text).toContain("- Finding (explain page): https://demo.example.org/architecture/reviews/r1/findings/f1");
   });
 
   it("uses Jira wiki markers for Jira variant", () => {
@@ -40,7 +40,7 @@ describe("buildInspectFindingWorkItemBody", () => {
 
     expect(text).toContain("Short description: Compliance — Exposed egress (f1)");
     expect(text).toContain("Steps to resolve:");
-    expect(text).toContain("ArchLucid inspector link: https://demo.example.org/reviews/r1/findings/f1/evidence-trace");
+    expect(text).toContain("ArchLucid inspector link: https://demo.example.org/architecture/reviews/r1/findings/f1/evidence-trace");
     expect(text).toContain("Finding ID: f1");
     expect(text).toContain("Run ID: r1");
     expect(text).toContain("Add firewall rules.");
@@ -87,7 +87,7 @@ describe("buildTraceRowWorkItemBody", () => {
     expect(text).toContain("**Severity:** High");
     expect(text).toContain("Restrict egress.");
     expect(text).toContain("`find-z`");
-    expect(text).toContain("https://demo.example.org/reviews/run-z/findings/find-z");
+    expect(text).toContain("https://demo.example.org/architecture/reviews/run-z/findings/find-z");
   });
 
   it("supports ServiceNow plain text for trace rows", () => {

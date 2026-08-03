@@ -203,7 +203,7 @@ export function DemoPreviewGovernanceSection(props: DemoPreviewExecutiveConclusi
       {runId.length > 0 ? (
         <p className="mt-4">
           <Link
-            href={`/governance?runId=${encodeURIComponent(runId)}`}
+            href={`/governance/approval-queue?runId=${encodeURIComponent(runId)}`}
             className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
           >
             View approval

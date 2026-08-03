@@ -92,7 +92,7 @@ export function ShowcasePipelineReviewTrailCards(props: {
                 {showPrimaryReviewDeepLink ? (
                   <Link
                     className="rounded-md border border-neutral-200 bg-neutral-50 px-2 py-1 font-medium text-teal-800 no-underline hover:bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-neutral-800"
-                    href={`/reviews/${encodeURIComponent(runId)}`}
+                    href={`/architecture/reviews/${encodeURIComponent(runId)}`}
                   >
                     Review
                   </Link>
@@ -108,7 +108,7 @@ export function ShowcasePipelineReviewTrailCards(props: {
                 {showFinding ? (
                   <Link
                     className="rounded-md border border-amber-600/40 bg-al-surface-raised px-2 py-1 font-medium text-al-text-primary no-underline hover:bg-[var(--al-layer-hover)] dark:border-amber-700/50"
-                    href={`/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(primaryFindingId.trim())}`}
+                    href={`/architecture/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(primaryFindingId.trim())}`}
                   >
                     Review finding
                   </Link>

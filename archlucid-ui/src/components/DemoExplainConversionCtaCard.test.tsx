@@ -15,7 +15,7 @@ describe("DemoExplainConversionCtaCard", () => {
       "href",
       DEMO_EXPLAIN_CONVERSION_REVIEW_HREF,
     );
-    expect(DEMO_EXPLAIN_CONVERSION_REVIEW_HREF).toBe("/reviews/new?preset=greenfield");
+    expect(DEMO_EXPLAIN_CONVERSION_REVIEW_HREF).toBe("/architecture/reviews/new?preset=greenfield");
     expect(screen.getByTestId("demo-explain-conversion-fab")).toHaveAttribute(
       "href",
       DEMO_EXPLAIN_CONVERSION_REVIEW_HREF,

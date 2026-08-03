@@ -23,7 +23,7 @@ describe("buyer-safe-review-navigation", () => {
     const link = mod.getBuyerSafeReviewsTableLink("claims-intake-modernization");
 
     expect(link.label).toBe("Open review");
-    expect(link.href).toBe("/reviews/claims-intake-modernization");
+    expect(link.href).toBe("/architecture/reviews/claims-intake-modernization");
   });
 
   it("uses review link for static spine IDs even when buyer chrome env is off", async () => {
@@ -36,7 +36,7 @@ describe("buyer-safe-review-navigation", () => {
     const link = mod.getBuyerSafeReviewsTableLink("claims-intake-modernization");
 
     expect(link.label).toBe("Open review");
-    expect(link.href).toBe("/reviews/claims-intake-modernization");
+    expect(link.href).toBe("/architecture/reviews/claims-intake-modernization");
   });
 
   it("uses review link for static spine IDs when static operator enables buyer-polished shell without DEMO_MODE", async () => {
@@ -47,7 +47,7 @@ describe("buyer-safe-review-navigation", () => {
     const link = mod.getBuyerSafeReviewsTableLink("claims-intake-modernization");
 
     expect(link.label).toBe("Open review");
-    expect(link.href).toBe("/reviews/claims-intake-modernization");
+    expect(link.href).toBe("/architecture/reviews/claims-intake-modernization");
   });
 
   it("canonicalizes workspace href for alias demo IDs", async () => {
@@ -56,7 +56,7 @@ describe("buyer-safe-review-navigation", () => {
     const mod = await import("./buyer-safe-review-navigation");
 
     expect(mod.getCanonicalReviewWorkspaceHref("claims-intake-modernization-run")).toBe(
-      "/reviews/claims-intake-modernization",
+      "/architecture/reviews/claims-intake-modernization",
     );
   });
 
@@ -65,7 +65,7 @@ describe("buyer-safe-review-navigation", () => {
 
     const mod = await import("./buyer-safe-review-navigation");
 
-    expect(mod.getShowcaseManifestHref()).toBe("/reviews/claims-intake-modernization/signed-record");
+    expect(mod.getShowcaseManifestHref()).toBe("/architecture/reviews/claims-intake-modernization/signed-record");
   });
 
   it("builds showcase compare href with v1 and v2 static spine run ids", async () => {
@@ -85,6 +85,6 @@ describe("buyer-safe-review-navigation", () => {
     const manifest = mod.getBuyerSafeSignedManifestTableLink("claims-intake-modernization");
 
     expect(manifest.label).toBe("View signed record");
-    expect(manifest.href).toBe("/reviews/claims-intake-modernization/signed-record");
+    expect(manifest.href).toBe("/architecture/reviews/claims-intake-modernization/signed-record");
   });
 });

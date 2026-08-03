@@ -6,9 +6,9 @@ describe("normalizeTelemetryRoute", () => {
   it("replaces UUID and run id segments with stable tokens", () => {
     expect(
       normalizeTelemetryRoute(
-        "/reviews/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/findings?tab=open",
+        "/architecture/reviews/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/findings?tab=open",
       ),
-    ).toBe("/reviews/[runId]/findings");
+    ).toBe("/architecture/reviews/[runId]/findings");
   });
 
   it("preserves static operator routes", () => {

@@ -21,8 +21,8 @@ export const GLOSSARY_TERMS = {
     docLink: "/help/glossary#term-signed-review-record",
   },
   review_package: {
-    term: "Architecture package",
-    definition: "A governed architecture review with signed review record, evidence trail, findings, governance records, and deliverables — the unit buyers open from the reviews list. Former term: review package.",
+    term: "Review package",
+    definition: "A governed architecture review with signed review record, evidence trail, findings, governance records, and deliverables — the unit buyers open from the reviews list.",
     docLink: "/help/glossary#term-review-package",
   },
   findings: {
@@ -57,7 +57,7 @@ export const GLOSSARY_TERMS = {
   },
   policy_pack: {
     term: "Policy pack",
-    definition: "A versioned bundle of rules, thresholds, and governance mappings applied to reviews (compliance, finding treatment, pre-commit gates). Packs are assigned, published, and audited — not informal one-off prose.",
+    definition: "A versioned bundle of rules, thresholds, and governance mappings applied to reviews (compliance, finding treatment, pre-finalize gates). Packs are assigned, published, and audited — not informal one-off prose.",
     docLink: "/help/glossary#term-policy-pack",
   },
   knowledge_graph: {

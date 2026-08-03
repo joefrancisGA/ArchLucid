@@ -48,6 +48,8 @@ public static class ArchLucidInstrumentation
 
     private static int _outboxObservableGaugesRegistered;
 
+    private static int _staleInFlightRunObservableGaugesRegistered;
+
     private static int _trialFunnelObservableGaugesRegistered;
 
     private static int _llmCompletionCacheObservableInstrumentsRegistered;
@@ -1206,6 +1208,12 @@ public static class ArchLucidInstrumentation
         get;
     } = new();
 
+    /// <summary>Latest fleet-wide stale in-flight run gauges for <see cref="EnsureStaleInFlightRunObservableGaugesRegistered" /> (TB-958).</summary>
+    public static StaleInFlightRunGaugeState StaleInFlightRunGauges
+    {
+        get;
+    } = new();
+
     /// <summary>
     ///     Supplies pending audit-retry depth for <c>archlucid_audit_retry_queue_pending</c> (last writer wins; use a
     ///     singleton queue).
@@ -1332,6 +1340,30 @@ public static class ArchLucidInstrumentation
             "archlucid_audit_retry_queue_pending",
             () => new Measurement<long>(_auditRetryQueuePendingReader?.Invoke() ?? 0),
             description: "Approximate audit events waiting in memory for durable write after hot-path failure.");
+    }
+
+    /// <summary>
+    /// Registers fleet-wide stale in-flight run gauges once (TB-958). No <c>tenant_id</c> labels —
+    /// tenant/run triage is log-only via <c>StaleInFlightRunMetricsHostedService</c>.
+    /// </summary>
+    public static void EnsureStaleInFlightRunObservableGaugesRegistered()
+    {
+        if (Interlocked.Exchange(ref _staleInFlightRunObservableGaugesRegistered, 1) != 0)
+            return;
+
+        StaleInFlightRunGaugeState s = StaleInFlightRunGauges;
+
+        AppMeter.CreateObservableGauge(
+            "archlucid_runs_stale_in_flight_count",
+            () => new Measurement<long>(s.Current.StaleInFlightCount),
+            description:
+            "Non-archived runs stuck in Created/TasksGenerated/WaitingForResults/Retrying for more than 1 hour (fleet-wide; no tenant label).");
+
+        AppMeter.CreateObservableGauge(
+            "archlucid_runs_stale_in_flight_oldest_age_seconds",
+            () => new Measurement<double>(s.Current.OldestStaleAgeSeconds),
+            "s",
+            "Age in seconds of the oldest stale in-flight run (fleet-wide; no tenant label).");
     }
 
     /// <summary>Registers trial funnel observable gauges once (call from OpenTelemetry host setup).</summary>

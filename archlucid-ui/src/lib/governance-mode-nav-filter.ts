@@ -2,6 +2,7 @@ import type { NavGroupConfig, NavLinkItem } from "@/lib/nav-config.types";
 import type { NavGroupWithVisibleLinks } from "@/lib/nav-shell-visibility";
 import {
   GOVERNANCE_ALERTS_PATH,
+  GOVERNANCE_APPROVAL_QUEUE_PATH,
   GOVERNANCE_AUDIT_PATH,
   GOVERNANCE_POLICY_PACKS_PATH,
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
@@ -15,7 +16,7 @@ export const GOVERNANCE_MODE_HIDDEN_NAV_HREFS = new Set<string>([
   GOVERNANCE_POLICY_PACKS_PATH,
   LEGACY_POLICY_PACKS_PATH,
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
-  "/governance",
+  GOVERNANCE_APPROVAL_QUEUE_PATH,
   "/governance/findings",
   "/governance/risk-exceptions",
   "/governance/decision-register",

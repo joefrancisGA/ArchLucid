@@ -5,7 +5,7 @@ import { isSafeReturnPath, resolveSafeReturnPath } from "@/lib/navigation/safe-r
 
 describe("isSafeReturnPath", () => {
   it("accepts a simple local path", () => {
-    expect(isSafeReturnPath("/reviews/123")).toBe(true);
+    expect(isSafeReturnPath("/architecture/reviews/123")).toBe(true);
   });
 
   it("accepts the root path", () => {
@@ -13,7 +13,7 @@ describe("isSafeReturnPath", () => {
   });
 
   it("accepts a local path with a query string", () => {
-    expect(isSafeReturnPath("/reviews/123?tab=findings")).toBe(true);
+    expect(isSafeReturnPath("/architecture/reviews/123?tab=findings")).toBe(true);
   });
 
   it("rejects null", () => {

@@ -50,6 +50,6 @@ See [`docs/library/REPEAT_REVIEW_LOOP.md`](../library/REPEAT_REVIEW_LOOP.md) for
 
 ## Related
 
-- [`runbooks/PILOT_RESCUE_PLAYBOOK.md`](PILOT_RESCUE_PLAYBOOK.md) — symptom index when stuck mid-pilot
+- [`runbooks/FIRST_PILOT_TROUBLESHOOTING.md`](FIRST_PILOT_TROUBLESHOOTING.md) — symptom index when stuck mid-pilot
 - [`library/LIVE_E2E_HAPPY_PATH.md`](../library/LIVE_E2E_HAPPY_PATH.md) — scripted HTTP parity
 - [`OPERATOR_PILOT_STICKINESS_CHECKLIST.md`](./OPERATOR_PILOT_STICKINESS_CHECKLIST.md) — Day-7 / Day-30 stickiness after first finalize

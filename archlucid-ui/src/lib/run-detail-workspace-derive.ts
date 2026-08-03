@@ -409,7 +409,7 @@ export function deriveRecommendedWorkspaceActions(input: {
       reason: "Governance approval has not been recorded for this finalized review.",
       relatedFindingCount: null,
       ownerOrRole: "Governance approver",
-      href: `/governance?runId=${encodeURIComponent(input.runId)}`,
+      href: `/governance/approval-queue?runId=${encodeURIComponent(input.runId)}`,
       actionLabel: "Record decision",
     });
   }

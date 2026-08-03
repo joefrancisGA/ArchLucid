@@ -19,7 +19,7 @@ describe("OperatorHomeReviewSummaryCard", () => {
     render(
       <OperatorHomeReviewSummaryCard
         run={run}
-        href="/reviews/review-001"
+        href="/architecture/reviews/review-001"
         buyerPolishedShell
       />,
     );
@@ -48,10 +48,10 @@ describe("OperatorHomeReviewSummaryCard", () => {
     render(
       <OperatorHomeReviewSummaryCard
         run={run}
-        href="/reviews/claims-intake-modernization"
+        href="/architecture/reviews/claims-intake-modernization"
         buyerPolishedShell
         variant="featured"
-        primaryAction={{ href: "/reviews/claims-intake-modernization", label: "Open review" }}
+        primaryAction={{ href: "/architecture/reviews/claims-intake-modernization", label: "Open review" }}
       />,
     );
 

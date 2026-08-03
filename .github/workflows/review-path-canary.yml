@@ -1,0 +1,116 @@
+# TB-959 — Scheduled create → execute → commit (finalize) canary against staging.
+# Sibling of hosted-saas-probe / real-mode-staging-smoke: this path commits (full review journey).
+#
+# Opt-in: ARCHLUCID_REVIEW_PATH_CANARY_ENABLED=true + ARCHLUCID_STAGING_SMOKE_API_KEY
+# (dedicated canary/smoke tenant; prefer simulator / Economy — see docs/runbooks/REVIEW_PATH_CANARY.md).
+#
+# Failure pages founder via ARCHLUCID_PAGERDUTY_ROUTING_KEY (preferred — same PD integration as
+# terraform-monitoring critical AG) or ARCHLUCID_CRITICAL_ALERT_WEBHOOK_URL / STAGING_ONCALL_WEBHOOK_URL.
+name: review-path-canary
+
+on:
+  schedule:
+    # Every 6 hours — bounded frequency for cost/safety (TB-959).
+    - cron: "40 */6 * * *"
+  workflow_dispatch:
+    inputs:
+      override_api_base_url:
+        description: "Override staging API base URL."
+        required: false
+        type: string
+      skip_page_on_failure:
+        description: "Skip paging on failure (debug only)."
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: review-path-canary-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  canary:
+    if: github.event.repository.fork == false
+    name: "Canary: create → execute → commit (staging)"
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: dev
+    env:
+      ARCHLUCID_API_BASE_URL: ${{ inputs.override_api_base_url || vars.ARCHLUCID_STAGING_API_BASE_URL || vars.ARCHLUCID_STAGING_BASE_URL || 'https://staging.archlucid.net' }}
+      ARCHLUCID_API_KEY: ${{ secrets.ARCHLUCID_STAGING_SMOKE_API_KEY }}
+      STAGING_SMOKE_RESULTS_FILE: canary-out/staging-smoke-results.json
+    steps:
+      - name: Gate (opt-in var + staging API key + kill-switch)
+        id: gate
+        run: |
+          if [ "${{ vars.ARCHLUCID_REVIEW_PATH_CANARY_ENABLED }}" != "true" ]; then
+            echo "ARCHLUCID_REVIEW_PATH_CANARY_ENABLED is not true — exiting 0."
+            echo "skipped=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ "${{ vars.ARCHLUCID_REVIEW_PATH_CANARY_KILL_SWITCH }}" = "true" ]; then
+            echo "ARCHLUCID_REVIEW_PATH_CANARY_KILL_SWITCH=true — canary suppressed (exit 0)."
+            echo "skipped=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ -z "${ARCHLUCID_API_KEY:-}" ]; then
+            echo "ARCHLUCID_STAGING_SMOKE_API_KEY secret is not set — exiting 0."
+            echo "skipped=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "skipped=false" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@v5
+        if: steps.gate.outputs.skipped != 'true'
+
+      - name: Ensure PowerShell 7
+        if: steps.gate.outputs.skipped != 'true'
+        run: |
+          if command -v pwsh >/dev/null 2>&1; then
+            pwsh -NoProfile -Command '$PSVersionTable.PSVersion'
+            exit 0
+          fi
+          PWSH_VER=7.4.6
+          curl -sSL -o /tmp/pwsh.tgz "https://github.com/PowerShell/PowerShell/releases/download/v${PWSH_VER}/powershell-${PWSH_VER}-linux-x64.tar.gz"
+          sudo mkdir -p /opt/microsoft/powershell7
+          sudo tar zxf /tmp/pwsh.tgz -C /opt/microsoft/powershell7
+          sudo chmod a+x /opt/microsoft/powershell7/pwsh
+          sudo ln -sf /opt/microsoft/powershell7/pwsh /usr/local/bin/pwsh
+
+      - name: Create → execute → commit (staging-smoke.ps1)
+        id: smoke
+        if: steps.gate.outputs.skipped != 'true'
+        run: |
+          mkdir -p canary-out
+          set +e
+          pwsh -NoProfile -File ./scripts/staging-smoke.ps1
+          code=$?
+          set -e
+          if [ $code -eq 0 ]; then
+            echo "result=pass" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "result=fail" >> "$GITHUB_OUTPUT"
+          exit 1
+
+      - uses: actions/upload-artifact@v4
+        if: always() && steps.gate.outputs.skipped != 'true'
+        with:
+          name: review-path-canary-${{ github.run_id }}
+          path: canary-out/
+
+      - name: Page critical (PagerDuty / webhook)
+        if: failure() && steps.gate.outputs.skipped != 'true' && inputs.skip_page_on_failure != true
+        env:
+          ARCHLUCID_PAGERDUTY_ROUTING_KEY: ${{ secrets.ARCHLUCID_PAGERDUTY_ROUTING_KEY }}
+          ARCHLUCID_CRITICAL_ALERT_WEBHOOK_URL: ${{ secrets.ARCHLUCID_CRITICAL_ALERT_WEBHOOK_URL }}
+          STAGING_ONCALL_WEBHOOK_URL: ${{ secrets.STAGING_ONCALL_WEBHOOK_URL }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          chmod +x ./scripts/ops/page-critical-canary-failure.sh
+          ./scripts/ops/page-critical-canary-failure.sh \
+            "ArchLucid review-path canary FAILED (create→execute→commit)" \
+            "${RUN_URL}" \
+            "result=${{ steps.smoke.outputs.result }}; see REVIEW_PATH_CANARY.md"

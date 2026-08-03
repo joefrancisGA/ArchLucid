@@ -20,7 +20,7 @@ function reviewHref(runId: string | null | undefined): string | null {
     return null;
   }
 
-  return `/reviews/${encodeURIComponent(runId.trim())}`;
+  return `/architecture/reviews/${encodeURIComponent(runId.trim())}`;
 }
 
 /**
@@ -47,12 +47,12 @@ export function resolveRepeatReviewActivation(input: {
       headline: "Plan your second committed review",
       summary:
         "The first proof export is the baseline. A follow-up review shows stickiness when you compare against the prior manifest, replay authority for regressions, or tighten governance dry-runs before enforce.",
-      primaryHref: "/reviews/new",
+      primaryHref: "/architecture/reviews/new",
       primaryCta: "Start next review",
       actions: [
         {
           label: "Open committed review",
-          href: firstHref ?? latestHref ?? "/reviews?projectId=default",
+          href: firstHref ?? latestHref ?? "/architecture/reviews?projectId=default",
           reason: "Reuse prior manifest context and unresolved findings from the first commit.",
         },
         {

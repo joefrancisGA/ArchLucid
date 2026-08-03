@@ -10,9 +10,9 @@ describe("getRouteTitle — static routes", () => {
   it("returns known titles", () => {
     expect(getRouteTitle("/")).toBe("Overview");
     expect(getRouteTitle("/alerts")).toBe("Alerts");
-    expect(getRouteTitle("/reviews/new")).toBe(START_REVIEW_LABEL);
+    expect(getRouteTitle("/architecture/reviews/new")).toBe(START_REVIEW_LABEL);
     expect(getRouteTitle("/architectures/draft-1")).toBe(CREATE_ARCHITECTURE_LABEL);
-    expect(getRouteTitle("/governance")).toBe(GOVERNANCE_OVERVIEW_PAGE_TITLE);
+    expect(getRouteTitle("/governance/approval-queue")).toBe(GOVERNANCE_OVERVIEW_PAGE_TITLE);
     expect(getRouteTitle("/signed-records")).toBe("Signed review records");
     expect(getRouteTitle(EXECUTIVE_DASHBOARD_HREF)).toBe(BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle);
     expect(getRouteTitle("/executive/scorecard")).toBe(BUYER_EXECUTIVE_SUMMARY_VOCABULARY.scorecardPageTitle);
@@ -21,7 +21,7 @@ describe("getRouteTitle — static routes", () => {
 
 describe("getRouteTitle — dynamic review detail", () => {
   it("returns Review detail for uuid path", () => {
-    expect(getRouteTitle("/reviews/e2e-fixture-run-001")).toBe("Review detail");
+    expect(getRouteTitle("/architecture/reviews/e2e-fixture-run-001")).toBe("Review detail");
   });
 });
 

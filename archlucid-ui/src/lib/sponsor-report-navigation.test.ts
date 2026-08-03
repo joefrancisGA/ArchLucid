@@ -26,7 +26,7 @@ describe("sponsor-report-navigation", () => {
   });
 
   it("returns null for unrelated paths", () => {
-    expect(sponsorReportLegacyRedirectPath("/reviews")).toBeNull();
+    expect(sponsorReportLegacyRedirectPath("/architecture/reviews")).toBeNull();
     expect(sponsorReportLegacyRedirectPath(SPONSOR_REPORT_PILOT_OUTCOMES_PATH)).toBeNull();
   });
 });

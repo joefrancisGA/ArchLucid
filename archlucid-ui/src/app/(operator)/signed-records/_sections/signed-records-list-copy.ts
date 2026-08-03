@@ -15,7 +15,7 @@ export const SIGNED_RECORDS_LIST_EMPTY_PRIMARY_LABEL = BUYER_START_ARCHITECTURE_
 
 export const SIGNED_RECORDS_LIST_EMPTY_SECONDARY_LABEL = "Browse reviews";
 
-export const SIGNED_RECORDS_LIST_EMPTY_SECONDARY_HREF = "/reviews?projectId=default";
+export const SIGNED_RECORDS_LIST_EMPTY_SECONDARY_HREF = "/architecture/reviews?projectId=default";
 
 export const SIGNED_RECORDS_LIST_TABLE_REVIEW_COLUMN = "Review";
 

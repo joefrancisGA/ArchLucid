@@ -89,8 +89,8 @@ export function buildFirstPilotReadinessRows(input: {
   const canAdmin = input.principal.authorityRank >= AUTHORITY_RANK.AdminAuthority;
   const baselinesEntered = allBaselinesEntered(input.scorecard);
   const committedRunHref = input.signals.firstCommittedRunId
-    ? `/reviews/${encodeURIComponent(input.signals.firstCommittedRunId)}`
-    : "/reviews?projectId=default";
+    ? `/architecture/reviews/${encodeURIComponent(input.signals.firstCommittedRunId)}`
+    : "/architecture/reviews?projectId=default";
   const configLintCopy = mapConfigLintReadinessForShell({ canAdmin, lint: input.configLint });
 
   const rows = applyHomeReadinessRowPresentation([
@@ -156,7 +156,7 @@ export function buildFirstPilotReadinessRows(input: {
           : canExecute
             ? "Create or continue the first architecture review."
             : "Read-only role cannot execute or finalize. Ask an operator or admin.",
-      href: input.signals.latestRunId ? `/reviews/${encodeURIComponent(input.signals.latestRunId)}` : "/reviews/new",
+      href: input.signals.latestRunId ? `/architecture/reviews/${encodeURIComponent(input.signals.latestRunId)}` : "/architecture/reviews/new",
       cta: input.signals.latestRunId ? "Open latest review" : CREATE_ARCHITECTURE_LABEL,
     },
     {
@@ -242,7 +242,7 @@ export function buildFirstPilotReadinessRows(input: {
       summary: input.signals.hasCommittedManifest
         ? `Next: start a second architecture review with real inputs, compare reviews, try a ${FIRST_PILOT_BUYER_COPY.governanceDryRun}, or generate the sponsor packet.`
         : "Appears after the first finalized review so the first pilot stays focused.",
-      href: "/reviews/new",
+      href: "/architecture/reviews/new",
       cta: "Start second review",
     },
   ]);

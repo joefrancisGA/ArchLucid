@@ -77,7 +77,7 @@ export function HelpProductGuide() {
           </p>
           <ol className="m-0 list-decimal space-y-2 pl-5">
             <li>
-              <Link className={OPERATOR_LINK.inline} href="/reviews/new">
+              <Link className={OPERATOR_LINK.inline} href="/architecture/reviews/new">
                 Start a review
               </Link>{" "}
               from a brief, diagram, document, or cloud evidence.

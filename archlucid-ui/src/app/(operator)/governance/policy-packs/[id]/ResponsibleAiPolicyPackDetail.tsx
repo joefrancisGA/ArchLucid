@@ -214,10 +214,10 @@ export function ResponsibleAiPolicyPackDetail(props: ResponsibleAiPolicyPackDeta
           <Link href={GOVERNANCE_POLICY_PACKS_PATH}>{RESPONSIBLE_AI_ACTION_OPEN_LIBRARY}</Link>
         </Button>
         <Button asChild variant="outline" size="sm">
-          <Link href="/reviews/new">{RESPONSIBLE_AI_ACTION_START_REVIEW}</Link>
+          <Link href="/architecture/reviews/new">{RESPONSIBLE_AI_ACTION_START_REVIEW}</Link>
         </Button>
         <Button asChild variant="outline" size="sm">
-          <Link href="/governance">{RESPONSIBLE_AI_ACTION_GOVERNANCE}</Link>
+          <Link href="/governance/approval-queue">{RESPONSIBLE_AI_ACTION_GOVERNANCE}</Link>
         </Button>
       </section>
 

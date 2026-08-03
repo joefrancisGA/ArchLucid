@@ -99,6 +99,7 @@ public static class ObservabilityExtensions
         BuildProvenance build = BuildProvenance.FromAssembly(typeof(ObservabilityExtensions).Assembly);
 
         ArchLucidInstrumentation.EnsureOutboxDepthObservableGaugesRegistered();
+        ArchLucidInstrumentation.EnsureStaleInFlightRunObservableGaugesRegistered();
         ArchLucidInstrumentation.EnsureTrialFunnelObservableGaugesRegistered();
         ArchLucidInstrumentation.EnsureCircuitBreakerStateObservableGaugesRegistered();
         ArchLucidInstrumentation.EnsureLlmTenantBudgetUtilizationObservableGaugeRegistered();

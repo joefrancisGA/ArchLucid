@@ -19,7 +19,7 @@ describe("HelpProductGuide", () => {
     expect(screen.getAllByText("Getting started").length).toBeGreaterThan(0);
     expect(screen.getByText("Working with a completed review")).toBeInTheDocument();
 
-    expect(screen.getByRole("link", { name: "Start a review" })).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByRole("link", { name: "Start a review" })).toHaveAttribute("href", "/architecture/reviews/new");
     expect(screen.getByRole("link", { name: "Open executive summary" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Ask" })).toHaveAttribute("href", "/insights/ask-review-questions");
     expect(screen.getByRole("link", { name: "Sign in" })).toHaveAttribute("href", "/auth/signin");

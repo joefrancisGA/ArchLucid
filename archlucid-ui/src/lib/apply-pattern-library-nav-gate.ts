@@ -1,7 +1,8 @@
 import type { NavLinkItem } from "@/lib/nav-config.types";
 import type { NavGroupWithVisibleLinks } from "@/lib/nav-shell-visibility";
+import { PATTERN_LIBRARY_PATH } from "@/lib/pattern-library-route";
 
-const PATTERN_LIBRARY_NAV_HREF = "/patterns";
+const PATTERN_LIBRARY_NAV_HREF = PATTERN_LIBRARY_PATH;
 
 export function omitPatternLibraryNavLink(links: ReadonlyArray<NavLinkItem>): NavLinkItem[] {
   return links.filter((link) => link.href !== PATTERN_LIBRARY_NAV_HREF);
@@ -17,7 +18,7 @@ export function applyPatternLibraryNavGate(
 
   return rows
     .map((row) => ({
-      group: row.group,
+      ...row,
       visibleLinks: omitPatternLibraryNavLink(row.visibleLinks),
     }))
     .filter((row) => row.visibleLinks.length > 0);

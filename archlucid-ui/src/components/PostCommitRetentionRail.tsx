@@ -60,7 +60,7 @@ export function PostCommitRetentionRail({
               Executive summary is already the prominent CTA on review detail; this rail continues the package path.
             */}
             <Button type="button" asChild variant="default" size="sm" className="justify-center sm:justify-start">
-              <Link href={`/governance?runId=${encodeURIComponent(runId)}`}>View governance approval</Link>
+              <Link href={`/governance/approval-queue?runId=${encodeURIComponent(runId)}`}>View governance approval</Link>
             </Button>
             {goldenManifestId !== null && goldenManifestId.trim().length > 0 ? (
               <Button type="button" asChild variant="secondary" size="sm" className="justify-center sm:justify-start">
@@ -79,7 +79,7 @@ export function PostCommitRetentionRail({
           </>
         ) : (
           <Button type="button" asChild variant="default" size="sm" className="justify-center sm:justify-start">
-            <Link href="/reviews/new" title="Start another architecture review with your repository inputs">
+            <Link href="/architecture/reviews/new" title="Start another architecture review with your repository inputs">
               Review again
             </Link>
           </Button>

@@ -8,7 +8,7 @@
 
 **Last reviewed:** 2026-07-21
 
-**Canonical seven-step minimum path:** [`../library/CANONICAL_FIRST_RUN_PATH.md`](../library/CANONICAL_FIRST_RUN_PATH.md) (command wrapper: `scripts/Run-CanonicalFirstPilotPath.ps1`). **Canonical four-step narrative:** [`CORE_PILOT.md`](../CORE_PILOT.md). **This file is the canonical operational checklist.** **Before you start (Azure + config):** [`PILOT_PREREQUISITES.md`](PILOT_PREREQUISITES.md). **Production-like preflight:** [`FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md`](FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md). **Time-boxed evaluators:** § **First value in 20 minutes** below. **In-product rail:** operator **Home** → **First-pilot path (about 20 minutes)** strip. **Starter pack chooser:** [`templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md`](../../templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md). **Golden walkthrough:** [`DEMO_QUICKSTART.md#golden-accelerator-walkthrough-regulated-saas`](../go-to-market/DEMO_QUICKSTART.md#golden-accelerator-walkthrough-regulated-saas) (`GOLDEN_ACCELERATOR_WALKTHROUGH.md` alias). **Evidence checklist (printable):** [`FIRST_RUN_EVIDENCE_CHECKLIST.md`](FIRST_RUN_EVIDENCE_CHECKLIST.md). **Stuck mid-pilot:** [`PILOT_RESCUE_PLAYBOOK.md`](PILOT_RESCUE_PLAYBOOK.md) · **Support triage:** [`FIRST_PILOT_SUPPORT_TRIAGE.md`](FIRST_PILOT_SUPPORT_TRIAGE.md).
+**Canonical seven-step minimum path:** [`../library/CANONICAL_FIRST_RUN_PATH.md`](../library/CANONICAL_FIRST_RUN_PATH.md) (command wrapper: `scripts/Run-CanonicalFirstPilotPath.ps1`). **Canonical four-step narrative:** [`CORE_PILOT.md`](../CORE_PILOT.md). **This file is the canonical operational checklist.** **Before you start (Azure + config):** [`PILOT_PREREQUISITES.md`](PILOT_PREREQUISITES.md). **Production-like preflight:** [`FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md`](FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md). **Time-boxed evaluators:** § **First value in 20 minutes** below. **In-product rail:** operator **Home** → **First-pilot path (about 20 minutes)** strip. **Starter pack chooser:** [`templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md`](../../templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md). **Golden walkthrough:** [`DEMO_QUICKSTART.md#golden-accelerator-walkthrough-regulated-saas`](../go-to-market/DEMO_QUICKSTART.md#golden-accelerator-walkthrough-regulated-saas) (`GOLDEN_ACCELERATOR_WALKTHROUGH.md` alias). **Evidence checklist (printable):** [`FIRST_RUN_EVIDENCE_CHECKLIST.md`](FIRST_RUN_EVIDENCE_CHECKLIST.md). **Stuck mid-pilot:** [`FIRST_PILOT_TROUBLESHOOTING.md`](FIRST_PILOT_TROUBLESHOOTING.md) · **Support triage:** [`FIRST_PILOT_SUPPORT_TRIAGE.md`](FIRST_PILOT_SUPPORT_TRIAGE.md).
 
 
 ## Inputs, outputs, and stop conditions
@@ -190,7 +190,7 @@ Until you have one **finalized** architecture package, you do **not** need: Oper
 | C4 | *(Optional)* Assign a **V1 policy pack** and run pre-finalize dry-run when governance is in pilot scope. | Dry-run shows blocking vs warning findings. | `POST /v1/governance/policy-packs/dry-run` · [`PRE_COMMIT_GOVERNANCE_GATE.md`](../library/PRE_COMMIT_GOVERNANCE_GATE.md) |
 | C5 | **Finalize** architecture package. | Package / manifest id visible; artifacts table non-empty. | `POST /v1/architecture/run/{runId}/commit` · review detail **Finalize** |
 
-**Failure recovery (Phase C):** execute stalls → [`PILOT_RESCUE_PLAYBOOK.md`](PILOT_RESCUE_PLAYBOOK.md) · pre-finalize blocked → disposition findings per gate doc · finalize/commit 409 → governance extension `#governance-pre-commit-blocked`.
+**Failure recovery (Phase C):** execute stalls → [`FIRST_PILOT_TROUBLESHOOTING.md`](FIRST_PILOT_TROUBLESHOOTING.md) · pre-finalize blocked → disposition findings per gate doc · finalize/commit 409 → governance extension `#governance-pre-commit-blocked`.
 
 
 ## Phase D — Architecture package and sponsor export
@@ -213,7 +213,7 @@ Until you have one **finalized** architecture package, you do **not** need: Oper
 | Pilot proved value; sponsor wants depth | Stay on **Pilot** for a second real review (see [`REPEAT_REVIEW_LOOP.md`](../library/REPEAT_REVIEW_LOOP.md)), or open **Operate (analysis)** for compare/replay/graph only if a concrete question appears. | [`OPERATOR_DECISION_GUIDE.md`](../library/OPERATOR_DECISION_GUIDE.md) |
 | Governance / audit questions emerged | Enable **Operate (governance)** — policy packs, approvals, audit log. | [`PRODUCT_PACKAGING.md`](../library/PRODUCT_PACKAGING.md) Layer B.2 |
 | Need a **Specialty** buyer-job narrative (optional — after first Core value) | Choose a Specialty template from [`library/walkthroughs/README.md`](../library/walkthroughs/README.md) (Azure SaaS, AI governance, healthcare). | Buyer-job pages under [`go-to-market/buyer-jobs/`](../go-to-market/buyer-jobs/) |
-| Stuck or regressed | Symptom index + rescue playbook. | [`PILOT_RESCUE_PLAYBOOK.md`](PILOT_RESCUE_PLAYBOOK.md) |
+| Stuck or regressed | Symptom index + troubleshooting decision tree. | [`FIRST_PILOT_TROUBLESHOOTING.md`](FIRST_PILOT_TROUBLESHOOTING.md) |
 
 **Specialty accelerator templates (optional, V1-only):** index [`library/walkthroughs/README.md`](../library/walkthroughs/README.md). These are **not** mandatory before first Core finalize.
 

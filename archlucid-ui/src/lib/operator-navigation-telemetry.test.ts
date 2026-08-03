@@ -63,7 +63,7 @@ describe("operator-navigation-telemetry (IA-019)", () => {
 
   it("emits RouteEntered with normalized route and referrer type", async () => {
     trackRouteEntered({
-      pathname: "/reviews/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/findings",
+      pathname: "/architecture/reviews/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/findings",
       referrerType: "nav",
       shellMode: "demo",
     });
@@ -72,7 +72,7 @@ describe("operator-navigation-telemetry (IA-019)", () => {
       expect(trackEvent).toHaveBeenCalledWith(
         { name: "RouteEntered" },
         expect.objectContaining({
-          route: "/reviews/[runId]/findings",
+          route: "/architecture/reviews/[runId]/findings",
           referrerType: "nav",
           shellMode: "demo",
         }),

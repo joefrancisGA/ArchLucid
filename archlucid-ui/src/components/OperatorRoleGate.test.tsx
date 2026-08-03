@@ -11,7 +11,7 @@ const { signedInState } = vi.hoisted(() => ({
 }));
 
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/reviews",
+  usePathname: () => "/architecture/reviews",
   useRouter: () => ({ replace }),
 }));
 

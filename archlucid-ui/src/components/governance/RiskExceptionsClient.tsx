@@ -214,12 +214,12 @@ export default function RiskExceptionsClient() {
               { label: "Open findings", href: "/governance/findings", variant: "primary" },
               {
                 label: buyerPolishedShell ? BUYER_RISK_REGISTER_EMPTY_SECONDARY_ACTION : "Open governance workflow",
-                href: "/governance",
+                href: "/governance/approval-queue",
                 variant: "outline",
               },
             ]}
             footer={
-              <Link className={OPERATOR_LINK.optional} href="/reviews/new">
+              <Link className={OPERATOR_LINK.optional} href="/architecture/reviews/new">
                 {buyerPolishedShell ? BUYER_RISK_EXCEPTIONS_EMPTY_TERTIARY_ACTION : CREATE_ARCHITECTURE_LABEL}
               </Link>
             }

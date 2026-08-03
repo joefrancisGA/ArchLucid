@@ -18,7 +18,7 @@ const analysisGroup: NavGroupConfig = {
       requiredAuthority: "ReadAuthority",
     },
     {
-      href: "/patterns",
+      href: "/insights/patterns",
       label: "Pattern library",
       title: "Patterns",
       tier: "extended",
@@ -51,13 +51,13 @@ describe("applyPatternLibraryNavGate", () => {
 
     const gated = applyPatternLibraryNavGate(rows, true);
 
-    expect(gated[0]?.visibleLinks.map((link) => link.href)).toEqual(["/insights/evidence-graph", "/patterns"]);
+    expect(gated[0]?.visibleLinks.map((link) => link.href)).toEqual(["/insights/evidence-graph", "/insights/patterns"]);
   });
 });
 
 describe("applyPatternLibraryHrefSetGate", () => {
-  it("removes /patterns from the href set when hidden", () => {
-    const gated = applyPatternLibraryHrefSetGate(new Set(["/insights/evidence-graph", "/patterns"]), false);
+  it("removes /insights/patterns from the href set when hidden", () => {
+    const gated = applyPatternLibraryHrefSetGate(new Set(["/insights/evidence-graph", "/insights/patterns"]), false);
 
     expect([...gated]).toEqual(["/insights/evidence-graph"]);
   });

@@ -28,7 +28,7 @@ describe("buildAuthSignInHref", () => {
 
 describe("buildSessionExpiredHref", () => {
   it("defaults to idle-timeout on the session-expired route", () => {
-    expect(buildSessionExpiredHref("/reviews/run-1")).toBe(
+    expect(buildSessionExpiredHref("/architecture/reviews/run-1")).toBe(
       "/auth/session-expired?reason=idle-timeout&returnUrl=%2Freviews%2Frun-1",
     );
   });

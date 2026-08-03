@@ -29,7 +29,7 @@ export function RunDetailExecutiveSummaryCtaCard(props: RunDetailExecutiveSummar
       </CardHeader>
       <CardContent className={cn(OPERATOR_CARD.content, OPERATOR_LAYOUT.sectionHeadingStack)}>
         <Button type="button" variant={demoted ? "outline" : "primary"} asChild>
-          <Link href={`/reviews/${encodeURIComponent(runId)}`}>Open executive summary</Link>
+          <Link href={`/architecture/reviews/${encodeURIComponent(runId)}`}>Open executive summary</Link>
         </Button>
         <p className="m-0">
           <Link

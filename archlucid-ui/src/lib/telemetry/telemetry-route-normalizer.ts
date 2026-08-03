@@ -5,7 +5,13 @@ export function normalizeTelemetryRoute(pathname: string): string {
   const pathOnly = pathname.split("?")[0]?.trim() ?? "/";
   let normalized = pathOnly.replace(UUID_PATTERN, "[id]");
 
-  normalized = normalized.replace(/\/reviews\/[^/]+/i, "/reviews/[runId]");
+  if (normalized.startsWith("/architecture/reviews/")) {
+    normalized = normalized.replace(/^\/architecture\/reviews\/[^/]+/i, "/architecture/reviews/[runId]");
+  } else if (normalized.startsWith("/reviews/")) {
+    // Legacy public prefix before next.config redirect settles.
+    normalized = normalized.replace(/^\/reviews\/[^/]+/i, "/architecture/reviews/[runId]");
+  }
+
   normalized = normalized.replace(/\/(?:manifests|signed-records)\/[^/]+/i, "/signed-records/[manifestId]");
   normalized = normalized.replace(/\/signed-records\/[^/]+/i, "/signed-records/[recordId]");
 

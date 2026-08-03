@@ -13,7 +13,7 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 });
 
 vi.mock("@/lib/buyer-safe-review-navigation", () => ({
-  getShowcaseManifestHref: () => "/reviews/demo-manifest",
+  getShowcaseManifestHref: () => "/architecture/reviews/demo-manifest",
 }));
 
 vi.mock("@/lib/operator-static-demo", () => ({

@@ -76,4 +76,4 @@ export const IMPROVEMENT_PLANNING_DEMO_DESCRIPTION =
 
 export const IMPROVEMENT_PLANNING_CAPTURE_FEEDBACK_HREF = "/product-learning" as const;
 
-export const IMPROVEMENT_PLANNING_VIEW_REVIEWS_HREF = "/reviews" as const;
+export const IMPROVEMENT_PLANNING_VIEW_REVIEWS_HREF = "/architecture/reviews" as const;

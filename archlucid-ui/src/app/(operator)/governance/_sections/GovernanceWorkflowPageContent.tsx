@@ -532,7 +532,7 @@ export function GovernanceWorkflowPageContent() {
       {isReviewContext ? <CtoDemoSegregationCallout /> : null}
       {isReviewContext ? <CtoDemoGovernancePreviewHint /> : null}
       <OperatorPageHeader
-        navHref="/governance"
+        navHref="/governance/approval-queue"
         title={pageTitle}
         titleTestId="governance-overview-page-title"
         subtitle={pageLead}

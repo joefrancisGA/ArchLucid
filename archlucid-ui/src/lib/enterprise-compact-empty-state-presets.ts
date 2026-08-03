@@ -9,6 +9,7 @@ import {
 import {
   AZURE_REFERENCE_SAMPLE_REVIEW_CTA_LABEL,
 } from "@/lib/empty-state-presets";
+import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance-route-paths";
 
 /** Reviews list when the project has zero reviews. */
 export const RUNS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
@@ -122,7 +123,7 @@ export const DECISION_REGISTER_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps =
   actions: [
     { label: "Open reviews", href: "/architecture/reviews?projectId=default", variant: "primary" },
     { label: "Start architecture review", href: "/architecture/reviews/new", variant: "outline" },
-    { label: "Open governance workflow", href: "/governance", variant: "outline" },
+    { label: "Open governance workflow", href: GOVERNANCE_APPROVAL_QUEUE_PATH, variant: "outline" },
   ],
 };
 

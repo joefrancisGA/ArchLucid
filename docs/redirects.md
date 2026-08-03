@@ -355,6 +355,12 @@ Human readers and agents should follow **canonical** paths below. This file is t
 | `docs/runbooks/EMAIL_OTP_ABUSE_DRILL.md` | [`docs/runbooks/EMAIL_OTP_DELIVERY_AND_ABUSE.md`](runbooks/EMAIL_OTP_DELIVERY_AND_ABUSE.md#abuse-drill-evidence-e1) | Staging OTP flood drill (Evidence E1) |
 | `docs/runbooks/FIRST_VALUE_20_MINUTES.md` | [`docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md`](runbooks/FIRST_PILOT_OPERATOR_PATH.md#first-value-in-20-minutes-time-boxed) | Time-boxed path to sponsor-safe artifact |
 
+## 2026-08-03 runbook consolidation
+
+| Former path | Canonical path | Notes |
+|-------------|----------------|-------|
+| `docs/runbooks/PILOT_RESCUE_PLAYBOOK.md` (body) | [`docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md`](runbooks/FIRST_PILOT_TROUBLESHOOTING.md) | Quick matrix + unique stall/AOAI/support-PII rows folded into first-pilot troubleshooting; filename kept as path-stable alias for bookmarks |
+
 ## 2026-07-22 runbook consolidation
 
 | Former path | Canonical path | Notes |

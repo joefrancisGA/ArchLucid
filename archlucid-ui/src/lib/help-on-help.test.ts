@@ -14,7 +14,7 @@ describe("help-on-help", () => {
     expect(isHelpOnHelpPath("/help/first-architecture-review")).toBe(true);
     expect(isHelpOnHelpPath("/help/first-architecture-review#first-review-path")).toBe(true);
     expect(isHelpOnHelpPath("/help")).toBe(true);
-    expect(isHelpOnHelpPath("/reviews/new")).toBe(false);
+    expect(isHelpOnHelpPath("/architecture/reviews/new")).toBe(false);
     expect(isHelpOnHelpPath("/")).toBe(false);
   });
 
@@ -29,7 +29,7 @@ describe("help-on-help", () => {
   });
 
   it("returns no anchors off help routes", () => {
-    expect(listHelpOnHelpSectionAnchors("/reviews")).toEqual([]);
+    expect(listHelpOnHelpSectionAnchors("/architecture/reviews")).toEqual([]);
   });
 
   it("prioritizes current-page search hits when on a help article", () => {

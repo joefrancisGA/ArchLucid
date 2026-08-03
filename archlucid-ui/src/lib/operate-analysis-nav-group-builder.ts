@@ -11,6 +11,7 @@ import {
 import type { NavGroupConfig } from "@/lib/nav-config.types";
 import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
 import { PATTERN_LIBRARY_NAV_BADGE, PATTERN_LIBRARY_NAV_LINK_LABEL } from "@/lib/pattern-library-copy";
+import { PATTERN_LIBRARY_PATH } from "@/lib/pattern-library-route";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture-scorecard-route";
@@ -78,7 +79,8 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
         requiredAuthority: "ReadAuthority",
       },
       {
-        href: "/patterns",
+        // String literals required: scripts/ci/assert_route_tier_policy_nav.py parses href:"..." only.
+        href: "/insights/patterns" as typeof PATTERN_LIBRARY_PATH,
         label: PATTERN_LIBRARY_NAV_LINK_LABEL,
         title: "Explore anonymized architecture patterns and adoption signals",
         icon: Layers,

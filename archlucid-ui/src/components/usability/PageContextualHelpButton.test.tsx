@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-const mockUsePathname = vi.fn(() => "/reviews");
+const mockUsePathname = vi.fn(() => "/architecture/reviews");
 
 vi.mock("next/navigation", () => ({
   usePathname: () => mockUsePathname(),
@@ -11,7 +11,7 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 
 describe("PageContextualHelpButton", () => {
   it("prefers the contextual registry popover over a direct help link on migrated pages", () => {
-    mockUsePathname.mockReturnValue("/reviews");
+    mockUsePathname.mockReturnValue("/architecture/reviews");
 
     render(<PageContextualHelpButton />);
 

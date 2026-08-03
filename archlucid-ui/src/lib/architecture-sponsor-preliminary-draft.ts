@@ -53,7 +53,7 @@ function formatDateLabel(iso: string): string {
 /** Sponsor-facing markdown with required preliminary draft watermark fields. */
 export function buildArchitectureSponsorShareMarkdown(input: BuildArchitectureSponsorDraftInput): string {
   const watermark = buildArchitectureSponsorDraftWatermark(input);
-  const reviewUrl = `${input.siteOrigin.replace(/\/$/, "")}/reviews/${encodeURIComponent(input.runId)}`;
+  const reviewUrl = `${input.siteOrigin.replace(/\/$/, "")}/architecture/reviews/${encodeURIComponent(input.runId)}`;
   const gapLines =
     watermark.knownGaps.length > 0
       ? watermark.knownGaps.map((gap) => `- ${gap}`)

@@ -7,7 +7,7 @@
 
 **Goal:** Faster triage without reading the whole codebase.
 
-**Symptom index:** [First-pilot troubleshooting decision tree](FIRST_PILOT_TROUBLESHOOTING.md) (symptom → first check → escalation artifact) · [Pilot rescue playbook](PILOT_RESCUE_PLAYBOOK.md) (quick matrix) · [First-pilot support triage one-pager](FIRST_PILOT_SUPPORT_TRIAGE.md) (support bundle + audit escalation order) · [Report problem intake triage](SUPPORT_PROBLEM_REPORT_TRIAGE.md) (reference id → SQL + App Insights).
+**Symptom index:** [First-pilot troubleshooting decision tree](FIRST_PILOT_TROUBLESHOOTING.md) (quick matrix + symptom → first check → escalation artifact; former pilot rescue playbook) · [First-pilot support triage one-pager](FIRST_PILOT_SUPPORT_TRIAGE.md) (support bundle + audit escalation order) · [Report problem intake triage](SUPPORT_PROBLEM_REPORT_TRIAGE.md) (reference id → SQL + App Insights).
 
 ## First-line steps (try in order)
 
@@ -28,7 +28,7 @@ When **`OrchestratorHealthCheck`** reports **Degraded** or **Unhealthy** on **`G
 2. Inspect SQL for stuck runs: status **Executing**, `UpdatedUtc` older than expected — see [`ORCHESTRATOR_RETRIES.md`](../library/ORCHESTRATOR_RETRIES.md) for transient DB retry behavior.
 3. Check integration outbox depth (pending integration events) — backlog may block resume signals.
 4. Collect **`support-bundle --zip`** and search logs for **`Authority pipeline`** + the affected **`RunId=`**.
-5. For operator recovery steps (resume, cancel, retry), follow [`PILOT_RESCUE_PLAYBOOK.md`](PILOT_RESCUE_PLAYBOOK.md) orchestrator / execute stall guidance.
+5. For operator recovery steps (resume, cancel, retry), follow [`FIRST_PILOT_TROUBLESHOOTING.md`](FIRST_PILOT_TROUBLESHOOTING.md) execute-stall / pipeline guidance.
 
 Cross-links: [`ORCHESTRATOR_RETRIES.md`](../library/ORCHESTRATOR_RETRIES.md), [`../library/BACKGROUND_JOB_CORRELATION.md`](../library/BACKGROUND_JOB_CORRELATION.md).
 

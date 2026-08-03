@@ -46,7 +46,7 @@ const LINE_SAFELIST_PATTERNS = [
   /\brunid\b/i,
   /\brun-id\b/i,
   /\brun_id\b/i,
-  /\/reviews\//i,
+  /\/architecture\/reviews\//i,
   /\/v1\//i,
   /data-testid/i,
   /^import\s+/,

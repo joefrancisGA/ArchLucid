@@ -57,18 +57,18 @@ describe("useSoftNavigationLoading", () => {
     );
 
     act(() => {
-      expect(result.current.navigate("/reviews/claims-intake-modernization")).toBe(true);
+      expect(result.current.navigate("/architecture/reviews/claims-intake-modernization")).toBe(true);
     });
 
     expect(result.current.isNavigating).toBe(true);
-    expect(push).toHaveBeenCalledWith("/reviews/claims-intake-modernization");
+    expect(push).toHaveBeenCalledWith("/architecture/reviews/claims-intake-modernization");
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(SOFT_NAVIGATION_TIMEOUT_MS);
     });
 
     expect(result.current.isNavigating).toBe(false);
-    expect(assign).toHaveBeenCalledWith("/reviews/claims-intake-modernization");
+    expect(assign).toHaveBeenCalledWith("/architecture/reviews/claims-intake-modernization");
     expect(result.current.error).toBeNull();
   });
 
@@ -76,7 +76,7 @@ describe("useSoftNavigationLoading", () => {
     const { result } = renderHook(() => useSoftNavigationLoading());
 
     act(() => {
-      expect(result.current.navigate("/reviews/new")).toBe(true);
+      expect(result.current.navigate("/architecture/reviews/new")).toBe(true);
     });
 
     // Transition callback runs synchronously under the mock; URL still "/".
@@ -93,7 +93,7 @@ describe("useSoftNavigationLoading", () => {
       await vi.advanceTimersByTimeAsync(1);
     });
 
-    expect(assign).toHaveBeenCalledWith("/reviews/new");
+    expect(assign).toHaveBeenCalledWith("/architecture/reviews/new");
   });
 
   it("sets timeout error when hard-nav fallback is disabled", async () => {
@@ -105,7 +105,7 @@ describe("useSoftNavigationLoading", () => {
     );
 
     act(() => {
-      expect(result.current.navigate("/reviews/new")).toBe(true);
+      expect(result.current.navigate("/architecture/reviews/new")).toBe(true);
     });
 
     await act(async () => {

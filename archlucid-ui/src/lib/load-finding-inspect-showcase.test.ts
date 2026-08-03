@@ -38,7 +38,7 @@ describe("loadFindingInspectForRoute — showcase primary finding", () => {
     expect(result.payload?.findingId).toBe("phi-minimization-risk");
     expect(result.payload?.typedPayload.title).toBe(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_TITLE);
     expect(showcasePrimaryFindingDetailHref()).toBe(
-      "/reviews/claims-intake-modernization/findings/phi-minimization-risk",
+      "/architecture/reviews/claims-intake-modernization/findings/phi-minimization-risk",
     );
   });
 });

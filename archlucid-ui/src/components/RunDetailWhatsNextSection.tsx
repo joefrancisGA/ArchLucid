@@ -14,7 +14,7 @@ type RunDetailWhatsNextSectionProps = {
 export function RunDetailWhatsNextSection(props: RunDetailWhatsNextSectionProps): ReactElement {
   const runId = props.runId.trim();
   const encodedRunId = encodeURIComponent(runId);
-  const planNextReviewHref = `/reviews/new?sourceRunId=${encodedRunId}&mode=followup`;
+  const planNextReviewHref = `/architecture/reviews/new?sourceRunId=${encodedRunId}&mode=followup`;
   const compareHref = comparePageHrefAdaptive(runId);
   const replayHref = `/replay?runId=${encodedRunId}`;
 

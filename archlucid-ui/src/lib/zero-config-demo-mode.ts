@@ -13,10 +13,10 @@ import {
 import { readArchLucidAzurePackageZipFromBytes } from "@/lib/read-arch-lucid-azure-package-zip";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 
-/** Query flag for one-click demo review intake (`/reviews/new?zeroConfig=1`). */
+/** Query flag for one-click demo review intake (`/architecture/reviews/new?zeroConfig=1`). */
 export const ZERO_CONFIG_DEMO_QUERY_KEY = "zeroConfig";
 
-export const ZERO_CONFIG_DEMO_WIZARD_HREF = `/reviews/new?${ZERO_CONFIG_DEMO_QUERY_KEY}=1`;
+export const ZERO_CONFIG_DEMO_WIZARD_HREF = `/architecture/reviews/new?${ZERO_CONFIG_DEMO_QUERY_KEY}=1`;
 
 export const ZERO_CONFIG_DEMO_TRY_DEMO_LABEL = "Try with Demo Data";
 

@@ -11,7 +11,7 @@ export default function ReviewDetailNotFound() {
       <OperatorBrandedNotFound showProcessingHint retryLabel="Refresh" />
       <p className={cn("mt-4", OPERATOR_TYPOGRAPHY.helper)}>
         Return to your{" "}
-        <Link href="/reviews?projectId=default" className={OPERATOR_LINK.nav}>
+        <Link href="/architecture/reviews?projectId=default" className={OPERATOR_LINK.nav}>
           reviews list
         </Link>{" "}
         to pick an active architecture review.

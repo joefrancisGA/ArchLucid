@@ -42,7 +42,7 @@ function encodeRunPath(runId: string): string {
 
 /** In-app run detail section anchor (`#manifest-summary`, `#artifacts-exports`, …). */
 export function runDetailSectionHref(runId: string, sectionId: string): string {
-  return `/reviews/${encodeRunPath(runId)}#${sectionId.trim()}`;
+  return `/architecture/reviews/${encodeRunPath(runId)}#${sectionId.trim()}`;
 }
 
 /** Manifest record page section anchor (`#manifest-decisions`, …). */

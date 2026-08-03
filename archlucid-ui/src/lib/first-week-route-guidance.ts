@@ -22,7 +22,7 @@ export type FirstWeekRouteGuidanceAction = {
 export type FirstWeekRouteGuidanceConfig = {
   readonly useWhen: string;
   readonly bridgeCopy: string;
-  /** Omitted when the page already surfaces the next step (e.g. wizard visible on `/reviews/new`). */
+  /** Omitted when the page already surfaces the next step (e.g. wizard visible on `/architecture/reviews/new`). */
   readonly primaryAction?: FirstWeekRouteGuidanceAction;
   readonly operateDeferralNote: string;
 };

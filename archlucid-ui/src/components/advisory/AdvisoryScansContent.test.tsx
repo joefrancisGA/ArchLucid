@@ -72,7 +72,7 @@ describe("AdvisoryScansContent", () => {
     ).not.toBeInTheDocument();
     expect(screen.getByTestId("advisory-empty-open-reviews-link")).toHaveAttribute(
       "href",
-      "/reviews?projectId=default",
+      "/architecture/reviews?projectId=default",
     );
   });
 

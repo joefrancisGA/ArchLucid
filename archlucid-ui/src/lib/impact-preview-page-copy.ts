@@ -1,3 +1,5 @@
+import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance-route-paths";
+
 export const IMPACT_PREVIEW_PAGE_TITLE = "Impact preview" as const;
 
 export const IMPACT_PREVIEW_PAGE_SUBTITLE =
@@ -98,9 +100,9 @@ export const IMPACT_PREVIEW_ESTIMATED_IMPACT_LABEL = "Estimated impact" as const
 export const IMPACT_PREVIEW_EXPECTED_CHANGE_LABEL = "Expected change" as const;
 export const IMPACT_PREVIEW_BASED_ON_EVIDENCE_LABEL = "Based on current review evidence" as const;
 
-export const IMPACT_PREVIEW_REVIEWS_HREF = "/reviews?projectId=default" as const;
+export const IMPACT_PREVIEW_REVIEWS_HREF = "/architecture/reviews?projectId=default" as const;
 export const IMPACT_PREVIEW_PLANNING_HREF = "/planning" as const;
-export const IMPACT_PREVIEW_CREATE_REVIEW_HREF = "/reviews/new" as const;
+export const IMPACT_PREVIEW_CREATE_REVIEW_HREF = "/architecture/reviews/new" as const;
 export const IMPACT_PREVIEW_ADVISORY_HREF = "/governance/advisory-scans" as const;
-export const IMPACT_PREVIEW_GOVERNANCE_HREF = "/governance" as const;
+export const IMPACT_PREVIEW_GOVERNANCE_HREF = GOVERNANCE_APPROVAL_QUEUE_PATH;
 export const IMPACT_PREVIEW_SETTINGS_ROLES_HREF = "/administration/settings/users?tab=roles" as const;

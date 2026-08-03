@@ -25,7 +25,7 @@ describe("NewReviewSampleEscapeLink", () => {
 
     const link = screen.getByRole("link", { name: "Skip setup and open a completed sample review" });
 
-    expect(link).toHaveAttribute("href", `/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`);
+    expect(link).toHaveAttribute("href", `/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`);
     expect(link.className).toMatch(/underline/);
   });
 });

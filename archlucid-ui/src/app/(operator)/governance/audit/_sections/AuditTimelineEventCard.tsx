@@ -108,7 +108,7 @@ export function AuditTimelineEventCard(props: AuditTimelineEventCardProps) {
           Review:{" "}
           {ev.runId ? (
             <Link
-              href={`/reviews/${ev.runId}`}
+              href={`/architecture/reviews/${ev.runId}`}
               title="Open review"
               className={OPERATOR_LINK.nav}
             >
@@ -134,7 +134,7 @@ export function AuditTimelineEventCard(props: AuditTimelineEventCardProps) {
             Review:{" "}
             {ev.runId ? (
               <Link
-                href={`/reviews/${ev.runId}`}
+                href={`/architecture/reviews/${ev.runId}`}
                 title="Open review"
                 className={OPERATOR_LINK.nav}
               >
@@ -150,7 +150,7 @@ export function AuditTimelineEventCard(props: AuditTimelineEventCardProps) {
         buyerPolishedShell ? null : (
           <div className={cn("mt-1.5", OPERATOR_TYPOGRAPHY.body)}>
             <Link
-              href={`/reviews/${ev.runId}#agent-traces`}
+              href={`/architecture/reviews/${ev.runId}#agent-traces`}
               className={OPERATOR_LINK.nav}
             >
               View agent traces →

@@ -28,7 +28,7 @@ type ReviewsHubRecentPackagesProps = {
   readonly runs: readonly RunSummary[];
 };
 
-/** Recent packages table or intentional empty state for `/reviews`. */
+/** Recent packages table or intentional empty state for `/architecture/reviews`. */
 export function ReviewsHubRecentPackages(props: ReviewsHubRecentPackagesProps): React.JSX.Element {
   const rows = props.runs.map(toReviewsHubPackageRowDisplay);
 
@@ -48,7 +48,7 @@ export function ReviewsHubRecentPackages(props: ReviewsHubRecentPackagesProps): 
           </p>
           <div className="mt-4">
             <Button variant="primary" size="sm" asChild>
-              <Link href="/reviews/new" data-testid="reviews-hub-recent-empty-start-review">
+              <Link href="/architecture/reviews/new" data-testid="reviews-hub-recent-empty-start-review">
                 {REVIEWS_HUB_RECENT_EMPTY_PRIMARY_LABEL}
               </Link>
             </Button>

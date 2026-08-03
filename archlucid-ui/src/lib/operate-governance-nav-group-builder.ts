@@ -15,7 +15,10 @@ import {
 } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
-import { GOVERNANCE_STANDARDS_AND_RULES_PATH } from "@/lib/governance-route-paths";
+import {
+  GOVERNANCE_APPROVAL_QUEUE_PATH,
+  GOVERNANCE_STANDARDS_AND_RULES_PATH,
+} from "@/lib/governance-route-paths";
 import { GOVERNANCE_SETUP_HREF } from "@/lib/governance-setup-route";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
@@ -32,7 +35,8 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
       caption: "Approve findings, track risks, policies, decisions, audit, and alerts.",
       links: [
         {
-          href: "/governance",
+          // String literal required: scripts/ci/assert_route_tier_policy_nav.py parses href:"..." only.
+          href: "/governance/approval-queue" as typeof GOVERNANCE_APPROVAL_QUEUE_PATH,
           label: OPERATOR_NAV_LINK_LABELS.governanceWorkflow,
           title: "Approve, defer, waive, or promote findings",
           icon: GitBranch,

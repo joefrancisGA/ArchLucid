@@ -602,7 +602,7 @@ describe("SocraticIntakeWizard", () => {
 
     await waitFor(() => {
       expect(routerPush).toHaveBeenCalledWith(
-        "/reviews/branch-run?parentRunId=parent-run&autoCompare=1",
+        "/architecture/reviews/branch-run?parentRunId=parent-run&autoCompare=1",
       );
     });
   });

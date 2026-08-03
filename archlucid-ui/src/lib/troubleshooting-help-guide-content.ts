@@ -77,7 +77,7 @@ export const TROUBLESHOOTING_COMMON_ISSUES: readonly TroubleshootingIssue[] = [
     ifStillBlocked: "Open System health. If readiness stays red, download a support bundle and contact support.",
     nextSteps: [
       { label: "Open System health", href: ADMINISTRATION_SYSTEM_HEALTH_PATH },
-      { label: "Open reviews", href: "/reviews" },
+      { label: "Open reviews", href: "/architecture/reviews" },
       ...supportEscalationLinks(),
     ],
   },
@@ -92,7 +92,7 @@ export const TROUBLESHOOTING_COMMON_ISSUES: readonly TroubleshootingIssue[] = [
     nextSteps: [
       { label: "Getting started", href: inAppHelpHref("getting-started") },
       { label: "View first review guide", href: inAppHelpHref("first-hour-operator-path") },
-      { label: "Start architecture review", href: "/reviews/new" },
+      { label: "Start architecture review", href: "/architecture/reviews/new" },
     ],
   },
   {
@@ -104,7 +104,7 @@ export const TROUBLESHOOTING_COMMON_ISSUES: readonly TroubleshootingIssue[] = [
     tryFirst: "Refresh the page and open the review again. Note the on-screen error message.",
     ifStillBlocked: "Use the decision tree below, then download a support bundle if the issue repeats after refresh.",
     nextSteps: [
-      { label: "Open reviews", href: "/reviews" },
+      { label: "Open reviews", href: "/architecture/reviews" },
       { label: "Open System health", href: ADMINISTRATION_SYSTEM_HEALTH_PATH },
       { label: "Decision tree", href: "#decision-tree" },
     ],
@@ -118,7 +118,7 @@ export const TROUBLESHOOTING_COMMON_ISSUES: readonly TroubleshootingIssue[] = [
     tryFirst: "Open the review and confirm review status is complete.",
     ifStillBlocked: "Compare findings with the Evidence graph and review summary.",
     nextSteps: [
-      { label: "Open reviews", href: "/reviews" },
+      { label: "Open reviews", href: "/architecture/reviews" },
       { label: "Open Evidence graph guide", href: inAppHelpHref("evidence-trail") },
       { label: "Open findings queue", href: "/governance/findings" },
     ],
@@ -133,7 +133,7 @@ export const TROUBLESHOOTING_COMMON_ISSUES: readonly TroubleshootingIssue[] = [
     ifStillBlocked: "Review governance approval requirements and retry after refresh.",
     nextSteps: [
       { label: "Open governance approval", href: inAppHelpHref("governance-approval") },
-      { label: "Open reviews", href: "/reviews" },
+      { label: "Open reviews", href: "/architecture/reviews" },
       { label: "Open users and roles", href: inAppHelpHref("users-and-roles") },
     ],
   },
@@ -161,7 +161,7 @@ export const TROUBLESHOOTING_COMMON_ISSUES: readonly TroubleshootingIssue[] = [
     ifStillBlocked: "Check trial banners on Overview for budget or entitlement limits.",
     nextSteps: [
       { label: "View first review guide", href: inAppHelpHref("first-hour-operator-path") },
-      { label: "Open reviews", href: "/reviews" },
+      { label: "Open reviews", href: "/architecture/reviews" },
       ...supportEscalationLinks(),
     ],
   },
@@ -175,7 +175,7 @@ export const TROUBLESHOOTING_COMMON_ISSUES: readonly TroubleshootingIssue[] = [
     ifStillBlocked: "Try a smaller file or a different evidence format before contacting support.",
     nextSteps: [
       { label: "Open evidence upload guide", href: inAppHelpHref("evidence-intake") },
-      { label: "Start architecture review", href: "/reviews/new" },
+      { label: "Start architecture review", href: "/architecture/reviews/new" },
       ...supportEscalationLinks(),
     ],
   },
@@ -265,9 +265,9 @@ export const TROUBLESHOOTING_DECISION_TREE_STEPS: readonly TroubleshootingDecisi
     id: "decision-review-visible",
     question: "Is a review visible?",
     branches: [
-      { label: "No", href: "/reviews", linkLabel: "Open reviews" },
+      { label: "No", href: "/architecture/reviews", linkLabel: "Open reviews" },
       { label: "No — need a sample", href: inAppHelpHref("getting-started"), linkLabel: "Load sample workspace / getting started" },
-      { label: "No — start fresh", href: "/reviews/new", linkLabel: "Start architecture review" },
+      { label: "No — start fresh", href: "/architecture/reviews/new", linkLabel: "Start architecture review" },
       { label: "Yes", href: "#decision-finalized", linkLabel: "Continue to finalize check" },
     ],
   },
@@ -275,7 +275,7 @@ export const TROUBLESHOOTING_DECISION_TREE_STEPS: readonly TroubleshootingDecisi
     id: "decision-finalized",
     question: "Is the architecture review finalized?",
     branches: [
-      { label: "No", href: "/reviews", linkLabel: "Open review detail and finalize review" },
+      { label: "No", href: "/architecture/reviews", linkLabel: "Open review detail and finalize review" },
       { label: "Yes", href: "#decision-outputs", linkLabel: "Continue to outputs check" },
     ],
   },

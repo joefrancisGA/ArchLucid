@@ -86,7 +86,7 @@ function readStringField(payload: Record<string, unknown>, key: string): string 
 }
 
 function buildSuccessResponse(upstreamBody: unknown, correlationId: string): NextResponse {
-  let redirectTo = "/reviews";
+  let redirectTo = "/architecture/reviews";
 
   if (isRecord(upstreamBody)) {
     const runDetailUrl = readStringField(upstreamBody, "runDetailUrl");
@@ -95,7 +95,7 @@ function buildSuccessResponse(upstreamBody: unknown, correlationId: string): Nex
     if (runDetailUrl !== null) {
       redirectTo = runDetailUrl;
     } else if (runId !== null) {
-      redirectTo = `/reviews/${encodeURIComponent(runId)}`;
+      redirectTo = `/architecture/reviews/${encodeURIComponent(runId)}`;
     }
   }
 

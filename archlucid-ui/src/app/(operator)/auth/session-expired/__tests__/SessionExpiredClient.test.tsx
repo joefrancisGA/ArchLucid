@@ -118,7 +118,7 @@ describe("SessionExpiredClient", () => {
   });
 
   it("stores a safe returnUrl and starts OIDC when Sign in is clicked", async () => {
-    setSearchParams({ returnUrl: "/reviews/123" });
+    setSearchParams({ returnUrl: "/architecture/reviews/123" });
 
     render(<SessionExpiredClient />);
 
@@ -128,7 +128,7 @@ describe("SessionExpiredClient", () => {
       expect(window.location.assign).toHaveBeenCalledWith("https://login.example.com/authorize?foo=bar");
     });
 
-    expect(consumePostSignInReturnUrl()).toBe("/reviews/123");
+    expect(consumePostSignInReturnUrl()).toBe("/architecture/reviews/123");
   });
 
   it("drops an unsafe protocol-relative returnUrl instead of storing it", async () => {

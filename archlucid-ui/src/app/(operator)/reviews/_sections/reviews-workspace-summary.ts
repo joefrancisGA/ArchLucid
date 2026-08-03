@@ -46,7 +46,7 @@ function runRiskCount(run: RunSummary): number {
   return run.hasWarnings === true || run.hasGovernanceWarnings === true ? 1 : 0;
 }
 
-/** Compact workspace counters for the `/reviews` hub summary row. */
+/** Compact workspace counters for the `/architecture/reviews` hub summary row. */
 export function deriveReviewsWorkspaceSummary(runs: readonly RunSummary[]): ReviewsWorkspaceSummary {
   let inProgress = 0;
   let committed = 0;

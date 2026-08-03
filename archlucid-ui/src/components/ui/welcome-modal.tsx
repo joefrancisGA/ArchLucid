@@ -123,12 +123,12 @@ export function WelcomeModal(props: WelcomeModalProps) {
     onDismiss();
 
     if (buyerShell) {
-      router.push(`/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`);
+      router.push(`/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`);
 
       return;
     }
 
-    router.push("/reviews/new");
+    router.push("/architecture/reviews/new");
   };
 
   return (
@@ -251,7 +251,7 @@ export function WelcomeModal(props: WelcomeModalProps) {
                   Back
                 </Button>
                 <Button type="button" variant="ghost" className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)} asChild>
-                  <Link href="/reviews?projectId=default" onClick={onDismiss}>
+                  <Link href="/architecture/reviews?projectId=default" onClick={onDismiss}>
                     Browse reviews
                   </Link>
                 </Button>

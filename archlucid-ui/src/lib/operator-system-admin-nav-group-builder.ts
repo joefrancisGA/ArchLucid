@@ -7,6 +7,7 @@ import {
   Inbox,
   Layers,
   LineChart,
+  MessageSquareText,
   PackageCheck,
   ServerCog,
   Settings2,
@@ -16,6 +17,7 @@ import {
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
 import { isCtoDemoOperatorToolingEnv } from "@/lib/cto-demo-presenter-pack";
+import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { BUYER_CTO_DEMO_READINESS_HEADING } from "@/lib/buyer-polish-copy";
 
@@ -119,6 +121,14 @@ export class OperatorSystemAdminNavGroupBuilder extends NavGroupBuilderBase {
           label: OPERATOR_NAV_LINK_LABELS.recommendationTuning,
           title: "Recommendation learning — inspect eligibility, preview rebuilds, and profile history",
           icon: Sparkles,
+          tier: "advanced",
+          requiredAuthority: "ReadAuthority",
+        },
+        {
+          href: "/product-learning",
+          label: OPERATOR_NAV_LINK_LABELS.pilotFeedback,
+          title: `${BUYER_TERMINOLOGY.evaluationFeedback} — recurring issues and improvement opportunities`,
+          icon: MessageSquareText,
           tier: "advanced",
           requiredAuthority: "ReadAuthority",
         },

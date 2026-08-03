@@ -369,7 +369,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
         {!hideFieldHelper ? (
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             {emptyListHintText}{" "}
-            <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/reviews/new">
+            <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/architecture/reviews/new">
               Start a review
             </Link>{" "}
             or{" "}

@@ -22,8 +22,8 @@ afterEach(() => {
 describe("host-gate path classifiers", () => {
   it("treats operator home and reviews as operator paths", () => {
     expect(isOperatorPath("/")).toBe(true);
-    expect(isOperatorPath("/reviews")).toBe(true);
-    expect(isOperatorPath("/reviews/abc")).toBe(true);
+    expect(isOperatorPath("/architecture/reviews")).toBe(true);
+    expect(isOperatorPath("/architecture/reviews/abc")).toBe(true);
     expect(isOperatorPath("/auth/signin")).toBe(true);
     expect(isOperatorPath("/welcome")).toBe(false);
   });
@@ -33,7 +33,7 @@ describe("host-gate path classifiers", () => {
     expect(isMarketingOnlyPath("/pricing")).toBe(true);
     expect(isMarketingOnlyPath("/signup")).toBe(true);
     expect(isMarketingOnlyPath("/faq")).toBe(true);
-    expect(isMarketingOnlyPath("/reviews")).toBe(false);
+    expect(isMarketingOnlyPath("/architecture/reviews")).toBe(false);
   });
 });
 
@@ -42,7 +42,7 @@ describe("decideHostGateRedirect", () => {
     clearEnv();
 
     expect(
-      decideHostGateRedirect({ hostHeader: "localhost:3000", pathname: "/reviews", search: "" }),
+      decideHostGateRedirect({ hostHeader: "localhost:3000", pathname: "/architecture/reviews", search: "" }),
     ).toEqual({ kind: "next" });
   });
 
@@ -53,10 +53,10 @@ describe("decideHostGateRedirect", () => {
     expect(
       decideHostGateRedirect({
         hostHeader: "archlucid.net",
-        pathname: "/reviews",
+        pathname: "/architecture/reviews",
         search: "?x=1",
       }),
-    ).toEqual({ kind: "redirect", location: "https://app.archlucid.net/reviews?x=1" });
+    ).toEqual({ kind: "redirect", location: "https://app.archlucid.net/architecture/reviews?x=1" });
   });
 
   it("redirects marketing-host / to /welcome on the public origin", () => {

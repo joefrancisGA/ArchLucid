@@ -51,7 +51,7 @@ export function GovernanceFindingsQueueOperationalActions(
         <Link href={governanceFindingInspectHref(row.runId, row.findingId)}>View risk</Link>
       </Button>
       <Button asChild variant="outline" size="sm" className="h-8">
-        <Link href={`/reviews/${encodeURIComponent(row.runId)}`}>Open source review</Link>
+        <Link href={`/architecture/reviews/${encodeURIComponent(row.runId)}`}>Open source review</Link>
       </Button>
       <Button asChild variant="outline" size="sm" className="h-8">
         <Link

@@ -65,7 +65,7 @@ describe("shouldShowRunDetailGovernanceCta", () => {
 
 describe("runDetailGovernanceWorkflowHref", () => {
   it("links governance workflow with run id query param", () => {
-    expect(runDetailGovernanceWorkflowHref("run-abc")).toBe("/governance?runId=run-abc");
+    expect(runDetailGovernanceWorkflowHref("run-abc")).toBe("/governance/approval-queue?runId=run-abc");
   });
 });
 

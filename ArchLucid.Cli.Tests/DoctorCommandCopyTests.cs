@@ -5,7 +5,7 @@ using FluentAssertions;
 namespace ArchLucid.Cli.Tests;
 
 /// <summary>
-///     Guards doctor footer copy stays aligned with the pilot rescue playbook path (support-bundle uses the same link).
+///     Guards doctor footer copy stays aligned with the first-pilot troubleshooting path (support-bundle uses the same link).
 /// </summary>
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]

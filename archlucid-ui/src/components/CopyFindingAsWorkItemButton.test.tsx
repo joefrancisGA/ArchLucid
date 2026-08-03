@@ -43,6 +43,6 @@ describe("CopyFindingAsWorkItemButton", () => {
 
     expect(body).toContain("h2. ArchLucid Finding — Cost — Over-provisioned");
     expect(body).toContain("{{fid-1}}");
-    expect(body).toContain("/reviews/run-42");
+    expect(body).toContain("/architecture/reviews/run-42");
   });
 });

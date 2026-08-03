@@ -40,7 +40,7 @@ export function buildPostCommitHabitLoop(input: PostCommitHabitLoopInput): PostC
 
   const sponsorHref = `#sponsor-deliverables`;
   const trustEvidenceHref = `#trust-evidence`;
-  const governanceHref = `/governance?runId=${encodeURIComponent(runId)}`;
+  const governanceHref = `/governance/approval-queue?runId=${encodeURIComponent(runId)}`;
   const quoteToProofHref = resolveInAppDocHref("docs/go-to-market/QUOTE_TO_PROOF_PACKET.md");
 
   let primary: PostCommitHabitAction;
@@ -161,7 +161,7 @@ export function buildPostCommitHabitLoop(input: PostCommitHabitLoopInput): PostC
     id: "second-review",
     kind: "optional",
     label: "Start another review",
-    href: "/reviews/new",
+    href: "/architecture/reviews/new",
     description: "Run a second architecture review when the team is ready for compare and value delta.",
   });
 

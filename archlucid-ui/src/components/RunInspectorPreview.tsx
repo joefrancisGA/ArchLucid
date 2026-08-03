@@ -282,7 +282,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
                   </Button>
                 ) : null}
                 <Button variant="outline" size="sm" className="w-full" asChild>
-                  <Link href={`/governance?runId=${encodeURIComponent(run.runId)}`}>View governance approval</Link>
+                  <Link href={`/governance/approval-queue?runId=${encodeURIComponent(run.runId)}`}>View governance approval</Link>
                 </Button>
                 <Button variant="outline" size="sm" className="w-full" asChild>
                   <Link href={`/audit?runId=${encodeURIComponent(run.runId)}`}>View audit trail</Link>

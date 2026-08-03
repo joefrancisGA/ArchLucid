@@ -81,7 +81,7 @@ describe("legacy-snapshot-route (TB-1951 / TB-1952 / TB-1953 / TB-1954)", () => 
     for (const relativePath of SNAPSHOT_LEAVE_BEHIND_SURFACES) {
       const source = readFileSync(join(repoRoot, relativePath), "utf8");
       expect(source).toContain("/snapshot/");
-      expect(source).toContain("/reviews/");
+      expect(source).toContain("/architecture/reviews/");
       expect(source).toContain("SHOWCASE_STATIC_DEMO_RUN_ID");
     }
   });

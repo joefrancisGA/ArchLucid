@@ -59,7 +59,7 @@ export function ExecutiveDashboardPageHero({
             </Button>
             {dashboardEmpty ? (
               <Button variant="primary" size="sm" asChild>
-                <Link href="/reviews/new" className="no-underline" data-testid="executive-dashboard-hero-start-review">
+                <Link href="/architecture/reviews/new" className="no-underline" data-testid="executive-dashboard-hero-start-review">
                   {v.emptyStatePrimaryAction}
                 </Link>
               </Button>

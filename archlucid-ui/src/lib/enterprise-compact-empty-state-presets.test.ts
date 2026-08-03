@@ -33,8 +33,8 @@ describe("enterprise compact empty state presets (pass 5)", () => {
 
   it("surfaces first-hour CTAs on executive and decision register empties", () => {
     expect(EXECUTIVE_REVIEWS_EMPTY_COMPACT.actions?.[0]?.href).toBe("/see-it");
-    expect(DECISION_REGISTER_EMPTY_COMPACT.actions?.[0]?.href).toBe("/reviews?projectId=default");
-    expect(DECISION_REGISTER_EMPTY_COMPACT.actions?.[1]?.href).toBe("/reviews/new");
+    expect(DECISION_REGISTER_EMPTY_COMPACT.actions?.[0]?.href).toBe("/architecture/reviews?projectId=default");
+    expect(DECISION_REGISTER_EMPTY_COMPACT.actions?.[1]?.href).toBe("/architecture/reviews/new");
     expect(IDENTITY_PROVIDERS_CATALOG_EMPTY_COMPACT.actions?.[0]?.href).toBe("/administration/settings/identity/sso-wizard");
   });
 

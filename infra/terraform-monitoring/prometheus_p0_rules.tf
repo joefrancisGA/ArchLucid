@@ -103,5 +103,23 @@ resource "azurerm_monitor_alert_prometheus_rule_group" "archlucid_p0" {
     }
   }
 
+  # TB-958: fleet-blind single-tenant stuck runs. Gauge has no tenant_id label (cardinality-safe);
+  # triage TenantId/RunId from API logs ("Stale in-flight run detected") or TRACE_A_RUN.md.
+  rule {
+    enabled    = true
+    alert      = "ArchLucidStaleInFlightRunsTf"
+    severity   = 0
+    for        = "PT15M"
+    expression = "archlucid_runs_stale_in_flight_count > 0"
+    annotations = {
+      summary     = "One or more architecture runs stuck in-flight for >1h while fleet may still look healthy (P0 / TB-958)."
+      runbook_url = local.archlucid_stale_in_flight_runs_runbook_url
+    }
+
+    action {
+      action_group_id = azurerm_monitor_action_group.critical[0].id
+    }
+  }
+
   tags = var.tags
 }

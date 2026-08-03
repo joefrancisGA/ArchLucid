@@ -22,7 +22,7 @@ function pathMatchesNavHref(pathname: string, linkHref: string): boolean {
     return true;
   }
 
-  // Query-scoped nav rows (e.g. /reviews?projectId=default) apply to that list surface only.
+  // Query-scoped nav rows (e.g. /architecture/reviews?projectId=default) apply to that list surface only.
   if (linkHref.includes("?")) {
     return false;
   }

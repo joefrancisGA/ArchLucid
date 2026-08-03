@@ -9,7 +9,7 @@ import {
 import { useDeltaQuery } from "@/components/BeforeAfterDelta/useDeltaQuery";
 
 /**
- * Compact proof-of-ROI strip for the /reviews header — median finalized-manifest time, findings, and attested LLM trace counts.
+ * Compact proof-of-ROI strip for the /architecture/reviews header — median finalized-manifest time, findings, and attested LLM trace counts.
  */
 export function RunsListProofHeadline() {
   const { status, data } = useDeltaQuery({ count: 5 });

@@ -22,7 +22,7 @@ function draft(id: string, name: string): ArchitectureDraftRegistryEntry {
 describe("resolveReviewsHubHeaderPrimary", () => {
   it("starts a new review when no drafts exist", () => {
     expect(resolveReviewsHubHeaderPrimary([])).toEqual({
-      href: "/reviews/new",
+      href: "/architecture/reviews/new",
       label: "Start an architecture review",
       continuesSingleDraft: false,
     });
@@ -44,7 +44,7 @@ describe("resolveReviewsHubHeaderPrimary", () => {
     ]);
 
     expect(primary).toEqual({
-      href: "/reviews/new",
+      href: "/architecture/reviews/new",
       label: "Start an architecture review",
       continuesSingleDraft: false,
     });

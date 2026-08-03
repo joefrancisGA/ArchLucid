@@ -76,6 +76,7 @@ import {
   RunDetailArchitectureCreateWorkItemSectionDeferred,
   RunDetailArchitectureCreatedWorkspaceDeferred,
   RunDetailArchitectureSponsorSharingPanelDeferred,
+  RunDetailArtifactsExportsSectionDeferred,
   RunDetailCommitBlockingFindingsBannerDeferred,
   RunDetailCompareToBaselineCta,
   RunDetailCtoDemoReviewRouteGuardDeferred,
@@ -98,7 +99,6 @@ import {
 } from "./run-detail-page-view-deferred-chunks";
 import { RunDetailBelowFoldSections } from "./RunDetailBelowFoldSections";
 import { resolveRunDetailSponsorBriefingSection } from "./RunDetailSponsorBriefingSection";
-import { RunDetailArtifactsExportsSection } from "./RunDetailArtifactsExportsSection";
 import { RunDetailMidDeferredSections } from "./RunDetailMidDeferredSections";
 import {
   RunDetailBelowFoldDeferredSkeleton,
@@ -204,7 +204,7 @@ export function RunDetailPageView(props: {
 
   const artifactsExportsSectionEl =
     m.manifestId ? (
-      <RunDetailArtifactsExportsSection
+      <RunDetailArtifactsExportsSectionDeferred
         manifestId={m.manifestId}
         runId={m.resolvedDetail.run.runId}
         buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
@@ -356,7 +356,7 @@ export function RunDetailPageView(props: {
   }).length;
   const architectureEditHref =
     !m.manifestId
-      ? `/reviews/new?path=guided-intake&rerun=${encodeURIComponent(m.resolvedDetail.run.runId)}`
+      ? `/architecture/reviews/new?path=guided-intake&rerun=${encodeURIComponent(m.resolvedDetail.run.runId)}`
       : null;
   const explanationDeferredEl = (
     <RunDetailExplanationDeferred
@@ -661,7 +661,7 @@ export function RunDetailPageView(props: {
                     findings={quickDecisionFindings}
                     correctionHref={
                       !m.manifestId
-                        ? `/reviews/new?path=guided-intake&rerun=${encodeURIComponent(m.resolvedDetail.run.runId)}`
+                        ? `/architecture/reviews/new?path=guided-intake&rerun=${encodeURIComponent(m.resolvedDetail.run.runId)}`
                         : null
                     }
                     panels={{
@@ -764,7 +764,7 @@ export function RunDetailPageView(props: {
                           canEditSource={!m.manifestId}
                           editHref={
                             !m.manifestId
-                              ? `/reviews/new?path=guided-intake&rerun=${encodeURIComponent(m.resolvedDetail.run.runId)}`
+                              ? `/architecture/reviews/new?path=guided-intake&rerun=${encodeURIComponent(m.resolvedDetail.run.runId)}`
                               : null
                           }
                           useStructuredPresentation={false}

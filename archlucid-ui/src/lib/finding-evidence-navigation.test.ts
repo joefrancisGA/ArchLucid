@@ -9,21 +9,21 @@ import {
 describe("finding-evidence-navigation", () => {
   it("builds the canonical evidence-trace route for a finding", () => {
     expect(getFindingEvidenceTraceHref("run-1", "finding-9")).toBe(
-      "/reviews/run-1/findings/finding-9/evidence-trace",
+      "/architecture/reviews/run-1/findings/finding-9/evidence-trace",
     );
   });
 
   it("aliases legacy inspect href helper to evidence-trace", () => {
     expect(getFindingEvidenceInspectHref("run-1", "finding-9")).toBe(
-      "/reviews/run-1/findings/finding-9/evidence-trace",
+      "/architecture/reviews/run-1/findings/finding-9/evidence-trace",
     );
   });
 
   it("redirects legacy inspect paths to evidence-trace", () => {
     expect(
       findingEvidenceTraceLegacyRedirectPath(
-        "/reviews/claims-intake-modernization/findings/phi-minimization-risk/inspect",
+        "/architecture/reviews/claims-intake-modernization/findings/phi-minimization-risk/inspect",
       ),
-    ).toBe("/reviews/claims-intake-modernization/findings/phi-minimization-risk/evidence-trace");
+    ).toBe("/architecture/reviews/claims-intake-modernization/findings/phi-minimization-risk/evidence-trace");
   });
 });

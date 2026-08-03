@@ -1,24 +1,27 @@
 import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture-workflow-intent";
 
 /** Architecture draft list. */
-export const ARCHITECTURES_LIST_PATH = "/architectures" as const;
+export const ARCHITECTURES_LIST_PATH = "/architecture/architectures" as const;
 
-/** Bootstrap a new architecture draft (client redirect to `/architectures/{id}`). */
-export const ARCHITECTURES_NEW_PATH = "/architectures/new" as const;
+/** Bootstrap a new architecture draft (client redirect to `/architecture/architectures/{id}`). */
+export const ARCHITECTURES_NEW_PATH = "/architecture/architectures/new" as const;
 
 /** Architecture reviews list (hub). */
-export const REVIEWS_LIST_PATH = "/reviews" as const;
+export const REVIEWS_LIST_PATH = "/architecture/reviews" as const;
+
+/** Left-nav Reviews destination — scoped to the default project. */
+export const REVIEWS_LIST_NAV_HREF = "/architecture/reviews?projectId=default" as const;
 
 /** Review intake for an existing architecture or submitted material. */
-export const REVIEWS_NEW_PATH = "/reviews/new" as const;
+export const REVIEWS_NEW_PATH = "/architecture/reviews/new" as const;
 
-export const REVIEWS_NEW_GUIDED_INTAKE_HREF = "/reviews/new?path=guided-intake" as const;
+export const REVIEWS_NEW_GUIDED_INTAKE_HREF = "/architecture/reviews/new?path=guided-intake" as const;
 
 export const SOURCE_ARCHITECTURE_QUERY_PARAM = "sourceArchitectureId" as const;
 
 /** Legacy create-architecture deep link — redirect only; not canonical. */
 export const LEGACY_REVIEWS_NEW_CREATE_ARCHITECTURE_HREF =
-  `/reviews/new?path=guided-intake&intent=${CREATE_ARCHITECTURE_INTENT}` as const;
+  `/architecture/reviews/new?path=guided-intake&intent=${CREATE_ARCHITECTURE_INTENT}` as const;
 
 export function architectureDraftPath(architectureId: string): string {
   return `${ARCHITECTURES_LIST_PATH}/${encodeURIComponent(architectureId)}`;
@@ -26,6 +29,14 @@ export function architectureDraftPath(architectureId: string): string {
 
 export function reviewDetailPath(reviewId: string): string {
   return `${REVIEWS_LIST_PATH}/${encodeURIComponent(reviewId)}`;
+}
+
+export function isReviewsListPath(pathname: string): boolean {
+  return pathname === REVIEWS_LIST_PATH;
+}
+
+export function isReviewsPath(pathname: string): boolean {
+  return pathname === REVIEWS_LIST_PATH || pathname.startsWith(`${REVIEWS_LIST_PATH}/`);
 }
 
 export function startReviewFromArchitectureHref(architectureId: string): string {

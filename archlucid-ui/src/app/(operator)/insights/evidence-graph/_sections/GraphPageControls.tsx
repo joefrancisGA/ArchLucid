@@ -144,7 +144,7 @@ export function GraphPageControls(props: GraphPageControlsProps) {
 
   const reviewPackageHref =
 
-    runTrim.length > 0 ? `/reviews/${encodeURIComponent(runTrim)}` : "/reviews?projectId=default";
+    runTrim.length > 0 ? `/architecture/reviews/${encodeURIComponent(runTrim)}` : "/architecture/reviews?projectId=default";
 
 
 

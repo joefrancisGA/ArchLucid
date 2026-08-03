@@ -75,7 +75,7 @@ export function RunDetailProvenanceSummaryCard(props: RunDetailProvenanceSummary
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
             <Link
               className={OPERATOR_LINK.nav}
-              href={`/reviews/${encodeURIComponent(runId)}/provenance`}
+              href={`/architecture/reviews/${encodeURIComponent(runId)}/provenance`}
             >
               View full provenance →
             </Link>

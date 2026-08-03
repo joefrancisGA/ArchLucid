@@ -79,7 +79,7 @@ export function FirstValueReachedCallout(props: FirstValueReachedCalloutProps) {
     return null;
   }
 
-  const reviewHref = `/reviews/${welcomeRunId.replace(/-/g, "")}`;
+  const reviewHref = `/architecture/reviews/${welcomeRunId.replace(/-/g, "")}`;
 
   return (
     <div

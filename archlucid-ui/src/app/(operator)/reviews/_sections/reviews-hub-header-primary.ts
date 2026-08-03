@@ -33,7 +33,7 @@ export function resolveReviewsHubHeaderPrimary(
   }
 
   return {
-    href: "/reviews/new",
+    href: "/architecture/reviews/new",
     label: REVIEWS_HUB_PRIMARY_START_LABEL,
     continuesSingleDraft: false,
   };

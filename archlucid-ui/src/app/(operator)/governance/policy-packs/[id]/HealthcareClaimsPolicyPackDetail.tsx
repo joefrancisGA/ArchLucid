@@ -97,7 +97,7 @@ export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPa
           <Link href="/governance/policy-packs">Compare against registry catalog</Link>
         </Button>
         <Button asChild variant="outline">
-          <Link href="/governance">{buyerPolishedShell ? BUYER_GOVERNANCE_PAGE_TITLE : "Continue governance workflow"}</Link>
+          <Link href="/governance/approval-queue">{buyerPolishedShell ? BUYER_GOVERNANCE_PAGE_TITLE : "Continue governance workflow"}</Link>
         </Button>
       </section>
 

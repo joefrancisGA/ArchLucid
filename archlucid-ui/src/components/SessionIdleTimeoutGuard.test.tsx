@@ -23,7 +23,7 @@ describe("SessionIdleTimeoutGuard", () => {
   beforeEach(() => {
     vi.useFakeTimers();
     Object.defineProperty(window, "location", {
-      value: { pathname: "/reviews/123", search: "?tab=findings" },
+      value: { pathname: "/architecture/reviews/123", search: "?tab=findings" },
       writable: true,
     });
   });
@@ -53,7 +53,7 @@ describe("SessionIdleTimeoutGuard", () => {
     vi.advanceTimersByTime(IDLE_MS);
 
     const [destination] = pushMock.mock.calls[0] as [string];
-    const encoded = encodeURIComponent("/reviews/123?tab=findings");
+    const encoded = encodeURIComponent("/architecture/reviews/123?tab=findings");
 
     expect(destination).toBe(`/auth/session-expired?reason=idle-timeout&returnUrl=${encoded}`);
   });

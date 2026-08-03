@@ -72,5 +72,7 @@ Category assertions remain **warn-only** (same numeric floors as lab). Hard fail
 
 - **TB-573** / **TB-691** — First Load JS bundle regression (`check:first-load-js`)
 - **TB-692** — field `WebVitalsMetric` App Insights events
+- **TB-2031** — field CWV triage before the next bundle cut: [`FIELD_WEB_VITALS_TRIAGE.md`](../runbooks/FIELD_WEB_VITALS_TRIAGE.md) (pairs GTM **G-QA-06** / **G-QA-07**)
+- **TB-2032** — marketing `next/image` **waived** (no image-bound LCP): [`tb2032_marketing_lcp_image_waiver.md`](tb2032_marketing_lcp_image_waiver.md)
 - `archlucid-ui/playwright.mock.config.ts` — mock server contract
 - **GTM M-99** — remote acceptance LHCI (`lighthouse:acceptance`)

@@ -380,7 +380,7 @@ export function RunsDashboardPanelClient({
     }
   }
 
-  const openAllReviewsHref = `/reviews?projectId=${encodeURIComponent(projectId)}`;
+  const openAllReviewsHref = `/architecture/reviews?projectId=${encodeURIComponent(projectId)}`;
 
   const buyerStatusTabIds: readonly RunsDashboardTabId[] = ["all", "approved", "attention", "outcomes"];
   const operatorStatusTabIds: readonly RunsDashboardTabId[] = ["all", "attention", "outcomes"];

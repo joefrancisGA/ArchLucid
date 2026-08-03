@@ -20,6 +20,6 @@ describe("EstimatedLlmCostBarChart", () => {
     );
 
     expect(screen.getByTestId("llm-daily-usage-empty")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /Start a review/i })).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByRole("link", { name: /Start a review/i })).toHaveAttribute("href", "/architecture/reviews/new");
   });
 });

@@ -62,6 +62,5 @@ export function shouldUsePatternLibrarySampleCatalogWhenBelowThreshold(): boolea
   return isOperatorExperienceFullShellEnv() && !isBuyerPolishedOperatorShellEnv();
 }
 
-export function patternLibraryDetailPath(patternKey: string): string {
-  return `/patterns/${encodeURIComponent(patternKey)}`;
-}
+/** @deprecated Prefer {@link patternLibraryDetailPath} from `@/lib/pattern-library-route`. */
+export { patternLibraryDetailPath } from "@/lib/pattern-library-route";

@@ -24,7 +24,7 @@ vi.mock("next/link", () => ({
 }));
 
 const newReviewLink: NavLinkItem = {
-  href: "/reviews/new",
+  href: "/architecture/reviews/new",
   label: CREATE_ARCHITECTURE_LABEL,
   title: "Start a review",
   tier: "essential",

@@ -20,7 +20,7 @@ const EXECUTIVE_DASHBOARD_BASELINE_WARNING_DISMISSED_SESSION_KEY: string =
 
 /** Baseline-first new-run wizard (`?baseline=1`) — cloud inventory ZIP upload before identity. */
 
-export const EXECUTIVE_DASHBOARD_BASELINE_UPLOAD_WIZARD_HREF = "/reviews/new?baseline=1";
+export const EXECUTIVE_DASHBOARD_BASELINE_UPLOAD_WIZARD_HREF = "/architecture/reviews/new?baseline=1";
 
 /** Prominent nudge when no cloud inventory baseline artifact exists in the active workspace. */
 

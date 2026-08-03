@@ -29,7 +29,7 @@ export function resolveOperatorHomeRecommendedNextAction(
   if (hasCommittedArchitectureReview && ctx?.latestRunId !== null && ctx?.latestRunId !== undefined) {
     return {
       message: OPERATOR_HOME_RECOMMENDED_NEXT_OPEN_LATEST,
-      href: `/reviews/${ctx.latestRunId}`,
+      href: `/architecture/reviews/${ctx.latestRunId}`,
     };
   }
 
@@ -40,21 +40,21 @@ export function resolveOperatorHomeRecommendedNextAction(
   if (ctx.latestRunId !== null) {
     return {
       message: OPERATOR_HOME_RECOMMENDED_NEXT_OPEN_LATEST,
-      href: `/reviews/${ctx.latestRunId}`,
+      href: `/architecture/reviews/${ctx.latestRunId}`,
     };
   }
 
   if (ctx.latestRunReadyToFinalize) {
     return {
       message: OPERATOR_HOME_RECOMMENDED_NEXT_START_REVIEW,
-      href: "/reviews/new",
+      href: "/architecture/reviews/new",
     };
   }
 
   if (ctx.hasCommittedManifest && ctx.firstCommittedRunId !== null) {
     return {
       message: OPERATOR_HOME_RECOMMENDED_NEXT_OPEN_LATEST,
-      href: `/reviews/${ctx.firstCommittedRunId}`,
+      href: `/architecture/reviews/${ctx.firstCommittedRunId}`,
     };
   }
 

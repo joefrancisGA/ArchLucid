@@ -20,7 +20,7 @@
       "paths": [
         "src/app/(operator)/reviews",
         "src/app/(operator)/governance",
-        "src/app/(operator)/architectures",
+        "src/app/(operator)/architecture/architectures",
         "src/app/(operator)/admin",
         "src/app/(operator)/integrations",
         "src/app/(operator)/help",
@@ -41,7 +41,7 @@
         "src/app/(operator)/signed-records",
         "src/app/(operator)/onboarding",
         "src/app/(operator)/operate",
-        "src/app/(operator)/patterns",
+        "src/app/(operator)/insights/patterns",
         "src/app/(operator)/planning",
         "src/app/(operator)/product-learning",
         "src/app/(operator)/recommendation-learning",

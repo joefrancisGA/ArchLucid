@@ -214,3 +214,22 @@ export const RunDetailOperatorTechnicalForensicsPanelDeferred = dynamic(
     ),
   { ssr: false, loading: () => null },
 );
+
+const artifactsExportsLoading = (
+  <section id="artifacts-exports" className="scroll-mt-24">
+    <div
+      className="h-36 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
+      role="status"
+      aria-label="Loading artifacts and exports"
+    />
+  </section>
+);
+
+/** TB-2021 — export button cluster is tab/Evidence-gated; keep off sync First Load JS. */
+export const RunDetailArtifactsExportsSectionDeferred = dynamic(
+  () =>
+    import("./RunDetailArtifactsExportsSection").then(
+      (module) => module.RunDetailArtifactsExportsSection,
+    ),
+  { ssr: false, loading: () => artifactsExportsLoading },
+);

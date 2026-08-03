@@ -73,6 +73,6 @@ describe("authority Execute floor regression", () => {
     const readHrefs = filterNavLinksByAuthority(enterprise!.links, AUTHORITY_RANK.ReadAuthority).map((l) => l.href);
 
     expect(readHrefs).toContain("/governance/alerts");
-    expect(readHrefs).toContain("/governance");
+    expect(readHrefs).toContain("/governance/approval-queue");
   });
 });

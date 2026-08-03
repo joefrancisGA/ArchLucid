@@ -36,7 +36,7 @@ describe("architecture-work-item-model", () => {
     expect(preview.title).toContain("Payments platform");
     expect(preview.owner).toBe("Platform team");
     expect(preview.findingsIncluded).toHaveLength(1);
-    expect(preview.sourceArchitectureLink).toBe("https://app.archlucid.test/reviews/run-1");
+    expect(preview.sourceArchitectureLink).toBe("https://app.archlucid.test/architecture/reviews/run-1");
     expect(pickNativeCreateFindingId([finding({ findingId: "f-1", severityValue: 2 }), finding({ findingId: "f-2", severityValue: 4 })])).toBe("f-2");
   });
 

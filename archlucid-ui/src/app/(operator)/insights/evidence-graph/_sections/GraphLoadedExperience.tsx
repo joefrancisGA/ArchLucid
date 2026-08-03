@@ -145,12 +145,12 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
             />
             <div className={cn("mt-6 flex flex-wrap gap-2", graphMainColumnMaxClass)}>
               <Button type="button" asChild variant="default" size="sm">
-                <Link href={`/governance?runId=${encodeURIComponent(runTrim)}`}>
+                <Link href={`/governance/approval-queue?runId=${encodeURIComponent(runTrim)}`}>
                   {showcaseRun ? BUYER_GRAPH_GOVERNANCE_NEXT_APPROVED : BUYER_GRAPH_GOVERNANCE_NEXT_PENDING}
                 </Link>
               </Button>
               <Button type="button" asChild variant="outline" size="sm">
-                <Link href={`/reviews/${encodeURIComponent(runTrim)}`}>{BUYER_EVIDENCE_TRAIL_OPEN_PACKAGE}</Link>
+                <Link href={`/architecture/reviews/${encodeURIComponent(runTrim)}`}>{BUYER_EVIDENCE_TRAIL_OPEN_PACKAGE}</Link>
               </Button>
               <Button type="button" asChild variant="outline" size="sm">
                 <Link href={`/insights/evidence-graph?runId=${encodeURIComponent(runTrim)}&presentation=trace`}>

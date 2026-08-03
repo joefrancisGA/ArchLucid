@@ -136,7 +136,7 @@ export function CtoDemoLiveRunProgressRail(props: CtoDemoLiveRunProgressRailProp
     runId !== null
       ? onCompleteHref !== undefined
         ? onCompleteHref(runId)
-        : `/reviews/${encodeURIComponent(runId)}`
+        : `/architecture/reviews/${encodeURIComponent(runId)}`
       : null;
 
   return (

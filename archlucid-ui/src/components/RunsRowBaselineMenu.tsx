@@ -42,7 +42,7 @@ export function RunsRowBaselineMenu(props: { runId: string }) {
         }}
       >
         <Link
-          href={`/governance?runId=${runEnc}`}
+          href={`/governance/approval-queue?runId=${runEnc}`}
           className="text-teal-800 underline underline-offset-2 dark:text-teal-300"
         >
           View governance approval

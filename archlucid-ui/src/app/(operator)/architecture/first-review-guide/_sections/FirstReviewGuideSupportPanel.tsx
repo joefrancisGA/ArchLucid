@@ -30,7 +30,7 @@ function resolveDefaultTemplateTitle(): string {
 }
 
 export function FirstReviewGuideSupportPanel() {
-  const sampleHref = `/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
+  const sampleHref = `/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
   const templateTitle = resolveDefaultTemplateTitle();
   const templateHref = reviewIntakeExampleTemplateHref(OPERATOR_HOME_EXAMPLE_TEMPLATE_ID);
 

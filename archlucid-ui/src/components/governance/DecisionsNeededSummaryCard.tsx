@@ -22,7 +22,7 @@ export function buildDecisionsNeededTiles(summary: GovernanceDecisionsNeededSumm
       key: "pendingApprovals",
       label: "Pending approvals",
       count: summary.pendingApprovals,
-      href: "/governance",
+      href: "/governance/approval-queue",
     },
     {
       key: "staleRisks",

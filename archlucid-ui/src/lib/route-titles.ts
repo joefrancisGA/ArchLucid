@@ -10,7 +10,7 @@ export function getRouteTitle(pathname: string): string {
     return ROUTE_TITLES[normalized];
   }
 
-  if (/^\/reviews\/[^/]+$/.test(normalized)) {
+  if (/^\/architecture\/reviews\/[^/]+$/.test(normalized)) {
     return "Review detail";
   }
 

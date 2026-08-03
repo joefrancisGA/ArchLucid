@@ -43,7 +43,7 @@ describe("HelpHowArchLucidWorksGuideView", () => {
     const actions = screen.getByTestId("how-archlucid-works-actions");
     expect(within(actions).getByRole("link", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA })).toHaveAttribute(
       "href",
-      "/reviews/new",
+      "/architecture/reviews/new",
     );
     expect(within(actions).getByRole("link", { name: "Open completed sample" })).toBeInTheDocument();
     expect(within(actions).getByRole("link", { name: "View first review guide" })).toHaveAttribute(

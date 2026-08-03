@@ -30,7 +30,7 @@ describe("OperateAnalysisNavGroupBuilder", () => {
       "/insights/compare-two-reviews",
       "/insights/impact-preview",
       "/insights/architecture-scorecard",
-      "/patterns",
+      "/insights/patterns",
     ]);
     expect(group.links.at(-1)?.label).toBe("Pattern library");
     expect(group.links.at(-1)?.navBadge).toBe("Preview");

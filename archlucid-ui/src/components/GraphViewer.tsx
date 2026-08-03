@@ -682,7 +682,7 @@ export function GraphViewer({
                 <div className="mt-3 flex flex-col gap-2">
                   <Button type="button" variant="outline" size="sm" className="h-9 w-full justify-center" asChild>
                     <Link
-                      href={`/reviews/${encodeURIComponent(canonicalizeDemoRunId(runId.trim()))}#run-explanation`}
+                      href={`/architecture/reviews/${encodeURIComponent(canonicalizeDemoRunId(runId.trim()))}#run-explanation`}
                     >
                       {BUYER_EVIDENCE_GRAPH_OPEN_DECISION_RECORD_CTA}
                     </Link>

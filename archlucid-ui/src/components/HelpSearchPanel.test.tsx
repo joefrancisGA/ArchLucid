@@ -47,7 +47,7 @@ vi.mock("@/lib/help-index", () => ({
 
 describe("HelpSearchPanel", () => {
   it("renders title, subtitle, search input, and grouped topics", () => {
-    pathnameMock.value = "/reviews/new";
+    pathnameMock.value = "/architecture/reviews/new";
     render(<HelpSearchPanel open onOpenChange={() => {}} onOpenGuidesPanel={() => {}} />);
 
     expect(screen.getByRole("dialog")).toBeInTheDocument();
@@ -152,7 +152,7 @@ describe("HelpSearchPanel", () => {
       }),
     );
 
-    expect(push).toHaveBeenCalledWith("/reviews/new");
+    expect(push).toHaveBeenCalledWith("/architecture/reviews/new");
   });
 
   it("renders topic rows as actionable buttons with chevrons", () => {
@@ -167,7 +167,7 @@ describe("HelpSearchPanel", () => {
   });
 
   it("disambiguates first-hour path vs wizard reference titles (TB-1047)", () => {
-    pathnameMock.value = "/reviews/new";
+    pathnameMock.value = "/architecture/reviews/new";
     render(<HelpSearchPanel open onOpenChange={() => {}} />);
 
     expect(screen.getByText("First-hour review path")).toBeInTheDocument();

@@ -23,7 +23,7 @@ export default function ManifestDetailLoading() {
       aria-busy="true"
     >
       <nav aria-label="Breadcrumb" className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-        <Link className={OPERATOR_LINK.nav} href="/reviews?projectId=default">
+        <Link className={OPERATOR_LINK.nav} href="/architecture/reviews?projectId=default">
           Reviews
         </Link>
       </nav>

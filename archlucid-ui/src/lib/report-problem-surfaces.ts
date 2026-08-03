@@ -35,14 +35,14 @@ export const REPORT_PROBLEM_V1_SURFACES: readonly ReportProblemSurfaceEntry[] = 
   {
     id: "reviews-hub-unexpected-response",
     kind: "reviews-hub-fatal",
-    routePattern: "/reviews",
+    routePattern: "/architecture/reviews",
     componentPath: "app/(operator)/reviews/_sections/RunsPageView.tsx",
     description: "Reviews hub unexpected/broken response — not the empty-state list.",
   },
   {
     id: "review-detail-hard-load-failure",
     kind: "review-detail-fatal",
-    routePattern: "/reviews/[runId]",
+    routePattern: "/architecture/reviews/[runId]",
     componentPath: "app/(operator)/reviews/[runId]/_sections/RunDetailPageView.tsx",
     description: "Review detail page-level load failure.",
   },
@@ -64,7 +64,7 @@ export const REPORT_PROBLEM_V1_SURFACES: readonly ReportProblemSurfaceEntry[] = 
   {
     id: "review-commit-export-page-failure",
     kind: "review-commit-export-fatal",
-    routePattern: "/reviews/[runId]",
+    routePattern: "/architecture/reviews/[runId]",
     componentPath: "app/(operator)/reviews/[runId]/_sections/RunDetailPageView.tsx",
     description: "Commit, seal, or export failure surfaced as page-level error on a review.",
   },
@@ -93,7 +93,7 @@ export const REPORT_PROBLEM_V1_SURFACES: readonly ReportProblemSurfaceEntry[] = 
 
 /** Static App Router siblings that must not satisfy `[runId]`-style dynamic segments. */
 const REPORT_PROBLEM_RESERVED_DYNAMIC_SEGMENTS: Readonly<Record<string, readonly string[]>> = {
-  "/reviews/[runId]": ["new"],
+  "/architecture/reviews/[runId]": ["new"],
 };
 
 /**

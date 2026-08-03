@@ -345,10 +345,10 @@ export function FirstPilotReadinessCockpit() {
   const curatedHome = isBuyerShellHomePresentation();
   const reviewPackageHref =
     commitCtx.firstCommittedRunId !== null
-      ? `/reviews/${encodeURIComponent(commitCtx.firstCommittedRunId)}`
+      ? `/architecture/reviews/${encodeURIComponent(commitCtx.firstCommittedRunId)}`
       : commitCtx.latestRunId !== null
-        ? `/reviews/${encodeURIComponent(commitCtx.latestRunId)}`
-        : "/reviews?projectId=default";
+        ? `/architecture/reviews/${encodeURIComponent(commitCtx.latestRunId)}`
+        : "/architecture/reviews?projectId=default";
 
   return (
     <OperatorHomeDisclosureSection
@@ -434,7 +434,7 @@ export function FirstPilotReadinessCockpit() {
               >
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
                   Tier-1 inventory scripts (Azure, AWS, GCP) — run locally, then upload from{" "}
-                  <Link href="/reviews/new" className="font-medium text-teal-800 underline dark:text-teal-300">
+                  <Link href="/architecture/reviews/new" className="font-medium text-teal-800 underline dark:text-teal-300">
                     {CREATE_ARCHITECTURE_LABEL}
                   </Link>
                   .

@@ -79,7 +79,7 @@ export function ExecutiveRoiSystemsIncludedSection(
                 <EnterpriseTableCell>{system.systemName}</EnterpriseTableCell>
                 <EnterpriseTableCell>
                   <Link
-                    href={`/reviews/${encodeURIComponent(system.runId)}`}
+                    href={`/architecture/reviews/${encodeURIComponent(system.runId)}`}
                     className="text-teal-700 underline dark:text-teal-400"
                   >
                     {system.runId}

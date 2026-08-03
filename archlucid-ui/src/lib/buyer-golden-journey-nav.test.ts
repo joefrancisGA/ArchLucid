@@ -23,10 +23,10 @@ describe("resolveBuyerGoldenJourneyNav", () => {
     expect(resolveBuyerGoldenJourneyNav(`/insights/evidence-graph?runId=${showcaseRunEnc}`)?.currentStepIndex).toBe(2);
     expect(
       resolveBuyerGoldenJourneyNav(
-        `/reviews/${showcaseRunEnc}/findings/${encodeURIComponent("phi-minimization-risk")}/inspect`,
+        `/architecture/reviews/${showcaseRunEnc}/findings/${encodeURIComponent("phi-minimization-risk")}/inspect`,
       )?.currentStepIndex,
     ).toBe(2);
-    expect(resolveBuyerGoldenJourneyNav(`/governance?runId=${showcaseRunEnc}`)?.currentStepIndex).toBe(3);
+    expect(resolveBuyerGoldenJourneyNav(`/governance/approval-queue?runId=${showcaseRunEnc}`)?.currentStepIndex).toBe(3);
     expect(resolveBuyerGoldenJourneyNav(`/audit?runId=${showcaseRunEnc}`)?.currentStepIndex).toBe(4);
     expect(resolveBuyerGoldenJourneyNav(`/governance/audit?runId=${showcaseRunEnc}`)?.currentStepIndex).toBe(4);
   });
@@ -41,10 +41,10 @@ describe("resolveBuyerGoldenJourneyNav", () => {
     const liveRunId = "b6ab57c8-84b1-8ac6-28d8-d790efcd1dbf";
     const liveRunEnc = encodeURIComponent(liveRunId);
 
-    expect(resolveBuyerGoldenJourneyNav(`/reviews/${liveRunEnc}`)?.currentStepIndex).toBe(0);
-    expect(resolveBuyerGoldenJourneyNav(`/reviews/${liveRunEnc}/signed-record`)?.currentStepIndex).toBe(1);
+    expect(resolveBuyerGoldenJourneyNav(`/architecture/reviews/${liveRunEnc}`)?.currentStepIndex).toBe(0);
+    expect(resolveBuyerGoldenJourneyNav(`/architecture/reviews/${liveRunEnc}/signed-record`)?.currentStepIndex).toBe(1);
     expect(resolveBuyerGoldenJourneyNav(`/insights/evidence-graph?runId=${liveRunEnc}`)?.currentStepIndex).toBe(2);
-    expect(resolveBuyerGoldenJourneyNav(`/governance?runId=${liveRunEnc}`)?.currentStepIndex).toBe(3);
+    expect(resolveBuyerGoldenJourneyNav(`/governance/approval-queue?runId=${liveRunEnc}`)?.currentStepIndex).toBe(3);
     expect(resolveBuyerGoldenJourneyNav(`/audit?runId=${liveRunEnc}`)?.currentStepIndex).toBe(4);
     expect(resolveBuyerGoldenJourneyNav(`/governance/audit?runId=${liveRunEnc}`)?.currentStepIndex).toBe(4);
   });

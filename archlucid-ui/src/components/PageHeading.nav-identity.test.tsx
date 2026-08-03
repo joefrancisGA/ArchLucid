@@ -59,7 +59,7 @@ describe("PageHeading nav identity", () => {
   it("renders representative Insights, Governance, and Administration headings from nav identity", () => {
     for (const [navHref, testId] of [
       ["/insights/evidence-graph", "insights-heading"],
-      ["/governance", "governance-heading"],
+      ["/governance/approval-queue", "governance-heading"],
       ["/administration/settings/users", "admin-heading"],
     ] as const) {
       render(<PageHeading navHref={navHref} title="Representative page" data-testid={testId} />);

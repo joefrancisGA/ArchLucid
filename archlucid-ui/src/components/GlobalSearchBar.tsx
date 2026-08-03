@@ -162,7 +162,7 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
                       type="button"
                       className={cn("w-full rounded px-1 py-1.5 text-left hover:bg-neutral-100 dark:hover:bg-neutral-900", OPERATOR_TYPOGRAPHY.body)}
                       onClick={() => {
-                        router.push(`/reviews/${encodeURIComponent(run.runId)}`);
+                        router.push(`/architecture/reviews/${encodeURIComponent(run.runId)}`);
                         setOpen(false);
                       }}
                     >
@@ -184,7 +184,7 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
                       className={cn("w-full rounded px-1 py-1.5 text-left hover:bg-neutral-100 dark:hover:bg-neutral-900", OPERATOR_TYPOGRAPHY.body)}
                       onClick={() => {
                         router.push(
-                          `/reviews/${encodeURIComponent(finding.runId)}/findings/${encodeURIComponent(finding.findingId)}`,
+                          `/architecture/reviews/${encodeURIComponent(finding.runId)}/findings/${encodeURIComponent(finding.findingId)}`,
                         );
                         setOpen(false);
                       }}

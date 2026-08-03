@@ -66,7 +66,7 @@ export type FirstReviewGuideStateInput = {
 };
 
 function reviewDetailHref(runId: string): string {
-  return `/reviews/${encodeURIComponent(runId)}`;
+  return `/architecture/reviews/${encodeURIComponent(runId)}`;
 }
 
 function resolveShareHref(commitContext: CorePilotCommitContext): string {
@@ -197,19 +197,19 @@ function resolveStepAction(
   switch (stepIndex) {
     case 0:
       return canExecute
-        ? { label: "Start review", href: "/reviews/new" }
+        ? { label: "Start review", href: "/architecture/reviews/new" }
         : { label: null, href: null };
     case 1:
       return canExecute && latestRunHref !== null
         ? { label: "Add evidence", href: latestRunHref }
         : canExecute
-          ? { label: "Start review", href: "/reviews/new" }
+          ? { label: "Start review", href: "/architecture/reviews/new" }
           : { label: null, href: null };
     case 2:
       return latestRunHref !== null
         ? { label: "Open review", href: latestRunHref }
         : canExecute
-          ? { label: "Start review", href: "/reviews/new" }
+          ? { label: "Start review", href: "/architecture/reviews/new" }
           : { label: null, href: null };
     case 3:
     case 4:
@@ -335,7 +335,7 @@ export function resolveFirstReviewGuideHeaderActions(
 
   return {
     primaryLabel: "Start first review",
-    primaryHref: "/reviews/new",
+    primaryHref: "/architecture/reviews/new",
     primaryDisabled: !canExecute,
     primaryDisabledReason: canExecute
       ? null

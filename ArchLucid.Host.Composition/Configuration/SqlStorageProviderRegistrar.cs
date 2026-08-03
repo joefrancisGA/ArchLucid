@@ -585,8 +585,10 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IFirstSessionLifecycleHook, SqlFirstSessionLifecycleHook>();
 
         services.AddScoped<IOutboxOperationalMetricsReader, DapperOutboxOperationalMetricsReader>();
+        services.AddScoped<IStaleInFlightRunMetricsReader, DapperStaleInFlightRunMetricsReader>();
         services.AddScoped<IAdminOutboxSnapshotReader, DapperAdminOutboxSnapshotReader>();
         services.AddHostedService<OutboxOperationalMetricsHostedService>();
+        services.AddHostedService<StaleInFlightRunMetricsHostedService>();
         services.AddHostedService<LlmTenantBudgetUtilizationMetricsHostedService>();
         services.AddHostedService<MarketingPricingQuoteAgingMetricsHostedService>();
         services.AddHostedService<SqlConnectionPoolMetricsHostedService>();

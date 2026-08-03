@@ -41,8 +41,8 @@ export function ShowcaseQuickNav({
   const runId = payload.run.runId;
   const manifestId = payload.manifest.manifestId;
   const findingId = primaryFindingIdForShowcase(payload);
-  const findingHref = `/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(findingId)}`;
-  const reviewHref = `/reviews/${encodeURIComponent(runId)}`;
+  const findingHref = `/architecture/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(findingId)}`;
+  const reviewHref = `/architecture/reviews/${encodeURIComponent(runId)}`;
 
   return (
     <section

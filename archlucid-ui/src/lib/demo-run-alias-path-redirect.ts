@@ -3,7 +3,7 @@ import { canonicalizeDemoRunId, demoRunUrlRequiresCanonicalRedirect } from "@/li
 /**
  * When a URL uses a known demo run id alias (see {@link canonicalizeDemoRunId}), return the same path with the
  * canonical run segment and **all trailing segments preserved** (findings, inspect, provenance, ...).
- * Otherwise return `null` so routing can fall through to normal `/runs` → `/reviews` redirects, etc.
+ * Otherwise return `null` so routing can fall through to normal `/runs` → `/architecture/reviews` redirects, etc.
  */
 export function demoRunAliasRedirectDestinationPath(pathname: string): string | null {
   if (pathname.length === 0) {
@@ -19,11 +19,11 @@ export function demoRunAliasRedirectDestinationPath(pathname: string): string | 
     if (demoRunUrlRequiresCanonicalRedirect(runIdSegment)) {
       const canon = canonicalizeDemoRunId(runIdSegment);
 
-      return `/reviews/${encodeURIComponent(canon)}${tail}`;
+      return `/architecture/reviews/${encodeURIComponent(canon)}${tail}`;
     }
   }
 
-  const reviews = /^\/reviews\/([^/]+)(\/.*)?$/.exec(pathname);
+  const reviews = /^\/architecture\/reviews\/([^/]+)(\/.*)?$/.exec(pathname);
 
   if (reviews !== null) {
     const runIdSegment = safeDecodePathSegment(reviews[1]);
@@ -32,7 +32,7 @@ export function demoRunAliasRedirectDestinationPath(pathname: string): string | 
     if (demoRunUrlRequiresCanonicalRedirect(runIdSegment)) {
       const canon = canonicalizeDemoRunId(runIdSegment);
 
-      return `/reviews/${encodeURIComponent(canon)}${tail}`;
+      return `/architecture/reviews/${encodeURIComponent(canon)}${tail}`;
     }
   }
 

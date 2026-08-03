@@ -13,6 +13,9 @@ locals {
   prometheus_slo_rule_group_enabled = local.prometheus_workspace_requested
 
   archlucid_authority_observability_runbook_url = "https://github.com/ArchLucid/ArchLucid/blob/main/docs/library/OBSERVABILITY.md#authority-pipeline-remediation-runbook"
+
+  # TB-958 — fleet-wide stale in-flight runs (cardinality-safe gauges; triage via logs).
+  archlucid_stale_in_flight_runs_runbook_url = "https://github.com/ArchLucid/ArchLucid/blob/main/docs/runbooks/STALE_IN_FLIGHT_RUNS.md"
 }
 
 data "azurerm_resource_group" "prometheus_slo" {

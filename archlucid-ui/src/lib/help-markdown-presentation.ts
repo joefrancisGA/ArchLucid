@@ -1730,7 +1730,7 @@ export function stripFirstReviewEvidenceChecklistContributorLeakage(markdown: st
     .replace(/`?WORKSPACE_NAVIGATION_GUIDE\.md`?/gi, "workspace navigation guide")
     .replace(/`?TROUBLESHOOTING\.md`?/gi, "troubleshooting")
     .replace(/`?V1_SCOPE\.md`?/gi, "V1 product scope")
-    .replace(/`?PILOT_RESCUE_PLAYBOOK\.md`?/gi, "pilot rescue guidance")
+    .replace(/`?PILOT_RESCUE_PLAYBOOK\.md`?/gi, "troubleshooting guide")
     .replace(/`?LIVE_E2E_HAPPY_PATH\.md`?/gi, "live happy-path guidance")
     .replace(/`?OPERATOR_PILOT_STICKINESS_CHECKLIST\.md`?/gi, "stickiness checklist")
     .replace(/`?REPEAT_REVIEW_LOOP\.md`?/gi, "repeat-review loop")

@@ -59,7 +59,7 @@ describe("pilot-outcomes-report-diagnostics", () => {
     expect(diagnostics.mostRecentFinalizedRunId).toBe("run-newest");
     expect(diagnostics.mostRecentFinalizedUtc).toBe("2026-03-11T08:00:00.000Z");
     expect(buildPilotOutcomesMostRecentFinalizedReviewHref(diagnostics.mostRecentFinalizedRunId)).toBe(
-      "/reviews/run-newest",
+      "/architecture/reviews/run-newest",
     );
   });
 

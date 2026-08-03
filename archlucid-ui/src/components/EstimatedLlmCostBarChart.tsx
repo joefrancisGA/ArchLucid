@@ -50,7 +50,7 @@ function DailyUsageEmptyState(): ReactNode {
           <Link href="/insights/ask-review-questions">Open review questions</Link>
         </Button>
         <Button asChild variant="primary" size="sm">
-          <Link href="/reviews/new">Start a review</Link>
+          <Link href="/architecture/reviews/new">Start a review</Link>
         </Button>
       </div>
     </div>

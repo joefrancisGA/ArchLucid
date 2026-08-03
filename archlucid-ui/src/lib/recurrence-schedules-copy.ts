@@ -1,3 +1,5 @@
+import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance-route-paths";
+
 /** Page copy and navigation targets for governance recurrence schedules. */
 
 /** Single above-the-fold lead under the page title (TB-1130 — no wall of governance prose). */
@@ -65,11 +67,10 @@ export const RECURRENCE_SCHEDULE_EXAMPLES: readonly RecurrenceScheduleExample[] 
 ] as const;
 
 /** Governed reviews index. */
-export const RECURRENCE_SCHEDULES_REVIEW_PACKAGES_HREF = "/reviews?projectId=default";
+export const RECURRENCE_SCHEDULES_REVIEW_PACKAGES_HREF = "/architecture/reviews?projectId=default";
 
-/** Pending approvals live on the governance workflow page (no standalone list route yet). */
-export const RECURRENCE_SCHEDULES_PENDING_APPROVALS_HREF = "/governance";
-
+/** Pending approvals live on the Approval queue page (no standalone list route yet). */
+export const RECURRENCE_SCHEDULES_PENDING_APPROVALS_HREF = GOVERNANCE_APPROVAL_QUEUE_PATH;
 /** Architecture risk register. */
 export const RECURRENCE_SCHEDULES_RISK_REGISTER_HREF = "/governance/findings";
 

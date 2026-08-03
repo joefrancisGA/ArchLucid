@@ -171,7 +171,7 @@ describe("PilotCommandCenterCard", () => {
 
     expect(screen.getByTestId("operator-home-do-this-next-primary")).toHaveAttribute(
       "href",
-      `/reviews/${SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId}`,
+      `/architecture/reviews/${SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId}`,
     );
     expect(screen.queryByTestId("operator-home-do-this-next-secondary")).toBeNull();
     expect(screen.getByTestId("pilot-command-center-help")).toBeInTheDocument();

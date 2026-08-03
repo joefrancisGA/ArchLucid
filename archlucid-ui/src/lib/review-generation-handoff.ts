@@ -166,7 +166,7 @@ export function reviewDetailHrefAfterGeneration(
     qs.set("intent", CREATE_ARCHITECTURE_INTENT);
   }
 
-  return `/reviews/${encodeURIComponent(trimmedRunId)}?${qs.toString()}`;
+  return `/architecture/reviews/${encodeURIComponent(trimmedRunId)}?${qs.toString()}`;
 }
 
 /** Records handoff context then returns the generation redirect href (for router.push or Link href). */

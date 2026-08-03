@@ -69,6 +69,28 @@ def test_migrate_workbook_path_maps_legacy_alerts() -> None:
     assert migrate_workbook_path("/alerts") == "/governance/alerts"
 
 
+def test_migrate_workbook_path_maps_retired_insights_operator_paths() -> None:
+    assert migrate_workbook_path("/ask") == "/insights/ask-review-questions"
+    assert migrate_workbook_path("/graph") == "/insights/evidence-graph"
+    assert migrate_workbook_path("/search") == "/insights/search-review-evidence"
+    assert migrate_workbook_path("/compare") == "/insights/compare-two-reviews"
+    assert migrate_workbook_path("/scorecard") == "/insights/architecture-scorecard"
+
+
+def test_migrate_workbook_path_maps_legacy_settings_hub() -> None:
+    assert migrate_workbook_path("/settings") == "/administration/settings"
+    assert migrate_workbook_path("/settings/support") == "/administration/settings/support"
+    assert migrate_workbook_path("/admin/support") == "/administration/settings/support"
+    assert migrate_workbook_path("/settings/users") == "/administration/settings/users"
+    assert migrate_workbook_path("/admin/users") == "/administration/settings/users"
+    assert migrate_workbook_path("/settings/roles") == "/administration/settings/users?tab=roles"
+
+
+def test_migrate_workbook_path_maps_legacy_governance_resolution() -> None:
+    assert migrate_workbook_path("/governance-resolution") == "/governance/standards-and-rules"
+    assert migrate_workbook_path("/governance/resolution") == "/governance/standards-and-rules"
+
+
 def test_migrate_workbook_path_maps_legacy_advisory_routes() -> None:
     assert migrate_workbook_path("/advisory") == "/governance/advisory-scans"
     assert migrate_workbook_path("/advisory?tab=scans") == "/governance/advisory-scans?tab=scans"

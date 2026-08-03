@@ -188,7 +188,7 @@ export function CloudConnectionsPageClient() {
         {visibleCards.length === 0 ? (
           <p className={OPERATOR_TYPOGRAPHY.helper}>
             No platforms are selected. Enable at least one option above, or use{" "}
-            <Link href="/reviews/new" className={OPERATOR_LINK.nav}>
+            <Link href="/architecture/reviews/new" className={OPERATOR_LINK.nav}>
               evidence-only review
             </Link>
             .

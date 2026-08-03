@@ -53,7 +53,7 @@ export function ReplaySelectedPackageSummary(props: ReplaySelectedPackageSummary
         <div>
           <dt className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Review</dt>
           <dd className="m-0">
-            <Link href={`/reviews/${selectedRun.runId}`} className={OPERATOR_LINK.nav}>
+            <Link href={`/architecture/reviews/${selectedRun.runId}`} className={OPERATOR_LINK.nav}>
               {buyerFacingReviewTitleFromSummary(selectedRun)}
             </Link>
           </dd>

@@ -6,9 +6,15 @@ import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import type { TeamExpansionNudgeStatusPayload } from "@/lib/team-expansion-nudge-trigger";
 
 import { normalizeTelemetryRoute } from "./telemetry-route-normalizer";
+import {
+  DEFAULT_WEB_VITALS_SAMPLE_RATE,
+  resolveWebVitalsSampleRate,
+} from "./web-vitals-sample-rate";
 
-/** Pilot-scale default — raise or lower when traffic grows (TB-692). */
-export const WEB_VITALS_SAMPLE_RATE = 1;
+/** Resolved at module load — override via NEXT_PUBLIC_WEB_VITALS_SAMPLE_RATE (TB-2031). */
+export const WEB_VITALS_SAMPLE_RATE = resolveWebVitalsSampleRate();
+
+export { DEFAULT_WEB_VITALS_SAMPLE_RATE, resolveWebVitalsSampleRate };
 
 export function resolveWebVitalsTenantTierLabel(): string {
   const cached = getOperatorQueryClient().getQueryData<TeamExpansionNudgeStatusPayload>(
@@ -33,20 +39,34 @@ function resolveEffectiveConnectionType(): string {
   return connection?.effectiveType?.trim() ?? "unknown";
 }
 
-function shouldSampleMetric(): boolean {
-  if (WEB_VITALS_SAMPLE_RATE >= 1) {
+/** Session-stable sample decision so LCP/INP/CLS from one page view stay together. */
+let sessionSampleDecision: boolean | null = null;
+
+export function resetWebVitalsSessionSampleDecisionForTests(): void {
+  sessionSampleDecision = null;
+}
+
+function shouldSampleSession(sampleRate: number = WEB_VITALS_SAMPLE_RATE): boolean {
+  if (sessionSampleDecision !== null) {
+    return sessionSampleDecision;
+  }
+
+  if (sampleRate >= 1) {
+    sessionSampleDecision = true;
     return true;
   }
 
-  if (WEB_VITALS_SAMPLE_RATE <= 0) {
+  if (sampleRate <= 0) {
+    sessionSampleDecision = false;
     return false;
   }
 
-  return Math.random() < WEB_VITALS_SAMPLE_RATE;
+  sessionSampleDecision = Math.random() < sampleRate;
+  return sessionSampleDecision;
 }
 
 function reportWebVitalMetric(ai: ApplicationInsights, metric: Metric): void {
-  if (!shouldSampleMetric()) {
+  if (!shouldSampleSession()) {
     return;
   }
 
@@ -63,6 +83,7 @@ function reportWebVitalMetric(ai: ApplicationInsights, metric: Metric): void {
       tenantTier: resolveWebVitalsTenantTierLabel(),
       navigationType: metric.navigationType ?? "unknown",
       effectiveConnectionType: resolveEffectiveConnectionType(),
+      sampleRate: String(WEB_VITALS_SAMPLE_RATE),
     },
   );
 }

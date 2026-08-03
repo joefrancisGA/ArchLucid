@@ -28,23 +28,23 @@ describe("report-problem-surfaces (TB-782)", () => {
   });
 
   it("matches static and dynamic route patterns", () => {
-    expect(pathnameMatchesReportProblemRoute("/reviews", "/reviews")).toBe(true);
-    expect(pathnameMatchesReportProblemRoute("/reviews", "/reviews/")).toBe(true);
-    expect(pathnameMatchesReportProblemRoute("/reviews", "/reviews/abc-123")).toBe(false);
-    expect(pathnameMatchesReportProblemRoute("/reviews/[runId]", "/reviews/abc-123")).toBe(true);
-    expect(pathnameMatchesReportProblemRoute("/reviews/[runId]", "/reviews/new")).toBe(false);
+    expect(pathnameMatchesReportProblemRoute("/architecture/reviews", "/architecture/reviews")).toBe(true);
+    expect(pathnameMatchesReportProblemRoute("/architecture/reviews", "/architecture/reviews/")).toBe(true);
+    expect(pathnameMatchesReportProblemRoute("/architecture/reviews", "/architecture/reviews/abc-123")).toBe(false);
+    expect(pathnameMatchesReportProblemRoute("/architecture/reviews/[runId]", "/architecture/reviews/abc-123")).toBe(true);
+    expect(pathnameMatchesReportProblemRoute("/architecture/reviews/[runId]", "/architecture/reviews/new")).toBe(false);
     expect(pathnameMatchesReportProblemRoute("/value-report", "/value-report/pilot", "exact-or-child")).toBe(
       true,
     );
   });
 
   it("returns route-scoped surfaces plus global component surfaces", () => {
-    const surfaces = reportProblemSurfacesForPathname("/reviews/abc-123");
+    const surfaces = reportProblemSurfacesForPathname("/architecture/reviews/abc-123");
     const ids = surfaces.map((surface) => surface.id);
 
     expect(ids).toContain("review-detail-hard-load-failure");
     expect(ids).toContain("operator-api-problem-high-stakes");
-    expect(reportProblemSurfacesForPathname("/reviews/new").map((surface) => surface.id)).not.toContain(
+    expect(reportProblemSurfacesForPathname("/architecture/reviews/new").map((surface) => surface.id)).not.toContain(
       "review-detail-hard-load-failure",
     );
   });

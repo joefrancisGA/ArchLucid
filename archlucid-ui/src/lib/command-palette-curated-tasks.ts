@@ -2,6 +2,7 @@
  * High-value jumps merged into the command palette beside nav links. Each `href` must match
  * a configured nav target so visibility can be gated with {@link visibleOperatorShellHrefSet}.
  */
+import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance-route-paths";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 export type CuratedPaletteTask = {
@@ -14,8 +15,8 @@ export type CuratedPaletteTask = {
 export const COMMAND_PALETTE_CURATED_TASKS: CuratedPaletteTask[] = [
   { label: "Overview", href: "/", searchValue: "task I want overview home start workspace" },
   { label: "Onboarding checklist", href: "/architecture/first-review-guide", searchValue: "task I want onboarding first run checklist" },
-  { label: "New architecture review", href: "/reviews/new", searchValue: "task I want new review wizard" },
-  { label: "Reviews list", href: "/reviews?projectId=default", searchValue: "task I want reviews list projects" },
+  { label: "New architecture review", href: "/architecture/reviews/new", searchValue: "task I want new review wizard" },
+  { label: "Reviews list", href: "/architecture/reviews?projectId=default", searchValue: "task I want reviews list projects" },
   { label: "Compare two reviews", href: "/insights/compare-two-reviews", searchValue: "task I want compare diff N N+1 delta" },
   { label: OPERATOR_NAV_LINK_LABELS.evidenceTrail, href: "/insights/evidence-graph", searchValue: "task I want graph visualization trail" },
   { label: "Ask ArchLucid", href: "/insights/ask-review-questions", searchValue: "task I want ask question chat" },
@@ -25,5 +26,5 @@ export const COMMAND_PALETTE_CURATED_TASKS: CuratedPaletteTask[] = [
   { label: "Audit Trail", href: "/governance/audit", searchValue: "task I want audit compliance csv export evidence" },
   { label: "Digests & subscriptions", href: "/digests", searchValue: "task I want digest email subscriptions" },
   { label: "Policy packs", href: "/governance/policy-packs", searchValue: "task I want policy governance rules" },
-  { label: "Approval queue", href: "/governance", searchValue: "task I want governance approval promotion" },
+  { label: "Approval queue", href: GOVERNANCE_APPROVAL_QUEUE_PATH, searchValue: "task I want governance approval promotion" },
 ];

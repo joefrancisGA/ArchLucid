@@ -1,12 +1,8 @@
-import { cn } from "@/lib/utils";
+import dynamic from "next/dynamic";
 import type { ReactElement } from "react";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
-import { FindingsWhatIfAnalysisPanel } from "@/components/FindingsWhatIfAnalysisPanel";
-import { RunDetailFindingsWorkspace } from "./RunDetailFindingsWorkspace";
-import { RunExplanationSection } from "@/components/RunExplanationSection";
-import { RunFindingExplainabilityTable } from "@/components/RunFindingExplainabilityTable";
 import { OperatorSectionRetryButton } from "@/components/OperatorSectionRetryButton";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -17,8 +13,45 @@ import type { FindingWireSnapshot, QuickDecisionFinding } from "@/lib/quick-deci
 import type { RunExplanationSummary } from "@/types/explanation";
 import { RunDecisionExplainabilitySection } from "@/components/RunDecisionExplainabilitySection";
 import type { RunDecisionExplainabilityModel } from "@/lib/run-decision-explainability-from-detail";
+import { cn } from "@/lib/utils";
 
 import { RunDetailSponsorModeExplanationCard } from "./RunDetailSponsorModeExplanationCard";
+
+const findingsWorkspaceLoading = (
+  <div
+    className="h-48 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
+    role="status"
+    aria-label="Loading findings workspace"
+  />
+);
+
+/** TB-2021 — keep QuickDecision / findings client graph out of sync First Load JS. */
+const FindingsWhatIfAnalysisPanel = dynamic(
+  () =>
+    import("@/components/FindingsWhatIfAnalysisPanel").then(
+      (module) => module.FindingsWhatIfAnalysisPanel,
+    ),
+  { loading: () => null },
+);
+
+const RunDetailFindingsWorkspace = dynamic(
+  () =>
+    import("./RunDetailFindingsWorkspace").then((module) => module.RunDetailFindingsWorkspace),
+  { loading: () => findingsWorkspaceLoading },
+);
+
+const RunExplanationSection = dynamic(
+  () => import("@/components/RunExplanationSection").then((module) => module.RunExplanationSection),
+  { loading: () => null },
+);
+
+const RunFindingExplainabilityTable = dynamic(
+  () =>
+    import("@/components/RunFindingExplainabilityTable").then(
+      (module) => module.RunFindingExplainabilityTable,
+    ),
+  { loading: () => null },
+);
 
 type RunDetailRunExplanationCollapsibleProps = {
   readonly runId: string;

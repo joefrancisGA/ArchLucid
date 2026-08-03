@@ -39,7 +39,7 @@ export function ExecutiveWorkspaceHealthPageHero({
         >
           <PageContextualHelpButton />
           <Link
-            href="/governance"
+            href="/governance/approval-queue"
             className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.micro)}
             data-testid="executive-workspace-health-workflow-link"
           >

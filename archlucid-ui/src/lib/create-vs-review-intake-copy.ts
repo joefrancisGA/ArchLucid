@@ -1,6 +1,6 @@
 /**
  * TB-747 — differentiate review intake (evidence-first) from architecture creation (drafting-first).
- * Review paths live under `/reviews/new`; create paths under `/architectures/**`.
+ * Review paths live under `/architecture/reviews/new`; create paths under `/architectures/**`.
  */
 
 /** Quick-review progress header — evidence before optional brief. */

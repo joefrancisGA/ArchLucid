@@ -79,7 +79,7 @@ export function buildReviewDetailTabHref(
   options?: { readonly hash?: string | null },
 ): string {
   const params = new URLSearchParams({ [REVIEW_DETAIL_TAB_PARAM]: tab });
-  const base = `/reviews/${encodeURIComponent(runId.trim())}?${params.toString()}`;
+  const base = `/architecture/reviews/${encodeURIComponent(runId.trim())}?${params.toString()}`;
   const hash = options?.hash?.trim() ?? "";
 
   if (hash.length === 0) {

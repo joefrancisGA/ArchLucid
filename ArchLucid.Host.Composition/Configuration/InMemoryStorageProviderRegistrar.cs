@@ -320,6 +320,7 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         ArchLucidStorageServiceCollectionExtensions.RegisterSharedDistributedCacheAndLlmCompletion(services, configuration);
 
         services.AddSingleton<IOutboxOperationalMetricsReader, InMemoryOutboxOperationalMetricsReader>();
+        services.AddSingleton<IStaleInFlightRunMetricsReader, InMemoryStaleInFlightRunMetricsReader>();
         services.AddScoped<IAdminOutboxSnapshotReader, InMemoryAdminOutboxSnapshotReader>();
         services.AddSingleton<ITrialFunnelOperationalMetricsReader, InMemoryTrialFunnelOperationalMetricsReader>();
         services.AddSingleton<IInternalCrossTenantMetricsCollector, InMemoryInternalCrossTenantMetricsCollector>();
@@ -332,6 +333,7 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<IFirstSessionLifecycleHook>(NoOpFirstSessionLifecycleHook.Instance);
 
         services.AddHostedService<OutboxOperationalMetricsHostedService>();
+        services.AddHostedService<StaleInFlightRunMetricsHostedService>();
         services.AddHostedService<LlmTenantBudgetUtilizationMetricsHostedService>();
         services.AddHostedService<MarketingPricingQuoteAgingMetricsHostedService>();
 

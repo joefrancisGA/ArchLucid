@@ -17,7 +17,14 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "First-pilot troubleshooting decision tree",
     "sectionSlug": "",
     "sectionHeading": "First-pilot troubleshooting decision tree — overview",
-    "excerpt": "Canonical pilot path: [`FIRST_PILOT_OPERATOR_PATH.md`](FIRST_PILOT_OPERATOR_PATH.md) · Stuck mid-pilot index: [`PILOT_RESCUE_PLAYBOOK.md`](PILOT_RESCUE_PLAYBOOK.md) · Full detail: [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md)"
+    "excerpt": "Canonical pilot path: [`FIRST_PILOT_OPERATOR_PATH.md`](FIRST_PILOT_OPERATOR_PATH.md) · Full detail: [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md) · Narrative: [`CORE_PILOT.md`](../CORE_PILOT.md)"
+  },
+  {
+    "docPath": "docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md",
+    "docTitle": "First-pilot troubleshooting decision tree",
+    "sectionSlug": "quick-matrix-symptom--first-check",
+    "sectionHeading": "Quick matrix (symptom → first check)",
+    "excerpt": "Use this when you need a one-screen index. Numbered sections below add escalation artifacts."
   },
   {
     "docPath": "docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md",
@@ -29,57 +36,71 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md",
     "docTitle": "First-pilot troubleshooting decision tree",
-    "sectionSlug": "2-sql-migration-failure-dbup-errors-at-startup",
-    "sectionHeading": "2. SQL migration failure / DbUp errors at startup",
+    "sectionSlug": "2-healthready-unhealthy",
+    "sectionHeading": "2. /health/ready unhealthy",
+    "excerpt": "→ [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md) (opening readiness steps)"
+  },
+  {
+    "docPath": "docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md",
+    "docTitle": "First-pilot troubleshooting decision tree",
+    "sectionSlug": "3-sql-migration-failure-dbup-errors-at-startup",
+    "sectionHeading": "3. SQL migration failure / DbUp errors at startup",
     "excerpt": "→ [`SQL_SCRIPTS.md`](../library/SQL_SCRIPTS.md) · [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md) (API startup)"
   },
   {
     "docPath": "docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md",
     "docTitle": "First-pilot troubleshooting decision tree",
-    "sectionSlug": "3-auth-401-403",
-    "sectionHeading": "3. Auth 401 / 403",
-    "excerpt": "→ [`GENERIC_OIDC_SETUP.md`](GENERIC_OIDC_SETUP.md) · [`API_KEY_ROTATION.md`](API_KEY_ROTATION.md)) · Settings → Identity providers (OIDC discovery strip)"
+    "sectionSlug": "4-auth-401-403",
+    "sectionHeading": "4. Auth 401 / 403",
+    "excerpt": "→ [`GENERIC_OIDC_SETUP.md`](GENERIC_OIDC_SETUP.md) · [`API_KEY_ROTATION.md`](API_KEY_ROTATION.md) · Settings → Identity providers (OIDC discovery strip)"
   },
   {
     "docPath": "docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md",
     "docTitle": "First-pilot troubleshooting decision tree",
-    "sectionSlug": "4-trial-402-entitlement",
-    "sectionHeading": "4. Trial 402 (entitlement)",
+    "sectionSlug": "5-trial-402-entitlement",
+    "sectionHeading": "5. Trial 402 (entitlement)",
     "excerpt": "→ [`TRIAL_AND_SIGNUP.md`](../go-to-market/TRIAL_AND_SIGNUP.md)"
   },
   {
     "docPath": "docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md",
     "docTitle": "First-pilot troubleshooting decision tree",
-    "sectionSlug": "5-azure-extractor-upload-422",
-    "sectionHeading": "5. Azure extractor upload 422",
+    "sectionSlug": "6-azure-extractor-upload-422",
+    "sectionHeading": "6. Azure extractor upload 422",
     "excerpt": "→ [`AZURE_EXTRACTOR.md`](../library/AZURE_EXTRACTOR.md)"
   },
   {
     "docPath": "docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md",
     "docTitle": "First-pilot troubleshooting decision tree",
-    "sectionSlug": "6-execute-stalls-review-not-ready-to-finalize",
-    "sectionHeading": "6. Execute stalls / review not Ready to finalize",
-    "excerpt": "→ [`PILOT_RESCUE_PLAYBOOK.md`](PILOT_RESCUE_PLAYBOOK.md) · [`FIRST_REAL_VALUE.md`](../library/FIRST_REAL_VALUE.md)"
+    "sectionSlug": "7-execute-stalls-review-not-ready-to-finalize",
+    "sectionHeading": "7. Execute stalls / review not Ready to finalize",
+    "excerpt": "→ [`FIRST_REAL_VALUE.md`](../library/FIRST_REAL_VALUE.md) · [`CORE_PILOT.md`](../CORE_PILOT.md) (steps 2–3)"
   },
   {
     "docPath": "docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md",
     "docTitle": "First-pilot troubleshooting decision tree",
-    "sectionSlug": "7-finalize-409-governance-pre-finalize-gate-blocked",
-    "sectionHeading": "7. Finalize 409 / governance pre-finalize gate blocked",
+    "sectionSlug": "8-real-mode--azure-openai-failures",
+    "sectionHeading": "8. Real-mode / Azure OpenAI failures",
+    "excerpt": "→ [`FIRST_REAL_VALUE.md`](../library/FIRST_REAL_VALUE.md) · [`RESILIENCE_CONFIGURATION.md`](../library/RESILIENCE_CONFIGURATION.md) · [`AGENT_OUTPUT_EVALUATION.md`](../library/AGENT_OUTPUT_EVALUATION.md)"
+  },
+  {
+    "docPath": "docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md",
+    "docTitle": "First-pilot troubleshooting decision tree",
+    "sectionSlug": "9-finalize-409-governance-pre-finalize-gate-blocked",
+    "sectionHeading": "9. Finalize 409 / governance pre-finalize gate blocked",
     "excerpt": "→ [`PRE_COMMIT_GOVERNANCE_GATE.md`](../library/PRE_COMMIT_GOVERNANCE_GATE.md)"
   },
   {
     "docPath": "docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md",
     "docTitle": "First-pilot troubleshooting decision tree",
-    "sectionSlug": "8-missing-artifact-bundle-after-finalize",
-    "sectionHeading": "8. Missing artifact bundle after finalize",
-    "excerpt": "→ [`CORE_PILOT.md`](../CORE_PILOT.md) (step 4)"
+    "sectionSlug": "10-missing-artifact-bundle-after-finalize",
+    "sectionHeading": "10. Missing artifact bundle after finalize",
+    "excerpt": "→ [`CORE_PILOT.md`](../CORE_PILOT.md) (step 4) · [`API_CONTRACTS.md`](../library/API_CONTRACTS.md)"
   },
   {
     "docPath": "docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md",
     "docTitle": "First-pilot troubleshooting decision tree",
-    "sectionSlug": "9-low-confidence-ai-output-disputed-finding",
-    "sectionHeading": "9. Low-confidence AI output / disputed finding",
+    "sectionSlug": "11-low-confidence-ai-output-disputed-finding",
+    "sectionHeading": "11. Low-confidence AI output / disputed finding",
     "excerpt": "→ [`AGENT_OUTPUT_EVALUATION.md`](../library/AGENT_OUTPUT_EVALUATION.md) · [`AGENT_TRACE_FORENSICS.md`](../library/AGENT_TRACE_FORENSICS.md)"
   },
   {
@@ -87,7 +108,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "First-pilot troubleshooting decision tree",
     "sectionSlug": "support-bundle-any-symptom",
     "sectionHeading": "Support bundle (any symptom)",
-    "excerpt": "Review `README.txt` and `next-steps.json` before external send — see [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md) (support bundle checklist)."
+    "excerpt": "See [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md) (support bundle / redaction checklist)."
   },
   {
     "docPath": "docs/library/customer-facing/OPERATOR_ADMIN_DIAGNOSTICS.md",

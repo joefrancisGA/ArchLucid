@@ -78,7 +78,7 @@ public sealed class CliOperatorHintsTests
         text.Should().Contain("http://localhost:5555");
         text.ToLowerInvariant().Should().Contain("health/ready");
         text.ToLowerInvariant().Should().Contain("doctor");
-        text.Should().Contain("PILOT_RESCUE_PLAYBOOK.md");
+        text.Should().Contain("FIRST_PILOT_TROUBLESHOOTING.md");
     }
 
     [Fact]

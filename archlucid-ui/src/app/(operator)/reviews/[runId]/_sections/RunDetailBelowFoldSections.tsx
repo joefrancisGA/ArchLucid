@@ -3,8 +3,6 @@ import { Suspense } from "react";
 import dynamic from "next/dynamic";
 
 import { GovernanceModePresentationGate } from "@/components/GovernanceModePresentationGate";
-import { PostCommitHabitLoopCard } from "@/components/PostCommitHabitLoopCard";
-import { RecurrenceSchedulePostCommitCard } from "@/components/governance/RecurrenceSchedulePostCommitCard";
 import { RunDetailWhatsNextSection } from "@/components/RunDetailWhatsNextSection";
 import { GovernanceApprovalAttestationBlock } from "@/components/reviews/GovernanceApprovalAttestationBlock";
 import { ReviewChainOfCustodySection } from "@/components/reviews/ReviewChainOfCustodySection";
@@ -14,8 +12,6 @@ import { RunAgentQualityWarningsSection } from "@/components/RunAgentQualityWarn
 import { BUYER_REVIEW_DETAIL_POLICY_PACK_NOTE } from "@/lib/buyer-polish-copy";
 
 import { RunDetailAdvancedAnalysisSection } from "./RunDetailAdvancedAnalysisSection";
-import { RunDetailArtifactsExportsSection } from "./RunDetailArtifactsExportsSection";
-import { RunDetailAuthorityChainSection } from "./RunDetailAuthorityChainSection";
 import { RunDetailManifestSummaryAlerts } from "./RunDetailManifestSummaryAlerts";
 import { RunDetailOperatorPipelineToolsCollapsible } from "./RunDetailOperatorPipelineToolsCollapsible";
 import { RunDetailOperatorTechnicalFooter } from "./RunDetailOperatorTechnicalFooter";
@@ -23,11 +19,11 @@ import { RunDetailPipelineTimelineSection } from "./RunDetailPipelineTimelineSec
 import { RunDetailPipelineStagesSection } from "./RunDetailPipelineStagesSection";
 import { RunDetailPreFinalizedEmptyState } from "./RunDetailPreFinalizedEmptyState";
 import { RunDetailProvenanceSummaryCard } from "./RunDetailProvenanceSummaryCard";
-import { RunDetailRetrievalGroundingSection } from "./RunDetailRetrievalGroundingSection";
 import { RunDetailRunActionsSection } from "./RunDetailRunActionsSection";
 import { RunDetailExplanationDeferred } from "./RunDetailExplanationDeferred";
 import { RunDetailExplanationSkeleton } from "./RunDetailDeferredSkeleton";
 import { loadRunDetailBelowFoldDeferredModel } from "./load-run-detail-deferred-model";
+import { RunDetailArtifactsExportsSectionDeferred } from "./run-detail-page-view-deferred-chunks";
 import type { RunDetailDeferredSectionContext, RunDetailPageModel } from "./run-detail-page-model";
 
 const BeforeAfterDeltaPanel = dynamic(
@@ -51,6 +47,36 @@ const RunDetailArchitectureGraphSection = dynamic(
       </section>
     ),
   },
+);
+
+/** TB-2021 — below-fold client islands (habit loop / authority / grounding). */
+const PostCommitHabitLoopCard = dynamic(
+  () => import("@/components/PostCommitHabitLoopCard").then((module) => module.PostCommitHabitLoopCard),
+  { loading: () => null },
+);
+
+const RecurrenceSchedulePostCommitCard = dynamic(
+  () =>
+    import("@/components/governance/RecurrenceSchedulePostCommitCard").then(
+      (module) => module.RecurrenceSchedulePostCommitCard,
+    ),
+  { loading: () => null },
+);
+
+const RunDetailAuthorityChainSection = dynamic(
+  () =>
+    import("./RunDetailAuthorityChainSection").then(
+      (module) => module.RunDetailAuthorityChainSection,
+    ),
+  { loading: () => null },
+);
+
+const RunDetailRetrievalGroundingSection = dynamic(
+  () =>
+    import("./RunDetailRetrievalGroundingSection").then(
+      (module) => module.RunDetailRetrievalGroundingSection,
+    ),
+  { loading: () => null },
 );
 
 type RunDetailBelowFoldSectionsProps = {
@@ -173,7 +199,7 @@ export async function RunDetailBelowFoldSections(
       ) : null}
 
       {m.manifestId && props.skipArtifactsExports !== true ? (
-        <RunDetailArtifactsExportsSection
+        <RunDetailArtifactsExportsSectionDeferred
           manifestId={m.manifestId}
           runId={m.resolvedDetail.run.runId}
           buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}

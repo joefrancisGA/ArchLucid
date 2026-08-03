@@ -32,7 +32,7 @@ describe("OperatorHomeExampleRequestPanel (TB-348)", () => {
     expect(screen.getByRole("link", { name: OPERATOR_HOME_EXAMPLE_START_CTA })).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-example-request-completed")).toHaveAttribute(
       "href",
-      `/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
+      `/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
     );
   });
 

@@ -18,7 +18,7 @@ describe("FindingPolicyEvidenceCitationLinks", () => {
             {
               label: "Network security group rule",
               detail: "Lines 12-14",
-              href: "/reviews/run-1/findings/f-1/evidence-trace",
+              href: "/architecture/reviews/run-1/findings/f-1/evidence-trace",
             },
           ],
         }}
@@ -30,7 +30,7 @@ describe("FindingPolicyEvidenceCitationLinks", () => {
     expect(screen.getByRole("button", { name: /Security baseline ingress rule/i })).toBeTruthy();
     expect(screen.getByRole("link", { name: "Network security group rule" })).toHaveAttribute(
       "href",
-      "/reviews/run-1/findings/f-1/evidence-trace",
+      "/architecture/reviews/run-1/findings/f-1/evidence-trace",
     );
   });
 

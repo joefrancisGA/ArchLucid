@@ -1,15 +1,15 @@
 # `/reviews/[runId]` bundle composition investigation (TB-697 / TB-933)
 
 > **Scope:** Contributor investigation artifact; not buyer/operator documentation.  
-> **Date:** 2026-07-18 (TB-697); **Updated:** 2026-07-24 (**TB-933** next-wave deferrals).  
-> **Method:** Cross-reference committed First Load JS baseline + static import/deferred-chunk inventory on `RunDetailPageView` (post-**TB-697** / **TB-933** deferred-chunk work).  
+> **Date:** 2026-07-18 (TB-697); **Updated:** 2026-08-03 (**TB-2021** findings/export/below-fold deferrals); prior 2026-07-24 (**TB-933**).
+> **Method:** Cross-reference committed First Load JS baseline + static import/deferred-chunk inventory on `RunDetailPageView` (post-**TB-697** / **TB-933** / **TB-2021** deferred-chunk work).
 > **Blocked locally (2026-07-18):** `npm run build` / `npm run build:analyze` did not complete in that pass — prefer CI/Linux for analyzer HTML; refresh First Load JS baseline after measured cuts via `npm run write:first-load-js-baseline`.
 
 ## Executive summary
 
-`/reviews/[runId]` remains the **largest tracked operator route** (baseline **2,255.2 kB** First Load JS in `performance/first-load-js-baseline.v1.json` as of the last committed refresh). **TB-697** moved forensics/architecture/progress modules behind `run-detail-page-view-deferred-chunks.tsx`. **TB-933** (2026-07-24) deferred the next static-import cluster: details-gated `RunDetailOutcomeCards`, conditional usability/CTO banners, policy-pack callout, operator forensics panel wrapper, and `WhatIfBranchCompareBanner`; also extracted `resolveRunDetailLastFailureSummary` so the page view no longer statically imports `RunDetailLastFailureCard`.
+`/reviews/[runId]` remains the **largest tracked operator route** (baseline **2,255.2 kB** First Load JS in `performance/first-load-js-baseline.v1.json` as of the last committed refresh — **not yet remeasured** after **TB-2021**). **TB-697** moved forensics/architecture/progress modules behind `run-detail-page-view-deferred-chunks.tsx`. **TB-933** (2026-07-24) deferred outcome cards / usability banners / forensics. **TB-2021** (2026-08-03) deferred findings/QuickDecision client leaves, artifacts/exports, and below-fold habit/authority/grounding islands.
 
-What remains is a **wide first-paint shell**: `ReviewDetailWorkspace`, overview/executive-summary chrome, and workspace header/summary strips. Further wins still use `next/dynamic({ ssr: false })` — prefer measured `build:analyze` before deferring first-paint buyer chrome.
+What remains sync for buyer first paint: `ReviewDetailWorkspace`, overview/executive-summary chrome, and workspace header/summary strips. Further wins need measured `build:analyze` before deferring that chrome.
 
 ## Baseline cross-reference
 
@@ -21,7 +21,7 @@ What remains is a **wide first-paint shell**: `ReviewDetailWorkspace`, overview/
 
 The +60 kB assessment→baseline delta aligns with api-types/OpenAPI expansion called out in baseline `notes`, not necessarily new run-detail UI code.
 
-## Deferred inventory (shipped — TB-697 + TB-933)
+## Deferred inventory (shipped — TB-697 + TB-933 + TB-2021)
 
 These modules are **not** in the `RunDetailPageView` static import graph (enforced by `run-detail-bundle-deferred-imports.test.ts`):
 
@@ -44,9 +44,19 @@ These modules are **not** in the `RunDetailPageView` static import graph (enforc
 | `RunDetailCtoDemoReviewRouteGuardDeferred` | `CtoDemoReviewRouteGuard` | TB-933 |
 | `RunDetailPolicyPackImpactCalloutDeferred` | `ReviewDetailPolicyPackImpactCallout` | TB-933 |
 | `RunDetailOperatorTechnicalForensicsPanelDeferred` | `RunDetailOperatorTechnicalForensicsPanel` | TB-933 |
+| `RunDetailArtifactsExportsSectionDeferred` | `RunDetailArtifactsExportsSection` | TB-2021 |
+| Findings / what-if / explanation / explainability table | `dynamic()` inside `RunDetailRunExplanationCollapsible` | TB-2021 |
+| Habit loop / recurrence / authority / grounding | `dynamic()` inside `RunDetailBelowFoldSections` | TB-2021 |
 | … | (see `run-detail-page-view-deferred-chunks.tsx`) | |
 
 Below-fold route sections also dynamic-load `BeforeAfterDeltaPanel` and `RunDetailArchitectureGraphSection` (`RunDetailBelowFoldSections.tsx`).
+
+### TB-2021 measured kB note
+
+| | `/reviews/[runId]` First Load JS |
+| --- | ---: |
+| Before (committed baseline) | **2,255.2 kB** |
+| After TB-2021 deferrals | Pending CI `write:first-load-js-baseline` — do not edit baseline until measured |
 
 Heavy libraries (`reactflow`, `mermaid`, `recharts`) stay off hot paths via existing import-policy tests (**TB-862**, **TB-863**, **TB-570**).
 

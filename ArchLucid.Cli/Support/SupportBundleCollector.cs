@@ -308,7 +308,7 @@ public static class SupportBundleCollector
             ],
             Documentation =
             [
-                SupportBundleDocLinks.PilotRescuePlaybookRelativePath + " — symptom-first pilot triage",
+                SupportBundleDocLinks.PilotRescuePlaybookRelativePath + " — first-pilot troubleshooting decision tree",
                 SupportBundleDocLinks.SupportProblemReportTriageRelativePath
                     + " — Report problem reference id → SQL + App Insights triage",
                 "Open README.txt in this folder first for triage order; manifest.json lists triageReadOrder as JSON.",

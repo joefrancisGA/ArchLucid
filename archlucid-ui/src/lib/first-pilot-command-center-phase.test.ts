@@ -108,7 +108,7 @@ describe("resolveFirstPilotCommandCenterPhase", () => {
 
     expect(phase.headline).toBe("Platform ready");
 
-    expect(phase.href).toBe("/reviews/new");
+    expect(phase.href).toBe("/architecture/reviews/new");
 
   });
 
@@ -132,7 +132,7 @@ describe("resolveFirstPilotCommandCenterPhase", () => {
 
     expect(phase.phase).toBe("review-in-progress");
 
-    expect(phase.href).toBe("/reviews/review-1");
+    expect(phase.href).toBe("/architecture/reviews/review-1");
 
   });
 
@@ -156,7 +156,7 @@ describe("resolveFirstPilotCommandCenterPhase", () => {
 
     expect(phase.phase).toBe("ready-to-commit");
 
-    expect(phase.href).toBe("/reviews/review-1");
+    expect(phase.href).toBe("/architecture/reviews/review-1");
 
   });
 

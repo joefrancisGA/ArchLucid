@@ -27,7 +27,7 @@ describe("nav-authority", () => {
   /** Same numeric floor as `operateCapabilityFromRank` and `LayerHeader` Enterprise rank cue. */
   it("flips Execute-tier link visibility at caller rank ExecuteAuthority (not below)", () => {
     const link = {
-      href: "/governance",
+      href: "/governance/approval-queue",
       label: "Workflow",
       title: "",
       tier: "essential" as const,

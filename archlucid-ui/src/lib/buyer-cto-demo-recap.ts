@@ -21,7 +21,7 @@ export type CtoDemoRecapPayload = {
 
 export function buildStaticCtoDemoRecapPayload(origin?: string): CtoDemoRecapPayload {
   const base = (origin ?? "").trim().replace(/\/$/, "");
-  const reviewPath = `/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
+  const reviewPath = `/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
   const reviewPackageUrl = base.length > 0 ? `${base}${reviewPath}` : reviewPath;
   const snapshotPath = `/snapshot/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}?v=demo`;
   const snapshotUrl = base.length > 0 ? `${base}${snapshotPath}` : snapshotPath;
@@ -52,7 +52,7 @@ export function buildCtoDemoRecapPayloadFromRun(
   origin?: string,
 ): CtoDemoRecapPayload {
   const base = (origin ?? "").trim().replace(/\/$/, "");
-  const reviewPath = `/reviews/${encodeURIComponent(runId)}`;
+  const reviewPath = `/architecture/reviews/${encodeURIComponent(runId)}`;
   const reviewPackageUrl = base.length > 0 ? `${base}${reviewPath}` : reviewPath;
   const snapshotPath = `/snapshot/${encodeURIComponent(runId)}`;
   const snapshotUrl = base.length > 0 ? `${base}${snapshotPath}` : snapshotPath;

@@ -11,7 +11,7 @@ vi.mock("next/navigation", () => ({
     push: pushMock,
     replace: replaceMock,
   }),
-  usePathname: () => "/reviews/run-1",
+  usePathname: () => "/architecture/reviews/run-1",
   useSearchParams: () => new URLSearchParams("fromGeneration=1&intent=create-architecture"),
 }));
 
@@ -38,7 +38,7 @@ describe("ArchitectureCreatedWorkspace", () => {
         architectureSourceText="Generated architecture body"
         canEditDiagram
         findings={[]}
-        correctionHref="/reviews/new?path=guided-intake&rerun=run-1"
+        correctionHref="/architecture/reviews/new?path=guided-intake&rerun=run-1"
         panels={{
           findings: <div data-testid="findings-panel-slot">Findings</div>,
           evidence: <div data-testid="evidence-panel-slot">Evidence</div>,
@@ -81,7 +81,7 @@ describe("ArchitectureCreatedWorkspace", () => {
 - What is the RPO target?`}
         canEditDiagram
         findings={[]}
-        correctionHref="/reviews/new?path=guided-intake&rerun=run-1"
+        correctionHref="/architecture/reviews/new?path=guided-intake&rerun=run-1"
         panels={{
           findings: <div data-testid="findings-panel-slot">Findings</div>,
           evidence: <div data-testid="evidence-panel-slot">Evidence</div>,

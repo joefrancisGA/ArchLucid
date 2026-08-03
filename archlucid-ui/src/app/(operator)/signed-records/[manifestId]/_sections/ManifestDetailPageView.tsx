@@ -65,7 +65,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
     buyerPolishedLayout === true && showcasePackage === true;
 
   const primaryFindingHref = showcasePackage
-    ? `/reviews/${encodeURIComponent(canonicalizeDemoRunId(summary.runId.trim()))}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`
+    ? `/architecture/reviews/${encodeURIComponent(canonicalizeDemoRunId(summary.runId.trim()))}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`
     : null;
 
   const overviewSummaryCard = (
@@ -161,7 +161,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
           <Button variant="secondary" size="sm" asChild>
             <Link
               href={
-                primaryFindingHref ?? `/reviews/${encodeURIComponent(summary.runId)}#run-explanation`
+                primaryFindingHref ?? `/architecture/reviews/${encodeURIComponent(summary.runId)}#run-explanation`
               }
             >
               {primaryFindingHref
@@ -210,11 +210,11 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
     <div className="w-full max-w-[1200px] space-y-6 px-1 py-2 sm:px-0">
       <CtoDemoBuyerValueStrip stepIndex={1} />
       <nav aria-label="Breadcrumb" className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-        <Link className={OPERATOR_LINK.nav} href="/reviews?projectId=default">
+        <Link className={OPERATOR_LINK.nav} href="/architecture/reviews?projectId=default">
           Reviews
         </Link>
         {" · "}
-        <Link className={OPERATOR_LINK.nav} href={`/reviews/${summary.runId}`}>
+        <Link className={OPERATOR_LINK.nav} href={`/architecture/reviews/${summary.runId}`}>
           {buyerPolishedLayout === true && showcasePackage === true
             ? SHOWCASE_BUYER_REVIEW_TITLE
             : "Open review"}

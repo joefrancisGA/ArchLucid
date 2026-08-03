@@ -11,7 +11,7 @@ import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
 
-const showcaseRunHref = `/governance?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
+const showcaseRunHref = `/governance/approval-queue?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
 const showcaseAuditHref = `/audit?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
 const riskRegisterHref = "/governance/findings";
 

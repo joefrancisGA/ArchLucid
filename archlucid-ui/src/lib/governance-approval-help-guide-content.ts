@@ -1,5 +1,6 @@
 import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
 import {
+  GOVERNANCE_APPROVAL_QUEUE_PATH,
   GOVERNANCE_AUDIT_PATH,
   GOVERNANCE_RESOLUTION_PATH,
 } from "@/lib/governance-route-paths";
@@ -16,7 +17,7 @@ export const GOVERNANCE_APPROVAL_HELP_OVERVIEW =
 export const GOVERNANCE_APPROVAL_HELP_PRIMARY_ACTIONS = {
   openWorkflow: {
     label: "Open governance workflow",
-    href: "/governance",
+    href: GOVERNANCE_APPROVAL_QUEUE_PATH,
   },
   openDashboard: {
     label: "Open governance dashboard",
@@ -218,7 +219,7 @@ export const GOVERNANCE_APPROVAL_HELP_COMMON_ACTIONS: readonly GovernanceApprova
   {
     label: "Submit for approval",
     description: "Start an approval request on a finalized review.",
-    href: "/governance",
+    href: GOVERNANCE_APPROVAL_QUEUE_PATH,
   },
   {
     label: "Review pending requests",
@@ -228,7 +229,7 @@ export const GOVERNANCE_APPROVAL_HELP_COMMON_ACTIONS: readonly GovernanceApprova
   {
     label: "Record a governance decision",
     description: "Approve or reject submitted requests on the workflow page.",
-    href: "/governance",
+    href: GOVERNANCE_APPROVAL_QUEUE_PATH,
   },
   {
     label: "Open the governance dashboard",
@@ -248,7 +249,7 @@ export const GOVERNANCE_APPROVAL_HELP_COMMON_ACTIONS: readonly GovernanceApprova
   {
     label: "Attach supporting evidence",
     description: "Open reviews to add artifacts before finalize and submission.",
-    href: "/reviews",
+    href: "/architecture/reviews",
   },
   {
     label: "Open trust center",

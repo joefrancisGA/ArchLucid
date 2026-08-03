@@ -44,7 +44,7 @@ const preview: ArchitectureWorkItemPreview = {
       recommendedAction: "Enable encryption.",
     },
   ],
-  sourceArchitectureLink: "https://app.archlucid.test/reviews/run-1",
+  sourceArchitectureLink: "https://app.archlucid.test/architecture/reviews/run-1",
 };
 
 function renderDialog(overrides?: Partial<React.ComponentProps<typeof CreateWorkItemDialog>>) {

@@ -43,4 +43,13 @@ describe("OperatorSystemAdminNavGroupBuilder", () => {
     expect(demoReadiness?.label).toBe(BUYER_CTO_DEMO_READINESS_HEADING);
     expect(demoReadiness?.requiredAuthority).toBe("AdminAuthority");
   });
+
+  it("includes Review feedback under Internal Operations", () => {
+    const group = new OperatorSystemAdminNavGroupBuilder().build();
+    const reviewFeedback = group.links.find((link) => link.href === "/product-learning");
+
+    expect(reviewFeedback?.label).toBe(OPERATOR_NAV_LINK_LABELS.pilotFeedback);
+    expect(reviewFeedback?.requiredAuthority).toBe("ReadAuthority");
+    expect(reviewFeedback?.tier).toBe("advanced");
+  });
 });

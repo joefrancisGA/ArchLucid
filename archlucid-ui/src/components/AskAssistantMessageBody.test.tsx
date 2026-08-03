@@ -36,7 +36,7 @@ describe("AskAssistantMessageBody", () => {
 
     const link = screen.getByRole("link", { name: sampleId });
 
-    expect(link).toHaveAttribute("href", `/reviews/${encodeURIComponent(sampleId)}`);
+    expect(link).toHaveAttribute("href", `/architecture/reviews/${encodeURIComponent(sampleId)}`);
   });
 
   it("uses buyer-polished link labels while preserving distinct accessible names", () => {
@@ -48,7 +48,7 @@ describe("AskAssistantMessageBody", () => {
 
     expect(links).toHaveLength(2);
     expect(links[0]).toHaveTextContent("Open linked review");
-    expect(links[0]).toHaveAttribute("href", `/reviews/${encodeURIComponent(sampleId)}`);
+    expect(links[0]).toHaveAttribute("href", `/architecture/reviews/${encodeURIComponent(sampleId)}`);
     expect(links[0]).toHaveAttribute("aria-label", `Open linked review ${sampleId}`);
   });
 
@@ -73,7 +73,7 @@ describe("AskAssistantMessageBody", () => {
       name: `Open linked review 22222222-2222-4222-8222-222222222222`,
     });
 
-    expect(evidenceLink).toHaveAttribute("href", "/reviews/22222222-2222-4222-8222-222222222222");
+    expect(evidenceLink).toHaveAttribute("href", "/architecture/reviews/22222222-2222-4222-8222-222222222222");
   });
 
   it("surfaces an executive lead for unstructured buyer-polished plain text", () => {
@@ -97,13 +97,13 @@ describe("AskAssistantMessageBody", () => {
         content="Plain reply."
         groundingLinks={[
           { label: "Manifest", href: "/manifests/a1" },
-          { label: "Finding", href: "/reviews/r1/findings/f1" },
+          { label: "Finding", href: "/architecture/reviews/r1/findings/f1" },
         ]}
       />,
     );
 
     expect(screen.getByText("Sources in this review")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Manifest" })).toHaveAttribute("href", "/manifests/a1");
-    expect(screen.getByRole("link", { name: "Finding" })).toHaveAttribute("href", "/reviews/r1/findings/f1");
+    expect(screen.getByRole("link", { name: "Finding" })).toHaveAttribute("href", "/architecture/reviews/r1/findings/f1");
   });
 });

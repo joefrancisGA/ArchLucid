@@ -58,7 +58,7 @@ function readRedirectTarget(payload: unknown): string | null {
     const trimmed = runId.trim();
 
     if (trimmed.length > 0) {
-      return `/reviews/${encodeURIComponent(trimmed)}`;
+      return `/architecture/reviews/${encodeURIComponent(trimmed)}`;
     }
   }
 

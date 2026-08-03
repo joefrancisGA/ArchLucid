@@ -10,7 +10,7 @@ describe("RunDetailGovernanceCta", () => {
     expect(screen.getByTestId("run-detail-governance-cta")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Submit for governance approval →" })).toHaveAttribute(
       "href",
-      "/governance?runId=run-123",
+      "/governance/approval-queue?runId=run-123",
     );
   });
 

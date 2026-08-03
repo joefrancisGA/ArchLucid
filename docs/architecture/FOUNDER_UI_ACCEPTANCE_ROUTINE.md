@@ -394,4 +394,5 @@ Do **not** invent gates like “every page ≥ 95 in every category.” Scores v
 | [`TEST_EXECUTION_MODEL.md`](../library/TEST_EXECUTION_MODEL.md) | Automated test tiers / CI jobs |
 | [`LIVE_E2E_HAPPY_PATH.md`](../library/LIVE_E2E_HAPPY_PATH.md) | Live Playwright happy-path gate |
 | [`UI_LIGHTHOUSE_CI.md`](UI_LIGHTHOUSE_CI.md) | Lab Lighthouse CI (mock-backed) |
+| [`FIELD_WEB_VITALS_TRIAGE.md`](../runbooks/FIELD_WEB_VITALS_TRIAGE.md) | **TB-2031** / **M-112** field CWV → backlog mapping (**G-QA-06** / **G-QA-07**) |
 | [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) | **M-96–M-106**, **G-QA-*** |

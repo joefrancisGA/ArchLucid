@@ -69,6 +69,7 @@ $queries = @(
     "archlucid_circuit_breaker_state",
     "archlucid_health_check_status",
     "archlucid_authority_pipeline_work_dead_letter",
+    "archlucid_runs_stale_in_flight_count",
     "up{job=`"archlucid-api`"}"
 )
 

@@ -249,7 +249,7 @@ function AppShellInner({ children }: AppShellClientProps) {
     pathMatchesGovernanceAudit(pathname) ||
     pathMatchesGovernanceAlerts(pathname) ||
     pathMatchesGovernancePolicyPacks(pathname) ||
-    (pathname.startsWith("/reviews/") && pathname.split("/").filter(Boolean).length >= 2);
+    (pathname.startsWith("/architecture/reviews/") && pathname.split("/").filter(Boolean).length >= 2);
 
   /** Auth and access-denied pages render without nav/workspace chrome to avoid confusion. */
   const isAuthRoute = pathname.startsWith("/auth/");
@@ -324,7 +324,7 @@ function AppShellInner({ children }: AppShellClientProps) {
                         </Button>
                       </h1>
                       <Link
-                        href="/reviews?projectId=default"
+                        href="/architecture/reviews?projectId=default"
                         className={cn("font-semibold text-teal-800 underline underline-offset-2 dark:text-teal-300", OPERATOR_TYPOGRAPHY.cardTitle)}
                       >
                         Reviews

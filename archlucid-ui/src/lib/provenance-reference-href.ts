@@ -29,7 +29,7 @@ function nodeHref(
 ): string | null {
   switch (node.type) {
     case "ArchitectureRun":
-      return `/reviews/${encodeRunPath(runId)}`;
+      return `/architecture/reviews/${encodeRunPath(runId)}`;
 
     case "GoldenManifest":
       return signedRecordDetailPath(node.referenceId);
@@ -56,14 +56,14 @@ function nodeHref(
         return signedRecordArtifactPath(manifestId, node.referenceId);
       }
 
-      return `/reviews/${encodeRunPath(runId)}#artifacts-exports`;
+      return `/architecture/reviews/${encodeRunPath(runId)}#artifacts-exports`;
     }
 
     case "GraphSnapshot":
       return evidenceGraphHref({ runId });
 
     case "FindingsSnapshot":
-      return `/reviews/${encodeRunPath(runId)}#findings-queue`;
+      return `/architecture/reviews/${encodeRunPath(runId)}#findings-queue`;
 
     default:
       return `#prov-node-row-${encodeURIComponent(node.id)}`;

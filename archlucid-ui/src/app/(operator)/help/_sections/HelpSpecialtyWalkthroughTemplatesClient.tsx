@@ -333,7 +333,7 @@ export function HelpSpecialtyWalkthroughTemplatesClient(
           <div className="flex flex-wrap items-center gap-2">
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{SPECIALTY_REVIEW_TEMPLATES_OPTIONAL_NOTE}</p>
             <Button asChild size="sm" variant="outline">
-              <Link href="/reviews/new">{SPECIALTY_REVIEW_TEMPLATES_USE_STANDARD_REVIEW_LABEL}</Link>
+              <Link href="/architecture/reviews/new">{SPECIALTY_REVIEW_TEMPLATES_USE_STANDARD_REVIEW_LABEL}</Link>
             </Button>
           </div>
           {!canExecute ? (

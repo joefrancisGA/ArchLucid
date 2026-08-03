@@ -176,7 +176,7 @@ describe("ArchitectureCreationBootstrap", () => {
       expect(replace).toHaveBeenCalledWith("/architectures/draft-new");
     });
 
-    expect(replace.mock.calls[0]?.[0]).not.toMatch(/\/reviews\//);
+    expect(replace.mock.calls[0]?.[0]).not.toMatch(/\/architecture\/reviews\//);
   });
 
   it("recovers from a hung draft create instead of staying on Starting architecture…", async () => {

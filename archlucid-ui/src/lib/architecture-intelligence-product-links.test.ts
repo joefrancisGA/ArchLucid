@@ -14,7 +14,7 @@ describe("buildArchitectureIntelligenceProductLinks", () => {
 
   it("builds review, findings, and advisory deep links", () => {
     expect(buildArchitectureIntelligenceProductLinks("run-abc")).toEqual({
-      reviewHref: "/reviews/run-abc",
+      reviewHref: "/architecture/reviews/run-abc",
       findingsHref: "/governance/findings?runId=run-abc",
       advisoryHref: "/governance/advisory-scans?runId=run-abc",
     });

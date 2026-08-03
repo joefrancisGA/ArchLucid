@@ -30,7 +30,7 @@ const sampleContext: ReportProblemContext = {
   browserClient: "vitest",
   correlationId: "corr-001",
   clientRequestId: null,
-  routePath: "/reviews/run-42",
+  routePath: "/architecture/reviews/run-42",
   errorCode: "503",
   errorTitle: "Service unavailable",
   httpStatus: 503,

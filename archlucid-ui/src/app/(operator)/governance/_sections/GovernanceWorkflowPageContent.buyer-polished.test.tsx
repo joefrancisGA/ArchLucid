@@ -36,7 +36,7 @@ vi.mock("@/lib/operator-static-demo", async (importOriginal) => {
 });
 
 vi.mock("next/navigation", () => ({
-  usePathname: (): string => "/governance",
+  usePathname: (): string => "/governance/approval-queue",
   useRouter: (): { push: () => void; replace: () => void } => ({ push: vi.fn(), replace: vi.fn() }),
   useSearchParams: (): URLSearchParams => new URLSearchParams(),
 }));
@@ -136,7 +136,7 @@ describe("GovernanceWorkflowPageContent buyer-polished chrome (TB-1434)", () => 
   });
 
   it("keeps one overview lead on OperatorPageHeader — strip orientation is null (TB-1434)", async () => {
-    expect(buyerPolishedRouteOrientation("/governance")).toBeNull();
+    expect(buyerPolishedRouteOrientation("/governance/approval-queue")).toBeNull();
 
     render(<GovernanceWorkflowPageContent />);
 

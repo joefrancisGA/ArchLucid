@@ -27,7 +27,7 @@ describe("buyerPolishedRouteOrientation", () => {
   });
 
   it("keeps executive summary orientation for the showcase run", () => {
-    const base = `/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`;
+    const base = `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`;
     const o = buyerPolishedRouteOrientation(base);
 
     expect(o?.label).toBe("Executive summary");
@@ -96,8 +96,8 @@ describe("buyerPolishedRouteOrientation", () => {
     expect(buyerPolishedRouteOrientation("/insights/compare-two-reviews")).toBeNull();
   });
 
-  it("returns null for create-architecture intake at /reviews/new", () => {
-    expect(buyerPolishedRouteOrientation("/reviews/new")).toBeNull();
+  it("returns null for create-architecture intake at /architecture/reviews/new", () => {
+    expect(buyerPolishedRouteOrientation("/architecture/reviews/new")).toBeNull();
   });
 
   it("returns null for advisory scans — the page carries its own OperatorPageHeader lead (TB-1125)", () => {
@@ -157,12 +157,12 @@ describe("buyerPolishedRouteOrientation", () => {
   });
 
   it("returns null for bare /governance — OperatorPageHeader owns the overview lead (TB-1434)", () => {
-    expect(buyerPolishedRouteOrientation("/governance")).toBeNull();
-    expect(buyerPolishedRouteOrientation("/governance")?.line).not.toBe(GOVERNANCE_OVERVIEW_PAGE_LEAD);
+    expect(buyerPolishedRouteOrientation("/governance/approval-queue")).toBeNull();
+    expect(buyerPolishedRouteOrientation("/governance/approval-queue")?.line).not.toBe(GOVERNANCE_OVERVIEW_PAGE_LEAD);
   });
 
   it("orients /governance with showcase runId as sample review context", () => {
-    const o = buyerPolishedRouteOrientation("/governance", { searchRunId: SHOWCASE_STATIC_DEMO_RUN_ID });
+    const o = buyerPolishedRouteOrientation("/governance/approval-queue", { searchRunId: SHOWCASE_STATIC_DEMO_RUN_ID });
 
     expect(o?.label).toBe("Sample review context");
     expect(o?.line).toContain("Claims Intake sample review");

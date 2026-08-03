@@ -15,18 +15,18 @@ export function persistReviewsListReturnHref(href: string): void {
 
 export function readReviewsListReturnHref(): string {
   if (typeof window === "undefined") {
-    return "/reviews?projectId=default";
+    return "/architecture/reviews?projectId=default";
   }
 
   try {
     const raw = window.localStorage.getItem(REVIEWS_LIST_RETURN_HREF_KEY)?.trim();
 
-    if (raw !== undefined && raw.length > 0 && raw.startsWith("/reviews")) {
+    if (raw !== undefined && raw.length > 0 && raw.startsWith("/architecture/reviews")) {
       return raw;
     }
   } catch {
     /* private mode */
   }
 
-  return "/reviews?projectId=default";
+  return "/architecture/reviews?projectId=default";
 }

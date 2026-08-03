@@ -22,6 +22,13 @@ import {
 import { trySandboxProxyMock } from "@/lib/sandbox-proxy-mocks";
 import { resolveProxyUpstreamScopeHeaders } from "@/lib/proxy-scope-resolution";
 import { fetchWithWarmupRetry } from "@/lib/warmup-retry";
+import { normalizeProxyPathForTelemetry } from "@/lib/telemetry/normalize-proxy-path-for-telemetry";
+import {
+  applyServerTimingHeader,
+  elapsedMsSince,
+  logServerRequestTiming,
+  shouldLogSlowOrFailedRequest,
+} from "@/lib/telemetry/server-request-timing";
 
 const IDEMPOTENCY_KEY_HEADER = "Idempotency-Key";
 /** Matches `ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength` on the API. */
@@ -458,15 +465,36 @@ async function handleRateLimitedForward(
   context: { params: Promise<{ path: string[] }> },
   method: ForwardMethod,
 ): Promise<NextResponse> {
+  const startedAtMs = performance.now();
   const rateLimited = enforceProxyRateLimit(request);
 
   if (rateLimited) {
+    const totalMs = elapsedMsSince(startedAtMs);
+    applyServerTimingHeader(rateLimited.headers, [{ name: "proxy", durationMs: totalMs }]);
+
     return rateLimited;
   }
 
   const { path } = await context.params;
+  const pathSegments = path ?? [];
+  const response = await forward(request, pathSegments, method);
+  const totalMs = elapsedMsSince(startedAtMs);
+  applyServerTimingHeader(response.headers, [{ name: "proxy", durationMs: totalMs }]);
 
-  return forward(request, path ?? [], method);
+  const pathForLog = pathSegments.length > 0 ? pathSegments.join("/") : "_";
+  const normalizedPath = normalizeProxyPathForTelemetry(pathForLog);
+
+  if (shouldLogSlowOrFailedRequest(totalMs, response.status)) {
+    logServerRequestTiming("proxy_request", {
+      method,
+      path: normalizedPath,
+      status: response.status,
+      durationMs: totalMs,
+      correlationId: response.headers.get("X-Correlation-ID")?.trim() || undefined,
+    });
+  }
+
+  return response;
 }
 
 /** Allow long-running multipart evidence forwards (up to 100 MB) on hosted Node runtimes. */

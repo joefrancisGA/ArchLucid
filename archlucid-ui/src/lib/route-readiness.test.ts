@@ -9,7 +9,7 @@ describe("shouldHideOperatorNavLinkInDemo", () => {
   });
 
   it("keeps governance, graph, ask, audit, policy packs, and alerts on the demo allowlist", () => {
-    for (const href of ["/insights/evidence-graph", "/insights/ask-review-questions", "/governance", "/audit", "/policy-packs", "/alerts"]) {
+    for (const href of ["/insights/evidence-graph", "/insights/ask-review-questions", "/governance/approval-queue", "/audit", "/policy-packs", "/alerts"]) {
       expect(shouldHideOperatorNavLinkInDemo(href, true)).toBe(false);
     }
   });

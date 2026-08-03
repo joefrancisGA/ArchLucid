@@ -56,7 +56,7 @@ describe("RunDemoReviewButton", () => {
 
   it("posts to /api/run-demo-review and navigates to redirectTo on success", async () => {
     fetchMock.mockResolvedValue(
-      new Response(JSON.stringify({ redirectTo: "/reviews/demo-run-1" }), {
+      new Response(JSON.stringify({ redirectTo: "/architecture/reviews/demo-run-1" }), {
         status: 200,
         headers: { "Content-Type": "application/json" },
       }),
@@ -75,7 +75,7 @@ describe("RunDemoReviewButton", () => {
     expect((init as RequestInit).method).toBe("POST");
 
     await waitFor(() => {
-      expect(pushMock).toHaveBeenCalledWith("/reviews/demo-run-1");
+      expect(pushMock).toHaveBeenCalledWith("/architecture/reviews/demo-run-1");
     });
     expect(refreshMock).toHaveBeenCalledTimes(1);
   });

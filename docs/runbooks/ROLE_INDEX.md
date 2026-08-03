@@ -48,7 +48,7 @@ Use when a committed architecture review and sponsor handoff are the goal.
 | Symptom | Next doc / action |
 |---------|-------------------|
 | Auth loop, 401/403 on architect workspace | [`FIRST_PILOT_TROUBLESHOOTING.md`](FIRST_PILOT_TROUBLESHOOTING.md) § auth · `archlucid auth diagnostics` |
-| Stuck mid-pilot (symptom-first) | [`PILOT_RESCUE_PLAYBOOK.md`](PILOT_RESCUE_PLAYBOOK.md) |
+| Stuck mid-pilot (symptom-first) | [`FIRST_PILOT_TROUBLESHOOTING.md`](FIRST_PILOT_TROUBLESHOOTING.md) |
 | SQL / migration / health not ready | [`SQL_SCRIPTS.md`](../library/SQL_SCRIPTS.md) · platform engineer preflight |
 | Sponsor handoff HOLD or proof gaps | [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](FIRST_PILOT_EVIDENCE_BUNDLE.md) · re-run proof collector |
 | Agent execute fails | [`AGENT_EXECUTION_FAILURES.md`](AGENT_EXECUTION_FAILURES.md) |

@@ -56,7 +56,7 @@ function resolveOpenFindingsAction(): PilotNextBestAction {
 function resolveStartReviewAction(): PilotNextBestAction {
   return {
     label: OPERATOR_START_REVIEW_QUICK_ACTION_LABEL,
-    href: "/reviews/new",
+    href: "/architecture/reviews/new",
     bridgeCopy: FIRST_WEEK_ROUTE_GUIDANCE.home.bridgeCopy,
   };
 }
@@ -97,7 +97,7 @@ export function resolvePilotNextBestAction(
   if (ctx.latestRunReadyToFinalize && ctx.latestRunId !== null) {
     return {
       label: "Finalize this review",
-      href: `/reviews/${ctx.latestRunId}${BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR}`,
+      href: `/architecture/reviews/${ctx.latestRunId}${BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR}`,
       bridgeCopy: FIRST_WEEK_ROUTE_GUIDANCE["review-detail-in-progress"].bridgeCopy,
     };
   }
@@ -105,7 +105,7 @@ export function resolvePilotNextBestAction(
   if (ctx.latestRunId !== null) {
     return {
       label: "Continue review",
-      href: `/reviews/${ctx.latestRunId}`,
+      href: `/architecture/reviews/${ctx.latestRunId}`,
       bridgeCopy: "Open your in-progress review — complete findings review and finalize when ready.",
     };
   }

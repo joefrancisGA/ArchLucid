@@ -46,9 +46,9 @@ describe("SampleFirstReviewPackageCard", () => {
     expect(screen.getByText(/audit evidence ready/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: BUYER_HOME_PRIMARY_CTA })).toHaveAttribute(
       "href",
-      "/reviews/claims-intake-modernization",
+      "/architecture/reviews/claims-intake-modernization",
     );
-    expect(screen.getByRole("link", { name: "Create from evidence" })).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByRole("link", { name: "Create from evidence" })).toHaveAttribute("href", "/architecture/reviews/new");
   });
 
   it("records review-output telemetry when the sample is opened", () => {
@@ -72,11 +72,11 @@ describe("SampleFirstReviewPackageCard — buyer-polished shell", () => {
     expect(screen.queryByText(/Illustrative sample review/i)).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: BUYER_HOME_PRIMARY_CTA })).toHaveAttribute(
       "href",
-      "/reviews/claims-intake-modernization",
+      "/architecture/reviews/claims-intake-modernization",
     );
     expect(screen.getByRole("link", { name: BUYER_HOME_SECONDARY_CTA })).toHaveAttribute(
       "href",
-      "/reviews/new",
+      "/architecture/reviews/new",
     );
     expect(screen.queryByRole("link", { name: "Open evidence graph" })).toBeNull();
     expect(screen.queryByRole("button", { name: /About this sample review/i })).not.toBeInTheDocument();

@@ -25,7 +25,7 @@ export const BUYER_COMMAND_PALETTE_CURATED_TASKS: readonly CuratedPaletteTask[] 
   },
   {
     label: "Review",
-    href: `/reviews/${showcaseRunEnc}`,
+    href: `/architecture/reviews/${showcaseRunEnc}`,
     searchValue: "review claims intake modernization",
   },
   {
@@ -45,7 +45,7 @@ export const BUYER_COMMAND_PALETTE_CURATED_TASKS: readonly CuratedPaletteTask[] 
   },
   {
     label: "Governance approval",
-    href: `/governance?runId=${showcaseRunEnc}`,
+    href: `/governance/approval-queue?runId=${showcaseRunEnc}`,
     searchValue: "governance approval workflow sign-off",
   },
   {

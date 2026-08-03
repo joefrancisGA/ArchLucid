@@ -11,7 +11,7 @@ vi.mock("next/navigation", () => ({
     push: pushMock,
     replace: replaceMock,
   }),
-  usePathname: () => "/reviews/run-abc",
+  usePathname: () => "/architecture/reviews/run-abc",
   useSearchParams: () => new URLSearchParams("reviewTab=overview"),
 }));
 
@@ -45,7 +45,7 @@ describe("ReviewDetailWorkspace", () => {
   it("switches tabs via replaceState without triggering Next.js router navigation", () => {
     const replaceStateSpy = vi.spyOn(window.history, "replaceState");
 
-    window.history.replaceState({}, "", "/reviews/run-abc?reviewTab=overview");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?reviewTab=overview");
 
     render(<ReviewDetailWorkspace tabCounts={{ findings: 3 }} panels={workspacePanels} />);
 

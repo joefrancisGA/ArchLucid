@@ -34,7 +34,7 @@ export function RunDetailWorkspaceStickyActions(
         ) : null}
         {props.manifestId ? (
           <Button variant="outline" size="sm" asChild>
-            <Link href={`/governance?runId=${encodeURIComponent(props.runId)}`}>Record decision</Link>
+            <Link href={`/governance/approval-queue?runId=${encodeURIComponent(props.runId)}`}>Record decision</Link>
           </Button>
         ) : null}
       </div>

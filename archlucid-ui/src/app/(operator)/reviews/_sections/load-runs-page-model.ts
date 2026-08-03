@@ -104,7 +104,7 @@ export async function loadRunsPageModel(resolved: RunsPageSearchParams): Promise
     const pages = Math.max(1, Math.ceil(totalCount / pageSize));
 
     if (page > pages) {
-      redirect(`/reviews?projectId=${encodeURIComponent(projectId)}&page=${pages}&pageSize=${pageSize}`);
+      redirect(`/architecture/reviews?projectId=${encodeURIComponent(projectId)}&page=${pages}&pageSize=${pageSize}`);
     }
   }
 

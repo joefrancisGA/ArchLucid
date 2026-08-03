@@ -18,10 +18,25 @@ vi.mock("@/lib/query/operator-query-client", () => ({
   }),
 }));
 
-import { startWebVitalsReporting } from "@/lib/telemetry/web-vitals-reporter";
+vi.mock("@/lib/telemetry/web-vitals-sample-rate", async () => {
+  const actual = await vi.importActual<typeof import("@/lib/telemetry/web-vitals-sample-rate")>(
+    "@/lib/telemetry/web-vitals-sample-rate",
+  );
+
+  return {
+    ...actual,
+    resolveWebVitalsSampleRate: () => 1,
+  };
+});
+
+import {
+  resetWebVitalsSessionSampleDecisionForTests,
+  startWebVitalsReporting,
+} from "@/lib/telemetry/web-vitals-reporter";
 
 describe("startWebVitalsReporting", () => {
   beforeEach(() => {
+    resetWebVitalsSessionSampleDecisionForTests();
     webVitalsMocks.onCLS.mockReset();
     webVitalsMocks.onFCP.mockReset();
     webVitalsMocks.onINP.mockReset();
@@ -47,7 +62,7 @@ describe("startWebVitalsReporting", () => {
     const ai = { trackEvent } as unknown as ApplicationInsights;
 
     vi.stubGlobal("window", {
-      location: { pathname: "/reviews/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee" },
+      location: { pathname: "/architecture/reviews/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee" },
     });
     vi.stubGlobal("navigator", { connection: { effectiveType: "4g" } });
 
@@ -71,7 +86,7 @@ describe("startWebVitalsReporting", () => {
       { name: "WebVitalsMetric" },
       expect.objectContaining({
         metricName: "LCP",
-        route: "/reviews/[runId]",
+        route: "/architecture/reviews/[runId]",
         tenantTier: "Team",
         effectiveConnectionType: "4g",
       }),

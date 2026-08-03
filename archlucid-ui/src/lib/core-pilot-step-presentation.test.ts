@@ -16,7 +16,7 @@ describe("resolveCorePilotStepPresentation", () => {
     });
 
     expect(presentation.label).toBe("Start or open review");
-    expect(presentation.href).toBe("/reviews/new");
+    expect(presentation.href).toBe("/architecture/reviews/new");
   });
 
   it("links final step to sample review when tenant has no committed package", () => {
@@ -26,7 +26,7 @@ describe("resolveCorePilotStepPresentation", () => {
     });
 
     expect(presentation.label).toBe("Open sample finalized review");
-    expect(presentation.href).toBe(`/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`);
+    expect(presentation.href).toBe(`/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`);
   });
 
   it("links final step to committed review when tenant has a package", () => {
@@ -37,7 +37,7 @@ describe("resolveCorePilotStepPresentation", () => {
     });
 
     expect(presentation.label).toBe("Open finalized review");
-    expect(presentation.href).toBe(`/reviews/${runId}`);
+    expect(presentation.href).toBe(`/architecture/reviews/${runId}`);
   });
 });
 

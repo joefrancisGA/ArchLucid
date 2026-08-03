@@ -2,13 +2,13 @@ import { getDocHref } from "@/lib/help-topics";
 
 /**
  * Operator pages → repo-root-relative doc path (optional #fragment for GitHub heading navigation).
- * Keys follow primary route segments (`/runs` is the conceptual list; the UI path is `/reviews`).
+ * Keys follow primary route segments (`/runs` is the conceptual list; the UI path is `/architecture/reviews`).
  */
 const PAGE_KEY_TO_DOC_REF: Readonly<Record<string, string>> = {
   "/runs": "docs/library/customer-facing/OPERATOR_QUICKSTART.md#operator-ui",
   "/runs/[id]": "docs/library/customer-facing/WORKSPACE_NAVIGATION_GUIDE.md#main-workflow",
   "/insights/compare-two-reviews": "docs/library/COMPARISON_REPLAY.md",
-  "/governance": "docs/library/PRE_COMMIT_GOVERNANCE_GATE.md",
+  "/governance/approval-queue": "docs/library/PRE_COMMIT_GOVERNANCE_GATE.md",
   "/audit": "docs/library/AUDIT_COVERAGE_MATRIX.md",
   "/alerts": "docs/library/ALERTS.md",
   "/insights/evidence-graph": "docs/library/KNOWLEDGE_GRAPH.md",

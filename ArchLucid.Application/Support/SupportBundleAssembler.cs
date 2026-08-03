@@ -167,7 +167,7 @@ public sealed class SupportBundleAssembler(TimeProvider timeProvider, IOptionsMo
                 },
             documentation = new[]
             {
-                SupportBundleDocLinks.PilotRescuePlaybookRelativePath + " — symptom-first pilot triage", "docs/TROUBLESHOOTING.md",
+                SupportBundleDocLinks.PilotRescuePlaybookRelativePath + " — first-pilot troubleshooting decision tree", "docs/TROUBLESHOOTING.md",
                 "docs/OPERATOR_QUICKSTART.md", "docs/library/OPERATOR_ATLAS.md",
                 "docs/PENDING_QUESTIONS.md item 37 (Resolved 2026-05-03 — manual review before external forward; ExecuteAuthority holders only for bundling tenant-identifying/contact PII to third parties)."
             },

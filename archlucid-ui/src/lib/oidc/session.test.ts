@@ -8,13 +8,13 @@ describe("storePostSignInReturnUrl / consumePostSignInReturnUrl", () => {
   });
 
   it("round-trips a safe local path", () => {
-    storePostSignInReturnUrl("/reviews/123");
+    storePostSignInReturnUrl("/architecture/reviews/123");
 
-    expect(consumePostSignInReturnUrl()).toBe("/reviews/123");
+    expect(consumePostSignInReturnUrl()).toBe("/architecture/reviews/123");
   });
 
   it("is single-use — consuming twice returns null the second time", () => {
-    storePostSignInReturnUrl("/reviews/123");
+    storePostSignInReturnUrl("/architecture/reviews/123");
     consumePostSignInReturnUrl();
 
     expect(consumePostSignInReturnUrl()).toBeNull();

@@ -20,9 +20,9 @@ describe("showcase-sample-review-registry", () => {
   });
 
   it("builds canonical review and finding detail hrefs", () => {
-    expect(showcaseSampleReviewPackageHref()).toBe("/reviews/claims-intake-modernization");
+    expect(showcaseSampleReviewPackageHref()).toBe("/architecture/reviews/claims-intake-modernization");
     expect(showcasePrimaryFindingDetailHref()).toBe(
-      "/reviews/claims-intake-modernization/findings/phi-minimization-risk",
+      "/architecture/reviews/claims-intake-modernization/findings/phi-minimization-risk",
     );
   });
 

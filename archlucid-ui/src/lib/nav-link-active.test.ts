@@ -5,25 +5,25 @@ import { isNavLinkActive } from "@/lib/nav-link-active";
 describe("isNavLinkActive", () => {
   it("matches home only for exact /", () => {
     expect(isNavLinkActive("/", "/")).toBe(true);
-    expect(isNavLinkActive("/reviews", "/")).toBe(false);
+    expect(isNavLinkActive("/architecture/reviews", "/")).toBe(false);
   });
 
-  it("matches /reviews list but not /reviews/new or review detail", () => {
-    expect(isNavLinkActive("/reviews", "/reviews?projectId=default")).toBe(true);
-    expect(isNavLinkActive("/reviews/new", "/reviews?projectId=default")).toBe(false);
-    expect(isNavLinkActive("/reviews/abc", "/reviews?projectId=default")).toBe(false);
+  it("matches /architecture/reviews list but not /architecture/reviews/new or review detail", () => {
+    expect(isNavLinkActive("/architecture/reviews", "/architecture/reviews?projectId=default")).toBe(true);
+    expect(isNavLinkActive("/architecture/reviews/new", "/architecture/reviews?projectId=default")).toBe(false);
+    expect(isNavLinkActive("/architecture/reviews/abc", "/architecture/reviews?projectId=default")).toBe(false);
   });
 
-  it("matches /reviews/new exactly", () => {
-    expect(isNavLinkActive("/reviews/new", "/reviews/new")).toBe(true);
-    expect(isNavLinkActive("/reviews", "/reviews/new")).toBe(false);
+  it("matches /architecture/reviews/new exactly", () => {
+    expect(isNavLinkActive("/architecture/reviews/new", "/architecture/reviews/new")).toBe(true);
+    expect(isNavLinkActive("/architecture/reviews", "/architecture/reviews/new")).toBe(false);
   });
 
   it("matches create architecture routes under Architectures nav", () => {
     expect(isNavLinkActive("/architectures/new", "/architectures")).toBe(true);
     expect(isNavLinkActive("/architectures/draft-1", "/architectures")).toBe(true);
     expect(isNavLinkActive("/architectures", "/architectures")).toBe(true);
-    expect(isNavLinkActive("/reviews", "/architectures")).toBe(false);
+    expect(isNavLinkActive("/architecture/reviews", "/architectures")).toBe(false);
   });
 
   it("matches exact path or nested segments for other routes", () => {

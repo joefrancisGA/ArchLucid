@@ -96,7 +96,7 @@ describe("DevTestingQuickSwitchPanel", () => {
     const artifactLink = screen.getByTestId("dev-quick-jump-artifact-55555555-aaaa-bbbb-cccc-dddddddddddd");
 
     expect(planLink).toHaveAttribute("href", "/planning/plans/11111111-aaaa-bbbb-cccc-dddddddddddd");
-    expect(runLink).toHaveAttribute("href", "/reviews/22222222-aaaa-bbbb-cccc-dddddddddddd");
+    expect(runLink).toHaveAttribute("href", "/architecture/reviews/22222222-aaaa-bbbb-cccc-dddddddddddd");
     expect(approvalLink).toHaveAttribute(
       "href",
       "/governance/approval-requests/33333333-aaaa-bbbb-cccc-dddddddddddd/lineage",

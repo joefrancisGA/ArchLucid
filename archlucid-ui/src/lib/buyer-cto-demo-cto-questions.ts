@@ -21,7 +21,7 @@ export const CTO_DEMO_KNOWN_VALID_ROUTE_PREFIXES: readonly string[] = [
   "/insights/evidence-graph",
   "/manifests",
   "/signed-records",
-  "/reviews",
+  "/architecture/reviews",
   "/executive",
   "/snapshot",
   "/insights/ask-review-questions",
@@ -117,7 +117,7 @@ export const CTO_DEMO_QUESTIONS: readonly CtoDemoQuestion[] = [
     question: "How granular is access control?",
     answer:
       "Role-based access separates review, approve, and administer authorities; workspace scope limits which reviews a principal can see or mutate.",
-    proofHref: "/governance",
+    proofHref: "/governance/approval-queue",
     proofLabel: "Governance roles",
     proofQueryParam: "focus=rbac",
   },

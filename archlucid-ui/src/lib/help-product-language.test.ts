@@ -7,15 +7,15 @@ import {
 } from "@/lib/help-product-language";
 
 describe("help-product-language", () => {
-  it("rewrites legacy /runs/ paths to /reviews/", () => {
+  it("rewrites legacy /runs/ paths to /architecture/reviews/", () => {
     expect(rewriteLegacyHelpOperatorRoutes("Open `/runs/abc` or [detail](/runs/abc).")).toBe(
-      "Open `/reviews/abc` or [detail](/reviews/abc).",
+      "Open `/architecture/reviews/abc` or [detail](/architecture/reviews/abc).",
     );
   });
 
   it("rewrites review manifest routes to signed-record alias", () => {
-    expect(rewriteLegacyHelpOperatorRoutes("[Summary](/reviews/abc/manifest)")).toBe(
-      "[Summary](/reviews/abc/signed-record)",
+    expect(rewriteLegacyHelpOperatorRoutes("[Summary](/architecture/reviews/abc/manifest)")).toBe(
+      "[Summary](/architecture/reviews/abc/signed-record)",
     );
   });
 

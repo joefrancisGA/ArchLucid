@@ -32,7 +32,7 @@ describe("operator-home-example-request", () => {
     expect(OPERATOR_HOME_EXAMPLE_DESCRIPTION).toContain("healthcare claims intake modernization");
     expect(OPERATOR_HOME_EXAMPLE_SYSTEM_NAME).toBe("Claims Intake Modernization");
     expect(reviewIntakeExampleTemplateHref(OPERATOR_HOME_EXAMPLE_TEMPLATE_ID)).toBe(
-      "/reviews/new?template=claims-intake-modernization",
+      "/architecture/reviews/new?template=claims-intake-modernization",
     );
   });
 

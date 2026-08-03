@@ -36,14 +36,14 @@ export const GOVERNANCE_SETUP_GUIDE_STEPS: readonly GovernanceSetupStepDefinitio
     title: "Define approval expectations",
     description: "Set the approval path, responsible roles, and expected response times.",
     primaryActionLabel: "Configure approvals",
-    primaryActionHref: "/governance",
+    primaryActionHref: "/governance/approval-queue",
   },
   {
     stepNumber: 5,
     title: "Prepare governance reporting",
     description: "Confirm that sponsors can see posture, risk, drift, approvals, and value signals.",
     primaryActionLabel: "Open workspace overview",
-    primaryActionHref: "/governance",
+    primaryActionHref: "/governance/approval-queue",
   },
 ] as const;
 

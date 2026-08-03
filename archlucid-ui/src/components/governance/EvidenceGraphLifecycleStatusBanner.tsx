@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 
 const showcaseRunEnc = encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID);
 const signedRecordHref = getShowcaseManifestHref();
-const governanceApprovalHref = `/governance?runId=${showcaseRunEnc}`;
+const governanceApprovalHref = `/governance/approval-queue?runId=${showcaseRunEnc}`;
 const auditTrailHref = `/audit?runId=${showcaseRunEnc}`;
 
 export type EvidenceGraphLifecycleStatusBannerProps = {

@@ -18,7 +18,7 @@ variable "resource_group_name" {
 
 variable "location" {
   type        = string
-  description = "Azure region (required when create_resource_group = true). Default centralus matches docs/REFERENCE_SAAS_STACK_ORDER.md primary region."
+  description = "Azure region for Container Apps / LAW / UAMI. When non-empty, overrides the existing resource group's metadata location (so brownfield eastus2 RGs can host centralus compute next to SQL). Required when create_resource_group = true. Default centralus matches docs/REFERENCE_SAAS_STACK_ORDER.md primary region."
   default     = "centralus"
 }
 

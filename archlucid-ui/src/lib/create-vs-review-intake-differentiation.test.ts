@@ -11,7 +11,7 @@ function readUiSource(relativePath: string): string {
 }
 
 describe("create vs review intake differentiation (TB-747)", () => {
-  it("routes legacy create intent away from /reviews/new to the architecture draft bootstrap", () => {
+  it("routes legacy create intent away from /architecture/reviews/new to the architecture draft bootstrap", () => {
     const pageSource = readUiSource("app/(operator)/reviews/new/page.tsx");
 
     expect(pageSource).toContain("redirect(ARCHITECTURES_NEW_PATH)");
@@ -28,7 +28,7 @@ describe("create vs review intake differentiation (TB-747)", () => {
   });
 
   it("uses drafting-first lead copy on architecture creation surfaces", () => {
-    const bootstrapPageSource = readUiSource("app/(operator)/architectures/new/page.tsx");
+    const bootstrapPageSource = readUiSource("app/(operator)/architecture/architectures/new/page.tsx");
     const workspaceSource = readUiSource("components/architecture/ArchitectureDraftWorkspace.tsx");
 
     expect(bootstrapPageSource).toContain("ARCHITECTURE_CREATION_BOOTSTRAP_LEAD");

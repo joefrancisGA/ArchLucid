@@ -47,11 +47,11 @@ describe("resolveEmptyHomeDoThisNext", () => {
         healthLoadFailed: false,
         principalAdmin: true,
       },
-      sampleHref: "/reviews/tenant-featured-run",
+      sampleHref: "/architecture/reviews/tenant-featured-run",
     });
 
     expect(action.kind).toBe("sample");
-    expect(action.href).toBe("/reviews/tenant-featured-run");
+    expect(action.href).toBe("/architecture/reviews/tenant-featured-run");
   });
 
   it("returns sample package action while setup context is still loading", () => {
@@ -103,12 +103,12 @@ describe("resolveEmptyHomeDoThisNext", () => {
         principalAdmin: false,
       },
       demoSeededOverview: true,
-      sampleHref: "/reviews/claims-intake-modernization",
+      sampleHref: "/architecture/reviews/claims-intake-modernization",
     });
 
     expect(action.kind).toBe("sample");
     expect(action.label).toBe(OPERATOR_HOME_OPEN_SAMPLE_PACKAGE_CTA);
-    expect(action.href).toBe("/reviews/claims-intake-modernization");
+    expect(action.href).toBe("/architecture/reviews/claims-intake-modernization");
     expect(action.bridgeCopy).toBe(OPERATOR_HOME_DEMO_SEEDED_SAMPLE_BRIDGE);
   });
 });

@@ -2,11 +2,11 @@ check "container_apps_required_inputs" {
   assert {
     condition = !var.enable_container_apps || (
       length(trimspace(var.resource_group_name)) > 0 &&
-      (!var.create_resource_group || length(trimspace(var.location)) > 0) &&
+      length(trimspace(var.location)) > 0 &&
       length(trimspace(var.api_container_image)) > 0 &&
       length(trimspace(var.ui_container_image)) > 0
     )
-    error_message = "With enable_container_apps = true, set resource_group_name, api_container_image, and ui_container_image. If create_resource_group = true, also set location."
+    error_message = "With enable_container_apps = true, set resource_group_name, location, api_container_image, and ui_container_image."
   }
 }
 

@@ -2,7 +2,10 @@ import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture-scorecard-route"
 import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
 import { EXECUTIVE_SUMMARY_PAGE_TITLE } from "@/lib/sponsor-report-navigation";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
-import { GOVERNANCE_STANDARDS_AND_RULES_PATH } from "@/lib/governance-route-paths";
+import {
+  GOVERNANCE_APPROVAL_QUEUE_PATH,
+  GOVERNANCE_STANDARDS_AND_RULES_PATH,
+} from "@/lib/governance-route-paths";
 import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
 import { ARCHITECTURES_LIST_PATH, ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
@@ -23,16 +26,16 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/": OPERATOR_NAV_LINK_LABELS.home,
   [ARCHITECTURES_LIST_PATH]: "Architectures",
   [ARCHITECTURES_NEW_PATH]: CREATE_ARCHITECTURE_LABEL,
-  "/reviews": RUNS_LIST_PAGE_TITLES.buyerPolished,
-  "/reviews/new": START_REVIEW_LABEL,
+  "/architecture/reviews": RUNS_LIST_PAGE_TITLES.buyerPolished,
+  "/architecture/reviews/new": START_REVIEW_LABEL,
   "/alerts": "Alerts",
   "/alert-rules": ALERTS_CONFIGURATION_PAGE_TITLE,
   "/governance/alert-rules": ALERTS_CONFIGURATION_PAGE_TITLE,
   [COMPARE_TWO_REVIEWS_PATH]: OPERATOR_NAV_LINK_LABELS.compareTwoReviews,
   [EVIDENCE_GRAPH_PATH]: OPERATOR_NAV_LINK_LABELS.evidenceTrail,
-  "/patterns": PATTERN_LIBRARY_PAGE_TITLE,
+  "/insights/patterns": PATTERN_LIBRARY_PAGE_TITLE,
   "/architecture-intelligence": "Architecture intelligence",
-  "/governance": GOVERNANCE_OVERVIEW_PAGE_TITLE,
+  [GOVERNANCE_APPROVAL_QUEUE_PATH]: GOVERNANCE_OVERVIEW_PAGE_TITLE,
   "/governance/dashboard": "Executive Workspace Health",
   "/governance/findings": OPERATOR_NAV_LINK_LABELS.findings,
   "/governance/decision-register": "Decision register",

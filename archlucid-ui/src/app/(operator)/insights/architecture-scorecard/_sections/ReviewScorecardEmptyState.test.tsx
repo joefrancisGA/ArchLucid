@@ -26,11 +26,11 @@ describe("ReviewScorecardEmptyState", () => {
 
     expect(screen.getByRole("link", { name: REVIEW_SCORECARD_EMPTY_PRIMARY_CTA })).toHaveAttribute(
       "href",
-      "/reviews/new",
+      "/architecture/reviews/new",
     );
     expect(screen.getByRole("link", { name: REVIEW_SCORECARD_EMPTY_SECONDARY_CTA })).toHaveAttribute(
       "href",
-      "/reviews",
+      "/architecture/reviews",
     );
     expect(screen.getByRole("link", { name: REVIEW_SCORECARD_EMPTY_TERTIARY_CTA })).toHaveAttribute(
       "href",

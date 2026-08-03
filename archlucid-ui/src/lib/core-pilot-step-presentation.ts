@@ -64,13 +64,13 @@ export function resolveCorePilotStepPresentation(
 
   if (ctx.hasCommittedManifest && ctx.latestCommittedRunId !== null) {
     return {
-      href: `/reviews/${encodeURIComponent(ctx.latestCommittedRunId)}`,
+      href: `/architecture/reviews/${encodeURIComponent(ctx.latestCommittedRunId)}`,
       label: "Open finalized review",
     };
   }
 
   return {
-    href: `/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
+    href: `/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
     label: "Open sample finalized review",
   };
 }

@@ -67,7 +67,7 @@ export function GovernanceApprovalLineageDetailContent({ data }: GovernanceAppro
             <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Review</span>{" "}
             <Link
               className={OPERATOR_LINK.inline}
-              href={`/reviews/${encodeURIComponent(a.runId)}`}
+              href={`/architecture/reviews/${encodeURIComponent(a.runId)}`}
             >
               Open →
             </Link>

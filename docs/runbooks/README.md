@@ -34,7 +34,7 @@ Tags are **guidance for paging and training**; they do not replace your org’s 
 | **P1** | [API_KEY_ROTATION.md](./API_KEY_ROTATION.md) | API key lifecycle for automation principals and smoke probes. |
 | **P1** | [MIGRATION_ROLLBACK.md](./MIGRATION_ROLLBACK.md) | DbUp / SQL migration issues and rollback posture. |
 | **P1** | [TRACE_A_RUN.md](./TRACE_A_RUN.md) | Reconstruct one run across audit (`CorrelationId` / `RunId`), traces (`otelTraceId`), and logs. |
-| **P2** | [PILOT_RESCUE_PLAYBOOK.md](./PILOT_RESCUE_PLAYBOOK.md) | **V1** symptom-first triage during Core Pilot (`doctor` + `support-bundle` **`references.json`** point here). |
+| **P2** | [FIRST_PILOT_TROUBLESHOOTING.md](./FIRST_PILOT_TROUBLESHOOTING.md) | **V1** symptom-first triage during Core Pilot (`doctor` + `support-bundle` **`references.json`** point here). `PILOT_RESCUE_PLAYBOOK.md` is a path-stable alias. |
 | **P2** | [AGENT_EXECUTION_FAILURES.md](./AGENT_EXECUTION_FAILURES.md) | Architecture run execute fails (simulator vs real agents, traces, schema). |
 | **P2** | [ALERT_DELIVERY_FAILURES.md](./ALERT_DELIVERY_FAILURES.md) | Alert routing subscriptions fire but destinations do not receive notifications. |
 | **P2** | [ADVISORY_SCAN_FAILURES.md](./ADVISORY_SCAN_FAILURES.md) | Advisory scans fail or schedules do not fire. |
@@ -47,6 +47,9 @@ Tags are **guidance for paging and training**; they do not replace your org’s 
 | **P2** | [DATA_ARCHIVAL_HEALTH.md](./DATA_ARCHIVAL_HEALTH.md) | `data_archival` health degraded or archival host errors. |
 | **P2** | [PROVENANCE_INDEXING.md](./PROVENANCE_INDEXING.md) | Provenance indexing lag or failures. |
 | **P2** | [../library/OBSERVABILITY.md](../library/OBSERVABILITY.md#authority-pipeline-remediation-runbook) | Grafana / Prometheus: authority outbox backlog, stale rows, data-consistency counters vs alerts; scale and SQL triage. |
+| **P1** | [STALE_IN_FLIGHT_RUNS.md](./STALE_IN_FLIGHT_RUNS.md) | TB-958: fleet-wide stuck-run P0 (`archlucid_runs_stale_in_flight_*`); triage TenantId/RunId from logs. |
+| **P1** | [REVIEW_PATH_CANARY.md](./REVIEW_PATH_CANARY.md) | TB-959: create→execute→commit canary that pages founder (PagerDuty / webhook). |
+| **P2** | [FIELD_WEB_VITALS_TRIAGE.md](./FIELD_WEB_VITALS_TRIAGE.md) | TB-2031: field `WebVitalsMetric` triage → TB-2021/2022/2023/935 before next UI cut. |
 | **P2** | [../library/SCALE_THRESHOLD_RUNBOOK.md](../library/SCALE_THRESHOLD_RUNBOOK.md) | When to enable Redis, read replicas, worker split, outbox scaling, and query p95 triage for hosted SaaS. |
 | **P2** | [BILLING_WEBHOOK_REPLAY_GUARD.md](./BILLING_WEBHOOK_REPLAY_GUARD.md) | Stripe/Marketplace webhook replay vs signature verification, SQL ledger investigation, safe resend. |
 | **P2** | [INTEGRATION_EVENT_DLQ_RETRY_POLICY.md](./INTEGRATION_EVENT_DLQ_RETRY_POLICY.md) | Outbox dead-letter auto-retry cadence, permanent failure, manual retry/suppress. |

@@ -32,7 +32,7 @@ const MAX_FINDING_LINES = 8;
 function architectureReviewUrl(siteOrigin: string, runId: string): string {
   const origin = siteOrigin.replace(/\/$/, "");
 
-  return `${origin}/reviews/${encodeURIComponent(runId)}`;
+  return `${origin}/architecture/reviews/${encodeURIComponent(runId)}`;
 }
 
 function deriveArchitecturePriority(findings: readonly QuickDecisionFinding[]): string {

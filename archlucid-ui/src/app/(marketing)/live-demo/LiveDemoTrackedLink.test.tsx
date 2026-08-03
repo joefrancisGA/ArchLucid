@@ -19,7 +19,7 @@ describe("LiveDemoTrackedLink", () => {
     telemetry.trackLiveDemoConversionClick.mockClear();
 
     render(
-      <LiveDemoTrackedLink href="/reviews/demo" trackKind="artifact" trackValue="executive">
+      <LiveDemoTrackedLink href="/architecture/reviews/demo" trackKind="artifact" trackValue="executive">
         Inspect
       </LiveDemoTrackedLink>,
     );

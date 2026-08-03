@@ -41,8 +41,8 @@ describe("effectiveNavDisclosureForPathname", () => {
     "/",
     EXECUTIVE_DASHBOARD_HREF,
     "/architecture/first-review-guide",
-    "/reviews/new",
-    "/reviews",
+    "/architecture/reviews/new",
+    "/architecture/reviews",
     "/administration/settings/extract-upload",
     "/insights/evidence-graph",
     "/help",
@@ -62,7 +62,7 @@ describe("effectiveNavDisclosureForPathname", () => {
   );
 
   it("passes through flags on review detail and operate routes", () => {
-    expect(effectiveNavDisclosureForPathname("/reviews/abc-123", true, true)).toEqual({
+    expect(effectiveNavDisclosureForPathname("/architecture/reviews/abc-123", true, true)).toEqual({
       showExtended: true,
       showAdvanced: true,
     });

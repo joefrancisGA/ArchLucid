@@ -99,8 +99,12 @@ locals {
     var.create_resource_group ? azurerm_resource_group.this[0].name : data.azurerm_resource_group.target[0].name
   )
 
+  # Prefer explicit var.location so brownfield RGs (metadata region eastus2) can still host
+  # compute next to SQL in centralus. Fall back to the existing RG location when location is omitted.
   azure_location = !local.enabled ? "" : (
-    var.create_resource_group ? var.location : data.azurerm_resource_group.target[0].location
+    length(trimspace(var.location)) > 0 ? trimspace(var.location) : (
+      var.create_resource_group ? var.location : data.azurerm_resource_group.target[0].location
+    )
   )
 }
 

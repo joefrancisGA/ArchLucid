@@ -24,7 +24,7 @@ const evidenceGraphSampleHref = `/insights/evidence-graph?runId=${encodeURICompo
 
 const EVIDENCE_GRAPH_IDLE_ACTIONS: EmptyStateProps["actions"] = [
   { label: EVIDENCE_GRAPH_EMPTY_PRIMARY_ACTION, href: evidenceGraphSampleHref },
-  { label: EVIDENCE_GRAPH_EMPTY_SECONDARY_START, href: "/reviews/new", variant: "outline" as const },
+  { label: EVIDENCE_GRAPH_EMPTY_SECONDARY_START, href: "/architecture/reviews/new", variant: "outline" as const },
   { label: EVIDENCE_GRAPH_EMPTY_SECONDARY_UPLOAD, href: EXTRACT_UPLOAD_SETTINGS_PATH, variant: "outline" as const },
 ];
 

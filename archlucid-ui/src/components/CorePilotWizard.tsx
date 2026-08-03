@@ -88,7 +88,7 @@ const BLUEPRINT_STEPS: WizardBlueprintStep[] = [
       <div className="space-y-2 leading-relaxed text-neutral-700 dark:text-neutral-200">
         <p className="m-0">Capture identity, constraints, and evidence through the wizard (same payload as POST /v1/architecture/request).</p>
         <p className="m-0">
-          <Link href="/reviews/new" className="font-medium text-teal-700 underline-offset-4 hover:underline dark:text-teal-400">
+          <Link href="/architecture/reviews/new" className="font-medium text-teal-700 underline-offset-4 hover:underline dark:text-teal-400">
             Launch new-review wizard →
           </Link>
         </p>
@@ -105,7 +105,7 @@ const BLUEPRINT_STEPS: WizardBlueprintStep[] = [
         </p>
         <p className="m-0">
           <Link
-            href="/reviews?projectId=default"
+            href="/architecture/reviews?projectId=default"
             className="font-medium text-teal-700 underline-offset-4 hover:underline dark:text-teal-400"
           >
             Open Reviews → pick your review →
@@ -124,7 +124,7 @@ const BLUEPRINT_STEPS: WizardBlueprintStep[] = [
         </p>
         <p className="m-0">
           <Link
-            href="/reviews?projectId=default"
+            href="/architecture/reviews?projectId=default"
             className="font-medium text-teal-700 underline-offset-4 hover:underline dark:text-teal-400"
           >
             Open Reviews → finalize from review detail →

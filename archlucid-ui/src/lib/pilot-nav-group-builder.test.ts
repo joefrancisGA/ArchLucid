@@ -1,3 +1,5 @@
+import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture-intelligence-route";
+import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture-routes";
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import { ARCHITECTURE_DRAFTS_LIST_LABEL } from "@/lib/architecture-workflow-labels";
 import { describe, expect, it, vi, afterEach } from "vitest";
@@ -82,18 +84,28 @@ describe("PilotNavGroupBuilder", () => {
       "Reviews",
       "Executive dashboard",
       "First review guide",
+      "Architecture intelligence",
     ]);
     expect(group.links.some((link) => link.href === "/insights/evidence-graph")).toBe(false);
   });
 
   it("lists Architectures and Reviews as peer object nav destinations", () => {
     const group = new PilotNavGroupBuilder().build();
-    const architecturesLink = group.links.find((link) => link.href === "/architectures");
-    const reviewsListLink = group.links.find((link) => link.href === "/reviews?projectId=default");
+    const architecturesLink = group.links.find((link) => link.href === ARCHITECTURES_LIST_PATH);
+    const reviewsListLink = group.links.find((link) => link.href === "/architecture/reviews?projectId=default");
 
     expect(architecturesLink?.label).toBe(ARCHITECTURE_DRAFTS_LIST_LABEL);
     expect(reviewsListLink?.label).toBe("Reviews");
-    expect(group.links.some((link) => link.href === "/architectures/new")).toBe(false);
-    expect(group.links.some((link) => link.href === "/reviews/new")).toBe(false);
+    expect(group.links.some((link) => link.href === `${ARCHITECTURES_LIST_PATH}/new`)).toBe(false);
+    expect(group.links.some((link) => link.href === "/architecture/reviews/new")).toBe(false);
+  });
+
+  it("lists Architecture intelligence under Architecture (advanced, ExecuteAuthority)", () => {
+    const group = new PilotNavGroupBuilder().build();
+    const intelligenceLink = group.links.find((link) => link.href === ARCHITECTURE_INTELLIGENCE_PATH);
+
+    expect(intelligenceLink?.label).toBe("Architecture intelligence");
+    expect(intelligenceLink?.tier).toBe("advanced");
+    expect(intelligenceLink?.requiredAuthority).toBe("ExecuteAuthority");
   });
 });

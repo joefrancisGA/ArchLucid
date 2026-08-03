@@ -134,7 +134,7 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
                 unlockPhase={props.effectiveOperateUnlockPhase}
                 onNavigate={props.onNavLinkNavigate}
                 afterLabel={
-                  presented.href === "/governance" ? <GovernanceReviewsAwaitingNavBadge /> : null
+                  presented.href === "/governance/approval-queue" ? <GovernanceReviewsAwaitingNavBadge /> : null
                 }
               />
             );

@@ -7,10 +7,10 @@ export const REVIEW_SCORECARD_EMPTY_DESCRIPTION =
   "Finalize a review to populate scorecard metrics, governance outcomes, findings, and ROI estimates.";
 
 export const REVIEW_SCORECARD_EMPTY_PRIMARY_CTA = BUYER_START_ARCHITECTURE_REVIEW_CTA;
-export const REVIEW_SCORECARD_EMPTY_PRIMARY_HREF = "/reviews/new";
+export const REVIEW_SCORECARD_EMPTY_PRIMARY_HREF = "/architecture/reviews/new";
 
 export const REVIEW_SCORECARD_EMPTY_SECONDARY_CTA = "Open reviews";
-export const REVIEW_SCORECARD_EMPTY_SECONDARY_HREF = "/reviews";
+export const REVIEW_SCORECARD_EMPTY_SECONDARY_HREF = "/architecture/reviews";
 
 export const REVIEW_SCORECARD_EMPTY_TERTIARY_CTA = "View sample scorecard";
 

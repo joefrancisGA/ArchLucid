@@ -53,7 +53,7 @@ export function findingIdsAlignForInspectRoute(urlFindingId: string, payloadFind
 }
 
 /**
- * Loads inspect data for `/reviews/.../findings/...` family routes: network errors fall back to curated demo when
+ * Loads inspect data for `/architecture/reviews/.../findings/...` family routes: network errors fall back to curated demo when
  * eligible; successful responses that disagree with the URL prefer demo when available, else {@link invalidRouteAlignment}.
  */
 export async function loadFindingInspectForRoute(

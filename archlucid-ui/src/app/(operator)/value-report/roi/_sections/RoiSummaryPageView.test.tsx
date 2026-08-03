@@ -110,7 +110,7 @@ describe("RoiSummaryPageView", () => {
     expect(screen.getByTestId("roi-summary-zero-state")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA })).toHaveAttribute(
       "href",
-      "/reviews/new",
+      "/architecture/reviews/new",
     );
     expect(screen.queryByRole("link", { name: "Start review" })).not.toBeInTheDocument();
   });

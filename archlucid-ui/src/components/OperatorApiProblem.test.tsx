@@ -2,7 +2,7 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { beforeAll, describe, expect, it, vi } from "vitest";
 
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/reviews/run-502",
+  usePathname: () => "/architecture/reviews/run-502",
 }));
 
 import { OperatorApiProblem } from "./OperatorApiProblem";

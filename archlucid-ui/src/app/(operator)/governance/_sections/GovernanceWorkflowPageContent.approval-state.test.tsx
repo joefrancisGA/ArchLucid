@@ -38,7 +38,7 @@ vi.mock("@/lib/operator-static-demo", async (importOriginal) => {
 });
 
 vi.mock("next/navigation", () => ({
-  usePathname: (): string => "/governance",
+  usePathname: (): string => "/governance/approval-queue",
   useRouter: (): { push: () => void; replace: () => void } => ({ push: vi.fn(), replace: vi.fn() }),
   useSearchParams: (): URLSearchParams => new URLSearchParams(),
 }));

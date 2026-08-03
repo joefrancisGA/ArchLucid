@@ -1,4 +1,4 @@
-/** Canonical `/patterns` copy — header, provenance, and empty states. */
+/** Canonical `/insights/patterns` copy — header, provenance, and empty states. */
 export const PATTERN_LIBRARY_PAGE_TITLE = "Pattern library";
 
 export const PATTERN_LIBRARY_PAGE_SUBTITLE =

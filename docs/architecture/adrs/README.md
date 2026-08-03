@@ -7,7 +7,7 @@
 
 **Last reviewed:** 2026-08-02
 
-Short, durable decisions for ArchLucid. Each file is **immutable** once accepted; supersede with a new ADR rather than rewriting history. Historical ADRs removed 2026-08-02 are listed in [`redirects.md`](../../redirects.md#historical-adrs-removed-2026-08-02).
+Short, durable decisions for ArchLucid. Each file is **immutable** once accepted; supersede with a new ADR rather than rewriting history. Historical ADRs removed 2026-08-02 are listed in [`redirects.md`](../../redirects.md#historical-adrs-removed-2026-08-02). **Completed decisions roll-up:** [`completed_adrs.md`](completed_adrs.md).
 
 | ADR | Title |
 |-----|--------|

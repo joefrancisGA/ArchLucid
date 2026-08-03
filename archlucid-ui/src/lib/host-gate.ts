@@ -6,6 +6,7 @@ import { IMPACT_PREVIEW_PATH, LEGACY_EVOLUTION_REVIEW_PATH } from "@/lib/impact-
 import { LEGACY_OPERATE_ARCHITECTURE_GRAPH_PATH } from "@/lib/legacy-architecture-graph-route";
 import { LEGACY_ONBOARD_PATH } from "@/lib/legacy-onboard-route";
 import { LEGACY_LOGIN_PATH } from "@/lib/legacy-login-route";
+import { PATTERN_LIBRARY_PATH } from "@/lib/pattern-library-route";
 import { LEGACY_SEARCH_PATH, SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
 import { MARKETING_SITEMAP_PATHNAMES } from "@/lib/marketing/public-marketing-seo-paths";
 import { isSplitSiteHostingEnabled, resolveAppSiteOrigin, resolvePublicSiteOrigin } from "@/lib/site-urls";
@@ -25,6 +26,7 @@ const EXTRA_MARKETING_PREFIXES: readonly string[] = ["/showcase/", "/signup/"];
 const OPERATOR_PATH_PREFIXES: readonly string[] = [
   "/auth/",
   // Keep `/api/*` on both hosts — marketing signup/quote/quick-scan use same-origin `/api/proxy`.
+  "/architecture/reviews",
   "/reviews",
   "/runs",
   "/manifests",
@@ -38,6 +40,7 @@ const OPERATOR_PATH_PREFIXES: readonly string[] = [
   "/admin",
   "/administration/settings",
   EVIDENCE_GRAPH_PATH,
+  PATTERN_LIBRARY_PATH,
   LEGACY_GRAPH_PATH,
   LEGACY_OPERATE_ARCHITECTURE_GRAPH_PATH,
   "/governance",
@@ -66,6 +69,7 @@ const OPERATOR_PATH_PREFIXES: readonly string[] = [
   "/value-report",
   "/digests",
   "/workspace",
+  "/architecture/architectures",
   "/architectures",
   "/sponsor-report",
   LEGACY_LOGIN_PATH,

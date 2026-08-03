@@ -1,7 +1,7 @@
 # Solo-operator MVO observability (P0 page path)
 
 **Audience:** Founder / solo operator of a multi-tenant ArchLucid deployment  
-**Backlog:** [`TECH_BACKLOG.md`](../library/TECH_BACKLOG.md) **TB-957** (enablement) · **TB-958** / **TB-959** (follow-ons)  
+**Backlog:** [`TECH_BACKLOG.md`](../library/TECH_BACKLOG.md) **TB-957** (enablement) · **TB-958** / **TB-959** (shipped follow-ons)  
 **GTM:** [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) **M-119** (claim honesty) · **M-120** (founder drill cadence)  
 **IaC:** [`infra/terraform-monitoring`](../../infra/terraform-monitoring/README.md) · P0 rules in `prometheus_p0_rules.tf`
 
@@ -17,7 +17,7 @@ Do **not** claim a second SRE platform or 24×7 NOC. Do **not** promise that eve
 
 ## MVO P0 catalog (≤8)
 
-These six rules ship in Terraform when `enable_prometheus_slo_rule_group` / P0 group flags and AMW are enabled. All route to the **critical** action group.
+These seven rules ship in Terraform when `enable_prometheus_slo_rule_group` / P0 group flags and AMW are enabled. All route to the **critical** action group. The review-path canary (**TB-959**) pages via PagerDuty/webhook from GitHub Actions (not a PromQL rule).
 
 | Alert (Terraform) | Signal (customer language) | PromQL gist | Typical runbook |
 |-------------------|----------------------------|-------------|-----------------|
@@ -27,6 +27,7 @@ These six rules ship in Terraform when `enable_prometheus_slo_rule_group` / P0 g
 | `ArchLucidCircuitBreakerOpenTf` | OpenAI circuit open | `archlucid_circuit_breaker_state > 0` | [`LLM_RETRY_AND_CIRCUIT_BREAKER.md`](../library/LLM_RETRY_AND_CIRCUIT_BREAKER.md) |
 | `ArchLucidAuthorityPipelineWorkDeadLettersTf` | Authority outbox dead letters | `archlucid_authority_pipeline_work_dead_letter > 0` | [`OBSERVABILITY.md`](../library/OBSERVABILITY.md) authority remediation |
 | `ArchLucidTrialSignupFailuresHighTf` | Trial signup failure rate | sustained signup failures | [`TRIAL_FUNNEL.md`](../runbooks/TRIAL_FUNNEL.md) |
+| `ArchLucidStaleInFlightRunsTf` | Runs stuck mid-lifecycle (&gt;1h) | `archlucid_runs_stale_in_flight_count > 0` (15m) | [`STALE_IN_FLIGHT_RUNS.md`](../runbooks/STALE_IN_FLIGHT_RUNS.md) |
 
 Warn / SLO / agent-output groups that target the **ops** (email-only) action group are **out of MVO**. Expand MVO only when a new rule is severity-0 and wired to **critical**.
 
@@ -71,8 +72,16 @@ pwsh ../../scripts/ops/verify-amw-p0-metrics.ps1
 |------------|----------------|
 | A documented P0 set and how to enable paging | That YAML in git means production pages today |
 | Founder can verify AMW + action-group Test | Full multi-on-call SRE tooling |
-| Auth/showcase synthetics exist (**TB-758** / **TB-889**) | Create→execute→finalize canary until **TB-959** |
-| Fleet P0s catch platform-wide failures | Per-tenant stuck-run paging until **TB-958** |
+| Auth/showcase synthetics exist (**TB-758** / **TB-889**) | That auth/showcase alone prove the review journey |
+| Fleet P0s catch platform-wide failures | Unbounded per-tenant Prom series for every stuck run |
+| Cardinality-safe stale-run P0 (**TB-958**) with tenant/run in **logs** | Instant page the second a run crosses 1h (15m `for` dampens flaps) |
+| Create→execute→commit canary that can page (**TB-959**) when enabled | That the canary is on until `ARCHLUCID_REVIEW_PATH_CANARY_ENABLED=true` + paging secret |
+
+### Follow-on enablement (TB-958 / TB-959)
+
+- [ ] Terraform apply includes `ArchLucidStaleInFlightRunsTf` (requires AMW scrape of `archlucid_runs_stale_in_flight_count`) — see [`STALE_IN_FLIGHT_RUNS.md`](../runbooks/STALE_IN_FLIGHT_RUNS.md)
+- [ ] `ARCHLUCID_REVIEW_PATH_CANARY_ENABLED=true` + smoke API key; one green `workflow_dispatch` — see [`REVIEW_PATH_CANARY.md`](../runbooks/REVIEW_PATH_CANARY.md)
+- [ ] `ARCHLUCID_PAGERDUTY_ROUTING_KEY` (preferred) or critical webhook secret set for canary failures
 
 ## Related
 

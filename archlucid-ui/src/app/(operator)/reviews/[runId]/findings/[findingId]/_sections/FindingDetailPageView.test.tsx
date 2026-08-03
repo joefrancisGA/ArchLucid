@@ -5,7 +5,7 @@ import type { FindingDetailPageModel } from "./finding-detail-page-model";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/reviews/run-1/findings/finding-1",
+  usePathname: () => "/architecture/reviews/run-1/findings/finding-1",
 }));
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
@@ -122,10 +122,10 @@ describe("FindingDetailPageView buyer polish", () => {
     expect(screen.getByTestId("finding-detail-wayfinding")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByRole("navigation", { name: "Breadcrumb" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Review" })).toHaveAttribute("href", "/reviews/run-1");
+    expect(screen.getByRole("link", { name: "Review" })).toHaveAttribute("href", "/architecture/reviews/run-1");
     expect(screen.getByRole("link", { name: "Findings" })).toHaveAttribute(
       "href",
-      "/reviews/run-1?reviewTab=findings",
+      "/architecture/reviews/run-1?reviewTab=findings",
     );
     expect(screen.getByRole("navigation", { name: "Breadcrumb" }).querySelector("[aria-current='page']")).toHaveTextContent(
       "Over-permissive storage access",

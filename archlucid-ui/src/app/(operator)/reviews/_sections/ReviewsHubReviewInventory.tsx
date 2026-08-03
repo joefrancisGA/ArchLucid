@@ -153,7 +153,7 @@ function emptyInventoryDescription(draftCount: number): string {
   return REVIEWS_HUB_RECENT_EMPTY_BODY;
 }
 
-/** Filterable review inventory for `/reviews`. */
+/** Filterable review inventory for `/architecture/reviews`. */
 export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps): React.JSX.Element {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<ReviewFilterId>("all");
@@ -184,7 +184,7 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
             actions={[
               {
                 label: REVIEWS_HUB_RECENT_EMPTY_PRIMARY_LABEL,
-                href: "/reviews/new",
+                href: "/architecture/reviews/new",
                 variant: "primary",
               },
               {

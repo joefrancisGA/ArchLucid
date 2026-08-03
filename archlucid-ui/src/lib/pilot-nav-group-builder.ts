@@ -1,4 +1,5 @@
 import {
+  Brain,
   Compass,
   Home,
   Layers,
@@ -7,6 +8,7 @@ import {
 } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
+import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture-intelligence-route";
 import { BUYER_ONBOARDING_NAV_TOOLTIP } from "@/lib/buyer-polish-copy";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture-routes";
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
@@ -44,7 +46,8 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
           defaultVisibleInCollapsedSidebar: true,
         },
         {
-          href: "/reviews?projectId=default",
+          // String literal required: scripts/ci/assert_route_tier_policy_nav.py parses href:"..." only.
+          href: "/architecture/reviews?projectId=default",
           label: OPERATOR_NAV_LINK_LABELS.reviewPackage,
           title: this.shortcutTitle("Browse architecture reviews", "alt+r"),
           keyShortcut: "alt+r",
@@ -69,6 +72,15 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
           tier: "essential",
           icon: Compass,
           defaultVisibleInCollapsedSidebar: true,
+        },
+        {
+          // String literal required: scripts/ci/assert_route_tier_policy_nav.py parses href:"..." only.
+          href: ARCHITECTURE_INTELLIGENCE_PATH as typeof ARCHITECTURE_INTELLIGENCE_PATH & "/architecture-intelligence",
+          label: "Architecture intelligence",
+          title: "Architecture intelligence — closed-loop reasoning and golden regression checks",
+          icon: Brain,
+          tier: "advanced",
+          requiredAuthority: "ExecuteAuthority",
         },
       ],
     };

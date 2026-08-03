@@ -34,7 +34,7 @@ describe("TrialWelcomeRunDeepLink", () => {
     window.sessionStorage.clear();
   });
 
-  it("hard-redirects once to /reviews/{id} when trialWelcomeRunId is present", async () => {
+  it("hard-redirects once to /architecture/reviews/{id} when trialWelcomeRunId is present", async () => {
     const welcomeId = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
 
     vi.stubGlobal(
@@ -50,7 +50,7 @@ describe("TrialWelcomeRunDeepLink", () => {
     render(<TrialWelcomeRunDeepLink />);
 
     await waitFor(() => {
-      expect(window.location.replace).toHaveBeenCalledWith(`/reviews/${welcomeId}`);
+      expect(window.location.replace).toHaveBeenCalledWith(`/architecture/reviews/${welcomeId}`);
     });
 
     expect(window.sessionStorage.getItem("archlucid_trial_welcome_home_redirect_v1")).toBe(welcomeId);

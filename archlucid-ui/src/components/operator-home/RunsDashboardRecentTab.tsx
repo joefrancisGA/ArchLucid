@@ -168,14 +168,14 @@ export function RunsDashboardRecentTab(props: RunsDashboardRecentTabProps) {
             ) : (
               <>
                 <Button asChild variant="primary" size="sm" className="h-8">
-                  <Link href={`/reviews/${encodeURIComponent(props.showcaseDemoRun.runId)}`}>Review</Link>
+                  <Link href={`/architecture/reviews/${encodeURIComponent(props.showcaseDemoRun.runId)}`}>Review</Link>
                 </Button>
                 <Button asChild variant="outline" size="sm" className="h-8">
                   <Link href={getShowcaseManifestHref()}>View signed record</Link>
                 </Button>
                 <Button asChild variant="outline" size="sm" className="h-8">
                   <Link
-                    href={`/reviews/${encodeURIComponent(props.showcaseDemoRun.runId)}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`}
+                    href={`/architecture/reviews/${encodeURIComponent(props.showcaseDemoRun.runId)}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`}
                   >
                     View primary finding
                   </Link>
@@ -203,7 +203,7 @@ export function RunsDashboardRecentTab(props: RunsDashboardRecentTabProps) {
         <section aria-label="Featured review summary">
           <OperatorHomeReviewSummaryCard
             run={props.showcaseDemoRun}
-            href={`/reviews/${encodeURIComponent(props.showcaseDemoRun.runId)}`}
+            href={`/architecture/reviews/${encodeURIComponent(props.showcaseDemoRun.runId)}`}
             buyerPolishedShell={props.buyerPolishedShell}
             variant="featured"
             primaryAction={props.showcasePrimaryCta}
@@ -222,7 +222,7 @@ export function RunsDashboardRecentTab(props: RunsDashboardRecentTabProps) {
                   <div className="min-w-0 flex-1">
                     <OperatorHomeReviewSummaryCard
                       run={run}
-                      href={`/reviews/${encodeURIComponent(run.runId)}`}
+                      href={`/architecture/reviews/${encodeURIComponent(run.runId)}`}
                       buyerPolishedShell={props.buyerPolishedShell}
                     />
                   </div>
@@ -249,7 +249,7 @@ export function RunsDashboardRecentTab(props: RunsDashboardRecentTabProps) {
           </ul>
           {hiddenFeaturedCount > 0 ? (
             <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
-              <Link href="/reviews" className={OPERATOR_LINK.nav}>
+              <Link href="/architecture/reviews" className={OPERATOR_LINK.nav}>
                 View all reviews
               </Link>
               {` (${hiddenFeaturedCount} more on this page)`}

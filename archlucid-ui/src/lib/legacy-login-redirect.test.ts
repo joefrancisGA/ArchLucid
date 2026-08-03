@@ -8,7 +8,7 @@ describe("buildLoginRedirectPath (TB-1792)", () => {
   });
 
   it("copies scalar query params", () => {
-    expect(buildLoginRedirectPath({ returnUrl: "/reviews" })).toBe("/auth/signin?returnUrl=%2Freviews");
+    expect(buildLoginRedirectPath({ returnUrl: "/architecture/reviews" })).toBe("/auth/signin?returnUrl=%2Freviews");
   });
 
   it("appends repeated keys from array values", () => {

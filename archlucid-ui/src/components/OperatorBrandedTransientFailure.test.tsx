@@ -18,7 +18,7 @@ vi.mock("next/navigation", async (importOriginal) => {
   useRouter: () => ({
     refresh: vi.fn(),
   }),
-  usePathname: () => "/reviews/run-1",
+  usePathname: () => "/architecture/reviews/run-1",
   redirect: vi.fn(),
     permanentRedirect: vi.fn(),
     notFound: vi.fn(),

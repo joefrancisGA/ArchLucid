@@ -44,7 +44,7 @@ function buyerHintBody(
       <>
         Start a review on your own architecture when ready.{" "}
         <Link
-          href="/reviews/new"
+          href="/architecture/reviews/new"
           className="font-medium text-teal-800 underline decoration-teal-300 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:decoration-teal-600"
         >
           {OPERATOR_START_REVIEW_QUICK_ACTION_LABEL}
@@ -55,7 +55,7 @@ function buyerHintBody(
   }
 
   if (state === "has-run") {
-    const href = latestRunId !== null ? `/reviews/${encodeURIComponent(latestRunId)}` : "/reviews?projectId=default";
+    const href = latestRunId !== null ? `/architecture/reviews/${encodeURIComponent(latestRunId)}` : "/architecture/reviews?projectId=default";
 
     return (
       <>
@@ -73,8 +73,8 @@ function buyerHintBody(
 
   const href =
     firstCommittedRunId !== null
-      ? `/reviews/${encodeURIComponent(firstCommittedRunId)}`
-      : "/reviews?projectId=default";
+      ? `/architecture/reviews/${encodeURIComponent(firstCommittedRunId)}`
+      : "/architecture/reviews?projectId=default";
 
   return (
     <>

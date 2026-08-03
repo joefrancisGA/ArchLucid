@@ -1,3 +1,9 @@
+import {
+  ARCHITECTURES_LIST_PATH,
+  REVIEWS_LIST_PATH,
+  REVIEWS_NEW_PATH,
+} from "@/lib/architecture-routes";
+
 /**
  * Whether a sidebar / drawer link should show the active style for the current pathname.
  * Query strings on `href` are ignored; pathname never includes query in Next.js App Router.
@@ -9,16 +15,17 @@ export function isNavLinkActive(pathname: string, href: string): boolean {
     return pathname === "/";
   }
 
-  if (pathPart === "/reviews/new") {
-    return pathname === "/reviews/new";
+  if (pathPart === REVIEWS_NEW_PATH) {
+    return pathname === REVIEWS_NEW_PATH;
   }
 
-  if (pathPart === "/architectures") {
-    return pathname === "/architectures" || pathname.startsWith("/architectures/");
+  if (pathPart === ARCHITECTURES_LIST_PATH) {
+    return pathname === ARCHITECTURES_LIST_PATH || pathname.startsWith(`${ARCHITECTURES_LIST_PATH}/`);
   }
 
-  if (pathPart === "/reviews") {
-    return pathname === "/reviews";
+  // Reviews list is exact-match only — detail/new routes must not highlight the hub item.
+  if (pathPart === REVIEWS_LIST_PATH) {
+    return pathname === REVIEWS_LIST_PATH;
   }
 
   if (pathPart === "/administration/settings/tenant") {

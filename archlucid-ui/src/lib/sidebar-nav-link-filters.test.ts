@@ -84,7 +84,7 @@ describe("presentSidebarNavLinkForCluster", () => {
   it("TB-606: rewrites reviews-list labels for governance mode in review-workflow clusters", () => {
     const presented = presentSidebarNavLinkForCluster(
       {
-        href: "/reviews?projectId=default",
+        href: "/architecture/reviews?projectId=default",
         label: "Reviews",
         title: "Browse finalized reviews",
         tier: "essential",

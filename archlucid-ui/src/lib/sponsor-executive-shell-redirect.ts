@@ -69,7 +69,7 @@ export function resolveSponsorExecutiveRedirectTarget(input: SponsorExecutiveRed
     return null;
   }
 
-  if (pathname === "/reviews" || pathname.startsWith("/reviews/")) {
+  if (pathname === "/architecture/reviews" || pathname.startsWith("/architecture/reviews/")) {
     return null;
   }
 

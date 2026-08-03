@@ -34,8 +34,8 @@ describe("graph-finding-deep-links", () => {
   });
 
   it("builds detail and inspect hrefs", () => {
-    expect(graphFindingDetailHref("run-a", "fid-1")).toBe("/reviews/run-a/findings/fid-1");
-    expect(graphFindingInspectHref("run-a", "fid-1")).toBe("/reviews/run-a/findings/fid-1/evidence-trace");
+    expect(graphFindingDetailHref("run-a", "fid-1")).toBe("/architecture/reviews/run-a/findings/fid-1");
+    expect(graphFindingInspectHref("run-a", "fid-1")).toBe("/architecture/reviews/run-a/findings/fid-1/evidence-trace");
   });
 
   it("graphTrailHrefWithOptionalNode adds graphNodeId only when focused id is non-empty", () => {

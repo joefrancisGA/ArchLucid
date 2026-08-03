@@ -30,7 +30,7 @@ describe("FindingDetailOperationalActions", () => {
         payload={payload}
         graphEvidenceHref="/graph?runId=run-1"
         linkedManifestHref="/signed-records/m1"
-        inspectHref="/reviews/run-1/findings/finding-1/evidence-trace"
+        inspectHref="/architecture/reviews/run-1/findings/finding-1/evidence-trace"
       />,
     );
 
@@ -41,7 +41,7 @@ describe("FindingDetailOperationalActions", () => {
     );
     expect(screen.getByRole("link", { name: "Open evidence trace" })).toHaveAttribute(
       "href",
-      "/reviews/run-1/findings/finding-1/evidence-trace",
+      "/architecture/reviews/run-1/findings/finding-1/evidence-trace",
     );
     expect(screen.getByTestId("finding-detail-primary-evidence-trace")).toBeInTheDocument();
   });

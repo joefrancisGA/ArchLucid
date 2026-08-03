@@ -125,7 +125,7 @@ describe("CommitRunButton", () => {
     expect(panel).toHaveTextContent(/pre-commit governance gate/i);
     expect(screen.getByTestId("pre-commit-governance-block-finding-link-finding-blocked")).toHaveAttribute(
       "href",
-      "/reviews/run-blocked-structured/findings/finding-blocked",
+      "/architecture/reviews/run-blocked-structured/findings/finding-blocked",
     );
     expect(screen.getByTestId("pre-commit-governance-block-explanation")).toHaveTextContent(
       "Add a private endpoint before finalizing.",

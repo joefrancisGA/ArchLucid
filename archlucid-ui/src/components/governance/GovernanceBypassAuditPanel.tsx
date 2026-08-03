@@ -133,7 +133,7 @@ export function GovernanceBypassAuditPanel(): React.JSX.Element {
                     <EnterpriseTableCell>
                       {runId.length > 0 ? (
                         <Link
-                          href={`/reviews/${encodeURIComponent(runId)}`}
+                          href={`/architecture/reviews/${encodeURIComponent(runId)}`}
                           className="text-teal-700 underline dark:text-teal-400"
                         >
                           {runId}

@@ -13,7 +13,9 @@ import {
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import {
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
+  governanceApprovalQueueHref,
   pathMatchesGovernanceAlerts,
+  pathMatchesGovernanceApprovalQueue,
   pathMatchesGovernanceAudit,
 } from "@/lib/governance-route-paths";
 
@@ -45,7 +47,7 @@ export const BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS = [
   {
     step: 4,
     label: "Governance approval",
-    href: `/governance?runId=${showcaseRunEnc}`,
+    href: governanceApprovalQueueHref(SHOWCASE_STATIC_DEMO_RUN_ID),
     chipTooltip: "Governance posture, approvals, and monitoring hooks tied to this review.",
   },
   {
@@ -99,11 +101,11 @@ export function resolveBuyerGoldenJourneyNav(
   const execBase = normalizedPath(getShowcaseExecutiveHref());
   const manifestBase = normalizedPath(getShowcaseManifestHref());
   const manifestRecord = `/signed-records/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`;
-  const manifestArchitecturePath = `/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}/architecture`;
+  const manifestArchitecturePath = `/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}/architecture`;
 
   let stepIdx: number | null = null;
 
-  const signedRecordFriendly = /^\/reviews\/([^/]+)\/signed-record\b/.exec(path);
+  const signedRecordFriendly = /^\/architecture\/reviews\/([^/]+)\/signed-record\b/.exec(path);
   // Live SQL golden manifests use seeded GUIDs under `/signed-records/{id}` (not only the static showcase id).
   const signedRecordCanonical = /^\/signed-records\/([^/]+)$/.exec(path);
 
@@ -120,7 +122,7 @@ export function resolveBuyerGoldenJourneyNav(
   } else if (path === execBase) {
     stepIdx = 0;
   } else {
-    const reviewExecutive = /^\/reviews\/([^/]+)$/.exec(path);
+    const reviewExecutive = /^\/architecture\/reviews\/([^/]+)$/.exec(path);
 
     if (reviewExecutive !== null && isBuyerGoldenSpineRunId(reviewExecutive[1])) {
       stepIdx = 0;
@@ -155,7 +157,7 @@ export function resolveBuyerGoldenJourneyNav(
     } else if (pathMatchesGovernanceAudit(path)) {
       // Must run before the `/governance` catch-all — `/audit` permanently redirects to `/governance/audit`.
       stepIdx = 4;
-    } else if (path === "/governance") {
+    } else if (pathMatchesGovernanceApprovalQueue(path)) {
       const governanceRunId =
         options?.searchRunId?.trim() ??
         new URL(pathname, "http://archlucid.local").searchParams.get("runId")?.trim() ??
@@ -173,7 +175,7 @@ export function resolveBuyerGoldenJourneyNav(
     } else if (path.startsWith("/governance")) {
       return null;
     } else {
-      const findingInspect = /^\/reviews\/([^/]+)\/findings\/[^/]+\/(?:inspect|evidence-trace)\b/.exec(path);
+      const findingInspect = /^\/architecture\/reviews\/([^/]+)\/findings\/[^/]+\/(?:inspect|evidence-trace)\b/.exec(path);
 
       if (findingInspect !== null && isBuyerGoldenSpineRunId(findingInspect[1])) {
         stepIdx = 2;

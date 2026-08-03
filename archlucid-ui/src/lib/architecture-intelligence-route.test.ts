@@ -28,7 +28,7 @@ const ARCHITECTURE_INTELLIGENCE_APP_LAYOUT = join(
 );
 
 const PRODUCT_ARCHITECTURE_INTELLIGENCE_SURFACES = [
-  "archlucid-ui/src/lib/operate-architect-advanced-nav-group-builder.ts",
+  "archlucid-ui/src/lib/pilot-nav-group-builder.ts",
   "archlucid-ui/src/lib/architecture-intelligence-run-href.ts",
   "archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/RunDetailOperatorPipelineToolsCollapsible.tsx",
   "archlucid-ui/src/components/governance/findings/governance-findings-queue-operational-actions.tsx",

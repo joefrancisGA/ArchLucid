@@ -45,7 +45,7 @@ export function SimulationRunDiffCard(props: SimulationRunDiffCardProps): ReactE
       <div className={headerCls} id={`sim-run-${run.simulationRunId}`}>
         <span>
           <strong>Review baseline</strong>{" "}
-          <Link href={`/reviews/${encodeURIComponent(baselineId)}`} className={monoCls}>
+          <Link href={`/architecture/reviews/${encodeURIComponent(baselineId)}`} className={monoCls}>
             {baselineId}
           </Link>
         </span>
@@ -70,7 +70,7 @@ export function SimulationRunDiffCard(props: SimulationRunDiffCardProps): ReactE
                   Linked reviews:{" "}
                   {planLinkedRunIds.map((id, idx) => (
                     <span key={`${id}-${idx}`} className="block">
-                      <Link href={`/reviews/${encodeURIComponent(id)}`} className={monoCls}>
+                      <Link href={`/architecture/reviews/${encodeURIComponent(id)}`} className={monoCls}>
                         {id}
                       </Link>
                       {id === baselineId ? " ← this row" : null}

@@ -30,7 +30,7 @@ export function resolveSoftNavigationHardFallbackAssignUrl(
       return null;
     }
 
-    // Path-only equality is not enough (`/reviews` vs `/reviews?projectId=default`).
+    // Path-only equality is not enough (`/architecture/reviews` vs `/architecture/reviews?projectId=default`).
     return `${target.pathname}${target.search}${target.hash}`;
   } catch {
     const pathname = softNavigationTargetPathname(trimmed, origin);

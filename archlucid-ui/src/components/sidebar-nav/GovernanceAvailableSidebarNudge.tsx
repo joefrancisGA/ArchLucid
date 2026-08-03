@@ -31,7 +31,7 @@ export function GovernanceAvailableSidebarNudge(
       <p className={cn("m-0 mt-1 text-teal-900/90 dark:text-teal-200/90", OPERATOR_TYPOGRAPHY.helper)}>
         Your first review is finalized — open the approval queue to record decisions and audit trail entries.
       </p>
-      <Link href="/governance" className={cn("mt-2 inline-block", OPERATOR_LINK.nav, OPERATOR_TYPOGRAPHY.helper)}>
+      <Link href="/governance/approval-queue" className={cn("mt-2 inline-block", OPERATOR_LINK.nav, OPERATOR_TYPOGRAPHY.helper)}>
         Open governance workflow
       </Link>
     </div>

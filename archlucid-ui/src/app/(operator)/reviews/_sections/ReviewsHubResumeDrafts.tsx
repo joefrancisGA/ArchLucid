@@ -45,7 +45,7 @@ function formatAbsoluteUpdatedTitle(updatedUtc: string): string {
 }
 
 /**
- * Multi-draft supporting strip on `/reviews`.
+ * Multi-draft supporting strip on `/architecture/reviews`.
  * Hidden when a single draft is already the header Continue target.
  */
 export function ReviewsHubResumeDrafts(): React.JSX.Element | null {

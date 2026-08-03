@@ -77,7 +77,7 @@ describe("ReviewsHubResumeDrafts", () => {
       "/architectures/draft-001",
     );
     expect(screen.getByTestId("reviews-hub-resume-draft-start-draft-001").getAttribute("href")).toContain(
-      "/reviews/new",
+      "/architecture/reviews/new",
     );
     expect(screen.getByTestId("reviews-hub-resume-drafts-view-all")).toHaveAttribute("href", "/architectures");
     expect(screen.getAllByText(/Updated /i).length).toBeGreaterThanOrEqual(2);
