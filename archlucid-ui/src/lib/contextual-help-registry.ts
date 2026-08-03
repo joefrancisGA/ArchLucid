@@ -392,6 +392,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/administration/settings/users",
+    entry: {
+      whatIsThisPage:
+        "Invite users, assign ArchLucid app roles, and manage API keys for this workspace tenant.",
+      whatToDoNext:
+        "Invite a teammate, open Roles and permissions to adjust authority, or manage API keys when you have Admin authority.",
+      whyEmpty: "Directory rows appear after invitations are accepted or users are provisioned for this tenant.",
+      whereToConfigurePrerequisite:
+        "SSO and identity-provider mapping may be required before enterprise users can sign in.",
+    },
+  },
+  {
     prefix: "/integrations/cloud-connections",
     entry: {
       whatIsThisPage:

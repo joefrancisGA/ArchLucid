@@ -66,6 +66,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/value-report",
       "/governance/alert-rules",
       "/help/getting-started",
+      "/administration/settings/users",
       "/integrations/cloud-connections",
       "/settings/cloud-connections",
     ]);
@@ -129,6 +130,11 @@ describe("contextual-help-registry (TB-733)", () => {
   it("resolves getting-started Category-1 help (HGX)", () => {
     expect(contextualHelpForPathname("/help/getting-started")?.whatIsThisPage).toContain("Getting started guide");
     expect(contextualHelpForPathname("/help/getting-started")?.whatToDoNext).toContain("Start a review");
+  });
+
+  it("resolves users-and-roles settings Category-1 help (AUX)", () => {
+    expect(contextualHelpForPathname("/administration/settings/users")?.whatIsThisPage).toContain("Invite users");
+    expect(contextualHelpForPathname("/administration/settings/users")?.whatToDoNext).toContain("Invite a teammate");
   });
 
   it("resolves sponsor executive summary Category-1 help (SPE)", () => {

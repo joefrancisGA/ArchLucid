@@ -151,6 +151,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     prefix: "/administration/settings/identity-providers",
     topic: { slug: "enterprise-onboarding", label: "SSO and identity" },
   },
+  {
+    prefix: "/administration/settings/users",
+    topic: { slug: "users-and-roles", label: "Users and roles" },
+  },
   { prefix: "/administration/settings/tenant", topic: { slug: "getting-started", label: OPERATOR_NAV_LINK_LABELS.settings } },
   { prefix: "/administration/settings/baseline", topic: { slug: "pilot-roi-model", label: "View ROI methodology" } },
   { prefix: "/help", topic: { slug: "getting-started", label: "Help" } },

@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import type { ArchLucidAppRole } from "@/lib/current-principal";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
@@ -28,6 +29,7 @@ import { PendingInvitationsPanel } from "./PendingInvitationsPanel";
 import { SETTINGS_ROLES_ASSIGNABLE } from "./settings-roles-page-constants";
 import { settingsRolesEmptyStateDescription, settingsRolesEmptyStateTitle } from "./settings-roles-page-empty-copy";
 import { SettingsRolesMatrixSection } from "./SettingsRolesMatrixSection";
+import { SettingsUsersEvidenceOrientationStrip } from "./SettingsUsersEvidenceOrientationStrip";
 import type { SettingsRolesPageViewModel } from "./settings-roles-page-view-model";
 
 type TabId = "users" | "roles" | "keys";
@@ -143,7 +145,10 @@ export function SettingsRolesPageView(props: Props) {
         navHref="/administration/settings/users"
         title="Users and roles"
         description="Invite users, assign roles, and manage workspace access."
+        actions={<PageContextualHelpButton />}
       />
+
+      <SettingsUsersEvidenceOrientationStrip />
 
       <Tabs value={activeTab} onValueChange={onSelectTab} className="space-y-6">
         <TabsList aria-label="Users and roles sections" data-testid="settings-roles-tablist">
