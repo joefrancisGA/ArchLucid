@@ -1860,8 +1860,9 @@ jobs:
       - dotnet-fast-core-build
     runs-on: ubuntu-latest
     # Three nested ceilings, innermost first: blame-hang (5m/test) → per-project cap in
-    # run_fast_core_corset_shard.sh (9m, names the stuck project) → step timeout → job timeout.
-    # Step stays >=6m under the job so the killed step still leaves room for the if: always() uploads;
+    # run_fast_core_corset_shard.sh (14m, names the stuck project) → step timeout → job timeout.
+    # Architecture.Tests skips Coverlet (OOM on GHA when NetArchTest loads the product graph).
+    # Step stays under the job so the killed step still leaves room for the if: always() uploads;
     # a 3m gap was not enough in run 30729657151, where the forced job kill dropped every diagnostic.
     timeout-minutes: ${{ matrix.job_timeout_minutes }}
     strategy:
