@@ -48,6 +48,8 @@ export const HELP_TOPIC_SLUG_ALIASES: Readonly<Record<string, string>> = {
   "core-pilot": "first-architecture-review",
   /** TB-1386 — honest API-contracts URL; canonical slug stays governance-api-contracts. */
   "api-contracts": "governance-api-contracts",
+  /** Evaluator workbook body folded into buyer orientation / path-chooser (2026-08-03). */
+  "evaluator-workbook": "path-chooser",
 };
 
 export function normalizeHelpTopicSlug(slug: string): string {
@@ -451,13 +453,6 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     audience: "operator",
     sourcePaths: ["docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md"],
     sectionAnchors: ["first-value-in-20-minutes"],
-  },
-  {
-    slug: "evaluator-workbook",
-    title: "Evaluator workbook",
-    summary: "Compact evaluator orientation — prerequisites, session flow, and pass/hold rules before deep configuration.",
-    audience: "buyer",
-    sourcePaths: ["docs/onboarding/EVALUATOR_WORKBOOK.md"],
   },
   {
     slug: "pilot-roi-model",

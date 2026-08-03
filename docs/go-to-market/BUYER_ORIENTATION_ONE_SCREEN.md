@@ -1,12 +1,12 @@
-﻿> **Reviewed:** 2026-07-25
+﻿> **Reviewed:** 2026-08-03
 
-> **Scope:** One-screen buyer orientation — Pilot vs Operate, first proof, deferred scope, and next-step chooser. Not an operator checklist.
+> **Scope:** One-screen buyer orientation — Pilot vs Operate, first proof, deferred scope, pass/hold interpretation, stop rules, and next-step chooser. Absorbs the former evaluator workbook body. Not an operator checklist.
 
 # Buyer orientation (one screen)
 
-**Last reviewed:** 2026-07-25
+**Last reviewed:** 2026-08-03
 
-**Start operators here:** [`../runbooks/FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) · **Four-step narrative:** [`../CORE_PILOT.md`](../CORE_PILOT.md)
+**Start operators here:** [`../runbooks/FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) · **Four-step narrative:** [`../CORE_PILOT.md`](../CORE_PILOT.md) · **Path choice (demo / real / sponsor):** [`../runbooks/FIRST_EVALUATOR_DECISION.md`](../runbooks/FIRST_EVALUATOR_DECISION.md)
 
 ## Two layers
 
@@ -35,6 +35,32 @@
 | Procurement pack (on request) | Trust, DPA, CAIQ/SIG, self-assessment — not CPA attestation |
 
 Collect with [`../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md`](../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md); working directory default: `artifacts/first-pilot-proof/`.
+
+## Pass / hold / deferred interpretation {#pass-hold-deferred-interpretation}
+
+Former evaluator-workbook body — how to read dispositions on sponsor and proof surfaces.
+
+| Label | Meaning | Evaluator action |
+| --- | --- | --- |
+| **PASS** | No blocking findings | Proceed; optional WARN review |
+| **PASS_WITH_WARNINGS** | Non-blocking gaps | Document WARN rows before external send |
+| **BLOCK** | Sponsor handoff unsafe | Fix remediation; do not send |
+| **SEND** | Sponsor packet disposition | Ready for sponsor share |
+| **HOLD** | Fix listed blockers | Re-finalize or re-run assessment after fixes |
+| **DEFERRED_SCOPE** | V1.1/V2 buyer ask | Record requirement; do not score as V1 failure |
+
+Evidence-basis labels (**Evidence-backed**, **Estimate**, **Demo-derived**, **Low support**, **Manual review required**, **Deferred scope**) apply to sponsor surfaces.
+
+## Stop rules {#evaluator-stop-rules}
+
+Stop and escalate when:
+
+- Pilot host integrity signals are unresolved on a real-mode host.
+- ROI figures appear without a clear basis label.
+- Data-consistency or sponsor-stop probes show **HOLD**.
+- Procurement deal-ready disposition is **HOLD** for missing V1 docs (not deferred realism).
+
+Stuck mid-pilot: [Troubleshooting](/help/troubleshooting) · [Report a problem](/help/report-a-problem).
 
 ## Trust and procurement (without overclaiming)
 

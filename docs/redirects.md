@@ -27,7 +27,7 @@ Human readers and agents should follow **canonical** paths below. This file is t
 | `docs/go-to-market/CLAIM_READINESS_CHECKLIST.md` | [`docs/go-to-market/CLAIM_READINESS_STATUS.md`](go-to-market/CLAIM_READINESS_STATUS.md#appendix-gate-passhold-criteria) | Gate criteria, session record, and stage exits are appendices |
 | `docs/go-to-market/PROCUREMENT_FAST_LANE.md` | [`docs/go-to-market/PROCUREMENT_PACK_INDEX.md`](go-to-market/PROCUREMENT_PACK_INDEX.md#fast-lane-starter) | Fast-lane starter table merged into canonical pack index |
 | `docs/go-to-market/PROCUREMENT_EVIDENCE_PACK_INDEX.md` | [`docs/go-to-market/PROCUREMENT_PACK_INDEX.md`](go-to-market/PROCUREMENT_PACK_INDEX.md) | Navigation-only index merged into canonical pack index |
-| `docs/onboarding/EVALUATION_GUIDE.md` | [`docs/onboarding/EVALUATOR_WORKBOOK.md`](onboarding/EVALUATOR_WORKBOOK.md) | Evaluator depth appendix |
+| `docs/onboarding/EVALUATION_GUIDE.md` | [`docs/go-to-market/BUYER_ORIENTATION_ONE_SCREEN.md`](go-to-market/BUYER_ORIENTATION_ONE_SCREEN.md) | Former evaluation guide → evaluator workbook → buyer orientation (pass/hold) |
 | `docs/library/V1_CRITICAL_PATH_MAP.md` | [`docs/runbooks/ROLE_INDEX.md`](runbooks/ROLE_INDEX.md#v1-critical-path-mandatory-docs) | Mandatory V1 paths merged into role index |
 | `docs/go-to-market/QUOTE_TO_PROOF_READINESS_CHECKLIST.md` | [`docs/go-to-market/QUOTE_TO_PROOF_PACKET.md`](go-to-market/QUOTE_TO_PROOF_PACKET.md#readiness-checklist) | Readiness checklist merged into quote-to-proof packet |
 | `docs/go-to-market/QUOTE_TO_PILOT_PACK.md` | [`docs/go-to-market/QUOTE_TO_PROOF_PACKET.md`](go-to-market/QUOTE_TO_PROOF_PACKET.md#pre-pilot-quote-pack) | Pre-pilot quote pack merged into quote-to-proof packet |
@@ -360,6 +360,7 @@ Human readers and agents should follow **canonical** paths below. This file is t
 | Former path | Canonical path | Notes |
 |-------------|----------------|-------|
 | `docs/runbooks/PILOT_RESCUE_PLAYBOOK.md` (body) | [`docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md`](runbooks/FIRST_PILOT_TROUBLESHOOTING.md) | Quick matrix + unique stall/AOAI/support-PII rows folded into first-pilot troubleshooting; filename kept as path-stable alias for bookmarks |
+| `docs/onboarding/EVALUATOR_WORKBOOK.md` (body) | [`docs/go-to-market/BUYER_ORIENTATION_ONE_SCREEN.md`](go-to-market/BUYER_ORIENTATION_ONE_SCREEN.md) | Pass/hold + stop rules folded into buyer orientation; filename kept as path-stable alias; in-app slug `evaluator-workbook` → `path-chooser` |
 
 ## 2026-07-22 runbook consolidation
 

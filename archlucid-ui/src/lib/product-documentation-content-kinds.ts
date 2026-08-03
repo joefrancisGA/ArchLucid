@@ -42,7 +42,6 @@ export const PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG: Readonly<
   "data-handling-tenant-isolation": "product-help",
   "developer-troubleshooting": "internal-runbook",
   "enterprise-onboarding": "product-help",
-  "evaluator-workbook": "product-help",
   "evidence-intake": "product-help",
   "evidence-only-review": "product-help",
   "evidence-trail": "product-help",

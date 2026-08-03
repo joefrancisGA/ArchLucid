@@ -80,7 +80,6 @@ const HELP_CENTER_TIER_BY_SLUG: Readonly<Record<string, HelpCenterTier>> = {
   "accelerator-chooser": "internal",
   "governance-api-contracts": "internal",
   "admin-diagnostics": "internal",
-  "evaluator-workbook": "internal",
   "pilot-feedback": "internal",
   "comparison-replay": "internal",
   "repeat-review-loop": "internal",

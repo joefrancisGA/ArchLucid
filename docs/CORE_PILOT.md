@@ -83,7 +83,7 @@ Compare, replay, portfolio graph, advanced policy packs, and ITSM or chat connec
 |------|-----|
 | End-to-end review lifecycle | [Complete review workflow](/help/first-pilot-path) |
 | Review templates | [Specialty walkthroughs](/help/specialty-walkthroughs) |
-| Step-by-step evaluator orientation | [Evaluator workbook](/help/evaluator-workbook) |
+| Step-by-step evaluator orientation | [Choose your next step](/help/path-chooser) |
 | First-session checklist in the product | [First review guide](/onboarding) |
 
 </details>

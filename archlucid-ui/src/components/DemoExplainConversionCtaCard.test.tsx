@@ -22,7 +22,7 @@ describe("DemoExplainConversionCtaCard", () => {
     );
     expect(screen.getByRole("link", { name: "See what you need first" })).toHaveAttribute(
       "href",
-      "/help/evaluator-workbook",
+      "/help/path-chooser",
     );
   });
 });

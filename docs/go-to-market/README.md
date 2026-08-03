@@ -8,7 +8,7 @@
 **Last reviewed:** 2026-07-25
 
 
-**Start here for buyers and procurement:** narrative index [`trust-center.md`](trust-center.md), consolidated assurance table [`trust-center.md`](trust-center.md) (mirrored in-product at **`/trust`**), sponsor story [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md), evaluator workbook [`../onboarding/EVALUATOR_WORKBOOK.md`](../onboarding/EVALUATOR_WORKBOOK.md).
+**Start here for buyers and procurement:** narrative index [`trust-center.md`](trust-center.md), consolidated assurance table [`trust-center.md`](trust-center.md) (mirrored in-product at **`/trust`**), sponsor story [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md), buyer orientation [`BUYER_ORIENTATION_ONE_SCREEN.md`](BUYER_ORIENTATION_ONE_SCREEN.md) (`EVALUATOR_WORKBOOK.md` alias).
 
 **Internal GTM ops / prompts (historical trackers, not evaluator collateral):** [`../archive/gtm-internal/README.md`](../archive/gtm-internal/README.md) — **`PMF_VALIDATION_TRACKER`**, **`OPENAI_UI_SCREENSHOT_ASSESSMENT_PROMPT`**, procurement dry-run artifacts.
 

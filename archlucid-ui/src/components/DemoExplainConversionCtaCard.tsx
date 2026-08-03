@@ -34,7 +34,7 @@ export function DemoExplainConversionCtaCard() {
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <InAppHelpLink
-              helpSlug="evaluator-workbook"
+              helpSlug="path-chooser"
               label="See what you need first"
               variant="text"
             />

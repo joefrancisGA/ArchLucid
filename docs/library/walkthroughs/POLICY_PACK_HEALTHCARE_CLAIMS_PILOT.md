@@ -277,5 +277,5 @@ ArchLucid helps teams produce **reviewable architecture manifests, findings, and
 - [`CORE_PILOT.md`](../../CORE_PILOT.md) — four-step Core Pilot spine
 - [`AZURE_SAAS_READINESS_REVIEW.md`](AZURE_SAAS_READINESS_REVIEW.md) · [`AI_GOVERNANCE_REVIEW.md`](AI_GOVERNANCE_REVIEW.md) — sibling accelerators
 - [`docs/samples/policy-packs/README.md`](../../samples/policy-packs/README.md) — sample pack JSON shapes
-- [`onboarding/EVALUATOR_WORKBOOK.md`](../../onboarding/EVALUATOR_WORKBOOK.md) — full evaluator depth
+- [`BUYER_ORIENTATION_ONE_SCREEN.md`](../../go-to-market/BUYER_ORIENTATION_ONE_SCREEN.md) — buyer pass/hold + next-step chooser
 - [`#buyer-job-packaging`](#buyer-job-packaging) · [`../../go-to-market/buyer-jobs/HEALTHCARE_CLAIMS_POLICY_REVIEW.md`](../../go-to-market/buyer-jobs/HEALTHCARE_CLAIMS_POLICY_REVIEW.md) (alias) — Specialty buyer-job path

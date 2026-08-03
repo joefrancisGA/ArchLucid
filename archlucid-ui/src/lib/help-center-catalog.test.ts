@@ -110,6 +110,8 @@ describe("help topic slug aliases", () => {
     expect(getProductDocumentationEntry("operator-auth-roles")?.slug).toBe("users-and-roles");
     expect(normalizeHelpTopicSlug("api-contracts")).toBe("governance-api-contracts");
     expect(getProductDocumentationEntry("api-contracts")?.title).toBe("API contracts (technical reference)");
+    expect(normalizeHelpTopicSlug("evaluator-workbook")).toBe("path-chooser");
+    expect(getProductDocumentationEntry("evaluator-workbook")?.slug).toBe("path-chooser");
   });
 });
 

@@ -34,11 +34,10 @@ START_HERE.md (you are here)
 │   ├─ runbooks/FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md (production-like sponsor handoff preflight)
 │   ├─ runbooks/FIRST_PILOT_TROUBLESHOOTING.md   (stuck mid-pilot — symptom tree + quick matrix)
 │   ├─ library/walkthroughs/README.md#buyer-jobs-specialty-index  (specialty buyer jobs + demo proof; buyer-jobs/README alias)
-│   ├─ go-to-market/BUYER_ORIENTATION_ONE_SCREEN.md  (Pilot vs Operate — one screen)
+│   ├─ go-to-market/BUYER_ORIENTATION_ONE_SCREEN.md  (Pilot vs Operate + pass/hold — one screen; evaluator-workbook alias)
 │   ├─ go-to-market/DIFFERENTIATION_PROOF_PACKET.md  (why not generic AI — evidence-linked)
 │   ├─ go-to-market/EXECUTIVE_SPONSOR_BRIEF.md  (sponsor story — after first finalize)
 │   ├─ library/walkthroughs/README.md            (accelerator pack index — optional depth, after first finalize)
-│   ├─ onboarding/EVALUATOR_WORKBOOK.md        (**compact + depth** — do not use as a second checklist)
 │   ├─ runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md   (post-finalize evidence folder)
 │   ├─ runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md  (printable evidence checklist)
 │   └─ library/PILOT_ROI_MODEL.md         (optional depth)
@@ -49,7 +48,7 @@ START_HERE.md (you are here)
 │   ├─ onboarding/day-one-developer.md         (week one after install)
 │   ├─ onboarding/day-one-sre.md               (canonical SRE onboarding)
 │   ├─ library/FIRST_AZURE_DEPLOYMENT.md       (platform Admin — first Azure deploy)
-│   ├─ onboarding/EVALUATOR_WORKBOOK.md        (first pilot / architect motion)
+│   ├─ go-to-market/BUYER_ORIENTATION_ONE_SCREEN.md  (buyer pass/hold + next-step chooser)
 │   ├─ architecture/README.md                  (poster + ownership; map after first **review**)
 │   ├─ PENDING_QUESTIONS.md                    (owner decisions + gates)
 │   ├─ library/CONTRIBUTOR_CODE_MAP.md         (1-page decision tree for where to change code)
@@ -66,7 +65,7 @@ START_HERE.md (you are here)
 
 **Deep lookup (tasks, not personas):** [`architecture/README.md`](architecture/README.md).
 
-**Do not read yet (depth / recovery only until first finalize):** [`onboarding/EVALUATOR_WORKBOOK.md`](onboarding/EVALUATOR_WORKBOOK.md) · [`architecture/README.md`](architecture/README.md) · [`library/LIVE_E2E_HAPPY_PATH.md`](library/LIVE_E2E_HAPPY_PATH.md) · [`library/operator-shell.md`](library/operator-shell.md) · V1.1 connector catalog · Operate governance depth.
+**Do not read yet (depth / recovery only until first finalize):** [`architecture/README.md`](architecture/README.md) · [`library/LIVE_E2E_HAPPY_PATH.md`](library/LIVE_E2E_HAPPY_PATH.md) · [`library/operator-shell.md`](library/operator-shell.md) · V1.1 connector catalog · Operate governance depth.
 
 **After first finalize:** [`library/REPEAT_REVIEW_LOOP.md`](library/REPEAT_REVIEW_LOOP.md) · [`go-to-market/DIFFERENTIATION_PROOF_PACKET.md`](go-to-market/DIFFERENTIATION_PROOF_PACKET.md).
 

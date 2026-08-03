@@ -2827,8 +2827,11 @@ export function stripSoc2SelfAssessmentContributorLeakage(markdown: string): str
 export function stripPathChooserContributorLeakage(markdown: string): string {
   return markdown
     .replace(/> \*\*Start operators here:\*\*[^\n]*\n?/gi, "")
+    .replace(/\*\*Start operators here:\*\*[^\n]*\n?/gi, "")
     .replace(/`?FIRST_PILOT_OPERATOR_PATH\.md`?/gi, "[Complete review workflow](/help/first-pilot-path)")
     .replace(/FIRST_PILOT_OPERATOR_PATH\.md/gi, "/help/first-pilot-path")
+    .replace(/`?FIRST_EVALUATOR_DECISION\.md`?/gi, "[Your first architecture review](/help/first-architecture-review)")
+    .replace(/FIRST_EVALUATOR_DECISION\.md/gi, "/help/first-architecture-review")
     .replace(/`?CORE_PILOT\.md`?/gi, "[Your first architecture review](/help/first-architecture-review)")
     .replace(/CORE_PILOT\.md/gi, "/help/first-architecture-review")
     .replace(/`?EXECUTIVE_SPONSOR_BRIEF\.md`?/gi, "[Executive summary](/help/executive-summary)")

@@ -228,12 +228,6 @@
     "url": "/help/enterprise-onboarding"
   },
   {
-    "title": "Evaluator workbook",
-    "summary": "Compact evaluator orientation \u2014 prerequisites, session flow, and pass/hold rules before deep configuration.",
-    "category": "Go-to-Market",
-    "url": "/help/evaluator-workbook"
-  },
-  {
     "title": "Evidence-only review guide",
     "summary": "Fast path when connector access is not approved yet \u2014 upload briefs, diagrams, or exports and finalize without cloud inventory.",
     "category": "Go-to-Market",

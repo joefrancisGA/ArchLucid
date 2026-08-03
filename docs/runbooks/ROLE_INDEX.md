@@ -26,7 +26,7 @@
 | Integrator / automation | [`API_CONTRACTS.md`](../library/API_CONTRACTS.md) · [`LIVE_E2E_HAPPY_PATH.md`](../library/LIVE_E2E_HAPPY_PATH.md) · [`CLI_USAGE.md`](../library/CLI_USAGE.md) when needed |
 | Release owner | `Invoke-FirstPilotStrictPath.ps1` · `Emit-ReleaseReadinessEvidence.ps1 -StrictRc` · `rc-go-no-go-verdict.json` · [`V1_RELEASE_CHECKLIST.md`](../library/V1_RELEASE_CHECKLIST.md) |
 
-**Depth only (not initial path):** [`onboarding/EVALUATOR_WORKBOOK.md`](../onboarding/EVALUATOR_WORKBOOK.md) · [`architecture/README.md`](../architecture/README.md) · [`START_HERE.md`](../START_HERE.md) (full repo hub).
+**Depth only (not initial path):** [`BUYER_ORIENTATION_ONE_SCREEN.md`](../go-to-market/BUYER_ORIENTATION_ONE_SCREEN.md) · [`architecture/README.md`](../architecture/README.md) · [`START_HERE.md`](../START_HERE.md) (full repo hub).
 
 ---
 

@@ -805,7 +805,7 @@ describe("help-markdown-presentation", () => {
 
   it("strips path-chooser GTM/runbook .md and artifacts leakage (TB-1712)", () => {
     const source = [
-      "**Start operators here:** [`FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md).",
+      "**Start operators here:** [`FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) · [`FIRST_EVALUATOR_DECISION.md`](../runbooks/FIRST_EVALUATOR_DECISION.md).",
       "",
       "See [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md) and `artifacts/first-pilot-proof/`.",
       "",
@@ -815,10 +815,11 @@ describe("help-markdown-presentation", () => {
     const prepared = stripPathChooserContributorLeakage(source);
 
     expect(prepared).not.toContain("FIRST_PILOT_OPERATOR_PATH");
+    expect(prepared).not.toContain("FIRST_EVALUATOR_DECISION");
+    expect(prepared).not.toContain("Start operators here");
     expect(prepared).not.toContain("EXECUTIVE_SPONSOR_BRIEF");
     expect(prepared).not.toContain("artifacts/");
     expect(prepared).not.toContain("V1_DEFERRED");
-    expect(prepared).toContain("/help/first-pilot-path");
     expect(prepared).toContain("/help/executive-summary");
   });
 
