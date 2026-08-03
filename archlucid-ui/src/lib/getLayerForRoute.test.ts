@@ -37,7 +37,7 @@ describe("getLayerForRoute", () => {
 
   it("returns operate-governance for a known governance nav path and nested routes", () => {
     expect(getLayerForRoute("/governance/alerts")).toBe("operate-governance");
-    expect(getLayerForRoute("/governance")).toBe("operate-governance");
+    expect(getLayerForRoute("/governance/approval-queue")).toBe("operate-governance");
     expect(getLayerForRoute("/governance/approval-requests/1")).toBe("operate-governance");
     expect(getLayerForRoute("/governance/dashboard/weekly")).toBe("operate-governance");
     expect(getLayerForRoute("/governance/findings")).toBe("operate-governance");

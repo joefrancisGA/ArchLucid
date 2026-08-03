@@ -44,7 +44,8 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
           defaultVisibleInCollapsedSidebar: true,
         },
         {
-          href: "/reviews?projectId=default",
+          // String literal required: scripts/ci/assert_route_tier_policy_nav.py parses href:"..." only.
+          href: "/architecture/reviews?projectId=default",
           label: OPERATOR_NAV_LINK_LABELS.reviewPackage,
           title: this.shortcutTitle("Browse architecture reviews", "alt+r"),
           keyShortcut: "alt+r",

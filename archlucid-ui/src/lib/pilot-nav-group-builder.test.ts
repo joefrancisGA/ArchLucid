@@ -88,12 +88,12 @@ describe("PilotNavGroupBuilder", () => {
 
   it("lists Architectures and Reviews as peer object nav destinations", () => {
     const group = new PilotNavGroupBuilder().build();
-    const architecturesLink = group.links.find((link) => link.href === "/architectures");
-    const reviewsListLink = group.links.find((link) => link.href === "/reviews?projectId=default");
+    const architecturesLink = group.links.find((link) => link.href === "/architecture/architectures");
+    const reviewsListLink = group.links.find((link) => link.href === "/architecture/reviews?projectId=default");
 
     expect(architecturesLink?.label).toBe(ARCHITECTURE_DRAFTS_LIST_LABEL);
     expect(reviewsListLink?.label).toBe("Reviews");
-    expect(group.links.some((link) => link.href === "/architectures/new")).toBe(false);
+    expect(group.links.some((link) => link.href === "/architecture/architectures/new")).toBe(false);
     expect(group.links.some((link) => link.href === "/reviews/new")).toBe(false);
   });
 });

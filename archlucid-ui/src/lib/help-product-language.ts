@@ -39,8 +39,8 @@ const HELP_PRODUCT_LANGUAGE_REPLACEMENTS: ReadonlyArray<readonly [RegExp, string
 export function rewriteLegacyHelpOperatorRoutes(markdown: string): string {
   let result = markdown;
 
-  result = result.replace(/\/runs\//g, "/reviews/");
-  result = result.replace(/\/runs\b/g, "/reviews");
+  result = result.replace(/\/runs\//g, "/architecture/reviews/");
+  result = result.replace(/\/runs\b/g, "/architecture/reviews");
   result = result.replace(/\/reviews\/([^)/\s]+)\/manifest\b/g, "/reviews/$1/signed-record");
   result = result.replace(/\/manifests\//g, "/signed-records/");
 

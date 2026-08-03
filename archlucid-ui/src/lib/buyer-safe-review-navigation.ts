@@ -59,7 +59,7 @@ export function isBuyerSafePrimaryReviewNavigationPreferred(runId: string): bool
 }
 
 /**
- * Primary authenticated next step on the reviews table: open the review workspace on `/reviews/...`.
+ * Primary authenticated next step on the reviews table: open the review workspace on `/architecture/reviews/...`.
  */
 export function getBuyerSafeReviewsTableLink(runId: string): PrimaryReviewExploreLink {
   const id = canonicalizeDemoRunId(runId.trim());
@@ -133,5 +133,5 @@ export function getBuyerSafeSignedManifestTableLink(runId: string): PrimaryRevie
 }
 
 export function getCanonicalReviewWorkspaceHref(runId: string): string {
-  return `/reviews/${encodeURIComponent(canonicalizeDemoRunId(runId))}`;
+  return `/architecture/reviews/${encodeURIComponent(canonicalizeDemoRunId(runId))}`;
 }

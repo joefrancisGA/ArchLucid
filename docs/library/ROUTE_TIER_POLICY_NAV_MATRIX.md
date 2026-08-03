@@ -168,7 +168,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Authority/RunComparisonController.cs` | `/v1/architecture` | standard | ReadAuthority | /insights/compare-two-reviews |  |
 | `Authority/RunCoverageController.cs` | `/v1/runs` | none | ReadAuthority |  |  |
 | `Authority/RunQueryController.cs` | `/v1/architecture` | none | ReadAuthority |  |  |
-| `Authority/RunsController.cs` | `/v1/architecture` | none | ReadAuthority | /reviews?projectId=default |  |
+| `Authority/RunsController.cs` | `/v1/architecture` | none | ReadAuthority | /architecture/reviews?projectId=default |  |
 | `Authority/RunsExportController.cs` | `/v1/runs` | standard | ReadAuthority |  |  |
 | `Authority/TechnologyLedgerController.cs` | `/v1/runs` | none | ReadAuthority |  |  |
 | `Authority/TemplatesController.cs` | `/v1/architecture` | none | ReadAuthority |  |  |
@@ -223,7 +223,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Notifications/ExecDigestUnsubscribeController.cs` | `/v1/notifications/exec-digest` | none | AllowAnonymous |  | signed_token_unsubscribe |
 | `Operator/OperatorSavedViewsController.cs` | `/v1/operator/saved-views` | standard | AuthenticatedUserOnly |  |  |
 | `Pilots/PilotsBoardPackController.cs` | `/v1/pilots` | standard | ExecuteAuthority | /insights/architecture-scorecard |  |
-| `Pilots/PilotsController.cs` | `/v1/pilots` | none | ReadAuthority | /reviews?projectId=default |  |
+| `Pilots/PilotsController.cs` | `/v1/pilots` | none | ReadAuthority | /architecture/reviews?projectId=default |  |
 | `Planning/AskController.cs` | `/v1/ask` | standard | ReadAuthority | /insights/ask-review-questions |  |
 | `Planning/ComparisonController.cs` | `/v1/compare` | standard | ReadAuthority | /insights/compare-two-reviews |  |
 | `Planning/ComparisonsController.cs` | `/v1/architecture` | standard | ReadAuthority | /replay |  |

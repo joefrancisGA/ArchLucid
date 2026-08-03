@@ -207,6 +207,9 @@ const nextConfig: NextConfig = {
       // Public /architecture/reviews/* URLs map to on-disk app/(operator)/reviews pages.
       { source: "/architecture/reviews", destination: "/reviews" },
       { source: "/architecture/reviews/:path*", destination: "/reviews/:path*" },
+      // Public /architecture/architectures/* URLs map to on-disk app/(operator)/architectures pages.
+      { source: "/architecture/architectures", destination: "/architectures" },
+      { source: "/architecture/architectures/:path*", destination: "/architectures/:path*" },
     ];
   },
 };

@@ -109,15 +109,15 @@ describe("shouldShowBreadcrumbTrail", () => {
       ),
     ).toBe(false);
     expect(
-      shouldShowBreadcrumbTrail("/governance", trail("/governance", { queryRunId: SHOWCASE_STATIC_DEMO_RUN_ID }), {
+      shouldShowBreadcrumbTrail("/governance/approval-queue", trail("/governance/approval-queue", { queryRunId: SHOWCASE_STATIC_DEMO_RUN_ID }), {
         queryRunId: SHOWCASE_STATIC_DEMO_RUN_ID,
-        buyerGoldenJourneyNav: resolveBuyerGoldenJourneyNav("/governance", {
+        buyerGoldenJourneyNav: resolveBuyerGoldenJourneyNav("/governance/approval-queue", {
           searchRunId: SHOWCASE_STATIC_DEMO_RUN_ID,
         }),
       }),
     ).toBe(false);
     expect(
-      shouldShowBreadcrumbTrail("/governance", trail("/governance", { queryRunId: SHOWCASE_STATIC_DEMO_RUN_ID }), {
+      shouldShowBreadcrumbTrail("/governance/approval-queue", trail("/governance/approval-queue", { queryRunId: SHOWCASE_STATIC_DEMO_RUN_ID }), {
         queryRunId: SHOWCASE_STATIC_DEMO_RUN_ID,
         buyerGoldenJourneyNav: null,
       }),
