@@ -1,4 +1,3 @@
-using ArchLucid.Core.Diagnostics;
 using ArchLucid.Persistence.Coordination.Caching;
 
 using Microsoft.Extensions.Caching.Hybrid;
@@ -63,9 +62,9 @@ public sealed class HybridHotPathReadCache(
 
         if (slot.Value is null)
         {
+            // Omit cache key from logs — keys can embed tenant/role identifiers (cs/exposure-of-sensitive-information).
             _logger.LogWarning(
-                "HotPath hybrid cache entry for key {CacheKey} is invalid (present flag without value); refreshing.",
-                LogSanitizer.Sanitize(key));
+                "HotPath hybrid cache entry is invalid (present flag without value); refreshing.");
 
             await _hybridCache.RemoveAsync(key, ct).ConfigureAwait(false);
 
