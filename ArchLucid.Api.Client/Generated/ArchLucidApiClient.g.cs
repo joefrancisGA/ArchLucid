@@ -131809,6 +131809,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("architectureConcerns")]
         public System.Collections.Generic.ICollection<string>? ArchitectureConcerns { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("botChallengeToken")]
+        public string? BotChallengeToken { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("cloudProvider")]
         public string? CloudProvider { get; set; } = default!;
 

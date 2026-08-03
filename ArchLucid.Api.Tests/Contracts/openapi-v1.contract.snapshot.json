@@ -3784,6 +3784,12 @@
             },
             "type": "array"
           },
+          "botChallengeToken": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "cloudProvider": {
             "type": [
               "null",
