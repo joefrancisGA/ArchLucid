@@ -64,6 +64,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/governance/advisory-scans",
       "/value-report",
       "/governance/alert-rules",
+      "/help/getting-started",
       "/integrations/cloud-connections",
       "/settings/cloud-connections",
     ]);
@@ -122,6 +123,11 @@ describe("contextual-help-registry (TB-733)", () => {
     expect(contextualHelpForPathname("/governance/alert-rules?tab=routing")?.whatToDoNext).toContain(
       "Notifications",
     );
+  });
+
+  it("resolves getting-started Category-1 help (HGX)", () => {
+    expect(contextualHelpForPathname("/help/getting-started")?.whatIsThisPage).toContain("Getting started guide");
+    expect(contextualHelpForPathname("/help/getting-started")?.whatToDoNext).toContain("Start a review");
   });
 
   it("returns null for routes not yet migrated", () => {

@@ -5,10 +5,20 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/help/getting-started",
+}));
+
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+}));
+
 import { HelpGettingStartedGuideView } from "@/app/(operator)/help/_sections/HelpGettingStartedGuideView";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
 import {
+  GETTING_STARTED_HELP_PATH,
   GETTING_STARTED_HELP_QUICK_START_TITLE,
+  GETTING_STARTED_HELP_SOURCES,
   GETTING_STARTED_HELP_SUBTITLE,
 } from "@/lib/getting-started-help-guide-content";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";

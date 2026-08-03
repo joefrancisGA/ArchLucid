@@ -93,7 +93,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | SBE | `/administration/settings/billing` | 0.25% | 0 | 0 | 25 | Settings | None |
 | GOR | `/governance/alert-rules?tab=routing` | 0.22% | 0 | 0 | 22 | Tab surface | Alert rules Notifications/routing tab (Tab surface) - AlertRoutingContent with hub PageContextualHelpButton (topic map alerts), workspace Sources + claim-discipline orientation strip when ?tab=routing. Delivery destinations only — not diligence Sources. Sibling SAX/GOA = hub; Conditions/Advanced/Test tabs are separate rows. Does not imply CPA SOC 2 or third-party pen-test publication. |
 | GRX | `/governance/recurrence-schedules` | 0.2% | 0 | 0 | 20 | Alerts/gov | None |
-| HGX | `/help/getting-started` | 0.2% | 0 | 0 | 20 | Help topic | None |
+| HGX | `/help/getting-started` | 0.2% | 0 | 0 | 20 | Help topic | Getting started help (Help topic) - HelpGettingStartedGuideView with PageContextualHelpButton (topic map getting-started; Category-1 registry), workspace Sources + claim-discipline orientation, quick-start CTAs, workflow stepper, vocabulary. Orientation guide — not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. |
 | LOG | `/login` | 0.2% | 0 | 0 | 20 | Auth | None |
 | PXX | `/insights/patterns` | 0.2% | 0 | 0 | 20 | Marketing | None |
 | SAE | `/administration/settings/api-keys` | 0.2% | 0 | 0 | 20 | Settings | None |
