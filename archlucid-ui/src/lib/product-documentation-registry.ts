@@ -50,6 +50,8 @@ export const HELP_TOPIC_SLUG_ALIASES: Readonly<Record<string, string>> = {
   "api-contracts": "governance-api-contracts",
   /** Evaluator workbook body folded into buyer orientation / path-chooser (2026-08-03). */
   "evaluator-workbook": "path-chooser",
+  /** First-hour / first-review guide folded into Core Pilot (2026-08-03; TB-1374). */
+  "first-hour-operator-path": "first-architecture-review",
 };
 
 export function normalizeHelpTopicSlug(slug: string): string {
@@ -69,7 +71,8 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     summary:
       "Admin/SE printable Tier-1 evidence checklist with specialty CTAs to Your first architecture review, Start architecture review, and audit. Customer architects should use those buyer paths instead.",
     audience: "operator",
-    sourcePaths: ["docs/runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md"],
+    sourcePaths: ["docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md"],
+    sectionAnchors: ["printable-first-run-evidence-checklist"],
   },
   {
     slug: "pilot-nav-profile",
@@ -79,15 +82,6 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/WORKSPACE_NAVIGATION_GUIDE.md"],
     sectionAnchors: ["what-you-see", "main-workflow"],
-  },
-  {
-    slug: "first-hour-operator-path",
-    title: "First-review guide",
-    summary:
-      "Complete one review before opening deeper governance, reporting, or integration workflows.",
-    audience: "buyer",
-    sourcePaths: ["docs/library/FIRST_HOUR_OPERATOR_PATH.md"],
-    pdfStatus: "public",
   },
   {
     slug: "review-guide",

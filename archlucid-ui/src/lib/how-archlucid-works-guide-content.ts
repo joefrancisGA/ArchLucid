@@ -72,7 +72,7 @@ const sampleReviewHref = `/architecture/reviews/${encodeURIComponent(SHOWCASE_ST
 export const HOW_ARCHLUCID_WORKS_PRIMARY_ACTIONS = {
   startReview: { href: "/architecture/reviews/new", label: BUYER_START_ARCHITECTURE_REVIEW_CTA },
   sampleReview: { href: sampleReviewHref, label: "Open completed sample" },
-  firstReviewGuide: { href: inAppHelpHref("first-hour-operator-path"), label: "View first review guide" },
+  firstReviewGuide: { href: inAppHelpHref("first-architecture-review"), label: "View first review guide" },
 } as const;
 
 export const HOW_ARCHLUCID_WORKS_DATA_HANDLING_HREF = inAppHelpHref("data-handling");

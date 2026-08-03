@@ -1,4 +1,4 @@
-> **Scope:** Internal SE/ops runbook — platform readiness, pilot proof collection, phase-level recovery, and time-boxed first value in 20 minutes. **Not the default customer help path.** Customer architects: use [Your first architecture review](/help/core-pilot) or [Complete review workflow](/help/first-pilot-path).
+> **Scope:** Internal SE/ops runbook — platform readiness, printable first-run evidence checklist, pilot proof collection, phase-level recovery, and time-boxed first value in 20 minutes. Absorbs the former `FIRST_RUN_EVIDENCE_CHECKLIST.md` body. **Not the default customer help path.** Customer architects: use [Your first architecture review](/help/core-pilot) or [Complete review workflow](/help/first-pilot-path).
 
 # First-pilot operator path (internal runbook)
 
@@ -6,9 +6,9 @@
 
 **Persona map (operator / platform / release owner):** [`ROLE_INDEX.md`](ROLE_INDEX.md).
 
-**Last reviewed:** 2026-07-21
+**Last reviewed:** 2026-08-03
 
-**Canonical seven-step minimum path:** [`../library/CANONICAL_FIRST_RUN_PATH.md`](../library/CANONICAL_FIRST_RUN_PATH.md) (command wrapper: `scripts/Run-CanonicalFirstPilotPath.ps1`). **Canonical four-step narrative:** [`CORE_PILOT.md`](../CORE_PILOT.md). **This file is the canonical operational checklist.** **Before you start (Azure + config):** [`PILOT_PREREQUISITES.md`](PILOT_PREREQUISITES.md). **Production-like preflight:** [`FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md`](FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md). **Time-boxed evaluators:** § **First value in 20 minutes** below. **In-product rail:** operator **Home** → **First-pilot path (about 20 minutes)** strip. **Starter pack chooser:** [`templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md`](../../templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md). **Golden walkthrough:** [`DEMO_QUICKSTART.md#golden-accelerator-walkthrough-regulated-saas`](../go-to-market/DEMO_QUICKSTART.md#golden-accelerator-walkthrough-regulated-saas) (`GOLDEN_ACCELERATOR_WALKTHROUGH.md` alias). **Evidence checklist (printable):** [`FIRST_RUN_EVIDENCE_CHECKLIST.md`](FIRST_RUN_EVIDENCE_CHECKLIST.md). **Stuck mid-pilot:** [`FIRST_PILOT_TROUBLESHOOTING.md`](FIRST_PILOT_TROUBLESHOOTING.md) · **Support triage:** [`FIRST_PILOT_SUPPORT_TRIAGE.md`](FIRST_PILOT_SUPPORT_TRIAGE.md).
+**Canonical seven-step minimum path:** [`../library/CANONICAL_FIRST_RUN_PATH.md`](../library/CANONICAL_FIRST_RUN_PATH.md) (command wrapper: `scripts/Run-CanonicalFirstPilotPath.ps1`). **Canonical four-step narrative:** [`CORE_PILOT.md`](../CORE_PILOT.md). **This file is the canonical operational checklist.** **Before you start (Azure + config):** [`PILOT_PREREQUISITES.md`](PILOT_PREREQUISITES.md). **Production-like preflight:** [`FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md`](FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md). **Time-boxed evaluators:** § **First value in 20 minutes** below. **In-product rail:** operator **Home** → **First-pilot path (about 20 minutes)** strip. **Starter pack chooser:** [`templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md`](../../templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md). **Golden walkthrough:** [`DEMO_QUICKSTART.md#golden-accelerator-walkthrough-regulated-saas`](../go-to-market/DEMO_QUICKSTART.md#golden-accelerator-walkthrough-regulated-saas) (`GOLDEN_ACCELERATOR_WALKTHROUGH.md` alias). **Evidence checklist (printable):** [#printable-first-run-evidence-checklist](#printable-first-run-evidence-checklist) (`FIRST_RUN_EVIDENCE_CHECKLIST.md` alias). **Stuck mid-pilot:** [`FIRST_PILOT_TROUBLESHOOTING.md`](FIRST_PILOT_TROUBLESHOOTING.md) · **Support triage:** [`FIRST_PILOT_SUPPORT_TRIAGE.md`](FIRST_PILOT_SUPPORT_TRIAGE.md).
 
 
 ## Inputs, outputs, and stop conditions
@@ -55,6 +55,51 @@ Use this small vocabulary across cockpit rows, proof summaries, and sponsor hand
 ## Grounding rule
 
 Every step below maps to a **shipped** API, architect workspace route, or CLI verb. Optional accelerators use only V1 policy packs and ingest paths — **Jira**, **ServiceNow**, **Confluence**, **Slack**, **Teams**, and broad outbound webhooks are **V1.1** and appear only under *Optional later*.
+
+
+## Printable first-run evidence checklist {#printable-first-run-evidence-checklist}
+
+Former standalone body: `docs/runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md` → this section (filename kept as a path-stable alias). Use before a sponsor demo or design-partner kickoff when you want a **printable table** under two pages; Phases A–D below are the same work with failure recovery.
+
+**Audience:** Sales engineers and platform admins (Azure extractor Tier 1, no vendor-held cloud credentials). **In-app:** Admin-only `/help/first-review`. Customer architects: [Your first architecture review](/help/core-pilot) or [Complete review workflow](/help/first-pilot-path).
+
+| Step | Action | Success signal | Deeper doc |
+|------|--------|----------------|------------|
+| 1 | Configure SQL connection string and auth mode for your environment (`ArchLucidAuth:Mode`, Entra/OIDC/SAML, or dev bypass locally only). | API starts; `GET /health/ready` returns **Healthy** (or expected degraded entries are understood). | [`CONFIGURATION_REFERENCE.md`](../library/CONFIGURATION_REFERENCE.md), [`SECURITY.md`](../library/contributor-reference/SECURITY.md) |
+| 2 | Start API + worker (or combined host) with correct `Hosting:Role`. | `/version` returns build identity; logs show migrations applied. | [`PILOT_GUIDE.md`](../library/customer-facing/PILOT_GUIDE.md) |
+| 3 | Run **Azure extractor Tier 1** in the customer subscription (PowerShell, read-only, no ArchLucid secrets in customer tenant). | Script completes; ZIP contains `manifest.json` and cost/inventory payloads. | [`AZURE_EXTRACTOR.md`](../library/AZURE_EXTRACTOR.md) |
+| 4 | Sign in to architect workspace; open **New architecture review** (`/reviews/new`; legacy `/runs/new`). | Wizard loads; auth succeeds (no endless 401/403). | [`CANONICAL_FIRST_RUN_PATH.md#first-architecture-review-walkthrough`](../library/CANONICAL_FIRST_RUN_PATH.md#first-architecture-review-walkthrough) |
+| 5 | Create architecture request and note **run id** from success path or review list. | Review appears in **Reviews** with status **Tasks generated** or later. | [`WORKSPACE_NAVIGATION_GUIDE.md`](../library/customer-facing/WORKSPACE_NAVIGATION_GUIDE.md) |
+| 6 | **Upload extractor ZIP** to the review (`POST /v1/azure-extractor/upload` or UI equivalent). | Upload returns 200; audit/event log shows ingest; evidence attached to run. | [`AZURE_EXTRACTOR.md`](../library/AZURE_EXTRACTOR.md) § ingest |
+| 7 | **Execute** agents on the review. | Review reaches **Ready to finalize** (or explicit failure with `X-Correlation-ID`). | [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md) |
+| 8 | **Finalize** the architecture package (signed review record). | Signed review record visible; artifacts list non-empty. | [`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.1 |
+| 9 | Inspect **artifacts**, findings, and explanation aggregate. | Sponsor-facing summary loads; ROI/savings labels show basis text when present. | [`CANONICAL_FIRST_RUN_PATH.md#first-architecture-review-walkthrough`](../library/CANONICAL_FIRST_RUN_PATH.md#first-architecture-review-walkthrough) |
+| 10 | Export **sponsor packet** (markdown/DOCX/PDF as configured). | File downloads; no placeholder-only demo unless intentionally using static demo run. | [`PILOT_GUIDE.md`](../library/customer-facing/PILOT_GUIDE.md) |
+| 11 | Capture **`X-Correlation-ID`** (and run id) for any failed step before opening support. | IDs recorded in ticket/runbook notes. | [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md) |
+
+**Out of scope for V1 first-run (do not block pilot):** Jira, ServiceNow, Confluence, Slack, Teams first-party connectors (V1.1); live Stripe checkout or Marketplace drawdown (owner-gated); MCP retrieval tools (later).
+
+
+## Optional Tier 2 (hosted extractor WIF) {#optional-tier-2-hosted-extractor-wif}
+
+When ArchLucid hosts extraction against customer subscriptions via workload identity federation, run customer templates **once per subscription** before Tier 2 pull:
+
+- [`deploy/customer-templates/README.md`](../../deploy/customer-templates/README.md)
+- Validate locally: `python scripts/ci/validate_customer_wif_templates.py`
+
+
+## Repeat review (run 2+) {#repeat-review-run-2}
+
+After a second finalized architecture package, capture comparison-enriched stickiness proof:
+
+```powershell
+.\scripts\collect-first-pilot-proof.ps1 `
+  -RunId '<second-finalized-run-id>' `
+  -RunNumber 2 `
+  -CompareBaseRunId '<first-finalized-run-id>'
+```
+
+See [`docs/library/REPEAT_REVIEW_LOOP.md`](../library/REPEAT_REVIEW_LOOP.md) for the full second-review checklist.
 
 
 ## First value in 20 minutes (time-boxed) {#first-value-in-20-minutes}

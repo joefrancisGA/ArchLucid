@@ -1,8 +1,11 @@
 import { FIRST_ARCHITECTURE_REVIEW_HELP_PATH } from "@/lib/first-architecture-review-help-route";
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 
-/** Repo-relative path for the printable first-run evidence checklist (Tier 1 #3 alignment source). */
-export const FIRST_RUN_EVIDENCE_CHECKLIST_DOC_PATH = "docs/runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md";
+/**
+ * Repo-relative path for the printable first-run evidence checklist canon
+ * (`FIRST_RUN_EVIDENCE_CHECKLIST.md` remains a path-stable alias).
+ */
+export const FIRST_RUN_EVIDENCE_CHECKLIST_DOC_PATH = "docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md";
 
 /** Admin-only SE/ops printable checklist (`contentKind: internal-runbook`). */
 export const FIRST_REVIEW_90MIN_HELP_HREF = "/help/first-review";

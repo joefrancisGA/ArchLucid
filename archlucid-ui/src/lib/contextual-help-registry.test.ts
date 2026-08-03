@@ -63,6 +63,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/planning",
       "/governance/advisory-scans",
       "/value-report",
+      "/governance/alert-rules",
       "/integrations/cloud-connections",
       "/settings/cloud-connections",
     ]);
@@ -113,6 +114,13 @@ describe("contextual-help-registry (TB-733)", () => {
     );
     expect(contextualHelpForPathname("/architecture/reviews/demo-run/provenance")?.whatToDoNext).toContain(
       "Evidence trail",
+    );
+  });
+
+  it("resolves alert-rules Category-1 help (ALE hub)", () => {
+    expect(contextualHelpForPathname("/governance/alert-rules")?.whatIsThisPage).toContain("notifications");
+    expect(contextualHelpForPathname("/governance/alert-rules?tab=routing")?.whatToDoNext).toContain(
+      "Notifications",
     );
   });
 

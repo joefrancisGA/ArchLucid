@@ -26,6 +26,7 @@ import {
 import { governanceAlertRulesTabHref } from "@/lib/governance-route-paths";
 
 import { AlertRulesHubRefreshProvider, useAlertRulesHubRefresh } from "@/lib/alerts-hub-refresh-context";
+import { AlertRoutingEvidenceOrientationStrip } from "./_sections/AlertRoutingEvidenceOrientationStrip";
 import { AlertRulesPageHeader } from "./AlertRulesPageHeader";
 
 const TAB_PARAM = "tab";
@@ -154,6 +155,7 @@ export function AlertRulesHubClient() {
           aria-labelledby={`alert-rules-hub-tab-${activeTab}`}
           data-testid="alert-rules-hub-panel"
         >
+          {activeTab === "routing" ? <AlertRoutingEvidenceOrientationStrip /> : null}
           {activeTab === "rules" ? <AlertRulesContent /> : null}
           {activeTab === "routing" ? <AlertRoutingContent /> : null}
           {activeTab === "composite" ? <CompositeAlertRulesContent /> : null}

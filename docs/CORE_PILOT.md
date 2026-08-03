@@ -1,10 +1,12 @@
-> **Scope:** First architecture review — shortest path from starting a new review to a finalized architecture package with findings, evidence, and sponsor exports.
+> **Scope:** First architecture review — shortest path from starting a new review to a finalized architecture package with findings, evidence, and sponsor exports. Absorbs the former first-hour / first-review guide body (`FIRST_HOUR_OPERATOR_PATH.md`).
 
 # Your first architecture review
 
 Use this guide with the [Pilot guide](/help/pilot-guide) to prepare for a pilot, interpret outputs, and get support contacts.
 
 The home page shows your next recommended action after each review step.
+
+For your first session, focus on completing **one** architecture review. Cloud connections, governance workflows, integrations, and reporting can wait until that review is finalized.
 
 ## First review path
 
@@ -49,6 +51,30 @@ Recommended when connector access has not yet been approved, or when your first 
 | Compare, replay, and portfolio graph at scale | Not required to prove first review value |
 | Advanced policy packs | Add when governance templates are in pilot scope |
 | ITSM and chat connectors | Export handoff covers first value until workflow automation is needed |
+| Cloud connections | Optional unless the first review needs live inventory |
+| Governance workflows | Wait until an architecture review exists |
+| Reporting depth | More useful after one or more reviews are finalized |
+
+## What good looks like {#what-good-looks-like}
+
+Former first-hour guide success signals for a first session:
+
+- The architecture review has clear findings.
+- Important findings trace to evidence.
+- Missing evidence is identified instead of guessed.
+- Decisions are recorded when your workflow requires them.
+- Risks or exceptions are created only when needed.
+- The signed review record is understandable.
+- The proof packet can be shared without embarrassment.
+
+## Recommended first session {#recommended-first-session}
+
+- Start with one real architecture artifact or open the sample review.
+- Review the top findings.
+- Confirm or add supporting evidence.
+- Record at least one decision when the product prompts for it.
+- Finalize the architecture package.
+- Open the generated artifacts and sponsor exports.
 
 ## Ready to begin?
 

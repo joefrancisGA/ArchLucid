@@ -41,7 +41,7 @@ ArchLucid ingests architecture evidence, evaluates it against your standards, an
 |------|----------------|
 | Start a review | `/reviews/new` |
 | Open a sample package | `/reviews/claims-intake-modernization` |
-| First-review walkthrough | `/help/first-hour-operator-path` |
+| First-review walkthrough | `/help/first-architecture-review` |
 | Cloud evidence (optional) | `/integrations/cloud-connections` |
 | Workspace scope | **[WORKSPACE_SCOPE_GUIDE.md](WORKSPACE_SCOPE_GUIDE.md)** |
 

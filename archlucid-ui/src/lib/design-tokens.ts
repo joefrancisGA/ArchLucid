@@ -110,6 +110,20 @@ export const OPERATOR_SHELL_SIDEBAR_WIDTH_CLASS = "w-[15rem]";
 /** Horizontal padding inside the sidebar column — matches top-bar brand rail at `lg`. */
 export const OPERATOR_SHELL_SIDEBAR_PADDING_CLASS = "px-3 py-4";
 
+/**
+ * Horizontal padding for main content and chrome aligned to that rail.
+ * 16px at all breakpoints — tighter to the sidebar than a former `lg:px-6` gutter.
+ */
+export const OPERATOR_SHELL_CONTENT_PADDING_X_CLASS = "px-4";
+
+/** Main column padding: shared X + compact vertical (extra top/bottom at lg). */
+export const OPERATOR_SHELL_MAIN_PADDING_CLASS = "px-4 py-4 lg:py-6";
+
+/**
+ * Sticky wizard footers that bleed to the shell content edge (negate {@link OPERATOR_SHELL_CONTENT_PADDING_X_CLASS}).
+ */
+export const OPERATOR_SHELL_CONTENT_BLEED_X_CLASS = "-mx-4 px-4";
+
 /** Scroll offset for in-page anchors below the sticky operator header stack. */
 export const OPERATOR_SHELL_SCROLL_OFFSET_CLASS = "scroll-mt-[var(--app-shell-sticky,6rem)]";
 

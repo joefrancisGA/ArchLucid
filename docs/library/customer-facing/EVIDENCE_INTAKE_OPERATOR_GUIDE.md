@@ -50,4 +50,4 @@ If something is missing, add evidence from the architecture package **Evidence**
 - [Review guide](/help/review-guide) — step-by-step wizard field reference.
 - [Cloud connections](/help/cloud-connections) — connect Azure, AWS, or GCP for inventory evidence.
 - [Architecture packages](/help/review-packages) — browse, inspect, and export completed packages.
-- [First-review guide](/help/first-hour-operator-path) — onboarding narrative for first-time architects.
+- [Your first architecture review](/help/first-architecture-review) — onboarding narrative for first-time architects.

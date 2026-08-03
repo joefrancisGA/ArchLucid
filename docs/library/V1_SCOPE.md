@@ -31,7 +31,7 @@ This scope document lists in-scope capabilities, explicit out-of-scope items, th
 - States **what is out of V1** (deferred, optional, or non-goals).
 - Defines the **core operator happy path** and **minimum release checks** aligned with existing scripts and guides.
 
-For deeper flow detail, use **[First-run evidence checklist](../runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md)**, **[First architecture review walkthrough](CANONICAL_FIRST_RUN_PATH.md#first-architecture-review-walkthrough)**, [LIVE_E2E_HAPPY_PATH.md](LIVE_E2E_HAPPY_PATH.md), and [ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md).
+For deeper flow detail, use **[First-run evidence checklist](../runbooks/FIRST_PILOT_OPERATOR_PATH.md#printable-first-run-evidence-checklist)** (`FIRST_RUN_EVIDENCE_CHECKLIST.md` alias), **[First architecture review walkthrough](CANONICAL_FIRST_RUN_PATH.md#first-architecture-review-walkthrough)**, [LIVE_E2E_HAPPY_PATH.md](LIVE_E2E_HAPPY_PATH.md), and [ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md).
 
 **Deferred / exploratory inventory (doc-sourced):** [V1_DEFERRED.md](V1_DEFERRED.md) — consolidates partial stories so V1 does not read as open-ended.
 
@@ -335,7 +335,7 @@ These are **practical gates** already encoded or described in-repo—not an exha
 | [V1_DEFERRED.md](V1_DEFERRED.md) | Doc inventory: V1.1+ candidates, audit gaps, Phase 7 rename, infra polish, maintainer backlog |
 | [customer-facing/customer-facing/PILOT_GUIDE.md](customer-facing/PILOT_GUIDE.md) | Pilot onboarding narrative |
 | [PRODUCT_DOCUMENTATION_PRESENTATION.md](PRODUCT_DOCUMENTATION_PRESENTATION.md) | V1 rule: in-app help for product users; GitHub for engineering source only |
-| [FIRST_RUN_EVIDENCE_CHECKLIST.md](../runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md) | Buyer-safe V1 pilot checklist (extractor ZIP through sponsor export) |
+| [FIRST_PILOT_OPERATOR_PATH.md#printable-first-run-evidence-checklist](../runbooks/FIRST_PILOT_OPERATOR_PATH.md#printable-first-run-evidence-checklist) | Printable V1 pilot checklist (extractor ZIP through sponsor export; `FIRST_RUN_EVIDENCE_CHECKLIST.md` alias) |
 | [customer-facing/customer-facing/OPERATOR_QUICKSTART.md](customer-facing/OPERATOR_QUICKSTART.md) | Command-oriented operator entry |
 | [operator-shell.md](operator-shell.md) | UI workflows and API expectations |
 | [ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md) | Export, comparison, replay sequences |

@@ -91,7 +91,7 @@ export const TROUBLESHOOTING_COMMON_ISSUES: readonly TroubleshootingIssue[] = [
     ifStillBlocked: "Start a new review or ask your workspace admin to confirm sample data is available.",
     nextSteps: [
       { label: "Getting started", href: inAppHelpHref("getting-started") },
-      { label: "View first review guide", href: inAppHelpHref("first-hour-operator-path") },
+      { label: "View first review guide", href: inAppHelpHref("first-architecture-review") },
       { label: "Start architecture review", href: "/architecture/reviews/new" },
     ],
   },
@@ -160,7 +160,7 @@ export const TROUBLESHOOTING_COMMON_ISSUES: readonly TroubleshootingIssue[] = [
     tryFirst: "Finalize your first review, then refresh the page.",
     ifStillBlocked: "Check trial banners on Overview for budget or entitlement limits.",
     nextSteps: [
-      { label: "View first review guide", href: inAppHelpHref("first-hour-operator-path") },
+      { label: "View first review guide", href: inAppHelpHref("first-architecture-review") },
       { label: "Open reviews", href: "/architecture/reviews" },
       ...supportEscalationLinks(),
     ],

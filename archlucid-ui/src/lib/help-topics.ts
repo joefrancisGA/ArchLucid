@@ -48,7 +48,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     keywords: ["checklist", "first run", "pilot", "extractor", "audit", "roi", "admin"],
     summary:
       "Admin-only SE/ops printable checklist â€” extractor ZIP, finalize, ROI proof, and audit export. Buyers should use Your first architecture review instead.",
-    docPath: "docs/runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md",
+    docPath: "docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md",
     routes: ["/", "/architecture/first-review-guide", "/architecture/reviews/new", EXECUTIVE_DASHBOARD_HREF],
   },
   {

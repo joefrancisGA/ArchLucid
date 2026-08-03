@@ -35,9 +35,13 @@ const FIRST_REVIEW_HELP_BANNED_SUBSTRINGS = [
 describe("HelpFirstReviewEvidenceChecklistGuideView", () => {
   const loaded = tryLoadProductDocumentation("first-review");
 
-  it("loads first-review help from the SE evidence checklist source", () => {
+  it("loads first-review help from the operator-path printable section", () => {
     expect(loaded).not.toBeNull();
     expect(loaded?.entry.slug).toBe("first-review");
+    expect(loaded?.entry.sourcePaths[0]).toBe("docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md");
+    expect(loaded?.entry.sectionAnchors).toEqual(["printable-first-run-evidence-checklist"]);
+    expect(loaded?.markdown.toLowerCase()).toContain("printable first-run evidence checklist");
+    expect(loaded?.markdown.toLowerCase()).not.toContain("first value in 20 minutes");
   });
 
   it("renders specialty Admin chrome without API/runbook leakage", () => {

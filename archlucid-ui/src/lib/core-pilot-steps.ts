@@ -11,7 +11,7 @@ export type CorePilotStepBase = {
 
 /**
  * Core Pilot path titles and links — shared between the first-review checklist and diagnostics summary on operator home.
- * Tier 1 #3: 90-minute pilot playbook aligned with `docs/runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md`.
+ * Tier 1 #3: 90-minute pilot playbook aligned with printable checklist in `docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md`.
  *
  * {@link CORE_PILOT_STEP_COUNT} must match `CORE_PILOT_STEPS.length` (enforced at module load).
  */

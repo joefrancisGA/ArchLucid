@@ -18,6 +18,6 @@ Use after the first committed golden-manifest review to confirm the pilot is bui
 
 ## Related runbooks
 
-- [`FIRST_RUN_EVIDENCE_CHECKLIST.md`](./FIRST_RUN_EVIDENCE_CHECKLIST.md) — first finalize proof
+- [`FIRST_PILOT_OPERATOR_PATH.md#printable-first-run-evidence-checklist`](./FIRST_PILOT_OPERATOR_PATH.md#printable-first-run-evidence-checklist) — first finalize proof (`FIRST_RUN_EVIDENCE_CHECKLIST.md` alias)
 - [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](./FIRST_PILOT_EVIDENCE_BUNDLE.md) — sponsor packet collection
 - [`REPEAT_REVIEW_LOOP.md`](../library/REPEAT_REVIEW_LOOP.md) — second-review operating loop

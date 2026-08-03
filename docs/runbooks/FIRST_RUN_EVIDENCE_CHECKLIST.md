@@ -1,55 +1,15 @@
-> **Scope:** Internal SE/ops printable first-run evidence checklist — Azure extractor Tier 1 path, pre-demo and design-partner kickoff validation; Tier 2 WIF is optional (see end of page). **Not the default customer help path.** Customer architects: use [Your first architecture review](/help/core-pilot) or [Complete review workflow](/help/first-pilot-path). In-app `/help/first-review` is **Admin-only**.
+> **Scope:** Contributor-reference — path-stable compatibility stub; canonical body moved to the linked document.
 
-# First-run evidence checklist (V1 pilot)
+> **Last reviewed:** 2026-08-03
 
-**Last reviewed:** 2026-07-23
+# First-run evidence checklist — path-stable alias
 
-**Audience:** Sales engineers and platform admins running the default V1 pilot path (Azure extractor Tier 1, no vendor-held cloud credentials).
+**Canon (full body):** [`FIRST_PILOT_OPERATOR_PATH.md#printable-first-run-evidence-checklist`](FIRST_PILOT_OPERATOR_PATH.md#printable-first-run-evidence-checklist)
 
-**Canonical ops path:** [`FIRST_PILOT_OPERATOR_PATH.md`](FIRST_PILOT_OPERATOR_PATH.md) sequences the same work with failure recovery and next-action guidance. Use this checklist before a sponsor demo or design-partner kickoff when you want a **printable table**; each step links to deeper docs; this page stays under two printed pages.
+**Optional Tier 2 WIF:** [`FIRST_PILOT_OPERATOR_PATH.md#optional-tier-2-hosted-extractor-wif`](FIRST_PILOT_OPERATOR_PATH.md#optional-tier-2-hosted-extractor-wif)
 
-| Step | Action | Success signal | Deeper doc |
-|------|--------|----------------|------------|
-| 1 | Configure SQL connection string and auth mode for your environment (`ArchLucidAuth:Mode`, Entra/OIDC/SAML, or dev bypass locally only). | API starts; `GET /health/ready` returns **Healthy** (or expected degraded entries are understood). | [`CONFIGURATION_REFERENCE.md`](../library/CONFIGURATION_REFERENCE.md), [`SECURITY.md`](../library/contributor-reference/SECURITY.md) |
-| 2 | Start API + worker (or combined host) with correct `Hosting:Role`. | `/version` returns build identity; logs show migrations applied. | [`PILOT_GUIDE.md`](../library/customer-facing/PILOT_GUIDE.md) |
-| 3 | Run **Azure extractor Tier 1** in the customer subscription (PowerShell, read-only, no ArchLucid secrets in customer tenant). | Script completes; ZIP contains `manifest.json` and cost/inventory payloads. | [`AZURE_EXTRACTOR.md`](../library/AZURE_EXTRACTOR.md) |
-| 4 | Sign in to architect workspace; open **New architecture review** (`/reviews/new`; legacy `/runs/new`). | Wizard loads; auth succeeds (no endless 401/403). | [`CANONICAL_FIRST_RUN_PATH.md#first-architecture-review-walkthrough`](../library/CANONICAL_FIRST_RUN_PATH.md#first-architecture-review-walkthrough) |
-| 5 | Create architecture request and note **run id** from success path or review list. | Review appears in **Reviews** with status **Tasks generated** or later. | [`WORKSPACE_NAVIGATION_GUIDE.md`](../library/customer-facing/WORKSPACE_NAVIGATION_GUIDE.md) |
-| 6 | **Upload extractor ZIP** to the review (`POST /v1/azure-extractor/upload` or UI equivalent). | Upload returns 200; audit/event log shows ingest; evidence attached to run. | [`AZURE_EXTRACTOR.md`](../library/AZURE_EXTRACTOR.md) § ingest |
-| 7 | **Execute** agents on the review. | Review reaches **Ready to finalize** (or explicit failure with `X-Correlation-ID`). | [`TROUBLESHOOTING.md`](../runbooks/TROUBLESHOOTING.md) |
-| 8 | **Finalize** the architecture package (signed review record). | Signed review record visible; artifacts list non-empty. | [`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.1 |
-| 9 | Inspect **artifacts**, findings, and explanation aggregate. | Sponsor-facing summary loads; ROI/savings labels show basis text when present. | [`CANONICAL_FIRST_RUN_PATH.md#first-architecture-review-walkthrough`](../library/CANONICAL_FIRST_RUN_PATH.md#first-architecture-review-walkthrough) |
-| 10 | Export **sponsor packet** (markdown/DOCX/PDF as configured). | File downloads; no placeholder-only demo unless intentionally using static demo run. | [`PILOT_GUIDE.md`](../library/customer-facing/PILOT_GUIDE.md) |
-| 11 | Capture **`X-Correlation-ID`** (and run id) for any failed step before opening support. | IDs recorded in ticket/runbook notes. | [`TROUBLESHOOTING.md`](../runbooks/TROUBLESHOOTING.md) |
+**Repeat review:** [`FIRST_PILOT_OPERATOR_PATH.md#repeat-review-run-2`](FIRST_PILOT_OPERATOR_PATH.md#repeat-review-run-2)
 
-## Optional Tier 2 (hosted extractor WIF)
+**In-app:** Admin-only [`/help/first-review`](/help/first-review) (loads the printable section from the operator path).
 
-When ArchLucid hosts extraction against customer subscriptions via workload identity federation, run customer templates **once per subscription** before Tier 2 pull:
-
-- [`deploy/customer-templates/README.md`](../../deploy/customer-templates/README.md)
-- Validate locally: `python scripts/ci/validate_customer_wif_templates.py`
-
-## Out of scope for V1 first-run (do not block pilot)
-
-- Jira, ServiceNow, Confluence, Slack, Teams first-party connectors (V1.1)
-- Live Stripe checkout or Marketplace drawdown (owner-gated)
-- MCP retrieval tools (later)
-
-## Repeat review (run 2+)
-
-After a second finalized architecture package, capture comparison-enriched stickiness proof:
-
-```powershell
-.\scripts\collect-first-pilot-proof.ps1 `
-  -RunId '<second-finalized-run-id>' `
-  -RunNumber 2 `
-  -CompareBaseRunId '<first-finalized-run-id>'
-```
-
-See [`docs/library/REPEAT_REVIEW_LOOP.md`](../library/REPEAT_REVIEW_LOOP.md) for the full second-review checklist.
-
-## Related
-
-- [`runbooks/FIRST_PILOT_TROUBLESHOOTING.md`](FIRST_PILOT_TROUBLESHOOTING.md) — symptom index when stuck mid-pilot
-- [`library/LIVE_E2E_HAPPY_PATH.md`](../library/LIVE_E2E_HAPPY_PATH.md) — scripted HTTP parity
-- [`OPERATOR_PILOT_STICKINESS_CHECKLIST.md`](./OPERATOR_PILOT_STICKINESS_CHECKLIST.md) — Day-7 / Day-30 stickiness after first finalize
+This filename remains path-stable for V1_SCOPE / help-registry / 90-minute playbook alignment callers. Prefer the operator-path section for edits.

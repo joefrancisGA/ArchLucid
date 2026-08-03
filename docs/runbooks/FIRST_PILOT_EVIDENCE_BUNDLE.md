@@ -485,6 +485,6 @@ The proof pipeline also emits buyer-safe governance and audit drift artifacts:
 
 ## Related
 
-- Printable checklist: [`FIRST_RUN_EVIDENCE_CHECKLIST.md`](FIRST_RUN_EVIDENCE_CHECKLIST.md)
+- Printable checklist: [`FIRST_PILOT_OPERATOR_PATH.md#printable-first-run-evidence-checklist`](FIRST_PILOT_OPERATOR_PATH.md#printable-first-run-evidence-checklist) (`FIRST_RUN_EVIDENCE_CHECKLIST.md` alias)
 - Preflight before first run: `dotnet run --project ArchLucid.Cli -- --json pilot preflight`
 - Demo go/no-go: `./scripts/verify-demo-workspace.ps1`

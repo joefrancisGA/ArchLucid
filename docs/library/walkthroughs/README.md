@@ -69,7 +69,7 @@ Use demo proof shapes **before** a buyer runs their own tenant to show package s
 | ArchitectureIntelligence demo (fixture → interview → publish) | [ARCHITECTURE_INTELLIGENCE_GOLDEN_PATH.md](ARCHITECTURE_INTELLIGENCE_GOLDEN_PATH.md) |
 | Choose a **Specialty** buyer-job narrative (after first value or when job is clear) | [`#buyer-jobs-specialty-index`](#buyer-jobs-specialty-index) · buyer-job aliases under [`go-to-market/buyer-jobs/`](../../go-to-market/buyer-jobs/README.md) |
 | Static demo proof packet shape (before tenant setup) | [`#buyer-jobs-specialty-index`](#buyer-jobs-specialty-index) · [`#job-accelerator-map`](#job-accelerator-map) |
-| Printable evidence checklist before a sponsor demo | [`FIRST_RUN_EVIDENCE_CHECKLIST.md`](../../runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md) |
+| Printable evidence checklist before a sponsor demo | [`FIRST_PILOT_OPERATOR_PATH.md#printable-first-run-evidence-checklist`](../../runbooks/FIRST_PILOT_OPERATOR_PATH.md#printable-first-run-evidence-checklist) |
 | Specialty accelerator acceptance criteria | [`ACCELERATOR_ACCEPTANCE_CRITERIA.md`](ACCELERATOR_ACCEPTANCE_CRITERIA.md) |
 | Capability inventory and layer model | [`PRODUCT_PACKAGING.md`](../PRODUCT_PACKAGING.md) |
 | Sponsor-facing “why pilot” story | [`EXECUTIVE_SPONSOR_BRIEF.md`](../../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md) |

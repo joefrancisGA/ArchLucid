@@ -39,7 +39,6 @@ START_HERE.md (you are here)
 │   ├─ go-to-market/EXECUTIVE_SPONSOR_BRIEF.md  (sponsor story — after first finalize)
 │   ├─ library/walkthroughs/README.md            (accelerator pack index — optional depth, after first finalize)
 │   ├─ runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md   (post-finalize evidence folder)
-│   ├─ runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md  (printable evidence checklist)
 │   └─ library/PILOT_ROI_MODEL.md         (optional depth)
 │
 ├─ Contributor / developer — local toolchain and repo orientation

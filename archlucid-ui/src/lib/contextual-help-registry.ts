@@ -358,6 +358,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/governance/alert-rules",
+    entry: {
+      whatIsThisPage:
+        "Configure when completed reviews raise alerts, where notifications are delivered, advanced composite rules, and simulation tests.",
+      whatToDoNext:
+        "Set Conditions first, then open Notifications to add destinations, or use Test alerts to simulate behavior.",
+      whyEmpty: "Rules and destinations appear after you create them for this workspace.",
+      whereToConfigurePrerequisite:
+        "Alert delivery often needs channel integrations (email, Teams, Slack, or webhooks) configured under Integrations.",
+    },
+  },
+  {
     prefix: "/integrations/cloud-connections",
     entry: {
       whatIsThisPage:

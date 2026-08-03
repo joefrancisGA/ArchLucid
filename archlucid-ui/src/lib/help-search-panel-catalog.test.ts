@@ -112,16 +112,16 @@ describe("help-search-panel-catalog", () => {
     }
   });
 
-  it("routes first-review-guide search to the first-hour operator path", () => {
+  it("routes first-review-guide search to Your first architecture review", () => {
     const topics = listHelpSearchPanelTopics(false);
     const firstReview = topics.find((topic) => topic.id === "first-review-guide");
 
     expect(firstReview).toBeDefined();
-    expect(firstReview?.title).toBe("First-hour review path");
+    expect(firstReview?.title).toBe("Your first architecture review");
     expect(firstReview?.action).toEqual({
       kind: "route",
-      href: "/help/first-hour-operator-path",
-      helpSlug: "first-hour-operator-path",
+      href: "/help/first-architecture-review",
+      helpSlug: "first-architecture-review",
     });
   });
 

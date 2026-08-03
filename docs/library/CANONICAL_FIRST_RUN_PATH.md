@@ -10,7 +10,7 @@
 **Last reviewed:** 2026-07-31
 
 **Operational detail:** [`../runbooks/FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md)  
-**First-hour operator contract (four steps):** [`FIRST_HOUR_OPERATOR_PATH.md`](FIRST_HOUR_OPERATOR_PATH.md)  
+**First-hour operator contract (four steps):** [`CORE_PILOT.md`](../CORE_PILOT.md) (`FIRST_HOUR_OPERATOR_PATH.md` alias)  
 **Architect UI walkthrough (`/reviews/new`):** [`#first-architecture-review-walkthrough`](#first-architecture-review-walkthrough) (`FIRST_RUN_WALKTHROUGH.md` alias)  
 **First-run wizard design (`/reviews/new`):** [`#first-run-wizard-architect-workspace`](#first-run-wizard-architect-workspace) (`FIRST_RUN_WIZARD.md` alias)  
 **Expert principal-architect lane (15 min):** [`#expert-principal-architect-15-minute-lane`](#expert-principal-architect-15-minute-lane) (`FIRST_15_MINUTES_FOR_PRINCIPAL_ARCHITECTS.md` alias)  
@@ -291,7 +291,7 @@ Former standalone body: `docs/library/FIRST_15_MINUTES_FOR_PRINCIPAL_ARCHITECTS.
 **Last reviewed:** 2026-07-31
 
 **Audience:** Principal / staff architects evaluating ArchLucid — daily frontier-AI users with low patience for process overhead.  
-**Not for:** naive operators (use [`FIRST_HOUR_OPERATOR_PATH.md`](FIRST_HOUR_OPERATOR_PATH.md)), contributors (use [`../engineering/FIRST_30_MINUTES.md`](../engineering/FIRST_30_MINUTES.md)), or sponsor-led procurement walks.
+**Not for:** naive operators (use [`CORE_PILOT.md`](../CORE_PILOT.md)), contributors (use [`../engineering/FIRST_30_MINUTES.md`](../engineering/FIRST_30_MINUTES.md)), or sponsor-led procurement walks.
 
 **Canonical depth stays elsewhere** — this section is a **focused expert lane** only. Do not remove or replace this document’s [seven mandatory steps](#seven-mandatory-steps), [`CORE_PILOT.md`](../CORE_PILOT.md), or [`../runbooks/FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md).
 
@@ -354,7 +354,7 @@ This checkpoint prevents ceremony completion without value signal — the most c
 
 | Path | When to use instead |
 | --- | --- |
-| [`FIRST_HOUR_OPERATOR_PATH.md`](FIRST_HOUR_OPERATOR_PATH.md) | New tenant operator — four-step first hour |
+| [`CORE_PILOT.md`](../CORE_PILOT.md) | New tenant operator — four-step first review (`FIRST_HOUR_OPERATOR_PATH.md` alias) |
 | [`PILOT_SUCCESS_SCORECARD.md#minimum-viable-pilot-success-lane`](../go-to-market/PILOT_SUCCESS_SCORECARD.md#minimum-viable-pilot-success-lane) | Naive operator — five-step guided intake |
 | [`#hosted-pilot-single-path`](#hosted-pilot-single-path) | Platform engineer — strict RC script path |
 | [Seven mandatory steps](#seven-mandatory-steps) + [controlled-pilot checklist](#controlled-pilot-first-run-proof-checklist) | Full pilot with proof scripts and sponsor-send gates |
@@ -390,7 +390,7 @@ Former standalone body: `docs/library/CONTROLLED_PILOT_FIRST_RUN_CHECKLIST.md` �
 | 5 | **Execute** agents. | **Ready for commit** or actionable failure + correlation id. | [TROUBLESHOOTING.md](../runbooks/TROUBLESHOOTING.md) |
 | 6 | Resolve governance warnings; **Commit** manifest. | Manifest id visible; execution mode persisted. | [V1_SCOPE.md](V1_SCOPE.md) |
 | 7 | Verify run detail shows **execution mode** and **evidence basis**. | Real/Simulator/Fallback/Mixed + basis labels. | [CLAIM_READINESS_STATUS.md](../go-to-market/CLAIM_READINESS_STATUS.md) |
-| 8 | Collect proof packet. | `collect-first-pilot-proof.ps1` PASS/WARN with limitations.md. | [FIRST_RUN_EVIDENCE_CHECKLIST.md](../runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md) |
+| 8 | Collect proof packet. | `collect-first-pilot-proof.ps1` PASS/WARN with limitations.md. | [FIRST_PILOT_OPERATOR_PATH.md#printable-first-run-evidence-checklist](../runbooks/FIRST_PILOT_OPERATOR_PATH.md#printable-first-run-evidence-checklist) |
 | 9 | Export sponsor packet / executive review. | Labels present; no overclaim language. | [PILOT_GUIDE.md](customer-facing/PILOT_GUIDE.md) |
 
 ### Expected artifacts

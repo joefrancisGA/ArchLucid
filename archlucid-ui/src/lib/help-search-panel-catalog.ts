@@ -73,11 +73,15 @@ const START_HERE_TOPICS: readonly HelpSearchPanelTopic[] = [
   },
   {
     id: "first-review-guide",
-    // TB-1047: disambiguate from "Review wizard reference" (review-guide).
-    title: "First-hour review path",
-    description: "Step-by-step: name the review, upload evidence, add context, and finalize the review.",
-    keywords: ["first review", "review guide", "first-hour", "new review", "architecture context", "getting started"],
-    action: { kind: "route", href: "/help/first-hour-operator-path", helpSlug: "first-hour-operator-path" },
+    // TB-1047 / TB-1374: disambiguate from "Review wizard reference" (review-guide); canon is Core Pilot.
+    title: "Your first architecture review",
+    description: "Step-by-step: start a review, add evidence, run analysis, finalize the package, and share outputs.",
+    keywords: ["first review", "review guide", "first-hour", "core pilot", "new review", "architecture context", "getting started"],
+    action: {
+      kind: "route",
+      href: "/help/first-architecture-review",
+      helpSlug: "first-architecture-review",
+    },
   },
   {
     id: "review-guide",
