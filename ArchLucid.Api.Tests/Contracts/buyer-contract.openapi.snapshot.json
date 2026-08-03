@@ -2960,6 +2960,34 @@
         },
         "type": "object"
       },
+      "AlertsInboxSummaryDto": {
+        "properties": {
+          "acknowledgedCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "blockingCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "lastEvaluatedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "openCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "resolvedCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "AnswerDraftQuestionRequest": {
         "properties": {
           "answer": {
