@@ -226,7 +226,7 @@ Query keys for compare: `priorRunId`/`laterRunId` (buyer) or `leftRunId`/`rightR
 | `/governance/policy-packs` | Governance-scoped pack registry | Same as hub in demo |
 | `/governance/policy-packs/[id]` | Policy pack detail | T1: `healthcare-claims-v3-pack` |
 | `/governance-resolution` | Effective policy stack (read-only) | T1/T3 |
-| `/governance` | Governance workflow (submit → promote) | T1 static; T2 with governance seed |
+| `/governance/approval-queue` | Approval queue / governance workflow (submit → promote) | T1 static; T2 with governance seed; bare `/governance` is not a page |
 | `/governance/approval-requests/[id]/lineage` | Approval request lineage | T1: `claims-intake-approval-001` |
 | `/audit` | Tenant audit trail | T1 static events; T2 seeded audit |
 | `/governance/decision-register` | Decision register | T1/T3 |
