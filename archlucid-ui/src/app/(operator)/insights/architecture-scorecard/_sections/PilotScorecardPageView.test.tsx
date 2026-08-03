@@ -86,20 +86,25 @@ describe("PilotScorecardPageView", () => {
     render(<PilotScorecardPageView model={buildModel()} />);
 
     expect(screen.getByRole("heading", { name: "Architecture scorecard" })).toBeInTheDocument();
-    expect(screen.getByText(/Track architecture review throughput, evidence-backed decisions/i)).toBeInTheDocument();
+    expect(screen.getByText(/See review throughput, governance effectiveness, and estimated ROI/i)).toBeInTheDocument();
     expect(screen.queryByText(/ROI_MODEL/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/roiEstimate/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/SOURCE:/i)).not.toBeInTheDocument();
   });
 
-  it("renders executive summary row and polished ROI assumptions", () => {
+  it("renders savings hero, primary KPIs, and ROI calculator layout", () => {
     render(<PilotScorecardPageView model={buildModel()} />);
 
     expect(screen.getByTestId("review-scorecard-summary-row")).toBeInTheDocument();
-    expect(screen.getByTestId("review-scorecard-roi-assumptions")).toHaveClass("max-w-md");
+    expect(screen.getByTestId("scorecard-summary-estimated-review-time-savings")).toBeInTheDocument();
+    expect(screen.getByTestId("scorecard-summary-reviews-finalized")).toBeInTheDocument();
+    expect(screen.getByTestId("scorecard-summary-governance-approvals")).toBeInTheDocument();
+    expect(screen.queryByTestId("scorecard-summary-findings-affirmed")).not.toBeInTheDocument();
+    expect(screen.getByText("Operational metrics")).toBeInTheDocument();
+    expect(screen.getByTestId("review-scorecard-roi-assumptions")).toHaveClass("grid");
     expect(screen.getByText("ROI assumptions")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Save ROI assumptions" })).toBeInTheDocument();
-    expect(screen.getByText("Complete ROI assumptions to calculate estimated savings.")).toBeInTheDocument();
+    expect(screen.getByTestId("review-scorecard-roi-estimate-empty")).toBeInTheDocument();
   });
 
   it("shows an executive-ready empty state when no reviews are committed", () => {

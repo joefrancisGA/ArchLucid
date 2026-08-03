@@ -5,7 +5,9 @@ import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
 export const REVIEW_SCORECARD_PAGE_TITLE = BUYER_TERMINOLOGY.reviewScorecard;
 
 export const REVIEW_SCORECARD_PAGE_SUBTITLE =
-  "Track architecture review throughput, evidence-backed decisions, governance approvals, and estimated review-time savings.";
+  "See review throughput, governance effectiveness, and estimated ROI at a glance.";
+
+export const REVIEW_SCORECARD_EMPTY_VALUE = "—";
 
 export type ReviewScorecardSummaryRow = {
   readonly finalizedPackages: number;
@@ -13,6 +15,7 @@ export type ReviewScorecardSummaryRow = {
   readonly governanceApprovals: number;
   readonly estimatedReviewTimeSavingsLabel: string;
   readonly estimatedReviewTimeSavingsDetail: string;
+  readonly estimatedReviewTimeSavingsReady: boolean;
 };
 
 export type ReviewScorecardOperationalMetric = {
@@ -20,6 +23,7 @@ export type ReviewScorecardOperationalMetric = {
   readonly title: string;
   readonly value: string;
   readonly detail: string;
+  readonly empty: boolean;
   readonly methodologyKey?: string;
 };
 
@@ -31,14 +35,19 @@ export function buildReviewScorecardSummaryRow(
   data: PilotScorecardJson,
   annualSavingsLabel: string | null,
 ): ReviewScorecardSummaryRow {
-  let estimatedReviewTimeSavingsLabel = "—";
-  let estimatedReviewTimeSavingsDetail = "ROI estimate available after baselines are saved.";
+  let estimatedReviewTimeSavingsLabel = REVIEW_SCORECARD_EMPTY_VALUE;
+  let estimatedReviewTimeSavingsDetail =
+    "Save ROI assumptions below to estimate annual review-time savings for sponsor discussions.";
+  let estimatedReviewTimeSavingsReady = false;
 
   if (annualSavingsLabel !== null) {
     estimatedReviewTimeSavingsLabel = annualSavingsLabel;
-    estimatedReviewTimeSavingsDetail = "Estimated annual review-time savings from saved ROI assumptions.";
+    estimatedReviewTimeSavingsDetail =
+      "Directional annual review-time savings from saved ROI assumptions — for pilot value discussions, not financial reporting.";
+    estimatedReviewTimeSavingsReady = true;
   } else if (data.baselines !== null) {
-    estimatedReviewTimeSavingsDetail = "Complete ROI assumptions to calculate estimated savings.";
+    estimatedReviewTimeSavingsDetail =
+      "Complete all three ROI assumptions and save to calculate estimated savings.";
   }
 
   return {
@@ -47,12 +56,13 @@ export function buildReviewScorecardSummaryRow(
     governanceApprovals: data.totalGovernanceApprovalsCompleted,
     estimatedReviewTimeSavingsLabel,
     estimatedReviewTimeSavingsDetail,
+    estimatedReviewTimeSavingsReady,
   };
 }
 
 function formatCycleTime(minutes: number | null): string {
   if (minutes === null || !Number.isFinite(minutes)) {
-    return "—";
+    return REVIEW_SCORECARD_EMPTY_VALUE;
   }
 
   if (minutes < 60) {
@@ -64,32 +74,35 @@ function formatCycleTime(minutes: number | null): string {
   return `${hours.toFixed(1)} h`;
 }
 
-function zeroAwareCountLabel(count: number, zeroDetail: string): { value: string; detail: string } {
+function zeroAwareCountMetric(
+  count: number,
+  zeroDetail: string,
+): { value: string; detail: string; empty: boolean } {
   if (count === 0) {
-    return { value: "0", detail: zeroDetail };
+    return { value: REVIEW_SCORECARD_EMPTY_VALUE, detail: zeroDetail, empty: true };
   }
 
-  return { value: String(count), detail: "Measured in the current workspace scope." };
+  return { value: String(count), detail: "Measured in the current workspace scope.", empty: false };
 }
 
 export function buildReviewScorecardOperationalMetrics(data: PilotScorecardJson): ReviewScorecardOperationalMetric[] {
-  const committed = zeroAwareCountLabel(
+  const committed = zeroAwareCountMetric(
     data.totalRunsCommitted,
-    "No committed reviews yet.",
+    "Commit a review to begin tracking throughput.",
   );
-  const finalized = zeroAwareCountLabel(
+  const finalized = zeroAwareCountMetric(
     data.totalManifestsCreated,
-    "No finalized reviews yet.",
+    "Finalize a package to begin tracking completed reviews.",
   );
-  const affirmed = zeroAwareCountLabel(
+  const affirmed = zeroAwareCountMetric(
     data.totalFindingsResolved,
-    "No affirmed findings yet.",
+    "Affirm findings from a review to begin tracking decisions.",
   );
   const cycleTimeValue = formatCycleTime(data.averageTimeToManifestMinutes);
-  const cycleTimeDetail =
-    data.averageTimeToManifestMinutes === null
-      ? "Average review cycle time appears after a finalized package."
-      : "Average elapsed time from commit to finalized package.";
+  const cycleTimeEmpty = data.averageTimeToManifestMinutes === null;
+  const cycleTimeDetail = cycleTimeEmpty
+    ? "Average review cycle time appears after a finalized package."
+    : "Average elapsed time from commit to finalized package.";
 
   return [
     {
@@ -97,6 +110,7 @@ export function buildReviewScorecardOperationalMetrics(data: PilotScorecardJson)
       title: "Committed reviews",
       value: committed.value,
       detail: committed.detail,
+      empty: committed.empty,
       methodologyKey: "totalRunsCommitted",
     },
     {
@@ -104,6 +118,7 @@ export function buildReviewScorecardOperationalMetrics(data: PilotScorecardJson)
       title: "Finalized packages",
       value: finalized.value,
       detail: finalized.detail,
+      empty: finalized.empty,
       methodologyKey: "totalManifestsCreated",
     },
     {
@@ -111,6 +126,7 @@ export function buildReviewScorecardOperationalMetrics(data: PilotScorecardJson)
       title: "Affirmed findings",
       value: affirmed.value,
       detail: affirmed.detail,
+      empty: affirmed.empty,
       methodologyKey: "totalFindingsResolved",
     },
     {
@@ -118,18 +134,25 @@ export function buildReviewScorecardOperationalMetrics(data: PilotScorecardJson)
       title: "Average review cycle time",
       value: cycleTimeValue,
       detail: cycleTimeDetail,
+      empty: cycleTimeEmpty,
       methodologyKey: "averageTimeToManifestMinutes",
     },
     {
       key: "totalGovernanceApprovalsCompleted",
       title: "Governance approvals completed",
-      ...zeroAwareCountLabel(data.totalGovernanceApprovalsCompleted, "No governance approvals completed yet."),
+      ...zeroAwareCountMetric(
+        data.totalGovernanceApprovalsCompleted,
+        "Complete your first approval to begin tracking governance metrics.",
+      ),
       methodologyKey: "totalGovernanceApprovalsCompleted",
     },
     {
       key: "totalAuditEventsGenerated",
       title: "Audit events recorded",
-      ...zeroAwareCountLabel(data.totalAuditEventsGenerated, "No audit events recorded yet."),
+      ...zeroAwareCountMetric(
+        data.totalAuditEventsGenerated,
+        "Audit activity appears as operators work through reviews.",
+      ),
       methodologyKey: "totalAuditEventsGenerated",
     },
   ];
@@ -155,4 +178,20 @@ export function formatQuarterlySavingsFromAnnualUsd(annualUsd: number): string {
     currency: "USD",
     maximumFractionDigits: 0,
   }).format(annualUsd / 4);
+}
+
+export function summarizePrimaryKpiDisplay(count: number, zeroDetail: string): {
+  value: string;
+  detail: string;
+  empty: boolean;
+} {
+  if (count === 0) {
+    return { value: REVIEW_SCORECARD_EMPTY_VALUE, detail: zeroDetail, empty: true };
+  }
+
+  return {
+    value: String(count),
+    detail: "Measured in the current workspace scope.",
+    empty: false,
+  };
 }
