@@ -662,6 +662,43 @@ export function stripConfigurationReferenceContributorLeakage(markdown: string):
     .replace(/PUBLIC_MARKETING_SITE_TOPOLOGY\.md/gi, "marketing site topology")
     .replace(/`?\.\\scripts\\[^`\s]+`?/gi, "prerequisite validation")
     .replace(/\.\\scripts\\[^\s)]+/gi, "prerequisite validation")
+    // TB-1330 — map eng runbook/ADR hrefs to in-app help (or plain text) so product body stays product-routed.
+    .replace(
+      /\[([^\]]*)\]\((?:\.\.\/)?(?:docs\/)?runbooks\/GENERIC_OIDC_SETUP\.md\)/gi,
+      "[Authentication and sign-in](/help/authentication-sign-in)",
+    )
+    .replace(
+      /\[([^\]]*)\]\((?:\.\.\/)?(?:docs\/)?runbooks\/PILOT_PREREQUISITES\.md\)/gi,
+      "[Enterprise onboarding](/help/enterprise-onboarding)",
+    )
+    .replace(
+      /\[([^\]]*)\]\((?:\.\.\/)?(?:docs\/)?runbooks\/MINIMAL_AZURE_PILOT_DEPLOYMENT\.md\)/gi,
+      "[Cloud connections](/help/cloud-connections)",
+    )
+    .replace(
+      /\[([^\]]*)\]\((?:\.\.\/)?(?:docs\/)?runbooks\/SAML_SP_CERTIFICATE_ROTATION_RUNBOOK\.md\)/gi,
+      "[Authentication and sign-in](/help/authentication-sign-in)",
+    )
+    .replace(
+      /\[([^\]]*)\]\((?:\.\.\/)?(?:docs\/)?runbooks\/DATABASE_FAILOVER\.md\)/gi,
+      "database failover guidance",
+    )
+    .replace(
+      /\[([^\]]*)\]\((?:\.\.\/)?(?:docs\/)?runbooks\/LLM_COST_ESTIMATION\.md\)/gi,
+      "LLM cost estimation guidance",
+    )
+    .replace(
+      /\[([^\]]*)\]\((?:\.\.\/)?(?:docs\/)?runbooks\/MANIFEST_CHUNK_SUMMARIZATION\.md\)/gi,
+      "manifest summarization guidance",
+    )
+    .replace(
+      /\[([^\]]*)\]\((?:\.\.\/)?(?:docs\/)?runbooks\/[^)]+\)/gi,
+      "$1",
+    )
+    .replace(/\[([^\]]*)\]\([^)]*architecture\/adrs\/[^)]+\)/gi, "$1")
+    .replace(/\[([^\]]*)\]\(HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST\.md[^)]*\)/gi, "[Enterprise onboarding](/help/enterprise-onboarding)")
+    .replace(/\[([^\]]*)\]\(API_AUTH_BEHAVIOR_CONTRACT\.md[^)]*\)/gi, "[Authentication and sign-in](/help/authentication-sign-in)")
+    .replace(/\[([^\]]*)\]\(READ_REPLICA_ROUTING\.md[^)]*\)/gi, "$1")
     .replace(/\n{3,}/g, "\n\n");
 }
 

@@ -85,6 +85,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     prefix: "/help/policy-pack-delta-demo",
     topic: { slug: "policy-pack-delta-demo", label: "Policy-pack delta demo" },
   },
+  {
+    prefix: "/help/configuration-reference",
+    topic: { slug: "configuration-reference", label: "Configuration reference" },
+  },
   { prefix: "/insights/impact-preview", topic: { slug: "how-it-works", label: "Impact preview" } },
   { prefix: "/internal-operations/recommendation-learning", topic: { slug: "how-it-works", label: "How recommendation learning works" } },
   { prefix: "/governance/advisory-scans", topic: { slug: "how-it-works", label: "Advisory scans" } },

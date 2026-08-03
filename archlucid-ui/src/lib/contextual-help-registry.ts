@@ -103,6 +103,17 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/help/configuration-reference",
+    entry: {
+      whatIsThisPage:
+        "Admin configuration task guide for SSO, identity providers, API keys, and production-like hosting posture.",
+      whatToDoNext:
+        "Open the matching settings CTA (SSO, identity providers, or API keys), then expand the key catalog appendix only if needed.",
+      whyEmpty: "This guide always shows configuration tasks when the help topic loads.",
+      whereToConfigurePrerequisite: "Admin access to identity settings, API keys, and the configuration summary.",
+    },
+  },
+  {
     prefix: "/governance/standards-and-rules",
     entry: {
       whatIsThisPage:

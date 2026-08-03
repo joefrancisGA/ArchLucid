@@ -13,6 +13,7 @@ import { HelpCliUsageTechnicalReferenceView } from "../_sections/HelpCliUsageTec
 import { HelpGovernanceApprovalGuideView } from "../_sections/HelpGovernanceApprovalGuideView";
 import { HelpAzurePermissionsGuideView } from "../_sections/HelpAzurePermissionsGuideView";
 import { HelpAuditTrailGuideView } from "../_sections/HelpAuditTrailGuideView";
+import { HelpConfigurationReferenceGuideView } from "../_sections/HelpConfigurationReferenceGuideView";
 import { HelpDataHandlingTenantIsolationGuideView } from "../_sections/HelpDataHandlingTenantIsolationGuideView";
 import { HelpPolicyPackDeltaDemoGuideView } from "../_sections/HelpPolicyPackDeltaDemoGuideView";
 import { HelpConnectAzureSecurelyGuideView } from "../_sections/HelpConnectAzureSecurelyGuideView";
@@ -32,6 +33,7 @@ import { FINDINGS_HELP_ROUTE_METADATA } from "@/lib/findings-help-route-metadata
 import { CORE_PILOT_HELP_ALIAS_ROUTE_METADATA } from "@/lib/core-pilot-help-alias-route-metadata";
 import { FIRST_ARCHITECTURE_REVIEW_HELP_ROUTE_METADATA } from "@/lib/first-architecture-review-help-route-metadata";
 import { GOVERNANCE_APPROVAL_HELP_ROUTE_METADATA } from "@/lib/governance-approval-help-route-metadata";
+import { CONFIGURATION_REFERENCE_HELP_ROUTE_METADATA } from "@/lib/configuration-reference-help-route-metadata";
 import { DATA_HANDLING_TENANT_ISOLATION_HELP_ROUTE_METADATA } from "@/lib/data-handling-tenant-isolation-help-route-metadata";
 import { POLICY_PACK_DELTA_DEMO_HELP_ROUTE_METADATA } from "@/lib/policy-pack-delta-demo-help-route-metadata";
 import { PATH_CHOOSER_HELP_ROUTE_METADATA } from "@/lib/path-chooser-help-route-metadata";
@@ -183,6 +185,10 @@ function renderHelpTopicView(
     return <HelpPolicyPackDeltaDemoGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
 
+  if (loaded.entry.slug === "configuration-reference") {
+    return <HelpConfigurationReferenceGuideView entry={loaded.entry} markdown={loaded.markdown} />;
+  }
+
   return <HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />;
 }
 
@@ -232,6 +238,10 @@ export async function generateMetadata(props: HelpTopicPageProps): Promise<Metad
 
   if (entry.slug === "policy-pack-delta-demo") {
     return POLICY_PACK_DELTA_DEMO_HELP_ROUTE_METADATA;
+  }
+
+  if (entry.slug === "configuration-reference") {
+    return CONFIGURATION_REFERENCE_HELP_ROUTE_METADATA;
   }
 
   return {

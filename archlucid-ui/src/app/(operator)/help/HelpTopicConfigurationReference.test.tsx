@@ -5,7 +5,15 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
-import { HelpTopicMarkdownView } from "@/app/(operator)/help/HelpTopicMarkdownView";
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button">Help</div>,
+}));
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/help/configuration-reference",
+}));
+
+import { HelpConfigurationReferenceGuideView } from "@/app/(operator)/help/_sections/HelpConfigurationReferenceGuideView";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
@@ -60,14 +68,14 @@ describe("HelpTopicMarkdownView configuration reference (TB-1327)", () => {
     expect(lower).not.toContain("public marketing site");
   });
 
-  it("rendered help body stays free of banned contributor leakage", () => {
+  it("rendered specialty help body stays free of banned contributor leakage", () => {
     if (loaded === null) {
       throw new Error("Expected configuration-reference documentation to load.");
     }
 
-    render(<HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />);
+    render(<HelpConfigurationReferenceGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
-    expect(screen.getByRole("article")).toBeInTheDocument();
+    expect(screen.getByTestId("help-configuration-reference-guide")).toBeInTheDocument();
 
     const visible = document.body.textContent ?? "";
 

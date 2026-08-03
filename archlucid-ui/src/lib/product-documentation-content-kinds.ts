@@ -13,7 +13,7 @@ const INTERNAL_RUNBOOK_SLUGS = new Set<string>([
   // TB-1250 — eng-facing help must not stay ungated as technical-documentation.
   "cli-usage",
   "governance-api-contracts",
-  // TB-1329 — full eng key catalog Admin-gated until specialty guide (TB-1326).
+  // TB-1329 — Admin-gated while key-catalog appendix remains eng-adjacent (specialty chrome: TB-1326).
   "configuration-reference",
 ]);
 
@@ -35,7 +35,7 @@ export const PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG: Readonly<
   "cloud-connections-gcp": "product-help",
   "azure-permissions": "product-help",
   "comparison-replay": "product-help",
-  /** TB-1329 — full eng key catalog Admin-gated until specialty guide (TB-1326). */
+  /** TB-1329 — Admin-gated while key-catalog appendix remains eng-adjacent (specialty chrome: TB-1326). */
   "configuration-reference": "internal-runbook",
   "first-architecture-review": "product-help",
   "data-handling": "product-help",

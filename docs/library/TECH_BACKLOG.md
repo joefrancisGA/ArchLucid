@@ -670,7 +670,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1316 | `/auth/session-expired` — AuthErrorPanel recovery honesty; see ## TB-1316 below | Trustworthiness P1 — **V1**; with **TB-1313** | S |
 | TB-1320 | `/demo/explain` — status banner honesty + quiet IDs; see ## TB-1320 below | Trustworthiness P1 — **V1**; with **TB-1319** | S |
 | TB-1323 | `/demo/explain` — conversion CTA auth honesty; see ## TB-1323 below | Trustworthiness P1 — **V1**; with **TB-1319** | S |
-| TB-1330 | Configuration reference — in-app-only link map (no runbook/ADR dump); see ## TB-1330 below | Trustworthiness P1 — **V1**; with **TB-1327**; parity **TB-1257** | S |
+| TB-1330 | ~~Configuration reference — in-app-only link map (no runbook/ADR dump)~~ **Done** 2026-08-02 — presentation rewrite + Vitest banned hrefs; see ## TB-1330 below | Trustworthiness P1 — **V1**; with **TB-1327**; parity **TB-1257** | S |
 | TB-1341 | Enterprise onboarding — title + audience/tier honesty; see ## TB-1341 below | Trustworthiness P1 — **V1**; with **TB-1338** | XS |
 | TB-1380 | Complete review workflow — slug/title + Pilot jargon honesty (page + inbound chrome); see ## TB-1380 below | Trustworthiness P1 — **V1**; with **TB-1379** | S |
 | TB-1408 | Legacy AI usage admin path — audit remaining docs/template hrefs → canonicalize; see ## TB-1408 below | Trustworthiness P1 — **V1**; with **TB-1404** | S |
@@ -921,7 +921,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1319 | `/demo/explain` — buyer vocabulary (purge provenance/eng chrome); see ## TB-1319 below | Adoption friction P1 — **V1**; owner demo-explain ~51/100 2026-07-26; traffic **DEX** | S |
 | TB-1321 | `/demo/explain` — empty/not-available next-step ladder; see ## TB-1321 below | Adoption friction P1 — **V1**; with **TB-1319** | S |
 | TB-1322 | `/demo/explain` — IA gate or public proof ladder (IA-014); see ## TB-1322 below | Adoption friction P1 — **V1**; with **TB-1319**; pairs **TB-1307**/**TB-1251** | S |
-| TB-1328 | Configuration reference — operator task CTA chrome (SSO / identity / API keys); see ## TB-1328 below | Adoption friction P1 — **V1**; with **TB-1326** | S |
+| TB-1328 | ~~Configuration reference — operator task CTA chrome (SSO / identity / API keys)~~ **Done** 2026-08-02 — specialty CTAs + Sources; see ## TB-1328 below | Adoption friction P1 — **V1**; with **TB-1326** | S |
 | TB-1340 | Enterprise onboarding — collapse Quick links + Onboarding hub duplicate; see ## TB-1340 below | Adoption friction P1 — **V1**; with **TB-1338** | S |
 | TB-1342 | Enterprise onboarding — first-review → core-pilot + settings CTA pointers; see ## TB-1342 below | Adoption friction P1 — **V1**; with **TB-1338**; pairs **TB-1335** | S |
 | TB-1343 | WHAT_NOT_TO_PROMISE → UI/copy over-promise + highest buyer-risk page matrix; see `## TB-1343` below | Commercial / marketability P1 — **V1**; PA WNTP UI risk; GTM **M-239**/**M-240** | S |
@@ -1209,7 +1209,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1243 | GCP help — workflow CTAs + classified data sections (Azure chrome parity); see ## TB-1243 below | Adoption friction P1 — **V1**; with **TB-1239** | S |
 | TB-1253 | `/help/procurement` specialty buyer FAQ guide view; see ## TB-1253 below | Adoption friction P1 — **V1**; owner procurement help ~49/100 2026-07-26; complements Done **TB-159**/**TB-736** | M |
 | TB-1258 | `/help/starting-reviews` — canonicalize into `/help/review-guide`; see ## TB-1258 below | Adoption friction P1 — **V1**; owner starting-reviews ~52/100 2026-07-26; traffic **HER** | S |
-| TB-1326 | `/help/configuration-reference` — operator specialty guide + split full key catalog; see ## TB-1326 below | Adoption friction P1 — **V1**; owner configuration-reference ~39/100 2026-07-26; traffic **CON**; pairs **TB-1253**/**TB-1246** | M |
+| TB-1326 | ~~`/help/configuration-reference` — operator specialty guide + split full key catalog~~ **Done** 2026-08-02 — HelpConfigurationReferenceGuideView + collapsed appendix; see ## TB-1326 below | Adoption friction P1 — **V1**; owner configuration-reference ~39/100 2026-07-26; traffic **CON**; pairs **TB-1253**/**TB-1246** | M |
 | TB-1331 | `/help/core-pilot` — step 2 Add evidence CTA honesty (commit-aware); see ## TB-1331 below | Trustworthiness P1 — **V1**; owner core-pilot re-review ~70/100 2026-07-26; traffic **COR**; after Done **TB-1040**–**TB-1043** | S |
 | TB-1332 | `/help/core-pilot` — sample review CTA Claims/universe label honesty; see ## TB-1332 below | Trustworthiness P1 — **V1**; with **TB-1331**; pairs **TB-1028**/**TB-1283** | S |
 | TB-1333 | `/help/core-pilot` — stepper pending chrome (no disabled fake CTAs); see ## TB-1333 below | Adoption friction P1 — **V1**; with **TB-1331**; extends **TB-1042** | XS |
@@ -33008,7 +33008,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 — Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-02) — `HelpConfigurationReferenceGuideView` task chrome + collapsed Admin key-catalog appendix; registry summary updated; Vitest specialty + first-viewport not catalog wall. Slug remains Admin-gated `internal-runbook` (TB-1329 option b) while appendix stays eng-adjacent.
 
 **Priority:** P0.
 
@@ -33065,7 +33065,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 — Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-02) — primary CTAs to SSO wizard, identity providers, API keys, and Admin configuration summary; Sources strip to operator help; Vitest action-panel coverage.
 
 **Priority:** P0.
 
@@ -33121,7 +33121,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 — Trustworthiness.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-02) — `stripConfigurationReferenceContributorLeakage` maps/drops runbook + ADR + contributor hrefs to in-app help or plain text; Vitest banned href fragments on prepared markdown.
 
 **Priority:** P0.
 

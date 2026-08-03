@@ -475,7 +475,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     slug: "configuration-reference",
     title: "Configuration reference",
     summary:
-      "Admin-only full configuration key catalog (hosting, auth, production-like keys). Ungated operator specialty guide is deferred.",
+      "Admin task guide for identity/SSO, API keys, and production-like hosting posture, with a collapsed key-catalog appendix. Admin-gated internal runbook.",
     audience: "developer",
     sourcePaths: ["docs/library/CONFIGURATION_REFERENCE.md"],
   },
