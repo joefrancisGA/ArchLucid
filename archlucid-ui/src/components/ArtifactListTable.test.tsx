@@ -1,7 +1,8 @@
-import { render, screen } from "@testing-library/react";
+﻿import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { ArtifactListTable } from "./ArtifactListTable";
+import { artifactPreviewHref } from "@/lib/artifact-preview-href";
 
 vi.mock("next/link", () => ({
   default: ({
@@ -60,7 +61,7 @@ describe("ArtifactListTable", () => {
     );
 
     const preview = screen.getByRole("link", { name: "Preview" });
-    expect(preview.getAttribute("href")).toBe("/reviews/run-guid-1/artifacts/artifact-guid-1");
+    expect(preview.getAttribute("href")).toBe(artifactPreviewHref("manifest-1", "artifact-guid-1", "run-guid-1"));
   });
 
   it("sponsor mode: Output column and role-specific open/download labels; technical details include raw format MIME", () => {
@@ -142,21 +143,21 @@ describe("ArtifactListTable", () => {
     );
 
     const preview = screen.getByRole("link", { name: "Open sponsor brief" });
-    expect(preview.getAttribute("href")).toBe("/reviews/run-guid-1/artifacts/md");
+    expect(preview.getAttribute("href")).toBe(artifactPreviewHref("manifest-1", "md", "run-guid-1"));
   });
 
   it("sponsor mode: omits redundant filename caption when stem aligns with business label", () => {
     const row = {
       artifactId: "artifact-guid-md",
       artifactType: "MarkdownReport",
-      name: "Sponsor briefing — Claims Intake Modernization.md",
+      name: "Sponsor briefing â€” Claims Intake Modernization.md",
       format: "text/markdown",
       createdUtc: "2020-01-01T00:00:00Z",
       contentHash: "abcdef123456",
     };
     render(<ArtifactListTable manifestId="manifest-1" artifacts={[row]} sponsorMode />);
 
-    expect(screen.queryByText("Sponsor briefing — Claims Intake Modernization")).toBeNull();
+    expect(screen.queryByText("Sponsor briefing â€” Claims Intake Modernization")).toBeNull();
     expect(screen.getByRole("columnheader", { name: "Output" })).toBeInTheDocument();
   });
 

@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+﻿import { cn } from "@/lib/utils";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 
@@ -7,6 +7,7 @@ import { ArtifactIntegrityTechnicalDetails } from "@/components/ArtifactIntegrit
 import { ProductLearningFeedbackControls } from "@/components/ProductLearningFeedbackControls";
 import type { ArtifactDescriptor } from "@/types/authority";
 import { getArtifactDownloadUrl } from "@/lib/api";
+import { artifactPreviewHref } from "@/lib/artifact-preview-href";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   getArtifactBusinessLabel,
@@ -40,21 +41,6 @@ function formatDate(iso: string): string {
 }
 
 /**
- * Builds the Preview link URL: run-scoped when runId is provided, otherwise manifest-scoped.
- */
-function reviewHrefForArtifact(
-  manifestId: string,
-  artifactId: string,
-  runId: string | undefined,
-): string {
-  if (runId) {
-    return `/reviews/${encodeURIComponent(runId)}/artifacts/${encodeURIComponent(artifactId)}`;
-  }
-
-  return `/signed-records/${encodeURIComponent(manifestId)}/artifacts/${encodeURIComponent(artifactId)}`;
-}
-
-/**
  * Deterministic artifact list for run and manifest pages (preview + download).
  */
 export function ArtifactListTable(props: {
@@ -63,7 +49,7 @@ export function ArtifactListTable(props: {
   /** When set, the matching row is visually emphasized (e.g. on artifact preview page). */
   currentArtifactId?: string;
   /**
-   * When set, Preview links use /runs/.../artifacts/... (redirects to manifest-scoped preview).
+   * When set, Preview links use run-scoped artifact Preview (redirects to signed-record preview).
    * Improves run-centric navigation from run detail.
    */
   runId?: string;
@@ -127,7 +113,7 @@ export function ArtifactListTable(props: {
 
   const renderArtifactRows = (list: ArtifactDescriptor[]) =>
     list.map((artifact) => {
-      const reviewHref = reviewHrefForArtifact(manifestId, artifact.artifactId, runId);
+      const reviewHref = artifactPreviewHref(manifestId, artifact.artifactId, runId);
       const businessLabel =
         sponsorMode === true
           ? getArtifactDisplayLabel({ artifactId: artifact.artifactId, artifactType: artifact.artifactType })
