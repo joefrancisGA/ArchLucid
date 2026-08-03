@@ -259,7 +259,7 @@ Former standalone body: `docs/go-to-market/PROMPT_INJECTION_RESISTANCE_BUYER_ONE
 
 ### Residuals (honest)
 
-- Engineering **TB-949** (**Done** — composer DATA delimiters / hygiene contract). **TB-950** (**Done** — production-like empty `AllowedTools` fail-closed). Residual open: **TB-951**–**TB-952** (indirect corpus, side-effect inventory).
+- Engineering **TB-949** (**Done** — composer DATA delimiters / hygiene contract). **TB-950** (**Done** — production-like empty `AllowedTools` fail-closed). **TB-951** (**Done** — indirect doc/README corpus + honest `expectedContained` residual). Residual open: **TB-952** (side-effect inventory).
 - Extend claim guardrails: **M-116**; deeper ingress vs impossible matrix: [LLM trust boundary (M-149)](#llm-trust-boundary-ingress-m-149).
 
 **Related:** [Isolation one-pager (M-114)](#isolation-one-pager-m-114) · [LLM trust boundary (M-149)](#llm-trust-boundary-ingress-m-149) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise).

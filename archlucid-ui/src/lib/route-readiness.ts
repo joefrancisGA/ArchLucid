@@ -67,7 +67,7 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/alert-rules": "advanced-only",
   "/demo/explain": "hidden",
 
-  "/product-learning": "advanced-only",
+  "/internal/product-learning": "advanced-only",
   "/internal-operations/recommendation-learning": "advanced-only",
   "/admin/health": "admin-only",
   "/admin/deployment-status": "admin-only",
@@ -75,6 +75,7 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/admin/pricing-quote-aging": "hidden",
   "/admin/trial-funnel": "admin-only",
   "/admin/fleet-llm-cogs": "hidden",
+  "/admin/tenants": "hidden",
   "/admin/tenant-health": "hidden",
   "/admin/support": "admin-only",
   "/admin/users": "admin-only",

@@ -51,6 +51,12 @@ public interface ITenantRepository
 
     Task SuspendTenantAsync(Guid tenantId, CancellationToken ct);
 
+    /// <summary>
+    ///     Clears <c>SuspendedUtc</c> when the tenant is not in erasure quarantine.
+    ///     Returns <see langword="false" /> when the tenant is missing or <c>OffboardedUtc</c> is set.
+    /// </summary>
+    Task<bool> TryUnsuspendTenantAsync(Guid tenantId, CancellationToken ct);
+
     /// <summary>Oldest workspace for the tenant (default bootstrap workspace).</summary>
     Task<TenantWorkspaceLink?> GetFirstWorkspaceAsync(Guid tenantId, CancellationToken ct);
 

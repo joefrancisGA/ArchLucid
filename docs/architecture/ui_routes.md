@@ -128,6 +128,7 @@ Configured in `archlucid-ui/next.config.ts`:
 | `/dashboard` | `/architecture/executive-dashboard` (301) |
 | `/executive/dashboard` | `/architecture/executive-dashboard` (301) |
 | `/executive/reviews`, `/executive/reviews/*` | `/reviews`, `/reviews/*` (301) |
+| `/product-learning` | `/internal/product-learning` (App Router `permanentRedirect`; not next.config) |
 
 **Note:** README and older docs may reference `/manifests/[manifestId]/artifacts/[artifactId]`; that route no longer has a `page.tsx`. Artifact review is reached from review or manifest detail.
 
@@ -246,7 +247,7 @@ Layer guidance copy for many governance/analysis routes: `archlucid-ui/src/lib/l
 |-----|---------|-------------|
 | `/insights/architecture-scorecard` | Review scorecard | T1 showcase context; T3 mock |
 | `/recommendation-learning` | Recommendation tuning | T3 mock; blocked in strict demo |
-| `/product-learning` | Pilot feedback capture | T3 mock |
+| `/internal/product-learning` | Pilot feedback capture | T3 mock |
 | `/administration/connection-status` | Connection status (connector readiness hub) | Administration nav; `ConnectorOperationsDashboard` + contextual help. T3 mock or T2 |
 | `/integrations/teams` | Microsoft Teams wiring | T3 mock |
 | `/administration/system-health` | System health dashboard | Live/ready checks, build identity, buyer-polished demo variant; contextual help → troubleshooting (**ADY**) |
@@ -306,6 +307,7 @@ Requires **Admin authority**, full architect workspace, no demo nav blockers, an
 | `/admin/trial-funnel` | Trial funnel operations | Same |
 | `/admin/fleet-llm-cogs` | Fleet LLM COGS visibility | AdminAuthority + System Admin nav; per-tenant UTC-month COGS pressure table (**AFX**) |
 | `/admin/tenant-health` | Per-tenant health admin | Same |
+| `/admin/tenants` | Provision / shut off tenants | Same |
 | `/admin/rag-health` | RAG / retrieval health | Same |
 | `/admin/support` | Admin support tools | Same |
 | `/admin/evidence-proposals` | Evidence proposal admin | Same |

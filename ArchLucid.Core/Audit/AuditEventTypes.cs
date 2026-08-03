@@ -573,6 +573,12 @@ public static class AuditEventTypes
     /// </summary>
     public const string TenantSelfRegistered = "TenantSelfRegistered";
 
+    /// <summary>Platform audit: tenant surface suspended (<c>dbo.Tenants.SuspendedUtc</c> set) without erasure quarantine.</summary>
+    public const string TenantSuspended = "TenantSuspended";
+
+    /// <summary>Platform audit: tenant surface resumed after admin suspend (<c>SuspendedUtc</c> cleared).</summary>
+    public const string TenantUnsuspended = "TenantUnsuspended";
+
     /// <summary>
     ///     Platform audit (<c>dbo.PlatformAuditEvents</c>): tenant offboarding removed tenant-scoped SQL + blobs; not
     ///     written to <c>dbo.AuditEvents</c>.

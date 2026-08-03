@@ -256,12 +256,32 @@ def validate_prompt_injection_datasets(*, strict: bool = False) -> int:
 
             if strict:
                 blocked_at = case.get("expectedBlockedAt")
-                if not isinstance(blocked_at, str) or blocked_at.strip() not in allowed_blocked:
+                contained = case.get("expectedContained")
+                has_block = isinstance(blocked_at, str) and blocked_at.strip() in allowed_blocked
+                has_contained = contained is True
+
+                if has_block and has_contained:
                     print(
-                        f"::error::{path.name}[{i}].expectedBlockedAt must be one of "
-                        f"{sorted(allowed_blocked)} (--strict)"
+                        f"::error::{path.name}[{i}] must not set both expectedBlockedAt and "
+                        f"expectedContained=true (pick detection vs containment semantics)"
                     )
                     return 1
+
+                if not has_block and not has_contained:
+                    print(
+                        f"::error::{path.name}[{i}] requires expectedBlockedAt "
+                        f"({sorted(allowed_blocked)}) or expectedContained=true (--strict)"
+                    )
+                    return 1
+
+                if has_contained:
+                    notes = case.get("containmentNotes")
+                    if not isinstance(notes, str) or len(notes.strip()) < 24:
+                        print(
+                            f"::error::{path.name}[{i}].containmentNotes must document residual "
+                            f"risk when expectedContained=true (TB-951)"
+                        )
+                        return 1
 
             prompt = case.get("userPrompt")
             if not isinstance(prompt, str) or len(prompt.strip()) < 8:

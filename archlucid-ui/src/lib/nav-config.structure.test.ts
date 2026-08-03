@@ -225,7 +225,7 @@ describe("nav-config structure", () => {
     // Recommendation learning and Review feedback stay under Internal Operations (employee-only /
     // showSystemAdministrationNav). Planning remains in Programs for customer discoverability.
     expect(systemAdminHrefs).toContain("/internal-operations/recommendation-learning");
-    expect(systemAdminHrefs).toContain("/product-learning");
+    expect(systemAdminHrefs).toContain("/internal/product-learning");
     expect(systemAdminHrefs).not.toContain("/planning");
     expect(systemAdminHrefs).not.toContain("/digests");
     expect(systemAdminHrefs).not.toContain("/sponsor-report/pilot-outcomes");

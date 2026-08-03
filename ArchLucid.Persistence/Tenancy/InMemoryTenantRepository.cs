@@ -232,6 +232,25 @@ public sealed class InMemoryTenantRepository : ITenantRepository
     }
 
     /// <inheritdoc />
+    public Task<bool> TryUnsuspendTenantAsync(Guid tenantId, CancellationToken ct)
+    {
+        _ = ct;
+
+        lock (_trialGate)
+        {
+            if (!_byId.TryGetValue(tenantId, out TenantRecord? existing))
+                return Task.FromResult(false);
+
+            if (existing.OffboardedUtc is not null)
+                return Task.FromResult(false);
+
+            _byId[tenantId] = CopyTenant(existing, clearSuspendedUtc: true);
+
+            return Task.FromResult(true);
+        }
+    }
+
+    /// <inheritdoc />
     public Task CommitSelfServiceTrialAsync(
         Guid tenantId,
         DateTimeOffset trialStartUtc,
@@ -1193,6 +1212,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
         DateTimeOffset? trialFirstManifestCommittedUtc = null,
         int? enterpriseSeatsUsedOverride = null,
         DateTimeOffset? suspendedUtcOverride = null,
+        bool clearSuspendedUtc = false,
         DateTimeOffset? offboardedUtc = null,
         DateTimeOffset? erasureEligibleUtc = null,
         bool clearErasureQuarantine = false,
@@ -1211,7 +1231,9 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             EntraTenantId = source.EntraTenantId,
             DataRegion = source.DataRegion,
             CreatedUtc = source.CreatedUtc,
-            SuspendedUtc = clearErasureQuarantine ? null : suspendedUtcOverride ?? source.SuspendedUtc,
+            SuspendedUtc = clearErasureQuarantine || clearSuspendedUtc
+                ? null
+                : suspendedUtcOverride ?? source.SuspendedUtc,
             OffboardedUtc = clearErasureQuarantine ? null : offboardedUtc ?? source.OffboardedUtc,
             ErasureEligibleUtc = clearErasureQuarantine ? null : erasureEligibleUtc ?? source.ErasureEligibleUtc,
             LegalHoldUntilUtc = clearLegalHold ? null : legalHoldUntilUtc ?? source.LegalHoldUntilUtc,

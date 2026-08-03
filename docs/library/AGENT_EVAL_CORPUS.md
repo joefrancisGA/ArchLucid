@@ -8,7 +8,7 @@ Companion scripts:
 
 - **`scripts/ci/eval_agent_corpus.py`** — synthetic scenarios under **`tests/eval-corpus/`** (finding recall vs recordings).
 - **`scripts/ci/assert_technology_consistency_corpus.py`** — manifest drift guard for **`tests/technology-consistency-corpus/`** (deterministic Technology Ledger finding-engine and artifact-prose lint regression; see that folder’s **`README.md`**).
-- **`scripts/ci/eval_agent_quality.py`** — validates **`tests/eval-datasets/`** (manifest **`schemaVersion` 2**): topology/cost/compliance/critic eval JSON **must** include per-case **`architecturalContext`**, **`expect.requiredCategories`**, and **`expect.forbiddenCategories`**. Prompt-injection fixtures declare **`expectedBlockedAt`** as **`precheck`**, **`redactor`**, **`evaluator`**, or **`judge`**. CI passes **`--strict`** on PR and nightly workflows so schema drift fails the build.
+- **`scripts/ci/eval_agent_quality.py`** — validates **`tests/eval-datasets/`** (manifest **`schemaVersion` 2**): topology/cost/compliance/critic eval JSON **must** include per-case **`architecturalContext`**, **`expect.requiredCategories`**, and **`expect.forbiddenCategories`**. Prompt-injection fixtures declare **`expectedBlockedAt`** as **`precheck`**, **`redactor`**, **`evaluator`**, or **`judge`**, **or** honest residual **`expectedContained: true`** with **`containmentNotes`** (TB-951 indirect doc/repo shapes that phrase precheck may miss). CI passes **`--strict`** on PR and nightly workflows so schema drift fails the build.
 
 Release-candidate automation:
 

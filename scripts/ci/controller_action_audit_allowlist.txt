@@ -16,6 +16,9 @@ ArchLucid.Api.Controllers.Admin.DemoController.SeedAsync
 # Durable audit: QuickStartService logs RunSubmitted + RunCompleted (demo-quickstart) via IAuditService.LogAsync.
 ArchLucid.Api.Controllers.Demo.QuickStartController.QuickStartAsync
 ArchLucid.Api.Controllers.Admin.TenantsAdminController.ProvisionAsync
+# Durable audit: TenantSuspendCommandService appends TenantSuspended / TenantUnsuspended to platform audit.
+ArchLucid.Api.Controllers.Admin.TenantsAdminController.SuspendAsync
+ArchLucid.Api.Controllers.Admin.TenantsAdminController.UnsuspendAsync
 # Durable audit: TenantDeletionService logs TenantDataDeleted when purge completes; TenantErasureCommandService logs platform erasure lifecycle events.
 ArchLucid.Api.Controllers.Admin.AdminTenantsController.StartTenantErasureOffboardAsync
 ArchLucid.Api.Controllers.Admin.AdminTenantsController.RestoreTenantErasureQuarantineAsync

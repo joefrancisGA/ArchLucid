@@ -1,6 +1,7 @@
 import {
   BarChart3,
   BookOpen,
+  Building2,
   ClipboardList,
   FilePlus,
   Gauge,
@@ -56,6 +57,14 @@ export class OperatorSystemAdminNavGroupBuilder extends NavGroupBuilderBase {
           label: "Tenant health",
           title: "Tenant health — engagement, governance, and pilot funnel stage per scope",
           icon: BarChart3,
+          tier: "advanced",
+          requiredAuthority: "AdminAuthority",
+        },
+        {
+          href: "/admin/tenants",
+          label: "Tenants",
+          title: "Tenants — provision net-new tenants and shut off or resume tenant surfaces",
+          icon: Building2,
           tier: "advanced",
           requiredAuthority: "AdminAuthority",
         },

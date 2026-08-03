@@ -155,6 +155,8 @@ CLI: `archlucid first-value-report <runId> [--save]` · `archlucid reference-evi
 
 **Tenant value report (DOCX):** `POST /v1/value-report/generate?from=&to=` — **ExecuteAuthority** + **Standard** tier; tenant from ambient scope (TB-281). Legacy alias `POST /v1/value-report/{tenantId}/generate` remains one release with route↔scope binding.
 
+**Admin tenants registry:** `GET /v1/admin/tenants` — **AdminAuthority**; lists registry rows (not RLS-scoped). `POST /v1/admin/tenants` provisions a net-new tenant (idempotent by derived slug; seeds default policy packs). `POST /v1/admin/tenants/{id}/suspend` / `POST /v1/admin/tenants/{id}/unsuspend` shut off or resume the tenant surface without starting erasure quarantine (**204**; **409** when the tenant is already in erasure quarantine). Architect workspace: **`/admin/tenants`** (Internal Operations). Scheduled erasure remains `POST /v1/admin/tenants/{id}/delete` under **PlatformTenantDeletionAuthority**.
+
 **Admin metering summary:** `GET /v1/admin/metering/summary?periodStart=&periodEnd=` — **AdminAuthority**; tenant from ambient scope (TB-279). Legacy alias `GET /v1/admin/metering/tenants/{tenantId}/summary` remains one release with route↔scope binding.
 
 **Executive summary (reports):** `GET /v1/reports/executive-summary` — **ReadAuthority**; canonical ambient-scope contract (TB-280). Legacy `GET api/authority/executive-summary/{tenantId}` removed.

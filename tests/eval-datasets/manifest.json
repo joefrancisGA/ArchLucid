@@ -8,12 +8,13 @@
     { "agentKind": "critic", "relativePath": "critic-eval.json", "minCases": 8 }
   ],
   "promptInjectionRegression": {
-    "minTotalCases": 23,
+    "minTotalCases": 28,
     "relativePaths": [
       "prompt-injection/direct-override.json",
       "prompt-injection/exfiltration.json",
-      "prompt-injection/tool-abuse.json",
-      "prompt-injection/owasp-llm-regression.json"
+      "prompt-injection/indirect-doc-injection.json",
+      "prompt-injection/owasp-llm-regression.json",
+      "prompt-injection/tool-abuse.json"
     ]
   }
 }

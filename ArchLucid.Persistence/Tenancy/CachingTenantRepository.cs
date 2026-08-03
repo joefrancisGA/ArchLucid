@@ -95,6 +95,17 @@ public sealed class CachingTenantRepository(ITenantRepository inner, IHotPathRea
     }
 
     /// <inheritdoc />
+    public async Task<bool> TryUnsuspendTenantAsync(Guid tenantId, CancellationToken ct)
+    {
+        bool cleared = await _inner.TryUnsuspendTenantAsync(tenantId, ct);
+
+        if (cleared)
+            await InvalidateAsync(tenantId, ct);
+
+        return cleared;
+    }
+
+    /// <inheritdoc />
     public Task<TenantWorkspaceLink?> GetFirstWorkspaceAsync(Guid tenantId, CancellationToken ct) =>
         _inner.GetFirstWorkspaceAsync(tenantId, ct);
 

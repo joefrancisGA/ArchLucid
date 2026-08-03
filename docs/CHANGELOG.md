@@ -14,6 +14,10 @@ Release entries newest-first. Each section condenses the detailed prompt logs pr
 
 /help/cloud-connections ships HelpCloudConnectionsGuideView with PageContextualHelpButton, Category-1 registry, Sources + claim-discipline orientation, hub/Azure CTAs, traffic Notes under Help topic, and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.
 
+## 2026-08-03 - UI: Retire `/product-learning` → `/internal/product-learning`
+
+Pilot feedback (product learning) moves under Internal Operations at `/internal/product-learning`. Legacy `/product-learning` permanentRedirects. Nav, host-gate, SEO disallow, breadcrumbs, planning CTAs, help presentation, and traffic PRC updated. API `/v1/product-learning/*` unchanged. No CPA / third-party pen-test implication.
+
 ## 2026-08-03 - UI: Approval lineage Evidence chrome (GAI)
 
 /governance/approval-requests/[id]/lineage ships PageContextualHelpButton, Category-1 registry, workspace Sources + claim-discipline orientation strip, traffic Notes under Alerts/gov, and honest Evidence score 55. Lineage linkage hard-caps higher Evidence; no CPA / third-party pen-test implication.

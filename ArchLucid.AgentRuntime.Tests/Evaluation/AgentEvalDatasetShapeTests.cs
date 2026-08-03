@@ -101,7 +101,19 @@ public sealed class AgentEvalDatasetShapeTests
                 row.TryGetProperty("id", out _).Should().BeTrue();
                 row.TryGetProperty("category", out _).Should().BeTrue();
                 row.TryGetProperty("userPrompt", out _).Should().BeTrue();
-                row.TryGetProperty("expectedBlockedAt", out _).Should().BeTrue();
+
+                bool hasBlockedAt =
+                    row.TryGetProperty("expectedBlockedAt", out JsonElement blockedAt)
+                    && blockedAt.ValueKind == JsonValueKind.String
+                    && !string.IsNullOrWhiteSpace(blockedAt.GetString());
+                bool hasContained =
+                    row.TryGetProperty("expectedContained", out JsonElement contained)
+                    && contained.ValueKind == JsonValueKind.True;
+
+                (hasBlockedAt || hasContained).Should().BeTrue(
+                    "each prompt-injection case needs expectedBlockedAt or expectedContained=true (TB-951)");
+                (hasBlockedAt && hasContained).Should().BeFalse(
+                    "do not set both expectedBlockedAt and expectedContained=true");
             }
 
             countedPi += piDoc.RootElement.GetArrayLength();

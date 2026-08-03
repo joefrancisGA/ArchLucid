@@ -11,6 +11,8 @@ namespace ArchLucid.AgentRuntime.Tests.PromptInjection;
 
 /// <summary>
 ///     Executes prompt-injection fixtures against deterministic layers (precheck + redactor).
+///     TB-951: <c>expectedContained</c> cases document residual soft-injection that phrase precheck
+///     may allow — confinement, not perfect detection, is the control.
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
@@ -52,16 +54,26 @@ public sealed class PromptInjectionExecutableRegressionTests
                 string blockedAt = element.TryGetProperty("expectedBlockedAt", out JsonElement b)
                     ? b.GetString() ?? ""
                     : "";
+                bool expectedContained =
+                    element.TryGetProperty("expectedContained", out JsonElement contained)
+                    && contained.ValueKind == JsonValueKind.True;
 
-                yield return [$"{Path.GetFileName(path)}::{id}", prompt, blockedAt];
+                yield return [$"{Path.GetFileName(path)}::{id}", prompt, blockedAt, expectedContained];
             }
         }
     }
 
     [Theory]
     [MemberData(nameof(FixtureCases))]
-    public async Task Precheck_blocks_expected_prompts(string _, string userPrompt, string expectedBlockedAt)
+    public async Task Precheck_blocks_expected_prompts(
+        string _,
+        string userPrompt,
+        string expectedBlockedAt,
+        bool expectedContained)
     {
+        if (expectedContained)
+            return;
+
         if (!string.Equals(expectedBlockedAt, "precheck", StringComparison.OrdinalIgnoreCase))
             return;
 
@@ -84,8 +96,47 @@ public sealed class PromptInjectionExecutableRegressionTests
 
     [Theory]
     [MemberData(nameof(FixtureCases))]
-    public void Redactor_removes_sensitive_tokens(string _, string userPrompt, string expectedBlockedAt)
+    public async Task Contained_residual_cases_are_not_phrase_precheck_blocks(
+        string caseId,
+        string userPrompt,
+        string _,
+        bool expectedContained)
     {
+        if (!expectedContained)
+            return;
+
+        DefaultRequestContentSafetyPrecheck precheck = new();
+
+        ArchitectureRequest request = new()
+        {
+            RequestId = "req-pi-contained",
+            Description = userPrompt,
+            SystemName = "Sys",
+            Environment = "prod",
+            CloudProvider = CloudProvider.Azure,
+        };
+
+        RequestContentSafetyResult result = await precheck.EvaluateAsync(request, CancellationToken.None);
+
+        // Canary: if this starts failing (precheck blocks), flip the fixture to expectedBlockedAt=precheck.
+        result.IsAllowed.Should().BeTrue(
+            because:
+            "{0} documents a TB-951 residual — soft approve-all / repo prose may not match phrase gates; "
+            + "update the fixture to expectedBlockedAt=precheck if detection improves.",
+            caseId);
+    }
+
+    [Theory]
+    [MemberData(nameof(FixtureCases))]
+    public void Redactor_removes_sensitive_tokens(
+        string _,
+        string userPrompt,
+        string expectedBlockedAt,
+        bool expectedContained)
+    {
+        if (expectedContained)
+            return;
+
         if (!string.Equals(expectedBlockedAt, "redactor", StringComparison.OrdinalIgnoreCase))
             return;
 
