@@ -5,7 +5,6 @@ import {
   type ApiResponseWithTrace,
   getManifestSummary,
   getBuyerRunDetailSummary,
-  getRunDetail,
   getRunExplanationSummary,
   getRunSummary,
   listArtifacts,
@@ -76,11 +75,12 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
   const apiScopeOptions =
     serverScopeHeaders !== null ? { scopeHeaders: serverScopeHeaders } : undefined;
 
-  const usedBuyerRunDetailSummary = isBuyerPolishedOperatorShellEnv();
-  const fetchRunDetail = usedBuyerRunDetailSummary ? getBuyerRunDetailSummary : getRunDetail;
+  // TB-2022: always slim buyer-summary for first paint (no fat PayloadJson/ResultJson).
+  // Inspect/export keep GET /v1/authority/runs/{id}. UI chrome density still uses isBuyerPolishedOperatorShellEnv.
+  const usedBuyerRunDetailSummary = true;
 
   try {
-    runDetailResponse = await fetchRunDetail(runId, apiScopeOptions);
+    runDetailResponse = await getBuyerRunDetailSummary(runId, apiScopeOptions);
   } catch (e) {
     const fallback = tryStaticDemoRunDetail(runId);
 

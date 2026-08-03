@@ -27,8 +27,11 @@ On a representative committed run (many findings + agent results):
 3. Confirm `GET /v1/authority/runs/{id}` (full detail) and finding inspect still return payloads for expand/export.
 4. Expect cut in first-byte / deserialize CPU on buyer-summary; commit/LLM latency unchanged.
 
+## TB-2022 follow-on (2026-08-03)
+
+`load-run-detail-page-model.ts` always calls `getBuyerRunDetailSummary` for `/reviews/[runId]` first paint (no env gate). Fat `getRunDetail` remains for inspect/export/failure-retry surfaces only. Guard: `load-run-detail-page-model.first-paint.test.ts`.
+
 ## Out of scope (follow-ons)
 
 - Typed scalars from JSON (**TB-931**)
 - Blob offload of multi-MB LOBs (**TB-932**, V2)
-- Operator non-buyer shell still uses full `getRunDetail` for first paint when not in buyer-polished mode

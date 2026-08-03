@@ -176,7 +176,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 
 **TB-933 — TB-935** were added 2026-07-22 from the owner follow-up on **UI performance** after **TB-560–TB-573** / **TB-691–TB-698** shipped the first bundle/CWV/Lighthouse wave. Easy static-import wins are largely done; this cluster is the next engineering wave: cut remaining First Load JS on `/reviews/[runId]` (**TB-933**, still ~2.2 MB per `reviews_run_detail_bundle_composition_tb697.md`), then `/reviews` + `/governance` (**TB-934**), then TanStack Query + virtualization for remaining high-churn operator lists beyond findings (**TB-935**). Does **not** duplicate API/SQL payload work (**TB-929**/**TB-930**) — if field LCP/INP is fine but the page feels slow, triage to those first. Owner cadence for field Web Vitals and pre-cut triage lives in GTM **G-QA-06** / **G-QA-07** / **M-112**. Cross-ref [`UI_LIGHTHOUSE_CI.md`](../architecture/UI_LIGHTHOUSE_CI.md), [`ui_dependency_assessment.md`](../architecture/ui_dependency_assessment.md). **TB-933** **Done** (2026-07-24); **TB-934**/**TB-935** remain open. Wave-3 follow-ons: **TB-2021**–**TB-2032** (2026-07-31).
 
-**TB-2021 — TB-2032** were added 2026-07-31 from an **owner ask** for quantified UI speedups (top-10 + follow-up audit of alerts/home/alert-rules). Baseline still shows `/reviews/[runId]` **2,255 kB**, `/reviews` **1,695 kB**, `/governance` **1,417 kB**, `/welcome` **736 kB** First Load JS. Does **not** recreate open **TB-934** (hub First Load JS) or **TB-935** (list Query + virtualization) — execute those as peers. Does **not** reopen Done **TB-933**/**TB-930**/**TB-560**–**TB-573**/**TB-691**–**TB-698**. **TB-2021** (P1) post-933 run-detail sync shell cut — **Done** (2026-08-03; baseline remeasure pending). **TB-2022** (P1) operator slim first-paint (extend **TB-930**). **TB-2023** (P1) alerts inbox mount fan-out. **TB-2024**–**TB-2025** (P2) alert-rules tab code-split + home empty-SSR refetch skip. **TB-2026**–**TB-2029** (P2) Suspense streaming, loader/proxy waterfalls, `/welcome` shell cut, SSE/poll hygiene. **TB-2030** (P2) baseline expansion. **TB-2031** (P2) field CWV triage gate — **Done** (2026-08-03; [`FIELD_WEB_VITALS_TRIAGE.md`](../runbooks/FIELD_WEB_VITALS_TRIAGE.md); pairs GTM **G-QA-06**/**G-QA-07**). **TB-2032** (P3) marketing `next/image` — **Done** (2026-08-03, **waived**; [`tb2032_marketing_lcp_image_waiver.md`](../architecture/tb2032_marketing_lcp_image_waiver.md)). No new GTM IDs. Cross-ref [`reviews_run_detail_bundle_composition_tb697.md`](../architecture/reviews_run_detail_bundle_composition_tb697.md), [`UI_ARCHITECTURE_V1_1.md`](UI_ARCHITECTURE_V1_1.md) §1/§7, [`run_detail_summary_lazy_load_tb930.md`](../architecture/run_detail_summary_lazy_load_tb930.md).
+**TB-2021 — TB-2032** were added 2026-07-31 from an **owner ask** for quantified UI speedups (top-10 + follow-up audit of alerts/home/alert-rules). Baseline still shows `/reviews/[runId]` **2,255 kB**, `/reviews` **1,695 kB**, `/governance` **1,417 kB**, `/welcome` **736 kB** First Load JS. Does **not** recreate open **TB-934** (hub First Load JS) or **TB-935** (list Query + virtualization) — execute those as peers. Does **not** reopen Done **TB-933**/**TB-930**/**TB-560**–**TB-573**/**TB-691**–**TB-698**. **TB-2021** (P1) post-933 run-detail sync shell cut — **Done** (2026-08-03; baseline remeasure pending). **TB-2022** (P1) operator slim first-paint — **Done** (2026-08-03; always buyer-summary). **TB-2023** (P1) alerts inbox mount fan-out. **TB-2024**–**TB-2025** (P2) alert-rules tab code-split + home empty-SSR refetch skip. **TB-2026**–**TB-2029** (P2) Suspense streaming, loader/proxy waterfalls, `/welcome` shell cut, SSE/poll hygiene. **TB-2030** (P2) baseline expansion. **TB-2031** (P2) field CWV triage gate — **Done** (2026-08-03; [`FIELD_WEB_VITALS_TRIAGE.md`](../runbooks/FIELD_WEB_VITALS_TRIAGE.md); pairs GTM **G-QA-06**/**G-QA-07**). **TB-2032** (P3) marketing `next/image` — **Done** (2026-08-03, **waived**; [`tb2032_marketing_lcp_image_waiver.md`](../architecture/tb2032_marketing_lcp_image_waiver.md)). No new GTM IDs. Cross-ref [`reviews_run_detail_bundle_composition_tb697.md`](../architecture/reviews_run_detail_bundle_composition_tb697.md), [`UI_ARCHITECTURE_V1_1.md`](UI_ARCHITECTURE_V1_1.md) §1/§7, [`run_detail_summary_lazy_load_tb930.md`](../architecture/run_detail_summary_lazy_load_tb930.md).
 
 **TB-937 — TB-945** were added 2026-07-22 from the owner question on what **Polly retries + circuit breaker + 429 backoff** do *not* cover for a multi-step agent pipeline (partial completion, poisoned cache, mid-run budget exhaustion, plus related orchestration gaps). Transport resilience stays as-is ([`LLM_RETRY_AND_CIRCUIT_BREAKER.md`](LLM_RETRY_AND_CIRCUIT_BREAKER.md), ADR 0005). This cluster adds **run-level** semantics: partial-run contract + UI (**TB-937**), selective re-execute (**TB-938**), run-scoped budget reservation modeled on Quick Scan **TB-894** (**TB-939**), completion-cache admission/poison bust (**TB-940**), per-`(RunId,TaskId)` spend cap (**TB-941**), downstream consistency after partial/re-execute (**TB-942**), zombie execute reconciliation (**TB-943**), semantic-failure classification (**TB-944**), and a chaos/integration suite (**TB-945**). Does **not** reopen **TB-039** (idempotent skip Done), **TB-043** (remediation Polly decoupling Done), or pull the gated DTF epic (**TB-920**–**TB-924**) unless reservation + selective re-execute prove insufficient. Suggested order: **937 → 940 → 939 → 938 → 941 → 942 → 943 → 944 → 945**. **ACA Worker host layer** (replica death / scale-in / buyer-visible interrupt): **TB-960**–**TB-962** (2026-07-23).
 
@@ -1615,7 +1615,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-2019 | **Done** (2026-07-31) — Host-gate middleware — redirect operator paths off marketing host (+ marketing paths off app host); Vitest; see ## TB-2019 below | Trustworthiness P1 — **V1**; after **TB-2016**/**TB-2018** | M |
 | TB-2020 | **Done** (2026-07-31) — CD dual UI update + CORS dual-origin check; see ## TB-2020 below | Deployability P1 — **V1**; with **TB-2016** | S |
 | TB-2021 | ~~Post-933 `/reviews/[runId]` First Load JS — remaining sync workspace/overview~~ — **Done** (2026-08-03); see ## TB-2021 below | Performance P1 — **V1**; after **TB-933** Done; owner UI speed ask 2026-07-31; pairs **TB-934** | M |
-| TB-2022 | Operator (non-buyer) run-detail slim first-paint — extend **TB-930** buyer-summary path; see ## TB-2022 below | Performance P1 — **V1**; after **TB-930** Done; owner UI speed ask 2026-07-31 | L |
+| TB-2022 | ~~Operator (non-buyer) run-detail slim first-paint — extend **TB-930**~~ — **Done** (2026-08-03); see ## TB-2022 below | Performance P1 — **V1**; after **TB-930** Done; owner UI speed ask 2026-07-31 | L |
 | TB-2023 | Alerts inbox mount fan-out — consolidate 4–6 list/summary RTTs to ~1–2; see ## TB-2023 below | Performance P1 — **V1**; owner UI speed ask 2026-07-31; pairs **TB-935** | S |
 | TB-2024 | Alert-rules hub — `dynamic()` tab panels + parallel rules/routing fetches; see ## TB-2024 below | Performance P2 — **V1**; owner UI speed ask 2026-07-31; traffic **GOA**/**GLR** | S |
 | TB-2025 | Operator home — skip client refetch when SSR empty snapshot is authoritative; see ## TB-2025 below | Performance P2 — **V1**; owner UI speed ask 2026-07-31; pairs **TB-564** | S |
@@ -46567,30 +46567,23 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 — Performance.
 
-**Status:** Not started.
+**Status:** Done (2026-08-03).
 
 **Source:** Owner UI speed ask 2026-07-31; residual called out in [`run_detail_summary_lazy_load_tb930.md`](../architecture/run_detail_summary_lazy_load_tb930.md).
 
-**Why:** Buyer-polished first paint uses slim buyer-summary (**TB-930** Done). Operator / non-buyer shell still hydrates via fat `getRunDetail` (findings `PayloadJson`, agent `ResultJson`) on first paint. Expected payload cut often **−70% to −95%**; **−200 ms to −2 s** LCP/TTFB when findings/agent JSON dominate.
+**Why:** Buyer-polished first paint already used slim buyer-summary (**TB-930**). A residual `getRunDetail` branch remained for “non-buyer” mode; **TB-2022** removes that first-paint fat path entirely.
 
-**Approach:**
+**Shipped:**
 
-1. Inventory operator run-detail loaders that still call full `getRunDetail` for first paint.
-2. Reuse or mirror buyer-summary / coverage projection DTOs for overview; keep inspect/expand on fat endpoints.
-3. Vitest/API contract tests that first-paint path omits fat blobs; expand/export still fat.
-4. Measure App Insights / response size before/after on a multi-finding committed run.
+1. `load-run-detail-page-model.ts` always calls `getBuyerRunDetailSummary` + findings hydration merge (no env-gated fat fetch).
+2. Vitest guard `load-run-detail-page-model.first-paint.test.ts` — loader source must not import/call `getRunDetail`.
+3. Architecture residual note updated in TB-930 doc.
 
-**Acceptance:**
-
-- Operator first paint does not require full `PayloadJson`/`ResultJson` for overview.
-- Inspect/expand/export unchanged.
-- Before/after size or duration note in PR or architecture doc.
-
-**Affected files:** run-detail page loaders, API buyer/operator summary services, UI QuickDecision hydration, Vitest/API tests.
+**Before/after:** Backend slim stack unchanged (**TB-930**). Before: optional fat `GET …/runs/{id}` when env gate false. After: first paint always `GET …/buyer-summary`. Inspect/export still fat. Production already defaulted buyer-polished (`isBuyerPolishedOperatorShellEnv` → true); this locks the contract.
 
 **Depends on:** **TB-930** Done. Benefits from **TB-929** slim lists.
 
-**Out of scope:** Blob offload (**TB-932** V2); typed scalars (**TB-931**); bundle deferral (**TB-2021**).
+**Out of scope:** Blob offload (**TB-932** V2); typed scalars (**TB-931**); bundle deferral (**TB-2021** Done).
 
 **Size estimate:** L.
 
