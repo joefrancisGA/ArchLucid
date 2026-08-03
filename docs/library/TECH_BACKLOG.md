@@ -1,6 +1,6 @@
 > **Scope:** Engineering-owned technical backlog items deferred from current sessions; audience is contributors and the AI assistant; not a buyer or operator document. Not a substitute for ADRs or the pending-questions owner decisions file.
 
-**Updated:** 2026-08-03 (**TB-1746**/**TB-1749**/**TB-1750** **Done** — `/help/soc2-self-assessment` specialty buyer guide + Trust CTA / IA dual / Help Center; Vitest; traffic **HES**; **TB-1747**/**TB-1748** retained). Prior: 2026-08-03 (**TB-1386** **Done** — `/help/governance-api-contracts` specialty API contracts guide + title honesty; Vitest; traffic **HG**). Prior: 2026-08-02 (**TB-1691**/**TB-1692**/**TB-1694**/**TB-1695** **Done** — `/help/first-value-20-minutes` Admin specialty guide; Vitest; traffic **HEF**). Prior: 2026-08-02 (**TB-1676**/**TB-1678**/**TB-1679**/**TB-1680** **Done** — `/help/dpa-template` specialty buyer DPA guide; Vitest; traffic **HDP**). Prior: 2026-07-31 (Open **P1** summary rows reordered - human-impact ship order for /ship-next-improvement; 723 open P1s; see `### P1 - human-impact ship order`).
+**Updated:** 2026-08-03 (**TB-1667** HOM slice — `/` remounts `OperatorHomePageChrome` + Category-1 registry; Vitest; traffic **HOM**; remaining hubs open). Prior: 2026-08-03 (**TB-1746**/**TB-1749**/**TB-1750** **Done** — `/help/soc2-self-assessment` specialty buyer guide + Trust CTA / IA dual / Help Center; Vitest; traffic **HES**; **TB-1747**/**TB-1748** retained). Prior: 2026-08-03 (**TB-1386** **Done** — `/help/governance-api-contracts` specialty API contracts guide + title honesty; Vitest; traffic **HG**). Prior: 2026-08-02 (**TB-1691**/**TB-1692**/**TB-1694**/**TB-1695** **Done** — `/help/first-value-20-minutes` Admin specialty guide; Vitest; traffic **HEF**). Prior: 2026-08-02 (**TB-1676**/**TB-1678**/**TB-1679**/**TB-1680** **Done** — `/help/dpa-template` specialty buyer DPA guide; Vitest; traffic **HDP**). Prior: 2026-07-31 (Open **P1** summary rows reordered - human-impact ship order for /ship-next-improvement; 723 open P1s; see `### P1 - human-impact ship order`).
 
 
 ## Cursor-actionable backlog ? remaining by architectural quality
@@ -1018,7 +1018,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1663 | Alert rules hub — migrate hand-rolled folder tabs onto shared Tabs; see ## TB-1663 below | Adoption friction P1 — **V1**; with **TB-1661**; pairs **TB-1584**/**TB-1589** (do not reopen tab-content UX) | M |
 | TB-1664 | Fake tab ARIA cleanup — Value report outcomes nav + AlertSimulation custom strip; see ## TB-1664 below | Accessibility P1 — **V1**; with **TB-1661**; after Done **TB-671**/**TB-672** pattern | S |
 | TB-1666 | Operator page contextual-help contract — document in UI_DESIGN_SYSTEM (+ UI ARCHITECTURE pointer); see ## TB-1666 below | Adoption friction P1 — **V1**; owner page-help inventory 2026-07-27; traffic **OPH**; pairs empty **TB-1552** / CTA **TB-1539** / header **TB-1508**; do not reopen **TB-1184**/**TB-1458**; IDs skip line-tabs **TB-1661**–**TB-1665** | S |
-| TB-1667 | Pilot + analysis — mount PageContextualHelpButton on mapped-but-unmounted hubs; see ## TB-1667 below | Adoption friction P1 — **V1**; with **TB-1666**; `/` `/dashboard` `/onboarding` `/graph` `/compare` `/replay` `/ask` `/search` | M |
+| TB-1667 | Pilot + analysis — mount PageContextualHelpButton on mapped-but-unmounted hubs; see ## TB-1667 below — **Partial** HOM `/` **Done** 2026-08-03 | Adoption friction P1 — **V1**; with **TB-1666**; remaining `/dashboard` `/onboarding` `/graph` `/compare` `/replay` `/ask` `/search` | M |
 | TB-1668 | Governance + sponsor-report — mount help icon + fix alerts topic mapping; see ## TB-1668 below | Adoption friction P1 — **V1**; with **TB-1666**; pairs **TB-1134**/**TB-1434** (do not reopen) | M |
 | TB-1669 | Integrations + topic-map/registry completeness for remaining nav surfaces; see ## TB-1669 below | Adoption friction P1 — **V1**; with **TB-1666**; cloud-connections + ask/search/patterns; coordinate **TB-1139**/**TB-1184**–**TB-1195** | M |
 | TB-1671 | Operator inline-link affordance contract — document in UI_DESIGN_SYSTEM (+ UI ARCHITECTURE pointer); see ## TB-1671 below | Adoption friction P1 — **V1**; owner unstyled-link pass 2026-07-27; traffic **OLA**; pairs a11y `UI-Accessibility-Baseline.mdc` / CTA **TB-1539**; IDs skip OPH **TB-1666**–**TB-1670** / line-tabs **TB-1661**–**TB-1665** | S |
@@ -41624,7 +41624,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 — Adoption friction.
 
-**Status:** Not started.
+**Status:** Partial — **HOM `/` Done** 2026-08-03 (`OperatorHomePageChrome` remount + Category-1 registry); remaining hubs still open.
 
 **Priority:** P0.
 
@@ -41632,11 +41632,13 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Problem:** Highest-traffic review-workflow and analysis surfaces show no page-level help icon; operators must discover Help Center globally.
 
-**Approach:**
+**Shipped (HOM slice 2026-08-03):** Remounted `OperatorHomePageChrome` on `/` with `PageContextualHelpButton` + Category-1 registry for exact `/`; Vitest in `OperatorHomePageView.test.tsx` + `contextual-help-registry.test.ts`; traffic notes module.
 
-1. Mount `PageContextualHelpButton` in header/actions on: `/` (home), `/dashboard`, `/onboarding`, `/graph`, `/compare`, `/replay`, `/ask`, `/search`.
+**Approach (remaining):**
+
+1. Mount `PageContextualHelpButton` in header/actions on: `/dashboard`, `/onboarding`, `/graph`, `/compare`, `/replay`, `/ask`, `/search` (`/` Done).
 2. Add/adjust `page-help-topic-map` rows: ask → existing slug (`prior-manifest-retrieval` or help-drawer-aligned); search → `review-packages` or another existing `/help` slug — prefer existing slugs; do not invent orphan slugs.
-3. Optional: add Category-1 `contextual-help-registry` entries for home/dashboard/graph/compare when short answers are ready (link-only is OK for V1 of this row).
+3. Optional: add Category-1 `contextual-help-registry` entries for dashboard/graph/compare when short answers are ready (link-only is OK for V1 of this row).
 4. Keep `/reviews/new` BookOpen wizard drawer; still add page-level CircleHelp if map already has `/reviews/new` → `evidence-intake` (or document wizard-drawer as the allowed exception under **TB-1666**).
 5. Do not reopen **TB-1458** (`/architectures/new`) — that row already owns Create-architecture help chrome.
 

@@ -63,7 +63,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | ACB | `/auth/callback` | 5% | 0 | 0 | 500 | Auth | None |
 | ASI | `/auth/signin` | 5% | 0 | 0 | 500 | Auth | None |
 | ASK | `/insights/ask-review-questions` | 4% | 0 | 0 | 400 | Core review | Formerly `/ask` (retired; no redirect). |
-| HOM | `/` | 3% | 0 | 0 | 300 | Core review | None |
+| HOM | `/` | 3% | 0 | 0 | 300 | Core review | Operator Overview home - OperatorHomePageView with remounted OperatorHomePageChrome (title/refresh/PageContextualHelp -> first-architecture-review + Category-1 registry for `/`), phase-aware PilotCommandCenterCard (Do-this-next / dual-path / NBA; in-card help suppressed to avoid double icons), Recent reviews, ROI strip, sample explore, workspace context. TB-1667 HOM slice. Not a diligence Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. |
 | AL | `/governance/alerts` | 3% | 0 | 0 | 300 | Alerts/gov | None |
 | GFN | `/governance/findings` | 2% | 0 | 0 | 200 | Alerts/gov | None |
 | GDX | `/governance/dashboard` | 1.5% | 0 | 0 | 150 | Alerts/gov | None |

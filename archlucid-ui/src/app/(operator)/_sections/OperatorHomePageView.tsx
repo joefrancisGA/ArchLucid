@@ -178,6 +178,7 @@ export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
       <OperatorHomeRefreshProvider>
         <OperatorHomeDeferredOnboarding />
         <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.majorSectionGap}>
+          <OperatorHomePageChrome buyerPolishedShell={buyerPolishedShell} />
           {buyerPolishedShell ? <BuyerPolishedHomePageBody model={model} /> : <OperatorHomePageBody model={model} />}
         </OperatorPageContainer>
       </OperatorHomeRefreshProvider>

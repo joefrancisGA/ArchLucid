@@ -24,12 +24,12 @@ vi.mock("@/lib/operator-home-refresh-context", () => ({
 import { OperatorHomePageHeader } from "@/app/(operator)/_sections/OperatorHomePageHeader";
 
 describe("OperatorHomePageHeader", () => {
-  it("renders h1, help, refresh, and last-refreshed metadata", () => {
+  it("renders Overview title, help, refresh, and last-refreshed metadata", () => {
     requestRefresh.mockReset();
 
     render(<OperatorHomePageHeader subtitle={operatorHomePageSubtitle(false)} />);
 
-    expect(screen.getByRole("heading", { level: 1, name: "Overview" })).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-page-title")).toHaveTextContent("Overview");
     expect(screen.getByText(operatorHomePageSubtitle(false))).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-header-actions")).toBeInTheDocument();

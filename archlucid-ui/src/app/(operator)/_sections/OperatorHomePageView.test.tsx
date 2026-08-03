@@ -1,6 +1,14 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/",
+}));
+
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button">Help</div>,
+}));
+
 vi.mock("@/components/operator-home/BuyerPolishedHomeHeroSection", () => ({
   BuyerPolishedHomeHeroSection: () => (
     <section data-testid="operator-home-hero-section">
@@ -114,6 +122,22 @@ function mockHomeModel(buyerPolishedShell: boolean): OperatorHomePageViewModel {
 }
 
 describe("OperatorHomePageView", () => {
+  it("mounts Overview header chrome with PageContextualHelp (HOM / TB-1667)", () => {
+    render(<OperatorHomePageView model={mockHomeModel(false)} />);
+
+    expect(screen.getByTestId("operator-home-page-title")).toBeInTheDocument();
+    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-refresh-button")).toBeInTheDocument();
+  });
+
+  it("mounts Overview header chrome on buyer-polished home (HOM / TB-1667)", () => {
+    render(<OperatorHomePageView model={mockHomeModel(true)} />);
+
+    expect(screen.getByTestId("operator-home-page-title")).toBeInTheDocument();
+    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-scope-details")).toBeInTheDocument();
+  });
+
   it("renders an elevated Recent reviews section heading in buyer-polished home (TB-347)", () => {
     render(<OperatorHomePageView model={mockHomeModel(true)} />);
 

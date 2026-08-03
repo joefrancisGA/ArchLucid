@@ -9,6 +9,10 @@
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
+## 2026-08-03 — UI: Operator Overview home remounts page help chrome (HOM / TB-1667 slice)
+
+`/` ships remounted `OperatorHomePageChrome` — Overview title, refresh, and `PageContextualHelpButton` (topic map → first-architecture-review) plus Category-1 `contextual-help-registry` for exact `/`. In-card PilotCommandCenter help stays suppressed to avoid double icons. Remaining TB-1667 hubs still open.
+
 ## 2026-08-03 — UI/help: SOC 2 self-assessment specialty guide (HES / TB-1746 / TB-1749 / TB-1750)
 
 `/help/soc2-self-assessment` ships `HelpSoc2SelfAssessmentGuideView` — Trust Center / CAIQ-SIG / Procurement CTAs, Sources strip, job-matrix IA dual, orientation + claim-discipline chrome (self-assessment ≠ CPA Type I/II), and prepared `SOC2_SELF_ASSESSMENT_2026.md` (TB-1747/1748 strips retained). Help Center product-tier discovery + title honesty. Does not imply CPA SOC 2 or third-party pen-test publication.

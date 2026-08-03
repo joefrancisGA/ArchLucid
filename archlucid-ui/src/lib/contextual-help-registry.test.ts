@@ -33,6 +33,7 @@ describe("contextual-help-registry (TB-733)", () => {
     const prefixes = allPageContextualHelpRows().map((row) => row.prefix);
 
     expect(prefixes).toEqual([
+      "/",
       "/architecture/reviews",
       "/governance/findings",
       "/insights/ask-review-questions",
@@ -40,6 +41,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/insights/search-review-evidence",
       "/help/data-handling-tenant-isolation",
       "/help/dpa-template",
+      "/help/soc2-self-assessment",
       "/help/path-chooser",
       "/help/policy-pack-delta-demo",
       "/help/configuration-reference",
@@ -59,6 +61,12 @@ describe("contextual-help-registry (TB-733)", () => {
     expect(contextualHelpForPathname("/architecture/reviews/new")?.whatIsThisPage).toContain("architecture reviews");
     expect(contextualHelpForPathname("/governance/findings?filter=open")?.whatToDoNext).toContain("Assign owners");
     expect(contextualHelpForPathname("/value-report/pilot")?.whatIsThisPage).toContain("sponsor-ready");
+  });
+
+  it("resolves Overview home without stealing other routes (HOM / TB-1667)", () => {
+    expect(contextualHelpForPathname("/")?.whatIsThisPage).toContain("Overview");
+    expect(contextualHelpForPathname("/administration/connection-status")).toBeNull();
+    expect(contextualHelpForPathname("/architecture/architectures")).toBeNull();
   });
 
   it("returns null for routes not yet migrated", () => {
