@@ -404,6 +404,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/admin/tenant-health",
+    entry: {
+      whatIsThisPage:
+        "Tenant health — internal customer-success scores for engagement, governance activity, and pilot funnel stage by tenant scope.",
+      whatToDoNext:
+        "Refresh the table, sort attention to low engagement rows, then open System health or Audit when a tenant needs follow-up.",
+      whyEmpty: "Rows appear after tenant scopes have recorded review or governance activity.",
+      whereToConfigurePrerequisite:
+        "This page requires tenant administrator access; customer tenants never see other tenants here.",
+    },
+  },
+  {
     prefix: "/help/getting-started",
     entry: {
       whatIsThisPage:

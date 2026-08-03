@@ -67,6 +67,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/governance/alert-rules",
       "/governance/approval-requests",
       "/signed-records",
+      "/admin/tenant-health",
       "/help/getting-started",
       "/help/cloud-connections/azure",
       "/help/cloud-connections",
@@ -166,6 +167,11 @@ describe("contextual-help-registry (TB-733)", () => {
     expect(contextualHelpForPathname("/signed-records/demo-manifest")?.whatToDoNext).toContain(
       "export the review bundle",
     );
+  });
+
+  it("resolves tenant-health Category-1 help (ATX)", () => {
+    expect(contextualHelpForPathname("/admin/tenant-health")?.whatIsThisPage).toContain("Tenant health");
+    expect(contextualHelpForPathname("/admin/tenant-health")?.whatToDoNext).toContain("Refresh the table");
   });
 
   it("resolves sponsor executive summary Category-1 help (SPE)", () => {

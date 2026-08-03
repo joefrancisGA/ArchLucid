@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/enterprise-table";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
@@ -22,6 +23,8 @@ import {
   type AdminTenantHealthSummaryItem,
 } from "@/lib/tenant-health-admin";
 import { engagementScoreSeverityKind } from "@/lib/tenant-health-engagement-severity";
+
+import { TenantHealthEvidenceOrientationStrip } from "./TenantHealthEvidenceOrientationStrip";
 
 function formatUtc(iso: string | null): string {
   if (!iso) {
@@ -86,14 +89,21 @@ export function TenantHealthAdminPageClient() {
   return (
     <div className="w-full max-w-[1440px] space-y-6" data-testid="tenant-health-admin-page">
       <div>
-        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Tenant health</h1>
-        <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          Internal customer-success view of engagement, governance, and pilot funnel stage per tenant scope.
-        </p>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Tenant health</h1>
+            <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+              Internal customer-success view of engagement, governance, and pilot funnel stage per tenant scope.
+            </p>
+          </div>
+          <PageContextualHelpButton />
+        </div>
         <Button type="button" variant="outline" size="sm" className="mt-3" disabled={loading} onClick={() => void refresh()}>
           {loading ? "Refreshing…" : "Refresh"}
         </Button>
       </div>
+
+      <TenantHealthEvidenceOrientationStrip />
 
       {error ? (
         <p className={cn("text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.body)} role="alert">
