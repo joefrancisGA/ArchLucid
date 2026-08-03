@@ -1,5 +1,6 @@
 using System.Text;
 
+using ArchLucid.AgentRuntime.PromptInjection;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Requests;
@@ -8,7 +9,7 @@ namespace ArchLucid.AgentRuntime.Prompts;
 
 /// <summary>
 ///     Shared user-prompt sections for agent handlers (architecture request, evidence, task tools/sources) with sensitive
-///     pattern redaction on free-text fields.
+///     pattern redaction on free-text fields. Customer prose is quarantined as DATA (TB-949).
 /// </summary>
 public static class AgentUserPromptBuilder
 {
@@ -23,27 +24,37 @@ public static class AgentUserPromptBuilder
 
     /// <summary>
     ///     Architecture request through evidence package and prior manifest (exclusive of task objective and tool/source
-    ///     lists).
+    ///     lists), quarantined as customer DATA (TB-949).
     /// </summary>
     public static void AppendArchitectureRequestAndEvidence(
         StringBuilder sb,
         ArchitectureRequest request,
         AgentEvidencePackage evidence)
     {
+        CustomerContentPromptDelimiters.AppendQuarantinedSection(
+            sb,
+            body => AppendArchitectureRequestAndEvidenceBody(body, request, evidence));
+    }
+
+    private static void AppendArchitectureRequestAndEvidenceBody(
+        StringBuilder sb,
+        ArchitectureRequest request,
+        AgentEvidencePackage evidence)
+    {
         sb.AppendLine("Architecture Request");
         sb.AppendLine($"RequestId: {request.RequestId}");
-        sb.AppendLine($"SystemName: {request.SystemName}");
-        sb.AppendLine($"Environment: {request.Environment}");
+        sb.AppendLine($"SystemName: {EscapeData(request.SystemName)}");
+        sb.AppendLine($"Environment: {EscapeData(request.Environment)}");
         sb.AppendLine($"CloudProvider: {request.CloudProvider}");
-        sb.AppendLine($"Description: {PromptFieldRedactor.RedactForPrompt(request.Description)}");
+        sb.AppendLine($"Description: {RedactAndEscape(request.Description)}");
         sb.AppendLine();
 
         if (request.Constraints.Count > 0)
         {
             sb.AppendLine("Constraints:");
-            foreach (string constraint in request.Constraints)
 
-                sb.AppendLine($"- {PromptFieldRedactor.RedactForPrompt(constraint)}");
+            foreach (string constraint in request.Constraints)
+                sb.AppendLine($"- {RedactAndEscape(constraint)}");
 
             sb.AppendLine();
         }
@@ -51,9 +62,9 @@ public static class AgentUserPromptBuilder
         if (request.RequiredCapabilities.Count > 0)
         {
             sb.AppendLine("Required Capabilities:");
-            foreach (string capability in request.RequiredCapabilities)
 
-                sb.AppendLine($"- {PromptFieldRedactor.RedactForPrompt(capability)}");
+            foreach (string capability in request.RequiredCapabilities)
+                sb.AppendLine($"- {RedactAndEscape(capability)}");
 
             sb.AppendLine();
         }
@@ -61,9 +72,9 @@ public static class AgentUserPromptBuilder
         if (request.Assumptions.Count > 0)
         {
             sb.AppendLine("Assumptions:");
-            foreach (string assumption in request.Assumptions)
 
-                sb.AppendLine($"- {PromptFieldRedactor.RedactForPrompt(assumption)}");
+            foreach (string assumption in request.Assumptions)
+                sb.AppendLine($"- {RedactAndEscape(assumption)}");
 
             sb.AppendLine();
         }
@@ -75,13 +86,14 @@ public static class AgentUserPromptBuilder
         if (evidence.Policies.Count > 0)
         {
             sb.AppendLine("Policies:");
+
             foreach (PolicyEvidence policy in evidence.Policies)
             {
                 sb.AppendLine(
-                    $"- {PromptFieldRedactor.RedactForPrompt(policy.Title)}: {PromptFieldRedactor.RedactForPrompt(policy.Summary)}");
-                if (policy.RequiredControls.Count > 0)
+                    $"- {RedactAndEscape(policy.Title)}: {RedactAndEscape(policy.Summary)}");
 
-                    sb.AppendLine($"  RequiredControls: {string.Join(", ", policy.RequiredControls)}");
+                if (policy.RequiredControls.Count > 0)
+                    sb.AppendLine($"  RequiredControls: {EscapeJoined(policy.RequiredControls)}");
             }
 
             sb.AppendLine();
@@ -90,12 +102,13 @@ public static class AgentUserPromptBuilder
         if (evidence.ServiceCatalog.Count > 0)
         {
             sb.AppendLine("Service Catalog Hints:");
+
             foreach (ServiceCatalogEvidence service in evidence.ServiceCatalog)
             {
-                sb.AppendLine($"- {service.ServiceName}: {PromptFieldRedactor.RedactForPrompt(service.Summary)}");
-                if (service.RecommendedUseCases.Count > 0)
+                sb.AppendLine($"- {EscapeData(service.ServiceName)}: {RedactAndEscape(service.Summary)}");
 
-                    sb.AppendLine($"  UseCases: {string.Join(", ", service.RecommendedUseCases)}");
+                if (service.RecommendedUseCases.Count > 0)
+                    sb.AppendLine($"  UseCases: {EscapeJoined(service.RecommendedUseCases)}");
             }
 
             sb.AppendLine();
@@ -104,10 +117,11 @@ public static class AgentUserPromptBuilder
         if (evidence.Patterns.Count > 0)
         {
             sb.AppendLine("Pattern Hints:");
+
             foreach (PatternEvidence pattern in evidence.Patterns)
             {
-                sb.AppendLine($"- {pattern.Name}: {PromptFieldRedactor.RedactForPrompt(pattern.Summary)}");
-                sb.AppendLine($"  SuggestedServices: {string.Join(", ", pattern.SuggestedServices)}");
+                sb.AppendLine($"- {EscapeData(pattern.Name)}: {RedactAndEscape(pattern.Summary)}");
+                sb.AppendLine($"  SuggestedServices: {EscapeJoined(pattern.SuggestedServices)}");
             }
 
             sb.AppendLine();
@@ -117,10 +131,19 @@ public static class AgentUserPromptBuilder
             return;
 
         sb.AppendLine("Prior Manifest:");
-        sb.AppendLine($"  Version: {evidence.PriorManifest.ManifestVersion}");
-        sb.AppendLine($"  Summary: {PromptFieldRedactor.RedactForPrompt(evidence.PriorManifest.Summary)}");
+        sb.AppendLine($"  Version: {EscapeData(evidence.PriorManifest.ManifestVersion)}");
+        sb.AppendLine($"  Summary: {RedactAndEscape(evidence.PriorManifest.Summary)}");
         sb.AppendLine();
     }
+
+    private static string RedactAndEscape(string? value) =>
+        CustomerContentPromptDelimiters.EscapeEmbeddedMarkers(PromptFieldRedactor.RedactForPrompt(value));
+
+    private static string EscapeData(string? value) =>
+        CustomerContentPromptDelimiters.EscapeEmbeddedMarkers(value ?? string.Empty);
+
+    private static string EscapeJoined(IEnumerable<string> values) =>
+        string.Join(", ", values.Select(EscapeData));
 
     /// <summary>Task objective, allowed tools, and allowed sources.</summary>
     public static void AppendTaskObjectiveToolsAndSources(StringBuilder sb, AgentTask task)

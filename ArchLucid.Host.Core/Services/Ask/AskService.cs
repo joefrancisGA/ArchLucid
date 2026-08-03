@@ -421,23 +421,13 @@ public sealed class AskService(
         }
     }
 
-    private static string BuildUserPrompt(AskPreparedContext prepared)
-    {
-        string degradedNote = prepared.RetrievalDegraded
-            ? "\n\nRetrieval Warning:\nVector search was unavailable; retrieved evidence may be incomplete and was sourced from SQL findings/manifest text only.\n"
-            : string.Empty;
-
-        return AskUserPromptStaticPrefix.ArchitectUserPrefix +
-               "Structured Context:\n" +
-               prepared.ContextJson +
-               "\n\nRetrieved Evidence:\n" +
-               (string.IsNullOrWhiteSpace(prepared.RetrievalContext) ? "(none)\n" : prepared.RetrievalContext + "\n") +
-               degradedNote +
-               "Conversation History:\n" +
-               (string.IsNullOrWhiteSpace(prepared.HistoryText) ? "(none)\n" : prepared.HistoryText + "\n") +
-               "\nUser Question:\n" +
-               prepared.Question;
-    }
+    private static string BuildUserPrompt(AskPreparedContext prepared) =>
+        AskUserPromptComposer.BuildUserPrompt(
+            prepared.ContextJson,
+            prepared.RetrievalContext,
+            prepared.RetrievalDegraded,
+            prepared.HistoryText,
+            prepared.Question);
 
     private async Task<AskResponse> PersistFallbackResponseAsync(AskPreparedContext prepared, CancellationToken ct)
     {

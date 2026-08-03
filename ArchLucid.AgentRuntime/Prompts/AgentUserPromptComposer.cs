@@ -1,5 +1,6 @@
 using System.Text;
 
+using ArchLucid.AgentRuntime.PromptInjection;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
@@ -10,6 +11,7 @@ namespace ArchLucid.AgentRuntime.Prompts;
 
 /// <summary>
 ///     Composes agent user prompts with static prefix before per-run dynamic sections (TB-681).
+///     Customer prose is quarantined via <see cref="CustomerContentPromptDelimiters" /> (TB-949).
 /// </summary>
 public static class AgentUserPromptComposer
 {
@@ -105,22 +107,29 @@ public static class AgentUserPromptComposer
 
         if (stagedNotes.Count > 0)
         {
-            sb.AppendLine(
-                "Prior agent batch summary (bounded, redacted; execution sequencing only — not autonomous planning "
-                + "beyond product scope; see docs/library/V1_SCOPE.md):");
-            sb.AppendLine();
-
-            foreach (EvidenceNote staged in stagedNotes)
-            {
-                if (!string.IsNullOrWhiteSpace(staged.Message))
-                    sb.AppendLine(staged.Message);
-
-                sb.AppendLine();
-            }
+            CustomerContentPromptDelimiters.AppendQuarantinedSection(
+                sb,
+                body => AppendStagedPriorAgentsSummary(body, stagedNotes));
         }
 
         AgentUserPromptBuilder.AppendTaskObjectiveToolsAndSources(sb, task);
 
         return sb.ToString();
+    }
+
+    private static void AppendStagedPriorAgentsSummary(StringBuilder sb, List<EvidenceNote> stagedNotes)
+    {
+        sb.AppendLine(
+            "Prior agent batch summary (bounded, redacted; execution sequencing only — not autonomous planning "
+            + "beyond product scope; see docs/library/V1_SCOPE.md):");
+        sb.AppendLine();
+
+        foreach (EvidenceNote staged in stagedNotes)
+        {
+            if (!string.IsNullOrWhiteSpace(staged.Message))
+                sb.AppendLine(CustomerContentPromptDelimiters.EscapeEmbeddedMarkers(staged.Message));
+
+            sb.AppendLine();
+        }
     }
 }

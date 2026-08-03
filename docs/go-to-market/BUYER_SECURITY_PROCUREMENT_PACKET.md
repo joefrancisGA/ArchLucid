@@ -259,7 +259,7 @@ Former standalone body: `docs/go-to-market/PROMPT_INJECTION_RESISTANCE_BUYER_ONE
 
 ### Residuals (honest)
 
-- Engineering **TB-949**–**TB-952** (composer delimiters, confinement tests, Content Safety wiring honesty) — cite as open until Done.
+- Engineering **TB-949** (**Done** — composer DATA delimiters / hygiene contract). Residual open: **TB-950**–**TB-952** (AllowedTools fail-closed, indirect corpus, side-effect inventory).
 - Empty / advisory `AllowedTools` residual: **TB-950**.
 - Extend claim guardrails: **M-116**; deeper ingress vs impossible matrix: [LLM trust boundary (M-149)](#llm-trust-boundary-ingress-m-149).
 
