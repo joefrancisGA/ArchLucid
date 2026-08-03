@@ -43,6 +43,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/governance/findings", topic: { slug: "governance-approval", label: OPERATOR_NAV_LINK_LABELS.findings } },
   { prefix: "/governance/audit", topic: { slug: "audit-trail", label: "Audit trail" } },
   {
+    prefix: "/governance/decision-register",
+    topic: { slug: "how-it-works", label: "Decision register" },
+  },
+  {
     prefix: "/governance/dashboard",
     topic: { slug: "how-it-works", label: "Workspace overview" },
   },

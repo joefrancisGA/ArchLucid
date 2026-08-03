@@ -51,7 +51,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 
 | ID | Path | Hit% | Scores | Weight | Deficit | Section | Notes |
 |----|------|------|--------|--------|---------|---------|-------|
-| GDO | `/governance/decision-register` | 0.3% | 0 | 0 | 30 | Alerts/gov | None |
+| GDO | `/governance/decision-register` | 0.3% | 0 | 0 | 30 | Alerts/gov | Decision register - DecisionRegisterClient with OperatorPageHeader PageContextualHelpButton (topic map how-it-works / Decision register, not governance-approval catch-all), Category-1 registry, Sources follow-up strip + claim-discipline callout (register browse, not diligence pack), filters/summary/cards/timeline. Not a signed-record Sources trail by itself. Does not imply CPA SOC 2 or third-party pen-test publication. Score 50/100 (2026-08-03) — register browse hard-caps without per-decision signed-record package. |
 | GPI | `/governance/policy-packs/[id]` | 0.3% | 0 | 0 | 30 | Alerts/gov | None |
 | CXX | `/insights/compare-two-reviews` | 0.25% | 0 | 0 | 25 | Marketing | None |
 | SCE | `/integrations/cloud-connections` | 0.25% | 0 | 0 | 25 | Integrations | None |
@@ -207,7 +207,6 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | INR | `/internal-operations/recommendation-learning` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | PRB | `/privacy` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | RER | `/reviews/[runId]/artifacts/[artifactId]` | 0.02% | 0 | 0 | 2 | Core review | None |
-| ERU | `/reviews/[runId]/findings/[findingId]/evidence-trace` | 0.02% | 0 | 0 | 2 | Core review | None |
 | REA | `/reviews/[runId]?archTab=activity` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | REC | `/reviews/[runId]?archTab=clarifications` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | RED | `/reviews/[runId]?archTab=diagram` | 0.02% | 0 | 0 | 2 | Tab surface | None |

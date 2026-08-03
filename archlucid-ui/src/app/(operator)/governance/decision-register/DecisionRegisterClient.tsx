@@ -7,6 +7,7 @@ import { DecisionRegisterTimeline } from "@/components/DecisionRegisterTimeline"
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   getArchitectureDecisionRegister,
   type ArchitectureDecisionRegisterEntry,
@@ -18,6 +19,7 @@ import { BUYER_GOVERNANCE_DECISION_REGISTER_TITLE } from "@/lib/buyer-polish-cop
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { DecisionRegisterDecisionCard } from "./DecisionRegisterDecisionCard";
+import { DecisionRegisterSourcesStrip } from "./DecisionRegisterSourcesStrip";
 import { DecisionRegisterViewEmptyShell } from "./DecisionRegisterViewEmptyShell";
 import { DecisionRegisterFiltersPanel } from "./DecisionRegisterFiltersPanel";
 import { DecisionRegisterSummaryRow } from "./DecisionRegisterSummaryRow";
@@ -177,8 +179,15 @@ export default function DecisionRegisterClient() {
       <OperatorPageHeader
         title={BUYER_GOVERNANCE_DECISION_REGISTER_TITLE}
         subtitle={DECISION_REGISTER_PAGE_SUBTITLE}
-        actions={<DecisionRegisterViewSwitcher viewMode={viewMode} onViewModeChange={setViewMode} />}
+        actions={
+          <div className="flex flex-wrap items-center gap-2">
+            <PageContextualHelpButton />
+            <DecisionRegisterViewSwitcher viewMode={viewMode} onViewModeChange={setViewMode} />
+          </div>
+        }
       />
+
+      <DecisionRegisterSourcesStrip />
 
       {!loadError ? <DecisionRegisterSummaryRow summary={summary} /> : null}
 
@@ -214,7 +223,7 @@ export default function DecisionRegisterClient() {
           testId="decision-register-load-error"
           title="Decision register unavailable"
           description={loadError}
-          actions={[{ label: DECISION_REGISTER_EMPTY_ACTION_REVIEW_PACKAGES, href: "/reviews?projectId=default", variant: "primary" }]}
+          actions={[{ label: DECISION_REGISTER_EMPTY_ACTION_REVIEW_PACKAGES, href: "/architecture/reviews?projectId=default", variant: "primary" }]}
         />
       ) : null}
 
@@ -225,9 +234,9 @@ export default function DecisionRegisterClient() {
             title={DECISION_REGISTER_EMPTY_TITLE}
             description={DECISION_REGISTER_EMPTY_BODY}
             actions={[
-              { label: DECISION_REGISTER_EMPTY_ACTION_REVIEW_PACKAGES, href: "/reviews?projectId=default", variant: "primary" },
-              { label: DECISION_REGISTER_EMPTY_ACTION_START_REVIEW, href: "/reviews/new", variant: "outline" },
-              { label: DECISION_REGISTER_EMPTY_ACTION_GOVERNANCE, href: "/governance", variant: "outline" },
+              { label: DECISION_REGISTER_EMPTY_ACTION_REVIEW_PACKAGES, href: "/architecture/reviews?projectId=default", variant: "primary" },
+              { label: DECISION_REGISTER_EMPTY_ACTION_START_REVIEW, href: "/architecture/reviews/new", variant: "outline" },
+              { label: DECISION_REGISTER_EMPTY_ACTION_GOVERNANCE, href: "/governance/approval-queue", variant: "outline" },
             ]}
           />
         </DecisionRegisterViewEmptyShell>
