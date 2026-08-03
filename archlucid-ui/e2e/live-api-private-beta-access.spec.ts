@@ -126,7 +126,7 @@ test.describe("live-api-private-beta-access", () => {
 
     await page.goto(`/reviews?projectId=${encodeURIComponent(scope.projectId)}`, { waitUntil: "domcontentloaded" });
     await expect(
-      page.getByRole("heading", { level: 1, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
+      page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
     ).toBeVisible({ timeout: 90_000 });
     await expectLiveReviewsHubListReady(page, { timeoutMs: 90_000, projectId: scope.projectId });
     const reviewsHubRow = page.locator(
@@ -242,7 +242,7 @@ test.describe("live-api-private-beta-access", () => {
     // Buyer-polished hub rows expose `reviews-hub-row-{runId}` — link accessible names are titles, not GUID prefixes.
     await page.goto(`/reviews?projectId=${encodeURIComponent(scope.projectId)}`, { waitUntil: "domcontentloaded" });
     await expect(
-      page.getByRole("heading", { level: 1, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
+      page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
     ).toBeVisible({ timeout: 90_000 });
     await expectLiveReviewsHubListReady(page, { timeoutMs: 90_000, projectId: scope.projectId });
     const reviewsHubRow = page.locator(
