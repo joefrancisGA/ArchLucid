@@ -282,7 +282,7 @@ Former standalone body: `docs/go-to-market/LLM_TRUST_BOUNDARY_INGRESS_PA_ONE_PAG
 | Can model output alter finding prose? | Yes; output quality and governance controls must evaluate it |
 | Can it call arbitrary HTTP or shell tools? | No model-driven tool loop for those capabilities |
 | Can it create ITSM work directly? | No model-driven ITSM side-effect loop |
-| Are all tool states fail-closed? | Not yet: empty `AllowedTools` remains a tracked residual |
+| Are all tool states fail-closed? | Yes on production-like hosts: empty/null `AllowedTools` denies dispatch (**TB-950**); unrestricted requires explicit `*` sentinel |
 
 ### What enters the model
 
