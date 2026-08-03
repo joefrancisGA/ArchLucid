@@ -45,14 +45,13 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 
 ---
 
-**OVERALL WEIGHT SCORE:** 52.45%
+**OVERALL WEIGHT SCORE:** 52.55%
 
 ## Master table (score 0 first; then Deficit desc; ties A→Z by path)
 
 | ID | Path | Hit% | Scores | Weight | Deficit | Section | Notes |
 |----|------|------|--------|--------|---------|---------|-------|
 | SPE | `/sponsor-report/executive-summary` | 0.22% | 0 | 0 | 22 | Sponsor report | Sponsor executive summary report (canonical). Absorbs former VXX hit share from retired legacy `/value-report` bookmark row (LegacyValueReportRedirectPage still permanentRedirects here). Does not imply CPA SOC 2 or third-party pen-test publication. |
-| SIG | `/signup` | 0.2% | 0 | 0 | 20 | Marketing | None |
 | AUX | `/administration/settings/users` | 0.15% | 0 | 0 | 15 | Admin | None |
 | ADV | `/governance/advisory-scans` | 0.15% | 0 | 0 | 15 | Advisory | None |
 | SAX | `/governance/alert-rules` | 0.15% | 0 | 0 | 15 | Alerts/gov | None |
@@ -243,6 +242,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | P | `/pricing` | 0.25% | 42 | 10.5 | 14.5 | Marketing | Pricing (Marketing) - PricingPageHero + tier grid/FAQ/quote with PricingEvidenceOrientationStrip (evaluation Sources + claim-discipline: commercial packaging only; not diligence / CPA SOC 2 / third-party pen-test). Not an operator PageContextualHelp surface. Does not imply CPA SOC 2 or third-party pen-test publication. Score 42/100 (2026-08-03) - marketing commercial page hard-caps higher Evidence. |
 | SCE | `/integrations/cloud-connections` | 0.25% | 50 | 12.5 | 12.5 | Integrations | Cloud connections (Integrations) - landing hub with PageContextualHelpButton (topic map cloud-connections; Category-1 registry), workspace Sources + claim-discipline orientation strip, platform scope panel, provider summary cards + evidence-only upload. Legacy /settings/cloud-connections redirects here. Not a signed-record Sources trail by itself. Does not imply CPA SOC 2 or third-party pen-test publication. Score 50/100 (2026-08-03) - connection-hub hard-caps higher Evidence. |
 | CXX | `/insights/compare-two-reviews` | 0.25% | 52 | 13 | 12 | Insights | Compare two reviews (Insights) - CompareForm with OperatorPageHeader PageContextualHelpButton (topic map comparison-replay; Category-1 registry), workspace Sources + claim-discipline orientation strip, pair Cite Sources after Compare (ComparePairEvidenceCiteStrip), run pickers/results. Formerly /compare (retired; no redirect). Not a signed-record Sources trail by itself. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-03) — directional-diff launcher hard-caps higher Evidence. |
+| SIG | `/signup` | 0.2% | 40 | 8 | 12 | Marketing | Signup (Marketing) - evaluation start with SignupForm or SignupAccessRequestPanel, SignupEvidenceOrientationStrip (evaluation Sources + claim-discipline: evaluation access only; not diligence / CPA SOC 2 / third-party pen-test). Not an operator PageContextualHelp surface. Does not imply CPA SOC 2 or third-party pen-test publication. Score 40/100 (2026-08-03) - marketing evaluation-access page hard-caps higher Evidence. |
 | GRO | `/governance/risk-exceptions` | 0.3% | 62 | 18.6 | 11.4 | Alerts/gov | None |
 | RRP | `/reviews/[runId]/provenance` | 0.25% | 55 | 13.75 | 11.25 | Core review | Run provenance (Core review) - ProvenancePageWorkspace with PageContextualHelpButton (topic map evidence-trail; Category-1 registry via /provenance path match), workspace Sources + claim-discipline orientation strip, graph/timeline/table views. Coordinator linkage for one run — not a full diligence Sources export alone. Does not imply CPA SOC 2 or third-party pen-test publication. Score 55/100 (2026-08-03) - coordinator provenance hard-caps higher Evidence without diligence export packing. |
 | GRA | `/insights/evidence-graph` | 0.6% | 82 | 49.2 | 10.8 | Planning | None |

@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
 import { SignupAccessRequestPanel } from "@/components/marketing/SignupAccessRequestPanel";
+import { SignupEvidenceOrientationStrip } from "@/components/marketing/SignupEvidenceOrientationStrip";
 import { SignupForm } from "@/components/marketing/SignupForm";
 import { CUSTOMER_AUTH_EVALUATION_SIGNUP_LEAD } from "@/lib/auth/customer-auth-messaging";
 import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -44,6 +45,7 @@ export default function SignupPage() {
       <div className="mt-8">
         {publicSignupEnabled ? <SignupForm /> : <SignupAccessRequestPanel />}
       </div>
+      <SignupEvidenceOrientationStrip />
     </MarketingPageShell>
   );
 }
