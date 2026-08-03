@@ -227,6 +227,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/governance/policy-packs",
+    entry: {
+      whatIsThisPage:
+        "Review policy pack rules, versions, and how packs apply to architecture reviews in this workspace.",
+      whatToDoNext:
+        "Open a pack to inspect rules, return to the library to compare packs, or apply a pack when starting a review.",
+      whyEmpty: "Packs appear after the library is populated for this workspace.",
+      whereToConfigurePrerequisite:
+        "Policy packs respect the workspace and project selected in the header switcher.",
+    },
+  },
+  {
     prefix: "/governance/decision-register",
     entry: {
       whatIsThisPage:

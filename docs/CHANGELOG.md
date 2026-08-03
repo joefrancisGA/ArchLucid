@@ -13,6 +13,10 @@ Release entries newest-first. Each section condenses the detailed prompt logs pr
 ## 2026-08-03 — Ops: ArchLucid DEV sandbox primary region ? **centralus**
 
 DEV CD target aligned with staging/production: `dev.tfvars.example` + [`AZURE_SUBSCRIPTIONS.md`](library/AZURE_SUBSCRIPTIONS.md) now specify **`centralus`**, with example runtime RG **`rg-ArchLucid-dev-cus`** (`create_resource_group = true`). Operators must update GitHub Environment secret **`DEV_TFVARS`**, **`EXPECTED_AZURE_LOCATION=centralus`**, and **`AZURE_RESOURCE_GROUP`** for the centralus stack. ACR may remain in legacy **`rg-ArchLucid-dev`**.
+## 2026-08-03 — UI: Policy pack detail Evidence chrome (GPI)
+
+/governance/policy-packs/[id] ships PolicyPackDetailEvidenceChrome (PageContextualHelpButton + Sources strip + claim-discipline) across specialty/generic pack variants, Category-1 registry for /governance/policy-packs, and enriched traffic Notes. Pack narrative launcher hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-03 — UI: Decision register Evidence chrome (GDO)
 
 /governance/decision-register ships PageContextualHelpButton, topic-map honesty (how-it-works / Decision register), Category-1 registry, Sources follow-up strip + claim-discipline callout (register browse, not a diligence pack), and enriched traffic Notes. Register browse hard-caps higher Evidence; no CPA / third-party pen-test implication.

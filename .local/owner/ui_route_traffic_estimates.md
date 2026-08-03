@@ -45,13 +45,12 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 
 ---
 
-**OVERALL WEIGHT SCORE:** 51.42%
+**OVERALL WEIGHT SCORE:** 51.60%
 
 ## Master table (score 0 first; then Deficit desc; ties A→Z by path)
 
 | ID | Path | Hit% | Scores | Weight | Deficit | Section | Notes |
 |----|------|------|--------|--------|---------|---------|-------|
-| GPI | `/governance/policy-packs/[id]` | 0.3% | 0 | 0 | 30 | Alerts/gov | None |
 | CXX | `/insights/compare-two-reviews` | 0.25% | 0 | 0 | 25 | Marketing | None |
 | SCE | `/integrations/cloud-connections` | 0.25% | 0 | 0 | 25 | Integrations | None |
 | P | `/pricing` | 0.25% | 0 | 0 | 25 | Marketing | None |
@@ -248,6 +247,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | RNX | `/reviews/new` | 0.5% | 48 | 24 | 26 | Core review | Start review intake - ReviewsNewPageChrome with OperatorPageHeader PageContextualHelpButton (topic map evidence-intake / Start review; Category-1 registry), Sources follow-up strip + claim-discipline callout (intake only, not diligence trail), path switcher wizards. Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 48/100 (2026-08-03) — intake wizard launcher hard-caps higher Evidence. |
 | AUD | `/governance/audit` | 0.5% | 55 | 27.5 | 22.5 | Alerts/gov | Governance audit trail - AuditPageView with AuditPageHeader PageContextualHelpButton (topic map audit-trail; Category-1 registry), Sources follow-up strip + claim-discipline callout (activity log, not diligence pack), search/filters, integrity export/verify when available. Not a signed-record Sources trail by itself. Does not imply CPA SOC 2 or third-party pen-test publication. Score 55/100 (2026-08-03) — activity-log Evidence hard-caps without signed-record package. |
 | GPP | `/governance/policy-packs` | 0.4% | 48 | 19.2 | 20.8 | Alerts/gov | None |
+| GPI | `/governance/policy-packs/[id]` | 0.3% | 48 | 14.4 | 15.6 | Alerts/gov | Policy pack detail - PolicyPackDetailClient with PolicyPackDetailEvidenceChrome (PageContextualHelpButton; topic map governance-approval / Policy packs; Category-1 registry), Sources follow-up strip + claim-discipline callout (pack rules, not diligence trail), specialty/generic pack narratives. Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 48/100 (2026-08-03) — pack narrative launcher hard-caps higher Evidence. |
 | GDO | `/governance/decision-register` | 0.3% | 50 | 15 | 15 | Alerts/gov | Decision register - DecisionRegisterClient with OperatorPageHeader PageContextualHelpButton (topic map how-it-works / Decision register, not governance-approval catch-all), Category-1 registry, Sources follow-up strip + claim-discipline callout (register browse, not diligence pack), filters/summary/cards/timeline. Not a signed-record Sources trail by itself. Does not imply CPA SOC 2 or third-party pen-test publication. Score 50/100 (2026-08-03) — register browse hard-caps without per-decision signed-record package. |
 | GRO | `/governance/risk-exceptions` | 0.3% | 62 | 18.6 | 11.4 | Alerts/gov | None |
 | GRA | `/insights/evidence-graph` | 0.6% | 82 | 49.2 | 10.8 | Planning | None |

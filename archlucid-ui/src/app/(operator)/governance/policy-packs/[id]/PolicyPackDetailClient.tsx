@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactElement } from "react";
 
 import { listPolicyPacks } from "@/lib/api";
 import type { PolicyPack } from "@/types/policy-packs";
 
 import { HealthcareClaimsPolicyPackDetail } from "./HealthcareClaimsPolicyPackDetail";
+import { PolicyPackDetailEvidenceChrome } from "./PolicyPackDetailEvidenceChrome";
 import { PolicyPackGenericDetail } from "./PolicyPackGenericDetail";
 import {
   isSampleResponsibleAiPolicyPack,
@@ -17,6 +18,10 @@ import { ResponsibleAiPolicyPackDetail } from "./ResponsibleAiPolicyPackDetail";
 type PolicyPackDetailClientProps = {
   readonly policyPackId: string;
 };
+
+function withEvidenceChrome(node: ReactElement): ReactElement {
+  return <PolicyPackDetailEvidenceChrome>{node}</PolicyPackDetailEvidenceChrome>;
+}
 
 /**
  * Detail shell for `/governance/policy-packs/[id]` — sponsor-grade pack narratives for known packs,
@@ -59,16 +64,16 @@ export function PolicyPackDetailClient(props: PolicyPackDetailClientProps): Reac
   const kind = resolvePolicyPackDetailKind(policyPackId, packRecord);
 
   if (kind === "healthcare-claims") {
-    return <HealthcareClaimsPolicyPackDetail policyPackId={policyPackId} />;
+    return withEvidenceChrome(<HealthcareClaimsPolicyPackDetail policyPackId={policyPackId} />);
   }
 
   if (kind === "responsible-ai") {
-    return (
+    return withEvidenceChrome(
       <ResponsibleAiPolicyPackDetail
         policyPackId={policyPackId}
         packRecord={packRecord}
         isSample={isSampleResponsibleAiPolicyPack(policyPackId, packRecord)}
-      />
+      />,
     );
   }
 
@@ -81,8 +86,10 @@ export function PolicyPackDetailClient(props: PolicyPackDetailClientProps): Reac
   }
 
   if (packRecord !== null) {
-    return <PolicyPackGenericDetail policyPackId={policyPackId} packRecord={packRecord} />;
+    return withEvidenceChrome(
+      <PolicyPackGenericDetail policyPackId={policyPackId} packRecord={packRecord} />,
+    );
   }
 
-  return <PolicyPackDetailNotFound policyPackId={policyPackId} />;
+  return withEvidenceChrome(<PolicyPackDetailNotFound policyPackId={policyPackId} />);
 }
