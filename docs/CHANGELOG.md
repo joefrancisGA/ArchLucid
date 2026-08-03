@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-03 - UI: Alert rules hub Evidence chrome (SAX)
+
+/governance/alert-rules ships workspace Sources + claim-discipline orientation on non-routing tabs (Notifications keeps GOR strip), Category-1 help pre-existing, traffic Notes under Alerts/gov, and honest Evidence score 48. Alert-config hub hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-03 - Docs: Retire VRX traffic row; fold hit share into SPR
 
 Legacy `/value-report/roi` bookmark row **VRX** removed from the UI route traffic workbook. Hit% **0.1%** (plus SPR's **0.02%**) folded into canonical sponsor ROI summary **SPR** (Hit **0.12%**, Score **50**, Weight **6**, Deficit **6**). App Router shim still permanentRedirects `/value-report/roi` → `/sponsor-report/roi-summary`. No CPA / third-party pen-test implication.

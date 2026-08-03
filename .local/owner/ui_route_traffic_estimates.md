@@ -45,13 +45,12 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 
 ---
 
-**OVERALL WEIGHT SCORE:** 52.95%
+**OVERALL WEIGHT SCORE:** 53.05%
 
 ## Master table (score 0 first; then Deficit desc; ties A→Z by path)
 
 | ID | Path | Hit% | Scores | Weight | Deficit | Section | Notes |
 |----|------|------|--------|--------|---------|---------|-------|
-| SAX | `/governance/alert-rules` | 0.15% | 0 | 0 | 15 | Alerts/gov | None |
 | GAI | `/governance/approval-requests/[id]/lineage` | 0.15% | 0 | 0 | 15 | Alerts/gov | None |
 | HCE | `/help/cloud-connections` | 0.15% | 0 | 0 | 15 | Help topic | None |
 | MMX | `/signed-records/[manifestId]` | 0.15% | 0 | 0 | 15 | Marketing | None |
@@ -209,7 +208,6 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | SSU | `/settings/users?tab=users` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | SI | `/signed-records` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | SIM | `/signed-records/[manifestId]/artifacts/[artifactId]` | 0.02% | 0 | 0 | 2 | Marketing | None |
-| SPR | `/sponsor-report/roi-summary` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | RE | `/reviews` | 12% | 58 | 696 | 504 | Core review | None |
 | RRE | `/reviews/[runId]` | 10.04% | 55 | 552.2 | 451.8 | Core review | Review workspace detail. Absorbs former SRN hit share from retired legacy `/snapshot/[runId]` bookmark row (SnapshotPage still redirects here with readOnly=1; showcase Claims Intake spine). Canonical leave-behind UX. Does not imply CPA SOC 2 or third-party pen-test publication. Score 55/100 — existing review-workspace Evidence; hit share folded from SRN (2026-08-03). |
 | RRF | `/reviews/[runId]/findings/[findingId]` | 9% | 50 | 450 | 450 | Core review | None |
@@ -245,13 +243,14 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | ALE | `/governance/alert-rules?tab=routing` | 0.2% | 48 | 9.6 | 10.4 | Tab surface | Alert rules Notifications/routing tab (Tab surface) - AlertRoutingContent with hub PageContextualHelpButton (topic map alerts), workspace Sources + claim-discipline orientation strip when ?tab=routing. Delivery destinations only — not diligence Sources. Sibling SAX/GOA = hub; Conditions/Advanced/Test tabs are separate rows. Does not imply CPA SOC 2 or third-party pen-test publication. Score 48/100 (2026-08-03) - tab-surface delivery config hard-caps higher Evidence. |
 | SPE | `/sponsor-report/executive-summary` | 0.22% | 55 | 12.1 | 9.9 | Sponsor report | Sponsor executive summary (Sponsor report) - ValueReportPageClient/View with PageContextualHelpButton (topic map executive-summary; Category-1 registry on /sponsor-report + /value-report), workspace Sources + claim-discipline orientation strip, period preview/exports, Outcomes nav. Absorbs former VXX hit share from retired legacy `/value-report` bookmark row (LegacyValueReportRedirectPage still permanentRedirects here). Period summary — not a signed-record Sources trail alone. Does not imply CPA SOC 2 or third-party pen-test publication. Score 55/100 (2026-08-03) - sponsor period-summary hard-caps higher Evidence without diligence packing. |
 | HGX | `/help/getting-started` | 0.2% | 52 | 10.4 | 9.6 | Help topic | Getting started help (Help topic) - HelpGettingStartedGuideView with PageContextualHelpButton (topic map getting-started; Category-1 registry), workspace Sources + claim-discipline orientation, quick-start CTAs, workflow stepper, vocabulary. Orientation guide — not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-03) - help-topic orientation hard-caps higher Evidence. |
+| SAX | `/governance/alert-rules` | 0.15% | 48 | 7.2 | 7.8 | Alerts/gov | Alert rules hub (Alerts/gov) - AlertRulesHubClient with PageContextualHelpButton (topic map alerts; Category-1 registry), workspace Sources + claim-discipline orientation strip on non-routing tabs (Notifications keeps AlertRoutingEvidenceOrientationStrip for GOR), Conditions/Notifications/Advanced/Test tabs. Alert configuration - not a signed-record Sources trail. Sibling GOR = routing tab; GOA = low-hit hub duplicate in template. Does not imply CPA SOC 2 or third-party pen-test publication. Score 48/100 (2026-08-03) - alert-config hub hard-caps higher Evidence. |
 | GRS | `/governance/standards-and-rules` | 0.15% | 48 | 7.2 | 7.8 | Alerts/gov | None |
 | GRX | `/governance/recurrence-schedules` | 0.2% | 62 | 12.4 | 7.6 | Alerts/gov | None |
 | AUX | `/administration/settings/users` | 0.15% | 50 | 7.5 | 7.5 | Admin | Users and roles (Settings/Admin) - SettingsRolesPageView with PageContextualHelpButton (topic map users-and-roles; Category-1 registry), workspace Sources + claim-discipline orientation strip, Users/Roles/API-keys tabs, invite + matrix. Access configuration — not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 50/100 (2026-08-03) — access-hub hard-caps higher Evidence. |
 | ADV | `/governance/advisory-scans` | 0.15% | 50 | 7.5 | 7.5 | Advisory | Advisory scans hub (Governance) - AdvisoryHubClient with PageContextualHelpButton (Category-1 registry), workspace Sources + claim-discipline orientation strip, Scans/Schedules tabs, recommendation generate + schedules. Follow-up recommendations - not a signed-record Sources trail. Sibling AD = Schedules tab deep link. Does not imply CPA SOC 2 or third-party pen-test publication. Score 50/100 (2026-08-03) - recommendation-launcher hard-caps higher Evidence. |
 | FI | `/help/first-review` | 0.18% | 61 | 10.98 | 7.02 | Help topic | Specialty first-run evidence checklist (Admin internal-runbook) - HelpFirstReviewEvidenceChecklistGuideView with first-architecture-review / Start architecture review / audit primary CTAs, Sources diligence strip (complete review workflow, Azure connect, audit-trail, troubleshooting, configuration-reference), evidence arc, claim-discipline callout (checklist is not certification), PageContextualHelp, and prepared FIRST_RUN_EVIDENCE_CHECKLIST.md (API/runbook/script leakage strip). Not bare HelpTopicMarkdownView. Admin-gated internal Help Center tier. Not a redirect to buyer core-pilot. Does not imply CPA SOC 2 or third-party pen-test publication. |
+| SPR | `/sponsor-report/roi-summary` | 0.12% | 50 | 6 | 6 | Sponsor report | Sponsor ROI summary report (canonical). Absorbs former VRX hit share from retired legacy `/value-report/roi` bookmark row (LegacyRoiSummaryRedirectPage still permanentRedirects here). Does not imply CPA SOC 2 or third-party pen-test publication. Score 50/100 — transferred from VRX Evidence hard-cap; hit share folded from VRX (2026-08-03). |
 | AHX | `/admin/health` | 0.15% | 62 | 9.3 | 5.7 | Admin | None |
-| VRX | `/value-report/roi` | 0.1% | 50 | 5 | 5 | Marketing | None |
 | GRA | `/insights/evidence-graph` | 0.6% | 93 | 55.8 | 4.2 | Insights | Evidence graph (Insights) — GraphPageContent buyer workspace: Graph view default + URL presentation, auto-load on review select / demo sample auto-pick, process-graph canvas as hero (~88vh) with wider inspector, selection focus dimming, path breadcrumb, Fit/100%/Highlight/Focus/Reset toolbar, compact sample banner, idle teaching frame (GraphIdleLegend). Trace table remains alternate. Signature evidence↔finding↔decision↔approval trail — not a full diligence Sources export package alone. Does not imply CPA SOC 2 or third-party pen-test publication. Score 93/100 (2026-08-03) — post workspace-hero pass; remaining gap is lifecycle count-strip + denser diligence packing. |
 | ACX | `/admin/configuration` | 0.1% | 62 | 6.2 | 3.8 | Admin | None |
 | ARX | `/admin/rag-health` | 0.1% | 62 | 6.2 | 3.8 | Admin | None |
