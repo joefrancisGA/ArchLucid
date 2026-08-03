@@ -34,8 +34,8 @@ export type BuyerPolishedRoutePageLeadInventoryEntry = {
 export const BUYER_POLISHED_ROUTE_PAGE_LEAD_INVENTORY: readonly BuyerPolishedRoutePageLeadInventoryEntry[] = [
   { route: "/insights/search-review-evidence", operatorPageLead: SEARCH_PAGE_SUBTITLE },
   { route: EXECUTIVE_DASHBOARD_HREF, operatorPageLead: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.portfolioPageLead },
-  { route: "/product-learning", operatorPageLead: PILOT_FEEDBACK_VOCABULARY.pageLead },
-  { route: "/product-learning", operatorPageLead: PILOT_FEEDBACK_VOCABULARY.layerContextLine },
+  { route: "/internal/product-learning", operatorPageLead: PILOT_FEEDBACK_VOCABULARY.pageLead },
+  { route: "/internal/product-learning", operatorPageLead: PILOT_FEEDBACK_VOCABULARY.layerContextLine },
   { route: "/governance/approval-queue", operatorPageLead: GOVERNANCE_OVERVIEW_PAGE_LEAD },
   { route: "/governance/audit", operatorPageLead: AUDIT_TRAIL_PAGE_SUBTITLE },
   { route: "/governance/audit", operatorPageLead: GOVERNANCE_OVERVIEW_PAGE_LEAD },

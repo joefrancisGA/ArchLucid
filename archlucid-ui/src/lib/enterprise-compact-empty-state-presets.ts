@@ -57,7 +57,7 @@ export const PLANNING_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
   description:
     "Capture review feedback or run pilot feedback analysis to generate themes and prioritized plans.",
   actions: [
-    { label: "Capture review feedback", href: "/product-learning", variant: "primary" },
+    { label: "Capture review feedback", href: "/internal/product-learning", variant: "primary" },
     { label: "View reviews", href: "/architecture/reviews", variant: "outline" },
   ],
 };

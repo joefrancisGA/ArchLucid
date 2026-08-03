@@ -46,7 +46,7 @@ describe("OperatorSystemAdminNavGroupBuilder", () => {
 
   it("includes Review feedback under Internal Operations", () => {
     const group = new OperatorSystemAdminNavGroupBuilder().build();
-    const reviewFeedback = group.links.find((link) => link.href === "/product-learning");
+    const reviewFeedback = group.links.find((link) => link.href === "/internal/product-learning");
 
     expect(reviewFeedback?.label).toBe(OPERATOR_NAV_LINK_LABELS.pilotFeedback);
     expect(reviewFeedback?.requiredAuthority).toBe("ReadAuthority");

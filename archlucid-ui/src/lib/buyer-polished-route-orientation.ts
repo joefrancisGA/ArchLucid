@@ -281,7 +281,7 @@ export function buyerPolishedRouteOrientation(
     return null;
   }
 
-  if (path === "/product-learning") {
+  if (path === "/internal/product-learning") {
     // Product learning carries its own pageLead hero (TB-1438) — not strip + body twins.
     return null;
   }

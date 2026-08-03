@@ -70,7 +70,7 @@ const PAGES = [
   { name: "Workspace settings", path: "/administration/settings/tenant" },
   { name: "Settings baseline", path: "/administration/settings/baseline" },
   { name: "Digests schedule", path: "/digests?tab=schedule" },
-  { name: "Review feedback", path: "/product-learning" },
+  { name: "Review feedback", path: "/internal/product-learning" },
   { name: "Advisory scheduling", path: "/advisory-scheduling" },
   { name: "Recommendation learning", path: "/internal-operations/recommendation-learning" },
   { name: "Evolution review", path: "/insights/impact-preview" },

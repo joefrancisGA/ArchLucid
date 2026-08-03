@@ -624,7 +624,8 @@ describe("help-markdown-presentation", () => {
     expect(prepared).not.toMatch(/not part of the product design/i);
     expect(prepared).toContain("standard customer path");
     expect(prepared).toContain("/help/security-trust");
-    expect(prepared).toContain("/help/data-handling-tenant-isolation");
+    // Presentation rewriter still emits the legacy twin path; alias resolves to data-handling.
+    expect(prepared).toMatch(/\/help\/data-handling(-tenant-isolation)?/);
     expect(prepared).toContain("Append-only audit logging");
   });
 
@@ -639,7 +640,7 @@ describe("help-markdown-presentation", () => {
     expect(prepared).not.toMatch(/cross-tenant data access is not part of the product design/);
     expect(prepared).toContain("standard customer path");
     expect(prepared).toContain("/help/security-trust");
-    expect(prepared).toContain("/help/data-handling-tenant-isolation");
+    expect(prepared).toContain("three layers");
   });
 
   it("strips tenant-isolation pack-alias and repo-path leakage (TB-1659)", () => {
@@ -666,13 +667,16 @@ describe("help-markdown-presentation", () => {
     expect(prepared).toContain("/help/procurement");
   });
 
-  it("keeps presented data-handling-tenant-isolation help buyer-safe (TB-1659)", () => {
-    const loaded = tryLoadProductDocumentation("data-handling-tenant-isolation");
+  it("keeps presented data-handling help buyer-safe after isolation fold (TB-1659)", () => {
+    const loaded = tryLoadProductDocumentation("data-handling");
 
     expect(loaded).not.toBeNull();
+    expect(tryLoadProductDocumentation("data-handling-tenant-isolation")?.entry.slug).toBe("data-handling");
 
     const sourcePath = loaded!.entry.sourcePaths[0] ?? "";
-    const prepared = prepareHelpMarkdownForPresentation(loaded!.markdown, sourcePath).toLowerCase();
+    const prepared = prepareHelpMarkdownForPresentation(loaded!.markdown, sourcePath, {
+      helpTopicSlug: "data-handling",
+    }).toLowerCase();
 
     expect(prepared).not.toContain("buyer_security_procurement_packet");
     expect(prepared).not.toContain("multi_tenant_rls");
@@ -680,6 +684,7 @@ describe("help-markdown-presentation", () => {
     expect(prepared).not.toContain("scripts/");
     expect(prepared).toContain("sql row-level security is not the production isolation boundary");
     expect(prepared).toContain("/help/security-trust");
+    expect(prepared).toContain("three layers");
   });
 
   it("strips DPA template contributor .md and pack-path leakage (TB-1677)", () => {
@@ -881,7 +886,7 @@ describe("help-markdown-presentation", () => {
     expect(prepared).not.toContain("swagger");
     expect(prepared).not.toContain("x-tenant-id");
     expect(prepared).toContain("trusted");
-    expect(prepared).toContain("/product-learning");
+    expect(prepared).toContain("/internal/product-learning");
     expect(prepared).toContain("planning bridge");
   });
 

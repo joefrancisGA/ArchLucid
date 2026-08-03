@@ -134,7 +134,8 @@ export class OperatorSystemAdminNavGroupBuilder extends NavGroupBuilderBase {
           requiredAuthority: "ReadAuthority",
         },
         {
-          href: "/product-learning",
+          // Literal href required by assert_route_tier_policy_nav (string scan of nav-group builders).
+          href: "/internal/product-learning",
           label: OPERATOR_NAV_LINK_LABELS.pilotFeedback,
           title: `${BUYER_TERMINOLOGY.evaluationFeedback} — recurring issues and improvement opportunities`,
           icon: MessageSquareText,

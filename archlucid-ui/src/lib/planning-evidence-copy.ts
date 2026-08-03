@@ -11,13 +11,13 @@ export type PlanningSourceLink = {
   readonly href: string;
 };
 
-/** Operator Sources — no self-href to `/planning`. */
+/** Operator Sources — no self-href to `/insights/planning`. */
 export const PLANNING_SOURCES: readonly PlanningSourceLink[] = [
   { label: "Architecture reviews", href: "/architecture/reviews" },
   { label: "Findings", href: "/governance/findings" },
-  { label: "Product learning", href: "/product-learning" },
+  { label: "Product learning", href: "/internal/product-learning" },
   { label: "How ArchLucid works", href: inAppHelpHref("how-it-works") },
   { label: "Pilot feedback help", href: inAppHelpHref("pilot-feedback") },
 ] as const;
 
-export const PLANNING_CANONICAL_PATH = "/planning" as const;
+export { PLANNING_PATH as PLANNING_CANONICAL_PATH } from "@/lib/planning-route";

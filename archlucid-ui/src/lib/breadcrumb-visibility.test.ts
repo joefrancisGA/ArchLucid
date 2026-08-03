@@ -67,6 +67,9 @@ describe("shouldShowBreadcrumbTrail", () => {
         trail("/internal-operations/recommendation-learning"),
       ),
     ).toBe(true);
+    expect(
+      shouldShowBreadcrumbTrail("/internal/product-learning", trail("/internal/product-learning")),
+    ).toBe(true);
     expect(shouldShowBreadcrumbTrail("/admin/integrations/itsm", trail("/admin/integrations/itsm"))).toBe(true);
   });
 

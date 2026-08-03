@@ -39,7 +39,7 @@ export const BUYER_TERMINOLOGY = {
   portfolioOverview: "Executive dashboard",
 } as const;
 
-/** `/product-learning` — pilot feedback dashboard copy (58R/59R surfaces). */
+/** `/internal/product-learning` — pilot feedback dashboard copy (58R/59R surfaces). */
 export const PILOT_FEEDBACK_VOCABULARY = {
   pageLead:
     "Track feedback on review outputs and identify recurring improvement opportunities.",

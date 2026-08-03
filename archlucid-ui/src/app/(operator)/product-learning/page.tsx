@@ -1,14 +1,8 @@
-import { redirect } from "next/navigation";
+import { permanentRedirect } from "next/navigation";
 
-import { ProductLearningPageClient } from "./_sections/ProductLearningPageClient";
-import { loadProductLearningPageData } from "./_sections/load-product-learning-page-data";
+import { PRODUCT_LEARNING_PATH } from "@/lib/product-learning-route";
 
-export default async function ProductLearningPage() {
-  const loaded = await loadProductLearningPageData();
-
-  if (loaded.kind === "redirect-demo") {
-    redirect("/");
-  }
-
-  return <ProductLearningPageClient initialBundle={loaded.bundle} initialFailure={loaded.failure} />;
+/** Legacy Pilot feedback URL — permanently redirects to Internal Operations path. */
+export default function LegacyProductLearningRedirectPage(): never {
+  permanentRedirect(PRODUCT_LEARNING_PATH);
 }

@@ -52,6 +52,7 @@ export const MARKETING_ROBOTS_DISALLOW_PREFIXES: readonly string[] = [
   `${FIRST_REVIEW_GUIDE_PATH}/`,
   "/planning/",
   "/policy-packs/",
+  "/internal/product-learning/",
   "/product-learning/",
   "/internal-operations/recommendation-learning/",
   "/digest-subscriptions/",

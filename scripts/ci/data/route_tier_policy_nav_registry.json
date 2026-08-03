@@ -519,7 +519,7 @@
       "commercial_tier": "standard",
       "class_policy": "ReadAuthority",
       "exemption": null,
-      "nav_operator_href": "/product-learning"
+      "nav_operator_href": "/internal/product-learning"
     },
     {
       "controller_file": "Advisory/RecommendationLearningController.cs",

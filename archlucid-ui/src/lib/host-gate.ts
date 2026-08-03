@@ -7,6 +7,8 @@ import { LEGACY_OPERATE_ARCHITECTURE_GRAPH_PATH } from "@/lib/legacy-architectur
 import { LEGACY_ONBOARD_PATH } from "@/lib/legacy-onboard-route";
 import { LEGACY_LOGIN_PATH } from "@/lib/legacy-login-route";
 import { PATTERN_LIBRARY_PATH } from "@/lib/pattern-library-route";
+import { PLANNING_PATH } from "@/lib/planning-route";
+import { LEGACY_PRODUCT_LEARNING_PATH, PRODUCT_LEARNING_PATH } from "@/lib/product-learning-route";
 import { LEGACY_SEARCH_PATH, SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
 import { MARKETING_SITEMAP_PATHNAMES } from "@/lib/marketing/public-marketing-seo-paths";
 import { isSplitSiteHostingEnabled, resolveAppSiteOrigin, resolvePublicSiteOrigin } from "@/lib/site-urls";
@@ -47,9 +49,10 @@ const OPERATOR_PATH_PREFIXES: readonly string[] = [
   LEGACY_ONBOARD_PATH,
   "/onboarding",
   "/architecture/first-review-guide",
-  "/planning",
+  PLANNING_PATH,
   "/policy-packs",
-  "/product-learning",
+  PRODUCT_LEARNING_PATH,
+  LEGACY_PRODUCT_LEARNING_PATH,
   "/internal-operations",
   "/digest-subscriptions",
   "/advisory-scheduling",

@@ -95,7 +95,7 @@ Notation — **Nav:** P = primary sidebar (when gates pass), S = secondary/in-pa
 | `/insights/architecture-scorecard` | Review scorecard (finalized-review metrics) | P (extended) | Move/merge into reporting family (IA-009, deferred) |
 | `/patterns`, `/patterns/[patternKey]` | Anonymized pattern library (needs ≥5 tenants) | P (flagged) | **Hide from private beta** until data exists (IA-008) |
 | `/planning`, `/planning/plans/[planId]` | Improvement themes and plans | P (advanced) | Retain as-is |
-| `/product-learning` | Pilot feedback themes | P (advanced; demo → `/`) | Retain as-is |
+| `/internal/product-learning` | Pilot feedback themes | P (advanced; demo → `/`) | Retain; legacy `/product-learning` redirects |
 | `/recommendation-learning` | Recommendation tuning profiles | P (advanced; demo → `/`) | Retain as-is |
 | `/replay` | Validate stored review output integrity | Internal Ops nav | Retain as-is (system-admin surface) |
 | `/operate/architecture-graph` | Legacy redirect → `/graph` | R | **Remove** page file after redirect verified in config (IA-014) |

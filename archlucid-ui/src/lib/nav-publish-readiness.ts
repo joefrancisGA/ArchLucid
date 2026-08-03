@@ -4,7 +4,7 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 /** Deep-linked routes remain usable; sidebar/palette omit these until mock/API readiness improves. */
 const PRE_RELEASE_OPERATOR_HREFS = new Set<string>([
   "/internal-operations/recommendation-learning",
-  "/product-learning",
+  "/internal/product-learning",
 ]);
 
 /**

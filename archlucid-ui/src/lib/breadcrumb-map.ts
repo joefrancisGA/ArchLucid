@@ -98,6 +98,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   "advisory-scans": OPERATOR_NAV_LINK_LABELS.architectureAdvisory,
   "recommendation-learning": OPERATOR_NAV_LINK_LABELS.recommendationTuning,
   "internal-operations": "Internal Operations",
+  internal: "Internal Operations",
   "product-learning": OPERATOR_NAV_LINK_LABELS.pilotFeedback,
   planning: "Improvement planning",
   "evolution-review": "Impact preview",
@@ -215,6 +216,13 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
     return [
       { label: "Internal Operations", href: "/admin/health" },
       { label: "Recommendation Learning" },
+    ];
+  }
+
+  if (normalized === "/internal/product-learning") {
+    return [
+      { label: "Internal Operations", href: "/admin/health" },
+      { label: OPERATOR_NAV_LINK_LABELS.pilotFeedback },
     ];
   }
 

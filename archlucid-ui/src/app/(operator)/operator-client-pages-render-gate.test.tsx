@@ -150,7 +150,7 @@ vi.mock("./insights/impact-preview/_sections/load-evolution-review-page-data", (
     }),
 }));
 
-vi.mock("./product-learning/_sections/load-product-learning-page-data", () => {
+vi.mock("./internal/product-learning/_sections/load-product-learning-page-data", () => {
   const generatedUtc = "2026-01-01T00:00:00.000Z";
   const bundle = {
     summary: {
@@ -193,7 +193,7 @@ import GovernanceResolutionPage from "./governance/standards-and-rules/page";
 import OnboardingPage from "./architecture/first-review-guide/page";
 import PolicyPacksPage from "./governance/policy-packs/page";
 import PlanningPage from "./planning/page";
-import ProductLearningPage from "./product-learning/page";
+import ProductLearningPage from "./internal/product-learning/page";
 import RecommendationLearningOpsPage from "./internal-operations/recommendation-learning/page";
 import SearchPage from "./insights/search-review-evidence/page";
 

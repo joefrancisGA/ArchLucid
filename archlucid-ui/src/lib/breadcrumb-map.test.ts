@@ -20,6 +20,13 @@ describe("getBreadcrumbs", () => {
     ]);
   });
 
+  it("maps internal product-learning breadcrumbs", () => {
+    expect(getBreadcrumbs("/internal/product-learning")).toEqual([
+      { label: "Internal Operations", href: "/admin/health" },
+      { label: OPERATOR_NAV_LINK_LABELS.pilotFeedback },
+    ]);
+  });
+
   it("uses Start review on the wizard path when buyer-polished breadcrumbs are requested", () => {
     expect(getBreadcrumbs("/architecture/reviews/new", { buyerPolishedShell: true })).toEqual([
       { label: START_REVIEW_LABEL },

@@ -216,7 +216,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     keywords: ["58r", "triage", "learning"],
     summary: "Pilot feedback captures human judgments separately from recommendation learning.",
     docPath: "docs/library/PRODUCT_LEARNING.md",
-    routes: ["/product-learning"],
+    routes: ["/internal/product-learning"],
   },
 ];
 

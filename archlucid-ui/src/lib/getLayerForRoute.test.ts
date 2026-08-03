@@ -59,7 +59,7 @@ describe("getLayerForRoute", () => {
   it("returns operate-analysis for reports and system-admin nav paths", () => {
     expect(getLayerForRoute("/insights/architecture-scorecard")).toBe("operate-analysis");
     expect(getLayerForRoute("/integrations/teams")).toBe("operate-analysis");
-    expect(getLayerForRoute("/product-learning")).toBe("operator-admin");
+    expect(getLayerForRoute("/internal/product-learning")).toBe("operator-admin");
     expect(getLayerForRoute("/governance/advisory-scans")).toBe("operate-governance");
   });
 

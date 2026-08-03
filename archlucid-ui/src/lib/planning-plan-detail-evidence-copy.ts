@@ -1,4 +1,5 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import { PLANNING_PATH, PLANNING_PLAN_DETAIL_PATH_PREFIX } from "@/lib/planning-route";
 
 export const PLANNING_PLAN_DETAIL_PAGE_TITLE = "Improvement plan" as const;
 
@@ -15,11 +16,11 @@ export type PlanningPlanDetailSourceLink = {
 
 /** Operator Sources — no self-href to plan detail routes. */
 export const PLANNING_PLAN_DETAIL_SOURCES: readonly PlanningPlanDetailSourceLink[] = [
-  { label: "Improvement planning", href: "/planning" },
+  { label: "Improvement planning", href: PLANNING_PATH },
   { label: "Architecture reviews", href: "/architecture/reviews" },
   { label: "Findings", href: "/governance/findings" },
-  { label: "Product learning", href: "/product-learning" },
+  { label: "Product learning", href: "/internal/product-learning" },
   { label: "How ArchLucid works", href: inAppHelpHref("how-it-works") },
 ] as const;
 
-export const PLANNING_PLAN_DETAIL_PATH_PREFIX = "/planning/plans" as const;
+export { PLANNING_PLAN_DETAIL_PATH_PREFIX };

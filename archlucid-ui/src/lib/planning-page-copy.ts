@@ -1,3 +1,5 @@
+import { PRODUCT_LEARNING_PATH } from "@/lib/product-learning-route";
+
 export const IMPROVEMENT_PLANNING_PAGE_TITLE = "Improvement planning" as const;
 
 export const IMPROVEMENT_PLANNING_PAGE_SUBTITLE =
@@ -74,6 +76,6 @@ export const IMPROVEMENT_PLANNING_FAILURE_TRY_NEXT =
 export const IMPROVEMENT_PLANNING_DEMO_DESCRIPTION =
   "In a connected tenant, browse improvement themes and prioritized plans derived from captured review feedback." as const;
 
-export const IMPROVEMENT_PLANNING_CAPTURE_FEEDBACK_HREF = "/product-learning" as const;
+export const IMPROVEMENT_PLANNING_CAPTURE_FEEDBACK_HREF = PRODUCT_LEARNING_PATH;
 
 export const IMPROVEMENT_PLANNING_VIEW_REVIEWS_HREF = "/architecture/reviews" as const;

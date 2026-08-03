@@ -152,8 +152,8 @@ describe("buyerPolishedRouteOrientation", () => {
   });
 
   it("returns null for /product-learning — pageLead owns the intro (TB-1438)", () => {
-    expect(buyerPolishedRouteOrientation("/product-learning")).toBeNull();
-    expect(buyerPolishedRouteOrientation("/product-learning")?.line).not.toBe(PILOT_FEEDBACK_VOCABULARY.layerContextLine);
+    expect(buyerPolishedRouteOrientation("/internal/product-learning")).toBeNull();
+    expect(buyerPolishedRouteOrientation("/internal/product-learning")?.line).not.toBe(PILOT_FEEDBACK_VOCABULARY.layerContextLine);
   });
 
   it("returns null for bare /governance — OperatorPageHeader owns the overview lead (TB-1434)", () => {

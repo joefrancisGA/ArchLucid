@@ -2081,13 +2081,13 @@ export function stripPilotFeedbackContributorLeakage(markdown: string): string {
     )
     .replace(
       // Static pattern — avoid string→RegExp escape helpers that CodeQL flags as js/incomplete-sanitization.
-      /- \*\*Operator shell \(V1 GA\):\*\* \*\*`PlanningBridgePanel`\*\* on \*\*`\/product-learning`\*\*[^\.\n]*\./gi,
+      /- \*\*Operator shell \(V1 GA\):\*\* \*\*`PlanningBridgePanel`\*\* on \*\*`\/(?:internal\/)?product-learning`\*\*[^\.\n]*\./gi,
       "- Open **Q&A & advisory** → **Pilot feedback**, then use the **Planning bridge** panel to create draft improvement themes and plans.",
     )
     .replace(/\*\*ExecuteAuthority\*\*/gi, "appropriate admin permission")
     .replace(
       /(## 4\.1[^\n]*\n\nWhen you want[^\n]*:\n\n)/i,
-      "$1- Open **Q&A & advisory** → **Pilot feedback** (`/product-learning`), then use the **Planning bridge** panel to materialize draft themes and plans from ranked opportunities.\n",
+      "$1- Open **Q&A & advisory** → **Pilot feedback** (`/internal/product-learning`), then use the **Planning bridge** panel to materialize draft themes and plans from ranked opportunities.\n",
     )
     .replace(/\n{3,}/g, "\n\n")
     .trimEnd();

@@ -48,7 +48,7 @@
     "Admin/TenantsAdminController.cs": "/administration/settings/users",
     "Advisory/AdvisoryController.cs": "/governance/advisory-scans",
     "Advisory/DigestSubscriptionsController.cs": "/digests",
-    "Advisory/ProductLearningController.cs": "/product-learning",
+    "Advisory/ProductLearningController.cs": "/internal/product-learning",
     "Advisory/RecommendationLearningController.cs": "/internal-operations/recommendation-learning",
     "Alerts/AlertRoutingSubscriptionsController.cs": "/governance/alerts",
     "Alerts/AlertRulesController.cs": "/governance/alerts",
