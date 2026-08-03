@@ -1575,6 +1575,8 @@ export function stripDpaTemplateContributorLeakage(markdown: string): string {
     .replace(/CROSS_TENANT_DATA_PROCESSING_ADDENDUM\.md/gi, "cross-tenant processing addendum")
     .replace(/`?\.\.\/architecture\/adrs\/0031[^`\s)]*`?/gi, "cross-tenant pattern library architecture decision")
     .replace(/ADR 0031/gi, "cross-tenant pattern library architecture decision")
+    // TB-1680 — buyer wording: architecture reviews, not contributor "runs" jargon.
+    .replace(/architecture runs/gi, "architecture reviews")
     .replace(/\n{3,}/g, "\n\n")
     .trimEnd();
 }

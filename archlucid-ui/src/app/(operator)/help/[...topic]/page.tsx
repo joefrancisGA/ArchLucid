@@ -15,6 +15,7 @@ import { HelpAzurePermissionsGuideView } from "../_sections/HelpAzurePermissions
 import { HelpAuditTrailGuideView } from "../_sections/HelpAuditTrailGuideView";
 import { HelpConfigurationReferenceGuideView } from "../_sections/HelpConfigurationReferenceGuideView";
 import { HelpDataHandlingTenantIsolationGuideView } from "../_sections/HelpDataHandlingTenantIsolationGuideView";
+import { HelpDpaTemplateGuideView } from "../_sections/HelpDpaTemplateGuideView";
 import { HelpEngineeringTroubleshootingGuideView } from "../_sections/HelpEngineeringTroubleshootingGuideView";
 import { HelpFirstReviewEvidenceChecklistGuideView } from "../_sections/HelpFirstReviewEvidenceChecklistGuideView";
 import { HelpPolicyPackDeltaDemoGuideView } from "../_sections/HelpPolicyPackDeltaDemoGuideView";
@@ -37,6 +38,7 @@ import { FIRST_ARCHITECTURE_REVIEW_HELP_ROUTE_METADATA } from "@/lib/first-archi
 import { GOVERNANCE_APPROVAL_HELP_ROUTE_METADATA } from "@/lib/governance-approval-help-route-metadata";
 import { CONFIGURATION_REFERENCE_HELP_ROUTE_METADATA } from "@/lib/configuration-reference-help-route-metadata";
 import { DATA_HANDLING_TENANT_ISOLATION_HELP_ROUTE_METADATA } from "@/lib/data-handling-tenant-isolation-help-route-metadata";
+import { DPA_TEMPLATE_HELP_ROUTE_METADATA } from "@/lib/dpa-template-help-route-metadata";
 import { FIRST_REVIEW_HELP_ROUTE_METADATA } from "@/lib/first-review-help-route-metadata";
 import { POLICY_PACK_DELTA_DEMO_HELP_ROUTE_METADATA } from "@/lib/policy-pack-delta-demo-help-route-metadata";
 import { PATH_CHOOSER_HELP_ROUTE_METADATA } from "@/lib/path-chooser-help-route-metadata";
@@ -184,6 +186,10 @@ function renderHelpTopicView(
     return <HelpDataHandlingTenantIsolationGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
 
+  if (loaded.entry.slug === "dpa-template") {
+    return <HelpDpaTemplateGuideView entry={loaded.entry} markdown={loaded.markdown} />;
+  }
+
   if (loaded.entry.slug === "policy-pack-delta-demo") {
     return <HelpPolicyPackDeltaDemoGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
@@ -245,6 +251,10 @@ export async function generateMetadata(props: HelpTopicPageProps): Promise<Metad
 
   if (entry.slug === "data-handling-tenant-isolation") {
     return DATA_HANDLING_TENANT_ISOLATION_HELP_ROUTE_METADATA;
+  }
+
+  if (entry.slug === "dpa-template") {
+    return DPA_TEMPLATE_HELP_ROUTE_METADATA;
   }
 
   if (entry.slug === "policy-pack-delta-demo") {

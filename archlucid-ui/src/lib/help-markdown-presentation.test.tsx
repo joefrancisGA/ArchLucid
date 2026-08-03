@@ -689,6 +689,8 @@ describe("help-markdown-presentation", () => {
       "See [SECURITY.md](../library/contributor-reference/SECURITY.md) and [PII_RETENTION_CONVERSATIONS.md](../security/PII_RETENTION_CONVERSATIONS.md).",
       "",
       "[BUYER_SECURITY_PROCUREMENT_PACKET.md#tenant-isolation-buyer-overview](BUYER_SECURITY_PROCUREMENT_PACKET.md#tenant-isolation-buyer-overview)",
+      "",
+      "content is submitted to architecture runs.",
     ].join("\n");
 
     const prepared = stripDpaTemplateContributorLeakage(source);
@@ -697,10 +699,12 @@ describe("help-markdown-presentation", () => {
     expect(prepared).not.toContain("SECURITY.md");
     expect(prepared).not.toContain("PII_RETENTION_CONVERSATIONS");
     expect(prepared).not.toContain("BUYER_SECURITY_PROCUREMENT_PACKET");
+    expect(prepared).not.toContain("architecture runs");
+    expect(prepared).toContain("architecture reviews");
     expect(prepared).toContain("/help/procurement");
   });
 
-  it("keeps presented DPA template help buyer-safe (TB-1677)", () => {
+  it("keeps presented DPA template help buyer-safe (TB-1677 / TB-1680)", () => {
     const loaded = tryLoadProductDocumentation("dpa-template");
 
     expect(loaded).not.toBeNull();
@@ -713,6 +717,8 @@ describe("help-markdown-presentation", () => {
     expect(prepared).not.toContain("pii_retention_conversations");
     expect(prepared).not.toContain("buyer_security_procurement_packet");
     expect(prepared).not.toContain("incident_communications_policy.md");
+    expect(prepared).not.toContain("architecture runs");
+    expect(prepared).toContain("architecture reviews");
     expect(prepared).toContain("/help/security-trust");
     expect(prepared).toContain("/help/subprocessors");
   });
@@ -1276,7 +1282,7 @@ describe("help-markdown-presentation", () => {
     const prepared = prepareHelpMarkdownForPresentation(source, "docs/library/operator-shell.md");
 
     expect(prepared).toContain("review exists");
-    expect(prepared).toContain("](/reviews/new)");
+    expect(prepared).toContain("](/architecture/reviews/new)");
     expect(prepared.includes("manifest exists")).toBe(false);
     expect(prepared.includes("/runs/")).toBe(false);
   });
@@ -1287,7 +1293,7 @@ describe("help-markdown-presentation", () => {
     const prepared = prepareHelpMarkdownForPresentation(source, "docs/runbooks/TROUBLESHOOTING.md").toLowerCase();
 
     expect(prepared).toContain("reviewid=abc");
-    expect(prepared).toContain("/reviews/abc");
+    expect(prepared).toContain("/architecture/reviews/abc");
     expect(prepared).toContain("signed review record");
     expect(prepared).toContain("review not ready to finalize");
     for (const pattern of HELP_TOPIC_BANNED_COPY_PATTERNS) {

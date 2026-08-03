@@ -81,6 +81,17 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/help/dpa-template",
+    entry: {
+      whatIsThisPage:
+        "Working Data Processing Agreement negotiation template for counsel — not a countersigned DPA.",
+      whatToDoNext:
+        "Open Trust Center for the diligence pack, review Subprocessors, then expand the full template with counsel.",
+      whyEmpty: "Orientation and CTAs always appear when this help topic loads; expand the disclosure for clauses.",
+      whereToConfigurePrerequisite: "Execute a DPA only through your procurement counsel and account team.",
+    },
+  },
+  {
     prefix: "/help/path-chooser",
     entry: {
       whatIsThisPage:
@@ -132,7 +143,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whatToDoNext:
         "Prefer Customer Troubleshooting and System health first, then use eng CLI/env detail; open Report a problem when filing a ticket.",
       whyEmpty: "This runbook always shows when the help topic loads for Admins.",
-      whereToConfigurePrerequisite: "Admin access; Operators should use /help/troubleshooting instead.",
+      whereToConfigurePrerequisite: "Admin access; Operators should use the customer Troubleshooting guide instead.",
     },
   },
   {

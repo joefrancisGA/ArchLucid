@@ -44,6 +44,8 @@ const HELP_CENTER_TIER_BY_SLUG: Readonly<Record<string, HelpCenterTier>> = {
   "how-it-works": "product",
   "data-handling": "product",
   "data-handling-tenant-isolation": "product",
+  "dpa-template": "product",
+  subprocessors: "product",
   "cloud-connections": "product",
   "cloud-connections-azure": "product",
   "cloud-connections-aws": "product",
@@ -99,6 +101,15 @@ const HELP_CENTER_DISPLAY_OVERRIDES: Readonly<Partial<Record<string, HelpCenterD
     title: "Your first architecture review",
     summary:
       "Your guided path from evidence intake to a finalized architecture review and sponsor-ready exports.",
+  },
+  "dpa-template": {
+    title: "Data Processing Agreement (template)",
+    summary:
+      "Negotiation template for counsel — request the diligence pack from Trust Center; not your countersigned DPA.",
+  },
+  subprocessors: {
+    title: "Subprocessors",
+    summary: "Hosted ArchLucid subprocessors register — use with the DPA template and Trust Center pack.",
   },
   "pilot-guide": {
     title: "Pilot guide",

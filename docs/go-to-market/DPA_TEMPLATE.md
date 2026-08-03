@@ -37,7 +37,7 @@ Capitalized terms not defined here follow the `<<Subscription Agreement or Terms
 
 2.1 **Processor** processes Personal Data **only** on documented instructions from **Controller** (including this DPA, the agreement, and documented configuration), unless applicable law requires otherwise (in which case Processor informs Controller unless prohibited).
 
-2.2 **Controller** determines the purposes and means of Processing outside Processor’s documented product features (e.g., which users are invited, what content is submitted to architecture runs).
+2.2 **Controller** determines the purposes and means of Processing outside Processor’s documented product features (e.g., which users are invited, what content is submitted to architecture reviews).
 
 ---
 

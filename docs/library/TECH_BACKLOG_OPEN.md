@@ -478,10 +478,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1672 | Compare + provenance — bare body/outline links → OPERATOR_LINK | Accessibility P1 **V1** — with **TB-1671** |
 | TB-1674 | Finding badges + secondary surfaces — StatusTag-as-link cue + export/ID/pinned inventory | Adoption friction P1 **V1** — with **TB-1671** |
 | TB-1675 | Vitest — bare navigational `<a>`/`<Link>` affordance allowlist + ban inherit-only body links | Testability P2 **V1** — after **TB-1672**–**TB-1674**; pairs **TB-1671** / **TB-1556** / **TB-1576** / **TB-1650** / **TB-1665** / **TB-1670** |
-| TB-1676 | `/help/dpa-template` specialty buyer DPA guide + request/download CTA | Adoption friction P1 **V1** — HDP ~40 |
-| TB-1678 | DPA help — placeholder / negotiation-template first-viewport honesty | Trustworthiness P1 **V1** — with **TB-1676** |
-| TB-1679 | DPA help — Help Center discovery + Trust/subprocessors IA | Adoption friction P1 **V1** — with **TB-1676** |
-| TB-1680 | DPA help — runs jargon + dense clause dump defer | Adoption friction P1 **V1** — with **TB-1676** |
 | TB-1681 | `/help/evidence-only-review` specialty guide + Start review CTA | Adoption friction P1 **V1** — HEV ~42 |
 | TB-1682 | Evidence-only help — stop CORE_PILOT intro dump | Adoption friction P1 **V1** — with **TB-1681** |
 | TB-1683 | Evidence-only help — IA dual with `/help/core-pilot` | Adoption friction P1 **V1** — with **TB-1681** |
@@ -885,7 +881,7 @@ Canonical: [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) only (see wave-3 c
 | creating-runs help alias (`/help/creating-runs`) | **TB-1641**–**TB-1645** (open P1/P2 **V1**) | Permanent redirect; runs jargon; alias→TB-1258 chain; traffic fold; anti-reintro CI; ~46/100; traffic **HCR**; pairs **TB-1258**/**TB-1261** |
 | Data handling (`/help/data-handling`) | **TB-1651**–**TB-1652**, **TB-1654**–**TB-1655** (open P1 **V1**) | Specialty + Trust CTA; vs HDA dual; isolation honesty **Done TB-1653**; leaves/stays chrome; Related; ~52/100; traffic **HED** |
 | Data handling + tenant isolation (`/help/data-handling-tenant-isolation`) | **TB-1656**–**TB-1658**, **TB-1660** (open P1/P2 **V1**) | Retarget SoT after stub; specialty CTA; vs HED IA; leakage **Done TB-1659**; Vitest anti-stub; ~38/100; traffic **HDA** |
-| DPA template (`/help/dpa-template`) | **TB-1676**–**TB-1680** (open P1 **V1**) | Specialty + request CTA; leakage; placeholder honesty; Help Center IA; clause defer; ~40/100; traffic **HDP** |
+| DPA template (`/help/dpa-template`) | **TB-1676**–**TB-1680** (**Done** 2026-08-02) | Specialty guide + Trust CTA; leakage strip; placeholder honesty; Help Center IA; clause defer; traffic **HDP** |
 | Evidence-only review (`/help/evidence-only-review`) | **TB-1681**–**TB-1685** (open P1 **V1**) | Specialty + Start CTA; drop CORE_PILOT intro; vs core-pilot IA; extract-upload honesty; step chrome; ~42/100; traffic **HEV** |
 | Executive summary (`/help/executive-summary`) | **TB-1686**–**TB-1690** (open P1 **V1**) | Retarget off FAQ; specialty CTA; leakage; doc-href catch-all; title honesty; ~30/100; traffic **EXE** |
 | First value 20 minutes (`/help/first-value-20-minutes`) | **TB-1691**–**TB-1695** (open P1 **V1**) | Retarget 20-min body; Admin specialty CTA; CLI leakage; IA dual; title honesty; ~40/100; traffic **HEF**; internal-runbook |

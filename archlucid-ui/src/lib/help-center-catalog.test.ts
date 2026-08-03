@@ -118,4 +118,19 @@ describe("help center tiers", () => {
     expect(cli).not.toBeNull();
     expect(getHelpCenterTier(cli!)).toBe("internal");
   });
+
+  it("exposes DPA template and subprocessors as product advanced guides (TB-1679)", () => {
+    const dpa = getProductDocumentationEntry("dpa-template");
+    const subprocessors = getProductDocumentationEntry("subprocessors");
+
+    expect(dpa).not.toBeNull();
+    expect(subprocessors).not.toBeNull();
+    expect(getHelpCenterTier(dpa!)).toBe("product");
+    expect(getHelpCenterTier(subprocessors!)).toBe("product");
+
+    const advanced = listHelpCenterTopics({ showAdvanced: true, isAdmin: false }).map((entry) => entry.slug);
+
+    expect(advanced).toContain("dpa-template");
+    expect(advanced).toContain("subprocessors");
+  });
 });

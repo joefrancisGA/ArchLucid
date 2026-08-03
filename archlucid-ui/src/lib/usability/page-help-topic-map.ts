@@ -78,6 +78,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "data-handling-tenant-isolation", label: "Data handling and tenant isolation" },
   },
   {
+    prefix: "/help/dpa-template",
+    topic: { slug: "dpa-template", label: "Data Processing Agreement (template)" },
+  },
+  {
     prefix: "/help/path-chooser",
     topic: { slug: "path-chooser", label: "Choose your next step" },
   },
