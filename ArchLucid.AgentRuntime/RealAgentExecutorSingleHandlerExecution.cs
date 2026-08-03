@@ -6,6 +6,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Hosting;
 using ArchLucid.Core.Llm;
 using ArchLucid.Core.Llm.Redaction;
 
@@ -57,7 +58,11 @@ internal static class RealAgentExecutorSingleHandlerExecution
                     $"No handler is registered for agent type key '{dispatchKey}'.");
             }
 
-            AgentTaskAllowedToolsDispatchGuard.EnsureHandlerAllowed(task, dispatchKey);
+            bool productionLikeHosting = ProductionLikeHostingMisconfigurationAdvisor.IsProductionLikeHosting(
+                dependencies.HostEnvironment.EnvironmentName,
+                dependencies.Configuration);
+
+            AgentTaskAllowedToolsDispatchGuard.EnsureHandlerAllowed(task, dispatchKey, productionLikeHosting);
 
             int timeoutSeconds = dependencies.ResilienceOptions.Value.ResolveTimeoutSecondsForAgent(dispatchKey);
             AgentExecutionResilienceOptions resilienceOptions = dependencies.ResilienceOptions.Value;

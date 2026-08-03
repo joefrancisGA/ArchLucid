@@ -43,15 +43,19 @@ import {
 } from "@/lib/graph-buyer-node-detail";
 import {
   filterGraphViewModelToNodeIds,
+  resolveBuyerTrailPathBreadcrumb,
   resolveBuyerTrailPathNodeIds,
 } from "@/lib/graph-buyer-path-filter";
+import { applyGraphSelectionFocus } from "@/lib/graph-selection-highlight";
 import {
   BUYER_EVIDENCE_GRAPH_FIT_GRAPH_CTA,
   BUYER_EVIDENCE_GRAPH_OPEN_DECISION_RECORD_CTA,
   BUYER_EVIDENCE_GRAPH_OPEN_FINDING_DETAIL_CTA,
+  BUYER_EVIDENCE_GRAPH_RESET_VIEW_CTA,
   BUYER_EVIDENCE_GRAPH_SHOW_ALL_NODES_CTA,
   BUYER_EVIDENCE_GRAPH_SHOW_SELECTED_PATH_CTA,
   BUYER_EVIDENCE_GRAPH_TRACE_PATH_CTA,
+  BUYER_EVIDENCE_GRAPH_ZOOM_100_CTA,
 } from "@/lib/buyer-polish-copy";
 import {
   OPERATOR_CALLOUT_WARN_CLASS,
@@ -97,21 +101,33 @@ function pickHeroNodeId(graph: GraphViewModel, preferredId: string | undefined):
 
 function GraphBuyerCanvasToolbar({
   onFitGraph,
+  onZoom100,
+  onResetView,
   onTracePath,
   onTogglePathOnly,
   showPathOnly,
   pathFilterAvailable,
 }: {
   onFitGraph: () => void;
+  onZoom100: () => void;
+  onResetView: () => void;
   onTracePath: () => void;
   onTogglePathOnly: () => void;
   showPathOnly: boolean;
   pathFilterAvailable: boolean;
 }) {
   return (
-    <div className="mb-2 flex flex-wrap gap-2" data-testid="graph-buyer-canvas-toolbar">
+    <div
+      className="flex flex-wrap items-center gap-2"
+      data-testid="graph-buyer-canvas-toolbar"
+      role="toolbar"
+      aria-label="Evidence graph canvas tools"
+    >
       <Button type="button" size="sm" variant="outline" onClick={onFitGraph}>
         {BUYER_EVIDENCE_GRAPH_FIT_GRAPH_CTA}
+      </Button>
+      <Button type="button" size="sm" variant="outline" onClick={onZoom100}>
+        {BUYER_EVIDENCE_GRAPH_ZOOM_100_CTA}
       </Button>
       <Button type="button" size="sm" variant="outline" onClick={onTracePath} disabled={!pathFilterAvailable}>
         {BUYER_EVIDENCE_GRAPH_TRACE_PATH_CTA}
@@ -125,8 +141,30 @@ function GraphBuyerCanvasToolbar({
       >
         {showPathOnly ? BUYER_EVIDENCE_GRAPH_SHOW_ALL_NODES_CTA : BUYER_EVIDENCE_GRAPH_SHOW_SELECTED_PATH_CTA}
       </Button>
+      <Button type="button" size="sm" variant="outline" onClick={onResetView}>
+        {BUYER_EVIDENCE_GRAPH_RESET_VIEW_CTA}
+      </Button>
     </div>
   );
+}
+
+function GraphBuyerZoom100Trigger({
+  trigger,
+}: {
+  trigger: number;
+}) {
+  const { getViewport, setViewport } = useReactFlow();
+
+  useEffect(() => {
+    if (trigger === 0) {
+      return;
+    }
+
+    const current = getViewport();
+    void setViewport({ x: current.x, y: current.y, zoom: 1 }, { duration: 200 });
+  }, [getViewport, setViewport, trigger]);
+
+  return null;
 }
 
 function GraphBuyerFitViewTrigger({

@@ -1,5 +1,6 @@
 using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.AgentRuntime.Tests.Support;
+using ArchLucid.AgentRuntime.Tests.TestSupport;
 using ArchLucid.Capabilities.Cost;
 using CapabilitiesCostAgentHandler = ArchLucid.Capabilities.Cost.CostAgentHandler;
 using ArchLucid.Core.Audit;
@@ -116,7 +117,9 @@ internal static class GoldenCohortLiveAoaiExecutorFactory
             new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()),
             new InMemoryAgentResultRepository(new InMemoryAgentResultEnrichmentRepository()),
             new NoOpAgentExecutionTraceRecorder(),
-            TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository());
+            TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository(),
+            RealAgentExecutorTestHosting.DevelopmentEnvironment,
+            RealAgentExecutorTestHosting.EmptyConfiguration);
 
         return (executor, recorder);
     }

@@ -5,6 +5,8 @@ using ArchLucid.Core.Llm.Redaction;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -25,7 +27,9 @@ internal sealed class RealAgentExecutorExecutionDependencies
         IOptionsMonitor<ArchLucidLlmOptions> archLucidLlmOptions,
         IAgentResultRepository agentResultRepository,
         IAgentExecutionTraceRecorder traceRecorder,
-        ITechnologyLedgerRepository technologyLedgerRepository)
+        ITechnologyLedgerRepository technologyLedgerRepository,
+        IHostEnvironment hostEnvironment,
+        IConfiguration configuration)
     {
         Handlers = handlers;
         Logger = logger;
@@ -40,6 +44,8 @@ internal sealed class RealAgentExecutorExecutionDependencies
         AgentResultRepository = agentResultRepository;
         TraceRecorder = traceRecorder;
         TechnologyLedgerRepository = technologyLedgerRepository;
+        HostEnvironment = hostEnvironment;
+        Configuration = configuration;
     }
 
     internal IReadOnlyDictionary<string, IAgentHandler> Handlers { get; }
@@ -67,4 +73,8 @@ internal sealed class RealAgentExecutorExecutionDependencies
     internal IAgentExecutionTraceRecorder TraceRecorder { get; }
 
     internal ITechnologyLedgerRepository TechnologyLedgerRepository { get; }
+
+    internal IHostEnvironment HostEnvironment { get; }
+
+    internal IConfiguration Configuration { get; }
 }

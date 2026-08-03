@@ -99,3 +99,118 @@ export function graphNodeLabelForPanel(node: GraphNodeVm): string {
 
   return node.type;
 }
+
+function buyerTrailBreadcrumbLabel(nodeType: string): string {
+  switch (nodeType) {
+    case "Finding":
+      return "Finding";
+    case "Decision":
+      return "Decision";
+    case "GoldenManifest":
+      return "Review";
+    case "Artifact":
+      return "Evidence";
+    case "PolicyPack":
+    case "Policy":
+      return "Policy";
+    case "Component":
+      return "Component";
+    case "Approval":
+      return "Approval";
+    case "Audit":
+    case "AuditEvent":
+      return "Audit";
+    default:
+      return nodeType.trim().length > 0 ? nodeType : "Node";
+  }
+}
+
+/**
+ * Short inspector trail from the selected node toward the signed review record.
+ * Uses BFS so the breadcrumb stays a linear path, not the full path intersection set.
+ */
+export function resolveBuyerTrailPathBreadcrumb(
+  graph: GraphViewModel,
+  selectedNodeId: string,
+): string[] {
+  const trimmed = selectedNodeId.trim();
+
+  if (trimmed.length === 0) {
+    return [];
+  }
+
+  const selected = graph.nodes.find((node) => node.id === trimmed);
+
+  if (selected === undefined) {
+    return [];
+  }
+
+  const reviewPackageNode = graph.nodes.find((node) => node.type === "GoldenManifest");
+
+  if (reviewPackageNode === undefined || reviewPackageNode.id === trimmed) {
+    return [buyerTrailBreadcrumbLabel(selected.type)];
+  }
+
+  const adjacency = buildAdjacency(graph);
+  const parent = new Map<string, string | null>();
+  const queue: string[] = [trimmed];
+  parent.set(trimmed, null);
+  let reachedReview = false;
+
+  while (queue.length > 0) {
+    const current = queue.shift();
+
+    if (current === undefined) {
+      break;
+    }
+
+    if (current === reviewPackageNode.id) {
+      reachedReview = true;
+      break;
+    }
+
+    for (const neighbor of adjacency.get(current) ?? []) {
+      if (parent.has(neighbor)) {
+        continue;
+      }
+
+      parent.set(neighbor, current);
+      queue.push(neighbor);
+    }
+  }
+
+  const pathIds: string[] = [];
+
+  if (reachedReview) {
+    let cursor: string | null = reviewPackageNode.id;
+
+    while (cursor !== null) {
+      pathIds.push(cursor);
+      cursor = parent.get(cursor) ?? null;
+    }
+
+    pathIds.reverse();
+  } else {
+    pathIds.push(trimmed, reviewPackageNode.id);
+  }
+
+  const labels: string[] = [];
+
+  for (const nodeId of pathIds) {
+    const node = graph.nodes.find((candidate) => candidate.id === nodeId);
+
+    if (node === undefined) {
+      continue;
+    }
+
+    const label = buyerTrailBreadcrumbLabel(node.type);
+
+    if (labels[labels.length - 1] === label) {
+      continue;
+    }
+
+    labels.push(label);
+  }
+
+  return labels;
+}

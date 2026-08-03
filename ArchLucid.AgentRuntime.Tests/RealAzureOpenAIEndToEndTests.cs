@@ -16,6 +16,7 @@ using ArchLucid.Core.Findings;
 using ArchLucid.Core.Scoping;
 
 using ArchLucid.AgentRuntime.Tests.Support;
+using ArchLucid.AgentRuntime.Tests.TestSupport;
 
 using ArchLucid.Decisioning.Merge;
 using ArchLucid.Decisioning.Validation;
@@ -153,7 +154,9 @@ public sealed class RealAzureOpenAIEndToEndTests
             new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()),
             new InMemoryAgentResultRepository(new InMemoryAgentResultEnrichmentRepository()),
             new NoOpAgentExecutionTraceRecorder(),
-            TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository());
+            TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository(),
+            RealAgentExecutorTestHosting.DevelopmentEnvironment,
+            RealAgentExecutorTestHosting.EmptyConfiguration);
 
         ArchitectureRequest request = new()
         {

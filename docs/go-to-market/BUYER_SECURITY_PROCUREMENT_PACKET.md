@@ -239,7 +239,7 @@ Former standalone body: `docs/go-to-market/PROMPT_INJECTION_RESISTANCE_BUYER_ONE
 | Too strong | Safe |
 | --- | --- |
 | “Prompt-injection proof” / “we sanitize architecture PDFs” | Host-composed ingress + structured evidence paths; residual influence on prose |
-| “Empty AllowedTools means the agent can do anything” | Tool dispatch is constrained (**TB-082** Done); residual empty-`AllowedTools` hole tracked under **TB-950** |
+| “Empty AllowedTools means the agent can do anything” | Tool dispatch is constrained (**TB-082**); production-like hosts deny empty/null allowlists (**TB-950** Done); unrestricted requires an explicit `*` sentinel |
 | “Content Safety makes us enterprise-safe alone” | Content Safety is one gate; isolation + audit + mode labels remain separate claims |
 
 ### Reviewer check
@@ -259,8 +259,7 @@ Former standalone body: `docs/go-to-market/PROMPT_INJECTION_RESISTANCE_BUYER_ONE
 
 ### Residuals (honest)
 
-- Engineering **TB-949** (**Done** — composer DATA delimiters / hygiene contract). Residual open: **TB-950**–**TB-952** (AllowedTools fail-closed, indirect corpus, side-effect inventory).
-- Empty / advisory `AllowedTools` residual: **TB-950**.
+- Engineering **TB-949** (**Done** — composer DATA delimiters / hygiene contract). **TB-950** (**Done** — production-like empty `AllowedTools` fail-closed). Residual open: **TB-951**–**TB-952** (indirect corpus, side-effect inventory).
 - Extend claim guardrails: **M-116**; deeper ingress vs impossible matrix: [LLM trust boundary (M-149)](#llm-trust-boundary-ingress-m-149).
 
 **Related:** [Isolation one-pager (M-114)](#isolation-one-pager-m-114) · [LLM trust boundary (M-149)](#llm-trust-boundary-ingress-m-149) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise).
@@ -273,7 +272,7 @@ Former standalone body: `docs/go-to-market/LLM_TRUST_BOUNDARY_INGRESS_PA_ONE_PAG
 
 **Audience:** Principal architects and security reviewers assessing AI agent boundaries.
 
-**Claim:** Promise **host-composed ingress** and **no model tool-loop** for HTTP/shell/ITSM side effects. Do **not** promise injection-proof customer docs or that the model cannot influence findings text. Residual empty-`AllowedTools`: **TB-950**.
+**Claim:** Promise **host-composed ingress** and **no model tool-loop** for HTTP/shell/ITSM side effects. Do **not** promise injection-proof customer docs or that the model cannot influence findings text. Empty `AllowedTools` on production-like hosts is fail-closed (**TB-950** Done).
 
 ### Ingress / impossible matrix
 

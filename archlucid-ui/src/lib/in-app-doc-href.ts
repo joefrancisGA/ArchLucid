@@ -38,7 +38,7 @@ const DOC_PATH_TO_SLUG: Readonly<Record<string, string>> = {
   "docs/demo/demo_recording_storyboard.md": "pilot-guide",
   "docs/start_here.md": "path-chooser",
   "docs/core_pilot.md": "first-architecture-review",
-  "docs/library/first_hour_operator_path.md": "first-hour-operator-path",
+  "docs/library/first_hour_operator_path.md": "first-architecture-review",
   "docs/runbooks/first_value_20_minutes.md": "first-value-20-minutes",
   "docs/library/governance_workflow_ui.md": "governance-approval",
   "docs/library/customer-facing/operator_quickstart.md": "getting-started",

@@ -85,7 +85,12 @@ public sealed class AgentTask
         set;
     }
 
-    /// <summary>Tool identifiers the agent is permitted to invoke (empty = unrestricted).</summary>
+    /// <summary>
+    ///     Handler dispatch keys the agent may invoke (TB-082 / TB-950).
+    ///     On production-like hosts, empty/null denies dispatch; unrestricted requires
+    ///     <see cref="Common.AgentTypeKeys.UnrestrictedDispatch" /> explicitly.
+    ///     On Development and other non-production-like hosts, empty remains unrestricted for local/test convenience.
+    /// </summary>
     public List<string> AllowedTools
     {
         get;

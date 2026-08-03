@@ -24,7 +24,7 @@ export type GettingStartedHelpSourceLink = {
 export const GETTING_STARTED_HELP_SOURCES: readonly GettingStartedHelpSourceLink[] = [
   { label: "Start a review", href: "/architecture/reviews/new" },
   { label: "Choose your next step", href: inAppHelpHref("path-chooser") },
-  { label: "First review guide", href: inAppHelpHref("first-hour-operator-path") },
+  { label: "Your first architecture review", href: inAppHelpHref("first-architecture-review") },
   { label: "Security & trust", href: "/security-trust" },
   { label: "How ArchLucid works", href: inAppHelpHref("how-it-works") },
 ] as const;

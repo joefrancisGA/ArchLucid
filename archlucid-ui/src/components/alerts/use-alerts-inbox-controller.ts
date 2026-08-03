@@ -10,17 +10,14 @@ import {
   applyAlertAction,
   archiveAlert,
   fetchAlertActionLoop,
+  getAlertsInboxSummary,
   listAlertRules,
   listAlertsPaged,
 } from "@/lib/api";
 import { listRunsByProjectPaged } from "@/lib/api/architecture-runs";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import {
-  countBlockingAlerts,
-  resolveLastEvaluatedUtc,
-  type AlertsInboxSummaryCounts,
-} from "@/lib/alerts-inbox-summary";
+import type { AlertsInboxSummaryCounts } from "@/lib/alerts-inbox-summary";
 import {
   ALERTS_INBOX_DEFAULT_PROJECT_ID,
   type AlertsInboxWorkspaceContext,
@@ -125,32 +122,14 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
     setSummaryLoading(true);
 
     try {
-      const [openPage, acknowledgedPage, resolvedPage, recentPage] = await Promise.all([
-        listAlertsPaged("Open", 1, 1),
-        listAlertsPaged("Acknowledged", 1, 1),
-        listAlertsPaged("Resolved", 1, 1),
-        listAlertsPaged(null, 1, 1),
-      ]);
-
-      let blocking = 0;
-      let lastEvaluatedUtc = resolveLastEvaluatedUtc(recentPage.items);
-
-      if (openPage.totalCount > 0) {
-        const openItemsPage = await listAlertsPaged("Open", 1, Math.min(openPage.totalCount, 100));
-        blocking = countBlockingAlerts(openItemsPage.items);
-        const openLast = resolveLastEvaluatedUtc(openItemsPage.items);
-
-        if (openLast !== null) {
-          lastEvaluatedUtc = openLast;
-        }
-      }
+      const summary = await getAlertsInboxSummary();
 
       setSummaryCounts({
-        open: openPage.totalCount,
-        acknowledged: acknowledgedPage.totalCount,
-        resolved: resolvedPage.totalCount,
-        blocking,
-        lastEvaluatedUtc,
+        open: summary.openCount,
+        acknowledged: summary.acknowledgedCount,
+        resolved: summary.resolvedCount,
+        blocking: summary.blockingCount,
+        lastEvaluatedUtc: summary.lastEvaluatedUtc?.trim() ? summary.lastEvaluatedUtc : null,
       });
     } catch {
       setSummaryCounts(EMPTY_SUMMARY);
@@ -159,7 +138,7 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
     }
   }, []);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (options?: { readonly refreshSummary?: boolean }) => {
     setLoading(true);
     setFailure(null);
 
@@ -207,7 +186,11 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
       }
     } finally {
       setLoading(false);
-      void loadSummaryCounts();
+
+      // TB-2023: do not re-fan-out summary on every page/filter load — only after mutations.
+      if (options?.refreshSummary === true) {
+        void loadSummaryCounts();
+      }
     }
   }, [status, page, loadSummaryCounts]);
 
@@ -260,7 +243,7 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
 
       try {
         await applyAlertAction(alertId, action, comment);
-        await load();
+        await load({ refreshSummary: true });
       } catch (e) {
         setFailure(toApiLoadFailure(e));
       }
@@ -290,7 +273,7 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
     try {
       await acknowledgeAlertsBatch(selectedAlertIds);
       setSelectedAlertIds([]);
-      await load();
+      await load({ refreshSummary: true });
     } catch (e) {
       setFailure(toApiLoadFailure(e));
     } finally {
@@ -309,7 +292,7 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
     try {
       await archiveAlert(alertId);
       setSelectedAlertIds((prev) => prev.filter((id) => id !== alertId));
-      await load();
+      await load({ refreshSummary: true });
     } catch (e) {
       setFailure(toApiLoadFailure(e));
     } finally {

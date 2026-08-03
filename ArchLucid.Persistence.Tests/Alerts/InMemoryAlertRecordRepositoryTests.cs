@@ -226,6 +226,52 @@ public sealed class InMemoryAlertRecordRepositoryTests
     }
 
     [SkippableFact]
+    public async Task GetInboxSummaryByScopeAsync_aggregates_status_blocking_and_last_evaluated()
+    {
+        InMemoryAlertRecordRepository repo = new();
+        AlertRecord openHigh = BuildAlert(
+            Guid.Parse("41000000-0000-0000-0000-000000000001"),
+            AlertStatus.Open,
+            BaseUtc,
+            "o1",
+            severity: AlertSeverity.High);
+        AlertRecord openInfo = BuildAlert(
+            Guid.Parse("41000000-0000-0000-0000-000000000002"),
+            AlertStatus.Open,
+            BaseUtc.AddMinutes(1),
+            "o2",
+            severity: AlertSeverity.Info);
+        AlertRecord ack = BuildAlert(
+            Guid.Parse("41000000-0000-0000-0000-000000000003"),
+            AlertStatus.Acknowledged,
+            BaseUtc.AddMinutes(2),
+            "a1");
+        AlertRecord resolved = BuildAlert(
+            Guid.Parse("41000000-0000-0000-0000-000000000004"),
+            AlertStatus.Resolved,
+            BaseUtc.AddMinutes(3),
+            "r1");
+        resolved.LastUpdatedUtc = BaseUtc.AddHours(2);
+
+        await repo.CreateAsync(openHigh, CancellationToken.None);
+        await repo.CreateAsync(openInfo, CancellationToken.None);
+        await repo.CreateAsync(ack, CancellationToken.None);
+        await repo.CreateAsync(resolved, CancellationToken.None);
+
+        AlertsInboxSummaryDto summary = await repo.GetInboxSummaryByScopeAsync(
+            TenantId,
+            WorkspaceId,
+            ProjectId,
+            CancellationToken.None);
+
+        summary.OpenCount.Should().Be(2);
+        summary.AcknowledgedCount.Should().Be(1);
+        summary.ResolvedCount.Should().Be(1);
+        summary.BlockingCount.Should().Be(1);
+        summary.LastEvaluatedUtc.Should().Be(BaseUtc.AddHours(2));
+    }
+
+    [SkippableFact]
     public async Task CreateAsync_with_null_alert_throws()
     {
         InMemoryAlertRecordRepository repo = new();
@@ -250,7 +296,8 @@ public sealed class InMemoryAlertRecordRepositoryTests
         string status,
         DateTime createdUtc,
         string deduplicationKey,
-        Guid? tenantId = null)
+        Guid? tenantId = null,
+        string severity = AlertSeverity.Warning)
     {
         return new AlertRecord
         {
@@ -260,7 +307,7 @@ public sealed class InMemoryAlertRecordRepositoryTests
             ProjectId = ProjectId,
             Title = "t",
             Category = "c",
-            Severity = AlertSeverity.Warning,
+            Severity = severity,
             Status = status,
             TriggerValue = "v",
             Description = "d",

@@ -1,5 +1,6 @@
 using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.AgentRuntime.Tests.Support;
+using ArchLucid.AgentRuntime.Tests.TestSupport;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Coordination;
 using ArchLucid.Capabilities.Cost;
@@ -277,7 +278,9 @@ public sealed class RealRuntimeMixedModeTests
             new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()),
             new InMemoryAgentResultRepository(new InMemoryAgentResultEnrichmentRepository()),
             new NoOpAgentExecutionTraceRecorder(),
-            TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository());
+            TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository(),
+            RealAgentExecutorTestHosting.DevelopmentEnvironment,
+            RealAgentExecutorTestHosting.EmptyConfiguration);
 
         ArchitectureRequest request = new()
         {

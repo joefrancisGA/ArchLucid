@@ -10,6 +10,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 
 using ArchLucid.AgentRuntime.Tests.Support;
+using ArchLucid.AgentRuntime.Tests.TestSupport;
 
 using FluentAssertions;
 
@@ -117,7 +118,9 @@ public sealed class CustomAgentHandlerRegistrationProofTests
             new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()),
             new InMemoryAgentResultRepository(new InMemoryAgentResultEnrichmentRepository()),
             new NoOpAgentExecutionTraceRecorder(),
-            TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository());
+            TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository(),
+            RealAgentExecutorTestHosting.DevelopmentEnvironment,
+            RealAgentExecutorTestHosting.EmptyConfiguration);
     }
 
     private sealed class StubPromptMonitor(AgentPromptCatalogOptions value) : IOptionsMonitor<AgentPromptCatalogOptions>

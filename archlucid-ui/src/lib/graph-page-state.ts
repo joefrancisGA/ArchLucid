@@ -75,12 +75,17 @@ export function shouldShowGraphIdleCard(options: {
   return options.buyerGraphAwaitingSelection || options.effectiveGraph === null;
 }
 
-/** Buyer shell: only show Load evidence graph when a real completed package is selected. */
+/**
+ * Buyer shell: show Load only when a real package is selected and the graph is not already
+ * loading/present. Prefer auto-load on select; keep the button for first manual load or retry.
+ */
 export function shouldShowBuyerEvidenceGraphLoadButton(options: {
   readonly reviewPickerState: GraphReviewPickerState;
   readonly runId: string;
   readonly graphLoadRequested: boolean;
   readonly effectiveGraph: GraphViewModel | null;
+  readonly loading?: boolean;
+  readonly loadFailure?: unknown;
 }): boolean {
   if (options.reviewPickerState !== "real-review") {
     return false;
@@ -90,7 +95,19 @@ export function shouldShowBuyerEvidenceGraphLoadButton(options: {
     return false;
   }
 
-  return !options.graphLoadRequested || options.effectiveGraph === null;
+  if (options.effectiveGraph !== null) {
+    return false;
+  }
+
+  if (options.loadFailure != null) {
+    return true;
+  }
+
+  if (options.loading === true) {
+    return false;
+  }
+
+  return !options.graphLoadRequested;
 }
 
 export function resolveGraphReviewPickerState(

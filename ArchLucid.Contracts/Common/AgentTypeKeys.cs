@@ -21,6 +21,12 @@ public static class AgentTypeKeys
     /// <summary>Critic agent role.</summary>
     public const string Critic = "critic";
 
+    /// <summary>
+    ///     Explicit allowlist sentinel for unrestricted handler dispatch (TB-950).
+    ///     Empty <see cref="Agents.AgentTask.AllowedTools" /> must not imply this on production-like hosts.
+    /// </summary>
+    public const string UnrestrictedDispatch = "*";
+
     /// <summary>Maps a persisted <see cref="AgentType" /> enum to its canonical dispatch key.</summary>
     public static string FromEnum(AgentType agentType)
     {

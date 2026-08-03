@@ -1616,7 +1616,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-2020 | **Done** (2026-07-31) — CD dual UI update + CORS dual-origin check; see ## TB-2020 below | Deployability P1 — **V1**; with **TB-2016** | S |
 | TB-2021 | ~~Post-933 `/reviews/[runId]` First Load JS — remaining sync workspace/overview~~ — **Done** (2026-08-03); see ## TB-2021 below | Performance P1 — **V1**; after **TB-933** Done; owner UI speed ask 2026-07-31; pairs **TB-934** | M |
 | TB-2022 | ~~Operator (non-buyer) run-detail slim first-paint — extend **TB-930**~~ — **Done** (2026-08-03); see ## TB-2022 below | Performance P1 — **V1**; after **TB-930** Done; owner UI speed ask 2026-07-31 | L |
-| TB-2023 | Alerts inbox mount fan-out — consolidate 4–6 list/summary RTTs to ~1–2; see ## TB-2023 below | Performance P1 — **V1**; owner UI speed ask 2026-07-31; pairs **TB-935** | S |
+| TB-2023 | ~~Alerts inbox mount fan-out — consolidate 4–6 list/summary RTTs~~ — **Done** (2026-08-03); see ## TB-2023 below | Performance P1 — **V1**; owner UI speed ask 2026-07-31; pairs **TB-935** | S |
 | TB-2024 | Alert-rules hub — `dynamic()` tab panels + parallel rules/routing fetches; see ## TB-2024 below | Performance P2 — **V1**; owner UI speed ask 2026-07-31; traffic **GOA**/**GLR** | S |
 | TB-2025 | Operator home — skip client refetch when SSR empty snapshot is authoritative; see ## TB-2025 below | Performance P2 — **V1**; owner UI speed ask 2026-07-31; pairs **TB-564** | S |
 | TB-2026 | Nested Suspense / section streaming on run detail + governance hubs; see ## TB-2026 below | Performance P2 — **V1**; `UI_ARCHITECTURE_V1_1` §7; owner UI speed ask 2026-07-31 | M |
@@ -46593,29 +46593,24 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 — Performance.
 
-**Status:** Not started.
+**Status:** Done (2026-08-03).
 
 **Source:** Owner UI speed ask 2026-07-31; audit of `use-alerts-inbox-controller.ts`.
 
-**Why:** Inbox open fires workspace context (rules + runs) and **4×** `listAlertsPaged` page-size-1 summary counts, optionally a 5th open-page fetch, then often re-runs `loadSummaryCounts()` after list load — ~**4–6** RTTs. Expected ready-time cut **−200 to −600 ms** on slow APIs; keep ~**1–2** round trips.
+**Why:** Inbox open fired workspace context plus **4–5×** `listAlertsPaged` page-size-1 summary counts, then often re-ran `loadSummaryCounts()` after every list load — ~**4–6** RTTs.
 
-**Approach:**
+**Shipped:**
 
-1. Prefer a single summary/counts API or derive counts from one list response; stop duplicate `loadSummaryCounts` in `finally`.
-2. Parallelize unavoidable independent fetches (`Promise.all`); migrate to TanStack Query keys (pairs **TB-935**).
-3. Vitest/controller test: mount issues ≤2 network calls for summary+list happy path (or documented single-endpoint).
+1. `GET /v1/alerts/inbox-summary` — `AlertsInboxSummaryDto` via `IAlertRecordRepository.GetInboxSummaryByScopeAsync` (Dapper + in-memory).
+2. UI `getAlertsInboxSummary` — one RTT for open/ack/resolved/blocking/last evaluated.
+3. Removed default `loadSummaryCounts` from list `finally`; refresh summary only after mutations.
+4. Vitest fan-out guard + in-memory repository unit test; mock E2E route for inbox-summary.
 
-**Acceptance:**
+**Mount budget:** With SSR list snapshot → **1** summary RTT (+ workspace rules/runs parallel, not list/summary). Cold client remount → **1** list + **1** summary = **2** list/summary RTTs.
 
-- Mount path documented at ≤2 list/summary RTTs (or one dedicated summary endpoint).
-- No behavioral change to filters/blocking badge semantics.
-- Vitest covers fan-out budget.
+**Depends on:** None. Peer: **TB-935** (Query + virtualization) still open.
 
-**Affected files:** `use-alerts-inbox-controller.ts`, alerts inbox clients, optional API summary endpoint, Vitest.
-
-**Depends on:** None. Peer: **TB-935** (Query + virtualization).
-
-**Out of scope:** Alert-rules hub tabs (**TB-2024**); inbox UX copy clusters.
+**Out of scope:** Alert-rules hub tabs (**TB-2024**); inbox UX copy clusters; TanStack Query migration.
 
 **Size estimate:** S.
 

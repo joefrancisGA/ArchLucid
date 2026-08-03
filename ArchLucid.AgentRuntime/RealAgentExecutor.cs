@@ -11,6 +11,8 @@ using ArchLucid.Core.Llm.Redaction;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -48,7 +50,9 @@ public sealed class RealAgentExecutor : IAgentExecutor
         IOptionsMonitor<ArchLucidLlmOptions> archLucidLlmOptions,
         IAgentResultRepository agentResultRepository,
         IAgentExecutionTraceRecorder traceRecorder,
-        ITechnologyLedgerRepository technologyLedgerRepository)
+        ITechnologyLedgerRepository technologyLedgerRepository,
+        IHostEnvironment hostEnvironment,
+        IConfiguration configuration)
     {
         ArgumentNullException.ThrowIfNull(handlers);
         ArgumentNullException.ThrowIfNull(logger);
@@ -63,6 +67,8 @@ public sealed class RealAgentExecutor : IAgentExecutor
         ArgumentNullException.ThrowIfNull(agentResultRepository);
         ArgumentNullException.ThrowIfNull(traceRecorder);
         ArgumentNullException.ThrowIfNull(technologyLedgerRepository);
+        ArgumentNullException.ThrowIfNull(hostEnvironment);
+        ArgumentNullException.ThrowIfNull(configuration);
 
         List<IAgentHandler> list = handlers.ToList();
         string[] duplicateKeys = list
@@ -94,7 +100,9 @@ public sealed class RealAgentExecutor : IAgentExecutor
             archLucidLlmOptions,
             agentResultRepository,
             traceRecorder,
-            technologyLedgerRepository);
+            technologyLedgerRepository,
+            hostEnvironment,
+            configuration);
     }
 
     /// <inheritdoc />

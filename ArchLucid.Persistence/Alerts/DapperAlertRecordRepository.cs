@@ -252,13 +252,13 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
     {
         const string sql = """
             SELECT
-                SUM(CASE WHEN Status = N'Open' THEN 1 ELSE 0 END) AS OpenCount,
-                SUM(CASE WHEN Status = N'Acknowledged' THEN 1 ELSE 0 END) AS AcknowledgedCount,
-                SUM(CASE WHEN Status = N'Resolved' THEN 1 ELSE 0 END) AS ResolvedCount,
-                SUM(CASE
+                ISNULL(SUM(CASE WHEN Status = N'Open' THEN 1 ELSE 0 END), 0) AS OpenCount,
+                ISNULL(SUM(CASE WHEN Status = N'Acknowledged' THEN 1 ELSE 0 END), 0) AS AcknowledgedCount,
+                ISNULL(SUM(CASE WHEN Status = N'Resolved' THEN 1 ELSE 0 END), 0) AS ResolvedCount,
+                ISNULL(SUM(CASE
                     WHEN Status = N'Open' AND Severity IN (N'Critical', N'High') THEN 1
                     ELSE 0
-                END) AS BlockingCount,
+                END), 0) AS BlockingCount,
                 MAX(COALESCE(LastUpdatedUtc, CreatedUtc)) AS LastEvaluatedUtc
             FROM dbo.AlertRecords
             WHERE TenantId = @TenantId

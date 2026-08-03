@@ -2,6 +2,7 @@ using System.Diagnostics;
 
 using ArchLucid.Core.Evidence;
 using ArchLucid.AgentRuntime.Tests.Support;
+using ArchLucid.AgentRuntime.Tests.TestSupport;
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
@@ -58,7 +59,9 @@ public sealed class RealAgentExecutorStagedCriticTests
             new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()),
             new InMemoryAgentResultRepository(new InMemoryAgentResultEnrichmentRepository()),
             new NoOpAgentExecutionTraceRecorder(),
-            technologyLedgerRepository ?? TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository());
+            technologyLedgerRepository ?? TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository(),
+            RealAgentExecutorTestHosting.DevelopmentEnvironment,
+            RealAgentExecutorTestHosting.EmptyConfiguration);
     }
 
     private static RealAgentExecutor CreateSut(

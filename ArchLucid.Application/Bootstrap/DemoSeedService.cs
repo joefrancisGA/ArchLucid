@@ -178,7 +178,7 @@ public sealed class DemoSeedService(
             CreatedUtc = TrialWelcomeSeedUtc,
             CompletedUtc = TrialWelcomeSeedUtc,
             EvidenceBundleRef = null,
-            AllowedTools = [],
+            AllowedTools = SeedAllowedTools(AgentType.Topology),
             AllowedSources = []
         };
         AgentTask costTask = new()
@@ -192,7 +192,7 @@ public sealed class DemoSeedService(
             CreatedUtc = TrialWelcomeSeedUtc,
             CompletedUtc = TrialWelcomeSeedUtc,
             EvidenceBundleRef = null,
-            AllowedTools = [],
+            AllowedTools = SeedAllowedTools(AgentType.Cost),
             AllowedSources = []
         };
         AgentTask compTask = new()
@@ -206,7 +206,7 @@ public sealed class DemoSeedService(
             CreatedUtc = TrialWelcomeSeedUtc,
             CompletedUtc = TrialWelcomeSeedUtc,
             EvidenceBundleRef = null,
-            AllowedTools = [],
+            AllowedTools = SeedAllowedTools(AgentType.Compliance),
             AllowedSources = []
         };
         await taskRepository.CreateManyAsync([topoTask, costTask, compTask], cancellationToken);
@@ -701,7 +701,7 @@ public sealed class DemoSeedService(
                 CreatedUtc = DemoUtc,
                 CompletedUtc = DemoUtc,
                 EvidenceBundleRef = null,
-                AllowedTools = [],
+                AllowedTools = SeedAllowedTools(AgentType.Topology),
                 AllowedSources = []
             };
 
@@ -1033,7 +1033,7 @@ public sealed class DemoSeedService(
             CreatedUtc = utc,
             CompletedUtc = utc,
             EvidenceBundleRef = null,
-            AllowedTools = [],
+            AllowedTools = SeedAllowedTools(AgentType.Topology),
             AllowedSources = [],
         };
 
@@ -1253,7 +1253,7 @@ public sealed class DemoSeedService(
             CreatedUtc = utc,
             CompletedUtc = utc,
             EvidenceBundleRef = null,
-            AllowedTools = [],
+            AllowedTools = SeedAllowedTools(AgentType.Topology),
             AllowedSources = [],
         };
 
@@ -1508,7 +1508,7 @@ public sealed class DemoSeedService(
             CreatedUtc = utc,
             CompletedUtc = utc,
             EvidenceBundleRef = null,
-            AllowedTools = [],
+            AllowedTools = SeedAllowedTools(AgentType.Topology),
             AllowedSources = [],
         };
         AgentTask costTask = new()
@@ -1522,7 +1522,7 @@ public sealed class DemoSeedService(
             CreatedUtc = utc,
             CompletedUtc = utc,
             EvidenceBundleRef = null,
-            AllowedTools = [],
+            AllowedTools = SeedAllowedTools(AgentType.Cost),
             AllowedSources = [],
         };
         AgentTask compTask = new()
@@ -1536,7 +1536,7 @@ public sealed class DemoSeedService(
             CreatedUtc = utc,
             CompletedUtc = utc,
             EvidenceBundleRef = null,
-            AllowedTools = [],
+            AllowedTools = SeedAllowedTools(AgentType.Compliance),
             AllowedSources = [],
         };
         AgentTask criticTask = new()
@@ -1549,7 +1549,7 @@ public sealed class DemoSeedService(
             CreatedUtc = utc,
             CompletedUtc = utc,
             EvidenceBundleRef = null,
-            AllowedTools = [],
+            AllowedTools = SeedAllowedTools(AgentType.Critic),
             AllowedSources = [],
         };
 

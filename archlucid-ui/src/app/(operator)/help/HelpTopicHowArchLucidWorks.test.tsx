@@ -48,7 +48,7 @@ describe("HelpHowArchLucidWorksGuideView", () => {
     expect(within(actions).getByRole("link", { name: "Open completed sample" })).toBeInTheDocument();
     expect(within(actions).getByRole("link", { name: "View first review guide" })).toHaveAttribute(
       "href",
-      "/help/first-hour-operator-path",
+      "/help/first-architecture-review",
     );
 
     expect(screen.getByTestId("how-archlucid-works-diagram")).toBeInTheDocument();

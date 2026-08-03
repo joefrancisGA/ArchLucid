@@ -10,6 +10,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 
 using ArchLucid.AgentRuntime.Tests.Support;
+using ArchLucid.AgentRuntime.Tests.TestSupport;
 
 using FluentAssertions;
 using FluentAssertions.Specialized;
@@ -58,7 +59,9 @@ public sealed class AgentExecutionResilienceTests
             new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()),
             new InMemoryAgentResultRepository(new InMemoryAgentResultEnrichmentRepository()),
             new NoOpAgentExecutionTraceRecorder(),
-            TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository());
+            TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository(),
+            RealAgentExecutorTestHosting.DevelopmentEnvironment,
+            RealAgentExecutorTestHosting.EmptyConfiguration);
 
         ArchitectureRequest request = MinimalRequest();
         AgentEvidencePackage evidence = new();
@@ -95,7 +98,9 @@ public sealed class AgentExecutionResilienceTests
             new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()),
             new InMemoryAgentResultRepository(new InMemoryAgentResultEnrichmentRepository()),
             new NoOpAgentExecutionTraceRecorder(),
-            TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository());
+            TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository(),
+            RealAgentExecutorTestHosting.DevelopmentEnvironment,
+            RealAgentExecutorTestHosting.EmptyConfiguration);
 
         ArchitectureRequest request = MinimalRequest();
         AgentEvidencePackage evidence = new();
@@ -137,7 +142,9 @@ public sealed class AgentExecutionResilienceTests
             new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()),
             new InMemoryAgentResultRepository(new InMemoryAgentResultEnrichmentRepository()),
             traceRecorder,
-            TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository());
+            TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository(),
+            RealAgentExecutorTestHosting.DevelopmentEnvironment,
+            RealAgentExecutorTestHosting.EmptyConfiguration);
 
         ArchitectureRequest request = MinimalRequest();
         AgentEvidencePackage evidence = new();
@@ -188,7 +195,9 @@ public sealed class AgentExecutionResilienceTests
             new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()),
             new InMemoryAgentResultRepository(new InMemoryAgentResultEnrichmentRepository()),
             new NoOpAgentExecutionTraceRecorder(),
-            TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository());
+            TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository(),
+            RealAgentExecutorTestHosting.DevelopmentEnvironment,
+            RealAgentExecutorTestHosting.EmptyConfiguration);
 
         ArchitectureRequest request = MinimalRequest();
         AgentEvidencePackage evidence = new();
@@ -232,7 +241,9 @@ public sealed class AgentExecutionResilienceTests
             new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()),
             new InMemoryAgentResultRepository(new InMemoryAgentResultEnrichmentRepository()),
             new NoOpAgentExecutionTraceRecorder(),
-            TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository());
+            TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository(),
+            RealAgentExecutorTestHosting.DevelopmentEnvironment,
+            RealAgentExecutorTestHosting.EmptyConfiguration);
 
         ArchitectureRequest request = MinimalRequest();
         AgentEvidencePackage evidence = new();

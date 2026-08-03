@@ -1274,13 +1274,17 @@ export const BUYER_EVIDENCE_GRAPH_EMPTY_LIST_PLACEHOLDER = "No completed reviews
 export const BUYER_EVIDENCE_GRAPH_EMPTY_LIST_HINT =
   "No completed reviews yet. Start a new review or open the Claims Intake sample graph (not your tenant data).";
 
-export const BUYER_EVIDENCE_GRAPH_FIT_GRAPH_CTA = "Fit graph";
+export const BUYER_EVIDENCE_GRAPH_FIT_GRAPH_CTA = "Fit";
 
-export const BUYER_EVIDENCE_GRAPH_TRACE_PATH_CTA = "Trace path to review";
+export const BUYER_EVIDENCE_GRAPH_ZOOM_100_CTA = "100%";
 
-export const BUYER_EVIDENCE_GRAPH_SHOW_SELECTED_PATH_CTA = "Show only selected path";
+export const BUYER_EVIDENCE_GRAPH_RESET_VIEW_CTA = "Reset";
 
-export const BUYER_EVIDENCE_GRAPH_SHOW_ALL_NODES_CTA = "Show all nodes";
+export const BUYER_EVIDENCE_GRAPH_TRACE_PATH_CTA = "Highlight path";
+
+export const BUYER_EVIDENCE_GRAPH_SHOW_SELECTED_PATH_CTA = "Focus selection";
+
+export const BUYER_EVIDENCE_GRAPH_SHOW_ALL_NODES_CTA = "Show all";
 
 export const BUYER_EVIDENCE_GRAPH_SELECTED_NODE_PANEL_LABEL = "Selected graph node";
 

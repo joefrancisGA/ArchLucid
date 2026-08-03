@@ -969,7 +969,7 @@
       "commercial_tier": "none",
       "class_policy": "ReadAuthority",
       "exemption": null,
-      "nav_operator_href": "/reviews?projectId=default"
+      "nav_operator_href": "/architecture/reviews?projectId=default"
     },
     {
       "controller_file": "Authority/RunsExportController.cs",
@@ -1189,7 +1189,7 @@
       "commercial_tier": "standard",
       "class_policy": "ReadAuthority",
       "exemption": null,
-      "nav_operator_href": "/governance"
+      "nav_operator_href": "/governance/approval-queue"
     },
     {
       "controller_file": "Governance/GovernanceCoverageController.cs",
@@ -1519,7 +1519,7 @@
       "commercial_tier": "none",
       "class_policy": "ReadAuthority",
       "exemption": null,
-      "nav_operator_href": "/reviews?projectId=default"
+      "nav_operator_href": "/architecture/reviews?projectId=default"
     },
     {
       "controller_file": "Planning/AskController.cs",

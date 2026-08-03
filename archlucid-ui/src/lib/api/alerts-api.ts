@@ -65,6 +65,20 @@ export async function listAlertsPaged(
   return apiGet<PagedResponse<AlertRecord>>(`/v1/alerts?${q}`);
 }
 
+/** Wire shape for GET /v1/alerts/inbox-summary (TB-2023). */
+export type AlertsInboxSummaryApiDto = {
+  openCount: number;
+  acknowledgedCount: number;
+  resolvedCount: number;
+  blockingCount: number;
+  lastEvaluatedUtc?: string | null;
+};
+
+/** Inbox summary card aggregates — one RTT instead of N× listAlertsPaged page-size-1. */
+export async function getAlertsInboxSummary(): Promise<AlertsInboxSummaryApiDto> {
+  return apiGet<AlertsInboxSummaryApiDto>("/v1/alerts/inbox-summary");
+}
+
 export async function applyAlertAction(
   alertId: string,
   action: "Acknowledge" | "Resolve" | "Suppress",

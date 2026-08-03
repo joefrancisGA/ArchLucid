@@ -25,7 +25,7 @@ A read-focused **workspace** for the three ArchLucid product layers:
 
 It is not a replacement for Swagger or the CLI. See [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) for the full capability inventory.
 
-**Related guides:** [First-review guide](FIRST_HOUR_OPERATOR_PATH.md), [Core Pilot walkthrough](../CORE_PILOT.md), [Pilot guide](customer-facing/PILOT_GUIDE.md). Keep wording aligned with [Concept vocabulary](CONCEPT_VOCABULARY.md) and [UI Glossary V1](CONCEPT_VOCABULARY.md#ui-glossary-v1).
+**Related guides:** [Your first architecture review](../CORE_PILOT.md) (`FIRST_HOUR_OPERATOR_PATH.md` alias), [Pilot guide](customer-facing/PILOT_GUIDE.md). Keep wording aligned with [Concept vocabulary](CONCEPT_VOCABULARY.md) and [UI Glossary V1](CONCEPT_VOCABULARY.md#ui-glossary-v1).
 
 ---
 

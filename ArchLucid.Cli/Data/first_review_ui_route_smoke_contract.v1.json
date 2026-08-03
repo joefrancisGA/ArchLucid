@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "purpose": "TB-410: canonical operator-shell routes probed by ship-gate Gate 5 when --ui-base-url is supplied. Aligns with docs/library/FIRST_HOUR_OPERATOR_PATH.md and operator-first-hour journey spine.",
+  "purpose": "TB-410: canonical operator-shell routes probed by ship-gate Gate 5 when --ui-base-url is supplied. Aligns with docs/CORE_PILOT.md (FIRST_HOUR_OPERATOR_PATH.md alias) and operator-first-hour journey spine.",
   "routes": [
     {
       "id": "operator-home",

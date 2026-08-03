@@ -5,6 +5,8 @@ import {
   BUYER_EVIDENCE_TRAIL_GRAPH_MODE_FINDING,
 } from "@/lib/buyer-polish-copy";
 import {
+  EVIDENCE_GRAPH_AWAITING_SELECTION_BODY,
+  EVIDENCE_GRAPH_AWAITING_SELECTION_TITLE,
   EVIDENCE_GRAPH_EMPTY_BODY,
   EVIDENCE_GRAPH_EMPTY_PRIMARY_ACTION,
   EVIDENCE_GRAPH_EMPTY_SECONDARY_START,
@@ -76,11 +78,22 @@ export type GraphIdleEmptyPresetOptions = {
   buyerPolished: boolean;
   demoUi: boolean;
   showIdleCard: boolean;
+  /** Packages exist but no review is selected yet — teach the graph instead of "no reviews". */
+  awaitingSelection?: boolean;
 };
 
 /** Resolves graph idle empty-state copy — showcase demo override, then buyer preset, then operator default. */
 export function resolveGraphIdleEmptyPreset(options: GraphIdleEmptyPresetOptions): EmptyStateProps {
   if (options.buyerPolished || (options.demoUi && options.showIdleCard)) {
+    if (options.awaitingSelection === true) {
+      return {
+        icon: GRAPH_IDLE_BUYER.icon,
+        title: EVIDENCE_GRAPH_AWAITING_SELECTION_TITLE,
+        description: EVIDENCE_GRAPH_AWAITING_SELECTION_BODY,
+        actions: EVIDENCE_GRAPH_IDLE_ACTIONS,
+      };
+    }
+
     return {
       icon: GRAPH_IDLE_BUYER.icon,
       title: EVIDENCE_GRAPH_EMPTY_TITLE,
@@ -90,6 +103,18 @@ export function resolveGraphIdleEmptyPreset(options: GraphIdleEmptyPresetOptions
   }
 
   return GRAPH_IDLE;
+}
+
+/** Resolve Trace vs Graph tab from the URL, defaulting Graph for buyer-polished shells. */
+export function resolveEvidenceTrailPresentationView(
+  urlPresentation: string | null | undefined,
+  buyerPolished: boolean,
+): EvidenceTrailPresentationView {
+  if (urlPresentation === "trace" || urlPresentation === "graph") {
+    return urlPresentation;
+  }
+
+  return buyerPolished ? "graph" : "trace";
 }
 
 export function applyProvenanceDemoPresentationIfEligible(

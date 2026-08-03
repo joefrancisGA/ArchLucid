@@ -8,6 +8,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 
 using ArchLucid.AgentRuntime.Tests.Support;
+using ArchLucid.AgentRuntime.Tests.TestSupport;
 
 using FluentAssertions;
 
@@ -116,7 +117,9 @@ public sealed class RealAgentExecutorIdempotencyTests
             new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()),
             resultRepository,
             new NoOpAgentExecutionTraceRecorder(),
-            TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository());
+            TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository(),
+            RealAgentExecutorTestHosting.DevelopmentEnvironment,
+            RealAgentExecutorTestHosting.EmptyConfiguration);
     }
 
     private static ArchitectureRequest MinimalRequest() =>

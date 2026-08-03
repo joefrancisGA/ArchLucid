@@ -184,7 +184,7 @@ Former standalone body: `docs/go-to-market/PA_CLAIM_HONESTY_BULLETS_BATCH_A.md` 
 
 | Do not promise | Do promise |
 | --- | --- |
-| Customer content is injection-proof, the model cannot influence finding text, or all `AllowedTools` states are already fail-closed. | The host composes model ingress and provides no model-driven HTTP, shell, or ITSM side-effect loop; output can still influence findings and empty `AllowedTools` remains a **TB-950** residual. |
+| Customer content is injection-proof, the model cannot influence finding text, or every model influence path is eliminated. | The host composes model ingress and provides no model-driven HTTP, shell, or ITSM side-effect loop; production-like hosts fail closed on empty `AllowedTools` (**TB-950** Done); output can still influence findings. Residual side-effect inventory: **TB-952**. |
 
 #### M-150 — Tenant identity single derivation
 
