@@ -63,6 +63,8 @@ describe("contextual-help-registry (TB-733)", () => {
       "/planning",
       "/governance/advisory-scans",
       "/value-report",
+      "/integrations/cloud-connections",
+      "/settings/cloud-connections",
     ]);
   });
 
@@ -93,6 +95,16 @@ describe("contextual-help-registry (TB-733)", () => {
       "Architecture scorecard",
     );
     expect(contextualHelpForPathname("/insights/architecture-scorecard")?.whatToDoNext).toContain("ROI");
+  });
+
+  it("resolves cloud connections Category-1 help (SCE)", () => {
+    expect(contextualHelpForPathname("/integrations/cloud-connections")?.whatIsThisPage).toContain(
+      "read-only evidence collection",
+    );
+    expect(contextualHelpForPathname("/integrations/cloud-connections/azure")?.whatIsThisPage).toContain(
+      "read-only evidence collection",
+    );
+    expect(contextualHelpForPathname("/settings/cloud-connections")?.whatIsThisPage).toContain("Legacy");
   });
 
   it("returns null for routes not yet migrated", () => {

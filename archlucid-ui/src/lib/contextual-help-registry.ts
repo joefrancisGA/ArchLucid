@@ -352,6 +352,29 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whereToConfigurePrerequisite: "ROI estimates use baseline settings from workspace configuration.",
     },
   },
+  {
+    prefix: "/integrations/cloud-connections",
+    entry: {
+      whatIsThisPage:
+        "Connect Azure, AWS, or Google Cloud for optional read-only evidence collection, or start evidence-only reviews without a cloud connector.",
+      whatToDoNext:
+        "Choose platforms to show, open a provider to configure federation, or start an evidence-only review from uploaded packages.",
+      whyEmpty:
+        "Provider cards stay Not connected until you configure a Tier 2 connection; evidence-only upload stays available anytime.",
+      whereToConfigurePrerequisite:
+        "Choose a workspace in the header scope switcher before changing which platforms appear — filters save per workspace.",
+    },
+  },
+  {
+    prefix: "/settings/cloud-connections",
+    entry: {
+      whatIsThisPage:
+        "Legacy cloud-connections URL — redirects to the Integrations cloud connections landing hub.",
+      whatToDoNext: "Use the redirected Cloud connections page to configure providers or evidence-only upload.",
+      whyEmpty: "This path only redirects; connection status appears on the canonical Integrations page.",
+      whereToConfigurePrerequisite: "Choose a workspace in the header scope switcher on the destination page.",
+    },
+  },
 ];
 
 /** All registry rows — exported for content-constraint Vitest guards. */

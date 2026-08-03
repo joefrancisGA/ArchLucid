@@ -6,6 +6,10 @@ vi.mock("@/lib/toast", () => ({
   showSuccess: vi.fn(),
 }));
 
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+}));
+
 const listTier2Connections = vi.fn(async () => []);
 const listAwsTier2Connections = vi.fn(async () => []);
 const listGcpTier2Connections = vi.fn(async () => []);
@@ -50,6 +54,9 @@ describe("CloudConnectionsPageClient", () => {
 
     expect(screen.getByRole("heading", { level: 1, name: "Cloud connections" })).toBeInTheDocument();
     expect(screen.getByText(/Cloud connectors are optional/i)).toBeInTheDocument();
+    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+    expect(screen.getByTestId("cloud-connections-sources")).toBeInTheDocument();
+    expect(screen.getByTestId("cloud-connections-claim-discipline")).toBeInTheDocument();
     expect(screen.getByTestId("cloud-platform-scope-panel")).toBeInTheDocument();
     expect(screen.getByTestId("cloud-connection-card-aws")).toBeInTheDocument();
     expect(screen.getByTestId("cloud-connection-card-azure")).toBeInTheDocument();

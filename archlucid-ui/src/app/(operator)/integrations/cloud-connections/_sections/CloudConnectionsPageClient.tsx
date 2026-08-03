@@ -26,6 +26,8 @@ import {
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { PageHeading } from "@/components/PageHeading";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { CloudConnectionsEvidenceOrientationStrip } from "./CloudConnectionsEvidenceOrientationStrip";
 import { CloudPlatformScopePanel } from "./CloudPlatformScopePanel";
 import { CloudProviderSummaryCard } from "./CloudProviderSummaryCard";
 import { EvidenceOnlyConnectionCard } from "./EvidenceOnlyConnectionCard";
@@ -138,6 +140,7 @@ export function CloudConnectionsPageClient() {
         navHref={CLOUD_CONNECTIONS_PATH}
         title={CLOUD_CONNECTIONS_PAGE_TITLE}
         variant="integration"
+        actions={<PageContextualHelpButton />}
         description={
           <>
             <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{CLOUD_CONNECTIONS_PAGE_SUBTITLE}</p>
@@ -145,6 +148,8 @@ export function CloudConnectionsPageClient() {
           </>
         }
       />
+
+      <CloudConnectionsEvidenceOrientationStrip />
 
       <CloudPlatformScopePanel
         scope={platformScope}
