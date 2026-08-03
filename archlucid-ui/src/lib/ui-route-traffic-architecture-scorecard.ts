@@ -11,7 +11,7 @@ export const ARCHITECTURE_SCORECARD_TRAFFIC_PATH = ARCHITECTURE_SCORECARD_PATH;
  * Formerly `/scorecard` and `/sponsor-report/architecture-scorecard` (retired; no redirect).
  */
 export const ARCHITECTURE_SCORECARD_TRAFFIC_NOTE =
-  "Formerly `/scorecard` and `/sponsor-report/architecture-scorecard` (retired; no redirect).";
+  "Architecture scorecard (Insights) - PilotScorecardPageView with PageContextualHelp (topic map pilot-roi-model + Category-1 registry), Sources follow-up strip + claim-discipline callout (directional ROI / not financial reporting; not diligence trail), Outcomes nav, empty CTAs (TB-1958), sample-mode honesty (TB-1957). Formerly `/scorecard` and `/sponsor-report/architecture-scorecard` (retired; no redirect). Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication.";
 
 /** Workbook Section column value. */
 export const ARCHITECTURE_SCORECARD_TRAFFIC_SECTION = "Insights";

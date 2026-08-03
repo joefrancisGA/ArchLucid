@@ -905,7 +905,7 @@ Canonical: [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) only (see wave-3 c
 | Ghost artifact preview (`/reviews/.../artifacts/...`) | **TB-1821**–**TB-1825** (open P1 **V1**) | Restore/redirect Preview; fix ArtifactListTable hrefs; traffic honesty; pair MAM; CI existence guard; ~10/100; traffic **RER**; after Done **TB-752** |
 | Ghost signed-record artifact preview (`/signed-records/.../artifacts/...`) | **TB-1947**–**TB-1950** (open P0/P1 **V1**) | Traffic ghost **Done** **TB-1946**; execute **TB-1824**; hrefs; docs; Vitest with **TB-1825**; ~10/100; traffic **MAM**; peer **RER** |
 | Snapshot leave-behind (`/snapshot/[runId]`) | — (cluster **Done** **TB-1951**–**TB-1955**) | Redirect traffic; destination honesty; next.config/query; docs; Vitest; ~30/100; traffic **SNU** |
-| Architecture scorecard (`/insights/architecture-scorecard`) | — (cluster **Done**) | **TB-1956**–**TB-1960** Done; ~48/100; traffic **SPA**; siblings SPE/SPP/SPR |
+| Architecture scorecard (`/insights/architecture-scorecard`) | — (cluster **Done**; Evidence chrome 2026-08-03) | **TB-1956**–**TB-1960** Done; Sources + Category-1 registry; ~45/100; traffic **SCX**; siblings SPE/SPP/SPR |
 | Executive summary (`/sponsor-report/executive-summary`) | — (cluster **Done** **TB-1961**–**TB-1965**) | SPE sponsor-report cluster complete; siblings SPP/SPR |
 | Pilot outcomes (`/sponsor-report/pilot-outcomes`) | — | **TB-1966**–**TB-1970** Done; traffic **SPP**; sibling SPR |
 | ROI summary (`/sponsor-report/roi-summary`) | — | **TB-1971**–**TB-1975** Done; traffic **SPR** |

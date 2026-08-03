@@ -35,6 +35,7 @@ describe("contextual-help-registry (TB-733)", () => {
     expect(prefixes).toEqual([
       "/",
       "/architecture/reviews",
+      "/insights/architecture-scorecard",
       "/governance/dashboard",
       "/governance/findings",
       "/insights/ask-review-questions",
@@ -73,6 +74,13 @@ describe("contextual-help-registry (TB-733)", () => {
   it("resolves governance dashboard Category-1 help (GDX)", () => {
     expect(contextualHelpForPathname("/governance/dashboard")?.whatIsThisPage).toContain("Workspace health");
     expect(contextualHelpForPathname("/governance/dashboard")?.whyEmpty).toContain("zero");
+  });
+
+  it("resolves architecture scorecard Category-1 help (SCX)", () => {
+    expect(contextualHelpForPathname("/insights/architecture-scorecard")?.whatIsThisPage).toContain(
+      "Architecture scorecard",
+    );
+    expect(contextualHelpForPathname("/insights/architecture-scorecard")?.whatToDoNext).toContain("ROI");
   });
 
   it("returns null for routes not yet migrated", () => {

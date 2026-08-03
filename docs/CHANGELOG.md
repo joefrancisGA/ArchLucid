@@ -9,6 +9,10 @@
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
+## 2026-08-03 — UI: Architecture scorecard Evidence chrome (SCX)
+
+`/insights/architecture-scorecard` ships Sources follow-up strip + claim-discipline callout (directional ROI / not financial reporting), Category-1 contextual-help registry, denser header chrome with help beside the H1, and enriched traffic Notes under Insights (not Marketing). TB-1956–1960 remains Done; no CPA / third-party pen-test implication.
+
 ## 2026-08-03 — UI: Governance dashboard Evidence chrome (GDX / TB-1668 topic slice)
 
 `/governance/dashboard` ships Sources follow-up strip + claim-discipline callout, Category-1 contextual-help registry, and topic-map honesty (`how-it-works` / Workspace overview — not governance-approval). Sibling fix: `/governance/alerts` maps to `alerts`. Demo redirect (BDA-107) unchanged. Remaining TB-1668 mount hubs still open.

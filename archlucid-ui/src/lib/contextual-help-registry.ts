@@ -37,6 +37,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/insights/architecture-scorecard",
+    entry: {
+      whatIsThisPage:
+        "Architecture scorecard — workspace throughput tiles and a directional review-time savings model for pilot discussions.",
+      whatToDoNext:
+        "Finalize reviews to populate tiles, then tune ROI assumptions or open ROI summary for sponsor exports.",
+      whyEmpty: "Tiles stay empty until you finalize architecture reviews in this workspace.",
+      whereToConfigurePrerequisite:
+        "Save ROI assumptions on this page when you have Execute authority, or use workspace baseline settings.",
+    },
+  },
+  {
     prefix: "/governance/dashboard",
     entry: {
       whatIsThisPage:

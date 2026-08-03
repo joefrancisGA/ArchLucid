@@ -9,6 +9,7 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { ValueReportOutcomesNav } from "@/components/usability/ValueReportOutcomesNav";
 import { Button } from "@/components/ui/button";
+import { ARCHITECTURE_SCORECARD_DIRECTIONAL_ROI_HELPER } from "@/lib/architecture-scorecard-page-copy";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   REVIEW_SCORECARD_PAGE_SUBTITLE,
@@ -25,6 +26,7 @@ import {
 } from "@/lib/review-scorecard-empty-state";
 import { resolveReviewScorecardDisplayData } from "@/lib/review-scorecard-sample-data";
 
+import { ArchitectureScorecardSourcesStrip } from "./ArchitectureScorecardSourcesStrip";
 import { ReviewScorecardEmptyState } from "./ReviewScorecardEmptyState";
 import { ScorecardMetricCard, ScorecardSummaryTile } from "./ScorecardMetricCard";
 import type { UsePilotScorecardPageModel } from "./use-pilot-scorecard-page";
@@ -91,15 +93,21 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
   const assumptionsReadOnly = sampleMode || !canExecute || saving;
 
   return (
-    <div className="w-full max-w-[1440px] space-y-8 px-4 py-8" data-testid="review-scorecard-page">
-      <div className="flex flex-wrap items-center justify-end gap-2 print:hidden">
-        <PageContextualHelpButton />
-      </div>
+    <div className="w-full max-w-[1440px] space-y-4 px-4 py-6" data-testid="review-scorecard-page">
       <ValueReportOutcomesNav />
-      <header className="space-y-2">
-        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{REVIEW_SCORECARD_PAGE_TITLE}</h1>
-        <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{REVIEW_SCORECARD_PAGE_SUBTITLE}</p>
+      <header className="space-y-2 border-b border-neutral-200 pb-4 dark:border-neutral-800">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="space-y-2">
+            <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{REVIEW_SCORECARD_PAGE_TITLE}</h1>
+            <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{REVIEW_SCORECARD_PAGE_SUBTITLE}</p>
+          </div>
+          <div className="flex shrink-0 flex-wrap items-center gap-2 print:hidden">
+            <PageContextualHelpButton />
+          </div>
+        </div>
       </header>
+
+      <ArchitectureScorecardSourcesStrip />
 
       {sampleMode ? (
         <div
@@ -206,7 +214,8 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
             <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>
               {sampleMode
                 ? "Illustrative assumptions shown for evaluation — edit your workspace data to model real savings."
-                : "Enter baseline assumptions to estimate review-time savings."}
+                : "Enter baseline assumptions to estimate review-time savings."}{" "}
+              {ARCHITECTURE_SCORECARD_DIRECTIONAL_ROI_HELPER}
             </p>
             <div className="mt-4 grid gap-3">
               <label className={cn("block", OPERATOR_TYPOGRAPHY.body)}>
