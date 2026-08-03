@@ -429,7 +429,7 @@ function AppShellInner({ children }: AppShellClientProps) {
             >
               <SidebarNav />
             </nav>
-            <div data-testid="app-shell-main" className="min-h-0 min-w-0 flex-1 px-4 py-4 print:px-0 lg:px-6 lg:py-6">
+            <div data-testid="app-shell-main" className={cn("min-h-0 min-w-0 flex-1 print:px-0", OPERATOR_SHELL_MAIN_PADDING_CLASS)}>
               <AppShellStatusBanners variant="full" />
               <KeyboardShortcutProvider onHelpRequested={openHelpSearch}>
                 <main

@@ -40,5 +40,5 @@ When decisions are ready, finalize and export sponsor-ready outputs from the arc
 - [Architecture packages](/help/review-packages)
 - [Evidence graph](/help/evidence-trail)
 - [Findings](/help/findings)
-- [First review guide](/help/first-hour-operator-path)
+- [Your first architecture review](/help/first-architecture-review)
 - [Workspace and scope guide](/help/scope)

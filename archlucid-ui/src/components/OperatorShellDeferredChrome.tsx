@@ -27,7 +27,7 @@ export function OperatorShellDeferredChrome({ shellRootRef }: OperatorShellDefer
         <main
           id="main-content"
           tabIndex={-1}
-          className="flex flex-1 flex-col px-4 py-4 outline-none focus:outline-none lg:px-6 lg:py-6"
+          className={cn(OPERATOR_SHELL_MAIN_PADDING_CLASS, "flex flex-1 flex-col outline-none focus:outline-none")}
         >
           <OperatorShellAccessGateLoading />
         </main>
