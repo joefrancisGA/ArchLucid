@@ -65,6 +65,22 @@ export function pathMatchesGovernanceAlerts(pathname: string): boolean {
 export function pathMatchesGovernanceAlertRules(pathname: string): boolean {
   return pathMatchesRoutePrefix(pathname, GOVERNANCE_ALERT_RULES_PATH);
 }
+/** Exact approval-queue page (canonical or legacy index) — not the whole `/governance/*` tree. */
+export function pathMatchesGovernanceApprovalQueue(pathname: string): boolean {
+  return pathname === GOVERNANCE_APPROVAL_QUEUE_PATH || pathname === LEGACY_GOVERNANCE_APPROVAL_QUEUE_PATH;
+}
+
+/** Approval queue href, optionally scoped to a review via `runId`. */
+export function governanceApprovalQueueHref(runId?: string | null): string {
+  const trimmed = runId?.trim() ?? "";
+
+  if (trimmed.length === 0) {
+    return GOVERNANCE_APPROVAL_QUEUE_PATH;
+  }
+
+  return `${GOVERNANCE_APPROVAL_QUEUE_PATH}?runId=${encodeURIComponent(trimmed)}`;
+}
+
 
 export function governancePolicyPackDetailPath(policyPackId: string): string {
   return `${GOVERNANCE_POLICY_PACKS_PATH}/${encodeURIComponent(policyPackId.trim())}`;

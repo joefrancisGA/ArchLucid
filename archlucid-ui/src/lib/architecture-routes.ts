@@ -6,6 +6,9 @@ export const ARCHITECTURES_LIST_PATH = "/architectures" as const;
 /** Bootstrap a new architecture draft (client redirect to `/architectures/{id}`). */
 export const ARCHITECTURES_NEW_PATH = "/architectures/new" as const;
 
+/** Architecture reviews list (hub). */
+export const REVIEWS_LIST_PATH = "/reviews" as const;
+
 /** Review intake for an existing architecture or submitted material. */
 export const REVIEWS_NEW_PATH = "/reviews/new" as const;
 
@@ -22,7 +25,7 @@ export function architectureDraftPath(architectureId: string): string {
 }
 
 export function reviewDetailPath(reviewId: string): string {
-  return `/reviews/${encodeURIComponent(reviewId)}`;
+  return `${REVIEWS_LIST_PATH}/${encodeURIComponent(reviewId)}`;
 }
 
 export function startReviewFromArchitectureHref(architectureId: string): string {
