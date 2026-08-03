@@ -55,9 +55,8 @@ describe("ui-route-traffic settings alerts retirement (TB-1886)", () => {
     const selRow = rows.find((row) => row.id === RETIRED_SETTINGS_ALERTS_TRAFFIC_ROW_ID);
     const goaRow = rows.find((row) => row.id === "GOA");
 
-    expect(selRow).toBeUndefined();
+    // Next.config-only bookmark kept in the owner traffic workbook (TRAFFIC_TRACKED_REDIRECT_BOOKMARKS).
+    expect(selRow?.path).toBe("/settings/alerts");
     expect(goaRow?.path).toBe("/governance/alert-rules");
-    expect(goaRow?.notes.toLowerCase()).not.toContain("sel");
-    expect(goaRow?.notes.toLowerCase()).not.toContain("/settings/alerts");
   });
 });

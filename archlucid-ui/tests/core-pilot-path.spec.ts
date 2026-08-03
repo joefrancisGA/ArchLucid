@@ -51,7 +51,7 @@ test.describe("Core pilot path (mock API, buyer-polished shell)", () => {
 
     await page.goto("/reviews/new");
     await expect(
-      page.getByRole("heading", { name: START_REVIEW_PAGE_HEADING_PATTERN, level: 2 }),
+      page.getByRole("heading", { name: START_REVIEW_PAGE_HEADING_PATTERN, level: 1 }),
     ).toBeVisible();
 
     await page.goto("/reviews?projectId=default");

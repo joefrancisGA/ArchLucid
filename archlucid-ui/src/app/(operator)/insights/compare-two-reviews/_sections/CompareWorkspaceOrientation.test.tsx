@@ -21,6 +21,9 @@ describe("Compare workspace orientation", () => {
       "href",
       "/reviews/claims-intake-modernization/signed-record",
     );
-    expect(screen.getByRole("link", { name: "Open evidence trail" })).toHaveAttribute("href", expect.stringContaining("/graph?"));
+    expect(screen.getByRole("link", { name: "Open evidence trail" })).toHaveAttribute(
+      "href",
+      expect.stringContaining("/insights/evidence-graph"),
+    );
   });
 });

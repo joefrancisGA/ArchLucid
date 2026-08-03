@@ -71,7 +71,6 @@ export const MARKETING_ROBOTS_DISALLOW_PREFIXES: readonly string[] = [
   "/workspace",
   "/v1",
   "/v2",
-  "/administration/system-health",
   "/openapi/",
   "/swagger/",
   "/scalar/",

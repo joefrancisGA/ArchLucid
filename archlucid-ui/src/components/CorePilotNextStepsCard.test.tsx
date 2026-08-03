@@ -189,7 +189,7 @@ describe("CorePilotNextStepsCard", () => {
 
       expect(screen.getByTestId("pilot-active-evidence-link")).toHaveAttribute(
         "href",
-        "/graph?runId=run-abc-123",
+        "/insights/evidence-graph?runId=run-abc-123",
       );
       expect(screen.getByTestId("pilot-active-step-link")).toHaveAttribute("href", "/reviews/run-abc-123");
     });

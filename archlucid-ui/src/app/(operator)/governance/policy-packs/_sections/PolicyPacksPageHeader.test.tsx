@@ -26,7 +26,7 @@ describe("PolicyPacksPageHeader", () => {
       />,
     );
 
-    expect(screen.getByRole("heading", { level: 1, name: "Policy packs" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Policy packs" })).toBeInTheDocument();
     expect(screen.getByText(policyPacksPageSubtitle(false))).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("policy-packs-header-actions")).toBeInTheDocument();

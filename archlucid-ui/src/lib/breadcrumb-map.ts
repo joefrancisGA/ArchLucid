@@ -355,6 +355,14 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
     return [{ label: OPERATOR_NAV_LINK_LABELS.settings }];
   }
 
+  if (normalized === "/administration/settings/billing") {
+    return [
+      { label: "Administration" },
+      { label: "Settings", href: "/administration/settings" },
+      { label: "Billing & plans" },
+    ];
+  }
+
   if (normalized === "/administration/settings/tenant/recycle-bin") {
     return [
       { label: OPERATOR_NAV_LINK_LABELS.settings, href: "/administration/settings/tenant" },

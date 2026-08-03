@@ -10,14 +10,15 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 
 class TestExecutiveValueBatch5CO(unittest.TestCase):
     def test_tb_267_executive_dashboard_route(self) -> None:
-        page = REPO_ROOT / "archlucid-ui" / "src" / "app" / "(operator)" / "dashboard" / "page.tsx"
+        page = REPO_ROOT / "archlucid-ui" / "src" / "app" / "(operator)" / "architecture" / "executive-dashboard" / "page.tsx"
         view = (
             REPO_ROOT
             / "archlucid-ui"
             / "src"
             / "app"
             / "(operator)"
-            / "dashboard"
+            / "architecture"
+            / "executive-dashboard"
             / "_sections"
             / "ExecutiveRoiDashboardPageView.tsx"
         )
@@ -26,7 +27,7 @@ class TestExecutiveValueBatch5CO(unittest.TestCase):
         self.assertTrue(page.is_file())
         self.assertIn("ExecutiveRoiDashboardPageView", page.read_text(encoding="utf-8"))
         self.assertIn("surface", view.read_text(encoding="utf-8"))
-        self.assertIn("/dashboard", shell.read_text(encoding="utf-8"))
+        self.assertIn("EXECUTIVE_DASHBOARD_HREF", shell.read_text(encoding="utf-8"))
         self.assertIn("/executive/dashboard", next_config.read_text(encoding="utf-8"))
 
     def test_tb_268_executive_value_narrative(self) -> None:
@@ -42,7 +43,8 @@ class TestExecutiveValueBatch5CO(unittest.TestCase):
             / "src"
             / "app"
             / "(operator)"
-            / "dashboard"
+            / "architecture"
+            / "executive-dashboard"
             / "_sections"
             / "ExecutiveRoiTrendSection.tsx"
         )

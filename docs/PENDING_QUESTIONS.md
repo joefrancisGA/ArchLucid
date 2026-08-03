@@ -436,7 +436,7 @@ Verbatim owner tables through **2026-04-28** (assessor B, ten-improvement Q&A, a
 | Prompt | Intent | Repo status (2026-04-21) |
 |--------|--------|--------------------------|
 | **8.1** Reference customer + CI guard | Case study assets, table row, merge-blocking when `Published` | **Done** (auto-flip in `ci.yml`); **extended** with PLG case study + table row in this change set. |
-| **8.2** `archlucid pilot up` | One-command Docker pilot | **Done** — [`ArchLucid.Cli/Commands/PilotUpCommand.cs`](../ArchLucid.Cli/Commands/PilotUpCommand.cs). *Note:* `POST /v1.0/demo/seed` is **Development-only** and needs **ExecuteAuthority**; the Docker path relies on **demo seed on startup** instead. |
+| **8.2** `archlucid pilot up` | One-command Docker pilot | **Done** — [`ArchLucid.Cli/Commands/PilotUpCommand.cs`](../ArchLucid.Cli/Program.cs). *Note:* `POST /v1.0/demo/seed` is **Development-only** and needs **ExecuteAuthority**; the Docker path relies on **demo seed on startup** instead. |
 | **8.3** First-value report | CLI + `GET /v1/pilots/runs/{id}/first-value-report` | **Done** — see CHANGELOG 2026-04-20. |
 | **8.4** GitHub Action manifest delta | Composite action + docs + example workflow | **Done** — `integrations/github-action-manifest-delta/`, [`docs/integrations/GITHUB_ACTION_MANIFEST_DELTA.md`](integrations/GITHUB_ACTION_MANIFEST_DELTA.md). |
 | **8.5** Persistence consolidation | Proposal doc only | **Done** — [`docs/PROJECT_CONSOLIDATION_PROPOSAL_PERSISTENCE.md`](library/PROJECT_CONSOLIDATION_PROPOSAL_PERSISTENCE.md). |
@@ -446,7 +446,7 @@ Verbatim owner tables through **2026-04-28** (assessor B, ten-improvement Q&A, a
 
 ## Still open — surfaced by 2026-04-21 independent assessment
 
-These came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md`](archive/assessments/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md) § 9 and the six Cursor prompts in [`CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21.md`](archive/assessments/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21.md). Each is **owner-only** — the assistant cannot answer them from repository state.
+These came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md`](assessments/LATEST_GPT55.md) § 9 and the six Cursor prompts in [`CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21.md`](assessments/ASSESSMENT_PROMPT_SERIES.md). Each is **owner-only** — the assistant cannot answer them from repository state.
 
 5. **External (third-party) pen-test scope and budget** — **V2** — vendor selection, scope (web app only / web + infra / web + infra + LLM threat model), test window, funding. Picks up where item 2 above leaves off. **Does not** gate V1; V1 uses **owner-conducted** pen testing per [`V1_DEFERRED.md`](library/V1_DEFERRED.md) §6c.
 
@@ -499,7 +499,7 @@ These came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md`](archive
 
 ## Surfaced by 2026-04-21 second independent assessment (weighted **67.61%**)
 
-These items came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_67_61.md`](archive/assessments/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_67_61.md) §4 and the eight Cursor prompts in [`CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_67_61.md`](archive/assessments/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_67_61.md). Each is **owner-only** — the assistant cannot answer them from repository state.
+These items came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_67_61.md`](assessments/LATEST_GPT55.md) §4 and the eight Cursor prompts in [`CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_67_61.md`](assessments/ASSESSMENT_PROMPT_SERIES.md). Each is **owner-only** — the assistant cannot answer them from repository state.
 
 19. **First-paying-tenant graduation owner** — **Resolved 2026-05-05:** **Owner solo** watches the trial-to-paid transition, validates the case study draft with the customer, and flips the row in `docs/go-to-market/reference-customers/README.md` from `Customer review` to `Published`. See *Resolved 2026-05-05 (Reference publication owner)* above.
 
@@ -568,7 +568,7 @@ These items came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_67_61.md`](a
 
 ## Surfaced by 2026-04-23 SaaS-framing reconciliation
 
-These came out of the 2026-04-23 owner clarification — *"the user will never have to install Docker or SQL because this is a SaaS product"* — applied against the latest assessment ([`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](archive/assessments/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md) §0.1) and the canonical entry doc ([`START_HERE.md`](START_HERE.md) "Audience split").
+These came out of the 2026-04-23 owner clarification — *"the user will never have to install Docker or SQL because this is a SaaS product"* — applied against the latest assessment ([`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](assessments/LATEST_GPT55.md) §0.1) and the canonical entry doc ([`START_HERE.md`](START_HERE.md) "Audience split").
 
 36. **Buyer-facing first-30-minutes doc — copy approval.** *(Resolved 2026-04-23 sixth pass for the wiring; **owner-blocked only on Q3 screenshot capture** — see "Resolved 2026-04-23 (sixth pass — fresh independent assessment §10 owner Q&A — 17 decisions)" Q1–Q5 in [`docs/archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md`](archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md) (Part B) and the 2026-04-23 entry "Buyer-facing first-30-minutes path: repo stub + marketing /get-started route" in `docs/CHANGELOG.md`.)* Both surfaces now ship: [`docs/BUYER_FIRST_30_MINUTES.md`](BUYER_FIRST_30_MINUTES.md) (consultative voice per Q1, q35 placeholders per Q4) and the marketing route at [`archlucid-ui/src/app/(marketing)/get-started/page.tsx`](../archlucid-ui/src/app/%28marketing%29/get-started/page.tsx) (placeholder image slots per Q3, no "talk to a human" CTA per Q5, vertical-picker labels mirror the `templates/briefs/` folder slugs per Q2 via `get-started-verticals.ts`). Merge-blocking CI guard `scripts/ci/assert_buyer_first_30_minutes_in_sync.py` enforces picker-vs-folder sync and the q35-or-allow-list rule on every prose paragraph in the buyer files. **Still owner-blocked (Q3 follow-on, not a deferred decision):** real anonymized-tenant screenshots — owner picks `tenantId` and `runId`, capture replaces the five `step-{n}-placeholder.png` slots in a follow-on PR. **Q2 wording note:** the owner answer enumerates `manufacturing` rather than the on-disk `retail` and `saas`; the picker ships the actual six on-disk slugs and the discrepancy is flagged for the owner's next pass on Q2 (this assistant treated the on-disk folders as the firmer source of truth because the CI guard checks against them).
 
@@ -583,7 +583,7 @@ These came out of the 2026-04-23 owner clarification — *"the user will never h
 - **Cadence:** **Weekly.** Each pass produces a `QUALITY_ASSESSMENT_<date>_INDEPENDENT_<score>.md` plus a paired `CURSOR_PROMPTS_<...>.md` and updates this file.
 - **Next pass:** **2026-04-28.**
 - **Trigger to break cadence:** any of these "score-moving" owner events — first PLG row `Published`, Marketplace listing live, or **V1.1 backlog** third-party pen-test summary published (when **TB-136** completes) — when one lands, run an unscheduled pass within 48 hours so the score reflects the new artefact. **V1** does **not** require a third-party pen-test summary for scoring; owner-conducted V1 testing does **not** trigger this bullet by itself.
-- **Documentation layout (Resolved 2026-04-23):** Buyer-facing canonical entry is **[`docs/START_HERE.md`](START_HERE.md)**. CI caps markdown files directly under `docs/` (see `scripts/ci/assert_docs_root_size.py`). Most former root reference pages moved to **[`docs/library/`](library/)** with markdown links rewritten; superseded quality / Cursor prompt packs now live under **[`docs/archive/assessments/`](archive/assessments/)**. Doc orientation: **[`docs/library/REPO_DIGEST.md`](library/REPO_DIGEST.md)**; on-demand full `docs/**/*.md` table (excluding `docs/archive/`): `python scripts/generate_doc_inventory.py`.
+- **Documentation layout (Resolved 2026-04-23):** Buyer-facing canonical entry is **[`docs/START_HERE.md`](START_HERE.md)**. CI caps markdown files directly under `docs/` (see `scripts/ci/assert_docs_root_size.py`). Most former root reference pages moved to **[`docs/library/`](library/)** with markdown links rewritten; superseded quality / Cursor prompt packs now live under **[`docs/archive/assessments/`](assessments/)**. Doc orientation: **[`docs/library/REPO_DIGEST.md`](library/REPO_DIGEST.md)**; on-demand full `docs/**/*.md` table (excluding `docs/archive/`): `python scripts/generate_doc_inventory.py`.
 
 ---
 
@@ -612,10 +612,10 @@ These came out of the 2026-04-23 owner clarification — *"the user will never h
 |-----|-----|
 | [`docs/library/REPO_DIGEST.md`](library/REPO_DIGEST.md) | Project inventory and doc anchors (regenerate: `python scripts/repo_digest/build_repo_digest.py`) |
 | `python scripts/generate_doc_inventory.py` | On-demand markdown table of every `docs/**/*.md` (excluding `docs/archive/`) |
-| [`docs/archive/assessments/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](archive/assessments/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md) | **Latest** weighted independent assessment (68.60%) |
-| [`docs/archive/assessments/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md`](archive/assessments/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md) | Eight paste-ready Cursor prompts for the 68.60% assessment |
-| [`docs/archive/assessments/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_67_61.md`](archive/assessments/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_67_61.md) | Prior 2026-04-21 assessment (67.61%) — **archived** |
-| [`docs/archive/assessments/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_67_61.md`](archive/assessments/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_67_61.md) | Eight paste-ready Cursor prompts for the 67.61% assessment — **archived** |
-| [`docs/archive/assessments/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md`](archive/assessments/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md) | Earlier 2026-04-21 assessment (64.14%) — **archived** |
-| [`docs/archive/assessments/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21.md`](archive/assessments/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21.md) | Six paste-ready Cursor prompts; #3 and #4 stop at owner gates — **archived** |
+| [`docs/archive/assessments/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](assessments/LATEST_GPT55.md) | **Latest** weighted independent assessment (68.60%) |
+| [`docs/archive/assessments/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md`](assessments/ASSESSMENT_PROMPT_SERIES.md) | Eight paste-ready Cursor prompts for the 68.60% assessment |
+| [`docs/archive/assessments/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_67_61.md`](assessments/LATEST_GPT55.md) | Prior 2026-04-21 assessment (67.61%) — **archived** |
+| [`docs/archive/assessments/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_67_61.md`](assessments/ASSESSMENT_PROMPT_SERIES.md) | Eight paste-ready Cursor prompts for the 67.61% assessment — **archived** |
+| [`docs/archive/assessments/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md`](assessments/LATEST_GPT55.md) | Earlier 2026-04-21 assessment (64.14%) — **archived** |
+| [`docs/archive/assessments/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21.md`](assessments/ASSESSMENT_PROMPT_SERIES.md) | Six paste-ready Cursor prompts; #3 and #4 stop at owner gates — **archived** |
 | [`docs/go-to-market/PRICING_PHILOSOPHY.md`](go-to-market/PRICING_PHILOSOPHY.md) § 5.4 | Reference-customer CI guard and discount re-rate |

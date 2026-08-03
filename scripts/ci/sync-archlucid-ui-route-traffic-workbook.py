@@ -11,6 +11,7 @@ from pathlib import Path
 
 from archlucid_ui_route_catalog import (
     DEFAULT_NEW_HIT_PCT,
+    TRAFFIC_TRACKED_REDIRECT_BOOKMARKS,
     app_router_page_count,
     build_catalog,
     discover_tab_paths,
@@ -53,7 +54,12 @@ def _apply_migrations(rows: list[dict[str, str]], report: SyncReport) -> list[di
     by_path: dict[str, dict[str, str]] = {}
     for row in rows:
         original_path = row["path"]
-        migrated_path = migrate_workbook_path(original_path)
+        # Keep next.config-only bookmarks that the catalog still tracks explicitly.
+        if original_path in TRAFFIC_TRACKED_REDIRECT_BOOKMARKS:
+            migrated_path = original_path
+        else:
+            migrated_path = migrate_workbook_path(original_path)
+
         if migrated_path != original_path:
             report.migrated.append((original_path, migrated_path))
         candidate = row.copy()

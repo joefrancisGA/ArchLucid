@@ -145,7 +145,7 @@ describe("PolicyPacksPageView buyer-polished shell", () => {
     render(<PolicyPacksPageView model={buildModel()} />);
 
     expect(screen.getByTestId("policy-pack-basis-status-banner")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Policy packs", level: 1 })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Policy packs", level: 2 })).toBeInTheDocument();
     expect(screen.getByText(BUYER_POLICY_PACKS_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("policy-packs-refresh-button")).toBeInTheDocument();

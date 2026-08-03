@@ -31,7 +31,7 @@ describe("finding-source-evidence-links", () => {
     expect(links[0]?.kind).toBe("manifestSection");
     expect(links[0]?.href).toBe(runDetailSectionHref(SHOWCASE_STATIC_DEMO_RUN_ID, "manifest-summary"));
     expect(links[1]?.kind).toBe("graphNode");
-    expect(links[1]?.href).toContain("/graph?runId=");
+    expect(links[1]?.href).toContain("/insights/evidence-graph?runId=");
     expect(linksIncludeManifestSection(links)).toBe(true);
   });
 

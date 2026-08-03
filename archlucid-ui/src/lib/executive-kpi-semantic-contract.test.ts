@@ -15,7 +15,8 @@ const liveKpiCardsPath = join(
   "..",
   "app",
   "(operator)",
-  "dashboard",
+  "architecture",
+  "executive-dashboard",
   "_sections",
   "ExecutiveRoiDashboardLiveKpiCards.tsx",
 );

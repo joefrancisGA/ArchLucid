@@ -327,7 +327,7 @@ describe("help-markdown-presentation", () => {
     const prepared = prepareHelpMarkdownForPresentation(source, "docs/library/PILOT_ROI_MODEL.md");
 
     expect(prepared).toContain("/help/pilot-guide");
-    expect(prepared).toContain("/help/executive-summary");
+    expect(prepared).toContain("/help/pilot-roi-model");
     expect(prepared.toLowerCase()).not.toContain("docs/go-to-market");
   });
 
@@ -757,8 +757,8 @@ describe("help-markdown-presentation", () => {
     expect(prepared).not.toContain("multi_tenant_rls");
     expect(prepared).not.toContain("archlucid.contracts");
     expect(prepared).not.toMatch(/\btb-\d+\b/i);
-    expect(prepared).toContain("/help/security-trust");
-    expect(prepared).toContain("/help/first-architecture-review");
+    expect(prepared).not.toContain("trust-center.md");
+    expect(prepared).toContain("what pilot proves");
   });
 
   it("strips first-value-20 CLI/dotnet and runbook-path leakage (TB-1693)", () => {

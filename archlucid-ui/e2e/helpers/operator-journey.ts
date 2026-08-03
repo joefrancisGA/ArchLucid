@@ -76,19 +76,19 @@ export async function expectMainHasNoHardFailureChrome(page: Page): Promise<void
   await expect(main.getByText(/Aggregate explanation could not be loaded/i)).toHaveCount(0);
 }
 
-/** Primary `/insights/ask-review-questions` H1 from {@link OperatorPageHeader} (buyer-polished vs full-operator titles). */
+/** Primary `/insights/ask-review-questions` H2 from {@link OperatorPageHeader} (buyer-polished vs full-operator titles). */
 export function askPageMainHeading(page: Page): Locator {
-  return page.getByRole("heading", { level: 1, name: ASK_PAGE_PRIMARY_HEADING_PATTERN });
+  return page.getByRole("heading", { level: 2, name: ASK_PAGE_PRIMARY_HEADING_PATTERN });
 }
 
-/** Primary `/governance` H1 from {@link OperatorPageHeader} (buyer-polished vs full-operator titles). */
+/** Primary `/governance` H2 from {@link OperatorPageHeader} (buyer-polished vs full-operator titles). */
 export function governancePageMainHeading(page: Page): Locator {
-  return page.getByRole("heading", { level: 1, name: GOVERNANCE_PAGE_PRIMARY_HEADING_PATTERN });
+  return page.getByRole("heading", { level: 2, name: GOVERNANCE_PAGE_PRIMARY_HEADING_PATTERN });
 }
 
-/** Primary `/governance/audit` H1 from {@link OperatorPageHeader} (excludes H3 "Filter audit trail"). */
+/** Primary `/governance/audit` H2 from {@link OperatorPageHeader} (excludes H3 "Filter audit trail"). */
 export function auditPageMainHeading(page: Page): Locator {
-  return page.getByRole("heading", { level: 1, name: AUDIT_PAGE_PRIMARY_HEADING_PATTERN });
+  return page.getByRole("heading", { level: 2, name: AUDIT_PAGE_PRIMARY_HEADING_PATTERN });
 }
 
 /** `/governance?runId=` review context — query picker is hidden; approvals load via URL param. */

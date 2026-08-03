@@ -73,7 +73,7 @@ describe("HelpTopicPilotRoiModel (TB-1390)", () => {
     );
     expect(screen.getByRole("link", { name: /ROI model/i })).toHaveAttribute(
       "href",
-      "/help/executive-summary",
+      "/help/pilot-roi-model",
     );
   });
 });

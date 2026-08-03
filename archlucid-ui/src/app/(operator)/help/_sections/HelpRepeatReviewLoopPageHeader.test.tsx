@@ -42,7 +42,7 @@ describe("HelpRepeatReviewLoopPageHeader", () => {
       />,
     );
 
-    expect(screen.getByRole("heading", { level: 1, name: "Repeat-review stickiness loop" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Repeat-review stickiness loop" })).toBeInTheDocument();
     expect(screen.getByText(repeatReviewLoopHelpPageSubtitle(false))).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("help-repeat-review-loop-header-actions")).toBeInTheDocument();

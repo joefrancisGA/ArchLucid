@@ -1,16 +1,20 @@
 # Copy to dev.tfvars (gitignored). Used by CD when workflow target is `dev` and this file exists in TF_WORKING_DIRECTORY.
-# ArchLucid DEV subscription: see docs/library/AZURE_SUBSCRIPTIONS.md. Align region with your existing RG/ACR (eastus2 below matches rg-ArchLucid-dev + acrarchluciddev).
+# ArchLucid DEV subscription: see docs/library/AZURE_SUBSCRIPTIONS.md.
+# Primary runtime: centralus (co-locate with SQL / staging+production default). Prefer a dedicated
+# centralus RG when the legacy rg-ArchLucid-dev metadata location is still eastus2.
+# ACR / artifact storage may remain in rg-ArchLucid-dev. Paste into GitHub Environment secret DEV_TFVARS
+# and set EXPECTED_AZURE_LOCATION=centralus before the next CD run.
 
 enable_container_apps = true
-create_resource_group   = false
-resource_group_name     = "rg-ArchLucid-dev"
-location                = "eastus2"
+create_resource_group   = true
+resource_group_name     = "rg-ArchLucid-dev-cus"
+location                = "centralus"
 
 # After first CD image push: use your ACR login server and the tag CD produced (or :latest-dev).
 api_container_image = "acrarchluciddev.azurecr.io/archlucid-api:latest-dev"
 ui_container_image  = "acrarchluciddev.azurecr.io/archlucid-ui:latest-dev"
 
-# Required for private ACR (same subscription/RG as typical dev stack). Omit only if images are public.
+# Required for private ACR (same subscription; registry may stay in legacy eastus2 RG). Omit only if images are public.
 acr_resource_id = "/subscriptions/<sub-id>/resourceGroups/rg-ArchLucid-dev/providers/Microsoft.ContainerRegistry/registries/acrarchluciddev"
 
 # Pilot-friendly replica floor for cost (duplicate advisory acceptable in personal dev).
@@ -48,15 +52,15 @@ tags = {
 # using api_sql_runtime_identity_client_id.
 # enable_api_sql_runtime_identity = true
 
-# Azure AI Content Safety in rg-ArchLucid-dev (do not borrow longevity-* accounts).
-# Account live as of 2026-07-30: archlucid-dev-contentsafety. Import before first apply that enables this:
+# Azure AI Content Safety in the centralus runtime RG (do not borrow longevity-* accounts).
+# Prefer a new account in rg-ArchLucid-dev-cus; import path below is the legacy eastus2 account if reused.
 #   terraform import 'azurerm_cognitive_account.content_safety[0]' \
 #     /subscriptions/8aa56f3b-18bc-43ca-ad45-bad9e811d33b/resourceGroups/rg-ArchLucid-dev/providers/Microsoft.CognitiveServices/accounts/archlucid-dev-contentsafety
 # API Endpoint/ApiKey stay on the Container App via CD secrets ARCHLUCID_CONTENT_SAFETY_ENDPOINT / ARCHLUCID_CONTENT_SAFETY_API_KEY.
 enable_content_safety_account         = true
 content_safety_account_name           = "archlucid-dev-contentsafety"
 content_safety_custom_subdomain_name  = "archlucid-dev-contentsafety"
-content_safety_location               = "eastus2"
+content_safety_location               = "centralus"
 content_safety_sku_name               = "S0"
 content_safety_public_network_access_enabled = true
 

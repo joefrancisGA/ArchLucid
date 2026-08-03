@@ -19,11 +19,18 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/alerts": "/governance/alerts",
     "/audit": "/governance/audit",
     "/settings/cloud-connections": "/integrations/cloud-connections",
-    "/settings/roles": "/settings/users?tab=roles",
-    "/settings/roles/invite-reviewer": "/settings/users/invite-reviewer",
-    "/admin/users": "/settings/users",
-    "/admin/support": "/settings/support",
-    "/workspace/security-trust": "/settings/security-trust",
+    "/settings/roles": "/administration/settings/users?tab=roles",
+    "/settings/roles/invite-reviewer": "/administration/settings/users/invite-reviewer",
+    "/admin/users": "/administration/settings/users",
+    "/settings/users": "/administration/settings/users",
+    "/settings/users?tab=users": "/administration/settings/users?tab=users",
+    "/settings/users?tab=roles": "/administration/settings/users?tab=roles",
+    "/settings/users?tab=keys": "/administration/settings/users?tab=keys",
+    "/settings/users/invite-reviewer": "/administration/settings/users/invite-reviewer",
+    "/admin/support": "/administration/settings/support",
+    "/settings/support": "/administration/settings/support",
+    "/workspace/security-trust": "/administration/settings/security-trust",
+    "/settings/security-trust": "/administration/settings/security-trust",
     "/governance-resolution": "/governance/resolution",
     "/help/cloud-connections-azure": "/help/cloud-connections/azure",
     "/help/cloud-connections-aws": "/help/cloud-connections/aws",
@@ -31,7 +38,8 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/manifests": "/signed-records",
     "/manifests/[manifestId]": "/signed-records/[manifestId]",
     "/manifests/[manifestId]/artifacts/[artifactId]": "/signed-records/[manifestId]/artifacts/[artifactId]",
-    "/settings/cost-reporting": "/settings/ai-usage",
+    "/settings/cost-reporting": "/administration/settings/ai-usage",
+    "/settings/ai-usage": "/administration/settings/ai-usage",
     # TB-1124: Advisory scans hub under Governance (next.config permanent redirects only).
     "/advisory": "/governance/advisory-scans",
     "/advisory?tab=scans": "/governance/advisory-scans?tab=scans",
@@ -67,6 +75,7 @@ REDIRECT_ONLY_APP_PATHS = frozenset(
 TRAFFIC_TRACKED_REDIRECT_BOOKMARKS = frozenset(
     {
         "/settings/alerts",
+        "/help/core-pilot",
     }
 )
 
@@ -168,7 +177,7 @@ def discover_tab_paths() -> list[str]:
     # Inbox is the only non-redirect tab on the alerts hub.
     paths.append(_tab_path("/governance/alerts", "tab", "inbox"))
     for tab_id in ("users", "roles", "keys"):
-        paths.append(_tab_path("/settings/users", "tab", tab_id))
+        paths.append(_tab_path("/administration/settings/users", "tab", tab_id))
     for path_mode in ("quick-review", "guided-intake", "detailed"):
         paths.append(_tab_path("/reviews/new", "path", path_mode))
     for tab_id in arch_tabs:
@@ -261,6 +270,10 @@ def build_catalog() -> dict[str, CatalogEntry]:
         catalog[path] = CatalogEntry(path=path, section=infer_section(path, help_alias_paths=help_alias_paths), source="app_router")
 
     for path in help_paths:
+        # Migrated-away aliases stay out of the traffic catalog unless explicitly tracked.
+        if path in WORKBOOK_PATH_MIGRATIONS and path not in TRAFFIC_TRACKED_REDIRECT_BOOKMARKS:
+            continue
+
         if path not in catalog:
             catalog[path] = CatalogEntry(
                 path=path,

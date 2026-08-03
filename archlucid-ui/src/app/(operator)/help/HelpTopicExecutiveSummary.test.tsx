@@ -66,9 +66,8 @@ describe("HelpTopicExecutiveSummary", () => {
       SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
     );
 
-    const pageHeadings = screen.getAllByRole("heading", { level: 1 });
+    const pageHeadings = screen.getAllByRole("heading", { level: 2, name: "Executive summary" });
     expect(pageHeadings).toHaveLength(1);
-    expect(pageHeadings[0]).toHaveTextContent("Executive summary");
     expect(screen.queryByText(/frequently asked questions/i)).toBeNull();
   });
 });

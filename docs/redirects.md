@@ -389,7 +389,7 @@ Human readers and agents should follow **canonical** paths below. This file is t
 | `docs/archive/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY_PRE_IMP2_6.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | SaaS-only â€” post-Trust Center |
 | `docs/MARKETABILITY_ASSESSMENT_2026_04_15.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Legacy root alias (mixed framing) |
 | `docs/archive/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY_PRE_trust-center.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Old filename casing alias |
-| `docs/archive/IMPROVEMENTS_COMPLETE_2026_04_21.md` | [`docs/archive/assessments/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](archive/assessments/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md) | Superseded schema-validation summary; see `docs/CHANGELOG.md` for component history |
+| `docs/archive/IMPROVEMENTS_COMPLETE_2026_04_21.md` | [`docs/archive/assessments/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](assessments/LATEST_GPT55.md) | Superseded schema-validation summary; see `docs/CHANGELOG.md` for component history |
 | `docs/archive/NEXT_REFACTORINGS_ARCHIVE_2026_04_15.md` | [`docs/library/TECH_BACKLOG.md`](library/TECH_BACKLOG.md) | April 2026 refactor snapshot removed; canonical engineering backlog |
 
 ## 2026-07-22 assessment series consolidation

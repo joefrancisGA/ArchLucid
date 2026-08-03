@@ -64,12 +64,13 @@ resource "azapi_resource" "communication_email_sender_username" {
   name      = local.communication_email_sender_username
   parent_id = azurerm_email_communication_service_domain.communication_email_custom[0].id
 
-  body = jsonencode({
+  # azapi 2.x: body must be an HCL object, not a jsonencode() string.
+  body = {
     properties = {
       displayName = var.communication_email_sender_display_name
       username    = local.communication_email_sender_username
     }
-  })
+  }
 }
 
 # Run only after DNS verification records are published (set communication_email_initiate_domain_verification = true).
@@ -80,9 +81,10 @@ resource "azapi_resource_action" "communication_email_domain_verify" {
   resource_id = azurerm_email_communication_service_domain.communication_email_custom[0].id
   action      = "initiateVerification"
 
-  body = jsonencode({
+  # azapi 2.x: body must be an HCL object, not a jsonencode() string.
+  body = {
     verificationType = "Domain"
-  })
+  }
 }
 
 resource "azurerm_role_assignment" "api_communication_email_contributor" {

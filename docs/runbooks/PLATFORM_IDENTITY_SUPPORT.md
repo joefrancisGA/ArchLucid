@@ -5,7 +5,7 @@
 **Last reviewed:** 2026-08-02
 
 **Audience:** ArchLucid support / platform operators (internal).  
-Link from [`docs/library/TROUBLESHOOTING.md`](../library/TROUBLESHOOTING.md) and [`SUPPORT_PROBLEM_REPORT_TRIAGE.md`](SUPPORT_PROBLEM_REPORT_TRIAGE.md).
+Link from [`docs/library/TROUBLESHOOTING.md`](TROUBLESHOOTING.md) and [`SUPPORT_PROBLEM_REPORT_TRIAGE.md`](SUPPORT_PROBLEM_REPORT_TRIAGE.md).
 
 ## Quick index
 

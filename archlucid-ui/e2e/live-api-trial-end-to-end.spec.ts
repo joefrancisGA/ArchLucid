@@ -291,12 +291,14 @@ test.describe("live-api-trial-end-to-end", () => {
     await expect(page.locator("[data-wizard-ready='true']")).toBeAttached({ timeout: 120_000 });
     // Default wizard mode is quick start; full preset step (wizard-start-blank) requires explicit full mode.
     await ensureFullGuidedWizardMode(page);
-    await expect(page.getByTestId("wizard-start-blank")).toBeVisible({ timeout: 120_000 });
     // Renamed from "Use defaults" — advances off the starting-point step via onStartingPointCommitted.
     await page.getByTestId("wizard-start-blank").click();
 
+    // Step 0 uses "Continue"; later steps use "Next".
     for (let step = 0; step < 5; step += 1) {
-      await page.getByRole("button", { name: "Next" }).click();
+      const forward = page.getByRole("button", { name: /^(Continue|Next)$/ });
+      await expect(forward).toBeEnabled({ timeout: 60_000 });
+      await forward.click();
     }
 
     const createRespPromise = page.waitForResponse(
@@ -305,7 +307,11 @@ test.describe("live-api-trial-end-to-end", () => {
       { timeout: 120_000 },
     );
 
-    await page.getByRole("button", { name: "Start Architecture Review" }).click();
+    const startReview = page.getByRole("button", {
+      name: /Start Architecture Review|Start an architecture review/i,
+    });
+    await expect(startReview).toBeEnabled({ timeout: 60_000 });
+    await startReview.click();
 
     const createResp = await createRespPromise;
     const createJson = (await createResp.json()) as { run?: { runId?: string } };

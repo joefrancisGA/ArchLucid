@@ -1886,9 +1886,9 @@ jobs:
             step_timeout_minutes: 24
           - shard_id: surface-misc
             shard_label: Contracts + integrations + misc
-            # Heaviest shard: 11 projects, ~23m of test work. Budget = 23m + one 9m project kill + uploads.
-            job_timeout_minutes: 50
-            step_timeout_minutes: 38
+            # Heaviest shard: 11 projects, ~23m of test work. Budget = 23m + one 14m project kill + uploads.
+            job_timeout_minutes: 55
+            step_timeout_minutes: 43
     steps:
       - uses: actions/checkout@v5
 
@@ -2958,7 +2958,7 @@ jobs:
           python3 scripts/ci/assert_merged_line_coverage_min.py \
             "${OUT}/Cobertura.xml" 79 \
             --min-branch-pct 81 \
-            --min-package-line-pct 81 \
+            --min-package-line-pct 83 \
             --skip-package-line-gate ArchLucid.Mcp \
             --skip-package-line-gate ArchLucid.Backfill.Cli \
             --skip-package-line-gate ArchLucid.Api \

@@ -60,8 +60,9 @@ HANG_TIMEOUT="${ARCHLUCID_FAST_CORE_HANG_TIMEOUT:-5m}"
 # cover a wedged test host or a coverage-collector stall at session end, which is how surface-misc burned
 # its entire job budget in runs 30712614069 and 30729657151 (same commit passed in 24m on a retry).
 # Killing the project from bash keeps the loop alive, so END/HUNG lines and the ::error:: reach the log.
-# Slowest project observed is ~5.5m (ArchLucid.Architecture.Tests), so 9m leaves ~1.6x headroom.
-PROJECT_TIMEOUT="${ARCHLUCID_FAST_CORE_PROJECT_TIMEOUT:-9m}"
+# Slowest project observed is ~5.5m (ArchLucid.Architecture.Tests); Coverlet session-end wedges
+# occasionally exceed 9m (CI #2854). 14m leaves ~2.5x headroom.
+PROJECT_TIMEOUT="${ARCHLUCID_FAST_CORE_PROJECT_TIMEOUT:-14m}"
 
 # SDK 10+ MSBuild rejects multiple projects in one `dotnet test` invocation (MSB1008).
 for proj in "${PROJECTS[@]}"; do

@@ -54,7 +54,7 @@ describe("reactflow import policy (TB-862)", () => {
 
   it("loads GraphViewer through dynamic imports on graph surfaces", () => {
     const graphCanvasSource = readFileSync(
-      join(SRC_ROOT, "app", "(operator)", "graph", "_sections", "GraphInteractiveCanvas.tsx"),
+      join(SRC_ROOT, "app", "(operator)", "insights", "evidence-graph", "_sections", "GraphInteractiveCanvas.tsx"),
       "utf8",
     );
     const architectureGraphSource = readFileSync(

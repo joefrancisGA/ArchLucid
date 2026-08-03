@@ -23,7 +23,7 @@ class TestAdoptionBatch5BJ(unittest.TestCase):
         self.assertIn("50%", text)
 
     def test_tb_237_pricing_section_testid(self) -> None:
-        path = REPO_ROOT / "archlucid-ui" / "src" / "components" / "marketing" / "MarketingTierPricingSection.tsx"
+        path = REPO_ROOT / "archlucid-ui" / "src" / "components" / "marketing" / "MarketingPricingEarlyAdopterBanner.tsx"
         text = path.read_text(encoding="utf-8")
         self.assertIn("pricing-early-adopter-framing", text)
         self.assertIn("BUYER_EARLY_ADOPTER_PRICING_NOTE", text)

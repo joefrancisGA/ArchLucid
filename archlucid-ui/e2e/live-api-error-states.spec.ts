@@ -51,7 +51,7 @@ test.describe("live-api-error-states", () => {
     // renamed to RUNS_LIST_PAGE_TITLES ("Review Packages") as part of the runs → reviews vocabulary
     // consolidation — it no longer contains the literal substring "runs".
     await expect(
-      page.getByRole("heading", { level: 1, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }).first(),
+      page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }).first(),
     ).toBeVisible({ timeout: 30_000 });
 
     await expect(page.locator('[role="alert"]').filter({ hasText: /problem|error|failed/i })).toHaveCount(0, {

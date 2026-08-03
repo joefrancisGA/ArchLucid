@@ -21,7 +21,8 @@ class TestAdoptionBatch5BA(unittest.TestCase):
             / "src"
             / "app"
             / "(operator)"
-            / "dashboard"
+            / "architecture"
+            / "executive-dashboard"
             / "_sections"
             / "ExecutiveRoiDashboardLiveKpiCards.tsx"
         )

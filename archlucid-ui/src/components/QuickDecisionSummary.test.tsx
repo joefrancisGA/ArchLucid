@@ -179,7 +179,7 @@ describe("QuickDecisionSummary", () => {
     const ev = screen.getByTestId("finding-evidence-link-chip");
 
     expect(ev).toBeInTheDocument();
-    expect(ev.getAttribute("href") ?? "").toContain("/graph?");
+    expect(ev.getAttribute("href") ?? "").toContain("/insights/evidence-graph?");
     expect(ev.getAttribute("href") ?? "").toContain("runId=run-z");
   });
 

@@ -178,8 +178,8 @@ const REQUIRED_ROUTES = [
   "app/(operator)/governance/findings/GovernanceFindingsQueueClient.tsx",
   "app/(operator)/governance/alerts/page.tsx",
   "app/(operator)/governance/audit/page.tsx",
-  "app/(operator)/ask/page.tsx",
-  "app/(operator)/graph/page.tsx",
+  "app/(operator)/insights/ask-review-questions/page.tsx",
+  "app/(operator)/insights/evidence-graph/page.tsx",
   // marketing / demo
   "app/(marketing)/welcome/page.tsx",
   "app/(marketing)/why/page.tsx",

@@ -205,7 +205,10 @@ describe("PilotValueReportPageView buyer-polished chrome (TB-1969)", () => {
     expect(screen.getByLabelText("Start date")).toBeInTheDocument();
   });
 
-  it("omits page subtitle when LayerHeader owns the lead in enterprise shell", () => {
+  it("omits page subtitle when LayerHeader owns the lead in enterprise shell", async () => {
+    const { isBuyerPolishedOperatorShellEnv } = await import("@/lib/demo-ui-env");
+    vi.mocked(isBuyerPolishedOperatorShellEnv).mockReturnValue(false);
+
     render(<PilotValueReportPageView model={buildModel()} />);
 
     expect(screen.getByTestId("layer-header")).toBeInTheDocument();

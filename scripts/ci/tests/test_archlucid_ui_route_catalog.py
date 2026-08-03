@@ -28,7 +28,7 @@ def test_discover_app_router_paths_includes_architectures_hub() -> None:
 def test_discover_tab_paths_includes_architecture_workspace_tabs() -> None:
     tab_paths = discover_tab_paths()
     assert "/reviews/[runId]?archTab=evidence" in tab_paths
-    assert "/settings/users?tab=roles" in tab_paths
+    assert "/administration/settings/users?tab=roles" in tab_paths
     assert "/reviews/new?path=guided-intake" in tab_paths
     assert "/governance/advisory-scans?tab=scans" in tab_paths
     assert "/governance/advisory-scans?tab=schedules" in tab_paths

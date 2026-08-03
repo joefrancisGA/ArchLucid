@@ -13,17 +13,17 @@ export async function ensureFullGuidedWizardMode(page: Page): Promise<void> {
       await allStepsButton.click();
       await expect(allStepsButton).toHaveAttribute("aria-pressed", "true", { timeout: 15_000 });
     }
+  } else {
+    const advancedOptIn = page.getByTestId("new-run-wizard-advanced-opt-in");
+    const showAllButton = advancedOptIn.getByRole("button", { name: /Show all wizard steps/i });
 
-    return;
+    if (await showAllButton.isVisible().catch(() => false)) {
+      await showAllButton.click();
+    }
   }
 
-  const advancedOptIn = page.getByTestId("new-run-wizard-advanced-opt-in");
-  const showAllButton = advancedOptIn.getByRole("button", { name: /Show all wizard steps/i });
-
-  if (await showAllButton.isVisible().catch(() => false)) {
-    await showAllButton.click();
-    await expect(page.getByTestId("wizard-start-blank")).toBeVisible({ timeout: 30_000 });
-  }
+  // Always wait for the full-mode preset CTA — toggle alone is not enough when the shell is still settling.
+  await expect(page.getByTestId("wizard-start-blank")).toBeVisible({ timeout: 60_000 });
 }
 
 /** `/reviews/new?baseline=1` now routes through the path switcher into `NewRunWizardClient` (detailed tab). */

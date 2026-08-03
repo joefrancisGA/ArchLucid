@@ -19,7 +19,7 @@ export const BILLING_AND_PLANS_HELP_TRAFFIC_SECTION = "Help topic";
  * Owner workbook Notes for HBX - documents the specialty HelpBillingAndPlansGuideView surface.
  */
 export const BILLING_AND_PLANS_HELP_TRAFFIC_NOTE =
-  "Specialty billing orientation guide - HelpBillingAndPlansGuideView with current-plan card, how-billing-works steps, FAQ, and CTAs to /settings/billing (SBE) and /pricing. Not bare HelpTopicMarkdownView.";
+  "Specialty billing orientation guide - HelpBillingAndPlansGuideView with current-plan card, how-billing-works steps, FAQ, and CTAs to /administration/settings/billing (SBE) and /pricing. Not bare HelpTopicMarkdownView.";
 
 /** Product billing settings path referenced from HBX handoffs (workbook row SBE). */
 export const BILLING_AND_PLANS_HELP_SETTINGS_BILLING_PATH = SETTINGS_BILLING_PATH;

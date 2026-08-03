@@ -64,7 +64,28 @@ test.describe("live-api-socratic-intake", { tag: ["@founder", "@buyer-journey"] 
 
     // One-at-a-time clarifications: poll skip until Review answers enables (do not one-shot count).
     await skipAllSocraticClarificationsInUi(page, { timeoutMs: 180_000 });
-    await page.getByTestId("socratic-questions-done").click();
+
+    // Review answers may POST remaining answers before advancing to submit — poll until submit mounts.
+    await expect
+      .poll(
+        async () => {
+          if (await page.getByTestId("socratic-submit").isVisible().catch(() => false)) {
+            return true;
+          }
+
+          const questionsDone = page.getByTestId("socratic-questions-done");
+
+          if ((await questionsDone.isVisible().catch(() => false)) && (await questionsDone.isEnabled())) {
+            await questionsDone.click();
+          }
+
+          return false;
+        },
+        { timeout: 180_000, intervals: [500, 1000, 2000] },
+      )
+      .toBe(true);
+
+    await expect(page.getByTestId("socratic-submit")).toBeEnabled({ timeout: 60_000 });
     await page.getByTestId("socratic-submit").click();
 
     await page.waitForURL(/\/reviews\/[a-zA-Z0-9-]+/, { timeout: 120_000 });

@@ -39,7 +39,7 @@ test.describe("Fresh tenant onboarding — mocked API", () => {
 
     await page.getByTestId("signup-verify-continue-onboarding").click();
 
-    await expect(page).toHaveURL(/\/onboarding\?source=registration/);
+    await expect(page).toHaveURL(/\/architecture\/first-review-guide\?source=registration/);
 
     await expect(page.getByRole("heading", { name: BUYER_ONBOARDING_PAGE_TITLE, level: 1 })).toBeVisible();
 
@@ -59,11 +59,11 @@ test.describe("Fresh tenant onboarding — mocked API", () => {
         (response) => response.url().includes("/api/proxy/api/auth/me") && response.ok(),
         { timeout: 60_000 },
       ),
-      page.goto("/settings/identity-providers"),
+      page.goto("/administration/settings/identity-providers"),
     ]);
 
     await expect(page.getByTestId("identity-providers-settings-shell")).toBeVisible({ timeout: 60_000 });
-    await expect(page.getByRole("heading", { name: "Identity providers", level: 1 })).toBeVisible({
+    await expect(page.getByRole("heading", { name: "Identity providers", level: 2 })).toBeVisible({
       timeout: 60_000,
     });
 
