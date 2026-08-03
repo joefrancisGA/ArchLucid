@@ -27,6 +27,7 @@ import {
 } from "@/lib/operator-static-demo";
 import { CompareComparisonDimensionsPreview } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareComparisonDimensionsPreview";
 import { CompareEmptyResultsPlaceholder } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareEmptyResultsPlaceholder";
+import { CompareEvidenceOrientationStrip } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareEvidenceOrientationStrip";
 import { CompareHowComparisonWorksSection } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareHowComparisonWorksSection";
 import { CompareRelatedReviewLinks } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareRelatedReviewLinks";
 import { CompareSampleComparisonAction } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareSampleComparisonAction";
@@ -424,6 +425,9 @@ export function CompareForm() {
           )
         }
       />
+
+      <CompareEvidenceOrientationStrip />
+
       {showInsufficientFinalized ? (
         <CompareInsufficientFinalizedEmptyState
           finalizedCount={finalizedCount}
