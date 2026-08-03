@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-03 - UI: Approval lineage Evidence chrome (GAI)
+
+/governance/approval-requests/[id]/lineage ships PageContextualHelpButton, Category-1 registry, workspace Sources + claim-discipline orientation strip, traffic Notes under Alerts/gov, and honest Evidence score 55. Lineage linkage hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-03 - UI: Alert rules hub Evidence chrome (SAX)
 
 /governance/alert-rules ships workspace Sources + claim-discipline orientation on non-routing tabs (Notifications keeps GOR strip), Category-1 help pre-existing, traffic Notes under Alerts/gov, and honest Evidence score 48. Alert-config hub hard-caps higher Evidence; no CPA / third-party pen-test implication.

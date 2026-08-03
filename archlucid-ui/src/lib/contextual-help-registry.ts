@@ -380,6 +380,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/governance/approval-requests",
+    entry: {
+      whatIsThisPage:
+        "Approval lineage — inspect how an approval request links to its review, findings, risk posture, and signed-record version.",
+      whatToDoNext:
+        "Open the linked review or findings, return to the approval queue, or check Audit when you need the activity trail.",
+      whyEmpty: "Lineage appears after an approval request exists for a finalized review package.",
+      whereToConfigurePrerequisite:
+        "Submit or open an approval from the governance approval queue after a review is ready for decision.",
+    },
+  },
+  {
     prefix: "/help/getting-started",
     entry: {
       whatIsThisPage:

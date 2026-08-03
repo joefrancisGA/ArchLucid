@@ -16,6 +16,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { formatInstantForBuyerGovernance } from "@/lib/locale-datetime";
 import {
   formatGovernanceLineageCompletenessPercent,
@@ -24,6 +25,7 @@ import {
 import type { GovernanceLineageResult } from "@/types/governance-dashboard";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
+import { ApprovalLineageEvidenceOrientationStrip } from "./ApprovalLineageEvidenceOrientationStrip";
 import { governanceLineageApprovalDisplayTitle } from "./governance-lineage-approval-display-title";
 
 type GovernanceApprovalLineageDetailContentProps = {
@@ -41,11 +43,16 @@ export function GovernanceApprovalLineageDetailContent({ data }: GovernanceAppro
           <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Approval lineage</h1>
           <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{displayApprovalTitle}</p>
         </div>
-        {/* Returns to the curated showcase walkthrough, not the breadcrumb parent (approval request detail). */}
-        <Button variant="outline" size="sm" asChild>
-          <Link href={getShowcaseWalkthroughHref()}>Back to governance approval</Link>
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <PageContextualHelpButton />
+          {/* Returns to the curated showcase walkthrough, not the breadcrumb parent (approval request detail). */}
+          <Button variant="outline" size="sm" asChild>
+            <Link href={getShowcaseWalkthroughHref()}>Back to governance approval</Link>
+          </Button>
+        </div>
       </div>
+
+      <ApprovalLineageEvidenceOrientationStrip />
 
       <Card>
         <CardHeader>

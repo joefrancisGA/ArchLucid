@@ -65,6 +65,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/sponsor-report/executive-summary",
       "/value-report",
       "/governance/alert-rules",
+      "/governance/approval-requests",
       "/help/getting-started",
       "/administration/settings/users",
       "/integrations/cloud-connections",
@@ -135,6 +136,15 @@ describe("contextual-help-registry (TB-733)", () => {
   it("resolves users-and-roles settings Category-1 help (AUX)", () => {
     expect(contextualHelpForPathname("/administration/settings/users")?.whatIsThisPage).toContain("Invite users");
     expect(contextualHelpForPathname("/administration/settings/users")?.whatToDoNext).toContain("Invite a teammate");
+  });
+
+  it("resolves approval lineage Category-1 help (GAI)", () => {
+    expect(
+      contextualHelpForPathname("/governance/approval-requests/e2e-approval-001/lineage")?.whatIsThisPage,
+    ).toContain("Approval lineage");
+    expect(
+      contextualHelpForPathname("/governance/approval-requests/e2e-approval-001/lineage")?.whatToDoNext,
+    ).toContain("approval queue");
   });
 
   it("resolves sponsor executive summary Category-1 help (SPE)", () => {
