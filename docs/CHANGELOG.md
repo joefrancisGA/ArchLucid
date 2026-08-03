@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-03 - UI: Advisory scans Evidence chrome (ADV)
+
+/governance/advisory-scans ships workspace Sources + claim-discipline orientation on AdvisoryHubClient (Category-1 help pre-existing), traffic Notes under Advisory, and honest Evidence score 50. Recommendation-launcher hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-03 - UI: Users and roles Evidence chrome (AUX)
 
 /administration/settings/users ships PageContextualHelpButton, Category-1 registry, workspace Sources + claim-discipline orientation strip, traffic Notes under Settings/Admin, and honest Evidence score 50. Access-hub hard-caps higher Evidence; no CPA / third-party pen-test implication.
