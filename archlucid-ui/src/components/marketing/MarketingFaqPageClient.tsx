@@ -19,6 +19,7 @@ import {
   marketingFaqItemsByCategory,
 } from "@/lib/marketing-faq";
 
+import { FaqEvidenceOrientationStrip } from "./FaqEvidenceOrientationStrip";
 import { MarketingFaqCtaRow, MarketingFaqPageHero } from "./MarketingFaqPageHero";
 
 export function MarketingFaqPageClient(): React.JSX.Element {
@@ -31,6 +32,8 @@ export function MarketingFaqPageClient(): React.JSX.Element {
     <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_12.5rem] lg:items-start">
       <div className="min-w-0">
         <MarketingFaqPageHero />
+
+        <FaqEvidenceOrientationStrip />
 
         <label className={cn("mt-8 block font-medium text-al-text-primary", MARKETING_TYPOGRAPHY.cardTitle)} htmlFor="marketing-faq-search">
           {MARKETING_FAQ_SEARCH_LABEL}

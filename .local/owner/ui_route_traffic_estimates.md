@@ -45,13 +45,12 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 
 ---
 
-**OVERALL WEIGHT SCORE:** 53.45%
+**OVERALL WEIGHT SCORE:** 53.92%
 
 ## Master table (score 0 first; then Deficit desc; ties A→Z by path)
 
 | ID | Path | Hit% | Scores | Weight | Deficit | Section | Notes |
 |----|------|------|--------|--------|---------|---------|-------|
-| FXX | `/faq` | 0.12% | 0 | 0 | 12 | Marketing | None |
 | HC | `/help/cloud-connections/azure` | 0.12% | 0 | 0 | 12 | Help alias | None |
 | HHX | `/help/how-it-works` | 0.12% | 0 | 0 | 12 | Help topic | None |
 | HTX | `/help/troubleshooting` | 0.12% | 0 | 0 | 12 | Help topic | None |
@@ -162,8 +161,8 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | CO | `/help/comparison-replay` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HEO | `/help/core-pilot` | 0.02% | 0 | 0 | 2 | Help alias | None |
 | HER | `/help/creating-runs` | 0.02% | 0 | 0 | 2 | Help alias | Alias → `/help/review-guide` (HR). Fold hit share into HR on next `/al-ui-tableupdate` pass (TB-1644). |
-| HED | `/help/data-handling` | 0.02% | 0 | 0 | 2 | Help topic | None |
-| HDA | `/help/data-handling-tenant-isolation` | 0.02% | 0 | 0 | 2 | Help topic | None |
+| HED | `/help/data-handling` | 0.02% | 0 | 0 | 2 | Help topic | Canon for data flow + three-layer isolation (`DATA_HANDLING.md`). Specialty HelpDataHandlingTenantIsolationGuideView mounts here. Absorbs former HDA twin (TB-1652 / TB-1658; 2026-08-03). |
+| HDA | `/help/data-handling-tenant-isolation` | 0.02% | 0 | 0 | 2 | Help alias | Alias → `/help/data-handling` (HED). Fold hit share into HED on next `/al-ui-tableupdate` pass. |
 | HEV | `/help/evidence-only-review` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | EXE | `/help/executive-summary` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HEI | `/help/integration-readiness` | 0.02% | 0 | 0 | 2 | Help topic | None |
@@ -213,9 +212,9 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | AL | `/governance/alerts` | 3% | 61 | 183 | 117 | Alerts/gov | None |
 | ASK | `/insights/ask-review-questions` | 4% | 78 | 312 | 88 | Marketing | None |
 | GDX | `/governance/dashboard` | 1.5% | 45 | 67.5 | 82.5 | Alerts/gov | Executive Workspace Health dashboard - ExecutiveWorkspaceHealthDashboard with hero PageContextualHelp (topic map how-it-works / Workspace overview, not governance-approval), Category-1 registry, Sources follow-up strip + claim-discipline callout (scoped aggregates / planning hours, not diligence trail), DecisionsNeededSummaryCard, five KPI tiles, Bypass audit panel. Alerts topic-map honesty sibling (`/governance/alerts` -> alerts). TB-1668 GDX/alerts topic slice. Demo shell may still redirect away (BDA-107). Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 45/100 (2026-08-03) — aggregate KPI launcher hard-caps higher Evidence. |
-| SCX | `/insights/architecture-scorecard` | 1.5% | 45 | 67.5 | 82.5 | Insights | Architecture scorecard (Insights) - PilotScorecardPageView with PageContextualHelp (topic map pilot-roi-model + Category-1 registry), Sources follow-up strip + claim-discipline callout (directional ROI / not financial reporting; not diligence trail), Outcomes nav, empty CTAs (TB-1958), sample-mode honesty (TB-1957). Formerly `/scorecard` and `/sponsor-report/architecture-scorecard` (retired; no redirect). Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 45/100 (2026-08-03) — aggregate KPI launcher hard-caps higher Evidence. |
 | GFN | `/governance/findings` | 2% | 72 | 144 | 56 | Alerts/gov | None |
 | GOV | `/governance` | 1% | 49 | 49 | 51 | Alerts/gov | None |
+| SCX | `/insights/architecture-scorecard` | 1.5% | 68 | 102 | 48 | Insights | Architecture scorecard (Insights) - PilotScorecardPageView with PageContextualHelp (topic map pilot-roi-model + Category-1 registry), Sources follow-up strip + claim-discipline callout (directional ROI / not financial reporting; not diligence trail), Outcomes nav, empty CTAs (TB-1958), sample-mode honesty (TB-1957). Hierarchy polish: savings hero, primary finalized/governance tiles, operational metrics section, empty-state dashes (not large zeros), ROI calculator + estimate side-by-side, stronger Outcomes active tab. Formerly `/scorecard` and `/sponsor-report/architecture-scorecard` (retired; no redirect). Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 68/100 (2026-08-03) — value hierarchy improved; still aggregate KPI launcher without trends/diligence packing. |
 | PLA | `/planning` | 0.8% | 48 | 38.4 | 41.6 | Planning | Improvement planning - PlanningPageView with PageContextualHelp (topic map how-it-works / Improvement planning; Category-1 registry), Sources follow-up strip + claim-discipline callout (derived themes/plans, not diligence trail), themes/plans tables, export readiness. Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 48/100 (2026-08-03) — aggregate planning launcher hard-caps higher Evidence. |
 | SET | `/administration/settings` | 0.8% | 55 | 44 | 36 | Admin | None |
 | HEL | `/help` | 1% | 67 | 67 | 33 | Help hub | None |
@@ -243,6 +242,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | GRX | `/governance/recurrence-schedules` | 0.2% | 62 | 12.4 | 7.6 | Alerts/gov | None |
 | AUX | `/administration/settings/users` | 0.15% | 50 | 7.5 | 7.5 | Admin | Users and roles (Settings/Admin) - SettingsRolesPageView with PageContextualHelpButton (topic map users-and-roles; Category-1 registry), workspace Sources + claim-discipline orientation strip, Users/Roles/API-keys tabs, invite + matrix. Access configuration — not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 50/100 (2026-08-03) — access-hub hard-caps higher Evidence. |
 | ADV | `/governance/advisory-scans` | 0.15% | 50 | 7.5 | 7.5 | Advisory | Advisory scans hub (Governance) - AdvisoryHubClient with PageContextualHelpButton (Category-1 registry), workspace Sources + claim-discipline orientation strip, Scans/Schedules tabs, recommendation generate + schedules. Follow-up recommendations - not a signed-record Sources trail. Sibling AD = Schedules tab deep link. Does not imply CPA SOC 2 or third-party pen-test publication. Score 50/100 (2026-08-03) - recommendation-launcher hard-caps higher Evidence. |
+| FXX | `/faq` | 0.12% | 40 | 4.8 | 7.2 | Marketing | Product FAQ (Marketing) - MarketingFaqPageClient with FaqEvidenceOrientationStrip (evaluation Sources + claim-discipline: evaluation orientation only; not diligence / CPA SOC 2 / third-party pen-test), searchable FAQ categories, Pricing/Security CTAs. Not an operator PageContextualHelp surface. Does not imply CPA SOC 2 or third-party pen-test publication. Score 40/100 (2026-08-03) - marketing FAQ hard-caps higher Evidence. |
 | HCE | `/help/cloud-connections` | 0.15% | 52 | 7.8 | 7.2 | Help topic | Cloud connections help (Help topic) - HelpCloudConnectionsGuideView with PageContextualHelpButton (topic map cloud-connections; Category-1 registry), workspace Sources + claim-discipline orientation, hub/Azure CTAs, curated CLOUD_CONNECTIONS.md body. Orientation guide - not a signed-record Sources trail. Sibling HC = Azure secure-connect alias. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-03) - help-topic orientation hard-caps higher Evidence. |
 | FI | `/help/first-review` | 0.18% | 61 | 10.98 | 7.02 | Help topic | Specialty first-run evidence checklist (Admin internal-runbook) - HelpFirstReviewEvidenceChecklistGuideView with first-architecture-review / Start architecture review / audit primary CTAs, Sources diligence strip (complete review workflow, Azure connect, audit-trail, troubleshooting, configuration-reference), evidence arc, claim-discipline callout (checklist is not certification), PageContextualHelp, and prepared FIRST_RUN_EVIDENCE_CHECKLIST.md (API/runbook/script leakage strip). Not bare HelpTopicMarkdownView. Admin-gated internal Help Center tier. Not a redirect to buyer core-pilot. Does not imply CPA SOC 2 or third-party pen-test publication. |
 | GAI | `/governance/approval-requests/[id]/lineage` | 0.15% | 55 | 8.25 | 6.75 | Alerts/gov | Approval lineage (Alerts/gov) - GovernanceApprovalLineageDetailContent with PageContextualHelpButton (topic map governance-approval; Category-1 registry on /governance/approval-requests), workspace Sources + claim-discipline orientation strip, approval status/risk, review + signed-record version links, findings/completeness. Governance linkage view - not a full diligence Sources package alone. Does not imply CPA SOC 2 or third-party pen-test publication. Score 55/100 (2026-08-03) - lineage linkage hard-caps higher Evidence without audit export depth. |
