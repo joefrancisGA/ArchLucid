@@ -15,6 +15,17 @@ const routes = founderAcceptanceRoutes({
 
 
 async function expectNoCriticalOrSeriousAxeViolations(page: Page, path: string): Promise<void> {
+  // Match live-api accessibility: scan the public brand palette in light appearance.
+  // System-dark on the runner applies `.dark` tokens that fail AA on marketing surfaces.
+  await page.emulateMedia({ colorScheme: "light" });
+  await page.addInitScript(() => {
+    try {
+      window.localStorage.setItem("archlucid_color_mode", "light");
+    } catch {
+      // ignore quota / private-mode failures
+    }
+  });
+
   await page.goto(path, { waitUntil: "domcontentloaded" });
   await expect(page.locator("body")).toBeVisible({ timeout: 60_000 });
 
