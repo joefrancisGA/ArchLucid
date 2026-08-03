@@ -76,6 +76,8 @@ export function formatArchitectureDraftCreatedLabel(
  * Created/updated dates belong in metadata — not in the title string.
  */
 export function architectureDraftPlaceholderTitle(_referenceUtc?: string | null): string {
+  void _referenceUtc;
+
   return UNTITLED_ARCHITECTURE_LABEL;
 }
 

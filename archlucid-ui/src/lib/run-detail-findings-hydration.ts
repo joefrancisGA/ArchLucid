@@ -110,6 +110,8 @@ export async function mergeRunDetailAgentResultsWhenBuyerSummaryOmitsFindings(
   buyerSummaryDetail: RunDetail,
   _options?: { readonly scopeHeaders?: Record<string, string> },
 ): Promise<RunDetail> {
+  void _options;
+
   const buyerHasFindings = extractQuickDecisionFindingsFromRunDetail(buyerSummaryDetail).length > 0;
 
   if (buyerHasFindings) {

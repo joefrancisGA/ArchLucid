@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import { NAV_GROUPS, type NavGroupConfig } from "@/lib/nav-config";
 import { isAuditNavPath } from "@/lib/audit-nav-paths";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";

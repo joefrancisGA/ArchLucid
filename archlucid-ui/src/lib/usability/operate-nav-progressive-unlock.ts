@@ -181,5 +181,8 @@ export function filterNavLinksByOperateUnlockPhase<T extends { href: string }>(
   _hasCommittedArchitectureReview: boolean,
   _unlockPhase: OperateNavUnlockPhase,
 ): T[] {
+  void _hasCommittedArchitectureReview;
+  void _unlockPhase;
+
   return [...links];
 }

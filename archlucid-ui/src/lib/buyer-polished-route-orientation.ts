@@ -16,7 +16,6 @@ import { isPinnedDemoWorkspaceRunId } from "@/lib/demo-workspace-scope";
 import {
   BUYER_EXECUTIVE_SUMMARY_VOCABULARY,
   BUYER_SURFACE_VOCABULARY,
-  BUYER_TERMINOLOGY,
 } from "@/lib/buyer-surface-vocabulary";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import {

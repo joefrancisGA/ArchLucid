@@ -146,6 +146,8 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
     patternLibraryNavVisible,
     shellShowAdvanced,
     shellShowExtended,
+    showAdvanced,
+    showExtended,
     unlockOperateFeatures,
     showAutoUnlockHint,
     dismissAutoUnlockHint,

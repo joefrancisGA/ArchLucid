@@ -8,7 +8,6 @@ import {
   listHelpCenterTopics,
 } from "@/lib/help-center-catalog";
 import {
-  HELP_BROWSE_DOCUMENTATION_LABEL,
   HELP_BROWSE_GUIDE_LABEL,
   resolveHelpTopicBrowseLabel,
 } from "@/lib/help-center-browse-labels";
