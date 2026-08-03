@@ -449,7 +449,7 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
         href = options.reviewsListReturnHref;
       }
 
-      // Parent "Governance" crumb opens the Approval queue (legacy `/governance` index redirects there).
+      // Parent "Governance" crumb opens the Approval queue (bare `/governance` is not a page).
       if (cumulative === "/governance") {
         href = GOVERNANCE_APPROVAL_QUEUE_PATH;
       }

@@ -52,6 +52,8 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/developer-troubleshooting",
       "/help/governance-api-contracts",
       "/governance/standards-and-rules",
+      "/reviews/new",
+      "/architecture/reviews/new",
       "/governance/audit",
       "/administration/system-health",
       "/digests",
@@ -63,7 +65,11 @@ describe("contextual-help-registry (TB-733)", () => {
   });
 
   it("resolves nested paths from the longest matching prefix", () => {
-    expect(contextualHelpForPathname("/architecture/reviews/new")?.whatIsThisPage).toContain("architecture reviews");
+    expect(contextualHelpForPathname("/architecture/reviews/new")?.whatIsThisPage).toContain(
+      "Start an architecture review",
+    );
+    expect(contextualHelpForPathname("/architecture/reviews")?.whatIsThisPage).toContain("architecture reviews");
+    expect(contextualHelpForPathname("/reviews/new")?.whatIsThisPage).toContain("Start an architecture review");
     expect(contextualHelpForPathname("/governance/findings?filter=open")?.whatToDoNext).toContain("Assign owners");
     expect(contextualHelpForPathname("/value-report/pilot")?.whatIsThisPage).toContain("sponsor-ready");
     expect(contextualHelpForPathname("/planning/plans/plan-1")?.whatIsThisPage).toContain("one prioritized improvement plan");

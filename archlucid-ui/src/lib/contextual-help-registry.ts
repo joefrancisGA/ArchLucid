@@ -227,6 +227,30 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/reviews/new",
+    entry: {
+      whatIsThisPage:
+        "Start an architecture review by choosing an intake path and submitting evidence for analysis.",
+      whatToDoNext:
+        "Pick quick, guided, or detailed intake, complete the required fields, then submit to create the review.",
+      whyEmpty: "Path choices appear immediately; review results appear after you submit intake.",
+      whereToConfigurePrerequisite:
+        "Reviews use the workspace and project selected in the header switcher.",
+    },
+  },
+  {
+    prefix: "/architecture/reviews/new",
+    entry: {
+      whatIsThisPage:
+        "Start an architecture review by choosing an intake path and submitting evidence for analysis.",
+      whatToDoNext:
+        "Pick quick, guided, or detailed intake, complete the required fields, then submit to create the review.",
+      whyEmpty: "Path choices appear immediately; review results appear after you submit intake.",
+      whereToConfigurePrerequisite:
+        "Reviews use the workspace and project selected in the header switcher.",
+    },
+  },
+  {
     prefix: "/governance/audit",
     entry: {
       whatIsThisPage:
