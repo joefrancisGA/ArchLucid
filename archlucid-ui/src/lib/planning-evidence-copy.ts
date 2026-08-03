@@ -1,0 +1,23 @@
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
+
+export const PLANNING_CLAIM_DISCIPLINE =
+  "Themes and plans are derived from captured review feedback in the current workspace scope — not a signed-review diligence Sources trail. Do not imply CPA SOC 2 attestation or a published third-party pen test from this page.";
+
+export const PLANNING_SOURCES_INTRO =
+  "Open reviews, findings, or product-learning before treating prioritized plans as executed commitments.";
+
+export type PlanningSourceLink = {
+  readonly label: string;
+  readonly href: string;
+};
+
+/** Operator Sources — no self-href to `/planning`. */
+export const PLANNING_SOURCES: readonly PlanningSourceLink[] = [
+  { label: "Architecture reviews", href: "/architecture/reviews" },
+  { label: "Findings", href: "/governance/findings" },
+  { label: "Product learning", href: "/product-learning" },
+  { label: "How ArchLucid works", href: inAppHelpHref("how-it-works") },
+  { label: "Pilot feedback help", href: inAppHelpHref("pilot-feedback") },
+] as const;
+
+export const PLANNING_CANONICAL_PATH = "/planning" as const;

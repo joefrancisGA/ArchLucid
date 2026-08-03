@@ -28,6 +28,7 @@ import {
 
 import { PlanningPageEmptyState } from "./PlanningPageEmptyState";
 import { PlanningPageHeader } from "./PlanningPageHeader";
+import { PlanningSourcesStrip } from "./PlanningSourcesStrip";
 import type { PlanningPageViewModel } from "./planning-page-view-model";
 
 type Props = {
@@ -57,6 +58,8 @@ export function PlanningPageView(props: Props) {
           void m.load();
         }}
       />
+
+      <PlanningSourcesStrip />
 
       {!buyerPolishedShell ? (
         <>

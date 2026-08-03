@@ -73,7 +73,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/sponsor-report", topic: { slug: "executive-summary", label: "Executive summary" } },
   { prefix: "/value-report", topic: { slug: "executive-summary", label: "Executive summary" } },
   { prefix: "/digests", topic: { slug: "how-it-works", label: "Architecture digests" } },
-  { prefix: "/planning", topic: { slug: "pilot-feedback", label: "Improvement planning" } },
+  { prefix: "/planning", topic: { slug: "how-it-works", label: "Improvement planning" } },
   { prefix: "/administration/settings/billing", topic: { slug: "billing-and-plans", label: "Billing and plans" } },
   { prefix: "/help/billing-and-plans", topic: { slug: "billing-and-plans", label: "Billing and plans" } },
   {

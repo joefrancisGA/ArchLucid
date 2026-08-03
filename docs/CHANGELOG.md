@@ -13,6 +13,10 @@ Release entries newest-first. Each section condenses the detailed prompt logs pr
 ## 2026-08-03 — Ops: ArchLucid DEV sandbox primary region ? **centralus**
 
 DEV CD target aligned with staging/production: `dev.tfvars.example` + [`AZURE_SUBSCRIPTIONS.md`](library/AZURE_SUBSCRIPTIONS.md) now specify **`centralus`**, with example runtime RG **`rg-ArchLucid-dev-cus`** (`create_resource_group = true`). Operators must update GitHub Environment secret **`DEV_TFVARS`**, **`EXPECTED_AZURE_LOCATION=centralus`**, and **`AZURE_RESOURCE_GROUP`** for the centralus stack. ACR may remain in legacy **`rg-ArchLucid-dev`**.
+## 2026-08-03 — UI: Improvement planning Evidence chrome (PLA)
+
+`/planning` ships Sources follow-up strip + claim-discipline callout (derived themes/plans, not a diligence trail), topic-map honesty (`how-it-works` / Improvement planning ? not Admin pilot-feedback mislabel), Category-1 contextual-help registry (pre-existing), and enriched traffic Notes. Aggregate planning launcher hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-03 — UI: Architecture scorecard Evidence chrome (SCX)
 
 `/insights/architecture-scorecard` ships Sources follow-up strip + claim-discipline callout (directional ROI / not financial reporting), Category-1 contextual-help registry, denser header chrome with help beside the H1, and enriched traffic Notes under Insights (not Marketing). TB-1956–1960 remains Done; no CPA / third-party pen-test implication.

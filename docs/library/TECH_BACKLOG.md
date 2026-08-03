@@ -1,6 +1,6 @@
 > **Scope:** Engineering-owned technical backlog items deferred from current sessions; audience is contributors and the AI assistant; not a buyer or operator document. Not a substitute for ADRs or the pending-questions owner decisions file.
 
-**Updated:** 2026-08-03 (**TB-897** **Done** — Quick Scan layered identity/abuse limits + CAPTCHA/sign-in friction codes; mig **292**; abuse ≠ spend ceiling). Prior: 2026-08-03 (**SCX** Evidence chrome — `/insights/architecture-scorecard` Sources + Category-1 registry + directional ROI claim; Vitest; traffic **SCX**; **TB-1956**–**TB-1960** remain Done). Prior: 2026-08-03 (**TB-1668** GDX/alerts topic slice — `/governance/dashboard` Sources + registry + topic honesty; `/governance/alerts` → `alerts`; Vitest; traffic **GDX**; remaining mount hubs open). Prior: 2026-08-03 (**TB-1667** HOM slice — `/` remounts `OperatorHomePageChrome` + Category-1 registry; Vitest; traffic **HOM**; remaining hubs open). Prior: 2026-08-03 (**TB-1746**/**TB-1749**/**TB-1750** **Done** — `/help/soc2-self-assessment` specialty buyer guide + Trust CTA / IA dual / Help Center; Vitest; traffic **HES**; **TB-1747**/**TB-1748** retained). Prior: 2026-08-03 (**TB-1386** **Done** — `/help/governance-api-contracts` specialty API contracts guide + title honesty; Vitest; traffic **HG**). Prior: 2026-08-02 (**TB-1691**/**TB-1692**/**TB-1694**/**TB-1695** **Done** — `/help/first-value-20-minutes` Admin specialty guide; Vitest; traffic **HEF**). Prior: 2026-08-02 (**TB-1676**/**TB-1678**/**TB-1679**/**TB-1680** **Done** — `/help/dpa-template` specialty buyer DPA guide; Vitest; traffic **HDP**). Prior: 2026-07-31 (Open **P1** summary rows reordered - human-impact ship order for /ship-next-improvement; 723 open P1s; see `### P1 - human-impact ship order`).
+**Updated:** 2026-08-03 (**PLA** Evidence chrome — `/planning` Sources + claim discipline + topic honesty `how-it-works`; Vitest; traffic **PLA**). Prior: 2026-08-03 (**TB-897** **Done** — Quick Scan layered identity/abuse limits + CAPTCHA/sign-in friction codes; mig **292**; abuse ≠ spend ceiling). Prior: 2026-08-03 (**SCX** Evidence chrome — `/insights/architecture-scorecard` Sources + Category-1 registry + directional ROI claim; Vitest; traffic **SCX**; **TB-1956**–**TB-1960** remain Done). Prior: 2026-08-03 (**TB-1668** GDX/alerts topic slice — `/governance/dashboard` Sources + registry + topic honesty; `/governance/alerts` → `alerts`; Vitest; traffic **GDX**; remaining mount hubs open). Prior: 2026-08-03 (**TB-1667** HOM slice — `/` remounts `OperatorHomePageChrome` + Category-1 registry; Vitest; traffic **HOM**; remaining hubs open). Prior: 2026-08-03 (**TB-1746**/**TB-1749**/**TB-1750** **Done** — `/help/soc2-self-assessment` specialty buyer guide + Trust CTA / IA dual / Help Center; Vitest; traffic **HES**; **TB-1747**/**TB-1748** retained). Prior: 2026-08-03 (**TB-1386** **Done** — `/help/governance-api-contracts` specialty API contracts guide + title honesty; Vitest; traffic **HG**). Prior: 2026-08-02 (**TB-1691**/**TB-1692**/**TB-1694**/**TB-1695** **Done** — `/help/first-value-20-minutes` Admin specialty guide; Vitest; traffic **HEF**). Prior: 2026-08-02 (**TB-1676**/**TB-1678**/**TB-1679**/**TB-1680** **Done** — `/help/dpa-template` specialty buyer DPA guide; Vitest; traffic **HDP**). Prior: 2026-07-31 (Open **P1** summary rows reordered - human-impact ship order for /ship-next-improvement; 723 open P1s; see `### P1 - human-impact ship order`).
 
 
 ## Cursor-actionable backlog ? remaining by architectural quality
@@ -25664,7 +25664,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1.
 
-**Status:** Not started.
+**Status:** Done (2026-08-03).
 
 **Priority:** P1.
 
@@ -25672,14 +25672,11 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Problem:** Global gauges can look healthy while one tenant’s runs fail or stall; the tenant may file support before any page.
 
-**Approach:**
+**Shipped:**
 
-1. Design cardinality-safe signals (e.g. sticky “stuck run age” top-N, or error-rate anomaly vs tenant baseline — **not** unbounded `tenant_id` on every Prom series).
-2. Prefer App Insights scheduled query / Log Analytics alert and/or bounded PromQL; document cardinality budget.
-3. Page or high-severity warn with tenant/run id in payload for triage (uses **TB-329** tags).
-4. Runbook: how to confirm tenant impact vs noisy neighbor.
-
-**Acceptance:** At least one alert path catches a synthetic single-tenant stuck/fail scenario while fleet metrics stay green; cardinality notes in OBSERVABILITY.
+1. Fleet gauges `archlucid_runs_stale_in_flight_count` / `archlucid_runs_stale_in_flight_oldest_age_seconds` (no `tenant_id` label) via `StaleInFlightRunMetricsHostedService` + Dapper reader aligned to `StaleInFlightRuns` SQL.
+2. Structured log samples (top 5) with `TenantId` / `RunId` for triage when count &gt; 0.
+3. P0 PromQL `ArchLucidStaleInFlightRunsTf` → critical AG (`prometheus_p0_rules.tf`); cardinality notes in [`OBSERVABILITY.md`](OBSERVABILITY.md); runbook [`STALE_IN_FLIGHT_RUNS.md`](../runbooks/STALE_IN_FLIGHT_RUNS.md).
 
 **Depends on:** **TB-957** (page path). Pairs **TB-329** Done.
 
@@ -25691,7 +25688,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1.
 
-**Status:** Not started.
+**Status:** Done (2026-08-03).
 
 **Priority:** P1.
 
@@ -25699,16 +25696,13 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Problem:** Existing synthetics cover auth (`TB-758`) and showcase (`TB-889`), not a private-tenant **review journey**. Regressions in execute/finalize can reach real tenants first.
 
-**Approach:**
+**Shipped:**
 
-1. Scheduled canary against staging/prod using a dedicated canary tenant (harness secret / e2e user): create → execute → finalize (or commit) with timeouts.
-2. Failure → same critical action group as P0 (or dedicated canary P0).
-3. Cost/safety: bounded frequency, Economy tier, kill-switch; no customer data.
-4. Document in MVO checklist (**TB-957**); extend `hosted-saas-probe` or sibling workflow — do not fork a second observability stack.
+1. Sibling workflow [`.github/workflows/review-path-canary.yml`](../../.github/workflows/review-path-canary.yml) runs [`scripts/staging-smoke.ps1`](../../scripts/staging-smoke.ps1) (create → execute → **commit**) every 6h when opt-in.
+2. Failure → [`scripts/ops/page-critical-canary-failure.sh`](../../scripts/ops/page-critical-canary-failure.sh) (PagerDuty Events API v2 routing key preferred; webhook fallback).
+3. Cost/safety: 6h cadence, kill-switch var, simulator/Economy tenant guidance; documented in [`REVIEW_PATH_CANARY.md`](../runbooks/REVIEW_PATH_CANARY.md) + MVO checklist.
 
-**Acceptance:** Canary green in staging; failure pages founder; cost envelope documented.
-
-**Depends on:** **TB-957**. Reuses private-beta / e2e harness patterns (**TB-797**/**TB-927**) carefully.
+**Depends on:** **TB-957**. Reuses staging smoke tenant key (**not** prod E2E harness).
 
 **Size estimate:** M.
 

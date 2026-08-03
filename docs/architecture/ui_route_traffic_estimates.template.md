@@ -70,7 +70,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | SCX | `/insights/architecture-scorecard` | 1.5% | 0 | 0 | 150 | Insights | Architecture scorecard (Insights) - PilotScorecardPageView with PageContextualHelp (topic map pilot-roi-model + Category-1 registry), Sources follow-up strip + claim-discipline callout (directional ROI / not financial reporting; not diligence trail), Outcomes nav, empty CTAs (TB-1958), sample-mode honesty (TB-1957). Formerly `/scorecard` and `/sponsor-report/architecture-scorecard` (retired; no redirect). Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. |
 | GOV | `/governance` | 1% | 0 | 0 | 100 | Alerts/gov | None |
 | HEL | `/help` | 1% | 0 | 0 | 100 | Help hub | None |
-| PLA | `/planning` | 0.8% | 0 | 0 | 80 | Planning | None |
+| PLA | `/planning` | 0.8% | 0 | 0 | 80 | Planning | Improvement planning - PlanningPageView with PageContextualHelp (topic map how-it-works / Improvement planning; Category-1 registry), Sources follow-up strip + claim-discipline callout (derived themes/plans, not diligence trail), themes/plans tables, export readiness. Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. |
 | SET | `/administration/settings` | 0.8% | 0 | 0 | 80 | Settings | Formerly `/settings` (retired; no redirect). Keep `/settings/webhooks`, `/settings/cloud-connections`, `/settings/roles` redirects. |
 | SXX | `/insights/search-review-evidence` | 0.7% | 0 | 0 | 70 | Marketing | Formerly `/search` (retired; no redirect). |
 | DI | `/digests` | 0.6% | 0 | 0 | 60 | Digests | None |
