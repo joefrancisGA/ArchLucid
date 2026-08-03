@@ -1,8 +1,9 @@
-﻿import { render, screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { ArtifactListTable } from "./ArtifactListTable";
 import { artifactPreviewHref } from "@/lib/artifact-preview-href";
+import { signedRecordArtifactPath } from "@/lib/signed-records-paths";
 
 vi.mock("next/link", () => ({
   default: ({
@@ -50,9 +51,7 @@ describe("ArtifactListTable", () => {
     render(<ArtifactListTable manifestId="manifest-1" artifacts={[sample]} />);
 
     const preview = screen.getByRole("link", { name: "Preview" });
-    expect(preview.getAttribute("href")).toBe(
-      "/signed-records/manifest-1/artifacts/artifact-guid-1",
-    );
+    expect(preview.getAttribute("href")).toBe(signedRecordArtifactPath("manifest-1", "artifact-guid-1"));
   });
 
   it("uses run-scoped Preview href when runId is set", () => {

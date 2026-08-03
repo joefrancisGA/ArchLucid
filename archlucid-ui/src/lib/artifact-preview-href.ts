@@ -2,7 +2,7 @@ import { REVIEWS_LIST_PATH } from "@/lib/architecture-routes";
 import { signedRecordArtifactPath } from "@/lib/signed-records-paths";
 
 /**
- * Run-scoped artifact Preview entry (App Router under reviews → redirect to signed-records).
+ * Run-scoped artifact Preview entry (App Router under reviews â†’ redirect to signed-records).
  * Uses {@link REVIEWS_LIST_PATH} so public vs on-disk list prefix stay consistent.
  */
 export function runArtifactPreviewPath(runId: string, artifactId: string): string {
@@ -14,7 +14,7 @@ export function runArtifactPreviewPath(runId: string, artifactId: string): strin
 
 /**
  * Preview href for an artifact row: run-scoped when `runId` is set, otherwise manifest-scoped.
- * Both targets have App Router `page.tsx` entry points (TB-1821 / TB-1822).
+ * Both targets have App Router `page.tsx` entry points (TB-1821 / TB-1822 / TB-1947 / TB-1948).
  */
 export function artifactPreviewHref(
   manifestId: string,

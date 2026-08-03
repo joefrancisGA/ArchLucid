@@ -10,7 +10,7 @@ import {
 } from "@/lib/artifact-preview-href";
 import { signedRecordArtifactPath } from "@/lib/signed-records-paths";
 
-describe("artifactPreviewHref (TB-1822)", () => {
+describe("artifactPreviewHref (TB-1822 / TB-1948)", () => {
   const manifestId = "manifest-1";
   const artifactId = "artifact-guid-1";
   const runId = "run-guid-1";
@@ -24,7 +24,7 @@ describe("artifactPreviewHref (TB-1822)", () => {
     );
   });
 
-  it("uses signed-record Preview when runId is omitted or blank", () => {
+  it("uses signedRecordArtifactPath for manifest-scoped Preview (TB-1948)", () => {
     expect(artifactPreviewHref(manifestId, artifactId)).toBe(
       signedRecordArtifactPath(manifestId, artifactId),
     );
