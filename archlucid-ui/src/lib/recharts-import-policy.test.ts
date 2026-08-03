@@ -40,7 +40,7 @@ describe("recharts import policy (TB-570)", () => {
 
   it("loads the trend chart through a dynamic import in the executive ROI section", () => {
     const roiSectionSource = readFileSync(
-      join(SRC_ROOT, "app", "(operator)", "dashboard", "_sections", "ExecutiveRoiSummarySection.tsx"),
+      join(SRC_ROOT, "app", "(operator)", "architecture", "executive-dashboard", "_sections", "ExecutiveRoiSummarySection.tsx"),
       "utf8",
     );
 

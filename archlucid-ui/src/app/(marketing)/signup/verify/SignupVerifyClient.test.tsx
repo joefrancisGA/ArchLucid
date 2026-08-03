@@ -308,7 +308,7 @@ describe("SignupVerifyClient", () => {
     await waitFor(() => {
       expect(screen.getByTestId("signup-verify-sign-in")).toHaveAttribute(
         "href",
-        "/auth/signin?returnUrl=%2Fonboarding%3Fsource%3Dregistration",
+        "/auth/signin?returnUrl=%2Farchitecture%2Ffirst-review-guide%3Fsource%3Dregistration",
       );
     });
   });

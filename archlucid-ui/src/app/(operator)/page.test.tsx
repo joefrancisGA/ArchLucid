@@ -62,6 +62,7 @@ vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
 
 vi.mock("@/lib/operator-static-demo", () => ({
   tryStaticDemoRunSummariesPaged: vi.fn(() => null),
+  isStaticDemoPayloadFallbackEnabled: vi.fn(() => false),
 }));
 
 vi.mock("@/components/cto-demo/CtoDemoResetButton", () => ({

@@ -26,7 +26,7 @@ describe("AlertRulesPageHeader", () => {
       />,
     );
 
-    expect(screen.getByRole("heading", { level: 1, name: "Alerts" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Alerts" })).toBeInTheDocument();
     expect(screen.getByText(alertsConfigurationPageSubtitle(false))).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("alert-rules-header-actions")).toBeInTheDocument();

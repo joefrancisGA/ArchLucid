@@ -48,7 +48,7 @@ describe("onboarding hub IA drift guard (TB-680)", () => {
   });
 
   it("references buyer-safe health paths instead of diagnostics dashboard", () => {
-    const optionalSetup = readUiFile("src/app/(operator)/onboarding/_sections/OptionalWorkspaceSetupList.tsx");
+    const optionalSetup = readUiFile("src/app/(operator)/architecture/first-review-guide/_sections/OptionalWorkspaceSetupList.tsx");
 
     expect(optionalSetup).toContain("FINISH_SETUP_SYSTEM_HEALTH_PATH");
     expect(optionalSetup).not.toContain("/admin/health");

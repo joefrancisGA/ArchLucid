@@ -1,6 +1,7 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture-routes";
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import { writeOperateNavUnlockPhase } from "@/lib/usability/operate-nav-progressive-unlock";
 
@@ -68,7 +69,7 @@ type RequestedGroup = {
 };
 
 const REVIEW_WORK_HREFS: ReadonlyArray<string> = [
-  "/reviews/new",
+  ARCHITECTURES_LIST_PATH,
   "/reviews?projectId=default",
   EXECUTIVE_DASHBOARD_HREF,
   "/architecture/first-review-guide",

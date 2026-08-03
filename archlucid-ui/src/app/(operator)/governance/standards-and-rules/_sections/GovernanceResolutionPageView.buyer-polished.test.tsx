@@ -21,7 +21,7 @@ describe("GovernanceResolutionPageView buyer-polished shell", () => {
     render(<GovernanceResolutionPageView model={buildModel()} />);
 
     expect(screen.getByTestId("standards-rules-governance-status-banner")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Standards & rules", level: 1 })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Standards & rules", level: 2 })).toBeInTheDocument();
     expect(
       screen.getByText(/Review the standards, policy rules, and checks applied to this review/),
     ).toBeInTheDocument();

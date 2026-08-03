@@ -499,8 +499,6 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
     await waitFor(() => {
       expect(screen.getByRole("button", { name: /Create rule \(Execute\+\)/ })).toBeDisabled();
     });
-
-    expect(screen.getByRole("button", { name: "Refresh list" })).toBeInTheDocument();
   });
 
   it("Alert rules: Create rule enables after load when mutation capability is true", async () => {

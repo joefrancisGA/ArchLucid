@@ -59,7 +59,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | RE | `/reviews` | 12% | 0 | 0 | 1200 | Core review | None |
 | RRE | `/reviews/[runId]` | 10% | 0 | 0 | 1000 | Core review | None |
 | RRF | `/reviews/[runId]/findings/[findingId]` | 9% | 0 | 0 | 900 | Core review | None |
-| DSH | `/architecture/executive-dashboard` | 8.04% | 0 | 0 | 804 | Marketing | Deprecated operator bookmark — merged to canonical executive dashboard on **ARE** (`/architecture/executive-dashboard`, TB-608). |
+| ARE | `/architecture/executive-dashboard` | 8.04% | 0 | 0 | 804 | Executive | Canonical executive ROI portfolio dashboard — ExecutiveRoiDashboardPageView with hero, KPI tiles, trend charts, sponsor exports, and PageContextualHelp → executive-summary. Legacy /dashboard (DSH), /executive/dashboard (EXD), and /portfolio redirect here (TB-608). |
 | ACB | `/auth/callback` | 5% | 0 | 0 | 500 | Auth | None |
 | ASI | `/auth/signin` | 5% | 0 | 0 | 500 | Auth | None |
 | ASK | `/insights/ask-review-questions` | 4% | 0 | 0 | 400 | Marketing | Formerly `/ask` (retired; no redirect). |
@@ -67,13 +67,13 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | AL | `/governance/alerts` | 3% | 0 | 0 | 300 | Alerts/gov | None |
 | GFN | `/governance/findings` | 2% | 0 | 0 | 200 | Alerts/gov | None |
 | GDX | `/governance/dashboard` | 1.5% | 0 | 0 | 150 | Alerts/gov | None |
-| SCX | `/insights/architecture-scorecard` | 1.5% | 0 | 0 | 150 | Marketing | Formerly `/scorecard` and `/sponsor-report/architecture-scorecard` (retired; no redirect). |
+| SCX | `/insights/architecture-scorecard` | 1.5% | 0 | 0 | 150 | Insights | Formerly `/scorecard` and `/sponsor-report/architecture-scorecard` (retired; no redirect). |
 | GOV | `/governance` | 1% | 0 | 0 | 100 | Alerts/gov | None |
 | HEL | `/help` | 1% | 0 | 0 | 100 | Help hub | None |
 | SET | `/administration/settings` | 0.8% | 0 | 0 | 80 | Admin | Formerly `/settings` (retired; no redirect). Keep `/settings/webhooks`, `/settings/cloud-connections`, `/settings/roles` redirects. |
 | PLA | `/planning` | 0.8% | 0 | 0 | 80 | Planning | None |
 | SXX | `/insights/search-review-evidence` | 0.7% | 0 | 0 | 70 | Marketing | Formerly `/search` (retired; no redirect). |
-| HXX | `/administration/system-health` | 0.62% | 0 | 0 | 62 | Admin | Deprecated operator bookmark — merged to Administration System health on **ADY** (`/administration/system-health`). |
+| ADY | `/administration/system-health` | 0.62% | 0 | 0 | 62 | Admin | Administration System health hub — live/ready dependency checks, build identity, and demo-safe buyer shell variant. PageContextualHelpButton + troubleshooting help. Canonical path /administration/system-health (legacy /health retired). |
 | DI | `/digests` | 0.6% | 0 | 0 | 60 | Digests | None |
 | INE | `/insights/evidence-graph` | 0.6% | 0 | 0 | 60 | Planning | Canonical evidence trail operator hub — GraphPageContent with runId/graphNodeId query handoffs, trace table vs interactive graph tabs, provenance/decision/architecture graph modes, sample-mode banner, and OperatorSavedViewsBar. Left nav Evidence graph. Legacy /graph retired (no redirect). Deep links from findings, standards rules, golden journey. Former workbook row GRA. |
 | PPP | `/planning/plans/[planId]` | 0.6% | 0 | 0 | 60 | Planning | None |
@@ -107,6 +107,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | HCE | `/help/cloud-connections` | 0.15% | 0 | 0 | 15 | Help topic | None |
 | MMX | `/signed-records/[manifestId]` | 0.15% | 0 | 0 | 15 | Marketing | None |
 | HCO | `/help/first-architecture-review` | 0.13% | 0 | 0 | 13 | Help topic | Specialty first-review guide — HelpCorePilotGuideView with hero Start review CTA, five-step stepper, and gated finalize steps (TB-1040). Legacy alias /help/core-pilot (ECO). Not bare HelpTopicMarkdownView. |
+| ECO | `/help/core-pilot` | 0.02% | 0 | 0 | 2 | Help alias | Deprecated operator bookmark — merged to Your first architecture review on **HCO** (`/help/first-architecture-review`). Slug alias `core-pilot` → `first-architecture-review` in HELP_TOPIC_SLUG_ALIASES; catalog migration merges workbook Hit% onto HCO. |
 | ATX | `/admin/tenant-health` | 0.12% | 0 | 0 | 12 | Admin | None |
 | SBX | `/administration/settings/baseline` | 0.12% | 0 | 0 | 12 | Admin | None |
 | SIX | `/administration/settings/identity-providers` | 0.12% | 0 | 0 | 12 | Admin | None |
@@ -194,7 +195,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | AXX | `/accessibility` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | ADD | `/admin/demo-readiness` | 0.02% | 0 | 0 | 2 | Admin | None |
 | ADE | `/admin/deployment-status` | 0.02% | 0 | 0 | 2 | Admin | None |
-| ADC | `/administration/connection-status` | 0.02% | 0 | 0 | 2 | Admin | None |
+| INR | `/administration/connection-status` | 0.02% | 0 | 0 | 2 | Admin | Administration Connection status hub — ConnectorOperationsDashboard groups connector readiness with summary tiles and recommended-first setup. PageContextualHelpButton + integration-readiness help. Canonical path /administration/connection-status. |
 | SEA | `/administration/settings/account-security` | 0.02% | 0 | 0 | 2 | Admin | None |
 | SEU | `/administration/settings/auth-domains` | 0.02% | 0 | 0 | 2 | Admin | None |
 | SEI | `/administration/settings/identity-providers/diagnostics` | 0.02% | 0 | 0 | 2 | Admin | None |
@@ -205,7 +206,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | SEP | `/administration/settings/preferences` | 0.02% | 0 | 0 | 2 | Admin | None |
 | SEK | `/administration/settings/users?tab=keys` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | SSU | `/administration/settings/users?tab=users` | 0.02% | 0 | 0 | 2 | Tab surface | None |
-| AR2 | `/architecture-intelligence` | 0.02% | 0 | 0 | 2 | Core review | None |
+| AIN | `/architecture-intelligence` | 0.02% | 0 | 0 | 2 | Core review | Closed-loop architecture reasoning operator surface - ArchitectureIntelligencePageClient runs reasoning/golden tests and publish-to-findings round trip. Deep links from reviews/findings via runId query. Canonical path /architecture-intelligence. |
 | AR | `/architectures` | 0.02% | 0 | 0 | 2 | Core review | None |
 | ARA | `/architectures/[architectureId]` | 0.02% | 0 | 0 | 2 | Core review | None |
 | ARN | `/architectures/new` | 0.02% | 0 | 0 | 2 | Core review | None |
@@ -273,9 +274,9 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | SEL | `/settings/alerts` | 0.02% | 0 | 0 | 2 | Settings | None |
 | MA | `/signed-records` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | MAM | `/signed-records/[manifestId]/artifacts/[artifactId]` | 0.02% | 0 | 0 | 2 | Marketing | Manifest-scoped artifact preview — ghost route (no App Router page.tsx); Preview hrefs 404 pending restore TB-1824/TB-1947. Pairs run-scoped RER. Download/proxy paths may still work. |
-| SPE | `/sponsor-report/executive-summary` | 0.02% | 0 | 0 | 2 | Marketing | Sponsor executive summary report (canonical); `/value-report` redirects here for bookmark compat. |
-| SPP | `/sponsor-report/pilot-outcomes` | 0.02% | 0 | 0 | 2 | Marketing | Sponsor pilot outcomes report (canonical); `/value-report/pilot` redirects here for bookmark compat. |
-| SPR | `/sponsor-report/roi-summary` | 0.02% | 0 | 0 | 2 | Marketing | Sponsor ROI summary report (canonical); `/value-report/roi` redirects here for bookmark compat. |
+| SPE | `/sponsor-report/executive-summary` | 0.02% | 0 | 0 | 2 | Sponsor report | Sponsor executive summary report (canonical); `/value-report` redirects here for bookmark compat. |
+| SPP | `/sponsor-report/pilot-outcomes` | 0.02% | 0 | 0 | 2 | Sponsor report | Sponsor pilot outcomes report (canonical); `/value-report/pilot` redirects here for bookmark compat. |
+| SPR | `/sponsor-report/roi-summary` | 0.02% | 0 | 0 | 2 | Sponsor report | Sponsor ROI summary report (canonical); `/value-report/roi` redirects here for bookmark compat. |
 
 ---
 

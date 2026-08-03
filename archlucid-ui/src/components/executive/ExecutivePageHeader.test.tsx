@@ -13,7 +13,7 @@ describe("ExecutivePageHeader", () => {
       />,
     );
 
-    expect(screen.getByRole("heading", { level: 1, name: "Architecture risk reviews" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Architecture risk reviews" })).toBeInTheDocument();
     expect(screen.getByText("Executive view")).toBeInTheDocument();
     expect(screen.getByText("Open a finalized review to see prioritized findings.")).toBeInTheDocument();
   });

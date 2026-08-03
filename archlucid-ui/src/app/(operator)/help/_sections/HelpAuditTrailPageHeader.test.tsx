@@ -42,7 +42,7 @@ describe("HelpAuditTrailPageHeader", () => {
       />,
     );
 
-    expect(screen.getByRole("heading", { level: 1, name: "Audit trail" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Audit trail" })).toBeInTheDocument();
     expect(screen.getByText(auditTrailHelpPageSubtitle(false))).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("help-audit-trail-header-actions")).toBeInTheDocument();

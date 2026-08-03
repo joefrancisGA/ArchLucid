@@ -29,7 +29,7 @@ describe("OperatorHomePageHeader", () => {
 
     render(<OperatorHomePageHeader subtitle={operatorHomePageSubtitle(false)} />);
 
-    expect(screen.getByRole("heading", { level: 1, name: "Overview" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Overview" })).toBeInTheDocument();
     expect(screen.getByText(operatorHomePageSubtitle(false))).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-header-actions")).toBeInTheDocument();

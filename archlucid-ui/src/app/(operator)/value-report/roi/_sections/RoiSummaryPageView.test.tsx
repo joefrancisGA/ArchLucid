@@ -129,7 +129,10 @@ describe("RoiSummaryPageView buyer-polished chrome (TB-1974)", () => {
     expect(screen.getByTestId("roi-summary-hero-strip")).toBeInTheDocument();
   });
 
-  it("omits page subtitle when LayerHeader owns the lead in enterprise shell", () => {
+  it("omits page subtitle when LayerHeader owns the lead in enterprise shell", async () => {
+    const { isBuyerPolishedOperatorShellEnv } = await import("@/lib/demo-ui-env");
+    vi.mocked(isBuyerPolishedOperatorShellEnv).mockReturnValue(false);
+
     render(<RoiSummaryPageView model={buildModel()} />);
 
     expect(screen.getByTestId("layer-header")).toBeInTheDocument();

@@ -22,7 +22,7 @@ describe("SignedRecordArtifactPageHeader", () => {
 
     render(<SignedRecordArtifactPageHeader subtitle={signedRecordArtifactPageSubtitle(false)} />);
 
-    expect(screen.getByRole("heading", { level: 1, name: "Artifact preview" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Artifact preview" })).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("signed-record-artifact-refresh-button")).toBeInTheDocument();
     expect(screen.getByTestId("signed-record-artifact-last-refreshed")).toHaveTextContent(/Last refreshed:/i);

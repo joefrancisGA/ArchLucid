@@ -30,7 +30,7 @@ const EXPECTED_MAJOR_SECTION_IDS = [
   "running-the-cli",
   "api-url",
   "commands",
-  "archlucid-try",
+  "first-value-onboarding-product-cli",
   "archlucid-trial-smoke",
   "archlucid-roi-bulletin",
   "archlucid-marketplace-preflight",
@@ -39,7 +39,7 @@ const EXPECTED_MAJOR_SECTION_IDS = [
   "archlucidjson",
   "proof-packet-gtm-guardrails-ci",
   "environment",
-  "exit-codes-5",
+  "exit-codes-4",
   "rest-integration-starter-fixtures",
 ] as const;
 

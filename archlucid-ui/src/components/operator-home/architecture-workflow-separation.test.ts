@@ -38,7 +38,7 @@ describe("architecture creation vs review workflow separation", () => {
 
   it("surfaces Architectures and Reviews as peer object destinations in pilot nav", () => {
     expect(pilotNavSource).toContain('href: ARCHITECTURES_LIST_PATH');
-    expect(pilotNavSource).toContain("ARCHITECTURE_DRAFTS_LIST_LABEL");
+    expect(pilotNavSource).toContain("resolveArchitecturesListNavTitle");
     expect(pilotNavSource).not.toContain('href: "/reviews/new"');
     expect(pilotNavSource).not.toContain("ARCHITECTURES_NEW_PATH");
   });

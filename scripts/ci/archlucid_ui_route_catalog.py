@@ -75,6 +75,7 @@ REDIRECT_ONLY_APP_PATHS = frozenset(
 TRAFFIC_TRACKED_REDIRECT_BOOKMARKS = frozenset(
     {
         "/settings/alerts",
+        "/help/core-pilot",
     }
 )
 

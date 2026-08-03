@@ -99,7 +99,10 @@ describe("ValueReportPageView buyer-polished chrome (TB-1437)", () => {
 });
 
 describe("ValueReportPageView buyer-polished chrome (TB-1964)", () => {
-  it("omits page subtitle and outcome lead when LayerHeader owns the lead in enterprise shell", () => {
+  it("omits page subtitle and outcome lead when LayerHeader owns the lead in enterprise shell", async () => {
+    const { isBuyerPolishedOperatorShellEnv } = await import("@/lib/demo-ui-env");
+    vi.mocked(isBuyerPolishedOperatorShellEnv).mockReturnValue(false);
+
     render(<ValueReportPageView model={buildModel()} />);
 
     expect(screen.getByTestId("layer-header")).toBeInTheDocument();

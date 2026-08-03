@@ -20,7 +20,9 @@ describe("shouldShowBreadcrumbTrail", () => {
     expect(shouldShowBreadcrumbTrail("/governance/dashboard", trail("/governance/dashboard"))).toBe(false);
     expect(shouldShowBreadcrumbTrail("/governance/findings", trail("/governance/findings"))).toBe(false);
     expect(shouldShowBreadcrumbTrail("/governance/alert-rules", trail("/governance/alert-rules"))).toBe(false);
-    expect(shouldShowBreadcrumbTrail("/administration/settings/billing", trail("/administration/settings/billing"))).toBe(false);
+    expect(shouldShowBreadcrumbTrail("/administration/settings/billing", trail("/administration/settings/billing"))).toBe(
+      true,
+    );
     expect(
       shouldShowBreadcrumbTrail("/integrations/cloud-connections", trail("/integrations/cloud-connections")),
     ).toBe(false);

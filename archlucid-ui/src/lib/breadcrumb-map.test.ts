@@ -102,8 +102,9 @@ describe("getBreadcrumbs", () => {
     ]);
   });
 
-  it("maps settings billing as Settings / Billing & plans", () => {
+  it("maps settings billing as Administration / Settings / Billing & plans", () => {
     expect(getBreadcrumbs("/administration/settings/billing")).toEqual([
+      { label: "Administration" },
       { label: "Settings", href: "/administration/settings" },
       { label: "Billing & plans" },
     ]);

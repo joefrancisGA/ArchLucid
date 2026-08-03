@@ -5,7 +5,8 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const uiRoot = join(__dirname, "..", "..", "..", "..", "..");
+// _sections → executive-dashboard → architecture → (operator) → app → src → archlucid-ui
+const uiRoot = join(__dirname, "..", "..", "..", "..", "..", "..");
 
 const MOCK_KPI_IMPORT_PATTERN =
   /from\s+['"].*executive-roi-dashboard-mock-kpis['"]|executiveRoiDashboardMockKpis/;
@@ -20,7 +21,7 @@ const FORBIDDEN_LOCAL_SAVINGS_MATH =
   /\bannualizedUsd\s*[\*\/+-]|\bestimatedUsdSavings\s*[\*\/+-]|\borphanCandidates\.candidateCount\s*\*/;
 
 const PRODUCTION_ROUTE_ROOTS = [
-  join(uiRoot, "src", "app", "(operator)", "dashboard"),
+  join(uiRoot, "src", "app", "(operator)", "architecture", "executive-dashboard"),
   join(uiRoot, "src", "app", "(operator)", "value-report"),
   join(uiRoot, "src", "app", "(executive)"),
 ];

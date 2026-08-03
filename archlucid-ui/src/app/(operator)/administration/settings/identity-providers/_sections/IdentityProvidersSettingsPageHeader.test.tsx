@@ -26,7 +26,7 @@ describe("IdentityProvidersSettingsPageHeader", () => {
       />,
     );
 
-    expect(screen.getByRole("heading", { level: 1, name: "Identity providers" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Identity providers" })).toBeInTheDocument();
     expect(screen.getByText(identityProvidersPageSubtitle(false))).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("identity-providers-header-actions")).toBeInTheDocument();
