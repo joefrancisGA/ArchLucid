@@ -1,8 +1,16 @@
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ProvenancePageWorkspace } from "@/components/provenance/ProvenancePageWorkspace";
 import type { ArchitectureRunProvenanceGraph } from "@/types/architecture-provenance";
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/reviews/demo-run/provenance",
+}));
+
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+}));
 
 const graph: ArchitectureRunProvenanceGraph = {
   runId: "demo-run",
@@ -65,6 +73,9 @@ describe("ProvenancePageWorkspace", () => {
   it("renders section navigation for graph, timeline, nodes, and edges", () => {
     render(<ProvenancePageWorkspace runId="demo-run" graph={graph} provenanceTraceId={null} />);
 
+    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+    expect(screen.getByTestId("provenance-sources")).toBeInTheDocument();
+    expect(screen.getByTestId("provenance-claim-discipline")).toBeInTheDocument();
     expect(screen.getAllByRole("link", { name: "Provenance graph" }).length).toBeGreaterThan(0);
     expect(screen.getAllByRole("link", { name: "Trace timeline" }).length).toBeGreaterThan(0);
     expect(screen.getAllByRole("link", { name: "Nodes" }).length).toBeGreaterThan(0);

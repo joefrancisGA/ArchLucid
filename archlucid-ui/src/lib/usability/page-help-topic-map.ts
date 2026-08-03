@@ -11,6 +11,7 @@ import {
 } from "@/lib/buyer-polish-copy";
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { PROVENANCE_HELP_TOPIC, pathIsRunProvenance } from "@/lib/provenance-evidence-copy";
 
 export type PageHelpTopic = {
   readonly slug: string;
@@ -164,6 +165,10 @@ export function pageHelpTopicForPathname(pathname: string): PageHelpTopic | null
 
   if (path.includes("/artifacts/")) {
     return ARTIFACT_PREVIEW_HELP_TOPIC;
+  }
+
+  if (pathIsRunProvenance(path)) {
+    return PROVENANCE_HELP_TOPIC;
   }
 
   if (path === "/") {

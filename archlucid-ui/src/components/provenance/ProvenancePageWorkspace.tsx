@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { MessageSquareText, Search } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { ProvenanceEvidenceOrientationStrip } from "@/components/provenance/ProvenanceEvidenceOrientationStrip";
 import { ProvenanceGraphViewport } from "@/components/provenance/ProvenanceGraphViewport";
 import { ProvenanceGraphErrorBoundary } from "@/components/provenance/ProvenanceGraphErrorBoundary";
 import { ProvenanceSectionNav, type ProvenanceSection } from "@/components/provenance/ProvenanceSectionNav";
@@ -12,6 +13,7 @@ import { ProvenanceReferenceLink } from "@/components/ProvenanceReferenceLink";
 import { RunTraceViewerLink } from "@/components/RunTraceViewerLink";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   provenanceEdgeDisplayLabel,
@@ -211,7 +213,10 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
           <ProvenanceSectionNav sections={sections} placement="inline-top" />
 
           <header className="space-y-2">
-            <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>Provenance</h2>
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>Provenance</h2>
+              <PageContextualHelpButton />
+            </div>
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
               Review{" "}
               <code className={cn("rounded bg-neutral-100 px-1 dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.micro)}>
@@ -221,6 +226,8 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
             </p>
             <RunTraceViewerLink traceId={provenanceTraceId} />
           </header>
+
+          <ProvenanceEvidenceOrientationStrip runId={runId} />
 
           {graph.traceabilityGaps.length > 0 ? (
             <section

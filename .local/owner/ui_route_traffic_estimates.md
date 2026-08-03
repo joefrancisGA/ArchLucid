@@ -45,13 +45,12 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 
 ---
 
-**OVERALL WEIGHT SCORE:** 52.05%
+**OVERALL WEIGHT SCORE:** 52.22%
 
 ## Master table (score 0 first; then Deficit desc; ties A→Z by path)
 
 | ID | Path | Hit% | Scores | Weight | Deficit | Section | Notes |
 |----|------|------|--------|--------|---------|---------|-------|
-| RRP | `/reviews/[runId]/provenance` | 0.25% | 0 | 0 | 25 | Core review | None |
 | SPE | `/sponsor-report/executive-summary` | 0.22% | 0 | 0 | 22 | Sponsor report | Sponsor executive summary report (canonical). Absorbs former VXX hit share from retired legacy `/value-report` bookmark row (LegacyValueReportRedirectPage still permanentRedirects here). Does not imply CPA SOC 2 or third-party pen-test publication. |
 | ALE | `/governance/alert-rules?tab=routing` | 0.2% | 0 | 0 | 20 | Tab surface | None |
 | HGX | `/help/getting-started` | 0.2% | 0 | 0 | 20 | Help topic | None |
@@ -87,6 +86,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | HBX | `/help/billing-and-plans` | 0.07% | 0 | 0 | 7 | Help topic | None |
 | HP | `/help/pilot-guide` | 0.07% | 0 | 0 | 7 | Help topic | None |
 | IWX | `/integrations/webhooks` | 0.07% | 0 | 0 | 7 | Integrations | None |
+| SPP | `/sponsor-report/pilot-outcomes` | 0.07% | 0 | 0 | 7 | Sponsor report | Sponsor pilot outcomes report (canonical). Absorbs former VPX hit share from retired legacy `/value-report/pilot` bookmark row (LegacyPilotValueReportRedirectPage still permanentRedirects here). Does not imply CPA SOC 2 or third-party pen-test publication. |
 | DPX | `/demo/preview` | 0.06% | 0 | 0 | 6 | Marketing | None |
 | HE | `/help/azure-permissions` | 0.06% | 0 | 0 | 6 | Help topic | None |
 | HGE | `/help/glossary` | 0.06% | 0 | 0 | 6 | Help topic | None |
@@ -102,7 +102,6 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | QXX | `/quick-scan` | 0.05% | 0 | 0 | 5 | Marketing | None |
 | SRH | `/showcase/[runId]` | 0.05% | 0 | 0 | 5 | Marketing | None |
 | TRY | `/try` | 0.05% | 0 | 0 | 5 | Marketing | None |
-| VPX | `/value-report/pilot` | 0.05% | 0 | 0 | 5 | Marketing | None |
 | WSX | `/administration/settings/security-trust` | 0.04% | 0 | 0 | 4 | Admin | None |
 | H | `/help/audit-trail` | 0.04% | 0 | 0 | 4 | Help topic | None |
 | HCX | `/help/cli-usage` | 0.04% | 0 | 0 | 4 | Help topic | None |
@@ -216,7 +215,6 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | SSU | `/settings/users?tab=users` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | SI | `/signed-records` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | SIM | `/signed-records/[manifestId]/artifacts/[artifactId]` | 0.02% | 0 | 0 | 2 | Marketing | None |
-| SPP | `/sponsor-report/pilot-outcomes` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | SPR | `/sponsor-report/roi-summary` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | RE | `/reviews` | 12% | 58 | 696 | 504 | Core review | None |
 | RRE | `/reviews/[runId]` | 10.04% | 55 | 552.2 | 451.8 | Core review | Review workspace detail. Absorbs former SRN hit share from retired legacy `/snapshot/[runId]` bookmark row (SnapshotPage still redirects here with readOnly=1; showcase Claims Intake spine). Canonical leave-behind UX. Does not imply CPA SOC 2 or third-party pen-test publication. Score 55/100 — existing review-workspace Evidence; hit share folded from SRN (2026-08-03). |
@@ -248,6 +246,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | SCE | `/integrations/cloud-connections` | 0.25% | 50 | 12.5 | 12.5 | Integrations | Cloud connections (Integrations) - landing hub with PageContextualHelpButton (topic map cloud-connections; Category-1 registry), workspace Sources + claim-discipline orientation strip, platform scope panel, provider summary cards + evidence-only upload. Legacy /settings/cloud-connections redirects here. Not a signed-record Sources trail by itself. Does not imply CPA SOC 2 or third-party pen-test publication. Score 50/100 (2026-08-03) - connection-hub hard-caps higher Evidence. |
 | CXX | `/insights/compare-two-reviews` | 0.25% | 52 | 13 | 12 | Insights | Compare two reviews (Insights) - CompareForm with OperatorPageHeader PageContextualHelpButton (topic map comparison-replay; Category-1 registry), workspace Sources + claim-discipline orientation strip, pair Cite Sources after Compare (ComparePairEvidenceCiteStrip), run pickers/results. Formerly /compare (retired; no redirect). Not a signed-record Sources trail by itself. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-03) — directional-diff launcher hard-caps higher Evidence. |
 | GRO | `/governance/risk-exceptions` | 0.3% | 62 | 18.6 | 11.4 | Alerts/gov | None |
+| RRP | `/reviews/[runId]/provenance` | 0.25% | 55 | 13.75 | 11.25 | Core review | Run provenance (Core review) - ProvenancePageWorkspace with PageContextualHelpButton (topic map evidence-trail; Category-1 registry via /provenance path match), workspace Sources + claim-discipline orientation strip, graph/timeline/table views. Coordinator linkage for one run — not a full diligence Sources export alone. Does not imply CPA SOC 2 or third-party pen-test publication. Score 55/100 (2026-08-03) - coordinator provenance hard-caps higher Evidence without diligence export packing. |
 | GRA | `/insights/evidence-graph` | 0.6% | 82 | 49.2 | 10.8 | Planning | None |
 | GRS | `/governance/standards-and-rules` | 0.15% | 48 | 7.2 | 7.8 | Alerts/gov | None |
 | GRX | `/governance/recurrence-schedules` | 0.2% | 62 | 12.4 | 7.6 | Alerts/gov | None |

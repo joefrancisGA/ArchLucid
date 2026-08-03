@@ -107,6 +107,15 @@ describe("contextual-help-registry (TB-733)", () => {
     expect(contextualHelpForPathname("/settings/cloud-connections")?.whatIsThisPage).toContain("Legacy");
   });
 
+  it("resolves run provenance Category-1 help (RRP)", () => {
+    expect(contextualHelpForPathname("/reviews/demo-run/provenance")?.whatIsThisPage).toContain(
+      "Coordinator provenance",
+    );
+    expect(contextualHelpForPathname("/architecture/reviews/demo-run/provenance")?.whatToDoNext).toContain(
+      "Evidence trail",
+    );
+  });
+
   it("returns null for routes not yet migrated", () => {
     expect(contextualHelpForPathname("/administration/connection-status")).toBeNull();
     expect(contextualHelpForPathname("/architecture/architectures")).toBeNull();

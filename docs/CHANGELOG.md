@@ -25,6 +25,10 @@ Legacy `/snapshot/[runId]` bookmark row **SRN** removed from the UI route traffi
 ## 2026-08-03 ù Ops: ArchLucid DEV sandbox primary region ? **centralus**
 
 DEV CD target aligned with staging/production: `dev.tfvars.example` + [`AZURE_SUBSCRIPTIONS.md`](library/AZURE_SUBSCRIPTIONS.md) now specify **`centralus`**, with example runtime RG **`rg-ArchLucid-dev-cus`** (`create_resource_group = true`). Operators must update GitHub Environment secret **`DEV_TFVARS`**, **`EXPECTED_AZURE_LOCATION=centralus`**, and **`AZURE_RESOURCE_GROUP`** for the centralus stack. ACR may remain in legacy **`rg-ArchLucid-dev`**.
+## 2026-08-03 ù UI: Run provenance Evidence chrome (RRP)
+
+`/reviews/[runId]/provenance` ships PageContextualHelp, Category-1 help via provenance path match, workspace Sources + claim-discipline orientation strip, traffic Notes under Core review, and honest Evidence score 55. Coordinator-linkage hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-03 ù UI: Pricing Evidence chrome (P)
 
 `/pricing` ships evaluation Sources + claim-discipline orientation strip (commercial packaging only), traffic Notes under Marketing, and honest Evidence score 42. Marketing commercial page hard-caps higher Evidence; no CPA / third-party pen-test implication.

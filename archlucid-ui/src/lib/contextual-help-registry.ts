@@ -3,6 +3,11 @@
  * questions per operator route. Long-form guides remain on `/help/{slug}` via `page-help-topic-map.ts`.
  */
 
+import {
+  PROVENANCE_CONTEXTUAL_HELP,
+  pathIsRunProvenance,
+} from "@/lib/provenance-evidence-copy";
+
 export type PageContextualHelpEntry = {
   readonly whatIsThisPage: string;
   readonly whatToDoNext: string;
@@ -385,6 +390,10 @@ export function allPageContextualHelpRows(): readonly PageContextualHelpRow[] {
 /** Resolve short-form contextual help for an operator pathname, or `null` when not migrated yet. */
 export function contextualHelpForPathname(pathname: string): PageContextualHelpEntry | null {
   const path = (pathname ?? "").split("?")[0] ?? "";
+
+  if (pathIsRunProvenance(path)) {
+    return PROVENANCE_CONTEXTUAL_HELP;
+  }
 
   const sorted = [...PAGE_CONTEXTUAL_HELP].sort((left, right) => right.prefix.length - left.prefix.length);
 
