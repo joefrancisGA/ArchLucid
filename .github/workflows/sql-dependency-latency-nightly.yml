@@ -21,7 +21,7 @@ jobs:
     timeout-minutes: 15
     environment: dev
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Eligibility
         id: eligibility
@@ -44,12 +44,12 @@ jobs:
           fi
           echo "enabled=true" >> "${GITHUB_OUTPUT}"
 
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         if: steps.eligibility.outputs.enabled == 'true'
         with:
           python-version: "3.12"
 
-      - uses: azure/login@v2
+      - uses: azure/login@v3
         if: steps.eligibility.outputs.enabled == 'true'
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
@@ -100,7 +100,7 @@ jobs:
             --report-json "${OUT_DIR}/sql-latency-report.json" \
             --markdown-path "${OUT_DIR}/sql-latency-report.md"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: steps.eligibility.outputs.enabled == 'true'
         with:
           name: sql-dependency-latency-${{ github.run_id }}

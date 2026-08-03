@@ -29,13 +29,13 @@ jobs:
       contents: read
       security-events: write
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Validate CodeQL MaD model kinds
         run: python3 scripts/ci/validate_codeql_mad_kinds.py
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v4
+        uses: github/codeql-action/init@v4.37.4
         with:
           languages: csharp
           queries: security-extended
@@ -47,7 +47,7 @@ jobs:
           build-mode: none
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v5.2.0
+        uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
           cache: true
@@ -62,7 +62,7 @@ jobs:
 
       # Emit workspace SARIF for a strict CI gate (complements GitHub "code scanning" PR policies).
       - name: Perform CodeQL analysis
-        uses: github/codeql-action/analyze@v4
+        uses: github/codeql-action/analyze@v4.37.4
         with:
           output: csharp-sarif
 
@@ -78,7 +78,7 @@ jobs:
       contents: read
       security-events: write
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Verify UI directory for CodeQL
         run: |
@@ -88,7 +88,7 @@ jobs:
           fi
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v4
+        uses: github/codeql-action/init@v4.37.4
         with:
           languages: javascript
           queries: security-extended
@@ -96,7 +96,7 @@ jobs:
           source-root: ${{ env.ARCHLUCID_UI_DIR }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: "22"
           cache: npm
@@ -109,7 +109,7 @@ jobs:
           npm run build
 
       - name: Perform CodeQL analysis
-        uses: github/codeql-action/analyze@v4
+        uses: github/codeql-action/analyze@v4.37.4
         with:
           output: javascript-sarif
 
