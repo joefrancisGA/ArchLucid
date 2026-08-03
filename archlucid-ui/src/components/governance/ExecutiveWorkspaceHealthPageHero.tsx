@@ -10,6 +10,7 @@ import {
   EXECUTIVE_WORKSPACE_HEALTH_WORKFLOW_LINK_LABEL,
 } from "@/lib/executive-workspace-health-page-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance-route-paths";
 
 export type ExecutiveWorkspaceHealthPageHeroProps = {
   readonly buyerPolishedShell: boolean;
@@ -39,7 +40,7 @@ export function ExecutiveWorkspaceHealthPageHero({
         >
           <PageContextualHelpButton />
           <Link
-            href="/governance"
+            href={GOVERNANCE_APPROVAL_QUEUE_PATH}
             className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.micro)}
             data-testid="executive-workspace-health-workflow-link"
           >

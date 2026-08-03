@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_APPROVAL_QUEUE_PATH, GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { policyPacksEditHref } from "@/lib/policy-packs-deep-link";
 import type { PolicyPack } from "@/types/policy-packs";
@@ -76,7 +76,7 @@ export function PolicyPackGenericDetail(props: PolicyPackGenericDetailProps): Re
           <Link href="/reviews/new">{RESPONSIBLE_AI_ACTION_START_REVIEW}</Link>
         </Button>
         <Button asChild variant="outline" size="sm">
-          <Link href="/governance">{RESPONSIBLE_AI_ACTION_GOVERNANCE}</Link>
+          <Link href={GOVERNANCE_APPROVAL_QUEUE_PATH}>{RESPONSIBLE_AI_ACTION_GOVERNANCE}</Link>
         </Button>
       </section>
 

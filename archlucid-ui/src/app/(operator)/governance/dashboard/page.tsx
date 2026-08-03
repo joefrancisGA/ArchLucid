@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { ExecutiveWorkspaceHealthDashboard } from "@/components/ExecutiveWorkspaceHealthDashboard";
 import { isNextPublicDemoMode, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
+import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance-route-paths";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 
 /**
@@ -11,7 +12,7 @@ export default function GovernanceDashboardPage() {
     (isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled()) &&
     isOperatorExperienceFullShellEnv()
   ) {
-    redirect("/governance");
+    redirect(GOVERNANCE_APPROVAL_QUEUE_PATH);
   }
 
   return <ExecutiveWorkspaceHealthDashboard />;

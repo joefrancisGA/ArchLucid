@@ -91173,6 +91173,7 @@ export interface components {
         };
         ArchitectureQuickScanRequest: {
             architectureConcerns?: string[];
+            botChallengeToken?: null | string;
             cloudProvider?: null | string;
             description: string;
             primaryEnvironment: string;

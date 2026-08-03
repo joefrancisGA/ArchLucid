@@ -55,7 +55,7 @@ const PAGES = [
   { name: "Alert rules simulation tab", path: "/governance/alert-rules?tab=simulation" },
   { name: "Alert rules composite tab", path: "/governance/alert-rules?tab=composite" },
   { name: "Executive Workspace Health", path: "/governance/dashboard" },
-  { name: "Approval queue", path: "/governance" },
+  { name: "Approval queue", path: "/governance/approval-queue" },
   { name: "Standards & rules", path: "/governance/standards-and-rules" },
   { name: "Governance findings queue", path: "/governance/findings" },
   { name: "Governance policy packs", path: "/governance/policy-packs" },

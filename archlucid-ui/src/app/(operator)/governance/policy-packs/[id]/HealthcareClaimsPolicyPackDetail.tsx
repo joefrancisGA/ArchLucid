@@ -12,6 +12,7 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance-route-paths";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID } from "@/lib/showcase-static-demo";
 
@@ -97,7 +98,7 @@ export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPa
           <Link href="/governance/policy-packs">Compare against registry catalog</Link>
         </Button>
         <Button asChild variant="outline">
-          <Link href="/governance">{buyerPolishedShell ? BUYER_GOVERNANCE_PAGE_TITLE : "Continue governance workflow"}</Link>
+          <Link href={GOVERNANCE_APPROVAL_QUEUE_PATH}>{buyerPolishedShell ? BUYER_GOVERNANCE_PAGE_TITLE : "Continue governance workflow"}</Link>
         </Button>
       </section>
 

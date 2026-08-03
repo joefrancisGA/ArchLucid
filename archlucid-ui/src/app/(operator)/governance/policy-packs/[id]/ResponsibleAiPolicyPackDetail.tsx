@@ -16,7 +16,7 @@ import {
   EnterpriseTableHeaderCell,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_APPROVAL_QUEUE_PATH, GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import { policyPacksEditHref } from "@/lib/policy-packs-deep-link";
@@ -217,7 +217,7 @@ export function ResponsibleAiPolicyPackDetail(props: ResponsibleAiPolicyPackDeta
           <Link href="/reviews/new">{RESPONSIBLE_AI_ACTION_START_REVIEW}</Link>
         </Button>
         <Button asChild variant="outline" size="sm">
-          <Link href="/governance">{RESPONSIBLE_AI_ACTION_GOVERNANCE}</Link>
+          <Link href={GOVERNANCE_APPROVAL_QUEUE_PATH}>{RESPONSIBLE_AI_ACTION_GOVERNANCE}</Link>
         </Button>
       </section>
 

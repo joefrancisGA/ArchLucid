@@ -22,7 +22,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     entry: {
       whatIsThisPage:
         "Workspace Overview — start or resume architecture reviews and see recent activity from one command center.",
-      whatToDoNext: "Start a review, resume a draft, or explore a sample package from the hero actions.",
+      whatToDoNext: "Start a review, resume a draft, or explore a sample workspace from the hero actions.",
       whyEmpty: "Recent reviews and metrics appear after you create or finalize architecture reviews.",
       whereToConfigurePrerequisite: "Switch workspace or project scope from the header switcher when you work across teams.",
     },
@@ -256,7 +256,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whatIsThisPage:
         "Search and export operator audit events for reviews, governance actions, and integrity checks in this workspace.",
       whatToDoNext:
-        "Filter by review or action, refresh the trail, then export or open the related review package when needed.",
+        "Filter by review or action, refresh the trail, then export or open the related architecture review when needed.",
       whyEmpty: "Events appear after operators take actions that the audit coverage matrix records.",
       whereToConfigurePrerequisite:
         "Audit retention and export privileges follow workspace role and enterprise controls.",

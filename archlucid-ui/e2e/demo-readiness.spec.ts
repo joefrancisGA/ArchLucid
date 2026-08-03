@@ -106,7 +106,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
       "/reviews?projectId=default",
       `/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`,
       `/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}/signed-record`,
-      "/governance",
+      "/governance/approval-queue",
       "/help",
       `/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}/findings/${encodeURIComponent("phi-minimization-risk")}`,
     ];
@@ -198,7 +198,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
       "/insights/ask-review-questions",
       "/insights/evidence-graph",
       "/insights/compare-two-reviews",
-      "/governance",
+      "/governance/approval-queue",
       "/governance/advisory-scans",
       "/replay",
       "/insights/search-review-evidence",

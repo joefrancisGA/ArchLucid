@@ -10,6 +10,7 @@ import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { fetchOperatorStickinessSnapshot } from "@/lib/api";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance-route-paths";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import type { OperatorStickinessSnapshotDto } from "@/types/operate-rhythm";
@@ -151,7 +152,7 @@ export function OperatorStickinessSnapshotCard(): ReactElement | null {
             <p className="m-0 tabular-nums">
               Pending approvals: <span className="font-medium">{data.pendingGovernanceApprovals}</span>
             </p>
-            <Link className={cn("font-medium text-teal-800 underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)} href="/governance">
+            <Link className={cn("font-medium text-teal-800 underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)} href={GOVERNANCE_APPROVAL_QUEUE_PATH}>
               {buyerPolishedShell ? "View governance approval" : "Open governance workflow"}
             </Link>
           </CardContent>

@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { ReactElement } from "react";
 
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance-route-paths";
 import type { OperateNavUnlockPhase } from "@/lib/usability/operate-nav-progressive-unlock";
 import { cn } from "@/lib/utils";
 
@@ -31,7 +32,7 @@ export function GovernanceAvailableSidebarNudge(
       <p className={cn("m-0 mt-1 text-teal-900/90 dark:text-teal-200/90", OPERATOR_TYPOGRAPHY.helper)}>
         Your first review is finalized — open the approval queue to record decisions and audit trail entries.
       </p>
-      <Link href="/governance" className={cn("mt-2 inline-block", OPERATOR_LINK.nav, OPERATOR_TYPOGRAPHY.helper)}>
+      <Link href={GOVERNANCE_APPROVAL_QUEUE_PATH} className={cn("mt-2 inline-block", OPERATOR_LINK.nav, OPERATOR_TYPOGRAPHY.helper)}>
         Open governance workflow
       </Link>
     </div>

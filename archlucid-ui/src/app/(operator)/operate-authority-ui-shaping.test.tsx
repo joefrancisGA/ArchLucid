@@ -187,7 +187,7 @@ import { CompositeAlertRulesContent } from "@/components/alerts/CompositeAlertRu
 import { AdvisorySchedulesContent } from "@/components/advisory/AdvisorySchedulesContent";
 import { DigestSubscriptionsContent } from "@/components/digests/DigestSubscriptionsContent";
 import GovernanceResolutionPage from "./governance/standards-and-rules/page";
-import GovernanceWorkflowPage from "./governance/page";
+import GovernanceWorkflowPage from "./governance/approval-queue/page";
 import PolicyPacksPage from "./governance/policy-packs/page";
 
 const emptyGovernanceResolutionPayload = {
