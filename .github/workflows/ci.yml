@@ -2958,7 +2958,7 @@ jobs:
           python3 scripts/ci/assert_merged_line_coverage_min.py \
             "${OUT}/Cobertura.xml" 79 \
             --min-branch-pct 81 \
-            --min-package-line-pct 81 \
+            --min-package-line-pct 83 \
             --skip-package-line-gate ArchLucid.Mcp \
             --skip-package-line-gate ArchLucid.Backfill.Cli \
             --skip-package-line-gate ArchLucid.Api \
