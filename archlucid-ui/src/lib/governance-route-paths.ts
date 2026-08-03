@@ -1,13 +1,10 @@
 /** Canonical governance nav URLs (TB-405). */
 
-/** Approval queue (left-nav); formerly `/governance` index. */
+/** Approval queue (left-nav). Bare `/governance` is not a page and is not redirected. */
 export const GOVERNANCE_APPROVAL_QUEUE_PATH = "/governance/approval-queue" as const;
 
 /** Executive Workspace Health / workspace overview KPI dashboard. */
 export const GOVERNANCE_DASHBOARD_PATH = "/governance/dashboard" as const;
-
-/** Legacy index path — permanent redirect to {@link GOVERNANCE_APPROVAL_QUEUE_PATH}. */
-export const LEGACY_GOVERNANCE_APPROVAL_QUEUE_PATH = "/governance" as const;
 
 export const GOVERNANCE_POLICY_PACKS_PATH = "/governance/policy-packs";
 
@@ -76,9 +73,9 @@ export function pathMatchesGovernanceAlertRules(pathname: string): boolean {
   return pathMatchesRoutePrefix(pathname, GOVERNANCE_ALERT_RULES_PATH);
 }
 
-/** Exact approval-queue page (canonical or legacy index) — not the whole `/governance/*` tree. */
+/** Exact approval-queue page — not the whole `/governance/*` tree. */
 export function pathMatchesGovernanceApprovalQueue(pathname: string): boolean {
-  return pathname === GOVERNANCE_APPROVAL_QUEUE_PATH || pathname === LEGACY_GOVERNANCE_APPROVAL_QUEUE_PATH;
+  return pathname === GOVERNANCE_APPROVAL_QUEUE_PATH;
 }
 
 /** Approval queue href, optionally scoped to a review via `runId`. */

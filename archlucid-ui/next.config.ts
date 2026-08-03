@@ -114,24 +114,38 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
-      // /runs/* → /reviews/* (URL rename; permanent so search engines and bookmarks update)
-      { source: "/runs", destination: "/reviews", permanent: true },
-      { source: "/runs/:path*", destination: "/reviews/:path*", permanent: true },
+      // /runs/* and legacy /reviews/* → /architecture/reviews/* (public URL namespace).
+      // Specific /reviews/* aliases must precede the /reviews/:path* catch-all.
+      { source: "/runs", destination: "/architecture/reviews", permanent: true },
+      { source: "/runs/:path*", destination: "/architecture/reviews/:path*", permanent: true },
+      { source: "/reviews/:id/manifest", destination: "/architecture/reviews/:id/signed-record", permanent: true },
+      {
+        source: "/reviews/claims-intake-modernization/architecture",
+        destination: "/architecture/reviews/claims-intake-modernization/signed-record",
+        permanent: true,
+      },
+      { source: "/reviews", destination: "/architecture/reviews", permanent: true },
+      { source: "/reviews/:path*", destination: "/architecture/reviews/:path*", permanent: true },
       // Legacy manifest browser paths → canonical signed-records aliases (TB-399).
       { source: "/manifests", destination: "/signed-records", permanent: true },
       { source: "/manifests/:path*", destination: "/signed-records/:path*", permanent: true },
-      { source: "/reviews/:id/manifest", destination: "/reviews/:id/signed-record", permanent: true },
+      {
+        source: "/architecture/reviews/:id/manifest",
+        destination: "/architecture/reviews/:id/signed-record",
+        permanent: true,
+      },
       // Showcase manifest UUID canonicalizes to the friendly signed-record URL for buyer spine E2E.
       {
         source: "/manifests/a1c2e3f4-a5b6-7890-abcd-ef1234567890",
-        destination: "/reviews/claims-intake-modernization/signed-record",
+        destination: "/architecture/reviews/claims-intake-modernization/signed-record",
         permanent: false,
       },
       {
-        source: "/reviews/claims-intake-modernization/architecture",
-        destination: "/reviews/claims-intake-modernization/signed-record",
+        source: "/architecture/reviews/claims-intake-modernization/architecture",
+        destination: "/architecture/reviews/claims-intake-modernization/signed-record",
         permanent: true,
       },
+      // Bare `/governance` is intentionally not redirected — Approval queue is `/governance/approval-queue`.
       // Governance route tree consolidation (TB-405).
       { source: "/policy-packs", destination: "/governance/policy-packs", permanent: true },
       { source: "/policy-packs/:path*", destination: "/governance/policy-packs/:path*", permanent: true },
@@ -158,6 +172,12 @@ const nextConfig: NextConfig = {
       // Administration users/roles nav consolidation (TB-522).
       { source: "/settings/roles", destination: "/administration/settings/users?tab=roles", permanent: true },
       { source: "/settings/roles/:path*", destination: "/administration/settings/users/:path*", permanent: true },
+      // Architectures inventory moved under /architecture/* namespace.
+      { source: "/architectures", destination: "/architecture/architectures", permanent: true },
+      { source: "/architectures/:path*", destination: "/architecture/architectures/:path*", permanent: true },
+      // Pattern library moved under Insights namespace.
+      { source: "/patterns", destination: "/insights/patterns", permanent: true },
+      { source: "/patterns/:path*", destination: "/insights/patterns/:path*", permanent: true },
       // Executive dashboard consolidation (TB-608) — same ExecutiveRoiDashboardPageView content as
       // the operator-shell executive dashboard nav item; the standalone executive-chrome page is retired.
       { source: "/dashboard", destination: "/architecture/executive-dashboard", permanent: true },
@@ -165,9 +185,9 @@ const nextConfig: NextConfig = {
       { source: "/executive/dashboard", destination: "/architecture/executive-dashboard", permanent: true },
       // Cross-tenant portfolio page retired — portfolio overview nav already targets executive dashboard.
       { source: "/portfolio", destination: "/architecture/executive-dashboard", permanent: true },
-      // Executive reviews retired — operator /reviews tree is canonical (TB-608 follow-on).
-      { source: "/executive/reviews", destination: "/reviews", permanent: true },
-      { source: "/executive/reviews/:path*", destination: "/reviews/:path*", permanent: true },
+      // Executive reviews retired — operator /architecture/reviews tree is canonical (TB-608 follow-on).
+      { source: "/executive/reviews", destination: "/architecture/reviews", permanent: true },
+      { source: "/executive/reviews/:path*", destination: "/architecture/reviews/:path*", permanent: true },
       // Per-cloud help topics — slash aliases are canonical (retired hyphen slug URLs).
       { source: "/help/cloud-connections-azure", destination: "/help/cloud-connections/azure", permanent: true },
       { source: "/help/cloud-connections-aws", destination: "/help/cloud-connections/aws", permanent: true },
@@ -179,11 +199,14 @@ const nextConfig: NextConfig = {
       // Friendly demo URL while reusing signed-record detail implementation (`SHOWCASE_STATIC_DEMO_*`).
       // Must precede the generic run-scoped signed-record rewrite below.
       {
-        source: "/reviews/claims-intake-modernization/signed-record",
+        source: "/architecture/reviews/claims-intake-modernization/signed-record",
         destination: "/signed-records/a1c2e3f4-a5b6-7890-abcd-ef1234567890",
       },
       // Run-scoped signed record deep link lands on the review package (manifest summary section).
-      { source: "/reviews/:id/signed-record", destination: "/reviews/:id" },
+      { source: "/architecture/reviews/:id/signed-record", destination: "/reviews/:id" },
+      // Public /architecture/reviews/* URLs map to on-disk app/(operator)/reviews pages.
+      { source: "/architecture/reviews", destination: "/reviews" },
+      { source: "/architecture/reviews/:path*", destination: "/reviews/:path*" },
     ];
   },
 };
