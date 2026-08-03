@@ -3,7 +3,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture-workspace-tabs";
 import {
   RUN_DETAIL_GOVERNANCE_PRE_COMMIT_BODY,
@@ -11,6 +11,10 @@ import {
   RUN_DETAIL_GOVERNANCE_PRE_COMMIT_SECONDARY_CTA,
   RUN_DETAIL_GOVERNANCE_PRE_COMMIT_TITLE,
 } from "@/lib/run-detail-governance-pre-commit-copy";
+import {
+  RUN_DETAIL_GOVERNANCE_PRE_COMMIT_CLAIM_DISCIPLINE,
+  RUN_DETAIL_GOVERNANCE_PRE_COMMIT_SOURCES,
+} from "@/lib/run-detail-governance-sources";
 import { shouldShowRunDetailGovernanceCta, runDetailGovernanceWorkflowHref } from "@/lib/run-detail-governance-cta-visibility";
 
 export type RunDetailGovernanceDecisionSectionProps = {
@@ -49,24 +53,66 @@ export function RunDetailGovernanceDecisionSection(
     return (
       <section
         id="governance-decision"
-        className="scroll-mt-24 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950"
+        className="scroll-mt-24 space-y-4 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950"
         data-testid="run-detail-governance-decision"
         data-package-committed="false"
       >
-        <h2 className={cn("m-0 mb-3 text-base font-semibold text-neutral-900 dark:text-neutral-100")}>
-          {RUN_DETAIL_GOVERNANCE_PRE_COMMIT_TITLE}
-        </h2>
-        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-          {RUN_DETAIL_GOVERNANCE_PRE_COMMIT_BODY}
-        </p>
-        <div className="mt-4 flex flex-wrap gap-2">
-          <Button asChild>
-            <Link href={findingsHref}>{RUN_DETAIL_GOVERNANCE_PRE_COMMIT_PRIMARY_CTA}</Link>
-          </Button>
-          <Button asChild variant="outline">
-            <Link href={activityHref}>{RUN_DETAIL_GOVERNANCE_PRE_COMMIT_SECONDARY_CTA}</Link>
-          </Button>
+        <div>
+          <h2 className={cn("m-0 mb-3 text-base font-semibold text-neutral-900 dark:text-neutral-100")}>
+            {RUN_DETAIL_GOVERNANCE_PRE_COMMIT_TITLE}
+          </h2>
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+            {RUN_DETAIL_GOVERNANCE_PRE_COMMIT_BODY}
+          </p>
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <Button asChild data-testid="run-detail-governance-primary-cta">
+              <Link href={findingsHref}>{RUN_DETAIL_GOVERNANCE_PRE_COMMIT_PRIMARY_CTA}</Link>
+            </Button>
+            <Link
+              href={activityHref}
+              className={cn(OPERATOR_LINK.inline, "text-sm font-medium")}
+              data-testid="run-detail-governance-secondary-cta"
+            >
+              {RUN_DETAIL_GOVERNANCE_PRE_COMMIT_SECONDARY_CTA}
+            </Link>
+          </div>
         </div>
+
+        <section
+          className="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
+          aria-labelledby="run-detail-governance-sources-heading"
+          data-testid="run-detail-governance-sources"
+        >
+          <h3
+            id="run-detail-governance-sources-heading"
+            className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
+          >
+            Sources for governance proof
+          </h3>
+          <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            Open findings and governance help before treating this create-home tab as a decision or approval record.
+            After finalize, use the committed decisions surface instead.
+          </p>
+          <ul className={cn("m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-1 p-0", OPERATOR_TYPOGRAPHY.helper)}>
+            {RUN_DETAIL_GOVERNANCE_PRE_COMMIT_SOURCES.map((link) => (
+              <li key={`${link.href}-${link.label}`}>
+                <Link className={cn(OPERATOR_LINK.inline, "font-medium")} href={link.href}>
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <aside
+          className="rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
+          data-testid="run-detail-governance-claim-discipline"
+        >
+          <h3 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Claim discipline</h3>
+          <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>
+            {RUN_DETAIL_GOVERNANCE_PRE_COMMIT_CLAIM_DISCIPLINE}
+          </p>
+        </aside>
       </section>
     );
   }
@@ -77,6 +123,8 @@ export function RunDetailGovernanceDecisionSection(
       : manifestFinalized
         ? props.governanceGateLabel ?? "Awaiting decision"
         : "No governance decision recorded";
+
+  const findingsHref = buildArchitectureWorkspaceTabHref(props.runId, "findings");
 
   return (
     <section
@@ -110,7 +158,13 @@ export function RunDetailGovernanceDecisionSection(
         <div>
           <dt className="text-neutral-500 dark:text-neutral-400">Blocking findings</dt>
           <dd className="m-0 mt-1 font-medium tabular-nums text-neutral-900 dark:text-neutral-100">
-            {props.blockingFindingCount > 0 ? props.blockingFindingCount : "None"}
+            {props.blockingFindingCount > 0 ? (
+              <Link href={findingsHref} className={cn(OPERATOR_LINK.inline, "font-medium tabular-nums")}>
+                {props.blockingFindingCount}
+              </Link>
+            ) : (
+              "None"
+            )}
           </dd>
         </div>
         {props.hasGovernanceWarnings ? (

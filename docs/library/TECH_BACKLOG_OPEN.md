@@ -635,7 +635,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1846 | Traffic honesty — `archTab=evidence` create-home only | Trustworthiness P1 **V1** — REE ~46 |
 | TB-1847 | Create-home Evidence — orientation + uploaded inventory (not upload-only) | Adoption friction P1 **V1** — with **TB-1846** |
 | Create-home Findings (`archTab=findings`) | **TB-1851**–**TB-1855** (open **V1**) | Traffic honesty; pre-commit orientation; empty state; demote work items; Vitest; ~48/100; traffic **REF**; pairs **TB-1831** |
-| Create-home Governance (`archTab=governance`) | **TB-1856**–**TB-1860** (open **V1**) | Traffic honesty; pre-commit honesty; demote sponsor/work items; density; Vitest; ~40/100; traffic **REG**; pairs **TB-1831** |
+| Create-home Governance (`archTab=governance`) | **TB-1856**–**TB-1860** **Done** | Create-home-only traffic notes, Sources + density + Vitest shipped 2026-08-02; traffic **REG**; residual twin-SoT pairs **TB-1831** |
 | Create-home Overview (`archTab=overview`) | **TB-1861**–**TB-1865** (open **V1**) | Traffic honesty; run-scoped CTA; Still needed dedupe; empty orientation; Vitest; ~55/100; traffic **REO**; pairs **TB-1831**/**TB-1837** |
 | Templates and imports (`/reviews/new?path=detailed`) | **TB-1866**–**TB-1870** (open **V1**) | Traffic naming; URL `path` sync; wizard density; chrome; Vitest; ~48/100; traffic **REN**; sibling **REQ** |
 | Quick start (`/reviews/new?path=quick-review`) | **TB-1871**–**TB-1875** (open **V1**) | Traffic naming; URL sync with **TB-1867**; retire dual wizard; Card density; Vitest; ~58/100; traffic **REQ**; sibling **REN** |
@@ -647,9 +647,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1852 | Create-home Findings — pre-commit assessment orientation | Adoption friction P1 **V1** — with **TB-1851** |
 | TB-1853 | Create-home Findings empty when assessment incomplete | Adoption friction P1 **V1** — with **TB-1851** |
 | TB-1855 | Findings tab — Vitest orientation + traffic honesty | Testability P2 **V1** — with **TB-1851** |
-| TB-1856 | Traffic honesty — `archTab=governance` create-home only | Trustworthiness P1 **V1** — REG ~40 |
-| TB-1859 | Create-home Governance density — one primary next step | Adoption friction P1 **V1** — with **TB-1856** |
-| TB-1860 | Governance tab — Vitest pre-commit honesty + traffic | Testability P2 **V1** — with **TB-1856** |
 | TB-1861 | Traffic honesty — `archTab=overview` create-home only | Trustworthiness P1 **V1** — REO ~55 |
 | TB-1863 | Overview vs Clarifications — Still needed dedupe | Adoption friction P1 **V1** — with **TB-1861** |
 | TB-1864 | Overview empty structured-sections orientation | Adoption friction P1 **V1** — with **TB-1861** |

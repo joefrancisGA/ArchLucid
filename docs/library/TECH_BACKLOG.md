@@ -752,7 +752,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1844 | Diagram Mermaid/source disclosure honesty for buyer shell; see ## TB-1844 below | Trustworthiness P1 — **V1**; with **TB-1841** | S |
 | TB-1846 | Traffic honesty — `archTab=evidence` create-home only; see ## TB-1846 below | Trustworthiness P1 — **V1**; owner review ~46/100 2026-07-27; traffic **REE**; pairs **TB-1831** | S |
 | TB-1851 | Traffic honesty — `archTab=findings` create-home only; see ## TB-1851 below | Trustworthiness P1 — **V1**; owner review ~48/100 2026-07-27; traffic **REF**; pairs **TB-1831** | S |
-| TB-1856 | Traffic honesty — `archTab=governance` create-home only; see ## TB-1856 below | Trustworthiness P1 — **V1**; owner review ~40/100 2026-07-27; traffic **REG**; pairs **TB-1831** | S |
+| TB-1856 | ~~Traffic honesty — `archTab=governance` create-home only~~ **Done** 2026-08-02 — REG create-home-only notes + Vitest; see ## TB-1856 below | Trustworthiness P1 — **V1**; owner review ~40/100 2026-07-27; traffic **REG**; pairs **TB-1831** | S |
 | TB-1861 | Traffic honesty — `archTab=overview` create-home only; see ## TB-1861 below | Trustworthiness P1 — **V1**; owner review ~55/100 2026-07-27; traffic **REO**; pairs **TB-1831** | S |
 | TB-1866 | Traffic honesty — `path=detailed` is Templates and imports tab; see ## TB-1866 below | Trustworthiness P1 — **V1**; owner review ~48/100 2026-07-27; traffic **REN**; sibling **REQ** | S |
 | TB-1867 | `/reviews/new` path tabs must sync `?path=` in the URL; see ## TB-1867 below | Trustworthiness P1 — **V1**; with **TB-1866**; pairs **REQ** | M |
@@ -1060,7 +1060,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1849 | Evidence tab chrome — Capture/Add naming + card density; see ## TB-1849 below | Adoption friction P1 — **V1**; with **TB-1846** | XS |
 | TB-1852 | Create-home Findings — pre-commit assessment orientation; see ## TB-1852 below | Adoption friction P1 — **V1**; with **TB-1851** | S |
 | TB-1853 | Create-home Findings empty when assessment incomplete; see ## TB-1853 below | Adoption friction P1 — **V1**; with **TB-1851** | M |
-| TB-1859 | Create-home Governance density — one primary next step; see ## TB-1859 below | Adoption friction P1 — **V1**; with **TB-1856** | S |
+| TB-1859 | ~~Create-home Governance density — one primary next step~~ **Done** 2026-08-02 — single primary CTA; see ## TB-1859 below | Adoption friction P1 — **V1**; with **TB-1856** | S |
 | TB-1863 | Overview vs Clarifications — Still needed dedupe; see ## TB-1863 below | Adoption friction P1 — **V1**; with **TB-1861** | S |
 | TB-1864 | Overview empty structured-sections orientation; see ## TB-1864 below | Adoption friction P1 — **V1**; with **TB-1861** | S |
 | TB-1868 | Detailed path — label/hint vs full-wizard density honesty; see ## TB-1868 below | Adoption friction P1 — **V1**; with **TB-1866** | M |
@@ -1565,7 +1565,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1855 | Findings tab — Vitest orientation + traffic honesty; see ## TB-1855 below | Testability P2 — **V1**; with **TB-1851** | S |
 | TB-1857 | **Done** (2026-07-31) — Create-home Governance pre-commit honesty variant; Vitest; see `## TB-1857` below | Trustworthiness P0 — **V1**; with **TB-1856** | M |
 | TB-1858 | **Done** (2026-07-31) — Create-home Governance hides sponsor share + work-item panels until package commit; Vitest; see `## TB-1858` below | Trustworthiness P0 — **V1**; with **TB-1856** | M |
-| TB-1860 | Governance tab — Vitest pre-commit honesty + traffic; see ## TB-1860 below | Testability P2 — **V1**; with **TB-1856** | S |
+| TB-1860 | ~~Governance tab — Vitest pre-commit honesty + traffic~~ **Done** 2026-08-02 — section + REG traffic Vitest; see ## TB-1860 below | Testability P2 — **V1**; with **TB-1856** | S |
 | TB-1862 | **Done** (2026-07-31) — Overview Continue clarifying uses run-scoped correctionHref; Vitest; see `## TB-1862` below | Trustworthiness P0 — **V1**; with **TB-1861**; pairs **TB-1837** | S |
 | TB-1865 | Overview tab — Vitest CTA + traffic honesty; see ## TB-1865 below | Testability P2 — **V1**; with **TB-1861** | S |
 | TB-1870 | Detailed path — Vitest URL sync + traffic honesty; see ## TB-1870 below | Testability P2 — **V1**; with **TB-1866** | S |
@@ -44146,7 +44146,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1856 — Traffic honesty — `archTab=governance` create-home only (P0)
 
-**Window:** V1 — Trustworthiness. **Status:** Not started. **Priority:** P0.
+**Window:** V1 — Trustworthiness. **Status:** **Done** (2026-08-02) — REG workbook/template notes create-home-only + twin `reviewTab=decisions-remediation`; Vitest traffic note guard. **Priority:** P0.
 
 **Source:** Owner REG ~40/100 2026-07-27.
 
@@ -44184,7 +44184,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1859 — Create-home Governance density — one primary next step (P1)
 
-**Window:** V1 — Adoption friction. **Status:** Not started. **Priority:** P1.
+**Window:** V1 — Adoption friction. **Status:** **Done** (2026-08-02) — single primary Review findings Button (`run-detail-governance-primary-cta`); activity demoted to text link; Vitest. **Priority:** P1.
 
 **Problem:** Decision + work item + sponsor panels compete as three primaries.
 
@@ -44196,7 +44196,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1860 — Governance tab — Vitest pre-commit honesty + traffic (P2)
 
-**Window:** V1 — Testability. **Status:** Not started. **Priority:** P2.
+**Window:** V1 — Testability. **Status:** **Done** (2026-08-02) — section Vitest covers pre-commit honesty, single primary, Sources, claim discipline; traffic workbook note Vitest for REG.
 
 **Approach:** Vitest covers **TB-1856**–**TB-1859**.
 
