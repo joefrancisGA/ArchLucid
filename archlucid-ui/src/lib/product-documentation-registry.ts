@@ -63,7 +63,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     slug: "first-review",
     title: "First-run evidence checklist (internal runbook)",
     summary:
-      "Admin-only SE/ops printable checklist — Azure extractor Tier 1, finalize, ROI proof, and audit export. Customer architects should use Your first architecture review or Complete review workflow instead.",
+      "Admin/SE printable Tier-1 evidence checklist with specialty CTAs to Your first architecture review, Start architecture review, and audit. Customer architects should use those buyer paths instead.",
     audience: "operator",
     sourcePaths: ["docs/runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md"],
   },

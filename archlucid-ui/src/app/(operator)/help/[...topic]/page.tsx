@@ -15,6 +15,7 @@ import { HelpAzurePermissionsGuideView } from "../_sections/HelpAzurePermissions
 import { HelpAuditTrailGuideView } from "../_sections/HelpAuditTrailGuideView";
 import { HelpConfigurationReferenceGuideView } from "../_sections/HelpConfigurationReferenceGuideView";
 import { HelpDataHandlingTenantIsolationGuideView } from "../_sections/HelpDataHandlingTenantIsolationGuideView";
+import { HelpFirstReviewEvidenceChecklistGuideView } from "../_sections/HelpFirstReviewEvidenceChecklistGuideView";
 import { HelpPolicyPackDeltaDemoGuideView } from "../_sections/HelpPolicyPackDeltaDemoGuideView";
 import { HelpConnectAzureSecurelyGuideView } from "../_sections/HelpConnectAzureSecurelyGuideView";
 import { HelpCorePilotGuideView } from "../_sections/HelpCorePilotGuideView";
@@ -35,6 +36,7 @@ import { FIRST_ARCHITECTURE_REVIEW_HELP_ROUTE_METADATA } from "@/lib/first-archi
 import { GOVERNANCE_APPROVAL_HELP_ROUTE_METADATA } from "@/lib/governance-approval-help-route-metadata";
 import { CONFIGURATION_REFERENCE_HELP_ROUTE_METADATA } from "@/lib/configuration-reference-help-route-metadata";
 import { DATA_HANDLING_TENANT_ISOLATION_HELP_ROUTE_METADATA } from "@/lib/data-handling-tenant-isolation-help-route-metadata";
+import { FIRST_REVIEW_HELP_ROUTE_METADATA } from "@/lib/first-review-help-route-metadata";
 import { POLICY_PACK_DELTA_DEMO_HELP_ROUTE_METADATA } from "@/lib/policy-pack-delta-demo-help-route-metadata";
 import { PATH_CHOOSER_HELP_ROUTE_METADATA } from "@/lib/path-chooser-help-route-metadata";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
@@ -189,6 +191,10 @@ function renderHelpTopicView(
     return <HelpConfigurationReferenceGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
 
+  if (loaded.entry.slug === "first-review") {
+    return <HelpFirstReviewEvidenceChecklistGuideView entry={loaded.entry} markdown={loaded.markdown} />;
+  }
+
   return <HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />;
 }
 
@@ -242,6 +248,10 @@ export async function generateMetadata(props: HelpTopicPageProps): Promise<Metad
 
   if (entry.slug === "configuration-reference") {
     return CONFIGURATION_REFERENCE_HELP_ROUTE_METADATA;
+  }
+
+  if (entry.slug === "first-review") {
+    return FIRST_REVIEW_HELP_ROUTE_METADATA;
   }
 
   return {

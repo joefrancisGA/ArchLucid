@@ -98,7 +98,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | SRX | `/administration/settings/users?tab=roles` | 0.2% | 0 | 0 | 20 | Tab surface | None |
 | SIG | `/signup` | 0.2% | 0 | 0 | 20 | Marketing | None |
 | VXX | `/value-report` | 0.2% | 0 | 0 | 20 | Marketing | None |
-| FI | `/help/first-review` | 0.18% | 0 | 0 | 18 | Help topic | None |
+| FI | `/help/first-review` | 0.18% | 0 | 0 | 18 | Help topic | Specialty first-run evidence checklist (Admin internal-runbook) - HelpFirstReviewEvidenceChecklistGuideView with first-architecture-review / Start architecture review / audit primary CTAs, Sources diligence strip (complete review workflow, Azure connect, audit-trail, troubleshooting, configuration-reference), evidence arc, claim-discipline callout (checklist is not certification), PageContextualHelp, and prepared FIRST_RUN_EVIDENCE_CHECKLIST.md (API/runbook/script leakage strip). Not bare HelpTopicMarkdownView. Admin-gated internal Help Center tier. Not a redirect to buyer core-pilot. Does not imply CPA SOC 2 or third-party pen-test publication. |
 | AHX | `/admin/health` | 0.15% | 0 | 0 | 15 | Admin | None |
 | ADV | `/governance/advisory-scans` | 0.15% | 0 | 0 | 15 | Advisory | None |
 | GAI | `/governance/approval-requests/[id]/lineage` | 0.15% | 0 | 0 | 15 | Alerts/gov | None |

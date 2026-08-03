@@ -114,6 +114,17 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/help/first-review",
+    entry: {
+      whatIsThisPage:
+        "Admin and SE printable first-run evidence checklist for Azure extractor Tier 1, finalize, and sponsor-packet proof.",
+      whatToDoNext:
+        "Send customer architects to Your first architecture review, start a demo review when ready, then cite the audit trail.",
+      whyEmpty: "This checklist always shows when the help topic loads.",
+      whereToConfigurePrerequisite: "Admin access plus a workspace that can run extractor ingest and finalize.",
+    },
+  },
+  {
     prefix: "/governance/standards-and-rules",
     entry: {
       whatIsThisPage:

@@ -1655,6 +1655,91 @@ function extractFirstValue20MinutesSection(markdown: string): string {
 /**
  * TB-1693 — first-value-20 help: strip CLI/dotnet / runbook-path leakage; bare archlucid CLI.
  */
+/** H2 sections omitted from in-app first-review SE checklist (ops scripts / eng Related). */
+const FIRST_REVIEW_EVIDENCE_OMITTED_SECTION_PREFIXES = [
+  "optional tier 2",
+  "repeat review",
+  "related",
+] as const;
+
+/**
+ * Drops Tier-2 WIF, PowerShell proof, and eng Related sections from `/help/first-review`.
+ */
+export function stripFirstReviewEvidenceChecklistContributorSections(markdown: string): string {
+  const lines = markdown.split("\n");
+  const result: string[] = [];
+  let omitSection = false;
+
+  for (const line of lines) {
+    if (line.startsWith("## ") && !line.startsWith("###")) {
+      const title = line.slice(3).trim().toLowerCase();
+      omitSection = FIRST_REVIEW_EVIDENCE_OMITTED_SECTION_PREFIXES.some((prefix) =>
+        title.startsWith(prefix),
+      );
+    }
+
+    if (!omitSection) {
+      result.push(line);
+    }
+  }
+
+  return result.join("\n");
+}
+
+/**
+ * First-review help: soften API success signals and map eng .md hrefs to in-app help.
+ */
+export function stripFirstReviewEvidenceChecklistContributorLeakage(markdown: string): string {
+  return markdown
+    .replace(/`GET \/health\/ready`/gi, "API readiness check")
+    .replace(/GET \/health\/ready/gi, "API readiness check")
+    .replace(/`POST \/v1\/azure-extractor\/upload`/gi, "extractor ZIP upload")
+    .replace(/POST \/v1\/azure-extractor\/upload/gi, "extractor ZIP upload")
+    .replace(/`?\/version`?/gi, "version endpoint")
+    .replace(/`?X-Correlation-ID`?/gi, "correlation id")
+    .replace(/\[([^\]]*)\]\(\.\.\/library\/CONFIGURATION_REFERENCE\.md\)/gi, "[Configuration reference](/help/configuration-reference)")
+    .replace(/\[([^\]]*)\]\(\.\.\/library\/contributor-reference\/SECURITY\.md\)/gi, "[Security and trust](/help/security-trust)")
+    .replace(/\[([^\]]*)\]\(FIRST_PILOT_OPERATOR_PATH\.md\)/gi, "[Troubleshooting](/help/troubleshooting)")
+    .replace(/\[([^\]]*)\]\(\.\.\/library\/customer-facing\/PILOT_GUIDE\.md\)/gi, "[Your first architecture review](/help/first-architecture-review)")
+    .replace(/\[([^\]]*)\]\(\.\.\/library\/AZURE_EXTRACTOR\.md[^)]*\)/gi, "[Connect Azure securely](/help/cloud-connections-azure)")
+    .replace(
+      /\[([^\]]*)\]\(\.\.\/library\/CANONICAL_FIRST_RUN_PATH\.md[^)]*\)/gi,
+      "[Your first architecture review](/help/first-architecture-review)",
+    )
+    .replace(
+      /\[([^\]]*)\]\(\.\.\/library\/customer-facing\/WORKSPACE_NAVIGATION_GUIDE\.md\)/gi,
+      "[Workspace navigation profile](/help/pilot-nav-profile)",
+    )
+    .replace(/\[([^\]]*)\]\(\.\.\/runbooks\/TROUBLESHOOTING\.md\)/gi, "[Troubleshooting](/help/troubleshooting)")
+    .replace(/\[([^\]]*)\]\(TROUBLESHOOTING\.md\)/gi, "[Troubleshooting](/help/troubleshooting)")
+    .replace(/\[([^\]]*)\]\(\.\.\/library\/V1_SCOPE\.md[^)]*\)/gi, "V1 product scope")
+    .replace(/\[([^\]]*)\]\(\.\.\/library\/REPEAT_REVIEW_LOOP\.md\)/gi, "[Repeat-review loop](/help/repeat-review-loop)")
+    .replace(/\[([^\]]*)\]\([^)]*contributor-reference\/[^)]+\)/gi, "$1")
+    .replace(/\[([^\]]*)\]\([^)]*(?:runbooks|library|deploy)\/[^)]+\)/gi, "$1")
+    .replace(/\[([^\]]*)\]\([^)]+\.md[^)]*\)/gi, "$1")
+    .replace(/`?CONFIGURATION_REFERENCE\.md`?/gi, "configuration reference")
+    .replace(/`?SECURITY\.md`?/gi, "security documentation")
+    .replace(/`?FIRST_PILOT_OPERATOR_PATH\.md`?/gi, "operator path guidance")
+    .replace(/`?PILOT_GUIDE\.md`?/gi, "pilot guide")
+    .replace(/`?AZURE_EXTRACTOR\.md`?/gi, "Azure extractor guidance")
+    .replace(/`?CANONICAL_FIRST_RUN_PATH\.md`?/gi, "first architecture review walkthrough")
+    .replace(/`?WORKSPACE_NAVIGATION_GUIDE\.md`?/gi, "workspace navigation guide")
+    .replace(/`?TROUBLESHOOTING\.md`?/gi, "troubleshooting")
+    .replace(/`?V1_SCOPE\.md`?/gi, "V1 product scope")
+    .replace(/`?PILOT_RESCUE_PLAYBOOK\.md`?/gi, "pilot rescue guidance")
+    .replace(/`?LIVE_E2E_HAPPY_PATH\.md`?/gi, "live happy-path guidance")
+    .replace(/`?OPERATOR_PILOT_STICKINESS_CHECKLIST\.md`?/gi, "stickiness checklist")
+    .replace(/`?REPEAT_REVIEW_LOOP\.md`?/gi, "repeat-review loop")
+    .replace(/`?scripts\/[^`\s)]+`?/gi, "admin automation script")
+    .replace(/\.\\scripts\\[^\s)`]*/gi, "admin automation script")
+    .replace(/\.\/scripts\/[^\s)`]*/gi, "admin automation script")
+    .replace(/collect-first-pilot-proof\.ps1/gi, "admin automation script")
+    .replace(/deploy\/customer-templates\/[^\s)`]*/gi, "customer WIF templates")
+    .replace(/python scripts\/[^\s)`]*/gi, "admin automation script")
+    .replace(/\n{3,}/g, "\n\n")
+    .trimEnd();
+}
+
 export function stripFirstValue20ContributorLeakage(markdown: string): string {
   const focused = extractFirstValue20MinutesSection(markdown);
 
@@ -2929,6 +3014,9 @@ export function prepareHelpMarkdownForPresentation(
   const withoutInlineReferences = stripInternalBuyerHelpInlineReferences(withoutInternalSections);
   const normalizedSourcePath = sourceDocPath.replace(/\\/g, "/").toLowerCase();
   const isConfigurationReference = normalizedSourcePath.includes("configuration_reference.md");
+  const isFirstReviewEvidenceChecklist =
+    options?.helpTopicSlug === "first-review" ||
+    normalizedSourcePath.includes("first_run_evidence_checklist.md");
   const isEnterpriseOnboarding = normalizedSourcePath.includes(
     "hosted_enterprise_onboarding_checklist.md",
   );
@@ -2949,17 +3037,19 @@ export function prepareHelpMarkdownForPresentation(
     : withoutInlineReferences;
   const beforeLinkRewrite = isConfigurationReference
     ? stripConfigurationReferenceContributorSections(afterEvaluatorWorkbookStrip)
-    : isEnterpriseOnboarding
-      ? stripEnterpriseOnboardingContributorSections(afterEvaluatorWorkbookStrip)
-      : isGovernanceApiContracts
-        ? stripGovernanceApiContractsContributorSections(afterEvaluatorWorkbookStrip)
-        : isPilotRoiModel
-          ? stripPilotRoiModelContributorSections(afterEvaluatorWorkbookStrip)
-          : isRepeatReviewLoop
-            ? stripRepeatReviewLoopContributorSections(afterEvaluatorWorkbookStrip)
-            : isAcceleratorChooser
-              ? stripAcceleratorChooserContributorSections(afterEvaluatorWorkbookStrip)
-              : afterEvaluatorWorkbookStrip;
+    : isFirstReviewEvidenceChecklist
+      ? stripFirstReviewEvidenceChecklistContributorSections(afterEvaluatorWorkbookStrip)
+      : isEnterpriseOnboarding
+        ? stripEnterpriseOnboardingContributorSections(afterEvaluatorWorkbookStrip)
+        : isGovernanceApiContracts
+          ? stripGovernanceApiContractsContributorSections(afterEvaluatorWorkbookStrip)
+          : isPilotRoiModel
+            ? stripPilotRoiModelContributorSections(afterEvaluatorWorkbookStrip)
+            : isRepeatReviewLoop
+              ? stripRepeatReviewLoopContributorSections(afterEvaluatorWorkbookStrip)
+              : isAcceleratorChooser
+                ? stripAcceleratorChooserContributorSections(afterEvaluatorWorkbookStrip)
+                : afterEvaluatorWorkbookStrip;
   const rewrittenLinks = rewriteHelpMarkdownDocLinks(beforeLinkRewrite, sourceDocPath);
   const sanitized = sanitizeBareMarkdownFileReferences(rewrittenLinks);
   // Audience-specific strips — do not apply procurement/config rewrites to unrelated topics.
@@ -2969,6 +3059,8 @@ export function prepareHelpMarkdownForPresentation(
     afterAudienceStrip = stripProcurementContributorLeakage(sanitized);
   } else if (isConfigurationReference) {
     afterAudienceStrip = stripConfigurationReferenceContributorLeakage(sanitized);
+  } else if (isFirstReviewEvidenceChecklist) {
+    afterAudienceStrip = stripFirstReviewEvidenceChecklistContributorLeakage(sanitized);
   } else if (isEnterpriseOnboarding) {
     afterAudienceStrip = stripEnterpriseOnboardingContributorLeakage(sanitized);
   } else if (isGovernanceApiContracts) {
