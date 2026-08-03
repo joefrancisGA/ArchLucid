@@ -106,21 +106,25 @@ export function AlertRulesContent() {
     setLoading(true);
     setFailure(null);
 
-    try {
-      const rules = await listAlertRules();
-      setItems(rules);
-    } catch (error) {
-      setFailure(toApiLoadFailure(error));
-    } finally {
-      setLoading(false);
+    // TB-2024: rules + routing in parallel (routing failure must not block the rules list).
+    const [rulesOutcome, routingOutcome] = await Promise.allSettled([
+      listAlertRules(),
+      listAlertRoutingSubscriptions(),
+    ]);
+
+    if (rulesOutcome.status === "fulfilled") {
+      setItems(rulesOutcome.value);
+    } else {
+      setFailure(toApiLoadFailure(rulesOutcome.reason));
     }
 
-    try {
-      const subscriptions = await listAlertRoutingSubscriptions();
-      setRoutingSubscriptions(subscriptions);
-    } catch {
+    if (routingOutcome.status === "fulfilled") {
+      setRoutingSubscriptions(routingOutcome.value);
+    } else {
       setRoutingSubscriptions([]);
     }
+
+    setLoading(false);
   }, []);
 
   useEffect(() => {

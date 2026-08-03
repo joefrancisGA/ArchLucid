@@ -24,18 +24,15 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
 }));
 
-vi.mock("@/components/alerts/AlertRulesContent", () => ({
-  AlertRulesContent: () => <div data-testid="stub-rules" />,
-}));
-vi.mock("@/components/alerts/AlertRoutingContent", () => ({
-  AlertRoutingContent: () => <div data-testid="stub-routing" />,
-}));
-vi.mock("@/components/alerts/CompositeAlertRulesContent", () => ({
-  CompositeAlertRulesContent: () => <div data-testid="stub-composite" />,
-}));
-vi.mock("@/components/alerts/AlertSimulationTuningSection", () => ({
-  AlertSimulationTuningSection: () => <div data-testid="stub-simulation" />,
-}));
+vi.mock(
+  "@/app/(operator)/governance/alert-rules/_sections/alert-rules-hub-deferred-chunks",
+  () => ({
+    AlertRulesContentDeferred: () => <div data-testid="stub-rules" />,
+    AlertRoutingContentDeferred: () => <div data-testid="stub-routing" />,
+    CompositeAlertRulesContentDeferred: () => <div data-testid="stub-composite" />,
+    AlertSimulationTuningSectionDeferred: () => <div data-testid="stub-simulation" />,
+  }),
+);
 
 import { ALERTS_CONFIGURATION_PAGE_SUBTITLE } from "@/lib/alerts-page-copy";
 

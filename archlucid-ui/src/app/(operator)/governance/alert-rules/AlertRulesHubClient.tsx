@@ -6,10 +6,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { LayerHeader } from "@/components/LayerHeader";
-import { AlertRoutingContent } from "@/components/alerts/AlertRoutingContent";
-import { AlertRulesContent } from "@/components/alerts/AlertRulesContent";
-import { AlertSimulationTuningSection } from "@/components/alerts/AlertSimulationTuningSection";
-import { CompositeAlertRulesContent } from "@/components/alerts/CompositeAlertRulesContent";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -26,6 +22,12 @@ import {
 import { governanceAlertRulesTabHref } from "@/lib/governance-route-paths";
 
 import { AlertRulesHubRefreshProvider, useAlertRulesHubRefresh } from "@/lib/alerts-hub-refresh-context";
+import {
+  AlertRoutingContentDeferred,
+  AlertRulesContentDeferred,
+  AlertSimulationTuningSectionDeferred,
+  CompositeAlertRulesContentDeferred,
+} from "./_sections/alert-rules-hub-deferred-chunks";
 import { AlertRoutingEvidenceOrientationStrip } from "./_sections/AlertRoutingEvidenceOrientationStrip";
 import { AlertRulesEvidenceOrientationStrip } from "./_sections/AlertRulesEvidenceOrientationStrip";
 import { AlertRulesPageHeader } from "./AlertRulesPageHeader";
@@ -159,10 +161,10 @@ export function AlertRulesHubClient() {
           {activeTab === "routing" ? <AlertRoutingEvidenceOrientationStrip /> : (
             <AlertRulesEvidenceOrientationStrip />
           )}
-          {activeTab === "rules" ? <AlertRulesContent /> : null}
-          {activeTab === "routing" ? <AlertRoutingContent /> : null}
-          {activeTab === "composite" ? <CompositeAlertRulesContent /> : null}
-          {activeTab === "simulation" ? <AlertSimulationTuningSection /> : null}
+          {activeTab === "rules" ? <AlertRulesContentDeferred /> : null}
+          {activeTab === "routing" ? <AlertRoutingContentDeferred /> : null}
+          {activeTab === "composite" ? <CompositeAlertRulesContentDeferred /> : null}
+          {activeTab === "simulation" ? <AlertSimulationTuningSectionDeferred /> : null}
         </div>
       </div>
     </AlertRulesHubRefreshProvider>
