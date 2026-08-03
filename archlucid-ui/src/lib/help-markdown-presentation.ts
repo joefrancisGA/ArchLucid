@@ -65,6 +65,7 @@ const HELP_LINK_LABEL_OVERRIDES: Readonly<Record<string, string>> = {
   operator_shell_tutorial: "Workspace tutorial",
   first_hour_operator_path: "Your first architecture review",
   core_pilot: "Your first architecture review",
+  complete_review_workflow: "Your first architecture review",
 };
 
 /**

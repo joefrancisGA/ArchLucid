@@ -1,0 +1,24 @@
+import { ADVISORY_SCANS_HREF, ADVISORY_SCANS_SCHEDULES_HREF } from "@/lib/advisory-scans-route";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
+
+export const ADVISORY_SCANS_CANONICAL_PATH = ADVISORY_SCANS_HREF;
+
+export const ADVISORY_SCANS_CLAIM_DISCIPLINE =
+  "Advisory scan recommendations prioritize follow-up work from finalized reviews — they are not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Findings or Audit when you need a governed trail.";
+
+export const ADVISORY_SCANS_SOURCES_INTRO =
+  "Use these follow-ups when a scan needs a review package, findings triage, recurring schedules, or product orientation.";
+
+export type AdvisoryScansSourceLink = {
+  readonly label: string;
+  readonly href: string;
+};
+
+/** Operator Sources — no self-href to the default advisory-scans hub path. */
+export const ADVISORY_SCANS_SOURCES: readonly AdvisoryScansSourceLink[] = [
+  { label: "Architecture reviews", href: "/architecture/reviews" },
+  { label: "Findings", href: "/governance/findings" },
+  { label: "Schedules tab", href: ADVISORY_SCANS_SCHEDULES_HREF },
+  { label: "Audit", href: "/governance/audit" },
+  { label: "How ArchLucid works", href: inAppHelpHref("how-it-works") },
+] as const;
