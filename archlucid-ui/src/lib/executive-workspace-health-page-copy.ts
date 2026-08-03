@@ -1,5 +1,8 @@
 /** Page copy for `/governance/dashboard` (Executive Workspace Health / workspace overview). */
 
+import { GOVERNANCE_APPROVAL_QUEUE_PATH, GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
+
 export const EXECUTIVE_WORKSPACE_HEALTH_PAGE_TITLE_BUYER = "Workspace overview";
 
 export const EXECUTIVE_WORKSPACE_HEALTH_PAGE_TITLE_OPERATOR = "Executive Workspace Health";
@@ -15,6 +18,27 @@ export const EXECUTIVE_WORKSPACE_HEALTH_LAYER_GUIDANCE_TRIGGER = "About workspac
 export const EXECUTIVE_WORKSPACE_HEALTH_WORKFLOW_LINK_LABEL = "Open governance workflow";
 
 export const EXECUTIVE_WORKSPACE_HEALTH_SESSION_SCOPE_SUMMARY = "Session scope";
+
+export const EXECUTIVE_WORKSPACE_HEALTH_CLAIM_DISCIPLINE =
+  "These tiles are scoped workspace aggregates and planning estimates — not a signed-review diligence Sources trail. Hours and SLA figures are derived proxies. Do not imply CPA SOC 2 attestation or a published third-party pen test from this page.";
+
+export const EXECUTIVE_WORKSPACE_HEALTH_SOURCES_INTRO =
+  "Open row-level governance surfaces before briefing sponsors from these KPI tiles.";
+
+export type ExecutiveWorkspaceHealthSourceLink = {
+  readonly label: string;
+  readonly href: string;
+};
+
+/** Operator Sources — no self-href to `/governance/dashboard`. */
+export const EXECUTIVE_WORKSPACE_HEALTH_SOURCES: readonly ExecutiveWorkspaceHealthSourceLink[] = [
+  { label: "Governance approval queue", href: GOVERNANCE_APPROVAL_QUEUE_PATH },
+  { label: "Findings", href: "/governance/findings" },
+  { label: "Audit trail", href: GOVERNANCE_AUDIT_PATH },
+  { label: "ROI summary", href: "/value-report/roi" },
+  { label: "Governance approval help", href: inAppHelpHref("governance-approval") },
+  { label: "How ArchLucid works", href: inAppHelpHref("how-it-works") },
+] as const;
 
 export type ExecutiveWorkspaceHealthKpiKey =
   | "preCommitOutcomes"

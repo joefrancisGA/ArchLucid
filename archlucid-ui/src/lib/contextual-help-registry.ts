@@ -37,6 +37,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/governance/dashboard",
+    entry: {
+      whatIsThisPage:
+        "Workspace health at a glance — scoped KPI tiles for pre-commit posture, findings exposure, drift, approval SLAs, and a hours estimate.",
+      whatToDoNext:
+        "Open Decisions needed items, then use Audit trail or Findings for row-level follow-up before sponsor briefings.",
+      whyEmpty: "Tiles stay at zero until governance and audit activity exists in the current workspace scope.",
+      whereToConfigurePrerequisite:
+        "Switch workspace or project scope from the header switcher — figures never roll up across workspaces.",
+    },
+  },
+  {
     prefix: "/governance/findings",
     entry: {
       whatIsThisPage:

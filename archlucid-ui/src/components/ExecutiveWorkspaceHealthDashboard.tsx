@@ -9,6 +9,7 @@ import { DecisionsNeededSummaryCard } from "@/components/governance/DecisionsNee
 import { GovernanceBypassAuditPanel } from "@/components/governance/GovernanceBypassAuditPanel";
 import { DataArchivalDegradedBanner } from "@/components/governance/DataArchivalDegradedBanner";
 import { ExecutiveWorkspaceHealthPageHero } from "@/components/governance/ExecutiveWorkspaceHealthPageHero";
+import { ExecutiveWorkspaceHealthSourcesStrip } from "@/components/governance/ExecutiveWorkspaceHealthSourcesStrip";
 import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import { LayerHeader } from "@/components/LayerHeader";
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
@@ -189,6 +190,7 @@ export function ExecutiveWorkspaceHealthDashboard() {
       <div className="w-full max-w-[1440px] space-y-4">
         {layerHeader}
         <ExecutiveWorkspaceHealthPageHero buyerPolishedShell={buyerPolishedShell} />
+        <ExecutiveWorkspaceHealthSourcesStrip />
         <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           {buyerPolishedShell ? "Loading workspace overview…" : "Loading executive workspace health…"}
         </p>
@@ -201,6 +203,7 @@ export function ExecutiveWorkspaceHealthDashboard() {
       <div className="w-full max-w-[1440px] space-y-4">
         {layerHeader}
         <ExecutiveWorkspaceHealthPageHero buyerPolishedShell={buyerPolishedShell} />
+        <ExecutiveWorkspaceHealthSourcesStrip />
         <OperatorApiProblem
           fallbackMessage={state.message}
           problem={state.problem}
@@ -209,7 +212,7 @@ export function ExecutiveWorkspaceHealthDashboard() {
         {buyerPolishedShell ? (
           <p className={cn("m-0 max-w-prose text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
             Evaluation workspaces may not expose full KPI telemetry yet. Continue from{" "}
-            <Link className={OPERATOR_LINK.nav} href="/governance">
+            <Link className={OPERATOR_LINK.nav} href="/governance/approval-queue">
               Governance workflow
             </Link>{" "}
             for approvals and promotions.
@@ -290,10 +293,12 @@ export function ExecutiveWorkspaceHealthDashboard() {
     );
 
   return (
-    <div className="w-full max-w-[1440px] space-y-6">
+    <div className="w-full max-w-[1440px] space-y-4">
       {layerHeader}
 
       <ExecutiveWorkspaceHealthPageHero buyerPolishedShell={buyerPolishedShell} />
+
+      <ExecutiveWorkspaceHealthSourcesStrip />
 
       {scopeBannerBlock}
 
@@ -369,7 +374,7 @@ export function ExecutiveWorkspaceHealthDashboard() {
               <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
                 {executiveWorkspaceHealthKpiTitle("complianceDrift", buyerPolishedShell)}
               </h2>
-              <Link href="/governance" className={OPERATOR_LINK.nav}>
+              <Link href="/governance/approval-queue" className={OPERATOR_LINK.nav}>
                 Governance workflow
               </Link>
             </div>

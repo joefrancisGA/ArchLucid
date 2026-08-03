@@ -1,16 +1,20 @@
-﻿/** Canonical governance nav URLs (TB-405). */
+/** Canonical governance nav URLs (TB-405). */
 
 /** Approval queue (left-nav); formerly `/governance` index. */
 export const GOVERNANCE_APPROVAL_QUEUE_PATH = "/governance/approval-queue" as const;
 
+/** Executive Workspace Health / workspace overview KPI dashboard. */
+export const GOVERNANCE_DASHBOARD_PATH = "/governance/dashboard" as const;
+
 /** Legacy index path — permanent redirect to {@link GOVERNANCE_APPROVAL_QUEUE_PATH}. */
 export const LEGACY_GOVERNANCE_APPROVAL_QUEUE_PATH = "/governance" as const;
+
 export const GOVERNANCE_POLICY_PACKS_PATH = "/governance/policy-packs";
 
-/** Canonical Standards & rules (left-nav); formerly `/governance/resolution` (retired â€” no redirect). */
+/** Canonical Standards & rules (left-nav); formerly `/governance/resolution` (retired — no redirect). */
 export const GOVERNANCE_STANDARDS_AND_RULES_PATH = "/governance/standards-and-rules" as const;
 
-/** Alias kept for existing imports â€” prefer {@link GOVERNANCE_STANDARDS_AND_RULES_PATH}. */
+/** Alias kept for existing imports — prefer {@link GOVERNANCE_STANDARDS_AND_RULES_PATH}. */
 export const GOVERNANCE_RESOLUTION_PATH = GOVERNANCE_STANDARDS_AND_RULES_PATH;
 
 export const GOVERNANCE_AUDIT_PATH = "/governance/audit";
@@ -19,20 +23,20 @@ export const GOVERNANCE_ALERTS_PATH = "/governance/alerts";
 
 export const GOVERNANCE_ALERT_RULES_PATH = "/governance/alert-rules";
 
-/** Legacy browser paths â€” permanent redirects to canonical (TB-405). */
+/** Legacy browser paths — permanent redirects to canonical (TB-405). */
 export const LEGACY_POLICY_PACKS_PATH = "/policy-packs";
 
-/** Retired flat UI bookmark â€” no App Router page and no next.config redirect. */
+/** Retired flat UI bookmark — no App Router page and no next.config redirect. */
 export const LEGACY_GOVERNANCE_RESOLUTION_PATH = "/governance-resolution" as const;
 
-/** Retired nested UI path â€” no App Router page and no next.config redirect. */
+/** Retired nested UI path — no App Router page and no next.config redirect. */
 export const LEGACY_GOVERNANCE_RESOLUTION_NESTED_PATH = "/governance/resolution" as const;
 
 export const LEGACY_AUDIT_PATH = "/audit";
 
 export const LEGACY_ALERTS_PATH = "/alerts";
 
-/** Retired pre-release path â€” no redirect; use alert-rules Routing tab. */
+/** Retired pre-release path — no redirect; use alert-rules Routing tab. */
 export const LEGACY_ALERT_ROUTING_PATH = "/alert-routing";
 
 export function pathMatchesRoutePrefix(pathname: string, prefix: string): boolean {
@@ -71,6 +75,7 @@ export function pathMatchesGovernanceAlerts(pathname: string): boolean {
 export function pathMatchesGovernanceAlertRules(pathname: string): boolean {
   return pathMatchesRoutePrefix(pathname, GOVERNANCE_ALERT_RULES_PATH);
 }
+
 /** Exact approval-queue page (canonical or legacy index) — not the whole `/governance/*` tree. */
 export function pathMatchesGovernanceApprovalQueue(pathname: string): boolean {
   return pathname === GOVERNANCE_APPROVAL_QUEUE_PATH || pathname === LEGACY_GOVERNANCE_APPROVAL_QUEUE_PATH;
@@ -86,7 +91,6 @@ export function governanceApprovalQueueHref(runId?: string | null): string {
 
   return `${GOVERNANCE_APPROVAL_QUEUE_PATH}?runId=${encodeURIComponent(trimmed)}`;
 }
-
 
 export function governancePolicyPackDetailPath(policyPackId: string): string {
   return `${GOVERNANCE_POLICY_PACKS_PATH}/${encodeURIComponent(policyPackId.trim())}`;
@@ -105,7 +109,7 @@ export function governanceAlertRulesTabHref(tab: string): string {
   return `${GOVERNANCE_ALERT_RULES_PATH}?${params.toString()}`;
 }
 
-/** Legacy deep links on the Alerts inbox URL â€” prefer {@link governanceAlertRulesTabHref}. */
+/** Legacy deep links on the Alerts inbox URL — prefer {@link governanceAlertRulesTabHref}. */
 export function governanceAlertsTabHref(tab: string): string {
   const trimmed = tab.trim();
 

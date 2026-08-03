@@ -14,7 +14,7 @@ describe("usability lib", () => {
 
   it("navLinkQuestionSubtitle omits dense helpers for self-explanatory nav items", () => {
     expect(navLinkQuestionSubtitle("/insights/evidence-graph")).toBeNull();
-    expect(navLinkQuestionSubtitle("/governance")).toBeNull();
+    expect(navLinkQuestionSubtitle("/governance/approval-queue")).toBeNull();
     expect(navLinkQuestionSubtitle("/replay")).toBeNull();
     expect(navLinkQuestionSubtitle("/governance/advisory-scans")).toBeNull();
   });
@@ -29,13 +29,13 @@ describe("usability lib", () => {
   it("filterNavLinksByOperateUnlockPhase keeps governance workflow and audit at phase 1", () => {
     const links = [
       { href: "/insights/compare-two-reviews" },
-      { href: "/governance" },
+      { href: "/governance/approval-queue" },
       { href: "/governance/audit" },
       { href: "/governance/findings" },
     ];
     const phase1 = filterNavLinksByOperateUnlockPhase(links, true, 1);
 
-    expect(phase1.map((l) => l.href)).toEqual(["/insights/compare-two-reviews", "/governance", "/governance/audit"]);
+    expect(phase1.map((l) => l.href)).toEqual(["/insights/compare-two-reviews", "/governance/approval-queue", "/governance/audit"]);
   });
 
   it("filterNavLinksByOperateUnlockPhase keeps recurrence schedules visible in phase 1", () => {
@@ -56,18 +56,21 @@ describe("usability lib", () => {
   it("pageHelpTopicForPathname maps review routes", () => {
     expect(pageHelpTopicForPathname("/")?.slug).toBe("first-architecture-review");
     expect(pageHelpTopicForPathname("/")?.label).toBe("Architecture workflow");
-    expect(pageHelpTopicForPathname("/reviews/new")?.slug).toBe("evidence-intake");
+    expect(pageHelpTopicForPathname("/architecture/reviews/new")?.slug).toBe("evidence-intake");
     expect(pageHelpTopicForPathname("/alerts")?.slug).toBe("alerts");
     expect(pageHelpTopicForPathname("/alert-rules")?.slug).toBe("alerts");
+    expect(pageHelpTopicForPathname("/governance/dashboard")?.slug).toBe("how-it-works");
+    expect(pageHelpTopicForPathname("/governance/dashboard")?.label).toBe("Workspace overview");
+    expect(pageHelpTopicForPathname("/governance/alerts")?.slug).toBe("alerts");
     expect(pageHelpTopicForPathname("/governance/alert-rules")?.slug).toBe("alerts");
     expect(pageHelpTopicForPathname("/governance/alert-rules")?.label).toBe("How alerts work");
     expect(pageHelpTopicForPathname("/administration/connection-status")?.slug).toBe("integration-readiness");
     expect(pageHelpTopicForPathname("/administration/connection-status")?.label).toBe("How integration readiness works");
     expect(pageHelpTopicForPathname("/administration/system-health")?.slug).toBe("troubleshooting");
     expect(pageHelpTopicForPathname("/administration/system-health")?.label).toBe("Troubleshooting");
-    expect(pageHelpTopicForPathname("/architectures")?.slug).toBe("getting-started");
-    expect(pageHelpTopicForPathname("/architectures")?.label).toBe("Getting started");
-    expect(pageHelpTopicForPathname("/architectures/draft-id-123")?.slug).toBe("getting-started");
+    expect(pageHelpTopicForPathname("/architecture/architectures")?.slug).toBe("getting-started");
+    expect(pageHelpTopicForPathname("/architecture/architectures")?.label).toBe("Getting started");
+    expect(pageHelpTopicForPathname("/architecture/architectures/draft-id-123")?.slug).toBe("getting-started");
     expect(pageHelpTopicForPathname("/digests")?.slug).toBe("how-it-works");
     expect(pageHelpTopicForPathname("/planning")?.slug).toBe("pilot-feedback");
     expect(pageHelpTopicForPathname("/administration/settings/billing")?.slug).toBe("billing-and-plans");
@@ -81,7 +84,7 @@ describe("usability lib", () => {
     expect(pageHelpTopicForPathname("/insights/impact-preview")?.slug).toBe("how-it-works");
     expect(pageHelpTopicForPathname("/insights/impact-preview")?.label).toBe("Impact preview");
     expect(pageHelpTopicForPathname("/governance/advisory-scans")?.slug).toBe("how-it-works");
-    expect(pageHelpTopicForPathname("/reviews/run-1/artifacts/cost-summary")?.slug).toBe("review-artifacts");
+    expect(pageHelpTopicForPathname("/architecture/reviews/run-1/artifacts/cost-summary")?.slug).toBe("review-artifacts");
     expect(pageHelpTopicForPathname("/signed-records/manifest-1/artifacts/cost-summary")?.slug).toBe(
       "review-artifacts",
     );
