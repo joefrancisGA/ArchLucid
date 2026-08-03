@@ -93,12 +93,30 @@ test.describe("live-api-email-run-to-sponsor", () => {
 
     const primary = page.getByTestId("email-run-to-sponsor-primary-action");
 
-    await expect
-      .poll(
-        async () => (await primary.isEnabled()) || (await page.getByTestId("email-run-to-sponsor-execution-mode-gap").isVisible()),
-        { timeout: 90_000 },
-      )
-      .toBe(true);
+    // Primary enables when sponsor PDF is allowed; otherwise one of the gap alerts settles the banner
+    // (Simulator execution mode, AI gate, projected-dollar / ROI baseline) — not only execution-mode.
+    const sponsorPdfGateSettled = async (): Promise<boolean> => {
+      if (await primary.isEnabled()) {
+        return true;
+      }
+
+      const gapTestIds = [
+        "email-run-to-sponsor-execution-mode-gap",
+        "email-run-to-sponsor-ai-readiness-gap",
+        "email-run-to-sponsor-projected-dollar-gap",
+        "email-run-to-sponsor-roi-baseline-gap",
+      ] as const;
+
+      for (const testId of gapTestIds) {
+        if (await page.getByTestId(testId).isVisible()) {
+          return true;
+        }
+      }
+
+      return false;
+    };
+
+    await expect.poll(sponsorPdfGateSettled, { timeout: 90_000 }).toBe(true);
 
     if (await primary.isEnabled()) {
       // downloadFirstValueReportPdf uses fetch + blob anchor click — headless Chromium may not emit
@@ -124,7 +142,7 @@ test.describe("live-api-email-run-to-sponsor", () => {
       return;
     }
 
-    // CI uses AgentExecution__Mode=Simulator — UI blocks external sponsor PDF; verify API (or Markdown fallback).
+    // UI blocked sponsor PDF (Simulator / AI gate / ROI gaps) — verify API PDF or Markdown fallback.
     const pdfRes = await request.post(`${liveApiBase}/v1/pilots/runs/${runId}/first-value-report.pdf`, {
       headers: { ...liveAcceptHeaders(), ...liveTenantScopeHeaders(tenantScope) },
     });
