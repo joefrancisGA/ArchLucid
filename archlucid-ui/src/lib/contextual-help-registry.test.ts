@@ -52,6 +52,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/developer-troubleshooting",
       "/help/governance-api-contracts",
       "/governance/standards-and-rules",
+      "/administration/system-health",
       "/digests",
       "/planning/plans",
       "/planning",

@@ -108,7 +108,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | AUX | `/administration/settings/users` | 0.15% | 0 | 0 | 15 | Settings | None |
 | MMX | `/signed-records/[manifestId]` | 0.15% | 0 | 0 | 15 | Marketing | None |
 | ATX | `/admin/tenant-health` | 0.12% | 0 | 0 | 12 | Admin | None |
-| ADY | `/administration/system-health` | 0.12% | 0 | 0 | 12 | Admin | Administration System health hub — live/ready dependency checks, build identity, and demo-safe buyer shell variant. PageContextualHelpButton + troubleshooting help. Canonical path /administration/system-health (legacy /health retired). |
+| ADY | `/administration/system-health` | 0.12% | 0 | 0 | 12 | Admin | Administration System health hub - SystemHealthPageView with PageContextualHelpButton (topic map troubleshooting; Category-1 registry), Sources follow-up strip + claim-discipline callout (operational readiness, not diligence trail), live/ready dependency checks, build identity, demo-safe buyer shell variant. Canonical path /administration/system-health (legacy /health on HXX). Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. |
 | FXX | `/faq` | 0.12% | 0 | 0 | 12 | Marketing | None |
 | HHX | `/help/how-it-works` | 0.12% | 0 | 0 | 12 | Help topic | None |
 | HTX | `/help/troubleshooting` | 0.12% | 0 | 0 | 12 | Help topic | None |

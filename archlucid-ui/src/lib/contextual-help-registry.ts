@@ -227,6 +227,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/administration/system-health",
+    entry: {
+      whatIsThisPage:
+        "Check workspace service health, required dependencies, and deployment identity for this tenant.",
+      whatToDoNext:
+        "Refresh readiness, open Connection status when a dependency fails, or follow Troubleshooting help.",
+      whyEmpty: "Health rows appear after the readiness probe returns for this workspace.",
+      whereToConfigurePrerequisite:
+        "Dependency connectivity is configured under Administration connection settings.",
+    },
+  },
+  {
     prefix: "/digests",
     entry: {
       whatIsThisPage:

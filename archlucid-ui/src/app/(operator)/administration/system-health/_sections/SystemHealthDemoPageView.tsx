@@ -21,6 +21,7 @@ import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SYSTEM_HEALTH_DEMO_SCOPE_SUMMARY, systemHealthPageSubtitle } from "@/lib/system-health-page-copy";
 
 import { SystemHealthPageHeader } from "./SystemHealthPageHeader";
+import { SystemHealthSourcesStrip } from "./SystemHealthSourcesStrip";
 
 type SystemHealthDemoPageViewProps = {
   readonly loading: boolean;
@@ -71,6 +72,8 @@ export function SystemHealthDemoPageView(props: SystemHealthDemoPageViewProps) {
         lastRefreshedAt={props.lastRefreshedAt}
         onRefresh={props.onRefresh}
       />
+
+      <SystemHealthSourcesStrip />
 
       <details
         className={cn(

@@ -22,6 +22,7 @@ import { groupReadinessRows, presentReadinessRow, resolveOverallHealthHeadline }
 import type { SystemHealthPageViewModel } from "./system-health-page-view-model";
 import { SystemHealthDemoPageView } from "./SystemHealthDemoPageView";
 import { SystemHealthPageHeader } from "./SystemHealthPageHeader";
+import { SystemHealthSourcesStrip } from "./SystemHealthSourcesStrip";
 
 type Props = {
   readonly model: SystemHealthPageViewModel;
@@ -66,6 +67,8 @@ export function SystemHealthPageView(props: Props) {
           void m.refresh();
         }}
       />
+
+      <SystemHealthSourcesStrip />
 
       <HealthOverallStatusHeader
         overallStatus={overall}
