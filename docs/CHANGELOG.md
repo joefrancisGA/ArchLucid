@@ -10,6 +10,14 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-04 - UI: Glossary help Evidence chrome (HGE)
+
+/help/glossary ships PageContextualHelpButton, Category-1 registry, Sources + claim-discipline orientation strip, traffic Notes (template ID aligned from HEG → HGE), and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
+## 2026-08-04 - Docs: Polly vs run-level semantics contract (TB-995)
+
+Published [POLLY_VS_RUN_LEVEL_SEMANTICS_CONTRACT.md](library/POLLY_VS_RUN_LEVEL_SEMANTICS_CONTRACT.md) — transport Polly/CB vs partial agents / cache / mid-run budget, with shipped (**TB-937**–**TB-940**) vs residual owners. Bridged from [LLM_RETRY_AND_CIRCUIT_BREAKER.md](library/LLM_RETRY_AND_CIRCUIT_BREAKER.md); GTM **M-147** and claim-boundary guide cite the matrix. Does not close **TB-941**–**TB-945** or imply CPA / third-party pen-test.
+
 ## 2026-08-04 - API: ITSM inbound webhook replay guard (TB-968)
 
 `IItsmInboundWebhookReplayGuard` + `MemoryCacheItsmInboundWebhookReplayGuard` (24h per-process dedupe); delivery id headers (`X-ArchLucid-Webhook-Delivery-Id`, `X-Atlassian-Webhook-Identifier`) or synthetic keys; replay returns HTTP 200 with `Integration.ItsmInboundWebhookReplayIgnored` audit (no second mutation). Optional `X-ArchLucid-Timestamp` skew enforced even without HMAC. Ops runbook [`ITSM_INBOUND_WEBHOOK_REPLAY_GUARD.md`](runbooks/ITSM_INBOUND_WEBHOOK_REPLAY_GUARD.md). No CPA / third-party pen-test implication.

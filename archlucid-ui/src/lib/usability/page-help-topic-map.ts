@@ -63,8 +63,20 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "azure-permissions", label: "Azure permissions" },
   },
   {
+    prefix: "/help/glossary",
+    topic: { slug: "glossary", label: "Glossary" },
+  },
+  {
     prefix: "/help/cloud-connections",
     topic: { slug: "cloud-connections", label: "Cloud connections" },
+  },
+  {
+    prefix: "/help/operator-auth-roles",
+    topic: { slug: "users-and-roles", label: "Users and roles" },
+  },
+  {
+    prefix: "/help/users-and-roles",
+    topic: { slug: "users-and-roles", label: "Users and roles" },
   },
   { prefix: ARCHITECTURES_LIST_PATH, topic: { slug: "getting-started", label: "Getting started" } },
   { prefix: "/architectures", topic: { slug: "getting-started", label: "Getting started" } },

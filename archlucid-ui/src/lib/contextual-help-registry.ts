@@ -574,6 +574,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/help/glossary",
+    entry: {
+      whatIsThisPage:
+        "Glossary — searchable product terms for operators and buyers reviewing ArchLucid vocabulary.",
+      whatToDoNext:
+        "Look up a term, then open Getting started or Security & trust when you need live workflow or assurance orientation.",
+      whyEmpty: "Glossary terms are always listed; search filters the catalog without needing a live review.",
+      whereToConfigurePrerequisite:
+        "No configuration is required — this page is orientation vocabulary only.",
+    },
+  },
+  {
     prefix: "/help/cloud-connections",
     entry: {
       whatIsThisPage:
