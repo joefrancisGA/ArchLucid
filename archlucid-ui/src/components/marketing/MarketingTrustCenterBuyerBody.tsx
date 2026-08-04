@@ -1,8 +1,9 @@
-import { cn } from "@/lib/utils";
+﻿import { cn } from "@/lib/utils";
 import { MARKETING_TYPOGRAPHY, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { TrustCenterEvidenceOrientationStrip } from "@/components/marketing/TrustCenterEvidenceOrientationStrip";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
@@ -113,6 +114,8 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
         </div>
       </header>
 
+      <TrustCenterEvidenceOrientationStrip />
+
       <section aria-labelledby="trust-assurance-glance-heading" data-testid="trust-center-assurance-glance">
         <h2
           id="trust-assurance-glance-heading"
@@ -168,7 +171,7 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
         <p className={cn("m-0 mt-2 max-w-prose text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           CAIQ, SOC 2 self-assessment, SIG Core, and owner-conducted pen-test materials are included in the
           anonymous evidence pack ZIP below. Individual help topics may require sign-in; the ZIP does not.
-          Independent third-party penetration testing is planned, not yet scheduled — not implied by these artifacts.
+          Independent third-party penetration testing is planned, not yet scheduled â€” not implied by these artifacts.
         </p>
         <ul className="m-0 mt-5 grid list-none gap-4 p-0 md:grid-cols-2">
           {TRUST_PUBLIC_ASSURANCE_ARTIFACTS.map((artifact) => (
@@ -397,3 +400,4 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
     </div>
   );
 }
+
