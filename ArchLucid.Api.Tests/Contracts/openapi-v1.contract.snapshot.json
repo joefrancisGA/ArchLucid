@@ -3496,6 +3496,18 @@
               }
             ]
           },
+          "trustLabel": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "trustLabelReason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "whyThisIsNotGeneric": {
             "type": [
               "null",

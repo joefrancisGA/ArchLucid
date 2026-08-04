@@ -132123,6 +132123,12 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("treatment")]
         public Treatment? Treatment { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("trustLabel")]
+        public string? TrustLabel { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("trustLabelReason")]
+        public string? TrustLabelReason { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("whyThisIsNotGeneric")]
         public string? WhyThisIsNotGeneric { get; set; } = default!;
 
