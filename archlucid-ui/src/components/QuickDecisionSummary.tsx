@@ -131,6 +131,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
   const provenanceAggregateLine = formatFindingProvenanceAggregateLine(
     aggregateFindingProvenance(
       props.findings.map((finding) => ({
+        trustLabel: finding.trustLabel,
         policyRuleId: finding.policyRuleId,
         evidenceRefCount: finding.evidenceRefCount,
         confidenceLevel: finding.confidenceLevel,

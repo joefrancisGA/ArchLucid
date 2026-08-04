@@ -452,6 +452,16 @@ The category name **Architecture Proof Engine** is deliberately provocative; the
 
 When the buyer objection is "proof means it survived load/audit/incident", the safe frame is **proof of diligence vs. no record**: the alternative to ArchLucid is not runtime validation — it is an undocumented review with no durable evidence. See [`DIFFERENTIATION_PROOF_PACKET.md`](../go-to-market/DIFFERENTIATION_PROOF_PACKET.md).
 
+### Review record integrity (R2)
+
+| Topic | Safe wording | Do not promise |
+| --- | --- | --- |
+| Signed review record | "Committed golden manifest with hash verification and append-only audit" | "Editable audit log" or "PKI-signed certificate" |
+| Ask / impact preview overlays | "Advisory analysis on top of a finalized package" | "Ask answer replaces the signed package" |
+| Cross-review finding match | "Correlation when policy rule or fingerprint aligns" | "Same finding id across runs means identical disposition" |
+
+Authoritative buyer doc: [`REVIEW_RECORD_INTEGRITY.md`](customer-facing/REVIEW_RECORD_INTEGRITY.md).
+
 **CI:** `scripts/ci/check_buyer_claim_drift.py` blocks unscoped soundness-proof phrasing in the allowlisted buyer-facing doc set (remediation messages point here).
 
 ## CI enforcement

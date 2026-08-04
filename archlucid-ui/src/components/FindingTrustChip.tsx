@@ -93,6 +93,7 @@ export function deriveFindingTrustChip(
   options?: { readonly isSimulatorRun?: boolean },
 ): FindingTrustChipModel {
   const provenance = resolveFindingProvenance({
+    trustLabel: finding.trustLabel,
     policyRuleId: finding.policyRuleId,
     evidenceRefCount: finding.evidenceRefCount,
     confidenceLevel: finding.confidenceLevel,

@@ -270,5 +270,38 @@ class TestBuyerClaimDrift(unittest.TestCase):
             self.assertTrue(any("SQL RLS for multi-tenant isolation" in violation for violation in violations))
 
 
+    def test_impact_preview_auto_approve_phrase_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+
+            for rel in G.DOCS_TO_SCAN:
+                target = root / rel
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text("Safe default text.\n", encoding="utf-8")
+
+            bad = root / "docs/go-to-market/POSITIONING.md"
+            bad.write_text("Impact preview auto-approves architecture changes after simulation.\n", encoding="utf-8")
+
+            violations = G.buyer_claim_drift_violations(root)
+
+            self.assertTrue(any("does not auto-approve" in violation for violation in violations))
+
+    def test_ask_answer_signed_record_phrase_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+
+            for rel in G.DOCS_TO_SCAN:
+                target = root / rel
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text("Safe default text.\n", encoding="utf-8")
+
+            bad = root / "docs/go-to-market/PRODUCT_DATASHEET.md"
+            bad.write_text("Ask review answers are the signed review record for procurement.\n", encoding="utf-8")
+
+            violations = G.buyer_claim_drift_violations(root)
+
+            self.assertTrue(any("advisory overlays" in violation for violation in violations))
+
+
 if __name__ == "__main__":
     unittest.main()

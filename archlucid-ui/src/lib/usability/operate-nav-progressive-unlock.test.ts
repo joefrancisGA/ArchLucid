@@ -4,7 +4,6 @@ import { listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility"
 import { NAV_GROUPS } from "@/lib/nav-config";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
-  filterNavLinksByOperateUnlockPhase,
   isOperateNavGroupId,
   markOperateNavAutoUnlockHintPending,
   readOperateNavUnlockPhase,
@@ -25,13 +24,6 @@ describe("operate-nav-progressive-unlock", () => {
     expect(isOperateNavGroupId("operator-admin")).toBe(false);
   });
 
-  it("does not hide Operate links by unlock phase (visibility is authority-only)", () => {
-    const links = [{ href: "/insights/compare-two-reviews" }, { href: "/audit" }];
-
-    expect(filterNavLinksByOperateUnlockPhase(links, false, 0)).toEqual(links);
-    expect(filterNavLinksByOperateUnlockPhase(links, true, 2)).toEqual(links);
-  });
-
   it("keeps Operate groups in the operator shell at phase 0 when authority allows", () => {
     const rows = listNavGroupsVisibleInOperatorShell(
       NAV_GROUPS,
@@ -41,7 +33,6 @@ describe("operate-nav-progressive-unlock", () => {
       false,
       "all",
       false,
-      0,
     );
     const ids = rows.map((row) => row.group.id);
 
@@ -62,7 +53,6 @@ describe("operate-nav-progressive-unlock", () => {
       false,
       "all",
       true,
-      1,
     );
     const governance = rows.find((row) => row.group.id === "operate-governance");
     const hrefs = governance?.visibleLinks.map((link) => link.href) ?? [];
@@ -83,7 +73,6 @@ describe("operate-nav-progressive-unlock", () => {
       false,
       "all",
       true,
-      2,
     );
     const governance = rows.find((row) => row.group.id === "operate-governance");
     const hrefs = governance?.visibleLinks.map((link) => link.href) ?? [];

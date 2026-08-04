@@ -28,7 +28,6 @@ describe("filterSidebarNavClusterLinks", () => {
       demoUi: true,
       buyerPolishedShell: false,
       hasCommittedArchitectureReview: true,
-      effectiveOperateUnlockPhase: 2,
     });
 
     expect(filtered.map((link) => link.href)).toEqual([]);
@@ -40,7 +39,6 @@ describe("filterSidebarNavClusterLinks", () => {
       demoUi: true,
       buyerPolishedShell: true,
       hasCommittedArchitectureReview: true,
-      effectiveOperateUnlockPhase: 2,
     });
 
     expect(filtered.map((link) => link.href)).toEqual(["/insights/compare-two-reviews", "/insights/search-review-evidence"]);

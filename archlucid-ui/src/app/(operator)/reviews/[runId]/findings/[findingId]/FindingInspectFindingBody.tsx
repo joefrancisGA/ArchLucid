@@ -1,5 +1,7 @@
 import type { ReactElement } from "react";
 
+import { cn } from "@/lib/utils";
+
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { ProductLearningFeedbackControls } from "@/components/ProductLearningFeedbackControls";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
@@ -7,8 +9,10 @@ import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
 import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator-static-demo";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 import { findingWhyThisMattersText, typedPayloadLookupString } from "@/lib/finding-display-from-inspect";
+import { buildFindingModelProvenanceRow } from "@/lib/finding-model-provenance-display";
 import { buildFindingPolicyEvidenceCitationsFromInspect } from "@/lib/finding-policy-evidence-citations";
 import { FindingInsightDensityDisclosure } from "@/components/usability/FindingInsightDensityDisclosure";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { FindingInspectAuditSection } from "./FindingInspectAuditSection";
 import { FindingInspectEvidenceSection } from "./FindingInspectEvidenceSection";
 import { FindingInspectReasoningPayloadDetails } from "./FindingInspectReasoningPayloadDetails";
@@ -70,6 +74,29 @@ export function FindingInspectFindingBody({
   }
 
   const whyThisIsNotGeneric = typedPayloadLookupString(payload, "whyThisIsNotGeneric");
+
+  const evidenceRefCount = payload.evidence?.length ?? 0;
+  const modelProvenance = buildFindingModelProvenanceRow({
+    trustLabel: typedPayloadLookupString(payload, "trustLabel"),
+    trustLabelReason: typedPayloadLookupString(payload, "trustLabelReason"),
+    policyRuleId: payload.decisionRuleId,
+    evidenceRefCount,
+    confidenceLevel: typedPayloadLookupString(payload, "confidenceLevel"),
+  });
+
+  const modelProvenanceBlock = (
+    <div className="mt-4 rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 dark:border-neutral-800" data-testid="finding-model-provenance-row">
+      <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Model provenance</p>
+      <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+        {modelProvenance.origin}
+        {modelProvenance.grounding !== "Not applicable" ? ` · ${modelProvenance.grounding}` : ""}
+      </p>
+      <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{modelProvenance.explanation}</p>
+      {modelProvenance.trustLabelReason !== null ? (
+        <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{modelProvenance.trustLabelReason}</p>
+      ) : null}
+    </div>
+  );
 
   const structuredActions: string[] = (payload.recommendedActions ?? []).filter((a) => a.trim().length > 0);
   const recommendedActionParagraph = findingRecommendedActionParagraph(payload, decodedFindingId);
@@ -143,6 +170,7 @@ export function FindingInspectFindingBody({
     return (
       <>
         {whyBlock}
+        {modelProvenanceBlock}
         <CollapsibleSection title="View evidence" defaultOpen={false} sectionTestId="finding-evidence-collapsible">
           {evidenceBlock}
         </CollapsibleSection>
@@ -157,6 +185,7 @@ export function FindingInspectFindingBody({
   return (
     <>
       {whyBlock}
+      {modelProvenanceBlock}
       {reasoningSummaryBlock}
       {evidenceBlock}
       {insightDensityBlock}

@@ -89,6 +89,19 @@ export const IMPACT_PREVIEW_RECOMMENDATION_PROCEED_MONITORING = "Proceed with mo
 export const IMPACT_PREVIEW_RECOMMENDATION_NEEDS_REVIEW = "Needs review" as const;
 export const IMPACT_PREVIEW_RECOMMENDATION_DO_NOT_PROCEED = "Do not proceed" as const;
 
+export const IMPACT_PREVIEW_RECOMMENDATION_DO_NOT_PROCEED = "Do not proceed" as const;
+
+export const IMPACT_PREVIEW_SUGGESTED_NEXT_STEP_LABEL = "Suggested next step" as const;
+
+export const IMPACT_PREVIEW_RECOMMENDATION_DISCLAIMER =
+  "Impact preview results are review-time analysis only — do not proceed without an accountable architecture review." as const;
+
+export const IMPACT_PREVIEW_DO_NOT_PROCEED_WITHOUT_REVIEW =
+  "Do not proceed without review — route material changes through governance before implementation." as const;
+
+export const IMPACT_PREVIEW_DECISION_OWNERSHIP_NOTE =
+  "Simulation output informs review; accountable reviewers and governance owners retain disposition authority." as const;
+
 export const IMPACT_PREVIEW_EVIDENCE_BASIS_TITLE = "Evidence basis" as const;
 export const IMPACT_PREVIEW_EVIDENCE_LINKED_FINDINGS = "Linked findings" as const;
 export const IMPACT_PREVIEW_EVIDENCE_POLICY_RULES = "Related policy rules" as const;

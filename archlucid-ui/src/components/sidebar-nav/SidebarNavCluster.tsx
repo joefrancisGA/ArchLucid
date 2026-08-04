@@ -38,7 +38,6 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
     demoUi: props.demoUi,
     buyerPolishedShell: props.buyerPolishedShell,
     hasCommittedArchitectureReview: props.hasCommittedArchitectureReview,
-    effectiveOperateUnlockPhase: props.effectiveOperateUnlockPhase,
   });
   const groupHeadingLabel = group.label;
   const demoOrBuyer = props.demoUi || props.buyerPolishedShell;

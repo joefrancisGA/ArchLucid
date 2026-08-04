@@ -17,11 +17,6 @@ import {
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
   LEGACY_GOVERNANCE_RESOLUTION_PATH,
 } from "@/lib/governance-route-paths";
-import {
-  filterNavLinksByOperateUnlockPhase,
-  isOperateNavGroupId,
-  type OperateNavUnlockPhase,
-} from "@/lib/usability/operate-nav-progressive-unlock";
 
 /**
  * Buyer-polished shell nav omissions. Empty: Compare (and other advanced destinations) stay reachable
@@ -212,7 +207,6 @@ export function listNavGroupsVisibleInOperatorShell(
   applyCollapsedSidebarPilotFilter = false,
   surfaceFilter: "all" | NavShellSurface = "all",
   hasCommittedArchitectureReview = true,
-  operateNavUnlockPhase: OperateNavUnlockPhase = 0,
 ): NavGroupWithVisibleLinks[] {
   const out: NavGroupWithVisibleLinks[] = [];
 
@@ -244,14 +238,7 @@ export function listNavGroupsVisibleInOperatorShell(
       ),
     );
 
-    // Keep call for API compat; filter is a no-op (authority-only visibility).
-    const visibleLinks = isOperateNavGroupId(group.id)
-      ? filterNavLinksByOperateUnlockPhase(
-          shellLinks,
-          hasCommittedArchitectureReview,
-          operateNavUnlockPhase,
-        )
-      : shellLinks;
+    const visibleLinks = shellLinks;
 
     if (visibleLinks.length === 0) {
       continue;
@@ -272,7 +259,6 @@ export function visibleOperatorShellHrefSet(
   showAdvanced: boolean,
   callerAuthorityRank: number,
   hasCommittedArchitectureReview: boolean,
-  operateNavUnlockPhase: OperateNavUnlockPhase = 0,
 ): Set<string> {
   const rows = listNavGroupsVisibleInOperatorShell(
     NAV_GROUPS,
@@ -282,7 +268,6 @@ export function visibleOperatorShellHrefSet(
     false,
     "all",
     hasCommittedArchitectureReview,
-    operateNavUnlockPhase,
   );
   const hrefs = new Set<string>();
 
@@ -305,7 +290,6 @@ export function countSidebarLinksRevealedByShowAllFeatures(
   showAdvanced: boolean,
   callerAuthorityRank: number,
   hasCommittedArchitectureReview: boolean,
-  operateNavUnlockPhase: OperateNavUnlockPhase = 0,
 ): number {
   return countSidebarLinksHiddenByCollapsedPilot(
     groups,
@@ -313,7 +297,6 @@ export function countSidebarLinksRevealedByShowAllFeatures(
     showAdvanced,
     callerAuthorityRank,
     hasCommittedArchitectureReview,
-    operateNavUnlockPhase,
   );
 }
 
@@ -326,17 +309,12 @@ export function countSidebarLinksHiddenByCollapsedPilot(
   showAdvanced: boolean,
   callerAuthorityRank: number,
   hasCommittedArchitectureReview = true,
-  operateNavUnlockPhase: OperateNavUnlockPhase = 0,
 ): number {
   let full = 0;
   let collapsed = 0;
 
   for (const group of groups) {
     if (group.surface === "platform-admin" || group.surface === "system-admin") {
-      continue;
-    }
-
-    if (operateNavUnlockPhase === 0 && isOperateNavGroupId(group.id)) {
       continue;
     }
 
@@ -361,12 +339,8 @@ export function countSidebarLinksHiddenByCollapsedPilot(
       ),
     );
 
-    full += isOperateNavGroupId(group.id)
-      ? filterNavLinksByOperateUnlockPhase(fullLinks, hasCommittedArchitectureReview, operateNavUnlockPhase).length
-      : fullLinks.length;
-    collapsed += isOperateNavGroupId(group.id)
-      ? filterNavLinksByOperateUnlockPhase(collapsedLinks, hasCommittedArchitectureReview, operateNavUnlockPhase).length
-      : collapsedLinks.length;
+    full += fullLinks.length;
+    collapsed += collapsedLinks.length;
   }
 
   return Math.max(0, full - collapsed);

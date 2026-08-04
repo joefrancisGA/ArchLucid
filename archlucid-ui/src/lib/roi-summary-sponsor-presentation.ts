@@ -241,6 +241,50 @@ export function formatRoiSummaryUsdDisplay(hours: number, usdEstimate: number, s
   return formatUsd(usdEstimate);
 }
 
+export type RoiSummaryRateBasis = "buyer-provided" | "default-assumption" | "demo-derived";
+
+export type RoiSummaryUsdWithRateBasis = {
+  readonly display: string;
+  readonly rateBasis: RoiSummaryRateBasis;
+  readonly rateBasisLabel: string;
+};
+
+/** Formats sponsor-facing USD with an explicit loaded-hourly rate basis label. */
+export function formatRoiSummaryUsdWithRateBasis(
+  hours: number,
+  usdEstimate: number,
+  showUsdEstimate: boolean,
+  options: { readonly isDefaultRate: boolean; readonly demoDerived?: boolean },
+): RoiSummaryUsdWithRateBasis {
+  if (!showUsdEstimate) {
+    return {
+      display: "—",
+      rateBasis: options.demoDerived === true ? "demo-derived" : "default-assumption",
+      rateBasisLabel: "No dollar estimate in this period",
+    };
+  }
+
+  const rateBasis: RoiSummaryRateBasis =
+    options.demoDerived === true
+      ? "demo-derived"
+      : options.isDefaultRate
+        ? "default-assumption"
+        : "buyer-provided";
+
+  const rateBasisLabel =
+    rateBasis === "demo-derived"
+      ? "Illustrative — demo data, not your environment"
+      : rateBasis === "default-assumption"
+        ? "Directional — default loaded hourly assumption"
+        : "Buyer-provided loaded hourly cost";
+
+  return {
+    display: formatUsd(usdEstimate),
+    rateBasis,
+    rateBasisLabel,
+  };
+}
+
 export function interpretRoiSummaryMeaning(metrics: RoiSummaryPeriodMetrics, hourlyUsd: number): string {
   if (metrics.hours <= 1e-9) {
     return "ArchLucid needs finalized reviews before it can estimate review-time savings for this period. Complete a review or add governance signals to unlock a directional value estimate.";

@@ -170,18 +170,3 @@ export function advanceOperateNavUnlockToGovernance(
 ): void {
   writeOperateNavUnlockPhase(2, reason);
 }
-
-/**
- * Previously hid Operate groups until unlock phase 1/2 and omitted consolidated hrefs.
- * **Retired for visibility (owner 2026-08-03):** returns all links; sidebar shaping is authority-only.
- */
-export function filterNavLinksByOperateUnlockPhase<T extends { href: string }>(
-  links: readonly T[],
-  _hasCommittedArchitectureReview: boolean,
-  _unlockPhase: OperateNavUnlockPhase,
-): T[] {
-  void _hasCommittedArchitectureReview;
-  void _unlockPhase;
-
-  return [...links];
-}

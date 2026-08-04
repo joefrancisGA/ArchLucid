@@ -30,3 +30,5 @@ Provenance labeling describes **how** a finding was produced and whether evidenc
 ## Engineering note (not buyer vocabulary)
 
 Server-side trust calibration uses a typed label set (`EvidenceBacked`, `Estimated`, `Heuristic`, `SimulatorDerived`, `RealModel`, `Degraded`, `MissingCitation`, `DeterministicFallback`). Operator UI maps those into the origin × grounding axes above; enum names are not buyer-facing copy.
+
+Run detail responses include `trustLabel` and `trustLabelReason` on each finding when served through the canonical run detail query path. Sponsor exports and inspect surfaces should prefer those wire fields before inferring provenance from `policyRuleId` or evidence counts alone.

@@ -13,6 +13,10 @@ Impact preview is a deterministic, repeatable what-if analysis that re-evaluates
 - Not a guarantee that the proposed change is sound in a live estate.
 - Not a substitute for your change-management or release validation process.
 
+## Decision ownership
+
+Simulation output informs review; accountable reviewers and governance owners retain disposition authority. Material recommendations should route through governance before implementation — impact preview does not auto-approve changes.
+
 ## Related
 
 - Operator surface: **Impact preview** under Insights.
