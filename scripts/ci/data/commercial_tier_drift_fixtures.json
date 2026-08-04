@@ -7,7 +7,7 @@
       "controller_file": "Pilots/PilotsController.cs",
       "expected_commercial_tier": "none",
       "expected_class_policy": "ReadAuthority",
-      "expected_nav_operator_href": "/reviews?projectId=default",
+      "expected_nav_operator_href": "/architecture/reviews?projectId=default",
       "trial_limit_behavior": "Pilot review entry remains trial-safe; run/seat/expiry limits are surfaced through trial status rather than commercial tier gating."
     },
     {
@@ -31,7 +31,7 @@
       "controller_file": "Governance/GovernanceController.cs",
       "expected_commercial_tier": "standard",
       "expected_class_policy": "ReadAuthority",
-      "expected_nav_operator_href": "/governance",
+      "expected_nav_operator_href": "/governance/approval-queue",
       "trial_limit_behavior": "Governance workflow access is checked separately from trial run counters and authority."
     },
     {
