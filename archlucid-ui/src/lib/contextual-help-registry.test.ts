@@ -77,6 +77,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/cloud-connections",
       "/administration/settings/users",
       "/integrations/cloud-connections",
+      "/integrations/jira",
       "/settings/cloud-connections",
     ]);
   });
@@ -198,6 +199,11 @@ describe("contextual-help-registry (TB-733)", () => {
   it("resolves findings help Category-1 help (HFX)", () => {
     expect(contextualHelpForPathname("/help/findings")?.whatIsThisPage).toContain("Findings");
     expect(contextualHelpForPathname("/help/findings")?.whatToDoNext).toContain("findings queue");
+  });
+
+  it("resolves jira integration Category-1 help (IJX)", () => {
+    expect(contextualHelpForPathname("/integrations/jira")?.whatIsThisPage).toContain("Jira integration");
+    expect(contextualHelpForPathname("/integrations/jira")?.whatToDoNext).toContain("Test the connector");
   });
 
   it("resolves executive scorecard Category-1 help (ESX)", () => {

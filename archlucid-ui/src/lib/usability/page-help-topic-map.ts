@@ -28,7 +28,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/help/getting-started", topic: { slug: "getting-started", label: "Getting started" } },
   {
     prefix: "/help/how-it-works",
-    topic: { slug: "how-it-works", label: "How ArchLucid works" },
+    topic: { slug: "getting-started", label: "Getting started" },
   },
   {
     prefix: "/help/troubleshooting",
@@ -177,6 +177,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/integrations/cloud-connections/gcp", topic: { slug: "cloud-connections-gcp", label: "GCP cloud connection" } },
   { prefix: "/integrations/cloud-connections", topic: { slug: "cloud-connections", label: "Cloud connections" } },
   { prefix: "/integrations/azure-boards", topic: { slug: "azure-boards", label: "Azure Boards integration" } },
+  {
+    prefix: "/integrations/jira",
+    topic: { slug: "integration-readiness", label: "Jira integration" },
+  },
   { prefix: "/administration/connection-status", topic: { slug: "integration-readiness", label: "How integration readiness works" } },
   { prefix: "/administration/system-health", topic: { slug: "troubleshooting", label: "Troubleshooting" } },
   { prefix: "/admin/integrations/itsm", topic: { slug: "integration-readiness", label: "How integration readiness works" } },

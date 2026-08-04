@@ -45,13 +45,12 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 
 ---
 
-**OVERALL WEIGHT SCORE:** 54.51%
+**OVERALL WEIGHT SCORE:** 54.57%
 
 ## Master table (score 0 first; then Deficit desc; ties A→Z by path)
 
 | ID | Path | Hit% | Scores | Weight | Deficit | Section | Notes |
 |----|------|------|--------|--------|---------|---------|-------|
-| IJX | `/integrations/jira` | 0.1% | 0 | 0 | 10 | Integrations | None |
 | ISN | `/integrations/slack` | 0.1% | 0 | 0 | 10 | Integrations | None |
 | ITX | `/integrations/teams` | 0.1% | 0 | 0 | 10 | Integrations | None |
 | REP | `/replay` | 0.1% | 0 | 0 | 10 | Marketing | None |
@@ -247,6 +246,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | HTX | `/help/troubleshooting` | 0.12% | 52 | 6.24 | 5.76 | Help topic | Troubleshooting help (Help topic) - HelpTroubleshootingGuideView with PageContextualHelpButton (topic map troubleshooting; Category-1 registry), workspace Sources + claim-discipline orientation strip, start-here CTAs, common issues, advanced diagnostics. Operator unblocking guide — not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-03) — help-topic orientation hard-caps higher Evidence. |
 | AHX | `/admin/health` | 0.15% | 62 | 9.3 | 5.7 | Admin | None |
 | ESX | `/executive/scorecard` | 0.1% | 48 | 4.8 | 5.2 | Executive | Sponsor scorecard (Executive) - ExecutiveScorecardClient with PageContextualHelpButton (topic map executive-summary; Category-1 registry), workspace Sources + claim-discipline orientation strip, time-range KPIs, recommended actions. Sponsor KPI leave-behind — not a signed-record Sources trail. Sibling SCX = Insights architecture scorecard; SPE = sponsor executive summary. Does not imply CPA SOC 2 or third-party pen-test publication. Score 48/100 (2026-08-04) — executive KPI hub hard-caps higher Evidence. |
+| IJX | `/integrations/jira` | 0.1% | 48 | 4.8 | 5.2 | Integrations | Jira integration (Integrations) - ItsmProductIntegrationPageClient (product=jira) with PageContextualHelpButton (topic map integration-readiness; Category-1 registry), workspace Sources + claim-discipline orientation strip, health probe, tenant outbound overrides. Outbound ITSM config hub — not a signed-record Sources trail. Sibling ISX = ServiceNow; INA = Azure Boards; SCE = cloud connections. Does not imply CPA SOC 2 or third-party pen-test publication. Score 48/100 (2026-08-04) — integration-config hub hard-caps higher Evidence. |
 | HA | `/help/alerts` | 0.1% | 52 | 5.2 | 4.8 | Help topic | Alerts help (Help topic) - HelpAlertsGuideView with PageContextualHelpButton (topic map alerts; Category-1 registry), workspace Sources + claim-discipline orientation strip, go-to-alerts CTAs, how-alerts-work stepper, workspace readiness strip. Operator orientation guide — not a signed-record Sources trail. Sibling AL = alerts inbox; SAX = alert rules hub. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-04) — help-topic orientation hard-caps higher Evidence. |
 | HFX | `/help/findings` | 0.1% | 52 | 5.2 | 4.8 | Help topic | Findings help (Help topic) - HelpFindingsGuideView with PageContextualHelpButton (topic map findings; Category-1 registry), workspace Sources + claim-discipline orientation strip, anatomy/severity/lifecycle sections, HelpFindingsWorkspaceReadinessStrip (live governance queue). Featured help-center product tier. Primary CTAs to /governance/findings, evidence search, and decision register. Related docs link to audit-trail not API contracts (TB-1250 / TB-1387). Operator orientation — not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-04) — help-topic orientation hard-caps higher Evidence. |
 | GRA | `/insights/evidence-graph` | 0.6% | 93 | 55.8 | 4.2 | Insights | Evidence graph (Insights) — GraphPageContent buyer workspace: Graph view default + URL presentation, auto-load on review select / demo sample auto-pick, process-graph canvas as hero (~88vh) with wider inspector, selection focus dimming, path breadcrumb, Fit/100%/Highlight/Focus/Reset toolbar, compact sample banner, idle teaching frame (GraphIdleLegend). Trace table remains alternate. Signature evidence↔finding↔decision↔approval trail — not a full diligence Sources export package alone. Does not imply CPA SOC 2 or third-party pen-test publication. Score 93/100 (2026-08-03) — post workspace-hero pass; remaining gap is lifecycle count-strip + denser diligence packing. |

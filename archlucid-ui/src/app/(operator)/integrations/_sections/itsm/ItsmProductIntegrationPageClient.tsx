@@ -10,6 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   fetchItsmIntegrationHealth,
   fetchTenantItsmOutboundSettings,
@@ -36,6 +37,7 @@ import { useOperateCapability } from "@/hooks/use-operate-capability";
 
 import { ItsmConnectorProbeCard } from "./ItsmConnectorProbeCard";
 import { ItsmNotConfiguredNextStep } from "./ItsmNotConfiguredNextStep";
+import { JiraIntegrationEvidenceOrientationStrip } from "./JiraIntegrationEvidenceOrientationStrip";
 
 type Props = {
   readonly product: ItsmProductId;
@@ -167,7 +169,10 @@ export function ItsmProductIntegrationPageClient(props: Props): React.ReactEleme
       data-testid={`integrations-${props.product}-page`}
     >
       <header className={OPERATOR_LAYOUT.sectionHeadingStack}>
-        <h1 className={`m-0 ${OPERATOR_TYPOGRAPHY.pageTitle}`}>{copy.pageTitle}</h1>
+        <div className="flex flex-wrap items-center gap-2">
+          <h1 className={`m-0 ${OPERATOR_TYPOGRAPHY.pageTitle}`}>{copy.pageTitle}</h1>
+          {props.product === "jira" ? <PageContextualHelpButton /> : null}
+        </div>
         <p className={`m-0 max-w-3xl ${OPERATOR_TYPOGRAPHY.helper}`}>{copy.summary}</p>
         <p className={`m-0 max-w-3xl ${OPERATOR_TYPOGRAPHY.helper}`}>
           See{" "}
@@ -180,6 +185,8 @@ export function ItsmProductIntegrationPageClient(props: Props): React.ReactEleme
           {ITSM_INTEGRATION_READINESS_AFTER_LINK}
         </p>
       </header>
+
+      {props.product === "jira" ? <JiraIntegrationEvidenceOrientationStrip /> : null}
 
       {loadError ? (
         <p className={cn("text-red-600 dark:text-red-400", OPERATOR_TYPOGRAPHY.body)} role="alert">

@@ -430,13 +430,14 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    // Alias URL still reachable; canon topic is getting-started (how-it-works fold).
     prefix: "/help/how-it-works",
     entry: {
       whatIsThisPage:
-        "How ArchLucid works — workflow from architecture evidence through findings, decisions, governance, and exports.",
+        "Getting started — how ArchLucid turns evidence into findings, decisions, and governance-ready review outputs (includes How ArchLucid works).",
       whatToDoNext:
-        "Start a review, open a sample package, or continue with Getting started when you want the onboarding path.",
-      whyEmpty: "This guide is always available; live metrics appear after you create or finalize reviews.",
+        "Start a review, open the sample walkthrough, or pick a path from Choose your next step when you know your goal.",
+      whyEmpty: "This guide is always available; review metrics appear after you create or finalize reviews.",
       whereToConfigurePrerequisite:
         "Choose a workspace in the header scope switcher before starting a real (non-sample) review.",
     },
@@ -524,6 +525,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
         "Provider cards stay Not connected until you configure a Tier 2 connection; evidence-only upload stays available anytime.",
       whereToConfigurePrerequisite:
         "Choose a workspace in the header scope switcher before changing which platforms appear — filters save per workspace.",
+    },
+  },
+  {
+    prefix: "/integrations/jira",
+    entry: {
+      whatIsThisPage:
+        "Jira integration — outbound work-item settings, connection health, and tenant overrides for creating Jira issues from ArchLucid.",
+      whatToDoNext:
+        "Test the connector, set project and severity mappings, then open Integration readiness when the path is not ready.",
+      whyEmpty: "Health and settings load after this workspace can reach the ITSM connector configuration.",
+      whereToConfigurePrerequisite:
+        "Platform credentials are often configured by an administrator; tenant overrides on this page need Operate authority.",
     },
   },
   {
