@@ -32,7 +32,7 @@ jobs:
     environment: dev
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Skip when RAG_STASH_NIGHTLY is not enabled
         if: vars.RAG_STASH_NIGHTLY != 'true'

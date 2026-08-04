@@ -62,7 +62,7 @@ jobs:
           fi
           echo "skipped=false" >> "$GITHUB_OUTPUT"
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         if: steps.gate.outputs.skipped != 'true'
 
       - name: Ensure PowerShell 7
@@ -95,7 +95,7 @@ jobs:
           echo "result=fail" >> "$GITHUB_OUTPUT"
           exit 1
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always() && steps.gate.outputs.skipped != 'true'
         with:
           name: review-path-canary-${{ github.run_id }}

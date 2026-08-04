@@ -29,7 +29,7 @@ jobs:
       contents: read
       security-events: write
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Validate CodeQL MaD model kinds
         run: python3 scripts/ci/validate_codeql_mad_kinds.py
@@ -47,7 +47,7 @@ jobs:
           build-mode: none
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v5.2.0
+        uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
           cache: true
@@ -78,7 +78,7 @@ jobs:
       contents: read
       security-events: write
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Verify UI directory for CodeQL
         run: |
@@ -96,7 +96,7 @@ jobs:
           source-root: ${{ env.ARCHLUCID_UI_DIR }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: "22"
           cache: npm

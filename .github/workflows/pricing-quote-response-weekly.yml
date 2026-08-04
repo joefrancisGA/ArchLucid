@@ -17,9 +17,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
@@ -30,7 +30,7 @@ jobs:
       - name: Pricing quote weekly telemetry unit tests
         run: python -m unittest discover -s scripts/ci/tests -p "test_report_pricing_quote_response_weekly.py"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: pricing-quote-response-weekly

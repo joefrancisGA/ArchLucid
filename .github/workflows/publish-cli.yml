@@ -23,9 +23,9 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-dotnet@v5.2.0
+      - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
           cache: true
@@ -45,7 +45,7 @@ jobs:
             -o "${RUNNER_TEMP}/nuget" \
             /p:Version=${{ github.event.inputs.package_version || '1.0.0' }}
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: archlucid-cli-nupkg
           path: ${{ runner.temp }}/nuget/*.nupkg
@@ -65,9 +65,9 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-dotnet@v5.2.0
+      - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
           cache: true
@@ -90,7 +90,7 @@ jobs:
             -p:IncludeNativeLibrariesForSelfExtract=true \
             -o "${RUNNER_TEMP}/publish"
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: archlucid-cli-${{ matrix.rid }}
           path: ${{ runner.temp }}/publish/
