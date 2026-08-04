@@ -76,6 +76,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/findings",
       "/help/cloud-connections/azure",
       "/help/cloud-connections",
+      "/administration/settings/users/invite-reviewer",
       "/administration/settings/users",
       "/integrations/cloud-connections",
       "/integrations/jira",
@@ -222,6 +223,15 @@ describe("contextual-help-registry (TB-733)", () => {
   it("resolves validate review Category-1 help (REP)", () => {
     expect(contextualHelpForPathname("/replay")?.whatIsThisPage).toContain("Validate review");
     expect(contextualHelpForPathname("/replay")?.whatToDoNext).toContain("validation depth");
+  });
+
+  it("resolves invite-reviewer Category-1 help (SRI)", () => {
+    expect(contextualHelpForPathname("/administration/settings/users/invite-reviewer")?.whatIsThisPage).toContain(
+      "Invite a reviewer",
+    );
+    expect(contextualHelpForPathname("/administration/settings/users/invite-reviewer")?.whatToDoNext).toContain(
+      "invitation",
+    );
   });
 
   it("resolves executive scorecard Category-1 help (ESX)", () => {

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   INVITE_REVIEWER_BACK_LABEL,
   INVITE_REVIEWER_BACK_TO_REVIEW_HREF,
@@ -17,6 +18,7 @@ import {
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
+import { InviteReviewerEvidenceOrientationStrip } from "./InviteReviewerEvidenceOrientationStrip";
 import { SettingsRolesInvitePanel } from "./SettingsRolesInvitePanel";
 import { InviteReviewerReaderCapabilitiesSummary } from "./InviteReviewerReaderCapabilitiesSummary";
 import type { SettingsRolesPageViewModel } from "./settings-roles-page-view-model";
@@ -74,6 +76,8 @@ export function InviteReviewerPageView(props: Props) {
     <div className="w-full max-w-[720px] space-y-6" data-testid="invite-reviewer-page">
       <InviteReviewerPageHeader />
 
+      <InviteReviewerEvidenceOrientationStrip />
+
       <Card>
         <CardHeader>
           <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Reviewer invitation</CardTitle>
@@ -100,9 +104,12 @@ export function InviteReviewerPageView(props: Props) {
 function InviteReviewerPageHeader(): React.JSX.Element {
   return (
     <header className="space-y-2">
-      <Button type="button" variant="ghost" size="sm" className="-ml-2 h-8 px-2" asChild>
-        <Link href={INVITE_REVIEWER_BACK_TO_REVIEW_HREF}>{INVITE_REVIEWER_BACK_LABEL}</Link>
-      </Button>
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <Button type="button" variant="ghost" size="sm" className="-ml-2 h-8 px-2" asChild>
+          <Link href={INVITE_REVIEWER_BACK_TO_REVIEW_HREF}>{INVITE_REVIEWER_BACK_LABEL}</Link>
+        </Button>
+        <PageContextualHelpButton />
+      </div>
       <div>
         <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{INVITE_REVIEWER_PAGE_TITLE}</h1>
         <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{INVITE_REVIEWER_PAGE_LEAD}</p>

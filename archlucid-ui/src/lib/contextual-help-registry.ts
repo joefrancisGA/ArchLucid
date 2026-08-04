@@ -514,6 +514,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/administration/settings/users/invite-reviewer",
+    entry: {
+      whatIsThisPage:
+        "Invite a reviewer — send Reader or Auditor access so a teammate can sign off on architecture reviews.",
+      whatToDoNext:
+        "Enter the reviewer's email, send the invitation, then open Users and roles when you need the full directory or role matrix.",
+      whyEmpty: "The invitation form is ready when you have Admin authority in this workspace.",
+      whereToConfigurePrerequisite:
+        "Workspace Admin authority is required; SSO may need to be configured before invited users can sign in.",
+    },
+  },
+  {
     prefix: "/administration/settings/users",
     entry: {
       whatIsThisPage:

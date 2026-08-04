@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-04 - UI: Invite a reviewer Evidence chrome (SRI)
+
+/administration/settings/users/invite-reviewer ships PageContextualHelpButton, Category-1 registry, Sources + claim-discipline orientation strip, traffic Notes under Settings, and honest Evidence score 48. Access-invite hub hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-04 - UI: Trust Center Evidence chrome (TXX)
 
 /trust ships TrustCenterEvidenceOrientationStrip (Sources + claim-discipline), traffic Notes under Marketing, and honest Evidence score 40. Marketing Trust Center hard-caps higher Evidence; no CPA / third-party pen-test implication.

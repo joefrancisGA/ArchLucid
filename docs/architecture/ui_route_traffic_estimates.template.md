@@ -146,7 +146,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | HR | `/help/review-guide` | 0.08% | 0 | 0 | 8 | Help topic | None |
 | ISX | `/integrations/servicenow` | 0.08% | 0 | 0 | 8 | Integrations | None |
 | OSX | `/onboarding/start` | 0.08% | 0 | 0 | 8 | Onboarding | None |
-| SRI | `/administration/settings/users/invite-reviewer` | 0.08% | 0 | 0 | 8 | Settings | None |
+| SRI | `/administration/settings/users/invite-reviewer` | 0.08% | 0 | 0 | 8 | Settings | Invite a reviewer (Settings/Admin) - InviteReviewerPageView with PageContextualHelpButton (topic map users-and-roles; Category-1 registry), workspace Sources + claim-discipline orientation strip, invite panel + Reader capabilities summary. Access invitation hub — not a signed-record Sources trail. Sibling AUX = Users and roles. Does not imply CPA SOC 2 or third-party pen-test publication. Score 48/100 (2026-08-04) — access-invite hub hard-caps higher Evidence. |
 | SVX | `/signup/verify` | 0.08% | 0 | 0 | 8 | Marketing | None |
 | GET | `/getting-started` | 0.07% | 0 | 0 | 7 | Onboarding | None |
 | AD | `/governance/advisory-scans?tab=schedules` | 0.07% | 0 | 0 | 7 | Tab surface | Advisory scans Schedules tab (left nav Governance → Advisory scans → Schedules). AdvisorySchedulesContent + AdvisoryScheduleCreateForm; digest send-test and setup-gap handoffs. Legacy /advisory-scheduling redirects via TB-1124. Sibling ADS row = default Scans tab. |
@@ -239,7 +239,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | HDA | `/help/data-handling-tenant-isolation` | 0.02% | 0 | 0 | 2 | Help topic | Specialty data-handling + tenant isolation guide — HelpDataHandlingTenantIsolationGuideView with Trust Center / security-trust / audit primary CTAs, Sources diligence strip (trust, audit-trail, data-handling overview, subprocessors, DPA, procurement), residency honesty callout, PageContextualHelp, and prepared markdown (three-layer isolation, TB-1659 leakage strip, TB-1653 honesty). Not bare HelpTopicMarkdownView. Does not imply CPA SOC 2 or third-party pen-test publication. |
 | HDP | `/help/dpa-template` | 0.02% | 0 | 0 | 2 | Help topic | Specialty DPA negotiation template guide - HelpDpaTemplateGuideView with Trust Center / subprocessors / procurement primary CTAs, Sources diligence strip (security-trust, data-handling, tenant-isolation), orientation steps, claim-discipline callout (template is not countersigned; SOC 2 when available is not CPA attestation), PageContextualHelp, and full DPA_TEMPLATE.md deferred behind collapsed disclosure (TB-1676/1678/1680). TB-1677 leakage strip retained. Help Center product tier + advanced discovery (TB-1679). Not bare HelpTopicMarkdownView. Does not imply CPA SOC 2 or third-party pen-test publication. |
 | HEV | `/help/evidence-only-review` | 0.02% | 0 | 0 | 2 | Help topic | None |
-| EXE | `/help/executive-summary` | 0.02% | 0 | 0 | 2 | Help topic | Specialty sponsor ROI guide - HelpExecutiveSummaryGuideView on EXECUTIVE_SPONSOR_BRIEF sponsor sections with CTAs to /sponsor-report/executive-summary (SPE) and executive dashboard. Not bare FAQ HelpTopicMarkdownView. |
+| EXE | `/help/executive-summary` | 0.02% | 0 | 0 | 2 | Help topic | Specialty sponsor ROI + product overview guide - HelpExecutiveSummaryGuideView on EXECUTIVE_SPONSOR_BRIEF (overview + pilot sections). Absorbs former HPR/EPR (`/help/product-overview`) twin (TB-1739). CTAs to /sponsor-report/executive-summary (SPE) and executive dashboard. Not bare FAQ HelpTopicMarkdownView. |
 | HEG | `/help/glossary` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HEI | `/help/integration-readiness` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | EIN | `/help/integrations/azure-boards` | 0.02% | 0 | 0 | 2 | Help alias | None |
@@ -248,7 +248,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | PIL | `/help/pilot-nav-profile` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | POL | `/help/policy-pack-delta-demo` | 0.02% | 0 | 0 | 2 | Help topic | Specialty policy-pack delta demo (internal runbook) - HelpPolicyPackDeltaDemoGuideView with policy-packs / standards-and-rules / audit primary CTAs, Sources diligence strip (findings, audit-trail help, governance-approval, alerts), 5-minute narrative arc, claim-discipline callout (dry-run is not certification), PageContextualHelp, and prepared POLICY_PACK_DELTA_DEMO_SCRIPT.md (TB-1727 leakage strip). Not bare HelpTopicMarkdownView. Admin-gated internal Help Center tier. Does not imply CPA SOC 2 or third-party pen-test publication. |
 | HEP | `/help/prior-manifest-retrieval` | 0.02% | 0 | 0 | 2 | Help topic | None |
-| HPR | `/help/product-overview` | 0.02% | 0 | 0 | 2 | Help topic | None |
+| HPR | `/help/product-overview` | 0.02% | 0 | 0 | 2 | Help alias | Alias → `/help/executive-summary` (EXE), preferably `#what-archlucid-is` (TB-1739). Fold hit share into EXE on next `/al-ui-tableupdate` pass. |
 | HRE | `/help/report-a-problem` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HEO | `/help/starting-reviews` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HS | `/help/specialty-walkthroughs` | 0.02% | 0 | 0 | 2 | Help topic | None |
