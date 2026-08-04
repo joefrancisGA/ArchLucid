@@ -526,6 +526,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/help/pilot-guide",
+    entry: {
+      whatIsThisPage:
+        "Pilot guide — how to prepare for a pilot, run the first architecture review, interpret outputs, and get support.",
+      whatToDoNext:
+        "Start an architecture review, or open Your first architecture review when you need the step-by-step walkthrough.",
+      whyEmpty: "This guide is always available; live pilot outcomes appear after reviews and sponsor reports exist.",
+      whereToConfigurePrerequisite:
+        "Running a pilot needs a workspace where operators can create and finalize architecture reviews.",
+    },
+  },
+  {
     prefix: "/help/cloud-connections/azure",
     entry: {
       whatIsThisPage:

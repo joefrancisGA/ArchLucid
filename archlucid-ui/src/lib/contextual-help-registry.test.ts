@@ -77,6 +77,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/findings",
       "/help/governance-approval",
       "/help/review-guide",
+      "/help/pilot-guide",
       "/help/cloud-connections/azure",
       "/help/cloud-connections",
       "/administration/settings/users/invite-reviewer",
@@ -222,6 +223,11 @@ describe("contextual-help-registry (TB-733)", () => {
   it("resolves review guide help Category-1 help (HR)", () => {
     expect(contextualHelpForPathname("/help/review-guide")?.whatIsThisPage).toContain("Review guide");
     expect(contextualHelpForPathname("/help/review-guide")?.whatToDoNext).toContain("architecture review");
+  });
+
+  it("resolves pilot guide help Category-1 help (HP)", () => {
+    expect(contextualHelpForPathname("/help/pilot-guide")?.whatIsThisPage).toContain("Pilot guide");
+    expect(contextualHelpForPathname("/help/pilot-guide")?.whatToDoNext).toContain("architecture review");
   });
 
   it("resolves jira integration Category-1 help (IJX)", () => {

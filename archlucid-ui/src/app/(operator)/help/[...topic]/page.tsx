@@ -16,6 +16,7 @@ import { HelpAzurePermissionsGuideView } from "../_sections/HelpAzurePermissions
 import { HelpAuditTrailGuideView } from "../_sections/HelpAuditTrailGuideView";
 import { HelpReviewPackagesGuideView } from "../_sections/HelpReviewPackagesGuideView";
 import { HelpReviewGuideView } from "../_sections/HelpReviewGuideView";
+import { HelpPilotGuideView } from "../_sections/HelpPilotGuideView";
 import { HelpConfigurationReferenceGuideView } from "../_sections/HelpConfigurationReferenceGuideView";
 import { HelpDataHandlingTenantIsolationGuideView } from "../_sections/HelpDataHandlingTenantIsolationGuideView";
 import { HelpDpaTemplateGuideView } from "../_sections/HelpDpaTemplateGuideView";
@@ -194,6 +195,10 @@ function renderHelpTopicView(
 
   if (loaded.entry.slug === "review-guide") {
     return <HelpReviewGuideView entry={loaded.entry} markdown={loaded.markdown} />;
+  }
+
+  if (loaded.entry.slug === "pilot-guide") {
+    return <HelpPilotGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
 
   if (loaded.entry.slug === "data-handling") {

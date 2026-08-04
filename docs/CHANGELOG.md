@@ -14,9 +14,21 @@ Release entries newest-first. Each section condenses the detailed prompt logs pr
 
 `IItsmInboundWebhookReplayGuard` + `MemoryCacheItsmInboundWebhookReplayGuard` (24h per-process dedupe); delivery id headers (`X-ArchLucid-Webhook-Delivery-Id`, `X-Atlassian-Webhook-Identifier`) or synthetic keys; replay returns HTTP 200 with `Integration.ItsmInboundWebhookReplayIgnored` audit (no second mutation). Optional `X-ArchLucid-Timestamp` skew enforced even without HMAC. Ops runbook [`ITSM_INBOUND_WEBHOOK_REPLAY_GUARD.md`](runbooks/ITSM_INBOUND_WEBHOOK_REPLAY_GUARD.md). No CPA / third-party pen-test implication.
 
+## 2026-08-04 - UI: Move Architecture intelligence under `/architecture/architecture-intelligence`
+
+Canonical operator path is now `/architecture/architecture-intelligence` (nav, deep links, route catalog). Former `/architecture-intelligence` bookmarks 404 — no redirect shim.
+
+## 2026-08-04 - UI: Hard-retire `/reviews/new?intent=create-architecture` redirect
+
+Removed server redirect and dead create-architecture tab copy on review intake; canonical create path remains `/architecture/architectures/new`. Post-generation `intent=create-architecture` on `/architecture/reviews/[runId]` unchanged.
+
 ## 2026-08-04 - UI: Hard-retire `/snapshot/[runId]` redirect shim
 
 Removed App Router redirect stub; CTO recap leave-behind links now use `/architecture/reviews/{runId}?readOnly=1` via `buildReadOnlyReviewWorkspaceHref`. Old `/snapshot/...` bookmarks 404.
+
+## 2026-08-04 - UI: Pilot guide help Evidence chrome (HP)
+
+/help/pilot-guide ships HelpPilotGuideView with PageContextualHelpButton, Category-1 registry, Sources + claim-discipline orientation strip, traffic Notes, and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.
 
 ## 2026-08-04 - UI: Billing and plans help Evidence chrome (HBX)
 
