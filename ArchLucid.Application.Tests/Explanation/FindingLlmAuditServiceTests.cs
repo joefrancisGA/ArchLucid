@@ -4,10 +4,12 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Llm.Redaction;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Data.Repositories;
-using ArchLucid.Persistence.Queries;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 
 using FluentAssertions;
 
@@ -19,6 +21,21 @@ namespace ArchLucid.Application.Tests.Explanation;
 public sealed class FindingLlmAuditServiceTests
 {
     private static readonly Guid RunGuid = Guid.Parse("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+    private static readonly Guid SnapshotGuid = Guid.Parse("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+
+    private static (Mock<IRunRepository> Runs, Mock<IFindingsSnapshotRepository> Snapshots) SetupRunWithFindings(
+        params Finding[] findings)
+    {
+        Mock<IRunRepository> runs = new();
+        runs.Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), RunGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = RunGuid, FindingsSnapshotId = SnapshotGuid });
+
+        Mock<IFindingsSnapshotRepository> snapshots = new();
+        snapshots.Setup(s => s.GetByIdAsync(It.IsAny<ScopeContext>(), SnapshotGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FindingsSnapshot { Findings = [.. findings] });
+
+        return (runs, snapshots);
+    }
 
     [SkippableFact]
     public async Task BuildAsync_uses_SourceAgentExecutionTraceId_when_present()
@@ -38,9 +55,7 @@ public sealed class FindingLlmAuditServiceTests
             RawResponse = "ok",
         };
 
-        Mock<IAuthorityQueryService> authority = new();
-        authority.Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), RunGuid, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new RunDetailDto { FindingsSnapshot = new FindingsSnapshot { Findings = [finding] }, });
+        (Mock<IRunRepository> runs, Mock<IFindingsSnapshotRepository> snapshots) = SetupRunWithFindings(finding);
 
         Mock<IAgentExecutionTraceRepository> traces = new();
         traces.Setup(t => t.GetByTraceIdAsync("abc123", It.IsAny<CancellationToken>())).ReturnsAsync(trace);
@@ -49,7 +64,8 @@ public sealed class FindingLlmAuditServiceTests
         redactor.Setup(r => r.Redact(It.IsAny<string?>())).Returns((string? s) => new PromptRedactionOutcome(s ?? "", new Dictionary<string, int>()));
 
         FindingLlmAuditService sut = new(
-            authority.Object,
+            runs.Object,
+            snapshots.Object,
             Mock.Of<IScopeContextProvider>(p => p.GetCurrentScope() == new ScopeContext()),
             traces.Object,
             redactor.Object);
@@ -86,9 +102,7 @@ public sealed class FindingLlmAuditServiceTests
             RawResponse = "r",
         };
 
-        Mock<IAuthorityQueryService> authority = new();
-        authority.Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), RunGuid, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new RunDetailDto { FindingsSnapshot = new FindingsSnapshot { Findings = [finding] }, });
+        (Mock<IRunRepository> runs, Mock<IFindingsSnapshotRepository> snapshots) = SetupRunWithFindings(finding);
 
         Mock<IAgentExecutionTraceRepository> traces = new();
         traces.Setup(t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), RunGuid.ToString("N"), It.IsAny<CancellationToken>()))
@@ -98,7 +112,8 @@ public sealed class FindingLlmAuditServiceTests
         redactor.Setup(r => r.Redact(It.IsAny<string?>())).Returns((string? s) => new PromptRedactionOutcome(s ?? "", new Dictionary<string, int>()));
 
         FindingLlmAuditService sut = new(
-            authority.Object,
+            runs.Object,
+            snapshots.Object,
             Mock.Of<IScopeContextProvider>(p => p.GetCurrentScope() == new ScopeContext()),
             traces.Object,
             redactor.Object);

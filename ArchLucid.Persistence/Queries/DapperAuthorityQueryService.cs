@@ -150,20 +150,43 @@ public sealed class DapperAuthorityQueryService(
 
         if (detail.FindingsSnapshot is not null)
         {
-            DateTimeOffset since = TimeProvider.System.UtcNowDateTime().AddYears(-2);
-            IReadOnlyList<FindingReviewEventRecord> trailEvents =
-                await _findingReviewTrailRepository.ListSinceUtcAsync(scope.TenantId, since, ct);
-            IReadOnlyList<RiskExceptionRecord> activeWaivers =
-                await _riskExceptionRepository.ListActiveForTenantAsync(scope.TenantId, scope.ProjectId, ct);
-            RunFindingDispositionCoverage? dispositionCoverage = RunFindingDispositionCoverageBuilder.Build(
-                detail.FindingsSnapshot,
-                trailEvents,
-                activeWaivers);
+            RunFindingDispositionCoverage? dispositionCoverage =
+                await BuildDispositionCoverageAsync(scope, detail.FindingsSnapshot, ct);
 
             RunFindingCoverageProjection.ApplyDispositionCoverage(detail, dispositionCoverage);
         }
 
         return detail;
+    }
+
+    /// <summary>
+    ///     Disposition coverage for one run's findings. Queries the review trail by the snapshot's finding ids
+    ///     (index seek) instead of loading the tenant's whole two-year event history, and loads trail + waivers
+    ///     concurrently.
+    /// </summary>
+    private async Task<RunFindingDispositionCoverage?> BuildDispositionCoverageAsync(
+        ScopeContext scope,
+        FindingsSnapshot findingsSnapshot,
+        CancellationToken ct)
+    {
+        List<string> findingIds = (findingsSnapshot.Findings ?? [])
+            .Select(static finding => finding.FindingId)
+            .Where(static id => !string.IsNullOrWhiteSpace(id))
+            .ToList();
+
+        // No finding ids means the coverage builder would return null anyway; skip both queries.
+        if (findingIds.Count == 0)
+            return null;
+
+        DateTimeOffset since = TimeProvider.System.UtcNowDateTime().AddYears(-2);
+        Task<IReadOnlyList<FindingReviewEventRecord>> trailTask =
+            _findingReviewTrailRepository.ListForFindingIdsSinceUtcAsync(scope.TenantId, findingIds, since, ct);
+        Task<IReadOnlyList<RiskExceptionRecord>> waiversTask =
+            _riskExceptionRepository.ListActiveForTenantAsync(scope.TenantId, scope.ProjectId, ct);
+
+        await Task.WhenAll(trailTask, waiversTask);
+
+        return RunFindingDispositionCoverageBuilder.Build(findingsSnapshot, await trailTask, await waiversTask);
     }
 
     /// <inheritdoc />
@@ -214,15 +237,8 @@ public sealed class DapperAuthorityQueryService(
         {
             try
             {
-                DateTimeOffset since = TimeProvider.System.UtcNowDateTime().AddYears(-2);
-                IReadOnlyList<FindingReviewEventRecord> trailEvents =
-                    await _findingReviewTrailRepository.ListSinceUtcAsync(scope.TenantId, since, ct);
-                IReadOnlyList<RiskExceptionRecord> activeWaivers =
-                    await _riskExceptionRepository.ListActiveForTenantAsync(scope.TenantId, scope.ProjectId, ct);
-                RunFindingDispositionCoverage? dispositionCoverage = RunFindingDispositionCoverageBuilder.Build(
-                    detail.FindingsSnapshot,
-                    trailEvents,
-                    activeWaivers);
+                RunFindingDispositionCoverage? dispositionCoverage =
+                    await BuildDispositionCoverageAsync(scope, detail.FindingsSnapshot, ct);
 
                 RunFindingCoverageProjection.ApplyDispositionCoverage(detail, dispositionCoverage);
             }

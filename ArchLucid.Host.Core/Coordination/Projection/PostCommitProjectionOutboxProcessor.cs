@@ -43,7 +43,7 @@ public sealed class PostCommitProjectionOutboxProcessor(
         timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
 
     /// <inheritdoc />
-    public async Task ProcessPendingBatchAsync(CancellationToken ct)
+    public async Task<int> ProcessPendingBatchAsync(CancellationToken ct)
     {
         PostCommitProjectionOutboxProcessorOptions opts = VerifiedOptions(_processorOptions.Value);
 
@@ -69,6 +69,8 @@ public sealed class PostCommitProjectionOutboxProcessor(
             {
                 await OnProcessingFailedAsync(outbox, auditService, entry, ex, opts, ct);
             }
+
+        return batch.Count;
     }
 
     private async Task ProcessEntryAsync(

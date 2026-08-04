@@ -31,31 +31,12 @@ public sealed class RunExportBlobPushOutboxHostedService(
             stoppingToken);
     }
 
-    private async Task LoopAsync(CancellationToken leaderToken)
+    private Task LoopAsync(CancellationToken leaderToken)
     {
-        while (!leaderToken.IsCancellationRequested)
-        {
-            try
-            {
-                await _processor.ProcessPendingBatchAsync(leaderToken);
-            }
-            catch (OperationCanceledException) when (leaderToken.IsCancellationRequested)
-            {
-                break;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Run export blob push outbox host loop error.");
-            }
-
-            try
-            {
-                await Task.Delay(TimeSpan.FromSeconds(2), leaderToken);
-            }
-            catch (OperationCanceledException) when (leaderToken.IsCancellationRequested)
-            {
-                break;
-            }
-        }
+        return AdaptiveOutboxDrainLoop.RunAsync(
+            _processor.ProcessPendingBatchAsync,
+            _logger,
+            "Run export blob push outbox",
+            leaderToken);
     }
 }

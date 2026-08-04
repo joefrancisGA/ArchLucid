@@ -19,7 +19,7 @@ public sealed class RunExportBlobPushOutboxHostedServiceTests
         Mock<IRunExportBlobPushOutboxProcessor> processor = new();
         processor
             .Setup(p => p.ProcessPendingBatchAsync(It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
+            .ReturnsAsync(0);
 
         RunExportBlobPushOutboxHostedService sut = new(
             processor.Object,

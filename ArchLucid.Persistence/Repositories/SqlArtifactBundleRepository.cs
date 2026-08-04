@@ -109,6 +109,57 @@ public sealed class SqlArtifactBundleRepository(
         }
     }
 
+    public async Task<SynthesizedArtifact?> GetArtifactByIdAsync(
+        ScopeContext scope,
+        Guid manifestId,
+        Guid artifactId,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        // Header lookup without the ArtifactsJson/TraceJson LOB columns — we only need the bundle id.
+        const string headerSql = """
+                                 SELECT TOP 1 BundleId
+                                 FROM dbo.ArtifactBundles
+                                 WHERE TenantId = @TenantId
+                                   AND WorkspaceId = @WorkspaceId
+                                   AND ProjectId = @ScopeProjectId
+                                   AND ManifestId = @ManifestId
+                                 ORDER BY CreatedUtc DESC;
+                                 """;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        Guid? bundleId = await connection.QuerySingleOrDefaultAsync<Guid?>(
+            new CommandDefinition(
+                headerSql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
+                    ManifestId = manifestId
+                },
+                cancellationToken: ct));
+
+        if (bundleId is null)
+            return null;
+
+        SynthesizedArtifact? relational = await ArtifactBundleRelationalRead.TryLoadSingleArtifactRelationalAsync(
+            connection,
+            bundleId.Value,
+            artifactId,
+            ct);
+
+        if (relational is not null)
+            return relational;
+
+        // Legacy JSON-only bundles (or a genuine miss): fall back to the full hydrate so behavior
+        // matches GetByManifestIdAsync exactly. Misses pay the full cost but are rare.
+        ArtifactBundle? bundle = await GetByManifestIdAsync(scope, manifestId, loadArtifactBodies: true, ct);
+
+        return bundle?.Artifacts.FirstOrDefault(artifact => artifact.ArtifactId == artifactId);
+    }
+
     private async Task SaveCoreAsync(
         ArtifactBundle bundle,
         IDbConnection connection,

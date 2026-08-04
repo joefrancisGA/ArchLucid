@@ -1,4 +1,5 @@
 import { render, screen, waitFor } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
@@ -11,6 +12,18 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) =>
 );
 
 import { ExecutiveRoiTrendSection } from "./ExecutiveRoiTrendSection";
+
+function renderWithQueryClient(ui: React.ReactElement) {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+      },
+    },
+  });
+
+  return render(<QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>);
+}
 
 describe("ExecutiveRoiTrendSection", () => {
   beforeEach(() => {
@@ -50,7 +63,7 @@ describe("ExecutiveRoiTrendSection", () => {
   });
 
   it("shows mixed-mode footnote and simulator-only badge when history includes both modes", async () => {
-    render(<ExecutiveRoiTrendSection defaultTimeRange="all" />);
+    renderWithQueryClient(<ExecutiveRoiTrendSection defaultTimeRange="all" />);
 
     await waitFor(() => {
       expect(screen.getByTestId("exec-roi-trend-chart")).toBeInTheDocument();

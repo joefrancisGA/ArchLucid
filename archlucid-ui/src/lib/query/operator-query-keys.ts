@@ -1,3 +1,4 @@
+import type { ExecutiveTimeRange } from "@/lib/executive-time-range";
 import type { RunsByProjectPagedParams } from "@/lib/query/runs-by-project-paged-params";
 import type { OperatorScopeQueryKey } from "@/lib/operator-scope-query-key";
 
@@ -8,6 +9,11 @@ export const operatorQueryKeys = {
   llmMonthlyBudgetStatus: ["operator", "llm", "monthly-budget-status"] as const,
   adminAiUsageDashboard: ["operator", "admin", "ai-usage-dashboard"] as const,
   executiveRoiSummary: ["operator", "roi", "executive-summary"] as const,
+  // Prefix-matches executiveRoiSummary so refreshDashboard invalidation also refreshes these.
+  executiveRoiSummaryHistory: ["operator", "roi", "executive-summary", "history"] as const,
+  executiveRoiSummaryExport: ["operator", "roi", "executive-summary", "export"] as const,
+  executiveNextActionInputs: (range: ExecutiveTimeRange) =>
+    ["operator", "roi", "next-action-inputs", range] as const,
   complianceDriftTrend30d: ["operator", "governance", "compliance-drift-trend", "30d"] as const,
   governanceFindingsQueue: (
     scope: OperatorScopeQueryKey,

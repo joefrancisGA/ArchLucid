@@ -1,4 +1,5 @@
 using ArchLucid.Application.Jobs;
+using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Persistence.Data.Repositories;
@@ -24,6 +25,7 @@ public sealed class BackgroundJobQueueProcessorHostedService(
         TimeSpan visibility = TimeSpan.FromMinutes(Math.Clamp(snapshot.ProcessorVisibilityMinutes, 1, 120));
         int idleMs = Math.Clamp(snapshot.ProcessorIdlePollMilliseconds, 100, 60_000);
         int batchSize = Math.Clamp(snapshot.ProcessorReceiveBatchSize, 1, 32);
+        int maxConcurrentJobs = Math.Clamp(snapshot.ProcessorMaxConcurrentJobs, 1, 16);
 
         await queueClient.CreateIfNotExistsAsync(cancellationToken: stoppingToken);
 
@@ -43,22 +45,25 @@ public sealed class BackgroundJobQueueProcessorHostedService(
                     continue;
                 }
 
-                foreach (QueueMessage message in messages)
-                {
-                    if (stoppingToken.IsCancellationRequested)
-                        break;
-
-                    string? jobId = message.MessageText?.Trim();
-
-                    if (string.IsNullOrWhiteSpace(jobId))
+                // Jobs are independent (own DI scope, own queue message), so a bounded fan-out
+                // multiplies single-replica throughput without exhausting the SQL pool (TB-586 pattern).
+                await BoundedBatchParallelism.ForEachAsync(
+                    messages,
+                    maxConcurrentJobs,
+                    async (message, ct) =>
                     {
-                        await queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt, stoppingToken);
+                        string? jobId = message.MessageText?.Trim();
 
-                        continue;
-                    }
+                        if (string.IsNullOrWhiteSpace(jobId))
+                        {
+                            await queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt, ct);
 
-                    await ProcessOneMessageAsync(jobId, message, stoppingToken);
-                }
+                            return;
+                        }
+
+                        await ProcessOneMessageAsync(jobId, message, ct);
+                    },
+                    stoppingToken);
             }
             catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
             {

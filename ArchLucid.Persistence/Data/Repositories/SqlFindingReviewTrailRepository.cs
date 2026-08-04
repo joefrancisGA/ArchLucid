@@ -89,6 +89,53 @@ public sealed class SqlFindingReviewTrailRepository(ISqlConnectionFactory connec
         return rows.Select(Map).ToList();
     }
 
+    public async Task<IReadOnlyList<FindingReviewEventRecord>> ListForFindingIdsSinceUtcAsync(
+        Guid tenantId,
+        IReadOnlyCollection<string> findingIds,
+        DateTimeOffset sinceUtc,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(findingIds);
+
+        List<string> normalizedIds = findingIds
+            .Where(static id => !string.IsNullOrWhiteSpace(id))
+            .Select(static id => id.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        if (normalizedIds.Count == 0)
+            return [];
+
+        const string sql = """
+                           SELECT EventId, TenantId, WorkspaceId, ProjectId, FindingId, ReviewerUserId, Action, Notes,
+                                  OccurredAtUtc, RunId, Disposition, RevisitDueUtc, EvidenceRequestText
+                           FROM dbo.FindingReviewEvents
+                           WHERE TenantId = @TenantId AND FindingId IN @FindingIds AND OccurredAtUtc >= @SinceUtc;
+                           """;
+
+        // SQL Server caps parameters at ~2100 per command; chunking keeps large snapshots safe.
+        const int findingIdChunkSize = 1_000;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        List<FindingReviewEventRecord> results = [];
+
+        foreach (string[] chunk in normalizedIds.Chunk(findingIdChunkSize))
+        {
+            IEnumerable<FindingReviewEventRow> rows = await conn.QueryAsync<FindingReviewEventRow>(
+                new CommandDefinition(
+                    sql,
+                    new { TenantId = tenantId, FindingIds = chunk, SinceUtc = sinceUtc },
+                    cancellationToken: cancellationToken));
+
+            results.AddRange(rows.Select(Map));
+        }
+
+        return results
+            .OrderByDescending(static record => record.OccurredAtUtc)
+            .ToList();
+    }
+
     private static FindingReviewEventRecord Map(FindingReviewEventRow row)
     {
         Enum.TryParse(row.Action, true, out FindingReviewAction action);

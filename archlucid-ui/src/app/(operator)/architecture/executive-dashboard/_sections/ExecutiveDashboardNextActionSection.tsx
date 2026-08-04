@@ -2,26 +2,15 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useMemo } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getComplianceDriftTrend } from "@/lib/api";
-import {
-  buildExecutiveScorecardRecommendedActions,
-  type ExecutiveScorecardRecommendedAction,
-} from "@/lib/executive-scorecard-recommended-actions";
+import { useExecutiveNextActionInputsQuery } from "@/hooks/use-executive-next-action-inputs-query";
+import { buildExecutiveScorecardRecommendedActions } from "@/lib/executive-scorecard-recommended-actions";
 import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
-import {
-  type ExecutiveTimeRange,
-  windowForExecutiveRange,
-} from "@/lib/executive-time-range";
-import { fetchPilotValueReportJson } from "@/lib/pilot-value-report-fetch";
+import type { ExecutiveTimeRange } from "@/lib/executive-time-range";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-
-function sumDriftChanges(points: { changeCount: number }[]): number {
-  return points.reduce((sum, point) => sum + (Number.isFinite(point.changeCount) ? point.changeCount : 0), 0);
-}
 
 export type ExecutiveDashboardNextActionSectionProps = {
   readonly timeRange: ExecutiveTimeRange;
@@ -35,34 +24,23 @@ export function ExecutiveDashboardNextActionSection(
 ): React.JSX.Element | null {
   const v = BUYER_EXECUTIVE_SUMMARY_VOCABULARY;
   const { timeRange, summary, loading } = props;
-  const [action, setAction] = useState<ExecutiveScorecardRecommendedAction | null>(null);
+  // Shared cached query: summary identity changes no longer trigger a refetch — the summary only
+  // feeds the local recommendation derivation below.
+  const inputsQuery = useExecutiveNextActionInputsQuery(timeRange, { enabled: !loading });
 
-  const load = useCallback(async (selected: ExecutiveTimeRange, roiSummary: ExecutiveRoiSummary | null) => {
-    const { fromUtc, toUtc } = windowForExecutiveRange(selected);
-
-    try {
-      const report = await fetchPilotValueReportJson(fromUtc, toUtc);
-      const driftFrom = fromUtc ?? report.fromUtc;
-      const driftPoints = await getComplianceDriftTrend(driftFrom, report.toUtc, 1440);
-      const recommendedActions = buildExecutiveScorecardRecommendedActions({
-        complianceDriftChangeCount: sumDriftChanges(driftPoints),
-        orphanCandidates: roiSummary?.orphanCandidates,
-        committedRunsTimeline: report.committedRunsTimeline,
-      });
-
-      setAction(recommendedActions[0] ?? null);
-    } catch {
-      setAction(null);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (loading) {
-      return undefined;
+  const action = useMemo(() => {
+    if (inputsQuery.data === undefined) {
+      return null;
     }
 
-    void load(timeRange, summary);
-  }, [load, loading, summary, timeRange]);
+    const recommendedActions = buildExecutiveScorecardRecommendedActions({
+      complianceDriftChangeCount: inputsQuery.data.complianceDriftChangeCount,
+      orphanCandidates: summary?.orphanCandidates,
+      committedRunsTimeline: inputsQuery.data.committedRunsTimeline,
+    });
+
+    return recommendedActions[0] ?? null;
+  }, [inputsQuery.data, summary]);
 
   if (loading || action === null) {
     return null;

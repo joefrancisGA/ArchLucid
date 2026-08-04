@@ -22,7 +22,7 @@ public sealed class RetrievalIndexingOutboxHostedServiceTests
         Mock<IRetrievalIndexingOutboxProcessor> processor = new();
         processor
             .Setup(p => p.ProcessPendingBatchAsync(It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
+            .ReturnsAsync(0);
 
         RetrievalIndexingOutboxHostedService sut = new(
             processor.Object,
@@ -50,7 +50,7 @@ public sealed class RetrievalIndexingOutboxHostedServiceTests
             {
                 callCount++;
 
-                return callCount == 1 ? throw new InvalidOperationException("simulated failure") : Task.CompletedTask;
+                return callCount == 1 ? throw new InvalidOperationException("simulated failure") : Task.FromResult(0);
             });
 
         RetrievalIndexingOutboxHostedService sut = new(

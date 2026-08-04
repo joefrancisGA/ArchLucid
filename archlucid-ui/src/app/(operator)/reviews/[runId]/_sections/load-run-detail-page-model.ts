@@ -75,6 +75,12 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
   const apiScopeOptions =
     serverScopeHeaders !== null ? { scopeHeaders: serverScopeHeaders } : undefined;
 
+  // These two fetches only need runId, so they start alongside the run-detail fetch instead of
+  // after it — collapsing the former two-phase network waterfall. Both loaders swallow their own
+  // failures, so the floating promises are safe when the run-detail fetch short-circuits below.
+  const progressSummaryPromise = getRunSummary(runId).catch(() => null);
+  const explanationSummaryPromise = loadRunDetailExplanationSummary(runId, apiScopeOptions);
+
   // TB-2022: always slim buyer-summary for first paint (no fat PayloadJson/ResultJson).
   // Inspect/export keep GET /v1/authority/runs/{id}. UI chrome density still uses isBuyerPolishedOperatorShellEnv.
   const usedBuyerRunDetailSummary = true;
@@ -171,8 +177,6 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
   let explanationSummary: RunExplanationSummary | null = null;
   let explanationFailure: ApiLoadFailureState | null = null;
 
-  const progressSummaryPromise = getRunSummary(runId).catch(() => null);
-
   if (manifestId) {
     const [
       resolvedProgressSummary,
@@ -183,7 +187,7 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
       progressSummaryPromise,
       loadRunDetailManifestSummary(manifestId, apiScopeOptions),
       loadRunDetailArtifacts(runId, manifestId, apiScopeOptions),
-      loadRunDetailExplanationSummary(runId, apiScopeOptions),
+      explanationSummaryPromise,
     ]);
 
     progressInitialSummary = resolvedProgressSummary;

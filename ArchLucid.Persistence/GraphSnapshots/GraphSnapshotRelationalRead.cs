@@ -1,6 +1,5 @@
 using System.Data;
 
-using ArchLucid.Persistence.RelationalRead;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Serialization;
 
@@ -54,49 +53,31 @@ internal static class GraphSnapshotRelationalRead
 
         Guid graphSnapshotId = header.GraphSnapshotId;
 
-        int nodesCount = await SqlRelationalScalarCount.ExecuteAsync(
+        // Load slices directly instead of probing COUNT(1) first: an empty result carries the same
+        // "no relational rows" signal a count would, without three extra round trips per hydrate.
+        List<GraphNode> nodes = await LoadNodesRelationalAsync(connection, transaction, graphSnapshotId, ct);
+        List<GraphNode>? nodesOverride = nodes.Count > 0 ? nodes : null;
+
+        List<string> warnings = await LoadStringColumnRelationalAsync(
             connection,
             transaction,
-            "SELECT COUNT(1) FROM dbo.GraphSnapshotNodes WHERE GraphSnapshotId = @GraphSnapshotId",
-            new { GraphSnapshotId = graphSnapshotId },
+            """
+            SELECT WarningText AS Item
+            FROM dbo.GraphSnapshotWarnings
+            WHERE GraphSnapshotId = @GraphSnapshotId
+            ORDER BY SortOrder;
+            """,
+            graphSnapshotId,
             ct);
+        List<string>? warningsOverride = warnings.Count > 0 ? warnings : null;
 
-        int warningsCount = await SqlRelationalScalarCount.ExecuteAsync(
+        List<GraphEdge> edges = await LoadEdgesRelationalAsync(
             connection,
             transaction,
-            "SELECT COUNT(1) FROM dbo.GraphSnapshotWarnings WHERE GraphSnapshotId = @GraphSnapshotId",
-            new { GraphSnapshotId = graphSnapshotId },
+            graphSnapshotId,
+            jsonRowForMerge,
             ct);
-
-        int edgesCount = await SqlRelationalScalarCount.ExecuteAsync(
-            connection,
-            transaction,
-            "SELECT COUNT(1) FROM dbo.GraphSnapshotEdges WHERE GraphSnapshotId = @GraphSnapshotId",
-            new { GraphSnapshotId = graphSnapshotId },
-            ct);
-
-        List<GraphNode>? nodesOverride = null;
-
-        if (nodesCount > 0)
-            nodesOverride = await LoadNodesRelationalAsync(connection, transaction, graphSnapshotId, ct);
-
-        List<string>? warningsOverride = null;
-
-        if (warningsCount > 0)
-
-            warningsOverride = await LoadStringColumnRelationalAsync(
-                connection,
-                transaction,
-                """
-                SELECT WarningText AS Item
-                FROM dbo.GraphSnapshotWarnings
-                WHERE GraphSnapshotId = @GraphSnapshotId
-                ORDER BY SortOrder;
-                """,
-                graphSnapshotId,
-                ct);
-
-        List<GraphEdge>? edgesOverride = null;
+        List<GraphEdge>? edgesOverride = edges.Count > 0 ? edges : null;
 
         GraphSnapshotStorageRow syntheticHeader = new()
         {
@@ -108,16 +89,6 @@ internal static class GraphSnapshotRelationalRead
             EdgesJson = "[]",
             WarningsJson = "[]"
         };
-
-        if (edgesCount <= 0)
-            return GraphSnapshotStorageMapper.ToSnapshot(syntheticHeader, nodesOverride, edgesOverride, warningsOverride);
-
-        edgesOverride = await LoadEdgesRelationalAsync(
-            connection,
-            transaction,
-            graphSnapshotId,
-            jsonRowForMerge,
-            ct);
 
         return GraphSnapshotStorageMapper.ToSnapshot(syntheticHeader, nodesOverride, edgesOverride, warningsOverride);
     }

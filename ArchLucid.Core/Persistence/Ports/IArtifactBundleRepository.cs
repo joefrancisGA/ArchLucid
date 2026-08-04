@@ -42,4 +42,19 @@ public interface IArtifactBundleRepository
         Guid manifestId,
         bool loadArtifactBodies,
         CancellationToken ct);
+
+    /// <summary>
+    ///     Returns a single artifact (with body) from the bundle associated with <paramref name="manifestId" />,
+    ///     or <see langword="null" /> when the bundle or artifact does not exist in scope. Implementations should
+    ///     avoid hydrating sibling artifact bodies (single-download hot path).
+    /// </summary>
+    /// <param name="scope">Tenant/workspace/project boundary enforced by the implementation.</param>
+    /// <param name="manifestId">The golden manifest whose bundle contains the artifact.</param>
+    /// <param name="artifactId">The requested artifact.</param>
+    /// <param name="ct">Propagates notification that the operation should be cancelled.</param>
+    Task<SynthesizedArtifact?> GetArtifactByIdAsync(
+        ScopeContext scope,
+        Guid manifestId,
+        Guid artifactId,
+        CancellationToken ct);
 }

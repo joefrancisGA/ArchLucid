@@ -33,20 +33,42 @@ public sealed class SqlGlobalSearchRepository(ISqlConnectionFactory connectionFa
         string like = $"%{EscapeLike(query.Trim())}%";
         int take = Math.Clamp(takePerCategory, 1, 25);
 
+        // One command with three result sets: a single round trip instead of three sequential queries.
+        const string sql = """
+                           SELECT TOP (@Take) RunId, Description, ProjectId AS AuthorityProjectSlug, CreatedUtc
+                           FROM dbo.Runs
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ScopeProjectId = @ScopeProjectId
+                             AND ArchivedUtc IS NULL
+                             AND (Description LIKE @Like ESCAPE '\' OR CAST(RunId AS NVARCHAR(36)) LIKE @Like ESCAPE '\')
+                           ORDER BY CreatedUtc DESC;
+
+                           SELECT TOP (@Take) r.RunId, fr.FindingId, fr.Title, fr.Severity
+                           FROM dbo.FindingRecords AS fr
+                           INNER JOIN dbo.FindingsSnapshots AS fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
+                           INNER JOIN dbo.Runs AS r ON r.FindingsSnapshotId = fs.FindingsSnapshotId
+                           WHERE fr.TenantId = @TenantId
+                             AND fr.WorkspaceId = @WorkspaceId
+                             AND fr.ProjectId = @ScopeProjectId
+                             AND r.ArchivedUtc IS NULL
+                             AND (fr.Title LIKE @Like ESCAPE '\' OR fr.FindingId LIKE @Like ESCAPE '\')
+                           ORDER BY fr.SortOrder ASC;
+
+                           SELECT TOP (@Take) PolicyPackId, Name, CAST(0 AS BIT) AS IsCatalogEntry
+                           FROM dbo.PolicyPacks
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ScopeProjectId
+                             AND Name LIKE @Like ESCAPE '\'
+                           ORDER BY CreatedUtc DESC;
+                           """;
+
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        IEnumerable<RunRow> runRows = await connection.QueryAsync<RunRow>(
+        using SqlMapper.GridReader grid = await connection.QueryMultipleAsync(
             new CommandDefinition(
-                """
-                SELECT TOP (@Take) RunId, Description, ProjectId AS AuthorityProjectSlug, CreatedUtc
-                FROM dbo.Runs
-                WHERE TenantId = @TenantId
-                  AND WorkspaceId = @WorkspaceId
-                  AND ScopeProjectId = @ScopeProjectId
-                  AND ArchivedUtc IS NULL
-                  AND (Description LIKE @Like ESCAPE '\' OR CAST(RunId AS NVARCHAR(36)) LIKE @Like ESCAPE '\')
-                ORDER BY CreatedUtc DESC;
-                """,
+                sql,
                 new
                 {
                     TenantId = tenantId,
@@ -57,50 +79,9 @@ public sealed class SqlGlobalSearchRepository(ISqlConnectionFactory connectionFa
                 },
                 cancellationToken: cancellationToken));
 
-        IEnumerable<FindingRow> findingRows = await connection.QueryAsync<FindingRow>(
-            new CommandDefinition(
-                """
-                SELECT TOP (@Take) r.RunId, fr.FindingId, fr.Title, fr.Severity
-                FROM dbo.FindingRecords AS fr
-                INNER JOIN dbo.FindingsSnapshots AS fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
-                INNER JOIN dbo.Runs AS r ON r.FindingsSnapshotId = fs.FindingsSnapshotId
-                WHERE fr.TenantId = @TenantId
-                  AND fr.WorkspaceId = @WorkspaceId
-                  AND fr.ProjectId = @ScopeProjectId
-                  AND r.ArchivedUtc IS NULL
-                  AND (fr.Title LIKE @Like ESCAPE '\' OR fr.FindingId LIKE @Like ESCAPE '\')
-                ORDER BY fr.SortOrder ASC;
-                """,
-                new
-                {
-                    TenantId = tenantId,
-                    WorkspaceId = workspaceId,
-                    ScopeProjectId = projectId,
-                    Like = like,
-                    Take = take,
-                },
-                cancellationToken: cancellationToken));
-
-        IEnumerable<PolicyPackRow> packRows = await connection.QueryAsync<PolicyPackRow>(
-            new CommandDefinition(
-                """
-                SELECT TOP (@Take) PolicyPackId, Name, CAST(0 AS BIT) AS IsCatalogEntry
-                FROM dbo.PolicyPacks
-                WHERE TenantId = @TenantId
-                  AND WorkspaceId = @WorkspaceId
-                  AND ProjectId = @ScopeProjectId
-                  AND Name LIKE @Like ESCAPE '\'
-                ORDER BY CreatedUtc DESC;
-                """,
-                new
-                {
-                    TenantId = tenantId,
-                    WorkspaceId = workspaceId,
-                    ScopeProjectId = projectId,
-                    Like = like,
-                    Take = take,
-                },
-                cancellationToken: cancellationToken));
+        IEnumerable<RunRow> runRows = await grid.ReadAsync<RunRow>();
+        IEnumerable<FindingRow> findingRows = await grid.ReadAsync<FindingRow>();
+        IEnumerable<PolicyPackRow> packRows = await grid.ReadAsync<PolicyPackRow>();
 
         return new GlobalSearchResult
         {

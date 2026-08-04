@@ -1543,6 +1543,19 @@ END;
 
 GO
 
+/* Tenant+time range seeks for ListSinceUtcAsync (ROI basis breakdown, realized value, trailing 30-day metrics). */
+IF OBJECT_ID(N'dbo.FindingReviewEvents', N'U') IS NOT NULL
+   AND NOT EXISTS (SELECT 1
+                   FROM sys.indexes
+                   WHERE name = N'IX_FindingReviewEvents_Tenant_OccurredAt'
+                     AND object_id = OBJECT_ID(N'dbo.FindingReviewEvents'))
+BEGIN
+    CREATE NONCLUSTERED INDEX IX_FindingReviewEvents_Tenant_OccurredAt
+        ON dbo.FindingReviewEvents (TenantId, OccurredAtUtc DESC);
+END;
+
+GO
+
 IF OBJECT_ID(N'dbo.FindingReviewEvents', N'U') IS NOT NULL
    AND COL_LENGTH(N'dbo.FindingReviewEvents', N'Disposition') IS NULL
     ALTER TABLE dbo.FindingReviewEvents ADD Disposition NVARCHAR(64) NULL;

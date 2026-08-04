@@ -6,6 +6,9 @@ namespace ArchLucid.Persistence.Coordination.Retrieval;
 /// <remarks>Production registration: <c>ArchLucid.Host.Core.Coordination.Retrieval.RetrievalIndexingOutboxProcessor</c>.</remarks>
 public interface IRetrievalIndexingOutboxProcessor
 {
-    /// <summary>Processes one batch of pending outbox rows (best-effort; failures are logged per row).</summary>
-    Task ProcessPendingBatchAsync(CancellationToken ct);
+    /// <summary>
+    ///     Processes one batch of pending outbox rows (best-effort; failures are logged per row).
+    ///     Returns the number of rows dequeued so the host loop can adapt its poll cadence.
+    /// </summary>
+    Task<int> ProcessPendingBatchAsync(CancellationToken ct);
 }

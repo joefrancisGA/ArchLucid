@@ -40,7 +40,7 @@ public sealed class RetrievalIndexingOutboxProcessor(
         timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
 
     /// <inheritdoc />
-    public async Task ProcessPendingBatchAsync(CancellationToken ct)
+    public async Task<int> ProcessPendingBatchAsync(CancellationToken ct)
     {
         RetrievalIndexingOutboxProcessorOptions opts = VerifiedOptions(_processorOptions.Value);
 
@@ -69,6 +69,8 @@ public sealed class RetrievalIndexingOutboxProcessor(
             {
                 await OnProcessingFailedAsync(outbox, entry, ex, opts, ct);
             }
+
+        return batch.Count;
     }
 
     private async Task ProcessEntryAsync(

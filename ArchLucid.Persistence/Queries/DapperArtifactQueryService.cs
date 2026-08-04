@@ -30,18 +30,13 @@ public sealed class DapperArtifactQueryService(IArtifactBundleRepository artifac
 
 
     /// <inheritdoc />
-    public async Task<SynthesizedArtifact?> GetArtifactByIdAsync(
+    public Task<SynthesizedArtifact?> GetArtifactByIdAsync(
         ScopeContext scope,
         Guid manifestId,
         Guid artifactId,
         CancellationToken ct)
-
-    {
-        ArtifactBundle? bundle = await artifactBundleRepository.GetByManifestIdAsync(scope, manifestId,
-            loadArtifactBodies: true, ct);
-
-        return bundle?.Artifacts.FirstOrDefault(x => x.ArtifactId == artifactId);
-    }
+        // Delegates to the repository's single-artifact path so only the requested body is hydrated.
+        => artifactBundleRepository.GetArtifactByIdAsync(scope, manifestId, artifactId, ct);
 
 
     /// <inheritdoc />

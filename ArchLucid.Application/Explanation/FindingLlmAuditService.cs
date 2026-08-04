@@ -3,16 +3,23 @@ using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Application.Explanation.Models;
 using ArchLucid.Core.Llm.Redaction;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Data.Repositories;
-using ArchLucid.Persistence.Queries;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 
 namespace ArchLucid.Application.Explanation;
 
 /// <inheritdoc cref = "IFindingLlmAuditService"/>
+/// <remarks>
+///     Loads only the run header and findings snapshot — not the full run detail (graph, manifest,
+///     artifact bundle, decision trace), which this audit never reads.
+/// </remarks>
 public sealed class FindingLlmAuditService(
-    IAuthorityQueryService authorityQuery,
+    IRunRepository runRepository,
+    IFindingsSnapshotRepository findingsSnapshotRepository,
     IScopeContextProvider scopeContextProvider,
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
     IPromptRedactor promptRedactor) : IFindingLlmAuditService
@@ -20,7 +27,11 @@ public sealed class FindingLlmAuditService(
     private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository =
         agentExecutionTraceRepository.ThrowIfNull();
 
-    private readonly IAuthorityQueryService _authorityQuery = authorityQuery.ThrowIfNull();
+    private readonly IRunRepository _runRepository = runRepository.ThrowIfNull();
+
+    private readonly IFindingsSnapshotRepository _findingsSnapshotRepository =
+        findingsSnapshotRepository.ThrowIfNull();
+
     private readonly IPromptRedactor _promptRedactor = promptRedactor.ThrowIfNull();
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider.ThrowIfNull();
 
@@ -31,8 +42,11 @@ public sealed class FindingLlmAuditService(
         if (string.IsNullOrWhiteSpace(findingId))
             throw new ArgumentException("Finding id is required.", nameof(findingId));
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        RunDetailDto? detail = await _authorityQuery.GetRunDetailAsync(scope, runId, cancellationToken);
-        if (detail?.FindingsSnapshot?.Findings is not { Count: > 0 } findings)
+        RunRecord? run = await _runRepository.GetByIdAsync(scope, runId, cancellationToken);
+        if (run?.FindingsSnapshotId is not { } findingsSnapshotId)
+            return null;
+        FindingsSnapshot? snapshot = await _findingsSnapshotRepository.GetByIdAsync(scope, findingsSnapshotId, cancellationToken);
+        if (snapshot?.Findings is not { Count: > 0 } findings)
             return null;
         Finding? match = findings.FirstOrDefault(f => string.Equals(f.FindingId, findingId, StringComparison.OrdinalIgnoreCase));
         if (match is null)

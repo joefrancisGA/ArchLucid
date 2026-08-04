@@ -1,55 +1,20 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ApiV1Routes } from "@/lib/api-v1-routes";
-import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import { useExecutiveRoiEnvironmentSavingsQuery } from "@/hooks/use-executive-roi-environment-savings-query";
 import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-
-type EnvironmentSlice = {
-  environment: string;
-  estimatedUsdSavings: number;
-};
 
 const SLICE_COLORS = ["#059669", "#2563eb", "#d97706", "#7c3aed", "#dc2626", "#64748b"];
 
 /** Pie-style breakdown of estimated savings by environment tag. */
 export function ExecutiveRoiEnvironmentSavingsSection() {
-  const [slices, setSlices] = useState<EnvironmentSlice[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    void (async () => {
-      try {
-        const response = await fetch(
-          `/api/proxy/${ApiV1Routes.roiExecutiveSummary}/export`,
-          mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }),
-        );
-
-        if (!response.ok) {
-          return;
-        }
-
-        const json = (await response.json()) as { savingsByEnvironment?: EnvironmentSlice[] };
-
-        if (!cancelled) {
-          setSlices(json.savingsByEnvironment ?? []);
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const savingsQuery = useExecutiveRoiEnvironmentSavingsQuery();
+  const slices = useMemo(() => savingsQuery.data ?? [], [savingsQuery.data]);
+  // Errors fall through to the same empty state the old inline fetch produced.
+  const loading = savingsQuery.isPending;
 
   return (
     <Card>

@@ -74,6 +74,19 @@ public class InMemoryArtifactBundleRepository : IArtifactBundleRepository
             : Task.FromResult<ArtifactBundle?>(WithBodiesStrippedSnapshot(result));
     }
 
+    public async Task<SynthesizedArtifact?> GetArtifactByIdAsync(
+        ScopeContext scope,
+        Guid manifestId,
+        Guid artifactId,
+        CancellationToken ct)
+
+    {
+        ArtifactBundle? bundle = await GetByManifestIdAsync(scope, manifestId, loadArtifactBodies: true, ct);
+
+        return bundle?.Artifacts.FirstOrDefault(x => x.ArtifactId == artifactId);
+    }
+
+
     /// <summary>
     ///     Returns a detached copy whose artifact bodies are empty so callers never mutate stored bundles.
     /// </summary>

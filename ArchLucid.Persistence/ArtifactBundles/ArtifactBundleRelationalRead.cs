@@ -1,5 +1,4 @@
 ﻿using ArchLucid.Persistence.BlobStore;
-using ArchLucid.Persistence.RelationalRead;
 
 using Dapper;
 
@@ -24,78 +23,58 @@ internal static class ArtifactBundleRelationalRead
 
         Guid bundleId = row.BundleId;
 
-        int artifactCount = await SqlRelationalScalarCount.ExecuteAsync(
-            connection,
-            null,
-            "SELECT COUNT(1) FROM dbo.ArtifactBundleArtifacts WHERE BundleId = @BundleId",
-            new { BundleId = bundleId },
-            ct);
+        // Load slices directly instead of probing COUNT(1) first: an empty result carries the same
+        // "no relational rows" signal a count would, without four extra round trips per hydrate.
+        List<SynthesizedArtifact> relationalArtifacts =
+            await LoadArtifactsRelationalAsync(connection, bundleId, loadArtifactBodies, ct);
 
-        int genCount = await SqlRelationalScalarCount.ExecuteAsync(
-            connection,
-            null,
-            "SELECT COUNT(1) FROM dbo.ArtifactBundleTraceGenerators WHERE BundleId = @BundleId",
-            new { BundleId = bundleId },
-            ct);
-
-        int traceDecCount = await SqlRelationalScalarCount.ExecuteAsync(
-            connection,
-            null,
-            "SELECT COUNT(1) FROM dbo.ArtifactBundleTraceDecisionLinks WHERE BundleId = @BundleId",
-            new { BundleId = bundleId },
-            ct);
-
-        int notesCount = await SqlRelationalScalarCount.ExecuteAsync(
-            connection,
-            null,
-            "SELECT COUNT(1) FROM dbo.ArtifactBundleTraceNotes WHERE BundleId = @BundleId",
-            new { BundleId = bundleId },
-            ct);
-
-        List<SynthesizedArtifact> artifacts = artifactCount > 0
-            ? await LoadArtifactsRelationalAsync(connection, bundleId, loadArtifactBodies, ct)
+        List<SynthesizedArtifact> artifacts = relationalArtifacts.Count > 0
+            ? relationalArtifacts
             : ArtifactBundleArtifactsJsonReader.DeserializeArtifacts(row.ArtifactsJson);
 
         SynthesisTrace trace = ArtifactBundleTraceJsonReader.DeserializeTraceBase(row.TraceJson);
 
-        if (genCount > 0)
+        List<string> generators = await LoadOrderedStringsAsync(
+            connection,
+            """
+            SELECT GeneratorName AS Item
+            FROM dbo.ArtifactBundleTraceGenerators
+            WHERE BundleId = @BundleId
+            ORDER BY SortOrder;
+            """,
+            bundleId,
+            ct);
 
-            trace.GeneratorsUsed = await LoadOrderedStringsAsync(
-                connection,
-                """
-                SELECT GeneratorName AS Item
-                FROM dbo.ArtifactBundleTraceGenerators
-                WHERE BundleId = @BundleId
-                ORDER BY SortOrder;
-                """,
-                bundleId,
-                ct);
+        if (generators.Count > 0)
+            trace.GeneratorsUsed = generators;
 
-        if (traceDecCount > 0)
+        List<string> sourceDecisionIds = await LoadOrderedStringsAsync(
+            connection,
+            """
+            SELECT DecisionId AS Item
+            FROM dbo.ArtifactBundleTraceDecisionLinks
+            WHERE BundleId = @BundleId
+            ORDER BY SortOrder;
+            """,
+            bundleId,
+            ct);
 
-            trace.SourceDecisionIds = await LoadOrderedStringsAsync(
-                connection,
-                """
-                SELECT DecisionId AS Item
-                FROM dbo.ArtifactBundleTraceDecisionLinks
-                WHERE BundleId = @BundleId
-                ORDER BY SortOrder;
-                """,
-                bundleId,
-                ct);
+        if (sourceDecisionIds.Count > 0)
+            trace.SourceDecisionIds = sourceDecisionIds;
 
-        if (notesCount > 0)
+        List<string> notes = await LoadOrderedStringsAsync(
+            connection,
+            """
+            SELECT NoteText AS Item
+            FROM dbo.ArtifactBundleTraceNotes
+            WHERE BundleId = @BundleId
+            ORDER BY SortOrder;
+            """,
+            bundleId,
+            ct);
 
-            trace.Notes = await LoadOrderedStringsAsync(
-                connection,
-                """
-                SELECT NoteText AS Item
-                FROM dbo.ArtifactBundleTraceNotes
-                WHERE BundleId = @BundleId
-                ORDER BY SortOrder;
-                """,
-                bundleId,
-                ct);
+        if (notes.Count > 0)
+            trace.Notes = notes;
 
         return new ArtifactBundle
         {
@@ -237,6 +216,81 @@ internal static class ArtifactBundleRelationalRead
         }
 
         return result;
+    }
+
+    /// <summary>
+    ///     Loads one artifact row (with body) by id without hydrating sibling artifact bodies.
+    ///     Returns <see langword="null" /> when no relational row matches — callers fall back to the
+    ///     full bundle hydrate so legacy JSON-only bundles keep working.
+    /// </summary>
+    internal static async Task<SynthesizedArtifact?> TryLoadSingleArtifactRelationalAsync(
+        SqlConnection connection,
+        Guid bundleId,
+        Guid artifactId,
+        CancellationToken ct)
+    {
+        const string artifactSql = """
+                                   SELECT SortOrder, ArtifactId, RunId, ManifestId, CreatedUtc,
+                                          ArtifactType, Name, Format, Content, ContentHash, GenerationStatus, ContentBlobUri
+                                   FROM dbo.ArtifactBundleArtifacts
+                                   WHERE BundleId = @BundleId AND ArtifactId = @ArtifactId;
+                                   """;
+
+        ArtifactSliceRow? row = await connection.QuerySingleOrDefaultAsync<ArtifactSliceRow>(
+            new CommandDefinition(
+                artifactSql,
+                new { BundleId = bundleId, ArtifactId = artifactId },
+                cancellationToken: ct));
+
+        if (row is null)
+            return null;
+
+        const string metaSql = """
+                               SELECT ArtifactSortOrder, MetaSortOrder, MetaKey, MetaValue
+                               FROM dbo.ArtifactBundleArtifactMetadata
+                               WHERE BundleId = @BundleId AND ArtifactSortOrder = @ArtifactSortOrder
+                               ORDER BY MetaSortOrder;
+                               """;
+
+        List<MetadataSliceRow> metaRows = (await connection.QueryAsync<MetadataSliceRow>(
+            new CommandDefinition(
+                metaSql,
+                new { BundleId = bundleId, ArtifactSortOrder = row.SortOrder },
+                cancellationToken: ct))).ToList();
+
+        const string decSql = """
+                              SELECT ArtifactSortOrder, LinkSortOrder, DecisionId
+                              FROM dbo.ArtifactBundleArtifactDecisionLinks
+                              WHERE BundleId = @BundleId AND ArtifactSortOrder = @ArtifactSortOrder
+                              ORDER BY LinkSortOrder;
+                              """;
+
+        List<ArtifactDecisionSliceRow> decisionRows = (await connection.QueryAsync<ArtifactDecisionSliceRow>(
+            new CommandDefinition(
+                decSql,
+                new { BundleId = bundleId, ArtifactSortOrder = row.SortOrder },
+                cancellationToken: ct))).ToList();
+
+        Dictionary<string, string> metadata = new(StringComparer.Ordinal);
+
+        foreach (MetadataSliceRow mr in metaRows)
+            metadata[mr.MetaKey] = mr.MetaValue;
+
+        return new SynthesizedArtifact
+        {
+            ArtifactId = row.ArtifactId,
+            RunId = row.RunId,
+            ManifestId = row.ManifestId,
+            CreatedUtc = row.CreatedUtc,
+            ArtifactType = row.ArtifactType,
+            Name = row.Name,
+            Format = row.Format,
+            Content = row.Content ?? string.Empty,
+            ContentHash = row.ContentHash,
+            Status = SynthesizedArtifactSliceStatusParser.Parse(row.GenerationStatus),
+            Metadata = metadata,
+            ContributingDecisionIds = decisionRows.Select(static dr => dr.DecisionId).ToList()
+        };
     }
 
     private static async Task<List<string>> LoadOrderedStringsAsync(

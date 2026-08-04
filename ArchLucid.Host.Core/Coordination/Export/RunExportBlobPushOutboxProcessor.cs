@@ -37,7 +37,7 @@ public sealed class RunExportBlobPushOutboxProcessor(
         timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
 
     /// <inheritdoc />
-    public async Task ProcessPendingBatchAsync(CancellationToken ct)
+    public async Task<int> ProcessPendingBatchAsync(CancellationToken ct)
     {
         RunExportBlobPushOutboxProcessorOptions opts = VerifiedOptions(_processorOptions.Value);
 
@@ -67,6 +67,8 @@ public sealed class RunExportBlobPushOutboxProcessor(
             {
                 await OnProcessingFailedAsync(outbox, auditService, entry, ex, opts, ct);
             }
+
+        return batch.Count;
     }
 
     private async Task ProcessEntryAsync(

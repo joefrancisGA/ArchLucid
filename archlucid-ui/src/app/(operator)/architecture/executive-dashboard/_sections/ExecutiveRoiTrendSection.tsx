@@ -1,11 +1,14 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
-import { ApiV1Routes } from "@/lib/api-v1-routes";
+import {
+  type ExecutiveRoiHistoryPoint,
+  useExecutiveRoiSummaryHistoryQuery,
+} from "@/hooks/use-executive-roi-summary-history-query";
 import {
   type ExecutiveTimeRange,
   filterHistoryPointsByRange,
@@ -13,19 +16,10 @@ import {
 import { BUYER_EXECUTIVE_DATA_SOURCE_NOTE } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
 import { ExecutiveRoiSavingsTrendSvgChart } from "./ExecutiveRoiSavingsTrendSvgChart";
 
-type HistoryPoint = {
-  snapshotUtc: string;
-  totalEstimatedUsdSavings: number;
-  criticalSecurityFindings: number;
-  realRunCount: number;
-  simulatorRunCount: number;
-  realModeSavingsUsd: number;
-  isMixedMode: boolean;
-};
+type HistoryPoint = ExecutiveRoiHistoryPoint;
 
 function formatMonth(isoUtc: string): string {
   const date = new Date(isoUtc);
@@ -81,45 +75,11 @@ export function ExecutiveRoiTrendSection({
   defaultTimeRange = "quarter",
   showTimeRangeSelector = false,
 }: ExecutiveRoiTrendSectionProps) {
-  const [allPoints, setAllPoints] = useState<HistoryPoint[]>([]);
   const [timeRange, setTimeRange] = useState<ExecutiveTimeRange>(defaultTimeRange);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    void (async () => {
-      try {
-        const response = await fetch(
-          `/api/proxy/${ApiV1Routes.roiExecutiveSummary}/history`,
-          mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }),
-        );
-
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
-        }
-
-        const json = (await response.json()) as { points?: HistoryPoint[] };
-
-        if (!cancelled) {
-          setAllPoints(json.points ?? []);
-        }
-      } catch {
-        if (!cancelled) {
-          setError(true);
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const historyQuery = useExecutiveRoiSummaryHistoryQuery();
+  const allPoints: HistoryPoint[] = useMemo(() => historyQuery.data ?? [], [historyQuery.data]);
+  const loading = historyQuery.isPending;
+  const error = historyQuery.isError;
 
   const points = useMemo(
     () => filterHistoryPointsByRange(allPoints, timeRange),

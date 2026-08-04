@@ -57,4 +57,14 @@ public sealed class BackgroundJobsOptions
         get;
         set;
     } = 16;
+
+    /// <summary>
+    ///     Jobs executed concurrently within one received batch (1–16). Each job already runs in its own
+    ///     DI scope; the bound protects the SQL pool and blob throughput on a single worker replica.
+    /// </summary>
+    public int ProcessorMaxConcurrentJobs
+    {
+        get;
+        set;
+    } = 4;
 }
