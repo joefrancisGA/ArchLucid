@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-04 - UI: Security & trust Evidence chrome (SEC)
+
+/security-trust ships SecurityTrustEvidenceOrientationStrip (Sources + claim-discipline), traffic Notes under Marketing, and honest Evidence score 40. Marketing assurance page hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-04 - UI: Validate review Evidence chrome (REP)
 
 /replay ships PageContextualHelpButton, Category-1 registry, Sources + claim-discipline orientation strip, traffic Notes (Marketing catalog; operator Execute), and honest Evidence score 48. Validation-action hub hard-caps higher Evidence; no CPA / third-party pen-test implication.
