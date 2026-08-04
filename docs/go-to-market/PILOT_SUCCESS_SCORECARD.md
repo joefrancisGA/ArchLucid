@@ -103,6 +103,8 @@ Measure these before the pilot (baseline) and at pilot end (actual). The delta i
 | **Buyer-provided** | The buyer supplied the baseline or actual value for this pilot | Safe to include in the sponsor packet with normal caveats |
 | **Defaulted** | ArchLucid used a conservative model default because the buyer did not supply a value | Include only with a clear default label; do not lead with projected dollars |
 | **Demo-derived** | The value came from a seeded or agreed demo workspace | Use for walkthrough shape only; do not quote as buyer outcome |
+
+**Sponsor headline rule:** Demo-derived and estimate-basis ROI figures never render as top-line KPIs on sponsor-facing artifacts. They appear only inside a clearly labeled illustrative container, or are suppressed with a call-to-action to supply buyer-provided baselines. Buyer-provided (and uploaded actual/amortized) figures remain headline-eligible.
 | **Not collected** | The value was unavailable | Keep the row blank or explain the gap; do not invent a number |
 
 ### 2.2 Quality metrics

@@ -8,7 +8,7 @@ This filename remains path-stable for procurement-pack ZIP / UI callers. The sec
 
 ## Three layers {#three-layers}
 
-ArchLucid enforces tenant isolation at **identity**, **application**, and **database** layers when deployed with the recommended Azure posture. **SQL row-level security is not the production isolation boundary** — dedicated per-tenant SQL catalogs plus application scope checks are the standard customer path.
+ArchLucid enforces tenant isolation at **identity**, **application**, and **database** layers when deployed with the recommended Azure posture. **SQL row-level security is not the production isolation boundary** — dedicated per-tenant SQL catalogs plus application scope checks are the standard customer path. Database-per-tenant is the blast-radius control; request-time tenant binding and authorization-boundary tests sit above it. Full layered narrative: [`docs/library/customer-facing/DATA_HANDLING.md#isolation`](../library/customer-facing/DATA_HANDLING.md#isolation).
 
 ## Encryption {#encryption}
 

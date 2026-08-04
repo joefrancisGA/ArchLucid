@@ -18,30 +18,33 @@ function baseFinding(overrides: Partial<QuickDecisionFinding>): QuickDecisionFin
 }
 
 describe("deriveFindingTrustChip", () => {
-  it("marks findings with evidence as evidence-backed", () => {
+  it("marks findings with evidence as AI-generated / evidence-backed", () => {
     const chip = deriveFindingTrustChip(
       baseFinding({ evidenceRefCount: 2, confidenceLevel: "High" }),
     );
 
     expect(chip.kind).toBe("evidence-backed");
-    expect(chip.label).toBe("Evidence-backed");
+    expect(chip.label).toBe("AI-generated");
+    expect(chip.groundingLabel).toBe("Evidence-backed");
   });
 
   it("marks zero evidence as citation missing", () => {
     const chip = deriveFindingTrustChip(baseFinding({ evidenceRefCount: 0 }));
 
     expect(chip.kind).toBe("citation-missing");
-    expect(chip.label).toBe("No evidence linked");
-    expect(chip.title).toContain("Add evidence to the review");
+    expect(chip.label).toBe("AI-generated");
+    expect(chip.groundingLabel).toBe("Ungrounded");
+    expect(chip.title).toContain("language model");
   });
 
-  it("marks low confidence with evidence as low-confidence", () => {
+  it("marks low confidence with evidence as estimated", () => {
     const chip = deriveFindingTrustChip(
       baseFinding({ evidenceRefCount: 1, confidenceLevel: "Low" }),
     );
 
     expect(chip.kind).toBe("low-confidence");
-    expect(chip.label).toBe("Low confidence");
+    expect(chip.label).toBe("AI-generated");
+    expect(chip.groundingLabel).toBe("Estimated");
   });
 
   it("marks low confidence without evidence as heuristic", () => {
@@ -50,7 +53,8 @@ describe("deriveFindingTrustChip", () => {
     );
 
     expect(chip.kind).toBe("heuristic");
-    expect(chip.label).toBe("Heuristic");
+    expect(chip.label).toBe("AI-generated");
+    expect(chip.groundingLabel).toBe("Ungrounded");
   });
 
   it("treats missing evidence count as citation missing", () => {
@@ -65,6 +69,25 @@ describe("deriveFindingTrustChip", () => {
     );
 
     expect(chip.kind).toBe("evidence-backed");
-    expect(chip.title).toContain("At least one evidence reference");
+    expect(chip.title).toContain("language model");
+  });
+
+  it("marks policy-rule findings as deterministic rule", () => {
+    const chip = deriveFindingTrustChip(
+      baseFinding({ policyRuleId: "cis-az-001", evidenceRefCount: 0 }),
+    );
+
+    expect(chip.kind).toBe("deterministic-rule");
+    expect(chip.label).toBe("Deterministic rule");
+    expect(chip.groundingLabel).toBe("Not applicable");
+  });
+
+  it("marks simulator runs as simulated", () => {
+    const chip = deriveFindingTrustChip(baseFinding({ evidenceRefCount: 2 }), {
+      isSimulatorRun: true,
+    });
+
+    expect(chip.kind).toBe("simulator-derived");
+    expect(chip.label).toBe("Simulated");
   });
 });

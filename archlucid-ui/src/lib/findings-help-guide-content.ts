@@ -84,6 +84,29 @@ export const FINDINGS_HELP_SEVERITY_ROWS: readonly FindingsHelpSeverityRow[] = [
   },
 ] as const;
 
+export const FINDINGS_HELP_PROVENANCE_TITLE = "Where findings come from";
+
+export const FINDINGS_HELP_PROVENANCE_INTRO =
+  "Every finding is labeled by origin so you know what you are signing off on. Deterministic-rule findings come from policy pack rules. AI-generated findings come from a language model and carry a grounding label. Simulated findings come from the deterministic simulator and should not be cited as live-model evidence.";
+
+export const FINDINGS_HELP_PROVENANCE_ORIGINS = [
+  {
+    origin: "Deterministic rule",
+    description:
+      "A policy rule fired; the rationale comes from the rule definition, not a model.",
+  },
+  {
+    origin: "AI-generated",
+    description:
+      "A language model produced the finding. Grounding may be evidence-backed, estimated, ungrounded, or degraded.",
+  },
+  {
+    origin: "Simulated",
+    description:
+      "Produced by the deterministic simulator, not a live model — structurally valid but not real-model evidence.",
+  },
+] as const;
+
 export const FINDINGS_HELP_EVIDENCE_INTRO =
   "Evidence explains why a finding exists. From a finding, authorized users can review the supporting material and trace how it connects to architecture elements and governance rules.";
 
@@ -238,6 +261,7 @@ export const FINDINGS_HELP_RESPOND_INTRO =
 export const FINDINGS_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "what-a-finding-is", title: "What a finding is" },
   { level: 2, id: "anatomy-of-a-finding", title: "Anatomy of a finding" },
+  { level: 2, id: "where-findings-come-from", title: "Where findings come from" },
   { level: 2, id: "severity-and-impact", title: "Severity and impact" },
   { level: 2, id: "inspect-the-evidence", title: "Inspect the evidence" },
   { level: 2, id: "respond-to-a-finding", title: "Respond to a finding" },

@@ -16,11 +16,16 @@ import { FindingCreateWorkItemActions } from "@/components/work-items/FindingCre
 import { FindingAskInlinePanel } from "@/components/FindingAskInlinePanel";
 import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
 import { FindingTrustChip } from "@/components/FindingTrustChip";
+import {
+  aggregateFindingProvenance,
+  formatFindingProvenanceAggregateLine,
+} from "@/lib/finding-provenance-display";
 import { FindingEvidenceLinkChip } from "@/components/usability/FindingEvidenceLinkChip";
 import { FindingEvidenceRefSnippets } from "@/components/usability/FindingEvidenceRefSnippets";
 import { FindingPolicyEvidenceCitationLinks } from "@/components/findings/FindingPolicyEvidenceCitationLinks";
 import { ReviewDetailPolicyPackFindingsBreakdown } from "@/components/findings/ReviewDetailPolicyPackFindingsBreakdown";
 import { FindingInsightDensityDisclosure } from "@/components/usability/FindingInsightDensityDisclosure";
+import { QuickDecisionAdditionalFindingsList } from "@/components/QuickDecisionAdditionalFindingsList";
 import { FindingFeedbackThumbs } from "@/components/FindingFeedbackThumbs";
 import { MessageCircle } from "lucide-react";
 
@@ -123,6 +128,15 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
   );
   const policyPackSummary = policyPackImpact.groups;
   const hasSourceFindings = props.findings.length > 0;
+  const provenanceAggregateLine = formatFindingProvenanceAggregateLine(
+    aggregateFindingProvenance(
+      props.findings.map((finding) => ({
+        policyRuleId: finding.policyRuleId,
+        evidenceRefCount: finding.evidenceRefCount,
+        confidenceLevel: finding.confidenceLevel,
+      })),
+    ),
+  );
   const buyerPolishedShell = props.buyerPolishedShell === true;
   const headlineFindingCount = props.headlineFindingCount;
   const headlineWarningCount = props.headlineWarningCount;
@@ -930,9 +944,10 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
                   >
                     Additional findings ({additionalFindings.length})
                   </h3>
-                  <ul className="m-0 list-none space-y-2 p-0">
-                    {additionalFindings.map((finding) => renderWorkspaceSecondaryFinding(finding))}
-                  </ul>
+                  <QuickDecisionAdditionalFindingsList
+                    findings={additionalFindings}
+                    renderFinding={(finding) => renderWorkspaceSecondaryFinding(finding)}
+                  />
                 </section>
               ) : null}
             </div>
@@ -958,6 +973,11 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
               {hasSourceFindings ? (
                 <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                   Export CSV or JSON above, or use <strong>Copy for Jira</strong> on each finding for one-click ticket paste.
+                  {provenanceAggregateLine !== null ? (
+                    <span className="mt-1 block" data-testid="finding-provenance-aggregate">
+                      {provenanceAggregateLine}
+                    </span>
+                  ) : null}
                   {hiddenLowConfidenceHint !== null ? (
                     <span className="mt-1 block" data-testid="quick-decision-low-confidence-hidden-hint">
                       {hiddenLowConfidenceHint}.

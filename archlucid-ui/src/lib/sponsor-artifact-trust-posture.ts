@@ -1,4 +1,14 @@
 import type { ProofPackageCompletenessJson } from "@/lib/pilot-proof-readiness";
+import {
+  resolveRoiHeadlineEligibility,
+  ROI_HEADLINE_ILLUSTRATIVE_DEMO_LABEL,
+  ROI_HEADLINE_SUPPRESSED_CTA,
+  type RoiHeadlineEligibility,
+} from "@/lib/roi-headline-eligibility";
+import {
+  resolveSponsorArtifactEvidenceBadges,
+  type ResolveSponsorArtifactEvidenceBadgeInput,
+} from "@/lib/sponsor-artifact-evidence-badge";
 
 export type SponsorArtifactTrustPosture =
   | "evidence-backed"
@@ -37,7 +47,7 @@ export function resolveSponsorArtifactTrustPostures(
       postureBadge(
         "manual-review-required",
         "Manual review required",
-        "Demo-derived sample — replace with a live-tenant committed review before external sponsor circulation.",
+        "Demo-derived sample — replace with a live-tenant finalized review before external sponsor circulation.",
       ),
     );
 
@@ -95,4 +105,50 @@ export function resolveSponsorArtifactTrustPostures(
   }
 
   return badges;
+}
+
+export type SponsorRoiHeadlinePresentation = {
+  readonly eligibility: RoiHeadlineEligibility;
+  readonly sourceLabel: string;
+  readonly containerLabel: string | null;
+  readonly cta: string | null;
+};
+
+/**
+ * Sponsor-facing ROI headline rule: demo-derived / estimate-class numbers never headline;
+ * missing basis is suppressed with a baseline CTA.
+ */
+export function presentSponsorRoiHeadline(
+  input: ResolveSponsorArtifactEvidenceBadgeInput,
+): SponsorRoiHeadlinePresentation {
+  const badges = resolveSponsorArtifactEvidenceBadges(input);
+  const eligibility = resolveRoiHeadlineEligibility(badges.source);
+
+  if (eligibility === "headline-eligible") {
+    return {
+      eligibility,
+      sourceLabel: badges.sourceLabel,
+      containerLabel: null,
+      cta: null,
+    };
+  }
+
+  if (eligibility === "suppressed-with-cta") {
+    return {
+      eligibility,
+      sourceLabel: badges.sourceLabel,
+      containerLabel: null,
+      cta: ROI_HEADLINE_SUPPRESSED_CTA,
+    };
+  }
+
+  return {
+    eligibility,
+    sourceLabel: badges.sourceLabel,
+    containerLabel:
+      badges.source === "demo-derived"
+        ? ROI_HEADLINE_ILLUSTRATIVE_DEMO_LABEL
+        : "Illustrative — estimate basis, not buyer-provided",
+    cta: null,
+  };
 }

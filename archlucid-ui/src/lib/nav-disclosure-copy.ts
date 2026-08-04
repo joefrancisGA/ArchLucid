@@ -4,9 +4,20 @@
  */
 /** Sidebar collapsed-pilot expand control — intent over feature count. */
 export const SIDEBAR_SHOW_ALL_FEATURES = {
-  show: "Show governance & analysis tools",
+  show: "Show all destinations",
   hide: "Fewer sidebar links",
-  title: "Unlock governance workflow, compare, replay, and deeper analysis destinations.",
+  title: "Show governance workflow, compare, replay, and deeper analysis destinations.",
+} as const;
+
+/**
+ * Evaluator escape hatch: reveal destinations that stay hidden under progressive disclosure.
+ * Default remains collapsed for first-run pilots; this control is the reveal-all affordance.
+ */
+export const SHOW_ALL_DESTINATIONS = {
+  show: SIDEBAR_SHOW_ALL_FEATURES.show,
+  hide: SIDEBAR_SHOW_ALL_FEATURES.hide,
+  title: SIDEBAR_SHOW_ALL_FEATURES.title,
+  lockedReasonAfterFinalize: "Available after your first finalized review",
 } as const;
 
 /**

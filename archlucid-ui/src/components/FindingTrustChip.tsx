@@ -3,18 +3,31 @@
 import { cn } from "@/lib/utils";
 import { enterpriseStatusTagClass, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import {
+  FINDING_PROVENANCE_ORIGIN_EXPLANATIONS,
+  resolveFindingProvenance,
+  type FindingProvenanceGrounding,
+  type FindingProvenanceOrigin,
+} from "@/lib/finding-provenance-display";
 
 export type FindingTrustChipKind =
   | "evidence-backed"
   | "citation-missing"
   | "low-confidence"
   | "simulator-derived"
-  | "heuristic";
+  | "heuristic"
+  | "deterministic-rule"
+  | "degraded";
 
 export type FindingTrustChipModel = {
   kind: FindingTrustChipKind;
+  /** Origin axis — primary badge label. */
   label: string;
+  /** Grounding axis — secondary text / tooltip detail. */
+  groundingLabel: string;
   title: string;
+  origin: FindingProvenanceOrigin;
+  grounding: FindingProvenanceGrounding;
 };
 
 const chipClassByKind: Record<FindingTrustChipKind, string> = {
@@ -23,63 +36,121 @@ const chipClassByKind: Record<FindingTrustChipKind, string> = {
   "low-confidence": enterpriseStatusTagClass("needs-attention"),
   "simulator-derived": enterpriseStatusTagClass("in-progress"),
   heuristic: enterpriseStatusTagClass("neutral"),
+  "deterministic-rule": enterpriseStatusTagClass("ready"),
+  degraded: enterpriseStatusTagClass("needs-attention"),
 };
 
-/** Deterministic trust chip from existing wire fields — no invented confidence scores. */
-export function deriveFindingTrustChip(finding: QuickDecisionFinding): FindingTrustChipModel {
-  const evidenceCount = finding.evidenceRefCount ?? 0;
-  const confidence = finding.confidenceLevel ?? null;
+function kindFromProvenance(
+  origin: FindingProvenanceOrigin,
+  grounding: FindingProvenanceGrounding,
+): FindingTrustChipKind {
+  if (origin === "Deterministic rule") {
+    return "deterministic-rule";
+  }
 
-  if (evidenceCount <= 0) {
-    if (confidence === "Low") {
-      return {
-        kind: "heuristic",
-        label: "Heuristic",
-        title: "No evidence references; agent applied heuristic reasoning.",
-      };
+  if (origin === "Simulated") {
+    return "simulator-derived";
+  }
+
+  switch (grounding) {
+    case "Evidence-backed":
+      return "evidence-backed";
+    case "Estimated":
+      return "low-confidence";
+    case "Ungrounded":
+      return "citation-missing";
+    case "Degraded":
+      return "degraded";
+    case "Not applicable":
+      return "heuristic";
+    default: {
+      const exhaustive: never = grounding;
+
+      return exhaustive;
     }
+  }
+}
 
-    return {
-      kind: "citation-missing",
-      label: "No evidence linked",
-      title:
-        "No evidence references are attached to this finding. Add evidence to the review or re-run to improve traceability.",
-    };
+function refineUngroundedKind(
+  grounding: FindingProvenanceGrounding,
+  evidenceRefCount: number | null | undefined,
+  confidence: string | null | undefined,
+): FindingTrustChipKind {
+  if (grounding !== "Ungrounded") {
+    return "heuristic";
   }
 
-  if (confidence === "Low") {
-    return {
-      kind: "low-confidence",
-      label: "Low confidence",
-      title: "Evidence exists but evaluation confidence is low.",
-    };
+  if ((evidenceRefCount ?? 0) <= 0 && confidence === "Low") {
+    return "heuristic";
   }
+
+  return "citation-missing";
+}
+
+/** Deterministic trust chip from existing wire fields — origin × grounding, no invented scores. */
+export function deriveFindingTrustChip(
+  finding: QuickDecisionFinding,
+  options?: { readonly isSimulatorRun?: boolean },
+): FindingTrustChipModel {
+  const provenance = resolveFindingProvenance({
+    policyRuleId: finding.policyRuleId,
+    evidenceRefCount: finding.evidenceRefCount,
+    confidenceLevel: finding.confidenceLevel,
+    isSimulatorRun: options?.isSimulatorRun,
+  });
+
+  let kind = kindFromProvenance(provenance.origin, provenance.grounding);
+
+  if (provenance.origin === "AI-generated" && provenance.grounding === "Ungrounded") {
+    kind = refineUngroundedKind(
+      provenance.grounding,
+      finding.evidenceRefCount,
+      finding.confidenceLevel,
+    );
+  }
+
+  const originExplanation = FINDING_PROVENANCE_ORIGIN_EXPLANATIONS[provenance.origin];
+  const groundingSuffix =
+    provenance.grounding === "Not applicable"
+      ? ""
+      : ` Grounding: ${provenance.grounding}.`;
 
   return {
-    kind: "evidence-backed",
-    label: "Evidence-backed",
-    title: "At least one evidence reference supports this finding.",
+    kind,
+    label: provenance.origin,
+    groundingLabel: provenance.grounding,
+    title: `${originExplanation}${groundingSuffix}`,
+    origin: provenance.origin,
+    grounding: provenance.grounding,
   };
 }
 
 type FindingTrustChipProps = {
   readonly finding: QuickDecisionFinding;
+  readonly isSimulatorRun?: boolean;
 };
 
 export function FindingTrustChip(props: FindingTrustChipProps) {
-  const chip = deriveFindingTrustChip(props.finding);
+  const chip = deriveFindingTrustChip(props.finding, {
+    isSimulatorRun: props.isSimulatorRun,
+  });
 
   return (
     <span
       className={cn(
-        "inline-flex shrink-0 rounded-md border px-2 py-0.5 font-semibold",
+        "inline-flex shrink-0 items-center gap-1.5 rounded-md border px-2 py-0.5 font-semibold",
         chipClassByKind[chip.kind],
         OPERATOR_TYPOGRAPHY.helper,
       )}
       title={chip.title}
       data-testid={`finding-trust-chip-${chip.kind}`}
+      data-finding-origin={chip.origin}
+      data-finding-grounding={chip.grounding}
     >
-      {chip.label}
+      <span>{chip.label}</span>
+      {chip.grounding !== "Not applicable" ? (
+        <span className="font-normal opacity-80">{chip.grounding}</span>
+      ) : null}
     </span>
   );
 }

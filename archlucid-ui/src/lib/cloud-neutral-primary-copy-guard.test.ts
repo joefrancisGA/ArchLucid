@@ -10,6 +10,7 @@ import { REVIEWS_NEW_PAGE_LEAD } from "@/lib/buyer-polish-copy";
 import { CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS } from "@/lib/core-pilot-first-review-copy";
 import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
 import { FIRST_WEEK_ROUTE_GUIDANCE } from "@/lib/first-week-route-guidance";
+import { WELCOME_DEFAULT_POLICY_PACK_BASELINE_NOTE } from "@/components/marketing/welcome-marketing-copy";
 
 describe("cloud-neutral-primary-copy guard", () => {
   it("keeps canonical primary copy free of Azure-default bias phrases", () => {
@@ -43,5 +44,14 @@ describe("cloud-neutral-primary-copy guard", () => {
     const homeGuidance = FIRST_WEEK_ROUTE_GUIDANCE.home.bridgeCopy.toLowerCase();
     expect(homeGuidance).not.toContain("azure extractor");
     expect(homeGuidance).toContain("evidence-only");
+  });
+
+  it("keeps welcome baseline note scoped to documented per-cloud rule coverage", () => {
+    expect(WELCOME_DEFAULT_POLICY_PACK_BASELINE_NOTE).toContain(
+      CLOUD_NEUTRAL_PRIMARY_COPY.scopedCloudCoverageClaim,
+    );
+    expect(WELCOME_DEFAULT_POLICY_PACK_BASELINE_NOTE.toLowerCase()).not.toMatch(
+      /equal depth|identical coverage on every cloud|same rules on aws, azure, and gcp/,
+    );
   });
 });

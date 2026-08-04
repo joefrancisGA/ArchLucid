@@ -23,6 +23,9 @@ import {
   FINDINGS_HELP_PAGE_SUBTITLE,
   FINDINGS_HELP_PAGE_TITLE,
   FINDINGS_HELP_PRIMARY_ACTIONS,
+  FINDINGS_HELP_PROVENANCE_INTRO,
+  FINDINGS_HELP_PROVENANCE_ORIGINS,
+  FINDINGS_HELP_PROVENANCE_TITLE,
   FINDINGS_HELP_RESPOND_INTRO,
   FINDINGS_HELP_ROLE_GUIDANCE,
   FINDINGS_HELP_SEVERITY_INTRO,
@@ -203,6 +206,27 @@ export function HelpFindingsGuideView(props: HelpFindingsGuideViewProps): React.
               Anatomy of a finding
             </p>
             <FindingsAnatomyPanel />
+          </section>
+
+          <section
+            aria-labelledby="where-findings-come-from-heading"
+            className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
+            data-testid="help-findings-provenance"
+          >
+            <HelpSectionHeading id="where-findings-come-from">{FINDINGS_HELP_PROVENANCE_TITLE}</HelpSectionHeading>
+            <p id="where-findings-come-from-heading" className="sr-only">
+              {FINDINGS_HELP_PROVENANCE_TITLE}
+            </p>
+            <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{FINDINGS_HELP_PROVENANCE_INTRO}</p>
+            <ul className={HELP_PAGE_LAYOUT.bulletList}>
+              {FINDINGS_HELP_PROVENANCE_ORIGINS.map((row) => (
+                <li key={row.origin}>
+                  <span className="font-semibold">{row.origin}</span>
+                  {" — "}
+                  {row.description}
+                </li>
+              ))}
+            </ul>
           </section>
 
           <section

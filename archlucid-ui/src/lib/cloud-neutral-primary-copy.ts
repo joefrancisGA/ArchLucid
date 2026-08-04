@@ -82,6 +82,9 @@ export const CLOUD_NEUTRAL_PRIMARY_COPY = {
     "Optional accelerator: upload a cloud inventory ZIP (AWS, Azure, or GCP) for production-faithful subscription inventory.",
   wizardCloudTargetHint:
     "Evidence-only is the default first-pilot path. Cloud inventory ZIPs for AWS, Azure, or GCP accelerate topology and cost findings when your security team approves the read-only extractor.",
+  /** Scoped claim — workflow is multi-cloud; deterministic rule depth is not identical. */
+  scopedCloudCoverageClaim:
+    "Works across clouds; rule coverage by cloud is documented.",
 } as const;
 
 /** Cloud target dropdown labels — equal weight; no accelerated/default provider callouts. */

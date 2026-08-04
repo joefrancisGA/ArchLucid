@@ -168,7 +168,7 @@ export const WELCOME_USE_CASE_CARDS: readonly WelcomeUseCaseCard[] = [
  * (Azure baseline at tenant create; AWS/GCP cloud-specific packs activate on run target — TB-717).
  */
 export const WELCOME_DEFAULT_POLICY_PACK_BASELINE_NOTE =
-  "New workspaces include cloud-neutral security and FinOps packs; Azure Well-Architected and CIS Azure packs are enabled by default until you target AWS or Google Cloud in a review.";
+  "New workspaces include cloud-neutral security and FinOps packs. Works across clouds; rule coverage by cloud is documented. Azure Well-Architected and CIS Azure packs are enabled by default until you target AWS or Google Cloud in a review.";
 
 /** Thematic-mapping disclaimer — must stay aligned with docs/go-to-market/DEFAULT_POLICY_PACKS_V1.md §2. */
 export const WELCOME_POLICY_PACK_DISCLAIMER =
