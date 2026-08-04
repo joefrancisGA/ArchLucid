@@ -3,10 +3,12 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
+import { ProductLearningEvidenceOrientationStrip } from "@/app/(operator)/internal/product-learning/_sections/ProductLearningEvidenceOrientationStrip";
 import { EmptyState } from "@/components/EmptyState";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { SeverityTag } from "@/components/ui/severity-tag";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   buildProductLearningReportFileUrl,
   buildProductLearningReportJsonUrl,
@@ -43,14 +45,23 @@ export function ProductLearningPageView(props: Props) {
 
   return (
     <div className="max-w-5xl">
-      <h2 className="mt-0">{BUYER_TERMINOLOGY.evaluationFeedback}</h2>
-      <p className={cn("max-w-3xl leading-relaxed", OPERATOR_TYPOGRAPHY.helper)}>
-        {PILOT_FEEDBACK_VOCABULARY.pageLead} This view is separate from{" "}
-        <Link href="/internal-operations/recommendation-learning" className={OPERATOR_LINK.inline}>
-          AI recommendation learning
-        </Link>{" "}
-        (advisory acceptance weights).
-      </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0 space-y-2">
+          <h2 className="mt-0">{BUYER_TERMINOLOGY.evaluationFeedback}</h2>
+          <p className={cn("max-w-3xl leading-relaxed", OPERATOR_TYPOGRAPHY.helper)}>
+            {PILOT_FEEDBACK_VOCABULARY.pageLead} This view is separate from{" "}
+            <Link href="/internal-operations/recommendation-learning" className={OPERATOR_LINK.inline}>
+              AI recommendation learning
+            </Link>{" "}
+            (advisory acceptance weights).
+          </p>
+        </div>
+        <PageContextualHelpButton />
+      </div>
+
+      <div className="mt-4 mb-5">
+        <ProductLearningEvidenceOrientationStrip />
+      </div>
 
       <div className="flex flex-wrap gap-3 items-center mb-5 mt-4">
         <label className={cn("flex items-center gap-2", OPERATOR_TYPOGRAPHY.body)}>

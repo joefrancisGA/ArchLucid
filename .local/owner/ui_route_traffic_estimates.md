@@ -45,13 +45,12 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 
 ---
 
-**OVERALL WEIGHT SCORE:** 56.03%
+**OVERALL WEIGHT SCORE:** 56.07%
 
 ## Master table (score 0 first; then Deficit desc; ties A→Z by path)
 
 | ID | Path | Hit% | Scores | Weight | Deficit | Section | Notes |
 |----|------|------|--------|--------|---------|---------|-------|
-| PRC | `/product-learning` | 0.06% | 0 | 0 | 6 | Onboarding | None |
 | ATD | `/admin/trial-funnel` | 0.05% | 0 | 0 | 5 | Admin | None |
 | GXX | `/get-started` | 0.05% | 0 | 0 | 5 | Marketing | None |
 | AD | `/governance/advisory-scans?tab=schedules` | 0.05% | 0 | 0 | 5 | Tab surface | None |
@@ -250,6 +249,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | HP | `/help/pilot-guide` | 0.07% | 52 | 3.64 | 3.36 | Help topic | Pilot guide help (Help topic) - HelpPilotGuideView with PageContextualHelpButton (topic map pilot-guide; Category-1 registry), workspace Sources + claim-discipline orientation strip, start-pilot CTAs, prepared PILOT_GUIDE.md body. Not bare HelpTopicMarkdownView. Sibling HCO = first-architecture-review; SPP = pilot outcomes. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-04) â€” help-topic orientation hard-caps higher Evidence. |
 | SPP | `/sponsor-report/pilot-outcomes` | 0.07% | 52 | 3.64 | 3.36 | Sponsor report | Sponsor pilot outcomes report (Sponsor report) - PilotValueReportPageClient/View with PageContextualHelpButton (topic map executive-summary; Category-1 registry), workspace Sources + claim-discipline orientation strip, period controls, Outcomes nav. Absorbs former VPX hit share from retired legacy /value-report/pilot bookmark (LegacyPilotValueReportRedirectPage still permanentRedirects here). Period summary â€” not a signed-record Sources trail alone. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-04) â€” sponsor period-summary hard-caps higher Evidence without diligence packing. |
 | AFX | `/admin/fleet-llm-cogs` | 0.05% | 35 | 1.75 | 3.25 | Admin | None |
+| PRC | `/product-learning` | 0.06% | 50 | 3 | 3 | Onboarding | Pilot feedback (Onboarding) - ProductLearningPageView at /internal/product-learning with PageContextualHelpButton (topic map pilot-feedback; Category-1 registry), workspace Sources + claim-discipline orientation strip, time-range dashboard, planning bridge, exports. Legacy /product-learning hard-retired (404). Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 50/100 (2026-08-04) - internal ops feedback hub hard-caps higher Evidence (below PLA planning). |
 | HE | `/help/azure-permissions` | 0.06% | 52 | 3.12 | 2.88 | Help topic | Azure permissions help (Help topic) - HelpAzurePermissionsGuideView with PageContextualHelpButton (topic map azure-permissions; Category-1 registry), workspace Sources + claim-discipline orientation strip, permissions matrix, setup and verify panels. Not bare HelpTopicMarkdownView. Sibling HC = Connect Azure securely; HCE = cloud-connections help. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-04) â€” help-topic orientation hard-caps higher Evidence. |
 | HGE | `/help/glossary` | 0.06% | 52 | 3.12 | 2.88 | Help topic | Glossary help (Help topic) - HelpGlossaryPageView with PageContextualHelpButton (topic map glossary; Category-1 registry), workspace Sources + claim-discipline orientation strip, searchable term browser. Not bare HelpTopicMarkdownView. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-04) — help-topic orientation hard-caps higher Evidence. |
 | HOE | `/help/operator-auth-roles` | 0.06% | 52 | 3.12 | 2.88 | Help alias | Operator-auth-roles help alias (Help alias) - resolves to users-and-roles specialty HelpUsersAndRolesGuideView with PageContextualHelpButton (topic map users-and-roles; Category-1 registry on alias + canon), workspace Sources + claim-discipline orientation strip, role overview + capability matrix. Not bare HelpTopicMarkdownView. Sibling HUX = /help/users-and-roles. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-04) — help-topic orientation hard-caps higher Evidence. |

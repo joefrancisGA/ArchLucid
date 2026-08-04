@@ -349,6 +349,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/internal/product-learning",
+    entry: {
+      whatIsThisPage:
+        "Pilot feedback — aggregate review signals, ranked improvement opportunities, and exports for product triage.",
+      whatToDoNext:
+        "Filter by time range, open Improvement planning for themes and plans, or start a review when the dataset is empty.",
+      whyEmpty: "Feedback rows appear after operators capture review outcomes in this workspace.",
+      whereToConfigurePrerequisite:
+        "Pilot feedback is an Internal Ops surface — System Admin authority is typically required.",
+    },
+  },
+  {
     prefix: "/governance/advisory-scans",
     entry: {
       whatIsThisPage: "Generate prioritized follow-up recommendations from finalized reviews.",

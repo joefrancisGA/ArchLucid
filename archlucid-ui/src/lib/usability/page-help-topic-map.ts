@@ -150,6 +150,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/sponsor-report", topic: { slug: "executive-summary", label: "Executive summary" } },
   { prefix: "/digests", topic: { slug: "getting-started", label: "Architecture digests" } },
   { prefix: "/insights/planning", topic: { slug: "getting-started", label: "Improvement planning" } },
+  {
+    prefix: "/internal/product-learning",
+    topic: { slug: "pilot-feedback", label: "Pilot feedback" },
+  },
   { prefix: "/administration/settings/billing", topic: { slug: "billing-and-plans", label: "Billing and plans" } },
   { prefix: "/help/billing-and-plans", topic: { slug: "billing-and-plans", label: "Billing and plans" } },
   {
