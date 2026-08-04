@@ -241,10 +241,13 @@ def infer_section(path: str, *, help_alias_paths: set[str]) -> str:
         if path in help_alias_paths:
             return "Help alias"
         return "Help topic"
-    if path.startswith("/reviews"):
+    # Public architecture-prefixed reviews / architectures (canonical URLs).
+    if path.startswith("/architecture/reviews") or path.startswith("/reviews"):
         return "Core review"
-    if path.startswith("/architectures"):
+    if path.startswith("/architecture/architectures") or path.startswith("/architectures"):
         return "Core review"
+    if path.startswith("/architecture/executive-dashboard"):
+        return "Executive"
     if path.startswith("/architecture-intelligence"):
         return "Core review"
     if path in ("/", "/dashboard", "/ask"):
@@ -265,8 +268,12 @@ def infer_section(path: str, *, help_alias_paths: set[str]) -> str:
         return "Help topic"
     if path.startswith("/executive"):
         return "Executive"
+    if path.startswith("/sponsor-report"):
+        return "Sponsor report"
     if path.startswith("/digests") or path == "/digest-subscriptions":
         return "Digests"
+    if path.startswith("/insights/architecture-scorecard"):
+        return "Insights"
     if path.startswith("/insights/evidence-graph"):
         return "Planning"
     if (
