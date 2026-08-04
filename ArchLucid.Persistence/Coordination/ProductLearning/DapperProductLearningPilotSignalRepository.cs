@@ -304,7 +304,13 @@ public sealed class DapperProductLearningPilotSignalRepository(ISqlConnectionFac
                                        SubjectType,
                                        N'|',
                                        COALESCE(NULLIF(LTRIM(RTRIM(ArtifactHint)), N''), N'*')) AS TrendKey,
-                                   COALESCE(NULLIF(LTRIM(RTRIM(ArtifactHint)), N''), SubjectType) AS ArtifactTypeOrHint,
+                                   -- Must only use GROUP BY keys / aggregates (SQL 8120). Empty hint falls back to SubjectType
+                                   -- to match ProductLearningSignalAggregations.BuildArtifactTypeOrHint — not the '*' group sentinel.
+                                   CASE
+                                       WHEN COALESCE(NULLIF(LTRIM(RTRIM(ArtifactHint)), N''), N'*') = N'*'
+                                           THEN SubjectType
+                                       ELSE COALESCE(NULLIF(LTRIM(RTRIM(ArtifactHint)), N''), N'*')
+                                   END AS ArtifactTypeOrHint,
                                    SUM(CASE WHEN Disposition = N'Trusted' THEN 1 ELSE 0 END) AS AcceptedOrTrustedCount,
                                    SUM(CASE WHEN Disposition = N'Revised' THEN 1 ELSE 0 END) AS RevisionCount,
                                    SUM(CASE WHEN Disposition = N'Rejected' THEN 1 ELSE 0 END) AS RejectionCount,

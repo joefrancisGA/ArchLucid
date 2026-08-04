@@ -371,8 +371,9 @@ public static class ApplicationProblemMapper
     /// <remarks>
     ///     <see cref="SqlException.Number" /> <c>-2</c> is the canonical SQL Server timeout error code.
     ///     Deadlock (<c>1205</c>) from parallel writers is treated like other commit races so clients receive 409, not 503.
-    ///     Syntax and programming faults (for example <c>319</c> missing <c>;</c> before a CTE) map to HTTP 500 so
-    ///     deterministic query bugs are not masked as retryable outages.
+    ///     Syntax and programming faults (for example <c>319</c> missing <c>;</c> before a CTE, or <c>8120</c>
+    ///     select-list / <c>GROUP BY</c> mismatch) map to HTTP 500 so deterministic query bugs are not masked as
+    ///     retryable outages.
     ///     Remaining database-origin exceptions are surfaced as retryable 503 so clients and load balancers
     ///     can distinguish transient failures from permanent 500 errors.
     /// </remarks>
@@ -526,7 +527,8 @@ public static class ApplicationProblemMapper
     }
 
     private static bool IsSqlProgrammingFaultNumber(int number) =>
-        number is 102 or 156 or 207 or 208 or 547 or 2812 or 319 or 4104;
+        // 8120 = column invalid in select list (missing from GROUP BY / aggregate) — deterministic query bug, not outage.
+        number is 102 or 156 or 207 or 208 or 547 or 2812 or 319 or 4104 or 8120;
 
     public static ObjectResult CreateProblemResult(
         int statusCode,
