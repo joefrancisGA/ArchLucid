@@ -18,6 +18,10 @@ Release entries newest-first. Each section condenses the detailed prompt logs pr
 
 Removed App Router redirect stub; CTO recap leave-behind links now use `/architecture/reviews/{runId}?readOnly=1` via `buildReadOnlyReviewWorkspaceHref`. Old `/snapshot/...` bookmarks 404.
 
+## 2026-08-04 - UI: Signup verify Evidence chrome (SVX)
+
+/signup/verify ships SignupVerifyEvidenceOrientationStrip (evaluation Sources + claim-discipline), traffic Notes under Marketing, and honest Evidence score 40. Marketing evaluation-access page hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-04 - UI: ServiceNow integration Evidence chrome (ISX)
 
 /integrations/servicenow ships PageContextualHelpButton, Category-1 registry, Sources + claim-discipline orientation strip, traffic Notes under Integrations, and honest Evidence score 48. Integration-config hub hard-caps higher Evidence; no CPA / third-party pen-test implication.
