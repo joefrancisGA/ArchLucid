@@ -160,7 +160,7 @@ Former standalone body: `docs/go-to-market/PA_CLAIM_HONESTY_BULLETS_BATCH_A.md` 
 
 | Do not promise | Do promise |
 | --- | --- |
-| A signed webhook or documented processing order is fully hardened against hostile internet traffic, replay, or denial of service. | The target intake order is rate → bounded size → verify → parse; replay/idempotency and bounded-body completion remain tracked under **TB-966**–**TB-968**. |
+| A signed webhook or documented processing order is fully hardened against hostile internet traffic, replay, or denial of service. | The target intake order is rate → bounded size → verify → parse ([`INBOUND_WEBHOOK_HOSTILE_TRAFFIC.md`](INBOUND_WEBHOOK_HOSTILE_TRAFFIC.md), **TB-966** Done); bounded-body and ITSM replay completion remain **TB-967**–**TB-968**. |
 
 #### M-127 — Execution-mode labels
 

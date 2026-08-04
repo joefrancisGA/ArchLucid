@@ -2,7 +2,7 @@
 
 # Architecture invariant catalog
 
-**Last updated:** 2026-05-09
+**Last updated:** 2026-08-04
 
 **Normative decisions** that conflict with this catalog belong in a new or amended [Architecture Decision Record](../architecture/adrs/README.md); this file is the **checklist and ID registry** for enforcement work tracked in [`TECH_BACKLOG.md`](TECH_BACKLOG.md).
 
@@ -24,7 +24,7 @@
 | [INV-012](#inv-012-quality-gate-single-source-of-truth) | Quality gate outcome for a run is computed once, persisted with versioned thresholds, and read by API / UI / audit consumers—no silent recompute drift. | P1 | Typed aggregate + forbid duplicate evaluators downstream |
 | [INV-013](#inv-013-replay-read-only-scope) | Replay reads the original run but writes outputs under a separate replay scope; original artefact hashes are unchanged after replay. | P2 | Integration hash assertions |
 | [INV-014](#inv-014-no-mutable-statics) | `Application` and `AgentRuntime` carry no mutable static state; shared state lives in DI services with explicit lifetimes. | P2 | Analyzer |
-| [INV-015](#inv-015-inbound-webhook-pipeline-order) | External webhooks run verify-signature → size-cap → rate-limit → schema-parse before dispatch to handlers. | P1 | Shared middleware pipeline + ordering tests |
+| [INV-015](#inv-015-inbound-webhook-pipeline-order) | External inbound webhooks rate-limit and bound size before verify-signature, and never schema-parse before verify; hostile-internet extras in the TB-966 contract. | P1 | Pipeline order tests + [`INBOUND_WEBHOOK_HOSTILE_TRAFFIC.md`](INBOUND_WEBHOOK_HOSTILE_TRAFFIC.md) |
 | [INV-016](#inv-016-decisioning-notification-boundary) | Domain decisioning (`ArchLucid.Decisioning`) must not reference notification delivery infrastructure (`ArchLucid.Notifications`); channels register in Host.Composition only. | P1 | **Enforced** — `DecisioningNotificationsBoundaryArchitectureTests` + `DependencyConstraintTests` |
 
 **Tier legend:** **P0** — ship risk or trust regression if violated. **P1** — correctness / cost / security adjacent. **P2** — hygiene that prevents creep.
@@ -163,9 +163,13 @@
 
 ## INV-015: Inbound webhook pipeline order
 
-**Intent:** Reduce parser-DoS and signature-bypass bugs; aligns with TB-007 security theme and connector backlog.
+**Intent:** Reduce parser-DoS and signature-bypass bugs on **inbound** vendor webhooks. Aligns with TB-007 / connector security and Done **TB-012**.
 
-**Enforcement sketch:** Single pipeline entry type; controllers must delegate through it.
+**Order (PA-defensible):** Prefer **rate-limit → bounded size → verify (+ freshness) → schema-parse → idempotent handler**. Keep the hard rule **verify before parse**. Rate and size must precede verify so DoS work is not paid in crypto/parse. Historical one-liner “verify → size → rate → parse” understated that precedence — see [`INBOUND_WEBHOOK_HOSTILE_TRAFFIC.md`](INBOUND_WEBHOOK_HOSTILE_TRAFFIC.md) (**TB-966**).
+
+**Why:** Unbounded body read before size rejection, or parse before authenticity checks, turns signed-webhook routes into easy DoS or confusion bugs. Signature authenticity alone does not imply replay or DoS hardness.
+
+**Enforcement sketch:** Architecture + integration tests on ITSM / billing inbound paths (`InboundWebhookPipelineOrderArchitectureTests`, `InboundWebhookPipelineOrderIntegrationTests`, `WebhookMiddlewareOrderingTests`). Bounded pre-read and ITSM replay remain **TB-967** / **TB-968**. Controllers should converge on a shared intake helper over time; today each surface implements the spine with known gaps listed in the hostile-traffic contract.
 
 ---
 
@@ -179,7 +183,8 @@
 
 ## References
 
-- [`TECH_BACKLOG.md`](TECH_BACKLOG.md) — **TB-009** through **TB-012** enforcement waves  
+- [`TECH_BACKLOG.md`](TECH_BACKLOG.md) — **TB-009** through **TB-012** enforcement waves; **TB-966**–**TB-968** inbound hostile-traffic follow-ons  
+- [`INBOUND_WEBHOOK_HOSTILE_TRAFFIC.md`](INBOUND_WEBHOOK_HOSTILE_TRAFFIC.md) — INV-015 hostile-internet checklist + surface matrix (**TB-966**)  
 - [ADR 0035 (Proposed)](../architecture/adrs/0035-architecture-invariant-catalog.md) — governance and acceptance  
 - [`SONNET_AI_FUNCTIONALITY_REVIEW_BRIEF.md`](SONNET_AI_FUNCTIONALITY_REVIEW_BRIEF.md) — AI-path review questions overlapping INV-002  
-- [`docs/NEXT_REFACTORINGS.md`](NEXT_REFACTORINGS.md)) — broader refactor backlog (orthogonal)
+- [`docs/NEXT_REFACTORINGS.md`](NEXT_REFACTORINGS.md) — broader refactor backlog (orthogonal)

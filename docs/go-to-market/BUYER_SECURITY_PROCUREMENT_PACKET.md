@@ -781,7 +781,7 @@ Former standalone body: `docs/go-to-market/SECURITY_REVIEWER_INBOUND_WEBHOOK_ONE
 | “Front Door Network Protection completes app-layer” | Edge helps; app still needs size/verify/replay |
 | “ITSM inbound is replay-safe today” | Billing has replay patterns; ITSM parity is **TB-968** |
 
-**Residuals:** **TB-966**–**TB-968**; cite INV-015 / Done **TB-012** without overclaim.
+**Residuals:** Engineering SoT [`INBOUND_WEBHOOK_HOSTILE_TRAFFIC.md`](../library/INBOUND_WEBHOOK_HOSTILE_TRAFFIC.md) (**TB-966** Done); bounded body **TB-967**; ITSM replay **TB-968**. Cite INV-015 / Done **TB-012** without overclaim.
 
 **Related:** [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise).
 
