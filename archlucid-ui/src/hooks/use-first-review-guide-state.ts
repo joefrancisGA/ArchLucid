@@ -69,7 +69,7 @@ export function useFirstReviewGuideState(): FirstReviewGuideViewState {
       readyToFinalize: commitContext.latestRunReadyToFinalize && !commitContext.hasCommittedManifest,
       latestRunHref:
         commitContext.latestRunId !== null
-          ? `/reviews/${encodeURIComponent(commitContext.latestRunId)}`
+          ? `/architecture/reviews/${encodeURIComponent(commitContext.latestRunId)}`
           : null,
     };
   }, [canExecute, commitQuery.data, commitQuery.isError, commitQuery.isPending, finishSetup.context, finishSetup.phase]);

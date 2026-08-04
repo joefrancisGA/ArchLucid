@@ -19,13 +19,13 @@ export const SHORTCUTS: ShortcutEntry[] = [
   {
     key: "alt+n",
     label: BUYER_NEW_REVIEW_NAV_LABEL,
-    route: "/reviews/new",
+    route: "/architecture/reviews/new",
     description: `${OPERATOR_START_REVIEW_QUICK_ACTION_LABEL} — open the new-review wizard`,
   },
   {
     key: "alt+r",
     label: "Reviews",
-    route: "/reviews?projectId=default",
+    route: "/architecture/reviews?projectId=default",
     description: "Open reviews list",
   },
   {

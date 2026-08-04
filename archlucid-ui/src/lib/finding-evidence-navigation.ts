@@ -31,7 +31,7 @@ export function findingEvidenceTraceLegacyRedirectPath(pathname: string): string
     return null;
   }
 
-  const reviews = /^(\/reviews\/[^/]+\/findings\/[^/]+)\/inspect(\/.*)?$/i.exec(pathname);
+  const reviews = /^(\/(?:architecture\/)?reviews\/[^/]+\/findings\/[^/]+)\/inspect(\/.*)?$/i.exec(pathname);
 
   if (reviews !== null) {
     return `${reviews[1]}/${FINDING_EVIDENCE_TRACE_SEGMENT}${reviews[2] ?? ""}`;

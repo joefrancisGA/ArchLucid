@@ -1,4 +1,4 @@
-/** Canonical review-intake example templates — shared by home card copy and `/reviews/new` prefill. */
+/** Canonical review-intake example templates — shared by home card copy and `/architecture/reviews/new` prefill. */
 export type ReviewIntakeExampleTemplate = {
   readonly id: string;
   /** Legacy `?example=` query alias (optional). */
@@ -61,7 +61,7 @@ export const OPERATOR_HOME_EXAMPLE_DESCRIPTION = CLAIMS_INTAKE_MODERNIZATION_TEM
 /** Title / system name prefilled on review intake when the template matches. */
 export const OPERATOR_HOME_EXAMPLE_SYSTEM_NAME = CLAIMS_INTAKE_MODERNIZATION_TEMPLATE.systemName;
 
-/** Home card CTA — promise matches prefill behavior on `/reviews/new`. */
+/** Home card CTA — promise matches prefill behavior on `/architecture/reviews/new`. */
 export const OPERATOR_HOME_EXAMPLE_START_CTA = "Start from this example";
 
 /**

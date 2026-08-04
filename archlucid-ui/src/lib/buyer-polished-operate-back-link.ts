@@ -65,5 +65,5 @@ export function isBuyerOperateBackLinkRedundantWithBreadcrumbs(
     return false;
   }
 
-  return backLink.href === `/reviews/${encodeURIComponent(trimmedRunId)}`;
+  return backLink.href === `/architecture/reviews/${encodeURIComponent(trimmedRunId)}`;
 }

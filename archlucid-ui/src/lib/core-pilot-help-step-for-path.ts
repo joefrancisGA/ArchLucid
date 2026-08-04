@@ -7,7 +7,7 @@ export type CorePilotHelpStepContext = {
 
 /**
  * Map operator routes to the closest Core Pilot checklist step for in-app Help.
- * Pathname-only: review detail cannot infer finalize state, so `/reviews/{id}` maps to the finalize step.
+ * Pathname-only: review detail cannot infer finalize state, so `/architecture/reviews/{id}` maps to the finalize step.
  */
 export function corePilotHelpStepForPath(pathname: string): CorePilotHelpStepContext | null {
   const normalized = (pathname.trim().length === 0 ? "/" : pathname) || "/";
@@ -16,15 +16,15 @@ export function corePilotHelpStepForPath(pathname: string): CorePilotHelpStepCon
     return { stepIndex: 0, step: CORE_PILOT_STEPS[0] };
   }
 
-  if (normalized === "/reviews/new") {
+  if (normalized === "/architecture/reviews/new") {
     return { stepIndex: 0, step: CORE_PILOT_STEPS[0] };
   }
 
-  if (normalized === "/reviews") {
+  if (normalized === "/architecture/reviews") {
     return { stepIndex: 1, step: CORE_PILOT_STEPS[1] };
   }
 
-  if (/^\/reviews\/[^/]+$/.test(normalized)) {
+  if (/^\/(?:architecture\/)?reviews\/[^/]+$/.test(normalized)) {
     return { stepIndex: 2, step: CORE_PILOT_STEPS[2] };
   }
 

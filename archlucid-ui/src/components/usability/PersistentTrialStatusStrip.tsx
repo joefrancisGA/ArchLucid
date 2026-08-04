@@ -26,7 +26,7 @@ function resolveTrialNextAction(payload: TenantTrialStatusPayload | null): Trial
   if (payload?.trialSampleRunId !== null && payload?.trialSampleRunId !== undefined && payload.trialSampleRunId.trim().length > 0) {
     return {
       label: "Explore sample review",
-      href: `/reviews/${encodeURIComponent(payload.trialSampleRunId.trim())}`,
+      href: `/architecture/reviews/${encodeURIComponent(payload.trialSampleRunId.trim())}`,
     };
   }
 

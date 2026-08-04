@@ -78,13 +78,13 @@ export function recentViewLabelFromPathname(pathname: string): string | null {
     return null;
   }
 
-  const reviewMatch = /^\/reviews\/([^/]+)$/u.exec(path);
+  const reviewMatch = /^\/(?:architecture\/)?reviews\/([^/]+)$/u.exec(path);
 
   if (reviewMatch !== null) {
     return "Review";
   }
 
-  const findingMatch = /^\/reviews\/([^/]+)\/findings\/([^/]+)/u.exec(path);
+  const findingMatch = /^\/(?:architecture\/)?reviews\/([^/]+)\/findings\/([^/]+)/u.exec(path);
 
   if (findingMatch !== null) {
     return "Finding detail";
@@ -118,11 +118,11 @@ export function recentViewLabelFromPathname(pathname: string): string | null {
 export function recentViewKindFromPathname(pathname: string): OperatorRecentViewKind {
   const path = pathname.split("?")[0] ?? "";
 
-  if (/^\/reviews\/[^/]+\/findings\//u.test(path)) {
+  if (/^\/(?:architecture\/)?reviews\/[^/]+\/findings\//u.test(path)) {
     return "finding";
   }
 
-  if (/^\/reviews\/[^/]+/u.test(path)) {
+  if (/^\/(?:architecture\/)?reviews\/[^/]+/u.test(path)) {
     return "review";
   }
 

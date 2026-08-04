@@ -1,4 +1,4 @@
-/** `/reviews` hub — page header and section copy. */
+/** `/architecture/reviews` hub — page header and section copy. */
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
 
 export const REVIEWS_HUB_PAGE_TITLE = "Reviews";

@@ -345,10 +345,10 @@ export function FirstPilotReadinessCockpit() {
   const curatedHome = isBuyerShellHomePresentation();
   const reviewPackageHref =
     commitCtx.firstCommittedRunId !== null
-      ? `/reviews/${encodeURIComponent(commitCtx.firstCommittedRunId)}`
+      ? `/architecture/reviews/${encodeURIComponent(commitCtx.firstCommittedRunId)}`
       : commitCtx.latestRunId !== null
-        ? `/reviews/${encodeURIComponent(commitCtx.latestRunId)}`
-        : "/reviews?projectId=default";
+        ? `/architecture/reviews/${encodeURIComponent(commitCtx.latestRunId)}`
+        : "/architecture/reviews?projectId=default";
 
   return (
     <OperatorHomeDisclosureSection

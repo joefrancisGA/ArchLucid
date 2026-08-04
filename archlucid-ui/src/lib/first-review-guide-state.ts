@@ -335,7 +335,7 @@ export function resolveFirstReviewGuideHeaderActions(
 
   return {
     primaryLabel: "Start first review",
-    primaryHref: "/reviews/new",
+    primaryHref: "/architecture/reviews/new",
     primaryDisabled: !canExecute,
     primaryDisabledReason: canExecute
       ? null

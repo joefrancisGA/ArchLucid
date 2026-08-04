@@ -13,7 +13,7 @@ export type ShowcaseOutcomeStripProps = {
   /** When set (demo spine), adds a direct finding deep-link card */
   primaryFindingId?: string | null | undefined;
   /**
-   * When false, omit authenticated `/reviews/...` deep links (use manifest-only CTAs). Public marketing surfaces pass
+   * When false, omit authenticated `/architecture/reviews/...` deep links (use manifest-only CTAs). Public marketing surfaces pass
    * {@link import("@/lib/operator-static-demo").isStaticDemoPayloadFallbackEnabled} from a server parent.
    */
   readonly isRunDetailAvailable?: boolean;

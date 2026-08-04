@@ -10,7 +10,7 @@ import {
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
-/** Sources + claim discipline for `/reviews/new` (RNX Evidence). */
+/** Sources + claim discipline for `/architecture/reviews/new` (RNX Evidence). */
 export function ReviewsNewSourcesStrip(): React.JSX.Element {
   return (
     <div className="mt-4 space-y-3" data-testid="reviews-new-orientation">

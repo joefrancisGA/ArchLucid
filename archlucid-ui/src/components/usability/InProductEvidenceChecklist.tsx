@@ -69,14 +69,14 @@ export function InProductEvidenceChecklist() {
           id: "evidence-intake",
           label: "Evidence attached or sample review opened",
           status: evidenceAck ? "ready" : "attention",
-          actionHref: "/reviews/new",
+          actionHref: "/architecture/reviews/new",
           actionLabel: "Add evidence",
         },
         {
           id: "first-commit",
           label: "First review committed",
           status: checklistSteps.some((step) => step.stepIndex === 4 && step.isCompleted) ? "ready" : "pending",
-          actionHref: "/reviews?projectId=default",
+          actionHref: "/architecture/reviews?projectId=default",
           actionLabel: "Open reviews",
         },
       ];

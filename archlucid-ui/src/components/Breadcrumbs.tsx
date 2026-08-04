@@ -37,7 +37,7 @@ export function Breadcrumbs() {
   const reviewsListReturnHref = useSyncExternalStore(
     subscribeReviewsListReturnHref,
     readReviewsListReturnHref,
-    () => "/reviews?projectId=default",
+    () => "/architecture/reviews?projectId=default",
   );
 
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();

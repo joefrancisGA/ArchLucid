@@ -31,7 +31,7 @@ export const MARKETING_SITEMAP_PATHNAMES: readonly string[] = [
 export const MARKETING_ROBOTS_DISALLOW_PREFIXES: readonly string[] = [
   "/auth/",
   "/api/",
-  "/reviews/",
+  "/architecture/reviews/",
   "/runs/",
   "/manifests/",
   "/signed-records/",

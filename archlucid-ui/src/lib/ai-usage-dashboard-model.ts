@@ -437,7 +437,7 @@ function buildBreakdownRows(
         estimatedCostUsd: run.estimatedCostUsd,
         percentOfTotal: 0,
         trendPercent: null,
-        detailHref: `/reviews/${encodeURIComponent(run.runId)}`,
+        detailHref: `/architecture/reviews/${encodeURIComponent(run.runId)}`,
       });
     }
   }

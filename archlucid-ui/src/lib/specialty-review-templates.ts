@@ -78,7 +78,7 @@ export const SPECIALTY_REVIEW_TEMPLATES: readonly SpecialtyReviewTemplateDefinit
     ],
     expectedOutput: "An evidence-backed SaaS readiness review with prioritized findings and recommendations.",
     supportsCloudContext: true,
-    sampleReviewHref: "/reviews/b6ab57c8-84b1-8ac6-28d8-d790efcd1dbf",
+    sampleReviewHref: "/architecture/reviews/b6ab57c8-84b1-8ac6-28d8-d790efcd1dbf",
     preview: {
       exampleQuestions: [
         "How is tenant isolation enforced across data stores and application tiers?",
@@ -123,7 +123,7 @@ export const SPECIALTY_REVIEW_TEMPLATES: readonly SpecialtyReviewTemplateDefinit
     ],
     expectedOutput: "An AI governance review with evidence-backed findings and governance decisions.",
     supportsCloudContext: false,
-    sampleReviewHref: "/reviews/61c60d76-2b80-93f9-46bb-2f66fd608b9b",
+    sampleReviewHref: "/architecture/reviews/61c60d76-2b80-93f9-46bb-2f66fd608b9b",
     preview: {
       exampleQuestions: [
         "What data sources feed model training and inference, and how is sensitive data handled?",
@@ -169,7 +169,7 @@ export const SPECIALTY_REVIEW_TEMPLATES: readonly SpecialtyReviewTemplateDefinit
     ],
     expectedOutput: "A policy-backed healthcare claims review with findings, evidence, and an audit-ready record.",
     supportsCloudContext: false,
-    sampleReviewHref: "/reviews/claims-intake-modernization",
+    sampleReviewHref: "/architecture/reviews/claims-intake-modernization",
     preview: {
       exampleQuestions: [
         "Where does protected health information enter, transform, and leave the claims pipeline?",

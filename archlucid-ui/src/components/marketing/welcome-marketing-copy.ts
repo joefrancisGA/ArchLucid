@@ -144,7 +144,7 @@ export const WELCOME_USE_CASE_CARDS: readonly WelcomeUseCaseCard[] = [
     title: "AI governance + security baseline",
     body: "Responsible-AI and security-architecture rules seed every new tenant, so regulated reviews start review-ready instead of with an empty library.",
     // Workspace B Meridian/Alpine storyline — not WAF/CAF findings (M-06 C8).
-    href: `/reviews/${DEMO_WORKSPACE_B_RUN_ID}`,
+    href: `/architecture/reviews/${DEMO_WORKSPACE_B_RUN_ID}`,
     ctaLabel: "Open regulated sample",
   },
   {

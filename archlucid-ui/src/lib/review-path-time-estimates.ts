@@ -1,5 +1,5 @@
 /**
- * Display-only time estimates for review creation paths on `/reviews/new`.
+ * Display-only time estimates for review creation paths on `/architecture/reviews/new`.
  */
 
 export type ReviewCreationPathId = "quick-review" | "guided-intake" | "detailed";

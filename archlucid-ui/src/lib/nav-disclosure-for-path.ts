@@ -7,8 +7,8 @@ const CORE_PILOT_ESSENTIAL_ONLY_PATHS = new Set<string>([
   "/",
   EXECUTIVE_DASHBOARD_HREF,
   FIRST_REVIEW_GUIDE_PATH,
-  "/reviews/new",
-  "/reviews",
+  "/architecture/reviews/new",
+  "/architecture/reviews",
   "/administration/settings/extract-upload",
   EVIDENCE_GRAPH_PATH,
 ]);

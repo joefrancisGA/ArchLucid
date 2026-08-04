@@ -17,7 +17,7 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 /**
- * Segment error boundary for `/reviews/[runId]` so review detail client failures show buyer-safe recovery
+ * Segment error boundary for `/architecture/reviews/[runId]` so review detail client failures show buyer-safe recovery
  * (not the parent `/runs` “reviews list” error segment).
  */
 export default function RunDetailSegmentError({

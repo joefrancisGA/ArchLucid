@@ -49,7 +49,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     summary:
       "Admin-only SE/ops printable checklist — extractor ZIP, finalize, ROI proof, and audit export. Buyers should use Your first architecture review instead.",
     docPath: "docs/runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md",
-    routes: ["/", "/architecture/first-review-guide", "/reviews/new", EXECUTIVE_DASHBOARD_HREF],
+    routes: ["/", "/architecture/first-review-guide", "/architecture/reviews/new", EXECUTIVE_DASHBOARD_HREF],
   },
   {
     id: "pilot-nav-profile",
@@ -58,7 +58,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     summary:
       "The first-review path stays focused until your first architecture review is finalized; analysis and governance groups unlock on demand or automatically after finalize.",
     docPath: "docs/library/customer-facing/WORKSPACE_NAVIGATION_GUIDE.md",
-    routes: ["/", "/reviews", "/architecture/first-review-guide"],
+    routes: ["/", "/architecture/reviews", "/architecture/first-review-guide"],
   },
   {
     id: "first-run",
@@ -67,7 +67,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     summary:
       "Create a request, track progress, finalize the signed review record, and review artifacts, findings, and the review trail.",
     docPath: "docs/library/FIRST_RUN_WIZARD.md",
-    routes: ["/reviews/new", "/", "/architecture/first-review-guide"],
+    routes: ["/architecture/reviews/new", "/", "/architecture/first-review-guide"],
   },
   {
     id: "artifacts",
@@ -75,7 +75,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     keywords: ["download", "review", "bundle", "zip"],
     summary: "Open a review, then review artifact list, previews, and bundle downloads from review detail.",
     docPath: "docs/library/operator-shell.md",
-    routes: ["/reviews"],
+    routes: ["/architecture/reviews"],
   },
   {
     id: "compare",

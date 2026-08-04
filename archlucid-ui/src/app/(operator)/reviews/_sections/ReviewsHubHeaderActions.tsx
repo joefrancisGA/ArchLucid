@@ -12,7 +12,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { resolveReviewsHubHeaderPrimary } from "./reviews-hub-header-primary";
 
 /**
- * Header actions for `/reviews`: help + single primary Start/Continue (TB-1541).
+ * Header actions for `/architecture/reviews`: help + single primary Start/Continue (TB-1541).
  * One draft → Continue that draft. Zero or many → Start (list chooses among many).
  */
 export function ReviewsHubHeaderActions(): React.JSX.Element {

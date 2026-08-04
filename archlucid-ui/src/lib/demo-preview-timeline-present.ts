@@ -30,7 +30,7 @@ function resolveTimelineAction(
   context: TimelineActionContext,
 ): DemoPreviewTimelineAction | null {
   const normalized = eventType.trim().toLowerCase();
-  const runHref = context.isRunDetailAvailable ? `/reviews/${enc(context.runId)}` : "#artifact-signed-review-record";
+  const runHref = context.isRunDetailAvailable ? `/architecture/reviews/${enc(context.runId)}` : "#artifact-signed-review-record";
   const manifestHref =
     context.manifestId !== null ? `/signed-records/${enc(context.manifestId)}` : "#artifact-signed-review-record";
 
@@ -54,7 +54,7 @@ function resolveTimelineAction(
     ) {
       return {
         label: "View findings",
-        href: `/reviews/${enc(context.runId)}/findings/${enc(context.primaryFindingId)}`,
+        href: `/architecture/reviews/${enc(context.runId)}/findings/${enc(context.primaryFindingId)}`,
       };
     }
 

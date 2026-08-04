@@ -8,13 +8,13 @@ import { applyBuyerDemoVocabulary } from "@/lib/buyer-demo-vocabulary";
 import { isBuyerVocabularyPassActive } from "@/lib/demo-ui-env";
 import { governanceModeVocabulary } from "@/lib/governance-mode-vocabulary";
 
-/** Buyer-polished shell left-nav label for `/reviews/new`. */
+/** Buyer-polished shell left-nav label for `/architecture/reviews/new`. */
 export const BUYER_NEW_REVIEW_NAV_LABEL = START_REVIEW_LABEL;
 
-/** Quick actions, hero CTAs, and empty states that open `/reviews/new`. */
+/** Quick actions, hero CTAs, and empty states that open `/architecture/reviews/new`. */
 export const OPERATOR_START_REVIEW_QUICK_ACTION_LABEL = START_REVIEW_LABEL;
 
-/** Default left-nav label for `/reviews/new` when buyer vocabulary pass is active (TB-646). */
+/** Default left-nav label for `/architecture/reviews/new` when buyer vocabulary pass is active (TB-646). */
 export const NEW_REVIEW_NAV_LINK_LABEL = BUYER_NEW_REVIEW_NAV_LABEL;
 
 const NEW_REVIEW_NAV_TOOLTIP = `${START_REVIEW_LABEL} — Quick review, Guided intake, or full wizard (Alt+N)`;
@@ -29,7 +29,7 @@ export function resolveNewReviewWizardBreadcrumbLabel(): string {
   return START_REVIEW_LABEL;
 }
 
-/** Sidebar / pilot nav tooltip for `/reviews/new` — explicit review initiation. */
+/** Sidebar / pilot nav tooltip for `/architecture/reviews/new` — explicit review initiation. */
 export function resolveStartReviewPrimaryNavTitle(): string {
   return `${START_REVIEW_LABEL} — evaluate an existing architecture or submitted material (Alt+N)`;
 }
@@ -44,16 +44,16 @@ export function resolveArchitecturesListNavTitle(): string {
   return `${ARCHITECTURE_DRAFTS_LIST_LABEL} — saved architecture drafts; create and resume without starting a review`;
 }
 
-/** @deprecated Use {@link resolveStartReviewPrimaryNavTitle} for `/reviews/new`. */
+/** @deprecated Use {@link resolveStartReviewPrimaryNavTitle} for `/architecture/reviews/new`. */
 export function resolveNewReviewPrimaryNavTitle(): string {
   return resolveStartReviewPrimaryNavTitle();
 }
 
-/** Matches `/reviews` list routes (with optional query), not `/reviews/new` or `/reviews/{id}`. */
+/** Matches `/architecture/reviews` list routes (with optional query), not `/architecture/reviews/new` or `/architecture/reviews/{id}`. */
 export function isReviewsListNavHref(href: string): boolean {
   const path = href.split("?")[0] ?? href;
 
-  return path === "/reviews";
+  return path === "/architecture/reviews";
 }
 
 export function resolveReviewsListNavLinkLabel(isGovernanceModeEnabled: boolean): string {
@@ -109,7 +109,7 @@ export function resolveNavLinkPresentation(
     });
   }
 
-  if (link.href === "/reviews/new" && (buyerPolishedShell || vocabularyPassActive)) {
+  if (link.href === "/architecture/reviews/new" && (buyerPolishedShell || vocabularyPassActive)) {
     return applyBuyerNavVocabulary({
       href: link.href,
       label: resolveNewReviewNavLinkLabel(buyerPolishedShell || vocabularyPassActive),
@@ -140,7 +140,7 @@ export function resolveQuickActionNavLinkPresentation(
     });
   }
 
-  if (link.href === "/reviews/new") {
+  if (link.href === "/architecture/reviews/new") {
     return applyBuyerNavVocabulary({
       href: link.href,
       label: OPERATOR_START_REVIEW_QUICK_ACTION_LABEL,

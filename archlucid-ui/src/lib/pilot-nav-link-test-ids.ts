@@ -6,11 +6,11 @@ export function pilotNavLinkTestId(href: string): string | undefined {
     return "nav-pilot-home";
   }
 
-  if (path === "/reviews/new") {
+  if (path === "/architecture/reviews/new") {
     return "nav-pilot-new-review";
   }
 
-  if (path === "/reviews") {
+  if (path === "/architecture/reviews") {
     return "nav-pilot-reviews-list";
   }
 

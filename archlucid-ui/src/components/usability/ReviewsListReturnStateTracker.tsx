@@ -11,7 +11,7 @@ export function ReviewsListReturnStateTracker() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    if (pathname !== "/reviews") {
+    if (pathname !== "/architecture/reviews") {
       return;
     }
 

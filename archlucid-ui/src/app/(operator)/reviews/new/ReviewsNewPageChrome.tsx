@@ -7,7 +7,7 @@ import { REVIEWS_NEW_PAGE_LEAD } from "@/lib/buyer-polish-copy";
 
 import { ReviewsNewSourcesStrip } from "./ReviewsNewSourcesStrip";
 
-/** Hero + Evidence chrome for `/reviews/new` (RNX). */
+/** Hero + Evidence chrome for `/architecture/reviews/new` (RNX). */
 export function ReviewsNewPageChrome(): React.JSX.Element {
   return (
     <>

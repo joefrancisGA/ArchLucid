@@ -356,7 +356,7 @@ export function RunDetailPageView(props: {
   }).length;
   const architectureEditHref =
     !m.manifestId
-      ? `/reviews/new?path=guided-intake&rerun=${encodeURIComponent(m.resolvedDetail.run.runId)}`
+      ? `/architecture/reviews/new?path=guided-intake&rerun=${encodeURIComponent(m.resolvedDetail.run.runId)}`
       : null;
   const explanationDeferredEl = (
     <RunDetailExplanationDeferred
@@ -661,7 +661,7 @@ export function RunDetailPageView(props: {
                     findings={quickDecisionFindings}
                     correctionHref={
                       !m.manifestId
-                        ? `/reviews/new?path=guided-intake&rerun=${encodeURIComponent(m.resolvedDetail.run.runId)}`
+                        ? `/architecture/reviews/new?path=guided-intake&rerun=${encodeURIComponent(m.resolvedDetail.run.runId)}`
                         : null
                     }
                     panels={{
@@ -764,7 +764,7 @@ export function RunDetailPageView(props: {
                           canEditSource={!m.manifestId}
                           editHref={
                             !m.manifestId
-                              ? `/reviews/new?path=guided-intake&rerun=${encodeURIComponent(m.resolvedDetail.run.runId)}`
+                              ? `/architecture/reviews/new?path=guided-intake&rerun=${encodeURIComponent(m.resolvedDetail.run.runId)}`
                               : null
                           }
                           useStructuredPresentation={false}

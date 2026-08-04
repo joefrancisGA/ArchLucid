@@ -2,7 +2,7 @@ import { getDocHref } from "@/lib/help-topics";
 
 /**
  * Operator pages → repo-root-relative doc path (optional #fragment for GitHub heading navigation).
- * Keys follow primary route segments (`/runs` is the conceptual list; the UI path is `/reviews`).
+ * Keys follow primary route segments (`/runs` is the conceptual list; the UI path is `/architecture/reviews`).
  */
 const PAGE_KEY_TO_DOC_REF: Readonly<Record<string, string>> = {
   "/runs": "docs/library/customer-facing/OPERATOR_QUICKSTART.md#operator-ui",

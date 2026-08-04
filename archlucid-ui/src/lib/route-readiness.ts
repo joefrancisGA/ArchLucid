@@ -13,14 +13,14 @@ export type RouteReadinessTier = "demo-ready" | "advanced-only" | "admin-only" |
 const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/": "demo-ready",
   "/architecture/first-review-guide": "demo-ready",
-  "/reviews/new": "demo-ready",
-  "/reviews?projectId=default": "demo-ready",
+  "/architecture/reviews/new": "demo-ready",
+  "/architecture/reviews?projectId=default": "demo-ready",
   "/help": "demo-ready",
   "/insights/ask-review-questions": "demo-ready",
   "/insights/search-review-evidence": "demo-ready",
   [ARCHITECTURE_SCORECARD_PATH]: "demo-ready",
   "/executive/scorecard": "demo-ready",
-  "/reviews": "demo-ready",
+  "/architecture/reviews": "demo-ready",
   "/governance/findings": "advanced-only",
   "/administration/settings/security-trust": "demo-ready",
   "/administration/settings/preferences": "demo-ready",
@@ -89,13 +89,13 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
 };
 
 /**
- * Resolves readiness for a sidebar or deep link `href` (strips query except projectId on `/reviews` list).
+ * Resolves readiness for a sidebar or deep link `href` (strips query except projectId on `/architecture/reviews` list).
  */
 export function operatorRouteReadiness(href: string): RouteReadinessTier {
   const [path, query] = href.split("?", 2);
 
-  if (path === "/reviews" && query !== undefined && query.includes("projectId=")) {
-    const fromTable = READINESS_BY_PATH["/reviews?projectId=default"];
+  if (path === "/architecture/reviews" && query !== undefined && query.includes("projectId=")) {
+    const fromTable = READINESS_BY_PATH["/architecture/reviews?projectId=default"];
 
     return fromTable ?? "demo-ready";
   }
@@ -175,7 +175,7 @@ function normalizeOperatorNavHrefForDemo(href: string): string {
   const [path, query] = href.split("?", 2);
   const trimmed = path.trim().length === 0 ? "/" : path;
 
-  if (trimmed === "/reviews" && query !== undefined && query.includes("projectId=")) {
+  if (trimmed === "/architecture/reviews" && query !== undefined && query.includes("projectId=")) {
     return "/architecture/reviews?projectId=default";
   }
 

@@ -32,7 +32,7 @@ function ExploreSampleAction(props: {
   );
 }
 
-/** Secondary sample and comparison actions for the `/reviews` hub. */
+/** Secondary sample and comparison actions for the `/architecture/reviews` hub. */
 export function ReviewsHubExploreSamples(): React.JSX.Element {
   const compareBlocked = isCompareRouteBlockedUnderDemoStrictShell();
 

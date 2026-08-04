@@ -9,7 +9,7 @@ export type ResolveOperatorShellAuditRunIdInput = {
 
 /**
  * Resolves the review id used to scope audit nav deep links from the current shell context.
- * Prefers explicit `runId` query params, then `/reviews/{runId}` paths, then workspace memory.
+ * Prefers explicit `runId` query params, then `/architecture/reviews/{runId}` paths, then workspace memory.
  */
 export function resolveOperatorShellAuditRunId(input: ResolveOperatorShellAuditRunIdInput): string | null {
   const query = input.search.startsWith("?") ? input.search.slice(1) : input.search;
@@ -21,7 +21,7 @@ export function resolveOperatorShellAuditRunId(input: ResolveOperatorShellAuditR
   }
 
   const path = (input.pathname.split("?")[0] ?? "").trim().replace(/\/$/, "") || "/";
-  const reviewMatch = /^\/reviews\/([^/]+)/.exec(path);
+  const reviewMatch = /^\/(?:architecture\/)?reviews\/([^/]+)/.exec(path);
 
   if (reviewMatch !== null) {
     try {

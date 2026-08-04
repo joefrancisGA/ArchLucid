@@ -105,7 +105,7 @@ export function resolveBuyerGoldenJourneyNav(
 
   let stepIdx: number | null = null;
 
-  const signedRecordFriendly = /^\/reviews\/([^/]+)\/signed-record\b/.exec(path);
+  const signedRecordFriendly = /^\/(?:architecture\/)?reviews\/([^/]+)\/signed-record\b/.exec(path);
   // Live SQL golden manifests use seeded GUIDs under `/signed-records/{id}` (not only the static showcase id).
   const signedRecordCanonical = /^\/signed-records\/([^/]+)$/.exec(path);
 
@@ -122,7 +122,7 @@ export function resolveBuyerGoldenJourneyNav(
   } else if (path === execBase) {
     stepIdx = 0;
   } else {
-    const reviewExecutive = /^\/reviews\/([^/]+)$/.exec(path);
+    const reviewExecutive = /^\/(?:architecture\/)?reviews\/([^/]+)$/.exec(path);
 
     if (reviewExecutive !== null && isBuyerGoldenSpineRunId(reviewExecutive[1])) {
       stepIdx = 0;
@@ -175,7 +175,7 @@ export function resolveBuyerGoldenJourneyNav(
     } else if (path.startsWith("/governance")) {
       return null;
     } else {
-      const findingInspect = /^\/reviews\/([^/]+)\/findings\/[^/]+\/(?:inspect|evidence-trace)\b/.exec(path);
+      const findingInspect = /^\/(?:architecture\/)?reviews\/([^/]+)\/findings\/[^/]+\/(?:inspect|evidence-trace)\b/.exec(path);
 
       if (findingInspect !== null && isBuyerGoldenSpineRunId(findingInspect[1])) {
         stepIdx = 2;

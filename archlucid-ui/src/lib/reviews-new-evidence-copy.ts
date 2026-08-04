@@ -11,7 +11,7 @@ export type ReviewsNewSourceLink = {
   readonly href: string;
 };
 
-/** Operator Sources — no self-href to `/reviews/new`. */
+/** Operator Sources — no self-href to `/architecture/reviews/new`. */
 export const REVIEWS_NEW_SOURCES: readonly ReviewsNewSourceLink[] = [
   { label: "Architecture reviews", href: "/architecture/reviews" },
   { label: "First review guide", href: "/architecture/first-review-guide" },

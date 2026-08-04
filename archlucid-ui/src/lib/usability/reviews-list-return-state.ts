@@ -21,7 +21,7 @@ export function readReviewsListReturnHref(): string {
   try {
     const raw = window.localStorage.getItem(REVIEWS_LIST_RETURN_HREF_KEY)?.trim();
 
-    if (raw !== undefined && raw.length > 0 && raw.startsWith("/reviews")) {
+    if (raw !== undefined && raw.length > 0 && raw.startsWith("/architecture/reviews")) {
       return raw;
     }
   } catch {

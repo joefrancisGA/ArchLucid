@@ -18,7 +18,7 @@ type TrialStatusPayload = {
 };
 
 /**
- * One-time redirect from operator home (`/`) to `/reviews/{trialWelcomeRunId}` when the API exposes a pre-seeded
+ * One-time redirect from operator home (`/`) to `/architecture/reviews/{trialWelcomeRunId}` when the API exposes a pre-seeded
  * welcome run (self-service trial). Uses sessionStorage so returning to home does not loop.
  *
  * Uses `window.location.replace` (not App Router `router.replace`) so this deep-link cannot leave an
@@ -66,7 +66,7 @@ export function TrialWelcomeRunDeepLink() {
 
         window.sessionStorage.setItem(SESSION_KEY, welcomeId);
         // Full navigation: hard commit, no App Router action-queue contention with sidebar Links.
-        window.location.replace(`/reviews/${encodeURIComponent(welcomeId)}`);
+        window.location.replace(`/architecture/reviews/${encodeURIComponent(welcomeId)}`);
       } catch {
         /* ignore */
       }

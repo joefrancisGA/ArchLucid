@@ -60,7 +60,7 @@ export function buyerPolishedRouteOrientation(
 } | null {
   const path = (pathname.split("?")[0] ?? "").trim().replace(/\/$/, "");
 
-  const inspectRiskFinding = /^\/reviews\/[^/]+\/findings\/[^/]+\/(?:inspect|evidence-trace)\b/.exec(path);
+  const inspectRiskFinding = /^\/(?:architecture\/)?reviews\/[^/]+\/findings\/[^/]+\/(?:inspect|evidence-trace)\b/.exec(path);
 
   if (inspectRiskFinding !== null) {
     return {
@@ -69,7 +69,7 @@ export function buyerPolishedRouteOrientation(
     };
   }
 
-  const riskFinding = /^\/reviews\/[^/]+\/findings\/[^/]+\b/.exec(path);
+  const riskFinding = /^\/(?:architecture\/)?reviews\/[^/]+\/findings\/[^/]+\b/.exec(path);
 
   if (riskFinding !== null) {
     return {
@@ -249,7 +249,11 @@ export function buyerPolishedRouteOrientation(
     };
   }
 
-  if (path !== "/reviews/new" && /^\/reviews\/[^/]+$/.exec(path) !== null) {
+  if (
+    path !== "/reviews/new"
+    && path !== "/architecture/reviews/new"
+    && /^\/(?:architecture\/)?reviews\/[^/]+$/.exec(path) !== null
+  ) {
     return {
       label: "Review",
       line: "Review record — outcomes, findings, artifacts, downloads, and deep links into evidence surfaces.",

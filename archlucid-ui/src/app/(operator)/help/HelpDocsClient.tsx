@@ -35,9 +35,9 @@ const HELP_DOCS_STATIC_ENTRIES: readonly DocIndexEntry[] = [
     title: "New architecture request",
     summary: "Start a guided architecture review request.",
     category: "Getting Started",
-    url: "/reviews/new",
+    url: "/architecture/reviews/new",
   },
-  { title: "Reviews list", summary: "Browse reviews for the workspace.", category: "Operations", url: "/reviews" },
+  { title: "Reviews list", summary: "Browse reviews for the workspace.", category: "Operations", url: "/architecture/reviews" },
   {
     title: "Governance findings",
     summary: "Review findings across reviews and policy signals.",

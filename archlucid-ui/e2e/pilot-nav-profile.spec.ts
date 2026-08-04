@@ -119,6 +119,8 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
     // Pilot profile keeps advanced-tier workflow routes hidden until extended+advanced disclosure is on.
     await expect(riskRegisterLink).toBeVisible();
     await expect(riskRegisterLink).toHaveAttribute("href", "/governance/findings");
-    await expect(governanceWorkflowLink).toHaveCount(0);
+    // Authority-only nav (owner 2026-08-03): unlock phase no longer hides workflow.
+    await expect(governanceWorkflowLink).toBeVisible();
+    await expect(governanceWorkflowLink).toHaveAttribute("href", "/governance/approval-queue");
   });
 });

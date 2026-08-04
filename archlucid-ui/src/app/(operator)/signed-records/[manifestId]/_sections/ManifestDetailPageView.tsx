@@ -65,7 +65,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
     buyerPolishedLayout === true && showcasePackage === true;
 
   const primaryFindingHref = showcasePackage
-    ? `/reviews/${encodeURIComponent(canonicalizeDemoRunId(summary.runId.trim()))}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`
+    ? `/architecture/reviews/${encodeURIComponent(canonicalizeDemoRunId(summary.runId.trim()))}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`
     : null;
 
   const overviewSummaryCard = (
@@ -161,7 +161,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
           <Button variant="secondary" size="sm" asChild>
             <Link
               href={
-                primaryFindingHref ?? `/reviews/${encodeURIComponent(summary.runId)}#run-explanation`
+                primaryFindingHref ?? `/architecture/reviews/${encodeURIComponent(summary.runId)}#run-explanation`
               }
             >
               {primaryFindingHref

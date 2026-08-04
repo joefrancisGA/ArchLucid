@@ -147,7 +147,7 @@ function reviewRiskCount(run: RunSummary): number {
   return run.hasWarnings === true || run.hasGovernanceWarnings === true ? 1 : 0;
 }
 
-/** Row presentation model for the `/reviews` hub inventory. */
+/** Row presentation model for the `/architecture/reviews` hub inventory. */
 export function toReviewsHubReviewRowDisplay(run: RunSummary): ReviewsHubReviewRowDisplay {
   const runId = canonicalizeDemoRunId(run.runId);
   const primaryAction = getBuyerSafeReviewsTableLinkForRun(run);

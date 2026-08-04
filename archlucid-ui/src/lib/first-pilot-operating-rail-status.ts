@@ -142,10 +142,10 @@ function hrefForStepIndex(index: number, signals: FirstPilotOperatingRailSignals
 const FIRST_PILOT_OPERATING_RAIL_STEPS_FALLBACK_HREFS: readonly string[] = [
   "/administration/system-health",
   "/administration/settings/extract-upload",
-  "/reviews/new",
-  "/reviews?projectId=default",
-  "/reviews?projectId=default",
-  "/reviews?projectId=default",
+  "/architecture/reviews/new",
+  "/architecture/reviews?projectId=default",
+  "/architecture/reviews?projectId=default",
+  "/architecture/reviews?projectId=default",
 ];
 
 /**

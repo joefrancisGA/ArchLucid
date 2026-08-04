@@ -35,7 +35,7 @@ function hasCustomReviewsListReturnHref(reviewsListReturnHref?: string): boolean
     return false;
   }
 
-  return reviewsListReturnHref.trim() !== "/reviews";
+  return reviewsListReturnHref.trim() !== "/architecture/reviews";
 }
 
 function isHelpTopicPath(normalizedPath: string): boolean {
@@ -77,7 +77,7 @@ function isCrossNamespaceOrientationPath(normalizedPath: string): boolean {
 export function hasPageLocalBreadcrumbWayfinding(pathname: string): boolean {
   const normalizedPath = normalizePathname(pathname);
 
-  if (/^\/reviews\/[^/]+\/findings\/[^/]+/.test(normalizedPath)) {
+  if (/^\/(?:architecture\/)?reviews\/[^/]+\/findings\/[^/]+/.test(normalizedPath)) {
     return true;
   }
 

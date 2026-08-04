@@ -64,8 +64,8 @@ function reviewsNewPathTabTestId(path: ReviewsNewActivePath): string {
 }
 
 /**
- * Path switcher at the top of `/reviews/new`: quick start, guided intake, or templates wizard.
- * Wizards load on demand so the initial `/reviews/new` chunk stays smaller.
+ * Path switcher at the top of `/architecture/reviews/new`: quick start, guided intake, or templates wizard.
+ * Wizards load on demand so the initial `/architecture/reviews/new` chunk stays smaller.
  */
 export function ReviewsNewPathSwitcher() {
   const searchParams = useSearchParams();

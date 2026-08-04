@@ -208,7 +208,7 @@ export const REVIEW_TERMINOLOGY_BUYER_SURFACE_PATHS = [
   "src/app/(marketing)/signup/page.tsx",
 ] as const;
 
-/** Core Pilot first-hour surfaces — `/reviews/new`, review detail handoff, sponsor export, home strip. */
+/** Core Pilot first-hour surfaces — `/architecture/reviews/new`, review detail handoff, sponsor export, home strip. */
 export const REVIEW_TERMINOLOGY_FIRST_HOUR_SURFACE_PATHS = [
   "src/lib/core-pilot-first-review-copy.ts",
   "src/lib/operator-co-architect-copy.ts",

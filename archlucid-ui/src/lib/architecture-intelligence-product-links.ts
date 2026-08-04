@@ -17,7 +17,7 @@ export function buildArchitectureIntelligenceProductLinks(
   const encoded = encodeURIComponent(trimmed);
 
   return {
-    reviewHref: `/reviews/${encoded}`,
+    reviewHref: `/architecture/reviews/${encoded}`,
     findingsHref: `/governance/findings?runId=${encoded}`,
     advisoryHref: `/governance/advisory-scans?runId=${encoded}`,
   };

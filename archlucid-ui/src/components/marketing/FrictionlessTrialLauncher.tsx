@@ -18,7 +18,7 @@ export function FrictionlessTrialLauncher() {
   useEffect(() => {
     writeFrictionlessTrialSessionEnabled(true);
     window.dispatchEvent(new Event(FRICTIONLESS_TRIAL_SESSION_CHANGED_EVENT));
-    router.replace(`/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`);
+    router.replace(`/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`);
   }, [router]);
 
   return (

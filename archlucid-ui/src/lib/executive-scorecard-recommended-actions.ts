@@ -108,7 +108,7 @@ export function buildExecutiveScorecardRecommendedActions(
       id: "overdue-review",
       headline: "Complete overdue architecture review",
       explanation: `'${overdue.systemName}' has been pending for ${overdue.daysPending} days.`,
-      href: `/reviews/${encodeURIComponent(overdue.runId)}`,
+      href: `/architecture/reviews/${encodeURIComponent(overdue.runId)}`,
       sortWeight: overdue.daysPending,
     });
   }

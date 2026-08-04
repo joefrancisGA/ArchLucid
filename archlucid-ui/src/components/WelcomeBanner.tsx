@@ -30,7 +30,7 @@ type TrialStatusPayload = {
 /**
  * Operator-home welcome: trial badge from `GET /v1/tenant/trial-status` (defers until load); first-run vs returning
  * copy from a cached `archlucid_has_existing_runs` (instant) and {@link loadProjectRunsMergedWithDemoFallback}
- * so static demo injections match `/reviews`.
+ * so static demo injections match `/architecture/reviews`.
  * sessionStorage so a new browser session can show the banner again.
  */
 const DEFAULT_PROJECT_ID = "default";

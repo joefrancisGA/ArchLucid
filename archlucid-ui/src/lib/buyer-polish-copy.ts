@@ -379,7 +379,7 @@ export const NEW_REVIEW_SAMPLE_ESCAPE_LEAD = "Start with an example:";
 
 export const NEW_REVIEW_SAMPLE_ESCAPE_CTA = "Skip setup and open a completed sample review";
 
-/** Streamlined first-run lead on `/reviews/new` — avoids path-switcher jargon above the fold. */
+/** Streamlined first-run lead on `/architecture/reviews/new` — avoids path-switcher jargon above the fold. */
 export const REVIEWS_NEW_PAGE_LEAD = CLOUD_NEUTRAL_PRIMARY_COPY.reviewsNewPageLead;
 
 export const PRODUCT_CONCEPTS_GLOSSARY_DIALOG_TITLE = "Product concepts";

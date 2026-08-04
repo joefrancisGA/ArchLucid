@@ -29,7 +29,7 @@ describe("buildAuthSignInHref", () => {
 describe("buildSessionExpiredHref", () => {
   it("defaults to idle-timeout on the session-expired route", () => {
     expect(buildSessionExpiredHref("/architecture/reviews/run-1")).toBe(
-      "/auth/session-expired?reason=idle-timeout&returnUrl=%2Freviews%2Frun-1",
+      "/auth/session-expired?reason=idle-timeout&returnUrl=%2Farchitecture%2Freviews%2Frun-1",
     );
   });
 });

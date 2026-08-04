@@ -249,7 +249,7 @@ function AppShellInner({ children }: AppShellClientProps) {
     pathMatchesGovernanceAudit(pathname) ||
     pathMatchesGovernanceAlerts(pathname) ||
     pathMatchesGovernancePolicyPacks(pathname) ||
-    (pathname.startsWith("/reviews/") && pathname.split("/").filter(Boolean).length >= 2);
+    (pathname.startsWith("/architecture/reviews/") && pathname.split("/").filter(Boolean).length >= 2);
 
   /** Auth and access-denied pages render without nav/workspace chrome to avoid confusion. */
   const isAuthRoute = pathname.startsWith("/auth/");

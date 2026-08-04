@@ -57,7 +57,7 @@ export function isPinnedDemoWorkspaceRunId(runId: string): boolean {
   return resolveDemoWorkspaceScopeHeadersForRunId(runId) !== null;
 }
 
-/** Scope headers when `/reviews?projectId=…` targets a pinned SQL demo workspace project. */
+/** Scope headers when `/architecture/reviews?projectId=…` targets a pinned SQL demo workspace project. */
 export function resolveDemoWorkspaceScopeHeadersForProjectId(projectId: string): Record<string, string> | null {
   const normalized = normalizeProjectId(projectId);
 

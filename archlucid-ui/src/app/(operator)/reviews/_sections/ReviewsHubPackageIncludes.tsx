@@ -4,7 +4,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { REVIEWS_HUB_INCLUDES_ITEMS, REVIEWS_HUB_INCLUDES_LEAD, REVIEWS_HUB_INCLUDES_TITLE } from "./reviews-hub-copy";
 
-/** Compact reminder of review outputs on `/reviews`. */
+/** Compact reminder of review outputs on `/architecture/reviews`. */
 export function ReviewsHubPackageIncludes(): React.JSX.Element {
   return (
     <section className="mt-4" data-testid="reviews-hub-package-includes">

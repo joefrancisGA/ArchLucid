@@ -25,7 +25,7 @@ describe("resolveEmailOtpPostAuthPath", () => {
 
   it("routes CreateWorkspace with returnUrl", () => {
     expect(resolveEmailOtpPostAuthPath("CreateWorkspace", "/architecture/reviews/1")).toBe(
-      "/auth/bootstrap?returnUrl=%2Freviews%2F1",
+      "/auth/bootstrap?returnUrl=%2Farchitecture%2Freviews%2F1",
     );
   });
 

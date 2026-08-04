@@ -55,7 +55,7 @@ function buyerHintBody(
   }
 
   if (state === "has-run") {
-    const href = latestRunId !== null ? `/reviews/${encodeURIComponent(latestRunId)}` : "/reviews?projectId=default";
+    const href = latestRunId !== null ? `/architecture/reviews/${encodeURIComponent(latestRunId)}` : "/architecture/reviews?projectId=default";
 
     return (
       <>
@@ -73,8 +73,8 @@ function buyerHintBody(
 
   const href =
     firstCommittedRunId !== null
-      ? `/reviews/${encodeURIComponent(firstCommittedRunId)}`
-      : "/reviews?projectId=default";
+      ? `/architecture/reviews/${encodeURIComponent(firstCommittedRunId)}`
+      : "/architecture/reviews?projectId=default";
 
   return (
     <>

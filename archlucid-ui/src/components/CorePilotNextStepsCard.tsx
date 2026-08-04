@@ -48,9 +48,9 @@ function buildFirstReviewCheckpointStrip(
   firstCommittedRunId: string | null,
   latestRunReadyToFinalize: boolean,
 ): readonly FirstReviewCheckpoint[] {
-  const reviewHref = latestRunId !== null ? `/reviews/${latestRunId}` : "/reviews?projectId=default";
+  const reviewHref = latestRunId !== null ? `/architecture/reviews/${latestRunId}` : "/architecture/reviews?projectId=default";
   const committedReviewHref =
-    firstCommittedRunId !== null ? `/reviews/${firstCommittedRunId}` : "/reviews?projectId=default";
+    firstCommittedRunId !== null ? `/architecture/reviews/${firstCommittedRunId}` : "/architecture/reviews?projectId=default";
 
   const statusById: Record<FirstReviewCheckpointId, FirstReviewCheckpointStatus> = {
     intake: "pending",
@@ -306,7 +306,7 @@ export function CorePilotNextStepsCard() {
 
   if (pilotState === "committed") {
     const reviewHref =
-      firstCommittedRunId !== null ? `/reviews/${firstCommittedRunId}` : "/reviews?projectId=default";
+      firstCommittedRunId !== null ? `/architecture/reviews/${firstCommittedRunId}` : "/architecture/reviews?projectId=default";
 
     return (
       <OperatorHomeDisclosureSection
@@ -413,7 +413,7 @@ export function CorePilotNextStepsCard() {
           <li className="flex items-start gap-2" aria-label="Step 3 active">
             <span aria-hidden className={cn("mt-0.5 shrink-0 font-bold text-teal-700 dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)}>▶</span>
             <Link
-              href={latestRunId !== null ? `/reviews/${latestRunId}` : "/reviews?projectId=default"}
+              href={latestRunId !== null ? `/architecture/reviews/${latestRunId}` : "/architecture/reviews?projectId=default"}
               className="font-medium text-blue-700 underline dark:text-blue-400"
               data-testid="pilot-active-step-link"
             >

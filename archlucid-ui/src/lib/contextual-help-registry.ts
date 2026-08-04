@@ -227,7 +227,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
-    prefix: "/reviews/new",
+    prefix: "/architecture/reviews/new",
     entry: {
       whatIsThisPage:
         "Start an architecture review by choosing an intake path and submitting evidence for analysis.",

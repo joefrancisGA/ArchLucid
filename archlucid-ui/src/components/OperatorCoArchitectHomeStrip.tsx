@@ -33,7 +33,7 @@ type OperatorCoArchitectHomeStripProps = {
 
 /**
  * Always-visible operator-home strip: umbrella brand line and entry intents (review lead, describe secondary).
- * Persists last-clicked intent in localStorage for future wizard routing; same `/reviews/new` entry today.
+ * Persists last-clicked intent in localStorage for future wizard routing; same `/architecture/reviews/new` entry today.
  */
 export function OperatorCoArchitectHomeStrip({ buyerPolishedShell = false }: OperatorCoArchitectHomeStripProps) {
   const onPick = useCallback((next: OperatorCoArchitectIntentFocus) => {

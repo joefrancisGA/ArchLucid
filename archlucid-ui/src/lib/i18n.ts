@@ -39,13 +39,13 @@ export const ARCHITECTURE_REVIEW_LABELS = {
   pipelineStatusAriaPrefix: "Architecture review pipeline status",
 } as const;
 
-/** `/reviews` index {@link OperatorPageHeader} title by shell mode (`RunsPageView`). */
+/** `/architecture/reviews` index {@link OperatorPageHeader} title by shell mode (`RunsPageView`). */
 export const RUNS_LIST_PAGE_TITLES = {
   buyerPolished: "Reviews",
   fullOperator: "Reviews",
 } as const;
 
-/** `/reviews` index {@link OperatorPageHeader} subtitle (`RunsPageView`). @deprecated Use `REVIEWS_HUB_PAGE_SUBTITLE`. */
+/** `/architecture/reviews` index {@link OperatorPageHeader} subtitle (`RunsPageView`). @deprecated Use `REVIEWS_HUB_PAGE_SUBTITLE`. */
 export const RUNS_LIST_PAGE_SUBTITLE =
   "Create, refine, evaluate, and approve architecture reviews.";
 
@@ -121,7 +121,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   reviewPackage: "Reviews",
   /** Evidence graph (`/insights/evidence-graph`). */
   evidenceTrail: BUYER_SURFACE_VOCABULARY.evidenceGraphNav,
-  /** Left nav destination for `/reviews/new` — creation intake (brief, diagram, document, optional cloud). */
+  /** Left nav destination for `/architecture/reviews/new` — creation intake (brief, diagram, document, optional cloud). */
   capture: CREATE_ARCHITECTURE_LABEL,
   /** First review guide (`/architecture/first-review-guide`). */
   onboarding: BUYER_ONBOARDING_PAGE_TITLE,

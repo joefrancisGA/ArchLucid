@@ -9,7 +9,7 @@ import { useDeltaQuery } from "./useDeltaQuery";
 
 /**
  * "Inline" placement of `BeforeAfterDeltaPanel` — rendered above the artifacts
- * table on `/reviews/{runId}`. Shows the **single-run delta vs the prior committed
+ * table on `/architecture/reviews/{runId}`. Shows the **single-run delta vs the prior committed
  * run for the same architecture request** so an operator can see whether this
  * commit improved on the previous one (fewer findings, shorter time, etc.).
  *

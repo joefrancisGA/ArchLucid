@@ -33,7 +33,7 @@ function SummaryMetric(props: { readonly label: string; readonly value: number }
   );
 }
 
-/** Compact workspace posture row on `/reviews` — always shown, including zeros. */
+/** Compact workspace posture row on `/architecture/reviews` — always shown, including zeros. */
 export function ReviewsHubSummaryRow(props: ReviewsHubSummaryRowProps): React.JSX.Element {
   const { summary } = props;
   const draftEntries = useArchitectureDraftRegistryEntries();

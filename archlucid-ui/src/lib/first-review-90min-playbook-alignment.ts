@@ -15,8 +15,8 @@ export const BUYER_FIRST_REVIEW_HELP_HREF = FIRST_ARCHITECTURE_REVIEW_HELP_PATH;
  * {@link FIRST_RUN_EVIDENCE_CHECKLIST_DOC_PATH} (upload ZIP, ROI, audit proof).
  */
 export const FIRST_REVIEW_90MIN_REQUIRED_ROUTES = [
-  "/reviews/new",
-  "/reviews",
+  "/architecture/reviews/new",
+  "/architecture/reviews",
   "/administration/settings/extract-upload",
   EXECUTIVE_DASHBOARD_HREF,
 ] as const;

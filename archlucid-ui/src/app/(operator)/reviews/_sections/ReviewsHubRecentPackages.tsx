@@ -28,7 +28,7 @@ type ReviewsHubRecentPackagesProps = {
   readonly runs: readonly RunSummary[];
 };
 
-/** Recent packages table or intentional empty state for `/reviews`. */
+/** Recent packages table or intentional empty state for `/architecture/reviews`. */
 export function ReviewsHubRecentPackages(props: ReviewsHubRecentPackagesProps): React.JSX.Element {
   const rows = props.runs.map(toReviewsHubPackageRowDisplay);
 

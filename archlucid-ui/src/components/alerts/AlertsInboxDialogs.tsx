@@ -149,7 +149,7 @@ export function AlertsInboxActionLoopDialog(props: AlertsInboxActionLoopDialogPr
                     className={OPERATOR_LINK.nav}
                     href={
                       props.actionLoopFindingHref ??
-                      `/reviews/${encodeURIComponent(props.actionLoopData.runId)}`
+                      `/architecture/reviews/${encodeURIComponent(props.actionLoopData.runId)}`
                     }
                   >
                     {props.actionLoopFindingHref !== null ? "Open linked finding" : props.actionLoopData.runId}
