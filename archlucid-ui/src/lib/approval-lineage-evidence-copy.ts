@@ -6,7 +6,7 @@ export const APPROVAL_LINEAGE_CANONICAL_PATH_PATTERN =
   "/governance/approval-requests/[id]/lineage" as const;
 
 export const APPROVAL_LINEAGE_CLAIM_DISCIPLINE =
-  "Approval lineage links an approval request to its review, findings, and signed-record version — it is a governance linkage view, not a complete diligence Sources package on its own, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Audit or the review package when you need the fuller trail.";
+  "Approval lineage links an approval request to its review, findings, and signed-record version — it is a governance linkage view, not a complete diligence Sources package on its own, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Audit or the architecture review when you need the fuller trail.";
 
 export const APPROVAL_LINEAGE_SOURCES_INTRO =
   "Use these follow-ups when lineage needs queue context, findings triage, audit trail, or governance orientation.";

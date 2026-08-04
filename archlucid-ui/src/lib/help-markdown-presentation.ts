@@ -1724,7 +1724,7 @@ export function stripFirstReviewEvidenceChecklistContributorLeakage(markdown: st
     .replace(/\[([^\]]*)\]\([^)]+\.md[^)]*\)/gi, "$1")
     .replace(/`?CONFIGURATION_REFERENCE\.md`?/gi, "configuration reference")
     .replace(/`?SECURITY\.md`?/gi, "security documentation")
-    .replace(/`?FIRST_PILOT_OPERATOR_PATH\.md`?/gi, "operator path guidance")
+    .replace(/`?FIRST_PILOT_OPERATOR_PATH\.md`?/gi, "first-pilot workspace guidance")
     .replace(/`?PILOT_GUIDE\.md`?/gi, "pilot guide")
     .replace(/`?AZURE_EXTRACTOR\.md`?/gi, "Azure extractor guidance")
     .replace(/`?CANONICAL_FIRST_RUN_PATH\.md`?/gi, "first architecture review walkthrough")
@@ -2081,7 +2081,7 @@ export function stripPilotFeedbackContributorLeakage(markdown: string): string {
     )
     .replace(
       // Static pattern — avoid string→RegExp escape helpers that CodeQL flags as js/incomplete-sanitization.
-      /- \*\*Operator shell \(V1 GA\):\*\* \*\*`PlanningBridgePanel`\*\* on \*\*`\/(?:internal\/)?product-learning`\*\*[^\.\n]*\./gi,
+      /- \*\*Operator\s+shell \(V1 GA\):\*\* \*\*`PlanningBridgePanel`\*\* on \*\*`\/(?:internal\/)?product-learning`\*\*[^\.\n]*\./gi,
       "- Open **Q&A & advisory** → **Pilot feedback**, then use the **Planning bridge** panel to create draft improvement themes and plans.",
     )
     .replace(/\*\*ExecuteAuthority\*\*/gi, "appropriate admin permission")

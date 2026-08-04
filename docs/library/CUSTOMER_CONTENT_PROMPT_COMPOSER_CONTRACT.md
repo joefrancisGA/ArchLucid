@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — customer-content prompt composer contract (TB-949); delimiters are hygiene, not a security boundary.
+
 # Customer-content prompt composer contract (TB-949)
 
 > **Audience:** Contributors wiring agent/Ask prompts.  

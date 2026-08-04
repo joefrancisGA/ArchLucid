@@ -1,4 +1,4 @@
-> **Scope:** Observability — telemetry export, correlation, metrics, traces, and structured logging for ArchLucid hosts. Full detail, tables, and links in the sections below.
+> **Scope:** Contributor-reference — Observability — telemetry export, correlation, metrics, traces, and structured logging for ArchLucid hosts. Full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

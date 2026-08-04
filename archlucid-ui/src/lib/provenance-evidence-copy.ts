@@ -34,7 +34,7 @@ export const PROVENANCE_CONTEXTUAL_HELP = {
     "Coordinator provenance for one architecture review — linkage graph, trace timeline, and node/edge tables.",
   whatToDoNext:
     "Explore the graph or timeline, open linked findings or artifacts, then continue on the Evidence trail when you need a fuller diligence path.",
-  whyEmpty: "Nodes and edges appear after the review has produced a provenance graph for this run.",
+  whyEmpty: "Nodes and edges appear after the review has produced a provenance graph for this review.",
   whereToConfigurePrerequisite:
     "Open a finalized or in-progress review that has provenance data in the current workspace scope.",
 } as const;

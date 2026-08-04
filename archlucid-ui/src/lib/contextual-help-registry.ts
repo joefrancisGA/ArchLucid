@@ -285,7 +285,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whatIsThisPage:
         "Search and export operator audit events for reviews, governance actions, and integrity checks in this workspace.",
       whatToDoNext:
-        "Filter by review or action, refresh the trail, then export or open the related review package when needed.",
+        "Filter by review or action, refresh the trail, then export or open the related architecture review when needed.",
       whyEmpty: "Events appear after operators take actions that the audit coverage matrix records.",
       whereToConfigurePrerequisite:
         "Audit retention and export privileges follow workspace role and enterprise controls.",
@@ -388,7 +388,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
         "Approval lineage — inspect how an approval request links to its review, findings, risk posture, and signed-record version.",
       whatToDoNext:
         "Open the linked review or findings, return to the approval queue, or check Audit when you need the activity trail.",
-      whyEmpty: "Lineage appears after an approval request exists for a finalized review package.",
+      whyEmpty: "Lineage appears after an approval request exists for a finalized architecture review.",
       whereToConfigurePrerequisite:
         "Submit or open an approval from the governance approval queue after a review is ready for decision.",
     },
@@ -400,7 +400,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
         "Signed review record — the finalized package of decisions, findings, and downloadable artifacts for one architecture review.",
       whatToDoNext:
         "Review the summary and decisions, open related findings, or export the review bundle when downloads are ready.",
-      whyEmpty: "A signed review record appears after you finalize an architecture review package.",
+      whyEmpty: "A signed review record appears after you finalize an architecture review.",
       whereToConfigurePrerequisite:
         "Finalize a review from the architecture review workspace before opening its signed record.",
     },

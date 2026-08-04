@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — inbound webhook hostile-traffic contract (TB-966); PA order for contributors and security reviewers.
+
 # Inbound webhook hostile-traffic contract (TB-966)
 
 > **Audience:** Contributors and security reviewers wiring or assessing **inbound** webhooks (ITSM, billing, Slack interactivity).  

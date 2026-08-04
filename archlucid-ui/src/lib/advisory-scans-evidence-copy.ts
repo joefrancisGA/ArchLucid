@@ -7,7 +7,7 @@ export const ADVISORY_SCANS_CLAIM_DISCIPLINE =
   "Advisory scan recommendations prioritize follow-up work from finalized reviews — they are not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Findings or Audit when you need a governed trail.";
 
 export const ADVISORY_SCANS_SOURCES_INTRO =
-  "Use these follow-ups when a scan needs a review package, findings triage, recurring schedules, or product orientation.";
+  "Use these follow-ups when a scan needs an architecture review, findings triage, recurring schedules, or product orientation.";
 
 export type AdvisoryScansSourceLink = {
   readonly label: string;

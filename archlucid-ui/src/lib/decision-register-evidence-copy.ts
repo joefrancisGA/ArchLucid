@@ -4,7 +4,7 @@ export const DECISION_REGISTER_CLAIM_DISCIPLINE =
   "This register lists architecture decisions recorded with signed reviews in the current workspace — browse and filter for operators, not a standalone diligence Sources package. Do not imply CPA SOC 2 attestation or a published third-party pen test from this page.";
 
 export const DECISION_REGISTER_SOURCES_INTRO =
-  "Open the related review package or findings when a decision needs follow-up; use Audit trail for activity context.";
+  "Open the related architecture review or findings when a decision needs follow-up; use Audit trail for activity context.";
 
 export type DecisionRegisterSourceLink = {
   readonly label: string;
