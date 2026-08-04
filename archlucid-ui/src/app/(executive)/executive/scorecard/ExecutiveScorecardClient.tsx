@@ -9,6 +9,7 @@ import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvid
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ExecutiveScorecardEvidenceChrome } from "@/app/(executive)/executive/scorecard/_sections/ExecutiveScorecardEvidenceChrome";
+import { ExecutivePageHeader } from "@/components/executive/ExecutivePageHeader";
 import { ExecutiveScorecardEmptyState } from "@/components/executive/ExecutiveScorecardEmptyState";
 import { getComplianceDriftTrend } from "@/lib/api";
 import type { ApiProblemDetails } from "@/lib/api-problem";
