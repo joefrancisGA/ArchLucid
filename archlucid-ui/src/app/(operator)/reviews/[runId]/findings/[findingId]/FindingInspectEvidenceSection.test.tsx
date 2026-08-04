@@ -22,7 +22,7 @@ describe("FindingInspectEvidenceSection", () => {
     render(
       <FindingInspectEvidenceSection
         demoFillGaps={false}
-        reviewContextHref="/reviews/run-1"
+        reviewContextHref="/architecture/reviews/run-1"
         reviewContextLabel="Open review"
         evidence={[
           {
@@ -46,7 +46,7 @@ describe("FindingInspectEvidenceSection", () => {
             {
               label: "Open signed record section",
               detail: "Lines 12-14 · diagram-1",
-              href: "/reviews/run-1#manifest-summary",
+              href: "/architecture/reviews/run-1#manifest-summary",
             },
           ],
         }}
@@ -58,7 +58,7 @@ describe("FindingInspectEvidenceSection", () => {
     expect(screen.getByText("Public ingress on port 443")).toBeTruthy();
     expect(screen.getByTestId("finding-source-evidence-link")).toHaveAttribute(
       "href",
-      "/reviews/run-1#manifest-summary",
+      "/architecture/reviews/run-1#manifest-summary",
     );
   });
 
@@ -66,7 +66,7 @@ describe("FindingInspectEvidenceSection", () => {
     render(
       <FindingInspectEvidenceSection
         demoFillGaps={false}
-        reviewContextHref="/reviews/run-1"
+        reviewContextHref="/architecture/reviews/run-1"
         reviewContextLabel="Open review"
         evidence={[
           {

@@ -22,7 +22,7 @@ describe("FindingPolicyProvenancePanel", () => {
             {
               label: "Network security group rule",
               detail: "Lines 12-14",
-              href: "/reviews/run-1/findings/f-1/evidence-trace",
+              href: "/architecture/reviews/run-1/findings/f-1/evidence-trace",
             },
           ],
         }}

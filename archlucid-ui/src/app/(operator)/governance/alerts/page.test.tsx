@@ -2,12 +2,17 @@ import { describe, expect, it, vi } from "vitest";
 
 const redirect = vi.fn();
 
-vi.mock("next/navigation", () => ({
-  redirect: (target: string) => {
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+  return {
+    ...actual,
+    redirect: (target: string) => {
     redirect(target);
     throw new Error(`redirect:${target}`);
   },
-}));
+    usePathname: () => "/",
+  };
+});
 
 vi.mock("./_sections/load-alerts-inbox-page-model", () => ({
   loadAlertsInboxPageModel: vi.fn(async () => null),

@@ -7,7 +7,7 @@ import {
 
 describe("signInHasReturnDestination", () => {
   it("returns true for safe non-root return paths", () => {
-    expect(signInHasReturnDestination("/reviews/run-1")).toBe(true);
+    expect(signInHasReturnDestination("/architecture/reviews/run-1")).toBe(true);
   });
 
   it("returns false for root and unsafe paths", () => {

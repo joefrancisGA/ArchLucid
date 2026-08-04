@@ -77,7 +77,7 @@ type RequestedGroup = {
 
 const REVIEW_WORK_HREFS: ReadonlyArray<string> = [
   ARCHITECTURES_LIST_PATH,
-  "/reviews?projectId=default",
+  "/architecture/reviews?projectId=default",
   EXECUTIVE_DASHBOARD_HREF,
   "/architecture/first-review-guide",
 ];

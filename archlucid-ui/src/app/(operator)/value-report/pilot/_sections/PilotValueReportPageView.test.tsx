@@ -146,7 +146,7 @@ describe("PilotValueReportPageView", () => {
 
     expect(screen.getByRole("link", { name: "Open most recent finalized review" })).toHaveAttribute(
       "href",
-      "/reviews/run-most-recent",
+      "/architecture/reviews/run-most-recent",
     );
   });
 

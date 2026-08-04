@@ -32,7 +32,7 @@ describe("zero-config-demo-mode", () => {
   });
 
   it("exposes wizard href for home CTA", () => {
-    expect(ZERO_CONFIG_DEMO_WIZARD_HREF).toBe("/reviews/new?zeroConfig=1");
+    expect(ZERO_CONFIG_DEMO_WIZARD_HREF).toBe("/architecture/reviews/new?zeroConfig=1");
   });
 
   it("applies bundled demo package to wizard fields and pending file", () => {

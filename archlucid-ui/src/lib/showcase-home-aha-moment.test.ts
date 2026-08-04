@@ -10,7 +10,7 @@ describe("showcase-home-aha-moment", () => {
 
   it("builds primary finding deep link for sample run", () => {
     expect(showcasePrimaryFindingHref(SHOWCASE_STATIC_DEMO_RUN_ID)).toBe(
-      `/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}/findings/${SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID}`,
+      `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}/findings/${SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID}`,
     );
   });
 });

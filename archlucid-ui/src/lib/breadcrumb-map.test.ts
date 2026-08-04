@@ -21,26 +21,26 @@ describe("getBreadcrumbs", () => {
   });
 
   it("uses Start review on the wizard path when buyer-polished breadcrumbs are requested", () => {
-    expect(getBreadcrumbs("/reviews/new", { buyerPolishedShell: true })).toEqual([
+    expect(getBreadcrumbs("/architecture/reviews/new", { buyerPolishedShell: true })).toEqual([
       { label: START_REVIEW_LABEL },
     ]);
   });
 
   it("shortens the new-review path to a single wizard crumb", () => {
-    expect(getBreadcrumbs("/reviews/new")).toEqual([
+    expect(getBreadcrumbs("/architecture/reviews/new")).toEqual([
       { label: START_REVIEW_LABEL },
     ]);
   });
 
   it("labels architecture inventory and create/draft crumbs under Architectures (not Drafts)", () => {
     expect(ARCHITECTURE_DRAFTS_LIST_LABEL).toBe("Architectures");
-    expect(getBreadcrumbs("/architectures")).toEqual([{ label: ARCHITECTURE_DRAFTS_LIST_LABEL }]);
-    expect(getBreadcrumbs("/architectures/new")).toEqual([
-      { label: ARCHITECTURE_DRAFTS_LIST_LABEL, href: "/architectures" },
+    expect(getBreadcrumbs("/architecture/architectures")).toEqual([{ label: ARCHITECTURE_DRAFTS_LIST_LABEL }]);
+    expect(getBreadcrumbs("/architecture/architectures/new")).toEqual([
+      { label: ARCHITECTURE_DRAFTS_LIST_LABEL, href: "/architecture/architectures" },
       { label: CREATE_ARCHITECTURE_LABEL },
     ]);
-    expect(getBreadcrumbs("/architectures/draft-001")).toEqual([
-      { label: ARCHITECTURE_DRAFTS_LIST_LABEL, href: "/architectures" },
+    expect(getBreadcrumbs("/architecture/architectures/draft-001")).toEqual([
+      { label: ARCHITECTURE_DRAFTS_LIST_LABEL, href: "/architecture/architectures" },
       { label: CREATE_ARCHITECTURE_LABEL },
     ]);
   });
@@ -48,17 +48,17 @@ describe("getBreadcrumbs", () => {
 
   it("labels UUID review segments as Review", () => {
     const id = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
-    expect(getBreadcrumbs(`/reviews/${id}`)).toEqual([
-      { label: "Reviews", href: "/reviews" },
+    expect(getBreadcrumbs(`/architecture/reviews/${id}`)).toEqual([
+      { label: "Reviews", href: "/architecture/reviews" },
       { label: "Review" },
     ]);
   });
 
   it("maps review provenance under the review crumb", () => {
     const id = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
-    expect(getBreadcrumbs(`/reviews/${id}/provenance`)).toEqual([
-      { label: "Reviews", href: "/reviews" },
-      { label: "Review", href: `/reviews/${id}` },
+    expect(getBreadcrumbs(`/architecture/reviews/${id}/provenance`)).toEqual([
+      { label: "Reviews", href: "/architecture/reviews" },
+      { label: "Review", href: `/architecture/reviews/${id}` },
       { label: "Evidence provenance" },
     ]);
   });
@@ -234,7 +234,7 @@ describe("getBreadcrumbs", () => {
         queryRunId: SHOWCASE_STATIC_DEMO_RUN_ID,
       }),
     ).toEqual([
-      { label: SHOWCASE_BUYER_REVIEW_TITLE, href: `/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}` },
+      { label: SHOWCASE_BUYER_REVIEW_TITLE, href: `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}` },
       { label: "Evidence graph" },
     ]);
   });
@@ -255,7 +255,7 @@ describe("getBreadcrumbs", () => {
         queryRunId: "claims-intake-run-v1",
       }),
     ).toEqual([
-      { label: "Baseline Claims Intake Review", href: "/reviews/claims-intake-run-v1" },
+      { label: "Baseline Claims Intake Review", href: "/architecture/reviews/claims-intake-run-v1" },
       { label: "Audit trail" },
     ]);
   });
@@ -267,7 +267,7 @@ describe("getBreadcrumbs", () => {
         queryRunId: SHOWCASE_STATIC_DEMO_RUN_ID,
       }),
     ).toEqual([
-      { label: SHOWCASE_BUYER_REVIEW_TITLE, href: `/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}` },
+      { label: SHOWCASE_BUYER_REVIEW_TITLE, href: `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}` },
       { label: "Governance", href: "/governance/approval-queue" },
       { label: "Findings" },
     ]);
@@ -294,7 +294,7 @@ describe("getBreadcrumbs", () => {
         queryRunId: SHOWCASE_STATIC_DEMO_RUN_ID,
       }),
     ).toEqual([
-      { label: SHOWCASE_BUYER_REVIEW_TITLE, href: `/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}` },
+      { label: SHOWCASE_BUYER_REVIEW_TITLE, href: `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}` },
       { label: "Search review evidence" },
     ]);
   });
@@ -302,16 +302,16 @@ describe("getBreadcrumbs", () => {
   it("buyer-polished: showcase review uses stable buyer review title and evidence trace label", () => {
     expect(
       getBreadcrumbs(
-        "/reviews/claims-intake-modernization/findings/phi-minimization-risk/evidence-trace",
+        "/architecture/reviews/claims-intake-modernization/findings/phi-minimization-risk/evidence-trace",
         { buyerPolishedShell: true },
       ),
     ).toEqual([
-      { label: "Reviews", href: "/reviews" },
-      { label: SHOWCASE_BUYER_REVIEW_TITLE, href: "/reviews/claims-intake-modernization" },
-      { label: "Findings", href: "/reviews/claims-intake-modernization/findings" },
+      { label: "Reviews", href: "/architecture/reviews" },
+      { label: SHOWCASE_BUYER_REVIEW_TITLE, href: "/architecture/reviews/claims-intake-modernization" },
+      { label: "Findings", href: "/architecture/reviews/claims-intake-modernization/findings" },
       {
         label: "PHI minimization finding (High)",
-        href: "/reviews/claims-intake-modernization/findings/phi-minimization-risk",
+        href: "/architecture/reviews/claims-intake-modernization/findings/phi-minimization-risk",
       },
       { label: "Evidence trace" },
     ]);
@@ -320,16 +320,16 @@ describe("getBreadcrumbs", () => {
   it("buyer-polished: legacy inspect segment still labels as Evidence trace", () => {
     expect(
       getBreadcrumbs(
-        "/reviews/claims-intake-modernization/findings/phi-minimization-risk/inspect",
+        "/architecture/reviews/claims-intake-modernization/findings/phi-minimization-risk/inspect",
         { buyerPolishedShell: true },
       ),
     ).toEqual([
-      { label: "Reviews", href: "/reviews" },
-      { label: SHOWCASE_BUYER_REVIEW_TITLE, href: "/reviews/claims-intake-modernization" },
-      { label: "Findings", href: "/reviews/claims-intake-modernization/findings" },
+      { label: "Reviews", href: "/architecture/reviews" },
+      { label: SHOWCASE_BUYER_REVIEW_TITLE, href: "/architecture/reviews/claims-intake-modernization" },
+      { label: "Findings", href: "/architecture/reviews/claims-intake-modernization/findings" },
       {
         label: "PHI minimization finding (High)",
-        href: "/reviews/claims-intake-modernization/findings/phi-minimization-risk",
+        href: "/architecture/reviews/claims-intake-modernization/findings/phi-minimization-risk",
       },
       { label: "Evidence trace" },
     ]);
@@ -337,11 +337,11 @@ describe("getBreadcrumbs", () => {
 
   it("labels E2E demo finding segment under Reviews", () => {
     expect(
-      getBreadcrumbs("/reviews/e2e-fixture-run-001/findings/e2e-finding-001"),
+      getBreadcrumbs("/architecture/reviews/e2e-fixture-run-001/findings/e2e-finding-001"),
     ).toEqual([
-      { label: "Reviews", href: "/reviews" },
-      { label: "Claims Intake Modernization", href: "/reviews/e2e-fixture-run-001" },
-      { label: "Findings", href: "/reviews/e2e-fixture-run-001/findings" },
+      { label: "Reviews", href: "/architecture/reviews" },
+      { label: "Claims Intake Modernization", href: "/architecture/reviews/e2e-fixture-run-001" },
+      { label: "Findings", href: "/architecture/reviews/e2e-fixture-run-001/findings" },
       { label: "Demonstration finding" },
     ]);
   });
@@ -360,10 +360,10 @@ describe("getBreadcrumbs", () => {
         queryRunId: SHOWCASE_STATIC_DEMO_RUN_ID,
       }),
     ).toEqual([
-      { label: "Reviews", href: "/reviews" },
+      { label: "Reviews", href: "/architecture/reviews" },
       {
         label: SHOWCASE_BUYER_REVIEW_TITLE,
-        href: `/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`,
+        href: `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`,
       },
       { label: "Governance" },
     ]);

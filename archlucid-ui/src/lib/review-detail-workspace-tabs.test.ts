@@ -29,20 +29,20 @@ describe("review-detail-workspace-tabs", () => {
   it("builds shareable tab hrefs with reviewTab query param", () => {
     const href = buildReviewDetailTabHref("run-abc", "evidence");
 
-    expect(href).toBe("/reviews/run-abc?reviewTab=evidence");
+    expect(href).toBe("/architecture/reviews/run-abc?reviewTab=evidence");
     expect(buildReviewDetailTabHref("run-abc", "findings", { hash: "run-explanation" })).toBe(
-      "/reviews/run-abc?reviewTab=findings#run-explanation",
+      "/architecture/reviews/run-abc?reviewTab=findings#run-explanation",
     );
   });
 
   it("reads tab ids from href hash or search param", () => {
     expect(readReviewDetailTabFromHref("#run-explanation")).toBe("findings");
-    expect(readReviewDetailTabFromHref("/reviews/run-1?reviewTab=policies")).toBe("policies");
-    expect(readReviewDetailTabFromHref("/reviews/new")).toBeNull();
+    expect(readReviewDetailTabFromHref("/architecture/reviews/run-1?reviewTab=policies")).toBe("policies");
+    expect(readReviewDetailTabFromHref("/architecture/reviews/new")).toBeNull();
   });
 
   it("writes and reads reviewTab from the browser location without navigation", () => {
-    window.history.replaceState({}, "", "/reviews/run-1?reviewTab=overview");
+    window.history.replaceState({}, "", "/architecture/reviews/run-1?reviewTab=overview");
     const replaceStateSpy = vi.spyOn(window.history, "replaceState");
 
     writeReviewDetailTabToUrl("findings");
@@ -53,7 +53,7 @@ describe("review-detail-workspace-tabs", () => {
   });
 
   it("prefers hash-mapped tabs when reading from window location", () => {
-    window.history.replaceState({}, "", "/reviews/run-1?reviewTab=overview#run-explanation");
+    window.history.replaceState({}, "", "/architecture/reviews/run-1?reviewTab=overview#run-explanation");
 
     expect(readReviewDetailTabFromWindowLocation()).toBe("findings");
   });

@@ -13,7 +13,7 @@ describe("report-problem-context (TB-783)", () => {
 
   it("prefers server correlation id over client request id", () => {
     const context = buildReportProblemContext({
-      routePath: "/reviews",
+      routePath: "/architecture/reviews",
       correlationId: "server-corr-123",
       clientRequestId: "client-req-456",
       submittedAtUtc: "2026-07-16T00:00:00.000Z",
@@ -26,20 +26,20 @@ describe("report-problem-context (TB-783)", () => {
   it("includes review id on review detail route fixture", () => {
     const runId = "11111111-2222-3333-4444-555555555555";
 
-    expect(extractReviewIdFromRoutePath(`/reviews/${runId}`)).toBe(runId);
+    expect(extractReviewIdFromRoutePath(`/architecture/reviews/${runId}`)).toBe(runId);
 
     const context = buildReportProblemContext({
-      routePath: `/reviews/${runId}`,
+      routePath: `/architecture/reviews/${runId}`,
       submittedAtUtc: "2026-07-16T00:00:00.000Z",
     });
 
     expect(context.reviewId).toBe(runId);
-    expect(context.routePath).toBe(`/reviews/${runId}`);
+    expect(context.routePath).toBe(`/architecture/reviews/${runId}`);
   });
 
   it("omits review id for /reviews/new", () => {
     const context = buildReportProblemContext({
-      routePath: "/reviews/new",
+      routePath: "/architecture/reviews/new",
       submittedAtUtc: "2026-07-16T00:00:00.000Z",
     });
 

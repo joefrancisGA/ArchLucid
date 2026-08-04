@@ -23,8 +23,8 @@ describe("resolveCorePilotHelpWorkflowStepCta (TB-1042)", () => {
     const step1 = resolveCorePilotHelpWorkflowStepCta(CORE_PILOT_HELP_WORKFLOW_STEPS[0]!, emptyCtx);
     const step2 = resolveCorePilotHelpWorkflowStepCta(CORE_PILOT_HELP_WORKFLOW_STEPS[1]!, emptyCtx);
 
-    expect(step1.href).toBe("/reviews/new");
-    expect(step2.href).toBe("/reviews/new");
+    expect(step1.href).toBe("/architecture/reviews/new");
+    expect(step2.href).toBe("/architecture/reviews/new");
   });
 
   it("gates steps 3–5 to Start a review first when no active run", () => {
@@ -32,7 +32,7 @@ describe("resolveCorePilotHelpWorkflowStepCta (TB-1042)", () => {
       const cta = resolveCorePilotHelpWorkflowStepCta(step, emptyCtx);
 
       expect(cta.label).toBe("Start a review first");
-      expect(cta.href).toBe("/reviews/new");
+      expect(cta.href).toBe("/architecture/reviews/new");
       expect(cta.href).not.toContain("projectId=default");
     }
   });
@@ -52,11 +52,11 @@ describe("resolveCorePilotHelpWorkflowStepCta (TB-1042)", () => {
     };
 
     expect(resolveCorePilotHelpWorkflowStepCta(step3, inProgress)).toMatchObject({
-      href: "/reviews/run-abc",
+      href: "/architecture/reviews/run-abc",
       label: "Open review detail",
     });
     expect(resolveCorePilotHelpWorkflowStepCta(step4, inProgress)).toMatchObject({
-      href: `/reviews/run-abc${BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR}`,
+      href: `/architecture/reviews/run-abc${BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR}`,
       label: "Finalize on review detail",
     });
 
@@ -69,7 +69,7 @@ describe("resolveCorePilotHelpWorkflowStepCta (TB-1042)", () => {
     };
 
     expect(resolveCorePilotHelpWorkflowStepCta(step5, committed)).toMatchObject({
-      href: "/reviews/run-done#artifacts-exports",
+      href: "/architecture/reviews/run-done#artifacts-exports",
       label: "Open exports",
     });
   });
@@ -85,7 +85,7 @@ describe("resolveCorePilotHelpWorkflowStepCta (TB-1042)", () => {
     };
 
     expect(resolveCorePilotHelpWorkflowStepCta(step4, mixed)).toMatchObject({
-      href: "/reviews/run-new",
+      href: "/architecture/reviews/run-new",
       label: "Open review detail",
     });
   });

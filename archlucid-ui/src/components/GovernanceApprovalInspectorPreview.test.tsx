@@ -37,7 +37,7 @@ describe("GovernanceApprovalInspectorPreview", () => {
     expect(within(root).getByLabelText("Governance status: Submitted")).toBeInTheDocument();
     expect(within(root).getByRole("link", { name: sample.runId })).toHaveAttribute(
       "href",
-      `/reviews/${encodeURIComponent(sample.runId)}`,
+      `/architecture/reviews/${encodeURIComponent(sample.runId)}`,
     );
   });
 });

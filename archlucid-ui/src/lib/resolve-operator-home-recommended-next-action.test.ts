@@ -46,7 +46,7 @@ describe("resolveOperatorHomeRecommendedNextAction", () => {
 
     expect(resolveOperatorHomeRecommendedNextAction(context, false)).toEqual({
       message: OPERATOR_HOME_RECOMMENDED_NEXT_OPEN_LATEST,
-      href: "/reviews/run-42",
+      href: "/architecture/reviews/run-42",
     });
   });
 
@@ -61,7 +61,7 @@ describe("resolveOperatorHomeRecommendedNextAction", () => {
 
     expect(resolveOperatorHomeRecommendedNextAction(context, true)).toEqual({
       message: OPERATOR_HOME_RECOMMENDED_NEXT_OPEN_LATEST,
-      href: "/reviews/run-committed",
+      href: "/architecture/reviews/run-committed",
     });
   });
 
@@ -75,7 +75,7 @@ describe("resolveOperatorHomeRecommendedNextAction", () => {
 
     expect(resolveOperatorHomeRecommendedNextAction(context, false)).toEqual({
       message: OPERATOR_HOME_RECOMMENDED_NEXT_OPEN_LATEST,
-      href: "/reviews/run-1",
+      href: "/architecture/reviews/run-1",
     });
   });
 

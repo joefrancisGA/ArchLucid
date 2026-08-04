@@ -53,13 +53,13 @@ describe("LayerContextStrip", () => {
       <LayerContextStrip
         layerId="pilot"
         buyerRouteOrientation={{ label: "Signed review record", line: "Demo review record copy." }}
-        buyerOperateBackLink={{ label: "Back to review", href: "/reviews/demo-run" }}
+        buyerOperateBackLink={{ label: "Back to review", href: "/architecture/reviews/demo-run" }}
       />,
     );
 
     const link = getByTestId("layer-context-back-pilot");
     expect(link).toHaveTextContent("Back to review");
-    expect(link).toHaveAttribute("href", "/reviews/demo-run");
+    expect(link).toHaveAttribute("href", "/architecture/reviews/demo-run");
     unmount();
   });
 
@@ -70,7 +70,7 @@ describe("LayerContextStrip", () => {
         buyerRouteOrientation={{ label: "View evidence trail", line: "Demo orientation." }}
         buyerGoldenJourneyNav={{
           summaryLine: "Step 3 of 5 · View evidence trail",
-          prev: { label: "Signed review record", href: "/reviews/x/manifest" },
+          prev: { label: "Signed review record", href: "/architecture/reviews/x/manifest" },
           next: { label: "Governance approval", href: "/governance" },
           currentStepIndex: 2,
         }}
@@ -78,8 +78,8 @@ describe("LayerContextStrip", () => {
     );
 
     expect(getByTestId("buyer-golden-journey-stepper")).toBeInTheDocument();
-    expect(getByTestId("buyer-journey-prev")).toHaveAttribute("href", "/reviews/x/manifest");
-    expect(getByTestId("buyer-journey-next")).toHaveAttribute("href", "/governance");
+    expect(getByTestId("buyer-journey-prev")).toHaveAttribute("href", "/architecture/reviews/x/manifest");
+    expect(getByTestId("buyer-journey-next")).toHaveAttribute("href", "/governance/approval-queue");
 
     const indicators = getByTestId("buyer-golden-journey-step-indicators");
     const currentChip = indicators.querySelector("[aria-current='step']");
@@ -98,7 +98,7 @@ describe("LayerContextStrip", () => {
         layerId="operate-analysis"
         buyerGoldenJourneyNav={{
           summaryLine: "Step 3 of 5 · View evidence trail",
-          prev: { label: "Signed review record", href: "/reviews/x/manifest" },
+          prev: { label: "Signed review record", href: "/architecture/reviews/x/manifest" },
           next: { label: "Governance approval", href: "/governance" },
           currentStepIndex: 2,
         }}

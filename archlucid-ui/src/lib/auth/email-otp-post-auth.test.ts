@@ -8,7 +8,7 @@ vi.mock("@/lib/oidc/session", () => ({
 
 describe("resolveEmailOtpPostAuthPath", () => {
   it("returns safe return path for Complete", () => {
-    expect(resolveEmailOtpPostAuthPath("Complete", "/reviews/1")).toBe("/reviews/1");
+    expect(resolveEmailOtpPostAuthPath("Complete", "/architecture/reviews/1")).toBe("/architecture/reviews/1");
   });
 
   it("rejects open redirects for Complete", () => {
@@ -24,7 +24,7 @@ describe("resolveEmailOtpPostAuthPath", () => {
   });
 
   it("routes CreateWorkspace with returnUrl", () => {
-    expect(resolveEmailOtpPostAuthPath("CreateWorkspace", "/reviews/1")).toBe(
+    expect(resolveEmailOtpPostAuthPath("CreateWorkspace", "/architecture/reviews/1")).toBe(
       "/auth/bootstrap?returnUrl=%2Freviews%2F1",
     );
   });

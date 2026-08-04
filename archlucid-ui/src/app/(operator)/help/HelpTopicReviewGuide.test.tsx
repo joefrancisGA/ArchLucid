@@ -37,7 +37,7 @@ const TOC_SECTION_TITLES = [
 ] as const;
 
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/reviews/new",
+  usePathname: () => "/architecture/reviews/new",
 }));
 
 describe("Review guide", () => {

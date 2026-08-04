@@ -37,9 +37,9 @@ describe("shouldShowBreadcrumbTrail", () => {
   it("shows detail pages and deep trails", () => {
     const reviewId = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
 
-    expect(shouldShowBreadcrumbTrail(`/reviews/${reviewId}`, trail(`/reviews/${reviewId}`))).toBe(true);
+    expect(shouldShowBreadcrumbTrail(`/architecture/reviews/${reviewId}`, trail(`/architecture/reviews/${reviewId}`))).toBe(true);
     expect(
-      shouldShowBreadcrumbTrail(`/reviews/${reviewId}/provenance`, trail(`/reviews/${reviewId}/provenance`)),
+      shouldShowBreadcrumbTrail(`/architecture/reviews/${reviewId}/provenance`, trail(`/architecture/reviews/${reviewId}/provenance`)),
     ).toBe(true);
     expect(shouldShowBreadcrumbTrail("/governance/policy-packs/1", trail("/governance/policy-packs/1"))).toBe(true);
     expect(
@@ -48,7 +48,7 @@ describe("shouldShowBreadcrumbTrail", () => {
         trail("/governance/approval-requests/e2e-approval-001/lineage"),
       ),
     ).toBe(true);
-    expect(shouldShowBreadcrumbTrail("/architectures/new", trail("/architectures/new"))).toBe(true);
+    expect(shouldShowBreadcrumbTrail("/architecture/architectures/new", trail("/architecture/architectures/new"))).toBe(true);
     expect(shouldShowBreadcrumbTrail("/administration/settings/identity/sso-wizard", trail("/administration/settings/identity/sso-wizard"))).toBe(
       true,
     );
@@ -79,14 +79,14 @@ describe("shouldShowBreadcrumbTrail", () => {
     ).toBe(false);
     expect(
       shouldShowBreadcrumbTrail(
-        "/reviews/e2e-fixture-run-001/findings/e2e-finding-001",
-        trail("/reviews/e2e-fixture-run-001/findings/e2e-finding-001"),
+        "/architecture/reviews/e2e-fixture-run-001/findings/e2e-finding-001",
+        trail("/architecture/reviews/e2e-fixture-run-001/findings/e2e-finding-001"),
       ),
     ).toBe(false);
   });
 
   it("hides on buyer golden journey spine routes", () => {
-    const reviewPath = `/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`;
+    const reviewPath = `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`;
 
     expect(
       shouldShowBreadcrumbTrail(reviewPath, trail(reviewPath), {
@@ -126,10 +126,10 @@ describe("shouldShowBreadcrumbTrail", () => {
 
   it("shows trails when reviews list return href preserves filters", () => {
     const reviewId = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
-    const filteredListHref = "/reviews?projectId=default&status=open";
+    const filteredListHref = "/architecture/reviews?projectId=default&status=open";
 
     expect(
-      shouldShowBreadcrumbTrail(`/reviews/${reviewId}`, trail(`/reviews/${reviewId}`, { reviewsListReturnHref: filteredListHref }), {
+      shouldShowBreadcrumbTrail(`/architecture/reviews/${reviewId}`, trail(`/architecture/reviews/${reviewId}`, { reviewsListReturnHref: filteredListHref }), {
         reviewsListReturnHref: filteredListHref,
       }),
     ).toBe(true);

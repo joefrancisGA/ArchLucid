@@ -10,7 +10,7 @@ describe("cto-demo-fast-create", () => {
   it("returns a tour-enabled showcase executive summary destination", () => {
     const href = getCtoDemoFastCreateDestinationHref();
 
-    expect(href).toMatch(/^\/reviews\//);
+    expect(href).toMatch(/^\/architecture\/reviews\//);
     expect(href).toContain("claims-intake-modernization");
     expect(href).toContain("ctoDemoTour=1");
   });

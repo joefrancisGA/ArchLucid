@@ -41,7 +41,7 @@ describe("useReviewIntakeNavigation", () => {
     const { result } = renderHook(() => useReviewIntakeNavigation());
 
     act(() => {
-      result.current.navigate({ href: "/reviews/new" });
+      result.current.navigate({ href: "/architecture/reviews/new" });
     });
 
     expect(result.current.isNavigating).toBe(true);

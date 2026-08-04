@@ -29,7 +29,7 @@ describe("PreCommitGovernanceBlockPanel", () => {
 
     expect(screen.getByTestId("pre-commit-governance-block-finding-link-finding-1")).toHaveAttribute(
       "href",
-      "/reviews/run-abc/findings/finding-1",
+      "/architecture/reviews/run-abc/findings/finding-1",
     );
 
     expect(screen.getByTestId("pre-commit-governance-block-explanation")).toHaveTextContent(

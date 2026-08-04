@@ -13,7 +13,7 @@ describe("core-pilot-steps", () => {
     const firstStep = CORE_PILOT_STEPS[0];
 
     expect(firstStep.title.toLowerCase()).toContain("demo");
-    expect(firstStep.primaryHref).toBe("/reviews/new");
+    expect(firstStep.primaryHref).toBe("/architecture/reviews/new");
   });
 
   it("includes upload, dashboard ROI, and audit export steps", () => {

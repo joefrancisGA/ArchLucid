@@ -38,7 +38,7 @@ describe("ShowcaseQuickNav", () => {
 
     expect(screen.getByRole("link", { name: SHOWCASE_QUICK_NAV_SIGN_IN_CTA })).toHaveAttribute(
       "href",
-      `/auth/signin?returnUrl=${encodeURIComponent(`/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`)}`,
+      `/auth/signin?returnUrl=${encodeURIComponent(`/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`)}`,
     );
     expect(screen.queryByRole("link", { name: "Review" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Open signed record" })).not.toBeInTheDocument();

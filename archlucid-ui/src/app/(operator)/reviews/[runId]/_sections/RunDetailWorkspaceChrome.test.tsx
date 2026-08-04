@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/reviews/run-1",
+  usePathname: () => "/architecture/reviews/run-1",
 }));
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({

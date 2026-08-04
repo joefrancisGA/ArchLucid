@@ -16,7 +16,7 @@ describe("review terminology scanner", () => {
   it("safelists technical runId references", () => {
     const violations = scanBuyerFacingTerminology(
       "src/components/Example.tsx",
-      `const href = \`/reviews/\${runId}\`;`,
+      `const href = \`/architecture/reviews/\${runId}\`;`,
     );
 
     expect(violations).toEqual([]);

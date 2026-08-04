@@ -9,11 +9,11 @@ import {
 describe("runDetailHrefWithParentRun", () => {
   it("appends parentRunId when a parent run is known", () => {
     expect(runDetailHrefWithParentRun("branch-run", "parent-run")).toBe(
-      `/reviews/branch-run?${DRAFT_BRANCH_PARENT_RUN_QUERY_KEY}=parent-run&${DRAFT_BRANCH_AUTO_COMPARE_QUERY_KEY}=1`,
+      `/architecture/reviews/branch-run?${DRAFT_BRANCH_PARENT_RUN_QUERY_KEY}=parent-run&${DRAFT_BRANCH_AUTO_COMPARE_QUERY_KEY}=1`,
     );
   });
 
   it("omits query when parent run is absent", () => {
-    expect(runDetailHrefWithParentRun("solo-run", null)).toBe("/reviews/solo-run");
+    expect(runDetailHrefWithParentRun("solo-run", null)).toBe("/architecture/reviews/solo-run");
   });
 });

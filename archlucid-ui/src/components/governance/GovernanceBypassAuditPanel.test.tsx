@@ -44,7 +44,7 @@ describe("GovernanceBypassAuditPanel", () => {
 
     expect(screen.getByText("Alex Operator")).toBeInTheDocument();
     expect(screen.getByText("Approved emergency release.")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "run-abc" })).toHaveAttribute("href", "/reviews/run-abc");
+    expect(screen.getByRole("link", { name: "run-abc" })).toHaveAttribute("href", "/architecture/reviews/run-abc");
     expect(screen.getByTestId("governance-bypass-row-evt-1")).toHaveTextContent("2");
   });
 

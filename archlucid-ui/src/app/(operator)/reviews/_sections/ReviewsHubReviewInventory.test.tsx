@@ -40,7 +40,7 @@ describe("ReviewsHubReviewInventory", () => {
     expect(screen.getByTestId("reviews-hub-recent-empty")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Start an architecture review" })).toHaveAttribute(
       "href",
-      "/reviews/new",
+      "/architecture/reviews/new",
     );
     expect(screen.getByRole("link", { name: "Explore the sample review" })).toBeInTheDocument();
     expect(screen.getByTestId("reviews-hub-recent-empty-help-link")).toHaveAttribute(
@@ -68,7 +68,7 @@ describe("ReviewsHubReviewInventory", () => {
     expect(screen.getByText(/Continue editing from the header/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Start an architecture review" })).toHaveAttribute(
       "href",
-      "/reviews/new",
+      "/architecture/reviews/new",
     );
     expect(screen.getByRole("link", { name: "Explore the sample review" })).toBeInTheDocument();
     expect(screen.getByTestId("reviews-hub-recent-empty-help-link")).toBeInTheDocument();

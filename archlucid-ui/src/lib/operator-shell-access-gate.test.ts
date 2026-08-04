@@ -28,21 +28,21 @@ describe("operator-shell-access-gate", () => {
   it("exempts auth and access-denied routes from deferral", () => {
     expect(pathnameExemptFromOperatorAccessGate("/403")).toBe(true);
     expect(pathnameExemptFromOperatorAccessGate("/auth/callback")).toBe(true);
-    expect(pathnameExemptFromOperatorAccessGate("/reviews")).toBe(false);
+    expect(pathnameExemptFromOperatorAccessGate("/architecture/reviews")).toBe(false);
   });
 
   it("defers chrome while authority is loading on operator routes", () => {
     signedInState.value = true;
 
-    expect(shouldDeferOperatorShellChrome("/reviews", true)).toBe(true);
-    expect(shouldDeferOperatorShellChrome("/reviews", false)).toBe(false);
+    expect(shouldDeferOperatorShellChrome("/architecture/reviews", true)).toBe(true);
+    expect(shouldDeferOperatorShellChrome("/architecture/reviews", false)).toBe(false);
   });
 
   it("defers chrome on deep-linked operator routes when JWT session is absent", () => {
     signedInState.value = false;
 
-    expect(unsignedJwtSessionBlocksOperatorShell("/reviews")).toBe(true);
-    expect(shouldDeferOperatorShellChrome("/reviews", false)).toBe(true);
+    expect(unsignedJwtSessionBlocksOperatorShell("/architecture/reviews")).toBe(true);
+    expect(shouldDeferOperatorShellChrome("/architecture/reviews", false)).toBe(true);
     expect(shouldDeferOperatorShellChrome("/403", false)).toBe(false);
   });
 
@@ -56,6 +56,6 @@ describe("operator-shell-access-gate", () => {
     signedInState.value = false;
 
     expect(operatorHomeGateBlocksInitialPaint("/")).toBe(!operatorHomeGateAllowsInitialPaint());
-    expect(operatorHomeGateBlocksInitialPaint("/reviews")).toBe(false);
+    expect(operatorHomeGateBlocksInitialPaint("/architecture/reviews")).toBe(false);
   });
 });

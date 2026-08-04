@@ -16,7 +16,7 @@ export function governanceFindingManifestRecordHref(runId: string, manifestId: s
     return `/signed-records/${encodeURIComponent(manifestId)}`;
   }
 
-  return `/reviews/${encodeURIComponent(runId)}/signed-record`;
+  return `/architecture/reviews/${encodeURIComponent(runId)}/signed-record`;
 }
 
 export function governanceQueueGraphEvidenceHref(row: GovernanceFindingQueueRow): string | null {

@@ -107,14 +107,14 @@ describe("QuickDecisionSummary", () => {
     const findingDetailLinks = screen.getAllByRole("link").filter((el) => {
       const href = el.getAttribute("href") ?? "";
 
-      return href.includes("/reviews/run-abc/findings/") && !href.includes("/insights/evidence-graph");
+      return href.includes("/architecture/reviews/run-abc/findings/") && !href.includes("/insights/evidence-graph");
     });
 
     expect(findingDetailLinks).toHaveLength(3);
     expect(findingDetailLinks.map((el) => el.getAttribute("href"))).toEqual([
-      "/reviews/run-abc/findings/f-critical",
-      "/reviews/run-abc/findings/f-high",
-      "/reviews/run-abc/findings/f-extra",
+      "/architecture/reviews/run-abc/findings/f-critical",
+      "/architecture/reviews/run-abc/findings/f-high",
+      "/architecture/reviews/run-abc/findings/f-extra",
     ]);
 
     expect(screen.getByText("Fix immediately.")).toBeInTheDocument();

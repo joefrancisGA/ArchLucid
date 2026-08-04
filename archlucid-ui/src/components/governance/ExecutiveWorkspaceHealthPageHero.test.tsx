@@ -25,7 +25,7 @@ describe("ExecutiveWorkspaceHealthPageHero", () => {
     expect(screen.getByRole("heading", { level: 1, name: executiveWorkspaceHealthPageTitle(true) })).toBeInTheDocument();
     expect(screen.getByText(executiveWorkspaceHealthPageLead(true))).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.getByTestId("executive-workspace-health-workflow-link")).toHaveAttribute("href", "/governance");
+    expect(screen.getByTestId("executive-workspace-health-workflow-link")).toHaveAttribute("href", "/governance/approval-queue");
     expect(screen.getByRole("link", { name: EXECUTIVE_WORKSPACE_HEALTH_WORKFLOW_LINK_LABEL })).toBeInTheDocument();
   });
 

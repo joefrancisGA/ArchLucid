@@ -94,6 +94,6 @@ describe("PilotNavGroupBuilder", () => {
     expect(architecturesLink?.label).toBe(ARCHITECTURE_DRAFTS_LIST_LABEL);
     expect(reviewsListLink?.label).toBe("Reviews");
     expect(group.links.some((link) => link.href === "/architecture/architectures/new")).toBe(false);
-    expect(group.links.some((link) => link.href === "/reviews/new")).toBe(false);
+    expect(group.links.some((link) => link.href === "/architecture/reviews/new")).toBe(false);
   });
 });

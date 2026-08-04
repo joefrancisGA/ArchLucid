@@ -52,7 +52,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/developer-troubleshooting",
       "/help/governance-api-contracts",
       "/governance/standards-and-rules",
-      "/reviews/new",
+      "/architecture/reviews/new",
       "/architecture/reviews/new",
       "/governance/audit",
       "/administration/system-health",
@@ -69,7 +69,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "Start an architecture review",
     );
     expect(contextualHelpForPathname("/architecture/reviews")?.whatIsThisPage).toContain("architecture reviews");
-    expect(contextualHelpForPathname("/reviews/new")?.whatIsThisPage).toContain("Start an architecture review");
+    expect(contextualHelpForPathname("/architecture/reviews/new")?.whatIsThisPage).toContain("Start an architecture review");
     expect(contextualHelpForPathname("/governance/findings?filter=open")?.whatToDoNext).toContain("Assign owners");
     expect(contextualHelpForPathname("/value-report/pilot")?.whatIsThisPage).toContain("sponsor-ready");
     expect(contextualHelpForPathname("/planning/plans/plan-1")?.whatIsThisPage).toContain("one prioritized improvement plan");

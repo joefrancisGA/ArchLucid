@@ -3,9 +3,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const searchParamsMock = vi.hoisted(() => ({ value: new URLSearchParams() }));
 
-vi.mock("next/navigation", () => ({
-  useSearchParams: () => searchParamsMock.value,
-}));
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+  return {
+    ...actual,
+    useSearchParams: () => searchParamsMock.value,
+    usePathname: () => "/",
+  };
+});
 
 vi.mock("@/lib/oidc/config", () => ({
   isJwtAuthMode: vi.fn(() => true),

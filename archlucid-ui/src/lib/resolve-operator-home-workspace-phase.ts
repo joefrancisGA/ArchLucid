@@ -135,5 +135,5 @@ export function resolveLatestArchitectureDraftHref(
     return null;
   }
 
-  return `/architectures/${encodeURIComponent(architectureId)}`;
+  return `/architecture/architectures/${encodeURIComponent(architectureId)}`;
 }

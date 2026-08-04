@@ -6,30 +6,30 @@ describe("resolveSoftNavigationHardFallbackAssignUrl", () => {
   it("returns a same-origin assign URL when soft-nav never left home", () => {
     expect(
       resolveSoftNavigationHardFallbackAssignUrl(
-        "/reviews/claims-intake-modernization",
+        "/architecture/reviews/claims-intake-modernization",
         "/",
         "",
         "https://www.archlucid.net",
       ),
-    ).toBe("/reviews/claims-intake-modernization");
+    ).toBe("/architecture/reviews/claims-intake-modernization");
   });
 
   it("includes query when navigating from home to reviews list", () => {
     expect(
       resolveSoftNavigationHardFallbackAssignUrl(
-        "/reviews?projectId=default",
+        "/architecture/reviews?projectId=default",
         "/",
         "",
         "https://www.archlucid.net",
       ),
-    ).toBe("/reviews?projectId=default");
+    ).toBe("/architecture/reviews?projectId=default");
   });
 
   it("returns null when already on the target path and query", () => {
     expect(
       resolveSoftNavigationHardFallbackAssignUrl(
-        "/reviews?projectId=default",
-        "/reviews",
+        "/architecture/reviews?projectId=default",
+        "/architecture/reviews",
         "?projectId=default",
         "https://www.archlucid.net",
       ),

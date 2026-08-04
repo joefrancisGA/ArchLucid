@@ -30,7 +30,7 @@ export function isShowcaseCanonicalPrimaryFindingRoute(runId: string, findingId:
 export function showcaseSampleReviewPackageHref(
   runId: string = SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId,
 ): string {
-  return `/reviews/${encodeURIComponent(canonicalizeDemoRunId(runId))}`;
+  return `/architecture/reviews/${encodeURIComponent(canonicalizeDemoRunId(runId))}`;
 }
 
 export function showcasePrimaryFindingDetailHref(
@@ -40,5 +40,5 @@ export function showcasePrimaryFindingDetailHref(
   const effectiveRunId = canonicalizeDemoRunId(runId);
   const effectiveFindingId = findingId.trim();
 
-  return `/reviews/${encodeURIComponent(effectiveRunId)}/findings/${encodeURIComponent(effectiveFindingId)}`;
+  return `/architecture/reviews/${encodeURIComponent(effectiveRunId)}/findings/${encodeURIComponent(effectiveFindingId)}`;
 }

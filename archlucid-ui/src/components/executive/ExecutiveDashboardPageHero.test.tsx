@@ -51,7 +51,7 @@ describe("ExecutiveDashboardPageHero", () => {
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("executive-dashboard-refresh-button")).toBeInTheDocument();
     expect(screen.getByTestId("executive-dashboard-last-refreshed")).toHaveTextContent(/Last refreshed:/i);
-    expect(screen.getByTestId("executive-dashboard-hero-start-review")).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByTestId("executive-dashboard-hero-start-review")).toHaveAttribute("href", "/architecture/reviews/new");
     expect(screen.getByTestId("executive-dashboard-hero-start-review")).toHaveTextContent(v.emptyStatePrimaryAction);
     expect(screen.queryByRole("link", { name: v.portfolioPageLearnMoreLabel })).toBeNull();
     expect(screen.queryByRole("button", { name: v.emptyStateSecondaryAction })).not.toBeInTheDocument();

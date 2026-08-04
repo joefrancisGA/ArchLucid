@@ -10,7 +10,7 @@ const action: RunDetailWorkspaceRecommendedAction = {
   reason: "1 critical or high finding needs attention.",
   relatedFindingCount: 1,
   ownerOrRole: null,
-  href: "/reviews/run-abc?reviewTab=findings",
+  href: "/architecture/reviews/run-abc?reviewTab=findings",
   actionLabel: "Review findings",
 };
 

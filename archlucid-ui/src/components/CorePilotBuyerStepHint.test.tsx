@@ -56,7 +56,7 @@ describe("CorePilotBuyerStepHint", () => {
     });
 
     expect(screen.getByTestId("core-pilot-buyer-step-badge")).toHaveTextContent("Step 1 of 4");
-    expect(screen.getByRole("link", { name: START_REVIEW_LABEL })).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByRole("link", { name: START_REVIEW_LABEL })).toHaveAttribute("href", "/architecture/reviews/new");
   });
 
   it("shows Step 2–3 of 4 when a run exists without commit", async () => {
@@ -74,7 +74,7 @@ describe("CorePilotBuyerStepHint", () => {
 
     expect(screen.getByRole("link", { name: "Open your in-progress review" })).toHaveAttribute(
       "href",
-      "/reviews/run-abc",
+      "/architecture/reviews/run-abc",
     );
   });
 
@@ -91,6 +91,6 @@ describe("CorePilotBuyerStepHint", () => {
       expect(screen.getByTestId("core-pilot-buyer-step-badge")).toHaveTextContent("Step 4 of 4");
     });
 
-    expect(screen.getByRole("link", { name: "Open review" })).toHaveAttribute("href", "/reviews/run-gold");
+    expect(screen.getByRole("link", { name: "Open review" })).toHaveAttribute("href", "/architecture/reviews/run-gold");
   });
 });

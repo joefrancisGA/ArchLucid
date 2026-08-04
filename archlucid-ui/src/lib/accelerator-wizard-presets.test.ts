@@ -9,7 +9,7 @@ import {
 describe("accelerator-wizard-presets", () => {
   it("builds baseline-first review links with accelerator query param", () => {
     expect(buildAcceleratorReviewStartHref("ai-llm-workload")).toBe(
-      "/reviews/new?baseline=1&accelerator=ai-llm-workload",
+      "/architecture/reviews/new?baseline=1&accelerator=ai-llm-workload",
     );
   });
 

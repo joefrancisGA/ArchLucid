@@ -22,7 +22,7 @@ function draft(id: string, name: string): ArchitectureDraftRegistryEntry {
 describe("resolveReviewsHubHeaderPrimary", () => {
   it("starts a new review when no drafts exist", () => {
     expect(resolveReviewsHubHeaderPrimary([])).toEqual({
-      href: "/reviews/new",
+      href: "/architecture/reviews/new",
       label: "Start an architecture review",
       continuesSingleDraft: false,
     });
@@ -31,7 +31,7 @@ describe("resolveReviewsHubHeaderPrimary", () => {
   it("continues the sole draft without showing a chooser strip", () => {
     const primary = resolveReviewsHubHeaderPrimary([draft("draft-001", "Payments")]);
 
-    expect(primary.href).toBe("/architectures/draft-001");
+    expect(primary.href).toBe("/architecture/architectures/draft-001");
     expect(primary.label).toBe("Continue editing draft");
     expect(primary.continuesSingleDraft).toBe(true);
     expect(shouldShowReviewsHubResumeDrafts(1)).toBe(false);
@@ -44,7 +44,7 @@ describe("resolveReviewsHubHeaderPrimary", () => {
     ]);
 
     expect(primary).toEqual({
-      href: "/reviews/new",
+      href: "/architecture/reviews/new",
       label: "Start an architecture review",
       continuesSingleDraft: false,
     });

@@ -111,7 +111,7 @@ function GovernanceFindingsQueueOperationalRowCells(props: {
         ) : null}
       </EnterpriseTableCell>
       <EnterpriseTableCell>
-        <Link className={OPERATOR_LINK.inline} href={`/reviews/${encodeURIComponent(row.runId)}`}>
+        <Link className={OPERATOR_LINK.inline} href={`/architecture/reviews/${encodeURIComponent(row.runId)}`}>
           {row.runLabel}
         </Link>
       </EnterpriseTableCell>
@@ -236,7 +236,7 @@ export function GovernanceFindingsQueueTableRow(props: GovernanceFindingsQueueTa
             ) : null}
           </EnterpriseTableCell>
           <EnterpriseTableCell>
-            <Link className={OPERATOR_LINK.inline} href={`/reviews/${encodeURIComponent(row.runId)}`}>
+            <Link className={OPERATOR_LINK.inline} href={`/architecture/reviews/${encodeURIComponent(row.runId)}`}>
               {row.runLabel}
             </Link>
           </EnterpriseTableCell>

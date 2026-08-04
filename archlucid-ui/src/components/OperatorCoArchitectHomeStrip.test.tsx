@@ -20,10 +20,10 @@ describe("OperatorCoArchitectHomeStrip", () => {
 
     expect(screen.getByText(OPERATOR_CO_ARCHITECT_BRAND_LINE)).toBeInTheDocument();
     expect(screen.queryByText(/Last selected entry/i)).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: OPERATOR_CO_ARCHITECT_CTA_REVIEW_PRIMARY })).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByRole("link", { name: OPERATOR_CO_ARCHITECT_CTA_REVIEW_PRIMARY })).toHaveAttribute("href", "/architecture/reviews/new");
     expect(screen.getByRole("link", { name: OPERATOR_CO_ARCHITECT_CTA_DESCRIBE_SECONDARY })).toHaveAttribute(
       "href",
-      "/reviews/new?intent=describe",
+      "/architecture/reviews/new?intent=describe",
     );
   });
 

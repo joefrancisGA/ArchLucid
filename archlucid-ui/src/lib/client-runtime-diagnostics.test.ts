@@ -223,7 +223,7 @@ describe("client-runtime-diagnostics", () => {
     const handle = installClientRuntimeDiagnostics(report);
 
     const anchor = document.createElement("a");
-    anchor.setAttribute("href", "/reviews/claims-intake-modernization");
+    anchor.setAttribute("href", "/architecture/reviews/claims-intake-modernization");
     document.body.appendChild(anchor);
     anchor.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
 
@@ -232,11 +232,11 @@ describe("client-runtime-diagnostics", () => {
     expect(report).toHaveBeenCalledWith(
       expect.objectContaining({
         kind: "navigation-stuck",
-        href: "/reviews/claims-intake-modernization",
+        href: "/architecture/reviews/claims-intake-modernization",
         detail: expect.stringContaining("hardFallback=/reviews/claims-intake-modernization"),
       }),
     );
-    expect(assign).toHaveBeenCalledWith("/reviews/claims-intake-modernization");
+    expect(assign).toHaveBeenCalledWith("/architecture/reviews/claims-intake-modernization");
 
     handle.dispose();
   });

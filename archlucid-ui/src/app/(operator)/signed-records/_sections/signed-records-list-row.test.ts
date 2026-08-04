@@ -27,7 +27,7 @@ describe("buildSignedRecordsListRowsFromRuns", () => {
 
     expect(rows).toHaveLength(1);
     expect(rows[0]?.runId).toBe(finalizedRun.runId);
-    expect(rows[0]?.reviewHref).toBe(`/reviews/${encodeURIComponent(finalizedRun.runId)}`);
+    expect(rows[0]?.reviewHref).toBe(`/architecture/reviews/${encodeURIComponent(finalizedRun.runId)}`);
     expect(rows[0]?.signedRecordHref).toBeNull();
     expect(isSignedRecordsListRowOpenable(rows[0]!)).toBe(false);
   });

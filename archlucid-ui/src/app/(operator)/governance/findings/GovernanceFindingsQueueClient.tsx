@@ -116,7 +116,7 @@ export default function GovernanceFindingsQueueClient() {
               Clear review scope
             </Link>
             {" · "}
-            <Link className={OPERATOR_LINK.inline} href={`/reviews/${encodeURIComponent(scopedRunId)}`}>
+            <Link className={OPERATOR_LINK.inline} href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}>
               Open review
             </Link>
           </p>
@@ -172,10 +172,10 @@ export default function GovernanceFindingsQueueClient() {
                     : ARCHITECTURE_RISK_REGISTER_EMPTY_BODY
               }
               actions={[
-                { label: "Open reviews", href: "/reviews?projectId=default", variant: "primary" },
+                { label: "Open reviews", href: "/architecture/reviews?projectId=default", variant: "primary" },
                 {
                   label: buyerPolishedShell ? BUYER_RISK_REGISTER_EMPTY_SECONDARY_ACTION : "Open governance workflow",
-                  href: "/governance",
+                  href: "/governance/approval-queue",
                   variant: "outline",
                 },
               ]}

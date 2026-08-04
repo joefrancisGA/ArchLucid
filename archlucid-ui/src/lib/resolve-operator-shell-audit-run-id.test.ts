@@ -10,7 +10,7 @@ describe("resolveOperatorShellAuditRunId", () => {
 
   it("prefers runId query params over pathname and workspace memory", () => {
     const resolved = resolveOperatorShellAuditRunId({
-      pathname: "/reviews/other-run",
+      pathname: "/architecture/reviews/other-run",
       search: "?runId=from-query",
       workspaceActiveRunId: "workspace-run",
     });
@@ -20,7 +20,7 @@ describe("resolveOperatorShellAuditRunId", () => {
 
   it("uses review detail pathname when query is absent", () => {
     const resolved = resolveOperatorShellAuditRunId({
-      pathname: "/reviews/run-from-path",
+      pathname: "/architecture/reviews/run-from-path",
       search: "",
       workspaceActiveRunId: null,
     });

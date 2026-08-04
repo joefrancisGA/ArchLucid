@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const pushMock = vi.fn();
 const refreshMock = vi.fn();
-const pathnameMock = vi.fn(() => "/reviews");
+const pathnameMock = vi.fn(() => "/architecture/reviews");
 
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
@@ -55,7 +55,7 @@ describe("SeedSampleReviewButton", () => {
     invalidateExecutiveMock.mockClear();
     invalidateHomeRunsMock.mockClear();
     pathnameMock.mockReset();
-    pathnameMock.mockReturnValue("/reviews");
+    pathnameMock.mockReturnValue("/architecture/reviews");
     fetchMock.mockReset();
     vi.stubGlobal("fetch", fetchMock);
   });

@@ -24,7 +24,7 @@ describe("repeat-review-activation", () => {
 
     expect(prompt).not.toBeNull();
     expect(prompt!.headline).toContain("second");
-    expect(prompt!.primaryHref).toBe("/reviews/new");
+    expect(prompt!.primaryHref).toBe("/architecture/reviews/new");
     expect(prompt!.actions.some((action) => action.href.includes("run-first"))).toBe(true);
   });
 

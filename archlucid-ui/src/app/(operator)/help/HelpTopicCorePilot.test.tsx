@@ -67,7 +67,7 @@ describe("HelpCorePilotGuideView", () => {
     expect(within(summaryCard).getByText(CORE_PILOT_HELP_SUMMARY_TITLE)).toBeInTheDocument();
     expect(within(summaryCard).getByRole("link", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA })).toHaveAttribute(
       "href",
-      "/reviews/new",
+      "/architecture/reviews/new",
     );
     expect(within(summaryCard).getByRole("link", { name: "Open sample review" })).toBeInTheDocument();
     expect(within(summaryCard).queryByRole("link", { name: "View pilot guide" })).toBeNull();
@@ -116,7 +116,7 @@ describe("HelpCorePilotGuideView", () => {
     expect(gatedLinks).toHaveLength(3);
 
     for (const link of gatedLinks) {
-      expect(link).toHaveAttribute("href", "/reviews/new");
+      expect(link).toHaveAttribute("href", "/architecture/reviews/new");
       expect(link.getAttribute("href")).not.toContain("projectId=default");
     }
   });

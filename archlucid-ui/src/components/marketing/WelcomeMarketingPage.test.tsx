@@ -94,7 +94,7 @@ describe("WelcomeMarketingPage", () => {
     expect(screen.getByTestId("welcome-use-case-gcp-architecture-framework")).toBeInTheDocument();
     expect(screen.getByTestId("welcome-use-case-ai-governance-security-cta")).toHaveAttribute(
       "href",
-      "/reviews/61c60d76-2b80-93f9-46bb-2f66fd608b9b",
+      "/architecture/reviews/61c60d76-2b80-93f9-46bb-2f66fd608b9b",
     );
     expect(screen.getByTestId("welcome-use-case-aws-waf-cta").getAttribute("href")).toMatch(/\/help\//);
     expect(screen.getByTestId("welcome-use-case-gcp-architecture-framework-cta").getAttribute("href")).toMatch(

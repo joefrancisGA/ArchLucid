@@ -58,10 +58,12 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 
 | ID | Path | Hit% | Scores | Weight | Deficit | Section | Notes |
 |----|------|------|--------|--------|---------|---------|-------|
+| ADY | `/administration/system-health` | 0.02% | 0 | 0 | 2 | Admin | Administration System health hub - SystemHealthPageView with PageContextualHelpButton (topic map troubleshooting; Category-1 registry), Sources follow-up strip + claim-discipline callout (operational readiness, not diligence trail), live/ready dependency checks, build identity, demo-safe buyer shell variant. Canonical path /administration/system-health (legacy /health on HXX). Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. |
+| ARE | `/architecture/executive-dashboard` | 0.02% | 0 | 0 | 2 | Executive | Canonical executive ROI portfolio dashboard — ExecutiveRoiDashboardPageView with hero, KPI tiles, trend charts, sponsor exports, and PageContextualHelp → executive-summary. Legacy /dashboard (DSH), /executive/dashboard (EXD), and /portfolio redirect here (TB-608). |
 | RE | `/reviews` | 12% | 0 | 0 | 1200 | Core review | None |
 | RRE | `/reviews/[runId]` | 10% | 0 | 0 | 1000 | Core review | None |
 | RRF | `/reviews/[runId]/findings/[findingId]` | 9% | 0 | 0 | 900 | Core review | None |
-| DSH | `/architecture/executive-dashboard` | 8.04% | 0 | 0 | 804 | Marketing | Deprecated operator bookmark — merged to canonical executive dashboard on **ARE** (`/architecture/executive-dashboard`, TB-608). |
+| DSH | `/dashboard` | 8.04% | 0 | 0 | 804 | Marketing | Deprecated operator bookmark — merged to canonical executive dashboard on **ARE** (`/architecture/executive-dashboard`, TB-608). |
 | ACB | `/auth/callback` | 5% | 0 | 0 | 500 | Auth | None |
 | ASI | `/auth/signin` | 5% | 0 | 0 | 500 | Auth | None |
 | ASK | `/insights/ask-review-questions` | 4% | 0 | 0 | 400 | Marketing | Formerly `/ask` (retired; no redirect). |
@@ -69,12 +71,12 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | AL | `/governance/alerts` | 3% | 0 | 0 | 300 | Alerts/gov | None |
 | GFN | `/governance/findings` | 2% | 0 | 0 | 200 | Alerts/gov | None |
 | GDX | `/governance/dashboard` | 1.5% | 0 | 0 | 150 | Alerts/gov | Executive Workspace Health dashboard - ExecutiveWorkspaceHealthDashboard with hero PageContextualHelp (topic map how-it-works / Workspace overview, not governance-approval), Category-1 registry, Sources follow-up strip + claim-discipline callout (scoped aggregates / planning hours, not diligence trail), DecisionsNeededSummaryCard, five KPI tiles, Bypass audit panel. Alerts topic-map honesty sibling (`/governance/alerts` -> alerts). TB-1668 GDX/alerts topic slice. Demo shell may still redirect away (BDA-107). Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. |
-| SCX | `/insights/architecture-scorecard` | 1.5% | 0 | 0 | 150 | Marketing | Architecture scorecard (Insights) - PilotScorecardPageView with PageContextualHelp (topic map pilot-roi-model + Category-1 registry), Sources follow-up strip + claim-discipline callout (directional ROI / not financial reporting; not diligence trail), Outcomes nav, empty CTAs (TB-1958), sample-mode honesty (TB-1957). Formerly `/scorecard` and `/sponsor-report/architecture-scorecard` (retired; no redirect). Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. |
+| SCX | `/insights/architecture-scorecard` | 1.5% | 0 | 0 | 150 | Insights | Architecture scorecard (Insights) - PilotScorecardPageView with PageContextualHelp (topic map pilot-roi-model + Category-1 registry), Sources follow-up strip + claim-discipline callout (directional ROI / not financial reporting; not diligence trail), Outcomes nav, empty CTAs (TB-1958), sample-mode honesty (TB-1957). Formerly `/scorecard` and `/sponsor-report/architecture-scorecard` (retired; no redirect). Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. |
 | HEL | `/help` | 1% | 0 | 0 | 100 | Help hub | None |
 | SET | `/administration/settings` | 0.8% | 0 | 0 | 80 | Admin | Formerly `/settings` (retired; no redirect). Keep `/settings/webhooks`, `/settings/cloud-connections`, `/settings/roles` redirects. |
 | PLA | `/planning` | 0.8% | 0 | 0 | 80 | Planning | Improvement planning - PlanningPageView with PageContextualHelp (topic map how-it-works / Improvement planning; Category-1 registry), Sources follow-up strip + claim-discipline callout (derived themes/plans, not diligence trail), themes/plans tables, export readiness. Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. |
 | SXX | `/insights/search-review-evidence` | 0.7% | 0 | 0 | 70 | Marketing | Formerly `/search` (retired; no redirect). |
-| HXX | `/administration/system-health` | 0.62% | 0 | 0 | 62 | Admin | Deprecated operator bookmark — merged to Administration System health on **ADY** (`/administration/system-health`). |
+| HXX | `/health` | 0.62% | 0 | 0 | 62 | Marketing | Deprecated operator bookmark — merged to Administration System health on **ADY** (`/administration/system-health`). |
 | DI | `/digests` | 0.6% | 0 | 0 | 60 | Digests | Architecture digests - DigestsHubClient with DigestsPageHeader PageContextualHelp (topic map how-it-works / Architecture digests; Category-1 registry), Sources follow-up strip + claim-discipline callout (scheduled summaries, not diligence trail), browse/subscriptions/schedule tabs, weekly health banner. Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. |
 | INE | `/insights/evidence-graph` | 0.6% | 0 | 0 | 60 | Planning | Canonical evidence trail operator hub — GraphPageContent with runId/graphNodeId query handoffs, trace table vs interactive graph tabs, provenance/decision/architecture graph modes, sample-mode banner, and OperatorSavedViewsBar. Left nav Evidence graph. Legacy /graph retired (no redirect). Deep links from findings, standards rules, golden journey. Former workbook row GRA. |
 | PPP | `/planning/plans/[planId]` | 0.6% | 0 | 0 | 60 | Planning | Improvement plan detail - PlanningPlanDetailPageView with OperatorPageHeader PageContextualHelp (topic map how-it-works / Improvement planning; Category-1 registry for /planning/plans), Sources follow-up strip + claim-discipline callout (derived plan, not diligence trail), plan sections. Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. |
@@ -194,7 +196,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | AXX | `/accessibility` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | ADD | `/admin/demo-readiness` | 0.02% | 0 | 0 | 2 | Admin | None |
 | ADE | `/admin/deployment-status` | 0.02% | 0 | 0 | 2 | Admin | None |
-| ADC | `/administration/connection-status` | 0.02% | 0 | 0 | 2 | Admin | None |
+| INR | `/administration/connection-status` | 0.02% | 0 | 0 | 2 | Admin | Administration Connection status hub — ConnectorOperationsDashboard groups connector readiness with summary tiles and recommended-first setup. PageContextualHelpButton + integration-readiness help. Canonical path /administration/connection-status. |
 | SEA | `/administration/settings/account-security` | 0.02% | 0 | 0 | 2 | Admin | None |
 | SEU | `/administration/settings/auth-domains` | 0.02% | 0 | 0 | 2 | Admin | None |
 | SEI | `/administration/settings/identity-providers/diagnostics` | 0.02% | 0 | 0 | 2 | Admin | None |
@@ -205,7 +207,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | SEP | `/administration/settings/preferences` | 0.02% | 0 | 0 | 2 | Admin | None |
 | SEK | `/administration/settings/users?tab=keys` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | SSU | `/administration/settings/users?tab=users` | 0.02% | 0 | 0 | 2 | Tab surface | None |
-| AR2 | `/architecture-intelligence` | 0.02% | 0 | 0 | 2 | Core review | None |
+| AIN | `/architecture-intelligence` | 0.02% | 0 | 0 | 2 | Core review | Closed-loop architecture reasoning operator surface - ArchitectureIntelligencePageClient runs reasoning/golden tests and publish-to-findings round trip. Deep links from reviews/findings via runId query. Canonical path /architecture-intelligence. |
 | AR | `/architectures` | 0.02% | 0 | 0 | 2 | Core review | None |
 | ARA | `/architectures/[architectureId]` | 0.02% | 0 | 0 | 2 | Core review | None |
 | ARN | `/architectures/new` | 0.02% | 0 | 0 | 2 | Core review | None |
@@ -244,10 +246,10 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | HEG | `/help/glossary` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HEI | `/help/integration-readiness` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | EIN | `/help/integrations/azure-boards` | 0.02% | 0 | 0 | 2 | Help alias | None |
-| HPX | `/help/path-chooser` | 0.02% | 0 | 0 | 2 | Help topic | Specialty path chooser — HelpPathChooserGuideView with goal-branch primary/fallback CTAs (reviews/new, security-trust, first-pilot-path, executive-summary, CLI), Sources diligence strip (getting-started, first-architecture-review, trust, procurement, tenant isolation), claim-discipline callout, PageContextualHelp, and prepared BUYER_ORIENTATION_ONE_SCREEN.md (TB-1712 leakage strip). Not bare HelpTopicMarkdownView. Does not imply CPA SOC 2 or third-party pen-test publication. |
+| HPX | `/help/path-chooser` | 0.02% | 0 | 0 | 2 | Help topic | Buyer path chooser — HelpTopicMarkdownView on BUYER_ORIENTATION_ONE_SCREEN.md with stripPathChooserContributorLeakage (TB-1712). Help search panel + HelpDocsClient static entry; product Help Center tier, not featured grid. Open P1 specialty chooser rewrite (TB-1711). Not a specialty guide yet. |
 | HPE | `/help/pilot-feedback` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | PIL | `/help/pilot-nav-profile` | 0.02% | 0 | 0 | 2 | Help topic | None |
-| POL | `/help/policy-pack-delta-demo` | 0.02% | 0 | 0 | 2 | Help topic | Specialty policy-pack delta demo (internal runbook) - HelpPolicyPackDeltaDemoGuideView with policy-packs / standards-and-rules / audit primary CTAs, Sources diligence strip (findings, audit-trail help, governance-approval, alerts), 5-minute narrative arc, claim-discipline callout (dry-run is not certification), PageContextualHelp, and prepared POLICY_PACK_DELTA_DEMO_SCRIPT.md (TB-1727 leakage strip). Not bare HelpTopicMarkdownView. Admin-gated internal Help Center tier. Does not imply CPA SOC 2 or third-party pen-test publication. |
+| POL | `/help/policy-pack-delta-demo` | 0.02% | 0 | 0 | 2 | Help topic | Specialty policy-pack delta demo (internal runbook) — HelpPolicyPackDeltaDemoGuideView with policy-packs / standards-and-rules / audit primary CTAs, Sources diligence strip (findings, audit-trail help, governance-approval, alerts), 5-minute narrative arc, claim-discipline callout (dry-run ≠ certification), PageContextualHelp, and prepared POLICY_PACK_DELTA_DEMO_SCRIPT.md (TB-1727 leakage strip). Not bare HelpTopicMarkdownView. Admin-gated internal Help Center tier. Does not imply CPA SOC 2 or third-party pen-test publication. |
 | HEP | `/help/prior-manifest-retrieval` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HPR | `/help/product-overview` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HRE | `/help/report-a-problem` | 0.02% | 0 | 0 | 2 | Help topic | None |
@@ -277,9 +279,9 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | SEL | `/settings/alerts` | 0.02% | 0 | 0 | 2 | Settings | None |
 | MA | `/signed-records` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | MAM | `/signed-records/[manifestId]/artifacts/[artifactId]` | 0.02% | 0 | 0 | 2 | Marketing | Manifest-scoped artifact preview — App Router page under signed-records (TB-1821 SoT). Run-scoped RER redirects here. Download/proxy paths remain available. |
-| SPE | `/sponsor-report/executive-summary` | 0.02% | 0 | 0 | 2 | Marketing | Sponsor executive summary report (canonical); `/value-report` redirects here for bookmark compat. |
-| SPP | `/sponsor-report/pilot-outcomes` | 0.02% | 0 | 0 | 2 | Marketing | Sponsor pilot outcomes report (canonical); `/value-report/pilot` redirects here for bookmark compat. |
-| SPR | `/sponsor-report/roi-summary` | 0.02% | 0 | 0 | 2 | Marketing | Sponsor ROI summary report (canonical); `/value-report/roi` redirects here for bookmark compat. |
+| SPE | `/sponsor-report/executive-summary` | 0.02% | 0 | 0 | 2 | Sponsor report | Sponsor executive summary report (canonical); `/value-report` redirects here for bookmark compat. |
+| SPP | `/sponsor-report/pilot-outcomes` | 0.02% | 0 | 0 | 2 | Sponsor report | Sponsor pilot outcomes report (canonical); `/value-report/pilot` redirects here for bookmark compat. |
+| SPR | `/sponsor-report/roi-summary` | 0.02% | 0 | 0 | 2 | Sponsor report | Sponsor ROI summary report (canonical); `/value-report/roi` redirects here for bookmark compat. |
 
 ---
 

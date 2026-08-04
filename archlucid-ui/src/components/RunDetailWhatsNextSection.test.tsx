@@ -14,7 +14,7 @@ describe("RunDetailWhatsNextSection", () => {
     const planLink = screen.getByTestId("run-detail-plan-next-review");
     expect(planLink).toHaveAttribute(
       "href",
-      `/reviews/new?sourceRunId=${encodeURIComponent(runId)}&mode=followup`,
+      `/architecture/reviews/new?sourceRunId=${encodeURIComponent(runId)}&mode=followup`,
     );
 
     const compareLink = screen.getByTestId("run-detail-compare-review");

@@ -50,7 +50,7 @@ describe("TrialWelcomeRunDeepLink", () => {
     render(<TrialWelcomeRunDeepLink />);
 
     await waitFor(() => {
-      expect(window.location.replace).toHaveBeenCalledWith(`/reviews/${welcomeId}`);
+      expect(window.location.replace).toHaveBeenCalledWith(`/architecture/reviews/${welcomeId}`);
     });
 
     expect(window.sessionStorage.getItem("archlucid_trial_welcome_home_redirect_v1")).toBe(welcomeId);

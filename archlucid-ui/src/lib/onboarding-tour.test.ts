@@ -4,9 +4,9 @@ import { dispatchOnboardingTourStart, onboardingTourAnchorForHref } from "./onbo
 
 describe("onboardingTourAnchorForHref", () => {
   it("maps new run and help hrefs", () => {
-    expect(onboardingTourAnchorForHref("/reviews/new")).toBe("tour-new-run");
+    expect(onboardingTourAnchorForHref("/architecture/reviews/new")).toBe("tour-new-run");
     expect(onboardingTourAnchorForHref("/help")).toBe("tour-help");
-    expect(onboardingTourAnchorForHref("/reviews")).toBeUndefined();
+    expect(onboardingTourAnchorForHref("/architecture/reviews")).toBeUndefined();
   });
 
   it("dispatches the guided tour start event", () => {

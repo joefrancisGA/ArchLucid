@@ -4,12 +4,17 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const tabValue: { current: string | null } = { current: null };
 const push = vi.fn();
 
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push }),
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+  return {
+    ...actual,
+    useRouter: () => ({ push }),
   useSearchParams: () => ({
     get: (k: string) => (k === "tab" ? tabValue.current : null),
   }),
-}));
+    usePathname: () => "/",
+  };
+});
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();

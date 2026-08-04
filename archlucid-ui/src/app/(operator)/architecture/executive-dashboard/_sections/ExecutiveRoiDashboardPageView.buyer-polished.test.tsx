@@ -31,7 +31,7 @@ vi.mock("@/components/executive/ExecutiveDashboardDataContext", () => ({
 
 vi.mock("@/app/(operator)/architecture/executive-dashboard/_sections/ExecutiveDashboardBaselineWarningBanner", () => ({
   ExecutiveDashboardBaselineWarningBanner: () => null,
-  EXECUTIVE_DASHBOARD_BASELINE_UPLOAD_WIZARD_HREF: "/reviews/new?baseline=1",
+  EXECUTIVE_DASHBOARD_BASELINE_UPLOAD_WIZARD_HREF: "/architecture/reviews/new?baseline=1",
 }));
 
 vi.mock("@/components/ExecutiveValueNarrativeBanner", () => ({

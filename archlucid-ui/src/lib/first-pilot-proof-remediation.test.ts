@@ -13,7 +13,7 @@ describe("resolveFirstPilotProofRemediation", () => {
   it("links committed evidence to review detail when runId is set", () => {
     const remediation = resolveFirstPilotProofRemediation("committed-run-evidence", "run-abc");
 
-    expect(remediation.inAppHref).toBe("/reviews/run-abc");
+    expect(remediation.inAppHref).toBe("/architecture/reviews/run-abc");
   });
 
   it("falls back to triage doc for unknown findings", () => {

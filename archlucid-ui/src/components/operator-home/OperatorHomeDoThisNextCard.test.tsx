@@ -49,7 +49,7 @@ describe("OperatorHomeDoThisNextCard", () => {
     isDemoSeededOverviewWorkspaceLabel.mockReturnValue(false);
     resolveDemoSeededOverviewSamplePackage.mockReturnValue({
       runId: SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId,
-      href: `/reviews/${SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId}`,
+      href: `/architecture/reviews/${SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId}`,
       label: OPERATOR_HOME_OPEN_SAMPLE_PACKAGE_CTA,
     });
   });
@@ -91,7 +91,7 @@ describe("OperatorHomeDoThisNextCard", () => {
     });
 
     const primary = screen.getByTestId("operator-home-do-this-next-primary");
-    expect(primary).toHaveAttribute("href", `/reviews/${SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId}`);
+    expect(primary).toHaveAttribute("href", `/architecture/reviews/${SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId}`);
 
     const card = screen.getByTestId("operator-home-do-this-next");
     expect(within(card).getAllByTestId("operator-home-do-this-next-primary")).toHaveLength(1);

@@ -31,7 +31,7 @@ export function isShowcaseCreatedPrimaryFindingRoute(runId: string, findingId: s
 export function showcaseSampleCreatedPackageHref(
   runId: string = SHOWCASE_SAMPLE_CREATED_REGISTRY.runId,
 ): string {
-  return `/reviews/${encodeURIComponent(canonicalizeDemoRunId(runId))}`;
+  return `/architecture/reviews/${encodeURIComponent(canonicalizeDemoRunId(runId))}`;
 }
 
 export function showcaseCreatedPrimaryFindingDetailHref(
@@ -41,5 +41,5 @@ export function showcaseCreatedPrimaryFindingDetailHref(
   const effectiveRunId = canonicalizeDemoRunId(runId);
   const effectiveFindingId = findingId.trim();
 
-  return `/reviews/${encodeURIComponent(effectiveRunId)}/findings/${encodeURIComponent(effectiveFindingId)}`;
+  return `/architecture/reviews/${encodeURIComponent(effectiveRunId)}/findings/${encodeURIComponent(effectiveFindingId)}`;
 }

@@ -28,7 +28,7 @@ describe("CitationChips", () => {
     render(<CitationChips citations={[base]} runId="run-a" />);
 
     const link = screen.getByRole("link", { name: /Citation/i });
-    expect(link.getAttribute("href")).toBe("/reviews/run-a#finding-finding-123");
+    expect(link.getAttribute("href")).toBe("/architecture/reviews/run-a#finding-finding-123");
   });
 
   it("links Finding citations to the findings route in buyer-polished shells", () => {
@@ -36,6 +36,6 @@ describe("CitationChips", () => {
     render(<CitationChips citations={[base]} runId="run-a" />);
 
     const link = screen.getByRole("link", { name: /Citation/i });
-    expect(link.getAttribute("href")).toBe("/reviews/run-a/findings/finding-123");
+    expect(link.getAttribute("href")).toBe("/architecture/reviews/run-a/findings/finding-123");
   });
 });

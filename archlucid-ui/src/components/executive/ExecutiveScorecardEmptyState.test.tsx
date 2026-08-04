@@ -21,7 +21,7 @@ describe("ExecutiveScorecardEmptyState", () => {
     expect(screen.getByText(vocabulary.scorecardEmptyStateDescription)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: vocabulary.scorecardEmptyStatePrimaryAction })).toHaveAttribute(
       "href",
-      "/reviews/new",
+      "/architecture/reviews/new",
     );
     expect(screen.getByRole("link", { name: vocabulary.scorecardEmptyStateTertiaryAction })).toHaveAttribute(
       "href",

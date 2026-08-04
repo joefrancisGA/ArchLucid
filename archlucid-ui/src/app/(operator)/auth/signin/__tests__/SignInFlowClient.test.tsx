@@ -73,7 +73,7 @@ describe("SignInFlowClient", () => {
   });
 
   it("shows method picker with work/school and email options", () => {
-    render(<SignInFlowClient returnUrl="/reviews/1" />);
+    render(<SignInFlowClient returnUrl="/architecture/reviews/1" />);
 
     expect(screen.getByTestId("sign-in-method-picker")).toBeInTheDocument();
     expect(screen.getByTestId("sign-in-work-school")).toBeInTheDocument();
@@ -88,12 +88,12 @@ describe("SignInFlowClient", () => {
   });
 
   it("starts OIDC for work/school selection", async () => {
-    render(<SignInFlowClient returnUrl="/reviews/1" />);
+    render(<SignInFlowClient returnUrl="/architecture/reviews/1" />);
 
     fireEvent.click(screen.getByTestId("sign-in-work-school"));
 
     await waitFor(() => {
-      expect(initiateOidcMock).toHaveBeenCalledWith("/reviews/1");
+      expect(initiateOidcMock).toHaveBeenCalledWith("/architecture/reviews/1");
     });
   });
 
@@ -168,7 +168,7 @@ describe("SignInFlowClient", () => {
       },
     });
 
-    render(<SignInFlowClient returnUrl="/reviews/1" />);
+    render(<SignInFlowClient returnUrl="/architecture/reviews/1" />);
 
     fireEvent.click(screen.getByTestId("sign-in-email-code"));
     fireEvent.change(screen.getByTestId("sign-in-email-input"), {
@@ -185,7 +185,7 @@ describe("SignInFlowClient", () => {
 
     await waitFor(() => {
       expect(persistTokenMock).toHaveBeenCalled();
-      expect(window.location.replace).toHaveBeenCalledWith("/reviews/1");
+      expect(window.location.replace).toHaveBeenCalledWith("/architecture/reviews/1");
     });
   });
 

@@ -47,7 +47,7 @@ describe("startWebVitalsReporting", () => {
     const ai = { trackEvent } as unknown as ApplicationInsights;
 
     vi.stubGlobal("window", {
-      location: { pathname: "/reviews/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee" },
+      location: { pathname: "/architecture/reviews/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee" },
     });
     vi.stubGlobal("navigator", { connection: { effectiveType: "4g" } });
 
@@ -71,7 +71,7 @@ describe("startWebVitalsReporting", () => {
       { name: "WebVitalsMetric" },
       expect.objectContaining({
         metricName: "LCP",
-        route: "/reviews/[runId]",
+        route: "/architecture/reviews/[runId]",
         tenantTier: "Team",
         effectiveConnectionType: "4g",
       }),

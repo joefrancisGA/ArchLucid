@@ -19,14 +19,14 @@ describe("usability lib", () => {
     expect(navLinkQuestionSubtitle("/governance/advisory-scans")).toBeNull();
   });
 
-  it("filterNavLinksByOperateUnlockPhase hides all Operate links at phase 0", () => {
+  it("filterNavLinksByOperateUnlockPhase is a no-op (authority-only visibility, owner 2026-08-03)", () => {
     const links = [{ href: "/insights/compare-two-reviews" }, { href: "/audit" }];
     const phase0 = filterNavLinksByOperateUnlockPhase(links, false, 0);
 
-    expect(phase0).toEqual([]);
+    expect(phase0).toEqual(links);
   });
 
-  it("filterNavLinksByOperateUnlockPhase keeps governance workflow and audit at phase 1", () => {
+  it("filterNavLinksByOperateUnlockPhase keeps all provided governance links regardless of phase", () => {
     const links = [
       { href: "/insights/compare-two-reviews" },
       { href: "/governance/approval-queue" },
@@ -35,7 +35,12 @@ describe("usability lib", () => {
     ];
     const phase1 = filterNavLinksByOperateUnlockPhase(links, true, 1);
 
-    expect(phase1.map((l) => l.href)).toEqual(["/insights/compare-two-reviews", "/governance/approval-queue", "/governance/audit"]);
+    expect(phase1.map((l) => l.href)).toEqual([
+      "/insights/compare-two-reviews",
+      "/governance/approval-queue",
+      "/governance/audit",
+      "/governance/findings",
+    ]);
   });
 
   it("filterNavLinksByOperateUnlockPhase keeps recurrence schedules visible in phase 1", () => {
@@ -72,7 +77,7 @@ describe("usability lib", () => {
     expect(pageHelpTopicForPathname("/architecture/architectures")?.label).toBe("Getting started");
     expect(pageHelpTopicForPathname("/architecture/architectures/draft-id-123")?.slug).toBe("getting-started");
     expect(pageHelpTopicForPathname("/digests")?.slug).toBe("how-it-works");
-    expect(pageHelpTopicForPathname("/planning")?.slug).toBe("pilot-feedback");
+    expect(pageHelpTopicForPathname("/planning")?.slug).toBe("how-it-works");
     expect(pageHelpTopicForPathname("/administration/settings/billing")?.slug).toBe("billing-and-plans");
     expect(pageHelpTopicForPathname("/administration/settings/billing")?.label).toBe("Billing and plans");
     expect(pageHelpTopicForPathname("/help/billing-and-plans")?.slug).toBe("billing-and-plans");

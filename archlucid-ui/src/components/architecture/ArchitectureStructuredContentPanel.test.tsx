@@ -18,7 +18,7 @@ Governed claims intake.
           businessOutcome: "Faster triage",
           peopleAndSystems: [],
         }}
-        correctionHref="/reviews/new?path=guided-intake"
+        correctionHref="/architecture/reviews/new?path=guided-intake"
         runId="run-1"
       />,
     );

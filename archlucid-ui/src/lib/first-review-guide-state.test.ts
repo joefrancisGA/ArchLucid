@@ -64,7 +64,7 @@ describe("first-review-guide-state", () => {
     });
 
     expect(actions.primaryLabel).toBe("Continue review");
-    expect(actions.primaryHref).toBe("/reviews/run-123");
+    expect(actions.primaryHref).toBe("/architecture/reviews/run-123");
   });
 
   it("disables start when the caller cannot execute", () => {

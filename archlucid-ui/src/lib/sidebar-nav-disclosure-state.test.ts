@@ -9,7 +9,7 @@ describe("resolveSidebarNavExpansionState", () => {
 
   it("expands nav tiers in demo UI mode", () => {
     const state = resolveSidebarNavExpansionState({
-      pathname: "/reviews",
+      pathname: "/architecture/reviews",
       showExtended: false,
       showAdvanced: false,
       navDisclosurePathOverride: false,
@@ -25,7 +25,7 @@ describe("resolveSidebarNavExpansionState", () => {
 
   it("collapses buyer-polished shell in operator-shell builds even when CTO demo nav is flagged", () => {
     const collapsed = resolveSidebarNavExpansionState({
-      pathname: "/reviews",
+      pathname: "/architecture/reviews",
       showExtended: true,
       showAdvanced: true,
       navDisclosurePathOverride: false,
@@ -39,7 +39,7 @@ describe("resolveSidebarNavExpansionState", () => {
     expect(collapsed.navAdvanced).toBe(false);
 
     const withCtoPackagingFlag = resolveSidebarNavExpansionState({
-      pathname: "/reviews",
+      pathname: "/architecture/reviews",
       showExtended: false,
       showAdvanced: false,
       navDisclosurePathOverride: false,
@@ -57,7 +57,7 @@ describe("resolveSidebarNavExpansionState", () => {
     vi.stubEnv("NEXT_PUBLIC_OPERATOR_EXPERIENCE", "");
 
     const expanded = resolveSidebarNavExpansionState({
-      pathname: "/reviews",
+      pathname: "/architecture/reviews",
       showExtended: false,
       showAdvanced: false,
       navDisclosurePathOverride: false,

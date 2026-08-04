@@ -24,13 +24,13 @@ describe("review-generation-handoff", () => {
 
   it("builds generation redirect href with query flag", () => {
     expect(reviewDetailHrefAfterGeneration(RUN_ID)).toBe(
-      `/reviews/${encodeURIComponent(RUN_ID)}?${FROM_GENERATION_QUERY_KEY}=1`,
+      `/architecture/reviews/${encodeURIComponent(RUN_ID)}?${FROM_GENERATION_QUERY_KEY}=1`,
     );
   });
 
   it("adds create-architecture intent to generation redirect href", () => {
     expect(reviewDetailHrefAfterGeneration(RUN_ID, { architectureCreation: true })).toBe(
-      `/reviews/${encodeURIComponent(RUN_ID)}?${FROM_GENERATION_QUERY_KEY}=1&intent=create-architecture`,
+      `/architecture/reviews/${encodeURIComponent(RUN_ID)}?${FROM_GENERATION_QUERY_KEY}=1&intent=create-architecture`,
     );
   });
 

@@ -16,17 +16,17 @@ describe("legacy-snapshot redirect matrix (TB-1955)", () => {
     {
       label: "showcase static run id",
       runId: SHOWCASE_STATIC_DEMO_RUN_ID,
-      destination: `/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`,
+      destination: `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`,
     },
     {
       label: "showcase alias run id",
       runId: "claims-intake-modernization-run",
-      destination: `/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`,
+      destination: `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`,
     },
     {
       label: "tenant run id",
       runId: "pilot-run-42",
-      destination: "/reviews/pilot-run-42",
+      destination: "/architecture/reviews/pilot-run-42",
     },
   ] as const;
 
@@ -42,6 +42,6 @@ describe("legacy-snapshot redirect matrix (TB-1955)", () => {
   it("preserves inbound query params on showcase leave-behind links (TB-1953)", () => {
     const target = buildSnapshotRedirectPath(SHOWCASE_STATIC_DEMO_RUN_ID, { v: "demo" });
 
-    expect(target).toBe(`/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}?readOnly=1&v=demo`);
+    expect(target).toBe(`/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}?readOnly=1&v=demo`);
   });
 });

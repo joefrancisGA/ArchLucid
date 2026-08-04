@@ -47,7 +47,7 @@ describe("OperatorHomeWorkspaceMetricsSummary", () => {
     const strip = screen.getByTestId("operator-home-hero-kpi-strip");
     const links = within(strip).getAllByRole("link");
 
-    expect(links.some((link) => link.getAttribute("href") === "/reviews")).toBe(true);
+    expect(links.some((link) => link.getAttribute("href") === "/architecture/reviews")).toBe(true);
     expect(links.some((link) => link.getAttribute("href") === "/governance/findings?filter=open")).toBe(
       true,
     );

@@ -43,11 +43,11 @@ describe("OperatorEvidenceLimitsFooter", () => {
 
     const provenance = screen.getByRole("link", { name: /review trail \(provenance graph\)/i });
 
-    expect(provenance).toHaveAttribute("href", "/reviews/abc-123/provenance");
+    expect(provenance).toHaveAttribute("href", "/architecture/reviews/abc-123/provenance");
 
     const explain = screen.getByRole("link", { name: /architecture review summary \(explain aggregate\)/i });
 
-    expect(explain).toHaveAttribute("href", "/reviews/abc-123#run-explanation");
+    expect(explain).toHaveAttribute("href", "/architecture/reviews/abc-123#run-explanation");
   });
 
   it("adds finding inspect link when finding id is provided", () => {
@@ -55,7 +55,7 @@ describe("OperatorEvidenceLimitsFooter", () => {
 
     const inspect = screen.getByRole("link", { name: /technical inspection trail/i });
 
-    expect(inspect).toHaveAttribute("href", "/reviews/run-z/findings/fid-9/evidence-trace");
+    expect(inspect).toHaveAttribute("href", "/architecture/reviews/run-z/findings/fid-9/evidence-trace");
   });
 
   it("shows fallback disclaimer only when API flag realModeFellBackToSimulator is true", () => {
@@ -155,12 +155,12 @@ describe("OperatorEvidenceLimitsFooter — buyer-polished operator shell", () =>
 
     expect(screen.getByRole("link", { name: /structural provenance overview/i })).toHaveAttribute(
       "href",
-      "/reviews/demo-run/provenance",
+      "/architecture/reviews/demo-run/provenance",
     );
     expect(screen.getByRole("link", { name: /findings and assessment section on the review/i })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /technical inspection trail/i })).toHaveAttribute(
       "href",
-      "/reviews/demo-run/findings/f-1/evidence-trace",
+      "/architecture/reviews/demo-run/findings/f-1/evidence-trace",
     );
   });
 });

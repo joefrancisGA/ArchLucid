@@ -55,7 +55,7 @@ describe("welcome-marketing-copy", () => {
     const awsWaf = WELCOME_USE_CASE_CARDS.find((card) => card.id === "aws-waf");
     const gcp = WELCOME_USE_CASE_CARDS.find((card) => card.id === "gcp-architecture-framework");
 
-    expect(aiGovernance?.href).toBe(`/reviews/${DEMO_WORKSPACE_B_RUN_ID}`);
+    expect(aiGovernance?.href).toBe(`/architecture/reviews/${DEMO_WORKSPACE_B_RUN_ID}`);
     expect(awsWaf?.href).not.toContain(DEMO_WORKSPACE_B_RUN_ID);
     expect(gcp?.href).not.toContain(DEMO_WORKSPACE_B_RUN_ID);
     expect(awsWaf?.href).toMatch(/\/help\//);

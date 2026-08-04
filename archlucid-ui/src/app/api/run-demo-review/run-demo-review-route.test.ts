@@ -23,7 +23,7 @@ describe("POST /api/run-demo-review", () => {
       new Response(
         JSON.stringify({
           runId: "abc123",
-          runDetailUrl: "/reviews/abc123",
+          runDetailUrl: "/architecture/reviews/abc123",
           policyPackName: "Security Architecture Baseline",
         }),
         { status: 200, headers: { "Content-Type": "application/json" } },
@@ -37,7 +37,7 @@ describe("POST /api/run-demo-review", () => {
     expect(res.status).toBe(200);
     const json: unknown = await res.json();
     expect(json).toMatchObject({
-      redirectTo: "/reviews/abc123",
+      redirectTo: "/architecture/reviews/abc123",
       policyPackName: "Security Architecture Baseline",
     });
 

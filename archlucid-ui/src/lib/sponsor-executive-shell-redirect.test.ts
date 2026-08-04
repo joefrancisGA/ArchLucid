@@ -24,7 +24,7 @@ describe("resolveSponsorExecutiveRedirectTarget", () => {
   it("returns null for operator review routes", () => {
     expect(
       resolveSponsorExecutiveRedirectTarget({
-        pathname: "/reviews/run-1",
+        pathname: "/architecture/reviews/run-1",
       }),
     ).toBeNull();
   });
@@ -32,7 +32,7 @@ describe("resolveSponsorExecutiveRedirectTarget", () => {
   it("preserves query strings on review list routes", () => {
     expect(
       resolveSponsorExecutiveRedirectTarget({
-        pathname: "/reviews",
+        pathname: "/architecture/reviews",
         search: "?projectId=default",
       }),
     ).toBeNull();

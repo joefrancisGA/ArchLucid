@@ -75,6 +75,6 @@ describe("resolveFirstPilotOperatingRailSteps", () => {
     const resolved = resolveFirstPilotOperatingRailSteps(signals);
 
     expect(resolved.every((r) => r.status === "complete")).toBe(true);
-    expect(resolved[5]?.primaryHref).toBe("/reviews/run-abc");
+    expect(resolved[5]?.primaryHref).toBe("/architecture/reviews/run-abc");
   });
 });

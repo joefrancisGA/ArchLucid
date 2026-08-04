@@ -77,11 +77,11 @@ describe("OperatorFirstRunWorkflowPanel", () => {
     expect(await screen.findByRole("heading", { name: "Sample review shortcuts" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "View signed record summary" })).toHaveAttribute(
       "href",
-      "/reviews/claims-intake-modernization/signed-record",
+      "/architecture/reviews/claims-intake-modernization/signed-record",
     );
     expect(screen.getByRole("link", { name: "Open review detail" })).toHaveAttribute(
       "href",
-      "/reviews/claims-intake-modernization",
+      "/architecture/reviews/claims-intake-modernization",
     );
     expect(screen.getByRole("link", { name: "Read-only walkthrough" })).toHaveAttribute(
       "href",

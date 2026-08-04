@@ -15,7 +15,7 @@ describe("alerts-page-copy", () => {
     expect(alertsPageSubtitle(true)).toBe(BUYER_ALERTS_PAGE_SUBTITLE);
     expect(alertsPageSubtitle(false)).toBe(ALERTS_PAGE_SUBTITLE);
     expect(BUYER_ALERTS_PAGE_SUBTITLE.length).toBeLessThan(ALERTS_PAGE_SUBTITLE.length);
-    expect(ALERTS_ACTION_OPEN_REVIEW_PACKAGES_HREF).toBe("/reviews");
+    expect(ALERTS_ACTION_OPEN_REVIEW_PACKAGES_HREF).toBe("/architecture/reviews");
   });
 
   it("uses shorter buyer configuration subtitle", () => {

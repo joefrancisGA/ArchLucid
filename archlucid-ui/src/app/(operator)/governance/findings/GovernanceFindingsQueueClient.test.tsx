@@ -128,7 +128,7 @@ describe("GovernanceFindingsQueueClient", () => {
 
   it("maps governance findings breadcrumb to Governance / Findings", () => {
     expect(getBreadcrumbs("/governance/findings")).toEqual([
-      { label: "Governance", href: "/governance" },
+      { label: "Governance", href: "/governance/approval-queue" },
       { label: "Findings" },
     ]);
   });
@@ -147,9 +147,9 @@ describe("GovernanceFindingsQueueClient", () => {
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open reviews" })).toHaveAttribute(
       "href",
-      "/reviews?projectId=default",
+      "/architecture/reviews?projectId=default",
     );
-    expect(screen.getByRole("link", { name: "Open governance workflow" })).toHaveAttribute("href", "/governance");
+    expect(screen.getByRole("link", { name: "Open governance workflow" })).toHaveAttribute("href", "/governance/approval-queue");
     expect(screen.getByRole("link", { name: "View policy packs" })).toHaveAttribute(
       "href",
       "/governance/policy-packs",
@@ -197,7 +197,7 @@ describe("GovernanceFindingsQueueClient", () => {
     expect(within(desktopRegion).getByRole("link", { name: "View risk" })).toBeInTheDocument();
     expect(within(desktopRegion).getByRole("link", { name: "Open source review" })).toHaveAttribute(
       "href",
-      "/reviews/run-1",
+      "/architecture/reviews/run-1",
     );
     expect(within(desktopRegion).getByRole("link", { name: "View exception" })).toHaveAttribute(
       "href",

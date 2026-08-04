@@ -108,8 +108,8 @@ describe("RiskExceptionsClient", () => {
       screen.getByText(/Risk exceptions appear here when a finding is waived or deferred through governance/),
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open findings" })).toHaveAttribute("href", "/governance/findings");
-    expect(screen.getByRole("link", { name: "Open governance workflow" })).toHaveAttribute("href", "/governance");
-    expect(screen.getByRole("link", { name: CREATE_ARCHITECTURE_LABEL })).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByRole("link", { name: "Open governance workflow" })).toHaveAttribute("href", "/governance/approval-queue");
+    expect(screen.getByRole("link", { name: CREATE_ARCHITECTURE_LABEL })).toHaveAttribute("href", "/architecture/reviews/new");
   });
 
   it("uses risk-exceptions layer guidance instead of governance workflow copy in operator shell", async () => {
@@ -135,10 +135,10 @@ describe("RiskExceptionsClient", () => {
     expect(
       screen.queryByText("Track active waivers, expirations, owners, and linked governance decisions."),
     ).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "View governance decisions" })).toHaveAttribute("href", "/governance");
+    expect(screen.getByRole("link", { name: "View governance decisions" })).toHaveAttribute("href", "/governance/approval-queue");
     expect(screen.getByRole("link", { name: BUYER_RISK_EXCEPTIONS_EMPTY_TERTIARY_ACTION })).toHaveAttribute(
       "href",
-      "/reviews/new",
+      "/architecture/reviews/new",
     );
   });
 

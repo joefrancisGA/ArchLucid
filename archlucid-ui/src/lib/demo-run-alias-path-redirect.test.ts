@@ -14,7 +14,7 @@ describe("demoRunAliasRedirectDestinationPath", () => {
   it("maps /reviews alias while preserving deep paths (layout could otherwise strip the tail)", () => {
     expect(
       demoRunAliasRedirectDestinationPath(
-        "/reviews/claims-intake-modernization-run/findings/phi-minimization-risk/inspect",
+        "/architecture/reviews/claims-intake-modernization-run/findings/phi-minimization-risk/inspect",
       ),
     ).toBe("/architecture/reviews/claims-intake-modernization/findings/phi-minimization-risk/inspect");
   });
@@ -26,7 +26,7 @@ describe("demoRunAliasRedirectDestinationPath", () => {
   });
 
   it("returns null when no alias rewrite is needed", () => {
-    expect(demoRunAliasRedirectDestinationPath("/reviews/claims-intake-modernization")).toBeNull();
+    expect(demoRunAliasRedirectDestinationPath("/architecture/reviews/claims-intake-modernization")).toBeNull();
     expect(demoRunAliasRedirectDestinationPath("/architecture/reviews/claims-intake-modernization")).toBeNull();
     expect(demoRunAliasRedirectDestinationPath("/runs/other-run-id")).toBeNull();
   });

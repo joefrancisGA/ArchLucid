@@ -108,7 +108,7 @@ describe("ArchitectureDraftWorkspace", () => {
       expect(screen.getByTestId("architecture-draft-handoff-banner")).toBeInTheDocument();
     });
 
-    expect(screen.getByTestId("architecture-continue-review")).toHaveAttribute("href", "/reviews/run-001");
+    expect(screen.getByTestId("architecture-continue-review")).toHaveAttribute("href", "/architecture/reviews/run-001");
     expect(screen.getByTestId("architecture-draft-acknowledge-edit")).toBeInTheDocument();
     expect(screen.queryByTestId("architecture-start-review")).not.toBeInTheDocument();
     expect(screen.getByLabelText(/Architecture overview/i)).toBeDisabled();

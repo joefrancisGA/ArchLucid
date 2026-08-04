@@ -45,12 +45,12 @@ describe("not-found", () => {
     expect(screen.getByRole("button", { name: "Retry" })).toBeInTheDocument();
     expect(screen.getByTestId("not-found-review-packages")).toHaveAttribute(
       "href",
-      "/reviews?projectId=default",
+      "/architecture/reviews?projectId=default",
     );
-    expect(screen.getByTestId("not-found-start-review")).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByTestId("not-found-start-review")).toHaveAttribute("href", "/architecture/reviews/new");
     expect(screen.getByTestId("not-found-sample-review")).toHaveAttribute(
       "href",
-      "/reviews/claims-intake-modernization",
+      "/architecture/reviews/claims-intake-modernization",
     );
     expect(screen.queryByRole("link", { name: "Findings" })).not.toBeInTheDocument();
   });

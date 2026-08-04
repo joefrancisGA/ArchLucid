@@ -27,7 +27,7 @@ describe("architecture-workspace-tabs", () => {
   it("builds shareable tab hrefs with create-architecture query context", () => {
     const href = buildArchitectureWorkspaceTabHref("run-abc", "governance");
 
-    expect(href).toContain("/reviews/run-abc?");
+    expect(href).toContain("/architecture/reviews/run-abc?");
     expect(href).toContain("archTab=governance");
     expect(href).toContain("fromGeneration=1");
     expect(href).toContain("intent=create-architecture");
@@ -35,7 +35,7 @@ describe("architecture-workspace-tabs", () => {
 
   it("reads tab ids from href hash or search param", () => {
     expect(readArchitectureWorkspaceTabFromHref("#architecture-diagram")).toBe("diagram");
-    expect(readArchitectureWorkspaceTabFromHref("/reviews/run-1?archTab=evidence")).toBe("evidence");
-    expect(readArchitectureWorkspaceTabFromHref("/reviews/new")).toBeNull();
+    expect(readArchitectureWorkspaceTabFromHref("/architecture/reviews/run-1?archTab=evidence")).toBe("evidence");
+    expect(readArchitectureWorkspaceTabFromHref("/architecture/reviews/new")).toBeNull();
   });
 });

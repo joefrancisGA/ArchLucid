@@ -44,7 +44,7 @@ describe("operator-nav-labels", () => {
 
   it("overrides /reviews/new presentation when buyer vocabulary pass is active", () => {
     const source = {
-      href: "/reviews/new",
+      href: "/architecture/reviews/new",
       label: OPERATOR_NAV_LINK_LABELS.capture,
       title: "Create architecture — start",
     };
@@ -55,7 +55,7 @@ describe("operator-nav-labels", () => {
 
   it("labels quick action /reviews/new as Start review", () => {
     const source = {
-      href: "/reviews/new",
+      href: "/architecture/reviews/new",
       label: OPERATOR_NAV_LINK_LABELS.capture,
       title: "Start review — begin",
     };
@@ -65,10 +65,10 @@ describe("operator-nav-labels", () => {
   });
 
   it("TB-606: matches reviews list hrefs only", () => {
-    expect(isReviewsListNavHref("/reviews?projectId=default")).toBe(true);
-    expect(isReviewsListNavHref("/reviews")).toBe(true);
-    expect(isReviewsListNavHref("/reviews/new")).toBe(false);
-    expect(isReviewsListNavHref("/reviews/run-123")).toBe(false);
+    expect(isReviewsListNavHref("/architecture/reviews?projectId=default")).toBe(true);
+    expect(isReviewsListNavHref("/architecture/reviews")).toBe(true);
+    expect(isReviewsListNavHref("/architecture/reviews/new")).toBe(false);
+    expect(isReviewsListNavHref("/architecture/reviews/run-123")).toBe(false);
   });
 
   it("TB-606: aligns reviews-list sidebar labels with governance-mode vocabulary", () => {
@@ -76,7 +76,7 @@ describe("operator-nav-labels", () => {
     expect(resolveReviewsListNavLinkLabel(true)).toBe("Reviews");
 
     const source = {
-      href: "/reviews?projectId=default",
+      href: "/architecture/reviews?projectId=default",
       label: OPERATOR_NAV_LINK_LABELS.reviewPackage,
       title: "Browse architecture reviews",
     };

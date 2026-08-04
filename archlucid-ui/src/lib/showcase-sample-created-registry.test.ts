@@ -12,6 +12,6 @@ describe("showcase-sample-created-registry", () => {
   });
 
   it("builds review detail href for the created sample", () => {
-    expect(showcaseSampleCreatedPackageHref()).toBe("/reviews/northwind-copilot-rag-platform");
+    expect(showcaseSampleCreatedPackageHref()).toBe("/architecture/reviews/northwind-copilot-rag-platform");
   });
 });

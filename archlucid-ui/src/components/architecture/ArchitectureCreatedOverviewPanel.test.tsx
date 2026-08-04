@@ -24,7 +24,7 @@ describe("ArchitectureCreatedOverviewPanel", () => {
         model={model}
         sourceText=""
         userAssertions={null}
-        correctionHref="/reviews/new?path=guided-intake&rerun=run-abc"
+        correctionHref="/architecture/reviews/new?path=guided-intake&rerun=run-abc"
         onNavigateTab={vi.fn()}
         submittedArchitectureSection={<div>Submitted</div>}
       />,

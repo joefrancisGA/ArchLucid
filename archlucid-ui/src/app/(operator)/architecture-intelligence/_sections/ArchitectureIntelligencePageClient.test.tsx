@@ -130,7 +130,7 @@ describe("ArchitectureIntelligenceProductRoundTrip", () => {
     );
     expect(screen.getByTestId("architecture-intelligence-open-review")).toHaveAttribute(
       "href",
-      "/reviews/run-abc",
+      "/architecture/reviews/run-abc",
     );
     expect(screen.getByTestId("architecture-intelligence-open-advisory")).toHaveAttribute(
       "href",

@@ -27,7 +27,7 @@ describe("buyerPolishedRouteOrientation", () => {
   });
 
   it("keeps executive summary orientation for the showcase run", () => {
-    const base = `/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`;
+    const base = `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`;
     const o = buyerPolishedRouteOrientation(base);
 
     expect(o?.label).toBe("Executive summary");
@@ -97,7 +97,7 @@ describe("buyerPolishedRouteOrientation", () => {
   });
 
   it("returns null for create-architecture intake at /reviews/new", () => {
-    expect(buyerPolishedRouteOrientation("/reviews/new")).toBeNull();
+    expect(buyerPolishedRouteOrientation("/architecture/reviews/new")).toBeNull();
   });
 
   it("returns null for advisory scans — the page carries its own OperatorPageHeader lead (TB-1125)", () => {

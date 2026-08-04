@@ -6,7 +6,7 @@ vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
   return {
     ...actual,
-    usePathname: () => "/reviews",
+    usePathname: () => "/architecture/reviews",
     useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn() }),
   };
 });
@@ -154,7 +154,7 @@ describe("RunsPageView page chrome", () => {
     render(<RunsPageView model={baseModel({ totalCount: 0 })} />);
 
     expect(screen.getByTestId("runs-page-header-actions")).toBeInTheDocument();
-    expect(screen.getByTestId("runs-page-start-review")).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByTestId("runs-page-start-review")).toHaveAttribute("href", "/architecture/reviews/new");
     expect(screen.getByTestId("runs-page-start-review")).toHaveTextContent(REVIEWS_HUB_PRIMARY_START_LABEL);
     expect(screen.getByTestId("reviews-hub-summary-row")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-hub-summary-empty-hint")).toBeInTheDocument();

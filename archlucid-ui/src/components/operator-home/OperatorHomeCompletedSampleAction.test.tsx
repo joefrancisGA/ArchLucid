@@ -44,7 +44,7 @@ describe("OperatorHomeCompletedSampleAction", () => {
 
     expect(screen.getByRole("link", { name: OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA })).toHaveAttribute(
       "href",
-      "/reviews/dddddddd-dddd-dddd-dddd-dddddddddddd",
+      "/architecture/reviews/dddddddd-dddd-dddd-dddd-dddddddddddd",
     );
   });
 

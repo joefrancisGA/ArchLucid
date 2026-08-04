@@ -12,7 +12,7 @@ vi.mock("@/components/usability/NewReviewSampleEscapeLink", () => ({
 }));
 
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/reviews/new",
+  usePathname: () => "/architecture/reviews/new",
   redirect: vi.fn((path: string) => {
     throw new Error(`REDIRECT:${path}`);
   }),

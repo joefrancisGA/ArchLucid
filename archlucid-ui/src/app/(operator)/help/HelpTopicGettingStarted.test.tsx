@@ -49,7 +49,7 @@ describe("HelpGettingStartedGuideView", () => {
     expect(within(quickStart).getByText(GETTING_STARTED_HELP_QUICK_START_TITLE)).toBeInTheDocument();
     expect(within(quickStart).getByRole("link", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA })).toHaveAttribute(
       "href",
-      "/reviews/new",
+      "/architecture/reviews/new",
     );
     expect(within(quickStart).getByRole("link", { name: "Open completed sample" })).toBeInTheDocument();
     expect(within(quickStart).getByRole("link", { name: "View first review guide" })).toHaveAttribute(

@@ -6,8 +6,8 @@ describe("inspect legacy redirect", () => {
   it("maps showcase inspect URL to evidence-trace", () => {
     expect(
       findingEvidenceTraceLegacyRedirectPath(
-        "/reviews/claims-intake-modernization/findings/phi-minimization-risk/inspect",
+        "/architecture/reviews/claims-intake-modernization/findings/phi-minimization-risk/inspect",
       ),
-    ).toBe("/reviews/claims-intake-modernization/findings/phi-minimization-risk/evidence-trace");
+    ).toBe("/architecture/reviews/claims-intake-modernization/findings/phi-minimization-risk/evidence-trace");
   });
 });

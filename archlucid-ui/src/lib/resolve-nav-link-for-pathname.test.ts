@@ -35,7 +35,7 @@ describe("resolveNavLinkForPathname", () => {
   });
 
   it("does not assign primary nav icons to review detail routes without nav rows", () => {
-    expect(resolveNavIconForHref("/reviews/runs/00000000-0000-0000-0000-000000000001")).toBeUndefined();
+    expect(resolveNavIconForHref("/architecture/reviews/runs/00000000-0000-0000-0000-000000000001")).toBeUndefined();
   });
 
   it("keeps Microsoft Teams distinct from Users & roles", () => {

@@ -2,7 +2,7 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/reviews",
+  usePathname: () => "/architecture/reviews",
 }));
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {

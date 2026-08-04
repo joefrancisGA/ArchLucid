@@ -4,12 +4,12 @@ import { softNavigationTargetPathname } from "@/lib/soft-navigation-target-pathn
 
 describe("softNavigationTargetPathname", () => {
   it("returns pathname for absolute-path hrefs", () => {
-    expect(softNavigationTargetPathname("/reviews/claims-intake-modernization")).toBe(
-      "/reviews/claims-intake-modernization",
+    expect(softNavigationTargetPathname("/architecture/reviews/claims-intake-modernization")).toBe(
+      "/architecture/reviews/claims-intake-modernization",
     );
   });
 
   it("strips query and hash", () => {
-    expect(softNavigationTargetPathname("/reviews/new?from=home#top")).toBe("/reviews/new");
+    expect(softNavigationTargetPathname("/architecture/reviews/new?from=home#top")).toBe("/architecture/reviews/new");
   });
 });

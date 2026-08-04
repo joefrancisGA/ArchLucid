@@ -75,7 +75,7 @@ describe("CorePilotNextStepsCard", () => {
 
       await expandNextStepsCardIfMinimized();
 
-      expect(screen.getByTestId("pilot-active-step-link")).toHaveAttribute("href", "/reviews/new");
+      expect(screen.getByTestId("pilot-active-step-link")).toHaveAttribute("href", "/architecture/reviews/new");
       expect(screen.getByTestId("pilot-active-step-link")).toHaveTextContent(START_REVIEW_LABEL);
     });
 
@@ -191,7 +191,7 @@ describe("CorePilotNextStepsCard", () => {
         "href",
         "/insights/evidence-graph?runId=run-abc-123",
       );
-      expect(screen.getByTestId("pilot-active-step-link")).toHaveAttribute("href", "/reviews/run-abc-123");
+      expect(screen.getByTestId("pilot-active-step-link")).toHaveAttribute("href", "/architecture/reviews/run-abc-123");
     });
 
     it("shows skip-for-now note", async () => {
@@ -326,7 +326,7 @@ describe("CorePilotNextStepsCard", () => {
 
       expect(screen.getByRole("link", { name: /open architecture review detail/i })).toHaveAttribute(
         "href",
-        "/reviews/r1",
+        "/architecture/reviews/r1",
       );
     });
 
@@ -348,7 +348,7 @@ describe("CorePilotNextStepsCard", () => {
 
       expect(screen.getByRole("link", { name: /open architecture review detail/i })).toHaveAttribute(
         "href",
-        "/reviews?projectId=default",
+        "/architecture/reviews?projectId=default",
       );
     });
 

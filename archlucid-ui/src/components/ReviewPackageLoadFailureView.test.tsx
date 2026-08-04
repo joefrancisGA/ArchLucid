@@ -26,7 +26,7 @@ vi.mock("next/navigation", async (importOriginal) => {
   useRouter: () => ({
     refresh: refreshMock,
   }),
-  usePathname: () => "/reviews/22222222-2222-2222-2222-222222222222",
+  usePathname: () => "/architecture/reviews/22222222-2222-2222-2222-222222222222",
   redirect: vi.fn(),
     permanentRedirect: vi.fn(),
     notFound: vi.fn(),
@@ -67,7 +67,7 @@ describe("ReviewPackageLoadFailureView", () => {
         runId={RUN_ID}
         fromGeneration
         notFoundReason="workspace-mismatch"
-        attemptedRoute={`/reviews/${RUN_ID}`}
+        attemptedRoute={`/architecture/reviews/${RUN_ID}`}
       />,
     );
 
@@ -84,7 +84,7 @@ describe("ReviewPackageLoadFailureView", () => {
         runId={RUN_ID}
         fromGeneration
         notFoundReason="missing"
-        attemptedRoute={`/reviews/${RUN_ID}?fromGeneration=1`}
+        attemptedRoute={`/architecture/reviews/${RUN_ID}?fromGeneration=1`}
       />,
     );
 
@@ -100,7 +100,7 @@ describe("ReviewPackageLoadFailureView", () => {
         runId={RUN_ID}
         fromGeneration
         notFoundReason="workspace-mismatch"
-        attemptedRoute={`/reviews/${RUN_ID}`}
+        attemptedRoute={`/architecture/reviews/${RUN_ID}`}
       />,
     );
 

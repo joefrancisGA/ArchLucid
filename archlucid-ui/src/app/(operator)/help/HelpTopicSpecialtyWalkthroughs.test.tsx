@@ -68,7 +68,7 @@ describe("HelpSpecialtyWalkthroughTemplatesView", () => {
     expect(screen.getByRole("heading", { level: 1, name: SPECIALTY_REVIEW_TEMPLATES_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: SPECIALTY_REVIEW_TEMPLATES_USE_STANDARD_REVIEW_LABEL })).toHaveAttribute(
       "href",
-      "/reviews/new",
+      "/architecture/reviews/new",
     );
 
     const grid = screen.getByTestId("specialty-template-card-grid");

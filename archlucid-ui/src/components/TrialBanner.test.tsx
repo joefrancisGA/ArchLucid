@@ -116,7 +116,7 @@ describe("TrialBanner", () => {
   });
 
   it("shows export-only purge banner on every route and ignores snooze", async () => {
-    usePathnameMock.mockReturnValue("/reviews");
+    usePathnameMock.mockReturnValue("/architecture/reviews");
     window.localStorage.setItem("archlucid_trial_banner_snooze_until_ms", String(Date.now() + 86_400_000));
 
     vi.stubGlobal(
@@ -136,12 +136,12 @@ describe("TrialBanner", () => {
     });
 
     expect(screen.getByText(/12 days until hard purge/i)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Export reviews" })).toHaveAttribute("href", "/reviews");
+    expect(screen.getByRole("link", { name: "Export reviews" })).toHaveAttribute("href", "/architecture/reviews");
     expect(screen.getByRole("link", { name: "Export audit trail" })).toHaveAttribute("href", "/audit");
   });
 
   it("hides non-export trial strip off home when pathname is not /", async () => {
-    usePathnameMock.mockReturnValue("/reviews");
+    usePathnameMock.mockReturnValue("/architecture/reviews");
 
     vi.stubGlobal(
       "fetch",

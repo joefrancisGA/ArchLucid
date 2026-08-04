@@ -17,7 +17,7 @@ describe("empty-state preset CTA guard (IA-012)", () => {
   });
 
   it("strips query strings when matching redirect sources", () => {
-    expect(hrefPathname("/reviews?projectId=default")).toBe("/reviews");
+    expect(hrefPathname("/architecture/reviews?projectId=default")).toBe("/architecture/reviews");
     expect(hrefTargetsPermanentRedirectSource("/audit?runId=abc")).toBe(true);
     expect(hrefTargetsPermanentRedirectSource("/governance/audit?runId=abc")).toBe(false);
   });

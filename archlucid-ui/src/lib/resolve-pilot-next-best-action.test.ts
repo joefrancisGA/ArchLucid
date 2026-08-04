@@ -54,7 +54,7 @@ describe("resolvePilotNextBestAction", () => {
     );
 
     expect(action.label).toBe("Continue review");
-    expect(action.href).toBe("/reviews/run-in-progress");
+    expect(action.href).toBe("/architecture/reviews/run-in-progress");
   });
 
   it("finalizes when the latest run has findings but no golden manifest", () => {
@@ -69,7 +69,7 @@ describe("resolvePilotNextBestAction", () => {
     );
 
     expect(action.label).toBe("Finalize this review");
-    expect(action.href).toBe("/reviews/run-ready#finalize-review");
+    expect(action.href).toBe("/architecture/reviews/run-ready#finalize-review");
   });
 
   it("opens open findings only when open findings count is greater than zero", () => {
@@ -104,7 +104,7 @@ describe("resolvePilotNextBestAction", () => {
     );
 
     expect(action.label).toBe("Continue review");
-    expect(action.href).toBe("/reviews/run-committed");
+    expect(action.href).toBe("/architecture/reviews/run-committed");
   });
 
   it("starts a review when committed with zero open findings and no latest run id", () => {
@@ -121,6 +121,6 @@ describe("resolvePilotNextBestAction", () => {
     );
 
     expect(action.label).toBe(OPERATOR_START_REVIEW_QUICK_ACTION_LABEL);
-    expect(action.href).toBe("/reviews/new");
+    expect(action.href).toBe("/architecture/reviews/new");
   });
 });

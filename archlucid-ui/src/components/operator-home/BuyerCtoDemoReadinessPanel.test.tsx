@@ -15,12 +15,17 @@ vi.mock("@/lib/cto-demo-presenter-pack", () => ({
 
 const internalControlsForced = vi.hoisted(() => ({ on: false as boolean }));
 
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+  return {
+    ...actual,
+    useRouter: () => ({
     push: vi.fn(),
     refresh: vi.fn(),
   }),
-}));
+    usePathname: () => "/",
+  };
+});
 
 vi.mock("@/lib/buyer-cto-demo-orchestration", () => ({
   resetBuyerCtoDemoSession: vi.fn(async () => ({

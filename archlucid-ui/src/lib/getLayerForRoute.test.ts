@@ -47,13 +47,13 @@ describe("getLayerForRoute", () => {
   });
 
   it("prefers the longer nav path when multiple prefixes could match (reviews/new over reviews)", () => {
-    expect(getLayerForRoute("/reviews/new")).toBe("pilot");
-    expect(getLayerForRoute("/architectures/new")).toBe("pilot");
-    expect(getLayerForRoute("/architectures/draft-1")).toBe("pilot");
+    expect(getLayerForRoute("/architecture/reviews/new")).toBe("pilot");
+    expect(getLayerForRoute("/architecture/architectures/new")).toBe("pilot");
+    expect(getLayerForRoute("/architecture/architectures/draft-1")).toBe("pilot");
   });
 
   it("maps review detail under the Reviews list path", () => {
-    expect(getLayerForRoute("/reviews/550e8400-e29b-41d4-a716-446655440000")).toBe("pilot");
+    expect(getLayerForRoute("/architecture/reviews/550e8400-e29b-41d4-a716-446655440000")).toBe("pilot");
   });
 
   it("returns operate-analysis for reports and system-admin nav paths", () => {

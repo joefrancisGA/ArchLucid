@@ -38,7 +38,7 @@ describe("FirstValueReachedCallout", () => {
     });
 
     const link = screen.getByTestId("first-value-reached-open-review");
-    expect(link).toHaveAttribute("href", "/reviews/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+    expect(link).toHaveAttribute("href", "/architecture/reviews/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
   });
 
   it("renders nothing when firstCommitUtc is null", async () => {

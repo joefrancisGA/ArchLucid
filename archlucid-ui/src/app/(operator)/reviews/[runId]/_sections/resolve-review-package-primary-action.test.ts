@@ -23,7 +23,7 @@ describe("resolveReviewPackagePrimaryAction", () => {
     });
 
     expect(action.kind).toBe("review-findings");
-    expect(action.href).toBe("/reviews/run-abc?reviewTab=findings");
+    expect(action.href).toBe("/architecture/reviews/run-abc?reviewTab=findings");
   });
 
   it("surfaces blocking finding counts on finalized packages", () => {
@@ -60,7 +60,7 @@ describe("resolveReviewPackagePrimaryAction", () => {
     });
 
     expect(action.kind).toBe("export-proof-packet");
-    expect(action.href).toBe("/reviews/run-abc?reviewTab=evidence#artifacts-exports");
+    expect(action.href).toBe("/architecture/reviews/run-abc?reviewTab=evidence#artifacts-exports");
   });
 
   it("guides in-progress reviews toward evidence capture before completion", () => {
@@ -70,7 +70,7 @@ describe("resolveReviewPackagePrimaryAction", () => {
     });
 
     expect(action.kind).toBe("add-evidence");
-    expect(action.href).toBe("/reviews/run-abc?reviewTab=evidence");
+    expect(action.href).toBe("/architecture/reviews/run-abc?reviewTab=evidence");
   });
 
   it("surfaces finalize package when the run completed but has no manifest yet", () => {

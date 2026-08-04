@@ -19,7 +19,7 @@ describe("Compare workspace orientation", () => {
     expect(screen.getByTestId("compare-related-review-links")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open signed review record" })).toHaveAttribute(
       "href",
-      "/reviews/claims-intake-modernization/signed-record",
+      "/architecture/reviews/claims-intake-modernization/signed-record",
     );
     expect(screen.getByRole("link", { name: "Open evidence trail" })).toHaveAttribute(
       "href",

@@ -49,17 +49,17 @@ vi.mock("@/hooks/use-first-review-guide-state", () => ({
         status: "not-started",
         statusLabel: "Not started",
         actionLabel: "Start review",
-        actionHref: "/reviews/new",
+        actionHref: "/architecture/reviews/new",
         isNextStep: true,
       },
     ],
     headerActions: {
       primaryLabel: "Start first review",
-      primaryHref: "/reviews/new",
+      primaryHref: "/architecture/reviews/new",
       primaryDisabled: false,
       primaryDisabledReason: null,
       secondaryLabel: "Explore sample review",
-      secondaryHref: `/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`,
+      secondaryHref: `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`,
     },
     requiredBlockers: [],
     canExecute: true,
@@ -77,10 +77,10 @@ describe("FirstReviewGuidePageClient", () => {
     expect(screen.getByTestId("first-review-guide-readiness")).toHaveTextContent("Ready to start");
     expect(screen.getByRole("heading", { name: FIRST_REVIEW_GUIDE_PROGRESS_SECTION_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("first-review-guide-walkthrough")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Start first review" })).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByRole("link", { name: "Start first review" })).toHaveAttribute("href", "/architecture/reviews/new");
     expect(screen.getByRole("link", { name: "Explore sample review" })).toHaveAttribute(
       "href",
-      `/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`,
+      `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`,
     );
     expect(screen.getByTestId("onboarding-optional-setup-section-stub")).toBeInTheDocument();
   });

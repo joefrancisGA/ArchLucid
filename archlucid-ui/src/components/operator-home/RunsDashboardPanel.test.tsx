@@ -165,7 +165,7 @@ describe("RunsDashboardPanel", () => {
 
     expect(await screen.findByTestId("recent-runs-home-panel")).toBeInTheDocument();
     const link = await screen.findByRole("link", { name: "Sample" });
-    expect(link).toHaveAttribute("href", "/reviews/11111111-1111-1111-1111-111111111111");
+    expect(link).toHaveAttribute("href", "/architecture/reviews/11111111-1111-1111-1111-111111111111");
   });
 
   it("surfaces findings insight signals on populated run rows", async () => {
@@ -371,7 +371,7 @@ describe("RunsDashboardPanel", () => {
       expect(screen.queryByRole("link", { name: "Jump to review journey" })).toBeNull();
       expect(screen.getByTestId("runs-dashboard-buyer-proof-title")).toHaveAttribute(
         "href",
-        "/reviews/claims-intake-modernization",
+        "/architecture/reviews/claims-intake-modernization",
       );
       expect(screen.getByTestId("runs-dashboard-buyer-proof-title")).toHaveTextContent(
         "Claims Intake Modernization Review",
