@@ -14,6 +14,7 @@ import {
 } from "@/lib/impact-preview-page-copy";
 import type { ImpactPreviewComparisonScope } from "@/lib/impact-preview-page-types";
 import type { EvolutionPlanSnapshot } from "@/lib/evolution-plan-snapshot";
+import { planningPlanDetailPath } from "@/lib/planning-route";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { EvolutionResultsResponse } from "@/types/evolution";
 
@@ -56,7 +57,7 @@ export function ImpactPreviewSimulationResultsSection(
         <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           Source plan{" "}
           <Link
-            href={`/planning/plans/${encodeURIComponent(props.detail.candidate.sourcePlanId)}`}
+            href={planningPlanDetailPath(props.detail.candidate.sourcePlanId)}
             className={OPERATOR_LINK.inline}
           >
             {props.detail.candidate.sourcePlanId}

@@ -2557,8 +2557,8 @@ export function stripExecutiveSummarySponsorBriefLeakage(markdown: string): stri
     .replace(/PILOT_ROI_MODEL\.md/gi, "/help/pilot-roi-model")
     .replace(/`?ROI_MODEL\.md`?/gi, "[Pilot ROI model](/help/pilot-roi-model)")
     .replace(/ROI_MODEL\.md/gi, "/help/pilot-roi-model")
-    .replace(/`?PRODUCT_PACKAGING\.md`?/gi, "[Product overview](/help/product-overview)")
-    .replace(/PRODUCT_PACKAGING\.md/gi, "/help/product-overview")
+    .replace(/`?PRODUCT_PACKAGING\.md`?/gi, "[Executive summary](/help/executive-summary#what-archlucid-is)")
+    .replace(/PRODUCT_PACKAGING\.md/gi, "/help/executive-summary#what-archlucid-is")
     .replace(/`\/value-report`/gi, "`/sponsor-report/executive-summary`")
     .replace(/\/value-report/gi, "/sponsor-report/executive-summary")
     .replace(/`?SPONSOR_BANNER_FIRST_COMMIT_BADGE\.md`?/gi, "sponsor banner documentation")
@@ -3145,15 +3145,11 @@ export function prepareHelpMarkdownForPresentation(
   ) {
     afterAudienceStrip = stripPriorManifestRetrievalContributorLeakage(sanitized);
   } else if (
+    // product-overview alias normalizes to executive-summary before render (TB-1739).
     options?.helpTopicSlug === "executive-summary" &&
     normalizedSourcePath.includes("executive_sponsor_brief.md")
   ) {
     afterAudienceStrip = stripExecutiveSummarySponsorBriefLeakage(sanitized);
-  } else if (
-    options?.helpTopicSlug === "product-overview" &&
-    normalizedSourcePath.includes("executive_sponsor_brief.md")
-  ) {
-    afterAudienceStrip = stripProductOverviewContributorLeakage(sanitized);
   } else if (
     options?.helpTopicSlug === "soc2-self-assessment" &&
     normalizedSourcePath.includes("soc2_self_assessment_2026.md")

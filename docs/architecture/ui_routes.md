@@ -112,23 +112,15 @@ Constants live in `archlucid-ui/src/lib/showcase-static-demo.ts` and `archlucid-
 
 ## Legacy URL redirects
 
-Configured in `archlucid-ui/next.config.ts`:
+Configured in `archlucid-ui/next.config.ts` — **namespace force-canonical only** (paired with App Router rewrites):
 
 | Source | Destination |
 |--------|-------------|
-| `/runs`, `/runs/*` | `/reviews`, `/reviews/*` (301) |
-| `/alert-rules` | `/alerts?tab=rules` |
-| `/alert-routing` | `/alerts?tab=routing` |
-| `/composite-alert-rules` | `/alerts?tab=composite` |
-| `/alert-simulation`, `/alert-tuning` | `/alerts?tab=simulation` |
-| `/login` | `/auth/signin` or `/auth/session-expired` when `reason=idle-timeout` (App Router shim; query preserved) |
-| `/onboard`, `/getting-started` | `/onboarding` (page redirect) |
-| `/quick-start`, `/quick-start/*` | `/get-started` (301; App Router shim preserves query) |
-| `/portfolio` | `/architecture/executive-dashboard` (301) |
-| `/dashboard` | `/architecture/executive-dashboard` (301) |
-| `/executive/dashboard` | `/architecture/executive-dashboard` (301) |
-| `/executive/reviews`, `/executive/reviews/*` | `/reviews`, `/reviews/*` (301) |
-| `/product-learning` | `/internal/product-learning` (App Router `permanentRedirect`; not next.config) |
+| `/reviews`, `/reviews/*` | `/architecture/reviews`, `/architecture/reviews/*` (301) |
+| `/reviews/:id/manifest` | `/architecture/reviews/:id/signed-record` (301) |
+| `/architectures`, `/architectures/*` | `/architecture/architectures`, `/architecture/architectures/*` (301) |
+
+All other former bookmark redirects and App Router shims (`/runs`, `/manifests`, governance top-level, `/dashboard`, `/value-report*`, `/planning`, `/product-learning`, finding `/inspect`, settings/admin aliases, etc.) are **hard-retired (404)**. Use canonical nav paths only.
 
 **Note:** README and older docs may reference `/manifests/[manifestId]/artifacts/[artifactId]`; that route no longer has a `page.tsx`. Artifact review is reached from review or manifest detail.
 

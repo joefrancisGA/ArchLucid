@@ -41,8 +41,4 @@ export const EXECUTIVE_SUMMARY_HELP_PRIMARY_ACTIONS = {
     label: "Pilot ROI model",
     href: "/help/pilot-roi-model",
   },
-  productOverview: {
-    label: "Product overview",
-    href: "/help/product-overview",
-  },
 } as const;

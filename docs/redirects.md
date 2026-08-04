@@ -368,6 +368,7 @@ Human readers and agents should follow **canonical** paths below. This file is t
 | `/help/starting-reviews` (registry twin) | [`/help/review-guide`](../archlucid-ui/src/lib/product-documentation-registry.ts) (`REVIEW_GUIDE.md`) | Duplicate Starting architecture reviews entry removed; slug aliases `starting-reviews` + `creating-runs` → `review-guide` (TB-1258 / TB-1643) |
 | `/help/data-handling-tenant-isolation` (registry twin) | [`/help/data-handling`](../archlucid-ui/src/lib/product-documentation-registry.ts) (`DATA_HANDLING.md`) | Isolation deep-dive sections folded into data-handling; slug alias → `data-handling` (TB-1652 / TB-1656 / TB-1658) |
 | `/help/evidence-only-review` (registry twin) | [`/help/first-architecture-review#fast-path-evidence-only`](../archlucid-ui/src/lib/product-documentation-registry.ts) (`CORE_PILOT.md`) | Evidence-only section twin folded into Core Pilot specialty; slug alias → `first-architecture-review` (TB-1683) |
+| `/help/product-overview` (registry twin) | [`/help/executive-summary`](../archlucid-ui/src/lib/product-documentation-registry.ts) (`EXECUTIVE_SPONSOR_BRIEF.md`) | Product-overview sections folded into executive-summary anchors; slug alias → `executive-summary` (TB-1739) |
 
 ## 2026-07-22 runbook consolidation
 

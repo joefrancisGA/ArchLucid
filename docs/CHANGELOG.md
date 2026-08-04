@@ -62,6 +62,10 @@ Shared `InboundWebhookBoundedBodyReader` rejects oversize payloads (Content-Leng
 
 Prunes next.config redirects (keeps `/reviews` and `/architectures` namespace force-canonical + signed-record manifest aliases). Removes App Router and proxy shims for `/product-learning`, `/value-report*`, finding `/inspect`, `/planning`, and legacy hub bookmarks (`/runs`, `/manifests`, governance top-level, dashboard/executive, patterns, settings/admin aliases). Inbound links, e2e, host-gate, SEO disallow, and `RETIRED_SHIMS` updated. API `/v1/product-learning/*` unchanged. No CPA / third-party pen-test implication.
 
+## 2026-08-04 - UI: Hard-retire legacy redirect shims
+
+Removes next.config bookmark redirects (keeps `/reviews` and `/architectures` namespace force-canonical only). Deletes App Router and proxy shims for `/value-report*`, finding `/inspect`, and related legacy paths. Drops `RETIRED_SHIMS` test maintenance — retired bookmarks 404 without a central registry. Inbound links updated to canonical paths. API unchanged.
+
 ## 2026-08-03 - UI: Retire `/product-learning` → `/internal/product-learning`
 
 Pilot feedback (product learning) moves under Internal Operations at `/internal/product-learning`. Legacy `/product-learning` permanentRedirects. Nav, host-gate, SEO disallow, breadcrumbs, planning CTAs, help presentation, and traffic PRC updated. API `/v1/product-learning/*` unchanged. No CPA / third-party pen-test implication.

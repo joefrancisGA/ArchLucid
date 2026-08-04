@@ -59,7 +59,7 @@ describe("usability lib", () => {
     expect(pageHelpTopicForPathname("/architecture/architectures")?.label).toBe("Getting started");
     expect(pageHelpTopicForPathname("/architecture/architectures/draft-id-123")?.slug).toBe("getting-started");
     expect(pageHelpTopicForPathname("/digests")?.slug).toBe("how-it-works");
-    expect(pageHelpTopicForPathname("/planning")?.slug).toBe("pilot-feedback");
+    expect(pageHelpTopicForPathname("/insights/planning")?.slug).toBe("getting-started");
     expect(pageHelpTopicForPathname("/administration/settings/billing")?.slug).toBe("billing-and-plans");
     expect(pageHelpTopicForPathname("/administration/settings/billing")?.label).toBe("Billing and plans");
     expect(pageHelpTopicForPathname("/help/billing-and-plans")?.slug).toBe("billing-and-plans");

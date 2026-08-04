@@ -72,7 +72,6 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/sponsor-report/pilot-outcomes": "Pilot outcomes",
   "/sponsor-report/roi-summary": "ROI summary",
   [ARCHITECTURE_SCORECARD_PATH]: OPERATOR_NAV_LINK_LABELS.scorecard,
-  "/value-report/roi": "ROI summary",
   "/admin/demo-readiness": "Demo readiness",
   [ITSM_CONNECTORS_ADMIN_PATH]: ITSM_CONNECTORS_ADMIN_LABEL,
 };

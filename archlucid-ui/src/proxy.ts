@@ -2,12 +2,10 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
 import { demoRunAliasRedirectDestinationPath } from "@/lib/demo-run-alias-path-redirect";
-import { findingEvidenceTraceLegacyRedirectPath } from "@/lib/finding-evidence-navigation";
 import { decideHostGateRedirect } from "@/lib/host-gate";
-import { sponsorReportLegacyRedirectPath } from "@/lib/sponsor-report-navigation";
 
 /**
- * Next.js proxy (formerly "middleware"): host gating (TB-2019), legacy path redirects, and demo run aliases.
+ * Next.js proxy (formerly "middleware"): host gating (TB-2019) and demo run id aliases.
  */
 export function proxy(request: NextRequest) {
   const hostGate = decideHostGateRedirect({
@@ -18,26 +16,6 @@ export function proxy(request: NextRequest) {
 
   if (hostGate.kind === "redirect") {
     return NextResponse.redirect(hostGate.location, 307);
-  }
-
-  const legacySponsorReport = sponsorReportLegacyRedirectPath(request.nextUrl.pathname);
-
-  if (legacySponsorReport !== null) {
-    const u = request.nextUrl.clone();
-
-    u.pathname = legacySponsorReport;
-
-    return NextResponse.redirect(u, 308);
-  }
-
-  const legacyEvidenceTrace = findingEvidenceTraceLegacyRedirectPath(request.nextUrl.pathname);
-
-  if (legacyEvidenceTrace !== null) {
-    const u = request.nextUrl.clone();
-
-    u.pathname = legacyEvidenceTrace;
-
-    return NextResponse.redirect(u, 308);
   }
 
   const nextPath = demoRunAliasRedirectDestinationPath(request.nextUrl.pathname);

@@ -4,10 +4,10 @@ export const PLANNING_PATH = "/insights/planning" as const;
 /** Plan detail under Improvement planning. */
 export const PLANNING_PLAN_DETAIL_PATH_PREFIX = `${PLANNING_PATH}/plans` as const;
 
-/** Retired top-level path — permanent redirect in `next.config.ts`. */
+/** Retired top-level path — hard-retired bookmark (404). */
 export const LEGACY_PLANNING_PATH = "/planning" as const;
 
-/** Retired plan-detail prefix — permanent redirect in `next.config.ts`. */
+/** Retired plan-detail prefix — hard-retired bookmark (404). */
 export const LEGACY_PLANNING_PLAN_DETAIL_PATH_PREFIX = "/planning/plans" as const;
 
 export function isPlanningPath(pathname: string): boolean {

@@ -68,13 +68,11 @@ const OPERATOR_PATH_PREFIXES: readonly string[] = [
   "/getting-started",
   IMPACT_PREVIEW_PATH,
   LEGACY_EVOLUTION_REVIEW_PATH,
-  "/audit",
-  "/value-report",
+  "/sponsor-report",
   "/digests",
   "/workspace",
   "/architecture/architectures",
   "/architectures",
-  "/sponsor-report",
   LEGACY_LOGIN_PATH,
 ];
 

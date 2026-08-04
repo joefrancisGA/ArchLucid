@@ -40,8 +40,6 @@ export type BuyerPolishedRouteOrientationOptions = {
 
 function pathMatchesValueReportSponsorHeroRoutes(pathname: string): boolean {
   return (
-    pathname === "/value-report" ||
-    pathname.startsWith("/value-report/") ||
     pathname === SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH ||
     pathname === SPONSOR_REPORT_PILOT_OUTCOMES_PATH ||
     pathname.startsWith(`${SPONSOR_REPORT_PILOT_OUTCOMES_PATH}/`) ||

@@ -10,7 +10,7 @@ import {
 
 describe("dev-testing-quick-jump-paths", () => {
   it("builds encoded entity detail paths", () => {
-    expect(devTestingPlanDetailPath("plan-1")).toBe("/planning/plans/plan-1");
+    expect(devTestingPlanDetailPath("plan-1")).toBe("/insights/planning/plans/plan-1");
     expect(devTestingRunDetailPath("run-1")).toBe("/architecture/reviews/run-1");
     expect(devTestingApprovalLineagePath("approval-1")).toBe(
       "/governance/approval-requests/approval-1/lineage",

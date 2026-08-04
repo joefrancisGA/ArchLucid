@@ -64,7 +64,6 @@ describe("contextual-help-registry (TB-733)", () => {
       "/governance/advisory-scans",
       "/sponsor-report/executive-summary",
       "/executive/scorecard",
-      "/value-report",
       "/governance/alert-rules",
       "/governance/approval-requests",
       "/signed-records",
@@ -89,7 +88,9 @@ describe("contextual-help-registry (TB-733)", () => {
     expect(contextualHelpForPathname("/architecture/reviews")?.whatIsThisPage).toContain("architecture reviews");
     expect(contextualHelpForPathname("/reviews/new")?.whatIsThisPage).toContain("Start an architecture review");
     expect(contextualHelpForPathname("/governance/findings?filter=open")?.whatToDoNext).toContain("Assign owners");
-    expect(contextualHelpForPathname("/value-report/pilot")?.whatIsThisPage).toContain("sponsor-ready");
+    expect(contextualHelpForPathname("/sponsor-report/executive-summary")?.whatIsThisPage).toContain(
+      "Sponsor executive summary",
+    );
     expect(contextualHelpForPathname("/insights/planning/plans/plan-1")?.whatIsThisPage).toContain("one prioritized improvement plan");
   });
 
@@ -208,7 +209,6 @@ describe("contextual-help-registry (TB-733)", () => {
     expect(contextualHelpForPathname("/sponsor-report/executive-summary")?.whatIsThisPage).toContain(
       "Sponsor executive summary",
     );
-    expect(contextualHelpForPathname("/value-report")?.whatIsThisPage).toContain("sponsor-ready");
   });
 
   it("returns null for routes not yet migrated", () => {

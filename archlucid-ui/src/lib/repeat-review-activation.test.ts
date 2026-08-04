@@ -40,6 +40,6 @@ describe("repeat-review-activation", () => {
     expect(prompt!.summary.toLowerCase()).not.toContain("prior run");
     expect(prompt!.primaryHref).toContain("/insights/compare-two-reviews");
     expect(prompt!.actions.some((action) => action.href.includes("/replay"))).toBe(true);
-    expect(prompt!.actions.some((action) => action.href === "/value-report")).toBe(true);
+    expect(prompt!.actions.some((action) => action.href === "/sponsor-report/executive-summary")).toBe(true);
   });
 });

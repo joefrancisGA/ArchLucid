@@ -14,7 +14,7 @@ test.describe(
 
   test("inspect panel links first evidence row to manifest summary section", async ({ page }) => {
     await page.goto(
-      `/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}/findings/${encodeURIComponent(showcaseFindingId)}/inspect`,
+      `/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}/findings/${encodeURIComponent(showcaseFindingId)}/evidence-trace`,
     );
 
     const manifestLink = page.getByTestId("finding-source-evidence-link").first();

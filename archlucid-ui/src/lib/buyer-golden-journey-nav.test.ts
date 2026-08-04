@@ -23,7 +23,7 @@ describe("resolveBuyerGoldenJourneyNav", () => {
     expect(resolveBuyerGoldenJourneyNav(`/insights/evidence-graph?runId=${showcaseRunEnc}`)?.currentStepIndex).toBe(2);
     expect(
       resolveBuyerGoldenJourneyNav(
-        `/architecture/reviews/${showcaseRunEnc}/findings/${encodeURIComponent("phi-minimization-risk")}/inspect`,
+        `/architecture/reviews/${showcaseRunEnc}/findings/${encodeURIComponent("phi-minimization-risk")}/evidence-trace`,
       )?.currentStepIndex,
     ).toBe(2);
     expect(resolveBuyerGoldenJourneyNav(`/governance/approval-queue?runId=${showcaseRunEnc}`)?.currentStepIndex).toBe(3);

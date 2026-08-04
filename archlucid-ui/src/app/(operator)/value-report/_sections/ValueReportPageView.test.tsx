@@ -26,7 +26,7 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 });
 
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/value-report",
+  usePathname: () => "/sponsor-report/executive-summary",
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn() }),
 }));
 

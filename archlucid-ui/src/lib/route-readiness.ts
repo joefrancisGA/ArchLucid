@@ -31,14 +31,10 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/sponsor-report/executive-summary": "advanced-only",
   "/sponsor-report/pilot-outcomes": "advanced-only",
   "/sponsor-report/roi-summary": "advanced-only",
-  "/value-report": "advanced-only",
-  "/value-report/pilot": "advanced-only",
-  "/value-report/roi": "advanced-only",
   [EVIDENCE_GRAPH_PATH]: "advanced-only",
   [COMPARE_TWO_REVIEWS_PATH]: "advanced-only",
   "/replay": "advanced-only",
   "/governance/advisory-scans": "advanced-only",
-  "/planning": "advanced-only",
   "/insights/planning": "advanced-only",
   "/digests": "advanced-only",
   [IMPACT_PREVIEW_PATH]: "advanced-only",
@@ -162,9 +158,6 @@ const PRESENTER_SAFE_MODE_NAV_HIDE = new Set<string>([
   "/sponsor-report/executive-summary",
   "/sponsor-report/pilot-outcomes",
   "/sponsor-report/roi-summary",
-  "/value-report",
-  "/value-report/pilot",
-  "/value-report/roi",
 ]);
 
 /** Pilot-tier links that are hidden in buyer demo nav (reduce noise vs core review story). */

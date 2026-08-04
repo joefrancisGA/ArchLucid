@@ -85,7 +85,7 @@ export function resolveRepeatReviewActivation(input: {
       },
       {
         label: "Executive value report",
-        href: "/value-report",
+        href: "/sponsor-report/executive-summary",
         reason: "Sponsor-safe ROI rollup with source labels and freshness disposition.",
       },
       {

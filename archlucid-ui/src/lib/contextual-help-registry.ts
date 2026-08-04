@@ -370,16 +370,6 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
-    prefix: "/value-report",
-    entry: {
-      whatIsThisPage:
-        "Create a sponsor-ready report summarizing finalized reviews, findings, governance activity, and estimated ROI.",
-      whatToDoNext: "Set the report period, refresh the preview, then generate sponsor exports when data is ready.",
-      whyEmpty: "The preview fills in after you finalize reviews in the selected period.",
-      whereToConfigurePrerequisite: "ROI estimates use baseline settings from workspace configuration.",
-    },
-  },
-  {
     prefix: "/governance/alert-rules",
     entry: {
       whatIsThisPage:

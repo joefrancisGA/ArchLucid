@@ -21,43 +21,11 @@ export const PILOT_OUTCOMES_PAGE_TITLE = "Pilot outcomes";
 export const PILOT_OUTCOMES_PAGE_SUBTITLE =
   "Summarize finalized review activity, material findings, governance decisions, and measurable pilot outcomes for the selected reporting period.";
 
-/**
- * When a URL still uses legacy value-report paths, return the canonical sponsor-report path.
- * Query strings are preserved by callers. `/scorecard` and `/sponsor-report/architecture-scorecard` are retired (no redirect).
- */
-export function sponsorReportLegacyRedirectPath(pathname: string): string | null {
-  if (pathname.length === 0) {
-    return null;
-  }
-
-  const normalized = pathname.replace(/\/$/, "") || "/";
-
-  if (normalized === "/value-report/pilot") {
-    return SPONSOR_REPORT_PILOT_OUTCOMES_PATH;
-  }
-
-  if (normalized === "/value-report/roi") {
-    return SPONSOR_REPORT_ROI_SUMMARY_PATH;
-  }
-
-  if (normalized === "/value-report") {
-    return SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH;
-  }
-
-  if (normalized === "/sponsor-report") {
-    return SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH;
-  }
-
-  return null;
-}
-
 export function isSponsorReportOutcomesSurface(pathname: string): boolean {
   const normalized = pathname.replace(/\/$/, "") || "/";
 
   return (
     normalized.startsWith("/sponsor-report") ||
-    normalized === "/value-report" ||
-    normalized.startsWith("/value-report/") ||
     normalized === ARCHITECTURE_SCORECARD_PATH ||
     normalized.startsWith(`${ARCHITECTURE_SCORECARD_PATH}/`)
   );

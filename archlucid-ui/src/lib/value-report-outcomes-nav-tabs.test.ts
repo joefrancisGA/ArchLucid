@@ -33,12 +33,11 @@ describe("value-report-outcomes-nav-tabs", () => {
     expect(visible[1]?.label).toBe("Pilot outcomes");
   });
 
-  it("detects outcomes surfaces across canonical and legacy routes", () => {
+  it("detects outcomes surfaces on canonical sponsor report routes", () => {
     expect(isValueReportOutcomesSurface(SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH)).toBe(true);
     expect(isValueReportOutcomesSurface(SPONSOR_REPORT_PILOT_OUTCOMES_PATH)).toBe(true);
-    expect(isValueReportOutcomesSurface("/value-report/pilot")).toBe(true);
-    expect(isValueReportOutcomesSurface("/value-report/roi")).toBe(true);
     expect(isValueReportOutcomesSurface("/insights/architecture-scorecard")).toBe(true);
+    expect(isValueReportOutcomesSurface("/value-report/pilot")).toBe(false);
     expect(isValueReportOutcomesSurface("/architecture/reviews")).toBe(false);
   });
 });

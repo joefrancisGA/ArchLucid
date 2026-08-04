@@ -35,7 +35,7 @@ export const EXECUTIVE_WORKSPACE_HEALTH_SOURCES: readonly ExecutiveWorkspaceHeal
   { label: "Governance approval queue", href: GOVERNANCE_APPROVAL_QUEUE_PATH },
   { label: "Findings", href: "/governance/findings" },
   { label: "Audit trail", href: GOVERNANCE_AUDIT_PATH },
-  { label: "ROI summary", href: "/value-report/roi" },
+  { label: "ROI summary", href: "/sponsor-report/roi-summary" },
   { label: "Governance approval help", href: inAppHelpHref("governance-approval") },
   { label: "How ArchLucid works", href: inAppHelpHref("how-it-works") },
 ] as const;

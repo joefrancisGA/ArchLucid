@@ -75,9 +75,6 @@ const DEMO_MODE_OMIT_OPERATOR_HREFS = new Set<string>([
   "/sponsor-report/executive-summary",
   "/sponsor-report/pilot-outcomes",
   "/sponsor-report/roi-summary",
-  "/value-report",
-  "/value-report/pilot",
-  "/value-report/roi",
 ]);
 
 function isPublicDemoThinNavSurface(): boolean {

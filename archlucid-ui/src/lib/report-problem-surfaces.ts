@@ -49,9 +49,9 @@ export const REPORT_PROBLEM_V1_SURFACES: readonly ReportProblemSurfaceEntry[] = 
   {
     id: "executive-value-report-load-failure",
     kind: "executive-summary-fatal",
-    routePattern: "/value-report",
+    routePattern: "/sponsor-report",
     routeMatch: "exact-or-child",
-    componentPath: "app/(operator)/value-report/_sections",
+    componentPath: "app/(operator)/sponsor-report/executive-summary",
     description: "Executive / sponsor value report hard load failure.",
   },
   {

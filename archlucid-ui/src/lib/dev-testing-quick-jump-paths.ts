@@ -1,9 +1,10 @@
+import { planningPlanDetailPath } from "@/lib/planning-route";
 import { signedRecordArtifactPath, signedRecordDetailPath } from "@/lib/signed-records-paths";
 
 /** Canonical dev quick-jump paths for operator home entity chips (local dev only). */
 
 export function devTestingPlanDetailPath(planId: string): string {
-  return `/planning/plans/${encodeURIComponent(planId.trim())}`;
+  return planningPlanDetailPath(planId);
 }
 
 export function devTestingRunDetailPath(runId: string): string {

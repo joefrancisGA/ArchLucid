@@ -23,10 +23,7 @@ function normalizeOutcomesPath(path: string): string {
 function matchesPilotOutcomes(path: string): boolean {
   const normalized = normalizeOutcomesPath(path);
 
-  return (
-    normalized === SPONSOR_REPORT_PILOT_OUTCOMES_PATH ||
-    normalized.startsWith("/value-report/pilot")
-  );
+  return normalized === SPONSOR_REPORT_PILOT_OUTCOMES_PATH;
 }
 
 function matchesExecutiveSummary(path: string): boolean {
@@ -34,15 +31,14 @@ function matchesExecutiveSummary(path: string): boolean {
 
   return (
     normalized === SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH ||
-    normalized === "/sponsor-report" ||
-    normalized === "/value-report"
+    normalized === "/sponsor-report"
   );
 }
 
 function matchesRoiSummary(path: string): boolean {
   const normalized = normalizeOutcomesPath(path);
 
-  return normalized === SPONSOR_REPORT_ROI_SUMMARY_PATH || normalized.startsWith("/value-report/roi");
+  return normalized === SPONSOR_REPORT_ROI_SUMMARY_PATH;
 }
 
 function matchesArchitectureScorecard(path: string): boolean {
