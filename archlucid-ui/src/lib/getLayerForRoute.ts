@@ -47,7 +47,6 @@ const LAYER_GROUP_ORDER: ReadonlyArray<LayerId> = [
 const NAV_GROUP_TO_LAYER: Readonly<Record<string, LayerId>> = {
   pilot: "pilot",
   "operate-analysis": "operate-analysis",
-  "operate-architect-advanced": "operate-analysis",
   "operate-reports": "operate-analysis",
   "operate-integrations": "operate-analysis",
   "operate-governance": "operate-governance",

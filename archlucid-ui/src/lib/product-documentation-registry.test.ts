@@ -53,9 +53,17 @@ describe("product-documentation-registry", () => {
     expect(inAppHelpHref("review-guide")).toBe("/help/review-guide");
     expect(inAppHelpHref("pilot-guide")).toBe("/help/pilot-guide");
     expect(getProductDocumentationEntry("troubleshooting")?.title).toBe("Troubleshooting");
-    expect(getProductDocumentationEntry("starting-reviews")?.title).toBe("Starting architecture reviews");
-    expect(getProductDocumentationEntry("creating-runs")?.slug).toBe("starting-reviews");
-    expect(inAppHelpHref("starting-reviews")).toBe("/help/starting-reviews");
+    expect(getProductDocumentationEntry("starting-reviews")?.slug).toBe("review-guide");
+    expect(getProductDocumentationEntry("creating-runs")?.slug).toBe("review-guide");
+    expect(inAppHelpHref("starting-reviews")).toBe("/help/review-guide");
+    expect(inAppHelpHref("creating-runs")).toBe("/help/review-guide");
+    expect(getProductDocumentationEntry("data-handling-tenant-isolation")?.slug).toBe("data-handling");
+    expect(inAppHelpHref("data-handling-tenant-isolation")).toBe("/help/data-handling");
+    expect(getProductDocumentationEntry("evidence-only-review")?.slug).toBe("first-architecture-review");
+    expect(inAppHelpHref("evidence-only-review")).toBe("/help/first-architecture-review");
+    expect(inAppHelpHref("evidence-only-review", "fast-path-evidence-only")).toBe(
+      "/help/first-architecture-review#fast-path-evidence-only",
+    );
     expect(getProductDocumentationEntry("cloud-connections/azure")?.title).toBe("Connect Azure securely");
     expect(getProductDocumentationEntry("cloud-connections/aws")?.title).toBe("Connect AWS securely");
     expect(getProductDocumentationEntry("cloud-connections/gcp")?.title).toBe("Connect GCP securely");
@@ -178,6 +186,7 @@ describe("product-documentation-registry", () => {
       "cloud-connections-gcp": "customer",
       "azure-permissions": "customer",
       "governance-approval": "customer",
+      "policy-packs": "customer",
       "audit-trail": "customer",
       "pilot-roi-model": "public",
     };
@@ -283,15 +292,21 @@ describe("product-documentation-registry", () => {
   it("loads TB-727 sectionAnchor registry entries from existing markdown only", () => {
     const productOverview = tryLoadProductDocumentation("product-overview");
     const evidenceOnlyReview = tryLoadProductDocumentation("evidence-only-review");
+    const firstArchitectureReview = tryLoadProductDocumentation("first-architecture-review");
+    const dataHandling = tryLoadProductDocumentation("data-handling");
     const dataHandlingIsolation = tryLoadProductDocumentation("data-handling-tenant-isolation");
 
     expect(productOverview?.markdown).toContain("What ArchLucid is");
     expect(productOverview?.markdown).toContain("Elevator Pitches");
     expect(productOverview?.markdown).not.toContain("What Pilot proves");
 
+    expect(evidenceOnlyReview?.entry.slug).toBe("first-architecture-review");
+    expect(evidenceOnlyReview?.markdown).toBe(firstArchitectureReview?.markdown);
     expect(evidenceOnlyReview?.markdown).toContain("evidence-only review");
-    expect(evidenceOnlyReview?.markdown).not.toContain("What can wait");
+    expect(evidenceOnlyReview?.markdown).toContain("What can wait");
 
+    expect(dataHandlingIsolation?.entry.slug).toBe("data-handling");
+    expect(dataHandlingIsolation?.markdown).toBe(dataHandling?.markdown);
     expect(dataHandlingIsolation?.markdown).toContain("What stays in your tenant");
     expect(dataHandlingIsolation?.markdown).toContain("Three layers");
     expect(dataHandlingIsolation?.markdown).not.toContain("Verification pack");

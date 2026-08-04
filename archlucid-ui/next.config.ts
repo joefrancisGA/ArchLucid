@@ -178,6 +178,9 @@ const nextConfig: NextConfig = {
       // Pattern library moved under Insights namespace.
       { source: "/patterns", destination: "/insights/patterns", permanent: true },
       { source: "/patterns/:path*", destination: "/insights/patterns/:path*", permanent: true },
+      // Improvement planning moved under Insights namespace (retired Programs nav group).
+      { source: "/planning", destination: "/insights/planning", permanent: true },
+      { source: "/planning/:path*", destination: "/insights/planning/:path*", permanent: true },
       // Executive dashboard consolidation (TB-608) — same ExecutiveRoiDashboardPageView content as
       // the operator-shell executive dashboard nav item; the standalone executive-chrome page is retired.
       { source: "/dashboard", destination: "/architecture/executive-dashboard", permanent: true },

@@ -29,6 +29,7 @@ describe("OperateAnalysisNavGroupBuilder", () => {
       "/insights/search-review-evidence",
       "/insights/compare-two-reviews",
       "/insights/impact-preview",
+      "/insights/planning",
       "/insights/architecture-scorecard",
       "/insights/patterns",
     ]);
@@ -40,6 +41,15 @@ describe("OperateAnalysisNavGroupBuilder", () => {
     const group = new OperateAnalysisNavGroupBuilder().build();
 
     expect(group.links.at(-2)?.label).toBe("Architecture scorecard");
+  });
+
+  it("lists Improvement planning after Impact preview in Insights nav", () => {
+    const group = new OperateAnalysisNavGroupBuilder().build();
+    const planningIndex = group.links.findIndex((link) => link.href === "/insights/planning");
+
+    expect(planningIndex).toBeGreaterThan(0);
+    expect(group.links[planningIndex - 1]?.href).toBe("/insights/impact-preview");
+    expect(group.links[planningIndex]?.label).toBe("Improvement planning");
   });
 });
 

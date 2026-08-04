@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 import { IMPROVEMENT_PLANNING_PLANS_EMPTY_MESSAGE } from "@/lib/planning-page-copy";
+import { planningPlanDetailPath } from "@/lib/planning-route";
 import type { LearningPlanListItemResponse } from "@/types/learning";
 import { planningNumericCellCls, planningTableCls, planningThTdCls } from "./planning-table-styles";
 
@@ -51,7 +52,7 @@ export function PlanningPlansTable(props: PlanningPlansTableProps) {
             <tr key={p.planId}>
               <td className={planningNumericCellCls}>{p.priorityScore}</td>
               <td className={planningThTdCls}>
-                <Link href={`/planning/plans/${encodeURIComponent(p.planId)}`} className="font-medium text-blue-700 dark:text-blue-400">
+                <Link href={planningPlanDetailPath(p.planId)} className="font-medium text-blue-700 dark:text-blue-400">
                   {p.title}
                 </Link>
               </td>

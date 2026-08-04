@@ -6,7 +6,6 @@ export const SIDEBAR_NAV_GROUP_EXPANSION_STORAGE_KEY = "archlucid_nav_sidebar_gr
 export type SidebarCollapsibleNavGroupId =
   | "pilot"
   | "operate-analysis"
-  | "operate-architect-advanced"
   | "operate-governance"
   | "operate-reports"
   | "operate-integrations"
@@ -24,7 +23,6 @@ const LEGACY_COLLAPSED_PILOT_EXPANDED_KEY = "archlucid-nav-collapsed-pilot-expan
 export const SIDEBAR_NAV_GROUP_DEFAULT_EXPANSION: SidebarNavGroupExpansionState = {
   pilot: true,
   "operate-analysis": false,
-  "operate-architect-advanced": false,
   "operate-governance": false,
   "operate-reports": false,
   "operate-integrations": false,
@@ -96,7 +94,6 @@ function migrateLegacySidebarExpansion(): SidebarNavGroupExpansionState {
   return {
     pilot: true,
     "operate-analysis": analysisExpanded,
-    "operate-architect-advanced": analysisExpanded,
     "operate-governance": governanceExpanded,
     "operate-reports": reportsExpanded,
     "operate-integrations": integrationsExpanded,
@@ -116,12 +113,12 @@ function parseStoredExpansion(raw: string): SidebarNavGroupExpansionState | null
     const record = parsed as Record<string, unknown>;
     const legacyOperationsExpanded = record["operate-operations"] === true;
     const legacyPlatformOpsExpanded = record["operate-platform-ops"] === true;
+    // Retired Programs group (`operate-architect-advanced`) used to expand with Insights.
+    const legacyArchitectAdvancedExpanded = record["operate-architect-advanced"] === true;
 
     return {
       pilot: record.pilot !== false,
-      "operate-analysis": record["operate-analysis"] === true,
-      "operate-architect-advanced":
-        record["operate-architect-advanced"] === true || record["operate-analysis"] === true,
+      "operate-analysis": record["operate-analysis"] === true || legacyArchitectAdvancedExpanded,
       "operate-governance": record["operate-governance"] === true,
       "operate-reports": record["operate-reports"] === true || legacyOperationsExpanded,
       "operate-integrations": record["operate-integrations"] === true || legacyOperationsExpanded,
@@ -181,7 +178,6 @@ export function isSidebarCollapsibleNavGroupId(groupId: string): groupId is Side
   return (
     groupId === "pilot" ||
     groupId === "operate-analysis" ||
-    groupId === "operate-architect-advanced" ||
     groupId === "operate-governance" ||
     groupId === "operate-reports" ||
     groupId === "operate-integrations" ||

@@ -39,6 +39,7 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/replay": "advanced-only",
   "/governance/advisory-scans": "advanced-only",
   "/planning": "advanced-only",
+  "/insights/planning": "advanced-only",
   "/digests": "advanced-only",
   [IMPACT_PREVIEW_PATH]: "advanced-only",
   "/integrations/teams": "advanced-only",

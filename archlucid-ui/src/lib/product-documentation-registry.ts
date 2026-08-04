@@ -44,7 +44,6 @@ export const HELP_TOPIC_SLUG_ALIASES: Readonly<Record<string, string>> = {
   "integrations/azure-boards": "azure-boards",
   "users-and-roles": "users-and-roles",
   "operator-auth-roles": "users-and-roles",
-  "creating-runs": "starting-reviews",
   "core-pilot": "first-architecture-review",
   /** TB-1386 — honest API-contracts URL; canonical slug stays governance-api-contracts. */
   "api-contracts": "governance-api-contracts",
@@ -54,6 +53,13 @@ export const HELP_TOPIC_SLUG_ALIASES: Readonly<Record<string, string>> = {
   "first-hour-operator-path": "first-architecture-review",
   /** Complete review workflow folded into Core Pilot (2026-08-03; TB-1379). */
   "first-pilot-path": "first-architecture-review",
+  /** Starting reviews / creating-runs twins folded into review-guide (2026-08-03; TB-1258 / TB-1643). */
+  "starting-reviews": "review-guide",
+  "creating-runs": "review-guide",
+  /** Data-handling + tenant-isolation twin folded into data-handling (2026-08-03; TB-1652 / TB-1658). */
+  "data-handling-tenant-isolation": "data-handling",
+  /** Evidence-only CORE_PILOT section twin folded into first-architecture-review (2026-08-03; TB-1683). */
+  "evidence-only-review": "first-architecture-review",
 };
 
 export function normalizeHelpTopicSlug(slug: string): string {
@@ -88,14 +94,6 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   {
     slug: "review-guide",
     title: "Review guide",
-    summary:
-      "Create an architecture review: name the review, upload evidence, add context, confirm scope, and finalize the review.",
-    audience: "buyer",
-    sourcePaths: ["docs/library/customer-facing/REVIEW_GUIDE.md"],
-  },
-  {
-    slug: "starting-reviews",
-    title: "Starting architecture reviews",
     summary:
       "Create an architecture review: name the review, upload evidence, add context, confirm scope, and finalize the review.",
     audience: "buyer",
@@ -141,17 +139,6 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     audience: "operator",
     // App-rendered from `customer-glossary-manifest.ts` — not a markdown help body.
     sourcePaths: [],
-  },
-  {
-    slug: "evidence-only-review",
-    title: "Evidence-only review guide",
-    summary:
-      "Fast path when connector access is not approved yet — upload briefs, diagrams, or exports and finalize without cloud inventory.",
-    audience: "buyer",
-    sourcePaths: ["docs/CORE_PILOT.md"],
-    sectionAnchors: ["fast-path-evidence-only-review"],
-    includeIntroWithSections: true,
-    pdfStatus: "public",
   },
   {
     slug: "evidence-intake",
@@ -209,6 +196,15 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     pdfStatus: "customer",
   },
   {
+    slug: "policy-packs",
+    title: "Policy packs",
+    summary:
+      "See which pack and rules apply to reviews, and how ArchLucid resolves conflicts when packs disagree.",
+    audience: "operator",
+    sourcePaths: ["docs/library/customer-facing/POLICY_PACKS_OPERATOR_GUIDE.md"],
+    pdfStatus: "customer",
+  },
+  {
     slug: "audit-trail",
     title: "Audit trail",
     summary: "Immutable audit events, correlation identifiers, and buyer-safe export posture.",
@@ -242,31 +238,6 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/REPORT_A_PROBLEM.md"],
     pdfStatus: "customer",
-  },
-  {
-    slug: "data-handling-tenant-isolation",
-    title: "Data handling and tenant isolation",
-    summary:
-      "How review evidence flows through ArchLucid, what stays in your tenant, and how logical isolation is enforced.",
-    audience: "buyer",
-    sourcePaths: [
-      "docs/library/customer-facing/DATA_HANDLING.md",
-      "docs/go-to-market/TENANT_ISOLATION.md",
-    ],
-    sectionAnchors: [
-      "what-archlucid-does",
-      "what-leaves-your-tenant",
-      "what-stays-in-your-tenant",
-      "isolation",
-      "audit-trail",
-      "three-layers",
-      "encryption",
-      "network",
-      "audit-and-accountability",
-      "what-we-do-not-claim-here",
-    ],
-    includeIntroWithSections: true,
-    pdfStatus: "public",
   },
   {
     slug: "data-handling",

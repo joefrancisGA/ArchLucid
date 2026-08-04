@@ -171,15 +171,9 @@ describe("nav-config structure", () => {
       "/insights/search-review-evidence",
       "/insights/compare-two-reviews",
       "/insights/impact-preview",
+      "/insights/planning",
       "/insights/architecture-scorecard",
       "/insights/patterns",
-    ]);
-    const architectAdvancedHrefs = NAV_GROUPS.find((group) => group.id === "operate-architect-advanced")!.links.map(
-      (link) => link.href,
-    );
-
-    expect(architectAdvancedHrefs).toEqual([
-      "/planning",
     ]);
 
     const pilotHrefs = NAV_GROUPS.find((group) => group.id === "pilot")!.links.map((link) => link.href);
@@ -223,9 +217,10 @@ describe("nav-config structure", () => {
     expect(systemAdminHrefs).not.toContain("/administration/settings/tenant");
     expect(systemAdminHrefs).not.toContain("/workspace/security-trust");
     // Recommendation learning and Review feedback stay under Internal Operations (employee-only /
-    // showSystemAdministrationNav). Planning remains in Programs for customer discoverability.
+    // showSystemAdministrationNav). Improvement planning lives under Insights.
     expect(systemAdminHrefs).toContain("/internal-operations/recommendation-learning");
     expect(systemAdminHrefs).toContain("/internal/product-learning");
+    expect(systemAdminHrefs).not.toContain("/insights/planning");
     expect(systemAdminHrefs).not.toContain("/planning");
     expect(systemAdminHrefs).not.toContain("/digests");
     expect(systemAdminHrefs).not.toContain("/sponsor-report/pilot-outcomes");

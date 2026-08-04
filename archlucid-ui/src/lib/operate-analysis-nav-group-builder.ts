@@ -2,6 +2,7 @@ import {
   BarChart3,
   GitCompare,
   GitGraph,
+  Kanban,
   Layers,
   MessageSquare,
   RefreshCw,
@@ -19,6 +20,7 @@ import { ASK_REVIEW_QUESTIONS_PATH } from "@/lib/ask-review-questions-route";
 import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
+import { PLANNING_PATH } from "@/lib/planning-route";
 import { SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
 
@@ -68,6 +70,18 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
         title: "Impact preview — estimate before-and-after effects of proposed architecture changes",
         icon: RefreshCw,
         tier: "extended",
+        requiredAuthority: "ReadAuthority",
+      },
+      {
+        // String literals required: scripts/ci/assert_route_tier_policy_nav.py parses href:"..." only.
+        href: PLANNING_PATH as typeof PLANNING_PATH & "/insights/planning",
+        label: OPERATOR_NAV_LINK_LABELS.planning,
+        title: "Planning — improvement themes and prioritized plans",
+        icon: Kanban,
+        tier: "advanced",
+        // Browsing themes/plans (list, detail) only needs ReadAuthority — matches LearningController's class-level
+        // [Authorize(ReadAuthority)] default. The page has no mutation controls; "Create draft plans" lives on the
+        // Review feedback page (Internal Operations) and is Execute-gated there.
         requiredAuthority: "ReadAuthority",
       },
       {

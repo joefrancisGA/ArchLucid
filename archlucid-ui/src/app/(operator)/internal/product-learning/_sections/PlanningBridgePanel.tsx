@@ -97,7 +97,7 @@ export function PlanningBridgePanel(props: Props) {
         >
           {busy ? "Creating drafts…" : "Create draft plans"}
         </button>
-        <Link href="/planning" className={OPERATOR_LINK.inline}>
+        <Link href="/insights/planning" className={OPERATOR_LINK.inline}>
           Open planning browse →
         </Link>
       </div>

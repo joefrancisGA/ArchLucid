@@ -365,6 +365,9 @@ Human readers and agents should follow **canonical** paths below. This file is t
 | `docs/library/FIRST_HOUR_OPERATOR_PATH.md` (body) | [`docs/CORE_PILOT.md`](CORE_PILOT.md) | First-hour / first-review guide folded into Core Pilot; filename kept as path-stable alias; in-app slug `first-hour-operator-path` → `first-architecture-review` |
 | `docs/library/CHANGE_IMPACT_CHECKLIST.md` (body) | [`docs/library/CONTRIBUTOR_CODE_MAP.md#change-impact-checklist`](library/CONTRIBUTOR_CODE_MAP.md#change-impact-checklist) | PR follow-through by change type folded into contributor code map; filename kept as path-stable alias |
 | `docs/library/customer-facing/COMPLETE_REVIEW_WORKFLOW.md` (body) | [`docs/CORE_PILOT.md#complete-review-workflow`](CORE_PILOT.md#complete-review-workflow) | Complete review workflow folded into Core Pilot; filename kept as path-stable alias; in-app slug `first-pilot-path` → `first-architecture-review` |
+| `/help/starting-reviews` (registry twin) | [`/help/review-guide`](../archlucid-ui/src/lib/product-documentation-registry.ts) (`REVIEW_GUIDE.md`) | Duplicate Starting architecture reviews entry removed; slug aliases `starting-reviews` + `creating-runs` → `review-guide` (TB-1258 / TB-1643) |
+| `/help/data-handling-tenant-isolation` (registry twin) | [`/help/data-handling`](../archlucid-ui/src/lib/product-documentation-registry.ts) (`DATA_HANDLING.md`) | Isolation deep-dive sections folded into data-handling; slug alias → `data-handling` (TB-1652 / TB-1656 / TB-1658) |
+| `/help/evidence-only-review` (registry twin) | [`/help/first-architecture-review#fast-path-evidence-only`](../archlucid-ui/src/lib/product-documentation-registry.ts) (`CORE_PILOT.md`) | Evidence-only section twin folded into Core Pilot specialty; slug alias → `first-architecture-review` (TB-1683) |
 
 ## 2026-07-22 runbook consolidation
 
