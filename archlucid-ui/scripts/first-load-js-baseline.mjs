@@ -21,8 +21,8 @@ export const DEFAULT_ROUTE_BUNDLE_STATS_RELATIVE_PATH = join(
 /** Routes tracked for UI performance regression gates (TB-573). */
 export const TRACKED_ROUTES = [
   "/welcome",
-  "/architecture/reviews",
-  "/architecture/reviews/[runId]",
+  "/reviews",
+  "/reviews/[runId]",
   "/governance/approval-queue",
 ];
 

@@ -58,11 +58,9 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 
 | ID | Path | Hit% | Scores | Weight | Deficit | Section | Notes |
 |----|------|------|--------|--------|---------|---------|-------|
-| ADY | `/administration/system-health` | 0.02% | 0 | 0 | 2 | Admin | Administration System health hub - SystemHealthPageView with PageContextualHelpButton (topic map troubleshooting; Category-1 registry), Sources follow-up strip + claim-discipline callout (operational readiness, not diligence trail), live/ready dependency checks, build identity, demo-safe buyer shell variant. Canonical path /administration/system-health (legacy /health on HXX). Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. |
-| ARE | `/architecture/executive-dashboard` | 0.02% | 0 | 0 | 2 | Executive | Canonical executive ROI portfolio dashboard — ExecutiveRoiDashboardPageView with hero, KPI tiles, trend charts, sponsor exports, and PageContextualHelp → executive-summary. Legacy /dashboard (DSH), /executive/dashboard (EXD), and /portfolio redirect here (TB-608). |
-| RE | `/reviews` | 12% | 0 | 0 | 1200 | Core review | None |
-| RRE | `/reviews/[runId]` | 10% | 0 | 0 | 1000 | Core review | None |
-| RRF | `/reviews/[runId]/findings/[findingId]` | 9% | 0 | 0 | 900 | Core review | None |
+| RE | `/architecture/reviews` | 12% | 0 | 0 | 1200 | Marketing | None |
+| RRE | `/architecture/reviews/[runId]` | 10% | 0 | 0 | 1000 | Marketing | None |
+| RRF | `/architecture/reviews/[runId]/findings/[findingId]` | 9% | 0 | 0 | 900 | Marketing | None |
 | ACB | `/auth/callback` | 5% | 0 | 0 | 500 | Auth | None |
 | ASI | `/auth/signin` | 5% | 0 | 0 | 500 | Auth | None |
 | ASK | `/insights/ask-review-questions` | 4% | 0 | 0 | 400 | Marketing | Formerly `/ask` (retired; no redirect). |
@@ -70,7 +68,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | AL | `/governance/alerts` | 3% | 0 | 0 | 300 | Alerts/gov | None |
 | GFN | `/governance/findings` | 2% | 0 | 0 | 200 | Alerts/gov | None |
 | GDX | `/governance/dashboard` | 1.5% | 0 | 0 | 150 | Alerts/gov | Executive Workspace Health dashboard - ExecutiveWorkspaceHealthDashboard with hero PageContextualHelp (topic map how-it-works / Workspace overview, not governance-approval), Category-1 registry, Sources follow-up strip + claim-discipline callout (scoped aggregates / planning hours, not diligence trail), DecisionsNeededSummaryCard, five KPI tiles, Bypass audit panel. Alerts topic-map honesty sibling (`/governance/alerts` -> alerts). TB-1668 GDX/alerts topic slice. Demo shell may still redirect away (BDA-107). Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. |
-| SCX | `/insights/architecture-scorecard` | 1.5% | 0 | 0 | 150 | Insights | Architecture scorecard (Insights) - PilotScorecardPageView with PageContextualHelp (topic map pilot-roi-model + Category-1 registry), Sources follow-up strip + claim-discipline callout (directional ROI / not financial reporting; not diligence trail), Outcomes nav, empty CTAs (TB-1958), sample-mode honesty (TB-1957). Formerly `/scorecard` and `/sponsor-report/architecture-scorecard` (retired; no redirect). Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. |
+| SCX | `/insights/architecture-scorecard` | 1.5% | 0 | 0 | 150 | Marketing | Architecture scorecard (Insights) - PilotScorecardPageView with PageContextualHelp (topic map pilot-roi-model + Category-1 registry), Sources follow-up strip + claim-discipline callout (directional ROI / not financial reporting; not diligence trail), Outcomes nav, empty CTAs (TB-1958), sample-mode honesty (TB-1957). Formerly `/scorecard` and `/sponsor-report/architecture-scorecard` (retired; no redirect). Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. |
 | HEL | `/help` | 1% | 0 | 0 | 100 | Help hub | None |
 | SET | `/administration/settings` | 0.8% | 0 | 0 | 80 | Admin | Formerly `/settings` (retired; no redirect). Keep `/settings/webhooks`, `/settings/cloud-connections`, `/settings/roles` redirects. |
 | PLA | `/planning` | 0.8% | 0 | 0 | 80 | Planning | Improvement planning - PlanningPageView with PageContextualHelp (topic map how-it-works / Improvement planning; Category-1 registry), Sources follow-up strip + claim-discipline callout (derived themes/plans, not diligence trail), themes/plans tables, export readiness. Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. |
@@ -78,18 +76,18 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | DI | `/digests` | 0.6% | 0 | 0 | 60 | Digests | Architecture digests - DigestsHubClient with DigestsPageHeader PageContextualHelp (topic map how-it-works / Architecture digests; Category-1 registry), Sources follow-up strip + claim-discipline callout (scheduled summaries, not diligence trail), browse/subscriptions/schedule tabs, weekly health banner. Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. |
 | INE | `/insights/evidence-graph` | 0.6% | 0 | 0 | 60 | Planning | Canonical evidence trail operator hub — GraphPageContent with runId/graphNodeId query handoffs, trace table vs interactive graph tabs, provenance/decision/architecture graph modes, sample-mode banner, and OperatorSavedViewsBar. Left nav Evidence graph. Legacy /graph retired (no redirect). Deep links from findings, standards rules, golden journey. Former workbook row GRA. |
 | PPP | `/planning/plans/[planId]` | 0.6% | 0 | 0 | 60 | Planning | Improvement plan detail - PlanningPlanDetailPageView with OperatorPageHeader PageContextualHelp (topic map how-it-works / Improvement planning; Category-1 registry for /planning/plans), Sources follow-up strip + claim-discipline callout (derived plan, not diligence trail), plan sections. Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. |
+| RNX | `/architecture/reviews/new` | 0.5% | 0 | 0 | 50 | Marketing | Start review intake - ReviewsNewPageChrome with OperatorPageHeader PageContextualHelpButton (topic map evidence-intake / Start review; Category-1 registry), Sources follow-up strip + claim-discipline callout (intake only, not diligence trail), path switcher wizards. Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. |
 | AUD | `/governance/audit` | 0.5% | 0 | 0 | 50 | Alerts/gov | Governance audit trail - AuditPageView with AuditPageHeader PageContextualHelpButton (topic map audit-trail; Category-1 registry), Sources follow-up strip + claim-discipline callout (activity log, not diligence pack), search/filters, integrity export/verify when available. Not a signed-record Sources trail by itself. Does not imply CPA SOC 2 or third-party pen-test publication. |
-| RNX | `/architecture/reviews/new` | 0.5% | 0 | 0 | 50 | Core review | Start review intake - ReviewsNewPageChrome with OperatorPageHeader PageContextualHelpButton (topic map evidence-intake / Start review; Category-1 registry), Sources follow-up strip + claim-discipline callout (intake only, not diligence trail), path switcher wizards. Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. |
+| RR | `/architecture/reviews/[runId]/findings/[findingId]/inspect` | 0.4% | 0 | 0 | 40 | Marketing | Legacy finding inspect bookmark - FindingInspectLegacyRedirectPage permanentRedirects to canonical evidence-trace (ERU / architecture reviews path via getFindingEvidenceTraceHref). No standalone Evidence chrome on the shim. Redirect/shim hard-caps Evidence. Does not imply CPA SOC 2 or third-party pen-test publication. |
 | GPP | `/governance/policy-packs` | 0.4% | 0 | 0 | 40 | Alerts/gov | None |
-| RR | `/architecture/reviews/[runId]/findings/[findingId]/inspect` | 0.4% | 0 | 0 | 40 | Core review | Legacy finding inspect bookmark - FindingInspectLegacyRedirectPage permanentRedirects to canonical evidence-trace (ERU / architecture reviews path via getFindingEvidenceTraceHref). No standalone Evidence chrome on the shim. Redirect/shim hard-caps Evidence. Does not imply CPA SOC 2 or third-party pen-test publication. |
 | GDO | `/governance/decision-register` | 0.3% | 0 | 0 | 30 | Alerts/gov | None |
 | GPI | `/governance/policy-packs/[id]` | 0.3% | 0 | 0 | 30 | Alerts/gov | None |
 | GRO | `/governance/risk-exceptions` | 0.3% | 0 | 0 | 30 | Alerts/gov | None |
 | SBE | `/administration/settings/billing` | 0.25% | 0 | 0 | 25 | Admin | None |
+| RRP | `/architecture/reviews/[runId]/provenance` | 0.25% | 0 | 0 | 25 | Marketing | None |
 | CXX | `/insights/compare-two-reviews` | 0.25% | 0 | 0 | 25 | Marketing | Formerly `/compare` (retired; no redirect). |
 | SCE | `/integrations/cloud-connections` | 0.25% | 0 | 0 | 25 | Integrations | None |
 | P | `/pricing` | 0.25% | 0 | 0 | 25 | Marketing | None |
-| RRP | `/reviews/[runId]/provenance` | 0.25% | 0 | 0 | 25 | Core review | None |
 | GOR | `/governance/alert-rules?tab=routing` | 0.22% | 0 | 0 | 22 | Tab surface | Alert rules Routing tab (left nav Alert rules). |
 | SAE | `/administration/settings/api-keys` | 0.2% | 0 | 0 | 20 | Admin | None |
 | SRX | `/administration/settings/users?tab=roles` | 0.2% | 0 | 0 | 20 | Tab surface | None |
@@ -205,10 +203,24 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | SEP | `/administration/settings/preferences` | 0.02% | 0 | 0 | 2 | Admin | None |
 | SEK | `/administration/settings/users?tab=keys` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | SSU | `/administration/settings/users?tab=users` | 0.02% | 0 | 0 | 2 | Tab surface | None |
+| ADY | `/administration/system-health` | 0.02% | 0 | 0 | 2 | Admin | Administration System health hub - SystemHealthPageView with PageContextualHelpButton (topic map troubleshooting; Category-1 registry), Sources follow-up strip + claim-discipline callout (operational readiness, not diligence trail), live/ready dependency checks, build identity, demo-safe buyer shell variant. Canonical path /administration/system-health (legacy /health on HXX). Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. |
 | AIN | `/architecture-intelligence` | 0.02% | 0 | 0 | 2 | Core review | Closed-loop architecture reasoning operator surface - ArchitectureIntelligencePageClient runs reasoning/golden tests and publish-to-findings round trip. Deep links from reviews/findings via runId query. Canonical path /architecture-intelligence. |
-| AR | `/architectures` | 0.02% | 0 | 0 | 2 | Core review | None |
-| ARA | `/architectures/[architectureId]` | 0.02% | 0 | 0 | 2 | Core review | None |
-| ARN | `/architectures/new` | 0.02% | 0 | 0 | 2 | Core review | None |
+| AR | `/architecture/architectures` | 0.02% | 0 | 0 | 2 | Marketing | None |
+| ARA | `/architecture/architectures/[architectureId]` | 0.02% | 0 | 0 | 2 | Marketing | None |
+| ARN | `/architecture/architectures/new` | 0.02% | 0 | 0 | 2 | Marketing | None |
+| ARE | `/architecture/executive-dashboard` | 0.02% | 0 | 0 | 2 | Marketing | Canonical executive ROI portfolio dashboard — ExecutiveRoiDashboardPageView with hero, KPI tiles, trend charts, sponsor exports, and PageContextualHelp → executive-summary. Legacy /dashboard (DSH), /executive/dashboard (EXD), and /portfolio redirect here (TB-608). |
+| RER | `/architecture/reviews/[runId]/artifacts/[artifactId]` | 0.02% | 0 | 0 | 2 | Marketing | Run-scoped artifact Preview entry — App Router redirect to canonical `/signed-records/[manifestId]/artifacts/[artifactId]` (TB-1821). |
+| ERU | `/architecture/reviews/[runId]/findings/[findingId]/evidence-trace` | 0.02% | 0 | 0 | 2 | Marketing | None |
+| REA | `/architecture/reviews/[runId]?archTab=activity` | 0.02% | 0 | 0 | 2 | Tab surface | None |
+| REC | `/architecture/reviews/[runId]?archTab=clarifications` | 0.02% | 0 | 0 | 2 | Tab surface | None |
+| RED | `/architecture/reviews/[runId]?archTab=diagram` | 0.02% | 0 | 0 | 2 | Tab surface | None |
+| REE | `/architecture/reviews/[runId]?archTab=evidence` | 0.02% | 0 | 0 | 2 | Tab surface | None |
+| REF | `/architecture/reviews/[runId]?archTab=findings` | 0.02% | 0 | 0 | 2 | Tab surface | None |
+| REG | `/architecture/reviews/[runId]?archTab=governance` | 0.02% | 0 | 0 | 2 | Tab surface | Create-home-only archTab (TB-1856) - mounts on ArchitectureCreatedWorkspace when fromGeneration+create-architecture and no signed manifest; ignored on committed ReviewDetailWorkspace (twin: reviewTab=decisions-remediation). RunDetailGovernanceDecisionSection pre-commit honesty (TB-1857) with one primary Review findings CTA (TB-1859), secondary activity text link, Sources diligence strip (governance-approval, audit-trail, findings, search-review-evidence, compare-two-reviews), claim-discipline callout, and sponsor/work-item panels gated on manifestId (TB-1858). Not a live approval/audit surface. Does not imply CPA SOC 2 or third-party pen-test publication. |
+| REO | `/architecture/reviews/[runId]?archTab=overview` | 0.02% | 0 | 0 | 2 | Tab surface | None |
+| REN | `/architecture/reviews/new?path=detailed` | 0.02% | 0 | 0 | 2 | Tab surface | None |
+| ENE | `/architecture/reviews/new?path=guided-intake` | 0.02% | 0 | 0 | 2 | Tab surface | None |
+| REQ | `/architecture/reviews/new?path=quick-review` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | AUB | `/auth/bootstrap` | 0.02% | 0 | 0 | 2 | Auth | None |
 | AUI | `/auth/invite` | 0.02% | 0 | 0 | 2 | Auth | None |
 | COM | `/compliance-journey` | 0.02% | 0 | 0 | 2 | Marketing | None |
@@ -262,24 +274,12 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | PA | `/patterns` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | PAP | `/patterns/[patternKey]` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | PRB | `/privacy` | 0.02% | 0 | 0 | 2 | Marketing | None |
-| RER | `/reviews/[runId]/artifacts/[artifactId]` | 0.02% | 0 | 0 | 2 | Core review | Run-scoped artifact Preview entry — App Router redirect to canonical `/signed-records/[manifestId]/artifacts/[artifactId]` (TB-1821). |
-| ERU | `/reviews/[runId]/findings/[findingId]/evidence-trace` | 0.02% | 0 | 0 | 2 | Core review | None |
-| REA | `/reviews/[runId]?archTab=activity` | 0.02% | 0 | 0 | 2 | Tab surface | None |
-| REC | `/reviews/[runId]?archTab=clarifications` | 0.02% | 0 | 0 | 2 | Tab surface | None |
-| RED | `/reviews/[runId]?archTab=diagram` | 0.02% | 0 | 0 | 2 | Tab surface | None |
-| REE | `/reviews/[runId]?archTab=evidence` | 0.02% | 0 | 0 | 2 | Tab surface | None |
-| REF | `/reviews/[runId]?archTab=findings` | 0.02% | 0 | 0 | 2 | Tab surface | None |
-| REG | `/architecture/reviews/[runId]?archTab=governance` | 0.02% | 0 | 0 | 2 | Tab surface | Create-home-only archTab (TB-1856) - mounts on ArchitectureCreatedWorkspace when fromGeneration+create-architecture and no signed manifest; ignored on committed ReviewDetailWorkspace (twin: reviewTab=decisions-remediation). RunDetailGovernanceDecisionSection pre-commit honesty (TB-1857) with one primary Review findings CTA (TB-1859), secondary activity text link, Sources diligence strip (governance-approval, audit-trail, findings, search-review-evidence, compare-two-reviews), claim-discipline callout, and sponsor/work-item panels gated on manifestId (TB-1858). Not a live approval/audit surface. Does not imply CPA SOC 2 or third-party pen-test publication. |
-| REO | `/reviews/[runId]?archTab=overview` | 0.02% | 0 | 0 | 2 | Tab surface | None |
-| REN | `/reviews/new?path=detailed` | 0.02% | 0 | 0 | 2 | Tab surface | None |
-| ENE | `/reviews/new?path=guided-intake` | 0.02% | 0 | 0 | 2 | Tab surface | None |
-| REQ | `/reviews/new?path=quick-review` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | SEL | `/settings/alerts` | 0.02% | 0 | 0 | 2 | Settings | None |
 | MA | `/signed-records` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | MAM | `/signed-records/[manifestId]/artifacts/[artifactId]` | 0.02% | 0 | 0 | 2 | Marketing | Manifest-scoped artifact preview — App Router page under signed-records (TB-1821 SoT). Run-scoped RER redirects here. Download/proxy paths remain available. |
-| SPE | `/sponsor-report/executive-summary` | 0.02% | 0 | 0 | 2 | Sponsor report | Sponsor executive summary report (canonical); `/value-report` redirects here for bookmark compat. |
-| SPP | `/sponsor-report/pilot-outcomes` | 0.02% | 0 | 0 | 2 | Sponsor report | Sponsor pilot outcomes report (canonical); `/value-report/pilot` redirects here for bookmark compat. |
-| SPR | `/sponsor-report/roi-summary` | 0.02% | 0 | 0 | 2 | Sponsor report | Sponsor ROI summary report (canonical); `/value-report/roi` redirects here for bookmark compat. |
+| SPE | `/sponsor-report/executive-summary` | 0.02% | 0 | 0 | 2 | Marketing | Sponsor executive summary report (canonical); `/value-report` redirects here for bookmark compat. |
+| SPP | `/sponsor-report/pilot-outcomes` | 0.02% | 0 | 0 | 2 | Marketing | Sponsor pilot outcomes report (canonical); `/value-report/pilot` redirects here for bookmark compat. |
+| SPR | `/sponsor-report/roi-summary` | 0.02% | 0 | 0 | 2 | Marketing | Sponsor ROI summary report (canonical); `/value-report/roi` redirects here for bookmark compat. |
 
 ---
 

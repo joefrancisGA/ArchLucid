@@ -58,6 +58,19 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/dashboard": "/architecture/executive-dashboard",
     "/executive/dashboard": "/architecture/executive-dashboard",
     "/portfolio": "/architecture/executive-dashboard",
+    # Public architecture-prefixed reviews / architectures URLs (App Router still under /reviews).
+    "/reviews": "/architecture/reviews",
+    "/reviews/new": "/architecture/reviews/new",
+    "/reviews/[runId]": "/architecture/reviews/[runId]",
+    "/reviews/[runId]/findings/[findingId]": "/architecture/reviews/[runId]/findings/[findingId]",
+    "/reviews/[runId]/findings/[findingId]/inspect": "/architecture/reviews/[runId]/findings/[findingId]/inspect",
+    "/reviews/[runId]/findings/[findingId]/evidence-trace": "/architecture/reviews/[runId]/findings/[findingId]/evidence-trace",
+    "/reviews/[runId]/provenance": "/architecture/reviews/[runId]/provenance",
+    "/reviews/[runId]/signed-record": "/architecture/reviews/[runId]/signed-record",
+    "/reviews/[runId]?archTab=governance": "/architecture/reviews/[runId]?archTab=governance",
+    "/architectures": "/architecture/architectures",
+    "/architectures/new": "/architecture/architectures/new",
+    "/architectures/[architectureId]": "/architecture/architectures/[architectureId]",
 }
 
 # Legacy App Router redirect stubs — canonical nav hrefs live under /governance/advisory-scans (TB-1124).
@@ -106,7 +119,18 @@ def url_path_for_page(page_file: Path, app_dir: Path) -> str:
         parts.append(segment)
     if not parts:
         return "/"
-    return "/" + "/".join(parts)
+    return canonicalize_public_operator_path("/" + "/".join(parts))
+
+
+def canonicalize_public_operator_path(path: str) -> str:
+    """Map App Router filesystem paths to public `/architecture/*` URLs."""
+    if path == "/reviews" or path.startswith("/reviews/"):
+        return f"/architecture{path}"
+
+    if path == "/architectures" or path.startswith("/architectures/"):
+        return f"/architecture{path}"
+
+    return path
 
 
 def discover_app_router_paths(app_dir: Path = UI_APP_DIR) -> list[str]:
@@ -179,9 +203,9 @@ def discover_tab_paths() -> list[str]:
     for tab_id in ("users", "roles", "keys"):
         paths.append(_tab_path("/administration/settings/users", "tab", tab_id))
     for path_mode in ("quick-review", "guided-intake", "detailed"):
-        paths.append(_tab_path("/reviews/new", "path", path_mode))
+        paths.append(_tab_path("/architecture/reviews/new", "path", path_mode))
     for tab_id in arch_tabs:
-        paths.append(_tab_path("/reviews/[runId]", "archTab", tab_id))
+        paths.append(_tab_path("/architecture/reviews/[runId]", "archTab", tab_id))
     return sorted(set(paths))
 
 
@@ -303,7 +327,12 @@ def migrate_workbook_path(path: str) -> str:
             break
         seen.add(current)
         current = WORKBOOK_PATH_MIGRATIONS[current]
-    return current
+
+    if "?" in current:
+        base, query = current.split("?", 1)
+        return f"{canonicalize_public_operator_path(base)}?{query}"
+
+    return canonicalize_public_operator_path(current)
 
 
 def suggest_row_id(path: str, used_ids: set[str]) -> str:

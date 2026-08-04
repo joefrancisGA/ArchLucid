@@ -20,16 +20,16 @@ from archlucid_ui_route_catalog import (  # noqa: E402
 
 def test_discover_app_router_paths_includes_architectures_hub() -> None:
     paths = discover_app_router_paths()
-    assert "/architectures" in paths
+    assert "/architecture/architectures" in paths
     assert "/governance/alerts" in paths
     assert "/integrations/cloud-connections" in paths
 
 
 def test_discover_tab_paths_includes_architecture_workspace_tabs() -> None:
     tab_paths = discover_tab_paths()
-    assert "/reviews/[runId]?archTab=evidence" in tab_paths
+    assert "/architecture/reviews/[runId]?archTab=evidence" in tab_paths
     assert "/administration/settings/users?tab=roles" in tab_paths
-    assert "/reviews/new?path=guided-intake" in tab_paths
+    assert "/architecture/reviews/new?path=guided-intake" in tab_paths
     assert "/governance/advisory-scans?tab=scans" in tab_paths
     assert "/governance/advisory-scans?tab=schedules" in tab_paths
     assert "/advisory?tab=scans" not in tab_paths

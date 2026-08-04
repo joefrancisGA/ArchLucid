@@ -9,10 +9,10 @@
     "/governance/approval-queue": {
       "firstLoadJsKb": 1417
     },
-    "/architecture/reviews": {
+    "/reviews": {
       "firstLoadJsKb": 1695.3
     },
-    "/architecture/reviews/[runId]": {
+    "/reviews/[runId]": {
       "firstLoadJsKb": 2255.2
     }
   },
