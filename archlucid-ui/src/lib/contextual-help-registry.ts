@@ -369,6 +369,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/sponsor-report/pilot-outcomes",
+    entry: {
+      whatIsThisPage:
+        "Pilot outcomes — period summary of finalized review activity, material findings, governance decisions, and measurable pilot results.",
+      whatToDoNext:
+        "Set the reporting period, apply it, then open Executive summary or ROI summary when you need sibling sponsor packaging.",
+      whyEmpty: "Outcomes fill in after you finalize architecture reviews in the selected period.",
+      whereToConfigurePrerequisite:
+        "Report windows use the current tenant, workspace, and project selected in the shell header.",
+    },
+  },
+  {
     prefix: "/executive/scorecard",
     entry: {
       whatIsThisPage:

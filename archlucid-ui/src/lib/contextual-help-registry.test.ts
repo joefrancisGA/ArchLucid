@@ -64,6 +64,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/insights/planning",
       "/governance/advisory-scans",
       "/sponsor-report/executive-summary",
+      "/sponsor-report/pilot-outcomes",
       "/executive/scorecard",
       "/governance/alert-rules",
       "/governance/approval-requests",
@@ -279,6 +280,11 @@ describe("contextual-help-registry (TB-733)", () => {
     expect(contextualHelpForPathname("/sponsor-report/executive-summary")?.whatIsThisPage).toContain(
       "Sponsor executive summary",
     );
+  });
+
+  it("resolves pilot outcomes Category-1 help (SPP)", () => {
+    expect(contextualHelpForPathname("/sponsor-report/pilot-outcomes")?.whatIsThisPage).toContain("Pilot outcomes");
+    expect(contextualHelpForPathname("/sponsor-report/pilot-outcomes")?.whatToDoNext).toContain("reporting period");
   });
 
   it("returns null for routes not yet migrated", () => {

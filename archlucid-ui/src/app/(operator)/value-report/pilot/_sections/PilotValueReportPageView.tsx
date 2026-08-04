@@ -29,6 +29,7 @@ import {
 
 import { PilotOutcomesEmailConfirmDialog } from "./PilotOutcomesEmailConfirmDialog";
 import { PilotOutcomesEmptyState } from "./PilotOutcomesEmptyState";
+import { PilotOutcomesEvidenceOrientationStrip } from "./PilotOutcomesEvidenceOrientationStrip";
 import { PilotValueReportMetricCard } from "./PilotValueReportMetricCard";
 import { PilotValueReportSeverityBars } from "./PilotValueReportSeverityBars";
 import { PilotRoiValidationHandoffClient } from "@/components/pilots/PilotRoiValidationHandoffCard";
@@ -82,6 +83,7 @@ export function PilotValueReportPageView(props: Props) {
       <div className="flex flex-wrap items-center justify-end gap-2 print:hidden">
         <PageContextualHelpButton />
       </div>
+      <PilotOutcomesEvidenceOrientationStrip />
       <ValueReportOutcomesNav />
       <DocumentLayout>
         <header className="space-y-2">

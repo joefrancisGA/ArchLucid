@@ -1,15 +1,19 @@
-/** Traffic workbook row ID for sponsor pilot outcomes. */
-export const PILOT_OUTCOMES_TRAFFIC_ROW_ID = "SPP";
-
-/** Canonical browser path for the sponsor pilot outcomes report. */
-export const PILOT_OUTCOMES_TRAFFIC_PATH = "/sponsor-report/pilot-outcomes";
+import { SPONSOR_REPORT_PILOT_OUTCOMES_PATH } from "@/lib/sponsor-report-navigation";
 
 /**
- * Owner workbook Notes for SPP — sponsor-report surface, not marketing.
- * Absorbs former VPX (legacy `/value-report/pilot` redirect) hit share.
+ * Traffic workbook row ID for Pilot outcomes sponsor report.
+ * Owner backlog shorthand: SPP.
+ */
+export const PILOT_OUTCOMES_TRAFFIC_ROW_ID = "SPP";
+
+/** Canonical path tracked on the SPP workbook row. */
+export const PILOT_OUTCOMES_TRAFFIC_PATH = SPONSOR_REPORT_PILOT_OUTCOMES_PATH;
+
+/** Workbook Section column value (template catalog). */
+export const PILOT_OUTCOMES_TRAFFIC_SECTION = "Sponsor report";
+
+/**
+ * Owner workbook Notes for SPP — documents Evidence chrome on Pilot outcomes.
  */
 export const PILOT_OUTCOMES_TRAFFIC_NOTE =
-  "Sponsor pilot outcomes report (canonical). Absorbs former VPX hit share from retired legacy `/value-report/pilot` bookmark (hard-retired — 404). Does not imply CPA SOC 2 or third-party pen-test publication.";
-
-/** Workbook Section column value — operator sponsor-report job, not pre-login marketing. */
-export const PILOT_OUTCOMES_TRAFFIC_SECTION = "Sponsor report";
+  "Sponsor pilot outcomes report (Sponsor report) - PilotValueReportPageClient/View with PageContextualHelpButton (topic map executive-summary; Category-1 registry), workspace Sources + claim-discipline orientation strip, period controls, Outcomes nav. Absorbs former VPX hit share from retired legacy `/value-report/pilot` bookmark (LegacyPilotValueReportRedirectPage still permanentRedirects here). Period summary — not a signed-record Sources trail alone. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-04) — sponsor period-summary hard-caps higher Evidence without diligence packing.";

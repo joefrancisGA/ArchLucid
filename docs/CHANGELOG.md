@@ -26,6 +26,10 @@ Removed server redirect and dead create-architecture tab copy on review intake; 
 
 Removed App Router redirect stub; CTO recap leave-behind links now use `/architecture/reviews/{runId}?readOnly=1` via `buildReadOnlyReviewWorkspaceHref`. Old `/snapshot/...` bookmarks 404.
 
+## 2026-08-04 - UI: Pilot outcomes Evidence chrome (SPP)
+
+/sponsor-report/pilot-outcomes ships Category-1 registry, Sources + claim-discipline orientation strip, updated traffic Notes, and honest Evidence score 52 (PageContextualHelpButton already present). Sponsor period-summary hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-04 - UI: Webhooks integration Evidence chrome (IWX)
 
 /integrations/webhooks ships PageContextualHelpButton, Category-1 registry, Sources + claim-discipline orientation strip, traffic Notes under Integrations, and honest Evidence score 48. Integration-config hub hard-caps higher Evidence; no CPA / third-party pen-test implication.
