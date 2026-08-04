@@ -1,3 +1,5 @@
+using ArchLucid.Application;
+using ArchLucid.Application.Findings;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Configuration;
@@ -74,6 +76,7 @@ public sealed class RunDetailQueryServiceTests
             _muteRepo.Object,
             executionTraceRepo.Object,
             new Mock<ILlmCostEstimator>().Object,
+            new FindingTrustLabelMapper(),
             new Mock<ILogger<RunDetailQueryService>>().Object);
     }
 

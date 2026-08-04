@@ -8,12 +8,7 @@ import { Suspense, useEffect, useMemo, useState } from "react";
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { NewRunWizardSkeleton } from "@/components/skeletons/NewRunWizardSkeleton";
 import { InlineGuidanceText } from "@/components/InlineGuidanceText";
-import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture-workflow-intent";
-import {
-  REVIEWS_NEW_CREATE_ARCHITECTURE_PATH_HINTS,
-  REVIEWS_NEW_CREATE_ARCHITECTURE_PATH_TAB_LABELS,
-  REVIEWS_NEW_PATH_HINTS,
-} from "@/lib/reviews-new-path-copy";
+import { REVIEWS_NEW_PATH_HINTS } from "@/lib/reviews-new-path-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { readBuyerCtoDemoTourActive } from "@/lib/buyer-cto-demo-tour";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -78,17 +73,11 @@ export function ReviewsNewPathSwitcher() {
   );
   const [activePath, setActivePath] = useState<ReviewsNewActivePath>("quick-review");
   const [ready, setReady] = useState(false);
-  const isCreateArchitectureIntent =
-    searchParams?.get("intent")?.trim().toLowerCase() === CREATE_ARCHITECTURE_INTENT;
-  const pathTabLabels = isCreateArchitectureIntent
-    ? REVIEWS_NEW_CREATE_ARCHITECTURE_PATH_TAB_LABELS
-    : Object.fromEntries(REVIEWS_NEW_PATH_TABS.map((tab) => [tab.id, tab.label])) as Record<
-        ReviewsNewActivePath,
-        string
-      >;
-  const pathHints = isCreateArchitectureIntent
-    ? REVIEWS_NEW_CREATE_ARCHITECTURE_PATH_HINTS
-    : REVIEWS_NEW_PATH_HINTS;
+  const pathTabLabels = Object.fromEntries(REVIEWS_NEW_PATH_TABS.map((tab) => [tab.id, tab.label])) as Record<
+    ReviewsNewActivePath,
+    string
+  >;
+  const pathHints = REVIEWS_NEW_PATH_HINTS;
 
   useEffect(() => {
     const activeTour = readBuyerCtoDemoTourActive();

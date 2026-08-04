@@ -25,7 +25,7 @@
 
 Alternate: from `/governance/findings`, use **Architecture intelligence** on a queue row (`from=findings`).
 
-Direct URL: `/architecture-intelligence` (or load the golden fixture for a canned demo without a product run).
+Direct URL: `/architecture/architecture-intelligence` (or load the golden fixture for a canned demo without a product run).
 
 ### 2. Confirm intake (or load golden fixture)
 
@@ -77,6 +77,6 @@ Direct URL: `/architecture-intelligence` (or load the golden fixture for a canne
 
 ## Related
 
-- UI: `/architecture-intelligence`
+- UI: `/architecture/architecture-intelligence`
 - API: `POST /v1/architecture-intelligence/run`, `…/golden-test`, `…/runs/{runId}/continue`, `…/publish`
 - Specialty catalog: [walkthroughs/README.md](README.md)

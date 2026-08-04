@@ -1,15 +1,17 @@
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { deriveRunDetailBaselineAnnualCostUsd } from "@/lib/derive-run-detail-baseline-cost";
+import { resolveFindingsSnapshotInsightDensityView } from "@/lib/findings-snapshot-insight-density";
 import {
   buildFindingWireSnapshotsForRunDetail,
   isQuickDecisionDerivedFromExplanationTraces,
   resolveQuickDecisionFindingsForRunDetail,
 } from "@/lib/quick-decision-summary-derive";
-import { resolveFindingsSnapshotInsightDensityView } from "@/lib/findings-snapshot-insight-density";
-import { deriveRunDetailBaselineAnnualCostUsd } from "@/lib/derive-run-detail-baseline-cost";
 import { resolveRunDecisionExplainabilityFromDetail } from "@/lib/run-decision-explainability-from-detail";
-import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import type { RunDetail } from "@/types/authority";
 import type { RunExplanationSummary } from "@/types/explanation";
 
+import { loadRunDetailExplanationSummary } from "./load-run-detail-explanation-summary";
+import { tryStaticDemoExplanationSummary } from "@/lib/operator-static-demo";
 import { RunDetailRunExplanationCollapsible } from "./RunDetailRunExplanationCollapsible";
 
 type RunDetailExplanationDeferredProps = {
@@ -46,8 +48,6 @@ export async function RunDetailExplanationDeferred(
     runId,
     buyerPolishedArtifactTable,
     resolvedDetail,
-    explanationSummary,
-    explanationFailure,
     findingCountDisplay,
     warningCountDisplay,
     goldenManifestJsonForExport,
@@ -57,6 +57,28 @@ export async function RunDetailExplanationDeferred(
     architectureWorkItemContext,
     packageCommitted,
   } = props;
+
+  let explanationSummary = props.explanationSummary;
+  let explanationFailure = props.explanationFailure ?? null;
+
+  if (explanationSummary === null && explanationFailure === null) {
+    const loaded = await loadRunDetailExplanationSummary(runId);
+
+    explanationSummary = loaded.summary;
+    explanationFailure = loaded.failure;
+
+    if (
+      explanationSummary !== null &&
+      explanationFailure === null &&
+      (explanationSummary.findingCount ?? 0) === 0
+    ) {
+      const staticExplanation = tryStaticDemoExplanationSummary(runId);
+
+      if (staticExplanation !== null && (staticExplanation.findingCount ?? 0) > 0) {
+        explanationSummary = staticExplanation;
+      }
+    }
+  }
 
   const quickDecisionFindings = resolveQuickDecisionFindingsForRunDetail(resolvedDetail, explanationSummary);
   const quickDecisionFromExplanationFallback = isQuickDecisionDerivedFromExplanationTraces(

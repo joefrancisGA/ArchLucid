@@ -82,8 +82,8 @@ vi.mock("@/components/RunsListProofHeadline", () => ({
   RunsListProofHeadline: () => null,
 }));
 
-vi.mock("@/components/BeforeAfterDeltaPanel", () => ({
-  BeforeAfterDeltaPanel: () => null,
+vi.mock("./ReviewsHubBeforeAfterDeltaPanel", () => ({
+  ReviewsHubBeforeAfterDeltaPanel: () => null,
 }));
 
 vi.mock("@/components/RunsIndexBeforeAfterPanel", () => ({

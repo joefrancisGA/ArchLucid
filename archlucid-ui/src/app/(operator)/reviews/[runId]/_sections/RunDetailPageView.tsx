@@ -21,8 +21,6 @@ import {
   SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF,
 } from "@/lib/showcase-static-demo";
 
-import { ReviewDetailWorkspace } from "@/components/reviews/ReviewDetailWorkspace";
-import { RunDetailOverviewPanelClient } from "@/components/reviews/RunDetailOverviewPanelClient";
 import { ReviewSealedIndicatorChip } from "@/components/reviews/ReviewSealedIndicatorChip";
 import { ReviewGenerationCreatedNotice } from "@/components/review-intake/ReviewGenerationCreatedNotice";
 import type { BuildArchitectureCreatedHomeModelInput } from "@/lib/architecture-created-home-model";
@@ -96,6 +94,8 @@ import {
   RunDetailTechnologyBaselineSection,
   RunDetailTrustEvidenceCardSectionDeferred,
   RunDetailWhatIfBranchCompareBannerDeferred,
+  ReviewDetailWorkspaceDeferred,
+  RunDetailOverviewPanelClientDeferred,
 } from "./run-detail-page-view-deferred-chunks";
 import { RunDetailBelowFoldSections } from "./RunDetailBelowFoldSections";
 import { resolveRunDetailSponsorBriefingSection } from "./RunDetailSponsorBriefingSection";
@@ -399,7 +399,7 @@ export function RunDetailPageView(props: {
   );
   const tabbedWorkspaceEl = !showArchitectureCreatedHome ? (
     <Suspense fallback={<RunDetailExplanationSkeleton />}>
-      <ReviewDetailWorkspace
+      <ReviewDetailWorkspaceDeferred
         tabCounts={{
           findings: (m.findingCountDisplay ?? 0) > 0 ? m.findingCountDisplay : null,
           evidence: m.artifacts.length > 0 ? m.artifacts.length : null,
@@ -407,7 +407,7 @@ export function RunDetailPageView(props: {
         }}
         panels={{
           overview: (
-            <RunDetailOverviewPanelClient
+            <RunDetailOverviewPanelClientDeferred
               runId={m.resolvedDetail.run.runId}
               architectureTitle={architectureSummaryTitle}
               architectureText={submittedArchitectureText}

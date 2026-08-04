@@ -34,7 +34,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   [COMPARE_TWO_REVIEWS_PATH]: OPERATOR_NAV_LINK_LABELS.compareTwoReviews,
   [EVIDENCE_GRAPH_PATH]: OPERATOR_NAV_LINK_LABELS.evidenceTrail,
   "/insights/patterns": PATTERN_LIBRARY_PAGE_TITLE,
-  "/architecture-intelligence": "Architecture intelligence",
+  "/architecture/architecture-intelligence": "Architecture intelligence",
   [GOVERNANCE_APPROVAL_QUEUE_PATH]: GOVERNANCE_OVERVIEW_PAGE_TITLE,
   "/governance/dashboard": "Executive Workspace Health",
   "/governance/findings": OPERATOR_NAV_LINK_LABELS.findings,

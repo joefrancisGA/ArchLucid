@@ -7,7 +7,7 @@ export type BuildArchitectureIntelligenceRunHrefInput = {
   readonly from?: ArchitectureIntelligenceFrom;
 };
 
-/** Builds `/architecture-intelligence` deep links from reviews / findings entry points. */
+/** Builds `/architecture/architecture-intelligence` deep links from reviews / findings entry points. */
 export function buildArchitectureIntelligenceRunHref(
   input: BuildArchitectureIntelligenceRunHrefInput = {},
 ): string {

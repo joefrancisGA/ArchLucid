@@ -1,6 +1,4 @@
-﻿import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture-workflow-intent";
-
-/** Architecture draft list. */
+﻿/** Architecture draft list. */
 export const ARCHITECTURES_LIST_PATH = "/architecture/architectures" as const;
 
 /** Bootstrap a new architecture draft (client redirect to `/architecture/architectures/{id}`). */
@@ -18,10 +16,6 @@ export const REVIEWS_NEW_PATH = "/architecture/reviews/new" as const;
 export const REVIEWS_NEW_GUIDED_INTAKE_HREF = "/architecture/reviews/new?path=guided-intake" as const;
 
 export const SOURCE_ARCHITECTURE_QUERY_PARAM = "sourceArchitectureId" as const;
-
-/** Legacy create-architecture deep link — redirect only; not canonical. */
-export const LEGACY_REVIEWS_NEW_CREATE_ARCHITECTURE_HREF =
-  `/architecture/reviews/new?path=guided-intake&intent=${CREATE_ARCHITECTURE_INTENT}` as const;
 
 export function architectureDraftPath(architectureId: string): string {
   return `${ARCHITECTURES_LIST_PATH}/${encodeURIComponent(architectureId)}`;

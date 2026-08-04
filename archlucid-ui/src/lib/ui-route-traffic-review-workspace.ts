@@ -14,4 +14,4 @@ export const REVIEW_WORKSPACE_TRAFFIC_SECTION = "Core review";
  * Owner workbook Notes for RRE — absorbs former SRN (legacy `/snapshot/[runId]` redirect) hit share.
  */
 export const REVIEW_WORKSPACE_TRAFFIC_NOTE =
-  "Review workspace detail. Absorbs former SRN hit share from retired legacy `/snapshot/[runId]` bookmark row (SnapshotPage still redirects here with readOnly=1; showcase Claims Intake spine). Canonical leave-behind UX. Does not imply CPA SOC 2 or third-party pen-test publication.";
+  "Review workspace detail. Absorbs former SRN hit share from retired legacy `/snapshot/[runId]` bookmark row (hard-retired — use `/architecture/reviews/{runId}?readOnly=1` leave-behind). Canonical leave-behind UX. Does not imply CPA SOC 2 or third-party pen-test publication.";

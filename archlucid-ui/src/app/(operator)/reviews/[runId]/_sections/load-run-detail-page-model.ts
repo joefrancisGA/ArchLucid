@@ -5,7 +5,6 @@ import {
   type ApiResponseWithTrace,
   getManifestSummary,
   getBuyerRunDetailSummary,
-  getRunExplanationSummary,
   getRunSummary,
   listArtifacts,
 } from "@/lib/api";
@@ -26,7 +25,6 @@ import {
 } from "@/lib/operator-response-guards";
 import {
   tryStaticDemoArtifacts,
-  tryStaticDemoExplanationSummary,
   tryStaticDemoGoldenManifestJsonForExport,
   tryStaticDemoManifestSummary,
   tryStaticDemoRunDetail,
@@ -79,7 +77,6 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
   // after it — collapsing the former two-phase network waterfall. Both loaders swallow their own
   // failures, so the floating promises are safe when the run-detail fetch short-circuits below.
   const progressSummaryPromise = getRunSummary(runId).catch(() => null);
-  const explanationSummaryPromise = loadRunDetailExplanationSummary(runId, apiScopeOptions);
 
   // TB-2022: always slim buyer-summary for first paint (no fat PayloadJson/ResultJson).
   // Inspect/export keep GET /v1/authority/runs/{id}. UI chrome density still uses isBuyerPolishedOperatorShellEnv.
@@ -178,16 +175,10 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
   let explanationFailure: ApiLoadFailureState | null = null;
 
   if (manifestId) {
-    const [
-      resolvedProgressSummary,
-      manifestSummaryResult,
-      artifactsResult,
-      explanationResult,
-    ] = await Promise.all([
+    const [resolvedProgressSummary, manifestSummaryResult, artifactsResult] = await Promise.all([
       progressSummaryPromise,
       loadRunDetailManifestSummary(manifestId, apiScopeOptions),
       loadRunDetailArtifacts(runId, manifestId, apiScopeOptions),
-      explanationSummaryPromise,
     ]);
 
     progressInitialSummary = resolvedProgressSummary;
@@ -197,20 +188,6 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
     artifacts = artifactsResult.artifacts;
     artifactsFailure = artifactsResult.failure;
     artifactsMalformed = artifactsResult.malformed;
-    explanationSummary = explanationResult.summary;
-    explanationFailure = explanationResult.failure;
-
-    if (
-      explanationSummary !== null &&
-      explanationFailure === null &&
-      (explanationSummary.findingCount ?? 0) === 0
-    ) {
-      const staticExplanation = tryStaticDemoExplanationSummary(runId);
-
-      if (staticExplanation !== null && (staticExplanation.findingCount ?? 0) > 0) {
-        explanationSummary = staticExplanation;
-      }
-    }
   } else {
     progressInitialSummary = await progressSummaryPromise;
   }
@@ -344,11 +321,6 @@ type RunDetailArtifactsLoadResult = {
   malformed: string | null;
 };
 
-type RunDetailExplanationLoadResult = {
-  summary: RunExplanationSummary | null;
-  failure: ApiLoadFailureState | null;
-};
-
 async function loadRunDetailManifestSummary(
   manifestId: string,
   options?: { readonly scopeHeaders?: Record<string, string> },
@@ -395,24 +367,5 @@ async function loadRunDetailArtifacts(
     }
 
     return { artifacts: [], failure: toApiLoadFailure(e), malformed: null };
-  }
-}
-
-async function loadRunDetailExplanationSummary(
-  runId: string,
-  options?: { readonly scopeHeaders?: Record<string, string> },
-): Promise<RunDetailExplanationLoadResult> {
-  try {
-    const summary = await getRunExplanationSummary(runId, options);
-
-    return { summary, failure: null };
-  } catch (e) {
-    const staticExplanation = tryStaticDemoExplanationSummary(runId);
-
-    if (staticExplanation !== null) {
-      return { summary: staticExplanation, failure: null };
-    }
-
-    return { summary: null, failure: toApiLoadFailure(e) };
   }
 }

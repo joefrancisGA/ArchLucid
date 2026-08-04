@@ -33,11 +33,7 @@ vi.mock("./NewRunWizardClient", () => ({
   NewRunWizardClient: () => <div data-testid="new-run-wizard-stub">Detailed wizard</div>,
 }));
 
-import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture-workflow-intent";
-import {
-  REVIEWS_NEW_CREATE_ARCHITECTURE_PATH_HINTS,
-  REVIEWS_NEW_PATH_HINTS,
-} from "@/lib/reviews-new-path-copy";
+import { REVIEWS_NEW_PATH_HINTS } from "@/lib/reviews-new-path-copy";
 
 import { ReviewsNewPathSwitcher } from "./ReviewsNewPathSwitcher";
 
@@ -100,25 +96,7 @@ describe("ReviewsNewPathSwitcher (first-run tenant)", () => {
     expect(screen.getByRole("tab", { name: "Quick start" })).toHaveAttribute("aria-selected", "false");
   });
 
-  it("uses create-architecture tab labels and guided hint when intent is set", async () => {
-    useSearchParams.mockReturnValue(
-      new URLSearchParams(`path=guided-intake&intent=${CREATE_ARCHITECTURE_INTENT}`),
-    );
-
-    render(<ReviewsNewPathSwitcher />);
-
-    await waitFor(() => {
-      expect(screen.getByTestId("socratic-intake-wizard-stub")).toBeTruthy();
-    });
-
-    expect(screen.getByRole("tab", { name: "Describe it" })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "Guided questions" })).toHaveAttribute("aria-selected", "true");
-    expect(screen.getByTestId("reviews-new-path-hint")).toHaveTextContent(
-      REVIEWS_NEW_CREATE_ARCHITECTURE_PATH_HINTS["guided-intake"],
-    );
-  });
-
-  it("keeps default review tab labels without create-architecture intent", async () => {
+  it("keeps default review tab labels", async () => {
     render(<ReviewsNewPathSwitcher />);
 
     await waitFor(() => {

@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
+import { ReviewsHubBeforeAfterDeltaPanel } from "./ReviewsHubBeforeAfterDeltaPanel";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { InlineGuidanceText } from "@/components/InlineGuidanceText";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -102,7 +102,7 @@ export function RunsPageView(props: Props) {
         </div>
       ) : null}
 
-      {hubLoadOk && hasReviews ? <BeforeAfterDeltaPanel variant="top" /> : null}
+      {hubLoadOk && hasReviews ? <ReviewsHubBeforeAfterDeltaPanel /> : null}
 
       {hubLoadOk && hasReviews && m.firstCommittedRunId !== null ? (
         <RunsIndexBeforeAfterPanel committedRunId={m.firstCommittedRunId} />

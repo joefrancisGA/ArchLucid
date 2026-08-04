@@ -75,7 +75,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           // String literal required: scripts/ci/assert_route_tier_policy_nav.py parses href:"..." only.
-          href: ARCHITECTURE_INTELLIGENCE_PATH as typeof ARCHITECTURE_INTELLIGENCE_PATH & "/architecture-intelligence",
+          href: ARCHITECTURE_INTELLIGENCE_PATH as typeof ARCHITECTURE_INTELLIGENCE_PATH & "/architecture/architecture-intelligence",
           label: "Architecture intelligence",
           title: "Architecture intelligence — closed-loop reasoning and golden regression checks",
           icon: Brain,

@@ -41,6 +41,8 @@ const bannedStaticImports = [
   '@/components/cto-demo/CtoDemoReviewRouteGuard"',
   '@/components/findings/ReviewDetailPolicyPackImpactCallout"',
   '@/components/RunDetailLastFailureCard"',
+  '@/components/reviews/ReviewDetailWorkspace"',
+  '@/components/reviews/RunDetailOverviewPanelClient"',
   './RunDetailOperatorTechnicalForensicsPanel"',
   './RunDetailArtifactsExportsSection"',
 ] as const;
@@ -51,6 +53,8 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021)", () =>
       expect(pageViewSource).not.toContain(bannedImport);
     }
 
+    expect(pageViewSource).toContain("ReviewDetailWorkspaceDeferred");
+    expect(pageViewSource).toContain("RunDetailOverviewPanelClientDeferred");
     expect(pageViewSource).toContain("RunDetailOperatorTechnicalForensicsPanelDeferred");
     expect(pageViewSource).toContain("RunDetailOutcomeCardsDeferred");
     expect(pageViewSource).toContain("RunDetailArtifactsExportsSectionDeferred");
@@ -68,6 +72,8 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021)", () =>
     expect(deferredChunksSource).toContain("RunDetailWhatIfBranchCompareBannerDeferred");
     expect(deferredChunksSource).toContain("RunDetailOperatorTechnicalForensicsPanelDeferred");
     expect(deferredChunksSource).toContain("RunDetailArtifactsExportsSectionDeferred");
+    expect(deferredChunksSource).toContain("ReviewDetailWorkspaceDeferred");
+    expect(deferredChunksSource).toContain("RunDetailOverviewPanelClientDeferred");
     expect(deferredChunksSource).toContain('import("@/components/RunEstimatedLlmCostCard")');
     expect(deferredChunksSource).toContain('import("@/components/RunDetailOutcomeCards")');
     expect(deferredChunksSource).toContain(

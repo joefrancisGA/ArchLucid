@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 
-import { ArchitectureIntelligenceProductRoundTrip } from "@/app/(operator)/architecture-intelligence/_sections/ArchitectureIntelligenceProductRoundTrip";
+import { ArchitectureIntelligenceProductRoundTrip } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceProductRoundTrip";
 import { governanceFindingInspectHref } from "@/components/governance/findings/governance-findings-navigation";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
