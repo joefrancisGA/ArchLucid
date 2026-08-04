@@ -33,7 +33,7 @@ export function OperatorHomeResumeDraftCallout(
       data-testid="operator-home-resume-draft-callout"
     >
       <p
-        className={cn("m-0 max-w-prose", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}
+        className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}
         data-testid="operator-home-resume-draft-bridge"
       >
         {formatOperatorHomeResumeDraftBridge(latestDraft.displayName, props.draftEntries.length)}

@@ -133,7 +133,7 @@ export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps)
       aria-busy={reviewNavigation.isNavigating || createArchitectureNavigation.isNavigating}
     >
       {!isCompact ? (
-        <p className={cn("m-0 max-w-prose", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
+        <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
           {OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO}
         </p>
       ) : null}

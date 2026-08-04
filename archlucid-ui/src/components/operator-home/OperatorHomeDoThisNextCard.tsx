@@ -104,7 +104,7 @@ export function OperatorHomeDoThisNextCard(): React.JSX.Element {
       </h3>
 
       <p
-        className={cn("m-0 max-w-prose", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}
+        className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}
         data-testid="operator-home-do-this-next-bridge"
       >
         {action.bridgeCopy}

@@ -20,7 +20,8 @@ export function operatorPageContainerClass(
 
 /**
  * Left-aligned operator work surface. Use on workflow pages instead of `mx-auto max-w-*` centering.
- * Shell padding lives in {@link AppShellClient}; nested `max-w-prose` is fine for paragraph copy only.
+ * Shell padding lives in {@link AppShellClient}; nested measure caps on short dashboard helpers
+ * are discouraged — prefer full work-surface width (Overview fix 2026-08-04; **TB-2038**–**TB-2041**).
  */
 export const OperatorPageContainer = forwardRef<HTMLDivElement, OperatorPageContainerProps>(
   function OperatorPageContainer({ variant = "workflow", className, children, ...rest }, ref) {

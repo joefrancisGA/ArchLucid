@@ -124,7 +124,7 @@ export function OperatorHomeDisclosureSection(props: OperatorHomeDisclosureSecti
           {showExpandedContent && description !== undefined ? (
             <p
               className={cn(
-                "m-0 max-w-3xl text-neutral-600 dark:text-neutral-400",
+                "m-0 text-neutral-600 dark:text-neutral-400",
                 slim ? cn("mt-1 leading-snug", OPERATOR_TYPOGRAPHY.helper) : cn("mt-2", OPERATOR_TYPOGRAPHY.body),
               )}
             >

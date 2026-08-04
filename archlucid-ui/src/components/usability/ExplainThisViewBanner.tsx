@@ -61,7 +61,7 @@ export function ExplainThisViewBanner() {
           >
             About this page
           </summary>
-          <p className={cn("m-0 mt-1 max-w-prose text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             {explanation.summary}
           </p>
         </details>

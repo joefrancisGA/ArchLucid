@@ -111,7 +111,10 @@ describe("OperatorHomeDualPathCards", () => {
   it("shows lifecycle steps plus an evaluation explore card", () => {
     render(<OperatorHomeDualPathCards emphasizedPath="explore-completed-review" />);
 
-    expect(screen.getByText(OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO)).toBeInTheDocument();
+    const lifecycleIntro = screen.getByText(OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO);
+
+    expect(lifecycleIntro).toBeInTheDocument();
+    expect(lifecycleIntro.className).not.toContain("max-w-prose");
     expect(screen.getByTestId("operator-home-explore-recommended-badge")).toHaveTextContent(
       OPERATOR_HOME_BEST_FOR_EVALUATING_BADGE,
     );

@@ -32,6 +32,7 @@ describe("OperatorHomePageHeader", () => {
 expect(screen.getByTestId("operator-home-page-title")).toHaveTextContent("Overview");
     expect(screen.getByRole("heading", { level: 2, name: "Overview" })).toBeInTheDocument();
     expect(screen.getByText(operatorHomePageSubtitle(false))).toBeInTheDocument();
+    expect(screen.getByText(operatorHomePageSubtitle(false)).className).toContain("max-w-none");
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-header-actions")).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-refresh-button")).toBeInTheDocument();
