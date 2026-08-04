@@ -8,8 +8,25 @@ type GovernanceSetupGuideProgressSummaryProps = {
   readonly summary: GovernanceSetupProgressSummary;
 };
 
+function resolveProgressCoach(summary: GovernanceSetupProgressSummary): string {
+  if (summary.isComplete) {
+    return "Governance setup complete — revisit any step to refine configuration.";
+  }
+
+  if (summary.completedCount === 0 && summary.nextStepTitle !== null) {
+    return `Start with “${summary.nextStepTitle}” below.`;
+  }
+
+  if (summary.nextStepTitle !== null) {
+    return `Next: ${summary.nextStepTitle}`;
+  }
+
+  return "Continue the recommended step below.";
+}
+
 export function GovernanceSetupGuideProgressSummary({ summary }: GovernanceSetupGuideProgressSummaryProps) {
   const progressPercent = Math.round(summary.progressFraction * 100);
+  const coach = resolveProgressCoach(summary);
 
   return (
     <div
@@ -17,10 +34,14 @@ export function GovernanceSetupGuideProgressSummary({ summary }: GovernanceSetup
       data-testid="governance-setup-progress-summary"
       aria-live="polite"
     >
-      <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-        <span className="font-medium text-neutral-900 dark:text-neutral-100">
+      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+        <span className="font-medium text-al-text-primary">
           {summary.completedCount} of {summary.totalCount} completed
         </span>
+        <span className="mx-2 text-al-text-secondary" aria-hidden>
+          ·
+        </span>
+        <span data-testid="governance-setup-progress-coach">{coach}</span>
       </p>
       <div
         role="progressbar"
@@ -31,7 +52,7 @@ export function GovernanceSetupGuideProgressSummary({ summary }: GovernanceSetup
         className="h-1.5 w-full max-w-md overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-800"
       >
         <div
-          className="h-full rounded-full bg-teal-700 transition-[width] duration-300 dark:bg-teal-500"
+          className="h-full rounded-full bg-[var(--al-accent-interactive)] transition-[width] duration-300"
           style={{ width: `${progressPercent}%` }}
         />
       </div>

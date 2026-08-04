@@ -93,6 +93,12 @@ export function GovernanceSetupGuideStepRow({
             <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
               {step.description}
             </p>
+            <p
+              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid={`governance-setup-step-${step.stepNumber}-outcome`}
+            >
+              <span className="font-medium">Outcome:</span> {step.outcome}
+            </p>
           </div>
 
           <div className="flex shrink-0 flex-col items-start gap-2 sm:items-end">

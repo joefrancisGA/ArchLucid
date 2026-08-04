@@ -6,9 +6,13 @@ import {
   GOVERNANCE_SETUP_FOUNDATION_INDICATORS,
   GOVERNANCE_SETUP_GUIDE_STEPS,
 } from "@/app/(operator)/governance/setup/_sections/governance-setup-guide-steps";
+import {
+  GOVERNANCE_SETUP_OUTCOMES_HEADING,
+  GOVERNANCE_SETUP_PAGE_SUBTITLE,
+} from "@/lib/governance-setup-route";
 
 describe("GovernanceSetupGuidePageView", () => {
-  it("renders compact governance setup copy without implementation jargon", () => {
+  it("renders outcome-framed setup copy without implementation jargon", () => {
     render(
       <GovernanceSetupGuidePageView
         model={{
@@ -20,12 +24,20 @@ describe("GovernanceSetupGuidePageView", () => {
     );
 
     expect(screen.getByTestId("governance-setup-page-title")).toHaveTextContent("Governance setup");
+    expect(screen.getByText(GOVERNANCE_SETUP_PAGE_SUBTITLE)).toBeInTheDocument();
     // TB-1135: no orphan program chip competing with the H1 product name.
     expect(screen.queryByText("First 30 days")).not.toBeInTheDocument();
     expect(screen.getByTestId("governance-setup-progress-summary")).toHaveTextContent("0 of 5 completed");
+    expect(screen.getByTestId("governance-setup-progress-coach")).toHaveTextContent(
+      "Start with “Set the policy baseline” below.",
+    );
     expect(screen.getByTestId("governance-setup-configuration-note")).toHaveTextContent(
       "This guide links to the existing ArchLucid configuration areas.",
     );
+    expect(screen.getByTestId("governance-setup-outcomes-panel")).toHaveTextContent(
+      GOVERNANCE_SETUP_OUTCOMES_HEADING,
+    );
+    expect(screen.getByTestId("governance-setup-step-1-outcome")).toHaveTextContent("Outcome:");
     expect(screen.queryByText(/inspect-first/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/deep links only/i)).not.toBeInTheDocument();
     expect(screen.getByTestId("governance-setup-step-track")).toBeInTheDocument();
@@ -33,6 +45,10 @@ describe("GovernanceSetupGuidePageView", () => {
     expect(screen.getByRole("link", { name: "Configure policy packs" })).toHaveAttribute(
       "href",
       "/governance/policy-packs",
+    );
+    expect(screen.getByRole("link", { name: "Open workspace overview" })).toHaveAttribute(
+      "href",
+      "/governance/dashboard",
     );
     // TB-1137: only recommended-next carries primary CTA weight; future steps are outline.
     expect(screen.getByTestId("governance-setup-step-1-cta")).toHaveAttribute("data-cta-variant", "primary");
@@ -57,6 +73,9 @@ describe("GovernanceSetupGuidePageView", () => {
     );
 
     expect(screen.getByTestId("governance-setup-progress-summary")).toHaveTextContent("1 of 5 completed");
+    expect(screen.getByTestId("governance-setup-progress-coach")).toHaveTextContent(
+      "Next: Validate threshold impact",
+    );
     // Step row + foundation indicator for the completed baseline step.
     expect(screen.getAllByText("Complete")).toHaveLength(2);
     expect(screen.getByText("In progress")).toBeInTheDocument();

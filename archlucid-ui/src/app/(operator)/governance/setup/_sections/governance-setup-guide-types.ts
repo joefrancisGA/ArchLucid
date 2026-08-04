@@ -4,6 +4,8 @@ export type GovernanceSetupStepDefinition = {
   readonly stepNumber: number;
   readonly title: string;
   readonly description: string;
+  /** Outcome unlocked when this step is done — value framing beside the activity CTA. */
+  readonly outcome: string;
   readonly primaryActionLabel: string;
   readonly primaryActionHref: string;
   readonly secondaryActionLabel?: string;

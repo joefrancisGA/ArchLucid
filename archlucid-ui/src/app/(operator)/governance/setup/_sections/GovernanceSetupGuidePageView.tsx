@@ -7,6 +7,7 @@ import { GOVERNANCE_SETUP_PAGE_SUBTITLE } from "@/lib/governance-setup-route";
 import { GovernanceSetupFoundationPanel } from "./GovernanceSetupFoundationPanel";
 import { GovernanceSetupGuideProgressSummary } from "./GovernanceSetupGuideProgressSummary";
 import { GovernanceSetupGuideStepRow } from "./GovernanceSetupGuideStepRow";
+import { GovernanceSetupOutcomesPanel } from "./GovernanceSetupOutcomesPanel";
 import { summarizeGovernanceSetupProgress } from "./governance-setup-guide-steps";
 import type { GovernanceSetupGuideViewModel } from "./governance-setup-guide-types";
 
@@ -15,11 +16,11 @@ type GovernanceSetupGuidePageViewProps = {
 };
 
 export function GovernanceSetupGuidePageView({ model }: GovernanceSetupGuidePageViewProps) {
-  const progress = summarizeGovernanceSetupProgress(model.stepStatuses);
+  const progress = summarizeGovernanceSetupProgress(model.stepStatuses, model.steps);
 
   return (
     <div
-      className="w-full max-w-3xl space-y-5 px-1 py-4 sm:px-0"
+      className="w-full max-w-5xl space-y-5 px-1 py-4 sm:px-0"
       data-testid="governance-setup-guide-page"
     >
       <OperatorPageHeader
@@ -41,26 +42,32 @@ export function GovernanceSetupGuidePageView({ model }: GovernanceSetupGuidePage
         workspaces.
       </p>
 
-      <ol
-        className="m-0 list-none p-0"
-        aria-label="Governance setup steps"
-        data-testid="governance-setup-step-track"
-      >
-        {model.steps.map((step, index) => (
-          <GovernanceSetupGuideStepRow
-            key={step.stepNumber}
-            step={step}
-            status={model.stepStatuses[index] ?? "not-started"}
-            recommendedNext={progress.firstIncompleteIndex === index}
-            isLast={index === model.steps.length - 1}
-          />
-        ))}
-      </ol>
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(240px,18rem)] lg:items-start">
+        <div className="space-y-5 min-w-0">
+          <ol
+            className="m-0 list-none p-0"
+            aria-label="Governance setup steps"
+            data-testid="governance-setup-step-track"
+          >
+            {model.steps.map((step, index) => (
+              <GovernanceSetupGuideStepRow
+                key={step.stepNumber}
+                step={step}
+                status={model.stepStatuses[index] ?? "not-started"}
+                recommendedNext={progress.firstIncompleteIndex === index}
+                isLast={index === model.steps.length - 1}
+              />
+            ))}
+          </ol>
 
-      <GovernanceSetupFoundationPanel
-        indicators={model.foundationIndicators}
-        stepStatuses={model.stepStatuses}
-      />
+          <GovernanceSetupFoundationPanel
+            indicators={model.foundationIndicators}
+            stepStatuses={model.stepStatuses}
+          />
+        </div>
+
+        <GovernanceSetupOutcomesPanel />
+      </div>
     </div>
   );
 }
