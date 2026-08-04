@@ -131,6 +131,9 @@ describe("DigestsHubClient", () => {
     expect(screen.queryByTestId("digests-preview-action")).not.toBeInTheDocument();
     expect(screen.queryByTestId("digests-send-test-action")).not.toBeInTheDocument();
     expect(screen.queryByTestId("weekly-digest-health-banner")).not.toBeInTheDocument();
+    expect(screen.getByTestId("digests-schedule-orientation")).toBeInTheDocument();
+    expect(screen.queryByTestId("digests-orientation")).not.toBeInTheDocument();
     expect(await screen.findByTestId("exec-digest-schedule-content")).toBeInTheDocument();
   });
 });
+

@@ -45,13 +45,12 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 
 ---
 
-**OVERALL WEIGHT SCORE:** 54.22%
+**OVERALL WEIGHT SCORE:** 54.27%
 
 ## Master table (score 0 first; then Deficit desc; ties A→Z by path)
 
 | ID | Path | Hit% | Scores | Weight | Deficit | Section | Notes |
 |----|------|------|--------|--------|---------|---------|-------|
-| SEX | `/digests?tab=schedule` | 0.1% | 0 | 0 | 10 | Tab surface | None |
 | ESX | `/executive/scorecard` | 0.1% | 0 | 0 | 10 | Executive | None |
 | HA | `/help/alerts` | 0.1% | 0 | 0 | 10 | Help topic | None |
 | HFX | `/help/findings` | 0.1% | 0 | 0 | 10 | Help topic | None |
@@ -138,7 +137,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | AUI | `/auth/invite` | 0.02% | 0 | 0 | 2 | Auth | None |
 | COM | `/compliance-journey` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | DIB | `/digests?tab=browse` | 0.02% | 0 | 0 | 2 | Tab surface | None |
-| DIS | `/digests?tab=subscriptions` | 0.02% | 0 | 0 | 2 | Tab surface | None |
+| DIX | `/digests?tab=subscriptions` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | EXA | `/example-roi-bulletin` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | GOA | `/governance/advisory-scans?tab=scans` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | GOC | `/governance/alert-rules?tab=composite` | 0.02% | 0 | 0 | 2 | Tab surface | None |
@@ -244,6 +243,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | GAI | `/governance/approval-requests/[id]/lineage` | 0.15% | 55 | 8.25 | 6.75 | Alerts/gov | Approval lineage (Alerts/gov) - GovernanceApprovalLineageDetailContent with PageContextualHelpButton (topic map governance-approval; Category-1 registry on /governance/approval-requests), workspace Sources + claim-discipline orientation strip, approval status/risk, review + signed-record version links, findings/completeness. Governance linkage view - not a full diligence Sources package alone. Does not imply CPA SOC 2 or third-party pen-test publication. Score 55/100 (2026-08-03) - lineage linkage hard-caps higher Evidence without audit export depth. |
 | ATX | `/admin/tenant-health` | 0.12% | 45 | 5.4 | 6.6 | Admin | Tenant health (Admin) - TenantHealthAdminPageClient with PageContextualHelpButton (topic map troubleshooting; Category-1 registry), workspace Sources + claim-discipline orientation strip, engagement/governance/funnel table. Internal CS engagement scores - not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 45/100 (2026-08-03) - admin KPI hub hard-caps higher Evidence. |
 | MMX | `/signed-records/[manifestId]` | 0.15% | 58 | 8.7 | 6.3 | Marketing | Signed review record detail (Marketing/owner section) - ManifestDetailPageView with PageContextualHelpButton (topic map review-packages; Category-1 registry on /signed-records), workspace Sources + claim-discipline orientation strip, summary/decisions/artifacts/bundle downloads, OperatorEvidenceLimitsFooter. Application-layer package lineage - not CPA SOC 2 or third-party pen-test publication. Score 58/100 (2026-08-03) - package detail hard-caps higher Evidence without Trust Center attestation artifacts. |
+| DIS | `/digests?tab=schedule` | 0.12% | 48 | 5.76 | 6.24 | Tab surface | Digests Schedule tab (Tab surface) - ExecDigestScheduleContent with hub DigestsPageHeader PageContextualHelp (topic map getting-started / Architecture digests; Category-1 registry), DigestsScheduleEvidenceOrientationStrip (Sources + claim-discipline) when ?tab=schedule. Delivery cadence only — not diligence Sources. Sibling DI = hub; DIB = browse; DIX = subscriptions. Hit share folded from a retired mistaken schedule bookmark row (legacy settings exec-digest IDs remain removed — do not reintroduce). Does not imply CPA SOC 2 or third-party pen-test publication. Score 48/100 (2026-08-03) — schedule-config tab hard-caps higher Evidence. |
 | SPR | `/sponsor-report/roi-summary` | 0.12% | 50 | 6 | 6 | Sponsor report | Sponsor ROI summary report (canonical). Absorbs former VRX hit share from retired legacy `/value-report/roi` bookmark row (LegacyRoiSummaryRedirectPage still permanentRedirects here). Does not imply CPA SOC 2 or third-party pen-test publication. Score 50/100 — transferred from VRX Evidence hard-cap; hit share folded from VRX (2026-08-03). |
 | HC | `/help/cloud-connections/azure` | 0.12% | 52 | 6.24 | 5.76 | Help alias | Connect Azure securely help (Help alias) - HelpConnectAzureSecurelyGuideView with PageContextualHelpButton (topic map cloud-connections-azure; Category-1 registry), workspace Sources + claim-discipline orientation strip, federation/roles setup, configure CTA. Sibling HCE = parent cloud-connections help; HCA = low-hit template duplicate. Orientation guide - not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-03) - help-topic orientation hard-caps higher Evidence. |
 | HHX | `/help/how-it-works` | 0.12% | 52 | 6.24 | 5.76 | Help topic | How ArchLucid works help (Help topic) - HelpHowArchLucidWorksGuideView with PageContextualHelpButton (topic map how-it-works; Category-1 registry), workspace Sources + claim-discipline orientation strip, workflow diagram, get-started CTAs. Orientation guide - not a signed-record Sources trail. Related HGX = Getting started. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-03) - help-topic orientation hard-caps higher Evidence. |

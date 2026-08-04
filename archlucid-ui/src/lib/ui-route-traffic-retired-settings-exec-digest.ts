@@ -5,11 +5,14 @@ import {
 
 /**
  * Removed traffic workbook row ID for the retired `/settings/exec-digest` bookmark.
- * Do not reintroduce — schedule UX is scored only on DIS.
+ * Do not reintroduce — schedule UX is scored only on DIS (`/digests?tab=schedule`).
  */
 export const REMOVED_SETTINGS_EXEC_DIGEST_TRAFFIC_ROW_ID = "EEX";
 
-/** Prior removed row ID (pre-EEX shorthand). Do not reintroduce. */
+/**
+ * Prior removed row ID (pre-EEX shorthand). Do not reintroduce — including as a
+ * mistaken owner alias for the Digests Schedule tab (canonical ID remains DIS).
+ */
 export const REMOVED_SETTINGS_EXEC_DIGEST_LEGACY_TRAFFIC_ROW_ID = "SEX";
 
 /** Retired path — not a live App Router page or next.config redirect. */
