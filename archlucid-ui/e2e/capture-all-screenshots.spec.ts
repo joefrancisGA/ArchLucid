@@ -81,7 +81,7 @@ const HREFS: string[] = [
   "/internal-operations/recommendation-learning",
   "/replay",
   "/runs?projectId=default",
-  "/reviews/new",
+  "/architecture/reviews/new",
   `/runs/${encodeURIComponent(SCREENSHOT_RUN_ID)}`,
   `/runs/${encodeURIComponent(SCREENSHOT_RUN_ID)}/findings/${encodeURIComponent(SCREENSHOT_FINDING_ID)}`,
   `/runs/${encodeURIComponent(SCREENSHOT_RUN_ID)}/findings/${encodeURIComponent(SCREENSHOT_FINDING_ID)}/inspect`,

@@ -75,10 +75,10 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
 
     // Reviews list keeps full operator chrome; operator home (`/`) can redirect via TrialWelcomeRunDeepLink
     // or mount heavy first-pilot surfaces that flake in mock operator-shell CI.
-    await page.goto("/reviews?projectId=default");
+    await page.goto("/architecture/reviews?projectId=default");
     await meResponse;
     await dismissBlockingHomeModals(page);
-    await expect(page).toHaveURL((url) => new URL(url).pathname === "/reviews");
+    await expect(page).toHaveURL((url) => new URL(url).pathname === "/architecture/reviews");
     await expect(page.getByTestId("sidebar-nav")).toBeVisible({ timeout: 30_000 });
     await expect(page.getByTestId("llm-budget-status-pill")).toHaveCount(0);
 

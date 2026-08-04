@@ -30,7 +30,7 @@ export async function waitForScreenshotLegacyRedirects(page: Page, href: string)
 
   if (
     pathOnly.startsWith("/runs/claims-intake-modernization-run")
-    || pathOnly.startsWith("/reviews/claims-intake-modernization-run")
+    || pathOnly.startsWith("/architecture/reviews/claims-intake-modernization-run")
     || pathOnly.startsWith("/architecture/reviews/claims-intake-modernization-run")
   ) {
     await page.waitForURL(DEMO_RUN_ALIAS_CANONICAL_PATTERN, { timeout: 60_000, waitUntil: "commit" });

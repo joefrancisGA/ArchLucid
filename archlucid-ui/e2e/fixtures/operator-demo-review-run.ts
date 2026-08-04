@@ -79,7 +79,7 @@ export function operatorDemoReviewApiResponse(runId: string = OPERATOR_DEMO_REVI
     runId,
     manifestId: FIXTURE_MANIFEST_ID,
     policyPackName: OPERATOR_DEMO_REVIEW_POLICY_PACK_DISPLAY_NAME,
-    runDetailUrl: `/reviews/${encodeURIComponent(runId)}`,
+    runDetailUrl: `/architecture/reviews/${encodeURIComponent(runId)}`,
     topFindings: [
       {
         title: "Public SQL endpoint without private link",

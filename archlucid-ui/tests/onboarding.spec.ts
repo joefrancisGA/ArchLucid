@@ -49,7 +49,7 @@ test.describe("Fresh tenant onboarding — mocked API", () => {
 
     await expect(page.getByRole("link", { name: "Explore sample review" })).toHaveAttribute(
       "href",
-      `/reviews/${SHOWCASE_DEMO_RUN_ID}`,
+      `/architecture/reviews/${SHOWCASE_DEMO_RUN_ID}`,
     );
 
     await expect(page.getByTestId("first-review-guide-walkthrough")).toBeVisible({ timeout: 30_000 });

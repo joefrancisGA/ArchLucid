@@ -362,7 +362,7 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
       if (req.method === "GET" && pathname === "/v1/tenant/trial-status") {
         /**
          * Functional mock specs (e.g. core-pilot-path) assert operator-home chrome that renders only when the
-         * page stays on `/`. `TrialWelcomeRunDeepLink` redirects home → `/reviews/{trialWelcomeRunId}` whenever
+         * page stays on `/`. `TrialWelcomeRunDeepLink` redirects home → `/architecture/reviews/{trialWelcomeRunId}` whenever
          * the API exposes a welcome run, so we null it out here. Specs that exercise the welcome redirect supply
          * their own `page.route` override (trial-funnel) or prime the sessionStorage guard (pilot-nav-profile).
          * Remaining fields mirror the screenshot fallback so trial-banner reads stay populated.

@@ -245,7 +245,7 @@ test.describe("live-api-trial-end-to-end", () => {
 
     const sampleHref = (await page.getByTestId("onboarding-open-sample-run").getAttribute("href")) ?? "";
 
-    // Canonical route is `/reviews/*` (`next.config.ts` permanently redirects legacy `/runs/*`).
+    // Canonical route is `/architecture/reviews/*` (`next.config.ts` permanently redirects legacy `/runs/*`).
     expect(sampleHref).toMatch(/^\/reviews\//);
 
     const sampleRunIdFromHref = runIdFromReviewsHref(sampleHref);
@@ -276,7 +276,7 @@ test.describe("live-api-trial-end-to-end", () => {
 
     // Templates wizard (NewRunWizardClient) only mounts on the detailed path — default tab is Quick start.
     await page.goto(
-      `/reviews/new?path=detailed&sampleRunId=${encodeURIComponent(sampleRunId)}`,
+      `/architecture/reviews/new?path=detailed&sampleRunId=${encodeURIComponent(sampleRunId)}`,
       { waitUntil: "domcontentloaded" },
     );
 

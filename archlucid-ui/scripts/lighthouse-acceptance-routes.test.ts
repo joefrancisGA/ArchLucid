@@ -23,7 +23,7 @@ describe("lighthouse-acceptance-routes manifest (GTM M-99)", () => {
     expect(manifest.publicRoutes).toContain("/welcome");
     expect(manifest.publicRoutes).toContain("/showcase/claims-intake-modernization");
     expect(manifest.publicRoutes).toContain("/help");
-    expect(manifest.authenticatedRoutes).toContain("/reviews");
+    expect(manifest.authenticatedRoutes).toContain("/architecture/reviews");
     expect(manifest.authenticatedRoutes).toContain("/settings/tenant");
     expect(manifest.publicRoutes.every((route) => route.startsWith("/"))).toBe(true);
     expect(manifest.authenticatedRoutes.every((route) => route.startsWith("/") || route === "/")).toBe(

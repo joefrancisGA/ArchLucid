@@ -26,7 +26,7 @@ import {
 } from "./helpers/reviews-hub";
 
 const liveProductTourRunEnc = encodeURIComponent(DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID);
-const liveReviewsListHref = `/reviews?projectId=${encodeURIComponent(DEMO_WORKSPACE_A_LIVE_IDS.projectId)}`;
+const liveReviewsListHref = `/architecture/reviews?projectId=${encodeURIComponent(DEMO_WORKSPACE_A_LIVE_IDS.projectId)}`;
 
 test.describe("live-api-core-pilot-path", { tag: ["@founder", "@buyer-journey"] }, () => {
   test.beforeAll(async ({ request }) => {
@@ -50,7 +50,7 @@ test.describe("live-api-core-pilot-path", { tag: ["@founder", "@buyer-journey"] 
       page.getByRole("heading", { name: OPERATOR_HOME_RECENT_REVIEWS_HEADING, level: 2 }),
     ).toBeVisible();
 
-    await page.goto("/reviews/new");
+    await page.goto("/architecture/reviews/new");
     await expect(page.getByRole("heading", { name: START_REVIEW_LABEL, level: 1 })).toBeVisible({ timeout: 60_000 });
     await expect(page.getByTestId("reviews-new-page-lead")).toBeVisible({ timeout: 60_000 });
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
@@ -75,7 +75,7 @@ test.describe("live-api-core-pilot-path", { tag: ["@founder", "@buyer-journey"] 
     await expect(targetRow.first()).toBeVisible({ timeout: 90_000 });
     await expectNoGenericErrorBoundary(page);
 
-    await page.goto(`/reviews/${liveProductTourRunEnc}`);
+    await page.goto(`/architecture/reviews/${liveProductTourRunEnc}`);
     await expectNoGenericErrorBoundary(page);
     await expectBuyerGoldenPageReady(page);
     await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible({ timeout: 60_000 });

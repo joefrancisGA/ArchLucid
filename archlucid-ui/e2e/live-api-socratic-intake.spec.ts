@@ -45,7 +45,7 @@ test.describe("live-api-socratic-intake", { tag: ["@founder", "@buyer-journey"] 
     // to be cut short by the enclosing test timeout before they could complete.
     test.setTimeout(liveE2eArchitectureRunCyclePlaywrightTimeoutMs());
 
-    await page.goto("/reviews/new");
+    await page.goto("/architecture/reviews/new");
 
     const guidedIntakePathTab = page.getByTestId("reviews-new-path-guided-intake");
 

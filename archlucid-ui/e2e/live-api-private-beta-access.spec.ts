@@ -99,7 +99,7 @@ test.describe("live-api-private-beta-access", () => {
     expect(scope.workspaceId.toLowerCase()).toBe(expectedScope.workspaceId.toLowerCase());
     expect(scope.projectId.toLowerCase()).toBe(expectedScope.projectId.toLowerCase());
 
-    await page.goto("/reviews/new", { waitUntil: "domcontentloaded" });
+    await page.goto("/architecture/reviews/new", { waitUntil: "domcontentloaded" });
     await expect(page.getByRole("heading", { name: START_REVIEW_LABEL, level: 1 })).toBeVisible({
       timeout: 60_000,
     });
@@ -122,9 +122,9 @@ test.describe("live-api-private-beta-access", () => {
 
     await waitForArchitectureRunListIncludesRun(request, runId, 120_000, scope);
 
-    const reviewPath = `/reviews/${encodeURIComponent(toRunGuidPathSegment(runId))}`;
+    const reviewPath = `/architecture/reviews/${encodeURIComponent(toRunGuidPathSegment(runId))}`;
 
-    await page.goto(`/reviews?projectId=${encodeURIComponent(scope.projectId)}`, { waitUntil: "domcontentloaded" });
+    await page.goto(`/architecture/reviews?projectId=${encodeURIComponent(scope.projectId)}`, { waitUntil: "domcontentloaded" });
     await expect(
       page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
     ).toBeVisible({ timeout: 90_000 });
@@ -207,7 +207,7 @@ test.describe("live-api-private-beta-access", () => {
     expect(scope.projectId.toLowerCase()).toBe(expectedScope.projectId.toLowerCase());
     expect(roles.map((role) => role.toLowerCase())).toContain("operator");
 
-    await page.goto("/reviews/new", { waitUntil: "domcontentloaded" });
+    await page.goto("/architecture/reviews/new", { waitUntil: "domcontentloaded" });
     await expect(page.getByRole("heading", { name: START_REVIEW_LABEL, level: 1 })).toBeVisible({
       timeout: 60_000,
     });
@@ -237,10 +237,10 @@ test.describe("live-api-private-beta-access", () => {
       inviteeSession.accessToken,
     );
 
-    const reviewPath = `/reviews/${encodeURIComponent(toRunGuidPathSegment(runId))}`;
+    const reviewPath = `/architecture/reviews/${encodeURIComponent(toRunGuidPathSegment(runId))}`;
 
     // Buyer-polished hub rows expose `reviews-hub-row-{runId}` — link accessible names are titles, not GUID prefixes.
-    await page.goto(`/reviews?projectId=${encodeURIComponent(scope.projectId)}`, { waitUntil: "domcontentloaded" });
+    await page.goto(`/architecture/reviews?projectId=${encodeURIComponent(scope.projectId)}`, { waitUntil: "domcontentloaded" });
     await expect(
       page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
     ).toBeVisible({ timeout: 90_000 });

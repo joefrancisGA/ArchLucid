@@ -47,8 +47,8 @@ Route (app)                                          Revalidate  Expire
     const routes = parseNextBuildFirstLoadJsKb(FIXTURE_LOG);
 
     expect(routes.get("/welcome")).toBe(145);
-    expect(routes.get("/reviews")).toBe(287);
-    expect(routes.get("/reviews/[runId]")).toBe(421);
+    expect(routes.get("/architecture/reviews")).toBe(287);
+    expect(routes.get("/architecture/reviews/[runId]")).toBe(421);
     expect(routes.get("/governance/approval-queue")).toBe(286);
   });
 
@@ -57,8 +57,8 @@ Route (app)                                          Revalidate  Expire
     const routes = buildTrackedRouteFirstLoadJsMap(stats);
 
     expect(routes.get("/welcome")).toBe(724.9);
-    expect(routes.get("/reviews")).toBe(1564);
-    expect(routes.get("/reviews/[runId]")).toBe(2010.4);
+    expect(routes.get("/architecture/reviews")).toBe(1564);
+    expect(routes.get("/architecture/reviews/[runId]")).toBe(2010.4);
     expect(routes.get("/governance/approval-queue")).toBe(1340.5);
     expect(parseRouteBundleStatsFirstLoadJsKb(stats).size).toBeGreaterThanOrEqual(4);
   });
@@ -77,20 +77,20 @@ Route (app)                                          Revalidate  Expire
     const stats = readRouteBundleStats(NEXT16_STATS_FIXTURE);
     const actualRoutes = buildTrackedRouteFirstLoadJsMap(stats);
     const baseline = readBaseline(join(process.cwd(), DEFAULT_BASELINE_RELATIVE_PATH));
-    const reviewsBaselineKb = baseline.routes["/reviews"]?.firstLoadJsKb;
+    const reviewsBaselineKb = baseline.routes["/architecture/reviews"]?.firstLoadJsKb;
 
     expect(reviewsBaselineKb).toBeTypeOf("number");
 
     // Must clear baseline + tolerance; hard-coded kB drifts when the baseline is refreshed.
     actualRoutes.set(
-      "/reviews",
+      "/architecture/reviews",
       (reviewsBaselineKb as number) + baseline.regressionToleranceKb + 1,
     );
 
     const result = compareFirstLoadJsBudget(actualRoutes, baseline);
 
     expect(result.ok).toBe(false);
-    expect(result.messages.some((message) => message.includes("/reviews"))).toBe(true);
+    expect(result.messages.some((message) => message.includes("/architecture/reviews"))).toBe(true);
   });
 
   it("keeps committed baseline aligned with tracked routes", () => {

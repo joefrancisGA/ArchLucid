@@ -25,8 +25,8 @@ describe("lighthouse-ci-routes manifest (TB-693)", () => {
     expect(manifest.representativeRunId).toBe(SHOWCASE_STATIC_DEMO_RUN_ID);
     expect(manifest.routes).toEqual([
       "/welcome",
-      "/reviews",
-      `/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`,
+      "/architecture/reviews",
+      `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`,
       "/governance/findings",
     ]);
   });

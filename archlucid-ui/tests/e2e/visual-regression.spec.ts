@@ -22,7 +22,7 @@ const screenshotOptions = {
 
 test.describe("visual regression — operator UI", () => {
   test("main dashboard matches golden baseline", async ({ page }) => {
-    await page.goto("/reviews?projectId=default");
+    await page.goto("/architecture/reviews?projectId=default");
 
     await expect(
       page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),

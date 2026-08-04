@@ -47,7 +47,7 @@ test.describe("live-api-error-states", () => {
 
     await page.goto("/runs?projectId=default");
 
-    // "/runs" permanently redirects to "/reviews" (next.config.ts) and the list page's heading was
+    // "/runs" permanently redirects to "/architecture/reviews" (next.config.ts) and the list page's heading was
     // renamed to RUNS_LIST_PAGE_TITLES ("Review Packages") as part of the runs → reviews vocabulary
     // consolidation — it no longer contains the literal substring "runs".
     await expect(

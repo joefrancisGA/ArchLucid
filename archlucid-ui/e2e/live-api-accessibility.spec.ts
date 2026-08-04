@@ -30,7 +30,7 @@ const PAGES = [
   { name: "Pricing marketing", path: "/pricing" },
   { name: "Trial signup", path: "/signup" },
   { name: "First review guide (canonical)", path: "/architecture/first-review-guide" },
-  { name: "New request", path: "/reviews/new" },
+  { name: "New request", path: "/architecture/reviews/new" },
   { name: "Runs", path: "/runs?projectId=default" },
   { name: "Run detail", path: `/runs/${FIXTURE_RUN_ID}` },
   { name: "Run provenance", path: `/runs/${FIXTURE_RUN_ID}/provenance` },
@@ -88,17 +88,17 @@ const PAGES = [
   { name: "Admin health", path: "/admin/health" },
   { name: "Admin configuration", path: "/admin/configuration" },
   { name: "Executive scorecard", path: "/executive/scorecard" },
-  { name: "Create architecture (canonical /reviews)", path: "/reviews/new" },
-  { name: "Reviews list (canonical /reviews)", path: "/reviews?projectId=default" },
-  { name: "Run detail (canonical /reviews)", path: `/reviews/${FIXTURE_RUN_ID}` },
-  { name: "Run provenance (canonical /reviews)", path: `/reviews/${FIXTURE_RUN_ID}/provenance` },
+  { name: "Create architecture (canonical /reviews)", path: "/architecture/reviews/new" },
+  { name: "Reviews list (canonical /reviews)", path: "/architecture/reviews?projectId=default" },
+  { name: "Run detail (canonical /reviews)", path: `/architecture/reviews/${FIXTURE_RUN_ID}` },
+  { name: "Run provenance (canonical /reviews)", path: `/architecture/reviews/${FIXTURE_RUN_ID}/provenance` },
   {
     name: "Finding detail showcase (canonical /reviews)",
-    path: `/reviews/${SHOWCASE_DEMO_RUN_ID}/findings/${SCREENSHOT_FINDING_ID}`,
+    path: `/architecture/reviews/${SHOWCASE_DEMO_RUN_ID}/findings/${SCREENSHOT_FINDING_ID}`,
   },
   {
     name: "Finding inspect showcase (canonical /reviews)",
-    path: `/reviews/${SHOWCASE_DEMO_RUN_ID}/findings/${SCREENSHOT_FINDING_ID}/inspect`,
+    path: `/architecture/reviews/${SHOWCASE_DEMO_RUN_ID}/findings/${SCREENSHOT_FINDING_ID}/inspect`,
   },
   { name: "Replay (pre-filled runId)", path: `/replay?runId=${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}` },
   {
@@ -129,8 +129,8 @@ const LIVE_A11Y_PR_SLICE_LEN = 28;
 /** Golden-path operator surfaces — always in the PR-visible subset (assessment backlog item 18). */
 const GOLDEN_PATH_OPERATOR_A11Y_PAGES = [
   { name: "Overview", path: "/" },
-  { name: "Reviews list (canonical /reviews)", path: "/reviews?projectId=default" },
-  { name: "Run detail (canonical /reviews)", path: `/reviews/${FIXTURE_RUN_ID}` },
+  { name: "Reviews list (canonical /reviews)", path: "/architecture/reviews?projectId=default" },
+  { name: "Run detail (canonical /reviews)", path: `/architecture/reviews/${FIXTURE_RUN_ID}` },
   { name: "Manifest detail", path: `/signed-records/${FIXTURE_MANIFEST_ID}` },
 ] as const;
 
@@ -168,7 +168,7 @@ export const PAGES_DEFERRED = [
   },
   {
     name: "Finding detail (fixture run + mock-only finding slug)",
-    path: `/reviews/${FIXTURE_RUN_ID}/findings/${FIXTURE_FINDING_ID}`,
+    path: `/architecture/reviews/${FIXTURE_RUN_ID}/findings/${FIXTURE_FINDING_ID}`,
     reason:
       "`FIXTURE_FINDING_ID` aligns with mock/breadcrumb fixtures; live SQL demos use human slugs (e.g. showcase `phi-minimization-risk`). Scanning this pair can 404 or show empty chrome on catalogs without that row — showcase finding routes already cover the inspect UI.",
   },
