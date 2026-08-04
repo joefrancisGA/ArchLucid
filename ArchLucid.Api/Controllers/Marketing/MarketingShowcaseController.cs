@@ -1,32 +1,44 @@
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Bootstrap;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Host.Core.Demo;
 using ArchLucid.Host.Core.Marketing;
+using ArchLucid.Persistence.Caching;
 
 using Asp.Versioning;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Api.Controllers.Marketing;
 
 using ArchLucid.Api.Security;
 
-/// <summary>Anonymous read-only hero payloads for Contoso runs flagged <c>IsPublicShowcase</c> in the demo catalog.</summary>
 [ApiController]
 [AllowAnonymous]
 [AllowUnscopedRoute]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/marketing/showcase")]
 [EnableRateLimiting("fixed")]
-public sealed class MarketingShowcaseController(IPublicShowcaseCommitPageClient showcaseClient) : ControllerBase
+public sealed class MarketingShowcaseController(
+    IPublicShowcaseCommitPageClient showcaseClient,
+    IHotPathReadCache hotPathReadCache,
+    IOptionsMonitor<DemoOptions> demoOptions) : ControllerBase
 {
+    private static string ShowcaseBundleCacheKey(Guid runId) =>
+        FormattableString.Invariant($"marketing-showcase:bundle:v1:{runId:D}");
+
     private readonly IPublicShowcaseCommitPageClient _showcaseClient =
         showcaseClient ?? throw new ArgumentNullException(nameof(showcaseClient));
 
-    /// <summary>Resolves a run id (GUID or slug) to a commit-page-shaped JSON bundle.</summary>
-    /// <param name="runKey">Canonical GUID, <c>N</c> hex, or slug <c>contoso-baseline</c> / <c>contoso-hardened</c>.</param>
+    private readonly IHotPathReadCache _hotPathReadCache =
+        hotPathReadCache ?? throw new ArgumentNullException(nameof(hotPathReadCache));
+
+    private readonly IOptionsMonitor<DemoOptions> _demoOptions =
+        demoOptions ?? throw new ArgumentNullException(nameof(demoOptions));
+
     [HttpGet("{runKey}")]
     [ResponseCache(Duration = 300, Location = ResponseCacheLocation.Any, NoStore = false)]
     [Produces("application/json")]
@@ -39,12 +51,26 @@ public sealed class MarketingShowcaseController(IPublicShowcaseCommitPageClient 
                 "The showcase run key is not recognized.",
                 ProblemTypes.ResourceNotFound);
 
-        DemoCommitPagePreviewResponse? payload =
-            await _showcaseClient.GetShowcaseCommitPageAsync(runId, cancellationToken);
+        int ttlSeconds = ClampShowcaseCacheSeconds(_demoOptions.CurrentValue);
+        DemoCommitPagePreviewResponse? payload = await _hotPathReadCache.GetOrCreateAsync(
+            ShowcaseBundleCacheKey(runId),
+            ct => _showcaseClient.GetShowcaseCommitPageAsync(runId, ct),
+            cancellationToken,
+            ttlSeconds);
 
         return payload is null
             ? this.NotFoundProblem("The showcase was not found.", ProblemTypes.ResourceNotFound)
             : Ok(payload);
+    }
+
+    private static int ClampShowcaseCacheSeconds(DemoOptions options)
+    {
+        int seconds = options.PreviewCacheSeconds;
+
+        if (seconds < 1)
+            seconds = 300;
+
+        return Math.Clamp(seconds, 30, 3600);
     }
 
     private static bool TryResolveRunId(string runKey, out Guid runId)
@@ -73,8 +99,6 @@ public sealed class MarketingShowcaseController(IPublicShowcaseCommitPageClient 
         runId = ContosoRetailDemoIdentifiers.AuthorityRunHardenedId;
 
         return true;
-
-        // 32-char hex without dashes (operator URLs often use "N" format).
     }
 
     private static bool IsHex32(string value)

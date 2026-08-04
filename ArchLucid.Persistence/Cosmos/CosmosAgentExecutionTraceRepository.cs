@@ -188,6 +188,30 @@ public sealed class CosmosAgentExecutionTraceRepository(
             .ToList();
     }
 
+    public async Task<IReadOnlyDictionary<string, IReadOnlyList<AgentExecutionTraceLlmCostSlice>>> GetLlmCostSlicesByRunIdsAsync(
+        ScopeContext scope,
+        IReadOnlyCollection<string> runIds,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(runIds);
+
+        List<string> normalized = runIds
+            .Where(static s => !string.IsNullOrWhiteSpace(s))
+            .Select(static s => s.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        Dictionary<string, IReadOnlyList<AgentExecutionTraceLlmCostSlice>> map =
+            new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (string runId in normalized)
+        {
+            map[runId] = await GetLlmCostSlicesByRunIdAsync(scope, runId, cancellationToken);
+        }
+
+        return map;
+    }
+
     /// <inheritdoc />
     public async Task<(IReadOnlyList<AgentExecutionTrace> Traces, int TotalCount)> GetPagedByRunIdAsync(
         ScopeContext scope,

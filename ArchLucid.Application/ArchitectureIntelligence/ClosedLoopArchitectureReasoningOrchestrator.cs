@@ -1,10 +1,14 @@
 using System.Text;
 using ArchLucid.Contracts.ArchitectureIntelligence;
+using ArchLucid.Core.Concurrency;
 
 namespace ArchLucid.Application.ArchitectureIntelligence;
 
 public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArchitectureReasoningOrchestrator
 {
+    private const int ExtractionMaxConcurrent = 4;
+    private const int SpecialistReviewMaxConcurrent = 3;
+    private const int EvidenceValidationMaxConcurrent = 4;
     private readonly IImmutableSourceStore _sourceStore;
     private readonly IArchitectureOntologyService _ontologyService;
     private readonly IAsyncArchitectureExtractionService _extractionService;
@@ -367,18 +371,31 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
         string tenantId = RequireTenantId(request);
         ArchitectureKnowledgeModel model = _ontologyService.CreateEmptyModel(tenantId, request.RunId);
 
-        for (int index = 0; index < request.SourceTexts.Count; index++)
+        if (request.SourceTexts.Count > 0)
         {
-            ClosedLoopReasoningSourceText sourceText = request.SourceTexts[index];
-            string artifactId = artifactIds[index];
-            IReadOnlyList<ArchitectureModelElement> extracted = await _extractionService.ExtractAsync(
-                sourceText.Content,
-                artifactId,
+            IReadOnlyList<int> indexes = Enumerable.Range(0, request.SourceTexts.Count).ToList();
+            ArchitectureModelElement[][] extractedBatches = await BoundedParallelMap.MapAsync(
+                indexes,
+                ExtractionMaxConcurrent,
+                async (index, ct) =>
+                {
+                    ClosedLoopReasoningSourceText sourceText = request.SourceTexts[index];
+                    string artifactId = artifactIds[index];
+                    IReadOnlyList<ArchitectureModelElement> extracted = await _extractionService.ExtractAsync(
+                        sourceText.Content,
+                        artifactId,
+                        ct);
+
+                    return extracted.ToArray();
+                },
                 cancellationToken);
 
-            foreach (ArchitectureModelElement element in extracted)
+            foreach (ArchitectureModelElement[] extracted in extractedBatches)
             {
-                model = _ontologyService.UpsertElement(model, element);
+                foreach (ArchitectureModelElement element in extracted)
+                {
+                    model = _ontologyService.UpsertElement(model, element);
+                }
             }
         }
 
@@ -396,56 +413,62 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
             QualityDimension.Cost,
         ];
 
-        List<SpecialistReviewResult> reviews = [];
+        SpecialistReviewResult[] reviews = await BoundedParallelMap.MapAsync(
+            dimensions,
+            SpecialistReviewMaxConcurrent,
+            async (dimension, ct) =>
+            {
+                SpecialistReviewResult dimensionResult = await _specialistReviewService.ReviewAsync(
+                    model,
+                    [dimension],
+                    ct);
+                dimensionResult.Dimension = dimension;
 
-        foreach (QualityDimension dimension in dimensions)
-        {
-            SpecialistReviewResult dimensionResult = await _specialistReviewService.ReviewAsync(
-                model,
-                [dimension],
-                cancellationToken);
-            dimensionResult.Dimension = dimension;
-            reviews.Add(dimensionResult);
-        }
+                return dimensionResult;
+            },
+            cancellationToken);
 
-        return reviews;
+        return reviews.ToList();
     }
 
     private async Task<List<EvidenceValidationResult>> ValidateFindingsAsync(
         IReadOnlyList<SpecialistReviewFinding> findings,
         CancellationToken cancellationToken)
     {
-        List<EvidenceValidationResult> validationResults = [];
+        if (findings.Count == 0)
+            return [];
 
-        foreach (SpecialistReviewFinding finding in findings)
-        {
-            List<string> citedArtifactIds = finding.EvidenceArtifactIds
-                .Where(id => !string.IsNullOrWhiteSpace(id))
-                .Distinct(StringComparer.Ordinal)
-                .ToList();
-
-            // Prefer an explicit passage quote when the provenance locator carries text; otherwise
-            // verify artifact existence + hash only (empty quote list → null expectedQuote per artifact).
-            List<string> citedQuotes = [];
-
-            if (finding.Provenance.PassageLocator is not null
-                && !string.IsNullOrWhiteSpace(finding.Provenance.PassageLocator.Quote))
+        EvidenceValidationResult[] validationResults = await BoundedParallelMap.MapAsync(
+            findings,
+            EvidenceValidationMaxConcurrent,
+            async (finding, ct) =>
             {
-                citedQuotes.Add(finding.Provenance.PassageLocator.Quote);
-            }
+                List<string> citedArtifactIds = finding.EvidenceArtifactIds
+                    .Where(id => !string.IsNullOrWhiteSpace(id))
+                    .Distinct(StringComparer.Ordinal)
+                    .ToList();
 
-            string claimedConclusion = $"{finding.Conclusion}:{finding.Severity}:{finding.Title}";
+                List<string> citedQuotes = [];
 
-            validationResults.Add(await _evidenceValidationPipeline.ValidateAsync(
-                finding.FindingId,
-                citedArtifactIds,
-                citedQuotes,
-                _sourceStore,
-                claimedConclusion,
-                cancellationToken));
-        }
+                if (finding.Provenance.PassageLocator is not null
+                    && !string.IsNullOrWhiteSpace(finding.Provenance.PassageLocator.Quote))
+                {
+                    citedQuotes.Add(finding.Provenance.PassageLocator.Quote);
+                }
 
-        return validationResults;
+                string claimedConclusion = $"{finding.Conclusion}:{finding.Severity}:{finding.Title}";
+
+                return await _evidenceValidationPipeline.ValidateAsync(
+                    finding.FindingId,
+                    citedArtifactIds,
+                    citedQuotes,
+                    _sourceStore,
+                    claimedConclusion,
+                    ct);
+            },
+            cancellationToken);
+
+        return validationResults.ToList();
     }
 
     private static void MergeAdversarialChallengesIntoModel(

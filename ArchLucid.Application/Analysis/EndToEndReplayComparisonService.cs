@@ -43,10 +43,11 @@ public sealed class EndToEndReplayComparisonService(
         ArgumentNullException.ThrowIfNull(rightRunId);
         ArgumentException.ThrowIfNullOrWhiteSpace(leftRunId);
         ArgumentException.ThrowIfNullOrWhiteSpace(rightRunId);
-        ArchitectureRunDetail leftDetail =
-            await runDetailQueryService.GetRunDetailAsync(leftRunId, cancellationToken) ?? throw new RunNotFoundException(leftRunId);
-        ArchitectureRunDetail rightDetail =
-            await runDetailQueryService.GetRunDetailAsync(rightRunId, cancellationToken) ?? throw new RunNotFoundException(rightRunId);
+        Task<ArchitectureRunDetail> leftDetailTask = LoadRunDetailOrThrow(leftRunId, cancellationToken);
+        Task<ArchitectureRunDetail> rightDetailTask = LoadRunDetailOrThrow(rightRunId, cancellationToken);
+        await Task.WhenAll(leftDetailTask, rightDetailTask);
+        ArchitectureRunDetail leftDetail = await leftDetailTask;
+        ArchitectureRunDetail rightDetail = await rightDetailTask;
         ArchitectureRun leftRun = leftDetail.Run;
         ArchitectureRun rightRun = rightDetail.Run;
         EndToEndReplayComparisonReport report = new()
@@ -131,6 +132,14 @@ public sealed class EndToEndReplayComparisonService(
         if (report.ExportDiffs.Any(d => d.ChangedTopLevelFields.Count > 0 || d.RequestDiff.ChangedFlags.Count > 0 || d.RequestDiff.ChangedValues.Count > 0))
             report.InterpretationNotes.Add(
                 "Export configuration differences were detected, so document outputs may differ even when architecture state is similar.");
+    }
+
+    private async Task<ArchitectureRunDetail> LoadRunDetailOrThrow(string runId, CancellationToken cancellationToken)
+    {
+        ArchitectureRunDetail? detail =
+            await _runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
+
+        return detail ?? throw new RunNotFoundException(runId);
     }
 
     private static void AddIfChanged<T>(List<string> target, string fieldName, T left, T right)

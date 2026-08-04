@@ -270,13 +270,17 @@ public sealed class RunComparisonController(
         if (queryError is not null)
             return (queryError, null, null);
 
-        ArchitectureRunDetail? left = await runDetailQueryService.GetRunDetailAsync(query.LeftRunId, cancellationToken);
+        Task<ArchitectureRunDetail?> leftDetailTask =
+            runDetailQueryService.GetRunDetailAsync(query.LeftRunId, cancellationToken);
+        Task<ArchitectureRunDetail?> rightDetailTask =
+            runDetailQueryService.GetRunDetailAsync(query.RightRunId, cancellationToken);
+        await Task.WhenAll(leftDetailTask, rightDetailTask);
+        ArchitectureRunDetail? left = await leftDetailTask;
         if (left is null)
             return (this.NotFoundProblem($"Run '{query.LeftRunId}' was not found.", ProblemTypes.RunNotFound), null,
                 null);
 
-        ArchitectureRunDetail? right =
-            await runDetailQueryService.GetRunDetailAsync(query.RightRunId, cancellationToken);
+        ArchitectureRunDetail? right = await rightDetailTask;
         if (right is null)
             return (this.NotFoundProblem($"Run '{query.RightRunId}' was not found.", ProblemTypes.RunNotFound), null,
                 null);

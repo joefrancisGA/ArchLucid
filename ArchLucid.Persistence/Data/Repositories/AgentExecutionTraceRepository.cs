@@ -538,6 +538,85 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
         return rows.ToList();
     }
 
+    public async Task<IReadOnlyDictionary<string, IReadOnlyList<AgentExecutionTraceLlmCostSlice>>> GetLlmCostSlicesByRunIdsAsync(
+        ScopeContext scope,
+        IReadOnlyCollection<string> runIds,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(runIds);
+
+        List<string> normalized = runIds
+            .Where(static s => !string.IsNullOrWhiteSpace(s))
+            .Select(static s => s.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        if (normalized.Count == 0)
+            return new Dictionary<string, IReadOnlyList<AgentExecutionTraceLlmCostSlice>>(StringComparer.OrdinalIgnoreCase);
+
+        RunChildRunScopeSql.RequireScope(scope);
+
+        Guid[] runIdsParameter = normalized.Select(RunChildRunScopeSql.ToSqlRunId).ToArray();
+
+        string sql = $"""
+                      SELECT t.RunId,
+                             {AgentExecutionTraceLlmCostProjectionSql.SelectColumns}
+                      FROM AgentExecutionTraces t
+                      {RunChildRunScopeSql.InnerJoinRuns("t")}
+                      WHERE t.RunId IN @RunIds
+                        AND {RunChildRunScopeSql.ScopeWhereClause}
+                      ORDER BY t.RunId, t.CreatedUtc;
+                      """;
+
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        IEnumerable<LlmCostSliceRow> rows = await connection.QueryAsync<LlmCostSliceRow>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    RunIds = runIdsParameter,
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
+                },
+                cancellationToken: cancellationToken));
+
+        Dictionary<string, List<AgentExecutionTraceLlmCostSlice>> grouped =
+            new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (LlmCostSliceRow row in rows)
+        {
+            string contractRunId = RunChildRunScopeSql.ToContractRunId(row.RunId);
+
+            if (!grouped.TryGetValue(contractRunId, out List<AgentExecutionTraceLlmCostSlice>? list))
+            {
+                list = [];
+                grouped[contractRunId] = list;
+            }
+
+            list.Add(new AgentExecutionTraceLlmCostSlice
+            {
+                ModelDeploymentName = row.ModelDeploymentName,
+                InputTokenCount = row.InputTokenCount,
+                OutputTokenCount = row.OutputTokenCount,
+                ReasoningTokenCount = row.ReasoningTokenCount,
+            });
+        }
+
+        Dictionary<string, IReadOnlyList<AgentExecutionTraceLlmCostSlice>> result =
+            new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (string runId in normalized)
+        {
+            result[runId] = grouped.TryGetValue(runId, out List<AgentExecutionTraceLlmCostSlice>? slices)
+                ? slices
+                : [];
+        }
+
+        return result;
+    }
+
     public async Task<(IReadOnlyList<AgentExecutionTrace> Traces, int TotalCount)> GetPagedByRunIdAsync(
         ScopeContext scope,
         string runId,
@@ -849,6 +928,39 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
         }
 
         return traces;
+    }
+
+    private sealed class LlmCostSliceRow
+    {
+        public Guid RunId
+        {
+            get;
+            init;
+        }
+
+        public string? ModelDeploymentName
+        {
+            get;
+            init;
+        }
+
+        public int? InputTokenCount
+        {
+            get;
+            init;
+        }
+
+        public int? OutputTokenCount
+        {
+            get;
+            init;
+        }
+
+        public int? ReasoningTokenCount
+        {
+            get;
+            init;
+        }
     }
 
     private sealed class LlmFallbackAgentTypeRow

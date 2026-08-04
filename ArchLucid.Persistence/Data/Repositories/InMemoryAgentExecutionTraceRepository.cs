@@ -282,6 +282,48 @@ public sealed class InMemoryAgentExecutionTraceRepository : IAgentExecutionTrace
     }
 
     /// <inheritdoc />
+    public Task<IReadOnlyDictionary<string, IReadOnlyList<AgentExecutionTraceLlmCostSlice>>> GetLlmCostSlicesByRunIdsAsync(
+        ScopeContext scope,
+        IReadOnlyCollection<string> runIds,
+        CancellationToken cancellationToken = default)
+    {
+        _ = scope;
+        cancellationToken.ThrowIfCancellationRequested();
+        ArgumentNullException.ThrowIfNull(runIds);
+
+        List<string> normalized = runIds
+            .Where(static s => !string.IsNullOrWhiteSpace(s))
+            .Select(static s => s.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        lock (_gate)
+        {
+            Dictionary<string, IReadOnlyList<AgentExecutionTraceLlmCostSlice>> result =
+                new(StringComparer.OrdinalIgnoreCase);
+
+            foreach (string runId in normalized)
+            {
+                List<AgentExecutionTraceLlmCostSlice> list = _items
+                    .Where(t => string.Equals(t.RunId, runId, StringComparison.Ordinal))
+                    .OrderBy(t => t.CreatedUtc)
+                    .Select(static t => new AgentExecutionTraceLlmCostSlice
+                    {
+                        ModelDeploymentName = t.ModelDeploymentName,
+                        InputTokenCount = t.InputTokenCount,
+                        OutputTokenCount = t.OutputTokenCount,
+                        ReasoningTokenCount = t.ReasoningTokenCount,
+                    })
+                    .ToList();
+
+                result[runId] = list;
+            }
+
+            return Task.FromResult<IReadOnlyDictionary<string, IReadOnlyList<AgentExecutionTraceLlmCostSlice>>>(result);
+        }
+    }
+
+    /// <inheritdoc />
     public Task<(IReadOnlyList<AgentExecutionTrace> Traces, int TotalCount)> GetPagedByRunIdAsync(
         ScopeContext scope,
         string runId,

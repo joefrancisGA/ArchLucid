@@ -80,7 +80,12 @@ public sealed class DocxExportController(
         CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
-        RunDetailDto? runDetail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
+        Task<RunDetailDto?> runDetailTask = authorityQueryService.GetRunDetailAsync(scope, runId, ct);
+        Task<RunDetailDto?> compareDetailTask = compareWithRunId is null
+            ? Task.FromResult<RunDetailDto?>(null)
+            : authorityQueryService.GetRunDetailAsync(scope, compareWithRunId.Value, ct);
+        await Task.WhenAll(runDetailTask, compareDetailTask);
+        RunDetailDto? runDetail = await runDetailTask;
         if (runDetail is null)
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
         if (runDetail.GoldenManifest is null)
@@ -96,8 +101,7 @@ public sealed class DocxExportController(
         ComparisonResult? manifestComparison = null;
         if (compareWithRunId is not null)
         {
-            RunDetailDto? targetDetail =
-                await authorityQueryService.GetRunDetailAsync(scope, compareWithRunId.Value, ct);
+            RunDetailDto? targetDetail = await compareDetailTask;
             if (targetDetail is null)
                 return this.NotFoundProblem($"Compare run '{compareWithRunId.Value}' was not found.",
                     ProblemTypes.RunNotFound);

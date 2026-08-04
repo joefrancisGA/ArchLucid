@@ -1,10 +1,11 @@
+using System.Collections.Concurrent;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 
 namespace ArchLucid.Application.ArchitectureIntelligence;
 
 public sealed class ReviewResultCache : IReviewResultCache
 {
-    private readonly Dictionary<string, ClosedLoopReasoningResult> _cache = new(StringComparer.Ordinal);
+    private readonly ConcurrentDictionary<string, ClosedLoopReasoningResult> _cache = new(StringComparer.Ordinal);
 
     public bool TryGet(ReviewCacheDependencyManifest manifest, out ClosedLoopReasoningResult? result)
     {
