@@ -502,6 +502,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/help/review-guide",
+    entry: {
+      whatIsThisPage:
+        "Review guide — field reference for naming a review, uploading evidence, confirming scope, and finalizing the package.",
+      whatToDoNext:
+        "Start an architecture review, or open the First review guide when you need the walkthrough instead of field detail.",
+      whyEmpty: "This guide is always available; live review packages appear after you create architecture reviews.",
+      whereToConfigurePrerequisite:
+        "Creating reviews needs a role that can start architecture reviews in this workspace.",
+    },
+  },
+  {
     prefix: "/help/cloud-connections/azure",
     entry: {
       whatIsThisPage:

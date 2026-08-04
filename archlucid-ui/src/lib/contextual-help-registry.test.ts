@@ -75,6 +75,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/alerts",
       "/help/findings",
       "/help/governance-approval",
+      "/help/review-guide",
       "/help/cloud-connections/azure",
       "/help/cloud-connections",
       "/administration/settings/users/invite-reviewer",
@@ -209,6 +210,11 @@ describe("contextual-help-registry (TB-733)", () => {
   it("resolves governance approval help Category-1 help (GO)", () => {
     expect(contextualHelpForPathname("/help/governance-approval")?.whatIsThisPage).toContain("Governance approval");
     expect(contextualHelpForPathname("/help/governance-approval")?.whatToDoNext).toContain("approval queue");
+  });
+
+  it("resolves review guide help Category-1 help (HR)", () => {
+    expect(contextualHelpForPathname("/help/review-guide")?.whatIsThisPage).toContain("Review guide");
+    expect(contextualHelpForPathname("/help/review-guide")?.whatToDoNext).toContain("architecture review");
   });
 
   it("resolves jira integration Category-1 help (IJX)", () => {

@@ -1,0 +1,27 @@
+import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
+
+export const REVIEW_GUIDE_HELP_PATH = "/help/review-guide" as const;
+
+export const REVIEW_GUIDE_HELP_PAGE_TITLE = "Review guide";
+
+export const REVIEW_GUIDE_HELP_PAGE_SUBTITLE =
+  "Field reference for naming a review, uploading evidence, confirming scope, and finalizing the architecture package.";
+
+export const REVIEW_GUIDE_HELP_OVERVIEW =
+  "Use this guide while you create or finish an architecture review. It complements the First review guide walkthrough with the field-level steps operators follow in the wizard.";
+
+export const REVIEW_GUIDE_HELP_PRIMARY_ACTIONS = {
+  startReview: {
+    label: "Start an architecture review",
+    href: "/reviews/new",
+  },
+  firstReviewGuide: {
+    label: "Open first review guide",
+    href: FIRST_REVIEW_GUIDE_PATH,
+  },
+  findingsGuide: {
+    label: "Findings help",
+    href: inAppHelpHref("findings"),
+  },
+} as const;
