@@ -34,7 +34,7 @@ export function EvidenceOnlyConnectionCard() {
       </CardContent>
       <CardFooter className="mt-auto border-t border-neutral-200 pt-4 dark:border-neutral-700">
         <Button type="button" variant="primary" className="w-full" asChild>
-          <Link href="/reviews/new">Start architecture review</Link>
+          <Link href="/architecture/reviews/new">Start architecture review</Link>
         </Button>
       </CardFooter>
     </Card>

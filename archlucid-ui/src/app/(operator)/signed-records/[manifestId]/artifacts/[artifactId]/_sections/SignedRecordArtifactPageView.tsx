@@ -65,7 +65,7 @@ export function SignedRecordArtifactPageView(props: SignedRecordArtifactPageView
         {model.runId !== null ? (
           <>
             {" · "}
-            <Link className={OPERATOR_LINK.nav} href={`/reviews/${encodeURIComponent(model.runId)}`}>
+            <Link className={OPERATOR_LINK.nav} href={`/architecture/reviews/${encodeURIComponent(model.runId)}`}>
               Open review
             </Link>
           </>

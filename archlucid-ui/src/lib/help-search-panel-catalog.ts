@@ -106,14 +106,14 @@ const START_HERE_TOPICS: readonly HelpSearchPanelTopic[] = [
     title: "Create your first review",
     description: "Start with a brief, diagram, IaC file, or evidence ZIP.",
     keywords: ["create", "new review", "wizard", "intake", "first review"],
-    action: { kind: "route", href: "/reviews/new", helpSlug: null },
+    action: { kind: "route", href: "/architecture/reviews/new", helpSlug: null },
   },
   {
     id: "sample-review",
     title: "Run a sample review",
     description: "See how ArchLucid turns evidence into findings and review artifacts.",
     keywords: ["sample", "example", "claims intake", "demo review", "walkthrough"],
-    action: { kind: "route", href: "/reviews/claims-intake-modernization", helpSlug: null },
+    action: { kind: "route", href: "/architecture/reviews/claims-intake-modernization", helpSlug: null },
   },
 ];
 

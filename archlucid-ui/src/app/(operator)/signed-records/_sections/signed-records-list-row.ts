@@ -20,7 +20,7 @@ export function buildSignedRecordsListRowsFromRuns(runs: readonly RunSummary[]):
     .filter((run) => run.hasGoldenManifest === true)
     .map((run): SignedRecordsListRow => {
       const runId = run.runId.trim();
-      const reviewHref = `/reviews/${encodeURIComponent(runId)}`;
+      const reviewHref = `/architecture/reviews/${encodeURIComponent(runId)}`;
 
       return {
         runId,

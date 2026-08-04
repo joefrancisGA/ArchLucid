@@ -12,7 +12,7 @@ export function OperateGatedEmptyState(props: OperateGatedEmptyStateProps): Reac
     <EmptyState
       title={`${props.featureLabel} unlocks after your first committed review`}
       description="Finalize one architecture review to produce a signed review record. Operate surfaces (compare, alerts, digests, and more) appear in the sidebar once that milestone is recorded."
-      actions={[{ label: "Create your first review", href: "/reviews/new", variant: "primary" }]}
+      actions={[{ label: "Create your first review", href: "/architecture/reviews/new", variant: "primary" }]}
     />
   );
 }

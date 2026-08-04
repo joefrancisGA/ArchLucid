@@ -29,7 +29,7 @@ export function ExecutiveDashboardEmptyState(): React.JSX.Element {
             </div>
             <p className="m-0">
               <Link
-                href="/reviews"
+                href="/architecture/reviews"
                 className={OPERATOR_LINK.inline}
                 data-testid="executive-dashboard-empty-open-reviews"
               >

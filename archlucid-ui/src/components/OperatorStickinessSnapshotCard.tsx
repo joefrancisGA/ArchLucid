@@ -114,7 +114,7 @@ export function OperatorStickinessSnapshotCard(): ReactElement | null {
             {data.latestRunId ? (
               <p className="m-0">
                 Latest:{" "}
-                <Link className="font-medium text-teal-800 underline dark:text-teal-300" href={`/reviews/${data.latestRunId}`}>
+                <Link className="font-medium text-teal-800 underline dark:text-teal-300" href={`/architecture/reviews/${data.latestRunId}`}>
                   open review
                 </Link>
               </p>

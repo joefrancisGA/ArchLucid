@@ -80,7 +80,7 @@ function buildFirstReviewCheckpointStrip(
   }
 
   return [
-    { id: "intake", label: "Intake", href: "/reviews/new", status: statusById.intake },
+    { id: "intake", label: "Intake", href: "/architecture/reviews/new", status: statusById.intake },
     { id: "execute", label: "Execute", href: reviewHref, status: statusById.execute },
     { id: "commit", label: "Finalize", href: reviewHref, status: statusById.commit },
     { id: "export", label: "Export", href: committedReviewHref, status: statusById.export },
@@ -461,7 +461,7 @@ export function CorePilotNextStepsCard() {
         <li className="flex items-start gap-2" aria-label="Step 1 active">
           <span aria-hidden className={cn("mt-0.5 shrink-0 font-bold text-teal-700 dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)}>▶</span>
           <Link
-            href="/reviews/new"
+            href="/architecture/reviews/new"
             className="font-medium text-blue-700 underline dark:text-blue-400"
             data-testid="pilot-active-step-link"
           >

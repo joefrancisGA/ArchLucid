@@ -38,10 +38,10 @@ const DEFAULT_DOC = "docs/runbooks/FIRST_PILOT_TRIAGE_CARDS.md";
 
 function reviewDetailHref(runId: string | null | undefined): string | null {
   if (runId === null || runId === undefined || runId.trim() === "") {
-    return "/reviews";
+    return "/architecture/reviews";
   }
 
-  return `/reviews/${encodeURIComponent(runId.trim())}`;
+  return `/architecture/reviews/${encodeURIComponent(runId.trim())}`;
 }
 
 function inAppHrefForFinding(name: string, runId: string | null | undefined): string | null {

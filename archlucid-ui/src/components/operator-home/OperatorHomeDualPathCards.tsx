@@ -122,7 +122,7 @@ export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps)
   const startReviewArchitecture = () => {
     setSelectedPath("review-architecture");
     trackOperatorHomeLifecyclePathClick("review-architecture");
-    reviewNavigation.navigate({ href: "/reviews/new" });
+    reviewNavigation.navigate({ href: "/architecture/reviews/new" });
   };
 
   return (

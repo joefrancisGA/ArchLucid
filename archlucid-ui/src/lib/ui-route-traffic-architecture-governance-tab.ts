@@ -5,7 +5,7 @@
 export const ARCHITECTURE_GOVERNANCE_TAB_TRAFFIC_ROW_ID = "REG";
 
 /** Canonical path tracked on the REG workbook row. */
-export const ARCHITECTURE_GOVERNANCE_TAB_TRAFFIC_PATH = "/reviews/[runId]?archTab=governance";
+export const ARCHITECTURE_GOVERNANCE_TAB_TRAFFIC_PATH = "/architecture/reviews/[runId]?archTab=governance";
 
 /** Workbook Section column value — create-home tab surface, not a generic review tab. */
 export const ARCHITECTURE_GOVERNANCE_TAB_TRAFFIC_SECTION = "Tab surface";

@@ -11,7 +11,7 @@ export type BuyerOperateBackLink = {
  */
 export function buyerPolishedOperateBackLink(pathnameWithSearch: string): BuyerOperateBackLink | null {
   const path = (pathnameWithSearch.split("?")[0] ?? "").trim().replace(/\/$/, "") || "/";
-  const packageHref = `/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
+  const packageHref = `/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
 
   if (path === "/" || path.startsWith(`${packageHref}/`) || path === packageHref) {
     return null;

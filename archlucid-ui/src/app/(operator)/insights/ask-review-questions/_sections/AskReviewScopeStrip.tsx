@@ -38,7 +38,7 @@ export function AskReviewScopeStrip(props: AskReviewScopeStripProps) {
         {packageLabel}
       </p>
       <p className={cn("m-0 flex flex-wrap gap-x-3 gap-y-1", OPERATOR_TYPOGRAPHY.helper)}>
-        <Link className={OPERATOR_LINK.nav} href={`/reviews/${encodeURIComponent(canonical)}`}>
+        <Link className={OPERATOR_LINK.nav} href={`/architecture/reviews/${encodeURIComponent(canonical)}`}>
           Open review
         </Link>
         {isShowcase ? (

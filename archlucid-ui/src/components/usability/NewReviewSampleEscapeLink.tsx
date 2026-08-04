@@ -9,7 +9,7 @@ import {
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
-const sampleReviewHref = `/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
+const sampleReviewHref = `/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
 
 /** Quiet escape hatch on the new-review wizard — finished package without configuration. */
 export function NewReviewSampleEscapeLink(props: { readonly className?: string }): React.JSX.Element {

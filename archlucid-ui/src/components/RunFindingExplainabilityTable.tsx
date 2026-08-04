@@ -297,7 +297,7 @@ export function RunFindingExplainabilityTable({
                       </Link>
                     </Button>
                     <Button type="button" size="sm" variant="ghost" className={cn("h-7 px-2", OPERATOR_TYPOGRAPHY.button)} asChild>
-                      <Link href={`/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(row.findingId)}`}>
+                      <Link href={`/architecture/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(row.findingId)}`}>
                         Explain
                       </Link>
                     </Button>

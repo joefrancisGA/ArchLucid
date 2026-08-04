@@ -184,7 +184,7 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
             actions={[
               {
                 label: REVIEWS_HUB_RECENT_EMPTY_PRIMARY_LABEL,
-                href: "/reviews/new",
+                href: "/architecture/reviews/new",
                 variant: "primary",
               },
               {

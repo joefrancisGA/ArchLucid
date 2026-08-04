@@ -26,8 +26,8 @@ export const RUNS_EMPTY: EmptyStateProps = {
   description:
     "Start an architecture review to gather evidence, evaluate findings, record decisions, and produce exports. Or explore the sample review to see a completed flow.",
   actions: [
-    { label: "Start an architecture review", href: "/reviews/new" },
-    { label: AZURE_REFERENCE_SAMPLE_REVIEW_CTA_LABEL, href: "/reviews/claims-intake-modernization", variant: "outline" },
+    { label: "Start an architecture review", href: "/architecture/reviews/new" },
+    { label: AZURE_REFERENCE_SAMPLE_REVIEW_CTA_LABEL, href: "/architecture/reviews/claims-intake-modernization", variant: "outline" },
   ],
   helpTopicPath: "starting-reviews",
 };
@@ -39,7 +39,7 @@ export const ALERTS_EMPTY_FILTERED: EmptyStateProps = {
     "Try another status or time range. Alerts appear when rules evaluate against findings from completed reviews — finish a review first if you are in an empty tenant.",
   actions: [
     { label: "Set up alert rules", href: "/governance/alert-rules" },
-    { label: "View reviews", href: "/reviews?projectId=default", variant: "outline" },
+    { label: "View reviews", href: "/architecture/reviews?projectId=default", variant: "outline" },
   ],
   helpTopicPath: "alerts",
 };
@@ -70,7 +70,7 @@ export const GRAPH_IDLE_BUYER: EmptyStateProps = {
       href: `/insights/evidence-graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
     },
     { label: CREATE_ARCHITECTURE_LABEL, href: ARCHITECTURES_NEW_PATH, variant: "outline" as const },
-    { label: "Upload evidence", href: "/reviews/new", variant: "outline" as const },
+    { label: "Upload evidence", href: "/architecture/reviews/new", variant: "outline" as const },
   ],
 };
 
@@ -79,7 +79,7 @@ export const COMPARE_WAITING: EmptyStateProps = {
   title: "Select two reviews to compare",
   description: "Choose a baseline and updated review to continue.",
   actions: [
-    { label: "Open reviews", href: "/reviews?projectId=default" },
+    { label: "Open reviews", href: "/architecture/reviews?projectId=default" },
   ],
 };
 
@@ -89,7 +89,7 @@ export const COMPARE_WAITING_BUYER: EmptyStateProps = {
   title: "Select two reviews to compare",
   description: "Choose a baseline and updated review to continue.",
   actions: [
-    { label: "Open reviews", href: "/reviews?projectId=default" },
+    { label: "Open reviews", href: "/architecture/reviews?projectId=default" },
   ],
 };
 
@@ -99,7 +99,7 @@ export const PLANNING_EMPTY: EmptyStateProps = {
   description:
     "Feedback themes and improvement plans show here when persisted for the current tenant / workspace / project. Scope follows workspace defaults unless you set proxy overrides. Run a committed review first if this tenant is new.",
   actions: [
-    { label: "View reviews", href: "/reviews?projectId=default" },
+    { label: "View reviews", href: "/architecture/reviews?projectId=default" },
     { label: "Pilot feedback", href: "/product-learning", variant: "outline" },
   ],
 };
@@ -110,7 +110,7 @@ export const GOVERNANCE_WORKFLOW_IDLE: EmptyStateProps = {
   description:
     "Pick a finalized review under Approval requests, then Load — approvals, releases, and activations appear for that review.",
   actions: [
-    { label: "Open reviews", href: "/reviews?projectId=default", variant: "primary" },
+    { label: "Open reviews", href: "/architecture/reviews?projectId=default", variant: "primary" },
     { label: "Findings", href: "/governance/findings", variant: "outline" },
     { label: "Policy packs", href: GOVERNANCE_POLICY_PACKS_PATH, variant: "outline" },
   ],
@@ -129,7 +129,7 @@ export const GOVERNANCE_WORKFLOW_IDLE_READER: EmptyStateProps = {
   description:
     "Choose a review under Approval requests and click Load to review approvals, promotions, and activations for that run.",
   actions: [
-    { label: "View reviews", href: "/reviews?projectId=default", variant: "outline" },
+    { label: "View reviews", href: "/architecture/reviews?projectId=default", variant: "outline" },
     { label: "Findings", href: "/governance/findings", variant: "outline" },
   ],
   helpTopicPath: "governance",

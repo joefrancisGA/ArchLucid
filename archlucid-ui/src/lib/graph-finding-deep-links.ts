@@ -38,7 +38,7 @@ export function findingIdForGraphDeepLink(node: GraphNodeVm): string | null {
 }
 
 export function graphFindingDetailHref(runId: string, findingId: string): string {
-  return `/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(findingId)}`;
+  return `/architecture/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(findingId)}`;
 }
 
 export function graphFindingInspectHref(runId: string, findingId: string): string {

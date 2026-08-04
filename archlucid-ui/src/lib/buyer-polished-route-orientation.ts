@@ -108,7 +108,7 @@ export function buyerPolishedRouteOrientation(
     };
   }
 
-  const friendlyManifestPath = `/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}/manifest`.replace(/\/$/, "");
+  const friendlyManifestPath = `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}/manifest`.replace(/\/$/, "");
 
   if (path.replace(/\/$/, "") === friendlyManifestPath) {
     return {
@@ -117,7 +117,7 @@ export function buyerPolishedRouteOrientation(
     };
   }
 
-  const friendlyArchitecturePath = `/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}/architecture`.replace(/\/$/, "");
+  const friendlyArchitecturePath = `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}/architecture`.replace(/\/$/, "");
 
   if (path.replace(/\/$/, "") === friendlyArchitecturePath) {
     return {

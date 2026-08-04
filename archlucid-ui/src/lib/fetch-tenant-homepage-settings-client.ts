@@ -104,5 +104,5 @@ export async function putTenantHomepageSettingsClient(
 }
 
 export function featuredCompletedSampleReviewHref(runId: string): string {
-  return `/reviews/${encodeURIComponent(runId.trim())}`;
+  return `/architecture/reviews/${encodeURIComponent(runId.trim())}`;
 }

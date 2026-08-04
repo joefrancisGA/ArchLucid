@@ -16,7 +16,7 @@ import {
 import { SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
 import { DemoDataBadge } from "@/components/usability/DemoDataBadge";
 
-const sampleReviewHref = `/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
+const sampleReviewHref = `/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
 
 type SampleFirstReviewPackageCardProps = {
   /** Must match the home layout branch from {@link OperatorHomePageView} — do not re-read env in this card (hydration). */
@@ -138,7 +138,7 @@ export function SampleFirstReviewPackageCard({ buyerPolishedShell }: SampleFirst
                     </Link>
                   </Button>
                   <Button asChild variant="outline" className="h-9">
-                    <Link href="/reviews/new">{OPERATOR_CO_ARCHITECT_CTA_REVIEW_PRIMARY}</Link>
+                    <Link href="/architecture/reviews/new">{OPERATOR_CO_ARCHITECT_CTA_REVIEW_PRIMARY}</Link>
                   </Button>
                 </>
               )}
@@ -147,7 +147,7 @@ export function SampleFirstReviewPackageCard({ buyerPolishedShell }: SampleFirst
             {buyerPolished === true ? (
               <div className="m-0 flex flex-wrap items-center gap-x-3 gap-y-2">
                 <Button asChild variant="outline">
-                  <Link href="/reviews/new">
+                  <Link href="/architecture/reviews/new">
                     {BUYER_HOME_SECONDARY_CTA}
                   </Link>
                 </Button>

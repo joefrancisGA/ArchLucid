@@ -126,8 +126,8 @@ export function ProductLearningPageView(props: Props) {
           title={PILOT_FEEDBACK_VOCABULARY.emptyStateTitle}
           description={PILOT_FEEDBACK_VOCABULARY.emptyStateDescription}
           actions={[
-            { label: PILOT_FEEDBACK_VOCABULARY.emptyStatePrimaryAction, href: "/reviews" },
-            { label: PILOT_FEEDBACK_VOCABULARY.emptyStateSecondaryAction, href: "/reviews/new" },
+            { label: PILOT_FEEDBACK_VOCABULARY.emptyStatePrimaryAction, href: "/architecture/reviews" },
+            { label: PILOT_FEEDBACK_VOCABULARY.emptyStateSecondaryAction, href: "/architecture/reviews/new" },
           ]}
           helpTopicPath="/help/pilot-feedback"
         />

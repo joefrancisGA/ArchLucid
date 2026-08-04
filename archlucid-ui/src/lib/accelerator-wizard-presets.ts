@@ -150,7 +150,7 @@ export function buildAcceleratorReviewStartHref(packId: AcceleratorPackId, basel
 
   params.set("accelerator", packId);
 
-  return "/reviews/new?" + params.toString();
+  return "/architecture/reviews/new?" + params.toString();
 }
 
 export function resolveAcceleratorWizardPreset(

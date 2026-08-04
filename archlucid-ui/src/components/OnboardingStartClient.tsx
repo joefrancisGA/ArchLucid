@@ -159,7 +159,7 @@ export function OnboardingStartClient() {
               Retry trial status
             </Button>
             <Button asChild type="button" variant="outline" size="sm">
-              <Link href="/reviews/new">Start new review request</Link>
+              <Link href="/architecture/reviews/new">Start new review request</Link>
             </Button>
             <Button asChild type="button" variant="outline" size="sm">
               <Link href="/architecture/first-review-guide">Open onboarding checklist</Link>
@@ -242,13 +242,13 @@ export function OnboardingStartClient() {
             ) : null}
             {hasSample ? (
               <Button asChild variant="outline">
-                <Link href={`/reviews/${sampleId}`} data-testid="onboarding-open-sample-run">
+                <Link href={`/architecture/reviews/${sampleId}`} data-testid="onboarding-open-sample-run">
                   Open example review
                 </Link>
               </Button>
             ) : null}
             <Button asChild variant="outline">
-              <Link href="/reviews/new">Open new review wizard</Link>
+              <Link href="/architecture/reviews/new">Open new review wizard</Link>
             </Button>
           </div>
         </section>

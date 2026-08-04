@@ -47,7 +47,7 @@ export function resolveOperatorHomeRecommendedNextAction(
   if (ctx.latestRunReadyToFinalize) {
     return {
       message: OPERATOR_HOME_RECOMMENDED_NEXT_START_REVIEW,
-      href: "/reviews/new",
+      href: "/architecture/reviews/new",
     };
   }
 

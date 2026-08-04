@@ -44,7 +44,7 @@ function buyerHintBody(
       <>
         Start a review on your own architecture when ready.{" "}
         <Link
-          href="/reviews/new"
+          href="/architecture/reviews/new"
           className="font-medium text-teal-800 underline decoration-teal-300 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:decoration-teal-600"
         >
           {OPERATOR_START_REVIEW_QUICK_ACTION_LABEL}

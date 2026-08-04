@@ -47,7 +47,7 @@ export function buildPilotOutcomesMostRecentFinalizedReviewHref(runId: string | 
     return null;
   }
 
-  return `/reviews/${encodeURIComponent(trimmedRunId)}`;
+  return `/architecture/reviews/${encodeURIComponent(trimmedRunId)}`;
 }
 
 export function buildPilotOutcomesEmptyDiagnostics(

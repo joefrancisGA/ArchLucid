@@ -23,8 +23,8 @@ import {
   type ReviewGenerationHandoffRecord,
 } from "@/lib/review-generation-handoff";
 
-const REVIEW_PACKAGES_HREF = "/reviews?projectId=default";
-const START_REVIEW_HREF = "/reviews/new";
+const REVIEW_PACKAGES_HREF = "/architecture/reviews?projectId=default";
+const START_REVIEW_HREF = "/architecture/reviews/new";
 const PENDING_POLL_MS = 3_000;
 const PENDING_MAX_MS = 120_000;
 

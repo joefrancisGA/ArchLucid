@@ -207,7 +207,7 @@ export function OperatorCorePilotDiagnosticsChecklist() {
           <OptInTourLauncher buttonVariant="outline" />
 
           <Link
-            href="/reviews/new"
+            href="/architecture/reviews/new"
             className={cn("inline-flex rounded-md border border-neutral-300 bg-white px-2.5 py-1 font-medium text-teal-800 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-950 dark:text-teal-200 dark:hover:bg-neutral-900", OPERATOR_TYPOGRAPHY.helper)}
           >
             Jump to first review checklist

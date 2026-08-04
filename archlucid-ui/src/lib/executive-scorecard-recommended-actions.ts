@@ -88,7 +88,7 @@ export function buildExecutiveScorecardRecommendedActions(
       id: "orphan-candidates",
       headline: `Reclaim ${formatUsdCompact(orphanSavings)} in orphan candidates`,
       explanation: `${orphanCount} ${orphanCount === 1 ? "resource is" : "resources are"} flagged for decommission review on the latest committed evidence.`,
-      href: "/reviews?filter=orphan-candidates",
+      href: "/architecture/reviews?filter=orphan-candidates",
       sortWeight: orphanSavings,
     });
   } else if (orphanCount > 0) {
@@ -96,7 +96,7 @@ export function buildExecutiveScorecardRecommendedActions(
       id: "orphan-candidates",
       headline: `Review ${orphanCount} orphan ${orphanCount === 1 ? "candidate" : "candidates"}`,
       explanation: "Open the reviews list filtered to orphan-candidate evidence from your latest ROI summary.",
-      href: "/reviews?filter=orphan-candidates",
+      href: "/architecture/reviews?filter=orphan-candidates",
       sortWeight: orphanCount,
     });
   }

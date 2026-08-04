@@ -324,7 +324,7 @@ function AppShellInner({ children }: AppShellClientProps) {
                         </Button>
                       </h1>
                       <Link
-                        href="/reviews?projectId=default"
+                        href="/architecture/reviews?projectId=default"
                         className={cn("font-semibold text-teal-800 underline underline-offset-2 dark:text-teal-300", OPERATOR_TYPOGRAPHY.cardTitle)}
                       >
                         Reviews

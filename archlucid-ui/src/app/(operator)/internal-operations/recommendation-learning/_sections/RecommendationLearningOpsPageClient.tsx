@@ -379,7 +379,7 @@ export function RecommendationLearningOpsPageClient(props: Props) {
             </dl>
             {insufficient ? (
               <div className="mt-4 flex flex-wrap gap-3">
-                <Link href="/reviews" className="text-al-accent underline-offset-2 hover:underline">
+                <Link href="/architecture/reviews" className="text-al-accent underline-offset-2 hover:underline">
                   Open completed reviews
                 </Link>
                 <Button type="button" variant="outline" size="sm" onClick={() => void refresh()}>

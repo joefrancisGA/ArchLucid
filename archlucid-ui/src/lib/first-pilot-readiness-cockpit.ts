@@ -242,7 +242,7 @@ export function buildFirstPilotReadinessRows(input: {
       summary: input.signals.hasCommittedManifest
         ? `Next: start a second architecture review with real inputs, compare reviews, try a ${FIRST_PILOT_BUYER_COPY.governanceDryRun}, or generate the sponsor packet.`
         : "Appears after the first finalized review so the first pilot stays focused.",
-      href: "/reviews/new",
+      href: "/architecture/reviews/new",
       cta: "Start second review",
     },
   ]);

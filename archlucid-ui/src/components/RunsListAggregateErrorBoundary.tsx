@@ -151,7 +151,7 @@ export class RunsListAggregateErrorBoundary extends Component<
             Retry
           </Button>
           <Button type="button" variant="outline" asChild>
-            <Link href="/reviews?projectId=default">Back to reviews</Link>
+            <Link href="/architecture/reviews?projectId=default">Back to reviews</Link>
           </Button>
         </div>
       </div>

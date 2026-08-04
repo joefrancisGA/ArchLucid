@@ -59,7 +59,7 @@ export function PatternLibraryDetailClient(props: PatternLibraryDetailClientProp
 
       <div className="flex flex-wrap gap-2">
         <Button asChild size="sm" variant="primary">
-          <Link href={`/reviews/new?pattern=${encodeURIComponent(record.patternKey)}`}>Use in review</Link>
+          <Link href={`/architecture/reviews/new?pattern=${encodeURIComponent(record.patternKey)}`}>Use in review</Link>
         </Button>
         <Button asChild size="sm" variant="outline">
           <Link href="/patterns">Back to library</Link>
@@ -144,7 +144,7 @@ export function PatternLibraryDetailClient(props: PatternLibraryDetailClientProp
           </p>
           <div className="flex flex-wrap gap-2">
             <Button asChild size="sm" variant="primary">
-              <Link href={`/reviews/new?pattern=${encodeURIComponent(record.patternKey)}`}>
+              <Link href={`/architecture/reviews/new?pattern=${encodeURIComponent(record.patternKey)}`}>
                 Use this pattern in a new review
               </Link>
             </Button>

@@ -29,7 +29,7 @@ export function CommitBlockingFindingsBanner(props: CommitBlockingFindingsBanner
         {props.blockingFindings.map((finding) => (
           <li key={finding.findingId}>
             <Link
-              href={`/reviews/${encodeURIComponent(props.runId)}/findings/${encodeURIComponent(finding.findingId)}`}
+              href={`/architecture/reviews/${encodeURIComponent(props.runId)}/findings/${encodeURIComponent(finding.findingId)}`}
               className="font-medium text-teal-900 underline dark:text-teal-200"
             >
               {finding.title}

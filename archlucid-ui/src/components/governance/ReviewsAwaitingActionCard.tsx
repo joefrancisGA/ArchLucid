@@ -83,7 +83,7 @@ export function ReviewsAwaitingActionCard() {
                   </p>
                 </div>
                 <Button asChild size="sm">
-                  <Link href={`/reviews/${runHex}`} data-testid={`reviews-awaiting-commit-${runHex}`}>
+                  <Link href={`/architecture/reviews/${runHex}`} data-testid={`reviews-awaiting-commit-${runHex}`}>
                     Review &amp; commit
                   </Link>
                 </Button>

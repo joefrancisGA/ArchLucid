@@ -35,7 +35,7 @@ export function DemoWorkspaceCapabilityUnavailablePanel(
       <p className="m-0 mt-2 leading-relaxed">{connectedTenantLead}</p>
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <Button asChild size="sm">
-          <Link href="/reviews?projectId=default">Open reviews</Link>
+          <Link href="/architecture/reviews?projectId=default">Open reviews</Link>
         </Button>
         <Link href="/help/troubleshooting" className={cn("font-medium text-teal-800 underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)}>
           {BUYER_DEMO_CAPABILITY_TROUBLESHOOTING_CTA}

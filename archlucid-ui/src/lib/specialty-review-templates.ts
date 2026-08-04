@@ -202,7 +202,7 @@ export const SPECIALTY_REVIEW_TEMPLATES: readonly SpecialtyReviewTemplateDefinit
 
 export const SPECIALTY_REVIEW_TEMPLATES_RELATED_LINKS = [
   { label: "First review guide", href: "/architecture/first-review-guide" },
-  { label: "Standard review", href: "/reviews/new" },
+  { label: "Standard review", href: "/architecture/reviews/new" },
   { label: "Pattern library", href: "/patterns" },
   { label: "Policy packs", href: "/governance/policy-packs" },
   { label: "Help choosing a template", href: "#need-help-choosing" },
@@ -269,7 +269,7 @@ export function buildSpecialtyReviewUseTemplateHref(input: {
 
   params.set("template", input.intakeTemplateId);
 
-  return `/reviews/new?${params.toString()}`;
+  return `/architecture/reviews/new?${params.toString()}`;
 }
 
 export function findSpecialtyReviewTemplate(

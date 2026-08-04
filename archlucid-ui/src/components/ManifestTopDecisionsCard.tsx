@@ -78,7 +78,7 @@ export function ManifestTopDecisionsCard(props: ManifestTopDecisionsCardProps) {
             </ul>
           ) : null}
           <Button variant="outline" size="sm" asChild>
-            <Link href={`/reviews/${encodeURIComponent(summary.runId)}#run-explanation`}>
+            <Link href={`/architecture/reviews/${encodeURIComponent(summary.runId)}#run-explanation`}>
               {buyer ? "View on review" : "Open decisions on run"}
             </Link>
           </Button>

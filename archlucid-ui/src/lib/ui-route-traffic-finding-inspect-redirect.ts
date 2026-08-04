@@ -6,7 +6,7 @@ export const FINDING_INSPECT_REDIRECT_TRAFFIC_ROW_ID = "RR";
 
 /** Canonical path tracked on the RR workbook row (legacy bookmark). */
 export const FINDING_INSPECT_REDIRECT_TRAFFIC_PATH =
-  "/reviews/[runId]/findings/[findingId]/inspect";
+  "/architecture/reviews/[runId]/findings/[findingId]/inspect";
 
 /** Workbook Section column value. */
 export const FINDING_INSPECT_REDIRECT_TRAFFIC_SECTION = "Core review";

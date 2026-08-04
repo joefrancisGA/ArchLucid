@@ -162,7 +162,7 @@ export function buildPostCommitHabitLoop(input: PostCommitHabitLoopInput): PostC
     id: "second-review",
     kind: "optional",
     label: "Start another review",
-    href: "/reviews/new",
+    href: "/architecture/reviews/new",
     description: "Run a second architecture review when the team is ready for compare and value delta.",
   });
 

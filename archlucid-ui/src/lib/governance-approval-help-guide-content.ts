@@ -248,7 +248,7 @@ export const GOVERNANCE_APPROVAL_HELP_COMMON_ACTIONS: readonly GovernanceApprova
   {
     label: "Attach supporting evidence",
     description: "Open reviews to add artifacts before finalize and submission.",
-    href: "/reviews",
+    href: "/architecture/reviews",
   },
   {
     label: "Open trust center",

@@ -90,7 +90,7 @@ export const GETTING_STARTED_HELP_WORKFLOW_STEPS: readonly GettingStartedWorkflo
     title: "Add architecture evidence",
     description: "Start a review and attach briefs, diagrams, documents, IaC, or optional cloud inventory.",
     expectedOutputs: "Evidence linked to the review.",
-    href: "/reviews/new",
+    href: "/architecture/reviews/new",
     ctaLabel: BUYER_START_ARCHITECTURE_REVIEW_CTA,
   },
   {
@@ -98,7 +98,7 @@ export const GETTING_STARTED_HELP_WORKFLOW_STEPS: readonly GettingStartedWorkflo
     title: "Analyze the architecture",
     description: "Start the review and monitor progress until findings are ready to inspect.",
     expectedOutputs: "Findings with severity, impact, and evidence labels.",
-    href: "/reviews?projectId=default",
+    href: "/architecture/reviews?projectId=default",
     ctaLabel: "Open reviews",
   },
   {
@@ -122,7 +122,7 @@ export const GETTING_STARTED_HELP_WORKFLOW_STEPS: readonly GettingStartedWorkflo
     title: "Finalize and share outputs",
     description: "Lock the review and export sponsor-ready artifacts for stakeholders.",
     expectedOutputs: "Signed review record, evidence trail, and exports.",
-    href: "/reviews?projectId=default",
+    href: "/architecture/reviews?projectId=default",
     ctaLabel: "Open reviews",
   },
 ];
@@ -134,10 +134,10 @@ export type GettingStartedActionCard = {
   readonly ctaLabel: string;
 };
 
-const sampleReviewHref = `/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
+const sampleReviewHref = `/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
 
 export const GETTING_STARTED_HELP_PRIMARY_ACTIONS = {
-  startReview: { href: "/reviews/new", label: BUYER_START_ARCHITECTURE_REVIEW_CTA },
+  startReview: { href: "/architecture/reviews/new", label: BUYER_START_ARCHITECTURE_REVIEW_CTA },
   sampleReview: { href: sampleReviewHref, label: "Open completed sample" },
   firstReviewGuide: { href: inAppHelpHref("first-hour-operator-path"), label: "View first review guide" },
 } as const;
@@ -146,7 +146,7 @@ export const GETTING_STARTED_HELP_NEXT_ACTION_CARDS: readonly GettingStartedActi
   {
     title: "Start your first review",
     description: "Create a review and add evidence — cloud connectors are optional.",
-    href: "/reviews/new",
+    href: "/architecture/reviews/new",
     ctaLabel: BUYER_START_ARCHITECTURE_REVIEW_CTA,
   },
   {

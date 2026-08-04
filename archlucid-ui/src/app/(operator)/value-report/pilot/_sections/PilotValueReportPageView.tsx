@@ -335,7 +335,7 @@ export function PilotValueReportPageView(props: Props) {
               {showTimelineCapNote ? (
                 <p className={cn("m-0 mb-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                   Showing the most recent {timelineRows.length} finalized reviews.
-                  <Link href="/reviews" className={cn(OPERATOR_LINK.inline, "ml-1")}>
+                  <Link href="/architecture/reviews" className={cn(OPERATOR_LINK.inline, "ml-1")}>
                     View all qualifying reviews
                   </Link>
                 </p>
@@ -383,7 +383,7 @@ export function PilotValueReportPageView(props: Props) {
                         <td className={cn("py-2 pr-3", OPERATOR_TYPOGRAPHY.helper)}>Not available</td>
                         <td className={cn("py-2 pr-3", OPERATOR_TYPOGRAPHY.helper)}>Not available</td>
                         <td className={cn("py-2", OPERATOR_TYPOGRAPHY.helper)}>
-                          <Link href={`/reviews/${encodeURIComponent(row.runId)}`} className={OPERATOR_LINK.inline}>
+                          <Link href={`/architecture/reviews/${encodeURIComponent(row.runId)}`} className={OPERATOR_LINK.inline}>
                             Open review
                           </Link>
                         </td>

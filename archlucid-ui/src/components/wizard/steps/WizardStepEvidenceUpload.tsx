@@ -205,7 +205,7 @@ export function WizardStepEvidenceUpload(props: WizardStepEvidenceUploadProps) {
                 Continue with guided brief
               </Button>
               <Button type="button" variant="outline" asChild>
-                <Link href="/reviews/new?path=quick-review" data-testid="wizard-evidence-brief-quick-review-link">
+                <Link href="/architecture/reviews/new?path=quick-review" data-testid="wizard-evidence-brief-quick-review-link">
                   Open quick review brief
                 </Link>
               </Button>

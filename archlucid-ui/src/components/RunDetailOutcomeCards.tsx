@@ -684,7 +684,7 @@ export function RunDetailOutcomeCards({
           </Link>
           <Link
             className={cn("mt-2 block", OPERATOR_LINK.nav)}
-            href={`/reviews/${encodeURIComponent(runId)}/provenance`}
+            href={`/architecture/reviews/${encodeURIComponent(runId)}/provenance`}
           >
             Full provenance view
           </Link>

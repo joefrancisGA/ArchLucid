@@ -136,7 +136,7 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
           <div className="flex flex-wrap gap-2 pt-1">
             <Button asChild variant="outline" size="sm" type="button">
               <Link
-                href={`/reviews/new?sampleRunId=${TRIAL_ONBOARDING_SAMPLE_RUN_ID}`}
+                href={`/architecture/reviews/new?sampleRunId=${TRIAL_ONBOARDING_SAMPLE_RUN_ID}`}
                 data-testid="wizard-use-canonical-sample"
               >
                 Use a sample (preset deep link)
@@ -144,7 +144,7 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
             </Button>
             {baselineFirst !== true ? (
               <Button asChild variant="outline" size="sm" type="button">
-                <Link href="/reviews/new?baseline=1" data-testid="wizard-baseline-first-link">
+                <Link href="/architecture/reviews/new?baseline=1" data-testid="wizard-baseline-first-link">
                   Baseline-first (ZIP before identity)
                 </Link>
               </Button>
@@ -178,7 +178,7 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
           </CardHeader>
           <CardFooter>
             <Button asChild type="button" className="w-full sm:w-auto">
-              <Link href={`/reviews/${featuredSampleRunId}`} data-testid="wizard-open-trial-sample-run">
+              <Link href={`/architecture/reviews/${featuredSampleRunId}`} data-testid="wizard-open-trial-sample-run">
                 Open example review
               </Link>
             </Button>

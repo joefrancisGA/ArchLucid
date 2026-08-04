@@ -9,12 +9,12 @@ export function runDetailHrefWithParentRun(runId: string, parentRunId: string | 
   const trimmedParent = parentRunId?.trim() ?? "";
 
   if (trimmedParent.length === 0) {
-    return `/reviews/${encodeURIComponent(trimmedRunId)}`;
+    return `/architecture/reviews/${encodeURIComponent(trimmedRunId)}`;
   }
 
   const qs = new URLSearchParams();
   qs.set(DRAFT_BRANCH_PARENT_RUN_QUERY_KEY, trimmedParent);
   qs.set(DRAFT_BRANCH_AUTO_COMPARE_QUERY_KEY, "1");
 
-  return `/reviews/${encodeURIComponent(trimmedRunId)}?${qs.toString()}`;
+  return `/architecture/reviews/${encodeURIComponent(trimmedRunId)}?${qs.toString()}`;
 }

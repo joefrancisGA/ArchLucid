@@ -7,7 +7,7 @@ export function devTestingPlanDetailPath(planId: string): string {
 }
 
 export function devTestingRunDetailPath(runId: string): string {
-  return `/reviews/${encodeURIComponent(runId.trim())}`;
+  return `/architecture/reviews/${encodeURIComponent(runId.trim())}`;
 }
 
 export function devTestingApprovalLineagePath(approvalRequestId: string): string {

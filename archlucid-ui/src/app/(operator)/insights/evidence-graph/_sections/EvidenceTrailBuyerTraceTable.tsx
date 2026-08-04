@@ -27,7 +27,7 @@ const rowGridClass = cn(
 export function EvidenceTrailBuyerTraceTable(props: EvidenceTrailBuyerTraceTableProps) {
   const { runId, rows, onOpenGraphView } = props;
   const runTrim = runId.trim();
-  const reviewPackageHref = `/reviews/${encodeURIComponent(runTrim)}`;
+  const reviewPackageHref = `/architecture/reviews/${encodeURIComponent(runTrim)}`;
 
   if (rows.length === 0) {
     return (
@@ -116,7 +116,7 @@ export function EvidenceTrailBuyerTraceTable(props: EvidenceTrailBuyerTraceTable
               </Link>
               <Link
                 className="underline"
-                href={`/reviews/${encodeURIComponent(runTrim)}/findings/${encodeURIComponent(row.findingId)}`}
+                href={`/architecture/reviews/${encodeURIComponent(runTrim)}/findings/${encodeURIComponent(row.findingId)}`}
               >
                 Finding record
               </Link>

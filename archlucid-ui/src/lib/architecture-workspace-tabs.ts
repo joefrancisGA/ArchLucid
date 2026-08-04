@@ -76,7 +76,7 @@ export function buildArchitectureWorkspaceTabHref(
     [ARCHITECTURE_WORKSPACE_TAB_PARAM]: tab,
   });
 
-  return `/reviews/${encodeURIComponent(runId.trim())}?${params.toString()}`;
+  return `/architecture/reviews/${encodeURIComponent(runId.trim())}?${params.toString()}`;
 }
 
 export function readArchitectureWorkspaceTabFromHref(href: string): ArchitectureWorkspaceTabId | null {

@@ -25,7 +25,7 @@ function hasRunScopedReviewParentCrumb(items: readonly BreadcrumbItem[], queryRu
     return false;
   }
 
-  const reviewHref = `/reviews/${encodeURIComponent(runId)}`;
+  const reviewHref = `/architecture/reviews/${encodeURIComponent(runId)}`;
 
   return items[0]?.href === reviewHref;
 }

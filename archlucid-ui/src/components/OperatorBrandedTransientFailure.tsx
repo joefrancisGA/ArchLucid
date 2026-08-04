@@ -68,7 +68,7 @@ export function OperatorBrandedTransientFailure({
         <OperatorSectionRetryButton label={retryLabel} />
         <Link
           className={cn("font-medium text-teal-900 underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)}
-          href="/reviews?projectId=default"
+          href="/architecture/reviews?projectId=default"
         >
           Reviews
         </Link>

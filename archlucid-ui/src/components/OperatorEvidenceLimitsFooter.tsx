@@ -45,7 +45,7 @@ export function OperatorEvidenceLimitsFooter({
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   const safeRunId = runId.trim();
-  const runBase = `/reviews/${encodeURIComponent(safeRunId)}`;
+  const runBase = `/architecture/reviews/${encodeURIComponent(safeRunId)}`;
   const provenanceHref = `${runBase}/provenance`;
   const explainHref = `${runBase}#run-explanation`;
   const inspectFindingId = trimmedOrEmpty(findingIdForInspectLink);

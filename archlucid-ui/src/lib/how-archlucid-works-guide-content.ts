@@ -67,10 +67,10 @@ export const HOW_ARCHLUCID_WORKS_SECTIONS: readonly HowArchLucidWorksSection[] =
   },
 ] as const;
 
-const sampleReviewHref = `/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
+const sampleReviewHref = `/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
 
 export const HOW_ARCHLUCID_WORKS_PRIMARY_ACTIONS = {
-  startReview: { href: "/reviews/new", label: BUYER_START_ARCHITECTURE_REVIEW_CTA },
+  startReview: { href: "/architecture/reviews/new", label: BUYER_START_ARCHITECTURE_REVIEW_CTA },
   sampleReview: { href: sampleReviewHref, label: "Open completed sample" },
   firstReviewGuide: { href: inAppHelpHref("first-hour-operator-path"), label: "View first review guide" },
 } as const;

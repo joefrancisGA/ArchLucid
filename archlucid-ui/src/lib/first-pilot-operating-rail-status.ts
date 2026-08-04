@@ -125,12 +125,12 @@ function hrefForStepIndex(index: number, signals: FirstPilotOperatingRailSignals
     const runId = signals.latestRunId ?? signals.firstCommittedRunId;
 
     if (runId !== null && runId.length > 0) {
-      return `/reviews/${encodeURIComponent(runId)}`;
+      return `/architecture/reviews/${encodeURIComponent(runId)}`;
     }
   }
 
   if (index === 5 && signals.firstCommittedRunId !== null) {
-    return `/reviews/${encodeURIComponent(signals.firstCommittedRunId)}`;
+    return `/architecture/reviews/${encodeURIComponent(signals.firstCommittedRunId)}`;
   }
 
   const step = FIRST_PILOT_OPERATING_RAIL_STEPS_FALLBACK_HREFS[index];

@@ -33,7 +33,7 @@ export function resolveLiveDemoInspectHref(
   switch (destination) {
     case "executive":
     case "full-review":
-      return `/reviews/${enc(effectiveRunId)}`;
+      return `/architecture/reviews/${enc(effectiveRunId)}`;
     case "signed-record":
       if (manifestId !== null && manifestId.trim().length > 0) {
         return `/signed-records/${enc(manifestId)}`;

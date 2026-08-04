@@ -9,7 +9,7 @@ import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { Button } from "@/components/ui/button";
 
 /** Canonical wizard entry for demo viewers graduating to their own review (TB-218 / TB-219). */
-export const DEMO_EXPLAIN_CONVERSION_REVIEW_HREF = "/reviews/new?preset=greenfield";
+export const DEMO_EXPLAIN_CONVERSION_REVIEW_HREF = "/architecture/reviews/new?preset=greenfield";
 
 /**
  * Forward CTA on `/demo/explain`: sticky footer on desktop, floating action button on mobile.

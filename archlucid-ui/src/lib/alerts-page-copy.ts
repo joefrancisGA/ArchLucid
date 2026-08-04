@@ -87,8 +87,8 @@ export const ALERTS_ACTION_OPEN_GOVERNANCE_WORKFLOW = "Open governance workflow"
 /** @deprecated Use {@link ALERTS_ACTION_CONFIGURE_ALERT_RULES}. */
 export const ALERTS_ACTION_OPEN_STANDARDS_AND_RULES = ALERTS_ACTION_CONFIGURE_ALERT_RULES;
 
-export const ALERTS_ACTION_OPEN_REVIEW_PACKAGES_HREF = "/reviews";
-export const ALERTS_ACTION_START_ARCHITECTURE_REVIEW_HREF = "/reviews/new";
+export const ALERTS_ACTION_OPEN_REVIEW_PACKAGES_HREF = "/architecture/reviews";
+export const ALERTS_ACTION_START_ARCHITECTURE_REVIEW_HREF = "/architecture/reviews/new";
 export const ALERTS_ACTION_OPEN_GOVERNANCE_WORKFLOW_HREF = "/governance";
 export const ALERTS_ACTION_OPEN_GOVERNANCE_SETUP_GUIDE_HREF = "/governance/setup";
 

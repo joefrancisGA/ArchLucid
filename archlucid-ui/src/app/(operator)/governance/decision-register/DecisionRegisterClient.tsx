@@ -214,7 +214,7 @@ export default function DecisionRegisterClient() {
           testId="decision-register-load-error"
           title="Decision register unavailable"
           description={loadError}
-          actions={[{ label: DECISION_REGISTER_EMPTY_ACTION_REVIEW_PACKAGES, href: "/reviews?projectId=default", variant: "primary" }]}
+          actions={[{ label: DECISION_REGISTER_EMPTY_ACTION_REVIEW_PACKAGES, href: "/architecture/reviews?projectId=default", variant: "primary" }]}
         />
       ) : null}
 
@@ -225,8 +225,8 @@ export default function DecisionRegisterClient() {
             title={DECISION_REGISTER_EMPTY_TITLE}
             description={DECISION_REGISTER_EMPTY_BODY}
             actions={[
-              { label: DECISION_REGISTER_EMPTY_ACTION_REVIEW_PACKAGES, href: "/reviews?projectId=default", variant: "primary" },
-              { label: DECISION_REGISTER_EMPTY_ACTION_START_REVIEW, href: "/reviews/new", variant: "outline" },
+              { label: DECISION_REGISTER_EMPTY_ACTION_REVIEW_PACKAGES, href: "/architecture/reviews?projectId=default", variant: "primary" },
+              { label: DECISION_REGISTER_EMPTY_ACTION_START_REVIEW, href: "/architecture/reviews/new", variant: "outline" },
               { label: DECISION_REGISTER_EMPTY_ACTION_GOVERNANCE, href: "/governance", variant: "outline" },
             ]}
           />

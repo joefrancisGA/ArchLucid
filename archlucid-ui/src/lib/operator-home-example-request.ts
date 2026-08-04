@@ -71,7 +71,7 @@ export const OPERATOR_HOME_EXAMPLE_START_CTA = "Start from this example";
 export const OPERATOR_HOME_EXAMPLE_RUN_DESCRIPTION_TOKEN = "claims intake";
 
 export function reviewIntakeExampleTemplateHref(templateId: string): string {
-  return `/reviews/new?template=${encodeURIComponent(templateId)}`;
+  return `/architecture/reviews/new?template=${encodeURIComponent(templateId)}`;
 }
 
 export function resolveReviewIntakeExampleTemplate(input: {

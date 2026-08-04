@@ -105,7 +105,7 @@ export function WizardStepTrack({ runId, pollSummary }: WizardStepTrackProps) {
             >
               Compare two reviews
             </Link>
-            <Link className={OPERATOR_LINK.nav} href={`/reviews/${runId}/provenance`}>
+            <Link className={OPERATOR_LINK.nav} href={`/architecture/reviews/${runId}/provenance`}>
               View provenance
             </Link>
           </nav>

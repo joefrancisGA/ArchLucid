@@ -219,7 +219,7 @@ export default function RiskExceptionsClient() {
               },
             ]}
             footer={
-              <Link className={OPERATOR_LINK.optional} href="/reviews/new">
+              <Link className={OPERATOR_LINK.optional} href="/architecture/reviews/new">
                 {buyerPolishedShell ? BUYER_RISK_EXCEPTIONS_EMPTY_TERTIARY_ACTION : CREATE_ARCHITECTURE_LABEL}
               </Link>
             }

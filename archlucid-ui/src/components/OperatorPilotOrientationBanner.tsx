@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-const PRIMARY_HREF = "/reviews/new";
+const PRIMARY_HREF = "/architecture/reviews/new";
 const PRIMARY_LABEL = "Start your first review";
 
 /**
@@ -46,7 +46,7 @@ export function OperatorPilotOrientationBanner() {
             In-app guidance
           </Link>
           <Link
-            href="/reviews"
+            href="/architecture/reviews"
             className={`${OPERATOR_TYPOGRAPHY.helper} text-al-accent-interactive underline-offset-2 hover:underline`}
             data-testid="operator-pilot-secondary-reviews"
           >

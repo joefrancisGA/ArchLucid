@@ -60,7 +60,7 @@ export function GovernanceApprovalLineagePageView({ model }: GovernanceApprovalL
             Retry
           </Button>
           <Button variant="outline" size="sm" asChild>
-            <Link href="/reviews?projectId=default">Reviews</Link>
+            <Link href="/architecture/reviews?projectId=default">Reviews</Link>
           </Button>
         </div>
       </div>

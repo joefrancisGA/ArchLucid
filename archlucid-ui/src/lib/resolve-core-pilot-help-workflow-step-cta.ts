@@ -11,13 +11,13 @@ export type CorePilotHelpWorkflowStepCta = {
 
 const START_REVIEW_FIRST: CorePilotHelpWorkflowStepCta = {
   enabled: true,
-  href: "/reviews/new",
+  href: "/architecture/reviews/new",
   label: "Start a review first",
   helperText: "Open detail, finalize, and exports unlock after you start a review.",
 };
 
 function reviewDetailHref(runId: string): string {
-  return `/reviews/${encodeURIComponent(runId)}`;
+  return `/architecture/reviews/${encodeURIComponent(runId)}`;
 }
 
 function finalizeHref(runId: string): string {

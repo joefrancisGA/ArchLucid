@@ -60,17 +60,17 @@ export function OperatorCoArchitectHomeStrip({ buyerPolishedShell = false }: Ope
       </p>
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <Button asChild variant="primary" size={buyerPolishedShell ? "default" : "sm"} className="cursor-pointer">
-          <Link href="/reviews/new" onClick={() => onPick("review")}>
+          <Link href="/architecture/reviews/new" onClick={() => onPick("review")}>
             {OPERATOR_CO_ARCHITECT_CTA_REVIEW_PRIMARY}
           </Link>
         </Button>
         <Button asChild variant="outline" size={buyerPolishedShell ? "default" : "sm"} className="cursor-pointer">
-          <Link href="/reviews/new?intent=describe" onClick={() => onPick("describe")}>
+          <Link href="/architecture/reviews/new?intent=describe" onClick={() => onPick("describe")}>
             {OPERATOR_CO_ARCHITECT_CTA_DESCRIBE_SECONDARY}
           </Link>
         </Button>
         <Button asChild variant="outline" size={buyerPolishedShell ? "default" : "sm"} className="cursor-pointer">
-          <Link href="/reviews?projectId=default">{OPERATOR_CO_ARCHITECT_CTA_OPEN_EXISTING}</Link>
+          <Link href="/architecture/reviews?projectId=default">{OPERATOR_CO_ARCHITECT_CTA_OPEN_EXISTING}</Link>
         </Button>
       </div>
     </section>

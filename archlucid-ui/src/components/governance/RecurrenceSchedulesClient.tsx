@@ -398,7 +398,7 @@ export default function RecurrenceSchedulesClient() {
                       <EnterpriseTableCell>{schedule.name}</EnterpriseTableCell>
                       <EnterpriseTableCell>
                         <Link
-                          href={`/reviews/${schedule.sourceRunId}`}
+                          href={`/architecture/reviews/${schedule.sourceRunId}`}
                           className={cn(
                             "font-mono text-teal-800 underline-offset-2 hover:underline dark:text-teal-300",
                             OPERATOR_TYPOGRAPHY.body,
@@ -463,7 +463,7 @@ export default function RecurrenceSchedulesClient() {
                           <div className="flex flex-col gap-2">
                             <div className="flex flex-wrap gap-2">
                               <Button asChild size="sm" variant="outline">
-                                <Link href={`/reviews/${schedule.sourceRunId}`}>View</Link>
+                                <Link href={`/architecture/reviews/${schedule.sourceRunId}`}>View</Link>
                               </Button>
                               <Button
                                 type="button"

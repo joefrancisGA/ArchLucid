@@ -9,5 +9,5 @@ export function alertPrimaryFindingDetailHref(alert: AlertRecord): string | null
     return null;
   }
 
-  return `/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(findingId)}`;
+  return `/architecture/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(findingId)}`;
 }

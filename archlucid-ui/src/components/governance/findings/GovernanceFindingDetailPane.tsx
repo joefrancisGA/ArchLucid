@@ -73,7 +73,7 @@ function GovernanceFindingDetailPaneComponent({
               <span className="font-medium text-neutral-800 dark:text-neutral-200">Review</span>{" "}
               <Link
                 className={OPERATOR_LINK.inline}
-                href={`/reviews/${encodeURIComponent(row.runId)}`}
+                href={`/architecture/reviews/${encodeURIComponent(row.runId)}`}
               >
                 {row.runLabel}
               </Link>
@@ -218,7 +218,7 @@ export function GovernanceFindingOperationalHeaderMeta(props: {
         <div className="mt-0.5">
           <Link
             className={OPERATOR_LINK.inline}
-            href={`/reviews/${encodeURIComponent(row.runId)}`}
+            href={`/architecture/reviews/${encodeURIComponent(row.runId)}`}
           >
             {row.runLabel}
           </Link>

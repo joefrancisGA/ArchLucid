@@ -30,7 +30,7 @@ export type CorePilotHelpDeferredItem = {
   readonly description: string;
 };
 
-const sampleReviewHref = `/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
+const sampleReviewHref = `/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
 
 export const CORE_PILOT_HELP_WORKFLOW_STEPS: readonly CorePilotHelpWorkflowStep[] = [
   {
@@ -39,7 +39,7 @@ export const CORE_PILOT_HELP_WORKFLOW_STEPS: readonly CorePilotHelpWorkflowStep[
     description:
       "Open New architecture review and name what you want reviewed — goals, constraints, and scope. Saving an architecture draft is optional and separate from starting a review.",
     expectedOutput: "A new architecture review on your reviews list.",
-    href: "/reviews/new",
+    href: "/architecture/reviews/new",
     ctaLabel: BUYER_START_ARCHITECTURE_REVIEW_CTA,
   },
   {
@@ -48,7 +48,7 @@ export const CORE_PILOT_HELP_WORKFLOW_STEPS: readonly CorePilotHelpWorkflowStep[
     description:
       "Attach briefs, diagrams, documents, IaC, or exports. Cloud connectors are optional for this step.",
     expectedOutput: "Evidence linked to the architecture review before analysis runs.",
-    href: "/reviews/new",
+    href: "/architecture/reviews/new",
     ctaLabel: "Add evidence",
   },
   {
@@ -56,7 +56,7 @@ export const CORE_PILOT_HELP_WORKFLOW_STEPS: readonly CorePilotHelpWorkflowStep[
     title: "Monitor review progress",
     description: "Watch progress on review detail until findings are ready to finalize.",
     expectedOutput: "Findings and evidence labels ready for your review.",
-    href: "/reviews/new",
+    href: "/architecture/reviews/new",
     ctaLabel: "Open review detail",
   },
   {
@@ -65,7 +65,7 @@ export const CORE_PILOT_HELP_WORKFLOW_STEPS: readonly CorePilotHelpWorkflowStep[
     description:
       "Finalize when ready — this locks the signed review record, findings, and export surfaces on the architecture review.",
     expectedOutput: "A finalized architecture review with artifacts and audit trail.",
-    href: "/reviews/new",
+    href: "/architecture/reviews/new",
     ctaLabel: "Finalize on review detail",
   },
   {
@@ -73,7 +73,7 @@ export const CORE_PILOT_HELP_WORKFLOW_STEPS: readonly CorePilotHelpWorkflowStep[
     title: "Share outputs",
     description: "Download sponsor exports and share proof with stakeholders when your internal review is complete.",
     expectedOutput: "Sponsor packet, board materials, or markdown exports.",
-    href: "/reviews/new",
+    href: "/architecture/reviews/new",
     ctaLabel: "Open exports",
   },
 ];
@@ -125,7 +125,7 @@ export const CORE_PILOT_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
 
 /** Hero + secondary actions for `/help/first-architecture-review` — no recursive pilot-guide link (TB-1040). */
 export const CORE_PILOT_HELP_PRIMARY_ACTIONS = {
-  startReview: { href: "/reviews/new", label: BUYER_START_ARCHITECTURE_REVIEW_CTA },
+  startReview: { href: "/architecture/reviews/new", label: BUYER_START_ARCHITECTURE_REVIEW_CTA },
   sampleReview: { href: sampleReviewHref, label: "Open sample review" },
   troubleshooting: { href: inAppHelpHref("troubleshooting"), label: "Troubleshooting" },
 } as const;

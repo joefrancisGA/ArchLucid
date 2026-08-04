@@ -98,7 +98,7 @@ function traceRowWorkItemLinks(input: TraceRowWorkItemInput): {
   inspectUrl: string;
 } {
   const origin = input.siteOrigin.replace(/\/$/, "");
-  const runPath = `/reviews/${encodeURIComponent(input.runId)}`;
+  const runPath = `/architecture/reviews/${encodeURIComponent(input.runId)}`;
   const findingPath = `${runPath}/findings/${encodeURIComponent(input.findingId)}`;
   const tracePath = getFindingEvidenceTraceHref(input.runId, input.findingId);
 
@@ -212,7 +212,7 @@ export function buildTraceRowWorkItemBody(format: WorkItemClipboardFormat, input
  */
 export function buildInspectFindingWorkItemBody(format: WorkItemClipboardFormat, input: FindingWorkItemBuildInput): string {
   const origin = input.siteOrigin.replace(/\/$/, "");
-  const runPath = `/reviews/${encodeURIComponent(input.runId)}`;
+  const runPath = `/architecture/reviews/${encodeURIComponent(input.runId)}`;
   const base = `${origin}${runPath}`;
   const explainUrl = `${base}/findings/${encodeURIComponent(input.findingId)}`;
   const inspectUrl = `${origin}${getFindingEvidenceTraceHref(input.runId, input.findingId)}`;

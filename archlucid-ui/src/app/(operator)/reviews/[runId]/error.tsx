@@ -69,12 +69,12 @@ export default function RunDetailSegmentError({
             <Link href={`/showcase/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}>View sample review</Link>
           </Button>
           <Button type="button" variant="outline" asChild>
-            <Link href="/reviews?projectId=default">Back to reviews</Link>
+            <Link href="/architecture/reviews?projectId=default">Back to reviews</Link>
           </Button>
         </div>
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           The sample above uses demo data. Your reviews remain available at{" "}
-          <Link href="/reviews?projectId=default" className={OPERATOR_LINK.nav}>
+          <Link href="/architecture/reviews?projectId=default" className={OPERATOR_LINK.nav}>
             Reviews list
           </Link>
           .
@@ -140,7 +140,7 @@ export default function RunDetailSegmentError({
       )}
       <div className="flex flex-wrap items-center gap-2">
         <Button type="button" variant="primary" asChild>
-          <Link href="/reviews?projectId=default">Back to reviews</Link>
+          <Link href="/architecture/reviews?projectId=default">Back to reviews</Link>
         </Button>
         <Button type="button" variant="outline" onClick={() => reset()}>
           Retry

@@ -32,7 +32,7 @@ export default async function RunDetailPage({
     : resolvedSearchParams.intent;
   const fromArchitectureCreation =
     fromGeneration && intentParam?.trim() === CREATE_ARCHITECTURE_INTENT;
-  const attemptedRoute = `/reviews/${encodeURIComponent(runId)}`;
+  const attemptedRoute = `/architecture/reviews/${encodeURIComponent(runId)}`;
 
   if (isInvalidGuidOrSlugRouteToken(runId)) {
     notFound();

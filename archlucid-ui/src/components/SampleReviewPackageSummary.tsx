@@ -86,7 +86,7 @@ export function SampleReviewPackageSummary({
             </Button>
           ) : null}
           <Button asChild variant="outline" className="h-9 border-amber-300 bg-white/80 text-amber-950 hover:bg-white dark:border-amber-700 dark:bg-neutral-950/60 dark:text-amber-100">
-            <Link href="/reviews/new">Start a real review</Link>
+            <Link href="/architecture/reviews/new">Start a real review</Link>
           </Button>
         </div>
       </section>

@@ -287,7 +287,7 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
       {variant === "ingest" ? (
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Or use the{" "}
-          <Link className={OPERATOR_LINK.nav} href="/reviews/new?baseline=1">
+          <Link className={OPERATOR_LINK.nav} href="/architecture/reviews/new?baseline=1">
             baseline-first wizard
           </Link>{" "}
           to attach optional evidence after your review brief.

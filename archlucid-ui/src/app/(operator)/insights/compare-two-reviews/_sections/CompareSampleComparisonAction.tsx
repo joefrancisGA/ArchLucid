@@ -45,7 +45,7 @@ export function CompareSampleComparisonAction(props: CompareSampleComparisonActi
 
   return (
     <Button type="button" variant={variant} size={size} asChild data-testid="compare-sample-comparison-button">
-      <Link href="/reviews?projectId=default">Load sample reviews</Link>
+      <Link href="/architecture/reviews?projectId=default">Load sample reviews</Link>
     </Button>
   );
 }

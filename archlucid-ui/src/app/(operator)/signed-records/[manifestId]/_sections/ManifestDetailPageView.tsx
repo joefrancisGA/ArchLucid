@@ -210,11 +210,11 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
     <div className="w-full max-w-[1200px] space-y-6 px-1 py-2 sm:px-0">
       <CtoDemoBuyerValueStrip stepIndex={1} />
       <nav aria-label="Breadcrumb" className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-        <Link className={OPERATOR_LINK.nav} href="/reviews?projectId=default">
+        <Link className={OPERATOR_LINK.nav} href="/architecture/reviews?projectId=default">
           Reviews
         </Link>
         {" · "}
-        <Link className={OPERATOR_LINK.nav} href={`/reviews/${summary.runId}`}>
+        <Link className={OPERATOR_LINK.nav} href={`/architecture/reviews/${summary.runId}`}>
           {buyerPolishedLayout === true && showcasePackage === true
             ? SHOWCASE_BUYER_REVIEW_TITLE
             : "Open review"}

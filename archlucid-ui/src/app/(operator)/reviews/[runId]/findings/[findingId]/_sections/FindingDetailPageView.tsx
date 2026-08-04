@@ -98,7 +98,7 @@ export function FindingDetailPageView(props: Props) {
     inspectPayload !== null ? resolvePolicyTraceExcerptFromInspect(inspectPayload) : null;
 
   const inspectHref = getFindingEvidenceTraceHref(runId, decodedFindingId);
-  const reviewFindingsHref = `/reviews/${encodeURIComponent(runId)}?reviewTab=findings`;
+  const reviewFindingsHref = `/architecture/reviews/${encodeURIComponent(runId)}?reviewTab=findings`;
   const reviewPackageHref = isDemoRunIdEligibleForStaticFallback(runId)
     ? getShowcaseManifestHref()
     : `/reviews/${encodeURIComponent(runId)}`;

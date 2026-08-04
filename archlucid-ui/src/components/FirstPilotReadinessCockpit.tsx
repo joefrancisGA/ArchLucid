@@ -434,7 +434,7 @@ export function FirstPilotReadinessCockpit() {
               >
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
                   Tier-1 inventory scripts (Azure, AWS, GCP) — run locally, then upload from{" "}
-                  <Link href="/reviews/new" className="font-medium text-teal-800 underline dark:text-teal-300">
+                  <Link href="/architecture/reviews/new" className="font-medium text-teal-800 underline dark:text-teal-300">
                     {CREATE_ARCHITECTURE_LABEL}
                   </Link>
                   .

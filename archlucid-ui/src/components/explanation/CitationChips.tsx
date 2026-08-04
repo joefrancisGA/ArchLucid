@@ -20,18 +20,18 @@ function citationHref(c: CitationReference, runId: string, buyerPolishedShell: b
     case "Finding":
 
       if (buyerPolishedShell) {
-        return `/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(c.id)}`;
+        return `/architecture/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(c.id)}`;
       }
 
-      return `/reviews/${encodeURIComponent(runId)}#finding-${encodeURIComponent(c.id)}`;
+      return `/architecture/reviews/${encodeURIComponent(runId)}#finding-${encodeURIComponent(c.id)}`;
     case "DecisionTrace":
     case "GraphSnapshot":
     case "ContextSnapshot":
-      return `/reviews/${encodeURIComponent(runId)}/provenance`;
+      return `/architecture/reviews/${encodeURIComponent(runId)}/provenance`;
     case "EvidenceBundle":
-      return `/reviews/${encodeURIComponent(runId)}`;
+      return `/architecture/reviews/${encodeURIComponent(runId)}`;
     default:
-      return `/reviews/${encodeURIComponent(runId)}`;
+      return `/architecture/reviews/${encodeURIComponent(runId)}`;
   }
 }
 

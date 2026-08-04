@@ -165,7 +165,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
   }
 
   function renderFindingRow(f: QuickDecisionFinding, showTierBadge: boolean, subdued = false): ReactElement {
-    const href = `/reviews/${encodeURIComponent(props.runId)}/findings/${encodeURIComponent(f.findingId)}`;
+    const href = `/architecture/reviews/${encodeURIComponent(props.runId)}/findings/${encodeURIComponent(f.findingId)}`;
     const snippet =
       f.recommendation.length > 0
         ? firstRecommendationSentence(f.recommendation)
@@ -514,7 +514,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
   }
 
   function renderWorkspacePrimaryFinding(f: QuickDecisionFinding): ReactElement {
-    const href = `/reviews/${encodeURIComponent(props.runId)}/findings/${encodeURIComponent(f.findingId)}`;
+    const href = `/architecture/reviews/${encodeURIComponent(props.runId)}/findings/${encodeURIComponent(f.findingId)}`;
     const snippet =
       f.recommendation.length > 0
         ? firstRecommendationSentence(f.recommendation)
@@ -670,7 +670,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
   }
 
   function renderWorkspaceSecondaryFinding(f: QuickDecisionFinding, subdued = false): ReactElement {
-    const href = `/reviews/${encodeURIComponent(props.runId)}/findings/${encodeURIComponent(f.findingId)}`;
+    const href = `/architecture/reviews/${encodeURIComponent(props.runId)}/findings/${encodeURIComponent(f.findingId)}`;
     const badgeLabel = severityBadgeLabel(f.severityValue);
     const reviewStatus = humanReviewStatusDisplay(f.humanReviewStatus);
     const snippet =

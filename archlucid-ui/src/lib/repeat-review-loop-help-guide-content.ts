@@ -32,7 +32,7 @@ export const REPEAT_REVIEW_LOOP_HELP_PRIMARY_ACTIONS = {
   },
   startNextReview: {
     label: "Start next review",
-    href: "/reviews/new",
+    href: "/architecture/reviews/new",
   },
   firstArchitectureReview: {
     label: "Your first architecture review",

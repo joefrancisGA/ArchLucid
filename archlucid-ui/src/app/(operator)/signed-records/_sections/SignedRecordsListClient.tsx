@@ -147,7 +147,7 @@ export default function SignedRecordsListClient() {
           title={SIGNED_RECORDS_LIST_EMPTY_TITLE}
           description={SIGNED_RECORDS_LIST_EMPTY_BODY}
           actions={[
-            { label: SIGNED_RECORDS_LIST_EMPTY_PRIMARY_LABEL, href: "/reviews/new", variant: "primary" },
+            { label: SIGNED_RECORDS_LIST_EMPTY_PRIMARY_LABEL, href: "/architecture/reviews/new", variant: "primary" },
             {
               label: SIGNED_RECORDS_LIST_EMPTY_SECONDARY_LABEL,
               href: SIGNED_RECORDS_LIST_EMPTY_SECONDARY_HREF,

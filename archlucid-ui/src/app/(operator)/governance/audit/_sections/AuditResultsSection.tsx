@@ -126,7 +126,7 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
       {buyerPolishedShell && uniformRunIdForDisplay !== null ? (
         <p className={cn("mb-2 mt-1 max-w-2xl text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
           All events in this view belong to{" "}
-          <Link className={OPERATOR_LINK.nav} href={`/reviews/${encodeURIComponent(uniformRunIdForDisplay)}`}>
+          <Link className={OPERATOR_LINK.nav} href={`/architecture/reviews/${encodeURIComponent(uniformRunIdForDisplay)}`}>
             {buyerFacingReviewLinkLabelFromRunId(uniformRunIdForDisplay)}
           </Link>
           .
@@ -314,7 +314,7 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
                         {BUYER_AUDIT_ENTERPRISE_WORKSPACE_FOLLOWUP}
                       </p>
                       <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.helper)}>
-                        <Link className={OPERATOR_LINK.nav} href="/reviews/new">
+                        <Link className={OPERATOR_LINK.nav} href="/architecture/reviews/new">
                           Create follow-up review
                         </Link>{" "}
                         when you need another governed package after completing this sample path.

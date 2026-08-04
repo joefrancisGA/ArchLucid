@@ -39,7 +39,7 @@ export function AuditEventOperatorTableRow(props: AuditEventOperatorTableRowProp
       </EnterpriseTableCell>
       <EnterpriseTableCell>
         {runId.length > 0 ? (
-          <Link className={OPERATOR_LINK.nav} href={`/reviews/${encodeURIComponent(runId)}`}>
+          <Link className={OPERATOR_LINK.nav} href={`/architecture/reviews/${encodeURIComponent(runId)}`}>
             {buyerFacingReviewLinkLabelFromRunId(runId)}
           </Link>
         ) : (

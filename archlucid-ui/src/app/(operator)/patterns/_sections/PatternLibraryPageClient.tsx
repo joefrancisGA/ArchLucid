@@ -100,8 +100,8 @@ export function PatternLibraryPageClient(): React.JSX.Element {
           title={allRecords.length === 0 ? PATTERN_LIBRARY_EMPTY_BUILDING_TITLE : PATTERN_LIBRARY_EMPTY_FILTERED_TITLE}
           description={allRecords.length === 0 ? PATTERN_LIBRARY_EMPTY_BUILDING_BODY : PATTERN_LIBRARY_EMPTY_FILTERED_BODY}
           actions={[
-            { label: "Start architecture review", href: "/reviews/new", variant: "primary" },
-            { label: "Open completed sample", href: "/reviews/claims-intake-modernization", variant: "outline" },
+            { label: "Start architecture review", href: "/architecture/reviews/new", variant: "primary" },
+            { label: "Open completed sample", href: "/architecture/reviews/claims-intake-modernization", variant: "outline" },
           ]}
         />
       ) : null}

@@ -32,7 +32,7 @@ export function ImpactPreviewEvidenceBasisSection(props: ImpactPreviewEvidenceBa
             <dt className="text-al-text-secondary">{IMPACT_PREVIEW_EVIDENCE_REVIEW_BASELINE}</dt>
             <dd className="m-0 mt-1">
               {props.baselineRunId !== null ? (
-                <Link href={`/reviews/${encodeURIComponent(props.baselineRunId)}`} className={OPERATOR_LINK.inline}>
+                <Link href={`/architecture/reviews/${encodeURIComponent(props.baselineRunId)}`} className={OPERATOR_LINK.inline}>
                   {props.baselineRunId}
                 </Link>
               ) : (

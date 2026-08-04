@@ -368,7 +368,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
           <div className="mt-2 flex flex-wrap gap-1.5">
             <Link
               className={cn("inline-flex rounded-full border border-neutral-300 bg-al-surface-raised px-2 py-0.5 font-medium text-al-text-primary no-underline hover:bg-[var(--al-layer-hover)] dark:border-neutral-600", OPERATOR_TYPOGRAPHY.helper)}
-              href={`/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}
+              href={`/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}
             >
               Open sample review
             </Link>
@@ -393,7 +393,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
             {commitCtx.firstCommittedRunId !== null ? (
               <Link
                 className={cn("inline-flex rounded-full border border-neutral-300 bg-al-surface-raised px-2 py-0.5 font-medium text-al-text-primary no-underline hover:bg-[var(--al-layer-hover)] dark:border-neutral-600", OPERATOR_TYPOGRAPHY.helper)}
-                href={`/reviews/${encodeURIComponent(commitCtx.firstCommittedRunId)}`}
+                href={`/architecture/reviews/${encodeURIComponent(commitCtx.firstCommittedRunId)}`}
               >
                 Open finalized review
               </Link>
@@ -423,7 +423,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
                 ·{" "}
                 <Link
                   className="text-teal-800 underline decoration-teal-300/50 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
-                  href={`/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}
+                  href={`/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}
                 >
                   Open review detail
                 </Link>{" "}

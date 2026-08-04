@@ -87,10 +87,10 @@ export function PilotOutcomesEmptyState(props: Props) {
           Adjust reporting period
         </Button>
         <Button type="button" variant="secondary" asChild>
-          <Link href="/reviews?status=completed">View completed reviews</Link>
+          <Link href="/architecture/reviews?status=completed">View completed reviews</Link>
         </Button>
         <Button type="button" variant="outline" asChild>
-          <Link href="/reviews/new">{BUYER_START_ARCHITECTURE_REVIEW_CTA}</Link>
+          <Link href="/architecture/reviews/new">{BUYER_START_ARCHITECTURE_REVIEW_CTA}</Link>
         </Button>
         {mostRecentFinalizedReviewHref !== null && diagnostics.reviewsInTimeline > 0 ? (
           <Link href={mostRecentFinalizedReviewHref} className={cn(OPERATOR_LINK.inline, "self-center")}>

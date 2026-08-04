@@ -70,7 +70,7 @@ export function DecisionRegisterDecisionCard(props: DecisionRegisterDecisionCard
           <div>
             <dt className="text-al-text-secondary">Review</dt>
             <dd className="m-0">
-              <Link className={OPERATOR_LINK.nav} href={`/reviews/${decision.runId}`}>
+              <Link className={OPERATOR_LINK.nav} href={`/architecture/reviews/${decision.runId}`}>
                 Open review
               </Link>
             </dd>

@@ -51,7 +51,7 @@ export function ShowcaseOutcomeStrip(props: ShowcaseOutcomeStripProps): ReactEle
   return (
     <section aria-label="Open completed output" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
       {isRunDetailAvailable ? (
-        <Link className={cardClass} href={`/reviews/${encRun}`}>
+        <Link className={cardClass} href={`/architecture/reviews/${encRun}`}>
           <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>
             {`1 · ${BUYER_EXECUTIVE_SUMMARY_VOCABULARY.reviewExecutiveSummaryLabel}`}
           </span>

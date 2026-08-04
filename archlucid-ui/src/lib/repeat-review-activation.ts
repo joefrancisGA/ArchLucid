@@ -20,7 +20,7 @@ function reviewHref(runId: string | null | undefined): string | null {
     return null;
   }
 
-  return `/reviews/${encodeURIComponent(runId.trim())}`;
+  return `/architecture/reviews/${encodeURIComponent(runId.trim())}`;
 }
 
 /**

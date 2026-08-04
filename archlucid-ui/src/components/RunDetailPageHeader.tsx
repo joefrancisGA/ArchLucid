@@ -206,7 +206,7 @@ export function RunDetailPageHeader({
               <p className={cn("m-0 mt-2 inline-flex max-w-3xl flex-wrap items-center gap-2 rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 font-medium dark:border-neutral-800", OPERATOR_TYPOGRAPHY.body)}>
                 <span>Traceable evidence and audit-ready history</span>
                 <Link
-                  href={`/reviews/${encodeURIComponent(runId)}#trust-evidence`}
+                  href={`/architecture/reviews/${encodeURIComponent(runId)}#trust-evidence`}
                   className={cn("font-semibold", OPERATOR_LINK.nav)}
                 >
                   View evidence basis

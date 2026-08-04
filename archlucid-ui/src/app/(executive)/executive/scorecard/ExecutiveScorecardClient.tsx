@@ -200,7 +200,7 @@ export function ExecutiveScorecardClient() {
                 </Link>
               </Button>
               <Button asChild variant="outline" size="sm">
-                <Link href="/reviews?projectId=default">Open reviews</Link>
+                <Link href="/architecture/reviews?projectId=default">Open reviews</Link>
               </Button>
             </div>
           </CardContent>
@@ -292,7 +292,7 @@ export function ExecutiveScorecardClient() {
           </p>
         </div>
         <Button asChild variant="outline" size="sm" className="shrink-0 self-start sm:self-auto">
-          <Link href="/reviews">{BUYER_EXECUTIVE_SCORECARD_LINK_REVIEW_PACKAGES}</Link>
+          <Link href="/architecture/reviews">{BUYER_EXECUTIVE_SCORECARD_LINK_REVIEW_PACKAGES}</Link>
         </Button>
       </div>
 

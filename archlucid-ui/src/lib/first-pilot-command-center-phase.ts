@@ -59,17 +59,17 @@ function committedReviewHref(signals: FirstPilotOperatingRailSignals): string {
 
   if (signals.firstCommittedRunId)
 
-    return `/reviews/${encodeURIComponent(signals.firstCommittedRunId)}`;
+    return `/architecture/reviews/${encodeURIComponent(signals.firstCommittedRunId)}`;
 
 
 
   if (signals.latestRunId)
 
-    return `/reviews/${encodeURIComponent(signals.latestRunId)}`;
+    return `/architecture/reviews/${encodeURIComponent(signals.latestRunId)}`;
 
 
 
-  return "/reviews?projectId=default";
+  return "/architecture/reviews?projectId=default";
 
 }
 

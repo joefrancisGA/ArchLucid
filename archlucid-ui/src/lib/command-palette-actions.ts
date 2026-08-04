@@ -16,13 +16,13 @@ export const COMMAND_PALETTE_ACTIONS: readonly CommandPaletteAction[] = [
   {
     id: "action-create-review",
     label: CREATE_ARCHITECTURE_LABEL,
-    href: "/reviews/new",
+    href: "/architecture/reviews/new",
     searchValue: "action create new review wizard",
   },
   {
     id: "action-open-reviews",
     label: "Open reviews list",
-    href: "/reviews?projectId=default",
+    href: "/architecture/reviews?projectId=default",
     searchValue: "action open list reviews packages",
   },
   {

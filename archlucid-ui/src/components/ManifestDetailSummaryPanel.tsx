@@ -145,7 +145,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
         ) : summary.decisionCount > 0 ? (
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
             Full decision text is included in the{" "}
-            <Link className={OPERATOR_LINK.nav} href={`/reviews/${summary.runId}`}>
+            <Link className={OPERATOR_LINK.nav} href={`/architecture/reviews/${summary.runId}`}>
               governed architecture review export
             </Link>{" "}
             and evidence bundle — use the download actions on this page when available.
@@ -181,7 +181,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
         ) : summary.warningCount > 0 ? (
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
             Monitored-risk detail travels with the governed evidence bundle — use{" "}
-            <Link className={OPERATOR_LINK.nav} href={`/reviews/${summary.runId}`}>
+            <Link className={OPERATOR_LINK.nav} href={`/architecture/reviews/${summary.runId}`}>
               review detail
             </Link>{" "}
             or download the bundle.
@@ -245,7 +245,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
         <p className={cn("m-0 mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           <Link
             className={OPERATOR_LINK.nav}
-            href={`/reviews/${encodeURIComponent(summary.runId)}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`}
+            href={`/architecture/reviews/${encodeURIComponent(summary.runId)}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`}
           >
             PHI Minimization Risk
           </Link>

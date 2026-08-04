@@ -176,7 +176,7 @@ function normalizeOperatorNavHrefForDemo(href: string): string {
   const trimmed = path.trim().length === 0 ? "/" : path;
 
   if (trimmed === "/reviews" && query !== undefined && query.includes("projectId=")) {
-    return "/reviews?projectId=default";
+    return "/architecture/reviews?projectId=default";
   }
 
   return trimmed;

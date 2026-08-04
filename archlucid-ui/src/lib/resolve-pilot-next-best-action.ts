@@ -56,7 +56,7 @@ function resolveOpenFindingsAction(): PilotNextBestAction {
 function resolveStartReviewAction(): PilotNextBestAction {
   return {
     label: OPERATOR_START_REVIEW_QUICK_ACTION_LABEL,
-    href: "/reviews/new",
+    href: "/architecture/reviews/new",
     bridgeCopy: FIRST_WEEK_ROUTE_GUIDANCE.home.bridgeCopy,
   };
 }

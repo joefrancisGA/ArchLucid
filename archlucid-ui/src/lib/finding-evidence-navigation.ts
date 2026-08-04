@@ -14,7 +14,7 @@ export function getFindingEvidenceTraceHref(runId: string, findingId: string): s
   const encRun = encodeURIComponent(runId.trim());
   const encFinding = encodeURIComponent(findingId.trim());
 
-  return `/reviews/${encRun}/findings/${encFinding}/${FINDING_EVIDENCE_TRACE_SEGMENT}`;
+  return `/architecture/reviews/${encRun}/findings/${encFinding}/${FINDING_EVIDENCE_TRACE_SEGMENT}`;
 }
 
 /** @deprecated Prefer {@link getFindingEvidenceTraceHref}. */
