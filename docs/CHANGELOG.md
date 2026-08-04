@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-04 - UI: Advisory scans Schedules tab Evidence score (AD)
+
+`/governance/advisory-scans?tab=schedules` inherits ADV hub Evidence chrome (Category-1 + Sources strip above tabs); traffic Notes document inheritance and honest Evidence score 48. Schedule-config tab hard-caps higher Evidence (below ADV); no CPA / third-party pen-test implication.
+
 ## 2026-08-04 - UI: Pilot feedback Evidence chrome (PRC)
 
 /internal/product-learning ships PageContextualHelpButton, Category-1 registry, Sources + claim-discipline orientation strip, traffic Notes, and honest Evidence score 50. Internal ops feedback hub hard-caps higher Evidence (below PLA); no CPA / third-party pen-test implication.
