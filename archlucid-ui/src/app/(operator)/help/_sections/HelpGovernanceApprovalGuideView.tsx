@@ -1,11 +1,13 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { GovernanceApprovalHelpEvidenceOrientationStrip } from "@/app/(operator)/help/_sections/GovernanceApprovalHelpEvidenceOrientationStrip";
 import { HelpGovernanceApprovalRoleGuide } from "@/app/(operator)/help/_sections/HelpGovernanceApprovalRoleGuide";
 import { HelpGovernanceApprovalTechnicalReference } from "@/app/(operator)/help/_sections/HelpGovernanceApprovalTechnicalReference";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   GOVERNANCE_APPROVAL_HELP_COMMON_ACTIONS,
   GOVERNANCE_APPROVAL_HELP_DECISION_OUTCOMES,
@@ -142,9 +144,14 @@ export function HelpGovernanceApprovalGuideView(props: HelpGovernanceApprovalGui
     >
       <HelpTopicHashScroll />
       <header className={HELP_PAGE_LAYOUT.articleHeader}>
-        <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{GOVERNANCE_APPROVAL_HELP_PAGE_TITLE}</h1>
+        <div className="flex flex-wrap items-center gap-2">
+          <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{GOVERNANCE_APPROVAL_HELP_PAGE_TITLE}</h1>
+          <PageContextualHelpButton />
+        </div>
         <p className={cn("m-0 max-w-[42rem]", OPERATOR_TYPOGRAPHY.helper)}>{GOVERNANCE_APPROVAL_HELP_PAGE_SUBTITLE}</p>
       </header>
+
+      <GovernanceApprovalHelpEvidenceOrientationStrip />
 
       <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
         <Card

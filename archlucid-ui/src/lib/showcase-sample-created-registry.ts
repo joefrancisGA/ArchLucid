@@ -10,7 +10,7 @@ export const SHOWCASE_SAMPLE_CREATED_REGISTRY = {
   runId: SHOWCASE_CREATED_STATIC_DEMO_RUN_ID,
   primaryFindingId: SHOWCASE_CREATED_STATIC_DEMO_PRIMARY_FINDING_ID,
   primaryFindingTitle: SHOWCASE_CREATED_STATIC_DEMO_PRIMARY_FINDING_TITLE,
-  workspaceLabel: "Northwind Copilot Showcase",
+  workspaceLabel: "Enterprise AI Knowledge Assistant Showcase",
   packageOrigin: "created" as const,
 } as const;
 

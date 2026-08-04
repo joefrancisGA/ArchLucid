@@ -47,6 +47,7 @@ public sealed class RunDetailQueryService(
     IFindingRecordMuteRepository findingRecordMuteRepository,
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
     ILlmCostEstimator llmCostEstimator,
+    IFindingTrustLabelMapper findingTrustLabelMapper,
     ILogger<RunDetailQueryService> logger) : IRunDetailQueryService
 {
     private readonly IAgentResultRepository _resultRepository = resultRepository ?? throw new ArgumentNullException(nameof(resultRepository));
@@ -59,6 +60,9 @@ public sealed class RunDetailQueryService(
 
     private readonly ILlmCostEstimator _llmCostEstimator =
         llmCostEstimator ?? throw new ArgumentNullException(nameof(llmCostEstimator));
+
+    private readonly IFindingTrustLabelMapper _findingTrustLabelMapper =
+        findingTrustLabelMapper ?? throw new ArgumentNullException(nameof(findingTrustLabelMapper));
 
     private readonly IFindingRecordMuteRepository _findingRecordMuteRepository =
         findingRecordMuteRepository ?? throw new ArgumentNullException(nameof(findingRecordMuteRepository));
@@ -91,35 +95,59 @@ public sealed class RunDetailQueryService(
             return null;
         }
 
-        IReadOnlyList<AgentTask> tasks = await taskRepository.GetByRunIdAsync(scope, runId, cancellationToken).ConfigureAwait(false);
+        Task<IReadOnlyList<AgentTask>> tasksTask =
+            taskRepository.GetByRunIdAsync(scope, runId, cancellationToken);
+        Task<IReadOnlyList<AgentResult>> resultsTask =
+            resultRepository.GetByRunIdAsync(scope, runId, cancellationToken);
+        Task<GoldenManifest?> manifestTask =
+            unifiedGoldenManifestReader.ReadByRunIdAsync(scope, runGuid, cancellationToken);
+        Task<IReadOnlyList<AgentExecutionTraceLlmCostSlice>> costSlicesTask =
+            _agentExecutionTraceRepository.GetLlmCostSlicesByRunIdAsync(scope, runId, cancellationToken);
+
+        Task<IReadOnlyDictionary<string, FindingMuteFlag>> muteFlagsTask =
+            record.FindingsSnapshotId is { } findingsSnapshotId
+                ? findingRecordMuteRepository.GetMuteFlagsAsync(findingsSnapshotId, scope, cancellationToken)
+                : Task.FromResult<IReadOnlyDictionary<string, FindingMuteFlag>>(
+                    new Dictionary<string, FindingMuteFlag>(StringComparer.Ordinal));
+
+        Task<DecisionTraceDto?> authorityTraceTask = record.DecisionTraceId is { } authorityTraceId
+            ? authorityDecisionTraceRepository.GetByIdAsync(scope, authorityTraceId, cancellationToken)
+            : Task.FromResult<DecisionTraceDto?>(null);
+
+        await Task.WhenAll(tasksTask, resultsTask, manifestTask, costSlicesTask, muteFlagsTask, authorityTraceTask)
+            .ConfigureAwait(false);
+
+        IReadOnlyList<AgentTask> tasks = await tasksTask.ConfigureAwait(false);
         ArchitectureRun run = RunRecordToArchitectureRunMapper.ToArchitectureRun(record, tasks.Select(t => t.TaskId).ToList());
-        List<AgentResult> results = (await resultRepository.GetByRunIdAsync(scope, runId, cancellationToken).ConfigureAwait(false)).ToList();
+        List<AgentResult> results = (await resultsTask.ConfigureAwait(false)).ToList();
 
-        if (record.FindingsSnapshotId is { } findingsSnapshotId)
+        IReadOnlyDictionary<string, FindingMuteFlag> muteFlags = await muteFlagsTask.ConfigureAwait(false);
+
+        if (muteFlags.Count > 0)
         {
-            IReadOnlyDictionary<string, FindingMuteFlag> flags =
-                await findingRecordMuteRepository.GetMuteFlagsAsync(findingsSnapshotId, scope, cancellationToken).ConfigureAwait(false);
-
-            FindingMuteFlagApplier.Apply(results, flags);
+            FindingMuteFlagApplier.Apply(results, muteFlags);
         }
 
-        GoldenManifest? manifest = await unifiedGoldenManifestReader.ReadByRunIdAsync(scope, runGuid, cancellationToken).ConfigureAwait(false);
+        FindingTrustLabelEnricher.Apply(run, results, _findingTrustLabelMapper);
+
+        GoldenManifest? manifest = await manifestTask.ConfigureAwait(false);
         List<DecisionTraceDto> decisionTraces = [];
+
         if (manifest is null)
         {
             if (!string.IsNullOrWhiteSpace(run.CurrentManifestVersion) && logger.IsEnabled(LogLevel.Warning))
                 logger.LogWarning("RunDetailQueryService: run '{RunId}' references manifest version '{Version}' which no longer exists.",
                     LogSanitizer.Sanitize(runId), LogSanitizer.Sanitize(run.CurrentManifestVersion));
         }
-        else if (record.DecisionTraceId is { } authorityTraceId)
+        else
         {
-            DecisionTraceDto? authorityTrace = await authorityDecisionTraceRepository.GetByIdAsync(scope, authorityTraceId, cancellationToken).ConfigureAwait(false);
+            DecisionTraceDto? authorityTrace = await authorityTraceTask.ConfigureAwait(false);
+
             if (authorityTrace is not null)
                 decisionTraces = [authorityTrace];
         }
 
-        IReadOnlyList<AgentExecutionTraceLlmCostSlice> costSlices = await _agentExecutionTraceRepository
-            .GetLlmCostSlicesByRunIdAsync(scope, runId, cancellationToken).ConfigureAwait(false);
+        IReadOnlyList<AgentExecutionTraceLlmCostSlice> costSlices = await costSlicesTask.ConfigureAwait(false);
         ArchLucid.Contracts.Runs.RunAgentLlmCostEstimateDto? costEstimate = null;
 
         if (costSlices.Count > 0)

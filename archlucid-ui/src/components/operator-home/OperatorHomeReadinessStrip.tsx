@@ -1,8 +1,6 @@
 import { StatusTag } from "@/components/ui/status-tag";
 import {
   OPERATOR_HOME_ONE_REQUIRED_ITEM_TITLE,
-  OPERATOR_HOME_READY_STRIP_LABEL,
-  OPERATOR_HOME_READY_STRIP_SUPPORT,
   OPERATOR_HOME_READY_TO_BEGIN_TITLE,
 } from "@/lib/buyer-polish-copy";
 import { OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
@@ -13,7 +11,7 @@ export type OperatorHomeReadinessStripProps = {
   readonly blockerMessage?: string | null;
 };
 
-/** Compact readiness reassurance beside primary home choices. */
+/** Compact readiness reassurance beside primary home choices — single Ready signal when unblocked. */
 export function OperatorHomeReadinessStrip(props: OperatorHomeReadinessStripProps = {}): React.JSX.Element {
   const canBegin = props.canBegin !== false && props.blockerMessage == null;
 
@@ -34,12 +32,11 @@ export function OperatorHomeReadinessStrip(props: OperatorHomeReadinessStripProp
   return (
     <p
       role="status"
-      aria-label={`${OPERATOR_HOME_READY_TO_BEGIN_TITLE}. ${OPERATOR_HOME_READY_STRIP_LABEL}`}
+      aria-label={OPERATOR_HOME_READY_TO_BEGIN_TITLE}
       className={cn("m-0 inline-flex flex-wrap items-center gap-2", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}
       data-testid="operator-home-readiness-strip"
     >
       <StatusTag kind="ready" label={OPERATOR_HOME_READY_TO_BEGIN_TITLE} />
-      <span>{OPERATOR_HOME_READY_STRIP_SUPPORT}</span>
     </p>
   );
 }

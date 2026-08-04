@@ -1028,6 +1028,9 @@ public static class AuditEventTypes
     /// <summary>Inbound ITSM webhook body exceeded the configured UTF-8 size limit (vendor-agnostic).</summary>
     public const string IntegrationItsmInboundWebhookPayloadRejected = "Integration.ItsmInboundWebhookPayloadRejected";
 
+    /// <summary>Inbound ITSM webhook replay ignored — duplicate delivery/event id within retention; no status mutation (TB-968).</summary>
+    public const string IntegrationItsmInboundWebhookReplayIgnored = "Integration.ItsmInboundWebhookReplayIgnored";
+
     /// <summary>Operator registered a finding ↔ ITSM external key correlation for inbound webhooks.</summary>
     public const string IntegrationItsmFindingCorrelationRegistered = "Integration.ItsmFindingCorrelationRegistered";
 

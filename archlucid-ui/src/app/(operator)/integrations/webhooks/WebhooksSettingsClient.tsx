@@ -12,6 +12,7 @@ import { BooleanStatusChip } from "@/components/ui/boolean-status-chip";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -68,6 +69,7 @@ import {
 import { showSuccess } from "@/lib/toast";
 
 import { WebhooksAboutPanel } from "./WebhooksAboutPanel";
+import { WebhooksIntegrationEvidenceOrientationStrip } from "./WebhooksIntegrationEvidenceOrientationStrip";
 
 import type { AlertRoutingSubscription, WebhookTestResponse } from "@/types/alert-routing";
 
@@ -230,6 +232,7 @@ export function WebhooksSettingsClient() {
         title={WEBHOOKS_PAGE_TITLE}
         variant="integration"
         bordered
+        actions={<PageContextualHelpButton />}
         description={
           <>
             <p className={cn("m-0 max-w-3xl leading-snug", OPERATOR_TYPOGRAPHY.body)}>{WEBHOOKS_PAGE_DESCRIPTION}</p>
@@ -249,6 +252,8 @@ export function WebhooksSettingsClient() {
           </>
         }
       />
+
+      <WebhooksIntegrationEvidenceOrientationStrip />
 
       {failure !== null ? (
         <div role="alert">

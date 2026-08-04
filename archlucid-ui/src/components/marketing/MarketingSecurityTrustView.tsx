@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
+import { SecurityTrustEvidenceOrientationStrip } from "@/components/marketing/SecurityTrustEvidenceOrientationStrip";
 import { Button } from "@/components/ui/button";
 import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -113,6 +114,8 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
         </p>
         <SecurityTrustPrimaryActions testId="security-trust-hero-ctas" />
       </section>
+
+      <SecurityTrustEvidenceOrientationStrip />
 
       <section aria-labelledby="security-trust-evidence-groups" className="space-y-4">
         <h2 id="security-trust-evidence-groups" className={MARKETING_TYPOGRAPHY.sectionTitle}>

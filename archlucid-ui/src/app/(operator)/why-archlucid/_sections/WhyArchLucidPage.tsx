@@ -26,7 +26,7 @@ import { WhyArchLucidSponsorEvidencePackSection } from "@/app/(operator)/why-arc
 
 /**
  * Read-only "Why ArchLucid" proof page (Core Pilot tier, no `requiredAuthority`).
- * Wires the seeded Contoso Retail demo run to live read endpoints; chrome follows payload universe (TB-1306).
+ * Wires the seeded Retail baseline demo run to live read endpoints; chrome follows payload universe (TB-1306).
  */
 export function WhyArchLucidPage() {
   const [state, setState] = useState<WhyArchLucidPageState>(initialWhyArchLucidPageState);

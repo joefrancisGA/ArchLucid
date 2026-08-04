@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 
+import { useAskProjectRunsQuery } from "@/hooks/use-ask-project-runs-query";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
 import { shouldMergeOperatorDemoAlertSample } from "@/lib/operator-static-demo";
 
 function operatorAllowsSyntheticAskRunPick(): boolean {
@@ -22,37 +22,25 @@ export type AskReviewAvailability = {
 
 /** Loads default-project reviews once for Ask page empty-state gating (aligned with AskRunIdPicker synthetic fallback rules). */
 export function useAskReviewAvailability(): AskReviewAvailability {
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading, isError } = useAskProjectRunsQuery("default");
   const [hasSelectableReviews, setHasSelectableReviews] = useState(false);
 
   useEffect(() => {
-    let cancelled = false;
+    if (isLoading) {
+      return;
+    }
 
-    void (async () => {
-      setLoading(true);
+    const allowSyntheticPick = operatorAllowsSyntheticAskRunPick();
+    const items = data?.items ?? [];
 
-      try {
-        const merged = await loadProjectRunsMergedWithDemoFallback("default");
-        const allowSyntheticPick = operatorAllowsSyntheticAskRunPick();
+    if (isError) {
+      setHasSelectableReviews(allowSyntheticPick);
 
-        if (!cancelled) {
-          setHasSelectableReviews(merged.items.length > 0 || allowSyntheticPick);
-        }
-      } catch {
-        if (!cancelled) {
-          setHasSelectableReviews(operatorAllowsSyntheticAskRunPick());
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    })();
+      return;
+    }
 
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+    setHasSelectableReviews(items.length > 0 || allowSyntheticPick);
+  }, [data?.items, isError, isLoading]);
 
-  return { loading, hasSelectableReviews };
+  return { loading: isLoading, hasSelectableReviews };
 }

@@ -34,11 +34,11 @@ public sealed class DemoSeedServiceTests
         ScopeContext ctx = scopeProvider.GetCurrentScope();
 
         IReadOnlyList<RunSummaryDto> rows =
-            await authority.ListRunsByProjectAsync(ctx, "Contoso Retail Platform", 50, CancellationToken.None);
+            await authority.ListRunsByProjectAsync(ctx, "Retail Checkout Platform", 50, CancellationToken.None);
 
         rows.Should().Contain(r => r.RunId == demo.AuthorityRunBaselineId);
         rows.Should().Contain(r => r.RunId == demo.AuthorityRunHardenedId);
-        rows.Should().OnlyContain(r => r.ProjectId == "Contoso Retail Platform");
+        rows.Should().OnlyContain(r => r.ProjectId == "Retail Checkout Platform");
     }
 
     [SkippableFact]
@@ -192,7 +192,7 @@ public sealed class DemoSeedServiceTests
         IAuthorityQueryService authority = scope.ServiceProvider.GetRequiredService<IAuthorityQueryService>();
 
         IReadOnlyList<RunSummaryDto> rows =
-            await authority.ListRunsByProjectAsync(tourScope, "Contoso Cloud Platform", 50, CancellationToken.None);
+            await authority.ListRunsByProjectAsync(tourScope, "Cloud Platform", 50, CancellationToken.None);
 
         rows.Should().Contain(r => r.RunId == tourRunId);
 
@@ -200,7 +200,7 @@ public sealed class DemoSeedServiceTests
         ArchitectureRunDetail? tour = await detail.GetRunDetailAsync(tourRunId.ToString("N"));
         tour.Should().NotBeNull();
         tour!.Manifest.Should().NotBeNull();
-        tour.Manifest!.SystemName.Should().Be("Contoso Cloud Platform");
+        tour.Manifest!.SystemName.Should().Be("Cloud Platform");
         tour.Run.CurrentManifestVersion.Should().Be("northwind-product-tour-v1-manifest");
 
         AssertCommittedDemoManifestSnapshotChain(tour, tourRunId);
@@ -276,7 +276,7 @@ public sealed class DemoSeedServiceTests
         IAuthorityQueryService authority = scope.ServiceProvider.GetRequiredService<IAuthorityQueryService>();
 
         IReadOnlyList<RunSummaryDto> rows =
-            await authority.ListRunsByProjectAsync(ctx, "Northwind.Copilot.RagPlatform", 50, CancellationToken.None);
+            await authority.ListRunsByProjectAsync(ctx, "Enterprise.Copilot.RagPlatform", 50, CancellationToken.None);
 
         rows.Should().Contain(r => r.RunId == runGuid);
 

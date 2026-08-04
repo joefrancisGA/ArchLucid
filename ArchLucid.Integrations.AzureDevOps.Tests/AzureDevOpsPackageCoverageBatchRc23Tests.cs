@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Abstractions.Integrations;
 using ArchLucid.Integrations.AzureDevOps;
 
 using FluentAssertions;

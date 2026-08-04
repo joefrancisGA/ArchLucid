@@ -8,6 +8,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
 import { ASK_CONVERSATION_EMPTY } from "@/lib/ask-conversation-empty-preset";
 import {
+  ASK_REVIEW_UNCITED_RESPONSE_MARKER,
+  askReviewArtifactStatusCopy,
+  messageHasUncitedAssistantOutput,
+  resolveAskReviewArtifactStatus,
+} from "@/lib/ask-review-artifact-status-copy";
+import {
   BUYER_ASK_CONVERSATION_EMPTY_BODY,
   BUYER_ASK_CONVERSATION_EMPTY_TITLE,
   BUYER_ASK_RETRIEVAL_DEGRADED_LABEL,
@@ -25,6 +31,7 @@ export type AskMessageThreadPanelProps = {
   runMissing: boolean;
   onMergePromptLine: (line: string) => void;
   retrievalDegraded?: boolean;
+  isFinalizedReview?: boolean;
 };
 
 function askMessageRoleLabel(role: string, buyerPolishedShell: boolean): string {
@@ -49,7 +56,15 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
     runMissing,
     onMergePromptLine,
     retrievalDegraded = false,
+    isFinalizedReview = true,
   } = props;
+
+  const artifactStatus = resolveAskReviewArtifactStatus({
+    runMissing,
+    isFinalized: isFinalizedReview,
+  });
+  const artifactStatusCopy = askReviewArtifactStatusCopy(artifactStatus);
+  const groundingLinkCount = askAssistantGroundingLinks?.length ?? 0;
 
   return (
     <div className="space-y-3 pt-1">
@@ -57,6 +72,7 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
         <h3 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
           {buyerPolishedShell ? "Evidence Q&A exchange" : "Conversation"}
         </h3>
+        <StatusTag kind="neutral" label={artifactStatusCopy} data-testid="ask-review-artifact-status" />
         {retrievalDegraded ? (
           <StatusTag
             kind="needs-attention"
@@ -97,11 +113,22 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
                 {message.role.toLowerCase() === "assistant" ? <AiOutputGovernanceLabel forceAdvisory /> : null}
               </div>
               {message.role.toLowerCase() === "assistant" ? (
-                <AskAssistantMessageBody
+                <>
+                  {messageHasUncitedAssistantOutput(message.content, groundingLinkCount) ? (
+                    <p
+                      className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                      data-testid="ask-uncited-assistant-marker"
+                      role="note"
+                    >
+                      {ASK_REVIEW_UNCITED_RESPONSE_MARKER}
+                    </p>
+                  ) : null}
+                  <AskAssistantMessageBody
                   buyerPolishedLinks={buyerPolishedShell}
                   content={message.content}
                   groundingLinks={askAssistantGroundingLinks ?? undefined}
                 />
+                </>
               ) : (
                 <p className={cn("m-0 whitespace-pre-wrap text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
                   {message.content}

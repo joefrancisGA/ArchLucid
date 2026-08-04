@@ -108,7 +108,7 @@
     "url": "/help"
   },
   {
-    "title": "Trusted baseline (Contoso Retail)",
+    "title": "Trusted baseline (Retail Checkout)",
     "summary": "Demo-seeded trusted baseline narrative for reproducible sponsor reviews.",
     "category": "Architecture",
     "url": "/help"
@@ -318,7 +318,7 @@
     "url": "/help/subprocessors"
   },
   {
-    "title": "Synthetic Contoso case study",
+    "title": "Synthetic Retail Checkout case study",
     "summary": "Illustrative (non-production) ROI narrative aligned with demo seed data.",
     "category": "Go-to-Market",
     "url": "/help"

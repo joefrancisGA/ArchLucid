@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 
 import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
+import { SignupVerifyEvidenceOrientationStrip } from "@/components/marketing/SignupVerifyEvidenceOrientationStrip";
 import { MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -22,10 +23,11 @@ function VerifyFallback() {
 
 export default function SignupVerifyPage() {
   return (
-    <MarketingPageShell className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-lg items-center px-4 py-10 sm:py-12">
+    <MarketingPageShell className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-lg flex-col justify-center px-4 py-10 sm:py-12">
       <Suspense fallback={<VerifyFallback />}>
         <SignupVerifyClient />
       </Suspense>
+      <SignupVerifyEvidenceOrientationStrip />
     </MarketingPageShell>
   );
 }

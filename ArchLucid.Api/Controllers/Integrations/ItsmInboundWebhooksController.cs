@@ -1,6 +1,6 @@
-using System.Text;
 using System.Text.Json;
 
+using ArchLucid.Api.Http;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Integrations.Itsm;
 using ArchLucid.Core.Audit;
@@ -53,6 +53,7 @@ public sealed class ItsmInboundWebhooksController(
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
     public Task<IActionResult> Jira(CancellationToken ct) =>
         ProcessJiraAsync(tenantId: null, ct);
 
@@ -61,6 +62,7 @@ public sealed class ItsmInboundWebhooksController(
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
     public Task<IActionResult> JiraForTenant(Guid tenantId, CancellationToken ct) =>
         ProcessJiraAsync(tenantId, ct);
 
@@ -69,6 +71,7 @@ public sealed class ItsmInboundWebhooksController(
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
     public Task<IActionResult> ServiceNow(CancellationToken ct) =>
         ProcessServiceNowAsync(tenantId: null, ct);
 
@@ -77,6 +80,7 @@ public sealed class ItsmInboundWebhooksController(
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
     public Task<IActionResult> ServiceNowForTenant(Guid tenantId, CancellationToken ct) =>
         ProcessServiceNowAsync(tenantId, ct);
 
@@ -90,18 +94,25 @@ public sealed class ItsmInboundWebhooksController(
         if (string.IsNullOrWhiteSpace(sharedSecret))
             return Unauthorized();
 
-        string rawBody = await ReadRequestBodyUtf8Async(ct).ConfigureAwait(false);
+        InboundWebhookBoundedBodyReadResult bodyRead = await InboundWebhookBoundedBodyReader
+            .ReadUtf8Async(Request, InboundWebhookBodyLimits.DefaultMaxUtf8Bytes, ct)
+            .ConfigureAwait(false);
 
-        int payloadUtf8Bytes = Encoding.UTF8.GetByteCount(rawBody);
-
-        if (payloadUtf8Bytes > ItsmInboundWebhookSyncService.MaxInboundWebhookPayloadUtf8Bytes)
+        if (!bodyRead.Succeeded)
         {
             await _auditService
-                .LogAsync(ItsmInboundWebhookSyncService.CreatePayloadTooLargeAudit(true, payloadUtf8Bytes), ct)
+                .LogAsync(
+                    ItsmInboundWebhookSyncService.CreatePayloadTooLargeAudit(true, bodyRead.ObservedOrDeclaredBytes),
+                    ct)
                 .ConfigureAwait(false);
 
-            return this.BadRequestProblem("ITSM webhook payload exceeds maximum size.", ProblemTypes.ValidationFailed);
+            return this.PayloadTooLargeProblem(
+                "ITSM webhook payload exceeds maximum size.",
+                ProblemTypes.RequestPayloadTooLarge);
         }
+
+        string rawBody = bodyRead.Body!;
+        int payloadUtf8Bytes = bodyRead.ObservedOrDeclaredBytes;
 
         string? token = Request.Headers["X-Jira-Token"].FirstOrDefault();
 
@@ -111,7 +122,7 @@ public sealed class ItsmInboundWebhooksController(
         using JsonDocument doc = JsonDocument.Parse(rawBody);
 
         ItsmInboundWebhookProcessResult r =
-            await _sync.TryProcessJiraIssueUpdateAsync(doc.RootElement, ct, payloadUtf8Bytes).ConfigureAwait(false);
+            await _sync.TryProcessJiraIssueUpdateAsync(doc.RootElement, ct, payloadUtf8Bytes, ResolveDeliveryId()).ConfigureAwait(false);
 
         if (r.DurableAuditEvent is not null)
             await _auditService.LogAsync(r.DurableAuditEvent, ct).ConfigureAwait(false);
@@ -132,18 +143,25 @@ public sealed class ItsmInboundWebhooksController(
         if (string.IsNullOrWhiteSpace(sharedSecret))
             return Unauthorized();
 
-        string rawBody = await ReadRequestBodyUtf8Async(ct).ConfigureAwait(false);
+        InboundWebhookBoundedBodyReadResult bodyRead = await InboundWebhookBoundedBodyReader
+            .ReadUtf8Async(Request, InboundWebhookBodyLimits.DefaultMaxUtf8Bytes, ct)
+            .ConfigureAwait(false);
 
-        int payloadUtf8Bytes = Encoding.UTF8.GetByteCount(rawBody);
-
-        if (payloadUtf8Bytes > ItsmInboundWebhookSyncService.MaxInboundWebhookPayloadUtf8Bytes)
+        if (!bodyRead.Succeeded)
         {
             await _auditService
-                .LogAsync(ItsmInboundWebhookSyncService.CreatePayloadTooLargeAudit(false, payloadUtf8Bytes), ct)
+                .LogAsync(
+                    ItsmInboundWebhookSyncService.CreatePayloadTooLargeAudit(false, bodyRead.ObservedOrDeclaredBytes),
+                    ct)
                 .ConfigureAwait(false);
 
-            return this.BadRequestProblem("ITSM webhook payload exceeds maximum size.", ProblemTypes.ValidationFailed);
+            return this.PayloadTooLargeProblem(
+                "ITSM webhook payload exceeds maximum size.",
+                ProblemTypes.RequestPayloadTooLarge);
         }
+
+        string rawBody = bodyRead.Body!;
+        int payloadUtf8Bytes = bodyRead.ObservedOrDeclaredBytes;
 
         string? token = Request.Headers["X-ServiceNow-Token"].FirstOrDefault();
 
@@ -153,7 +171,7 @@ public sealed class ItsmInboundWebhooksController(
         using JsonDocument doc = JsonDocument.Parse(rawBody);
 
         ItsmInboundWebhookProcessResult r =
-            await _sync.TryProcessServiceNowIncidentUpdateAsync(doc.RootElement, ct, payloadUtf8Bytes).ConfigureAwait(false);
+            await _sync.TryProcessServiceNowIncidentUpdateAsync(doc.RootElement, ct, payloadUtf8Bytes, ResolveDeliveryId()).ConfigureAwait(false);
 
         if (r.DurableAuditEvent is not null)
             await _auditService.LogAsync(r.DurableAuditEvent, ct).ConfigureAwait(false);
@@ -194,23 +212,20 @@ public sealed class ItsmInboundWebhooksController(
         };
     }
 
-    private async Task<string> ReadRequestBodyUtf8Async(CancellationToken ct)
+    private string? ResolveDeliveryId()
     {
-        Request.EnableBuffering();
-        Request.Body.Position = 0;
+        string? deliveryId = Request.Headers[ItsmInboundWebhookReplayEventId.DeliveryIdHeaderName].FirstOrDefault();
 
-        using StreamReader reader = new(
-            Request.Body,
-            Encoding.UTF8,
-            detectEncodingFromByteOrderMarks: false,
-            bufferSize: 1024,
-            leaveOpen: true);
+        if (!string.IsNullOrWhiteSpace(deliveryId))
+            return deliveryId.Trim();
 
-        string body = await reader.ReadToEndAsync(ct).ConfigureAwait(false);
+        string? atlassianId =
+            Request.Headers[ItsmInboundWebhookReplayEventId.AtlassianWebhookIdentifierHeaderName].FirstOrDefault();
 
-        Request.Body.Position = 0;
+        if (!string.IsNullOrWhiteSpace(atlassianId))
+            return atlassianId.Trim();
 
-        return body;
+        return null;
     }
 
     private bool TryVerifyWebhookSecurity(
@@ -229,6 +244,9 @@ public sealed class ItsmInboundWebhooksController(
             return false;
         }
 
+        if (!TryValidateOptionalTimestampSkew(o, out reject))
+            return false;
+
         if (!o.RequireBodyHmacSignature)
             return true;
 
@@ -243,10 +261,20 @@ public sealed class ItsmInboundWebhooksController(
             return false;
         }
 
+        return true;
+    }
+
+    private bool TryValidateOptionalTimestampSkew(IntegrationsItsmInboundOptions o, out IActionResult? reject)
+    {
+        reject = null;
+
         if (o.WebhookTimestampSkewSeconds <= 0)
             return true;
 
         string? ts = Request.Headers["X-ArchLucid-Timestamp"].FirstOrDefault();
+
+        if (string.IsNullOrWhiteSpace(ts))
+            return true;
 
         if (WebhookSecrets.TimestampWithinSkew(TimeProvider.System.GetUtcNow(), ts, o.WebhookTimestampSkewSeconds))
             return true;

@@ -70,7 +70,7 @@ export const WELCOME_PROOF_LADDER_SECONDARY_WALKTHROUGH_LABEL = "Prefer a longer
 
 export const WELCOME_CONTOSO_ROI_PDF_HREF = "/WORKED_EXAMPLE_ROI.pdf" as const;
 
-export const WELCOME_CONTOSO_ROI_PDF_LABEL = "Contoso worked example (PDF)";
+export const WELCOME_CONTOSO_ROI_PDF_LABEL = "Retail sample ROI (PDF)";
 
 export const WELCOME_ENGAGEMENT_PATHS_HEADING = "Other ways to engage";
 

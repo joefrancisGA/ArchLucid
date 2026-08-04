@@ -14,7 +14,7 @@ describe("buildArchitectureIntelligenceRunHref", () => {
         runId: "run-abc",
         from: "reviews",
       }),
-    ).toBe("/architecture-intelligence?runId=run-abc&from=reviews");
+    ).toBe(`${ARCHITECTURE_INTELLIGENCE_PATH}?runId=run-abc&from=reviews`);
   });
 
   it("includes runId and from for findings deep links", () => {
@@ -23,7 +23,7 @@ describe("buildArchitectureIntelligenceRunHref", () => {
         runId: "run-xyz",
         from: "findings",
       }),
-    ).toBe("/architecture-intelligence?runId=run-xyz&from=findings");
+    ).toBe(`${ARCHITECTURE_INTELLIGENCE_PATH}?runId=run-xyz&from=findings`);
   });
 
   it("omits from when direct", () => {
@@ -32,6 +32,6 @@ describe("buildArchitectureIntelligenceRunHref", () => {
         runId: "run-1",
         from: "direct",
       }),
-    ).toBe("/architecture-intelligence?runId=run-1");
+    ).toBe(`${ARCHITECTURE_INTELLIGENCE_PATH}?runId=run-1`);
   });
 });

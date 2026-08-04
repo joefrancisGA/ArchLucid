@@ -52,8 +52,11 @@ public sealed class ComparisonController(
         CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
-        RunDetailDto? baseRun = await query.GetRunDetailAsync(scope, baseRunId, ct);
-        RunDetailDto? targetRun = await query.GetRunDetailAsync(scope, targetRunId, ct);
+        Task<RunDetailDto?> baseRunTask = query.GetRunDetailAsync(scope, baseRunId, ct);
+        Task<RunDetailDto?> targetRunTask = query.GetRunDetailAsync(scope, targetRunId, ct);
+        await Task.WhenAll(baseRunTask, targetRunTask);
+        RunDetailDto? baseRun = await baseRunTask;
+        RunDetailDto? targetRun = await targetRunTask;
 
         if (baseRun is null)
             return this.NotFoundProblem($"Run '{baseRunId}' was not found.", ProblemTypes.RunNotFound);

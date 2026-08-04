@@ -6,7 +6,6 @@ import { useMemo } from "react";
 import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { useOperatorShellAuditRunId } from "@/hooks/useOperatorShellAuditRunId";
 import { usePatternLibraryNavVisible } from "@/hooks/use-pattern-library-nav-visible";
-import { useOperateNavUnlockPhase } from "@/hooks/useOperateNavUnlockPhase";
 import { NAV_GROUPS } from "@/lib/nav-config";
 import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
@@ -17,7 +16,6 @@ import { applyPatternLibraryNavGate } from "@/lib/apply-pattern-library-nav-gate
 import { scopeOperatorShellNavRows } from "@/lib/nav-audit-run-scope";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { resolveSidebarNavExpansionState } from "@/lib/sidebar-nav-disclosure-state";
-import { resolveOperateNavUnlockPhase } from "@/lib/usability/operate-advanced-features-disclosure";
 import type { OperateNavUnlockPhase } from "@/lib/usability/operate-nav-progressive-unlock";
 
 type UseOperatorShellNavRowsResult = {
@@ -46,8 +44,7 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
   // Tier / operate-unlock disclosure retired: always request full link sets; authority filters below.
   const showExtended = true;
   const showAdvanced = true;
-  const { effectiveOperateUnlockPhase, unlockOperateFeatures, showAutoUnlockHint, dismissAutoUnlockHint } =
-    useOperateNavUnlockPhase();
+  const effectiveOperateUnlockPhase: OperateNavUnlockPhase = 0;
   const { navExpanded, navAdvanced, shellShowExtended, shellShowAdvanced } = resolveSidebarNavExpansionState({
     pathname: pathname ?? "/",
     showExtended,
@@ -58,11 +55,6 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
     ctoDemoNavExpandedEnv: isCtoDemoNavExpandedEnv(),
     runtimeCtoDemoTourActive: false,
   });
-  const operateNavUnlockPhase = resolveOperateNavUnlockPhase(
-    effectiveOperateUnlockPhase,
-    true,
-    hasCommittedArchitectureReview,
-  );
   const effectiveHasCommittedArchitectureReview = hasCommittedArchitectureReview || buyerPolishedShell;
   const omitAdminClusters = demoUi && !buyerPolishedShell;
   const patternLibraryNavVisible = usePatternLibraryNavVisible();
@@ -76,7 +68,6 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
       false,
       "review-workflow",
       true,
-      operateNavUnlockPhase,
     );
 
     const adminNavRows: NavGroupWithVisibleLinks[] =
@@ -90,7 +81,6 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
             false,
             "platform-admin",
             true,
-            operateNavUnlockPhase,
           );
 
     // Internal Operations is already behind the `isShowSystemAdministrationNavEnabled()` feature
@@ -109,7 +99,6 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
             false,
             "system-admin",
             true,
-            operateNavUnlockPhase,
           );
 
     return {
@@ -124,9 +113,9 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
       demoUi,
       effectiveHasCommittedArchitectureReview,
       effectiveOperateUnlockPhase,
-      unlockOperateFeatures,
-      showAutoUnlockHint,
-      dismissAutoUnlockHint,
+      unlockOperateFeatures: () => {},
+      showAutoUnlockHint: false,
+      dismissAutoUnlockHint: () => {},
       navExpanded,
       navAdvanced,
       shellShowExtended,
@@ -142,14 +131,10 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
     navAdvanced,
     navExpanded,
     omitAdminClusters,
-    operateNavUnlockPhase,
     patternLibraryNavVisible,
     shellShowAdvanced,
     shellShowExtended,
     showAdvanced,
     showExtended,
-    unlockOperateFeatures,
-    showAutoUnlockHint,
-    dismissAutoUnlockHint,
   ]);
 }

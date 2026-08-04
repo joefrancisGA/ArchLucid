@@ -1,3 +1,5 @@
+using ArchLucid.Application;
+using ArchLucid.Application.Findings;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
@@ -85,6 +87,7 @@ public sealed class RunDetailQueryServiceApplicationTests
             muteRepo.Object,
             executionTraceRepo.Object,
             llmCostEstimator.Object,
+            new FindingTrustLabelMapper(),
             new Mock<ILogger<RunDetailQueryService>>().Object);
 
         ArchitectureRunDetail? detail = await sut.GetRunDetailAsync(runN);
@@ -170,6 +173,7 @@ public sealed class RunDetailQueryServiceApplicationTests
             muteRepo.Object,
             executionTraceRepo.Object,
             llmCostEstimator.Object,
+            new FindingTrustLabelMapper(),
             new Mock<ILogger<RunDetailQueryService>>().Object);
 
         ArchitectureRunDetail? detail = await sut.GetRunDetailAsync(runN);

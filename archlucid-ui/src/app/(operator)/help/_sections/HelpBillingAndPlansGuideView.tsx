@@ -6,6 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 
 import { HelpBillingCurrentPlanCard } from "@/app/(operator)/help/_sections/HelpBillingCurrentPlanCard";
 import { HelpBillingAndPlansPageHeader } from "@/app/(operator)/help/_sections/HelpBillingAndPlansPageHeader";
+import { BillingAndPlansHelpEvidenceOrientationStrip } from "@/app/(operator)/help/_sections/BillingAndPlansHelpEvidenceOrientationStrip";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { Button } from "@/components/ui/button";
@@ -115,6 +116,8 @@ export function HelpBillingAndPlansGuideView(props: HelpBillingAndPlansGuideView
           void onRefresh();
         }}
       />
+
+      <BillingAndPlansHelpEvidenceOrientationStrip />
 
       <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
         <HelpBillingCurrentPlanCard refreshToken={refreshToken} />

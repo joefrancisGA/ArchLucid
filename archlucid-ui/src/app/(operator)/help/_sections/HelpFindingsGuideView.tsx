@@ -23,7 +23,9 @@ import {
   FINDINGS_HELP_PAGE_SUBTITLE,
   FINDINGS_HELP_PAGE_TITLE,
   FINDINGS_HELP_PRIMARY_ACTIONS,
+  FINDINGS_HELP_PROVENANCE_AXES,
   FINDINGS_HELP_PROVENANCE_INTRO,
+  FINDINGS_HELP_PROVENANCE_NON_CLAIM,
   FINDINGS_HELP_PROVENANCE_ORIGINS,
   FINDINGS_HELP_PROVENANCE_TITLE,
   FINDINGS_HELP_RESPOND_INTRO,
@@ -219,6 +221,15 @@ export function HelpFindingsGuideView(props: HelpFindingsGuideViewProps): React.
             </p>
             <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{FINDINGS_HELP_PROVENANCE_INTRO}</p>
             <ul className={HELP_PAGE_LAYOUT.bulletList}>
+              {FINDINGS_HELP_PROVENANCE_AXES.map((row) => (
+                <li key={row.axis}>
+                  <span className="font-semibold">{row.axis}</span>
+                  {" — "}
+                  {row.answers} ({row.values})
+                </li>
+              ))}
+            </ul>
+            <ul className={HELP_PAGE_LAYOUT.bulletList}>
               {FINDINGS_HELP_PROVENANCE_ORIGINS.map((row) => (
                 <li key={row.origin}>
                   <span className="font-semibold">{row.origin}</span>
@@ -227,6 +238,7 @@ export function HelpFindingsGuideView(props: HelpFindingsGuideViewProps): React.
                 </li>
               ))}
             </ul>
+            <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{FINDINGS_HELP_PROVENANCE_NON_CLAIM}</p>
           </section>
 
           <section

@@ -96,6 +96,11 @@ public interface IAgentExecutionTraceRepository
         string runId,
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyDictionary<string, IReadOnlyList<AgentExecutionTraceLlmCostSlice>>> GetLlmCostSlicesByRunIdsAsync(
+        ScopeContext scope,
+        IReadOnlyCollection<string> runIds,
+        CancellationToken cancellationToken = default);
+
     /// <summary>
     ///     Returns a page of traces for the run ordered by <c>CreatedUtc</c> ascending,
     ///     together with the total row count for that run.

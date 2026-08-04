@@ -30,7 +30,7 @@ public sealed class ArchitectureReviewBoardCoverPageContentTests
         {
             RunId = "run-1",
             SystemName = "Payments",
-            TenantDisplayName = "Contoso Retail"
+            TenantDisplayName = "Retail Checkout"
         };
 
         ArchitectureReviewBoardCoverPageContent cover = ArchitectureReviewBoardCoverPageContent.Resolve(
@@ -39,7 +39,7 @@ public sealed class ArchitectureReviewBoardCoverPageContentTests
             new DateTimeOffset(2026, 5, 22, 0, 0, 0, TimeSpan.Zero),
             activeTrialExportNotice: null);
 
-        cover.PreparedForTenantName.Should().Be("Contoso Retail");
+        cover.PreparedForTenantName.Should().Be("Retail Checkout");
     }
 
     [Fact]
@@ -47,7 +47,7 @@ public sealed class ArchitectureReviewBoardCoverPageContentTests
     {
         WhitelabelConfiguration whitelabel = new()
         {
-            FirmDisplayName = "Northwind Partners",
+            FirmDisplayName = "Harbor Advisory",
             ClientEngagementTitle = "ARB — Core ledger"
         };
 
@@ -57,7 +57,7 @@ public sealed class ArchitectureReviewBoardCoverPageContentTests
             new DateTimeOffset(2026, 5, 22, 0, 0, 0, TimeSpan.Zero),
             activeTrialExportNotice: null);
 
-        cover.Title.Should().Be("Northwind Partners");
+        cover.Title.Should().Be("Harbor Advisory");
         cover.Subtitle.Should().Be("ARB — Core ledger");
     }
 }

@@ -30,7 +30,7 @@ export function whyArchLucidUniverseWalkthroughLead(universe: WhyArchLucidDemoUn
     case "claims":
       return "See how ArchLucid turns architecture review into a governed decision package — executive summary, signed review record, evidence trail, governance approval, and audit record — using the Claims Intake sample workspace as a walkthrough.";
     case "contoso":
-      return "See how ArchLucid turns architecture review into a governed decision package — executive summary, signed review record, evidence trail, governance approval, and audit record — using the Contoso Retail sample workspace as a walkthrough.";
+      return "See how ArchLucid turns architecture review into a governed decision package — executive summary, signed review record, evidence trail, governance approval, and audit record — using the Retail baseline sample workspace as a walkthrough.";
     case "unknown":
       return "See how ArchLucid turns architecture review into a governed decision package — executive summary, signed review record, evidence trail, governance approval, and audit record — using a demo sample workspace as a walkthrough.";
     default: {
@@ -46,7 +46,7 @@ export function whyArchLucidSponsorPackSourceLine(universe: WhyArchLucidDemoUniv
     case "claims":
       return "Aggregated proof from the evidence pack service — paired with the example Claims Intake review below.";
     case "contoso":
-      return "Aggregated proof from the evidence pack service — paired with the example Contoso Retail review below.";
+      return "Aggregated proof from the evidence pack service — paired with the example Retail baseline review below.";
     case "unknown":
       return "Aggregated proof from the evidence pack service — paired with the example demo review below.";
     default: {
@@ -62,7 +62,7 @@ export function whyArchLucidUniverseBannerTitle(universe: WhyArchLucidDemoUniver
     case "claims":
       return "Claims Intake sample — pilot proof telemetry";
     case "contoso":
-      return "Contoso Retail sample — pilot proof telemetry";
+      return "Retail baseline sample — pilot proof telemetry";
     case "unknown":
       return "Demo sample universe could not be confirmed";
     default: {

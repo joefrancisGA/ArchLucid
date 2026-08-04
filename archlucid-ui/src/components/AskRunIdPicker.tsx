@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
+import { useAskProjectRunsQuery } from "@/hooks/use-ask-project-runs-query";
 import { shouldMergeOperatorDemoAlertSample } from "@/lib/operator-static-demo";
 import { isShowcaseDemoRunId } from "@/lib/graph-page-state";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -140,34 +140,14 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
     });
   }, [autoSelectSyntheticSample, items.length, loadError, loading, preferAutoPick, value]);
 
+  const { data: projectRunsData, isLoading: projectRunsLoading, isError: projectRunsError } =
+    useAskProjectRunsQuery("default", { committedOnly });
+
   useEffect(() => {
-    let cancelled = false;
-
-    void (async () => {
-      setLoading(true);
-
-      try {
-        const merged = await loadProjectRunsMergedWithDemoFallback("default", { committedOnly });
-
-        if (!cancelled) {
-          setItems(merged.items);
-          setLoadError(merged.loadError);
-        }
-      } catch {
-        if (!cancelled) {
-          setLoadError(true);
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [committedOnly]);
+    setItems(projectRunsData?.items ?? []);
+    setLoadError(projectRunsData?.loadError ?? projectRunsError);
+    setLoading(projectRunsLoading);
+  }, [projectRunsData, projectRunsError, projectRunsLoading]);
 
   useEffect(() => {
     if (!preferAutoPick) {

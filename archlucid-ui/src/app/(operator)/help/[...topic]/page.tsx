@@ -15,6 +15,8 @@ import { HelpGovernanceApprovalGuideView } from "../_sections/HelpGovernanceAppr
 import { HelpAzurePermissionsGuideView } from "../_sections/HelpAzurePermissionsGuideView";
 import { HelpAuditTrailGuideView } from "../_sections/HelpAuditTrailGuideView";
 import { HelpReviewPackagesGuideView } from "../_sections/HelpReviewPackagesGuideView";
+import { HelpReviewGuideView } from "../_sections/HelpReviewGuideView";
+import { HelpPilotGuideView } from "../_sections/HelpPilotGuideView";
 import { HelpConfigurationReferenceGuideView } from "../_sections/HelpConfigurationReferenceGuideView";
 import { HelpDataHandlingTenantIsolationGuideView } from "../_sections/HelpDataHandlingTenantIsolationGuideView";
 import { HelpDpaTemplateGuideView } from "../_sections/HelpDpaTemplateGuideView";
@@ -28,7 +30,6 @@ import { HelpCorePilotGuideView } from "../_sections/HelpCorePilotGuideView";
 import { HelpRepeatReviewLoopGuideView } from "../_sections/HelpRepeatReviewLoopGuideView";
 import { HelpSpecialtyWalkthroughTemplatesView } from "../_sections/HelpSpecialtyWalkthroughTemplatesView";
 import { HelpGettingStartedGuideView } from "../_sections/HelpGettingStartedGuideView";
-import { HelpHowArchLucidWorksGuideView } from "../_sections/HelpHowArchLucidWorksGuideView";
 import { HelpCloudConnectionsGuideView } from "../_sections/HelpCloudConnectionsGuideView";
 import { HelpTopicAuthorityGate } from "../_sections/HelpTopicAuthorityGate";
 import { HelpTopicMarkdownClient } from "../_sections/HelpTopicMarkdownClient";
@@ -117,10 +118,6 @@ function renderHelpTopicView(
     return <HelpGettingStartedGuideView entry={loaded.entry} />;
   }
 
-  if (loaded.entry.slug === "how-it-works") {
-    return <HelpHowArchLucidWorksGuideView entry={loaded.entry} />;
-  }
-
   if (loaded.entry.slug === "cloud-connections") {
     return <HelpCloudConnectionsGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
@@ -194,6 +191,14 @@ function renderHelpTopicView(
 
   if (loaded.entry.slug === "review-packages") {
     return <HelpReviewPackagesGuideView entry={loaded.entry} markdown={loaded.markdown} />;
+  }
+
+  if (loaded.entry.slug === "review-guide") {
+    return <HelpReviewGuideView entry={loaded.entry} markdown={loaded.markdown} />;
+  }
+
+  if (loaded.entry.slug === "pilot-guide") {
+    return <HelpPilotGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
 
   if (loaded.entry.slug === "data-handling") {

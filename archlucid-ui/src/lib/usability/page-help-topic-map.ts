@@ -43,8 +43,24 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "findings", label: "Findings" },
   },
   {
+    prefix: "/help/governance-approval",
+    topic: { slug: "governance-approval", label: "Governance approval" },
+  },
+  {
+    prefix: "/help/review-guide",
+    topic: { slug: "review-guide", label: "Review guide" },
+  },
+  {
+    prefix: "/help/pilot-guide",
+    topic: { slug: "pilot-guide", label: "Pilot guide" },
+  },
+  {
     prefix: "/help/cloud-connections/azure",
     topic: { slug: "cloud-connections-azure", label: "Connect Azure securely" },
+  },
+  {
+    prefix: "/help/azure-permissions",
+    topic: { slug: "azure-permissions", label: "Azure permissions" },
   },
   {
     prefix: "/help/cloud-connections",
@@ -109,6 +125,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   {
     prefix: "/sponsor-report/roi-summary",
     topic: { slug: "pilot-roi-model", label: "View ROI methodology" },
+  },
+  {
+    prefix: "/sponsor-report/pilot-outcomes",
+    topic: { slug: "executive-summary", label: "Pilot outcomes" },
   },
   {
     prefix: "/insights/architecture-scorecard",
@@ -182,6 +202,22 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     prefix: "/integrations/jira",
     topic: { slug: "integration-readiness", label: "Jira integration" },
   },
+  {
+    prefix: "/integrations/servicenow",
+    topic: { slug: "integration-readiness", label: "ServiceNow integration" },
+  },
+  {
+    prefix: "/integrations/slack",
+    topic: { slug: "alerts", label: "Slack integration" },
+  },
+  {
+    prefix: "/integrations/webhooks",
+    topic: { slug: "alerts", label: "Webhooks" },
+  },
+  {
+    prefix: "/integrations/teams",
+    topic: { slug: "alerts", label: "Teams integration" },
+  },
   { prefix: "/administration/connection-status", topic: { slug: "integration-readiness", label: "How integration readiness works" } },
   { prefix: "/administration/system-health", topic: { slug: "troubleshooting", label: "Troubleshooting" } },
   { prefix: "/admin/integrations/itsm", topic: { slug: "integration-readiness", label: "How integration readiness works" } },
@@ -195,6 +231,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   {
     prefix: "/administration/settings/identity-providers",
     topic: { slug: "enterprise-onboarding", label: "SSO and identity" },
+  },
+  {
+    prefix: "/administration/settings/users/invite-reviewer",
+    topic: { slug: "users-and-roles", label: "Invite a reviewer" },
   },
   {
     prefix: "/administration/settings/users",

@@ -159,6 +159,22 @@ CLAIM_PATTERNS: tuple[ClaimPattern, ...] = (
         "ArchLucid must not guarantee outcomes for the reviewed architecture, design, or system.",
         "docs/library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#proof-scope-boundary",
     ),
+    ClaimPattern(
+        re.compile(
+            r"ask(?:\s+review)?\s+answers?\s+(?:are|is)\s+(?:the\s+)?signed\s+review\s+record",
+            re.IGNORECASE,
+        ),
+        "Ask-review answers are advisory overlays, not substitutes for the committed signed review record.",
+        "docs/library/customer-facing/REVIEW_RECORD_INTEGRITY.md",
+    ),
+    ClaimPattern(
+        re.compile(
+            r"impact\s+preview\s+(?:auto[-\s]?)?approves?",
+            re.IGNORECASE,
+        ),
+        "Impact preview informs review; it does not auto-approve architecture changes.",
+        "docs/library/customer-facing/IMPACT_PREVIEW.md",
+    ),
 )
 
 

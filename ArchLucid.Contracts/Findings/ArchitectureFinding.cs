@@ -154,4 +154,18 @@ public sealed class ArchitectureFinding
         get;
         set;
     }
+
+    /// <summary>Authoritative trust label string for operator review surfaces (run-detail enrichment).</summary>
+    public string? TrustLabel
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Short reason accompanying <see cref="TrustLabel" />.</summary>
+    public string? TrustLabelReason
+    {
+        get;
+        set;
+    }
 }

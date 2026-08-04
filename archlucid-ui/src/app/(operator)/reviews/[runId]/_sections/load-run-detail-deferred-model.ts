@@ -4,8 +4,8 @@ import {
   compareRuns,
   getRunPipelineTimeline,
   getRunStageTimeline,
-  listRunsByProject,
 } from "@/lib/api";
+import { loadProjectRunsForRunDetailDeferred } from "./load-project-runs-for-run-detail-deferred";
 import { deriveChangesSinceLastReviewCopy } from "@/lib/changes-since-last-review-summary";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { findPriorCommittedRun } from "@/lib/find-prior-committed-run";
@@ -105,7 +105,7 @@ async function loadChangesSinceLastReviewBanner(
   let priorCommittedRun: RunSummary | null = null;
 
   try {
-    const projectRuns = await listRunsByProject(context.resolvedDetail.run.projectId, 60);
+    const projectRuns = await loadProjectRunsForRunDetailDeferred(context.resolvedDetail.run.projectId, 60);
     priorCommittedRun = findPriorCommittedRun(context.resolvedDetail.run.runId, projectRuns);
   } catch {
     return null;
@@ -147,7 +147,7 @@ async function loadProjectRunContext(
   let architectureGraphTemporalMinUtc = context.resolvedDetail.run.createdUtc;
 
   try {
-    const projectRuns = await listRunsByProject(context.resolvedDetail.run.projectId, 60);
+    const projectRuns = await loadProjectRunsForRunDetailDeferred(context.resolvedDetail.run.projectId, 60);
 
     canShowCompareReviewButton = projectRuns.length >= 2;
 

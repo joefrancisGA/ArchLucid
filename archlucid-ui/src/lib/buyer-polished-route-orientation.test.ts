@@ -64,7 +64,7 @@ describe("buyerPolishedRouteOrientation", () => {
   });
 
   it("orients architecture intelligence", () => {
-    const o = buyerPolishedRouteOrientation("/architecture-intelligence");
+    const o = buyerPolishedRouteOrientation("/architecture/architecture-intelligence");
 
     expect(o?.label).toBe("Architecture intelligence");
     expect(o?.line).toContain("Closed-loop reasoning");

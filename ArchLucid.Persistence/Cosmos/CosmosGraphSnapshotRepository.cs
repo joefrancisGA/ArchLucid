@@ -88,12 +88,16 @@ public sealed class CosmosGraphSnapshotRepository(
 
         string sql = scope.TenantId == Guid.Empty
             ? """
-              SELECT * FROM c
+              SELECT c.id, c.graphSnapshotId, c.contextSnapshotId, c.runId, c.schemaVersion, c.createdUtc,
+                     c.nodesJson, c.edgesJson, c.warningsJson, c.tenantId, c.workspaceId, c.projectId
+              FROM c
               WHERE c.contextSnapshotId = @ctx
               ORDER BY c.createdUtc DESC
               """
             : """
-              SELECT * FROM c
+              SELECT c.id, c.graphSnapshotId, c.contextSnapshotId, c.runId, c.schemaVersion, c.createdUtc,
+                     c.nodesJson, c.edgesJson, c.warningsJson, c.tenantId, c.workspaceId, c.projectId
+              FROM c
               WHERE c.contextSnapshotId = @ctx
                 AND c.tenantId = @tenantId
                 AND c.workspaceId = @workspaceId

@@ -25,6 +25,16 @@ describe("OperatorPageHeader", () => {
     expect(screen.getByText("A secondary line")).toBeInTheDocument();
   });
 
+  it("defaults subtitle measure to max-w-2xl and allows Overview to opt out", () => {
+    const { rerender } = render(<OperatorPageHeader title="T" subtitle="Default measure" />);
+
+    expect(screen.getByText("Default measure").className).toContain("max-w-2xl");
+
+    rerender(<OperatorPageHeader title="T" subtitle="Full width" subtitleClassName="max-w-none" />);
+
+    expect(screen.getByText("Full width").className).toContain("max-w-none");
+  });
+
   it("omits subtitle when not provided", () => {
     const { container } = render(<OperatorPageHeader title="T" />);
     const subtitleP = container.querySelector("header > p");

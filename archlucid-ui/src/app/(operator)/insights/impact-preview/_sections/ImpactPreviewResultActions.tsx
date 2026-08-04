@@ -28,10 +28,10 @@ export function ImpactPreviewResultActions(props: ImpactPreviewResultActionsProp
       <Button asChild variant="outline" size="sm">
         <Link href={IMPACT_PREVIEW_ADVISORY_HREF}>{IMPACT_PREVIEW_RESULT_ACTION_ADVISORY}</Link>
       </Button>
-      <Button asChild variant="outline" size="sm">
+      <Button asChild size="sm">
         <Link href={IMPACT_PREVIEW_GOVERNANCE_HREF}>{IMPACT_PREVIEW_RESULT_ACTION_GOVERNANCE}</Link>
       </Button>
-      <Button asChild size="sm">
+      <Button asChild variant="outline" size="sm">
         <a href={exportUrl} download>
           {IMPACT_PREVIEW_RESULT_ACTION_EXPORT}
         </a>

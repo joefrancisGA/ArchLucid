@@ -1,4 +1,6 @@
 import type { ApiProblemDetails } from "@/lib/api-problem";
+import { tryParseApiProblemDetails } from "@/lib/api-problem";
+import { formatApiFailureMessage } from "@/lib/api-error";
 import { uploadAzureExtractorPackage } from "@/lib/upload-azure-extractor-package";
 import { postBulkEvidenceMultipartWithProgress } from "@/lib/bulk-evidence-upload-client";
 import {
@@ -15,6 +17,12 @@ export type WizardPendingEvidenceUploadResult =
       problem: ApiProblemDetails | null;
       correlationId: string | null;
     };
+
+function resolveUploadFailureMessage(status: number, bodyText: string): string {
+  const problem = tryParseApiProblemDetails(bodyText, "application/problem+json");
+
+  return formatApiFailureMessage(problem, status, "", bodyText);
+}
 
 function parseProblemDetail(bodyText: string): string | undefined {
   try {
@@ -103,8 +111,8 @@ export async function uploadWizardPendingDocumentEvidence(
 
     return {
       ok: false,
-      message: detail ?? "Document evidence upload failed.",
-      problem: null,
+      message: resolveUploadFailureMessage(result.status, result.bodyText),
+      problem: tryParseApiProblemDetails(result.bodyText, "application/problem+json"),
       correlationId: null,
     };
   } catch {

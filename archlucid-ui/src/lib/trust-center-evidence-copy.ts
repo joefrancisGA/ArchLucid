@@ -1,0 +1,23 @@
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
+
+export const TRUST_CENTER_CANONICAL_PATH = "/trust" as const;
+
+export const TRUST_CENTER_CLAIM_DISCIPLINE =
+  "Trust Center pages and public downloads summarize assurance posture and published artifacts — they are not a CPA-issued SOC 2 report or a published third-party pen-test report unless a linked artifact explicitly says so. Use Security & trust engagement metadata and NDA channels for diligence materials that are not public.";
+
+export const TRUST_CENTER_SOURCES_INTRO =
+  "Use these evaluation links when Trust Center downloads turn into engagement metadata, privacy, FAQ, or procurement follow-ups.";
+
+export type TrustCenterSourceLink = {
+  readonly label: string;
+  readonly href: string;
+};
+
+/** Marketing Sources — no self-href to `/trust`. */
+export const TRUST_CENTER_SOURCES: readonly TrustCenterSourceLink[] = [
+  { label: "Security & trust", href: "/security-trust" },
+  { label: "Product FAQ", href: "/faq" },
+  { label: "Pricing", href: "/pricing" },
+  { label: "Privacy", href: "/privacy" },
+  { label: "How ArchLucid works", href: inAppHelpHref("how-it-works") },
+] as const;

@@ -101,4 +101,33 @@ describe("POST /api/proxy/[...path] body limits", () => {
     expect(res.status).toBe(413);
     expect(fetchMock).not.toHaveBeenCalled();
   });
+
+  it("names method, path, and budget when upstream AbortSignal times out", async () => {
+    fetchMock.mockRejectedValueOnce(new Error("The operation was aborted due to timeout"));
+
+    const req = new NextRequest("http://localhost/api/proxy/v1/architecture/request", {
+      method: "POST",
+      headers: { "content-type": "application/json", "content-length": "2" },
+      body: "{}",
+    });
+
+    const res = await POST(req, {
+      params: Promise.resolve({ path: ["v1", "architecture", "request"] }),
+    });
+
+    expect(res.status).toBe(502);
+    const json = (await res.json()) as {
+      title?: string;
+      detail?: string;
+      instance?: string;
+      upstreamPath?: string;
+      upstreamTimeoutMs?: number;
+    };
+    expect(json.title).toBe("Upstream API unreachable");
+    expect(json.detail).toContain("POST /v1/architecture/request timed out after 60s");
+    expect(json.detail).toContain("budget 60000ms");
+    expect(json.instance).toBe("POST /v1/architecture/request");
+    expect(json.upstreamPath).toBe("v1/architecture/request");
+    expect(json.upstreamTimeoutMs).toBe(60_000);
+  });
 });

@@ -66323,6 +66323,17 @@ export interface paths {
                         "application/problem+json": components["schemas"]["ProblemDetails"];
                     };
                 };
+                /** @description Payload Too Large */
+                413: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
                 /** @description Unsupported Media Type. */
                 415: {
                     headers: {
@@ -66463,6 +66474,17 @@ export interface paths {
                         "application/problem+json": components["schemas"]["ProblemDetails"];
                     };
                 };
+                /** @description Payload Too Large */
+                413: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
                 /** @description Unsupported Media Type. */
                 415: {
                     headers: {
@@ -66599,6 +66621,17 @@ export interface paths {
                     };
                     content: {
                         "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Payload Too Large */
+                413: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
                     };
                 };
                 /** @description Unsupported Media Type. */
@@ -66739,6 +66772,17 @@ export interface paths {
                     };
                     content: {
                         "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Payload Too Large */
+                413: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
                     };
                 };
                 /** @description Unsupported Media Type. */
@@ -67028,6 +67072,17 @@ export interface paths {
                     };
                     content: {
                         "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Payload Too Large */
+                413: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
                     };
                 };
                 /** @description Unsupported Media Type. */
@@ -91510,6 +91565,8 @@ export interface components {
             severity?: components["schemas"]["FindingSeverity"];
             sourceAgent?: components["schemas"]["AgentType"];
             treatment?: null | components["schemas"]["FindingTreatment"];
+            trustLabel?: null | string;
+            trustLabelReason?: null | string;
             whyThisIsNotGeneric?: null | string;
         };
         ArchitectureFindingFeedbackPostRequest: {

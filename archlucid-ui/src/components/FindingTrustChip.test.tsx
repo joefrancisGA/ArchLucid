@@ -72,6 +72,21 @@ describe("deriveFindingTrustChip", () => {
     expect(chip.title).toContain("language model");
   });
 
+  it("prefers wire trustLabel over inferred policy-rule origin", () => {
+    const chip = deriveFindingTrustChip(
+      baseFinding({
+        policyRuleId: "cis-az-001",
+        trustLabel: "RealModel",
+        evidenceRefCount: 2,
+        confidenceLevel: "High",
+      }),
+    );
+
+    expect(chip.kind).toBe("evidence-backed");
+    expect(chip.label).toBe("AI-generated");
+    expect(chip.groundingLabel).toBe("Evidence-backed");
+  });
+
   it("marks policy-rule findings as deterministic rule", () => {
     const chip = deriveFindingTrustChip(
       baseFinding({ policyRuleId: "cis-az-001", evidenceRefCount: 0 }),

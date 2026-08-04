@@ -769,7 +769,7 @@ Former standalone body: `docs/go-to-market/SECURITY_REVIEWER_INBOUND_WEBHOOK_ONE
 | Step | Intent |
 | --- | --- |
 | Rate | Edge / app rate limits before expensive work |
-| Size | Bound body (`Content-Length` / pre-read max) before HMAC (**TB-967**) |
+| Size | Bound body (`Content-Length` / pre-read max) before HMAC (**TB-967** Done) |
 | Verify | Signature / authenticity |
 | Parse | Only after verify + size |
 
@@ -779,9 +779,9 @@ Former standalone body: `docs/go-to-market/SECURITY_REVIEWER_INBOUND_WEBHOOK_ONE
 | --- | --- |
 | “Signed webhooks are fully hardened” | Signed authenticity ≠ replay/idempotency/freshness |
 | “Front Door Network Protection completes app-layer” | Edge helps; app still needs size/verify/replay |
-| “ITSM inbound is replay-safe today” | Billing has replay patterns; ITSM parity is **TB-968** |
+| “ITSM inbound is replay-safe today” | In-memory 24h replay guard per API host (**TB-968** Done); not a cross-instance durable ledger |
 
-**Residuals:** Engineering SoT [`INBOUND_WEBHOOK_HOSTILE_TRAFFIC.md`](../library/INBOUND_WEBHOOK_HOSTILE_TRAFFIC.md) (**TB-966** Done); bounded body **TB-967**; ITSM replay **TB-968**. Cite INV-015 / Done **TB-012** without overclaim.
+**Residuals:** Engineering SoT [`INBOUND_WEBHOOK_HOSTILE_TRAFFIC.md`](../library/INBOUND_WEBHOOK_HOSTILE_TRAFFIC.md) (**TB-966**/**TB-967**/**TB-968** Done); ITSM replay is per-process memory — cite [`ITSM_INBOUND_WEBHOOK_REPLAY_GUARD.md`](../runbooks/ITSM_INBOUND_WEBHOOK_REPLAY_GUARD.md). Cite INV-015 / Done **TB-012** without overclaim.
 
 **Related:** [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise).
 
@@ -4094,9 +4094,9 @@ Do not say “automatic retry guarantees a completed review,” “the breaker r
 
 ### Residuals (honest)
 
-The run-level contract, resume semantics, and buyer-facing state surface remain distinct engineering work (**TB-937**–**TB-945**). Use the execution result and committed package as the proof boundary; escalate an incomplete run through operator procedures.
+Engineering SoT: [`POLLY_VS_RUN_LEVEL_SEMANTICS_CONTRACT.md`](../library/POLLY_VS_RUN_LEVEL_SEMANTICS_CONTRACT.md) (**TB-995** Done). Partial-run / selective re-execute / run budget / cache admission are largely shipped (**TB-937**–**TB-940** Done); residual owners include **TB-941**–**TB-945** and **TB-975**–**TB-977**. Use the execution result and committed package as the proof boundary; escalate an incomplete run through operator procedures. Follow-on claim CI: **TB-996**.
 
-**Related:** [Interrupted review (M-122)](#interrupted-review-m-122) · [Solo operator pages vs support email (M-143)](#solo-operator-pages-vs-support-email-m-143) · [Model-failed vs quality-rejected (M-124)](#model-failed-vs-quality-rejected-m-124) · [Execution-mode honesty (M-128)](#execution-mode-honesty-m-128) · [Transactional finalize vs outbox (M-163)](#transactional-finalize-vs-outbox-m-163) · [`../library/LLM_RETRY_AND_CIRCUIT_BREAKER.md`](../library/LLM_RETRY_AND_CIRCUIT_BREAKER.md) · [`../library/API_SLOS.md`](../library/API_SLOS.md) · [`CLAIM_READINESS_STATUS.md`](CLAIM_READINESS_STATUS.md) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+**Related:** [Interrupted review (M-122)](#interrupted-review-m-122) · [Solo operator pages vs support email (M-143)](#solo-operator-pages-vs-support-email-m-143) · [Model-failed vs quality-rejected (M-124)](#model-failed-vs-quality-rejected-m-124) · [Execution-mode honesty (M-128)](#execution-mode-honesty-m-128) · [Transactional finalize vs outbox (M-163)](#transactional-finalize-vs-outbox-m-163) · [`../library/LLM_RETRY_AND_CIRCUIT_BREAKER.md`](../library/LLM_RETRY_AND_CIRCUIT_BREAKER.md) · [`../library/POLLY_VS_RUN_LEVEL_SEMANTICS_CONTRACT.md`](../library/POLLY_VS_RUN_LEVEL_SEMANTICS_CONTRACT.md) · [`../library/API_SLOS.md`](../library/API_SLOS.md) · [`CLAIM_READINESS_STATUS.md`](CLAIM_READINESS_STATUS.md) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## Solo operator — pages versus support email (M-143) {#solo-operator-pages-vs-support-email-m-143}
 

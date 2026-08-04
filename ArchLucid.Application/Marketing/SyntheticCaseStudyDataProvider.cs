@@ -3,7 +3,7 @@ using ArchLucid.Persistence.Value;
 namespace ArchLucid.Application.Marketing;
 
 /// <summary>
-///     Structured ROI-style metrics for the synthetic Contoso Retail case study — aligns with
+///     Structured ROI-style metrics for the synthetic Retail Checkout case study — aligns with
 ///     <see cref="ValueReportRawMetrics" /> used by the value report DOCX path.
 /// </summary>
 public sealed class SyntheticCaseStudyDataProvider
@@ -26,7 +26,7 @@ public sealed class SyntheticCaseStudyDataProvider
     /// <summary>Average review iterations after ArchLucid.</summary>
     public const decimal PostArchlucidReviewIterations = 1.5m;
 
-    /// <summary>Returns metrics shaped like tenant value-report inputs for the synthetic Contoso Retail narrative.</summary>
+    /// <summary>Returns metrics shaped like tenant value-report inputs for the synthetic Retail Checkout narrative.</summary>
     public ValueReportRawMetrics GetContosoRetailSyntheticMetrics(DateTimeOffset? capturedUtc = null)
     {
         DateTimeOffset utc = capturedUtc ?? new DateTimeOffset(2026, 3, 15, 12, 0, 0, TimeSpan.Zero);
@@ -40,7 +40,7 @@ public sealed class SyntheticCaseStudyDataProvider
             0,
             0,
             BaselineReviewCycleHours,
-            "Synthetic case study (Contoso Retail demo tenant)",
+            "Synthetic case study (Retail Checkout demo tenant)",
             utc,
             PostArchlucidReviewCycleHours,
             4,

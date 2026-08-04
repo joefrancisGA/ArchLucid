@@ -141,7 +141,7 @@ describe("WelcomeMarketingPage", () => {
       "href",
       "/live-demo",
     );
-    expect(within(engagement).getByRole("link", { name: /contoso worked example/i })).toHaveAttribute(
+    expect(within(engagement).getByRole("link", { name: /retail sample roi/i })).toHaveAttribute(
       "href",
       "/WORKED_EXAMPLE_ROI.pdf",
     );

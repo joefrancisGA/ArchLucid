@@ -23,9 +23,8 @@ namespace ArchLucid.Api.Tests.Integrations;
 ///         security gates; tests use a very high fixed-window permit count so a handful of requests stay far below 429.
 ///     </para>
 ///     <para>
-///         <b>Payload-too-large status code.</b> The controller returns HTTP 400 with a validation problem detail (not 413)
-///         when UTF-8 length exceeds <see cref="ItsmInboundWebhookSyncService.MaxInboundWebhookPayloadUtf8Bytes" />; the
-///         structural invariant here is <i>rejection before JSON parse</i>, not a specific status code.
+///         <b>Payload-too-large status code.</b> TB-967 returns HTTP 413 (<c>RequestPayloadTooLarge</c>) when the body
+///         exceeds <see cref="ItsmInboundWebhookSyncService.MaxInboundWebhookPayloadUtf8Bytes" /> before verify/parse.
 ///     </para>
 /// </remarks>
 [Trait("Category", "Integration")]
@@ -34,7 +33,7 @@ public sealed class InboundWebhookPipelineOrderIntegrationTests
     private const string JiraSecret = "integration-test-jira-webhook-secret";
 
     [Fact]
-    public async Task Jira_webhook_rejects_utf8_oversize_payload_before_json_parse_with_400()
+    public async Task Jira_webhook_rejects_utf8_oversize_payload_before_json_parse_with_413()
     {
         await using WebApplicationFactory<Program> factory = CreateFactory();
         using HttpClient client = factory.CreateClient();
@@ -48,11 +47,14 @@ public sealed class InboundWebhookPipelineOrderIntegrationTests
 
         using HttpResponseMessage response = await client.SendAsync(request);
 
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest, "size cap must surface as client error before handler JSON work");
+        response.StatusCode.Should().Be(
+            HttpStatusCode.RequestEntityTooLarge,
+            "bounded intake must reject oversize before verify/parse (TB-967)");
 
         string payload = await response.Content.ReadAsStringAsync();
 
         payload.IndexOf("payload exceeds", StringComparison.OrdinalIgnoreCase).Should().BeGreaterThanOrEqualTo(0);
+        payload.IndexOf("JsonException", StringComparison.OrdinalIgnoreCase).Should().Be(-1);
     }
 
     [Fact]

@@ -7,10 +7,10 @@ import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 /** Public slug for the born-governed created package showcase. */
 export const SHOWCASE_CREATED_STATIC_DEMO_RUN_ID = "northwind-copilot-rag-platform";
 
-export const SHOWCASE_BUYER_CREATED_PACKAGE_TITLE = "Northwind Copilot RAG Platform";
+export const SHOWCASE_BUYER_CREATED_PACKAGE_TITLE = "Enterprise Copilot RAG Platform";
 
 export const SHOWCASE_BUYER_CREATED_PACKAGE_PACKAGE_TITLE =
-  "Northwind Copilot RAG Platform — Created architecture review";
+  "Enterprise Copilot RAG Platform — Created architecture review";
 
 export const SHOWCASE_CREATED_STATIC_DEMO_MANIFEST_ID = "b7c8d9e0-f1a2-3456-7890-abcdcreated74201";
 
@@ -18,7 +18,7 @@ export const SHOWCASE_CREATED_STATIC_DEMO_PRIMARY_FINDING_ID = "private-inferenc
 
 export const SHOWCASE_CREATED_STATIC_DEMO_PRIMARY_FINDING_TITLE = "Private inference egress gap";
 
-export const SHOWCASE_CREATED_DEMO_TENANT_NAME = "Northwind Copilot Showcase";
+export const SHOWCASE_CREATED_DEMO_TENANT_NAME = "Enterprise AI Knowledge Assistant Showcase";
 
 export const SHOWCASE_CREATED_STATIC_DEMO_SPINE_COUNTS = {
   findingCount: 4,
@@ -112,7 +112,7 @@ export function getShowcaseCreatedStaticDemoPayload(urlRunId: string): DemoCommi
       {
         artifactId: "a1b2c3d4-e5f6-7890-abcd-ef1234567891",
         artifactType: "MarkdownReport",
-        name: "Created package briefing — Northwind Copilot.md",
+        name: "Created package briefing — Enterprise Copilot.md",
         format: "text/markdown",
         createdUtc: "2026-04-02T14:22:00.000Z",
         contentHash: "sha256-demo-created-art-md",

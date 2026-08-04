@@ -1,4 +1,4 @@
-import { render, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const replace = vi.fn();
@@ -9,6 +9,7 @@ vi.mock("@/lib/demo-entry-redirect", () => ({
 
 import { resolveDemoEntryRedirectHref } from "@/lib/demo-entry-redirect";
 import { DemoEntryRedirect } from "@/components/cto-demo/DemoEntryRedirect";
+import { DEMO_ENTRY_REDIRECTING_LABEL } from "@/lib/demo-entry-evidence-copy";
 
 describe("DemoEntryRedirect", () => {
   beforeEach(() => {
@@ -20,11 +21,17 @@ describe("DemoEntryRedirect", () => {
     });
   });
 
-  it("replaces location on mount", async () => {
+  it("replaces location on mount and shows interim Evidence chrome", async () => {
     render(<DemoEntryRedirect />);
+
+    expect(screen.getByTestId("demo-entry-redirect")).toBeInTheDocument();
+    expect(screen.getByTestId("demo-entry-redirecting")).toHaveTextContent(DEMO_ENTRY_REDIRECTING_LABEL);
+    expect(screen.getByTestId("demo-entry-orientation")).toBeInTheDocument();
 
     await waitFor(() => {
       expect(replace).toHaveBeenCalledWith("/demo-target");
     });
+
+    expect(screen.getByTestId("demo-entry-continue")).toHaveAttribute("href", "/demo-target");
   });
 });

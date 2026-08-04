@@ -10,6 +10,90 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-04 - API: ITSM inbound webhook replay guard (TB-968)
+
+`IItsmInboundWebhookReplayGuard` + `MemoryCacheItsmInboundWebhookReplayGuard` (24h per-process dedupe); delivery id headers (`X-ArchLucid-Webhook-Delivery-Id`, `X-Atlassian-Webhook-Identifier`) or synthetic keys; replay returns HTTP 200 with `Integration.ItsmInboundWebhookReplayIgnored` audit (no second mutation). Optional `X-ArchLucid-Timestamp` skew enforced even without HMAC. Ops runbook [`ITSM_INBOUND_WEBHOOK_REPLAY_GUARD.md`](runbooks/ITSM_INBOUND_WEBHOOK_REPLAY_GUARD.md). No CPA / third-party pen-test implication.
+
+## 2026-08-04 - UI: Move Architecture intelligence under `/architecture/architecture-intelligence`
+
+Canonical operator path is now `/architecture/architecture-intelligence` (nav, deep links, route catalog). Former `/architecture-intelligence` bookmarks 404 — no redirect shim.
+
+## 2026-08-04 - UI: Hard-retire `/reviews/new?intent=create-architecture` redirect
+
+Removed server redirect and dead create-architecture tab copy on review intake; canonical create path remains `/architecture/architectures/new`. Post-generation `intent=create-architecture` on `/architecture/reviews/[runId]` unchanged.
+
+## 2026-08-04 - UI: Hard-retire `/snapshot/[runId]` redirect shim
+
+Removed App Router redirect stub; CTO recap leave-behind links now use `/architecture/reviews/{runId}?readOnly=1` via `buildReadOnlyReviewWorkspaceHref`. Old `/snapshot/...` bookmarks 404.
+
+## 2026-08-04 - UI: Azure permissions help Evidence chrome (HE)
+
+/help/azure-permissions ships PageContextualHelpButton, Category-1 registry, Sources + claim-discipline orientation strip, traffic Notes (template ID aligned from HAZ → HE), and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
+## 2026-08-04 - UI: Demo preview Evidence chrome (DPX)
+
+/demo/preview ships DemoPreviewEvidenceOrientationStrip (evaluation Sources + claim-discipline), traffic Notes under Marketing, and honest Evidence score 40. Marketing sample-demo page hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
+## 2026-08-04 - UI: Pilot outcomes Evidence chrome (SPP)
+
+/sponsor-report/pilot-outcomes ships Category-1 registry, Sources + claim-discipline orientation strip, updated traffic Notes, and honest Evidence score 52 (PageContextualHelpButton already present). Sponsor period-summary hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
+## 2026-08-04 - UI: Webhooks integration Evidence chrome (IWX)
+
+/integrations/webhooks ships PageContextualHelpButton, Category-1 registry, Sources + claim-discipline orientation strip, traffic Notes under Integrations, and honest Evidence score 48. Integration-config hub hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
+## 2026-08-04 - UI: Pilot guide help Evidence chrome (HP)
+
+/help/pilot-guide ships HelpPilotGuideView with PageContextualHelpButton, Category-1 registry, Sources + claim-discipline orientation strip, traffic Notes, and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
+## 2026-08-04 - UI: Billing and plans help Evidence chrome (HBX)
+
+/help/billing-and-plans ships Category-1 registry, Sources + claim-discipline orientation strip, updated traffic Notes, and honest Evidence score 52 (PageContextualHelpButton already present). Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
+## 2026-08-04 - UI: Signup verify Evidence chrome (SVX)
+
+/signup/verify ships SignupVerifyEvidenceOrientationStrip (evaluation Sources + claim-discipline), traffic Notes under Marketing, and honest Evidence score 40. Marketing evaluation-access page hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
+## 2026-08-04 - UI: ServiceNow integration Evidence chrome (ISX)
+
+/integrations/servicenow ships PageContextualHelpButton, Category-1 registry, Sources + claim-discipline orientation strip, traffic Notes under Integrations, and honest Evidence score 48. Integration-config hub hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
+## 2026-08-04 - UI: Review guide help Evidence chrome (HR)
+
+/help/review-guide ships HelpReviewGuideView with PageContextualHelpButton, Category-1 registry, Sources + claim-discipline orientation strip, traffic Notes, and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
+## 2026-08-04 - UI: Governance approval help Evidence chrome (GO)
+
+/help/governance-approval ships PageContextualHelpButton, Category-1 registry, Sources + claim-discipline orientation strip, updated traffic Notes, and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
+## 2026-08-04 - UI: Demo entry Evidence chrome (DXX)
+
+/demo ships interim DemoEntryEvidenceOrientationStrip (Sources + claim-discipline) + Continue link on the client redirect shim, traffic Notes under Marketing, and honest Evidence score 28. Redirect/shim hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
+## 2026-08-04 - UI: Invite a reviewer Evidence chrome (SRI)
+
+/administration/settings/users/invite-reviewer ships PageContextualHelpButton, Category-1 registry, Sources + claim-discipline orientation strip, traffic Notes under Settings, and honest Evidence score 48. Access-invite hub hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
+## 2026-08-04 - UI: Trust Center Evidence chrome (TXX)
+
+/trust ships TrustCenterEvidenceOrientationStrip (Sources + claim-discipline), traffic Notes under Marketing, and honest Evidence score 40. Marketing Trust Center hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
+## 2026-08-04 - UI: Security & trust Evidence chrome (SEC)
+
+/security-trust ships SecurityTrustEvidenceOrientationStrip (Sources + claim-discipline), traffic Notes under Marketing, and honest Evidence score 40. Marketing assurance page hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
+## 2026-08-04 - UI: Validate review Evidence chrome (REP)
+
+/replay ships PageContextualHelpButton, Category-1 registry, Sources + claim-discipline orientation strip, traffic Notes (Marketing catalog; operator Execute), and honest Evidence score 48. Validation-action hub hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
+## 2026-08-04 - UI: Teams integration Evidence chrome (ITX)
+
+/integrations/teams ships PageContextualHelpButton, Category-1 registry, Sources + claim-discipline orientation strip, traffic Notes under Integrations, and honest Evidence score 48. Integration-config hub hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
+## 2026-08-04 - UI: Slack integration Evidence chrome (ISN)
+
+/integrations/slack ships PageContextualHelpButton, Category-1 registry, Sources + claim-discipline orientation strip, traffic Notes under Integrations, and honest Evidence score 48. Integration-config hub hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-04 - UI: Jira integration Evidence chrome (IJX)
 
 /integrations/jira ships PageContextualHelpButton, Category-1 registry, Sources + claim-discipline orientation strip, traffic Notes under Integrations, and honest Evidence score 48. Integration-config hub hard-caps higher Evidence; no CPA / third-party pen-test implication.

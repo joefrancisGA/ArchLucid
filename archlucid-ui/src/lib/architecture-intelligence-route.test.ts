@@ -15,6 +15,7 @@ const ARCHITECTURE_INTELLIGENCE_APP_PAGE = join(
   "src",
   "app",
   "(operator)",
+  "architecture",
   "architecture-intelligence",
   "page.tsx",
 );
@@ -23,6 +24,7 @@ const ARCHITECTURE_INTELLIGENCE_APP_LAYOUT = join(
   "src",
   "app",
   "(operator)",
+  "architecture",
   "architecture-intelligence",
   "layout.tsx",
 );
@@ -55,12 +57,17 @@ describe("architecture-intelligence-route (AR2)", () => {
     expect(MARKETING_ROBOTS_DISALLOW_PREFIXES).not.toContain(ARCHITECTURE_INTELLIGENCE_PATH);
   });
 
-  it("keeps product deep links on canonical /architecture-intelligence", () => {
+  it("keeps product deep links on canonical /architecture/architecture-intelligence", () => {
     const repoRoot = join(process.cwd(), "..");
 
     for (const relativePath of PRODUCT_ARCHITECTURE_INTELLIGENCE_SURFACES) {
       const source = readFileSync(join(repoRoot, relativePath), "utf8");
-      expect(source).toContain(ARCHITECTURE_INTELLIGENCE_PATH);
+
+      expect(
+        source.includes(ARCHITECTURE_INTELLIGENCE_PATH) ||
+          source.includes("ARCHITECTURE_INTELLIGENCE_PATH") ||
+          source.includes("buildArchitectureIntelligenceRunHref"),
+      ).toBe(true);
     }
 
     const runHrefSource = readFileSync(

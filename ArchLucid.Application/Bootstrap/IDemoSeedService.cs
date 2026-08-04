@@ -1,7 +1,7 @@
 namespace ArchLucid.Application.Bootstrap;
 
 /// <summary>
-///     Seeds a deterministic **trusted baseline** (49R pass 2 / Corrected 50R) Contoso Retail story into the
+///     Seeds a deterministic **trusted baseline** (49R pass 2 / Corrected 50R) Retail Checkout story into the
 ///     primary ArchLucid SQL Server store used by <see cref="ArchLucid.Persistence.Data.Repositories" /> architecture
 ///     repositories.
 ///     Safe to call multiple times: existing rows are skipped or left unchanged.
@@ -15,7 +15,7 @@ public interface IDemoSeedService
     Task SeedAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
-    ///     Ensures one completed **Contoso Online Store** welcome sample run exists for the current ambient tenant scope
+    ///     Ensures one completed **Retail Online Store** welcome sample run exists for the current ambient tenant scope
     ///     (<see cref="ArchLucid.Core.Scoping.AmbientScopeContext" />). Idempotent; safe alongside <see cref="SeedAsync" />.
     /// </summary>
     Task SeedTrialWelcomeRunAsync(CancellationToken cancellationToken = default);

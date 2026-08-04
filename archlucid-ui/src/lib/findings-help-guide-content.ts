@@ -89,6 +89,19 @@ export const FINDINGS_HELP_PROVENANCE_TITLE = "Where findings come from";
 export const FINDINGS_HELP_PROVENANCE_INTRO =
   "Every finding is labeled by origin so you know what you are signing off on. Deterministic-rule findings come from policy pack rules. AI-generated findings come from a language model and carry a grounding label. Simulated findings come from the deterministic simulator and should not be cited as live-model evidence.";
 
+export const FINDINGS_HELP_PROVENANCE_AXES = [
+  {
+    axis: "Origin",
+    answers: "Who produced the finding?",
+    values: "Deterministic rule · AI-generated · Simulated",
+  },
+  {
+    axis: "Grounding",
+    answers: "How well is the conclusion supported?",
+    values: "Evidence-backed · Estimated · Ungrounded · Degraded · Not applicable (for rule/simulator origins)",
+  },
+] as const;
+
 export const FINDINGS_HELP_PROVENANCE_ORIGINS = [
   {
     origin: "Deterministic rule",
@@ -106,6 +119,9 @@ export const FINDINGS_HELP_PROVENANCE_ORIGINS = [
       "Produced by the deterministic simulator, not a live model — structurally valid but not real-model evidence.",
   },
 ] as const;
+
+export const FINDINGS_HELP_PROVENANCE_NON_CLAIM =
+  "Provenance labeling describes how a finding was produced and whether evidence is attached. It does not claim accuracy rates, production validation, or that AI-generated findings are independently verified. Reviewers remain accountable for disposition decisions.";
 
 export const FINDINGS_HELP_EVIDENCE_INTRO =
   "Evidence explains why a finding exists. From a finding, authorized users can review the supporting material and trace how it connects to architecture elements and governance rules.";

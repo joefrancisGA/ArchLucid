@@ -1,6 +1,6 @@
 > **Scope:** Engineering-owned technical backlog items deferred from current sessions; audience is contributors and the AI assistant; not a buyer or operator document. Not a substitute for ADRs or the pending-questions owner decisions file.
 
-**Updated:** 2026-08-04 (**TB-966** **Done** — `INBOUND_WEBHOOK_HOSTILE_TRAFFIC.md` PA order rate→size→verify→parse + surface matrix + checklist; INV-015 refresh; GTM **M-125**/**M-126** cite SoT; **TB-967**/**TB-968** remain open). Prior: 2026-08-03 (**TB-955** **Done** — Required audit abandon metric + pageable Prometheus alerts; domain↔audit orphan probe + job; triage runbook; informational TryLogAsync excluded). Prior: 2026-08-03 (**TB-954** **Done** — `RequiredAuditEventTypes` registry + arch test forbids `TryLogAsync` on Required types; INV-003 enforcement note; Core + Architecture tests). Prior: 2026-08-03 (**TB-951** **Done** — ≥3 indirect doc/README/ADR corpus scenarios + `indirect-doc-injection.json` with `expectedContained` residual; CI assert + eval_agent_quality strict; no 100% detection claim). Prior: 2026-08-03 (**TB-950** **Done** — production-like empty/null `AllowedTools` fail-closed; `*` unrestricted sentinel; DemoSeed concrete tools; TB-082 tests updated). Prior: 2026-08-03 (**TB-949** **Done** — untrusted customer-content `CUSTOMER_CONTENT_BEGIN`/`END` + framing; Agent/Ask composers; contract doc; unit + wiring tests; hygiene ≠ security boundary). Prior: 2026-08-03 (**DI** Evidence chrome — /digests Sources + claim discipline; Vitest; traffic **DI**). Prior: 2026-08-03 (**PLA** Evidence chrome — `/planning` Sources + claim discipline + topic honesty `how-it-works`; Vitest; traffic **PLA**). Prior: 2026-08-03 (**TB-897** **Done** — Quick Scan layered identity/abuse limits + CAPTCHA/sign-in friction codes; mig **292**; abuse ≠ spend ceiling). Prior: 2026-08-03 (**SCX** Evidence chrome — `/insights/architecture-scorecard` Sources + Category-1 registry + directional ROI claim; Vitest; traffic **SCX**; **TB-1956**–**TB-1960** remain Done). Prior: 2026-08-03 (**TB-1668** GDX/alerts topic slice — `/governance/dashboard` Sources + registry + topic honesty; `/governance/alerts` → `alerts`; Vitest; traffic **GDX**; remaining mount hubs open). Prior: 2026-08-03 (**TB-1667** HOM slice — `/` remounts `OperatorHomePageChrome` + Category-1 registry; Vitest; traffic **HOM**; remaining hubs open). Prior: 2026-08-03 (**TB-1746**/**TB-1749**/**TB-1750** **Done** — `/help/soc2-self-assessment` specialty buyer guide + Trust CTA / IA dual / Help Center; Vitest; traffic **HES**; **TB-1747**/**TB-1748** retained). Prior: 2026-08-03 (**TB-1386** **Done** — `/help/governance-api-contracts` specialty API contracts guide + title honesty; Vitest; traffic **HG**). Prior: 2026-08-02 (**TB-1691**/**TB-1692**/**TB-1694**/**TB-1695** **Done** — `/help/first-value-20-minutes` Admin specialty guide; Vitest; traffic **HEF**). Prior: 2026-08-02 (**TB-1676**/**TB-1678**/**TB-1679**/**TB-1680** **Done** — `/help/dpa-template` specialty buyer DPA guide; Vitest; traffic **HDP**). Prior: 2026-07-31 (Open **P1** summary rows reordered - human-impact ship order for /ship-next-improvement; 723 open P1s; see `### P1 - human-impact ship order`).
+**Updated:** 2026-08-04 (**TB-968** **Done** — `IItsmInboundWebhookReplayGuard` + in-memory 24h dedupe; delivery-id / Atlassian identifier / synthetic replay keys; `Integration.ItsmInboundWebhookReplayIgnored` audit; optional timestamp skew without HMAC; [`ITSM_INBOUND_WEBHOOK_REPLAY_GUARD.md`](runbooks/ITSM_INBOUND_WEBHOOK_REPLAY_GUARD.md); hostile-traffic inventory Replay → Y). Prior: 2026-08-04 (**TB-2038**–**TB-2041** opened — operator short-helper measure caps: design-system contract + `OperatorPageHeader`/`PageHeading` + dashboard inventory + Vitest; Overview `/` premature `max-w-prose`/`max-w-2xl` fixed in-session). Prior: 2026-08-04 (**TB-967** **Done** — `InboundWebhookBoundedBodyReader` Content-Length + hard ceiling before HMAC; ITSM/Stripe/Marketplace/Slack; 413; unit/arch/integration tests; inventory updated). Prior: 2026-08-04 (**TB-966** **Done** — `INBOUND_WEBHOOK_HOSTILE_TRAFFIC.md` PA order rate→size→verify→parse + surface matrix + checklist; INV-015 refresh; GTM **M-125**/**M-126** cite SoT; **TB-968** remains open). Prior: 2026-08-03 (**TB-955** **Done** — Required audit abandon metric + pageable Prometheus alerts; domain↔audit orphan probe + job; triage runbook; informational TryLogAsync excluded). Prior: 2026-08-03 (**TB-954** **Done** — `RequiredAuditEventTypes` registry + arch test forbids `TryLogAsync` on Required types; INV-003 enforcement note; Core + Architecture tests). Prior: 2026-08-03 (**TB-951** **Done** — ≥3 indirect doc/README/ADR corpus scenarios + `indirect-doc-injection.json` with `expectedContained` residual; CI assert + eval_agent_quality strict; no 100% detection claim). Prior: 2026-08-03 (**TB-950** **Done** — production-like empty/null `AllowedTools` fail-closed; `*` unrestricted sentinel; DemoSeed concrete tools; TB-082 tests updated). Prior: 2026-08-03 (**TB-949** **Done** — untrusted customer-content `CUSTOMER_CONTENT_BEGIN`/`END` + framing; Agent/Ask composers; contract doc; unit + wiring tests; hygiene ≠ security boundary). Prior: 2026-08-03 (**DI** Evidence chrome — /digests Sources + claim discipline; Vitest; traffic **DI**). Prior: 2026-08-03 (**PLA** Evidence chrome — `/planning` Sources + claim discipline + topic honesty `how-it-works`; Vitest; traffic **PLA**). Prior: 2026-08-03 (**TB-897** **Done** — Quick Scan layered identity/abuse limits + CAPTCHA/sign-in friction codes; mig **292**; abuse ≠ spend ceiling). Prior: 2026-08-03 (**SCX** Evidence chrome — `/insights/architecture-scorecard` Sources + Category-1 registry + directional ROI claim; Vitest; traffic **SCX**; **TB-1956**–**TB-1960** remain Done). Prior: 2026-08-03 (**TB-1668** GDX/alerts topic slice — `/governance/dashboard` Sources + registry + topic honesty; `/governance/alerts` → `alerts`; Vitest; traffic **GDX**; remaining mount hubs open). Prior: 2026-08-03 (**TB-1667** HOM slice — `/` remounts `OperatorHomePageChrome` + Category-1 registry; Vitest; traffic **HOM**; remaining hubs open). Prior: 2026-08-03 (**TB-1746**/**TB-1749**/**TB-1750** **Done** — `/help/soc2-self-assessment` specialty buyer guide + Trust CTA / IA dual / Help Center; Vitest; traffic **HES**; **TB-1747**/**TB-1748** retained). Prior: 2026-08-03 (**TB-1386** **Done** — `/help/governance-api-contracts` specialty API contracts guide + title honesty; Vitest; traffic **HG**). Prior: 2026-08-02 (**TB-1691**/**TB-1692**/**TB-1694**/**TB-1695** **Done** — `/help/first-value-20-minutes` Admin specialty guide; Vitest; traffic **HEF**). Prior: 2026-08-02 (**TB-1676**/**TB-1678**/**TB-1679**/**TB-1680** **Done** — `/help/dpa-template` specialty buyer DPA guide; Vitest; traffic **HDP**). Prior: 2026-07-31 (Open **P1** summary rows reordered - human-impact ship order for /ship-next-improvement; 723 open P1s; see `### P1 - human-impact ship order`).
 
 
 ## Cursor-actionable backlog ? remaining by architectural quality
@@ -631,8 +631,8 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-955 | ~~Required-audit abandon alert + domain↔audit orphan probe — pageable when Required write abandoned; periodic missing-trail detection; see `## TB-955` below~~ **Done** | Trustworthiness P1 — **V1**; after **TB-953**; INV-003 mitigation 2026-07-22 | M |
 | TB-965 | Buyer/operator UX: model-failed vs quality-rejected — never conflate HOLD/quality reject with transport “LLM error”; see `## TB-965` below | Trustworthiness P1 — **V1**; after **TB-963**; pairs **TB-937** status vocabulary | M |
 | TB-966 | ~~Hostile-internet inbound webhook contract — PA order rate→size→verify→parse + missing controls checklist; refresh INV-015 note~~ **Done** 2026-08-04 — `INBOUND_WEBHOOK_HOSTILE_TRAFFIC.md` + INV-015; see `## TB-966` below | Trustworthiness P1 — **V1**; PA Q3 2026-07-23; GTM **M-125**/**M-126**; after Done **TB-012** | S |
-| TB-967 | Bounded webhook body intake — Content-Length/pre-read max, size before HMAC, no unbounded ReadToEnd on inbound routes; see `## TB-967` below | Trustworthiness P1 — **V1**; after **TB-966**; ITSM + Stripe + Marketplace | M |
-| TB-968 | ITSM inbound replay/idempotency + freshness — event-id guard + optional timestamp skew; parity with billing replay patterns; see `## TB-968` below | Trustworthiness P1 — **V1**; after **TB-966**; pairs billing `IBillingWebhookReplayGuard` | M |
+| TB-967 | ~~Bounded webhook body intake — Content-Length/pre-read max, size before HMAC, no unbounded ReadToEnd on inbound routes~~ **Done** 2026-08-04 — shared bounded reader on ITSM/Stripe/Marketplace/Slack; see `## TB-967` below | Trustworthiness P1 — **V1**; after **TB-966**; ITSM + Stripe + Marketplace | M |
+| TB-968 | ~~ITSM inbound replay/idempotency + freshness — event-id guard + optional timestamp skew; parity with billing replay patterns~~ **Done** 2026-08-04 — `IItsmInboundWebhookReplayGuard` + runbook; see `## TB-968` below | Trustworthiness P1 — **V1**; after **TB-966**; pairs billing `IBillingWebhookReplayGuard` | M |
 | TB-970 | Persist per-task mode + cacheServed; auto-derive run Mixed after execute/selective resume; see `## TB-970` below | Trustworthiness P1 — **V1**; after **TB-969**; extends `StructuralExecutionModeResolver` | M |
 | TB-971 | Cross-surface execution-mode honesty guards — never promote Mixed/Fallback→Real; within-run vs ROI period mix; see `## TB-971` below | Trustworthiness P1 — **V1**; after **TB-970**; pairs Done **TB-239** / G1 | M |
 | TB-974 | Wrong-gate migration playbook — deprecate version, selective re-execute, append-only supersede; never silent UPDATE; see `## TB-974` below | Trustworthiness P1 — **V1**; after **TB-972**; pairs **TB-973** | M |
@@ -1092,6 +1092,10 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-2000 | Design-system — operator form/helper breathing-room contract; see ## TB-2000 below | Adoption friction P1 — **V1**; owner Guided intake cramped-text 2026-07-28; coexist Done **TB-118**; do not stretch **TB-1879** | S |
 | TB-2001 | Guided intake — form/helper breathing room (ENE apply); see ## TB-2001 below | Adoption friction P1 — **V1**; with **TB-2000**; sibling open **TB-1879** (banners only) | S |
 | TB-2002 | Start review shared primitives — path switcher / WizardFieldHint / pilot toggle / actors; see ## TB-2002 below | Adoption friction P1 — **V1**; with **TB-2000**; covers Quick start + Templates DNA | S |
+| TB-2038 | Design-system — short helper/intro measure contract (when not to use `max-w-prose` / `max-w-2xl` / `max-w-3xl`); see ## TB-2038 below | Adoption friction P1 — **V1**; owner Overview premature wrap 2026-08-04; Overview fixed in-session | S |
+| TB-2039 | OperatorPageHeader + PageHeading — remove default subtitle measure caps; see ## TB-2039 below | Adoption friction P1 — **V1**; with **TB-2038**; Overview already opts out via `subtitleClassName` | S |
+| TB-2040 | Operator dashboard inventory — strip premature measure caps from short intro helpers; see ## TB-2040 below | Adoption friction P1 — **V1**; with **TB-2038**; excludes help/docs long prose | M |
+| TB-2041 | Short-helper measure — Vitest contract + residual inventory guard; see ## TB-2041 below | Adoption friction P2 — **V1**; after **TB-2038**–**TB-2040** | S |
 | TB-2006 | Architecture draft workspace — disable Start review until readiness; drop validation toast; see ## TB-2006 below | Adoption friction P1 — **V1**; owner ask 2026-07-29; with **TB-2005** | S |
 | TB-2007 | Pilot baseline wizard — disable Next/Save until valid; inline field errors; see ## TB-2007 below | Adoption friction P1 — **V1**; with **TB-2005**; first-session overlay | S |
 | TB-2008 | Admin toast-validation — Tenant cost settings + governance bulk disposition; see ## TB-2008 below | Adoption friction P1 — **V1**; with **TB-2005** | S |
@@ -1326,10 +1330,9 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1732 | Prior-manifest help — manifest/retrieval jargon honesty; see ## TB-1732 below | Trustworthiness P1 — **V1**; with **TB-1731**; pairs glossary former *manifest* | S |
 | TB-1734 | Prior-manifest help — IA dual with repeat-review / compare; see ## TB-1734 below | Adoption friction P1 — **V1**; with **TB-1731**; pairs **TB-1394**/**TB-1636** | S |
 | TB-1735 | Prior-manifest help — Related + finalize-success inbound copy; see ## TB-1735 below | Adoption friction P1 — **V1**; with **TB-1731** | S |
-| TB-1736 | `/help/product-overview` specialty buyer overview + Start CTA; see ## TB-1736 below | Adoption friction P1 — **V1**; owner review ~42/100 2026-07-27; traffic **HPR**; pairs **TB-1414** | M |
-| TB-1737 | Product-overview help — title honesty (sponsor brief vs product overview); see ## TB-1737 below | Trustworthiness P1 — **V1**; with **TB-1736** | S |
-| TB-1739 | Product-overview help — IA dual with executive-summary / path-chooser; see ## TB-1739 below | Adoption friction P1 — **V1**; with **TB-1736**; pairs **TB-1686**/**TB-1711** | S |
-| TB-1740 | Product-overview help — elevator/M-18 outreach dump vs overview job; see ## TB-1740 below | Adoption friction P1 — **V1**; with **TB-1736** | S |
+| TB-1736 | `/help/executive-summary` specialty buyer overview + Start CTA (was product-overview); see ## TB-1736 below | Adoption friction P1 — **V1**; owner review ~42/100 2026-07-27; traffic **EXE** (alias EPR/HPR); after **TB-1739**; pairs **TB-1414** | M |
+| TB-1737 | Executive-summary help — title honesty (sponsor brief vs product overview); see ## TB-1737 below | Trustworthiness P1 — **V1**; with **TB-1736** | S |
+| TB-1740 | Executive-summary help — elevator/M-18 outreach dump vs overview job; see ## TB-1740 below | Adoption friction P1 — **V1**; with **TB-1736** | S |
 | TB-1741 | `/help/report-a-problem` specialty support guide + Open Settings Support CTA; see ## TB-1741 below | Adoption friction P1 — **V1**; owner review ~55/100 2026-07-27; traffic **HRE**; after Done **TB-790**; pairs **TB-1414** | M |
 | TB-1742 | Report-a-problem help — dead-end when Report button absent; see ## TB-1742 below | Adoption friction P1 — **V1**; with **TB-1741** | S |
 | TB-1743 | Report-a-problem help — IA dual with troubleshooting; see ## TB-1743 below | Adoption friction P1 — **V1**; with **TB-1741** | S |
@@ -1530,6 +1533,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1727 | **Done** (2026-07-30) — Policy-pack-delta help — HTTP/config/script/GUID leakage strip; see `## TB-1727` below | Trustworthiness P0 — **V1**; with **TB-1726**; pairs **TB-1235** | S |
 | TB-1733 | **Done** (2026-07-30) — Prior-manifest help — host config key leakage strip; see `## TB-1733` below | Trustworthiness P0 — **V1**; with **TB-1731**; pairs **TB-1235** | S |
 | TB-1738 | **Done** (2026-07-30) — Product-overview help — eng/GTM path + type leakage strip; see `## TB-1738` below | Trustworthiness P0 — **V1**; with **TB-1736**; pairs **TB-1235** | S |
+| TB-1739 | **Done** (2026-08-04) — Product-overview help — IA dual folded into executive-summary alias; see `## TB-1739` below | Adoption friction P1 — **V1**; with **TB-1736**; pairs **TB-1686**/**TB-1711** | S |
 | TB-1747 | **Done** (2026-07-30) — SOC2 self-assessment help — contributor / repo-path leakage strip; see `## TB-1747` below | Trustworthiness P0 — **V1**; with **TB-1746**; pairs **TB-1235**/**TB-1632** | S |
 | TB-1748 | **Done** (2026-07-31) — SOC2 self-assessment help — Type I calendar / roadmap commitment honesty; see `## TB-1748` below | Trustworthiness P0 — **V1**; with **TB-1746**; GTM **G-REAL-05** | S |
 | TB-1752 | **Done** (2026-07-31) — Subprocessors help — contributor / repo-path leakage strip; see `## TB-1752` below | Trustworthiness P0 — **V1**; with **TB-1751**; pairs **TB-1235** | S |
@@ -25888,11 +25892,11 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 1. [`INBOUND_WEBHOOK_HOSTILE_TRAFFIC.md`](INBOUND_WEBHOOK_HOSTILE_TRAFFIC.md) — PA order `edge → rate → bounded size → verify → parse → idempotent handler`; ITSM / Stripe / Marketplace / Slack matrix; hostile-internet checklist; non-claims.
 2. **INV-015** in [`ARCHITECTURE_INVARIANTS.md`](ARCHITECTURE_INVARIANTS.md) — keep verify-before-parse; clarify rate/size precedence; link contract.
-3. GTM **M-125** / **M-126** cite hooks updated to SoT + open **TB-967** / **TB-968**.
+3. GTM **M-125** / **M-126** cite hooks updated to SoT; follow-ons **TB-967** (Done) / **TB-968** (open).
 
 **Depends on:** Done **TB-012** / INV-015 baseline. Does not reopen Wave C.
 
-**Out of scope:** Implementing Front Door SKU changes; full async outbox for ITSM (**TB-394** class); bounded intake (**TB-967**) and ITSM replay (**TB-968**).
+**Out of scope:** Implementing Front Door SKU changes; full async outbox for ITSM (**TB-394** class); ITSM replay (**TB-968**).
 
 **Size estimate:** S.
 
@@ -25902,7 +25906,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 — Trustworthiness.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-04).
 
 **Priority:** P1.
 
@@ -25910,19 +25914,17 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Problem:** Size checks after full `ReadToEndAsync` still allocate the attack body; missing/lying `Content-Length` and chunked bombs bypass naive caps. Signature verify on unbounded buffers is CPU DoS.
 
-**Approach:**
+**Shipped:**
 
-1. Shared helper: reject when `Content-Length` > max; stream/read with hard byte ceiling; return 413/400 before HMAC/parse.
-2. Apply to ITSM inbound, Stripe webhook, Marketplace webhook (and any other `[AllowAnonymous]` inbound body consumers).
-3. Keep verify on **raw bounded bytes** before `JsonDocument.Parse`; Content-Type allowlist where vendor-fixed.
-4. Architecture + integration tests: oversized body never reaches parse/verify crypto path; constant-time compare retained.
-5. Metrics/audit: payload-too-large counts without storing body.
+1. `InboundWebhookBoundedBodyReader` / `InboundWebhookBodyLimits` (64 KiB): Content-Length pre-check + hard stream ceiling → 413 before verify/parse.
+2. Wired: ITSM Jira/ServiceNow, Stripe, Marketplace, Slack interactivity.
+3. ITSM oversize still audits via `CreatePayloadTooLargeAudit` (no body stored).
+4. Unit + architecture + integration tests (413 before parse; no `ReadToEndAsync` on inbound controllers).
+5. [`INBOUND_WEBHOOK_HOSTILE_TRAFFIC.md`](INBOUND_WEBHOOK_HOSTILE_TRAFFIC.md) inventory Size column → **Y**.
 
-**Acceptance:** All inbound webhook controllers use bounded intake; tests lock size-before-verify-before-parse; **TB-966** inventory rows updated.
+**Depends on:** **TB-966**.
 
-**Depends on:** **TB-966**. Extends existing `MaxInboundWebhookPayloadUtf8Bytes` / billing buffering patterns.
-
-**Out of scope:** Changing vendor signature algorithms; raising global API body limits for authenticated routes.
+**Out of scope:** Changing vendor signature algorithms; raising global API body limits for authenticated routes; ITSM replay (**TB-968**).
 
 **Size estimate:** M.
 
@@ -25932,7 +25934,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 — Trustworthiness.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-04).
 
 **Priority:** P1.
 
@@ -25940,19 +25942,18 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Problem:** Valid signed (or shared-secret) replays can re-apply finding status/disposition mutations. Timestamp skew often absent on ITSM headers.
 
-**Approach:**
+**Shipped:**
 
-1. Durable or cache-backed replay guard keyed by vendor event id / delivery id (+ tenant), modeled on `IBillingWebhookReplayGuard` / Stripe idempotency.
-2. Optional freshness: accept vendor timestamp header when present; reject outside skew window; document when vendor cannot supply it.
-3. Handler remains idempotent when event id repeats (200 + no-op).
-4. Fail closed if inbound secret missing/empty (already mostly true — add regression test).
-5. Tests: replay does not double-mutate; unknown event processes once.
-
-**Acceptance:** ITSM Jira/ServiceNow inbound paths replay-safe; ops note in **TB-966** contract; triage/runbook updated.
+1. `IItsmInboundWebhookReplayGuard` + `MemoryCacheItsmInboundWebhookReplayGuard` (24h per-process dedupe keyed by provider + event id).
+2. Replay keys: `X-ArchLucid-Webhook-Delivery-Id`, `X-Atlassian-Webhook-Identifier`, or synthetic `{provider}:{externalKey}:{status}`.
+3. Replay within window → HTTP **200**, no mutation, durable `Integration.ItsmInboundWebhookReplayIgnored` audit.
+4. Optional freshness: when `X-ArchLucid-Timestamp` present, enforce `WebhookTimestampSkewSeconds` even without HMAC.
+5. Unit tests: replay does not double-mutate; event-id resolution tests.
+6. Ops runbook [`ITSM_INBOUND_WEBHOOK_REPLAY_GUARD.md`](runbooks/ITSM_INBOUND_WEBHOOK_REPLAY_GUARD.md); [`INBOUND_WEBHOOK_HOSTILE_TRAFFIC.md`](INBOUND_WEBHOOK_HOSTILE_TRAFFIC.md) inventory Replay → **Y**.
 
 **Depends on:** **TB-966**. Benefits from **TB-967** (verify only bounded bodies).
 
-**Out of scope:** Stripe/Marketplace replay (already present — only gap-close if inventory finds holes); OAuth-managed webhook registration (**TB-398**).
+**Out of scope:** Stripe/Marketplace replay (already present); cross-instance durable ITSM replay ledger; OAuth-managed webhook registration (**TB-398**).
 
 **Size estimate:** M.
 
@@ -42663,13 +42664,15 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1739 — Product-overview help — IA dual with executive-summary / path-chooser (P0)
 
-**Window:** V1 — Adoption friction. **Status:** Not started. **Priority:** P0.
+**Window:** V1 — Adoption friction. **Status:** **Done** (2026-08-04). **Priority:** P0.
 
-**Problem:** Open **TB-1686** retargets `/help/executive-summary` onto the same sponsor brief; path-chooser also orients buyers — three “what next / what is” surfaces without a split.
+**Shipped:** `product-overview` → `executive-summary` slug alias; twin registry entry removed; overview anchors (`what-archlucid-is`, pillars, elevator pitches) unioned into EXE `sectionAnchors`; specialty CTA no longer self-links Product overview; `docs/redirects.md` + traffic **EPR**→**EXE**; Vitest alias load + PDF eligibility.
 
-**Approach:** Job split callout: this page = what ArchLucid is / pillars; EXE = sponsor-safe summary + ROI after **TB-1686**; path-chooser = pick next step. Mutual Related once. Do not reopen **TB-1686**/**TB-1711**. Vitest: distinct lead + cross-links.
+**Problem:** Open **TB-1686** retargeted `/help/executive-summary` onto the same sponsor brief as product-overview — two Help surfaces, one source.
 
-**Acceptance:** Clear overview vs sponsor summary vs chooser. **Size estimate:** S.
+**Approach (executed):** Path-stable alias + fold overview sections into EXE; path-chooser stays the “pick next step” surface (**TB-1711**). Residual Start CTA / title / M-18 dump tracked on **TB-1736**/**TB-1737**/**TB-1740**.
+
+**Acceptance:** One canon help topic for the sponsor brief; bookmarks to `/help/product-overview` resolve. **Size estimate:** S.
 
 ---
 
@@ -45880,118 +45883,67 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ---
 
-## TB-1996 — Design-system — inline metadata `Label: value` label emphasis contract (P1)
+## TB-1996 — Design-system — inline metadata `Label: value` label emphasis contract (P1) — **Done** (2026-08-04)
 
 **Window:** V1 — Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-04).
 
 **Priority:** P1.
 
 **Source:** Owner screenshot review of Overview Recent reviews buyer proof helper lines (**Audit trail: Complete**) 2026-07-28.
 
-**Problem:** No `UI_DESIGN_SYSTEM.md` rule for emphasizing the key in inline metadata `Label: value` rows. Flat `OPERATOR_TYPOGRAPHY.helper` makes **Audit trail** and **Complete** the same weight. Precedents exist but are ad hoc (`AcceleratorChooserCard` `font-medium` on `Inputs:`/`Outputs:`; Done **TB-619** on `Recommended action:` / `Owner:`; `InlineGuidanceLabel` for guidance prefixes only).
-
-**Approach:**
-
-1. Document in `UI_DESIGN_SYSTEM.md` (+ token/helper note if useful): for **inline metadata** rows `Label: value`, emphasize the label (`font-medium` / `font-semibold` or shared `InlineMetadataLabel` / `<dt>`), leave the value at helper/body weight.
-2. Prefer `<dl>` / `<dt>`/`<dd>` when several rows stack (align with non-showcase `RunInspectorPreview`).
-3. Explicit **do not** list: prose sentences with colons; section/card titles that use a colon as part of a heading; code/config keys; legal/document chrome; guidance prefixes (`InlineGuidanceLabel`); whole-line title rows already intended as one semibold phrase (e.g. **Decision: Package finalized** as a card title — either keep whole-line title weight or split per the metadata rule, but do not double-bold).
-4. Note product metadata separator is **colon**; no `Label, value` status pattern required.
-
-**Acceptance:** Design system states when to emphasize the label before `:` and when not to; agents/contributors have a clear default.
-
-**Depends on:** None. Complements **TB-119** / **TB-619**.
-
-**Out of scope:** Sweeping every colon in the UI tree (**TB-1999** inventory).
-
-**Size estimate:** S.
+**Shipped:** `UI_DESIGN_SYSTEM.md` § Inline metadata `Label: value` emphasis; token `INLINE_METADATA_LABEL_CLASS`; components `InlineMetadataLabel` / `InlineMetadataLine`. Explicit do-not list for prose/titles/guidance/code. Apply/Vitest/inventory: **TB-1997**–**TB-1999**.
 
 ---
 
-## TB-1997 — Buyer proof summary — bold metadata labels (home Recent + RunInspectorPreview showcase) (P1)
+## TB-1997 — Buyer proof summary — bold metadata labels (home Recent + RunInspectorPreview showcase) (P1) — **Done** (2026-08-04)
 
 **Window:** V1 — Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-04).
 
 **Priority:** P1.
 
 **Source:** Owner Overview screenshot 2026-07-28 — **Audit trail: Complete** (and siblings) in Recent reviews featured summary.
 
-**Problem:** `RunsDashboardRecentTab.tsx` (`runs-dashboard-buyer-proof-summary`) and `RunInspectorPreview.tsx` showcase block render flat helper paragraphs: `Governance approval: …`, `Evidence trail: Ready`, `Audit trail: Complete`, `Remaining monitored risk: …`. Same weight on key and value. Non-showcase inspector path already uses emphasized `<dt>` rows.
-
-**Approach:**
-
-1. Apply **TB-1996** pattern to the showcase/buyer proof rows (shared component or local `<dt>`/`<span className="font-medium">` label).
-2. Keep **Decision: Package finalized** as a title-weight line (or split consistently — document choice).
-3. Align home Recent and reviews-list inspector showcase copy presentation.
-
-**Acceptance:** Buyer-visible proof summary metadata keys are visually heavier than values; values remain readable helper text.
-
-**Depends on:** Prefer land with or immediately after **TB-1996**.
-
-**Out of scope:** Broader inventory (**TB-1999**); BDA-008 “audit trail complete” claim wording (different issue).
-
-**Size estimate:** S.
+**Shipped:** `OperatorHomeReviewSummaryCard` featured showcase + `RunInspectorPreview` showcase use `InlineMetadataLine`; **Decision: Package finalized** remains title-weight whole line; non-showcase inspector `<dt>` rows use `InlineMetadataLabel`.
 
 ---
 
-## TB-1998 — Buyer proof summary — Vitest label emphasis on `Label: value` rows (P2)
+## TB-1998 — Buyer proof summary — Vitest label emphasis on `Label: value` rows (P2) — **Done** (2026-08-04)
 
 **Window:** V1 — Testability.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-04).
 
 **Priority:** P2.
 
 **Source:** With **TB-1997**.
 
-**Problem:** Without a guard, flat helper paragraphs can regress after the bold-label pass.
-
-**Approach:** Vitest on buyer proof summary / showcase inspector: each metadata key (`Governance approval`, `Evidence trail`, `Audit trail`, monitored-risk label) is in an emphasized element (`font-medium`/`font-semibold`/`dt`), distinct from the value text node.
-
-**Acceptance:** Regression fails if **Audit trail: Complete** returns to a single unweighted text node.
-
-**Depends on:** **TB-1997**.
-
-**Size estimate:** S.
+**Shipped:** Vitest on `OperatorHomeReviewSummaryCard` + `RunInspectorPreview` asserts metadata keys are `.font-medium` nodes distinct from values; `InlineMetadataLabel.test.tsx` covers colon/token contract.
 
 ---
 
-## TB-1999 — Follow-up inventory — remaining flat `Label: value` metadata surfaces (P2)
+## TB-1999 — Follow-up inventory — remaining flat `Label: value` metadata surfaces (P2) — **Done** (2026-08-04)
 
 **Window:** V1 — Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-04).
 
 **Priority:** P2.
 
 **Source:** UI scan with **TB-1996** / owner Overview bold-label ask 2026-07-28.
 
-**Problem:** After the high-traffic buyer proof fix, other flat metadata rows remain (lower first-session impact).
+**Shipped (buyer/sponsor-facing apply):**
 
-**Inventory (candidates — apply **TB-1996** only where rows are true metadata, not prose):**
-
-| Surface | Examples |
+| Surface | Change |
 |---|---|
-| `/value-report/pilot` (`PilotValueReportPageView`) | `Approved:`, `Rejected:`, `Pending:`, `Policy packs applied:`, … |
-| `/governance/policy-packs/[id]` (`PolicyPackGenericDetail`) | `Last updated:`, `Pack type:` |
-| `/architecture-intelligence` finding cards | `Severity:`, `Conclusion:`, `Integrity:`, … |
-| `/reviews/new` Socratic confirm (`SocraticIntakeWizard`) | `Intent:`, `Outcome:`, `System:` |
-| Architectures sponsor share (`ArchitectureSponsorSharingPanel`) | `Known gaps:`, `Confidentiality:` |
-| Finding evidence (`FindingInspectEvidenceSection`) | `Lines:`, `Artifact id:` |
-| Alerts admin simulation/tuning | Mixed — some already `<strong>` |
+| `/value-report/pilot` (`PilotValueReportPageView`) | `InlineMetadataLabel` on Approved/Rejected/Pending/policy/recommendation rows |
+| `/governance/policy-packs/[id]` (`PolicyPackGenericDetail`) | `InlineMetadataLine` for Last updated / Pack type |
+| `/reviews/new` Socratic confirm (`SocraticIntakeWizard`) | `InlineMetadataLabel` on Intent/Outcome/System |
 
-**Approach:** Prioritize buyer/sponsor-facing lists first; skip or demote admin-only / mono-ID forensic lines unless they share a component. Prefer shared helper from **TB-1996**.
-
-**Acceptance:** Inventory filed against **TB-1996** contract; highest-traffic remaining buyer surfaces fixed or explicitly deferred with reason.
-
-**Depends on:** **TB-1996**; prefer after **TB-1997**.
-
-**Out of scope:** Prose/heading/code/legal nuance cases listed in **TB-1996**.
-
-**Size estimate:** M.
+**Explicitly deferred (admin/forensic or lower first-session impact — reuse `InlineMetadataLabel` when next touched):** architecture-intelligence finding cards (`Severity:`/`Conclusion:`); `ArchitectureSponsorSharingPanel` (`Known gaps:`/`Confidentiality:`); `FindingInspectEvidenceSection` (`Lines:`/`Artifact id:`); alerts admin simulation/tuning (mixed existing `<strong>`).
 
 ---
 
@@ -46973,6 +46925,117 @@ Operators must read three intros before reaching the Trust Center link list.
 **Depends on:** **TB-2034** (first real data); copy rule can land earlier.
 
 **Out of scope:** Publishing any rate before pilot evidence exists.
+
+**Size estimate:** S.
+
+---
+
+## TB-2038 — Design-system — short helper/intro measure contract (P1)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P1.
+
+**Source:** Owner Overview (`/`) screenshot 2026-08-04 — short dashboard leads wrapping with large empty bands to the right (`max-w-prose` / `max-w-2xl` / `max-w-3xl`).
+
+**Problem:** Tailwind measure caps intended for long reading prose were applied to short operator dashboard helpers (lifecycle intros, resume bridges, page subtitles, disclosure descriptions). On full-width cards the copy wraps early while the card stays wide — looks broken, not “readable.” Overview was fixed in-session (home dual-path / resume / do-this-next / disclosure / Explain-this-view + Overview `subtitleClassName="max-w-none"`). Shared chrome and other hubs still pin measure by default.
+
+**Approach:**
+
+1. Document in `UI_DESIGN_SYSTEM.md`: short operator helpers/intros on dashboard/card surfaces use the work-surface width (no `max-w-prose` / `max-w-2xl` / `max-w-3xl`); reserve prose measure for long help/docs reading bodies and marketing long-form.
+2. Explicit coexistence with Done **TB-118** compact page density and open **TB-2000** form breathing room — those are vertical gaps, not horizontal measure.
+3. Point agents at Overview as the reference composition.
+
+**Acceptance:** Design system states when measure caps are forbidden vs allowed; agents have a default that matches Overview.
+
+**Depends on:** None. Overview fix already landed.
+
+**Out of scope:** Per-surface apply (**TB-2039**/**TB-2040**); marketing hero measure; help long-form prose.
+
+**Size estimate:** S.
+
+---
+
+## TB-2039 — OperatorPageHeader + PageHeading — remove default subtitle measure caps (P1)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P1.
+
+**Source:** Same Overview premature-wrap review 2026-08-04; `OperatorPageHeader` defaults `max-w-2xl`, `PageHeading` defaults `max-w-3xl`.
+
+**Problem:** Shared page chrome caps every non-Overview subtitle until callers opt out. Overview already passes `subtitleClassName="max-w-none"`; other hubs still wrap early under wide shells.
+
+**Approach:**
+
+1. Apply **TB-2038**: drop default `max-w-2xl` / `max-w-3xl` on short subtitles/descriptions (or default to full width and only opt into measure for reading pages).
+2. Keep optional class override for true reading layouts (`OperatorPageContainer` `reading` variant / help).
+3. Update Vitest on `OperatorPageHeader` / `PageHeading` for the new default.
+
+**Acceptance:** New operator pages get full-width short subtitles without per-page opt-out; Overview can drop the temporary `max-w-none` override.
+
+**Depends on:** Prefer with or after **TB-2038**.
+
+**Out of scope:** Full dashboard inventory (**TB-2040**).
+
+**Size estimate:** S.
+
+---
+
+## TB-2040 — Operator dashboard inventory — strip premature measure caps from short intro helpers (P1)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P1.
+
+**Source:** Repo scan after Overview fix 2026-08-04 — many `max-w-prose` / `max-w-2xl` / `max-w-3xl` on operator hub intros (reviews, governance, integrations, settings, alerts, signed records, etc.).
+
+**Problem:** Fixing Overview alone leaves sibling hubs with the same premature-wrap look.
+
+**Approach:**
+
+1. Inventory operator (non-help, non-marketing-long-form) short helpers still using prose/2xl/3xl measure.
+2. Strip caps on card/section intros ≤ ~2 sentences; leave long policy/help bodies alone.
+3. Prefer shared tokens/classes from **TB-2038** over one-off edits.
+
+**Acceptance:** Representative hubs (Reviews, Governance, Integrations, Settings) no longer show empty-band premature wrap on short leads; help/docs long prose unchanged.
+
+**Depends on:** Prefer after **TB-2038**; can land in parallel with **TB-2039**.
+
+**Out of scope:** Marketing pages; specialty help long-form; form field breathing room (**TB-2000**–**TB-2004**).
+
+**Size estimate:** M.
+
+---
+
+## TB-2041 — Short-helper measure — Vitest contract + residual inventory guard (P2)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P2.
+
+**Source:** Pair with **TB-2038**–**TB-2040** (same pattern as **TB-2003** for breathing room).
+
+**Problem:** Without a guard, agents reintroduce `max-w-prose` on short Overview/dashboard helpers.
+
+**Approach:**
+
+1. Vitest (or script) asserting Overview dual-path / resume / page-header leads stay uncapped; extend allowlist for intentional reading measure.
+2. Optional ripgrep inventory comment or drift test for new `max-w-prose` on `operator-home` / shared chrome.
+
+**Acceptance:** CI fails if Overview short helpers regain prose measure; residual inventory documented or guarded.
+
+**Depends on:** After **TB-2038**; preferably after **TB-2039**/**TB-2040** land.
+
+**Out of scope:** Visual screenshot regression suite.
 
 **Size estimate:** S.
 

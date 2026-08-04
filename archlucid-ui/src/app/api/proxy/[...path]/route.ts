@@ -21,6 +21,7 @@ import {
 } from "@/lib/server-fetch-timeouts";
 import { trySandboxProxyMock } from "@/lib/sandbox-proxy-mocks";
 import { resolveProxyUpstreamScopeHeaders } from "@/lib/proxy-scope-resolution";
+import { formatProxyUpstreamUnreachableDetail } from "@/lib/proxy-upstream-unreachable-detail";
 import { fetchWithWarmupRetry } from "@/lib/warmup-retry";
 import { normalizeProxyPathForTelemetry } from "@/lib/telemetry/normalize-proxy-path-for-telemetry";
 import {
@@ -213,10 +214,17 @@ async function forwardMutatingWithBody(
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
+    const detail = formatProxyUpstreamUnreachableDetail({
+      method,
+      path: pathForLog,
+      timeoutMs: upstreamTimeoutMs,
+      causeMessage: message,
+    });
     logProxyDiagnostic("upstream_fetch_failed", {
       method,
       path: pathForLog,
       message,
+      timeoutMs: upstreamTimeoutMs,
       correlationId,
     });
     return respondWithProxyProblem(
@@ -225,7 +233,11 @@ async function forwardMutatingWithBody(
         type: "about:blank",
         title: "Upstream API unreachable",
         status: 502,
-        detail: message,
+        detail,
+        instance: `${method} /${pathForLog}`,
+        upstreamMethod: method,
+        upstreamPath: pathForLog,
+        upstreamTimeoutMs: upstreamTimeoutMs,
         supportHint:
           "Confirm the ArchLucid API is running and reachable from this machine. Check ARCHLUCID_API_BASE_URL and see docs/runbooks/TROUBLESHOOTING.md.",
       },
@@ -309,10 +321,17 @@ async function forward(
       });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
+      const detail = formatProxyUpstreamUnreachableDetail({
+        method,
+        path: pathForLog,
+        timeoutMs: PROXY_UPSTREAM_FETCH_TIMEOUT_MS,
+        causeMessage: message,
+      });
       logProxyDiagnostic("upstream_fetch_failed", {
         method,
         path: pathForLog,
         message,
+        timeoutMs: PROXY_UPSTREAM_FETCH_TIMEOUT_MS,
         correlationId,
       });
       return respondWithProxyProblem(
@@ -321,7 +340,11 @@ async function forward(
           type: "about:blank",
           title: "Upstream API unreachable",
           status: 502,
-          detail: message,
+          detail,
+          instance: `${method} /${pathForLog}`,
+          upstreamMethod: method,
+          upstreamPath: pathForLog,
+          upstreamTimeoutMs: PROXY_UPSTREAM_FETCH_TIMEOUT_MS,
           supportHint:
             "Confirm the ArchLucid API is running and reachable from this machine. Check ARCHLUCID_API_BASE_URL and see docs/runbooks/TROUBLESHOOTING.md.",
         },
@@ -367,10 +390,17 @@ async function forward(
     );
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
+    const detail = formatProxyUpstreamUnreachableDetail({
+      method,
+      path: pathForLog,
+      timeoutMs: PROXY_UPSTREAM_FETCH_TIMEOUT_MS,
+      causeMessage: message,
+    });
     logProxyDiagnostic("upstream_fetch_failed", {
       method,
       path: pathForLog,
       message,
+      timeoutMs: PROXY_UPSTREAM_FETCH_TIMEOUT_MS,
       correlationId,
     });
     return respondWithProxyProblem(
@@ -379,7 +409,11 @@ async function forward(
         type: "about:blank",
         title: "Upstream API unreachable",
         status: 502,
-        detail: message,
+        detail,
+        instance: `${method} /${pathForLog}`,
+        upstreamMethod: method,
+        upstreamPath: pathForLog,
+        upstreamTimeoutMs: PROXY_UPSTREAM_FETCH_TIMEOUT_MS,
         supportHint:
           "Confirm the ArchLucid API is running and reachable from this machine. Check ARCHLUCID_API_BASE_URL and see docs/runbooks/TROUBLESHOOTING.md.",
       },

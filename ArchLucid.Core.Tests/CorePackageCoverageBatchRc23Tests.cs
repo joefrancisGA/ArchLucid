@@ -100,7 +100,7 @@ public sealed class CorePackageCoverageBatchRc23Tests
     public void Configuration_and_record_types_expose_defaults()
     {
         LlmTelemetryOptions telemetry = new();
-        MeteringOptions metering = new();
+        ArchLucid.Core.Metering.MeteringOptions metering = new();
         ArchLucidSecretOptions secrets = new();
         TenantHardPurgeOptions purge = new();
         TrialFirstManifestCommitOutcome trialOutcome = new();

@@ -4,6 +4,7 @@ import { normalizeSeeItMarketingPayload } from "../../see-it/normalize-see-it-pa
 import { DemoPreviewMarketingBody } from "./DemoPreviewMarketingBody";
 import { DemoPreviewHero } from "./_sections/DemoPreviewHero";
 import { DemoPreviewResultAtAGlance } from "./_sections/DemoPreviewResultAtAGlance";
+import { DemoPreviewEvidenceOrientationStrip } from "@/components/marketing/DemoPreviewEvidenceOrientationStrip";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 import { MARKETING_UPSTREAM_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
 import { getShowcaseStaticDemoPayload, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
@@ -46,6 +47,7 @@ function DemoPreviewPageShell({ payload }: { readonly payload: DemoCommitPagePre
   return (
     <main className="mx-auto max-w-[72rem] px-4 py-10">
       <DemoPreviewHero />
+      <DemoPreviewEvidenceOrientationStrip />
       <div className="mt-8 space-y-10">
         <DemoPreviewResultAtAGlance payload={payload} />
         <DemoPreviewMarketingBody payload={payload} />

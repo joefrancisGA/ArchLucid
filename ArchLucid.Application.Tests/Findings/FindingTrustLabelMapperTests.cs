@@ -125,6 +125,22 @@ public sealed class FindingTrustLabelMapperTests
     }
 
     [Fact]
+    public void Map_PolicyRuleId_ReturnsDeterministicFallback()
+    {
+        ArchitectureFinding finding = new()
+        {
+            PolicyRuleId = "sec-base-001",
+            EvidenceRefs = [],
+            ConfidenceLevel = FindingConfidenceLevel.High,
+        };
+
+        FindingTrustSummary summary = _sut.Map(finding, LiveContext);
+
+        summary.Label.Should().Be(FindingTrustLabel.DeterministicFallback);
+        summary.ShortReason.Should().Contain("deterministic policy rule");
+    }
+
+    [Fact]
     public void Map_DegradedTakesPrecedenceOverSimulator()
     {
         ArchitectureFinding finding = new() { EvidenceRefs = ["r"] };

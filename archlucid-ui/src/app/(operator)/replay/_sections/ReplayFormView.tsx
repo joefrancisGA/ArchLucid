@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { ClientErrorBoundary } from "@/components/ClientErrorBoundary";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { ReplaySelectedPackageSummary } from "@/components/replay/ReplaySelectedPackageSummary";
 import { ReplayValidationHistorySection } from "@/components/replay/ReplayValidationHistorySection";
 import { ReplayValidationImpactSummary } from "@/components/replay/ReplayValidationImpactSummary";
@@ -22,6 +23,7 @@ import {
 } from "@/lib/replay-validation-copy";
 import { replayValidationActionLabel, replayValidationModeDefinition } from "@/lib/replay-validation-workflow";
 
+import { ReplayEvidenceOrientationStrip } from "./ReplayEvidenceOrientationStrip";
 import type { ReplayFormViewModel } from "./replay-form-view-model";
 
 type Props = {
@@ -36,13 +38,15 @@ export function ReplayFormView(props: Props) {
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6" data-testid="replay-validation-workspace">
-      <OperatorPageHeader title="Validate review" helpKey="replay-run" />
+      <OperatorPageHeader title="Validate review" helpKey="replay-run" actions={<PageContextualHelpButton />} />
       <p className={cn("m-0 max-w-4xl leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{REPLAY_PAGE_INTRO}</p>
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
         <Link href="/insights/compare-two-reviews" className={OPERATOR_LINK.nav}>
           {REPLAY_COMPARE_LINK_LABEL}
         </Link>
       </p>
+
+      <ReplayEvidenceOrientationStrip />
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)]">
         <div className="space-y-5">

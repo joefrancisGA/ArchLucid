@@ -193,7 +193,7 @@ Columns:
 | `/help/[topic]` | Rendered help topic | e.g. `/help/getting-started`, `/help/billing-and-plans` (specialty `HelpBillingAndPlansGuideView`, **HBX**), `/help/executive-summary` (specialty `HelpExecutiveSummaryGuideView`, **EXE**), `/help/findings` (specialty `HelpFindingsGuideView`, **HFX**), `/help/governance-approval` (specialty `HelpGovernanceApprovalGuideView`, **GO**), `/help/path-chooser` (buyer markdown chooser, **HPX**), `/help/developer-troubleshooting` (Admin-gated internal-runbook, **HDX**), `/help/governance-api-contracts` (Admin-gated API contracts reference, **HG**), `/help/alerts` (slugs in `product-documentation-registry.ts`) |
 | `/demo` | CTO demo tour entry | CTO demo pack env; else redirects `/` |
 | `/demo/explain` | Internal demo explanation | T2: `GET /v1/demo/explain`; T3 mock; blocked in strict T1 |
-| `/snapshot/[runId]` | Deprecated legacy bookmark alias | App Router redirect-only shim (not a page tier). Showcase spine → `/reviews/claims-intake-modernization?readOnly=1`; other runs → `/reviews/{runId}?readOnly=1` (query preserved, e.g. `v=demo`). Example bookmark: `/snapshot/claims-intake-modernization?v=demo` |
+| `/snapshot/[runId]` | Hard-retired | Former App Router redirect to `/architecture/reviews/{runId}?readOnly=1` — no page or redirect (use canonical review workspace leave-behind) |
 | `/403` | Unauthorized (no recognized app role) | Hard to hit under dev-bypass |
 | `/why-archlucid` | Internal proof (live instrumentation) | T2 Docker seed; hidden in buyer-polished demo |
 
@@ -256,7 +256,7 @@ Layer guidance copy for many governance/analysis routes: `archlucid-ui/src/lib/l
 | `/patterns` | Architecture pattern library | T3 mock or API if seeded |
 | `/portfolio` | Retired — redirects to `/architecture/executive-dashboard` | Legacy bookmark only |
 | `/operate/architecture-graph` | Legacy Operate shim | App Router redirect to `/insights/evidence-graph` (query preserved; canonical UX on **INE**) |
-| `/architecture-intelligence` | Closed-loop architecture reasoning lab | Execute role; deep-link with `?runId=` from reviews/findings. Golden fixture + publish round trip. |
+| `/architecture/architecture-intelligence` | Closed-loop architecture reasoning lab | Execute role; deep-link with `?runId=` from reviews/findings. Golden fixture + publish round trip. |
 | `/operate/integration-events/dlq` | Integration event DLQ | Full architect workspace + Admin + T2 API |
 
 ### Executive route group

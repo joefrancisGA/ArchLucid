@@ -11,11 +11,11 @@ function readUiSource(relativePath: string): string {
 }
 
 describe("create vs review intake differentiation (TB-747)", () => {
-  it("routes legacy create intent away from /architecture/reviews/new to the architecture draft bootstrap", () => {
-    const pageSource = readUiSource("app/(operator)/reviews/new/page.tsx");
+  it("routes create-architecture intake to the canonical architecture draft bootstrap", () => {
+    const bootstrapPageSource = readUiSource("app/(operator)/architecture/architectures/new/page.tsx");
 
-    expect(pageSource).toContain("redirect(ARCHITECTURES_NEW_PATH)");
-    expect(pageSource).toContain("CREATE_ARCHITECTURE_INTENT");
+    expect(bootstrapPageSource).toContain("ARCHITECTURE_CREATION_BOOTSTRAP_LEAD");
+    expect(bootstrapPageSource).toContain("ARCHITECTURES_NEW_PATH");
   });
 
   it("uses evidence-first progress copy on the quick review intake wizard", () => {
@@ -36,11 +36,12 @@ describe("create vs review intake differentiation (TB-747)", () => {
     expect(workspaceSource).toContain("architecture-draft-workspace-lead");
   });
 
-  it("keeps create-architecture path tab hints distinct from review path hints", () => {
+  it("keeps create-architecture href distinct from review intake path hints", () => {
     const pathCopySource = readUiSource("lib/reviews-new-path-copy.ts");
 
-    expect(pathCopySource).toContain("REVIEWS_NEW_CREATE_ARCHITECTURE_PATH_HINTS");
+    expect(pathCopySource).toContain("REVIEWS_NEW_CREATE_ARCHITECTURE_HREF");
     expect(pathCopySource).toContain("REVIEWS_NEW_PATH_HINTS");
     expect(pathCopySource).toContain("attach evidence");
+    expect(pathCopySource).toContain("/architecture/architectures/new");
   });
 });

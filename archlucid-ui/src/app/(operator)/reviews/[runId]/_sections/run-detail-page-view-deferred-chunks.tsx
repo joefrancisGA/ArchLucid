@@ -233,3 +233,33 @@ export const RunDetailArtifactsExportsSectionDeferred = dynamic(
     ),
   { ssr: false, loading: () => artifactsExportsLoading },
 );
+
+const workspaceShellLoading = (
+  <div
+    className="min-h-[min(60vh,640px)] animate-pulse rounded-lg border border-neutral-200 bg-neutral-100 dark:border-neutral-800 dark:bg-neutral-900/40"
+    role="status"
+    aria-label="Loading review workspace"
+  />
+);
+
+/** TB-2021 remainder — tabbed workspace shell off sync First Load JS. */
+export const ReviewDetailWorkspaceDeferred = dynamic(
+  () => import("@/components/reviews/ReviewDetailWorkspace").then((module) => module.ReviewDetailWorkspace),
+  { ssr: false, loading: () => workspaceShellLoading },
+);
+
+const overviewPanelLoading = (
+  <div
+    className="h-48 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
+    role="status"
+    aria-label="Loading review overview"
+  />
+);
+
+export const RunDetailOverviewPanelClientDeferred = dynamic(
+  () =>
+    import("@/components/reviews/RunDetailOverviewPanelClient").then(
+      (module) => module.RunDetailOverviewPanelClient,
+    ),
+  { ssr: false, loading: () => overviewPanelLoading },
+);

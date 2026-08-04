@@ -3,7 +3,7 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     INV-015 (billing webhooks): raw body is buffered and read before provider signature verification.
+///     INV-015 / TB-967 (billing webhooks): bounded body intake before provider signature verification.
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class WebhookMiddlewareOrderingTests
@@ -22,7 +22,7 @@ public sealed class WebhookMiddlewareOrderingTests
     }
 
     [Fact]
-    public void BillingStripeWebhookController_reads_raw_body_before_provider_signature_verification()
+    public void BillingStripeWebhookController_reads_bounded_body_before_provider_signature_verification()
     {
         AssertWebhookMethodBuffersBodyBeforeHandler(
             Path.Combine("ArchLucid.Api", "Controllers", "Billing", "BillingStripeWebhookController.cs"),
@@ -31,7 +31,7 @@ public sealed class WebhookMiddlewareOrderingTests
     }
 
     [Fact]
-    public void BillingMarketplaceWebhookController_reads_raw_body_before_provider_signature_verification()
+    public void BillingMarketplaceWebhookController_reads_bounded_body_before_provider_signature_verification()
     {
         AssertWebhookMethodBuffersBodyBeforeHandler(
             Path.Combine("ArchLucid.Api", "Controllers", "Billing", "BillingMarketplaceWebhookController.cs"),
@@ -59,15 +59,13 @@ public sealed class WebhookMiddlewareOrderingTests
 
         string methodBody = text[methodStart..scopeEnd];
 
-        int enableBuffering = methodBody.IndexOf("EnableBuffering", StringComparison.Ordinal);
-        int readBody = methodBody.IndexOf("ReadToEndAsync", StringComparison.Ordinal);
+        int boundedRead = methodBody.IndexOf("InboundWebhookBoundedBodyReader", StringComparison.Ordinal);
         int handleWebhook = methodBody.IndexOf(handlerCallToken, StringComparison.Ordinal);
 
-        enableBuffering.Should().BeGreaterThan(0);
-        readBody.Should().BeGreaterThan(0);
+        boundedRead.Should().BeGreaterThan(0);
         handleWebhook.Should().BeGreaterThan(0);
+        methodBody.Should().NotContain("ReadToEndAsync");
 
-        enableBuffering.Should().BeLessThan(readBody);
-        readBody.Should().BeLessThan(handleWebhook);
+        boundedRead.Should().BeLessThan(handleWebhook);
     }
 }

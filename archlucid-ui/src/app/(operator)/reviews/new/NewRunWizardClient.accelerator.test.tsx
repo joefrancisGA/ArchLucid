@@ -97,7 +97,7 @@ describe("NewRunWizardClient (accelerator query)", { timeout: 60_000 }, () => {
 
     const systemName = screen.getByLabelText("System name") as HTMLInputElement;
 
-    expect(systemName.value).toBe("Northwind.Copilot.RagPlatform");
+    expect(systemName.value).toBe("Enterprise.Copilot.RagPlatform");
     expect(screen.queryByTestId("wizard-preset-step")).not.toBeInTheDocument();
   });
 });

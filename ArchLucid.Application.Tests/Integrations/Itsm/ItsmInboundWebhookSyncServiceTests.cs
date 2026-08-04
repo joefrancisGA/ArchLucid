@@ -7,6 +7,7 @@ using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Integrations.Itsm;
 using ArchLucid.Persistence.Integrations;
 
 using FluentAssertions;
@@ -357,8 +358,12 @@ public sealed class ItsmInboundWebhookSyncServiceTests
         Mock<IFindingDispositionService> dispositionService = new();
         ItsmInboundDispositionSync dispositionSync =
             new(dispositionService.Object, NullLogger<ItsmInboundDispositionSync>.Instance);
+        Mock<IItsmInboundWebhookReplayGuard> replayGuard = new();
+        replayGuard
+            .Setup(g => g.HasSeenAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
         ItsmInboundWebhookSyncService sut =
-            new(correlations.Object, monitor.Object, dispositionSync, logger.Object);
+            new(correlations.Object, monitor.Object, dispositionSync, replayGuard.Object, logger.Object);
 
         using JsonDocument doc = JsonDocument.Parse(
             """{"issue":{"key":"KK-9","fields":{"status":{"name":"Custom-Not-Mapped"}}}}""");
@@ -401,8 +406,12 @@ public sealed class ItsmInboundWebhookSyncServiceTests
         Mock<IFindingDispositionService> dispositionService = new();
         ItsmInboundDispositionSync dispositionSync =
             new(dispositionService.Object, NullLogger<ItsmInboundDispositionSync>.Instance);
+        Mock<IItsmInboundWebhookReplayGuard> replayGuard = new();
+        replayGuard
+            .Setup(g => g.HasSeenAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
         ItsmInboundWebhookSyncService sut =
-            new(correlations.Object, monitor.Object, dispositionSync, logger.Object);
+            new(correlations.Object, monitor.Object, dispositionSync, replayGuard.Object, logger.Object);
 
         const string json = $$"""{"sys_id":"{{ServiceNowSysId1}}","state":"88"}""";
         using JsonDocument doc = JsonDocument.Parse(json);
@@ -732,11 +741,74 @@ public sealed class ItsmInboundWebhookSyncServiceTests
             Times.Never);
     }
 
+    [Fact]
+    public async Task Jira_replay_of_same_delivery_id_is_accepted_without_second_mutation()
+    {
+        Mock<IItsmFindingCorrelationRepository> correlations = new();
+        correlations
+            .Setup(c => c.TryGetByExternalKeyAsync("Jira", "KEY-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new ItsmFindingCorrelationRecord
+                {
+                    TenantId = TenantA,
+                    WorkspaceId = WorkspaceA,
+                    ProjectId = ProjectA,
+                    FindingId = "f1"
+                });
+        correlations
+            .Setup(c => c.FindingRecordExistsAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        correlations
+            .Setup(c => c.UpdateHumanReviewStatusForFindingAsync(
+                TenantA,
+                "f1",
+                nameof(FindingHumanReviewStatus.Approved),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1);
+        Mock<IItsmInboundWebhookReplayGuard> replayGuard = new();
+        replayGuard
+            .SetupSequence(g => g.HasSeenAsync(TenantA, "Jira", "deliv-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false)
+            .ReturnsAsync(true);
+        replayGuard
+            .Setup(g => g.RememberAsync(TenantA, "Jira", "deliv-1", It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        ItsmInboundWebhookSyncService sut = CreateSutWithInboundOptions(correlations, new IntegrationsItsmInboundOptions(), replayGuard: replayGuard);
+
+        const string json =
+            """
+            {"issue":{"key":"KEY-1","fields":{"status":{"name":"Done"}}}}
+            """;
+        using JsonDocument doc = JsonDocument.Parse(json);
+
+        ItsmInboundWebhookProcessResult first =
+            await sut.TryProcessJiraIssueUpdateAsync(doc.RootElement, CancellationToken.None, deliveryId: "deliv-1");
+        ItsmInboundWebhookProcessResult second =
+            await sut.TryProcessJiraIssueUpdateAsync(doc.RootElement, CancellationToken.None, deliveryId: "deliv-1");
+
+        first.Accepted.Should().BeTrue();
+        first.ReplayIgnored.Should().BeFalse();
+        second.Accepted.Should().BeTrue();
+        second.ReplayIgnored.Should().BeTrue();
+        second.DurableAuditEvent.Should().NotBeNull();
+        second.DurableAuditEvent!.EventType.Should().Be(AuditEventTypes.IntegrationItsmInboundWebhookReplayIgnored);
+        correlations.Verify(
+            c => c.UpdateHumanReviewStatusForFindingAsync(
+                TenantA,
+                "f1",
+                nameof(FindingHumanReviewStatus.Approved),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
     private static ItsmInboundWebhookSyncService CreateSutWithInboundOptions(
         Mock<IItsmFindingCorrelationRepository> correlations,
         IntegrationsItsmInboundOptions inboundOptions,
         Mock<IFindingDispositionService>? dispositionService = null,
-        bool configureDefaultFindingExists = true)
+        bool configureDefaultFindingExists = true,
+        Mock<IItsmInboundWebhookReplayGuard>? replayGuard = null)
     {
         if (configureDefaultFindingExists)
             correlations
@@ -750,10 +822,23 @@ public sealed class ItsmInboundWebhookSyncServiceTests
         ItsmInboundDispositionSync dispositionSync =
             new(disposition.Object, NullLogger<ItsmInboundDispositionSync>.Instance);
 
+        Mock<IItsmInboundWebhookReplayGuard> replay = replayGuard ?? new Mock<IItsmInboundWebhookReplayGuard>();
+
+        if (replayGuard is null)
+        {
+            replay
+                .Setup(g => g.HasSeenAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(false);
+            replay
+                .Setup(g => g.RememberAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+        }
+
         return new ItsmInboundWebhookSyncService(
             correlations.Object,
             monitor.Object,
             dispositionSync,
+            replay.Object,
             NullLogger<ItsmInboundWebhookSyncService>.Instance);
     }
 }

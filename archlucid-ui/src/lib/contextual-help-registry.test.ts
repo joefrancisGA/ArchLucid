@@ -40,6 +40,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/governance/findings",
       "/insights/ask-review-questions",
       "/insights/compare-two-reviews",
+      "/replay",
       "/insights/search-review-evidence",
       "/help/data-handling-tenant-isolation",
       "/help/dpa-template",
@@ -63,6 +64,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/insights/planning",
       "/governance/advisory-scans",
       "/sponsor-report/executive-summary",
+      "/sponsor-report/pilot-outcomes",
       "/executive/scorecard",
       "/governance/alert-rules",
       "/governance/approval-requests",
@@ -72,12 +74,22 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/how-it-works",
       "/help/troubleshooting",
       "/help/alerts",
+      "/help/billing-and-plans",
       "/help/findings",
+      "/help/governance-approval",
+      "/help/review-guide",
+      "/help/pilot-guide",
       "/help/cloud-connections/azure",
+      "/help/azure-permissions",
       "/help/cloud-connections",
+      "/administration/settings/users/invite-reviewer",
       "/administration/settings/users",
       "/integrations/cloud-connections",
       "/integrations/jira",
+      "/integrations/servicenow",
+      "/integrations/slack",
+      "/integrations/webhooks",
+      "/integrations/teams",
       "/settings/cloud-connections",
     ]);
   });
@@ -181,8 +193,8 @@ describe("contextual-help-registry (TB-733)", () => {
     expect(contextualHelpForPathname("/admin/tenant-health")?.whatToDoNext).toContain("Refresh the table");
   });
 
-  it("resolves how-it-works help Category-1 help (HHX)", () => {
-    expect(contextualHelpForPathname("/help/how-it-works")?.whatIsThisPage).toContain("How ArchLucid works");
+  it("resolves how-it-works help Category-1 help (HHX alias → getting-started)", () => {
+    expect(contextualHelpForPathname("/help/how-it-works")?.whatIsThisPage).toContain("Getting started");
     expect(contextualHelpForPathname("/help/how-it-works")?.whatToDoNext).toContain("Start a review");
   });
 
@@ -196,14 +208,73 @@ describe("contextual-help-registry (TB-733)", () => {
     expect(contextualHelpForPathname("/help/alerts")?.whatToDoNext).toContain("alerts inbox");
   });
 
+  it("resolves billing and plans help Category-1 help (HBX)", () => {
+    expect(contextualHelpForPathname("/help/billing-and-plans")?.whatIsThisPage).toContain("Billing and plans");
+    expect(contextualHelpForPathname("/help/billing-and-plans")?.whatToDoNext).toContain("Billing settings");
+  });
+
+  it("resolves Azure permissions help Category-1 help (HE)", () => {
+    expect(contextualHelpForPathname("/help/azure-permissions")?.whatIsThisPage).toContain("Azure permissions");
+    expect(contextualHelpForPathname("/help/azure-permissions")?.whatToDoNext).toContain("Cloud connections");
+  });
+
   it("resolves findings help Category-1 help (HFX)", () => {
     expect(contextualHelpForPathname("/help/findings")?.whatIsThisPage).toContain("Findings");
     expect(contextualHelpForPathname("/help/findings")?.whatToDoNext).toContain("findings queue");
   });
 
+  it("resolves governance approval help Category-1 help (GO)", () => {
+    expect(contextualHelpForPathname("/help/governance-approval")?.whatIsThisPage).toContain("Governance approval");
+    expect(contextualHelpForPathname("/help/governance-approval")?.whatToDoNext).toContain("approval queue");
+  });
+
+  it("resolves review guide help Category-1 help (HR)", () => {
+    expect(contextualHelpForPathname("/help/review-guide")?.whatIsThisPage).toContain("Review guide");
+    expect(contextualHelpForPathname("/help/review-guide")?.whatToDoNext).toContain("architecture review");
+  });
+
+  it("resolves pilot guide help Category-1 help (HP)", () => {
+    expect(contextualHelpForPathname("/help/pilot-guide")?.whatIsThisPage).toContain("Pilot guide");
+    expect(contextualHelpForPathname("/help/pilot-guide")?.whatToDoNext).toContain("architecture review");
+  });
+
   it("resolves jira integration Category-1 help (IJX)", () => {
     expect(contextualHelpForPathname("/integrations/jira")?.whatIsThisPage).toContain("Jira integration");
     expect(contextualHelpForPathname("/integrations/jira")?.whatToDoNext).toContain("Test the connector");
+  });
+
+  it("resolves ServiceNow integration Category-1 help (ISX)", () => {
+    expect(contextualHelpForPathname("/integrations/servicenow")?.whatIsThisPage).toContain("ServiceNow integration");
+    expect(contextualHelpForPathname("/integrations/servicenow")?.whatToDoNext).toContain("Test the connector");
+  });
+
+  it("resolves slack integration Category-1 help (ISN)", () => {
+    expect(contextualHelpForPathname("/integrations/slack")?.whatIsThisPage).toContain("Slack integration");
+    expect(contextualHelpForPathname("/integrations/slack")?.whatToDoNext).toContain("Slack destination");
+  });
+
+  it("resolves webhooks integration Category-1 help (IWX)", () => {
+    expect(contextualHelpForPathname("/integrations/webhooks")?.whatIsThisPage).toContain("Webhooks");
+    expect(contextualHelpForPathname("/integrations/webhooks")?.whatToDoNext).toContain("subscription");
+  });
+
+  it("resolves teams integration Category-1 help (ITX)", () => {
+    expect(contextualHelpForPathname("/integrations/teams")?.whatIsThisPage).toContain("Teams integration");
+    expect(contextualHelpForPathname("/integrations/teams")?.whatToDoNext).toContain("Teams connector");
+  });
+
+  it("resolves validate review Category-1 help (REP)", () => {
+    expect(contextualHelpForPathname("/replay")?.whatIsThisPage).toContain("Validate review");
+    expect(contextualHelpForPathname("/replay")?.whatToDoNext).toContain("validation depth");
+  });
+
+  it("resolves invite-reviewer Category-1 help (SRI)", () => {
+    expect(contextualHelpForPathname("/administration/settings/users/invite-reviewer")?.whatIsThisPage).toContain(
+      "Invite a reviewer",
+    );
+    expect(contextualHelpForPathname("/administration/settings/users/invite-reviewer")?.whatToDoNext).toContain(
+      "invitation",
+    );
   });
 
   it("resolves executive scorecard Category-1 help (ESX)", () => {
@@ -215,6 +286,11 @@ describe("contextual-help-registry (TB-733)", () => {
     expect(contextualHelpForPathname("/sponsor-report/executive-summary")?.whatIsThisPage).toContain(
       "Sponsor executive summary",
     );
+  });
+
+  it("resolves pilot outcomes Category-1 help (SPP)", () => {
+    expect(contextualHelpForPathname("/sponsor-report/pilot-outcomes")?.whatIsThisPage).toContain("Pilot outcomes");
+    expect(contextualHelpForPathname("/sponsor-report/pilot-outcomes")?.whatToDoNext).toContain("reporting period");
   });
 
   it("returns null for routes not yet migrated", () => {

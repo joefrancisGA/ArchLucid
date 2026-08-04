@@ -7,7 +7,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   computeRoiSummaryPeriodMetrics,
   formatRoiSummaryHoursDisplay,
-  formatRoiSummaryUsdDisplay,
+  formatRoiSummaryUsdWithRateBasis,
   type RoiSummaryPeriodInput,
 } from "@/lib/roi-summary-sponsor-presentation";
 
@@ -15,10 +15,18 @@ type Props = {
   readonly period: RoiSummaryPeriodInput;
   readonly hourlyUsd: number;
   readonly windowLabel: string;
+  readonly isDefaultRate?: boolean;
+  readonly demoDerived?: boolean;
 };
 
 export function RoiSummaryHeroStrip(props: Props) {
   const metrics = computeRoiSummaryPeriodMetrics(props.period, props.hourlyUsd);
+  const usd = formatRoiSummaryUsdWithRateBasis(
+    metrics.hours,
+    metrics.usdEstimate,
+    metrics.showUsdEstimate,
+    { isDefaultRate: props.isDefaultRate ?? true, demoDerived: props.demoDerived },
+  );
 
   return (
     <section
@@ -45,7 +53,8 @@ export function RoiSummaryHeroStrip(props: Props) {
         />
         <PilotValueReportMetricCard
           title="Estimated dollar value"
-          value={formatRoiSummaryUsdDisplay(metrics.hours, metrics.usdEstimate, metrics.showUsdEstimate)}
+          value={usd.display}
+          hint={usd.rateBasisLabel}
         />
         <PilotValueReportMetricCard title="Findings counted" value={String(metrics.findingsCounted)} />
         <PilotValueReportMetricCard title="Governance blocks counted" value={String(metrics.blocksCounted)} />

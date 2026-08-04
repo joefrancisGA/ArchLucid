@@ -16,4 +16,4 @@ export const ARCHITECTURE_INTELLIGENCE_TRAFFIC_SECTION = "Core review";
  * Owner workbook Notes for AIN/AR2 — documents the closed-loop reasoning operator hub.
  */
 export const ARCHITECTURE_INTELLIGENCE_TRAFFIC_NOTE =
-  "Closed-loop architecture reasoning operator surface - ArchitectureIntelligencePageClient runs reasoning/golden tests and publish-to-findings round trip. Deep links from reviews/findings via runId query. Canonical path /architecture-intelligence.";
+  "Closed-loop architecture reasoning operator surface - ArchitectureIntelligencePageClient runs reasoning/golden tests and publish-to-findings round trip. Deep links from reviews/findings via runId query. Canonical path /architecture/architecture-intelligence.";

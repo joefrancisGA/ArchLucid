@@ -1,4 +1,5 @@
 import { getShowcaseExecutiveHref } from "@/lib/buyer-safe-review-navigation";
+import { buildReadOnlyReviewWorkspaceHref } from "@/lib/read-only-review-workspace-href";
 import {
   SHOWCASE_BUYER_REVIEW_TITLE,
   SHOWCASE_STATIC_DEMO_ILLUSTRATIVE_ANNUALIZED_EXTRACTION_USD,
@@ -23,7 +24,7 @@ export function buildStaticCtoDemoRecapPayload(origin?: string): CtoDemoRecapPay
   const base = (origin ?? "").trim().replace(/\/$/, "");
   const reviewPath = `/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
   const reviewPackageUrl = base.length > 0 ? `${base}${reviewPath}` : reviewPath;
-  const snapshotPath = `/snapshot/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}?v=demo`;
+  const snapshotPath = buildReadOnlyReviewWorkspaceHref(SHOWCASE_STATIC_DEMO_RUN_ID, { v: "demo" });
   const snapshotUrl = base.length > 0 ? `${base}${snapshotPath}` : snapshotPath;
 
   return {
@@ -54,7 +55,7 @@ export function buildCtoDemoRecapPayloadFromRun(
   const base = (origin ?? "").trim().replace(/\/$/, "");
   const reviewPath = `/architecture/reviews/${encodeURIComponent(runId)}`;
   const reviewPackageUrl = base.length > 0 ? `${base}${reviewPath}` : reviewPath;
-  const snapshotPath = `/snapshot/${encodeURIComponent(runId)}`;
+  const snapshotPath = buildReadOnlyReviewWorkspaceHref(runId, {});
   const snapshotUrl = base.length > 0 ? `${base}${snapshotPath}` : snapshotPath;
 
   return {

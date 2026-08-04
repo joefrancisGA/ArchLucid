@@ -98,7 +98,7 @@ import {
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY,
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_TITLE,
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA,
-  OPERATOR_HOME_READY_STRIP_SUPPORT,
+  OPERATOR_HOME_READY_TO_BEGIN_TITLE,
 } from "@/lib/buyer-polish-copy";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
@@ -111,7 +111,10 @@ describe("OperatorHomeDualPathCards", () => {
   it("shows lifecycle steps plus an evaluation explore card", () => {
     render(<OperatorHomeDualPathCards emphasizedPath="explore-completed-review" />);
 
-    expect(screen.getByText(OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO)).toBeInTheDocument();
+    const lifecycleIntro = screen.getByText(OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO);
+
+    expect(lifecycleIntro).toBeInTheDocument();
+    expect(lifecycleIntro.className).not.toContain("max-w-prose");
     expect(screen.getByTestId("operator-home-explore-recommended-badge")).toHaveTextContent(
       OPERATOR_HOME_BEST_FOR_EVALUATING_BADGE,
     );
@@ -127,7 +130,8 @@ describe("OperatorHomeDualPathCards", () => {
     expect(screen.getByRole("button", { name: CREATE_ARCHITECTURE_LABEL })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA })).toBeInTheDocument();
-    expect(screen.getByTestId("operator-home-readiness-strip")).toHaveTextContent(OPERATOR_HOME_READY_STRIP_SUPPORT);
+    expect(screen.getByTestId("operator-home-readiness-strip")).toHaveTextContent(OPERATOR_HOME_READY_TO_BEGIN_TITLE);
+    expect(screen.getByTestId("operator-home-readiness-strip")).not.toHaveTextContent("Workspace configured");
     expect(screen.queryByText(/Recommended first/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Recommended next/i)).not.toBeInTheDocument();
   });

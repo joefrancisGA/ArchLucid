@@ -62,6 +62,9 @@ public sealed class IntegrationsItsmInboundOptions
     /// </summary>
     public bool RequireBodyHmacSignature { get; set; }
 
-    /// <summary>Maximum acceptable |now − payload| skew when <c>X-ArchLucid-Timestamp</c> (Unix seconds) is present.</summary>
+    /// <summary>
+    ///     Maximum acceptable |now − payload| skew when <c>X-ArchLucid-Timestamp</c> (Unix seconds) is present (TB-968:
+    ///     enforced even when <see cref="RequireBodyHmacSignature" /> is false).
+    /// </summary>
     public int WebhookTimestampSkewSeconds { get; set; } = 300;
 }

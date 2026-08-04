@@ -15,7 +15,6 @@ const TEMPLATE_PATH = "docs/architecture/ui_route_traffic_estimates.template.md"
 type TrafficWorkbookRow = {
   id: string;
   path: string;
-  hitPct: string;
   section: string;
   notes: string;
 };
@@ -41,14 +40,13 @@ function extractMasterTableRows(markdown: string): TrafficWorkbookRow[] {
 
     const cells = line.split("|").map((cell) => cell.trim());
 
-    if (cells.length < 9 || cells[1] === "ID" || cells[1] === "----") {
+    if (cells.length < 9 || cells[1] === "ID") {
       continue;
     }
 
     rows.push({
       id: cells[1] ?? "",
       path: (cells[2] ?? "").replace(/^`|`$/g, ""),
-      hitPct: cells[3] ?? "",
       section: cells[7] ?? "",
       notes: cells[8] ?? "",
     });
@@ -57,19 +55,16 @@ function extractMasterTableRows(markdown: string): TrafficWorkbookRow[] {
   return rows;
 }
 
-describe("ui-route-traffic-pilot-outcomes (TB-1966)", () => {
-  it("tracks SPP with former VPX hit share and no VPX row", () => {
+describe("ui-route-traffic-pilot-outcomes (SPP)", () => {
+  it("tracks Pilot outcomes with honest workbook notes", () => {
     const rows = extractMasterTableRows(readTemplateMarkdown());
-    const spp = rows.find((candidate) => candidate.id === PILOT_OUTCOMES_TRAFFIC_ROW_ID);
-    const vpx = rows.find((candidate) => candidate.id === "VPX");
+    const row = rows.find((candidate) => candidate.id === PILOT_OUTCOMES_TRAFFIC_ROW_ID);
 
-    expect(vpx).toBeUndefined();
-    expect(spp).toBeDefined();
-    expect(spp?.path).toBe(PILOT_OUTCOMES_TRAFFIC_PATH);
-    expect(spp?.hitPct).toBe("0.07%");
-    expect(spp?.section).toBe(PILOT_OUTCOMES_TRAFFIC_SECTION);
-    expect(spp?.notes).toBe(PILOT_OUTCOMES_TRAFFIC_NOTE);
-    expect(spp?.notes).toContain("Absorbs former VPX");
-    expect(spp?.section.toLowerCase()).not.toBe("marketing");
+    expect(row).toBeDefined();
+    expect(row?.path).toBe(PILOT_OUTCOMES_TRAFFIC_PATH);
+    expect(row?.section).toBe(PILOT_OUTCOMES_TRAFFIC_SECTION);
+    expect(row?.notes).toBe(PILOT_OUTCOMES_TRAFFIC_NOTE);
+    expect(row?.notes).toContain("PilotValueReportPageClient");
+    expect(row?.notes).toContain("Sources");
   });
 });

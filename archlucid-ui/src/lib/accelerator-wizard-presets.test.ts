@@ -22,7 +22,7 @@ describe("accelerator-wizard-presets", () => {
     const preset = resolveAcceleratorWizardPreset("healthcare-data-workflow");
 
     expect(preset).not.toBeNull();
-    expect(preset?.systemName).toBe("Contoso.Clinical.DataHub");
+    expect(preset?.systemName).toBe("Clinical.DataHub");
     expect(preset?.policyReferences).toContain("starter:healthcare-data-workflow");
   });
 });

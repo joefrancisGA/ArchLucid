@@ -99,6 +99,17 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/replay",
+    entry: {
+      whatIsThisPage:
+        "Validate review — re-check a finalized review package (reconstruct, rebuild outputs, or full regeneration).",
+      whatToDoNext:
+        "Pick a finalized review, choose a validation depth, run the check, then open the review or Compare when you need diffs.",
+      whyEmpty: "Validation results appear after you run a check on a selected review package.",
+      whereToConfigurePrerequisite: "Finalize at least one review in this workspace first; Admin Execute access may be required.",
+    },
+  },
+  {
     prefix: "/insights/search-review-evidence",
     entry: {
       whatIsThisPage:
@@ -358,6 +369,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/sponsor-report/pilot-outcomes",
+    entry: {
+      whatIsThisPage:
+        "Pilot outcomes — period summary of finalized review activity, material findings, governance decisions, and measurable pilot results.",
+      whatToDoNext:
+        "Set the reporting period, apply it, then open Executive summary or ROI summary when you need sibling sponsor packaging.",
+      whyEmpty: "Outcomes fill in after you finalize architecture reviews in the selected period.",
+      whereToConfigurePrerequisite:
+        "Report windows use the current tenant, workspace, and project selected in the shell header.",
+    },
+  },
+  {
     prefix: "/executive/scorecard",
     entry: {
       whatIsThisPage:
@@ -467,6 +490,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/help/billing-and-plans",
+    entry: {
+      whatIsThisPage:
+        "Billing and plans — how evaluation and paid plans, usage, and invoices show up for operators.",
+      whatToDoNext:
+        "Open Billing settings for this workspace, or Pricing when you need public packaging before changing plans.",
+      whyEmpty: "This guide is always available; live plan and usage cards appear after billing data loads.",
+      whereToConfigurePrerequisite:
+        "Changing plans or payment methods needs a role that can manage workspace billing.",
+    },
+  },
+  {
     prefix: "/help/findings",
     entry: {
       whatIsThisPage:
@@ -476,6 +511,42 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whyEmpty: "This guide is always available; live findings appear after reviews produce architecture concerns.",
       whereToConfigurePrerequisite:
         "Findings respect the workspace and project selected in the header switcher.",
+    },
+  },
+  {
+    prefix: "/help/governance-approval",
+    entry: {
+      whatIsThisPage:
+        "Governance approval — how architecture decisions move through submit, review, and finalize for operators.",
+      whatToDoNext:
+        "Open the approval queue or Workspace Health, then use Findings when you need the risk register behind a decision.",
+      whyEmpty: "This guide is always available; live approval queues appear after reviews enter governance.",
+      whereToConfigurePrerequisite:
+        "Approval authority follows workspace roles; confirm the header workspace before acting on requests.",
+    },
+  },
+  {
+    prefix: "/help/review-guide",
+    entry: {
+      whatIsThisPage:
+        "Review guide — field reference for naming a review, uploading evidence, confirming scope, and finalizing the package.",
+      whatToDoNext:
+        "Start an architecture review, or open the First review guide when you need the walkthrough instead of field detail.",
+      whyEmpty: "This guide is always available; live review packages appear after you create architecture reviews.",
+      whereToConfigurePrerequisite:
+        "Creating reviews needs a role that can start architecture reviews in this workspace.",
+    },
+  },
+  {
+    prefix: "/help/pilot-guide",
+    entry: {
+      whatIsThisPage:
+        "Pilot guide — how to prepare for a pilot, run the first architecture review, interpret outputs, and get support.",
+      whatToDoNext:
+        "Start an architecture review, or open Your first architecture review when you need the step-by-step walkthrough.",
+      whyEmpty: "This guide is always available; live pilot outcomes appear after reviews and sponsor reports exist.",
+      whereToConfigurePrerequisite:
+        "Running a pilot needs a workspace where operators can create and finalize architecture reviews.",
     },
   },
   {
@@ -491,6 +562,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/help/azure-permissions",
+    entry: {
+      whatIsThisPage:
+        "Azure permissions — read-only roles, scopes, and verification steps for ArchLucid cloud connections.",
+      whatToDoNext:
+        "Open Cloud connections to configure Azure, or Connect Azure securely when you need the federation walkthrough.",
+      whyEmpty: "This guide is always available; live permission checks appear after you configure an Azure connection.",
+      whereToConfigurePrerequisite:
+        "Assigning Azure roles needs cloud-admin authority in the target subscription.",
+    },
+  },
+  {
     prefix: "/help/cloud-connections",
     entry: {
       whatIsThisPage:
@@ -500,6 +583,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whyEmpty: "This guide is always available; live connection status appears on the Cloud connections hub.",
       whereToConfigurePrerequisite:
         "Cloud connectors are optional — evidence-only reviews work without attaching a cloud account.",
+    },
+  },
+  {
+    prefix: "/administration/settings/users/invite-reviewer",
+    entry: {
+      whatIsThisPage:
+        "Invite a reviewer — send Reader or Auditor access so a teammate can sign off on architecture reviews.",
+      whatToDoNext:
+        "Enter the reviewer's email, send the invitation, then open Users and roles when you need the full directory or role matrix.",
+      whyEmpty: "The invitation form is ready when you have Admin authority in this workspace.",
+      whereToConfigurePrerequisite:
+        "Workspace Admin authority is required; SSO may need to be configured before invited users can sign in.",
     },
   },
   {
@@ -537,6 +632,54 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whyEmpty: "Health and settings load after this workspace can reach the ITSM connector configuration.",
       whereToConfigurePrerequisite:
         "Platform credentials are often configured by an administrator; tenant overrides on this page need Operate authority.",
+    },
+  },
+  {
+    prefix: "/integrations/servicenow",
+    entry: {
+      whatIsThisPage:
+        "ServiceNow integration — outbound incident settings, connection health, and CMDB overrides for creating ServiceNow records from ArchLucid.",
+      whatToDoNext:
+        "Test the connector, adjust CMDB auto-create if needed, then open Integration readiness when the path is not ready.",
+      whyEmpty: "Health and settings load after this workspace can reach the ITSM connector configuration.",
+      whereToConfigurePrerequisite:
+        "Platform credentials are often configured by an administrator; tenant overrides on this page need Operate authority.",
+    },
+  },
+  {
+    prefix: "/integrations/slack",
+    entry: {
+      whatIsThisPage:
+        "Slack integration — configure incoming webhook destinations that receive governance alerts for this workspace.",
+      whatToDoNext:
+        "Add or test a Slack destination, then open Alert rules when you need to change which events fire notifications.",
+      whyEmpty: "Destinations appear after you save an incoming webhook URL for this workspace.",
+      whereToConfigurePrerequisite:
+        "Creating or changing destinations requires a role that can manage alert routing.",
+    },
+  },
+  {
+    prefix: "/integrations/webhooks",
+    entry: {
+      whatIsThisPage:
+        "Webhooks — configure HTTPS webhook subscriptions that receive governance alerts for this workspace.",
+      whatToDoNext:
+        "Add or test a subscription, then open Alert rules when you need to change which events fire notifications.",
+      whyEmpty: "Subscriptions appear after you save a webhook URL for this workspace.",
+      whereToConfigurePrerequisite:
+        "Creating or changing subscriptions requires a role that can manage alert routing.",
+    },
+  },
+  {
+    prefix: "/integrations/teams",
+    entry: {
+      whatIsThisPage:
+        "Microsoft Teams integration — configure a Teams channel destination that receives governance alerts for this workspace.",
+      whatToDoNext:
+        "Save or test the Teams connector, then open Alert rules when you need to change which events fire notifications.",
+      whyEmpty: "Connection status appears after this workspace can load Teams notification settings.",
+      whereToConfigurePrerequisite:
+        "Creating or changing the Teams destination requires a role that can manage alert routing.",
     },
   },
   {

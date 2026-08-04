@@ -19,7 +19,8 @@ describe("buyer-cto-demo-recap", () => {
     expect(markdown).toContain(String(payload.firstValueMinutes));
     expect(markdown).toContain(payload.reviewPackageUrl);
     expect(markdown).toContain("Snapshot (read-only, permanent)");
-    expect(payload.snapshotUrl).toContain("/snapshot/");
+    expect(payload.snapshotUrl).toContain("readOnly=1");
+    expect(payload.snapshotUrl).toContain("/architecture/reviews/");
   });
 
   it("formats hero stat lines", () => {

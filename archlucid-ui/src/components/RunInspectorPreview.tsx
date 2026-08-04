@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useState } from "react";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
+import { InlineMetadataLabel } from "@/components/InlineMetadataLabel";
+import { InlineMetadataLine } from "@/components/InlineMetadataLine";
 import { RunStatusBadge } from "@/components/RunStatusBadge";
 import { Button } from "@/components/ui/button";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
@@ -29,6 +31,7 @@ import {
 } from "@/lib/buyer-safe-review-navigation";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import {
+  INLINE_METADATA_LABEL_CLASS,
   OPERATOR_DISCLOSURE_TRIGGER_CLASS,
   OPERATOR_LINK,
   OPERATOR_NAV_GROUP_LABEL,
@@ -176,14 +179,18 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
         <section
           aria-label="Review outcome summary"
           className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 space-y-2 p-3"
+          data-testid="run-inspector-showcase-proof-summary"
         >
-          <p className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>Decision: Package finalized</p>
-          <p className={cn("m-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>Governance approval: Approved with monitoring</p>
-          <p className={cn("m-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
-            Remaining monitored risk: {SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount} (tracked in finalized signed review record)
+          <p className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
+            Decision: Package finalized
           </p>
-          <p className={cn("m-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>Evidence trail: Ready</p>
-          <p className={cn("m-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>Audit trail: Complete</p>
+          <InlineMetadataLine label="Governance approval" value="Approved with monitoring" />
+          <InlineMetadataLine
+            label="Remaining monitored risk"
+            value={`${SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount} (tracked in finalized signed review record)`}
+          />
+          <InlineMetadataLine label="Evidence trail" value="Ready" />
+          <InlineMetadataLine label="Audit trail" value="Complete" />
           <Button variant="primary" size="sm" className="mt-1 w-full" asChild>
             <Link href={primaryExplore.href}>{primaryExplore.label}</Link>
           </Button>
@@ -203,15 +210,21 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
             <p className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>{meta.decisionSummary}</p>
             <dl className={cn("m-0 grid gap-y-1", OPERATOR_TYPOGRAPHY.helper)}>
               <div className="flex gap-x-2">
-                <dt className="shrink-0 font-medium text-neutral-500 dark:text-neutral-400">Authority</dt>
+                <dt className={cn("shrink-0", INLINE_METADATA_LABEL_CLASS)}>
+                  <InlineMetadataLabel label="Authority" withColon={false} />
+                </dt>
                 <dd className="m-0 text-neutral-800 dark:text-neutral-200">{meta.approvalAuthority}</dd>
               </div>
               <div className="flex gap-x-2">
-                <dt className="shrink-0 font-medium text-neutral-500 dark:text-neutral-400">Risk owner</dt>
+                <dt className={cn("shrink-0", INLINE_METADATA_LABEL_CLASS)}>
+                  <InlineMetadataLabel label="Risk owner" withColon={false} />
+                </dt>
                 <dd className="m-0 text-neutral-800 dark:text-neutral-200">{meta.riskOwner}</dd>
               </div>
               <div className="flex gap-x-2">
-                <dt className="shrink-0 font-medium text-neutral-500 dark:text-neutral-400">Last event</dt>
+                <dt className={cn("shrink-0", INLINE_METADATA_LABEL_CLASS)}>
+                  <InlineMetadataLabel label="Last event" withColon={false} />
+                </dt>
                 <dd className="m-0 text-neutral-800 dark:text-neutral-200">{meta.lastAuditEvent}</dd>
               </div>
             </dl>

@@ -212,6 +212,24 @@ Regenerate metrics: `rg "text-(xs|sm|base|xl|\[1[0-9]px\])" archlucid-ui/src/com
 
 ---
 
+## Inline metadata `Label: value` emphasis (TB-1996) — done 2026-08-04
+
+Buyer-facing proof and status metadata often appears as a single line: **key**, colon, then value (e.g. `Audit trail: Complete`). The **label** (text before the colon) must be visually stronger than the value so operators can scan keys quickly.
+
+| Role | Token / component | Weight |
+|------|-------------------|--------|
+| Metadata key | `INLINE_METADATA_LABEL_CLASS` / `InlineMetadataLabel` / `InlineMetadataLine` | `font-medium` |
+| Instructional prefix (`Next:`, `Use this when:`) | `INLINE_GUIDANCE_LABEL_CLASS` / `InlineGuidanceLabel` | `font-semibold` |
+| Title-weight decision lines (`Decision: Package finalized`) | Section/title typography on the **whole** line | Do **not** split into medium label + value |
+
+**Do use** medium labels on: showcase buyer-proof rows, inspector metadata rows, value-report counters, policy-pack meta, intake confirm summaries.
+
+**Do not** bold every colon in prose, headings, code, legal copy, or guidance lines that already use `InlineGuidanceLabel`.
+
+Product separator is a colon (`Label: value`), not a comma.
+
+---
+
 ## Components (TB-116, TB-117) — done 2026-05-31
 
 | Component | Path | Migrated surfaces |

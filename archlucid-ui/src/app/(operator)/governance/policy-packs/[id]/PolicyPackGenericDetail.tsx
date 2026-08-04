@@ -2,6 +2,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
+import { InlineMetadataLine } from "@/components/InlineMetadataLine";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -60,8 +61,11 @@ export function PolicyPackGenericDetail(props: PolicyPackGenericDetailProps): Re
           <Badge variant="outline">v{packRecord.currentVersion || "—"}</Badge>
         </CardHeader>
         <CardContent className={cn("space-y-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          <p className="m-0">Last updated: {formatPackDate(packRecord.activatedUtc ?? packRecord.createdUtc)}</p>
-          <p className="m-0">Pack type: {packRecord.packType || "Custom"}</p>
+          <InlineMetadataLine
+            label="Last updated"
+            value={formatPackDate(packRecord.activatedUtc ?? packRecord.createdUtc)}
+          />
+          <InlineMetadataLine label="Pack type" value={packRecord.packType || "Custom"} />
         </CardContent>
       </Card>
 

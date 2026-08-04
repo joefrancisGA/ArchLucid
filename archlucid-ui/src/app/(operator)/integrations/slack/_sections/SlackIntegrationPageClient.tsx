@@ -7,6 +7,7 @@ import { FormProvider, useForm } from "react-hook-form";
 
 import { PageHeading } from "@/components/PageHeading";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -45,6 +46,7 @@ import type { AlertRoutingSubscription } from "@/types/alert-routing";
 import { SlackDestinationForm } from "./SlackDestinationForm";
 import { SlackDestinationsPanel } from "./SlackDestinationsPanel";
 import { SlackIntegrationAside } from "./SlackIntegrationAside";
+import { SlackIntegrationEvidenceOrientationStrip } from "./SlackIntegrationEvidenceOrientationStrip";
 
 const SLACK_CHANNEL_TYPE = "SlackWebhook";
 
@@ -207,6 +209,7 @@ export function SlackIntegrationPageClient(): React.ReactElement {
         title={SLACK_INTEGRATION_PAGE_TITLE}
         variant="integration"
         bordered
+        actions={<PageContextualHelpButton />}
         description={
           <>
             <p className={cn("m-0 max-w-2xl leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
@@ -232,6 +235,8 @@ export function SlackIntegrationPageClient(): React.ReactElement {
           </>
         }
       />
+
+      <SlackIntegrationEvidenceOrientationStrip />
 
       {failure !== null ? (
         <div role="alert">

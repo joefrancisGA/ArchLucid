@@ -3,10 +3,12 @@ import Link from "next/link";
 import { Suspense } from "react";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { AzurePermissionsHelpEvidenceOrientationStrip } from "@/app/(operator)/help/_sections/AzurePermissionsHelpEvidenceOrientationStrip";
 import { HelpAzurePermissionsConnectionContext } from "@/app/(operator)/help/_sections/HelpAzurePermissionsConnectionContext";
 import { HelpAzurePermissionsSetupSection } from "@/app/(operator)/help/_sections/HelpAzurePermissionsSetupSection";
 import { HelpAzurePermissionsVerificationPanel } from "@/app/(operator)/help/_sections/HelpAzurePermissionsVerificationPanel";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   AZURE_CLOUD_CONNECTION_CANNOT_DO,
@@ -213,17 +215,24 @@ export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideVi
     >
       <HelpTopicHashScroll />
       <header className={HELP_PAGE_LAYOUT.articleHeader}>
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-          <Link href={returnHref} className="text-teal-700 underline dark:text-teal-400">
-            ← {AZURE_PERMISSIONS_BACK_TO_CONNECTIONS}
-          </Link>
-        </p>
-        <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{AZURE_PERMISSIONS_PAGE_TITLE}</h1>
-        <p className={cn("m-0 max-w-prose", OPERATOR_TYPOGRAPHY.helper)}>{AZURE_PERMISSIONS_PAGE_SUBTITLE}</p>
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
-          {AZURE_PERMISSIONS_REVISION_NOTE(AZURE_CLOUD_CONNECTION_PERMISSIONS_CONTRACT_VERSION)}
-        </p>
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          <div className="min-w-0 space-y-2">
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+              <Link href={returnHref} className="text-teal-700 underline dark:text-teal-400">
+                ← {AZURE_PERMISSIONS_BACK_TO_CONNECTIONS}
+              </Link>
+            </p>
+            <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{AZURE_PERMISSIONS_PAGE_TITLE}</h1>
+            <p className={cn("m-0 max-w-prose", OPERATOR_TYPOGRAPHY.helper)}>{AZURE_PERMISSIONS_PAGE_SUBTITLE}</p>
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
+              {AZURE_PERMISSIONS_REVISION_NOTE(AZURE_CLOUD_CONNECTION_PERMISSIONS_CONTRACT_VERSION)}
+            </p>
+          </div>
+          <PageContextualHelpButton />
+        </div>
       </header>
+
+      <AzurePermissionsHelpEvidenceOrientationStrip />
 
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
         <div className="min-w-0 space-y-8" data-testid="help-azure-permissions-primary">

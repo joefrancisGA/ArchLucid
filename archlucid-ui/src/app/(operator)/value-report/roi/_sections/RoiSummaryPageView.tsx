@@ -133,7 +133,12 @@ export function RoiSummaryPageView(props: Props) {
           </nav>
         </div>
 
-        <RoiSummaryHeroStrip period={heroPeriod} hourlyUsd={hourly.hourlyUsd} windowLabel={rollingWindowLabel} />
+        <RoiSummaryHeroStrip
+          period={heroPeriod}
+          hourlyUsd={hourly.hourlyUsd}
+          windowLabel={rollingWindowLabel}
+          isDefaultRate={hourly.isDefaultRate}
+        />
 
         {showZeroState ? (
           <section

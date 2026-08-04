@@ -50,6 +50,10 @@ export type QuickDecisionFinding = {
   whyThisIsNotGeneric?: string | null;
   /** Optional policy-pack rule identifier when the finding maps to a curated pack rule. */
   policyRuleId?: string | null;
+  /** Authoritative trust label from the API (`FindingTrustLabel` enum name). */
+  trustLabel?: string | null;
+  /** Short operator-facing reason paired with `trustLabel`. */
+  trustLabelReason?: string | null;
   /** Operator-assigned remediation owner (TB-395 `Finding.AssignedToUserId`); raw user id/email, no display-name lookup. */
   assignedToUserId?: string | null;
   /** Raw `FindingHumanReviewStatus` enum value (0=NotRequired..4=Overridden) when present on the wire. */
@@ -411,6 +415,16 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
 
       const policyRuleId = coercePolicyRuleIdFromFindingWire(fr);
 
+      const trustLabelRaw = fr.trustLabel;
+      const trustLabel =
+        typeof trustLabelRaw === "string" && trustLabelRaw.trim().length > 0 ? trustLabelRaw.trim() : null;
+
+      const trustLabelReasonRaw = fr.trustLabelReason;
+      const trustLabelReason =
+        typeof trustLabelReasonRaw === "string" && trustLabelReasonRaw.trim().length > 0
+          ? trustLabelReasonRaw.trim()
+          : null;
+
       const assignedToUserIdRaw = fr.assignedToUserId;
       const assignedToUserId =
         typeof assignedToUserIdRaw === "string" && assignedToUserIdRaw.trim().length > 0
@@ -442,6 +456,8 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
         insightDensityScore,
         whyThisIsNotGeneric,
         policyRuleId,
+        trustLabel,
+        trustLabelReason,
         assignedToUserId,
         humanReviewStatus,
       });

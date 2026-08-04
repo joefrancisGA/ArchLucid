@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Web;
 
+using ArchLucid.Api.Http;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Governance;
 using ArchLucid.Core.Audit;
@@ -65,17 +66,21 @@ public sealed class SlackInteractivityController(
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
     public async Task<IActionResult> HandleInteractivity(CancellationToken ct = default)
     {
-        string rawBody;
+        InboundWebhookBoundedBodyReadResult bodyRead = await InboundWebhookBoundedBodyReader
+            .ReadUtf8Async(Request, InboundWebhookBodyLimits.DefaultMaxUtf8Bytes, ct)
+            .ConfigureAwait(false);
 
-        Request.EnableBuffering();
-
-        using (StreamReader reader = new(Request.Body, leaveOpen: true))
+        if (!bodyRead.Succeeded)
         {
-            rawBody = await reader.ReadToEndAsync(ct);
-            Request.Body.Position = 0;
+            return this.PayloadTooLargeProblem(
+                "Slack interactivity payload exceeds maximum size.",
+                ProblemTypes.RequestPayloadTooLarge);
         }
+
+        string rawBody = bodyRead.Body!;
 
         string timestamp = Request.Headers["X-Slack-Request-Timestamp"].FirstOrDefault() ?? string.Empty;
         string signature = Request.Headers["X-Slack-Signature"].FirstOrDefault() ?? string.Empty;

@@ -7,6 +7,12 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 export type OperatorPageHeaderProps = {
   title: string;
   subtitle?: string;
+  /**
+   * Optional classes for the subtitle paragraph (non-`navHref` path).
+   * Overview passes `max-w-none` so short dashboard leads use the full work surface;
+   * default remains `max-w-2xl` until **TB-2039** removes the shared measure cap.
+   */
+  subtitleClassName?: string;
   /** Canonical nav href — when set, renders the same icon as primary navigation. */
   navHref?: string;
   /** Stable Playwright anchor for the primary page title. */
@@ -43,6 +49,7 @@ export type OperatorPageHeaderProps = {
 export function OperatorPageHeader({
   title,
   subtitle,
+  subtitleClassName,
   navHref,
   titleTestId,
   subtitleTestId,
@@ -87,7 +94,11 @@ export function OperatorPageHeader({
 
       {subtitle != null && (
         <p
-          className={cn("m-0 mt-2 max-w-2xl text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}
+          className={cn(
+            "m-0 mt-2 max-w-2xl text-neutral-500 dark:text-neutral-400",
+            OPERATOR_TYPOGRAPHY.body,
+            subtitleClassName,
+          )}
           {...(subtitleTestId !== undefined ? { "data-testid": subtitleTestId } : {})}
         >
           {subtitle}

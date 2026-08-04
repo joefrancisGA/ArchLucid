@@ -4,10 +4,6 @@ import type { ReactNode } from "react";
 
 import { isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
-export const fetchCache = "force-no-store";
-
 export const metadata: Metadata = {
   title: "Architecture Review Detail",
 };

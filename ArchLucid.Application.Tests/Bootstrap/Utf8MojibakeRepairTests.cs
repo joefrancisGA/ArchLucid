@@ -15,10 +15,10 @@ public sealed class Utf8MojibakeRepairTests
     [Fact]
     public void RepairOptional_repairs_em_dash_mojibake()
     {
-        const string mojibake = "Demo â€\u201D Contoso retail baseline manifest (trusted baseline seed).";
+        const string mojibake = "Demo â€\u201D Retail baseline manifest (trusted baseline seed).";
 
         Assert.Equal(
-            "Demo — Contoso retail baseline manifest (trusted baseline seed).",
+            "Demo — Retail baseline manifest (trusted baseline seed).",
             Utf8MojibakeRepair.RepairOptional(mojibake));
     }
 
@@ -43,7 +43,7 @@ public sealed class Utf8MojibakeRepairTests
     [Fact]
     public void RepairOptional_returns_original_when_no_mojibake_present()
     {
-        const string value = "Demo — Contoso retail baseline manifest (trusted baseline seed).";
+        const string value = "Demo — Retail baseline manifest (trusted baseline seed).";
 
         Assert.Equal(value, Utf8MojibakeRepair.RepairOptional(value));
     }

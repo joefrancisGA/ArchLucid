@@ -53,27 +53,23 @@ public sealed class CachingPolicyPackRepository(IPolicyPackRepository inner, IHo
     }
 
     /// <inheritdoc />
-    public Task<IReadOnlyList<PolicyPack>> GetByIdsAsync(IReadOnlyCollection<Guid> policyPackIds, CancellationToken ct)
+    public async Task<IReadOnlyList<PolicyPack>> GetByIdsAsync(IReadOnlyCollection<Guid> policyPackIds, CancellationToken ct)
     {
         if (policyPackIds is null || policyPackIds.Count == 0)
-            return Task.FromResult<IReadOnlyList<PolicyPack>>(Array.Empty<PolicyPack>());
+            return Array.Empty<PolicyPack>();
 
-        return GetByIdsViaCachedSinglesAsync(policyPackIds, ct);
-    }
+        List<Guid> distinctIds = policyPackIds.Distinct().ToList();
+        IReadOnlyList<PolicyPack> loaded = await _inner.GetByIdsAsync(distinctIds, ct).ConfigureAwait(false);
 
-    private async Task<IReadOnlyList<PolicyPack>> GetByIdsViaCachedSinglesAsync(IReadOnlyCollection<Guid> policyPackIds, CancellationToken ct)
-    {
-        List<PolicyPack> result = [];
-
-        foreach (Guid policyPackId in policyPackIds.Distinct())
+        foreach (PolicyPack pack in loaded)
         {
-            PolicyPack? pack = await GetByIdAsync(policyPackId, ct).ConfigureAwait(false);
-
-            if (pack is not null)
-                result.Add(pack);
+            await _hotPathReadCache.GetOrCreateAsync(
+                HotPathCacheKeys.PolicyPack(pack.PolicyPackId),
+                innerCt => Task.FromResult<PolicyPack?>(pack),
+                ct).ConfigureAwait(false);
         }
 
-        return result;
+        return loaded;
     }
 
     /// <inheritdoc />

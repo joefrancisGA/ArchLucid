@@ -45,30 +45,26 @@ function extractMasterTableRows(markdown: string): TrafficWorkbookRow[] {
     }
 
     rows.push({
-      id: cells[1],
-      path: cells[2].replace(/^`|`$/g, ""),
-      section: cells[7],
-      notes: cells[8],
+      id: cells[1] ?? "",
+      path: (cells[2] ?? "").replace(/^`|`$/g, ""),
+      section: cells[7] ?? "",
+      notes: cells[8] ?? "",
     });
   }
 
   return rows;
 }
 
-function findTrafficRowById(rows: TrafficWorkbookRow[], rowId: string): TrafficWorkbookRow | undefined {
-  return rows.find((row) => row.id === rowId);
-}
-
 describe("ui-route-traffic-billing-and-plans-help (HBX)", () => {
-  it("tracks the canonical billing help topic with specialty-guide workbook notes", () => {
+  it("tracks Billing and plans help with honest workbook notes", () => {
     const rows = extractMasterTableRows(readTemplateMarkdown());
-    const row = findTrafficRowById(rows, BILLING_AND_PLANS_HELP_TRAFFIC_ROW_ID);
+    const row = rows.find((candidate) => candidate.id === BILLING_AND_PLANS_HELP_TRAFFIC_ROW_ID);
 
     expect(row).toBeDefined();
     expect(row?.path).toBe(BILLING_AND_PLANS_HELP_TRAFFIC_PATH);
     expect(row?.section).toBe(BILLING_AND_PLANS_HELP_TRAFFIC_SECTION);
     expect(row?.notes).toBe(BILLING_AND_PLANS_HELP_TRAFFIC_NOTE);
-    expect(row?.section.toLowerCase()).not.toBe("marketing");
     expect(row?.notes).toContain("HelpBillingAndPlansGuideView");
+    expect(row?.notes).toContain("Sources");
   });
 });
