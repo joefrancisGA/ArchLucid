@@ -19,6 +19,14 @@ public interface IRunDetailQueryService
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    ///     Internal rollup/compare path (TB-931): run header, agent results, and golden manifest without tasks,
+    ///     decision traces, mute enrichment, trust-label enrichment, or LLM cost slices.
+    /// </summary>
+    Task<ArchitectureRunDetail?> GetRunDetailForRollupAsync(
+        string runId,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     ///     Returns lightweight <see cref="RunSummary" /> entries for the most recent runs,
     ///     ordered descending by creation time. Suitable for list/dashboard views.
     /// </summary>

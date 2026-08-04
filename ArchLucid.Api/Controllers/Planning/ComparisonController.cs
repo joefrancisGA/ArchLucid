@@ -19,7 +19,7 @@ namespace ArchLucid.Api.Controllers.Planning;
 ///     HTTP API for structured golden-manifest comparison between two runs in the caller’s scope (base → target).
 /// </summary>
 /// <remarks>
-///     Uses <see cref="IAuthorityQueryService.GetRunDetailAsync" /> for both runs, then
+///     Uses <see cref="IAuthorityQueryService.GetRunDetailForManifestCompareAsync" /> for both runs, then
 ///     <see cref="IComparisonService.Compare" />. For flat diff lists, see <c>api/authority/compare</c>.
 /// </remarks>
 [ApiController]
@@ -52,8 +52,8 @@ public sealed class ComparisonController(
         CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
-        Task<RunDetailDto?> baseRunTask = query.GetRunDetailAsync(scope, baseRunId, ct);
-        Task<RunDetailDto?> targetRunTask = query.GetRunDetailAsync(scope, targetRunId, ct);
+        Task<RunDetailDto?> baseRunTask = query.GetRunDetailForManifestCompareAsync(scope, baseRunId, ct);
+        Task<RunDetailDto?> targetRunTask = query.GetRunDetailForManifestCompareAsync(scope, targetRunId, ct);
         await Task.WhenAll(baseRunTask, targetRunTask);
         RunDetailDto? baseRun = await baseRunTask;
         RunDetailDto? targetRun = await targetRunTask;

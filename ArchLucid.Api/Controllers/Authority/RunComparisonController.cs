@@ -271,9 +271,9 @@ public sealed class RunComparisonController(
             return (queryError, null, null);
 
         Task<ArchitectureRunDetail?> leftDetailTask =
-            runDetailQueryService.GetRunDetailAsync(query.LeftRunId, cancellationToken);
+            runDetailQueryService.GetRunDetailForRollupAsync(query.LeftRunId, cancellationToken);
         Task<ArchitectureRunDetail?> rightDetailTask =
-            runDetailQueryService.GetRunDetailAsync(query.RightRunId, cancellationToken);
+            runDetailQueryService.GetRunDetailForRollupAsync(query.RightRunId, cancellationToken);
         await Task.WhenAll(leftDetailTask, rightDetailTask);
         ArchitectureRunDetail? left = await leftDetailTask;
         if (left is null)

@@ -22,7 +22,7 @@ public sealed class RunExportPackageBuilderTests
     {
         Mock<IAuthorityQueryService> authority = new();
         authority
-            .Setup(q => q.GetRunDetailAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Setup(q => q.GetRunDetailForExportAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((RunDetailDto?)null);
 
         RunExportPackageBuilder sut = new(
@@ -57,7 +57,7 @@ public sealed class RunExportPackageBuilderTests
 
         Mock<IAuthorityQueryService> authority = new();
         authority
-            .Setup(q => q.GetRunDetailAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
+            .Setup(q => q.GetRunDetailForExportAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RunDetailDto
             {
                 Run = new RunRecord { RunId = runId },

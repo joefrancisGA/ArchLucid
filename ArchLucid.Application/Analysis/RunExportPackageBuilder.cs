@@ -40,7 +40,7 @@ public sealed class RunExportPackageBuilder(
         byte[]? renderedDiagramPng,
         CancellationToken ct)
     {
-        RunDetailDto? runDetail = await _authorityQueryService.GetRunDetailAsync(scope, runId, ct);
+        RunDetailDto? runDetail = await _authorityQueryService.GetRunDetailForExportAsync(scope, runId, ct);
 
         if (runDetail is null)
             return RunExportPackageResult.NotFound(
