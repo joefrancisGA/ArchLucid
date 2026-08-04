@@ -241,6 +241,7 @@ public sealed class RiskExceptionService(
             ct => _auditService.LogAsync(auditEvent, ct),
             _logger,
             operationLabel,
-            cancellationToken);
+            cancellationToken,
+            auditEventTypeForMetrics: auditEvent.EventType);
     }
 }

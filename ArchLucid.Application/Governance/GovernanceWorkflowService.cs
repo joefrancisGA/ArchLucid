@@ -595,7 +595,12 @@ public sealed class GovernanceWorkflowService(
     /// </summary>
     private async Task LogGovernanceDurableWithRetryAsync(AuditEvent auditEvent, string operationLabel, CancellationToken cancellationToken)
     {
-        await DurableAuditLogRetry.LogOrThrowAsync(ct => auditService.LogAsync(auditEvent, ct), logger, operationLabel, cancellationToken);
+        await DurableAuditLogRetry.LogOrThrowAsync(
+            ct => auditService.LogAsync(auditEvent, ct),
+            logger,
+            operationLabel,
+            cancellationToken,
+            auditEventTypeForMetrics: auditEvent.EventType);
     }
 
     private Task TryPublishGovernanceApprovalSubmittedAsync(GovernanceApprovalRequest request, CancellationToken cancellationToken)

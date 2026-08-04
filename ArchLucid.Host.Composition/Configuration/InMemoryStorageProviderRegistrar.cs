@@ -62,6 +62,7 @@ using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Repositories;
 using ArchLucid.Host.Composition.GoToMarket;
+using ArchLucid.Host.Core.Audit;
 using ArchLucid.Host.Core.DataConsistency;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Jobs;
@@ -349,6 +350,15 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         if (!ArchLucidJobsOffload.IsOffloaded(configuration, ArchLucidJobNames.OrphanProbe))
 
             services.AddHostedService<DataConsistencyOrphanProbeHostedService>();
+
+        services.AddSingleton<RequiredAuditTrailOrphanProbeExecutor>();
+        services.AddSingleton<IRequiredAuditTrailOrphanProbeExecutor>(
+            static sp => sp.GetRequiredService<RequiredAuditTrailOrphanProbeExecutor>());
+        services.AddSingleton<IArchLucidJob, RequiredAuditTrailOrphanProbeArchLucidJob>();
+
+        if (!ArchLucidJobsOffload.IsOffloaded(configuration, ArchLucidJobNames.RequiredAuditTrailOrphanProbe))
+
+            services.AddHostedService<RequiredAuditTrailOrphanProbeHostedService>();
 
         services.AddArchitectureIntelligenceInMemoryPersistence();
     }

@@ -218,6 +218,46 @@ public sealed class DurableAuditLogRetryTests
             && m.Tags.Any(t => t.Key == "event_type" && (string?)t.Value == "Governance.ApprovalApproved"));
     }
 
+    [Fact]
+    public async Task LogOrThrowAsync_increments_required_audit_write_abandons_total_when_abandoned()
+    {
+        using AuditWriteFailureCapture capture = AuditWriteFailureCapture.Start();
+
+        Func<Task> act = () => DurableAuditLogRetry.LogOrThrowAsync(
+            _ => throw new InvalidOperationException("fail"),
+            NullLogger.Instance,
+            "test-op",
+            CancellationToken.None,
+            2,
+            AuditEventTypes.GovernanceApprovalApproved);
+
+        await act.Should().ThrowAsync<DurableAuditWriteFailedException>();
+
+        capture.LongMeasures.Should().Contain(m =>
+            m.Name == "archlucid_required_audit_write_abandons_total"
+            && m.Value == 1
+            && m.Tags.Any(t => t.Key == "event_type" && (string?)t.Value == AuditEventTypes.GovernanceApprovalApproved));
+    }
+
+    [Fact]
+    public async Task TryLogAsync_does_not_increment_required_audit_write_abandons_total()
+    {
+        using AuditWriteFailureCapture capture = AuditWriteFailureCapture.Start();
+
+        await DurableAuditLogRetry.TryLogAsync(
+            _ => throw new InvalidOperationException("fail"),
+            NullLogger.Instance,
+            "informational-op",
+            CancellationToken.None,
+            2,
+            AuditEventTypes.RunStarted);
+
+        capture.LongMeasures.Should().NotContain(m => m.Name == "archlucid_required_audit_write_abandons_total");
+        capture.LongMeasures.Should().Contain(m =>
+            m.Name == "archlucid_audit_write_failures_total"
+            && m.Tags.Any(t => t.Key == "event_type" && (string?)t.Value == AuditEventTypes.RunStarted));
+    }
+
     private sealed class AuditWriteFailureCapture : IDisposable
     {
         private readonly MeterListener _listener = new();
@@ -245,7 +285,8 @@ public sealed class DurableAuditLogRetryTests
             if (instrument.Meter.Name != ArchLucidInstrumentationTestSupport.MeterName)
                 return;
 
-            if (instrument.Name == "archlucid_audit_write_failures_total")
+            if (instrument.Name is "archlucid_audit_write_failures_total"
+                or "archlucid_required_audit_write_abandons_total")
                 meterListener.EnableMeasurementEvents(instrument);
         }
 

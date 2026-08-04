@@ -80,6 +80,9 @@ public static class ArchLucidStorageServiceCollectionExtensions
         services.Configure<DataConsistencyProbeOptions>(
             configuration.GetSection(DataConsistencyProbeOptions.SectionName));
 
+        services.Configure<RequiredAuditTrailProbeOptions>(
+            configuration.GetSection(RequiredAuditTrailProbeOptions.SectionName));
+
         services.Configure<DataConsistencyReconciliationOptions>(
             configuration.GetSection(DataConsistencyReconciliationOptions.SectionName));
 

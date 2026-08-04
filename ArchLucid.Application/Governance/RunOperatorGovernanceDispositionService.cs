@@ -86,7 +86,8 @@ public sealed class RunOperatorGovernanceDispositionService(
             ct => _auditService.LogAsync(auditEvent, ct),
             _logger,
             $"RunOperatorGovernanceDisposition:{runId:N}",
-            cancellationToken);
+            cancellationToken,
+            auditEventTypeForMetrics: auditEvent.EventType);
 
         return new RunOperatorGovernanceDispositionDto
         {

@@ -1,6 +1,6 @@
 > **Scope:** Engineering-owned technical backlog items deferred from current sessions; audience is contributors and the AI assistant; not a buyer or operator document. Not a substitute for ADRs or the pending-questions owner decisions file.
 
-**Updated:** 2026-08-03 (**TB-954** **Done** — `RequiredAuditEventTypes` registry + arch test forbids `TryLogAsync` on Required types; INV-003 enforcement note; Core + Architecture tests). Prior: 2026-08-03 (**TB-951** **Done** — ≥3 indirect doc/README/ADR corpus scenarios + `indirect-doc-injection.json` with `expectedContained` residual; CI assert + eval_agent_quality strict; no 100% detection claim). Prior: 2026-08-03 (**TB-950** **Done** — production-like empty/null `AllowedTools` fail-closed; `*` unrestricted sentinel; DemoSeed concrete tools; TB-082 tests updated). Prior: 2026-08-03 (**TB-949** **Done** — untrusted customer-content `CUSTOMER_CONTENT_BEGIN`/`END` + framing; Agent/Ask composers; contract doc; unit + wiring tests; hygiene ≠ security boundary). Prior: 2026-08-03 (**DI** Evidence chrome — /digests Sources + claim discipline; Vitest; traffic **DI**). Prior: 2026-08-03 (**PLA** Evidence chrome — `/planning` Sources + claim discipline + topic honesty `how-it-works`; Vitest; traffic **PLA**). Prior: 2026-08-03 (**TB-897** **Done** — Quick Scan layered identity/abuse limits + CAPTCHA/sign-in friction codes; mig **292**; abuse ≠ spend ceiling). Prior: 2026-08-03 (**SCX** Evidence chrome — `/insights/architecture-scorecard` Sources + Category-1 registry + directional ROI claim; Vitest; traffic **SCX**; **TB-1956**–**TB-1960** remain Done). Prior: 2026-08-03 (**TB-1668** GDX/alerts topic slice — `/governance/dashboard` Sources + registry + topic honesty; `/governance/alerts` → `alerts`; Vitest; traffic **GDX**; remaining mount hubs open). Prior: 2026-08-03 (**TB-1667** HOM slice — `/` remounts `OperatorHomePageChrome` + Category-1 registry; Vitest; traffic **HOM**; remaining hubs open). Prior: 2026-08-03 (**TB-1746**/**TB-1749**/**TB-1750** **Done** — `/help/soc2-self-assessment` specialty buyer guide + Trust CTA / IA dual / Help Center; Vitest; traffic **HES**; **TB-1747**/**TB-1748** retained). Prior: 2026-08-03 (**TB-1386** **Done** — `/help/governance-api-contracts` specialty API contracts guide + title honesty; Vitest; traffic **HG**). Prior: 2026-08-02 (**TB-1691**/**TB-1692**/**TB-1694**/**TB-1695** **Done** — `/help/first-value-20-minutes` Admin specialty guide; Vitest; traffic **HEF**). Prior: 2026-08-02 (**TB-1676**/**TB-1678**/**TB-1679**/**TB-1680** **Done** — `/help/dpa-template` specialty buyer DPA guide; Vitest; traffic **HDP**). Prior: 2026-07-31 (Open **P1** summary rows reordered - human-impact ship order for /ship-next-improvement; 723 open P1s; see `### P1 - human-impact ship order`).
+**Updated:** 2026-08-03 (**TB-955** **Done** — Required audit abandon metric + pageable Prometheus alerts; domain↔audit orphan probe + job; triage runbook; informational TryLogAsync excluded). Prior: 2026-08-03 (**TB-954** **Done** — `RequiredAuditEventTypes` registry + arch test forbids `TryLogAsync` on Required types; INV-003 enforcement note; Core + Architecture tests). Prior: 2026-08-03 (**TB-951** **Done** — ≥3 indirect doc/README/ADR corpus scenarios + `indirect-doc-injection.json` with `expectedContained` residual; CI assert + eval_agent_quality strict; no 100% detection claim). Prior: 2026-08-03 (**TB-950** **Done** — production-like empty/null `AllowedTools` fail-closed; `*` unrestricted sentinel; DemoSeed concrete tools; TB-082 tests updated). Prior: 2026-08-03 (**TB-949** **Done** — untrusted customer-content `CUSTOMER_CONTENT_BEGIN`/`END` + framing; Agent/Ask composers; contract doc; unit + wiring tests; hygiene ≠ security boundary). Prior: 2026-08-03 (**DI** Evidence chrome — /digests Sources + claim discipline; Vitest; traffic **DI**). Prior: 2026-08-03 (**PLA** Evidence chrome — `/planning` Sources + claim discipline + topic honesty `how-it-works`; Vitest; traffic **PLA**). Prior: 2026-08-03 (**TB-897** **Done** — Quick Scan layered identity/abuse limits + CAPTCHA/sign-in friction codes; mig **292**; abuse ≠ spend ceiling). Prior: 2026-08-03 (**SCX** Evidence chrome — `/insights/architecture-scorecard` Sources + Category-1 registry + directional ROI claim; Vitest; traffic **SCX**; **TB-1956**–**TB-1960** remain Done). Prior: 2026-08-03 (**TB-1668** GDX/alerts topic slice — `/governance/dashboard` Sources + registry + topic honesty; `/governance/alerts` → `alerts`; Vitest; traffic **GDX**; remaining mount hubs open). Prior: 2026-08-03 (**TB-1667** HOM slice — `/` remounts `OperatorHomePageChrome` + Category-1 registry; Vitest; traffic **HOM**; remaining hubs open). Prior: 2026-08-03 (**TB-1746**/**TB-1749**/**TB-1750** **Done** — `/help/soc2-self-assessment` specialty buyer guide + Trust CTA / IA dual / Help Center; Vitest; traffic **HES**; **TB-1747**/**TB-1748** retained). Prior: 2026-08-03 (**TB-1386** **Done** — `/help/governance-api-contracts` specialty API contracts guide + title honesty; Vitest; traffic **HG**). Prior: 2026-08-02 (**TB-1691**/**TB-1692**/**TB-1694**/**TB-1695** **Done** — `/help/first-value-20-minutes` Admin specialty guide; Vitest; traffic **HEF**). Prior: 2026-08-02 (**TB-1676**/**TB-1678**/**TB-1679**/**TB-1680** **Done** — `/help/dpa-template` specialty buyer DPA guide; Vitest; traffic **HDP**). Prior: 2026-07-31 (Open **P1** summary rows reordered - human-impact ship order for /ship-next-improvement; 723 open P1s; see `### P1 - human-impact ship order`).
 
 
 ## Cursor-actionable backlog ? remaining by architectural quality
@@ -628,7 +628,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-950 | ~~`AllowedTools` fail-closed on production-like hosts — empty/null must not mean unrestricted; audit demo/seed paths; see `## TB-950` below~~ **Done** | Trustworthiness P1 — **V1**; hardens **TB-082** Done; prompt-injection resistance 2026-07-22 | S |
 | TB-951 | ~~Indirect prompt-injection adversarial corpus — architecture-doc / README override scenarios beyond brief phrase precheck; CI; see `## TB-951` below~~ **Done** | AI/Agent readiness P1 — **V1**; extends Content Safety / `prompt-injection-override` corpus; prompt-injection resistance 2026-07-22 | M |
 | TB-954 | ~~Required `AuditEventTypes` registry + architecture test — forbid `DurableAuditLogRetry.TryLogAsync` on Required types; see `## TB-954` below~~ **Done** | Trustworthiness P1 — **V1**; pairs **TB-953**; extends `AuditPathClassificationArchitectureTests` | M |
-| TB-955 | Required-audit abandon alert + domain↔audit orphan probe — pageable when Required write abandoned; periodic missing-trail detection; see `## TB-955` below | Trustworthiness P1 — **V1**; after **TB-953**; INV-003 mitigation 2026-07-22 | M |
+| TB-955 | ~~Required-audit abandon alert + domain↔audit orphan probe — pageable when Required write abandoned; periodic missing-trail detection; see `## TB-955` below~~ **Done** | Trustworthiness P1 — **V1**; after **TB-953**; INV-003 mitigation 2026-07-22 | M |
 | TB-965 | Buyer/operator UX: model-failed vs quality-rejected — never conflate HOLD/quality reject with transport “LLM error”; see `## TB-965` below | Trustworthiness P1 — **V1**; after **TB-963**; pairs **TB-937** status vocabulary | M |
 | TB-966 | Hostile-internet inbound webhook contract — PA order rate→size→verify→parse + missing controls checklist; refresh INV-015 note; see `## TB-966` below | Trustworthiness P1 — **V1**; PA Q3 2026-07-23; GTM **M-125**/**M-126**; after Done **TB-012** | S |
 | TB-967 | Bounded webhook body intake — Content-Length/pre-read max, size before HMAC, no unbounded ReadToEnd on inbound routes; see `## TB-967` below | Trustworthiness P1 — **V1**; after **TB-966**; ITSM + Stripe + Marketplace | M |
@@ -25566,11 +25566,13 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-03).
 
 **Priority:** P1.
 
 **Source:** INV-003 mitigation 2026-07-22.
+
+**Shipped:** `archlucid_required_audit_write_abandons_total` on `LogOrThrow` abandon only; Prometheus `ArchLucidRequiredAuditWriteAbandon` / `ArchLucidRequiredAuditTrailOrphans`; `RequiredAuditTrailOrphanProbe*` hosted service + job; SQL for governance approve/reject + golden-manifest finalize missing Expected audit; `REQUIRED_AUDIT_TRAIL_ORPHAN_TRIAGE.md`; EventType metrics on Required callers; informational `TryLogAsync` excluded.
 
 **Problem:** Fail-closed stops happy-path silent loss; operators still need signal when Required writes are abandoned or historical domain rows lack expected audit trails.
 
@@ -46874,6 +46876,106 @@ Operators must read three intros before reaching the Trust Center link list.
 **Depends on:** **TB-2031** Done. Peer welcome/see-it UX clusters — do not reopen copy.
 
 **Out of scope:** `next/font` (system stack already); wholesale asset CDN redesign; operator shell.
+
+**Size estimate:** S.
+
+---
+
+## TB-2033 — Finding verification loop — data model + linked artifact (P2)
+
+**Window:** V1.1 — Proof-of-prediction ([ADR 0062](../architecture/adrs/0062-finding-verification-loop.md)).
+
+**Status:** Open.
+
+**Source:** Principal-architect "proof of what?" critique (2026-08-03); ADR 0062 Proposed.
+
+**Why:** Verification results must attach to sealed packages without mutating them (ADR 0039/0045 immutability is load-bearing). A dedicated append-only report artifact with its own hash and audit events is the prerequisite for every later slice.
+
+**Scope:** `FindingVerificationReports` + `FindingVerificationResults` tables (per-tenant catalogs, single-DDL-file convention), `IFindingVerificationReportRepository` (Dapper), new typed `AuditEventTypes` constants (`FindingVerificationStarted`, `FindingVerificationCompleted`) with CI count guard update, architecture test asserting verification writes never touch `GoldenManifest` rows.
+
+**Depends on:** ADR 0062 owner ratification.
+
+**Out of scope:** Scoring logic, exports, UI.
+
+**Size estimate:** M.
+
+---
+
+## TB-2034 — Finding verification loop — re-ingest + scoring pass (P2)
+
+**Window:** V1.1 — Proof-of-prediction ([ADR 0062](../architecture/adrs/0062-finding-verification-loop.md)).
+
+**Status:** Open.
+
+**Source:** ADR 0062 §Decision items 1–3.
+
+**Why:** The pass is the loop: align sealed-package findings to a later customer-run evidence snapshot and classify each as Materialized / Mitigated / Not observed / Not verifiable with an explainability trace.
+
+**Scope:** `IFindingVerificationService` + `IFindingVerificationScorer` (deterministic rules first; LLM assist only within existing token budgets, concluding `NotVerifiable` rather than guessing), Worker queue trigger + outbox events, idempotency per (package, snapshot) pair, golden-corpus fixtures for each status.
+
+**Depends on:** **TB-2033**.
+
+**Out of scope:** Continuous monitoring, runtime collectors (ADR 0062 non-goals).
+
+**Size estimate:** L.
+
+---
+
+## TB-2035 — Finding verification loop — verification report export (P2)
+
+**Window:** V1.1 — Proof-of-prediction ([ADR 0062](../architecture/adrs/0062-finding-verification-loop.md)).
+
+**Status:** Open.
+
+**Source:** ADR 0062 §Decomposition (report export).
+
+**Why:** Sponsors and design authorities consume verification as a document: per-finding statuses, traces, and the confirmed-rate summary next to the original package reference.
+
+**Scope:** DOCX/Markdown verification report in `ArchLucid.ArtifactSynthesis` mirroring existing export shapes; report listed beside package artifacts in review detail.
+
+**Depends on:** **TB-2034**.
+
+**Out of scope:** New export formats beyond existing DOCX/Markdown/ZIP shapes.
+
+**Size estimate:** M.
+
+---
+
+## TB-2036 — Finding verification loop — scorecard confirmed-findings metric (P3)
+
+**Window:** V1.1 — Proof-of-prediction ([ADR 0062](../architecture/adrs/0062-finding-verification-loop.md)).
+
+**Status:** Open.
+
+**Source:** ADR 0062 §Decision item 4.
+
+**Why:** The aggregate "findings confirmed" rate (Materialized + Mitigated over verifiable findings) is the number that upgrades the proof story — it belongs on the architecture scorecard with evidence-basis labeling like ROI figures.
+
+**Scope:** Scorecard read-model extension + UI tile with basis label and empty state ("No verification passes yet"); excluded findings (`Not verifiable`) never inflate the denominator.
+
+**Depends on:** **TB-2034**.
+
+**Out of scope:** Cross-tenant benchmarking.
+
+**Size estimate:** S.
+
+---
+
+## TB-2037 — Finding verification loop — claim-copy unlock gate (P3)
+
+**Window:** V1.1 — Proof-of-prediction ([ADR 0062](../architecture/adrs/0062-finding-verification-loop.md)).
+
+**Status:** Open.
+
+**Source:** ADR 0062 §Decision item 5; [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#proof-scope-boundary`](PUBLIC_CLAIM_BOUNDARY_GUIDE.md#proof-scope-boundary).
+
+**Why:** Confirmation rates are a claim upgrade — buyer-facing copy may cite them only when real pilot verification data exists. The gate keeps marketing honest by construction, consistent with existing claim-drift CI.
+
+**Scope:** Documented copy rule in `PUBLIC_CLAIM_BOUNDARY_GUIDE.md` (verification rates require cited pilot evidence), claim-drift pattern for unsupported "X% of findings confirmed" phrasing, allowlist marker path for evidenced claims.
+
+**Depends on:** **TB-2034** (first real data); copy rule can land earlier.
+
+**Out of scope:** Publishing any rate before pilot evidence exists.
 
 **Size estimate:** S.
 

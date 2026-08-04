@@ -122,7 +122,12 @@ public static class DurableAuditLogRetry
         if (!string.IsNullOrWhiteSpace(auditEventTypeForMetrics))
             ArchLucidInstrumentation.RecordAuditWriteFailure(auditEventTypeForMetrics);
 
+        // LogOrThrow is the Required / fail-closed path (INV-003 / TB-953). Pageable abandon signal is
+        // separate from informational TryLogAsync soft-fail metrics (TB-001 / TB-955).
         if (throwOnAbandon)
+        {
+            ArchLucidInstrumentation.RecordRequiredAuditWriteAbandon(auditEventTypeForMetrics);
             throw new DurableAuditWriteFailedException(operationLabel, last);
+        }
     }
 }

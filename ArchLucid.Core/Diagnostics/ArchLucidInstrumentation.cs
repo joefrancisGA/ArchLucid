@@ -1124,6 +1124,35 @@ public static class ArchLucidInstrumentation
             description: "Durable audit writes abandoned after max retries (label event_type).");
 
     /// <summary>
+    ///     Required (fail-closed) audit writes abandoned after
+    ///     <see cref="ArchLucid.Core.Audit.DurableAuditLogRetry.LogOrThrowAsync" /> retries (label <c>event_type</c>).
+    ///     Pageable via Prometheus <c>ArchLucidRequiredAuditWriteAbandon</c> — never incremented on informational
+    ///     <see cref="ArchLucid.Core.Audit.DurableAuditLogRetry.TryLogAsync" /> (TB-955 / INV-003).
+    /// </summary>
+    public static readonly Counter<long> RequiredAuditWriteAbandonsTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_required_audit_write_abandons_total",
+            description: "Required durable audit writes abandoned after LogOrThrow retries (label event_type).");
+
+    /// <summary>
+    ///     Domain rows missing expected Required audit events within the orphan-probe grace window
+    ///     (label <c>domain</c>: governance_approved, governance_rejected, golden_manifest_finalized).
+    /// </summary>
+    public static readonly Counter<long> RequiredAuditTrailOrphansDetectedTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_required_audit_trail_orphans_detected_total",
+            description: "Required audit trail orphan probe detections (label domain).");
+
+    /// <summary>
+    ///     Pageable-equivalent increment when Required audit trail orphan counts are above zero
+    ///     (label <c>domain</c>).
+    /// </summary>
+    public static readonly Counter<long> RequiredAuditTrailOrphanAlertsTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_required_audit_trail_orphan_alerts_total",
+            description: "Required audit trail orphan probe alert increments (label domain).");
+
+    /// <summary>
     ///     Startup configuration advisory warnings (label <c>rule_name</c>) — bounded code constants only (TECH_BACKLOG TB-002).
     /// </summary>
     public static readonly Counter<long> StartupConfigWarningsTotal =
@@ -2377,6 +2406,30 @@ public static class ArchLucidInstrumentation
     {
         string e = string.IsNullOrWhiteSpace(eventType) ? "unknown" : eventType.Trim();
         AuditWriteFailuresTotal.Add(1, new TagList { { "event_type", e } });
+    }
+
+    /// <summary>
+    ///     Increments <see cref="RequiredAuditWriteAbandonsTotal" /> for fail-closed Required audit abandons only.
+    /// </summary>
+    public static void RecordRequiredAuditWriteAbandon(string? eventType)
+    {
+        string e = string.IsNullOrWhiteSpace(eventType) ? "unspecified" : eventType.Trim();
+        RequiredAuditWriteAbandonsTotal.Add(1, new TagList { { "event_type", e } });
+    }
+
+    /// <summary>Increments orphan detection + alert counters for a Required audit trail domain slice.</summary>
+    public static void RecordRequiredAuditTrailOrphan(string domain, long orphanCount)
+    {
+        string d = string.IsNullOrWhiteSpace(domain) ? "unknown" : domain.Trim();
+
+        RequiredAuditTrailOrphansDetectedTotal.Add(
+            orphanCount < 0 ? 0 : orphanCount,
+            new TagList { { "domain", d } });
+
+        if (orphanCount <= 0)
+            return;
+
+        RequiredAuditTrailOrphanAlertsTotal.Add(1, new TagList { { "domain", d } });
     }
 
     /// <summary>

@@ -296,7 +296,8 @@ public sealed class ScimUserService(
             token => _audit.LogAsync(auditEvent, token),
             _logger,
             $"{eventType}:{tenantId:N}",
-            ct);
+            ct,
+            auditEventTypeForMetrics: eventType);
     }
 
     private static string JsonEncoded(string s)

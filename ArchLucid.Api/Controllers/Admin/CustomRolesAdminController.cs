@@ -188,7 +188,8 @@ public sealed class CustomRolesAdminController(
                 ct => _auditService.LogAsync(assignedAudit, ct),
                 _logger,
                 $"IdentityCustomRoleAssigned:{roleId:N}",
-                cancellationToken);
+                cancellationToken,
+                auditEventTypeForMetrics: assignedAudit.EventType);
 
             return NoContent();
         }

@@ -92,6 +92,7 @@ public sealed class ScimGroupService(IScimGroupRepository groups, IAuditService 
             token => _audit.LogAsync(auditEvent, token),
             _logger,
             $"{eventType}:{tenantId:N}",
-            ct);
+            ct,
+            auditEventTypeForMetrics: eventType);
     }
 }

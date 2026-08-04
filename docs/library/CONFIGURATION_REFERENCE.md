@@ -326,6 +326,10 @@ For hosted Azure pilots, pair this with [`MINIMAL_AZURE_PILOT_DEPLOYMENT.md`](..
 | DeveloperExperience | `DeveloperExperience:EnableApiExplorer` | appsettings, env | false | Optional (not mode-gated) | All (Api, Worker, Combined) | Exposes extra OpenAPI/Scalar in non-prod (see security note). |
 | DataConsistency | `DataConsistency:OrphanProbeEnabled` | appsettings, env | true | Optional (not mode-gated) | All (Api, Worker, Combined) | Background data consistency scan. |
 | DataConsistency | `DataConsistency:OrphanProbeIntervalMinutes` | appsettings, env | 60 | Optional (not mode-gated) | All (Api, Worker, Combined) | Orphan scan cadence. |
+| RequiredAuditTrail | `RequiredAuditTrail:OrphanProbeEnabled` | appsettings, env | true | Optional (not mode-gated) | All (Api, Worker, Combined) | TB-955 Required audit trail domain↔audit orphan probe. |
+| RequiredAuditTrail | `RequiredAuditTrail:OrphanProbeIntervalMinutes` | appsettings, env | 60 | Optional (not mode-gated) | All (Api, Worker, Combined) | Required audit trail orphan probe cadence. |
+| RequiredAuditTrail | `RequiredAuditTrail:OrphanProbeGraceMinutes` | appsettings, env | 15 | Optional (not mode-gated) | All (Api, Worker, Combined) | Dual-write lag grace before orphan count. |
+| RequiredAuditTrail | `RequiredAuditTrail:OrphanProbeLookbackDays` | appsettings, env | 7 | Optional (not mode-gated) | All (Api, Worker, Combined) | Bound Required audit trail orphan scan window. |
 | DataConsistency | `DataConsistency:Enforcement:Mode` | appsettings, env | Warn | Optional (not mode-gated) | All (Api, Worker, Combined) | Type default **Warn**; **`ArchLucid.Api/appsettings.Production.json`** and **`appsettings.Staging.json`** ship **Alert** for orphan paging signals (see **`DataConsistencyEnforcementMode`**). |
 | DataConsistency | `DataConsistency:Enforcement:MaxRowsPerBatch` | appsettings, env | 500 | Optional (When enforced) | All (Api, Worker, Combined) | Safer cap per remediation batch. |
 | DataConsistency | `DataConsistency:Enforcement:AlertThreshold` | appsettings, env | 1 | Optional (not mode-gated) | All (Api, Worker, Combined) | Orphan count threshold to page operators. |

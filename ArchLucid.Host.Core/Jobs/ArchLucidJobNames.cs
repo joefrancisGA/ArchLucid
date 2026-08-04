@@ -7,6 +7,9 @@ public static class ArchLucidJobNames
 
     public const string OrphanProbe = "orphan-probe";
 
+    /// <summary>Required audit trail domain↔audit orphan detection (TB-955 / INV-003).</summary>
+    public const string RequiredAuditTrailOrphanProbe = "required-audit-trail-orphan-probe";
+
     public const string DataArchival = "data-archival";
 
     public const string FirstTenantFunnelArchival = "first-tenant-funnel-archival";

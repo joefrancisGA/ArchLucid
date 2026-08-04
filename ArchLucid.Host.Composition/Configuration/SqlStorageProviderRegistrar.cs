@@ -54,6 +54,7 @@ using ArchLucid.Decisioning.Alerts.Delivery;
 using ArchLucid.Decisioning.Governance.ComplianceDrift;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Host.Core.Audit;
 using ArchLucid.Host.Core.Authority;
 using ArchLucid.Host.Composition.Orchestration;
 using ArchLucid.Host.Core.Configuration;
@@ -602,6 +603,15 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         if (!ArchLucidJobsOffload.IsOffloaded(configuration, ArchLucidJobNames.OrphanProbe))
 
             services.AddHostedService<DataConsistencyOrphanProbeHostedService>();
+
+        services.AddSingleton<RequiredAuditTrailOrphanProbeExecutor>();
+        services.AddSingleton<IRequiredAuditTrailOrphanProbeExecutor>(
+            static sp => sp.GetRequiredService<RequiredAuditTrailOrphanProbeExecutor>());
+        services.AddSingleton<IArchLucidJob, RequiredAuditTrailOrphanProbeArchLucidJob>();
+
+        if (!ArchLucidJobsOffload.IsOffloaded(configuration, ArchLucidJobNames.RequiredAuditTrailOrphanProbe))
+
+            services.AddHostedService<RequiredAuditTrailOrphanProbeHostedService>();
 
         RegisterDtfOrchestrationInfrastructure(services, configuration, connectionString);
     }
