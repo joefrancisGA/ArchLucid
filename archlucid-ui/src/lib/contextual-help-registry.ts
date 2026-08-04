@@ -99,6 +99,17 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/replay",
+    entry: {
+      whatIsThisPage:
+        "Validate review — re-check a finalized review package (reconstruct, rebuild outputs, or full regeneration).",
+      whatToDoNext:
+        "Pick a finalized review, choose a validation depth, run the check, then open the review or Compare when you need diffs.",
+      whyEmpty: "Validation results appear after you run a check on a selected review package.",
+      whereToConfigurePrerequisite: "Finalize at least one review in this workspace first; Admin Execute access may be required.",
+    },
+  },
+  {
     prefix: "/insights/search-review-evidence",
     entry: {
       whatIsThisPage:

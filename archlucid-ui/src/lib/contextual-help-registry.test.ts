@@ -40,6 +40,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/governance/findings",
       "/insights/ask-review-questions",
       "/insights/compare-two-reviews",
+      "/replay",
       "/insights/search-review-evidence",
       "/help/data-handling-tenant-isolation",
       "/help/dpa-template",
@@ -216,6 +217,11 @@ describe("contextual-help-registry (TB-733)", () => {
   it("resolves teams integration Category-1 help (ITX)", () => {
     expect(contextualHelpForPathname("/integrations/teams")?.whatIsThisPage).toContain("Teams integration");
     expect(contextualHelpForPathname("/integrations/teams")?.whatToDoNext).toContain("Teams connector");
+  });
+
+  it("resolves validate review Category-1 help (REP)", () => {
+    expect(contextualHelpForPathname("/replay")?.whatIsThisPage).toContain("Validate review");
+    expect(contextualHelpForPathname("/replay")?.whatToDoNext).toContain("validation depth");
   });
 
   it("resolves executive scorecard Category-1 help (ESX)", () => {
