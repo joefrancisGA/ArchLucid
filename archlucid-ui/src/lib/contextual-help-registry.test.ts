@@ -70,6 +70,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/admin/tenant-health",
       "/help/getting-started",
       "/help/how-it-works",
+      "/help/troubleshooting",
       "/help/cloud-connections/azure",
       "/help/cloud-connections",
       "/administration/settings/users",
@@ -178,6 +179,11 @@ describe("contextual-help-registry (TB-733)", () => {
   it("resolves how-it-works help Category-1 help (HHX)", () => {
     expect(contextualHelpForPathname("/help/how-it-works")?.whatIsThisPage).toContain("How ArchLucid works");
     expect(contextualHelpForPathname("/help/how-it-works")?.whatToDoNext).toContain("Start a review");
+  });
+
+  it("resolves troubleshooting help Category-1 help (HTX)", () => {
+    expect(contextualHelpForPathname("/help/troubleshooting")?.whatIsThisPage).toContain("Troubleshooting");
+    expect(contextualHelpForPathname("/help/troubleshooting")?.whatToDoNext).toContain("System health");
   });
 
   it("resolves sponsor executive summary Category-1 help (SPE)", () => {

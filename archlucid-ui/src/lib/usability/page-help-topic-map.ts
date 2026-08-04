@@ -31,6 +31,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "how-it-works", label: "How ArchLucid works" },
   },
   {
+    prefix: "/help/troubleshooting",
+    topic: { slug: "troubleshooting", label: "Troubleshooting" },
+  },
+  {
     prefix: "/help/cloud-connections/azure",
     topic: { slug: "cloud-connections-azure", label: "Connect Azure securely" },
   },

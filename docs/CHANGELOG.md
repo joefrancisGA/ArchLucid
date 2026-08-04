@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-03 - UI: Troubleshooting help Evidence chrome (HTX)
+
+/help/troubleshooting ships PageContextualHelpButton, Category-1 registry, Sources + claim-discipline orientation strip, traffic Notes under Help topic, and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-03 - UI: How ArchLucid works help Evidence chrome (HHX)
 
 /help/how-it-works ships HelpHowArchLucidWorksGuideView (wired in help router), PageContextualHelpButton, Category-1 registry, Sources + claim-discipline orientation, traffic Notes under Help topic, and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.
@@ -33,6 +37,10 @@ Release entries newest-first. Each section condenses the detailed prompt logs pr
 ## 2026-08-03 - UI: Cloud connections help Evidence chrome (HCE)
 
 /help/cloud-connections ships HelpCloudConnectionsGuideView with PageContextualHelpButton, Category-1 registry, Sources + claim-discipline orientation, hub/Azure CTAs, traffic Notes under Help topic, and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
+## 2026-08-03 - UI: Hard-retire most redirect-only bookmarks
+
+Prunes next.config redirects (keeps `/reviews` and `/architectures` namespace force-canonical + signed-record manifest aliases). Removes App Router and proxy shims for `/product-learning`, `/value-report*`, finding `/inspect`, `/planning`, and legacy hub bookmarks (`/runs`, `/manifests`, governance top-level, dashboard/executive, patterns, settings/admin aliases). Inbound links, e2e, host-gate, SEO disallow, and `RETIRED_SHIMS` updated. API `/v1/product-learning/*` unchanged. No CPA / third-party pen-test implication.
 
 ## 2026-08-03 - UI: Retire `/product-learning` → `/internal/product-learning`
 

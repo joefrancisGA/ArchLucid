@@ -2,10 +2,12 @@ import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTroubleshootingAdvancedDiagnostics } from "@/app/(operator)/help/_sections/HelpTroubleshootingAdvancedDiagnostics";
+import { TroubleshootingHelpEvidenceOrientationStrip } from "@/app/(operator)/help/_sections/TroubleshootingHelpEvidenceOrientationStrip";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   TROUBLESHOOTING_BEFORE_CONTACT_ITEMS,
   TROUBLESHOOTING_COMMON_ISSUES,
@@ -108,9 +110,14 @@ export function HelpTroubleshootingGuideView(props: HelpTroubleshootingGuideView
     <article className={OPERATOR_LAYOUT.majorSectionGap} data-testid="help-troubleshooting-guide">
       <HelpTopicHashScroll />
       <header className={HELP_PAGE_LAYOUT.articleHeader}>
-        <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{entry.title}</h1>
+        <div className="flex flex-wrap items-center gap-2">
+          <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{entry.title}</h1>
+          <PageContextualHelpButton />
+        </div>
         <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{TROUBLESHOOTING_HELP_SUBTITLE}</p>
       </header>
+
+      <TroubleshootingHelpEvidenceOrientationStrip />
 
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")}>

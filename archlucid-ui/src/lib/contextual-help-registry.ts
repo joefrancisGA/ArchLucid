@@ -440,6 +440,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/help/troubleshooting",
+    entry: {
+      whatIsThisPage:
+        "Troubleshooting — symptom-first guidance to unblock reviews, connections, and operator workflows.",
+      whatToDoNext:
+        "Start with System health, download a support bundle when needed, then open the matching common-issue card.",
+      whyEmpty: "This guide is always available; live dependency status appears on System health.",
+      whereToConfigurePrerequisite:
+        "Confirm workspace scope in the header switcher before diagnosing tenant-specific failures.",
+    },
+  },
+  {
     prefix: "/help/cloud-connections/azure",
     entry: {
       whatIsThisPage:
