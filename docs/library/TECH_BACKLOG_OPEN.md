@@ -123,7 +123,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | Anonymous Quick Scan public safety | **TB-892**–**TB-902** (open P1 **V1**) | Config → pricing → global budgets → anonymous endpoint → concurrency → abuse → kill switch → telemetry → sample UX → adversarial → release gate; assessment **SAFE TO EXPOSE: NO** until **TB-902** |
 | JSON payload-shape (H2 remainder) | **TB-929**–**TB-931** open P2 **V1**; **TB-932** **V2** | List `*Json` projection audit; run-detail lazy-load; typed scalars; blob offload when measured |
 | Alerts Conditions tab UX | **TB-936** (open P1 **V1**) | `/governance/alert-rules?tab=rules` — rule builder, terminology, preview, sample guards |
-| Polly vs run-level matrix (PA Q7) | **TB-995**–**TB-996** (open P1 **V1**) | Transport vs run-level surface matrix + honesty CI; GTM **M-146**/**M-147** |
+| Polly vs run-level matrix (PA Q7) | **TB-995** **Done**; **TB-996** (open P1 **V1**) | Contract shipped; honesty CI remains; GTM **M-146**/**M-147** |
 | LLM trust boundary (PA Q11) | **TB-997**–**TB-998** (open P1 **V1**) | Ingress vs structurally-impossible matrix + honesty CI; GTM **M-148**/**M-149** |
 | INV-001 single-derivation (PA Q1) | **TB-999**–**TB-1000** (open P1 **V1**) | Host-boundary decide-once vs forbidden-layer matrix + honesty CI; GTM **M-150**/**M-151**; complements Done **TB-010**/**TB-304**/**TB-925** / ARCH001 |
 | Ask/Search/Graph-RAG tenancy (PA Q3) | **TB-1001**–**TB-1002** (open P1 **V1**) | Retrieval hit guarantee matrix + honesty CI; GTM **M-152**/**M-153**; Done **TB-048**/**TB-071**/**TB-604** |
@@ -179,8 +179,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-2028 | Marketing `/welcome` First Load JS — shed shared operator shell chunks | Performance P2 **V1** — owner UI speed ask 2026-07-31 |
 | TB-2029 | SSE-first run progress + shell banner poll hygiene | Performance P2 **V1** — owner UI speed ask 2026-07-31 |
 | TB-2030 | Expand First Load JS baseline to `/` (+ optional alert hubs) | Performance P2 **V1** — extends **TB-573**/**TB-691** |
-| TB-995 | Polly/CB transport vs run-level surface matrix | Trustworthiness P1 **V1** — PA Q7; GTM **M-146**/**M-147** |
-| TB-996 | Polly ≠ run-completeness honesty CI | Testability P1 **V1** — after **TB-995** |
+| TB-996 | Polly ≠ run-completeness honesty CI | Testability P1 **V1** — after Done **TB-995** |
 | TB-997 | LLM trust-boundary ingress vs structurally-impossible matrix | Trustworthiness P1 **V1** — PA Q11; GTM **M-148**/**M-149** |
 | TB-998 | LLM trust-boundary honesty CI | Testability P1 **V1** — after **TB-997** |
 | TB-999 | INV-001 tenant identity single-derivation contract | Trustworthiness P1 **V1** — PA Q1; GTM **M-150**/**M-151** |
@@ -906,3 +905,16 @@ Canonical: [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) only (see wave-3 c
 | Create-home Evidence (`archTab=evidence`) | **TB-1846**–**TB-1850** (open **V1**) | Traffic honesty; inventory; diagram cross-link; naming/chrome; Vitest; ~46/100; traffic **REE**; pairs **TB-1831** |
 | Operator page contextual-help standard | **TB-1666**–**TB-1670** (open P1/P2 **V1**); **TB-1667**/**TB-1668** partial | PageContextualHelpButton contract + mount waves + GDX Sources/registry + alerts topic fix + map/registry + Vitest; traffic **OPH**/**HOM**/**GDX**; IDs skip line-tabs **TB-1661**–**TB-1665** |
 | Operator/marketing clickable-link affordance | **TB-1671**/**TB-1672**/**TB-1674**/**TB-1675** (open P1/P2 **V1**); **TB-1673** **Done** | `OPERATOR_LINK` contract + bare/hover-only fix waves + finding-badge/secondary + Vitest; traffic **OLA**; IDs skip OPH **TB-1666**–**TB-1670** / line-tabs **TB-1661**–**TB-1665** |
+
+## TB-2042 — TB-2047 (Principal architect critique round 3 — 2026-08-04)
+
+| ID | Priority | Title |
+| --- | --- | --- |
+| **TB-2042** | P1 | Cross-review finding fingerprint correlation service per ADR 0063 |
+| **TB-2043** | P1 | Comparison export metadata — correlation method honesty |
+| **TB-2044** | P1 | Trust labels on all finding export paths (extend beyond run-detail CSV) |
+| **TB-2045** | P1 | Tenant migration maintenance banner on value-report/governance surfaces |
+| **TB-2046** | P2 | Post-cutover projection refresh orchestration for tenant catalog moves |
+| **TB-2047** | P1 | Automated tenant migration verification probe before reopening writes |
+
+Authoritative design: [`docs/architecture/adrs/0063-cross-review-finding-identity.md`](../architecture/adrs/0063-cross-review-finding-identity.md), [`docs/operations/TENANT_MIGRATION_FANOUT.md`](../operations/TENANT_MIGRATION_FANOUT.md).
