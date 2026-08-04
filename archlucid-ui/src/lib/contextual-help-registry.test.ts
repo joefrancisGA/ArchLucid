@@ -82,6 +82,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/administration/settings/users",
       "/integrations/cloud-connections",
       "/integrations/jira",
+      "/integrations/servicenow",
       "/integrations/slack",
       "/integrations/teams",
       "/settings/cloud-connections",
@@ -220,6 +221,11 @@ describe("contextual-help-registry (TB-733)", () => {
   it("resolves jira integration Category-1 help (IJX)", () => {
     expect(contextualHelpForPathname("/integrations/jira")?.whatIsThisPage).toContain("Jira integration");
     expect(contextualHelpForPathname("/integrations/jira")?.whatToDoNext).toContain("Test the connector");
+  });
+
+  it("resolves ServiceNow integration Category-1 help (ISX)", () => {
+    expect(contextualHelpForPathname("/integrations/servicenow")?.whatIsThisPage).toContain("ServiceNow integration");
+    expect(contextualHelpForPathname("/integrations/servicenow")?.whatToDoNext).toContain("Test the connector");
   });
 
   it("resolves slack integration Category-1 help (ISN)", () => {

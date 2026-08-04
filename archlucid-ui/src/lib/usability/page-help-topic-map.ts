@@ -191,6 +191,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "integration-readiness", label: "Jira integration" },
   },
   {
+    prefix: "/integrations/servicenow",
+    topic: { slug: "integration-readiness", label: "ServiceNow integration" },
+  },
+  {
     prefix: "/integrations/slack",
     topic: { slug: "alerts", label: "Slack integration" },
   },

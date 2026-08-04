@@ -587,6 +587,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/integrations/servicenow",
+    entry: {
+      whatIsThisPage:
+        "ServiceNow integration — outbound incident settings, connection health, and CMDB overrides for creating ServiceNow records from ArchLucid.",
+      whatToDoNext:
+        "Test the connector, adjust CMDB auto-create if needed, then open Integration readiness when the path is not ready.",
+      whyEmpty: "Health and settings load after this workspace can reach the ITSM connector configuration.",
+      whereToConfigurePrerequisite:
+        "Platform credentials are often configured by an administrator; tenant overrides on this page need Operate authority.",
+    },
+  },
+  {
     prefix: "/integrations/slack",
     entry: {
       whatIsThisPage:

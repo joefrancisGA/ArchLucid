@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { StatusTag } from "@/components/ui/status-tag";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import {
   fetchItsmIntegrationHealth,
@@ -64,6 +65,7 @@ import { buildServiceNowPageLoadResult } from "@/lib/servicenow-page-load";
 import { ITSM_PRODUCT_SMOKE_VERIFICATION_HREF } from "@/lib/itsm-connectors-admin-scope";
 
 import { ServiceNowIntegrationAside } from "./ServiceNowIntegrationAside";
+import { ServiceNowIntegrationEvidenceOrientationStrip } from "./ServiceNowIntegrationEvidenceOrientationStrip";
 
 function statusTagKind(
   status: ReturnType<typeof resolveServiceNowConnectionStatus>["status"],
@@ -263,7 +265,10 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
       data-testid="integrations-servicenow-page"
     >
       <header className={cn("space-y-3 border-b border-neutral-200 pb-6 dark:border-neutral-800", OPERATOR_LAYOUT.sectionHeadingStack)}>
-        <h1 className={`m-0 ${OPERATOR_TYPOGRAPHY.pageTitle}`}>{SERVICENOW_INTEGRATION_PAGE_TITLE}</h1>
+        <div className="flex flex-wrap items-center gap-2">
+          <h1 className={`m-0 ${OPERATOR_TYPOGRAPHY.pageTitle}`}>{SERVICENOW_INTEGRATION_PAGE_TITLE}</h1>
+          <PageContextualHelpButton />
+        </div>
         <p className={`m-0 max-w-2xl leading-relaxed ${OPERATOR_TYPOGRAPHY.helper}`}>
           {SERVICENOW_INTEGRATION_PAGE_DESCRIPTION}
         </p>
@@ -274,6 +279,8 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
           {" — status across ServiceNow, Jira, Teams, Slack, cloud connections, and webhooks."}
         </p>
       </header>
+
+      <ServiceNowIntegrationEvidenceOrientationStrip />
 
       {isLoading && health === null && settings === null ? (
         <OperatorLoadingNotice>{SERVICENOW_LOADING_MESSAGE}</OperatorLoadingNotice>

@@ -10,9 +10,17 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-04 - API: ITSM inbound webhook replay guard (TB-968)
+
+`IItsmInboundWebhookReplayGuard` + `MemoryCacheItsmInboundWebhookReplayGuard` (24h per-process dedupe); delivery id headers (`X-ArchLucid-Webhook-Delivery-Id`, `X-Atlassian-Webhook-Identifier`) or synthetic keys; replay returns HTTP 200 with `Integration.ItsmInboundWebhookReplayIgnored` audit (no second mutation). Optional `X-ArchLucid-Timestamp` skew enforced even without HMAC. Ops runbook [`ITSM_INBOUND_WEBHOOK_REPLAY_GUARD.md`](runbooks/ITSM_INBOUND_WEBHOOK_REPLAY_GUARD.md). No CPA / third-party pen-test implication.
+
 ## 2026-08-04 - UI: Hard-retire `/snapshot/[runId]` redirect shim
 
 Removed App Router redirect stub; CTO recap leave-behind links now use `/architecture/reviews/{runId}?readOnly=1` via `buildReadOnlyReviewWorkspaceHref`. Old `/snapshot/...` bookmarks 404.
+
+## 2026-08-04 - UI: ServiceNow integration Evidence chrome (ISX)
+
+/integrations/servicenow ships PageContextualHelpButton, Category-1 registry, Sources + claim-discipline orientation strip, traffic Notes under Integrations, and honest Evidence score 48. Integration-config hub hard-caps higher Evidence; no CPA / third-party pen-test implication.
 
 ## 2026-08-04 - UI: Review guide help Evidence chrome (HR)
 
