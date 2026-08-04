@@ -71,10 +71,9 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        if (string.IsNullOrWhiteSpace(request.TenantId))
-        {
-            throw new ArgumentException("TenantId is required.", nameof(request));
-        }
+        // Local non-null copy: TenantId is optional on inbound HTTP bodies (scope-stamped).
+        string tenantId = RequireTenantId(request)
+        request.TenantId = tenantId;
 
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -130,7 +129,7 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
             && !string.IsNullOrWhiteSpace(request.RunId))
         {
             ArchitectureKnowledgeModel? existing = await _persistence.GetModelByRunIdAsync(
-                request.TenantId,
+                tenantId,
                 request.RunId,
                 cancellationToken);
 
@@ -259,8 +258,8 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
             await _persistence.SaveModelAsync(model, cancellationToken);
         }
 
-        string workspaceId = request.WorkspaceId ?? request.TenantId;
-        string projectId = request.ProjectId ?? request.TenantId;
+        string workspaceId = request.WorkspaceId ?? tenantId;
+        string projectId = request.ProjectId ?? tenantId;
         Dictionary<string, EvidenceValidationResult> validationByFindingId = validationResults
             .ToDictionary(result => result.FindingId, StringComparer.Ordinal);
 
@@ -289,7 +288,7 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
             ProductRecommendations = ArchitectureIntelligenceProductBridge.ToRecommendationRecords(
                 publishDecision.PublishableRecommendations,
                 publishDecision.PublishableFindings,
-                request.TenantId,
+                tenantId,
                 workspaceId,
                 projectId,
                 request.RunId),
@@ -313,12 +312,13 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
         ClosedLoopReasoningResult result,
         CancellationToken cancellationToken)
     {
-        string workspaceId = request.WorkspaceId ?? request.TenantId;
-        string projectId = request.ProjectId ?? request.TenantId;
+        string tenantId = RequireTenantId(request);
+        string workspaceId = request.WorkspaceId ?? tenantId;
+        string projectId = request.ProjectId ?? tenantId;
 
         ArchitectureIntelligencePublishResult publishResult = await _productPublishService.PublishAsync(
             result,
-            request.TenantId,
+            tenantId,
             workspaceId,
             projectId,
             request.RunId!,
@@ -335,6 +335,7 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
         CancellationToken cancellationToken)
     {
         List<string> artifactIds = [];
+        string tenantId = RequireTenantId(request);
 
         foreach (ClosedLoopReasoningSourceText sourceText in request.SourceTexts)
         {
@@ -342,7 +343,7 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
             ImmutableSourceArtifact artifact = new()
             {
                 ArtifactId = artifactId,
-                TenantId = request.TenantId,
+                TenantId = tenantId,
                 ContentType = sourceText.ContentType,
                 FileName = sourceText.FileName,
                 OwnershipClass = ArtifactOwnershipClass.Managed,
@@ -363,7 +364,8 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
         List<string> artifactIds,
         CancellationToken cancellationToken)
     {
-        ArchitectureKnowledgeModel model = _ontologyService.CreateEmptyModel(request.TenantId, request.RunId);
+        string tenantId = RequireTenantId(request);
+        ArchitectureKnowledgeModel model = _ontologyService.CreateEmptyModel(tenantId, request.RunId);
 
         for (int index = 0; index < request.SourceTexts.Count; index++)
         {
@@ -473,6 +475,18 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
                 },
             });
         }
+    }
+
+    private static string RequireTenantId(ClosedLoopReasoningRequest request)
+    {
+        string tenantId = request.TenantId?.Trim() ?? string.Empty;
+
+        if (string.IsNullOrWhiteSpace(tenantId))
+        {
+            throw new ArgumentException("TenantId is required.", nameof(request));
+        }
+
+        return tenantId;
     }
 
     private static ReReviewTrigger? ResolveReReviewTrigger(
