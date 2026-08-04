@@ -72,7 +72,7 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
         ArgumentNullException.ThrowIfNull(request);
 
         // Local non-null copy: TenantId is optional on inbound HTTP bodies (scope-stamped).
-        string tenantId = RequireTenantId(request)
+        string tenantId = RequireTenantId(request);
         request.TenantId = tenantId;
 
         cancellationToken.ThrowIfCancellationRequested();
