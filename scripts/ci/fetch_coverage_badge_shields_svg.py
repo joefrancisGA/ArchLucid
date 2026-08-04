@@ -67,7 +67,7 @@ def _color_for_pct(line_pct: float) -> str:
     if line_pct + 1e-9 >= 95.0:
         return "brightgreen"
 
-    if line_pct + 1e-9 >= 75.0:
+    if line_pct + 1e-9 >= 76.0:
         return "green"
 
     if line_pct + 1e-9 >= 70.0:
