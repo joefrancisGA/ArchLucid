@@ -26,7 +26,7 @@ export function seeItUniverseBannerTitle(universe: SeeItDemoUniverse): string {
     case "claims":
       return "Healthcare claims sample — public evaluation preview";
     case "contoso":
-      return "Contoso Retail sample — public evaluation preview";
+      return "Retail baseline sample — public evaluation preview";
     case "unknown":
       return "Public sample preview";
     default: {

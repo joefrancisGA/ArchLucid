@@ -14,7 +14,7 @@ function firstValueReportHelperLead(universe: WhyArchLucidDemoUniverse): string 
     case "claims":
       return "the committed Claims Intake demo review";
     case "contoso":
-      return "the committed Contoso Retail demo review";
+      return "the committed Retail baseline demo review";
     case "unknown":
       return "the committed demo review when available";
     default: {
@@ -30,7 +30,7 @@ function firstValueReportMissingLead(universe: WhyArchLucidDemoUniverse): string
     case "claims":
       return "seed the Claims Intake demo";
     case "contoso":
-      return "seed the Contoso Retail demo";
+      return "seed the Retail baseline demo";
     case "unknown":
       return "seed a consistent demo package";
     default: {

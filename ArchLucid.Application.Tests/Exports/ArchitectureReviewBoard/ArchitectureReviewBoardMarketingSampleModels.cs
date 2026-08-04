@@ -16,8 +16,8 @@ internal static class ArchitectureReviewBoardMarketingSampleModels
     internal static WhitelabelConfiguration GoToMarketWhitelabel =>
         new()
         {
-            FirmDisplayName = "Contoso Architecture Partners",
-            ClientEngagementTitle = "Northwind Corp — architecture review board packet (sample)"
+            FirmDisplayName = "Harbor Architecture Partners",
+            ClientEngagementTitle = "Retail Checkout Co — architecture review board packet (sample)"
         };
 
     /// <summary>Fully populated sections with fictitious consultant / client names.</summary>
@@ -26,16 +26,16 @@ internal static class ArchitectureReviewBoardMarketingSampleModels
         return new ArchitectureReviewBoardExportDocumentModel
         {
             ReviewId = Guid.Parse("a1111111-1111-1111-1111-111111111111"),
-            RunId = "northwind-demo-review-run-001",
-            RequestId = "req-contoso-northwind-8842",
-            SystemName = "Northwind Corp — regulated commerce platform",
+            RunId = "retail-demo-review-run-001",
+            RequestId = "req-retail-checkout-8842",
+            SystemName = "Retail Checkout Co — regulated commerce platform",
             ManifestVersion = "mv-sample-2026-05",
             ExecutiveSummary =
-                "Contoso Architecture Partners assessed Northwind Corp's regulated commerce architecture after finalize review of the committed architecture snapshot. "
+                "Harbor Architecture Partners assessed Retail Checkout Co's regulated commerce architecture after finalize review of the committed architecture snapshot. "
                 + "The engagement confirms traceable evidence, recorded architecture decisions, and actionable follow-ups suitable for board readout.",
             SystemOverviewBullets =
             [
-                "Architecture snapshot covers «Northwind Corp — regulated commerce platform» with representative services and datastores for the pilot boundary.",
+                "Architecture snapshot covers «Retail Checkout Co — regulated commerce platform» with representative services and datastores for the pilot boundary.",
                 "Governance metadata reflects sample risk and compliance posture used only for demonstration.",
                 "Compliance tags and constraints are illustrative — replace with tenant-backed policy packs in production reviews."
             ],
@@ -45,7 +45,7 @@ internal static class ArchitectureReviewBoardMarketingSampleModels
                 {
                     Title = "Request narrative",
                     Detail =
-                        "Northwind seeks to modernize checkout while preserving PCI isolation boundaries and regional residency commitments.",
+                        "Retail Checkout Co seeks to modernize checkout while preserving PCI isolation boundaries and regional residency commitments.",
                     Reference = "SAMPLE-RQ-01"
                 },
                 new ArchitectureReviewBoardExportEvidenceItem

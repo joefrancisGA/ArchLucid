@@ -28,13 +28,13 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.Application.Bootstrap;
 
 /// <summary>
-///     Idempotent seed for the Contoso Retail Modernization **trusted baseline** (two committed runs, governance workflow,
+///     Idempotent seed for the Retail Checkout Modernization **trusted baseline** (two committed runs, governance workflow,
 ///     activations).
 /// </summary>
 /// <remarks>
 ///     Persists via <c>ArchLucid.Persistence</c> repositories. **Authority-only after ADR 0030 PR A3 (2026-04-24):**
 ///     each demo run is inserted into <c>dbo.Runs</c> via <see cref = "IRunRepository.SaveAsync"/> (project slug
-///     <c>Contoso Retail Platform</c>, matching system-name-as-project-id from coordinator ingestion mapping).
+///     <c>Retail Checkout Platform</c>, matching system-name-as-project-id from coordinator ingestion mapping).
 ///     Committed manifest bodies AND decision traces are written through
 ///     <see cref = "IAuthorityCommittedManifestChainWriter"/> in a single FK-chain insert
 ///     (Snapshot rows + GoldenManifest + AuthorityDecisionTrace). The previous
@@ -129,7 +129,7 @@ public sealed class DemoSeedService(
         await EnsureCreatedArchitecturePackageSampleAsync(scope, cancellationToken);
 
         if (logger.IsEnabled(LogLevel.Information))
-            logger.LogInformation("Demo seed completed (Contoso Retail Modernization). Runs: {Baseline}, {Hardened}.", demo.RunBaseline, demo.RunHardened);
+            logger.LogInformation("Demo seed completed (Retail Checkout Modernization). Runs: {Baseline}, {Hardened}.", demo.RunBaseline, demo.RunHardened);
     }
 
     /// <inheritdoc/>
@@ -151,7 +151,7 @@ public sealed class DemoSeedService(
 
         await EnsureTrialWelcomeRequestAsync(requestId, cancellationToken);
         string runId = welcomeRunGuid.ToString("D");
-        const string systemName = "Contoso Online Store";
+        const string systemName = "Retail Online Store";
         RunRecord authorityRow = new()
         {
             TenantId = scope.TenantId,
@@ -295,7 +295,7 @@ public sealed class DemoSeedService(
                     Name = "Executive architecture analysis (trial welcome)",
                     Format = "Markdown",
                     Content =
-                        "# Contoso Online Store — Azure migration readout\n\n"
+                        "# Retail Online Store — Azure migration readout\n\n"
                         + "This sample summarizes topology, cost posture, and compliance signals seeded for trial onboarding. "
                         + "Use it to see how ArchLucid packages findings with a committed manifest and artifact bundle.",
                     ContentHash = "sha256:trial-welcome-analysis-report-v1",
@@ -335,7 +335,7 @@ public sealed class DemoSeedService(
         {
             RequestId = requestId,
             Description = TrialWelcomeArchitectureBriefText,
-            SystemName = "Contoso Online Store",
+            SystemName = "Retail Online Store",
             Environment = "prod",
             CloudProvider = CloudProvider.Azure,
             Constraints =
@@ -496,7 +496,7 @@ public sealed class DemoSeedService(
         return new GoldenManifest
         {
             RunId = runId,
-            SystemName = "Contoso Online Store",
+            SystemName = "Retail Online Store",
             Services = services,
             Datastores = datastores,
             Relationships = relationships,
@@ -577,7 +577,7 @@ public sealed class DemoSeedService(
     }
 
     private const string TrialWelcomeArchitectureBriefText =
-        "Contoso Online Store is retiring a decade-old monolith that still serves catalog search, cart, checkout, and payment handoff from shared VMs. "
+        "Retail Online Store is retiring a decade-old monolith that still serves catalog search, cart, checkout, and payment handoff from shared VMs. "
         + "Leadership chose Azure for elastic scale ahead of peak holidays. The target exposes a React storefront on Azure Static Web Apps behind Azure Front Door with regional WAF rules, OWASP defaults, and bot management. "
         + "A Node commerce BFF runs on Azure Container Apps inside a dedicated spoke, calling catalog and order microservices that are also on Container Apps with workload identities to Azure SQL and Redis. "
         + "Checkout never persists payment cards; instead a payment adapter integrates with an external processor over private connectivity and Key Vault–backed secrets. "
@@ -594,8 +594,8 @@ public sealed class DemoSeedService(
         ArchitectureRequest request = new()
         {
             RequestId = demo.RequestId,
-            Description = "Contoso Retail modernization — migrate monolith checkout to Azure with PCI-aware boundaries.",
-            SystemName = "Contoso Retail Platform",
+            Description = "Retail modernization — migrate monolith checkout to Azure with PCI-aware boundaries.",
+            SystemName = "Retail Checkout Platform",
             Environment = "prod",
             CloudProvider = CloudProvider.Azure,
             Constraints = ["Minimize public ingress", "Retain existing payment processor integration"]
@@ -624,11 +624,11 @@ public sealed class DemoSeedService(
             WorkspaceId = scope.WorkspaceId,
             ScopeProjectId = scope.ProjectId,
             RunId = authorityRunId,
-            ProjectId = "Contoso Retail Platform",
+            ProjectId = "Retail Checkout Platform",
             Description =
                 isHardened
-                    ? "Demo — Contoso retail hardened manifest (trusted baseline seed)."
-                    : "Demo — Contoso retail baseline manifest (trusted baseline seed).",
+                    ? "Demo — Retail hardened manifest (trusted baseline seed)."
+                    : "Demo — Retail baseline manifest (trusted baseline seed).",
             CreatedUtc = DemoUtc,
             ArchitectureRequestId = demo.RequestId,
             LegacyRunStatus = nameof(ArchitectureRunStatus.Created),
@@ -642,9 +642,9 @@ public sealed class DemoSeedService(
             AuthorityDemoChainIds.GraphSnapshot(authorityRunId), AuthorityDemoChainIds.FindingsSnapshot(authorityRunId),
             AuthorityDemoChainIds.DecisionTrace(authorityRunId));
         AuthorityManifestPersistResult authorityChain = await _authorityCommittedManifestChainWriter.PersistCommittedChainAsync(scope, authorityRunId,
-            "Contoso Retail Platform", manifest, chainKeying, DemoUtc, richSeed, cancellationToken);
+            "Retail Checkout Platform", manifest, chainKeying, DemoUtc, richSeed, cancellationToken);
         await AuthorityCommittedChainDurableAudit.TryLogAsync(_auditService, scopeContextProvider, _actorContext, logger, authorityRunId,
-            "Contoso Retail Platform", authorityChain, "demo-seed", richSeed, cancellationToken);
+            "Retail Checkout Platform", authorityChain, "demo-seed", richSeed, cancellationToken);
         // Decision-trace persistence happens inside PersistCommittedChainAsync above (AuthorityDecisionTrace
         // FK-chain row keyed by chainKeying.DecisionTraceId). The legacy second write to dbo.DecisionTraces
         // via ICoordinatorDecisionTraceRepository was removed in ADR 0030 PR A3 (2026-04-24) along with the
@@ -720,7 +720,7 @@ public sealed class DemoSeedService(
                     ? "Proposed hardened retail edge with WAF and private connectivity to payment dependencies."
                     : "Proposed consolidated App Service tier with direct SQL connectivity for faster initial rollout."
             ],
-            EvidenceRefs = ["contoso-policy-retail-001"],
+            EvidenceRefs = ["retail-policy-001"],
             Confidence = isHardened ? 0.88 : 0.72,
             Findings = [],
             ProposedChanges = null,
@@ -803,7 +803,7 @@ public sealed class DemoSeedService(
             return new GoldenManifest
             {
                 RunId = runId,
-                SystemName = "Contoso Retail Platform",
+                SystemName = "Retail Checkout Platform",
                 Services = services,
                 Datastores = datastores,
                 Relationships = relationships,
@@ -847,7 +847,7 @@ public sealed class DemoSeedService(
         return new GoldenManifest
         {
             RunId = runId,
-            SystemName = "Contoso Retail Platform",
+            SystemName = "Retail Checkout Platform",
             Services = services,
             Datastores = datastores,
             Relationships = relationships,
@@ -877,8 +877,8 @@ public sealed class DemoSeedService(
                 SourceEnvironment = GovernanceEnvironment.Dev,
                 TargetEnvironment = GovernanceEnvironment.Test,
                 Status = GovernanceApprovalStatus.Approved,
-                RequestedBy = "demo.architect@contoso.com",
-                ReviewedBy = "demo.reviewer@contoso.com",
+                RequestedBy = "demo.architect@example.com",
+                ReviewedBy = "demo.reviewer@example.com",
                 RequestComment = "Promote hardened retail manifest to test for integration validation.",
                 ReviewComment = "Approved — controls and WAF requirements satisfied in manifest.",
                 RequestedUtc = DemoUtc,
@@ -899,7 +899,7 @@ public sealed class DemoSeedService(
                 ManifestVersion = demo.ManifestHardened,
                 SourceEnvironment = GovernanceEnvironment.Dev,
                 TargetEnvironment = GovernanceEnvironment.Test,
-                PromotedBy = "demo.release@contoso.com",
+                PromotedBy = "demo.release@example.com",
                 PromotedUtc = DemoUtc.AddHours(3),
                 ApprovalRequestId = demo.ApprovalRequest,
                 Notes = "Demo promotion after approval (trusted baseline seed)."
@@ -935,12 +935,65 @@ public sealed class DemoSeedService(
     private async Task TryRepairSeededRunDescriptionAsync(RunRecord run, CancellationToken cancellationToken)
     {
         string? repairedDescription = Utf8MojibakeRepair.RepairOptional(run.Description);
+        repairedDescription = StripRetiredDemoOrgBranding(repairedDescription);
+        string repairedProjectId = StripRetiredDemoOrgBranding(run.ProjectId) ?? run.ProjectId;
 
-        if (repairedDescription == run.Description)
+        bool descriptionChanged = !string.Equals(repairedDescription, run.Description, StringComparison.Ordinal);
+        bool projectChanged = !string.Equals(repairedProjectId, run.ProjectId, StringComparison.Ordinal);
+
+        if (!descriptionChanged && !projectChanged)
             return;
 
-        run.Description = repairedDescription;
+        if (descriptionChanged)
+            run.Description = repairedDescription;
+
+        if (projectChanged)
+            run.ProjectId = repairedProjectId;
+
         await _runRepository.UpdateAsync(run, cancellationToken);
+    }
+
+    /// <summary>
+    ///     M-135 / TB-982: Contoso/Northwind were retired from buyer-facing demo labels. Re-seed repairs existing rows
+    ///     without rewriting stable GUIDs or request ids.
+    /// </summary>
+    private static string? StripRetiredDemoOrgBranding(string? value)
+    {
+        if (string.IsNullOrEmpty(value))
+            return value;
+
+        string next = value;
+        next = next.Replace(
+            "Demo — Contoso retail hardened manifest (trusted baseline seed).",
+            "Demo — Retail hardened manifest (trusted baseline seed).",
+            StringComparison.Ordinal);
+        next = next.Replace(
+            "Demo — Contoso retail baseline manifest (trusted baseline seed).",
+            "Demo — Retail baseline manifest (trusted baseline seed).",
+            StringComparison.Ordinal);
+        next = next.Replace("Contoso Retail Platform", "Retail Checkout Platform", StringComparison.Ordinal);
+        next = next.Replace("Contoso Online Store", "Retail Online Store", StringComparison.Ordinal);
+        next = next.Replace("Contoso Cloud Platform", "Cloud Platform", StringComparison.Ordinal);
+        next = next.Replace(
+            "Contoso Retail modernization — migrate monolith checkout to Azure with PCI-aware boundaries.",
+            "Retail modernization — migrate monolith checkout to Azure with PCI-aware boundaries.",
+            StringComparison.Ordinal);
+        next = next.Replace(
+            "Northwind Architects — Workspace A Product Tour (synthetic Contoso Cloud Platform review).",
+            "Product Tour — Workspace A (synthetic Cloud Platform review).",
+            StringComparison.Ordinal);
+        next = next.Replace(
+            "Northwind Architects — Workspace A Product Tour (synthetic Cloud Platform review).",
+            "Product Tour — Workspace A (synthetic Cloud Platform review).",
+            StringComparison.Ordinal);
+        next = next.Replace(
+            "Northwind Copilot RAG platform — born-governed created architecture package (synthetic guided-intake sample).",
+            "Enterprise Copilot RAG platform — born-governed created architecture package (synthetic guided-intake sample).",
+            StringComparison.Ordinal);
+        next = next.Replace("Northwind.Copilot.RagPlatform", "Enterprise.Copilot.RagPlatform", StringComparison.Ordinal);
+        next = next.Replace("Northwind Copilot RAG Platform", "Enterprise Copilot RAG Platform", StringComparison.Ordinal);
+
+        return next;
     }
 
     private static void StampGovernanceScope(ScopeContext scope, GovernanceApprovalRequest row)
@@ -1015,8 +1068,8 @@ public sealed class DemoSeedService(
             WorkspaceId = scope.WorkspaceId,
             ScopeProjectId = scope.ProjectId,
             RunId = runGuid,
-            ProjectId = "Contoso Cloud Platform",
-            Description = "Northwind Architects — Workspace A Product Tour (synthetic Contoso Cloud Platform review).",
+            ProjectId = "Cloud Platform",
+            Description = "Product Tour — Workspace A (synthetic Cloud Platform review).",
             CreatedUtc = utc,
             ArchitectureRequestId = requestId,
             LegacyRunStatus = nameof(ArchitectureRunStatus.Created),
@@ -1047,9 +1100,9 @@ public sealed class DemoSeedService(
             Claims =
             [
                 "Synthetic APIM + ACA + Cosmos + KV topology aligned to seeded evidence attachments.",
-                "Northwind engagement shell reviews Contoso modernization boundaries without invoking customer payloads.",
+                "Product Tour engagement shell reviews platform modernization boundaries without invoking customer payloads.",
             ],
-            EvidenceRefs = ["northwind-tour-overview"],
+            EvidenceRefs = ["product-tour-overview"],
             Confidence = 0.9,
             Findings = [],
             ProposedChanges = null,
@@ -1065,12 +1118,12 @@ public sealed class DemoSeedService(
         AuthorityCommittedChainSeedCustomization customization = ProductTourWorkspaceSeed.BuildCustomization(runGuid,
             AuthorityDemoChainIds.GraphSnapshot(runGuid), AuthorityDemoChainIds.ContextSnapshot(runGuid), utc);
 
-        AuthorityManifestPersistResult persisted = await _authorityCommittedManifestChainWriter.PersistCommittedChainAsync(scope, runGuid, "Contoso Cloud Platform",
+        AuthorityManifestPersistResult persisted = await _authorityCommittedManifestChainWriter.PersistCommittedChainAsync(scope, runGuid, "Cloud Platform",
             manifest, chainIds, utc, richFindingsAndGraph: true, cancellationToken, connection: null, transaction: null, committedFindingsOverride: findings,
             seedCustomization: customization);
 
         await AuthorityCommittedChainDurableAudit.TryLogAsync(_auditService, _scopeContextProvider, _actorContext, logger, runGuid,
-            "Contoso Cloud Platform", persisted, "product-tour-demo-seed", richFindingsAndGraph: true, cancellationToken);
+            "Cloud Platform", persisted, "product-tour-demo-seed", richFindingsAndGraph: true, cancellationToken);
 
         Guid bundleId = DemoTourWorkspaceIds.ArtifactBundleId(runGuid);
         ArtifactBundle bundle = new()
@@ -1092,12 +1145,12 @@ public sealed class DemoSeedService(
                     ManifestId = persisted.GoldenManifestId,
                     CreatedUtc = utc,
                     ArtifactType = ArtifactType.ArchitectureNarrative,
-                    Name = "northwind-architecture-review-tour-sample.md",
+                    Name = "product-tour-architecture-review-sample.md",
                     Format = "text/markdown",
                     Content =
                         "# Architecture review tour — synthetic export scaffold\n\n"
-                        + "**Reviewer firm:** Northwind Architects (fabricated)\\n\\n"
-                        + "**Subject system:** Contoso Cloud Platform (synthetic modernization narrative)\\n\\n"
+                        + "**Reviewer firm:** Product Tour reviewer (fabricated)\\n\\n"
+                        + "**Subject system:** Cloud Platform (synthetic modernization narrative)\\n\\n"
                         + "Demonstrates how evaluators finalize a workspace and initiate export without mutating seeded authority rows.",
                     ContentHash = "sha256:product-tour-export-seed-v1",
                     Metadata = new Dictionary<string, string> { ["workspace"] = "product-tour" },
@@ -1127,7 +1180,7 @@ public sealed class DemoSeedService(
         await EnsureNorthwindTourExportStubAsync(runGuid, scope.TenantId, cancellationToken);
 
         if (logger.IsEnabled(LogLevel.Information))
-            logger.LogInformation("Northwind Product Tour Workspace A seeded ({RunId}).", runGuid);
+            logger.LogInformation("Product Tour Workspace A seeded ({RunId}).", runGuid);
     }
 
     private async Task EnsureArchitectureRequestNorthwindTourAsync(string requestId, CancellationToken cancellationToken)
@@ -1140,9 +1193,9 @@ public sealed class DemoSeedService(
         {
             RequestId = requestId,
             Description =
-                "Northwind Architects (consultant) conducts a fabricated architecture review engagement for "
-                + "the Contoso Cloud Platform modernization backlog — onboarding Product Tour storyline only.",
-            SystemName = "Contoso Cloud Platform",
+                "A fabricated Product Tour reviewer conducts a synthetic architecture review engagement for "
+                + "the Cloud Platform modernization backlog — onboarding Product Tour storyline only.",
+            SystemName = "Cloud Platform",
             Environment = "prod",
             CloudProvider = CloudProvider.Azure,
             Constraints =
@@ -1170,7 +1223,7 @@ public sealed class DemoSeedService(
             RunId = runGuid.ToString("N"),
             ExportType = "ArchitectureAnalysis",
             Format = "Markdown",
-            FileName = "northwind-architecture-review-tour-sample.md",
+            FileName = "product-tour-architecture-review-sample.md",
             TemplateProfile = "trial",
             TemplateProfileDisplayName = "Buyer-safe tour export",
             WasAutoSelected = false,
@@ -1479,7 +1532,7 @@ public sealed class DemoSeedService(
         string costResultId = $"result-created-sample-cost-{demoSuffix}";
         string compResultId = $"result-created-sample-comp-{demoSuffix}";
         string criticResultId = $"result-created-sample-critic-{demoSuffix}";
-        const string systemName = "Northwind.Copilot.RagPlatform";
+        const string systemName = "Enterprise.Copilot.RagPlatform";
 
         RunRecord row = new()
         {
@@ -1488,7 +1541,7 @@ public sealed class DemoSeedService(
             ScopeProjectId = scope.ProjectId,
             RunId = runGuid,
             ProjectId = systemName,
-            Description = "Northwind Copilot RAG platform — born-governed created architecture package (synthetic guided-intake sample).",
+            Description = "Enterprise Copilot RAG platform — born-governed created architecture package (synthetic guided-intake sample).",
             CreatedUtc = utc,
             ArchitectureRequestId = requestId,
             LegacyRunStatus = nameof(ArchitectureRunStatus.Created),
@@ -1681,12 +1734,12 @@ public sealed class DemoSeedService(
                     ManifestId = persisted.GoldenManifestId,
                     CreatedUtc = utc,
                     ArtifactType = ArtifactType.ArchitectureNarrative,
-                    Name = "northwind-copilot-created-package-sample.md",
+                    Name = "enterprise-copilot-created-package-sample.md",
                     Format = "text/markdown",
                     Content =
                         "# Created architecture package — synthetic export scaffold\n\n"
-                        + "**Organization:** Northwind Traders (fabricated)\\n\\n"
-                        + "**System:** Northwind.Copilot.RagPlatform\\n\\n"
+                        + "**Organization:** Enterprise sample (fabricated)\\n\\n"
+                        + "**System:** Enterprise.Copilot.RagPlatform\\n\\n"
                         + "Demonstrates a born-governed package produced from guided intake — findings, manifest, and export without a separate review pass.",
                     ContentHash = "sha256:created-sample-export-seed-v1",
                     Metadata = new Dictionary<string, string> { ["workspace"] = "created-sample" },
@@ -1728,9 +1781,9 @@ public sealed class DemoSeedService(
         {
             RequestId = requestId,
             Description =
-                "Northwind Traders (fictional) internal copilot over corporate docs — APIM, Azure OpenAI, AI Search RAG, "
+                "Enterprise sample (fictional) internal copilot over corporate docs — APIM, Azure OpenAI, AI Search RAG, "
                 + "content safety, and prompt governance. Born-governed created package sample only.",
-            SystemName = "Northwind.Copilot.RagPlatform",
+            SystemName = "Enterprise.Copilot.RagPlatform",
             Environment = "prod",
             CloudProvider = CloudProvider.Azure,
             RequestSource = "draft-intake",
@@ -1759,7 +1812,7 @@ public sealed class DemoSeedService(
             RunId = runGuid.ToString("N"),
             ExportType = "ArchitectureAnalysis",
             Format = "Markdown",
-            FileName = "northwind-copilot-created-package-sample.md",
+            FileName = "enterprise-copilot-created-package-sample.md",
             TemplateProfile = "trial",
             TemplateProfileDisplayName = "Born-governed created package export",
             WasAutoSelected = false,
@@ -1786,7 +1839,7 @@ public sealed class DemoSeedService(
     }
 
     /// <summary>
-    ///     Trusted-baseline Contoso fixtures on the canonical default tenant stay durable; guest-tenant demo seeds are
+    ///     Trusted-baseline Retail Checkout fixtures on the canonical default tenant stay durable; guest-tenant demo seeds are
     ///     sample data eligible for OS-1b auto-purge.
     /// </summary>
     private static bool ShouldMarkSeededRunAsSample(Guid tenantId) => tenantId != ScopeIds.DefaultTenant;
@@ -1805,7 +1858,7 @@ public sealed class DemoSeedService(
             RunId = demo.RunBaseline,
             ExportType = "ArchitectureAnalysis",
             Format = "Markdown",
-            FileName = "contoso-baseline-architecture.md",
+            FileName = "retail-baseline-architecture.md",
             TemplateProfile = "internal",
             TemplateProfileDisplayName = "Internal Technical Review",
             WasAutoSelected = false,

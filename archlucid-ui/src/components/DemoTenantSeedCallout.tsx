@@ -12,7 +12,7 @@ type DemoTenantSeedCalloutProps = {
 
 const DEFAULT_TITLE = "See the executive ROI dashboard now";
 const DEFAULT_DESCRIPTION =
-  "Load the Contoso Retail sample workspace — committed reviews, findings, and portfolio savings populate instantly for pilot walkthroughs.";
+  "Load the Retail baseline sample workspace — committed reviews, findings, and portfolio savings populate instantly for pilot walkthroughs.";
 
 /** Front-and-center demo seed CTA for empty tenant surfaces (improvement #2). */
 export function DemoTenantSeedCallout({

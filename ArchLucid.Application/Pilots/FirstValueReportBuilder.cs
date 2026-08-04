@@ -153,7 +153,7 @@ public sealed class FirstValueReportBuilder(
         if (deltas.IsDemoTenant)
         {
             sb.AppendLine("> " + DemoTenantBanner +
-                          " The numbers below come from the seeded Contoso Retail Modernization dataset and MUST NOT be quoted as a real-customer outcome.");
+                          " The numbers below come from the seeded Retail Checkout Modernization demo dataset and MUST NOT be quoted as a real-customer outcome.");
             sb.AppendLine();
         }
 

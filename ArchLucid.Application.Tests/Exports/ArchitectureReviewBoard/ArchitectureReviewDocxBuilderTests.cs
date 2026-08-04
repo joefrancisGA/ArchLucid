@@ -21,7 +21,7 @@ public sealed class ArchitectureReviewDocxBuilderTests
             ReviewId = Guid.Parse("a1111111-1111-1111-1111-111111111111"),
             RunId = "run-1",
             RequestId = "req-1",
-            SystemName = "Contoso Claims",
+            SystemName = "Claims Intake Platform",
             ManifestVersion = "mv-9",
             ExecutiveSummary = "Pilot outcome stable.",
             SystemOverviewBullets = ["Service A orchestrates intake.", "Data tier uses regional replicas."],
@@ -54,7 +54,7 @@ public sealed class ArchitectureReviewDocxBuilderTests
 
         WhitelabelConfiguration whitelabel = new()
         {
-            FirmDisplayName = "Northwind Partners",
+            FirmDisplayName = "Harbor Advisory",
             ClientEngagementTitle = "ARB — Payments modernization"
         };
 
@@ -68,7 +68,7 @@ public sealed class ArchitectureReviewDocxBuilderTests
         footer.Should().NotBeNull();
         string footerXml = footer!.Footer.OuterXml;
 
-        footerXml.Should().Contain("Prepared by Northwind Partners using ArchLucid");
+        footerXml.Should().Contain("Prepared by Harbor Advisory using ArchLucid");
     }
 
     [Fact]

@@ -53,10 +53,10 @@ export const ACCELERATOR_WIZARD_PRESETS: Readonly<Record<AcceleratorPackId, Part
     policyReferences: ["starter:regulated-saas-soc"],
   },
   "ai-llm-workload": {
-    systemName: "Northwind.Copilot.RagPlatform",
+    systemName: "Enterprise.Copilot.RagPlatform",
     environment: "prod",
     description:
-      "Northwind Traders (fictional) ships an internal copilot over corporate docs: Azure API Management in front of Azure OpenAI chat completion, RAG from Azure AI Search with private endpoints, optional tool-calling to a line-of-business API, and redacted audit logging — buyers ask about data residency, content safety hooks, and who can change system prompts.",
+      "Enterprise sample (fictional) ships an internal copilot over corporate docs: Azure API Management in front of Azure OpenAI chat completion, RAG from Azure AI Search with private endpoints, optional tool-calling to a line-of-business API, and redacted audit logging — buyers ask about data residency, content safety hooks, and who can change system prompts.",
     constraints: [
       "All inference and search data planes use private connectivity from the application VNet; no public Azure OpenAI keys in clients",
       "System prompts and tool manifests change only through approved pipeline; emergency rollback path documented",
@@ -114,10 +114,10 @@ export const ACCELERATOR_WIZARD_PRESETS: Readonly<Record<AcceleratorPackId, Part
     policyReferences: ["starter:azure-cost-governance"],
   },
   "healthcare-data-workflow": {
-    systemName: "Contoso.Clinical.DataHub",
+    systemName: "Clinical.DataHub",
     environment: "prod",
     description:
-      "Contoso Clinical (fictional) ingests HL7v2 and FHIR messages into an Azure analytics hub: ingestion Function Apps, validation, de-identified analytics lake, and a restricted clinical reporting API — PHI must stay in a segmented VNet with audit trails.",
+      "Clinical sample (fictional) ingests HL7v2 and FHIR messages into an Azure analytics hub: ingestion Function Apps, validation, de-identified analytics lake, and a restricted clinical reporting API — PHI must stay in a segmented VNet with audit trails.",
     constraints: [
       "No PHI in public internet paths; reporting API only over private link or front door with mTLS and IP allow lists for pilot narrative",
       "Immutable audit logs for ingestion and configuration changes (design intent — verify in your environment)",

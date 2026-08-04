@@ -91,7 +91,7 @@ export function WhyArchLucidSponsorPackBody(props: WhyArchLucidSponsorPackBodyPr
             <div>
               <dt className="text-al-text-secondary">Demo watermark</dt>
               <dd className="text-al-text-primary">
-                {sponsorPack.demoRunValueReportDelta.isDemoTenant ? "Contoso seeded" : "Live tenant"}
+                {sponsorPack.demoRunValueReportDelta.isDemoTenant ? "Demo seeded" : "Live tenant"}
               </dd>
             </div>
           </dl>
@@ -114,7 +114,7 @@ export function WhyArchLucidSponsorPackBody(props: WhyArchLucidSponsorPackBodyPr
         </div>
       ) : (
         <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          Value-report deltas are unavailable until the canonical demo review is present in-scope (seed Contoso Retail or run{" "}
+          Value-report deltas are unavailable until the canonical demo review is present in-scope (seed Retail baseline or run{" "}
           <code>pilot up</code>).
         </p>
       )}

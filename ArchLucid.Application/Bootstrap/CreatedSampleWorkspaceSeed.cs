@@ -12,14 +12,14 @@ using ArchLucid.KnowledgeGraph.Models;
 namespace ArchLucid.Application.Bootstrap;
 
 /// <summary>
-/// Synthetic <strong>created</strong> architecture package — goals/constraints guided intake for a Northwind internal
+/// Synthetic <strong>created</strong> architecture package — goals/constraints guided intake for an enterprise internal
 /// copilot RAG platform with born-governed findings, manifest, and export affordances.
 /// </summary>
 internal static class CreatedSampleWorkspaceSeed
 {
     internal const string ManifestVersion = "northwind-copilot-rag-created-v1-manifest";
 
-    private const string SystemName = "Northwind.Copilot.RagPlatform";
+    private const string SystemName = "Enterprise.Copilot.RagPlatform";
 
     private static readonly DateTime SeedUtc = new(2026, 4, 2, 10, 30, 0, DateTimeKind.Utc);
 
@@ -163,7 +163,7 @@ internal static class CreatedSampleWorkspaceSeed
                 ManifestVersion = ManifestVersion,
                 ParentManifestVersion = null,
                 ChangeDescription =
-                    "Synthetic Northwind Copilot RAG platform — born-governed created architecture package from guided intake.",
+                    "Synthetic Enterprise Copilot RAG platform — born-governed created architecture package from guided intake.",
                 DecisionTraceIds = [],
                 CreatedUtc = SeedUtc,
             },
@@ -355,7 +355,7 @@ internal static class CreatedSampleWorkspaceSeed
 
         return
         [
-            EvidenceDoc(seed, "copilot-architecture-brief.md", "Guided-intake goals and constraints for Northwind internal copilot."),
+            EvidenceDoc(seed, "copilot-architecture-brief.md", "Guided-intake goals and constraints for enterprise internal copilot."),
             EvidenceDoc(seed, "rag-retrieval-design-notes.md", "Hybrid retrieval and grounding posture for corporate document corpus."),
             EvidenceDoc(seed, "content-safety-checklist.json", "Responsible AI hooks and human-in-loop escalation matrix (synthetic)."),
             EvidenceDoc(seed, "private-endpoint-diagram.pdf", "Hub-spoke layout with private Azure OpenAI and AI Search endpoints."),
@@ -374,7 +374,7 @@ internal static class CreatedSampleWorkspaceSeed
             {
                 ["format"] = Path.GetExtension(filename).TrimStart('.').ToLowerInvariant(),
                 ["summary"] = summary,
-                ["firmLabel"] = "Northwind Traders (synthetic)",
+                ["firmLabel"] = "Enterprise sample (synthetic)",
                 ["clientSystem"] = SystemName,
             },
         };

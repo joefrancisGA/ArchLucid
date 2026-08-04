@@ -206,7 +206,7 @@ describe("SeeItMarketingBody", () => {
 
     expect(screen.getByTestId("see-it-demo-banner")).toHaveAttribute("data-see-it-universe", "contoso");
     expect(screen.getByTestId("see-it-demo-banner-title")).toHaveTextContent(
-      "Contoso Retail sample — public evaluation preview",
+      "Retail baseline sample — public evaluation preview",
     );
     expect(screen.getByTestId("see-it-demo-banner-title")).not.toHaveTextContent(/Healthcare claims/i);
   });

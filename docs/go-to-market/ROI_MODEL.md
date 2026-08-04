@@ -387,18 +387,18 @@ Former standalone: `docs/go-to-market/COST_GUIDE.md` → this section.
 
 ---
 
-## Synthetic Contoso Retail case study
+## Synthetic Retail Checkout case study
 
 > **SYNTHETIC — NOT REAL CUSTOMER DATA.** Fabricated for sales-enablement and DOCX examples. Do not cite figures as observed outcomes without replacing them with measured pilot data.
 
 **Audience:** Go-to-market and sales-enablement readers.  
-**Label:** SYNTHETIC · Contoso Retail Modernization (aligned with trusted-baseline demo seed).  
+**Label:** SYNTHETIC · Retail Checkout Modernization (aligned with trusted-baseline demo seed).  
 **Measurement companion:** [`PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md).  
 **Structured twin:** `SyntheticCaseStudyDataProvider` for DOCX and sample rendering.
 
 ### Executive summary
 
-Contoso Retail is modernizing checkout onto Azure while preserving its existing payment-processor integration. This **synthetic** vignette shows how the same measurement scaffolding used in `ValueReportRawMetrics` can tell a conservative before/after story: shorter review cycles, fewer re-review loops, and less manual evidence assembly.
+Retail Checkout Co is modernizing checkout onto Azure while preserving its existing payment-processor integration. This **synthetic** vignette shows how the same measurement scaffolding used in `ValueReportRawMetrics` can tell a conservative before/after story: shorter review cycles, fewer re-review loops, and less manual evidence assembly.
 
 ### Baseline (pre-ArchLucid) — illustrative
 
@@ -596,7 +596,7 @@ rg -n '^## \d{4}-\d{2}-\d{2} — ROI bulletin signed: Q[1-4]-\d{4}$' docs/CHANGE
 | [COMPETITIVE_LANDSCAPE.md](COMPETITIVE_LANDSCAPE.md) | Competitor capability and pricing context used in §9 |
 | [PILOT_SUCCESS_SCORECARD.md](PILOT_SUCCESS_SCORECARD.md) | Measurement framework for the pilot that validates this ROI model |
 | [`#worked-example-roi-contoso-sample`](#worked-example-roi-contoso-sample) | Contoso sample ROI artifact (PDF + MD mirror) — demo-derived only, not customer ROI |
-| [`#synthetic-contoso-retail-case-study`](#synthetic-contoso-retail-case-study) | Synthetic Contoso Retail before/after vignette (not real customer data) |
+| [`#synthetic-retail-checkout-case-study`](#synthetic-retail-checkout-case-study) | Synthetic Retail Checkout before/after vignette (not real customer data) |
 | [`#aggregate-roi-bulletin-template`](#aggregate-roi-bulletin-template) · [AGGREGATE_ROI_BULLETIN_TEMPLATE.md](AGGREGATE_ROI_BULLETIN_TEMPLATE.md) (alias) | Quarterly aggregate bulletin gate + draft skeleton |
 | [BUYER_PERSONAS.md](BUYER_PERSONAS.md) | Who presents this model and to whom |
 | [POSITIONING.md](POSITIONING.md) | Value pillars that map to the levers above |

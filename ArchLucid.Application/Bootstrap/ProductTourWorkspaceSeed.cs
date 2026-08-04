@@ -15,7 +15,7 @@ namespace ArchLucid.Application.Bootstrap;
 internal static class ProductTourWorkspaceSeed
 {
     private const string ManifestVersion = "northwind-product-tour-v1-manifest";
-    private const string SystemName = "Contoso Cloud Platform";
+    private const string SystemName = "Cloud Platform";
     private static readonly DateTime SeedUtc = new(2026, 2, 10, 15, 0, 0, DateTimeKind.Utc);
 
     internal static DateTime SnapshotUtc => SeedUtc;
@@ -146,7 +146,7 @@ internal static class ProductTourWorkspaceSeed
             {
                 ManifestVersion = ManifestVersion,
                 ParentManifestVersion = null,
-                ChangeDescription = "Synthetic Northwind Architects package — Workspace A self-demo tour.",
+                ChangeDescription = "Synthetic Product Tour package — Workspace A self-demo tour.",
                 DecisionTraceIds = [],
                 CreatedUtc = SeedUtc,
             },
@@ -310,7 +310,7 @@ internal static class ProductTourWorkspaceSeed
                 seed,
                 "northwind-azure-subscription-inventory.pdf",
                 "Synthetic inventory of Azure subscription 00000000-0000-0000-demo-000001 with App Service, APIM, Container Apps, Cosmos, Key Vault."),
-            EvidenceDoc(seed, "contoso-cloud-context-diagram-v3.pdf", "Landing zone topology overlay for synthetic Contoso workloads."),
+            EvidenceDoc(seed, "contoso-cloud-context-diagram-v3.pdf", "Landing zone topology overlay for synthetic Cloud Platform workloads."),
             EvidenceDoc(seed, "northwind-decision-record-dr0029.pdf", "Decision memo — segmented AI batch spoke egress patterns."),
             EvidenceDoc(seed, "security-questionnaire-responses-synthetic.xlsx", "Completed baseline questionnaire mapped to Pack B controls."),
             EvidenceDoc(seed, "responsible-ai-readiness-checklist.json", "Checklist excerpts aligned with Pack A (NIST AI RMF thematic mapping)."),
@@ -422,7 +422,7 @@ internal static class ProductTourWorkspaceSeed
             {
                 ["format"] = Path.GetExtension(filename).TrimStart('.').ToLowerInvariant(),
                 ["summary"] = summary,
-                ["firmLabel"] = "Northwind Architects (synthetic reviewer)",
+                ["firmLabel"] = "Product Tour reviewer (synthetic)",
                 ["clientSystem"] = SystemName,
             },
         };

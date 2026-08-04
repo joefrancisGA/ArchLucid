@@ -98,7 +98,7 @@ describe("buyer-polish-copy product concepts glossary (TB-469)", () => {
 describe("buyer-polish-copy Why ArchLucid sponsor pack source (TB-470)", () => {
   it("uses example review attribution without seeded framing", () => {
     expect(BUYER_WHY_ARCHLUCID_SPONSOR_PACK_SOURCE_LINE).toBe(
-      "Aggregated proof from the evidence pack service — paired with the example Contoso Retail review below.",
+      "Aggregated proof from the evidence pack service — paired with the example Retail baseline review below.",
     );
     expect(BUYER_WHY_ARCHLUCID_SPONSOR_PACK_SOURCE_LINE.toLowerCase()).not.toMatch(/\bseed(ed)?\b/);
   });

@@ -160,10 +160,10 @@ describe("WhyArchLucidPage (proof page snapshot)", () => {
       "data-why-archlucid-universe-fail-closed",
       "false",
     );
-    expect(screen.getByTestId("why-archlucid-universe-banner-title")).toHaveTextContent(/Contoso Retail/i);
-    expect(screen.getByTestId("why-archlucid-universe-lead")).toHaveTextContent(/Contoso Retail/i);
+    expect(screen.getByTestId("why-archlucid-universe-banner-title")).toHaveTextContent(/Retail baseline/i);
+    expect(screen.getByTestId("why-archlucid-universe-lead")).toHaveTextContent(/Retail baseline/i);
     expect(screen.getByTestId("why-archlucid-universe-lead")).not.toHaveTextContent(/Claims Intake/i);
-    expect(screen.getByTestId("why-archlucid-sponsor-pack-source")).toHaveTextContent(/Contoso Retail/i);
+    expect(screen.getByTestId("why-archlucid-sponsor-pack-source")).toHaveTextContent(/Retail baseline/i);
     expect(screen.getByTestId("why-archlucid-sponsor-pack-source")).not.toHaveTextContent(/Claims Intake/i);
   });
 
@@ -201,7 +201,7 @@ describe("WhyArchLucidPage (proof page snapshot)", () => {
     );
     expect(screen.getByTestId("why-archlucid-universe-lead")).not.toHaveTextContent(/Claims Intake/i);
     expect(screen.getByTestId("why-archlucid-sponsor-pack-source")).not.toHaveTextContent(/Claims Intake/i);
-    expect(screen.getByTestId("why-archlucid-sponsor-pack-source")).not.toHaveTextContent(/Contoso Retail/i);
+    expect(screen.getByTestId("why-archlucid-sponsor-pack-source")).not.toHaveTextContent(/Retail baseline/i);
   });
 
   it("shows API-problem callouts when downstream calls fail", async () => {

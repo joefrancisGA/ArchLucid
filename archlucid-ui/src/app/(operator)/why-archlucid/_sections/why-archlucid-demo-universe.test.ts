@@ -42,9 +42,9 @@ describe("why-archlucid-demo-universe (TB-1306)", () => {
     const lead = whyArchLucidUniverseWalkthroughLead("contoso");
     const sponsor = whyArchLucidSponsorPackSourceLine("contoso");
 
-    expect(lead.toLowerCase()).toContain("contoso retail");
+    expect(lead.toLowerCase()).toContain("retail baseline");
     expect(lead.toLowerCase()).not.toContain("claims intake");
-    expect(sponsor.toLowerCase()).toContain("contoso retail");
+    expect(sponsor.toLowerCase()).toContain("retail baseline");
     expect(sponsor.toLowerCase()).not.toContain("claims intake");
   });
 });

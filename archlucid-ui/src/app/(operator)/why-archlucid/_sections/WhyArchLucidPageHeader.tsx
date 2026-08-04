@@ -37,7 +37,7 @@ export function WhyArchLucidPageHeader(props: WhyArchLucidPageHeaderProps) {
         </p>
         {failClosed ? (
           <p className={cn("m-0 mt-1 text-xs", OPERATOR_TYPOGRAPHY.helper)}>
-            Claims Intake and Contoso Retail labels are withheld until the loaded demo review identity is unambiguous.
+            Claims Intake and Retail baseline labels are withheld until the loaded demo review identity is unambiguous.
             Refresh after seeding a consistent demo package.
           </p>
         ) : null}

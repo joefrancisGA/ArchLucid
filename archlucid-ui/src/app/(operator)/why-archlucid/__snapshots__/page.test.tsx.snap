@@ -25,14 +25,14 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
         class="font-semibold"
         data-testid="why-archlucid-universe-banner-title"
       >
-        Contoso Retail sample — pilot proof telemetry
+        Retail baseline sample — pilot proof telemetry
       </p>
     </div>
     <p
       class="text-[13px] font-normal leading-5 text-al-text-primary"
       data-testid="why-archlucid-universe-lead"
     >
-      See how ArchLucid turns architecture review into a governed decision package — executive summary, signed review record, evidence trail, governance approval, and audit record — using the Contoso Retail sample workspace as a walkthrough.
+      See how ArchLucid turns architecture review into a governed decision package — executive summary, signed review record, evidence trail, governance approval, and audit record — using the Retail baseline sample workspace as a walkthrough.
     </p>
   </header>
   <section
@@ -239,7 +239,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
         class="text-xs font-normal leading-[18px] text-al-text-secondary"
         data-testid="why-archlucid-sponsor-pack-source"
       >
-        Aggregated proof from the evidence pack service — paired with the example Contoso Retail review below.
+        Aggregated proof from the evidence pack service — paired with the example Retail baseline review below.
       </p>
     </div>
     <div
@@ -396,7 +396,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
             <dd
               class="text-al-text-primary"
             >
-              Contoso seeded
+              Demo seeded
             </dd>
           </div>
         </dl>
@@ -512,7 +512,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
         FirstValueReportBuilder
       </code>
        from 
-      the committed Contoso Retail demo review
+      the committed Retail baseline demo review
       .
     </p>
     <pre

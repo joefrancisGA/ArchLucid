@@ -934,9 +934,9 @@ export const BUYER_COMPARE_REVIEW_RECORD_DIFF_LOADING_BODY = "Fetching both revi
 export const BUYER_WHY_ARCHLUCID_SOURCES_LINE =
   "Aggregated sponsor-facing proof from measured ROI, sponsor evidence pack, value report, and aggregate explanation services.";
 
-/** Default matches Contoso Retail seed wired by `/why-archlucid` (TB-1306 Contoso-labeled-live). */
+/** Default matches Retail baseline seed wired by `/why-archlucid` (TB-1306 Contoso-labeled-live). */
 export const BUYER_WHY_ARCHLUCID_SPONSOR_PACK_SOURCE_LINE =
-  "Aggregated proof from the evidence pack service — paired with the example Contoso Retail review below.";
+  "Aggregated proof from the evidence pack service — paired with the example Retail baseline review below.";
 
 export const BUYER_AUDIT_ENTERPRISE_WORKSPACE_LEAD =
   "When your team is ready for tenant-backed governed reviews, procurement and workspace onboarding use a separate request flow.";

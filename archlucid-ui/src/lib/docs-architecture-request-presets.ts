@@ -8,12 +8,12 @@ import type { WizardFormValues } from "@/lib/wizard-schema";
 
 function tplCloudMigration(): Partial<WizardFormValues> {
   return {
-    systemName: "Contoso Order Management",
+    systemName: "Retail Order Management",
     environment: "Production",
     cloudProvider: "Azure",
     priorManifestVersion: "",
     description:
-      "Assess a lift-and-shift and selective replatform of the Contoso Order Management 3-tier web application from on-premises datacenters to Azure. Current state: IIS / .NET workloads, SQL Server on-prem clustering, Redis-like session/cache tier, file shares for batch drops. Target: Azure App Service (Linux or Windows containers) for web and API tiers, Azure SQL Database (Business Critical or General Purpose with zone redundancy where approved), Azure Cache for Redis for session/cache, private connectivity via Virtual Network integration and Private Link to PaaS. Business requires 99.95% availability for the storefront path during cutover windows, predictable monthly spend under stakeholder-approved limits, GDPR-aligned retention for EU customer subsets, baseline PCI-DSS segmentation for payment-adjacent components, TLS 1.2+ everywhere, encryption at rest for SQL and Redis, centralized secrets in Key Vault, and auditable deployment and change records.",
+      "Assess a lift-and-shift and selective replatform of the Retail Order Management 3-tier web application from on-premises datacenters to Azure. Current state: IIS / .NET workloads, SQL Server on-prem clustering, Redis-like session/cache tier, file shares for batch drops. Target: Azure App Service (Linux or Windows containers) for web and API tiers, Azure SQL Database (Business Critical or General Purpose with zone redundancy where approved), Azure Cache for Redis for session/cache, private connectivity via Virtual Network integration and Private Link to PaaS. Business requires 99.95% availability for the storefront path during cutover windows, predictable monthly spend under stakeholder-approved limits, GDPR-aligned retention for EU customer subsets, baseline PCI-DSS segmentation for payment-adjacent components, TLS 1.2+ everywhere, encryption at rest for SQL and Redis, centralized secrets in Key Vault, and auditable deployment and change records.",
     constraints: [
       "Minimum 99.95% SLA for storefront order placement path during phased migration windows",
       "Non-production aggregate monthly cloud spend capped per finance approval letter",
@@ -60,12 +60,12 @@ function tplCloudMigration(): Partial<WizardFormValues> {
 
 function tplMicroservices(): Partial<WizardFormValues> {
   return {
-    systemName: "Contoso Commerce Mesh",
+    systemName: "Retail Commerce Mesh",
     environment: "prod",
     cloudProvider: "Azure",
     priorManifestVersion: "",
     description:
-      "Review and harden a proposed event-driven microservices decomposition for Contoso's commerce platform on Azure. Five bounded contexts: catalog, cart, checkout, fulfillment notifications, and loyalty points accrual. Inter-service communication prefers asynchronous messaging via Azure Service Bus topics and subscriptions with idempotent handlers; Cosmos DB serves cart and loyalty write models with tunable consistency; Azure API Management fronts external mobile and partner B2B APIs with JWT validation, quotas, and revision-managed OpenAPI specs. Goal: clarify service boundaries, data ownership per aggregate, transactional outbox versus saga patterns for checkout, observability baseline (correlation IDs, metrics, alerting), poison-message handling, and graceful degradation paths when Cosmos or Service Bus throttle.",
+      "Review and harden a proposed event-driven microservices decomposition for a retail commerce platform on Azure. Five bounded contexts: catalog, cart, checkout, fulfillment notifications, and loyalty points accrual. Inter-service communication prefers asynchronous messaging via Azure Service Bus topics and subscriptions with idempotent handlers; Cosmos DB serves cart and loyalty write models with tunable consistency; Azure API Management fronts external mobile and partner B2B APIs with JWT validation, quotas, and revision-managed OpenAPI specs. Goal: clarify service boundaries, data ownership per aggregate, transactional outbox versus saga patterns for checkout, observability baseline (correlation IDs, metrics, alerting), poison-message handling, and graceful degradation paths when Cosmos or Service Bus throttle.",
     constraints: [
       "At-least-once delivery on Service Bus with idempotent consumers and DLQ playbook",
       "Cosmos partitioning strategy must avoid hot partitions on regional flash-sale traffic",
@@ -100,7 +100,7 @@ function tplMicroservices(): Partial<WizardFormValues> {
       "Defender CSPM alerts for overly permissive NSGs on spoke subnets hosting services",
       "PII minimized in telemetry; sampling rules documented for Checkout path",
     ],
-    policyReferences: ["Azure Well-Architected — microservices pillar checklist", "API versioning standard — Contoso EA"],
+    policyReferences: ["Azure Well-Architected — microservices pillar checklist", "API versioning standard — retail enterprise agreement"],
     documents: [],
     infrastructureDeclarations: [],
   };
@@ -210,7 +210,7 @@ export const documentationArchitectureRequestWizardPresets: WizardPreset[] = [
     id: "docs-architecture-requests-cloud-migration",
     label: "Cloud migration assessment",
     description:
-      "Contoso Order Management — 3-tier App Service, Azure SQL, Redis, SLA, GDPR/PCI segmentation, private endpoints.",
+      "Retail Order Management — 3-tier App Service, Azure SQL, Redis, SLA, GDPR/PCI segmentation, private endpoints.",
     values: tplCloudMigration(),
   },
   {

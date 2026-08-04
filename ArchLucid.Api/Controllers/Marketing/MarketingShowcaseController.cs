@@ -87,14 +87,14 @@ public sealed class MarketingShowcaseController(
 
         string lowered = trimmed.ToLowerInvariant();
 
-        if (lowered is "contoso-baseline" or "contoso-retail-baseline")
+        if (lowered is "contoso-baseline" or "contoso-retail-baseline" or "retail-baseline")
         {
             runId = ContosoRetailDemoIdentifiers.AuthorityRunBaselineId;
 
             return true;
         }
 
-        if (lowered is not ("contoso-hardened" or "contoso-retail-hardened"))
+        if (lowered is not ("contoso-hardened" or "contoso-retail-hardened" or "retail-hardened"))
             return trimmed.Length == 32 && IsHex32(trimmed) && Guid.TryParseExact(trimmed, "N", out runId);
         runId = ContosoRetailDemoIdentifiers.AuthorityRunHardenedId;
 
