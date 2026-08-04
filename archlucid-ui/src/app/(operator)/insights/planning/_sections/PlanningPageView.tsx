@@ -14,6 +14,7 @@ import { PlanningThemesTable } from "@/components/planning/PlanningThemesTable";
 import { Button } from "@/components/ui/button";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { IMPROVEMENT_PLANNING_PRIORITY_EXPLAIN } from "@/lib/planning-empty-orientation-copy";
 import {
   IMPROVEMENT_PLANNING_DEMO_DESCRIPTION,
   IMPROVEMENT_PLANNING_FAILURE_TRY_NEXT,
@@ -123,7 +124,8 @@ export function PlanningPageView(props: Props) {
 
       {m.empty && !m.loading && !m.refreshing ? <PlanningPageEmptyState /> : null}
 
-      {m.summary !== null ? (
+      {/* Empty path keeps CTA + orientation only — hide zero KPIs, empty shells, and export. */}
+      {m.summary !== null && !m.empty ? (
         <>
           <PlanningSummarySection summary={m.summary} generatedUtc={m.generatedUtc} />
 
@@ -149,11 +151,17 @@ export function PlanningPageView(props: Props) {
             <p className={cn("mt-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
               Action plans ranked by priority score. Open a plan for steps, owners, and supporting evidence.
             </p>
+            <p
+              className={cn("mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="planning-priority-explain"
+            >
+              {IMPROVEMENT_PLANNING_PRIORITY_EXPLAIN}
+            </p>
 
             {m.selectedThemeId !== null ? (
               <div
                 className={cn(
-                  "mb-3 flex flex-wrap items-center gap-3 rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2.5 dark:border-neutral-800",
+                  "mb-3 mt-3 flex flex-wrap items-center gap-3 rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2.5 dark:border-neutral-800",
                   OPERATOR_TYPOGRAPHY.body,
                 )}
                 role="status"
@@ -168,7 +176,9 @@ export function PlanningPageView(props: Props) {
               </div>
             ) : null}
 
-            <PlanningPlansTable plans={m.visiblePlans} themeTitleById={m.themeTitleById} />
+            <div className={m.selectedThemeId === null ? "mt-3" : undefined}>
+              <PlanningPlansTable plans={m.visiblePlans} themeTitleById={m.themeTitleById} />
+            </div>
           </section>
 
           <PlanningExportReadinessNote />

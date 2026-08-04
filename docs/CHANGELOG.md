@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-03 - UI: Digests Schedule Evidence chrome (DIS); retire mistaken SEX owner row
+
+`/digests?tab=schedule` ships DigestsScheduleEvidenceOrientationStrip (Sources + claim-discipline) on the Schedule tab, traffic Notes under Tab surface on canonical **DIS**, and honest Evidence score 48. Mistaken owner row **SEX** (reusing a retired settings-exec-digest ID) removed; Hit **0.1%** folded into **DIS** (Hit **0.12%**). Owner **DIS** path corrected to schedule; **DIX** restored for subscriptions. Schedule-config tab hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-03 - UI: Troubleshooting help Evidence chrome (HTX)
 
 /help/troubleshooting ships PageContextualHelpButton, Category-1 registry, Sources + claim-discipline orientation strip, traffic Notes under Help topic, and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.
@@ -157,11 +161,15 @@ Legacy `/inspect` bookmark row **RR** removed from the UI route traffic workbook
 
 /planning/plans/[planId] ships OperatorPageHeader with PageContextualHelp, Category-1 registry for /planning/plans, Sources follow-up strip + claim-discipline callout (derived plan, not a diligence trail), and enriched traffic Notes. Plan-detail launcher hard-caps higher Evidence; no CPA / third-party pen-test implication.
 
-## 2026-08-03 ï¿½ UI: Architecture digests Evidence chrome (DI)
+## 2026-08-03 — UI: Improvement planning empty-path composition (PLA)
+
+`/insights/planning` empty path no longer renders zero KPI cards, empty themes/plans shells, or export. Guided CTA plus maturity/outcome orientation and priority-score explain (no fabricated sample plans). Claim-discipline callout is dismissible with a residual honesty line. Traffic Notes + owner score 54/100; no CPA / third-party pen-test implication.
+
+## 2026-08-03 — UI: Architecture digests Evidence chrome (DI)
 
 `/digests` ships Sources follow-up strip + claim-discipline callout (scheduled summaries, not a diligence trail), Category-1 contextual-help registry (pre-existing), DigestsPageHeader help, and enriched traffic Notes. Digest hub launcher hard-caps higher Evidence; no CPA / third-party pen-test implication.
 
-## 2026-08-03 ï¿½ UI: Improvement planning Evidence chrome (PLA)
+## 2026-08-03 — UI: Improvement planning Evidence chrome (PLA)
 
 `/planning` ships Sources follow-up strip + claim-discipline callout (derived themes/plans, not a diligence trail), topic-map honesty (`how-it-works` / Improvement planning ? not Admin pilot-feedback mislabel), Category-1 contextual-help registry (pre-existing), and enriched traffic Notes. Aggregate planning launcher hard-caps higher Evidence; no CPA / third-party pen-test implication.
 

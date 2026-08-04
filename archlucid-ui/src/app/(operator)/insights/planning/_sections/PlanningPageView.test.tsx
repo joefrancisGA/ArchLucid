@@ -20,6 +20,10 @@ import {
   IMPROVEMENT_PLANNING_REFRESH_LABEL,
   IMPROVEMENT_PLANNING_THEMES_EMPTY_MESSAGE,
 } from "@/lib/planning-page-copy";
+import {
+  IMPROVEMENT_PLANNING_EMPTY_OUTCOME_TITLE,
+  IMPROVEMENT_PLANNING_PRIORITY_EXPLAIN,
+} from "@/lib/planning-empty-orientation-copy";
 
 vi.mock("@/components/planning/PlanningExportReadinessNote", () => ({
   PlanningExportReadinessNote: () => <aside data-testid="planning-export-section">{IMPROVEMENT_PLANNING_EXPORT_SECTION_TITLE}</aside>,
@@ -76,7 +80,72 @@ describe("PlanningPageView", () => {
       "href",
       "/internal/product-learning",
     );
-    expect(screen.getByText(IMPROVEMENT_PLANNING_THEMES_EMPTY_MESSAGE)).toBeInTheDocument();
-    expect(screen.getByText("No feedback signals captured yet")).toBeInTheDocument();
+    expect(screen.getByText(IMPROVEMENT_PLANNING_EMPTY_OUTCOME_TITLE)).toBeInTheDocument();
+    expect(screen.getByText(IMPROVEMENT_PLANNING_PRIORITY_EXPLAIN)).toBeInTheDocument();
+    expect(screen.queryByText(IMPROVEMENT_PLANNING_THEMES_EMPTY_MESSAGE)).not.toBeInTheDocument();
+    expect(screen.queryByText("No feedback signals captured yet")).not.toBeInTheDocument();
+    expect(screen.queryByText(IMPROVEMENT_PLANNING_EXPORT_SECTION_TITLE)).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Top improvement themes" })).not.toBeInTheDocument();
+  });
+
+  it("shows summary themes plans and priority explain when data exists", () => {
+    render(
+      <PlanningPageView
+        model={buildModel({
+          empty: false,
+          summary: {
+            generatedUtc: "2026-01-01T00:00:00.000Z",
+            themeCount: 1,
+            planCount: 1,
+            totalThemeEvidenceSignals: 3,
+            totalLinkedSignalsAcrossPlans: 2,
+            maxPlanPriorityScore: 42,
+          },
+          sortedThemes: [
+            {
+              themeId: "theme-1",
+              themeKey: "evidence-completeness",
+              title: "Evidence completeness",
+              summary: "Recurring gap",
+              evidenceSignalCount: 3,
+              affectedArtifactTypeOrWorkflowArea: "Reviews",
+              severityBand: "High",
+              distinctRunCount: 2,
+              derivationRuleVersion: "v1",
+              status: "Active",
+              createdUtc: "2026-01-01T00:00:00.000Z",
+            },
+          ],
+          sortedPlans: [
+            {
+              planId: "plan-1",
+              themeId: "theme-1",
+              title: "Improve evidence completeness",
+              summary: "Close the gap",
+              priorityScore: 42,
+              status: "Draft",
+              createdUtc: "2026-01-01T00:00:00.000Z",
+            },
+          ],
+          visiblePlans: [
+            {
+              planId: "plan-1",
+              themeId: "theme-1",
+              title: "Improve evidence completeness",
+              summary: "Close the gap",
+              priorityScore: 42,
+              status: "Draft",
+              createdUtc: "2026-01-01T00:00:00.000Z",
+            },
+          ],
+          themeTitleById: new Map([["theme-1", "Evidence completeness"]]),
+        })}
+      />,
+    );
+
+    expect(screen.getByRole("heading", { name: "Top improvement themes" })).toBeInTheDocument();
+    expect(screen.getByTestId("planning-priority-explain")).toHaveTextContent(IMPROVEMENT_PLANNING_PRIORITY_EXPLAIN);
+    expect(screen.getByTestId("planning-export-section")).toBeInTheDocument();
+    expect(screen.queryByText(IMPROVEMENT_PLANNING_EMPTY_TITLE)).not.toBeInTheDocument();
   });
 });

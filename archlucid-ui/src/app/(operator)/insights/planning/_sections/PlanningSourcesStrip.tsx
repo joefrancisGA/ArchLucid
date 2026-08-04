@@ -1,14 +1,15 @@
 import Link from "next/link";
 
 import {
-  PLANNING_CLAIM_DISCIPLINE,
   PLANNING_SOURCES,
   PLANNING_SOURCES_INTRO,
 } from "@/lib/planning-evidence-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
-/** Sources + claim discipline for `/planning` (PLA Evidence). */
+import { PlanningClaimDisciplineCallout } from "./PlanningClaimDisciplineCallout";
+
+/** Sources + claim discipline for `/insights/planning` (PLA Evidence). */
 export function PlanningSourcesStrip(): React.JSX.Element {
   return (
     <div className="mt-4 space-y-3" data-testid="planning-orientation">
@@ -37,13 +38,7 @@ export function PlanningSourcesStrip(): React.JSX.Element {
         </ul>
       </section>
 
-      <aside
-        className="rounded-md border border-amber-200/80 bg-amber-50/50 p-3 dark:border-amber-900/40 dark:bg-amber-950/20"
-        data-testid="planning-claim-discipline"
-      >
-        <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Derived plans only</h2>
-        <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>{PLANNING_CLAIM_DISCIPLINE}</p>
-      </aside>
+      <PlanningClaimDisciplineCallout />
     </div>
   );
 }
