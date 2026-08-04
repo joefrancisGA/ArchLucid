@@ -39,6 +39,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "alerts", label: "How alerts work" },
   },
   {
+    prefix: "/help/findings",
+    topic: { slug: "findings", label: "Findings" },
+  },
+  {
     prefix: "/help/cloud-connections/azure",
     topic: { slug: "cloud-connections-azure", label: "Connect Azure securely" },
   },

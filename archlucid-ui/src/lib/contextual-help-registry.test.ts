@@ -73,6 +73,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/how-it-works",
       "/help/troubleshooting",
       "/help/alerts",
+      "/help/findings",
       "/help/cloud-connections/azure",
       "/help/cloud-connections",
       "/administration/settings/users",
@@ -191,6 +192,11 @@ describe("contextual-help-registry (TB-733)", () => {
   it("resolves alerts help Category-1 help (HA)", () => {
     expect(contextualHelpForPathname("/help/alerts")?.whatIsThisPage).toContain("How alerts work");
     expect(contextualHelpForPathname("/help/alerts")?.whatToDoNext).toContain("alerts inbox");
+  });
+
+  it("resolves findings help Category-1 help (HFX)", () => {
+    expect(contextualHelpForPathname("/help/findings")?.whatIsThisPage).toContain("Findings");
+    expect(contextualHelpForPathname("/help/findings")?.whatToDoNext).toContain("findings queue");
   });
 
   it("resolves executive scorecard Category-1 help (ESX)", () => {

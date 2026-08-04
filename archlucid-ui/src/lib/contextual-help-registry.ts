@@ -476,6 +476,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/help/findings",
+    entry: {
+      whatIsThisPage:
+        "Findings — how architecture concerns are inspected, severity-ranked, and moved through governance resolution.",
+      whatToDoNext:
+        "Open the findings queue, search supporting evidence, or check the decision register for related outcomes.",
+      whyEmpty: "This guide is always available; live findings appear after reviews produce architecture concerns.",
+      whereToConfigurePrerequisite:
+        "Findings respect the workspace and project selected in the header switcher.",
+    },
+  },
+  {
     prefix: "/help/cloud-connections/azure",
     entry: {
       whatIsThisPage:
