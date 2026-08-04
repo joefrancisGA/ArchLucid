@@ -59,7 +59,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | ID | Path | Hit% | Scores | Weight | Deficit | Section | Notes |
 |----|------|------|--------|--------|---------|---------|-------|
 | RE | `/reviews` | 12% | 0 | 0 | 1200 | Core review | None |
-| RRE | `/reviews/[runId]` | 10.04% | 0 | 0 | 1004 | Core review | Review workspace detail. Absorbs former SRN hit share from retired legacy `/snapshot/[runId]` bookmark row (SnapshotPage still redirects here with readOnly=1; showcase Claims Intake spine). Canonical leave-behind UX. Does not imply CPA SOC 2 or third-party pen-test publication. |
+| RRE | `/reviews/[runId]` | 10.04% | 0 | 0 | 1004 | Core review | Review workspace detail. Absorbs former SRN hit share from retired legacy `/snapshot/[runId]` bookmark row (hard-retired — use `/architecture/reviews/{runId}?readOnly=1` leave-behind). Canonical leave-behind UX. Does not imply CPA SOC 2 or third-party pen-test publication. |
 | RRF | `/reviews/[runId]/findings/[findingId]` | 9% | 0 | 0 | 900 | Core review | None |
 | DSH | `/dashboard` | 8% | 0 | 0 | 800 | Core review | Deprecated operator bookmark — merged to canonical executive dashboard on **ARE** (`/architecture/executive-dashboard`, TB-608). |
 | ACB | `/auth/callback` | 5% | 0 | 0 | 500 | Auth | None |
@@ -141,7 +141,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | TXX | `/trust` | 0.1% | 0 | 0 | 10 | Marketing | Trust Center (Marketing) - MarketingTrustCenterBuyerBody with TrustCenterEvidenceOrientationStrip (evaluation Sources + claim-discipline: public assurance downloads only; not CPA SOC 2 / third-party pen-test unless linked artifact says so), public evidence pack + diligence contact. Not an operator PageContextualHelp surface. Does not imply CPA SOC 2 or third-party pen-test publication. Score 40/100 (2026-08-04) — marketing Trust Center hard-caps higher Evidence. |
 | AAX | `/admin/ai-usage-cost` | 0.08% | 0 | 0 | 8 | Admin | None |
 | AII | `/admin/integrations/itsm` | 0.08% | 0 | 0 | 8 | Admin | None |
-| DXX | `/demo` | 0.08% | 0 | 0 | 8 | Marketing | None |
+| DXX | `/demo` | 0.08% | 0 | 0 | 8 | Marketing | Demo entry (Marketing) - DemoEntryRedirect client shim with interim DemoEntryEvidenceOrientationStrip (Sources + claim-discipline) and Continue link while redirecting to CTO tour or home. Shareable entry redirect — not a signed-record Sources trail. Sibling DPX = /demo/preview. Does not imply CPA SOC 2 or third-party pen-test publication. Score 28/100 (2026-08-04) — redirect/shim hard-caps higher Evidence. |
 | GO | `/help/governance-approval` | 0.08% | 0 | 0 | 8 | Help topic | Specialty governance approval guide — HelpGovernanceApprovalGuideView with workflow stepper, role guides, status table, decision outcomes, and collapsed HelpGovernanceApprovalTechnicalReference. Featured help-center product tier (pdfStatus customer). Primary CTAs to /governance, /governance/dashboard, and /governance/findings. Related docs link to audit-trail not API contracts (TB-1250 / TB-1387). Not bare HelpTopicMarkdownView. |
 | HR | `/help/review-guide` | 0.08% | 0 | 0 | 8 | Help topic | None |
 | ISX | `/integrations/servicenow` | 0.08% | 0 | 0 | 8 | Integrations | None |

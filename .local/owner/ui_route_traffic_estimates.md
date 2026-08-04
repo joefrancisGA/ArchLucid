@@ -45,13 +45,12 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 
 ---
 
-**OVERALL WEIGHT SCORE:** 54.88%
+**OVERALL WEIGHT SCORE:** 54.91%
 
 ## Master table (score 0 first; then Deficit desc; ties A→Z by path)
 
 | ID | Path | Hit% | Scores | Weight | Deficit | Section | Notes |
 |----|------|------|--------|--------|---------|---------|-------|
-| DXX | `/demo` | 0.08% | 0 | 0 | 8 | Marketing | None |
 | GO | `/help/governance-approval` | 0.08% | 0 | 0 | 8 | Help topic | None |
 | HR | `/help/review-guide` | 0.08% | 0 | 0 | 8 | Help topic | Canon for wizard field-reference (`REVIEW_GUIDE.md`). Absorbs former HET (`/help/starting-reviews`) registry twin + HER (`/help/creating-runs`) alias chain (TB-1258 / TB-1643; 2026-08-03). |
 | ISX | `/integrations/servicenow` | 0.08% | 0 | 0 | 8 | Integrations | None |
@@ -237,6 +236,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | SEC | `/security-trust` | 0.1% | 40 | 4 | 6 | Marketing | Security & trust (Marketing) - MarketingSecurityTrustView with SecurityTrustEvidenceOrientationStrip (evaluation Sources + claim-discipline: engagement metadata only; not diligence package / CPA SOC 2 / third-party pen-test), assurance ladder + public/NDA CTAs. Not an operator PageContextualHelp surface. Does not imply CPA SOC 2 or third-party pen-test publication. Score 40/100 (2026-08-04) — marketing assurance page hard-caps higher Evidence. |
 | SPR | `/sponsor-report/roi-summary` | 0.12% | 50 | 6 | 6 | Sponsor report | Sponsor ROI summary report (canonical). Absorbs former VRX hit share from retired legacy `/value-report/roi` bookmark row (LegacyRoiSummaryRedirectPage still permanentRedirects here). Does not imply CPA SOC 2 or third-party pen-test publication. Score 50/100 — transferred from VRX Evidence hard-cap; hit share folded from VRX (2026-08-03). |
 | TXX | `/trust` | 0.1% | 40 | 4 | 6 | Marketing | Trust Center (Marketing) - MarketingTrustCenterBuyerBody with TrustCenterEvidenceOrientationStrip (evaluation Sources + claim-discipline: public assurance downloads only; not CPA SOC 2 / third-party pen-test unless linked artifact says so), public evidence pack + diligence contact. Not an operator PageContextualHelp surface. Does not imply CPA SOC 2 or third-party pen-test publication. Score 40/100 (2026-08-04) — marketing Trust Center hard-caps higher Evidence. |
+| DXX | `/demo` | 0.08% | 28 | 2.24 | 5.76 | Marketing | Demo entry (Marketing) - DemoEntryRedirect client shim with interim DemoEntryEvidenceOrientationStrip (Sources + claim-discipline) and Continue link while redirecting to CTO tour or home. Shareable entry redirect — not a signed-record Sources trail. Sibling DPX = /demo/preview. Does not imply CPA SOC 2 or third-party pen-test publication. Score 28/100 (2026-08-04) — redirect/shim hard-caps higher Evidence. |
 | HC | `/help/cloud-connections/azure` | 0.12% | 52 | 6.24 | 5.76 | Help alias | Connect Azure securely help (Help alias) - HelpConnectAzureSecurelyGuideView with PageContextualHelpButton (topic map cloud-connections-azure; Category-1 registry), workspace Sources + claim-discipline orientation strip, federation/roles setup, configure CTA. Sibling HCE = parent cloud-connections help; HCA = low-hit template duplicate. Orientation guide - not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-03) - help-topic orientation hard-caps higher Evidence. |
 | HHX | `/help/how-it-works` | 0.12% | 52 | 6.24 | 5.76 | Help topic | How ArchLucid works help (Help topic) - HelpHowArchLucidWorksGuideView with PageContextualHelpButton (topic map how-it-works; Category-1 registry), workspace Sources + claim-discipline orientation strip, workflow diagram, get-started CTAs. Orientation guide - not a signed-record Sources trail. Related HGX = Getting started. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-03) - help-topic orientation hard-caps higher Evidence. |
 | HTX | `/help/troubleshooting` | 0.12% | 52 | 6.24 | 5.76 | Help topic | Troubleshooting help (Help topic) - HelpTroubleshootingGuideView with PageContextualHelpButton (topic map troubleshooting; Category-1 registry), workspace Sources + claim-discipline orientation strip, start-here CTAs, common issues, advanced diagnostics. Operator unblocking guide — not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-03) — help-topic orientation hard-caps higher Evidence. |
