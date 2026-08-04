@@ -33,7 +33,7 @@ Saving an **architecture draft** (Architectures workspace) is optional and does 
 
 ### Governance when you are ready
 
-Governance approvals, policy packs, alerts, and audit stay available after the first package — see [Governance approval](/help/governance-approval) and [Understanding governance alerts](/help/alerts).
+Governance approvals, policy packs, alerts, and audit stay available after the first package — see [Governance approval](/help/governance-approval), [Policy packs](/help/policy-packs), and [Understanding governance alerts](/help/alerts).
 
 ## Related guides
 

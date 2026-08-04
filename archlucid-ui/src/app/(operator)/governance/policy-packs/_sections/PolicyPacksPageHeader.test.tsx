@@ -33,7 +33,7 @@ describe("PolicyPacksPageHeader", () => {
     expect(screen.getByTestId("policy-packs-refresh-button")).toBeInTheDocument();
     expect(screen.getByTestId("policy-packs-resolution-link")).toHaveAttribute(
       "href",
-      "/governance/standards-and-rules",
+      "/help/policy-packs#how-conflicts-are-resolved",
     );
     expect(screen.getByTestId("policy-packs-last-refreshed")).toHaveTextContent(/Last refreshed:/i);
 

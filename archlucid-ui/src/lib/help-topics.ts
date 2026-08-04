@@ -132,10 +132,10 @@ export const HELP_TOPICS: HelpTopic[] = [
   {
     id: "policy-packs",
     title: "Policy packs",
-    keywords: ["governance", "compliance", "pack"],
+    keywords: ["governance", "compliance", "pack", "conflicts", "precedence"],
     summary: "Policy packs bundle rules and defaults; assign scope and inspect effective governance.",
-    docPath: "docs/go-to-market/DEFAULT_POLICY_PACKS_V1.md",
-    routes: ["/policy-packs", "/governance/standards-and-rules"],
+    docPath: "docs/library/customer-facing/POLICY_PACKS_OPERATOR_GUIDE.md",
+    routes: ["/policy-packs", "/governance/policy-packs", "/governance/standards-and-rules"],
   },
   {
     id: "system-health",

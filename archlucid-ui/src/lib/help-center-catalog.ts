@@ -39,6 +39,7 @@ const HELP_CENTER_TIER_BY_SLUG: Readonly<Record<string, HelpCenterTier>> = {
   "evidence-trail": "product",
   "evidence-only-review": "product",
   "governance-approval": "product",
+  "policy-packs": "product",
   "executive-summary": "product",
   "audit-trail": "product",
   "how-it-works": "product",

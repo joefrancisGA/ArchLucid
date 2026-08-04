@@ -25,7 +25,11 @@ export const POLICY_PACKS_SCOPE_DETAILS_TRIGGER = "About policy packs" as const;
 
 export const POLICY_PACKS_RESOLUTION_LINK_LABEL = "How conflicts are resolved" as const;
 
-export const POLICY_PACKS_RESOLUTION_LINK_HREF = "/governance/standards-and-rules" as const;
+/** Deep-link into the Policy packs help topic conflicts section (not Standards & rules). */
+export const POLICY_PACKS_HELP_PATH = "/help/policy-packs" as const;
+
+export const POLICY_PACKS_RESOLUTION_LINK_HREF =
+  "/help/policy-packs#how-conflicts-are-resolved" as const;
 
 export const POLICY_PACK_BASIS_BANNER_TITLE = "Policy pack basis";
 
