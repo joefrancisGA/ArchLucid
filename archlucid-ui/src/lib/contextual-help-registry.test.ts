@@ -78,6 +78,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/administration/settings/users",
       "/integrations/cloud-connections",
       "/integrations/jira",
+      "/integrations/slack",
       "/settings/cloud-connections",
     ]);
   });
@@ -181,8 +182,8 @@ describe("contextual-help-registry (TB-733)", () => {
     expect(contextualHelpForPathname("/admin/tenant-health")?.whatToDoNext).toContain("Refresh the table");
   });
 
-  it("resolves how-it-works help Category-1 help (HHX)", () => {
-    expect(contextualHelpForPathname("/help/how-it-works")?.whatIsThisPage).toContain("How ArchLucid works");
+  it("resolves how-it-works help Category-1 help (HHX alias → getting-started)", () => {
+    expect(contextualHelpForPathname("/help/how-it-works")?.whatIsThisPage).toContain("Getting started");
     expect(contextualHelpForPathname("/help/how-it-works")?.whatToDoNext).toContain("Start a review");
   });
 
@@ -204,6 +205,11 @@ describe("contextual-help-registry (TB-733)", () => {
   it("resolves jira integration Category-1 help (IJX)", () => {
     expect(contextualHelpForPathname("/integrations/jira")?.whatIsThisPage).toContain("Jira integration");
     expect(contextualHelpForPathname("/integrations/jira")?.whatToDoNext).toContain("Test the connector");
+  });
+
+  it("resolves slack integration Category-1 help (ISN)", () => {
+    expect(contextualHelpForPathname("/integrations/slack")?.whatIsThisPage).toContain("Slack integration");
+    expect(contextualHelpForPathname("/integrations/slack")?.whatToDoNext).toContain("Slack destination");
   });
 
   it("resolves executive scorecard Category-1 help (ESX)", () => {

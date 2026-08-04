@@ -181,6 +181,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     prefix: "/integrations/jira",
     topic: { slug: "integration-readiness", label: "Jira integration" },
   },
+  {
+    prefix: "/integrations/slack",
+    topic: { slug: "alerts", label: "Slack integration" },
+  },
   { prefix: "/administration/connection-status", topic: { slug: "integration-readiness", label: "How integration readiness works" } },
   { prefix: "/administration/system-health", topic: { slug: "troubleshooting", label: "Troubleshooting" } },
   { prefix: "/admin/integrations/itsm", topic: { slug: "integration-readiness", label: "How integration readiness works" } },

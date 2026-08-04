@@ -540,6 +540,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/integrations/slack",
+    entry: {
+      whatIsThisPage:
+        "Slack integration — configure incoming webhook destinations that receive governance alerts for this workspace.",
+      whatToDoNext:
+        "Add or test a Slack destination, then open Alert rules when you need to change which events fire notifications.",
+      whyEmpty: "Destinations appear after you save an incoming webhook URL for this workspace.",
+      whereToConfigurePrerequisite:
+        "Creating or changing destinations requires a role that can manage alert routing.",
+    },
+  },
+  {
     prefix: "/settings/cloud-connections",
     entry: {
       whatIsThisPage:
