@@ -18,8 +18,8 @@ import {
 const FIXTURE_LOG = `
 Route (app)                                             Size  First Load JS  Revalidate  Expire
 ├ ƒ /governance/approval-queue                        34.9 kB         286 kB
-├ ƒ /reviews                                         33.3 kB         287 kB
-├ ƒ /reviews/[runId]                                  125 kB         421 kB
+├ ƒ /architecture/reviews                            33.3 kB         287 kB
+├ ƒ /architecture/reviews/[runId]                     125 kB         421 kB
 ├ ○ /welcome                                         8.41 kB         145 kB          5m      1y
 + First Load JS shared by all                         105 kB
 `;
@@ -36,7 +36,7 @@ describe("first-load-js-baseline (TB-573 / TB-691)", () => {
     const next16Log = `
 Route (app)                                          Revalidate  Expire
 ├ ○ /welcome                                                 5m      1y
-├ ƒ /reviews
+├ ƒ /architecture/reviews
 `;
 
     expect(isNext16BuildLogWithoutFirstLoadJsTable(next16Log)).toBe(true);

@@ -35,7 +35,30 @@ function hasCustomReviewsListReturnHref(reviewsListReturnHref?: string): boolean
     return false;
   }
 
-  return reviewsListReturnHref.trim() !== "/architecture/reviews";
+  const trimmed = reviewsListReturnHref.trim();
+  const pathOnly = trimmed.split("?")[0] ?? "";
+
+  if (pathOnly !== "/architecture/reviews" && pathOnly !== "/reviews") {
+    return true;
+  }
+
+  const query = trimmed.includes("?") ? trimmed.slice(trimmed.indexOf("?") + 1) : "";
+
+  if (query.length === 0) {
+    return false;
+  }
+
+  const params = new URLSearchParams(query);
+
+  for (const [key, value] of params.entries()) {
+    if (key === "projectId" && (value === "default" || value.length === 0)) {
+      continue;
+    }
+
+    return true;
+  }
+
+  return false;
 }
 
 function isHelpTopicPath(normalizedPath: string): boolean {
@@ -104,6 +127,20 @@ function isDetailPagePath(normalizedPath: string): boolean {
   const rest = segments.slice(2);
 
   if (root === "reviews" && second !== "new" && rest.length === 0) {
+    return true;
+  }
+
+  // Canonical App Router: /architecture/reviews/{runId}[/...]
+  if (root === "architecture" && second === "reviews") {
+    const runSegment = rest[0] ?? "";
+
+    if (runSegment.length > 0 && runSegment !== "new") {
+      return true;
+    }
+  }
+
+  // Canonical App Router: /architecture/architectures/{draftId}
+  if (root === "architecture" && second === "architectures" && rest.length > 0) {
     return true;
   }
 

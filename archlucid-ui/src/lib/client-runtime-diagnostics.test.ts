@@ -233,7 +233,7 @@ describe("client-runtime-diagnostics", () => {
       expect.objectContaining({
         kind: "navigation-stuck",
         href: "/architecture/reviews/claims-intake-modernization",
-        detail: expect.stringContaining("hardFallback=/reviews/claims-intake-modernization"),
+        detail: expect.stringContaining("hardFallback=/architecture/reviews/claims-intake-modernization"),
       }),
     );
     expect(assign).toHaveBeenCalledWith("/architecture/reviews/claims-intake-modernization");

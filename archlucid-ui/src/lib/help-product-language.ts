@@ -41,7 +41,11 @@ export function rewriteLegacyHelpOperatorRoutes(markdown: string): string {
 
   result = result.replace(/\/runs\//g, "/architecture/reviews/");
   result = result.replace(/\/runs\b/g, "/architecture/reviews");
-  result = result.replace(/\/reviews\/([^)/\s]+)\/manifest\b/g, "/architecture/reviews/$1/signed-record");
+  // Optional `/architecture` prefix avoids doubling when help already uses canonical paths.
+  result = result.replace(
+    /\/(?:architecture\/)?reviews\/([^)/\s]+)\/manifest\b/g,
+    "/architecture/reviews/$1/signed-record",
+  );
   result = result.replace(/\/manifests\//g, "/signed-records/");
 
   return result;

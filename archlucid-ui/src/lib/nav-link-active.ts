@@ -9,16 +9,21 @@ export function isNavLinkActive(pathname: string, href: string): boolean {
     return pathname === "/";
   }
 
-  if (pathPart === "/reviews/new") {
-    return pathname === "/reviews/new";
+  if (pathPart === "/architecture/reviews/new" || pathPart === "/reviews/new") {
+    return pathname === "/architecture/reviews/new" || pathname === "/reviews/new";
   }
 
-  if (pathPart === "/architectures") {
-    return pathname === "/architectures" || pathname.startsWith("/architectures/");
+  if (pathPart === "/architecture/architectures" || pathPart === "/architectures") {
+    return (
+      pathname === "/architecture/architectures"
+      || pathname.startsWith("/architecture/architectures/")
+      || pathname === "/architectures"
+      || pathname.startsWith("/architectures/")
+    );
   }
 
-  if (pathPart === "/reviews") {
-    return pathname === "/reviews";
+  if (pathPart === "/architecture/reviews" || pathPart === "/reviews") {
+    return pathname === "/architecture/reviews" || pathname === "/reviews";
   }
 
   if (pathPart === "/administration/settings/tenant") {

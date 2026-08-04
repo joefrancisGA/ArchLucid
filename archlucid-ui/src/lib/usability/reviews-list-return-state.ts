@@ -21,8 +21,14 @@ export function readReviewsListReturnHref(): string {
   try {
     const raw = window.localStorage.getItem(REVIEWS_LIST_RETURN_HREF_KEY)?.trim();
 
-    if (raw !== undefined && raw.length > 0 && raw.startsWith("/architecture/reviews")) {
-      return raw;
+    if (
+      raw !== undefined
+      && raw.length > 0
+      && (raw.startsWith("/architecture/reviews") || raw.startsWith("/reviews"))
+    ) {
+      return raw.startsWith("/reviews") && !raw.startsWith("/architecture/reviews")
+        ? raw.replace(/^\/reviews\b/, "/architecture/reviews")
+        : raw;
     }
   } catch {
     /* private mode */

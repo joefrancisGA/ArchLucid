@@ -71,7 +71,7 @@ describe("LayerContextStrip", () => {
         buyerGoldenJourneyNav={{
           summaryLine: "Step 3 of 5 · View evidence trail",
           prev: { label: "Signed review record", href: "/architecture/reviews/x/manifest" },
-          next: { label: "Governance approval", href: "/governance" },
+          next: { label: "Governance approval", href: "/governance/approval-queue" },
           currentStepIndex: 2,
         }}
       />,
@@ -99,7 +99,7 @@ describe("LayerContextStrip", () => {
         buyerGoldenJourneyNav={{
           summaryLine: "Step 3 of 5 · View evidence trail",
           prev: { label: "Signed review record", href: "/architecture/reviews/x/manifest" },
-          next: { label: "Governance approval", href: "/governance" },
+          next: { label: "Governance approval", href: "/governance/approval-queue" },
           currentStepIndex: 2,
         }}
       />,

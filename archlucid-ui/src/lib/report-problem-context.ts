@@ -55,7 +55,14 @@ export function extractReviewIdFromRoutePath(routePath: string): string | null {
     return null;
   }
 
-  const segment = normalized.split("/").filter((part) => part.length > 0)[1] ?? "";
+  const parts = normalized.split("/").filter((part) => part.length > 0);
+  const reviewsIdx = parts.indexOf("reviews");
+
+  if (reviewsIdx < 0 || parts[0] === "executive") {
+    return null;
+  }
+
+  const segment = parts[reviewsIdx + 1] ?? "";
 
   if (segment.length === 0 || segment === "new") {
     return null;

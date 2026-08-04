@@ -13,8 +13,8 @@
   ],
   "authenticatedRoutes": [
     "/",
-    "/reviews",
-    "/reviews/new",
+    "/architecture/reviews",
+    "/architecture/reviews/new",
     "/governance/approval-queue",
     "/graph",
     "/settings/tenant"

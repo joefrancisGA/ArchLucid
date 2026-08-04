@@ -56,7 +56,7 @@ describe("decideHostGateRedirect", () => {
         pathname: "/architecture/reviews",
         search: "?x=1",
       }),
-    ).toEqual({ kind: "redirect", location: "https://app.archlucid.net/reviews?x=1" });
+    ).toEqual({ kind: "redirect", location: "https://app.archlucid.net/architecture/reviews?x=1" });
   });
 
   it("redirects marketing-host / to /welcome on the public origin", () => {
