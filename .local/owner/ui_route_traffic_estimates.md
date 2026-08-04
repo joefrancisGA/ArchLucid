@@ -45,13 +45,12 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 
 ---
 
-**OVERALL WEIGHT SCORE:** 55.26%
+**OVERALL WEIGHT SCORE:** 55.29%
 
 ## Master table (score 0 first; then Deficit desc; ties A→Z by path)
 
 | ID | Path | Hit% | Scores | Weight | Deficit | Section | Notes |
 |----|------|------|--------|--------|---------|---------|-------|
-| DPX | `/demo/preview` | 0.06% | 0 | 0 | 6 | Marketing | None |
 | HE | `/help/azure-permissions` | 0.06% | 0 | 0 | 6 | Help topic | None |
 | HGE | `/help/glossary` | 0.06% | 0 | 0 | 6 | Help topic | None |
 | HOE | `/help/operator-auth-roles` | 0.06% | 0 | 0 | 6 | Help alias | None |
@@ -250,6 +249,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | ARX | `/admin/rag-health` | 0.1% | 62 | 6.2 | 3.8 | Admin | None |
 | GFX | `/governance/setup` | 0.1% | 62 | 6.2 | 3.8 | Alerts/gov | Governance setup guide — GovernanceSetupGuidePageView with outcome-framed steps, progress coach, sticky What-this-guide-unlocks rail (not Pending theater), foundation panel after first complete indicator (TB-1138), recommended-next primary CTA (TB-1137). Links into audited config workspaces. Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 62/100 (2026-08-03) — setup checklist with value framing; guide hard-caps without live config depth. |
 | IWX | `/integrations/webhooks` | 0.07% | 48 | 3.36 | 3.64 | Integrations | Webhooks integration (Integrations) - WebhooksSettingsClient with PageContextualHelpButton (topic map alerts; Category-1 registry), workspace Sources + claim-discipline orientation strip, subscription form + destinations list. Notification routing config hub — not a signed-record Sources trail. Sibling ISN = Slack; ITX = Teams; SAX/GOR = alert rules. Does not imply CPA SOC 2 or third-party pen-test publication. Score 48/100 (2026-08-04) — integration-config hub hard-caps higher Evidence. |
+| DPX | `/demo/preview` | 0.06% | 40 | 2.4 | 3.6 | Marketing | Demo preview (Marketing) - DemoPreviewMarketingPage with DemoPreviewEvidenceOrientationStrip (evaluation Sources + claim-discipline: sample demo only; not diligence / CPA SOC 2 / third-party pen-test). Not an operator PageContextualHelp surface. Sibling DXX = /demo entry redirect. Does not imply CPA SOC 2 or third-party pen-test publication. Score 40/100 (2026-08-04) — marketing sample-demo page hard-caps higher Evidence. |
 | HBX | `/help/billing-and-plans` | 0.07% | 52 | 3.64 | 3.36 | Help topic | Billing and plans help (Help topic) - HelpBillingAndPlansGuideView with PageContextualHelpButton (topic map billing-and-plans; Category-1 registry), workspace Sources + claim-discipline orientation strip, current-plan card, how-billing-works steps, FAQ, CTAs to /administration/settings/billing and /pricing. Not bare HelpTopicMarkdownView. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-04) — help-topic orientation hard-caps higher Evidence. |
 | HP | `/help/pilot-guide` | 0.07% | 52 | 3.64 | 3.36 | Help topic | Pilot guide help (Help topic) - HelpPilotGuideView with PageContextualHelpButton (topic map pilot-guide; Category-1 registry), workspace Sources + claim-discipline orientation strip, start-pilot CTAs, prepared PILOT_GUIDE.md body. Not bare HelpTopicMarkdownView. Sibling HCO = first-architecture-review; SPP = pilot outcomes. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-04) — help-topic orientation hard-caps higher Evidence. |
 | SPP | `/sponsor-report/pilot-outcomes` | 0.07% | 52 | 3.64 | 3.36 | Sponsor report | Sponsor pilot outcomes report (Sponsor report) - PilotValueReportPageClient/View with PageContextualHelpButton (topic map executive-summary; Category-1 registry), workspace Sources + claim-discipline orientation strip, period controls, Outcomes nav. Absorbs former VPX hit share from retired legacy /value-report/pilot bookmark (LegacyPilotValueReportRedirectPage still permanentRedirects here). Period summary — not a signed-record Sources trail alone. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-04) — sponsor period-summary hard-caps higher Evidence without diligence packing. |

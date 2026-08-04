@@ -158,7 +158,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | SIS | `/administration/settings/identity/sso-wizard` | 0.07% | 0 | 0 | 7 | Settings | None |
 | SSX | `/administration/settings/scim-provisioning` | 0.07% | 0 | 0 | 7 | Settings | None |
 | SPP | `/sponsor-report/pilot-outcomes` | 0.07% | 0 | 0 | 7 | Sponsor report | Sponsor pilot outcomes report (Sponsor report) - PilotValueReportPageClient/View with PageContextualHelpButton (topic map executive-summary; Category-1 registry), workspace Sources + claim-discipline orientation strip, period controls, Outcomes nav. Absorbs former VPX hit share from retired legacy `/value-report/pilot` bookmark (LegacyPilotValueReportRedirectPage still permanentRedirects here). Period summary — not a signed-record Sources trail alone. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-04) — sponsor period-summary hard-caps higher Evidence without diligence packing. |
-| DPX | `/demo/preview` | 0.06% | 0 | 0 | 6 | Marketing | None |
+| DPX | `/demo/preview` | 0.06% | 0 | 0 | 6 | Marketing | Demo preview (Marketing) - DemoPreviewMarketingPage with DemoPreviewEvidenceOrientationStrip (evaluation Sources + claim-discipline: sample demo only; not diligence / CPA SOC 2 / third-party pen-test). Not an operator PageContextualHelp surface. Sibling DXX = /demo entry redirect. Does not imply CPA SOC 2 or third-party pen-test publication. Score 40/100 (2026-08-04) — marketing sample-demo page hard-caps higher Evidence. |
 | HCA | `/help/cloud-connections/azure` | 0.06% | 0 | 0 | 6 | Help alias | None |
 | HOE | `/help/operator-auth-roles` | 0.06% | 0 | 0 | 6 | Help alias | None |
 | OXX | `/onboard` | 0.06% | 0 | 0 | 6 | Onboarding | None |
