@@ -43,6 +43,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "findings", label: "Findings" },
   },
   {
+    prefix: "/help/governance-approval",
+    topic: { slug: "governance-approval", label: "Governance approval" },
+  },
+  {
     prefix: "/help/cloud-connections/azure",
     topic: { slug: "cloud-connections-azure", label: "Connect Azure securely" },
   },

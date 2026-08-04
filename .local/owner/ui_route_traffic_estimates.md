@@ -45,13 +45,12 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 
 ---
 
-**OVERALL WEIGHT SCORE:** 54.91%
+**OVERALL WEIGHT SCORE:** 54.96%
 
 ## Master table (score 0 first; then Deficit desc; ties A→Z by path)
 
 | ID | Path | Hit% | Scores | Weight | Deficit | Section | Notes |
 |----|------|------|--------|--------|---------|---------|-------|
-| GO | `/help/governance-approval` | 0.08% | 0 | 0 | 8 | Help topic | None |
 | HR | `/help/review-guide` | 0.08% | 0 | 0 | 8 | Help topic | Canon for wizard field-reference (`REVIEW_GUIDE.md`). Absorbs former HET (`/help/starting-reviews`) registry twin + HER (`/help/creating-runs`) alias chain (TB-1258 / TB-1643; 2026-08-03). |
 | ISX | `/integrations/servicenow` | 0.08% | 0 | 0 | 8 | Integrations | None |
 | SVX | `/signup/verify` | 0.08% | 0 | 0 | 8 | Marketing | None |
@@ -250,6 +249,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | HFX | `/help/findings` | 0.1% | 52 | 5.2 | 4.8 | Help topic | Findings help (Help topic) - HelpFindingsGuideView with PageContextualHelpButton (topic map findings; Category-1 registry), workspace Sources + claim-discipline orientation strip, anatomy/severity/lifecycle sections, HelpFindingsWorkspaceReadinessStrip (live governance queue). Featured help-center product tier. Primary CTAs to /governance/findings, evidence search, and decision register. Related docs link to audit-trail not API contracts (TB-1250 / TB-1387). Operator orientation — not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-04) — help-topic orientation hard-caps higher Evidence. |
 | GRA | `/insights/evidence-graph` | 0.6% | 93 | 55.8 | 4.2 | Insights | Evidence graph (Insights) — GraphPageContent buyer workspace: Graph view default + URL presentation, auto-load on review select / demo sample auto-pick, process-graph canvas as hero (~88vh) with wider inspector, selection focus dimming, path breadcrumb, Fit/100%/Highlight/Focus/Reset toolbar, compact sample banner, idle teaching frame (GraphIdleLegend). Trace table remains alternate. Signature evidence↔finding↔decision↔approval trail — not a full diligence Sources export package alone. Does not imply CPA SOC 2 or third-party pen-test publication. Score 93/100 (2026-08-03) — post workspace-hero pass; remaining gap is lifecycle count-strip + denser diligence packing. |
 | SRI | `/administration/settings/users/invite-reviewer` | 0.08% | 48 | 3.84 | 4.16 | Admin | Invite a reviewer (Settings/Admin) - InviteReviewerPageView with PageContextualHelpButton (topic map users-and-roles; Category-1 registry), workspace Sources + claim-discipline orientation strip, invite panel + Reader capabilities summary. Access invitation hub — not a signed-record Sources trail. Sibling AUX = Users and roles. Does not imply CPA SOC 2 or third-party pen-test publication. Score 48/100 (2026-08-04) — access-invite hub hard-caps higher Evidence. |
+| GO | `/help/governance-approval` | 0.08% | 52 | 4.16 | 3.84 | Help topic | Specialty governance approval guide — HelpGovernanceApprovalGuideView with PageContextualHelpButton (topic map governance-approval; Category-1 registry), workspace Sources + claim-discipline orientation strip, workflow stepper, role guides, status table, decision outcomes, and collapsed HelpGovernanceApprovalTechnicalReference. Featured help-center product tier (pdfStatus customer). Primary CTAs to /governance, /governance/dashboard, and /governance/findings. Related docs link to audit-trail not API contracts (TB-1250 / TB-1387). Not bare HelpTopicMarkdownView. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-04) — help-topic orientation hard-caps higher Evidence. |
 | ACX | `/admin/configuration` | 0.1% | 62 | 6.2 | 3.8 | Admin | None |
 | ARX | `/admin/rag-health` | 0.1% | 62 | 6.2 | 3.8 | Admin | None |
 | GFX | `/governance/setup` | 0.1% | 62 | 6.2 | 3.8 | Alerts/gov | Governance setup guide — GovernanceSetupGuidePageView with outcome-framed steps, progress coach, sticky What-this-guide-unlocks rail (not Pending theater), foundation panel after first complete indicator (TB-1138), recommended-next primary CTA (TB-1137). Links into audited config workspaces. Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 62/100 (2026-08-03) — setup checklist with value framing; guide hard-caps without live config depth. |

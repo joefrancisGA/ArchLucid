@@ -10,6 +10,14 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-04 - UI: Hard-retire `/snapshot/[runId]` redirect shim
+
+Removed App Router redirect stub; CTO recap leave-behind links now use `/architecture/reviews/{runId}?readOnly=1` via `buildReadOnlyReviewWorkspaceHref`. Old `/snapshot/...` bookmarks 404.
+
+## 2026-08-04 - UI: Governance approval help Evidence chrome (GO)
+
+/help/governance-approval ships PageContextualHelpButton, Category-1 registry, Sources + claim-discipline orientation strip, updated traffic Notes, and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-04 - UI: Demo entry Evidence chrome (DXX)
 
 /demo ships interim DemoEntryEvidenceOrientationStrip (Sources + claim-discipline) + Continue link on the client redirect shim, traffic Notes under Marketing, and honest Evidence score 28. Redirect/shim hard-caps higher Evidence; no CPA / third-party pen-test implication.
