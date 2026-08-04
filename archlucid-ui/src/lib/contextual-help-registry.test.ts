@@ -63,6 +63,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/insights/planning",
       "/governance/advisory-scans",
       "/sponsor-report/executive-summary",
+      "/executive/scorecard",
       "/value-report",
       "/governance/alert-rules",
       "/governance/approval-requests",
@@ -184,6 +185,11 @@ describe("contextual-help-registry (TB-733)", () => {
   it("resolves troubleshooting help Category-1 help (HTX)", () => {
     expect(contextualHelpForPathname("/help/troubleshooting")?.whatIsThisPage).toContain("Troubleshooting");
     expect(contextualHelpForPathname("/help/troubleshooting")?.whatToDoNext).toContain("System health");
+  });
+
+  it("resolves executive scorecard Category-1 help (ESX)", () => {
+    expect(contextualHelpForPathname("/executive/scorecard")?.whatIsThisPage).toContain("Sponsor scorecard");
+    expect(contextualHelpForPathname("/executive/scorecard")?.whatToDoNext).toContain("time range");
   });
 
   it("resolves sponsor executive summary Category-1 help (SPE)", () => {

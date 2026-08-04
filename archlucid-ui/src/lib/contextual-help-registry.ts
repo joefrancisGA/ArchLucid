@@ -358,6 +358,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/executive/scorecard",
+    entry: {
+      whatIsThisPage:
+        "Sponsor scorecard — key value metrics for completed reviews, findings pressure, and directional hours in the selected window.",
+      whatToDoNext:
+        "Pick a time range, review recommended actions, then open Architecture reviews or Sponsor executive summary for follow-up.",
+      whyEmpty: "KPIs stay empty until you finalize architecture reviews in this workspace scope.",
+      whereToConfigurePrerequisite:
+        "Scorecard windows use the current tenant, workspace, and project selected in the shell header.",
+    },
+  },
+  {
     prefix: "/value-report",
     entry: {
       whatIsThisPage:

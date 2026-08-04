@@ -8,8 +8,8 @@ import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ExecutiveScorecardEvidenceChrome } from "@/app/(executive)/executive/scorecard/_sections/ExecutiveScorecardEvidenceChrome";
 import { ExecutiveScorecardEmptyState } from "@/components/executive/ExecutiveScorecardEmptyState";
-import { ExecutivePageHeader } from "@/components/executive/ExecutivePageHeader";
 import { getComplianceDriftTrend } from "@/lib/api";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
@@ -221,7 +221,7 @@ export function ExecutiveScorecardClient() {
   if (state.status === "loading") {
     return (
       <div className="space-y-6" data-testid="executive-scorecard">
-        <ExecutivePageHeader title={BUYER_EXECUTIVE_SUMMARY_VOCABULARY.scorecardPageTitle} />
+        <ExecutiveScorecardEvidenceChrome title={BUYER_EXECUTIVE_SUMMARY_VOCABULARY.scorecardPageTitle} />
         <p className={cn("m-0", EXECUTIVE_TYPOGRAPHY.lead)}>Loading scorecard…</p>
       </div>
     );
@@ -230,7 +230,7 @@ export function ExecutiveScorecardClient() {
   if (state.status === "error") {
     return (
       <div className="space-y-6" data-testid="executive-scorecard">
-        <ExecutivePageHeader title={BUYER_EXECUTIVE_SUMMARY_VOCABULARY.scorecardPageTitle} />
+        <ExecutiveScorecardEvidenceChrome title={BUYER_EXECUTIVE_SUMMARY_VOCABULARY.scorecardPageTitle} />
         <OperatorApiProblem
           fallbackMessage={state.message}
           problem={state.problem}
@@ -265,7 +265,7 @@ export function ExecutiveScorecardClient() {
 
   return (
     <div className="space-y-6" data-testid="executive-scorecard">
-      <ExecutivePageHeader
+      <ExecutiveScorecardEvidenceChrome
         title={BUYER_EXECUTIVE_SUMMARY_VOCABULARY.scorecardPageTitle}
         lead="Key value metrics for the current tenant, workspace, and project scope — aligned with the pilot value report and governance drift endpoints."
       />

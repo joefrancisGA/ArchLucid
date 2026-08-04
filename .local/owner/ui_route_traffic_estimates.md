@@ -45,13 +45,12 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 
 ---
 
-**OVERALL WEIGHT SCORE:** 54.27%
+**OVERALL WEIGHT SCORE:** 54.39%
 
 ## Master table (score 0 first; then Deficit desc; ties A→Z by path)
 
 | ID | Path | Hit% | Scores | Weight | Deficit | Section | Notes |
 |----|------|------|--------|--------|---------|---------|-------|
-| ESX | `/executive/scorecard` | 0.1% | 0 | 0 | 10 | Executive | None |
 | HA | `/help/alerts` | 0.1% | 0 | 0 | 10 | Help topic | None |
 | HFX | `/help/findings` | 0.1% | 0 | 0 | 10 | Help topic | None |
 | IJX | `/integrations/jira` | 0.1% | 0 | 0 | 10 | Integrations | None |
@@ -210,7 +209,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | GFN | `/governance/findings` | 2% | 72 | 144 | 56 | Alerts/gov | None |
 | GOV | `/governance` | 1% | 49 | 49 | 51 | Alerts/gov | None |
 | SCX | `/insights/architecture-scorecard` | 1.5% | 68 | 102 | 48 | Insights | Architecture scorecard (Insights) - PilotScorecardPageView with PageContextualHelp (topic map pilot-roi-model + Category-1 registry), Sources follow-up strip + claim-discipline callout (directional ROI / not financial reporting; not diligence trail), Outcomes nav, empty CTAs (TB-1958), sample-mode honesty (TB-1957). Hierarchy polish: savings hero, primary finalized/governance tiles, operational metrics section, empty-state dashes (not large zeros), ROI calculator + estimate side-by-side, stronger Outcomes active tab. Formerly `/scorecard` and `/sponsor-report/architecture-scorecard` (retired; no redirect). Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 68/100 (2026-08-03) — value hierarchy improved; still aggregate KPI launcher without trends/diligence packing. |
-| PLA | `/planning` | 0.8% | 48 | 38.4 | 41.6 | Planning | Improvement planning - PlanningPageView with PageContextualHelp (topic map how-it-works / Improvement planning; Category-1 registry), Sources follow-up strip + claim-discipline callout (derived themes/plans, not diligence trail), themes/plans tables, export readiness. Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 48/100 (2026-08-03) — aggregate planning launcher hard-caps higher Evidence. |
+| PLA | `/insights/planning` | 0.8% | 54 | 43.2 | 36.8 | Planning | Improvement planning - PlanningPageView with PageContextualHelp (topic map getting-started / Improvement planning; Category-1 registry), Sources follow-up strip + dismissible claim-discipline callout (derived themes/plans, not diligence trail), empty-path composition (CTA + maturity/outcome orientation; hides zero KPIs/export until plans exist), priority-score explain, themes/plans tables, export readiness. Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 54/100 (2026-08-03) — empty-path honesty improved; aggregate planning launcher still hard-caps higher Evidence. |
 | SET | `/administration/settings` | 0.8% | 55 | 44 | 36 | Admin | None |
 | HEL | `/help` | 1% | 67 | 67 | 33 | Help hub | None |
 | PPP | `/planning/plans/[planId]` | 0.6% | 45 | 27 | 33 | Planning | Improvement plan detail - PlanningPlanDetailPageView with OperatorPageHeader PageContextualHelp (topic map how-it-works / Improvement planning; Category-1 registry for /planning/plans), Sources follow-up strip + claim-discipline callout (derived plan, not diligence trail), plan sections. Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 45/100 (2026-08-03) — plan-detail launcher hard-caps higher Evidence. |
@@ -249,6 +248,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | HHX | `/help/how-it-works` | 0.12% | 52 | 6.24 | 5.76 | Help topic | How ArchLucid works help (Help topic) - HelpHowArchLucidWorksGuideView with PageContextualHelpButton (topic map how-it-works; Category-1 registry), workspace Sources + claim-discipline orientation strip, workflow diagram, get-started CTAs. Orientation guide - not a signed-record Sources trail. Related HGX = Getting started. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-03) - help-topic orientation hard-caps higher Evidence. |
 | HTX | `/help/troubleshooting` | 0.12% | 52 | 6.24 | 5.76 | Help topic | Troubleshooting help (Help topic) - HelpTroubleshootingGuideView with PageContextualHelpButton (topic map troubleshooting; Category-1 registry), workspace Sources + claim-discipline orientation strip, start-here CTAs, common issues, advanced diagnostics. Operator unblocking guide — not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-03) — help-topic orientation hard-caps higher Evidence. |
 | AHX | `/admin/health` | 0.15% | 62 | 9.3 | 5.7 | Admin | None |
+| ESX | `/executive/scorecard` | 0.1% | 48 | 4.8 | 5.2 | Executive | Sponsor scorecard (Executive) - ExecutiveScorecardClient with PageContextualHelpButton (topic map executive-summary; Category-1 registry), workspace Sources + claim-discipline orientation strip, time-range KPIs, recommended actions. Sponsor KPI leave-behind — not a signed-record Sources trail. Sibling SCX = Insights architecture scorecard; SPE = sponsor executive summary. Does not imply CPA SOC 2 or third-party pen-test publication. Score 48/100 (2026-08-04) — executive KPI hub hard-caps higher Evidence. |
 | GRA | `/insights/evidence-graph` | 0.6% | 93 | 55.8 | 4.2 | Insights | Evidence graph (Insights) — GraphPageContent buyer workspace: Graph view default + URL presentation, auto-load on review select / demo sample auto-pick, process-graph canvas as hero (~88vh) with wider inspector, selection focus dimming, path breadcrumb, Fit/100%/Highlight/Focus/Reset toolbar, compact sample banner, idle teaching frame (GraphIdleLegend). Trace table remains alternate. Signature evidence↔finding↔decision↔approval trail — not a full diligence Sources export package alone. Does not imply CPA SOC 2 or third-party pen-test publication. Score 93/100 (2026-08-03) — post workspace-hero pass; remaining gap is lifecycle count-strip + denser diligence packing. |
 | ACX | `/admin/configuration` | 0.1% | 62 | 6.2 | 3.8 | Admin | None |
 | ARX | `/admin/rag-health` | 0.1% | 62 | 6.2 | 3.8 | Admin | None |

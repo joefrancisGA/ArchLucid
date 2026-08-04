@@ -10,6 +10,14 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-04 - API: Bounded inbound webhook body intake (TB-967)
+
+Shared `InboundWebhookBoundedBodyReader` rejects oversize payloads (Content-Length + hard 64 KiB ceiling) before HMAC/JWT verify on ITSM, Stripe, Marketplace, and Slack inbound routes (413). Architecture/integration tests lock size-before-verify-before-parse; hostile-traffic inventory Size column updated. No CPA / third-party pen-test implication.
+
+## 2026-08-04 - UI: Sponsor scorecard Evidence chrome (ESX)
+
+/executive/scorecard ships PageContextualHelpButton, Category-1 registry, Sources + claim-discipline orientation strip, traffic Notes under Executive, and honest Evidence score 48. Executive KPI hub hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-03 - UI: Digests Schedule Evidence chrome (DIS); retire mistaken SEX owner row
 
 `/digests?tab=schedule` ships DigestsScheduleEvidenceOrientationStrip (Sources + claim-discipline) on the Schedule tab, traffic Notes under Tab surface on canonical **DIS**, and honest Evidence score 48. Mistaken owner row **SEX** (reusing a retired settings-exec-digest ID) removed; Hit **0.1%** folded into **DIS** (Hit **0.12%**). Owner **DIS** path corrected to schedule; **DIX** restored for subscriptions. Schedule-config tab hard-caps higher Evidence; no CPA / third-party pen-test implication.
