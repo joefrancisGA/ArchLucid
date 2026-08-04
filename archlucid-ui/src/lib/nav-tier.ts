@@ -17,5 +17,8 @@ export function filterNavLinksByTier<T extends { tier: NavTier }>(
   _showExtended: boolean,
   _showAdvanced: boolean,
 ): T[] {
+  void _showExtended;
+  void _showAdvanced;
+
   return [...links];
 }

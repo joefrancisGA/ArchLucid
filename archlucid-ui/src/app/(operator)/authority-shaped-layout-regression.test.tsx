@@ -120,7 +120,7 @@ vi.mock("./governance/policy-packs/_sections/load-policy-packs-page-data", () =>
 
 import { AlertRoutingContent } from "@/components/alerts/AlertRoutingContent";
 import { AlertsInboxContent } from "@/components/alerts/AlertsInboxContent";
-import GovernanceWorkflowPage from "./governance/page";
+import GovernanceWorkflowPage from "./governance/approval-queue/page";
 import PolicyPacksPage from "./governance/policy-packs/page";
 import { GOVERNANCE_OVERVIEW_PAGE_TITLE } from "@/lib/governance-overview-copy";
 

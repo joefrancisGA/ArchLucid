@@ -13,9 +13,14 @@ vi.mock("@/lib/toast", () => ({
   showSuccess: (...args: unknown[]) => showSuccess(...args),
 }));
 
-vi.mock("next/navigation", () => ({
-  useSearchParams: () => new URLSearchParams(),
-}));
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+  return {
+    ...actual,
+    useSearchParams: () => new URLSearchParams(),
+    usePathname: () => "/",
+  };
+});
 
 vi.mock("@/lib/billing-checkout-client", () => ({
   startMarketingPlanBillingCheckout,

@@ -3,9 +3,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const push = vi.fn();
 
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push }),
-}));
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+  return {
+    ...actual,
+    useRouter: () => ({ push }),
+    usePathname: () => "/",
+  };
+});
 
 vi.mock("@/lib/buyer-cto-demo-readiness", () => ({
   evaluateBuyerCtoDemoReadiness: vi.fn(async () => ({

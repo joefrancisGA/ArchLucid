@@ -7,10 +7,15 @@ import { SIGNUP_VERIFY_PAGE_COPY } from "@/lib/signup-verify-page-copy";
 const pushMock = vi.fn();
 const replaceMock = vi.fn();
 
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: pushMock, replace: replaceMock }),
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+  return {
+    ...actual,
+    useRouter: () => ({ push: pushMock, replace: replaceMock }),
   useSearchParams: () => new URLSearchParams("email=ops%40example.com"),
-}));
+    usePathname: () => "/",
+  };
+});
 
 vi.mock("@/lib/oidc/config", () => ({
   isJwtAuthMode: vi.fn(() => false),

@@ -78,7 +78,7 @@ describe("useCreateArchitectureNavigation", () => {
     });
 
     expect(result.current.isNavigating).toBe(false);
-    expect(assign).toHaveBeenCalledWith("/architectures/new");
+    expect(assign).toHaveBeenCalledWith("/architecture/architectures/new");
     expect(result.current.error).toBeNull();
   });
 });

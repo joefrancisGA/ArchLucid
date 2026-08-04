@@ -14,9 +14,13 @@ import {
 } from "@/lib/review-scorecard-empty-state";
 import type { PilotScorecardJson } from "@/types/pilot-scorecard";
 
-vi.mock("next/navigation", () => ({
-  useSearchParams: vi.fn(() => new URLSearchParams()),
-}));
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+  return {
+    ...actual,
+    useSearchParams: vi.fn(() => new URLSearchParams()),
+  };
+});
 
 vi.mock("@/components/usability/ValueReportOutcomesNav", () => ({
   ValueReportOutcomesNav: () => <nav data-testid="value-report-outcomes-nav" />,

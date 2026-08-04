@@ -25,10 +25,10 @@ test.describe("demo review one-click reliability @demo-review", () => {
     const body: unknown = await demoResponse.json();
     expect(body).toMatchObject({
       runId: OPERATOR_DEMO_REVIEW_RUN_ID,
-      redirectTo: `/reviews/${OPERATOR_DEMO_REVIEW_RUN_ID}`,
+      redirectTo: `/architecture/reviews/${OPERATOR_DEMO_REVIEW_RUN_ID}`,
     });
 
-    await page.goto(`/reviews/${encodeURIComponent(OPERATOR_DEMO_REVIEW_RUN_ID)}`);
+    await page.goto(`/architecture/reviews/${encodeURIComponent(OPERATOR_DEMO_REVIEW_RUN_ID)}`);
 
     const reviewDetail = page.getByTestId("review-detail-root");
     await openReviewDetailWorkspaceTab(page, OPERATOR_DEMO_REVIEW_RUN_ID, "policies");

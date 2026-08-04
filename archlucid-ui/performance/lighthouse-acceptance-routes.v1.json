@@ -13,9 +13,9 @@
   ],
   "authenticatedRoutes": [
     "/",
-    "/reviews",
-    "/reviews/new",
-    "/governance",
+    "/architecture/reviews",
+    "/architecture/reviews/new",
+    "/governance/approval-queue",
     "/graph",
     "/settings/tenant"
   ]

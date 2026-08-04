@@ -182,6 +182,8 @@ export function filterNavLinksForOperatorShell(
   _applyCollapsedSidebarPilotFilter = false,
   hasCommittedArchitectureReview = true,
 ): NavLinkItem[] {
+  void _applyCollapsedSidebarPilotFilter;
+
   // Tier / pre-commit / collapsed-pilot disclosure retired: role (authority) is the visibility gate.
   const promoted = applyCommittedArchitectureReviewNavPromotions(links, hasCommittedArchitectureReview);
   const gated = filterNavLinksByCommittedArchitectureReviewGate(promoted, hasCommittedArchitectureReview);

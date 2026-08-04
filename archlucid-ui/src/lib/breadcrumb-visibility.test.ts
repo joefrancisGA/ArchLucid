@@ -48,7 +48,7 @@ describe("shouldShowBreadcrumbTrail", () => {
         trail("/governance/approval-requests/e2e-approval-001/lineage"),
       ),
     ).toBe(true);
-    expect(shouldShowBreadcrumbTrail("/architectures/new", trail("/architectures/new"))).toBe(true);
+    expect(shouldShowBreadcrumbTrail("/architecture/architectures/new", trail("/architecture/architectures/new"))).toBe(true);
     expect(shouldShowBreadcrumbTrail("/administration/settings/identity/sso-wizard", trail("/administration/settings/identity/sso-wizard"))).toBe(
       true,
     );

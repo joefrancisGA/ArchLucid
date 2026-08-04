@@ -6,14 +6,14 @@
     "/welcome": {
       "firstLoadJsKb": 736
     },
+    "/governance/approval-queue": {
+      "firstLoadJsKb": 1417
+    },
     "/reviews": {
       "firstLoadJsKb": 1695.3
     },
     "/reviews/[runId]": {
       "firstLoadJsKb": 2255.2
-    },
-    "/governance": {
-      "firstLoadJsKb": 1417
     }
   },
   "notes": "RC11 refresh after OpenAPI api-types.generated.ts regeneration (string enums + expanded 4xx/5xx schemas). Captured from CI #2632 First Load JS check values. Refresh after intentional bundle changes: `npm run build && npm run write:first-load-js-baseline`."

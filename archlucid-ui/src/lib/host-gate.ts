@@ -30,6 +30,8 @@ const OPERATOR_PATH_PREFIXES: readonly string[] = [
   // Keep `/api/*` on both hosts — marketing signup/quote/quick-scan use same-origin `/api/proxy`.
   "/architecture/reviews",
   "/reviews",
+  "/architecture/reviews",
+  "/architecture/architectures",
   "/runs",
   "/manifests",
   "/signed-records",

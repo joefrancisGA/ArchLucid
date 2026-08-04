@@ -31,12 +31,12 @@ export function isShowcaseSignedManifestBrowserPath(pathname: string): boolean {
 }
 
 export const BUYER_GOLDEN_PATH_HREFS = {
-  executive: `/reviews/${showcaseRunEnc}`,
-  reviewPackage: `/reviews/${showcaseRunEnc}`,
-  signedManifestFriendly: `/reviews/${showcaseRunEnc}/signed-record`,
+  executive: `/architecture/reviews/${showcaseRunEnc}`,
+  reviewPackage: `/architecture/reviews/${showcaseRunEnc}`,
+  signedManifestFriendly: `/architecture/reviews/${showcaseRunEnc}/signed-record`,
   signedManifestCanonical: `/signed-records/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`,
   evidenceGraph: `/insights/evidence-graph?runId=${showcaseRunEnc}`,
-  governanceApproval: `/governance?runId=${showcaseRunEnc}`,
+  governanceApproval: `/governance/approval-queue?runId=${showcaseRunEnc}`,
   auditTrail: `/governance/audit?runId=${showcaseRunEnc}`,
   governanceFindings: "/governance/findings",
   policyPackDetail: "/governance/policy-packs/demo-healthcare-claims-pack",

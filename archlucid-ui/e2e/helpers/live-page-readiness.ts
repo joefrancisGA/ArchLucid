@@ -54,7 +54,17 @@ export async function waitForLiveOperatorPageHydration(page: Page, options?: { t
   const timeoutMs = options?.timeoutMs ?? 60_000;
 
   await expectNoGenericErrorBoundary(page);
-  await page.waitForLoadState("networkidle", { timeout: timeoutMs });
+  // Live API pages keep proxy/poll traffic open — networkidle often never settles (CI #2865 shard 2).
+  await page.waitForLoadState("domcontentloaded", { timeout: timeoutMs });
+  const appReady = page.locator("[data-app-ready='true']");
+
+  if ((await appReady.count()) > 0) {
+    await appReady.first().waitFor({ state: "attached", timeout: timeoutMs });
+
+    return;
+  }
+
+  await page.waitForLoadState("load", { timeout: timeoutMs }).catch(() => undefined);
 }
 
 async function isLiveReviewsHubListSurfaceVisible(page: Page): Promise<boolean> {

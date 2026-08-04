@@ -201,7 +201,7 @@ export function ModelGovernanceSettingsCard() {
           : emptyModelGovernanceCatalog(profileBody),
         catalogUnavailableNote,
       });
-    } catch (e: unknown) {
+    } catch {
       setState({ status: "blocked", note: MODEL_GOVERNANCE_UNEXPECTED_ERROR_COPY });
     }
   }, []);

@@ -110,14 +110,14 @@ const START_HERE_TOPICS: readonly HelpSearchPanelTopic[] = [
     title: "Create your first review",
     description: "Start with a brief, diagram, IaC file, or evidence ZIP.",
     keywords: ["create", "new review", "wizard", "intake", "first review"],
-    action: { kind: "route", href: "/reviews/new", helpSlug: null },
+    action: { kind: "route", href: "/architecture/reviews/new", helpSlug: null },
   },
   {
     id: "sample-review",
     title: "Run a sample review",
     description: "See how ArchLucid turns evidence into findings and review artifacts.",
     keywords: ["sample", "example", "claims intake", "demo review", "walkthrough"],
-    action: { kind: "route", href: "/reviews/claims-intake-modernization", helpSlug: null },
+    action: { kind: "route", href: "/architecture/reviews/claims-intake-modernization", helpSlug: null },
   },
 ];
 
@@ -368,8 +368,8 @@ const ROUTE_RECOMMENDED_TOPIC_IDS: readonly { readonly prefix: string; readonly 
   },
   { prefix: "/governance", topicIds: ["governance-workflow", "risk-register", "policy-packs"] },
   { prefix: "/policy-packs", topicIds: ["policy-packs", "governance-workflow"] },
-  { prefix: "/reviews/new", topicIds: ["create-first-review", "upload-evidence", "first-review-guide"] },
-  { prefix: "/reviews", topicIds: ["review-findings", "finalize-review", "review-artifacts"] },
+  { prefix: "/architecture/reviews/new", topicIds: ["create-first-review", "upload-evidence", "first-review-guide"] },
+  { prefix: "/architecture/reviews", topicIds: ["review-findings", "finalize-review", "review-artifacts"] },
   { prefix: "/administration/settings/users", topicIds: ["users-and-roles", "sso-identity"] },
   { prefix: "/settings/roles", topicIds: ["users-and-roles", "sso-identity"] },
   { prefix: "/administration/settings/identity", topicIds: ["sso-identity", "users-and-roles"] },

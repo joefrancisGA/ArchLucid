@@ -38,13 +38,13 @@ export const GOVERNANCE_PAGE_PRIMARY_HEADING_PATTERN = new RegExp(
   "i",
 );
 
-/** `/architectures/new` page H1 — {@link CREATE_ARCHITECTURE_LABEL}. */
+/** `/architecture/architectures/new` page H1 — {@link CREATE_ARCHITECTURE_LABEL}. */
 export const CREATE_ARCHITECTURE_PAGE_HEADING_PATTERN = new RegExp(
   `^${escapeRegExpLiteral(CREATE_ARCHITECTURE_LABEL)}$`,
   "i",
 );
 
-/** `/reviews/new` page H1 — {@link START_REVIEW_LABEL}. */
+/** `/architecture/reviews/new` page H1 — {@link START_REVIEW_LABEL}. */
 export const START_REVIEW_PAGE_HEADING_PATTERN = new RegExp(
   `^${escapeRegExpLiteral(START_REVIEW_LABEL)}$`,
   "i",

@@ -91,7 +91,7 @@ export function auditPageMainHeading(page: Page): Locator {
   return page.getByRole("heading", { level: 2, name: AUDIT_PAGE_PRIMARY_HEADING_PATTERN });
 }
 
-/** `/governance?runId=` review context — query picker is hidden; approvals load via URL param. */
+/** `/governance/approval-queue?runId=` review context — query picker is hidden; approvals load via URL param. */
 export async function expectGovernanceRunWorkflowVisible(
   page: Page,
   approvalRequestId: string,
@@ -339,8 +339,8 @@ export async function clickCompareSubmitWhenReady(page: Page): Promise<void> {
 
 /** Run detail for the standard mock-api run fixture (`e2e/mock-archlucid-api-server`). */
 export async function gotoRunDetailForMockFixtureRun(page: Page): Promise<void> {
-  // Canonical route is `/reviews/*` (`next.config.ts` redirects `/runs/*`). Go direct to avoid redirect flake on CI.
-  await page.goto(`/reviews/${encodeURIComponent(FIXTURE_RUN_ID)}`);
+  // Canonical route is `/architecture/reviews/*` (`next.config.ts` redirects `/runs/*`). Go direct to avoid redirect flake on CI.
+  await page.goto(`/architecture/reviews/${encodeURIComponent(FIXTURE_RUN_ID)}`);
 }
 
 /** Manifest detail for a known id (encode-safe). */
@@ -478,10 +478,10 @@ export async function openReviewDetailWorkspaceTab(
   const encodedRunId = encodeURIComponent(trimmedRunId);
   const encodedGuidRunId = encodeURIComponent(toRunGuidPathSegment(trimmedRunId));
   const onRunDetail =
-    url.pathname === `/reviews/${encodedRunId}`
-    || url.pathname === `/reviews/${encodedGuidRunId}`
-    || url.pathname.toLowerCase() === `/reviews/${encodedRunId}`.toLowerCase()
-    || url.pathname.toLowerCase() === `/reviews/${encodedGuidRunId}`.toLowerCase();
+    url.pathname === `/architecture/reviews/${encodedRunId}`
+    || url.pathname === `/architecture/reviews/${encodedGuidRunId}`
+    || url.pathname.toLowerCase() === `/architecture/reviews/${encodedRunId}`.toLowerCase()
+    || url.pathname.toLowerCase() === `/architecture/reviews/${encodedGuidRunId}`.toLowerCase();
 
   const trigger = page.getByTestId(`review-detail-workspace-tab-${tab}`);
 
@@ -832,13 +832,13 @@ export function structuredCompareSponsorRecommendationParagraph(page: Page): Loc
   return page.locator("#compare-structured").getByTestId("compare-sponsor-recommendation");
 }
 
-/** Navigates to `/reviews/{runId}` with encoded id and DOM-ready wait (live API E2E parity). */
+/** Navigates to `/architecture/reviews/{runId}` with encoded id and DOM-ready wait (live API E2E parity). */
 export async function gotoLiveRunDetailPage(
   page: Page,
   runId: string,
   options?: { waitUntil?: "commit" | "domcontentloaded" | "load" },
 ): Promise<void> {
-  await page.goto(`/reviews/${encodeURIComponent(runId)}`, {
+  await page.goto(`/architecture/reviews/${encodeURIComponent(runId)}`, {
     waitUntil: options?.waitUntil ?? "domcontentloaded",
   });
 }

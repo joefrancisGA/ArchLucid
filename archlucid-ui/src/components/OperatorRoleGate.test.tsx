@@ -80,7 +80,7 @@ describe("OperatorRoleGate", () => {
 
     expect(view.getByTestId("operator-shell-access-gate-loading")).toBeInTheDocument();
     expect(view.queryByTestId("protected-page")).not.toBeInTheDocument();
-    expect(replace).toHaveBeenCalledWith("/auth/signin?returnUrl=%2Freviews");
+    expect(replace).toHaveBeenCalledWith("/auth/signin?returnUrl=%2Farchitecture%2Freviews");
   });
 
   it("preserves query string in sign-in returnUrl for unsigned JWT sessions", () => {
@@ -100,7 +100,7 @@ describe("OperatorRoleGate", () => {
         </OperatorRoleGate>,
       );
 
-      expect(replace).toHaveBeenCalledWith("/auth/signin?returnUrl=%2Freviews%3Fx%3D1");
+      expect(replace).toHaveBeenCalledWith("/auth/signin?returnUrl=%2Farchitecture%2Freviews%3Fx%3D1");
     } finally {
       locationSpy.mockRestore();
     }

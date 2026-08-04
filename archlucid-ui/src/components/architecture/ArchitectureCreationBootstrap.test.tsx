@@ -24,9 +24,14 @@ const initializeArchitectureCreation = vi.fn();
 const clearArchitectureCreationDraftId = vi.fn();
 const replace = vi.fn();
 
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({ replace }),
-}));
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+  return {
+    ...actual,
+    useRouter: () => ({ replace }),
+    usePathname: () => "/",
+  };
+});
 
 vi.mock("@/lib/architecture-draft-registry", () => ({
   listArchitectureDraftRegistryEntries: () => listArchitectureDraftRegistryEntries(),
@@ -80,10 +85,10 @@ describe("ArchitectureCreationBootstrap", () => {
     expect(initializeArchitectureCreation).not.toHaveBeenCalled();
     expect(screen.getByRole("link", { name: CONTINUE_DRAFT_LABEL })).toHaveAttribute(
       "href",
-      "/architectures/draft-001",
+      "/architecture/architectures/draft-001",
     );
     expect(screen.getByRole("button", { name: START_NEW_ARCHITECTURE_LABEL })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: VIEW_ALL_DRAFTS_LABEL })).toHaveAttribute("href", "/architectures");
+    expect(screen.getByRole("link", { name: VIEW_ALL_DRAFTS_LABEL })).toHaveAttribute("href", "/architecture/architectures");
     expect(screen.getByText(ARCHITECTURE_CREATION_REVIEW_BOUNDARY)).toBeInTheDocument();
     expect(screen.getByText(ARCHITECTURE_CREATION_AUTOSAVE_REASSURANCE)).toBeInTheDocument();
     expect(screen.queryByTestId("architecture-creation-bootstrap-loading")).not.toBeInTheDocument();
@@ -140,7 +145,7 @@ describe("ArchitectureCreationBootstrap", () => {
     resolveCreate?.({ draftId: "draft-new" });
 
     await waitFor(() => {
-      expect(replace).toHaveBeenCalledWith("/architectures/draft-new");
+      expect(replace).toHaveBeenCalledWith("/architecture/architectures/draft-new");
     });
   });
 
@@ -166,14 +171,14 @@ describe("ArchitectureCreationBootstrap", () => {
 
     expect(await screen.findByRole("link", { name: CONTINUE_DRAFT_LABEL })).toHaveAttribute(
       "href",
-      "/architectures/draft-001",
+      "/architecture/architectures/draft-001",
     );
     expect(screen.queryByRole("link", { name: /start review/i })).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByTestId("architecture-creation-start-new"));
 
     await waitFor(() => {
-      expect(replace).toHaveBeenCalledWith("/architectures/draft-new");
+      expect(replace).toHaveBeenCalledWith("/architecture/architectures/draft-new");
     });
 
     expect(replace.mock.calls[0]?.[0]).not.toMatch(/\/architecture\/reviews\//);

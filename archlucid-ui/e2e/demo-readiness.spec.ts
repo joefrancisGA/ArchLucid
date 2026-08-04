@@ -32,7 +32,7 @@ async function expectBrandedNotFoundSurface(page: Page): Promise<void> {
   await expect(main.getByTestId("not-found-review-packages")).toBeVisible();
 }
 
-/** Canonical run detail path is `/reviews/{runId}`; `/runs/*` permanently redirects (see `next.config.ts`). */
+/** Canonical run detail path is `/architecture/reviews/{runId}`; `/runs/*` permanently redirects (see `next.config.ts`). */
 function showcaseDemoReviewDetailUrlPattern(): RegExp {
   return new RegExp(`/(?:reviews|runs)/${escapeRegExpSource(SHOWCASE_DEMO_RUN_ID)}`);
 }
@@ -49,7 +49,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
   });
 
   test("runs list shows Claims Intake example without mock-provider leakage", async ({ page }) => {
-    await page.goto("/reviews?projectId=default");
+    await page.goto("/architecture/reviews?projectId=default");
     await expect(
       page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
     ).toBeVisible();
@@ -58,14 +58,14 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
   });
 
   test("run detail avoids not-found shells, bogus pipeline progress, and invalid dates", async ({ page }) => {
-    await page.goto(`/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`);
+    await page.goto(`/architecture/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`);
     const primaryMain = getAppMain(page);
     await expect(primaryMain).not.toContainText(/run not found/i);
     await expectMainHasNoHardFailureChrome(page);
     await expect(primaryMain).not.toContainText(/Invalid Date/i);
     await expect(primaryMain.getByText(/\b0 of 4 run pipeline stages complete\b/i)).toHaveCount(0);
 
-    await page.goto(`/reviews/${encodeURIComponent(SCREENSHOT_RUN_ID)}`);
+    await page.goto(`/architecture/reviews/${encodeURIComponent(SCREENSHOT_RUN_ID)}`);
     await expect(page).toHaveURL(showcaseDemoReviewDetailUrlPattern());
     await expect(getAppMain(page)).not.toContainText(/run not found/i);
   });
@@ -103,12 +103,12 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
   test("demo pages do not leak internal tokens in main content @demo-readiness", async ({ page }) => {
     const paths: string[] = [
       "/",
-      "/reviews?projectId=default",
-      `/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`,
-      `/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}/signed-record`,
-      "/governance",
+      "/architecture/reviews?projectId=default",
+      `/architecture/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`,
+      `/architecture/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}/signed-record`,
+      "/governance/approval-queue",
       "/help",
-      `/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}/findings/${encodeURIComponent("phi-minimization-risk")}`,
+      `/architecture/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}/findings/${encodeURIComponent("phi-minimization-risk")}`,
     ];
 
     const banned = [
@@ -144,10 +144,10 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
     /** Mock E2E uses buyer-polished demo: home surfaces the featured package proof summary, not a review-title heading. */
     await expect(runsDashboardBuyerProofSummary(page)).toBeVisible();
 
-    await page.goto("/reviews/new");
+    await page.goto("/architecture/reviews/new");
     await expect(page).toHaveURL(/\/reviews\/new/);
 
-    await page.goto("/reviews?projectId=default");
+    await page.goto("/architecture/reviews?projectId=default");
     await expect(
       page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
     ).toBeVisible();
@@ -164,19 +164,19 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
 
     if (isShowcaseSignedManifestBrowserPath(new URL(page.url()).pathname)) {
       await expectMainHasNoHardFailureChrome(page);
-      await page.goto(`/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`);
+      await page.goto(`/architecture/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`);
     }
 
     await expect(page).toHaveURL(showcaseDemoReviewDetailUrlPattern());
     await expectMainHasNoHardFailureChrome(page);
 
-    await page.goto(`/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}/signed-record`);
+    await page.goto(`/architecture/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}/signed-record`);
     await expect(
       getAppMain(page).getByRole("heading", { level: 1, name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN }).first(),
     ).toBeVisible({ timeout: 60_000 });
 
     await page.goto(
-      `/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}/findings/${encodeURIComponent("phi-minimization-risk")}`,
+      `/architecture/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}/findings/${encodeURIComponent("phi-minimization-risk")}`,
     );
     await expectMainHasNoHardFailureChrome(page);
 
@@ -198,7 +198,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
       "/insights/ask-review-questions",
       "/insights/evidence-graph",
       "/insights/compare-two-reviews",
-      "/governance",
+      "/governance/approval-queue",
       "/governance/advisory-scans",
       "/replay",
       "/insights/search-review-evidence",
@@ -221,7 +221,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
   }) => {
     await page.goto("/governance/policy-packs/e2e-policy-pack-001");
     // Pack detail body uses buyer-polished empty-state copy; breadcrumb uses demo fixture titles — not `getRouteTitle`'s "Policy pack detail".
-    await expect(page.getByRole("link", { name: /^Policy packs$/ })).toBeVisible();
+    await expect(page.getByRole("main").getByRole("link", { name: /^Policy packs$/ })).toBeVisible();
     await expect(page.getByRole("heading", { level: 1, name: /^Governance workflow$/i })).toHaveCount(0);
   });
 
@@ -229,7 +229,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
     await page.goto("/signed-records/undefined");
     await expectBrandedNotFoundSurface(page);
 
-    await page.goto("/reviews/undefined");
+    await page.goto("/architecture/reviews/undefined");
     await expectBrandedNotFoundSurface(page);
   });
 });

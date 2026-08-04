@@ -795,7 +795,7 @@ export async function getAuthorityRunDetailRaw(
   });
 }
 
-/** Buyer-polished run detail — same endpoint Next.js SSR uses for `/reviews/{runId}`. */
+/** Buyer-polished run detail — same endpoint Next.js SSR uses for `/architecture/reviews/{runId}`. */
 export async function getAuthorityBuyerSummaryRaw(
   request: APIRequestContext,
   runId: string,

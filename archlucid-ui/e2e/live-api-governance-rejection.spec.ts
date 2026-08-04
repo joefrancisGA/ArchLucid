@@ -180,7 +180,7 @@ test.describe("live-api-governance-rejection", () => {
       await injectDemoWorkspaceOperatorScope(page, tenantScope);
     }
 
-    await page.goto(`/governance?runId=${encodeURIComponent(runId)}`);
+    await page.goto(`/governance/approval-queue?runId=${encodeURIComponent(runId)}`);
 
     await expect(governancePageMainHeading(page)).toBeVisible({
       timeout: 60_000,

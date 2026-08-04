@@ -52,10 +52,6 @@ export function pathnameEligibleBeforeFirstCommittedArchitectureReview(pathWitho
   return false;
 }
 
-function navPathWithoutQuery(href: string): string {
-  return href.split("?")[0] ?? "";
-}
-
 /**
  * Previously narrowed the sidebar until the first committed architecture review.
  * **Retired for visibility (owner 2026-08-03):** returns all links; role/authority gates remain in
@@ -65,5 +61,7 @@ export function filterNavLinksByCommittedArchitectureReviewGate(
   links: ReadonlyArray<NavLinkItem>,
   _hasCommittedArchitectureReview: boolean,
 ): NavLinkItem[] {
+  void _hasCommittedArchitectureReview;
+
   return [...links];
 }

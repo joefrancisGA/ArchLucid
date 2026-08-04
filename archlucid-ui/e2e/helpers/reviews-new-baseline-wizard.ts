@@ -26,7 +26,7 @@ export async function ensureFullGuidedWizardMode(page: Page): Promise<void> {
   await expect(page.getByTestId("wizard-start-blank")).toBeVisible({ timeout: 60_000 });
 }
 
-/** `/reviews/new?baseline=1` now routes through the path switcher into `NewRunWizardClient` (detailed tab). */
+/** `/architecture/reviews/new?baseline=1` now routes through the path switcher into `NewRunWizardClient` (detailed tab). */
 export async function waitForReviewsNewBaselineSimplifiedWizard(page: Page): Promise<void> {
   await waitForAppReady(page);
   await expect(page.getByTestId("reviews-new-path-toggle")).toBeVisible({ timeout: 60_000 });

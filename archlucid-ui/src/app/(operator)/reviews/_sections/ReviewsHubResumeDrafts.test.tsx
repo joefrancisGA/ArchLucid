@@ -74,12 +74,12 @@ describe("ReviewsHubResumeDrafts", () => {
     expect(screen.getByText("Ready for review")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-hub-resume-draft-continue-draft-001")).toHaveAttribute(
       "href",
-      "/architectures/draft-001",
+      "/architecture/architectures/draft-001",
     );
     expect(screen.getByTestId("reviews-hub-resume-draft-start-draft-001").getAttribute("href")).toContain(
       "/architecture/reviews/new",
     );
-    expect(screen.getByTestId("reviews-hub-resume-drafts-view-all")).toHaveAttribute("href", "/architectures");
+    expect(screen.getByTestId("reviews-hub-resume-drafts-view-all")).toHaveAttribute("href", "/architecture/architectures");
     expect(screen.getAllByText(/Updated /i).length).toBeGreaterThanOrEqual(2);
   });
 });

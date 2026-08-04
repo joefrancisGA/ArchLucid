@@ -33,13 +33,13 @@ describe("architecture creation vs review workflow separation", () => {
 
   it("navigates create architecture to /architectures/new", () => {
     expect(createNavSource).toContain("ARCHITECTURES_NEW_PATH");
-    expect(createNavSource).not.toContain("/reviews/new?path=guided-intake&intent=create-architecture");
+    expect(createNavSource).not.toContain("/architecture/reviews/new?path=guided-intake&intent=create-architecture");
   });
 
   it("surfaces Architectures and Reviews as peer object destinations in pilot nav", () => {
     expect(pilotNavSource).toContain('href: ARCHITECTURES_LIST_PATH');
     expect(pilotNavSource).toContain("resolveArchitecturesListNavTitle");
-    expect(pilotNavSource).not.toContain('href: "/reviews/new"');
+    expect(pilotNavSource).not.toContain('href: "/architecture/reviews/new"');
     expect(pilotNavSource).not.toContain("ARCHITECTURES_NEW_PATH");
   });
 });

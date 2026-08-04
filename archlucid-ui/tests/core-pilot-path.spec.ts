@@ -49,12 +49,12 @@ test.describe("Core pilot path (mock API, buyer-polished shell)", () => {
     await expect(page.getByTestId("sidebar-group-toggle-operate-analysis")).toBeVisible();
     await expect(page.getByTestId("sidebar-group-toggle-operate-governance")).toBeVisible();
 
-    await page.goto("/reviews/new");
+    await page.goto("/architecture/reviews/new");
     await expect(
       page.getByRole("heading", { name: START_REVIEW_PAGE_HEADING_PATTERN, level: 1 }),
     ).toBeVisible();
 
-    await page.goto("/reviews?projectId=default");
+    await page.goto("/architecture/reviews?projectId=default");
     await expect(
       page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
     ).toBeVisible();

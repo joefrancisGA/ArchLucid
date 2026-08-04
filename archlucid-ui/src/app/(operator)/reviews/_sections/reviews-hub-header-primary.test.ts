@@ -31,7 +31,7 @@ describe("resolveReviewsHubHeaderPrimary", () => {
   it("continues the sole draft without showing a chooser strip", () => {
     const primary = resolveReviewsHubHeaderPrimary([draft("draft-001", "Payments")]);
 
-    expect(primary.href).toBe("/architectures/draft-001");
+    expect(primary.href).toBe("/architecture/architectures/draft-001");
     expect(primary.label).toBe("Continue editing draft");
     expect(primary.continuesSingleDraft).toBe(true);
     expect(shouldShowReviewsHubResumeDrafts(1)).toBe(false);
