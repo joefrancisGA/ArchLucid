@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-04 - UI: Alerts help Evidence chrome (HA)
+
+/help/alerts ships PageContextualHelpButton, Category-1 registry, Sources + claim-discipline orientation strip, traffic Notes under Help topic, and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-04 - API: Bounded inbound webhook body intake (TB-967)
 
 Shared `InboundWebhookBoundedBodyReader` rejects oversize payloads (Content-Length + hard 64 KiB ceiling) before HMAC/JWT verify on ITSM, Stripe, Marketplace, and Slack inbound routes (413). Architecture/integration tests lock size-before-verify-before-parse; hostile-traffic inventory Size column updated. No CPA / third-party pen-test implication.

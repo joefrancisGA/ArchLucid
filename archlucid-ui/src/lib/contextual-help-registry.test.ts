@@ -72,6 +72,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/getting-started",
       "/help/how-it-works",
       "/help/troubleshooting",
+      "/help/alerts",
       "/help/cloud-connections/azure",
       "/help/cloud-connections",
       "/administration/settings/users",
@@ -185,6 +186,11 @@ describe("contextual-help-registry (TB-733)", () => {
   it("resolves troubleshooting help Category-1 help (HTX)", () => {
     expect(contextualHelpForPathname("/help/troubleshooting")?.whatIsThisPage).toContain("Troubleshooting");
     expect(contextualHelpForPathname("/help/troubleshooting")?.whatToDoNext).toContain("System health");
+  });
+
+  it("resolves alerts help Category-1 help (HA)", () => {
+    expect(contextualHelpForPathname("/help/alerts")?.whatIsThisPage).toContain("How alerts work");
+    expect(contextualHelpForPathname("/help/alerts")?.whatToDoNext).toContain("alerts inbox");
   });
 
   it("resolves executive scorecard Category-1 help (ESX)", () => {

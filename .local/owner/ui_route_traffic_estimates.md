@@ -45,13 +45,12 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 
 ---
 
-**OVERALL WEIGHT SCORE:** 54.39%
+**OVERALL WEIGHT SCORE:** 54.45%
 
 ## Master table (score 0 first; then Deficit desc; ties A→Z by path)
 
 | ID | Path | Hit% | Scores | Weight | Deficit | Section | Notes |
 |----|------|------|--------|--------|---------|---------|-------|
-| HA | `/help/alerts` | 0.1% | 0 | 0 | 10 | Help topic | None |
 | HFX | `/help/findings` | 0.1% | 0 | 0 | 10 | Help topic | None |
 | IJX | `/integrations/jira` | 0.1% | 0 | 0 | 10 | Integrations | None |
 | ISN | `/integrations/slack` | 0.1% | 0 | 0 | 10 | Integrations | None |
@@ -158,7 +157,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | HED | `/help/data-handling` | 0.02% | 0 | 0 | 2 | Help topic | Canon for data flow + three-layer isolation (`DATA_HANDLING.md`). Specialty HelpDataHandlingTenantIsolationGuideView mounts here. Absorbs former HDA twin (TB-1652 / TB-1658; 2026-08-03). |
 | HDA | `/help/data-handling-tenant-isolation` | 0.02% | 0 | 0 | 2 | Help alias | Alias → `/help/data-handling` (HED). Fold hit share into HED on next `/al-ui-tableupdate` pass. |
 | HEV | `/help/evidence-only-review` | 0.02% | 0 | 0 | 2 | Help alias | Alias → `/help/first-architecture-review` (COR), preferably `#fast-path-evidence-only`. Fold hit share into COR on next `/al-ui-tableupdate` pass. |
-| EXE | `/help/executive-summary` | 0.02% | 0 | 0 | 2 | Help topic | None |
+| EXE | `/help/executive-summary` | 0.02% | 0 | 0 | 2 | Help topic | Canon sponsor brief help. Absorbs former EPR (`/help/product-overview`) twin (TB-1739; 2026-08-04); overview + pilot sections. |
 | HEI | `/help/integration-readiness` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HAZ | `/help/integrations/azure-boards` | 0.02% | 0 | 0 | 2 | Help alias | None |
 | HPX | `/help/path-chooser` | 0.02% | 0 | 0 | 2 | Help topic | None |
@@ -166,7 +165,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | PIL | `/help/pilot-nav-profile` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | POL | `/help/policy-pack-delta-demo` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HPR | `/help/prior-manifest-retrieval` | 0.02% | 0 | 0 | 2 | Help topic | None |
-| EPR | `/help/product-overview` | 0.02% | 0 | 0 | 2 | Help topic | None |
+| EPR | `/help/product-overview` | 0.02% | 0 | 0 | 2 | Help alias | Alias → `/help/executive-summary` (EXE), preferably `#what-archlucid-is`. Fold hit share into EXE on next `/al-ui-tableupdate` pass. |
 | HRE | `/help/report-a-problem` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HS | `/help/specialty-walkthroughs` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HET | `/help/starting-reviews` | 0.02% | 0 | 0 | 2 | Help alias | Alias → `/help/review-guide` (HR) after TB-1258 canonicalize (2026-08-03). Fold hit share into HR on next `/al-ui-tableupdate` pass. |
@@ -249,6 +248,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | HTX | `/help/troubleshooting` | 0.12% | 52 | 6.24 | 5.76 | Help topic | Troubleshooting help (Help topic) - HelpTroubleshootingGuideView with PageContextualHelpButton (topic map troubleshooting; Category-1 registry), workspace Sources + claim-discipline orientation strip, start-here CTAs, common issues, advanced diagnostics. Operator unblocking guide — not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-03) — help-topic orientation hard-caps higher Evidence. |
 | AHX | `/admin/health` | 0.15% | 62 | 9.3 | 5.7 | Admin | None |
 | ESX | `/executive/scorecard` | 0.1% | 48 | 4.8 | 5.2 | Executive | Sponsor scorecard (Executive) - ExecutiveScorecardClient with PageContextualHelpButton (topic map executive-summary; Category-1 registry), workspace Sources + claim-discipline orientation strip, time-range KPIs, recommended actions. Sponsor KPI leave-behind — not a signed-record Sources trail. Sibling SCX = Insights architecture scorecard; SPE = sponsor executive summary. Does not imply CPA SOC 2 or third-party pen-test publication. Score 48/100 (2026-08-04) — executive KPI hub hard-caps higher Evidence. |
+| HA | `/help/alerts` | 0.1% | 52 | 5.2 | 4.8 | Help topic | Alerts help (Help topic) - HelpAlertsGuideView with PageContextualHelpButton (topic map alerts; Category-1 registry), workspace Sources + claim-discipline orientation strip, go-to-alerts CTAs, how-alerts-work stepper, workspace readiness strip. Operator orientation guide — not a signed-record Sources trail. Sibling AL = alerts inbox; SAX = alert rules hub. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-04) — help-topic orientation hard-caps higher Evidence. |
 | GRA | `/insights/evidence-graph` | 0.6% | 93 | 55.8 | 4.2 | Insights | Evidence graph (Insights) — GraphPageContent buyer workspace: Graph view default + URL presentation, auto-load on review select / demo sample auto-pick, process-graph canvas as hero (~88vh) with wider inspector, selection focus dimming, path breadcrumb, Fit/100%/Highlight/Focus/Reset toolbar, compact sample banner, idle teaching frame (GraphIdleLegend). Trace table remains alternate. Signature evidence↔finding↔decision↔approval trail — not a full diligence Sources export package alone. Does not imply CPA SOC 2 or third-party pen-test publication. Score 93/100 (2026-08-03) — post workspace-hero pass; remaining gap is lifecycle count-strip + denser diligence packing. |
 | ACX | `/admin/configuration` | 0.1% | 62 | 6.2 | 3.8 | Admin | None |
 | ARX | `/admin/rag-health` | 0.1% | 62 | 6.2 | 3.8 | Admin | None |

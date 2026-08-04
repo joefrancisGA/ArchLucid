@@ -1,10 +1,12 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { AlertsHelpEvidenceOrientationStrip } from "@/app/(operator)/help/_sections/AlertsHelpEvidenceOrientationStrip";
 import { HelpAlertsWorkspaceReadinessStrip } from "@/app/(operator)/help/_sections/HelpAlertsWorkspaceReadinessStrip";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   ALERTS_HELP_DESTINATION_CARDS,
   ALERTS_HELP_GUIDE_HEADINGS,
@@ -82,9 +84,14 @@ export function HelpAlertsGuideView(props: HelpAlertsGuideViewProps): React.Reac
     <article className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")} data-testid="help-alerts-guide">
       <HelpTopicHashScroll />
       <header className={HELP_PAGE_LAYOUT.articleHeader}>
-        <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{ALERTS_HELP_PAGE_TITLE}</h1>
+        <div className="flex flex-wrap items-center gap-2">
+          <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{ALERTS_HELP_PAGE_TITLE}</h1>
+          <PageContextualHelpButton />
+        </div>
         <p className={cn("m-0 max-w-[42rem]", OPERATOR_TYPOGRAPHY.helper)}>{ALERTS_HELP_PAGE_SUBTITLE}</p>
       </header>
+
+      <AlertsHelpEvidenceOrientationStrip />
 
       <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
         <Card
