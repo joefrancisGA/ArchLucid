@@ -73,6 +73,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/how-it-works",
       "/help/troubleshooting",
       "/help/alerts",
+      "/help/billing-and-plans",
       "/help/findings",
       "/help/governance-approval",
       "/help/review-guide",
@@ -201,6 +202,11 @@ describe("contextual-help-registry (TB-733)", () => {
   it("resolves alerts help Category-1 help (HA)", () => {
     expect(contextualHelpForPathname("/help/alerts")?.whatIsThisPage).toContain("How alerts work");
     expect(contextualHelpForPathname("/help/alerts")?.whatToDoNext).toContain("alerts inbox");
+  });
+
+  it("resolves billing and plans help Category-1 help (HBX)", () => {
+    expect(contextualHelpForPathname("/help/billing-and-plans")?.whatIsThisPage).toContain("Billing and plans");
+    expect(contextualHelpForPathname("/help/billing-and-plans")?.whatToDoNext).toContain("Billing settings");
   });
 
   it("resolves findings help Category-1 help (HFX)", () => {

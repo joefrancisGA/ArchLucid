@@ -478,6 +478,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/help/billing-and-plans",
+    entry: {
+      whatIsThisPage:
+        "Billing and plans — how evaluation and paid plans, usage, and invoices show up for operators.",
+      whatToDoNext:
+        "Open Billing settings for this workspace, or Pricing when you need public packaging before changing plans.",
+      whyEmpty: "This guide is always available; live plan and usage cards appear after billing data loads.",
+      whereToConfigurePrerequisite:
+        "Changing plans or payment methods needs a role that can manage workspace billing.",
+    },
+  },
+  {
     prefix: "/help/findings",
     entry: {
       whatIsThisPage:
