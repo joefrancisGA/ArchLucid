@@ -17,29 +17,24 @@ function initialStepStatuses(): GovernanceSetupStepStatus[] {
 export async function resolveGovernanceSetupGuideViewModel(): Promise<GovernanceSetupGuideViewModel> {
   const stepStatuses = initialStepStatuses();
 
-  try {
-    const effectivePolicyPacks = await getEffectivePolicyPacks();
+  // Independent GETs — allSettled so one failure cannot blank the other slice (TB-2027).
+  const [policySettled, routingSettled] = await Promise.allSettled([
+    getEffectivePolicyPacks(),
+    listAlertRoutingSubscriptions(),
+  ]);
 
-    if (effectivePolicyPacks.packs.length > 0) {
-      stepStatuses[0] = "complete";
-    }
-  } catch {
-    // Keep step 1 not-started when policy data is unavailable.
+  if (policySettled.status === "fulfilled" && policySettled.value.packs.length > 0) {
+    stepStatuses[0] = "complete";
   }
 
   // TODO: Connect threshold dry-run completion when a workspace signal is exposed for step 2.
+
   if (stepStatuses[0] === "complete" && stepStatuses[1] !== "complete") {
     stepStatuses[1] = "in-progress";
   }
 
-  try {
-    const routingSubscriptions = await listAlertRoutingSubscriptions();
-
-    if (routingSubscriptions.length > 0) {
-      stepStatuses[2] = "complete";
-    }
-  } catch {
-    // Keep step 3 not-started when alert routing data is unavailable.
+  if (routingSettled.status === "fulfilled" && routingSettled.value.length > 0) {
+    stepStatuses[2] = "complete";
   }
 
   // TODO: Connect approval-path / SLA configuration signal when available for step 4.

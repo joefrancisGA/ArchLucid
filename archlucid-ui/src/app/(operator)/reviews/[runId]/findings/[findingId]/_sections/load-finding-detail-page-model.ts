@@ -28,8 +28,14 @@ export async function loadFindingDetailPageModel(
   decodedFindingId: string,
   findingIdRouteParam: string,
 ): Promise<LoadFindingDetailPageModelResult> {
+  // Inspect + run footnote only share runId — parallelize proxy hops (TB-2027).
+  const [inspectResult, runExecutionFootnote] = await Promise.all([
+    loadFindingInspectForRoute(runId, decodedFindingId),
+    tryLoadRunExecutionFootnote(runId),
+  ]);
+
   const { payload: inspectPayloadRaw, failure: inspectFailureRaw, invalidRouteAlignment } =
-    await loadFindingInspectForRoute(runId, decodedFindingId);
+    inspectResult;
 
   if (invalidRouteAlignment || shouldTreatFindingInspectFailureAsNotFound(inspectFailureRaw)) {
     return { kind: "not-found" };
@@ -38,7 +44,6 @@ export async function loadFindingDetailPageModel(
   const inspectPayload: FindingInspectPayload | null = inspectPayloadRaw;
   const inspectFailure = inspectFailureRaw;
 
-  const runExecutionFootnote = await tryLoadRunExecutionFootnote(runId);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const linkedManifestHref = findingLinkedManifestDetailHrefForRun(runId);
   const pageTitle = findingDetailHeadingTitleForRoute(decodedFindingId, inspectPayload);

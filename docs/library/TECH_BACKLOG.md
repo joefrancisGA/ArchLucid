@@ -1,6 +1,6 @@
 > **Scope:** Engineering-owned technical backlog items deferred from current sessions; audience is contributors and the AI assistant; not a buyer or operator document. Not a substitute for ADRs or the pending-questions owner decisions file.
 
-**Updated:** 2026-08-03 (**TB-951** **Done** — ≥3 indirect doc/README/ADR corpus scenarios + `indirect-doc-injection.json` with `expectedContained` residual; CI assert + eval_agent_quality strict; no 100% detection claim). Prior: 2026-08-03 (**TB-950** **Done** — production-like empty/null `AllowedTools` fail-closed; `*` unrestricted sentinel; DemoSeed concrete tools; TB-082 tests updated). Prior: 2026-08-03 (**TB-949** **Done** — untrusted customer-content `CUSTOMER_CONTENT_BEGIN`/`END` + framing; Agent/Ask composers; contract doc; unit + wiring tests; hygiene ≠ security boundary). Prior: 2026-08-03 (**DI** Evidence chrome — /digests Sources + claim discipline; Vitest; traffic **DI**). Prior: 2026-08-03 (**PLA** Evidence chrome — `/planning` Sources + claim discipline + topic honesty `how-it-works`; Vitest; traffic **PLA**). Prior: 2026-08-03 (**TB-897** **Done** — Quick Scan layered identity/abuse limits + CAPTCHA/sign-in friction codes; mig **292**; abuse ≠ spend ceiling). Prior: 2026-08-03 (**SCX** Evidence chrome — `/insights/architecture-scorecard` Sources + Category-1 registry + directional ROI claim; Vitest; traffic **SCX**; **TB-1956**–**TB-1960** remain Done). Prior: 2026-08-03 (**TB-1668** GDX/alerts topic slice — `/governance/dashboard` Sources + registry + topic honesty; `/governance/alerts` → `alerts`; Vitest; traffic **GDX**; remaining mount hubs open). Prior: 2026-08-03 (**TB-1667** HOM slice — `/` remounts `OperatorHomePageChrome` + Category-1 registry; Vitest; traffic **HOM**; remaining hubs open). Prior: 2026-08-03 (**TB-1746**/**TB-1749**/**TB-1750** **Done** — `/help/soc2-self-assessment` specialty buyer guide + Trust CTA / IA dual / Help Center; Vitest; traffic **HES**; **TB-1747**/**TB-1748** retained). Prior: 2026-08-03 (**TB-1386** **Done** — `/help/governance-api-contracts` specialty API contracts guide + title honesty; Vitest; traffic **HG**). Prior: 2026-08-02 (**TB-1691**/**TB-1692**/**TB-1694**/**TB-1695** **Done** — `/help/first-value-20-minutes` Admin specialty guide; Vitest; traffic **HEF**). Prior: 2026-08-02 (**TB-1676**/**TB-1678**/**TB-1679**/**TB-1680** **Done** — `/help/dpa-template` specialty buyer DPA guide; Vitest; traffic **HDP**). Prior: 2026-07-31 (Open **P1** summary rows reordered - human-impact ship order for /ship-next-improvement; 723 open P1s; see `### P1 - human-impact ship order`).
+**Updated:** 2026-08-03 (**TB-954** **Done** — `RequiredAuditEventTypes` registry + arch test forbids `TryLogAsync` on Required types; INV-003 enforcement note; Core + Architecture tests). Prior: 2026-08-03 (**TB-951** **Done** — ≥3 indirect doc/README/ADR corpus scenarios + `indirect-doc-injection.json` with `expectedContained` residual; CI assert + eval_agent_quality strict; no 100% detection claim). Prior: 2026-08-03 (**TB-950** **Done** — production-like empty/null `AllowedTools` fail-closed; `*` unrestricted sentinel; DemoSeed concrete tools; TB-082 tests updated). Prior: 2026-08-03 (**TB-949** **Done** — untrusted customer-content `CUSTOMER_CONTENT_BEGIN`/`END` + framing; Agent/Ask composers; contract doc; unit + wiring tests; hygiene ≠ security boundary). Prior: 2026-08-03 (**DI** Evidence chrome — /digests Sources + claim discipline; Vitest; traffic **DI**). Prior: 2026-08-03 (**PLA** Evidence chrome — `/planning` Sources + claim discipline + topic honesty `how-it-works`; Vitest; traffic **PLA**). Prior: 2026-08-03 (**TB-897** **Done** — Quick Scan layered identity/abuse limits + CAPTCHA/sign-in friction codes; mig **292**; abuse ≠ spend ceiling). Prior: 2026-08-03 (**SCX** Evidence chrome — `/insights/architecture-scorecard` Sources + Category-1 registry + directional ROI claim; Vitest; traffic **SCX**; **TB-1956**–**TB-1960** remain Done). Prior: 2026-08-03 (**TB-1668** GDX/alerts topic slice — `/governance/dashboard` Sources + registry + topic honesty; `/governance/alerts` → `alerts`; Vitest; traffic **GDX**; remaining mount hubs open). Prior: 2026-08-03 (**TB-1667** HOM slice — `/` remounts `OperatorHomePageChrome` + Category-1 registry; Vitest; traffic **HOM**; remaining hubs open). Prior: 2026-08-03 (**TB-1746**/**TB-1749**/**TB-1750** **Done** — `/help/soc2-self-assessment` specialty buyer guide + Trust CTA / IA dual / Help Center; Vitest; traffic **HES**; **TB-1747**/**TB-1748** retained). Prior: 2026-08-03 (**TB-1386** **Done** — `/help/governance-api-contracts` specialty API contracts guide + title honesty; Vitest; traffic **HG**). Prior: 2026-08-02 (**TB-1691**/**TB-1692**/**TB-1694**/**TB-1695** **Done** — `/help/first-value-20-minutes` Admin specialty guide; Vitest; traffic **HEF**). Prior: 2026-08-02 (**TB-1676**/**TB-1678**/**TB-1679**/**TB-1680** **Done** — `/help/dpa-template` specialty buyer DPA guide; Vitest; traffic **HDP**). Prior: 2026-07-31 (Open **P1** summary rows reordered - human-impact ship order for /ship-next-improvement; 723 open P1s; see `### P1 - human-impact ship order`).
 
 
 ## Cursor-actionable backlog ? remaining by architectural quality
@@ -176,7 +176,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 
 **TB-933 — TB-935** were added 2026-07-22 from the owner follow-up on **UI performance** after **TB-560–TB-573** / **TB-691–TB-698** shipped the first bundle/CWV/Lighthouse wave. Easy static-import wins are largely done; this cluster is the next engineering wave: cut remaining First Load JS on `/reviews/[runId]` (**TB-933**, still ~2.2 MB per `reviews_run_detail_bundle_composition_tb697.md`), then `/reviews` + `/governance` (**TB-934**), then TanStack Query + virtualization for remaining high-churn operator lists beyond findings (**TB-935**). Does **not** duplicate API/SQL payload work (**TB-929**/**TB-930**) — if field LCP/INP is fine but the page feels slow, triage to those first. Owner cadence for field Web Vitals and pre-cut triage lives in GTM **G-QA-06** / **G-QA-07** / **M-112**. Cross-ref [`UI_LIGHTHOUSE_CI.md`](../architecture/UI_LIGHTHOUSE_CI.md), [`ui_dependency_assessment.md`](../architecture/ui_dependency_assessment.md). **TB-933** **Done** (2026-07-24); **TB-934**/**TB-935** remain open. Wave-3 follow-ons: **TB-2021**–**TB-2032** (2026-07-31).
 
-**TB-2021 — TB-2032** were added 2026-07-31 from an **owner ask** for quantified UI speedups (top-10 + follow-up audit of alerts/home/alert-rules). Baseline still shows `/reviews/[runId]` **2,255 kB**, `/reviews` **1,695 kB**, `/governance` **1,417 kB**, `/welcome` **736 kB** First Load JS. Does **not** recreate open **TB-934** (hub First Load JS) or **TB-935** (list Query + virtualization) — execute those as peers. Does **not** reopen Done **TB-933**/**TB-930**/**TB-560**–**TB-573**/**TB-691**–**TB-698**. **TB-2021** (P1) post-933 run-detail sync shell cut — **Done** (2026-08-03; baseline remeasure pending). **TB-2022** (P1) operator slim first-paint — **Done** (2026-08-03; always buyer-summary). **TB-2023** (P1) alerts inbox mount fan-out — **Done** (2026-08-03; `GET /v1/alerts/inbox-summary`). **TB-2024** (P2) alert-rules tab code-split — **Done** (2026-08-03). **TB-2025** (P2) home empty-SSR refetch skip — **Done** (2026-08-03; authoritative empty SSR). **TB-2026** (P2) nested Suspense streaming — **Done** (2026-08-03; alerts hub + run-detail below-fold). **TB-2027**–**TB-2029** (P2) Suspense streaming, loader/proxy waterfalls, `/welcome` shell cut, SSE/poll hygiene. **TB-2030** (P2) baseline expansion. **TB-2031** (P2) field CWV triage gate — **Done** (2026-08-03; [`FIELD_WEB_VITALS_TRIAGE.md`](../runbooks/FIELD_WEB_VITALS_TRIAGE.md); pairs GTM **G-QA-06**/**G-QA-07**). **TB-2032** (P3) marketing `next/image` — **Done** (2026-08-03, **waived**; [`tb2032_marketing_lcp_image_waiver.md`](../architecture/tb2032_marketing_lcp_image_waiver.md)). No new GTM IDs. Cross-ref [`reviews_run_detail_bundle_composition_tb697.md`](../architecture/reviews_run_detail_bundle_composition_tb697.md), [`UI_ARCHITECTURE_V1_1.md`](UI_ARCHITECTURE_V1_1.md) §1/§7, [`run_detail_summary_lazy_load_tb930.md`](../architecture/run_detail_summary_lazy_load_tb930.md).
+**TB-2021 — TB-2032** were added 2026-07-31 from an **owner ask** for quantified UI speedups (top-10 + follow-up audit of alerts/home/alert-rules). Baseline still shows `/reviews/[runId]` **2,255 kB**, `/reviews` **1,695 kB**, `/governance` **1,417 kB**, `/welcome` **736 kB** First Load JS. Does **not** recreate open **TB-934** (hub First Load JS) or **TB-935** (list Query + virtualization) — execute those as peers. Does **not** reopen Done **TB-933**/**TB-930**/**TB-560**–**TB-573**/**TB-691**–**TB-698**. **TB-2021** (P1) post-933 run-detail sync shell cut — **Done** (2026-08-03; baseline remeasure pending). **TB-2022** (P1) operator slim first-paint — **Done** (2026-08-03; always buyer-summary). **TB-2023** (P1) alerts inbox mount fan-out — **Done** (2026-08-03; `GET /v1/alerts/inbox-summary`). **TB-2024** (P2) alert-rules tab code-split — **Done** (2026-08-03). **TB-2025** (P2) home empty-SSR refetch skip — **Done** (2026-08-03; authoritative empty SSR). **TB-2026** (P2) nested Suspense streaming — **Done** (2026-08-03; alerts hub + run-detail below-fold). **TB-2027** (P2) loader/proxy parallelization — **Done** (2026-08-03; five hot loaders + `DATA_FLOW_AND_STATE` §9). **TB-2028**–**TB-2029** (P2) `/welcome` shell cut, SSE/poll hygiene. **TB-2030** (P2) baseline expansion. **TB-2031** (P2) field CWV triage gate — **Done** (2026-08-03; [`FIELD_WEB_VITALS_TRIAGE.md`](../runbooks/FIELD_WEB_VITALS_TRIAGE.md); pairs GTM **G-QA-06**/**G-QA-07**). **TB-2032** (P3) marketing `next/image` — **Done** (2026-08-03, **waived**; [`tb2032_marketing_lcp_image_waiver.md`](../architecture/tb2032_marketing_lcp_image_waiver.md)). No new GTM IDs. Cross-ref [`reviews_run_detail_bundle_composition_tb697.md`](../architecture/reviews_run_detail_bundle_composition_tb697.md), [`UI_ARCHITECTURE_V1_1.md`](UI_ARCHITECTURE_V1_1.md) §1/§7, [`run_detail_summary_lazy_load_tb930.md`](../architecture/run_detail_summary_lazy_load_tb930.md).
 
 **TB-937 — TB-945** were added 2026-07-22 from the owner question on what **Polly retries + circuit breaker + 429 backoff** do *not* cover for a multi-step agent pipeline (partial completion, poisoned cache, mid-run budget exhaustion, plus related orchestration gaps). Transport resilience stays as-is ([`LLM_RETRY_AND_CIRCUIT_BREAKER.md`](LLM_RETRY_AND_CIRCUIT_BREAKER.md), ADR 0005). This cluster adds **run-level** semantics: partial-run contract + UI (**TB-937**), selective re-execute (**TB-938**), run-scoped budget reservation modeled on Quick Scan **TB-894** (**TB-939**), completion-cache admission/poison bust (**TB-940**), per-`(RunId,TaskId)` spend cap (**TB-941**), downstream consistency after partial/re-execute (**TB-942**), zombie execute reconciliation (**TB-943**), semantic-failure classification (**TB-944**), and a chaos/integration suite (**TB-945**). Does **not** reopen **TB-039** (idempotent skip Done), **TB-043** (remediation Polly decoupling Done), or pull the gated DTF epic (**TB-920**–**TB-924**) unless reservation + selective re-execute prove insufficient. Suggested order: **937 → 940 → 939 → 938 → 941 → 942 → 943 → 944 → 945**. **ACA Worker host layer** (replica death / scale-in / buyer-visible interrupt): **TB-960**–**TB-962** (2026-07-23).
 
@@ -627,7 +627,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-949 | ~~Untrusted customer-content prompt delimiters + composer contract~~ **Done** 2026-08-03 — `CustomerContentPromptDelimiters` + Agent/Ask quarantine; `CUSTOMER_CONTENT_PROMPT_COMPOSER_CONTRACT.md`; unit + wiring tests | Trustworthiness P1 — **V1**; prompt-injection resistance 2026-07-22; extends **TB-681**; GTM **M-115** | M |
 | TB-950 | ~~`AllowedTools` fail-closed on production-like hosts — empty/null must not mean unrestricted; audit demo/seed paths; see `## TB-950` below~~ **Done** | Trustworthiness P1 — **V1**; hardens **TB-082** Done; prompt-injection resistance 2026-07-22 | S |
 | TB-951 | ~~Indirect prompt-injection adversarial corpus — architecture-doc / README override scenarios beyond brief phrase precheck; CI; see `## TB-951` below~~ **Done** | AI/Agent readiness P1 — **V1**; extends Content Safety / `prompt-injection-override` corpus; prompt-injection resistance 2026-07-22 | M |
-| TB-954 | Required `AuditEventTypes` registry + architecture test — forbid `DurableAuditLogRetry.TryLogAsync` on Required types; see `## TB-954` below | Trustworthiness P1 — **V1**; pairs **TB-953**; extends `AuditPathClassificationArchitectureTests` | M |
+| TB-954 | ~~Required `AuditEventTypes` registry + architecture test — forbid `DurableAuditLogRetry.TryLogAsync` on Required types; see `## TB-954` below~~ **Done** | Trustworthiness P1 — **V1**; pairs **TB-953**; extends `AuditPathClassificationArchitectureTests` | M |
 | TB-955 | Required-audit abandon alert + domain↔audit orphan probe — pageable when Required write abandoned; periodic missing-trail detection; see `## TB-955` below | Trustworthiness P1 — **V1**; after **TB-953**; INV-003 mitigation 2026-07-22 | M |
 | TB-965 | Buyer/operator UX: model-failed vs quality-rejected — never conflate HOLD/quality reject with transport “LLM error”; see `## TB-965` below | Trustworthiness P1 — **V1**; after **TB-963**; pairs **TB-937** status vocabulary | M |
 | TB-966 | Hostile-internet inbound webhook contract — PA order rate→size→verify→parse + missing controls checklist; refresh INV-015 note; see `## TB-966` below | Trustworthiness P1 — **V1**; PA Q3 2026-07-23; GTM **M-125**/**M-126**; after Done **TB-012** | S |
@@ -1620,7 +1620,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-2024 | ~~Alert-rules hub — `dynamic()` tab panels + parallel rules/routing fetches~~ — **Done** (2026-08-03); see ## TB-2024 below | Performance P2 — **V1**; owner UI speed ask 2026-07-31; traffic **GOA**/**GLR** | S |
 | TB-2025 | ~~Operator home — skip client refetch when SSR empty snapshot is authoritative~~ — **Done** (2026-08-03); see ## TB-2025 below | Performance P2 — **V1**; owner UI speed ask 2026-07-31; pairs **TB-564** | S |
 | TB-2026 | ~~Nested Suspense / section streaming on run detail + governance hubs~~ — **Done** (2026-08-03); see ## TB-2026 below | Performance P2 — **V1**; `UI_ARCHITECTURE_V1_1` §7; owner UI speed ask 2026-07-31 | M |
-| TB-2027 | Parallelize operator server loaders; collapse sequential `/api/proxy` waterfalls; see ## TB-2027 below | Performance P2 — **V1**; owner UI speed ask 2026-07-31 | M |
+| TB-2027 | ~~Parallelize operator server loaders; collapse sequential `/api/proxy` waterfalls~~ — **Done** (2026-08-03); see ## TB-2027 below | Performance P2 — **V1**; owner UI speed ask 2026-07-31 | M |
 | TB-2028 | Marketing `/welcome` First Load JS — shed shared operator shell chunks; see ## TB-2028 below | Performance P2 — **V1**; owner UI speed ask 2026-07-31; pairs **TB-1294** | M |
 | TB-2029 | SSE-first run progress + shell banner poll hygiene; see ## TB-2029 below | Performance P2 — **V1**; owner UI speed ask 2026-07-31 | S |
 | TB-2030 | Expand First Load JS baseline to `/` (+ optional alerts / alert-rules hubs); see ## TB-2030 below | Performance P2 — **V1**; extends **TB-573**/**TB-691**; owner UI speed ask 2026-07-31 | S |
@@ -25538,11 +25538,13 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-03).
 
 **Priority:** P1.
 
 **Source:** INV-003 mitigation 2026-07-22.
+
+**Shipped:** `RequiredAuditEventTypes` (wire values + const names + “how to add” remarks); `AuditPathClassificationArchitectureTests.Required_audit_event_types_must_not_use_TryLogAsync` (method-scoped `TryLogAsync` + Required reference / `LogRequired*` helper soft-fail); INV-003 enforcement note; `RequiredAuditEventTypesTests`.
 
 **Problem:** After **TB-953**, Required events can regress back onto `TryLogAsync` without a CI tripwire.
 
@@ -46699,30 +46701,32 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 — Performance.
 
-**Status:** Not started.
+**Status:** Done (2026-08-03).
 
 **Source:** Owner UI speed ask 2026-07-31.
 
 **Why:** Browser → `/api/proxy` → API is one intentional BFF hop; sequential awaits on independent server loaders stack RTTs (**~40–150 ms** each). Collapsing 3-hop waterfalls can save **−120 to −400 ms** TTFB.
 
-**Approach:**
+**Shipped:**
 
-1. Inventory high-traffic operator RSC loaders with sequential independent `await`s; convert to `Promise.all` / `allSettled` with isolation.
-2. Audit client controllers for sequential proxy calls that can parallelize (beyond **TB-2023**/**TB-2024**).
-3. Prefer server-side aggregation when multiple small GETs always travel together.
-4. Document patterns in `archlucid-ui/docs/DATA_FLOW_AND_STATE.md`.
+1. `loadRunDetailMidDeferredModel` — compare banner + savings via `Promise.all` (−1 RTT).
+2. `loadPipelineTimelineSections` — pipeline + stage timelines via `Promise.all` of isolated helpers (−1 RTT).
+3. `loadTenantSettingsPageData` — trial + digest via `Promise.all` with digest isolation (−1 RTT).
+4. `resolveGovernanceSetupGuideViewModel` — policy packs + alert routing via `Promise.allSettled` (−1 RTT).
+5. `loadFindingDetailPageModel` — inspect + run footnote via `Promise.all` (−1 RTT).
+6. Pattern + before/after RTT notes in `archlucid-ui/docs/DATA_FLOW_AND_STATE.md` §9; Vitest source guards in `operator-loader-parallelism.tb2027.test.ts`.
 
-**Acceptance:**
+**Acceptance (met):**
 
-- At least three hot loaders/controllers converted with before/after RTT notes.
-- Failure isolation preserved (`allSettled` where one slice must not blank the page).
-- No correctness change to auth/scope headers.
+- Five hot loaders converted (exceeds ≥3) with RTT notes in data-flow doc.
+- Failure isolation preserved (digest helper; setup `allSettled`; timeline helpers).
+- No auth/scope header changes.
 
-**Affected files:** operator page loaders, selected client controllers, data-flow doc.
+**Affected files:** run-detail deferred loader, tenant settings loader, governance setup resolver, finding detail loader, data-flow doc, backlog.
 
-**Depends on:** None. Complements **TB-2023**/**TB-2024**.
+**Depends on:** None. Complements **TB-2023**/**TB-2024**/**TB-2026**.
 
-**Out of scope:** Removing `/api/proxy`; caching authenticated HTML.
+**Out of scope:** Removing `/api/proxy`; caching authenticated HTML; server aggregation of shared `listRunsByProject` (optional follow-on).
 
 **Size estimate:** M.
 

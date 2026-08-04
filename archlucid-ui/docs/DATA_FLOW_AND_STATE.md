@@ -15,6 +15,7 @@
 6. [API response lifecycle](#6-api-response-lifecycle)
 7. [Page-by-page data flow diagrams](#7-page-by-page-data-flow-diagrams)
 8. [Adding a new page (step-by-step)](#8-adding-a-new-page-step-by-step)
+9. [Parallelizing independent loader fetches (TB-2027)](#9-parallelizing-independent-loader-fetches-tb-2027)
 
 ---
 
@@ -603,6 +604,33 @@ Same as above, but:
    }
    ```
 3. Add tests in `operator-response-guards.test.ts`.
+
+---
+
+## 9. Parallelizing independent loader fetches (TB-2027)
+
+Browser → `/api/proxy` → ArchLucid API is one intentional BFF hop. Each independent `await` in an RSC loader still stacks another ~40–150 ms RTT. When two GETs do not need each other’s results, fetch them together.
+
+### Rules
+
+1. **Dependent stays sequential** — e.g. list project runs → then `compareRuns` against the prior run; resolve scope → then tenant-scoped list.
+2. **Independent → `Promise.all`** — when every slice must succeed for a combined model, or each helper already swallows its own errors.
+3. **Independent + soft failure → `Promise.allSettled` (or per-slice try/catch helpers)** — when one slice must not blank the page (digest prefs, setup guide steps).
+4. **Do not change auth/scope headers** — parallelism is only about scheduling; `resolveRequest` / proxy still attach keys and tenant scope the same way.
+
+### Shipped examples (2026-08-03)
+
+| Loader | Before (stacked) | After | Approx. RTT saved |
+|--------|------------------|-------|-------------------|
+| `loadRunDetailMidDeferredModel` | compare banner → savings | `Promise.all` | 1 proxy hop (~40–150 ms) |
+| `loadPipelineTimelineSections` | pipeline timeline → stage timeline | `Promise.all` of isolated helpers | 1 proxy hop |
+| `loadTenantSettingsPageData` | trial → digest | `Promise.all` + digest isolation | 1 proxy hop |
+| `resolveGovernanceSetupGuideViewModel` | policy packs → alert routing | `Promise.allSettled` | 1 proxy hop |
+| `loadFindingDetailPageModel` | inspect → run footnote | `Promise.all` | 1 proxy hop |
+
+Source guards: `archlucid-ui/src/lib/operator-loader-parallelism.tb2027.test.ts`.
+
+Nested UI streaming (chrome first, sections later) is separate — see `UI_ARCHITECTURE_V1_1.md` §7 / **TB-2026**.
 
 ---
 

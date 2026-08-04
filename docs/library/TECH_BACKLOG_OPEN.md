@@ -21,7 +21,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | Cluster | IDs | Summary |
 | --- | --- | --- |
 | Marketing / operator dual Container App (no Front Door) | **TB-2016**–**TB-2020** **Done** | Same-image marketing CA + custom-domain runbook + `site-urls` CTAs + host-gate middleware + CD/CORS; owner override 2026-07-31; ops: DNS bind + GitHub `CONTAINER_APP_MARKETING_UI_NAME` + API CORS dual origins |
-| UI performance wave 3 (owner top-10 ask) | **TB-2027**–**TB-2030** (open); **TB-2021**–**TB-2026**/**TB-2031**/**TB-2032** **Done**; peers **TB-934**/**TB-935** (open) | Loader/proxy waterfalls; `/welcome` shell cut; SSE/poll hygiene; First Load JS baseline expansion. **TB-2021**–**TB-2026** Done (incl. nested Suspense); **TB-2031** field CWV triage Done; **TB-2032** marketing `next/image` **waived**. Does not recreate Done **TB-933**/**TB-930**. Owner ask 2026-07-31 |
+| UI performance wave 3 (owner top-10 ask) | **TB-2028**–**TB-2030** (open); **TB-2021**–**TB-2027**/**TB-2031**/**TB-2032** **Done**; peers **TB-934**/**TB-935** (open) | `/welcome` shell cut; SSE/poll hygiene; First Load JS baseline expansion. **TB-2021**–**TB-2027** Done (Suspense + loader parallelism); **TB-2031** field CWV triage Done; **TB-2032** marketing `next/image` **waived**. Does not recreate Done **TB-933**/**TB-930**. Owner ask 2026-07-31 |
 | Closed-loop architecture reasoning system | **TB-1976**–**TB-1993** (**Done** foundation 2026-07-27 — in-memory/heuristic additive lane + SQL DDL; LLM-depth follow-ons remain product work) | Immutable source layer; architecture ontology; difficulty-routed extraction + fidelity benchmark; progressive interviewing; five-stage evidence-validation pipeline; specialist reviews (2–3 dims); two-lane adversarial; two-axis provenance; three state machines; recommendations + trade-off resolutions; change-impact; golden end-to-end case; incremental re-review + invariants; benchmark pyramid + holdout; must-not-fail structural enforcement; dependency-manifest caching + tier budgets; managed round-tripping. Source `generation_quality_analysis.md` Second Revision; GTM **M-300**–**M-304** |
 | Multi-cloud analysis §2.19 remainder | **TB-874** – **TB-876** (open P1) | AWS/GCP analysis-path parity |
 | Advisory scans UX + route rename | **TB-1124**–**TB-1128** (**TB-1124**/**TB-1125**/**TB-1126**/**TB-1127**/**TB-1128** Done; cluster closed) | Route rename + triple-description collapse + empty/demo + disposition + primary CTA shipped; owner screenshot ~51/100 2026-07-25 |
@@ -176,7 +176,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-931 | Typed columns for hot scalars from JSON | Performance P2 **V1** — after **TB-929** inventory |
 | TB-934 | First Load JS cut for `/reviews` hub + `/governance` shell | Performance P2 **V1** — after **TB-933** Done; peer wave-3 **TB-2021**–**TB-2032** |
 | TB-935 | TanStack Query + virtualization for alerts / reviews hub / audit lists | Performance P2 **V1** — extends **TB-694**/**TB-695**; peer **TB-2023** |
-| TB-2027 | Parallelize operator server loaders; collapse `/api/proxy` waterfalls | Performance P2 **V1** — owner UI speed ask 2026-07-31 |
 | TB-2028 | Marketing `/welcome` First Load JS — shed shared operator shell chunks | Performance P2 **V1** — owner UI speed ask 2026-07-31 |
 | TB-2029 | SSE-first run progress + shell banner poll hygiene | Performance P2 **V1** — owner UI speed ask 2026-07-31 |
 | TB-2030 | Expand First Load JS baseline to `/` (+ optional alert hubs) | Performance P2 **V1** — extends **TB-573**/**TB-691** |
@@ -468,11 +467,11 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1672 | Compare + provenance — bare body/outline links → OPERATOR_LINK | Accessibility P1 **V1** — with **TB-1671** |
 | TB-1674 | Finding badges + secondary surfaces — StatusTag-as-link cue + export/ID/pinned inventory | Adoption friction P1 **V1** — with **TB-1671** |
 | TB-1675 | Vitest — bare navigational `<a>`/`<Link>` affordance allowlist + ban inherit-only body links | Testability P2 **V1** — after **TB-1672**–**TB-1674**; pairs **TB-1671** / **TB-1556** / **TB-1576** / **TB-1650** / **TB-1665** / **TB-1670** |
-| TB-1681 | `/help/evidence-only-review` specialty guide + Start review CTA | Adoption friction P1 **V1** — HEV ~42 |
-| TB-1682 | Evidence-only help — stop CORE_PILOT intro dump | Adoption friction P1 **V1** — with **TB-1681** |
-| TB-1683 | Evidence-only help — IA dual with `/help/core-pilot` | Adoption friction P1 **V1** — with **TB-1681** |
-| TB-1684 | Evidence-only help — extract-upload vs `/reviews/new` CTA honesty | Trustworthiness P1 **V1** — with **TB-1681** |
-| TB-1685 | Evidence-only help — first-viewport job chrome | Adoption friction P1 **V1** — with **TB-1681** |
+| TB-1681 | `/help/evidence-only-review` specialty guide + Start review CTA | Adoption friction P1 **V1** — HEV ~42; prefer Core Pilot specialty after **TB-1683** |
+| TB-1682 | ~~Evidence-only help — stop CORE_PILOT intro dump~~ **Done** 2026-08-03 | Adoption friction P1 **V1** — alias removes section twin dump |
+| TB-1683 | ~~Evidence-only help — IA dual with `/help/core-pilot`~~ **Done** 2026-08-03 | Adoption friction P1 **V1** — alias → `first-architecture-review` |
+| TB-1684 | Evidence-only help — extract-upload vs `/reviews/new` CTA honesty | Trustworthiness P1 **V1** — apply on Core Pilot fast-path copy |
+| TB-1685 | Evidence-only help — first-viewport job chrome | Adoption friction P1 **V1** — supersede via Core Pilot chrome if needed |
 | TB-1686 | `/help/executive-summary` retarget SoT off FAQ dump → sponsor brief | Trustworthiness P1 **V1** — EXE ~30 |
 | TB-1687 | Executive-summary help — specialty guide + Open ROI/sponsor CTA | Adoption friction P1 **V1** — with **TB-1686** |
 | TB-1689 | Executive-summary help — fix in-app-doc-href catch-all mappings | Trustworthiness P1 **V1** — with **TB-1686** |
@@ -865,7 +864,7 @@ Canonical: [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) only (see wave-3 c
 | Data handling (`/help/data-handling`) | **TB-1654**–**TB-1655** open; **TB-1651**/**TB-1652**/**TB-1656**/**TB-1658** shipped 2026-08-03 | Canon specialty guide; three-layer isolation folded into `DATA_HANDLING.md`; alias HDA→HED. Residual: leaves/stays chrome; Related; presentation rewriter still cites legacy twin path (dirty-blocked). ~52/100; traffic **HED** |
 | Data handling + tenant isolation (`/help/data-handling-tenant-isolation`) | **TB-1660** open; **TB-1656**–**TB-1658** Done 2026-08-03 | Alias → `data-handling`. Residual: Vitest anti-stub polish; traffic fold HDA→HED; leakage **Done TB-1659** |
 | DPA template (`/help/dpa-template`) | **TB-1676**–**TB-1680** (**Done** 2026-08-02) | Specialty guide + Trust CTA; leakage strip; placeholder honesty; Help Center IA; clause defer; traffic **HDP** |
-| Evidence-only review (`/help/evidence-only-review`) | **TB-1681**–**TB-1685** (open P1 **V1**) | Specialty + Start CTA; drop CORE_PILOT intro; vs core-pilot IA; extract-upload honesty; step chrome; ~42/100; traffic **HEV** |
+| Evidence-only review (`/help/evidence-only-review`) | **TB-1681**/**TB-1684**/**TB-1685** open; **TB-1682**/**TB-1683** shipped 2026-08-03 | Alias → `first-architecture-review` (+ `#fast-path-evidence-only`). Residual: Start CTA / extract-upload honesty / step chrome if still desired on Core Pilot; traffic **HEV**→**COR** |
 | Executive summary (`/help/executive-summary`) | **TB-1686**–**TB-1690** (open P1 **V1**) | Retarget off FAQ; specialty CTA; leakage; doc-href catch-all; title honesty; ~30/100; traffic **EXE** |
 | First value 20 minutes (`/help/first-value-20-minutes`) | **TB-1691**–**TB-1695** (**Done** 2026-08-02) | Specialty Admin guide + buyer CTA; 20-min retarget; leakage strip; IA dual; title honesty; traffic **HEF**; internal-runbook |
 | Integration readiness (`/help/integration-readiness`) | **TB-1696**–**TB-1700** (open P1 **V1**) | Specialty + Open CTA; tier honesty; digests href; viewport density; Related IA; ~50/100; traffic **HEI** |

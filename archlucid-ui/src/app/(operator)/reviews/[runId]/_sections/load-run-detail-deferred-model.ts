@@ -36,14 +36,17 @@ type RunDetailDeferredLoadContext = {
 export async function loadRunDetailMidDeferredModel(
   context: RunDetailDeferredLoadContext,
 ): Promise<RunDetailMidDeferredModel> {
-  const changesSinceLastReviewBanner = await loadChangesSinceLastReviewBanner(context);
-  const savingsSummary = await resolveRunDetailSavingsSummary({
-    resolvedDetail: context.resolvedDetail,
-    usedStaticDemoRun: context.usedStaticDemoRun,
-    artifacts: context.artifacts,
-    manifestId: context.manifestId,
-    routeRunId: context.routeRunId,
-  });
+  // Independent proxy hops — parallelize to avoid stacking RTTs (TB-2027).
+  const [changesSinceLastReviewBanner, savingsSummary] = await Promise.all([
+    loadChangesSinceLastReviewBanner(context),
+    resolveRunDetailSavingsSummary({
+      resolvedDetail: context.resolvedDetail,
+      usedStaticDemoRun: context.usedStaticDemoRun,
+      artifacts: context.artifacts,
+      manifestId: context.manifestId,
+      routeRunId: context.routeRunId,
+    }),
+  ]);
 
   return {
     changesSinceLastReviewBanner,
@@ -185,6 +188,24 @@ async function loadPipelineTimelineSections(
     "pipelineTimelineForUi" | "pipelineTimelineFailure" | "stageTimelineForUi"
   >
 > {
+  // Pipeline + stage timelines share a runId but do not depend on each other (TB-2027).
+  const [pipelineSettled, stageSettled] = await Promise.all([
+    loadPipelineTimelineOnly(context),
+    loadStageTimelineOnly(context.routeRunId),
+  ]);
+
+  return {
+    pipelineTimelineForUi: pipelineSettled.pipelineTimelineForUi,
+    pipelineTimelineFailure: pipelineSettled.pipelineTimelineFailure,
+    stageTimelineForUi: stageSettled,
+  };
+}
+
+async function loadPipelineTimelineOnly(
+  context: RunDetailDeferredLoadContext,
+): Promise<
+  Pick<RunDetailBelowFoldDeferredModel, "pipelineTimelineForUi" | "pipelineTimelineFailure">
+> {
   let pipelineTimeline: PipelineTimelineItem[] | null = null;
   let pipelineTimelineFailure: ApiLoadFailureState | null = null;
 
@@ -216,18 +237,18 @@ async function loadPipelineTimelineSections(
     ? pipelineTimeline?.filter((event) => isTimelineMilestoneEvent(event.eventType)) ?? null
     : pipelineTimeline;
 
-  let stageTimelineForUi: StageTimelineSummary[] = [];
-
-  try {
-    const stageTimelineRaw = await getRunStageTimeline(context.routeRunId);
-    stageTimelineForUi = Array.isArray(stageTimelineRaw) ? stageTimelineRaw : [];
-  } catch {
-    stageTimelineForUi = [];
-  }
-
   return {
     pipelineTimelineForUi,
     pipelineTimelineFailure,
-    stageTimelineForUi,
   };
+}
+
+async function loadStageTimelineOnly(routeRunId: string): Promise<StageTimelineSummary[]> {
+  try {
+    const stageTimelineRaw = await getRunStageTimeline(routeRunId);
+
+    return Array.isArray(stageTimelineRaw) ? stageTimelineRaw : [];
+  } catch {
+    return [];
+  }
 }

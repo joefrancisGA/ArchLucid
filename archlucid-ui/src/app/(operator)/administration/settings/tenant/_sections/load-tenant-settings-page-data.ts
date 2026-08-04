@@ -28,21 +28,33 @@ export async function loadTenantSettingsPageData(): Promise<TenantSettingsPageSe
     return { mode: "hidden" };
   }
 
-  const trial = await tryGetTenantTrialStatus();
+  // Trial + digest are independent GETs — parallelize; keep digest failure isolated (TB-2027).
+  const [trial, digestSettled] = await Promise.all([
+    tryGetTenantTrialStatus(),
+    loadExecDigestPreferencesIsolated(),
+  ]);
 
+  return {
+    mode: "visible",
+    trial,
+    digest: digestSettled.digest,
+    digestLoadFailure: digestSettled.digestLoadFailure,
+  };
+}
+
+async function loadExecDigestPreferencesIsolated(): Promise<{
+  readonly digest: ExecDigestPreferencesResponse | null;
+  readonly digestLoadFailure: string | null;
+}> {
   try {
     const digest = await getExecDigestPreferences();
 
     return {
-      mode: "visible",
-      trial,
       digest,
       digestLoadFailure: null,
     };
   } catch (e: unknown) {
     return {
-      mode: "visible",
-      trial,
       digest: null,
       digestLoadFailure: toApiLoadFailure(e).message,
     };
