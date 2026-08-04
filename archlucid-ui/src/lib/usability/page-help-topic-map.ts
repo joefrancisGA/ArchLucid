@@ -203,6 +203,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "alerts", label: "Slack integration" },
   },
   {
+    prefix: "/integrations/webhooks",
+    topic: { slug: "alerts", label: "Webhooks" },
+  },
+  {
     prefix: "/integrations/teams",
     topic: { slug: "alerts", label: "Teams integration" },
   },

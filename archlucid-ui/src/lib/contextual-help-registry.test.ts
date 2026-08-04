@@ -86,6 +86,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/integrations/jira",
       "/integrations/servicenow",
       "/integrations/slack",
+      "/integrations/webhooks",
       "/integrations/teams",
       "/settings/cloud-connections",
     ]);
@@ -243,6 +244,11 @@ describe("contextual-help-registry (TB-733)", () => {
   it("resolves slack integration Category-1 help (ISN)", () => {
     expect(contextualHelpForPathname("/integrations/slack")?.whatIsThisPage).toContain("Slack integration");
     expect(contextualHelpForPathname("/integrations/slack")?.whatToDoNext).toContain("Slack destination");
+  });
+
+  it("resolves webhooks integration Category-1 help (IWX)", () => {
+    expect(contextualHelpForPathname("/integrations/webhooks")?.whatIsThisPage).toContain("Webhooks");
+    expect(contextualHelpForPathname("/integrations/webhooks")?.whatToDoNext).toContain("subscription");
   });
 
   it("resolves teams integration Category-1 help (ITX)", () => {

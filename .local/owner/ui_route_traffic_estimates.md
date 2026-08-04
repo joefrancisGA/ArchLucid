@@ -45,13 +45,12 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 
 ---
 
-**OVERALL WEIGHT SCORE:** 55.18%
+**OVERALL WEIGHT SCORE:** 55.22%
 
 ## Master table (score 0 first; then Deficit desc; ties A→Z by path)
 
 | ID | Path | Hit% | Scores | Weight | Deficit | Section | Notes |
 |----|------|------|--------|--------|---------|---------|-------|
-| IWX | `/integrations/webhooks` | 0.07% | 0 | 0 | 7 | Integrations | None |
 | SPP | `/sponsor-report/pilot-outcomes` | 0.07% | 0 | 0 | 7 | Sponsor report | Sponsor pilot outcomes report (canonical). Absorbs former VPX hit share from retired legacy `/value-report/pilot` bookmark row (LegacyPilotValueReportRedirectPage still permanentRedirects here). Does not imply CPA SOC 2 or third-party pen-test publication. |
 | DPX | `/demo/preview` | 0.06% | 0 | 0 | 6 | Marketing | None |
 | HE | `/help/azure-permissions` | 0.06% | 0 | 0 | 6 | Help topic | None |
@@ -251,6 +250,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | ACX | `/admin/configuration` | 0.1% | 62 | 6.2 | 3.8 | Admin | None |
 | ARX | `/admin/rag-health` | 0.1% | 62 | 6.2 | 3.8 | Admin | None |
 | GFX | `/governance/setup` | 0.1% | 62 | 6.2 | 3.8 | Alerts/gov | Governance setup guide — GovernanceSetupGuidePageView with outcome-framed steps, progress coach, sticky What-this-guide-unlocks rail (not Pending theater), foundation panel after first complete indicator (TB-1138), recommended-next primary CTA (TB-1137). Links into audited config workspaces. Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 62/100 (2026-08-03) — setup checklist with value framing; guide hard-caps without live config depth. |
+| IWX | `/integrations/webhooks` | 0.07% | 48 | 3.36 | 3.64 | Integrations | Webhooks integration (Integrations) - WebhooksSettingsClient with PageContextualHelpButton (topic map alerts; Category-1 registry), workspace Sources + claim-discipline orientation strip, subscription form + destinations list. Notification routing config hub — not a signed-record Sources trail. Sibling ISN = Slack; ITX = Teams; SAX/GOR = alert rules. Does not imply CPA SOC 2 or third-party pen-test publication. Score 48/100 (2026-08-04) — integration-config hub hard-caps higher Evidence. |
 | HBX | `/help/billing-and-plans` | 0.07% | 52 | 3.64 | 3.36 | Help topic | Billing and plans help (Help topic) - HelpBillingAndPlansGuideView with PageContextualHelpButton (topic map billing-and-plans; Category-1 registry), workspace Sources + claim-discipline orientation strip, current-plan card, how-billing-works steps, FAQ, CTAs to /administration/settings/billing and /pricing. Not bare HelpTopicMarkdownView. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-04) — help-topic orientation hard-caps higher Evidence. |
 | HP | `/help/pilot-guide` | 0.07% | 52 | 3.64 | 3.36 | Help topic | Pilot guide help (Help topic) - HelpPilotGuideView with PageContextualHelpButton (topic map pilot-guide; Category-1 registry), workspace Sources + claim-discipline orientation strip, start-pilot CTAs, prepared PILOT_GUIDE.md body. Not bare HelpTopicMarkdownView. Sibling HCO = first-architecture-review; SPP = pilot outcomes. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-04) — help-topic orientation hard-caps higher Evidence. |
 | AFX | `/admin/fleet-llm-cogs` | 0.05% | 35 | 1.75 | 3.25 | Admin | None |

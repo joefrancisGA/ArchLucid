@@ -635,6 +635,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/integrations/webhooks",
+    entry: {
+      whatIsThisPage:
+        "Webhooks — configure HTTPS webhook subscriptions that receive governance alerts for this workspace.",
+      whatToDoNext:
+        "Add or test a subscription, then open Alert rules when you need to change which events fire notifications.",
+      whyEmpty: "Subscriptions appear after you save a webhook URL for this workspace.",
+      whereToConfigurePrerequisite:
+        "Creating or changing subscriptions requires a role that can manage alert routing.",
+    },
+  },
+  {
     prefix: "/integrations/teams",
     entry: {
       whatIsThisPage:
