@@ -1,9 +1,11 @@
 import Link from "next/link";
 
+import { HowArchLucidWorksEvidenceOrientationStrip } from "@/app/(operator)/help/_sections/HowArchLucidWorksEvidenceOrientationStrip";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   HOW_ARCHLUCID_WORKS_DATA_HANDLING_HREF,
   HOW_ARCHLUCID_WORKS_DIAGRAM_STEPS,
@@ -75,9 +77,14 @@ export function HelpHowArchLucidWorksGuideView(props: HelpHowArchLucidWorksGuide
     <article className={OPERATOR_LAYOUT.majorSectionGap} data-testid="help-how-archlucid-works-guide">
       <HelpTopicHashScroll />
       <header className={HELP_PAGE_LAYOUT.articleHeader}>
-        <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{entry.title}</h1>
+        <div className="flex flex-wrap items-center gap-2">
+          <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{entry.title}</h1>
+          <PageContextualHelpButton />
+        </div>
         <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{HOW_ARCHLUCID_WORKS_SUBTITLE}</p>
       </header>
+
+      <HowArchLucidWorksEvidenceOrientationStrip />
 
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")}>

@@ -27,6 +27,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/architecture/first-review-guide", topic: { slug: "getting-started", label: BUYER_ONBOARDING_PAGE_TITLE } },
   { prefix: "/help/getting-started", topic: { slug: "getting-started", label: "Getting started" } },
   {
+    prefix: "/help/how-it-works",
+    topic: { slug: "how-it-works", label: "How ArchLucid works" },
+  },
+  {
     prefix: "/help/cloud-connections/azure",
     topic: { slug: "cloud-connections-azure", label: "Connect Azure securely" },
   },
@@ -74,13 +78,17 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/governance/policy-packs",
-    topic: { slug: "governance-approval", label: "Policy packs" },
+    topic: { slug: "policy-packs", label: "Policy packs" },
+  },
+  {
+    prefix: "/governance/standards-and-rules",
+    topic: { slug: "policy-packs", label: "Policy packs" },
   },
   { prefix: "/governance", topic: { slug: "governance-approval", label: "Governance approval" } },
   { prefix: "/audit", topic: { slug: "audit-trail", label: "Audit trail" } },
   { prefix: "/alerts", topic: { slug: "alerts", label: "Alerts" } },
   { prefix: "/alert-rules", topic: { slug: "alerts", label: "How alerts work" } },
-  { prefix: "/policy-packs", topic: { slug: "governance-approval", label: "Governance approval" } },
+  { prefix: "/policy-packs", topic: { slug: "policy-packs", label: "Policy packs" } },
   {
     prefix: "/sponsor-report/roi-summary",
     topic: { slug: "pilot-roi-model", label: "View ROI methodology" },
@@ -92,7 +100,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/sponsor-report", topic: { slug: "executive-summary", label: "Executive summary" } },
   { prefix: "/value-report", topic: { slug: "executive-summary", label: "Executive summary" } },
   { prefix: "/digests", topic: { slug: "getting-started", label: "Architecture digests" } },
-  { prefix: "/planning", topic: { slug: "getting-started", label: "Improvement planning" } },
+  { prefix: "/insights/planning", topic: { slug: "getting-started", label: "Improvement planning" } },
   { prefix: "/administration/settings/billing", topic: { slug: "billing-and-plans", label: "Billing and plans" } },
   { prefix: "/help/billing-and-plans", topic: { slug: "billing-and-plans", label: "Billing and plans" } },
   {

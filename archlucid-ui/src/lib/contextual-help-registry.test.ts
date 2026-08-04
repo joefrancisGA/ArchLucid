@@ -59,8 +59,8 @@ describe("contextual-help-registry (TB-733)", () => {
       "/governance/audit",
       "/administration/system-health",
       "/digests",
-      "/planning/plans",
-      "/planning",
+      "/insights/planning/plans",
+      "/insights/planning",
       "/governance/advisory-scans",
       "/sponsor-report/executive-summary",
       "/value-report",
@@ -69,6 +69,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/signed-records",
       "/admin/tenant-health",
       "/help/getting-started",
+      "/help/how-it-works",
       "/help/cloud-connections/azure",
       "/help/cloud-connections",
       "/administration/settings/users",
@@ -85,7 +86,7 @@ describe("contextual-help-registry (TB-733)", () => {
     expect(contextualHelpForPathname("/reviews/new")?.whatIsThisPage).toContain("Start an architecture review");
     expect(contextualHelpForPathname("/governance/findings?filter=open")?.whatToDoNext).toContain("Assign owners");
     expect(contextualHelpForPathname("/value-report/pilot")?.whatIsThisPage).toContain("sponsor-ready");
-    expect(contextualHelpForPathname("/planning/plans/plan-1")?.whatIsThisPage).toContain("one prioritized improvement plan");
+    expect(contextualHelpForPathname("/insights/planning/plans/plan-1")?.whatIsThisPage).toContain("one prioritized improvement plan");
   });
 
   it("resolves Overview home without stealing other routes (HOM / TB-1667)", () => {
@@ -172,6 +173,11 @@ describe("contextual-help-registry (TB-733)", () => {
   it("resolves tenant-health Category-1 help (ATX)", () => {
     expect(contextualHelpForPathname("/admin/tenant-health")?.whatIsThisPage).toContain("Tenant health");
     expect(contextualHelpForPathname("/admin/tenant-health")?.whatToDoNext).toContain("Refresh the table");
+  });
+
+  it("resolves how-it-works help Category-1 help (HHX)", () => {
+    expect(contextualHelpForPathname("/help/how-it-works")?.whatIsThisPage).toContain("How ArchLucid works");
+    expect(contextualHelpForPathname("/help/how-it-works")?.whatToDoNext).toContain("Start a review");
   });
 
   it("resolves sponsor executive summary Category-1 help (SPE)", () => {

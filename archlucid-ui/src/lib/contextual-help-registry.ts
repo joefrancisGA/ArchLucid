@@ -315,7 +315,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
-    prefix: "/planning/plans",
+    prefix: "/insights/planning/plans",
     entry: {
       whatIsThisPage:
         "Review one prioritized improvement plan derived from captured feedback, including status and linked themes.",
@@ -327,7 +327,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
-    prefix: "/planning",
+    prefix: "/insights/planning",
     entry: {
       whatIsThisPage:
         "Convert review feedback into recurring themes, prioritized improvement plans, and exportable summaries.",
@@ -423,6 +423,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whatToDoNext:
         "Start a review, open the sample walkthrough, or pick a path from Choose your next step when you know your goal.",
       whyEmpty: "This guide is always available; review metrics appear after you create or finalize reviews.",
+      whereToConfigurePrerequisite:
+        "Choose a workspace in the header scope switcher before starting a real (non-sample) review.",
+    },
+  },
+  {
+    prefix: "/help/how-it-works",
+    entry: {
+      whatIsThisPage:
+        "How ArchLucid works — workflow from architecture evidence through findings, decisions, governance, and exports.",
+      whatToDoNext:
+        "Start a review, open a sample package, or continue with Getting started when you want the onboarding path.",
+      whyEmpty: "This guide is always available; live metrics appear after you create or finalize reviews.",
       whereToConfigurePrerequisite:
         "Choose a workspace in the header scope switcher before starting a real (non-sample) review.",
     },

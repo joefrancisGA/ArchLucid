@@ -28,6 +28,7 @@ import { HelpCorePilotGuideView } from "../_sections/HelpCorePilotGuideView";
 import { HelpRepeatReviewLoopGuideView } from "../_sections/HelpRepeatReviewLoopGuideView";
 import { HelpSpecialtyWalkthroughTemplatesView } from "../_sections/HelpSpecialtyWalkthroughTemplatesView";
 import { HelpGettingStartedGuideView } from "../_sections/HelpGettingStartedGuideView";
+import { HelpHowArchLucidWorksGuideView } from "../_sections/HelpHowArchLucidWorksGuideView";
 import { HelpCloudConnectionsGuideView } from "../_sections/HelpCloudConnectionsGuideView";
 import { HelpTopicAuthorityGate } from "../_sections/HelpTopicAuthorityGate";
 import { HelpTopicMarkdownClient } from "../_sections/HelpTopicMarkdownClient";
@@ -116,6 +117,10 @@ function renderHelpTopicView(
     return <HelpGettingStartedGuideView entry={loaded.entry} />;
   }
 
+  if (loaded.entry.slug === "how-it-works") {
+    return <HelpHowArchLucidWorksGuideView entry={loaded.entry} />;
+  }
+
   if (loaded.entry.slug === "cloud-connections") {
     return <HelpCloudConnectionsGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
@@ -191,7 +196,7 @@ function renderHelpTopicView(
     return <HelpReviewPackagesGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
 
-  if (loaded.entry.slug === "data-handling-tenant-isolation") {
+  if (loaded.entry.slug === "data-handling") {
     return <HelpDataHandlingTenantIsolationGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
 
@@ -270,7 +275,7 @@ export async function generateMetadata(props: HelpTopicPageProps): Promise<Metad
     return PATH_CHOOSER_HELP_ROUTE_METADATA;
   }
 
-  if (entry.slug === "data-handling-tenant-isolation") {
+  if (entry.slug === "data-handling") {
     return DATA_HANDLING_TENANT_ISOLATION_HELP_ROUTE_METADATA;
   }
 
