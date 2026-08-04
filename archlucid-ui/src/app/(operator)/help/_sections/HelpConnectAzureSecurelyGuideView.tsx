@@ -1,9 +1,11 @@
 import Link from "next/link";
 
+import { ConnectAzureSecurelyEvidenceOrientationStrip } from "@/app/(operator)/help/_sections/ConnectAzureSecurelyEvidenceOrientationStrip";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   AZURE_CLOUD_CONNECTION_ROLE_ROWS,
   formatAzurePermissionRequirementLabel,
@@ -144,11 +146,16 @@ export function HelpConnectAzureSecurelyGuideView(props: HelpConnectAzureSecurel
               {CONNECT_AZURE_SECURELY_CONNECTION_VALUE}
             </p>
           </div>
-          <Button asChild size="sm" variant="primary" data-testid="connect-azure-configure-action">
-            <Link href={CONNECT_AZURE_SECURELY_CONFIGURE_HREF}>{CONNECT_AZURE_SECURELY_CONFIGURE_ACTION}</Link>
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            <PageContextualHelpButton />
+            <Button asChild size="sm" variant="primary" data-testid="connect-azure-configure-action">
+              <Link href={CONNECT_AZURE_SECURELY_CONFIGURE_HREF}>{CONNECT_AZURE_SECURELY_CONFIGURE_ACTION}</Link>
+            </Button>
+          </div>
         </div>
       </header>
+
+      <ConnectAzureSecurelyEvidenceOrientationStrip />
 
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
         <div className="min-w-0 space-y-8" data-testid="help-connect-azure-securely-primary">

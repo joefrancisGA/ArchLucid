@@ -45,13 +45,12 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 
 ---
 
-**OVERALL WEIGHT SCORE:** 53.92%
+**OVERALL WEIGHT SCORE:** 54.00%
 
 ## Master table (score 0 first; then Deficit desc; ties A→Z by path)
 
 | ID | Path | Hit% | Scores | Weight | Deficit | Section | Notes |
 |----|------|------|--------|--------|---------|---------|-------|
-| HC | `/help/cloud-connections/azure` | 0.12% | 0 | 0 | 12 | Help alias | None |
 | HHX | `/help/how-it-works` | 0.12% | 0 | 0 | 12 | Help topic | None |
 | HTX | `/help/troubleshooting` | 0.12% | 0 | 0 | 12 | Help topic | None |
 | SEX | `/digests?tab=schedule` | 0.1% | 0 | 0 | 10 | Tab surface | None |
@@ -249,6 +248,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | ATX | `/admin/tenant-health` | 0.12% | 45 | 5.4 | 6.6 | Admin | Tenant health (Admin) - TenantHealthAdminPageClient with PageContextualHelpButton (topic map troubleshooting; Category-1 registry), workspace Sources + claim-discipline orientation strip, engagement/governance/funnel table. Internal CS engagement scores - not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 45/100 (2026-08-03) - admin KPI hub hard-caps higher Evidence. |
 | MMX | `/signed-records/[manifestId]` | 0.15% | 58 | 8.7 | 6.3 | Marketing | Signed review record detail (Marketing/owner section) - ManifestDetailPageView with PageContextualHelpButton (topic map review-packages; Category-1 registry on /signed-records), workspace Sources + claim-discipline orientation strip, summary/decisions/artifacts/bundle downloads, OperatorEvidenceLimitsFooter. Application-layer package lineage - not CPA SOC 2 or third-party pen-test publication. Score 58/100 (2026-08-03) - package detail hard-caps higher Evidence without Trust Center attestation artifacts. |
 | SPR | `/sponsor-report/roi-summary` | 0.12% | 50 | 6 | 6 | Sponsor report | Sponsor ROI summary report (canonical). Absorbs former VRX hit share from retired legacy `/value-report/roi` bookmark row (LegacyRoiSummaryRedirectPage still permanentRedirects here). Does not imply CPA SOC 2 or third-party pen-test publication. Score 50/100 — transferred from VRX Evidence hard-cap; hit share folded from VRX (2026-08-03). |
+| HC | `/help/cloud-connections/azure` | 0.12% | 52 | 6.24 | 5.76 | Help alias | Connect Azure securely help (Help alias) - HelpConnectAzureSecurelyGuideView with PageContextualHelpButton (topic map cloud-connections-azure; Category-1 registry), workspace Sources + claim-discipline orientation strip, federation/roles setup, configure CTA. Sibling HCE = parent cloud-connections help; HCA = low-hit template duplicate. Orientation guide - not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-03) - help-topic orientation hard-caps higher Evidence. |
 | AHX | `/admin/health` | 0.15% | 62 | 9.3 | 5.7 | Admin | None |
 | GRA | `/insights/evidence-graph` | 0.6% | 93 | 55.8 | 4.2 | Insights | Evidence graph (Insights) — GraphPageContent buyer workspace: Graph view default + URL presentation, auto-load on review select / demo sample auto-pick, process-graph canvas as hero (~88vh) with wider inspector, selection focus dimming, path breadcrumb, Fit/100%/Highlight/Focus/Reset toolbar, compact sample banner, idle teaching frame (GraphIdleLegend). Trace table remains alternate. Signature evidence↔finding↔decision↔approval trail — not a full diligence Sources export package alone. Does not imply CPA SOC 2 or third-party pen-test publication. Score 93/100 (2026-08-03) — post workspace-hero pass; remaining gap is lifecycle count-strip + denser diligence packing. |
 | ACX | `/admin/configuration` | 0.1% | 62 | 6.2 | 3.8 | Admin | None |

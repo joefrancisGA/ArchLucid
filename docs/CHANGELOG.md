@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-03 - UI: Connect Azure securely help Evidence chrome (HC)
+
+/help/cloud-connections/azure ships PageContextualHelpButton, Category-1 registry, Sources + claim-discipline orientation strip, traffic Notes under Help alias, and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-03 - UI: Product FAQ Evidence chrome (FXX)
 
 /faq ships FaqEvidenceOrientationStrip (evaluation Sources + claim-discipline), traffic Notes under Marketing, and honest Evidence score 40. Marketing FAQ hard-caps higher Evidence; no CPA / third-party pen-test implication.
