@@ -1,4 +1,4 @@
-import { screen, waitFor } from "@testing-library/react";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { PilotCommandCenterCard } from "@/components/usability/PilotCommandCenterCard";
@@ -175,12 +175,13 @@ describe("PilotCommandCenterCard", () => {
     );
     expect(screen.queryByTestId("operator-home-do-this-next-secondary")).toBeNull();
     expect(screen.getByTestId("pilot-command-center-help")).toBeInTheDocument();
-    expect(screen.getByTestId("page-contextual-help-button")).toHaveAttribute(
-      "href",
-      "/help/first-architecture-review",
-    );
     expect(screen.getByTestId("page-contextual-help-button")).toHaveTextContent(
       OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_HEADING,
+    );
+    fireEvent.click(screen.getByTestId("page-contextual-help-button"));
+    expect(screen.getByTestId("page-scoped-contextual-help-learn-more")).toHaveAttribute(
+      "href",
+      "/help/first-architecture-review",
     );
     expect(screen.queryByTestId("operator-home-dual-path-cards")).toBeNull();
     expect(screen.queryByTestId("pilot-next-best-action")).toBeNull();
@@ -213,7 +214,7 @@ describe("PilotCommandCenterCard", () => {
     ).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-resume-draft-primary")).toHaveAttribute(
       "href",
-      "/architectures/draft-001",
+      "/architecture/architectures/draft-001",
     );
     expect(screen.getByTestId("operator-home-resume-draft-primary")).toHaveTextContent(
       OPERATOR_HOME_RESUME_LATEST_DRAFT_CTA,

@@ -109,6 +109,12 @@ export function getLayerForRoute(pathname: string): LayerId {
     return "operator-admin";
   }
 
+  // Nested governance pages (approval-requests, dashboard children) share the operate-governance layer
+  // even when they are not exact left-nav hrefs.
+  if (normalized === "/governance" || normalized.startsWith("/governance/")) {
+    return "operate-governance";
+  }
+
   for (const m of NAV_PATH_MATCHES) {
     if (pathMatchesPathname(normalized, m.path)) {
       return m.groupId;

@@ -2,21 +2,29 @@
   {
     "route": "/welcome",
     "firstLoadUncompressedJsBytes": 742298,
-    "firstLoadChunkPaths": [".next/static/chunks/welcome.js"]
+    "firstLoadChunkPaths": [
+      ".next/static/chunks/welcome.js"
+    ]
   },
   {
     "route": "/reviews",
     "firstLoadUncompressedJsBytes": 1601536,
-    "firstLoadChunkPaths": [".next/static/chunks/reviews.js"]
+    "firstLoadChunkPaths": [
+      ".next/static/chunks/reviews.js"
+    ]
   },
   {
     "route": "/reviews/[runId]",
     "firstLoadUncompressedJsBytes": 2058650,
-    "firstLoadChunkPaths": [".next/static/chunks/run-detail.js"]
+    "firstLoadChunkPaths": [
+      ".next/static/chunks/run-detail.js"
+    ]
   },
   {
-    "route": "/governance",
+    "route": "/governance/approval-queue",
     "firstLoadUncompressedJsBytes": 1372672,
-    "firstLoadChunkPaths": [".next/static/chunks/governance.js"]
+    "firstLoadChunkPaths": [
+      ".next/static/chunks/governance.js"
+    ]
   }
 ]

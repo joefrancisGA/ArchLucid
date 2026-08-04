@@ -14,7 +14,7 @@ function inventoryZipBuffer(manifest: Record<string, unknown>): Buffer {
 
 test.describe("Wizard Tier-1 inventory evidence upload", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/reviews/new?baseline=1", { waitUntil: "domcontentloaded" });
+    await page.goto("/architecture/reviews/new?baseline=1", { waitUntil: "domcontentloaded" });
     await waitForReviewsNewBaselineSimplifiedWizard(page);
   });
 

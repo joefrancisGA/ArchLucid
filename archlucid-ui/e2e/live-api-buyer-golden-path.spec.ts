@@ -37,10 +37,10 @@ const productTourRunId = DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID;
 const productTourRunEnc = encodeURIComponent(productTourRunId);
 
 const liveBuyerGoldenPathHrefs = {
-  executive: `/reviews/${productTourRunEnc}`,
-  reviewPackage: `/reviews/${productTourRunEnc}`,
+  executive: `/architecture/reviews/${productTourRunEnc}`,
+  reviewPackage: `/architecture/reviews/${productTourRunEnc}`,
   evidenceGraph: `/insights/evidence-graph?runId=${productTourRunEnc}`,
-  governanceApproval: `/governance?runId=${productTourRunEnc}`,
+  governanceApproval: `/governance/approval-queue?runId=${productTourRunEnc}`,
   auditTrail: `/governance/audit?runId=${productTourRunEnc}`,
   compare: `/insights/compare-two-reviews?leftRunId=${productTourRunEnc}&rightRunId=${productTourRunEnc}`,
   ask: `/insights/ask-review-questions?runId=${productTourRunEnc}`,
@@ -95,7 +95,7 @@ test.describe(
     await expectBuyerGoldenJourneyStepper(page);
     await expectNoGenericErrorBoundary(page);
 
-    // GUID `/reviews/{id}/signed-record` rewrites to review detail — canonical manifest route uses seeded goldenManifestId.
+    // GUID `/architecture/reviews/{id}/signed-record` rewrites to review detail — canonical manifest route uses seeded goldenManifestId.
     await page.goto(liveSignedManifestHref(liveProductTourGoldenManifestId));
     await waitForLiveOperatorPageHydration(page);
     await expectLiveManifestDetailPageReady(page, liveProductTourGoldenManifestId, { timeoutMs: 90_000 });

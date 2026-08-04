@@ -28,7 +28,7 @@ test.describe("operator shell smoke", () => {
 
   test("runs list with default project shows a run row without generic error boundary @smoke", async ({ page }) => {
     // Canonical list URL is `/reviews` (`next.config.ts` redirects `/runs`); go direct to avoid redirect flake on CI.
-    await page.goto("/reviews?projectId=default");
+    await page.goto("/architecture/reviews?projectId=default");
 
     await expect(
       page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
@@ -38,7 +38,7 @@ test.describe("operator shell smoke", () => {
   });
 
   test("runs list renders without generic error boundary", async ({ page }) => {
-    await page.goto("/reviews");
+    await page.goto("/architecture/reviews");
 
     await expect(
       page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
@@ -61,7 +61,7 @@ test.describe("operator shell smoke", () => {
   });
 
   test("new request page renders without generic error boundary", async ({ page }) => {
-    await page.goto("/reviews/new");
+    await page.goto("/architecture/reviews/new");
 
     await expect(
       page.getByRole("heading", { level: 1, name: START_REVIEW_PAGE_HEADING_PATTERN }),
@@ -75,20 +75,20 @@ test.describe("operator shell smoke — core proof path", () => {
     await page.goto("/");
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
 
-    await page.goto("/reviews?projectId=default");
+    await page.goto("/architecture/reviews?projectId=default");
     await expect(
       page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
     ).toBeVisible();
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
 
-    await page.goto(`/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`);
+    await page.goto(`/architecture/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`);
     await expect(getAppMain(page)).not.toContainText(/Something went wrong/i);
 
     await page.goto(`/signed-records/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`);
     await expect(page.getByRole("heading", { level: 1, name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN })).toBeVisible();
 
     await page.goto(
-      `/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}/findings/${encodeURIComponent(SCREENSHOT_FINDING_ID)}`,
+      `/architecture/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}/findings/${encodeURIComponent(SCREENSHOT_FINDING_ID)}`,
     );
     await expect(getAppMain(page)).not.toContainText(/Something went wrong/i);
 
@@ -119,7 +119,7 @@ test.describe("operator shell smoke — advanced surface path", () => {
     await expect(comparePageMainHeading(page)).toBeVisible();
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
 
-    await page.goto("/governance");
+    await page.goto("/governance/approval-queue");
     await expect(governancePageMainHeading(page)).toBeVisible();
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
 

@@ -1,4 +1,4 @@
-import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture-workflow-intent";
+﻿import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture-workflow-intent";
 
 /** Architecture draft list. */
 export const ARCHITECTURES_LIST_PATH = "/architecture/architectures" as const;

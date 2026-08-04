@@ -11,10 +11,10 @@ export const SCREENSHOT_LEGACY_REDIRECT_URL_PATTERNS: Readonly<Record<string, Re
 
 /** Demo run alias slugs normalize to canonical showcase ids (see demo-run-alias-path-redirect.ts). */
 const DEMO_RUN_ALIAS_CANONICAL_PATTERN =
-  /\/reviews\/claims-intake-modernization(?:\/|$|\?|#)/;
+  /\/(?:architecture\/)?reviews\/claims-intake-modernization(?:\/|$|\?|#)/;
 
 /**
- * Wait until navigation settles on the canonical URL for remaining rename redirects and `/runs` → `/reviews`.
+ * Wait until navigation settles on the canonical URL for remaining rename redirects and `/runs` → reviews.
  */
 export async function waitForScreenshotLegacyRedirects(page: Page, href: string): Promise<void> {
   const pathOnly = href.split("?", 1)[0] ?? href;
@@ -25,10 +25,14 @@ export async function waitForScreenshotLegacyRedirects(page: Page, href: string)
   }
 
   if (pathOnly === "/runs" || pathOnly.startsWith("/runs/")) {
-    await page.waitForURL(/\/reviews(?:\/|\?|$|#)/, { timeout: 60_000, waitUntil: "commit" });
+    await page.waitForURL(/\/(?:architecture\/)?reviews(?:\/|\?|$|#)/, { timeout: 60_000, waitUntil: "commit" });
   }
 
-  if (pathOnly.startsWith("/runs/claims-intake-modernization-run") || pathOnly.startsWith("/reviews/claims-intake-modernization-run")) {
+  if (
+    pathOnly.startsWith("/runs/claims-intake-modernization-run")
+    || pathOnly.startsWith("/architecture/reviews/claims-intake-modernization-run")
+    || pathOnly.startsWith("/architecture/reviews/claims-intake-modernization-run")
+  ) {
     await page.waitForURL(DEMO_RUN_ALIAS_CANONICAL_PATTERN, { timeout: 60_000, waitUntil: "commit" });
   }
 }

@@ -1,11 +1,9 @@
 import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
-import { LEGACY_ONBOARD_PATH } from "@/lib/legacy-onboard-route";
-import { LEGACY_ONBOARDING_START_PATH } from "@/lib/legacy-onboarding-start-route";
 
 /**
  * Builds the canonical First review guide path plus the same query string as an incoming
- * legacy onboarding route (`/getting-started`, {@link LEGACY_ONBOARDING_START_PATH},
- * {@link LEGACY_ONBOARD_PATH}, `/onboarding`) so bookmarks and handoffs keep deep-link params.
+ * legacy onboarding route (`/getting-started`, `/onboarding/start`, `/onboard`, `/onboarding`)
+ * so bookmarks and handoffs keep deep-link params.
  */
 export function buildOnboardingRedirectPath(
   searchParams: Record<string, string | string[] | undefined>,

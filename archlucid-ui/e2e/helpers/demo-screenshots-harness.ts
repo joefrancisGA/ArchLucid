@@ -62,7 +62,7 @@ export const DEMO_SCREENSHOT_ROUTES: readonly string[] = [
   "/runs/claims-intake-modernization-run/findings/phi-minimization-risk",
   "/insights/evidence-graph",
   "/insights/ask-review-questions",
-  "/governance",
+  "/governance/approval-queue",
   "/governance/audit",
   "/governance/alerts",
   "/governance/policy-packs",
@@ -326,7 +326,7 @@ export async function settleDemoRoute(page: Page, routePath: string): Promise<vo
     return;
   }
 
-  if (p === "/governance" || p.startsWith("/governance")) {
+  if (p === "/governance/approval-queue" || p === "/governance") {
     const govLoading = page.getByText(/loading workflow data/i).first();
     if ((await govLoading.count()) > 0)
       await govLoading.waitFor({ state: "hidden", timeout: 120_000 });

@@ -25,9 +25,9 @@ export const FOUNDER_PUBLIC_ROUTES: readonly FounderAcceptanceRoute[] = [
 /** Authenticated / operator shell — needs DevelopmentBypass, API key proxy, or ACCEPTANCE_STORAGE_STATE. */
 export const FOUNDER_AUTHENTICATED_ROUTES: readonly FounderAcceptanceRoute[] = [
   { name: "Operator home", path: "/", requiresAuth: true },
-  { name: "Reviews list", path: "/reviews", requiresAuth: true },
-  { name: "New review", path: "/reviews/new", requiresAuth: true },
-  { name: "Governance", path: "/governance", requiresAuth: true },
+  { name: "Reviews list", path: "/architecture/reviews", requiresAuth: true },
+  { name: "New review", path: "/architecture/reviews/new", requiresAuth: true },
+  { name: "Governance", path: "/governance/approval-queue", requiresAuth: true },
   { name: "Evidence graph", path: "/insights/evidence-graph", requiresAuth: true },
   { name: "Workspace settings", path: "/administration/settings/tenant", requiresAuth: true },
 ] as const;

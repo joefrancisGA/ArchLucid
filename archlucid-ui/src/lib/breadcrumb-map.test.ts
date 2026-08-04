@@ -41,13 +41,13 @@ describe("getBreadcrumbs", () => {
 
   it("labels architecture inventory and create/draft crumbs under Architectures (not Drafts)", () => {
     expect(ARCHITECTURE_DRAFTS_LIST_LABEL).toBe("Architectures");
-    expect(getBreadcrumbs("/architectures")).toEqual([{ label: ARCHITECTURE_DRAFTS_LIST_LABEL }]);
-    expect(getBreadcrumbs("/architectures/new")).toEqual([
-      { label: ARCHITECTURE_DRAFTS_LIST_LABEL, href: "/architectures" },
+    expect(getBreadcrumbs("/architecture/architectures")).toEqual([{ label: ARCHITECTURE_DRAFTS_LIST_LABEL }]);
+    expect(getBreadcrumbs("/architecture/architectures/new")).toEqual([
+      { label: ARCHITECTURE_DRAFTS_LIST_LABEL, href: "/architecture/architectures" },
       { label: CREATE_ARCHITECTURE_LABEL },
     ]);
-    expect(getBreadcrumbs("/architectures/draft-001")).toEqual([
-      { label: ARCHITECTURE_DRAFTS_LIST_LABEL, href: "/architectures" },
+    expect(getBreadcrumbs("/architecture/architectures/draft-001")).toEqual([
+      { label: ARCHITECTURE_DRAFTS_LIST_LABEL, href: "/architecture/architectures" },
       { label: CREATE_ARCHITECTURE_LABEL },
     ]);
   });

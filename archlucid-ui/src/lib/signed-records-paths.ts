@@ -8,7 +8,7 @@ export function signedRecordDetailPath(manifestId: string): string {
 
 /** Run-scoped signed record deep link when manifest id is not yet known. */
 export function reviewSignedRecordPath(runId: string): string {
-  return `/reviews/${encodeURIComponent(runId.trim())}/signed-record`;
+  return `/architecture/reviews/${encodeURIComponent(runId.trim())}/signed-record`;
 }
 
 /** Artifact row within a signed review record. */

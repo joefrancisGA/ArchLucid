@@ -43,9 +43,9 @@ To verify **CI parity**, run **`assert_merged_line_coverage_min.py`** on merged 
 
 The merge step in **`.github/workflows/ci.yml`** (`dotnet-coverage-merge`) enforces:
 
-- **Merged line ≥ 75%**
-- **Branch coverage ≥ 63%**
-- **Per-product-package line ≥ 63%** for every gated **`ArchLucid.*`** assembly with coverable lines (see **`scripts/ci/assert_merged_line_coverage_min.py`** invocation in the workflow)
+- **Merged line ≥ 76%**
+- **Branch coverage ≥ 61%**
+- **Per-product-package line ≥ 81%** for every gated **`ArchLucid.*`** assembly with coverable lines (see **`scripts/ci/assert_merged_line_coverage_min.py`** invocation in the workflow)
 
 **Merged line ≥ 95%** (tighter than the **75%** CI floor) and the **ratchet** are deferred to **V1.1** (see **`docs/library/V1_DEFERRED.md`**).
 
@@ -54,6 +54,43 @@ The merge step in **`.github/workflows/ci.yml`** (`dotnet-coverage-merge`) enfor
 **Fast core + full regression merge:** ReportGenerator **`-reports:`** is built with **`find … -name coverage.cobertura.xml`** (semicolon-separated list). GitHub’s bash often has **`globstar` off**, so a literal **`**/coverage.cobertura.xml`** shell glob can fail to expand; **`find`** avoids silent empty merges.
 
 **Weakening gates** (lowering percentages or adding **`--skip-package-line-gate`**) requires explicit product / maintainer sign-off and doc updates in this file and **`docs/library/coverage-exclusions.md`**.
+
+## RC23 merged package snapshot (authoritative gate posture)
+
+Measured from RC23 merged Cobertura (`dotnet-coverage-merge`, run [30882961646](https://github.com/joefrancisGA/ArchLucid/actions/runs/30882961646)). **Gate** = subject to the **81%** per-package line floor; **skipped** = interim **`--skip-package-line-gate`** in **`.github/workflows/ci.yml`**.
+
+| Package | Line % | Branch % | Gate |
+| --- | --- | --- | --- |
+| `ArchLucid.Backfill.Cli` | 19.29 | 7.02 | skipped |
+| `ArchLucid.Api` | 49.73 | 40.10 | skipped |
+| `ArchLucid.Cli` | 75.21 | 64.81 | skipped |
+| `ArchLucid.Persistence` | 75.33 | 61.35 | skipped |
+| `ArchLucid.Host.Core` | 76.72 | 67.06 | skipped |
+| `ArchLucid.Application` | 78.47 | 60.16 | skipped |
+| `ArchLucid.AgentRuntime` | 78.83 | 64.00 | skipped |
+| `ArchLucid.Host.Composition` | 79.24 | 62.47 | skipped |
+| `ArchLucid.Integrations.AzureDevOps` | 81.42 | 67.32 | OK |
+| `ArchLucid.Analyzers` | 81.57 | 65.70 | OK |
+| `ArchLucid.Retrieval` | 81.96 | 65.33 | OK |
+| `ArchLucid.Core` | 82.44 | 62.33 | OK |
+| `ArchLucid.AgentSimulator` | 82.93 | 54.55 | OK |
+| `ArchLucid.ArtifactSynthesis` | 83.28 | 69.02 | OK |
+| `ArchLucid.Mcp` | 83.33 | 62.50 | skipped |
+| `ArchLucid.Contracts` | 84.91 | 41.98 | OK |
+| `ArchLucid.KnowledgeGraph` | 86.51 | 77.86 | OK |
+| `ArchLucid.Decisioning` | 90.12 | 79.76 | OK |
+| `ArchLucid.Integrations.AzureExtractor` | 91.27 | 63.33 | OK |
+| `ArchLucid.ContextIngestion` | 92.36 | 73.15 | OK |
+| `ArchLucid.Provenance` | 94.61 | 89.71 | OK |
+| `ArchLucid.Notifications` | 95.06 | 83.78 | OK |
+| `ArchLucid.Capabilities.Cost` | 95.06 | 83.33 | OK |
+| `ArchLucid.Integrations.GcpExtractor` | 98.73 | 66.67 | OK |
+| `ArchLucid.Api.Client` | 100.00 | 100.00 | OK |
+| `ArchLucid.Integrations.AwsExtractor` | 100.00 | 100.00 | OK |
+| `ArchLucid.Jobs.Cli` | 100.00 | 100.00 | OK |
+| `ArchLucid.Notifications.Email.RazorLight` | 100.00 | 100.00 | OK |
+
+**RC23 uplift focus:** gated packages at or just above the **81%** floor — `ArchLucid.Integrations.AzureDevOps`, `ArchLucid.Analyzers`, `ArchLucid.Retrieval`, `ArchLucid.Core`, `ArchLucid.AgentSimulator` (see `*PackageCoverageBatchRc23Tests` in matching test projects). Skipped packages remain tracked until each clears the active floor and its skip flag is removed with sign-off.
 
 ## Local run (merged HTML)
 

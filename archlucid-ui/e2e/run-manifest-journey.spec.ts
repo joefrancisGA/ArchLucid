@@ -30,7 +30,7 @@ test.describe("operator journey — run detail to manifest and back", () => {
   test("reviews showcase run, opens manifest, returns to run (mock API only)", async ({ page }) => {
     test.setTimeout(120_000);
 
-    await page.goto(`/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`);
+    await page.goto(`/architecture/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`);
 
     await expect(page).toHaveURL(new RegExp(`/(?:reviews|runs)/${SHOWCASE_DEMO_RUN_ID.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}`));
 
@@ -50,7 +50,7 @@ test.describe("operator journey — run detail to manifest and back", () => {
     await expect(manifestLink).toContainText(/Finalized/i);
     await expect(manifestLink).toHaveAttribute("href", manifestHref);
 
-    // Buyer-polished shell may canonicalize `/manifests/{uuid}` → `/reviews/{runId}/manifest` after navigation.
+    // Buyer-polished shell may canonicalize `/manifests/{uuid}` → `/architecture/reviews/{runId}/manifest` after navigation.
     await page.goto(manifestHref);
 
     await expect(page).toHaveURL(showcaseSignedManifestBrowserUrlPattern(), { timeout: 60_000 });
@@ -65,10 +65,10 @@ test.describe("operator journey — run detail to manifest and back", () => {
       .first();
 
     await expect(reviewLink).toBeVisible({ timeout: 60_000 });
-    await expect(reviewLink).toHaveAttribute("href", `/reviews/${SHOWCASE_DEMO_RUN_ID}`);
+    await expect(reviewLink).toHaveAttribute("href", `/architecture/reviews/${SHOWCASE_DEMO_RUN_ID}`);
 
     // Full navigation is more reliable than breadcrumb client nav on cold CI agents (RSC + loading.tsx).
-    await page.goto(`/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`);
+    await page.goto(`/architecture/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`);
     await expect(page).toHaveURL(new RegExp(`/(?:reviews|runs)/${SHOWCASE_DEMO_RUN_ID.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}`), {
       timeout: 60_000,
     });

@@ -45,10 +45,13 @@ describe("pilot-nav-profile-alignment", () => {
     const unlockPanel = readRepoFile("archlucid-ui/src/components/usability/OperateFeaturesUnlockPanel.tsx");
     const autoHint = readRepoFile("archlucid-ui/src/components/usability/OperateUnlockAutoHint.tsx");
 
+    // Desktop SidebarNav shapes groups without the unlock panel; mobile drawer owns the unlock CTA.
     for (const componentName of PILOT_NAV_REQUIRED_SHELL_COMPONENTS) {
-      expect(sidebarNav).toContain(componentName);
       expect(mobileNav).toContain(componentName);
     }
+
+    expect(sidebarNav).not.toContain("OperateFeaturesUnlockPanel");
+    void sidebarNav;
 
     for (const testId of PILOT_NAV_REQUIRED_UI_TEST_IDS) {
       expect(`${unlockPanel}\n${autoHint}`).toContain(testId);

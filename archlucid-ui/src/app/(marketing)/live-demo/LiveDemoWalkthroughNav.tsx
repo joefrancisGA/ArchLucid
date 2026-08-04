@@ -2,7 +2,7 @@
 
 import { FileText, GitBranch, History, ShieldCheck, Stamp } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState, type ReactElement } from "react";
+import { useCallback, useEffect, useRef, type ReactElement } from "react";
 
 import { Button } from "@/components/ui/button";
 import {

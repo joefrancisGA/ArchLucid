@@ -22,10 +22,10 @@ const showcaseFindingEnc = encodeURIComponent(SCREENSHOT_FINDING_ID);
 
 /** Persona-mapped operator/buyer shell routes — one PNG per slug in buyer and operator modes. */
 export const UX_AUDIT_OPERATOR_BUYER_ROUTES: readonly UxAuditRouteEntry[] = [
-  { slug: "shell-reviews-list", href: "/reviews?projectId=default", persona: "all-personas" },
-  { slug: "wizard-new-review", href: "/reviews/new", persona: "enterprise-architect" },
-  { slug: "run-detail", href: `/reviews/${showcaseRunEnc}`, persona: "enterprise-architect" },
-  { slug: "provenance", href: `/reviews/${showcaseRunEnc}/provenance`, persona: "enterprise-architect" },
+  { slug: "shell-reviews-list", href: "/architecture/reviews?projectId=default", persona: "all-personas" },
+  { slug: "wizard-new-review", href: "/architecture/reviews/new", persona: "enterprise-architect" },
+  { slug: "run-detail", href: `/architecture/reviews/${showcaseRunEnc}`, persona: "enterprise-architect" },
+  { slug: "provenance", href: `/architecture/reviews/${showcaseRunEnc}/provenance`, persona: "enterprise-architect" },
   {
     slug: "compare",
     href: `/insights/compare-two-reviews?${comparePairSearchParams(SCREENSHOT_LEFT_RUN_ID, SCREENSHOT_RIGHT_RUN_ID)}`,
@@ -34,13 +34,13 @@ export const UX_AUDIT_OPERATOR_BUYER_ROUTES: readonly UxAuditRouteEntry[] = [
   { slug: "graph", href: `/insights/evidence-graph?runId=${showcaseRunEnc}`, persona: "vp-engineering" },
   {
     slug: "finding-detail",
-    href: `/reviews/${showcaseRunEnc}/findings/${showcaseFindingEnc}`,
+    href: `/architecture/reviews/${showcaseRunEnc}/findings/${showcaseFindingEnc}`,
     persona: "vp-engineering",
   },
   { slug: "trust", href: "/trust", persona: "security-architect" },
   { slug: "settings-security-trust", href: "/administration/settings/security-trust", persona: "security-architect" },
   { slug: "policy-packs", href: "/governance/policy-packs", persona: "security-architect" },
-  { slug: "governance", href: "/governance", persona: "governance-reviewer" },
+  { slug: "governance", href: "/governance/approval-queue", persona: "governance-reviewer" },
   { slug: "governance-dashboard", href: "/governance/dashboard", persona: "governance-reviewer" },
   {
     slug: "audit",

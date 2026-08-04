@@ -3,7 +3,6 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { AccountSecurityPageClient } from "./AccountSecurityPageClient";
 import {
-  cancelSignInMethodLinkProposal,
   confirmSignInMethodLinkProposal,
   fetchSignInMethods,
   requestEmailLinkChallenge,

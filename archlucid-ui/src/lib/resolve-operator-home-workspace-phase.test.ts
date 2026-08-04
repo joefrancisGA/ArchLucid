@@ -136,6 +136,6 @@ describe("resolveLatestArchitectureDraftHref", () => {
       },
     ];
 
-    expect(resolveLatestArchitectureDraftHref(entries)).toBe("/architectures/draft-001");
+    expect(resolveLatestArchitectureDraftHref(entries)).toBe("/architecture/architectures/draft-001");
   });
 });

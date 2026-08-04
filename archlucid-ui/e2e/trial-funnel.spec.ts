@@ -155,7 +155,7 @@ test.describe("trial funnel — mocked end-to-end", () => {
     expect(capture.body?.baselineReviewCycleSource).toBeUndefined();
 
     /**
-     * `TrialWelcomeRunDeepLink` normally redirects first-time home visitors to `/reviews/{trialWelcomeRunId}`.
+     * `TrialWelcomeRunDeepLink` normally redirects first-time home visitors to `/architecture/reviews/{trialWelcomeRunId}`.
      * Prime sessionStorage so we stay on `/` and assert the dashboard cycle panel (`before-after-delta-panel`).
      */
     await primeTrialWelcomeHomeRedirectGuard(page);

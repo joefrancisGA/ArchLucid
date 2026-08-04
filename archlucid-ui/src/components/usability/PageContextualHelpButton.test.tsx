@@ -41,7 +41,7 @@ describe("PageContextualHelpButton", () => {
   });
 
   it("links architecture draft pages to Getting started help", () => {
-    mockUsePathname.mockReturnValue("/architectures/draft-abc");
+    mockUsePathname.mockReturnValue("/architecture/architectures/draft-abc");
 
     render(<PageContextualHelpButton />);
 

@@ -3,9 +3,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const redirect = vi.hoisted(() => vi.fn());
 
-vi.mock("next/navigation", () => ({
-  redirect,
-}));
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+  return {
+    ...actual,
+    redirect,
+    usePathname: () => "/",
+  };
+});
 
 const internalShell = vi.hoisted(() => ({
   enabled: true,

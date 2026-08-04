@@ -62,6 +62,6 @@ describe("OperatorShellDeferredChrome", () => {
 
     render(<OperatorShellDeferredChrome shellRootRef={{ current: null }} />);
 
-    expect(replace).toHaveBeenCalledWith("/auth/signin?returnUrl=%2Freviews%2Frun-1");
+    expect(replace).toHaveBeenCalledWith("/auth/signin?returnUrl=%2Farchitecture%2Freviews%2Frun-1");
   });
 });

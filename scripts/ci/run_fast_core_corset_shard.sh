@@ -64,6 +64,32 @@ HANG_TIMEOUT="${ARCHLUCID_FAST_CORE_HANG_TIMEOUT:-5m}"
 # occasionally exceed 9m (CI #2854). 14m leaves ~2.5x headroom.
 PROJECT_TIMEOUT="${ARCHLUCID_FAST_CORE_PROJECT_TIMEOUT:-14m}"
 
+reclaim_orphaned_test_hosts() {
+  # Coverlet/VSTest can leave testhost children that keep RAM reserved for the next project.
+  pkill -f testhost >/dev/null 2>&1 || true
+  pkill -f vstest.console >/dev/null 2>&1 || true
+}
+
+# Coverlet instrumentation OOMs GitHub-hosted runners on large Suite=Core hosts
+# (Architecture.Tests CI #2864 exit 137 ~5m; Api.Tests CI #30896706032 exit 137 ~301s).
+# Full-regression shards still collect Coverlet for Api.Tests; Architecture.Tests is structural.
+should_collect_coverage_for_project() {
+  local proj="$1"
+
+  if [ "${ARCHLUCID_FAST_CORE_COLLECT_COVERAGE:-0}" != "1" ]; then
+    return 1
+  fi
+
+  case "${proj}" in
+    *ArchLucid.Architecture.Tests*|*ArchLucid.Api.Tests*)
+      return 1
+      ;;
+    *)
+      return 0
+      ;;
+  esac
+}
+
 # SDK 10+ MSBuild rejects multiple projects in one `dotnet test` invocation (MSB1008).
 for proj in "${PROJECTS[@]}"; do
   proj_base="$(basename "${proj}" .csproj)"
@@ -74,7 +100,17 @@ for proj in "${PROJECTS[@]}"; do
   # can still pick this up via if: always() after a step-level timeout.
   printf '%s\n' "${proj}" >"${MARKER}"
 
-  echo "::group::Fast core shard ${SHARD_ID}: ${proj} (blame-hang ${HANG_TIMEOUT}, cap ${PROJECT_TIMEOUT})"
+  collect_coverage=0
+  coverage_note="no coverage"
+
+  if should_collect_coverage_for_project "${proj}"; then
+    collect_coverage=1
+    coverage_note="coverage on"
+  elif [ "${ARCHLUCID_FAST_CORE_COLLECT_COVERAGE:-0}" = "1" ]; then
+    coverage_note="coverage skipped (OOM guard)"
+  fi
+
+  echo "::group::Fast core shard ${SHARD_ID}: ${proj} (blame-hang ${HANG_TIMEOUT}, cap ${PROJECT_TIMEOUT}, ${coverage_note})"
   echo "${utc_start} START ${proj}" | tee -a "${TIMING_LOG}"
 
   ARGS=(
@@ -91,7 +127,7 @@ for proj in "${PROJECTS[@]}"; do
     --results-directory "${RESULT_DIR}"
   )
 
-  if [ "${ARCHLUCID_FAST_CORE_COLLECT_COVERAGE:-0}" = "1" ]; then
+  if [ "${collect_coverage}" -eq 1 ]; then
     ARGS+=(
       --settings coverage.runsettings
       --collect:"XPlat Code Coverage"
@@ -112,14 +148,20 @@ for proj in "${PROJECTS[@]}"; do
   echo "::endgroup::"
 
   # `timeout` reports 124 after SIGTERM and 137 (128+9) once --kill-after escalates to SIGKILL.
+  # Exit 137 also comes from the Linux OOM killer; that usually fires well under PROJECT_TIMEOUT
+  # (CI #2864 Architecture.Tests: 301s / exit 137 with a 14m cap).
   if [ "${exit_code}" -eq 124 ] || [ "${exit_code}" -eq 137 ]; then
     printf 'HUNG %s (no completion within %s)\n' "${proj}" "${PROJECT_TIMEOUT}" >"${MARKER}"
     echo "${utc_end} HUNG ${proj} exceeded ${PROJECT_TIMEOUT}" | tee -a "${TIMING_LOG}"
-    echo "::error::Fast core shard ${SHARD_ID} HUNG on ${proj}: killed after ${PROJECT_TIMEOUT}. Blame-hang ${HANG_TIMEOUT} did not fire, so the stall is outside any single test — suspect a wedged test host or coverage collection at session end."
+
+    if [ "${exit_code}" -eq 137 ] && [ "${duration_sec}" -lt 600 ]; then
+      echo "::error::Fast core shard ${SHARD_ID} killed on ${proj} after ${duration_sec}s (exit 137). Duration is far under the ${PROJECT_TIMEOUT} project cap — likely OOM or an external SIGKILL (not a blame-hang / wall-clock hang). Architecture.Tests and Api.Tests skip Coverlet on fast-core for this reason."
+    else
+      echo "::error::Fast core shard ${SHARD_ID} HUNG on ${proj}: killed after ${PROJECT_TIMEOUT}. Blame-hang ${HANG_TIMEOUT} did not fire, so the stall is outside any single test — suspect a wedged test host or coverage collection at session end."
+    fi
 
     # `timeout` signals only its direct child, so test hosts can outlive it and skew the rest of the shard.
-    pkill -f testhost >/dev/null 2>&1 || true
-    pkill -f vstest.console >/dev/null 2>&1 || true
+    reclaim_orphaned_test_hosts
     exit 1
   fi
 
@@ -128,6 +170,7 @@ for proj in "${PROJECTS[@]}"; do
     exit "${exit_code}"
   fi
 
+  reclaim_orphaned_test_hosts
   printf '(idle — last finished: %s)\n' "${proj}" >"${MARKER}"
 done
 

@@ -4,7 +4,7 @@ export type ReviewsNewPathMode = "quick-review" | "guided-intake" | "detailed";
 export const REVIEWS_NEW_GUIDED_INTAKE_HREF = "/architecture/reviews/new?path=guided-intake" as const;
 
 /** Homepage Create Architecture — canonical architecture draft bootstrap route. */
-export const REVIEWS_NEW_CREATE_ARCHITECTURE_HREF = "/architectures/new" as const;
+export const REVIEWS_NEW_CREATE_ARCHITECTURE_HREF = "/architecture/architectures/new" as const;
 
 /** Single-line example — sample brief button supplies the full narrative. */
 export const REVIEWS_NEW_BRIEF_PLACEHOLDER =

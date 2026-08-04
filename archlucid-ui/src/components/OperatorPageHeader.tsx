@@ -11,6 +11,8 @@ export type OperatorPageHeaderProps = {
   navHref?: string;
   /** Stable Playwright anchor for the primary page title. */
   titleTestId?: string;
+  /** Stable Playwright anchor for the subtitle / page lead. */
+  subtitleTestId?: string;
   /**
    * @deprecated Heading-level contextual help icons are not rendered. Use `subtitle` or in-page guidance links.
    */
@@ -43,6 +45,7 @@ export function OperatorPageHeader({
   subtitle,
   navHref,
   titleTestId,
+  subtitleTestId,
   metadata,
   actions,
   headingLevel = "h2",
@@ -66,22 +69,27 @@ export function OperatorPageHeader({
     );
   }
 
+  const TitleTag = headingLevel === "h1" ? "h1" : "h2";
+
   return (
     <header className="mb-6 border-b border-neutral-200 pb-4 dark:border-neutral-800">
       <div className="flex flex-wrap items-center gap-2">
-        <h2
+        <TitleTag
           className={cn("m-0 text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.pageTitle)}
           {...(titleTestId !== undefined ? { "data-testid": titleTestId } : {})}
         >
           {title}
-        </h2>
+        </TitleTag>
         {actions != null && (
           <div className="ml-auto flex flex-wrap items-center gap-2">{actions}</div>
         )}
       </div>
 
       {subtitle != null && (
-        <p className={cn("m-0 mt-2 max-w-2xl text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+        <p
+          className={cn("m-0 mt-2 max-w-2xl text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}
+          {...(subtitleTestId !== undefined ? { "data-testid": subtitleTestId } : {})}
+        >
           {subtitle}
         </p>
       )}

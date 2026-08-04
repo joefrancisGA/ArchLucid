@@ -5,9 +5,13 @@ import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/find
 import { GovernanceFindingsQueueDesktopTable } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueDesktopTable";
 import { GOVERNANCE_FINDINGS_QUEUE_VIRTUALIZE_MIN_ROWS } from "@/app/(operator)/governance/findings/governance-findings-queue-virtualization";
 
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn() }),
-}));
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+  return {
+    ...actual,
+    useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn() }),
+  };
+});
 
 function sampleRow(index: number): GovernanceFindingQueueRow {
   return {

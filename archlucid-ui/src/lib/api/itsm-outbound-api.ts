@@ -1,5 +1,4 @@
 import { apiDelete, apiGet, apiPostJson, apiPutJson } from "@/lib/api-client";
-import { ITSM_ATLASSIAN_OAUTH_CALLBACK_PATH } from "@/lib/integrations-nav-paths";
 import { createItsmOutboundIssueWithJobPolling } from "@/lib/api/itsm-outbound-create";
 import type { BackgroundJobInfo } from "@/lib/api/background-jobs-api";
 import type { components } from "@/lib/openapi-schemas";

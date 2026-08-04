@@ -5,9 +5,14 @@ import { describe, expect, it, vi } from "vitest";
 import AskPage from "@/app/(operator)/insights/ask-review-questions/page";
 import SearchPage from "@/app/(operator)/insights/search-review-evidence/page";
 
-vi.mock("next/navigation", () => ({
-  useSearchParams: () => new URLSearchParams(),
-}));
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+  return {
+    ...actual,
+    useSearchParams: () => new URLSearchParams(),
+    usePathname: () => "/",
+  };
+});
 
 vi.mock("@/lib/api", () => ({
   apiGet: vi.fn().mockResolvedValue([]),

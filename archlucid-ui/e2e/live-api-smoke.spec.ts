@@ -154,7 +154,7 @@ test.describe("live-api-smoke", { tag: ["@founder", "@critical", "@release-smoke
 
     await expect(page.getByRole("heading", { name: "ArchLucid", level: 1 })).toBeVisible({ timeout: 60_000 });
 
-    await page.goto("/reviews/new?baseline=1", { waitUntil: "domcontentloaded" });
+    await page.goto("/architecture/reviews/new?baseline=1", { waitUntil: "domcontentloaded" });
 
     // `?baseline=1` opens the 4-step SimplifiedPilotWizard: identity/description (step 1), optional
     // Azure ZIP evidence inside a collapsed advanced section (step 2), baseline metrics, then review.
