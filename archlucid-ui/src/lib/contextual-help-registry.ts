@@ -586,6 +586,30 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/help/operator-auth-roles",
+    entry: {
+      whatIsThisPage:
+        "Users and roles — ArchLucid app roles, capabilities, and how operators invite teammates (alias of users-and-roles).",
+      whatToDoNext:
+        "Open Users settings to invite or assign roles, or Security & trust when you need assurance orientation.",
+      whyEmpty: "This guide is always available; live directory rows appear after users are invited or provisioned.",
+      whereToConfigurePrerequisite:
+        "Managing users needs Admin authority; SSO may be required before invited users can sign in.",
+    },
+  },
+  {
+    prefix: "/help/users-and-roles",
+    entry: {
+      whatIsThisPage:
+        "Users and roles — ArchLucid app roles, capabilities, and how operators invite teammates for this workspace.",
+      whatToDoNext:
+        "Open Users settings to invite or assign roles, or Security & trust when you need assurance orientation.",
+      whyEmpty: "This guide is always available; live directory rows appear after users are invited or provisioned.",
+      whereToConfigurePrerequisite:
+        "Managing users needs Admin authority; SSO may be required before invited users can sign in.",
+    },
+  },
+  {
     prefix: "/help/cloud-connections",
     entry: {
       whatIsThisPage:

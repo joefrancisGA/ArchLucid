@@ -45,20 +45,18 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 
 ---
 
-**OVERALL WEIGHT SCORE:** 55.96%
+**OVERALL WEIGHT SCORE:** 56.03%
 
 ## Master table (score 0 first; then Deficit desc; ties A→Z by path)
 
 | ID | Path | Hit% | Scores | Weight | Deficit | Section | Notes |
 |----|------|------|--------|--------|---------|---------|-------|
-| HOE | `/help/operator-auth-roles` | 0.06% | 0 | 0 | 6 | Help alias | None |
 | PRC | `/product-learning` | 0.06% | 0 | 0 | 6 | Onboarding | None |
 | ATD | `/admin/trial-funnel` | 0.05% | 0 | 0 | 5 | Admin | None |
 | GXX | `/get-started` | 0.05% | 0 | 0 | 5 | Marketing | None |
 | AD | `/governance/advisory-scans?tab=schedules` | 0.05% | 0 | 0 | 5 | Tab surface | None |
 | HSX | `/help/scope` | 0.05% | 0 | 0 | 5 | Help topic | None |
 | HSE | `/help/security-trust` | 0.05% | 0 | 0 | 5 | Help topic | None |
-| HUX | `/help/users-and-roles` | 0.05% | 0 | 0 | 5 | Help alias | None |
 | IIO | `/integrations/itsm/oauth/callback` | 0.05% | 0 | 0 | 5 | Integrations | None |
 | QXX | `/quick-scan` | 0.05% | 0 | 0 | 5 | Marketing | None |
 | SRH | `/showcase/[runId]` | 0.05% | 0 | 0 | 5 | Marketing | None |
@@ -254,8 +252,10 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | AFX | `/admin/fleet-llm-cogs` | 0.05% | 35 | 1.75 | 3.25 | Admin | None |
 | HE | `/help/azure-permissions` | 0.06% | 52 | 3.12 | 2.88 | Help topic | Azure permissions help (Help topic) - HelpAzurePermissionsGuideView with PageContextualHelpButton (topic map azure-permissions; Category-1 registry), workspace Sources + claim-discipline orientation strip, permissions matrix, setup and verify panels. Not bare HelpTopicMarkdownView. Sibling HC = Connect Azure securely; HCE = cloud-connections help. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-04) â€” help-topic orientation hard-caps higher Evidence. |
 | HGE | `/help/glossary` | 0.06% | 52 | 3.12 | 2.88 | Help topic | Glossary help (Help topic) - HelpGlossaryPageView with PageContextualHelpButton (topic map glossary; Category-1 registry), workspace Sources + claim-discipline orientation strip, searchable term browser. Not bare HelpTopicMarkdownView. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-04) — help-topic orientation hard-caps higher Evidence. |
+| HOE | `/help/operator-auth-roles` | 0.06% | 52 | 3.12 | 2.88 | Help alias | Operator-auth-roles help alias (Help alias) - resolves to users-and-roles specialty HelpUsersAndRolesGuideView with PageContextualHelpButton (topic map users-and-roles; Category-1 registry on alias + canon), workspace Sources + claim-discipline orientation strip, role overview + capability matrix. Not bare HelpTopicMarkdownView. Sibling HUX = /help/users-and-roles. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-04) — help-topic orientation hard-caps higher Evidence. |
 | APX | `/admin/pricing-quote-aging` | 0.05% | 45 | 2.25 | 2.75 | Admin | None |
 | AEX | `/admin/evidence-proposals` | 0.05% | 50 | 2.5 | 2.5 | Admin | None |
+| HUX | `/help/users-and-roles` | 0.05% | 52 | 2.6 | 2.4 | Help alias | Users-and-roles help (Help alias) - HelpUsersAndRolesGuideView with PageContextualHelpButton (topic map users-and-roles; Category-1 registry), workspace Sources + claim-discipline orientation strip, role overview + capability matrix. Not bare HelpTopicMarkdownView. Sibling HOE = /help/operator-auth-roles alias. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-04) — help-topic orientation hard-caps higher Evidence. |
 | AII | `/admin/integrations/itsm` | 0.08% | 78 | 6.24 | 1.76 | Admin | None |
 | HDX | `/help/developer-troubleshooting` | 0.04% | 56 | 2.24 | 1.76 | Help topic | Specialty engineering troubleshooting runbook (Admin internal-runbook, TB-1246) - HelpEngineeringTroubleshootingGuideView with Customer Troubleshooting / System health / Report a problem / CLI primary CTAs, Sources diligence strip (admin-diagnostics, configuration-reference), claim-discipline callout, PageContextualHelp, HelpTopicAuthorityGate + HelpTopicMarkdownClient specialty branch, and prepared TROUBLESHOOTING.md + COMMON_ERRORS.md (contributor ADR/TB link strip). Help search Advanced diagnostics (adminOnly). Not in customer Help Center featured grid. Customer Troubleshooting (HTX) does not deep-link here (TB-1249). Slug remains developer-troubleshooting pending TB-1248 rename. Does not imply CPA SOC 2 or third-party pen-test publication. |
 | HXX | `/health` | 0.02% | 18 | 0.36 | 1.64 | Marketing | Deprecated operator bookmark â€” merged to Administration System health on ADY (`/administration/system-health`). Redirect/shim hard-caps Evidence. |

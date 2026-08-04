@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-04 - UI: Operator-auth-roles help Evidence chrome (HOE)
+
+/help/operator-auth-roles (alias of users-and-roles) ships PageContextualHelpButton, Category-1 registry, Sources + claim-discipline orientation strip on HelpUsersAndRolesGuideView, traffic Notes, and honest Evidence score 52 (sibling HUX scored with the same chrome). Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-04 - UI: Glossary help Evidence chrome (HGE)
 
 /help/glossary ships PageContextualHelpButton, Category-1 registry, Sources + claim-discipline orientation strip, traffic Notes (template ID aligned from HEG → HGE), and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.

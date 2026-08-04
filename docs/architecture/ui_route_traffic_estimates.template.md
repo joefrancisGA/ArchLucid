@@ -160,7 +160,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | SPP | `/sponsor-report/pilot-outcomes` | 0.07% | 0 | 0 | 7 | Sponsor report | Sponsor pilot outcomes report (Sponsor report) - PilotValueReportPageClient/View with PageContextualHelpButton (topic map executive-summary; Category-1 registry), workspace Sources + claim-discipline orientation strip, period controls, Outcomes nav. Absorbs former VPX hit share from retired legacy `/value-report/pilot` bookmark (LegacyPilotValueReportRedirectPage still permanentRedirects here). Period summary — not a signed-record Sources trail alone. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-04) — sponsor period-summary hard-caps higher Evidence without diligence packing. |
 | DPX | `/demo/preview` | 0.06% | 0 | 0 | 6 | Marketing | Demo preview (Marketing) - DemoPreviewMarketingPage with DemoPreviewEvidenceOrientationStrip (evaluation Sources + claim-discipline: sample demo only; not diligence / CPA SOC 2 / third-party pen-test). Not an operator PageContextualHelp surface. Sibling DXX = /demo entry redirect. Does not imply CPA SOC 2 or third-party pen-test publication. Score 40/100 (2026-08-04) — marketing sample-demo page hard-caps higher Evidence. |
 | HCA | `/help/cloud-connections/azure` | 0.06% | 0 | 0 | 6 | Help alias | None |
-| HOE | `/help/operator-auth-roles` | 0.06% | 0 | 0 | 6 | Help alias | None |
+| HOE | `/help/operator-auth-roles` | 0.06% | 0 | 0 | 6 | Help alias | Operator-auth-roles help alias (Help alias) - resolves to users-and-roles specialty HelpUsersAndRolesGuideView with PageContextualHelpButton (topic map users-and-roles; Category-1 registry on alias + canon), workspace Sources + claim-discipline orientation strip, role overview + capability matrix. Not bare HelpTopicMarkdownView. Sibling HUX = /help/users-and-roles. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-04) — help-topic orientation hard-caps higher Evidence. |
 | OXX | `/onboard` | 0.06% | 0 | 0 | 6 | Onboarding | None |
 | PRC | `/internal/product-learning` | 0.06% | 0 | 0 | 6 | Onboarding | None |
 | AEX | `/admin/evidence-proposals` | 0.05% | 0 | 0 | 5 | Admin | None |
@@ -170,7 +170,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | GXX | `/get-started` | 0.05% | 0 | 0 | 5 | Marketing | None |
 | HSX | `/help/scope` | 0.05% | 0 | 0 | 5 | Help topic | None |
 | HSE | `/help/security-trust` | 0.05% | 0 | 0 | 5 | Help topic | None |
-| HUX | `/help/users-and-roles` | 0.05% | 0 | 0 | 5 | Help alias | None |
+| HUX | `/help/users-and-roles` | 0.05% | 0 | 0 | 5 | Help alias | Users-and-roles help (Help alias) - HelpUsersAndRolesGuideView with PageContextualHelpButton (topic map users-and-roles; Category-1 registry), workspace Sources + claim-discipline orientation strip, role overview + capability matrix. Not bare HelpTopicMarkdownView. Sibling HOE = /help/operator-auth-roles alias. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-04) — help-topic orientation hard-caps higher Evidence. |
 | IIO | `/integrations/itsm/oauth/callback` | 0.05% | 0 | 0 | 5 | Integrations | Atlassian OAuth consent return — live App Router page; not redirect-blocked (TB-1776 hub carve-out). Score UX after TB-1782+. |
 | RXX | `/internal-operations/recommendation-learning` | 0.05% | 0 | 0 | 5 | Marketing | None |
 | OAX | `/operate/architecture-graph` | 0.05% | 0 | 0 | 5 | Advisory | None |
