@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Customer-visible in-app documentation registry.
  * Source of truth: `docs/library/PRODUCT_DOCUMENTATION_PRESENTATION.md`.
  */
@@ -10,7 +10,7 @@ import {
 export type { ProductDocumentationContentKind } from "@/lib/product-documentation-content-kinds";
 export type ProductDocumentationAudience = "operator" | "buyer" | "marketing" | "developer";
 
-/** PDF pipeline eligibility — `null` means not PDF-eligible (TB-722). */
+/** PDF pipeline eligibility â€” `null` means not PDF-eligible (TB-722). */
 export type ProductDocumentationPdfStatus = "public" | "customer" | "internal";
 
 export type ProductDocumentationEntry = {
@@ -20,7 +20,7 @@ export type ProductDocumentationEntry = {
   audience: ProductDocumentationAudience;
   /**
    * Repo-relative markdown path(s); first entry is primary body.
-   * Empty means the topic is app-rendered (no markdown body) — e.g. glossary from `customer-glossary-manifest.ts`.
+   * Empty means the topic is app-rendered (no markdown body) â€” e.g. glossary from `customer-glossary-manifest.ts`.
    */
   sourcePaths: readonly string[];
   /** When set, only these `{#anchor}` H2 sections (plus optional intro) are rendered. */
@@ -45,7 +45,7 @@ export const HELP_TOPIC_SLUG_ALIASES: Readonly<Record<string, string>> = {
   "users-and-roles": "users-and-roles",
   "operator-auth-roles": "users-and-roles",
   "core-pilot": "first-architecture-review",
-  /** TB-1386 — honest API-contracts URL; canonical slug stays governance-api-contracts. */
+  /** TB-1386 â€” honest API-contracts URL; canonical slug stays governance-api-contracts. */
   "api-contracts": "governance-api-contracts",
   /** Evaluator workbook body folded into buyer orientation / path-chooser (2026-08-03). */
   "evaluator-workbook": "path-chooser",
@@ -60,6 +60,10 @@ export const HELP_TOPIC_SLUG_ALIASES: Readonly<Record<string, string>> = {
   "data-handling-tenant-isolation": "data-handling",
   /** Evidence-only CORE_PILOT section twin folded into first-architecture-review (2026-08-03; TB-1683). */
   "evidence-only-review": "first-architecture-review",
+  /** Product-overview twin folded into executive-summary (2026-08-04; TB-1739). */
+  "product-overview": "executive-summary",
+  /** How-it-works twin folded into getting-started (2026-08-04). Prefer #how-archlucid-works. */
+  "how-it-works": "getting-started",
 };
 
 export function normalizeHelpTopicSlug(slug: string): string {
@@ -86,7 +90,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     slug: "pilot-nav-profile",
     title: "Workspace navigation profile",
     summary:
-      "How the sidebar keeps the first-review path focused until your first architecture review is finalized — and how to unlock analysis and governance on demand.",
+      "How the sidebar keeps the first-review path focused until your first architecture review is finalized â€” and how to unlock analysis and governance on demand.",
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/WORKSPACE_NAVIGATION_GUIDE.md"],
     sectionAnchors: ["what-you-see", "main-workflow"],
@@ -122,6 +126,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
       "Learn how ArchLucid turns architecture evidence into review findings, decisions, and governance-ready outputs.",
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/CONCEPTS_IN_5_MINUTES.md"],
+    pdfStatus: "public",
   },
   {
     slug: "scope",
@@ -137,7 +142,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     summary:
       "Definitions for the terms used throughout ArchLucid reviews, evidence, governance, and administration.",
     audience: "operator",
-    // App-rendered from `customer-glossary-manifest.ts` — not a markdown help body.
+    // App-rendered from `customer-glossary-manifest.ts` â€” not a markdown help body.
     sourcePaths: [],
   },
   {
@@ -213,15 +218,6 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     pdfStatus: "customer",
   },
   {
-    slug: "how-it-works",
-    title: "How ArchLucid works",
-    summary:
-      "From architecture evidence to findings, decisions, governance records, and sponsor-ready outputs.",
-    audience: "buyer",
-    sourcePaths: ["docs/library/customer-facing/HOW_ARCHLUCID_WORKS.md"],
-    pdfStatus: "public",
-  },
-  {
     slug: "authentication-sign-in",
     title: "Authentication and sign-in",
     summary:
@@ -234,7 +230,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     slug: "report-a-problem",
     title: "Report a problem",
     summary:
-      "Structured in-product support intake — captured fields, consent, optional bundle attach, and next-business-day response commitment.",
+      "Structured in-product support intake â€” captured fields, consent, optional bundle attach, and next-business-day response commitment.",
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/REPORT_A_PROBLEM.md"],
     pdfStatus: "customer",
@@ -253,13 +249,13 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     title: "Security and trust",
     summary: "Assurance ladder, data handling, subprocessors, and diligence materials for procurement reviewers.",
     audience: "buyer",
-    sourcePaths: ["docs/go-to-market/trust-center.md", "docs/library/customer-facing/DATA_HANDLING.md"],
+    sourcePaths: ["docs/go-to-market/trust-center.md"],
     pdfStatus: "public",
   },
   {
     slug: "soc2-self-assessment",
     title: "SOC 2 self-assessment",
-    summary: "Internal readiness mapping aligned to SOC 2 Common Criteria — not a CPA attestation report.",
+    summary: "Internal readiness mapping aligned to SOC 2 Common Criteria â€” not a CPA attestation report.",
     audience: "buyer",
     sourcePaths: ["docs/security/SOC2_SELF_ASSESSMENT_2026.md"],
     pdfStatus: "public",
@@ -283,7 +279,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   {
     slug: "dpa-template",
     title: "Data Processing Agreement (template)",
-    summary: "DPA template for contractual data-processing terms — requires legal review before execution.",
+    summary: "DPA template for contractual data-processing terms â€” requires legal review before execution.",
     audience: "buyer",
     sourcePaths: ["docs/go-to-market/DPA_TEMPLATE.md"],
     pdfStatus: "public",
@@ -292,7 +288,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     slug: "cloud-connections",
     title: "Cloud connections",
     summary:
-      "Optional Azure, AWS, and GCP connections for read-only evidence — or evidence-only reviews without any connector.",
+      "Optional Azure, AWS, and GCP connections for read-only evidence â€” or evidence-only reviews without any connector.",
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/CLOUD_CONNECTIONS.md"],
     sectionAnchors: ["choose-your-cloud-platform", "related-topics"],
@@ -302,7 +298,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     slug: "cloud-connections-azure",
     title: "Connect Azure securely",
     summary:
-      "Workload identity federation, read-only Azure roles, subscription scope, and connection validation — without long-lived secrets.",
+      "Workload identity federation, read-only Azure roles, subscription scope, and connection validation â€” without long-lived secrets.",
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/CLOUD_CONNECTIONS.md"],
     sectionAnchors: ["connect-azure-securely"],
@@ -312,7 +308,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     slug: "cloud-connections-aws",
     title: "Connect AWS securely",
     summary:
-      "OIDC-federated read-only IAM role, Resource Explorer inventory, and connection validation — without long-lived access keys.",
+      "OIDC-federated read-only IAM role, Resource Explorer inventory, and connection validation â€” without long-lived access keys.",
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/CLOUD_CONNECTIONS.md"],
     sectionAnchors: ["connect-aws-securely"],
@@ -322,7 +318,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     slug: "cloud-connections-gcp",
     title: "Connect GCP securely",
     summary:
-      "Workload Identity Federation, Cloud Asset Viewer, project scope, and connection validation — without service-account JSON keys.",
+      "Workload Identity Federation, Cloud Asset Viewer, project scope, and connection validation â€” without service-account JSON keys.",
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/CLOUD_CONNECTIONS.md"],
     sectionAnchors: ["connect-gcp-securely"],
@@ -357,25 +353,9 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     slug: "azure-boards",
     title: "Azure Boards integration",
     summary:
-      "Connect Azure DevOps for work item creation from ArchLucid findings — independent of your architecture cloud provider.",
+      "Connect Azure DevOps for work item creation from ArchLucid findings â€” independent of your architecture cloud provider.",
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/AZURE_BOARDS_INTEGRATION.md"],
-  },
-  {
-    slug: "product-overview",
-    title: "ArchLucid product overview",
-    summary:
-      "What ArchLucid is, the problems it solves, core value pillars, and sponsor-ready elevator pitches.",
-    audience: "buyer",
-    sourcePaths: ["docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md"],
-    sectionAnchors: [
-      "what-archlucid-is",
-      "what-problem-it-solves",
-      "core-value-pillars",
-      "elevator-pitches",
-    ],
-    includeIntroWithSections: true,
-    pdfStatus: "public",
   },
   {
     slug: "procurement",
@@ -383,7 +363,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     summary: "Buyer-safe answers for InfoSec questionnaires, resilience reviews, and enterprise procurement.",
     audience: "buyer",
     sourcePaths: ["docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md"],
-    // TB-1254: FAQ section only — packet intro is SE/ops contributor material.
+    // TB-1254: FAQ section only â€” packet intro is SE/ops contributor material.
     sectionAnchors: ["enterprise-procurement-faq"],
     includeIntroWithSections: false,
   },
@@ -391,7 +371,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     slug: "billing-and-plans",
     title: "Billing and plans",
     summary:
-      "How ArchLucid billing works — manage subscriptions, payment methods, seats, and usage from Billing and plans.",
+      "How ArchLucid billing works â€” manage subscriptions, payment methods, seats, and usage from Billing and plans.",
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/BILLING_AND_PLANS.md"],
   },
@@ -440,7 +420,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     slug: "accelerator-chooser",
     title: "Accelerator chooser",
     summary:
-      "Map buyer jobs to existing starter proof packs after your first finalized architecture review — inputs, outputs, and V1 scope labels.",
+      "Map buyer jobs to existing starter proof packs after your first finalized architecture review â€” inputs, outputs, and V1 scope labels.",
     audience: "operator",
     sourcePaths: ["docs/go-to-market/DEMO_QUICKSTART.md"],
     sectionAnchors: ["accelerator-chooser"],
@@ -468,7 +448,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     summary:
       "Find common issues, try the first fix, and collect support details when needed.",
     audience: "operator",
-    // App-rendered from `troubleshooting-help-guide-content.ts` — not a markdown help body.
+    // App-rendered from `troubleshooting-help-guide-content.ts` â€” not a markdown help body.
     sourcePaths: [],
   },
   {
@@ -490,7 +470,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   {
     slug: "path-chooser",
     title: "Choose your next step",
-    summary: "Map your current goal — evaluate, pilot, procurement, sponsor output, or engineering support — to one primary next action.",
+    summary: "Map your current goal â€” evaluate, pilot, procurement, sponsor output, or engineering support â€” to one primary next action.",
     audience: "buyer",
     sourcePaths: ["docs/go-to-market/BUYER_ORIENTATION_ONE_SCREEN.md"],
   },
@@ -513,7 +493,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     slug: "policy-pack-delta-demo",
     title: "Policy-pack delta demo (internal runbook)",
     summary:
-      "Admin/SE demo script: same finalized architecture review, stricter pack enforcement, different finalize-gate outcome — dry-run, simulation, and audit slice. Not buyer self-serve help.",
+      "Admin/SE demo script: same finalized architecture review, stricter pack enforcement, different finalize-gate outcome â€” dry-run, simulation, and audit slice. Not buyer self-serve help.",
     audience: "operator",
     sourcePaths: ["docs/go-to-market/POLICY_PACK_DELTA_DEMO_SCRIPT.md"],
   },
@@ -529,7 +509,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     slug: "governance-api-contracts",
     title: "API contracts (technical reference)",
     summary:
-      "Admin/developer HTTP contract reference — versioned endpoint behavior, auth, and OpenAPI as contract of record. Not buyer governance-approval help.",
+      "Admin/developer HTTP contract reference â€” versioned endpoint behavior, auth, and OpenAPI as contract of record. Not buyer governance-approval help.",
     audience: "developer",
     sourcePaths: ["docs/library/API_CONTRACTS.md"],
   },
@@ -537,7 +517,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     slug: "pilot-feedback",
     title: "Pilot feedback (internal runbook)",
     summary:
-      "Admin/product-owner guide for human judgment signals on findings and architecture reviews — separate from recommendation learning. Not default buyer help.",
+      "Admin/product-owner guide for human judgment signals on findings and architecture reviews â€” separate from recommendation learning. Not default buyer help.",
     audience: "operator",
     sourcePaths: ["docs/library/PRODUCT_LEARNING.md"],
   },
