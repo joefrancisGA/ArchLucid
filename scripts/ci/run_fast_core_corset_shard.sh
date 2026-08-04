@@ -70,9 +70,9 @@ reclaim_orphaned_test_hosts() {
   pkill -f vstest.console >/dev/null 2>&1 || true
 }
 
-# NetArchTest loads nearly the whole product graph. Coverlet instrumentation of those assemblies
-# OOMs GitHub-hosted runners (CI #2864 job 91775094824: exit 137 after ~5m, blame-hang never fired).
-# Structural tests do not contribute unique product-line coverage beyond unit/integration shards.
+# Coverlet instrumentation OOMs GitHub-hosted runners on large Suite=Core hosts
+# (Architecture.Tests CI #2864 exit 137 ~5m; Api.Tests CI #30896706032 exit 137 ~301s).
+# Full-regression shards still collect Coverlet for Api.Tests; Architecture.Tests is structural.
 should_collect_coverage_for_project() {
   local proj="$1"
 
@@ -81,7 +81,7 @@ should_collect_coverage_for_project() {
   fi
 
   case "${proj}" in
-    *ArchLucid.Architecture.Tests*)
+    *ArchLucid.Architecture.Tests*|*ArchLucid.Api.Tests*)
       return 1
       ;;
     *)
@@ -155,7 +155,7 @@ for proj in "${PROJECTS[@]}"; do
     echo "${utc_end} HUNG ${proj} exceeded ${PROJECT_TIMEOUT}" | tee -a "${TIMING_LOG}"
 
     if [ "${exit_code}" -eq 137 ] && [ "${duration_sec}" -lt 600 ]; then
-      echo "::error::Fast core shard ${SHARD_ID} killed on ${proj} after ${duration_sec}s (exit 137). Duration is far under the ${PROJECT_TIMEOUT} project cap — likely OOM or an external SIGKILL (not a blame-hang / wall-clock hang). Architecture.Tests skips Coverlet for this reason."
+      echo "::error::Fast core shard ${SHARD_ID} killed on ${proj} after ${duration_sec}s (exit 137). Duration is far under the ${PROJECT_TIMEOUT} project cap — likely OOM or an external SIGKILL (not a blame-hang / wall-clock hang). Architecture.Tests and Api.Tests skip Coverlet on fast-core for this reason."
     else
       echo "::error::Fast core shard ${SHARD_ID} HUNG on ${proj}: killed after ${PROJECT_TIMEOUT}. Blame-hang ${HANG_TIMEOUT} did not fire, so the stall is outside any single test — suspect a wedged test host or coverage collection at session end."
     fi
