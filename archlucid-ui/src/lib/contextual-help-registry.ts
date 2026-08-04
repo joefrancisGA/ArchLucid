@@ -27,7 +27,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     entry: {
       whatIsThisPage:
         "Workspace Overview — start or resume architecture reviews and see recent activity from one command center.",
-      whatToDoNext: "Start a review, resume a draft, or explore a sample package from the hero actions.",
+      whatToDoNext: "Start a review, resume a draft, or explore a sample workspace.",
       whyEmpty: "Recent reviews and metrics appear after you create or finalize architecture reviews.",
       whereToConfigurePrerequisite: "Switch workspace or project scope from the header switcher when you work across teams.",
     },
