@@ -495,7 +495,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whatIsThisPage:
         "Governance approval — how architecture decisions move through submit, review, and finalize for operators.",
       whatToDoNext:
-        "Open Approvals or Workspace Health, then use Findings when you need the risk register behind a decision.",
+        "Open the approval queue or Workspace Health, then use Findings when you need the risk register behind a decision.",
       whyEmpty: "This guide is always available; live approval queues appear after reviews enter governance.",
       whereToConfigurePrerequisite:
         "Approval authority follows workspace roles; confirm the header workspace before acting on requests.",
