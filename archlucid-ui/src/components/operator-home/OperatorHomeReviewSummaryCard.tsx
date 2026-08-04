@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { InlineMetadataLabel } from "@/components/InlineMetadataLabel";
+import { InlineMetadataLine } from "@/components/InlineMetadataLine";
 import {
   ArchitecturePackageOriginBadge,
   resolveRunHomeStatusTag,
@@ -10,6 +12,7 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK } from "@/lib/buyer-polish-copy";
 import {
+  INLINE_METADATA_LABEL_CLASS,
   OPERATOR_CARD,
   OPERATOR_LINK,
   OPERATOR_SURFACE_CARD_CLASS,
@@ -52,7 +55,9 @@ function formatFindingsMetadata(run: RunSummary): string | null {
 function ReviewSummaryMetadataItem(props: { readonly label: string; readonly value: string }) {
   return (
     <div className="min-w-0">
-      <dt className={cn("m-0", OPERATOR_TYPOGRAPHY.label)}>{props.label}</dt>
+      <dt className={cn("m-0", INLINE_METADATA_LABEL_CLASS)}>
+        <InlineMetadataLabel label={props.label} withColon={false} />
+      </dt>
       <dd className={cn("m-0 mt-0.5 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
         {props.value}
       </dd>
@@ -105,25 +110,19 @@ export function OperatorHomeReviewSummaryCard(props: OperatorHomeReviewSummaryCa
       <ArchitecturePackageOriginBadge run={props.run} buyerPolishedShell={props.buyerPolishedShell} />
 
       {variant === "featured" && isShowcaseDemo ? (
-        <div className="space-y-1">
+        <div className="space-y-1" data-testid="runs-dashboard-buyer-proof-metadata">
           <p className={cn("m-0", OPERATOR_TYPE_SCALE.sectionTitle, "text-neutral-900 dark:text-neutral-100")}>
             Decision: Package finalized
           </p>
-          <p className={cn("m-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
-            Governance approval: Approved with monitoring
-          </p>
+          <InlineMetadataLine label="Governance approval" value="Approved with monitoring" />
           <p className={cn("m-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
             {BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK(
               SHOWCASE_STATIC_DEMO_SPINE_COUNTS.findingCount,
               SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount,
             )}
           </p>
-          <p className={cn("m-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
-            Evidence trail: Ready
-          </p>
-          <p className={cn("m-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
-            Audit trail: Complete
-          </p>
+          <InlineMetadataLine label="Evidence trail" value="Ready" />
+          <InlineMetadataLine label="Audit trail" value="Complete" />
         </div>
       ) : (
         <dl className="m-0 grid grid-cols-1 gap-x-4 gap-y-2 sm:grid-cols-2">

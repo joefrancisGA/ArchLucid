@@ -6,6 +6,7 @@ import { useMemo, useRef } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { DocumentLayout } from "@/components/DocumentLayout";
+import { InlineMetadataLabel } from "@/components/InlineMetadataLabel";
 import { LayerHeader } from "@/components/LayerHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -298,27 +299,47 @@ export function PilotValueReportPageView(props: Props) {
                 </h2>
                 <h3 className={cn("mb-2", OPERATOR_TYPOGRAPHY.helper)}>Decisions</h3>
                 <ul className={cn("m-0 list-none space-y-2 p-0", OPERATOR_TYPOGRAPHY.body, "text-al-text-secondary")}>
-                  <li>Approved: {m.data.governanceApprovals}</li>
-                  <li>Rejected: {m.data.governanceRejections}</li>
-                  <li>Pending: {m.data.governancePendingApprovalsNow}</li>
+                  <li>
+                    <InlineMetadataLabel label="Approved" /> {m.data.governanceApprovals}
+                  </li>
+                  <li>
+                    <InlineMetadataLabel label="Rejected" /> {m.data.governanceRejections}
+                  </li>
+                  <li>
+                    <InlineMetadataLabel label="Pending" /> {m.data.governancePendingApprovalsNow}
+                  </li>
                 </ul>
                 <h3 className={cn("mb-2 mt-4", OPERATOR_TYPOGRAPHY.helper)}>Policy governance</h3>
                 <ul className={cn("m-0 list-none space-y-2 p-0", OPERATOR_TYPOGRAPHY.body, "text-al-text-secondary")}>
-                  <li>Policy packs applied: {m.data.policyPackAssignments}</li>
-                  <li>Exceptions or waivers: Not available</li>
+                  <li>
+                    <InlineMetadataLabel label="Policy packs applied" /> {m.data.policyPackAssignments}
+                  </li>
+                  <li>
+                    <InlineMetadataLabel label="Exceptions or waivers" /> Not available
+                  </li>
                 </ul>
                 <h3 className={cn("mb-2 mt-4", OPERATOR_TYPOGRAPHY.helper)}>Architecture-change signals</h3>
                 <ul className={cn("m-0 list-none space-y-2 p-0", OPERATOR_TYPOGRAPHY.body, "text-al-text-secondary")}>
-                  <li>Drift detections: {m.data.comparisonOrDriftDetections}</li>
+                  <li>
+                    <InlineMetadataLabel label="Drift detections" /> {m.data.comparisonOrDriftDetections}
+                  </li>
                 </ul>
               </div>
               <div className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
                 <h2 className={cn("mt-0", OPERATOR_NAV_GROUP_LABEL)}>Recommendations and remediation</h2>
                 <ul className={cn("m-0 list-none space-y-2 p-0", OPERATOR_TYPOGRAPHY.body, "text-al-text-secondary")}>
-                  <li>Recommendations generated: {m.data.totalRecommendationsProduced}</li>
-                  <li>Recommendations accepted: Not available</li>
-                  <li>Remediation assignments: Not available</li>
-                  <li>Findings remediated: Not available</li>
+                  <li>
+                    <InlineMetadataLabel label="Recommendations generated" /> {m.data.totalRecommendationsProduced}
+                  </li>
+                  <li>
+                    <InlineMetadataLabel label="Recommendations accepted" /> Not available
+                  </li>
+                  <li>
+                    <InlineMetadataLabel label="Remediation assignments" /> Not available
+                  </li>
+                  <li>
+                    <InlineMetadataLabel label="Findings remediated" /> Not available
+                  </li>
                 </ul>
                 <h2 className={cn("mb-2 mt-6", OPERATOR_NAV_GROUP_LABEL)}>Analysis coverage</h2>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>

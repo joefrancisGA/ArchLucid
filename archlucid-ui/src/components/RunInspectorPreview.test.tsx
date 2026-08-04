@@ -72,6 +72,20 @@ describe("RunInspectorPreview", () => {
 
     expect(screen.getByText("Decision: Package finalized")).toBeInTheDocument();
     expect(screen.getByText("Risks reviewed")).toBeInTheDocument();
+
+    const proofSummary = screen.getByTestId("run-inspector-showcase-proof-summary");
+    const emphasizedLabels = proofSummary.querySelectorAll(".font-medium");
+
+    expect(Array.from(emphasizedLabels).map((node) => node.textContent)).toEqual(
+      expect.arrayContaining([
+        "Governance approval:",
+        "Remaining monitored risk:",
+        "Evidence trail:",
+        "Audit trail:",
+      ]),
+    );
+    expect(proofSummary.textContent).toMatch(/Audit trail:\s*Complete/);
+
     expect(screen.queryByRole("link", { name: "Open approved package" })).not.toBeInTheDocument();
     fireEvent.click(screen.getByText("Related actions"));
     expect(screen.getByRole("link", { name: "View signed record" })).toHaveAttribute(

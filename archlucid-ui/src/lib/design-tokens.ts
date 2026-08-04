@@ -124,7 +124,10 @@ export const OPERATOR_SHELL_MAIN_PADDING_CLASS = "px-4 py-4 lg:py-6";
  */
 export const OPERATOR_SHELL_CONTENT_BLEED_X_CLASS = "-mx-4 px-4";
 
-/** Scroll offset for in-page anchors below the sticky operator header stack. */
+/**
+ * Scroll offset for in-page anchors below the sticky operator header stack.
+ * Sticky budget is optional trial banner + one-row top bar; journey captions are non-sticky.
+ */
 export const OPERATOR_SHELL_SCROLL_OFFSET_CLASS = "scroll-mt-[var(--app-shell-sticky,6rem)]";
 
 /** Sticky sub-nav offset below the operator header stack (TOC rails, section nav). */
@@ -219,6 +222,12 @@ export const INLINE_GUIDANCE_LABEL_CLASS = "font-semibold text-al-text-primary";
 
 /** @deprecated Use {@link INLINE_GUIDANCE_LABEL_CLASS}. */
 export const OPERATOR_GUIDANCE_NEXT_LABEL_CLASS = INLINE_GUIDANCE_LABEL_CLASS;
+
+/**
+ * Medium scan marker for inline metadata keys (`Label: value`) — quieter than guidance semibold.
+ * Pair with normal-weight value text; do not use for instructional prefixes (use {@link INLINE_GUIDANCE_LABEL_CLASS}).
+ */
+export const INLINE_METADATA_LABEL_CLASS = "font-medium text-al-text-primary";
 
 export const OPERATOR_TYPOGRAPHY = {
   pageTitle: OPERATOR_TYPE_SCALE.pageTitle,

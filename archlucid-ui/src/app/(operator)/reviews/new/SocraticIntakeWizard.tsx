@@ -9,6 +9,7 @@ import { DraftIntakeActorEditor } from "@/components/draft-intake/DraftIntakeAct
 import { PilotModePolicyPackToggle } from "@/components/wizard/PilotModePolicyPackToggle";
 import { DraftIntakeClaimLabel } from "@/components/draft-intake/DraftIntakeClaimLabel";
 import { DraftIntakeRequiredClarificationField } from "@/components/draft-intake/DraftIntakeRequiredClarificationField";
+import { InlineMetadataLabel } from "@/components/InlineMetadataLabel";
 import { ReviewIntakeExampleTemplateCallout } from "@/components/review-intake/ReviewIntakeExampleTemplateCallout";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
@@ -958,9 +959,19 @@ export function SocraticIntakeWizard() {
           </CardHeader>
           <CardContent className="space-y-4">
             <ul className={cn("list-disc space-y-1 pl-5 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-              <li>Intent: {freeTextIntent.trim().slice(0, 120)}{freeTextIntent.trim().length > 120 ? "…" : ""}</li>
-              <li>Outcome: {businessOutcome.trim()}</li>
-              {systemName.trim() ? <li>System: {systemName.trim()}</li> : null}
+              <li>
+                <InlineMetadataLabel label="Intent" />{" "}
+                {freeTextIntent.trim().slice(0, 120)}
+                {freeTextIntent.trim().length > 120 ? "…" : ""}
+              </li>
+              <li>
+                <InlineMetadataLabel label="Outcome" /> {businessOutcome.trim()}
+              </li>
+              {systemName.trim() ? (
+                <li>
+                  <InlineMetadataLabel label="System" /> {systemName.trim()}
+                </li>
+              ) : null}
             </ul>
             <div className="flex flex-wrap gap-2">
               <Button type="button" variant="outline" disabled={busy} onClick={() => setStep(1)}>

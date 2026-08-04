@@ -45884,118 +45884,67 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ---
 
-## TB-1996 — Design-system — inline metadata `Label: value` label emphasis contract (P1)
+## TB-1996 — Design-system — inline metadata `Label: value` label emphasis contract (P1) — **Done** (2026-08-04)
 
 **Window:** V1 — Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-04).
 
 **Priority:** P1.
 
 **Source:** Owner screenshot review of Overview Recent reviews buyer proof helper lines (**Audit trail: Complete**) 2026-07-28.
 
-**Problem:** No `UI_DESIGN_SYSTEM.md` rule for emphasizing the key in inline metadata `Label: value` rows. Flat `OPERATOR_TYPOGRAPHY.helper` makes **Audit trail** and **Complete** the same weight. Precedents exist but are ad hoc (`AcceleratorChooserCard` `font-medium` on `Inputs:`/`Outputs:`; Done **TB-619** on `Recommended action:` / `Owner:`; `InlineGuidanceLabel` for guidance prefixes only).
-
-**Approach:**
-
-1. Document in `UI_DESIGN_SYSTEM.md` (+ token/helper note if useful): for **inline metadata** rows `Label: value`, emphasize the label (`font-medium` / `font-semibold` or shared `InlineMetadataLabel` / `<dt>`), leave the value at helper/body weight.
-2. Prefer `<dl>` / `<dt>`/`<dd>` when several rows stack (align with non-showcase `RunInspectorPreview`).
-3. Explicit **do not** list: prose sentences with colons; section/card titles that use a colon as part of a heading; code/config keys; legal/document chrome; guidance prefixes (`InlineGuidanceLabel`); whole-line title rows already intended as one semibold phrase (e.g. **Decision: Package finalized** as a card title — either keep whole-line title weight or split per the metadata rule, but do not double-bold).
-4. Note product metadata separator is **colon**; no `Label, value` status pattern required.
-
-**Acceptance:** Design system states when to emphasize the label before `:` and when not to; agents/contributors have a clear default.
-
-**Depends on:** None. Complements **TB-119** / **TB-619**.
-
-**Out of scope:** Sweeping every colon in the UI tree (**TB-1999** inventory).
-
-**Size estimate:** S.
+**Shipped:** `UI_DESIGN_SYSTEM.md` § Inline metadata `Label: value` emphasis; token `INLINE_METADATA_LABEL_CLASS`; components `InlineMetadataLabel` / `InlineMetadataLine`. Explicit do-not list for prose/titles/guidance/code. Apply/Vitest/inventory: **TB-1997**–**TB-1999**.
 
 ---
 
-## TB-1997 — Buyer proof summary — bold metadata labels (home Recent + RunInspectorPreview showcase) (P1)
+## TB-1997 — Buyer proof summary — bold metadata labels (home Recent + RunInspectorPreview showcase) (P1) — **Done** (2026-08-04)
 
 **Window:** V1 — Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-04).
 
 **Priority:** P1.
 
 **Source:** Owner Overview screenshot 2026-07-28 — **Audit trail: Complete** (and siblings) in Recent reviews featured summary.
 
-**Problem:** `RunsDashboardRecentTab.tsx` (`runs-dashboard-buyer-proof-summary`) and `RunInspectorPreview.tsx` showcase block render flat helper paragraphs: `Governance approval: …`, `Evidence trail: Ready`, `Audit trail: Complete`, `Remaining monitored risk: …`. Same weight on key and value. Non-showcase inspector path already uses emphasized `<dt>` rows.
-
-**Approach:**
-
-1. Apply **TB-1996** pattern to the showcase/buyer proof rows (shared component or local `<dt>`/`<span className="font-medium">` label).
-2. Keep **Decision: Package finalized** as a title-weight line (or split consistently — document choice).
-3. Align home Recent and reviews-list inspector showcase copy presentation.
-
-**Acceptance:** Buyer-visible proof summary metadata keys are visually heavier than values; values remain readable helper text.
-
-**Depends on:** Prefer land with or immediately after **TB-1996**.
-
-**Out of scope:** Broader inventory (**TB-1999**); BDA-008 “audit trail complete” claim wording (different issue).
-
-**Size estimate:** S.
+**Shipped:** `OperatorHomeReviewSummaryCard` featured showcase + `RunInspectorPreview` showcase use `InlineMetadataLine`; **Decision: Package finalized** remains title-weight whole line; non-showcase inspector `<dt>` rows use `InlineMetadataLabel`.
 
 ---
 
-## TB-1998 — Buyer proof summary — Vitest label emphasis on `Label: value` rows (P2)
+## TB-1998 — Buyer proof summary — Vitest label emphasis on `Label: value` rows (P2) — **Done** (2026-08-04)
 
 **Window:** V1 — Testability.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-04).
 
 **Priority:** P2.
 
 **Source:** With **TB-1997**.
 
-**Problem:** Without a guard, flat helper paragraphs can regress after the bold-label pass.
-
-**Approach:** Vitest on buyer proof summary / showcase inspector: each metadata key (`Governance approval`, `Evidence trail`, `Audit trail`, monitored-risk label) is in an emphasized element (`font-medium`/`font-semibold`/`dt`), distinct from the value text node.
-
-**Acceptance:** Regression fails if **Audit trail: Complete** returns to a single unweighted text node.
-
-**Depends on:** **TB-1997**.
-
-**Size estimate:** S.
+**Shipped:** Vitest on `OperatorHomeReviewSummaryCard` + `RunInspectorPreview` asserts metadata keys are `.font-medium` nodes distinct from values; `InlineMetadataLabel.test.tsx` covers colon/token contract.
 
 ---
 
-## TB-1999 — Follow-up inventory — remaining flat `Label: value` metadata surfaces (P2)
+## TB-1999 — Follow-up inventory — remaining flat `Label: value` metadata surfaces (P2) — **Done** (2026-08-04)
 
 **Window:** V1 — Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-04).
 
 **Priority:** P2.
 
 **Source:** UI scan with **TB-1996** / owner Overview bold-label ask 2026-07-28.
 
-**Problem:** After the high-traffic buyer proof fix, other flat metadata rows remain (lower first-session impact).
+**Shipped (buyer/sponsor-facing apply):**
 
-**Inventory (candidates — apply **TB-1996** only where rows are true metadata, not prose):**
-
-| Surface | Examples |
+| Surface | Change |
 |---|---|
-| `/value-report/pilot` (`PilotValueReportPageView`) | `Approved:`, `Rejected:`, `Pending:`, `Policy packs applied:`, … |
-| `/governance/policy-packs/[id]` (`PolicyPackGenericDetail`) | `Last updated:`, `Pack type:` |
-| `/architecture-intelligence` finding cards | `Severity:`, `Conclusion:`, `Integrity:`, … |
-| `/reviews/new` Socratic confirm (`SocraticIntakeWizard`) | `Intent:`, `Outcome:`, `System:` |
-| Architectures sponsor share (`ArchitectureSponsorSharingPanel`) | `Known gaps:`, `Confidentiality:` |
-| Finding evidence (`FindingInspectEvidenceSection`) | `Lines:`, `Artifact id:` |
-| Alerts admin simulation/tuning | Mixed — some already `<strong>` |
+| `/value-report/pilot` (`PilotValueReportPageView`) | `InlineMetadataLabel` on Approved/Rejected/Pending/policy/recommendation rows |
+| `/governance/policy-packs/[id]` (`PolicyPackGenericDetail`) | `InlineMetadataLine` for Last updated / Pack type |
+| `/reviews/new` Socratic confirm (`SocraticIntakeWizard`) | `InlineMetadataLabel` on Intent/Outcome/System |
 
-**Approach:** Prioritize buyer/sponsor-facing lists first; skip or demote admin-only / mono-ID forensic lines unless they share a component. Prefer shared helper from **TB-1996**.
-
-**Acceptance:** Inventory filed against **TB-1996** contract; highest-traffic remaining buyer surfaces fixed or explicitly deferred with reason.
-
-**Depends on:** **TB-1996**; prefer after **TB-1997**.
-
-**Out of scope:** Prose/heading/code/legal nuance cases listed in **TB-1996**.
-
-**Size estimate:** M.
+**Explicitly deferred (admin/forensic or lower first-session impact — reuse `InlineMetadataLabel` when next touched):** architecture-intelligence finding cards (`Severity:`/`Conclusion:`); `ArchitectureSponsorSharingPanel` (`Known gaps:`/`Confidentiality:`); `FindingInspectEvidenceSection` (`Lines:`/`Artifact id:`); alerts admin simulation/tuning (mixed existing `<strong>`).
 
 ---
 

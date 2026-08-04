@@ -270,9 +270,10 @@ export const PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL = "Optional workspace set
 export const OPERATOR_HOME_CONTINUE_SETUP_BODY =
   "No additional setup is required to create or review an architecture.";
 
-/** Compact readiness strip beside primary home choices. */
-export const OPERATOR_HOME_READY_STRIP_LABEL = "Ready to begin · Workspace configured";
+/** Compact readiness strip beside primary home choices (single Ready pill — no redundant support phrase). */
+export const OPERATOR_HOME_READY_STRIP_LABEL = "Ready to begin";
 
+/** @deprecated Strip no longer shows a second phrase; kept for any lingering imports. */
 export const OPERATOR_HOME_READY_STRIP_SUPPORT = "Workspace configured";
 
 export const OPERATOR_HOME_READY_TO_BEGIN_TITLE = "Ready to begin";

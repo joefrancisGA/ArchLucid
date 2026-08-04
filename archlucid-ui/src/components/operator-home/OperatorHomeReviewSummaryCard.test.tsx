@@ -58,5 +58,14 @@ describe("OperatorHomeReviewSummaryCard", () => {
     expect(screen.getByTestId("runs-dashboard-buyer-proof-summary")).toBeInTheDocument();
     expect(screen.getByText("Decision: Package finalized")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open review" })).toBeInTheDocument();
+
+    const proofMetadata = screen.getByTestId("runs-dashboard-buyer-proof-metadata");
+    const emphasizedLabels = proofMetadata.querySelectorAll(".font-medium");
+
+    expect(Array.from(emphasizedLabels).map((node) => node.textContent)).toEqual(
+      expect.arrayContaining(["Governance approval:", "Evidence trail:", "Audit trail:"]),
+    );
+    expect(proofMetadata.textContent).toMatch(/Governance approval:\s*Approved with monitoring/);
+    expect(proofMetadata.textContent).toMatch(/Audit trail:\s*Complete/);
   });
 });
