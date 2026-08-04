@@ -20,6 +20,7 @@ public sealed class ItsmInboundWebhookSyncService(
     ItsmInboundDispositionSync dispositionSync,
     ILogger<ItsmInboundWebhookSyncService> logger)
 {
+    /// <summary>Keep equal to <c>ArchLucid.Api.Http.InboundWebhookBodyLimits.DefaultMaxUtf8Bytes</c> (TB-967).</summary>
     public const int MaxInboundWebhookPayloadUtf8Bytes = 65536;
 
     private const int MaxFindingIdPersistedLength = 200;

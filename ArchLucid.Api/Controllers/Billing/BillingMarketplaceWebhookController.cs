@@ -1,5 +1,4 @@
-using System.Text;
-
+using ArchLucid.Api.Http;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Billing;
 using ArchLucid.Core.Billing;
@@ -57,12 +56,16 @@ public sealed class BillingMarketplaceWebhookController(
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> MarketplaceAsync(CancellationToken cancellationToken)
     {
-        Request.EnableBuffering();
+        InboundWebhookBoundedBodyReadResult bodyRead = await InboundWebhookBoundedBodyReader
+            .ReadUtf8Async(Request, InboundWebhookBodyLimits.DefaultMaxUtf8Bytes, cancellationToken)
+            .ConfigureAwait(false);
 
-        string rawBody;
-
-        using (StreamReader reader = new(Request.Body, Encoding.UTF8, true))
-            rawBody = await reader.ReadToEndAsync(cancellationToken);
+        if (!bodyRead.Succeeded)
+        {
+            return this.PayloadTooLargeProblem(
+                "Marketplace webhook payload exceeds maximum size.",
+                ProblemTypes.RequestPayloadTooLarge);
+        }
 
         string auth = Request.Headers.Authorization.ToString();
 
@@ -74,7 +77,7 @@ public sealed class BillingMarketplaceWebhookController(
 
         BillingWebhookInbound inbound = new()
         {
-            RawBody = rawBody,
+            RawBody = bodyRead.Body!,
             MarketplaceAuthorizationBearer = bearer
         };
 

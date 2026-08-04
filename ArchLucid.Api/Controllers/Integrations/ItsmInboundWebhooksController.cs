@@ -1,6 +1,6 @@
-using System.Text;
 using System.Text.Json;
 
+using ArchLucid.Api.Http;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Integrations.Itsm;
 using ArchLucid.Core.Audit;
@@ -53,6 +53,7 @@ public sealed class ItsmInboundWebhooksController(
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
     public Task<IActionResult> Jira(CancellationToken ct) =>
         ProcessJiraAsync(tenantId: null, ct);
 
@@ -61,6 +62,7 @@ public sealed class ItsmInboundWebhooksController(
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
     public Task<IActionResult> JiraForTenant(Guid tenantId, CancellationToken ct) =>
         ProcessJiraAsync(tenantId, ct);
 
@@ -69,6 +71,7 @@ public sealed class ItsmInboundWebhooksController(
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
     public Task<IActionResult> ServiceNow(CancellationToken ct) =>
         ProcessServiceNowAsync(tenantId: null, ct);
 
@@ -77,6 +80,7 @@ public sealed class ItsmInboundWebhooksController(
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
     public Task<IActionResult> ServiceNowForTenant(Guid tenantId, CancellationToken ct) =>
         ProcessServiceNowAsync(tenantId, ct);
 
@@ -90,18 +94,25 @@ public sealed class ItsmInboundWebhooksController(
         if (string.IsNullOrWhiteSpace(sharedSecret))
             return Unauthorized();
 
-        string rawBody = await ReadRequestBodyUtf8Async(ct).ConfigureAwait(false);
+        InboundWebhookBoundedBodyReadResult bodyRead = await InboundWebhookBoundedBodyReader
+            .ReadUtf8Async(Request, InboundWebhookBodyLimits.DefaultMaxUtf8Bytes, ct)
+            .ConfigureAwait(false);
 
-        int payloadUtf8Bytes = Encoding.UTF8.GetByteCount(rawBody);
-
-        if (payloadUtf8Bytes > ItsmInboundWebhookSyncService.MaxInboundWebhookPayloadUtf8Bytes)
+        if (!bodyRead.Succeeded)
         {
             await _auditService
-                .LogAsync(ItsmInboundWebhookSyncService.CreatePayloadTooLargeAudit(true, payloadUtf8Bytes), ct)
+                .LogAsync(
+                    ItsmInboundWebhookSyncService.CreatePayloadTooLargeAudit(true, bodyRead.ObservedOrDeclaredBytes),
+                    ct)
                 .ConfigureAwait(false);
 
-            return this.BadRequestProblem("ITSM webhook payload exceeds maximum size.", ProblemTypes.ValidationFailed);
+            return this.PayloadTooLargeProblem(
+                "ITSM webhook payload exceeds maximum size.",
+                ProblemTypes.RequestPayloadTooLarge);
         }
+
+        string rawBody = bodyRead.Body!;
+        int payloadUtf8Bytes = bodyRead.ObservedOrDeclaredBytes;
 
         string? token = Request.Headers["X-Jira-Token"].FirstOrDefault();
 
@@ -132,18 +143,25 @@ public sealed class ItsmInboundWebhooksController(
         if (string.IsNullOrWhiteSpace(sharedSecret))
             return Unauthorized();
 
-        string rawBody = await ReadRequestBodyUtf8Async(ct).ConfigureAwait(false);
+        InboundWebhookBoundedBodyReadResult bodyRead = await InboundWebhookBoundedBodyReader
+            .ReadUtf8Async(Request, InboundWebhookBodyLimits.DefaultMaxUtf8Bytes, ct)
+            .ConfigureAwait(false);
 
-        int payloadUtf8Bytes = Encoding.UTF8.GetByteCount(rawBody);
-
-        if (payloadUtf8Bytes > ItsmInboundWebhookSyncService.MaxInboundWebhookPayloadUtf8Bytes)
+        if (!bodyRead.Succeeded)
         {
             await _auditService
-                .LogAsync(ItsmInboundWebhookSyncService.CreatePayloadTooLargeAudit(false, payloadUtf8Bytes), ct)
+                .LogAsync(
+                    ItsmInboundWebhookSyncService.CreatePayloadTooLargeAudit(false, bodyRead.ObservedOrDeclaredBytes),
+                    ct)
                 .ConfigureAwait(false);
 
-            return this.BadRequestProblem("ITSM webhook payload exceeds maximum size.", ProblemTypes.ValidationFailed);
+            return this.PayloadTooLargeProblem(
+                "ITSM webhook payload exceeds maximum size.",
+                ProblemTypes.RequestPayloadTooLarge);
         }
+
+        string rawBody = bodyRead.Body!;
+        int payloadUtf8Bytes = bodyRead.ObservedOrDeclaredBytes;
 
         string? token = Request.Headers["X-ServiceNow-Token"].FirstOrDefault();
 
@@ -192,25 +210,6 @@ public sealed class ItsmInboundWebhooksController(
             TenantItsmConnectorProvider.AzureBoards => null,
             _ => throw new ArgumentOutOfRangeException(nameof(provider), provider, null)
         };
-    }
-
-    private async Task<string> ReadRequestBodyUtf8Async(CancellationToken ct)
-    {
-        Request.EnableBuffering();
-        Request.Body.Position = 0;
-
-        using StreamReader reader = new(
-            Request.Body,
-            Encoding.UTF8,
-            detectEncodingFromByteOrderMarks: false,
-            bufferSize: 1024,
-            leaveOpen: true);
-
-        string body = await reader.ReadToEndAsync(ct).ConfigureAwait(false);
-
-        Request.Body.Position = 0;
-
-        return body;
     }
 
     private bool TryVerifyWebhookSecurity(

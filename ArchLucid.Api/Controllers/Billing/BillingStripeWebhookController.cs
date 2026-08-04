@@ -1,5 +1,4 @@
-using System.Text;
-
+using ArchLucid.Api.Http;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Billing;
 using ArchLucid.Persistence.Billing.Stripe;
@@ -40,19 +39,22 @@ public sealed class BillingStripeWebhookController(StripeBillingProvider stripeB
         StripeBillingWebhookRoute route,
         CancellationToken cancellationToken)
     {
-        Request.EnableBuffering();
+        InboundWebhookBoundedBodyReadResult bodyRead = await InboundWebhookBoundedBodyReader
+            .ReadUtf8Async(Request, InboundWebhookBodyLimits.DefaultMaxUtf8Bytes, cancellationToken)
+            .ConfigureAwait(false);
 
-        string rawBody;
-
-        using (StreamReader reader = new(Request.Body, Encoding.UTF8, true))
-
-            rawBody = await reader.ReadToEndAsync(cancellationToken);
+        if (!bodyRead.Succeeded)
+        {
+            return this.PayloadTooLargeProblem(
+                "Stripe webhook payload exceeds maximum size.",
+                ProblemTypes.RequestPayloadTooLarge);
+        }
 
         string signature = Request.Headers["Stripe-Signature"].ToString();
 
         BillingWebhookInbound inbound = new()
         {
-            RawBody = rawBody,
+            RawBody = bodyRead.Body!,
             StripeSignatureHeader = string.IsNullOrWhiteSpace(signature) ? null : signature,
             StripeWebhookRoute = route
         };

@@ -30,10 +30,10 @@ Legend: **Y** = present and roughly aligned · **P** = partial · **N** = missin
 
 | Surface | Controller | Rate | Size before allocate/HMAC | Verify before parse | Replay / idempotency | Notes |
 |---------|------------|------|---------------------------|---------------------|----------------------|-------|
-| ITSM Jira / ServiceNow | `ItsmInboundWebhooksController` | Y (`fixed`) | P — cap **after** full `ReadToEndAsync` (UTF-8 byte count vs `MaxInboundWebhookPayloadUtf8Bytes`) | Y | N → **TB-968** | Architecture tests lock size→verify→parse after read |
-| Stripe billing | `BillingStripeWebhookController` | Y | N → **TB-967** | Y (provider) | Y (`IBillingWebhookReplayGuard`) | Unbounded `ReadToEndAsync` today |
-| Azure Marketplace | `BillingMarketplaceWebhookController` | Y | N → **TB-967** | Y (JWT in provider) | Y (same guard family) | Same body-read pattern as Stripe |
-| Slack interactivity | `SlackInteractivityController` | Y | N → **TB-967** | Y (Slack sig) | P — vendor timestamp skew only; not billing ledger | Inbound form body |
+| ITSM Jira / ServiceNow | `ItsmInboundWebhooksController` | Y (`fixed`) | Y — `InboundWebhookBoundedBodyReader` (Content-Length + hard ceiling; 64 KiB) | Y | N → **TB-968** | 413 before verify/parse (**TB-967**) |
+| Stripe billing | `BillingStripeWebhookController` | Y | Y — same shared reader | Y (provider) | Y (`IBillingWebhookReplayGuard`) | **TB-967** |
+| Azure Marketplace | `BillingMarketplaceWebhookController` | Y | Y — same shared reader | Y (JWT in provider) | Y (same guard family) | **TB-967** |
+| Slack interactivity | `SlackInteractivityController` | Y | Y — same shared reader | Y (Slack sig) | P — vendor timestamp skew only; not billing ledger | **TB-967** |
 
 Outbound webhook **delivery**, dry-run, and connection-management APIs are **out of scope** for this hostile-**inbound** contract.
 
@@ -47,7 +47,7 @@ Use when adding a new inbound webhook surface or reviewing an existing one:
 |---------|-------------|
 | Edge TLS / WAF | Documented for hosted SaaS; do not claim it completes app-layer hardening |
 | App rate limit | Attribute or middleware on the inbound route |
-| Bounded body | Reject oversize **before** unbounded allocate and before crypto (**TB-967**) |
+| Bounded body | Reject oversize **before** unbounded allocate and before crypto — shipped via `InboundWebhookBoundedBodyReader` (**TB-967** Done) |
 | Content-Type allowlist | Reject unexpected media types where vendors are fixed |
 | Fail-closed secrets | Missing/empty shared secret → **401/403**, not soft accept |
 | Constant-time compare | Shared-secret / HMAC compare via `WebhookSecrets.SecureEquals` (or equivalent) |
@@ -72,7 +72,7 @@ Use when adding a new inbound webhook surface or reviewing an existing one:
 - Signature / JWT authenticity ≠ replay, idempotency, or DoS resistance.
 - Edge WAF / Front Door Network Protection ≠ complete app-layer size/verify/replay.
 - ITSM inbound is **not** replay-safe until **TB-968**.
-- Billing replay does **not** imply Stripe/Marketplace bodies are size-bounded (**TB-967**).
+- Billing replay does **not** imply ITSM is replay-safe (**TB-968**).
 
 ---
 
@@ -80,7 +80,7 @@ Use when adding a new inbound webhook surface or reviewing an existing one:
 
 | ID | Owns |
 |----|------|
-| **TB-967** | Bounded body intake (`Content-Length` / pre-read max) across inbound controllers — size before HMAC |
+| **TB-967** | **Done** — `InboundWebhookBoundedBodyReader` + 64 KiB ceiling on ITSM / Stripe / Marketplace / Slack |
 | **TB-968** | ITSM inbound replay/idempotency + freshness parity with billing |
 
 ---
