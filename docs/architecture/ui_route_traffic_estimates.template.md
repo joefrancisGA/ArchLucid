@@ -230,7 +230,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | HAE | `/help/admin-diagnostics` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HEA | `/help/authentication-sign-in` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HEZ | `/help/azure-boards` | 0.02% | 0 | 0 | 2 | Help topic | None |
-| HAZ | `/help/azure-permissions` | 0.02% | 0 | 0 | 2 | Help topic | None |
+| HE | `/help/azure-permissions` | 0.06% | 0 | 0 | 6 | Help topic | Azure permissions help (Help topic) - HelpAzurePermissionsGuideView with PageContextualHelpButton (topic map azure-permissions; Category-1 registry), workspace Sources + claim-discipline orientation strip, permissions matrix, setup and verify panels. Not bare HelpTopicMarkdownView. Sibling HC = Connect Azure securely; HCE = cloud-connections help. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-04) — help-topic orientation hard-caps higher Evidence. |
 | ECA | `/help/caiq-sig-response` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HEC | `/help/cloud-connections/aws` | 0.02% | 0 | 0 | 2 | Help alias | None |
 | HGC | `/help/cloud-connections/gcp` | 0.02% | 0 | 0 | 2 | Help alias | None |

@@ -45,13 +45,12 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 
 ---
 
-**OVERALL WEIGHT SCORE:** 55.29%
+**OVERALL WEIGHT SCORE:** 55.33%
 
 ## Master table (score 0 first; then Deficit desc; ties A→Z by path)
 
 | ID | Path | Hit% | Scores | Weight | Deficit | Section | Notes |
 |----|------|------|--------|--------|---------|---------|-------|
-| HE | `/help/azure-permissions` | 0.06% | 0 | 0 | 6 | Help topic | None |
 | HGE | `/help/glossary` | 0.06% | 0 | 0 | 6 | Help topic | None |
 | HOE | `/help/operator-auth-roles` | 0.06% | 0 | 0 | 6 | Help alias | None |
 | PRC | `/product-learning` | 0.06% | 0 | 0 | 6 | Onboarding | None |
@@ -254,6 +253,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | HP | `/help/pilot-guide` | 0.07% | 52 | 3.64 | 3.36 | Help topic | Pilot guide help (Help topic) - HelpPilotGuideView with PageContextualHelpButton (topic map pilot-guide; Category-1 registry), workspace Sources + claim-discipline orientation strip, start-pilot CTAs, prepared PILOT_GUIDE.md body. Not bare HelpTopicMarkdownView. Sibling HCO = first-architecture-review; SPP = pilot outcomes. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-04) — help-topic orientation hard-caps higher Evidence. |
 | SPP | `/sponsor-report/pilot-outcomes` | 0.07% | 52 | 3.64 | 3.36 | Sponsor report | Sponsor pilot outcomes report (Sponsor report) - PilotValueReportPageClient/View with PageContextualHelpButton (topic map executive-summary; Category-1 registry), workspace Sources + claim-discipline orientation strip, period controls, Outcomes nav. Absorbs former VPX hit share from retired legacy /value-report/pilot bookmark (LegacyPilotValueReportRedirectPage still permanentRedirects here). Period summary — not a signed-record Sources trail alone. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-04) — sponsor period-summary hard-caps higher Evidence without diligence packing. |
 | AFX | `/admin/fleet-llm-cogs` | 0.05% | 35 | 1.75 | 3.25 | Admin | None |
+| HE | `/help/azure-permissions` | 0.06% | 52 | 3.12 | 2.88 | Help topic | Azure permissions help (Help topic) - HelpAzurePermissionsGuideView with PageContextualHelpButton (topic map azure-permissions; Category-1 registry), workspace Sources + claim-discipline orientation strip, permissions matrix, setup and verify panels. Not bare HelpTopicMarkdownView. Sibling HC = Connect Azure securely; HCE = cloud-connections help. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-04) — help-topic orientation hard-caps higher Evidence. |
 | APX | `/admin/pricing-quote-aging` | 0.05% | 45 | 2.25 | 2.75 | Admin | None |
 | AEX | `/admin/evidence-proposals` | 0.05% | 50 | 2.5 | 2.5 | Admin | None |
 | AII | `/admin/integrations/itsm` | 0.08% | 78 | 6.24 | 1.76 | Admin | None |

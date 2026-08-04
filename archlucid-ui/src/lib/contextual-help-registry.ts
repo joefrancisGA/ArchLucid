@@ -562,6 +562,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/help/azure-permissions",
+    entry: {
+      whatIsThisPage:
+        "Azure permissions — read-only roles, scopes, and verification steps for ArchLucid cloud connections.",
+      whatToDoNext:
+        "Open Cloud connections to configure Azure, or Connect Azure securely when you need the federation walkthrough.",
+      whyEmpty: "This guide is always available; live permission checks appear after you configure an Azure connection.",
+      whereToConfigurePrerequisite:
+        "Assigning Azure roles needs cloud-admin authority in the target subscription.",
+    },
+  },
+  {
     prefix: "/help/cloud-connections",
     entry: {
       whatIsThisPage:

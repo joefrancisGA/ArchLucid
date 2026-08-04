@@ -26,6 +26,10 @@ Removed server redirect and dead create-architecture tab copy on review intake; 
 
 Removed App Router redirect stub; CTO recap leave-behind links now use `/architecture/reviews/{runId}?readOnly=1` via `buildReadOnlyReviewWorkspaceHref`. Old `/snapshot/...` bookmarks 404.
 
+## 2026-08-04 - UI: Azure permissions help Evidence chrome (HE)
+
+/help/azure-permissions ships PageContextualHelpButton, Category-1 registry, Sources + claim-discipline orientation strip, traffic Notes (template ID aligned from HAZ → HE), and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-04 - UI: Demo preview Evidence chrome (DPX)
 
 /demo/preview ships DemoPreviewEvidenceOrientationStrip (evaluation Sources + claim-discipline), traffic Notes under Marketing, and honest Evidence score 40. Marketing sample-demo page hard-caps higher Evidence; no CPA / third-party pen-test implication.

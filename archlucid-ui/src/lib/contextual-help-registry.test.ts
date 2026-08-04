@@ -80,6 +80,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/review-guide",
       "/help/pilot-guide",
       "/help/cloud-connections/azure",
+      "/help/azure-permissions",
       "/help/cloud-connections",
       "/administration/settings/users/invite-reviewer",
       "/administration/settings/users",
@@ -210,6 +211,11 @@ describe("contextual-help-registry (TB-733)", () => {
   it("resolves billing and plans help Category-1 help (HBX)", () => {
     expect(contextualHelpForPathname("/help/billing-and-plans")?.whatIsThisPage).toContain("Billing and plans");
     expect(contextualHelpForPathname("/help/billing-and-plans")?.whatToDoNext).toContain("Billing settings");
+  });
+
+  it("resolves Azure permissions help Category-1 help (HE)", () => {
+    expect(contextualHelpForPathname("/help/azure-permissions")?.whatIsThisPage).toContain("Azure permissions");
+    expect(contextualHelpForPathname("/help/azure-permissions")?.whatToDoNext).toContain("Cloud connections");
   });
 
   it("resolves findings help Category-1 help (HFX)", () => {

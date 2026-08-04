@@ -59,6 +59,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "cloud-connections-azure", label: "Connect Azure securely" },
   },
   {
+    prefix: "/help/azure-permissions",
+    topic: { slug: "azure-permissions", label: "Azure permissions" },
+  },
+  {
     prefix: "/help/cloud-connections",
     topic: { slug: "cloud-connections", label: "Cloud connections" },
   },
