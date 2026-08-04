@@ -1,6 +1,6 @@
 > **Scope:** Contributor-reference — sales, marketing, and agent authoring for what ArchLucid may say in V1 vs deferred `(B)` / V1.1 items; buyer-facing claim guardrails (TB-134) plus the GTM “what not to promise” table (formerly `docs/go-to-market/WHAT_NOT_TO_PROMISE.md`), PA claim-honesty Batch A paste-ready bullets (formerly `PA_CLAIM_HONESTY_BULLETS_BATCH_A.md`; path-stable alias), Batch B (formerly `PA_CLAIM_HONESTY_BULLETS_BATCH_B.md`; path-stable alias), and Batch C (formerly `PA_CLAIM_HONESTY_BULLETS_BATCH_C.md`; path-stable alias). PA claim-honesty rows (M-115+) in the table below; index: [`../go-to-market/PA_CLAIM_HONESTY_INDEX.md`](../go-to-market/PA_CLAIM_HONESTY_INDEX.md).
 
-> **Reviewed:** 2026-07-29
+> **Reviewed:** 2026-08-03
 
 # Public claim boundary guide (TB-134)
 
@@ -430,6 +430,29 @@ Former standalone: `docs/go-to-market/WHAT_NOT_TO_PROMISE.md` → this section.
 Former standalone: `docs/go-to-market/PA_CLAIM_HONESTY_BULLETS_BATCH_A.md` → [`#pa-claim-honesty-bullets-batch-a`](#pa-claim-honesty-bullets-batch-a).  
 Former standalone: `docs/go-to-market/PA_CLAIM_HONESTY_BULLETS_BATCH_B.md` → [`#pa-claim-honesty-bullets-batch-b`](#pa-claim-honesty-bullets-batch-b).  
 Former standalone: `docs/go-to-market/PA_CLAIM_HONESTY_BULLETS_BATCH_C.md` → [`#pa-claim-honesty-bullets-batch-c`](#pa-claim-honesty-bullets-batch-c).
+
+## Proof-scope boundary {#proof-scope-boundary}
+
+The category name **Architecture Proof Engine** is deliberately provocative; the canonical answer to "proof of what?" lives in [POSITIONING.md §5 "What proof means here"](../go-to-market/POSITIONING.md#what-proof-means-here). Quote it verbatim — do not improvise a broader proof claim.
+
+**Allowed proof vocabulary** (maps to shipped V1 capabilities):
+
+- Proof of **review rigor and diligence** — an evidence-linked review happened, with findings, confidence limits, and explicit non-conclusions
+- **Evidence linkage / provenance** — every finding traces to what it used (audit chain, `ExplainabilityTrace`)
+- **Auditability** — append-only typed audit events
+- **Tamper evidence** — the finalized package is hash-verified ("signed" = manifest-level hash verification, never a PKI certificate claim)
+- **Defensibility of the decision** — the package can be shown to a sponsor, auditor, or design authority
+
+**Forbidden without explicit qualification** — never state or imply that ArchLucid proves, validates, or guarantees:
+
+- architecture **soundness**, correctness, or resilience of the reviewed system
+- **production readiness** or **runtime performance** (load behavior, scale, latency)
+- the **security posture of the reviewed system** (findings are review inputs, not attestation)
+- **incident resilience** or operational outcomes
+
+When the buyer objection is "proof means it survived load/audit/incident", the safe frame is **proof of diligence vs. no record**: the alternative to ArchLucid is not runtime validation — it is an undocumented review with no durable evidence. See [`DIFFERENTIATION_PROOF_PACKET.md`](../go-to-market/DIFFERENTIATION_PROOF_PACKET.md).
+
+**CI:** `scripts/ci/check_buyer_claim_drift.py` blocks unscoped soundness-proof phrasing in the allowlisted buyer-facing doc set (remediation messages point here).
 
 ## CI enforcement
 

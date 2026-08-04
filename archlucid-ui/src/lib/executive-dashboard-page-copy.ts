@@ -6,7 +6,7 @@ export const EXECUTIVE_DASHBOARD_PAGE_SUBTITLE_OPERATOR =
   BUYER_EXECUTIVE_SUMMARY_VOCABULARY.portfolioPageLead;
 
 export const EXECUTIVE_DASHBOARD_PAGE_SUBTITLE_BUYER =
-  "Track governance posture, ROI impact, and sponsor-ready proof across committed reviews.";
+  "Track governance posture, ROI impact, and sponsor-ready proof across finalized reviews.";
 
 export function executiveDashboardPageSubtitle(buyerPolishedShell: boolean): string {
   return buyerPolishedShell

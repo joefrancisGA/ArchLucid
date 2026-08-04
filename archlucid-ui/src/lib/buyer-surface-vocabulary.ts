@@ -78,29 +78,29 @@ export const BUYER_EXECUTIVE_SUMMARY_VOCABULARY = {
   /** Review-scoped executive briefing (showcase spine, Ask grounding) — not the portfolio dashboard. */
   reviewExecutiveSummaryLabel: "Executive summary",
   portfolioPageLead:
-    "Track governance posture, remediation progress, estimated ROI, and sponsor-ready proof across committed reviews.",
-  portfolioPageNextStep: "Commit at least one review to populate dashboard metrics.",
+    "Track governance posture, remediation progress, estimated ROI, and sponsor-ready proof across finalized reviews.",
+  portfolioPageNextStep: "Finalize at least one review to populate dashboard metrics.",
   portfolioPageLearnMoreHref: "/help/executive-summary",
   portfolioPageLearnMoreLabel: "View dashboard guide",
   howItWorksSectionTitle: "How this dashboard works",
   howItWorksDescription:
-    "Create a review from your architecture evidence, then commit it when findings are ready for executive reporting. Metrics and sponsor exports populate after the first committed review.",
+    "Create a review from your architecture evidence, then finalize it when findings are ready for executive reporting. Metrics and sponsor exports populate after the first finalized review.",
   pageLead:
     "Status, risk, ROI impact, and governance readiness for your current workspace — decision-first, with operator detail one click away.",
   roiMetricsSrOnly: "Executive ROI metrics",
-  emptyStateTitle: "No committed reviews yet",
+  emptyStateTitle: "No finalized reviews yet",
   emptyStateDescription:
-    "Commit a review to populate executive metrics, remediation progress, ROI estimates, and sponsor-ready exports.",
+    "Finalize a review to populate executive metrics, remediation progress, ROI estimates, and sponsor-ready exports.",
   emptyStatePrimaryAction: BUYER_START_ARCHITECTURE_REVIEW_CTA,
   emptyStateSecondaryAction: "Load sample dashboard",
   emptyStateSecondaryHelper: "Populate this workspace with sample review data.",
   emptyStateTertiaryAction: "Open reviews",
   metricsPreviewSectionTitle: "At a glance",
-  metricsPreviewUnavailableFootnote: "Available after first committed review",
+  metricsPreviewUnavailableFootnote: "Available after first finalized review",
   metricsPreviewCards: [
     {
       title: "Findings resolved",
-      description: "Accepted, remediated, or approved findings from committed reviews",
+      description: "Accepted, remediated, or approved findings from finalized reviews",
     },
     {
       title: "Open architecture risks",
@@ -112,11 +112,11 @@ export const BUYER_EXECUTIVE_SUMMARY_VOCABULARY = {
     },
     {
       title: "Estimated savings",
-      description: "Directional portfolio impact from committed review evidence",
+      description: "Directional portfolio impact from finalized review evidence",
     },
     {
       title: "Compliance drift",
-      description: "Policy pack change activity across committed reviews",
+      description: "Policy pack change activity across finalized reviews",
     },
     {
       title: "Sponsor exports",
@@ -149,10 +149,10 @@ export const BUYER_EXECUTIVE_SUMMARY_VOCABULARY = {
   ] as const,
   portfolioMetricsUnavailableTitle: "Portfolio metrics unavailable",
   portfolioMetricsUnavailableDescription:
-    "Commit a review to populate findings, decisions, waivers, risks, and remediation trends.",
+    "Finalize a review to populate findings, decisions, waivers, risks, and remediation trends.",
   estimatedSavingsNotAvailableYet: "Not available yet",
   estimatedSavingsNotAvailableFootnote:
-    "Commit reviews or add cost evidence to estimate savings.",
+    "Finalize reviews or add cost evidence to estimate savings.",
   costEvidenceNotConfigured: "Cost baseline not configured",
   costEvidenceNotConfiguredFootnote:
     "Add cost evidence (Azure, AWS, or GCP spend data) to estimate savings and ROI.",
@@ -167,22 +167,22 @@ export const BUYER_EXECUTIVE_SUMMARY_VOCABULARY = {
   latestFindingsSectionTitle: "Latest findings and portfolio summary",
   executiveExportsTitle: "Executive exports",
   executiveExportsDescription:
-    "Sponsor-ready reports and board views from committed reviews.",
-  sponsorExportsUnavailableFootnote: "Available after first committed review",
+    "Sponsor-ready reports and board views from finalized reviews.",
+  sponsorExportsUnavailableFootnote: "Available after first finalized review",
   sponsorExportsPreviewSampleAction: "Preview sample",
   sponsorExportsScorecardTitle: "Sponsor scorecard",
   sponsorExportsScorecardDescription: "KPI summary and recommended actions for sponsor briefings.",
   sponsorExportsScorecardAction: "Open scorecard",
   sponsorExportsScorecardSampleHref: REVIEW_SCORECARD_SAMPLE_HREF,
   sponsorExportsPilotValueTitle: "Pilot value report",
-  sponsorExportsPilotValueDescription: "Quantified outcomes and improvement themes from committed reviews.",
+  sponsorExportsPilotValueDescription: "Quantified outcomes and improvement themes from finalized reviews.",
   sponsorExportsPilotValueAction: "Open value report",
   sponsorExportsPilotValueSampleHref: "/sponsor-report/pilot-outcomes",
   sponsorExportsRoiTitle: "ROI methodology",
   sponsorExportsRoiDescription: "How savings and ROI estimates are derived from review evidence.",
   sponsorExportsRoiAction: "View methodology",
   sponsorExportsDocxTitle: "Executive review (DOCX)",
-  sponsorExportsDocxDescription: "Board-ready narrative export from a committed review.",
+  sponsorExportsDocxDescription: "Board-ready narrative export from a finalized review.",
   sponsorExportsDocxAction: "Download DOCX",
   baselineInventoryUploadAction: "Upload baseline inventory",
   baselineInventorySectionTitle: "Improve ROI estimates",
@@ -190,7 +190,7 @@ export const BUYER_EXECUTIVE_SUMMARY_VOCABULARY = {
     "Upload a baseline inventory when you want ROI estimates to reflect your current environment.",
   orphanCandidatesMetric: {
     title: "Unattached resources",
-    description: "Resources flagged for cleanup from the latest committed review",
+    description: "Resources flagged for cleanup from the latest finalized review",
   },
   evidenceRetrievalQualityTitle: "Evidence retrieval quality",
   evidenceRetrievalQualityDescription:
@@ -212,7 +212,7 @@ export const BUYER_EXECUTIVE_SUMMARY_VOCABULARY = {
   },
   newlyDiscoveredFindings30dMetric: {
     title: "Findings discovered (30 days)",
-    description: "New risks on committed reviews in trailing window",
+    description: "New risks on finalized reviews in trailing window",
   },
   staleArchitectureRisksMetric: {
     title: "Stale architecture risks",

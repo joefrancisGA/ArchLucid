@@ -50,7 +50,7 @@ export function PostCommitRetentionRail({
             ? showcaseSpine
               ? "After the sample review, continue Executive Summary → signed review record → evidence trail → governance approval → audit trail."
               : "Finalized package — use Executive Summary, then signed review record, evidence trail, governance, and audit trail in order."
-            : "You have a committed review. Pick the next loop that fits your team—navigation stays inside this workspace."}
+            : "You have a finalized review. Pick the next loop that fits your team—navigation stays inside this workspace."}
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">

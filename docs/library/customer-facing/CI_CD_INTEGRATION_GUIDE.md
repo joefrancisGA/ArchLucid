@@ -12,6 +12,8 @@
 
 ## End-to-end flow
 
+The product calls these steps an **architecture review** that you **finalize** into a **signed review record**. The API and CLI keep the original identifiers — `run`, `runId`, `commit` — permanently, for compatibility. Same objects, two names; this table is the mapping.
+
 | Step (buyer language) | REST (API still uses run/commit) | CLI |
 | --- | --- | --- |
 | Create architecture review | `POST /v1/architecture/request` | `archlucid run` (optional `--idempotency-key`) |

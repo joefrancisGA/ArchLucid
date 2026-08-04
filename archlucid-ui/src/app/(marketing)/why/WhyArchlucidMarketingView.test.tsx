@@ -1,7 +1,7 @@
 import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { BRAND_CATEGORY, BRAND_CATEGORY_LEGACY } from "@/lib/brand-category";
+import { BRAND_CATEGORY, BRAND_CATEGORY_LEGACY, BRAND_PROOF_SCOPE_STATEMENT } from "@/lib/brand-category";
 import { WHY_MARKET_LANDSCAPE_MARKETING_ROWS } from "@/lib/why-market-landscape-comparison";
 import { WHY_COMPARISON_ROWS } from "@/lib/why-comparison";
 
@@ -54,5 +54,13 @@ describe("WhyArchlucidMarketingView", () => {
 
     expect(text).toContain(BRAND_CATEGORY);
     expect(text).not.toContain(BRAND_CATEGORY_LEGACY);
+  });
+
+  it("renders the proof-scope statement beneath the brand-category paragraph", () => {
+    const { getByTestId } = render(
+      <WhyArchlucidMarketingView frontDoorRows={WHY_COMPARISON_ROWS} showDemoEmbed={false} />,
+    );
+
+    expect(getByTestId("why-proof-scope-statement").textContent).toBe(BRAND_PROOF_SCOPE_STATEMENT);
   });
 });

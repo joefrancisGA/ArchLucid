@@ -10,6 +10,7 @@ The in-app glossary at `/help/glossary` is the customer-facing reference. Contri
 
 | Term | Definition |
 |------|------------|
+| **Architecture Proof Engine** | The buyer-facing product category. Scope of the word **proof** (canonical, per [POSITIONING.md §5](../go-to-market/POSITIONING.md#what-proof-means-here)): ArchLucid proves that a rigorous, evidence-linked architecture review happened — who reviewed what, against which policy packs, with which findings, confidence limits, and explicit non-conclusions where evidence was missing. It does not prove the architecture will perform under load, in an audit, or in an incident. It proves the decision can be defended with evidence. |
 | **Review** | A structured examination of architecture change or design intent tied to **artifacts** and **policies**. In product copy, prefer **architecture review** when the reader might confuse "review" with code review alone. |
 | **Architecture draft** | A saved, resumable description of architecture intent and context in the **Architectures** workspace. Saving or editing a draft does not start an **architecture review**; starting a review is a separate explicit action that creates an **architecture package**. |
 | **Architecture package** | The cohesive set of **review** outputs the product assembles for stakeholders: summaries, signed review record, explanations, diagrams, findings, and links to underlying **evidence**. Exportable variants are still architecture packages unless the doc distinguishes **bundle** packaging. Former UI noun: *review package*. |

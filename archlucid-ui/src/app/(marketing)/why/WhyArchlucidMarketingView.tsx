@@ -5,7 +5,7 @@ import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
 import { MarketingProofChainStrip } from "@/components/marketing/MarketingProofChainStrip";
 import { Button } from "@/components/ui/button";
 import { BUYER_OUTCOME_LED_VALUE_PROPOSITION } from "@/lib/buyer-polish-copy";
-import { BRAND_CATEGORY } from "@/lib/brand-category";
+import { BRAND_CATEGORY, BRAND_PROOF_SCOPE_STATEMENT } from "@/lib/brand-category";
 import { MARKETING_LAYOUT, MARKETING_MOTION, MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { WHY_MARKET_LANDSCAPE_MARKETING_ROWS } from "@/lib/why-market-landscape-comparison";
@@ -70,6 +70,12 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
         data-testid="why-brand-category-paragraph"
       >
         {`ArchLucid is an ${BRAND_CATEGORY}: governed architecture reviews whose findings, signed decisions, approvals, and exports share one traceable evidence trail — durable evidence before emphasizing agent-assisted acceleration. Comparisons below summarize typical fit versus adjacent tooling. The downloadable evidence bundle carries the citation-backed drill-down for diligence teams who need paperwork parity.`}
+      </p>
+      <p
+        className={cn("mt-3 max-w-3xl", MARKETING_TYPOGRAPHY.meta)}
+        data-testid="why-proof-scope-statement"
+      >
+        {BRAND_PROOF_SCOPE_STATEMENT}
       </p>
 
       <div className="mt-8">

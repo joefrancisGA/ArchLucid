@@ -1,4 +1,4 @@
-> **Reviewed:** 2026-07-27
+> **Reviewed:** 2026-08-03
 
 > **Scope:** ArchLucid positioning — full detail, tables, and links below — plus the closed create/review adversarial evaluation (formerly `CREATE_REVIEW_POSITIONING_ADVERSARIAL_EVALUATION.md`; Done **TB-738**–**TB-747**) and the product datasheet (formerly the body of `PRODUCT_DATASHEET.md`; that filename remains a path-stable alias for PDF/CI callers).
 
@@ -167,6 +167,12 @@ These are factual claims grounded in what the repository ships today.
 2. **Enterprise governance** (policy enforcement, approval workflows, compliance gates)
 3. **Auditable decision trails** (explainability traces, provenance graphs, durable audit)
 
+### What proof means here {#what-proof-means-here}
+
+> ArchLucid proves that a rigorous, evidence-linked architecture review happened — who reviewed what, against which policy packs, with which findings, confidence limits, and explicit non-conclusions where evidence was missing. It does not prove the architecture will perform under load, in an audit, or in an incident. It proves the decision can be defended with evidence.
+
+This is the canonical answer to the skeptical-buyer question "proof of what, exactly?" — quote it verbatim in datasheets, sponsor conversations, and design-authority meetings. The claim is **proof of diligence and provenance** (audit chain, signed manifest), never proof of runtime soundness. See [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md) for the enforced boundary.
+
 This category sits between traditional **Enterprise Architecture Management** (which catalogs and models but does not analyze) and **ad-hoc AI assistance** (which analyzes but lacks governance and traceability).
 
 ```
@@ -225,6 +231,7 @@ Used as the homepage H1, lead promise, and one-sentence positioning tagline acro
 | Be honest about V1 limitations (Azure-only, no import connectors yet) | Imply multi-cloud support or integrations that do not exist |
 | Reference the **audit chain / signed architecture package** for skeptical buyers: "every finding traces to evidence, and the finalized package is hash-verified" | Lead with "AI" alone — every tool claims AI now; do not call the package "cryptographically signed" or imply a PKI certificate |
 | Frame **architecture evidence and review governance** (decisions, risks, traceability) | Headline as **standalone "AI governance platform"** — crowded category; we complement GRC, not replace it |
+| Answer "proof of what?" with the canonical proof-scope statement ([§5](#what-proof-means-here)) — proof of diligence and provenance | Imply the package proves runtime soundness, load behavior, security posture of the reviewed system, or incident resilience |
 | Describe default packs as **inputs to architecture review** (mapping / findings) | Imply **certification** or full EU AI Act / ISO 42001 program coverage from starter packs |
 
 ---
@@ -250,6 +257,8 @@ Reviews depend on a small team of senior architects who apply different standard
 ArchLucid turns scattered architecture evidence into **prioritized architecture risks with evidence-linked findings you can show without narration** — complete with recommended actions, confidence ratings, limits where the model did not conclude, and an exportable executive summary.
 
 Upload your architecture materials. ArchLucid's multi-agent analysis covers topology, cost, compliance, and design quality — and surfaces a findings board where every risk is ranked by severity, traced to evidence, and accompanied by a concrete recommended action. Architects get a defensible architecture package. CTOs get a clear executive summary. What used to take weeks now takes minutes, with a full audit trail.
+
+ArchLucid proves the review happened and is defensible — not that the design will perform in production.
 
 ### Key capabilities
 

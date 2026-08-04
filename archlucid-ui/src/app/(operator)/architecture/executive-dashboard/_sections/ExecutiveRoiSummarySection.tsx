@@ -296,7 +296,7 @@ export function ExecutiveRoiSummarySection({
         />
         <CardDescription className={OPERATOR_KPI_CARD_DESCRIPTION}>
           {isBuyerPolishedOperatorShellEnv() || executiveSurface ? (
-            <>Latest committed review per system in this workspace. {BUYER_EXECUTIVE_DATA_SOURCE_NOTE}</>
+            <>Latest finalized review per system in this workspace. {BUYER_EXECUTIVE_DATA_SOURCE_NOTE}</>
           ) : (
             <>
               {resolveExecutiveHeadlineScopeLabel(displayData)} {resolveExecutiveSystemRowScopeLabel(displayData)} Data from{" "}
@@ -351,8 +351,8 @@ export function ExecutiveRoiSummarySection({
         ) : (
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
             {executiveSurface
-              ? "Run or commit a review to populate portfolio findings and savings estimates."
-              : "No committed reviews with findings yet — load the sample workspace or run an architecture review to populate this summary."}
+              ? "Start and finalize a review to populate portfolio findings and savings estimates."
+              : "No finalized reviews with findings yet — load the sample workspace or start an architecture review to populate this summary."}
           </p>
         )}
 

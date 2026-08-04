@@ -217,7 +217,7 @@ public sealed class ProofPacketCommandTests : IDisposable
                 listenCts.Token);
 
             exit.Should().Be(CliExitCode.UsageError);
-            errWriter.ToString().Should().Contain("not in committed status");
+            errWriter.ToString().Should().Contain("Review is not finalized");
         }
         finally
         {

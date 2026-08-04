@@ -1051,7 +1051,7 @@ export const BUYER_FINDING_SUMMARY_NEXT_STEP_LABEL = "What to do next";
 
 export const BUYER_GRAPH_TECHNICAL_CONTROLS_DISCLOSURE = "Graph options and filters";
 
-export const BUYER_EXECUTIVE_DATA_SOURCE_NOTE = "Source: committed reviews in this workspace.";
+export const BUYER_EXECUTIVE_DATA_SOURCE_NOTE = "Source: finalized reviews in this workspace.";
 
 export const BUYER_EXECUTIVE_SUMMARY_LOAD_ERROR =
   "We couldn't load the executive summary. Try again or contact support with the reference below.";
@@ -1065,7 +1065,7 @@ export const BUYER_EXECUTIVE_SCORECARD_NO_ACTIONS_HEALTHY =
   "No actions needed for the current period.";
 
 export const BUYER_EXECUTIVE_SCORECARD_NO_ACTIONS_NOT_READY =
-  "No actions yet. Commit a review to generate scorecard signals.";
+  "No actions yet. Finalize a review to generate scorecard signals.";
 
 export const BUYER_EXECUTIVE_SCORECARD_LINK_REVIEW_PACKAGES = "Open reviews";
 

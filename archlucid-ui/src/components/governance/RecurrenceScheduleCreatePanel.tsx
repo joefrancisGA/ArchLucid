@@ -40,7 +40,7 @@ export function RecurrenceScheduleCreatePanel(props: RecurrenceScheduleCreatePan
     const normalizedRunId = normalizeRunIdForRecurrenceApi(sourceRunId);
 
     if (normalizedRunId === null) {
-      setErrorMessage("Enter a valid committed review GUID.");
+      setErrorMessage("Enter a valid finalized review GUID.");
 
       return;
     }
@@ -83,7 +83,7 @@ export function RecurrenceScheduleCreatePanel(props: RecurrenceScheduleCreatePan
         Create recurrence schedule
       </h3>
       <p className={cn("m-0 mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-        Choose a committed review, then define the cadence for automated follow-up reviews.
+        Choose a finalized review, then define the cadence for automated follow-up reviews.
       </p>
 
       <div className="mt-4 space-y-4">

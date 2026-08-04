@@ -138,6 +138,27 @@ CLAIM_PATTERNS: tuple[ClaimPattern, ...] = (
         "SQL RLS for multi-tenant isolation must not be claimed in buyer-facing docs.",
         "docs/architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md",
     ),
+    ClaimPattern(
+        re.compile(
+            r"prov(?:es|en)\s+(?:that\s+)?(?:your|the)\s+architecture\s+(?:is|will\s+be)\s+(?:sound|secure|correct|resilient)",
+            re.IGNORECASE,
+        ),
+        "proof claims are scoped to review diligence and provenance, not architecture soundness.",
+        "docs/library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#proof-scope-boundary",
+    ),
+    ClaimPattern(
+        re.compile(r"prov(?:es|en)\s+(?:production|runtime)\s+(?:readiness|performance)", re.IGNORECASE),
+        "proof claims must not cover production readiness or runtime performance.",
+        "docs/library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#proof-scope-boundary",
+    ),
+    ClaimPattern(
+        re.compile(
+            r"guarantees?\s+(?:that\s+)?(?:your|the)\s+(?:architecture|design|system)",
+            re.IGNORECASE,
+        ),
+        "ArchLucid must not guarantee outcomes for the reviewed architecture, design, or system.",
+        "docs/library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#proof-scope-boundary",
+    ),
 )
 
 

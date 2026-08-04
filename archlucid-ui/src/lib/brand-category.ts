@@ -19,6 +19,14 @@
 
 export const BRAND_CATEGORY = "Architecture Proof Engine";
 
+/**
+ * Canonical scope qualifier for the category's "proof" claim — rendered as quiet
+ * supporting copy wherever the category name is presented as an explainer.
+ * Source of truth: docs/go-to-market/POSITIONING.md §5 "What proof means here".
+ */
+export const BRAND_PROOF_SCOPE_STATEMENT =
+  "Proof of diligence, not a performance guarantee: every finding traces to evidence, and the finalized package is hash-verified and auditable.";
+
 export const BRAND_CATEGORY_LEGACY = "AI Architecture Review Board";
 
 export const BRAND_CATEGORY_LEGACY_ORIGINAL = "AI Architecture Intelligence";

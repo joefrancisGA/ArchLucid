@@ -112,7 +112,7 @@ describe("ExecutiveScorecardClient", () => {
 
     expect(container.querySelector('[data-testid="executive-scorecard-recommended-actions"]')).toBeNull();
     expect(container.textContent).not.toContain("No actions needed — all signals are healthy");
-    expect(container.textContent).toContain("No committed reviews yet");
+    expect(container.textContent).toContain("No finalized reviews yet");
   });
 
   it("does not show unlabeled hours-saved fallback when severity-weighted hours are zero (TB-1534)", async () => {

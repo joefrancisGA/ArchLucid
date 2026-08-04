@@ -17,6 +17,12 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
   >
     ArchLucid is an Architecture Proof Engine: governed architecture reviews whose findings, signed decisions, approvals, and exports share one traceable evidence trail — durable evidence before emphasizing agent-assisted acceleration. Comparisons below summarize typical fit versus adjacent tooling. The downloadable evidence bundle carries the citation-backed drill-down for diligence teams who need paperwork parity.
   </p>
+  <p
+    class="mt-3 max-w-3xl text-xs font-normal leading-[18px] text-al-text-secondary"
+    data-testid="why-proof-scope-statement"
+  >
+    Proof of diligence, not a performance guarantee: every finding traces to evidence, and the finalized package is hash-verified and auditable.
+  </p>
   <div
     class="mt-8"
   >

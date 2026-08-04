@@ -21,7 +21,7 @@ internal static class CommitCommand
 
         if (result is null || !result.Success)
         {
-            Console.WriteLine($"Error: {result?.Error ?? "Commit failed"}");
+            Console.WriteLine($"Error: {result?.Error ?? "Finalize failed (API: commit)"}");
             CliOperatorHints.WriteAfterApiFailure(result?.HttpStatusCode, result?.Error);
 
             return CliExitCode.OperationFailed;
@@ -29,8 +29,8 @@ internal static class CommitCommand
 
         ArchLucidApiClient.CommitRunResponse resp = result.Response!;
         string version = resp.Manifest.Metadata.ManifestVersion;
-        Console.WriteLine($"Committed: {resp.Manifest.SystemName}");
-        Console.WriteLine($"Manifest version: {version}");
+        Console.WriteLine($"Finalized review: {resp.Manifest.SystemName} (API: commit)");
+        Console.WriteLine($"Signed review record version: {version}");
 
         if (resp.Warnings.Count > 0)
         {
@@ -42,7 +42,7 @@ internal static class CommitCommand
         }
 
         Console.WriteLine();
-        Console.WriteLine($"Use 'archlucid artifacts {runId}' to view the manifest.");
+        Console.WriteLine($"Use 'archlucid artifacts {runId}' to view the signed review record.");
 
         return CliExitCode.Success;
     }

@@ -1,7 +1,7 @@
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
 import { SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH } from "@/lib/sponsor-report-navigation";
 
-export const REVIEW_SCORECARD_EMPTY_HEADING = "No committed reviews yet";
+export const REVIEW_SCORECARD_EMPTY_HEADING = "No finalized reviews yet";
 
 export const REVIEW_SCORECARD_EMPTY_DESCRIPTION =
   "Finalize a review to populate scorecard metrics, governance outcomes, findings, and ROI estimates.";

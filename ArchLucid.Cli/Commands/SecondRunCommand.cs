@@ -124,7 +124,7 @@ internal static class SecondRunCommand
 
             if (commit is null || !commit.Success)
             {
-                await Console.Out.WriteLineAsync($"Error: Commit failed. {commit?.Error ?? "Unknown error."}");
+                await Console.Out.WriteLineAsync($"Error: Finalize failed (API: commit). {commit?.Error ?? "Unknown error."}");
                 await SecondRunDiagnostics.WriteAsync(
                     Console.Out,
                     "commit",
@@ -136,7 +136,7 @@ internal static class SecondRunCommand
             }
 
             version = commit.Response?.Manifest.Metadata.ManifestVersion ?? "(unknown)";
-            await Console.Out.WriteLineAsync($"  Committed. Manifest version: {version}");
+            await Console.Out.WriteLineAsync($"  Review finalized. Signed review record version: {version}");
         }
 
         string reportPath = Path.Combine(Directory.GetCurrentDirectory(), $"first-value-{runId}.md");

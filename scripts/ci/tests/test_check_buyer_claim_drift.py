@@ -190,6 +190,69 @@ class TestBuyerClaimDrift(unittest.TestCase):
 
             self.assertEqual(G.buyer_claim_drift_violations(root), [])
 
+    def test_proves_architecture_sound_phrase_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+
+            for rel in G.DOCS_TO_SCAN:
+                target = root / rel
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text("Safe default text.\n", encoding="utf-8")
+
+            bad = root / "docs/go-to-market/POSITIONING.md"
+            bad.write_text("ArchLucid proves your architecture is sound before rollout.\n", encoding="utf-8")
+
+            violations = G.buyer_claim_drift_violations(root)
+
+            self.assertTrue(any("architecture soundness" in violation for violation in violations))
+
+    def test_proves_production_readiness_phrase_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+
+            for rel in G.DOCS_TO_SCAN:
+                target = root / rel
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text("Safe default text.\n", encoding="utf-8")
+
+            bad = root / "docs/go-to-market/PRODUCT_DATASHEET.md"
+            bad.write_text("The package proves production readiness for regulated workloads.\n", encoding="utf-8")
+
+            violations = G.buyer_claim_drift_violations(root)
+
+            self.assertTrue(any("production readiness" in violation for violation in violations))
+
+    def test_guarantees_architecture_phrase_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+
+            for rel in G.DOCS_TO_SCAN:
+                target = root / rel
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text("Safe default text.\n", encoding="utf-8")
+
+            bad = root / "docs/go-to-market/trust-center.md"
+            bad.write_text("ArchLucid guarantees the system meets your compliance bar.\n", encoding="utf-8")
+
+            violations = G.buyer_claim_drift_violations(root)
+
+            self.assertTrue(any("must not guarantee outcomes" in violation for violation in violations))
+
+    def test_scoped_proof_vocabulary_passes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+
+            for rel in G.DOCS_TO_SCAN:
+                target = root / rel
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text(
+                    "ArchLucid proves the review happened and is defensible. "
+                    "Every finding traces to evidence; the finalized package is hash-verified and auditable.\n",
+                    encoding="utf-8",
+                )
+
+            self.assertEqual(G.buyer_claim_drift_violations(root), [])
+
     def test_sql_rls_primary_isolation_phrase_fails(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

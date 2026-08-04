@@ -84,7 +84,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   graph: {
     layerBadge: "Evidence graph",
     headline: "Trace review evidence from inputs to findings, decisions, and audit events.",
-    useWhen: "Select a committed review, choose a graph scope, load the graph, then inspect provenance.",
+    useWhen: "Select a finalized review, choose a graph scope, load the graph, then inspect provenance.",
     firstPilotNote:
       "Best once you have a finalized review—a graph complements architecture snapshot and finding tables when stakeholders need visuals.",
   },
@@ -232,7 +232,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     firstPilotNote:
       "After Pilot proof when governance leads need automated follow-up instead of calendar reminders for recurring architecture reviews.",
     enterpriseFootnote:
-      "Schedules clone a committed review on the cadence you define; manage approvals and risk disposition on linked governance surfaces.",
+      "Schedules clone a finalized review on the cadence you define; manage approvals and risk disposition on linked governance surfaces.",
   },
   "risk-exceptions": {
     layerBadge: "Governance",

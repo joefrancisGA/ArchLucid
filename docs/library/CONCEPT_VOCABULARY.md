@@ -104,6 +104,7 @@ Use **Architecture review** in headings and tooltips where **Review** alone woul
 ## 3 Related
 
 - [`#ui-glossary-v1`](#ui-glossary-v1) — buyer-facing persona and artifact vocabulary
+- [`VOCABULARY_ROSETTA.md`](VOCABULARY_ROSETTA.md) — internal/API ↔ buyer mapping table, end-state rule, and leak inventory (dual-vocabulary cleanup)
 - [`GLOSSARY.md`](GLOSSARY.md)
 - [`customer-facing/CONCEPTS_IN_5_MINUTES.md`](customer-facing/CONCEPTS_IN_5_MINUTES.md)
 - [`scripts/ci/check_concept_vocabulary.py`](../../scripts/ci/check_concept_vocabulary.py)

@@ -42,7 +42,7 @@ export const SEARCH_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
   testId: "search-empty-state",
   title: "No matches for that query",
   description:
-    "Try different wording, clear the review filter, or ensure your workspace has committed review evidence indexed for search.",
+    "Try different wording, clear the review filter, or ensure your workspace has finalized review evidence indexed for search.",
   actions: [
     { label: "Open Ask", href: "/insights/ask-review-questions", variant: "outline" },
     { label: "Evidence graph", href: "/insights/evidence-graph", variant: "outline" },

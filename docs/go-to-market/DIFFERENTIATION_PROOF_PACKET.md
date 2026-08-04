@@ -1,4 +1,4 @@
-> **Reviewed:** 2026-07-27
+> **Reviewed:** 2026-08-03
 
 > **Scope:** Buyer-safe differentiation proof — manual review vs generic AI vs ArchLucid V1 outputs — plus the model-seats counter-positioning message test (formerly `MODEL_SEATS_COUNTER_POSITIONING_TEST.md`) and the generic-AI / frontier bakeoff protocol (formerly the body of `GENERIC_AI_BAKEOFF_PROTOCOL.md`; that filename remains a path-stable alias).
 
@@ -26,6 +26,21 @@
 | Procurement posture | Custom each time | None | **Trust Center** + procurement pack (self-assessment; not CPA attestation) |
 
 Evidence links: [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md) · [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md) · [`trust-center.md`](trust-center.md)
+
+---
+
+## Objection: "Proof of what, exactly?" {#objection-proof-of-what}
+
+**The objection (verbatim, from skeptical principal architects and design authorities):** *"In my world, proof means the system behaved correctly under load, in an audit, or in an incident. A signature on a manifest proves the review happened, not that the architecture is sound."*
+
+**Response — two parts, in order:**
+
+1. **Concede the scope, precisely.** Quote the canonical proof-scope statement from [POSITIONING.md §5 "What proof means here"](POSITIONING.md#what-proof-means-here): ArchLucid proves that a rigorous, evidence-linked architecture review happened — who reviewed what, against which policy packs, with which findings, confidence limits, and explicit non-conclusions where evidence was missing. It does not prove the architecture will perform under load, in an audit, or in an incident. It proves the decision can be defended with evidence.
+2. **Reframe against the real alternative.** The comparison is not ArchLucid vs. runtime validation — it is **proof of diligence vs. no record**. Today's manual review proves nothing at all: decisions live in meetings and email, and when a regulator asks "who reviewed this design and what did they find?", the honest answer is often "we are not sure." ArchLucid's claim is narrow and checkable, and the status quo cannot make it.
+
+**Skeptic vocabulary (use verbatim, per [POSITIONING.md §2](POSITIONING.md#2-three-value-pillars)):** the two shipped proof points are the **audit chain** (evidence → finding → decision → manifest linkage; replayable reasoning trail, not a cryptographic ledger claim) and the **signed architecture package** (hash-verified and tamper-evident at the manifest level — never imply a PKI certificate). Do not blend them into one claim or restate them loosely.
+
+**Boundary:** never counter this objection by widening the proof claim toward soundness, production readiness, or security posture of the reviewed system — see [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#proof-scope-boundary`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#proof-scope-boundary) (CI-enforced).
 
 ---
 

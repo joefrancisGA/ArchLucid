@@ -87,7 +87,7 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
     const trimmedRunId = runId.trim();
 
     if (trimmedRunId.length === 0) {
-      setFailure(uiFailureFromMessage("Enter a committed review ID to preview policy impact."));
+      setFailure(uiFailureFromMessage("Enter a finalized review ID to preview policy impact."));
       setBaselineResult(null);
       setStricterResult(null);
 
@@ -138,14 +138,14 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
           Policy impact preview
         </h2>
         <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          Same committed review, different enforcement posture — preview compliance rule key changes and whether the
-          pre-commit gate would allow or block finalize. Read-only; nothing is persisted.
+          Same finalized review, different enforcement posture — preview compliance rule key changes and whether the
+          pre-finalize gate would allow or block finalize. Read-only; nothing is persisted.
         </p>
       </div>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
         <div className="space-y-2">
-          <Label htmlFor="policy-impact-preview-run-id">Committed review ID</Label>
+          <Label htmlFor="policy-impact-preview-run-id">Finalized review ID</Label>
           <Input
             id="policy-impact-preview-run-id"
             data-testid="policy-impact-preview-run-id"
@@ -153,7 +153,7 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
             onChange={(event) => {
               setRunId(event.target.value);
             }}
-            placeholder="Paste a committed review ID"
+            placeholder="Paste a finalized review ID"
             autoComplete="off"
           />
           {props.selectedPackId.trim().length > 0 && latestPublishedVersion !== null ? (

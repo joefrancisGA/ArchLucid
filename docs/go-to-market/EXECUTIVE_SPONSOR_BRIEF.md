@@ -1,4 +1,4 @@
-> **Reviewed:** 2026-07-27
+> **Reviewed:** 2026-08-03
 
 > **Scope:** ArchLucid Executive Sponsor Brief — sponsor story of record, plus verbal elevator pitches and M-18 outreach templates (formerly `ELEVATOR_PITCH.md`). Full detail, tables, and links in the sections below.
 
@@ -55,6 +55,8 @@ It helps teams produce:
 At a practical level, ArchLucid is an AI-assisted architecture workflow system that coordinates topology, cost, and compliance analysis into outputs that architects, reviewers, and governance stakeholders can use.
 
 **Buyer-facing category:** Architecture Proof Engine — *Defensible architecture, on demand.*
+
+> **What "proof" means (quote when a design authority asks "proof of what?"):** ArchLucid proves that a rigorous, evidence-linked architecture review happened — who reviewed what, against which policy packs, with which findings, confidence limits, and explicit non-conclusions where evidence was missing. It does not prove the architecture will perform under load, in an audit, or in an incident. It proves the decision can be defended with evidence.
 
 **Platform intent:** Production reference deployments and first-party operations are **Azure-native** (identity, data, messaging, and hosting as documented in the repository). This keeps security boundaries, networking, and IaC assumptions explicit for sponsors and platform teams—see [ADR 0020](../architecture/adrs/0020-azure-primary-platform-permanent.md). **Hosted evaluation:** the public SaaS funnel is served at `https://staging.archlucid.net` (staging) and `https://archlucid.net` (production) when DNS and Front Door custom domains are live—see [REFERENCE_SAAS_STACK_ORDER.md](../library/REFERENCE_SAAS_STACK_ORDER.md).
 

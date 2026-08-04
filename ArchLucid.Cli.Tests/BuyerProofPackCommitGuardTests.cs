@@ -33,7 +33,7 @@ public sealed class BuyerProofPackCommitGuardTests
 
         ok.Should().BeFalse();
         err.Should().NotBeNull();
-        err!.Should().Contain("committed");
+        err!.Should().Contain("Review is not finalized");
     }
 
     [Fact]

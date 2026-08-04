@@ -14,3 +14,34 @@ export const INTERNAL_CONCEPT_LEAKAGE_BANNED_PATTERNS = [
   "admin-ranked",
   "V1 is sold",
 ] as const;
+
+/**
+ * Buyer copy modules swept to finalize/review vocabulary (2026-08-03) and locked against
+ * regression by {@link ./internal-concept-leakage-vocabulary.test.ts}. Only add a file here
+ * after verifying it contains none of {@link BUYER_VOCABULARY_BANNED_LITERALS}.
+ * End-state rule and remaining backfill: docs/library/VOCABULARY_ROSETTA.md.
+ */
+export const BUYER_VOCABULARY_LEAKAGE_SURFACES = [
+  "src/lib/buyer-surface-vocabulary.ts",
+  "src/lib/buyer-polish-copy.ts",
+  "src/lib/executive-dashboard-page-copy.ts",
+  "src/lib/review-scorecard-empty-state.ts",
+  "src/lib/search-empty-preset.ts",
+  "src/lib/enterprise-compact-empty-state-presets.ts",
+  "src/lib/layer-guidance.ts",
+] as const;
+
+/**
+ * Internal workflow verbs banned in buyer-rendered copy (buyer verb: Finalize — see
+ * CONCEPT_VOCABULARY.md UI glossary). Narrow literals on purpose: code identifiers like
+ * `hasCommittedRuns` or `PreCommitGovernanceGate` stay legal; only rendered-copy phrasing
+ * is banned.
+ */
+export const BUYER_VOCABULARY_BANNED_LITERALS = [
+  "Commit a review",
+  "Commit at least one review",
+  "Commit reviews",
+  "committed review",
+  "Committed review",
+  "golden manifest",
+] as const;

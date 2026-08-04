@@ -117,7 +117,7 @@ describe("PilotScorecardPageView", () => {
     );
 
     expect(screen.getByTestId("review-scorecard-empty-state")).toBeInTheDocument();
-    expect(screen.getByText("No committed reviews yet")).toBeInTheDocument();
+    expect(screen.getByText("No finalized reviews yet")).toBeInTheDocument();
     expect(screen.getByText(REVIEW_SCORECARD_DATA_REQUIREMENT_NOTE)).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: REVIEW_SCORECARD_EMPTY_PREVIEW_SECTION_TITLE })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: REVIEW_SCORECARD_EMPTY_PRIMARY_CTA })).toHaveAttribute(
