@@ -13,6 +13,7 @@ using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Application.Templates;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Http;
+using ArchLucid.Core.Integrations.Itsm;
 using ArchLucid.Host.Composition.Configuration;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Diagnostics;
@@ -21,6 +22,7 @@ using ArchLucid.Host.Core.Hosting;
 using ArchLucid.Host.Core.Http;
 using ArchLucid.Host.Core.Startup;
 using ArchLucid.Persistence.Archival;
+using ArchLucid.Persistence.Integrations;
 
 namespace ArchLucid.Host.Composition.Startup;
 
@@ -198,6 +200,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IItsmOutboundIntegrationHealthService, ItsmOutboundIntegrationHealthService>();
         services.AddScoped<ITenantItsmOutboundSettingsService, TenantItsmOutboundSettingsService>();
         services.AddScoped<IItsmTenantConnectorCredentialResolver, ItsmTenantConnectorCredentialResolver>();
+        services.AddSingleton<IItsmInboundWebhookReplayGuard, MemoryCacheItsmInboundWebhookReplayGuard>();
         services.AddSingleton<ItsmConnectorOAuthAccessTokenCache>();
         services
             .AddHttpClient<IItsmConnectorOAuthTokenExchanger, ItsmConnectorOAuthTokenExchanger>(

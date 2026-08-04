@@ -779,9 +779,9 @@ Former standalone body: `docs/go-to-market/SECURITY_REVIEWER_INBOUND_WEBHOOK_ONE
 | --- | --- |
 | “Signed webhooks are fully hardened” | Signed authenticity ≠ replay/idempotency/freshness |
 | “Front Door Network Protection completes app-layer” | Edge helps; app still needs size/verify/replay |
-| “ITSM inbound is replay-safe today” | Billing has replay patterns; ITSM parity is **TB-968** |
+| “ITSM inbound is replay-safe today” | In-memory 24h replay guard per API host (**TB-968** Done); not a cross-instance durable ledger |
 
-**Residuals:** Engineering SoT [`INBOUND_WEBHOOK_HOSTILE_TRAFFIC.md`](../library/INBOUND_WEBHOOK_HOSTILE_TRAFFIC.md) (**TB-966**/**TB-967** Done); ITSM replay **TB-968**. Cite INV-015 / Done **TB-012** without overclaim.
+**Residuals:** Engineering SoT [`INBOUND_WEBHOOK_HOSTILE_TRAFFIC.md`](../library/INBOUND_WEBHOOK_HOSTILE_TRAFFIC.md) (**TB-966**/**TB-967**/**TB-968** Done); ITSM replay is per-process memory — cite [`ITSM_INBOUND_WEBHOOK_REPLAY_GUARD.md`](../runbooks/ITSM_INBOUND_WEBHOOK_REPLAY_GUARD.md). Cite INV-015 / Done **TB-012** without overclaim.
 
 **Related:** [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise).
 

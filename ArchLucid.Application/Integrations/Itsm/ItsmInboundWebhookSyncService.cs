@@ -6,6 +6,7 @@ using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Integrations.Itsm;
 using ArchLucid.Persistence.Integrations;
 
 using Microsoft.Extensions.Logging;
@@ -18,6 +19,7 @@ public sealed class ItsmInboundWebhookSyncService(
     IItsmFindingCorrelationRepository correlations,
     IOptionsMonitor<IntegrationsItsmInboundOptions> inboundOptions,
     ItsmInboundDispositionSync dispositionSync,
+    IItsmInboundWebhookReplayGuard replayGuard,
     ILogger<ItsmInboundWebhookSyncService> logger)
 {
     /// <summary>Keep equal to <c>ArchLucid.Api.Http.InboundWebhookBodyLimits.DefaultMaxUtf8Bytes</c> (TB-967).</summary>
@@ -48,6 +50,9 @@ public sealed class ItsmInboundWebhookSyncService(
     private readonly ItsmInboundDispositionSync _dispositionSync =
         dispositionSync ?? throw new ArgumentNullException(nameof(dispositionSync));
 
+    private readonly IItsmInboundWebhookReplayGuard _replayGuard =
+        replayGuard ?? throw new ArgumentNullException(nameof(replayGuard));
+
     private readonly ILogger<ItsmInboundWebhookSyncService> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
 
@@ -58,7 +63,8 @@ public sealed class ItsmInboundWebhookSyncService(
     public async Task<ItsmInboundWebhookProcessResult> TryProcessJiraIssueUpdateAsync(
         JsonElement root,
         CancellationToken ct,
-        int? inboundPayloadUtf8ByteCount = null)
+        int? inboundPayloadUtf8ByteCount = null,
+        string? deliveryId = null)
     {
         if (inboundPayloadUtf8ByteCount is { } overLimit and > MaxInboundWebhookPayloadUtf8Bytes)
             return new ItsmInboundWebhookProcessResult(false, CreatePayloadTooLargeAudit(true, overLimit));
@@ -158,6 +164,26 @@ public sealed class ItsmInboundWebhookSyncService(
                     }));
         }
 
+        string replayEventId = ItsmInboundWebhookReplayEventId.Resolve(deliveryId, "Jira", issueKey, statusName);
+
+        if (await _replayGuard.HasSeenAsync(row.TenantId, "Jira", replayEventId, ct).ConfigureAwait(false))
+        {
+            return new ItsmInboundWebhookProcessResult(
+                true,
+                CreateReplayIgnoredAudit(
+                    "jira-webhook",
+                    row.TenantId,
+                    row.WorkspaceId,
+                    row.ProjectId,
+                    replayEventId,
+                    new
+                    {
+                        issueKey,
+                        statusName
+                    }),
+                ReplayIgnored: true);
+        }
+
         int updated = await _correlations
             .UpdateHumanReviewStatusForFindingAsync(row.TenantId, row.FindingId, humanReview, row.FindingRecordId, ct)
             .ConfigureAwait(false);
@@ -177,6 +203,8 @@ public sealed class ItsmInboundWebhookSyncService(
                 .TryRecordFromWebhookAsync(row, mappedDisposition, statusName, "jira-webhook", ct)
                 .ConfigureAwait(false);
 
+        await _replayGuard.RememberAsync(row.TenantId, "Jira", replayEventId, ct).ConfigureAwait(false);
+
         AuditEvent auditEvent = new()
         {
             EventType = AuditEventTypes.IntegrationJiraIssueStatusSynced,
@@ -191,6 +219,7 @@ public sealed class ItsmInboundWebhookSyncService(
                 {
                     issueKey,
                     statusName,
+                    replayEventId,
                     humanReviewStatus = humanReview,
                     rowsUpdated = updated,
                     dispositionSynced = dispositionResult.WasRecorded,
@@ -206,7 +235,8 @@ public sealed class ItsmInboundWebhookSyncService(
     public async Task<ItsmInboundWebhookProcessResult> TryProcessServiceNowIncidentUpdateAsync(
         JsonElement root,
         CancellationToken ct,
-        int? inboundPayloadUtf8ByteCount = null)
+        int? inboundPayloadUtf8ByteCount = null,
+        string? deliveryId = null)
     {
         if (inboundPayloadUtf8ByteCount is { } overLimit and > MaxInboundWebhookPayloadUtf8Bytes)
             return new ItsmInboundWebhookProcessResult(false, CreatePayloadTooLargeAudit(false, overLimit));
@@ -302,6 +332,26 @@ public sealed class ItsmInboundWebhookSyncService(
                     }));
         }
 
+        string replayEventId = ItsmInboundWebhookReplayEventId.Resolve(deliveryId, "ServiceNow", externalKey, stateNormalized);
+
+        if (await _replayGuard.HasSeenAsync(row.TenantId, "ServiceNow", replayEventId, ct).ConfigureAwait(false))
+        {
+            return new ItsmInboundWebhookProcessResult(
+                true,
+                CreateReplayIgnoredAudit(
+                    "servicenow-webhook",
+                    row.TenantId,
+                    row.WorkspaceId,
+                    row.ProjectId,
+                    replayEventId,
+                    new
+                    {
+                        externalKey,
+                        state = stateNormalized
+                    }),
+                ReplayIgnored: true);
+        }
+
         int updated = await _correlations
             .UpdateHumanReviewStatusForFindingAsync(row.TenantId, row.FindingId, humanReview, row.FindingRecordId, ct)
             .ConfigureAwait(false);
@@ -321,6 +371,8 @@ public sealed class ItsmInboundWebhookSyncService(
                 .TryRecordFromWebhookAsync(row, mappedDisposition, stateNormalized, "servicenow-webhook", ct)
                 .ConfigureAwait(false);
 
+        await _replayGuard.RememberAsync(row.TenantId, "ServiceNow", replayEventId, ct).ConfigureAwait(false);
+
         AuditEvent auditEvent = new()
         {
             EventType = AuditEventTypes.IntegrationServiceNowIncidentStatusSynced,
@@ -335,6 +387,7 @@ public sealed class ItsmInboundWebhookSyncService(
                 {
                     externalKey,
                     state = stateNormalized,
+                    replayEventId,
                     humanReviewStatus = humanReview,
                     rowsUpdated = updated,
                     dispositionSynced = dispositionResult.WasRecorded,
@@ -366,6 +419,25 @@ public sealed class ItsmInboundWebhookSyncService(
                     utf8ByteCount,
                     maxBytes = MaxInboundWebhookPayloadUtf8Bytes
                 })
+        };
+
+    private static AuditEvent CreateReplayIgnoredAudit(
+        string actor,
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        string replayEventId,
+        object detail) =>
+        new()
+        {
+            EventType = AuditEventTypes.IntegrationItsmInboundWebhookReplayIgnored,
+            ExplicitActor = true,
+            ActorUserId = actor,
+            ActorUserName = actor,
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+            DataJson = JsonSerializer.Serialize(new { replayEventId, detail })
         };
 
     private static ItsmInboundWebhookProcessResult RejectJira(string issueKey, string reasonCode, string message) =>

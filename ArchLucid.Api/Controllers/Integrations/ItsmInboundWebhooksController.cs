@@ -122,7 +122,7 @@ public sealed class ItsmInboundWebhooksController(
         using JsonDocument doc = JsonDocument.Parse(rawBody);
 
         ItsmInboundWebhookProcessResult r =
-            await _sync.TryProcessJiraIssueUpdateAsync(doc.RootElement, ct, payloadUtf8Bytes).ConfigureAwait(false);
+            await _sync.TryProcessJiraIssueUpdateAsync(doc.RootElement, ct, payloadUtf8Bytes, ResolveDeliveryId()).ConfigureAwait(false);
 
         if (r.DurableAuditEvent is not null)
             await _auditService.LogAsync(r.DurableAuditEvent, ct).ConfigureAwait(false);
@@ -171,7 +171,7 @@ public sealed class ItsmInboundWebhooksController(
         using JsonDocument doc = JsonDocument.Parse(rawBody);
 
         ItsmInboundWebhookProcessResult r =
-            await _sync.TryProcessServiceNowIncidentUpdateAsync(doc.RootElement, ct, payloadUtf8Bytes).ConfigureAwait(false);
+            await _sync.TryProcessServiceNowIncidentUpdateAsync(doc.RootElement, ct, payloadUtf8Bytes, ResolveDeliveryId()).ConfigureAwait(false);
 
         if (r.DurableAuditEvent is not null)
             await _auditService.LogAsync(r.DurableAuditEvent, ct).ConfigureAwait(false);
@@ -212,6 +212,22 @@ public sealed class ItsmInboundWebhooksController(
         };
     }
 
+    private string? ResolveDeliveryId()
+    {
+        string? deliveryId = Request.Headers[ItsmInboundWebhookReplayEventId.DeliveryIdHeaderName].FirstOrDefault();
+
+        if (!string.IsNullOrWhiteSpace(deliveryId))
+            return deliveryId.Trim();
+
+        string? atlassianId =
+            Request.Headers[ItsmInboundWebhookReplayEventId.AtlassianWebhookIdentifierHeaderName].FirstOrDefault();
+
+        if (!string.IsNullOrWhiteSpace(atlassianId))
+            return atlassianId.Trim();
+
+        return null;
+    }
+
     private bool TryVerifyWebhookSecurity(
         IntegrationsItsmInboundOptions o,
         string sharedSecret,
@@ -228,6 +244,9 @@ public sealed class ItsmInboundWebhooksController(
             return false;
         }
 
+        if (!TryValidateOptionalTimestampSkew(o, out reject))
+            return false;
+
         if (!o.RequireBodyHmacSignature)
             return true;
 
@@ -242,10 +261,20 @@ public sealed class ItsmInboundWebhooksController(
             return false;
         }
 
+        return true;
+    }
+
+    private bool TryValidateOptionalTimestampSkew(IntegrationsItsmInboundOptions o, out IActionResult? reject)
+    {
+        reject = null;
+
         if (o.WebhookTimestampSkewSeconds <= 0)
             return true;
 
         string? ts = Request.Headers["X-ArchLucid-Timestamp"].FirstOrDefault();
+
+        if (string.IsNullOrWhiteSpace(ts))
+            return true;
 
         if (WebhookSecrets.TimestampWithinSkew(TimeProvider.System.GetUtcNow(), ts, o.WebhookTimestampSkewSeconds))
             return true;
