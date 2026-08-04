@@ -79,6 +79,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/integrations/cloud-connections",
       "/integrations/jira",
       "/integrations/slack",
+      "/integrations/teams",
       "/settings/cloud-connections",
     ]);
   });
@@ -210,6 +211,11 @@ describe("contextual-help-registry (TB-733)", () => {
   it("resolves slack integration Category-1 help (ISN)", () => {
     expect(contextualHelpForPathname("/integrations/slack")?.whatIsThisPage).toContain("Slack integration");
     expect(contextualHelpForPathname("/integrations/slack")?.whatToDoNext).toContain("Slack destination");
+  });
+
+  it("resolves teams integration Category-1 help (ITX)", () => {
+    expect(contextualHelpForPathname("/integrations/teams")?.whatIsThisPage).toContain("Teams integration");
+    expect(contextualHelpForPathname("/integrations/teams")?.whatToDoNext).toContain("Teams connector");
   });
 
   it("resolves executive scorecard Category-1 help (ESX)", () => {

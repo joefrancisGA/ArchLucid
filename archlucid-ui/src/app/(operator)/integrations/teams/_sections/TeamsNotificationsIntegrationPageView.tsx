@@ -9,6 +9,7 @@ import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import { INTEGRATIONS_READINESS_PATH, INTEGRATIONS_SLACK_PATH, INTEGRATIONS_TEAMS_PATH } from "@/lib/integrations-nav-paths";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -30,6 +31,7 @@ import { cn } from "@/lib/utils";
 
 import { TeamsConnectionSummary } from "./TeamsConnectionSummary";
 import { TeamsIntegrationAside } from "./TeamsIntegrationAside";
+import { TeamsIntegrationEvidenceOrientationStrip } from "./TeamsIntegrationEvidenceOrientationStrip";
 import { TeamsNotificationsSelector } from "./TeamsNotificationsSelector";
 import type { TeamsNotificationsIntegrationPageViewModel } from "./teams-notifications-integration-view-model";
 
@@ -65,6 +67,7 @@ export function TeamsNotificationsIntegrationPageView(props: Props): React.React
         title={TEAMS_INTEGRATION_PAGE_TITLE}
         variant="integration"
         bordered
+        actions={<PageContextualHelpButton />}
         description={
           <>
             <p className={cn("m-0 max-w-2xl leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
@@ -77,8 +80,8 @@ export function TeamsNotificationsIntegrationPageView(props: Props): React.React
               {m.loading ? "Loading connection status…" : teamsIntegrationConnectionStatusLabel(m.connectionStatus)}
             </p>
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              <Link className={OPERATOR_LINK.inline} href={inAppHelpHref("troubleshooting")}>
-                Microsoft Teams notification help
+              <Link className={OPERATOR_LINK.inline} href={inAppHelpHref("alerts")}>
+                How alerts work
               </Link>
               {" · "}
               <Link className={OPERATOR_LINK.inline} href={INTEGRATIONS_READINESS_PATH}>
@@ -92,6 +95,8 @@ export function TeamsNotificationsIntegrationPageView(props: Props): React.React
           </>
         }
       />
+
+      <TeamsIntegrationEvidenceOrientationStrip />
 
       {m.failure !== null ? (
         <div role="alert">

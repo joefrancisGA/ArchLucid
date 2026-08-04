@@ -552,6 +552,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/integrations/teams",
+    entry: {
+      whatIsThisPage:
+        "Microsoft Teams integration — configure a Teams channel destination that receives governance alerts for this workspace.",
+      whatToDoNext:
+        "Save or test the Teams connector, then open Alert rules when you need to change which events fire notifications.",
+      whyEmpty: "Connection status appears after this workspace can load Teams notification settings.",
+      whereToConfigurePrerequisite:
+        "Creating or changing the Teams destination requires a role that can manage alert routing.",
+    },
+  },
+  {
     prefix: "/settings/cloud-connections",
     entry: {
       whatIsThisPage:
