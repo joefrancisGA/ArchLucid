@@ -98,9 +98,15 @@ export async function createArchitectureRun(
   } catch (error: unknown) {
     if (
       isApiRequestError(error) &&
-      isArchitectureRequestCreateGatewayTimeout(error.httpStatus)
+      isArchitectureRequestCreateGatewayTimeout(error.httpStatus, error.problem)
     ) {
-      throw new ApiRequestError(ARCHITECTURE_REQUEST_CREATE_TIMEOUT_MESSAGE, {
+      const upstreamDetail = error.problem?.detail?.trim() ?? "";
+      const message =
+        upstreamDetail.length > 0
+          ? `${ARCHITECTURE_REQUEST_CREATE_TIMEOUT_MESSAGE} Details: ${upstreamDetail}`
+          : ARCHITECTURE_REQUEST_CREATE_TIMEOUT_MESSAGE;
+
+      throw new ApiRequestError(message, {
         problem: error.problem,
         correlationId: error.correlationId,
         httpStatus: error.httpStatus,
