@@ -1,5 +1,6 @@
 import { compareRunBuyerDisplayLabel } from "@/lib/compare-run-display-label";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
+import { stripRetiredDemoOrgBranding } from "@/lib/retired-demo-org-branding";
 import { SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE, SHOWCASE_BUYER_REVIEW_TITLE } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
 
@@ -29,7 +30,7 @@ export function buyerFacingReviewTitleFromSummary(run: RunSummary): string {
     return SHOWCASE_BUYER_REVIEW_TITLE;
   }
 
-  const displayName = run.displayName?.trim() ?? "";
+  const displayName = stripRetiredDemoOrgBranding(run.displayName).trim();
   const runIdTrim = runIdRaw.trim();
 
   // Prefer explicit API display label when it is not just the technical run id echoed back.
@@ -41,7 +42,7 @@ export function buyerFacingReviewTitleFromSummary(run: RunSummary): string {
     return displayName;
   }
 
-  const description = run.description?.trim() ?? "";
+  const description = stripRetiredDemoOrgBranding(run.description).trim();
 
   // Some APIs echo the run id as `description`; never show that slug as a human title.
   if (

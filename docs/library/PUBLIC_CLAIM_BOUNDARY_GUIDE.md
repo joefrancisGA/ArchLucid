@@ -228,7 +228,7 @@ Former standalone body: `docs/go-to-market/PA_CLAIM_HONESTY_BULLETS_BATCH_B.md` 
 
 | Do not promise | Do promise |
 | --- | --- |
-| Polly retries + circuit breaker mean multi-agent runs always finish. | Transport resilience only; partial-run, cache, and mid-run budget semantics remain separate (**TB-937**–**TB-945**). |
+| Polly retries + circuit breaker mean multi-agent runs always finish. | Transport resilience only; see engineering matrix [`POLLY_VS_RUN_LEVEL_SEMANTICS_CONTRACT.md`](POLLY_VS_RUN_LEVEL_SEMANTICS_CONTRACT.md) (**TB-995**). Partial-run / cache / mid-run budget residuals remain on **TB-941**–**TB-945** / **TB-975**–**TB-977**. |
 
 #### M-152 — Retrieval tenancy
 

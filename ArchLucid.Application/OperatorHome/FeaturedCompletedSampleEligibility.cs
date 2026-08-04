@@ -1,3 +1,4 @@
+using ArchLucid.Application.Bootstrap;
 using ArchLucid.Persistence.Models;
 
 namespace ArchLucid.Application.OperatorHome;
@@ -24,7 +25,7 @@ public static class FeaturedCompletedSampleEligibility
 
     public static string ResolveReviewTitle(RunRecord run)
     {
-        string description = run.Description?.Trim() ?? string.Empty;
+        string description = RetiredDemoOrgBranding.Strip(run.Description)?.Trim() ?? string.Empty;
 
         if (description.Length > 0)
         {
@@ -36,7 +37,14 @@ public static class FeaturedCompletedSampleEligibility
 
     public static string ResolveArchitectureName(RunRecord run)
     {
-        string description = run.Description?.Trim() ?? string.Empty;
+        string projectId = RetiredDemoOrgBranding.Strip(run.ProjectId)?.Trim() ?? string.Empty;
+
+        if (projectId.Length > 0)
+        {
+            return projectId;
+        }
+
+        string description = RetiredDemoOrgBranding.Strip(run.Description)?.Trim() ?? string.Empty;
 
         if (description.Length > 0)
         {

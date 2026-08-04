@@ -18,6 +18,7 @@ import { buyerGovernanceApprovalDisplayLabel, governanceGateLabelFromManifestSta
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
 import { isManifestCommittedForPilotScorecardPackage } from "@/lib/pilot-scorecard-package-eligibility";
+import { stripRetiredDemoOrgBranding } from "@/lib/retired-demo-org-branding";
 import {
   coerceArtifactDescriptorList,
   coerceManifestSummary,
@@ -209,7 +210,7 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
       ((resolvedDetail.run as { hasGraphSnapshot?: boolean }).hasGraphSnapshot ? "present" : undefined),
   });
 
-  const descriptionTrimmed = resolvedDetail.run.description?.trim() ?? "";
+  const descriptionTrimmed = stripRetiredDemoOrgBranding(resolvedDetail.run.description).trim();
 
   const { findingCountDisplay, warningCountDisplay } = resolveReviewOutcomeCounts({
     runId: resolvedDetail.run.runId,

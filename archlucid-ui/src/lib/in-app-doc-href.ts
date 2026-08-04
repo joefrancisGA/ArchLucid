@@ -1,6 +1,18 @@
 import { inAppHelpHref, PRODUCT_DOCUMENTATION_REGISTRY } from "@/lib/product-documentation-registry";
 
 /**
+ * Repo-relative markdown paths that resolve to absolute app routes (not only `/help/{slug}`).
+ * Keys are normalized: lowercase, no leading slash, no hash fragment.
+ * Values may include a default `#fragment`.
+ */
+const DOC_PATH_TO_ABSOLUTE_HREF: Readonly<Record<string, string>> = {
+  /** Customer-facing FAQ.md is a path-stable stub; buyer Q&A lives on marketing `/faq`. */
+  "docs/library/customer-facing/faq.md": "/faq",
+  /** Finding provenance folded into Findings help (2026-08-04). */
+  "docs/library/customer-facing/finding_provenance.md": "/help/findings#where-findings-come-from",
+};
+
+/**
  * Repo-relative markdown paths that map to in-app help slugs but are not the registry primary `sourcePaths`.
  * Keys are normalized: lowercase, no leading slash, no hash fragment.
  */
@@ -24,7 +36,7 @@ const DOC_PATH_TO_SLUG: Readonly<Record<string, string>> = {
   "docs/runbooks/first_pilot_troubleshooting.md": "troubleshooting",
   "docs/library/customer-facing/operator_troubleshooting.md": "troubleshooting",
   "docs/library/customer-facing/operator_admin_diagnostics.md": "admin-diagnostics",
-  "docs/library/operator_quickstart.md": "getting-started",
+  "docs/library/operator_quickstart.md": "cli-usage",
   "docs/library/release_smoke.md": "developer-troubleshooting",
   "docs/library/audit_coverage_matrix.md": "audit-trail",
   "docs/library/pre_commit_governance_gate.md": "governance-approval",
@@ -34,7 +46,7 @@ const DOC_PATH_TO_SLUG: Readonly<Record<string, string>> = {
   "docs/library/architecture_flows.md": "getting-started",
   "docs/library/live_e2e_happy_path.md": "developer-troubleshooting",
   "docs/library/finding_engine_output_reference.md": "evidence-trail",
-  "docs/go-to-market/competitive_comparison.md": "product-overview",
+  "docs/go-to-market/competitive_comparison.md": "executive-summary",
   "docs/demo/demo_recording_storyboard.md": "pilot-guide",
   "docs/start_here.md": "path-chooser",
   "docs/core_pilot.md": "first-architecture-review",
@@ -42,9 +54,9 @@ const DOC_PATH_TO_SLUG: Readonly<Record<string, string>> = {
   "docs/library/customer-facing/complete_review_workflow.md": "first-architecture-review",
   "docs/runbooks/first_value_20_minutes.md": "first-value-20-minutes",
   "docs/library/governance_workflow_ui.md": "governance-approval",
-  "docs/library/customer-facing/operator_quickstart.md": "getting-started",
+  "docs/library/customer-facing/operator_quickstart.md": "cli-usage",
   "docs/library/customer-facing/concepts_in_5_minutes.md": "getting-started",
-  "docs/library/customer-facing/faq.md": "troubleshooting",
+  "docs/library/customer-facing/how_archlucid_works.md": "getting-started",
   "docs/library/customer-facing/pilot_guide.md": "pilot-guide",
   "docs/library/customer-facing/review_guide.md": "review-guide",
   "docs/library/walkthroughs/readme.md": "specialty-walkthroughs",
@@ -120,6 +132,19 @@ function slugFromRegistry(normalizedPath: string): string | null {
   return null;
 }
 
+function resolveAbsoluteDocHref(absoluteHref: string, fragment: string): string {
+  const hashIndex = absoluteHref.indexOf("#");
+  const base = hashIndex >= 0 ? absoluteHref.slice(0, hashIndex) : absoluteHref;
+  const defaultFragment = hashIndex >= 0 ? absoluteHref.slice(hashIndex + 1) : "";
+  const useFragment = fragment.length > 0 ? fragment : defaultFragment;
+
+  if (useFragment.length === 0) {
+    return base;
+  }
+
+  return `${base}#${useFragment}`;
+}
+
 /**
  * Resolves a repo-relative docs path to an in-app operator help route when mapped.
  * Returns `null` for contributor-only docs that should not become help links.
@@ -132,6 +157,12 @@ export function tryResolveInAppDocHref(docPath: string): string | null {
 
   if (normalized.length === 0) {
     return null;
+  }
+
+  const absoluteHref = DOC_PATH_TO_ABSOLUTE_HREF[normalized];
+
+  if (absoluteHref !== undefined && absoluteHref.length > 0) {
+    return resolveAbsoluteDocHref(absoluteHref, fragment);
   }
 
   const aliasSlug = DOC_PATH_TO_SLUG[normalized];

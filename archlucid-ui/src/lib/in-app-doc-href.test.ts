@@ -54,7 +54,18 @@ describe("resolveInAppDocHref", () => {
     expect(resolveInAppDocHref("docs/go-to-market/HOW_TO_REQUEST_PROCUREMENT_PACK.md")).toBe("/help/procurement");
     expect(resolveInAppDocHref("docs/go-to-market/PRICING_PHILOSOPHY.md")).toBe("/help/procurement");
     expect(resolveInAppDocHref("docs/go-to-market/ROI_MODEL.md")).toBe("/help/pilot-roi-model");
-    expect(resolveInAppDocHref("docs/library/customer-facing/FAQ.md")).toBe("/help/troubleshooting");
-    expect(resolveInAppDocHref("docs/go-to-market/COMPETITIVE_COMPARISON.md")).toBe("/help/product-overview");
+    expect(resolveInAppDocHref("docs/library/customer-facing/FAQ.md")).toBe("/faq");
+    expect(resolveInAppDocHref("docs/go-to-market/COMPETITIVE_COMPARISON.md")).toBe("/help/executive-summary");
+  });
+
+  it("maps architect/evaluator quickstart to CLI usage (KEEP body; href only)", () => {
+    expect(resolveInAppDocHref("docs/library/customer-facing/OPERATOR_QUICKSTART.md")).toBe("/help/cli-usage");
+    expect(resolveInAppDocHref("docs/library/OPERATOR_QUICKSTART.md")).toBe("/help/cli-usage");
+  });
+
+  it("maps finding provenance stub to Findings help provenance section", () => {
+    expect(resolveInAppDocHref("docs/library/customer-facing/FINDING_PROVENANCE.md")).toBe(
+      "/help/findings#where-findings-come-from",
+    );
   });
 });

@@ -24,5 +24,5 @@ ArchLucid's signed review record is the committed golden manifest for a finalize
 ## Related
 
 - [PUBLIC_CLAIM_BOUNDARY_GUIDE.md](../PUBLIC_CLAIM_BOUNDARY_GUIDE.md#proof-scope-boundary)
-- [FINDING_PROVENANCE.md](FINDING_PROVENANCE.md)
+- [Where findings come from](FINDINGS_OPERATOR_GUIDE.md#where-findings-come-from) (`FINDING_PROVENANCE.md` alias)
 - [IMPACT_PREVIEW.md](IMPACT_PREVIEW.md)

@@ -90,4 +90,15 @@ describe("buyerFacingReviewTitleFromSummary", () => {
       ),
     ).toBe("Baseline Claims Intake Review");
   });
+
+  it("strips retired Contoso demo branding from stale seed titles", () => {
+    expect(
+      buyerFacingReviewTitleFromSummary(
+        summary({
+          runId: "6e8c4a102b1f4c9a9d3e10b2a4f0c501",
+          description: "Demo — Contoso retail baseline manifest (trusted baseline seed).",
+        }),
+      ),
+    ).toBe("Demo — Retail baseline manifest (trusted baseline seed).");
+  });
 });
