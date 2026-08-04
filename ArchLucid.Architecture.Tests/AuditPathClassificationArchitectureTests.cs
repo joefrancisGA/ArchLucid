@@ -1,5 +1,7 @@
 using System.Text;
 
+using ArchLucid.Core.Audit;
+
 using FluentAssertions;
 
 using Microsoft.CodeAnalysis;
@@ -9,9 +11,10 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace ArchLucid.Architecture.Tests;
 
 /// <summary>
-///     INV-003: every <see cref="ArchLucid.Core.Audit.IAuditService" /> member-invocation audit write in product code is
-///     either wrapped in <see cref="ArchLucid.Core.Audit.DurableAuditLogRetry" /> within the same method, marked
+///     INV-003: every <see cref="IAuditService" /> member-invocation audit write in product code is
+///     either wrapped in <see cref="DurableAuditLogRetry" /> within the same method, marked
 ///     <c>[InformationalAudit]</c>, or treated as intentionally transactional (allow-listed).
+///     TB-954: Required event types must not soft-fail via <see cref="DurableAuditLogRetry.TryLogAsync" />.
 /// </summary>
 [Trait("Suite", "Core")]
 public sealed class AuditPathClassificationArchitectureTests
@@ -133,7 +136,7 @@ public sealed class AuditPathClassificationArchitectureTests
                 CompilationUnitSyntax unit = tree.GetCompilationUnitRoot();
 
                 foreach (MemberDeclarationSyntax member in unit.Members)
-                    WalkTopMember(member, path, violations);
+                    WalkTopMember(member, path, violations, InspectMethodForClassification);
             }
         }
 
@@ -142,40 +145,84 @@ public sealed class AuditPathClassificationArchitectureTests
             + string.Join(Environment.NewLine, violations.OrderBy(static s => s, StringComparer.Ordinal)));
     }
 
-    private static void WalkTopMember(MemberDeclarationSyntax member, string path, HashSet<string> violations)
+    [Fact]
+    public void Required_audit_event_types_must_not_use_TryLogAsync()
+    {
+        RequiredAuditEventTypes.All.Should().NotBeEmpty();
+        RequiredAuditEventTypes.ConstNames.Should().HaveCount(RequiredAuditEventTypes.All.Count);
+
+        HashSet<string> violations = new(StringComparer.Ordinal);
+        string root = FindRepoRoot();
+
+        foreach (string rel in ProductRelativeRoots)
+        {
+            string dir = Path.Combine(root, rel);
+
+            if (!Directory.Exists(dir))
+                continue;
+
+            foreach (string path in Directory.EnumerateFiles(dir, "*.cs", SearchOption.AllDirectories))
+            {
+                if (path.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase)
+                    || path.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                string text = File.ReadAllText(path, Encoding.UTF8);
+                SyntaxTree tree = CSharpSyntaxTree.ParseText(text, path: path);
+                CompilationUnitSyntax unit = tree.GetCompilationUnitRoot();
+
+                foreach (MemberDeclarationSyntax member in unit.Members)
+                    WalkTopMember(member, path, violations, InspectMethodForRequiredSoftFail);
+            }
+        }
+
+        violations.Should().BeEmpty(
+            "Required audit types must use DurableAuditLogRetry.LogOrThrowAsync (TB-954). Soft-fail regressions: "
+            + string.Join(Environment.NewLine, violations.OrderBy(static s => s, StringComparer.Ordinal)));
+    }
+
+    private static void WalkTopMember(
+        MemberDeclarationSyntax member,
+        string path,
+        HashSet<string> violations,
+        Action<MethodDeclarationSyntax, string, HashSet<string>> inspectMethod)
     {
         switch (member)
         {
             case BaseNamespaceDeclarationSyntax ns:
             {
                 foreach (MemberDeclarationSyntax inner in ns.Members)
-                    WalkTopMember(inner, path, violations);
+                    WalkTopMember(inner, path, violations, inspectMethod);
 
                 break;
             }
             case TypeDeclarationSyntax type:
-                WalkTypeMembers(type, path, violations);
+                WalkTypeMembers(type, path, violations, inspectMethod);
                 break;
         }
     }
 
-    private static void WalkTypeMembers(TypeDeclarationSyntax type, string path, HashSet<string> violations)
+    private static void WalkTypeMembers(
+        TypeDeclarationSyntax type,
+        string path,
+        HashSet<string> violations,
+        Action<MethodDeclarationSyntax, string, HashSet<string>> inspectMethod)
     {
         foreach (MemberDeclarationSyntax inner in type.Members)
         {
             switch (inner)
             {
                 case TypeDeclarationSyntax nested:
-                    WalkTypeMembers(nested, path, violations);
+                    WalkTypeMembers(nested, path, violations, inspectMethod);
                     break;
                 case MethodDeclarationSyntax method:
-                    InspectMethod(method, path, violations);
+                    inspectMethod(method, path, violations);
                     break;
             }
         }
     }
 
-    private static void InspectMethod(MethodDeclarationSyntax method, string path, HashSet<string> violations)
+    private static void InspectMethodForClassification(MethodDeclarationSyntax method, string path, HashSet<string> violations)
     {
         SyntaxNode? bodyRoot = MethodBodyRoot(method);
 
@@ -201,6 +248,63 @@ public sealed class AuditPathClassificationArchitectureTests
 
         string rel = Path.GetRelativePath(FindRepoRoot(), path);
         violations.Add($"{rel}: {typeName}.{method.Identifier.Text}");
+    }
+
+    private static void InspectMethodForRequiredSoftFail(MethodDeclarationSyntax method, string path, HashSet<string> violations)
+    {
+        SyntaxNode? bodyRoot = MethodBodyRoot(method);
+
+        if (bodyRoot is null)
+            return;
+
+        string bodyText = bodyRoot.ToFullString();
+
+        if (!bodyText.Contains("DurableAuditLogRetry.TryLogAsync", StringComparison.Ordinal))
+            return;
+
+        string typeName = FormatContainingType(method);
+        string rel = Path.GetRelativePath(FindRepoRoot(), path);
+        string location = $"{rel}: {typeName}.{method.Identifier.Text}";
+
+        if (IsRequiredAuditHelperName(method.Identifier.Text))
+        {
+            violations.Add($"{location} — Required-named helper must not call TryLogAsync");
+            return;
+        }
+
+        string? matched = FindRequiredTypeReference(bodyText);
+
+        if (matched is not null)
+            violations.Add($"{location} — Required type '{matched}' with TryLogAsync");
+    }
+
+    private static bool IsRequiredAuditHelperName(string methodName)
+    {
+        return methodName.Contains("LogRequired", StringComparison.Ordinal)
+               || methodName.EndsWith("RequiredAsync", StringComparison.Ordinal);
+    }
+
+    private static string? FindRequiredTypeReference(string bodyText)
+    {
+        for (int i = 0; i < RequiredAuditEventTypes.ConstNames.Count; i++)
+        {
+            string constName = RequiredAuditEventTypes.ConstNames[i];
+            string memberAccess = "AuditEventTypes." + constName;
+
+            if (bodyText.Contains(memberAccess, StringComparison.Ordinal))
+                return constName;
+        }
+
+        for (int i = 0; i < RequiredAuditEventTypes.All.Count; i++)
+        {
+            string wire = RequiredAuditEventTypes.All[i];
+            string quoted = "\"" + wire + "\"";
+
+            if (bodyText.Contains(quoted, StringComparison.Ordinal))
+                return wire;
+        }
+
+        return null;
     }
 
     private static bool IsApiControllerTransactionalSurface(string filePath, string typeName)

@@ -61,7 +61,7 @@
 
 **Informational (best-effort):** `DurableAuditLogRetry.TryLogAsync` or `[InformationalAudit]` — retry then swallow; metrics on abandon per TB-001.
 
-**Enforcement sketch:** Attribute or interface marker on operations; architecture test classifies `IAuditService.LogAsync` call sites; integration tests prove fail-closed on Required paths.
+**Enforcement sketch:** Attribute or interface marker on operations; architecture test classifies `IAuditService.LogAsync` call sites; `RequiredAuditEventTypes` registry + architecture test forbids `TryLogAsync` on Required types (TB-954); integration tests prove fail-closed on Required paths.
 
 ---
 
