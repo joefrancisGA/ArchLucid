@@ -9,9 +9,10 @@ import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
-import { getConversationMessages, listConversationThreads } from "@/lib/conversation-api";
+import { getConversationMessages } from "@/lib/conversation-api";
 import { useAskStream } from "@/hooks/useAskStream";
 import { useAskReviewAvailability } from "@/hooks/useAskReviewAvailability";
+import { useConversationThreadsQuery } from "@/hooks/use-conversation-threads-query";
 import { buyerAskGroundingLinksForRun } from "@/lib/ask-buyer-grounding-links";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
@@ -87,13 +88,14 @@ export function AskPageContent() {
     setRunId(canonicalizeDemoRunId(fromWs));
   }, [buyerPolishedShell, workspaceRun?.activeRunId, selectedThreadId, urlRunIdRaw]);
 
-  const loadThreads = useCallback(async () => {
-    setListFailure(null);
+  const {
+    data: prefetchedThreads,
+    isError: threadsQueryError,
+    refetch: refetchThreads,
+  } = useConversationThreadsQuery(50);
 
-    try {
-      const data = await listConversationThreads();
-      setThreads(data);
-
+  const applyThreadList = useCallback(
+    (data: ConversationThread[]) => {
       if (data.length === 0 && isStaticDemoPayloadFallbackEnabled() && !buyerPolishedShell) {
         const seeded = tryStaticDemoConversationMessages("thread-claims-intake-001");
 
@@ -117,6 +119,19 @@ export function AskPageContent() {
           return;
         }
       }
+
+      setThreads(data);
+    },
+    [buyerPolishedShell],
+  );
+
+  const loadThreads = useCallback(async () => {
+    setListFailure(null);
+
+    try {
+      const result = await refetchThreads();
+      const data = result.data ?? [];
+      applyThreadList(data);
     } catch (e) {
       if (isStaticDemoPayloadFallbackEnabled() && !buyerPolishedShell) {
         const seeded = tryStaticDemoConversationMessages("thread-claims-intake-001");
@@ -144,11 +159,41 @@ export function AskPageContent() {
 
       setListFailure(toApiLoadFailure(e));
     }
-  }, [buyerPolishedShell]);
+  }, [applyThreadList, buyerPolishedShell, refetchThreads]);
 
   useEffect(() => {
-    void loadThreads();
-  }, [loadThreads]);
+    if (prefetchedThreads === undefined) {
+      return;
+    }
+
+    if (threadsQueryError) {
+      if (isStaticDemoPayloadFallbackEnabled() && !buyerPolishedShell) {
+        const seeded = tryStaticDemoConversationMessages("thread-claims-intake-001");
+
+        if (seeded !== null) {
+          setThreads([
+            {
+              threadId: "thread-claims-intake-001",
+              tenantId: "demo",
+              workspaceId: "demo",
+              projectId: "default",
+              runId: SHOWCASE_STATIC_DEMO_RUN_ID,
+              title: "Review briefing thread",
+              createdUtc: "2026-01-12T10:06:00.000Z",
+              lastUpdatedUtc: "2026-01-12T10:06:12.000Z",
+            },
+          ]);
+          setSelectedThreadId("thread-claims-intake-001");
+          setRunId(SHOWCASE_STATIC_DEMO_RUN_ID);
+          setMessages(seeded);
+        }
+      }
+
+      return;
+    }
+
+    applyThreadList(prefetchedThreads);
+  }, [applyThreadList, buyerPolishedShell, prefetchedThreads, threadsQueryError]);
 
   useEffect(() => {
     const fromWorkspace = workspaceRun?.activeRunId?.trim() ?? "";

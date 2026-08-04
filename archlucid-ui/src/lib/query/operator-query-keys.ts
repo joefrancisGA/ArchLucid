@@ -23,6 +23,8 @@ export const operatorQueryKeys = {
   corePilotCommitContext: ["operator", "core-pilot", "commit-context"] as const,
   pilotRecentDeltas: (count: number) => ["operator", "pilots", "recent-deltas", { count }] as const,
   runsByProjectPaged: (params: RunsByProjectPagedParams) => ["operator", "runs", "paged", params] as const,
+  askProjectRuns: (projectId: string) => ["operator", "ask", "project-runs", projectId] as const,
+  conversationThreads: (take: number) => ["operator", "conversations", "threads", { take }] as const,
   tenantHomepageSettings: ["operator", "tenant", "homepage-settings"] as const,
   featuredCompletedSampleCandidates: ["operator", "tenant", "homepage-settings", "eligible-samples"] as const,
   patternLibraryInsightCards: ["operator", "analytics", "pattern-insight-cards"] as const,
