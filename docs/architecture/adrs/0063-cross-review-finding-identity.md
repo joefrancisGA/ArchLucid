@@ -5,7 +5,7 @@
 - **Status:** Accepted
 - **Date:** 2026-08-04
 - **Deciders:** Owner / platform engineering
-- **Related:** [ADR 0039](0039-commit-sealed-evidence-immutability.md), [ADR 0045](0045-committed-run-header-immutability.md), [ADR 0062](0062-finding-verification-loop.md), [`FINDING_PROVENANCE.md`](../library/customer-facing/FINDING_PROVENANCE.md)
+- **Related:** [ADR 0039](0039-commit-sealed-evidence-immutability.md), [ADR 0045](0045-committed-run-header-immutability.md), [ADR 0062](0062-finding-verification-loop.md), [`FINDING_PROVENANCE.md`](../../library/customer-facing/FINDING_PROVENANCE.md)
 
 ## Context
 

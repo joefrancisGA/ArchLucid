@@ -37,7 +37,7 @@ def test_discover_tab_paths_includes_architecture_workspace_tabs() -> None:
 
 def test_build_catalog_classifies_architecture_intelligence_as_core_review() -> None:
     catalog = build_catalog()
-    assert catalog["/architecture-intelligence"].section == "Core review"
+    assert catalog["/architecture/architecture-intelligence"].section == "Core review"
 
 
 def test_migrate_workbook_path_maps_legacy_core_pilot_help_slug() -> None:

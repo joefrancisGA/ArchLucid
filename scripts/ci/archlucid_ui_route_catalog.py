@@ -31,13 +31,15 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/settings/support": "/administration/settings/support",
     "/workspace/security-trust": "/administration/settings/security-trust",
     "/settings/security-trust": "/administration/settings/security-trust",
-    "/governance-resolution": "/governance/resolution",
+    "/governance-resolution": "/governance/standards-and-rules",
+    "/governance/resolution": "/governance/standards-and-rules",
     "/help/cloud-connections-azure": "/help/cloud-connections/azure",
     "/help/cloud-connections-aws": "/help/cloud-connections/aws",
     "/help/cloud-connections-gcp": "/help/cloud-connections/gcp",
     "/manifests": "/signed-records",
     "/manifests/[manifestId]": "/signed-records/[manifestId]",
     "/manifests/[manifestId]/artifacts/[artifactId]": "/signed-records/[manifestId]/artifacts/[artifactId]",
+    "/settings": "/administration/settings",
     "/settings/cost-reporting": "/administration/settings/ai-usage",
     "/settings/ai-usage": "/administration/settings/ai-usage",
     # TB-1124: Advisory scans hub under Governance (next.config permanent redirects only).
@@ -58,6 +60,14 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/dashboard": "/architecture/executive-dashboard",
     "/executive/dashboard": "/architecture/executive-dashboard",
     "/portfolio": "/architecture/executive-dashboard",
+    # Retired Insights operator hubs (legacy short paths → canonical /insights/*).
+    "/ask": "/insights/ask-review-questions",
+    "/graph": "/insights/evidence-graph",
+    "/search": "/insights/search-review-evidence",
+    "/compare": "/insights/compare-two-reviews",
+    "/scorecard": "/insights/architecture-scorecard",
+    "/planning": "/insights/planning",
+    "/architecture-intelligence": "/architecture/architecture-intelligence",
     # Public architecture-prefixed reviews / architectures URLs (App Router still under /reviews).
     "/reviews": "/architecture/reviews",
     "/reviews/new": "/architecture/reviews/new",
@@ -248,7 +258,9 @@ def infer_section(path: str, *, help_alias_paths: set[str]) -> str:
         return "Core review"
     if path.startswith("/architecture/executive-dashboard"):
         return "Executive"
-    if path.startswith("/architecture-intelligence"):
+    if path.startswith("/architecture/architecture-intelligence") or path.startswith(
+        "/architecture-intelligence"
+    ):
         return "Core review"
     if path in ("/", "/dashboard", "/ask"):
         return "Core review"

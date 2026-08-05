@@ -35389,7 +35389,9 @@ export interface paths {
         };
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    includeTypedPayload?: boolean;
+                };
                 header?: never;
                 path: {
                     runId: string;
@@ -55249,7 +55251,9 @@ export interface paths {
         };
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    includeTypedPayload?: boolean;
+                };
                 header?: never;
                 path: {
                     findingId: string;
