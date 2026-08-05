@@ -51,7 +51,7 @@ gh secret set SMTP_PASSWORD --env dev
 
 ```powershell
 python scripts/ci/report_sql_dependency_latency_nightly.py `
-  --workspace-id 26a9250a-c210-48d0-8f10-ebb60a76bb48 `
+  --workspace-id c741f930-21ec-45ec-adfb-37a7f8aa87f7 `
   --fixture-json fixtures/sql-dependency-latency/sample-query.json `
   --json-out artifacts/sql-dependency-latency/local/report.json `
   --markdown-out artifacts/sql-dependency-latency/local/report.md
