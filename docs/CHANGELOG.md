@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-05 - UI: Workspace and scope help Evidence chrome (HSX)
+
+/help/scope ships PageContextualHelpButton, Category-1 registry, Sources + claim-discipline orientation strip on HelpTopicMarkdownView, traffic Notes, and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-05 - UI: Security and trust help Evidence chrome (HSE)
 
 /help/security-trust ships PageContextualHelpButton, Category-1 registry, Sources + claim-discipline orientation strip on HelpTopicMarkdownView, traffic Notes, and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.

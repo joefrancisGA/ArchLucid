@@ -27517,7 +27517,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
    - **Narration-forcing residuals (product, not cohort):** export H5 discovery gaps; peer Create-as-product; Contoso≠Claims `/see-it`; missing async readiness cue (**TB-1013**).
    - **Non-goals / V1.1:** live 3-session cohort (**M-44**), export discovery test with participants (**M-47**), founder-narration ledger overlay (**M-48**).
 2. Enforce: Vitest/Playwright that committed (or ReadyForCommit) run-detail exposes Finalize + sponsor-export (or equivalent buyer “evidence package”) without navigating Operate; regression that FIRST_15 skip routes are not required CTAs on the spine.
-3. Cross-link GTM **M-180**/**M-181**, Done **TB-739**, open **TB-1026**/**TB-1028**/**TB-1013**; cite `FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md` product-led bar.
+3. Cross-link GTM **M-180**/**M-181**, Done **TB-739**, Done **TB-1026**, open **TB-1028**/**TB-1013**; cite `FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md` product-led bar.
 4. Name CI anchors for **TB-1031**.
 
 **Acceptance:** Contract published; GTM can cite must-complete set + IA unlock without inventing cohort results; UI spine regression named; does not reopen **M-44** as engineering.
