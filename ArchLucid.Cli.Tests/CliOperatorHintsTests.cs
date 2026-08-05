@@ -1,3 +1,4 @@
+using ArchLucid.Core.Support;
 using FluentAssertions;
 
 namespace ArchLucid.Cli.Tests;
@@ -64,7 +65,7 @@ public sealed class CliOperatorHintsTests
         text.Should().Contain("/health/ready");
         text.Should().Contain("/version");
         text.Should().Contain("troubleshooting");
-        text.Should().Contain("pilot_rescue_playbook.md");
+        text.Should().Contain(SupportBundleDocLinks.PilotRescuePlaybookRelativePath.ToLowerInvariant());
     }
 
     [Fact]
