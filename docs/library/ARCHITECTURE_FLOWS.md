@@ -81,6 +81,8 @@ flowchart TD
 
 **Goal**: create comparisons that are persisted, inspectable, replayable, and exportable again.
 
+**PA / procurement matrix (TB-1024):** minimal immutable snapshot + artifact/regenerate/verify vs UI illusion — [`COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md`](COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md) (**TB-1024** Done). Honesty CI follow-on: **TB-1025**.
+
 #### C1: Create and persist an end-to-end run comparison
 
 1. Client compares two reviews end-to-end (`/compare`; APIs use `runId`).

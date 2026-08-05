@@ -3535,12 +3535,13 @@ Do not promise that artifact-mode replay proves architecture is unchanged, or th
 
 ### Residuals (honest)
 
-- **TB-1024** / **TB-1025** own comparison/replay drift language guards.
-- Does not claim platform WORM on comparison rows.
-- Cite Flow C + [`../library/API_CONTRACTS.md`](../library/API_CONTRACTS.md) comparison-replay verify §.
-- This handout does not claim CPA SOC 2 or a published third-party penetration test.
+Engineering SoT: [`COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md`](../library/COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md) (**TB-1024** Done). Minimal immutable snapshot set, replay modes, and illusion surfaces are published. Follow-on claim CI: **TB-1025**. Does not claim platform WORM on comparison rows (ADR 0040). Cite Flow C + [`../library/API_CONTRACTS.md`](../library/API_CONTRACTS.md) comparison-replay verify §. This handout does not claim CPA SOC 2 or a published third-party penetration test.
 
-**Related:** [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) · [Append-only / sealed evidence (M-161)](#append-only-sealed-evidence-m-161) · [First-15 / package spine (M-181)](#pa-first-15-package-spine-ia-m-181) · [Offline-verifiable export (M-268)](#offline-verifiable-export-portability-m-268) · [Layer residual / irreversible leak (M-157)](#layer-boundary-irreversible-leak-m-157) · [`../library/ARCHITECTURE_FLOWS.md`](../library/ARCHITECTURE_FLOWS.md) · [`../library/API_CONTRACTS.md`](../library/API_CONTRACTS.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+| Open work | Purpose |
+| --- | --- |
+| **TB-1025** | Anti-artifact-mode-equals-stable / live-UI-verify claim-drift guard |
+
+**Related:** [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) · [Append-only / sealed evidence (M-161)](#append-only-sealed-evidence-m-161) · [First-15 / package spine (M-181)](#pa-first-15-package-spine-ia-m-181) · [Offline-verifiable export (M-268)](#offline-verifiable-export-portability-m-268) · [Layer residual / irreversible leak (M-157)](#layer-boundary-irreversible-leak-m-157) · [`../library/COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md`](../library/COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md) · [`../library/ARCHITECTURE_FLOWS.md`](../library/ARCHITECTURE_FLOWS.md) · [`../library/API_CONTRACTS.md`](../library/API_CONTRACTS.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## First-15 + package-spine IA + dismissal-reducing see-list (M-181) {#pa-first-15-package-spine-ia-m-181}
 
