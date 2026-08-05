@@ -45,13 +45,12 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 
 ---
 
-**OVERALL WEIGHT SCORE:** 56.52%
+**OVERALL WEIGHT SCORE:** 56.54%
 
 ## Master table (score 0 first; then Deficit desc; ties A→Z by path)
 
 | ID | Path | Hit% | Scores | Weight | Deficit | Section | Notes |
 |----|------|------|--------|--------|---------|---------|-------|
-| ASU | `/auth/session-expired` | 0.03% | 0 | 0 | 3 | Auth | None |
 | DEX | `/demo/explain` | 0.03% | 0 | 0 | 3 | Learning | None |
 | HEX | `/help/enterprise-onboarding` | 0.03% | 0 | 0 | 3 | Help topic | None |
 | HEE | `/help/evaluator-workbook` | 0.03% | 0 | 0 | 3 | Help topic | None |
@@ -256,6 +255,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | H | `/help/audit-trail` | 0.04% | 52 | 2.08 | 1.92 | Help topic | Audit trail help (Help topic) - HelpAuditTrailGuideView with PageContextualHelpButton (topic map audit-trail; Category-1 registry), workspace Sources + claim-discipline orientation strip, primary CTAs to /governance/audit and governance-approval help. Sibling AUD = /governance/audit. Operator orientation — not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-05) — help-topic orientation hard-caps higher Evidence. |
 | HCX | `/help/cli-usage` | 0.04% | 52 | 2.08 | 1.92 | Help topic | CLI usage help (Help topic) - HelpCliUsageTechnicalReferenceView with PageContextualHelpButton (topic map cli-usage; Category-1 registry), workspace Sources + claim-discipline orientation strip, engineering runbook landing + CLI_USAGE.md. Sibling HDX = developer-troubleshooting; HTX = customer troubleshooting. Internal-runbook — not customer diligence. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-05) — help-topic orientation hard-caps higher Evidence. |
 | PRO | `/help/procurement` | 0.04% | 52 | 2.08 | 1.92 | Help topic | Procurement FAQ help (Help topic) - HelpTopicMarkdownView with PageContextualHelpButton (topic map procurement; Category-1 registry), workspace Sources + claim-discipline orientation strip, curated procurement FAQ markdown. Sibling SEC = /security-trust; HSE = /help/security-trust; WSX = settings security-trust. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-05) — help-topic orientation hard-caps higher Evidence. |
+| ASU | `/auth/session-expired` | 0.03% | 40 | 1.2 | 1.8 | Auth | Session expired (Auth) - SessionExpiredClient/SessionExpiredView with SessionExpiredEvidenceOrientationStrip (public Sources + claim-discipline: authentication handoff only; not diligence / CPA SOC 2 / third-party pen-test). Not an operator PageContextualHelp surface (signed-out). Sibling ASI = /auth/signin; LOG = legacy /login. Does not imply CPA SOC 2 or third-party pen-test publication. Score 40/100 (2026-08-05) — auth session-expired handoff hard-caps higher Evidence. |
 | AII | `/admin/integrations/itsm` | 0.08% | 78 | 6.24 | 1.76 | Admin | None |
 | HDX | `/help/developer-troubleshooting` | 0.04% | 56 | 2.24 | 1.76 | Help topic | Specialty engineering troubleshooting runbook (Admin internal-runbook, TB-1246) - HelpEngineeringTroubleshootingGuideView with Customer Troubleshooting / System health / Report a problem / CLI primary CTAs, Sources diligence strip (admin-diagnostics, configuration-reference), claim-discipline callout, PageContextualHelp, HelpTopicAuthorityGate + HelpTopicMarkdownClient specialty branch, and prepared TROUBLESHOOTING.md + COMMON_ERRORS.md (contributor ADR/TB link strip). Help search Advanced diagnostics (adminOnly). Not in customer Help Center featured grid. Customer Troubleshooting (HTX) does not deep-link here (TB-1249). Slug remains developer-troubleshooting pending TB-1248 rename. Does not imply CPA SOC 2 or third-party pen-test publication. |
 | HXX | `/health` | 0.02% | 18 | 0.36 | 1.64 | Marketing | Deprecated operator bookmark â€” merged to Administration System health on ADY (`/administration/system-health`). Redirect/shim hard-caps Evidence. |

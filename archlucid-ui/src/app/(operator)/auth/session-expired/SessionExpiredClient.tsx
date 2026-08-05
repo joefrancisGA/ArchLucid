@@ -9,6 +9,7 @@ import { initiateOidcRedirect } from "@/lib/oidc/initiate-redirect";
 import { isSafeReturnPath } from "@/lib/navigation/safe-return-path";
 import { SessionExpiredView } from "@/app/(operator)/auth/signin/SessionExpiredView";
 import { AuthErrorPanel } from "@/app/(operator)/auth/signin/AuthErrorPanel";
+import { SessionExpiredEvidenceOrientationStrip } from "@/app/(operator)/auth/session-expired/SessionExpiredEvidenceOrientationStrip";
 
 /**
  * Cleaner, user-facing counterpart to `/auth/signin?reason=idle-timeout&returnUrl=…`.
@@ -49,6 +50,9 @@ export function SessionExpiredClient() {
   }
 
   return (
-    <SessionExpiredView reason={reason} onSignIn={handleSignIn} hasReturnDestination={hasReturnDestination} />
+    <>
+      <SessionExpiredView reason={reason} onSignIn={handleSignIn} hasReturnDestination={hasReturnDestination} />
+      <SessionExpiredEvidenceOrientationStrip />
+    </>
   );
 }
