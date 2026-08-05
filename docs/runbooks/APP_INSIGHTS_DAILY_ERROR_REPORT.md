@@ -10,7 +10,7 @@
 ## What it does
 
 1. Runs **daily at 07:30 America/New_York** (and on `workflow_dispatch`).
-2. Authenticates to Azure with the **dev** GitHub Environment OIDC app (`azure/login@v2`).
+2. Authenticates to Azure with the **dev** GitHub Environment OIDC app (`azure/login@v3`).
 3. Queries the linked **Log Analytics** workspace (`AppExceptions`, failed `AppRequests` ≥500, failed `AppDependencies`).
 4. Compares normalized error **signatures** against a cached baseline so only **new** signatures trigger email.
 5. Uploads JSON + Markdown artifacts and updates the baseline cache for the next run.
@@ -29,7 +29,7 @@ Configure the **dev** GitHub Environment (same OIDC app as CD):
 | Secret | `AZURE_TENANT_ID` | Entra tenant |
 | Secret | `AZURE_SUBSCRIPTION_ID` | Subscription hosting dev |
 | Secret | `APP_INSIGHTS_REPORT_EMAIL_TO` | Your mailbox |
-| Variable | `ARCHLUCID_LOG_ANALYTICS_WORKSPACE_ID` | Log Analytics **customerId** (dev: `26a9250a-c210-48d0-8f10-ebb60a76bb48` for `law-archlucid-ca`) |
+| Variable | `ARCHLUCID_LOG_ANALYTICS_WORKSPACE_ID` | Log Analytics **customerId** (dev centralus: `c741f930-21ec-45ec-adfb-37a7f8aa87f7` for `law-archlucid-ca` in `rg-ArchLucid-dev-cus`) |
 | Variable | `APP_INSIGHTS_DAILY_REPORT_ENABLED` | Optional; set `false` to disable without deleting secrets |
 
 ### Email transport (pick one)
@@ -72,7 +72,7 @@ GitHub → **Actions** → **Ops: App Insights daily error report** → **Run wo
 
 ```powershell
 python scripts/ci/report_app_insights_daily_errors.py `
-  --workspace-id 26a9250a-c210-48d0-8f10-ebb60a76bb48 `
+  --workspace-id c741f930-21ec-45ec-adfb-37a7f8aa87f7 `
   --fixture-dir fixtures/app-insights-daily-errors `
   --baseline-in fixtures/app-insights-daily-errors/baseline.json `
   --json-out artifacts/app-insights-daily-errors/local/daily-error-report.json `
@@ -84,7 +84,7 @@ python -m unittest discover -s scripts/ci/tests -p test_report_app_insights_dail
 Live query (requires `az login`):
 
 ```powershell
-$env:ARCHLUCID_LOG_ANALYTICS_WORKSPACE_ID = '26a9250a-c210-48d0-8f10-ebb60a76bb48'
+$env:ARCHLUCID_LOG_ANALYTICS_WORKSPACE_ID = 'c741f930-21ec-45ec-adfb-37a7f8aa87f7'
 python scripts/ci/report_app_insights_daily_errors.py `
   --json-out artifacts/app-insights-daily-errors/live/daily-error-report.json `
   --markdown-out artifacts/app-insights-daily-errors/live/daily-error-report.md
