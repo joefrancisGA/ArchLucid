@@ -73812,6 +73812,14 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "in": "query",
+            "name": "includeTypedPayload",
+            "schema": {
+              "default": true,
+              "type": "boolean"
+            }
           }
         ],
         "responses": {
@@ -99011,6 +99019,14 @@
             "required": true,
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "includeTypedPayload",
+            "schema": {
+              "default": true,
+              "type": "boolean"
             }
           }
         ],

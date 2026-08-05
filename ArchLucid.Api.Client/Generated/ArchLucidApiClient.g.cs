@@ -2272,12 +2272,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<FindingInspectResponse> InspectAsync(string runId, string findingId);
+        System.Threading.Tasks.Task<FindingInspectResponse> InspectAsync(string runId, string findingId, bool? includeTypedPayload);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<FindingInspectResponse> InspectAsync(string runId, string findingId, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<FindingInspectResponse> InspectAsync(string runId, string findingId, bool? includeTypedPayload, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -3521,12 +3521,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<FindingInspectResponse> Inspect2Async(string findingId);
+        System.Threading.Tasks.Task<FindingInspectResponse> Inspect2Async(string findingId, bool? includeTypedPayload);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<FindingInspectResponse> Inspect2Async(string findingId, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<FindingInspectResponse> Inspect2Async(string findingId, bool? includeTypedPayload, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -53938,15 +53938,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<FindingInspectResponse> InspectAsync(string runId, string findingId)
+        public virtual System.Threading.Tasks.Task<FindingInspectResponse> InspectAsync(string runId, string findingId, bool? includeTypedPayload)
         {
-            return InspectAsync(runId, findingId, System.Threading.CancellationToken.None);
+            return InspectAsync(runId, findingId, includeTypedPayload, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<FindingInspectResponse> InspectAsync(string runId, string findingId, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<FindingInspectResponse> InspectAsync(string runId, string findingId, bool? includeTypedPayload, System.Threading.CancellationToken cancellationToken)
         {
             if (runId == null)
                 throw new System.ArgumentNullException("runId");
@@ -53971,6 +53971,12 @@ namespace ArchLucid.Api.Client.Generated
                     urlBuilder_.Append("/findings/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(findingId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/inspect");
+                    urlBuilder_.Append('?');
+                    if (includeTypedPayload != null)
+                    {
+                        urlBuilder_.Append(System.Uri.EscapeDataString("includeTypedPayload")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(includeTypedPayload, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                    }
+                    urlBuilder_.Length--;
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -80809,15 +80815,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<FindingInspectResponse> Inspect2Async(string findingId)
+        public virtual System.Threading.Tasks.Task<FindingInspectResponse> Inspect2Async(string findingId, bool? includeTypedPayload)
         {
-            return Inspect2Async(findingId, System.Threading.CancellationToken.None);
+            return Inspect2Async(findingId, includeTypedPayload, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<FindingInspectResponse> Inspect2Async(string findingId, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<FindingInspectResponse> Inspect2Async(string findingId, bool? includeTypedPayload, System.Threading.CancellationToken cancellationToken)
         {
             if (findingId == null)
                 throw new System.ArgumentNullException("findingId");
@@ -80837,6 +80843,12 @@ namespace ArchLucid.Api.Client.Generated
                     urlBuilder_.Append("v1/findings/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(findingId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/inspect");
+                    urlBuilder_.Append('?');
+                    if (includeTypedPayload != null)
+                    {
+                        urlBuilder_.Append(System.Uri.EscapeDataString("includeTypedPayload")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(includeTypedPayload, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                    }
+                    urlBuilder_.Length--;
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
