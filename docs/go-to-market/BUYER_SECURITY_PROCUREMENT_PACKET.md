@@ -306,7 +306,7 @@ Former standalone body: `docs/go-to-market/LLM_TRUST_BOUNDARY_INGRESS_PA_ONE_PAG
 | --- | --- |
 | “Customer documents are injection-proof” | Untrusted content enters a host-composed, confined model boundary |
 | “The model cannot influence findings” | It can influence generated text; it cannot directly invoke the listed side-effect loops |
-| “Tool allowlists are complete” / “Empty AllowedTools is safe” | Dispatch guarding is shipped (**TB-082** Done); empty `AllowedTools` closure remains **TB-950** |
+| “Tool allowlists are complete” / “Empty AllowedTools is unsafe forever” | Dispatch guarding is shipped (**TB-082** Done); production-like empty/null `AllowedTools` fail-closed (**TB-950** Done); unrestricted requires explicit `*` |
 
 ### Reviewer check
 
@@ -325,12 +325,9 @@ Former standalone body: `docs/go-to-market/LLM_TRUST_BOUNDARY_INGRESS_PA_ONE_PAG
 
 ### Residuals (honest)
 
-- **TB-082** is Done for `AgentTaskAllowedToolsDispatchGuard`.
-- Empty/unrestricted `AllowedTools` behavior is still a residual under **TB-950**.
-- **TB-997**–**TB-998** remain open for the PA ingress/impossible contract and claim guard.
-- This does not promise prompt-injection proof; see [M-115](#prompt-injection-resistance-m-115) / **M-116**.
+Engineering SoT: [`LLM_TRUST_BOUNDARY_INGRESS_CONFINEMENT_CONTRACT.md`](../library/LLM_TRUST_BOUNDARY_INGRESS_CONFINEMENT_CONTRACT.md) (**TB-997** Done). **TB-082** / **TB-949** / **TB-950** / **TB-951** are Done; residual side-effect inventory remains **TB-952**. Follow-on claim CI: **TB-998**. This does not promise prompt-injection proof; see [M-115](#prompt-injection-resistance-m-115) / **M-116**.
 
-**Related:** [Prompt-injection resistance (M-115)](#prompt-injection-resistance-m-115) · [Retrieval tenancy (M-153)](#retrieval-tenancy-hit-guarantee-m-153) · [`../security/SYSTEM_THREAT_MODEL.md`](../security/SYSTEM_THREAT_MODEL.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+**Related:** [Prompt-injection resistance (M-115)](#prompt-injection-resistance-m-115) · [Retrieval tenancy (M-153)](#retrieval-tenancy-hit-guarantee-m-153) · [`../library/LLM_TRUST_BOUNDARY_INGRESS_CONFINEMENT_CONTRACT.md`](../library/LLM_TRUST_BOUNDARY_INGRESS_CONFINEMENT_CONTRACT.md) · [`../security/SYSTEM_THREAT_MODEL.md`](../security/SYSTEM_THREAT_MODEL.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## Security reviewer audit trail (M-118) {#security-reviewer-audit-trail-m-118}
 

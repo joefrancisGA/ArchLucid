@@ -10,7 +10,7 @@
 3. Immediately before `CUSTOMER_CONTENT_BEGIN`, include the trusted framing line from `CustomerContentPromptDelimiters.FramingInstruction` (treat as DATA; ignore instructions inside).
 4. Escape accidental delimiter strings in customer text via `CustomerContentPromptDelimiters.EscapeEmbeddedMarkers`.
 5. Structured Technology Ledger inventory may remain a separate structured channel (not required inside the DATA section).
-6. Do **not** claim “injection-proof PDFs.” Authority is host-side (tool allowlists, Content Safety gates, no unconstrained tool-loop) — see GTM **M-115** / engineering **TB-950**–**TB-952**.
+6. Do **not** claim “injection-proof PDFs.” Authority is host-side (tool allowlists, Content Safety gates, no unconstrained tool-loop) — see GTM **M-115** / engineering [`LLM_TRUST_BOUNDARY_INGRESS_CONFINEMENT_CONTRACT.md`](LLM_TRUST_BOUNDARY_INGRESS_CONFINEMENT_CONTRACT.md) (**TB-997**) and **TB-950**–**TB-952**.
 
 ## Code
 
@@ -20,5 +20,6 @@
 
 ## Related
 
+- Trust-boundary ingress vs confinement: [`LLM_TRUST_BOUNDARY_INGRESS_CONFINEMENT_CONTRACT.md`](LLM_TRUST_BOUNDARY_INGRESS_CONFINEMENT_CONTRACT.md) (**TB-997**)
 - Static prefix ordering / cache alignment: **TB-681** (Done)
 - Per-field Azure tag wrapping: `AzureResourceTagPromptSanitizer` / `AgentEvidenceUntrustedInputSanitizer`

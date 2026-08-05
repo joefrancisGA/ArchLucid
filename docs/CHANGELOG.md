@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-05 - Docs: LLM trust-boundary ingress confinement contract (TB-997)
+
+Published [`LLM_TRUST_BOUNDARY_INGRESS_CONFINEMENT_CONTRACT.md`](library/LLM_TRUST_BOUNDARY_INGRESS_CONFINEMENT_CONTRACT.md) — host-composed ingress vs structurally impossible model side effects, with Done hygiene (**TB-949**–**TB-951**) and residual **TB-952**. GTM **M-149** and claim-boundary guide cite the matrix. Does not claim injection-proof docs or CPA / third-party pen-test.
+
 ## 2026-08-04 - UI: Trial funnel Evidence chrome (ATD)
 
 /admin/trial-funnel ships PageContextualHelpButton, Category-1 registry, Sources + claim-discipline orientation strip, traffic Notes, and honest Evidence score 45. Admin KPI hub hard-caps higher Evidence (same band as ATX); no CPA / third-party pen-test implication.
