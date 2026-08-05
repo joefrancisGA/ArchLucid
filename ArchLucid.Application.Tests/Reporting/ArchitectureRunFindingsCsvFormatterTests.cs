@@ -62,8 +62,8 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
         string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(detail);
 
         csv.Should().Contain("f-1,r-9,t-2,Compliance,Warning,cat,");
-        csv.Should().Contain(",muted,noise,0.5,");
-        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.ExternalTrackingHeaderSuffix);
+        csv.Should().Contain(",muted,noise,0.5,,,");
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.TrustLabelHeaderSuffix);
 
         string escapedMessage = ExportFormatterService.EscapeCsvField(finding.Message);
         csv.Should().Contain(escapedMessage);
@@ -111,10 +111,38 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
         string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(detail, tracking);
 
         csv.Should().Contain(
-            "f-itsm,r-1,t-1,Compliance,Critical,security,Rotate keys,,active,,,"
+            "f-itsm,r-1,t-1,Compliance,Critical,security,Rotate keys,,active,,,,,"
             + "Jira,SEC-42,https://example.atlassian.net/browse/SEC-42,Pending,Deferred,"
             + revisit.ToString("O")
             + ",Jira:SEC-42; ServiceNow:INC001");
+    }
+
+    [Fact]
+    public void BuildCsvContent_emits_trust_label_columns_when_enriched()
+    {
+        ArchitectureFinding finding = new()
+        {
+            FindingId = "f-trust",
+            Severity = FindingSeverity.Warning,
+            Category = "cat",
+            Message = "Rule hit",
+            PolicyRuleId = "rule-1",
+            TrustLabel = nameof(FindingTrustLabel.DeterministicRule),
+            TrustLabelReason = "A deterministic policy rule fired; rationale comes from the rule definition.",
+        };
+
+        AgentResult result = new()
+        {
+            ResultId = "r-1",
+            TaskId = "t-1",
+            AgentType = AgentType.Compliance,
+            Findings = [finding],
+        };
+
+        string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(new ArchitectureRunDetail { Results = [result] });
+
+        csv.Should().Contain("DeterministicRule");
+        csv.Should().Contain("deterministic policy rule fired");
     }
 
     [Fact]

@@ -45,6 +45,22 @@ describe("AskMessageThreadPanel", () => {
       />,
     );
 
-    expect(screen.getByTestId("ask-uncited-assistant-marker")).toHaveTextContent(/Uncited assistant output/i);
+    expect(screen.getByTestId("ask-uncited-assistant-marker")).toHaveTextContent(/No cited findings linked/i);
+  });
+
+  it("shows streaming provisional marker", () => {
+    render(
+      <AskMessageThreadPanel
+        buyerPolishedShell
+        messages={[]}
+        streamingAssistantContent="Partial answer"
+        askAssistantGroundingLinks={[]}
+        showPostAssistantFollowUps={false}
+        runMissing={false}
+        onMergePromptLine={() => {}}
+      />,
+    );
+
+    expect(screen.getByTestId("ask-streaming-provisional-marker")).toHaveTextContent(/Provisional answer/i);
   });
 });

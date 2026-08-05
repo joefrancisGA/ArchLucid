@@ -16,10 +16,13 @@ public static class ArchitectureRunFindingsCsvFormatter
     internal const string LegacyHeaderLine =
         "FindingId,ResultId,TaskId,SourceAgent,Severity,Category,Message,EstimatedUsdSavings,Status,MuteReason,ConfidenceScore";
 
+    internal const string TrustLabelHeaderSuffix = "TrustLabel,TrustLabelReason";
+
     internal const string ExternalTrackingHeaderSuffix =
         "Provider,ExternalKey,ExternalUrl,HumanReviewStatus,LatestDisposition,RevisitDueUtc,ItsmLinkedTicketsSummary";
 
-    internal const string HeaderLine = LegacyHeaderLine + "," + ExternalTrackingHeaderSuffix;
+    internal const string HeaderLine =
+        LegacyHeaderLine + "," + TrustLabelHeaderSuffix + "," + ExternalTrackingHeaderSuffix;
 
     /// <returns>CSV text including header; empty findings yield header only.</returns>
     public static string BuildCsvContent(
@@ -152,6 +155,8 @@ public static class ArchitectureRunFindingsCsvFormatter
                 ExportFormatterService.EscapeCsvField(FormatFindingStatus(finding.IsMuted)),
                 ExportFormatterService.EscapeCsvField(finding.MuteReason),
                 ExportFormatterService.EscapeCsvField(confidence),
+                ExportFormatterService.EscapeCsvField(finding.TrustLabel),
+                ExportFormatterService.EscapeCsvField(finding.TrustLabelReason),
                 ExportFormatterService.EscapeCsvField(tracking?.Provider),
                 ExportFormatterService.EscapeCsvField(tracking?.ExternalKey),
                 ExportFormatterService.EscapeCsvField(tracking?.ExternalUrl),

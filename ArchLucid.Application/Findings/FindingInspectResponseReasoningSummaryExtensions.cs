@@ -37,6 +37,22 @@ public static class FindingInspectResponseReasoningSummaryExtensions
             ReasoningSummary = reasoningSummary,
             IsMuted = source.IsMuted,
             MuteReason = source.MuteReason,
+            ReasoningTrace = source.ReasoningTrace,
+            ReasoningTraceDigestSha256 = source.ReasoningTraceDigestSha256,
+            LatestDisposition = source.LatestDisposition,
+            LatestDispositionOccurredAtUtc = source.LatestDispositionOccurredAtUtc,
+            HasActiveWaiver = source.HasActiveWaiver,
+            RevisitDueUtc = source.RevisitDueUtc,
+            AssignedToUserId = source.AssignedToUserId,
+            RemediationDueUtc = source.RemediationDueUtc,
+            Provider = source.Provider,
+            ExternalKey = source.ExternalKey,
+            ExternalUrl = source.ExternalUrl,
+            ItsmLinkedTicketsSummary = source.ItsmLinkedTicketsSummary,
+            TrackedExternally = source.TrackedExternally,
+            ExternalTrackingSummary = source.ExternalTrackingSummary,
+            TrustLabel = source.TrustLabel,
+            TrustLabelReason = source.TrustLabelReason,
         };
     }
 }

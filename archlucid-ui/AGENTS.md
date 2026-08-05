@@ -24,7 +24,7 @@ Carbon design system (**TB-114 – TB-120**, done 2026-05-31): tokens, neutral s
 ## Before large UI refactors
 
 - **API contract of record:** `docs/library/API_CONTRACTS.md` (canonical surface is **`GET /openapi/v1.json`**, not Swagger-only JSON).
-- **Generated types:** `npm run generate:api-types` → `src/lib/api-types.generated.ts` (must stay aligned when OpenAPI changes; see root workspace rule **`Http-Surface-Docs-And-Clients.mdc`**).
+- **Generated types:** `npm run generate:api-types` → `src/lib/api-types.generated.ts` (must stay aligned when OpenAPI changes; see root workspace rule **`Http-Surface-Docs-And-Clients.mdc`**). Uses `openapi-typescript` from **devDependencies** — run from `archlucid-ui/` after updating `ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json`.
 - **`src/lib/openapi-schemas.ts`** re-exports `components` / `paths`; prefer aliasing schemas there (see `types/authority.ts`) over parallel DTO structs.
 - **Deferred UI architecture work:** `docs/library/UI_ARCHITECTURE_V1_1.md` (data-fetching layer, SidebarNav refactor, Suspense polish, …).
 - **Hub-page IA (status + deep-link only):** [`docs/NAV_CONFIG_CONTRACT.md`](./docs/NAV_CONFIG_CONTRACT.md) § Hub pages (TB-680); drift guard `scripts/onboarding-hub-drift-guard.test.ts`.

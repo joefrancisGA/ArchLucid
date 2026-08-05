@@ -8,7 +8,10 @@ export const ASK_REVIEW_ARTIFACT_STATUS_MISSING =
   "No review package selected — choose a finalized review before relying on answers." as const;
 
 export const ASK_REVIEW_UNCITED_RESPONSE_MARKER =
-  "Uncited assistant output — verify against linked evidence before signing off." as const;
+  "No cited findings linked — open evidence before signing off." as const;
+
+export const ASK_REVIEW_STREAMING_PROVISIONAL_MARKER =
+  "Provisional answer — not part of the signed review record until finalized." as const;
 
 export type AskReviewArtifactStatus = "finalized" | "draft" | "missing";
 

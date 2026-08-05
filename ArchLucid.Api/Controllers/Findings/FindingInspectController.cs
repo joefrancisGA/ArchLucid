@@ -28,6 +28,7 @@ public sealed class FindingInspectController(
     IFindingInspectReadRepository findingInspectReadRepository,
     IReasoningSummaryBuilder reasoningSummaryBuilder,
     RunFindingExternalTrackingEnrichmentService runFindingExternalTrackingEnrichmentService,
+    IFindingTrustLabelMapper findingTrustLabelMapper,
     IScopeContextProvider scopeContextProvider) : ControllerBase
 {
     private readonly IFindingInspectReadRepository _findingInspectReadRepository =
@@ -39,6 +40,9 @@ public sealed class FindingInspectController(
     private readonly RunFindingExternalTrackingEnrichmentService _runFindingExternalTrackingEnrichmentService =
         runFindingExternalTrackingEnrichmentService
         ?? throw new ArgumentNullException(nameof(runFindingExternalTrackingEnrichmentService));
+
+    private readonly IFindingTrustLabelMapper _findingTrustLabelMapper =
+        findingTrustLabelMapper ?? throw new ArgumentNullException(nameof(findingTrustLabelMapper));
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -87,7 +91,9 @@ public sealed class FindingInspectController(
         trackingByFindingId.TryGetValue(trimmedFindingId, out RunFindingExternalTrackingProjection? tracking);
 
         return Ok(
-            body.WithReasoningSummaryFromBuilder(_reasoningSummaryBuilder)
-                .WithExternalTracking(tracking));
+            FindingInspectTrustLabelEnricher.Enrich(
+                body.WithReasoningSummaryFromBuilder(_reasoningSummaryBuilder)
+                    .WithExternalTracking(tracking),
+                _findingTrustLabelMapper));
     }
 }

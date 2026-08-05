@@ -19,3 +19,13 @@ When a tenant moves between database catalogs or workspaces, ArchLucid uses an o
 
 - [TENANT_LIFECYCLE.md](../library/customer-facing/TENANT_LIFECYCLE.md)
 - [DATA_HANDLING.md](../library/customer-facing/DATA_HANDLING.md)
+
+## Engineering backlog (round 3 — 2026-08-04)
+
+| ID | Title |
+| --- | --- |
+| **TB-2045** | Tenant migration maintenance banner on value-report/governance surfaces |
+| **TB-2046** | Post-cutover projection refresh orchestration for tenant catalog moves |
+| **TB-2047** | Automated tenant migration verification probe before reopening writes |
+
+Authoritative tracking: [`docs/library/TECH_BACKLOG_OPEN.md`](../library/TECH_BACKLOG_OPEN.md) § TB-2042–TB-2047.

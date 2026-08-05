@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
 import { ASK_CONVERSATION_EMPTY } from "@/lib/ask-conversation-empty-preset";
 import {
+  ASK_REVIEW_STREAMING_PROVISIONAL_MARKER,
   ASK_REVIEW_UNCITED_RESPONSE_MARKER,
   askReviewArtifactStatusCopy,
   messageHasUncitedAssistantOutput,
@@ -150,6 +151,13 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
                 </div>
                 <AiOutputGovernanceLabel forceAdvisory />
               </div>
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="ask-streaming-provisional-marker"
+                role="note"
+              >
+                {ASK_REVIEW_STREAMING_PROVISIONAL_MARKER}
+              </p>
               <AskAssistantMessageBody
                 buyerPolishedLinks={buyerPolishedShell}
                 content={streamingAssistantContent.length > 0 ? streamingAssistantContent : "…"}

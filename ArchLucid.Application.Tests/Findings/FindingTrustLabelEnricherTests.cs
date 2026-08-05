@@ -35,11 +35,11 @@ public sealed class FindingTrustLabelEnricherTests
         Mock<IFindingTrustLabelMapper> mapper = new();
         mapper
             .Setup(m => m.Map(finding, It.IsAny<AgentTrustContext>()))
-            .Returns(new FindingTrustSummary(FindingTrustLabel.DeterministicFallback, "Rule fired."));
+            .Returns(new FindingTrustSummary(FindingTrustLabel.DeterministicRule, "Rule fired."));
 
         FindingTrustLabelEnricher.Apply(run, [result], mapper.Object);
 
-        finding.TrustLabel.Should().Be(nameof(FindingTrustLabel.DeterministicFallback));
+        finding.TrustLabel.Should().Be(nameof(FindingTrustLabel.DeterministicRule));
         finding.TrustLabelReason.Should().Be("Rule fired.");
     }
 

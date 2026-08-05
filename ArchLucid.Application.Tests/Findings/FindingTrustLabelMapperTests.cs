@@ -17,13 +17,42 @@ public sealed class FindingTrustLabelMapperTests
     private static AgentTrustContext RealModelContext => new(IsSimulatorDerived: false, IsDegraded: false, IsRealModel: true);
 
     [Fact]
-    public void Map_DegradedContext_ReturnsDegraded()
+    public void Map_DegradedContext_ReturnsDeterministicFallback()
     {
         ArchitectureFinding finding = new() { EvidenceRefs = ["ref-1"], EvaluationConfidenceScore = 90 };
 
         FindingTrustSummary summary = _sut.Map(finding, DegradedContext);
 
-        summary.Label.Should().Be(FindingTrustLabel.Degraded);
+        summary.Label.Should().Be(FindingTrustLabel.DeterministicFallback);
+    }
+
+    [Fact]
+    public void Map_PolicyRuleIdInDegradedContext_ReturnsDeterministicRule()
+    {
+        ArchitectureFinding finding = new()
+        {
+            PolicyRuleId = "sec-base-001",
+            EvidenceRefs = [],
+        };
+
+        FindingTrustSummary summary = _sut.Map(finding, DegradedContext);
+
+        summary.Label.Should().Be(FindingTrustLabel.DeterministicRule);
+        summary.ShortReason.Should().Contain("degraded");
+    }
+
+    [Fact]
+    public void Map_PolicyRuleIdInSimulatorContext_ReturnsSimulatorDerived()
+    {
+        ArchitectureFinding finding = new()
+        {
+            PolicyRuleId = "sec-base-001",
+            EvidenceRefs = [],
+        };
+
+        FindingTrustSummary summary = _sut.Map(finding, SimulatorContext);
+
+        summary.Label.Should().Be(FindingTrustLabel.SimulatorDerived);
     }
 
     [Fact]
@@ -125,7 +154,7 @@ public sealed class FindingTrustLabelMapperTests
     }
 
     [Fact]
-    public void Map_PolicyRuleId_ReturnsDeterministicFallback()
+    public void Map_PolicyRuleId_ReturnsDeterministicRule()
     {
         ArchitectureFinding finding = new()
         {
@@ -136,7 +165,7 @@ public sealed class FindingTrustLabelMapperTests
 
         FindingTrustSummary summary = _sut.Map(finding, LiveContext);
 
-        summary.Label.Should().Be(FindingTrustLabel.DeterministicFallback);
+        summary.Label.Should().Be(FindingTrustLabel.DeterministicRule);
         summary.ShortReason.Should().Contain("deterministic policy rule");
     }
 
@@ -148,7 +177,7 @@ public sealed class FindingTrustLabelMapperTests
 
         FindingTrustSummary summary = _sut.Map(finding, bothFlaggedContext);
 
-        summary.Label.Should().Be(FindingTrustLabel.Degraded, because: "degraded takes precedence");
+        summary.Label.Should().Be(FindingTrustLabel.SimulatorDerived, because: "simulator takes precedence over degraded fallback");
     }
 
     [Fact]

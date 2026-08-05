@@ -5,7 +5,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   computeRoiSummaryPeriodMetrics,
   formatRoiSummaryHoursDisplay,
-  formatRoiSummaryUsdDisplay,
+  formatRoiSummaryUsdWithRateBasis,
   formatRoiSummaryWindowTitle,
   type RoiSummaryPeriodInput,
 } from "@/lib/roi-summary-sponsor-presentation";
@@ -14,6 +14,8 @@ export type RoiTelemetryCardProps = {
   window: "rolling30" | "pilotToDate";
   period: RoiSummaryPeriodInput;
   hourlyUsd: number;
+  isDefaultRate: boolean;
+  demoDerived?: boolean;
 };
 
 /**
@@ -22,6 +24,12 @@ export type RoiTelemetryCardProps = {
 export function RoiTelemetryCard(props: RoiTelemetryCardProps) {
   const domSuffix = props.window;
   const metrics = computeRoiSummaryPeriodMetrics(props.period, props.hourlyUsd);
+  const usd = formatRoiSummaryUsdWithRateBasis(
+    metrics.hours,
+    metrics.usdEstimate,
+    metrics.showUsdEstimate,
+    { isDefaultRate: props.isDefaultRate, demoDerived: props.demoDerived },
+  );
   const title = formatRoiSummaryWindowTitle(
     props.window,
     props.period.report.fromUtc,
@@ -57,9 +65,12 @@ export function RoiTelemetryCard(props: RoiTelemetryCardProps) {
           <p className={cn("m-0 uppercase tracking-wide text-al-text-secondary", OPERATOR_TYPOGRAPHY.tab)}>
             Estimated value
           </p>
-          <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.kpiValue)}>
-            {formatRoiSummaryUsdDisplay(metrics.hours, metrics.usdEstimate, metrics.showUsdEstimate)}
+          <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.kpiValue)} title={usd.rateBasisLabel}>
+            {usd.display}
           </p>
+          {metrics.showUsdEstimate ? (
+            <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{usd.rateBasisLabel}</p>
+          ) : null}
         </div>
         <div>
           <p className={cn("m-0 uppercase tracking-wide text-al-text-secondary", OPERATOR_TYPOGRAPHY.tab)}>

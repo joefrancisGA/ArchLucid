@@ -57,4 +57,10 @@ public enum FindingTrustLabel
     ///     comes from the rule itself, not from retrieval.
     /// </summary>
     DeterministicFallback = 7,
+
+    /// <summary>
+    ///     Finding was produced by a primary deterministic policy rule (not an LLM-failure fallback).
+    ///     Distinct from <see cref="DeterministicFallback" />, which indicates the LLM path failed.
+    /// </summary>
+    DeterministicRule = 8,
 }

@@ -27,7 +27,7 @@ function periodInput(overrides?: {
 
 describe("RoiTelemetryCard", () => {
   it("uses sponsor-friendly window labels without UTC jargon", () => {
-    render(<RoiTelemetryCard window="rolling30" period={periodInput()} hourlyUsd={150} />);
+    render(<RoiTelemetryCard window="rolling30" period={periodInput()} hourlyUsd={150} isDefaultRate />);
 
     expect(screen.getByText(/Rolling 30 days: Jun 8, 2026 – Jul 7, 2026/)).toBeInTheDocument();
     expect(screen.queryByText(/toUtc/i)).toBeNull();
@@ -40,6 +40,7 @@ describe("RoiTelemetryCard", () => {
         window="rolling30"
         period={periodInput({ severity: { critical: 1, high: 0, medium: 0 }, blocks: 2 })}
         hourlyUsd={150}
+        isDefaultRate
       />,
     );
 
@@ -58,6 +59,7 @@ describe("RoiTelemetryCard", () => {
           blocks: { count: 400, exact: false },
         }}
         hourlyUsd={150}
+        isDefaultRate
       />,
     );
 

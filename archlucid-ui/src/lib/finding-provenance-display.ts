@@ -12,7 +12,8 @@ export type FindingTrustLabelName =
   | "RealModel"
   | "Degraded"
   | "MissingCitation"
-  | "DeterministicFallback";
+  | "DeterministicFallback"
+  | "DeterministicRule";
 
 export type FindingProvenanceOrigin = "Deterministic rule" | "AI-generated" | "Simulated";
 
@@ -46,6 +47,7 @@ const TRUST_LABEL_NAMES: ReadonlySet<string> = new Set<string>([
   "Degraded",
   "MissingCitation",
   "DeterministicFallback",
+  "DeterministicRule",
 ]);
 
 /** Normalize API/enum wire forms to the canonical PascalCase label name. */
@@ -79,6 +81,7 @@ export function normalizeFindingTrustLabelName(raw: string | null | undefined): 
 export function mapFindingTrustLabelToProvenance(label: FindingTrustLabelName): FindingProvenanceDisplay {
   switch (label) {
     case "DeterministicFallback":
+    case "DeterministicRule":
       return { origin: "Deterministic rule", grounding: "Not applicable" };
     case "RealModel":
       return { origin: "AI-generated", grounding: "Evidence-backed" };
@@ -111,25 +114,37 @@ export type DeriveFindingTrustLabelInput = {
   readonly isSimulatorRun?: boolean;
 };
 
+export type DeriveFindingTrustLabelResult = {
+  readonly label: FindingTrustLabelName;
+  readonly source: "wire" | "inferred";
+};
+
 /**
  * Prefer an explicit trust label from the wire; otherwise infer from fields already on
  * finding rows (policy rule id, evidence count, confidence, run mode).
+ *
+ * Inference exists only for API responses predating wire `trustLabel` enrichment — remove
+ * once all serving paths populate authoritative labels (run detail, inspect, exports).
  */
 export function deriveFindingTrustLabelName(input: DeriveFindingTrustLabelInput): FindingTrustLabelName {
+  return deriveFindingTrustLabel(input).label;
+}
+
+export function deriveFindingTrustLabel(input: DeriveFindingTrustLabelInput): DeriveFindingTrustLabelResult {
   const explicit = normalizeFindingTrustLabelName(input.trustLabel ?? null);
 
   if (explicit !== null) {
-    return explicit;
+    return { label: explicit, source: "wire" };
   }
 
   if (input.isSimulatorRun === true) {
-    return "SimulatorDerived";
+    return { label: "SimulatorDerived", source: "inferred" };
   }
 
   const policyRuleId = (input.policyRuleId ?? "").trim();
 
   if (policyRuleId.length > 0) {
-    return "DeterministicFallback";
+    return { label: "DeterministicRule", source: "inferred" };
   }
 
   const evidenceCount = input.evidenceRefCount ?? 0;
@@ -137,17 +152,17 @@ export function deriveFindingTrustLabelName(input: DeriveFindingTrustLabelInput)
 
   if (evidenceCount <= 0) {
     if (confidence === "Low") {
-      return "Heuristic";
+      return { label: "Heuristic", source: "inferred" };
     }
 
-    return "MissingCitation";
+    return { label: "MissingCitation", source: "inferred" };
   }
 
   if (confidence === "Low") {
-    return "Estimated";
+    return { label: "Estimated", source: "inferred" };
   }
 
-  return "EvidenceBacked";
+  return { label: "EvidenceBacked", source: "inferred" };
 }
 
 export function resolveFindingProvenance(input: DeriveFindingTrustLabelInput): FindingProvenanceDisplay {
