@@ -4,8 +4,10 @@ import { cn } from "@/lib/utils";
 import { DemoExplainConversionCtaCard } from "@/components/DemoExplainConversionCtaCard";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
+import { DemoExplainEvidenceOrientationStrip } from "./DemoExplainEvidenceOrientationStrip";
 import { DemoExplainExplanationPanel } from "./DemoExplainExplanationPanel";
 import { DemoExplainNotAvailableNotice } from "./DemoExplainNotAvailableNotice";
 import { DemoExplainProvenanceGraphPanel } from "./DemoExplainProvenanceGraphPanel";
@@ -27,14 +29,21 @@ export function DemoExplainPageView(props: Props) {
         aria-busy={state.loading}
       >
       <header className="space-y-2">
-        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>
-          Example analysis — provenance and explanation
-        </h1>
-        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          Provenance graph and citations-bound explanation for the example architecture review.
-        </p>
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          <div className="min-w-0 space-y-2">
+            <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>
+              Example analysis — provenance and explanation
+            </h1>
+            <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+              Provenance graph and citations-bound explanation for the example architecture review.
+            </p>
+          </div>
+          <PageContextualHelpButton />
+        </div>
         {state.payload ? <DemoExplainStatusBanner payload={state.payload} /> : null}
       </header>
+
+      <DemoExplainEvidenceOrientationStrip />
 
       {state.error ? (
         <OperatorApiProblem

@@ -4,20 +4,50 @@
  */
 
 import {
+  DIGESTS_HUB_PATH,
+  DIGESTS_SCHEDULE_TAB_PATH,
+  LEGACY_DIGESTS_HUB_PATH,
+} from "@/lib/digests-route-paths";
+import {
   PROVENANCE_CONTEXTUAL_HELP,
   pathIsRunProvenance,
 } from "@/lib/provenance-evidence-copy";
+
+/** Optional in-app deep link for a Category-1 field (TB-2049 Digests golden / TB-2051). */
+export type PageContextualHelpAction = {
+  readonly label: string;
+  readonly href: string;
+};
 
 export type PageContextualHelpEntry = {
   readonly whatIsThisPage: string;
   readonly whatToDoNext: string;
   readonly whyEmpty?: string;
   readonly whereToConfigurePrerequisite?: string;
+  readonly whatToDoNextAction?: PageContextualHelpAction;
+  readonly whereToConfigureAction?: PageContextualHelpAction;
 };
 
 type PageContextualHelpRow = {
   readonly prefix: string;
   readonly entry: PageContextualHelpEntry;
+};
+
+const DIGESTS_HUB_CONTEXTUAL_HELP: PageContextualHelpEntry = {
+  whatIsThisPage:
+    "Send scheduled summaries of review activity, governance signals, findings, and advisory scans.",
+  whatToDoNext: "Open the Schedule tab to set timing and recipients, then preview or send a test digest.",
+  whyEmpty: "Generated digests appear here after a schedule and recipients are configured.",
+  whereToConfigurePrerequisite:
+    "Recipient subscriptions and executive rollup settings live on the Schedule tab.",
+  whatToDoNextAction: {
+    label: "Open Schedule tab",
+    href: DIGESTS_SCHEDULE_TAB_PATH,
+  },
+  whereToConfigureAction: {
+    label: "Open Schedule tab",
+    href: DIGESTS_SCHEDULE_TAB_PATH,
+  },
 };
 
 const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
@@ -327,14 +357,26 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
-    prefix: "/architecture/digests",
+    prefix: DIGESTS_HUB_PATH,
+    entry: DIGESTS_HUB_CONTEXTUAL_HELP,
+  },
+  {
+    prefix: LEGACY_DIGESTS_HUB_PATH,
+    entry: DIGESTS_HUB_CONTEXTUAL_HELP,
+  },
+  {
+    prefix: "/help/digests",
     entry: {
       whatIsThisPage:
-        "Send scheduled summaries of review activity, governance signals, findings, and advisory scans.",
-      whatToDoNext: "Open the Schedule tab to set timing and recipients, then preview or send a test digest.",
-      whyEmpty: "Generated digests appear here after a schedule and recipients are configured.",
+        "Architecture digests — how scheduled operator summaries are configured, delivered, and browsed.",
+      whatToDoNext: "Open the Digests hub Schedule tab to set cadence and recipients, then manage subscriptions.",
+      whyEmpty: "This guide is always available; generated digests appear after schedule and recipients are configured.",
       whereToConfigurePrerequisite:
-        "Recipient subscriptions and executive rollup settings live on the Schedule tab.",
+        "Cadence and recipients live on Digests Schedule; destinations live on Subscriptions.",
+      whatToDoNextAction: {
+        label: "Open Schedule tab",
+        href: DIGESTS_SCHEDULE_TAB_PATH,
+      },
     },
   },
   {
@@ -382,6 +424,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whyEmpty: "Sections populate after the demo tenant snapshot and related read endpoints load.",
       whereToConfigurePrerequisite:
         "A seeded demo review is required; Claims/Retail labels stay withheld until the demo identity is unambiguous.",
+    },
+  },
+  {
+    prefix: "/demo/explain",
+    entry: {
+      whatIsThisPage:
+        "Demo explain — example provenance graph and citations-bound explanation for a seeded architecture review.",
+      whatToDoNext:
+        "Inspect the provenance and explanation panels, then start a real review or open Validate review for live packages.",
+      whyEmpty: "Panels appear after the demo explain API returns a seeded review payload.",
+      whereToConfigurePrerequisite:
+        "A seeded demo tenant review is required; this route stays hidden from buyer nav when demo explain is unavailable.",
     },
   },
   {

@@ -5,6 +5,14 @@ vi.mock("@/lib/api", () => ({
   getDemoExplain: vi.fn(),
 }));
 
+vi.mock("next/navigation", async (importOriginal) => {
+  const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
+
+  return extendNextNavigationVitestMock(importOriginal, {
+    usePathname: () => "/demo/explain",
+  });
+});
+
 vi.mock("@/components/OperatorApiProblem", () => ({
   OperatorApiProblem: ({ fallbackMessage }: { fallbackMessage: string }) => (
     <div data-testid="api-problem-mock">{fallbackMessage}</div>

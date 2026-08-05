@@ -61,10 +61,13 @@ describe("contextual-help-registry (TB-733)", () => {
       "/governance/audit",
       "/administration/system-health",
       "/architecture/digests",
+      "/digests",
+      "/help/digests",
       "/insights/planning/plans",
       "/insights/planning",
       "/internal/product-learning",
       "/why-archlucid",
+      "/demo/explain",
       "/governance/advisory-scans",
       "/sponsor-report/executive-summary",
       "/sponsor-report/pilot-outcomes",
@@ -264,6 +267,11 @@ describe("contextual-help-registry (TB-733)", () => {
     expect(contextualHelpForPathname("/help/core-pilot")?.whatIsThisPage).toContain(
       "Your first architecture review",
     );
+  });
+
+  it("resolves demo explain Category-1 help (DEX)", () => {
+    expect(contextualHelpForPathname("/demo/explain")?.whatIsThisPage).toContain("Demo explain");
+    expect(contextualHelpForPathname("/demo/explain")?.whatToDoNext).toContain("Validate review");
   });
 
   it("resolves jira integration Category-1 help (IJX)", () => {
