@@ -24,11 +24,11 @@ ArchLucid is not designed to ingest production secrets, credentials, or privileg
 
 ## Isolation {#isolation}
 
-ArchLucid enforces tenant isolation in layers — database-per-tenant is the **blast-radius** control, not the only control.
+Three layers of protection govern tenant isolation — database-per-tenant is the **blast-radius** control, not the only control.
 
 1. **Request layer** — Tenant identity is resolved at the host boundary (authenticated claims or explicit ambient job scope). API requests carry a tenant scope; production-like hosts reject unbound or header-only scope for protected routes.
 2. **Application layer** — Authorization and scoped data access enforce that handlers and repositories operate inside the resolved tenant. A named inventory of authorization-boundary tests exercises IDOR and cross-tenant request paths; compromising a single handler without the correct scope does not grant another tenant's catalog.
-3. **Data layer** — Each customer tenant uses a dedicated database catalog. That catalog boundary is the primary isolation mechanism for paying-client data. Where any shared platform tables exist, they are classified and must not hold another tenant's review content as a substitute for catalog isolation. SQL row-level security is **not** the production isolation boundary.
+3. **Data layer** — Each customer tenant uses a dedicated database catalog. That catalog boundary is the primary isolation mechanism for paying-client data. Where any shared platform tables exist, they are classified and must not hold another tenant's review content as a substitute for catalog isolation. SQL row-level security is not the production isolation boundary.
 4. **What a single-layer compromise does not give an attacker** — A bug that omits a within-tenant filter does not cross paying-client catalogs when routing is correct. Possession of one tenant's database credentials does not unlock another tenant's catalog. Token theft is limited by claim-bound scope checks on subsequent requests.
 
 Tenant identity is decided at the host boundary, and API requests carry a tenant scope that the data layer enforces on tenant-facing queries — that is the standard customer path, not a claim that every staff or platform surface is free of cross-tenant aggregation. For isolation and assurance detail, see [Security and trust](/help/security-trust). For the shorter data-flow overview, see [Data handling](/help/data-handling). Append-only audit logging records every governed action within your tenant. Layered overview for procurement: [Tenant isolation (buyer)](../../go-to-market/TENANT_ISOLATION.md).

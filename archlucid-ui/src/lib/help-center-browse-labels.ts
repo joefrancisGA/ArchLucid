@@ -1,4 +1,5 @@
 import { resolveProductDocumentationContentKind } from "@/lib/product-documentation-content-kinds";
+import { normalizeHelpTopicSlug } from "@/lib/product-documentation-registry";
 
 export const HELP_BROWSE_GUIDE_LABEL = "Guide" as const;
 
@@ -12,7 +13,9 @@ export function resolveHelpTopicBrowseLabel(helpSlug: string | null): HelpBrowse
     return null;
   }
 
-  const kind = resolveProductDocumentationContentKind(helpSlug);
+  // TB-1739: callers may pass a retired alias slug (e.g. "how-it-works") that only
+  // exists in HELP_TOPIC_SLUG_ALIASES, not the content-kind map — resolve it first.
+  const kind = resolveProductDocumentationContentKind(normalizeHelpTopicSlug(helpSlug));
 
   if (kind === "technical-documentation") {
     return HELP_BROWSE_DOCUMENTATION_LABEL;

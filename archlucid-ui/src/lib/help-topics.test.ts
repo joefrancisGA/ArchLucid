@@ -10,7 +10,7 @@ describe("getDocHref", () => {
 
   it("preserves hash fragments on in-app routes", () => {
     expect(getDocHref("docs/library/customer-facing/OPERATOR_QUICKSTART.md#operator-ui")).toBe(
-      "/help/getting-started#operator-ui",
+      "/help/cli-usage#operator-ui",
     );
   });
 

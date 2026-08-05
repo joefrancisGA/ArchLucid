@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { BUYER_EXECUTIVE_SCORECARD_NO_ACTIONS_HEALTHY } from "@/lib/buyer-polish-copy";
@@ -100,7 +100,7 @@ describe("ExecutiveScorecardClient recommended actions", () => {
       expect(screen.getByTestId("executive-scorecard-recommended-actions")).toBeInTheDocument();
     });
 
-    const actions = screen.getAllByRole("listitem");
+    const actions = within(screen.getByTestId("executive-scorecard-recommended-actions")).getAllByRole("listitem");
 
     expect(actions[0]?.textContent).toMatch(/drifted policy changes/i);
     expect(screen.getByTestId("executive-scorecard-action-compliance-drift")).toHaveTextContent("Open in Operator →");

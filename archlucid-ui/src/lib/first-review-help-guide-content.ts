@@ -45,7 +45,6 @@ export type FirstReviewHelpSourceLink = {
 /** Sponsor-safe / SE Sources — no self-href to this topic. */
 export const FIRST_REVIEW_HELP_SOURCES: readonly FirstReviewHelpSourceLink[] = [
   { label: "Your first architecture review", href: FIRST_ARCHITECTURE_REVIEW_HELP_PATH },
-  { label: "Your first architecture review", href: inAppHelpHref("first-architecture-review") },
   { label: "Connect Azure securely", href: inAppHelpHref("cloud-connections-azure") },
   { label: "Audit trail help", href: inAppHelpHref("audit-trail") },
   { label: "Troubleshooting", href: inAppHelpHref("troubleshooting") },

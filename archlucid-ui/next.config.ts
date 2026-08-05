@@ -139,6 +139,16 @@ const nextConfig: NextConfig = {
       // Legacy executive / portfolio bookmarks → architecture executive dashboard.
       { source: "/executive/dashboard", destination: "/architecture/executive-dashboard", permanent: true },
       { source: "/portfolio", destination: "/architecture/executive-dashboard", permanent: true },
+      // Legacy administration bookmarks (TB-406 / TB-522 / TB-751) → operator settings tree.
+      {
+        source: "/workspace/security-trust",
+        destination: "/administration/settings/security-trust",
+        permanent: true,
+      },
+      { source: "/admin/users", destination: "/administration/settings/users", permanent: true },
+      { source: "/settings/roles", destination: "/administration/settings/users?tab=roles", permanent: true },
+      // Legacy integrations bookmark (TB-407 / TB-750) → operator integrations tree.
+      { source: "/settings/cloud-connections", destination: "/integrations/cloud-connections", permanent: true },
     ];
   },
   async rewrites() {

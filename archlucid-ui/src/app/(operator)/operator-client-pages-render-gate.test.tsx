@@ -44,7 +44,7 @@ vi.mock("next/navigation", () => ({
   redirect: vi.fn(),
 }));
 
-vi.mock("./planning/_sections/load-planning-page-data", () => {
+vi.mock("./insights/planning/_sections/load-planning-page-data", () => {
   const summary = {
     generatedUtc: "2026-01-01T00:00:00.000Z",
     themeCount: 0,
@@ -192,7 +192,7 @@ import EvolutionReviewPage from "./insights/impact-preview/page";
 import GovernanceResolutionPage from "./governance/standards-and-rules/page";
 import OnboardingPage from "./architecture/first-review-guide/page";
 import PolicyPacksPage from "./governance/policy-packs/page";
-import PlanningPage from "./planning/page";
+import PlanningPage from "./insights/planning/page";
 import ProductLearningPage from "./internal/product-learning/page";
 import RecommendationLearningOpsPage from "./internal-operations/recommendation-learning/page";
 import SearchPage from "./insights/search-review-evidence/page";
@@ -309,8 +309,9 @@ describe("operator client pages — render gate", () => {
     expect(document.querySelector("[data-help-tooltip-trigger]")).toBeNull();
   });
 
-  it("AskPage renders primary heading without heading-level contextual help", () => {
-    render(<AskPage />);
+  it("AskPage renders primary heading without heading-level contextual help", async () => {
+    const page = await AskPage();
+    render(page);
     expect(screen.getByRole("heading", { level: 2, name: "Evidence-backed review questions" })).toBeInTheDocument();
     expect(document.querySelector("[data-help-tooltip-trigger]")).toBeNull();
   });

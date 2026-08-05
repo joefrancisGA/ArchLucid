@@ -24,6 +24,12 @@ export const NAV_ROUTE_NAMESPACE_EXCEPTIONS: readonly NavRouteNamespaceException
     exceptionReason: "Recommendation learning ops surface uses Internal Ops namespace; grouped under System admin for employee operators (TB-408 pending).",
   },
   {
+    navGroupId: "operator-system-admin",
+    href: "/internal/product-learning",
+    canonicalPrefixes: ["/admin"],
+    exceptionReason: "Pilot feedback ops surface uses Internal namespace; grouped under System admin for employee operators (TB-408 pending).",
+  },
+  {
     navGroupId: "operate-reports",
     href: "/digests",
     canonicalPrefixes: ["/sponsor-report"],

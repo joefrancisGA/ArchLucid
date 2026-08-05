@@ -92,7 +92,9 @@ describe("HelpFindingsGuideView", () => {
     expect(screen.getByTestId("help-topic-toc")).toBeInTheDocument();
     expect(screen.getByTestId("help-findings-anatomy-panel")).toBeInTheDocument();
     expect(screen.getByTestId("help-findings-severity-table")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Audit trail" })).toBeInTheDocument();
+    // Audit trail appears both in the Sources strip and inline near governance — product intentionally
+    // repeats the link in both contexts, so assert on at least one match rather than a single unique node.
+    expect(screen.getAllByRole("link", { name: "Audit trail" }).length).toBeGreaterThan(0);
 
     const desktopToc = screen.getByTestId("help-topic-toc");
     expect(within(desktopToc).getByRole("link", { name: "What a finding is" })).toHaveAttribute(

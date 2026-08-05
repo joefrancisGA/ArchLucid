@@ -103,6 +103,20 @@ function isDetailPagePath(normalizedPath: string): boolean {
     return false;
   }
 
+  // Canonical review detail lives under `/architecture/reviews/{id}` — treat the same as bare `/reviews/{id}`.
+  if (segments[0] === "architecture" && segments[1] === "reviews") {
+    const reviewId = segments[2] ?? "";
+
+    return reviewId.length > 0 && reviewId !== "new" && segments.length === 3;
+  }
+
+  // Canonical architecture draft detail/new lives under `/architecture/architectures/{id|new}`.
+  if (segments[0] === "architecture" && segments[1] === "architectures") {
+    const architectureSegment = segments[2] ?? "";
+
+    return architectureSegment.length > 0;
+  }
+
   const root = segments[0] ?? "";
   const second = segments[1] ?? "";
   const rest = segments.slice(2);

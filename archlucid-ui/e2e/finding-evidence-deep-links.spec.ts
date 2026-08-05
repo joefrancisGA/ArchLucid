@@ -14,21 +14,21 @@ test.describe(
 
   test("inspect panel links first evidence row to manifest summary section", async ({ page }) => {
     await page.goto(
-      `/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}/findings/${encodeURIComponent(showcaseFindingId)}/evidence-trace`,
+      `/architecture/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}/findings/${encodeURIComponent(showcaseFindingId)}/evidence-trace`,
     );
 
     const manifestLink = page.getByTestId("finding-source-evidence-link").first();
     await expect(manifestLink).toBeVisible();
     await expect(manifestLink).toHaveAttribute(
       "href",
-      `/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}#manifest-summary`,
+      `/architecture/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}#manifest-summary`,
     );
   });
 
   test("run detail findings table exposes manifest navigation chip for showcase finding", async ({ page }) => {
     test.setTimeout(120_000);
 
-    await page.goto(`/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`);
+    await page.goto(`/architecture/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`);
 
     await waitForAppReady(page);
     await expectBuyerGoldenPageReady(page);
@@ -42,7 +42,7 @@ test.describe(
     await expect(evidenceChip).toBeVisible({ timeout: 60_000 });
     await expect(evidenceChip).toHaveAttribute(
       "href",
-      `/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}#manifest-summary`,
+      `/architecture/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}#manifest-summary`,
     );
   });
 });

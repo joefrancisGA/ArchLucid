@@ -57,7 +57,7 @@ describe("HelpSearchPanel", () => {
     expect(screen.getByTestId("help-search-group-start-here")).toBeInTheDocument();
     expect(screen.getByTestId("help-search-group-review-work")).toBeInTheDocument();
     expect(screen.getByTestId("help-search-recommended-group")).toBeInTheDocument();
-    expect(within(screen.getByTestId("help-search-recommended-group")).getByText("First-hour review path")).toBeInTheDocument();
+    expect(within(screen.getByTestId("help-search-recommended-group")).getByText("Your first architecture review")).toBeInTheDocument();
     expect(within(screen.getByTestId("help-search-group-start-here")).getByText("Run a sample review")).toBeInTheDocument();
     expect(screen.getByText("Upload architecture evidence")).toBeInTheDocument();
     expect(screen.queryByText(/engineering runbook/i)).not.toBeInTheDocument();
@@ -84,7 +84,7 @@ describe("HelpSearchPanel", () => {
     expect(within(recommended).queryByText("Create your first review")).toBeNull();
     expect(within(recommended).queryByText("Getting started")).toBeNull();
     expect(within(recommended).queryByText("How ArchLucid works")).toBeNull();
-    expect(within(recommended).queryByText("First-hour review path")).toBeNull();
+    expect(within(recommended).queryByText("Your first architecture review")).toBeNull();
   });
 
   it("elevates Do this now and caps recommended at two more topics (TB-1045)", () => {
@@ -159,7 +159,7 @@ describe("HelpSearchPanel", () => {
     render(<HelpSearchPanel open onOpenChange={() => {}} />);
 
     const firstReviewButton = screen.getByRole("button", {
-      name: /First-hour review path\./i,
+      name: /Your first architecture review\./i,
     });
 
     expect(firstReviewButton).toBeInTheDocument();
@@ -170,7 +170,7 @@ describe("HelpSearchPanel", () => {
     pathnameMock.value = "/architecture/reviews/new";
     render(<HelpSearchPanel open onOpenChange={() => {}} />);
 
-    expect(screen.getByText("First-hour review path")).toBeInTheDocument();
+    expect(screen.getByText("Your first architecture review")).toBeInTheDocument();
     expect(screen.getByText("Review wizard reference")).toBeInTheDocument();
     expect(screen.queryByText("First review guide")).toBeNull();
     expect(screen.queryByText("Review guide")).toBeNull();

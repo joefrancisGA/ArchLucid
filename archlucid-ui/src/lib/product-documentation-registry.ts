@@ -183,6 +183,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
       "limits-of-ai-explanations",
     ],
     includeIntroWithSections: false,
+    pdfStatus: "public",
   },
   {
     slug: "evidence-trail",

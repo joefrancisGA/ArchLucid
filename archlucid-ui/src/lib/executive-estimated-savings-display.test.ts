@@ -18,7 +18,7 @@ describe("presentExecutiveEstimatedSavings", () => {
     const result = presentExecutiveEstimatedSavings(0, { loading: false, summary: summary({}) });
 
     expect(result.display).toBe("Not available yet");
-    expect(result.footnote).toContain("Commit reviews");
+    expect(result.footnote).toContain("Finalize reviews");
   });
 
   it("shows measured zero when reviews and cost evidence exist", () => {

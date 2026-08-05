@@ -83,8 +83,9 @@ describe("HelpCorePilotGuideView", () => {
 
     render(<HelpCorePilotGuideView entry={entry} />);
 
+    // TB-1043 later added a legitimate cross-link to the distinct "Pilot guide" topic in
+    // core-pilot-related-guides — only the exact self-referential "View pilot guide" label is banned.
     expect(screen.queryByRole("link", { name: "View pilot guide" })).toBeNull();
-    expect(screen.queryByRole("link", { name: /pilot guide/i })).toBeNull();
   });
 
   it("renders a five-step workflow stepper with action links", () => {

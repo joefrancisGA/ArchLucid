@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
@@ -49,12 +48,9 @@ describe("SearchPage (operator shell)", () => {
 });
 
 describe("AskPage (operator shell)", () => {
-  it("renders heading, question field, and ask control", () => {
-    render(
-      <Suspense fallback={null}>
-        <AskPage />
-      </Suspense>,
-    );
+  it("renders heading, question field, and ask control", async () => {
+    const page = await AskPage();
+    render(page);
 
     expect(screen.getByRole("heading", { name: /evidence-backed review questions/i })).toBeInTheDocument();
     expect(screen.getByLabelText(/your question/i)).toBeInTheDocument();

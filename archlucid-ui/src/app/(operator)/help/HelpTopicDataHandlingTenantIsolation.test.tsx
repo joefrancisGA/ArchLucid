@@ -24,9 +24,10 @@ import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 describe("HelpDataHandlingTenantIsolationGuideView", () => {
   const loaded = tryLoadProductDocumentation("data-handling-tenant-isolation");
 
+  // TB-1652 / TB-1658: data-handling-tenant-isolation folded into data-handling — entry resolves to the alias target.
   it("loads tenant-isolation help from the monorepo", () => {
     expect(loaded).not.toBeNull();
-    expect(loaded?.entry.title).toBe("Data handling and tenant isolation");
+    expect(loaded?.entry.title).toBe("What ArchLucid does with your data");
   });
 
   it("renders specialty diligence chrome with three-layer isolation (TB-1659)", () => {

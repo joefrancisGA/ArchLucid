@@ -48,7 +48,7 @@ export function FrictionlessTrialBanner() {
       data-testid="frictionless-trial-banner"
       role="status"
     >
-      <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-2">
+      <div className="mx-auto flex max-w-[1440px] flex-nowrap items-center justify-between gap-2">
         <p className="m-0">
           You are inspecting a sample review — fabricated data only, no sign-in required.
         </p>

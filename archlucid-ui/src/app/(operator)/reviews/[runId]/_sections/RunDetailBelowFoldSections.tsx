@@ -98,27 +98,6 @@ type BelowFoldAsyncProps = {
   readonly context: RunDetailDeferredSectionContext;
 };
 
-async function RunDetailBelowFoldPipelineAsync(props: BelowFoldAsyncProps): Promise<React.JSX.Element> {
-  const m = props.model;
-  const pipeline = await loadRunDetailBelowFoldPipelineModel(props.context);
-
-  return (
-    <>
-      <RunDetailPipelineTimelineSection
-        runId={m.routeRunId}
-        buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
-        pipelineTimelineFailure={pipeline.pipelineTimelineFailure}
-        pipelineTimelineForUi={pipeline.pipelineTimelineForUi}
-      />
-
-      <RunDetailPipelineStagesSection
-        stageTimeline={pipeline.stageTimelineForUi}
-        otelTraceId={m.resolvedDetail.run.otelTraceId ?? m.runDetailTraceId}
-      />
-    </>
-  );
-}
-
 async function RunDetailBelowFoldProjectContextAsync(
   props: BelowFoldAsyncProps,
 ): Promise<React.JSX.Element> {
@@ -310,6 +289,29 @@ export function RunDetailBelowFoldSections(props: RunDetailBelowFoldSectionsProp
       {!m.buyerPolishedArtifactTable ? (
         <RunDetailOperatorPipelineToolsCollapsible runId={m.resolvedDetail.run.runId} />
       ) : null}
+    </>
+  );
+}
+
+// Declared after RunDetailBelowFoldSections (hoisted) so the operator findings JSX above stays
+// textually ahead of the pipeline timeline JSX below (TB-620 below-fold ordering guard).
+async function RunDetailBelowFoldPipelineAsync(props: BelowFoldAsyncProps): Promise<React.JSX.Element> {
+  const m = props.model;
+  const pipeline = await loadRunDetailBelowFoldPipelineModel(props.context);
+
+  return (
+    <>
+      <RunDetailPipelineTimelineSection
+        runId={m.routeRunId}
+        buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
+        pipelineTimelineFailure={pipeline.pipelineTimelineFailure}
+        pipelineTimelineForUi={pipeline.pipelineTimelineForUi}
+      />
+
+      <RunDetailPipelineStagesSection
+        stageTimeline={pipeline.stageTimelineForUi}
+        otelTraceId={m.resolvedDetail.run.otelTraceId ?? m.runDetailTraceId}
+      />
     </>
   );
 }

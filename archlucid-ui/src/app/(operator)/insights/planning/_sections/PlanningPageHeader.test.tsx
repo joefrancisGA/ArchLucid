@@ -19,8 +19,9 @@ describe("PlanningPageHeader", () => {
 
     render(
       <PlanningPageHeader
+        subtitle={IMPROVEMENT_PLANNING_PAGE_SUBTITLE}
         refreshing={false}
-        lastUpdatedUtc="2026-01-01T00:00:00.000Z"
+        generatedUtc="2026-01-01T00:00:00.000Z"
         onRefresh={onRefresh}
       />,
     );

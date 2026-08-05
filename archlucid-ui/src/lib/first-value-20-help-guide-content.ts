@@ -66,7 +66,6 @@ export type FirstValue20HelpSourceLink = {
 /** Admin Sources — no self-href to this topic. */
 export const FIRST_VALUE_20_HELP_SOURCES: readonly FirstValue20HelpSourceLink[] = [
   { label: "Your first architecture review", href: FIRST_ARCHITECTURE_REVIEW_HELP_PATH },
-  { label: "Your first architecture review", href: inAppHelpHref("first-architecture-review") },
   { label: "First-run evidence checklist", href: inAppHelpHref("first-review") },
   { label: "Troubleshooting", href: inAppHelpHref("troubleshooting") },
   { label: "Configuration reference", href: inAppHelpHref("configuration-reference") },

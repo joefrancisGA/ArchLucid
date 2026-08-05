@@ -79,10 +79,18 @@ describe("WebhooksIntegrationPage", () => {
       expect(screen.getByTestId("webhooks-dedicated-links")).toBeInTheDocument();
     });
 
-    expect(screen.getByRole("link", { name: "Jira" })).toHaveAttribute("href", "/integrations/jira");
-    expect(screen.getByRole("link", { name: "ServiceNow" })).toHaveAttribute("href", "/integrations/servicenow");
-    expect(screen.getByRole("link", { name: "Microsoft Teams" })).toHaveAttribute("href", "/integrations/teams");
-    expect(screen.getByRole("link", { name: "Slack" })).toHaveAttribute("href", "/integrations/slack");
+    const dedicatedLinks = screen.getByTestId("webhooks-dedicated-links");
+
+    expect(within(dedicatedLinks).getByRole("link", { name: "Jira" })).toHaveAttribute("href", "/integrations/jira");
+    expect(within(dedicatedLinks).getByRole("link", { name: "ServiceNow" })).toHaveAttribute(
+      "href",
+      "/integrations/servicenow",
+    );
+    expect(within(dedicatedLinks).getByRole("link", { name: "Microsoft Teams" })).toHaveAttribute(
+      "href",
+      "/integrations/teams",
+    );
+    expect(within(dedicatedLinks).getByRole("link", { name: "Slack" })).toHaveAttribute("href", "/integrations/slack");
 
     const pageText = screen.getByTestId("webhooks-page").textContent ?? "";
     expect(pageText).toMatch(/another HTTPS endpoint/i);

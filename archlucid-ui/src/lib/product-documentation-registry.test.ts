@@ -296,9 +296,10 @@ describe("product-documentation-registry", () => {
     const dataHandling = tryLoadProductDocumentation("data-handling");
     const dataHandlingIsolation = tryLoadProductDocumentation("data-handling-tenant-isolation");
 
-    expect(productOverview?.markdown).toContain("What ArchLucid is");
-    expect(productOverview?.markdown).toContain("Elevator Pitches");
-    expect(productOverview?.markdown).not.toContain("What Pilot proves");
+    // TB-1739: product-overview folded into executive-summary — same EXECUTIVE_SPONSOR_BRIEF.md sections apply.
+    expect(productOverview?.entry.slug).toBe("executive-summary");
+    expect(productOverview?.markdown).toContain("What Pilot proves");
+    expect(productOverview?.markdown).toContain("Manual review vs ArchLucid proof package");
 
     expect(evidenceOnlyReview?.entry.slug).toBe("first-architecture-review");
     expect(evidenceOnlyReview?.markdown).toBe(firstArchitectureReview?.markdown);

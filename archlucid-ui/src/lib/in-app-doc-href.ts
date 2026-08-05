@@ -53,6 +53,8 @@ const DOC_PATH_TO_SLUG: Readonly<Record<string, string>> = {
   "docs/library/first_hour_operator_path.md": "first-architecture-review",
   "docs/library/customer-facing/complete_review_workflow.md": "first-architecture-review",
   "docs/runbooks/first_value_20_minutes.md": "first-value-20-minutes",
+  /** Shared with the "first-review" checklist entry; prefer the 20-minute runbook slug for this source path. */
+  "docs/runbooks/first_pilot_operator_path.md": "first-value-20-minutes",
   "docs/library/governance_workflow_ui.md": "governance-approval",
   "docs/library/customer-facing/operator_quickstart.md": "cli-usage",
   "docs/library/customer-facing/concepts_in_5_minutes.md": "getting-started",

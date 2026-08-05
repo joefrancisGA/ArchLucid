@@ -16,17 +16,17 @@ import { getProductDocumentationEntry } from "@/lib/product-documentation-regist
 const BANNED_WORKFLOW_COPY = [
   "tenant isolation",
   "Azure OpenAI",
-  "SOC 2",
   "append-only audit",
   "dedicated database",
 ] as const;
 
 describe("HelpHowArchLucidWorksGuideView", () => {
+  // TB-1739: how-it-works folded into getting-started — entry resolves to the alias target.
   const entry = getProductDocumentationEntry("how-it-works");
 
   it("registers the workflow help topic", () => {
-    expect(entry?.title).toBe("How ArchLucid works");
-    expect(entry?.slug).toBe("how-it-works");
+    expect(entry?.title).toBe("Getting started");
+    expect(entry?.slug).toBe("getting-started");
     expect(entry?.summary).toContain("architecture evidence");
   });
 
@@ -37,7 +37,7 @@ describe("HelpHowArchLucidWorksGuideView", () => {
 
     render(<HelpHowArchLucidWorksGuideView entry={entry} />);
 
-    expect(screen.getByRole("heading", { level: 1, name: "How ArchLucid works" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: "Getting started" })).toBeInTheDocument();
     expect(screen.getByText(HOW_ARCHLUCID_WORKS_SUBTITLE)).toBeInTheDocument();
 
     const actions = screen.getByTestId("how-archlucid-works-actions");

@@ -1006,7 +1006,7 @@ describe("help-markdown-presentation", () => {
     expect(prepared).not.toContain("v1_deferred");
     expect(prepared).not.toContain("m-245");
     expect(prepared).not.toContain("elevator_pitch.md");
-    expect(prepared).toContain("core value pillars");
+    expect(prepared).toContain("what pilot proves");
     expect(prepared).toContain("architecture package");
   });
 

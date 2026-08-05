@@ -13,6 +13,8 @@ const REACTFLOW_RUNTIME_IMPORTERS = [
 const REACTFLOW_TYPE_ONLY_IMPORTERS = [
   join(SRC_ROOT, "lib", "finding-evidence-graph-highlight.ts"),
   join(SRC_ROOT, "lib", "graph-mapper.ts"),
+  join(SRC_ROOT, "lib", "graph-selection-highlight.ts"),
+  join(SRC_ROOT, "lib", "graph-selection-highlight.test.ts"),
 ] as const;
 
 const REACTFLOW_IMPORTERS = [...REACTFLOW_RUNTIME_IMPORTERS, ...REACTFLOW_TYPE_ONLY_IMPORTERS] as const;

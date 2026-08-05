@@ -20,13 +20,15 @@ export type GettingStartedHelpSourceLink = {
   readonly href: string;
 };
 
-/** Diligence Sources — no self-href to /help/getting-started. */
+/**
+ * Diligence Sources — no self-href to /help/getting-started. TB-1739: "how-it-works" now aliases to this
+ * same page (see #how-archlucid-works below), so it is intentionally omitted here to avoid a self-link.
+ */
 export const GETTING_STARTED_HELP_SOURCES: readonly GettingStartedHelpSourceLink[] = [
   { label: "Start a review", href: "/architecture/reviews/new" },
   { label: "Choose your next step", href: inAppHelpHref("path-chooser") },
   { label: "Your first architecture review", href: inAppHelpHref("first-architecture-review") },
   { label: "Security & trust", href: "/security-trust" },
-  { label: "How ArchLucid works", href: inAppHelpHref("how-it-works") },
 ] as const;
 
 export const GETTING_STARTED_HELP_PATH = "/help/getting-started" as const;
