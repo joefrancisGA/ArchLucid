@@ -863,10 +863,13 @@ Evidence, findings, manifest, artifacts, and audit events each have a role. A ne
 
 ### Residuals (honest)
 
-- **TB-1003** defines the single-unit-of-truth and hop-label contract.
-- **TB-1004** prevents “findings equal package” and uncommitted-finalized claim drift.
+Engineering SoT: [`COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md`](../library/COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md) (**TB-1003** Done). Commit path, `ManifestHash`, and proof-language taxonomy are implemented; hop-skip surfaces must use honest labels. Follow-on claim CI: **TB-1004**. Sealed evidence inventory: **TB-1009**. Decision-grade finding provenance: **TB-1221**. Does not claim WORM or PKI beyond app-layer hash lineage.
 
-**Related:** [`../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md) · [ADR 0040](../architecture/adrs/0040-tamper-evident-lineage-without-worm-storage.md) · [`../library/AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md) · [Operator primary object (M-177)](#operator-primary-object-nav-collapse-m-177) · [Minimum pilot trust packet (M-191)](#minimum-pilot-trust-packet-m-191) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+| Open work | Purpose |
+| --- | --- |
+| **TB-1004** | Anti-substitute / fake-chain-hop claim-drift guard |
+
+**Related:** [`../library/COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md`](../library/COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md) · [`../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md) · [ADR 0040](../architecture/adrs/0040-tamper-evident-lineage-without-worm-storage.md) · [`../library/AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md) · [Operator primary object (M-177)](#operator-primary-object-nav-collapse-m-177) · [Minimum pilot trust packet (M-191)](#minimum-pilot-trust-packet-m-191) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## Operator primary object and navigation collapse (M-177) {#operator-primary-object-nav-collapse-m-177}
 
@@ -2172,7 +2175,7 @@ Former standalone body: `docs/go-to-market/INV001_DECIDE_ONCE_COMMITTED_MANIFEST
 
 **Audience:** Principal architects and procurement reviewers who fuse tenant, decide, and commit stories.
 
-**Decision:** Keep three vocabularies separate. Committed golden manifest proves **finalization identity + hash lineage**, not semantic faithfulness, zero AgentTask overlay, or crypto tenant isolation. Tenant single-derivation matrix (**TB-999**) is shipped; do not sell the triad as closed while **TB-1003** (and named residual owners) remain Not started, or while honesty CI (**TB-1000**) / DiD erosion (**TB-1232**) remain open.
+**Decision:** Keep three vocabularies separate. Committed golden manifest proves **finalization identity + hash lineage**, not semantic faithfulness, zero AgentTask overlay, or crypto tenant isolation. Tenant single-derivation (**TB-999**) and committed-manifest unit-of-truth (**TB-1003**) matrices are shipped; do not sell the triad as closed while honesty CI (**TB-1000** / **TB-1004**) / DiD erosion (**TB-1232**) / fused triad matrix (**TB-1416**) remain open.
 
 ### Vocabulary (do not fuse)
 
@@ -2201,7 +2204,7 @@ Former standalone body: `docs/go-to-market/INV001_DECIDE_ONCE_COMMITTED_MANIFEST
 
 1. Ask which “decide-once” the buyer means — tenant, quality gate, or architecture commit.
 2. Confirm committed ≠ evidence-grounded / no-overlay / crypto-isolated.
-3. Confirm triad is not sold as closed while **TB-1003** remains Not started (tenant matrix **TB-999** is Done; **TB-1000** / **TB-1232** residuals still open).
+3. Confirm triad is not sold as closed while **TB-1416** / honesty CI (**TB-1000** / **TB-1004**) / **TB-1232** remain open (tenant **TB-999** and committed-manifest **TB-1003** matrices are Done).
 4. Treat a fourth fused “decide” story as a review finding.
 
 ### Claim boundary
@@ -2211,7 +2214,7 @@ Do not equate INV-001 tenant decide-once with architecture decided once or INV-0
 ### Residuals (honest)
 
 - **TB-1416** / **TB-1417** own the fused matrix contract and language guards.
-- Ship-order hint: **TB-1003** next among residual contracts (**TB-999** Done).
+- Ship-order hint: fused triad matrix **TB-1416** next among residual contracts (**TB-999** / **TB-1003** Done).
 - Complements **M-150** / **M-154** / **M-194** / **M-203** / **M-207** / **M-213** / **M-198** / **M-247**.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
 

@@ -6,6 +6,7 @@
 
 **Last reviewed:** 2026-07-29
 
-**Canonical handout:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md#committed-golden-manifest-unit-of-truth-m-155`](BUYER_SECURITY_PROCUREMENT_PACKET.md#committed-golden-manifest-unit-of-truth-m-155).
+**Canonical handout:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md#committed-golden-manifest-unit-of-truth-m-155`](BUYER_SECURITY_PROCUREMENT_PACKET.md#committed-golden-manifest-unit-of-truth-m-155).  
+**Engineering SoT:** [`../library/COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md`](../library/COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md) (**TB-1003** Done).
 
-Truth vs useful context, hop labels, reviewer checks, and residuals live only in the buyer security procurement packet. This file keeps the historical path stable for GTM **M-155** and [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+Truth vs useful context, hop labels, and claim boundary live in the buyer security procurement packet; the engineering matrix is the contributor SoT. This file keeps the historical path stable for GTM **M-155** and [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).

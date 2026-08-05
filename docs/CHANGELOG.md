@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-05 - Docs: Committed golden manifest unit-of-truth contract (TB-1003)
+
+Published [`COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md`](library/COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md) — unit of truth, Evidence→…→audit hops, forbidden substitutes, and honest hop-skip labels. GTM **M-155** and claim-boundary guide cite the matrix. Does not claim WORM/PKI beyond app-layer hash lineage, or CPA / third-party pen-test.
+
 ## 2026-08-05 - Docs: Retrieval tenancy hit guarantee contract (TB-1001)
 
 Published [`RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md`](library/RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md) — Ask / Azure AI Search / Graph-RAG query filter, upsert fail-closed, scoped expand, and platform corpus sentinel. GTM **M-153** and claim-boundary guide cite the matrix. Does not claim per-tenant Search service, cryptographic isolation, or CPA / third-party pen-test.

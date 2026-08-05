@@ -240,7 +240,7 @@ Former standalone body: `docs/go-to-market/PA_CLAIM_HONESTY_BULLETS_BATCH_B.md` 
 
 | Do not promise | Do promise |
 | --- | --- |
-| Findings lists, Ask/RAG answers, drafts, uncommitted runs, Simulator output, or UI summaries are the signed finalized package or full Evidence→audit chain. | Only committed golden manifest (`GoldenManifestId` + `ManifestHash`) is unit of truth; label hop-skips (conversational / draft / illustrative / estimate). |
+| Findings lists, Ask/RAG answers, drafts, uncommitted runs, Simulator output, or UI summaries are the signed finalized package or full Evidence→audit chain. | Only committed golden manifest (`GoldenManifestId` + `ManifestHash`) is unit of truth; label hop-skips (conversational / draft / illustrative / estimate). Engineering matrix: [`COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md`](COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md) (**TB-1003**). Follow-on honesty CI: **TB-1004**. |
 
 #### M-156 — Layer boundary / NetArchTest
 
