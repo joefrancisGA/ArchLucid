@@ -188,6 +188,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/help/cli-usage",
+    entry: {
+      whatIsThisPage:
+        "CLI usage engineering runbook — non-interactive archlucid commands, environment variables, exit codes, and API starter fixtures.",
+      whatToDoNext:
+        "Prefer customer Troubleshooting and System health first, then use CLI detail; open engineering troubleshooting when logs need deeper triage.",
+      whyEmpty: "This reference always shows when the help topic loads.",
+      whereToConfigurePrerequisite:
+        "CLI and API automation need credentials and workspace scope configured for the target environment.",
+    },
+  },
+  {
     prefix: "/help/first-review",
     entry: {
       whatIsThisPage:

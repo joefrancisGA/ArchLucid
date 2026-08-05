@@ -1,10 +1,12 @@
 import Link from "next/link";
 
+import { CliUsageHelpEvidenceOrientationStrip } from "@/app/(operator)/help/_sections/CliUsageHelpEvidenceOrientationStrip";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicPdfDownloadButton } from "@/components/help/HelpTopicPdfDownloadButton";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTechnicalReferenceNavigation } from "@/components/help/HelpTechnicalReferenceNavigation";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { CLI_USAGE_HELP_REFERENCE_LANDING } from "@/lib/help-cli-usage-reference-content";
 import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
@@ -47,6 +49,7 @@ export function HelpCliUsageTechnicalReferenceView(
             <p className={`m-0 ${OPERATOR_TYPOGRAPHY.helper}`}>{entry.summary}</p>
           </div>
           <div className="flex flex-wrap items-center gap-2" data-testid="help-topic-export-actions">
+            <PageContextualHelpButton />
             <HelpTopicPdfDownloadButton entry={entry} />
             <HelpTopicPrintButton entry={entry} />
           </div>
@@ -60,6 +63,8 @@ export function HelpCliUsageTechnicalReferenceView(
           .
         </p>
       </header>
+
+      <CliUsageHelpEvidenceOrientationStrip />
 
       <section
         aria-labelledby="cli-usage-reference-landing-heading"

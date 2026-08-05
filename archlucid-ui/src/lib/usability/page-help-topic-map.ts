@@ -194,6 +194,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "configuration-reference", label: "Configuration reference" },
   },
   {
+    prefix: "/help/cli-usage",
+    topic: { slug: "cli-usage", label: "CLI usage" },
+  },
+  {
     prefix: "/help/first-review",
     topic: { slug: "first-review", label: "First-run evidence checklist" },
   },
