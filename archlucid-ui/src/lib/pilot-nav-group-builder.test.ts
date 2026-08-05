@@ -53,7 +53,7 @@ describe("PilotNavGroupBuilder", () => {
 
   it("includes security and trust in the administration nav group", () => {
     const group = new OperatorAdminNavGroupBuilder().build();
-    const securityTrustLink = group.links.find((link) => link.href === "/administration/settings/security-trust");
+    const securityTrustLink = group.links.find((link) => link.href === "/administration/security-trust");
 
     expect(securityTrustLink).toBeDefined();
     expect(securityTrustLink?.label).toBe("Security & trust");
@@ -84,9 +84,10 @@ describe("PilotNavGroupBuilder", () => {
       "Reviews",
       "Executive dashboard",
       "First review guide",
-      "Architecture intelligence",
+      "Digests",
     ]);
     expect(group.links.some((link) => link.href === "/insights/evidence-graph")).toBe(false);
+    expect(group.links.some((link) => link.href === ARCHITECTURE_INTELLIGENCE_PATH)).toBe(false);
   });
 
   it("lists Architectures and Reviews as peer object nav destinations", () => {
@@ -100,12 +101,10 @@ describe("PilotNavGroupBuilder", () => {
     expect(group.links.some((link) => link.href === "/architecture/reviews/new")).toBe(false);
   });
 
-  it("lists Architecture intelligence under Architecture (advanced, ExecuteAuthority)", () => {
+  it("does not list Architecture intelligence under Architecture (moved to Insights)", () => {
     const group = new PilotNavGroupBuilder().build();
     const intelligenceLink = group.links.find((link) => link.href === ARCHITECTURE_INTELLIGENCE_PATH);
 
-    expect(intelligenceLink?.label).toBe("Architecture intelligence");
-    expect(intelligenceLink?.tier).toBe("advanced");
-    expect(intelligenceLink?.requiredAuthority).toBe("ExecuteAuthority");
+    expect(intelligenceLink).toBeUndefined();
   });
 });

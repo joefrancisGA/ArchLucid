@@ -40,20 +40,20 @@ export function FrictionlessTrialBanner() {
   return (
     <div
       className={cn(
-        // Put explicit fg after OPERATOR_TYPOGRAPHY.body — body includes text-al-text-primary and
-        // would otherwise win over a leading light-on-dark color via tailwind-merge.
-        OPERATOR_TYPOGRAPHY.body,
-        "border-b border-teal-700/25 bg-teal-50 px-4 py-2 text-teal-950 dark:border-teal-800/60 dark:bg-teal-950 dark:text-teal-50",
+        // Put explicit fg after helper — helper includes text-al-text-secondary.
+        OPERATOR_TYPOGRAPHY.helper,
+        "border-b border-teal-700/25 bg-teal-50 px-4 py-1 text-teal-950 dark:border-teal-800/60 dark:bg-teal-950 dark:text-teal-50",
       )}
       data-testid="frictionless-trial-banner"
       role="status"
     >
-      <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-2">
-        <p className="m-0">
+      {/* Single-line sticky budget — no wrap so the header stack stays one slim strip. */}
+      <div className="mx-auto flex max-w-[1440px] flex-nowrap items-center justify-between gap-3 overflow-x-auto">
+        <p className="m-0 min-w-0 truncate">
           You are inspecting a sample review — fabricated data only, no sign-in required.
         </p>
-        <div className="flex flex-wrap gap-2">
-          <Button type="button" size="sm" variant="primary" asChild>
+        <div className="flex shrink-0 flex-nowrap items-center gap-2">
+          <Button type="button" size="sm" variant="primary" asChild className="h-7 px-2.5">
             <Link href="/signup">Start an evaluation</Link>
           </Button>
           <Button
@@ -61,7 +61,7 @@ export function FrictionlessTrialBanner() {
             size="sm"
             variant="outline"
             asChild
-            className="border-teal-800/30 bg-white text-teal-950 hover:bg-teal-100/80 dark:border-teal-200/40 dark:bg-transparent dark:text-teal-50 dark:hover:bg-teal-900"
+            className="h-7 border-teal-800/30 bg-white px-2.5 text-teal-950 hover:bg-teal-100/80 dark:border-teal-200/40 dark:bg-transparent dark:text-teal-50 dark:hover:bg-teal-900"
           >
             <Link href={appSiteHref("/auth/signin")}>Sign in</Link>
           </Button>

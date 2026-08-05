@@ -9,7 +9,10 @@ import { readBuyerCtoDemoTourActive, resolveBuyerCtoDemoTourNavigation } from "@
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPE_SCALE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-/** Top caption bar summarizing the current journey screen for presenters (#15). */
+/**
+ * Journey caption for CTO demo presenters (#15).
+ * Renders outside the sticky header stack so it does not inflate `--app-shell-sticky`.
+ */
 export function CtoDemoJourneyCaptionBar(): React.JSX.Element | null {
   const pathname = usePathname() ?? "/";
   const [mounted, setMounted] = useState(false);
@@ -24,7 +27,9 @@ export function CtoDemoJourneyCaptionBar(): React.JSX.Element | null {
     setActive(isActive);
 
     if (isActive) {
-      requestAnimationFrame(() => { setFaded(true); });
+      requestAnimationFrame(() => {
+        setFaded(true);
+      });
     }
   }, [pathname]);
 
@@ -40,12 +45,14 @@ export function CtoDemoJourneyCaptionBar(): React.JSX.Element | null {
     <div
       role="status"
       data-testid="cto-demo-journey-caption-bar"
-      className={cn("border-b border-teal-200/70 bg-teal-50/80 px-4 py-2 text-teal-950 dark:border-teal-900/50 dark:bg-teal-950/30 dark:text-teal-100", OPERATOR_TYPOGRAPHY.body,
+      className={cn(
+        OPERATOR_TYPOGRAPHY.helper,
+        "border-b border-teal-200/70 bg-teal-50/80 px-4 py-1.5 text-teal-950 dark:border-teal-900/50 dark:bg-teal-950/30 dark:text-teal-100",
         "transition-opacity duration-150",
         faded ? "opacity-100" : "opacity-0",
       )}
     >
-      <p className={cn("m-0", OPERATOR_TYPE_SCALE.body)}>{caption}</p>
+      <p className={cn("m-0 truncate", OPERATOR_TYPE_SCALE.helper, "text-inherit")}>{caption}</p>
     </div>
   );
 }

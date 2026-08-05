@@ -15,6 +15,7 @@ import {
 } from "@/lib/operator-static-demo";
 import { isPublicDemoModeEnv } from "@/lib/public-demo-mode";
 import { findSidebarNavGroupIdsForActivePath } from "@/lib/sidebar-nav-active-group-expansion";
+import { applyBuyerDemoSecondaryNavCollapse } from "@/lib/sidebar-nav-buyer-demo-collapse";
 import {
   isSidebarCollapsibleNavGroupId,
   sidebarNavGroupIsExpanded,
@@ -76,22 +77,12 @@ export function SidebarNav() {
     }
 
     // Buyer/demo Overview: keep Integrations + Administration collapsed unless the route is inside them.
-    if (buyerPolishedShell || resolvedDemoUi) {
-      const onIntegrationsRoute = route.startsWith("/integrations");
-      const onAdminRoute =
-        route.startsWith("/administration/settings")
-        || route.startsWith("/admin")
-        || route.startsWith("/administration");
-
-      if (!onIntegrationsRoute) {
-        setGroupExpanded("operate-integrations", false);
-      }
-
-      if (!onAdminRoute) {
-        setGroupExpanded("operator-admin", false);
-        setGroupExpanded("operator-system-admin", false);
-      }
-    }
+    applyBuyerDemoSecondaryNavCollapse({
+      pathname: route,
+      buyerPolishedShell,
+      demoUi: resolvedDemoUi,
+      setGroupExpanded,
+    });
   }, [mounted, pathname, setGroupExpanded, buyerPolishedShell, resolvedDemoUi]);
 
   useEffect(() => {

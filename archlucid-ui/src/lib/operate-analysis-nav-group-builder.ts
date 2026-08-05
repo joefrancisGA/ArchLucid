@@ -1,5 +1,6 @@
 import {
   BarChart3,
+  Brain,
   GitCompare,
   GitGraph,
   Kanban,
@@ -10,6 +11,7 @@ import {
 } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
+import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture-intelligence-route";
 import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
 import { PATTERN_LIBRARY_NAV_BADGE, PATTERN_LIBRARY_NAV_LINK_LABEL } from "@/lib/pattern-library-copy";
 import { PATTERN_LIBRARY_PATH } from "@/lib/pattern-library-route";
@@ -101,6 +103,15 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
         tier: "extended",
         requiredAuthority: "ReadAuthority",
         navBadge: PATTERN_LIBRARY_NAV_BADGE,
+      },
+      {
+        // String literal required: scripts/ci/assert_route_tier_policy_nav.py parses href:"..." only.
+        href: ARCHITECTURE_INTELLIGENCE_PATH as typeof ARCHITECTURE_INTELLIGENCE_PATH & "/architecture/architecture-intelligence",
+        label: "Architecture intelligence",
+        title: "Architecture intelligence — closed-loop reasoning and golden regression checks",
+        icon: Brain,
+        tier: "advanced",
+        requiredAuthority: "ExecuteAuthority",
       },
     ];
 

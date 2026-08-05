@@ -20,7 +20,7 @@ describe("OperateAnalysisNavGroupBuilder", () => {
     expect(graphLink?.keyShortcut).toBe("alt+y");
   });
 
-  it("lists Pattern library last in Insights nav", () => {
+  it("lists Pattern library before Architecture intelligence in Insights nav", () => {
     const group = new OperateAnalysisNavGroupBuilder().build();
 
     expect(group.links.map((link) => link.href)).toEqual([
@@ -32,15 +32,19 @@ describe("OperateAnalysisNavGroupBuilder", () => {
       "/insights/planning",
       "/insights/architecture-scorecard",
       "/insights/patterns",
+      "/architecture/architecture-intelligence",
     ]);
-    expect(group.links.at(-1)?.label).toBe("Pattern library");
-    expect(group.links.at(-1)?.navBadge).toBe("Preview");
+    expect(group.links.at(-2)?.label).toBe("Pattern library");
+    expect(group.links.at(-2)?.navBadge).toBe("Preview");
+    expect(group.links.at(-1)?.label).toBe("Architecture intelligence");
+    expect(group.links.at(-1)?.tier).toBe("advanced");
+    expect(group.links.at(-1)?.requiredAuthority).toBe("ExecuteAuthority");
   });
 
   it("lists Architecture scorecard before Pattern library in Insights nav", () => {
     const group = new OperateAnalysisNavGroupBuilder().build();
 
-    expect(group.links.at(-2)?.label).toBe("Architecture scorecard");
+    expect(group.links.at(-3)?.label).toBe("Architecture scorecard");
   });
 
   it("lists Improvement planning after Impact preview in Insights nav", () => {
