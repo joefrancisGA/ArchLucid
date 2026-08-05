@@ -400,6 +400,19 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/administration/connection-status",
+    entry: {
+      whatIsThisPage:
+        "Connection status - see which notification, ticketing, publishing, and delivery integrations are ready, recommended, or optional for this workspace.",
+      whatToDoNext:
+        "Open a connector that needs configuration, or System health when dependency checks need follow-up.",
+      whyEmpty:
+        "Readiness tiles appear after connector probes load; optional connectors stay listed until configured.",
+      whereToConfigurePrerequisite:
+        "Configuring connectors needs a role that can manage workspace integrations.",
+    },
+  },
+  {
     prefix: DIGESTS_HUB_PATH,
     entry: DIGESTS_HUB_CONTEXTUAL_HELP,
   },
@@ -443,6 +456,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whyEmpty: "Themes and plans appear after feedback is captured and analyzed.",
       whereToConfigurePrerequisite:
         "Planning insights respect the workspace and project selected in the header switcher.",
+    },
+  },
+  {
+    // TB-2050 — Learn more omitted (no specialty); Category-1 still mounts.
+    prefix: "/insights/impact-preview",
+    entry: {
+      whatIsThisPage:
+        "Estimate before-and-after effects of proposed architecture changes against a finalized review baseline.",
+      whatToDoNext: "Select a finalized review baseline, set comparison scope, then run the impact preview.",
+      whyEmpty: "Preview results appear after you choose a baseline review and run a simulation.",
+      whereToConfigurePrerequisite:
+        "Impact preview needs at least one finalized architecture review in this workspace.",
     },
   },
   {

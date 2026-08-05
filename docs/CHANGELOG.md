@@ -14,6 +14,10 @@ Release entries newest-first. Each section condenses the detailed prompt logs pr
 
 Secondary hubs (Planning, Decision register, Advisory scans, Impact preview, Workspace health) omit generic `getting-started` / `how-it-works` Learn more when no specialty exists; tenant settings → `scope`; recommendation-learning → `pilot-feedback`. Category-1 popovers still mount. Vitest suite remains **TB-2052**. Does not claim CPA / third-party pen-test.
 
+## 2026-08-05 - UI: Connection status Evidence chrome (ADC)
+
+`/administration/connection-status` ships ConnectionStatusEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map integration-readiness, traffic Notes under Admin, and honest Evidence score 48. Integration-readiness hub hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-05 - UI: Baseline settings Evidence chrome (ADA)
 
 `/administration/baseline` ships BaselineSettingsEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map pilot-roi-model, traffic Notes under Settings (row ID ADA; path aligned off legacy settings/baseline / SBX), and honest Evidence score 50. Settings measurement-hub hard-caps higher Evidence; no CPA / third-party pen-test implication.

@@ -63,6 +63,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/architecture/reviews/new",
       "/governance/audit",
       "/administration/system-health",
+      "/administration/connection-status",
       "/architecture/digests",
       "/digests",
       "/help/digests",
@@ -138,7 +139,6 @@ describe("contextual-help-registry (TB-733)", () => {
 
   it("resolves Overview home without stealing other routes (HOM / TB-1667)", () => {
     expect(contextualHelpForPathname("/")?.whatIsThisPage).toContain("Overview");
-    expect(contextualHelpForPathname("/administration/connection-status")).toBeNull();
     expect(contextualHelpForPathname("/architecture/architectures")).toBeNull();
   });
 
@@ -422,8 +422,16 @@ describe("contextual-help-registry (TB-733)", () => {
     expect(entry?.whatToDoNextAction?.href).toBe("/administration/connection-status");
   });
 
+  it("resolves Connection status Category-1 help (ADC)", () => {
+    expect(contextualHelpForPathname("/administration/connection-status")?.whatIsThisPage).toContain(
+      "Connection status",
+    );
+    expect(contextualHelpForPathname("/administration/connection-status")?.whatToDoNext).toContain(
+      "System health",
+    );
+  });
+
   it("returns null for routes not yet migrated", () => {
-    expect(contextualHelpForPathname("/administration/connection-status")).toBeNull();
     expect(contextualHelpForPathname("/architecture/architectures")).toBeNull();
   });
 
