@@ -6,6 +6,7 @@
 
 **Last reviewed:** 2026-07-29
 
-**Canonical handout:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md#authority-vs-agenttask-loop-m-159`](BUYER_SECURITY_PROCUREMENT_PACKET.md#authority-vs-agenttask-loop-m-159).
+**Canonical handout:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md#authority-vs-agenttask-loop-m-159`](BUYER_SECURITY_PROCUREMENT_PACKET.md#authority-vs-agenttask-loop-m-159).  
+**Engineering SoT:** [`../library/AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md`](../library/AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md) (**TB-1007** Done).
 
-Canonical path, validity matrix, reviewer checks, and residuals live only in the buyer security procurement packet. This file keeps the historical path stable for GTM **M-159** and [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+Canonical path, validity matrix, and claim boundary live in the buyer security procurement packet; the engineering matrix is the contributor SoT. This file keeps the historical path stable for GTM **M-159** and [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).

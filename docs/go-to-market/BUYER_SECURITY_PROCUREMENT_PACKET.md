@@ -588,7 +588,7 @@ Dual coordinator storage and orchestrators were retired through ADR 0030. The cu
 | Trial / QuickStart or selective re-execute | Yes | Task state permits it |
 | Finish a finalized Authority run | No | Already finalized |
 | Async queued run without context snapshot | No | Do not force task-loop completion |
-| `result` outside generated/waiting states | No | Invalid lifecycle |
+| `result` outside generated/waiting/partial-recovery states | No | Invalid lifecycle |
 
 ### Reviewer check
 
@@ -607,11 +607,13 @@ Dual coordinator storage and orchestrators were retired through ADR 0030. The cu
 
 ### Residuals (honest)
 
-- **TB-1007** supplies the canonical-versus-task-loop forbid matrix.
-- **TB-1008** guards against dual-pipeline and forced-execute claim drift.
-- Next strangler slice language: [M-185](#strangler-next-slice-result-sunset-m-185) / **TB-1034**.
+Engineering SoT: [`AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md`](../library/AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md) (**TB-1007** Done). Authority is product-default; AgentTask verbs are an intentional extension loop, not a second storage pipeline. Follow-on claim CI: **TB-1008**. Next strangler slice language: [M-185](#strangler-next-slice-result-sunset-m-185) / **TB-1034**. Soft-bridge retirement: **TB-1204**. Does not reopen Done **TB-305**/**TB-919**.
 
-**Related:** [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) · [Strangler next slice (M-185)](#strangler-next-slice-result-sunset-m-185) · [Transactional finalize vs outbox (M-163)](#transactional-finalize-vs-outbox-m-163) · [ADR 0030](../architecture/adrs/0030-coordinator-authority-pipeline-unification.md) · [ADR 0042](../architecture/adrs/0042-canonical-run-write-surface.md) · [`../library/API_CONTRACTS.md`](../library/API_CONTRACTS.md) · [`../library/ARCHITECTURE_FLOWS.md`](../library/ARCHITECTURE_FLOWS.md) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+| Open work | Purpose |
+| --- | --- |
+| **TB-1008** | Anti-always-execute / dual-pipeline-alive claim-drift guard |
+
+**Related:** [`../library/AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md`](../library/AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md) · [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) · [Strangler next slice (M-185)](#strangler-next-slice-result-sunset-m-185) · [Transactional finalize vs outbox (M-163)](#transactional-finalize-vs-outbox-m-163) · [ADR 0030](../architecture/adrs/0030-coordinator-authority-pipeline-unification.md) · [ADR 0042](../architecture/adrs/0042-canonical-run-write-surface.md) · [`../library/API_CONTRACTS.md`](../library/API_CONTRACTS.md) · [`../library/ARCHITECTURE_FLOWS.md`](../library/ARCHITECTURE_FLOWS.md) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## Transactional finalize versus async outbox (M-163) {#transactional-finalize-vs-outbox-m-163}
 

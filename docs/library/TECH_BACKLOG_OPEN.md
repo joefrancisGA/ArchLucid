@@ -129,7 +129,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | Ask/Search/Graph-RAG tenancy (PA Q3) | **TB-1001** **Done**; **TB-1002** (open P1 **V1**) | Contract shipped; honesty CI remains; GTM **M-152**/**M-153**; Done **TB-048**/**TB-071**/**TB-604** |
 | Committed golden manifest unit-of-truth | **TB-1003** **Done**; **TB-1004** (open P1 **V1**) | Contract shipped; honesty CI remains; GTM **M-154**/**M-155** |
 | Layer residual / irreversible leak (PA) | **TB-1005** **Done**; **TB-1006** (open P1 **V1**) | Contract shipped; honesty CI remains; GTM **M-156**/**M-157**; cites **TB-950**/**TB-999**/**TB-1001** |
-| Authority vs AgentTask loop (PA) | **TB-1007**–**TB-1008** (open P1 **V1**) | Canonical path + execute/result/commit forbid matrix + honesty CI; GTM **M-158**/**M-159**; Done ADR 0030/0042 / **TB-919** |
+| Authority vs AgentTask loop (PA) | **TB-1007** **Done**; **TB-1008** (open P1 **V1**) | Contract shipped; honesty CI remains; GTM **M-158**/**M-159**; Done ADR 0030/0042 / **TB-919** |
 | Minimum pilot trust packet without CPA/3P (PA Q14) | **TB-1112**–**TB-1113** (open P1 **V1**) | Six-element Real SEND + self-attested assurance + drop list + honesty CI; GTM **M-190**/**M-191**; Done **TB-135**/**TB-136** stay closed |
 | First security review PA one-pager ship order (PA Q16) | **TB-1120**–**TB-1121** (open P1 **V1**) | Must **M-151**+**M-118**; should **M-124** if AI; defer **M-171**; already **M-114**; GTM **M-192**/**M-193** |
 | Isolation claims too strong vs INV-001 / ADR 0037 (PA Q18) | **TB-1122**–**TB-1123** (open P1 **V1**) | Too-strong vs shipped matrix + stale RLS-as-control purge + honesty CI; GTM **M-194**/**M-195**; complements **M-150**/**M-152**/**M-156**/**M-168**/**M-115**/**M-118**; Done **M-114** |
@@ -185,8 +185,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1002 | Anti-per-tenant-Search-index / filter-optional honesty CI | Testability P1 **V1** — after Done **TB-1001** |
 | TB-1004 | Anti-substitute-for-committed-manifest honesty CI | Testability P1 **V1** — after Done **TB-1003** |
 | TB-1006 | Anti-NetArchTest-equals-isolation / silent-allowlist honesty CI | Testability P1 **V1** — after Done **TB-1005** |
-| TB-1007 | Authority vs AgentTask-loop canonical-path + forbid matrix | Trustworthiness P1 **V1** — PA; GTM **M-158**/**M-159** |
-| TB-1008 | Anti-always-execute-after-create / dual-pipeline-alive honesty CI | Testability P1 **V1** — after **TB-1007** |
+| TB-1008 | Anti-always-execute-after-create / dual-pipeline-alive honesty CI | Testability P1 **V1** — after Done **TB-1007** |
 | TB-1112 | Minimum pilot trust packet contract (no CPA SOC 2 / 3P pen test) | Commercial P1 **V1** — PA Q14; GTM **M-190**/**M-191** |
 | TB-1113 | Anti-CPA/3P-pen-test-as-pilot-trust-packet honesty CI | Testability P1 **V1** — after **TB-1112**; pairs **M-190** |
 | TB-1120 | First security review PA one-pager ship-order contract | Commercial P1 **V1** — PA Q16; GTM **M-192**/**M-193** |

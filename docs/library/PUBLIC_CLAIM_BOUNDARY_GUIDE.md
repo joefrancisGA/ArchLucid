@@ -252,7 +252,7 @@ Former standalone body: `docs/go-to-market/PA_CLAIM_HONESTY_BULLETS_BATCH_B.md` 
 
 | Do not promise | Do promise |
 | --- | --- |
-| Every create requires `execute` before value; dual coordinator/authority storage still ships. | Authority pipeline canonical for new surfaces; `execute`/`result`/`commit` only when intentionally owning AgentTask semantics; forbid finishing an authority-finalized run via task loop. |
+| Every create requires `execute` before value; dual coordinator/authority storage still ships. | Authority pipeline canonical for new surfaces; `execute`/`result`/`commit` only when intentionally owning AgentTask semantics; forbid finishing an authority-finalized run via task loop. Engineering matrix: [`AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md`](AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md) (**TB-1007**). Follow-on honesty CI: **TB-1008**. |
 
 #### M-160 — Append-only / sealed evidence
 

@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-05 - Docs: Authority vs AgentTask-loop canonical path (TB-1007)
+
+Published [`AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md`](library/AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md) — Authority product-default path, intentional AgentTask verbs, and forbid matrix for finishing finalized runs. GTM **M-159** and claim-boundary guide cite the matrix. Does not claim `/result` retired, dual storage still live, or CPA / third-party pen-test.
+
 ## 2026-08-05 - Docs: Layer residual / irreversible-leak matrix (TB-1005)
 
 Published [`LAYER_BOUNDARY_IRREVERSIBLE_LEAK_MATRIX.md`](library/LAYER_BOUNDARY_IRREVERSIBLE_LEAK_MATRIX.md) — NetArchTest vs ranked runtime residuals (wrong catalog, retrieval, tools, INV-001, committed-manifest substitute, fat DTOs). GTM **M-157** and claim-boundary guide cite the matrix. Does not claim NetArchTest proves isolation, CPA, or third-party pen-test.
