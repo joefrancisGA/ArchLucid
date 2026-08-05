@@ -1,4 +1,5 @@
 import {
+  Brain,
   Compass,
   Home,
   Layers,
@@ -8,6 +9,7 @@ import {
 } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
+import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture-intelligence-route";
 import { BUYER_ONBOARDING_NAV_TOOLTIP } from "@/lib/buyer-polish-copy";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture-routes";
 import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
@@ -80,6 +82,14 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
           icon: Newspaper,
           tier: "advanced",
           requiredAuthority: "ReadAuthority",
+        },
+        {
+          href: ARCHITECTURE_INTELLIGENCE_PATH as typeof ARCHITECTURE_INTELLIGENCE_PATH & "/architecture/architecture-intelligence",
+          label: "Architecture intelligence",
+          title: "Architecture intelligence — closed-loop reasoning and golden regression checks",
+          icon: Brain,
+          tier: "advanced",
+          requiredAuthority: "ExecuteAuthority",
         },
       ],
     };

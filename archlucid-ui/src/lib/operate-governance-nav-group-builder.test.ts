@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 
 import { OperateGovernanceNavGroupBuilder } from "@/lib/operate-governance-nav-group-builder";
-import { OperateReportsNavGroupBuilder } from "@/lib/operate-reports-nav-group-builder";
 
 describe("OperateGovernanceNavGroupBuilder", () => {
   it("labels /governance first link Approval queue (TB-526)", () => {
@@ -20,24 +19,5 @@ describe("OperateGovernanceNavGroupBuilder", () => {
     expect(setupGuide?.label).toBe("Governance setup");
     expect(setupGuide?.title?.toLowerCase()).not.toContain("evaluation");
     expect(setupGuide?.title?.toLowerCase()).not.toContain("pilot");
-  });
-});
-
-describe("OperateReportsNavGroupBuilder", () => {
-  it("omits governance setup link from reports nav (TB-520)", () => {
-    const group = new OperateReportsNavGroupBuilder().build();
-
-    expect(group.links.some((link) => link.href === "/governance/setup")).toBe(false);
-    expect(group.links.map((link) => link.label)).not.toContain("First 30 days (governance)");
-  });
-
-  it("does not duplicate Architecture scorecard after Insights promotion", () => {
-    const group = new OperateReportsNavGroupBuilder().build();
-
-    expect(group.links.some((link) => link.href === "/insights/architecture-scorecard")).toBe(false);
-    expect(group.links.some((link) => link.href === "/insights/architecture-scorecard")).toBe(
-      false,
-    );
-    expect(group.links.map((link) => link.label)).not.toContain("Architecture scorecard");
   });
 });

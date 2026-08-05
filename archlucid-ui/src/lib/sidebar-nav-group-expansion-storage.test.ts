@@ -21,7 +21,6 @@ describe("sidebar-nav-group-expansion-storage", () => {
       pilot: true,
       "operate-analysis": true,
       "operate-governance": false,
-      "operate-reports": false,
       "operate-integrations": false,
       "operator-admin": true,
       "operator-system-admin": false,
@@ -31,7 +30,6 @@ describe("sidebar-nav-group-expansion-storage", () => {
       pilot: true,
       "operate-analysis": true,
       "operate-governance": false,
-      "operate-reports": false,
       "operate-integrations": false,
       "operator-admin": true,
       "operator-system-admin": false,
@@ -53,8 +51,24 @@ describe("sidebar-nav-group-expansion-storage", () => {
 
     expect(state["operate-analysis"]).toBe(true);
     expect(state["operate-governance"]).toBe(true);
-    expect(state["operate-reports"]).toBe(true);
     expect(state["operate-integrations"]).toBe(true);
+  });
+
+  it("migrates retired operate-reports expansion into operate-analysis", () => {
+    localStorage.setItem(
+      SIDEBAR_NAV_GROUP_EXPANSION_STORAGE_KEY,
+      JSON.stringify({
+        pilot: true,
+        "operate-analysis": false,
+        "operate-governance": false,
+        "operate-reports": true,
+        "operate-integrations": false,
+        "operator-admin": false,
+        "operator-system-admin": false,
+      }),
+    );
+
+    expect(readSidebarNavGroupExpansionState()["operate-analysis"]).toBe(true);
   });
 
   it("ignores corrupt v2 JSON safely and falls back to defaults when no legacy keys exist", () => {

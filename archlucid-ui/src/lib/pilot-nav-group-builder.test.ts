@@ -75,7 +75,7 @@ describe("PilotNavGroupBuilder", () => {
     expect(overviewLink?.title).toBe("Workspace overview");
   });
 
-  it("keeps Architecture nav focused on first-review essentials only (TB-518)", () => {
+  it("keeps Architecture nav focused on first-review essentials and architecture intelligence (TB-518)", () => {
     const group = new PilotNavGroupBuilder().build();
 
     expect(group.links.map((link) => link.label)).toEqual([
@@ -85,9 +85,10 @@ describe("PilotNavGroupBuilder", () => {
       "Executive dashboard",
       "First review guide",
       "Digests",
+      "Architecture intelligence",
     ]);
     expect(group.links.some((link) => link.href === "/insights/evidence-graph")).toBe(false);
-    expect(group.links.some((link) => link.href === ARCHITECTURE_INTELLIGENCE_PATH)).toBe(false);
+    expect(group.links.some((link) => link.href === ARCHITECTURE_INTELLIGENCE_PATH)).toBe(true);
   });
 
   it("lists Architectures and Reviews as peer object nav destinations", () => {
@@ -101,10 +102,11 @@ describe("PilotNavGroupBuilder", () => {
     expect(group.links.some((link) => link.href === "/architecture/reviews/new")).toBe(false);
   });
 
-  it("does not list Architecture intelligence under Architecture (moved to Insights)", () => {
+  it("lists Architecture intelligence under Architecture", () => {
     const group = new PilotNavGroupBuilder().build();
     const intelligenceLink = group.links.find((link) => link.href === ARCHITECTURE_INTELLIGENCE_PATH);
 
-    expect(intelligenceLink).toBeUndefined();
+    expect(intelligenceLink).toBeDefined();
+    expect(intelligenceLink?.requiredAuthority).toBe("ExecuteAuthority");
   });
 });

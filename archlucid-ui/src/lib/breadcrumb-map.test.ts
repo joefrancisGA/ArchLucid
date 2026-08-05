@@ -303,10 +303,10 @@ describe("getBreadcrumbs", () => {
     ]);
   });
 
-  it("maps governance risk exceptions breadcrumb", () => {
-    expect(getBreadcrumbs("/governance/risk-exceptions")).toEqual([
+  it("maps governance exceptions breadcrumb", () => {
+    expect(getBreadcrumbs("/governance/exceptions")).toEqual([
       { label: "Governance", href: "/governance/approval-queue" },
-      { label: "Risk exceptions" },
+      { label: "Exceptions" },
     ]);
   });
 

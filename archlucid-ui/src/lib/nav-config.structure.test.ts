@@ -104,7 +104,7 @@ describe("nav-config structure", () => {
     const analysis = NAV_GROUPS.find((group) => group.id === "operate-analysis");
 
     expect(analysis?.label).toBe("Insights");
-    expect(analysis?.caption).toBe("Explore evidence, findings, and decisions across reviews.");
+    expect(analysis?.caption).toBe("Explore evidence, findings, decisions, and sponsor value reports across reviews.");
   });
 
   it("sets requiredAuthority on every Analysis nav link", () => {
@@ -149,8 +149,7 @@ describe("nav-config structure", () => {
 
     expect(advanced).toBeDefined();
 
-    // Impact preview moved to ReadAuthority (browsing only; Simulate itself stays Execute-gated in the UI/API) —
-    // Insights currently has no ExecuteAuthority links, so this loop is a no-op regression guard for future additions.
+    // Executive value report is Execute-gated; sponsor outcomes and ROI summary stay ReadAuthority.
     for (const link of advanced!.links) {
       if (link.requiredAuthority === "ExecuteAuthority") {
         expect(link.tier, link.href).not.toBe("essential");
@@ -161,9 +160,10 @@ describe("nav-config structure", () => {
   it("keeps buyer-polished operate group membership aligned", () => {
     const analysisHrefs = NAV_GROUPS.find((group) => group.id === "operate-analysis")!.links.map((link) => link.href);
     const governanceHrefs = NAV_GROUPS.find((group) => group.id === "operate-governance")!.links.map((link) => link.href);
-    const reportsHrefs = NAV_GROUPS.find((group) => group.id === "operate-reports")!.links.map((link) => link.href);
     const integrationsHrefs = NAV_GROUPS.find((group) => group.id === "operate-integrations")!.links.map((link) => link.href);
     const systemAdminHrefs = NAV_GROUPS.find((group) => group.id === "operator-system-admin")!.links.map((link) => link.href);
+
+    expect(NAV_GROUPS.some((group) => group.id === "operate-reports")).toBe(false);
 
     expect(analysisHrefs).toEqual([
       "/insights/evidence-graph",
@@ -174,17 +174,19 @@ describe("nav-config structure", () => {
       "/insights/planning",
       "/insights/architecture-scorecard",
       "/insights/patterns",
-      "/architecture/architecture-intelligence",
+      "/sponsor-report/executive-summary",
+      "/sponsor-report/pilot-outcomes",
+      "/sponsor-report/roi-summary",
     ]);
 
     const pilotHrefs = NAV_GROUPS.find((group) => group.id === "pilot")!.links.map((link) => link.href);
 
-    expect(pilotHrefs).not.toContain("/architecture/architecture-intelligence");
+    expect(pilotHrefs).toContain("/architecture/architecture-intelligence");
     expect(pilotHrefs).toContain("/architecture/digests");
     expect(governanceHrefs).toEqual([
       "/governance/approval-queue",
       "/governance/findings",
-      "/governance/risk-exceptions",
+      "/governance/exceptions",
       "/governance/policy-packs",
       "/governance/standards-and-rules",
       "/governance/decision-register",
@@ -195,11 +197,6 @@ describe("nav-config structure", () => {
       "/governance/alert-rules",
       "/governance/recurrence-schedules",
       "/governance/setup",
-    ]);
-    expect(reportsHrefs).toEqual([
-      "/sponsor-report/executive-summary",
-      "/sponsor-report/pilot-outcomes",
-      "/sponsor-report/roi-summary",
     ]);
     expect(integrationsHrefs).toEqual([
       "/integrations/cloud-connections",

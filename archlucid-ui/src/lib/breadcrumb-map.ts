@@ -730,8 +730,12 @@ function labelForSegment(
     return OPERATOR_NAV_LINK_LABELS.findings;
   }
 
+  if (segment === "exceptions" && prev === "governance") {
+    return OPERATOR_NAV_LINK_LABELS.riskExceptions;
+  }
+
   if (segment === "risk-exceptions" && prev === "governance") {
-    return "Risk exceptions";
+    return OPERATOR_NAV_LINK_LABELS.riskExceptions;
   }
 
   if (buyer && segment === "findings") {

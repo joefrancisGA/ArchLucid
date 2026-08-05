@@ -17,6 +17,7 @@ import {
   pathMatchesGovernanceAlerts,
   pathMatchesGovernanceApprovalQueue,
   pathMatchesGovernanceAudit,
+  pathMatchesGovernanceExceptions,
 } from "@/lib/governance-route-paths";
 
 const showcaseRunEnc = encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID);
@@ -150,7 +151,7 @@ export function resolveBuyerGoldenJourneyNav(
       return null;
     } else if (path === "/governance/findings" || path.startsWith("/governance/findings/")) {
       return null;
-    } else if (path === "/governance/risk-exceptions" || path.startsWith("/governance/risk-exceptions/")) {
+    } else if (pathMatchesGovernanceExceptions(path)) {
       return null;
     } else if (pathMatchesGovernanceAlerts(path)) {
       return null;

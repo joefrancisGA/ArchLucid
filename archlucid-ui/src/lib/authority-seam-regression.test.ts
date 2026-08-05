@@ -47,10 +47,10 @@ describe("authority seam regression", () => {
    * Uses hrefs from config (not copy) so new links inherit the same contract automatically.
    * **`operate-analysis`** and **`operate-governance`** are Read-only nav-gate groups after authority-seam review (deeper
    * mutations stay Execute-gated inside the pages themselves); Execute-class rhythm links live under
-   * **`operate-reports`**, **`operate-integrations`**, and **`operator-system-admin`**.
+   * **`operate-analysis`**, **`operate-integrations`**, and **`operator-system-admin`**.
    */
   it("hides every ExecuteAuthority-marked Operate nav link from Read callers", () => {
-    const groupIds = ["operate-reports", "operate-integrations", "operator-system-admin"] as const;
+    const groupIds = ["operate-analysis", "operate-integrations", "operator-system-admin"] as const;
 
     for (const groupId of groupIds) {
       const links = NAV_GROUPS.find((g) => g.id === groupId)?.links;

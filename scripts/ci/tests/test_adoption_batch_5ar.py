@@ -12,7 +12,7 @@ class TestAdoptionBatch5AR(unittest.TestCase):
     def test_tb_223_waivers_tile_links_risk_exceptions(self) -> None:
         path = REPO_ROOT / "archlucid-ui" / "src" / "components" / "governance" / "DecisionsNeededSummaryCard.tsx"
         text = path.read_text(encoding="utf-8")
-        self.assertIn("/governance/risk-exceptions", text)
+        self.assertIn("/governance/exceptions", text)
 
     def test_tb_223_dashboard_still_wires_summary(self) -> None:
         path = REPO_ROOT / "archlucid-ui" / "src" / "components" / "ExecutiveWorkspaceHealthDashboard.tsx"

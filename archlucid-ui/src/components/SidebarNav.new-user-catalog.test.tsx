@@ -89,7 +89,7 @@ const COLLAPSED_GROUPS: ReadonlyArray<RequestedGroup> = [
   },
   {
     toggleTestId: "sidebar-group-toggle-operate-governance",
-    hrefs: ["/governance/findings", "/governance/risk-exceptions", "/governance/setup"],
+    hrefs: ["/governance/findings", "/governance/exceptions", "/governance/setup"],
   },
   {
     toggleTestId: "sidebar-group-toggle-operate-integrations",

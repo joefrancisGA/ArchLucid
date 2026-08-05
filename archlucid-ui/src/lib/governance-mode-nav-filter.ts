@@ -18,7 +18,7 @@ export const GOVERNANCE_MODE_HIDDEN_NAV_HREFS = new Set<string>([
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
   GOVERNANCE_APPROVAL_QUEUE_PATH,
   "/governance/findings",
-  "/governance/risk-exceptions",
+  "/governance/exceptions",
   "/governance/decision-register",
   "/governance/recurrence-schedules",
   "/governance/setup",

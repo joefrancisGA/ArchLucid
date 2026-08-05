@@ -7,7 +7,6 @@ export type SidebarCollapsibleNavGroupId =
   | "pilot"
   | "operate-analysis"
   | "operate-governance"
-  | "operate-reports"
   | "operate-integrations"
   | "operator-admin"
   | "operator-system-admin";
@@ -24,7 +23,6 @@ export const SIDEBAR_NAV_GROUP_DEFAULT_EXPANSION: SidebarNavGroupExpansionState 
   pilot: true,
   "operate-analysis": false,
   "operate-governance": false,
-  "operate-reports": false,
   "operate-integrations": false,
   "operator-admin": false,
   "operator-system-admin": false,
@@ -93,9 +91,8 @@ function migrateLegacySidebarExpansion(): SidebarNavGroupExpansionState {
 
   return {
     pilot: true,
-    "operate-analysis": analysisExpanded,
+    "operate-analysis": analysisExpanded || reportsExpanded,
     "operate-governance": governanceExpanded,
-    "operate-reports": reportsExpanded,
     "operate-integrations": integrationsExpanded,
     "operator-admin": showAdministration,
     "operator-system-admin": false,
@@ -118,9 +115,12 @@ function parseStoredExpansion(raw: string): SidebarNavGroupExpansionState | null
 
     return {
       pilot: record.pilot !== false,
-      "operate-analysis": record["operate-analysis"] === true || legacyArchitectAdvancedExpanded,
+      "operate-analysis":
+        record["operate-analysis"] === true
+        || legacyArchitectAdvancedExpanded
+        || record["operate-reports"] === true
+        || legacyOperationsExpanded,
       "operate-governance": record["operate-governance"] === true,
-      "operate-reports": record["operate-reports"] === true || legacyOperationsExpanded,
       "operate-integrations": record["operate-integrations"] === true || legacyOperationsExpanded,
       "operator-admin":
         record["operator-admin"] === true || legacyPlatformOpsExpanded || legacyOperationsExpanded,
@@ -179,7 +179,6 @@ export function isSidebarCollapsibleNavGroupId(groupId: string): groupId is Side
     groupId === "pilot" ||
     groupId === "operate-analysis" ||
     groupId === "operate-governance" ||
-    groupId === "operate-reports" ||
     groupId === "operate-integrations" ||
     groupId === "operator-admin" ||
     groupId === "operator-system-admin"

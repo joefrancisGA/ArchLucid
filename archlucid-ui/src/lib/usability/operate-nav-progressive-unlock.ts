@@ -21,7 +21,6 @@ export const OPERATE_NAV_UNLOCK_CHANGED_EVENT = "archlucid-operate-nav-unlock-ch
 const OPERATE_NAV_GROUP_IDS = new Set<string>([
   "operate-analysis",
   "operate-governance",
-  "operate-reports",
   "operate-integrations",
 ]);
 

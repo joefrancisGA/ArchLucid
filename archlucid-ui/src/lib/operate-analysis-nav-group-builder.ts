@@ -1,6 +1,7 @@
 import {
   BarChart3,
-  Brain,
+  FileCheck2,
+  FileText,
   GitCompare,
   GitGraph,
   Kanban,
@@ -8,10 +9,10 @@ import {
   MessageSquare,
   RefreshCw,
   Search,
+  TrendingUp,
 } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
-import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture-intelligence-route";
 import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
 import { PATTERN_LIBRARY_NAV_BADGE, PATTERN_LIBRARY_NAV_LINK_LABEL } from "@/lib/pattern-library-copy";
 import { PATTERN_LIBRARY_PATH } from "@/lib/pattern-library-route";
@@ -24,6 +25,10 @@ import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
 import { PLANNING_PATH } from "@/lib/planning-route";
 import { SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
+import {
+  EXECUTIVE_SUMMARY_PAGE_TITLE,
+  SPONSOR_REPORT_SECTION_LABEL,
+} from "@/lib/sponsor-report-navigation";
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
 
 /** Operate · analysis — Q&A, search, and comparison over review evidence. */
@@ -105,13 +110,28 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
         navBadge: PATTERN_LIBRARY_NAV_BADGE,
       },
       {
-        // String literal required: scripts/ci/assert_route_tier_policy_nav.py parses href:"..." only.
-        href: ARCHITECTURE_INTELLIGENCE_PATH as typeof ARCHITECTURE_INTELLIGENCE_PATH & "/architecture/architecture-intelligence",
-        label: "Architecture intelligence",
-        title: "Architecture intelligence — closed-loop reasoning and golden regression checks",
-        icon: Brain,
+        href: "/sponsor-report/executive-summary",
+        label: EXECUTIVE_SUMMARY_PAGE_TITLE,
+        title: `${SPONSOR_REPORT_SECTION_LABEL} — executive value report and exports`,
+        icon: FileText,
         tier: "advanced",
         requiredAuthority: "ExecuteAuthority",
+      },
+      {
+        href: "/sponsor-report/pilot-outcomes",
+        label: OPERATOR_NAV_LINK_LABELS.pilotValueReport,
+        title: "Pilot outcomes — finalized-review metrics and governance signals",
+        icon: FileCheck2,
+        tier: "extended",
+        requiredAuthority: "ReadAuthority",
+      },
+      {
+        href: "/sponsor-report/roi-summary",
+        label: OPERATOR_NAV_LINK_LABELS.roiReport,
+        title: "ROI summary — hours estimate from severities and governance blocks",
+        icon: TrendingUp,
+        tier: "extended",
+        requiredAuthority: "ReadAuthority",
       },
     ];
 
@@ -119,7 +139,7 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
       id: "operate-analysis",
       label: OPERATOR_NAV_GROUP_LABELS.analysis,
       surface: "review-workflow",
-      caption: "Explore evidence, findings, and decisions across reviews.",
+      caption: "Explore evidence, findings, decisions, and sponsor value reports across reviews.",
       links,
     };
   }

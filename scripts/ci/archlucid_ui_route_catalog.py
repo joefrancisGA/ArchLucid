@@ -73,6 +73,7 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/architectures/[architectureId]": "/architecture/architectures/[architectureId]",
     "/settings": "/administration",
     "/administration/settings": "/administration",
+    "/governance/risk-exceptions": "/governance/exceptions",
 }
 
 # Legacy App Router redirect stubs — canonical nav hrefs live under /governance/advisory-scans (TB-1124).

@@ -10,7 +10,7 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 
 class TestAdoptionBatch5AS(unittest.TestCase):
     def test_tb_226_risk_exceptions_page(self) -> None:
-        path = REPO_ROOT / "archlucid-ui" / "src" / "app" / "(operator)" / "governance" / "risk-exceptions" / "page.tsx"
+        path = REPO_ROOT / "archlucid-ui" / "src" / "app" / "(operator)" / "governance" / "exceptions" / "page.tsx"
         text = path.read_text(encoding="utf-8")
         self.assertIn("RiskExceptionsClient", text)
 
@@ -26,7 +26,7 @@ class TestAdoptionBatch5AS(unittest.TestCase):
         path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "operate-governance-nav-group-builder.ts"
         text = path.read_text(encoding="utf-8")
         findings_index = text.index("/governance/findings")
-        risk_index = text.index("/governance/risk-exceptions")
+        risk_index = text.index("/governance/exceptions")
         self.assertGreater(risk_index, findings_index)
 
     def test_tb_226_vitest(self) -> None:

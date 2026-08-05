@@ -37,6 +37,6 @@ describe("resolveGovernanceQueueRiskExceptionAction", () => {
     });
 
     expect(action.label).toBe("View exception");
-    expect(action.href).toBe("/governance/risk-exceptions");
+    expect(action.href).toBe("/governance/exceptions");
   });
 });

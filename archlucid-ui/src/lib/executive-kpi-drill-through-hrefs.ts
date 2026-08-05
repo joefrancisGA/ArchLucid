@@ -7,7 +7,7 @@ export const EXECUTIVE_KPI_DRILL_THROUGH = {
   newlyDiscoveredFindings30d: "/governance/findings",
   staleArchitectureRisks: "/governance/findings?filter=stale",
   decisionsNeeded: "/governance/findings",
-  expiringWaivers: "/governance/risk-exceptions",
+  expiringWaivers: "/governance/exceptions",
   findingsRemediated30d: "/governance/findings",
   costEvidenceFreshness: "/sponsor-report/pilot-outcomes",
   orphanCandidates: "/architecture/reviews?filter=orphan-candidates",

@@ -156,6 +156,16 @@ const nextConfig: NextConfig = {
         destination: "/administration/users?tab=roles",
         permanent: true,
       },
+      {
+        source: "/governance/risk-exceptions",
+        destination: "/governance/exceptions",
+        permanent: true,
+      },
+      {
+        source: "/governance/risk-exceptions/:path*",
+        destination: "/governance/exceptions/:path*",
+        permanent: true,
+      },
     ];
   },
   async rewrites() {

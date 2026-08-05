@@ -75,7 +75,7 @@ describe("buyerPolishedRouteOrientation", () => {
   });
 
   it("returns null for risk exceptions — the page carries its own governance banner", () => {
-    expect(buyerPolishedRouteOrientation("/governance/risk-exceptions")).toBeNull();
+    expect(buyerPolishedRouteOrientation("/governance/exceptions")).toBeNull();
   });
 
   it("returns null for policy packs — the page carries its own policy-pack basis banner", () => {

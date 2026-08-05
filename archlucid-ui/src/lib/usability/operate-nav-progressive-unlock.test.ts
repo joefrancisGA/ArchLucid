@@ -18,7 +18,6 @@ describe("operate-nav-progressive-unlock", () => {
     expect(isOperateNavGroupId("operate-analysis")).toBe(true);
     expect(isOperateNavGroupId("operate-architect-advanced")).toBe(false);
     expect(isOperateNavGroupId("operate-governance")).toBe(true);
-    expect(isOperateNavGroupId("operate-reports")).toBe(true);
     expect(isOperateNavGroupId("operate-integrations")).toBe(true);
     expect(isOperateNavGroupId("pilot")).toBe(false);
     expect(isOperateNavGroupId("operator-admin")).toBe(false);
@@ -39,7 +38,6 @@ describe("operate-nav-progressive-unlock", () => {
     expect(ids).toContain("pilot");
     expect(ids).toContain("operate-analysis");
     expect(ids).toContain("operate-governance");
-    expect(ids).toContain("operate-reports");
     expect(ids).toContain("operate-integrations");
     expect(ids).toContain("operator-admin");
   });
@@ -61,7 +59,7 @@ describe("operate-nav-progressive-unlock", () => {
     expect(hrefs).toContain("/governance/audit");
     expect(hrefs).toContain("/governance/findings");
     expect(hrefs).toContain("/governance/policy-packs");
-    expect(hrefs).toContain("/governance/risk-exceptions");
+    expect(hrefs).toContain("/governance/exceptions");
   });
 
   it("shows advanced-tier approval queue without showAdvanced when authority allows", () => {

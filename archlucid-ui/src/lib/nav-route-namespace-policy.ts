@@ -22,7 +22,6 @@ export const NAV_GROUP_CANONICAL_PREFIX_POLICIES: readonly NavGroupCanonicalPref
   { navGroupId: "operate-analysis", canonicalPrefixes: null },
   { navGroupId: "operate-architect-advanced", canonicalPrefixes: null },
   { navGroupId: "operate-governance", canonicalPrefixes: ["/governance"] },
-  { navGroupId: "operate-reports", canonicalPrefixes: ["/sponsor-report"] },
   { navGroupId: "operate-integrations", canonicalPrefixes: ["/integrations"] },
   { navGroupId: "operator-admin", canonicalPrefixes: ["/administration"] },
   { navGroupId: "operator-system-admin", canonicalPrefixes: ["/admin"] },
