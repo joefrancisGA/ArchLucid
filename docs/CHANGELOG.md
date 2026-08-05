@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-05 - Docs: Transactional finalize vs outbox contract (TB-1011)
+
+Published [`TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md`](library/TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md) — finalize UoW vs outbox/async and never-silent vs disclosed best-effort. GTM **M-163** and claim-boundary guide cite the matrix. Does not claim commit equals indexed/delivered, DTF exactly-once, or CPA / third-party pen-test.
+
 ## 2026-08-05 - Docs: Append-only / sealed evidence contract (TB-1009)
 
 Published [`APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md`](library/APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md) — append-only/sealed vs mutable inventory and Update-destruction matrix. GTM **M-161** and claim-boundary guide cite the matrix. Does not claim platform WORM or CPA / third-party pen-test.

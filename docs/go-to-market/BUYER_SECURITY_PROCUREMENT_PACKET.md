@@ -643,10 +643,10 @@ Use the committed manifest to establish the architecture-package record. Use del
 
 | Class | Examples |
 | --- | --- |
-| Never silent best-effort | Sealed package commit; Required audit (INV-003 / **TB-953**); outbox **enqueue** for commit-tied work; tenant isolation / hard budget |
-| Disclosed best-effort OK | Informational audit; metering secondary writes; cache/metrics; actual delivery lag (at-least-once — **TB-992**) |
+| Never silent best-effort | Sealed package commit; Required audit where classified (INV-003 / **TB-953**); **retrieval** outbox enqueue with commit (ADR 0004); tenant isolation / hard budget |
+| Disclosed best-effort OK | Informational audit; metering secondary writes; cache/metrics; actual delivery lag (at-least-once — **TB-992**); integration-event enqueue via `TryPublishOrEnqueue` fail-open residual (see engineering SoT §6) |
 
-Transactional finalize (same UoW / ADR 0004 / `AuthorityCommittedPipelineFinalizer`) owns committed golden manifest, sealed evidence, run anchors, and **enqueue** of retrieval/integration outbox rows. Outbox/async workers own Search indexing, SB/webhook delivery, Cosmos/export-blob push, and post-commit projections.
+Transactional finalize (same UoW / ADR 0004 / `AuthorityCommittedPipelineFinalizer`) owns committed golden manifest, sealed evidence, run anchors, and **retrieval** outbox enqueue. Integration fan-out enqueue is preferred-but-see-residual. Outbox/async workers own Search indexing, SB/webhook delivery, Cosmos/export-blob push, and post-commit projections.
 
 ### PA review
 
@@ -661,11 +661,13 @@ Do not say “committed means delivered,” “Required audit means all audit si
 
 ### Residuals (honest)
 
-- **TB-1011** defines the finalize vs outbox + never-silent-best-effort matrix.
-- **TB-1012** adds anti-committed-equals-indexed / all-audit-transactional honesty CI.
-- Does not turn asynchronous delivery into a synchronous guarantee; does not claim DTF exactly-once (**TB-924**).
+Engineering SoT: [`TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md`](../library/TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md) (**TB-1011** Done). Finalize UoW vs outbox/async split and never-silent vs disclosed best-effort matrix are published. Follow-on claim CI: **TB-1012**. Does not turn asynchronous delivery into a synchronous guarantee; does not claim DTF exactly-once (**TB-924**).
 
-**Related:** [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) · [Append-only / sealed evidence (M-161)](#append-only-sealed-evidence-m-161) · [Outbox replay vs idempotency (M-145)](#outbox-replay-vs-idempotency-m-145) · [Read-after-write client readiness (M-165)](#read-after-write-client-m-165) · [Security reviewer audit trail (M-118)](#security-reviewer-audit-trail-m-118) · [Authority vs AgentTask loop (M-159)](#authority-vs-agenttask-loop-m-159) · [ADR 0004](../architecture/adrs/0004-transactional-outbox-retrieval-indexing.md) · [`../library/DATA_CONSISTENCY_MATRIX.md`](../library/DATA_CONSISTENCY_MATRIX.md) · [`../library/ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md`](../library/ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md) · [`../library/AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+| Open work | Purpose |
+| --- | --- |
+| **TB-1012** | Anti-committed-equals-indexed / all-audit-transactional claim-drift guard |
+
+**Related:** [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) · [Append-only / sealed evidence (M-161)](#append-only-sealed-evidence-m-161) · [Outbox replay vs idempotency (M-145)](#outbox-replay-vs-idempotency-m-145) · [Read-after-write client readiness (M-165)](#read-after-write-client-m-165) · [Security reviewer audit trail (M-118)](#security-reviewer-audit-trail-m-118) · [Authority vs AgentTask loop (M-159)](#authority-vs-agenttask-loop-m-159) · [ADR 0004](../architecture/adrs/0004-transactional-outbox-retrieval-indexing.md) · [`../library/TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md`](../library/TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md) · [`../library/DATA_CONSISTENCY_MATRIX.md`](../library/DATA_CONSISTENCY_MATRIX.md) · [`../library/ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md`](../library/ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md) · [`../library/AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## Transactional outbox — replay versus idempotency (M-145) {#outbox-replay-vs-idempotency-m-145}
 

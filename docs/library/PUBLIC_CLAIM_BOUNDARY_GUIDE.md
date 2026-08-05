@@ -264,7 +264,7 @@ Former standalone body: `docs/go-to-market/PA_CLAIM_HONESTY_BULLETS_BATCH_B.md` 
 
 | Do not promise | Do promise |
 | --- | --- |
-| Commit success means Search indexed, webhooks delivered, Cosmos projected, or every audit event is transactional. | Sealed package + durable outbox enqueue in finalize; disclose Required vs informational audit and delivery lag. |
+| Commit success means Search indexed, webhooks delivered, Cosmos projected, or every audit event is transactional. | Sealed package + durable **retrieval** outbox enqueue in finalize (ADR 0004); disclose integration `Try*` enqueue residual, Required vs informational audit, and delivery lag. Engineering matrix: [`TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md`](TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md) (**TB-1011**). Follow-on honesty CI: **TB-1012**. |
 
 #### M-164 — Read-after-write
 
