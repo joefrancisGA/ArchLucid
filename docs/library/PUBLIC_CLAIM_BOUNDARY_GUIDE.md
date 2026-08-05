@@ -294,7 +294,7 @@ Former standalone body: `docs/go-to-market/PA_CLAIM_HONESTY_BULLETS_BATCH_B.md` 
 
 | Do not promise | Do promise |
 | --- | --- |
-| Every policy pack blocks finalize; `priorityFloor` is a commit gate; packs are certifications; SoD requires a different committer; gate is always on. | Optional gate + enforcing assignment thresholds; Advisory/warn-only do not block; SoD = approval submitter≠approver (platform + org roles). |
+| Every policy pack blocks finalize; `priorityFloor` is a commit gate; packs are certifications; SoD requires a different committer; gate is always on. | Optional gate + enforcing assignment thresholds; Advisory/warn-only do not block; SoD = approval submitter≠approver (platform + org roles). Engineering matrix: [`PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md`](PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md) (**TB-1022**). Follow-on honesty CI: **TB-1023**. |
 
 #### M-174 — Comparison/replay drift
 

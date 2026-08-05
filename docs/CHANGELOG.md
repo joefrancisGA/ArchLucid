@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-05 - Docs: Pre-finalize gate block vs advisory + SoD (TB-1022)
+
+Published [`PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md`](library/PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md) — optional gate block vs advisory, SoD ownership, and lifecycle order. GTM **M-173** and claim-boundary guide cite the matrix. Does not claim packs are certifications, gate always on, or CPA / third-party pen-test.
+
 ## 2026-08-05 - Docs: Transactional finalize vs outbox contract (TB-1011)
 
 Published [`TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md`](library/TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md) — finalize UoW vs outbox/async and never-silent vs disclosed best-effort. GTM **M-163** and claim-boundary guide cite the matrix. Does not claim commit equals indexed/delivered, DTF exactly-once, or CPA / third-party pen-test.

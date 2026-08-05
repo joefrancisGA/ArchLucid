@@ -79,8 +79,13 @@ Problem details **`type`**: **`https://archlucid.example.org/errors#governance-p
 | Approval SLA with webhook escalation | Requires external webhook receiver for escalation routing |
 | Clear audit trail for blocks, warns, and SLA breaches | Additional audit volume |
 
+## PA / procurement matrix (TB-1022)
+
+Contributor deep dive above remains the config and enforcement reference. For the **block vs advisory vs SoD ownership** buyer/PA matrix and lifecycle order, see [`PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md`](PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md) (**TB-1022** Done). Honesty CI follow-on: **TB-1023**.
+
 ## Related
 
+- [`PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md`](PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md) — PA block vs advisory + SoD ownership matrix
 - **`docs/API_CONTRACTS.md`** — commit conflict vs governance block.
 - **`docs/V1_SCOPE.md`** §2.10 — optional feature flagging.
 - **`docs/AUDIT_COVERAGE_MATRIX.md`** — `GovernancePreCommitBlocked`, `GovernancePreCommitWarned`, `GovernanceApprovalSlaBreached`.

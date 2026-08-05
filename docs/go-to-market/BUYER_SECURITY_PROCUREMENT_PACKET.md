@@ -465,10 +465,13 @@ Do not say “every policy pack blocks finalize,” “SoD requires a different 
 
 ### Residuals (honest)
 
-- **TB-1022** supplies the block-vs-advisory matrix and lifecycle order.
-- **TB-1023** guards governance claim drift.
+Engineering SoT: [`PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md`](../library/PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md) (**TB-1022** Done). Block vs advisory vs SoD ownership and lifecycle order are published. Follow-on claim CI: **TB-1023**. Deep dive: [`../library/PRE_COMMIT_GOVERNANCE_GATE.md`](../library/PRE_COMMIT_GOVERNANCE_GATE.md). Does not claim packs are certifications or that the gate is always on.
 
-**Related:** [Finding disposition concurrency (M-141)](#finding-disposition-concurrency-m-141) · [Security reviewer audit trail (M-118)](#security-reviewer-audit-trail-m-118) · [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) · [Policy-pack evaluation hybrid (M-236)](#policy-pack-evaluation-hybrid-m-236) · [`../library/PRE_COMMIT_GOVERNANCE_GATE.md`](../library/PRE_COMMIT_GOVERNANCE_GATE.md) · [ADR 0034 (SoD actor keys)](../architecture/adrs/0034-segregation-of-duties-entra-oid-actor-keys.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+| Open work | Purpose |
+| --- | --- |
+| **TB-1023** | Anti-pack-equals-certification / priorityFloor-blocks / SoD-on-commit claim-drift guard |
+
+**Related:** [Finding disposition concurrency (M-141)](#finding-disposition-concurrency-m-141) · [Security reviewer audit trail (M-118)](#security-reviewer-audit-trail-m-118) · [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) · [Policy-pack evaluation hybrid (M-236)](#policy-pack-evaluation-hybrid-m-236) · [`../library/PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md`](../library/PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md) · [`../library/PRE_COMMIT_GOVERNANCE_GATE.md`](../library/PRE_COMMIT_GOVERNANCE_GATE.md) · [ADR 0034 (SoD actor keys)](../architecture/adrs/0034-segregation-of-duties-entra-oid-actor-keys.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## Policy-pack evaluation — compiled vs data plane (M-236) {#policy-pack-evaluation-hybrid-m-236}
 
