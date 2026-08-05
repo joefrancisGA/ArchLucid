@@ -113,16 +113,6 @@ export function HelpExecutiveSummaryGuideView(
             >
               {EXECUTIVE_SUMMARY_HELP_PRIMARY_ACTIONS.pilotRoiModel.label}
             </Link>
-            <Link
-              href={EXECUTIVE_SUMMARY_HELP_PRIMARY_ACTIONS.productOverview.href}
-              className={cn(
-                "text-sm underline-offset-2 hover:underline",
-                DESIGN_TOKENS.accent.link,
-                OPERATOR_TYPOGRAPHY.body,
-              )}
-            >
-              {EXECUTIVE_SUMMARY_HELP_PRIMARY_ACTIONS.productOverview.label}
-            </Link>
           </CardContent>
         </Card>
       </div>
