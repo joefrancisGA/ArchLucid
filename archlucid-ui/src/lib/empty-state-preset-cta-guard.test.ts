@@ -11,12 +11,12 @@ import {
 
 describe("empty-state preset CTA guard (IA-012)", () => {
   it("documents permanent redirect sources synced with next.config.ts", () => {
-    expect(NEXT_CONFIG_PERMANENT_REDIRECT_SOURCE_PATHS).toEqual([]);
+    expect(NEXT_CONFIG_PERMANENT_REDIRECT_SOURCE_PATHS).toEqual(["/audit"]);
   });
 
   it("strips query strings when matching redirect sources", () => {
     expect(hrefPathname("/architecture/reviews?projectId=default")).toBe("/architecture/reviews");
-    expect(hrefTargetsPermanentRedirectSource("/audit?runId=abc")).toBe(false);
+    expect(hrefTargetsPermanentRedirectSource("/audit?runId=abc")).toBe(true);
   });
 
   it("points governance workflow idle policy packs at the canonical path", () => {

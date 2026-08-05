@@ -146,6 +146,8 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       { source: "/admin/users", destination: "/administration/settings/users", permanent: true },
+      // Legacy governance bookmarks (TB-405) → canonical governance tree.
+      { source: "/audit", destination: "/governance/audit", permanent: true },
       { source: "/settings/roles", destination: "/administration/settings/users?tab=roles", permanent: true },
       // Legacy integrations bookmark (TB-407 / TB-750) → operator integrations tree.
       { source: "/settings/cloud-connections", destination: "/integrations/cloud-connections", permanent: true },

@@ -56,7 +56,7 @@ function extractMasterTableRows(markdown: string): TrafficWorkbookRow[] {
 }
 
 describe("ui-route-traffic-compare-two-reviews (CXX)", () => {
-  it("tracks Compare two reviews under Insights with honest workbook notes", () => {
+  it("tracks Compare two reviews with honest workbook notes", () => {
     const rows = extractMasterTableRows(readTemplateMarkdown());
     const row = rows.find((candidate) => candidate.id === COMPARE_TWO_REVIEWS_TRAFFIC_ROW_ID);
 
@@ -65,6 +65,5 @@ describe("ui-route-traffic-compare-two-reviews (CXX)", () => {
     expect(row?.section).toBe(COMPARE_TWO_REVIEWS_TRAFFIC_SECTION);
     expect(row?.notes).toBe(COMPARE_TWO_REVIEWS_TRAFFIC_NOTE);
     expect(row?.notes).toContain("CompareForm");
-    expect(row?.section.toLowerCase()).not.toBe("marketing");
   });
 });

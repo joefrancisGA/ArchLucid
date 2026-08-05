@@ -27,6 +27,8 @@ import {
   auditSearchNoResultsReaderLine,
 } from "@/lib/enterprise-controls-context-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { auditTrailNavHref } from "@/lib/audit-nav-paths";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
 import { resolveOperatorShellAuditRunId } from "@/lib/resolve-operator-shell-audit-run-id";
 import { readBuyerCtoDemoTourActive } from "@/lib/buyer-cto-demo-tour";
 import {
@@ -90,7 +92,7 @@ export function useAuditPage(serverLoad: AuditPageServerLoad): AuditPageViewProp
     }
 
     const resolvedRunId = resolveOperatorShellAuditRunId({
-      pathname: pathname ?? "/audit",
+      pathname: pathname ?? GOVERNANCE_AUDIT_PATH,
       search: searchParams.toString(),
       workspaceActiveRunId: workspaceRun?.activeRunId ?? null,
     });
@@ -99,9 +101,7 @@ export function useAuditPage(serverLoad: AuditPageServerLoad): AuditPageViewProp
       return;
     }
 
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("runId", resolvedRunId);
-    router.replace(`/audit?${params.toString()}`, { scroll: false });
+    router.replace(auditTrailNavHref(resolvedRunId), { scroll: false });
     setRunId(resolvedRunId);
   }, [pathname, router, searchParams, workspaceRun?.activeRunId]);
 
@@ -110,7 +110,10 @@ export function useAuditPage(serverLoad: AuditPageServerLoad): AuditPageViewProp
     params.delete(CTO_DEMO_AUDIT_FILTER_QUERY_PARAM);
     const query = params.toString();
 
-    router.replace(query.length > 0 ? `/audit?${query}` : "/audit", { scroll: false });
+    router.replace(
+      query.length > 0 ? `${GOVERNANCE_AUDIT_PATH}?${query}` : GOVERNANCE_AUDIT_PATH,
+      { scroll: false },
+    );
   }, [router, searchParams]);
 
   useEffect(() => {
@@ -130,7 +133,7 @@ export function useAuditPage(serverLoad: AuditPageServerLoad): AuditPageViewProp
 
     const params = new URLSearchParams(searchParams.toString());
     params.set(CTO_DEMO_AUDIT_FILTER_QUERY_PARAM, CTO_DEMO_AUDIT_FILTER_VALUE);
-    router.replace(`/audit?${params.toString()}`, { scroll: false });
+    router.replace(`${GOVERNANCE_AUDIT_PATH}?${params.toString()}`, { scroll: false });
   }, [router, searchParams]);
 
   const loadTypes = useCallback(async () => {
