@@ -108,4 +108,4 @@ Until **TB-1023** ships, treat this document as the **human** gate; CI is the **
 
 ## 9. One-line buyer answer
 
-**Pre-finalize is an optional gate: enforcing assi
+**Pre-finalize is an optional gate: enforcing assignments can block commit; Advisory/warn-only and `priorityFloor` do not; SoD is approval submitter≠approver — not a different-committer rule — and packs are not certifications.**
