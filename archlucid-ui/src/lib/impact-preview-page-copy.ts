@@ -89,8 +89,6 @@ export const IMPACT_PREVIEW_RECOMMENDATION_PROCEED_MONITORING = "Proceed with mo
 export const IMPACT_PREVIEW_RECOMMENDATION_NEEDS_REVIEW = "Needs review" as const;
 export const IMPACT_PREVIEW_RECOMMENDATION_DO_NOT_PROCEED = "Do not proceed" as const;
 
-export const IMPACT_PREVIEW_RECOMMENDATION_DO_NOT_PROCEED = "Do not proceed" as const;
-
 export const IMPACT_PREVIEW_SUGGESTED_NEXT_STEP_LABEL = "Suggested next step" as const;
 
 export const IMPACT_PREVIEW_RECOMMENDATION_DISCLAIMER =

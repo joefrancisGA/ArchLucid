@@ -161,6 +161,31 @@ public sealed class InMemoryAuthorityQueryService(
     }
 
     /// <inheritdoc />
+    public async Task<RunDetailDto?> GetRunDetailForExportAsync(ScopeContext scope, Guid runId, CancellationToken ct)
+    {
+        RunRecord? run = await runRepository.GetByIdAsync(scope, runId, ct);
+
+        return await AuthorityRunDetailInternalLoader.LoadForExportAsync(
+            run,
+            decisionTraceRepository,
+            goldenManifestRepository,
+            scope,
+            ct);
+    }
+
+    /// <inheritdoc />
+    public async Task<RunDetailDto?> GetRunDetailForManifestCompareAsync(ScopeContext scope, Guid runId, CancellationToken ct)
+    {
+        RunRecord? run = await runRepository.GetByIdAsync(scope, runId, ct);
+
+        return await AuthorityRunDetailInternalLoader.LoadForManifestCompareAsync(
+            run,
+            goldenManifestRepository,
+            scope,
+            ct);
+    }
+
+    /// <inheritdoc />
     public async Task<RunDetailDto?> GetRunDetailForBuyerSummaryAsync(ScopeContext scope, Guid runId, CancellationToken ct)
     {
         RunRecord? run = await runRepository.GetByIdAsync(scope, runId, ct);

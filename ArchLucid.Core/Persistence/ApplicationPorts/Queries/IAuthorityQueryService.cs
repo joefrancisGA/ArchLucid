@@ -80,6 +80,24 @@ public interface IAuthorityQueryService
         CancellationToken ct);
 
     /// <summary>
+    ///     Export packaging path (TB-931): run header, golden manifest, and authority trace without context/graph,
+    ///     findings snapshot, or artifact bundle bodies.
+    /// </summary>
+    Task<RunDetailDto?> GetRunDetailForExportAsync(
+        ScopeContext scope,
+        Guid runId,
+        CancellationToken ct);
+
+    /// <summary>
+    ///     Manifest compare path (TB-931): run header and golden manifest without context/graph, findings snapshot,
+    ///     authority trace, or artifact bundle bodies.
+    /// </summary>
+    Task<RunDetailDto?> GetRunDetailForManifestCompareAsync(
+        ScopeContext scope,
+        Guid runId,
+        CancellationToken ct);
+
+    /// <summary>
     ///     Projects a golden manifest into a compact summary (counts and metadata) without returning the full document.
     /// </summary>
     /// <returns>Summary DTO, or <see langword="null" /> when the manifest id is unknown in <paramref name="scope" />.</returns>

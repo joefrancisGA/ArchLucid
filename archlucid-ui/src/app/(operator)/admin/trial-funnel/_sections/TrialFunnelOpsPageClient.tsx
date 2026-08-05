@@ -17,6 +17,7 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { FORBIDDEN_WORKSPACE_ADMIN_ACCESS_MESSAGE_SHORT } from "@/lib/buyer-polish-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
@@ -33,6 +34,8 @@ import {
   type TrialFunnelOperationalSummary,
   type TrialFunnelStageMetric,
 } from "@/lib/trial-funnel-ops";
+
+import { TrialFunnelEvidenceOrientationStrip } from "./TrialFunnelEvidenceOrientationStrip";
 
 type LoadState = "loading" | "ready" | "error";
 
@@ -332,9 +335,12 @@ export function TrialFunnelOpsPageClient(): ReactElement {
             >
               Export cohort
             </Button>
+            <PageContextualHelpButton />
           </div>
         }
       />
+
+      <TrialFunnelEvidenceOrientationStrip />
 
       <div className="sr-only" role="status" aria-live="polite">
         {refreshAnnouncement}

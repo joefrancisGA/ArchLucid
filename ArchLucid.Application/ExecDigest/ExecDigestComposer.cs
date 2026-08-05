@@ -114,7 +114,7 @@ public sealed class ExecDigestComposer(
                 if (scored.Count >= MaxRunDetailLookups)
                     break;
                 string runHex = runId.ToString("N");
-                ArchitectureRunDetail? detail = await _runDetailQueryService.GetRunDetailAsync(runHex, cancellationToken);
+                ArchitectureRunDetail? detail = await _runDetailQueryService.GetRunDetailForRollupAsync(runHex, cancellationToken);
                 if (detail is null)
                     continue;
                 if (detail.Run.Status is not ArchitectureRunStatus.Committed)
@@ -155,8 +155,8 @@ public sealed class ExecDigestComposer(
         (Guid newerId, _, _) = ordered[^1];
         try
         {
-            ArchitectureRunDetail? older = await _runDetailQueryService.GetRunDetailAsync(olderId.ToString("N"), cancellationToken);
-            ArchitectureRunDetail? newer = await _runDetailQueryService.GetRunDetailAsync(newerId.ToString("N"), cancellationToken);
+            ArchitectureRunDetail? older = await _runDetailQueryService.GetRunDetailForRollupAsync(olderId.ToString("N"), cancellationToken);
+            ArchitectureRunDetail? newer = await _runDetailQueryService.GetRunDetailForRollupAsync(newerId.ToString("N"), cancellationToken);
             if (older is null || newer is null)
                 return null;
             PilotRunDeltas olderDeltas = await _pilotRunDeltaComputer.ComputeAsync(older, cancellationToken);

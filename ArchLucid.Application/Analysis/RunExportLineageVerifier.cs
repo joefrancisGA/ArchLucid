@@ -37,7 +37,7 @@ public sealed class RunExportLineageVerifier(
     {
         ArgumentNullException.ThrowIfNull(scope);
 
-        RunDetailDto? runDetail = await _authorityQueryService.GetRunDetailAsync(scope, runId, ct);
+        RunDetailDto? runDetail = await _authorityQueryService.GetRunDetailForManifestCompareAsync(scope, runId, ct);
 
         if (runDetail is null)
             return null;

@@ -63,8 +63,20 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "azure-permissions", label: "Azure permissions" },
   },
   {
+    prefix: "/help/glossary",
+    topic: { slug: "glossary", label: "Glossary" },
+  },
+  {
     prefix: "/help/cloud-connections",
     topic: { slug: "cloud-connections", label: "Cloud connections" },
+  },
+  {
+    prefix: "/help/operator-auth-roles",
+    topic: { slug: "users-and-roles", label: "Users and roles" },
+  },
+  {
+    prefix: "/help/users-and-roles",
+    topic: { slug: "users-and-roles", label: "Users and roles" },
   },
   { prefix: ARCHITECTURES_LIST_PATH, topic: { slug: "getting-started", label: "Getting started" } },
   { prefix: "/architectures", topic: { slug: "getting-started", label: "Getting started" } },
@@ -138,6 +150,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/sponsor-report", topic: { slug: "executive-summary", label: "Executive summary" } },
   { prefix: "/digests", topic: { slug: "getting-started", label: "Architecture digests" } },
   { prefix: "/insights/planning", topic: { slug: "getting-started", label: "Improvement planning" } },
+  {
+    prefix: "/internal/product-learning",
+    topic: { slug: "pilot-feedback", label: "Pilot feedback" },
+  },
   { prefix: "/administration/settings/billing", topic: { slug: "billing-and-plans", label: "Billing and plans" } },
   { prefix: "/help/billing-and-plans", topic: { slug: "billing-and-plans", label: "Billing and plans" } },
   {
@@ -224,6 +240,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   {
     prefix: "/admin/tenant-health",
     topic: { slug: "troubleshooting", label: "Tenant health" },
+  },
+  {
+    prefix: "/admin/trial-funnel",
+    topic: { slug: "billing-and-plans", label: "Trial funnel" },
   },
   { prefix: "/settings/cloud-connections/aws", topic: { slug: "cloud-connections-aws", label: "AWS cloud connection" } },
   { prefix: "/settings/cloud-connections/gcp", topic: { slug: "cloud-connections-gcp", label: "GCP cloud connection" } },

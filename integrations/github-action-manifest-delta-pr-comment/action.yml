@@ -20,8 +20,9 @@ inputs:
   pr-number:
     description: >
       Pull-request number to comment on. For pull_request workflows pass
-      `${{ github.event.pull_request.number }}`. Required because workflow_dispatch
-      runs do not have a PR context.
+      github.event.pull_request.number from the calling workflow (see
+      .github/workflows/example-manifest-delta-pr-comment.yml). Required because
+      workflow_dispatch runs do not have a PR context.
     required: true
   repository:
     description: 'owner/repo slug; leave empty to use GITHUB_REPOSITORY from the runner.'

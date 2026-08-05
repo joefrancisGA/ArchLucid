@@ -48,7 +48,7 @@ function lifecycleStatusTag(status: AdminTenantLifecycleStatus) {
     case "active":
       return <StatusTag kind="ready" label="Active" />;
     case "suspended":
-      return <StatusTag kind="attention" label="Shut off" />;
+      return <StatusTag kind="needs-attention" label="Shut off" />;
     case "erasure-quarantine":
       return <StatusTag kind="blocked" label="Erasure quarantine" />;
     default: {
@@ -312,7 +312,7 @@ export function AdminTenantsPageClient() {
         </p>
       ) : null}
 
-      <EnterpriseTable data-testid="admin-tenants-table">
+      <EnterpriseTable ariaLabel="Admin tenants" data-testid="admin-tenants-table">
         <EnterpriseTableHead>
           <EnterpriseTableHeadRow>
             <EnterpriseTableHeaderCell>Name</EnterpriseTableHeaderCell>

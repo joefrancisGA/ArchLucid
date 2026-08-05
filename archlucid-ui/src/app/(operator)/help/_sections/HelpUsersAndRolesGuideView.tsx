@@ -2,6 +2,8 @@ import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpUsersAndRolesManageAction } from "@/app/(operator)/help/_sections/HelpUsersAndRolesManageAction";
+import { UsersAndRolesHelpEvidenceOrientationStrip } from "@/app/(operator)/help/_sections/UsersAndRolesHelpEvidenceOrientationStrip";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_LAYOUT, OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
@@ -140,12 +142,19 @@ export function HelpUsersAndRolesGuideView(props: HelpUsersAndRolesGuideViewProp
     >
       <HelpTopicHashScroll />
       <header className={cn(HELP_PAGE_LAYOUT.articleHeader, "space-y-4 pb-4")}>
-        <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{USERS_AND_ROLES_PAGE_TITLE}</h1>
-        <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          {USERS_AND_ROLES_PAGE_INTRO}
-        </p>
-        <HelpUsersAndRolesManageAction />
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0 space-y-4">
+            <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{USERS_AND_ROLES_PAGE_TITLE}</h1>
+            <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+              {USERS_AND_ROLES_PAGE_INTRO}
+            </p>
+            <HelpUsersAndRolesManageAction />
+          </div>
+          <PageContextualHelpButton />
+        </div>
       </header>
+
+      <UsersAndRolesHelpEvidenceOrientationStrip />
 
       <section className="space-y-3" aria-labelledby="users-and-roles-how-access-works-heading">
         <HelpSectionHeading id="how-access-works">{USERS_AND_ROLES_HOW_ACCESS_WORKS_HEADING}</HelpSectionHeading>

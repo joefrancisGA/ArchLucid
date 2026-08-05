@@ -57,20 +57,20 @@ public sealed class DecisionReceiptService(
         Guid runId,
         CancellationToken cancellationToken)
     {
-        RunDetailDto? detail = await _authorityQueryService.GetRunDetailAsync(scope, runId, cancellationToken);
+        RunSummaryDto? summary = await _authorityQueryService.GetRunSummaryAsync(scope, runId, cancellationToken);
 
-        if (detail is null)
+        if (summary is null)
             return null;
 
-        if (detail.Run.GoldenManifestId is null)
+        if (summary.GoldenManifestId is null)
             return null;
 
-        ManifestSummaryDto? summary = await _authorityQueryService.GetManifestSummaryAsync(
+        ManifestSummaryDto? manifestSummary = await _authorityQueryService.GetManifestSummaryAsync(
             scope,
-            detail.Run.GoldenManifestId.Value,
+            summary.GoldenManifestId.Value,
             cancellationToken);
 
-        FeasibilityVerdict? verdict = summary?.FeasibilityVerdict;
+        FeasibilityVerdict? verdict = manifestSummary?.FeasibilityVerdict;
 
         if (verdict is null || !DecisionReceiptComposer.IsExportableVerdict(verdict.Kind))
             return null;

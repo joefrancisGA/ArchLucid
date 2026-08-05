@@ -172,6 +172,40 @@ public sealed class RunDetailQueryServiceTests
     }
 
     [SkippableFact]
+    public async Task GetRunDetailForRollupAsync_loads_results_and_manifest_without_tasks_traces_or_mute_lookup()
+    {
+        RunRecord record = CommittedRunRecord(decisionTraceId: Guid.NewGuid());
+        GoldenManifest manifest = Manifest(Run1N);
+        AgentResult agentResult = new() { ResultId = "r1", RunId = Run1N, TaskId = "t1" };
+
+        _runRepo.Setup(r => r.GetByIdAsync(_scope, _runGuid1, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(record);
+        _resultRepo.Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), Run1N, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([agentResult]);
+        _unifiedManifestReader
+            .Setup(r => r.ReadByRunIdAsync(_scope, _runGuid1, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(manifest);
+
+        ArchitectureRunDetail? result = await _sut.GetRunDetailForRollupAsync(Run1N);
+
+        result.Should().NotBeNull();
+        result!.Results.Should().HaveCount(1);
+        result.Manifest.Should().NotBeNull();
+        result.Tasks.Should().BeEmpty();
+        result.DecisionTraces.Should().BeEmpty();
+        result.AgentExecutionLlmCostEstimate.Should().BeNull();
+        _taskRepo.Verify(
+            r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        _authorityTraceRepo.Verify(
+            r => r.GetByIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        _muteRepo.Verify(
+            r => r.GetMuteFlagsAsync(It.IsAny<Guid>(), It.IsAny<ScopeContext>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [SkippableFact]
     public async Task GetRunDetailAsync_CommittedRunWithoutDecisionTraceId_ReturnsEmptyTraces()
     {
         RunRecord record = CommittedRunRecord(decisionTraceId: null);

@@ -35,7 +35,7 @@ public sealed class ExecutiveSummaryService(IRunRepository runRepository, IRunDe
         }
 
         RunRecord latestRun = recentRuns[0];
-        ArchitectureRunDetail? detail = await _runDetailQueryService.GetRunDetailAsync(latestRun.RunId.ToString("N"), cancellationToken);
+        ArchitectureRunDetail? detail = await _runDetailQueryService.GetRunDetailForRollupAsync(latestRun.RunId.ToString("N"), cancellationToken);
         if (detail is null)
         {
             return new ExecutiveSummaryResponse

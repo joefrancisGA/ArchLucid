@@ -72,9 +72,9 @@ public sealed class EndToEndReplayComparisonServiceTests
             Run = Run("right", "vR"), Results = [], Manifest = Manifest("right", "vR")
         };
 
-        _runDetailQueryService.Setup(s => s.GetRunDetailAsync("left", It.IsAny<CancellationToken>()))
+        _runDetailQueryService.Setup(s => s.GetRunDetailForRollupAsync("left", It.IsAny<CancellationToken>()))
             .ReturnsAsync(left);
-        _runDetailQueryService.Setup(s => s.GetRunDetailAsync("right", It.IsAny<CancellationToken>()))
+        _runDetailQueryService.Setup(s => s.GetRunDetailForRollupAsync("right", It.IsAny<CancellationToken>()))
             .ReturnsAsync(right);
         _exportRepo.Setup(r => r.GetByRunIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<RunExportRecord>());
@@ -86,15 +86,15 @@ public sealed class EndToEndReplayComparisonServiceTests
 
         report.LeftRunId.Should().Be("left");
         report.RightRunId.Should().Be("right");
-        _runDetailQueryService.Verify(s => s.GetRunDetailAsync("left", It.IsAny<CancellationToken>()), Times.Once);
-        _runDetailQueryService.Verify(s => s.GetRunDetailAsync("right", It.IsAny<CancellationToken>()), Times.Once);
+        _runDetailQueryService.Verify(s => s.GetRunDetailForRollupAsync("left", It.IsAny<CancellationToken>()), Times.Once);
+        _runDetailQueryService.Verify(s => s.GetRunDetailForRollupAsync("right", It.IsAny<CancellationToken>()), Times.Once);
         _manifestDiff.Verify(m => m.Compare(left.Manifest, right.Manifest), Times.Once);
     }
 
     [SkippableFact]
     public async Task BuildAsync_WhenLeftRunMissing_ThrowsRunNotFoundException()
     {
-        _runDetailQueryService.Setup(s => s.GetRunDetailAsync("missing", It.IsAny<CancellationToken>()))
+        _runDetailQueryService.Setup(s => s.GetRunDetailForRollupAsync("missing", It.IsAny<CancellationToken>()))
             .ReturnsAsync((ArchitectureRunDetail?)null);
 
         Func<Task<EndToEndReplayComparisonReport>> act = () => _sut.BuildAsync("missing", "right");

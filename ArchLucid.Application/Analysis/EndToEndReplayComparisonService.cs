@@ -43,8 +43,8 @@ public sealed class EndToEndReplayComparisonService(
         ArgumentNullException.ThrowIfNull(rightRunId);
         ArgumentException.ThrowIfNullOrWhiteSpace(leftRunId);
         ArgumentException.ThrowIfNullOrWhiteSpace(rightRunId);
-        Task<ArchitectureRunDetail> leftDetailTask = LoadRunDetailOrThrow(leftRunId, cancellationToken);
-        Task<ArchitectureRunDetail> rightDetailTask = LoadRunDetailOrThrow(rightRunId, cancellationToken);
+        Task<ArchitectureRunDetail> leftDetailTask = LoadRunDetailForRollupOrThrow(leftRunId, cancellationToken);
+        Task<ArchitectureRunDetail> rightDetailTask = LoadRunDetailForRollupOrThrow(rightRunId, cancellationToken);
         await Task.WhenAll(leftDetailTask, rightDetailTask);
         ArchitectureRunDetail leftDetail = await leftDetailTask;
         ArchitectureRunDetail rightDetail = await rightDetailTask;
@@ -134,10 +134,10 @@ public sealed class EndToEndReplayComparisonService(
                 "Export configuration differences were detected, so document outputs may differ even when architecture state is similar.");
     }
 
-    private async Task<ArchitectureRunDetail> LoadRunDetailOrThrow(string runId, CancellationToken cancellationToken)
+    private async Task<ArchitectureRunDetail> LoadRunDetailForRollupOrThrow(string runId, CancellationToken cancellationToken)
     {
         ArchitectureRunDetail? detail =
-            await _runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
+            await _runDetailQueryService.GetRunDetailForRollupAsync(runId, cancellationToken);
 
         return detail ?? throw new RunNotFoundException(runId);
     }

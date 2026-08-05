@@ -349,6 +349,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/internal/product-learning",
+    entry: {
+      whatIsThisPage:
+        "Pilot feedback — aggregate review signals, ranked improvement opportunities, and exports for product triage.",
+      whatToDoNext:
+        "Filter by time range, open Improvement planning for themes and plans, or start a review when the dataset is empty.",
+      whyEmpty: "Feedback rows appear after operators capture review outcomes in this workspace.",
+      whereToConfigurePrerequisite:
+        "Pilot feedback is an Internal Ops surface — System Admin authority is typically required.",
+    },
+  },
+  {
     prefix: "/governance/advisory-scans",
     entry: {
       whatIsThisPage: "Generate prioritized follow-up recommendations from finalized reviews.",
@@ -436,6 +448,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whatToDoNext:
         "Refresh the table, sort attention to low engagement rows, then open System health or Audit when a tenant needs follow-up.",
       whyEmpty: "Rows appear after tenant scopes have recorded review or governance activity.",
+      whereToConfigurePrerequisite:
+        "This page requires tenant administrator access; customer tenants never see other tenants here.",
+    },
+  },
+  {
+    prefix: "/admin/trial-funnel",
+    entry: {
+      whatIsThisPage:
+        "Trial funnel — internal conversion KPIs and cohort rows for trial-stage progress across tenants.",
+      whatToDoNext:
+        "Adjust the date range, refresh, then open Tenant health or Billing when a cohort needs follow-up.",
+      whyEmpty: "Cohort rows appear after trial tenants record signup and review activity in the selected period.",
       whereToConfigurePrerequisite:
         "This page requires tenant administrator access; customer tenants never see other tenants here.",
     },
@@ -571,6 +595,42 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whyEmpty: "This guide is always available; live permission checks appear after you configure an Azure connection.",
       whereToConfigurePrerequisite:
         "Assigning Azure roles needs cloud-admin authority in the target subscription.",
+    },
+  },
+  {
+    prefix: "/help/glossary",
+    entry: {
+      whatIsThisPage:
+        "Glossary — searchable product terms for operators and buyers reviewing ArchLucid vocabulary.",
+      whatToDoNext:
+        "Look up a term, then open Getting started or Security & trust when you need live workflow or assurance orientation.",
+      whyEmpty: "Glossary terms are always listed; search filters the catalog without needing a live review.",
+      whereToConfigurePrerequisite:
+        "No configuration is required — this page is orientation vocabulary only.",
+    },
+  },
+  {
+    prefix: "/help/operator-auth-roles",
+    entry: {
+      whatIsThisPage:
+        "Users and roles — ArchLucid app roles, capabilities, and how operators invite teammates (alias of users-and-roles).",
+      whatToDoNext:
+        "Open Users settings to invite or assign roles, or Security & trust when you need assurance orientation.",
+      whyEmpty: "This guide is always available; live directory rows appear after users are invited or provisioned.",
+      whereToConfigurePrerequisite:
+        "Managing users needs Admin authority; SSO may be required before invited users can sign in.",
+    },
+  },
+  {
+    prefix: "/help/users-and-roles",
+    entry: {
+      whatIsThisPage:
+        "Users and roles — ArchLucid app roles, capabilities, and how operators invite teammates for this workspace.",
+      whatToDoNext:
+        "Open Users settings to invite or assign roles, or Security & trust when you need assurance orientation.",
+      whyEmpty: "This guide is always available; live directory rows appear after users are invited or provisioned.",
+      whereToConfigurePrerequisite:
+        "Managing users needs Admin authority; SSO may be required before invited users can sign in.",
     },
   },
   {
