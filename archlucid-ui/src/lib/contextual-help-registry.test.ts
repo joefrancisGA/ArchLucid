@@ -87,6 +87,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/scope",
       "/help/audit-trail",
       "/help/evidence-trail",
+      "/help/evidence-intake",
       "/help/findings",
       "/help/governance-approval",
       "/help/review-guide",
@@ -278,6 +279,13 @@ describe("contextual-help-registry (TB-733)", () => {
   it("resolves evidence trail help Category-1 help (EV)", () => {
     expect(contextualHelpForPathname("/help/evidence-trail")?.whatIsThisPage).toContain("Evidence graph");
     expect(contextualHelpForPathname("/help/evidence-trail")?.whatToDoNext).toContain("Evidence graph");
+  });
+
+  it("resolves evidence intake help Category-1 help (EVI)", () => {
+    expect(contextualHelpForPathname("/help/evidence-intake")?.whatIsThisPage).toContain("Start a review");
+    expect(contextualHelpForPathname("/help/evidence-intake")?.whatToDoNext).toContain(
+      "architecture review",
+    );
   });
 
   it("resolves jira integration Category-1 help (IJX)", () => {

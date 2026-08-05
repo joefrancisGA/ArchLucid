@@ -664,6 +664,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/help/evidence-intake",
+    entry: {
+      whatIsThisPage:
+        "Start a review guide — how to begin from a brief, diagram, document, or cloud evidence and verify intake before finalize.",
+      whatToDoNext:
+        "Open New architecture review to start intake, or Your first architecture review when you need the guided walkthrough.",
+      whyEmpty: "This guide is always available; live intake drafts appear after you create architecture reviews.",
+      whereToConfigurePrerequisite:
+        "Creating reviews needs a role that can start architecture reviews in this workspace.",
+    },
+  },
+  {
     prefix: "/help/findings",
     entry: {
       whatIsThisPage:

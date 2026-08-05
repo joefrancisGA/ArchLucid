@@ -197,6 +197,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "evidence-trail", label: "Evidence graph" },
   },
   {
+    prefix: "/help/evidence-intake",
+    topic: { slug: "evidence-intake", label: "Start a review" },
+  },
+  {
     prefix: "/help/data-handling-tenant-isolation",
     topic: { slug: "data-handling-tenant-isolation", label: "Data handling and tenant isolation" },
   },
