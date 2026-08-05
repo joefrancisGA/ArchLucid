@@ -10,6 +10,14 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-05 - Persistence: typed hot scalars on AgentExecutionTraces (TB-931)
+
+DbUp **294** + `ArchLucid.sql` add token/cost/alias/quality columns on `dbo.AgentExecutionTraces` with best-effort JSON backfill. Create dual-writes scalars; operator list and LLM cost projections read typed columns (no `JSON_VALUE`). Quality patches dual-write bit columns. Inventory updated. Finding list title/severity was already columnar. Does not claim CPA / third-party pen-test.
+
+## 2026-08-05 - UI: Try Evidence chrome (TRY)
+
+`/try` ships TryEvidenceOrientationStrip (evaluation Sources + claim-discipline), traffic Notes under Marketing, and honest Evidence score 40. Marketing frictionless-try page hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-05 - UI: Showcase Evidence chrome (SRH)
 
 /showcase/[runId] ships ShowcaseEvidenceOrientationStrip (evaluation Sources + claim-discipline), traffic Notes under Marketing, and honest Evidence score 40. Marketing sample-showcase page hard-caps higher Evidence; no CPA / third-party pen-test implication.
