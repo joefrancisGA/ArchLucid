@@ -45,13 +45,12 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 
 ---
 
-**OVERALL WEIGHT SCORE:** 56.23%
+**OVERALL WEIGHT SCORE:** 56.26%
 
 ## Master table (score 0 first; then Deficit desc; ties A→Z by path)
 
 | ID | Path | Hit% | Scores | Weight | Deficit | Section | Notes |
 |----|------|------|--------|--------|---------|---------|-------|
-| QXX | `/quick-scan` | 0.05% | 0 | 0 | 5 | Marketing | None |
 | SRH | `/showcase/[runId]` | 0.05% | 0 | 0 | 5 | Marketing | None |
 | TRY | `/try` | 0.05% | 0 | 0 | 5 | Marketing | None |
 | WSX | `/administration/settings/security-trust` | 0.04% | 0 | 0 | 4 | Admin | None |
@@ -246,6 +245,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | GXX | `/get-started` | 0.05% | 40 | 2 | 3 | Marketing | Get started (Marketing) - GetStartedPageClient with GetStartedEvidenceOrientationStrip (evaluation Sources + claim-discipline: first-run orientation only; not diligence / CPA SOC 2 / third-party pen-test). Not an operator PageContextualHelp surface. Legacy /quick-start retired toward this path. Does not imply CPA SOC 2 or third-party pen-test publication. Score 40/100 (2026-08-04) — marketing first-run page hard-caps higher Evidence. |
 | IIO | `/integrations/itsm/oauth/callback` | 0.05% | 40 | 2 | 3 | Integrations | Atlassian OAuth consent return (Integrations) - ItsmAtlassianOAuthCallbackClient with PageContextualHelpButton (topic map integration-readiness; Category-1 registry), workspace Sources + claim-discipline orientation strip, consent status + return to Jira settings. Live App Router page; not redirect-blocked (TB-1776 hub carve-out). Does not imply CPA SOC 2 or third-party pen-test publication. Score 40/100 (2026-08-05) — OAuth handshake surface hard-caps higher Evidence. |
 | PRC | `/product-learning` | 0.06% | 50 | 3 | 3 | Onboarding | Pilot feedback (Onboarding) - ProductLearningPageView at /internal/product-learning with PageContextualHelpButton (topic map pilot-feedback; Category-1 registry), workspace Sources + claim-discipline orientation strip, time-range dashboard, planning bridge, exports. Legacy /product-learning hard-retired (404). Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 50/100 (2026-08-04) - internal ops feedback hub hard-caps higher Evidence (below PLA planning). |
+| QXX | `/quick-scan` | 0.05% | 40 | 2 | 3 | Marketing | Quick scan (Marketing) - QuickScanClient with QuickScanEvidenceOrientationStrip (evaluation Sources + claim-discipline: demo scan only; not diligence / CPA SOC 2 / third-party pen-test). Not an operator PageContextualHelp surface. Does not imply CPA SOC 2 or third-party pen-test publication. Score 40/100 (2026-08-05) — marketing demo-scan page hard-caps higher Evidence. |
 | HE | `/help/azure-permissions` | 0.06% | 52 | 3.12 | 2.88 | Help topic | Azure permissions help (Help topic) - HelpAzurePermissionsGuideView with PageContextualHelpButton (topic map azure-permissions; Category-1 registry), workspace Sources + claim-discipline orientation strip, permissions matrix, setup and verify panels. Not bare HelpTopicMarkdownView. Sibling HC = Connect Azure securely; HCE = cloud-connections help. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-04) â€” help-topic orientation hard-caps higher Evidence. |
 | HGE | `/help/glossary` | 0.06% | 52 | 3.12 | 2.88 | Help topic | Glossary help (Help topic) - HelpGlossaryPageView with PageContextualHelpButton (topic map glossary; Category-1 registry), workspace Sources + claim-discipline orientation strip, searchable term browser. Not bare HelpTopicMarkdownView. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-04) — help-topic orientation hard-caps higher Evidence. |
 | HOE | `/help/operator-auth-roles` | 0.06% | 52 | 3.12 | 2.88 | Help alias | Operator-auth-roles help alias (Help alias) - resolves to users-and-roles specialty HelpUsersAndRolesGuideView with PageContextualHelpButton (topic map users-and-roles; Category-1 registry on alias + canon), workspace Sources + claim-discipline orientation strip, role overview + capability matrix. Not bare HelpTopicMarkdownView. Sibling HUX = /help/users-and-roles. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-04) — help-topic orientation hard-caps higher Evidence. |

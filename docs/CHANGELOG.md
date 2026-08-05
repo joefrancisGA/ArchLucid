@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-05 - UI: Quick scan Evidence chrome (QXX)
+
+/quick-scan ships QuickScanEvidenceOrientationStrip (evaluation Sources + claim-discipline), traffic Notes under Marketing, and honest Evidence score 40. Marketing demo-scan page hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-05 - UI: ITSM OAuth callback Evidence chrome (IIO)
 
 /integrations/itsm/oauth/callback ships PageContextualHelpButton, Category-1 registry, Sources + claim-discipline orientation strip, traffic Notes, and honest Evidence score 40. OAuth handshake surface hard-caps higher Evidence; no CPA / third-party pen-test implication.

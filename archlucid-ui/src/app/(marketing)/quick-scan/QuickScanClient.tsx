@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useId, useMemo, useState, type ReactElement } from "react";
 
+import { QuickScanEvidenceOrientationStrip } from "@/components/marketing/QuickScanEvidenceOrientationStrip";
 import { findingSeverityLabel } from "@/lib/finding-severity-label";
 import {
   isQuickScanAiSubmitAllowed,
@@ -304,6 +305,8 @@ export function QuickScanClient(): ReactElement {
               Quick Scan is a limited demonstration and is not saved as a workspace review.
             </p>
           </header>
+
+          <QuickScanEvidenceOrientationStrip />
 
           <QuickScanForm
             values={formValues}

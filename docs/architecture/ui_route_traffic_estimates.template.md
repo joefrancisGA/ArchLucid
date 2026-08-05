@@ -174,7 +174,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | IIO | `/integrations/itsm/oauth/callback` | 0.05% | 0 | 0 | 5 | Integrations | Atlassian OAuth consent return (Integrations) - ItsmAtlassianOAuthCallbackClient with PageContextualHelpButton (topic map integration-readiness; Category-1 registry), workspace Sources + claim-discipline orientation strip, consent status + return to Jira settings. Live App Router page; not redirect-blocked (TB-1776 hub carve-out). Does not imply CPA SOC 2 or third-party pen-test publication. Score 40/100 (2026-08-05) — OAuth handshake surface hard-caps higher Evidence. |
 | RXX | `/internal-operations/recommendation-learning` | 0.05% | 0 | 0 | 5 | Marketing | None |
 | OAX | `/operate/architecture-graph` | 0.05% | 0 | 0 | 5 | Advisory | None |
-| QXX | `/quick-scan` | 0.05% | 0 | 0 | 5 | Marketing | None |
+| QXX | `/quick-scan` | 0.05% | 0 | 0 | 5 | Marketing | Quick scan (Marketing) - QuickScanClient with QuickScanEvidenceOrientationStrip (evaluation Sources + claim-discipline: demo scan only; not diligence / CPA SOC 2 / third-party pen-test). Not an operator PageContextualHelp surface. Does not imply CPA SOC 2 or third-party pen-test publication. Score 40/100 (2026-08-05) — marketing demo-scan page hard-caps higher Evidence. |
 | SRH | `/showcase/[runId]` | 0.05% | 0 | 0 | 5 | Marketing | None |
 | TRY | `/try` | 0.05% | 0 | 0 | 5 | Marketing | None |
 | H | `/help/audit-trail` | 0.04% | 0 | 0 | 4 | Help topic | None |
