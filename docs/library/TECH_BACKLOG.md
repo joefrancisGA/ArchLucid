@@ -1,6 +1,6 @@
 > **Scope:** Engineering-owned technical backlog items deferred from current sessions; audience is contributors and the AI assistant; not a buyer or operator document. Not a substitute for ADRs or the pending-questions owner decisions file.
 
-**Updated:** 2026-08-04 (**TB-995** **Done** — [`POLLY_VS_RUN_LEVEL_SEMANTICS_CONTRACT.md`](POLLY_VS_RUN_LEVEL_SEMANTICS_CONTRACT.md) transport vs partial/cache/budget matrix; `LLM_RETRY` + GTM **M-147** + claim-boundary cites; does not close **TB-941**–**TB-945**). Prior: 2026-08-04 (**TB-968** **Done** — `IItsmInboundWebhookReplayGuard` + in-memory 24h dedupe; delivery-id / Atlassian identifier / synthetic replay keys; `Integration.ItsmInboundWebhookReplayIgnored` audit; optional timestamp skew without HMAC; [`ITSM_INBOUND_WEBHOOK_REPLAY_GUARD.md`](runbooks/ITSM_INBOUND_WEBHOOK_REPLAY_GUARD.md); hostile-traffic inventory Replay → Y). Prior: 2026-08-04 (**TB-2038**–**TB-2041** opened — operator short-helper measure caps: design-system contract + `OperatorPageHeader`/`PageHeading` + dashboard inventory + Vitest; Overview `/` premature `max-w-prose`/`max-w-2xl` fixed in-session). Prior: 2026-08-04 (**TB-967** **Done** — `InboundWebhookBoundedBodyReader` Content-Length + hard ceiling before HMAC; ITSM/Stripe/Marketplace/Slack; 413; unit/arch/integration tests; inventory updated). Prior: 2026-08-04 (**TB-966** **Done** — `INBOUND_WEBHOOK_HOSTILE_TRAFFIC.md` PA order rate→size→verify→parse + surface matrix + checklist; INV-015 refresh; GTM **M-125**/**M-126** cite SoT; **TB-968** remains open). Prior: 2026-08-03 (**TB-955** **Done** — Required audit abandon metric + pageable Prometheus alerts; domain↔audit orphan probe + job; triage runbook; informational TryLogAsync excluded). Prior: 2026-08-03 (**TB-954** **Done** — `RequiredAuditEventTypes` registry + arch test forbids `TryLogAsync` on Required types; INV-003 enforcement note; Core + Architecture tests). Prior: 2026-08-03 (**TB-951** **Done** — ≥3 indirect doc/README/ADR corpus scenarios + `indirect-doc-injection.json` with `expectedContained` residual; CI assert + eval_agent_quality strict; no 100% detection claim). Prior: 2026-08-03 (**TB-950** **Done** — production-like empty/null `AllowedTools` fail-closed; `*` unrestricted sentinel; DemoSeed concrete tools; TB-082 tests updated). Prior: 2026-08-03 (**TB-949** **Done** — untrusted customer-content `CUSTOMER_CONTENT_BEGIN`/`END` + framing; Agent/Ask composers; contract doc; unit + wiring tests; hygiene ≠ security boundary). Prior: 2026-08-03 (**DI** Evidence chrome — /digests Sources + claim discipline; Vitest; traffic **DI**). Prior: 2026-08-03 (**PLA** Evidence chrome — `/planning` Sources + claim discipline + topic honesty `how-it-works`; Vitest; traffic **PLA**). Prior: 2026-08-03 (**TB-897** **Done** — Quick Scan layered identity/abuse limits + CAPTCHA/sign-in friction codes; mig **292**; abuse ≠ spend ceiling). Prior: 2026-08-03 (**SCX** Evidence chrome — `/insights/architecture-scorecard` Sources + Category-1 registry + directional ROI claim; Vitest; traffic **SCX**; **TB-1956**–**TB-1960** remain Done). Prior: 2026-08-03 (**TB-1668** GDX/alerts topic slice — `/governance/dashboard` Sources + registry + topic honesty; `/governance/alerts` → `alerts`; Vitest; traffic **GDX**; remaining mount hubs open). Prior: 2026-08-03 (**TB-1667** HOM slice — `/` remounts `OperatorHomePageChrome` + Category-1 registry; Vitest; traffic **HOM**; remaining hubs open). Prior: 2026-08-03 (**TB-1746**/**TB-1749**/**TB-1750** **Done** — `/help/soc2-self-assessment` specialty buyer guide + Trust CTA / IA dual / Help Center; Vitest; traffic **HES**; **TB-1747**/**TB-1748** retained). Prior: 2026-08-03 (**TB-1386** **Done** — `/help/governance-api-contracts` specialty API contracts guide + title honesty; Vitest; traffic **HG**). Prior: 2026-08-02 (**TB-1691**/**TB-1692**/**TB-1694**/**TB-1695** **Done** — `/help/first-value-20-minutes` Admin specialty guide; Vitest; traffic **HEF**). Prior: 2026-08-02 (**TB-1676**/**TB-1678**/**TB-1679**/**TB-1680** **Done** — `/help/dpa-template` specialty buyer DPA guide; Vitest; traffic **HDP**). Prior: 2026-07-31 (Open **P1** summary rows reordered - human-impact ship order for /ship-next-improvement; 723 open P1s; see `### P1 - human-impact ship order`).
+**Updated:** 2026-08-05 (**TB-999** **Done** — [`TENANT_IDENTITY_SINGLE_DERIVATION_CONTRACT.md`](TENANT_IDENTITY_SINGLE_DERIVATION_CONTRACT.md) INV-001 decide-once matrix; GTM **M-151** + Layer B cites; **TB-1000** remains open). Prior: 2026-08-05 (**TB-997** **Done** — [`LLM_TRUST_BOUNDARY_INGRESS_CONFINEMENT_CONTRACT.md`](LLM_TRUST_BOUNDARY_INGRESS_CONFINEMENT_CONTRACT.md) ingress vs confinement matrix; GTM **M-149** + claim-boundary cites; **TB-952** remains open). Prior: 2026-08-04 (**TB-995** **Done** — [`POLLY_VS_RUN_LEVEL_SEMANTICS_CONTRACT.md`](POLLY_VS_RUN_LEVEL_SEMANTICS_CONTRACT.md) transport vs partial/cache/budget matrix; `LLM_RETRY` + GTM **M-147** + claim-boundary cites; does not close **TB-941**–**TB-945**). Prior: 2026-08-04 (**TB-968** **Done** — `IItsmInboundWebhookReplayGuard` + in-memory 24h dedupe; delivery-id / Atlassian identifier / synthetic replay keys; `Integration.ItsmInboundWebhookReplayIgnored` audit; optional timestamp skew without HMAC; [`ITSM_INBOUND_WEBHOOK_REPLAY_GUARD.md`](runbooks/ITSM_INBOUND_WEBHOOK_REPLAY_GUARD.md); hostile-traffic inventory Replay → Y). Prior: 2026-08-04 (**TB-2038**–**TB-2041** opened — operator short-helper measure caps: design-system contract + `OperatorPageHeader`/`PageHeading` + dashboard inventory + Vitest; Overview `/` premature `max-w-prose`/`max-w-2xl` fixed in-session). Prior: 2026-08-04 (**TB-967** **Done** — `InboundWebhookBoundedBodyReader` Content-Length + hard ceiling before HMAC; ITSM/Stripe/Marketplace/Slack; 413; unit/arch/integration tests; inventory updated). Prior: 2026-08-04 (**TB-966** **Done** — `INBOUND_WEBHOOK_HOSTILE_TRAFFIC.md` PA order rate→size→verify→parse + surface matrix + checklist; INV-015 refresh; GTM **M-125**/**M-126** cite SoT; **TB-968** remains open). Prior: 2026-08-03 (**TB-955** **Done** — Required audit abandon metric + pageable Prometheus alerts; domain↔audit orphan probe + job; triage runbook; informational TryLogAsync excluded). Prior: 2026-08-03 (**TB-954** **Done** — `RequiredAuditEventTypes` registry + arch test forbids `TryLogAsync` on Required types; INV-003 enforcement note; Core + Architecture tests). Prior: 2026-08-03 (**TB-951** **Done** — ≥3 indirect doc/README/ADR corpus scenarios + `indirect-doc-injection.json` with `expectedContained` residual; CI assert + eval_agent_quality strict; no 100% detection claim). Prior: 2026-08-03 (**TB-950** **Done** — production-like empty/null `AllowedTools` fail-closed; `*` unrestricted sentinel; DemoSeed concrete tools; TB-082 tests updated). Prior: 2026-08-03 (**TB-949** **Done** — untrusted customer-content `CUSTOMER_CONTENT_BEGIN`/`END` + framing; Agent/Ask composers; contract doc; unit + wiring tests; hygiene ≠ security boundary). Prior: 2026-08-03 (**DI** Evidence chrome — /digests Sources + claim discipline; Vitest; traffic **DI**). Prior: 2026-08-03 (**PLA** Evidence chrome — `/planning` Sources + claim discipline + topic honesty `how-it-works`; Vitest; traffic **PLA**). Prior: 2026-08-03 (**TB-897** **Done** — Quick Scan layered identity/abuse limits + CAPTCHA/sign-in friction codes; mig **292**; abuse ≠ spend ceiling). Prior: 2026-08-03 (**SCX** Evidence chrome — `/insights/architecture-scorecard` Sources + Category-1 registry + directional ROI claim; Vitest; traffic **SCX**; **TB-1956**–**TB-1960** remain Done). Prior: 2026-08-03 (**TB-1668** GDX/alerts topic slice — `/governance/dashboard` Sources + registry + topic honesty; `/governance/alerts` → `alerts`; Vitest; traffic **GDX**; remaining mount hubs open). Prior: 2026-08-03 (**TB-1667** HOM slice — `/` remounts `OperatorHomePageChrome` + Category-1 registry; Vitest; traffic **HOM**; remaining hubs open). Prior: 2026-08-03 (**TB-1746**/**TB-1749**/**TB-1750** **Done** — `/help/soc2-self-assessment` specialty buyer guide + Trust CTA / IA dual / Help Center; Vitest; traffic **HES**; **TB-1747**/**TB-1748** retained). Prior: 2026-08-03 (**TB-1386** **Done** — `/help/governance-api-contracts` specialty API contracts guide + title honesty; Vitest; traffic **HG**). Prior: 2026-08-02 (**TB-1691**/**TB-1692**/**TB-1694**/**TB-1695** **Done** — `/help/first-value-20-minutes` Admin specialty guide; Vitest; traffic **HEF**). Prior: 2026-08-02 (**TB-1676**/**TB-1678**/**TB-1679**/**TB-1680** **Done** — `/help/dpa-template` specialty buyer DPA guide; Vitest; traffic **HDP**). Prior: 2026-07-31 (Open **P1** summary rows reordered - human-impact ship order for /ship-next-improvement; 723 open P1s; see `### P1 - human-impact ship order`).
 
 
 ## Cursor-actionable backlog ? remaining by architectural quality
@@ -638,8 +638,8 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-974 | Wrong-gate migration playbook — deprecate version, selective re-execute, append-only supersede; never silent UPDATE; see `## TB-974` below | Trustworthiness P1 — **V1**; after **TB-972**; pairs **TB-973** | M |
 | TB-985 | Cross-surface Simulator-ROI honesty regression + CI guard — no leading USD on forbidden postures; see `## TB-985` below | Trustworthiness P1 — **V1**; after **TB-984**; extends `check_sponsor_evidence_label_consistency.py` / sponsor invariant tests | M |
 | TB-995 | ~~Polly/CB transport vs run-level surface matrix — partial agents / poisoned cache / mid-run budget map to **TB-937**–**TB-945**~~ **Done** 2026-08-04 — [`POLLY_VS_RUN_LEVEL_SEMANTICS_CONTRACT.md`](POLLY_VS_RUN_LEVEL_SEMANTICS_CONTRACT.md); see `## TB-995` below | Trustworthiness P1 — **V1**; PA Q7 2026-07-24; GTM **M-146**/**M-147**; does not duplicate implementation TBs | S |
-| TB-997 | LLM trust-boundary ingress vs structurally-impossible matrix — docs/repo/retrieval into model; no model-driven exfil/side effects; see `## TB-997` below | Trustworthiness P1 — **V1**; PA Q11 2026-07-24; GTM **M-148**/**M-149**; complements **TB-949**–**TB-952** | S |
-| TB-999 | INV-001 tenant identity single-derivation contract — decided once at host; forbidden layers; trusted sources; see `## TB-999` below | Trustworthiness P1 — **V1**; PA Q1 2026-07-24; GTM **M-150**/**M-151**; extends Done **TB-010**/**TB-304**/**TB-925** | S |
+| TB-997 | ~~LLM trust-boundary ingress vs structurally-impossible matrix — docs/repo/retrieval into model; no model-driven exfil/side effects~~ **Done** 2026-08-05 — [`LLM_TRUST_BOUNDARY_INGRESS_CONFINEMENT_CONTRACT.md`](LLM_TRUST_BOUNDARY_INGRESS_CONFINEMENT_CONTRACT.md); see `## TB-997` below | Trustworthiness P1 — **V1**; PA Q11 2026-07-24; GTM **M-148**/**M-149**; complements **TB-949**–**TB-952** | S |
+| TB-999 | ~~INV-001 tenant identity single-derivation contract — decided once at host; forbidden layers; trusted sources~~ **Done** 2026-08-05 — [`TENANT_IDENTITY_SINGLE_DERIVATION_CONTRACT.md`](TENANT_IDENTITY_SINGLE_DERIVATION_CONTRACT.md); see `## TB-999` below | Trustworthiness P1 — **V1**; PA Q1 2026-07-24; GTM **M-150**/**M-151**; extends Done **TB-010**/**TB-304**/**TB-925** | S |
 | TB-1001 | Azure AI Search / Ask / Graph-RAG retrieval tenancy guarantee matrix — OData filter + upsert + scoped expand; see `## TB-1001` below | Trustworthiness P1 — **V1**; PA Q3 2026-07-24; GTM **M-152**/**M-153**; Done **TB-048**/**TB-071**/**TB-604** | S |
 | TB-1003 | Committed golden manifest unit-of-truth + Evidence→…→audit hop/label contract — forbidden substitutes; see `## TB-1003` below | Trustworthiness P1 — **V1**; PA Q 2026-07-24 + chain Q 2026-07-25; GTM **M-154**/**M-155**; pairs `PROOF_LANGUAGE_CLAIM_AUDIT` | S |
 | TB-1005 | API/Application/Persistence/AgentRuntime/UI residual-boundary + irreversible-leak matrix — NetArchTest vs runtime; see `## TB-1005` below | Trustworthiness P1 — **V1**; PA Q 2026-07-24; GTM **M-156**/**M-157**; cites **TB-950**/**TB-999**/**TB-1001** | S |
@@ -26811,29 +26811,23 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 — Trustworthiness.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-05).
 
 **Priority:** P1.
 
 **Source:** Owner / PA question 2026-07-24: *What leaves the trust boundary into the model (docs, repo, retrieval), and what is structurally impossible for the model to cause (exfil, side effects)?*
 
-**Problem:** Prompt-injection work is split across Content Safety (**Done**), **TB-082** Done, and open **TB-949**–**TB-952**. PA answers need one matrix: (A) **ingress** — what host code puts into Azure OpenAI prompts; (B) **structurally impossible** — capabilities the model cannot invoke because there is no tool loop; (C) **residual** — influence on finding text, empty-`AllowedTools`, indirect injection — owned by open TBs, not claimed closed.
+**Problem:** Prompt-injection work is split across Content Safety (**Done**), **TB-082** Done, and **TB-949**–**TB-952**. PA answers need one matrix: (A) **ingress** — what host code puts into Azure OpenAI prompts; (B) **structurally impossible** — capabilities the model cannot invoke because there is no tool loop; (C) **residual** — influence on finding text, indirect injection residual, side-effect inventory — not claimed closed by this contract.
 
-**Approach:**
+**Shipped:**
 
-1. Author `docs/library/LLM_TRUST_BOUNDARY_INGRESS_CONFINEMENT_CONTRACT.md` (or expand `SYSTEM_THREAT_MODEL.md` + Ask RAG threat model) with tables:
-   - **Into the model:** architecture request; evidence package prose; technology ledger; host-selected retrieval citations; task objective / tool-key hints; Ask question + chunks.
-   - **Hygiene (not the boundary):** Content Safety, `PromptFieldRedactor`, evidence sanitizer, static-first (**TB-681**), future DATA delimiters (**TB-949**).
-   - **Structurally impossible today:** model-invoked arbitrary HTTP/shell/file exfil; ITSM/ADO/email writes from the completion; governance accept/waive/finalize; unconstrained handler dispatch when `AllowedTools` is non-empty (**TB-082**).
-   - **Residual / backlog:** side-effect inventory arch test (**TB-952**); delimiter hygiene (**TB-949** Done); AllowedTools fail-closed (**TB-950** Done); indirect corpus (**TB-951** Done).
-2. Explicit non-goals: “injection-proof PDFs”; claiming the model cannot influence finding wording.
-3. Cross-link GTM **M-115**/**M-116**/**M-148**/**M-149**.
+1. [`LLM_TRUST_BOUNDARY_INGRESS_CONFINEMENT_CONTRACT.md`](LLM_TRUST_BOUNDARY_INGRESS_CONFINEMENT_CONTRACT.md) — ingress / hygiene / impossible / residual tables.
+2. GTM **M-149** residuals + [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md`](PUBLIC_CLAIM_BOUNDARY_GUIDE.md) + [`CUSTOMER_CONTENT_PROMPT_COMPOSER_CONTRACT.md`](CUSTOMER_CONTENT_PROMPT_COMPOSER_CONTRACT.md) cite the matrix.
+3. Explicit non-claims: not injection-proof; model may influence finding text; **TB-952** remains open.
 
-**Acceptance:** Contract published; GTM can cite it; does not mark **TB-949**–**TB-952** Done.
+**Acceptance:** Met — contract published; GTM cites it; does not mark **TB-952** Done.
 
-**Depends on:** Done **TB-082** / Content Safety path. Complements open **TB-949**–**TB-952**.
-
-**Out of scope:** Implementing delimiters, fail-closed tools, corpus, or side-effect inventory (those TBs).
+**Out of scope:** Honesty CI (**TB-998**); side-effect inventory implementation (**TB-952**).
 
 **Size estimate:** S.
 
@@ -26871,7 +26865,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 — Trustworthiness.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-05).
 
 **Priority:** P1.
 
@@ -26879,24 +26873,15 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Problem:** Controls are shipped (provider + middleware + ARCH001 + route binding + catalog Layer A), but PA answers still stitch INV-001, `TENANT_ISOLATION_DEFENSE_IN_DEPTH.md` Layer B, and call-site names. Easy to conflate “headers exist in DevBypass” with “headers establish tenant in production,” or to treat route `{tenantId}` as a second identity source.
 
-**Approach:**
+**Shipped:**
 
-1. Author `docs/library/TENANT_IDENTITY_SINGLE_DERIVATION_CONTRACT.md` (or expand Layer B in `TENANT_ISOLATION_DEFENSE_IN_DEPTH.md` with a PA appendix) with tables:
-   - **Decided once:** `HttpScopeContextProvider.ResolveCurrentScope` / `IScopeContextProvider` at host; order ambient → claims → headers → defaults.
-   - **Prod-like trusted:** JWT/API-key scope claims; `AmbientScopeContext` for jobs (never `ScopeIds.Default*`); header-only and defaults → **403** (`ScopeResolutionGuardMiddleware`); claim/header mismatch → **403** (`ScopeIdentityBindingMiddleware`).
-   - **Forbidden re-derive:** Application, Persistence, AgentRuntime, Retrieval, Decisioning, etc. must not use `HttpContext` / `ClaimsPrincipal` / raw `x-tenant-id` for tenant (ARCH001); repositories take `ScopeContext` / `tenantId` parameters.
-   - **Not a second identity source:** `RouteTenantScopeBindingFilter` compares route `{tenantId}` to already-resolved scope.
-   - **Exceptions:** `[AllowUnscopedRoute]`, `/internal/*` / health / OpenAPI skips — listed with rationale.
-   - **Primary isolation reminder:** per-tenant catalogs (ADR 0037 Layer A); typed scope is defense-in-depth, not a substitute for wrong-catalog binding residual.
-2. Cross-link Done **TB-010**/**TB-071**/**TB-072**/**TB-276**/**TB-304**/**TB-925**, GTM **M-150**/**M-151** and Done **M-114**.
-3. Name CI anchors for **TB-1000**.
-4. Cross-link PA Q8 DiD erosion / beyond-predicates contract **TB-1232**–**TB-1233** / GTM **M-213**/**M-214** (how decide-once erodes after the provider exists).
+1. [`TENANT_IDENTITY_SINGLE_DERIVATION_CONTRACT.md`](TENANT_IDENTITY_SINGLE_DERIVATION_CONTRACT.md) — decide-once / trusted sources / forbidden re-derive / exceptions / Layer A reminder.
+2. GTM **M-151** residuals + [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md`](PUBLIC_CLAIM_BOUNDARY_GUIDE.md) + Layer B / INV-001 cites.
+3. Explicit non-claims: no RLS; route `{tenantId}` ≠ second identity; does not close **TB-1232** / **TB-1018**.
 
-**Acceptance:** Contract published; GTM can cite it; does not claim RLS or reopen ADR 0037.
+**Acceptance:** Met — contract published; GTM cites it; does not claim RLS or reopen ADR 0037.
 
-**Depends on:** Done Wave A / scope-binding cluster. Docs-only to start.
-
-**Out of scope:** New catalog topology; within-tenant workspace/project as a paying-client security boundary; re-enabling RLS. Erosion-mode matrix itself is **TB-1232** (do not duplicate).
+**Out of scope:** Honesty CI (**TB-1000**); erosion matrix (**TB-1232**); empty-scope catalog (**TB-1018**).
 
 **Size estimate:** S.
 

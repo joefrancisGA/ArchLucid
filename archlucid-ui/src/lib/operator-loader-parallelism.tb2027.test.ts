@@ -53,7 +53,7 @@ describe("TB-2027 operator loader parallelism", () => {
     );
 
     expect(source).toMatch(
-      /await Promise\.all\(\[\s*loadFindingInspectForRoute\(runId, decodedFindingId\),\s*tryLoadRunExecutionFootnote\(runId\)/,
+      /await Promise\.all\(\[\s*loadFindingInspectForRoute\(runId, decodedFindingId, \{ includeTypedPayload: false \}\),\s*tryLoadRunExecutionFootnote\(runId\)/,
     );
   });
 });

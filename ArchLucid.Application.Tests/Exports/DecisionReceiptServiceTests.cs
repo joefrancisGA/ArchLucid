@@ -81,14 +81,11 @@ public sealed class DecisionReceiptServiceTests
     public async Task BuildForRunAsync_InfeasibleManifest_ReturnsReceipt()
     {
         _authority
-            .Setup(static s => s.GetRunDetailAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new RunDetailDto
+            .Setup(static s => s.GetRunSummaryAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunSummaryDto
             {
-                Run = new ArchLucid.Persistence.Models.RunRecord
-                {
-                    RunId = RunId,
-                    GoldenManifestId = ManifestId,
-                },
+                RunId = RunId,
+                GoldenManifestId = ManifestId,
             });
 
         _authority

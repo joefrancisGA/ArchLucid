@@ -191,8 +191,11 @@ export function FindingInspectFindingBody({
       {insightDensityBlock}
       {recommendedBlock("inspect")}
       <FindingInspectReasoningPayloadDetails
+        runId={runId}
+        findingId={decodedFindingId}
         reasoningTrace={payload.reasoningTrace}
         typedPayload={payload.typedPayload}
+        lazyLoadTypedPayload
       />
       {auditBlock}
     </>

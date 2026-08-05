@@ -49,7 +49,7 @@ jobs:
         with:
           python-version: "3.12"
 
-      - uses: azure/login@v2
+      - uses: azure/login@v3
         if: steps.eligibility.outputs.enabled == 'true'
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
@@ -58,7 +58,7 @@ jobs:
 
       - name: Restore error-signature baseline
         if: steps.eligibility.outputs.enabled == 'true'
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: ${{ runner.temp }}/app-insights-error-baseline
           key: app-insights-error-baseline-${{ github.run_id }}
@@ -126,7 +126,7 @@ jobs:
 
       - name: Cache baseline for next run
         if: steps.eligibility.outputs.enabled == 'true'
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           path: ${{ runner.temp }}/app-insights-error-baseline
           key: app-insights-error-baseline-${{ github.run_id }}

@@ -95,14 +95,9 @@ Former standalone body: `docs/go-to-market/TENANT_IDENTITY_SINGLE_DERIVATION_PA_
 
 ### Residuals (honest)
 
-- **INV-001** and Layer B are implemented; **ARCH001** prohibits lower assemblies from using `HttpContext`/`ClaimsPrincipal` for this purpose.
-- Contract + honesty CI: **TB-999** / **TB-1000** (open).
-- Too-strong inventory / stale RLS purge: **M-194** / **TB-1122**.
-- DiD erosion after provider exists: **M-213** / **TB-1232** — see [Tenant DiD erosion (M-214)](#tenant-did-erosion-beyond-predicates-m-214).
-- Retrieval hit tenancy (Search `$filter`): **M-152** / **M-153**.
-- This is Layer B defense in depth; Layer A database-per-tenant routing remains the primary paying-client isolation boundary.
+Engineering SoT: [`TENANT_IDENTITY_SINGLE_DERIVATION_CONTRACT.md`](../library/TENANT_IDENTITY_SINGLE_DERIVATION_CONTRACT.md) (**TB-999** Done). **INV-001** and Layer B are implemented; **ARCH001** prohibits lower assemblies from using `HttpContext`/`ClaimsPrincipal` for this purpose. Follow-on claim CI: **TB-1000**. Too-strong inventory / stale RLS purge: **M-194** / **TB-1122**. DiD erosion after provider exists: **M-213** / **TB-1232** — see [Tenant DiD erosion (M-214)](#tenant-did-erosion-beyond-predicates-m-214). Retrieval hit tenancy (Search `$filter`): **M-152** / **M-153**. This is Layer B defense in depth; Layer A database-per-tenant routing remains the primary paying-client isolation boundary.
 
-**Deep reference:** [`../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md) Layer B · [Isolation one-pager (M-114)](#isolation-one-pager-m-114) · [Empty-scope catalog routing (M-169)](#empty-scope-catalog-routing-m-169) · [Isolation claims vs INV-001 / ADR 0037 (M-195)](#isolation-claims-vs-inv001-adr0037-m-195) · [Tenant DiD erosion (M-214)](#tenant-did-erosion-beyond-predicates-m-214) · [Tenant isolation (buyer overview)](#tenant-isolation-buyer-overview) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+**Deep reference:** [`../library/TENANT_IDENTITY_SINGLE_DERIVATION_CONTRACT.md`](../library/TENANT_IDENTITY_SINGLE_DERIVATION_CONTRACT.md) · [`../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md) Layer B · [Isolation one-pager (M-114)](#isolation-one-pager-m-114) · [Empty-scope catalog routing (M-169)](#empty-scope-catalog-routing-m-169) · [Isolation claims vs INV-001 / ADR 0037 (M-195)](#isolation-claims-vs-inv001-adr0037-m-195) · [Tenant DiD erosion (M-214)](#tenant-did-erosion-beyond-predicates-m-214) · [Tenant isolation (buyer overview)](#tenant-isolation-buyer-overview) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## Empty scope and catalog routing (M-169) {#empty-scope-catalog-routing-m-169}
 
@@ -306,7 +301,7 @@ Former standalone body: `docs/go-to-market/LLM_TRUST_BOUNDARY_INGRESS_PA_ONE_PAG
 | --- | --- |
 | “Customer documents are injection-proof” | Untrusted content enters a host-composed, confined model boundary |
 | “The model cannot influence findings” | It can influence generated text; it cannot directly invoke the listed side-effect loops |
-| “Tool allowlists are complete” / “Empty AllowedTools is safe” | Dispatch guarding is shipped (**TB-082** Done); empty `AllowedTools` closure remains **TB-950** |
+| “Tool allowlists are complete” / “Empty AllowedTools is unsafe forever” | Dispatch guarding is shipped (**TB-082** Done); production-like empty/null `AllowedTools` fail-closed (**TB-950** Done); unrestricted requires explicit `*` |
 
 ### Reviewer check
 
@@ -325,12 +320,9 @@ Former standalone body: `docs/go-to-market/LLM_TRUST_BOUNDARY_INGRESS_PA_ONE_PAG
 
 ### Residuals (honest)
 
-- **TB-082** is Done for `AgentTaskAllowedToolsDispatchGuard`.
-- Empty/unrestricted `AllowedTools` behavior is still a residual under **TB-950**.
-- **TB-997**–**TB-998** remain open for the PA ingress/impossible contract and claim guard.
-- This does not promise prompt-injection proof; see [M-115](#prompt-injection-resistance-m-115) / **M-116**.
+Engineering SoT: [`LLM_TRUST_BOUNDARY_INGRESS_CONFINEMENT_CONTRACT.md`](../library/LLM_TRUST_BOUNDARY_INGRESS_CONFINEMENT_CONTRACT.md) (**TB-997** Done). **TB-082** / **TB-949** / **TB-950** / **TB-951** are Done; residual side-effect inventory remains **TB-952**. Follow-on claim CI: **TB-998**. This does not promise prompt-injection proof; see [M-115](#prompt-injection-resistance-m-115) / **M-116**.
 
-**Related:** [Prompt-injection resistance (M-115)](#prompt-injection-resistance-m-115) · [Retrieval tenancy (M-153)](#retrieval-tenancy-hit-guarantee-m-153) · [`../security/SYSTEM_THREAT_MODEL.md`](../security/SYSTEM_THREAT_MODEL.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+**Related:** [Prompt-injection resistance (M-115)](#prompt-injection-resistance-m-115) · [Retrieval tenancy (M-153)](#retrieval-tenancy-hit-guarantee-m-153) · [`../library/LLM_TRUST_BOUNDARY_INGRESS_CONFINEMENT_CONTRACT.md`](../library/LLM_TRUST_BOUNDARY_INGRESS_CONFINEMENT_CONTRACT.md) · [`../security/SYSTEM_THREAT_MODEL.md`](../security/SYSTEM_THREAT_MODEL.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## Security reviewer audit trail (M-118) {#security-reviewer-audit-trail-m-118}
 
@@ -2179,7 +2171,7 @@ Former standalone body: `docs/go-to-market/INV001_DECIDE_ONCE_COMMITTED_MANIFEST
 
 **Audience:** Principal architects and procurement reviewers who fuse tenant, decide, and commit stories.
 
-**Decision:** Keep three vocabularies separate. Committed golden manifest proves **finalization identity + hash lineage**, not semantic faithfulness, zero AgentTask overlay, or crypto tenant isolation. Do not sell the triad as closed while **TB-999** / **TB-1003** (and named residual owners) remain Not started.
+**Decision:** Keep three vocabularies separate. Committed golden manifest proves **finalization identity + hash lineage**, not semantic faithfulness, zero AgentTask overlay, or crypto tenant isolation. Tenant single-derivation matrix (**TB-999**) is shipped; do not sell the triad as closed while **TB-1003** (and named residual owners) remain Not started, or while honesty CI (**TB-1000**) / DiD erosion (**TB-1232**) remain open.
 
 ### Vocabulary (do not fuse)
 
@@ -2208,7 +2200,7 @@ Former standalone body: `docs/go-to-market/INV001_DECIDE_ONCE_COMMITTED_MANIFEST
 
 1. Ask which “decide-once” the buyer means — tenant, quality gate, or architecture commit.
 2. Confirm committed ≠ evidence-grounded / no-overlay / crypto-isolated.
-3. Confirm triad is not sold as closed while **TB-999** / **TB-1003** remain Not started.
+3. Confirm triad is not sold as closed while **TB-1003** remains Not started (tenant matrix **TB-999** is Done; **TB-1000** / **TB-1232** residuals still open).
 4. Treat a fourth fused “decide” story as a review finding.
 
 ### Claim boundary
@@ -2218,7 +2210,7 @@ Do not equate INV-001 tenant decide-once with architecture decided once or INV-0
 ### Residuals (honest)
 
 - **TB-1416** / **TB-1417** own the fused matrix contract and language guards.
-- Ship-order hint: **TB-999** + **TB-1003** first among residual contracts.
+- Ship-order hint: **TB-1003** next among residual contracts (**TB-999** Done).
 - Complements **M-150** / **M-154** / **M-194** / **M-203** / **M-207** / **M-213** / **M-198** / **M-247**.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
 

@@ -24,53 +24,100 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
         connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
 
     /// <inheritdoc />
-    public async Task<FindingInspectResponse?> GetInspectAsync(ScopeContext scope, string findingId,
-        CancellationToken ct)
+    public async Task<FindingInspectResponse?> GetInspectAsync(
+        ScopeContext scope,
+        string findingId,
+        CancellationToken ct,
+        FindingInspectReadOptions? options = null)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
         if (string.IsNullOrWhiteSpace(findingId))
             throw new ArgumentException("Finding id is required.", nameof(findingId));
 
+        bool includeTypedPayload = options?.IncludeTypedPayload ?? true;
+
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
 
-        const string sql = """
-                           SELECT TOP 1
-                               fr.FindingId,
-                               fr.Severity,
-                               fr.PayloadJson,
-                               fr.ModelDeploymentName,
-                               JSON_VALUE(aet.TraceJson, '$.modelAlias') AS ModelAlias,
-                               fr.PromptTemplateVersion,
-                               fr.ConfidenceScore,
-                               fr.EvaluationConfidenceScore,
-                               fr.EvaluationConfidenceLevel,
-                               fr.HumanReviewStatus,
-                               fr.IsMuted,
-                               fr.MuteReason,
-                               fr.AssignedToUserId,
-                               fr.RemediationDueUtc,
-                               fr.ReasoningTrace,
-                               fr.ReasoningTraceDigestSha256,
-                               r.RunId,
-                               r.CurrentManifestVersion,
-                               r.GoldenManifestId,
-                               dt.AppliedRuleIdsJson
-                           FROM dbo.FindingRecords fr
-                           INNER JOIN dbo.FindingsSnapshots fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
-                           INNER JOIN dbo.Runs r ON r.RunId = fs.RunId
-                           LEFT JOIN dbo.AgentExecutionTraces aet ON aet.TraceId = fr.AgentExecutionTraceId
-                           LEFT JOIN dbo.DecisioningTraces dt
-                               ON dt.DecisionTraceId = r.DecisionTraceId
-                              AND dt.TenantId = r.TenantId
-                              AND dt.WorkspaceId = r.WorkspaceId
-                              AND dt.ProjectId = r.ScopeProjectId
-                           WHERE fr.FindingId = @FindingId
-                             AND r.TenantId = @TenantId
-                             AND r.WorkspaceId = @WorkspaceId
-                             AND r.ScopeProjectId = @ScopeProjectId
-                             AND (r.ArchivedUtc IS NULL);
-                           """;
+        string sql = includeTypedPayload
+            ? """
+              SELECT TOP 1
+                  fr.FindingId,
+                  fr.Severity,
+                  fr.PayloadJson,
+                  fr.Title,
+                  fr.Rationale,
+                  fr.ModelDeploymentName,
+                  JSON_VALUE(aet.TraceJson, '$.modelAlias') AS ModelAlias,
+                  fr.PromptTemplateVersion,
+                  fr.ConfidenceScore,
+                  fr.EvaluationConfidenceScore,
+                  fr.EvaluationConfidenceLevel,
+                  fr.HumanReviewStatus,
+                  fr.IsMuted,
+                  fr.MuteReason,
+                  fr.AssignedToUserId,
+                  fr.RemediationDueUtc,
+                  fr.ReasoningTrace,
+                  fr.ReasoningTraceDigestSha256,
+                  r.RunId,
+                  r.CurrentManifestVersion,
+                  r.GoldenManifestId,
+                  dt.AppliedRuleIdsJson
+              FROM dbo.FindingRecords fr
+              INNER JOIN dbo.FindingsSnapshots fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
+              INNER JOIN dbo.Runs r ON r.RunId = fs.RunId
+              LEFT JOIN dbo.AgentExecutionTraces aet ON aet.TraceId = fr.AgentExecutionTraceId
+              LEFT JOIN dbo.DecisioningTraces dt
+                  ON dt.DecisionTraceId = r.DecisionTraceId
+                 AND dt.TenantId = r.TenantId
+                 AND dt.WorkspaceId = r.WorkspaceId
+                 AND dt.ProjectId = r.ScopeProjectId
+              WHERE fr.FindingId = @FindingId
+                AND r.TenantId = @TenantId
+                AND r.WorkspaceId = @WorkspaceId
+                AND r.ScopeProjectId = @ScopeProjectId
+                AND (r.ArchivedUtc IS NULL);
+              """
+            : """
+              SELECT TOP 1
+                  fr.FindingId,
+                  fr.Severity,
+                  CAST(NULL AS nvarchar(max)) AS PayloadJson,
+                  fr.Title,
+                  fr.Rationale,
+                  fr.ModelDeploymentName,
+                  JSON_VALUE(aet.TraceJson, '$.modelAlias') AS ModelAlias,
+                  fr.PromptTemplateVersion,
+                  fr.ConfidenceScore,
+                  fr.EvaluationConfidenceScore,
+                  fr.EvaluationConfidenceLevel,
+                  fr.HumanReviewStatus,
+                  fr.IsMuted,
+                  fr.MuteReason,
+                  fr.AssignedToUserId,
+                  fr.RemediationDueUtc,
+                  fr.ReasoningTrace,
+                  fr.ReasoningTraceDigestSha256,
+                  r.RunId,
+                  r.CurrentManifestVersion,
+                  r.GoldenManifestId,
+                  dt.AppliedRuleIdsJson
+              FROM dbo.FindingRecords fr
+              INNER JOIN dbo.FindingsSnapshots fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
+              INNER JOIN dbo.Runs r ON r.RunId = fs.RunId
+              LEFT JOIN dbo.AgentExecutionTraces aet ON aet.TraceId = fr.AgentExecutionTraceId
+              LEFT JOIN dbo.DecisioningTraces dt
+                  ON dt.DecisionTraceId = r.DecisionTraceId
+                 AND dt.TenantId = r.TenantId
+                 AND dt.WorkspaceId = r.WorkspaceId
+                 AND dt.ProjectId = r.ScopeProjectId
+              WHERE fr.FindingId = @FindingId
+                AND r.TenantId = @TenantId
+                AND r.WorkspaceId = @WorkspaceId
+                AND r.ScopeProjectId = @ScopeProjectId
+                AND (r.ArchivedUtc IS NULL);
+              """;
 
         MainRow? row = await connection.QuerySingleOrDefaultAsync<MainRow>(
             new CommandDefinition(
@@ -175,7 +222,9 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
                 new FindingInspectEvidenceItem { ArtifactId = null, LineRange = null, Excerpt = n.Trim() })
             .ToList();
 
-        JsonElement? typed = TryParsePayloadJson(row.PayloadJson);
+        JsonElement? typed = includeTypedPayload
+            ? TryParsePayloadJson(row.PayloadJson)
+            : BuildMetadataTypedPayload(row.Title, row.Rationale);
         FindingSeverity recordSeverity = FindingInspectReadModelMapper.ParseFindingSeverity(row.Severity);
 
         return new FindingInspectResponse
@@ -211,6 +260,25 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
                 ? null
                 : new DateTimeOffset(DateTime.SpecifyKind(row.RemediationDueUtc.Value, DateTimeKind.Utc)),
         };
+    }
+
+    /// <summary>
+    ///     Minimal typed payload from relational title/rationale so detail first paint keeps narrative lookups
+    ///     without shipping <c>PayloadJson</c>.
+    /// </summary>
+    private static JsonElement? BuildMetadataTypedPayload(string? title, string? rationale)
+    {
+        if (string.IsNullOrWhiteSpace(title) && string.IsNullOrWhiteSpace(rationale))
+            return null;
+
+        Dictionary<string, string?> slim = new(StringComparer.Ordinal)
+        {
+            ["title"] = string.IsNullOrWhiteSpace(title) ? null : title.Trim(),
+            ["rationale"] = string.IsNullOrWhiteSpace(rationale) ? null : rationale.Trim(),
+            ["whyThisMatters"] = string.IsNullOrWhiteSpace(rationale) ? null : rationale.Trim(),
+        };
+
+        return JsonSerializer.SerializeToElement(slim);
     }
 
     private static (string? RuleId, string? RuleName) ResolveRuleFields(string? appliedRuleIdsJson,
@@ -269,6 +337,18 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
         } = string.Empty;
 
         public string? PayloadJson
+        {
+            get;
+            init;
+        }
+
+        public string? Title
+        {
+            get;
+            init;
+        }
+
+        public string? Rationale
         {
             get;
             init;

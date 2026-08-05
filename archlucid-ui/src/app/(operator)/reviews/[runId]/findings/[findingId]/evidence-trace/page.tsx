@@ -42,7 +42,9 @@ export default async function FindingEvidenceTracePage({
 
   const decodedFindingId = decodeURIComponent(findingId);
 
-  const { payload, failure, invalidRouteAlignment } = await loadFindingInspectForRoute(runId, decodedFindingId);
+  const { payload, failure, invalidRouteAlignment } = await loadFindingInspectForRoute(runId, decodedFindingId, {
+    includeTypedPayload: false,
+  });
 
   if (invalidRouteAlignment || shouldTreatFindingInspectFailureAsNotFound(failure)) {
     notFound();

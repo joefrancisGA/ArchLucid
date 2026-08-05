@@ -28,13 +28,18 @@ public sealed class InMemoryFindingInspectReadRepository(IAuthorityQueryService 
         authorityQuery ?? throw new ArgumentNullException(nameof(authorityQuery));
 
     /// <inheritdoc />
-    public async Task<FindingInspectResponse?> GetInspectAsync(ScopeContext scope, string findingId,
-        CancellationToken ct)
+    public async Task<FindingInspectResponse?> GetInspectAsync(
+        ScopeContext scope,
+        string findingId,
+        CancellationToken ct,
+        FindingInspectReadOptions? options = null)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
         if (string.IsNullOrWhiteSpace(findingId))
             throw new ArgumentException("Finding id is required.", nameof(findingId));
+
+        bool includeTypedPayload = options?.IncludeTypedPayload ?? true;
 
         Match m = DemoFindingId.Match(findingId.Trim());
 
@@ -81,7 +86,9 @@ public sealed class InMemoryFindingInspectReadRepository(IAuthorityQueryService 
             ruleName = ruleId;
         }
 
-        JsonElement? typed = TryPayloadElement(match);
+        JsonElement? typed = includeTypedPayload
+            ? TryPayloadElement(match)
+            : BuildMetadataTypedPayload(match.Title, match.Rationale);
 
         List<string> recommendedActions = match.RecommendedActions
             .Where(static a => !string.IsNullOrWhiteSpace(a))
@@ -113,6 +120,21 @@ public sealed class InMemoryFindingInspectReadRepository(IAuthorityQueryService 
             AssignedToUserId = match.AssignedToUserId,
             RemediationDueUtc = match.RemediationDueUtc
         };
+    }
+
+    private static JsonElement? BuildMetadataTypedPayload(string? title, string? rationale)
+    {
+        if (string.IsNullOrWhiteSpace(title) && string.IsNullOrWhiteSpace(rationale))
+            return null;
+
+        Dictionary<string, string?> slim = new(StringComparer.Ordinal)
+        {
+            ["title"] = string.IsNullOrWhiteSpace(title) ? null : title.Trim(),
+            ["rationale"] = string.IsNullOrWhiteSpace(rationale) ? null : rationale.Trim(),
+            ["whyThisMatters"] = string.IsNullOrWhiteSpace(rationale) ? null : rationale.Trim(),
+        };
+
+        return JsonSerializer.SerializeToElement(slim);
     }
 
     private static JsonElement? TryPayloadElement(Finding finding)

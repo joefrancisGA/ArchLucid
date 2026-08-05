@@ -44,10 +44,19 @@ public sealed class FindingInspectController(
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
     /// <summary>Returns persisted payload, rule linkage, evidence citations, and best-effort audit correlation.</summary>
+    /// <param name="findingId">Finding identifier.</param>
+    /// <param name="includeTypedPayload">
+    ///     When <see langword="false" />, omits relational <c>PayloadJson</c> LOB (detail first-paint path).
+    ///     Default <see langword="true" /> keeps full typed payload for inspect / integrations.
+    /// </param>
+    /// <param name="ct">Cancellation token.</param>
     [HttpGet("{findingId}/inspect")]
     [ProducesResponseType(typeof(FindingInspectResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetInspectAsync(string findingId, CancellationToken ct = default)
+    public async Task<IActionResult> GetInspectAsync(
+        string findingId,
+        [FromQuery] bool includeTypedPayload = true,
+        CancellationToken ct = default)
     {
         if (string.IsNullOrWhiteSpace(findingId))
             return this.BadRequestProblem("Finding id is required.", ProblemTypes.ValidationFailed);
@@ -56,7 +65,10 @@ public sealed class FindingInspectController(
             return this.BadRequestProblem("Finding id exceeds maximum length (64).", ProblemTypes.ValidationFailed);
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        FindingInspectResponse? body = await _findingInspectReadRepository.GetInspectAsync(scope, findingId, ct);
+        FindingInspectReadOptions options = includeTypedPayload
+            ? FindingInspectReadOptions.Full
+            : FindingInspectReadOptions.MetadataOnly;
+        FindingInspectResponse? body = await _findingInspectReadRepository.GetInspectAsync(scope, findingId, ct, options);
 
         if (body is null)
             return this.NotFoundProblem(

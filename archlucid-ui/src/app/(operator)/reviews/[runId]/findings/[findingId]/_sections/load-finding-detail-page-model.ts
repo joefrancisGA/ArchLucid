@@ -28,9 +28,9 @@ export async function loadFindingDetailPageModel(
   decodedFindingId: string,
   findingIdRouteParam: string,
 ): Promise<LoadFindingDetailPageModelResult> {
-  // Inspect + run footnote only share runId — parallelize proxy hops (TB-2027).
+  // Detail first paint: omit PayloadJson LOB; title/rationale still projected for narrative (TB-931).
   const [inspectResult, runExecutionFootnote] = await Promise.all([
-    loadFindingInspectForRoute(runId, decodedFindingId),
+    loadFindingInspectForRoute(runId, decodedFindingId, { includeTypedPayload: false }),
     tryLoadRunExecutionFootnote(runId),
   ]);
 

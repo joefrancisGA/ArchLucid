@@ -724,7 +724,8 @@ public sealed class RunQueryController(
     public async Task<IActionResult> GetFindingInspectForRun(
         [FromRoute] string runId,
         [FromRoute] string findingId,
-        CancellationToken cancellationToken)
+        [FromQuery] bool includeTypedPayload = true,
+        CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(runId))
             return this.BadRequestProblem("Run id is required.", ProblemTypes.ValidationFailed);
@@ -736,9 +737,12 @@ public sealed class RunQueryController(
             return this.BadRequestProblem("Finding id exceeds maximum length (64).", ProblemTypes.ValidationFailed);
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        FindingInspectReadOptions options = includeTypedPayload
+            ? FindingInspectReadOptions.Full
+            : FindingInspectReadOptions.MetadataOnly;
 
         FindingInspectResponse? body =
-            await findingInspectReadRepository.GetInspectAsync(scope, findingId.Trim(), cancellationToken);
+            await findingInspectReadRepository.GetInspectAsync(scope, findingId.Trim(), cancellationToken, options);
 
         if (body is null)
         {

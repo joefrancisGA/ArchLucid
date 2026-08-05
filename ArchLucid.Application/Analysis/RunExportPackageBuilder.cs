@@ -1,31 +1,21 @@
-using System.Text.Json;
-
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Packaging;
-using ArchLucid.Contracts.Governance.Resolution;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Application.Analysis;
 
 /// <inheritdoc cref="IRunExportPackageBuilder" />
 public sealed class RunExportPackageBuilder(
-    IAuthorityQueryService authorityQueryService,
+    IRunExportAuthorityMaterialLoader exportAuthorityMaterialLoader,
     IArtifactQueryService artifactQueryService,
     IArtifactPackagingService artifactPackagingService) : IRunExportPackageBuilder
 {
     private const string RunNotFoundProblemType = "https://archlucid.example.org/errors#run-not-found";
     private const string ManifestNotFoundProblemType = "https://archlucid.example.org/errors#manifest-not-found";
 
-    private static readonly JsonSerializerOptions ExportJsonOptions = new()
-    {
-        WriteIndented = true,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-    };
-
-    private readonly IAuthorityQueryService _authorityQueryService =
-        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+    private readonly IRunExportAuthorityMaterialLoader _exportAuthorityMaterialLoader =
+        exportAuthorityMaterialLoader ?? throw new ArgumentNullException(nameof(exportAuthorityMaterialLoader));
 
     private readonly IArtifactQueryService _artifactQueryService =
         artifactQueryService ?? throw new ArgumentNullException(nameof(artifactQueryService));
@@ -40,67 +30,39 @@ public sealed class RunExportPackageBuilder(
         byte[]? renderedDiagramPng,
         CancellationToken ct)
     {
-        RunDetailDto? runDetail = await _authorityQueryService.GetRunDetailForExportAsync(scope, runId, ct);
+        RunExportAuthorityMaterialLoadResult materialResult =
+            await _exportAuthorityMaterialLoader.LoadAsync(scope, runId, ct);
 
-        if (runDetail is null)
+        if (!materialResult.RunFound)
             return RunExportPackageResult.NotFound(
                 $"Run '{runId}' was not found.",
                 RunNotFoundProblemType);
 
-        if (runDetail.GoldenManifest is null)
+        if (!materialResult.ManifestFound || materialResult.Material is null)
             return RunExportPackageResult.NotFound(
                 $"Run '{runId}' has no committed golden manifest available for export.",
                 ManifestNotFoundProblemType);
 
+        RunExportAuthorityMaterial material = materialResult.Material;
+
         IReadOnlyList<SynthesizedArtifact> artifacts = await _artifactQueryService.GetArtifactsByManifestIdAsync(
             scope,
-            runDetail.GoldenManifest.ManifestId,
+            material.ManifestId,
             ct);
-
-        string manifestJson = JsonSerializer.Serialize(runDetail.GoldenManifest, ExportJsonOptions);
-
-        string? traceJson = runDetail.AuthorityTrace is null
-            ? null
-            : JsonSerializer.Serialize(runDetail.AuthorityTrace, ExportJsonOptions);
-
-        ManifestDocument golden = runDetail.GoldenManifest;
-        string ruleSetLine = $"{golden.RuleSetId} {golden.RuleSetVersion}".Trim();
-        string? policyAtCommitSummary = BuildPolicyAtCommitSummary(golden.EffectiveGovernanceAtCommit);
-        RunExportReadmeContext readmeContext = new()
-        {
-            ManifestDisplayName = string.IsNullOrWhiteSpace(golden.Metadata.Name) ? null : golden.Metadata.Name,
-            ManifestHash = string.IsNullOrWhiteSpace(golden.ManifestHash) ? null : golden.ManifestHash,
-            RuleSetLabel = string.IsNullOrWhiteSpace(ruleSetLine) ? null : ruleSetLine,
-            RuleSetId = string.IsNullOrWhiteSpace(golden.RuleSetId) ? null : golden.RuleSetId,
-            RuleSetHash = string.IsNullOrWhiteSpace(golden.RuleSetHash) ? null : golden.RuleSetHash,
-            PolicyAtCommitSummary = policyAtCommitSummary,
-            OperatorShellReviewRelativePath = $"/reviews/{runId:D}"
-        };
 
         ArtifactPackage package = _artifactPackagingService.BuildRunExportPackage(
             runId,
-            golden.ManifestId,
+            material.ManifestId,
             artifacts,
-            manifestJson,
-            traceJson,
-            readmeContext,
+            material.ManifestJson,
+            material.TraceJson,
+            material.ReadmeContext,
             renderedArchitectureDiagramPng: renderedDiagramPng);
 
         return RunExportPackageResult.Success(
             package.Content,
             package.ContentType,
             package.PackageFileName,
-            golden.ManifestId);
-    }
-
-    private static string? BuildPolicyAtCommitSummary(CommittedEffectiveGovernanceSnapshotDescriptor? snapshot)
-    {
-        if (snapshot is null)
-            return null;
-
-        if (!snapshot.HasEffectivePolicy)
-            return "no effective policy assignments or compliance rule keys";
-
-        return $"{snapshot.PackAssignments.Count} pack assignment(s), {snapshot.ComplianceRuleKeyCount} compliance rule key(s)";
+            material.ManifestId);
     }
 }

@@ -56,6 +56,7 @@ flowchart TB
 ### Layer B — Identity and typed scope
 
 - Scope derived **once** at host boundary; deeper layers use `IScopeContextProvider` / method parameters — not raw `HttpContext` (see **ARCH001** `TenantIdentityBoundaryAnalyzer`).
+- **PA / engineering matrix:** [`TENANT_IDENTITY_SINGLE_DERIVATION_CONTRACT.md`](../library/TENANT_IDENTITY_SINGLE_DERIVATION_CONTRACT.md) (**TB-999**).
 - **Invariant:** [INV-001](../library/ARCHITECTURE_INVARIANTS.md#inv-001-tenant-identity-boundary)
 - **Fail-closed derivation (TB-304 / ADR 0041):** On production-like hosts, `ScopeResolutionGuardMiddleware` rejects requests whose tenant/workspace/project scope is not bound to **identity claims** or an explicit **ambient job override**. Header-only and `ScopeIds.Default*` resolution return **403** unless the route is marked `[AllowUnscopedRoute]`.
 
