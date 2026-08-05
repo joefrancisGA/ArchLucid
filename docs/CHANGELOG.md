@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-05 - Docs: Layer residual / irreversible-leak matrix (TB-1005)
+
+Published [`LAYER_BOUNDARY_IRREVERSIBLE_LEAK_MATRIX.md`](library/LAYER_BOUNDARY_IRREVERSIBLE_LEAK_MATRIX.md) — NetArchTest vs ranked runtime residuals (wrong catalog, retrieval, tools, INV-001, committed-manifest substitute, fat DTOs). GTM **M-157** and claim-boundary guide cite the matrix. Does not claim NetArchTest proves isolation, CPA, or third-party pen-test.
+
 ## 2026-08-05 - Docs: Committed golden manifest unit-of-truth contract (TB-1003)
 
 Published [`COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md`](library/COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md) — unit of truth, Evidence→…→audit hops, forbidden substitutes, and honest hop-skip labels. GTM **M-155** and claim-boundary guide cite the matrix. Does not claim WORM/PKI beyond app-layer hash lineage, or CPA / third-party pen-test.

@@ -3442,11 +3442,14 @@ Former standalone body: `docs/go-to-market/LAYER_BOUNDARY_IRREVERSIBLE_LEAK_PA_O
 | 1 | Wrong catalog / unscoped product SQL path | Cross-tenant data exposure | **TB-999** / **TB-1018** · [M-151](#tenant-identity-single-derivation-m-151) · [M-169](#empty-scope-catalog-routing-m-169) |
 | 2 | Retrieval filter / upsert / expand miss | Cross-tenant chunk hit | **TB-1001** · [M-153](#retrieval-tenancy-hit-guarantee-m-153) |
 | 3 | Empty / unrestricted `AllowedTools` hole | Model-influenced side-effect surface | **TB-950** · [LLM trust boundary (M-149)](#llm-trust-boundary-ingress-m-149) |
-| 4 | Predicate-only / convention DiD erosion | “WHERE TenantId=” as sole story | **TB-1232** · [DiD structural (M-256)](#tenant-isolation-structural-vs-convention-m-256) |
+| 4 | INV-001 header / ambient re-derive | Wrong tenant identity at depth | **TB-999** · [M-151](#tenant-identity-single-derivation-m-151) |
+| 5 | Substitute for committed golden manifest | Claim / integrity theater | **TB-1003** · [M-155](#committed-golden-manifest-unit-of-truth-m-155) |
+| 6 | Fat persistence shapes on buyer routes | DTO-boundary regression | Done DTO boundary (do not reopen lightly) |
+| Related | Predicate-only / convention DiD erosion | “WHERE TenantId=” as sole story | **TB-1232** · [DiD structural (M-256)](#tenant-isolation-structural-vs-convention-m-256) |
 
 ### Claim boundary
 
-Do not promise that assembly/layer architecture tests alone prove multi-tenant isolation or make cross-tenant leaks impossible. Say: compile-time DAG + Layer A catalogs + INV-001 + retrieval filters; name residual irreversible classes (wrong catalog / unscoped path) and the **TB-950** tool hole.
+Do not promise that assembly/layer architecture tests alone prove multi-tenant isolation or make cross-tenant leaks impossible. Say: compile-time DAG + Layer A catalogs + INV-001 + retrieval filters; name residual irreversible classes (wrong catalog / unscoped path) and the **TB-950** tool hole. Engineering SoT: [`LAYER_BOUNDARY_IRREVERSIBLE_LEAK_MATRIX.md`](../library/LAYER_BOUNDARY_IRREVERSIBLE_LEAK_MATRIX.md).
 
 ### Safe pin
 
@@ -3454,19 +3457,20 @@ Do not promise that assembly/layer architecture tests alone prove multi-tenant i
 
 ### PA review
 
-1. Ask which residual class is in scope (catalog, retrieval, tools, DiD erosion).
+1. Ask which residual class is in scope (catalog, retrieval, tools, DiD erosion, claim integrity).
 2. Confirm NetArchTest is not sold as the isolation proof.
 3. Confirm allowlisted exceptions are named, not silent.
 4. Treat “architecture tests make leaks impossible” as a review finding.
 
 ### Residuals (honest)
 
-- **TB-1005** / **TB-1006** own the residual matrix and anti-NetArchTest-equals-isolation honesty CI.
-- Does not reopen Done **TB-027**–**TB-032**.
-- Cite [`../library/ARCHITECTURE_CONSTRAINTS.md`](../library/ARCHITECTURE_CONSTRAINTS.md), [`../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md).
-- This handout does not claim CPA SOC 2 or a published third-party penetration test.
+Engineering SoT: [`LAYER_BOUNDARY_IRREVERSIBLE_LEAK_MATRIX.md`](../library/LAYER_BOUNDARY_IRREVERSIBLE_LEAK_MATRIX.md) (**TB-1005** Done). Compile-time DAG guards are implemented; they do **not** close ranked runtime residuals. Follow-on claim CI: **TB-1006**. Does not reopen Done **TB-027**–**TB-032**. Does not claim CPA SOC 2 or a published third-party penetration test.
 
-**Related:** [Isolation claims (M-195)](#isolation-claims-vs-inv001-adr0037-m-195) · [Empty-scope catalog routing (M-169)](#empty-scope-catalog-routing-m-169) · [Tenant identity (M-151)](#tenant-identity-single-derivation-m-151) · [Retrieval tenancy (M-153)](#retrieval-tenancy-hit-guarantee-m-153) · [Comparison/replay snapshot (M-175)](#comparison-replay-immutable-snapshot-m-175) · [DiD structural vs convention (M-256)](#tenant-isolation-structural-vs-convention-m-256) · [LLM trust boundary (M-149)](#llm-trust-boundary-ingress-m-149) · [`../library/ARCHITECTURE_CONSTRAINTS.md`](../library/ARCHITECTURE_CONSTRAINTS.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+| Open work | Purpose |
+| --- | --- |
+| **TB-1006** | Anti-NetArchTest-equals-isolation / silent-allowlist claim-drift guard |
+
+**Related:** [`../library/LAYER_BOUNDARY_IRREVERSIBLE_LEAK_MATRIX.md`](../library/LAYER_BOUNDARY_IRREVERSIBLE_LEAK_MATRIX.md) · [Isolation claims (M-195)](#isolation-claims-vs-inv001-adr0037-m-195) · [Empty-scope catalog routing (M-169)](#empty-scope-catalog-routing-m-169) · [Tenant identity (M-151)](#tenant-identity-single-derivation-m-151) · [Retrieval tenancy (M-153)](#retrieval-tenancy-hit-guarantee-m-153) · [Comparison/replay snapshot (M-175)](#comparison-replay-immutable-snapshot-m-175) · [DiD structural vs convention (M-256)](#tenant-isolation-structural-vs-convention-m-256) · [LLM trust boundary (M-149)](#llm-trust-boundary-ingress-m-149) · [`../library/ARCHITECTURE_CONSTRAINTS.md`](../library/ARCHITECTURE_CONSTRAINTS.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## Comparison/replay — minimal immutable snapshot (M-175) {#comparison-replay-immutable-snapshot-m-175}
 

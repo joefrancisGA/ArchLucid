@@ -246,7 +246,7 @@ Former standalone body: `docs/go-to-market/PA_CLAIM_HONESTY_BULLETS_BATCH_B.md` 
 
 | Do not promise | Do promise |
 | --- | --- |
-| Assembly/layer architecture tests alone prove multi-tenant isolation or make cross-tenant leaks impossible. | Compile-time DAG guards + Layer A catalogs + INV-001 + retrieval filters; name residual irreversible class (wrong catalog / unscoped path) and **TB-950** tool hole. |
+| Assembly/layer architecture tests alone prove multi-tenant isolation or make cross-tenant leaks impossible. | Compile-time DAG guards + Layer A catalogs + INV-001 + retrieval filters; name residual irreversible class (wrong catalog / unscoped path) and **TB-950** tool hole. Engineering matrix: [`LAYER_BOUNDARY_IRREVERSIBLE_LEAK_MATRIX.md`](LAYER_BOUNDARY_IRREVERSIBLE_LEAK_MATRIX.md) (**TB-1005**). Follow-on honesty CI: **TB-1006**. |
 
 #### M-158 — Authority versus AgentTask loop
 
