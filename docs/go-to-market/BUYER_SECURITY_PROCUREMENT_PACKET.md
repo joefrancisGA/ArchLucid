@@ -661,7 +661,7 @@ Do not say “committed means delivered,” “Required audit means all audit si
 
 ### Residuals (honest)
 
-Engineering SoT: [`TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md`](../library/TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md) (**TB-1011** Done). Finalize UoW vs outbox/async split and never-silent vs disclosed best-effort matrix are published. Follow-on claim CI: **TB-1012**. Does not turn asynchronous delivery into a synchronous guarantee; does not claim DTF exactly-once (**TB-924**).
+Engineering SoT: [`TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md`](../library/TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md) (**TB-1011** Done). Finalize UoW vs outbox/async split and never-silent vs disclosed best-effort matrix are published (including Authority vs AgentTask audit-path and integration `Try*` enqueue residuals). Follow-on claim CI: **TB-1012**. Does not turn asynchronous delivery into a synchronous guarantee; does not claim DTF exactly-once (**TB-924**).
 
 | Open work | Purpose |
 | --- | --- |
