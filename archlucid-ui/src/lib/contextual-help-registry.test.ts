@@ -48,6 +48,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/path-chooser",
       "/help/evaluator-workbook",
       "/help/enterprise-onboarding",
+      "/help/pilot-roi-model",
       "/help/policy-pack-delta-demo",
       "/help/configuration-reference",
       "/help/cli-usage",
@@ -311,6 +312,15 @@ describe("contextual-help-registry (TB-733)", () => {
     );
     expect(contextualHelpForPathname("/help/enterprise-onboarding")?.whatToDoNext).toContain(
       "Identity providers",
+    );
+  });
+
+  it("resolves pilot ROI model help Category-1 help (PI)", () => {
+    expect(contextualHelpForPathname("/help/pilot-roi-model")?.whatIsThisPage).toContain(
+      "Pilot ROI model",
+    );
+    expect(contextualHelpForPathname("/help/pilot-roi-model")?.whatToDoNext).toContain(
+      "Architecture scorecard",
     );
   });
 

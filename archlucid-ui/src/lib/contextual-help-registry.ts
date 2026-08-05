@@ -219,6 +219,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/help/pilot-roi-model",
+    entry: {
+      whatIsThisPage:
+        "Pilot ROI model - how sponsor ROI figures are labeled, sourced, and kept buyer-safe in proof packets.",
+      whatToDoNext:
+        "Open Architecture scorecard or ROI summary for live numbers, or Workspace baseline when anchors need capture.",
+      whyEmpty: "This guide is always available; scorecard and baseline surfaces populate after reviews and tenant setup.",
+      whereToConfigurePrerequisite:
+        "Baseline and scorecard numbers need a role that can read tenant settings and finalized reviews.",
+    },
+  },
+  {
     prefix: "/help/policy-pack-delta-demo",
     entry: {
       whatIsThisPage:

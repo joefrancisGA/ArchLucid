@@ -25,6 +25,7 @@ import { ProcurementHelpEvidenceOrientationStrip } from "../_sections/Procuremen
 import { EvidenceTrailHelpEvidenceOrientationStrip } from "../_sections/EvidenceTrailHelpEvidenceOrientationStrip";
 import { EvidenceIntakeHelpEvidenceOrientationStrip } from "../_sections/EvidenceIntakeHelpEvidenceOrientationStrip";
 import { EnterpriseOnboardingHelpEvidenceOrientationStrip } from "../_sections/EnterpriseOnboardingHelpEvidenceOrientationStrip";
+import { PilotRoiModelHelpEvidenceOrientationStrip } from "../_sections/PilotRoiModelHelpEvidenceOrientationStrip";
 import { HelpDataHandlingTenantIsolationGuideView } from "../_sections/HelpDataHandlingTenantIsolationGuideView";
 import { HelpDpaTemplateGuideView } from "../_sections/HelpDpaTemplateGuideView";
 import { HelpSoc2SelfAssessmentGuideView } from "../_sections/HelpSoc2SelfAssessmentGuideView";
@@ -310,6 +311,17 @@ function renderHelpTopicView(
         markdown={loaded.markdown}
         showContextualHelp
         evidenceOrientation={<EnterpriseOnboardingHelpEvidenceOrientationStrip />}
+      />
+    );
+  }
+
+  if (loaded.entry.slug === "pilot-roi-model") {
+    return (
+      <HelpTopicMarkdownView
+        entry={loaded.entry}
+        markdown={loaded.markdown}
+        showContextualHelp
+        evidenceOrientation={<PilotRoiModelHelpEvidenceOrientationStrip />}
       />
     );
   }

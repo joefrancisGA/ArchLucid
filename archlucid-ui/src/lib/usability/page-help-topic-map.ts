@@ -233,6 +233,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "enterprise-onboarding", label: "Enterprise onboarding checklist" },
   },
   {
+    prefix: "/help/pilot-roi-model",
+    topic: { slug: "pilot-roi-model", label: "Pilot ROI model" },
+  },
+  {
     prefix: "/help/policy-pack-delta-demo",
     topic: { slug: "policy-pack-delta-demo", label: "Policy-pack delta demo" },
   },
