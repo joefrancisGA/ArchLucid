@@ -93,6 +93,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/findings",
       "/help/governance-approval",
       "/help/review-guide",
+      "/help/repeat-review-loop",
       "/help/pilot-guide",
       "/help/first-architecture-review",
       "/help/core-pilot",
