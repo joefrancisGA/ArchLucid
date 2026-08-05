@@ -201,12 +201,27 @@ public sealed class HotPathRelationalQueryShapeTests
     {
         const string sql = AgentExecutionTraceListSql.SelectSummaryColumns;
 
-        // Allow JSON_VALUE(t.TraceJson, …); forbid selecting the LOB as a bare column / alias.
+        // Prefer typed columns (TB-931); JSON_VALUE only as COALESCE/CASE fallback — never bare LOB.
         sql.Should().NotMatchRegex(@"(?m)^\s*t\.TraceJson\s*$");
         sql.Should().NotContain("AS TraceJson");
-        sql.Should().Contain("JSON_VALUE(t.TraceJson, '$.inputTokenCount')");
+        sql.Should().Contain("COALESCE(t.InputTokenCount");
         sql.Should().Contain("t.ModelDeploymentName");
         sql.Should().Contain("t.BlobUploadFailed");
+        sql.Should().Contain("t.QualityWarning");
+        sql.Should().Contain("t.QualityRejected");
+    }
+
+    [SkippableFact]
+    public void Trace_llm_cost_projection_prefers_typed_token_columns()
+    {
+        const string sql = AgentExecutionTraceLlmCostProjectionSql.SelectColumns;
+
+        sql.Should().NotContain("AS TraceJson");
+        sql.Should().NotMatchRegex(@"(?m)^\s*t\.TraceJson\s*$");
+        sql.Should().Contain("t.ModelDeploymentName");
+        sql.Should().Contain("COALESCE(t.InputTokenCount");
+        sql.Should().Contain("COALESCE(t.OutputTokenCount");
+        sql.Should().Contain("COALESCE(t.ReasoningTokenCount");
     }
 
     [SkippableFact]
