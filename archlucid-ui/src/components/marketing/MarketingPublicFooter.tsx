@@ -27,6 +27,14 @@ function shouldExcludeFooterLink(pathname: string, href: string, excluded: Reado
     return true;
   }
 
+  // Signup already exposes Sign in in the sticky header — do not triple it in the footer.
+  if (
+    href === appSiteHref("/auth/signin") &&
+    (pathname === "/signup" || pathname.startsWith("/signup/"))
+  ) {
+    return true;
+  }
+
   if (!href.startsWith("/")) {
     return false;
   }
@@ -71,6 +79,12 @@ export function MarketingPublicFooter(props: MarketingPublicFooterProps = {}): R
           ))}
         </ul>
       </nav>
+      <p
+        className={cn("mt-6 m-0 text-al-text-secondary", MARKETING_TYPOGRAPHY.meta)}
+        data-testid="marketing-public-footer-copyright"
+      >
+        © {new Date().getFullYear()} Francis Architecture, LLC. All rights reserved.
+      </p>
     </footer>
   );
 }
