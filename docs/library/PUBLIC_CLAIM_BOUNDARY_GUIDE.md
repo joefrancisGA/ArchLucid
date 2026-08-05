@@ -234,7 +234,7 @@ Former standalone body: `docs/go-to-market/PA_CLAIM_HONESTY_BULLETS_BATCH_B.md` 
 
 | Do not promise | Do promise |
 | --- | --- |
-| Dedicated Azure AI Search index per tenant or crypto-proof isolation from a Search hit. | Mandatory OData scope `$filter` + upsert scope validation + Graph-RAG expand from scoped snapshot; platform sentinel ≠ cross-tenant leak. |
+| Dedicated Azure AI Search index per tenant or crypto-proof isolation from a Search hit. | Mandatory OData scope `$filter` + upsert scope validation + Graph-RAG expand from scoped snapshot; platform sentinel ≠ cross-tenant leak. Engineering matrix: [`RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md`](RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md) (**TB-1001**). Follow-on honesty CI: **TB-1002**. |
 
 #### M-154 — Committed manifest unit of truth
 

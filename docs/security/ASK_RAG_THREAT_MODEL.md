@@ -58,7 +58,7 @@ flowchart LR
 
 | Threat | Impact | Mitigations |
 |--------|--------|-------------|
-| **Cross-tenant retrieval** | Data leak | Scope filters on index queries; tests; optional RLS on source rows (see [MULTI_TENANT_RLS.md](MULTI_TENANT_RLS.md)). |
+| **Cross-tenant retrieval** | Data leak | Required OData scope `$filter` + fail-closed upsert + scoped Graph-RAG expand ([`RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md`](../library/RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md) / **TB-1001**); SQL RLS is a **non-control** (ADR 0037). |
 | **Prompt injection** | Policy bypass, unsafe output | System instructions, allow-lists for tools (if any), human review for high-risk workflows. |
 | **Model poisoning / supply chain** | Integrity | Pinned deployments, SBOM + vulnerable package gate in CI (backlog items **219–220**). |
 | **Abuse / cost** | Spend, DoS | Rate limits, quotas, circuit breakers, authentication required. |

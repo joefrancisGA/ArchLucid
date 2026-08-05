@@ -203,12 +203,13 @@ Done **TB-071** builds required filters and Done **TB-604** rejects scope-mismat
 
 ### Residuals (honest)
 
+Engineering SoT: [`RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md`](../library/RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md) (**TB-1001** Done). Query filter (**TB-071**), upsert validation (**TB-604**), and scoped Graph-RAG expand are implemented; platform `Guid.Empty` corpus is intentional shared content. Follow-on claim CI: **TB-1002**. DiD erosion / wrong-scope upstream: **M-213** / **TB-1232**. Complements Layer A catalogs and INV-001; does not claim a per-tenant Search service or cryptographic isolation.
+
 | Open work | Purpose |
 | --- | --- |
-| **TB-1001** | PA query/upsert/graph/shared-corpus guarantee matrix |
-| **TB-1002** | Claim-drift regression guard |
+| **TB-1002** | Claim-drift regression guard (anti per-tenant-index / filter-optional) |
 
-**Related:** [`../security/ASK_RAG_THREAT_MODEL.md`](../security/ASK_RAG_THREAT_MODEL.md) · [`../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md) · [ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md) · [Isolation claims (M-195)](#isolation-claims-vs-inv001-adr0037-m-195) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+**Related:** [`../library/RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md`](../library/RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md) · [`../security/ASK_RAG_THREAT_MODEL.md`](../security/ASK_RAG_THREAT_MODEL.md) · [`../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md) · [ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md) · [Isolation claims (M-195)](#isolation-claims-vs-inv001-adr0037-m-195) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## Prompt-injection resistance (M-115) {#prompt-injection-resistance-m-115}
 

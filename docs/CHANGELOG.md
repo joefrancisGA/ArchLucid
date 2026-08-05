@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-05 - Docs: Retrieval tenancy hit guarantee contract (TB-1001)
+
+Published [`RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md`](library/RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md) — Ask / Azure AI Search / Graph-RAG query filter, upsert fail-closed, scoped expand, and platform corpus sentinel. GTM **M-153** and claim-boundary guide cite the matrix. Does not claim per-tenant Search service, cryptographic isolation, or CPA / third-party pen-test.
+
 ## 2026-08-05 - Docs: Tenant identity single-derivation contract (TB-999)
 
 Published [`TENANT_IDENTITY_SINGLE_DERIVATION_CONTRACT.md`](library/TENANT_IDENTITY_SINGLE_DERIVATION_CONTRACT.md) — INV-001 decide-once host boundary, trusted vs header sources, ARCH001 forbidden re-derive, and Layer A catalog reminder. GTM **M-151** and claim-boundary guide cite the matrix. Does not claim SQL RLS or CPA / third-party pen-test.
