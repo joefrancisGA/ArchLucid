@@ -218,7 +218,7 @@ That is the main V1 buying motion.
 | Sponsor updates often become slideware detached from the evidence trail. | Sponsor-ready outputs stay tied to the finalized review and label estimates, defaults, and customer-entered values explicitly. |
 | Follow-up reviews depend on manual comparison. | A second review can compare against the prior package and keep governance questions separate from the first-pilot proof. |
 
-**Procurement-facing proof surfaces (light pointer):** the public marketing comparison table lives at **`/why`**; the operator telemetry proof page is **`/why-archlucid`**; the sourced incumbent-aligned PDF bundle is **`GET /v1/marketing/why-archlucid-pack.pdf`** (see [API_CONTRACTS.md](../library/API_CONTRACTS.md)). The sponsor narrative in this brief remains canonical.
+**Procurement-facing proof surfaces (light pointer):** the public marketing comparison table lives at **`/why`**; the operator telemetry proof page is **`/why-archlucid`**; the sourced incumbent-aligned PDF bundle is **`GET /v1/marketing/why-archlucid-pack.pdf`** (see [API_CONTRACTS.md](../library/API_CONTRACTS.md)). The sponsor narrative in this brief remains canonical. <!-- public-pdf-safety: allow -->
 
 ---
 
@@ -347,7 +347,7 @@ Thank you,
 <<SENDER_NAME>>
 ```
 
-**Attach:** (1) this brief (PDF/export), (2) `first-value-report.pdf` for the committed run (`GET /v1/pilots/runs/{runId}/first-value-report.pdf`), (3) pilot proof packet ZIP from `.\scripts\collect-first-pilot-proof.ps1 -RunId <guid>`, (4) ROI context from [`PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md) §5 with source labels.
+**Attach:** (1) this brief (PDF/export), (2) `first-value-report.pdf` for the committed run (`GET /v1/pilots/runs/{runId}/first-value-report.pdf`), (3) pilot proof packet ZIP from `.\scripts\collect-first-pilot-proof.ps1 -RunId <guid>`, (4) ROI context from [`PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md) §5 with source labels. <!-- public-pdf-safety: allow -->
 
 **Follow-up:** **48 hours** bump if no reply; **5 days** after send, second follow-up with one concrete finding headline from the proof packet (no new claims).
 
@@ -360,6 +360,6 @@ ArchLucid V1 is a bounded product contract for AI-assisted architecture work: ar
 ### Ask the vendor for these four artifacts
 
 1. **Trust Center index** — [`trust-center.md`](trust-center.md) (public site `/trust` when deployed).
-2. **Downloadable evidence pack (ZIP)** — `GET …/v1/marketing/trust-center/evidence-pack.zip` (see Trust Center).
+2. **Downloadable evidence pack (ZIP)** — `GET …/v1/marketing/trust-center/evidence-pack.zip` (see Trust Center). <!-- public-pdf-safety: allow -->
 3. **Pilot ROI measurement companion** — [`PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md).
 4. **Proof-of-value snapshot playbook** — [`PILOT_SUCCESS_SCORECARD.md#proof-of-value-snapshot-assembly`](PILOT_SUCCESS_SCORECARD.md#proof-of-value-snapshot-assembly).
