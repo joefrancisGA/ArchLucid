@@ -130,12 +130,18 @@ public sealed class GovernanceDashboardServiceTests
 
         Mock<IAgentExecutionTraceRepository> traces = new();
         traces
-            .Setup(t => t.GetLlmCostSlicesByRunIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-            [
-                new AgentExecutionTraceLlmCostSlice { InputTokenCount = 120, OutputTokenCount = 45 },
-                new AgentExecutionTraceLlmCostSlice { InputTokenCount = 80, OutputTokenCount = 55 },
-            ]);
+            .Setup(t => t.GetLlmCostSlicesByRunIdsAsync(
+                It.IsAny<ScopeContext>(),
+                It.Is<IReadOnlyList<string>>(ids => ids.Contains(runId)),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Dictionary<string, IReadOnlyList<AgentExecutionTraceLlmCostSlice>>
+            {
+                [runId] =
+                [
+                    new AgentExecutionTraceLlmCostSlice { InputTokenCount = 120, OutputTokenCount = 45 },
+                    new AgentExecutionTraceLlmCostSlice { InputTokenCount = 80, OutputTokenCount = 55 },
+                ],
+            });
 
         IGovernanceDashboardService sut = new GovernanceDashboardService(
             approvals.Object,

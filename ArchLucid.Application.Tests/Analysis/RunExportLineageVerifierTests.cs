@@ -33,7 +33,7 @@ public sealed class RunExportLineageVerifierTests
     {
         Mock<IAuthorityQueryService> authority = new();
         authority
-            .Setup(q => q.GetRunDetailAsync(Scope, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Setup(q => q.GetRunDetailForManifestCompareAsync(Scope, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((RunDetailDto?)null);
 
         RunExportLineageVerifier sut = CreateSut(authority.Object, Mock.Of<IAuditRepository>(), Mock.Of<IAuditService>());
@@ -49,7 +49,7 @@ public sealed class RunExportLineageVerifierTests
         Guid runId = Guid.NewGuid();
         Mock<IAuthorityQueryService> authority = new();
         authority
-            .Setup(q => q.GetRunDetailAsync(Scope, runId, It.IsAny<CancellationToken>()))
+            .Setup(q => q.GetRunDetailForManifestCompareAsync(Scope, runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RunDetailDto
             {
                 Run = new RunRecord { RunId = runId },
@@ -84,7 +84,7 @@ public sealed class RunExportLineageVerifierTests
 
         Mock<IAuthorityQueryService> authority = new();
         authority
-            .Setup(q => q.GetRunDetailAsync(Scope, runId, It.IsAny<CancellationToken>()))
+            .Setup(q => q.GetRunDetailForManifestCompareAsync(Scope, runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RunDetailDto
             {
                 Run = new RunRecord { RunId = runId },
@@ -133,7 +133,7 @@ public sealed class RunExportLineageVerifierTests
 
         Mock<IAuthorityQueryService> authority = new();
         authority
-            .Setup(q => q.GetRunDetailAsync(Scope, runId, It.IsAny<CancellationToken>()))
+            .Setup(q => q.GetRunDetailForManifestCompareAsync(Scope, runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RunDetailDto
             {
                 Run = new RunRecord { RunId = runId },
@@ -180,7 +180,7 @@ public sealed class RunExportLineageVerifierTests
 
         Mock<IAuthorityQueryService> authority = new();
         authority
-            .Setup(q => q.GetRunDetailAsync(Scope, runId, It.IsAny<CancellationToken>()))
+            .Setup(q => q.GetRunDetailForManifestCompareAsync(Scope, runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RunDetailDto
             {
                 Run = new RunRecord { RunId = runId },
