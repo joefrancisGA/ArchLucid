@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { WelcomeMarketingHeroSection } from "@/components/marketing/WelcomeMarketingHeroSection";
+import { WelcomeEvidenceOrientationStrip } from "@/components/marketing/WelcomeEvidenceOrientationStrip";
 import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
 import { MarketingTierPricingSection } from "@/components/marketing/MarketingTierPricingSection";
 import { WelcomeMarketingProblemSolutionSection } from "@/components/marketing/WelcomeMarketingProblemSolutionSection";
@@ -76,6 +77,7 @@ export function WelcomeMarketingPage(props: {
     <>
       <WelcomeMarketingHeroSection />
       <MarketingPageShell>
+        <WelcomeEvidenceOrientationStrip />
         <WelcomeMarketingProblemSolutionSection />
 
         <WelcomeMarketingWorkflowSection />
