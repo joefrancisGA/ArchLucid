@@ -175,7 +175,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | RXX | `/internal-operations/recommendation-learning` | 0.05% | 0 | 0 | 5 | Marketing | None |
 | OAX | `/operate/architecture-graph` | 0.05% | 0 | 0 | 5 | Advisory | None |
 | QXX | `/quick-scan` | 0.05% | 0 | 0 | 5 | Marketing | Quick scan (Marketing) - QuickScanClient with QuickScanEvidenceOrientationStrip (evaluation Sources + claim-discipline: demo scan only; not diligence / CPA SOC 2 / third-party pen-test). Not an operator PageContextualHelp surface. Does not imply CPA SOC 2 or third-party pen-test publication. Score 40/100 (2026-08-05) — marketing demo-scan page hard-caps higher Evidence. |
-| SRH | `/showcase/[runId]` | 0.05% | 0 | 0 | 5 | Marketing | None |
+| SRH | `/showcase/[runId]` | 0.05% | 0 | 0 | 5 | Marketing | Showcase run detail (Marketing) - MarketingShowcasePage with ShowcaseEvidenceOrientationStrip (evaluation Sources + claim-discipline: illustrative sample only; not diligence / CPA SOC 2 / third-party pen-test). Not an operator PageContextualHelp surface. Sibling DPX = /demo/preview. Does not imply CPA SOC 2 or third-party pen-test publication. Score 40/100 (2026-08-05) — marketing sample-showcase page hard-caps higher Evidence. |
 | TRY | `/try` | 0.05% | 0 | 0 | 5 | Marketing | None |
 | H | `/help/audit-trail` | 0.04% | 0 | 0 | 4 | Help topic | None |
 | HCX | `/help/cli-usage` | 0.04% | 0 | 0 | 4 | Help topic | None |
