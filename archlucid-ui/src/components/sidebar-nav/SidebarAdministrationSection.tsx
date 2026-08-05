@@ -77,7 +77,6 @@ export function SidebarAdministrationSection(props: SidebarAdministrationSection
                 demoUi: props.demoUi,
                 buyerPolishedShell: props.buyerPolishedShell,
                 hasCommittedArchitectureReview: props.hasCommittedArchitectureReview,
-                effectiveOperateUnlockPhase: props.effectiveOperateUnlockPhase,
               });
 
               return linksForRender.map((link) => {
