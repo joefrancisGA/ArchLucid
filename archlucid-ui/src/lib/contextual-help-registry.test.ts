@@ -94,6 +94,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/pilot-guide",
       "/help/first-architecture-review",
       "/help/core-pilot",
+      "/help/first-pilot-path",
       "/help/cloud-connections/azure",
       "/help/azure-permissions",
       "/help/glossary",
@@ -285,6 +286,12 @@ describe("contextual-help-registry (TB-733)", () => {
     expect(contextualHelpForPathname("/help/evidence-intake")?.whatIsThisPage).toContain("Start a review");
     expect(contextualHelpForPathname("/help/evidence-intake")?.whatToDoNext).toContain(
       "architecture review",
+    );
+  });
+
+  it("resolves first-pilot-path help alias Category-1 help (FIR)", () => {
+    expect(contextualHelpForPathname("/help/first-pilot-path")?.whatIsThisPage).toContain(
+      "Your first architecture review",
     );
   });
 

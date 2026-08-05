@@ -748,6 +748,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/help/first-pilot-path",
+    entry: {
+      whatIsThisPage:
+        "Your first architecture review — guided path from evidence intake to a finalized package and sponsor-ready exports.",
+      whatToDoNext:
+        "Start an architecture review from the hero CTA, or open the sample review when you want a completed outcome first.",
+      whyEmpty: "This guide is always available; live review packages appear after you create architecture reviews.",
+      whereToConfigurePrerequisite:
+        "Creating reviews needs a role that can start architecture reviews in this workspace.",
+    },
+  },
+  {
     prefix: "/help/cloud-connections/azure",
     entry: {
       whatIsThisPage:
