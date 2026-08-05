@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState, type ReactElement } from "react";
 
 import { Button } from "@/components/ui/button";
+import { GetStartedEvidenceOrientationStrip } from "@/components/marketing/GetStartedEvidenceOrientationStrip";
 import {
   GET_STARTED_HELP_GETTING_STARTED_HREF,
   buildGuidedTrialHref,
@@ -62,6 +63,8 @@ export function GetStartedPageClient(): ReactElement {
           </Link>
         </p>
       </header>
+
+      <GetStartedEvidenceOrientationStrip />
 
       <section aria-labelledby="path-selection-heading">
         <h2 id="path-selection-heading" className="sr-only">
