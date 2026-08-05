@@ -10,7 +10,7 @@ export const SETTINGS_USERS_TRAFFIC_ROW_ID = "AUX";
 export const SETTINGS_USERS_TRAFFIC_PATH = SETTINGS_USERS_PATH;
 
 /** Workbook Section column value (template catalog). */
-export const SETTINGS_USERS_TRAFFIC_SECTION = "Settings";
+export const SETTINGS_USERS_TRAFFIC_SECTION = "Admin";
 
 /**
  * Owner workbook Notes for AUX — documents Evidence chrome on Users and roles.
