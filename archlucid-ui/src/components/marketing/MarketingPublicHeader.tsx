@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
-import { ColorModeToggle } from "@/components/ColorModeToggle";
 import { MarketingResourcesMenu } from "@/components/marketing/MarketingResourcesMenu";
 import { Button } from "@/components/ui/button";
 import { MARKETING_PUBLIC_NAV_LINK_CLASS } from "@/lib/marketing-public-nav-link-class";
@@ -22,24 +21,12 @@ type MarketingPublicHeaderProps = {
  */
 const MARKETING_NAV_LINK_CLASS = MARKETING_PUBLIC_NAV_LINK_CLASS;
 
-function shouldHideThemeToggleOnMarketingRoute(pathname: string): boolean {
-  return (
-    pathname === "/pricing" ||
-    pathname.startsWith("/pricing/") ||
-    pathname === "/signup" ||
-    pathname.startsWith("/signup/") ||
-    pathname === "/faq" ||
-    pathname.startsWith("/faq/")
-  );
-}
-
 function isSignupVerifyFocusRoute(pathname: string): boolean {
   return pathname === "/signup/verify";
 }
 
 export function MarketingPublicHeader(props: MarketingPublicHeaderProps): React.JSX.Element {
   const pathname = usePathname();
-  const hideThemeToggle = shouldHideThemeToggleOnMarketingRoute(pathname);
   const focusAuth = isSignupVerifyFocusRoute(pathname);
 
   return (
@@ -77,7 +64,6 @@ export function MarketingPublicHeader(props: MarketingPublicHeaderProps): React.
           )}
         </div>
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-          {hideThemeToggle || focusAuth ? null : <ColorModeToggle />}
           {focusAuth ? null : (
             <Button asChild variant="outline" size="sm">
               <Link href={appSiteHref("/auth/signin")}>Sign in</Link>
