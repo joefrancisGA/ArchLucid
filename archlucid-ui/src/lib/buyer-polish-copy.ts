@@ -442,9 +442,6 @@ export const INTERNAL_DEMO_READINESS_PAGE_LEAD =
 
 export const INTERNAL_DEMO_READINESS_DIAGNOSTICS_LINK = "Open diagnostics dashboard";
 
-export const INTERNAL_DEMO_READINESS_TOOLING_DISABLED =
-  "Demo operator tooling is not enabled in this environment.";
-
 export const BUYER_CTO_DEMO_READINESS_REFRESH_CTA = "Recheck readiness";
 
 /** Buyer-facing readiness copy — never mention demo seed, static operator mode, or env flags. */

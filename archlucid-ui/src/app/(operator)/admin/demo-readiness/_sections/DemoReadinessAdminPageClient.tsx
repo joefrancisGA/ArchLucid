@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
 
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
 import { BuyerCtoDemoReadinessPanel } from "@/components/operator-home/BuyerCtoDemoReadinessPanel";
@@ -10,10 +9,8 @@ import { Button } from "@/components/ui/button";
 import {
   INTERNAL_DEMO_READINESS_DIAGNOSTICS_LINK,
   INTERNAL_DEMO_READINESS_PAGE_LEAD,
-  INTERNAL_DEMO_READINESS_TOOLING_DISABLED,
   BUYER_CTO_DEMO_READINESS_HEADING,
 } from "@/lib/buyer-polish-copy";
-import { isCtoDemoOperatorToolingEnv } from "@/lib/cto-demo-presenter-pack";
 import { OPERATOR_HOME_PRIMARY_SECTION_HEADING, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { cn } from "@/lib/utils";
@@ -22,11 +19,6 @@ import { cn } from "@/lib/utils";
 export function DemoReadinessAdminPageClient(): React.JSX.Element {
   const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
   const isAdmin = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
-  const [toolingEnabled, setToolingEnabled] = useState(false);
-
-  useEffect(() => {
-    setToolingEnabled(isCtoDemoOperatorToolingEnv());
-  }, []);
 
   if (isAuthorityLoading) {
     return (
@@ -42,15 +34,6 @@ export function DemoReadinessAdminPageClient(): React.JSX.Element {
         <p className={cn("text-rose-800 dark:text-rose-200", OPERATOR_TYPE_SCALE.body)} role="alert">
           This page requires tenant administrator access (AdminAuthority).
         </p>
-      </OperatorPageContainer>
-    );
-  }
-
-  if (!toolingEnabled) {
-    return (
-      <OperatorPageContainer variant="dashboard">
-        <h1 className={OPERATOR_HOME_PRIMARY_SECTION_HEADING}>{BUYER_CTO_DEMO_READINESS_HEADING}</h1>
-        <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPE_SCALE.body)}>{INTERNAL_DEMO_READINESS_TOOLING_DISABLED}</p>
       </OperatorPageContainer>
     );
   }

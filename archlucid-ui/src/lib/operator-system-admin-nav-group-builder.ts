@@ -17,7 +17,6 @@ import {
 } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
-import { isCtoDemoOperatorToolingEnv } from "@/lib/cto-demo-presenter-pack";
 import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { BUYER_CTO_DEMO_READINESS_HEADING } from "@/lib/buyer-polish-copy";
@@ -142,18 +141,16 @@ export class OperatorSystemAdminNavGroupBuilder extends NavGroupBuilderBase {
           tier: "advanced",
           requiredAuthority: "ReadAuthority",
         },
+        {
+          // Employee Internal Ops only — no separate CTO demo tooling env gate.
+          href: "/admin/demo-readiness",
+          label: BUYER_CTO_DEMO_READINESS_HEADING,
+          title: "Demo readiness — showcase seed, authentication, and execution-budget diagnostics",
+          icon: Layers,
+          tier: "advanced",
+          requiredAuthority: "AdminAuthority",
+        },
       ];
-
-    if (isCtoDemoOperatorToolingEnv()) {
-      links.push({
-        href: "/admin/demo-readiness",
-        label: BUYER_CTO_DEMO_READINESS_HEADING,
-        title: "Demo readiness — showcase seed, authentication, and execution-budget diagnostics",
-        icon: Layers,
-        tier: "advanced",
-        requiredAuthority: "AdminAuthority",
-      });
-    }
 
     return {
       id: "operator-system-admin",
