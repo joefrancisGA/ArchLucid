@@ -453,6 +453,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/admin/trial-funnel",
+    entry: {
+      whatIsThisPage:
+        "Trial funnel — internal conversion KPIs and cohort rows for trial-stage progress across tenants.",
+      whatToDoNext:
+        "Adjust the date range, refresh, then open Tenant health or Billing when a cohort needs follow-up.",
+      whyEmpty: "Cohort rows appear after trial tenants record signup and review activity in the selected period.",
+      whereToConfigurePrerequisite:
+        "This page requires tenant administrator access; customer tenants never see other tenants here.",
+    },
+  },
+  {
     prefix: "/help/getting-started",
     entry: {
       whatIsThisPage:
