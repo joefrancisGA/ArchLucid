@@ -6,7 +6,7 @@ import {
 /** Legacy Core Pilot help bookmark retained for slug alias resolution (traffic row ECO). */
 export const CORE_PILOT_HELP_ALIAS_PATH = LEGACY_CORE_PILOT_HELP_PATH;
 
-/** Canonical first-review help path the alias resolves to (traffic row HCO). */
+/** Canonical first-review help path the alias resolves to (traffic row COR). */
 export const CORE_PILOT_HELP_ALIAS_CANONICAL_PATH = FIRST_ARCHITECTURE_REVIEW_HELP_PATH;
 
 export function isCorePilotHelpAliasPath(pathname: string): boolean {

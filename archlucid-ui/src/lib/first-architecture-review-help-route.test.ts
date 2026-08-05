@@ -40,7 +40,7 @@ function expectCanonicalFirstReviewHelpHandoff(source: string): void {
   expect(hasCanonicalHandoff).toBe(true);
 }
 
-describe("first-architecture-review-help-route (HCO)", () => {
+describe("first-architecture-review-help-route (COR)", () => {
   it("marks the specialty guide as noindex with honest metadata", () => {
     expect(FIRST_ARCHITECTURE_REVIEW_HELP_ROUTE_METADATA.robots).toEqual({ index: false, follow: false });
     expect(FIRST_ARCHITECTURE_REVIEW_HELP_ROUTE_METADATA.title).toBe("Your first architecture review");

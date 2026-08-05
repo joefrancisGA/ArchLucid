@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-05 - UI: First architecture review Evidence chrome (COR)
+
+`/help/first-architecture-review` ships CorePilotHelpEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map, traffic row ID aligned to **COR** (was HCO), and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-05 - Docs: Learn more must match page job (TB-2048)
 
 `UI_DESIGN_SYSTEM.md` ratifies Category-1 Learn more job-match + omit-when-none and bans generic `getting-started` / `how-it-works` on secondary hubs (first-run allowlist documented). `archlucid-ui/docs/ARCHITECTURE.md` points agents here. Remaps remain **TB-2049**–**TB-2050**; Vitest **TB-2052**. Does not claim CPA / third-party pen-test.

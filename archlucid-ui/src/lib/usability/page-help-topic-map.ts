@@ -56,6 +56,14 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "pilot-guide", label: "Pilot guide" },
   },
   {
+    prefix: "/help/first-architecture-review",
+    topic: { slug: "first-architecture-review", label: "Your first architecture review" },
+  },
+  {
+    prefix: "/help/core-pilot",
+    topic: { slug: "first-architecture-review", label: "Your first architecture review" },
+  },
+  {
     prefix: "/help/cloud-connections/azure",
     topic: { slug: "cloud-connections-azure", label: "Connect Azure securely" },
   },
@@ -149,7 +157,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   { prefix: "/sponsor-report", topic: { slug: "executive-summary", label: "Executive summary" } },
   { prefix: "/sponsor-report", topic: { slug: "executive-summary", label: "Executive summary" } },
-  { prefix: "/digests", topic: { slug: "getting-started", label: "Architecture digests" } },
+  { prefix: "/architecture/digests", topic: { slug: "getting-started", label: "Architecture digests" } },
   { prefix: "/insights/planning", topic: { slug: "getting-started", label: "Improvement planning" } },
   {
     prefix: "/internal/product-learning",

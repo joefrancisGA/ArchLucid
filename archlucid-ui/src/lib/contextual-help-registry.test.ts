@@ -48,6 +48,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/path-chooser",
       "/help/policy-pack-delta-demo",
       "/help/configuration-reference",
+      "/help/cli-usage",
       "/help/first-review",
       "/help/first-value-20-minutes",
       "/help/developer-troubleshooting",
@@ -59,36 +60,51 @@ describe("contextual-help-registry (TB-733)", () => {
       "/architecture/reviews/new",
       "/governance/audit",
       "/administration/system-health",
-      "/digests",
+      "/architecture/digests",
       "/insights/planning/plans",
       "/insights/planning",
+      "/internal/product-learning",
+      "/why-archlucid",
       "/governance/advisory-scans",
       "/sponsor-report/executive-summary",
       "/sponsor-report/pilot-outcomes",
       "/executive/scorecard",
       "/governance/alert-rules",
       "/governance/approval-requests",
-      "/signed-records",
+      "/governance/signed-records",
       "/admin/tenant-health",
+      "/admin/trial-funnel",
       "/help/getting-started",
       "/help/how-it-works",
       "/help/troubleshooting",
       "/help/alerts",
       "/help/billing-and-plans",
+      "/help/security-trust",
+      "/help/procurement",
+      "/help/scope",
+      "/help/audit-trail",
       "/help/findings",
       "/help/governance-approval",
       "/help/review-guide",
       "/help/pilot-guide",
+      "/help/first-architecture-review",
+      "/help/core-pilot",
       "/help/cloud-connections/azure",
       "/help/azure-permissions",
+      "/help/glossary",
+      "/help/operator-auth-roles",
+      "/help/users-and-roles",
       "/help/cloud-connections",
       "/administration/settings/users/invite-reviewer",
       "/administration/settings/users",
+      "/administration/settings/security-trust",
       "/integrations/cloud-connections",
       "/integrations/jira",
+      "/integrations/itsm/oauth/callback",
       "/integrations/servicenow",
       "/integrations/slack",
       "/integrations/webhooks",
+      "/operate/integration-events/dlq",
       "/integrations/teams",
       "/settings/cloud-connections",
     ]);
@@ -180,10 +196,10 @@ describe("contextual-help-registry (TB-733)", () => {
   });
 
   it("resolves signed-record detail Category-1 help (MMX)", () => {
-    expect(contextualHelpForPathname("/signed-records/demo-manifest")?.whatIsThisPage).toContain(
+    expect(contextualHelpForPathname("/governance/signed-records/demo-manifest")?.whatIsThisPage).toContain(
       "Signed review record",
     );
-    expect(contextualHelpForPathname("/signed-records/demo-manifest")?.whatToDoNext).toContain(
+    expect(contextualHelpForPathname("/governance/signed-records/demo-manifest")?.whatToDoNext).toContain(
       "export the review bundle",
     );
   });
@@ -236,6 +252,18 @@ describe("contextual-help-registry (TB-733)", () => {
   it("resolves pilot guide help Category-1 help (HP)", () => {
     expect(contextualHelpForPathname("/help/pilot-guide")?.whatIsThisPage).toContain("Pilot guide");
     expect(contextualHelpForPathname("/help/pilot-guide")?.whatToDoNext).toContain("architecture review");
+  });
+
+  it("resolves first architecture review help Category-1 help (COR)", () => {
+    expect(contextualHelpForPathname("/help/first-architecture-review")?.whatIsThisPage).toContain(
+      "Your first architecture review",
+    );
+    expect(contextualHelpForPathname("/help/first-architecture-review")?.whatToDoNext).toContain(
+      "architecture review",
+    );
+    expect(contextualHelpForPathname("/help/core-pilot")?.whatIsThisPage).toContain(
+      "Your first architecture review",
+    );
   });
 
   it("resolves jira integration Category-1 help (IJX)", () => {

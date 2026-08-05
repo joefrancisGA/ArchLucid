@@ -59,7 +59,7 @@ function findTrafficRowById(rows: TrafficWorkbookRow[], rowId: string): TrafficW
   return rows.find((row) => row.id === rowId);
 }
 
-describe("ui-route-traffic-first-architecture-review-help (HCO)", () => {
+describe("ui-route-traffic-first-architecture-review-help (COR)", () => {
   it("tracks the canonical first-review help topic with specialty-guide workbook notes", () => {
     const rows = extractMasterTableRows(readTemplateMarkdown());
     const row = findTrafficRowById(rows, FIRST_ARCHITECTURE_REVIEW_HELP_TRAFFIC_ROW_ID);

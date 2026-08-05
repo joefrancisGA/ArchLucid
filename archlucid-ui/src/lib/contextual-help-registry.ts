@@ -327,7 +327,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
-    prefix: "/digests",
+    prefix: "/architecture/digests",
     entry: {
       whatIsThisPage:
         "Send scheduled summaries of review activity, governance signals, findings, and advisory scans.",
@@ -643,6 +643,30 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whyEmpty: "This guide is always available; live pilot outcomes appear after reviews and sponsor reports exist.",
       whereToConfigurePrerequisite:
         "Running a pilot needs a workspace where operators can create and finalize architecture reviews.",
+    },
+  },
+  {
+    prefix: "/help/first-architecture-review",
+    entry: {
+      whatIsThisPage:
+        "Your first architecture review — guided path from evidence intake to a finalized package and sponsor-ready exports.",
+      whatToDoNext:
+        "Start an architecture review from the hero CTA, or open the sample review when you want a completed outcome first.",
+      whyEmpty: "This guide is always available; live review packages appear after you create architecture reviews.",
+      whereToConfigurePrerequisite:
+        "Creating reviews needs a role that can start architecture reviews in this workspace.",
+    },
+  },
+  {
+    prefix: "/help/core-pilot",
+    entry: {
+      whatIsThisPage:
+        "Your first architecture review — guided path from evidence intake to a finalized package and sponsor-ready exports.",
+      whatToDoNext:
+        "Start an architecture review from the hero CTA, or open the sample review when you want a completed outcome first.",
+      whyEmpty: "This guide is always available; live review packages appear after you create architecture reviews.",
+      whereToConfigurePrerequisite:
+        "Creating reviews needs a role that can start architecture reviews in this workspace.",
     },
   },
   {

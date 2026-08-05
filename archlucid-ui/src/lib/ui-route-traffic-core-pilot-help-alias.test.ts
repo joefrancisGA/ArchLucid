@@ -69,6 +69,6 @@ describe("ui-route-traffic-core-pilot-help-alias (ECO)", () => {
     expect(row?.section).toBe(CORE_PILOT_HELP_ALIAS_TRAFFIC_SECTION);
     expect(row?.notes).toBe(CORE_PILOT_HELP_ALIAS_TRAFFIC_NOTE);
     expect(row?.section.toLowerCase()).not.toBe("marketing");
-    expect(row?.notes).toContain("HCO");
+    expect(row?.notes).toContain("COR");
   });
 });

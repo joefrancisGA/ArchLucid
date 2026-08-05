@@ -188,8 +188,8 @@ Columns:
 | `/onboard` | Deprecated alias | App Router shim permanently redirects to `/onboarding` (query preserved; canonical UX on **ARF**) |
 | `/getting-started` | Deprecated alias | App Router shim permanently redirects to `/onboarding` (query preserved) |
 | `/help` | In-app help index | Open directly |
-| `/help/first-architecture-review` | Your first architecture review (specialty guide) | `HelpCorePilotGuideView` with stepper + gated finalize CTAs (**HCO**) |
-| `/help/core-pilot` | Legacy help slug alias | Resolves to **HCO** (`first-architecture-review`); same `HelpCorePilotGuideView` (**ECO**) |
+| `/help/first-architecture-review` | Your first architecture review (specialty guide) | `HelpCorePilotGuideView` with stepper + gated finalize CTAs (**COR**) |
+| `/help/core-pilot` | Legacy help slug alias | Resolves to **COR** (`first-architecture-review`); same `HelpCorePilotGuideView` (**ECO**) |
 | `/help/[topic]` | Rendered help topic | e.g. `/help/getting-started`, `/help/billing-and-plans` (specialty `HelpBillingAndPlansGuideView`, **HBX**), `/help/executive-summary` (specialty `HelpExecutiveSummaryGuideView`, **EXE**), `/help/findings` (specialty `HelpFindingsGuideView`, **HFX**), `/help/governance-approval` (specialty `HelpGovernanceApprovalGuideView`, **GO**), `/help/path-chooser` (buyer markdown chooser, **HPX**), `/help/developer-troubleshooting` (Admin-gated internal-runbook, **HDX**), `/help/governance-api-contracts` (Admin-gated API contracts reference, **HG**), `/help/alerts` (slugs in `product-documentation-registry.ts`) |
 | `/demo` | CTO demo tour entry | CTO demo pack env; else redirects `/` |
 | `/demo/explain` | Internal demo explanation | T2: `GET /v1/demo/explain`; T3 mock; blocked in strict T1 |

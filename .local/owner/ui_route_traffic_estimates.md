@@ -45,7 +45,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 
 ---
 
-**OVERALL WEIGHT SCORE:** 56.54%
+**OVERALL WEIGHT SCORE:** 56.56%
 
 ## Master table (score 0 first; then Deficit desc; ties A→Z by path)
 
@@ -56,7 +56,6 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | HEE | `/help/evaluator-workbook` | 0.03% | 0 | 0 | 3 | Help topic | None |
 | EVI | `/help/evidence-intake` | 0.03% | 0 | 0 | 3 | Help topic | None |
 | EV | `/help/evidence-trail` | 0.03% | 0 | 0 | 3 | Help topic | None |
-| COR | `/help/first-architecture-review` | 0.03% | 0 | 0 | 3 | Help topic | Canon Core Pilot specialty. Absorbs former HEV (`/help/evidence-only-review`) section twin (TB-1683; 2026-08-03). |
 | HFE | `/help/first-hour-operator-path` | 0.03% | 0 | 0 | 3 | Help topic | None |
 | FIR | `/help/first-pilot-path` | 0.03% | 0 | 0 | 3 | Help topic | None |
 | PI | `/help/pilot-roi-model` | 0.03% | 0 | 0 | 3 | Help topic | None |
@@ -261,6 +260,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | HXX | `/health` | 0.02% | 18 | 0.36 | 1.64 | Marketing | Deprecated operator bookmark â€” merged to Administration System health on ADY (`/administration/system-health`). Redirect/shim hard-caps Evidence. |
 | ASX | `/administration/settings/support` | 0.12% | 87 | 10.44 | 1.56 | Admin | Support workspace â€” AdminSupportPageView: Preferred-path Report a problem (accent border + StatusTag), short subtitle, mono email token + Copy, checklist What-to-include, full-card Common next steps, Support bundle trust chips + DESIGN_TOKENS.callout.success safety (no pastel emerald / fake SLA banner), sticky bundle panel. Contact + redacted diagnostics â€” not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 87/100 (2026-08-03) â€” post hierarchy/trust polish; remaining gap is live Report problem CTA on this page vs help deep-link only. |
 | HEF | `/help/first-value-20-minutes` | 0.04% | 61 | 2.44 | 1.56 | Help topic | Specialty Admin 20-minute first-value runbook - HelpFirstValue20GuideView with first-architecture-review / Start architecture review / Troubleshooting primary CTAs, Sources diligence strip (complete review workflow, first-review checklist, configuration-reference), job-matrix IA dual (TB-1694), orientation steps, claim-discipline callout, PageContextualHelp, and prepared FIRST_PILOT_OPERATOR_PATH.md 20-min section only (TB-1691 sectionAnchors + TB-1693 leakage strip). Title honesty Admin runbook (TB-1695). Not bare HelpTopicMarkdownView. Admin-gated internal-runbook. Not the default customer help path. Does not imply CPA SOC 2 or third-party pen-test publication. |
+| COR | `/help/first-architecture-review` | 0.03% | 52 | 1.56 | 1.44 | Help topic | Your first architecture review (Help topic) - HelpCorePilotGuideView with PageContextualHelpButton (topic map first-architecture-review; Category-1 registry), workspace Sources + claim-discipline orientation strip, hero Start review CTA, five-step stepper, and gated finalize steps (TB-1040). Legacy alias /help/core-pilot (ECO). Not bare HelpTopicMarkdownView. Sibling HP = pilot-guide; FIR/HFE/ECO = aliases. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-05) — help-topic orientation hard-caps higher Evidence. |
 | HG | `/help/governance-api-contracts` | 0.03% | 60 | 1.8 | 1.2 | Help topic | Specialty Admin API contracts technical reference - HelpApiContractsGuideView with CLI / configuration-reference / buyer governance-approval primary CTAs, Sources strip (eng troubleshooting, audit-trail, admin-diagnostics), orientation + claim-discipline callout, PageContextualHelp, and prepared API_CONTRACTS.md (TB-1388 contributor strip). Title honesty API contracts not Governance FAQ (TB-1386). Admin-gated internal-runbook (TB-1384); de-indexed from product search (TB-1385); buyer Findings/Governance deep-links retargeted (TB-1387). Alias /help/api-contracts. Not bare HelpTopicMarkdownView. Does not imply CPA SOC 2 or third-party pen-test publication. |
 | CON | `/help/configuration-reference` | 0.03% | 62 | 1.86 | 1.14 | Help topic | Specialty configuration reference (Admin internal-runbook) - HelpConfigurationReferenceGuideView with SSO wizard / identity-providers / API-keys / configuration-summary primary CTAs, Sources strip (authentication-sign-in, users-and-roles, enterprise-onboarding, cloud-connections, security-trust, data-handling-tenant-isolation), task sections, claim-discipline callout, PageContextualHelp, collapsed Admin key-catalog appendix, and prepared CONFIGURATION_REFERENCE.md (TB-1327 leakage strip + TB-1330 in-app-only links). Not bare HelpTopicMarkdownView. Admin-gated until catalog remains eng appendix (TB-1329 option b). Does not imply CPA SOC 2 or third-party pen-test publication. |
 | AXX | `/accessibility` | 0.02% | 44 | 0.88 | 1.12 | Marketing | None |
