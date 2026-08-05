@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-05 - UI: Evidence trail help Evidence chrome (EV)
+
+`/help/evidence-trail` ships EvidenceTrailHelpEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map, traffic Notes under Help topic, and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-05 - UI: Demo explain Evidence chrome (DEX)
 
 `/demo/explain` ships DemoExplainEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map, traffic Notes under Learning, and honest Evidence score 45. Learning demo-proof page hard-caps higher Evidence; no CPA / third-party pen-test implication.
@@ -17,6 +21,10 @@ Release entries newest-first. Each section condenses the detailed prompt logs pr
 ## 2026-08-05 - UI: First architecture review Evidence chrome (COR)
 
 `/help/first-architecture-review` ships CorePilotHelpEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map, traffic row ID aligned to **COR** (was HCO), and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
+## 2026-08-05 - UI: Digests Learn more + Schedule deep links (TB-2049)
+
+Digests Category-1 Learn more maps to specialty `/help/digests` (`HelpDigestsGuideView`). Schedule tab deep links ship on Digests what-to-do-next / where-to-configure. Traffic **DI**/**DIS**/**HDG** notes honest. Secondary-hub sweep remains **TB-2050**. Does not claim CPA / third-party pen-test.
 
 ## 2026-08-05 - Docs: Learn more must match page job (TB-2048)
 

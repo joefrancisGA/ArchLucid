@@ -652,6 +652,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/help/evidence-trail",
+    entry: {
+      whatIsThisPage:
+        "Evidence graph guide — how to trace findings, artifacts, and provenance without exposing raw engineering logs.",
+      whatToDoNext:
+        "Open the live Evidence graph, Search review evidence, or Validate review when you need package-level trails.",
+      whyEmpty: "This guide is always available; live graph nodes appear after finalized reviews exist.",
+      whereToConfigurePrerequisite:
+        "Evidence graph depth follows finalized reviews in the current workspace and project scope.",
+    },
+  },
+  {
     prefix: "/help/findings",
     entry: {
       whatIsThisPage:
@@ -796,7 +808,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
-    prefix: "/administration/settings/users/invite-reviewer",
+    prefix: "/administration/users/invite-reviewer",
     entry: {
       whatIsThisPage:
         "Invite a reviewer — send Reader or Auditor access so a teammate can sign off on architecture reviews.",
@@ -808,7 +820,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
-    prefix: "/administration/settings/users",
+    prefix: "/administration/users",
     entry: {
       whatIsThisPage:
         "Invite users, assign ArchLucid app roles, and manage API keys for this workspace tenant.",
@@ -820,7 +832,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
-    prefix: "/administration/settings/security-trust",
+    prefix: "/administration/security-trust",
     entry: {
       whatIsThisPage:
         "Operator Security & trust — procurement-oriented materials, tenant isolation posture, retention notes, and NDA-gated diligence requests for this workspace.",

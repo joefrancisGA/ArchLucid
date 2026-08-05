@@ -173,7 +173,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     prefix: "/demo/explain",
     topic: { slug: "evidence-trail", label: "Demo explain" },
   },
-  { prefix: "/administration/settings/billing", topic: { slug: "billing-and-plans", label: "Billing and plans" } },
+  { prefix: "/administration/billing", topic: { slug: "billing-and-plans", label: "Billing and plans" } },
   { prefix: "/help/billing-and-plans", topic: { slug: "billing-and-plans", label: "Billing and plans" } },
   {
     prefix: "/help/security-trust",
@@ -192,6 +192,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "repeat-review-loop", label: "Repeat-review loop" },
   },
   { prefix: "/help/audit-trail", topic: { slug: "audit-trail", label: "Audit trail" } },
+  {
+    prefix: "/help/evidence-trail",
+    topic: { slug: "evidence-trail", label: "Evidence graph" },
+  },
   {
     prefix: "/help/data-handling-tenant-isolation",
     topic: { slug: "data-handling-tenant-isolation", label: "Data handling and tenant isolation" },
@@ -292,23 +296,23 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/settings/cloud-connections/gcp", topic: { slug: "cloud-connections-gcp", label: "GCP cloud connection" } },
   { prefix: "/settings/cloud-connections", topic: { slug: "cloud-connections", label: "Cloud connections" } },
   {
-    prefix: "/administration/settings/identity-providers",
+    prefix: "/administration/identity-providers",
     topic: { slug: "enterprise-onboarding", label: "SSO and identity" },
   },
   {
-    prefix: "/administration/settings/users/invite-reviewer",
+    prefix: "/administration/users/invite-reviewer",
     topic: { slug: "users-and-roles", label: "Invite a reviewer" },
   },
   {
-    prefix: "/administration/settings/users",
+    prefix: "/administration/users",
     topic: { slug: "users-and-roles", label: "Users and roles" },
   },
   {
-    prefix: "/administration/settings/security-trust",
+    prefix: "/administration/security-trust",
     topic: { slug: "security-trust", label: "Security and trust" },
   },
-  { prefix: "/administration/settings/tenant", topic: { slug: "getting-started", label: OPERATOR_NAV_LINK_LABELS.settings } },
-  { prefix: "/administration/settings/baseline", topic: { slug: "pilot-roi-model", label: "View ROI methodology" } },
+  { prefix: "/administration/tenant", topic: { slug: "getting-started", label: OPERATOR_NAV_LINK_LABELS.settings } },
+  { prefix: "/administration/baseline", topic: { slug: "pilot-roi-model", label: "View ROI methodology" } },
   { prefix: "/help", topic: { slug: "getting-started", label: "Help" } },
 ];
 

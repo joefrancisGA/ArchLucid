@@ -86,6 +86,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/procurement",
       "/help/scope",
       "/help/audit-trail",
+      "/help/evidence-trail",
       "/help/findings",
       "/help/governance-approval",
       "/help/review-guide",
@@ -98,9 +99,9 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/operator-auth-roles",
       "/help/users-and-roles",
       "/help/cloud-connections",
-      "/administration/settings/users/invite-reviewer",
-      "/administration/settings/users",
-      "/administration/settings/security-trust",
+      "/administration/users/invite-reviewer",
+      "/administration/users",
+      "/administration/security-trust",
       "/integrations/cloud-connections",
       "/integrations/jira",
       "/integrations/itsm/oauth/callback",
@@ -176,8 +177,8 @@ describe("contextual-help-registry (TB-733)", () => {
   });
 
   it("resolves users-and-roles settings Category-1 help (AUX)", () => {
-    expect(contextualHelpForPathname("/administration/settings/users")?.whatIsThisPage).toContain("Invite users");
-    expect(contextualHelpForPathname("/administration/settings/users")?.whatToDoNext).toContain("Invite a teammate");
+    expect(contextualHelpForPathname("/administration/users")?.whatIsThisPage).toContain("Invite users");
+    expect(contextualHelpForPathname("/administration/users")?.whatToDoNext).toContain("Invite a teammate");
   });
 
   it("resolves approval lineage Category-1 help (GAI)", () => {
@@ -274,6 +275,11 @@ describe("contextual-help-registry (TB-733)", () => {
     expect(contextualHelpForPathname("/demo/explain")?.whatToDoNext).toContain("Validate review");
   });
 
+  it("resolves evidence trail help Category-1 help (EV)", () => {
+    expect(contextualHelpForPathname("/help/evidence-trail")?.whatIsThisPage).toContain("Evidence graph");
+    expect(contextualHelpForPathname("/help/evidence-trail")?.whatToDoNext).toContain("Evidence graph");
+  });
+
   it("resolves jira integration Category-1 help (IJX)", () => {
     expect(contextualHelpForPathname("/integrations/jira")?.whatIsThisPage).toContain("Jira integration");
     expect(contextualHelpForPathname("/integrations/jira")?.whatToDoNext).toContain("Test the connector");
@@ -305,10 +311,10 @@ describe("contextual-help-registry (TB-733)", () => {
   });
 
   it("resolves invite-reviewer Category-1 help (SRI)", () => {
-    expect(contextualHelpForPathname("/administration/settings/users/invite-reviewer")?.whatIsThisPage).toContain(
+    expect(contextualHelpForPathname("/administration/users/invite-reviewer")?.whatIsThisPage).toContain(
       "Invite a reviewer",
     );
-    expect(contextualHelpForPathname("/administration/settings/users/invite-reviewer")?.whatToDoNext).toContain(
+    expect(contextualHelpForPathname("/administration/users/invite-reviewer")?.whatToDoNext).toContain(
       "invitation",
     );
   });
