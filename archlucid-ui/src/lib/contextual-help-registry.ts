@@ -441,7 +441,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
-    prefix: "/signed-records",
+    prefix: "/governance/signed-records",
     entry: {
       whatIsThisPage:
         "Signed review record — the finalized package of decisions, findings, and downloadable artifacts for one architecture review.",
@@ -715,6 +715,19 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whyEmpty: "Directory rows appear after invitations are accepted or users are provisioned for this tenant.",
       whereToConfigurePrerequisite:
         "SSO and identity-provider mapping may be required before enterprise users can sign in.",
+    },
+  },
+  {
+    prefix: "/administration/settings/security-trust",
+    entry: {
+      whatIsThisPage:
+        "Operator Security & trust — procurement-oriented materials, tenant isolation posture, retention notes, and NDA-gated diligence requests for this workspace.",
+      whatToDoNext:
+        "Open the public Security & trust hub or Trust Center for assurance surfaces, or Audit when you need governed activity trails.",
+      whyEmpty:
+        "Public materials list here when published; NDA-gated packs require contacting security@archlucid.net.",
+      whereToConfigurePrerequisite:
+        "No workspace toggle is required — this page orients operators to published and NDA diligence paths.",
     },
   },
   {

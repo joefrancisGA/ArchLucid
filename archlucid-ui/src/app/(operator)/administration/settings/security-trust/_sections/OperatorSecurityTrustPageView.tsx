@@ -1,8 +1,10 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
+import { SettingsSecurityTrustEvidenceOrientationStrip } from "@/app/(operator)/administration/settings/security-trust/_sections/SettingsSecurityTrustEvidenceOrientationStrip";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import {
@@ -61,7 +63,9 @@ export function OperatorSecurityTrustPageView() {
       <OperatorPageHeader
         title={OPERATOR_NAV_LINK_LABELS.securityTrust}
         subtitle="Procurement-ready security and trust materials for this workspace."
+        actions={<PageContextualHelpButton />}
       />
+      <SettingsSecurityTrustEvidenceOrientationStrip />
       <LayerHeader density="compact" pageKey="security-trust" />
 
       <section aria-label="Available now" className="space-y-3">

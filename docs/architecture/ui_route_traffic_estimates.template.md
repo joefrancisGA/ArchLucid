@@ -185,7 +185,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | LXX | `/live-demo` | 0.04% | 0 | 0 | 4 | Marketing | Live demo (Marketing) - LiveDemoMarketingPage with LiveDemoEvidenceOrientationStrip (evaluation Sources + claim-discipline: fabricated guided walkthrough only; not diligence / CPA SOC 2 / third-party pen-test). Not an operator PageContextualHelp surface. Sibling DPX = /demo/preview; TRY = /try. Does not imply CPA SOC 2 or third-party pen-test publication. Score 40/100 (2026-08-05) — marketing live-demo page hard-caps higher Evidence. |
 | OID | `/operate/integration-events/dlq` | 0.04% | 0 | 0 | 4 | Advisory | None |
 | SEE | `/see-it` | 0.04% | 0 | 0 | 4 | Marketing | None |
-| WSX | `/administration/settings/security-trust` | 0.04% | 0 | 0 | 4 | Settings | None |
+| WSX | `/administration/settings/security-trust` | 0.04% | 0 | 0 | 4 | Settings | Security & trust (Settings) - OperatorSecurityTrustPageView with PageContextualHelpButton (topic map security-trust; Category-1 registry), workspace Sources + claim-discipline orientation strip, procurement materials + NDA/roadmap honesty. Sibling SEC = /security-trust hub; HSE = /help/security-trust; TXX = /trust. Operator orientation — not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 50/100 (2026-08-05) — settings assurance-hub hard-caps higher Evidence. |
 | STR | `/administration/settings/tenant/recycle-bin` | 0.04% | 0 | 0 | 4 | Settings | None |
 | WXX | `/welcome` | 0.04% | 0 | 0 | 4 | Marketing | None |
 | WHY | `/why` | 0.04% | 0 | 0 | 4 | Marketing | None |

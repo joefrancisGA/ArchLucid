@@ -12,6 +12,7 @@ import {
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { PROVENANCE_HELP_TOPIC, pathIsRunProvenance } from "@/lib/provenance-evidence-copy";
+import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 
 export type PageHelpTopic = {
   readonly slug: string;
@@ -84,7 +85,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/reviews/new", topic: { slug: "evidence-intake", label: START_REVIEW_LABEL } },
   { prefix: "/architecture/reviews", topic: { slug: "review-packages", label: "Reviews" } },
   {
-    prefix: "/signed-records",
+    prefix: SIGNED_RECORDS_LIST_PATH,
     topic: { slug: "review-packages", label: "Signed review records" },
   },
   { prefix: EXECUTIVE_DASHBOARD_HREF, topic: { slug: "executive-summary", label: "Executive dashboard" } },
@@ -275,6 +276,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   {
     prefix: "/administration/settings/users",
     topic: { slug: "users-and-roles", label: "Users and roles" },
+  },
+  {
+    prefix: "/administration/settings/security-trust",
+    topic: { slug: "security-trust", label: "Security and trust" },
   },
   { prefix: "/administration/settings/tenant", topic: { slug: "getting-started", label: OPERATOR_NAV_LINK_LABELS.settings } },
   { prefix: "/administration/settings/baseline", topic: { slug: "pilot-roi-model", label: "View ROI methodology" } },
