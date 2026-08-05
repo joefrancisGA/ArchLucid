@@ -8,6 +8,7 @@ import {
   LIVE_DEMO_SAMPLE_SCENARIO,
   LIVE_DEMO_VALUE_PROPOSITION,
 } from "@/lib/live-demo-page-copy";
+import { LiveDemoEvidenceOrientationStrip } from "@/components/marketing/LiveDemoEvidenceOrientationStrip";
 import { MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 import { MARKETING_UPSTREAM_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
@@ -80,6 +81,7 @@ function LiveDemoPageShell(props: {
           </p>
         </div>
       </header>
+      <LiveDemoEvidenceOrientationStrip />
       <div className="mt-10">
         <LiveDemoMarketingBody payload={props.payload} activeStepId={props.activeStepId} />
       </div>

@@ -45,7 +45,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 
 ---
 
-**OVERALL WEIGHT SCORE:** 56.36%
+**OVERALL WEIGHT SCORE:** 56.37%
 
 ## Master table (score 0 first; then Deficit desc; ties A→Z by path)
 
@@ -53,7 +53,6 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 |----|------|------|--------|--------|---------|---------|-------|
 | WSX | `/administration/settings/security-trust` | 0.04% | 0 | 0 | 4 | Admin | None |
 | PRO | `/help/procurement` | 0.04% | 0 | 0 | 4 | Help topic | None |
-| LXX | `/live-demo` | 0.04% | 0 | 0 | 4 | Marketing | None |
 | OID | `/operate/integration-events/dlq` | 0.04% | 0 | 0 | 4 | Advisory | None |
 | SEE | `/see-it` | 0.04% | 0 | 0 | 4 | Marketing | None |
 | WXX | `/welcome` | 0.04% | 0 | 0 | 4 | Marketing | None |
@@ -254,6 +253,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | HSX | `/help/scope` | 0.05% | 52 | 2.6 | 2.4 | Help topic | Workspace and scope help (Help topic) - HelpTopicMarkdownView with PageContextualHelpButton (topic map scope; Category-1 registry), workspace Sources + claim-discipline orientation strip, curated WORKSPACE_SCOPE_GUIDE markdown. Sibling HUX/HOE = users-and-roles. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-05) — help-topic orientation hard-caps higher Evidence. |
 | HSE | `/help/security-trust` | 0.05% | 52 | 2.6 | 2.4 | Help topic | Security and trust help (Help topic) - HelpTopicMarkdownView with PageContextualHelpButton (topic map security-trust; Category-1 registry), workspace Sources + claim-discipline orientation strip, curated trust-center markdown. Sibling SEC = /security-trust hub; TXX = /trust. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-05) — help-topic orientation hard-caps higher Evidence. |
 | HUX | `/help/users-and-roles` | 0.05% | 52 | 2.6 | 2.4 | Help alias | Users-and-roles help (Help alias) - HelpUsersAndRolesGuideView with PageContextualHelpButton (topic map users-and-roles; Category-1 registry), workspace Sources + claim-discipline orientation strip, role overview + capability matrix. Not bare HelpTopicMarkdownView. Sibling HOE = /help/operator-auth-roles alias. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-04) — help-topic orientation hard-caps higher Evidence. |
+| LXX | `/live-demo` | 0.04% | 40 | 1.6 | 2.4 | Marketing | Live demo (Marketing) - LiveDemoMarketingPage with LiveDemoEvidenceOrientationStrip (evaluation Sources + claim-discipline: fabricated guided walkthrough only; not diligence / CPA SOC 2 / third-party pen-test). Not an operator PageContextualHelp surface. Sibling DPX = /demo/preview; TRY = /try. Does not imply CPA SOC 2 or third-party pen-test publication. Score 40/100 (2026-08-05) — marketing live-demo page hard-caps higher Evidence. |
 | H | `/help/audit-trail` | 0.04% | 52 | 2.08 | 1.92 | Help topic | Audit trail help (Help topic) - HelpAuditTrailGuideView with PageContextualHelpButton (topic map audit-trail; Category-1 registry), workspace Sources + claim-discipline orientation strip, primary CTAs to /governance/audit and governance-approval help. Sibling AUD = /governance/audit. Operator orientation — not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-05) — help-topic orientation hard-caps higher Evidence. |
 | HCX | `/help/cli-usage` | 0.04% | 52 | 2.08 | 1.92 | Help topic | CLI usage help (Help topic) - HelpCliUsageTechnicalReferenceView with PageContextualHelpButton (topic map cli-usage; Category-1 registry), workspace Sources + claim-discipline orientation strip, engineering runbook landing + CLI_USAGE.md. Sibling HDX = developer-troubleshooting; HTX = customer troubleshooting. Internal-runbook — not customer diligence. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-05) — help-topic orientation hard-caps higher Evidence. |
 | AII | `/admin/integrations/itsm` | 0.08% | 78 | 6.24 | 1.76 | Admin | None |

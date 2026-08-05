@@ -14,6 +14,10 @@ Release entries newest-first. Each section condenses the detailed prompt logs pr
 
 DbUp **294** + `ArchLucid.sql` add token/cost/alias/quality columns on `dbo.AgentExecutionTraces` with best-effort JSON backfill. Create dual-writes scalars; operator list and LLM cost projections read typed columns (no `JSON_VALUE`). Quality patches dual-write bit columns. Inventory updated. Finding list title/severity was already columnar. Does not claim CPA / third-party pen-test.
 
+## 2026-08-05 - UI: Live demo Evidence chrome (LXX)
+
+`/live-demo` ships LiveDemoEvidenceOrientationStrip (evaluation Sources + claim-discipline), traffic Notes under Marketing, and honest Evidence score 40. Marketing live-demo page hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-05 - UI: CLI usage help Evidence chrome (HCX)
 
 `/help/cli-usage` ships CliUsageHelpEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map, traffic Notes under Help topic, and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.
