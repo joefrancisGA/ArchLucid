@@ -10,6 +10,14 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-05 - UI: Security and trust help Evidence chrome (HSE)
+
+/help/security-trust ships PageContextualHelpButton, Category-1 registry, Sources + claim-discipline orientation strip on HelpTopicMarkdownView, traffic Notes, and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
+## 2026-08-05 - Docs: Operator primary-object nav collapse contract (TB-1026)
+
+Published [`OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md`](library/OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md) — architecture package as primary object, `/reviews` spine, and collapse surfaces. GTM **M-177** and claim-boundary guide cite the matrix. Does not mandate renaming every Reviews label, or claim CPA / third-party pen-test.
+
 ## 2026-08-05 - Docs: Comparison/replay immutable snapshot contract (TB-1024)
 
 Published [`COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md`](library/COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md) — minimal immutable set and artifact/regenerate/verify vs UI illusion. GTM **M-175** and claim-boundary guide cite the matrix. Does not claim artifact-mode equals architecture stable, platform WORM, or CPA / third-party pen-test.

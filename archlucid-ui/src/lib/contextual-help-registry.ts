@@ -526,6 +526,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/help/security-trust",
+    entry: {
+      whatIsThisPage:
+        "Security and trust help — assurance ladder, data handling, subprocessors, and diligence materials for operators and buyers.",
+      whatToDoNext:
+        "Open the Security & trust hub or Trust Center for live assurance surfaces, or Audit when you need governed trails.",
+      whyEmpty: "This guide is always available; downloadable diligence packs appear on Trust Center when published.",
+      whereToConfigurePrerequisite:
+        "No configuration is required — this page is assurance orientation vocabulary only.",
+    },
+  },
+  {
     prefix: "/help/findings",
     entry: {
       whatIsThisPage:

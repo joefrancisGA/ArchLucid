@@ -157,6 +157,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/administration/settings/billing", topic: { slug: "billing-and-plans", label: "Billing and plans" } },
   { prefix: "/help/billing-and-plans", topic: { slug: "billing-and-plans", label: "Billing and plans" } },
   {
+    prefix: "/help/security-trust",
+    topic: { slug: "security-trust", label: "Security and trust" },
+  },
+  {
     prefix: "/help/repeat-review-loop",
     topic: { slug: "repeat-review-loop", label: "Repeat-review loop" },
   },

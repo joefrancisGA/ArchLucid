@@ -18,6 +18,7 @@ import { HelpReviewPackagesGuideView } from "../_sections/HelpReviewPackagesGuid
 import { HelpReviewGuideView } from "../_sections/HelpReviewGuideView";
 import { HelpPilotGuideView } from "../_sections/HelpPilotGuideView";
 import { HelpConfigurationReferenceGuideView } from "../_sections/HelpConfigurationReferenceGuideView";
+import { SecurityTrustHelpEvidenceOrientationStrip } from "../_sections/SecurityTrustHelpEvidenceOrientationStrip";
 import { HelpDataHandlingTenantIsolationGuideView } from "../_sections/HelpDataHandlingTenantIsolationGuideView";
 import { HelpDpaTemplateGuideView } from "../_sections/HelpDpaTemplateGuideView";
 import { HelpSoc2SelfAssessmentGuideView } from "../_sections/HelpSoc2SelfAssessmentGuideView";
@@ -235,6 +236,17 @@ function renderHelpTopicView(
 
   if (loaded.entry.slug === "governance-api-contracts") {
     return <HelpApiContractsGuideView entry={loaded.entry} markdown={loaded.markdown} />;
+  }
+
+  if (loaded.entry.slug === "security-trust") {
+    return (
+      <HelpTopicMarkdownView
+        entry={loaded.entry}
+        markdown={loaded.markdown}
+        showContextualHelp
+        evidenceOrientation={<SecurityTrustHelpEvidenceOrientationStrip />}
+      />
+    );
   }
 
   return <HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />;
