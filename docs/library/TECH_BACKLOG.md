@@ -1,6 +1,6 @@
 > **Scope:** Engineering-owned technical backlog items deferred from current sessions; audience is contributors and the AI assistant; not a buyer or operator document. Not a substitute for ADRs or the pending-questions owner decisions file.
 
-**Updated:** 2026-08-05 (**TB-931** **Done** — typed hot scalars on `AgentExecutionTraces` (DbUp **294**); list + LLM cost prefer typed columns with JSON_VALUE COALESCE; dual-write Create + quality columns; inventory). Prior: 2026-08-05 (**TB-1030** **Done** — [`PA_FIRST_15_PACKAGE_SPINE_IA_CONTRACT.md`](PA_FIRST_15_PACKAGE_SPINE_IA_CONTRACT.md) must-complete + package-spine IA unlock + minute-12 + narration residuals; GTM **M-181** + claim-boundary cites; **TB-1031** remains open). Prior: 2026-08-05 (**TB-1026** **Done** — [`OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md`](OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md) package primary + `/reviews` spine + collapse surfaces; GTM **M-177** + claim-boundary cites; **TB-1027** remains open). Prior: 2026-08-05 (**TB-1024** **Done** — [`COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md`](COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md) minimal immutable snapshot + artifact/regenerate/verify modes; GTM **M-175** + claim-boundary cites; **TB-1025** remains open). Prior: 2026-08-05 (**TB-1022** **Done** — [`PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md`](PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md) block vs advisory + SoD ownership matrix; GTM **M-173** + claim-boundary cites; **TB-1023** remains open). Prior: 2026-08-05 (**TB-1011** **Done** — [`TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md`](TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md) finalize vs outbox + never-silent best-effort matrix; GTM **M-163** + claim-boundary cites; **TB-1012** remains open). Prior: 2026-08-05 (**TB-1009** **Done** — [`APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md`](APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md) append-only/sealed vs mutable + Update-destruction matrix; GTM **M-161** + claim-boundary cites; **TB-1010** remains open). Prior: 2026-08-05 (**TB-1007** **Done** — [`AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md`](AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md) Authority canonical + AgentTask forbid matrix; GTM **M-159** + Flow A1 cites; **TB-1008** remains open). Prior: 2026-08-05 (**TB-1005** **Done** — [`LAYER_BOUNDARY_IRREVERSIBLE_LEAK_MATRIX.md`](LAYER_BOUNDARY_IRREVERSIBLE_LEAK_MATRIX.md) NetArchTest vs ranked runtime residuals; GTM **M-157** + claim-boundary cites; **TB-1006** remains open). Prior: 2026-08-05 (**TB-1003** **Done** — [`COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md`](COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md) unit-of-truth + hop/label matrix; GTM **M-155** + claim-boundary cites; **TB-1004** remains open). Prior: 2026-08-05 (**TB-1001** **Done** — [`RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md`](RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md) Ask/Search/Graph-RAG hit guarantee matrix; GTM **M-153** + Layer E / Ask threat-model cites; **TB-1002** remains open). Prior: 2026-08-05 (**TB-999** **Done** — [`TENANT_IDENTITY_SINGLE_DERIVATION_CONTRACT.md`](TENANT_IDENTITY_SINGLE_DERIVATION_CONTRACT.md) decide-once matrix; GTM **M-151** + Layer B cites; **TB-1000** remains open). Prior: 2026-08-05 (**TB-997** **Done** — [`LLM_TRUST_BOUNDARY_INGRESS_CONFINEMENT_CONTRACT.md`](LLM_TRUST_BOUNDARY_INGRESS_CONFINEMENT_CONTRACT.md) ingress vs confinement matrix; GTM **M-149** + claim-boundary cites; **TB-952** remains open). Prior: 2026-08-04 (**TB-995** **Done** — [`POLLY_VS_RUN_LEVEL_SEMANTICS_CONTRACT.md`](POLLY_VS_RUN_LEVEL_SEMANTICS_CONTRACT.md) transport vs partial/cache/budget matrix; `LLM_RETRY` + GTM **M-147** + claim-boundary cites; does not close **TB-941**–**TB-945**). Prior: 2026-08-04 (**TB-968** **Done** — `IItsmInboundWebhookReplayGuard` + in-memory 24h dedupe; delivery-id / Atlassian identifier / synthetic replay keys; `Integration.ItsmInboundWebhookReplayIgnored` audit; optional timestamp skew without HMAC; [`ITSM_INBOUND_WEBHOOK_REPLAY_GUARD.md`](runbooks/ITSM_INBOUND_WEBHOOK_REPLAY_GUARD.md); hostile-traffic inventory Replay → Y). Prior: 2026-08-04 (**TB-2038**–**TB-2041** opened — operator short-helper measure caps: design-system contract + `OperatorPageHeader`/`PageHeading` + dashboard inventory + Vitest; Overview `/` premature `max-w-prose`/`max-w-2xl` fixed in-session). Prior: 2026-08-04 (**TB-967** **Done** — `InboundWebhookBoundedBodyReader` Content-Length + hard ceiling before HMAC; ITSM/Stripe/Marketplace/Slack; 413; unit/arch/integration tests; inventory updated). Prior: 2026-08-04 (**TB-966** **Done** — `INBOUND_WEBHOOK_HOSTILE_TRAFFIC.md` PA order rate→size→verify→parse + surface matrix + checklist; INV-015 refresh; GTM **M-125**/**M-126** cite SoT; **TB-968** remains open). Prior: 2026-08-03 (**TB-955** **Done** — Required audit abandon metric + pageable Prometheus alerts; domain↔audit orphan probe + job; triage runbook; informational TryLogAsync excluded). Prior: 2026-08-03 (**TB-954** **Done** — `RequiredAuditEventTypes` registry + arch test forbids `TryLogAsync` on Required types; INV-003 enforcement note; Core + Architecture tests). Prior: 2026-08-03 (**TB-951** **Done** — ≥3 indirect doc/README/ADR corpus scenarios + `indirect-doc-injection.json` with `expectedContained` residual; CI assert + eval_agent_quality strict; no 100% detection claim). Prior: 2026-08-03 (**TB-950** **Done** — production-like empty/null `AllowedTools` fail-closed; `*` unrestricted sentinel; DemoSeed concrete tools; TB-082 tests updated). Prior: 2026-08-03 (**TB-949** **Done** — untrusted customer-content `CUSTOMER_CONTENT_BEGIN`/`END` + framing; Agent/Ask composers; contract doc; unit + wiring tests; hygiene ≠ security boundary). Prior: 2026-08-03 (**DI** Evidence chrome — /digests Sources + claim discipline; Vitest; traffic **DI**). Prior: 2026-08-03 (**PLA** Evidence chrome — `/planning` Sources + claim discipline + topic honesty `how-it-works`; Vitest; traffic **PLA**). Prior: 2026-08-03 (**TB-897** **Done** — Quick Scan layered identity/abuse limits + CAPTCHA/sign-in friction codes; mig **292**; abuse ≠ spend ceiling). Prior: 2026-08-03 (**SCX** Evidence chrome — `/insights/architecture-scorecard` Sources + Category-1 registry + directional ROI claim; Vitest; traffic **SCX**; **TB-1956**–**TB-1960** remain Done). Prior: 2026-08-03 (**TB-1668** GDX/alerts topic slice — `/governance/dashboard` Sources + registry + topic honesty; `/governance/alerts` → `alerts`; Vitest; traffic **GDX**; remaining mount hubs open). Prior: 2026-08-03 (**TB-1667** HOM slice — `/` remounts `OperatorHomePageChrome` + Category-1 registry; Vitest; traffic **HOM**; remaining hubs open). Prior: 2026-08-03 (**TB-1746**/**TB-1749**/**TB-1750** **Done** — `/help/soc2-self-assessment` specialty buyer guide + Trust CTA / IA dual / Help Center; Vitest; traffic **HES**; **TB-1747**/**TB-1748** retained). Prior: 2026-08-03 (**TB-1386** **Done** — `/help/governance-api-contracts` specialty API contracts guide + title honesty; Vitest; traffic **HG**). Prior: 2026-08-02 (**TB-1691**/**TB-1692**/**TB-1694**/**TB-1695** **Done** — `/help/first-value-20-minutes` Admin specialty guide; Vitest; traffic **HEF**). Prior: 2026-08-02 (**TB-1676**/**TB-1678**/**TB-1679**/**TB-1680** **Done** — `/help/dpa-template` specialty buyer DPA guide; Vitest; traffic **HDP**). Prior: 2026-07-31 (Open **P1** summary rows reordered - human-impact ship order for /ship-next-improvement; 723 open P1s; see `### P1 - human-impact ship order`).
+**Updated:** 2026-08-05 (**TB-2048** **Done** — Learn more job-match in [`UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md) + UI ARCHITECTURE pointer; ban generic getting-started/how-it-works on secondary hubs; **TB-2049**–**TB-2052** remain open). Prior: 2026-08-05 (**TB-2048**–**TB-2052** opened — P0 page-scoped contextual help *quality*: Learn more must match page job (ban generic `getting-started`/`how-it-works` on secondary hubs), Digests golden remap + Schedule deep link, secondary-hub sweep, actionable Category-1 popover links, Vitest; owner Digests help review 2026-08-05; traffic **OCH**; complements open mount cluster **TB-1666**–**TB-1670** — do not reopen). Prior: 2026-08-05 (**TB-931** **Done** — typed hot scalars on `AgentExecutionTraces` (DbUp **294**); list + LLM cost prefer typed columns with JSON_VALUE COALESCE; dual-write Create + quality columns; inventory). Prior: 2026-08-05 (**TB-1030** **Done** — [`PA_FIRST_15_PACKAGE_SPINE_IA_CONTRACT.md`](PA_FIRST_15_PACKAGE_SPINE_IA_CONTRACT.md) must-complete + package-spine IA unlock + minute-12 + narration residuals; GTM **M-181** + claim-boundary cites; **TB-1031** remains open). Prior: 2026-08-05 (**TB-1026** **Done** — [`OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md`](OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md) package primary + `/reviews` spine + collapse surfaces; GTM **M-177** + claim-boundary cites; **TB-1027** remains open). Prior: 2026-08-05 (**TB-1024** **Done** — [`COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md`](COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md) minimal immutable snapshot + artifact/regenerate/verify modes; GTM **M-175** + claim-boundary cites; **TB-1025** remains open). Prior: 2026-08-05 (**TB-1022** **Done** — [`PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md`](PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md) block vs advisory + SoD ownership matrix; GTM **M-173** + claim-boundary cites; **TB-1023** remains open). Prior: 2026-08-05 (**TB-1011** **Done** — [`TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md`](TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md) finalize vs outbox + never-silent best-effort matrix; GTM **M-163** + claim-boundary cites; **TB-1012** remains open). Prior: 2026-08-05 (**TB-1009** **Done** — [`APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md`](APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md) append-only/sealed vs mutable + Update-destruction matrix; GTM **M-161** + claim-boundary cites; **TB-1010** remains open). Prior: 2026-08-05 (**TB-1007** **Done** — [`AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md`](AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md) Authority canonical + AgentTask forbid matrix; GTM **M-159** + Flow A1 cites; **TB-1008** remains open). Prior: 2026-08-05 (**TB-1005** **Done** — [`LAYER_BOUNDARY_IRREVERSIBLE_LEAK_MATRIX.md`](LAYER_BOUNDARY_IRREVERSIBLE_LEAK_MATRIX.md) NetArchTest vs ranked runtime residuals; GTM **M-157** + claim-boundary cites; **TB-1006** remains open). Prior: 2026-08-05 (**TB-1003** **Done** — [`COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md`](COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md) unit-of-truth + hop/label matrix; GTM **M-155** + claim-boundary cites; **TB-1004** remains open). Prior: 2026-08-05 (**TB-1001** **Done** — [`RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md`](RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md) Ask/Search/Graph-RAG hit guarantee matrix; GTM **M-153** + Layer E / Ask threat-model cites; **TB-1002** remains open). Prior: 2026-08-05 (**TB-999** **Done** — [`TENANT_IDENTITY_SINGLE_DERIVATION_CONTRACT.md`](TENANT_IDENTITY_SINGLE_DERIVATION_CONTRACT.md) decide-once matrix; GTM **M-151** + Layer B cites; **TB-1000** remains open). Prior: 2026-08-05 (**TB-997** **Done** — [`LLM_TRUST_BOUNDARY_INGRESS_CONFINEMENT_CONTRACT.md`](LLM_TRUST_BOUNDARY_INGRESS_CONFINEMENT_CONTRACT.md) ingress vs confinement matrix; GTM **M-149** + claim-boundary cites; **TB-952** remains open). Prior: 2026-08-04 (**TB-995** **Done** — [`POLLY_VS_RUN_LEVEL_SEMANTICS_CONTRACT.md`](POLLY_VS_RUN_LEVEL_SEMANTICS_CONTRACT.md) transport vs partial/cache/budget matrix; `LLM_RETRY` + GTM **M-147** + claim-boundary cites; does not close **TB-941**–**TB-945**). Prior: 2026-08-04 (**TB-968** **Done** — `IItsmInboundWebhookReplayGuard` + in-memory 24h dedupe; delivery-id / Atlassian identifier / synthetic replay keys; `Integration.ItsmInboundWebhookReplayIgnored` audit; optional timestamp skew without HMAC; [`ITSM_INBOUND_WEBHOOK_REPLAY_GUARD.md`](runbooks/ITSM_INBOUND_WEBHOOK_REPLAY_GUARD.md); hostile-traffic inventory Replay → Y). Prior: 2026-08-04 (**TB-2038**–**TB-2041** opened — operator short-helper measure caps: design-system contract + `OperatorPageHeader`/`PageHeading` + dashboard inventory + Vitest; Overview `/` premature `max-w-prose`/`max-w-2xl` fixed in-session). Prior: 2026-08-04 (**TB-967** **Done** — `InboundWebhookBoundedBodyReader` Content-Length + hard ceiling before HMAC; ITSM/Stripe/Marketplace/Slack; 413; unit/arch/integration tests; inventory updated). Prior: 2026-08-04 (**TB-966** **Done** — `INBOUND_WEBHOOK_HOSTILE_TRAFFIC.md` PA order rate→size→verify→parse + surface matrix + checklist; INV-015 refresh; GTM **M-125**/**M-126** cite SoT; **TB-968** remains open). Prior: 2026-08-03 (**TB-955** **Done** — Required audit abandon metric + pageable Prometheus alerts; domain↔audit orphan probe + job; triage runbook; informational TryLogAsync excluded). Prior: 2026-08-03 (**TB-954** **Done** — `RequiredAuditEventTypes` registry + arch test forbids `TryLogAsync` on Required types; INV-003 enforcement note; Core + Architecture tests). Prior: 2026-08-03 (**TB-951** **Done** — ≥3 indirect doc/README/ADR corpus scenarios + `indirect-doc-injection.json` with `expectedContained` residual; CI assert + eval_agent_quality strict; no 100% detection claim). Prior: 2026-08-03 (**TB-950** **Done** — production-like empty/null `AllowedTools` fail-closed; `*` unrestricted sentinel; DemoSeed concrete tools; TB-082 tests updated). Prior: 2026-08-03 (**TB-949** **Done** — untrusted customer-content `CUSTOMER_CONTENT_BEGIN`/`END` + framing; Agent/Ask composers; contract doc; unit + wiring tests; hygiene ≠ security boundary). Prior: 2026-08-03 (**DI** Evidence chrome — /digests Sources + claim discipline; Vitest; traffic **DI**). Prior: 2026-08-03 (**PLA** Evidence chrome — `/planning` Sources + claim discipline + topic honesty `how-it-works`; Vitest; traffic **PLA**). Prior: 2026-08-03 (**TB-897** **Done** — Quick Scan layered identity/abuse limits + CAPTCHA/sign-in friction codes; mig **292**; abuse ≠ spend ceiling). Prior: 2026-08-03 (**SCX** Evidence chrome — `/insights/architecture-scorecard` Sources + Category-1 registry + directional ROI claim; Vitest; traffic **SCX**; **TB-1956**–**TB-1960** remain Done). Prior: 2026-08-03 (**TB-1668** GDX/alerts topic slice — `/governance/dashboard` Sources + registry + topic honesty; `/governance/alerts` → `alerts`; Vitest; traffic **GDX**; remaining mount hubs open). Prior: 2026-08-03 (**TB-1667** HOM slice — `/` remounts `OperatorHomePageChrome` + Category-1 registry; Vitest; traffic **HOM**; remaining hubs open). Prior: 2026-08-03 (**TB-1746**/**TB-1749**/**TB-1750** **Done** — `/help/soc2-self-assessment` specialty buyer guide + Trust CTA / IA dual / Help Center; Vitest; traffic **HES**; **TB-1747**/**TB-1748** retained). Prior: 2026-08-03 (**TB-1386** **Done** — `/help/governance-api-contracts` specialty API contracts guide + title honesty; Vitest; traffic **HG**). Prior: 2026-08-02 (**TB-1691**/**TB-1692**/**TB-1694**/**TB-1695** **Done** — `/help/first-value-20-minutes` Admin specialty guide; Vitest; traffic **HEF**). Prior: 2026-08-02 (**TB-1676**/**TB-1678**/**TB-1679**/**TB-1680** **Done** — `/help/dpa-template` specialty buyer DPA guide; Vitest; traffic **HDP**). Prior: 2026-07-31 (Open **P1** summary rows reordered - human-impact ship order for /ship-next-improvement; 723 open P1s; see `### P1 - human-impact ship order`).
 
 
 ## Cursor-actionable backlog ? remaining by architectural quality
@@ -501,6 +501,8 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 **TB-2005 — TB-2011** were added 2026-07-29 from an **owner UX expectation review of create-architecture draft workspace** (`/architectures/[id]`): primary **Start architecture review** stays enabled when overview/outcome minimums fail; click shows a **toast** instead of disabling the CTA and keeping validation on the form. Preferred pattern (already on Guided intake create-architecture continue, Quick Scan, Alert rules / Digest create, SSO wizard): disable primary until hard client validation passes; inline field/readiness errors; `showError` only for system/async failures. Audit: toast+enabled CTA — `ArchitectureDraftWorkspace`, `PilotBaselineWizard`, `TenantCostSettingsCard`, `GovernanceFindingsBulkActions`; dual toast+inline — extract-upload + `AzureExtractorPackageZipField` (+ Baseline leftover); disable-until-ready gaps — Signup, Webhooks, Alert routing, full/quick-start wizards; dead validation toasts behind gated CTAs — Socratic / FirstPilot / QuickReview. **TB-2005** (P1) design-system + Cursor rule — **Done** same day. **TB-2006**–**TB-2008** (P1) apply. **TB-2009**–**TB-2010** (P2) cleanup/inventory. **TB-2011** (P2) Vitest + dead toast cleanup. No new GTM IDs. Distinct from breathing-room **TB-2000**–**TB-2004** and primary-CTA count **TB-1539**–**TB-1544**.
 
 **TB-2012 — TB-2015** were added 2026-07-29 from an **owner review of Decision Register date filters** (`/governance/decision-register`). Finding: native `type="date"` controls stretch across a `md:grid-cols-3` column (too wide for the value), and labels **Recorded after** / **Recorded before** read as query-predicate jargon — humans expect **Start date** / **End date**. System scan of `type="date"` / `type="datetime-local"`: only Decision Register uses after/before copy; Audit uses **From (local)** / **To (local)** (`w-full` in `minmax(220px,1fr)`); Value report uses **From** / **To** (half-width grid stretch); Pilot value report already uses **Start date** / **End date** with content-sized controls (reference). Single-value due/expiry pickers (finding remediation, waiver, risk-exception renew) are out of range-label scope. API query names `recordedAfterUtc` / `recordedBeforeUtc` may stay. **TB-2012** (P1) design-system contract. **TB-2013** (P1) Decision Register apply. **TB-2014** (P1) Audit + Value report. **TB-2015** (P2) Vitest. No new GTM IDs.
+
+**TB-2048 — TB-2052** were added 2026-08-05 from an **owner review of page-scoped contextual help** on Architecture digests (`/digests`, traffic **DI** / cluster **OCH**). Finding: Category-1 popover copy for Digests is useful (What is this page / What to do next / Why empty / Where to configure), but **Learn more →** resolves via `page-help-topic-map.ts` to generic **`getting-started`** (and historically **`how-it-works`**), so operators leave a digests-specific blurb into a product-overview guide. Same misuse appears on other secondary hubs (planning, decision-register, advisory-scans, impact-preview, etc.). Popover fields that name the Schedule tab are prose-only — not deep links. Open **TB-1666**–**TB-1670** cover *mount / map completeness* only — do **not** reopen them for this quality gap. **TB-2048** (P0) design-system Learn more job-match contract. **TB-2049** (P0) Digests golden remap + Schedule deep link. **TB-2050** (P0) secondary-hub Learn more sweep. **TB-2051** (P0) actionable Category-1 popover links. **TB-2052** (P0) Vitest guards. No new GTM IDs. IDs skip PA **TB-2042**–**TB-2047**.
 
 **TB-1572 — TB-1576** were added 2026-07-27 from an **owner side-rail convention pass** (Recurrence teaching helper vs Advisory Schedule scope vs Digests/Alert live readiness vs Digests browse master-detail vs run-detail sticky package rail vs Teams/Slack about asides vs Help TOC). Finding: design system mentions Carbon side panels but never defines when a page may open a persistent right column. Competing kinds: (1) teaching/workflow helper that restates Next step (Recurrence — hidden empty per Done **TB-1133**, still present when populated), (2) static scope/metadata column (Advisory Schedules — thin void; **TB-1477**), (3) live preview/readiness always-on two-col when empty (**TB-1478**/**TB-1479**), (4) valid master-detail / working-object sticky / TOC/wizard. Recommended standard: single-column default; name rail kind; allow working-object, master-detail, live preview/readiness (only when live), TOC/wizard; ban teaching and static-scope as persistent rails; hide rail when empty/sparse; shared ~17.5–18rem sticky shell; no second primary in rail. **TB-1572** (P1) design-system contract. **TB-1573** (P1) ban teaching/static rails (Recurrence + Advisory exemplars). **TB-1574** (P1) live-rail empty-hide policy. **TB-1575** (P1) hub/integration rail inventory. **TB-1576** (P2) Vitest guard. No new GTM IDs. (IDs **TB-1572**–**TB-1576**; skip PA **TB-1570**–**TB-1571** / ADS **TB-1565**–**TB-1569**; pairs empty **TB-1552**–**TB-1556** / whitespace **TB-1477**–**TB-1482** / CTA **TB-1539**; do not reopen those surface rows.)
 
@@ -1096,6 +1098,11 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-2039 | OperatorPageHeader + PageHeading — remove default subtitle measure caps; see ## TB-2039 below | Adoption friction P1 — **V1**; with **TB-2038**; Overview already opts out via `subtitleClassName` | S |
 | TB-2040 | Operator dashboard inventory — strip premature measure caps from short intro helpers; see ## TB-2040 below | Adoption friction P1 — **V1**; with **TB-2038**; excludes help/docs long prose | M |
 | TB-2041 | Short-helper measure — Vitest contract + residual inventory guard; see ## TB-2041 below | Adoption friction P2 — **V1**; after **TB-2038**–**TB-2040** | S |
+| TB-2048 | **Done** (2026-08-05) — Design-system — page-scoped Learn more must match page job (ban generic getting-started/how-it-works); `UI_DESIGN_SYSTEM.md` + UI ARCHITECTURE pointer; see ## TB-2048 below | Adoption friction P0 — **V1**; owner Digests contextual-help review 2026-08-05; traffic **OCH**; complements **TB-1666** (do not reopen) | S |
+| TB-2049 | `/digests` — job-matched Learn more + Schedule-tab deep link in Category-1 popover; see ## TB-2049 below | Adoption friction P0 — **V1**; with **TB-2048**; traffic **DI** | S |
+| TB-2050 | Secondary hubs — remap Learn more off generic getting-started/how-it-works; see ## TB-2050 below | Adoption friction P0 — **V1**; with **TB-2048**; planning / decision-register / advisory / impact-preview / … | M |
+| TB-2051 | Category-1 popover — actionable deep-link CTAs for next/configure fields; see ## TB-2051 below | Adoption friction P0 — **V1**; with **TB-2048**; Digests Schedule is golden | S |
+| TB-2052 | Vitest — Learn more job-match + Digests golden + ban generic secondary-hub targets; see ## TB-2052 below | Testability P0 — **V1**; after **TB-2049**–**TB-2051**; pairs **TB-1670** (do not reopen) | S |
 | TB-2006 | Architecture draft workspace — disable Start review until readiness; drop validation toast; see ## TB-2006 below | Adoption friction P1 — **V1**; owner ask 2026-07-29; with **TB-2005** | S |
 | TB-2007 | Pilot baseline wizard — disable Next/Save until valid; inline field errors; see ## TB-2007 below | Adoption friction P1 — **V1**; with **TB-2005**; first-session overlay | S |
 | TB-2008 | Admin toast-validation — Tenant cost settings + governance bulk disposition; see ## TB-2008 below | Adoption friction P1 — **V1**; with **TB-2005** | S |
@@ -41524,7 +41531,7 @@ Operators must read three intros before reaching the Trust Center link list.
 3. Publish allowlist starting with shipped exemplars (`/reviews`, `/architectures`, findings/alerts/alert-rules/advisory-scans, digests, planning, value-report, readiness) and gaps owned by **TB-1667**–**TB-1669**.
 4. Explicitly **coordinate, do not reopen**: **TB-1184** (Teams), Slack/Webhooks help-icon rows in **TB-1185**–**TB-1195**, **TB-1201** (settings hub), **TB-1215** (users), **TB-1218** (AI usage), **TB-1225** (security-trust), **TB-1458** (`/architectures/new`).
 
-**Acceptance:** One citable contract; new operator hubs must mount a non-null `PageContextualHelpButton` (or documented exception: auth/error/callback/help-self).
+**Acceptance:** One citable contract; new operator hubs must mount a non-null `PageContextualHelpButton` (or documented exception: auth/error/callback/help-self). **Learn more** destination honesty (job-match / omit-when-none / ban generic getting-started on secondary hubs) is already ratified in `UI_DESIGN_SYSTEM.md` under **TB-2048** Done — this row owns mount/resolution only; do not reopen Learn more target remaps (**TB-2049**–**TB-2050**).
 
 **Depends on:** Coordinate **TB-1667**–**TB-1670**.
 
@@ -46968,6 +46975,152 @@ Operators must read three intros before reaching the Trust Center link list.
 **Depends on:** After **TB-2038**; preferably after **TB-2039**/**TB-2040** land.
 
 **Out of scope:** Visual screenshot regression suite.
+
+**Size estimate:** S.
+
+---
+
+## TB-2048 — Design-system — page-scoped Learn more must match page job (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** **Done** (2026-08-05). Documented Learn more job-match + omit-when-none + secondary-hub ban on `getting-started`/`how-it-works` in [`UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md); pointer in `archlucid-ui/docs/ARCHITECTURE.md`; **TB-1666** acceptance cross-link. Remaps / Vitest remain **TB-2049**–**TB-2052**.
+
+**Priority:** P0 (owner-directed 2026-08-05 — Learn more destination honesty on shipped Category-1 help).
+
+**Source:** Owner Digests contextual-help review 2026-08-05 — popover teaches Digests; **Learn more →** opens generic Getting started / How it works. Traffic shorthand **OCH**.
+
+**Problem:** `PageContextualHelpButton` always links Learn more to `pageHelpTopicForPathname(pathname).slug`. Many secondary hubs reuse `getting-started` (or the `how-it-works` alias) so the escape hatch contradicts the page-scoped answers. Open **TB-1666** documents *when* to mount the button — not *when Learn more is allowed*. Done **TB-733** shipped the popover pattern without a job-match rule.
+
+**Approach:**
+
+1. Extend `UI_DESIGN_SYSTEM.md` (Operator page contextual help / Category-1): Learn more must target a `/help/{slug}` whose primary job matches the route (or omit Learn more entirely when no job-matched guide exists).
+2. Explicit ban: secondary hubs must **not** use `getting-started` or `how-it-works` as Learn more solely because a map row exists. Allowed exceptions: first-run / onboarding / draft surfaces whose job *is* getting started (document the allowlist).
+3. Prefer existing specialty slugs over inventing orphans; when inventing, require a minimal specialty or curated product-help page (coordinate **TB-1414**, do not reopen).
+4. Pointer in `archlucid-ui/docs/ARCHITECTURE.md` (help chrome). Update **TB-1666** acceptance cross-link only — do **not** reopen mount work.
+
+**Acceptance:** Design system states Learn more job-match + omit-when-none; agents have a citable ban on generic getting-started/how-it-works for secondary hubs.
+
+**Depends on:** None. Complements open **TB-1666**–**TB-1670**.
+
+**Out of scope:** Per-route remaps (**TB-2049**/**TB-2050**); popover deep-link UX (**TB-2051**); Vitest (**TB-2052**); specialty body rewrites.
+
+**Size estimate:** S.
+
+---
+
+## TB-2049 — `/digests` — job-matched Learn more + Schedule-tab deep link (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner Digests help review 2026-08-05 (traffic **DI**); golden path for **TB-2048**/**TB-2051**.
+
+**Problem:** `/digests` Category-1 copy correctly says open the Schedule tab and configure recipients, but Learn more goes to `/help/getting-started`. Operators who follow Learn more leave the digests job.
+
+**Approach:**
+
+1. Remap `page-help-topic-map` `/digests` to a job-matched slug (prefer existing product-help if one fits; otherwise add a thin Digests specialty / curated guide — coordinate **TB-1414**, do not invent a bare markdown dump).
+2. Update Digests Learn more href + caption honesty; refresh traffic Notes (**DI** / **DIS** / **DIB** / **DIX**) so they no longer claim getting-started/how-it-works.
+3. With **TB-2051**, turn “Open the Schedule tab…” / “Where to configure” into deep links to `/digests?tab=schedule` (and subscriptions when accurate).
+4. Vitest: Digests Learn more is not `getting-started` / `how-it-works`; Schedule deep link present when registry copy references Schedule.
+
+**Acceptance:** Digests popover Learn more opens digests-relevant help (or is omitted); Schedule guidance is one click away; traffic notes honest.
+
+**Depends on:** Prefer after or with **TB-2048**; land **TB-2051** together if deep-link schema lands same PR.
+
+**Out of scope:** Digests empty-form whitespace (**TB-1477**–**TB-1482**); mount-only work (**TB-1666**–**TB-1670**).
+
+**Size estimate:** S.
+
+---
+
+## TB-2050 — Secondary hubs — remap Learn more off generic getting-started/how-it-works (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** `page-help-topic-map.ts` scan after Digests finding 2026-08-05 — secondary hubs still mapped to `getting-started` include at least `/insights/planning`, `/governance/decision-register`, `/governance/advisory-scans`, `/insights/impact-preview`, plus other non-first-run rows.
+
+**Problem:** Digests is not unique. Any Category-1 popover on those hubs inherits the same misleading Learn more.
+
+**Approach:**
+
+1. Inventory every `page-help-topic-map` row whose slug is `getting-started` or `how-it-works`.
+2. Classify: first-run/onboarding allowlist vs secondary hub (must remap or omit Learn more per **TB-2048**).
+3. Remap secondary hubs to existing specialty/product-help slugs where possible; omit Learn more when no honest target exists (popover still ships Category-1 answers).
+4. Do not reopen **TB-1668** GDX topic slice or **TB-1667** mount wave — this row owns Learn more *targets* only.
+5. Refresh traffic Notes that still advertise getting-started/how-it-works for remapped hubs.
+
+**Acceptance:** No secondary-hub map row uses getting-started/how-it-works as Learn more except documented first-run allowlist; Vitest covered by **TB-2052**.
+
+**Depends on:** After **TB-2048**; Digests golden may land first via **TB-2049**.
+
+**Out of scope:** Mounting missing icons (**TB-1667**–**TB-1669**); specialty body rewrites (**TB-1414** clusters).
+
+**Size estimate:** M.
+
+---
+
+## TB-2051 — Category-1 popover — actionable deep-link CTAs for next/configure fields (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Same Digests review — “Open the Schedule tab…” and “Where to configure … Schedule tab” are prose inside `PageScopedContextualHelpPanel` with no in-product navigation.
+
+**Problem:** Category-1 help answers *what* to do but does not *take* the operator there. That makes the popover feel like a dead-end tip sheet rather than inline help.
+
+**Approach:**
+
+1. Extend `PageContextualHelpEntry` (or sibling fields) with optional typed actions: `{ label, href }` for what-to-do-next and/or where-to-configure (reuse `OPERATOR_LINK` / existing link tokens — coordinate **TB-1671**, do not reopen).
+2. Render links inside `PageScopedContextualHelpPanel` without breaking hover/focus grace for Learn more.
+3. Digests golden: Schedule tab + subscriptions deep links as applicable.
+4. Apply to a small allowlist of high-value hubs that already name a tab/route in registry copy; remainder can follow.
+
+**Acceptance:** Digests (and allowlisted hubs) expose at least one working in-app deep link from Category-1 fields; keyboard/pointer still reach Learn more when present.
+
+**Depends on:** Prefer with **TB-2049**; contract language in **TB-2048**.
+
+**Out of scope:** Field-level `ContextualHelp` component rewrite; Help drawer IA.
+
+**Size estimate:** S.
+
+---
+
+## TB-2052 — Vitest — Learn more job-match + Digests golden + ban generic secondary-hub targets (P0)
+
+**Window:** V1 — Testability.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Guard for **TB-2048**–**TB-2051**; pairs open **TB-1670** (mount/non-null) without reopening it.
+
+**Problem:** Without CI, agents remount Category-1 help and reintroduce `getting-started` / `how-it-works` Learn more on secondary hubs.
+
+**Approach:**
+
+1. Allowlist secondary hubs (start: `/digests`, `/insights/planning`, `/governance/decision-register`, `/governance/advisory-scans`, `/insights/impact-preview`) — `pageHelpTopicForPathname` slug must not be `getting-started` or `how-it-works` unless explicitly allowlisted as first-run.
+2. Digests golden: Learn more href (when present) is job-matched; Schedule deep link present when registry references Schedule.
+3. Optional: assert `PageScopedContextualHelpPanel` supports action hrefs once **TB-2051** lands.
+4. Share inventory style with **TB-1670** / **TB-1556** without expanding those tickets.
+
+**Acceptance:** CI fails generic Learn more on secondary allowlist; Digests golden assertions green.
+
+**Depends on:** After **TB-2049**; preferably after **TB-2050**/**TB-2051**.
+
+**Out of scope:** Full Playwright of every help popover; mount-null guard (**TB-1670**).
 
 **Size estimate:** S.
 

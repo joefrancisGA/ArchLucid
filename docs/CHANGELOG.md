@@ -10,13 +10,21 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-05 - Docs: Learn more must match page job (TB-2048)
+
+`UI_DESIGN_SYSTEM.md` ratifies Category-1 Learn more job-match + omit-when-none and bans generic `getting-started` / `how-it-works` on secondary hubs (first-run allowlist documented). `archlucid-ui/docs/ARCHITECTURE.md` points agents here. Remaps remain **TB-2049**–**TB-2050**; Vitest **TB-2052**. Does not claim CPA / third-party pen-test.
+
 ## 2026-08-05 - Backlog: page-scoped contextual help quality (TB-2048–TB-2052)
 
-Opened **P0** cluster for Category-1 help *quality* (not mount coverage): Learn more must match the page job; Digests golden remap + Schedule deep link; secondary-hub remap off generic getting-started/how-it-works; actionable popover CTAs; Vitest. Complements open **TB-1666**–**TB-1670**. See `TECH_BACKLOG.md` / `TECH_BACKLOG_OPEN.md`. Does not claim CPA / third-party pen-test.
+Opened **P0** cluster for Category-1 help *quality* (not mount coverage): Learn more must match the page job; Digests golden remap + Schedule deep link; secondary-hub remap off generic getting-started/how-it-works; actionable popover CTAs; Vitest. Complements open **TB-1666**–**TB-1670**. **TB-2048** Done same day (design-system contract); **TB-2049**–**TB-2052** remain open. See `TECH_BACKLOG.md` / `TECH_BACKLOG_OPEN.md`. Does not claim CPA / third-party pen-test.
 
 ## 2026-08-05 - Persistence: typed hot scalars on AgentExecutionTraces (TB-931)
 
 DbUp **294** + `ArchLucid.sql` add token/cost/alias/quality columns on `dbo.AgentExecutionTraces` with best-effort JSON backfill. Create dual-writes scalars; operator list and LLM cost projections prefer typed columns with `JSON_VALUE` COALESCE for rolling-deploy rows. Quality patches dual-write bit columns. Inventory updated. Finding list title/severity was already columnar. Does not claim CPA / third-party pen-test.
+
+## 2026-08-05 - UI: Session expired Evidence chrome (ASU)
+
+`/auth/session-expired` ships SessionExpiredEvidenceOrientationStrip (public Sources + claim-discipline), traffic Notes under Auth, and honest Evidence score 40. Auth session-expired handoff hard-caps higher Evidence; no CPA / third-party pen-test implication.
 
 ## 2026-08-05 - UI: Why ArchLucid proof Evidence chrome (WH)
 

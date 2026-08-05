@@ -103,6 +103,22 @@ Operator and buyer forms must make hard validation visible on the form and hones
 
 **Open apply / cleanup:** **TB-2006**–**TB-2011** in `TECH_BACKLOG.md`. Cursor enforcement: `.cursor/rules/UI-Form-Validation-Affordances.mdc`.
 
+### Operator page contextual help — Learn more job match (**TB-2048** — done 2026-08-05)
+
+`PageContextualHelpButton` / Category-1 popovers teach the **current page job**. The **Learn more** escape hatch must not send the operator to a generic Getting started / How it works guide when the page is a secondary hub.
+
+| Rule | Required behavior |
+|------|-------------------|
+| Job match | Learn more targets `/help/{slug}` whose **primary job** matches the route (same job as the Category-1 answers), **or** Learn more is **omitted** when no honest job-matched guide exists. |
+| Ban (secondary hubs) | Do **not** map Learn more to `getting-started` or `how-it-works` solely because a `page-help-topic-map` row exists. Secondary hubs include Digests, Planning, Decision register, Advisory scans, Impact preview, and other non-first-run operator destinations. |
+| First-run allowlist | `getting-started` / `how-it-works` **are** allowed when the page’s primary job *is* first-run / onboarding / draft bootstrap — e.g. Overview empty/home onboarding, `/onboarding*`, `/reviews/new*`, Architectures list/create/draft workspace, Quick start / get-started marketing. Document the allowlist when adding map rows. |
+| Prefer existing specialty | Prefer an existing specialty or curated product-help slug over inventing an orphan `/help` page. New specialty bodies coordinate **TB-1414** (do not invent bare markdown dumps). |
+| Mount vs target | *When* to mount `PageContextualHelpButton` remains **TB-1666**–**TB-1670**. This rule owns Learn more **targets** only. |
+
+**Code touchpoints (apply in follow-on rows):** `page-help-topic-map.ts` (`pageHelpTopicForPathname`), `PageContextualHelpButton` / `PageScopedContextualHelpPanel` Learn more href. Remaps: Digests golden **TB-2049**; secondary-hub sweep **TB-2050**; popover deep-link CTAs **TB-2051**; Vitest **TB-2052**.
+
+**Good exemplar (target state):** Digests Category-1 answers discuss Schedule/recipients; Learn more must open digests-relevant help (or omit) — not `/help/getting-started`.
+
 ---
 
 ## What this standard forbids
@@ -271,3 +287,4 @@ Cursor enforcement: `.cursor/rules/UI-Enterprise-Design-Standard.mdc` (**TB-120*
 - Deferred UI architecture: `docs/library/UI_ARCHITECTURE_V1_1.md`
 - Cursor rules: `.cursor/rules/UI-React-Next-Conventions.mdc`, `.cursor/rules/UI-Accessibility-Baseline.mdc`, `.cursor/rules/UI-Form-Validation-Affordances.mdc` (**TB-2005**)
 - Agent guidance: `archlucid-ui/AGENTS.md`
+- Page-scoped **Learn more** job match: this file § *Operator page contextual help — Learn more job match* (**TB-2048** Done); mount waves **TB-1666**–**TB-1670**; Digests/secondary remaps **TB-2049**–**TB-2052**

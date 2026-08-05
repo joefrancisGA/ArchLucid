@@ -585,6 +585,7 @@ This is intentional. The architect workspace is thin — it does not have busine
 
 ## Where to go next
 
+- **UI design system (normative):** `docs/library/UI_DESIGN_SYSTEM.md` — includes **Learn more job match** for page-scoped Category-1 help (**TB-2048**): Learn more must match the page job or be omitted; ban generic `getting-started` / `how-it-works` on secondary hubs. Mount contract remains **TB-1666**.
 - **Operator workflow (55R, repo root):** `docs/operator-shell.md`
 - **Tutorial (for learning):** `archlucid-ui/docs/OPERATOR_SHELL_TUTORIAL.md`
 - **C# ↔ React translation:** `archlucid-ui/docs/CSHARP_TO_REACT_ROSETTA.md`
