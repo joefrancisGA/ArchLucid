@@ -312,7 +312,7 @@ export function AdminTenantsPageClient() {
         </p>
       ) : null}
 
-      <EnterpriseTable data-testid="admin-tenants-table">
+      <EnterpriseTable ariaLabel="Admin tenants" data-testid="admin-tenants-table">
         <EnterpriseTableHead>
           <EnterpriseTableHeadRow>
             <EnterpriseTableHeaderCell>Name</EnterpriseTableHeaderCell>
