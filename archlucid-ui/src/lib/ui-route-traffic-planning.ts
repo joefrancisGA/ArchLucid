@@ -8,7 +8,7 @@ export const PLANNING_TRAFFIC_ROW_ID = "PLA";
 export const PLANNING_TRAFFIC_PATH = "/insights/planning";
 
 /** Workbook Section column value. */
-export const PLANNING_TRAFFIC_SECTION = "Planning";
+export const PLANNING_TRAFFIC_SECTION = "Marketing";
 
 /**
  * Owner workbook Notes for PLA — documents Evidence chrome on Improvement planning.

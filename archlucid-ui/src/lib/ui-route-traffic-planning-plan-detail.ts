@@ -8,7 +8,7 @@ export const PLANNING_PLAN_DETAIL_TRAFFIC_ROW_ID = "PPP";
 export const PLANNING_PLAN_DETAIL_TRAFFIC_PATH = "/insights/planning/plans/[planId]";
 
 /** Workbook Section column value. */
-export const PLANNING_PLAN_DETAIL_TRAFFIC_SECTION = "Planning";
+export const PLANNING_PLAN_DETAIL_TRAFFIC_SECTION = "Marketing";
 
 /**
  * Owner workbook Notes for PPP — documents Evidence chrome on plan detail.

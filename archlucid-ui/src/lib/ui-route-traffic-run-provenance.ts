@@ -5,7 +5,7 @@
 export const RUN_PROVENANCE_TRAFFIC_ROW_ID = "RRP";
 
 /** Canonical path tracked on the RRP workbook row. */
-export const RUN_PROVENANCE_TRAFFIC_PATH = "/reviews/[runId]/provenance";
+export const RUN_PROVENANCE_TRAFFIC_PATH = "/architecture/reviews/[runId]/provenance";
 
 /** Workbook Section column value. */
 export const RUN_PROVENANCE_TRAFFIC_SECTION = "Core review";

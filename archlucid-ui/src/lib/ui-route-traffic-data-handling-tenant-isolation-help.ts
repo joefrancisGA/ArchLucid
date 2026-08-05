@@ -10,7 +10,7 @@ export const DATA_HANDLING_TENANT_ISOLATION_HELP_TRAFFIC_ROW_ID = "HDA";
 export const DATA_HANDLING_TENANT_ISOLATION_HELP_TRAFFIC_PATH = DATA_HANDLING_TENANT_ISOLATION_HELP_PATH;
 
 /** Workbook Section column value — in-app help topic, not marketing. */
-export const DATA_HANDLING_TENANT_ISOLATION_HELP_TRAFFIC_SECTION = "Help topic";
+export const DATA_HANDLING_TENANT_ISOLATION_HELP_TRAFFIC_SECTION = "Help alias";
 
 /**
  * Owner workbook Notes for HDA — documents the specialty guide surface.

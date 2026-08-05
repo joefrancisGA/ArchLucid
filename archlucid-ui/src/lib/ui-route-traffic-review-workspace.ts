@@ -5,7 +5,7 @@
 export const REVIEW_WORKSPACE_TRAFFIC_ROW_ID = "RRE";
 
 /** Canonical path tracked on the RRE workbook row. */
-export const REVIEW_WORKSPACE_TRAFFIC_PATH = "/reviews/[runId]";
+export const REVIEW_WORKSPACE_TRAFFIC_PATH = "/architecture/reviews/[runId]";
 
 /** Workbook Section column value. */
 export const REVIEW_WORKSPACE_TRAFFIC_SECTION = "Core review";

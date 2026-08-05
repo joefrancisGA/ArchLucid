@@ -8,7 +8,7 @@ export const COMPARE_TWO_REVIEWS_TRAFFIC_ROW_ID = "CXX";
 export const COMPARE_TWO_REVIEWS_TRAFFIC_PATH = "/insights/compare-two-reviews";
 
 /** Workbook Section column value. */
-export const COMPARE_TWO_REVIEWS_TRAFFIC_SECTION = "Insights";
+export const COMPARE_TWO_REVIEWS_TRAFFIC_SECTION = "Marketing";
 
 /**
  * Owner workbook Notes for CXX — documents Evidence chrome on Compare two reviews.

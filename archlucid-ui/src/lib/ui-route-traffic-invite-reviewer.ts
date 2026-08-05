@@ -8,7 +8,7 @@ export const INVITE_REVIEWER_TRAFFIC_ROW_ID = "SRI";
 export const INVITE_REVIEWER_TRAFFIC_PATH = "/administration/settings/users/invite-reviewer";
 
 /** Workbook Section column value (template catalog). */
-export const INVITE_REVIEWER_TRAFFIC_SECTION = "Settings";
+export const INVITE_REVIEWER_TRAFFIC_SECTION = "Admin";
 
 /**
  * Owner workbook Notes for SRI — documents Evidence chrome on Invite a reviewer.

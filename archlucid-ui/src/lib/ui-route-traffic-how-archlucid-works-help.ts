@@ -8,7 +8,7 @@ export const HOW_ARCHLUCID_WORKS_HELP_TRAFFIC_ROW_ID = "HHX";
 export const HOW_ARCHLUCID_WORKS_HELP_TRAFFIC_PATH = "/help/how-it-works";
 
 /** Workbook Section column value (owner catalog). */
-export const HOW_ARCHLUCID_WORKS_HELP_TRAFFIC_SECTION = "Help topic";
+export const HOW_ARCHLUCID_WORKS_HELP_TRAFFIC_SECTION = "Help alias";
 
 /**
  * Owner workbook Notes for HHX — documents Evidence chrome on How ArchLucid works.

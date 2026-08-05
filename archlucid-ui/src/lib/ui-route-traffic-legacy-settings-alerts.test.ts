@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 
 const TEMPLATE_PATH = "docs/architecture/ui_route_traffic_estimates.template.md";
 
-/** Retired traffic row — Alert rules hub is scored only on GOA. */
+/** Retired traffic row — Alert rules hub is scored on SAX (GOA is approval-queue). */
 const RETIRED_SETTINGS_ALERTS_TRAFFIC_ROW_ID = "SEL";
 
 type TrafficWorkbookRow = {
@@ -50,13 +50,13 @@ function extractMasterTableRows(markdown: string): TrafficWorkbookRow[] {
 }
 
 describe("ui-route-traffic settings alerts retirement (TB-1886)", () => {
-  it("does not track retired SEL; Alert rules stays on GOA", () => {
+  it("keeps retired SEL bookmark; Alert rules hub stays on SAX", () => {
     const rows = extractMasterTableRows(readTemplateMarkdown());
     const selRow = rows.find((row) => row.id === RETIRED_SETTINGS_ALERTS_TRAFFIC_ROW_ID);
-    const goaRow = rows.find((row) => row.id === "GOA");
+    const saxRow = rows.find((row) => row.id === "SAX");
 
     // Next.config-only bookmark kept in the owner traffic workbook (TRAFFIC_TRACKED_REDIRECT_BOOKMARKS).
     expect(selRow?.path).toBe("/settings/alerts");
-    expect(goaRow?.path).toBe("/governance/alert-rules");
+    expect(saxRow?.path).toBe("/governance/alert-rules");
   });
 });
