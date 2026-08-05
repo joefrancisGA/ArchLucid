@@ -117,6 +117,8 @@ export default defineConfig({
       NEXT_PUBLIC_E2E_ALLOW_DEMO_BLOCKED_ROUTES: process.env.NEXT_PUBLIC_E2E_ALLOW_DEMO_BLOCKED_ROUTES ?? "1",
       /** Trial funnel mock specs expect public self-service signup UI (not invite-only gate). */
       NEXT_PUBLIC_PUBLIC_SIGNUP_MODE: process.env.NEXT_PUBLIC_PUBLIC_SIGNUP_MODE ?? "public-self-service",
+      /** Mock CI has no acceptance storageState — skip authenticated founder routes that 404 without operator mocks. */
+      FOUNDER_PUBLIC_ONLY: process.env.FOUNDER_PUBLIC_ONLY ?? "1",
     },
   },
 });

@@ -200,26 +200,7 @@ export async function registerExecutiveRoiDashboardDeterministicProxyRoutes(page
   const historyBody = JSON.stringify(getExecutiveRoiHistoryMockJson());
   const decisionsBody = JSON.stringify(getGovernanceDecisionsNeededSummaryMockJson());
 
-  await page.route("**/api/proxy/v1/roi/executive-summary/history**", async (route) => {
-    if (route.request().method() !== "GET") {
-      await route.continue();
-
-      return;
-    }
-
-    await route.fulfill({ status: 200, contentType: "application/json", body: historyBody });
-  });
-
-  await page.route("**/api/proxy/v1/roi/executive-summary/export**", async (route) => {
-    if (route.request().method() !== "GET") {
-      await route.continue();
-
-      return;
-    }
-
-    await route.fulfill({ status: 200, contentType: "application/json", body: exportBody });
-  });
-
+  // One handler avoids Playwright route.continue() races where export never fulfills and the pie card hangs loading.
   await page.route("**/api/proxy/v1/roi/executive-summary**", async (route) => {
     if (route.request().method() !== "GET") {
       await route.continue();
@@ -229,8 +210,14 @@ export async function registerExecutiveRoiDashboardDeterministicProxyRoutes(page
 
     const url = route.request().url();
 
-    if (url.includes("/history") || url.includes("/export")) {
-      await route.continue();
+    if (url.includes("/export")) {
+      await route.fulfill({ status: 200, contentType: "application/json", body: exportBody });
+
+      return;
+    }
+
+    if (url.includes("/history")) {
+      await route.fulfill({ status: 200, contentType: "application/json", body: historyBody });
 
       return;
     }
