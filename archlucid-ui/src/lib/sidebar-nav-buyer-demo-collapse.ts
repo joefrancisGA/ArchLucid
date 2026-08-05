@@ -1,3 +1,5 @@
+import type { SidebarCollapsibleNavGroupId } from "@/lib/sidebar-nav-group-expansion-storage";
+
 /**
  * Collapses Integrations + Administration (+ Internal Ops) unless the route is inside them.
  * Shared by desktop sidebar and mobile drawer so first-open mobile matches desktop defaults.
@@ -6,7 +8,7 @@ export function applyBuyerDemoSecondaryNavCollapse(input: {
   readonly pathname: string;
   readonly buyerPolishedShell: boolean;
   readonly demoUi: boolean;
-  readonly setGroupExpanded: (groupId: string, expanded: boolean) => void;
+  readonly setGroupExpanded: (groupId: SidebarCollapsibleNavGroupId, expanded: boolean) => void;
 }): void {
   if (!input.buyerPolishedShell && !input.demoUi) {
     return;
