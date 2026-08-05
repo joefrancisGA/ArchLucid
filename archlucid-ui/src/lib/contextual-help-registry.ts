@@ -550,6 +550,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/help/procurement",
+    entry: {
+      whatIsThisPage:
+        "Procurement FAQ — buyer-facing answers on diligence packs, questionnaires, and how to request security review materials.",
+      whatToDoNext:
+        "Open Security & trust or Trust Center for public assurance, or settings Security & trust when requesting NDA-gated packs.",
+      whyEmpty: "This FAQ is always available; NDA packs require contacting the security mailbox listed in the guide.",
+      whereToConfigurePrerequisite:
+        "No workspace toggle is required — this page is procurement orientation vocabulary only.",
+    },
+  },
+  {
     prefix: "/help/scope",
     entry: {
       whatIsThisPage:
