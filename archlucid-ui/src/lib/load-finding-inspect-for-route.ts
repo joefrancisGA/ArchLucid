@@ -55,16 +55,21 @@ export function findingIdsAlignForInspectRoute(urlFindingId: string, payloadFind
 /**
  * Loads inspect data for `/architecture/reviews/.../findings/...` family routes: network errors fall back to curated demo when
  * eligible; successful responses that disagree with the URL prefer demo when available, else {@link invalidRouteAlignment}.
+ *
+ * @param options.includeTypedPayload When false, omits PayloadJson LOB for detail first paint (TB-931).
  */
 export async function loadFindingInspectForRoute(
   runId: string,
   decodedFindingId: string,
+  options?: { readonly includeTypedPayload?: boolean },
 ): Promise<LoadFindingInspectForRouteResult> {
   let payload: FindingInspectPayload | null = null;
   let failure: ApiLoadFailureState | null = null;
 
   try {
-    payload = await getFindingInspect(runId, decodedFindingId);
+    payload = await getFindingInspect(runId, decodedFindingId, {
+      includeTypedPayload: options?.includeTypedPayload ?? true,
+    });
   } catch (e) {
     failure = toApiLoadFailure(e);
   }

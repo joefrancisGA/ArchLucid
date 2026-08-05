@@ -15,9 +15,23 @@ import {
 
 /** Read-model inspector: typed payload, rules, evidence citations, audit correlation (ReadAuthority). */
 /** Run-scoped: GET /v1/architecture/run/{runId}/findings/{findingId}/inspect */
-export async function getFindingInspect(runId: string, findingId: string): Promise<FindingInspectPayload> {
+export type GetFindingInspectOptions = {
+  /**
+   * When false, omits relational PayloadJson LOB (detail first-paint). Default true keeps full typed payload.
+   */
+  readonly includeTypedPayload?: boolean;
+};
+
+export async function getFindingInspect(
+  runId: string,
+  findingId: string,
+  options?: GetFindingInspectOptions,
+): Promise<FindingInspectPayload> {
+  const includeTypedPayload = options?.includeTypedPayload ?? true;
+  const query = includeTypedPayload ? "" : "?includeTypedPayload=false";
+
   return apiGet<FindingInspectPayload>(
-    `/v1/architecture/run/${encodeURIComponent(runId)}/findings/${encodeURIComponent(findingId)}/inspect`,
+    `/v1/architecture/run/${encodeURIComponent(runId)}/findings/${encodeURIComponent(findingId)}/inspect${query}`,
   );
 }
 

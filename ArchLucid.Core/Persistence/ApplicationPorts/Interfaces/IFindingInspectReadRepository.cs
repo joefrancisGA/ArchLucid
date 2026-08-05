@@ -12,5 +12,13 @@ public interface IFindingInspectReadRepository
     ///     Returns the inspector payload when a <see cref="Finding" /> exists in scope; otherwise
     ///     <see langword="null" />.
     /// </summary>
-    Task<FindingInspectResponse?> GetInspectAsync(ScopeContext scope, string findingId, CancellationToken ct);
+    /// <param name="options">
+    ///     When <see langword="null" />, behaves as <see cref="FindingInspectReadOptions.Full" />.
+    ///     Pass <see cref="FindingInspectReadOptions.MetadataOnly" /> to omit <c>PayloadJson</c> LOB for detail first paint.
+    /// </param>
+    Task<FindingInspectResponse?> GetInspectAsync(
+        ScopeContext scope,
+        string findingId,
+        CancellationToken ct,
+        FindingInspectReadOptions? options = null);
 }
