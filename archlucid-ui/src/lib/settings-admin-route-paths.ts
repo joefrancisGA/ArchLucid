@@ -19,6 +19,14 @@ export const LEGACY_SETTINGS_ROLES_PATH = "/settings/roles";
 /** Canonical Digests hub Schedule tab (traffic row DIS; left nav Digests → Schedule). */
 export const DIGESTS_SCHEDULE_TAB_PATH = "/digests?tab=schedule";
 
+/**
+ * User-scoped settings. These write only the caller's own record, so they are published from the top-bar
+ * account menu (`SELF_SETTINGS_DESTINATIONS`) at every authority rank rather than from the admin hub.
+ */
+export const SETTINGS_PREFERENCES_PATH = `${SETTINGS_ROOT_PATH}/preferences`;
+
+export const SETTINGS_ACCOUNT_SECURITY_PATH = `${SETTINGS_ROOT_PATH}/account-security`;
+
 export const SETTINGS_SECURITY_TRUST_PATH = `${SETTINGS_ROOT_PATH}/security-trust`;
 
 export const SETTINGS_SUPPORT_PATH = `${SETTINGS_ROOT_PATH}/support`;

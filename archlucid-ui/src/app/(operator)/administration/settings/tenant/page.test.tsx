@@ -1,11 +1,13 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-
-import type { ExecDigestPreferencesResponse, ExecDigestPreferencesUpsertRequest } from "@/types/exec-digest-preferences";
 
 vi.mock("@/lib/toast", () => ({
   showError: vi.fn(),
   showSuccess: vi.fn(),
+}));
+
+const navAuth = vi.hoisted(() => ({
+  callerAuthorityRank: 3,
 }));
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
@@ -13,59 +15,40 @@ vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
     currentPrincipal: {
       provenance: "auth-me" as const,
       name: "Test User",
-      roleClaimValues: ["Operator"],
-      primaryAppRole: "Operator" as const,
-      maxAuthority: "ExecuteAuthority" as const,
-      authorityRank: 2,
+      roleClaimValues: ["Admin"],
+      primaryAppRole: "Admin" as const,
+      maxAuthority: "AdminAuthority" as const,
+      authorityRank: navAuth.callerAuthorityRank,
       hasEnterpriseOperatorSurfaces: true,
       hasCommittedArchitectureReview: true,
       permissionClaimValues: [],
     },
-    callerAuthorityRank: 2,
+    callerAuthorityRank: navAuth.callerAuthorityRank,
     isAuthorityLoading: false,
   }),
 }));
-
-const hoisted = vi.hoisted(() => {
-  const digestLoad: ExecDigestPreferencesResponse = {
-    schemaVersion: 1,
-    tenantId: "t1",
-    isConfigured: true,
-    emailEnabled: false,
-    recipientEmails: ["a@example.com"],
-    ianaTimeZoneId: "UTC",
-    dayOfWeek: 1,
-    hourOfDay: 9,
-    updatedUtc: "2026-01-01T00:00:00Z",
-  };
-
-  const saveExecDigestMock = vi.fn(async (body: ExecDigestPreferencesUpsertRequest): Promise<ExecDigestPreferencesResponse> => {
-    return { ...digestLoad, ...body, updatedUtc: "2026-01-02T00:00:00Z" };
-  });
-
-  return { digestLoad, saveExecDigestMock };
-});
 
 vi.mock("./_sections/load-tenant-settings-page-data", () => ({
   loadTenantSettingsPageData: () =>
     Promise.resolve({
       mode: "visible" as const,
       trial: { status: "Active", daysRemaining: 7 },
-      digest: hoisted.digestLoad,
-      digestLoadFailure: null,
     }),
 }));
 
 vi.mock("@/lib/api", () => ({
-  getExecDigestPreferences: vi.fn(() => Promise.resolve(hoisted.digestLoad)),
   tryGetTenantTrialStatus: vi.fn(() => Promise.resolve({ status: "Active", daysRemaining: 7 })),
-  saveExecDigestPreferences: (b: ExecDigestPreferencesUpsertRequest) => hoisted.saveExecDigestMock(b),
 }));
+
+import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { DIGESTS_SCHEDULE_TAB_PATH } from "@/lib/settings-admin-route-paths";
 
 import TenantSettingsPage from "./page";
 
 describe("TenantSettingsPage", () => {
   beforeEach(() => {
+    navAuth.callerAuthorityRank = AUTHORITY_RANK.AdminAuthority;
+
     vi.stubGlobal(
       "fetch",
       vi.fn(async (input: RequestInfo) => {
@@ -94,23 +77,38 @@ describe("TenantSettingsPage", () => {
     vi.unstubAllGlobals();
   });
 
-  it("renders and saves digest preferences", async () => {
+  it("renders workspace settings for tenant administrators", async () => {
     const page = await TenantSettingsPage();
 
     render(page);
+
     expect(await screen.findByTestId("tenant-settings-page")).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { level: 1, name: "Workspace settings" })).toBeInTheDocument();
     expect(await screen.findByText("Workspace scope")).toBeInTheDocument();
     expect(await screen.findByText(/selected from the workspace switcher\./i)).toBeInTheDocument();
-    expect(await screen.findByLabelText("Time zone")).toHaveValue("Etc/UTC");
-    expect(await screen.findByText("UTC")).toBeInTheDocument();
     expect(await screen.findByText(/Status:/i)).toBeInTheDocument();
-    const save = await screen.findByTestId("tenant-digest-save");
-    fireEvent.click(save);
+  });
 
-    await waitFor(() => {
-      expect(hoisted.saveExecDigestMock).toHaveBeenCalledWith(
-        expect.objectContaining({ ianaTimeZoneId: "UTC" }),
-      );
-    });
+  it("delegates the executive digest schedule to the Digests hub instead of duplicating the editor", async () => {
+    const page = await TenantSettingsPage();
+
+    render(page);
+
+    expect(await screen.findByRole("link", { name: "Open digest schedule" })).toHaveAttribute(
+      "href",
+      DIGESTS_SCHEDULE_TAB_PATH,
+    );
+    expect(screen.queryByTestId("tenant-digest-save")).not.toBeInTheDocument();
+  });
+
+  it("shows a restricted state for callers below admin rank", async () => {
+    navAuth.callerAuthorityRank = AUTHORITY_RANK.ExecuteAuthority;
+
+    const page = await TenantSettingsPage();
+
+    render(page);
+
+    expect(await screen.findByTestId("tenant-settings-restricted")).toBeInTheDocument();
+    expect(screen.queryByTestId("tenant-settings-page")).not.toBeInTheDocument();
   });
 });

@@ -18,6 +18,8 @@ import {
 
   Plug,
 
+  Settings,
+
   ShieldCheck,
 
   UserCog,
@@ -34,6 +36,7 @@ import type { NavGroupConfig } from "@/lib/nav-config.types";
 
 import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
 
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
 
@@ -57,19 +60,38 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
       links: [
 
+        // Hub-first (IA-016 / decision D5): the "Settings" slot targets the searchable index, not a leaf page.
+        // The hub stays ReadAuthority because it also publishes read-only rows (billing, security & trust).
+        {
+
+          href: SETTINGS_ROOT_PATH,
+
+          label: OPERATOR_NAV_LINK_LABELS.settings,
+
+          title: "Settings — searchable index of workspace, governance, integration, billing, and support configuration",
+
+          icon: Settings,
+
+          tier: "extended",
+
+          requiredAuthority: "ReadAuthority",
+
+        },
+
         {
 
           href: "/administration/settings/tenant",
 
-          label: OPERATOR_NAV_LINK_LABELS.settings,
+          label: OPERATOR_NAV_LINK_LABELS.workspaceSettings,
 
-          title: `${OPERATOR_NAV_LINK_LABELS.workspaceSettings} — trial, digest email, and request scope`,
+          title: `${OPERATOR_NAV_LINK_LABELS.workspaceSettings} — trial, cost settings, and request scope`,
 
           icon: Building2,
 
           tier: "extended",
 
-          requiredAuthority: "ExecuteAuthority",
+          // Tenant-scoped configuration is admin-only; the API enforces the same floor on the writes.
+          requiredAuthority: "AdminAuthority",
 
         },
 

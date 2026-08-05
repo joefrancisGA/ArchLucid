@@ -287,7 +287,7 @@ Use when capturing **API-not-running** or **empty DB** evidence. Pick **one** sc
 | 10.6 Governance | `/governance`, `/findings`, `/dashboard`, policy pack, lineage | Static rows vs error |
 | 10.7 Audit | `/audit` default + dated search | Zero vs sample |
 | 10.8 Alerts | `/alerts` inbox + rules tab | Empty console |
-| 10.9 Optional | `/compare`, `/replay`, `/admin/*`, `/administration/settings/tenant` | Partial UI |
+| 10.9 Optional | `/compare`, `/replay`, `/admin/*`, `/administration/settings` (hub), `/administration/settings/tenant` | Partial UI |
 
 **Coverage definition:** At least one shot each for home, reviews, detail+finding+inspect+provenance, manifest, graph, ask, governance (workflow+findings+one deep link), audit, alerts.
 
@@ -515,8 +515,10 @@ Legacy bookmarks **`/runs/*`** permanently redirect to **`/reviews/*`** — clea
 | **Executive reviews (retired)** | `/executive/reviews` → `/reviews` | [ ] |
 | **Executive scorecard** | `/executive/scorecard` | [ ] |
 | **Settings hub** | `/administration/settings` | [ ] |
-| **Tenant settings** | `/administration/settings/tenant` | [ ] |
+| **Workspace settings** | `/administration/settings/tenant` | [ ] |
 | **Projects recycle bin** | `/administration/settings/tenant/recycle-bin` | [ ] |
+| **Personal preferences** (account menu) | `/administration/settings/preferences` | [ ] |
+| **Account security** (account menu) | `/administration/settings/account-security` | [ ] |
 | **Billing & plans** | `/administration/settings/billing` | [ ] |
 | **Baseline settings** | `/administration/settings/baseline` | [ ] |
 | **Webhooks** | `/settings/webhooks` | [ ] |
@@ -757,11 +759,13 @@ Requires **Admin** or **Execute** authority per link. Expand **Admin** group.
 | Baseline settings | `/administration/settings/baseline` | **Admin → Baseline settings** (Execute). |
 | Webhooks | `/settings/webhooks` | **Admin → Webhooks** (Execute). |
 | Cloud connections | `/settings/cloud-connections` | **Admin → Cloud connections** (Execute). |
-| Tenant settings | `/administration/settings/tenant` | **Admin → Tenant settings** (Execute). |
-| Projects recycle bin | `/administration/settings/tenant/recycle-bin` | **Tenant settings** → **Recycle bin** link. |
+| Workspace settings | `/administration/settings/tenant` | **Admin → Workspace settings** (Admin only — below Admin rank the link is hidden and a direct visit shows the restricted state). |
+| Projects recycle bin | `/administration/settings/tenant/recycle-bin` | **Workspace settings** → **Recycle bin** link. |
 | Cost reporting | `/settings/cost-reporting` | **Admin → Cost reporting**. |
-| Settings hub | `/administration/settings` | **Ctrl+K** → “Settings” (general hub; most items are under **Admin** in sidebar). |
-| Extract upload | `/administration/settings/extract-upload` | **Ctrl+K** or tenant settings cross-links (not primary sidebar). |
+| Settings hub | `/administration/settings` | **Admin → Settings** (searchable tenant-administration index; Read authority). |
+| Extract upload | `/administration/settings/extract-upload` | **Ctrl+K** or workspace settings cross-links (not primary sidebar). |
+| Personal preferences | `/administration/settings/preferences` | **Top-bar account menu → Preferences** (any signed-in user, no authority gate). |
+| Account security | `/administration/settings/account-security` | **Top-bar account menu → Account security** (any signed-in user, no authority gate). |
 
 ---
 

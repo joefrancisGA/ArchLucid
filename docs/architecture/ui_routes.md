@@ -273,15 +273,17 @@ Lighter chrome than the full architect workspace; `(executive)` route group does
 
 | URL | Purpose | How to view |
 |-----|---------|-------------|
-| `/administration/settings` | General settings (appearance, support bundle) | Layout OK T1; blocked in strict demo — T3 bypass or full architect workspace |
+| `/administration/settings` | Settings hub — searchable tenant-administration index; sidebar "Settings" target (IA-016 hub-first). Personal settings are **not** here; they ship in the top-bar account menu | Layout OK T1; blocked in strict demo — T3 bypass or full architect workspace |
 | `/administration/settings/billing` | Billing and plans | Admin + full architect workspace + API |
 | `/administration/settings/identity-providers` | Identity provider config | Admin + API |
 | `/administration/settings/identity/sso-wizard` | SSO setup wizard | Admin + API |
 | `/administration/settings/api-keys` | API key management | Admin + API |
 | `/administration/settings/scim-provisioning` | SCIM provisioning | Admin + API |
 | `/settings/cloud-connections` | Cloud connections | Admin + API |
-| `/administration/settings/tenant` | Tenant settings | Admin + API |
+| `/administration/settings/tenant` | Workspace settings — trial, cost settings, request scope. `AdminAuthority`; non-admin callers get `TenantSettingsRestrictedState` | Admin + API |
 | `/administration/settings/tenant/recycle-bin` | Tenant recycle bin | Admin + API |
+| `/administration/settings/preferences` | Personal appearance and preferences. Ungated (writes only the caller's own record); reached from the top-bar account menu | Any signed-in user |
+| `/administration/settings/account-security` | Personal sign-in methods, linking, removal. Ungated; reached from the top-bar account menu | Any signed-in user |
 | `/settings/cost-reporting` | Cost reporting | Admin + API |
 | `/settings/webhooks` | Webhooks | Admin + API |
 | `/settings/roles` | Role assignment | Admin + API |

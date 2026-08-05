@@ -109,6 +109,22 @@ describe("getBreadcrumbs", () => {
     ]);
   });
 
+  it("maps workspace settings under the Settings hub rather than as its own root", () => {
+    expect(getBreadcrumbs("/administration/settings/tenant")).toEqual([
+      { label: "Administration" },
+      { label: "Settings", href: "/administration/settings" },
+      { label: "Workspace settings" },
+    ]);
+  });
+
+  it("maps the projects recycle bin under Settings / Workspace settings", () => {
+    expect(getBreadcrumbs("/administration/settings/tenant/recycle-bin")).toEqual([
+      { label: "Settings", href: "/administration/settings" },
+      { label: "Workspace settings", href: "/administration/settings/tenant" },
+      { label: "Projects recycle bin" },
+    ]);
+  });
+
   it("maps settings billing as Administration / Settings / Billing & plans", () => {
     expect(getBreadcrumbs("/administration/settings/billing")).toEqual([
       { label: "Administration" },

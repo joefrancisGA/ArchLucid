@@ -8,6 +8,13 @@ export type SettingsMasterEditability = "editable" | "read-only" | "admin-only";
 
 export type SettingsMasterTier = "common" | "advanced" | "internal";
 
+/**
+ * Which surface a destination belongs to. `self` settings write only the caller's own record and are
+ * published from the top-bar account menu (`SELF_SETTINGS_DESTINATIONS`); `workspace-admin` settings
+ * write shared tenant state and belong to this hub.
+ */
+export type SettingsMasterAudience = "self" | "workspace-admin";
+
 /** Destination page linked from the master settings hub. */
 export type SettingsMasterDestination = {
   readonly id: string;

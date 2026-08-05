@@ -60,6 +60,9 @@ const DEMO_MODE_OMIT_OPERATOR_HREFS = new Set<string>([
   "/integrations/webhooks",
   "/digests",
   "/settings/cloud-connections",
+  // The Settings hub is the nav target for Administration (IA-016). Omitted here so buyer-polished shells keep
+  // the pre-hub-first behaviour of showing no Settings entry, rather than surfacing an index of omitted routes.
+  "/administration/settings",
   "/administration/settings/tenant",
   "/administration/settings/tenant/recycle-bin",
   "/administration/settings/baseline",

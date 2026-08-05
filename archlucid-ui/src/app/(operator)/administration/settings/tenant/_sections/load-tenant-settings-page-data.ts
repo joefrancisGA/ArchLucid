@@ -1,8 +1,6 @@
-import { getExecDigestPreferences, tryGetTenantTrialStatus } from "@/lib/api";
-import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { tryGetTenantTrialStatus } from "@/lib/api";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
-import type { ExecDigestPreferencesResponse } from "@/types/exec-digest-preferences";
 import type { TenantTrialStatusPayload } from "@/types/tenant-trial-status";
 
 export type TenantSettingsHiddenLoad = {
@@ -12,14 +10,12 @@ export type TenantSettingsHiddenLoad = {
 export type TenantSettingsVisibleLoad = {
   readonly mode: "visible";
   readonly trial: TenantTrialStatusPayload | null;
-  readonly digest: ExecDigestPreferencesResponse | null;
-  readonly digestLoadFailure: string | null;
 };
 
 export type TenantSettingsPageServerLoad = TenantSettingsHiddenLoad | TenantSettingsVisibleLoad;
 
 export async function loadTenantSettingsPageData(): Promise<TenantSettingsPageServerLoad> {
-  // Packaged/static demo builds have no live trial or digest API to back this page — hide it there only.
+  // Packaged/static demo builds have no live trial API to back this page — hide it there only.
   // Buyer-polished vocabulary (see isBuyerPolishedOperatorShellEnv) governs copy/labels, not page visibility;
   // it must not gate this page, since it now defaults to true for every authenticated deploy (TB-643).
   const hidden = isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled();
@@ -28,35 +24,10 @@ export async function loadTenantSettingsPageData(): Promise<TenantSettingsPageSe
     return { mode: "hidden" };
   }
 
-  // Trial + digest are independent GETs — parallelize; keep digest failure isolated (TB-2027).
-  const [trial, digestSettled] = await Promise.all([
-    tryGetTenantTrialStatus(),
-    loadExecDigestPreferencesIsolated(),
-  ]);
+  const trial = await tryGetTenantTrialStatus();
 
   return {
     mode: "visible",
     trial,
-    digest: digestSettled.digest,
-    digestLoadFailure: digestSettled.digestLoadFailure,
   };
-}
-
-async function loadExecDigestPreferencesIsolated(): Promise<{
-  readonly digest: ExecDigestPreferencesResponse | null;
-  readonly digestLoadFailure: string | null;
-}> {
-  try {
-    const digest = await getExecDigestPreferences();
-
-    return {
-      digest,
-      digestLoadFailure: null,
-    };
-  } catch (e: unknown) {
-    return {
-      digest: null,
-      digestLoadFailure: toApiLoadFailure(e).message,
-    };
-  }
 }

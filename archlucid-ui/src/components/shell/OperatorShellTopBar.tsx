@@ -2,6 +2,7 @@
 
 import { CircleHelp } from "lucide-react";
 
+import { AccountSettingsMenu } from "@/components/shell/AccountSettingsMenu";
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { AuthPanel } from "@/components/AuthPanel";
 import { AuthorityThemeToggle } from "@/components/AuthorityThemeToggle";
@@ -106,6 +107,7 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
               </ToolbarHelpTooltip>
               {showAuthorityThemeToggle ? <AuthorityThemeToggle /> : null}
               {showLlmBudgetPill ? <LlmBudgetStatusPill /> : null}
+              <AccountSettingsMenu />
             </div>
           </div>
         </div>

@@ -2,11 +2,24 @@ import { describe, expect, it } from "vitest";
 
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
+import { settingsMasterAudienceForScope } from "./settings-master-audience";
 import { SETTINGS_MASTER_SECTIONS } from "./settings-master-catalog";
 import { buildSettingsMasterVisibleSections } from "./settings-master-page-model";
+import type { SettingsMasterDestination } from "./settings-master-types";
+
+/**
+ * Personal settings are user-scoped rows that are not internal-shell chrome. Internal developer tools are
+ * user-scoped but stay in the hub behind `showInternalShell`, so they are excluded here.
+ */
+function personalDestinationIds(destinations: readonly SettingsMasterDestination[]): string[] {
+  return destinations
+    .filter((destination) => destination.tier !== "internal")
+    .filter((destination) => settingsMasterAudienceForScope(destination.scope) === "self")
+    .map((destination) => destination.id);
+}
 
 describe("settings-master-page-model", () => {
-  it("shows general and security for read-tier users without advanced or internal sections", () => {
+  it("shows help and security for read-tier users without advanced or internal sections", () => {
     const sections = buildSettingsMasterVisibleSections(SETTINGS_MASTER_SECTIONS, {
       callerAuthorityRank: AUTHORITY_RANK.ReadAuthority,
       isAuthorityLoading: false,
@@ -17,27 +30,67 @@ describe("settings-master-page-model", () => {
 
     const ids = sections.map((section) => section.id);
 
-    expect(ids).toContain("general");
+    expect(ids).toContain("help");
     expect(ids).toContain("security-trust");
-    expect(sections.find((section) => section.id === "general")?.destinations.some((d) => d.id === "user-preferences")).toBe(true);
     expect(ids).not.toContain("workspace");
     expect(ids).not.toContain("advanced");
     expect(ids).not.toContain("developer-internal");
   });
 
-  it("includes workspace and support for execute-tier users", () => {
+  it("keeps personal settings out of the hub at every rank", () => {
+    const ranks = [AUTHORITY_RANK.ReadAuthority, AUTHORITY_RANK.ExecuteAuthority, AUTHORITY_RANK.AdminAuthority];
+
+    for (const callerAuthorityRank of ranks) {
+      const sections = buildSettingsMasterVisibleSections(SETTINGS_MASTER_SECTIONS, {
+        callerAuthorityRank,
+        isAuthorityLoading: false,
+        showInternalShell: true,
+        searchQuery: "",
+        showAdvanced: true,
+      });
+
+      expect(personalDestinationIds(sections.flatMap((section) => section.destinations))).toEqual([]);
+    }
+  });
+
+  it("registers no personal setting in the hub catalog — those belong to SELF_SETTINGS_DESTINATIONS", () => {
+    expect(personalDestinationIds(SETTINGS_MASTER_SECTIONS.flatMap((section) => section.destinations))).toEqual([]);
+  });
+
+  it("keeps internal developer tools in the hub even though they are user-scoped", () => {
     const sections = buildSettingsMasterVisibleSections(SETTINGS_MASTER_SECTIONS, {
+      callerAuthorityRank: AUTHORITY_RANK.ReadAuthority,
+      isAuthorityLoading: false,
+      showInternalShell: true,
+      searchQuery: "",
+      showAdvanced: false,
+    });
+
+    const destinationIds = sections.flatMap((section) => section.destinations).map((destination) => destination.id);
+
+    expect(destinationIds).toContain("developer-tools");
+  });
+
+  it("includes support for execute-tier users but keeps workspace settings admin-only", () => {
+    const executeIds = buildSettingsMasterVisibleSections(SETTINGS_MASTER_SECTIONS, {
       callerAuthorityRank: AUTHORITY_RANK.ExecuteAuthority,
       isAuthorityLoading: false,
       showInternalShell: false,
       searchQuery: "",
       showAdvanced: false,
-    });
+    }).map((section) => section.id);
 
-    const ids = sections.map((section) => section.id);
+    const adminIds = buildSettingsMasterVisibleSections(SETTINGS_MASTER_SECTIONS, {
+      callerAuthorityRank: AUTHORITY_RANK.AdminAuthority,
+      isAuthorityLoading: false,
+      showInternalShell: false,
+      searchQuery: "",
+      showAdvanced: false,
+    }).map((section) => section.id);
 
-    expect(ids).toContain("workspace");
-    expect(ids).toContain("support");
+    expect(executeIds).toContain("support");
+    expect(executeIds).not.toContain("workspace");
+    expect(adminIds).toContain("workspace");
   });
 
   it("filters sections by search query", () => {

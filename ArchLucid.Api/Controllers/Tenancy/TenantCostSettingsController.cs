@@ -55,8 +55,10 @@ public sealed class TenantCostSettingsController(
         return Ok(ProjectResponse(row));
     }
 
+    // Tenant-scoped configuration write: admin-only. Reads stay ReadAuthority because ROI and value-report
+    // surfaces consume the effective rates for non-admin personas (for example Sponsor ROI summaries).
     [HttpPut]
-    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
     [ProducesResponseType(typeof(TenantCostSettingsGetResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> PutAsync(

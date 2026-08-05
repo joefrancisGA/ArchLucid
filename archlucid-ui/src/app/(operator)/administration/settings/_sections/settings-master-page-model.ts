@@ -1,6 +1,7 @@
 import { AUTHORITY_RANK, requiredAuthorityRank, type RequiredAuthority } from "@/lib/nav-authority";
 import { isApiKeysSettingsSurfaceEnabled } from "@/lib/api-keys-settings-access";
 
+import { settingsMasterAudienceForScope } from "./settings-master-audience";
 import type { SettingsMasterDestination, SettingsMasterSection, SettingsMasterTier } from "./settings-master-types";
 
 export type SettingsMasterPageModelInput = {
@@ -68,7 +69,21 @@ function destinationVisibleForRank(
   return callerAuthorityRank >= requiredAuthorityRank(destination.requiredAuthority);
 }
 
-function inlineGeneralMatchesQuery(normalizedQuery: string, terms: readonly string[]): boolean {
+/**
+ * This hub is the tenant-administration surface; personal settings are published from the account menu.
+ *
+ * Internal-tier rows are exempt: internal developer tools are user-scoped but are ArchLucid employee chrome
+ * rather than a tenant user's personal settings, and `showInternalShell` already gates them.
+ */
+export function destinationVisibleForHubAudience(destination: SettingsMasterDestination): boolean {
+  if (destination.tier === "internal") {
+    return true;
+  }
+
+  return settingsMasterAudienceForScope(destination.scope) === "workspace-admin";
+}
+
+function inlineCardMatchesQuery(normalizedQuery: string, terms: readonly string[]): boolean {
   if (normalizedQuery.length === 0) {
     return true;
   }
@@ -88,6 +103,10 @@ export function buildSettingsMasterVisibleSections(
     .filter((section) => tierVisible(section.tier, input.showAdvanced, input.showInternalShell, isSearching))
     .map((section) => {
       const destinations = section.destinations.filter((destination) => {
+        if (!destinationVisibleForHubAudience(destination)) {
+          return false;
+        }
+
         if (!tierVisible(destination.tier, input.showAdvanced, input.showInternalShell, isSearching)) {
           return false;
         }
@@ -108,12 +127,12 @@ export function buildSettingsMasterVisibleSections(
       });
 
       const showHelp =
-        section.id === "general"
-        && inlineGeneralMatchesQuery(normalizedQuery, ["help", "guide", "general"]);
+        section.id === "help"
+        && inlineCardMatchesQuery(normalizedQuery, ["help", "guide", "docs", "troubleshooting"]);
       const showSupportBundle =
         section.id === "support"
         && executePlus
-        && inlineGeneralMatchesQuery(normalizedQuery, ["support", "bundle", "diagnostics", "ticket"]);
+        && inlineCardMatchesQuery(normalizedQuery, ["support", "bundle", "diagnostics", "ticket"]);
 
       return {
         ...section,

@@ -63,20 +63,27 @@ describe("SettingsPageView", () => {
     expect(screen.getByTestId("settings-master-overview-header")).toBeInTheDocument();
     expect(screen.getByPlaceholderText("Search settings…")).toBeInTheDocument();
     expect(screen.getByTestId("settings-master-section-nav")).toBeInTheDocument();
-    expect(screen.getByTestId("settings-destination-user-preferences")).toBeInTheDocument();
     expect(screen.getByTestId("settings-section-security-trust")).toBeInTheDocument();
     expect(screen.queryByTestId("settings-section-advanced")).not.toBeInTheDocument();
     expect(screen.queryByTestId("settings-developer-tools-card")).not.toBeInTheDocument();
   });
 
-  it("shows workspace and support sections for execute-tier users", () => {
+  it("shows the support section for execute-tier users but withholds workspace settings", () => {
     navAuth.callerAuthorityRank = AUTHORITY_RANK.ExecuteAuthority;
 
     render(<SettingsPageView />);
 
-    expect(screen.getByTestId("settings-section-workspace")).toBeInTheDocument();
     expect(screen.getByTestId("settings-section-support")).toBeInTheDocument();
     expect(screen.getByTestId("support-bundle-stub")).toHaveAttribute("data-diagnostics", "true");
+    expect(screen.queryByTestId("settings-section-workspace")).not.toBeInTheDocument();
+  });
+
+  it("shows workspace settings only at admin rank", () => {
+    navAuth.callerAuthorityRank = AUTHORITY_RANK.AdminAuthority;
+
+    render(<SettingsPageView />);
+
+    expect(screen.getByTestId("settings-section-workspace")).toBeInTheDocument();
   });
 
   it("filters visible sections when searching", () => {
@@ -87,7 +94,14 @@ describe("SettingsPageView", () => {
     fireEvent.change(screen.getByPlaceholderText("Search settings…"), { target: { value: "billing" } });
 
     expect(screen.getByTestId("settings-section-billing")).toBeInTheDocument();
-    expect(screen.queryByTestId("settings-section-general")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("settings-section-help")).not.toBeInTheDocument();
+  });
+
+  it("omits personal settings — those are published from the top-bar account menu", () => {
+    render(<SettingsPageView />);
+
+    expect(screen.queryByTestId("settings-destination-user-preferences")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("settings-destination-account-security")).not.toBeInTheDocument();
   });
 
   it("shows advanced section when advanced toggle is expanded", () => {

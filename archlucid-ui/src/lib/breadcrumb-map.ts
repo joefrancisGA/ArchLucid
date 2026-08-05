@@ -359,8 +359,13 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
     ];
   }
 
+  // Hub-first (IA-016): the leaf is "Workspace settings" and parents to the searchable Settings index.
   if (normalized === "/administration/settings/tenant") {
-    return [{ label: OPERATOR_NAV_LINK_LABELS.settings }];
+    return [
+      { label: "Administration" },
+      { label: "Settings", href: "/administration/settings" },
+      { label: OPERATOR_NAV_LINK_LABELS.workspaceSettings },
+    ];
   }
 
   if (normalized === "/administration/settings/billing") {
@@ -373,7 +378,8 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
 
   if (normalized === "/administration/settings/tenant/recycle-bin") {
     return [
-      { label: OPERATOR_NAV_LINK_LABELS.settings, href: "/administration/settings/tenant" },
+      { label: "Settings", href: "/administration/settings" },
+      { label: OPERATOR_NAV_LINK_LABELS.workspaceSettings, href: "/administration/settings/tenant" },
       { label: "Projects recycle bin" },
     ];
   }

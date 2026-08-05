@@ -54,7 +54,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/insights/planning": "Improvement planning",
   "/architecture/first-review-guide": OPERATOR_NAV_LINK_LABELS.onboarding,
   "/administration/settings/billing": "Billing & plans",
-  "/administration/settings/tenant": OPERATOR_NAV_LINK_LABELS.settings,
+  "/administration/settings/tenant": OPERATOR_NAV_LINK_LABELS.workspaceSettings,
   "/administration/settings/tenant/recycle-bin": "Projects recycle bin",
   [CLOUD_CONNECTIONS_PATH]: OPERATOR_NAV_LINK_LABELS.cloudConnections,
   "/settings/cloud-connections": OPERATOR_NAV_LINK_LABELS.cloudConnections,

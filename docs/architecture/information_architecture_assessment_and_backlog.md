@@ -151,8 +151,9 @@ Notation — **Nav:** P = primary sidebar (when gates pass), S = secondary/in-pa
 
 | Route | Purpose | Nav | Disposition |
 |---|---|---|---|
-| `/administration/settings` | Searchable settings hub | D (nav "Settings" targets `/administration/settings/tenant`) | Promote: make `/administration/settings` the nav target (IA-016; D5 resolved 2026-07-14 — hub-first) |
-| `/administration/settings/tenant` (+ `recycle-bin`) | Workspace settings | P ("Settings") | Retain; nav label vs. breadcrumb "Workspace settings" mismatch (IA-006 family) |
+| `/administration/settings` | Searchable settings hub (tenant administration only) | P ("Settings", `ReadAuthority`) | Done 2026-08-05 — promoted to the nav target (IA-016 / D5, hub-first) |
+| `/administration/settings/tenant` (+ `recycle-bin`) | Workspace settings | P ("Workspace settings", `AdminAuthority`) | Done 2026-08-05 — relabelled to match the breadcrumb; admin-gated (IA-016) |
+| `/administration/settings/preferences`, `/administration/settings/account-security` | Personal appearance and sign-in methods | Top-bar account menu (ungated) | Done 2026-08-05 — previously reachable only by URL; not admin surfaces (IA-016) |
 | `/administration/settings/users` (+ `invite-reviewer`, `?tab=users\|roles\|keys`) | Users, roles, keys | P | Retain as-is |
 | `/administration/settings/identity-providers` (+ saml, oidc, role-mapping, diagnostics), `/administration/settings/identity/sso-wizard`, `/administration/settings/scim-provisioning` | Identity administration | P (advanced) | Retain as-is |
 | `/administration/settings/api-keys` | Automation keys | P (advanced; omitted in buyer shell) | Retain as-is |
@@ -278,7 +279,7 @@ The recent uncommitted consolidation resolved the primary conflict (list noun). 
 | Value report | "Review value report" (nav vocabulary) | URL segment and breadcrumb "pilot" | Alias or relabel (IA-013) |
 | Authority ranks | "Admin" role names in UI | "AdminAuthority"/"ExecuteAuthority" in forbidden-state messages | Replace with role-name phrasing (IA-013) |
 | Product dev state | — | "V1 is sold through guided evaluation…" on public `/pricing`; "pilot" in customer copy | Copy pass (IA-013) |
-| Settings | Nav "Settings" → `/administration/settings/tenant` | Breadcrumb "Workspace settings"; separate `/administration/settings` hub | IA-016 |
+| Settings | Nav "Settings" → `/administration/settings` (hub) | Nav "Workspace settings" → `/administration/settings/tenant`, matching its breadcrumb and title | IA-016 ✓ (2026-08-05) |
 
 **Product-model conflicts:** the home dual-path cards (two peer objects) vs. the nav caption (one sequence) is the load-bearing conflict (Finding 6). The data layer supports one durable object; the IA should consistently present *one lifecycle with two entry doors*, per `architecture_review_object_model_assessment.md` §4 — that document's conclusion is confirmed by this pass and by the working tree's own direction of travel (`/reviews/new?intent=create-architecture` already redirects into `/architectures/new`).
 
@@ -502,10 +503,11 @@ Complexity: XS/S/M/L/XL per the brief. All items are UI-only unless noted. Share
 - **Acceptance:** the lineage page has a breadcrumb parent that resolves; approval links shared in ITSM/Slack land on a self-sufficient page.
 - **Risk if deferred:** governance deep links land on a context-free child page.
 
-**IA-016 · Settings entry point: hub-first** — **P2 · XS (D5 resolved 2026-07-14)**
+**IA-016 · Settings entry point: hub-first** — **P2 · XS (D5 resolved 2026-07-14) · Done 2026-08-05**
 - **Problem:** Nav "Settings" targets `/administration/settings/tenant` while a searchable `/administration/settings` hub index exists, reachable only by URL. `[PI]`
 - **Change (per D5 — hub-first):** Point the sidebar "Settings" item at `/administration/settings` (the searchable index); `/administration/settings/tenant` remains a first-class hub destination. Update the breadcrumb parent chain accordingly.
 - **Acceptance:** exactly one settings landing pattern (hub-first); breadcrumbs consistent.
+- **Shipped:** sidebar "Settings" → `/administration/settings` at `ReadAuthority`; `/administration/settings/tenant` is a separate "Workspace settings" entry at `AdminAuthority` (label, breadcrumbs, and static title all say "Workspace settings", closing the IA-006-family mismatch in §8). Implementation also split the hub by **audience**: `settings-master-audience.ts` derives audience from each destination's data scope, the hub publishes only `workspace-admin` rows, and personal settings (`preferences`, `account-security`) moved to a new ungated top-bar account menu — they were previously unreachable from any nav builder. The duplicated executive digest editor was removed from the tenant page in favour of the Digests hub.
 
 **IA-017 · Health-surface audience naming** — **P2 · XS**
 - **Problem:** `/health` ("System health", customer Administration) vs. `/admin/health` ("Diagnostics dashboard", Internal Operations) — same concept name, different audiences. `[PI]`
@@ -546,7 +548,7 @@ Complexity: XS/S/M/L/XL per the brief. All items are UI-only unless noted. Share
 | **Wave 1 — before beta invites (P0)** | IA-001 ✓, IA-002 ✓, IA-005 ✓, IA-008 ✓ | Dead ends, stranded work, wrong mental model, empty flagship |
 | **Wave 2 — with wave 1 or first beta patch (P1 copy/labels)** | IA-003 ✓, IA-004 ✓, IA-010 ✓, IA-012 ✓, IA-013 ✓ | XS copy items; batch into one terminology PR so drift guards update once |
 | **Wave 3 — early beta (P1 structural-lite)** | IA-019 ✓, IA-006 ✓, IA-007 ✓, IA-011, IA-020 | Telemetry must precede the still-deferred decisions; naming convergence, hand-off gate, and governance-view removal ride behind it |
-| **Wave 4 — mid-beta hygiene (P2)** | IA-014, IA-016, IA-017, IA-018, IA-009 D6 carve-out (`/governance/dashboard` removal) | No user-facing risk; reduces engineering drag |
+| **Wave 4 — mid-beta hygiene (P2)** | IA-014, IA-016 ✓, IA-017, IA-018, IA-009 D6 carve-out (`/governance/dashboard` removal) | No user-facing risk; reduces engineering drag |
 | **Wave 5 — post-telemetry (P2/P3)** | IA-009, IA-015, IA-021, IA-022 | Each is explicitly gated on usage evidence |
 
 Sequencing constraints: IA-019 before IA-009/IA-015/IA-021; D1–D5 (§14) before their dependent items; the Wave 2 copy batch updates `review-terminology-guard.test.ts` and breadcrumb tests in the same change, never separately (the guards are designed to fail otherwise).

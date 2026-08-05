@@ -7,43 +7,16 @@ import type { SettingsMasterSection } from "./settings-master-types";
 /** Searchable master settings index — hub links; detail pages own editable controls. */
 export const SETTINGS_MASTER_SECTIONS: readonly SettingsMasterSection[] = [
   {
-    id: "general",
-    navLabel: "General",
-    title: "General",
-    description: "Personal preferences and product help.",
-    keywords: ["appearance", "theme", "color", "help", "guide", "preferences"],
+    id: "help",
+    navLabel: "Help",
+    title: "Help",
+    description: "Product guides and troubleshooting.",
+    keywords: ["help", "guide", "docs", "troubleshooting"],
     tier: "common",
-    destinations: [
-      {
-        id: "user-preferences",
-        title: "Preferences",
-        description: "Appearance and personal settings saved to your account.",
-        href: "/administration/settings/preferences",
-        cta: "Open preferences",
-        keywords: ["preferences", "appearance", "theme", "color", "dark", "light"],
-        requiredAuthority: "ReadAuthority",
-        tier: "common",
-        scope: "user",
-        source: "overridden",
-        editability: "editable",
-        saveBehavior: "Saved to your account automatically.",
-      },
-      {
-        id: "account-security",
-        title: "Account security",
-        description: "Sign-in methods, linking, and removal for your platform account.",
-        href: "/administration/settings/account-security",
-        cta: "Manage sign-in methods",
-        keywords: ["account", "security", "sign-in", "sso", "email", "identity", "linking"],
-        requiredAuthority: "ReadAuthority",
-        tier: "common",
-        scope: "user",
-        source: "overridden",
-        editability: "editable",
-        saveBehavior: "Changes apply immediately after confirmation.",
-        highImpact: true,
-      },
-    ],
+    // Personal settings (appearance, sign-in methods) belong to SELF_SETTINGS_DESTINATIONS and are published
+    // from the top-bar account menu. Adding a `scope: "user"` destination here would hide it behind this hub's
+    // authority filter — `settings-master-audience.ts` drops personal audiences so that mistake cannot ship.
+    destinations: [],
   },
   {
     id: "workspace",
@@ -56,11 +29,11 @@ export const SETTINGS_MASTER_SECTIONS: readonly SettingsMasterSection[] = [
       {
         id: "workspace-settings",
         title: OPERATOR_NAV_LINK_LABELS.workspaceSettings,
-        description: "Trial posture, digest email, request scope, and workspace defaults.",
+        description: "Trial posture, cost settings, request scope, and workspace defaults.",
         href: "/administration/settings/tenant",
         cta: "Open workspace settings",
-        keywords: ["workspace", "tenant", "digest", "defaults"],
-        requiredAuthority: "ExecuteAuthority",
+        keywords: ["workspace", "tenant", "defaults", "cost"],
+        requiredAuthority: "AdminAuthority",
         tier: "common",
         scope: "workspace",
         source: "overridden",

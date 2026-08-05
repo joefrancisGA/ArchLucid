@@ -2,6 +2,7 @@
 
 import type { TenantSettingsVisibleLoad } from "./load-tenant-settings-page-data";
 import { TenantSettingsPageView } from "./TenantSettingsPageView";
+import { TenantSettingsRestrictedState } from "./TenantSettingsRestrictedState";
 import { useTenantSettingsPage } from "./use-tenant-settings-page";
 
 type Props = {
@@ -10,6 +11,10 @@ type Props = {
 
 export function TenantSettingsPageClient(props: Props) {
   const model = useTenantSettingsPage(props.loaded);
+
+  if (!model.isTenantAdmin) {
+    return <TenantSettingsRestrictedState />;
+  }
 
   return <TenantSettingsPageView model={model} />;
 }

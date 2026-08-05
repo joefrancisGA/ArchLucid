@@ -1,0 +1,36 @@
+import { SETTINGS_ACCOUNT_SECURITY_PATH, SETTINGS_PREFERENCES_PATH } from "@/lib/settings-admin-route-paths";
+
+/** One user-scoped settings destination shown in the top-bar account menu. */
+export type SelfSettingsDestination = {
+  readonly id: string;
+  readonly title: string;
+  readonly description: string;
+  readonly href: string;
+};
+
+/**
+ * Registry of settings whose writes are confined to the caller's own account.
+ *
+ * These are deliberately **not** in `SETTINGS_MASTER_SECTIONS`: the settings hub is the tenant-administration
+ * surface and filters personal destinations out (see `settings-master-audience.ts`), so listing them there
+ * would hide personal settings behind an admin gate. Add new user-scoped settings here.
+ */
+export const SELF_SETTINGS_DESTINATIONS: readonly SelfSettingsDestination[] = [
+  {
+    id: "user-preferences",
+    title: "Preferences",
+    description: "Appearance and personal settings saved to your account.",
+    href: SETTINGS_PREFERENCES_PATH,
+  },
+  {
+    id: "account-security",
+    title: "Account security",
+    description: "Sign-in methods, linking, and removal for your platform account.",
+    href: SETTINGS_ACCOUNT_SECURITY_PATH,
+  },
+] as const;
+
+/** True when `pathname` is one of the user-scoped settings destinations. */
+export function isSelfSettingsPath(pathname: string): boolean {
+  return SELF_SETTINGS_DESTINATIONS.some((destination) => destination.href === pathname);
+}

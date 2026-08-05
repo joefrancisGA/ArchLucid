@@ -10,48 +10,15 @@ import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadB
 import { TenantLlmJudgeGuideCard } from "@/components/TenantLlmJudgeGuideCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import { toDocsBlobUrl } from "@/lib/contextual-help-content";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
-import { getIanaTimeZoneSelectOptions, normalizeIanaTimeZoneForSelect } from "@/lib/iana-time-zone-select";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
+import { DIGESTS_SCHEDULE_TAB_PATH } from "@/lib/settings-admin-route-paths";
 
 import { TenantCostSettingsCard } from "./TenantCostSettingsCard";
 import { TenantQualityGatesCard } from "./TenantQualityGatesCard";
-import { TenantSettingsDigestEmailsInput } from "./TenantSettingsDigestEmailsInput";
 import type { TenantSettingsPageContentModel } from "./tenant-settings-page-view-model";
-
-// 0 = Sunday … 6 = Saturday (JavaScript Date.getDay() convention)
-const DAY_OF_WEEK_OPTIONS = [
-  { value: 0, label: "Sunday" },
-  { value: 1, label: "Monday" },
-  { value: 2, label: "Tuesday" },
-  { value: 3, label: "Wednesday" },
-  { value: 4, label: "Thursday" },
-  { value: 5, label: "Friday" },
-  { value: 6, label: "Saturday" },
-];
-
-function formatHour(hour: number): string {
-  if (hour === 0) return "12:00 AM";
-
-  if (hour < 12) return `${hour}:00 AM`;
-
-  if (hour === 12) return "12:00 PM";
-
-  return `${hour - 12}:00 PM`;
-}
-
-const HOUR_OF_DAY_OPTIONS = Array.from({ length: 24 }, (_, i) => ({
-  value: i,
-  label: formatHour(i),
-}));
-
-const SELECT_CLASS = cn(
-  "flex h-9 w-full rounded-md border border-neutral-200 bg-transparent px-3 py-1 shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-800 dark:bg-neutral-950 dark:focus-visible:ring-neutral-600",
-  OPERATOR_TYPOGRAPHY.body,
-);
 
 type SectionHeadingProps = { readonly children: ReactNode };
 
@@ -70,14 +37,13 @@ type Props = {
 export function TenantSettingsPageView(props: Props) {
   const m = props.model;
   const scope = getEffectiveBrowserProxyScopeHeaders();
-  const ianaTimeZoneOptions = getIanaTimeZoneSelectOptions();
 
   return (
     <div className="w-full max-w-3xl space-y-6" data-testid="tenant-settings-page">
       <div>
-        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{OPERATOR_NAV_LINK_LABELS.settings}</h1>
+        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{OPERATOR_NAV_LINK_LABELS.workspaceSettings}</h1>
         <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>
-          Workspace defaults and operator-facing preferences for this workspace.
+          Workspace defaults and tenant-wide configuration.
         </p>
       </div>
 
@@ -167,127 +133,20 @@ export function TenantSettingsPageView(props: Props) {
 
       <SectionHeading>Business settings</SectionHeading>
 
-      <TenantCostSettingsCard canEdit={m.canEditCostSettings} />
+      <TenantCostSettingsCard canEdit={m.isTenantAdmin} />
 
       <Card>
         <CardHeader>
           <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Executive digest (email)</CardTitle>
         </CardHeader>
-        <CardContent>
-          {m.digestLoadFailure !== null ? (
-            <p className={cn("m-0 text-rose-800 dark:text-rose-200", OPERATOR_TYPOGRAPHY.body)} role="alert">
-              {m.digestLoadFailure}
-            </p>
-          ) : null}
-          {m.digest == null || m.form == null ? (
-            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-              Preferences will load when the notification API is available.
-            </p>
-          ) : (
-            <form onSubmit={(e) => void m.onSaveDigest(e)} className="space-y-4">
-              <div className="flex items-center justify-between gap-2">
-                <div>
-                  <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>Email enabled</p>
-                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                    Sends a weekly roll-up to the listed addresses (API-enforced on save).
-                  </p>
-                </div>
-                <label className="inline-flex cursor-pointer items-center gap-2">
-                  <input
-                    type="checkbox"
-                    className="size-4 rounded border border-neutral-300 text-teal-800 focus:ring-2 focus:ring-neutral-400 dark:border-neutral-600"
-                    checked={m.form.emailEnabled}
-                    onChange={(e) => {
-                      m.setForm((f) => (f === null ? f : { ...f, emailEnabled: e.target.checked }));
-                    }}
-                    disabled={!m.canEditDigest}
-                    aria-label="Email enabled"
-                  />
-                </label>
-              </div>
-              <div>
-                <Label htmlFor="digest-emails">Recipient emails (one per line or comma-separated)</Label>
-                <TenantSettingsDigestEmailsInput
-                  id="digest-emails"
-                  value={m.form.recipientEmails}
-                  onChange={(emails) => {
-                    m.setForm((f) => (f === null ? f : { ...f, recipientEmails: emails }));
-                  }}
-                  readOnly={!m.canEditDigest}
-                />
-              </div>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div className="sm:col-span-2">
-                  <Label htmlFor="tz">Time zone</Label>
-                  <select
-                    id="tz"
-                    className={SELECT_CLASS}
-                    value={normalizeIanaTimeZoneForSelect(m.form.ianaTimeZoneId)}
-                    onChange={(e) => {
-                      m.setForm((f) => (f === null ? f : { ...f, ianaTimeZoneId: e.target.value }));
-                    }}
-                    disabled={!m.canEditDigest}
-                  >
-                    {ianaTimeZoneOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <Label htmlFor="dow">Day of week</Label>
-                  <select
-                    id="dow"
-                    className={SELECT_CLASS}
-                    value={String(m.form.dayOfWeek)}
-                    onChange={(e) => {
-                      m.setForm((f) =>
-                        f === null ? f : { ...f, dayOfWeek: Number.parseInt(e.target.value, 10) },
-                      );
-                    }}
-                    disabled={!m.canEditDigest}
-                  >
-                    {DAY_OF_WEEK_OPTIONS.map((opt) => (
-                      <option key={opt.value} value={String(opt.value)}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <Label htmlFor="hour">Send time</Label>
-                  <select
-                    id="hour"
-                    className={SELECT_CLASS}
-                    value={String(m.form.hourOfDay)}
-                    onChange={(e) => {
-                      m.setForm((f) =>
-                        f === null ? f : { ...f, hourOfDay: Number.parseInt(e.target.value, 10) },
-                      );
-                    }}
-                    disabled={!m.canEditDigest}
-                  >
-                    {HOUR_OF_DAY_OPTIONS.map((opt) => (
-                      <option key={opt.value} value={String(opt.value)}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-              {!m.canEditDigest ? (
-                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                  Editing requires operator rank (Execute) on the API; your session is read-only for these controls.
-                </p>
-              ) : null}
-              <div>
-                <Button type="submit" disabled={!m.canEditDigest || m.saving} data-testid="tenant-digest-save">
-                  {m.saving ? "Saving…" : "Save notification preferences"}
-                </Button>
-              </div>
-            </form>
-          )}
+        <CardContent className={cn("space-y-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+          <p className="m-0">
+            Recipients, time zone, and send schedule are managed on the Digests hub, alongside delivery readiness and
+            subscription health.
+          </p>
+          <Button asChild variant="outline" size="sm">
+            <Link href={DIGESTS_SCHEDULE_TAB_PATH}>Open digest schedule</Link>
+          </Button>
         </CardContent>
       </Card>
 

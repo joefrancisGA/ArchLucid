@@ -1,25 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import type { ExecDigestPreferencesResponse } from "@/types/exec-digest-preferences";
-
-const hoisted = vi.hoisted(() => {
-  const digest: ExecDigestPreferencesResponse = {
-    schemaVersion: 1,
-    tenantId: "t1",
-    isConfigured: true,
-    emailEnabled: false,
-    recipientEmails: [],
-    ianaTimeZoneId: "UTC",
-    dayOfWeek: 1,
-    hourOfDay: 9,
-    updatedUtc: "2026-01-01T00:00:00Z",
-  };
-
-  return { digest };
-});
-
+// Digest preferences are no longer loaded here — the schedule editor lives on the Digests hub.
 vi.mock("@/lib/api", () => ({
-  getExecDigestPreferences: vi.fn(() => Promise.resolve(hoisted.digest)),
   tryGetTenantTrialStatus: vi.fn(() => Promise.resolve(null)),
 }));
 
