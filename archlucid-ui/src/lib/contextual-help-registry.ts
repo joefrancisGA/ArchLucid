@@ -207,6 +207,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/help/enterprise-onboarding",
+    entry: {
+      whatIsThisPage:
+        "Enterprise onboarding checklist - configure SSO, roles, governance, policy packs, audit export, and optional Azure evidence for a hosted tenant.",
+      whatToDoNext:
+        "Open Identity providers for SSO, Users and roles for access, then Security and trust for assurance orientation.",
+      whyEmpty: "This guide is always available; live identity and role surfaces appear after workspace configuration.",
+      whereToConfigurePrerequisite:
+        "SSO and role changes need System Admin authority in the current workspace.",
+    },
+  },
+  {
     prefix: "/help/policy-pack-delta-demo",
     entry: {
       whatIsThisPage:

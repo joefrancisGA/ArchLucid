@@ -24,6 +24,7 @@ import { ScopeHelpEvidenceOrientationStrip } from "../_sections/ScopeHelpEvidenc
 import { ProcurementHelpEvidenceOrientationStrip } from "../_sections/ProcurementHelpEvidenceOrientationStrip";
 import { EvidenceTrailHelpEvidenceOrientationStrip } from "../_sections/EvidenceTrailHelpEvidenceOrientationStrip";
 import { EvidenceIntakeHelpEvidenceOrientationStrip } from "../_sections/EvidenceIntakeHelpEvidenceOrientationStrip";
+import { EnterpriseOnboardingHelpEvidenceOrientationStrip } from "../_sections/EnterpriseOnboardingHelpEvidenceOrientationStrip";
 import { HelpDataHandlingTenantIsolationGuideView } from "../_sections/HelpDataHandlingTenantIsolationGuideView";
 import { HelpDpaTemplateGuideView } from "../_sections/HelpDpaTemplateGuideView";
 import { HelpSoc2SelfAssessmentGuideView } from "../_sections/HelpSoc2SelfAssessmentGuideView";
@@ -298,6 +299,17 @@ function renderHelpTopicView(
         markdown={loaded.markdown}
         showContextualHelp
         evidenceOrientation={<EvidenceIntakeHelpEvidenceOrientationStrip />}
+      />
+    );
+  }
+
+  if (loaded.entry.slug === "enterprise-onboarding") {
+    return (
+      <HelpTopicMarkdownView
+        entry={loaded.entry}
+        markdown={loaded.markdown}
+        showContextualHelp
+        evidenceOrientation={<EnterpriseOnboardingHelpEvidenceOrientationStrip />}
       />
     );
   }

@@ -47,6 +47,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/soc2-self-assessment",
       "/help/path-chooser",
       "/help/evaluator-workbook",
+      "/help/enterprise-onboarding",
       "/help/policy-pack-delta-demo",
       "/help/configuration-reference",
       "/help/cli-usage",
@@ -299,6 +300,15 @@ describe("contextual-help-registry (TB-733)", () => {
   it("resolves evaluator-workbook help alias Category-1 help (HEE)", () => {
     expect(contextualHelpForPathname("/help/evaluator-workbook")?.whatIsThisPage).toContain(
       "primary next action",
+    );
+  });
+
+  it("resolves enterprise onboarding help Category-1 help (HEX)", () => {
+    expect(contextualHelpForPathname("/help/enterprise-onboarding")?.whatIsThisPage).toContain(
+      "Enterprise onboarding",
+    );
+    expect(contextualHelpForPathname("/help/enterprise-onboarding")?.whatToDoNext).toContain(
+      "Identity providers",
     );
   });
 
