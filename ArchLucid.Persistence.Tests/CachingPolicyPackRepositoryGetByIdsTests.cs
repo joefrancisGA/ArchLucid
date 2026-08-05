@@ -40,9 +40,13 @@ public sealed class CachingPolicyPackRepositoryGetByIdsTests
         };
 
         Mock<IPolicyPackRepository> inner = new();
-        inner.Setup(r => r.GetByIdAsync(presentId, It.IsAny<CancellationToken>())).ReturnsAsync(pack);
-        inner.Setup(r => r.GetByIdAsync(missingId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((PolicyPack?)null);
+        inner.Setup(r => r.GetByIdsAsync(
+                It.Is<IReadOnlyCollection<Guid>>(ids =>
+                    ids.Count == 2
+                    && ids.Contains(presentId)
+                    && ids.Contains(missingId)),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new[] { pack });
 
         HybridHotPathReadCache hotPath = HybridHotPathCacheTestFactory.Create(new HotPathCacheOptions());
         CachingPolicyPackRepository sut = new(inner.Object, hotPath);
@@ -51,7 +55,13 @@ public sealed class CachingPolicyPackRepositoryGetByIdsTests
             await sut.GetByIdsAsync([presentId, presentId, missingId], CancellationToken.None);
 
         rows.Should().ContainSingle().Which.PolicyPackId.Should().Be(presentId);
-        inner.Verify(r => r.GetByIdAsync(presentId, It.IsAny<CancellationToken>()), Times.Once);
-        inner.Verify(r => r.GetByIdAsync(missingId, It.IsAny<CancellationToken>()), Times.Once);
+        inner.Verify(
+            r => r.GetByIdsAsync(
+                It.Is<IReadOnlyCollection<Guid>>(ids =>
+                    ids.Count == 2
+                    && ids.Contains(presentId)
+                    && ids.Contains(missingId)),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 }

@@ -59,7 +59,8 @@ public sealed class CachingPolicyPackRepository(IPolicyPackRepository inner, IHo
             return Array.Empty<PolicyPack>();
 
         List<Guid> distinctIds = policyPackIds.Distinct().ToList();
-        IReadOnlyList<PolicyPack> loaded = await _inner.GetByIdsAsync(distinctIds, ct).ConfigureAwait(false);
+        IReadOnlyList<PolicyPack> loaded =
+            await _inner.GetByIdsAsync(distinctIds, ct).ConfigureAwait(false) ?? Array.Empty<PolicyPack>();
 
         foreach (PolicyPack pack in loaded)
         {
