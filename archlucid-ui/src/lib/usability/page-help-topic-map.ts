@@ -155,6 +155,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     prefix: "/internal/product-learning",
     topic: { slug: "pilot-feedback", label: "Pilot feedback" },
   },
+  {
+    prefix: "/why-archlucid",
+    topic: { slug: "how-it-works", label: "Why ArchLucid" },
+  },
   { prefix: "/administration/settings/billing", topic: { slug: "billing-and-plans", label: "Billing and plans" } },
   { prefix: "/help/billing-and-plans", topic: { slug: "billing-and-plans", label: "Billing and plans" } },
   {

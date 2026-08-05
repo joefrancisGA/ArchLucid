@@ -373,6 +373,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/why-archlucid",
+    entry: {
+      whatIsThisPage:
+        "Why ArchLucid — operator demo/proof page with seeded telemetry, sponsor pack, and first-value report for the demo review.",
+      whatToDoNext:
+        "Inspect snapshot and sponsor pack sections, open marketing /why for buyer comparison, or Security & trust for assurance orientation.",
+      whyEmpty: "Sections populate after the demo tenant snapshot and related read endpoints load.",
+      whereToConfigurePrerequisite:
+        "A seeded demo review is required; Claims/Retail labels stay withheld until the demo identity is unambiguous.",
+    },
+  },
+  {
     prefix: "/governance/advisory-scans",
     entry: {
       whatIsThisPage: "Generate prioritized follow-up recommendations from finalized reviews.",

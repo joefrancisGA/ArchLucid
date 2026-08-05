@@ -10,9 +10,17 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-05 - Backlog: page-scoped contextual help quality (TB-2048–TB-2052)
+
+Opened **P0** cluster for Category-1 help *quality* (not mount coverage): Learn more must match the page job; Digests golden remap + Schedule deep link; secondary-hub remap off generic getting-started/how-it-works; actionable popover CTAs; Vitest. Complements open **TB-1666**–**TB-1670**. See `TECH_BACKLOG.md` / `TECH_BACKLOG_OPEN.md`. Does not claim CPA / third-party pen-test.
+
 ## 2026-08-05 - Persistence: typed hot scalars on AgentExecutionTraces (TB-931)
 
 DbUp **294** + `ArchLucid.sql` add token/cost/alias/quality columns on `dbo.AgentExecutionTraces` with best-effort JSON backfill. Create dual-writes scalars; operator list and LLM cost projections prefer typed columns with `JSON_VALUE` COALESCE for rolling-deploy rows. Quality patches dual-write bit columns. Inventory updated. Finding list title/severity was already columnar. Does not claim CPA / third-party pen-test.
+
+## 2026-08-05 - UI: Why ArchLucid proof Evidence chrome (WH)
+
+`/why-archlucid` ships WhyArchLucidEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map, traffic Notes under Learning, and honest Evidence score 45. Learning demo-proof page hard-caps higher Evidence; no CPA / third-party pen-test implication.
 
 ## 2026-08-05 - UI: Why ArchLucid Evidence chrome (WHY)
 
