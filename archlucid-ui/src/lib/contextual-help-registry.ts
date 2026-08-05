@@ -102,10 +102,10 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     prefix: "/replay",
     entry: {
       whatIsThisPage:
-        "Validate review — re-check a finalized review package (reconstruct, rebuild outputs, or full regeneration).",
+        "Validate review — re-check a finalized architecture review (reconstruct, rebuild outputs, or full regeneration).",
       whatToDoNext:
         "Pick a finalized review, choose a validation depth, run the check, then open the review or Compare when you need diffs.",
-      whyEmpty: "Validation results appear after you run a check on a selected review package.",
+      whyEmpty: "Validation results appear after you run a check on a selected architecture review.",
       whereToConfigurePrerequisite: "Finalize at least one review in this workspace first; Admin Execute access may be required.",
     },
   },
@@ -532,7 +532,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
         "Review guide — field reference for naming a review, uploading evidence, confirming scope, and finalizing the package.",
       whatToDoNext:
         "Start an architecture review, or open the First review guide when you need the walkthrough instead of field detail.",
-      whyEmpty: "This guide is always available; live review packages appear after you create architecture reviews.",
+      whyEmpty: "This guide is always available; live architecture reviews appear after you create them in this workspace.",
       whereToConfigurePrerequisite:
         "Creating reviews needs a role that can start architecture reviews in this workspace.",
     },

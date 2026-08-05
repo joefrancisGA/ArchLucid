@@ -9,12 +9,12 @@ import {
 describe("ask-review-artifact-status-copy", () => {
   it("maps finalized, draft, and missing review contexts", () => {
     expect(askReviewArtifactStatusCopy(resolveAskReviewArtifactStatus({ runMissing: false, isFinalized: true }))).toMatch(
-      /finalized review package/i,
+      /finalized architecture review/i,
     );
     expect(askReviewArtifactStatusCopy(resolveAskReviewArtifactStatus({ runMissing: false, isFinalized: false }))).toMatch(
       /Draft review context/i,
     );
-    expect(askReviewArtifactStatusCopy(resolveAskReviewArtifactStatus({ runMissing: true }))).toMatch(/No review package/i);
+    expect(askReviewArtifactStatusCopy(resolveAskReviewArtifactStatus({ runMissing: true }))).toMatch(/No architecture review/i);
   });
 
   it("flags assistant output without grounding links", () => {

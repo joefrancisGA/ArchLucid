@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — Polly / circuit breaker vs run-level semantics (TB-995); per-call transport resilience versus multi-agent review completeness.
+
 # Polly / circuit breaker vs run-level semantics (TB-995)
 
 > **Audience:** Contributors, principal architects, and GTM claim reviewers who need one matrix for what per-call Polly/CB covers versus multi-agent run semantics.  

@@ -22,7 +22,7 @@ describe("AskMessageThreadPanel", () => {
       />,
     );
 
-    expect(screen.getByTestId("ask-review-artifact-status")).toHaveTextContent(/finalized review package/i);
+    expect(screen.getByTestId("ask-review-artifact-status")).toHaveTextContent(/finalized architecture review/i);
   });
 
   it("marks uncited assistant output", () => {

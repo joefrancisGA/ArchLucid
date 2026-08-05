@@ -46,7 +46,7 @@ Full operation-level rows: **Operations → durable audit** and **Baseline mutat
 
 ---
 
-<!-- audit-core-const-count:361 -->
+<!-- audit-core-const-count:362 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -689,6 +689,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `IntegrationJiraInboundWebhookRejected` | `Integration.JiraInboundWebhookRejected` | `ItsmInboundWebhookSyncService` (Jira inbound validation / rejection) |
 | `IntegrationServiceNowInboundWebhookRejected` | `Integration.ServiceNowInboundWebhookRejected` | `ItsmInboundWebhookSyncService` (ServiceNow inbound validation / rejection) |
 | `IntegrationItsmInboundWebhookPayloadRejected` | `Integration.ItsmInboundWebhookPayloadRejected` | `ItsmInboundWebhookSyncService` / `ItsmInboundWebhooksController` (oversized webhook body) |
+| `IntegrationItsmInboundWebhookReplayIgnored` | `Integration.ItsmInboundWebhookReplayIgnored` | `ItsmInboundWebhookSyncService` (duplicate delivery/event id within retention; no status mutation; TB-968) |
 | `TenantItsmConnectorConnectionUpserted` | `TenantItsmConnectorConnectionUpserted` | `TenantItsmConnectorConnectionsController` (`POST /v1/integrations/itsm/connections/{provider}`; `POST /v1/integrations/itsm/connections/jira/oauth/consent/start`; `POST /v1/integrations/itsm/connections/jira/oauth/consent/complete`) |
 | `TenantItsmConnectorConnectionRemoved` | `TenantItsmConnectorConnectionRemoved` | `TenantItsmConnectorConnectionsController` (`DELETE /v1/integrations/itsm/connections/{provider}`) |
 | `TenantItsmOutboundSettingsUpserted` | `TenantItsmOutboundSettingsUpserted` | `TenantItsmOutboundSettingsController` (`PUT /v1/integrations/itsm/settings`) |

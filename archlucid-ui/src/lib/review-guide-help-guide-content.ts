@@ -6,7 +6,7 @@ export const REVIEW_GUIDE_HELP_PATH = "/help/review-guide" as const;
 export const REVIEW_GUIDE_HELP_PAGE_TITLE = "Review guide";
 
 export const REVIEW_GUIDE_HELP_PAGE_SUBTITLE =
-  "Field reference for naming a review, uploading evidence, confirming scope, and finalizing the architecture package.";
+  "Field reference for naming a review, uploading evidence, confirming scope, and finalizing the architecture review.";
 
 export const REVIEW_GUIDE_HELP_OVERVIEW =
   "Use this guide while you create or finish an architecture review. It complements the First review guide walkthrough with the field-level steps operators follow in the wizard.";

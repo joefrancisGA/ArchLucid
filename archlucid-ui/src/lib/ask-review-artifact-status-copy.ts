@@ -1,11 +1,11 @@
 export const ASK_REVIEW_ARTIFACT_STATUS_FINALIZED =
-  "Grounded in a finalized review package — citations link to committed evidence." as const;
+  "Grounded in a finalized architecture review — citations link to committed evidence." as const;
 
 export const ASK_REVIEW_ARTIFACT_STATUS_DRAFT =
   "Draft review context — answers are advisory until the review is finalized." as const;
 
 export const ASK_REVIEW_ARTIFACT_STATUS_MISSING =
-  "No review package selected — choose a finalized review before relying on answers." as const;
+  "No architecture review selected — choose a finalized review before relying on answers." as const;
 
 export const ASK_REVIEW_UNCITED_RESPONSE_MARKER =
   "Uncited assistant output — verify against linked evidence before signing off." as const;

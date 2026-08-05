@@ -35,7 +35,7 @@ type HelpReviewPackagesGuideViewProps = {
   readonly markdown: string;
 };
 
-/** Specialty Architecture packages companion for `/help/review-packages` (TB-1399). */
+/** Specialty Architecture reviews companion for `/help/review-packages` (TB-1399). */
 export function HelpReviewPackagesGuideView(props: HelpReviewPackagesGuideViewProps): React.ReactElement {
   const { entry, markdown } = props;
   const sourceDocPath = entry.sourcePaths[0] ?? "";
@@ -75,7 +75,7 @@ export function HelpReviewPackagesGuideView(props: HelpReviewPackagesGuideViewPr
         >
           <CardHeader className={OPERATOR_CARD.header}>
             <CardTitle className={cn("text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-              Browse architecture packages
+              Browse architecture reviews
             </CardTitle>
           </CardHeader>
           <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>

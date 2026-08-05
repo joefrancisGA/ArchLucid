@@ -26,6 +26,7 @@ const EXCLUDED_RELATIVE_PATH_FRAGMENTS = [
   "/review-terminology-copy.ts",
   "/internal-concept-leakage-surfaces.ts",
   "/pipeline-status-label-surfaces.ts",
+  "/retired-demo-org-branding.ts",
   "/help-product-language.ts",
   "/glossary-terms.ts",
   "/lib/api/",

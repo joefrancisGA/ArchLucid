@@ -172,8 +172,8 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
   let manifestSummaryMalformed: string | null = null;
   let artifactsFailure: ApiLoadFailureState | null = null;
   let artifactsMalformed: string | null = null;
-  let explanationSummary: RunExplanationSummary | null = null;
-  let explanationFailure: ApiLoadFailureState | null = null;
+  const explanationSummary: RunExplanationSummary | null = null;
+  const explanationFailure: ApiLoadFailureState | null = null;
 
   if (manifestId) {
     const [resolvedProgressSummary, manifestSummaryResult, artifactsResult] = await Promise.all([

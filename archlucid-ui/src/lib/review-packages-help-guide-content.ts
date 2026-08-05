@@ -1,13 +1,13 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
-/** Prefer Architecture packages H1 (TB-1400) — list nav may still say Reviews. */
-export const REVIEW_PACKAGES_HELP_PAGE_TITLE = "Architecture packages";
+/** Prefer Architecture reviews H1 — list nav may still say Reviews. */
+export const REVIEW_PACKAGES_HELP_PAGE_TITLE = "Architecture reviews";
 
 export const REVIEW_PACKAGES_HELP_PAGE_SUBTITLE =
-  "Browse, inspect, and export governed architecture packages. The Reviews list is where those packages live.";
+  "Browse, inspect, and export governed architecture reviews. The Reviews list is where those reviews live.";
 
 export const REVIEW_PACKAGES_HELP_OVERVIEW =
-  "An architecture package is the durable record for one architecture review — findings, evidence, policy results, decisions, and exports after finalize. Open Reviews to browse packages in your workspace.";
+  "An architecture review is the durable record for one governed assessment — findings, evidence, policy results, decisions, and exports after finalize. Open Reviews to browse reviews in your workspace.";
 
 export const REVIEW_PACKAGES_HELP_PRIMARY_ACTIONS = {
   openReviews: {

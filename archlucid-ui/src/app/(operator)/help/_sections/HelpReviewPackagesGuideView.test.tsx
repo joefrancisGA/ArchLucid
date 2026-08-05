@@ -7,7 +7,7 @@ import type { ProductDocumentationEntry } from "@/lib/product-documentation-regi
 const entry: ProductDocumentationEntry = {
   slug: "review-packages",
   title: "Reviews",
-  summary: "Browse architecture packages.",
+  summary: "Browse architecture reviews.",
   audience: "operator",
   sourcePaths: ["docs/library/customer-facing/REVIEW_PACKAGES_OPERATOR_GUIDE.md"],
   contentKind: "product-help",
@@ -19,13 +19,13 @@ describe("HelpReviewPackagesGuideView", () => {
     render(
       <HelpReviewPackagesGuideView
         entry={entry}
-        markdown="# Architecture packages\n\nBrowse packages in Reviews."
+        markdown="# Architecture reviews\n\nBrowse reviews in Reviews."
       />,
     );
 
     expect(screen.getByTestId("help-review-packages-guide")).toBeInTheDocument();
     expect(screen.getByTestId("help-review-packages-page-title")).toHaveTextContent(
-      "Architecture packages",
+      "Architecture reviews",
     );
 
     const openReviews = screen.getByTestId("help-review-packages-open-reviews");

@@ -28,8 +28,9 @@ const REPLACEMENTS: ReadonlyArray<readonly [RegExp, string]> = [
     "Product Tour — Workspace A (synthetic Cloud Platform review).",
   ],
   [
+    // Match legacy seeded copy; replacement must stay free of banned package nouns (TB-355).
     /Northwind Copilot RAG platform — born-governed created architecture package \(synthetic guided-intake sample\)\./g,
-    "Enterprise Copilot RAG platform — born-governed created architecture package (synthetic guided-intake sample).",
+    "Enterprise Copilot RAG platform — born-governed created architecture review (synthetic guided-intake sample).",
   ],
   [/Northwind\.Copilot\.RagPlatform/g, "Enterprise.Copilot.RagPlatform"],
   [/Northwind Copilot RAG Platform/g, "Enterprise Copilot RAG Platform"],
