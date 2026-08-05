@@ -109,6 +109,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/administration/users/invite-reviewer",
       "/administration/users",
       "/administration/security-trust",
+      "/administration/billing",
       "/integrations/cloud-connections",
       "/integrations/jira",
       "/integrations/itsm/oauth/callback",
@@ -375,6 +376,15 @@ describe("contextual-help-registry (TB-733)", () => {
     );
     expect(contextualHelpForPathname("/administration/users/invite-reviewer")?.whatToDoNext).toContain(
       "invitation",
+    );
+  });
+
+  it("resolves Billing & plans settings Category-1 help (ABI)", () => {
+    expect(contextualHelpForPathname("/administration/billing")?.whatIsThisPage).toContain(
+      "Billing & plans",
+    );
+    expect(contextualHelpForPathname("/administration/billing")?.whatToDoNext).toContain(
+      "Available plans",
     );
   });
 

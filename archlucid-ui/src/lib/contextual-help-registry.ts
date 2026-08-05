@@ -936,6 +936,19 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/administration/billing",
+    entry: {
+      whatIsThisPage:
+        "Billing & plans - view the current subscription, compare available plans, and manage usage and wallet controls for this workspace.",
+      whatToDoNext:
+        "Review the current plan card, compare Available plans, then open AI usage or Billing help when spend questions need methodology.",
+      whyEmpty:
+        "Plan and usage cards appear after billing data loads for this tenant; wallet controls need Admin authority to mutate.",
+      whereToConfigurePrerequisite:
+        "Changing plans or payment methods needs a role that can manage workspace billing.",
+    },
+  },
+  {
     prefix: "/integrations/cloud-connections",
     entry: {
       whatIsThisPage:
