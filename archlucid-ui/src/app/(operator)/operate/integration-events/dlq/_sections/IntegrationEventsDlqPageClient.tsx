@@ -7,12 +7,15 @@ import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import type { components } from "@/lib/api-types.generated";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { showError, showSuccess } from "@/lib/toast";
 import { DESIGN_TOKENS, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+
+import { IntegrationEventsDlqEvidenceOrientationStrip } from "./IntegrationEventsDlqEvidenceOrientationStrip";
 
 type IntegrationEventOutboxDeadLetterRow = components["schemas"]["IntegrationEventOutboxDeadLetterRow"];
 
@@ -240,7 +243,10 @@ export function IntegrationEventsDlqPageClient() {
   return (
     <div className="w-full max-w-[1200px] space-y-6" data-testid="integration-events-dlq-page">
       <header>
-        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Integration event dead letters</h1>
+        <div className="flex flex-wrap items-center gap-2">
+          <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>Integration event dead letters</h1>
+          <PageContextualHelpButton />
+        </div>
         <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Inspect outbound integration events that exceeded publish retries and requeue them after fixing the root cause.
         </p>
@@ -250,6 +256,8 @@ export function IntegrationEventsDlqPageClient() {
           </p>
         ) : null}
       </header>
+
+      <IntegrationEventsDlqEvidenceOrientationStrip />
 
       <div
         className={cn(DESIGN_TOKENS.callout.warn, "px-4 py-3")}

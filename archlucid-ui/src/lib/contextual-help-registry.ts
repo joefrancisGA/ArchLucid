@@ -816,6 +816,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/operate/integration-events/dlq",
+    entry: {
+      whatIsThisPage:
+        "Integration event dead letters — Internal Operations queue for outbound integration publishes that exceeded retries.",
+      whatToDoNext:
+        "Inspect the failing event, fix connector or destination root cause, then retry or suppress; open Integration readiness or System health for posture.",
+      whyEmpty: "An empty list means no dead-lettered outbox rows are waiting across tenants.",
+      whereToConfigurePrerequisite:
+        "Admin authority is required to retry or suppress; the queue spans all tenants, not only the header workspace.",
+    },
+  },
+  {
     prefix: "/integrations/teams",
     entry: {
       whatIsThisPage:
