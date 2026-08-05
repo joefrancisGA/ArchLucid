@@ -258,7 +258,7 @@ Former standalone body: `docs/go-to-market/PA_CLAIM_HONESTY_BULLETS_BATCH_B.md` 
 
 | Do not promise | Do promise |
 | --- | --- |
-| Editable audit log, in-place rewrite of commit-sealed findings/manifests, or platform-operated WORM. | Append-only `AuditEvents` + sealed evidence registry + hash/export verify; corrections append new events or enrichment overlay. |
+| Editable audit log, in-place rewrite of commit-sealed findings/manifests, or platform-operated WORM. | Append-only `AuditEvents` + sealed evidence registry + hash/export verify; corrections append new events or enrichment overlay. Engineering matrix: [`APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md`](APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md) (**TB-1009**). Follow-on honesty CI: **TB-1010**. |
 
 #### M-162 — Finalize versus outbox
 

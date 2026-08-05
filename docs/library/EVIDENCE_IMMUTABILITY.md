@@ -79,8 +79,13 @@ Each verify call emits `RunExportLineageVerified` audit (run id, status, hashes 
 
 **Honest claim:** committed evidence is sealed in SQL; sponsor packets include checksums verifiable against commit anchors; long-term immutable retention is applied by the customer on exported copies ([ADR 0040](../architecture/adrs/0040-tamper-evident-lineage-without-worm-storage.md)).
 
+## PA / procurement matrix (TB-1009)
+
+Contributor deep dive above remains the enforcement inventory. For the **append-only vs mutable** buyer/PA matrix and what a silent `UPDATE` destroys, see [`APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md`](APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md) (**TB-1009** Done). Honesty CI follow-on: **TB-1010**.
+
 ## References
 
+- [`APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md`](APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md) — PA append-only / sealed vs mutable + Update-destruction matrix
 - [ADR 0039](../architecture/adrs/0039-commit-sealed-evidence-immutability.md)
 - [ADR 0045](../architecture/adrs/0045-committed-run-header-immutability.md)
 - `ArchLucid.Persistence/Migrations/247_CommitSealedEvidenceImmutability.sql`

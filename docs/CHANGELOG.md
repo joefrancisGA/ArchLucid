@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-05 - Docs: Append-only / sealed evidence contract (TB-1009)
+
+Published [`APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md`](library/APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md) — append-only/sealed vs mutable inventory and Update-destruction matrix. GTM **M-161** and claim-boundary guide cite the matrix. Does not claim platform WORM or CPA / third-party pen-test.
+
 ## 2026-08-05 - Docs: Authority vs AgentTask-loop canonical path (TB-1007)
 
 Published [`AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md`](library/AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md) — Authority product-default path, intentional AgentTask verbs, and forbid matrix for finishing finalized runs. GTM **M-159** and claim-boundary guide cite the matrix. Does not claim `/result` retired, dual storage still live, or CPA / third-party pen-test.

@@ -559,10 +559,13 @@ The presence of a mutable field does not invalidate an append-only event trail. 
 
 ### Residuals (honest)
 
-- **TB-1009** defines the append-only versus mutable matrix and destructive-update analysis.
-- **TB-1010** adds language regression coverage.
+Engineering SoT: [`APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md`](../library/APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md) (**TB-1009** Done). Append-only / sealed vs mutable inventory and Update-destruction matrix are published with **enforcement tiers** (SQL DENY + registry for sealed evidence/audit; repository-shape append for `FindingReviewEvents`). Follow-on claim CI: **TB-1010**. Deep dive: [`../library/EVIDENCE_IMMUTABILITY.md`](../library/EVIDENCE_IMMUTABILITY.md). Does not claim platform WORM (ADR 0040).
 
-**Related:** [Security reviewer audit trail (M-118)](#security-reviewer-audit-trail-m-118) · [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) · [Comparison/replay snapshot (M-175)](#comparison-replay-immutable-snapshot-m-175) · [Authority vs AgentTask loop (M-159)](#authority-vs-agenttask-loop-m-159) · [ADR 0039](../architecture/adrs/0039-commit-sealed-evidence-immutability.md) · [ADR 0040](../architecture/adrs/0040-tamper-evident-lineage-without-worm-storage.md) · [`../library/EVIDENCE_IMMUTABILITY.md`](../library/EVIDENCE_IMMUTABILITY.md) · [`../library/AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+| Open work | Purpose |
+| --- | --- |
+| **TB-1010** | Anti-editable-audit / in-place-seal-rewrite / platform-WORM claim-drift guard |
+
+**Related:** [Security reviewer audit trail (M-118)](#security-reviewer-audit-trail-m-118) · [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) · [Comparison/replay snapshot (M-175)](#comparison-replay-immutable-snapshot-m-175) · [Authority vs AgentTask loop (M-159)](#authority-vs-agenttask-loop-m-159) · [ADR 0039](../architecture/adrs/0039-commit-sealed-evidence-immutability.md) · [ADR 0040](../architecture/adrs/0040-tamper-evident-lineage-without-worm-storage.md) · [`../library/APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md`](../library/APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md) · [`../library/EVIDENCE_IMMUTABILITY.md`](../library/EVIDENCE_IMMUTABILITY.md) · [`../library/AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## Authority pipeline versus AgentTask loop (M-159) {#authority-vs-agenttask-loop-m-159}
 
@@ -865,7 +868,7 @@ Evidence, findings, manifest, artifacts, and audit events each have a role. A ne
 
 ### Residuals (honest)
 
-Engineering SoT: [`COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md`](../library/COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md) (**TB-1003** Done). Commit path, `ManifestHash`, and proof-language taxonomy are implemented; hop-skip surfaces must use honest labels. Follow-on claim CI: **TB-1004**. Sealed evidence inventory: **TB-1009**. Decision-grade finding provenance: **TB-1221**. Does not claim WORM or PKI beyond app-layer hash lineage.
+Engineering SoT: [`COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md`](../library/COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md) (**TB-1003** Done). Commit path, `ManifestHash`, and proof-language taxonomy are implemented; hop-skip surfaces must use honest labels. Follow-on claim CI: **TB-1004**. Sealed evidence inventory: **TB-1009** Done ([`APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md`](../library/APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md)). Decision-grade finding provenance: **TB-1221**. Does not claim WORM or PKI beyond app-layer hash lineage.
 
 | Open work | Purpose |
 | --- | --- |
