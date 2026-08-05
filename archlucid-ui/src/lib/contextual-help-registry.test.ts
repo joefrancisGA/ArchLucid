@@ -46,6 +46,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/dpa-template",
       "/help/soc2-self-assessment",
       "/help/path-chooser",
+      "/help/evaluator-workbook",
       "/help/policy-pack-delta-demo",
       "/help/configuration-reference",
       "/help/cli-usage",
@@ -292,6 +293,12 @@ describe("contextual-help-registry (TB-733)", () => {
   it("resolves first-pilot-path help alias Category-1 help (FIR)", () => {
     expect(contextualHelpForPathname("/help/first-pilot-path")?.whatIsThisPage).toContain(
       "Your first architecture review",
+    );
+  });
+
+  it("resolves evaluator-workbook help alias Category-1 help (HEE)", () => {
+    expect(contextualHelpForPathname("/help/evaluator-workbook")?.whatIsThisPage).toContain(
+      "primary next action",
     );
   });
 

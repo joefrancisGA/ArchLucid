@@ -45,14 +45,13 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 
 ---
 
-**OVERALL WEIGHT SCORE:** 56.80%
+**OVERALL WEIGHT SCORE:** 56.82%
 
 ## Master table (score 0 first; then Deficit desc; ties A→Z by path)
 
 | ID | Path | Hit% | Scores | Weight | Deficit | Section | Notes |
 |----|------|------|--------|--------|---------|---------|-------|
 | HEX | `/help/enterprise-onboarding` | 0.03% | 0 | 0 | 3 | Help topic | None |
-| HEE | `/help/evaluator-workbook` | 0.03% | 0 | 0 | 3 | Help topic | None |
 | HFE | `/help/first-hour-operator-path` | 0.03% | 0 | 0 | 3 | Help topic | None |
 | PI | `/help/pilot-roi-model` | 0.03% | 0 | 0 | 3 | Help topic | None |
 | HRX | `/help/repeat-review-loop` | 0.03% | 0 | 0 | 3 | Help topic | None |
@@ -256,6 +255,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | HXX | `/health` | 0.02% | 18 | 0.36 | 1.64 | Marketing | Deprecated operator bookmark â€” merged to Administration System health on ADY (`/administration/system-health`). Redirect/shim hard-caps Evidence. |
 | ASX | `/administration/settings/support` | 0.12% | 87 | 10.44 | 1.56 | Admin | Support workspace â€” AdminSupportPageView: Preferred-path Report a problem (accent border + StatusTag), short subtitle, mono email token + Copy, checklist What-to-include, full-card Common next steps, Support bundle trust chips + DESIGN_TOKENS.callout.success safety (no pastel emerald / fake SLA banner), sticky bundle panel. Contact + redacted diagnostics â€” not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 87/100 (2026-08-03) â€” post hierarchy/trust polish; remaining gap is live Report problem CTA on this page vs help deep-link only. |
 | HEF | `/help/first-value-20-minutes` | 0.04% | 61 | 2.44 | 1.56 | Help topic | Specialty Admin 20-minute first-value runbook - HelpFirstValue20GuideView with first-architecture-review / Start architecture review / Troubleshooting primary CTAs, Sources diligence strip (complete review workflow, first-review checklist, configuration-reference), job-matrix IA dual (TB-1694), orientation steps, claim-discipline callout, PageContextualHelp, and prepared FIRST_PILOT_OPERATOR_PATH.md 20-min section only (TB-1691 sectionAnchors + TB-1693 leakage strip). Title honesty Admin runbook (TB-1695). Not bare HelpTopicMarkdownView. Admin-gated internal-runbook. Not the default customer help path. Does not imply CPA SOC 2 or third-party pen-test publication. |
+| HEE | `/help/evaluator-workbook` | 0.03% | 52 | 1.56 | 1.44 | Help topic | Deprecated evaluator-workbook help alias (Help alias) - slug alias evaluator-workbook -> path-chooser; renders HelpPathChooserGuideView Evidence chrome (Sources strip + claim-discipline + PageContextualHelp + Category-1 on alias path). Canon HPX = /help/path-chooser. Pass/hold body lives in BUYER_ORIENTATION_ONE_SCREEN.md. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-05) - help-topic orientation hard-caps higher Evidence (alias inherits HPX). |
 | EVI | `/help/evidence-intake` | 0.03% | 52 | 1.56 | 1.44 | Help topic | Evidence intake help (Help topic) - HelpTopicMarkdownView with PageContextualHelpButton (topic map evidence-intake; Category-1 registry), workspace Sources + claim-discipline orientation strip, curated EVIDENCE_INTAKE_OPERATOR_GUIDE.md. Sibling RNX = /reviews/new; COR = first-architecture-review. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-05) — help-topic orientation hard-caps higher Evidence. |
 | EV | `/help/evidence-trail` | 0.03% | 52 | 1.56 | 1.44 | Help topic | Evidence trail help (Help topic) - HelpTopicMarkdownView with PageContextualHelpButton (topic map evidence-trail; Category-1 registry), workspace Sources + claim-discipline orientation strip, curated EVIDENCE_TRAIL_OPERATOR_GUIDE.md. Sibling INE = /insights/evidence-graph; DEX = /demo/explain. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-05) — help-topic orientation hard-caps higher Evidence. |
 | COR | `/help/first-architecture-review` | 0.03% | 52 | 1.56 | 1.44 | Help topic | Your first architecture review (Help topic) - HelpCorePilotGuideView with PageContextualHelpButton (topic map first-architecture-review; Category-1 registry), workspace Sources + claim-discipline orientation strip, hero Start review CTA, five-step stepper, and gated finalize steps (TB-1040). Legacy alias /help/core-pilot (ECO). Not bare HelpTopicMarkdownView. Sibling HP = pilot-guide; FIR/HFE/ECO = aliases. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-05) — help-topic orientation hard-caps higher Evidence. |

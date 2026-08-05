@@ -196,6 +196,17 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/help/evaluator-workbook",
+    entry: {
+      whatIsThisPage:
+        "Map your current goal to one primary next action for evaluate, pilot, procurement, sponsor, or engineering support.",
+      whatToDoNext:
+        "Pick the matching goal branch, open the primary cite, then use Sources before treating orientation as diligence.",
+      whyEmpty: "Branches always appear when this help topic loads.",
+      whereToConfigurePrerequisite: "Start or finalize a review when your goal needs product evidence, not just orientation.",
+    },
+  },
+  {
     prefix: "/help/policy-pack-delta-demo",
     entry: {
       whatIsThisPage:

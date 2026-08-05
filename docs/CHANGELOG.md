@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-05 - UI: Evaluator-workbook help alias Evidence (HEE)
+
+`/help/evaluator-workbook` documents Help alias -> HPX with Category-1 + topic map on the alias path (inherits HelpPathChooserGuideView Evidence chrome), traffic Notes under Help alias, and honest Evidence score 52. Alias inherits HPX orientation hard-cap; no CPA / third-party pen-test implication.
+
 ## 2026-08-05 - UI: First-pilot-path help alias Evidence (FIR)
 
 `/help/first-pilot-path` documents Help alias → COR with Category-1 + topic map on the alias path (inherits HelpCorePilotGuideView Evidence chrome), traffic Notes under Help alias, and honest Evidence score 52. Alias inherits COR orientation hard-cap; no CPA / third-party pen-test implication.
@@ -36,7 +40,7 @@ Digests Category-1 Learn more maps to specialty `/help/digests` (`HelpDigestsGui
 
 ## 2026-08-05 - Docs: Learn more must match page job (TB-2048)
 
-`UI_DESIGN_SYSTEM.md` ratifies Category-1 Learn more job-match + omit-when-none and bans generic `getting-started` / `how-it-works` on secondary hubs (first-run allowlist documented). `archlucid-ui/docs/ARCHITECTURE.md` points agents here. Remaps remain **TB-2049**–**TB-2050**; Vitest **TB-2052**. Does not claim CPA / third-party pen-test.
+`UI_DESIGN_SYSTEM.md` ratifies Category-1 Learn more job-match + omit-when-none and bans generic `getting-started` / `how-it-works` on secondary hubs (first-run allowlist documented). `archlucid-ui/docs/ARCHITECTURE.md` points agents here. Digests golden remap **TB-2049** Done; secondary-hub remap remains **TB-2050**; Vitest **TB-2052**. Does not claim CPA / third-party pen-test.
 
 ## 2026-08-05 - Backlog: page-scoped contextual help quality (TB-2048–TB-2052)
 
