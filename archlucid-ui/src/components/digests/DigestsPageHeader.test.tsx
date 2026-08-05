@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { DIGESTS_BROWSE_PAGE_SUBTITLE } from "@/lib/digests-browse-copy";
 
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/digests",
+  usePathname: () => "/architecture/digests",
 }));
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({

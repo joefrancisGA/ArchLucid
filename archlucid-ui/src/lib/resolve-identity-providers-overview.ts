@@ -147,34 +147,34 @@ function resolveRecommendedNextStep(
   if (config?.authMode === "DevelopmentBypass") {
     return {
       step: IDENTITY_PROVIDERS_RECOMMENDED_CONFIGURE_PRODUCTION_SIGN_IN,
-      href: "/administration/settings/identity-providers/oidc",
+      href: "/administration/identity-providers/oidc",
     };
   }
 
   if (samlStatus === IDENTITY_PROVIDERS_STATUS_NOT_CONFIGURED || samlStatus === IDENTITY_PROVIDERS_STATUS_ACTION_NEEDED) {
     return {
       step: IDENTITY_PROVIDERS_RECOMMENDED_CONFIGURE_SAML,
-      href: "/administration/settings/identity-providers/saml",
+      href: "/administration/identity-providers/saml",
     };
   }
 
   if (roleMappingStatus === IDENTITY_PROVIDERS_STATUS_ACTION_NEEDED || roleMappingStatus === IDENTITY_PROVIDERS_STATUS_NEEDS_REVIEW) {
     return {
       step: IDENTITY_PROVIDERS_RECOMMENDED_VALIDATE_ROLE_MAPPING,
-      href: "/administration/settings/identity-providers/role-mapping",
+      href: "/administration/identity-providers/role-mapping",
     };
   }
 
   if (oidcStatus === IDENTITY_PROVIDERS_STATUS_NEEDS_REVIEW) {
     return {
       step: IDENTITY_PROVIDERS_RECOMMENDED_VALIDATE_OIDC,
-      href: "/administration/settings/identity-providers/oidc",
+      href: "/administration/identity-providers/oidc",
     };
   }
 
   return {
     step: IDENTITY_PROVIDERS_RECOMMENDED_VALIDATE_ROLE_MAPPING,
-    href: "/administration/settings/identity-providers/diagnostics",
+    href: "/administration/identity-providers/diagnostics",
   };
 }
 

@@ -18,7 +18,7 @@ export const ARCHITECTURE_SCORECARD_SOURCES: readonly ArchitectureScorecardSourc
   { label: "ROI summary", href: SPONSOR_REPORT_ROI_SUMMARY_PATH },
   { label: "Architecture reviews", href: "/architecture/reviews" },
   { label: "ROI methodology help", href: inAppHelpHref("pilot-roi-model") },
-  { label: "Workspace baseline settings", href: "/administration/settings/baseline" },
+  { label: "Workspace baseline settings", href: "/administration/baseline" },
   { label: "Workspace overview", href: "/governance/dashboard" },
 ] as const;
 

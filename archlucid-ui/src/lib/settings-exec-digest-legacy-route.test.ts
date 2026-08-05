@@ -27,7 +27,7 @@ const RETIRED_SETTINGS_EXEC_DIGEST_APP_DIR = join(
 describe("settings-exec-digest retired route (EEX / TB-1901–TB-1905)", () => {
   it("keeps canonical schedule on Digests Schedule tab", () => {
     expect(CANONICAL_EXEC_DIGEST_SCHEDULE_PATH).toBe(DIGESTS_SCHEDULE_TAB_PATH);
-    expect(CANONICAL_EXEC_DIGEST_SCHEDULE_PATH).toBe("/digests?tab=schedule");
+    expect(CANONICAL_EXEC_DIGEST_SCHEDULE_PATH).toBe("/architecture/digests?tab=schedule");
   });
 
   it("does not ship a next.config redirect for /settings/exec-digest", async () => {

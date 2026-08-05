@@ -1,5 +1,5 @@
 /**
- * Query-string tab ids for the `/digests` hub (`?tab=`). **browse** is the default when the param is absent, empty, or unknown.
+ * Query-string tab ids for the Architecture digests hub (`?tab=`). **browse** is the default when the param is absent, empty, or unknown.
  */
 export const DIGESTS_HUB_TAB_IDS = ["browse", "subscriptions", "schedule"] as const;
 export type DigestsHubTabId = (typeof DIGESTS_HUB_TAB_IDS)[number];

@@ -136,6 +136,26 @@ const nextConfig: NextConfig = {
       },
       { source: "/architectures", destination: "/architecture/architectures", permanent: true },
       { source: "/architectures/:path*", destination: "/architecture/architectures/:path*", permanent: true },
+      { source: "/signed-records", destination: "/governance/signed-records", permanent: true },
+      { source: "/signed-records/:path*", destination: "/governance/signed-records/:path*", permanent: true },
+      { source: "/manifests", destination: "/governance/signed-records", permanent: true },
+      { source: "/manifests/:path*", destination: "/governance/signed-records/:path*", permanent: true },
+      { source: "/digests", destination: "/architecture/digests", permanent: true },
+      {
+        source: "/digest-subscriptions",
+        destination: "/architecture/digests?tab=subscriptions",
+        permanent: true,
+      },
+      { source: "/administration", destination: "/administration", permanent: true },
+      { source: "/administration/:path*", destination: "/administration/:path*", permanent: true },
+      { source: "/workspace/security-trust", destination: "/administration/security-trust", permanent: true },
+      { source: "/admin/users", destination: "/administration/users", permanent: true },
+      { source: "/admin/support", destination: "/administration/support", permanent: true },
+      {
+        source: "/settings/roles",
+        destination: "/administration/users?tab=roles",
+        permanent: true,
+      },
     ];
   },
   async rewrites() {
@@ -144,7 +164,7 @@ const nextConfig: NextConfig = {
       // Must precede the generic run-scoped signed-record rewrite below.
       {
         source: "/architecture/reviews/claims-intake-modernization/signed-record",
-        destination: "/signed-records/a1c2e3f4-a5b6-7890-abcd-ef1234567890",
+        destination: "/governance/signed-records/a1c2e3f4-a5b6-7890-abcd-ef1234567890",
       },
       // Run-scoped signed record deep link lands on the review package (manifest summary section).
       { source: "/architecture/reviews/:id/signed-record", destination: "/reviews/:id" },

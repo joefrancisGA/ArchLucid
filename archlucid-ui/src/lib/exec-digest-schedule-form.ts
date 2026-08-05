@@ -116,6 +116,14 @@ function normalizedRecipientKey(input: string): string {
     .join(",");
 }
 
+/**
+ * True when the operator has edited the form away from what it was loaded with.
+ *
+ * Compares against the same baseline the form is seeded from — including the
+ * browser-zone substitution for never-configured preferences. Comparing against raw
+ * saved preferences instead reported an "Unsaved changes" badge on first paint for
+ * every tenant outside UTC, because the seeded default itself looked like an edit.
+ */
 export function hasUnsavedExecDigestChanges(
   saved: ExecDigestPreferencesResponse | null,
   form: ExecDigestScheduleFormState,
@@ -124,12 +132,14 @@ export function hasUnsavedExecDigestChanges(
     return false;
   }
 
+  const baseline: ExecDigestScheduleFormState = execDigestFormFromPreferencesWithBrowserDefault(saved);
+
   return (
-    saved.emailEnabled !== form.emailEnabled ||
-    saved.ianaTimeZoneId !== form.ianaTimeZoneId ||
-    saved.dayOfWeek !== form.dayOfWeek ||
-    saved.hourOfDay !== form.hourOfDay ||
-    normalizedRecipientKey(saved.recipientEmails.join("; ")) !== normalizedRecipientKey(form.recipients)
+    baseline.emailEnabled !== form.emailEnabled ||
+    baseline.ianaTimeZoneId !== form.ianaTimeZoneId ||
+    baseline.dayOfWeek !== form.dayOfWeek ||
+    baseline.hourOfDay !== form.hourOfDay ||
+    normalizedRecipientKey(baseline.recipients) !== normalizedRecipientKey(form.recipients)
   );
 }
 

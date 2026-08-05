@@ -79,41 +79,40 @@ type HealthSummaryTileGridProps = {
   readonly testId: string;
 };
 
-function tileSeverityClass(severity: HealthDisplaySeverity | "neutral"): string {
-  switch (severity) {
-    case "healthy":
-      return "border-emerald-600/25 bg-emerald-500/5";
-
-    case "degraded":
-      return "border-orange-600/25 bg-orange-500/5";
-
-    case "failing":
-      return "border-rose-600/25 bg-rose-500/5";
-
-    case "advisory":
-      return "border-amber-600/25 bg-amber-500/5";
-
-    case "not-configured":
-    case "unknown":
-    case "neutral":
-    default:
-      return "border-neutral-200 bg-neutral-50/80 dark:border-neutral-700 dark:bg-neutral-900/40";
-  }
-}
+/** Neutral card shell — status color belongs on the chip, not a pastel tile fill (UI design system). */
+const HEALTH_SUMMARY_TILE_SHELL =
+  "rounded-md border border-neutral-200 bg-transparent px-4 py-3 dark:border-neutral-700";
 
 export function HealthSummaryTileGrid(props: HealthSummaryTileGridProps) {
   return (
     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3" data-testid={props.testId}>
-      {props.tiles.map((tile) => (
-        <div
-          key={tile.id}
-          className={cn("rounded-lg border px-4 py-3", tileSeverityClass(tile.severity))}
-          data-testid={`${props.testId}-${tile.id}`}
-        >
-          <p className={cn("m-0", OPERATOR_NAV_GROUP_LABEL)}>{tile.label}</p>
-          <p className={cn("m-0 mt-1 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{tile.value}</p>
-        </div>
-      ))}
+      {props.tiles.map((tile) => {
+        const showStatusChip = tile.severity !== "neutral";
+
+        return (
+          <div
+            key={tile.id}
+            className={HEALTH_SUMMARY_TILE_SHELL}
+            data-testid={`${props.testId}-${tile.id}`}
+          >
+            <p className={cn("m-0", OPERATOR_NAV_GROUP_LABEL)}>{tile.label}</p>
+            {showStatusChip ? (
+              <div className="mt-2">
+                <StatusPill
+                  status={tile.value}
+                  domain="health"
+                  uppercase={false}
+                  className={cn("rounded-md px-2 py-0.5", OPERATOR_TYPOGRAPHY.badge)}
+                />
+              </div>
+            ) : (
+              <p className={cn("m-0 mt-1 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                {tile.value}
+              </p>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }

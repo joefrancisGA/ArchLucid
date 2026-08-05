@@ -1,17 +1,19 @@
 import Link from "next/link";
 
-import {
-  DIGESTS_CLAIM_DISCIPLINE,
-  DIGESTS_SOURCES,
-  DIGESTS_SOURCES_INTRO,
-} from "@/lib/digests-evidence-copy";
+import { DIGESTS_SOURCES, DIGESTS_SOURCES_INTRO } from "@/lib/digests-evidence-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
-/** Sources + claim discipline for `/digests` (DI Evidence). */
+/**
+ * Sources for follow-up on the digests hub (DI Evidence).
+ *
+ * Owner decision 2026-08-05: no claim-boundary band here. The disclaimer read as
+ * an internal drafting note to buyers; the page states what digests are in the
+ * header lead instead.
+ */
 export function DigestsSourcesStrip(): React.JSX.Element {
   return (
-    <div className="mt-4 space-y-3" data-testid="digests-orientation">
+    <div className="mt-4" data-testid="digests-orientation">
       <section
         className="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
         aria-labelledby="digests-sources-heading"
@@ -36,14 +38,6 @@ export function DigestsSourcesStrip(): React.JSX.Element {
           ))}
         </ul>
       </section>
-
-      <aside
-        className="rounded-md border border-amber-200/80 bg-amber-50/50 p-3 dark:border-amber-900/40 dark:bg-amber-950/20"
-        data-testid="digests-claim-discipline"
-      >
-        <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Scheduled summaries only</h2>
-        <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>{DIGESTS_CLAIM_DISCIPLINE}</p>
-      </aside>
     </div>
   );
 }

@@ -1,10 +1,12 @@
 import { ADVISORY_SCANS_SCHEDULES_HREF } from "@/lib/advisory-scans-route";
+import {
+  DIGESTS_BROWSE_TAB_PATH,
+  DIGESTS_SCHEDULE_CANONICAL_PATH,
+  DIGESTS_SUBSCRIPTIONS_TAB_PATH,
+} from "@/lib/digests-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
-export const DIGESTS_SCHEDULE_CANONICAL_PATH = "/digests?tab=schedule" as const;
-
-export const DIGESTS_SCHEDULE_CLAIM_DISCIPLINE =
-  "Schedule settings control when digests are generated and who receives them — not a signed-review diligence Sources package. Do not imply CPA SOC 2 attestation or a published third-party pen test from this tab.";
+export { DIGESTS_SCHEDULE_CANONICAL_PATH };
 
 export const DIGESTS_SCHEDULE_SOURCES_INTRO =
   "Use these follow-ups when cadence is set but delivery destinations, browse history, or advisory scans still need attention.";
@@ -14,11 +16,11 @@ export type DigestsScheduleSourceLink = {
   readonly href: string;
 };
 
-/** Operator Sources — no self-href to `/digests?tab=schedule`. */
+/** Operator Sources — no self-href to the schedule tab. */
 export const DIGESTS_SCHEDULE_SOURCES: readonly DigestsScheduleSourceLink[] = [
-  { label: "Subscriptions", href: "/digests?tab=subscriptions" },
-  { label: "Browse digests", href: "/digests?tab=browse" },
+  { label: "Subscriptions", href: DIGESTS_SUBSCRIPTIONS_TAB_PATH },
+  { label: "Browse digests", href: DIGESTS_BROWSE_TAB_PATH },
   { label: "Advisory scan schedules", href: ADVISORY_SCANS_SCHEDULES_HREF },
   { label: "Architecture reviews", href: "/architecture/reviews" },
-  { label: "How ArchLucid works", href: inAppHelpHref("how-it-works") },
+  { label: "Architecture digests help", href: inAppHelpHref("digests") },
 ] as const;

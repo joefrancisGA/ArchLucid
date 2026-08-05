@@ -43,14 +43,14 @@ describe("effectiveNavDisclosureForPathname", () => {
     "/architecture/first-review-guide",
     "/architecture/reviews/new",
     "/architecture/reviews",
-    "/administration/settings/extract-upload",
+    "/administration/extract-upload",
     "/insights/evidence-graph",
     "/help",
     "/help/first-architecture-review",
     "/help/troubleshooting",
-    "/administration/settings",
-    "/administration/settings/tenant",
-    "/administration/settings/extract-upload",
+    "/administration",
+    "/administration/tenant",
+    "/administration/extract-upload",
   ])(
     "forces essential tier on Core Pilot path %s without changing stored preference semantics at call site",
     (path) => {

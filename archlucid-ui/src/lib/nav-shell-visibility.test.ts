@@ -410,7 +410,7 @@ describe("filterNavLinksForOperatorShell — public demo nav omissions", () => {
       true,
     );
 
-    expect(adminVisible.some((l) => l.href === "/administration/settings/security-trust")).toBe(true);
+    expect(adminVisible.some((l) => l.href === "/administration/security-trust")).toBe(true);
   });
 
   it("keeps governance destinations visible when NEXT_PUBLIC_DEMO_STATIC_OPERATOR is true", () => {
@@ -441,7 +441,7 @@ describe("filterNavLinksForOperatorShell — public demo nav omissions", () => {
       true,
     );
 
-    expect(adminVisible.some((l) => l.href === "/administration/settings/security-trust")).toBe(true);
+    expect(adminVisible.some((l) => l.href === "/administration/security-trust")).toBe(true);
   });
 
   it("keeps operator-admin links visible in buyer-polished demo builds", () => {
@@ -459,9 +459,9 @@ describe("filterNavLinksForOperatorShell — public demo nav omissions", () => {
       true,
     );
 
-    expect(visible.some((l) => l.href === "/administration/settings/users")).toBe(true);
-    expect(visible.some((l) => l.href === "/administration/settings/tenant")).toBe(true);
-    expect(visible.some((l) => l.href === "/administration/settings/security-trust")).toBe(true);
+    expect(visible.some((l) => l.href === "/administration/users")).toBe(true);
+    expect(visible.some((l) => l.href === "/administration/tenant")).toBe(true);
+    expect(visible.some((l) => l.href === "/administration/security-trust")).toBe(true);
   });
 });
 
@@ -480,7 +480,7 @@ describe("listNavGroupsVisibleInOperatorShell — platform-admin surface", () =>
     expect(rows.map((r) => r.group.id)).toEqual(["operator-admin"]);
     expect(rows[0]!.visibleLinks.some((l) => l.href === "/administration/connection-status")).toBe(true);
     expect(rows[0]!.visibleLinks.some((l) => l.href === "/administration/system-health")).toBe(true);
-    expect(rows[0]!.visibleLinks.some((l) => l.href === "/administration/settings/users")).toBe(true);
+    expect(rows[0]!.visibleLinks.some((l) => l.href === "/administration/users")).toBe(true);
     expect(rows[0]!.visibleLinks.some((l) => l.href === "/admin/pricing-quote-aging")).toBe(false);
   });
 
@@ -537,7 +537,7 @@ describe("listNavGroupsVisibleInOperatorShell — platform-admin surface", () =>
       true,
     );
 
-    expect(readVisible.some((l) => l.href === "/administration/settings/ai-usage")).toBe(false);
+    expect(readVisible.some((l) => l.href === "/administration/ai-usage")).toBe(false);
 
     const executeVisible = filterNavLinksForOperatorShell(
       admin!.links,
@@ -548,7 +548,7 @@ describe("listNavGroupsVisibleInOperatorShell — platform-admin surface", () =>
       true,
     );
 
-    expect(executeVisible.some((l) => l.href === "/administration/settings/ai-usage")).toBe(false);
+    expect(executeVisible.some((l) => l.href === "/administration/ai-usage")).toBe(false);
 
     const adminVisible = filterNavLinksForOperatorShell(
       admin!.links,
@@ -559,7 +559,7 @@ describe("listNavGroupsVisibleInOperatorShell — platform-admin surface", () =>
       true,
     );
 
-    expect(adminVisible.some((l) => l.href === "/administration/settings/ai-usage")).toBe(true);
+    expect(adminVisible.some((l) => l.href === "/administration/ai-usage")).toBe(true);
   });
 });
 

@@ -73,7 +73,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | Controller source | API prefix (normalized) | commercial_tier (class) | class_policy | Operator nav href (parity only) | Exemption code |
 | --- | --- | --- | --- | --- | --- |
 | `Admin/AdminAiUsageDashboardController.cs` | `/v1/admin` | none | ExecuteAuthority |  |  |
-| `Admin/AdminApiKeySettingsController.cs` | `/v1/admin/settings/api-keys` | none | AdminAuthority | /administration/settings/api-keys |  |
+| `Admin/AdminApiKeySettingsController.cs` | `/v1/admin/settings/api-keys` | none | AdminAuthority | /administration/api-keys |  |
 | `Admin/AdminAuthDiagnosticsController.cs` | `/v1/admin` | none | AdminAuthority |  | auth_debug_api |
 | `Admin/AdminController.cs` | `/v1/admin` | none | AdminAuthority |  |  |
 | `Admin/AdminCrossTenantUsageRollupController.cs` | `/v1/admin/analytics` | none | PlatformCrossTenantReadAuthority |  |  |
@@ -82,12 +82,12 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Admin/AdminFleetLlmCogsController.cs` | `/v1/admin/operational` | none | AdminAuthority |  |  |
 | `Admin/AdminIdentityProviderDiagnosticsController.cs` | `/v1/admin/diagnostics` | none | AdminAuthority |  |  |
 | `Admin/AdminIntegrationsController.cs` | `/v1/admin/integrations` | none | AdminAuthority |  |  |
-| `Admin/AdminLlmCostTuningController.cs` | `/v1/admin` | none | AdminAuthority | /administration/settings/ai-usage |  |
+| `Admin/AdminLlmCostTuningController.cs` | `/v1/admin` | none | AdminAuthority | /administration/ai-usage |  |
 | `Admin/AdminLlmMonthlyDollarBudgetStatusController.cs` | `/v1/admin` | none | ExecuteAuthority |  |  |
 | `Admin/AdminQualityGateDiagnosticsController.cs` | `/v1/admin/diagnostics` | none | AdminAuthority |  |  |
 | `Admin/AdminQuickScanSafetyController.cs` | `/v1/admin/quick-scan/safety` | none | AdminAuthority |  |  |
 | `Admin/AdminRagHealthController.cs` | `/v1/admin` | none | AdminAuthority |  |  |
-| `Admin/AdminTenantsController.cs` | `/v1/admin/tenants` | none | PlatformTenantDeletionAuthority | /administration/settings/users |  |
+| `Admin/AdminTenantsController.cs` | `/v1/admin/tenants` | none | PlatformTenantDeletionAuthority | /administration/users |  |
 | `Admin/AdminTrialFunnelOperationalController.cs` | `/v1/admin/operational` | none | AdminAuthority |  |  |
 | `Admin/AuditController.cs` | `/v1/audit` | none | ReadAuthority | /governance/audit |  |
 | `Admin/AuthDebugController.cs` | `/api/auth` | none | ReadAuthority |  | auth_debug_api |
@@ -113,15 +113,15 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Admin/RoiBulletinAdminController.cs` | `/v1/admin/roi-bulletin-preview` | none | AdminAuthority |  |  |
 | `Admin/ScimTokensAdminController.cs` | `/v1/admin/scim/tokens` | none | AdminAuthority |  |  |
 | `Admin/ScopeDebugController.cs` | `/v1/scope` | none | ReadAuthority |  |  |
-| `Admin/SecurityTrustPublicationController.cs` | `/v1/admin/security-trust` | none | AdminAuthority | /administration/settings/security-trust |  |
-| `Admin/SettingsController.cs` | `/v1/admin/settings` | none | AdminAuthority | /administration/settings/tenant |  |
-| `Admin/SupportBundleController.cs` | `/v1/admin` | none | ExecuteAuthority | /administration/settings/support |  |
+| `Admin/SecurityTrustPublicationController.cs` | `/v1/admin/security-trust` | none | AdminAuthority | /administration/security-trust |  |
+| `Admin/SettingsController.cs` | `/v1/admin/settings` | none | AdminAuthority | /administration/tenant |  |
+| `Admin/SupportBundleController.cs` | `/v1/admin` | none | ExecuteAuthority | /administration/support |  |
 | `Admin/TenantAuthDomainAdminController.cs` | `/v1/admin/identity/domains` | none | AdminAuthority |  |  |
-| `Admin/TenantsAdminController.cs` | `/v1/admin/tenants` | none | AdminAuthority | /administration/settings/users |  |
+| `Admin/TenantsAdminController.cs` | `/v1/admin/tenants` | none | AdminAuthority | /administration/users |  |
 | `Admin/UsersAdminController.cs` | `/v1/admin/users` | none | AdminAuthority |  |  |
 | `Advisory/AdvisoryController.cs` | `/v1/advisory` | standard | ReadAuthority | /governance/advisory-scans |  |
 | `Advisory/AdvisorySchedulingController.cs` | `/v1/advisory-scheduling` | standard | ReadAuthority |  |  |
-| `Advisory/DigestSubscriptionsController.cs` | `/v1/digest-subscriptions` | standard | ReadAuthority | /digests |  |
+| `Advisory/DigestSubscriptionsController.cs` | `/v1/digest-subscriptions` | standard | ReadAuthority | /architecture/digests |  |
 | `Advisory/LearningController.cs` | `/v1/learning` | standard | ReadAuthority |  |  |
 | `Advisory/ProductLearningController.cs` | `/v1/product-learning` | standard | ReadAuthority | /internal/product-learning |  |
 | `Advisory/RecommendationLearningController.cs` | `/v1/recommendation-learning` | standard | ReadAuthority | /internal-operations/recommendation-learning |  |
@@ -173,7 +173,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Authority/TechnologyLedgerController.cs` | `/v1/runs` | none | ReadAuthority |  |  |
 | `Authority/TemplatesController.cs` | `/v1/architecture` | none | ReadAuthority |  |  |
 | `Authority/Tier2ConnectionController.cs` | `/v1/azure-extractor/connections` | none | ExecuteAuthority |  |  |
-| `Billing/BillingCheckoutController.cs` | `/v1/tenant/billing` | none | AdminAuthority | /administration/settings/tenant |  |
+| `Billing/BillingCheckoutController.cs` | `/v1/tenant/billing` | none | AdminAuthority | /administration/tenant |  |
 | `Billing/BillingMarketplaceWebhookController.cs` | `/v1/billing/webhooks` | none | AllowAnonymous |  | partner_webhook_ingest |
 | `Billing/BillingStripeWebhookController.cs` | `/v1/billing/webhooks` | none | AllowAnonymous |  | partner_webhook_ingest |
 | `Billing/WalletController.cs` | `/v1/billing/wallet` | none | AdminAuthority |  |  |
@@ -253,7 +253,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Tenancy/TenantLlmCostReportingController.cs` | `/v1/tenant` | none | ReadAuthority |  |  |
 | `Tenancy/TenantMeasuredRoiController.cs` | `/v1/tenant/measured-roi` | standard | Authorize | /sponsor-report/roi-summary |  |
 | `Tenancy/TenantPilotValueReportController.cs` | `/v1/tenant` | none | Authorize | /sponsor-report/pilot-outcomes |  |
-| `Tenancy/TenantTrialController.cs` | `/v1/tenant` | none | Authorize | /administration/settings/tenant |  |
+| `Tenancy/TenantTrialController.cs` | `/v1/tenant` | none | Authorize | /administration/tenant |  |
 | `Tenancy/TenantUsageStatusController.cs` | `/v1/tenant` | none | Authorize |  |  |
 | `Tenancy/TenantWeeklyDigestHealthController.cs` | `/v1/tenant/operate/weekly-digest-health` | standard | Authorize |  |  |
 | `Tenancy/TenantWorkspaceBaselineArtifactsController.cs` | `/v1/tenant/workspace-baseline-artifacts` | none | Authorize |  |  |

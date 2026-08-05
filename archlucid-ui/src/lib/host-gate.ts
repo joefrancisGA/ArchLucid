@@ -10,6 +10,7 @@ import { PATTERN_LIBRARY_PATH } from "@/lib/pattern-library-route";
 import { PLANNING_PATH } from "@/lib/planning-route";
 import { LEGACY_PRODUCT_LEARNING_PATH, PRODUCT_LEARNING_PATH } from "@/lib/product-learning-route";
 import { LEGACY_SEARCH_PATH, SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
+import { DIGESTS_HUB_PATH, LEGACY_DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 import { MARKETING_SITEMAP_PATHNAMES } from "@/lib/marketing/public-marketing-seo-paths";
 import { isSplitSiteHostingEnabled, resolveAppSiteOrigin, resolvePublicSiteOrigin } from "@/lib/site-urls";
 
@@ -42,7 +43,7 @@ const OPERATOR_PATH_PREFIXES: readonly string[] = [
   "/executive",
   "/alerts",
   "/admin",
-  "/administration/settings",
+  "/administration",
   EVIDENCE_GRAPH_PATH,
   PATTERN_LIBRARY_PATH,
   LEGACY_GRAPH_PATH,
@@ -71,7 +72,8 @@ const OPERATOR_PATH_PREFIXES: readonly string[] = [
   IMPACT_PREVIEW_PATH,
   LEGACY_EVOLUTION_REVIEW_PATH,
   "/sponsor-report",
-  "/digests",
+  DIGESTS_HUB_PATH,
+  LEGACY_DIGESTS_HUB_PATH,
   "/workspace",
   "/architecture/architectures",
   "/architectures",

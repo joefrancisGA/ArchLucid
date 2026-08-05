@@ -15,8 +15,8 @@ describe("cto-demo-blocked-route-registry", () => {
   });
 
   it("allows Extract & Upload settings for Core Pilot onboarding", () => {
-    expect(findBlockedRouteEntry("/administration/settings/extract-upload")).toBeNull();
-    expect(findBlockedRouteEntry("/administration/settings/tenant")?.label).toBe("Settings");
+    expect(findBlockedRouteEntry("/administration/extract-upload")).toBeNull();
+    expect(findBlockedRouteEntry("/administration/tenant")?.label).toBe("Settings");
   });
 
   it("falls back to generic blocked panel copy", () => {

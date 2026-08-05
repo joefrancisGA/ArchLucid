@@ -1,10 +1,16 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { DigestsBrowseContent } from "@/components/digests/DigestsBrowseContent";
+import { DIGEST_EXPORT_ACTION_LABEL } from "@/lib/digest-delivery-presentation";
 import {
-  DIGESTS_BROWSE_EMPTY_TITLE,
+  DIGEST_COVERAGE_COLUMN_HEADER,
+  DIGEST_COVERAGE_COMPARED_LABEL,
+} from "@/lib/digest-period-coverage";
+import { digestRowElementId } from "@/lib/digests-browse-deep-link";
+import {
   DIGESTS_BROWSE_INCLUDES_SECTION_TITLE,
+  DIGESTS_BROWSE_SETUP_UNKNOWN_TITLE,
 } from "@/lib/digests-browse-copy";
 import type { WeeklyDigestHealthDto } from "@/types/operate-rhythm";
 
@@ -19,6 +25,7 @@ vi.mock("@/lib/api", () => ({
 }));
 
 import {
+  getArchitectureDigest,
   listArchitectureDigests,
   listDigestDeliveryAttempts,
 } from "@/lib/api";
@@ -42,49 +49,183 @@ const healthSnap: WeeklyDigestHealthDto = {
   ],
 };
 
+const digestRow = {
+  digestId: "d1",
+  tenantId: "t",
+  workspaceId: "w",
+  projectId: "p",
+  runId: "aaaaaaaa-1111-2222-3333-444444444444",
+  comparedToRunId: "bbbbbbbb-5555-6666-7777-888888888888",
+  generatedUtc: "2026-07-08T12:00:00Z",
+  title: "Weekly architecture digest",
+  summary: "Summary line",
+  contentMarkdown: "# Body",
+  metadataJson: "{}",
+};
+
 describe("DigestsBrowseContent", () => {
   beforeEach(() => {
     vi.mocked(listArchitectureDigests).mockReset();
     vi.mocked(listDigestDeliveryAttempts).mockReset();
+    vi.mocked(getArchitectureDigest).mockReset();
+    window.location.hash = "";
   });
 
-  it("renders setup checklist, includes preview, and summary empty state without duplicate CTAs", async () => {
+  it("shows a structured skeleton while the first list load runs (TB-1502)", async () => {
+    let resolveList: (rows: (typeof digestRow)[]) => void = () => undefined;
+    vi.mocked(listArchitectureDigests).mockReturnValue(
+      new Promise((resolve) => {
+        resolveList = resolve;
+      }),
+    );
+
+    render(<DigestsBrowseContent hidePageHeader healthSnap={healthSnap} />);
+
+    expect(screen.getByTestId("digests-browse-skeleton")).toBeInTheDocument();
+    expect(screen.queryByText("Loading digests…")).not.toBeInTheDocument();
+
+    resolveList([]);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("digests-browse-skeleton")).not.toBeInTheDocument();
+    });
+  });
+
+  it("renders one guided empty composition, not a stacked tower (TB-1480)", async () => {
     vi.mocked(listArchitectureDigests).mockResolvedValue([]);
 
     render(<DigestsBrowseContent hidePageHeader healthSnap={healthSnap} />);
 
-    expect(await screen.findByTestId("digests-empty-state")).toBeInTheDocument();
-    expect(screen.getByText(DIGESTS_BROWSE_EMPTY_TITLE)).toBeInTheDocument();
-    expect(screen.getByTestId("digests-browse-setup-checklist")).toBeInTheDocument();
-    expect(screen.getByText("Configure schedule")).toBeInTheDocument();
-    expect(screen.getByText("Add recipients or subscriptions")).toBeInTheDocument();
-    expect(screen.getByTestId("digests-browse-includes-preview")).toBeInTheDocument();
+    const empty = await screen.findByTestId("digests-browse-empty-state");
+
+    // Exactly one next-step story: the checklist. No competing summary empty state.
+    expect(within(empty).getByTestId("digests-browse-setup-checklist")).toBeInTheDocument();
+    expect(screen.queryByTestId("digests-empty-state")).not.toBeInTheDocument();
+
+    // Includes preview is demoted behind a disclosure rather than stacked inline.
+    expect(within(empty).getByTestId("digests-browse-includes-disclosure")).toBeInTheDocument();
     expect(screen.getByText(DIGESTS_BROWSE_INCLUDES_SECTION_TITLE)).toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "Create subscription" })).not.toBeInTheDocument();
-    expect(document.body.textContent).not.toMatch(/Markdown|v1|preformatted/i);
+    expect(screen.getByTestId("digests-browse-includes-disclosure")).not.toHaveAttribute("open");
   });
 
-  it("renders digest history table when digests exist", async () => {
-    vi.mocked(listArchitectureDigests).mockResolvedValue([
-      {
-        digestId: "d1",
-        tenantId: "t",
-        workspaceId: "w",
-        projectId: "p",
-        generatedUtc: "2026-07-08T12:00:00Z",
-        title: "Weekly architecture digest",
-        summary: "Summary line",
-        contentMarkdown: "# Body",
-        metadataJson: "{}",
-      },
-    ]);
+  it("keeps the checklist history step status-only instead of self-linking to Browse", async () => {
+    vi.mocked(listArchitectureDigests).mockResolvedValue([]);
+
+    render(<DigestsBrowseContent hidePageHeader healthSnap={healthSnap} />);
+
+    const historyStep = await screen.findByTestId("digests-browse-checklist-item-history");
+
+    expect(within(historyStep).queryByRole("link")).not.toBeInTheDocument();
+    expect(within(historyStep).getByText("Pending")).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Review generated history" })).not.toBeInTheDocument();
+  });
+
+  it("falls back to an honest empty state when setup status could not be read", async () => {
+    vi.mocked(listArchitectureDigests).mockResolvedValue([]);
+
+    render(<DigestsBrowseContent hidePageHeader healthSnap={null} />);
+
+    expect(await screen.findByTestId("digests-empty-state")).toBeInTheDocument();
+    expect(screen.getByText(DIGESTS_BROWSE_SETUP_UNKNOWN_TITLE)).toBeInTheDocument();
+    expect(screen.queryByTestId("digests-browse-setup-checklist")).not.toBeInTheDocument();
+  });
+
+  it("renders honest coverage instead of Compared/Current labels (TB-1503)", async () => {
+    vi.mocked(listArchitectureDigests).mockResolvedValue([digestRow]);
+    vi.mocked(listDigestDeliveryAttempts).mockResolvedValue([]);
+
+    render(<DigestsBrowseContent hidePageHeader healthSnap={healthSnap} />);
+
+    expect(await screen.findByRole("table", { name: "Architecture digest history" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("columnheader", { name: DIGEST_COVERAGE_COLUMN_HEADER }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(DIGEST_COVERAGE_COMPARED_LABEL)).toBeInTheDocument();
+    expect(screen.getByText("bbbbbbbb → aaaaaaaa")).toBeInTheDocument();
+    expect(screen.queryByText("Compared period")).not.toBeInTheDocument();
+    expect(screen.queryByText("Current period")).not.toBeInTheDocument();
+  });
+
+  it("gives each history row a stable id for the #digest hash target (TB-1501)", async () => {
+    vi.mocked(listArchitectureDigests).mockResolvedValue([digestRow]);
+    vi.mocked(listDigestDeliveryAttempts).mockResolvedValue([]);
+
+    render(<DigestsBrowseContent hidePageHeader healthSnap={healthSnap} />);
+
+    await screen.findByRole("table", { name: "Architecture digest history" });
+
+    expect(document.getElementById(digestRowElementId("d1"))).not.toBeNull();
+  });
+
+  it("auto-selects the digest named in the location hash (TB-1501)", async () => {
+    window.location.hash = "#digest-d1";
+    vi.mocked(listArchitectureDigests).mockResolvedValue([digestRow]);
+    vi.mocked(listDigestDeliveryAttempts).mockResolvedValue([]);
+    vi.mocked(getArchitectureDigest).mockResolvedValue(digestRow);
+
+    render(<DigestsBrowseContent hidePageHeader healthSnap={healthSnap} />);
+
+    await waitFor(() => {
+      expect(getArchitectureDigest).toHaveBeenCalledWith("d1");
+    });
+
+    expect(await screen.findByTestId("digests-preview-body")).toHaveTextContent("# Body");
+    expect(screen.getByRole("button", { name: DIGEST_EXPORT_ACTION_LABEL })).toBeInTheDocument();
+  });
+
+  it("ignores a hash that does not match a listed digest", async () => {
+    window.location.hash = "#digest-missing";
+    vi.mocked(listArchitectureDigests).mockResolvedValue([digestRow]);
+    vi.mocked(listDigestDeliveryAttempts).mockResolvedValue([]);
+
+    render(<DigestsBrowseContent hidePageHeader healthSnap={healthSnap} />);
+
+    await screen.findByRole("table", { name: "Architecture digest history" });
+
+    expect(getArchitectureDigest).not.toHaveBeenCalled();
+  });
+
+  it("maps delivery status and hides raw exception text (TB-1504)", async () => {
+    const failedAttempt = {
+      attemptId: "a1",
+      digestId: "d1",
+      subscriptionId: "s1",
+      attemptedUtc: "2026-07-08T12:05:00Z",
+      status: "Failed",
+      channelType: "Email",
+      destination: "ops@example.com",
+      errorMessage: "smtp timeout: System.Net.Mail.SmtpException",
+    };
+
+    vi.mocked(listArchitectureDigests).mockResolvedValue([digestRow]);
+    vi.mocked(listDigestDeliveryAttempts).mockResolvedValue([failedAttempt]);
+    vi.mocked(getArchitectureDigest).mockResolvedValue(digestRow);
+
+    render(<DigestsBrowseContent hidePageHeader healthSnap={healthSnap} />);
+
+    await screen.findByRole("table", { name: "Architecture digest history" });
+    fireEvent.click(screen.getByRole("button", { name: "Weekly architecture digest" }));
+
+    const attempts = await screen.findByTestId("digests-delivery-attempts");
+
+    expect(within(attempts).getByText(/Delivery failed/)).toBeInTheDocument();
+    expect(within(attempts).queryByText(/SmtpException/)).not.toBeInTheDocument();
+
+    // Raw diagnostic stays available, but only inside Technical details.
+    const diagnostics = screen.getByTestId("digests-delivery-diagnostics");
+
+    expect(within(diagnostics).getByText(/SmtpException/)).toBeInTheDocument();
+  });
+
+  it("renders the digest history table when digests exist", async () => {
+    vi.mocked(listArchitectureDigests).mockResolvedValue([digestRow]);
     vi.mocked(listDigestDeliveryAttempts).mockResolvedValue([
       {
         attemptId: "a1",
         digestId: "d1",
         subscriptionId: "s1",
         attemptedUtc: "2026-07-08T12:05:00Z",
-        status: "Delivered",
+        status: "Succeeded",
         channelType: "Email",
         destination: "ops@example.com",
       },
@@ -94,6 +235,6 @@ describe("DigestsBrowseContent", () => {
 
     expect(await screen.findByRole("table", { name: "Architecture digest history" })).toBeInTheDocument();
     expect(screen.getByText("Weekly architecture digest")).toBeInTheDocument();
-    expect(screen.getByText("ops@example.com")).toBeInTheDocument();
+    expect(await screen.findByText("ops@example.com")).toBeInTheDocument();
   });
 });

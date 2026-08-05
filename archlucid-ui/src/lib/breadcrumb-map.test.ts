@@ -71,17 +71,17 @@ describe("getBreadcrumbs", () => {
   });
 
   it("maps showcase manifest detail trail", () => {
-    expect(getBreadcrumbs(`/signed-records/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`)).toEqual([
-      { label: "Signed review records", href: "/signed-records" },
+    expect(getBreadcrumbs(`/governance/signed-records/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`)).toEqual([
+      { label: "Signed review records", href: "/governance/signed-records" },
       { label: "Claims Intake review" },
     ]);
   });
 
   it("buyer-polished: showcase manifest detail uses signed review record trail", () => {
     expect(
-      getBreadcrumbs(`/signed-records/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`, { buyerPolishedShell: true }),
+      getBreadcrumbs(`/governance/signed-records/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`, { buyerPolishedShell: true }),
     ).toEqual([
-      { label: "Signed review records", href: "/signed-records" },
+      { label: "Signed review records", href: "/governance/signed-records" },
       { label: `${SHOWCASE_BUYER_REVIEW_TITLE} signed record` },
     ]);
   });
@@ -110,41 +110,41 @@ describe("getBreadcrumbs", () => {
   });
 
   it("maps workspace settings under the Settings hub rather than as its own root", () => {
-    expect(getBreadcrumbs("/administration/settings/tenant")).toEqual([
+    expect(getBreadcrumbs("/administration/tenant")).toEqual([
       { label: "Administration" },
-      { label: "Settings", href: "/administration/settings" },
+      { label: "Settings", href: "/administration" },
       { label: "Workspace settings" },
     ]);
   });
 
   it("maps the projects recycle bin under Settings / Workspace settings", () => {
-    expect(getBreadcrumbs("/administration/settings/tenant/recycle-bin")).toEqual([
-      { label: "Settings", href: "/administration/settings" },
-      { label: "Workspace settings", href: "/administration/settings/tenant" },
+    expect(getBreadcrumbs("/administration/tenant/recycle-bin")).toEqual([
+      { label: "Settings", href: "/administration" },
+      { label: "Workspace settings", href: "/administration/tenant" },
       { label: "Projects recycle bin" },
     ]);
   });
 
   it("maps settings billing as Administration / Settings / Billing & plans", () => {
-    expect(getBreadcrumbs("/administration/settings/billing")).toEqual([
+    expect(getBreadcrumbs("/administration/billing")).toEqual([
       { label: "Administration" },
-      { label: "Settings", href: "/administration/settings" },
+      { label: "Settings", href: "/administration" },
       { label: "Billing & plans" },
     ]);
   });
 
   it("maps SSO wizard as Settings / Identity providers / Configure SSO", () => {
-    expect(getBreadcrumbs("/administration/settings/identity/sso-wizard")).toEqual([
-      { label: "Settings", href: "/administration/settings" },
-      { label: "Identity providers", href: "/administration/settings/identity-providers" },
+    expect(getBreadcrumbs("/administration/identity/sso-wizard")).toEqual([
+      { label: "Settings", href: "/administration" },
+      { label: "Identity providers", href: "/administration/identity-providers" },
       { label: "Configure SSO" },
     ]);
   });
 
   it("maps SCIM provisioning as Settings / Identity providers / SCIM provisioning", () => {
-    expect(getBreadcrumbs("/administration/settings/scim-provisioning")).toEqual([
-      { label: "Settings", href: "/administration/settings" },
-      { label: "Identity providers", href: "/administration/settings/identity-providers" },
+    expect(getBreadcrumbs("/administration/scim-provisioning")).toEqual([
+      { label: "Settings", href: "/administration" },
+      { label: "Identity providers", href: "/administration/identity-providers" },
       { label: "SCIM provisioning" },
     ]);
   });

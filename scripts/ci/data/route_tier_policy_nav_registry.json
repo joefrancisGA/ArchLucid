@@ -19,7 +19,7 @@
       "commercial_tier": "none",
       "class_policy": "AdminAuthority",
       "exemption": null,
-      "nav_operator_href": "/administration/settings/api-keys"
+      "nav_operator_href": "/administration/api-keys"
     },
     {
       "controller_file": "Admin/AdminAuthDiagnosticsController.cs",
@@ -109,7 +109,7 @@
       "commercial_tier": "none",
       "class_policy": "AdminAuthority",
       "exemption": null,
-      "nav_operator_href": "/administration/settings/ai-usage"
+      "nav_operator_href": "/administration/ai-usage"
     },
     {
       "controller_file": "Admin/AdminLlmMonthlyDollarBudgetStatusController.cs",
@@ -159,7 +159,7 @@
       "commercial_tier": "none",
       "class_policy": "PlatformTenantDeletionAuthority",
       "exemption": null,
-      "nav_operator_href": "/administration/settings/users"
+      "nav_operator_href": "/administration/users"
     },
     {
       "controller_file": "Admin/AdminTrialFunnelOperationalController.cs",
@@ -419,7 +419,7 @@
       "commercial_tier": "none",
       "class_policy": "AdminAuthority",
       "exemption": null,
-      "nav_operator_href": "/administration/settings/security-trust"
+      "nav_operator_href": "/administration/security-trust"
     },
     {
       "controller_file": "Admin/SettingsController.cs",
@@ -429,7 +429,7 @@
       "commercial_tier": "none",
       "class_policy": "AdminAuthority",
       "exemption": null,
-      "nav_operator_href": "/administration/settings/tenant"
+      "nav_operator_href": "/administration/tenant"
     },
     {
       "controller_file": "Admin/SupportBundleController.cs",
@@ -439,7 +439,7 @@
       "commercial_tier": "none",
       "class_policy": "ExecuteAuthority",
       "exemption": null,
-      "nav_operator_href": "/administration/settings/support"
+      "nav_operator_href": "/administration/support"
     },
     {
       "controller_file": "Admin/TenantAuthDomainAdminController.cs",
@@ -459,7 +459,7 @@
       "commercial_tier": "none",
       "class_policy": "AdminAuthority",
       "exemption": null,
-      "nav_operator_href": "/administration/settings/users"
+      "nav_operator_href": "/administration/users"
     },
     {
       "controller_file": "Admin/UsersAdminController.cs",
@@ -499,7 +499,7 @@
       "commercial_tier": "standard",
       "class_policy": "ReadAuthority",
       "exemption": null,
-      "nav_operator_href": "/digests"
+      "nav_operator_href": "/architecture/digests"
     },
     {
       "controller_file": "Advisory/LearningController.cs",
@@ -1019,7 +1019,7 @@
       "commercial_tier": "none",
       "class_policy": "AdminAuthority",
       "exemption": null,
-      "nav_operator_href": "/administration/settings/tenant"
+      "nav_operator_href": "/administration/tenant"
     },
     {
       "controller_file": "Billing/BillingMarketplaceWebhookController.cs",
@@ -1819,7 +1819,7 @@
       "commercial_tier": "none",
       "class_policy": "Authorize",
       "exemption": null,
-      "nav_operator_href": "/administration/settings/tenant"
+      "nav_operator_href": "/administration/tenant"
     },
     {
       "controller_file": "Tenancy/TenantUsageStatusController.cs",

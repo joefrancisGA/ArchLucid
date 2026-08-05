@@ -36,18 +36,18 @@
     "Scim/ScimUsersController.cs": "scim_idp_automation"
   },
   "nav_operator_href_by_controller_file": {
-    "Admin/AdminApiKeySettingsController.cs": "/administration/settings/api-keys",
-    "Admin/SettingsController.cs": "/administration/settings/tenant",
+    "Admin/AdminApiKeySettingsController.cs": "/administration/api-keys",
+    "Admin/SettingsController.cs": "/administration/tenant",
     "Admin/AuditController.cs": "/governance/audit",
-    "Billing/BillingCheckoutController.cs": "/administration/settings/tenant",
-    "Admin/AdminLlmCostTuningController.cs": "/administration/settings/ai-usage",
-    "Admin/MeteringAdminController.cs": "/administration/settings/ai-usage",
-    "Admin/SecurityTrustPublicationController.cs": "/administration/settings/security-trust",
-    "Admin/SupportBundleController.cs": "/administration/settings/support",
-    "Admin/AdminTenantsController.cs": "/administration/settings/users",
-    "Admin/TenantsAdminController.cs": "/administration/settings/users",
+    "Billing/BillingCheckoutController.cs": "/administration/tenant",
+    "Admin/AdminLlmCostTuningController.cs": "/administration/ai-usage",
+    "Admin/MeteringAdminController.cs": "/administration/ai-usage",
+    "Admin/SecurityTrustPublicationController.cs": "/administration/security-trust",
+    "Admin/SupportBundleController.cs": "/administration/support",
+    "Admin/AdminTenantsController.cs": "/administration/users",
+    "Admin/TenantsAdminController.cs": "/administration/users",
     "Advisory/AdvisoryController.cs": "/governance/advisory-scans",
-    "Advisory/DigestSubscriptionsController.cs": "/digests",
+    "Advisory/DigestSubscriptionsController.cs": "/architecture/digests",
     "Advisory/ProductLearningController.cs": "/internal/product-learning",
     "Advisory/RecommendationLearningController.cs": "/internal-operations/recommendation-learning",
     "Alerts/AlertRoutingSubscriptionsController.cs": "/governance/alerts",
@@ -83,7 +83,7 @@
     "Tenancy/CorePilotTeamChecklistController.cs": "/architecture/first-review-guide",
     "Tenancy/TenantMeasuredRoiController.cs": "/sponsor-report/roi-summary",
     "Tenancy/TenantPilotValueReportController.cs": "/sponsor-report/pilot-outcomes",
-    "Tenancy/TenantTrialController.cs": "/administration/settings/tenant",
+    "Tenancy/TenantTrialController.cs": "/administration/tenant",
     "ValueReports/ValueReportController.cs": "/sponsor-report/executive-summary"
   }
 }

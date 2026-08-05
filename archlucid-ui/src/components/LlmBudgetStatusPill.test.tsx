@@ -67,9 +67,9 @@ describe("LlmBudgetStatusPill", () => {
     expect(await screen.findByTestId("llm-budget-utilization-meter")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "View usage on Billing & plans" })).toHaveAttribute(
       "href",
-      "/administration/settings/billing#billing-usage",
+      "/administration/billing#billing-usage",
     );
-    expect(screen.getByRole("link", { name: "AI usage" })).toHaveAttribute("href", "/administration/settings/ai-usage");
+    expect(screen.getByRole("link", { name: "AI usage" })).toHaveAttribute("href", "/administration/ai-usage");
   });
 
   it("renders nothing when monitoring is inactive", async () => {

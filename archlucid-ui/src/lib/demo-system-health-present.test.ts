@@ -2,13 +2,14 @@ import { describe, expect, it } from "vitest";
 
 import {
   DEMO_SYSTEM_HEALTH_CONTEXT_NOTE,
+  DEMO_SYSTEM_HEALTH_OVERALL_TITLE,
   buildDemoHealthSummaryTiles,
   buildDemoOperationalChecks,
 } from "@/lib/demo-system-health-present";
 
 describe("demo-system-health-present", () => {
-  it("builds buyer-safe summary tiles and operational checks", () => {
-    const tiles = buildDemoHealthSummaryTiles({ lastRefreshedAt: new Date("2026-07-09T12:00:00.000Z"), loading: false });
+  it("builds buyer-safe summary tiles and operational checks without duplicate last-updated", () => {
+    const tiles = buildDemoHealthSummaryTiles();
     const checks = buildDemoOperationalChecks();
 
     expect(tiles.map((tile) => tile.label)).toEqual([
@@ -18,9 +19,9 @@ describe("demo-system-health-present", () => {
       "AI services",
       "Background jobs",
       "Integrations",
-      "Last updated",
     ]);
     expect(tiles[0]?.value).toBe("Healthy");
+    expect(tiles.find((tile) => tile.id === "evidence-search")?.value).toBe("Sample scope");
     expect(checks.map((check) => check.label)).toEqual([
       "Application shell",
       "Review navigation",
@@ -31,7 +32,9 @@ describe("demo-system-health-present", () => {
       "Digest delivery",
       "Integration readiness",
     ]);
-    expect(DEMO_SYSTEM_HEALTH_CONTEXT_NOTE).toContain("Demo workspace");
+    expect(DEMO_SYSTEM_HEALTH_OVERALL_TITLE).toMatch(/pilot review/i);
+    expect(DEMO_SYSTEM_HEALTH_CONTEXT_NOTE).toContain("evaluation workspace");
     expect(DEMO_SYSTEM_HEALTH_CONTEXT_NOTE).not.toContain("sample review shell");
+    expect(DEMO_SYSTEM_HEALTH_CONTEXT_NOTE).not.toMatch(/CPA SOC 2/i);
   });
 });

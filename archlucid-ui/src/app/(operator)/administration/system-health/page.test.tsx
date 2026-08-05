@@ -105,11 +105,15 @@ describe("SystemHealthPage", () => {
 
     expect(screen.getByTestId("system-health-demo-page")).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: "System health" })).toBeInTheDocument();
-    expect(screen.getByText(/Platform readiness and operational checks/i)).toBeInTheDocument();
+    expect(screen.getByText(/Confirm platform readiness for review workflows/i)).toBeInTheDocument();
+    expect(screen.getByTestId("system-health-demo-overall-badge")).toBeInTheDocument();
+    expect(screen.getByText(/Ready for pilot review workflows/i)).toBeInTheDocument();
     expect(screen.getByTestId("system-health-demo-scope-note")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.queryByTestId("system-health-demo-context-note")).toBeNull();
+    expect(screen.queryByTestId("system-health-claim-discipline")).toBeNull();
     expect(screen.queryByText(/sample review shell/i)).toBeNull();
+    expect(screen.queryByText(/CPA SOC 2/i)).toBeNull();
     expect(screen.getByTestId("system-health-summary-tiles")).toBeInTheDocument();
     expect(screen.queryByText("Demo limitations")).toBeNull();
     expect(screen.getByTestId("system-health-operational-checks")).toBeInTheDocument();

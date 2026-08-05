@@ -50,7 +50,7 @@ describe("artifactPreviewHref (TB-1822 / TB-1948)", () => {
 
     expect(artifactPreviewHref(manifestId, artifactId, runId)).toContain("/artifacts/");
     expect(artifactPreviewHref(manifestId, artifactId)).toBe(
-      `/signed-records/${manifestId}/artifacts/${artifactId}`,
+      `/governance/signed-records/${manifestId}/artifacts/${artifactId}`,
     );
   });
 });

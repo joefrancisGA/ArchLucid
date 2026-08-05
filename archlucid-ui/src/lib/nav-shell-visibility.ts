@@ -17,12 +17,13 @@ import {
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
   LEGACY_GOVERNANCE_RESOLUTION_PATH,
 } from "@/lib/governance-route-paths";
+import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 
 /**
  * Buyer-polished shell nav omissions. Empty: Compare (and other advanced destinations) stay reachable
  * inside their collapsed groups so buyers keep full product depth (route-level demo gating is separate).
  */
-const BUYER_POLISHED_SHELL_OMIT_NAV_HREFS = new Set<string>(["/administration/settings/api-keys"]);
+const BUYER_POLISHED_SHELL_OMIT_NAV_HREFS = new Set<string>(["/administration/api-keys"]);
 
 /** In buyer-polished operator builds, omit routes that read as unfinished operator tooling or leak internal surfaces. */
 const DEMO_MODE_OMIT_OPERATOR_HREFS = new Set<string>([
@@ -39,9 +40,9 @@ const DEMO_MODE_OMIT_OPERATOR_HREFS = new Set<string>([
   "/admin/configuration",
   "/admin/support",
   "/admin/users",
-  "/administration/settings/support",
-  "/administration/settings/users",
-  "/administration/settings/security-trust",
+  "/administration/support",
+  "/administration/users",
+  "/administration/security-trust",
   "/workspace/security-trust",
   "/governance/alerts",
   "/governance/alert-rules",
@@ -58,18 +59,18 @@ const DEMO_MODE_OMIT_OPERATOR_HREFS = new Set<string>([
   "/administration/connection-status",
   "/integrations/cloud-connections",
   "/integrations/webhooks",
-  "/digests",
+  DIGESTS_HUB_PATH,
   "/settings/cloud-connections",
   // The Settings hub is the nav target for Administration (IA-016). Omitted here so buyer-polished shells keep
   // the pre-hub-first behaviour of showing no Settings entry, rather than surfacing an index of omitted routes.
-  "/administration/settings",
-  "/administration/settings/tenant",
-  "/administration/settings/tenant/recycle-bin",
-  "/administration/settings/baseline",
+  "/administration",
+  "/administration/tenant",
+  "/administration/tenant/recycle-bin",
+  "/administration/baseline",
   "/settings/webhooks",
   "/integrations/webhooks",
-  "/administration/settings/api-keys",
-  "/administration/settings/ai-usage",
+  "/administration/api-keys",
+  "/administration/ai-usage",
   "/sponsor-report/executive-summary",
   "/sponsor-report/pilot-outcomes",
   "/sponsor-report/roi-summary",
@@ -122,7 +123,7 @@ function omitApiKeysSettingsWhenSurfaceDisabled(links: NavLinkItem[]): NavLinkIt
     return links;
   }
 
-  return links.filter((l) => l.href !== "/administration/settings/api-keys");
+  return links.filter((l) => l.href !== "/administration/api-keys");
 }
 
 /** One nav group after **tier → authority** filtering, only emitted when at least one link remains. */

@@ -27,7 +27,7 @@ describe("provenanceReferenceHref", () => {
         "a1c2e3f4-a5b6-7890-abcd-ef1234567890",
         nodes,
       ),
-    ).toBe("/signed-records/a1c2e3f4-a5b6-7890-abcd-ef1234567890");
+    ).toBe("/governance/signed-records/a1c2e3f4-a5b6-7890-abcd-ef1234567890");
   });
 
   it("links finding node references to inspect route", () => {

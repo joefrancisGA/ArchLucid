@@ -80,7 +80,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
         {
 
-          href: "/administration/settings/tenant",
+          href: "/administration/tenant",
 
           label: OPERATOR_NAV_LINK_LABELS.workspaceSettings,
 
@@ -97,7 +97,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
         {
 
-          href: "/administration/settings/users",
+          href: "/administration/users",
 
           label: "Users & roles",
 
@@ -113,7 +113,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
         {
 
-          href: "/administration/settings/identity-providers",
+          href: "/administration/identity-providers",
 
           label: "Identity providers",
 
@@ -129,7 +129,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
         {
 
-          href: "/administration/settings/identity/sso-wizard",
+          href: "/administration/identity/sso-wizard",
 
           label: "SSO wizard",
 
@@ -145,7 +145,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
         {
 
-          href: "/administration/settings/api-keys",
+          href: "/administration/api-keys",
 
           label: "API keys",
 
@@ -161,7 +161,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
         {
 
-          href: "/administration/settings/scim-provisioning",
+          href: "/administration/scim-provisioning",
 
           label: "SCIM provisioning",
 
@@ -177,7 +177,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
         {
 
-          href: "/administration/settings/billing",
+          href: "/administration/billing",
 
           label: "Billing & plans",
 
@@ -193,7 +193,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
         {
 
-          href: "/administration/settings/ai-usage",
+          href: "/administration/ai-usage",
 
           label: OPERATOR_NAV_LINK_LABELS.aiUsage,
 
@@ -210,7 +210,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
         {
 
-          href: "/administration/settings/security-trust",
+          href: "/administration/security-trust",
 
           label: OPERATOR_NAV_LINK_LABELS.securityTrust,
 
@@ -228,7 +228,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
         {
 
-          href: "/administration/settings/tenant/recycle-bin",
+          href: "/administration/tenant/recycle-bin",
 
           label: "Projects recycle bin",
 
@@ -276,7 +276,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
         {
 
-          href: "/administration/settings/support",
+          href: "/administration/support",
 
           label: "Support",
 

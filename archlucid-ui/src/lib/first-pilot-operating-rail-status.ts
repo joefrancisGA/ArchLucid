@@ -141,7 +141,7 @@ function hrefForStepIndex(index: number, signals: FirstPilotOperatingRailSignals
 /** Static hrefs when no run id is available yet (indices align with operating-rail steps). */
 const FIRST_PILOT_OPERATING_RAIL_STEPS_FALLBACK_HREFS: readonly string[] = [
   "/administration/system-health",
-  "/administration/settings/extract-upload",
+  "/administration/extract-upload",
   "/architecture/reviews/new",
   "/architecture/reviews?projectId=default",
   "/architecture/reviews?projectId=default",

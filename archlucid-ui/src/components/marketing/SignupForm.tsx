@@ -52,12 +52,15 @@ export function SignupForm() {
       industryVertical: undefined,
       industryVerticalOther: "",
     },
-    mode: "onBlur",
+    mode: "onChange",
   });
 
   const { register, handleSubmit, setValue, watch, formState } = form;
-  const companySize = watch("companySize");
-  const industryVertical = watch("industryVertical");
+  const values = watch();
+  const companySize = values.companySize;
+  const industryVertical = values.industryVertical;
+  // TB-2010 — disable primary until hard client validation passes (no validation toast).
+  const canSubmit = signupFormSchema.safeParse(values).success;
 
   const onSubmit = handleSubmit(async (values) => {
     setSubmitting(true);
@@ -321,9 +324,19 @@ export function SignupForm() {
           </details>
 
           <div className="space-y-3 pt-1">
-            <Button type="submit" disabled={submitting} variant="primary" className="w-full sm:w-auto">
+            <Button
+              type="submit"
+              disabled={submitting || !canSubmit}
+              variant="primary"
+              className="w-full sm:w-auto"
+            >
               {submitting ? "Creating…" : "Create evaluation workspace"}
             </Button>
+            {!canSubmit && !submitting ? (
+              <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="signup-form-readiness">
+                Enter work email, full name, and organization to continue.
+              </p>
+            ) : null}
             <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               You can inspect the sample review before adding your own evidence.
             </p>

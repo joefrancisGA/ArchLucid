@@ -82,7 +82,7 @@ describe("resolveFirstPilotCommandCenterPhase", () => {
 
     expect(phase.phase).toBe("evidence-needed");
 
-    expect(phase.href).toBe("/administration/settings/extract-upload");
+    expect(phase.href).toBe("/administration/extract-upload");
 
   });
 

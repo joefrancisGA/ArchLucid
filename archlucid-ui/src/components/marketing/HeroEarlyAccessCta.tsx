@@ -26,6 +26,12 @@ export type HeroEarlyAccessCtaProps = {
   /** Clarity dimension {@code cta_source} (default {@code hero}). */
   readonly source?: string;
   readonly className?: string;
+  /** When true, show the form immediately (invite-only `/signup`). */
+  readonly defaultOpen?: boolean;
+  readonly intro?: string;
+  readonly submitLabel?: string;
+  readonly thanksCopy?: string;
+  readonly openButtonLabel?: string;
 };
 
 /**
@@ -34,8 +40,15 @@ export type HeroEarlyAccessCtaProps = {
 export function HeroEarlyAccessCta(props: HeroEarlyAccessCtaProps) {
   const source = props.source ?? "hero";
   const className = props.className;
+  const defaultOpen = props.defaultOpen === true;
+  const intro =
+    props.intro ??
+    "Request a conversation—this is not instant product access, checkout, or the same as a walkthrough-led pilot.";
+  const submitLabel = props.submitLabel ?? "Submit";
+  const thanksCopy = props.thanksCopy ?? THANKS_COPY;
+  const openButtonLabel = props.openButtonLabel ?? "Join early access";
   const searchParams = useSearchParams();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
   const [email, setEmail] = useState("");
   const [companyName, setCompanyName] = useState("");
   const [role, setRole] = useState("");
@@ -92,10 +105,12 @@ export function HeroEarlyAccessCta(props: HeroEarlyAccessCtaProps) {
         className={cn("mx-auto mt-4 max-w-md text-center text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
         data-testid="welcome-early-access-thanks"
       >
-        {THANKS_COPY}
+        {thanksCopy}
       </p>
     );
   }
+
+  const canCancel = !defaultOpen;
 
   return (
     <div className={cn("mx-auto mt-4 flex w-full max-w-md flex-col items-center gap-3", className)}>
@@ -107,7 +122,7 @@ export function HeroEarlyAccessCta(props: HeroEarlyAccessCtaProps) {
           className={cn("font-medium text-teal-800 dark:text-teal-200", OPERATOR_TYPOGRAPHY.body)}
           onClick={() => setOpen(true)}
         >
-          Join early access
+          {openButtonLabel}
         </Button>
       )}
 
@@ -116,10 +131,9 @@ export function HeroEarlyAccessCta(props: HeroEarlyAccessCtaProps) {
           onSubmit={(ev) => void onSubmit(ev)}
           className="relative w-full rounded-lg border border-neutral-200 bg-white p-4 text-left shadow-sm dark:border-neutral-700 dark:bg-neutral-900"
           aria-label="Early access request"
+          data-testid="early-access-request-form"
         >
-          <p className={cn("mb-3 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            Request a conversation—this is not instant product access, checkout, or the same as a walkthrough-led pilot.
-          </p>
+          <p className={cn("mb-3 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{intro}</p>
           <label className={cn("flex flex-col gap-1", OPERATOR_TYPOGRAPHY.body)}>
             <span>Work email</span>
             <input
@@ -169,12 +183,14 @@ export function HeroEarlyAccessCta(props: HeroEarlyAccessCtaProps) {
             </p>
           ) : null}
           <div className="mt-4 flex flex-wrap gap-2">
-            <Button type="submit" disabled={busy} size="sm">
-              {busy ? "Sending…" : "Submit"}
+            <Button type="submit" disabled={busy || email.trim().length === 0} size="sm" variant="primary">
+              {busy ? "Sending…" : submitLabel}
             </Button>
-            <Button type="button" variant="ghost" size="sm" disabled={busy} onClick={() => setOpen(false)}>
-              Cancel
-            </Button>
+            {canCancel ? (
+              <Button type="button" variant="ghost" size="sm" disabled={busy} onClick={() => setOpen(false)}>
+                Cancel
+              </Button>
+            ) : null}
           </div>
         </form>
       ) : null}

@@ -1,11 +1,12 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 let searchParams = new URLSearchParams();
+const push = vi.fn();
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
-  usePathname: () => "/digests",
+  useRouter: () => ({ push, replace: vi.fn() }),
+  usePathname: () => "/architecture/digests",
   useSearchParams: () => searchParams,
 }));
 
@@ -28,20 +29,49 @@ vi.mock("@/lib/api", () => ({
   getArchitectureDigest: vi.fn(),
   listDigestDeliveryAttempts: vi.fn(),
   listDigestSubscriptions: vi.fn(),
+  listSubscriptionDeliveryAttempts: vi.fn(),
+  createDigestSubscription: vi.fn(),
+  toggleDigestSubscription: vi.fn(),
+  fetchTenantIntegrationsOperations: vi.fn(),
   getExecDigestPreferences: vi.fn(),
   saveExecDigestPreferences: vi.fn(),
 }));
 
 import { DigestsHubClient } from "@/components/digests/DigestsHubClient";
-import { fetchWeeklyDigestHealth, getExecDigestPreferences, listArchitectureDigests } from "@/lib/api";
+import {
+  fetchWeeklyDigestHealth,
+  getExecDigestPreferences,
+  listArchitectureDigests,
+  listDigestSubscriptions,
+  listSubscriptionDeliveryAttempts,
+} from "@/lib/api";
+
+const configuredHealth = {
+  enabledAdvisoryScheduleCount: 1,
+  digestSubscriptionCount: 1,
+  enabledDigestSubscriptionCount: 1,
+  digestSubscriptionsByEmailChannel: 1,
+  digestSubscriptionsBySlackChannel: 0,
+  digestSubscriptionsByTeamsChannel: 0,
+  executiveEmailDigestIsConfigured: true,
+  executiveEmailDigestEnabled: true,
+  executiveDigestRecipientCount: 2,
+  executiveDigestIanaTimeZoneId: "UTC",
+  executiveDigestDayOfWeek: 1,
+  executiveDigestHourOfDay: 8,
+  setupGaps: [],
+};
 
 describe("DigestsHubClient", () => {
   beforeEach(() => {
     searchParams = new URLSearchParams();
+    push.mockReset();
     vi.mocked(fetchWeeklyDigestHealth).mockReset();
     vi.mocked(listArchitectureDigests).mockReset();
     vi.mocked(getExecDigestPreferences).mockReset();
     vi.mocked(listArchitectureDigests).mockResolvedValue([]);
+    vi.mocked(listDigestSubscriptions).mockResolvedValue([]);
+    vi.mocked(listSubscriptionDeliveryAttempts).mockResolvedValue([]);
     vi.mocked(getExecDigestPreferences).mockResolvedValue({
       schemaVersion: 1,
       tenantId: "t",
@@ -72,7 +102,7 @@ describe("DigestsHubClient", () => {
     });
   });
 
-  it("renders browse header, health banner, and actionable gaps", async () => {
+  it("renders browse header, tabs, and a status strip", async () => {
     render(<DigestsHubClient />);
 
     expect(await screen.findByTestId("digests-page-title")).toHaveTextContent("Architecture digests");
@@ -83,38 +113,87 @@ describe("DigestsHubClient", () => {
     ).toBeInTheDocument();
     expect(screen.getByTestId("digests-hub-tablist")).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: "Browse" })).toHaveAttribute("aria-selected", "true");
-    expect(screen.getByTestId("digests-header-actions")).toBeInTheDocument();
     expect(screen.getByTestId("digests-refresh-button")).toBeEnabled();
-    expect(screen.getByTestId("digests-last-updated")).toHaveTextContent(/Last updated:/i);
     expect(screen.getByTestId("digests-privacy-note")).toBeInTheDocument();
-    expect(screen.getByTestId("digests-primary-action")).toHaveTextContent("Configure schedule");
-    expect(screen.getByTestId("digests-preview-action")).toBeDisabled();
-    expect(screen.getByRole("link", { name: "Send test digest" })).toHaveAttribute(
-      "href",
-      "/governance/advisory-scans?tab=schedules",
-    );
 
     await waitFor(() => {
-      expect(screen.getByTestId("digest-setup-gaps")).toBeInTheDocument();
+      expect(screen.getByTestId("weekly-digest-health-banner")).toBeInTheDocument();
     });
+  });
+
+  it("places the tab list ahead of the orientation and status chrome", async () => {
+    render(<DigestsHubClient />);
+
+    const tablist = await screen.findByTestId("digests-hub-tablist");
+    const orientation = screen.getByTestId("digests-orientation");
+
+    expect(tablist.compareDocumentPosition(orientation) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("exposes exactly one primary action and no fake send-test control", async () => {
+    render(<DigestsHubClient />);
+
+    const primary = await screen.findByTestId("digests-primary-action");
+
+    expect(primary).toHaveTextContent("Configure schedule");
+    expect(screen.queryByTestId("digests-send-test-action")).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Send test digest" })).not.toBeInTheDocument();
+
+    // No disabled placeholder Preview button before any digest exists.
+    expect(screen.queryByTestId("digests-preview-action")).not.toBeInTheDocument();
+
+    const headerActions = screen.getByTestId("digests-header-actions");
+    const primaries = headerActions.querySelectorAll('[data-testid="digests-primary-action"]');
+
+    expect(primaries).toHaveLength(1);
+  });
+
+  it("lets the Browse checklist own setup guidance so the banner does not repeat it", async () => {
+    render(<DigestsHubClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("weekly-digest-health-banner")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("digest-setup-gaps")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("digests-browse-next-best-action")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("digests-browse-setup-message")).not.toBeInTheDocument();
+    expect(screen.getByTestId("digest-status-compact-facts")).toBeInTheDocument();
+    expect(await screen.findByTestId("digests-browse-setup-checklist")).toBeInTheDocument();
+  });
+
+  it("promotes Preview latest to primary once the loop is fully configured", async () => {
+    vi.mocked(fetchWeeklyDigestHealth).mockResolvedValue({
+      ...configuredHealth,
+      latestArchitectureDigestId: "d1",
+      latestArchitectureDigestGeneratedUtc: "2026-07-08T12:00:00Z",
+    });
+
+    render(<DigestsHubClient />);
+
+    const preview = await screen.findByTestId("digests-preview-action");
+
+    expect(preview).toHaveAttribute("href", "/architecture/digests?tab=browse#digest-d1");
+    expect(screen.queryByTestId("digests-primary-action")).not.toBeInTheDocument();
+  });
+
+  it("keeps ?tab=browse in the URL when Browse is selected (TB-1505)", async () => {
+    searchParams = new URLSearchParams("tab=subscriptions");
+
+    render(<DigestsHubClient />);
+
+    fireEvent.click(await screen.findByTestId("digests-hub-tab-browse"));
+
+    expect(push).toHaveBeenCalledWith("/architecture/digests?tab=browse");
   });
 
   it("selects the schedule tab from the query parameter and simplifies the header", async () => {
     searchParams = new URLSearchParams("tab=schedule");
     vi.mocked(fetchWeeklyDigestHealth).mockResolvedValue({
-      enabledAdvisoryScheduleCount: 1,
-      digestSubscriptionCount: 1,
-      enabledDigestSubscriptionCount: 1,
-      digestSubscriptionsByEmailChannel: 1,
-      digestSubscriptionsBySlackChannel: 0,
-      digestSubscriptionsByTeamsChannel: 0,
+      ...configuredHealth,
       executiveEmailDigestIsConfigured: false,
       executiveEmailDigestEnabled: false,
       executiveDigestRecipientCount: 0,
-      executiveDigestIanaTimeZoneId: "UTC",
-      executiveDigestDayOfWeek: 1,
-      executiveDigestHourOfDay: 8,
-      setupGaps: [],
     });
 
     render(<DigestsHubClient />);
@@ -136,4 +215,3 @@ describe("DigestsHubClient", () => {
     expect(await screen.findByTestId("exec-digest-schedule-content")).toBeInTheDocument();
   });
 });
-

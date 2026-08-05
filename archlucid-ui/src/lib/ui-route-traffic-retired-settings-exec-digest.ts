@@ -5,7 +5,7 @@ import {
 
 /**
  * Removed traffic workbook row ID for the retired `/settings/exec-digest` bookmark.
- * Do not reintroduce — schedule UX is scored only on DIS (`/digests?tab=schedule`).
+ * Do not reintroduce — schedule UX is scored only on DIS (`/architecture/digests?tab=schedule`).
  */
 export const REMOVED_SETTINGS_EXEC_DIGEST_TRAFFIC_ROW_ID = "EEX";
 

@@ -1,5 +1,6 @@
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { evidenceGraphHref } from "@/lib/evidence-graph-route";
+import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 
 export type LiveDemoInspectDestination =
   | "executive"
@@ -36,7 +37,7 @@ export function resolveLiveDemoInspectHref(
       return `/architecture/reviews/${enc(effectiveRunId)}`;
     case "signed-record":
       if (manifestId !== null && manifestId.trim().length > 0) {
-        return `/signed-records/${enc(manifestId)}`;
+        return signedRecordDetailPath(manifestId);
       }
 
       return showcaseHref;

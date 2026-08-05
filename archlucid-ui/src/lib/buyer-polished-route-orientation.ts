@@ -288,7 +288,7 @@ export function buyerPolishedRouteOrientation(
     return null;
   }
 
-  if (path === "/administration/settings/security-trust" || path === "/workspace/security-trust") {
+  if (path === "/administration/security-trust" || path === "/workspace/security-trust") {
     return {
       label: "Security & trust",
       line: "Procurement-facing security posture, trust center, and assessment materials.",

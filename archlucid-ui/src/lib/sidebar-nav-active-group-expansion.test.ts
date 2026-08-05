@@ -26,7 +26,7 @@ describe("findSidebarNavGroupIdsForActivePath", () => {
   it("returns administration when security and trust is active", () => {
     const rows = listNavGroupsVisibleInOperatorShell(NAV_GROUPS, true, true, 3, false, "all", true);
 
-    expect(findSidebarNavGroupIdsForActivePath(rows, "/administration/settings/security-trust")).toEqual(["operator-admin"]);
+    expect(findSidebarNavGroupIdsForActivePath(rows, "/administration/security-trust")).toEqual(["operator-admin"]);
   });
 
   it("returns analysis when evidence graph is active", () => {

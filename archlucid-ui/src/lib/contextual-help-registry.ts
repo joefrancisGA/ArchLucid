@@ -743,6 +743,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/help/repeat-review-loop",
+    entry: {
+      whatIsThisPage:
+        "Repeat-review loop - compare packages, replay authority, and collect second-review proof after the first finalized review.",
+      whatToDoNext:
+        "Open Compare two reviews, start the next review, or Validate review when you need live package trails.",
+      whyEmpty: "This guide is always available; compare and replay surfaces populate after finalized reviews exist.",
+      whereToConfigurePrerequisite:
+        "Stickiness workflows need at least one finalized architecture review in this workspace.",
+    },
+  },
+  {
     prefix: "/help/pilot-guide",
     entry: {
       whatIsThisPage:

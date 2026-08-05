@@ -19,18 +19,18 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/alerts": "/governance/alerts",
     "/audit": "/governance/audit",
     "/settings/cloud-connections": "/integrations/cloud-connections",
-    "/settings/roles": "/administration/settings/users?tab=roles",
-    "/settings/roles/invite-reviewer": "/administration/settings/users/invite-reviewer",
-    "/admin/users": "/administration/settings/users",
-    "/settings/users": "/administration/settings/users",
-    "/settings/users?tab=users": "/administration/settings/users?tab=users",
-    "/settings/users?tab=roles": "/administration/settings/users?tab=roles",
-    "/settings/users?tab=keys": "/administration/settings/users?tab=keys",
-    "/settings/users/invite-reviewer": "/administration/settings/users/invite-reviewer",
-    "/admin/support": "/administration/settings/support",
-    "/settings/support": "/administration/settings/support",
-    "/workspace/security-trust": "/administration/settings/security-trust",
-    "/settings/security-trust": "/administration/settings/security-trust",
+    "/settings/roles": "/administration/users?tab=roles",
+    "/settings/roles/invite-reviewer": "/administration/users/invite-reviewer",
+    "/admin/users": "/administration/users",
+    "/settings/users": "/administration/users",
+    "/settings/users?tab=users": "/administration/users?tab=users",
+    "/settings/users?tab=roles": "/administration/users?tab=roles",
+    "/settings/users?tab=keys": "/administration/users?tab=keys",
+    "/settings/users/invite-reviewer": "/administration/users/invite-reviewer",
+    "/admin/support": "/administration/support",
+    "/settings/support": "/administration/support",
+    "/workspace/security-trust": "/administration/security-trust",
+    "/settings/security-trust": "/administration/security-trust",
     "/governance-resolution": "/governance/resolution",
     "/help/cloud-connections-azure": "/help/cloud-connections/azure",
     "/help/cloud-connections-aws": "/help/cloud-connections/aws",
@@ -38,8 +38,8 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/manifests": "/signed-records",
     "/manifests/[manifestId]": "/signed-records/[manifestId]",
     "/manifests/[manifestId]/artifacts/[artifactId]": "/signed-records/[manifestId]/artifacts/[artifactId]",
-    "/settings/cost-reporting": "/administration/settings/ai-usage",
-    "/settings/ai-usage": "/administration/settings/ai-usage",
+    "/settings/cost-reporting": "/administration/ai-usage",
+    "/settings/ai-usage": "/administration/ai-usage",
     # TB-1124: Advisory scans hub under Governance (next.config permanent redirects only).
     "/advisory": "/governance/advisory-scans",
     "/advisory?tab=scans": "/governance/advisory-scans?tab=scans",
@@ -52,7 +52,7 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     # TB-1887 / TB-1886: /settings/alerts is next.config-only → Alert rules hub.
     "/settings/alerts": "/governance/alert-rules",
     # TB-1902 / TB-1901: /settings/exec-digest is next.config-only → Digests Schedule tab.
-    "/settings/exec-digest": "/digests?tab=schedule",
+    "/settings/exec-digest": "/architecture/digests?tab=schedule",
     "/health": "/administration/system-health",
     "/help/core-pilot": "/help/first-architecture-review",
     "/dashboard": "/architecture/executive-dashboard",
@@ -71,6 +71,8 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/architectures": "/architecture/architectures",
     "/architectures/new": "/architecture/architectures/new",
     "/architectures/[architectureId]": "/architecture/architectures/[architectureId]",
+    "/settings": "/administration",
+    "/administration/settings": "/administration",
 }
 
 # Legacy App Router redirect stubs — canonical nav hrefs live under /governance/advisory-scans (TB-1124).
@@ -129,6 +131,12 @@ def canonicalize_public_operator_path(path: str) -> str:
 
     if path == "/architectures" or path.startswith("/architectures/"):
         return f"/architecture{path}"
+
+    if path == "/administration/settings":
+        return "/administration"
+
+    if path.startswith("/administration/settings/"):
+        return "/administration/" + path[len("/administration/settings/") :]
 
     return path
 
@@ -195,13 +203,13 @@ def discover_tab_paths() -> list[str]:
     for tab_id in advisory_tabs:
         paths.append(_tab_path("/governance/advisory-scans", "tab", tab_id))
     for tab_id in digests_tabs:
-        paths.append(_tab_path("/digests", "tab", tab_id))
+        paths.append(_tab_path("/architecture/digests", "tab", tab_id))
     for tab_id in alert_rules_tabs:
         paths.append(_tab_path("/governance/alert-rules", "tab", tab_id))
     # Inbox is the only non-redirect tab on the alerts hub.
     paths.append(_tab_path("/governance/alerts", "tab", "inbox"))
     for tab_id in ("users", "roles", "keys"):
-        paths.append(_tab_path("/administration/settings/users", "tab", tab_id))
+        paths.append(_tab_path("/administration/users", "tab", tab_id))
     for path_mode in ("quick-review", "guided-intake", "detailed"):
         paths.append(_tab_path("/architecture/reviews/new", "path", path_mode))
     for tab_id in arch_tabs:
@@ -270,7 +278,7 @@ def infer_section(path: str, *, help_alias_paths: set[str]) -> str:
         return "Executive"
     if path.startswith("/sponsor-report"):
         return "Sponsor report"
-    if path.startswith("/digests") or path == "/digest-subscriptions":
+    if path.startswith("/architecture/digests") or path.startswith("/digests") or path == "/digest-subscriptions":
         return "Digests"
     if path.startswith("/insights/architecture-scorecard"):
         return "Insights"

@@ -19,5 +19,5 @@ export const PROCUREMENT_HELP_SOURCES: readonly ProcurementHelpSourceLink[] = [
   { label: "Trust Center", href: "/trust" },
   { label: "Security and trust help", href: inAppHelpHref("security-trust") },
   { label: "DPA template", href: inAppHelpHref("dpa-template") },
-  { label: "Settings Security & trust", href: "/administration/settings/security-trust" },
+  { label: "Settings Security & trust", href: "/administration/security-trust" },
 ] as const;

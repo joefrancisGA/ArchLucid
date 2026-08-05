@@ -6,6 +6,7 @@ import Link from "next/link";
 import { StatusPill } from "@/components/StatusPill";
 import { DeploymentBuildFingerprintStrip } from "@/components/shell/DeploymentBuildFingerprintStrip";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { SYSTEM_HEALTH_CLAIM_DISCIPLINE } from "@/lib/system-health-evidence-copy";
 import { systemHealthPageSubtitle } from "@/lib/system-health-page-copy";
 import {
   HEALTH_DASHBOARD_PAGE_CLASS,
@@ -16,6 +17,7 @@ import {
   HealthSummaryTileGrid,
 } from "@/components/health-dashboard/HealthDashboardSections";
 import { HealthBuildDetailsDisclosure } from "@/components/health-dashboard/HealthBuildDetailsDisclosure";
+import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { buildHealthSummaryTiles } from "@/lib/health-dashboard-summary";
 import { groupReadinessRows, presentReadinessRow, resolveOverallHealthHeadline } from "@/lib/health-readiness-presentation";
 
@@ -58,7 +60,7 @@ export function SystemHealthPageView(props: Props) {
   });
 
   return (
-    <div className={cn(HEALTH_DASHBOARD_PAGE_CLASS, "space-y-6")} data-testid="system-health-page">
+    <div className={cn(HEALTH_DASHBOARD_PAGE_CLASS, "space-y-4")} data-testid="system-health-page">
       <SystemHealthPageHeader
         subtitle={systemHealthPageSubtitle(false)}
         loading={m.loading}
@@ -67,8 +69,6 @@ export function SystemHealthPageView(props: Props) {
           void m.refresh();
         }}
       />
-
-      <SystemHealthSourcesStrip />
 
       <HealthOverallStatusHeader
         overallStatus={overall}
@@ -88,7 +88,7 @@ export function SystemHealthPageView(props: Props) {
         }
       />
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-2">
         <section aria-labelledby="system-health-probes-heading" className="space-y-3">
           <HealthDashboardSection title="Service probes" testId="system-health-probes-heading">
             <dl className={cn("grid gap-3 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
@@ -137,13 +137,17 @@ export function SystemHealthPageView(props: Props) {
         </HealthDashboardSection>
       </section>
 
-      <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Tenant administrators can open{" "}
-        <Link href="/admin/health" className={OPERATOR_LINK.nav}>
-          Diagnostics dashboard
-        </Link>{" "}
-        for configuration advisories, circuit breakers, and onboarding activity.
-      </p>
+      <SystemHealthSourcesStrip />
+
+      <CollapsibleSection title="Technical details" defaultOpen={false} sectionTestId="system-health-operator-claim-scope">
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+          {SYSTEM_HEALTH_CLAIM_DISCIPLINE} Tenant administrators can open{" "}
+          <Link href="/admin/health" className={OPERATOR_LINK.nav}>
+            Diagnostics dashboard
+          </Link>{" "}
+          for configuration advisories, circuit breakers, and onboarding activity.
+        </p>
+      </CollapsibleSection>
     </div>
   );
 }

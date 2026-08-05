@@ -370,9 +370,9 @@ const ROUTE_RECOMMENDED_TOPIC_IDS: readonly { readonly prefix: string; readonly 
   { prefix: "/policy-packs", topicIds: ["policy-packs", "governance-workflow"] },
   { prefix: "/architecture/reviews/new", topicIds: ["create-first-review", "upload-evidence", "first-review-guide"] },
   { prefix: "/architecture/reviews", topicIds: ["review-findings", "finalize-review", "review-artifacts"] },
-  { prefix: "/administration/settings/users", topicIds: ["users-and-roles", "sso-identity"] },
+  { prefix: "/administration/users", topicIds: ["users-and-roles", "sso-identity"] },
   { prefix: "/settings/roles", topicIds: ["users-and-roles", "sso-identity"] },
-  { prefix: "/administration/settings/identity", topicIds: ["sso-identity", "users-and-roles"] },
+  { prefix: "/administration/identity", topicIds: ["sso-identity", "users-and-roles"] },
 ];
 
 function normalizePathname(pathname: string): string {

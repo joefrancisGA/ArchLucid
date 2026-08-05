@@ -19,6 +19,7 @@ import {
   listSubscriptionDeliveryAttempts,
   toggleDigestSubscription,
 } from "@/lib/api";
+import { DIGESTS_BROWSE_RECIPIENTS_HELPER } from "@/lib/digests-browse-copy";
 import {
   DIGEST_SUBSCRIPTIONS_PAGE_SUBTITLE,
   DIGEST_SUBSCRIPTIONS_PAGE_TITLE,
@@ -176,6 +177,13 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
         </h2>
         <p className={cn("m-0 mt-1 max-w-3xl text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           {DIGEST_SUBSCRIPTIONS_PAGE_SUBTITLE}
+        </p>
+        {/* Two recipient systems exist; say so where an operator is adding one. */}
+        <p
+          className={cn("m-0 mt-1 max-w-3xl text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="digest-subscriptions-recipients-clarification"
+        >
+          {DIGESTS_BROWSE_RECIPIENTS_HELPER}
         </p>
       </div>
 

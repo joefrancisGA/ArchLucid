@@ -57,7 +57,7 @@ function ActiveTenantBadgeInner(props: ActiveTenantBadgeInnerProps): React.JSX.E
   if (as === "link") {
     return (
       <Link
-        href="/administration/settings/tenant"
+        href="/administration/tenant"
         className={cn(badgeClassName(variant), "no-underline transition hover:bg-neutral-50 dark:hover:bg-neutral-800/80")}
         data-testid={testId}
         title={tooltip}

@@ -31,6 +31,6 @@ describe("finish-setup-wizard-steps", () => {
 
   it("does not include cloud inventory evidence — Core Pilot walkthrough owns that link", () => {
     expect(FINISH_SETUP_WIZARD_STEPS.some((step) => step.id === "extract")).toBe(false);
-    expect(FINISH_SETUP_WIZARD_STEPS.some((step) => step.href === "/administration/settings/extract-upload")).toBe(false);
+    expect(FINISH_SETUP_WIZARD_STEPS.some((step) => step.href === "/administration/extract-upload")).toBe(false);
   });
 });

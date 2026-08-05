@@ -79,7 +79,7 @@ export function FirstReviewGuideSupportPanel() {
         <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>{FIRST_REVIEW_GUIDE_GET_MORE_ROI_COPY}</p>
         <div className="mt-2">
           <Button asChild size="sm" variant="outline">
-            <Link href="/administration/settings/baseline">Configure ROI baseline</Link>
+            <Link href="/administration/baseline">Configure ROI baseline</Link>
           </Button>
         </div>
       </section>

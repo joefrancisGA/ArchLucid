@@ -178,7 +178,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   cloudConnections: "Cloud connections",
   systemHealth: "System health",
   digests: "Digests",
-  /** Settings hub (`/administration/settings`); workspace entry often `/administration/settings/tenant`. */
+  /** Settings hub (`/administration`); workspace entry often `/administration/tenant`. */
   settings: "Settings",
   workspaceSettings: "Workspace settings",
 } as const;

@@ -17,7 +17,7 @@ export type SettingsUsersSourceLink = {
 /** Operator Sources — no self-href to the users settings page. */
 export const SETTINGS_USERS_SOURCES: readonly SettingsUsersSourceLink[] = [
   { label: "Users and roles help", href: inAppHelpHref("users-and-roles") },
-  { label: "SSO and identity", href: "/administration/settings/identity-providers" },
+  { label: "SSO and identity", href: "/administration/identity-providers" },
   { label: "Invite a reviewer", href: `${SETTINGS_USERS_PATH}/invite-reviewer` },
   { label: "Security & trust", href: "/security-trust" },
   { label: "How ArchLucid works", href: inAppHelpHref("how-it-works") },

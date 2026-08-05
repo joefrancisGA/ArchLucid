@@ -3,7 +3,7 @@ import type { HealthDisplaySeverity } from "@/lib/health-readiness-presentation"
 export type DemoSystemHealthStatus =
   | "Healthy"
   | "Not configured"
-  | "Demo limited"
+  | "Sample scope"
   | "Degraded"
   | "Action needed";
 
@@ -25,26 +25,26 @@ export const DEMO_SYSTEM_HEALTH_PAGE_SUBTITLE =
   "Platform readiness and operational checks for this workspace.";
 
 export const DEMO_SYSTEM_HEALTH_CONTEXT_NOTE =
-  "Demo workspace: some live operational checks are limited. Sample health data is shown for evaluation.";
+  "This evaluation workspace shows sample operational checks so you can judge readiness before connecting production dependencies.";
 
 export const DEMO_SYSTEM_HEALTH_LIMITATION_LINES = [
-  "Some production-only checks are not run in the sample workspace.",
-  "Trial and paid workspaces include full tenant-specific diagnostics.",
+  "Search and AI budget checks use sample data — full tenant diagnostics appear after you connect a trial or paid workspace.",
+  "Digest delivery and cloud/ITSM connectors stay optional until you configure them; they are not required to start a pilot review.",
 ] as const;
 
 export const DEMO_SYSTEM_HEALTH_OVERALL_STATUS: DemoSystemHealthStatus = "Healthy";
 
-export const DEMO_SYSTEM_HEALTH_OVERALL_TITLE = "Platform ready for review workflows";
+export const DEMO_SYSTEM_HEALTH_OVERALL_TITLE = "Ready for pilot review workflows";
 
 export const DEMO_SYSTEM_HEALTH_OVERALL_SUBTITLE =
-  "Core application paths, evidence navigation, and sample reviews are operating normally in this demo workspace.";
+  "Core application paths, evidence navigation, and sample reviews are operating normally in this evaluation workspace.";
 
 export function demoSystemHealthStatusSeverity(status: DemoSystemHealthStatus): HealthDisplaySeverity | "neutral" {
   switch (status) {
     case "Healthy":
       return "healthy";
 
-    case "Demo limited":
+    case "Sample scope":
       return "advisory";
 
     case "Not configured":
@@ -63,17 +63,7 @@ export function demoSystemHealthStatusSeverity(status: DemoSystemHealthStatus): 
   }
 }
 
-export function buildDemoHealthSummaryTiles(input: {
-  readonly lastRefreshedAt: Date | null;
-  readonly loading: boolean;
-}): DemoHealthSummaryTile[] {
-  const lastUpdatedValue =
-    input.loading
-      ? "Refreshing…"
-      : input.lastRefreshedAt === null
-        ? "—"
-        : input.lastRefreshedAt.toLocaleString();
-
+export function buildDemoHealthSummaryTiles(): DemoHealthSummaryTile[] {
   return [
     {
       id: "overall",
@@ -90,13 +80,13 @@ export function buildDemoHealthSummaryTiles(input: {
     {
       id: "evidence-search",
       label: "Evidence search",
-      value: "Demo limited",
+      value: "Sample scope",
       severity: "advisory",
     },
     {
       id: "ai-services",
       label: "AI services",
-      value: "Demo limited",
+      value: "Sample scope",
       severity: "advisory",
     },
     {
@@ -110,12 +100,6 @@ export function buildDemoHealthSummaryTiles(input: {
       label: "Integrations",
       value: "Not configured",
       severity: "not-configured",
-    },
-    {
-      id: "last-updated",
-      label: "Last updated",
-      value: lastUpdatedValue,
-      severity: "neutral",
     },
   ];
 }
@@ -138,19 +122,19 @@ export function buildDemoOperationalChecks(): DemoOperationalCheck[] {
       id: "evidence-graph",
       label: "Evidence graph",
       status: "Healthy",
-      explanation: "Evidence trail links resolve for the demo review.",
+      explanation: "Evidence trail links resolve for the sample review.",
     },
     {
       id: "search",
       label: "Search",
-      status: "Demo limited",
-      explanation: "Search runs against sample evidence only in this demo workspace.",
+      status: "Sample scope",
+      explanation: "Search runs against sample evidence in this evaluation workspace.",
     },
     {
       id: "ai-budget-guardrails",
       label: "AI budget guardrails",
-      status: "Demo limited",
-      explanation: "Budget guardrails are summarized for evaluation; live tenant limits are not applied here.",
+      status: "Sample scope",
+      explanation: "Budget guardrails are summarized for evaluation; live tenant limits apply after you connect a trial or paid workspace.",
     },
     {
       id: "background-job-queue",
@@ -162,13 +146,13 @@ export function buildDemoOperationalChecks(): DemoOperationalCheck[] {
       id: "digest-delivery",
       label: "Digest delivery",
       status: "Not configured",
-      explanation: "Digest delivery is not configured in the demo workspace.",
+      explanation: "Optional — configure digests when you want scheduled operator summaries.",
     },
     {
       id: "integration-readiness",
       label: "Integration readiness",
       status: "Not configured",
-      explanation: "Cloud connectors and ITSM integrations are not connected in this demo workspace.",
+      explanation: "Optional — cloud connectors and ITSM integrations are not required to start a pilot review.",
     },
   ];
 }

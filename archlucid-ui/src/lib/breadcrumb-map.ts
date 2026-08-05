@@ -26,6 +26,10 @@ import {
   GOVERNANCE_POLICY_PACKS_PATH,
   pathMatchesGovernanceApprovalQueue,
 } from "@/lib/governance-route-paths";
+import {
+  LEGACY_SIGNED_RECORDS_LIST_PATH,
+  SIGNED_RECORDS_LIST_PATH,
+} from "@/lib/signed-records-paths";
 import { GOVERNANCE_OVERVIEW_PAGE_TITLE } from "@/lib/governance-overview-copy";
 import { ALERTS_CONFIGURATION_PAGE_TITLE } from "@/lib/alerts-page-copy";
 import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
@@ -360,42 +364,42 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
   }
 
   // Hub-first (IA-016): the leaf is "Workspace settings" and parents to the searchable Settings index.
-  if (normalized === "/administration/settings/tenant") {
+  if (normalized === "/administration/tenant") {
     return [
       { label: "Administration" },
-      { label: "Settings", href: "/administration/settings" },
+      { label: "Settings", href: "/administration" },
       { label: OPERATOR_NAV_LINK_LABELS.workspaceSettings },
     ];
   }
 
-  if (normalized === "/administration/settings/billing") {
+  if (normalized === "/administration/billing") {
     return [
       { label: "Administration" },
-      { label: "Settings", href: "/administration/settings" },
+      { label: "Settings", href: "/administration" },
       { label: "Billing & plans" },
     ];
   }
 
-  if (normalized === "/administration/settings/tenant/recycle-bin") {
+  if (normalized === "/administration/tenant/recycle-bin") {
     return [
-      { label: "Settings", href: "/administration/settings" },
-      { label: OPERATOR_NAV_LINK_LABELS.workspaceSettings, href: "/administration/settings/tenant" },
+      { label: "Settings", href: "/administration" },
+      { label: OPERATOR_NAV_LINK_LABELS.workspaceSettings, href: "/administration/tenant" },
       { label: "Projects recycle bin" },
     ];
   }
 
-  if (normalized === "/administration/settings/identity/sso-wizard") {
+  if (normalized === "/administration/identity/sso-wizard") {
     return [
-      { label: "Settings", href: "/administration/settings" },
-      { label: "Identity providers", href: "/administration/settings/identity-providers" },
+      { label: "Settings", href: "/administration" },
+      { label: "Identity providers", href: "/administration/identity-providers" },
       { label: "Configure SSO" },
     ];
   }
 
-  if (normalized === "/administration/settings/scim-provisioning") {
+  if (normalized === "/administration/scim-provisioning") {
     return [
-      { label: "Settings", href: "/administration/settings" },
-      { label: "Identity providers", href: "/administration/settings/identity-providers" },
+      { label: "Settings", href: "/administration" },
+      { label: "Identity providers", href: "/administration/identity-providers" },
       { label: "SCIM provisioning" },
     ];
   }
@@ -408,6 +412,45 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
   }
 
   const governancePolicyPacksPrefix = GOVERNANCE_POLICY_PACKS_PATH;
+
+  const signedRecordsPath =
+    normalized === LEGACY_SIGNED_RECORDS_LIST_PATH || normalized.startsWith(`${LEGACY_SIGNED_RECORDS_LIST_PATH}/`)
+      ? `${SIGNED_RECORDS_LIST_PATH}${normalized.slice(LEGACY_SIGNED_RECORDS_LIST_PATH.length)}`
+      : normalized === SIGNED_RECORDS_LIST_PATH || normalized.startsWith(`${SIGNED_RECORDS_LIST_PATH}/`)
+        ? normalized
+        : null;
+
+  if (signedRecordsPath !== null) {
+    if (signedRecordsPath === SIGNED_RECORDS_LIST_PATH) {
+      return [{ label: "Signed review records", href: SIGNED_RECORDS_LIST_PATH }];
+    }
+
+    const tail = signedRecordsPath.slice(SIGNED_RECORDS_LIST_PATH.length + 1);
+    const segments = tail.split("/").filter(Boolean);
+    const manifestId = segments[0] ?? "";
+
+    if (manifestId.length === 0) {
+      return [{ label: "Signed review records", href: SIGNED_RECORDS_LIST_PATH }];
+    }
+
+    const buyer = options?.buyerPolishedShell === true;
+    const detailLabel = labelForSegment(
+      manifestId,
+      ["signed-records", manifestId],
+      1,
+      buyer ? { buyerPolishedShell: true } : undefined,
+    );
+    const crumbs: BreadcrumbItem[] = [
+      { label: "Signed review records", href: SIGNED_RECORDS_LIST_PATH },
+      { label: detailLabel },
+    ];
+
+    if (segments[1] === "artifacts" && (segments[2] ?? "").length > 0) {
+      crumbs.push({ label: "Artifact" });
+    }
+
+    return crumbs;
+  }
 
   if (normalized === governancePolicyPacksPrefix || normalized === `${governancePolicyPacksPrefix}/`) {
     return [...items, { label: "Policy packs", href: GOVERNANCE_POLICY_PACKS_PATH }];

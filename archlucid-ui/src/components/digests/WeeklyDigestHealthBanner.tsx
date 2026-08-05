@@ -13,19 +13,12 @@ import { ADVISORY_SCANS_SCHEDULES_HREF } from "@/lib/advisory-scans-route";
 import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 import {
   digestsHaveExistingConfiguration,
-  digestSetupShowsRecipientClarification,
   formatDigestInstant,
-  mapDigestSetupGaps,
-  resolveDigestNextBestAction,
   resolveDigestOverallStatus,
-  type DigestSetupGapAction,
 } from "@/lib/digest-setup-gap-actions";
 import {
-  DIGESTS_BROWSE_NEXT_BEST_ACTION_PREFIX,
   DIGESTS_BROWSE_RELATED_ADVISORY_LABEL,
   DIGESTS_BROWSE_RELATED_INTEGRATIONS_LABEL,
-  DIGESTS_BROWSE_RECIPIENTS_HELPER,
-  DIGESTS_BROWSE_SETUP_MESSAGE,
 } from "@/lib/digests-browse-copy";
 import { EXEC_DIGEST_DAY_NAMES, formatExecDigestSendTimeLabel } from "@/lib/exec-digest-schedule-form";
 import { formatIanaTimeZoneOptionLabel } from "@/lib/iana-time-zone-select";
@@ -38,9 +31,10 @@ export type WeeklyDigestHealthBannerProps = {
   /** Notifies the hub when health loads so primary CTAs can adapt. */
   readonly onHealthLoaded?: (snap: WeeklyDigestHealthDto | null) => void;
   /**
-   * `full` — metrics + all setup gaps (Browse).
-   * `subscriptions` — compact strip with subscription-relevant gaps only.
-   * `schedule` — compact strip with executive schedule gaps only.
+   * Which facts accompany the status tag.
+   * `full` — Browse: schedule / subscription / last-sent counts.
+   * `subscriptions` — active destinations + last delivery.
+   * `schedule` — executive recipients + cadence.
    */
   readonly variant?: "full" | "subscriptions" | "schedule";
   /** When true, loads health for parent state but renders no banner chrome. */
@@ -63,22 +57,6 @@ function HealthMetric(props: HealthMetricProps): ReactElement {
   );
 }
 
-function isSubscriptionRelevantGap(gap: DigestSetupGapAction): boolean {
-  return (
-    gap.href.includes("tab=subscriptions") ||
-    /subscription|recipient/i.test(gap.title) ||
-    /subscription|recipient/i.test(gap.impact)
-  );
-}
-
-function isScheduleRelevantGap(gap: DigestSetupGapAction): boolean {
-  return (
-    gap.href.includes("tab=schedule") ||
-    /executive|schedule|recipient/i.test(gap.title) ||
-    /executive|schedule|recipient|rollup/i.test(gap.impact)
-  );
-}
-
 function formatExecutiveScheduleSummary(snap: WeeklyDigestHealthDto): string {
   if (!snap.executiveEmailDigestEnabled) {
     return "Executive digest disabled";
@@ -91,7 +69,15 @@ function formatExecutiveScheduleSummary(snap: WeeklyDigestHealthDto): string {
   return `${dayName} at ${timeLabel} ${zoneLabel}`;
 }
 
-/** Compact digest status summary with actionable setup gaps for the Digests hub. */
+/**
+ * Digest status strip for the hub — status tag plus the facts for the active tab.
+ *
+ * Deliberately owns **no** setup guidance. Each tab already tells that story once:
+ * Browse via `DigestsBrowseSetupChecklist`, Subscriptions via
+ * `DigestSubscriptionsReadinessPanel`, Schedule via its own readiness rail, and the
+ * page header via its single primary action. The banner previously repeated a setup
+ * sentence, a next-best-action card, and per-gap rows on top of all three.
+ */
 export function WeeklyDigestHealthBanner(props: WeeklyDigestHealthBannerProps): ReactElement | null {
   const { refreshToken = 0, onHealthLoaded, variant = "full", loadOnly = false } = props;
   const [snap, setSnap] = useState<WeeklyDigestHealthDto | null>(null);
@@ -143,25 +129,17 @@ export function WeeklyDigestHealthBanner(props: WeeklyDigestHealthBannerProps): 
   }
 
   const overall = resolveDigestOverallStatus(snap);
-  const setupNeeded: boolean = overall.label === "Setup needed";
-  const allGaps: DigestSetupGapAction[] = mapDigestSetupGaps(snap.setupGaps.slice(0, 4));
-  const gaps: DigestSetupGapAction[] =
-    variant === "subscriptions"
-      ? allGaps.filter(isSubscriptionRelevantGap).slice(0, 2)
-      : variant === "schedule"
-        ? allGaps.filter(isScheduleRelevantGap).slice(0, 2)
-        : allGaps;
+  // Compare the status kind, not its label — the label is buyer copy and may be reworded.
+  const setupNeeded: boolean = overall.kind === "draft";
   const configured: boolean = digestsHaveExistingConfiguration(snap);
-  const nextBestAction = variant === "full" ? resolveDigestNextBestAction(snap) : null;
-  const showRecipientClarification =
-    variant === "full" && digestSetupShowsRecipientClarification(snap);
   const executiveRecipients: string =
     snap.executiveDigestRecipientCount > 0
       ? String(snap.executiveDigestRecipientCount)
       : configured
         ? "0"
         : "—";
-  const compact: boolean = variant === "subscriptions" || variant === "schedule";
+  // Full metric grid only earns its space once the loop is actually running.
+  const showMetricGrid: boolean = variant === "full" && !setupNeeded;
   const compactTitle: string =
     variant === "subscriptions"
       ? "Subscription delivery"
@@ -173,7 +151,7 @@ export function WeeklyDigestHealthBanner(props: WeeklyDigestHealthBannerProps): 
     <div
       className={cn(
         "mb-4 rounded-lg border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-950",
-        compact ? "px-3 py-2" : setupNeeded ? "p-3" : "p-4",
+        showMetricGrid ? "p-4" : "px-3 py-2",
         OPERATOR_TYPOGRAPHY.body,
       )}
       data-testid="weekly-digest-health-banner"
@@ -202,8 +180,23 @@ export function WeeklyDigestHealthBanner(props: WeeklyDigestHealthBannerProps): 
               Cadence: {formatExecutiveScheduleSummary(snap)}
             </span>
           ) : null}
+          {variant === "full" && !showMetricGrid ? (
+            <span
+              className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="digest-status-compact-facts"
+            >
+              Enabled schedules: {snap.enabledAdvisoryScheduleCount}
+              {" · "}
+              Active subscriptions: {snap.enabledDigestSubscriptionCount}
+              {" · "}
+              Last sent:{" "}
+              {formatDigestInstant(
+                snap.latestDigestSubscriptionDeliveryUtc ?? snap.latestArchitectureDigestGeneratedUtc,
+              )}
+            </span>
+          ) : null}
         </div>
-        {variant === "full" ? (
+        {showMetricGrid ? (
           <div className="flex flex-wrap gap-2" data-testid="digests-browse-related-actions">
             <Button asChild size="sm" variant="outline">
               <Link href={ADVISORY_SCANS_SCHEDULES_HREF}>{DIGESTS_BROWSE_RELATED_ADVISORY_LABEL}</Link>
@@ -229,36 +222,7 @@ export function WeeklyDigestHealthBanner(props: WeeklyDigestHealthBannerProps): 
         )}
       </div>
 
-      {variant === "full" && setupNeeded ? (
-        <p className={cn("m-0 mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)} data-testid="digests-browse-setup-message">
-          {DIGESTS_BROWSE_SETUP_MESSAGE}
-        </p>
-      ) : null}
-
-      {nextBestAction !== null ? (
-        <div
-          className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/50"
-          data-testid="digests-browse-next-best-action"
-        >
-          <div>
-            <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
-              {DIGESTS_BROWSE_NEXT_BEST_ACTION_PREFIX}
-            </p>
-            <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{nextBestAction.title}</p>
-          </div>
-          <Button asChild size="sm" variant="primary">
-            <Link href={nextBestAction.href}>{nextBestAction.actionLabel}</Link>
-          </Button>
-        </div>
-      ) : null}
-
-      {showRecipientClarification ? (
-        <p className={cn("m-0 mt-3 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          {DIGESTS_BROWSE_RECIPIENTS_HELPER}
-        </p>
-      ) : null}
-
-      {!compact && !setupNeeded ? (
+      {showMetricGrid ? (
         <div className="mt-3 flex flex-wrap gap-x-6 gap-y-3" data-testid="digest-health-metrics">
           <HealthMetric label="Enabled schedules" value={String(snap.enabledAdvisoryScheduleCount)} />
           <HealthMetric label="Active subscriptions" value={String(snap.enabledDigestSubscriptionCount)} />
@@ -271,36 +235,6 @@ export function WeeklyDigestHealthBanner(props: WeeklyDigestHealthBannerProps): 
           />
           <HealthMetric label="Next scheduled send" value={formatDigestInstant(snap.earliestNextAdvisoryRunUtc)} />
         </div>
-      ) : null}
-
-      {gaps.length > 0 ? (
-        <ul
-          className={cn("m-0 list-none space-y-2 p-0", compact ? "mt-2" : "mt-4 space-y-3")}
-          data-testid="digest-setup-gaps"
-        >
-          {gaps.map((gap) => (
-            <li
-              key={`${gap.title}-${gap.href}`}
-              className="flex flex-wrap items-start justify-between gap-3 rounded-md border border-neutral-200 px-3 py-2 dark:border-neutral-700"
-            >
-              <div className="min-w-0 flex-1">
-                <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
-                  {gap.title}
-                </p>
-                <p className={cn("m-0 mt-0.5 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                  {gap.impact}
-                </p>
-              </div>
-              <Button asChild size="sm" variant="outline">
-                <Link href={gap.href}>{gap.actionLabel}</Link>
-              </Button>
-            </li>
-          ))}
-        </ul>
-      ) : !compact ? (
-        <p className={cn("m-0 mt-3 text-emerald-800 dark:text-emerald-200", OPERATOR_TYPOGRAPHY.helper)}>
-          Digests are configured for this scope.
-        </p>
       ) : null}
     </div>
   );

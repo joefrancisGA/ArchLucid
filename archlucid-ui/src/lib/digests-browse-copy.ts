@@ -33,7 +33,15 @@ export const DIGESTS_SCHEDULE_GENERATE_TEST_LABEL = "Generate architecture diges
 
 export const DIGESTS_BROWSE_SETUP_MESSAGE =
   "Complete schedule and recipient setup to start generating weekly digests." as const;
-export const DIGESTS_BROWSE_SETUP_STATUS_LABEL = "Setup needed" as const;
+/**
+ * StatusTag label for "nothing configured yet" on the digests hub.
+ *
+ * Matches the Schedule tab (`exec-digest-schedule-page-model`) and the ServiceNow /
+ * Azure Boards integration surfaces. The page previously said "Setup needed" here,
+ * "Setup incomplete" on Schedule, and "Action needed" on Subscriptions for states a
+ * buyer reads as identical.
+ */
+export const DIGESTS_BROWSE_SETUP_STATUS_LABEL = "Setup incomplete" as const;
 
 export const DIGESTS_BROWSE_NEXT_BEST_ACTION_PREFIX = "Next best action" as const;
 
@@ -41,6 +49,31 @@ export const DIGESTS_BROWSE_EMPTY_TITLE = "No digests generated yet" as const;
 
 export const DIGESTS_BROWSE_EMPTY_DESCRIPTION =
   "After a schedule and recipients are configured, generated digests will appear here with delivery status and preview actions." as const;
+
+export const DIGESTS_BROWSE_LOADING_LABEL = "Loading digest history…" as const;
+
+/** Empty-state fallback when the health snapshot failed, so setup state is unknown. */
+export const DIGESTS_BROWSE_SETUP_UNKNOWN_TITLE = "No digest history in this scope" as const;
+
+export const DIGESTS_BROWSE_SETUP_UNKNOWN_DESCRIPTION =
+  "Setup status could not be read just now. Refresh to retry, or open advisory schedules to confirm a generation cadence is enabled." as const;
+
+/**
+ * Digests are produced by an advisory scan run — there is no on-demand
+ * "send" endpoint on this surface, so the affordance is navigation, not an action.
+ */
+export const DIGESTS_BROWSE_GENERATE_FIRST_LABEL = "Generate the first digest" as const;
+
+export const DIGESTS_BROWSE_GENERATE_FIRST_DETAIL =
+  "Digests are produced by an advisory scan run. Open advisory schedules to run one." as const;
+
+export const DIGESTS_BROWSE_GENERATE_FIRST_DONE_DETAIL =
+  "At least one digest has been generated." as const;
+
+export const DIGESTS_BROWSE_HISTORY_PENDING_DETAIL =
+  "Generated digests appear in this list." as const;
+
+export const DIGESTS_BROWSE_HISTORY_READY_DETAIL = "Digest history is available below." as const;
 
 export const DIGESTS_BROWSE_INCLUDES_SECTION_TITLE = "What digests include" as const;
 
@@ -53,6 +86,9 @@ export const DIGESTS_BROWSE_INCLUDES_ITEMS = [
 ] as const;
 
 export const DIGESTS_BROWSE_CHECKLIST_TITLE = "Digest setup checklist" as const;
+
+export const DIGESTS_BROWSE_CHECKLIST_LEAD =
+  "Digests start flowing once a generation cadence and outbound recipients exist. Work these steps in order." as const;
 
 export const DIGESTS_BROWSE_RECIPIENTS_HELPER =
   "Architecture digest subscriptions deliver scan summaries to workspace recipients. Executive recipients on the Schedule tab receive a separate sponsor rollup email." as const;

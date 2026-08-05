@@ -498,6 +498,15 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     sourcePaths: ["docs/go-to-market/POLICY_PACK_DELTA_DEMO_SCRIPT.md"],
   },
   {
+    slug: "digests",
+    title: "Architecture digests",
+    summary:
+      "Schedule summaries of review activity, governance signals, findings, and advisory scans for operators.",
+    audience: "operator",
+    // App-rendered specialty (`HelpDigestsGuideView`) — TB-2049.
+    sourcePaths: [],
+  },
+  {
     slug: "alerts",
     title: "Understanding governance alerts",
     summary:

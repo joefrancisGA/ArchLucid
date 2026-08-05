@@ -105,7 +105,7 @@ export const SCIM_SSO_CONTEXT_NOTE_LINK = "Configure single sign-on";
 
 export const SCIM_SSO_CONTEXT_NOTE_SUFFIX = "in Identity providers.";
 
-export const SCIM_IDENTITY_PROVIDERS_HREF = "/administration/settings/identity-providers";
+export const SCIM_IDENTITY_PROVIDERS_HREF = "/administration/identity-providers";
 
 export const SCIM_TOKEN_CREATED_SUCCESS = "SCIM token created. Copy it now, then verify the connection.";
 

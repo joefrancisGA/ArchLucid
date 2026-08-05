@@ -66,7 +66,21 @@ describe("privacy-policy-content", () => {
     expect(body).toContain("## 13. Contact us");
     expect(body).not.toContain("# ArchLucid Privacy Policy");
     expect(body).not.toContain("## Related documents");
+    expect(body).not.toMatch(/^---$/m);
     expect(stripPrivacyPolicyRelatedDocumentsSection(body)).toBe(body);
+  });
+
+  it("rewrites public body links away from repo .md paths", () => {
+    const body = preparePrivacyPolicyBodyMarkdown(readPrivacyPolicyMarkdown());
+
+    expect(body).not.toMatch(/\.md\b/i);
+    expect(body).not.toContain("PRIVACY_NOTE");
+    expect(body).not.toContain("SYSTEM_THREAT_MODEL");
+    expect(body).not.toContain("git history");
+    expect(body).toContain("[Data Processing Agreement](/help/dpa-template)");
+    expect(body).toContain("[subprocessors list](/help/subprocessors)");
+    expect(body).toContain("[Trust Center](/trust)");
+    expect(body).toContain("[Security and trust](/security-trust)");
   });
 
   it("resolves quick navigation anchors from numbered headings", () => {

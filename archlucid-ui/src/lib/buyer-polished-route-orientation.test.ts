@@ -133,7 +133,7 @@ describe("buyerPolishedRouteOrientation", () => {
   });
 
   it("orients the operator security-trust route for procurement reviewers", () => {
-    const canonical = buyerPolishedRouteOrientation("/administration/settings/security-trust");
+    const canonical = buyerPolishedRouteOrientation("/administration/security-trust");
     const legacy = buyerPolishedRouteOrientation("/workspace/security-trust");
 
     expect(canonical?.label).toBe("Security & trust");

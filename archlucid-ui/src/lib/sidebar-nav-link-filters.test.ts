@@ -66,7 +66,7 @@ describe("presentSidebarNavLinkForCluster", () => {
   it("strips label prefixes for administration nav rows", () => {
     const presented = presentSidebarNavLinkForCluster(
       {
-        href: "/administration/settings",
+        href: "/administration",
         label: "Settings",
         title: "Settings — searchable index of workspace, governance, integration, billing, and support configuration",
         tier: "essential",

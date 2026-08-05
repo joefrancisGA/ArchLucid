@@ -1,5 +1,30 @@
-/** Canonical buyer-facing list path for signed review records (TB-399). */
-export const SIGNED_RECORDS_LIST_PATH = "/signed-records";
+/** Canonical buyer-facing list path for signed review records (TB-405 / IA-001). */
+export const SIGNED_RECORDS_LIST_PATH = "/governance/signed-records";
+
+/** Legacy top-level path — permanent redirect to {@link SIGNED_RECORDS_LIST_PATH}. */
+export const LEGACY_SIGNED_RECORDS_LIST_PATH = "/signed-records";
+
+/** True when `pathname` is the list or any detail/artifact route (canonical or legacy). */
+export function pathMatchesSignedRecordsRoute(pathname: string): boolean {
+  const normalized = pathname.length > 1 && pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
+
+  return (
+    normalized === SIGNED_RECORDS_LIST_PATH
+    || normalized.startsWith(`${SIGNED_RECORDS_LIST_PATH}/`)
+    || normalized === LEGACY_SIGNED_RECORDS_LIST_PATH
+    || normalized.startsWith(`${LEGACY_SIGNED_RECORDS_LIST_PATH}/`)
+  );
+}
+
+/** True when `pathname` is a manifest detail or artifact route (canonical or legacy). */
+export function pathMatchesSignedRecordsDetailRoute(pathname: string): boolean {
+  const normalized = pathname.length > 1 && pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
+
+  return (
+    normalized.startsWith(`${SIGNED_RECORDS_LIST_PATH}/`)
+    || normalized.startsWith(`${LEGACY_SIGNED_RECORDS_LIST_PATH}/`)
+  );
+}
 
 /** Canonical detail path for a signed review record by manifest id. */
 export function signedRecordDetailPath(manifestId: string): string {

@@ -1,10 +1,15 @@
+import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
+/**
+ * Quiet honesty for Technical details / owner notes — not a first-viewport amber banner.
+ * Digests owner decision 2026-08-05: claim-boundary bands read as internal drafting notes.
+ */
 export const SYSTEM_HEALTH_CLAIM_DISCIPLINE =
-  "Live/ready checks and build identity describe this workspace’s operational readiness — not a signed-review diligence Sources trail. Do not imply CPA SOC 2 attestation or a published third-party pen test from this page.";
+  "This page reports workspace operational readiness (live/ready checks and build identity). It is not a signed-review diligence package.";
 
 export const SYSTEM_HEALTH_SOURCES_INTRO =
-  "Open connection status or troubleshooting when a dependency fails; digests and audits are separate operator jobs.";
+  "When a dependency needs follow-up, open connection status or troubleshooting. Digests and audit are separate operator jobs.";
 
 export type SystemHealthSourceLink = {
   readonly label: string;
@@ -14,7 +19,7 @@ export type SystemHealthSourceLink = {
 /** Operator Sources — no self-href to system-health. */
 export const SYSTEM_HEALTH_SOURCES: readonly SystemHealthSourceLink[] = [
   { label: "Connection status", href: "/administration/connection-status" },
-  { label: "Architecture digests", href: "/digests" },
+  { label: "Architecture digests", href: DIGESTS_HUB_PATH },
   { label: "Governance audit", href: "/governance/audit" },
   { label: "Troubleshooting help", href: inAppHelpHref("troubleshooting") },
   { label: "How ArchLucid works", href: inAppHelpHref("how-it-works") },

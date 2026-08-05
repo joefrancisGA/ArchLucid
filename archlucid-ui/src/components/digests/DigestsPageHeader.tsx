@@ -23,15 +23,29 @@ export type DigestsPageHeaderProps = {
   readonly actions?: ReactNode;
 };
 
+/**
+ * Date plus minute-precision time. Seconds were dropped deliberately: a
+ * second-ticking readout on a governance surface reads as a debug probe, and the
+ * underlying data does not change per second.
+ */
 function formatDigestsLastUpdated(lastUpdatedUtc: string | null): string {
   if (lastUpdatedUtc === null) {
     return "—";
   }
 
-  return new Date(lastUpdatedUtc).toLocaleString(undefined, {
+  const parsed: Date = new Date(lastUpdatedUtc);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return "—";
+  }
+
+  return parsed.toLocaleString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
     hour: "numeric",
     minute: "2-digit",
-    second: "2-digit",
+    timeZoneName: "short",
   });
 }
 

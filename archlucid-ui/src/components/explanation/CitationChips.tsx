@@ -5,6 +5,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 
 import { citationKindBuyerLabel } from "@/lib/citation-kind-buyer-label";
+import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { CitationReference } from "@/types/explanation";
 
@@ -16,7 +17,7 @@ export type CitationChipsProps = {
 function citationHref(c: CitationReference, runId: string, buyerPolishedShell: boolean): string {
   switch (c.kind) {
     case "Manifest":
-      return `/signed-records/${encodeURIComponent(c.id)}`;
+      return signedRecordDetailPath(c.id);
     case "Finding":
 
       if (buyerPolishedShell) {

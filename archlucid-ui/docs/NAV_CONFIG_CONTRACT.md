@@ -56,7 +56,7 @@ Operator sidebar groups imply a URL prefix in the address bar. **57** nav hrefs 
 | `operate-governance` | `/governance` | All governance nav hrefs are under `/governance/*` (TB-405). |
 | `operate-reports` | `/sponsor-report`, `/value-report` | Architecture scorecard is Insights-only (`/insights/architecture-scorecard`); digests exception in registry |
 | `operate-integrations` | `/integrations` | All Integrations nav hrefs under `/integrations/*` (TB-407). |
-| `operator-admin` | `/administration/settings` | All Administration nav hrefs under `/administration/settings/*` (TB-406). |
+| `operator-admin` | `/administration` | All Administration nav hrefs under `/administration/*` (TB-406). |
 | `operator-system-admin` | `/admin` | Settings, operate, replay, digests, and value-report variants — see exception registry |
 
 **Exception registry (source of truth):** `src/lib/nav-route-namespace-exceptions.ts`  
@@ -85,7 +85,7 @@ Cross-ref: First review guide redundancy audit (**TB-674**–**TB-679**).
 
 `breadcrumb-map.ts` may show a logical parent label that differs from the URL prefix **only** when the href is listed in `NAV_ROUTE_NAMESPACE_EXCEPTIONS`. Do not invent ad hoc breadcrumb remaps for undocumented cross-namespace paths.
 
-**Shell visibility:** `shouldShowBreadcrumbTrail` in `breadcrumb-visibility.ts` gates the global `<Breadcrumbs />` affordance. Shallow two-level trails that mirror sidebar active state (e.g. `/governance/findings`, `/administration/settings/billing`) are **hidden**; detail, help, cross-namespace, run-scoped, and deep trails remain **visible** unless the route already has page-local wayfinding (`hasPageLocalBreadcrumbWayfinding`) or the buyer-polished golden-journey stepper is active. When shell breadcrumbs are hidden on buyer-polished satellite routes, `BuyerGoldenJourneyLayerContextStrip` may show a contextual **Back to review** link via `resolveBuyerOperateBackLinkWhenShellBreadcrumbsHidden`. Page-local wayfinding (e.g. finding detail `FindingDetailWayfinding`, manifest detail) is unchanged.
+**Shell visibility:** `shouldShowBreadcrumbTrail` in `breadcrumb-visibility.ts` gates the global `<Breadcrumbs />` affordance. Shallow two-level trails that mirror sidebar active state (e.g. `/governance/findings`, `/administration/billing`) are **hidden**; detail, help, cross-namespace, run-scoped, and deep trails remain **visible** unless the route already has page-local wayfinding (`hasPageLocalBreadcrumbWayfinding`) or the buyer-polished golden-journey stepper is active. When shell breadcrumbs are hidden on buyer-polished satellite routes, `BuyerGoldenJourneyLayerContextStrip` may show a contextual **Back to review** link via `resolveBuyerOperateBackLinkWhenShellBreadcrumbsHidden`. Page-local wayfinding (e.g. finding detail `FindingDetailWayfinding`, manifest detail) is unchanged.
 
 ### Cross-module Vitest anchors
 
@@ -116,7 +116,7 @@ UI hint only; API still 401/403.
 - **Analysis · extended:** inspection/diff surfaces that are `ReadAuthority` on the API (`GraphController`, `AuthorityCompareController`) use **`ReadAuthority`**. **Replay** stays **`ExecuteAuthority`** (`AuthorityReplayController`).
 - **Operate · analysis (`operate-analysis`):** every link sets **`requiredAuthority`**. Read/analytics pages → **`ReadAuthority`** unless the API primary workflow is Execute-class (planning, evolution candidates; advisory **schedules** and digest **subscriptions** are hub tabs under **`/governance/advisory-scans`** and **`/digests`** with in-page Execute gating). Link `title` strings use **“Label — short description”** for tooltips (same convention as governance slice).
 - **Operate · governance (`operate-governance`):** **inbox / dashboards / audit / policy pack browsing / alert tooling** whose controllers are class-scoped **`ReadAuthority`** → **`ReadAuthority`**. **Governance workflow** (mutations) → **`ExecuteAuthority`**.
-- **Operator admin (`operator-admin`, `platform-admin` surface):** tenant directory and support use **`/administration/settings/users`** and **`/administration/settings/support`** (legacy `/admin/*` redirect); **`/administration/settings/security-trust`** replaces **`/workspace/security-trust`**. **`AdminAuthority`** on user management. Other admin destinations use **`ReadAuthority`** / **`ExecuteAuthority`** as appropriate. Elsewhere under Operate, do not label list/browse pages **`AdminAuthority`** when the API is Read-class — POST-only admin actions stay on server policy.
+- **Operator admin (`operator-admin`, `platform-admin` surface):** tenant directory and support use **`/administration/users`** and **`/administration/support`** (legacy `/admin/*` redirect); **`/administration/security-trust`** replaces **`/workspace/security-trust`**. **`AdminAuthority`** on user management. Other admin destinations use **`ReadAuthority`** / **`ExecuteAuthority`** as appropriate. Elsewhere under Operate, do not label list/browse pages **`AdminAuthority`** when the API is Read-class — POST-only admin actions stay on server policy.
 
 ## UI shaping vs API authorization (boundary)
 

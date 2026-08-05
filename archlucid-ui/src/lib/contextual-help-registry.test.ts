@@ -319,6 +319,15 @@ describe("contextual-help-registry (TB-733)", () => {
     );
   });
 
+  it("resolves repeat-review loop help Category-1 help (HRX)", () => {
+    expect(contextualHelpForPathname("/help/repeat-review-loop")?.whatIsThisPage).toContain(
+      "Repeat-review loop",
+    );
+    expect(contextualHelpForPathname("/help/repeat-review-loop")?.whatToDoNext).toContain(
+      "Compare two reviews",
+    );
+  });
+
   it("resolves jira integration Category-1 help (IJX)", () => {
     expect(contextualHelpForPathname("/integrations/jira")?.whatIsThisPage).toContain("Jira integration");
     expect(contextualHelpForPathname("/integrations/jira")?.whatToDoNext).toContain("Test the connector");
@@ -372,6 +381,14 @@ describe("contextual-help-registry (TB-733)", () => {
   it("resolves pilot outcomes Category-1 help (SPP)", () => {
     expect(contextualHelpForPathname("/sponsor-report/pilot-outcomes")?.whatIsThisPage).toContain("Pilot outcomes");
     expect(contextualHelpForPathname("/sponsor-report/pilot-outcomes")?.whatToDoNext).toContain("reporting period");
+  });
+
+  it("resolves system-health Category-1 help with Connection status action (ADY)", () => {
+    const entry = contextualHelpForPathname("/administration/system-health");
+
+    expect(entry?.whatIsThisPage).toContain("service health");
+    expect(entry?.whatToDoNextAction?.label).toBe("Open Connection status");
+    expect(entry?.whatToDoNextAction?.href).toBe("/administration/connection-status");
   });
 
   it("returns null for routes not yet migrated", () => {

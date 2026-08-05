@@ -34,7 +34,7 @@ export const FIRST_PILOT_OPERATING_RAIL_STEPS: FirstPilotOperatingRailStepDefini
     id: "ingest-evidence",
     title: "Ingest architecture evidence",
     shortBody: FIRST_PILOT_BUYER_COPY.ingestEvidenceWithoutUpload,
-    primaryHref: "/administration/settings/extract-upload",
+    primaryHref: "/administration/extract-upload",
     primaryLabel: "Add evidence",
     troubleshootHelpSlug: "evidence-intake",
   },

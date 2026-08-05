@@ -287,7 +287,7 @@ Use when capturing **API-not-running** or **empty DB** evidence. Pick **one** sc
 | 10.6 Governance | `/governance`, `/findings`, `/dashboard`, policy pack, lineage | Static rows vs error |
 | 10.7 Audit | `/audit` default + dated search | Zero vs sample |
 | 10.8 Alerts | `/alerts` inbox + rules tab | Empty console |
-| 10.9 Optional | `/compare`, `/replay`, `/admin/*`, `/administration/settings` (hub), `/administration/settings/tenant` | Partial UI |
+| 10.9 Optional | `/compare`, `/replay`, `/admin/*`, `/administration/settings` (hub), `/administration/tenant` | Partial UI |
 
 **Coverage definition:** At least one shot each for home, reviews, detail+finding+inspect+provenance, manifest, graph, ask, governance (workflow+findings+one deep link), audit, alerts.
 
@@ -515,20 +515,20 @@ Legacy bookmarks **`/runs/*`** permanently redirect to **`/reviews/*`** — clea
 | **Executive reviews (retired)** | `/executive/reviews` → `/reviews` | [ ] |
 | **Executive scorecard** | `/executive/scorecard` | [ ] |
 | **Settings hub** | `/administration/settings` | [ ] |
-| **Workspace settings** | `/administration/settings/tenant` | [ ] |
-| **Projects recycle bin** | `/administration/settings/tenant/recycle-bin` | [ ] |
-| **Personal preferences** (account menu) | `/administration/settings/preferences` | [ ] |
-| **Account security** (account menu) | `/administration/settings/account-security` | [ ] |
-| **Billing & plans** | `/administration/settings/billing` | [ ] |
-| **Baseline settings** | `/administration/settings/baseline` | [ ] |
+| **Workspace settings** | `/administration/tenant` | [ ] |
+| **Projects recycle bin** | `/administration/tenant/recycle-bin` | [ ] |
+| **Personal preferences** (account menu) | `/administration/preferences` | [ ] |
+| **Account security** (account menu) | `/administration/account-security` | [ ] |
+| **Billing & plans** | `/administration/billing` | [ ] |
+| **Baseline settings** | `/administration/baseline` | [ ] |
 | **Webhooks** | `/settings/webhooks` | [ ] |
 | **Cloud connections** | `/settings/cloud-connections` | [ ] |
-| **Extract upload** | `/administration/settings/extract-upload` | [ ] |
+| **Extract upload** | `/administration/extract-upload` | [ ] |
 | **Cost reporting** | `/settings/cost-reporting` | [ ] |
-| **Identity providers** | `/administration/settings/identity-providers` | [ ] |
-| **SSO wizard** | `/administration/settings/identity/sso-wizard` | [ ] |
-| **API keys** | `/administration/settings/api-keys` | [ ] |
-| **SCIM provisioning** | `/administration/settings/scim-provisioning` | [ ] |
+| **Identity providers** | `/administration/identity-providers` | [ ] |
+| **SSO wizard** | `/administration/identity/sso-wizard` | [ ] |
+| **API keys** | `/administration/api-keys` | [ ] |
+| **SCIM provisioning** | `/administration/scim-provisioning` | [ ] |
 | **Role management** | `/settings/roles` | [ ] |
 | **Admin — system health** | `/admin/health` | [ ] |
 | **Admin — configuration** | `/admin/configuration` | [ ] |
@@ -750,22 +750,22 @@ Requires **Admin** or **Execute** authority per link. Expand **Admin** group.
 | Users & roles | `/admin/users` | **Admin → Users & roles**. |
 | Support bundle | `/admin/support` | **Admin → Support**, or **Settings hub** (`/administration/settings`) support card. |
 | Integration DLQ | `/operate/integration-events/dlq` | **Admin → Integration DLQ**. |
-| Identity providers | `/administration/settings/identity-providers` | **Admin → Identity providers**. |
-| SSO wizard | `/administration/settings/identity/sso-wizard` | **Admin → SSO wizard**. |
-| API keys | `/administration/settings/api-keys` | **Admin → API keys**. |
-| SCIM provisioning | `/administration/settings/scim-provisioning` | **Admin → SCIM provisioning**. |
+| Identity providers | `/administration/identity-providers` | **Admin → Identity providers**. |
+| SSO wizard | `/administration/identity/sso-wizard` | **Admin → SSO wizard**. |
+| API keys | `/administration/api-keys` | **Admin → API keys**. |
+| SCIM provisioning | `/administration/scim-provisioning` | **Admin → SCIM provisioning**. |
 | Role management | `/settings/roles` | **Admin → Role management**. |
-| Billing & plans | `/administration/settings/billing` | **Admin → Billing & plans**. |
-| Baseline settings | `/administration/settings/baseline` | **Admin → Baseline settings** (Execute). |
+| Billing & plans | `/administration/billing` | **Admin → Billing & plans**. |
+| Baseline settings | `/administration/baseline` | **Admin → Baseline settings** (Execute). |
 | Webhooks | `/settings/webhooks` | **Admin → Webhooks** (Execute). |
 | Cloud connections | `/settings/cloud-connections` | **Admin → Cloud connections** (Execute). |
-| Workspace settings | `/administration/settings/tenant` | **Admin → Workspace settings** (Admin only — below Admin rank the link is hidden and a direct visit shows the restricted state). |
-| Projects recycle bin | `/administration/settings/tenant/recycle-bin` | **Workspace settings** → **Recycle bin** link. |
+| Workspace settings | `/administration/tenant` | **Admin → Workspace settings** (Admin only — below Admin rank the link is hidden and a direct visit shows the restricted state). |
+| Projects recycle bin | `/administration/tenant/recycle-bin` | **Workspace settings** → **Recycle bin** link. |
 | Cost reporting | `/settings/cost-reporting` | **Admin → Cost reporting**. |
 | Settings hub | `/administration/settings` | **Admin → Settings** (searchable tenant-administration index; Read authority). |
-| Extract upload | `/administration/settings/extract-upload` | **Ctrl+K** or workspace settings cross-links (not primary sidebar). |
-| Personal preferences | `/administration/settings/preferences` | **Top-bar account menu → Preferences** (any signed-in user, no authority gate). |
-| Account security | `/administration/settings/account-security` | **Top-bar account menu → Account security** (any signed-in user, no authority gate). |
+| Extract upload | `/administration/extract-upload` | **Ctrl+K** or workspace settings cross-links (not primary sidebar). |
+| Personal preferences | `/administration/preferences` | **Top-bar account menu → Preferences** (any signed-in user, no authority gate). |
+| Account security | `/administration/account-security` | **Top-bar account menu → Account security** (any signed-in user, no authority gate). |
 
 ---
 

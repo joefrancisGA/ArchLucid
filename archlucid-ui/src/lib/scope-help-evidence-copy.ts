@@ -16,7 +16,7 @@ export type ScopeHelpSourceLink = {
 /** Operator Sources — no self-href to `/help/scope`. */
 export const SCOPE_HELP_SOURCES: readonly ScopeHelpSourceLink[] = [
   { label: "Users and roles", href: inAppHelpHref("users-and-roles") },
-  { label: "Users settings", href: "/administration/settings/users" },
+  { label: "Users settings", href: "/administration/users" },
   { label: "Data handling & isolation", href: inAppHelpHref("data-handling-tenant-isolation") },
   { label: "Getting started", href: inAppHelpHref("getting-started") },
   { label: "Security & trust", href: "/security-trust" },

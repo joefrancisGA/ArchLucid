@@ -15,7 +15,7 @@ export type BillingAndPlansHelpSourceLink = {
 
 /** Operator Sources — no self-href to `/help/billing-and-plans`. */
 export const BILLING_AND_PLANS_HELP_SOURCES: readonly BillingAndPlansHelpSourceLink[] = [
-  { label: "Billing settings", href: "/administration/settings/billing" },
+  { label: "Billing settings", href: "/administration/billing" },
   { label: "Pricing", href: "/pricing" },
   { label: "Audit", href: "/governance/audit" },
   { label: "Getting started", href: inAppHelpHref("getting-started") },

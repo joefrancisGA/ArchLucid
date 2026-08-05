@@ -6,6 +6,7 @@ import {
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
 } from "@/lib/showcase-static-demo";
+import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 import type {
   ArchitectureDecisionRegisterEntry,
   ArchitectureRiskRegisterEntry,
@@ -88,7 +89,7 @@ export function decisionRegisterRows(entries: ArchitectureDecisionRegisterEntry[
       recordKind: "decision",
       traceConfidenceLevel: null,
       lastReviewedUtc: entry.recordedAtUtc ?? null,
-      evidenceHref: manifestId.length > 0 ? `/signed-records/${encodeURIComponent(manifestId)}` : undefined,
+      evidenceHref: manifestId.length > 0 ? signedRecordDetailPath(manifestId) : undefined,
     };
   });
 }

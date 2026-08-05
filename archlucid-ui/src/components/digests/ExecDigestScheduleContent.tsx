@@ -18,6 +18,11 @@ import { getExecDigestPreferences, saveExecDigestPreferences } from "@/lib/api";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { ADVISORY_SCANS_SCHEDULES_HREF } from "@/lib/advisory-scans-route";
+import {
+  DIGESTS_HUB_PATH,
+  DIGESTS_SUBSCRIPTIONS_TAB_PATH,
+  digestsBrowseDigestDeepLink,
+} from "@/lib/digests-route-paths";
 import { formatDigestInstant } from "@/lib/digest-setup-gap-actions";
 import {
   DIGESTS_SCHEDULE_GENERATE_TEST_LABEL,
@@ -160,8 +165,8 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
   const latestDigestId: string = healthSnap?.latestArchitectureDigestId?.trim() ?? "";
   const hasPreviewDigest: boolean = latestDigestId.length > 0;
   const previewHref: string = hasPreviewDigest
-    ? `/digests?tab=browse#digest-${encodeURIComponent(latestDigestId)}`
-    : "/digests";
+    ? digestsBrowseDigestDeepLink(latestDigestId)
+    : DIGESTS_HUB_PATH;
   const busy: boolean = saving || enabling || pausing;
   const liveScheduleSummary: string | null =
     form !== null ? formatExecDigestLiveScheduleSummary(form) : null;
@@ -539,7 +544,7 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
                 <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                   {EXEC_DIGEST_SUBSCRIPTIONS_HELPER}{" "}
                   <Link
-                    href="/digests?tab=subscriptions"
+                    href={DIGESTS_SUBSCRIPTIONS_TAB_PATH}
                     className="text-al-link underline-offset-2 hover:underline"
                   >
                     Manage delivery destinations

@@ -19,17 +19,17 @@ describe("getLayerForRoute", () => {
   });
 
   it("returns operator-admin for tenant admin nav paths", () => {
-    expect(getLayerForRoute("/administration/settings/billing")).toBe("operator-admin");
-    expect(getLayerForRoute("/administration/settings/baseline")).toBe("pilot");
+    expect(getLayerForRoute("/administration/billing")).toBe("operator-admin");
+    expect(getLayerForRoute("/administration/baseline")).toBe("pilot");
     expect(getLayerForRoute("/integrations/cloud-connections")).toBe("operate-analysis");
     expect(getLayerForRoute("/settings/cloud-connections")).toBe("operate-analysis");
-    expect(getLayerForRoute("/administration/settings/tenant")).toBe("operator-admin");
-    expect(getLayerForRoute("/administration/settings/tenant/recycle-bin")).toBe("operator-admin");
-    expect(getLayerForRoute("/administration/settings/support")).toBe("operator-admin");
-    expect(getLayerForRoute("/administration/settings/users")).toBe("operator-admin");
+    expect(getLayerForRoute("/administration/tenant")).toBe("operator-admin");
+    expect(getLayerForRoute("/administration/tenant/recycle-bin")).toBe("operator-admin");
+    expect(getLayerForRoute("/administration/support")).toBe("operator-admin");
+    expect(getLayerForRoute("/administration/users")).toBe("operator-admin");
     expect(getLayerForRoute("/settings/roles")).toBe("operator-admin");
-    expect(getLayerForRoute("/administration/settings/users/invite-reviewer")).toBe("operator-admin");
-    expect(getLayerForRoute("/administration/settings/ai-usage")).toBe("operator-admin");
+    expect(getLayerForRoute("/administration/users/invite-reviewer")).toBe("operator-admin");
+    expect(getLayerForRoute("/administration/ai-usage")).toBe("operator-admin");
     expect(getLayerForRoute("/administration/connection-status")).toBe("operator-admin");
     expect(getLayerForRoute("/administration/system-health")).toBe("operator-admin");
     expect(getLayerForRoute("/workspace/security-trust")).toBe("operator-admin");

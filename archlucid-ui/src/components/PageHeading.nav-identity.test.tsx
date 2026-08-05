@@ -60,7 +60,7 @@ describe("PageHeading nav identity", () => {
     for (const [navHref, testId] of [
       ["/insights/evidence-graph", "insights-heading"],
       ["/governance/approval-queue", "governance-heading"],
-      ["/administration/settings/users", "admin-heading"],
+      ["/administration/users", "admin-heading"],
     ] as const) {
       render(<PageHeading navHref={navHref} title="Representative page" data-testid={testId} />);
       expect(screen.getByTestId(`${testId}`).querySelector('[data-testid="page-heading-icon"]')).toBeInTheDocument();

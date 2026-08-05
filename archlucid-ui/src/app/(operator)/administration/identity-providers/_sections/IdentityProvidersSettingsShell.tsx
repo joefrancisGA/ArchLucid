@@ -1,0 +1,148 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+
+import { cn } from "@/lib/utils";
+
+import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { Button } from "@/components/ui/button";
+import {
+  IDENTITY_PROVIDERS_NAV_DIAGNOSTICS,
+  IDENTITY_PROVIDERS_NAV_OIDC,
+  IDENTITY_PROVIDERS_NAV_OVERVIEW,
+  IDENTITY_PROVIDERS_NAV_ROLE_MAPPING,
+  IDENTITY_PROVIDERS_NAV_SAML,
+  IDENTITY_PROVIDERS_PAGE_INTRO,
+  IDENTITY_PROVIDERS_PAGE_TITLE,
+  IDENTITY_PROVIDERS_SAFETY_NOTICE,
+  IDENTITY_PROVIDERS_SCOPE_DETAILS_TRIGGER,
+  identityProvidersPageSubtitle,
+} from "@/lib/identity-providers-settings-copy";
+import type { IdentityProvidersNavId } from "@/lib/identity-providers-settings-types";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+
+import { IdentityProvidersSettingsPageHeader } from "./IdentityProvidersSettingsPageHeader";
+
+const NAV_ITEMS: ReadonlyArray<{ readonly id: IdentityProvidersNavId; readonly label: string; readonly href: string }> = [
+  { id: "overview", label: IDENTITY_PROVIDERS_NAV_OVERVIEW, href: "/administration/identity-providers" },
+  { id: "saml", label: IDENTITY_PROVIDERS_NAV_SAML, href: "/administration/identity-providers/saml" },
+  { id: "oidc", label: IDENTITY_PROVIDERS_NAV_OIDC, href: "/administration/identity-providers/oidc" },
+  { id: "role-mapping", label: IDENTITY_PROVIDERS_NAV_ROLE_MAPPING, href: "/administration/identity-providers/role-mapping" },
+  { id: "diagnostics", label: IDENTITY_PROVIDERS_NAV_DIAGNOSTICS, href: "/administration/identity-providers/diagnostics" },
+];
+
+function resolveActiveNavId(pathname: string): IdentityProvidersNavId {
+  if (pathname.startsWith("/administration/identity-providers/saml")) {
+    return "saml";
+  }
+
+  if (pathname.startsWith("/administration/identity-providers/oidc")) {
+    return "oidc";
+  }
+
+  if (pathname.startsWith("/administration/identity-providers/role-mapping")) {
+    return "role-mapping";
+  }
+
+  if (pathname.startsWith("/administration/identity-providers/diagnostics")) {
+    return "diagnostics";
+  }
+
+  return "overview";
+}
+
+export type IdentityProvidersSettingsShellProps = {
+  readonly pageTitle?: string;
+  readonly pageSubtitle?: string;
+  readonly pageIntro?: string;
+  readonly refreshing: boolean;
+  readonly lastRefreshedAt: Date | null;
+  readonly onRefresh: () => void;
+  readonly children: React.ReactNode;
+};
+
+export function IdentityProvidersSettingsShell(props: IdentityProvidersSettingsShellProps): React.JSX.Element {
+  const pathname = usePathname();
+  const activeNavId = resolveActiveNavId(pathname);
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const resolvedTitle = props.pageTitle ?? IDENTITY_PROVIDERS_PAGE_TITLE;
+  const isOverviewPage = resolvedTitle === IDENTITY_PROVIDERS_PAGE_TITLE;
+  const headerSubtitle =
+    props.pageSubtitle ??
+    (isOverviewPage
+      ? identityProvidersPageSubtitle(buyerPolishedShell)
+      : (props.pageIntro ?? IDENTITY_PROVIDERS_PAGE_INTRO));
+  const scopeOverview = isOverviewPage
+    ? `${IDENTITY_PROVIDERS_PAGE_INTRO} ${IDENTITY_PROVIDERS_SAFETY_NOTICE}`
+    : `${props.pageIntro ?? ""} ${IDENTITY_PROVIDERS_SAFETY_NOTICE}`.trim();
+
+  return (
+    <div className="w-full max-w-4xl space-y-6" data-testid="identity-providers-settings-shell">
+      <Button asChild variant="ghost" size="sm" className="h-8 px-0 text-teal-800 dark:text-teal-300">
+        <Link href="/settings#settings-section-advanced">← Settings</Link>
+      </Button>
+
+      <IdentityProvidersSettingsPageHeader
+        pageTitle={resolvedTitle}
+        subtitle={headerSubtitle}
+        refreshing={props.refreshing}
+        lastRefreshedAt={props.lastRefreshedAt}
+        onRefresh={props.onRefresh}
+      />
+
+      {buyerPolishedShell ? (
+        <CollapsibleSection
+          title={IDENTITY_PROVIDERS_SCOPE_DETAILS_TRIGGER}
+          defaultOpen={false}
+          sectionTestId="identity-providers-scope-details"
+        >
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="identity-providers-scope-overview">
+            {scopeOverview}
+          </p>
+        </CollapsibleSection>
+      ) : null}
+
+      {!buyerPolishedShell && isOverviewPage ? (
+        <div className="space-y-2">
+          <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            {IDENTITY_PROVIDERS_PAGE_INTRO}
+          </p>
+          <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            {IDENTITY_PROVIDERS_SAFETY_NOTICE}
+          </p>
+        </div>
+      ) : null}
+
+      <nav aria-label="Identity provider sections" data-testid="identity-providers-settings-nav">
+        <ul className="flex flex-wrap gap-2">
+          {NAV_ITEMS.map((item) => {
+            const active = item.id === activeNavId;
+
+            return (
+              <li key={item.id}>
+                <Link
+                  href={item.href}
+                  aria-current={active ? "page" : undefined}
+                  className={cn(
+                    "inline-flex min-h-[30px] items-center rounded-full border px-3 py-1 transition-colors",
+                    OPERATOR_TYPOGRAPHY.badge,
+                    active
+                      ? "border-neutral-900 bg-neutral-900 text-white dark:border-neutral-100 dark:bg-neutral-100 dark:text-neutral-900"
+                      : cn("border-neutral-300 text-al-text-primary hover:border-neutral-400 dark:border-neutral-700", OPERATOR_LINK.nav),
+                  )}
+                  data-testid={`identity-providers-nav-${item.id}`}
+                >
+                  {item.label}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
+
+      {props.children}
+    </div>
+  );
+}

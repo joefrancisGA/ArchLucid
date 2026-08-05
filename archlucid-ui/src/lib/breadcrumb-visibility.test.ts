@@ -20,7 +20,7 @@ describe("shouldShowBreadcrumbTrail", () => {
     expect(shouldShowBreadcrumbTrail("/governance/dashboard", trail("/governance/dashboard"))).toBe(false);
     expect(shouldShowBreadcrumbTrail("/governance/findings", trail("/governance/findings"))).toBe(false);
     expect(shouldShowBreadcrumbTrail("/governance/alert-rules", trail("/governance/alert-rules"))).toBe(false);
-    expect(shouldShowBreadcrumbTrail("/administration/settings/billing", trail("/administration/settings/billing"))).toBe(
+    expect(shouldShowBreadcrumbTrail("/administration/billing", trail("/administration/billing"))).toBe(
       true,
     );
     expect(
@@ -49,7 +49,7 @@ describe("shouldShowBreadcrumbTrail", () => {
       ),
     ).toBe(true);
     expect(shouldShowBreadcrumbTrail("/architecture/architectures/new", trail("/architecture/architectures/new"))).toBe(true);
-    expect(shouldShowBreadcrumbTrail("/administration/settings/identity/sso-wizard", trail("/administration/settings/identity/sso-wizard"))).toBe(
+    expect(shouldShowBreadcrumbTrail("/administration/identity/sso-wizard", trail("/administration/identity/sso-wizard"))).toBe(
       true,
     );
   });
@@ -76,8 +76,8 @@ describe("shouldShowBreadcrumbTrail", () => {
   it("hides when the page renders its own breadcrumb wayfinding", () => {
     expect(
       shouldShowBreadcrumbTrail(
-        `/signed-records/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`,
-        trail(`/signed-records/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`),
+        `/governance/signed-records/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`,
+        trail(`/governance/signed-records/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`),
       ),
     ).toBe(false);
     expect(
