@@ -949,6 +949,19 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/administration/baseline",
+    entry: {
+      whatIsThisPage:
+        "Baseline settings - capture ROI measurement anchors (review cycle hours, prep time, people per review) for this workspace.",
+      whatToDoNext:
+        "Save or clear baseline anchors, then open Pilot ROI model help or Architecture scorecard when numbers need methodology.",
+      whyEmpty:
+        "Fields load after tenant baseline API responds; empty values mean conservative defaults until you save anchors.",
+      whereToConfigurePrerequisite:
+        "Saving baseline anchors needs Execute authority in this workspace.",
+    },
+  },
+  {
     prefix: "/integrations/cloud-connections",
     entry: {
       whatIsThisPage:

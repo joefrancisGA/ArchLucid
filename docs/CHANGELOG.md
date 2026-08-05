@@ -10,6 +10,14 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-05 - UI: Secondary-hub Learn more remap (TB-2050)
+
+Secondary hubs (Planning, Decision register, Advisory scans, Impact preview, Workspace health) omit generic `getting-started` / `how-it-works` Learn more when no specialty exists; tenant settings → `scope`; recommendation-learning → `pilot-feedback`. Category-1 popovers still mount. Vitest suite remains **TB-2052**. Does not claim CPA / third-party pen-test.
+
+## 2026-08-05 - UI: Baseline settings Evidence chrome (ADA)
+
+`/administration/baseline` ships BaselineSettingsEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map pilot-roi-model, traffic Notes under Settings (row ID ADA; path aligned off legacy settings/baseline / SBX), and honest Evidence score 50. Settings measurement-hub hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-05 - UI: Billing & plans settings Evidence chrome (ABI)
 
 `/administration/billing` ships OperatorBillingSettingsEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map billing-and-plans, traffic Notes under Settings (row ID ABI; path aligned off legacy settings/billing / SBE), and honest Evidence score 50. Settings commercial-hub hard-caps higher Evidence; no CPA / third-party pen-test implication.
@@ -56,11 +64,11 @@ Release entries newest-first. Each section condenses the detailed prompt logs pr
 
 ## 2026-08-05 - UI: Digests Learn more + Schedule deep links (TB-2049)
 
-Digests Category-1 Learn more maps to specialty `/help/digests` (`HelpDigestsGuideView`). Schedule tab deep links ship on Digests what-to-do-next / where-to-configure. Traffic **DI**/**DIS**/**HDG** notes honest. Secondary-hub sweep remains **TB-2050**. Does not claim CPA / third-party pen-test.
+Digests Category-1 Learn more maps to specialty `/help/digests` (`HelpDigestsGuideView`). Schedule tab deep links ship on Digests what-to-do-next / where-to-configure. Traffic **DI**/**DIS**/**HDG** notes honest. Secondary-hub sweep **TB-2050** Done. Does not claim CPA / third-party pen-test.
 
 ## 2026-08-05 - Docs: Learn more must match page job (TB-2048)
 
-`UI_DESIGN_SYSTEM.md` ratifies Category-1 Learn more job-match + omit-when-none and bans generic `getting-started` / `how-it-works` on secondary hubs (first-run allowlist documented). `archlucid-ui/docs/ARCHITECTURE.md` points agents here. Digests golden remap **TB-2049** Done; secondary-hub remap remains **TB-2050**; Vitest **TB-2052**. Does not claim CPA / third-party pen-test.
+`UI_DESIGN_SYSTEM.md` ratifies Category-1 Learn more job-match + omit-when-none and bans generic `getting-started` / `how-it-works` on secondary hubs (first-run allowlist documented). `archlucid-ui/docs/ARCHITECTURE.md` points agents here. Digests golden remap **TB-2049** Done; secondary-hub remap **TB-2050** Done; Vitest **TB-2052**. Does not claim CPA / third-party pen-test.
 
 ## 2026-08-05 - Backlog: page-scoped contextual help quality (TB-2048–TB-2052)
 

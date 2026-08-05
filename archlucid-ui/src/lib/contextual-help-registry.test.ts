@@ -110,6 +110,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/administration/users",
       "/administration/security-trust",
       "/administration/billing",
+      "/administration/baseline",
       "/integrations/cloud-connections",
       "/integrations/jira",
       "/integrations/itsm/oauth/callback",
@@ -385,6 +386,15 @@ describe("contextual-help-registry (TB-733)", () => {
     );
     expect(contextualHelpForPathname("/administration/billing")?.whatToDoNext).toContain(
       "Available plans",
+    );
+  });
+
+  it("resolves Baseline settings Category-1 help (ADA)", () => {
+    expect(contextualHelpForPathname("/administration/baseline")?.whatIsThisPage).toContain(
+      "Baseline settings",
+    );
+    expect(contextualHelpForPathname("/administration/baseline")?.whatToDoNext).toContain(
+      "Pilot ROI model",
     );
   });
 

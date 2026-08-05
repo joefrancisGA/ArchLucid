@@ -9,6 +9,8 @@ import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { BaselineSettingsEvidenceOrientationStrip } from "@/app/(operator)/administration/baseline/_sections/BaselineSettingsEvidenceOrientationStrip";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
@@ -362,12 +364,17 @@ export function BaselineSettingsClient() {
 
   return (
     <div className="w-full max-w-3xl space-y-6 pb-24">
-      <div>
-        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Baseline settings — ROI measurement</h1>
-        <p className={cn("mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          {BASELINE_SETTINGS_PAGE_SUBTITLE}
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Baseline settings — ROI measurement</h1>
+          <p className={cn("mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            {BASELINE_SETTINGS_PAGE_SUBTITLE}
+          </p>
+        </div>
+        <PageContextualHelpButton />
       </div>
+
+      <BaselineSettingsEvidenceOrientationStrip />
 
       {demoMode ? (
         <DemoUnavailableNotice
