@@ -42,7 +42,7 @@ class TestAdoptionBatch5AF(unittest.TestCase):
         path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "product-documentation-registry.ts"
         text = path.read_text(encoding="utf-8")
         self.assertIn('"evaluator-workbook"', text)
-        self.assertIn("EVALUATOR_WORKBOOK.md", text)
+        self.assertIn("path-chooser", text)
 
 
 if __name__ == "__main__":

@@ -22,11 +22,11 @@ def test_explain_operator_model_mentions_authority_pipeline_and_integrator_table
 
 
 def test_evaluator_workbook_does_not_require_coordinator_execute_after_create() -> None:
-    text = _read("docs", "onboarding", "EVALUATOR_WORKBOOK.md")
+    # EVALUATOR_WORKBOOK.md is a path-stable stub; authority vs coordinator guidance lives in API contracts.
+    text = _read("docs", "library", "API_CONTRACTS.md")
 
-    assert "authority pipeline" in text
+    assert "Authority pipeline vs coordinator" in text
     assert "coordinator fills context snapshots and authority steps automatically" not in text
-
 
 def test_api_contracts_contains_authority_vs_coordinator_section() -> None:
     text = _read("docs", "library", "API_CONTRACTS.md")

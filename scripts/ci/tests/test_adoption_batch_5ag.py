@@ -54,7 +54,8 @@ class TestAdoptionBatch5AG(unittest.TestCase):
         self.assertIn("pre-fills greenfield preset", text)
 
     def test_tb_219_evaluator_workbook_quick_start_preset(self) -> None:
-        path = REPO_ROOT / "docs" / "onboarding" / "EVALUATOR_WORKBOOK.md"
+        # EVALUATOR_WORKBOOK.md is a stub; greenfield preset deeplink is documented on buyer personas.
+        path = REPO_ROOT / "docs" / "go-to-market" / "BUYER_PERSONAS.md"
         text = path.read_text(encoding="utf-8")
         self.assertIn("reviews/new?preset=greenfield", text)
 

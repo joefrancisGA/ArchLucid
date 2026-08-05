@@ -42,12 +42,16 @@ class TestAdoptionBatch5AD(unittest.TestCase):
         )
 
     def test_tb_216_evaluator_workbook_documents_combined_command(self) -> None:
-        path = REPO_ROOT / "docs" / "onboarding" / "EVALUATOR_WORKBOOK.md"
+        # EVALUATOR_WORKBOOK.md is a path-stable stub; sponsor-packet guidance lives on the operator path.
+        path = REPO_ROOT / "docs" / "runbooks" / "FIRST_PILOT_OPERATOR_PATH.md"
         text = path.read_text(encoding="utf-8")
         self.assertTrue(
             "try --sponsor-packet" in text or "sponsor-packet" in text,
-            "expected sponsor-packet guidance in EVALUATOR_WORKBOOK.md",
+            "expected sponsor-packet guidance in FIRST_PILOT_OPERATOR_PATH.md",
         )
+        stub = REPO_ROOT / "docs" / "onboarding" / "EVALUATOR_WORKBOOK.md"
+        stub_text = stub.read_text(encoding="utf-8")
+        self.assertIn("BUYER_ORIENTATION_ONE_SCREEN.md", stub_text)
 
 
 if __name__ == "__main__":

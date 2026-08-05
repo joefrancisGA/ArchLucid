@@ -136,6 +136,9 @@ const nextConfig: NextConfig = {
       },
       { source: "/architectures", destination: "/architecture/architectures", permanent: true },
       { source: "/architectures/:path*", destination: "/architecture/architectures/:path*", permanent: true },
+      // Legacy executive / portfolio bookmarks → architecture executive dashboard.
+      { source: "/executive/dashboard", destination: "/architecture/executive-dashboard", permanent: true },
+      { source: "/portfolio", destination: "/architecture/executive-dashboard", permanent: true },
     ];
   },
   async rewrites() {
