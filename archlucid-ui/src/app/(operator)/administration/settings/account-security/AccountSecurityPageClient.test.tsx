@@ -1,13 +1,23 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AccountSecurityPageClient } from "./AccountSecurityPageClient";
 import {
   confirmSignInMethodLinkProposal,
   fetchSignInMethods,
+  removeSignInMethod,
   requestEmailLinkChallenge,
   verifyEmailLinkChallenge,
 } from "@/lib/sign-in-methods-api";
+import { SignInMethodsApiError } from "@/lib/sign-in-methods-problem";
+
+const frictionlessMock = vi.hoisted(() => ({
+  enabled: false,
+}));
+
+vi.mock("@/lib/frictionless-trial-session", () => ({
+  readFrictionlessTrialSessionEnabled: () => frictionlessMock.enabled,
+}));
 
 vi.mock("@/lib/sign-in-methods-api", () => ({
   fetchSignInMethods: vi.fn(),
@@ -25,12 +35,90 @@ const pendingProposal = {
   maskedIdentifier: "y***@example.com",
   requiresExplicitConfirmation: true,
   confirmationMessage: "Link this email as a sign-in method?",
-  expiresUtc: "2026-08-01T00:00:00.000Z",
+  expiresUtc: "2099-08-01T00:00:00.000Z",
+};
+
+const activeMethod = {
+  identityId: "id-1",
+  providerType: "EmailOtp",
+  providerLabel: "Email code",
+  maskedIdentifier: "y***@example.com",
+  addedUtc: "2026-07-01T00:00:00.000Z",
+  lastUsedUtc: null,
+  isActive: true,
+  canRemove: true,
 };
 
 describe("AccountSecurityPageClient", () => {
+  beforeEach(() => {
+    frictionlessMock.enabled = false;
+  });
+
   afterEach(() => {
     vi.clearAllMocks();
+  });
+
+  it("shows auth gate without dumping ProblemDetails JSON or a fake empty list", async () => {
+    vi.mocked(fetchSignInMethods).mockRejectedValue(
+      new SignInMethodsApiError({
+        kind: "unauthorized-platform-user",
+        message:
+          "Account security needs a signed-in ArchLucid account. Sign in or start an evaluation to continue.",
+      }),
+    );
+
+    render(<AccountSecurityPageClient />);
+
+    const gate = await screen.findByTestId("account-security-auth-gate");
+
+    expect(gate.textContent).not.toContain("{");
+    expect(gate.textContent).not.toContain("correlationId");
+    expect(screen.queryByText("No sign-in methods are linked yet.")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("add-sign-in-method-card")).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Sign in" })).toBeInTheDocument();
+  });
+
+  it("gates early when frictionless trial session is active", async () => {
+    frictionlessMock.enabled = true;
+
+    render(<AccountSecurityPageClient />);
+
+    expect(await screen.findByTestId("account-security-auth-gate")).toBeInTheDocument();
+    expect(fetchSignInMethods).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("account-security-send-code")).not.toBeInTheDocument();
+  });
+
+  it("shows empty copy only after a successful empty list load", async () => {
+    vi.mocked(fetchSignInMethods).mockResolvedValue([]);
+
+    render(<AccountSecurityPageClient />);
+
+    expect(await screen.findByText("No sign-in methods are linked yet.")).toBeInTheDocument();
+    expect(screen.queryByTestId("account-security-auth-gate")).not.toBeInTheDocument();
+  });
+
+  it("disables send until email is valid and never toasts client validation", async () => {
+    vi.mocked(fetchSignInMethods).mockResolvedValue([]);
+
+    render(<AccountSecurityPageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("account-security-send-code")).toBeDisabled();
+    });
+
+    fireEvent.change(screen.getByLabelText("Email for one-time code"), {
+      target: { value: "not-an-email" },
+    });
+    fireEvent.blur(screen.getByLabelText("Email for one-time code"));
+
+    expect(screen.getByTestId("account-security-send-code")).toBeDisabled();
+    expect(screen.getByRole("alert")).toHaveTextContent(/valid email/i);
+
+    fireEvent.change(screen.getByLabelText("Email for one-time code"), {
+      target: { value: "you@example.com" },
+    });
+
+    expect(screen.getByTestId("account-security-send-code")).not.toBeDisabled();
   });
 
   it("disables confirm while confirm link is in flight", async () => {
@@ -84,38 +172,49 @@ describe("AccountSecurityPageClient", () => {
     });
   });
 
-  it("disables send code while challenge request is in flight", async () => {
-    vi.mocked(fetchSignInMethods).mockResolvedValue([]);
-
-    let resolveChallenge: (() => void) | undefined;
-    const challengePromise = new Promise<{ challengeId: string }>((resolve) => {
-      resolveChallenge = () => resolve({ challengeId: "challenge-1" });
-    });
-    vi.mocked(requestEmailLinkChallenge).mockReturnValue(challengePromise);
+  it("opens AlertDialog for remove and never calls window.confirm", async () => {
+    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
+    vi.mocked(fetchSignInMethods).mockResolvedValue([activeMethod]);
+    vi.mocked(removeSignInMethod).mockResolvedValue(undefined);
 
     render(<AccountSecurityPageClient />);
 
+    fireEvent.click(await screen.findByTestId("sign-in-method-remove-id-1"));
+
+    expect(await screen.findByTestId("account-security-remove-dialog")).toBeInTheDocument();
+    expect(confirmSpy).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByTestId("account-security-remove-confirm"));
+
     await waitFor(() => {
-      expect(screen.getByTestId("add-sign-in-method-card")).toBeInTheDocument();
+      expect(removeSignInMethod).toHaveBeenCalledWith("id-1");
     });
 
-    fireEvent.change(screen.getByLabelText("Email for one-time code"), {
+    expect(await screen.findByTestId("account-security-list-feedback")).toHaveTextContent(/removed/i);
+    confirmSpy.mockRestore();
+  });
+
+  it("does not use pastel amber fills on the confirm panel", async () => {
+    vi.mocked(fetchSignInMethods).mockResolvedValue([]);
+    vi.mocked(requestEmailLinkChallenge).mockResolvedValue({ challengeId: "challenge-1" });
+    vi.mocked(verifyEmailLinkChallenge).mockResolvedValue(pendingProposal);
+
+    render(<AccountSecurityPageClient />);
+
+    fireEvent.change(await screen.findByLabelText("Email for one-time code"), {
       target: { value: "you@example.com" },
     });
     fireEvent.click(screen.getByTestId("account-security-send-code"));
-
     await waitFor(() => {
-      expect(screen.getByTestId("account-security-send-code")).toBeDisabled();
+      expect(screen.getByLabelText("Verification code")).toBeInTheDocument();
     });
+    fireEvent.change(screen.getByLabelText("Verification code"), { target: { value: "123456" } });
+    fireEvent.click(screen.getByTestId("account-security-verify-code"));
 
-    expect(requestEmailLinkChallenge).toHaveBeenCalledTimes(1);
+    const panel = await screen.findByTestId("account-security-confirm-panel");
 
-    fireEvent.click(screen.getByTestId("account-security-send-code"));
-    expect(requestEmailLinkChallenge).toHaveBeenCalledTimes(1);
-
-    resolveChallenge?.();
-    await waitFor(() => {
-      expect(screen.getByTestId("account-security-send-code")).not.toBeDisabled();
-    });
+    expect(panel.className).not.toMatch(/bg-amber-50/);
+    expect(panel.className).not.toMatch(/bg-red-50/);
+    expect(panel.className).not.toMatch(/bg-teal-50/);
   });
 });

@@ -29,7 +29,10 @@ import {
   SETTINGS_PREFERENCES_PATH,
 } from "@/lib/settings-admin-route-paths";
 
-import { AccountSettingsMenu } from "./AccountSettingsMenu";
+import {
+  AccountSettingsMenu,
+  computeAccountSettingsMenuPanelStyle,
+} from "./AccountSettingsMenu";
 
 function openMenu(): void {
   fireEvent.click(screen.getByTestId("account-settings-menu-trigger"));
@@ -69,5 +72,53 @@ describe("AccountSettingsMenu", () => {
     expect(screen.getByTestId("account-settings-menu-item-account-security")).not.toHaveAttribute(
       "aria-current",
     );
+  });
+
+  it("portals the menu to document.body so sticky top-bar overflow cannot trap a scrollbar", () => {
+    const { container } = render(<AccountSettingsMenu />);
+
+    openMenu();
+
+    const menu = screen.getByTestId("account-settings-menu");
+
+    expect(menu.parentElement).toBe(document.body);
+    expect(container.contains(menu)).toBe(false);
+    expect(menu.style.position).toBe("fixed");
+  });
+
+  it("closes on Escape", () => {
+    render(<AccountSettingsMenu />);
+
+    openMenu();
+    expect(screen.getByTestId("account-settings-menu")).toBeInTheDocument();
+
+    fireEvent.keyDown(document, { key: "Escape" });
+
+    expect(screen.queryByTestId("account-settings-menu")).not.toBeInTheDocument();
+  });
+});
+
+describe("computeAccountSettingsMenuPanelStyle", () => {
+  it("anchors the panel under the trigger's right edge", () => {
+    const trigger = document.createElement("button");
+
+    trigger.getBoundingClientRect = () =>
+      ({
+        top: 10,
+        bottom: 40,
+        left: 900,
+        right: 940,
+        width: 40,
+        height: 30,
+        x: 900,
+        y: 10,
+        toJSON: () => ({}),
+      }) as DOMRect;
+
+    const style = computeAccountSettingsMenuPanelStyle(trigger);
+
+    expect(style.position).toBe("fixed");
+    expect(style.top).toBe(44);
+    expect(style.left).toBe(940 - Math.min(288, window.innerWidth - 32));
   });
 });

@@ -106,7 +106,7 @@ describe("OperatorShellTopBar", () => {
       </TooltipProvider>,
     );
 
-    expect(screen.getByTestId("app-shell-topbar")).toHaveClass("overflow-x-hidden");
+    expect(screen.getByTestId("app-shell-topbar")).not.toHaveClass("overflow-x-hidden");
     expect(screen.getByTestId("app-shell-topbar-primary")).toBeInTheDocument();
     expect(screen.queryByTestId("active-tenant-context-badge")).not.toBeInTheDocument();
     expect(screen.getByTestId("app-shell-topbar-context")).toBeInTheDocument();

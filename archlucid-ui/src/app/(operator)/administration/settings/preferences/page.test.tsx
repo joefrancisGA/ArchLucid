@@ -17,10 +17,10 @@ describe("PreferencesSettingsPage", () => {
 
     render(page);
 
-    expect(screen.getByRole("heading", { level: 1, name: "Preferences" })).toBeInTheDocument();
+    expect(screen.getByTestId("preferences-settings-page-title")).toHaveTextContent("Preferences");
     expect(screen.getByTestId("preferences-appearance-card")).toBeInTheDocument();
     expect(screen.getByText(/saved to your account and applied across supported devices/i)).toBeInTheDocument();
     expect(screen.getByTestId("theme-preference-selector-stub")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "← Settings" })).toHaveAttribute("href", "/administration/settings");
+    expect(screen.queryByRole("link", { name: "← Settings" })).not.toBeInTheDocument();
   });
 });

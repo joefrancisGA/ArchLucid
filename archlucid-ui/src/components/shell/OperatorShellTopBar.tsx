@@ -48,9 +48,14 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
   return (
     <header
       data-testid="app-shell-topbar"
-      className="overflow-x-hidden border-b border-neutral-200 bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-950"
+      className="border-b border-neutral-200 bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-950"
     >
-      <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, "flex min-w-0 overflow-x-hidden")}>
+      {/*
+        Avoid overflow-x-hidden here: it forces overflow-y:auto on the short header, so absolute
+        menus (legacy Collapsible popovers) paint a demo-killing scrollbar inside the top bar.
+        Horizontal containment stays on flex children via min-w-0.
+      */}
+      <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, "flex min-w-0")}>
         <div
           data-testid="app-shell-topbar-primary"
           className={cn(
