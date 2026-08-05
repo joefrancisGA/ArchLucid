@@ -919,11 +919,13 @@ Canonical operator spine: `/reviews` and `/reviews/{runId}` package context. `/g
 
 ### Residuals (honest)
 
-- **TB-1026** inventories nav-collapse surfaces.
-- **TB-1027** aligns positioning and glossary pointers.
-- Full vocab rewrite is out of scope.
+Engineering SoT: [`OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md`](../library/OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md) (**TB-1026** Done). Primary-object hierarchy, canonical `/reviews` spine, and collapse surfaces are published. Follow-on claim CI: **TB-1027**. Full vocab rewrite is out of scope.
 
-**Related:** [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) · [`UI_GLOSSARY_V1.md`](UI_GLOSSARY_V1.md) · [`POSITIONING.md#create-vs-review--adversarial-evaluation-closed`](POSITIONING.md#create-vs-review--adversarial-evaluation-closed) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+| Open work | Purpose |
+| --- | --- |
+| **TB-1027** | Anti-finding-as-primary / dual-product-create-review claim-drift guard |
+
+**Related:** [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) · [`../library/OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md`](../library/OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md) · [`UI_GLOSSARY_V1.md`](UI_GLOSSARY_V1.md) · [`POSITIONING.md#create-vs-review--adversarial-evaluation-closed`](POSITIONING.md#create-vs-review--adversarial-evaluation-closed) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## SOC 2 / pen-test — honest procurement talk-track (M-197) {#soc2-pentest-honest-talk-track-m-197}
 
