@@ -37,7 +37,7 @@
 
 **Why:** Cross-tenant data access is irreversible reputational failure. **Primary control:** database-per-tenant catalog routing ([ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md)). **Defense-in-depth:** typed scope, route binding, scoped repositories, CI guards — **not SQL RLS** (removed migration 148).
 
-**Enforcement sketch:** `TenantIdentityBoundaryAnalyzer` (ARCH001); `ProductionSafetyRules.CollectSingleCatalogDisallowedInProductionLike`; `assert_route_tenant_scope_guard.py`; parallel-tenant / scope-isolation integration tests. See [`TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md).
+**Enforcement sketch:** `TenantIdentityBoundaryAnalyzer` (ARCH001); `ProductionSafetyRules.CollectSingleCatalogDisallowedInProductionLike`; `assert_route_tenant_scope_guard.py`; parallel-tenant / scope-isolation integration tests. Engineering matrix: [`TENANT_IDENTITY_SINGLE_DERIVATION_CONTRACT.md`](TENANT_IDENTITY_SINGLE_DERIVATION_CONTRACT.md) (**TB-999**). See [`TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md).
 
 ---
 

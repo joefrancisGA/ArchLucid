@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-05 - Docs: Tenant identity single-derivation contract (TB-999)
+
+Published [`TENANT_IDENTITY_SINGLE_DERIVATION_CONTRACT.md`](library/TENANT_IDENTITY_SINGLE_DERIVATION_CONTRACT.md) — INV-001 decide-once host boundary, trusted vs header sources, ARCH001 forbidden re-derive, and Layer A catalog reminder. GTM **M-151** and claim-boundary guide cite the matrix. Does not claim SQL RLS or CPA / third-party pen-test.
+
 ## 2026-08-05 - Docs: LLM trust-boundary ingress confinement contract (TB-997)
 
 Published [`LLM_TRUST_BOUNDARY_INGRESS_CONFINEMENT_CONTRACT.md`](library/LLM_TRUST_BOUNDARY_INGRESS_CONFINEMENT_CONTRACT.md) — host-composed ingress vs structurally impossible model side effects, with Done hygiene (**TB-949**–**TB-951**) and residual **TB-952**. GTM **M-149** and claim-boundary guide cite the matrix. Does not claim injection-proof docs or CPA / third-party pen-test.

@@ -125,7 +125,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | Alerts Conditions tab UX | **TB-936** (open P1 **V1**) | `/governance/alert-rules?tab=rules` — rule builder, terminology, preview, sample guards |
 | Polly vs run-level matrix (PA Q7) | **TB-995** **Done**; **TB-996** (open P1 **V1**) | Contract shipped; honesty CI remains; GTM **M-146**/**M-147** |
 | LLM trust boundary (PA Q11) | **TB-997** **Done**; **TB-998** (open P1 **V1**) | Contract shipped; honesty CI remains; GTM **M-148**/**M-149** |
-| INV-001 single-derivation (PA Q1) | **TB-999**–**TB-1000** (open P1 **V1**) | Host-boundary decide-once vs forbidden-layer matrix + honesty CI; GTM **M-150**/**M-151**; complements Done **TB-010**/**TB-304**/**TB-925** / ARCH001 |
+| INV-001 single-derivation (PA Q1) | **TB-999** **Done**; **TB-1000** (open P1 **V1**) | Contract shipped; honesty CI remains; GTM **M-150**/**M-151** |
 | Ask/Search/Graph-RAG tenancy (PA Q3) | **TB-1001**–**TB-1002** (open P1 **V1**) | Retrieval hit guarantee matrix + honesty CI; GTM **M-152**/**M-153**; Done **TB-048**/**TB-071**/**TB-604** |
 | Committed golden manifest unit-of-truth | **TB-1003**–**TB-1004** (open P1 **V1**) | Unit-of-truth vs forbidden substitutes + honesty CI; GTM **M-154**/**M-155** |
 | Layer residual / irreversible leak (PA) | **TB-1005**–**TB-1006** (open P1 **V1**) | NetArchTest vs runtime residual matrix + honesty CI; GTM **M-156**/**M-157**; cites **TB-950**/**TB-999**/**TB-1001** |
@@ -181,8 +181,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-2030 | Expand First Load JS baseline to `/` (+ optional alert hubs) | Performance P2 **V1** — extends **TB-573**/**TB-691** |
 | TB-996 | Polly ≠ run-completeness honesty CI | Testability P1 **V1** — after Done **TB-995** |
 | TB-998 | LLM trust-boundary honesty CI | Testability P1 **V1** — after Done **TB-997** |
-| TB-999 | INV-001 tenant identity single-derivation contract | Trustworthiness P1 **V1** — PA Q1; GTM **M-150**/**M-151** |
-| TB-1000 | Anti-header/ambient re-derive honesty CI | Testability P1 **V1** — after **TB-999** |
+| TB-1000 | Anti-header/ambient re-derive honesty CI | Testability P1 **V1** — after Done **TB-999** |
 | TB-1001 | Azure AI Search / Ask / Graph-RAG retrieval tenancy guarantee matrix | Trustworthiness P1 **V1** — PA Q3; GTM **M-152**/**M-153** |
 | TB-1002 | Anti-per-tenant-Search-index / filter-optional honesty CI | Testability P1 **V1** — after **TB-1001** |
 | TB-1003 | Committed golden manifest unit-of-truth contract | Trustworthiness P1 **V1** — GTM **M-154**/**M-155** |

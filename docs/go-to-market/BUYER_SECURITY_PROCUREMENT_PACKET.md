@@ -95,14 +95,9 @@ Former standalone body: `docs/go-to-market/TENANT_IDENTITY_SINGLE_DERIVATION_PA_
 
 ### Residuals (honest)
 
-- **INV-001** and Layer B are implemented; **ARCH001** prohibits lower assemblies from using `HttpContext`/`ClaimsPrincipal` for this purpose.
-- Contract + honesty CI: **TB-999** / **TB-1000** (open).
-- Too-strong inventory / stale RLS purge: **M-194** / **TB-1122**.
-- DiD erosion after provider exists: **M-213** / **TB-1232** — see [Tenant DiD erosion (M-214)](#tenant-did-erosion-beyond-predicates-m-214).
-- Retrieval hit tenancy (Search `$filter`): **M-152** / **M-153**.
-- This is Layer B defense in depth; Layer A database-per-tenant routing remains the primary paying-client isolation boundary.
+Engineering SoT: [`TENANT_IDENTITY_SINGLE_DERIVATION_CONTRACT.md`](../library/TENANT_IDENTITY_SINGLE_DERIVATION_CONTRACT.md) (**TB-999** Done). **INV-001** and Layer B are implemented; **ARCH001** prohibits lower assemblies from using `HttpContext`/`ClaimsPrincipal` for this purpose. Follow-on claim CI: **TB-1000**. Too-strong inventory / stale RLS purge: **M-194** / **TB-1122**. DiD erosion after provider exists: **M-213** / **TB-1232** — see [Tenant DiD erosion (M-214)](#tenant-did-erosion-beyond-predicates-m-214). Retrieval hit tenancy (Search `$filter`): **M-152** / **M-153**. This is Layer B defense in depth; Layer A database-per-tenant routing remains the primary paying-client isolation boundary.
 
-**Deep reference:** [`../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md) Layer B · [Isolation one-pager (M-114)](#isolation-one-pager-m-114) · [Empty-scope catalog routing (M-169)](#empty-scope-catalog-routing-m-169) · [Isolation claims vs INV-001 / ADR 0037 (M-195)](#isolation-claims-vs-inv001-adr0037-m-195) · [Tenant DiD erosion (M-214)](#tenant-did-erosion-beyond-predicates-m-214) · [Tenant isolation (buyer overview)](#tenant-isolation-buyer-overview) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+**Deep reference:** [`../library/TENANT_IDENTITY_SINGLE_DERIVATION_CONTRACT.md`](../library/TENANT_IDENTITY_SINGLE_DERIVATION_CONTRACT.md) · [`../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md) Layer B · [Isolation one-pager (M-114)](#isolation-one-pager-m-114) · [Empty-scope catalog routing (M-169)](#empty-scope-catalog-routing-m-169) · [Isolation claims vs INV-001 / ADR 0037 (M-195)](#isolation-claims-vs-inv001-adr0037-m-195) · [Tenant DiD erosion (M-214)](#tenant-did-erosion-beyond-predicates-m-214) · [Tenant isolation (buyer overview)](#tenant-isolation-buyer-overview) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## Empty scope and catalog routing (M-169) {#empty-scope-catalog-routing-m-169}
 
@@ -2176,7 +2171,7 @@ Former standalone body: `docs/go-to-market/INV001_DECIDE_ONCE_COMMITTED_MANIFEST
 
 **Audience:** Principal architects and procurement reviewers who fuse tenant, decide, and commit stories.
 
-**Decision:** Keep three vocabularies separate. Committed golden manifest proves **finalization identity + hash lineage**, not semantic faithfulness, zero AgentTask overlay, or crypto tenant isolation. Do not sell the triad as closed while **TB-999** / **TB-1003** (and named residual owners) remain Not started.
+**Decision:** Keep three vocabularies separate. Committed golden manifest proves **finalization identity + hash lineage**, not semantic faithfulness, zero AgentTask overlay, or crypto tenant isolation. Tenant single-derivation matrix (**TB-999**) is shipped; do not sell the triad as closed while **TB-1003** (and named residual owners) remain Not started, or while honesty CI (**TB-1000**) / DiD erosion (**TB-1232**) remain open.
 
 ### Vocabulary (do not fuse)
 
@@ -2205,7 +2200,7 @@ Former standalone body: `docs/go-to-market/INV001_DECIDE_ONCE_COMMITTED_MANIFEST
 
 1. Ask which “decide-once” the buyer means — tenant, quality gate, or architecture commit.
 2. Confirm committed ≠ evidence-grounded / no-overlay / crypto-isolated.
-3. Confirm triad is not sold as closed while **TB-999** / **TB-1003** remain Not started.
+3. Confirm triad is not sold as closed while **TB-1003** remains Not started (tenant matrix **TB-999** is Done; **TB-1000** / **TB-1232** residuals still open).
 4. Treat a fourth fused “decide” story as a review finding.
 
 ### Claim boundary
@@ -2215,7 +2210,7 @@ Do not equate INV-001 tenant decide-once with architecture decided once or INV-0
 ### Residuals (honest)
 
 - **TB-1416** / **TB-1417** own the fused matrix contract and language guards.
-- Ship-order hint: **TB-999** + **TB-1003** first among residual contracts.
+- Ship-order hint: **TB-1003** next among residual contracts (**TB-999** Done).
 - Complements **M-150** / **M-154** / **M-194** / **M-203** / **M-207** / **M-213** / **M-198** / **M-247**.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
 
