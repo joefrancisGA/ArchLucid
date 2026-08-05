@@ -371,12 +371,20 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     prefix: "/administration/system-health",
     entry: {
       whatIsThisPage:
-        "Check workspace service health, required dependencies, and deployment identity for this tenant.",
+        "Confirm workspace service health, required dependencies, and deployment identity for this tenant.",
       whatToDoNext:
-        "Refresh readiness, open Connection status when a dependency fails, or follow Troubleshooting help.",
+        "Refresh readiness, then open Connection status when a dependency needs follow-up.",
       whyEmpty: "Health rows appear after the readiness probe returns for this workspace.",
       whereToConfigurePrerequisite:
-        "Dependency connectivity is configured under Administration connection settings.",
+        "Dependency connectivity is configured under Administration → Connection status.",
+      whatToDoNextAction: {
+        label: "Open Connection status",
+        href: "/administration/connection-status",
+      },
+      whereToConfigureAction: {
+        label: "Open Connection status",
+        href: "/administration/connection-status",
+      },
     },
   },
   {
@@ -772,6 +780,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
   },
   {
     prefix: "/help/first-pilot-path",
+    entry: {
+      whatIsThisPage:
+        "Your first architecture review — guided path from evidence intake to a finalized package and sponsor-ready exports.",
+      whatToDoNext:
+        "Start an architecture review from the hero CTA, or open the sample review when you want a completed outcome first.",
+      whyEmpty: "This guide is always available; live review packages appear after you create architecture reviews.",
+      whereToConfigurePrerequisite:
+        "Creating reviews needs a role that can start architecture reviews in this workspace.",
+    },
+  },
+  {
+    prefix: "/help/first-hour-operator-path",
     entry: {
       whatIsThisPage:
         "Your first architecture review — guided path from evidence intake to a finalized package and sponsor-ready exports.",

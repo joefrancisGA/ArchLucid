@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-05 - UI: First-hour-operator-path help alias Evidence (HFE)
+
+`/help/first-hour-operator-path` documents Help alias -> COR with Category-1 + topic map on the alias path (inherits HelpCorePilotGuideView Evidence chrome), traffic Notes under Help alias, and honest Evidence score 52. Alias inherits COR orientation hard-cap; no CPA / third-party pen-test implication.
+
 ## 2026-08-05 - UI: Enterprise onboarding help Evidence chrome (HEX)
 
 `/help/enterprise-onboarding` ships EnterpriseOnboardingHelpEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map, traffic Notes under Help topic, and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.

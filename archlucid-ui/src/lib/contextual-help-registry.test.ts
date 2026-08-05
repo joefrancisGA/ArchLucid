@@ -97,6 +97,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/first-architecture-review",
       "/help/core-pilot",
       "/help/first-pilot-path",
+      "/help/first-hour-operator-path",
       "/help/cloud-connections/azure",
       "/help/azure-permissions",
       "/help/glossary",
@@ -309,6 +310,12 @@ describe("contextual-help-registry (TB-733)", () => {
     );
     expect(contextualHelpForPathname("/help/enterprise-onboarding")?.whatToDoNext).toContain(
       "Identity providers",
+    );
+  });
+
+  it("resolves first-hour-operator-path help alias Category-1 help (HFE)", () => {
+    expect(contextualHelpForPathname("/help/first-hour-operator-path")?.whatIsThisPage).toContain(
+      "Your first architecture review",
     );
   });
 
