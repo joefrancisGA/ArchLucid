@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 
 import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
 import { MarketingProofChainStrip } from "@/components/marketing/MarketingProofChainStrip";
+import { WhyEvidenceOrientationStrip } from "@/components/marketing/WhyEvidenceOrientationStrip";
 import { Button } from "@/components/ui/button";
 import { BUYER_OUTCOME_LED_VALUE_PROPOSITION } from "@/lib/buyer-polish-copy";
 import { BRAND_CATEGORY, BRAND_PROOF_SCOPE_STATEMENT } from "@/lib/brand-category";
@@ -77,6 +78,8 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
       >
         {BRAND_PROOF_SCOPE_STATEMENT}
       </p>
+
+      <WhyEvidenceOrientationStrip />
 
       <div className="mt-8">
         <MarketingProofChainStrip />

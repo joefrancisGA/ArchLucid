@@ -14,6 +14,10 @@ Release entries newest-first. Each section condenses the detailed prompt logs pr
 
 DbUp **294** + `ArchLucid.sql` add token/cost/alias/quality columns on `dbo.AgentExecutionTraces` with best-effort JSON backfill. Create dual-writes scalars; operator list and LLM cost projections prefer typed columns with `JSON_VALUE` COALESCE for rolling-deploy rows. Quality patches dual-write bit columns. Inventory updated. Finding list title/severity was already columnar. Does not claim CPA / third-party pen-test.
 
+## 2026-08-05 - UI: Why ArchLucid Evidence chrome (WHY)
+
+`/why` ships WhyEvidenceOrientationStrip (evaluation Sources + claim-discipline), traffic Notes under Marketing, and honest Evidence score 40. Marketing why page hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-05 - UI: Welcome Evidence chrome (WXX)
 
 `/welcome` ships WelcomeEvidenceOrientationStrip (evaluation Sources + claim-discipline), traffic Notes under Marketing, and honest Evidence score 40. Marketing welcome page hard-caps higher Evidence; no CPA / third-party pen-test implication.
