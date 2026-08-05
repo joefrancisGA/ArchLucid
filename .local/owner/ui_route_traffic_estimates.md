@@ -45,13 +45,12 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 
 ---
 
-**OVERALL WEIGHT SCORE:** 56.21%
+**OVERALL WEIGHT SCORE:** 56.23%
 
 ## Master table (score 0 first; then Deficit desc; ties A→Z by path)
 
 | ID | Path | Hit% | Scores | Weight | Deficit | Section | Notes |
 |----|------|------|--------|--------|---------|---------|-------|
-| IIO | `/integrations/itsm/oauth/callback` | 0.05% | 0 | 0 | 5 | Integrations | None |
 | QXX | `/quick-scan` | 0.05% | 0 | 0 | 5 | Marketing | None |
 | SRH | `/showcase/[runId]` | 0.05% | 0 | 0 | 5 | Marketing | None |
 | TRY | `/try` | 0.05% | 0 | 0 | 5 | Marketing | None |
@@ -245,6 +244,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | SPP | `/sponsor-report/pilot-outcomes` | 0.07% | 52 | 3.64 | 3.36 | Sponsor report | Sponsor pilot outcomes report (Sponsor report) - PilotValueReportPageClient/View with PageContextualHelpButton (topic map executive-summary; Category-1 registry), workspace Sources + claim-discipline orientation strip, period controls, Outcomes nav. Absorbs former VPX hit share from retired legacy /value-report/pilot bookmark (LegacyPilotValueReportRedirectPage still permanentRedirects here). Period summary â€” not a signed-record Sources trail alone. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-04) â€” sponsor period-summary hard-caps higher Evidence without diligence packing. |
 | AFX | `/admin/fleet-llm-cogs` | 0.05% | 35 | 1.75 | 3.25 | Admin | None |
 | GXX | `/get-started` | 0.05% | 40 | 2 | 3 | Marketing | Get started (Marketing) - GetStartedPageClient with GetStartedEvidenceOrientationStrip (evaluation Sources + claim-discipline: first-run orientation only; not diligence / CPA SOC 2 / third-party pen-test). Not an operator PageContextualHelp surface. Legacy /quick-start retired toward this path. Does not imply CPA SOC 2 or third-party pen-test publication. Score 40/100 (2026-08-04) — marketing first-run page hard-caps higher Evidence. |
+| IIO | `/integrations/itsm/oauth/callback` | 0.05% | 40 | 2 | 3 | Integrations | Atlassian OAuth consent return (Integrations) - ItsmAtlassianOAuthCallbackClient with PageContextualHelpButton (topic map integration-readiness; Category-1 registry), workspace Sources + claim-discipline orientation strip, consent status + return to Jira settings. Live App Router page; not redirect-blocked (TB-1776 hub carve-out). Does not imply CPA SOC 2 or third-party pen-test publication. Score 40/100 (2026-08-05) — OAuth handshake surface hard-caps higher Evidence. |
 | PRC | `/product-learning` | 0.06% | 50 | 3 | 3 | Onboarding | Pilot feedback (Onboarding) - ProductLearningPageView at /internal/product-learning with PageContextualHelpButton (topic map pilot-feedback; Category-1 registry), workspace Sources + claim-discipline orientation strip, time-range dashboard, planning bridge, exports. Legacy /product-learning hard-retired (404). Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 50/100 (2026-08-04) - internal ops feedback hub hard-caps higher Evidence (below PLA planning). |
 | HE | `/help/azure-permissions` | 0.06% | 52 | 3.12 | 2.88 | Help topic | Azure permissions help (Help topic) - HelpAzurePermissionsGuideView with PageContextualHelpButton (topic map azure-permissions; Category-1 registry), workspace Sources + claim-discipline orientation strip, permissions matrix, setup and verify panels. Not bare HelpTopicMarkdownView. Sibling HC = Connect Azure securely; HCE = cloud-connections help. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-04) â€” help-topic orientation hard-caps higher Evidence. |
 | HGE | `/help/glossary` | 0.06% | 52 | 3.12 | 2.88 | Help topic | Glossary help (Help topic) - HelpGlossaryPageView with PageContextualHelpButton (topic map glossary; Category-1 registry), workspace Sources + claim-discipline orientation strip, searchable term browser. Not bare HelpTopicMarkdownView. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-04) — help-topic orientation hard-caps higher Evidence. |

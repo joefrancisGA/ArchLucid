@@ -719,6 +719,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/integrations/itsm/oauth/callback",
+    entry: {
+      whatIsThisPage:
+        "Atlassian OAuth callback — completes Jira connector consent after Atlassian redirects back to ArchLucid.",
+      whatToDoNext:
+        "When consent succeeds, return to Jira integration settings to run a health probe; on failure, retry Connect with Atlassian.",
+      whyEmpty: "This page only appears after an OAuth redirect; status text replaces empty layouts.",
+      whereToConfigurePrerequisite:
+        "Starting OAuth requires Operate authority and a configured Atlassian app registration.",
+    },
+  },
+  {
     prefix: "/integrations/servicenow",
     entry: {
       whatIsThisPage:

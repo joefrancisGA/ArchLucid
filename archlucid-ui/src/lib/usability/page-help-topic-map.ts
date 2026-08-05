@@ -227,6 +227,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "integration-readiness", label: "Jira integration" },
   },
   {
+    prefix: "/integrations/itsm/oauth/callback",
+    topic: { slug: "integration-readiness", label: "Atlassian OAuth callback" },
+  },
+  {
     prefix: "/integrations/servicenow",
     topic: { slug: "integration-readiness", label: "ServiceNow integration" },
   },

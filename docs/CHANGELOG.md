@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-05 - UI: ITSM OAuth callback Evidence chrome (IIO)
+
+/integrations/itsm/oauth/callback ships PageContextualHelpButton, Category-1 registry, Sources + claim-discipline orientation strip, traffic Notes, and honest Evidence score 40. OAuth handshake surface hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-05 - UI/API: Settings split by audience — personal settings for every user, tenant settings admin-only
 
 Personal settings (`/administration/settings/preferences`, `/administration/settings/account-security`) were reachable only by URL: no nav builder published them, and the sidebar "Settings" slot pointed at the `ExecuteAuthority`-gated tenant page. They now ship in a new top-bar account menu (`AccountSettingsMenu`) backed by `SELF_SETTINGS_DESTINATIONS`, ungated at every authority rank because their writes touch only the caller's own record.
