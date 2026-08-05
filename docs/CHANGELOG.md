@@ -10,6 +10,20 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-05 - UI/API: Settings split by audience — personal settings for every user, tenant settings admin-only
+
+Personal settings (`/administration/settings/preferences`, `/administration/settings/account-security`) were reachable only by URL: no nav builder published them, and the sidebar "Settings" slot pointed at the `ExecuteAuthority`-gated tenant page. They now ship in a new top-bar account menu (`AccountSettingsMenu`) backed by `SELF_SETTINGS_DESTINATIONS`, ungated at every authority rank because their writes touch only the caller's own record.
+
+The settings hub is now unambiguously the tenant-administration surface. `settings-master-audience.ts` derives audience from each destination's data scope with an exhaustive switch, and the hub drops `self` audiences so a personal setting cannot be re-orphaned behind an admin gate (internal-tier developer tools are exempt — user-scoped but employee chrome, already gated by `showInternalShell`).
+
+Hub-first per **IA-016 / D5**: the sidebar "Settings" slot targets `/administration/settings` at `ReadAuthority` (it also publishes read-only billing and security & trust rows); `/administration/settings/tenant` becomes a separate "Workspace settings" entry at `AdminAuthority` with a `TenantSettingsRestrictedState` for non-admin deep links, and breadcrumbs/static titles follow. `PUT /v1/tenant/cost-settings` tightened to `AdminAuthority`.
+
+The duplicated executive digest editor was removed from the tenant page in favour of the Digests hub, which already owns recipients, time zone, delivery readiness, and subscription health. `POST /v1/tenant/exec-digest-preferences` and `PUT /v1/tenant/baseline` deliberately stay at `ExecuteAuthority`: the Digests hub is a `ReadAuthority` Reports destination where Operators and Sponsors schedule digests, and baseline is written by the review-intake and pilot wizards, so tightening either would break normal workflow rather than close a gap. Quality-gate mode, model governance, identity providers, sign-in domains, API keys, SCIM, users, and AI usage were already `AdminAuthority`.
+
+## 2026-08-05 - Docs: PA first-15 package-spine IA unlock contract (TB-1030)
+
+Published [`PA_FIRST_15_PACKAGE_SPINE_IA_CONTRACT.md`](library/PA_FIRST_15_PACKAGE_SPINE_IA_CONTRACT.md) — must-complete decision-signal set, minute-12 checkpoint, Finalize + export co-location, and narration residuals. GTM **M-181** and claim-boundary guide cite the matrix. Does not claim M-44 cohort proof, or CPA / third-party pen-test.
+
 ## 2026-08-05 - UI: Workspace and scope help Evidence chrome (HSX)
 
 /help/scope ships PageContextualHelpButton, Category-1 registry, Sources + claim-discipline orientation strip on HelpTopicMarkdownView, traffic Notes, and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.

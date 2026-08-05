@@ -45,13 +45,12 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 
 ---
 
-**OVERALL WEIGHT SCORE:** 56.18%
+**OVERALL WEIGHT SCORE:** 56.21%
 
 ## Master table (score 0 first; then Deficit desc; ties A→Z by path)
 
 | ID | Path | Hit% | Scores | Weight | Deficit | Section | Notes |
 |----|------|------|--------|--------|---------|---------|-------|
-| HSX | `/help/scope` | 0.05% | 0 | 0 | 5 | Help topic | None |
 | IIO | `/integrations/itsm/oauth/callback` | 0.05% | 0 | 0 | 5 | Integrations | None |
 | QXX | `/quick-scan` | 0.05% | 0 | 0 | 5 | Marketing | None |
 | SRH | `/showcase/[runId]` | 0.05% | 0 | 0 | 5 | Marketing | None |
@@ -254,6 +253,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | ATD | `/admin/trial-funnel` | 0.05% | 45 | 2.25 | 2.75 | Admin | Trial funnel (Admin) - TrialFunnelOpsPageClient with PageContextualHelpButton (topic map billing-and-plans; Category-1 registry), workspace Sources + claim-discipline orientation strip, stage KPIs + cohort table/export. Internal conversion metrics — not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 45/100 (2026-08-04) — admin KPI hub hard-caps higher Evidence (same band as ATX). |
 | AD | `/governance/advisory-scans?tab=schedules` | 0.05% | 48 | 2.4 | 2.6 | Tab surface | Advisory scans Schedules tab (Tab surface) - inherits ADV hub Evidence chrome (PageContextualHelpButton + Category-1 registry on /governance/advisory-scans; AdvisoryScansEvidenceOrientationStrip Sources + claim-discipline above tabs). AdvisorySchedulesContent + AdvisoryScheduleCreateForm; digest send-test and setup-gap handoffs. Legacy /advisory-scheduling redirects via TB-1124. Sibling ADV = hub/scans. Does not imply CPA SOC 2 or third-party pen-test publication. Score 48/100 (2026-08-04) — schedule-config tab hard-caps higher Evidence (below ADV launcher 50). |
 | AEX | `/admin/evidence-proposals` | 0.05% | 50 | 2.5 | 2.5 | Admin | None |
+| HSX | `/help/scope` | 0.05% | 52 | 2.6 | 2.4 | Help topic | Workspace and scope help (Help topic) - HelpTopicMarkdownView with PageContextualHelpButton (topic map scope; Category-1 registry), workspace Sources + claim-discipline orientation strip, curated WORKSPACE_SCOPE_GUIDE markdown. Sibling HUX/HOE = users-and-roles. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-05) — help-topic orientation hard-caps higher Evidence. |
 | HSE | `/help/security-trust` | 0.05% | 52 | 2.6 | 2.4 | Help topic | Security and trust help (Help topic) - HelpTopicMarkdownView with PageContextualHelpButton (topic map security-trust; Category-1 registry), workspace Sources + claim-discipline orientation strip, curated trust-center markdown. Sibling SEC = /security-trust hub; TXX = /trust. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-05) — help-topic orientation hard-caps higher Evidence. |
 | HUX | `/help/users-and-roles` | 0.05% | 52 | 2.6 | 2.4 | Help alias | Users-and-roles help (Help alias) - HelpUsersAndRolesGuideView with PageContextualHelpButton (topic map users-and-roles; Category-1 registry), workspace Sources + claim-discipline orientation strip, role overview + capability matrix. Not bare HelpTopicMarkdownView. Sibling HOE = /help/operator-auth-roles alias. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-04) — help-topic orientation hard-caps higher Evidence. |
 | AII | `/admin/integrations/itsm` | 0.08% | 78 | 6.24 | 1.76 | Admin | None |

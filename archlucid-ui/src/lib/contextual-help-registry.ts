@@ -538,6 +538,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/help/scope",
+    entry: {
+      whatIsThisPage:
+        "Workspace and scope guide — how tenant, workspace, and project boundaries work with the header switcher.",
+      whatToDoNext:
+        "Confirm the header scope switcher, then open Users and roles or Users settings when access needs adjustment.",
+      whyEmpty: "This guide is always available; live scope labels appear in the operator header after sign-in.",
+      whereToConfigurePrerequisite:
+        "Changing tenant or project membership needs Admin authority in the target workspace.",
+    },
+  },
+  {
     prefix: "/help/findings",
     entry: {
       whatIsThisPage:

@@ -161,6 +161,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "security-trust", label: "Security and trust" },
   },
   {
+    prefix: "/help/scope",
+    topic: { slug: "scope", label: "Workspace and scope" },
+  },
+  {
     prefix: "/help/repeat-review-loop",
     topic: { slug: "repeat-review-loop", label: "Repeat-review loop" },
   },
