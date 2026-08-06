@@ -16,5 +16,6 @@ describe("SeeItEvidenceOrientationStrip", () => {
     }
 
     expect(SEE_IT_SOURCES.some((link) => link.href === SEE_IT_CANONICAL_PATH)).toBe(false);
+    expect(SEE_IT_SOURCES.some((link) => link.href === "/demo/preview")).toBe(false);
   });
 });
