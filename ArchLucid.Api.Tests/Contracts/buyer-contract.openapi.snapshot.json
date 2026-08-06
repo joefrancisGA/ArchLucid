@@ -6583,6 +6583,33 @@
         },
         "type": "object"
       },
+      "ComparisonFindingCorrelationMetadata": {
+        "properties": {
+          "fuzzyMatchCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "honestyNote": {
+            "type": "string"
+          },
+          "policyRuleMatchCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "primaryCorrelationMethod": {
+            "type": "string"
+          },
+          "unmatchedLeftCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "unmatchedRightCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "ComparisonHistoryResponse": {
         "properties": {
           "comparisonType": {
@@ -9976,6 +10003,16 @@
               "$ref": "#/components/schemas/ExportRecordDiffResult"
             },
             "type": "array"
+          },
+          "findingCorrelation": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ComparisonFindingCorrelationMetadata"
+              }
+            ]
           },
           "interpretationNotes": {
             "items": {
@@ -25533,6 +25570,14 @@
         ],
         "type": "object"
       },
+      "StartTenantCatalogMigrationRequest": {
+        "properties": {
+          "correlationId": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "StringSegment": {
         "properties": {
           "buffer": {
@@ -26325,6 +26370,45 @@
             "type": [
               "null",
               "integer"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "TenantCatalogMigrationScopeRequest": {
+        "properties": {
+          "projectId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "workspaceId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "TenantCatalogMigrationStatusResponse": {
+        "properties": {
+          "correlationId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "inMigration": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "stage": {
+            "type": [
+              "null",
+              "string"
             ]
           }
         },
@@ -34937,6 +35021,9 @@
       "name": "AdminRagHealth"
     },
     {
+      "name": "AdminTenantCatalogMigration"
+    },
+    {
       "name": "AdminTenants"
     },
     {
@@ -35370,6 +35457,9 @@
     },
     {
       "name": "TenantBaseline"
+    },
+    {
+      "name": "TenantCatalogMigrationStatus"
     },
     {
       "name": "TenantCostSettings"
