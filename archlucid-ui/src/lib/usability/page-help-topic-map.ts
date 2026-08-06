@@ -390,6 +390,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "enterprise-onboarding", label: "SCIM provisioning" },
   },
   {
+    prefix: "/administration/tenant/recycle-bin",
+    topic: { slug: "scope", label: "Projects recycle bin" },
+  },
+  {
     prefix: "/administration/identity-providers/diagnostics",
     topic: { slug: "enterprise-onboarding", label: "Identity diagnostics" },
   },

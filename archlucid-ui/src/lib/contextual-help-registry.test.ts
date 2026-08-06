@@ -121,6 +121,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/administration/identity-providers/saml",
       "/administration/identity/sso-wizard",
       "/administration/scim-provisioning",
+      "/administration/tenant/recycle-bin",
       "/administration/identity-providers/role-mapping",
       "/administration/identity-providers/diagnostics",
       "/administration/api-keys",
@@ -250,6 +251,15 @@ describe("contextual-help-registry (TB-733)", () => {
     );
     expect(contextualHelpForPathname("/administration/scim-provisioning")?.whatToDoNext).toContain(
       "Copy the SCIM base URL",
+    );
+  });
+
+  it("resolves Projects recycle bin Category-1 help (STR)", () => {
+    expect(contextualHelpForPathname("/administration/tenant/recycle-bin")?.whatIsThisPage).toContain(
+      "Projects recycle bin",
+    );
+    expect(contextualHelpForPathname("/administration/tenant/recycle-bin")?.whatToDoNext).toContain(
+      "Refresh the list",
     );
   });
 

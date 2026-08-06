@@ -1131,6 +1131,19 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/administration/tenant/recycle-bin",
+    entry: {
+      whatIsThisPage:
+        "Projects recycle bin - browse soft-deleted architecture projects for this tenant and restore them when names are free.",
+      whatToDoNext:
+        "Refresh the list, restore a deleted project when you have Execute authority, then open Architectures or Tenant settings to continue work.",
+      whyEmpty:
+        "Empty means no soft-deleted projects remain in the retention window, or the recycle-bin API has not returned rows yet.",
+      whereToConfigurePrerequisite:
+        "Browsing needs Admin access; restore requires Execute authority. Retention and workspace scope live under Tenant settings.",
+    },
+  },
+  {
     prefix: "/administration/identity-providers/role-mapping",
     entry: {
       whatIsThisPage:
