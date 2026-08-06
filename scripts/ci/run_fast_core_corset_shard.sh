@@ -71,7 +71,7 @@ reclaim_orphaned_test_hosts() {
 }
 
 # Coverlet instrumentation OOMs GitHub-hosted runners on large Suite=Core hosts
-# (Architecture.Tests CI #2864 exit 137 ~5m; Api.Tests CI #30896706032 exit 137 ~301s).
+# (Architecture.Tests CI #2864 exit 137 ~5m; Api.Tests CI #30896706032 / #31108542274 exit 137 ~301s).
 # Full-regression shards still collect Coverlet for Api.Tests; Architecture.Tests is structural.
 should_collect_coverage_for_project() {
   local proj="$1"
@@ -86,6 +86,22 @@ should_collect_coverage_for_project() {
       ;;
     *)
       return 0
+      ;;
+  esac
+}
+
+# Api.Tests.csproj sets RunSettingsFilePath → coverage.runsettings (Coverlet DataCollector).
+# Skipping --collect is not enough: VSTest still loads that file unless --settings overrides it.
+# Integration shards already pass test.runsettings for the same reason; mirror that here.
+should_force_no_coverlet_runsettings() {
+  local proj="$1"
+
+  case "${proj}" in
+    *ArchLucid.Api.Tests*)
+      return 0
+      ;;
+    *)
+      return 1
       ;;
   esac
 }
@@ -132,6 +148,14 @@ for proj in "${PROJECTS[@]}"; do
       --settings coverage.runsettings
       --collect:"XPlat Code Coverage"
     )
+  elif should_force_no_coverlet_runsettings "${proj}"; then
+    ARGS+=(--settings test.runsettings)
+  fi
+
+  # Sequential WAF Suite=Core still pressures GHA RAM; prefer workstation GC for Api.Tests.
+  if should_force_no_coverlet_runsettings "${proj}"; then
+    export DOTNET_gcServer=0
+    export DOTNET_GCHeapCount=1
   fi
 
   set +e
@@ -155,7 +179,7 @@ for proj in "${PROJECTS[@]}"; do
     echo "${utc_end} HUNG ${proj} exceeded ${PROJECT_TIMEOUT}" | tee -a "${TIMING_LOG}"
 
     if [ "${exit_code}" -eq 137 ] && [ "${duration_sec}" -lt 600 ]; then
-      echo "::error::Fast core shard ${SHARD_ID} killed on ${proj} after ${duration_sec}s (exit 137). Duration is far under the ${PROJECT_TIMEOUT} project cap — likely OOM or an external SIGKILL (not a blame-hang / wall-clock hang). Architecture.Tests and Api.Tests skip Coverlet on fast-core for this reason."
+      echo "::error::Fast core shard ${SHARD_ID} killed on ${proj} after ${duration_sec}s (exit 137). Duration is far under the ${PROJECT_TIMEOUT} project cap — likely OOM or an external SIGKILL (not a blame-hang / wall-clock hang). Architecture.Tests skips Coverlet; Api.Tests also forces test.runsettings so csproj RunSettingsFilePath cannot re-enable Coverlet."
     else
       echo "::error::Fast core shard ${SHARD_ID} HUNG on ${proj}: killed after ${PROJECT_TIMEOUT}. Blame-hang ${HANG_TIMEOUT} did not fire, so the stall is outside any single test — suspect a wedged test host or coverage collection at session end."
     fi
