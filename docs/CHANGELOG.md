@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-06 - UI: Learn more job-match Vitest (TB-2052)
+
+CI suite learn-more-job-match.test.ts + inventory bans generic getting-started / how-it-works Learn more on secondary hubs, keeps Digests specialty + Schedule deep links, and asserts Category-1 still mounts when Learn more is omitted. **TB-2048**–**TB-2052** cluster closed. Does not claim CPA / third-party pen-test.
+
 ## 2026-08-05 - UI: Category-1 popover deep-link CTAs (TB-2051)
 
 Allowlisted secondary hubs expose in-app `{ label, href }` actions on Category-1 what-to-do-next / where-to-configure (Digests Schedule/Subscriptions golden retained; advisory Schedules, planning ↔ pilot feedback, impact-preview → reviews, workspace health → approval queue, Connection status ↔ System health). Vitest allowlist guard ships. **TB-2052** remains open. Does not claim CPA / third-party pen-test.
