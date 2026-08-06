@@ -16,6 +16,10 @@ import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance-route-paths";
 import { PLANNING_PATH } from "@/lib/planning-route";
 import { PRODUCT_LEARNING_PATH } from "@/lib/product-learning-route";
 import {
+  ARCHITECTURES_DRAFT_CONTEXTUAL_HELP,
+  pathIsArchitectureDraftDetail,
+} from "@/lib/architectures-draft-evidence-copy";
+import {
   PROVENANCE_CONTEXTUAL_HELP,
   pathIsRunProvenance,
 } from "@/lib/provenance-evidence-copy";
@@ -1432,6 +1436,10 @@ export function contextualHelpForPathname(pathname: string): PageContextualHelpE
 
   if (pathIsRunProvenance(path)) {
     return PROVENANCE_CONTEXTUAL_HELP;
+  }
+
+  if (pathIsArchitectureDraftDetail(path)) {
+    return ARCHITECTURES_DRAFT_CONTEXTUAL_HELP;
   }
 
   const sorted = [...PAGE_CONTEXTUAL_HELP].sort((left, right) => right.prefix.length - left.prefix.length);

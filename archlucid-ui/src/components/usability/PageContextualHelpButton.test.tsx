@@ -30,25 +30,32 @@ describe("PageContextualHelpButton", () => {
   });
 
   it("falls back to a direct help link when the route is not migrated", () => {
-    mockUsePathname.mockReturnValue("/administration/connection-status");
-
-    render(<PageContextualHelpButton />);
-
-    const link = screen.getByRole("link", { name: /how integration readiness works/i });
-
-    expect(link).toHaveAttribute("href", "/help/integration-readiness");
-    expect(screen.queryByTestId("page-scoped-contextual-help-panel")).not.toBeInTheDocument();
-  });
-
-  it("links architecture draft pages to Getting started help", () => {
-    mockUsePathname.mockReturnValue("/architecture/architectures/draft-abc");
+    mockUsePathname.mockReturnValue("/architecture/architectures");
 
     render(<PageContextualHelpButton />);
 
     const link = screen.getByRole("link", { name: /^getting started$/i });
 
     expect(link).toHaveAttribute("href", "/help/getting-started");
-    expect(link).toHaveAttribute("title", "Help: Getting started");
+    expect(screen.queryByTestId("page-scoped-contextual-help-panel")).not.toBeInTheDocument();
+  });
+
+  it("uses Category-1 popover on architecture draft detail pages (ARR)", () => {
+    mockUsePathname.mockReturnValue("/architecture/architectures/draft-abc");
+
+    render(<PageContextualHelpButton />);
+
+    const trigger = screen.getByTestId("page-contextual-help-button");
+
+    expect(trigger.tagName).toBe("BUTTON");
+
+    fireEvent.click(trigger);
+
+    expect(screen.getByTestId("page-scoped-contextual-help-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("page-scoped-contextual-help-learn-more")).toHaveAttribute(
+      "href",
+      "/help/getting-started",
+    );
   });
 });
 

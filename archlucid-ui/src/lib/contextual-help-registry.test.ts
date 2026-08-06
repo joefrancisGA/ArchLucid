@@ -156,6 +156,9 @@ describe("contextual-help-registry (TB-733)", () => {
     expect(contextualHelpForPathname("/architecture/architectures/new")?.whatIsThisPage).toContain(
       "Create architecture",
     );
+    expect(contextualHelpForPathname("/architecture/architectures/draft-abc")?.whatIsThisPage).toContain(
+      "Architecture draft workspace",
+    );
     expect(contextualHelpForPathname("/architecture/architecture-intelligence")?.whatIsThisPage).toContain(
       "Architecture intelligence",
     );

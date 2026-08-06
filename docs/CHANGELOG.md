@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-06 - UI: Architecture draft detail Evidence chrome (ARR)
+
+`/architecture/architectures/[architectureId]` ships ArchitecturesDraftEvidenceOrientationStrip (workspace Sources + claim-discipline), ArchitectureDraftWorkspace PageContextualHelp + Category-1 via pathIsArchitectureDraftDetail + topic map getting-started, traffic Notes under Core review (row ID ARR; template ARA remains legacy `/architectures/[architectureId]`), and honest Evidence score 50. Drafting workspace hard-caps below ANE create-bootstrap; saving a draft does not start a review; no CPA / third-party pen-test implication.
+
 ## 2026-08-06 - UI: Model-failed vs quality-rejected distinction (TB-965)
 
 Review detail and API problem copy separate quality-gate HOLD from execution failures; Vitest forbids LLM-error conflation on quality paths. Builds on **TB-963** taxonomy SoT. Does not claim CPA / third-party pen-test or perfect AI quality.
