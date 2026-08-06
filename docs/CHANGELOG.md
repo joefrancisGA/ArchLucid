@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-05 - UI: Demo readiness Evidence chrome (ADD)
+
+`/admin/demo-readiness` ships DemoReadinessEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map path-chooser, traffic Notes under Admin, and honest Evidence score 45. Admin diagnostic hub hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-05 - UI: Secondary-hub Learn more remap (TB-2050)
 
 Secondary hubs (Planning, Decision register, Advisory scans, Impact preview, Workspace health) omit generic `getting-started` / `how-it-works` Learn more when no specialty exists; tenant settings → `scope`; recommendation-learning → `pilot-feedback`. Category-1 popovers still mount. Vitest suite remains **TB-2052**. Does not claim CPA / third-party pen-test.

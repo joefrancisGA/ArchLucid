@@ -12,25 +12,41 @@ import { contextualHelpForPathname } from "@/lib/contextual-help-registry";
 import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
 import { PageScopedContextualHelpPanel } from "@/components/usability/PageScopedContextualHelpPanel";
 
+/**
+ * Short visible trigger text for headers whose title already names the help topic.
+ * Pass as `triggerText` — the topic still reaches assistive tech via the accessible name.
+ */
+export const PAGE_HELP_SHORT_TRIGGER_TEXT = "Help";
+
+export type PageContextualHelpButtonProps = {
+  /** Visible trigger text; defaults to the topic label. */
+  readonly triggerText?: string;
+};
+
 /** Contextual help for the current route — inline answers when migrated, otherwise `/help/{topic}`. */
-export function PageContextualHelpButton() {
+export function PageContextualHelpButton(props: PageContextualHelpButtonProps = {}) {
   const pathname = usePathname() ?? "/";
   const topic = pageHelpTopicForPathname(pathname);
   const contextualEntry = contextualHelpForPathname(pathname);
+  const learnMoreHref =
+    topic?.slug != null && topic.slug.length > 0 ? `/help/${topic.slug}` : null;
 
   if (contextualEntry !== null && topic !== null) {
     return (
       <PageScopedContextualHelpPanel
         entry={contextualEntry}
         triggerLabel={topic.label}
-        learnMoreHref={`/help/${topic.slug}`}
+        triggerText={props.triggerText}
+        learnMoreHref={learnMoreHref}
       />
     );
   }
 
-  if (topic === null) {
+  if (topic === null || learnMoreHref == null) {
     return null;
   }
+
+  const accessibleName: string = `Help: ${topic.label}`;
 
   return (
     <Button
@@ -41,9 +57,16 @@ export function PageContextualHelpButton() {
       asChild
       data-testid="page-contextual-help-button"
     >
-      <Link href={`/help/${topic.slug}`} title={`Help: ${topic.label}`}>
+      <Link
+        href={learnMoreHref}
+        title={accessibleName}
+        // Shortened text would otherwise leave the link named only "Help".
+        aria-label={props.triggerText === undefined ? undefined : accessibleName}
+      >
         <CircleHelp className="h-4 w-4" aria-hidden />
-        <span className={cn("font-medium", OPERATOR_TYPOGRAPHY.helper)}>{topic.label}</span>
+        <span className={cn("font-medium", OPERATOR_TYPOGRAPHY.helper)}>
+          {props.triggerText ?? topic.label}
+        </span>
       </Link>
     </Button>
   );

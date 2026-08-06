@@ -15,9 +15,25 @@ import { PROVENANCE_HELP_TOPIC, pathIsRunProvenance } from "@/lib/provenance-evi
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 
 export type PageHelpTopic = {
-  readonly slug: string;
+  /**
+   * In-app `/help/{slug}` target for Learn more.
+   * Omit (undefined) when Category-1 should mount without Learn more (TB-2048 / TB-2050).
+   */
+  readonly slug?: string;
   readonly label: string;
 };
+
+/** First-run / onboarding / help-topic paths allowed to keep `getting-started` or `how-it-works` Learn more. */
+export const PAGE_HELP_FIRST_RUN_GENERIC_LEARN_MORE_ALLOWLIST_PREFIXES = [
+  "/architecture/first-review-guide",
+  "/help/getting-started",
+  "/help/how-it-works",
+  ARCHITECTURES_LIST_PATH,
+  "/architectures",
+  "/help",
+  /** Learning proof page — job is product orientation; how-it-works is honest. */
+  "/why-archlucid",
+] as const;
 
 const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   // Overview hero help — same topic the former "Learn / View workflow" links opened.
@@ -123,12 +139,14 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   { prefix: "/governance/audit", topic: { slug: "audit-trail", label: "Audit trail" } },
   {
+    // Secondary hub — no decision-register specialty; omit Learn more (TB-2050).
     prefix: "/governance/decision-register",
-    topic: { slug: "getting-started", label: "Decision register" },
+    topic: { label: "Decision register" },
   },
   {
+    // Secondary hub — no workspace-health specialty; omit Learn more (TB-2050). Do not reopen TB-1668 mount.
     prefix: "/governance/dashboard",
-    topic: { slug: "getting-started", label: "Workspace overview" },
+    topic: { label: "Workspace overview" },
   },
   {
     prefix: "/governance/alerts",
@@ -168,12 +186,17 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/architecture/digests", topic: { slug: "digests", label: "Architecture digests" } },
   { prefix: "/digests", topic: { slug: "digests", label: "Architecture digests" } },
   { prefix: "/help/digests", topic: { slug: "digests", label: "Architecture digests" } },
-  { prefix: "/insights/planning", topic: { slug: "getting-started", label: "Improvement planning" } },
+  {
+    // Secondary hub — no planning specialty; omit Learn more (TB-2050).
+    prefix: "/insights/planning",
+    topic: { label: "Improvement planning" },
+  },
   {
     prefix: "/internal/product-learning",
     topic: { slug: "pilot-feedback", label: "Pilot feedback" },
   },
   {
+    // Learning / product-orientation allowlist — how-it-works matches the page job (TB-2050).
     prefix: "/why-archlucid",
     topic: { slug: "how-it-works", label: "Why ArchLucid" },
   },
@@ -268,9 +291,20 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     prefix: "/help/api-contracts",
     topic: { slug: "governance-api-contracts", label: "API contracts (technical reference)" },
   },
-  { prefix: "/insights/impact-preview", topic: { slug: "getting-started", label: "Impact preview" } },
-  { prefix: "/internal-operations/recommendation-learning", topic: { slug: "getting-started", label: "How recommendation learning works" } },
-  { prefix: "/governance/advisory-scans", topic: { slug: "getting-started", label: "Advisory scans" } },
+  {
+    // Secondary hub — no impact-preview specialty; omit Learn more (TB-2050).
+    prefix: "/insights/impact-preview",
+    topic: { label: "Impact preview" },
+  },
+  {
+    prefix: "/internal-operations/recommendation-learning",
+    topic: { slug: "pilot-feedback", label: "How recommendation learning works" },
+  },
+  {
+    // Secondary hub — no advisory-scans specialty; omit Learn more (TB-2050).
+    prefix: "/governance/advisory-scans",
+    topic: { label: "Advisory scans" },
+  },
   { prefix: "/integrations/cloud-connections/azure", topic: { slug: "azure-permissions", label: "Azure permissions" } },
   { prefix: "/settings/cloud-connections/azure", topic: { slug: "azure-permissions", label: "Azure permissions" } },
   { prefix: "/integrations/cloud-connections/aws", topic: { slug: "cloud-connections-aws", label: "AWS cloud connection" } },
@@ -316,6 +350,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     prefix: "/admin/trial-funnel",
     topic: { slug: "billing-and-plans", label: "Trial funnel" },
   },
+  {
+    prefix: "/admin/demo-readiness",
+    topic: { slug: "path-chooser", label: "Demo readiness" },
+  },
   { prefix: "/settings/cloud-connections/aws", topic: { slug: "cloud-connections-aws", label: "AWS cloud connection" } },
   { prefix: "/settings/cloud-connections/gcp", topic: { slug: "cloud-connections-gcp", label: "GCP cloud connection" } },
   { prefix: "/settings/cloud-connections", topic: { slug: "cloud-connections", label: "Cloud connections" } },
@@ -335,7 +373,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     prefix: "/administration/security-trust",
     topic: { slug: "security-trust", label: "Security and trust" },
   },
-  { prefix: "/administration/tenant", topic: { slug: "getting-started", label: OPERATOR_NAV_LINK_LABELS.settings } },
+  {
+    prefix: "/administration/tenant",
+    topic: { slug: "scope", label: OPERATOR_NAV_LINK_LABELS.settings },
+  },
   { prefix: "/administration/baseline", topic: { slug: "pilot-roi-model", label: "View ROI methodology" } },
   { prefix: "/help", topic: { slug: "getting-started", label: "Help" } },
 ];

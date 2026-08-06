@@ -208,7 +208,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | REV | `/help/review-packages` | 0.03% | 0 | 0 | 3 | Help topic | None |
 | 4XX | `/403` | 0.02% | 0 | 0 | 2 | Auth | None |
 | AXX | `/accessibility` | 0.02% | 0 | 0 | 2 | Marketing | None |
-| ADD | `/admin/demo-readiness` | 0.02% | 0 | 0 | 2 | Admin | None |
+| ADD | `/admin/demo-readiness` | 0.02% | 0 | 0 | 2 | Admin | Demo readiness (Admin) - DemoReadinessAdminPageClient with PageContextualHelpButton (topic map path-chooser; Category-1 registry), workspace Sources + claim-discipline orientation strip, BuyerCtoDemoReadinessPanel internal diagnostics. Sibling ATD = trial-funnel; ATX = tenant-health; ADY = system-health. Internal employee diagnostic - not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 45/100 (2026-08-05) - admin diagnostic hub hard-caps higher Evidence (same band as ATD/ATX). |
 | ADE | `/admin/deployment-status` | 0.02% | 0 | 0 | 2 | Admin | None |
 | AR | `/architectures` | 0.02% | 0 | 0 | 2 | Core review | None |
 | ARA | `/architectures/[architectureId]` | 0.02% | 0 | 0 | 2 | Core review | None |

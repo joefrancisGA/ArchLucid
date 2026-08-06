@@ -115,7 +115,7 @@ Operator and buyer forms must make hard validation visible on the form and hones
 | Prefer existing specialty | Prefer an existing specialty or curated product-help slug over inventing an orphan `/help` page. New specialty bodies coordinate **TB-1414** (do not invent bare markdown dumps). |
 | Mount vs target | *When* to mount `PageContextualHelpButton` remains **TB-1666**–**TB-1670**. This rule owns Learn more **targets** only. |
 
-**Code touchpoints (apply in follow-on rows):** `page-help-topic-map.ts` (`pageHelpTopicForPathname`), `PageContextualHelpButton` / `PageScopedContextualHelpPanel` Learn more href. Remaps: Digests golden **TB-2049**; secondary-hub sweep **TB-2050**; popover deep-link CTAs **TB-2051**; Vitest **TB-2052**.
+**Code touchpoints (apply in follow-on rows):** `page-help-topic-map.ts` (`pageHelpTopicForPathname`), `PageContextualHelpButton` / `PageScopedContextualHelpPanel` Learn more href. Remaps: Digests golden **TB-2049** Done; secondary-hub sweep **TB-2050** Done (2026-08-05); popover deep-link CTAs **TB-2051**; Vitest suite **TB-2052**.
 
 **Good exemplar (target state):** Digests Category-1 answers discuss Schedule/recipients; Learn more must open digests-relevant help (or omit) — not `/help/getting-started`.
 

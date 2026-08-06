@@ -611,6 +611,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/admin/demo-readiness",
+    entry: {
+      whatIsThisPage:
+        "Demo readiness - internal employee diagnostic checklist for buyer CTO demo preflight across this workspace.",
+      whatToDoNext:
+        "Run the readiness checks, open System health when a dependency fails, or Trial funnel when conversion context is needed.",
+      whyEmpty: "Checklist rows appear after the internal readiness probe returns for this deployment.",
+      whereToConfigurePrerequisite:
+        "This page requires tenant administrator access; customer tenants never see this diagnostic.",
+    },
+  },
+  {
     prefix: "/help/getting-started",
     entry: {
       whatIsThisPage:
