@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   addTenantAuthDomainRecoveryAdmin,
@@ -25,6 +26,8 @@ import {
   type TenantAuthDomainRecoveryAdminRecord,
 } from "@/lib/admin-auth-domains-api";
 import { cn } from "@/lib/utils";
+
+import { AuthDomainsSettingsEvidenceOrientationStrip } from "./AuthDomainsSettingsEvidenceOrientationStrip";
 
 const ENFORCEMENT_WARNING =
   "Requiring SSO may prevent users from signing in through other methods. Confirm that the configured identity provider and recovery access have been tested.";
@@ -294,19 +297,24 @@ export function AuthDomainsPageClient() {
 
   return (
     <div className="w-full max-w-4xl space-y-6" data-testid="auth-domains-page">
-      <div>
-        <h1 className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)}>Sign-in domains</h1>
-        <p className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          Verify email domain ownership, test routing, and enable SSO enforcement for your organization.
-        </p>
-        <p className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          Configure the identity provider under{" "}
-          <Link href="/administration/identity-providers" className={OPERATOR_LINK.nav}>
-            Identity providers
-          </Link>{" "}
-          before enabling enforcement.
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)}>Sign-in domains</h1>
+          <p className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            Verify email domain ownership, test routing, and enable SSO enforcement for your organization.
+          </p>
+          <p className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            Configure the identity provider under{" "}
+            <Link href="/administration/identity-providers" className={OPERATOR_LINK.nav}>
+              Identity providers
+            </Link>{" "}
+            before enabling enforcement.
+          </p>
+        </div>
+        <PageContextualHelpButton />
       </div>
+
+      <AuthDomainsSettingsEvidenceOrientationStrip />
 
       {statusMessage !== null ? (
         <p className={cn("m-0 rounded-md border border-emerald-700/30 bg-emerald-50 px-3 py-2 text-emerald-900", OPERATOR_TYPOGRAPHY.body)} role="status">

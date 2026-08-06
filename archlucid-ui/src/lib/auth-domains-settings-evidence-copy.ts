@@ -1,0 +1,23 @@
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
+
+export const AUTH_DOMAINS_SETTINGS_CANONICAL_PATH = "/administration/auth-domains" as const;
+
+export const AUTH_DOMAINS_SETTINGS_CLAIM_DISCIPLINE =
+  "This Sign-in domains page verifies email domain ownership and SSO enforcement readiness - it is not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open SSO and identity, Users and roles help, or Assurance status when you need federation setup, membership, or trust cites.";
+
+export const AUTH_DOMAINS_SETTINGS_SOURCES_INTRO =
+  "Use these follow-ups when domain verification turns into identity-provider setup, recovery admins, or assurance cites.";
+
+export type AuthDomainsSettingsSourceLink = {
+  readonly label: string;
+  readonly href: string;
+};
+
+/** Operator Sources - no self-href to `/administration/auth-domains`. */
+export const AUTH_DOMAINS_SETTINGS_SOURCES: readonly AuthDomainsSettingsSourceLink[] = [
+  { label: "SSO and identity", href: "/administration/identity-providers" },
+  { label: "Enterprise onboarding help", href: inAppHelpHref("enterprise-onboarding") },
+  { label: "Users and roles", href: "/administration/users" },
+  { label: "Account security", href: "/administration/account-security" },
+  { label: "Assurance status", href: "/security-trust" },
+] as const;

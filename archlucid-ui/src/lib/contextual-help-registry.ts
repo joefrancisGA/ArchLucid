@@ -10,6 +10,9 @@ import {
   LEGACY_DIGEST_SUBSCRIPTIONS_PATH,
 } from "@/lib/digests-route-paths";
 import {
+  LEGACY_SETTINGS_ROLES_PATH,
+} from "@/lib/settings-admin-route-paths";
+import {
   PROVENANCE_CONTEXTUAL_HELP,
   pathIsRunProvenance,
 } from "@/lib/provenance-evidence-copy";
@@ -977,6 +980,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: LEGACY_SETTINGS_ROLES_PATH,
+    entry: {
+      whatIsThisPage:
+        "Invite users, assign ArchLucid app roles, and manage API keys for this workspace tenant.",
+      whatToDoNext:
+        "Invite a teammate, open Roles and permissions to adjust authority, or manage API keys when you have Admin authority.",
+      whyEmpty: "Directory rows appear after invitations are accepted or users are provisioned for this tenant.",
+      whereToConfigurePrerequisite:
+        "SSO and identity-provider mapping may be required before enterprise users can sign in.",
+    },
+  },
+  {
     prefix: "/administration/identity-providers/role-mapping",
     entry: {
       whatIsThisPage:
@@ -1026,6 +1041,19 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
         "Method rows load after the sign-in methods API responds; empty lists mean no secondary methods are linked yet.",
       whereToConfigurePrerequisite:
         "Adding or removing methods needs a recent sign-in; email matches alone never link accounts.",
+    },
+  },
+  {
+    prefix: "/administration/auth-domains",
+    entry: {
+      whatIsThisPage:
+        "Sign-in domains - verify email domain ownership, test SSO routing, and enable domain enforcement for this workspace.",
+      whatToDoNext:
+        "Add and verify a domain, test routing, then open Identity providers before enabling SSO enforcement.",
+      whyEmpty:
+        "Domain rows load after the auth-domains API responds; unverified domains stay pending until DNS TXT succeeds.",
+      whereToConfigurePrerequisite:
+        "Enforcement needs Admin authority, a verified domain, recovery admins, and a configured identity provider.",
     },
   },
   {

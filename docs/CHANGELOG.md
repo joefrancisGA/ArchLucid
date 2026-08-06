@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-05 - UI: Sign-in domains settings Evidence chrome (ADU)
+
+`/administration/auth-domains` ships AuthDomainsSettingsEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map enterprise-onboarding, traffic Notes under Settings (row ID ADU; path aligned off legacy settings/auth-domains / SEU), and honest Evidence score 50. Settings access-hub hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-05 - UI: Account security settings Evidence chrome (ADS)
 
 `/administration/account-security` ships AccountSecuritySettingsEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map security-trust, traffic Notes under Settings (row ID ADS; path aligned off legacy settings/account-security / SEA; template advisory-scans tab ID ADS renamed ADT), and honest Evidence score 50. Settings personal-hub hard-caps higher Evidence; no CPA / third-party pen-test implication.
