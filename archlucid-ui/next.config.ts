@@ -151,16 +151,18 @@ const nextConfig: NextConfig = {
       },
       { source: "/administration", destination: "/administration", permanent: true },
       { source: "/administration/:path*", destination: "/administration/:path*", permanent: true },
+      { source: "/administration/settings", destination: "/administration", permanent: true },
       { source: "/workspace/security-trust", destination: "/administration/security-trust", permanent: true },
       { source: "/admin/users", destination: "/administration/users", permanent: true },
       { source: "/admin/support", destination: "/administration/support", permanent: true },
       // Legacy governance bookmarks (TB-405) → canonical governance tree.
       { source: "/audit", destination: "/governance/audit", permanent: true },
-      {
-        source: "/settings/roles",
-        destination: "/administration/users?tab=roles",
-        permanent: true,
-      },
+      { source: "/alerts", destination: "/governance/alerts", permanent: true },
+      { source: "/alert-rules", destination: "/governance/alert-rules", permanent: true },
+      { source: "/alert-rules/:path*", destination: "/governance/alert-rules/:path*", permanent: true },
+      { source: "/value-report", destination: "/sponsor-report/executive-summary", permanent: true },
+      { source: "/value-report/pilot", destination: "/sponsor-report/pilot-outcomes", permanent: true },
+      { source: "/value-report/roi", destination: "/sponsor-report/roi-summary", permanent: true },
       // Legacy integrations bookmark (TB-407 / TB-750) → operator integrations tree.
       { source: "/settings/cloud-connections", destination: "/integrations/cloud-connections", permanent: true },
       {
@@ -191,6 +193,7 @@ const nextConfig: NextConfig = {
       // Public /architecture/architectures/* URLs map to on-disk app/(operator)/architectures pages.
       { source: "/architecture/architectures", destination: "/architectures" },
       { source: "/architecture/architectures/:path*", destination: "/architectures/:path*" },
+      { source: "/settings/roles", destination: "/administration/users?tab=roles" },
     ];
   },
 };

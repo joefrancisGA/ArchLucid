@@ -1,5 +1,5 @@
-/** Canonical copy for the `/governance` overview landing page. */
-export const GOVERNANCE_OVERVIEW_PAGE_TITLE = "Governance";
+/** Canonical copy for the `/governance/approval-queue` overview landing page. */
+export const GOVERNANCE_OVERVIEW_PAGE_TITLE = "Approval queue";
 
 export const GOVERNANCE_OVERVIEW_PAGE_LEAD =
   "Workspace governance status, pending approvals, recent decisions, and review-scoped approval workflow.";

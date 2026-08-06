@@ -9,6 +9,7 @@ import {
   BUYER_SHOWCASE_RESIDUAL_RISK_OWNER,
 } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type FindingInspectAuditSectionProps = {
@@ -31,7 +32,7 @@ export function FindingInspectAuditSection({
           <div className={cn("m-0 mt-2 flex flex-wrap items-center gap-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
             <span>Recorded in the audit trail for this review.</span>
             <CopyIdButton value={auditRowId} aria-label="Copy audit event ID" />
-            <Link href="/audit" className={OPERATOR_LINK.nav}>
+            <Link href={GOVERNANCE_AUDIT_PATH} className={OPERATOR_LINK.nav}>
               View in audit trail
             </Link>
           </div>
@@ -39,7 +40,7 @@ export function FindingInspectAuditSection({
           <p className={cn("m-0 mt-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
             Durable audit event id: <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{auditRowId}</span>
             <span className="ml-2">
-              <Link href="/audit" className={OPERATOR_LINK.nav}>
+              <Link href={GOVERNANCE_AUDIT_PATH} className={OPERATOR_LINK.nav}>
                 View in audit trail
               </Link>
             </span>

@@ -39,9 +39,23 @@ describe("next.config administration routes (TB-406 / TB-522 / TB-751)", () => {
     expect(rewriteRules).toBeDefined();
     expect(
       rewriteRules?.find(
-        (rule) => rule.source === "/settings/roles" && rule.destination === "/administration/users",
+        (rule) =>
+          rule.source === "/settings/roles"
+          && rule.destination === "/administration/users?tab=roles",
       ),
     ).toBeDefined();
+  });
+
+  it("keeps permanent redirects for legacy alerts and value-report bookmarks", async () => {
+    const redirectRules = await nextConfig.redirects?.();
+
+    expect(redirectRules?.find((rule) => rule.source === "/alerts")?.destination).toBe("/governance/alerts");
+    expect(redirectRules?.find((rule) => rule.source === "/alert-rules")?.destination).toBe(
+      "/governance/alert-rules",
+    );
+    expect(redirectRules?.find((rule) => rule.source === "/value-report")?.destination).toBe(
+      "/sponsor-report/executive-summary",
+    );
   });
 
   it("does not rewrite canonical administration URLs to legacy App Router trees (TB-751)", async () => {

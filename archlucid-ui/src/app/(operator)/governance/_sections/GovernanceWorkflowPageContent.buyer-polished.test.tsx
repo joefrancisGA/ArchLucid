@@ -141,7 +141,7 @@ describe("GovernanceWorkflowPageContent buyer-polished chrome (TB-1434)", () => 
     render(<GovernanceWorkflowPageContent />);
 
     await waitFor(() => {
-      expect(screen.getByRole("heading", { level: 2, name: "Governance" })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { level: 2, name: "Approval queue" })).toBeInTheDocument();
     });
 
     expect(screen.getAllByText(BUYER_GOVERNANCE_OVERVIEW_PAGE_LEAD)).toHaveLength(1);

@@ -561,12 +561,12 @@ export function RunDetailPageView(props: {
                 runId={m.resolvedDetail.run.runId}
                 hasGoldenManifest={Boolean(m.manifestId)}
               />
-              {!m.buyerPolishedArtifactTable ? (
-                <RunDetailLastFailureCardDeferred
-                  summary={resolveRunDetailLastFailureSummary(m.resolvedDetail)}
-                  legacyRunStatus={(m.resolvedDetail.run as { legacyRunStatus?: string | null }).legacyRunStatus ?? null}
-                />
-              ) : null}
+              <RunDetailLastFailureCardDeferred
+                summary={resolveRunDetailLastFailureSummary(m.resolvedDetail)}
+                legacyRunStatus={
+                  (m.resolvedDetail.run as { legacyRunStatus?: string | null }).legacyRunStatus ?? null
+                }
+              />
               {buyerFinalizedPackage ? null : (
                 <RunDetailExecutiveSummaryCtaCard runId={m.resolvedDetail.run.runId} demoted />
               )}
@@ -965,12 +965,12 @@ export function RunDetailPageView(props: {
           />
           {buyerFinalizedPackage ? null : showGovernanceCtaCard ? governanceCtaEl : null}
 
-          {!m.buyerPolishedArtifactTable ? (
-            <RunDetailLastFailureCardDeferred
-              summary={resolveRunDetailLastFailureSummary(m.resolvedDetail)}
-              legacyRunStatus={(m.resolvedDetail.run as { legacyRunStatus?: string | null }).legacyRunStatus ?? null}
-            />
-          ) : null}
+          <RunDetailLastFailureCardDeferred
+            summary={resolveRunDetailLastFailureSummary(m.resolvedDetail)}
+            legacyRunStatus={
+              (m.resolvedDetail.run as { legacyRunStatus?: string | null }).legacyRunStatus ?? null
+            }
+          />
 
           {buyerFinalizedPackage ? null : (
             <RunDetailExecutiveSummaryCtaCard runId={m.resolvedDetail.run.runId} demoted />

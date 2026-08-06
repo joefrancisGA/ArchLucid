@@ -163,7 +163,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   /** Impact preview (`/insights/impact-preview`). */
   evolutionCandidates: "Impact preview",
   pilotValueReport: BUYER_TERMINOLOGY.evaluationValueReport,
-  roiReport: "ROI report",
+  roiReport: "ROI summary",
   connectorOperations: "Integration readiness",
   integrationReadiness: "Connection status",
   jira: "Jira",

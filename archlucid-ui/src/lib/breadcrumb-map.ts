@@ -869,6 +869,6 @@ function tryBuildGovernanceRunScopedBreadcrumbs(
   return [
     { label: "Reviews", href: reviewsListHref },
     { label: packageTitle, href: reviewHref },
-    { label: "Governance" },
+    { label: GOVERNANCE_OVERVIEW_PAGE_TITLE },
   ];
 }

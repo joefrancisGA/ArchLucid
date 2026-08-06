@@ -8,6 +8,7 @@ import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { DismissControl } from "@/components/usability/DismissControl";
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -61,7 +62,7 @@ function TrialExportOnlyBanner({ daysRemaining }: TrialExportOnlyBannerProps) {
           <Link href="/architecture/reviews">Export reviews</Link>
         </Button>
         <Button asChild type="button" size="sm" variant="outline" className="border-red-300 dark:border-red-600">
-          <Link href="/audit">Export audit trail</Link>
+          <Link href={GOVERNANCE_AUDIT_PATH}>Export audit trail</Link>
         </Button>
         <Button asChild type="button" size="sm" variant="outline" className="border-red-300 dark:border-red-600">
           <Link href="/pricing#pricing-quote-request">Talk to us about retention</Link>

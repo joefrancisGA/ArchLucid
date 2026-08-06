@@ -49,10 +49,10 @@ describe("AlertRulesHubClient", () => {
     tabValue.current = null;
   });
 
-  it("defaults to conditions tab with Alerts page title", () => {
+  it("defaults to conditions tab with Alert Rules page title", () => {
     render(<AlertRulesHubClient />);
     expect(screen.getByTestId("stub-rules")).toBeInTheDocument();
-    expect(screen.getByTestId("alert-rules-page-title")).toHaveTextContent("Alerts");
+    expect(screen.getByTestId("alert-rules-page-title")).toHaveTextContent("Alert Rules");
     expect(screen.getByText(ALERTS_CONFIGURATION_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.getByTestId("alert-rules-refresh-button")).toBeInTheDocument();
     expect(screen.getByTestId("alert-rules-last-refreshed")).toHaveTextContent(/Last refreshed:/i);

@@ -3,6 +3,7 @@
  */
 
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
 import { SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH } from "@/lib/sponsor-report-navigation";
 
 export type CommandPaletteAction = {
@@ -34,7 +35,7 @@ export const COMMAND_PALETTE_ACTIONS: readonly CommandPaletteAction[] = [
   {
     id: "action-search-audit",
     label: "Search audit trail",
-    href: "/audit",
+    href: GOVERNANCE_AUDIT_PATH,
     searchValue: "action search audit log events export",
   },
   {
