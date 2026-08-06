@@ -69,4 +69,23 @@ describe("PageScopedContextualHelpPanel", () => {
     expect(screen.queryByTestId("page-scoped-contextual-help-learn-more")).not.toBeInTheDocument();
     expect(screen.queryByTestId("page-scoped-contextual-help-next-action")).not.toBeInTheDocument();
   });
+
+  it("keeps the full topic in the accessible name when short trigger text is set", () => {
+    render(
+      <PageScopedContextualHelpPanel
+        entry={{
+          whatIsThisPage: "Only required fields.",
+          whatToDoNext: "Next step only.",
+        }}
+        triggerLabel="Reviews"
+        triggerText="Help"
+        learnMoreHref={null}
+      />,
+    );
+
+    const trigger = screen.getByTestId("page-contextual-help-button");
+
+    expect(trigger).toHaveAttribute("aria-label", "Help: Reviews");
+    expect(trigger).toHaveTextContent("Help");
+  });
 });

@@ -21,7 +21,10 @@ import type { PageContextualHelpEntry } from "@/lib/contextual-help-registry";
 
 export type PageScopedContextualHelpPanelProps = {
   readonly entry: PageContextualHelpEntry;
+  /** Full topic name — used for aria-label / title (`Help: {triggerLabel}`). */
   readonly triggerLabel: string;
+  /** Optional short visible trigger text (e.g. "Help"); defaults to `triggerLabel`. */
+  readonly triggerText?: string;
   readonly learnMoreHref?: string | null;
 };
 
@@ -74,8 +77,10 @@ function HelpField({ label, body, action, actionTestId }: HelpFieldProps) {
 export function PageScopedContextualHelpPanel({
   entry,
   triggerLabel,
+  triggerText,
   learnMoreHref,
 }: PageScopedContextualHelpPanelProps) {
+  const visibleTriggerText = triggerText ?? triggerLabel;
   const [open, setOpen] = useState(false);
   const [hover, setHover] = useState(false);
   const visible = open || hover;
@@ -253,7 +258,7 @@ export function PageScopedContextualHelpPanel({
           }}
         >
           <CircleHelp className="h-4 w-4" aria-hidden />
-          <span className={cn("font-medium", OPERATOR_TYPOGRAPHY.helper)}>{triggerLabel}</span>
+          <span className={cn("font-medium", OPERATOR_TYPOGRAPHY.helper)}>{visibleTriggerText}</span>
         </Button>
       </span>
       {panel != null && typeof document !== "undefined" ? createPortal(panel, document.body) : null}
