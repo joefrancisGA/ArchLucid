@@ -1,0 +1,18 @@
+/**
+ * Traffic workbook row ID for SSO and identity (identity-providers) hub.
+ * Owner backlog shorthand: AID (template formerly SIX on legacy settings path).
+ */
+export const IDENTITY_PROVIDERS_SETTINGS_TRAFFIC_ROW_ID = "AID";
+
+/** Canonical path tracked on the AID workbook row. */
+export const IDENTITY_PROVIDERS_SETTINGS_TRAFFIC_PATH = "/administration/identity-providers";
+
+/** Workbook Section column value (template catalog). */
+export const IDENTITY_PROVIDERS_SETTINGS_TRAFFIC_SECTION = "Settings";
+
+/**
+ * Owner workbook Notes for AID - documents Evidence chrome on identity-providers hub.
+ * ASCII-only for Windows console note scripts.
+ */
+export const IDENTITY_PROVIDERS_SETTINGS_TRAFFIC_NOTE =
+  "SSO and identity hub (Settings/Admin) - IdentityProvidersSettingsPageView with PageContextualHelpButton (shared header; topic map enterprise-onboarding; Category-1 registry), workspace Sources + claim-discipline orientation strip, overview summary / configure links. Sibling ADU = auth-domains; ADO = role-mapping; HEX = enterprise-onboarding help. Access configuration - not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 50/100 (2026-08-05) - settings access-hub hard-caps higher Evidence.";
