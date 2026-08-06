@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-06 - UI: Alerts inbox legacy tab Evidence notes (GOI)
+
+`/governance/alerts?tab=inbox` documents redirect canonicalize to AL hub (TB-1594), traffic Notes under Tab surface (row ID GOI), and honest Evidence score 28. Legacy inbox-tab deep link hard-caps at redirect/shim band; no CPA / third-party pen-test implication.
+
 ## 2026-08-06 - UI: Alert rules simulation tab Evidence notes (GOS)
 
 `/governance/alert-rules?tab=simulation` documents inherited SAX hub Evidence chrome (AlertRulesEvidenceOrientationStrip + PageContextualHelp already on the hub), traffic Notes under Tab surface (row ID GOS), and honest Evidence score 48. Simulation-tab deep link hard-caps at alert-config band; no CPA / third-party pen-test implication.
