@@ -66,6 +66,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/administration/connection-status",
       "/architecture/digests",
       "/digests",
+      "/digest-subscriptions",
       "/help/digests",
       "/insights/planning/plans",
       "/insights/planning",
@@ -115,6 +116,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/administration/identity-providers/role-mapping",
       "/administration/api-keys",
       "/administration/preferences",
+      "/administration/account-security",
       "/administration/security-trust",
       "/administration/billing",
       "/administration/ai-usage",
@@ -209,6 +211,24 @@ describe("contextual-help-registry (TB-733)", () => {
   it("resolves API keys settings Category-1 help (ADP)", () => {
     expect(contextualHelpForPathname("/administration/api-keys")?.whatIsThisPage).toContain("API keys");
     expect(contextualHelpForPathname("/administration/api-keys")?.whatToDoNext).toContain("Audit");
+  });
+
+  it("resolves Preferences settings Category-1 help (ADR)", () => {
+    expect(contextualHelpForPathname("/administration/preferences")?.whatIsThisPage).toContain(
+      "Preferences",
+    );
+    expect(contextualHelpForPathname("/administration/preferences")?.whatToDoNext).toContain(
+      "theme",
+    );
+  });
+
+  it("resolves Account security settings Category-1 help (ADS)", () => {
+    expect(contextualHelpForPathname("/administration/account-security")?.whatIsThisPage).toContain(
+      "Account security",
+    );
+    expect(contextualHelpForPathname("/administration/account-security")?.whatToDoNext).toContain(
+      "sign-in",
+    );
   });
 
   it("resolves approval lineage Category-1 help (GAI)", () => {

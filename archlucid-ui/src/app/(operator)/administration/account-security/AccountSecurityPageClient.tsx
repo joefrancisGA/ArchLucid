@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatusTag } from "@/components/ui/status-tag";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { readFrictionlessTrialSessionEnabled } from "@/lib/frictionless-trial-session";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
@@ -39,6 +40,7 @@ import {
   ACCOUNT_SECURITY_REMOVE_WARNING,
   AccountSecurityRemoveDialog,
 } from "./AccountSecurityRemoveDialog";
+import { AccountSecuritySettingsEvidenceOrientationStrip } from "./AccountSecuritySettingsEvidenceOrientationStrip";
 
 type FeedbackTone = "success" | "blocked" | "warn" | "info";
 
@@ -332,7 +334,10 @@ export function AccountSecurityPageClient() {
         title="Account security"
         subtitle="Manage how you sign in. Adding a method requires a fresh sign-in. Email matches alone never link accounts."
         titleTestId="account-security-page-title"
+        actions={<PageContextualHelpButton />}
       />
+
+      <AccountSecuritySettingsEvidenceOrientationStrip />
 
       {gateProblem ? (
         <FeedbackCallout

@@ -185,6 +185,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/sponsor-report", topic: { slug: "executive-summary", label: "Executive summary" } },
   { prefix: "/architecture/digests", topic: { slug: "digests", label: "Architecture digests" } },
   { prefix: "/digests", topic: { slug: "digests", label: "Architecture digests" } },
+  { prefix: "/digest-subscriptions", topic: { slug: "digests", label: "Architecture digests" } },
   { prefix: "/help/digests", topic: { slug: "digests", label: "Architecture digests" } },
   {
     // Secondary hub — no planning specialty; omit Learn more (TB-2050).
@@ -377,6 +378,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   {
     prefix: "/administration/preferences",
     topic: { slug: "getting-started", label: "Preferences" },
+  },
+  {
+    prefix: "/administration/account-security",
+    topic: { slug: "security-trust", label: "Account security" },
   },
   {
     prefix: "/administration/users/invite-reviewer",

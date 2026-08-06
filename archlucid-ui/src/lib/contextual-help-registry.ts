@@ -7,6 +7,7 @@ import {
   DIGESTS_HUB_PATH,
   DIGESTS_SCHEDULE_TAB_PATH,
   LEGACY_DIGESTS_HUB_PATH,
+  LEGACY_DIGEST_SUBSCRIPTIONS_PATH,
 } from "@/lib/digests-route-paths";
 import {
   PROVENANCE_CONTEXTUAL_HELP,
@@ -156,7 +157,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whatIsThisPage:
         "Explain how review evidence is handled, what stays in your tenant, and how three-layer isolation works.",
       whatToDoNext:
-        "Open Trust Center or Security and trust for diligence artifacts, then review Sources before sponsor briefings.",
+        "Open Trust Center or Assurance status for diligence artifacts, then review Sources before sponsor briefings.",
       whyEmpty: "This guide always shows isolation and data-handling content when the help topic loads.",
       whereToConfigurePrerequisite: "Confirm residency and subprocessors during procurement with your account team.",
     },
@@ -212,7 +213,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whatIsThisPage:
         "Enterprise onboarding checklist - configure SSO, roles, governance, policy packs, audit export, and optional Azure evidence for a hosted tenant.",
       whatToDoNext:
-        "Open Identity providers for SSO, Users and roles for access, then Security and trust for assurance orientation.",
+        "Open Identity providers for SSO, Users and roles for access, then Assurance status for assurance orientation.",
       whyEmpty: "This guide is always available; live identity and role surfaces appear after workspace configuration.",
       whereToConfigurePrerequisite:
         "SSO and role changes need System Admin authority in the current workspace.",
@@ -418,6 +419,10 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
   },
   {
     prefix: LEGACY_DIGESTS_HUB_PATH,
+    entry: DIGESTS_HUB_CONTEXTUAL_HELP,
+  },
+  {
+    prefix: LEGACY_DIGEST_SUBSCRIPTIONS_PATH,
     entry: DIGESTS_HUB_CONTEXTUAL_HELP,
   },
   {
@@ -1008,6 +1013,19 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
         "Theme controls are ready whenever you are signed in; saved preferences sync after the preferences API responds.",
       whereToConfigurePrerequisite:
         "No Admin role is required - preferences write only your own account record.",
+    },
+  },
+  {
+    prefix: "/administration/account-security",
+    entry: {
+      whatIsThisPage:
+        "Account security - manage personal sign-in methods linked to your ArchLucid account for this workspace.",
+      whatToDoNext:
+        "Review linked methods, add email after a fresh sign-in when needed, then open Preferences or Security and trust help for related controls.",
+      whyEmpty:
+        "Method rows load after the sign-in methods API responds; empty lists mean no secondary methods are linked yet.",
+      whereToConfigurePrerequisite:
+        "Adding or removing methods needs a recent sign-in; email matches alone never link accounts.",
     },
   },
   {
