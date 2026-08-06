@@ -100,7 +100,7 @@ GO
 
 /* ---- Manifest / evidence ---- */
 /* dbo.GoldenManifestVersions removed — ADR 0030 PR A4 (migration 111). Coordinator-shaped manifests persist via dbo.GoldenManifests. */
-/* dbo.DecisionTraces removed — migration 295; authority rule audits persist via dbo.DecisioningTraces. */
+/* dbo.DecisionTraces removed — migration 296; authority rule audits persist via dbo.DecisioningTraces. */
 
 IF OBJECT_ID(N'dbo.EvidenceBundles', N'U') IS NULL
 BEGIN
@@ -502,7 +502,7 @@ GO
 
 /* ---- Authority / Dapper persistence + Decisioning (GUID dbo.Runs) ---- */
 /*
-  Authority rule-audit traces live in dbo.DecisioningTraces (coordinator dbo.DecisionTraces dropped in migration 295).
+  Authority rule-audit traces live in dbo.DecisioningTraces (coordinator dbo.DecisionTraces dropped in migration 296).
 */
 
 IF OBJECT_ID('dbo.Runs', 'U') IS NULL
@@ -6437,7 +6437,7 @@ BEGIN
 END;
 GO
 
-/* 087: PAGE compression on dbo.DecisionTraces was historical; table dropped in migration 295. */
+/* 087: PAGE compression on dbo.DecisionTraces was historical; table dropped in migration 296. */
 
 /* 088: PAGE rowstore compression on dbo.DecisioningTraces (see Migrations/088_PageCompression_DecisioningTraces.sql). */
 IF OBJECT_ID(N'dbo.DecisioningTraces', N'U') IS NOT NULL
@@ -7117,7 +7117,7 @@ BEGIN
 END;
 GO
 
-/* 102/295: Confluence SQL targets + jobs removed — publish path is config + HTTP only (migration 295). */
+/* 102/296: Confluence SQL targets + jobs removed — publish path is config + HTTP only (migration 296). */
 
 /* 106: Marketing pricing quote requests (see Migrations/106_MarketingPricingQuoteRequests.sql). */
 IF OBJECT_ID(N'dbo.MarketingPricingQuoteRequests', N'U') IS NULL

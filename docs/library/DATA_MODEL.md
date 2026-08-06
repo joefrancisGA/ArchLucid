@@ -62,7 +62,7 @@ This document summarizes the persisted data model used by ArchLucid. It is based
 
 #### `DecisionTraces` (removed)
 
-- **Removed** in migration **295**. Coordinator-era event stream; authority rule audits persist in **`dbo.DecisioningTraces`**.
+- **Removed** in migration **296**. Coordinator-era event stream; authority rule audits persist in **`dbo.DecisioningTraces`**.
 
 #### `AgentEvidencePackages`
 
