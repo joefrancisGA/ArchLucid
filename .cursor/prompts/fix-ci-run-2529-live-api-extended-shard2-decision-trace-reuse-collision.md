@@ -1,4 +1,4 @@
-# Fix: CI run #2529 — Operator UI: e2e live API + SQL (extended matrix; warn-only) [shard 2/4]
+﻿# Fix: CI run #2529 — Operator UI: e2e live API + SQL (extended matrix; warn-only) [shard 2/4]
 
 > Workflow run: `28871046590` (run_number **2529**), workflow **CI**, branch `RC7`, commit at
 > `2026-07-07T15:00:18Z`, `workflow_dispatch`-triggered. Job **conclusion: failure**; the overall
@@ -43,7 +43,7 @@ days later, on the same unpatched code. Two things follow from that:
    different, more fundamental bug that fully explains the same symptom on its own (see below).
 
 This prompt documents that different, better-evidenced root cause. **Do not implement the old
-tenant-isolation E2E fix yet** — see § Related for what to do with the two old prompts.
+tenant-isolation E2E fix yet** — see Â§ Related for what to do with the two old prompts.
 
 ## Symptom
 
@@ -54,23 +54,23 @@ attempt and the retry), **7 skipped** (JWT/ApiKey-only specs, correctly skipped 
 
 | # | Spec | Test | Outcome |
 |---|------|------|---------|
-| 1 | `live-api-advisory-flow.spec.ts:35` | schedule advisory scan after committed run and verify audit trail | failed (×2) |
-| 2 | `live-api-alert-rules.spec.ts:32` | create alert rule then list includes it; alerts page renders | failed (×2) |
-| 3 | `live-api-analysis-report.spec.ts:36` | generate analysis report for committed run and verify audit | failed (×2) |
-| 4 | `live-api-archival.spec.ts:39` | multiple committed runs remain visible on GET /v1/architecture/runs | failed (×2) |
-| 5 | `live-api-buyer-golden-path.spec.ts:50` | five-step diligence spine (`@smoke-golden-path`) | failed (×2) |
-| 6 | `live-api-compare-runs.spec.ts:48` | two committed runs → compare page loads | failed (×2) |
-| 7 | `live-api-compare-runs.spec.ts:96` | compare with missing right run returns 404 | failed (×2) |
-| 8 | `live-api-concurrency.spec.ts:28` | parallel first commit: no 5xx; run ends Committed | failed (×2) |
-| 9 | `live-api-concurrency.spec.ts:73` | parallel governance approve | failed (×2) |
-| 10 | `live-api-conflict-journey.spec.ts:70` | second commit is idempotent (200) | failed (×2) |
+| 1 | `live-api-advisory-flow.spec.ts:35` | schedule advisory scan after committed run and verify audit trail | failed (Ã—2) |
+| 2 | `live-api-alert-rules.spec.ts:32` | create alert rule then list includes it; alerts page renders | failed (Ã—2) |
+| 3 | `live-api-analysis-report.spec.ts:36` | generate analysis report for committed run and verify audit | failed (Ã—2) |
+| 4 | `live-api-archival.spec.ts:39` | multiple committed runs remain visible on GET /v1/architecture/runs | failed (Ã—2) |
+| 5 | `live-api-buyer-golden-path.spec.ts:50` | five-step diligence spine (`@smoke-golden-path`) | failed (Ã—2) |
+| 6 | `live-api-compare-runs.spec.ts:48` | two committed runs → compare page loads | failed (Ã—2) |
+| 7 | `live-api-compare-runs.spec.ts:96` | compare with missing right run returns 404 | failed (Ã—2) |
+| 8 | `live-api-concurrency.spec.ts:28` | parallel first commit: no 5xx; run ends Committed | failed (Ã—2) |
+| 9 | `live-api-concurrency.spec.ts:73` | parallel governance approve | failed (Ã—2) |
+| 10 | `live-api-conflict-journey.spec.ts:70` | second commit is idempotent (200) | failed (Ã—2) |
 | — | `live-api-conflict-journey.spec.ts:144` | commit on **non-existent** run returns 404 | **passed** (189ms) |
-| 11 | `live-api-core-pilot-path.spec.ts:22` | operator home → new request → reviews → showcase deliverables | failed (×2) |
+| 11 | `live-api-core-pilot-path.spec.ts:22` | operator home → new request → reviews → showcase deliverables | failed (Ã—2) |
 
 **The one test that passed never creates a real run** — it calls `POST .../commit` against a
 random/non-existent run id and asserts a 404. **Every one of the 11 failing tests creates a real run
 via `createRun()`/`executeRun()`/`commitRun()`** (`archlucid-ui/e2e/helpers/live-api-client.ts`) and
-then hangs until its full Playwright timeout (120s–480s, ×2 for the retry) trying to commit it. This
+then hangs until its full Playwright timeout (120s–480s, Ã—2 for the retry) trying to commit it. This
 split (real-commit tests always fail; the one no-real-commit test passes instantly) is the first clue
 that **the commit path itself is broken for every run**, not that any one test's tenant/data is being
 clobbered by something else.
@@ -244,7 +244,7 @@ bug above is the one actually failing tests.
 2. Run `POST /v1/architecture/request` with a payload shaped like
    `archlucid-ui/e2e/helpers/live-api-client.ts`'s `createRun()` (short description, `environment:
    "prod"`, no `priorManifestVersion`) and confirm the response / a `GET
-   /v1/architecture/run/{id}` shows `Deferred=false` behavior — i.e. `GoldenManifestId` and
+   /v1/architecture/review/{id}` shows `Deferred=false` behavior — i.e. `GoldenManifestId` and
    `DecisionTraceId` are **already populated** on the run immediately after creation, before you ever
    call `/execute` or `/commit`. If they are **not** already populated at this point for your local
    repro, this specific mechanism does not apply the same way here — stop and report back with what
@@ -289,7 +289,7 @@ best fits the existing design after reading the code; do not assume Option A wit
 This is a production application bug (`ArchLucid.Application` / `ArchLucid.Persistence`), not a
 test-isolation problem. Do **not** add `tenantScope` isolation to the E2E spec files, and do **not**
 add `Observability__ConsoleExporter__Enabled` to `.github/workflows/ci.yml` — that work belongs to the
-old prompts (see § Related) and should only be picked up later, if at all, after this fix lands and
+old prompts (see Â§ Related) and should only be picked up later, if at all, after this fix lands and
 shard 2/3 are re-run.
 
 ## Acceptance criteria

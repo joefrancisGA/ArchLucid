@@ -17,7 +17,7 @@ using Moq;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     HTTP coverage for <c>POST /v1/marketing/pricing/quote-request</c> â€” persist + sales notification path.
+///     HTTP coverage for <c>POST /v1/marketing/pricing/quote-request</c> — persist + sales notification path.
 /// </summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]

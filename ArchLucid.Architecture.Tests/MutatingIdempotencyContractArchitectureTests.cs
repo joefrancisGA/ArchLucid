@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 
 namespace ArchLucid.Architecture.Tests;
 
@@ -27,7 +27,7 @@ public sealed class MutatingIdempotencyContractArchitectureTests
         File.Exists(path).Should().BeTrue();
         string text = File.ReadAllText(path);
         text.Should().Contain("POST /v1/architecture/request");
-        text.Should().Contain("POST /v1/architecture/run/{runId}/commit");
+        text.Should().Contain("POST /v1/architecture/review/{runId}/finalize");
         text.Should().Contain("POST /v1/governance/approval-requests");
     }
 

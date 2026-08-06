@@ -25,8 +25,8 @@ public sealed class ArchitectureExportAuditTests(ArchLucidApiFactory factory) : 
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
-        await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
-        await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
+        await Client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
+        await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
 
         var request = new
         {
@@ -52,12 +52,12 @@ public sealed class ArchitectureExportAuditTests(ArchLucidApiFactory factory) : 
         };
 
         HttpResponseMessage exportResponse = await Client.PostAsJsonAsync(
-            $"/v1/architecture/run/{runId}/analysis-report/export/docx/consulting",
+            $"/v1/architecture/review/{runId}/analysis-report/export/docx/consulting",
             request);
 
         exportResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        HttpResponseMessage historyResponse = await Client.GetAsync($"/v1/architecture/run/{runId}/exports");
+        HttpResponseMessage historyResponse = await Client.GetAsync($"/v1/architecture/review/{runId}/exports");
 
         historyResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 

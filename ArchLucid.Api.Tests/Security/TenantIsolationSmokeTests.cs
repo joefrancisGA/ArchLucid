@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -99,7 +99,7 @@ public sealed class TenantIsolationSmokeTests
         using HttpClient clientB = factory.CreateClient();
         WireScope(clientB, TenantB, WorkspaceB, ProjectB);
 
-        HttpResponseMessage getOther = await clientB.GetAsync($"/v1/architecture/run/{runId}");
+        HttpResponseMessage getOther = await clientB.GetAsync($"/v1/architecture/review/{runId}");
         getOther.StatusCode.Should().Be(HttpStatusCode.NotFound, "Cross-tenant scope must hide other-tenant runs.");
 
         HttpResponseMessage listOther = await clientB.GetAsync("/v1/architecture/runs?limit=200");
@@ -107,7 +107,7 @@ public sealed class TenantIsolationSmokeTests
         string listJson = await listOther.Content.ReadAsStringAsync();
         ListContainsRunId(listJson, runId).Should().BeFalse("list must not return runs from another tenant.");
 
-        HttpResponseMessage getOwn = await clientA.GetAsync($"/v1/architecture/run/{runId}");
+        HttpResponseMessage getOwn = await clientA.GetAsync($"/v1/architecture/review/{runId}");
         await getOwn.EnsureSuccessForTestAsync();
     }
 
@@ -139,7 +139,7 @@ public sealed class TenantIsolationSmokeTests
         using HttpClient clientB = factory.CreateClient();
         WireScope(clientB, TenantB, WorkspaceB, ProjectB);
 
-        HttpResponseMessage roi = await clientB.GetAsync($"/v1/architecture/run/{runId}/roi");
+        HttpResponseMessage roi = await clientB.GetAsync($"/v1/architecture/review/{runId}/roi");
         roi.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
@@ -216,9 +216,9 @@ public sealed class TenantIsolationSmokeTests
             new AdminArchiveRunsByIdsRequest { RunIds = [Guid.Parse(runIdA)] });
 
         await archive.EnsureSuccessForTestAsync();
-        HttpResponseMessage getB = await clientB.GetAsync($"/v1/architecture/run/{runIdB}");
+        HttpResponseMessage getB = await clientB.GetAsync($"/v1/architecture/review/{runIdB}");
         await getB.EnsureSuccessForTestAsync();
-        HttpResponseMessage getA = await clientA.GetAsync($"/v1/architecture/run/{runIdA}");
+        HttpResponseMessage getA = await clientA.GetAsync($"/v1/architecture/review/{runIdA}");
         getA.StatusCode.Should().Be(HttpStatusCode.NotFound, "tenant A admin batch should archive only tenant A runs.");
     }
 
@@ -250,7 +250,7 @@ public sealed class TenantIsolationSmokeTests
         using HttpClient clientB = factory.CreateClient();
         WireScope(clientB, TenantB, WorkspaceB, ProjectB);
 
-        HttpResponseMessage provenance = await clientB.GetAsync($"/v1/architecture/runs/{runId}/provenance");
+        HttpResponseMessage provenance = await clientB.GetAsync($"/v1/architecture/reviews/{runId}/provenance");
         provenance.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 

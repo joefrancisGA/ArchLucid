@@ -15,8 +15,9 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Repositories;
 
 /// <summary>
-///     Persists authority <see cref="DecisionTraceDto" /> (rule audit) from decisioning (not coordinator
-///     <c>DecisionTraces</c> table). JSON columns are <c>NVARCHAR(MAX)</c> with rowstore PAGE compression (migration 088).
+///     Persists authority <see cref="DecisionTraceDto" /> (rule audit) into <c>dbo.DecisioningTraces</c>
+///     (not the retired coordinator <c>DecisionTraces</c> table dropped in migration 295).
+///     JSON columns are <c>NVARCHAR(MAX)</c> with rowstore PAGE compression (migration 088).
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionFactory) : IDecisionTraceRepository

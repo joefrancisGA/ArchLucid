@@ -1,8 +1,8 @@
 namespace ArchLucid.Api.Routing;
 
 /// <summary>
-///     Single source of truth for the canonical run-lifecycle WRITE routes (TB-305 / ADR 0042; alias routes retired
-///     per the coordinator strangler migration closure — see <c>docs/architecture/COORDINATOR_STRANGLER_INVENTORY.md</c>).
+///     Single source of truth for the canonical run-lifecycle WRITE routes
+///     (TB-305 / ADR 0042; buyer nouns per ADR 0064).
 ///     The <c>v1/architecture/*</c> family is the only run-lifecycle write surface; this registry lets
 ///     <c>CanonicalRunWriteSurfaceArchitectureTests</c> fail the build if a new dual-write verb reappears on
 ///     <see cref="ArchLucid.Api.Controllers.Authority.RunsController" /> without an ADR-cited entry here.
@@ -17,8 +17,8 @@ public static class RunWriteLifecycleRoutes
     private static readonly IReadOnlyList<RunWriteRoute> RoutesInternal =
     [
         new RunWriteRoute("create", "v{version:apiVersion}/architecture/request"),
-        new RunWriteRoute("execute", "v{version:apiVersion}/architecture/run/{runId}/execute"),
-        new RunWriteRoute("commit", "v{version:apiVersion}/architecture/run/{runId}/commit"),
+        new RunWriteRoute("execute", "v{version:apiVersion}/architecture/review/{runId}/execute"),
+        new RunWriteRoute("finalize", "v{version:apiVersion}/architecture/review/{runId}/finalize"),
     ];
 
     /// <summary>All canonical run-lifecycle write operations.</summary>

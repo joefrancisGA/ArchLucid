@@ -1,4 +1,4 @@
-# Architecture Review Gate for Pull Requests
+﻿# Architecture Review Gate for Pull Requests
 
 **Pattern:** A CI job runs on every pull request, calls the ArchLucid V1 **architecture** API to create and execute a run from the PR title/body, waits until the run reaches a terminal state, checks **findings** for severity, posts a **Markdown** summary to the PR, and **fails the job** (blocking merge when branch protection is enabled) if any finding is at or above your configured floor (for example **Critical** only).
 
@@ -24,8 +24,8 @@
 **API surface used (V1, shipped):**
 
 - `POST /v1/architecture/request` — create run
-- `POST /v1/architecture/run/{runId}/execute` — execute agent pipeline
-- `GET /v1/architecture/run/{runId}` — poll until `run.status` is terminal (`ReadyForCommit`, `Committed`, or `Failed` as names; or enum values `4`–`6` as numbers in JSON)
+- `POST /v1/architecture/review/{runId}/execute` — execute agent pipeline
+- `GET /v1/architecture/review/{runId}` — poll until `run.status` is terminal (`ReadyForCommit`, `Committed`, or `Failed` as names; or enum values `4`–`6` as numbers in JSON)
 
 Findings are read from `results[]..findings[]..severity` on the run detail payload.
 
@@ -37,7 +37,7 @@ Copy [`archlucid-pr-gate.sh`](./archlucid-pr-gate.sh) into your repository (for 
 
 1. Creates a run with a short `requestId` and a description built from the PR title and body.  
 2. Executes the run.  
-3. Polls `GET /v1/architecture/run/{runId}` until `run.status` indicates **Ready for commit**, **Committed**, or **Failed**, or a timeout.  
+3. Polls `GET /v1/architecture/review/{runId}` until `run.status` indicates **Ready for commit**, **Committed**, or **Failed**, or a timeout.  
 4. Exits `1` if any finding is at/above `ARCHLUCID_BLOCK_SEVERITY`, else `0`.  
 5. If `ARCHLUCID_POST_COMMENT_CMD` is set, runs it with `ARCHLUCID_COMMENT_FILE` pointing at a generated Markdown file (your recipe posts the PR comment).
 
@@ -146,7 +146,7 @@ For a **proven** sticky **PR thread** in Markdown, reuse [`integrations/azure-de
 2. **Authenticated V1 list (proves `X-Api-Key` and `Read` policy):**  
    `curl -sS -H "X-Api-Key: $ARCHLUCID_API_KEY" "$ARCHLUCID_API_URL/v1/architecture/runs?limit=1" | head -c 200; echo`
 3. **One-off run detail (after you have a `runId` from a completed review):**  
-   `curl -sS -H "X-Api-Key: $ARCHLUCID_API_KEY" "$ARCHLUCID_API_URL/v1/architecture/run/<runId>" | jq '.run.status, (.results[0].findings|length)'`
+   `curl -sS -H "X-Api-Key: $ARCHLUCID_API_KEY" "$ARCHLUCID_API_URL/v1/architecture/review/<runId>" | jq '.run.status, (.results[0].findings|length)'`
 
 If (2) returns **200** and JSON, the secret and base URL are correct. If (2) is **401/403**, check API key, tenant, and the policy that maps your caller to `ReadAuthority` / `ExecuteAuthority` as required by the endpoints you call.
 
@@ -157,7 +157,7 @@ If (2) returns **200** and JSON, the secret and base URL are correct. If (2) is 
 | Symptom | What to check |
 |--------|----------------|
 | **HTTP 401/403** on `POST` | Create/execute need **Execute**-class policy for your key or JWT. Only **GET** `run` needs **Read**; confirm the same key can create runs in the UI or via a one-off `curl`. |
-| **400** on create with “description” | `description` must be **≥ 10** characters; pad `PR_BODY` in CI as the GitHub example does. |
+| **400** on create with “description” | `description` must be **â‰¥ 10** characters; pad `PR_BODY` in CI as the GitHub example does. |
 | **Timeout in script** | Increase `ARCHLUCID_MAX_WAIT_SEC` or pre-warm the API / workers so agent execution finishes within the window. |
 | **No findings, expected some** | Findings are attached to `results` after a successful `execute` and depend on the agents and policies bound to the tenant; verify in the product UI for the same `runId`. |
 | **Run failed (`status=Failed`)** | See API response body; check **correlation id** in your API **Application Insights** or stdout logs. |

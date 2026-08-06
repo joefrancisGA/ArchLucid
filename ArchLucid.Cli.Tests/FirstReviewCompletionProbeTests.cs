@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
 
@@ -33,7 +33,7 @@ public sealed class FirstReviewCompletionProbeTests
                     }));
                 }
 
-                if (path.EndsWith($"/v1/architecture/runs/{RunId}/provenance", StringComparison.Ordinal))
+                if (path.EndsWith($"/v1/architecture/reviews/{RunId}/provenance", StringComparison.Ordinal))
                 {
                     return Task.FromResult(JsonResponse(HttpStatusCode.OK, new
                     {

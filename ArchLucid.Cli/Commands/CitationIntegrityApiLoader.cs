@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Agents;
@@ -18,7 +18,7 @@ internal static class CitationIntegrityApiLoader
 
         try
         {
-            using HttpResponseMessage response = await http.GetAsync($"/v1/architecture/run/{runId}", cancellationToken);
+            using HttpResponseMessage response = await http.GetAsync($"/v1/architecture/review/{runId}", cancellationToken);
 
             if (response.StatusCode != HttpStatusCode.OK)
                 return null;

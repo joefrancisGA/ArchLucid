@@ -56,7 +56,7 @@ export const TRUST_CENTER_HERO = {
   title: "Trust Center",
   subtitle: "Review ArchLucid’s current security posture, public assurance materials, and enterprise diligence process.",
   intro:
-    "Use this page for public evidence downloads and procurement posture. For a one-page assurance ladder by maturity tier, see Security and trust details.",
+    "Use this page for public evidence downloads and procurement posture. For a one-page assurance ladder by maturity tier, see Assurance status.",
 } as const;
 
 export const TRUST_ASSURANCE_GLANCE_PANELS: readonly TrustAssuranceGlancePanel[] = [
@@ -83,7 +83,7 @@ export const TRUST_ASSURANCE_GLANCE_PANELS: readonly TrustAssuranceGlancePanel[]
       "Subprocessors and tenancy overview on request",
       "Customer-specific evidence bundles when approved",
     ],
-    actionLabel: "Security and trust details",
+    actionLabel: "Assurance status",
     actionHref: "/security-trust",
   },
   {
@@ -108,7 +108,7 @@ export const TRUST_CONTENT_CARDS: readonly TrustContentCard[] = [
     description:
       "Tenant isolation, scope-filtered APIs, and audit instrumentation for material changes. Control narratives deepen during diligence.",
     classification: "public",
-    actionLabel: "Security and trust details",
+    actionLabel: "Assurance status",
     actionHref: "/security-trust",
     sectionId: "isolation-section",
   },
@@ -127,7 +127,7 @@ export const TRUST_CONTENT_CARDS: readonly TrustContentCard[] = [
     description:
       "Architecture review evidence and governance metadata — not a clinical record system. Production terms are contractual.",
     classification: "public",
-    actionLabel: "Privacy disclosures",
+    actionLabel: "Privacy policy",
     actionHref: "/privacy",
     sectionId: "data-handling-section",
   },

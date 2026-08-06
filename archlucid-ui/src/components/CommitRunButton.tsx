@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
@@ -42,7 +42,7 @@ export type CommitRunButtonProps = {
 };
 
 /**
- * Finalizes the architecture review via POST /v1/architecture/run/{runId}/commit (ExecuteAuthority).
+ * Finalizes the architecture review via POST /v1/architecture/review/{runId}/finalize (ExecuteAuthority).
  */
 export function CommitRunButton({
   runId,

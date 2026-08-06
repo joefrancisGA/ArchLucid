@@ -1,18 +1,18 @@
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
 
 namespace ArchLucid.Api.OpenApi;
 
 /// <summary>
-///     Ensures <c>POST /v1/architecture/run/{runId}/evidence/bulk</c> documents
+///     Ensures <c>POST /v1/architecture/review/{runId}/evidence/bulk</c> documents
 ///     <c>multipart/form-data</c> and <c>application/x-www-form-urlencoded</c> bodies with an inline
 ///     <c>files</c> schema (array of binary). Framework generation can omit or emit a dangling
 ///     <c>#/components/schemas/IFormFileCollection</c> ref; inlined shapes match the committed OpenAPI snapshot.
 /// </summary>
 public sealed class MicrosoftOpenApiEvidenceBulkUploadOperationTransformer : IOpenApiOperationTransformer
 {
-    private const string EvidenceBulkRelativePath = "v1/architecture/run/{runId}/evidence/bulk";
+    private const string EvidenceBulkRelativePath = "v1/architecture/review/{runId}/evidence/bulk";
 
     private const string MultipartFormData = "multipart/form-data";
 

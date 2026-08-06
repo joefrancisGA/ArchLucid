@@ -60,11 +60,9 @@ This document summarizes the persisted data model used by ArchLucid. It is based
 - **Fields**: `RequestDescription`, `EvidenceJson`
 - **Why it matters**: packaged evidence used for reporting and explainability.
 
-#### `DecisionTraces`
+#### `DecisionTraces` (removed)
 
-- **Key**: `TraceId`
-- **Fields**: `RunId`, `EventType`, `EventDescription`, `EventJson`
-- **Why it matters**: audit trail of important events and decision points.
+- **Removed** in migration **295**. Coordinator-era event stream; authority rule audits persist in **`dbo.DecisioningTraces`**.
 
 #### `AgentEvidencePackages`
 
@@ -174,7 +172,7 @@ Comparison replay is built on `PayloadJson` as the durable artifact. This enable
 
 - `RequestId` → `RunId` → `ManifestVersion`
 - `RunId` → `TaskId` → `ResultId`
-- `RunId` → (`DecisionNodes`, `AgentEvaluations`, `DecisionTraces`, evidence)
+- `RunId` → (`DecisionNodes`, `AgentEvaluations`, `DecisioningTraces`, evidence)
 - `ComparisonRecordId` ties to:
   - runs (left/right run IDs), or
   - export records (left/right export record IDs)

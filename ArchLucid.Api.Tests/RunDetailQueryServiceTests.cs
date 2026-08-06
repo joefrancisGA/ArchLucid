@@ -22,7 +22,7 @@ using Moq;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     Unit tests for <see cref="RunDetailQueryService" /> â€” the canonical run detail assembly path.
+///     Unit tests for <see cref="RunDetailQueryService" /> — the canonical run detail assembly path.
 /// </summary>
 /// <remarks>
 ///     ADR 0030 PR A3 (2026-04-24): the legacy <c>ICoordinatorDecisionTraceRepository</c> was deleted.

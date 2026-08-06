@@ -1,4 +1,4 @@
-> **Scope:** V1 buyer/architect automation handoff — REST, CLI, OpenAPI, exports, and SCIM only. First-party ITSM/chat/docs connectors are **V1.1**.
+﻿> **Scope:** V1 buyer/architect automation handoff — REST, CLI, OpenAPI, exports, and SCIM only. First-party ITSM/chat/docs connectors are **V1.1**.
 
 # V1 automation handoff pack
 
@@ -8,7 +8,7 @@
 
 **Machine-readable contracts:** [`scripts/ci/data/v1_integration_starter_contracts.v1.json`](../../scripts/ci/data/v1_integration_starter_contracts.v1.json) (validated by `scripts/ci/check_v1_integration_starter_contracts.py` against the OpenAPI snapshot).
 
-**V1.1 boundary:** ServiceNow, Jira, Confluence, Slack, Microsoft Teams, CloudEvents webhooks, and MCP agent-tool membranes are **not** V1 buyer-contract obligations. See [`INTEGRATION_CATALOG.md`](../go-to-market/INTEGRATION_CATALOG.md) and [`V1_SCOPE.md`](V1_SCOPE.md) §2.8 / §2.13–§2.15.
+**V1.1 boundary:** ServiceNow, Jira, Confluence, Slack, Microsoft Teams, CloudEvents webhooks, and MCP agent-tool membranes are **not** V1 buyer-contract obligations. See [`INTEGRATION_CATALOG.md`](../go-to-market/INTEGRATION_CATALOG.md) and [`V1_SCOPE.md`](V1_SCOPE.md) Â§2.8 / Â§2.13–Â§2.15.
 
 ---
 
@@ -17,13 +17,13 @@
 | Phase | Architect workspace | REST (OpenAPI) | CLI |
 | --- | --- | --- | --- |
 | Create review | `/reviews/new` | `POST /v1/architecture/request` | `archlucid architecture request` or `archlucid run create` |
-| Execute / observe | Review detail | `POST /v1/architecture/run/{runId}/execute` then poll `GET /v1/architecture/run/{runId}` | `archlucid architecture execute <runId>` |
-| Finalize | Review detail → **Finalize** (API/CLI `commit`) | `POST /v1/architecture/run/{runId}/commit` | `archlucid architecture commit <runId>` |
+| Execute / observe | Review detail | `POST /v1/architecture/review/{runId}/execute` then poll `GET /v1/architecture/review/{runId}` | `archlucid architecture execute <runId>` |
+| Finalize | Review detail → **Finalize** (API/CLI `commit`) | `POST /v1/architecture/review/{runId}/finalize` | `archlucid architecture commit <runId>` |
 | Export artifacts | Review detail → Export | `GET /v1/artifacts/runs/{runId}/export` | `archlucid artifacts export <runId>` |
 | Compare runs | Compare workspace | `GET /v1/authority/compare/runs?leftRunId=…&rightRunId=…` | Compare via REST (CLI wrapper optional) |
-| ROI summary | Value report / executive dashboard | `GET /v1/architecture/run/{runId}/roi` · optional `GET /v1/analytics/roi` | ROI via REST |
+| ROI summary | Value report / executive dashboard | `GET /v1/architecture/review/{runId}/roi` Â· optional `GET /v1/analytics/roi` | ROI via REST |
 
-Canonical API surface: [`API_CONTRACTS.md`](API_CONTRACTS.md) · OpenAPI: `GET /openapi/v1.json` · generated client: `ArchLucid.Api.Client`.
+Canonical API surface: [`API_CONTRACTS.md`](API_CONTRACTS.md) Â· OpenAPI: `GET /openapi/v1.json` Â· generated client: `ArchLucid.Api.Client`.
 
 ---
 
@@ -72,7 +72,7 @@ archlucid architecture request --json \
 ```bash
 export RUN_ID="<from-create-response>"
 
-curl -sS -X POST "$BASE/v1/architecture/run/$RUN_ID/execute" \
+curl -sS -X POST "$BASE/v1/architecture/review/$RUN_ID/execute" \
   -H "Authorization: Bearer $TOKEN" \
   -H "X-Correlation-ID: pilot-execute-001"
 ```
@@ -80,7 +80,7 @@ curl -sS -X POST "$BASE/v1/architecture/run/$RUN_ID/execute" \
 Poll until status is `ReadyForCommit` or `Committed`:
 
 ```bash
-curl -sS "$BASE/v1/architecture/run/$RUN_ID" \
+curl -sS "$BASE/v1/architecture/review/$RUN_ID" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -91,7 +91,7 @@ curl -sS "$BASE/v1/architecture/run/$RUN_ID" \
 ## Step 3 — Finalize (API `commit`)
 
 ```bash
-curl -sS -X POST "$BASE/v1/architecture/run/$RUN_ID/commit" \
+curl -sS -X POST "$BASE/v1/architecture/review/$RUN_ID/commit" \
   -H "Authorization: Bearer $TOKEN" \
   -H "X-Correlation-ID: pilot-commit-001"
 ```
@@ -126,7 +126,7 @@ curl -sS "$BASE/v1/authority/compare/runs?leftRunId=$LEFT&rightRunId=$RIGHT" \
 Per-run (sponsor-safe estimates only):
 
 ```bash
-curl -sS "$BASE/v1/architecture/run/$RUN_ID/roi" \
+curl -sS "$BASE/v1/architecture/review/$RUN_ID/roi" \
   -H "Authorization: Bearer $TOKEN"
 ```
 

@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — copyable V1 REST/CLI handoff recipes — no V1.1 first-party connectors.
+﻿> **Scope:** Contributor-reference — copyable V1 REST/CLI handoff recipes — no V1.1 first-party connectors.
 
 # V1 REST/CLI integration recipes
 
@@ -12,7 +12,7 @@
 archlucid run create --json --system-name "CI review" --description "from pipeline"
 ```
 
-Poll: `GET /v1/architecture/run/{runId}` until status progresses past Created.
+Poll: `GET /v1/architecture/review/{runId}` until status progresses past Created.
 
 ## 2. Upload evidence and execute
 
@@ -22,14 +22,14 @@ curl -sS -X POST "$BASE/v1/azure-extractor/upload" \
   -H "Authorization: Bearer $TOKEN" \
   -F "file=@package.zip" -F "runId=$RUN_ID"
 
-curl -sS -X POST "$BASE/v1/architecture/run/$RUN_ID/execute" \
+curl -sS -X POST "$BASE/v1/architecture/review/$RUN_ID/execute" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 ## 3. Commit manifest
 
 ```bash
-curl -sS -X POST "$BASE/v1/architecture/run/$RUN_ID/commit" \
+curl -sS -X POST "$BASE/v1/architecture/review/$RUN_ID/commit" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -60,11 +60,11 @@ Read `procurement-pack-quality.md` before send. Request guide: [`../go-to-market
 
 ```bash
 # 401 — missing or wrong bearer
-curl -sS -o /dev/null -w "%{http_code}" "$BASE/v1/architecture/run/$RUN_ID"
+curl -sS -o /dev/null -w "%{http_code}" "$BASE/v1/architecture/review/$RUN_ID"
 # Expect 401: refresh token; verify ArchLucidAuth:Mode and tenant scope.
 
 # Execute blocked (409/422) — quality gate
-curl -sS -X POST "$BASE/v1/architecture/run/$RUN_ID/execute" -H "Authorization: Bearer $TOKEN"
+curl -sS -X POST "$BASE/v1/architecture/review/$RUN_ID/execute" -H "Authorization: Bearer $TOKEN"
 # Follow ../runbooks/QUALITY_GATE_REJECTION.md; rerun after PilotStrict evidence is satisfied.
 ```
 

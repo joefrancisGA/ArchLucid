@@ -7,6 +7,9 @@ export const ARCHITECTURES_NEW_PATH = "/architecture/architectures/new" as const
 /** Architecture reviews list (hub). */
 export const REVIEWS_LIST_PATH = "/architecture/reviews" as const;
 
+/** Legacy top-level reviews path — permanent redirect to {@link REVIEWS_LIST_PATH}. */
+export const LEGACY_REVIEWS_LIST_PATH = "/reviews" as const;
+
 /** Left-nav Reviews destination — scoped to the default project. */
 export const REVIEWS_LIST_NAV_HREF = "/architecture/reviews?projectId=default" as const;
 

@@ -12,8 +12,8 @@ public sealed class RunWriteLifecycleRoutesTests
     [Theory]
     [InlineData("v{version:apiVersion}/architecture/request")]
     [InlineData("/v{version:apiVersion}/architecture/request")]
-    [InlineData("v{version:apiVersion}/architecture/run/{runId}/execute")]
-    [InlineData("v{version:apiVersion}/architecture/run/{runId}/commit")]
+    [InlineData("v{version:apiVersion}/architecture/review/{runId}/execute")]
+    [InlineData("v{version:apiVersion}/architecture/review/{runId}/finalize")]
     public void IsCanonical_true_for_registered_routes(string template)
     {
         RunWriteLifecycleRoutes.IsCanonical(template).Should().BeTrue();
@@ -37,6 +37,6 @@ public sealed class RunWriteLifecycleRoutesTests
         // Guard against silent growth of the write surface; new operations require an ADR + this assertion update.
         RunWriteLifecycleRoutes.All.Select(route => route.Operation)
             .Should()
-            .BeEquivalentTo(["create", "execute", "commit"]);
+            .BeEquivalentTo(["create", "execute", "finalize"]);
     }
 }

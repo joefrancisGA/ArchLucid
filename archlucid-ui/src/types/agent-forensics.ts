@@ -1,4 +1,4 @@
-/** Row from `GET /v1/architecture/run/{runId}/traces` (camelCase JSON). */
+﻿/** Row from `GET /v1/architecture/review/{runId}/traces` (camelCase JSON). */
 export type AgentExecutionTraceRow = {
   traceId: string;
   runId: string;
@@ -70,10 +70,10 @@ export type AgentOutputEvaluationScoreRow = {
   qualityWarning?: boolean;
 };
 
-/** Summary from `GET /v1/architecture/run/{runId}/agent-evaluation`. */
+/** Summary from `GET /v1/architecture/review/{runId}/agent-evaluation`. */
 import type { components } from "@/lib/openapi-schemas";
 
-/** Row from `GET /v1/architecture/run/{runId}/tool-invocation-forensics` (TB-110). */
+/** Row from `GET /v1/architecture/review/{runId}/tool-invocation-forensics` (TB-110). */
 export type RunToolInvocationForensicRow = components["schemas"]["RunToolInvocationForensicRow"];
 
 export type RunToolInvocationForensicsPayload = components["schemas"]["RunToolInvocationForensicsResponse"];

@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Text.Json;
 
 using ArchLucid.Cli;
@@ -109,7 +109,7 @@ internal sealed class ShipGateEvidenceRunner(
     {
         try
         {
-            using HttpResponseMessage response = await _http.GetAsync($"/v1/architecture/run/{runId}", cancellationToken);
+            using HttpResponseMessage response = await _http.GetAsync($"/v1/architecture/review/{runId}", cancellationToken);
 
             if (response.StatusCode != HttpStatusCode.OK)
                 return null;
@@ -191,7 +191,7 @@ internal sealed class ShipGateEvidenceRunner(
                     GateNumber = 2,
                     Name = "Representative review has no hallucinated or uncited policy/evidence citations",
                     Verdict = ShipGateEvidenceVerdict.Fail,
-                    Evidence = "Citation-integrity probe could not load GET /v1/architecture/run/{runId} for the supplied run.",
+                    Evidence = "Citation-integrity probe could not load GET /v1/architecture/review/{runId} for the supplied run.",
                     FastestResolution =
                         "Verify runId, API auth, and run detail availability; rerun ship-gate evidence with a committed representative run.",
                 };

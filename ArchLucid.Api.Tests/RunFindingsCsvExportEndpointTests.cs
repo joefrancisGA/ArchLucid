@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Application.Reporting;
@@ -8,7 +8,7 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     HTTP coverage for <c>GET /v1/architecture/run/{runId}/findings/export/csv</c>.
+///     HTTP coverage for <c>GET /v1/architecture/review/{runId}/findings/export/csv</c>.
 /// </summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
@@ -20,7 +20,7 @@ public sealed class RunFindingsCsvExportEndpointTests(ArchLucidApiFactory factor
         Guid runId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
 
         using HttpResponseMessage res =
-            await Client.GetAsync($"/v1/architecture/run/{runId:D}/findings/export/csv");
+            await Client.GetAsync($"/v1/architecture/review/{runId:D}/findings/export/csv");
 
         res.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
@@ -31,7 +31,7 @@ public sealed class RunFindingsCsvExportEndpointTests(ArchLucidApiFactory factor
         Guid runId = ContosoRetailDemoIdentifiers.AuthorityRunBaselineId;
 
         using HttpResponseMessage res =
-            await Client.GetAsync($"/v1/architecture/run/{runId:D}/findings/export/csv");
+            await Client.GetAsync($"/v1/architecture/review/{runId:D}/findings/export/csv");
 
         // Guard with return rather than Skip.If: throwing SkipException after an async operation
         // causes the [SkippableFact] vstest runner to re-queue the test indefinitely (proven 30+

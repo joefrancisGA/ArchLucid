@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Contracts.Findings;
 
@@ -40,7 +40,7 @@ internal static class ItsmFindingAuthorityPayloadMapper
             $"ArchLucid correlation:{Environment.NewLine}" +
             $"- findingId: {findingId}{Environment.NewLine}" +
             $"- runId: {runId:N}{Environment.NewLine}" +
-            $"Relative paths (no secrets): v1/architecture/run/{runId:N}/findings/{findingId}/evidence-chain";
+            $"Relative paths (no secrets): v1/architecture/review/{runId:N}/findings/{findingId}/evidence-chain";
 
         description = AppendRemediationAssignment(description, assignedToUserId, remediationDueUtc);
 

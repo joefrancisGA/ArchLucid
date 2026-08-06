@@ -233,16 +233,6 @@ Generated from canonical DDL: `ArchLucid.Persistence/Scripts/ArchLucid.sql`, sup
 - **Primary key:** `(CompositeRuleId)`
 - **Foreign keys:** none declared
 
-## dbo.ConfluencePublishingTargets
-
-- **Primary key:** `(Id)`
-- **Foreign keys:** none declared
-
-## dbo.ConfluencePublishJobs
-
-- **Primary key:** `(Id)`
-- **Foreign key:** `TargetId -> dbo.ConfluencePublishingTargets(Id)`
-
 ## dbo.ContextSnapshotCanonicalObjectProperties
 
 - **Primary key:** `(CanonicalObjectRowId, PropertySortOrder)`
@@ -312,11 +302,6 @@ Generated from canonical DDL: `ArchLucid.Persistence/Scripts/ArchLucid.sql`, sup
 
 - **Primary key:** `(DecisionId)`
 - **Foreign keys:** none declared
-
-## dbo.DecisionTraces
-
-- **Primary key:** `(TraceId)`
-- **Foreign key:** `RunId -> dbo.Runs(RunId)`
 
 ## dbo.DigestDeliveryAttempts
 

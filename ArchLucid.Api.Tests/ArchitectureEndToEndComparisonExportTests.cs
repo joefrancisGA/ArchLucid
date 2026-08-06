@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
@@ -22,7 +22,7 @@ public sealed class ArchitectureEndToEndComparisonExportTests(ArchLucidApiFactor
             Client, JsonOptions, "REQ-E2E-EXPORT-001");
 
         HttpResponseMessage response = await Client.GetAsync(
-            $"/v1/architecture/run/compare/end-to-end/export?leftRunId={runId}&rightRunId={replayRunId}");
+            $"/v1/architecture/review/compare/end-to-end/export?leftRunId={runId}&rightRunId={replayRunId}");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -40,7 +40,7 @@ public sealed class ArchitectureEndToEndComparisonExportTests(ArchLucidApiFactor
             Client, JsonOptions, "REQ-E2E-EXPORT-002");
 
         HttpResponseMessage response = await Client.GetAsync(
-            $"/v1/architecture/run/compare/end-to-end/export/docx?leftRunId={runId}&rightRunId={replayRunId}");
+            $"/v1/architecture/review/compare/end-to-end/export/docx?leftRunId={runId}&rightRunId={replayRunId}");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         response.Content.Headers.ContentType!.MediaType
@@ -57,7 +57,7 @@ public sealed class ArchitectureEndToEndComparisonExportTests(ArchLucidApiFactor
             Client, JsonOptions, "REQ-E2E-RANGE-001");
 
         string url =
-            $"/v1/architecture/run/compare/end-to-end/export/file?leftRunId={runId}&rightRunId={replayRunId}";
+            $"/v1/architecture/review/compare/end-to-end/export/file?leftRunId={runId}&rightRunId={replayRunId}";
         using HttpRequestMessage req = new(HttpMethod.Get, url);
         req.Headers.Range = new RangeHeaderValue(0, 15);
 

@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — Pre-finalize governance gate (optional; API/config: pre-commit) - full detail, tables, and links in the sections below.
+﻿> **Scope:** Contributor-reference — Pre-finalize governance gate (optional; API/config: pre-commit) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -9,7 +9,7 @@ Buyer-facing name: **pre-finalize**. API and config keys remain **pre-commit** (
 
 ## Objective
 
-Give governance teams a **preventive** control: block **`POST /v1/architecture/run/{runId}/commit`** when findings at or above a configurable severity threshold exist and an assigned policy pack **enforces** the gate.
+Give governance teams a **preventive** control: block **`POST /v1/architecture/review/{runId}/finalize`** when findings at or above a configurable severity threshold exist and an assigned policy pack **enforces** the gate.
 
 ## Configuration
 
@@ -87,6 +87,6 @@ Contributor deep dive above remains the config and enforcement reference. For th
 
 - [`PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md`](PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md) — PA block vs advisory + SoD ownership matrix
 - **`docs/API_CONTRACTS.md`** — commit conflict vs governance block.
-- **`docs/V1_SCOPE.md`** §2.10 — optional feature flagging.
+- **`docs/V1_SCOPE.md`** Â§2.10 — optional feature flagging.
 - **`docs/AUDIT_COVERAGE_MATRIX.md`** — `GovernancePreCommitBlocked`, `GovernancePreCommitWarned`, `GovernanceApprovalSlaBreached`.
-- **`docs/runbooks/CI_GOVERNANCE_GATE.md`** — copy-paste GitHub Actions / Azure DevOps starters and full PR pipeline (create → execute → commit → PilotStrict); see [§ Minimal CI starters](../runbooks/CI_GOVERNANCE_GATE.md#minimal-ci-starters).
+- **`docs/runbooks/CI_GOVERNANCE_GATE.md`** — copy-paste GitHub Actions / Azure DevOps starters and full PR pipeline (create → execute → commit → PilotStrict); see [Â§ Minimal CI starters](../runbooks/CI_GOVERNANCE_GATE.md#minimal-ci-starters).

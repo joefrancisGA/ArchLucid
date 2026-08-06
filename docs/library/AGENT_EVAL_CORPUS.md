@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — Maintain authors of the synthetic **`tests/eval-corpus`** and **`eval_agent_corpus.py`** heuristic — structure, thresholds, CI posture; not ground-truth human labels from production tenants or Azure OpenAI cost accounting.
+﻿> **Scope:** Contributor-reference — Maintain authors of the synthetic **`tests/eval-corpus`** and **`eval_agent_corpus.py`** heuristic — structure, thresholds, CI posture; not ground-truth human labels from production tenants or Azure OpenAI cost accounting.
 
 # Agent evaluation corpus (synthetic)
 
@@ -44,11 +44,11 @@ Five additional scenarios (Azure web app, regulated data workflow, cost-constrai
 - **`scenario-citation-forgery.json`** — non-resolving ADR/repo citations and checksum expectations (`recordings/corpus-citation-forgery.findings.json`, **`agent-results/corpus-citation-forgery.simulator.json`**).
 - **`scenario-contradictory-manifest.json`** — manifest vs diagram vs encryption-story contradictions (`recordings/corpus-contradictory-manifest.findings.json`, **`agent-results/corpus-contradictory-manifest.simulator.json`**).
 
-Each follows the authoring checklist (≥3 expected probes, ≥2 unexpected probes, committed simulator **AgentResult** JSON).
+Each follows the authoring checklist (â‰¥3 expected probes, â‰¥2 unexpected probes, committed simulator **AgentResult** JSON).
 
 **Real Azure OpenAI** traces are **not** committed as prompts. Two complementary paths:
 
-1. **HTTP / tenant evidence:** After **`POST …/execute`**, call **`GET /v1/architecture/run/{runId}/agent-evaluation`** and archive exports outside the repo (or consume metrics backends). Name the **reference deployment** alongside **`AGENT_OUTPUT_EVALUATION.md`** quality-gate floors.
+1. **HTTP / tenant evidence:** After **`POST …/execute`**, call **`GET /v1/architecture/review/{runId}/agent-evaluation`** and archive exports outside the repo (or consume metrics backends). Name the **reference deployment** alongside **`AGENT_OUTPUT_EVALUATION.md`** quality-gate floors.
 2. **Corpus hook (deterministic scorer on AgentResult JSON):** Ten scenarios commit **`qualityEvidence.mode: "real"`** with distinct env vars — the original quartet (**`scenario-real-mode-smoke`**, **`scenario-real-mode-cost`**, **`scenario-real-mode-compliance`**, **`scenario-real-mode-critic`**) plus **`scenario-real-mode-three-tier`** (`ARCHLUCID_EVAL_CORPUS_REAL_MODE_THREE_TIER_AGENT_RESULT`), **`scenario-real-mode-microservices`** (`ARCHLUCID_EVAL_CORPUS_REAL_MODE_MICROSERVICES_AGENT_RESULT`), **`scenario-real-mode-database-backup`** (`ARCHLUCID_EVAL_CORPUS_REAL_MODE_DATABASE_BACKUP_AGENT_RESULT`), **`scenario-real-mode-overprovisioned-vm`** (`ARCHLUCID_EVAL_CORPUS_REAL_MODE_OVERPROVISIONED_VM_AGENT_RESULT`), **`scenario-real-mode-multi-region`** (`ARCHLUCID_EVAL_CORPUS_REAL_MODE_MULTI_REGION_AGENT_RESULT`), **`scenario-real-mode-azure-web-app`** (`ARCHLUCID_EVAL_CORPUS_REAL_MODE_AZURE_WEB_APP_AGENT_RESULT`). RC automation sets each to the matching **`tests/eval-corpus/agent-results/*.real.json`** (synthetic Web-serialized shape). Locally, point any var at **`ParsedResultJson`** from a trusted run when comparing simulator fixtures to a live export; omit all vars in PR CI so rows skip without failing.
 
 ### Markdown report (structural, semantic, gate)
@@ -82,7 +82,7 @@ For each **`expectedFindings`** rule the script succeeds when **some** recording
 
 For each **`unexpectedFindings`** rule the script emits a warning/failure when **any** row in the nominated category exposes **any** forbidden substring (**`ifContainsAny`**).
 
-Reported **`recall`** = **hits ÷ rules** per scenario — not classical IR recall.
+Reported **`recall`** = **hits Ã· rules** per scenario — not classical IR recall.
 
 **Precision analogue:** count **`unexpected`** triggers (`0` is healthy). Formal precision against live LLMs is deferred until automated runs land.
 
@@ -99,7 +99,7 @@ Reported **`recall`** = **hits ÷ rules** per scenario — not classical IR reca
 ## Adding a scenario
 
 1. Copy an existing **`scenario-*.json`** and **`recordings/*.findings.json`** pair.
-2. Keep **≥3** expected rules and **≥2** unexpected rules (assessment minimum).
+2. Keep **â‰¥3** expected rules and **â‰¥2** unexpected rules (assessment minimum).
 3. Append the filename to **`manifest.json`**.
 4. (Optional) Add **`qualityEvidence`** with **`mode: "simulator"`** and **`agent-results/<case>.simulator.json`** — see the “V1 customer-like brief slice” section above.
 5. (Optional **real-mode quality row**) Clone **`scenario-real-mode-smoke.json`** or any **`scenario-real-mode-*.json`**: **`mode: "real"`**, a unique **`agentResultPathEnv`** name, **`agentType`** label, **`recordings/*.findings.json`**, substring probes. RC may commit **synthetic** **`agent-results/*.real.json`** exemplars (same shape as Web **`AgentResult`**); do **not** commit customer or production AOAI prompts/responses.

@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -242,7 +242,7 @@ public sealed class RealModeSmokeRunner(HttpClient http)
         const string name = "execute-run";
         const string hint = "Confirm execute is allowed for the API key principal and staging AgentExecution:Mode=Real.";
 
-        using HttpRequestMessage request = new(HttpMethod.Post, $"v1/architecture/run/{Uri.EscapeDataString(runId)}/execute")
+        using HttpRequestMessage request = new(HttpMethod.Post, $"v1/architecture/review/{Uri.EscapeDataString(runId)}/execute")
         {
             Content = new StringContent("{}", System.Text.Encoding.UTF8, "application/json")
         };
@@ -262,7 +262,7 @@ public sealed class RealModeSmokeRunner(HttpClient http)
                         Name = name,
                         Passed = true,
                         Detail =
-                            $"POST /v1/architecture/run/{runId}/execute → {(int)response.StatusCode} (pilot real-mode header set)."
+                            $"POST /v1/architecture/review/{runId}/execute → {(int)response.StatusCode} (pilot real-mode header set)."
                     },
                     correlationId);
             }
@@ -274,7 +274,7 @@ public sealed class RealModeSmokeRunner(HttpClient http)
                 {
                     Name = name,
                     Passed = false,
-                    Detail = $"POST /v1/architecture/run/{runId}/execute → {(int)response.StatusCode}: {TrimBody(body)}.",
+                    Detail = $"POST /v1/architecture/review/{runId}/execute → {(int)response.StatusCode}: {TrimBody(body)}.",
                     FailureHint = hint
                 },
                 correlationId);
@@ -286,7 +286,7 @@ public sealed class RealModeSmokeRunner(HttpClient http)
                 {
                     Name = name,
                     Passed = false,
-                    Detail = $"POST /v1/architecture/run/{runId}/execute failed: {ex.Message}",
+                    Detail = $"POST /v1/architecture/review/{runId}/execute failed: {ex.Message}",
                     FailureHint = hint
                 },
                 null);
@@ -312,7 +312,7 @@ public sealed class RealModeSmokeRunner(HttpClient http)
             try
             {
                 using HttpResponseMessage response =
-                    await _http.GetAsync($"v1/architecture/run/{Uri.EscapeDataString(runId)}", ct);
+                    await _http.GetAsync($"v1/architecture/review/{Uri.EscapeDataString(runId)}", ct);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -324,7 +324,7 @@ public sealed class RealModeSmokeRunner(HttpClient http)
                             Name = name,
                             Passed = false,
                             Detail =
-                                $"GET /v1/architecture/run/{runId} → {(int)response.StatusCode}: {TrimBody(body)}.",
+                                $"GET /v1/architecture/review/{runId} → {(int)response.StatusCode}: {TrimBody(body)}.",
                             FailureHint = hint
                         },
                         lastStatus,
@@ -348,7 +348,7 @@ public sealed class RealModeSmokeRunner(HttpClient http)
                             Name = name,
                             Passed = true,
                             Detail =
-                                $"GET /v1/architecture/run/{runId} → status={lastStatus}, agentResults={resultCount}, tokens={lastTokens}."
+                                $"GET /v1/architecture/review/{runId} → status={lastStatus}, agentResults={resultCount}, tokens={lastTokens}."
                         },
                         lastStatus,
                         lastTokens);

@@ -1,4 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text;
@@ -766,7 +766,7 @@ public sealed class ArchLucidApiClient
         }
     }
 
-    /// <summary>POST <c>/v1/architecture/run/{runId}/execute</c> (simulator or real execution per API host configuration).</summary>
+    /// <summary>POST <c>/v1/architecture/review/{runId}/execute</c> (simulator or real execution per API host configuration).</summary>
     public async Task<ExecuteRunResult?> ExecuteRunAsync(string runId, CancellationToken ct = default)
     {
         if (string.IsNullOrWhiteSpace(runId))

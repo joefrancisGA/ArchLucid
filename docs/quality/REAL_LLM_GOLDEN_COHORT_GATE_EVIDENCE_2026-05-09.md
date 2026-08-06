@@ -1,4 +1,4 @@
-> **Scope:** Record of a **2026-05-09** attempt to run the golden-cohort / eval-corpus real-LLM evidence path per [`docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md`](../runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md) and [`REAL_LLM_RUN_EVIDENCE_TEMPLATE.md`](REAL_LLM_RUN_EVIDENCE_TEMPLATE.md); includes credential-free **exemplar** scoring from `scripts/ci/eval_agent_corpus.py` — **not** a substitute for live Azure OpenAI completions.
+﻿> **Scope:** Record of a **2026-05-09** attempt to run the golden-cohort / eval-corpus real-LLM evidence path per [`docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md`](../runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md) and [`REAL_LLM_RUN_EVIDENCE_TEMPLATE.md`](REAL_LLM_RUN_EVIDENCE_TEMPLATE.md); includes credential-free **exemplar** scoring from `scripts/ci/eval_agent_corpus.py` — **not** a substitute for live Azure OpenAI completions.
 
 # Golden cohort real-LLM gate — evidence (2026-05-09)
 
@@ -9,7 +9,7 @@ Live execution requires `AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_API_KEY`, and `AZ
 **Operator follow-up (live evidence):**
 
 1. Set `ARCHLUCID_REAL_AOAI=1` and the `AZURE_OPENAI_*` variables; start the stack in **Real** mode per `FIRST_REAL_VALUE.md`.
-2. Run architecture executes that yield **Topology / Cost / Compliance / Critic** `AgentResult` JSON (or export `ParsedResultJson` / use `GET /v1/architecture/run/{runId}/agent-evaluation`).
+2. Run architecture executes that yield **Topology / Cost / Compliance / Critic** `AgentResult` JSON (or export `ParsedResultJson` / use `GET /v1/architecture/review/{runId}/agent-evaluation`).
 3. Point `ARCHLUCID_EVAL_CORPUS_REAL_MODE_*_AGENT_RESULT` at those **exported files** (not the committed exemplars), then run:
    `python scripts/ci/eval_agent_corpus.py --markdown-report <path>`
 4. Copy metrics into [`REAL_LLM_RUN_EVIDENCE_TEMPLATE.md`](REAL_LLM_RUN_EVIDENCE_TEMPLATE.md) with **actual** authority `runId` values and the **deployment name** from Azure.
@@ -21,12 +21,12 @@ Live execution requires `AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_API_KEY`, and `AZ
 | **Date (UTC)** | 2026-05-09 |
 | **Environment** | Local automation — live stack **not** started (AOAI env absent). |
 | **Agent mode** | **Not executed (live)**. Offline scoring used committed RC **`*.real.json`** exemplars only. |
-| **Model or deployment id** | Live: **N/A** (blocked). Canonical policy: **`gpt-4o`** deployment name per [`GOLDEN_COHORT_REAL_LLM_GATE.md`](../runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md) §10. |
+| **Model or deployment id** | Live: **N/A** (blocked). Canonical policy: **`gpt-4o`** deployment name per [`GOLDEN_COHORT_REAL_LLM_GATE.md`](../runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md) Â§10. |
 | **Brief / scenario id** | Eval corpus real-mode rows: `corpus-real-mode-smoke`, `corpus-real-mode-cost`, `corpus-real-mode-compliance`, `corpus-real-mode-critic` ([`AGENT_EVAL_CORPUS.md`](../library/AGENT_EVAL_CORPUS.md)). |
 | **Run id** | **Live:** N/A. **Exemplar JSON `runId` (RC fixtures, not authority GUIDs):** `corpus-rms-run-exemplar`, `corpus-rmc-run-exemplar`, `corpus-rmco-run-exemplar`, `corpus-rmcr-run-exemplar` — see `tests/eval-corpus/agent-results/*.real.json`. |
 | **Outcome** | **Aborted** for live AOAI; **offline eval script succeeded** (exit 0) against exemplar paths. |
 | **Human verdict** | **not yet** for buyer-grade “real LLM” proof — requires operator-run live session and fresh exports. Exemplar path confirms the **scoring pipeline** only. |
-| **Structural / semantic scores** | See §Exemplar-only metrics (deterministic scorer; same defaults as shipped quality-gate floors in `eval_agent_corpus.py`). |
+| **Structural / semantic scores** | See Â§Exemplar-only metrics (deterministic scorer; same defaults as shipped quality-gate floors in `eval_agent_corpus.py`). |
 | **Follow-ups** | Run live path above; attach deployment name and real `runId` values; optionally enforce `--enforce-real-quality-gate` for strict RC posture. |
 
 ## Exemplar-only metrics (2026-05-09T17:51:07Z)

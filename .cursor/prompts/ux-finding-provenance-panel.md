@@ -1,4 +1,4 @@
-# UX: In-Product Finding Provenance Panel
+﻿# UX: In-Product Finding Provenance Panel
 
 ## Goal
 Add an expandable "Why this finding?" panel to every finding detail page that shows the chain: inputs → evidence collected → policy rule evaluated → conclusion reached. Turns "trust me" into "look." Closes the biggest correctness-perception gap (TB-034–056, provenance gaps).
@@ -30,7 +30,7 @@ export type FindingProvenance = {
 };
 ```
 
-Fetch from `GET /v1/architecture/run/{runId}/findings/{findingId}/provenance` if the endpoint exists; otherwise fall back to a static showcase provenance payload (see step 3).
+Fetch from `GET /v1/architecture/review/{runId}/findings/{findingId}/provenance` if the endpoint exists; otherwise fall back to a static showcase provenance payload (see step 3).
 
 ### 2. `FindingProvenancePanel` component
 New component `archlucid-ui/src/components/findings/FindingProvenancePanel.tsx`:
@@ -58,7 +58,7 @@ export const SHOWCASE_FINDING_PROVENANCE: Record<string, FindingProvenance> = {
     steps: [
       { kind: "input", label: "Architecture brief", detail: "Claims Intake Modernization — 847-word brief describing data flow between intake portal and claims processor." },
       { kind: "evidence", label: "Data flow identified", detail: "Patient demographics field detected in claims payload transmitted over internal API without field-level encryption." },
-      { kind: "policy-check", label: "HIPAA §164.312(a)(2)(iv) evaluated", detail: "Policy pack rule: PHI must be minimized at data boundary. Transmission includes date-of-birth and SSN fields not required by downstream processor." },
+      { kind: "policy-check", label: "HIPAA Â§164.312(a)(2)(iv) evaluated", detail: "Policy pack rule: PHI must be minimized at data boundary. Transmission includes date-of-birth and SSN fields not required by downstream processor." },
       { kind: "conclusion", label: "High severity finding raised", detail: "Unnecessary PHI exposure at claims API boundary — recommend field-level stripping before transmission." },
     ],
   },

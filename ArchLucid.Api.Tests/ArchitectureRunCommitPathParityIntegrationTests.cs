@@ -1,4 +1,4 @@
-using System.IO.Compression;
+﻿using System.IO.Compression;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text;
@@ -14,9 +14,9 @@ using JetBrains.Annotations;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     ADR 0030 PR A2 cohort evidence (authority path only after PR A3): simulator create â†’ execute â†’ commit
-///     yields committed demo shape and stable <c>GET â€¦/pilot-run-deltas</c> fields. Volatile clock fields,
-///     wall-clock seconds-to-commit, <c>topFindingId</c>, and <c>topFindingEvidenceChain</c> are excluded â€” see
+///     ADR 0030 PR A2 cohort evidence (authority path only after PR A3): simulator create Ã¢â€ ’ execute Ã¢â€ ’ commit
+///     yields committed demo shape and stable <c>GET Ã¢â‚¬Â¦/pilot-run-deltas</c> fields. Volatile clock fields,
+///     wall-clock seconds-to-commit, <c>topFindingId</c>, and <c>topFindingEvidenceChain</c> are excluded Ã¢â‚¬” see
 ///     <c>docs/evidence/phase3/pr-a2-cohort-parity.md</c>.
 /// </summary>
 [Trait("Suite", "Core")]
@@ -62,9 +62,9 @@ public sealed class ArchitectureRunCommitPathParityIntegrationTests
         created.Should().NotBeNull();
         string runId = created.Run.RunId;
 
-        HttpResponseMessage executeResponse = await client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        HttpResponseMessage executeResponse = await client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
         await executeResponse.EnsureSuccessForTestAsync();
-        HttpResponseMessage commitResponse = await client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
+        HttpResponseMessage commitResponse = await client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
         commitResponse.StatusCode.Should().Be(HttpStatusCode.OK, "commit should succeed on authority path");
 
         CommitRunResponseDto? commitPayload =
@@ -82,7 +82,7 @@ public sealed class ArchitectureRunCommitPathParityIntegrationTests
         string deltasJson = await deltasResponse.Content.ReadAsStringAsync();
 
         HttpResponseMessage zipResponse =
-            await client.GetAsync($"/v1/architecture/run/{runId}/traceability-bundle.zip");
+            await client.GetAsync($"/v1/architecture/review/{runId}/traceability-bundle.zip");
         zipResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         byte[] zipBytes = await zipResponse.Content.ReadAsByteArrayAsync();
         IReadOnlyList<string> zipNames = ReadZipEntryNames(zipBytes);

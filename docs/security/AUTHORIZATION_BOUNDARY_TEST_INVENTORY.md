@@ -1,4 +1,4 @@
-> **Scope:** Developers finding Core integration tests for RBAC, API keys, and tenant isolation — not a complete threat model or compliance attestation.
+﻿> **Scope:** Developers finding Core integration tests for RBAC, API keys, and tenant isolation — not a complete threat model or compliance attestation.
 
 # Authorization boundary test inventory
 
@@ -29,9 +29,9 @@ dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj --filter "Suite=Core&
 | # | Test (method) | HTTP | Expected | Notes |
 |---|---------------|------|----------|--------|
 | 1 | `Reader_key_cannot_POST_architecture_request_returns_403` | `POST /v1/architecture/request` | **403** | `ExecuteAuthority`; Reader key only |
-| 2 | `Reader_key_cannot_POST_run_commit_returns_403` | `POST /v1/architecture/run/{runId}/commit` | **403** | Commit requires execute |
+| 2 | `Reader_key_cannot_POST_run_commit_returns_403` | `POST /v1/architecture/review/{runId}/finalize` | **403** | Commit requires execute |
 | 3 | `Reader_key_cannot_POST_demo_seed_returns_403` | `POST /v1/demo/seed` | **403** | Same; Development host may also return 404 if demo disabled (403 first if policy runs) |
-| 4 | `Reader_key_GET_run_returns_200_or_404_not_403` | `GET /v1/architecture/run/{runId}` | **200** or **404**, not **403** | `ReadAuthority`; missing run is 404 |
+| 4 | `Reader_key_GET_run_returns_200_or_404_not_403` | `GET /v1/architecture/review/{runId}` | **200** or **404**, not **403** | `ReadAuthority`; missing run is 404 |
 | 5 | `Reader_key_cannot_GET_admin_config_summary_returns_403` | `GET /v1/admin/config-summary` | **403** | `AdminAuthority` only |
 | 6 | `Reader_key_cannot_GET_admin_configuration_summary_returns_403` | `GET /v1/admin/configuration/summary` | **403** | `AdminAuthority` only |
 | 7 | `No_api_key_on_protected_list_runs_returns_401` | `GET /v1/architecture/runs?limit=1` | **401** | Unauthenticated in ApiKey mode |
@@ -44,7 +44,7 @@ These run only when **either** `ARCHLUCID_API_TEST_SQL` **or** `ARCHLUCID_SQL_TE
 
 | # | Test (method) | HTTP / action | Expected |
 |---|---------------|---------------|----------|
-| 1 | `Tenant_b_cannot_see_tenant_a_run_sql_rls` | Tenant **A** `POST /v1/architecture/request` → `runId`; tenant **B** `GET`/`GET` list with different `x-tenant-id` (and matching workspace / project) | B: `GET /v1/architecture/run/{runId}` → **404**; list for B does not contain the run; A: `GET` same run → **2xx** |
+| 1 | `Tenant_b_cannot_see_tenant_a_run_sql_rls` | Tenant **A** `POST /v1/architecture/request` → `runId`; tenant **B** `GET`/`GET` list with different `x-tenant-id` (and matching workspace / project) | B: `GET /v1/architecture/review/{runId}` → **404**; list for B does not contain the run; A: `GET` same run → **2xx** |
 
 **Factory note:** [GreenfieldSqlApiFactory.cs](../../ArchLucid.Api.Tests/GreenfieldSqlApiFactory.cs) configures the greenfield SQL `WebApplicationFactory` for tenant isolation smoke tests.
 

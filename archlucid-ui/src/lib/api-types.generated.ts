@@ -30222,7 +30222,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/run/compare/agents": {
+    "/v1/architecture/review/compare/agents": {
         parameters: {
             query?: never;
             header?: never;
@@ -30373,7 +30373,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/run/compare/agents/summary": {
+    "/v1/architecture/review/compare/agents/summary": {
         parameters: {
             query?: never;
             header?: never;
@@ -30524,7 +30524,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/run/compare/end-to-end": {
+    "/v1/architecture/review/compare/end-to-end": {
         parameters: {
             query?: never;
             header?: never;
@@ -30675,7 +30675,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/run/compare/end-to-end/export": {
+    "/v1/architecture/review/compare/end-to-end/export": {
         parameters: {
             query?: never;
             header?: never;
@@ -30826,7 +30826,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/run/compare/end-to-end/export/docx": {
+    "/v1/architecture/review/compare/end-to-end/export/docx": {
         parameters: {
             query?: never;
             header?: never;
@@ -30977,7 +30977,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/run/compare/end-to-end/export/file": {
+    "/v1/architecture/review/compare/end-to-end/export/file": {
         parameters: {
             query?: never;
             header?: never;
@@ -31128,7 +31128,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/run/compare/end-to-end/summary": {
+    "/v1/architecture/review/compare/end-to-end/summary": {
         parameters: {
             query?: never;
             header?: never;
@@ -31285,7 +31285,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/run/exports/compare": {
+    "/v1/architecture/review/exports/compare": {
         parameters: {
             query?: never;
             header?: never;
@@ -31427,7 +31427,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/run/exports/compare/summary": {
+    "/v1/architecture/review/exports/compare/summary": {
         parameters: {
             query?: never;
             header?: never;
@@ -31575,7 +31575,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/run/exports/{exportRecordId}": {
+    "/v1/architecture/review/exports/{exportRecordId}": {
         parameters: {
             query?: never;
             header?: never;
@@ -31716,7 +31716,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/run/exports/{exportRecordId}/comparisons": {
+    "/v1/architecture/review/exports/{exportRecordId}/comparisons": {
         parameters: {
             query?: never;
             header?: never;
@@ -31863,7 +31863,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/run/exports/{exportRecordId}/replay": {
+    "/v1/architecture/review/exports/{exportRecordId}/replay": {
         parameters: {
             query?: never;
             header?: never;
@@ -32013,7 +32013,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/run/exports/{exportRecordId}/replay/metadata": {
+    "/v1/architecture/review/exports/{exportRecordId}/replay/metadata": {
         parameters: {
             query?: never;
             header?: never;
@@ -32163,7 +32163,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/run/{runId}": {
+    "/v1/architecture/review/{runId}": {
         parameters: {
             query?: never;
             header?: never;
@@ -32313,7 +32313,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/run/{runId}/agent-evaluation": {
+    "/v1/architecture/review/{runId}/agent-evaluation": {
         parameters: {
             query?: never;
             header?: never;
@@ -32463,7 +32463,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/run/{runId}/analysis-report": {
+    "/v1/architecture/review/{runId}/analysis-report": {
         parameters: {
             query?: never;
             header?: never;
@@ -32619,7 +32619,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/run/{runId}/analysis-report/export": {
+    "/v1/architecture/review/{runId}/analysis-report/export": {
         parameters: {
             query?: never;
             header?: never;
@@ -32775,7 +32775,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/run/{runId}/analysis-report/export/docx": {
+    "/v1/architecture/review/{runId}/analysis-report/export/docx": {
         parameters: {
             query?: never;
             header?: never;
@@ -32931,7 +32931,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/run/{runId}/analysis-report/export/docx/async": {
+    "/v1/architecture/review/{runId}/analysis-report/export/docx/async": {
         parameters: {
             query?: never;
             header?: never;
@@ -33087,7 +33087,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/run/{runId}/analysis-report/export/docx/consulting": {
+    "/v1/architecture/review/{runId}/analysis-report/export/docx/consulting": {
         parameters: {
             query?: never;
             header?: never;
@@ -33243,7 +33243,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/run/{runId}/analysis-report/export/docx/consulting/async": {
+    "/v1/architecture/review/{runId}/analysis-report/export/docx/consulting/async": {
         parameters: {
             query?: never;
             header?: never;
@@ -33399,7 +33399,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/run/{runId}/analysis-report/export/file": {
+    "/v1/architecture/review/{runId}/analysis-report/export/file": {
         parameters: {
             query?: never;
             header?: never;
@@ -33555,7 +33555,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/run/{runId}/commit": {
+    "/v1/architecture/review/{runId}/finalize": {
         parameters: {
             query?: never;
             header?: never;
@@ -33714,7 +33714,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/run/{runId}/comparisons": {
+    "/v1/architecture/review/{runId}/comparisons": {
         parameters: {
             query?: never;
             header?: never;
@@ -33861,7 +33861,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/run/{runId}/decisions": {
+    "/v1/architecture/review/{runId}/decisions": {
         parameters: {
             query?: never;
             header?: never;
@@ -34011,7 +34011,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/run/{runId}/evidence": {
+    "/v1/architecture/review/{runId}/evidence": {
         parameters: {
             query?: never;
             header?: never;
@@ -34161,7 +34161,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/run/{runId}/evidence/bulk": {
+    "/v1/architecture/review/{runId}/evidence/bulk": {
         parameters: {
             query?: never;
             header?: never;
@@ -34330,7 +34330,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/run/{runId}/execute": {
+    "/v1/architecture/review/{runId}/execute": {
         parameters: {
             query?: never;
             header?: never;
@@ -34489,7 +34489,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/run/{runId}/execute/selective": {
+    "/v1/architecture/review/{runId}/execute/selective": {
         parameters: {
             query?: never;
             header?: never;
@@ -34654,7 +34654,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/run/{runId}/export/summary": {
+    "/v1/architecture/review/{runId}/export/summary": {
         parameters: {
             query?: never;
             header?: never;
@@ -34792,7 +34792,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/run/{runId}/exports": {
+    "/v1/architecture/review/{runId}/exports": {
         parameters: {
             query?: never;
             header?: never;
@@ -34933,7 +34933,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/run/{runId}/findings": {
+    "/v1/architecture/review/{runId}/findings": {
         parameters: {
             query?: never;
             header?: never;
@@ -35089,7 +35089,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/run/{runId}/findings/export/csv": {
+    "/v1/architecture/review/{runId}/findings/export/csv": {
         parameters: {
             query?: never;
             header?: never;
@@ -35229,7 +35229,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/run/{runId}/findings/{findingId}/evidence-chain": {
+    "/v1/architecture/review/{runId}/findings/{findingId}/evidence-chain": {
         parameters: {
             query?: never;
             header?: never;
@@ -35380,7 +35380,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/run/{runId}/findings/{findingId}/inspect": {
+    "/v1/architecture/review/{runId}/findings/{findingId}/inspect": {
         parameters: {
             query?: never;
             header?: never;
@@ -35533,7 +35533,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/run/{runId}/pin": {
+    "/v1/architecture/review/{runId}/pin": {
         parameters: {
             query?: never;
             header?: never;
@@ -35689,7 +35689,7 @@ export interface paths {
         };
         trace?: never;
     };
-    "/v1/architecture/run/{runId}/replay": {
+    "/v1/architecture/review/{runId}/replay": {
         parameters: {
             query?: never;
             header?: never;
@@ -35851,7 +35851,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/run/{runId}/result": {
+    "/v1/architecture/review/{runId}/result": {
         parameters: {
             query?: never;
             header?: never;
@@ -36010,7 +36010,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/run/{runId}/roi": {
+    "/v1/architecture/review/{runId}/roi": {
         parameters: {
             query?: never;
             header?: never;
@@ -36160,7 +36160,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/run/{runId}/stage-timeline": {
+    "/v1/architecture/review/{runId}/stage-timeline": {
         parameters: {
             query?: never;
             header?: never;
@@ -36310,7 +36310,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/run/{runId}/tool-invocation-forensics": {
+    "/v1/architecture/review/{runId}/tool-invocation-forensics": {
         parameters: {
             query?: never;
             header?: never;
@@ -36460,7 +36460,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/run/{runId}/traceability-bundle.zip": {
+    "/v1/architecture/review/{runId}/traceability-bundle.zip": {
         parameters: {
             query?: never;
             header?: never;
@@ -36609,7 +36609,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/run/{runId}/traces": {
+    "/v1/architecture/review/{runId}/traces": {
         parameters: {
             query?: never;
             header?: never;
@@ -36914,7 +36914,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/runs/{runId}/graph/cytoscape": {
+    "/v1/architecture/reviews/{runId}/graph/cytoscape": {
         parameters: {
             query?: never;
             header?: never;
@@ -37054,7 +37054,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/runs/{runId}/graph/interactive": {
+    "/v1/architecture/reviews/{runId}/graph/interactive": {
         parameters: {
             query?: never;
             header?: never;
@@ -37194,7 +37194,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/runs/{runId}/provenance": {
+    "/v1/architecture/reviews/{runId}/provenance": {
         parameters: {
             query?: never;
             header?: never;
@@ -37630,7 +37630,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/artifacts/manifests/{manifestId}": {
+    "/v1/artifacts/signed-review-records/{manifestId}": {
         parameters: {
             query?: never;
             header?: never;
@@ -37777,7 +37777,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/artifacts/manifests/{manifestId}/artifact/{artifactId}": {
+    "/v1/artifacts/signed-review-records/{manifestId}/artifact/{artifactId}": {
         parameters: {
             query?: never;
             header?: never;
@@ -37917,7 +37917,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/artifacts/manifests/{manifestId}/artifact/{artifactId}/descriptor": {
+    "/v1/artifacts/signed-review-records/{manifestId}/artifact/{artifactId}/descriptor": {
         parameters: {
             query?: never;
             header?: never;
@@ -38065,7 +38065,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/artifacts/manifests/{manifestId}/bundle": {
+    "/v1/artifacts/signed-review-records/{manifestId}/bundle": {
         parameters: {
             query?: never;
             header?: never;
@@ -43602,7 +43602,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/authority/manifests/{manifestId}/summary": {
+    "/v1/authority/signed-review-records/{manifestId}/summary": {
         parameters: {
             query?: never;
             header?: never;
@@ -59544,7 +59544,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/governance/pre-commit/simulate": {
+    "/v1/governance/pre-finalize/simulate": {
         parameters: {
             query?: never;
             header?: never;
@@ -67850,7 +67850,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/internal/architecture/run/{runId}/agent-evaluation": {
+    "/v1/internal/architecture/review/{runId}/agent-evaluation": {
         parameters: {
             query?: never;
             header?: never;
@@ -68000,7 +68000,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/internal/architecture/run/{runId}/traces/forensics": {
+    "/v1/internal/architecture/review/{runId}/traces/forensics": {
         parameters: {
             query?: never;
             header?: never;
@@ -81998,7 +81998,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/runs": {
+    "/v1/architecture/reviews": {
         parameters: {
             query?: never;
             header?: never;
@@ -82150,7 +82150,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/runs/{runId}": {
+    "/v1/architecture/reviews/{runId}": {
         parameters: {
             query?: never;
             header?: never;
@@ -82300,7 +82300,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/runs/{runId}/artifacts": {
+    "/v1/architecture/reviews/{runId}/artifacts": {
         parameters: {
             query?: never;
             header?: never;
@@ -82447,7 +82447,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/runs/{runId}/artifacts/bundle": {
+    "/v1/architecture/reviews/{runId}/artifacts/bundle": {
         parameters: {
             query?: never;
             header?: never;
@@ -82586,7 +82586,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/runs/{runId}/artifacts/{artifactId}": {
+    "/v1/architecture/reviews/{runId}/artifacts/{artifactId}": {
         parameters: {
             query?: never;
             header?: never;
@@ -82726,7 +82726,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/runs/{runId}/coverage": {
+    "/v1/architecture/reviews/{runId}/coverage": {
         parameters: {
             query?: never;
             header?: never;
@@ -82876,7 +82876,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/runs/{runId}/export/{format}": {
+    "/v1/architecture/reviews/{runId}/export/{format}": {
         parameters: {
             query?: never;
             header?: never;
@@ -83024,7 +83024,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/runs/{runId}/manifest": {
+    "/v1/architecture/reviews/{runId}/manifest": {
         parameters: {
             query?: never;
             header?: never;
@@ -83174,7 +83174,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/runs/{runId}/review-trail": {
+    "/v1/architecture/reviews/{runId}/review-trail": {
         parameters: {
             query?: never;
             header?: never;
@@ -83318,7 +83318,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/runs/{runId}/review-trail/export": {
+    "/v1/architecture/reviews/{runId}/review-trail/export": {
         parameters: {
             query?: never;
             header?: never;
@@ -83467,7 +83467,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/runs/{runId}/review-trail/provenance": {
+    "/v1/architecture/reviews/{runId}/review-trail/provenance": {
         parameters: {
             query?: never;
             header?: never;
@@ -83614,7 +83614,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/runs/{runId}/review-trail/rationale": {
+    "/v1/architecture/reviews/{runId}/review-trail/rationale": {
         parameters: {
             query?: never;
             header?: never;
@@ -83764,7 +83764,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/runs/{runId}/technology-ledger": {
+    "/v1/architecture/reviews/{runId}/technology-ledger": {
         parameters: {
             query?: never;
             header?: never;
@@ -83914,7 +83914,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/runs/{runId}/technology-ledger/{entryId}": {
+    "/v1/architecture/reviews/{runId}/technology-ledger/{entryId}": {
         parameters: {
             query?: never;
             header?: never;

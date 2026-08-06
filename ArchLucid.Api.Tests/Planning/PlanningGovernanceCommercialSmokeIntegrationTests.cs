@@ -6,7 +6,7 @@ namespace ArchLucid.Api.Tests.Planning;
 
 /// <summary>
 ///     Covers authenticated Planning (<see cref="ArchLucid.Api.Controllers.Planning.GraphController" />) and Governance
-///     (<see cref="ArchLucid.Api.Controllers.Governance.GovernanceController" />) commercial-tier gated routes â€”
+///     (<see cref="ArchLucid.Api.Controllers.Governance.GovernanceController" />) commercial-tier gated routes —
 ///     complements <see cref="CommercialTenantTierFilterTests" /> against the default DevelopmentBypass scoped host.
 /// </summary>
 [Trait("Suite", "Core")]

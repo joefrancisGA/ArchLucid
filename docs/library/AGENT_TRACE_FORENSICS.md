@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — Agent execution trace forensics (full prompt storage) - full detail, tables, and links in the sections below.
+﻿> **Scope:** Contributor-reference — Agent execution trace forensics (full prompt storage) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -7,7 +7,7 @@
 
 ## Objective
 
-Enable **replayable** inspection of exact LLM inputs and outputs for a single agent step when investigations or quality regressions require more than the **8 192-character** truncated fields on **`AgentExecutionTrace`**.
+Enable **replayable** inspection of exact LLM inputs and outputs for a single agent step when investigations or quality regressions require more than the **8â€¯192-character** truncated fields on **`AgentExecutionTrace`**.
 
 ## Model
 
@@ -109,7 +109,7 @@ Correlate with blob-storage availability metrics in dashboards.
 
 ## Run-scoped trace index (API)
 
-For investigations that start from a **finding** rather than a single trace row, **`GET /v1/architecture/run/{runId}/findings/{findingId}/evidence-chain`** lists **distinct** `AgentExecutionTrace.TraceId` values for the run together with snapshot and manifest pointers (`FindingEvidenceChainResponse`). It does **not** return prompt bodies — pair with the trace row / blob workflow in this document when content is required.
+For investigations that start from a **finding** rather than a single trace row, **`GET /v1/architecture/review/{runId}/findings/{findingId}/evidence-chain`** lists **distinct** `AgentExecutionTrace.TraceId` values for the run together with snapshot and manifest pointers (`FindingEvidenceChainResponse`). It does **not** return prompt bodies — pair with the trace row / blob workflow in this document when content is required.
 
 ### Design rationale
 
@@ -129,9 +129,9 @@ Replay completeness audit (2026-05-26) — decision lineage lives in **`ArchLuci
 | `DecisionProvenanceSnapshot` not written in production | **TB-037** |
 | Retrieval grounding: query/scores/document IDs; non-Compliance agents | **TB-038** / **RAG-V1-006** — **partial (2026-05-27 Batch A):** enriched `dbo.RetrievalGroundingTrace` columns, Compliance writer + fail-open empty trace, finding evidence-chain forensic pointers |
 
-Finding forensic read: `GET /v1/architecture/run/{runId}/findings/{findingId}/evidence-chain` now returns retrieval grounding trace ids, agent trace pointers (model deployment, blob availability flags), and audit correlation ids without prompt bodies.
+Finding forensic read: `GET /v1/architecture/review/{runId}/findings/{findingId}/evidence-chain` now returns retrieval grounding trace ids, agent trace pointers (model deployment, blob availability flags), and audit correlation ids without prompt bodies.
 
-See [`TECH_BACKLOG.md`](TECH_BACKLOG.md) §TB-033–TB-038.
+See [`TECH_BACKLOG.md`](TECH_BACKLOG.md) Â§TB-033–TB-038.
 
 ## Prompt identity (TB-191)
 

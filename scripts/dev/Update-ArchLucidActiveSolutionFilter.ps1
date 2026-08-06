@@ -179,7 +179,7 @@ foreach ($rootDir in $projectRoots) {
     }
 }
 
-# Shared hub projects â€” almost every area touches these.
+# Shared hub projects — almost every area touches these.
 $hubProjects = @(
     "ArchLucid.Contracts\ArchLucid.Contracts.csproj",
     "ArchLucid.Core\ArchLucid.Core.csproj",

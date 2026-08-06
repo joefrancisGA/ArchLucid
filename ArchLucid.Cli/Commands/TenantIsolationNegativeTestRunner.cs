@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Text.Json;
 
 namespace ArchLucid.Cli.Commands;
@@ -166,7 +166,7 @@ internal sealed class TenantIsolationNegativeTestRunner
         string runId,
         CancellationToken cancellationToken)
     {
-        using HttpResponseMessage response = await primaryClient.GetAsync($"/v1/architecture/run/{runId}", cancellationToken);
+        using HttpResponseMessage response = await primaryClient.GetAsync($"/v1/architecture/review/{runId}", cancellationToken);
         string body = await response.Content.ReadAsStringAsync(cancellationToken);
         TenantIsolationNegativeTestVerdict verdict = response.IsSuccessStatusCode
             ? TenantIsolationNegativeTestVerdict.Pass
@@ -175,7 +175,7 @@ internal sealed class TenantIsolationNegativeTestRunner
         return new TenantIsolationNegativeTestProbeResult
         {
             Name = "primary-scope-run-visible",
-            Path = $"/v1/architecture/run/{runId}",
+            Path = $"/v1/architecture/review/{runId}",
             ExpectedOutcome = "allow-status",
             ObservedOutcome = $"HTTP {(int)response.StatusCode}",
             ObservedStatusCode = (int)response.StatusCode,

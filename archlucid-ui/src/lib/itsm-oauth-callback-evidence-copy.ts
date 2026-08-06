@@ -20,5 +20,5 @@ export const ITSM_OAUTH_CALLBACK_SOURCES: readonly ItsmOAuthCallbackSourceLink[]
   { label: "Integration readiness", href: INTEGRATIONS_READINESS_PATH },
   { label: "How integration readiness works", href: inAppHelpHref("integration-readiness") },
   { label: "Audit", href: "/governance/audit" },
-  { label: "Security & trust", href: "/security-trust" },
+  { label: "Assurance status", href: "/security-trust" },
 ] as const;

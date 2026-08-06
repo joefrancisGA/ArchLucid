@@ -1,4 +1,4 @@
-/** Coordinator architecture run linkage graph (GET /v1/architecture/runs/{runId}/provenance). */
+﻿/** Coordinator architecture run linkage graph (GET /v1/architecture/reviews/{runId}/provenance). */
 
 export type ArchitectureLinkageNode = {
   id: string;

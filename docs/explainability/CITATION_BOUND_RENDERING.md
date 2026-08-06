@@ -1,4 +1,4 @@
-> **Scope:** Citation-bound aggregate explanations - full detail, tables, and links in the sections below.
+﻿> **Scope:** Citation-bound aggregate explanations - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -17,7 +17,7 @@ Tie **aggregate** run explanations to **persisted artifacts** operators can insp
 ## Constraints
 
 - **Read-only** authority: explanations require **`ReadAuthority`** (same as today).
-- **Not** a substitute for causal proof — see [../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md) §10.
+- **Not** a substitute for causal proof — see [../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md) Â§10.
 
 ## Architecture overview
 
@@ -43,4 +43,4 @@ Citation `Id` values are **scoped** to the same tenant/workspace as the run deta
 
 - Watch **`archlucid_explanation_citations_emitted_total`** after UI changes.
 - If citations are empty on older APIs, the UI hides the block.
-- **Per-finding evidence pointers (ADR 0021 read path):** `GET /v1/architecture/run/{runId}/findings/{findingId}/evidence-chain` returns **`FindingEvidenceChainResponse`** — snapshot ids, manifest id/version, related graph node ids, and **distinct** `AgentExecutionTrace` ids for the run. Use it when a UI chip or narrative needs a stable, read-only join surface without duplicating authority hydration logic client-side.
+- **Per-finding evidence pointers (ADR 0021 read path):** `GET /v1/architecture/review/{runId}/findings/{findingId}/evidence-chain` returns **`FindingEvidenceChainResponse`** — snapshot ids, manifest id/version, related graph node ids, and **distinct** `AgentExecutionTrace` ids for the run. Use it when a UI chip or narrative needs a stable, read-only join surface without duplicating authority hydration logic client-side.

@@ -5,15 +5,23 @@ import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 
 import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  ASSURANCE_STATUS_PUBLIC_LABEL,
+  ASSURANCE_STATUS_PUBLIC_PATH,
+  PRIVACY_POLICY_PUBLIC_LABEL,
+  PRIVACY_POLICY_PUBLIC_PATH,
+  TRUST_CENTER_PUBLIC_LABEL,
+  TRUST_CENTER_PUBLIC_PATH,
+} from "@/lib/marketing-assurance-public-labels";
 import { appSiteHref } from "@/lib/site-urls";
 import { cn } from "@/lib/utils";
 
 function marketingPublicFooterLinks(): readonly { readonly label: string; readonly href: string }[] {
   return [
-    { label: "Security", href: "/security-trust" },
-    { label: "Privacy", href: "/privacy" },
+    { label: TRUST_CENTER_PUBLIC_LABEL, href: TRUST_CENTER_PUBLIC_PATH },
+    { label: ASSURANCE_STATUS_PUBLIC_LABEL, href: ASSURANCE_STATUS_PUBLIC_PATH },
+    { label: PRIVACY_POLICY_PUBLIC_LABEL, href: PRIVACY_POLICY_PUBLIC_PATH },
     { label: "Product FAQ", href: "/faq" },
-    { label: "Trust Center", href: "/trust" },
     { label: "Sign in", href: appSiteHref("/auth/signin") },
   ];
 }

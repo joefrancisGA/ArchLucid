@@ -8,6 +8,7 @@ import {
   REVIEWS_LIST_PATH,
   REVIEWS_NEW_PATH,
   parseArchitectureDraftIdFromPath,
+  reviewDetailPath,
 } from "@/lib/architecture-routes";
 import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
 import { compareRunBuyerDisplayLabel } from "@/lib/compare-run-display-label";
@@ -532,7 +533,7 @@ function injectReviewPackagePathCrumbs(
     reviewHref = `${REVIEWS_LIST_PATH}/${encodeURIComponent(runId)}`;
   } else if (segments[0] === "reviews" && segments.length >= 3) {
     runId = segments[1] ?? "";
-    reviewHref = `/reviews/${encodeURIComponent(runId)}`;
+    reviewHref = reviewDetailPath(runId);
   } else {
     return items;
   }

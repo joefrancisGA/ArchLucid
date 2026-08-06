@@ -9,7 +9,7 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     HTTP coverage for <c>POST /v1/admin/support-bundle</c> â€” the in-product
+///     HTTP coverage for <c>POST /v1/admin/support-bundle</c> — the in-product
 ///     support-bundle download (PENDING_QUESTIONS.md item 37, owner decisions F + G,
 ///     2026-04-23; lowered from AdminAuthority to ExecuteAuthority 2026-07-05 during a left-nav business-purpose
 ///     review — see TB-628). Asserts the policy guard (

@@ -1,6 +1,6 @@
-namespace ArchLucid.Contracts.Findings;
+﻿namespace ArchLucid.Contracts.Findings;
 
-/// <summary>Metadata projection for GET /v1/architecture/run/{runId}/findings.</summary>
+/// <summary>Metadata projection for GET /v1/architecture/review/{runId}/findings.</summary>
 public sealed class RunFindingListItem
 {
     public Guid FindingRecordId

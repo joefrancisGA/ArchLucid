@@ -1,4 +1,4 @@
-using ArchLucid.Api.Evaluation;
+﻿using ArchLucid.Api.Evaluation;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
@@ -42,7 +42,7 @@ public sealed class RunAgentEvaluationController(
     ///     the run (no metrics).
     /// </summary>
     [HttpGet("run/{runId}/agent-evaluation")]
-    [HttpGet("/v{version:apiVersion}/architecture/run/{runId}/agent-evaluation")]
+    [HttpGet("/v{version:apiVersion}/architecture/review/{runId}/agent-evaluation")]
     [ProducesResponseType(typeof(AgentOutputEvaluationSummary), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetRunAgentEvaluation(

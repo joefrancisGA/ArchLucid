@@ -54,7 +54,7 @@ export function WelcomeMarketingProofAtGlanceSection(): React.JSX.Element {
               Open Trust Center
             </Link>
             <Link className={MARKETING_SURFACES.inlineLink} href="/security-trust">
-              Security and trust detail
+              Assurance status
             </Link>
           </p>
         </li>

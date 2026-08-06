@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+﻿import { describe, expect, it } from "vitest";
 
 import {
   PROXY_MAX_BODY_BYTES,
@@ -16,14 +16,14 @@ describe("resolveProxyMaxBodyBytes", () => {
   it("allows 100 MB for multipart form uploads", () => {
     expect(
       resolveProxyMaxBodyBytes(
-        "v1/architecture/run/abc/evidence/bulk",
+        "v1/architecture/review/abc/evidence/bulk",
         "multipart/form-data; boundary=----x",
       ),
     ).toBe(PROXY_MAX_MULTIPART_BODY_BYTES);
   });
 
   it("allows 100 MB for known evidence and extractor upload paths without multipart header", () => {
-    expect(resolveProxyMaxBodyBytes("v1/architecture/run/abc/evidence/bulk", null)).toBe(
+    expect(resolveProxyMaxBodyBytes("v1/architecture/review/abc/evidence/bulk", null)).toBe(
       PROXY_MAX_MULTIPART_BODY_BYTES,
     );
     expect(resolveProxyMaxBodyBytes("v1/azure-extractor/upload", null)).toBe(PROXY_MAX_MULTIPART_BODY_BYTES);

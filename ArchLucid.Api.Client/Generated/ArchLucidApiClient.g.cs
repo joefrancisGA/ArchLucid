@@ -274,12 +274,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>Accepted</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<HostedAwsExtractorRunResponse> RunPOSTAsync(HostedAwsExtractorRunBody body);
+        System.Threading.Tasks.Task<HostedAwsExtractorRunResponse> RunAsync(HostedAwsExtractorRunBody body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Accepted</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<HostedAwsExtractorRunResponse> RunPOSTAsync(HostedAwsExtractorRunBody body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<HostedAwsExtractorRunResponse> RunAsync(HostedAwsExtractorRunBody body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -301,12 +301,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>Accepted</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<HostedAzureExtractorRunResponse> RunPOST2Async(HostedAzureExtractorRunBody body);
+        System.Threading.Tasks.Task<HostedAzureExtractorRunResponse> Run2Async(HostedAzureExtractorRunBody body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Accepted</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<HostedAzureExtractorRunResponse> RunPOST2Async(HostedAzureExtractorRunBody body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<HostedAzureExtractorRunResponse> Run2Async(HostedAzureExtractorRunBody body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -472,12 +472,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>Accepted</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<HostedGcpExtractorRunResponse> RunPOST3Async(HostedGcpExtractorRunBody body);
+        System.Threading.Tasks.Task<HostedGcpExtractorRunResponse> Run3Async(HostedGcpExtractorRunBody body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Accepted</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<HostedGcpExtractorRunResponse> RunPOST3Async(HostedGcpExtractorRunBody body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<HostedGcpExtractorRunResponse> Run3Async(HostedGcpExtractorRunBody body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -1183,12 +1183,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task RunPOST4Async(System.Guid scheduleId);
+        System.Threading.Tasks.Task Run4Async(System.Guid scheduleId);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task RunPOST4Async(System.Guid scheduleId, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task Run4Async(System.Guid scheduleId, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -1426,12 +1426,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ClosedLoopReasoningResult> RunPOST5Async(Body24? body);
+        System.Threading.Tasks.Task<ClosedLoopReasoningResult> Run5Async(Body24? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ClosedLoopReasoningResult> RunPOST5Async(Body24? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<ClosedLoopReasoningResult> Run5Async(Body24? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -2083,12 +2083,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<RunDetailsResponse> RunGETAsync(string runId);
+        System.Threading.Tasks.Task<RunDetailsResponse> ReviewAsync(string runId);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<RunDetailsResponse> RunGETAsync(string runId, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<RunDetailsResponse> ReviewAsync(string runId, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -2164,12 +2164,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<CommitRunResponse> CommitAsync(string runId, Body58? body);
+        System.Threading.Tasks.Task<CommitRunResponse> FinalizeAsync(string runId, Body58? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<CommitRunResponse> CommitAsync(string runId, Body58? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<CommitRunResponse> FinalizeAsync(string runId, Body58? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -2407,12 +2407,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ArtifactDescriptorResponse>> ManifestsAllAsync(System.Guid manifestId);
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ArtifactDescriptorResponse>> SignedReviewRecordsAsync(System.Guid manifestId);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ArtifactDescriptorResponse>> ManifestsAllAsync(System.Guid manifestId, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ArtifactDescriptorResponse>> SignedReviewRecordsAsync(System.Guid manifestId, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -5213,21 +5213,21 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<CursorPagedResponseOfRunListItemResponse> Runs8Async(string? cursor, int? limit, int? offset, int? take, int? page, int? pageSize);
+        System.Threading.Tasks.Task<CursorPagedResponseOfRunListItemResponse> ReviewsAsync(string? cursor, int? limit, int? offset, int? take, int? page, int? pageSize);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<CursorPagedResponseOfRunListItemResponse> Runs8Async(string? cursor, int? limit, int? offset, int? take, int? page, int? pageSize, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<CursorPagedResponseOfRunListItemResponse> ReviewsAsync(string? cursor, int? limit, int? offset, int? take, int? page, int? pageSize, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<RunDetailsResponse> Runs9Async(string runId);
+        System.Threading.Tasks.Task<RunDetailsResponse> Reviews2Async(string runId);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<RunDetailsResponse> Runs9Async(string runId, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<RunDetailsResponse> Reviews2Async(string runId, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -10870,15 +10870,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>Accepted</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<HostedAwsExtractorRunResponse> RunPOSTAsync(HostedAwsExtractorRunBody body)
+        public virtual System.Threading.Tasks.Task<HostedAwsExtractorRunResponse> RunAsync(HostedAwsExtractorRunBody body)
         {
-            return RunPOSTAsync(body, System.Threading.CancellationToken.None);
+            return RunAsync(body, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Accepted</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<HostedAwsExtractorRunResponse> RunPOSTAsync(HostedAwsExtractorRunBody body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<HostedAwsExtractorRunResponse> RunAsync(HostedAwsExtractorRunBody body, System.Threading.CancellationToken cancellationToken)
         {
             if (body == null)
                 throw new System.ArgumentNullException("body");
@@ -11454,15 +11454,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>Accepted</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<HostedAzureExtractorRunResponse> RunPOST2Async(HostedAzureExtractorRunBody body)
+        public virtual System.Threading.Tasks.Task<HostedAzureExtractorRunResponse> Run2Async(HostedAzureExtractorRunBody body)
         {
-            return RunPOST2Async(body, System.Threading.CancellationToken.None);
+            return Run2Async(body, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Accepted</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<HostedAzureExtractorRunResponse> RunPOST2Async(HostedAzureExtractorRunBody body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<HostedAzureExtractorRunResponse> Run2Async(HostedAzureExtractorRunBody body, System.Threading.CancellationToken cancellationToken)
         {
             if (body == null)
                 throw new System.ArgumentNullException("body");
@@ -15096,15 +15096,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>Accepted</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<HostedGcpExtractorRunResponse> RunPOST3Async(HostedGcpExtractorRunBody body)
+        public virtual System.Threading.Tasks.Task<HostedGcpExtractorRunResponse> Run3Async(HostedGcpExtractorRunBody body)
         {
-            return RunPOST3Async(body, System.Threading.CancellationToken.None);
+            return Run3Async(body, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Accepted</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<HostedGcpExtractorRunResponse> RunPOST3Async(HostedGcpExtractorRunBody body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<HostedGcpExtractorRunResponse> Run3Async(HostedGcpExtractorRunBody body, System.Threading.CancellationToken cancellationToken)
         {
             if (body == null)
                 throw new System.ArgumentNullException("body");
@@ -30270,15 +30270,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task RunPOST4Async(System.Guid scheduleId)
+        public virtual System.Threading.Tasks.Task Run4Async(System.Guid scheduleId)
         {
-            return RunPOST4Async(scheduleId, System.Threading.CancellationToken.None);
+            return Run4Async(scheduleId, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task RunPOST4Async(System.Guid scheduleId, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task Run4Async(System.Guid scheduleId, System.Threading.CancellationToken cancellationToken)
         {
             if (scheduleId == null)
                 throw new System.ArgumentNullException("scheduleId");
@@ -35469,15 +35469,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ClosedLoopReasoningResult> RunPOST5Async(Body24? body)
+        public virtual System.Threading.Tasks.Task<ClosedLoopReasoningResult> Run5Async(Body24? body)
         {
-            return RunPOST5Async(body, System.Threading.CancellationToken.None);
+            return Run5Async(body, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ClosedLoopReasoningResult> RunPOST5Async(Body24? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ClosedLoopReasoningResult> Run5Async(Body24? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -47264,8 +47264,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/architecture/run/compare/agents"
-                    urlBuilder_.Append("v1/architecture/run/compare/agents");
+                    // Operation Path: "v1/architecture/review/compare/agents"
+                    urlBuilder_.Append("v1/architecture/review/compare/agents");
                     urlBuilder_.Append('?');
                     if (leftRunId != null)
                     {
@@ -47462,8 +47462,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/architecture/run/compare/agents/summary"
-                    urlBuilder_.Append("v1/architecture/run/compare/agents/summary");
+                    // Operation Path: "v1/architecture/review/compare/agents/summary"
+                    urlBuilder_.Append("v1/architecture/review/compare/agents/summary");
                     urlBuilder_.Append('?');
                     if (leftRunId != null)
                     {
@@ -47660,8 +47660,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/architecture/run/compare/end-to-end"
-                    urlBuilder_.Append("v1/architecture/run/compare/end-to-end");
+                    // Operation Path: "v1/architecture/review/compare/end-to-end"
+                    urlBuilder_.Append("v1/architecture/review/compare/end-to-end");
                     urlBuilder_.Append('?');
                     if (leftRunId != null)
                     {
@@ -47858,8 +47858,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/architecture/run/compare/end-to-end/export"
-                    urlBuilder_.Append("v1/architecture/run/compare/end-to-end/export");
+                    // Operation Path: "v1/architecture/review/compare/end-to-end/export"
+                    urlBuilder_.Append("v1/architecture/review/compare/end-to-end/export");
                     urlBuilder_.Append('?');
                     if (leftRunId != null)
                     {
@@ -48056,8 +48056,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/architecture/run/compare/end-to-end/export/docx"
-                    urlBuilder_.Append("v1/architecture/run/compare/end-to-end/export/docx");
+                    // Operation Path: "v1/architecture/review/compare/end-to-end/export/docx"
+                    urlBuilder_.Append("v1/architecture/review/compare/end-to-end/export/docx");
                     urlBuilder_.Append('?');
                     if (leftRunId != null)
                     {
@@ -48254,8 +48254,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/architecture/run/compare/end-to-end/export/file"
-                    urlBuilder_.Append("v1/architecture/run/compare/end-to-end/export/file");
+                    // Operation Path: "v1/architecture/review/compare/end-to-end/export/file"
+                    urlBuilder_.Append("v1/architecture/review/compare/end-to-end/export/file");
                     urlBuilder_.Append('?');
                     if (leftRunId != null)
                     {
@@ -48456,8 +48456,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/architecture/run/compare/end-to-end/summary"
-                    urlBuilder_.Append("v1/architecture/run/compare/end-to-end/summary");
+                    // Operation Path: "v1/architecture/review/compare/end-to-end/summary"
+                    urlBuilder_.Append("v1/architecture/review/compare/end-to-end/summary");
                     urlBuilder_.Append('?');
                     if (leftRunId != null)
                     {
@@ -48654,8 +48654,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/architecture/run/exports/compare"
-                    urlBuilder_.Append("v1/architecture/run/exports/compare");
+                    // Operation Path: "v1/architecture/review/exports/compare"
+                    urlBuilder_.Append("v1/architecture/review/exports/compare");
                     urlBuilder_.Append('?');
                     if (leftExportRecordId != null)
                     {
@@ -48856,8 +48856,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/architecture/run/exports/compare/summary"
-                    urlBuilder_.Append("v1/architecture/run/exports/compare/summary");
+                    // Operation Path: "v1/architecture/review/exports/compare/summary"
+                    urlBuilder_.Append("v1/architecture/review/exports/compare/summary");
                     urlBuilder_.Append('?');
                     if (leftExportRecordId != null)
                     {
@@ -49057,8 +49057,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/architecture/run/exports/{exportRecordId}"
-                    urlBuilder_.Append("v1/architecture/run/exports/");
+                    // Operation Path: "v1/architecture/review/exports/{exportRecordId}"
+                    urlBuilder_.Append("v1/architecture/review/exports/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(exportRecordId, System.Globalization.CultureInfo.InvariantCulture)));
 
                     PrepareRequest(client_, request_, urlBuilder_);
@@ -49249,8 +49249,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/architecture/run/exports/{exportRecordId}/comparisons"
-                    urlBuilder_.Append("v1/architecture/run/exports/");
+                    // Operation Path: "v1/architecture/review/exports/{exportRecordId}/comparisons"
+                    urlBuilder_.Append("v1/architecture/review/exports/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(exportRecordId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/comparisons");
 
@@ -49446,8 +49446,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/architecture/run/exports/{exportRecordId}/replay"
-                    urlBuilder_.Append("v1/architecture/run/exports/");
+                    // Operation Path: "v1/architecture/review/exports/{exportRecordId}/replay"
+                    urlBuilder_.Append("v1/architecture/review/exports/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(exportRecordId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/replay");
 
@@ -49643,8 +49643,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/architecture/run/exports/{exportRecordId}/replay/metadata"
-                    urlBuilder_.Append("v1/architecture/run/exports/");
+                    // Operation Path: "v1/architecture/review/exports/{exportRecordId}/replay/metadata"
+                    urlBuilder_.Append("v1/architecture/review/exports/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(exportRecordId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/replay/metadata");
 
@@ -49812,15 +49812,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<RunDetailsResponse> RunGETAsync(string runId)
+        public virtual System.Threading.Tasks.Task<RunDetailsResponse> ReviewAsync(string runId)
         {
-            return RunGETAsync(runId, System.Threading.CancellationToken.None);
+            return ReviewAsync(runId, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<RunDetailsResponse> RunGETAsync(string runId, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<RunDetailsResponse> ReviewAsync(string runId, System.Threading.CancellationToken cancellationToken)
         {
             if (runId == null)
                 throw new System.ArgumentNullException("runId");
@@ -49836,8 +49836,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/architecture/run/{runId}"
-                    urlBuilder_.Append("v1/architecture/run/");
+                    // Operation Path: "v1/architecture/review/{runId}"
+                    urlBuilder_.Append("v1/architecture/review/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
 
                     PrepareRequest(client_, request_, urlBuilder_);
@@ -50028,8 +50028,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/architecture/run/{runId}/agent-evaluation"
-                    urlBuilder_.Append("v1/architecture/run/");
+                    // Operation Path: "v1/architecture/review/{runId}/agent-evaluation"
+                    urlBuilder_.Append("v1/architecture/review/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/agent-evaluation");
 
@@ -50225,8 +50225,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/architecture/run/{runId}/analysis-report"
-                    urlBuilder_.Append("v1/architecture/run/");
+                    // Operation Path: "v1/architecture/review/{runId}/analysis-report"
+                    urlBuilder_.Append("v1/architecture/review/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/analysis-report");
 
@@ -50422,8 +50422,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/architecture/run/{runId}/analysis-report/export"
-                    urlBuilder_.Append("v1/architecture/run/");
+                    // Operation Path: "v1/architecture/review/{runId}/analysis-report/export"
+                    urlBuilder_.Append("v1/architecture/review/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/analysis-report/export");
 
@@ -50619,8 +50619,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/architecture/run/{runId}/analysis-report/export/docx"
-                    urlBuilder_.Append("v1/architecture/run/");
+                    // Operation Path: "v1/architecture/review/{runId}/analysis-report/export/docx"
+                    urlBuilder_.Append("v1/architecture/review/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/analysis-report/export/docx");
 
@@ -50816,8 +50816,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/architecture/run/{runId}/analysis-report/export/docx/async"
-                    urlBuilder_.Append("v1/architecture/run/");
+                    // Operation Path: "v1/architecture/review/{runId}/analysis-report/export/docx/async"
+                    urlBuilder_.Append("v1/architecture/review/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/analysis-report/export/docx/async");
 
@@ -51013,8 +51013,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/architecture/run/{runId}/analysis-report/export/docx/consulting"
-                    urlBuilder_.Append("v1/architecture/run/");
+                    // Operation Path: "v1/architecture/review/{runId}/analysis-report/export/docx/consulting"
+                    urlBuilder_.Append("v1/architecture/review/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/analysis-report/export/docx/consulting");
 
@@ -51210,8 +51210,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/architecture/run/{runId}/analysis-report/export/docx/consulting/async"
-                    urlBuilder_.Append("v1/architecture/run/");
+                    // Operation Path: "v1/architecture/review/{runId}/analysis-report/export/docx/consulting/async"
+                    urlBuilder_.Append("v1/architecture/review/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/analysis-report/export/docx/consulting/async");
 
@@ -51407,8 +51407,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/architecture/run/{runId}/analysis-report/export/file"
-                    urlBuilder_.Append("v1/architecture/run/");
+                    // Operation Path: "v1/architecture/review/{runId}/analysis-report/export/file"
+                    urlBuilder_.Append("v1/architecture/review/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/analysis-report/export/file");
 
@@ -51576,15 +51576,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<CommitRunResponse> CommitAsync(string runId, Body58? body)
+        public virtual System.Threading.Tasks.Task<CommitRunResponse> FinalizeAsync(string runId, Body58? body)
         {
-            return CommitAsync(runId, body, System.Threading.CancellationToken.None);
+            return FinalizeAsync(runId, body, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<CommitRunResponse> CommitAsync(string runId, Body58? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<CommitRunResponse> FinalizeAsync(string runId, Body58? body, System.Threading.CancellationToken cancellationToken)
         {
             if (runId == null)
                 throw new System.ArgumentNullException("runId");
@@ -51604,10 +51604,10 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/architecture/run/{runId}/commit"
-                    urlBuilder_.Append("v1/architecture/run/");
+                    // Operation Path: "v1/architecture/review/{runId}/finalize"
+                    urlBuilder_.Append("v1/architecture/review/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
-                    urlBuilder_.Append("/commit");
+                    urlBuilder_.Append("/finalize");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -51797,8 +51797,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/architecture/run/{runId}/comparisons"
-                    urlBuilder_.Append("v1/architecture/run/");
+                    // Operation Path: "v1/architecture/review/{runId}/comparisons"
+                    urlBuilder_.Append("v1/architecture/review/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/comparisons");
 
@@ -51990,8 +51990,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/architecture/run/{runId}/decisions"
-                    urlBuilder_.Append("v1/architecture/run/");
+                    // Operation Path: "v1/architecture/review/{runId}/decisions"
+                    urlBuilder_.Append("v1/architecture/review/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/decisions");
 
@@ -52183,8 +52183,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/architecture/run/{runId}/evidence"
-                    urlBuilder_.Append("v1/architecture/run/");
+                    // Operation Path: "v1/architecture/review/{runId}/evidence"
+                    urlBuilder_.Append("v1/architecture/review/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/evidence");
 
@@ -52381,8 +52381,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/architecture/run/{runId}/evidence/bulk"
-                    urlBuilder_.Append("v1/architecture/run/");
+                    // Operation Path: "v1/architecture/review/{runId}/evidence/bulk"
+                    urlBuilder_.Append("v1/architecture/review/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/evidence/bulk");
 
@@ -52580,8 +52580,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/architecture/run/{runId}/execute"
-                    urlBuilder_.Append("v1/architecture/run/");
+                    // Operation Path: "v1/architecture/review/{runId}/execute"
+                    urlBuilder_.Append("v1/architecture/review/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/execute");
 
@@ -52777,8 +52777,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/architecture/run/{runId}/execute/selective"
-                    urlBuilder_.Append("v1/architecture/run/");
+                    // Operation Path: "v1/architecture/review/{runId}/execute/selective"
+                    urlBuilder_.Append("v1/architecture/review/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/execute/selective");
 
@@ -52970,8 +52970,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/architecture/run/{runId}/export/summary"
-                    urlBuilder_.Append("v1/architecture/run/");
+                    // Operation Path: "v1/architecture/review/{runId}/export/summary"
+                    urlBuilder_.Append("v1/architecture/review/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/export/summary");
 
@@ -53163,8 +53163,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/architecture/run/{runId}/exports"
-                    urlBuilder_.Append("v1/architecture/run/");
+                    // Operation Path: "v1/architecture/review/{runId}/exports"
+                    urlBuilder_.Append("v1/architecture/review/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/exports");
 
@@ -53356,8 +53356,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/architecture/run/{runId}/findings"
-                    urlBuilder_.Append("v1/architecture/run/");
+                    // Operation Path: "v1/architecture/review/{runId}/findings"
+                    urlBuilder_.Append("v1/architecture/review/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/findings");
                     urlBuilder_.Append('?');
@@ -53571,8 +53571,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/architecture/run/{runId}/findings/export/csv"
-                    urlBuilder_.Append("v1/architecture/run/");
+                    // Operation Path: "v1/architecture/review/{runId}/findings/export/csv"
+                    urlBuilder_.Append("v1/architecture/review/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/findings/export/csv");
 
@@ -53767,8 +53767,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/architecture/run/{runId}/findings/{findingId}/evidence-chain"
-                    urlBuilder_.Append("v1/architecture/run/");
+                    // Operation Path: "v1/architecture/review/{runId}/findings/{findingId}/evidence-chain"
+                    urlBuilder_.Append("v1/architecture/review/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/findings/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(findingId, System.Globalization.CultureInfo.InvariantCulture)));
@@ -53965,8 +53965,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/architecture/run/{runId}/findings/{findingId}/inspect"
-                    urlBuilder_.Append("v1/architecture/run/");
+                    // Operation Path: "v1/architecture/review/{runId}/findings/{findingId}/inspect"
+                    urlBuilder_.Append("v1/architecture/review/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/findings/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(findingId, System.Globalization.CultureInfo.InvariantCulture)));
@@ -54170,8 +54170,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/architecture/run/{runId}/pin"
-                    urlBuilder_.Append("v1/architecture/run/");
+                    // Operation Path: "v1/architecture/review/{runId}/pin"
+                    urlBuilder_.Append("v1/architecture/review/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/pin");
 
@@ -54367,8 +54367,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/architecture/run/{runId}/replay"
-                    urlBuilder_.Append("v1/architecture/run/");
+                    // Operation Path: "v1/architecture/review/{runId}/replay"
+                    urlBuilder_.Append("v1/architecture/review/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/replay");
 
@@ -54564,8 +54564,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/architecture/run/{runId}/result"
-                    urlBuilder_.Append("v1/architecture/run/");
+                    // Operation Path: "v1/architecture/review/{runId}/result"
+                    urlBuilder_.Append("v1/architecture/review/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/result");
 
@@ -54757,8 +54757,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/architecture/run/{runId}/roi"
-                    urlBuilder_.Append("v1/architecture/run/");
+                    // Operation Path: "v1/architecture/review/{runId}/roi"
+                    urlBuilder_.Append("v1/architecture/review/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/roi");
 
@@ -54950,8 +54950,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/architecture/run/{runId}/stage-timeline"
-                    urlBuilder_.Append("v1/architecture/run/");
+                    // Operation Path: "v1/architecture/review/{runId}/stage-timeline"
+                    urlBuilder_.Append("v1/architecture/review/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/stage-timeline");
 
@@ -55143,8 +55143,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/architecture/run/{runId}/tool-invocation-forensics"
-                    urlBuilder_.Append("v1/architecture/run/");
+                    // Operation Path: "v1/architecture/review/{runId}/tool-invocation-forensics"
+                    urlBuilder_.Append("v1/architecture/review/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/tool-invocation-forensics");
 
@@ -55336,8 +55336,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/architecture/run/{runId}/traceability-bundle.zip"
-                    urlBuilder_.Append("v1/architecture/run/");
+                    // Operation Path: "v1/architecture/review/{runId}/traceability-bundle.zip"
+                    urlBuilder_.Append("v1/architecture/review/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/traceability-bundle.zip");
 
@@ -55539,8 +55539,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/architecture/run/{runId}/traces"
-                    urlBuilder_.Append("v1/architecture/run/");
+                    // Operation Path: "v1/architecture/review/{runId}/traces"
+                    urlBuilder_.Append("v1/architecture/review/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/traces");
                     urlBuilder_.Append('?');
@@ -55956,8 +55956,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/architecture/runs/{runId}/graph/cytoscape"
-                    urlBuilder_.Append("v1/architecture/runs/");
+                    // Operation Path: "v1/architecture/reviews/{runId}/graph/cytoscape"
+                    urlBuilder_.Append("v1/architecture/reviews/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/graph/cytoscape");
 
@@ -56149,8 +56149,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/architecture/runs/{runId}/graph/interactive"
-                    urlBuilder_.Append("v1/architecture/runs/");
+                    // Operation Path: "v1/architecture/reviews/{runId}/graph/interactive"
+                    urlBuilder_.Append("v1/architecture/reviews/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/graph/interactive");
 
@@ -56342,8 +56342,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/architecture/runs/{runId}/provenance"
-                    urlBuilder_.Append("v1/architecture/runs/");
+                    // Operation Path: "v1/architecture/reviews/{runId}/provenance"
+                    urlBuilder_.Append("v1/architecture/reviews/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/provenance");
 
@@ -56881,15 +56881,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ArtifactDescriptorResponse>> ManifestsAllAsync(System.Guid manifestId)
+        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ArtifactDescriptorResponse>> SignedReviewRecordsAsync(System.Guid manifestId)
         {
-            return ManifestsAllAsync(manifestId, System.Threading.CancellationToken.None);
+            return SignedReviewRecordsAsync(manifestId, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ArtifactDescriptorResponse>> ManifestsAllAsync(System.Guid manifestId, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ArtifactDescriptorResponse>> SignedReviewRecordsAsync(System.Guid manifestId, System.Threading.CancellationToken cancellationToken)
         {
             if (manifestId == null)
                 throw new System.ArgumentNullException("manifestId");
@@ -56905,8 +56905,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/artifacts/manifests/{manifestId}"
-                    urlBuilder_.Append("v1/artifacts/manifests/");
+                    // Operation Path: "v1/artifacts/signed-review-records/{manifestId}"
+                    urlBuilder_.Append("v1/artifacts/signed-review-records/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(manifestId, System.Globalization.CultureInfo.InvariantCulture)));
 
                     PrepareRequest(client_, request_, urlBuilder_);
@@ -57100,8 +57100,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/artifacts/manifests/{manifestId}/artifact/{artifactId}"
-                    urlBuilder_.Append("v1/artifacts/manifests/");
+                    // Operation Path: "v1/artifacts/signed-review-records/{manifestId}/artifact/{artifactId}"
+                    urlBuilder_.Append("v1/artifacts/signed-review-records/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(manifestId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/artifact/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(artifactId, System.Globalization.CultureInfo.InvariantCulture)));
@@ -57292,8 +57292,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/artifacts/manifests/{manifestId}/artifact/{artifactId}/descriptor"
-                    urlBuilder_.Append("v1/artifacts/manifests/");
+                    // Operation Path: "v1/artifacts/signed-review-records/{manifestId}/artifact/{artifactId}/descriptor"
+                    urlBuilder_.Append("v1/artifacts/signed-review-records/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(manifestId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/artifact/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(artifactId, System.Globalization.CultureInfo.InvariantCulture)));
@@ -57487,8 +57487,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/artifacts/manifests/{manifestId}/bundle"
-                    urlBuilder_.Append("v1/artifacts/manifests/");
+                    // Operation Path: "v1/artifacts/signed-review-records/{manifestId}/bundle"
+                    urlBuilder_.Append("v1/artifacts/signed-review-records/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(manifestId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/bundle");
 
@@ -65055,8 +65055,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/authority/manifests/{manifestId}/summary"
-                    urlBuilder_.Append("v1/authority/manifests/");
+                    // Operation Path: "v1/authority/signed-review-records/{manifestId}/summary"
+                    urlBuilder_.Append("v1/authority/signed-review-records/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(manifestId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/summary");
 
@@ -86485,8 +86485,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/governance/pre-commit/simulate"
-                    urlBuilder_.Append("v1/governance/pre-commit/simulate");
+                    // Operation Path: "v1/governance/pre-finalize/simulate"
+                    urlBuilder_.Append("v1/governance/pre-finalize/simulate");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -97820,8 +97820,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/internal/architecture/run/{runId}/agent-evaluation"
-                    urlBuilder_.Append("v1/internal/architecture/run/");
+                    // Operation Path: "v1/internal/architecture/review/{runId}/agent-evaluation"
+                    urlBuilder_.Append("v1/internal/architecture/review/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/agent-evaluation");
 
@@ -98013,8 +98013,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/internal/architecture/run/{runId}/traces/forensics"
-                    urlBuilder_.Append("v1/internal/architecture/run/");
+                    // Operation Path: "v1/internal/architecture/review/{runId}/traces/forensics"
+                    urlBuilder_.Append("v1/internal/architecture/review/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/traces/forensics");
                     urlBuilder_.Append('?');
@@ -117051,15 +117051,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<CursorPagedResponseOfRunListItemResponse> Runs8Async(string? cursor, int? limit, int? offset, int? take, int? page, int? pageSize)
+        public virtual System.Threading.Tasks.Task<CursorPagedResponseOfRunListItemResponse> ReviewsAsync(string? cursor, int? limit, int? offset, int? take, int? page, int? pageSize)
         {
-            return Runs8Async(cursor, limit, offset, take, page, pageSize, System.Threading.CancellationToken.None);
+            return ReviewsAsync(cursor, limit, offset, take, page, pageSize, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<CursorPagedResponseOfRunListItemResponse> Runs8Async(string? cursor, int? limit, int? offset, int? take, int? page, int? pageSize, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<CursorPagedResponseOfRunListItemResponse> ReviewsAsync(string? cursor, int? limit, int? offset, int? take, int? page, int? pageSize, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -117072,8 +117072,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/runs"
-                    urlBuilder_.Append("v1/runs");
+                    // Operation Path: "v1/architecture/reviews"
+                    urlBuilder_.Append("v1/architecture/reviews");
                     urlBuilder_.Append('?');
                     if (cursor != null)
                     {
@@ -117265,15 +117265,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<RunDetailsResponse> Runs9Async(string runId)
+        public virtual System.Threading.Tasks.Task<RunDetailsResponse> Reviews2Async(string runId)
         {
-            return Runs9Async(runId, System.Threading.CancellationToken.None);
+            return Reviews2Async(runId, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<RunDetailsResponse> Runs9Async(string runId, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<RunDetailsResponse> Reviews2Async(string runId, System.Threading.CancellationToken cancellationToken)
         {
             if (runId == null)
                 throw new System.ArgumentNullException("runId");
@@ -117289,8 +117289,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/runs/{runId}"
-                    urlBuilder_.Append("v1/runs/");
+                    // Operation Path: "v1/architecture/reviews/{runId}"
+                    urlBuilder_.Append("v1/architecture/reviews/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
 
                     PrepareRequest(client_, request_, urlBuilder_);
@@ -117481,8 +117481,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/runs/{runId}/artifacts"
-                    urlBuilder_.Append("v1/runs/");
+                    // Operation Path: "v1/architecture/reviews/{runId}/artifacts"
+                    urlBuilder_.Append("v1/architecture/reviews/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/artifacts");
 
@@ -117674,8 +117674,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/runs/{runId}/artifacts/bundle"
-                    urlBuilder_.Append("v1/runs/");
+                    // Operation Path: "v1/architecture/reviews/{runId}/artifacts/bundle"
+                    urlBuilder_.Append("v1/architecture/reviews/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/artifacts/bundle");
 
@@ -117865,8 +117865,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/runs/{runId}/artifacts/{artifactId}"
-                    urlBuilder_.Append("v1/runs/");
+                    // Operation Path: "v1/architecture/reviews/{runId}/artifacts/{artifactId}"
+                    urlBuilder_.Append("v1/architecture/reviews/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/artifacts/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(artifactId, System.Globalization.CultureInfo.InvariantCulture)));
@@ -118054,8 +118054,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/runs/{runId}/coverage"
-                    urlBuilder_.Append("v1/runs/");
+                    // Operation Path: "v1/architecture/reviews/{runId}/coverage"
+                    urlBuilder_.Append("v1/architecture/reviews/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/coverage");
 
@@ -118250,8 +118250,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/runs/{runId}/export/{format}"
-                    urlBuilder_.Append("v1/runs/");
+                    // Operation Path: "v1/architecture/reviews/{runId}/export/{format}"
+                    urlBuilder_.Append("v1/architecture/reviews/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/export/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(format, System.Globalization.CultureInfo.InvariantCulture)));
@@ -118444,8 +118444,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/runs/{runId}/manifest"
-                    urlBuilder_.Append("v1/runs/");
+                    // Operation Path: "v1/architecture/reviews/{runId}/manifest"
+                    urlBuilder_.Append("v1/architecture/reviews/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/manifest");
 
@@ -118637,8 +118637,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/runs/{runId}/review-trail"
-                    urlBuilder_.Append("v1/runs/");
+                    // Operation Path: "v1/architecture/reviews/{runId}/review-trail"
+                    urlBuilder_.Append("v1/architecture/reviews/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/review-trail");
 
@@ -118830,8 +118830,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/runs/{runId}/review-trail/export"
-                    urlBuilder_.Append("v1/runs/");
+                    // Operation Path: "v1/architecture/reviews/{runId}/review-trail/export"
+                    urlBuilder_.Append("v1/architecture/reviews/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/review-trail/export");
 
@@ -119033,8 +119033,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/runs/{runId}/review-trail/provenance"
-                    urlBuilder_.Append("v1/runs/");
+                    // Operation Path: "v1/architecture/reviews/{runId}/review-trail/provenance"
+                    urlBuilder_.Append("v1/architecture/reviews/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/review-trail/provenance");
 
@@ -119226,8 +119226,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/runs/{runId}/review-trail/rationale"
-                    urlBuilder_.Append("v1/runs/");
+                    // Operation Path: "v1/architecture/reviews/{runId}/review-trail/rationale"
+                    urlBuilder_.Append("v1/architecture/reviews/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/review-trail/rationale");
 
@@ -119419,8 +119419,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/runs/{runId}/technology-ledger"
-                    urlBuilder_.Append("v1/runs/");
+                    // Operation Path: "v1/architecture/reviews/{runId}/technology-ledger"
+                    urlBuilder_.Append("v1/architecture/reviews/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/technology-ledger");
 
@@ -119619,8 +119619,8 @@ namespace ArchLucid.Api.Client.Generated
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "v1/runs/{runId}/technology-ledger/{entryId}"
-                    urlBuilder_.Append("v1/runs/");
+                    // Operation Path: "v1/architecture/reviews/{runId}/technology-ledger/{entryId}"
+                    urlBuilder_.Append("v1/architecture/reviews/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/technology-ledger/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(entryId, System.Globalization.CultureInfo.InvariantCulture)));

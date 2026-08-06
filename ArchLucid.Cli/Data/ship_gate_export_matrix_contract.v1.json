@@ -1,4 +1,4 @@
-{
+﻿{
   "schemaVersion": 1,
   "purpose": "TB-412/TB-417: canonical committed-run export routes probed by ship-gate Gate 4 (Markdown, DOCX, artifact ZIP, traceability bundle ZIP) on the representative --run-id.",
   "probes": [
@@ -16,7 +16,7 @@
       "label": "Analysis report DOCX",
       "format": "docx",
       "method": "POST",
-      "pathTemplate": "/v1/architecture/run/{runId}/analysis-report/export/docx",
+      "pathTemplate": "/v1/architecture/review/{runId}/analysis-report/export/docx",
       "requestBodyJson": "{}",
       "expectedContentTypePrefixes": [
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -39,7 +39,7 @@
       "label": "Traceability audit hand-off ZIP",
       "format": "traceability-zip",
       "method": "GET",
-      "pathTemplate": "/v1/architecture/run/{runId}/traceability-bundle.zip",
+      "pathTemplate": "/v1/architecture/review/{runId}/traceability-bundle.zip",
       "expectedContentTypePrefixes": ["application/zip", "application/octet-stream"],
       "minBodyBytes": 64,
       "requireZipMagicBytes": true

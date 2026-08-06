@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 
 using ArchLucid.Contracts.Common;
 
@@ -67,7 +67,7 @@ internal static class RunSupportPacketFormatter
             $"CLI: archlucid trace {p.RunId}   # trace viewer URL / raw id",
             $"CLI: archlucid status {p.RunId}",
             $"CLI: archlucid first-value-report {p.RunId} --save",
-            $"HTTP: GET {p.ApiBaseUrl}/v1/architecture/run/{p.RunId}");
+            $"HTTP: GET {p.ApiBaseUrl}/v1/architecture/review/{p.RunId}");
     }
 
     internal static string ResolveNextStep(ArchitectureRunStatus status, string? manifestVersion)
@@ -78,15 +78,15 @@ internal static class RunSupportPacketFormatter
         return status switch
         {
             ArchitectureRunStatus.ReadyForCommit =>
-                "Ready for commit — run `archlucid commit <runId>` (legacy coordinator path) or confirm authority pipeline status via `GET /v1/architecture/run/{runId}` before retrying.",
+                "Ready for commit — run `archlucid commit <runId>` (legacy coordinator path) or confirm authority pipeline status via `GET /v1/architecture/review/{runId}` before retrying.",
             ArchitectureRunStatus.WaitingForResults or ArchitectureRunStatus.TasksGenerated =>
-                "Legacy coordinator path — submit pending agent results; do not call execute if authority pipeline already committed (see API_CONTRACTS § authority vs coordinator).",
+                "Legacy coordinator path — submit pending agent results; do not call execute if authority pipeline already committed (see API_CONTRACTS Â§ authority vs coordinator).",
             ArchitectureRunStatus.Failed =>
                 "Run failed — inspect operator UI / API logs; run `archlucid doctor` for host readiness.",
             ArchitectureRunStatus.Retrying =>
                 "Retry in progress — poll `archlucid status <runId>` until status stabilizes.",
             _ =>
-                "Inspect `GET /v1/architecture/run/{runId}` first — authority pipeline runs on SQL after create; execute/commit only when legacy coordinator tasks are required (see ARCHITECTURE_FLOWS Flow A1)."
+                "Inspect `GET /v1/architecture/review/{runId}` first — authority pipeline runs on SQL after create; execute/commit only when legacy coordinator tasks are required (see ARCHITECTURE_FLOWS Flow A1)."
         };
     }
 }

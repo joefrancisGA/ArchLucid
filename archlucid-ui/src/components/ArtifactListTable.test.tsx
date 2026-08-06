@@ -149,14 +149,14 @@ describe("ArtifactListTable", () => {
     const row = {
       artifactId: "artifact-guid-md",
       artifactType: "MarkdownReport",
-      name: "Sponsor briefing â€” Claims Intake Modernization.md",
+      name: "Sponsor briefing — Claims Intake Modernization.md",
       format: "text/markdown",
       createdUtc: "2020-01-01T00:00:00Z",
       contentHash: "abcdef123456",
     };
     render(<ArtifactListTable manifestId="manifest-1" artifacts={[row]} sponsorMode />);
 
-    expect(screen.queryByText("Sponsor briefing â€” Claims Intake Modernization")).toBeNull();
+    expect(screen.queryByText("Sponsor briefing — Claims Intake Modernization")).toBeNull();
     expect(screen.getByRole("columnheader", { name: "Output" })).toBeInTheDocument();
   });
 

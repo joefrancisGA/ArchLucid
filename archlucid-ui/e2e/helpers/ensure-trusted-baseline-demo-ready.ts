@@ -1,4 +1,4 @@
-import type { APIRequestContext } from "@playwright/test";
+﻿import type { APIRequestContext } from "@playwright/test";
 
 import { TRUSTED_BASELINE_RUN_ID_N } from "./demo-screenshots-harness";
 import { postDemoSeedWithTransientRetries } from "./ensure-demo-workspace-seed";
@@ -58,7 +58,7 @@ async function trustedBaselineAuditReady(request: APIRequestContext): Promise<bo
 export async function ensureTrustedBaselineDemoReady(request: APIRequestContext): Promise<void> {
   await postDemoSeedWithTransientRetries(request);
 
-  const runPath = `/v1/architecture/run/${encodeURIComponent(TRUSTED_BASELINE_RUN_ID_N)}`;
+  const runPath = `/v1/architecture/review/${encodeURIComponent(TRUSTED_BASELINE_RUN_ID_N)}`;
   let lastDetail = "unknown";
 
   for (let attempt = 0; attempt < maxTrustedBaselinePollAttempts; attempt++) {

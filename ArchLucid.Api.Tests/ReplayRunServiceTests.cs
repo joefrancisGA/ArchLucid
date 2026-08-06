@@ -102,7 +102,7 @@ public sealed class ReplayRunServiceTests
             .Returns(Task.CompletedTask);
 
         // ADR 0030 PR A3 (2026-04-24): ICoordinatorDecisionTraceRepository was removed from
-        // ReplayRunService â€” decision traces are persisted via IAuthorityCommittedManifestChainWriter only.
+        // ReplayRunService — decision traces are persisted via IAuthorityCommittedManifestChainWriter only.
         _sut = new ReplayRunService(
             _executorResolver.Object,
             _decisionEngine.Object,

@@ -26,9 +26,9 @@ public sealed class ArchitectureTraceTests(ArchLucidApiFactory factory) : Integr
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
-        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
         await executeResponse.EnsureSuccessForTestAsync();
-        HttpResponseMessage tracesResponse = await Client.GetAsync($"/v1/architecture/run/{runId}/traces");
+        HttpResponseMessage tracesResponse = await Client.GetAsync($"/v1/architecture/review/{runId}/traces");
 
         tracesResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 

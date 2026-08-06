@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — ArchLucid HTTP API — merge-blocking k6 p95 latency ceilings tied to measured baselines — not customer SLA text (see **`API_SLOS.md`**) and not SQL named-query allowlists (**TB-003** / **`OBSERVABILITY.md`**).
+﻿> **Scope:** Contributor-reference — ArchLucid HTTP API — merge-blocking k6 p95 latency ceilings tied to measured baselines — not customer SLA text (see **`API_SLOS.md`**) and not SQL named-query allowlists (**TB-003** / **`OBSERVABILITY.md`**).
 
 # API performance targets (k6-enforced p95)
 
@@ -32,8 +32,8 @@ SQL-level latency uses an **allowlist JSON** plus OTel histogram **`archlucid_qu
 
 **Methodology**
 
-1. **Tier 2 synchronous reads/writes (aggregate baseline):** **`k6-summary.json`** at repo root (**Initial** row in **`LOAD_TEST_BASELINE.md`**, recorded **2026-04-14**) reports **`metrics.http_req_duration`** **`p(95)` ≈ 773 ms** for **`scripts/load/hotpaths.js`** (Compose full-stack, five-path mix). **Target ms** = **ceil(1.2 × 773)** = **928 ms** applied to every **`k6ci`** / **`k6api`** tag that shares the Tier 2 CI smoke bucket (list/detail/version/audit search/telemetry/snapshot/list-authority/artifacts).
-2. **Tier 3 architecture writes / pilot finish:** Baseline **5500 ms** (pilot-scale midpoint under the prior **8000 ms** Tier 3 CI ceiling; no standalone per-route export in **`k6-summary.json`**). **Target ms** = **ceil(1.2 × 5500)** = **6600 ms** for **`POST /v1/architecture/request`**, internal **`seed-fake-results`**, **`POST …/commit`**, and **`POST`** variants measured under **`k6api:create_run`** / **`seed_fake`** / **`pilot_commit`**.
+1. **Tier 2 synchronous reads/writes (aggregate baseline):** **`k6-summary.json`** at repo root (**Initial** row in **`LOAD_TEST_BASELINE.md`**, recorded **2026-04-14**) reports **`metrics.http_req_duration`** **`p(95)` â‰ˆ 773 ms** for **`scripts/load/hotpaths.js`** (Compose full-stack, five-path mix). **Target ms** = **ceil(1.2 Ã— 773)** = **928 ms** applied to every **`k6ci`** / **`k6api`** tag that shares the Tier 2 CI smoke bucket (list/detail/version/audit search/telemetry/snapshot/list-authority/artifacts).
+2. **Tier 3 architecture writes / pilot finish:** Baseline **5500 ms** (pilot-scale midpoint under the prior **8000 ms** Tier 3 CI ceiling; no standalone per-route export in **`k6-summary.json`**). **Target ms** = **ceil(1.2 Ã— 5500)** = **6600 ms** for **`POST /v1/architecture/request`**, internal **`seed-fake-results`**, **`POST …/commit`**, and **`POST`** variants measured under **`k6api:create_run`** / **`seed_fake`** / **`pilot_commit`**.
 3. **Tier 1 live / ready:** Ceilings remain **300 ms** / **1200 ms** (**`API_SLOS.md`** CI-ready variance). Documented implicit baseline = **target / 1.2** (**250 ms** / **1000 ms**) where hotpaths JSON does not isolate probes.
 
 **Last-updated (targets table):** **2026-05-10** (UTC).
@@ -42,10 +42,10 @@ SQL-level latency uses an **allowlist JSON** plus OTel histogram **`archlucid_qu
 | --- | --- | --- | --- | --- | --- |
 | 1 | `GET /health/live` | `k6ci:health_live` | ci-smoke | **300** | Tier 1 CI ceiling / implicit baseline 250 ms |
 | 2 | `GET /health/ready` | `k6ci:health_ready`, `k6api:health_ready` | ci-smoke; api-smoke | **1200** | Ready aggregates deps on Actions / baseline 1000 ms |
-| 3 | `GET /v1/architecture/runs` | `k6ci:list_runs`, `k6ci:list_for_get_run` | ci-smoke | **928** | 1.2 × **`k6-summary.json`** hotpaths p95 (**773 ms**) |
-| 4 | `GET /v1/architecture/run/{runId}` | `k6ci:get_run_detail`, `k6api:run_status` | ci-smoke; api-smoke | **928** | Same Tier 2 aggregate baseline |
-| 5 | `POST /v1/architecture/request` | `k6ci:create_run`, `k6api:create_run` | ci-smoke; api-smoke | **6600** | 1.2 × **5500 ms** pilot write baseline |
-| 6 | `POST /v1/architecture/run/{runId}/commit` | `k6api:pilot_commit` | api-smoke | **6600** | Same Tier 3 baseline (**6600** ms); **`ARCHLUCID_K6_P95_COMMIT_MS`** overrides |
+| 3 | `GET /v1/architecture/runs` | `k6ci:list_runs`, `k6ci:list_for_get_run` | ci-smoke | **928** | 1.2 Ã— **`k6-summary.json`** hotpaths p95 (**773 ms**) |
+| 4 | `GET /v1/architecture/review/{runId}` | `k6ci:get_run_detail`, `k6api:run_status` | ci-smoke; api-smoke | **928** | Same Tier 2 aggregate baseline |
+| 5 | `POST /v1/architecture/request` | `k6ci:create_run`, `k6api:create_run` | ci-smoke; api-smoke | **6600** | 1.2 Ã— **5500 ms** pilot write baseline |
+| 6 | `POST /v1/architecture/review/{runId}/finalize` | `k6api:pilot_commit` | api-smoke | **6600** | Same Tier 3 baseline (**6600** ms); **`ARCHLUCID_K6_P95_COMMIT_MS`** overrides |
 | 7 | `GET /v1/audit/search` | `k6ci:audit_search` | ci-smoke | **928** | Tier 2 aggregate baseline |
 | 8 | `GET /version` | `k6ci:version`, `k6api:version` | ci-smoke; api-smoke | **928** | Tier 2 aggregate baseline |
 | 9 | `GET /v1/audit` | — | — | *No k6 gate* | Add **`tests/load/ci-smoke.js`** coverage before enforcing |
@@ -77,4 +77,4 @@ Targets describe **latency bounds** on synthetic CI traffic only; they do not wi
 
 ## Scalability / reliability / cost
 
-Stricter Tier 2/Tier 3 ceilings increase **PR flake sensitivity** if SQL or cold-start variance grows — mitigate with migrations/indexes (**`LOAD_TEST_BASELINE.md`** § reader–writer contention) rather than permanently widening gates. No additional cloud spend.
+Stricter Tier 2/Tier 3 ceilings increase **PR flake sensitivity** if SQL or cold-start variance grows — mitigate with migrations/indexes (**`LOAD_TEST_BASELINE.md`** Â§ reader–writer contention) rather than permanently widening gates. No additional cloud spend.

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Workspace B (Meridian / Alpine regulated storyline) — SQL-backed Development seed (`docs/go-to-market/DEMO_WORKSPACES.md`).
  * Merge-blocking `@release-gate`: `ci.yml` `ui-e2e-live`, `release-smoke.ps1 -LivePlaywright`.
  *
@@ -254,7 +254,7 @@ test.describe(
     test.info().annotations.push({
       type: "whitelabel-assertion-surface",
       description:
-        "Whitelabel pre-fill asserted on GET /v1/architecture/run/{runId}/exports AnalysisRequestJson (camelCase reviewBoardWhitelabel* fields).",
+        "Whitelabel pre-fill asserted on GET /v1/architecture/review/{runId}/exports AnalysisRequestJson (camelCase reviewBoardWhitelabel* fields).",
     });
 
     /** Buyer deliverables still expose deterministic export affordances (ZIP + Markdown summary). */

@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+﻿import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { trySandboxMockJsonForApiGet } from "@/lib/sandbox-api-mocks";
 
 describe("sandbox-api-mocks", () => {
@@ -74,7 +74,7 @@ describe("sandbox-api-mocks", () => {
     process.env.VITE_USE_SANDBOX_MOCKS = "true";
 
     expect(
-      trySandboxMockJsonForApiGet("/v1/architecture/runs/sandbox-run-golden-001/provenance"),
+      trySandboxMockJsonForApiGet("/v1/architecture/reviews/sandbox-run-golden-001/provenance"),
     ).toBeUndefined();
   });
 });

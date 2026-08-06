@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
 
@@ -38,7 +38,7 @@ public sealed class ShipGateEvidenceRunnerTests
 
                 string path = req.RequestUri!.AbsolutePath;
 
-                if (path.EndsWith($"/v1/architecture/run/{RunId}", StringComparison.Ordinal))
+                if (path.EndsWith($"/v1/architecture/review/{RunId}", StringComparison.Ordinal))
                 {
                     return Task.FromResult(JsonResponse(
                         HttpStatusCode.OK,
@@ -95,7 +95,7 @@ public sealed class ShipGateEvidenceRunnerTests
 
                 string path = req.RequestUri!.AbsolutePath;
 
-                if (path.EndsWith($"/v1/architecture/run/{RunId}", StringComparison.Ordinal))
+                if (path.EndsWith($"/v1/architecture/review/{RunId}", StringComparison.Ordinal))
                 {
                     return Task.FromResult(JsonResponse(
                         HttpStatusCode.OK,
@@ -143,7 +143,7 @@ public sealed class ShipGateEvidenceRunnerTests
 
                 string path = req.RequestUri!.AbsolutePath;
 
-                if (path.EndsWith($"/v1/architecture/run/{RunId}", StringComparison.Ordinal))
+                if (path.EndsWith($"/v1/architecture/review/{RunId}", StringComparison.Ordinal))
                     return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { title = "not found" }));
 
                 if (path.EndsWith("/v1/roi/executive-summary", StringComparison.Ordinal))
@@ -176,7 +176,7 @@ public sealed class ShipGateEvidenceRunnerTests
                     ? values.FirstOrDefault()
                     : null;
 
-                if (path.EndsWith($"/v1/architecture/run/{RunId}", StringComparison.Ordinal))
+                if (path.EndsWith($"/v1/architecture/review/{RunId}", StringComparison.Ordinal))
                 {
                     if (string.Equals(tenant, AlternateTenantId, StringComparison.OrdinalIgnoreCase))
                     {
@@ -243,7 +243,7 @@ public sealed class ShipGateEvidenceRunnerTests
                         "text/markdown"));
                 }
 
-                if (path.EndsWith($"/v1/architecture/run/{RunId}/analysis-report/export/docx", StringComparison.Ordinal))
+                if (path.EndsWith($"/v1/architecture/review/{RunId}/analysis-report/export/docx", StringComparison.Ordinal))
                 {
                     return Task.FromResult(TextExportResponse(HttpStatusCode.NotFound, "missing", "application/json"));
                 }
@@ -256,7 +256,7 @@ public sealed class ShipGateEvidenceRunnerTests
                         "application/zip"));
                 }
 
-                if (path.EndsWith($"/v1/architecture/run/{RunId}", StringComparison.Ordinal))
+                if (path.EndsWith($"/v1/architecture/review/{RunId}", StringComparison.Ordinal))
                 {
                     return Task.FromResult(JsonResponse(
                         HttpStatusCode.OK,
@@ -312,7 +312,7 @@ public sealed class ShipGateEvidenceRunnerTests
                         "text/markdown"));
                 }
 
-                if (path.EndsWith($"/v1/architecture/run/{RunId}/analysis-report/export/docx", StringComparison.Ordinal))
+                if (path.EndsWith($"/v1/architecture/review/{RunId}/analysis-report/export/docx", StringComparison.Ordinal))
                 {
                     return Task.FromResult(BytesExportResponse(
                         HttpStatusCode.OK,
@@ -328,12 +328,12 @@ public sealed class ShipGateEvidenceRunnerTests
                         "application/zip"));
                 }
 
-                if (path.EndsWith($"/v1/architecture/run/{RunId}/traceability-bundle.zip", StringComparison.Ordinal))
+                if (path.EndsWith($"/v1/architecture/review/{RunId}/traceability-bundle.zip", StringComparison.Ordinal))
                 {
                     return Task.FromResult(TextExportResponse(HttpStatusCode.NotFound, "missing", "application/json"));
                 }
 
-                if (path.EndsWith($"/v1/architecture/run/{RunId}", StringComparison.Ordinal))
+                if (path.EndsWith($"/v1/architecture/review/{RunId}", StringComparison.Ordinal))
                 {
                     return Task.FromResult(JsonResponse(
                         HttpStatusCode.OK,
@@ -391,7 +391,7 @@ public sealed class ShipGateEvidenceRunnerTests
                         "text/markdown"));
                 }
 
-                if (path.EndsWith($"/v1/architecture/run/{RunId}/analysis-report/export/docx", StringComparison.Ordinal))
+                if (path.EndsWith($"/v1/architecture/review/{RunId}/analysis-report/export/docx", StringComparison.Ordinal))
                 {
                     return Task.FromResult(BytesExportResponse(
                         HttpStatusCode.OK,
@@ -407,7 +407,7 @@ public sealed class ShipGateEvidenceRunnerTests
                         "application/zip"));
                 }
 
-                if (path.EndsWith($"/v1/architecture/run/{RunId}/traceability-bundle.zip", StringComparison.Ordinal))
+                if (path.EndsWith($"/v1/architecture/review/{RunId}/traceability-bundle.zip", StringComparison.Ordinal))
                 {
                     return Task.FromResult(BytesExportResponse(
                         HttpStatusCode.OK,
@@ -415,7 +415,7 @@ public sealed class ShipGateEvidenceRunnerTests
                         "application/zip"));
                 }
 
-                if (path.EndsWith($"/v1/architecture/run/{RunId}", StringComparison.Ordinal))
+                if (path.EndsWith($"/v1/architecture/review/{RunId}", StringComparison.Ordinal))
                 {
                     return Task.FromResult(JsonResponse(
                         HttpStatusCode.OK,
@@ -465,10 +465,10 @@ public sealed class ShipGateEvidenceRunnerTests
 
                 string path = req.RequestUri!.AbsolutePath;
 
-                if (path.EndsWith($"/v1/architecture/runs/{RunId}/provenance", StringComparison.Ordinal))
+                if (path.EndsWith($"/v1/architecture/reviews/{RunId}/provenance", StringComparison.Ordinal))
                     return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { title = "missing" }));
 
-                if (path.EndsWith($"/v1/architecture/run/{RunId}", StringComparison.Ordinal))
+                if (path.EndsWith($"/v1/architecture/review/{RunId}", StringComparison.Ordinal))
                 {
                     return Task.FromResult(JsonResponse(
                         HttpStatusCode.OK,
@@ -519,7 +519,7 @@ public sealed class ShipGateEvidenceRunnerTests
 
                 string path = req.RequestUri!.AbsolutePath;
 
-                if (path.EndsWith($"/v1/architecture/run/{RunId}", StringComparison.Ordinal))
+                if (path.EndsWith($"/v1/architecture/review/{RunId}", StringComparison.Ordinal))
                 {
                     return Task.FromResult(JsonResponse(
                         HttpStatusCode.OK,
@@ -624,7 +624,7 @@ public sealed class ShipGateEvidenceRunnerTests
         response = null;
         string path = request.RequestUri!.AbsolutePath;
 
-        if (!path.EndsWith($"/v1/architecture/runs/{RunId}/provenance", StringComparison.Ordinal))
+        if (!path.EndsWith($"/v1/architecture/reviews/{RunId}/provenance", StringComparison.Ordinal))
             return false;
 
         response = JsonResponse(HttpStatusCode.OK, new
@@ -651,7 +651,7 @@ public sealed class ShipGateEvidenceRunnerTests
             return true;
         }
 
-        if (path.EndsWith($"/v1/architecture/run/{RunId}/analysis-report/export/docx", StringComparison.Ordinal))
+        if (path.EndsWith($"/v1/architecture/review/{RunId}/analysis-report/export/docx", StringComparison.Ordinal))
         {
             response = BytesExportResponse(
                 HttpStatusCode.OK,
@@ -671,7 +671,7 @@ public sealed class ShipGateEvidenceRunnerTests
             return true;
         }
 
-        if (path.EndsWith($"/v1/architecture/run/{RunId}/traceability-bundle.zip", StringComparison.Ordinal))
+        if (path.EndsWith($"/v1/architecture/review/{RunId}/traceability-bundle.zip", StringComparison.Ordinal))
         {
             response = BytesExportResponse(
                 HttpStatusCode.OK,

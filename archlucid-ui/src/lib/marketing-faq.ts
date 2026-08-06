@@ -31,7 +31,7 @@ export const MARKETING_FAQ_CATEGORIES: ReadonlyArray<MarketingFaqCategory> = [
   { id: "evidence-cloud", title: "Evidence and cloud access" },
   { id: "pricing-ai", title: "Pricing and AI usage" },
   { id: "governance-audit", title: "Governance and audit" },
-  { id: "security-trust", title: "Security and trust" },
+  { id: "security-trust", title: "Assurance status" },
 ] as const;
 
 export function buildHowDoISignInFaqAnswer(): string {
@@ -129,7 +129,7 @@ const MARKETING_FAQ_ITEM_TEMPLATES: ReadonlyArray<MarketingFaqItem> = [
     categoryId: "security-trust",
     question: "How does ArchLucid protect customer data?",
     answer:
-      "Tenant isolation, scoped access, encryption in transit, and audit logging are core to the platform. See Security and trust and the Trust Center for current control summaries and diligence materials.",
+      "Tenant isolation, scoped access, encryption in transit, and audit logging are core to the platform. See Assurance status and the Trust Center for current control summaries and diligence materials.",
   },
   {
     id: "demo-workspaces",
@@ -171,7 +171,7 @@ const MARKETING_FAQ_ITEM_TEMPLATES: ReadonlyArray<MarketingFaqItem> = [
     categoryId: "security-trust",
     question: "What security assurance materials are available?",
     answer:
-      "ArchLucid provides security and trust materials describing current controls, data handling, and assurance posture. For procurement diligence (SOC 2 posture, penetration testing, subprocessors), see the full procurement FAQ at /help/procurement. Formal third-party attestations, where applicable, should be handled through the security review process.",
+      "Assurance status and the Trust Center describe current controls, data handling, and assurance posture. For procurement diligence (SOC 2 posture, penetration testing, subprocessors), see the full procurement FAQ at /help/procurement. Formal third-party attestations, where applicable, should be handled through the security review process.",
   },
   {
     id: "evaluation-not-included",

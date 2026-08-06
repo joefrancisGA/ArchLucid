@@ -24,5 +24,5 @@ export const PILOT_OUTCOMES_SOURCES: readonly PilotOutcomesSourceLink[] = [
   { label: "ROI summary", href: SPONSOR_REPORT_ROI_SUMMARY_PATH },
   { label: "Architecture reviews", href: "/architecture/reviews" },
   { label: "Pilot guide", href: inAppHelpHref("pilot-guide") },
-  { label: "Security & trust", href: "/security-trust" },
+  { label: "Assurance status", href: "/security-trust" },
 ] as const;

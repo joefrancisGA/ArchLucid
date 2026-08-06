@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.Contracts.Metadata;
@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     Parallel <c>POST /v1/architecture/run/compare/end-to-end/summary?persist=true</c>: in-memory
+///     Parallel <c>POST /v1/architecture/review/compare/end-to-end/summary?persist=true</c>: in-memory
 ///     <see cref="IComparisonRecordRepository" /> stores one row per successful persist (no deduplication on same run pair),
 ///     so this test requires five distinct <c>X-ArchLucid-ComparisonRecordId</c> values and five retrievable records.
 /// </summary>

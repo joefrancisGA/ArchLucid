@@ -23,6 +23,11 @@ import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { FORBIDDEN_WORKSPACE_ADMIN_ACCESS_MESSAGE } from "@/lib/buyer-polish-copy";
+import {
+  settingsUsersNavigationPathname,
+  settingsUsersTabFromLocation,
+  type SettingsUsersTabId,
+} from "@/lib/settings-admin-route-paths";
 
 import { SettingsRolesInvitePanel } from "./SettingsRolesInvitePanel";
 import { PendingInvitationsPanel } from "./PendingInvitationsPanel";
@@ -32,15 +37,13 @@ import { SettingsRolesMatrixSection } from "./SettingsRolesMatrixSection";
 import { SettingsUsersEvidenceOrientationStrip } from "./SettingsUsersEvidenceOrientationStrip";
 import type { SettingsRolesPageViewModel } from "./settings-roles-page-view-model";
 
-type TabId = "users" | "roles" | "keys";
-
-const ALL_TABS: readonly { id: TabId; label: string }[] = [
+const ALL_TABS: readonly { id: SettingsUsersTabId; label: string }[] = [
   { id: "users", label: "Users and invitations" },
   { id: "roles", label: "Roles and permissions" },
   { id: "keys", label: "API keys" },
 ] as const;
 
-function visibleTabs(canManageApiKeys: boolean): readonly { id: TabId; label: string }[] {
+function visibleTabs(canManageApiKeys: boolean): readonly { id: SettingsUsersTabId; label: string }[] {
   if (canManageApiKeys)
     return ALL_TABS;
 
@@ -51,18 +54,6 @@ type Props = {
   readonly model: SettingsRolesPageViewModel;
 };
 
-function sanitizeSettingsRolesTab(raw: string | null, canManageApiKeys: boolean): TabId {
-  if (raw === "roles") {
-    return "roles";
-  }
-
-  if (raw === "keys" && canManageApiKeys) {
-    return "keys";
-  }
-
-  return "users";
-}
-
 export function SettingsRolesPageView(props: Props) {
   const m = props.model;
   const router = useRouter();
@@ -71,8 +62,9 @@ export function SettingsRolesPageView(props: Props) {
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const canManageApiKeys = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
   const tabs = visibleTabs(canManageApiKeys);
-  const urlTab = sanitizeSettingsRolesTab(searchParams.get("tab"), canManageApiKeys);
-  const [activeTab, setActiveTab] = useState<TabId>(urlTab);
+  const hubPathname = settingsUsersNavigationPathname(pathname);
+  const urlTab = settingsUsersTabFromLocation(pathname, searchParams.get("tab"), canManageApiKeys);
+  const [activeTab, setActiveTab] = useState<SettingsUsersTabId>(urlTab);
   const [invitationsRefreshKey, setInvitationsRefreshKey] = useState(0);
 
   useEffect(() => {
@@ -82,7 +74,7 @@ export function SettingsRolesPageView(props: Props) {
   useEffect(() => {
     const onPop = () => {
       const sp = new URLSearchParams(window.location.search);
-      setActiveTab(sanitizeSettingsRolesTab(sp.get("tab"), canManageApiKeys));
+      setActiveTab(settingsUsersTabFromLocation(window.location.pathname, sp.get("tab"), canManageApiKeys));
     };
 
     window.addEventListener("popstate", onPop);
@@ -94,18 +86,18 @@ export function SettingsRolesPageView(props: Props) {
 
   const onSelectTab = useCallback(
     (id: string) => {
-      const tabId = sanitizeSettingsRolesTab(id, canManageApiKeys);
+      const tabId = settingsUsersTabFromLocation(hubPathname, id, canManageApiKeys);
       setActiveTab(tabId);
 
       if (tabId === "users") {
-        router.replace(pathname);
+        router.replace(hubPathname);
 
         return;
       }
 
-      router.replace(`${pathname}?tab=${encodeURIComponent(tabId)}`);
+      router.replace(`${hubPathname}?tab=${encodeURIComponent(tabId)}`);
     },
-    [canManageApiKeys, pathname, router],
+    [canManageApiKeys, hubPathname, router],
   );
 
   if (m.surface === "demo") {

@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — the single mapping table between internal/API vocabulary and buyer vocabulary, the end-state rule for where each is legal, and the classified leak inventory for the dual-vocabulary cleanup (2026-08-03). Parents: [`CONCEPT_VOCABULARY.md#ui-glossary-v1`](CONCEPT_VOCABULARY.md#ui-glossary-v1) (canonical buyer ↔ technical noun table) and `.cursor/rules/UI-Enterprise-Design-Standard.mdc` (product-language rules).
+﻿> **Scope:** Contributor-reference — the single mapping table between internal/API vocabulary and buyer vocabulary, the end-state rule for where each is legal, and the classified leak inventory for the dual-vocabulary cleanup (2026-08-03). Parents: [`CONCEPT_VOCABULARY.md#ui-glossary-v1`](CONCEPT_VOCABULARY.md#ui-glossary-v1) (canonical buyer ↔ technical noun table) and `.cursor/rules/UI-Enterprise-Design-Standard.mdc` (product-language rules).
 
 > **Reviewed:** 2026-08-03
 
@@ -8,16 +8,17 @@
 
 ## End-state rule
 
-1. **API/CLI/schema identifiers keep legacy nouns permanently.** `runId`, `POST .../commit`, `GoldenManifest`, OpenAPI paths, CLI verbs (`archlucid run`, `commit`), audit `AuditEventTypes` names, database columns, and React route paths (`/reviews/[runId]`) are compatibility surfaces guarded by snapshot gates ([`CONCEPT_VOCABULARY.md` § Constraints](CONCEPT_VOCABULARY.md#constraints-do-not-change-without-adr)). They are never renamed.
-2. **Every human-readable buyer surface uses buyer vocabulary.** Marketing, help, empty states, page titles, breadcrumbs, toasts, error messages, aria-labels, and export prose say *architecture review, architecture package, finalize/finalized, signed review record, evidence graph*.
-3. **Operator surfaces prefer buyer vocabulary** but may show raw API identifiers (a `runId` value, correlation IDs) inside disclosure affordances or support-correlation contexts — labeled, not narrated (e.g. a copyable ID row is fine; "commit your run" prose is not).
-4. **Docs:** engineering docs (`docs/engineering/`, ADRs, `API_CONTRACTS.md`) use internal nouns freely. Customer-facing docs use buyer nouns, with **one deliberate bridge line** wherever the API surface is taught ("the API and CLI use `run` and `commit` for compatibility; the product calls these a review and finalize").
+1. **Public HTTP and spine SQL use buyer nouns (ADR 0064).** Canonical paths say `review` / `finalize` / `signed-review-record` (and related). Spine tables are `dbo.Reviews`, `dbo.SignedReviewRecords`, `dbo.FinalizeReviewIdempotency`, with synonyms for the former `Runs` / `GoldenManifests` / `CommitRunIdempotency` names so existing SQL text keeps compiling.
+2. **Buyer surfaces use the same nouns.** Marketing, help, empty states, page titles, breadcrumbs, toasts, error messages, aria-labels, and export prose say *architecture review, architecture package, finalize/finalized, signed review record, evidence graph*.
+3. **Operator surfaces prefer buyer vocabulary** but may show raw API identifiers (a `runId` route parameter value, correlation IDs) inside disclosure affordances or support-correlation contexts — labeled, not narrated (e.g. a copyable ID row is fine; "commit your run" prose is not).
+4. **Docs:** engineering docs may still say `run`/`commit`/`GoldenManifest` for type and historical names. Customer-facing docs use buyer nouns. Bridge line when teaching the wire: route param `runId` is the **Review ID**; `POST …/finalize` is finalize.
+5. **C# type names and durable audit event strings** may lag; do not rewrite historical audit rows.
 
 ## Mapping table
 
 | Internal / API term | Buyer term | Where the internal term remains legal | Enforcement |
 |---|---|---|---|
-| `run`, `ArchitectureRun`, `/v1/architecture/run/...` | **Architecture review** / **Review** | Code, API, CLI verb, route params, engineering docs | `review-terminology-guard.test.ts` + `review-terminology-surfaces.ts` (high-traffic UI modules); `check_concept_vocabulary.py` (docs) |
+| `run`, `ArchitectureRun`, `/v1/architecture/review/...` | **Architecture review** / **Review** | Code, API, CLI verb, route params, engineering docs | `review-terminology-guard.test.ts` + `review-terminology-surfaces.ts` (high-traffic UI modules); `check_concept_vocabulary.py` (docs) |
 | `runId` (displayed) | **Review ID** label (raw value allowed in disclosure/support contexts) | Code identifiers everywhere; work-item/export correlation payloads | Manual review; see inventory class (b) |
 | `commit` (verb), "committed" | **Finalize** / **finalized** | Git contexts; API `POST .../commit`; CLI verb; code identifiers (`PreCommitGovernanceGate`) | **Gap — this is the incomplete migration.** New literals banned via `internal-concept-leakage-vocabulary.test.ts` (2026-08-03); backfill tracked in the inventory below |
 | golden manifest / committed manifest | **Signed review record** (artifact) / **Architecture package** (whole) | Code identifiers (`GoldenManifest`, `IManifestHashService`), engineering docs | `GoldenManifestExportMenu.test.ts` (no buyer-visible literals); `help-product-language.ts` regex rewrite; `review-terminology-copy.test.ts`; `customer-glossary-manifest.ts` deprecated aliases |
@@ -38,7 +39,7 @@ Classes: **(a)** buyer-visible leak — fix; **(b)** operator/support surface �
 
 ### Class (a) checklist — commit→finalize
 
-Status values: **done** (fixed 2026-08-03) · **open** (follow-up) · **blocked** (file dirty/untracked in user working tree at session start).
+Status values: **done** (fixed 2026-08-03) Â· **open** (follow-up) Â· **blocked** (file dirty/untracked in user working tree at session start).
 
 | File | Hits | Status |
 |---|---|---|

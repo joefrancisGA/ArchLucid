@@ -20,6 +20,7 @@ namespace ArchLucid.Api.Controllers.Governance;
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
+[Route("v{version:apiVersion}/governance/pre-finalize")]
 [Route("v{version:apiVersion}/governance/pre-commit")]
 [EnableRateLimiting("fixed")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]

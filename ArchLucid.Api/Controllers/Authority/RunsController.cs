@@ -476,10 +476,9 @@ public sealed partial class RunsController(
     /// </summary>
     /// <returns><see cref="ExecuteRunResponse" /> with agent results.</returns>
     /// <remarks>
-    ///     Canonical route: <c>POST v1/architecture/run/{runId}/execute</c>. The deprecated <c>POST /v1/runs/{runId}/submit</c>
-    ///     alias (TB-305 / ADR 0042) was retired once the coordinator strangler migration closed pre-release.
+    ///     Canonical route: <c>POST v1/architecture/review/{runId}/execute</c> (ADR 0064).
     /// </remarks>
-    [HttpPost("run/{runId}/execute")]
+    [HttpPost("review/{runId}/execute")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(ExecuteRunResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -550,7 +549,7 @@ public sealed partial class RunsController(
     ///     invalidating Critic when upstream inputs change.
     /// </summary>
     // idempotency-posture: explicit-idempotency-key
-    [HttpPost("run/{runId}/execute/selective")]
+    [HttpPost("review/{runId}/execute/selective")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(ExecuteRunResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -632,12 +631,10 @@ public sealed partial class RunsController(
     ///     <paramref name="runId" />.
     /// </summary>
     /// <remarks>
-    ///     Canonical route: <c>POST v1/architecture/run/{runId}/commit</c>. The deprecated
-    ///     <c>POST /v1/runs/{runId}/manifest/finalize</c> alias (TB-305 / ADR 0042) was retired once the coordinator
-    ///     strangler migration closed pre-release.
+    ///     Canonical route: <c>POST v1/architecture/review/{runId}/finalize</c> (ADR 0064; former path ended in <c>/commit</c>).
     /// </remarks>
     // idempotency-posture: explicit-idempotency-key
-    [HttpPost("run/{runId}/commit")]
+    [HttpPost("review/{runId}/finalize")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [Authorize(Policy = ArchLucidPolicies.CanCommitRuns)]
     [ProducesResponseType(typeof(CommitRunResponse), StatusCodes.Status200OK)]
@@ -787,7 +784,7 @@ public sealed partial class RunsController(
     /// <summary>
     ///     Re-executes agents for <paramref name="runId" /> from cloned tasks/evidence, optionally committing a replay manifest.
     /// </summary>
-    [HttpPost("run/{runId}/replay")]
+    [HttpPost("review/{runId}/replay")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(ReplayRunResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -875,7 +872,7 @@ public sealed partial class RunsController(
     ///     Pins or unpins <paramref name="runId" /> for workspace curation. When the body omits
     ///     <see cref="PinRunRequest.IsPinned" />, toggles the current stored value.
     /// </summary>
-    [HttpPatch("run/{runId}/pin")]
+    [HttpPatch("review/{runId}/pin")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(PinRunResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -939,7 +936,7 @@ public sealed partial class RunsController(
     ///     committed one, so it can never bypass the commit orchestrator.
     /// </remarks>
     [IdempotencyFilter]
-    [HttpPost("run/{runId}/result")]
+    [HttpPost("review/{runId}/result")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(SubmitAgentResultResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

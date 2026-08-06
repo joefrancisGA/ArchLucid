@@ -32,6 +32,7 @@ namespace ArchLucid.Api.Controllers.Planning;
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
+[Route("v{version:apiVersion}/evidence-graph")]
 [Route("v{version:apiVersion}/graph")]
 [EnableRateLimiting("fixed")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
@@ -46,6 +47,7 @@ public sealed class GraphController(
     ///     Returns a <see cref="GraphViewModel" /> for <paramref name="runId" /> when a graph snapshot exists in the caller’s
     ///     scope.
     /// </summary>
+    [HttpGet("reviews/{runId:guid}")]
     [HttpGet("runs/{runId:guid}")]
     [ProducesResponseType(typeof(GraphViewModel), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -67,7 +69,7 @@ public sealed class GraphController(
         {
             return this.PayloadTooLargeProblem(
                 $"This graph has {detail.GraphSnapshot.Nodes.Count} nodes; the full-graph endpoint allows at most "
-                + $"{limits.FullGraphResponseMaxNodes}. Use GET /v1/graph/runs/{runId}/nodes with page and pageSize "
+                + $"{limits.FullGraphResponseMaxNodes}. Use GET /v1/evidence-graph/reviews/{runId}/nodes with page and pageSize "
                 + $"(maximum page size {PaginationDefaults.MaxPageSize}).",
                 ProblemTypes.GraphTooLargeForFullResponse);
         }
@@ -79,6 +81,7 @@ public sealed class GraphController(
     /// <summary>
     ///     Returns a page of graph nodes (stable snapshot order) and edges whose endpoints both appear on that page.
     /// </summary>
+    [HttpGet("reviews/{runId:guid}/nodes")]
     [HttpGet("runs/{runId:guid}/nodes")]
     [ProducesResponseType(typeof(GraphNodesPageResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

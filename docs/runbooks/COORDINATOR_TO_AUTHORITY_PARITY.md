@@ -1,4 +1,4 @@
-> **Scope:** Coordinator vs Authority pipeline parity evidence (ADR 0021).
+﻿> **Scope:** Coordinator vs Authority pipeline parity evidence (ADR 0021).
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -22,7 +22,7 @@
 |--------|--------|-------|
 | p95 / p99 API latency (`POST /v1/architecture/request`, `POST …/execute`, `POST …/commit`) | Application Insights or Grafana | Split by pipeline discriminator in logs where available. |
 | Audit row ingest rate | `dbo.AuditEvents` count / hour | Expect temporary uplift during Phase 2 dual-write. |
-| Replay parity | `POST /v1/architecture/run/{id}/replay` verify mode | Record 422 drift payloads when mismatched. |
+| Replay parity | `POST /v1/architecture/review/{id}/replay` verify mode | Record 422 drift payloads when mismatched. |
 
 ## Template (fill per window)
 
@@ -79,7 +79,7 @@ Mechanical counts from `dbo.AuditEvents` (last 24h window): **legacy coordinator
 The **code-level** dual pipeline is fully retired. Beyond the data/orchestrator deletion (ADR 0030 PR A3/A4), the HTTP run-lifecycle **write surface** is now collapsed onto the canonical `v1/architecture/*` family:
 
 - `v1/requests`, `v1/runs/{runId}/submit`, `v1/runs/{runId}/manifest/finalize` are **deprecated-but-routable** aliases that share a single MVC action with their canonical counterparts, so idempotency keys and audit events are identical regardless of verb. `RunAliasDeprecationMiddleware` emits `Deprecation` + `Link; rel="successor-version"` headers on alias responses.
-- `POST v1/architecture/run/{runId}/result` is constrained to append-only-to-in-progress (`RunStateTransitionService.ValidateResultSubmissionAllowed`) — it cannot finalize a run or bypass the commit orchestrator.
+- `POST v1/architecture/review/{runId}/result` is constrained to append-only-to-in-progress (`RunStateTransitionService.ValidateResultSubmissionAllowed`) — it cannot finalize a run or bypass the commit orchestrator.
 - `CanonicalRunWriteSurfaceArchitectureTests` fails the build if a new dual-write verb appears without an ADR-cited `RunWriteLifecycleRoutes` entry.
 
 This closed the **code-level** half of ADR 0021 on 2026-06-06; the remaining gate **(iv)** item (14 contiguous zero-coordinator-write days) is now **resolved (TB-919, 2026-07-20)** — see below.

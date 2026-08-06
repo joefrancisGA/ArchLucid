@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -33,7 +33,7 @@ public sealed class ForensicsTracePartitionIntegrationTests(ForensicsTracePartit
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(readerClient);
 
         HttpResponseMessage tracesResponse =
-            await readerClient.GetAsync($"/v1/architecture/run/{runId}/traces");
+            await readerClient.GetAsync($"/v1/architecture/review/{runId}/traces");
 
         tracesResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -61,11 +61,11 @@ public sealed class ForensicsTracePartitionIntegrationTests(ForensicsTracePartit
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(readerClient);
 
         HttpResponseMessage toolForensics =
-            await readerClient.GetAsync($"/v1/architecture/run/{runId}/tool-invocation-forensics");
+            await readerClient.GetAsync($"/v1/architecture/review/{runId}/tool-invocation-forensics");
         toolForensics.StatusCode.Should().Be(HttpStatusCode.Forbidden);
 
         HttpResponseMessage internalForensics =
-            await readerClient.GetAsync($"/v1/internal/architecture/run/{runId}/traces/forensics");
+            await readerClient.GetAsync($"/v1/internal/architecture/review/{runId}/traces/forensics");
         internalForensics.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
@@ -82,7 +82,7 @@ public sealed class ForensicsTracePartitionIntegrationTests(ForensicsTracePartit
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(operatorClient);
 
         HttpResponseMessage response =
-            await operatorClient.GetAsync($"/v1/internal/architecture/run/{runId}/traces/forensics");
+            await operatorClient.GetAsync($"/v1/internal/architecture/review/{runId}/traces/forensics");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 

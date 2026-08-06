@@ -1,4 +1,4 @@
-> **Scope:** Buyer — ArchLucid — Product Packaging Reference - full detail, tables, and links in the sections below.
+﻿> **Scope:** Buyer — ArchLucid — Product Packaging Reference - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -9,7 +9,7 @@
 
 **Status:** V1 capability inventory. This document describes what is **implemented and supportable today** — not a roadmap.
 
-**Related:** [V1_SCOPE.md](V1_SCOPE.md) (engineering scope contract) · [CORE_PILOT.md](../CORE_PILOT.md) (Core Pilot checklist — four steps) · [PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md) (how to measure pilot success) · [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) (which layer to use next) · [EXECUTIVE_SPONSOR_BRIEF.md](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md) (sponsor-ready summary) · [FUTURE_PACKAGING_ENFORCEMENT.md](FUTURE_PACKAGING_ENFORCEMENT.md) (future packaging map) · [operator-shell.md](operator-shell.md) (UI reference) · [archlucid-ui/README.md](../../archlucid-ui/README.md#role-aware-shaping-first-wave) (implemented role-aware shaping)
+**Related:** [V1_SCOPE.md](V1_SCOPE.md) (engineering scope contract) Â· [CORE_PILOT.md](../CORE_PILOT.md) (Core Pilot checklist — four steps) Â· [PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md) (how to measure pilot success) Â· [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) (which layer to use next) Â· [EXECUTIVE_SPONSOR_BRIEF.md](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md) (sponsor-ready summary) Â· [FUTURE_PACKAGING_ENFORCEMENT.md](FUTURE_PACKAGING_ENFORCEMENT.md) (future packaging map) Â· [operator-shell.md](operator-shell.md) (UI reference) Â· [archlucid-ui/README.md](../../archlucid-ui/README.md#role-aware-shaping-first-wave) (implemented role-aware shaping)
 
 ---
 
@@ -63,8 +63,8 @@ This section names and sequences layers for buyers. **Sponsor-level narrative** 
 The architect workspace uses **progressive disclosure** so users do not see the full product surface by default.
 
 - **Pilot** links are visible by default.
-- **Operate · analysis** (`operate-analysis`) appears after **Show more links**.
-- **Operate · governance** (`operate-governance`) surfaces deepen after extended or advanced disclosure.
+- **Operate Â· analysis** (`operate-analysis`) appears after **Show more links**.
+- **Operate Â· governance** (`operate-governance`) surfaces deepen after extended or advanced disclosure.
 
 - Progressive disclosure tiers and **Show all features** in the sidebar control link breadth while keeping tier / authority seams authoritative.
 
@@ -76,7 +76,7 @@ Some capabilities are better suited to architect/Admin roles, especially in **Op
 
 That means some surfaces are shaped not just by navigation tier but also by who should reasonably use them in a real environment.
 
-**Implemented in the architect workspace (first wave):** `archlucid-ui` composes **tier** (`nav-tier` / progressive disclosure) with per-link **`requiredAuthority`** on **Operate** nav groups in `nav-config.ts`, resolved from **`GET /api/auth/me`** via `current-principal.ts` and `nav-shell-visibility.ts` (see `archlucid-ui/README.md` § *Role-aware shaping*). **Pilot** essentials omit `requiredAuthority` so the default path stays visible; extended Pilot links (graph, compare, replay) set Read or Execute to match API policies. Short rank-aware copy appears on key Operate pages (`OperateCapabilityHints.tsx`). This is **operational accountability** in the shell—**not** the entitlement or pricing model in §4.
+**Implemented in the architect workspace (first wave):** `archlucid-ui` composes **tier** (`nav-tier` / progressive disclosure) with per-link **`requiredAuthority`** on **Operate** nav groups in `nav-config.ts`, resolved from **`GET /api/auth/me`** via `current-principal.ts` and `nav-shell-visibility.ts` (see `archlucid-ui/README.md` Â§ *Role-aware shaping*). **Pilot** essentials omit `requiredAuthority` so the default path stays visible; extended Pilot links (graph, compare, replay) set Read or Execute to match API policies. Short rank-aware copy appears on key Operate pages (`OperateCapabilityHints.tsx`). This is **operational accountability** in the shell—**not** the entitlement or pricing model in Â§4.
 
 **Cognitive framing (V1):** **Operate** routes pair **LayerHeader** (`layer-guidance.ts`) with **short page leads**—often **inspect vs configure** language and first-pilot deferral—so read-heavy summaries are not visually equal to mutation forms. See `archlucid-ui/README.md` (*In-product guidance*).
 
@@ -87,16 +87,16 @@ Keep **docs**, **`nav-config.ts`**, and **controller policies** aligned when rou
 | Buyer layer | `NAV_GROUPS[].id` (`archlucid-ui/src/lib/nav-config.ts`) | Primary modules |
 |-------------|----------------------------------------------------------|-----------------|
 | **Pilot** | `pilot` | `nav-tier.ts`; `requiredAuthority` **omitted** only on essentials; extended links set Read/Execute to match API |
-| **Operate · analysis** | `operate-analysis` | Every link sets `requiredAuthority`; composed by `filterNavLinksForOperatorShell` (`nav-shell-visibility.ts`) |
-| **Operate · governance** | `operate-governance` | Every link sets `requiredAuthority`; rank from `current-principal.ts`; **Execute-tier** in-page mutations use `operate-capability.ts` / `useOperateCapability()` |
+| **Operate Â· analysis** | `operate-analysis` | Every link sets `requiredAuthority`; composed by `filterNavLinksForOperatorShell` (`nav-shell-visibility.ts`) |
+| **Operate Â· governance** | `operate-governance` | Every link sets `requiredAuthority`; rank from `current-principal.ts`; **Execute-tier** in-page mutations use `operate-capability.ts` / `useOperateCapability()` |
 
-**Read vs Execute in the UI (numeric):** `AUTHORITY_RANK.ExecuteAuthority` (value **2**) is the shared threshold — **`callerRank < 2`** ⇒ **read tier** (nav may still show `ReadAuthority` destinations; **`useOperateCapability()`** is **false**). **`callerRank >= 2`** ⇒ **Execute+** for mutation soft-enable and operator-oriented rank cues. Example: **`/governance`** is **`ExecuteAuthority`** in `nav-config.ts` so Readers do not see it in nav; the API remains authoritative if they deep-link (nav shaping never implies POST success).
+**Read vs Execute in the UI (numeric):** `AUTHORITY_RANK.ExecuteAuthority` (value **2**) is the shared threshold — **`callerRank < 2`** â‡’ **read tier** (nav may still show `ReadAuthority` destinations; **`useOperateCapability()`** is **false**). **`callerRank >= 2`** â‡’ **Execute+** for mutation soft-enable and operator-oriented rank cues. Example: **`/governance`** is **`ExecuteAuthority`** in `nav-config.ts` so Readers do not see it in nav; the API remains authoritative if they deep-link (nav shaping never implies POST success).
 
 #### Two UI shaping surfaces (do not merge)
 
 Contributors sometimes collapse **visibility** and **capability**; in code they stay **two** boundaries. All are **UI shaping only — API authoritative** (`401`/`403` from **ArchLucid.Api** still win on deep links and POSTs).
 
-1. **Visibility** — `nav-config.ts` (`tier`, `requiredAuthority`) + **`nav-shell-visibility.ts`** (**tier → authority**, empty groups dropped) + **`useNavSurface().layerGuidance`** / **`LayerHeader`** (when to use; **`enterpriseFootnote`** marks **Operate · governance** rows for typography; **Execute+** rank cue on **`LayerHeader`** only when **`callerAuthorityRank >= ExecuteAuthority`**). Never soft-disables POST controls by itself.
+1. **Visibility** — `nav-config.ts` (`tier`, `requiredAuthority`) + **`nav-shell-visibility.ts`** (**tier → authority**, empty groups dropped) + **`useNavSurface().layerGuidance`** / **`LayerHeader`** (when to use; **`enterpriseFootnote`** marks **Operate Â· governance** rows for typography; **Execute+** rank cue on **`LayerHeader`** only when **`callerAuthorityRank >= ExecuteAuthority`**). Never soft-disables POST controls by itself.
 2. **Capability** — **`useOperateCapability()`** / **`operate-capability.ts`** (Execute+ numeric floor) + **`OperateCapabilityHints.tsx`** (inline rank / reader hints). Align with C# policies for the same buttons; **`true`** does not imply HTTP success. **`operate-authority-ui-shaping.test.tsx`** locks representative pages (**`disabled`** / **`readOnly`**).
 
 Shell composition order: **tier first, then authority** (`filterNavLinksForOperatorShell`). **Hardening sequence:** [COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md](COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md) Stage 1 describes what shipped without entitlements.
@@ -117,7 +117,7 @@ const navHint = surface.contextHints.enterpriseNavGroupHint;
 
 The composed hook is **UI shaping only** — `mutationCapability === true` does not imply HTTP success; `[Authorize(Policy = …)]` on **ArchLucid.Api** still returns 401/403.
 
-**Cross-surface lock:** `archlucid-ui/src/lib/authority-seam-regression.test.ts` asserts **`operateCapabilityFromRank(rank)`** matches **`ExecuteAuthority`** link visibility for ranks **0–3**, Auditors filter **Operate · governance** nav like Reader rank, and **`normalizeAuthMeResponse`** stays aligned with **`maxAuthorityRankFromMeClaims`**. **`archlucid-ui/src/lib/authority-execute-floor-regression.test.ts`** is a **narrower** guard on the same **Execute floor**: a synthetic **`ExecuteAuthority`** nav row’s visibility must equal the mutation boolean at every representative rank; **`archlucid-ui/src/lib/authority-shaped-ui-regression.test.ts`** walks **every** real **`nav-config`** **`ExecuteAuthority`** row at Read vs Execute rank (catches new catalog links without updating tests). **`operate-governance`** filtered link counts stay monotonic Read→Execute→Admin; Reader-filtered **Operate · governance** links include **`/alerts`** but not **`/governance`** (packaging ↔ **`nav-config`**). The same file locks **caller rank `0` vs `ReadAuthority`** nav (conservative bootstrap), **`/alerts`** on **`essential`** tier (default governance inbox strip), **stable ordering** after authority filters / in **`listNavGroupsVisibleInOperatorShell`** (sidebar composition), **`LAYER_PAGE_GUIDANCE`** rows with **`enterpriseFootnote`** (non-empty **`useWhen`**, **`firstPilotNote`**, footnote) vs **Operate · analysis** rows (**no** **`enterpriseFootnote`** — keeps **`LayerHeader`** rank-cue detection aligned with `layer-guidance`), **Operate** href **monotonicity** Read→Execute→Admin under **`filterNavLinksByAuthority`**, default Reader shell **Operate · analysis** = **`/ask`** only (tier-before-authority), and **`/governance`** only when **extended and advanced** are on for **Execute** rank. **`nav-shell-visibility.test.ts`** locks **tier → authority** order (Execute rank does not reveal **extended** Operate hrefs without disclosure toggles; **Pilot** extended **Execute** link **`/replay`** stays behind **Show more** at any rank). **`current-principal.test.ts`** locks **`hasEnterpriseOperatorSurfaces`** and **`maxAuthority`** (via **`requiredAuthorityFromRank(authorityRank)`**) to the same rules as **`nav-authority`**. **`LayerHeader.test.tsx`** requires every **Operate · governance** **`layer-guidance`** key that carries **`enterpriseFootnote`** to render the Execute rank cue and asserts the Operate **`aside`** **`aria-label`** (badge + headline). **`OperateCapabilityHints.authority.test.tsx`** locks rank-gated cues (governance resolution, audit log, **Alerts inbox**, **governance dashboard** reader line, alert tooling) at the **Execute** boundary. **`operate-authority-ui-shaping.test.tsx`** locks **`useOperateCapability()`** → **`disabled`** / **`readOnly`** on representative pages (policy packs **Create**, **Alert rules** **Create rule**, alerts triage **Confirm**, **Governance** submit **`#gov-submit-run`** / **`#gov-submit-version`**, **Governance resolution** **Change related controls** reader supplement vs mutation hook + **Refresh** not gated by mutation). **`nav-config.structure.test.ts`** locks packaging-shaped **nav-config** invariants (duplicate **`href`**s; **Pilot** essentials omit **`requiredAuthority`**; **`ExecuteAuthority`** links not on **`essential`** tier in **`operate-analysis`** and **`operate-governance`** groups).
+**Cross-surface lock:** `archlucid-ui/src/lib/authority-seam-regression.test.ts` asserts **`operateCapabilityFromRank(rank)`** matches **`ExecuteAuthority`** link visibility for ranks **0–3**, Auditors filter **Operate Â· governance** nav like Reader rank, and **`normalizeAuthMeResponse`** stays aligned with **`maxAuthorityRankFromMeClaims`**. **`archlucid-ui/src/lib/authority-execute-floor-regression.test.ts`** is a **narrower** guard on the same **Execute floor**: a synthetic **`ExecuteAuthority`** nav row’s visibility must equal the mutation boolean at every representative rank; **`archlucid-ui/src/lib/authority-shaped-ui-regression.test.ts`** walks **every** real **`nav-config`** **`ExecuteAuthority`** row at Read vs Execute rank (catches new catalog links without updating tests). **`operate-governance`** filtered link counts stay monotonic Read→Execute→Admin; Reader-filtered **Operate Â· governance** links include **`/alerts`** but not **`/governance`** (packaging ↔ **`nav-config`**). The same file locks **caller rank `0` vs `ReadAuthority`** nav (conservative bootstrap), **`/alerts`** on **`essential`** tier (default governance inbox strip), **stable ordering** after authority filters / in **`listNavGroupsVisibleInOperatorShell`** (sidebar composition), **`LAYER_PAGE_GUIDANCE`** rows with **`enterpriseFootnote`** (non-empty **`useWhen`**, **`firstPilotNote`**, footnote) vs **Operate Â· analysis** rows (**no** **`enterpriseFootnote`** — keeps **`LayerHeader`** rank-cue detection aligned with `layer-guidance`), **Operate** href **monotonicity** Read→Execute→Admin under **`filterNavLinksByAuthority`**, default Reader shell **Operate Â· analysis** = **`/ask`** only (tier-before-authority), and **`/governance`** only when **extended and advanced** are on for **Execute** rank. **`nav-shell-visibility.test.ts`** locks **tier → authority** order (Execute rank does not reveal **extended** Operate hrefs without disclosure toggles; **Pilot** extended **Execute** link **`/replay`** stays behind **Show more** at any rank). **`current-principal.test.ts`** locks **`hasEnterpriseOperatorSurfaces`** and **`maxAuthority`** (via **`requiredAuthorityFromRank(authorityRank)`**) to the same rules as **`nav-authority`**. **`LayerHeader.test.tsx`** requires every **Operate Â· governance** **`layer-guidance`** key that carries **`enterpriseFootnote`** to render the Execute rank cue and asserts the Operate **`aside`** **`aria-label`** (badge + headline). **`OperateCapabilityHints.authority.test.tsx`** locks rank-gated cues (governance resolution, audit log, **Alerts inbox**, **governance dashboard** reader line, alert tooling) at the **Execute** boundary. **`operate-authority-ui-shaping.test.tsx`** locks **`useOperateCapability()`** → **`disabled`** / **`readOnly`** on representative pages (policy packs **Create**, **Alert rules** **Create rule**, alerts triage **Confirm**, **Governance** submit **`#gov-submit-run`** / **`#gov-submit-version`**, **Governance resolution** **Change related controls** reader supplement vs mutation hook + **Refresh** not gated by mutation). **`nav-config.structure.test.ts`** locks packaging-shaped **nav-config** invariants (duplicate **`href`**s; **Pilot** essentials omit **`requiredAuthority`**; **`ExecuteAuthority`** links not on **`essential`** tier in **`operate-analysis`** and **`operate-governance`** groups).
 
 #### Contributor drift guard (architect workspace UI — keep packaging, nav, and API aligned)
 
@@ -129,9 +129,9 @@ When you **add or move** an operator route, touch these in order (skip only what
 2. **`archlucid-ui/src/lib/nav-config.ts`** — `tier`, `href`, `requiredAuthority` on the `NavLinkItem` (see file header **Authority** section). Stable **`NAV_GROUPS[].id`** values map to this document’s **Code seams** table above.
 3. **Guidance strip** — for routes that should explain “which layer / when,” add or extend a key in **`archlucid-ui/src/lib/layer-guidance.ts`** and render **`LayerHeader`** on the page (`LayerGuidancePageKey` must match the route family).
 4. **Operate write affordances** — if the page shows POST/toggle UI, keep **`useOperateCapability()`** (Execute+ rank) aligned with the same policies as the buttons (see **`operate-capability.ts`**). If the page also shows rank-gated copy (**`OperateCapabilityHints`** / **`LayerHeader`** rank cue), confirm both **Capability** and **Visibility** seams stay intentional (see **Two UI shaping surfaces** above — e.g. governance resolution). Multi-step forms (e.g. governance workflow inline review) should keep **read-only** fields and reader notes when rank is below Execute so the shell matches nav omission even if UI state is visible. **Inspect-first layout** (e.g. **`flex-col-reverse`** on governance workflow / policy packs when mutation is off, triage deemphasis on alerts) is still **UI only** — extend **`authority-shaped-layout-regression.test.tsx`** when you add parallel column patterns.
-5. **This document** — update capability / navigation rows in § Layer inventories when behavior is buyer-visible.
+5. **This document** — update capability / navigation rows in Â§ Layer inventories when behavior is buyer-visible.
 
-**Light regression tests** (Vitest, not snapshots): `nav-authority.test.ts` (includes Execute-link **`navLinkVisibleForCallerRank`** floor and unrestricted links at conservative rank **0**), `nav-shell-visibility.test.ts` (empty groups; default Reader **Operate · governance** strip = **`/alerts`** only when extended/advanced off; **Execute** caller still tier-limited; authority-only empty group; **Pilot `/replay`** tier gate), `current-principal.test.ts` (`/me` normalization; **`hasEnterpriseOperatorSurfaces`** vs mutation capability; **`maxAuthority`** vs **`requiredAuthorityFromRank`**), `operate-capability.test.ts`, `use-operate-capability.test.tsx`, `LayerHeader.test.tsx` (footnotes + Execute rank cue for every **`enterpriseFootnote`** **`layer-guidance`** key + conservative caller rank **0** + Operate **`aside`** **`aria-label`**), **`authority-seam-regression.test.ts`** (cross-module `/me` rank vs Operate nav vs mutation; Pilot essential hrefs for Reader; **ExecuteAuthority** rows in **`operate-analysis`** + **`operate-governance`** hidden from Read; Auditor vs Reader Operate href parity; **ReadAuthority** at rank **0**; **`/alerts`** **`essential`**; ordering; **`LAYER_PAGE_GUIDANCE`** footnote vs non-footnote rows), **`authority-execute-floor-regression.test.ts`** (Execute nav row **≡** mutation boolean; **`operate-governance`** monotonicity; Reader **`/governance`** omission), **`authority-shaped-ui-regression.test.ts`** (every **`NAV_GROUPS`** **`ExecuteAuthority`** link off at Read / on at Execute; mutation floor monotonicity **0–3**; empty-claims **`/me`** rank; shell bootstrap principals vs mutation flag), **`OperatorNavAuthorityProvider.test.tsx`** (JWT signed-in: **`useNavCallerAuthorityRank`** stays Read while `/me` refetches after rank had reached Execute; `/me` failure → Read), **`EnterpriseControlsReadRankHints.test.tsx`**, **`OperateCapabilityHints.authority.test.tsx`** (rank-gated `EnterpriseControlsExecutePageHint`, `EnterpriseExecutePlusPageCue`, nav group, alert tooling, **governance resolution**, **audit log**, **Alerts inbox**, **governance dashboard** reader cue), **`operate-authority-ui-shaping.test.tsx`** (**`useOperateCapability`** → Policy packs / **Alert rules** / Alerts / **Governance** submit field wiring), **`authority-shaped-layout-regression.test.tsx`** (inspect-first **`flex-col-reverse`**, alerts triage deemphasis, alert-routing inspect-before-toggle — **UI hierarchy**, not copy), **`nav-config.structure.test.ts`** (href dedupe; **Pilot** essentials omit **`requiredAuthority`**; **ExecuteAuthority** **`operate-analysis`** + **`operate-governance`** links not on **essential** tier), **`src/lib/deprecation-shims.test.ts`** (**`@deprecated`** TSDoc on public shims) — extend when you change rank, filtering, or page-level mutation gates.
+**Light regression tests** (Vitest, not snapshots): `nav-authority.test.ts` (includes Execute-link **`navLinkVisibleForCallerRank`** floor and unrestricted links at conservative rank **0**), `nav-shell-visibility.test.ts` (empty groups; default Reader **Operate Â· governance** strip = **`/alerts`** only when extended/advanced off; **Execute** caller still tier-limited; authority-only empty group; **Pilot `/replay`** tier gate), `current-principal.test.ts` (`/me` normalization; **`hasEnterpriseOperatorSurfaces`** vs mutation capability; **`maxAuthority`** vs **`requiredAuthorityFromRank`**), `operate-capability.test.ts`, `use-operate-capability.test.tsx`, `LayerHeader.test.tsx` (footnotes + Execute rank cue for every **`enterpriseFootnote`** **`layer-guidance`** key + conservative caller rank **0** + Operate **`aside`** **`aria-label`**), **`authority-seam-regression.test.ts`** (cross-module `/me` rank vs Operate nav vs mutation; Pilot essential hrefs for Reader; **ExecuteAuthority** rows in **`operate-analysis`** + **`operate-governance`** hidden from Read; Auditor vs Reader Operate href parity; **ReadAuthority** at rank **0**; **`/alerts`** **`essential`**; ordering; **`LAYER_PAGE_GUIDANCE`** footnote vs non-footnote rows), **`authority-execute-floor-regression.test.ts`** (Execute nav row **â‰¡** mutation boolean; **`operate-governance`** monotonicity; Reader **`/governance`** omission), **`authority-shaped-ui-regression.test.ts`** (every **`NAV_GROUPS`** **`ExecuteAuthority`** link off at Read / on at Execute; mutation floor monotonicity **0–3**; empty-claims **`/me`** rank; shell bootstrap principals vs mutation flag), **`OperatorNavAuthorityProvider.test.tsx`** (JWT signed-in: **`useNavCallerAuthorityRank`** stays Read while `/me` refetches after rank had reached Execute; `/me` failure → Read), **`EnterpriseControlsReadRankHints.test.tsx`**, **`OperateCapabilityHints.authority.test.tsx`** (rank-gated `EnterpriseControlsExecutePageHint`, `EnterpriseExecutePlusPageCue`, nav group, alert tooling, **governance resolution**, **audit log**, **Alerts inbox**, **governance dashboard** reader cue), **`operate-authority-ui-shaping.test.tsx`** (**`useOperateCapability`** → Policy packs / **Alert rules** / Alerts / **Governance** submit field wiring), **`authority-shaped-layout-regression.test.tsx`** (inspect-first **`flex-col-reverse`**, alerts triage deemphasis, alert-routing inspect-before-toggle — **UI hierarchy**, not copy), **`nav-config.structure.test.ts`** (href dedupe; **Pilot** essentials omit **`requiredAuthority`**; **ExecuteAuthority** **`operate-analysis`** + **`operate-governance`** links not on **essential** tier), **`src/lib/deprecation-shims.test.ts`** (**`@deprecated`** TSDoc on public shims) — extend when you change rank, filtering, or page-level mutation gates.
 
 This is the operational-usage model.
 
@@ -178,8 +178,8 @@ Every pilot starts here. The architect workspace presents this layer by default 
 |------------|-------------|------------|-------------|
 | Public demo commit page (read-only) | `GET /v1/demo/preview` | Marketing `/demo/preview` | — |
 | Create architecture request | `POST /v1/architecture/request` | New **review** wizard (7-step; legacy label **New run**) | `archlucid run create` |
-| Execute run (**legacy coordinator** — not required when authority pipeline already committed on SQL) | `POST /v1/architecture/run/{runId}/execute` | Pipeline timeline (auto-poll) | `archlucid run execute` — see [API_CONTRACTS.md](API_CONTRACTS.md) § authority vs coordinator |
-| Finalize architecture package | `POST /v1/architecture/run/{runId}/commit` | **Finalize** on review detail (API/CLI `commit`) | `archlucid run commit` |
+| Execute run (**legacy coordinator** — not required when authority pipeline already committed on SQL) | `POST /v1/architecture/review/{runId}/execute` | Pipeline timeline (auto-poll) | `archlucid run execute` — see [API_CONTRACTS.md](API_CONTRACTS.md) Â§ authority vs coordinator |
+| Finalize architecture package | `POST /v1/architecture/review/{runId}/finalize` | **Finalize** on review detail (API/CLI `commit`) | `archlucid run commit` |
 | List runs | `GET /v1/architecture/runs` | Runs list (`/runs`) | `archlucid runs list` |
 | Run detail and pipeline timeline | `GET /v1/authority/runs/{runId}/pipeline-timeline` | Run detail page | `archlucid run status` |
 | Manifest summary | `GET /v1/architecture/manifests/{id}` | Manifest summary tab | — |
@@ -189,7 +189,7 @@ Every pilot starts here. The architect workspace presents this layer by default 
 | DOCX architecture package | `GET /v1/docx/runs/{runId}/architecture-package` | Export button on run detail | — |
 | Run-export ZIP | `GET /v1/artifacts/runs/{runId}/export` | Export ZIP button | — |
 | Cross-run executive ROI summary | `GET /v1/roi/executive-summary` | Home dashboard (`ExecutiveRoiSummarySection`) | — |
-| Per-run ROI scorecard | `GET /v1/architecture/run/{runId}/roi` | Run detail (when surfaced) | — |
+| Per-run ROI scorecard | `GET /v1/architecture/review/{runId}/roi` | Run detail (when surfaced) | — |
 | Pilot scorecard (tenant window) | `GET /v1/pilots/outcome-summary`, `POST /v1/pilots/scorecard` | Pilot flows / exports | — |
 | Health and readiness | `GET /health/live`, `/health/ready`, `/health` | — | `archlucid doctor` |
 | Version identity | `GET /version` | — | `archlucid doctor` |
@@ -202,7 +202,7 @@ Every pilot starts here. The architect workspace presents this layer by default 
 
 Sidebar group label: **Pilot** (`pilot` — always visible — no disclosure toggle required).
 
-Default links in the **Pilot** sidebar group: Home · Onboarding · **New review** · Runs (legacy nav may still say **New run**). The **Alerts** inbox lives under **Operate · governance** (`operate-governance`; same tier/authority rules as other governance links).
+Default links in the **Pilot** sidebar group: Home Â· Onboarding Â· **New review** Â· Runs (legacy nav may still say **New run**). The **Alerts** inbox lives under **Operate Â· governance** (`operate-governance`; same tier/authority rules as other governance links).
 
 ### How to judge success
 
@@ -224,7 +224,7 @@ Packaged operator sequences that map **request → evidence → policy packs →
 | AI governance | [walkthroughs/AI_GOVERNANCE_REVIEW.md#buyer-job-packaging](walkthroughs/AI_GOVERNANCE_REVIEW.md#buyer-job-packaging) (`buyer-jobs/AI_GOVERNANCE_REVIEW.md` alias) | [walkthroughs/AI_GOVERNANCE_REVIEW.md](walkthroughs/AI_GOVERNANCE_REVIEW.md) | “Can we show Responsible AI governance on a real architecture package?” |
 | Healthcare claims (demo) | [walkthroughs/POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md#buyer-job-packaging](walkthroughs/POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md#buyer-job-packaging) (`buyer-jobs/` alias) | [walkthroughs/POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md](walkthroughs/POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md) | “How does PHI-minimization policy land on findings before commit?” |
 
-**First-pilot spine (all accelerators):** [../runbooks/FIRST_PILOT_OPERATOR_PATH.md](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) · **Accelerator index:** [walkthroughs/README.md](walkthroughs/README.md) · **Integration boundaries:** [../go-to-market/INTEGRATION_CATALOG.md](../go-to-market/INTEGRATION_CATALOG.md).
+**First-pilot spine (all accelerators):** [../runbooks/FIRST_PILOT_OPERATOR_PATH.md](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) Â· **Accelerator index:** [walkthroughs/README.md](walkthroughs/README.md) Â· **Integration boundaries:** [../go-to-market/INTEGRATION_CATALOG.md](../go-to-market/INTEGRATION_CATALOG.md).
 
 ### Extensibility (advanced integrators — not required for Pilot)
 
@@ -234,7 +234,7 @@ V1 supports **in-repo** custom agent handlers and **out-of-process** webhook han
 |---------|-----|-------|
 | Register `IAgentHandler` in host | [CUSTOM_AGENT_HANDLER_GUIDE.md](CUSTOM_AGENT_HANDLER_GUIDE.md) | Prerequisites, DI registration, safety posture, tests, non-goals |
 | Isolated HTTPS `AgentResult` service | [CUSTOM_AGENT_HANDLERS.md](CUSTOM_AGENT_HANDLERS.md) | Out-of-process contract; no in-host DLL drop-in |
-| V1 scope boundary | [V1_SCOPE.md](V1_SCOPE.md) §2.18 | Engineering contract — not a buyer Pilot requirement |
+| V1 scope boundary | [V1_SCOPE.md](V1_SCOPE.md) Â§2.18 | Engineering contract — not a buyer Pilot requirement |
 | Integration boundaries (V1 vs V1.1) | [INTEGRATION_CATALOG.md](../go-to-market/INTEGRATION_CATALOG.md) | Connectors vs handler extension |
 
 ---
@@ -277,9 +277,9 @@ Available immediately after a first finalized architecture package. Enabled by c
 
 Sidebar group label: **Operate** — analysis (`operate-analysis`; visible after **Show more links**).
 
-Extended-tier links: Graph · Compare two reviews · Replay · Advisory · Recommendation learning · Pilot feedback.
+Extended-tier links: Graph Â· Compare two reviews Â· Replay Â· Advisory Â· Recommendation learning Â· Pilot feedback.
 
-Advanced-tier links: Search · Planning · Evolution candidates · Schedules · Digests · Subscriptions.
+Advanced-tier links: Search Â· Planning Â· Evolution candidates Â· Schedules Â· Digests Â· Subscriptions.
 
 ---
 
@@ -296,7 +296,7 @@ Available immediately but requiring extended/advanced sidebar disclosure and typ
 | Capability | API surface | UI surface | Config key |
 |------------|-------------|------------|------------|
 | Governance approval workflow | `POST /v1/governance/approvals` | Governance workflow (`/governance`) | Migration `017_GovernanceWorkflow.sql` |
-| Pre-commit governance gate | Checked on `POST /v1/architecture/run/{runId}/commit` | Pre-commit block message on run detail | `ArchLucid:Governance:PreCommitGateEnabled` |
+| Pre-commit governance gate | Checked on `POST /v1/architecture/review/{runId}/finalize` | Pre-commit block message on run detail | `ArchLucid:Governance:PreCommitGateEnabled` |
 | Cross-run governance dashboard | `GET /v1/governance/dashboard` | Dashboard (`/governance/dashboard`) | — |
 | Governance resolution (effective policy) | `GET /v1/governance/resolution` | Governance resolution (`/governance-resolution`) | — |
 | Policy packs (versioned rule sets) | `POST /v1/policy-packs` | Policy packs (`/policy-packs`) | — |
@@ -324,9 +324,9 @@ Sidebar group label: **Operate** — governance (`operate-governance`; partially
 
 Essential-tier links: Alerts (inbox).
 
-Extended-tier links: Policy packs · Governance resolution · Governance dashboard.
+Extended-tier links: Policy packs Â· Governance resolution Â· Governance dashboard.
 
-Advanced-tier links: Alert rules · Alert routing · Composite rules · Alert simulation · Alert tuning · Governance workflow · Audit log · Value report.
+Advanced-tier links: Alert rules Â· Alert routing Â· Composite rules Â· Alert simulation Â· Alert tuning Â· Governance workflow Â· Audit log Â· Value report.
 
 ---
 
@@ -335,8 +335,8 @@ Advanced-tier links: Alert rules · Alert routing · Composite rules · Alert si
 | Sidebar state | What you see |
 |--------------|-------------|
 | **Default** (no toggles) | Pilot links + Alerts inbox + Ask |
-| **Show more links** | + Graph · Compare · Replay · Advisory · Recommendation learning · Pilot feedback · Policy packs · Governance resolution · Governance dashboard |
-| **Show more + Show advanced links** | + Search · Planning · Evolution candidates · Schedules · Digests · Alert rules · Routing · Composite rules · Simulation · Tuning · Governance workflow · Audit log · Value report |
+| **Show more links** | + Graph Â· Compare Â· Replay Â· Advisory Â· Recommendation learning Â· Pilot feedback Â· Policy packs Â· Governance resolution Â· Governance dashboard |
+| **Show more + Show advanced links** | + Search Â· Planning Â· Evolution candidates Â· Schedules Â· Digests Â· Alert rules Â· Routing Â· Composite rules Â· Simulation Â· Tuning Â· Governance workflow Â· Audit log Â· Value report |
 
 The architect workspace also adds **lightweight in-product hints** (sidebar captions under each group, a `LayerHeader` strip on key **Operate** routes, a post-checklist nudge on Home, and an optional post-finalize strip on review detail) so architects can route by layer without re-reading this doc. See [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) for the full decision matrix.
 
@@ -392,7 +392,7 @@ The current layer model is therefore a **foundation for future commercialization
 When capability assignments change between layers, update:
 
 1. This file (`PRODUCT_PACKAGING.md`) — the canonical inventory.
-2. `docs/V1_SCOPE.md` §2 — engineering scope.
+2. `docs/V1_SCOPE.md` Â§2 — engineering scope.
 3. `archlucid-ui/src/lib/nav-config.ts` — tier assignments in the sidebar.
 4. `docs/operator-shell.md` — operator workflow narrative.
 5. `README.md` and `archlucid-ui/README.md` — entry-point layer tables.

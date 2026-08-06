@@ -253,6 +253,15 @@ describe("contextual-help-registry (TB-733)", () => {
     );
   });
 
+  it("resolves AI and model governance Category-1 help (AMO)", () => {
+    expect(contextualHelpForPathname("/administration/model-governance")?.whatIsThisPage).toContain(
+      "AI and model governance",
+    );
+    expect(contextualHelpForPathname("/administration/model-governance")?.whatToDoNext).toContain(
+      "AI usage",
+    );
+  });
+
   it("resolves approval lineage Category-1 help (GAI)", () => {
     expect(
       contextualHelpForPathname("/governance/approval-requests/e2e-approval-001/lineage")?.whatIsThisPage,

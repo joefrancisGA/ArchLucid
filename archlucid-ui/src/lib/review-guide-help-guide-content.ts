@@ -1,3 +1,4 @@
+import { REVIEWS_NEW_PATH } from "@/lib/architecture-routes";
 import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
@@ -14,7 +15,7 @@ export const REVIEW_GUIDE_HELP_OVERVIEW =
 export const REVIEW_GUIDE_HELP_PRIMARY_ACTIONS = {
   startReview: {
     label: "Start an architecture review",
-    href: "/reviews/new",
+    href: REVIEWS_NEW_PATH,
   },
   firstReviewGuide: {
     label: "Open first review guide",

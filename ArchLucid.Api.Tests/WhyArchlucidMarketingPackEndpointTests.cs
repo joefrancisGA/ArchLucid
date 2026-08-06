@@ -15,7 +15,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     HTTP coverage for <c>GET /v1/marketing/why-archlucid-pack.pdf</c> â€” anonymous, demo-gated PDF bundle for the public
+///     HTTP coverage for <c>GET /v1/marketing/why-archlucid-pack.pdf</c> — anonymous, demo-gated PDF bundle for the public
 ///     <c>/why</c> page.
 /// </summary>
 [Trait("Category", "Integration")]
@@ -113,7 +113,7 @@ public sealed class WhyArchlucidMarketingPackEndpointTests(ArchLucidApiFactory f
             {
                 GeneratedUtc = FixedGeneratedUtc,
                 IsDemoData = true,
-                DemoStatusMessage = "demo tenant â€” replace before publishing",
+                DemoStatusMessage = "demo tenant — replace before publishing",
                 Run =
                     new DemoPreviewRun
                     {

@@ -1,4 +1,4 @@
-/** GET /v1/architecture/run/{runId}/findings/{findingId}/inspect */
+﻿/** GET /v1/architecture/review/{runId}/findings/{findingId}/inspect */
 import type { FindingConfidenceLevel } from "@/types/explanation";
 
 export type FindingInspectEvidence = {

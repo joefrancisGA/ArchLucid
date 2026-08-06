@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
@@ -40,7 +40,7 @@ public sealed class EvidenceBulkUploadIntegrationTests(ArchLucidApiFactory facto
         }
 
         // Act
-        HttpResponseMessage response = await Client.PostAsync($"/v1/architecture/run/{runId}/evidence/bulk", content);
+        HttpResponseMessage response = await Client.PostAsync($"/v1/architecture/review/{runId}/evidence/bulk", content);
 
         // Assert
         string failureBody = await response.Content.ReadAsStringAsync();
@@ -102,7 +102,7 @@ public sealed class EvidenceBulkUploadIntegrationTests(ArchLucidApiFactory facto
         }
 
         // Act
-        HttpResponseMessage response = await Client.PostAsync($"/v1/architecture/run/{runId}/evidence/bulk", content);
+        HttpResponseMessage response = await Client.PostAsync($"/v1/architecture/review/{runId}/evidence/bulk", content);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);

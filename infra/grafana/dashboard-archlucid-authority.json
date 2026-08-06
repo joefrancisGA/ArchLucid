@@ -22,7 +22,7 @@
                                    },
                        "id":  10,
                        "options":  {
-                                       "content":  "## Authority pipeline (meter **ArchLucid**)\n\nStable names match **`docs/library/OBSERVABILITY.md`** (source **`ArchLucidInstrumentation.cs`**).\n\n| Signal | What good looks like | Alert rule |\n|--------|---------------------|-------------|\n| **`archlucid_authority_pipeline_work_pending`** | Well **below 50** for normal load | **`ArchLucidAuthorityPipelineWorkBacklog`**: **`\u003e 50`** for **15m** |\n| **`archlucid_authority_pipeline_work_dead_letter`** | **Zero** (`DeadLetteredUtc` unset) | **`ArchLucidAuthorityPipelineWorkDeadLetters`**: **`\u003e 0`** for **30m** |\n| **`archlucid_authority_pipeline_work_oldest_pending_age_seconds`** | Seconds near zero | **`ArchLucidAuthorityPipelineWorkStale`**: **`\u003e 3600`** for **20m** |\n| **`archlucid_data_consistency_*_total`** | Zero **`rate`** in steady state | **`ArchLucidDataConsistencyOrphansDetected`** / **`ArchLucidDataConsistencyAlertsRaised`** ( **`1h`** windows in **`infra/prometheus/archlucid-alerts.yml`** ) |\n\n**Import:** Grafana â†’ **Dashboards** â†’ **Import** â†’ upload this JSON â†’ bind variable **`${datasource}`** to **Prometheus**. Optional Terraform root: **`infra/terraform-monitoring/grafana_dashboards.tf`**. Runbook **`docs/library/OBSERVABILITY.md#authority-pipeline-remediation-runbook`** (clone).",
+                                       "content":  "## Authority pipeline (meter **ArchLucid**)\n\nStable names match **`docs/library/OBSERVABILITY.md`** (source **`ArchLucidInstrumentation.cs`**).\n\n| Signal | What good looks like | Alert rule |\n|--------|---------------------|-------------|\n| **`archlucid_authority_pipeline_work_pending`** | Well **below 50** for normal load | **`ArchLucidAuthorityPipelineWorkBacklog`**: **`\u003e 50`** for **15m** |\n| **`archlucid_authority_pipeline_work_dead_letter`** | **Zero** (`DeadLetteredUtc` unset) | **`ArchLucidAuthorityPipelineWorkDeadLetters`**: **`\u003e 0`** for **30m** |\n| **`archlucid_authority_pipeline_work_oldest_pending_age_seconds`** | Seconds near zero | **`ArchLucidAuthorityPipelineWorkStale`**: **`\u003e 3600`** for **20m** |\n| **`archlucid_data_consistency_*_total`** | Zero **`rate`** in steady state | **`ArchLucidDataConsistencyOrphansDetected`** / **`ArchLucidDataConsistencyAlertsRaised`** ( **`1h`** windows in **`infra/prometheus/archlucid-alerts.yml`** ) |\n\n**Import:** Grafana → **Dashboards** → **Import** → upload this JSON → bind variable **`${datasource}`** to **Prometheus**. Optional Terraform root: **`infra/terraform-monitoring/grafana_dashboards.tf`**. Runbook **`docs/library/OBSERVABILITY.md#authority-pipeline-remediation-runbook`** (clone).",
                                        "mode":  "markdown"
                                    },
                        "title":  "Meter / alert alignment",
@@ -34,7 +34,7 @@
                                           "type":  "prometheus",
                                           "uid": "${datasource}"
                                       },
-                       "description":  "Histogram **`archlucid_authority_pipeline_stage_duration_ms`** â€” labels **`stage`**, **`outcome`** per **`OBSERVABILITY.md`**. If empty, confirm OTLP histogram export names (`*_bucket`) on scrape.",
+                       "description":  "Histogram **`archlucid_authority_pipeline_stage_duration_ms`** — labels **`stage`**, **`outcome`** per **`OBSERVABILITY.md`**. If empty, confirm OTLP histogram export names (`*_bucket`) on scrape.",
                        "fieldConfig":  {
                                            "defaults":  {
                                                             "decimals":  1,
@@ -242,7 +242,7 @@
                                           "type":  "prometheus",
                                           "uid": "${datasource}"
                                       },
-                       "description":  "Detection-only orphans vs **`ArchLucidDataConsistencyOrphansDetected`**; **`alerts_total`** vs **`ArchLucidDataConsistencyAlertsRaised`**; **`orphans_quarantined_total`** when quarantine mode inserts rows. Alerts use **`1h`** `rate`; panel uses **`5m`** for responsiveness â€” widen if noisy.",
+                       "description":  "Detection-only orphans vs **`ArchLucidDataConsistencyOrphansDetected`**; **`alerts_total`** vs **`ArchLucidDataConsistencyAlertsRaised`**; **`orphans_quarantined_total`** when quarantine mode inserts rows. Alerts use **`1h`** `rate`; panel uses **`5m`** for responsiveness — widen if noisy.",
                        "fieldConfig":  {
                                            "defaults":  {
 
@@ -813,7 +813,7 @@
 
                    },
     "timezone":  "browser",
-    "title":  "ArchLucid â€” Authority pipeline",
+    "title":  "ArchLucid — Authority pipeline",
     "uid":  "archlucid-authority",
     "version":  4,
     "weekStart":  ""

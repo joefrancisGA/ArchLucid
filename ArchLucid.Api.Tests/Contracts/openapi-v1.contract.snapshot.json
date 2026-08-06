@@ -1,4 +1,4 @@
-{
+﻿{
   "components": {
     "schemas": {
       "ActorDescriptor": {
@@ -66268,7 +66268,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/run/compare/agents": {
+    "/v1/architecture/review/compare/agents": {
       "get": {
         "parameters": [
           {
@@ -66484,7 +66484,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/run/compare/agents/summary": {
+    "/v1/architecture/review/compare/agents/summary": {
       "get": {
         "parameters": [
           {
@@ -66700,7 +66700,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/run/compare/end-to-end": {
+    "/v1/architecture/review/compare/end-to-end": {
       "get": {
         "parameters": [
           {
@@ -66916,7 +66916,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/run/compare/end-to-end/export": {
+    "/v1/architecture/review/compare/end-to-end/export": {
       "get": {
         "parameters": [
           {
@@ -67132,7 +67132,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/run/compare/end-to-end/export/docx": {
+    "/v1/architecture/review/compare/end-to-end/export/docx": {
       "get": {
         "parameters": [
           {
@@ -67348,7 +67348,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/run/compare/end-to-end/export/file": {
+    "/v1/architecture/review/compare/end-to-end/export/file": {
       "get": {
         "parameters": [
           {
@@ -67564,7 +67564,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/run/compare/end-to-end/summary": {
+    "/v1/architecture/review/compare/end-to-end/summary": {
       "post": {
         "parameters": [
           {
@@ -67820,7 +67820,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/run/exports/compare": {
+    "/v1/architecture/review/exports/compare": {
       "get": {
         "parameters": [
           {
@@ -67991,7 +67991,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/run/exports/compare/summary": {
+    "/v1/architecture/review/exports/compare/summary": {
       "post": {
         "parameters": [
           {
@@ -68202,7 +68202,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/run/exports/{exportRecordId}": {
+    "/v1/architecture/review/exports/{exportRecordId}": {
       "get": {
         "parameters": [
           {
@@ -68367,7 +68367,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/run/exports/{exportRecordId}/comparisons": {
+    "/v1/architecture/review/exports/{exportRecordId}/comparisons": {
       "get": {
         "parameters": [
           {
@@ -68562,7 +68562,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/run/exports/{exportRecordId}/replay": {
+    "/v1/architecture/review/exports/{exportRecordId}/replay": {
       "post": {
         "parameters": [
           {
@@ -68782,7 +68782,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/run/exports/{exportRecordId}/replay/metadata": {
+    "/v1/architecture/review/exports/{exportRecordId}/replay/metadata": {
       "post": {
         "parameters": [
           {
@@ -69002,7 +69002,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/run/{runId}": {
+    "/v1/architecture/review/{runId}": {
       "get": {
         "parameters": [
           {
@@ -69212,7 +69212,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/run/{runId}/agent-evaluation": {
+    "/v1/architecture/review/{runId}/agent-evaluation": {
       "get": {
         "parameters": [
           {
@@ -69422,7 +69422,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/run/{runId}/analysis-report": {
+    "/v1/architecture/review/{runId}/analysis-report": {
       "post": {
         "parameters": [
           {
@@ -69672,7 +69672,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/run/{runId}/analysis-report/export": {
+    "/v1/architecture/review/{runId}/analysis-report/export": {
       "post": {
         "parameters": [
           {
@@ -69922,7 +69922,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/run/{runId}/analysis-report/export/docx": {
+    "/v1/architecture/review/{runId}/analysis-report/export/docx": {
       "post": {
         "parameters": [
           {
@@ -70172,7 +70172,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/run/{runId}/analysis-report/export/docx/async": {
+    "/v1/architecture/review/{runId}/analysis-report/export/docx/async": {
       "post": {
         "parameters": [
           {
@@ -70422,7 +70422,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/run/{runId}/analysis-report/export/docx/consulting": {
+    "/v1/architecture/review/{runId}/analysis-report/export/docx/consulting": {
       "post": {
         "parameters": [
           {
@@ -70672,7 +70672,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/run/{runId}/analysis-report/export/docx/consulting/async": {
+    "/v1/architecture/review/{runId}/analysis-report/export/docx/consulting/async": {
       "post": {
         "parameters": [
           {
@@ -70922,7 +70922,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/run/{runId}/analysis-report/export/file": {
+    "/v1/architecture/review/{runId}/analysis-report/export/file": {
       "post": {
         "parameters": [
           {
@@ -71172,7 +71172,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/run/{runId}/commit": {
+    "/v1/architecture/review/{runId}/finalize": {
       "post": {
         "parameters": [
           {
@@ -71437,7 +71437,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/run/{runId}/comparisons": {
+    "/v1/architecture/review/{runId}/comparisons": {
       "get": {
         "parameters": [
           {
@@ -71632,7 +71632,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/run/{runId}/decisions": {
+    "/v1/architecture/review/{runId}/decisions": {
       "get": {
         "parameters": [
           {
@@ -71842,7 +71842,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/run/{runId}/evidence": {
+    "/v1/architecture/review/{runId}/evidence": {
       "get": {
         "parameters": [
           {
@@ -72052,7 +72052,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/run/{runId}/evidence/bulk": {
+    "/v1/architecture/review/{runId}/evidence/bulk": {
       "post": {
         "parameters": [
           {
@@ -72314,7 +72314,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/run/{runId}/execute": {
+    "/v1/architecture/review/{runId}/execute": {
       "post": {
         "parameters": [
           {
@@ -72569,7 +72569,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/run/{runId}/execute/selective": {
+    "/v1/architecture/review/{runId}/execute/selective": {
       "post": {
         "parameters": [
           {
@@ -72864,7 +72864,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/run/{runId}/export/summary": {
+    "/v1/architecture/review/{runId}/export/summary": {
       "get": {
         "parameters": [
           {
@@ -73014,7 +73014,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/run/{runId}/exports": {
+    "/v1/architecture/review/{runId}/exports": {
       "get": {
         "parameters": [
           {
@@ -73179,7 +73179,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/run/{runId}/findings": {
+    "/v1/architecture/review/{runId}/findings": {
       "get": {
         "parameters": [
           {
@@ -73428,7 +73428,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/run/{runId}/findings/export/csv": {
+    "/v1/architecture/review/{runId}/findings/export/csv": {
       "get": {
         "parameters": [
           {
@@ -73588,7 +73588,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/run/{runId}/findings/{findingId}/evidence-chain": {
+    "/v1/architecture/review/{runId}/findings/{findingId}/evidence-chain": {
       "get": {
         "parameters": [
           {
@@ -73806,7 +73806,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/run/{runId}/findings/{findingId}/inspect": {
+    "/v1/architecture/review/{runId}/findings/{findingId}/inspect": {
       "get": {
         "parameters": [
           {
@@ -74032,7 +74032,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/run/{runId}/pin": {
+    "/v1/architecture/review/{runId}/pin": {
       "patch": {
         "parameters": [
           {
@@ -74282,7 +74282,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/run/{runId}/replay": {
+    "/v1/architecture/review/{runId}/replay": {
       "post": {
         "parameters": [
           {
@@ -74562,7 +74562,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/run/{runId}/result": {
+    "/v1/architecture/review/{runId}/result": {
       "post": {
         "parameters": [
           {
@@ -74827,7 +74827,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/run/{runId}/roi": {
+    "/v1/architecture/review/{runId}/roi": {
       "get": {
         "parameters": [
           {
@@ -75037,7 +75037,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/run/{runId}/stage-timeline": {
+    "/v1/architecture/review/{runId}/stage-timeline": {
       "get": {
         "parameters": [
           {
@@ -75256,7 +75256,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/run/{runId}/tool-invocation-forensics": {
+    "/v1/architecture/review/{runId}/tool-invocation-forensics": {
       "get": {
         "parameters": [
           {
@@ -75466,7 +75466,7 @@
         "x-archlucid-audience": "forensics"
       }
     },
-    "/v1/architecture/run/{runId}/traceability-bundle.zip": {
+    "/v1/architecture/review/{runId}/traceability-bundle.zip": {
       "get": {
         "parameters": [
           {
@@ -75636,7 +75636,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/run/{runId}/traces": {
+    "/v1/architecture/review/{runId}/traces": {
       "get": {
         "parameters": [
           {
@@ -76102,7 +76102,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/runs/{runId}/graph/cytoscape": {
+    "/v1/architecture/reviews/{runId}/graph/cytoscape": {
       "get": {
         "parameters": [
           {
@@ -76262,7 +76262,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/runs/{runId}/graph/interactive": {
+    "/v1/architecture/reviews/{runId}/graph/interactive": {
       "get": {
         "parameters": [
           {
@@ -76422,7 +76422,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/architecture/runs/{runId}/provenance": {
+    "/v1/architecture/reviews/{runId}/provenance": {
       "get": {
         "parameters": [
           {
@@ -76994,7 +76994,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/artifacts/manifests/{manifestId}": {
+    "/v1/artifacts/signed-review-records/{manifestId}": {
       "get": {
         "parameters": [
           {
@@ -77199,7 +77199,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/artifacts/manifests/{manifestId}/artifact/{artifactId}": {
+    "/v1/artifacts/signed-review-records/{manifestId}/artifact/{artifactId}": {
       "get": {
         "parameters": [
           {
@@ -77360,7 +77360,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/artifacts/manifests/{manifestId}/artifact/{artifactId}/descriptor": {
+    "/v1/artifacts/signed-review-records/{manifestId}/artifact/{artifactId}/descriptor": {
       "get": {
         "parameters": [
           {
@@ -77565,7 +77565,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/artifacts/manifests/{manifestId}/bundle": {
+    "/v1/artifacts/signed-review-records/{manifestId}/bundle": {
       "get": {
         "parameters": [
           {
@@ -84458,7 +84458,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/authority/manifests/{manifestId}/summary": {
+    "/v1/authority/signed-review-records/{manifestId}/summary": {
       "get": {
         "parameters": [
           {
@@ -105249,7 +105249,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/governance/pre-commit/simulate": {
+    "/v1/governance/pre-finalize/simulate": {
       "post": {
         "requestBody": {
           "content": {
@@ -115851,7 +115851,7 @@
         "x-archlucid-audience": "internal"
       }
     },
-    "/v1/internal/architecture/run/{runId}/agent-evaluation": {
+    "/v1/internal/architecture/review/{runId}/agent-evaluation": {
       "get": {
         "parameters": [
           {
@@ -116061,7 +116061,7 @@
         "x-archlucid-audience": "internal"
       }
     },
-    "/v1/internal/architecture/run/{runId}/traces/forensics": {
+    "/v1/internal/architecture/review/{runId}/traces/forensics": {
       "get": {
         "parameters": [
           {
@@ -133206,7 +133206,7 @@
         "x-archlucid-audience": "buyer"
       }
     },
-    "/v1/runs": {
+    "/v1/architecture/reviews": {
       "get": {
         "parameters": [
           {
@@ -133444,7 +133444,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/runs/{runId}": {
+    "/v1/architecture/reviews/{runId}": {
       "get": {
         "parameters": [
           {
@@ -133654,7 +133654,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/runs/{runId}/artifacts": {
+    "/v1/architecture/reviews/{runId}/artifacts": {
       "get": {
         "parameters": [
           {
@@ -133859,7 +133859,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/runs/{runId}/artifacts/bundle": {
+    "/v1/architecture/reviews/{runId}/artifacts/bundle": {
       "get": {
         "parameters": [
           {
@@ -134011,7 +134011,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/runs/{runId}/artifacts/{artifactId}": {
+    "/v1/architecture/reviews/{runId}/artifacts/{artifactId}": {
       "get": {
         "parameters": [
           {
@@ -134172,7 +134172,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/runs/{runId}/coverage": {
+    "/v1/architecture/reviews/{runId}/coverage": {
       "get": {
         "parameters": [
           {
@@ -134383,7 +134383,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/runs/{runId}/export/{format}": {
+    "/v1/architecture/reviews/{runId}/export/{format}": {
       "get": {
         "parameters": [
           {
@@ -134586,7 +134586,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/runs/{runId}/manifest": {
+    "/v1/architecture/reviews/{runId}/manifest": {
       "get": {
         "parameters": [
           {
@@ -134797,7 +134797,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/runs/{runId}/review-trail": {
+    "/v1/architecture/reviews/{runId}/review-trail": {
       "get": {
         "parameters": [
           {
@@ -134987,7 +134987,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/runs/{runId}/review-trail/export": {
+    "/v1/architecture/reviews/{runId}/review-trail/export": {
       "get": {
         "parameters": [
           {
@@ -135157,7 +135157,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/runs/{runId}/review-trail/provenance": {
+    "/v1/architecture/reviews/{runId}/review-trail/provenance": {
       "get": {
         "parameters": [
           {
@@ -135353,7 +135353,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/runs/{runId}/review-trail/rationale": {
+    "/v1/architecture/reviews/{runId}/review-trail/rationale": {
       "get": {
         "parameters": [
           {
@@ -135564,7 +135564,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/runs/{runId}/technology-ledger": {
+    "/v1/architecture/reviews/{runId}/technology-ledger": {
       "get": {
         "parameters": [
           {
@@ -135775,7 +135775,7 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/runs/{runId}/technology-ledger/{entryId}": {
+    "/v1/architecture/reviews/{runId}/technology-ledger/{entryId}": {
       "patch": {
         "parameters": [
           {

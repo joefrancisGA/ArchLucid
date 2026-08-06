@@ -67,6 +67,7 @@ public sealed class DocxExportController(
     /// </param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>DOCX file download, or 404 when primary (or compare) run/manifest is missing.</returns>
+    [HttpGet("reviews/{runId:guid}/architecture-package")]
     [HttpGet("runs/{runId:guid}/architecture-package")]
     [Authorize(Policy = ArchLucidPolicies.CanExportConsultingDocx)]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK,

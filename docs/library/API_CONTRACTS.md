@@ -1,4 +1,4 @@
-> **Scope:** Contributor / developer technical reference — API contracts (notable behaviors). Not buyer self-serve help — in-app `/help/governance-api-contracts` is **Admin / developer** only.
+﻿> **Scope:** Contributor / developer technical reference — API contracts (notable behaviors). Not buyer self-serve help — in-app `/help/governance-api-contracts` is **Admin / developer** only.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -59,9 +59,9 @@ When parsing a create-run response, use **`ArchitectureRun`**. When loading auth
 Documentation and weighted-readiness framing distinguish:
 
 - **Vendor economics (platform cost-effectiveness — primary):** Protecting **hosted** COGS and capacity — quotas, caches, **`LlmCostEstimator`** / **`LlmCostEstimationOptions`**, consumption budgets in IaC/host config, telemetry — is **chiefly operational**. It does **not** require every control to surface on **`GET /openapi/v1.json`**. See **`OPERATIONS_LLM_QUOTA.md`** and **`CONFIGURATION_REFERENCE.md`**.
-- **Tenant- or integrator-visible usage / cost-like fields (valid adjunct):** JSON that exposes **token counts**, **`LLM call count`**, or future **estimated USD** fields is primarily **buyer transparency and trust** — **estimates ≠ invoiced Azure OpenAI**; tenants should reconcile spend with Azure Cost Management where applicable.
+- **Tenant- or integrator-visible usage / cost-like fields (valid adjunct):** JSON that exposes **token counts**, **`LLM call count`**, or future **estimated USD** fields is primarily **buyer transparency and trust** — **estimates â‰  invoiced Azure OpenAI**; tenants should reconcile spend with Azure Cost Management where applicable.
 
-**Contract changes:** Adding or altering **`v1`** DTOs with LLM usage, token totals, or derived cost estimates follows **§ Changing the HTTP contract** (snapshot, **`ArchLucid.Api.Client`**, **`archlucid-ui`** `npm run generate:api-types`, and doc touch-ups).
+**Contract changes:** Adding or altering **`v1`** DTOs with LLM usage, token totals, or derived cost estimates follows **Â§ Changing the HTTP contract** (snapshot, **`ArchLucid.Api.Client`**, **`archlucid-ui`** `npm run generate:api-types`, and doc touch-ups).
 
 ## Operator artifacts (`/v1/artifacts`)
 
@@ -85,7 +85,7 @@ Treat Swashbuckle-only tweaks separately; integrators must follow **`/openapi/v1
 
 ## Azure extractor ingest (`/v1/azure-extractor`)
 
-- **Upload:** `POST /v1/azure-extractor/upload` — `multipart/form-data` field **`file`** (ZIP, max **≈52 MiB** zipped payload envelope per host `RequestSizeLimit`). Optional query **`runId`** associates with an existing run in workspace scope.
+- **Upload:** `POST /v1/azure-extractor/upload` — `multipart/form-data` field **`file`** (ZIP, max **â‰ˆ52 MiB** zipped payload envelope per host `RequestSizeLimit`). Optional query **`runId`** associates with an existing run in workspace scope.
 - **Auth:** base route gated **ReadAuthority**; **`ExecuteAuthority`** required for `upload`.
 - **Schema:** **`manifest.json`** inside the ZIP must declare supported **`schemaVersion`** (currently **only `1`**). Unsupported versions return **422** (never silently parsed).
 - **Success:** **202 Accepted** `{ "packageId": "<guid>" }`. **Failures:** **422** Problem+JSON (missing/invalid ZIP, manifest parse failure, unknown schema).
@@ -94,14 +94,14 @@ Runbook: **`docs/runbooks/AZURE_EXTRACTOR_INGEST.md`**.
 
 ## ITSM connectors (first-party)
 
-**Scope:** [`V1_SCOPE.md`](V1_SCOPE.md) §2.13–§2.15 — outbound issue/incident create plus **status-only** inbound sync from **Jira** and **ServiceNow** when correlation rows exist.
+**Scope:** [`V1_SCOPE.md`](V1_SCOPE.md) Â§2.13–Â§2.15 — outbound issue/incident create plus **status-only** inbound sync from **Jira** and **ServiceNow** when correlation rows exist.
 
 | Direction | Entry point | Notes |
 |-----------|-------------|-------|
 | Outbound | **`POST /v1/integrations/itsm/outbound/issues`** | Requires **ExecuteAuthority**; providers **`Jira`** \| **`ServiceNow`**. Persists correlation for inbound callbacks. Vendor HTTP is behind registered **`IExternalTicketConnector`** plugins (**TB-397**); adding a provider is a new connector class + DI registration. |
 | Operators | **`GET /v1/integrations/itsm/health`** | Requires **ReadAuthority**; **Standard** commercial tier. Lightweight read-only vendor pings (**Jira** `GET …/rest/api/3/myself`, **ServiceNow** `GET …/api/now/table/incident?sysparm_limit=1`) using host credentials plus **`dbo.TenantItsmOutboundSettings`** for the scoped tenant when evaluating Jira project readiness. **`200`** `{ "status": "healthy" \| "not_configured" \| "unhealthy", … }`; **`503`** when upstream fails for any locally configured vendor (body still carries per-vendor summaries). |
 | Inbound | **`POST /v1/integrations/webhooks/jira`**, **`POST /v1/integrations/webhooks/servicenow`** | Shared-secret headers per **`Integrations:ItsmInbound`**; anonymous route with connector secrets (no JWT). Payload shapes and headers are defined in **`GET /openapi/v1.json`**. Inbound status sync updates **`FindingRecords.HumanReviewStatus`** on the **correlated snapshot row** when **`dbo.ItsmFindingCorrelations.FindingRecordId`** is set at outbound create or operator register time; legacy rows without **`FindingRecordId`** fall back to the **latest committed** snapshot row for the tenant + logical **`FindingId`** (TB-390). Optional **`JiraStatusDispositionMap`** / **`ServiceNowStateDispositionMap`** under **`Integrations:ItsmInbound`** record a **`FindingDisposition`** via the disposition trail when configured (TB-396); unmapped external statuses continue human-review-only sync. Full bidirectional workflow mapping remains **TB-398** (V2). |
-| Read models | **`GET /v1/findings/{findingId}/inspect`**, **`GET /v1/architecture/run/{runId}/findings`** | **`FindingInspectResponse`** and **`RunFindingListItem`** expose **`trackedExternally`** (derived from ITSM correlations, not persisted) and optional **`externalTrackingSummary`** / legacy ITSM linkage fields (**TB-391**). |
+| Read models | **`GET /v1/findings/{findingId}/inspect`**, **`GET /v1/architecture/review/{runId}/findings`** | **`FindingInspectResponse`** and **`RunFindingListItem`** expose **`trackedExternally`** (derived from ITSM correlations, not persisted) and optional **`externalTrackingSummary`** / legacy ITSM linkage fields (**TB-391**). |
 
 ## Explain (`/v1/explain`)
 
@@ -113,7 +113,7 @@ All routes require **ReadAuthority** and use versioned paths under **`/v1/explai
 | `GET` | **`/v1/explain/runs/{runId}/aggregate`** | **`RunExplanationSummary`** | Same nested **`explanation`** as above, plus **`themeSummaries`**, **`overallAssessment`**, **`riskPosture`**, and manifest/findings **counts**. **404** if run/manifest missing in scope. |
 | `GET` | **`/v1/explain/compare/explain`** | **`ComparisonExplanationResult`** | Query: **`baseRunId`**, **`targetRunId`**. **404** if either run lacks a finalized architecture package (committed manifest) in scope. |
 
-**Legacy per-node provenance explanation URL (compatibility only):** **`GET /v1/architecture/runs/{runId}/provenance/{nodeId}/explanation`** (and alias **`GET /v1/architecture/run/{runId}/provenance/{nodeId}/explanation`**) are **omitted from** **`GET /openapi/v1.json`** because there is no supported per-node explanation contract. **ReadAuthority** and tenant/run scope still apply (**404** when the run is missing). **501** returns RFC 9457 **Problem+JSON** with stable `type` **`https://archlucid.example.org/errors#provenance-node-explanation-not-supported`** (see **`API_ERROR_CONTRACT.md`**), **`errorCode`** **`PROVENANCE_NODE_EXPLANATION_NOT_SUPPORTED`**, **`title`**/**`detail`**, and extension keys **`aggregateExplanationPathTemplate`** (`/v1/explain/runs/{runId}/aggregate`) and **`granularExplanationPathTemplate`** (`/v1/explain/runs/{runId}/explain`). New clients should call **`GET /v1/explain/runs/{runId}/aggregate`** (and the same Standard-tier / licensing rules as other `/v1/explain` routes) instead of the legacy path.
+**Legacy per-node provenance explanation URL (compatibility only):** **`GET /v1/architecture/reviews/{runId}/provenance/{nodeId}/explanation`** (and alias **`GET /v1/architecture/review/{runId}/provenance/{nodeId}/explanation`**) are **omitted from** **`GET /openapi/v1.json`** because there is no supported per-node explanation contract. **ReadAuthority** and tenant/run scope still apply (**404** when the run is missing). **501** returns RFC 9457 **Problem+JSON** with stable `type` **`https://archlucid.example.org/errors#provenance-node-explanation-not-supported`** (see **`API_ERROR_CONTRACT.md`**), **`errorCode`** **`PROVENANCE_NODE_EXPLANATION_NOT_SUPPORTED`**, **`title`**/**`detail`**, and extension keys **`aggregateExplanationPathTemplate`** (`/v1/explain/runs/{runId}/aggregate`) and **`granularExplanationPathTemplate`** (`/v1/explain/runs/{runId}/explain`). New clients should call **`GET /v1/explain/runs/{runId}/aggregate`** (and the same Standard-tier / licensing rules as other `/v1/explain` routes) instead of the legacy path.
 
 Schema and posture rules: **`docs/EXPLANATION_SCHEMA.md`**. Architect workspace: run detail **Explanation** section calls **`getRunExplanationSummary`** (`archlucid-ui`).
 
@@ -123,7 +123,7 @@ Read routes use **ReadAuthority** (controller default). **Standard** commercial 
 
 | Method | Path | Auth | Notes |
 |--------|------|------|-------|
-| `POST` | **`/v1/learning/planning/materialize`** | **ExecuteAuthority** | Bounded, deterministic **themes + plans** from ranked pilot-feedback opportunities; query **`since`**, **`maxPlansToMaterialize`**. Idempotent per theme key; does **not** mutate prompts/agents/governance. See **`PRODUCT_LEARNING.md`** §4.1. |
+| `POST` | **`/v1/learning/planning/materialize`** | **ExecuteAuthority** | Bounded, deterministic **themes + plans** from ranked pilot-feedback opportunities; query **`since`**, **`maxPlansToMaterialize`**. Idempotent per theme key; does **not** mutate prompts/agents/governance. See **`PRODUCT_LEARNING.md`** Â§4.1. |
 
 Other **`GET /v1/learning/*`** themes, plans, summary, and report routes: see **`GET /openapi/v1.json`**.
 
@@ -149,7 +149,7 @@ Sponsor- and pilot-facing read models. All routes require **ReadAuthority** and 
 | `GET` | **`/v1/pilots/runs/recent-deltas`** | **`RecentPilotRunDeltasResponse` (JSON)** | Aggregated proof-of-ROI rows for the **most recent committed runs** in scope (newest first). Query **`count`** (optional, default **5**, clamped **[1, 25]**). Each item may include **`llmCallCount`** / **`llmCallCountResolved`**; response includes **`medianLlmCallCount`** over attested rows. **ReadAuthority**. |
 | `POST` | **`/v1/pilots/runs/{runId}/first-value-report.pdf`** | **`application/pdf`** | One-shot **sponsor-shareable PDF projection** of the same first-value-report Markdown body — same auth (`ReadAuthority`), same content (single source of truth), no Standard-tier gate. Backs the post-finalize "Email this run to your sponsor" CTA on the architect workspace `/runs/[runId]` page. **404** when the run id is unknown. |
 
-CLI: `archlucid first-value-report <runId> [--save]` · `archlucid reference-evidence --run <runId> [--out <dir>] [--include-demo]` (see **`docs/CLI_USAGE.md`**). UI banner is `EmailRunToSponsorBanner` in `archlucid-ui/src/components/`; the architect workspace page renders it whenever the run has a finalized architecture package.
+CLI: `archlucid first-value-report <runId> [--save]` Â· `archlucid reference-evidence --run <runId> [--out <dir>] [--include-demo]` (see **`docs/CLI_USAGE.md`**). UI banner is `EmailRunToSponsorBanner` in `archlucid-ui/src/components/`; the architect workspace page renders it whenever the run has a finalized architecture package.
 
 **Admin reference bundle (ZIP):** `GET /v1/admin/reference-evidence?includeDemo=false` — **AdminAuthority**; tenant from ambient scope only (TB-279). Legacy alias `GET /v1/admin/tenants/{tenantId}/reference-evidence` remains one release with route↔scope binding. Returns **`application/zip`** (`pilot-run-deltas.json`, first-value Markdown/PDF when build succeeds, sponsor one-pager when Standard-tier path succeeds, `README.txt`) scoped to the tenant’s latest committed non-demo run unless `includeDemo=true`. **404** when no suitable run exists. CLI: `archlucid reference-evidence --tenant <tenantId> [--out <dir>] [--include-demo]` (calls scope-only route; `--tenant` names output only).
 
@@ -258,11 +258,11 @@ Clients must not assume verify failure returns 200 with a JSON body flag.
 
 ## End-to-end run compare — missing run
 
-`GET`/`POST` routes under `/v1/architecture/run/compare/end-to-end/...` that resolve runs by ID return **404** with problem type **`#run-not-found`** when a referenced run does not exist (not generic `#resource-not-found`).
+`GET`/`POST` routes under `/v1/architecture/review/compare/end-to-end/...` that resolve runs by ID return **404** with problem type **`#run-not-found`** when a referenced run does not exist (not generic `#resource-not-found`).
 
 ## Architecture run: Authority pipeline vs coordinator (`execute` / `result` / `commit`)
 
-**Create** always starts with **`POST /v1/architecture/request`**. On **SQL** hosts, **`IAuthorityRunOrchestrator`** then drives **ingestion → graph → findings → decisioning → artifacts** (`AuthorityPipelineStagesExecutor`). **Separately**, **`POST /v1/architecture/run/{runId}/execute`**, **`POST /v1/architecture/run/{runId}/result`**, and **`POST /v1/architecture/run/{runId}/commit`** implement the **legacy coordinator** loop (agent tasks + **`AgentResult`** rows + merge commit). Integrations must **not** assume every run needs **`execute`** after create.
+**Create** always starts with **`POST /v1/architecture/request`**. On **SQL** hosts, **`IAuthorityRunOrchestrator`** then drives **ingestion → graph → findings → decisioning → artifacts** (`AuthorityPipelineStagesExecutor`). **Separately**, **`POST /v1/architecture/review/{runId}/execute`**, **`POST /v1/architecture/review/{runId}/result`**, and **`POST /v1/architecture/review/{runId}/finalize`** implement the **legacy coordinator** loop (agent tasks + **`AgentResult`** rows + merge commit). Integrations must **not** assume every run needs **`execute`** after create.
 
 | Aspect | Authority pipeline | Legacy coordinator |
 |--------|-------------------|-------------------|
@@ -276,13 +276,13 @@ Clients must not assume verify failure returns 200 with a JSON body flag.
 **Integration correctness drill:** run [`scripts/v1-integration-correctness-drill.ps1`](../../scripts/v1-integration-correctness-drill.ps1) against a staged API to emit PASS/WARN/HOLD rows with correlation IDs and Problem Details checks — see [`V1_INTEGRATION_CORRECTNESS_DRILL.md`](V1_INTEGRATION_CORRECTNESS_DRILL.md).
 
 > **Anti-pattern — mixing models without understanding commit semantics**  
-> Calling **`execute`** or **`result`** “to finish” a run that **already** has authority-committed output causes **409/400** confusion or **no-op idempotent `commit`**. Authority **finalize** and coordinator **commit** have **different preconditions**. **GET `/v1/architecture/run/{runId}`** before choosing endpoints.
+> Calling **`execute`** or **`result`** “to finish” a run that **already** has authority-committed output causes **409/400** confusion or **no-op idempotent `commit`**. Authority **finalize** and coordinator **commit** have **different preconditions**. **GET `/v1/architecture/review/{runId}`** before choosing endpoints.
 
 ## Commit run — success, idempotency, and conflicts
 
-`POST /v1/architecture/run/{runId}/commit` returns **200 OK** with the architecture package (manifest payload) when the run is **already finalized/committed** and the stored package can be loaded (**idempotent retry** safe for clients).
+`POST /v1/architecture/review/{runId}/finalize` returns **200 OK** with the architecture package (manifest payload) when the run is **already finalized/committed** and the stored package can be loaded (**idempotent retry** safe for clients).
 
-`GET /v1/architecture/run/{runId}/traceability-bundle.zip` returns a **size-capped** ZIP (`run-summary.json`, `audit-events.json`, `decision-traces.json`, `README.txt`) for audit hand-off; **413 Payload Too Large** when the cap is exceeded.
+`GET /v1/architecture/review/{runId}/traceability-bundle.zip` returns a **size-capped** ZIP (`run-summary.json`, `audit-events.json`, `decision-traces.json`, `README.txt`) for audit hand-off; **413 Payload Too Large** when the cap is exceeded.
 
 It returns **409 Conflict** with problem type **`#conflict`** when the run is in **Failed** status, not ready to commit (e.g. missing agent results / wrong phase), or other state rules block commit — but **not** solely because a prior commit already succeeded.
 
@@ -361,7 +361,7 @@ Governance is packaged as **versioned, assignable** bundles. Pack **content** is
 | `GET` | `/v1/policy-packs/effective-content` | **Merged** document: union of IDs (distinct), **advisoryDefaults** / **metadata** last-wins per key. |
 | `GET` | `/v1/policy-packs/{policyPackId}/explain` | Returns **`text/markdown`**: plain-English summary of the pack’s **current** version **`ContentJson`** (LLM-assisted; **advisory only**). **ReadAuthority**; **`expensive`** rate limit. **404** when the pack is out of scope, or when the current version has no content. |
 | `POST` | `/v1/policy-packs/validate` | Validates raw **`PolicyPackContentDocument`** JSON in-process (no pack row, no audit row). Returns **`PolicyPackContentValidationResponse`** with **`valid`**, parsed **`summary`** counts, and **`issues`** (errors for structural violations; warnings for unknown `complianceRuleKeys`). **ReadAuthority**. |
-| `POST` | `/v1/policy-packs/simulate` | Typed façade over **`POST /v1/governance/policy-packs/dry-run`**: body **`runId`** + **`content`** (**`PolicyPackContentDocument`**) plus optional gate overrides. **ReadAuthority**; **`governancePolicyPackDryRun`** rate limit. **404** when the run is missing in scope. |
+| `POST` | `/v1/policy-packs/simulate` | Typed faÃ§ade over **`POST /v1/governance/policy-packs/dry-run`**: body **`runId`** + **`content`** (**`PolicyPackContentDocument`**) plus optional gate overrides. **ReadAuthority**; **`governancePolicyPackDryRun`** rate limit. **404** when the run is missing in scope. |
 | `GET` | `/v1/policy-packs/catalog` | Lists **promoted** platform catalog entries (snapshot metadata). **ReadAuthority**. |
 | `GET` | `/v1/policy-packs/catalog/{policyPackCatalogEntryId}` | One promoted entry including **snapshot JSON** for cloning. **ReadAuthority**. **404** when missing or not promoted. |
 | `POST` | `/v1/policy-packs/catalog/promote` | Snapshots **`sourcePolicyPackId`** at **`version`** from the **caller's scope** into **`dbo.PolicyPackCatalogEntry`** and marks it promoted. **AdminAuthority**. **404** when the pack/version is not in scope or has no content. Emits **`PolicyPackCatalogPromoted`**. |
@@ -387,7 +387,7 @@ Compliance filtering in API requests follows **`IScopeContextProvider`**. For **
 |--------|------|--------|
 | `GET` | `/v1/governance-resolution` | Returns **`EffectiveGovernanceResolutionResult`**: **`effectiveContent`**, per-item **`decisions`** (winner pack, scope level, reason), **`conflicts`** (duplicate definitions / value conflicts), and **`notes`**. Emits audit **`GovernanceResolutionExecuted`**; **`GovernanceConflictDetected`** when **`conflicts`** is non-empty. Requires **ReadAuthority**. |
 
-**Rate limiting:** Governance and alert **`/v1/...`** controllers use the **`fixed`** window unless noted elsewhere (e.g. **expensive** / **replay** on architecture flows). **`fixed`** and **`expensive`** policies apply **per role segment × client IP**; base limits come from **`RateLimiting:FixedWindow:*`** / **`RateLimiting:Expensive:*`**, with optional multipliers under **`RateLimiting:RoleMultipliers`**. See **README.md** (Rate limiting table) and **`docs/SECURITY.md`** (role-aware limits).
+**Rate limiting:** Governance and alert **`/v1/...`** controllers use the **`fixed`** window unless noted elsewhere (e.g. **expensive** / **replay** on architecture flows). **`fixed`** and **`expensive`** policies apply **per role segment Ã— client IP**; base limits come from **`RateLimiting:FixedWindow:*`** / **`RateLimiting:Expensive:*`**, with optional multipliers under **`RateLimiting:RoleMultipliers`**. See **README.md** (Rate limiting table) and **`docs/SECURITY.md`** (role-aware limits).
 
 Scope defaults for dev/tests: **`ScopeIds`** (**`x-tenant-id`**, **`x-workspace-id`**, **`x-project-id`** optional).
 
@@ -395,7 +395,7 @@ Scope defaults for dev/tests: **`ScopeIds`** (**`x-tenant-id`**, **`x-workspace-
 
 **Current behavior (v1):**
 
-- **`POST .../architecture/request`** (create run) may use an **`Idempotency-Key`** header per API semantics; **`POST .../architecture/run/{runId}/commit`** does **not** accept that header.
+- **`POST .../architecture/request`** (create run) may use an **`Idempotency-Key`** header per API semantics; **`POST .../architecture/review/{runId}/finalize`** does **not** accept that header.
 - **Finalize (`commit`)** is **idempotent** when the run is **already finalized/committed**: a repeat **`POST …/commit`** returns **200 OK** with the same architecture package (safe retries after timeouts).
 - **Create** and the **first** successful commit still perform durable writes; clients that retry ambiguous **create** failures should **GET** run detail/list before issuing a second create for the same logical operation.
 

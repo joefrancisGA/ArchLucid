@@ -224,7 +224,7 @@ public sealed class DemoCommitPagePreviewEndpointTests(ArchLucidApiFactory facto
             {
                 GeneratedUtc = FixedGeneratedUtc,
                 IsDemoData = true,
-                DemoStatusMessage = "demo tenant â€” replace before publishing",
+                DemoStatusMessage = "demo tenant — replace before publishing",
                 Run =
                     new DemoPreviewRun
                     {

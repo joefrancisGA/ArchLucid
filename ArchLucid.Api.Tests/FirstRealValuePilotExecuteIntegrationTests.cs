@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -57,7 +57,7 @@ public sealed class FirstRealValuePilotExecuteIntegrationTests
         bool parsed = Guid.TryParse(runId, out Guid runGuid);
         parsed.Should().BeTrue();
 
-        using HttpRequestMessage execute = new(HttpMethod.Post, $"/v1/architecture/run/{runId}/execute");
+        using HttpRequestMessage execute = new(HttpMethod.Post, $"/v1/architecture/review/{runId}/execute");
         execute.Headers.TryAddWithoutValidation(PilotTryRealModeHeaders.PilotTryRealMode, "1");
 
         HttpResponseMessage executeResponse = await client.SendAsync(execute);

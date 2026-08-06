@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -73,9 +73,9 @@ public sealed class GoldenCohortSimulatorDriftTests(ArchLucidApiFactory factory)
 
             string runId = created.Run.RunId;
 
-            HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+            HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
             await executeResponse.EnsureSuccessForTestAsync();
-            HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
+            HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
             await commitResponse.EnsureSuccessForTestAsync();
             string commitJson = await commitResponse.Content.ReadAsStringAsync();
             using JsonDocument commitDoc = JsonDocument.Parse(commitJson);
@@ -88,7 +88,7 @@ public sealed class GoldenCohortSimulatorDriftTests(ArchLucidApiFactory factory)
             string expectedSha = item.ExpectedCommittedManifestSha256.Trim();
             bool shaMatches = string.Equals(actualSha, expectedSha, StringComparison.OrdinalIgnoreCase);
 
-            HttpResponseMessage getRunResponse = await Client.GetAsync($"/v1/architecture/run/{runId}");
+            HttpResponseMessage getRunResponse = await Client.GetAsync($"/v1/architecture/review/{runId}");
             await getRunResponse.EnsureSuccessForTestAsync();
             GetRunResponseDto? runPayload =
                 await getRunResponse.Content.ReadFromJsonAsync<GetRunResponseDto>(JsonOptions);

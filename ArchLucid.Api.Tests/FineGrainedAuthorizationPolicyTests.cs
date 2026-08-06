@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Text;
 
 using FluentAssertions;
@@ -20,7 +20,7 @@ public sealed class CommitRunRequiresCommitPermissionTests(OperatorWithoutCommit
     public async Task CommitRun_returns_403_when_commit_run_permission_claim_missing()
     {
         HttpResponseMessage response = await _client.PostAsync(
-            $"/v1/architecture/run/{Guid.NewGuid():D}/commit",
+            $"/v1/architecture/review/{Guid.NewGuid():D}/commit",
             null);
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
@@ -43,7 +43,7 @@ public sealed class ConsultingDocxRequiresExportPermissionTests(OperatorWithoutC
     {
         using StringContent body = new("{}", Encoding.UTF8, "application/json");
         HttpResponseMessage response = await _client.PostAsync(
-            $"/v1/architecture/run/{Guid.NewGuid():D}/analysis-report/export/docx/consulting",
+            $"/v1/architecture/review/{Guid.NewGuid():D}/analysis-report/export/docx/consulting",
             body);
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
@@ -54,7 +54,7 @@ public sealed class ConsultingDocxRequiresExportPermissionTests(OperatorWithoutC
     {
         using StringContent body = new("{}", Encoding.UTF8, "application/json");
         HttpResponseMessage response = await _client.PostAsync(
-            $"/v1/architecture/run/{Guid.NewGuid():D}/analysis-report/export/docx/consulting/async",
+            $"/v1/architecture/review/{Guid.NewGuid():D}/analysis-report/export/docx/consulting/async",
             body);
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);

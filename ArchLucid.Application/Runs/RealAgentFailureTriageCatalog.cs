@@ -1,4 +1,4 @@
-namespace ArchLucid.Application.Runs;
+﻿namespace ArchLucid.Application.Runs;
 
 using ArchLucid.Contracts.Agents;
 
@@ -147,7 +147,7 @@ public static class RealAgentFailureTriageCatalog
             [
                 "Confirm LegacyRunStatus is PartiallyCompleted or FailedPartial (not ReadyForCommit).",
                 "Inspect AgentExecutionOutcomes on run detail / buyer-summary for Missing, Failed, or Degraded required agents.",
-                "Re-execute failed agents via POST /v1/architecture/run/{runId}/execute/selective (or full execute) until all required agents succeed.",
+                "Re-execute failed agents via POST /v1/architecture/review/{runId}/execute/selective (or full execute) until all required agents succeed.",
                 "Do not finalize or treat the review as buyer-ready while required agents are incomplete.",
             ],
             RelatedDocPaths =

@@ -118,33 +118,33 @@ export async function createArchitectureRun(
   }
 }
 
-/** Pins or unpins a run (PATCH /v1/architecture/run/{runId}/pin). Omit `isPinned` to toggle. */
+/** Pins or unpins a run (PATCH /v1/architecture/review/{runId}/pin). Omit `isPinned` to toggle. */
 export async function pinArchitectureRun(
   runId: string,
   body: { readonly isPinned?: boolean } = {},
 ): Promise<{ runId: string; isPinned: boolean }> {
   return apiPatchJson<{ runId: string; isPinned: boolean }>(
-    `/v1/architecture/run/${encodeURIComponent(runId)}/pin`,
+    `/v1/architecture/review/${encodeURIComponent(runId)}/pin`,
     body,
   );
 }
 
-/** Commits agent results into a golden manifest (POST /v1/architecture/run/{runId}/commit). */
+/** Finalizes agent results into a signed review record (POST /v1/architecture/review/{runId}/finalize). */
 export async function commitArchitectureRun(
   runId: string,
   options?: { readonly notifySponsor?: boolean },
 ): Promise<unknown> {
-  return apiPostJson<unknown>(`/v1/architecture/run/${encodeURIComponent(runId)}/commit`, {
+  return apiPostJson<unknown>(`/v1/architecture/review/${encodeURIComponent(runId)}/finalize`, {
     notifySponsor: options?.notifySponsor === true,
   });
 }
 
-/** Runs agent pipeline for an architecture review (POST /v1/architecture/run/{runId}/execute). */
+/** Runs agent pipeline for an architecture review (POST /v1/architecture/review/{runId}/execute). */
 export async function executeArchitectureRun(runId: string): Promise<unknown> {
-  return apiPostJson<unknown>(`/v1/architecture/run/${encodeURIComponent(runId)}/execute`, {});
+  return apiPostJson<unknown>(`/v1/architecture/review/${encodeURIComponent(runId)}/execute`, {});
 }
 
-/** TB-938: re-execute selected agents only (POST /v1/architecture/run/{runId}/execute/selective). */
+/** TB-938: re-execute selected agents only (POST /v1/architecture/review/{runId}/execute/selective). */
 export async function executeArchitectureRunSelective(
   runId: string,
   body: {
@@ -153,7 +153,7 @@ export async function executeArchitectureRunSelective(
     readonly includeDependents?: boolean;
   },
 ): Promise<unknown> {
-  return apiPostJson<unknown>(`/v1/architecture/run/${encodeURIComponent(runId)}/execute/selective`, {
+  return apiPostJson<unknown>(`/v1/architecture/review/${encodeURIComponent(runId)}/execute/selective`, {
     agentTypes: body.agentTypes ?? [],
     taskIds: body.taskIds ?? [],
     includeDependents: body.includeDependents !== false,
@@ -173,7 +173,7 @@ export async function getArchitectureRunProvenance(
   runId: string,
 ): Promise<ApiResponseWithTrace<ArchitectureRunProvenanceGraph>> {
   return apiGetJsonWithTrace<ArchitectureRunProvenanceGraph>(
-    `/v1/architecture/runs/${encodeURIComponent(runId)}/provenance`,
+    `/v1/architecture/reviews/${encodeURIComponent(runId)}/provenance`,
   );
 }
 
@@ -272,10 +272,10 @@ export async function getRunProvenance(runId: string): Promise<DecisionProvenanc
   return apiGet<DecisionProvenanceGraph>(`/v1/authority/runs/${runId}/provenance`);
 }
 
-/** Authority pipeline stage outcomes (`GET /v1/architecture/run/{runId}/stage-timeline`, TB-250). */
+/** Authority pipeline stage outcomes (`GET /v1/architecture/review/{runId}/stage-timeline`, TB-250). */
 export async function getRunStageTimeline(runId: string): Promise<StageTimelineSummary[]> {
   return apiGet<StageTimelineSummary[]>(
-    `/v1/architecture/run/${encodeURIComponent(runId)}/stage-timeline`,
+    `/v1/architecture/review/${encodeURIComponent(runId)}/stage-timeline`,
   );
 }
 
@@ -295,7 +295,7 @@ export async function getRunTraces(
   q.set("pageSize", String(pageSize));
 
   return apiGetJsonWithTrace<AgentExecutionTraceListPayload>(
-    `/v1/architecture/run/${encodeURIComponent(runId)}/traces?${q}`,
+    `/v1/architecture/review/${encodeURIComponent(runId)}/traces?${q}`,
   );
 }
 
@@ -304,7 +304,7 @@ export async function getRunToolInvocationForensics(
   runId: string,
 ): Promise<ApiResponseWithTrace<RunToolInvocationForensicsPayload>> {
   return apiGetJsonWithTrace<RunToolInvocationForensicsPayload>(
-    `/v1/architecture/run/${encodeURIComponent(runId)}/tool-invocation-forensics`,
+    `/v1/architecture/review/${encodeURIComponent(runId)}/tool-invocation-forensics`,
   );
 }
 
@@ -313,7 +313,7 @@ export async function getRunAgentEvaluation(
   runId: string,
 ): Promise<ApiResponseWithTrace<AgentOutputEvaluationSummaryPayload>> {
   return apiGetJsonWithTrace<AgentOutputEvaluationSummaryPayload>(
-    `/v1/architecture/run/${encodeURIComponent(runId)}/agent-evaluation`,
+    `/v1/architecture/review/${encodeURIComponent(runId)}/agent-evaluation`,
   );
 }
 

@@ -1,4 +1,4 @@
-> **Scope:** Trace a run — audit, logs, and distributed traces - full detail, tables, and links in the sections below.
+﻿> **Scope:** Trace a run — audit, logs, and distributed traces - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -14,13 +14,13 @@ Given a **run id** (no-dash hex or standard GUID string accepted by the API), re
 ## 2. Assumptions
 
 - The API is reachable with a token or **DevelopmentBypass** as in local/CI docs.
-- **Trace backend** (Jaeger, Grafana Tempo, Azure Application Insights, etc.) ingests OTLP or platform traces; you have a **trace viewer URL template** (same placeholder semantics as the architect workspace — see **§4**).
+- **Trace backend** (Jaeger, Grafana Tempo, Azure Application Insights, etc.) ingests OTLP or platform traces; you have a **trace viewer URL template** (same placeholder semantics as the architect workspace — see **Â§4**).
 - **Logs** land in a queryable sink (Seq, Loki, Log Analytics) that indexes **`CorrelationId`** when present.
 - **`dbo.Runs.OtelTraceId`** was captured at **run creation** (migration **052**); it is **not** overwritten on later updates.
 
 ## 3. Constraints
 
-- **Head-based sampling** may drop exported traces; **`traceparent`** / **`X-Trace-Id`** on the **current** HTTP response still reflect the active `Activity` even when the trace is not stored — a copied id may show “not found” in the backend ([OBSERVABILITY.md](../library/OBSERVABILITY.md) §Sampling).
+- **Head-based sampling** may drop exported traces; **`traceparent`** / **`X-Trace-Id`** on the **current** HTTP response still reflect the active `Activity` even when the trace is not stored — a copied id may show “not found” in the backend ([OBSERVABILITY.md](../library/OBSERVABILITY.md) Â§Sampling).
 - **Background jobs** use **synthetic** `correlation.id` values (e.g. `run:{RunId}`, `integration-outbox:{id}`) per [BACKGROUND_JOB_CORRELATION.md](../library/BACKGROUND_JOB_CORRELATION.md); they will **not** match the browser’s `X-Correlation-ID` from run creation unless the same id was propagated into the worker span.
 - **Baseline mutation logs** (`IBaselineMutationAuditService`) are **not** rows in `dbo.AuditEvents`; use log search for those strings.
 
@@ -67,7 +67,7 @@ flowchart LR
 
 ### Step 1 — Resolve the run’s creation trace id
 
-- **HTTP:** `GET /v1/architecture/run/{runId}` → JSON field **`run.otelTraceId`** (may be null for very old runs).
+- **HTTP:** `GET /v1/architecture/review/{runId}` → JSON field **`run.otelTraceId`** (may be null for very old runs).
 - **CLI:** `archlucid trace {runId}` prints a viewer URL when the template env is set.
 
 ### Step 2 — Audit timeline by run
@@ -84,7 +84,7 @@ flowchart LR
 ### Step 4 — Open the distributed trace
 
 - Paste **`otelTraceId`** into your trace UI (Jaeger: trace page; Tempo: explore; App Insights: transaction search / `operation_Id`).
-- Under the authority run, look for child spans / stage tags documented in [BACKGROUND_JOB_CORRELATION.md](../library/BACKGROUND_JOB_CORRELATION.md) §10.
+- Under the authority run, look for child spans / stage tags documented in [BACKGROUND_JOB_CORRELATION.md](../library/BACKGROUND_JOB_CORRELATION.md) Â§10.
 
 ### Step 5 — Query logs by CorrelationId
 
@@ -110,7 +110,7 @@ flowchart LR
 | Trace **not found** in backend | Sampling dropped export | Use **`X-Trace-Id`** from the failing response; widen sampling in dev; use tail sampling in collector ([OBSERVABILITY.md](../library/OBSERVABILITY.md)). |
 | **`correlationId` null** on audit row | Written outside normal middleware / activity chain, or very old code path | Check **`Activity.Current`** and `AuditService` enrichment; see unit tests **`AuditServiceCorrelationEnrichmentTests`**. |
 | **`otelTraceId` null** on run | Run created before migration **052** or non-authority path | Use audit + logs only. |
-| Slow **`audit/search`** | Missing indexes | Ensure migration **`055_AuditEvents_CorrelationId_RunId_Indexes.sql`** applied ([AUDIT_COVERAGE_MATRIX.md](../library/AUDIT_COVERAGE_MATRIX.md) §Indexes). |
+| Slow **`audit/search`** | Missing indexes | Ensure migration **`055_AuditEvents_CorrelationId_RunId_Indexes.sql`** applied ([AUDIT_COVERAGE_MATRIX.md](../library/AUDIT_COVERAGE_MATRIX.md) Â§Indexes). |
 
 ### Related documents
 

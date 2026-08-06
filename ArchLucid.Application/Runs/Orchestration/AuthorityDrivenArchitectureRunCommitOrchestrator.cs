@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text.Json;
 
 using ArchLucid.Application.Architecture;
@@ -652,7 +652,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
 
     /// <summary>
     ///     Persists coordinator <see cref = "IDecisionEngineV2"/> decision nodes when missing so read
-    ///     <c>GET /v1/architecture/run/{runId}/decisions</c> is populated after authority commit (idempotent).
+    ///     <c>GET /v1/architecture/review/{runId}/decisions</c> is populated after authority commit (idempotent).
     /// </summary>
     private async Task EnsureDecisionEngineV2NodesMaterializedAsync(
         string runId,

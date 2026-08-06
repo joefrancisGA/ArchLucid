@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+﻿import { describe, expect, it } from "vitest";
 
 import {
   buildGoldenManifestMarkdownFilename,
@@ -38,7 +38,7 @@ describe("formatTrustEvidenceCardMarkdown", () => {
         traceCompletenessLabel: "Medium",
         evidencePointersSummary: "Manifest v1; graph nodes: 0; linked trace ids: 0.",
       },
-      links: [{ rel: "traces", path: "/v1/architecture/run/r1/traces", label: "Traces" }],
+      links: [{ rel: "traces", path: "/v1/architecture/review/r1/traces", label: "Traces" }],
     };
 
     const md = formatTrustEvidenceCardMarkdown(card);
@@ -47,7 +47,7 @@ describe("formatTrustEvidenceCardMarkdown", () => {
     expect(md).toContain("**Proof confidence:** Simulator-only");
     expect(md).toContain("Not a SOC 2 report.");
     expect(md).toContain("### Evidence routes");
-    expect(md).toContain("/v1/architecture/run/r1/traces");
+    expect(md).toContain("/v1/architecture/review/r1/traces");
     expect(md).toContain("### Top finding");
   });
 });

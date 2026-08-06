@@ -25,9 +25,9 @@ public sealed class ArchitectureExportRecordDiffTests(ArchLucidApiFactory factor
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
-        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
         await executeResponse.EnsureSuccessForTestAsync();
-        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
+        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
         await commitResponse.EnsureSuccessForTestAsync();
         var executiveRequest = new
         {
@@ -76,14 +76,14 @@ public sealed class ArchitectureExportRecordDiffTests(ArchLucidApiFactory factor
         };
 
         HttpResponseMessage executiveExport = await Client.PostAsync(
-            $"/v1/architecture/run/{runId}/analysis-report/export/docx/consulting",
+            $"/v1/architecture/review/{runId}/analysis-report/export/docx/consulting",
             JsonContent(executiveRequest));
         await executiveExport.EnsureSuccessForTestAsync();
         HttpResponseMessage internalExport = await Client.PostAsync(
-            $"/v1/architecture/run/{runId}/analysis-report/export/docx/consulting",
+            $"/v1/architecture/review/{runId}/analysis-report/export/docx/consulting",
             JsonContent(internalRequest));
         await internalExport.EnsureSuccessForTestAsync();
-        HttpResponseMessage historyResponse = await Client.GetAsync($"/v1/architecture/run/{runId}/exports");
+        HttpResponseMessage historyResponse = await Client.GetAsync($"/v1/architecture/review/{runId}/exports");
         await historyResponse.EnsureSuccessForTestAsync();
         RunExportHistoryResponse? history =
             await historyResponse.Content.ReadFromJsonAsync<RunExportHistoryResponse>(JsonOptions);
@@ -94,7 +94,7 @@ public sealed class ArchitectureExportRecordDiffTests(ArchLucidApiFactory factor
         string rightId = history.Exports[1].ExportRecordId;
 
         HttpResponseMessage compareResponse = await Client.GetAsync(
-            $"/v1/architecture/run/exports/compare?leftExportRecordId={leftId}&rightExportRecordId={rightId}");
+            $"/v1/architecture/review/exports/compare?leftExportRecordId={leftId}&rightExportRecordId={rightId}");
 
         compareResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 

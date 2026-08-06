@@ -30,13 +30,18 @@ describe("next.config administration routes (TB-406 / TB-522 / TB-751)", () => {
       )?.permanent,
     ).toBe(true);
 
+    expect(redirectRules?.find((rule) => rule.source === "/settings/roles")).toBeUndefined();
+  });
+
+  it("rewrites legacy /settings/roles to the users hub without a permanent redirect", async () => {
+    const rewriteRules = await nextConfig.rewrites?.();
+
+    expect(rewriteRules).toBeDefined();
     expect(
-      redirectRules?.find(
-        (rule) =>
-          rule.source === "/settings/roles"
-          && rule.destination === "/administration/users?tab=roles",
-      )?.permanent,
-    ).toBe(true);
+      rewriteRules?.find(
+        (rule) => rule.source === "/settings/roles" && rule.destination === "/administration/users",
+      ),
+    ).toBeDefined();
   });
 
   it("does not rewrite canonical administration URLs to legacy App Router trees (TB-751)", async () => {

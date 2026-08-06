@@ -1,4 +1,4 @@
-# UX: Fast Deterministic Live Run On Demand
+﻿# UX: Fast Deterministic Live Run On Demand
 
 ## Goal
 Add a "Demo live run" fast-path to `/reviews/new` that fires a real (non-static) review in under 20 seconds and displays business-English progress so a CTO on stage can see real AI working, not a canned showcase.
@@ -20,16 +20,16 @@ Add a "Demo live run" fast-path to `/reviews/new` that fires a real (non-static)
 A new component `archlucid-ui/src/components/cto-demo/CtoDemoLiveRunProgressRail.tsx` that displays named business-English pipeline stages as the run progresses:
 
 ```
-Analyzing architecture brief…       ✓  (2s)
-Applying policy pack (HIPAA PII)…   ✓  (4s)
-Identifying findings…               ● running
-Drafting signed decisions…          ○ pending
-Generating audit record…            ○ pending
+Analyzing architecture brief…       âœ“  (2s)
+Applying policy pack (HIPAA PII)…   âœ“  (4s)
+Identifying findings…               â— running
+Drafting signed decisions…          â—‹ pending
+Generating audit record…            â—‹ pending
 ```
 
 Rules:
 - Stage labels must be plain business English — no "LLM", "agent", "model", "inference". Use product vocabulary: "architecture package", "policy pack", "finding", "signed decision record."
-- Stage timings come from polling `GET /v1/architecture/run/{runId}` pipeline status (or server-sent events if available).
+- Stage timings come from polling `GET /v1/architecture/review/{runId}` pipeline status (or server-sent events if available).
 - Show a wall-clock elapsed time ("Elapsed: 14s") in `tabular-nums`.
 - At completion, show a green "Review ready — view it" CTA that navigates to `/reviews/{runId}`.
 - If the run exceeds 25s, show a reassuring "Still working — complex briefs take a moment longer" message, not a spinner freeze.

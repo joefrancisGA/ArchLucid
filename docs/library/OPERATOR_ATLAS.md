@@ -1,4 +1,4 @@
-> **Scope:** Customer-facing — Canonical architect action map — UI routes, APIs, CLI, and authority hints in one place.
+﻿> **Scope:** Customer-facing — Canonical architect action map — UI routes, APIs, CLI, and authority hints in one place.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -9,7 +9,7 @@
 
 **Source of truth for nav:** `archlucid-ui/src/lib/nav-config.ts` (labels, `tier`, `requiredAuthority`) composed with `nav-shell-visibility.ts`. **Authoritative authorization** remains **`[Authorize(Policy = …)]`** on `ArchLucid.Api` — the UI only shapes disclosure.
 
-**Related:** [CORE_PILOT.md](../CORE_PILOT.md) · [OPERATOR_QUICKSTART.md](customer-facing/OPERATOR_QUICKSTART.md) · [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) · [operator-shell.md](operator-shell.md) · [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) §3 · [API_CONTRACTS.md](API_CONTRACTS.md)
+**Related:** [CORE_PILOT.md](../CORE_PILOT.md) Â· [OPERATOR_QUICKSTART.md](customer-facing/OPERATOR_QUICKSTART.md) Â· [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) Â· [operator-shell.md](operator-shell.md) Â· [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) Â§3 Â· [API_CONTRACTS.md](API_CONTRACTS.md)
 
 ---
 
@@ -20,8 +20,8 @@
 | Health / readiness | `dotnet run --project ArchLucid.Cli -- health` | `GET /health/live`, `GET /health/ready` | — | Anonymous | [BUILD.md](../engineering/BUILD.md) |
 | Version | `dotnet run --project ArchLucid.Cli -- doctor` | `GET /version` | — | Read (doctor) | [README.md](../REPOSITORY_README.md) |
 | Create architecture request | `dotnet run --project ArchLucid.Cli -- run` | `POST /v1/architecture/request` | `/reviews/new` (legacy `/runs/new`) | Execute (wizard submit) | [CORE_PILOT — walkthrough](../CORE_PILOT.md#step-by-step-walkthrough) |
-| Poll review / pipeline | `… status <runId>` | `GET /v1/architecture/run/{runId}` | `/runs/{runId}` | Read | [OPERATOR_QUICKSTART.md](customer-facing/OPERATOR_QUICKSTART.md) |
-| Finalize architecture package | `… commit <runId>` | `POST /v1/architecture/run/{runId}/commit` | Run detail → **Finalize** | Execute | [CORE_PILOT — walkthrough](../CORE_PILOT.md#step-by-step-walkthrough) |
+| Poll review / pipeline | `… status <runId>` | `GET /v1/architecture/review/{runId}` | `/runs/{runId}` | Read | [OPERATOR_QUICKSTART.md](customer-facing/OPERATOR_QUICKSTART.md) |
+| Finalize architecture package | `… commit <runId>` | `POST /v1/architecture/review/{runId}/finalize` | Run detail → **Finalize** | Execute | [CORE_PILOT — walkthrough](../CORE_PILOT.md#step-by-step-walkthrough) |
 | Package + artifacts | `… artifacts <runId> [--save]` | `GET /v1/architecture/manifest/{version}`, artifact routes | Run detail | Read | [CORE_PILOT — manifest & artifacts](../CORE_PILOT.md#review-manifest-and-artifacts) |
 | Home / pilot checklist | `… try`, `… pilot up` | tenant + health reads | `/` | Read | [V1_RELEASE_CHECKLIST.md](V1_RELEASE_CHECKLIST.md) |
 | Getting started / trial checklist | — | `GET /v1/tenant/trial-status`, registration session, same checklist as Home | `/getting-started` | Read | [TRIAL_SIGNUP_UI.md](../../archlucid-ui/docs/TRIAL_SIGNUP_UI.md), [PILOT_GUIDE.md](customer-facing/PILOT_GUIDE.md) |
@@ -37,7 +37,7 @@
 | Action | CLI | Primary API | Architect workspace | Authority | Runbook / doc |
 |--------|-----|-------------|-------------|-----------|---------------|
 | Graph / provenance | — | graph + run payloads | `/graph` | Read | [ARCHITECTURE_COMPONENTS.md](ARCHITECTURE_COMPONENTS.md) |
-| Compare two reviews | `… comparisons …` | compare controllers | `/compare` | Read | [ARCHITECTURE_FLOWS.md § Flow C](ARCHITECTURE_FLOWS.md#flow-c-comparison-lifecycle-compare--persist-record--replayexport--verify-drift) |
+| Compare two reviews | `… comparisons …` | compare controllers | `/compare` | Read | [ARCHITECTURE_FLOWS.md Â§ Flow C](ARCHITECTURE_FLOWS.md#flow-c-comparison-lifecycle-compare--persist-record--replayexport--verify-drift) |
 | Replay authority chain | `… trace <runId>` | replay endpoints | `/replay` | Execute | [CANONICAL_PIPELINE.md](CANONICAL_PIPELINE.md) |
 | Demo telemetry / sponsor story | — | pilot + demo reads | `/why-archlucid` | Read | [DEMO_QUICKSTART.md](../go-to-market/DEMO_QUICKSTART.md) |
 
@@ -97,8 +97,8 @@
 | Export readiness report | `python scripts/report_observability_export_readiness.py` | OTel export config | — | [OBSERVABILITY.md](OBSERVABILITY.md) |
 | Real-mode LLM CI prereqs | `.\scripts\ci\verify_real_mode_prereqs.ps1` | GitHub vars/secrets names | — | [BUILD.md](../engineering/BUILD.md), [GOLDEN_COHORT_REAL_LLM_GATE.md](../runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md) |
 | Grafana dashboard import | — | Prometheus/Loki UIDs | — | [OBSERVABILITY_DASHBOARD_BINDING.md](../runbooks/OBSERVABILITY_DASHBOARD_BINDING.md) |
-| Prometheus alert rules | `promtool check rules infra/prometheus/archlucid-alerts.yml` | `archlucid-agent-output-quality` | — | [TECH_BACKLOG.md](TECH_BACKLOG.md) § TB-004 |
+| Prometheus alert rules | `promtool check rules infra/prometheus/archlucid-alerts.yml` | `archlucid-agent-output-quality` | — | [TECH_BACKLOG.md](TECH_BACKLOG.md) Â§ TB-004 |
 
 ---
 
-**Day-one role files** (`docs/onboarding/day-one-*.md`) stay for week-one checklists — use **this atlas** when you need the **canonical action map** (route × API × CLI) without narrative.
+**Day-one role files** (`docs/onboarding/day-one-*.md`) stay for week-one checklists — use **this atlas** when you need the **canonical action map** (route Ã— API Ã— CLI) without narrative.

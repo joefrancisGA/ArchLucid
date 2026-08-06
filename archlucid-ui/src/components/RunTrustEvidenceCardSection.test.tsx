@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+﻿import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import type { RunTrustEvidenceCard, TrustEvidenceFieldSnapshot } from "@/types/authority";
@@ -51,12 +51,12 @@ function card(overrides: Partial<RunTrustEvidenceCard> = {}): RunTrustEvidenceCa
       evidencePointersSummary: "Manifest and context snapshot pointers resolved.",
     },
     links: [
-      { rel: "traceabilityZip", path: "/v1/architecture/run/run-1/traceability-bundle.zip", label: "Review-trail ZIP" },
-      { rel: "traces", path: "/v1/architecture/run/run-1/traces", label: "Agent execution traces" },
-      { rel: "evidence", path: "/v1/architecture/run/run-1/evidence", label: "Evidence package" },
+      { rel: "traceabilityZip", path: "/v1/architecture/review/run-1/traceability-bundle.zip", label: "Review-trail ZIP" },
+      { rel: "traces", path: "/v1/architecture/review/run-1/traces", label: "Agent execution traces" },
+      { rel: "evidence", path: "/v1/architecture/review/run-1/evidence", label: "Evidence package" },
       {
         rel: "topFindingEvidenceChain",
-        path: "/v1/architecture/run/run-1/findings/finding-1/evidence-chain",
+        path: "/v1/architecture/review/run-1/findings/finding-1/evidence-chain",
         label: "Top finding evidence chain",
       },
     ],
@@ -76,15 +76,15 @@ describe("RunTrustEvidenceCardSection", () => {
     expect(screen.getByText(/stronger than a free-form AI answer/i)).toBeInTheDocument();
     expect(within(proofChain).getByRole("link", { name: "Evidence package" })).toHaveAttribute(
       "href",
-      "/api/proxy/v1/architecture/run/run-1/evidence",
+      "/api/proxy/v1/architecture/review/run-1/evidence",
     );
     expect(within(proofChain).getByRole("link", { name: "Top finding evidence chain" })).toHaveAttribute(
       "href",
-      "/api/proxy/v1/architecture/run/run-1/findings/finding-1/evidence-chain",
+      "/api/proxy/v1/architecture/review/run-1/findings/finding-1/evidence-chain",
     );
     expect(within(proofChain).getByRole("link", { name: "Review-trail ZIP" })).toHaveAttribute(
       "href",
-      "/api/proxy/v1/architecture/run/run-1/traceability-bundle.zip",
+      "/api/proxy/v1/architecture/review/run-1/traceability-bundle.zip",
     );
   });
 

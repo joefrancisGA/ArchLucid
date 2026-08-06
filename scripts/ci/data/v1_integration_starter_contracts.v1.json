@@ -1,4 +1,4 @@
-{
+﻿{
   "schema": "archlucid.v1-integration-starter-contracts.v1",
   "effectiveUtc": "2026-06-07T00:00:00Z",
   "description": "Sanitized V1 REST/CLI integration starter contracts for buyer automation paths. Paths are validated against the OpenAPI snapshot; bodies are shape examples only (no secrets).",
@@ -43,7 +43,7 @@
         {
           "id": "execute-run",
           "method": "POST",
-          "path": "/v1/architecture/run/{runId}/execute",
+          "path": "/v1/architecture/review/{runId}/execute",
           "expectedSuccessStatuses": [200, 202],
           "responseShape": "ArchitectureRun",
           "errorSemantics": [
@@ -60,7 +60,7 @@
         {
           "id": "poll-run",
           "method": "GET",
-          "path": "/v1/architecture/run/{runId}",
+          "path": "/v1/architecture/review/{runId}",
           "expectedSuccessStatuses": [200],
           "responseShape": "ArchitectureRun",
           "pollUntil": {
@@ -71,7 +71,7 @@
         {
           "id": "commit-run",
           "method": "POST",
-          "path": "/v1/architecture/run/{runId}/commit",
+          "path": "/v1/architecture/review/{runId}/finalize",
           "expectedSuccessStatuses": [200],
           "responseShape": "CommitRunResponse",
           "errorSemantics": [
@@ -129,7 +129,7 @@
       "label": "Simulate or commit pre-commit governance gate",
       "cliHints": [
         "curl POST /v1/governance/pre-commit/simulate",
-        "curl POST /v1/architecture/run/{runId}/commit"
+        "curl POST /v1/architecture/review/{runId}/finalize"
       ],
       "steps": [
         {
@@ -158,7 +158,7 @@
         {
           "id": "commit-with-gate",
           "method": "POST",
-          "path": "/v1/architecture/run/{runId}/commit",
+          "path": "/v1/architecture/review/{runId}/finalize",
           "expectedSuccessStatuses": [200],
           "responseShape": "CommitRunResponse",
           "optional": true,
@@ -180,7 +180,7 @@
         {
           "id": "run-roi",
           "method": "GET",
-          "path": "/v1/architecture/run/{runId}/roi",
+          "path": "/v1/architecture/review/{runId}/roi",
           "expectedSuccessStatuses": [200],
           "responseShape": "RunRoiSummaryResponse",
           "claimBoundary": "Estimates only — not invoiced Azure OpenAI spend; sponsor-safe SEND requires baselineCompletenessStatus per QUOTE_TO_PROOF_PACKET.md#roi-baseline-send-policy"

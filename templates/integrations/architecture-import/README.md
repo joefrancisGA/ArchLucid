@@ -1,6 +1,6 @@
-# Import Existing Architecture into ArchLucid
+﻿# Import Existing Architecture into ArchLucid
 
-**Pattern:** turn **infrastructure that already exists** (Terraform state, Azure Resource Manager (ARM) template, or a **CSV business brief**) into a **V1** `POST /v1/architecture/request` call. No new C# in your fork is required: the product already ingests `infrastructureDeclarations` on the run request; the **JSON** form maps to `ResourceDeclarationDocument` in the context-ingestion layer (see [CONTEXT_INGESTION.md](../../../docs/library/CONTEXT_INGESTION.md) § `json` / `simple-terraform`). **Alternatively**, pass **`format` = `terraform-show-json`** (full `terraform show -json`) — see **`docs/integrations/TERRAFORM_STATE_IMPORT.md`**.
+**Pattern:** turn **infrastructure that already exists** (Terraform state, Azure Resource Manager (ARM) template, or a **CSV business brief**) into a **V1** `POST /v1/architecture/request` call. No new C# in your fork is required: the product already ingests `infrastructureDeclarations` on the run request; the **JSON** form maps to `ResourceDeclarationDocument` in the context-ingestion layer (see [CONTEXT_INGESTION.md](../../../docs/library/CONTEXT_INGESTION.md) Â§ `json` / `simple-terraform`). **Alternatively**, pass **`format` = `terraform-show-json`** (full `terraform show -json`) — see **`docs/integrations/TERRAFORM_STATE_IMPORT.md`**.
 
 **Server-side:** [`ArchLucid.ContextIngestion/Infrastructure/TerraformShowJsonInfrastructureDeclarationParser.cs`](../../../ArchLucid.ContextIngestion/Infrastructure/TerraformShowJsonInfrastructureDeclarationParser.cs) parses **full** `terraform show -json` when **`format`** is **`terraform-show-json`** (public **`POST`** validator permits this format — **`ArchLucid.Api/Validators/InfrastructureDeclarationRequestValidator.cs`**).
 
@@ -43,7 +43,7 @@ $env:ARCHLUCID_API_KEY = "paste-key-from-vault"
 
 ## CSV (no Terraform / no ARM)
 
-**File:** [`brief-template.csv`](./brief-template.csv) — one line per system with **systemName**, **environment**, **description** (≥ 10 characters), **cloudProvider** (use **`Azure`** for the shipped V1 `CloudProvider` model), and optional **constraint** columns.
+**File:** [`brief-template.csv`](./brief-template.csv) — one line per system with **systemName**, **environment**, **description** (â‰¥ 10 characters), **cloudProvider** (use **`Azure`** for the shipped V1 `CloudProvider` model), and optional **constraint** columns.
 
 **Script:** [`Request-FromBriefCsv.ps1`](./Request-FromBriefCsv.ps1) — imports the first row, emits JSON, and POSTs when the env vars are set.
 
@@ -76,9 +76,9 @@ No infrastructure declarations are attached; this is a **narrative-only** reques
 2. **V1 list run summaries (proves `X-Api-Key` and Read path):**  
    `curl -sS -H "X-Api-Key: $ARCHLUCID_API_KEY" "$ARCHLUCID_API_URL/v1/architecture/runs?limit=1" | head -c 200; echo`
 3. **After a create:**  
-   `curl -sS -H "X-Api-Key: $ARCHLUCID_API_KEY" "$ARCHLUCID_API_URL/v1/architecture/run/<runIdFromResponse>" | head -c 500; echo`
+   `curl -sS -H "X-Api-Key: $ARCHLUCID_API_KEY" "$ARCHLUCID_API_URL/v1/architecture/review/<runIdFromResponse>" | head -c 500; echo`
 
-A **201** (or idempotent **200** with the right headers) on create and a **200** on `GET /v1/architecture/run/…` confirm the pipeline.
+A **201** (or idempotent **200** with the right headers) on create and a **200** on `GET /v1/architecture/review/…` confirm the pipeline.
 
 **Notes**
 
@@ -95,7 +95,7 @@ A **201** (or idempotent **200** with the right headers) on create and a **200**
 | **400** on `infrastructureDeclarations` | **`format`** must be **`json`**, **`simple-terraform`**, or **`terraform-show-json`** (case-insensitive); inner JSON expectations depend on **`format`** (see **`CONTEXT_INGESTION.md`**) |
 | **403** on POST | **Execute** policy missing for this key (Reader-only keys can list runs but not create) |
 
-**Correlation:** record `requestId` from the create response; it appears in `GET /v1/architecture/run/{runId}.run` as part of the run metadata. Match `runId` to your CI logs and Application Insights.
+**Correlation:** record `requestId` from the create response; it appears in `GET /v1/architecture/review/{runId}.run` as part of the run metadata. Match `runId` to your CI logs and Application Insights.
 
 ---
 

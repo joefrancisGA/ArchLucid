@@ -14,6 +14,9 @@ import {
   pathMatchesSettingsSecurityTrust,
   pathMatchesSettingsSupport,
   pathMatchesSettingsUsers,
+  sanitizeSettingsUsersTabParam,
+  settingsUsersNavigationPathname,
+  settingsUsersTabFromLocation,
 } from "@/lib/settings-admin-route-paths";
 
 describe("settings-admin-route-paths (TB-406 / TB-751)", () => {
@@ -42,5 +45,12 @@ describe("settings-admin-route-paths (TB-406 / TB-751)", () => {
     expect(LEGACY_SETTINGS_ROLES_PATH).toBe("/settings/roles");
     expect(LEGACY_WORKSPACE_SECURITY_TRUST_PATH).toBe("/workspace/security-trust");
     expect(LEGACY_ADMIN_SUPPORT_PATH).toBe("/admin/support");
+  });
+
+  it("resolves legacy roles bookmarks to the Roles tab and canonical navigation", () => {
+    expect(settingsUsersTabFromLocation(LEGACY_SETTINGS_ROLES_PATH, null, true)).toBe("roles");
+    expect(settingsUsersNavigationPathname(LEGACY_SETTINGS_ROLES_PATH)).toBe(SETTINGS_USERS_PATH);
+    expect(sanitizeSettingsUsersTabParam("keys", true)).toBe("keys");
+    expect(sanitizeSettingsUsersTabParam("keys", false)).toBe("users");
   });
 });

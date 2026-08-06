@@ -30,7 +30,11 @@ describe("MarketingTrustCenterBuyerBody", () => {
       "href",
       "#trust-contact-review",
     );
-    expect(within(secondary).getByRole("link", { name: /Privacy disclosures/i })).toHaveAttribute("href", "/privacy");
+    expect(within(secondary).getByRole("link", { name: /Privacy policy/i })).toHaveAttribute("href", "/privacy");
+    expect(within(secondary).getByRole("link", { name: /Assurance status/i })).toHaveAttribute(
+      "href",
+      "/security-trust",
+    );
   });
 
   it("renders three assurance glance panels with classification labels", () => {

@@ -11,7 +11,7 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     End-to-end: create digest subscription â†’ advisory scan persists digest and dispatcher records a delivery attempt â†’
+///     End-to-end: create digest subscription → advisory scan persists digest and dispatcher records a delivery attempt →
 ///     GET attempts.
 /// </summary>
 [Trait("Category", "Integration")]

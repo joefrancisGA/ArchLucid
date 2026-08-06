@@ -10,14 +10,14 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     HTTP coverage for <c>GET /v1/pilots/runs/recent-deltas</c> â€” the aggregated proof-of-ROI endpoint
+///     HTTP coverage for <c>GET /v1/pilots/runs/recent-deltas</c> — the aggregated proof-of-ROI endpoint
 ///     behind the BeforeAfterDeltaPanel top / sidebar variants.
 /// </summary>
 /// <remarks>
 ///     The integration host runs against an empty-by-default scope (no seeded committed runs), so the
 ///     contract surface we can assert here is: 200 OK, well-formed JSON envelope, count clamped to the
 ///     server-side bounds, and ReadAuthority gating (the integration host's DevelopmentBypass already
-///     supplies a Read principal â€” a 401/403 here would mean we accidentally tightened the policy).
+///     supplies a Read principal — a 401/403 here would mean we accidentally tightened the policy).
 /// </remarks>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]

@@ -1,4 +1,4 @@
-namespace ArchLucid.Core.Audit;
+﻿namespace ArchLucid.Core.Audit;
 
 public static class AuditEventTypes
 {
@@ -10,7 +10,7 @@ public static class AuditEventTypes
     /// <summary>Durable audit when a run's golden manifest is finalized (committed) in one atomic transaction with outbox.</summary>
     public const string ManifestFinalized = "ManifestFinalized";
 
-    /// <summary>Run submission (<c>POST /v1/architecture/run/{runId}/execute</c>).</summary>
+    /// <summary>Run submission (<c>POST /v1/architecture/review/{runId}/execute</c>).</summary>
     public const string RunSubmitted = "RunSubmitted";
 
     /// <summary>Operator viewed committed manifest JSON (<c>GET /v1/runs/{runId}/manifest</c>).</summary>
@@ -148,7 +148,7 @@ public static class AuditEventTypes
 
     public const string ReplayExecuted = "ReplayExecuted";
 
-    /// <summary>Workspace curation: <c>PATCH /v1/architecture/run/{{runId}}/pin</c> set or toggled <c>dbo.Runs.IsPinned</c>.</summary>
+    /// <summary>Workspace curation: <c>PATCH /v1/architecture/review/{{runId}}/pin</c> set or toggled <c>dbo.Runs.IsPinned</c>.</summary>
     public const string RunPinStateChanged = "RunPinStateChanged";
 
     /// <summary>Operator updated a Technology Ledger entry (<c>PATCH /v1/runs/{{runId}}/technology-ledger/{{entryId}}</c>).</summary>

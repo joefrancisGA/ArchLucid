@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -181,13 +181,13 @@ internal static class ShipGateEvidenceCommand
         sb.AppendLine();
         sb.AppendLine("## Evidence Links");
         sb.AppendLine();
-        sb.AppendLine($"- `GET /v1/architecture/run/{report.RunId}`");
-        sb.AppendLine($"- `GET /v1/architecture/run/{report.RunId}` (Gate 1 first-review completion signals)");
-        sb.AppendLine($"- `GET /v1/architecture/runs/{report.RunId}/provenance` (Gate 1 provenance graph probe)");
+        sb.AppendLine($"- `GET /v1/architecture/review/{report.RunId}`");
+        sb.AppendLine($"- `GET /v1/architecture/review/{report.RunId}` (Gate 1 first-review completion signals)");
+        sb.AppendLine($"- `GET /v1/architecture/reviews/{report.RunId}/provenance` (Gate 1 provenance graph probe)");
         sb.AppendLine($"- `GET /v1/pilots/runs/{report.RunId}/first-value-report` (Gate 4 Markdown export matrix + claim lint)");
-        sb.AppendLine($"- `POST /v1/architecture/run/{report.RunId}/analysis-report/export/docx` (Gate 4 DOCX export matrix)");
+        sb.AppendLine($"- `POST /v1/architecture/review/{report.RunId}/analysis-report/export/docx` (Gate 4 DOCX export matrix)");
         sb.AppendLine($"- `GET /v1/artifacts/runs/{report.RunId}/export` (Gate 4 run artifact ZIP export matrix)");
-        sb.AppendLine($"- `GET /v1/architecture/run/{report.RunId}/traceability-bundle.zip` (Gate 4 traceability audit hand-off ZIP)");
+        sb.AppendLine($"- `GET /v1/architecture/review/{report.RunId}/traceability-bundle.zip` (Gate 4 traceability audit hand-off ZIP)");
         sb.AppendLine("- `GET /v1/roi/executive-summary` (Gate 3 ROI coherence probe)");
         sb.AppendLine($"- `archlucid pilot citation-integrity --include-api` (Gate 2 embedded sampler for run `{report.RunId}`)");
 

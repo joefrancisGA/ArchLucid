@@ -3,11 +3,11 @@
     Opinionated Terraform plan/apply for the ArchLucid SaaS profile (see docs/REFERENCE_SAAS_STACK_ORDER.md).
 
 .DESCRIPTION
-    **Default:** runs only `infra/terraform-pilot` â€” the canonical pilot profile (cost knobs + nested stack metadata; no Azure resources in that root).
+    **Default:** runs only `infra/terraform-pilot` — the canonical pilot profile (cost knobs + nested stack metadata; no Azure resources in that root).
 
     **Opt-in (-MultiRoot):** runs `terraform init` then `terraform plan` (default) or `terraform apply -auto-approve` for each infrastructure root in dependency order. Backends and tfvars are still operator-supplied.
 
-    The pilot profile root is **not** included in the -MultiRoot list â€” it does not provision Azure resources.
+    The pilot profile root is **not** included in the -MultiRoot list — it does not provision Azure resources.
 
     **TB-656:** When `terraform-keyvault` creates user-assigned API/Worker identities (default), Key Vault RBAC is granted on the first keyvault apply — no TB-092 second pass.
 
@@ -17,7 +17,7 @@
     When set, runs apply instead of plan.
 
 .PARAMETER MultiRoot
-    When set, plans/applies each nested infrastructure root in order (separate state per directory â€” advanced path).
+    When set, plans/applies each nested infrastructure root in order (separate state per directory — advanced path).
 
 .PARAMETER TerraformRoots
     Optional override list of directory paths relative to repo root (supersedes -MultiRoot default lists).
@@ -145,11 +145,11 @@ function Invoke-TerraformKeyVaultWorkloadRbacPass {
     Opinionated Terraform plan/apply for the ArchLucid SaaS profile (see docs/REFERENCE_SAAS_STACK_ORDER.md).
 
 .DESCRIPTION
-    **Default:** runs only `infra/terraform-pilot` â€” the canonical pilot profile (cost knobs + nested stack metadata; no Azure resources in that root).
+    **Default:** runs only `infra/terraform-pilot` — the canonical pilot profile (cost knobs + nested stack metadata; no Azure resources in that root).
 
     **Opt-in (-MultiRoot):** runs `terraform init` then `terraform plan` (default) or `terraform apply -auto-approve` for each infrastructure root in dependency order. Backends and tfvars are still operator-supplied.
 
-    The pilot profile root is **not** included in the -MultiRoot list â€” it does not provision Azure resources.
+    The pilot profile root is **not** included in the -MultiRoot list — it does not provision Azure resources.
 
     **TB-656:** When `terraform-keyvault` creates user-assigned API/Worker identities (default), Key Vault RBAC is granted on the first keyvault apply — no TB-092 second pass.
 
@@ -159,7 +159,7 @@ function Invoke-TerraformKeyVaultWorkloadRbacPass {
     When set, runs apply instead of plan.
 
 .PARAMETER MultiRoot
-    When set, plans/applies each nested infrastructure root in order (separate state per directory â€” advanced path).
+    When set, plans/applies each nested infrastructure root in order (separate state per directory — advanced path).
 
 .PARAMETER TerraformRoots
     Optional override list of directory paths relative to repo root (supersedes -MultiRoot default lists).

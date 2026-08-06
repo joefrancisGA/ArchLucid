@@ -1,6 +1,6 @@
 /**
  * Base path prefixes for `permanent: true` redirects in `next.config.ts` that are legacy bookmark hops.
- * Namespace force-canonical redirects (`/reviews`, `/architectures`) are intentional — not listed here.
+ * Namespace redirects (`/reviews` → `/architecture/reviews`) and rewrites are intentional — not listed here.
  */
 export const NEXT_CONFIG_PERMANENT_REDIRECT_SOURCE_PATHS: readonly string[] = ["/audit"] as const;
 

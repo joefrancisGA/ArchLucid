@@ -80,7 +80,7 @@ public sealed class AuthorityQueryController(
     /// </param>
     /// <param name="ct"></param>
     /// <returns>Newest-first <see cref="CursorPagedResponse{T}" /> of <see cref="RunSummaryResponse" />.</returns>
-    [HttpGet("projects/{projectId}/runs")]
+    [HttpGet("projects/{projectId}/reviews")]
     [ProducesResponseType(typeof(CursorPagedResponse<RunSummaryResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -140,7 +140,7 @@ public sealed class AuthorityQueryController(
             });
     }
 
-    [HttpGet("runs/{runId:guid}/summary")]
+    [HttpGet("reviews/{runId:guid}/summary")]
     [ProducesResponseType(typeof(RunSummaryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -160,7 +160,7 @@ public sealed class AuthorityQueryController(
     /// <param name="runId">Run to load.</param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns><see cref="RunDetailDto" /> JSON, or 404 when missing or out of scope.</returns>
-    [HttpGet("runs/{runId:guid}")]
+    [HttpGet("reviews/{runId:guid}")]
     [ProducesResponseType(typeof(RunDetailDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -190,7 +190,7 @@ public sealed class AuthorityQueryController(
     }
 
     /// <summary>Buyer-proof run detail — whitelisted fields only; no embedded snapshots (TB-283).</summary>
-    [HttpGet("runs/{runId:guid}/buyer-summary")]
+    [HttpGet("reviews/{runId:guid}/buyer-summary")]
     [ProducesResponseType(typeof(BuyerRunDetailSummaryDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -232,7 +232,7 @@ public sealed class AuthorityQueryController(
     /// <summary>Records run-level approve / reject / request-remediation (TB-112).</summary>
     // idempotency-posture: explicit-idempotency-key
     [IdempotencyFilter]
-    [HttpPost("runs/{runId:guid}/disposition")]
+    [HttpPost("reviews/{runId:guid}/disposition")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(RunOperatorGovernanceDispositionDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -281,7 +281,7 @@ public sealed class AuthorityQueryController(
     }
 
     /// <summary>Returns redaction-safe retrieval grounding diagnostics for one run.</summary>
-    [HttpGet("runs/{runId:guid}/retrieval-grounding")]
+    [HttpGet("reviews/{runId:guid}/retrieval-grounding")]
     [ProducesResponseType(typeof(RunRetrievalGroundingResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -302,8 +302,8 @@ public sealed class AuthorityQueryController(
     /// <summary>
     ///     Audit events associated with this run, oldest-first (pipeline / lifecycle visibility for operators).
     /// </summary>
-    [HttpGet("runs/{runId:guid}/pipeline-timeline")]
-    [HttpGet("/v{version:apiVersion}/runs/{runId:guid}/review-trail")]
+    [HttpGet("reviews/{runId:guid}/pipeline-timeline")]
+    [HttpGet("reviews/{runId:guid}/review-trail")]
     [ProducesResponseType(typeof(IReadOnlyList<RunPipelineTimelineItemResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetRunPipelineTimeline(Guid runId, CancellationToken ct = default)
@@ -332,8 +332,8 @@ public sealed class AuthorityQueryController(
     }
 
     /// <summary>Unified decision rationale (authority or coordinator) for operator triage.</summary>
-    [HttpGet("runs/{runId:guid}/rationale")]
-    [HttpGet("/v{version:apiVersion}/runs/{runId:guid}/review-trail/rationale")]
+    [HttpGet("reviews/{runId:guid}/rationale")]
+    [HttpGet("reviews/{runId:guid}/review-trail/rationale")]
     [ProducesResponseType(typeof(RunRationale), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -352,7 +352,7 @@ public sealed class AuthorityQueryController(
     /// <param name="manifestId">Manifest primary key.</param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns><see cref="ManifestSummaryResponse" />, or 404 when unknown or out of scope.</returns>
-    [HttpGet("manifests/{manifestId:guid}/summary")]
+    [HttpGet("signed-review-records/{manifestId:guid}/summary")]
     [HttpGet("signed-records/{manifestId:guid}/summary")]
     [ProducesResponseType(typeof(ManifestSummaryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -395,8 +395,8 @@ public sealed class AuthorityQueryController(
     ///     artifacts.
     /// </summary>
     /// <remarks>Requires a completed authority pipeline; coordinator-only runs return 422.</remarks>
-    [HttpGet("runs/{runId:guid}/provenance")]
-    [HttpGet("/v{version:apiVersion}/runs/{runId:guid}/review-trail/provenance")]
+    [HttpGet("reviews/{runId:guid}/provenance")]
+    [HttpGet("reviews/{runId:guid}/review-trail/provenance")]
     [ProducesResponseType(typeof(DecisionProvenanceGraph), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
@@ -442,8 +442,8 @@ public sealed class AuthorityQueryController(
     }
 
     /// <summary>Returns the hydrated golden manifest JSON for the run when committed.</summary>
-    [HttpGet("runs/{runId:guid}/manifest")]
-    [HttpGet("/v{version:apiVersion}/runs/{runId:guid}/manifest")]
+    [HttpGet("reviews/{runId:guid}/signed-review-record")]
+    [HttpGet("reviews/{runId:guid}/manifest")]
     [ProducesResponseType(typeof(ManifestDocument), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

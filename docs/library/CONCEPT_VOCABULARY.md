@@ -49,13 +49,13 @@ Former standalone: `docs/go-to-market/UI_GLOSSARY_V1.md` → this section.
 
 | Buyer-facing UI | Technical / unchanged |
 |----------------|----------------------|
-| **Review** | Run, run ID, `ArchitectureRun`, API `/v1/architecture/run/...` |
-| **Architecture package** | Review package (legacy UI noun), golden manifest / committed manifest — findings, evidence trail, signed review record, decisions, and exports for one architecture review |
-| **Signed review record** | Signed decision record, governance decision record — the package locked at finalize |
-| **Decision** | Decision record (when naming the package); conflating disposition rows with the signed review record |
-| **Finalize review** / **Finalize** (when context clear) | Commit, `POST .../commit`, architecture package persistence |
-| **Architecture snapshot** / **Snapshot** | Point-in-time manifest slice inside a package; API type `GoldenManifest` where persisted |
-| **Evidence graph** | Knowledge graph internally; URL path `/graph` |
+| **Review** | API `/v1/architecture/review/...` and `/v1/architecture/reviews`; route param often still named `runId` (Review ID value); types `ArchitectureRun` |
+| **Architecture package** | Findings, evidence trail, signed review record, decisions, and exports for one architecture review |
+| **Signed review record** | API `signed-review-record` / `signed-records`; type `GoldenManifest` may still appear in code |
+| **Decision** | Disposition row in the Decision register — not the package itself |
+| **Finalize review** / **Finalize** | `POST .../finalize` (former `.../commit`) |
+| **Architecture snapshot** / **Snapshot** | Point-in-time slice inside a package |
+| **Evidence graph** | Canonical `/v1/evidence-graph/...` (alias `/v1/graph/...`) |
 
 ### Persona terms (role nouns in UI copy) {#persona-terms}
 
@@ -86,9 +86,9 @@ Use the **Use** column for any new user-facing string that names a **person** or
 
 Use **Architecture review** in headings and tooltips where **Review** alone would be ambiguous.
 
-### Constraints (do not change without ADR)
+### Constraints (change only with ADR)
 
-- HTTP paths (`/v1/...`), OpenAPI titles, `openapi-v1.contract.snapshot.json`, CLI command names, durable audit `AuditEventTypes` names, and correlation-id documentation.
+- HTTP paths (`/v1/...`), OpenAPI titles, `openapi-v1.contract.snapshot.json`, CLI command names, durable audit `AuditEventTypes` names, and correlation-id documentation — **buyer-noun path renames landed in [ADR 0064](../architecture/adrs/0064-buyer-vocabulary-api-and-schema-alignment.md)**.
 - React route paths remain unchanged unless a redirect is required (prefer label-only changes in the UI).
 
 ---

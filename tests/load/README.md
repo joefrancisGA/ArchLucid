@@ -1,4 +1,4 @@
-# k6 load scripts (`tests/load`)
+﻿# k6 load scripts (`tests/load`)
 
 ## Core pilot load baseline (Flow A)
 
@@ -27,7 +27,7 @@ set K6_LOAD_PROFILE=mixed & k6 run tests/load/core-pilot.js
 
 On PowerShell, use `$env:K6_LOAD_PROFILE='read'` before `k6 run`.
 
-**Output:** `handleSummary` writes a JSON fragment to `K6_BASELINE_PATH` or `tests/load/results/baseline-${K6_BASELINE_DATE}.json` (default `baseline-local.json` if unset). Each k6 `metrics` block includes **p50, p95, p99** on `http_req_duration` (global and per-`endpoint` tag), **http_req_failed** (error rate), and **http_reqs** (count + rate, ≈ rps in the test window).
+**Output:** `handleSummary` writes a JSON fragment to `K6_BASELINE_PATH` or `tests/load/results/baseline-${K6_BASELINE_DATE}.json` (default `baseline-local.json` if unset). Each k6 `metrics` block includes **p50, p95, p99** on `http_req_duration` (global and per-`endpoint` tag), **http_req_failed** (error rate), and **http_reqs** (count + rate, â‰ˆ rps in the test window).
 
 **One merged baseline (all three profiles):** after installing **k6** and **Python 3**:
 
@@ -117,7 +117,7 @@ All scripts accept **`ARCHLUCID_BASE_URL`** (preferred) or **`BASE_URL`** (alias
 
 ## `k6-api-smoke.js` — operator path (CI + local)
 
-Exercises a **Core Pilot-shaped** slice: **`GET /health/ready`**, **`GET /version`**, **`POST /v1/architecture/request`**, **`GET /v1/architecture/run/{id}`** (run snapshot), **`GET /v1/authority/projects/{project}/runs?take=10`**, then (unless **`ARCHLUCID_K6_OPERATOR_MINIMAL=1`**) **`POST /v1/internal/architecture/runs/{id}/seed-fake-results`**, **`POST /v1/architecture/run/{id}/commit`**, **`GET /v1/artifacts/manifests/{manifestId}`** (artifact descriptors). **CI/pilot smoke budgets** use **`k6api:*`** tags and **`ARCHLUCID_K6_P95_*`** env overrides — **not** contractual production SLOs (see **`docs/library/PERFORMANCE_TESTING.md`**).
+Exercises a **Core Pilot-shaped** slice: **`GET /health/ready`**, **`GET /version`**, **`POST /v1/architecture/request`**, **`GET /v1/architecture/review/{id}`** (run snapshot), **`GET /v1/authority/projects/{project}/runs?take=10`**, then (unless **`ARCHLUCID_K6_OPERATOR_MINIMAL=1`**) **`POST /v1/internal/architecture/runs/{id}/seed-fake-results`**, **`POST /v1/architecture/review/{id}/commit`**, **`GET /v1/artifacts/manifests/{manifestId}`** (artifact descriptors). **CI/pilot smoke budgets** use **`k6api:*`** tags and **`ARCHLUCID_K6_P95_*`** env overrides — **not** contractual production SLOs (see **`docs/library/PERFORMANCE_TESTING.md`**).
 
 **Environment**
 

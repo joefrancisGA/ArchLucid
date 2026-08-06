@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
 
@@ -97,7 +97,7 @@ public sealed class TenantIsolationNegativeTestRunnerTests
                     return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { title = "Not found" }));
                 }
 
-                if (path.EndsWith($"/v1/architecture/run/{RunId}", StringComparison.Ordinal))
+                if (path.EndsWith($"/v1/architecture/review/{RunId}", StringComparison.Ordinal))
                     return Task.FromResult(JsonResponse(HttpStatusCode.OK, new { run = new { runId = RunId } }));
 
                 return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { }));

@@ -844,8 +844,8 @@
     {
       "controller_file": "Authority/EvidenceBulkUploadController.cs",
       "class_name": "EvidenceBulkUploadController",
-      "route_template": "v{version:apiVersion}/architecture/run/{runId:guid}/evidence",
-      "normalized_prefix": "/v1/architecture/run/{runId:guid}/evidence",
+      "route_template": "v{version:apiVersion}/architecture/review/{runId:guid}/evidence",
+      "normalized_prefix": "/v1/architecture/review/{runId:guid}/evidence",
       "commercial_tier": "none",
       "class_policy": "ExecuteAuthority",
       "exemption": null,

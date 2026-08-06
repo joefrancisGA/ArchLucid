@@ -1,8 +1,8 @@
-# Greenfield SQL commit read-after-write gap (2026-06-23)
+﻿# Greenfield SQL commit read-after-write gap (2026-06-23)
 
 ## Symptom
 
-Integration tests that POST `/v1/architecture/run/{runId}/execute` then immediately POST `/commit`
+Integration tests that POST `/v1/architecture/review/{runId}/execute` then immediately POST `/commit`
 intermittently receive **409 Conflict**:
 
 > Commit for run '{runId}' raced with another commit. The manifest could not be loaded yet; retry the request.
@@ -23,7 +23,7 @@ under load, not a test harness bug.
 ## Test-side mitigation (2026-06-23)
 
 `GreenfieldCommittedRunReadinessPoll.WaitUntilRunManifestReadableForCommitAsync` polls
-`GET /v1/architecture/run/{runId}` until:
+`GET /v1/architecture/review/{runId}` until:
 
 - `Status == ReadyForCommit`, and
 - `Results` contains at least one agent result (execute finished).

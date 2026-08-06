@@ -2,7 +2,7 @@ import { REVIEWS_LIST_PATH } from "@/lib/architecture-routes";
 import { signedRecordArtifactPath } from "@/lib/signed-records-paths";
 
 /**
- * Run-scoped artifact Preview entry (App Router under reviews â†’ redirect to signed-records).
+ * Run-scoped artifact Preview entry (App Router under reviews → redirect to signed-records).
  * Uses {@link REVIEWS_LIST_PATH} so public vs on-disk list prefix stay consistent.
  */
 export function runArtifactPreviewPath(runId: string, artifactId: string): string {

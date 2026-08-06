@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -17,7 +17,7 @@ internal static class ArchitectureRequestConcurrencyTestSupport
     /// <summary>
     ///     Default <see cref="HttpClient.Timeout" /> is 100s; create-run idempotency uses <c>sp_getapplock</c> with a
     ///     wait budget up to configured <c>ArchLucid:CreateRun:DistributedIdempotencyLockTimeoutMilliseconds</c>
-    ///     (≤1 hour clamp; greenfield SQL tests configure ~25 minutes so waiters survive a ~20-minute pipeline winner).
+    ///     (â‰¤1 hour clamp; greenfield SQL tests configure ~25 minutes so waiters survive a ~20-minute pipeline winner).
     ///     <see cref="PostSingleArchitectureRequestAsync" /> does not raise <see cref="HttpClient.Timeout" /> (callers align via
     ///     <see cref="AlignHttpClientTimeoutForSqlIdempotencyLockChain" /> before first HTTP when needed).
     ///     A single POST can wait on the lock and then run the authority pipeline (seconds for Simulator in practice; bounded by host
@@ -44,7 +44,7 @@ internal static class ArchitectureRequestConcurrencyTestSupport
     internal static readonly TimeSpan GreenfieldSqlCommitAttemptHttpTimeout = TimeSpan.FromSeconds(90);
 
     /// <summary>
-    ///     Total wall-clock budget for the commit retry loop (CI #2377: 25 × 90s attempts consumed ~39 min on TB-294/295).
+    ///     Total wall-clock budget for the commit retry loop (CI #2377: 25 Ã— 90s attempts consumed ~39 min on TB-294/295).
     /// </summary>
     internal static readonly TimeSpan GreenfieldSqlCommitRetryWallClockBudget = TimeSpan.FromMinutes(8);
 
@@ -58,7 +58,7 @@ internal static class ArchitectureRequestConcurrencyTestSupport
     ///     Must cover <see cref="WarmListRunsPathAsync" /> worst-case warmup (~8 min at max backoff) plus at least two full
     ///     <see cref="GreenfieldSqlArchitectureRequestBurstHttpTimeout" /> cycles, so a first attempt that times out on a slow
     ///     CI shard can be retried before the outer bootstrap token fires.
-    ///     2 × 15 min + 8 min list-runs overhead + 2 min headroom = 40 min minimum; 50 min gives one extra 15-min retry slot
+    ///     2 Ã— 15 min + 8 min list-runs overhead + 2 min headroom = 40 min minimum; 50 min gives one extra 15-min retry slot
     ///     for unusually loaded shards.
     /// </summary>
     internal static readonly TimeSpan GreenfieldSqlHostBootstrapBudget = TimeSpan.FromMinutes(50);
@@ -522,7 +522,7 @@ internal static class ArchitectureRequestConcurrencyTestSupport
             try
             {
                 using HttpResponseMessage response = await client.PostAsync(
-                    $"/v1/architecture/run/{runId}/execute",
+                    $"/v1/architecture/review/{runId}/execute",
                     null,
                     attemptBudget.Token);
 
@@ -552,7 +552,7 @@ internal static class ArchitectureRequestConcurrencyTestSupport
         }
 
         throw new InvalidOperationException(
-            "POST /v1/architecture/run/{runId}/execute did not succeed after "
+            "POST /v1/architecture/review/{runId}/execute did not succeed after "
             + maxAttempts
             + " greenfield transient retries.");
     }
@@ -603,7 +603,7 @@ internal static class ArchitectureRequestConcurrencyTestSupport
             if (totalWallClock.Elapsed >= GreenfieldSqlCommitRetryWallClockBudget)
             {
                 throw new GreenfieldCommitRetryBudgetExhaustedException(
-                    "POST /v1/architecture/run/"
+                    "POST /v1/architecture/review/"
                     + runId
                     + "/commit retry budget exhausted after "
                     + totalWallClock.Elapsed.TotalMinutes.ToString("N1", System.Globalization.CultureInfo.InvariantCulture)
@@ -623,7 +623,7 @@ internal static class ArchitectureRequestConcurrencyTestSupport
             try
             {
                 using HttpResponseMessage response = await client.PostAsync(
-                    $"/v1/architecture/run/{runId}/commit",
+                    $"/v1/architecture/review/{runId}/finalize",
                     null,
                     attemptBudget.Token);
 
@@ -643,7 +643,7 @@ internal static class ArchitectureRequestConcurrencyTestSupport
                 if (response.StatusCode is not (HttpStatusCode.Conflict or HttpStatusCode.ServiceUnavailable))
                 {
                     throw new Xunit.Sdk.XunitException(
-                        $"POST /v1/architecture/run/{runId}/commit failed after {attempt + 1} attempt(s). "
+                        $"POST /v1/architecture/review/{runId}/finalize failed after {attempt + 1} attempt(s). "
                         + $"Status={(int)response.StatusCode}. Body={lastBody}");
                 }
 
@@ -660,7 +660,7 @@ internal static class ArchitectureRequestConcurrencyTestSupport
                                 cancellationToken);
 
                         throw new GreenfieldCommitRetryBudgetExhaustedException(
-                            "POST /v1/architecture/run/"
+                            "POST /v1/architecture/review/"
                             + runId
                             + "/commit returned persistent manifest-not-loaded 409 after "
                             + consecutiveManifestNotLoaded409.ToString(System.Globalization.CultureInfo.InvariantCulture)
@@ -697,7 +697,7 @@ internal static class ArchitectureRequestConcurrencyTestSupport
         }
 
         throw new GreenfieldCommitRetryBudgetExhaustedException(
-            "POST /v1/architecture/run/{runId}/commit did not succeed after "
+            "POST /v1/architecture/review/{runId}/finalize did not succeed after "
             + maxAttempts
             + " greenfield transient retries."
             + (lastStatusCode is null

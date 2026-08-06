@@ -1,6 +1,6 @@
-namespace ArchLucid.Core.Configuration;
+﻿namespace ArchLucid.Core.Configuration;
 
-/// <summary>Optional hour multipliers for <c>GET /v1/architecture/run/{runId}/roi</c> (directional estimates).</summary>
+/// <summary>Optional hour multipliers for <c>GET /v1/architecture/review/{runId}/roi</c> (directional estimates).</summary>
 public sealed class RunRoiEstimatorOptions
 {
     public const string SectionPath = "Architecture:RunRoiEstimator";

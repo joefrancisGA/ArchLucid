@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Preflight, failure scanning, filenames, and report output for {@link ../live-api-demo-screenshots.spec.ts}.
  */
 import * as fs from "node:fs";
@@ -163,7 +163,7 @@ export async function runDemoScreenshotPreflight(
 
   try {
     const runRes = await request.get(
-      `${liveApiBase}/v1/architecture/run/${encodeURIComponent(TRUSTED_BASELINE_RUN_ID_N)}`,
+      `${liveApiBase}/v1/architecture/review/${encodeURIComponent(TRUSTED_BASELINE_RUN_ID_N)}`,
       {
         headers: liveAcceptHeaders(),
       },
@@ -248,9 +248,9 @@ export async function runDemoScreenshotPreflight(
     const auditItems = await listRecentAudit(request, 200);
     const ok = auditItems.length >= 1;
 
-    push("Audit API (≥1 event)", ok, ok ? undefined : `count=${auditItems.length}`);
+    push("Audit API (â‰¥1 event)", ok, ok ? undefined : `count=${auditItems.length}`);
   } catch (e) {
-    push("Audit API (≥1 event)", false, (e as Error).message);
+    push("Audit API (â‰¥1 event)", false, (e as Error).message);
   }
 
   try {

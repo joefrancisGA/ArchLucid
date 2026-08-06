@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Text.Json;
@@ -84,8 +84,7 @@ public sealed class RunQueryController(
     /// <summary>
     ///     Returns the canonical run aggregate (tasks, results, manifest, decision traces) for <paramref name="runId" />.
     /// </summary>
-    [HttpGet("run/{runId}")]
-    [HttpGet("/v{version:apiVersion}/runs/{runId}")]
+    [HttpGet("review/{runId}")]
     [ProducesResponseType(typeof(RunDetailsResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetRun(
@@ -134,7 +133,7 @@ public sealed class RunQueryController(
     }
 
     /// <summary>Directional analyst-hour estimate for packaging work implied by this run (configured multipliers).</summary>
-    [HttpGet("run/{runId}/roi")]
+    [HttpGet("review/{runId}/roi")]
     [ProducesResponseType(typeof(RunRoiScorecardDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetRunRoiEstimate(
@@ -152,7 +151,7 @@ public sealed class RunQueryController(
     }
 
     /// <summary>Authority pipeline stage start/end outcomes for operator run investigation (TB-250).</summary>
-    [HttpGet("run/{runId}/stage-timeline")]
+    [HttpGet("review/{runId}/stage-timeline")]
     [ProducesResponseType(typeof(IReadOnlyList<StageTimelineSummary>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetRunStageTimeline(
@@ -178,7 +177,7 @@ public sealed class RunQueryController(
     }
 
     /// <summary>Keyset list of relational finding metadata for <paramref name="runId" />.</summary>
-    [HttpGet("run/{runId}/findings")]
+    [HttpGet("review/{runId}/findings")]
     [ProducesResponseType(typeof(RunFindingsListResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ListRunFindings(
@@ -287,7 +286,7 @@ public sealed class RunQueryController(
     ///     Bulk export of flattened architecture findings for <paramref name="runId" /> as <c>text/csv</c> (one row per
     ///     finding across agent results).
     /// </summary>
-    [HttpGet("run/{runId}/findings/export/csv")]
+    [HttpGet("review/{runId}/findings/export/csv")]
     [Produces("text/csv")]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -357,8 +356,8 @@ public sealed class RunQueryController(
     }
 
     /// <summary>Knowledge-graph snapshot packaged for interactive Cytoscape.js renders.</summary>
-    [HttpGet("runs/{runId}/graph/interactive")]
-    [HttpGet("runs/{runId}/graph/cytoscape")]
+    [HttpGet("reviews/{runId}/graph/interactive")]
+    [HttpGet("reviews/{runId}/graph/cytoscape")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(CytoscapeInteractiveGraphResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -439,7 +438,7 @@ public sealed class RunQueryController(
     ///     Returns the coordinator linkage graph (request, tasks, results, findings, manifest, traces, decisions) and a sorted
     ///     trace timeline.
     /// </summary>
-    [HttpGet("runs/{runId}/provenance")]
+    [HttpGet("reviews/{runId}/provenance")]
     [ProducesResponseType(typeof(ArchitectureRunProvenanceGraph), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetArchitectureRunProvenance(
@@ -463,8 +462,8 @@ public sealed class RunQueryController(
     ///     before the response.
     /// </summary>
     [ApiExplorerSettings(IgnoreApi = true)]
-    [HttpGet("runs/{runId}/provenance/{nodeId}/explanation")]
-    [HttpGet("run/{runId}/provenance/{nodeId}/explanation")]
+    [HttpGet("reviews/{runId}/provenance/{nodeId}/explanation")]
+    [HttpGet("review/{runId}/provenance/{nodeId}/explanation")]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status501NotImplemented)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetProvenanceNodeExplanation(
@@ -502,7 +501,7 @@ public sealed class RunQueryController(
     ///     Returns decision-tree nodes materialized for <paramref name="runId" /> after commit (empty before commit yields
     ///     404).
     /// </summary>
-    [HttpGet("run/{runId}/decisions")]
+    [HttpGet("review/{runId}/decisions")]
     [ProducesResponseType(typeof(DecisionNodeResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetRunDecisions(
@@ -525,7 +524,7 @@ public sealed class RunQueryController(
     /// <summary>
     ///     Returns the hydrated <see cref="AgentEvidencePackage" /> used when agents ran for <paramref name="runId" />.
     /// </summary>
-    [HttpGet("run/{runId}/evidence")]
+    [HttpGet("review/{runId}/evidence")]
     [ProducesResponseType(typeof(AgentEvidencePackageResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetRunEvidence(
@@ -543,9 +542,9 @@ public sealed class RunQueryController(
 
     /// <summary>
     ///     Returns a page of <see cref="AgentExecutionTraceSummary" /> rows for <paramref name="runId" /> (no prompts or
-    ///     raw model output — use <c>GET /v1/internal/architecture/run/{runId}/traces/forensics</c> for operator forensics).
+    ///     raw model output — use <c>GET /v1/internal/architecture/review/{runId}/traces/forensics</c> for operator forensics).
     /// </summary>
-    [HttpGet("run/{runId}/traces")]
+    [HttpGet("review/{runId}/traces")]
     [ProducesResponseType(typeof(AgentExecutionTraceResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetRunTraces(
@@ -594,7 +593,7 @@ public sealed class RunQueryController(
     /// <summary>
     ///     Trace-derived redacted invocation forensics for operator review (TB-110). Not a structured MCP tool-call ledger.
     /// </summary>
-    [HttpGet("run/{runId}/tool-invocation-forensics")]
+    [HttpGet("review/{runId}/tool-invocation-forensics")]
     [Authorize(Policy = ArchLucidPolicies.RequireOperatorRole)]
     [ProducesResponseType(typeof(RunToolInvocationForensicsResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -630,8 +629,7 @@ public sealed class RunQueryController(
     ///     <paramref name="limit" /> and <paramref name="offset" />; with <paramref name="cursor" />, uses keyset
     ///     continuation.
     /// </summary>
-    [HttpGet("runs")]
-    [HttpGet("/v{version:apiVersion}/runs")]
+    [HttpGet("reviews")]
     [ProducesResponseType(typeof(CursorPagedResponse<RunListItemResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> ListRuns(
         [FromQuery] string? cursor = null,
@@ -696,7 +694,7 @@ public sealed class RunQueryController(
     /// <summary>
     ///     Returns persisted artifact pointers for one finding (manifest snapshot ids, graph nodes, agent trace ids).
     /// </summary>
-    [HttpGet("run/{runId}/findings/{findingId}/evidence-chain")]
+    [HttpGet("review/{runId}/findings/{findingId}/evidence-chain")]
     [ProducesResponseType(typeof(FindingEvidenceChainResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetFindingEvidenceChain(
@@ -719,7 +717,7 @@ public sealed class RunQueryController(
     ///     Same payload as <c>GET /v1/findings/{findingId}/inspect</c>; returns <c>404</c> when the finding&apos;s persisted
     ///     run identifier does not match <paramref name="runId" /> (prevents cross-run ambiguity in deep links).
     /// </summary>
-    [HttpGet("run/{runId}/findings/{findingId}/inspect")]
+    [HttpGet("review/{runId}/findings/{findingId}/inspect")]
     [ProducesResponseType(typeof(FindingInspectResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetFindingInspectForRun(
@@ -766,8 +764,8 @@ public sealed class RunQueryController(
     }
 
     /// <summary>ZIP bundle: run summary, audit slice for the run, and decision traces (size-capped).</summary>
-    [HttpGet("run/{runId}/traceability-bundle.zip")]
-    [HttpGet("/v{version:apiVersion}/runs/{runId}/review-trail/export")]
+    [HttpGet("review/{runId}/traceability-bundle.zip")]
+    [HttpGet("review/{runId}/review-trail/export")]
     [Produces("application/zip")]
     [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

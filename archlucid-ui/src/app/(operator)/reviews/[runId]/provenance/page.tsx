@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+﻿import { cn } from "@/lib/utils";
 import { notFound } from "next/navigation";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -12,7 +12,7 @@ import { type ApiResponseWithTrace, getArchitectureRunProvenance } from "@/lib/a
 import type { ArchitectureRunProvenanceGraph } from "@/types/architecture-provenance";
 import Link from "next/link";
 
-/** Server-rendered coordinator provenance: linkage graph + trace timeline (GET /v1/architecture/runs/…/provenance). */
+/** Server-rendered coordinator provenance: linkage graph + trace timeline (GET /v1/architecture/reviews/…/provenance). */
 export default async function RunProvenancePage({
   params,
 }: {

@@ -63,34 +63,34 @@ public sealed class ApiControllerProblemDetailsSourceGuardTests
 
             if (returnNotFound.IsMatch(text))
             {
-                violations.Add($"{file}: return NotFound(...) â€” use NotFoundProblem per RFC 9457");
+                violations.Add($"{file}: return NotFound(...) — use NotFoundProblem per RFC 9457");
             }
 
             if (returnConflict.IsMatch(text))
             {
-                violations.Add($"{file}: return Conflict(...) â€” use ConflictProblem per RFC 9457");
+                violations.Add($"{file}: return Conflict(...) — use ConflictProblem per RFC 9457");
             }
 
             if (returnBadRequest.IsMatch(text))
             {
-                violations.Add($"{file}: return BadRequest(...) â€” use BadRequestProblem per RFC 9457");
+                violations.Add($"{file}: return BadRequest(...) — use BadRequestProblem per RFC 9457");
             }
 
             if (bareStatusCode.IsMatch(text))
             {
                 violations.Add(
-                    $"{file}: bare StatusCode(nnn) â€” use Problem/IActionResult factory per docs/API_ERROR_CONTRACT.md");
+                    $"{file}: bare StatusCode(nnn) — use Problem/IActionResult factory per docs/API_ERROR_CONTRACT.md");
             }
 
             if (statusCodeNamed404.IsMatch(text))
             {
                 violations.Add(
-                    $"{file}: return StatusCode(StatusCodes.Status404NotFound) â€” use NotFoundProblem per RFC 9457");
+                    $"{file}: return StatusCode(StatusCodes.Status404NotFound) — use NotFoundProblem per RFC 9457");
             }
 
             if (objectResultWithStatus.IsMatch(text))
             {
-                violations.Add($"{file}: ObjectResult with StatusCode property â€” prefer typed Problem() helpers");
+                violations.Add($"{file}: ObjectResult with StatusCode property — prefer typed Problem() helpers");
             }
         }
 

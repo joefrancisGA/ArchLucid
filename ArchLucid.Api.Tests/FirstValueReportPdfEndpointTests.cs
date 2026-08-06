@@ -6,7 +6,7 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     HTTP coverage for <c>POST /v1/pilots/runs/{runId}/first-value-report.pdf</c> â€” the in-product CTA
+///     HTTP coverage for <c>POST /v1/pilots/runs/{runId}/first-value-report.pdf</c> — the in-product CTA
 ///     that produces a sponsor-shareable PDF projection of the canonical first-value-report Markdown.
 ///     404 on unknown run is the stable contract surface (parity with the Markdown sibling).
 /// </summary>

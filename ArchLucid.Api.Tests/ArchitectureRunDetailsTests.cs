@@ -25,11 +25,11 @@ public sealed class ArchitectureRunDetailsTests(ArchLucidApiFactory factory) : I
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
-        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
         await executeResponse.EnsureSuccessForTestAsync();
-        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
+        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
         await commitResponse.EnsureSuccessForTestAsync();
-        HttpResponseMessage runResponse = await Client.GetAsync($"/v1/architecture/run/{runId}");
+        HttpResponseMessage runResponse = await Client.GetAsync($"/v1/architecture/review/{runId}");
         await runResponse.EnsureSuccessForTestAsync();
         RunDetailsResponseDto? payload =
             await runResponse.Content.ReadFromJsonAsync<RunDetailsResponseDto>(JsonOptions);
@@ -54,7 +54,7 @@ public sealed class ArchitectureRunDetailsTests(ArchLucidApiFactory factory) : I
             JsonDocument.Parse(await authorityDetailResponse.Content.ReadAsStringAsync());
         authorityDetailDoc.RootElement.GetProperty("executionFlavorBuyerSummary").GetString().Should().NotBeNullOrWhiteSpace();
 
-        HttpResponseMessage roiResponse = await Client.GetAsync($"/v1/architecture/run/{runId}/roi");
+        HttpResponseMessage roiResponse = await Client.GetAsync($"/v1/architecture/review/{runId}/roi");
         await roiResponse.EnsureSuccessForTestAsync();
         using JsonDocument doc = JsonDocument.Parse(await roiResponse.Content.ReadAsStringAsync());
 

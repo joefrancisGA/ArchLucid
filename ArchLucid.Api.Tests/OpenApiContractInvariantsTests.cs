@@ -1,4 +1,4 @@
-using System.Text.Json.Nodes;
+﻿using System.Text.Json.Nodes;
 
 using FluentAssertions;
 
@@ -40,7 +40,7 @@ public sealed class OpenApiContractInvariantsTests(OpenApiContractWebAppFactory 
         paths.Should().NotBeNull();
         paths.ContainsKey("/v1/register").Should().BeTrue("self-service registration remains a documented entrypoint");
 
-        JsonNode? executePost = paths["/v1/architecture/run/{runId}/execute"]?["post"];
+        JsonNode? executePost = paths["/v1/architecture/review/{runId}/execute"]?["post"];
         executePost.Should().NotBeNull();
         JsonObject? executeResponses = executePost["responses"]?.AsObject();
         executeResponses.Should().NotBeNull();
@@ -58,7 +58,7 @@ public sealed class OpenApiContractInvariantsTests(OpenApiContractWebAppFactory 
             .BeTrue("structuralExecutionMode must be required on ArchitectureRun in OpenAPI");
 
         // TB-919 (2026-07-20): the "/v1/runs/{runId}/submit" deprecated alias was deleted with the coordinator
-        // strangler migration closure; "/v1/architecture/run/{runId}/execute" above is the sole route now.
+        // strangler migration closure; "/v1/architecture/review/{runId}/execute" above is the sole route now.
         paths.ContainsKey("/v1/runs/{runId}/submit").Should().BeFalse(
             "the deprecated run-lifecycle alias routes were retired by TB-919 — this path must not reappear without a new ADR");
     }

@@ -324,6 +324,6 @@ Set page scores only when the owner provides values; leave 0 otherwise.
 
 **Related docs:**
 
-- [`ui_routes.md`](ui_routes.md) â€” route catalog and demo tiers
+- [`ui_routes.md`](ui_routes.md) — route catalog and demo tiers
 - [`NAV_CONFIG_CONTRACT.md`](../../archlucid-ui/docs/NAV_CONFIG_CONTRACT.md)
 - [`PRODUCT_DOCUMENTATION_PRESENTATION.md`](../library/PRODUCT_DOCUMENTATION_PRESENTATION.md)

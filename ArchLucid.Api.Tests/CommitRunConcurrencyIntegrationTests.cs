@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -11,7 +11,7 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     Parallel <c>POST /v1/architecture/run/{runId}/commit</c> after execute: coordinator reconciliation returns the same
+///     Parallel <c>POST /v1/architecture/review/{runId}/finalize</c> after execute: coordinator reconciliation returns the same
 ///     manifest version for every parallel caller once the first commit wins.
 /// </summary>
 [Trait("Suite", "Core")]
@@ -46,14 +46,14 @@ public sealed class CommitRunConcurrencyIntegrationTests
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
-        HttpResponseMessage executeResponse = await client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        HttpResponseMessage executeResponse = await client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
         await executeResponse.EnsureSuccessForTestAsync();
         const int parallel = 8;
         Task<HttpResponseMessage>[] tasks = new Task<HttpResponseMessage>[parallel];
 
         for (int i = 0; i < parallel; i++)
         {
-            tasks[i] = client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
+            tasks[i] = client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
         }
 
         HttpResponseMessage[] responses = await Task.WhenAll(tasks);

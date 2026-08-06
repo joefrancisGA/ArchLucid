@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -39,14 +39,14 @@ public sealed class RealModeSmokeRunnerTests
             if (req.Method == HttpMethod.Post && path == "/v1/architecture/request")
                 return Task.FromResult(JsonResponse(HttpStatusCode.Created, new { run = new { runId = RunId } }));
 
-            if (req.Method == HttpMethod.Post && path == $"/v1/architecture/run/{RunId}/execute")
+            if (req.Method == HttpMethod.Post && path == $"/v1/architecture/review/{RunId}/execute")
             {
                 req.Headers.GetValues(PilotTryRealModeHeaders.PilotTryRealMode).Should().ContainSingle("1");
 
                 return Task.FromResult(JsonResponse(HttpStatusCode.Accepted, new { }));
             }
 
-            if (req.Method == HttpMethod.Get && path == $"/v1/architecture/run/{RunId}")
+            if (req.Method == HttpMethod.Get && path == $"/v1/architecture/review/{RunId}")
             {
                 pollCount++;
 
@@ -112,10 +112,10 @@ public sealed class RealModeSmokeRunnerTests
             if (req.Method == HttpMethod.Post && path == "/v1/architecture/request")
                 return Task.FromResult(JsonResponse(HttpStatusCode.Created, new { run = new { runId = RunId } }));
 
-            if (req.Method == HttpMethod.Post && path == $"/v1/architecture/run/{RunId}/execute")
+            if (req.Method == HttpMethod.Post && path == $"/v1/architecture/review/{RunId}/execute")
                 return Task.FromResult(JsonResponse(HttpStatusCode.Accepted, new { }));
 
-            if (req.Method == HttpMethod.Get && path == $"/v1/architecture/run/{RunId}")
+            if (req.Method == HttpMethod.Get && path == $"/v1/architecture/review/{RunId}")
             {
                 return Task.FromResult(JsonResponse(HttpStatusCode.OK, new
                 {

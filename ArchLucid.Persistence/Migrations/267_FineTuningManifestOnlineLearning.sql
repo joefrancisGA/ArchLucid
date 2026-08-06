@@ -1,5 +1,9 @@
 /*
   267: Manifest online fine-tuning audit + model registry (TB-594 / RAG-V2-003 / ADR 0056).
+
+  FineTuningTrainingExportAudits — written by SqlFineTuningTrainingExportAuditRepository.
+  FineTunedModelRegistryEntries — schema reserved for SQL registry parity; V1 DI wires
+  InMemoryFineTunedModelRegistry only (no Sql*FineTunedModelRegistry yet).
 */
 IF OBJECT_ID(N'dbo.FineTuningTrainingExportAudits', N'U') IS NULL
 BEGIN

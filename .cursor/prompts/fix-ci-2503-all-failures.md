@@ -1,4 +1,4 @@
-# Fix: CI #2503 — Playwright live-API E2E failures (`archlucid-ui`)
+﻿# Fix: CI #2503 — Playwright live-API E2E failures (`archlucid-ui`)
 
 > Run: 101 executed / 138 total, many `@release-gate`-class `live-api-*.spec.ts` failures across
 > unrelated pages and flows. Read "Evidence" under each concern before changing anything — several
@@ -71,7 +71,7 @@ All six are independent — fix in parallel, verify each in isolation.
   text in dark mode and light mode respectively (e.g. `text-neutral-400`/`dark:text-neutral-300` class
   family already used by compliant components) and apply it to:
   - the icon/label inside the Jira-copy button for the **dark** variant specifically (`#171717` bg is
-    `dark:bg-neutral-950`-class — pick a foreground that hits ≥4.5:1 against it, not just against light
+    `dark:bg-neutral-950`-class — pick a foreground that hits â‰¥4.5:1 against it, not just against light
     surfaces).
   - the inactive-tab text/border color in `AdvisoryHubClient.tsx` for the **light** surface (`#fafafa`
     is `bg-neutral-50`).
@@ -136,13 +136,13 @@ specs already comply with it).
 
 ---
 
-## Concern D — `POST /v1/architecture/run/{runId}/commit` hangs past the Playwright test timeout
+## Concern D — `POST /v1/architecture/review/{runId}/finalize` hangs past the Playwright test timeout
 
 ### Evidence
 
 Roughly a dozen specs across unrelated flows (`live-api-advisory-flow`, `live-api-alert-rules`,
-`live-api-analysis-report`, `live-api-archival`, `live-api-compare-runs` ×2, `live-api-conflict-journey`,
-`live-api-journey`, `live-api-negative-paths` ×2, `live-api-trial-signup` funnel) all fail the same way:
+`live-api-analysis-report`, `live-api-archival`, `live-api-compare-runs` Ã—2, `live-api-conflict-journey`,
+`live-api-journey`, `live-api-negative-paths` Ã—2, `live-api-trial-signup` funnel) all fail the same way:
 the test's own `test.setTimeout(...)` (ranging 120s–480s) elapses while control is suspended inside
 `commitRun` (`archlucid-ui/e2e/helpers/live-api-client.ts:335-365`), specifically at the
 `await request.post(.../commit, ...)` call on line 341. When Playwright kills the test at its timeout,
@@ -196,7 +196,7 @@ bounded-lifecycle guards) even though the surface symptom here is HTTP-level rat
 
 ### Acceptance
 
-- Run the 3 fastest affected specs locally against a live API 3× each back-to-back in the same process
+- Run the 3 fastest affected specs locally against a live API 3Ã— each back-to-back in the same process
   (mirroring CI's shared demo/workspace fixtures) — commit must return within seconds every time, no
   test timeout.
 - `.\scripts\ci\agent-compile-check.ps1 -ProjectPath "ArchLucid.Backend.slnf"` passes.

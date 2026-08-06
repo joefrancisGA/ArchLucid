@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -67,7 +67,7 @@ function buildDiagnosticsPayload(input: {
     projectId: input.handoff?.projectId ?? scope?.projectId ?? null,
     jobId: input.handoff?.jobId ?? null,
     httpStatus: input.loadFailure?.httpStatus ?? (input.notFoundReason === "missing" ? 404 : null),
-    apiEndpoint: input.loadFailure !== null && input.loadFailure !== undefined ? `/v1/architecture/run/${input.runId}` : null,
+    apiEndpoint: input.loadFailure !== null && input.loadFailure !== undefined ? `/v1/architecture/review/${input.runId}` : null,
     correlationId: input.loadFailure?.correlationId ?? null,
     timestampUtc: input.lastRetryAtUtc ?? new Date().toISOString(),
     failureKind,
@@ -260,7 +260,7 @@ export function ReviewPackageLoadFailureView(props: ReviewPackageLoadFailureView
       />
       <OperatorRouteDiagnosticsPanel payload={diagnostics} />
       <p className={cn("m-0 mt-6 uppercase tracking-wide text-neutral-800 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
-        ArchLucid · REVIEW LOAD FAILURE
+        ArchLucid Â· REVIEW LOAD FAILURE
       </p>
       <span data-testid="review-package-load-failure" className="sr-only">
         Review could not be opened

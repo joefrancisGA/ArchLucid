@@ -1,4 +1,4 @@
-> **Scope:** Runbook — 429 Too Many Requests for bulk evidence upload (`evidenceBulkUpload` policy) - tenant identification, limit inspection, and configuration tuning (not code changes).
+﻿> **Scope:** Runbook — 429 Too Many Requests for bulk evidence upload (`evidenceBulkUpload` policy) - tenant identification, limit inspection, and configuration tuning (not code changes).
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -11,7 +11,7 @@
 
 ## Policy summary
 
-**`POST /v1/architecture/run/{runId}/evidence/bulk`** is protected by the ASP.NET rate-limit policy **`evidenceBulkUpload`** (`[EnableRateLimiting("evidenceBulkUpload")]` on `EvidenceBulkUploadController`).
+**`POST /v1/architecture/review/{runId}/evidence/bulk`** is protected by the ASP.NET rate-limit policy **`evidenceBulkUpload`** (`[EnableRateLimiting("evidenceBulkUpload")]` on `EvidenceBulkUploadController`).
 
 | Aspect | Behavior |
 |--------|----------|
@@ -19,7 +19,7 @@
 | **Role segment** | **Admin**, **Operator**, **Reader**, or **anon** — multipliers apply to the base permit count. |
 | **Window** | Fixed window; defaults to **1 minute** (`RateLimiting:EvidenceBulkUpload:WindowMinutes`). |
 | **Base permit** | **`RateLimiting:EvidenceBulkUpload:PermitLimit`** (default **20** when unset). |
-| **Effective permit** | `max(1, round(basePermit × roleMultiplier))` — see **§3**. |
+| **Effective permit** | `max(1, round(basePermit Ã— roleMultiplier))` — see **Â§3**. |
 | **Queue** | **`RateLimiting:EvidenceBulkUpload:QueueLimit`** (default **0** — no queued requests after exhaustion). |
 
 **Do not confuse with the per-request file cap:** exceeding **`ArchLucid:EvidenceBulkUploadMaxFiles`** (default **30** files in one multipart batch) returns **400 Bad Request** with problem type **`#evidence-bulk-upload-limit-exceeded`** (`EVIDENCE_BULK_UPLOAD_LIMIT_EXCEEDED`). That is **not** this runbook — it is a validation limit, not the **`evidenceBulkUpload`** rate limiter.
@@ -85,24 +85,24 @@ Reference: **[CONFIGURATION_REFERENCE.md](../library/CONFIGURATION_REFERENCE.md)
 ### 3.2 Compute effective permit for the caller's role
 
 ```
-effectivePermit = max(1, round(PermitLimit × roleMultiplier))
+effectivePermit = max(1, round(PermitLimit Ã— roleMultiplier))
 ```
 
 **Examples (defaults):**
 
 | Role segment | Base 20 | Effective requests / window |
 |--------------|---------|----------------------------|
-| Reader | 20 × 1.0 | **20** |
-| Operator | 20 × 1.5 | **30** |
-| Admin | 20 × 3.0 | **60** |
-| Anonymous | 20 × 0.5 | **10** |
+| Reader | 20 Ã— 1.0 | **20** |
+| Operator | 20 Ã— 1.5 | **30** |
+| Admin | 20 Ã— 3.0 | **60** |
+| Anonymous | 20 Ã— 0.5 | **10** |
 
 Each bulk upload request counts as **one** permit regardless of how many files are in the batch (up to **`EvidenceBulkUploadMaxFiles`**).
 
 ### 3.3 Validate against observed traffic
 
 - Count **`POST …/evidence/bulk`** **429** vs **200** for the tenant in the log window.
-- If 429s appear below the computed effective permit, check for **multiple role segments** (different principals), **clock skew**, or **shared IP partitioning** (§2.4).
+- If 429s appear below the computed effective permit, check for **multiple role segments** (different principals), **clock skew**, or **shared IP partitioning** (Â§2.4).
 - Startup validation rejects invalid **`RateLimiting:EvidenceBulkUpload`** values (`PermitLimit` &lt; 1, non-positive window) — see **`RateLimitingRules`**.
 
 ## 4. Operator actions

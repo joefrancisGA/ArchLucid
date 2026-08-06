@@ -13,6 +13,7 @@
     "dbo.AuditEvents",
     "dbo.AuthorityPipelineWorkOutbox",
     "dbo.BillingSubscriptionStateHistory",
+    "dbo.FinalizeReviewIdempotency",
     "dbo.CommitRunIdempotency",
     "dbo.CompositeAlertRules",
     "dbo.ConfluencePublishJobs",
@@ -31,6 +32,7 @@
     "dbo.FineTuningTrainingExportAudits",
     "dbo.GoldenManifestAssumptions",
     "dbo.GoldenManifests",
+    "dbo.SignedReviewRecords",
     "dbo.GovernanceEnvironmentActivations",
     "dbo.GovernancePromotionRecords",
     "dbo.IntegrationEventOutbox",
@@ -51,6 +53,7 @@
     "dbo.RiskExceptions",
     "dbo.RunExportBlobPushOutbox",
     "dbo.Runs",
+    "dbo.Reviews",
     "dbo.SupportProblemReports",
     "dbo.TenantHealthScores"
   ],

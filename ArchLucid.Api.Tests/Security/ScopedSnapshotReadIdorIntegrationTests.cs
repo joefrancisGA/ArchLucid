@@ -1,4 +1,4 @@
-using System.IO.Compression;
+﻿using System.IO.Compression;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -40,7 +40,7 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
     {
         await AssertCrossTenantRouteDeniedAsync(
             "findings list",
-            static (client, runId) => client.GetAsync($"/v1/architecture/run/{runId}/findings"));
+            static (client, runId) => client.GetAsync($"/v1/architecture/review/{runId}/findings"));
     }
 
     [SkippableFact]
@@ -48,7 +48,7 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
     {
         await AssertCrossTenantRouteDeniedAsync(
             "interactive graph",
-            static (client, runId) => client.GetAsync($"/v1/architecture/runs/{runId}/graph/interactive"));
+            static (client, runId) => client.GetAsync($"/v1/architecture/reviews/{runId}/graph/interactive"));
     }
 
     [SkippableFact]
@@ -64,7 +64,7 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
     {
         await AssertCrossTenantRouteDeniedAsync(
             "run ROI estimate",
-            static (client, runId) => client.GetAsync($"/v1/architecture/run/{runId}/roi"));
+            static (client, runId) => client.GetAsync($"/v1/architecture/review/{runId}/roi"));
     }
 
     [SkippableFact]
@@ -108,7 +108,7 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
         await AssertCrossTenantRouteDeniedAsync(
             "run analysis report",
             static (client, runId) =>
-                client.PostAsJsonAsync($"/v1/architecture/run/{runId}/analysis-report", new { }));
+                client.PostAsJsonAsync($"/v1/architecture/review/{runId}/analysis-report", new { }));
     }
 
     [SkippableFact]
@@ -124,7 +124,7 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
                 empty.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("text/plain");
                 form.Add(empty, "files", "empty.txt");
 
-                return await client.PostAsync($"/v1/architecture/run/{runId}/evidence/bulk", form);
+                return await client.PostAsync($"/v1/architecture/review/{runId}/evidence/bulk", form);
             });
     }
 
