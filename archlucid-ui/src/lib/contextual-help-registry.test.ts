@@ -114,6 +114,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/administration/users/invite-reviewer",
       "/administration/users",
       "/settings/roles",
+      "/administration/identity-providers",
       "/administration/identity-providers/role-mapping",
       "/administration/api-keys",
       "/administration/preferences",
@@ -240,6 +241,15 @@ describe("contextual-help-registry (TB-733)", () => {
     );
     expect(contextualHelpForPathname("/administration/auth-domains")?.whatToDoNext).toContain(
       "Identity providers",
+    );
+  });
+
+  it("resolves Extract and Upload settings Category-1 help (ADX)", () => {
+    expect(contextualHelpForPathname("/administration/extract-upload")?.whatIsThisPage).toContain(
+      "Extract and Upload",
+    );
+    expect(contextualHelpForPathname("/administration/extract-upload")?.whatToDoNext).toContain(
+      "Start a review",
     );
   });
 

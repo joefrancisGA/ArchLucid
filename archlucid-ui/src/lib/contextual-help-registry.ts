@@ -1042,6 +1042,19 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/administration/identity-providers",
+    entry: {
+      whatIsThisPage:
+        "SSO and identity - configure federation, sign-in domains, and identity-provider health for this workspace.",
+      whatToDoNext:
+        "Review overview status, open SAML or OIDC setup, then validate role mapping before inviting shared users.",
+      whyEmpty:
+        "Summary cards load after auth diagnostics respond; local development sign-in may be enabled until production SSO is configured.",
+      whereToConfigurePrerequisite:
+        "Changing federation settings needs Admin authority and a verified sign-in domain when enforcement is required.",
+    },
+  },
+  {
     prefix: "/administration/identity-providers/role-mapping",
     entry: {
       whatIsThisPage:

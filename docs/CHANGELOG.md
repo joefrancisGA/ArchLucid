@@ -14,6 +14,10 @@ Release entries newest-first. Each section condenses the detailed prompt logs pr
 
 Allowlisted secondary hubs expose in-app `{ label, href }` actions on Category-1 what-to-do-next / where-to-configure (Digests Schedule/Subscriptions golden retained; advisory Schedules, planning ↔ pilot feedback, impact-preview → reviews, workspace health → approval queue, Connection status ↔ System health). Vitest allowlist guard ships. **TB-2052** remains open. Does not claim CPA / third-party pen-test.
 
+## 2026-08-05 - UI: SSO and identity hub Evidence chrome (AID)
+
+`/administration/identity-providers` ships IdentityProvidersSettingsEvidenceOrientationStrip (workspace Sources + claim-discipline), shared PageContextualHelp + Category-1 registry + topic map enterprise-onboarding, traffic Notes under Settings (row ID AID; path aligned off legacy settings/identity-providers / SIX), and honest Evidence score 50. Settings access-hub hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-05 - UI: Extract and Upload settings Evidence chrome (ADX)
 
 `/administration/extract-upload` ships ExtractUploadSettingsEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map evidence-intake, traffic Notes under Settings (row ID ADX; path aligned off legacy settings/extract-upload / SE), and honest Evidence score 50. Settings intake-hub hard-caps higher Evidence; no CPA / third-party pen-test implication.
