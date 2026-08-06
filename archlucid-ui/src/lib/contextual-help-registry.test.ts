@@ -61,6 +61,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/governance/decision-register",
       "/reviews/new",
       "/architecture/reviews/new",
+      "/architecture/architectures",
       "/architecture/architectures/new",
       "/architecture/architecture-intelligence",
       "/governance/audit",
@@ -156,6 +157,9 @@ describe("contextual-help-registry (TB-733)", () => {
     expect(contextualHelpForPathname("/architecture/architectures/new")?.whatIsThisPage).toContain(
       "Create architecture",
     );
+    expect(contextualHelpForPathname("/architecture/architectures")?.whatIsThisPage).toContain(
+      "Architectures list",
+    );
     expect(contextualHelpForPathname("/architecture/architectures/draft-abc")?.whatIsThisPage).toContain(
       "Architecture draft workspace",
     );
@@ -171,7 +175,7 @@ describe("contextual-help-registry (TB-733)", () => {
 
   it("resolves Overview home without stealing other routes (HOM / TB-1667)", () => {
     expect(contextualHelpForPathname("/")?.whatIsThisPage).toContain("Overview");
-    expect(contextualHelpForPathname("/architecture/architectures")).toBeNull();
+    expect(contextualHelpForPathname("/architecture/first-review-guide")?.whatIsThisPage).toBeUndefined();
   });
 
   it("resolves governance dashboard Category-1 help (GDX)", () => {
@@ -608,7 +612,7 @@ describe("contextual-help-registry (TB-733)", () => {
   });
 
   it("returns null for routes not yet migrated", () => {
-    expect(contextualHelpForPathname("/architecture/architectures")).toBeNull();
+    expect(contextualHelpForPathname("/architecture/first-review-guide")).toBeNull();
   });
 
   it("keeps each page within the Category 1 word budget", () => {

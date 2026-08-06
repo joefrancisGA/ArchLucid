@@ -30,11 +30,11 @@ describe("PageContextualHelpButton", () => {
   });
 
   it("falls back to a direct help link when the route is not migrated", () => {
-    mockUsePathname.mockReturnValue("/architecture/architectures");
+    mockUsePathname.mockReturnValue("/architecture/first-review-guide");
 
     render(<PageContextualHelpButton />);
 
-    const link = screen.getByRole("link", { name: /^getting started$/i });
+    const link = screen.getByRole("link", { name: /^first review guide$/i });
 
     expect(link).toHaveAttribute("href", "/help/getting-started");
     expect(screen.queryByTestId("page-scoped-contextual-help-panel")).not.toBeInTheDocument();
