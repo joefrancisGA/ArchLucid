@@ -10,7 +10,7 @@ export const ARCHITECTURE_INTELLIGENCE_TRAFFIC_ROW_ID = "AIN";
 export const ARCHITECTURE_INTELLIGENCE_TRAFFIC_PATH = ARCHITECTURE_INTELLIGENCE_PATH;
 
 /** Workbook Section column value — core review workflow surface, not pre-login marketing. */
-export const ARCHITECTURE_INTELLIGENCE_TRAFFIC_SECTION = "Marketing";
+export const ARCHITECTURE_INTELLIGENCE_TRAFFIC_SECTION = "Core review";
 
 /**
  * Owner workbook Notes for AIN/AR2 — documents the closed-loop reasoning operator hub.

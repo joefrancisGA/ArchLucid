@@ -82,12 +82,12 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
     await expect(page.getByTestId("sidebar-nav")).toBeVisible({ timeout: 30_000 });
     await expect(page.getByTestId("llm-budget-status-pill")).toHaveCount(0);
 
-    const reviewNav = page.getByRole("navigation", { name: "Architecture" });
+    const reviewNav = page.getByRole("group", { name: "Architecture" });
 
     await expect(reviewNav.getByRole("link", { name: "Compare two reviews" })).toHaveCount(0);
     await expect(page.getByRole("link", { name: "Approval queue" })).toHaveCount(0);
-    await expect(page.getByRole("navigation", { name: "Insights" })).toHaveCount(0);
-    await expect(page.getByRole("navigation", { name: "Governance", exact: true })).toHaveCount(0);
+    await expect(page.getByRole("group", { name: "Insights" })).toHaveCount(0);
+    await expect(page.getByRole("group", { name: "Governance", exact: true })).toHaveCount(0);
 
     const analysisToggle = page.getByTestId("sidebar-group-toggle-operate-analysis");
 
@@ -96,12 +96,12 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
 
     await analysisToggle.click();
 
-    const analysisNav = page.getByRole("navigation", { name: "Insights" });
+    const analysisNav = page.getByRole("group", { name: "Insights" });
 
     await expect(analysisNav).toBeVisible({ timeout: 15_000 });
     await expect(reviewNav.getByRole("link", { name: "Compare two reviews" })).toHaveCount(0);
     await expect(analysisNav.getByRole("link", { name: "Compare two reviews" })).toHaveAttribute("href", "/insights/compare-two-reviews");
-    await expect(page.getByRole("navigation", { name: "Governance", exact: true })).toHaveCount(0);
+    await expect(page.getByRole("group", { name: "Governance", exact: true })).toHaveCount(0);
 
     await page.evaluate((storageKey) => {
       localStorage.setItem(storageKey, "2");
@@ -111,7 +111,7 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
     await expect(page.getByTestId("sidebar-group-toggle-operate-governance")).toBeVisible({ timeout: 15_000 });
     await page.getByTestId("sidebar-group-toggle-operate-governance").click();
 
-    const governanceNav = page.getByRole("navigation", { name: "Governance", exact: true });
+    const governanceNav = page.getByRole("group", { name: "Governance", exact: true });
     const riskRegisterLink = governanceNav.getByTestId("nav-operate-governance-findings");
     const governanceWorkflowLink = governanceNav.getByTestId("nav-operate-governance-workflow");
 

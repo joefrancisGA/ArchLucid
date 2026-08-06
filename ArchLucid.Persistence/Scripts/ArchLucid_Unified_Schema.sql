@@ -237,6 +237,35 @@ IF OBJECT_ID(N'dbo.AgentExecutionTraces', N'U') IS NOT NULL
 
 GO
 
+/* Brownfield: TB-931 hot scalars for cost/list projections (DbUp 294 parity). */
+IF OBJECT_ID(N'dbo.AgentExecutionTraces', N'U') IS NOT NULL
+BEGIN
+    IF COL_LENGTH(N'dbo.AgentExecutionTraces', N'InputTokenCount') IS NULL
+        ALTER TABLE dbo.AgentExecutionTraces ADD InputTokenCount INT NULL;
+
+    IF COL_LENGTH(N'dbo.AgentExecutionTraces', N'OutputTokenCount') IS NULL
+        ALTER TABLE dbo.AgentExecutionTraces ADD OutputTokenCount INT NULL;
+
+    IF COL_LENGTH(N'dbo.AgentExecutionTraces', N'ReasoningTokenCount') IS NULL
+        ALTER TABLE dbo.AgentExecutionTraces ADD ReasoningTokenCount INT NULL;
+
+    IF COL_LENGTH(N'dbo.AgentExecutionTraces', N'EstimatedCostUsd') IS NULL
+        ALTER TABLE dbo.AgentExecutionTraces ADD EstimatedCostUsd DECIMAL(18, 6) NULL;
+
+    IF COL_LENGTH(N'dbo.AgentExecutionTraces', N'ModelAlias') IS NULL
+        ALTER TABLE dbo.AgentExecutionTraces ADD ModelAlias NVARCHAR(260) NULL;
+
+    IF COL_LENGTH(N'dbo.AgentExecutionTraces', N'QualityWarning') IS NULL
+        ALTER TABLE dbo.AgentExecutionTraces ADD QualityWarning BIT NOT NULL
+            CONSTRAINT DF_AgentExecutionTraces_QualityWarning DEFAULT (0);
+
+    IF COL_LENGTH(N'dbo.AgentExecutionTraces', N'QualityRejected') IS NULL
+        ALTER TABLE dbo.AgentExecutionTraces ADD QualityRejected BIT NOT NULL
+            CONSTRAINT DF_AgentExecutionTraces_QualityRejected DEFAULT (0);
+END
+
+GO
+
 /* ---- TechnologyLedgerEntries (canonical per-run technology facts; additive, unwired — DbUp 269) ---- */
 
 IF OBJECT_ID(N'dbo.TechnologyLedgerEntries', N'U') IS NULL
