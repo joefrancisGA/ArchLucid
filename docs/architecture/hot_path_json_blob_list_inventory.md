@@ -15,13 +15,14 @@
 | LLM cost rollup | `AgentExecutionTraceLlmCostProjectionSql` | full `TraceJson` deserialize | typed token columns preferred (TB-931); `JSON_VALUE` COALESCE fallback |
 | Weekly critical findings sample | `DapperWeeklyArchitectureCriticalFindingSummaryRepository` | `PayloadJson` | title/category only |
 | Evidence proposals list | `AgentResultListSql.ListEvidenceProposalsSelectColumns` | `ResultJson` | needs `ProposedEvidenceJson` by purpose |
+| Rollup/compare agent results | `AgentResultListSql.GetByRunIdSelectRollupProjection` + `GetRollupProjectionByRunIdAsync` | bare full `ResultJson` | TB-2053 — JSON subpaths for claims/findings/controls only |
 
 ## Intentional full-blob readers (documented)
 
 | Surface | Method | Blob | Why |
 | --- | --- | --- | --- |
 | Run detail by id | `SqlRunRepository.GetByIdAsync` | `EngineProvenanceJson` | single-row detail (not a list) |
-| Agent results by run | `AgentResultRepository.GetByRunIdAsync` | `ResultJson` | commit/detail path — lazy split tracked **TB-930** |
+| Agent results by run | `AgentResultRepository.GetByRunIdAsync` | `ResultJson` | commit/detail path — lazy split tracked **TB-930**; rollup/compare uses TB-2053 projection instead |
 | Trace forensics | `GetPagedByRunIdAsync` | `TraceJson` | internal operator forensics endpoint |
 | Trace by id / task / full run | `GetByTraceIdAsync`, `GetByTaskIdAsync`, `GetByRunIdAsync` | `TraceJson` | forensic / orchestration detail |
 | Finding inspect | `DapperFindingInspectReadRepository` | `PayloadJson` | single-finding inspect |

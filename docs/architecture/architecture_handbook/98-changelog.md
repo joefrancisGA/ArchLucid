@@ -2,6 +2,7 @@
 
 | Version | Date | Notes |
 |---------|------|-------|
+| 2026.08.06h | 2026-08-06 | Expansion set 7: idempotency, retention purge, commit SoD, export formats, OpenAPI audiences, SQL resilience, billing adapters, BFF session, agent tools, technology ledger. |
 | 2026.08.06g | 2026-08-06 | Expansion set 6: Private Link, container deploy units, CI pipeline, golden cohort, workspace hierarchy, Entra claims, correlation, content safety, health checks, hosting roles. |
 | 2026.08.06f | 2026-08-06 | Expansion set 5: LLM adapters, Key Vault secrets, kill switches, outbound webhooks, audit catalog, DbUp migration, cache layers, blob CAS layout, notification channels, rate limiting. |
 | 2026.08.06e | 2026-08-06 | Expansion set 4: cloud extractors, knowledge graph, findings taxonomy, artifact registry, comparison catalog, Ask lifecycle, hosted services, demo surfaces, CLI map, Terraform order. |

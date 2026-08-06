@@ -78,6 +78,16 @@ Use this table when updating a diagram or ADR so narrative and pictures stay ali
 | `archlucid-content-safety-ingress` | — | ContentSafety / prompt-injection |
 | `archlucid-health-checks-catalog` | — | /health/live ready |
 | `archlucid-hosting-roles-split` | [0001](adrs/0001-hosting-roles-api-worker-combined.md) | HostingRoleResolver |
+| `archlucid-mutating-idempotency-keys` | — | ArchitectureRunIdempotency |
+| `archlucid-soft-delete-retention-purge` | — | ArchitectureProjectRetention |
+| `archlucid-manifest-commit-sod` | [0034](adrs/0034-segregation-of-duties-entra-oid-actor-keys.md) | GovernanceSegregationRules |
+| `archlucid-export-package-formats` | — | ExportFormat / packaging |
+| `archlucid-openapi-audience-versioning` | — | OpenApiAudience |
+| `archlucid-sql-open-resilience` | — | SqlOpenResilienceDefaults |
+| `archlucid-billing-provider-adapters` | [0016](adrs/0016-billing-provider-abstraction.md) | IBillingProvider |
+| `archlucid-ui-bff-proxy-session` | [0059](adrs/0059-spa-bff-http-only-session-plan.md) | api/proxy BFF |
+| `archlucid-agent-allowed-tools-dispatch` | — | AgentTaskAllowedToolsDispatchGuard |
+| `archlucid-technology-ledger-lifecycle` | — | TechnologyLedger |
 
 ## Update rule
 

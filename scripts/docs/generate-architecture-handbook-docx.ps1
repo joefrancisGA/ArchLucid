@@ -138,6 +138,16 @@ else {
     '62-content-safety-ingress.md',
     '63-health-checks-catalog.md',
     '64-hosting-roles-split.md',
+    '65-mutating-idempotency-keys.md',
+    '66-soft-delete-retention-purge.md',
+    '67-manifest-commit-sod.md',
+    '68-export-package-formats.md',
+    '69-openapi-audience-versioning.md',
+    '70-sql-open-resilience.md',
+    '71-billing-provider-adapters.md',
+    '72-ui-bff-proxy-session.md',
+    '73-agent-allowed-tools-dispatch.md',
+    '74-technology-ledger-lifecycle.md',
     '98-changelog.md',
     '99-references.md'
   )

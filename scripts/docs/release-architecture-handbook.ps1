@@ -53,8 +53,15 @@ if (-not $SkipRender) {
       }
     }
 
+    # mermaid-cli has deleted in-repo sources on Windows in rare cases; restore from the temp copy.
     if (-not (Test-Path -LiteralPath $mmd.FullName)) {
-      throw "Source .mmd disappeared during render: $base"
+      if (Test-Path -LiteralPath $tmp) {
+        Copy-Item -LiteralPath $tmp -Destination $mmd.FullName -Force
+        Write-Host ("Restored source .mmd from temp: {0}" -f $base)
+      }
+      else {
+        throw "Source .mmd disappeared during render and temp copy missing: $base"
+      }
     }
   }
 }

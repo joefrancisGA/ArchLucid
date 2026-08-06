@@ -2,7 +2,7 @@
 
 title: "ArchLucid platform architecture handbook"
 
-subtitle: "Version 2026.08.06g â€” generated from docs/architecture/architecture_handbook"
+subtitle: "Version 2026.08.06h â€” generated from docs/architecture/architecture_handbook"
 
 ---
 
@@ -760,10 +760,91 @@ Liveness stays minimal; readiness and authenticated detailed surfaces register n
 
 
 
+# 65. Mutating idempotency keys
+
+Client `Idempotency-Key` is hashed and fingerprinted for create/commit (and required governance POSTs), with replay returning the same run/manifest without duplicate rows. The BFF forwards the header and surfaces `X-Idempotency-Replayed`.
+
+![Mutating idempotency keys](../architecture_diagrams/archlucid-mutating-idempotency-keys.png)
+
+
+
+# 66. Soft-delete retention purge
+
+Projects soft-delete via `IsDeleted`/`DeletedUtc`, then a hosted worker hard-deletes rows past retention days. SQL vs in-memory registrars swap real purge vs no-op so local hosts never hard-delete.
+
+![Soft-delete retention purge](../architecture_diagrams/archlucid-soft-delete-retention-purge.png)
+
+
+
+# 67. Manifest commit segregation of duties
+
+Finalize runs through an optional pre-commit gate plus SoD that compares Entra-oid actor keys (not display names), blocking self-approval. This is submitterâ‰ approver on approval requestsâ€”not a blanket â€œevery pack blocks commitâ€ rule.
+
+![Manifest commit SoD](../architecture_diagrams/archlucid-manifest-commit-sod.png)
+
+
+
+# 68. Export package formats
+
+Board exports are format-switched (DOCX/PDF/HTML) while run packages assemble authority material plus a hashed export manifest via packaging. Async blob push reuses the same builder, distinct from replay/compare flows.
+
+![Export package formats](../architecture_diagrams/archlucid-export-package-formats.png)
+
+
+
+# 69. OpenAPI audience versioning
+
+The public surface is ASP.NET API versioned at 1.0 and partitioned with `x-archlucid-audience` for buyer, operator, internal, and forensics docs. Transformers keep generated clients honest for auth and multipart evidence.
+
+![OpenAPI audience versioning](../architecture_diagrams/archlucid-openapi-audience-versioning.png)
+
+
+
+# 70. SQL open resilience
+
+Transient SQL open/operation failures use Polly v8 exponential backoff with jitter, separate from product kill-switches. Read-replica and audit paths share the same transient detector so brownouts degrade to retries rather than silent partial writes.
+
+![SQL open resilience](../architecture_diagrams/archlucid-sql-open-resilience.png)
+
+
+
+# 71. Billing provider adapters
+
+`Billing:Provider` selects Stripe, Azure Marketplace, or no-op through one registry used by checkout/portal. Marketplace ChangePlan/ChangeQuantity can 202-ack without mutating when `GaEnabled` is false.
+
+![Billing provider adapters](../architecture_diagrams/archlucid-billing-provider-adapters.png)
+
+
+
+# 72. UI BFF proxy session
+
+OIDC tokens live in browser `sessionStorage`; the Next BFF proxy attaches Authorization or server API key and scope headers to ArchLucid.Api. Marketing paths strip privileged upstream auth so anonymous funnels never inherit operator credentials.
+
+![UI BFF proxy session](../architecture_diagrams/archlucid-ui-bff-proxy-session.png)
+
+
+
+# 73. Agent allowed-tools dispatch
+
+Handler dispatch is gated by per-task allowlists; production-like hosts deny empty allowlists unless `UnrestrictedDispatch` is explicit. Invocations are persisted so run queries can audit which tools actually ran.
+
+![Agent allowed-tools dispatch](../architecture_diagrams/archlucid-agent-allowed-tools-dispatch.png)
+
+
+
+# 74. Technology ledger lifecycle
+
+Run-scoped technology ledger entries are seeded from request/evidence/topology, then patched through a command service and replayed with authority state. A first-class evidence/decision surface beyond findings taxonomy or golden-manifest anatomy.
+
+![Technology ledger lifecycle](../architecture_diagrams/archlucid-technology-ledger-lifecycle.png)
+
+
+
 # Changelog (handbook)
 
 | Version | Date | Notes |
 |---------|------|-------|
+| 2026.08.06h | 2026-08-06 | Expansion set 7: idempotency, retention purge, commit SoD, export formats, OpenAPI audiences, SQL resilience, billing adapters, BFF session, agent tools, technology ledger. |
 | 2026.08.06g | 2026-08-06 | Expansion set 6: Private Link, container deploy units, CI pipeline, golden cohort, workspace hierarchy, Entra claims, correlation, content safety, health checks, hosting roles. |
 | 2026.08.06f | 2026-08-06 | Expansion set 5: LLM adapters, Key Vault secrets, kill switches, outbound webhooks, audit catalog, DbUp migration, cache layers, blob CAS layout, notification channels, rate limiting. |
 | 2026.08.06e | 2026-08-06 | Expansion set 4: cloud extractors, knowledge graph, findings taxonomy, artifact registry, comparison catalog, Ask lifecycle, hosted services, demo surfaces, CLI map, Terraform order. |
