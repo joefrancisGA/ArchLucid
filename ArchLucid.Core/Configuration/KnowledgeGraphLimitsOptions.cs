@@ -16,7 +16,7 @@ public class KnowledgeGraphLimitsOptions
     } = 100_000;
 
     /// <summary>
-    ///     Maximum nodes allowed for <c>GET /v1/graph/runs/{runId}</c> full JSON. Clients must use the paginated
+    ///     Maximum nodes allowed for <c>GET /v1/evidence-graph/reviews/{runId}</c> full JSON. Clients must use the paginated
     ///     <c>/nodes</c> endpoint when the graph is larger. Use <c>0</c> to disable the guard (not recommended).
     /// </summary>
     public int FullGraphResponseMaxNodes

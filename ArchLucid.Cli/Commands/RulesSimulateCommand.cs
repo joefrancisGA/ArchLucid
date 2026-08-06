@@ -9,7 +9,7 @@ using ArchLucid.Contracts.Governance;
 namespace ArchLucid.Cli.Commands;
 
 /// <summary>
-///     <c>archlucid rules simulate</c> — calls <c>POST /v1/governance/pre-commit/simulate</c>.
+///     <c>archlucid rules simulate</c> — calls <c>POST /v1/governance/pre-finalize/simulate</c>.
 /// </summary>
 [ExcludeFromCodeCoverage(
     Justification = "Governance HTTP probe; exercised via integration when API is wired.")]
