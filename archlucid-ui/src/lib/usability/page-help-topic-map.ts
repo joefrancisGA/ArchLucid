@@ -363,6 +363,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/settings/cloud-connections/gcp", topic: { slug: "cloud-connections-gcp", label: "GCP cloud connection" } },
   { prefix: "/settings/cloud-connections", topic: { slug: "cloud-connections", label: "Cloud connections" } },
   {
+    prefix: "/administration/identity-providers/role-mapping",
+    topic: { slug: "users-and-roles", label: "Role mapping" },
+  },
+  {
     prefix: "/administration/identity-providers",
     topic: { slug: "enterprise-onboarding", label: "SSO and identity" },
   },

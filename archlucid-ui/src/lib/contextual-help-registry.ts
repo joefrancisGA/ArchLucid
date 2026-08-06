@@ -488,7 +488,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whatIsThisPage:
         "Why ArchLucid — operator demo/proof page with seeded telemetry, sponsor pack, and first-value report for the demo review.",
       whatToDoNext:
-        "Inspect snapshot and sponsor pack sections, open marketing /why for buyer comparison, or Security & trust for assurance orientation.",
+        "Inspect snapshot and sponsor pack sections, open marketing /why for buyer comparison, or Assurance status for assurance orientation.",
       whyEmpty: "Sections populate after the demo tenant snapshot and related read endpoints load.",
       whereToConfigurePrerequisite:
         "A seeded demo review is required; Claims/Retail labels stay withheld until the demo identity is unambiguous.",
@@ -701,7 +701,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whatIsThisPage:
         "Security and trust help — assurance ladder, data handling, subprocessors, and diligence materials for operators and buyers.",
       whatToDoNext:
-        "Open the Security & trust hub or Trust Center for live assurance surfaces, or Audit when you need governed trails.",
+        "Open Assurance status or Trust Center for live assurance surfaces, or Audit when you need governed trails.",
       whyEmpty: "This guide is always available; downloadable diligence packs appear on Trust Center when published.",
       whereToConfigurePrerequisite:
         "No configuration is required — this page is assurance orientation vocabulary only.",
@@ -713,7 +713,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whatIsThisPage:
         "Procurement FAQ — buyer-facing answers on diligence packs, questionnaires, and how to request security review materials.",
       whatToDoNext:
-        "Open Security & trust or Trust Center for public assurance, or settings Security & trust when requesting NDA-gated packs.",
+        "Open Assurance status or Trust Center for public assurance, or settings Security & trust when requesting NDA-gated packs.",
       whyEmpty: "This FAQ is always available; NDA packs require contacting the security mailbox listed in the guide.",
       whereToConfigurePrerequisite:
         "No workspace toggle is required — this page is procurement orientation vocabulary only.",
@@ -737,7 +737,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whatIsThisPage:
         "Audit trail help — how immutable audit events, correlation identifiers, and export posture support governed review.",
       whatToDoNext:
-        "Open Audit for live activity, Findings when a concern needs triage, or Security & trust for assurance surfaces.",
+        "Open Audit for live activity, Findings when a concern needs triage, or Assurance status for assurance surfaces.",
       whyEmpty: "This guide is always available; live audit rows appear after workspace actions are recorded.",
       whereToConfigurePrerequisite:
         "Audit visibility follows workspace roles; confirm the header workspace before exporting trails.",
@@ -917,7 +917,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whatIsThisPage:
         "Users and roles — ArchLucid app roles, capabilities, and how operators invite teammates (alias of users-and-roles).",
       whatToDoNext:
-        "Open Users settings to invite or assign roles, or Security & trust when you need assurance orientation.",
+        "Open Users settings to invite or assign roles, or Assurance status when you need assurance orientation.",
       whyEmpty: "This guide is always available; live directory rows appear after users are invited or provisioned.",
       whereToConfigurePrerequisite:
         "Managing users needs Admin authority; SSO may be required before invited users can sign in.",
@@ -929,7 +929,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whatIsThisPage:
         "Users and roles — ArchLucid app roles, capabilities, and how operators invite teammates for this workspace.",
       whatToDoNext:
-        "Open Users settings to invite or assign roles, or Security & trust when you need assurance orientation.",
+        "Open Users settings to invite or assign roles, or Assurance status when you need assurance orientation.",
       whyEmpty: "This guide is always available; live directory rows appear after users are invited or provisioned.",
       whereToConfigurePrerequisite:
         "Managing users needs Admin authority; SSO may be required before invited users can sign in.",
@@ -972,12 +972,25 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/administration/identity-providers/role-mapping",
+    entry: {
+      whatIsThisPage:
+        "Role mapping - see how IdP groups or claims become ArchLucid app roles for this workspace tenant.",
+      whatToDoNext:
+        "Review mapping status, edit SAML role mapping when needed, then open diagnostics to test claims before inviting users.",
+      whyEmpty:
+        "Status cards load after auth diagnostics respond; Unmapped means no elevated roles until a matching claim is configured.",
+      whereToConfigurePrerequisite:
+        "Editing mappings needs Admin authority and a configured SAML or OIDC identity source.",
+    },
+  },
+  {
     prefix: "/administration/security-trust",
     entry: {
       whatIsThisPage:
         "Operator Security & trust — procurement-oriented materials, tenant isolation posture, retention notes, and NDA-gated diligence requests for this workspace.",
       whatToDoNext:
-        "Open the public Security & trust hub or Trust Center for assurance surfaces, or Audit when you need governed activity trails.",
+        "Open Assurance status or Trust Center for assurance surfaces, or Audit when you need governed activity trails.",
       whyEmpty:
         "Public materials list here when published; NDA-gated packs require contacting security@archlucid.net.",
       whereToConfigurePrerequisite:

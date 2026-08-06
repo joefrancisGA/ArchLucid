@@ -112,6 +112,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/cloud-connections",
       "/administration/users/invite-reviewer",
       "/administration/users",
+      "/administration/identity-providers/role-mapping",
       "/administration/security-trust",
       "/administration/billing",
       "/administration/ai-usage",
@@ -192,6 +193,15 @@ describe("contextual-help-registry (TB-733)", () => {
   it("resolves users-and-roles settings Category-1 help (AUX)", () => {
     expect(contextualHelpForPathname("/administration/users")?.whatIsThisPage).toContain("Invite users");
     expect(contextualHelpForPathname("/administration/users")?.whatToDoNext).toContain("Invite a teammate");
+  });
+
+  it("resolves Role mapping settings Category-1 help (ADO)", () => {
+    expect(
+      contextualHelpForPathname("/administration/identity-providers/role-mapping")?.whatIsThisPage,
+    ).toContain("Role mapping");
+    expect(
+      contextualHelpForPathname("/administration/identity-providers/role-mapping")?.whatToDoNext,
+    ).toContain("diagnostics");
   });
 
   it("resolves approval lineage Category-1 help (GAI)", () => {

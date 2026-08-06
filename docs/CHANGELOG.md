@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-05 - UI: Role mapping settings Evidence chrome (ADO)
+
+`/administration/identity-providers/role-mapping` ships RoleMappingSettingsEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map users-and-roles, traffic Notes under Settings (row ID ADO; path aligned off legacy settings/identity-providers/role-mapping / SEO), and honest Evidence score 50. Settings access-hub hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-05 - UI: AI usage settings Evidence chrome (ADI)
 
 `/administration/ai-usage` ships AiUsageSettingsEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map billing-and-plans, traffic Notes under Settings (row ID ADI; path aligned off legacy settings/ai-usage / SC), and honest Evidence score 50. Settings commercial-hub hard-caps higher Evidence; estimated spend is not invoice-accurate; no CPA / third-party pen-test implication.

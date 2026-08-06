@@ -5,6 +5,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   IDENTITY_PROVIDERS_ROLE_MAPPING_EXAMPLES,
   IDENTITY_PROVIDERS_ROLE_MAPPING_HELPER,
@@ -14,6 +15,7 @@ import {
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { IdentityProvidersSettingsShell } from "./IdentityProvidersSettingsShell";
+import { RoleMappingSettingsEvidenceOrientationStrip } from "./RoleMappingSettingsEvidenceOrientationStrip";
 import type { UseIdentityProvidersSettingsPageModel } from "./use-identity-providers-settings-page";
 
 type IdentityProvidersRoleMappingPageViewProps = {
@@ -42,6 +44,12 @@ export function IdentityProvidersRoleMappingPageView(
       lastRefreshedAt={props.model.lastRefreshedAt}
       onRefresh={() => void props.model.refresh()}
     >
+      <div className="flex justify-end">
+        <PageContextualHelpButton />
+      </div>
+
+      <RoleMappingSettingsEvidenceOrientationStrip />
+
       <Card data-testid="identity-providers-role-mapping-status">
         <CardHeader>
           <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Role mapping status</CardTitle>
