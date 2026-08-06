@@ -371,6 +371,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "enterprise-onboarding", label: "SSO and identity" },
   },
   {
+    prefix: "/administration/api-keys",
+    topic: { slug: "users-and-roles", label: "API keys" },
+  },
+  {
     prefix: "/administration/users/invite-reviewer",
     topic: { slug: "users-and-roles", label: "Invite a reviewer" },
   },

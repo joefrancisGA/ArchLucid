@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-05 - UI: API keys settings Evidence chrome (ADP)
+
+`/administration/api-keys` ships ApiKeysSettingsEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map users-and-roles, traffic Notes under Admin (row ID ADP; path aligned off legacy settings/api-keys / SAE), and honest Evidence score 50. Settings access-hub hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-05 - UI: Role mapping settings Evidence chrome (ADO)
 
 `/administration/identity-providers/role-mapping` ships RoleMappingSettingsEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map users-and-roles, traffic Notes under Settings (row ID ADO; path aligned off legacy settings/identity-providers/role-mapping / SEO), and honest Evidence score 50. Settings access-hub hard-caps higher Evidence; no CPA / third-party pen-test implication.

@@ -113,6 +113,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/administration/users/invite-reviewer",
       "/administration/users",
       "/administration/identity-providers/role-mapping",
+      "/administration/api-keys",
       "/administration/security-trust",
       "/administration/billing",
       "/administration/ai-usage",
@@ -202,6 +203,11 @@ describe("contextual-help-registry (TB-733)", () => {
     expect(
       contextualHelpForPathname("/administration/identity-providers/role-mapping")?.whatToDoNext,
     ).toContain("diagnostics");
+  });
+
+  it("resolves API keys settings Category-1 help (ADP)", () => {
+    expect(contextualHelpForPathname("/administration/api-keys")?.whatIsThisPage).toContain("API keys");
+    expect(contextualHelpForPathname("/administration/api-keys")?.whatToDoNext).toContain("Audit");
   });
 
   it("resolves approval lineage Category-1 help (GAI)", () => {

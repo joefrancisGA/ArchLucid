@@ -41,12 +41,14 @@ import { isArchLucidInternalOperatorShellEnv } from "@/lib/internal-operator-env
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { ApiKeyActionConfirmDialog } from "./ApiKeyActionConfirmDialog";
 import { ApiKeyCredentialTable, type ApiKeyCredentialRowModel } from "./ApiKeyCredentialTable";
 import { ApiKeyRecentEventsTable } from "./ApiKeyRecentEventsTable";
 import { ApiKeyRotateRevealPanel } from "./ApiKeyRotateRevealPanel";
+import { ApiKeysSettingsEvidenceOrientationStrip } from "./ApiKeysSettingsEvidenceOrientationStrip";
 import { ApiKeysSettingsRestrictedState } from "./ApiKeysSettingsRestrictedState";
 import { ApiKeysSettingsSummaryRow } from "./ApiKeysSettingsSummaryRow";
 import { ApiKeysSettingsTechnicalDetails } from "./ApiKeysSettingsTechnicalDetails";
@@ -263,16 +265,21 @@ export function ApiKeysSettingsPageClient() {
         <Button asChild variant="ghost" size="sm" className="h-8 px-0 text-teal-800 dark:text-teal-300">
           <Link href="/settings#settings-section-advanced">← Settings</Link>
         </Button>
-        <div>
-          <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{API_KEYS_PAGE_TITLE}</h1>
-          <p className={cn("mt-1 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-            {API_KEYS_PAGE_SUBTITLE}
-          </p>
-          <p className={cn("mt-2 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            {API_KEYS_ENTERPRISE_ONLY_NOTICE}
-          </p>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{API_KEYS_PAGE_TITLE}</h1>
+            <p className={cn("mt-1 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+              {API_KEYS_PAGE_SUBTITLE}
+            </p>
+            <p className={cn("mt-2 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {API_KEYS_ENTERPRISE_ONLY_NOTICE}
+            </p>
+          </div>
+          <PageContextualHelpButton />
         </div>
       </header>
+
+      <ApiKeysSettingsEvidenceOrientationStrip />
 
       {state.status === "loading" ? (
         <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading API key status…</p>

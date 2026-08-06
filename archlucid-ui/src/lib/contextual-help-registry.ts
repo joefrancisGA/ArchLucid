@@ -905,7 +905,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whatIsThisPage:
         "Glossary — searchable product terms for operators and buyers reviewing ArchLucid vocabulary.",
       whatToDoNext:
-        "Look up a term, then open Getting started or Security & trust when you need live workflow or assurance orientation.",
+        "Look up a term, then open Getting started or Assurance status when you need live workflow or assurance orientation.",
       whyEmpty: "Glossary terms are always listed; search filters the catalog without needing a live review.",
       whereToConfigurePrerequisite:
         "No configuration is required — this page is orientation vocabulary only.",
@@ -982,6 +982,19 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
         "Status cards load after auth diagnostics respond; Unmapped means no elevated roles until a matching claim is configured.",
       whereToConfigurePrerequisite:
         "Editing mappings needs Admin authority and a configured SAML or OIDC identity source.",
+    },
+  },
+  {
+    prefix: "/administration/api-keys",
+    entry: {
+      whatIsThisPage:
+        "API keys - manage Admin and read-only automation credentials for approved enterprise workspace access.",
+      whatToDoNext:
+        "Review credential status, rotate or issue overlap keys when needed, then open Audit when rotation events need a governed trail.",
+      whyEmpty:
+        "Summary and credential rows load after API key settings respond; enterprise-only workspaces may keep this surface disabled.",
+      whereToConfigurePrerequisite:
+        "Rotating keys needs Admin authority; some tenants require SSO-only sign-in and disable API keys.",
     },
   },
   {
