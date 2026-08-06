@@ -29635,7 +29635,7 @@
         "x-archlucid-audience": "buyer"
       }
     },
-    "/v1/authority/runs/{runId}/buyer-summary": {
+    "/v1/authority/reviews/{runId}/buyer-summary": {
       "get": {
         "parameters": [
           {
