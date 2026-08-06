@@ -69,6 +69,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/digests",
       "/insights/planning/plans",
       "/insights/planning",
+      "/insights/impact-preview",
       "/internal/product-learning",
       "/why-archlucid",
       "/demo/explain",
@@ -81,6 +82,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/governance/signed-records",
       "/admin/tenant-health",
       "/admin/trial-funnel",
+      "/admin/demo-readiness",
       "/help/getting-started",
       "/help/how-it-works",
       "/help/troubleshooting",
@@ -427,6 +429,15 @@ describe("contextual-help-registry (TB-733)", () => {
       "Connection status",
     );
     expect(contextualHelpForPathname("/administration/connection-status")?.whatToDoNext).toContain(
+      "System health",
+    );
+  });
+
+  it("resolves Demo readiness Category-1 help (ADD)", () => {
+    expect(contextualHelpForPathname("/admin/demo-readiness")?.whatIsThisPage).toContain(
+      "Demo readiness",
+    );
+    expect(contextualHelpForPathname("/admin/demo-readiness")?.whatToDoNext).toContain(
       "System health",
     );
   });

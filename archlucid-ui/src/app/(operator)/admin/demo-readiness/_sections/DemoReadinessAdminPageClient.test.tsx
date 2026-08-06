@@ -12,6 +12,10 @@ vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   }),
 }));
 
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+}));
+
 import { DemoReadinessAdminPageClient } from "@/app/(operator)/admin/demo-readiness/_sections/DemoReadinessAdminPageClient";
 import { BUYER_CTO_DEMO_READINESS_HEADING } from "@/lib/buyer-polish-copy";
 
