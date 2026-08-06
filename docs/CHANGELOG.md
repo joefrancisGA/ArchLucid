@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-05 - UI: Preferences settings Evidence chrome (ADR)
+
+`/administration/preferences` ships PreferencesSettingsEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map getting-started, traffic Notes under Settings (row ID ADR; path aligned off legacy settings/preferences / SEP), and honest Evidence score 50. Settings personal-hub hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-05 - UI: API keys settings Evidence chrome (ADP)
 
 `/administration/api-keys` ships ApiKeysSettingsEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map users-and-roles, traffic Notes under Admin (row ID ADP; path aligned off legacy settings/api-keys / SAE), and honest Evidence score 50. Settings access-hub hard-caps higher Evidence; no CPA / third-party pen-test implication.

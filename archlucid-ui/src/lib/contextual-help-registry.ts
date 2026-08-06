@@ -998,6 +998,19 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/administration/preferences",
+    entry: {
+      whatIsThisPage:
+        "Preferences - personal appearance settings saved to your ArchLucid account for this device and signed-in profile.",
+      whatToDoNext:
+        "Choose a theme, then open Account security when sign-in controls need attention or Getting started for onboarding.",
+      whyEmpty:
+        "Theme controls are ready whenever you are signed in; saved preferences sync after the preferences API responds.",
+      whereToConfigurePrerequisite:
+        "No Admin role is required - preferences write only your own account record.",
+    },
+  },
+  {
     prefix: "/administration/security-trust",
     entry: {
       whatIsThisPage:

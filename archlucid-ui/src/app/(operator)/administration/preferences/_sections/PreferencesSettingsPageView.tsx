@@ -3,8 +3,11 @@
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { ThemePreferenceSelector } from "@/components/ThemePreferenceSelector";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+
+import { PreferencesSettingsEvidenceOrientationStrip } from "./PreferencesSettingsEvidenceOrientationStrip";
 
 export function PreferencesSettingsPageView() {
   return (
@@ -13,7 +16,10 @@ export function PreferencesSettingsPageView() {
         title="Preferences"
         subtitle="Personal settings saved to your account."
         titleTestId="preferences-settings-page-title"
+        actions={<PageContextualHelpButton />}
       />
+
+      <PreferencesSettingsEvidenceOrientationStrip />
 
       <Card data-testid="preferences-appearance-card">
         <CardHeader>

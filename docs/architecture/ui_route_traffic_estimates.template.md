@@ -283,7 +283,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | ADO | `/administration/identity-providers/role-mapping` | 0.02% | 0 | 0 | 2 | Settings | Role mapping (Settings/Admin) - IdentityProvidersRoleMappingPageView with PageContextualHelpButton (topic map users-and-roles; Category-1 registry), workspace Sources + claim-discipline orientation strip, status / examples / SAML+diagnostics CTAs. Sibling AUX = users; AID = identity-providers hub; HOE = operator-auth-roles help. Access configuration - not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 50/100 (2026-08-05) - settings access-hub hard-caps higher Evidence. |
 | SSA | `/administration/settings/identity-providers/saml` | 0.02% | 0 | 0 | 2 | Settings | None |
 | SEM | `/administration/settings/model-governance` | 0.02% | 0 | 0 | 2 | Settings | None |
-| SEP | `/administration/settings/preferences` | 0.02% | 0 | 0 | 2 | Settings | None |
+| ADR | `/administration/preferences` | 0.02% | 0 | 0 | 2 | Settings | Preferences (Settings) - PreferencesSettingsPageView with PageContextualHelpButton (topic map getting-started; Category-1 registry), workspace Sources + claim-discipline orientation strip, appearance / theme. Sibling ADS = account-security; HGX = getting-started help. Personal account settings - not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 50/100 (2026-08-05) - settings personal-hub hard-caps higher Evidence. |
 | SEK | `/administration/settings/users?tab=keys` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | SSU | `/administration/settings/users?tab=users` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | MA | `/signed-records` | 0.02% | 0 | 0 | 2 | Marketing | None |

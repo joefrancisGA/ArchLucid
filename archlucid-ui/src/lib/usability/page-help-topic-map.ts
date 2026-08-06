@@ -375,6 +375,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "users-and-roles", label: "API keys" },
   },
   {
+    prefix: "/administration/preferences",
+    topic: { slug: "getting-started", label: "Preferences" },
+  },
+  {
     prefix: "/administration/users/invite-reviewer",
     topic: { slug: "users-and-roles", label: "Invite a reviewer" },
   },
