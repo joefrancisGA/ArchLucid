@@ -14,6 +14,10 @@ Release entries newest-first. Each section condenses the detailed prompt logs pr
 
 `GetRunDetailForRollupAsync` loads agent results through `GetRollupProjectionByRunIdAsync` (relational columns + JSON subpaths for claims/findings/controls) instead of full `ResultJson`. Hot-path inventory + shape guards updated. Does not claim CPA / third-party pen-test.
 
+## 2026-08-06 - UI: Alert rules Conditions tab Evidence notes (GLR)
+
+`/governance/alert-rules?tab=rules` documents inherited SAX hub Evidence chrome (AlertRulesEvidenceOrientationStrip + PageContextualHelp already on the hub), traffic Notes under Tab surface (row ID GLR; owner GOR renamed to avoid collision with template routing GOR), and honest Evidence score 48. Conditions-tab deep link hard-caps at alert-config band; no CPA / third-party pen-test implication.
+
 ## 2026-08-06 - UI: Alert rules composite tab Evidence notes (GOC)
 
 `/governance/alert-rules?tab=composite` documents inherited SAX hub Evidence chrome (AlertRulesEvidenceOrientationStrip + PageContextualHelp already on the hub), traffic Notes under Tab surface (row ID GOC), and honest Evidence score 48. Composite-tab deep link hard-caps at alert-config band; no CPA / third-party pen-test implication.
