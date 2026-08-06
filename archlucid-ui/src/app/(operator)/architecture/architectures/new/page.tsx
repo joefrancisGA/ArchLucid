@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 
+import { ArchitecturesNewEvidenceOrientationStrip } from "@/app/(operator)/architecture/architectures/new/_sections/ArchitecturesNewEvidenceOrientationStrip";
 import { ArchitectureCreationBootstrap } from "@/components/architecture/ArchitectureCreationBootstrap";
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { PageHeading } from "@/components/PageHeading";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { ARCHITECTURE_CREATION_BOOTSTRAP_LEAD } from "@/lib/create-vs-review-intake-copy";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
@@ -29,8 +31,11 @@ export default function NewArchitecturePage(): React.JSX.Element {
             {ARCHITECTURE_CREATION_BOOTSTRAP_LEAD}
           </p>
         }
+        actions={<PageContextualHelpButton />}
       />
-      <div className="mt-4">
+
+      <div className="mt-4 space-y-4">
+        <ArchitecturesNewEvidenceOrientationStrip />
         <ArchitectureCreationBootstrap />
       </div>
     </OperatorPageContainer>

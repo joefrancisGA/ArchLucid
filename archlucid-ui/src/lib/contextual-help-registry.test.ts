@@ -61,6 +61,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/governance/decision-register",
       "/reviews/new",
       "/architecture/reviews/new",
+      "/architecture/architectures/new",
       "/governance/audit",
       "/administration/system-health",
       "/administration/connection-status",
@@ -121,6 +122,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/administration/account-security",
       "/administration/auth-domains",
       "/administration/extract-upload",
+      "/administration/model-governance",
       "/administration/security-trust",
       "/administration/billing",
       "/administration/ai-usage",
@@ -143,6 +145,9 @@ describe("contextual-help-registry (TB-733)", () => {
     );
     expect(contextualHelpForPathname("/architecture/reviews")?.whatIsThisPage).toContain("architecture reviews");
     expect(contextualHelpForPathname("/reviews/new")?.whatIsThisPage).toContain("Start an architecture review");
+    expect(contextualHelpForPathname("/architecture/architectures/new")?.whatIsThisPage).toContain(
+      "Create architecture",
+    );
     expect(contextualHelpForPathname("/governance/findings?filter=open")?.whatToDoNext).toContain("Assign owners");
     expect(contextualHelpForPathname("/sponsor-report/executive-summary")?.whatIsThisPage).toContain(
       "Sponsor executive summary",

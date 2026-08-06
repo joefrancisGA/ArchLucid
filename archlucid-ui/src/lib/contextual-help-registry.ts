@@ -386,6 +386,19 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/architecture/architectures/new",
+    entry: {
+      whatIsThisPage:
+        "Create architecture - start a new architecture draft or continue a saved draft before filing evidence for review.",
+      whatToDoNext:
+        "Start a new draft or resume a recent one, then open Start a review when the brief is ready for evidence intake.",
+      whyEmpty:
+        "Recent drafts appear after the architectures API responds; empty lists mean no drafts are saved yet.",
+      whereToConfigurePrerequisite:
+        "Drafting uses the workspace and project selected in the header switcher; creating a draft does not start a review.",
+    },
+  },
+  {
     prefix: "/governance/audit",
     entry: {
       whatIsThisPage:
