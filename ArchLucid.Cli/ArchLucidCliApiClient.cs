@@ -625,7 +625,7 @@ public sealed class ArchLucidApiClient
                 return new SubmitResultResult(false, null, "Invalid agent result payload.");
 
             Gen.SubmitAgentResultRequest req = new() { Result = genResult };
-            Gen.Body62? body = MapToOpenApiRequestBody<Gen.Body62>(req, GenNumericEnumBridgeJson);
+            Gen.Body55? body = MapToOpenApiRequestBody<Gen.Body55>(req, GenNumericEnumBridgeJson);
             Gen.SubmitAgentResultResponse parsed = await _api.ResultAsync(runId, body, ct);
 
             return new SubmitResultResult(true, parsed.ResultId, null);
@@ -727,7 +727,7 @@ public sealed class ArchLucidApiClient
     {
         try
         {
-            Gen.RunDetailsResponse details = await _api.RunGETAsync(runId, ct);
+            Gen.RunDetailsResponse details = await _api.ReviewAsync(runId, ct);
 
             return DeserializeRoundTrip<GetRunResult>(details);
         }
@@ -746,7 +746,7 @@ public sealed class ArchLucidApiClient
     {
         try
         {
-            Gen.CommitRunResponse result = await _api.CommitAsync(runId, null, ct);
+            Gen.CommitRunResponse result = await _api.FinalizeAsync(runId, null, ct);
             CommitRunResponse? mapped = DeserializeRoundTrip<CommitRunResponse>(result);
 
             return new CommitRunResult(true, mapped, null);
@@ -804,7 +804,7 @@ public sealed class ArchLucidApiClient
 
         try
         {
-            Gen.CommitRunResponse gen = await _api.CommitAsync(runId, null, ct);
+            Gen.CommitRunResponse gen = await _api.FinalizeAsync(runId, null, ct);
             Gen.GoldenManifest? gm = gen.Manifest;
 
             if (gm is null)
