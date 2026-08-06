@@ -14,6 +14,10 @@ Release entries newest-first. Each section condenses the detailed prompt logs pr
 
 `GetRunDetailForRollupAsync` loads agent results through `GetRollupProjectionByRunIdAsync` (relational columns + JSON subpaths for claims/findings/controls) instead of full `ResultJson`. Hot-path inventory + shape guards updated. Does not claim CPA / third-party pen-test.
 
+## 2026-08-06 - UI: Advisory scans Scans tab Evidence notes (ADT)
+
+`/governance/advisory-scans?tab=scans` documents inherited ADV hub Evidence chrome (Sources strip + PageContextualHelp already on the hub), traffic Notes under Tab surface (row ID ADT; owner GOA renamed to avoid collision with template alert-rules GOA), and honest Evidence score 48. Scans-tab deep link hard-caps below ADV launcher; no CPA / third-party pen-test implication.
+
 ## 2026-08-06 - UI: Example ROI bulletin Evidence chrome (EXA)
 
 `/example-roi-bulletin` ships ExampleRoiBulletinEvidenceOrientationStrip (evaluation Sources + claim-discipline), traffic Notes under Marketing (row ID EXA), and honest Evidence score 40. Marketing synthetic bulletin hard-caps higher Evidence; not an operator PageContextualHelp surface; no CPA / third-party pen-test implication.
