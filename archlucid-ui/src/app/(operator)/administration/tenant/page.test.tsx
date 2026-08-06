@@ -6,6 +6,10 @@ vi.mock("@/lib/toast", () => ({
   showSuccess: vi.fn(),
 }));
 
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => <button type="button">Page help</button>,
+}));
+
 const navAuth = vi.hoisted(() => ({
   callerAuthorityRank: 3,
 }));
@@ -83,7 +87,8 @@ describe("TenantSettingsPage", () => {
     render(page);
 
     expect(await screen.findByTestId("tenant-settings-page")).toBeInTheDocument();
-    expect(await screen.findByRole("heading", { level: 1, name: "Workspace settings" })).toBeInTheDocument();
+    expect(await screen.findByTestId("tenant-settings-page-title")).toHaveTextContent("Workspace settings");
+    expect(await screen.findByTestId("tenant-settings-orientation")).toBeInTheDocument();
     expect(await screen.findByText("Workspace scope")).toBeInTheDocument();
     expect(await screen.findByText(/selected from the workspace switcher\./i)).toBeInTheDocument();
     expect(await screen.findByText(/Status:/i)).toBeInTheDocument();

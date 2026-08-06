@@ -6,10 +6,12 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
 import { TenantLlmJudgeGuideCard } from "@/components/TenantLlmJudgeGuideCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { toDocsBlobUrl } from "@/lib/contextual-help-content";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
@@ -18,6 +20,7 @@ import { DIGESTS_SCHEDULE_TAB_PATH } from "@/lib/settings-admin-route-paths";
 
 import { TenantCostSettingsCard } from "./TenantCostSettingsCard";
 import { TenantQualityGatesCard } from "./TenantQualityGatesCard";
+import { TenantSettingsEvidenceOrientationStrip } from "./TenantSettingsEvidenceOrientationStrip";
 import type { TenantSettingsPageContentModel } from "./tenant-settings-page-view-model";
 
 type SectionHeadingProps = { readonly children: ReactNode };
@@ -40,12 +43,14 @@ export function TenantSettingsPageView(props: Props) {
 
   return (
     <div className="w-full max-w-3xl space-y-6" data-testid="tenant-settings-page">
-      <div>
-        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{OPERATOR_NAV_LINK_LABELS.workspaceSettings}</h1>
-        <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>
-          Workspace defaults and tenant-wide configuration.
-        </p>
-      </div>
+      <OperatorPageHeader
+        title={OPERATOR_NAV_LINK_LABELS.workspaceSettings}
+        subtitle="Workspace defaults and tenant-wide configuration."
+        titleTestId="tenant-settings-page-title"
+        actions={<PageContextualHelpButton />}
+      />
+
+      <TenantSettingsEvidenceOrientationStrip />
 
       <SectionHeading>General</SectionHeading>
 

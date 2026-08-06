@@ -121,6 +121,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/administration/identity-providers/saml",
       "/administration/identity/sso-wizard",
       "/administration/scim-provisioning",
+      "/administration/tenant",
       "/administration/tenant/recycle-bin",
       "/administration/identity-providers/role-mapping",
       "/administration/identity-providers/diagnostics",
@@ -261,6 +262,11 @@ describe("contextual-help-registry (TB-733)", () => {
     expect(contextualHelpForPathname("/administration/tenant/recycle-bin")?.whatToDoNext).toContain(
       "Refresh the list",
     );
+  });
+
+  it("resolves Tenant settings Category-1 help (ATE)", () => {
+    expect(contextualHelpForPathname("/administration/tenant")?.whatIsThisPage).toContain("Tenant settings");
+    expect(contextualHelpForPathname("/administration/tenant")?.whatToDoNext).toContain("quality gates");
   });
 
   it("resolves Identity diagnostics Category-1 help (SEI)", () => {

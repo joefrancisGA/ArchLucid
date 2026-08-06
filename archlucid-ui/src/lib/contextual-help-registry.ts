@@ -1131,6 +1131,19 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/administration/tenant",
+    entry: {
+      whatIsThisPage:
+        "Tenant settings - configure workspace defaults, quality gates, cost settings, and tenant-wide options for this organization.",
+      whatToDoNext:
+        "Review workspace scope, adjust quality gates or cost settings when needed, then open Projects recycle bin to restore deleted architecture projects.",
+      whyEmpty:
+        "Cards always render for authorized Admins; empty technical scope values mean the workspace switcher has not selected a tenant, workspace, or project yet.",
+      whereToConfigurePrerequisite:
+        "Changing tenant defaults needs Admin authority; active workspace and project selection lives in the header workspace switcher.",
+    },
+  },
+  {
     prefix: "/administration/tenant/recycle-bin",
     entry: {
       whatIsThisPage:
