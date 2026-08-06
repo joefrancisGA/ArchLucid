@@ -1,11 +1,13 @@
-import type { DigestsHubTabId } from "@/lib/digests-hub-tab";
+﻿import type { DigestsHubTabId } from "@/lib/digests-hub-tab";
 
 /** Canonical Architecture digests hub path (Architecture nav group). */
 export const DIGESTS_HUB_PATH = "/architecture/digests";
 
-/** Legacy top-level path — permanent redirect to {@link DIGESTS_HUB_PATH}. */
+/** Legacy top-level path ΓÇö permanent redirect to {@link DIGESTS_HUB_PATH}. */
 export const LEGACY_DIGESTS_HUB_PATH = "/digests";
 
+/** Legacy subscriptions bookmark path used by contextual help and rewrite aliases. */
+export const LEGACY_DIGEST_SUBSCRIPTIONS_PATH = "/digest-subscriptions";
 /** Builds a hub tab deep link on the canonical path. */
 export function digestsHubTabPath(tab: DigestsHubTabId): string {
   return `${DIGESTS_HUB_PATH}?tab=${encodeURIComponent(tab)}`;
