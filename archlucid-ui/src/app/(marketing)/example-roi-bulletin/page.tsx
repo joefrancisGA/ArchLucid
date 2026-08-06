@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { ExampleRoiBulletinEvidenceOrientationStrip } from "@/components/marketing/ExampleRoiBulletinEvidenceOrientationStrip";
 import {
   adminRoiBulletinPreviewHref,
   EXAMPLE_ROI_BULLETIN_METHODOLOGY_HELP_HREF,
@@ -36,6 +37,8 @@ export default function ExampleRoiBulletinMarketingPage() {
         Illustrative quarter label in the sample: <strong>{illustrativeQuarter}</strong> (static example — not the
         current publication period).
       </p>
+
+      <ExampleRoiBulletinEvidenceOrientationStrip />
 
       <section
         className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 mt-6 p-4 text-sm"
