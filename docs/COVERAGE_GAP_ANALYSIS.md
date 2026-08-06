@@ -45,7 +45,7 @@ The merge step in **`.github/workflows/ci.yml`** (`dotnet-coverage-merge`) enfor
 
 - **Merged line ≥ 76%**
 - **Branch coverage ≥ 61%**
-- **Per-product-package line ≥ 81%** for every gated **`ArchLucid.*`** assembly with coverable lines (see **`scripts/ci/assert_merged_line_coverage_min.py`** invocation in the workflow)
+- **Per-product-package line ≥ 84%** for every gated **`ArchLucid.*`** assembly with coverable lines (see **`scripts/ci/assert_merged_line_coverage_min.py`** invocation in the workflow)
 
 **Merged line ≥ 95%** (tighter than the **75%** CI floor) and the **ratchet** are deferred to **V1.1** (see **`docs/library/V1_DEFERRED.md`**).
 
@@ -57,7 +57,7 @@ The merge step in **`.github/workflows/ci.yml`** (`dotnet-coverage-merge`) enfor
 
 ## RC23 merged package snapshot (authoritative gate posture)
 
-Measured from RC23 merged Cobertura (`dotnet-coverage-merge`, run [30882961646](https://github.com/joefrancisGA/ArchLucid/actions/runs/30882961646)). **Gate** = subject to the **81%** per-package line floor; **skipped** = interim **`--skip-package-line-gate`** in **`.github/workflows/ci.yml`**.
+Measured from RC23 merged Cobertura (`dotnet-coverage-merge`, run [30882961646](https://github.com/joefrancisGA/ArchLucid/actions/runs/30882961646)). **Gate** = subject to the **84%** per-package line floor; **skipped** = interim **`--skip-package-line-gate`** in **`.github/workflows/ci.yml`**.
 
 | Package | Line % | Branch % | Gate |
 | --- | --- | --- | --- |
@@ -90,7 +90,7 @@ Measured from RC23 merged Cobertura (`dotnet-coverage-merge`, run [30882961646](
 | `ArchLucid.Jobs.Cli` | 100.00 | 100.00 | OK |
 | `ArchLucid.Notifications.Email.RazorLight` | 100.00 | 100.00 | OK |
 
-**RC23 uplift focus:** gated packages at or just above the **81%** floor — `ArchLucid.Integrations.AzureDevOps`, `ArchLucid.Analyzers`, `ArchLucid.Retrieval`, `ArchLucid.Core`, `ArchLucid.AgentSimulator` (see `*PackageCoverageBatchRc23Tests` in matching test projects). Skipped packages remain tracked until each clears the active floor and its skip flag is removed with sign-off.
+**RC23 uplift focus:** gated packages at or just above the **84%** floor — `ArchLucid.Integrations.AzureDevOps`, `ArchLucid.Analyzers`, `ArchLucid.Retrieval`, `ArchLucid.Core`, `ArchLucid.AgentSimulator` (see `*PackageCoverageBatchRc23Tests` in matching test projects). Skipped packages remain tracked until each clears the active floor and its skip flag is removed with sign-off.
 
 ## Local run (merged HTML)
 
