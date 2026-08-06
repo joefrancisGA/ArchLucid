@@ -205,6 +205,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "evidence-trail", label: "Demo explain" },
   },
   { prefix: "/administration/billing", topic: { slug: "billing-and-plans", label: "Billing and plans" } },
+  { prefix: "/administration/ai-usage", topic: { slug: "billing-and-plans", label: "AI usage and cost" } },
   { prefix: "/help/billing-and-plans", topic: { slug: "billing-and-plans", label: "Billing and plans" } },
   {
     prefix: "/help/security-trust",

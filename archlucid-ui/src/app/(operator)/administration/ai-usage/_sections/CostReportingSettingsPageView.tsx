@@ -2,9 +2,11 @@
 
 import { cn } from "@/lib/utils";
 
+import { AiUsageSettingsEvidenceOrientationStrip } from "@/app/(operator)/administration/ai-usage/_sections/AiUsageSettingsEvidenceOrientationStrip";
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { OperatorOutboxDiagnosticsCard } from "@/components/OperatorOutboxDiagnosticsCard";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { AiUsageBudgetControlsPanel } from "./ai-usage/AiUsageBudgetControlsPanel";
@@ -72,12 +74,17 @@ export function CostReportingSettingsPageView(props: Props) {
 
   return (
     <div className="w-full max-w-[1200px] space-y-6" data-testid="cost-reporting-page">
-      <div>
-        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>AI usage and cost</h1>
-        <p className={cn("mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          Monitor estimated AI spend, remaining budget, and the workflows driving cost for this workspace.
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>AI usage and cost</h1>
+          <p className={cn("mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            Monitor estimated AI spend, remaining budget, and the workflows driving cost for this workspace.
+          </p>
+        </div>
+        <PageContextualHelpButton />
       </div>
+
+      <AiUsageSettingsEvidenceOrientationStrip />
 
       {data?.isMocked === true ? (
         <p

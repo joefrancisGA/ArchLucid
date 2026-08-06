@@ -1,0 +1,24 @@
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
+
+export const AI_USAGE_SETTINGS_CANONICAL_PATH = AI_USAGE_SETTINGS_PATH;
+
+export const AI_USAGE_SETTINGS_CLAIM_DISCIPLINE =
+  "This AI usage and cost page shows estimated spend and budget signals for the workspace - it is not invoice-accurate financial reporting, a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Billing & plans, Pilot ROI model, or Audit when you need plan controls, methodology, or governed trails.";
+
+export const AI_USAGE_SETTINGS_SOURCES_INTRO =
+  "Use these follow-ups when estimated spend turns into plan changes, ROI methodology, or budget edit controls on Billing.";
+
+export type AiUsageSettingsSourceLink = {
+  readonly label: string;
+  readonly href: string;
+};
+
+/** Operator Sources - no self-href to `/administration/ai-usage`. */
+export const AI_USAGE_SETTINGS_SOURCES: readonly AiUsageSettingsSourceLink[] = [
+  { label: "Billing & plans", href: "/administration/billing" },
+  { label: "Billing and plans help", href: inAppHelpHref("billing-and-plans") },
+  { label: "Pilot ROI model", href: inAppHelpHref("pilot-roi-model") },
+  { label: "Pricing", href: "/pricing" },
+  { label: "Audit", href: "/governance/audit" },
+] as const;

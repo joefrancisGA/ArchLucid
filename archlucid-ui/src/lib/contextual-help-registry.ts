@@ -998,6 +998,19 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/administration/ai-usage",
+    entry: {
+      whatIsThisPage:
+        "AI usage and cost - monitor estimated AI spend, remaining budget, and the workflows driving cost for this workspace.",
+      whatToDoNext:
+        "Review KPIs and daily usage, then open Billing & plans when budget caps or plan changes are needed.",
+      whyEmpty:
+        "Spend cards appear after cost-reporting data loads; quiet empty periods hide zeroed cockpit noise until activity resumes.",
+      whereToConfigurePrerequisite:
+        "Budget edits need a role that can manage workspace billing; estimated spend is not invoice-accurate.",
+    },
+  },
+  {
     prefix: "/administration/baseline",
     entry: {
       whatIsThisPage:

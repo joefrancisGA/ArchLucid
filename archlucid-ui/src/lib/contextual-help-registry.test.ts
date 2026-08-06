@@ -114,6 +114,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/administration/users",
       "/administration/security-trust",
       "/administration/billing",
+      "/administration/ai-usage",
       "/administration/baseline",
       "/integrations/cloud-connections",
       "/integrations/jira",
@@ -389,6 +390,15 @@ describe("contextual-help-registry (TB-733)", () => {
     );
     expect(contextualHelpForPathname("/administration/billing")?.whatToDoNext).toContain(
       "Available plans",
+    );
+  });
+
+  it("resolves AI usage settings Category-1 help (ADI)", () => {
+    expect(contextualHelpForPathname("/administration/ai-usage")?.whatIsThisPage).toContain(
+      "AI usage and cost",
+    );
+    expect(contextualHelpForPathname("/administration/ai-usage")?.whatToDoNext).toContain(
+      "Billing & plans",
     );
   });
 
