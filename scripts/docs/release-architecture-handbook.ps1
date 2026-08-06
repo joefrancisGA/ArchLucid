@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-  Safely re-render all architecture diagram SVG/PNG (via temp .mmd copies), then regenerate Full + Buyer handbook DOCX.
+  Safely re-render all architecture diagram SVG/PNG (via temp .mmd copies), then regenerate Full + Buyer + Security handbook DOCX.
 
 .EXAMPLE
   .\scripts\docs\release-architecture-handbook.ps1
@@ -76,6 +76,12 @@ if (-not $SkipDocx) {
   }
 
   & $gen -Pack Buyer -SkipPngRender
+
+  if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+  }
+
+  & $gen -Pack Security -SkipPngRender
 
   if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE

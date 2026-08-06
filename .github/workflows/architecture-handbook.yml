@@ -47,7 +47,7 @@ jobs:
           node-version: '22'
       - name: Install Pandoc
         run: sudo apt-get update && sudo apt-get install -y pandoc
-      - name: Release handbook (temp-copy mermaid render + Full/Buyer DOCX)
+      - name: Release handbook (temp-copy mermaid render + Full/Buyer/Security DOCX)
         shell: pwsh
         run: ./scripts/docs/release-architecture-handbook.ps1
       - name: Upload handbook DOCXs
@@ -57,4 +57,5 @@ jobs:
           path: |
             docs/architecture/architecture_handbook/ARCHITECTURE_HANDBOOK*.docx
             docs/architecture/architecture_handbook/buyer/BUYER_TRUST_TOPOLOGY_PACK*.docx
+            docs/architecture/architecture_handbook/security/SECURITY_REVIEWER_PACK*.docx
           if-no-files-found: warn

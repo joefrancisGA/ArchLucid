@@ -2,7 +2,7 @@
 
 title: "ArchLucid buyer trust and topology pack"
 
-subtitle: "Version 2026.08.06h â€” generated from docs/architecture/architecture_handbook"
+subtitle: "Version 2026.08.06i â€” generated from docs/architecture/architecture_handbook"
 
 ---
 

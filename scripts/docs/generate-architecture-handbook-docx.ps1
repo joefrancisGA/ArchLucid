@@ -4,14 +4,15 @@
 
 .DESCRIPTION
   Source of truth is Markdown under docs/architecture/architecture_handbook/
-  (Full pack) or architecture_handbook/buyer/ (Buyer pack).
+  (Full pack), architecture_handbook/buyer/ (Buyer pack), or
+  architecture_handbook/security/ (Security reviewer pack).
   For DOCX, diagram references are rewritten from .svg to .png (Pandoc on Windows
   needs raster images unless rsvg-convert is installed). PNG files are produced
   with @mermaid-js/mermaid-cli for every *.mmd under architecture_diagrams when missing
   (unless -SkipPngRender).
 
 .PARAMETER Pack
-  Full (default) or Buyer chapter set.
+  Full (default), Buyer, or Security chapter set.
 
 .PARAMETER Version
   Optional version string; defaults to contents of architecture_handbook/VERSION.
@@ -21,11 +22,14 @@
 
 .EXAMPLE
   .\scripts\docs\generate-architecture-handbook-docx.ps1 -Pack Buyer -Version 2026.08.06b
+
+.EXAMPLE
+  .\scripts\docs\generate-architecture-handbook-docx.ps1 -Pack Security -SkipPngRender
 #>
 [CmdletBinding()]
 param(
   [string]$RepoRoot = '',
-  [ValidateSet('Full', 'Buyer')]
+  [ValidateSet('Full', 'Buyer', 'Security')]
   [string]$Pack = 'Full',
   [switch]$SkipDocx,
   [switch]$SkipPngRender,
@@ -42,6 +46,7 @@ if ([string]::IsNullOrWhiteSpace($RepoRoot)) {
 $handbookDir = Join-Path $RepoRoot 'docs\architecture\architecture_handbook'
 $diagramsDir = Join-Path $RepoRoot 'docs\architecture\architecture_diagrams'
 $buyerDir = Join-Path $handbookDir 'buyer'
+$securityDir = Join-Path $handbookDir 'security'
 $versionFile = Join-Path $handbookDir 'VERSION'
 
 if ([string]::IsNullOrWhiteSpace($Version)) {
@@ -69,6 +74,30 @@ if ($Pack -eq 'Buyer') {
   $outDocxVersioned = Join-Path $buyerDir ("BUYER_TRUST_TOPOLOGY_PACK.{0}.docx" -f $Version)
   $docTitle = 'ArchLucid buyer trust and topology pack'
   $pandocCwd = $buyerDir
+}
+elseif ($Pack -eq 'Security') {
+  $chapterRoot = $securityDir
+  $chapters = @(
+    '00-security-front-matter.md',
+    '01-security-system-context.md',
+    '02-security-tenant-isolation.md',
+    '03-security-model.md',
+    '04-security-entra-claims.md',
+    '05-security-secrets-keyvault.md',
+    '06-security-threat-ask-rag.md',
+    '07-security-threat-webhooks.md',
+    '08-security-content-safety.md',
+    '09-security-rate-limiting.md',
+    '10-security-commit-sod.md',
+    '11-security-audit-catalog.md',
+    '12-security-compliance-honesty.md',
+    '99-security-references.md'
+  )
+  $outMd = Join-Path $securityDir 'SECURITY_REVIEWER_PACK.generated.md'
+  $outDocx = Join-Path $securityDir 'SECURITY_REVIEWER_PACK.docx'
+  $outDocxVersioned = Join-Path $securityDir ("SECURITY_REVIEWER_PACK.{0}.docx" -f $Version)
+  $docTitle = 'ArchLucid security reviewer pack'
+  $pandocCwd = $securityDir
 }
 else {
   $chapterRoot = $handbookDir
@@ -228,7 +257,7 @@ try {
     $outMd
     '-o', $outDocx
     '--from', 'markdown'
-    '--resource-path', "$pandocCwd;$handbookDir;$diagramsDir;$buyerDir"
+    '--resource-path', "$pandocCwd;$handbookDir;$diagramsDir;$buyerDir;$securityDir"
     '--toc'
     '--toc-depth', '2'
   )

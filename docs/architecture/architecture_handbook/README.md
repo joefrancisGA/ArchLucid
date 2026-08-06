@@ -3,17 +3,18 @@
 
 # ArchLucid architecture handbook
 
-**Version:** [`VERSION`](VERSION) (current: `2026.08.06h`)
+**Version:** [`VERSION`](VERSION) (current: `2026.08.06i`)
 
 ## Generate / release
 
 ```powershell
-# Preferred one-shot (temp-copy mermaid render + Full + Buyer + drift):
+# Preferred one-shot (temp-copy mermaid render + Full + Buyer + Security + drift):
 .\scripts\docs\release-architecture-handbook.ps1
 
 # Or packs only (PNGs already present):
 .\scripts\docs\generate-architecture-handbook-docx.ps1 -Pack Full -SkipPngRender
 .\scripts\docs\generate-architecture-handbook-docx.ps1 -Pack Buyer -SkipPngRender
+.\scripts\docs\generate-architecture-handbook-docx.ps1 -Pack Security -SkipPngRender
 ```
 
 CI: `.github/workflows/architecture-handbook.yml` (drift + best-effort DOCX artifact upload).
@@ -43,4 +44,4 @@ CI: `.github/workflows/architecture-handbook.yml` (drift + best-effort DOCX arti
 | 65–74 | idempotency → technology ledger | Expansion set 7 |
 | 98–99 | changelog / refs | — |
 
-Buyer pack remains under [`buyer/`](buyer/).
+Buyer pack: [`buyer/`](buyer/). Security reviewer pack: [`security/`](security/).
