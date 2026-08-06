@@ -392,6 +392,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "evidence-intake", label: "Extract and Upload" },
   },
   {
+    prefix: "/administration/model-governance",
+    topic: { slug: "how-it-works", label: "AI and model governance" },
+  },
+  {
     prefix: "/administration/users/invite-reviewer",
     topic: { slug: "users-and-roles", label: "Invite a reviewer" },
   },
