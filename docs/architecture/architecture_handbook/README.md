@@ -3,7 +3,7 @@
 
 # ArchLucid architecture handbook
 
-**Version:** [`VERSION`](VERSION) (current: `2026.08.06f`)
+**Version:** [`VERSION`](VERSION) (current: `2026.08.06g`)
 
 ## Generate / release
 
@@ -39,6 +39,7 @@ CI: `.github/workflows/architecture-handbook.yml` (drift + best-effort DOCX arti
 | 25–34 | evidence → simulator matrix | Expansion set 3 |
 | 35–44 | extractors → Terraform order | Expansion set 4 |
 | 45–54 | LLM adapters → rate limiting | Expansion set 5 |
+| 55–64 | Private Link → hosting roles | Expansion set 6 |
 | 98–99 | changelog / refs | — |
 
 Buyer pack remains under [`buyer/`](buyer/).

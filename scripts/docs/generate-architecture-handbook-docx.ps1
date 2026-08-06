@@ -128,6 +128,16 @@ else {
     '52-blob-content-addressed-layout.md',
     '53-notification-channel-matrix.md',
     '54-rate-limiting-throttling.md',
+    '55-private-link-network.md',
+    '56-container-deploy-units.md',
+    '57-ci-product-pipeline.md',
+    '58-golden-cohort-eval.md',
+    '59-workspace-project-hierarchy.md',
+    '60-entra-role-claims.md',
+    '61-correlation-tracing.md',
+    '62-content-safety-ingress.md',
+    '63-health-checks-catalog.md',
+    '64-hosting-roles-split.md',
     '98-changelog.md',
     '99-references.md'
   )

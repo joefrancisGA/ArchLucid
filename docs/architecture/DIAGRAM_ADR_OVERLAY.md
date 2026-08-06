@@ -68,6 +68,16 @@ Use this table when updating a diagram or ADR so narrative and pictures stay ali
 | `archlucid-blob-content-addressed-layout` | [0011](adrs/0011-inmemory-vs-sql-storage-provider.md) | Artifact blob paths |
 | `archlucid-notification-channel-matrix` | — | MICROSOFT_TEAMS_NOTIFICATIONS |
 | `archlucid-rate-limiting-throttling` | [0061](adrs/0061-ddos-protection-posture-v1.md) | RateLimitingDefaults |
+| `archlucid-private-link-network` | [0020](adrs/0020-azure-primary-platform-permanent.md) | terraform-private / PRIVATE_ENDPOINT_SETUP |
+| `archlucid-container-deploy-units` | [0001](adrs/0001-hosting-roles-api-worker-combined.md), [0018](adrs/0018-background-workloads-container-apps-jobs.md) | Dockerfiles / ACA |
+| `archlucid-ci-product-pipeline` | — | `.github/workflows/ci.yml` |
+| `archlucid-golden-cohort-eval` | — | tests/golden-cohort |
+| `archlucid-workspace-project-hierarchy` | [0037](adrs/0037-tenant-isolation-without-rls-defense-in-depth.md) | ScopeContext / soft-delete |
+| `archlucid-entra-role-claims` | [0034](adrs/0034-segregation-of-duties-entra-oid-actor-keys.md) | terraform-entra / role claims |
+| `archlucid-correlation-tracing` | — | CorrelationIdMiddleware |
+| `archlucid-content-safety-ingress` | — | ContentSafety / prompt-injection |
+| `archlucid-health-checks-catalog` | — | /health/live ready |
+| `archlucid-hosting-roles-split` | [0001](adrs/0001-hosting-roles-api-worker-combined.md) | HostingRoleResolver |
 
 ## Update rule
 

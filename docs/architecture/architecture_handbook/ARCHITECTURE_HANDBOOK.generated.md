@@ -2,7 +2,7 @@
 
 title: "ArchLucid platform architecture handbook"
 
-subtitle: "Version 2026.08.06f â€” generated from docs/architecture/architecture_handbook"
+subtitle: "Version 2026.08.06g â€” generated from docs/architecture/architecture_handbook"
 
 ---
 
@@ -680,10 +680,91 @@ ASP.NET rate policies gate fixed, expensive authority, replay, bulk evidence, OT
 
 
 
+# 55. Private Link network
+
+`infra/terraform-private` is the optional private data-plane root (VNet, PE subnet, SQL/Blob private endpoints and DNS), gated by `enable_private_data_plane`. Compute must VNet-integrate to reach `privatelink.*` hostnames.
+
+![Private Link network](../architecture_diagrams/archlucid-private-link-network.png)
+
+
+
+# 56. Container deploy units
+
+One API Dockerfile publishes API, Worker, and Jobs CLI into a shared image; ACA revisions select entrypoints. The UI ships as a separate Next.js image. Pair with `Hosting:Role` so deploy units are visible beyond Terraform boxes.
+
+![Container deploy units](../architecture_diagrams/archlucid-container-deploy-units.png)
+
+
+
+# 57. CI product pipeline
+
+Product CI is a multi-lane DAG: secrets scan, path lanes, fast core, OpenAPI snapshots, prompt-injection regression, Terraform validates, then full regression shards. This chapter maps gate intent and blast radius, not every job name.
+
+![CI product pipeline](../architecture_diagrams/archlucid-ci-product-pipeline.png)
+
+
+
+# 58. Golden cohort evaluation
+
+The locked N=20 golden cohort JSON drives simulator drift automation and optional real-LLM nightly gates. `GoldenCohortFineTuningPromotionGate` compares faithfulness support ratios before model promotionâ€”distinct from the agent-task simulator matrix.
+
+![Golden cohort eval](../architecture_diagrams/archlucid-golden-cohort-eval.png)
+
+
+
+# 59. Workspace and project hierarchy
+
+Scope is a three-level hierarchy (tenant â†’ workspace â†’ project) enforced in SQL and ambient `ScopeContext`. Projects soft-delete via `IsDeleted`/`DeletedUtc` with audit events and recycle restoreâ€”complementing tenant isolation without duplicating it.
+
+![Workspace project hierarchy](../architecture_diagrams/archlucid-workspace-project-hierarchy.png)
+
+
+
+# 60. Entra role claims
+
+Entra (or generic OIDC) app roles and SAML attributes are normalized onto `ArchLucidRoles` plus fine-grained `permission` claims. This is the claim-transform path behind the authn-route matrixâ€”role sources, aliases, and diagnostics.
+
+![Entra role claims](../architecture_diagrams/archlucid-entra-role-claims.png)
+
+
+
+# 61. Correlation and tracing
+
+Incoming `X-Correlation-Id` (validated) seeds request correlation; scope tags and Activity IDs flow into logs, audits, and outbox processors. Narrower than the observability map: end-to-end baggage from HTTP edge to worker activities.
+
+![Correlation tracing](../architecture_diagrams/archlucid-correlation-tracing.png)
+
+
+
+# 62. Content safety ingress
+
+Ingress precheck on create-run, Azure AI Content Safety on completion I/O, evidence sanitizers, and prompt redaction form a layered trust boundary. Health probes and regression datasets make the posture diagrammable without claiming injection-proof.
+
+![Content safety ingress](../architecture_diagrams/archlucid-content-safety-ingress.png)
+
+
+
+# 63. Health checks catalog
+
+Liveness stays minimal; readiness and authenticated detailed surfaces register named checks (SQL, vector store, golden-manifest consistency, Content Safety, and more). Catalog which checks gate probes versus triage-only diagnostics.
+
+![Health checks catalog](../architecture_diagrams/archlucid-health-checks-catalog.png)
+
+
+
+# 64. Hosting roles split
+
+`Hosting:Role` selects Combined (default), Api (HTTP plus limited in-process work), or Worker (background loops, minimal health HTTP). Distinct from the hosted-services inventory (what loops exist) and azure-topology (where they run).
+
+![Hosting roles split](../architecture_diagrams/archlucid-hosting-roles-split.png)
+
+
+
 # Changelog (handbook)
 
 | Version | Date | Notes |
 |---------|------|-------|
+| 2026.08.06g | 2026-08-06 | Expansion set 6: Private Link, container deploy units, CI pipeline, golden cohort, workspace hierarchy, Entra claims, correlation, content safety, health checks, hosting roles. |
 | 2026.08.06f | 2026-08-06 | Expansion set 5: LLM adapters, Key Vault secrets, kill switches, outbound webhooks, audit catalog, DbUp migration, cache layers, blob CAS layout, notification channels, rate limiting. |
 | 2026.08.06e | 2026-08-06 | Expansion set 4: cloud extractors, knowledge graph, findings taxonomy, artifact registry, comparison catalog, Ask lifecycle, hosted services, demo surfaces, CLI map, Terraform order. |
 | 2026.08.06d | 2026-08-06 | Expansion set 3: intake through agent-task/simulator. |
