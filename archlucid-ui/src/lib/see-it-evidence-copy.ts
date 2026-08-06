@@ -1,3 +1,5 @@
+import { CANONICAL_ANONYMOUS_PROOF_HREF } from "@/lib/showcase-static-demo";
+
 export const SEE_IT_CANONICAL_PATH = "/see-it" as const;
 
 export const SEE_IT_CLAIM_DISCIPLINE =
@@ -11,11 +13,11 @@ export type SeeItSourceLink = {
   readonly href: string;
 };
 
-/** Marketing Sources — no self-href to `/see-it`. */
+/** Marketing Sources — no self-href to `/see-it`; no Contoso `/demo/preview` (TB-1028 Option A). */
 export const SEE_IT_SOURCES: readonly SeeItSourceLink[] = [
   { label: "Start evaluation", href: "/signup" },
   { label: "Get started", href: "/get-started" },
   { label: "Live demo", href: "/live-demo" },
-  { label: "Demo preview", href: "/demo/preview" },
+  { label: "Claims showcase", href: CANONICAL_ANONYMOUS_PROOF_HREF },
   { label: "Security & trust", href: "/security-trust" },
 ] as const;
