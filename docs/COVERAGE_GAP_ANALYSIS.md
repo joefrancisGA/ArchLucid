@@ -92,6 +92,8 @@ Measured from RC23 merged Cobertura (`dotnet-coverage-merge`, run [30882961646](
 
 **RC23 uplift focus:** gated packages at or just above the **81%** floor — `ArchLucid.Integrations.AzureDevOps`, `ArchLucid.Analyzers`, `ArchLucid.Retrieval`, `ArchLucid.Core`, `ArchLucid.AgentSimulator` (see `*PackageCoverageBatchRc23Tests` in matching test projects). Skipped packages remain tracked until each clears the active floor and its skip flag is removed with sign-off.
 
+**RC24 uplift (unit batches):** `ApplicationPackageCoverageBatchRc24Tests` (DOCX supplemental/OpenXML primitives, policy-pack before/after composer+snapshot, cloud inventory citations, finding/sponsor mappers, trial lifecycle outbox publish), `PersistencePackageCoverageBatchRc24Tests` (`PolicyFilteredComplianceRulePackProvider`), `HostCorePackageCoverageBatchRc24Tests` (trial lifecycle email integration handler + jobs/recurrence options).
+
 ## Local run (merged HTML)
 
 From repo root (after a **Release** build of tests):
