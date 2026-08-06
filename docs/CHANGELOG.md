@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-06 - UI: Approval queue Evidence chrome (GOP)
+
+`/governance/approval-queue` ships ApprovalQueueEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map governance-approval, traffic Notes under Alerts/gov (row ID GOP; added to template), and honest Evidence score 50. Decision-workflow hub hard-caps higher Evidence without audit export depth; no CPA / third-party pen-test implication.
+
 ## 2026-08-06 - UI: Alerts inbox legacy tab Evidence notes (GOI)
 
 `/governance/alerts?tab=inbox` documents redirect canonicalize to AL hub (TB-1594), traffic Notes under Tab surface (row ID GOI), and honest Evidence score 28. Legacy inbox-tab deep link hard-caps at redirect/shim band; no CPA / third-party pen-test implication.

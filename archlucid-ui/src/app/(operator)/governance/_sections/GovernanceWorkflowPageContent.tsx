@@ -553,6 +553,8 @@ export function GovernanceWorkflowPageContent() {
         actions={overviewHeaderActions}
       />
 
+      <ApprovalQueueEvidenceOrientationStrip />
+
       {toast ? (
         <div className="fixed bottom-6 right-6 z-50 max-w-sm" role="status">
           <div
