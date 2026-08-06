@@ -382,6 +382,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "enterprise-onboarding", label: "SAML identity provider" },
   },
   {
+    prefix: "/administration/identity/sso-wizard",
+    topic: { slug: "enterprise-onboarding", label: "SSO wizard" },
+  },
+  {
     prefix: "/administration/identity-providers/diagnostics",
     topic: { slug: "enterprise-onboarding", label: "Identity diagnostics" },
   },
@@ -416,10 +420,6 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   {
     prefix: "/administration/users/invite-reviewer",
     topic: { slug: "users-and-roles", label: "Invite a reviewer" },
-  },
-  {
-    prefix: "/settings/roles",
-    topic: { slug: "users-and-roles", label: "Users and roles" },
   },
   {
     prefix: "/administration/users",

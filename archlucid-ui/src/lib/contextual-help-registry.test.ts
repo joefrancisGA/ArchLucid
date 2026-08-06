@@ -116,10 +116,10 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/cloud-connections",
       "/administration/users/invite-reviewer",
       "/administration/users",
-      "/settings/roles",
       "/administration/identity-providers",
       "/administration/identity-providers/oidc",
       "/administration/identity-providers/saml",
+      "/administration/identity/sso-wizard",
       "/administration/identity-providers/role-mapping",
       "/administration/identity-providers/diagnostics",
       "/administration/api-keys",
@@ -231,6 +231,15 @@ describe("contextual-help-registry (TB-733)", () => {
     );
     expect(contextualHelpForPathname("/administration/identity-providers/saml")?.whatToDoNext).toContain(
       "Fetch IdP metadata",
+    );
+  });
+
+  it("resolves SSO wizard Category-1 help (ASS)", () => {
+    expect(contextualHelpForPathname("/administration/identity/sso-wizard")?.whatIsThisPage).toContain(
+      "SSO wizard",
+    );
+    expect(contextualHelpForPathname("/administration/identity/sso-wizard")?.whatToDoNext).toContain(
+      "Choose a protocol",
     );
   });
 

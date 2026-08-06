@@ -16,9 +16,6 @@ import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance-route-paths";
 import { PLANNING_PATH } from "@/lib/planning-route";
 import { PRODUCT_LEARNING_PATH } from "@/lib/product-learning-route";
 import {
-  LEGACY_SETTINGS_ROLES_PATH,
-} from "@/lib/settings-admin-route-paths";
-import {
   PROVENANCE_CONTEXTUAL_HELP,
   pathIsRunProvenance,
 } from "@/lib/provenance-evidence-copy";
@@ -1069,18 +1066,6 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
-    prefix: LEGACY_SETTINGS_ROLES_PATH,
-    entry: {
-      whatIsThisPage:
-        "Invite users, assign ArchLucid app roles, and manage API keys for this workspace tenant.",
-      whatToDoNext:
-        "Invite a teammate, open Roles and permissions to adjust authority, or manage API keys when you have Admin authority.",
-      whyEmpty: "Directory rows appear after invitations are accepted or users are provisioned for this tenant.",
-      whereToConfigurePrerequisite:
-        "SSO and identity-provider mapping may be required before enterprise users can sign in.",
-    },
-  },
-  {
     prefix: "/administration/identity-providers",
     entry: {
       whatIsThisPage:
@@ -1117,6 +1102,19 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
         "The configuration form always renders for authorized Admins; empty claim tables mean metadata has not been fetched or mapping rows are not filled yet.",
       whereToConfigurePrerequisite:
         "Changing SAML settings needs Admin authority and a reachable IdP metadata URL; signing certificate health is reviewed on Identity diagnostics.",
+    },
+  },
+  {
+    prefix: "/administration/identity/sso-wizard",
+    entry: {
+      whatIsThisPage:
+        "SSO wizard - guided OIDC or SAML setup that discovers provider metadata, maps roles, tests connection, then activates SSO for this workspace.",
+      whatToDoNext:
+        "Choose a protocol, fetch metadata, map IdP claims to ArchLucid roles, run a test connection, then activate only after the test succeeds.",
+      whyEmpty:
+        "Wizard steps always render for authorized Admins; empty issuer or mapping fields mean metadata has not been fetched or claims are not filled yet.",
+      whereToConfigurePrerequisite:
+        "Activating SSO needs Admin authority and a reachable IdP metadata or discovery URL; current sign-in stays unchanged until the final activate step.",
     },
   },
   {

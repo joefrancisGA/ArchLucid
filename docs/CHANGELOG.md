@@ -22,6 +22,10 @@ Paste-ready ADR Cleanup listing in [`QUOTE_TO_PROOF_PACKET.md#upwork-listings-dr
 
 [LLM_EXECUTION_VS_QUALITY_OUTCOME.md](library/LLM_EXECUTION_VS_QUALITY_OUTCOME.md) ships the two-axis matrix (admissibility first, quality second), failureClass / gate / triage mapping, and durable persist checklist for **TB-964**/**TB-965**. GTM **M-123**/**M-124** cite the library SoT. Does not claim CPA / third-party pen-test or perfect AI quality.
 
+## 2026-08-06 - UI: SSO wizard Evidence chrome (ASS)
+
+`/administration/identity/sso-wizard` ships SsoWizardEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map enterprise-onboarding, traffic Notes under Settings (row ID ASS; path aligned off legacy settings/identity/sso-wizard / SIS), and honest Evidence score 50. Settings access-hub hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-06 - UI: SAML identity-provider Evidence chrome (ASA)
 
 `/administration/identity-providers/saml` ships IdentityProvidersSamlEvidenceOrientationStrip (workspace Sources + claim-discipline), shared PageContextualHelp + Category-1 registry + topic map enterprise-onboarding, traffic Notes under Settings (row ID ASA; path aligned off legacy settings/identity-providers/saml / SSA), and honest Evidence score 50. Settings access-hub hard-caps higher Evidence; no CPA / third-party pen-test implication.
