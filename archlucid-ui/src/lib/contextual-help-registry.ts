@@ -1120,6 +1120,19 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/administration/identity-providers/diagnostics",
+    entry: {
+      whatIsThisPage:
+        "Identity diagnostics - validate federation health probes, OIDC and SAML strips, and token test mapping before enabling SSO for all users.",
+      whatToDoNext:
+        "Refresh probes, review failing health strips, run token test mapping when claims look wrong, then return to OIDC or Role mapping to fix configuration.",
+      whyEmpty:
+        "Health and checklist panels appear after diagnostics APIs respond; empty strips mean probes have not loaded yet or the provider is not configured.",
+      whereToConfigurePrerequisite:
+        "Running diagnostics needs Admin authority and configured identity-provider endpoints; technical detail panels may require the internal operator shell.",
+    },
+  },
+  {
     prefix: "/administration/api-keys",
     entry: {
       whatIsThisPage:

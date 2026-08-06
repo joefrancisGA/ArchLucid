@@ -10,6 +10,14 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-06 - Docs: LLM execution vs quality outcome taxonomy (TB-963)
+
+[LLM_EXECUTION_VS_QUALITY_OUTCOME.md](library/LLM_EXECUTION_VS_QUALITY_OUTCOME.md) ships the two-axis matrix (admissibility first, quality second), failureClass / gate / triage mapping, and durable persist checklist for **TB-964**/**TB-965**. GTM **M-123**/**M-124** cite the library SoT. Does not claim CPA / third-party pen-test or perfect AI quality.
+
+## 2026-08-06 - UI: Identity diagnostics Evidence chrome (SEI)
+
+`/administration/identity-providers/diagnostics` ships IdentityProvidersDiagnosticsEvidenceOrientationStrip (workspace Sources + claim-discipline), shared PageContextualHelp + Category-1 registry + topic map enterprise-onboarding, traffic Notes under Settings (row ID SEI; path aligned off legacy settings/identity-providers/diagnostics), and honest Evidence score 45. Admin diagnostic hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-06 - UI: Internal developer tools Evidence chrome (SDX)
 
 `/administration/developer` ships DeveloperSettingsEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map cli-usage, traffic Notes under Admin (row ID SDX; path aligned off legacy settings/developer / DSE), and honest Evidence score 45. Admin diagnostic hard-caps higher Evidence; no CPA / third-party pen-test implication.

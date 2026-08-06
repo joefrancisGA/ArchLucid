@@ -120,6 +120,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/administration/identity-providers",
       "/administration/identity-providers/oidc",
       "/administration/identity-providers/role-mapping",
+      "/administration/identity-providers/diagnostics",
       "/administration/api-keys",
       "/administration/preferences",
       "/administration/account-security",
@@ -221,6 +222,15 @@ describe("contextual-help-registry (TB-733)", () => {
     expect(
       contextualHelpForPathname("/administration/identity-providers/role-mapping")?.whatToDoNext,
     ).toContain("diagnostics");
+  });
+
+  it("resolves Identity diagnostics Category-1 help (SEI)", () => {
+    expect(
+      contextualHelpForPathname("/administration/identity-providers/diagnostics")?.whatIsThisPage,
+    ).toContain("Identity diagnostics");
+    expect(
+      contextualHelpForPathname("/administration/identity-providers/diagnostics")?.whatToDoNext,
+    ).toContain("Refresh probes");
   });
 
   it("resolves API keys settings Category-1 help (ADP)", () => {
