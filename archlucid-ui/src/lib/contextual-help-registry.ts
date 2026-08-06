@@ -1107,6 +1107,19 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/administration/identity-providers/saml",
+    entry: {
+      whatIsThisPage:
+        "SAML - configure SP metadata URL, issuer, signing, and IdP claim mapping for workspace federation.",
+      whatToDoNext:
+        "Fetch IdP metadata, confirm issuer and role claim fields, save the SP configuration, then open diagnostics or role mapping before inviting users.",
+      whyEmpty:
+        "The configuration form always renders for authorized Admins; empty claim tables mean metadata has not been fetched or mapping rows are not filled yet.",
+      whereToConfigurePrerequisite:
+        "Changing SAML settings needs Admin authority and a reachable IdP metadata URL; signing certificate health is reviewed on Identity diagnostics.",
+    },
+  },
+  {
     prefix: "/administration/identity-providers/role-mapping",
     entry: {
       whatIsThisPage:

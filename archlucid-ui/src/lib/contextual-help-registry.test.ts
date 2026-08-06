@@ -119,6 +119,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/settings/roles",
       "/administration/identity-providers",
       "/administration/identity-providers/oidc",
+      "/administration/identity-providers/saml",
       "/administration/identity-providers/role-mapping",
       "/administration/identity-providers/diagnostics",
       "/administration/api-keys",
@@ -222,6 +223,15 @@ describe("contextual-help-registry (TB-733)", () => {
     expect(
       contextualHelpForPathname("/administration/identity-providers/role-mapping")?.whatToDoNext,
     ).toContain("diagnostics");
+  });
+
+  it("resolves SAML identity-provider Category-1 help (ASA)", () => {
+    expect(contextualHelpForPathname("/administration/identity-providers/saml")?.whatIsThisPage).toContain(
+      "SAML",
+    );
+    expect(contextualHelpForPathname("/administration/identity-providers/saml")?.whatToDoNext).toContain(
+      "Fetch IdP metadata",
+    );
   });
 
   it("resolves Identity diagnostics Category-1 help (SEI)", () => {

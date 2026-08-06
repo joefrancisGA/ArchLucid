@@ -378,6 +378,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "enterprise-onboarding", label: "OIDC identity provider" },
   },
   {
+    prefix: "/administration/identity-providers/saml",
+    topic: { slug: "enterprise-onboarding", label: "SAML identity provider" },
+  },
+  {
     prefix: "/administration/identity-providers/diagnostics",
     topic: { slug: "enterprise-onboarding", label: "Identity diagnostics" },
   },
