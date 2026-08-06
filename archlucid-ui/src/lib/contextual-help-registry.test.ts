@@ -64,6 +64,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/architecture/architectures",
       "/architecture/architectures/new",
       "/architecture/architecture-intelligence",
+      "/architecture/first-review-guide",
       "/governance/audit",
       "/administration/system-health",
       "/administration/connection-status",
@@ -166,6 +167,9 @@ describe("contextual-help-registry (TB-733)", () => {
     expect(contextualHelpForPathname("/architecture/architecture-intelligence")?.whatIsThisPage).toContain(
       "Architecture intelligence",
     );
+    expect(contextualHelpForPathname("/architecture/first-review-guide")?.whatIsThisPage).toContain(
+      "First review guide",
+    );
     expect(contextualHelpForPathname("/governance/findings?filter=open")?.whatToDoNext).toContain("Assign owners");
     expect(contextualHelpForPathname("/sponsor-report/executive-summary")?.whatIsThisPage).toContain(
       "Sponsor executive summary",
@@ -175,7 +179,7 @@ describe("contextual-help-registry (TB-733)", () => {
 
   it("resolves Overview home without stealing other routes (HOM / TB-1667)", () => {
     expect(contextualHelpForPathname("/")?.whatIsThisPage).toContain("Overview");
-    expect(contextualHelpForPathname("/architecture/first-review-guide")?.whatIsThisPage).toBeUndefined();
+    expect(contextualHelpForPathname("/sponsor-report/roi-summary")).toBeNull();
   });
 
   it("resolves governance dashboard Category-1 help (GDX)", () => {
@@ -612,7 +616,7 @@ describe("contextual-help-registry (TB-733)", () => {
   });
 
   it("returns null for routes not yet migrated", () => {
-    expect(contextualHelpForPathname("/architecture/first-review-guide")).toBeNull();
+    expect(contextualHelpForPathname("/sponsor-report/roi-summary")).toBeNull();
   });
 
   it("keeps each page within the Category 1 word budget", () => {

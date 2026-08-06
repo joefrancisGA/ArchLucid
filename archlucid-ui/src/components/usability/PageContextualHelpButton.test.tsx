@@ -30,13 +30,13 @@ describe("PageContextualHelpButton", () => {
   });
 
   it("falls back to a direct help link when the route is not migrated", () => {
-    mockUsePathname.mockReturnValue("/architecture/first-review-guide");
+    mockUsePathname.mockReturnValue("/sponsor-report/roi-summary");
 
     render(<PageContextualHelpButton />);
 
-    const link = screen.getByRole("link", { name: /^first review guide$/i });
+    const link = screen.getByRole("link", { name: /view roi methodology/i });
 
-    expect(link).toHaveAttribute("href", "/help/getting-started");
+    expect(link).toHaveAttribute("href", "/help/pilot-roi-model");
     expect(screen.queryByTestId("page-scoped-contextual-help-panel")).not.toBeInTheDocument();
   });
 

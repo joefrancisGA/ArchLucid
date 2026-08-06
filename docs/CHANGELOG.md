@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-06 - UI: First review guide Evidence chrome (ARF)
+
+`/architecture/first-review-guide` ships FirstReviewGuideEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map getting-started, traffic Notes under Onboarding (row ID ARF), and honest Evidence score 50. Onboarding checklist hard-caps below help-specialty COR; no CPA / third-party pen-test implication.
+
 ## 2026-08-06 - UI: Architectures list Evidence chrome (ARA)
 
 `/architecture/architectures` ships ArchitecturesListEvidenceOrientationStrip (workspace Sources + claim-discipline), ArchitecturesHubHeaderActions PageContextualHelp + Category-1 registry + topic map getting-started, traffic Notes under Core review (row ID ARA; template AR remains legacy `/architectures`), and honest Evidence score 50. Draft inventory hard-caps below ANE create-bootstrap; listing drafts does not start a review; no CPA / third-party pen-test implication.

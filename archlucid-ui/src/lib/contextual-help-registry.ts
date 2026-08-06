@@ -425,6 +425,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/architecture/first-review-guide",
+    entry: {
+      whatIsThisPage:
+        "First review guide - checklist onboarding for your first architecture review, including required setup and optional workspace steps.",
+      whatToDoNext:
+        "Clear required setup blockers, follow the walkthrough next step, then Start a review when the workspace is ready for evidence intake.",
+      whyEmpty: "Progress updates as you complete walkthrough steps; empty optional setup means those integrations are not required yet.",
+      whereToConfigurePrerequisite:
+        "Required setup uses the current workspace and project scope from the header switcher.",
+    },
+  },
+  {
     prefix: "/governance/audit",
     entry: {
       whatIsThisPage:
