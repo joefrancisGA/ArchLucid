@@ -5,6 +5,8 @@
 
 # Agent output structural evaluation
 
+**Execution vs quality taxonomy:** [LLM_EXECUTION_VS_QUALITY_OUTCOME.md](LLM_EXECUTION_VS_QUALITY_OUTCOME.md) (**TB-963**).
+
 ## 1. Objective
 
 Provide a **cheap, deterministic** check that persisted agent **`AgentExecutionTrace.ParsedResultJson`** still looks like a serialized **`AgentResult`**: correct JSON root shape and expected **top-level property names** (camelCase, matching **`JsonSerializerDefaults.Web`**). Support **on-demand HTTP inspection** per run and **optional OTEL metrics** for batch or post-run jobs—without calling an LLM.

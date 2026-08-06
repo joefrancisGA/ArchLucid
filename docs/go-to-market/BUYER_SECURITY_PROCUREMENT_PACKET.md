@@ -963,6 +963,8 @@ Former standalone body: `docs/go-to-market/MODEL_FAILED_VS_QUALITY_REJECTED_ONE_
 
 **Path-stable alias:** [`MODEL_FAILED_VS_QUALITY_REJECTED_ONE_PAGER.md`](MODEL_FAILED_VS_QUALITY_REJECTED_ONE_PAGER.md).
 
+**Engineering SoT:** [`LLM_EXECUTION_VS_QUALITY_OUTCOME.md`](../library/LLM_EXECUTION_VS_QUALITY_OUTCOME.md) (**TB-963**).
+
 **Audience:** Principal architects, operators, and security reviewers reading run outcomes.
 
 **Claim:** **HOLD / quality reject is not a platform outage.** Transport, parse, and timeout failures are a different axis from quality-gate reject. Do not promise “perfect AI quality.”
@@ -978,8 +980,8 @@ Former standalone body: `docs/go-to-market/MODEL_FAILED_VS_QUALITY_REJECTED_ONE_
 
 | Statement | Meaning |
 | --- | --- |
-| Model failed | The execution could not produce an acceptable machine-readable result (timeout, parse, transport) |
-| Quality rejected | Execution completed, but output failed a quality/grounding/schema evaluation |
+| Model failed | The execution could not produce an acceptable machine-readable result (timeout, parse/schema, transport, cancel, quota) |
+| Quality rejected | Execution completed enough to evaluate, but output failed a quality/grounding/faithfulness bar (not schema/parse — that is model-failed / execution) |
 | HOLD | A governed decision state; it does not claim the platform is unavailable |
 | Auditability | Outcomes and failure classes are persisted where available; complete durable reconstruction remains open work |
 
@@ -990,7 +992,7 @@ Former standalone body: `docs/go-to-market/MODEL_FAILED_VS_QUALITY_REJECTED_ONE_
 | “Any HOLD is an LLM outage” / “LLM error” for every red run | Separate model-failed vs quality-rejected in UI/docs (**TB-965**) |
 | “The quality gate guarantees correct AI” / “pass = correct forever” | Pass is as-of gate definition (**M-129** / **M-130**); gate is a control, not perpetual correctness |
 | “PilotStrict green = Real sponsor proof” | Orthogonal to execution mode (**M-166** / **M-167**) |
-| “Every score and threshold is reconstructible today” | Taxonomy and durable completeness are open under **TB-963**–**TB-965** |
+| “Every score and threshold is reconstructible today” | Taxonomy SoT shipped (**TB-963**); durable completeness remains **TB-964**; UX **TB-965** |
 
 ### What should persist for audit
 
@@ -1015,7 +1017,7 @@ Former standalone body: `docs/go-to-market/MODEL_FAILED_VS_QUALITY_REJECTED_ONE_
 
 ### Residuals (honest)
 
-- Contract cluster **TB-963**–**TB-965** (open) — this handout states the intended language now.
+- Engineering SoT: [LLM_EXECUTION_VS_QUALITY_OUTCOME.md](../library/LLM_EXECUTION_VS_QUALITY_OUTCOME.md) (**TB-963** **Done**). Persistence (**TB-964**) and buyer UX (**TB-965**) remain open.
 - Done **TB-684** PilotStrict defaults are not a claim that quality gates are perfect.
 - Optional **M-113** Claim-4 addendum after **M-115**.
 - Do not promise complete historical quality reconstruction until open persistence work ships.

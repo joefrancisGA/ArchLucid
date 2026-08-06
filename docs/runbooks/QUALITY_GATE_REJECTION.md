@@ -62,6 +62,7 @@ When a workspace enforces **agent output quality** after a successful **POST** `
 
 ## Related documents
 
+- [LLM_EXECUTION_VS_QUALITY_OUTCOME.md](../library/LLM_EXECUTION_VS_QUALITY_OUTCOME.md) — execution vs quality taxonomy (**TB-963**)
 - [AGENT_OUTPUT_EVALUATION.md](../library/AGENT_OUTPUT_EVALUATION.md) — scoring, gate, judge
 - [MANUAL_QA_CHECKLIST.md](../quality/MANUAL_QA_CHECKLIST.md) — operator QA
 - [TECH_BACKLOG.md](../library/TECH_BACKLOG.md) — TB items related to quality gate hardening

@@ -92,6 +92,7 @@ See also [`docs/library/FIRST_REAL_VALUE.md`](../library/FIRST_REAL_VALUE.md) an
 
 ## Related docs
 
+- [docs/library/LLM_EXECUTION_VS_QUALITY_OUTCOME.md](../library/LLM_EXECUTION_VS_QUALITY_OUTCOME.md) — execution vs quality two-axis contract (**TB-963**).
 - `docs/BUILD.md` — configuration and test SQL variables.  
 - `docs/ALERTS.md` — alert routes (separate from agent execution).  
 - `SECRET_AND_CERT_ROTATION.md` — API keys and endpoints.
