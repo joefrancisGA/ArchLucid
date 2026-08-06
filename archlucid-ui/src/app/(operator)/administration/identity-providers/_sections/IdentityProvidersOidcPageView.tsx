@@ -15,6 +15,7 @@ import {
 } from "@/lib/identity-providers-settings-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
+import { IdentityProvidersOidcEvidenceOrientationStrip } from "./IdentityProvidersOidcEvidenceOrientationStrip";
 import { IdentityProvidersSettingsShell } from "./IdentityProvidersSettingsShell";
 import type { UseIdentityProvidersSettingsPageModel } from "./use-identity-providers-settings-page";
 
