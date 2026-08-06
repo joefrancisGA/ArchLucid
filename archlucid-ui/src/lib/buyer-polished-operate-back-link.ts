@@ -1,4 +1,5 @@
 import type { ResolvedBuyerGoldenJourneyNav } from "@/lib/buyer-golden-journey-nav";
+import { pathMatchesSignedRecordsDetailRoute } from "@/lib/signed-records-paths";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 export type BuyerOperateBackLink = {
@@ -21,7 +22,7 @@ export function buyerPolishedOperateBackLink(pathnameWithSearch: string): BuyerO
     path.startsWith("/insights/evidence-graph") ||
     path.startsWith("/governance") ||
     path.startsWith("/audit") ||
-    path.startsWith("/signed-records/") ||
+    pathMatchesSignedRecordsDetailRoute(path) ||
     path.startsWith("/showcase/") ||
     path.startsWith("/insights/ask-review-questions")
   ) {

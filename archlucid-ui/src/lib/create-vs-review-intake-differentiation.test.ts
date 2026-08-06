@@ -11,11 +11,12 @@ function readUiSource(relativePath: string): string {
 }
 
 describe("create vs review intake differentiation (TB-747)", () => {
-  it("routes create-architecture intake to the canonical architecture draft bootstrap", () => {
-    const bootstrapPageSource = readUiSource("app/(operator)/architecture/architectures/new/page.tsx");
+  it("routes create-architecture intake to the direct draft workspace", () => {
+    const newPageSource = readUiSource("app/(operator)/architecture/architectures/new/page.tsx");
 
-    expect(bootstrapPageSource).toContain("ARCHITECTURE_CREATION_BOOTSTRAP_LEAD");
-    expect(bootstrapPageSource).toContain("ARCHITECTURES_NEW_PATH");
+    expect(newPageSource).toContain("ArchitectureDraftWorkspace");
+    expect(newPageSource).toContain("ARCHITECTURE_NEW_DRAFT_SEGMENT");
+    expect(newPageSource).not.toContain("ArchitectureCreationBootstrap");
   });
 
   it("uses evidence-first progress copy on the quick review intake wizard", () => {
@@ -28,10 +29,10 @@ describe("create vs review intake differentiation (TB-747)", () => {
   });
 
   it("uses drafting-first lead copy on architecture creation surfaces", () => {
-    const bootstrapPageSource = readUiSource("app/(operator)/architecture/architectures/new/page.tsx");
+    const newPageSource = readUiSource("app/(operator)/architecture/architectures/new/page.tsx");
     const workspaceSource = readUiSource("components/architecture/ArchitectureDraftWorkspace.tsx");
 
-    expect(bootstrapPageSource).toContain("ARCHITECTURE_CREATION_BOOTSTRAP_LEAD");
+    expect(newPageSource).toContain("ArchitectureDraftWorkspace");
     expect(workspaceSource).toContain("ARCHITECTURE_DRAFT_WORKSPACE_LEAD");
     expect(workspaceSource).toContain("architecture-draft-workspace-lead");
   });

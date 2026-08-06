@@ -1,4 +1,5 @@
 import { getShowcaseExecutiveHref, getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
+import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 import { isBuyerGoldenSpineRunId } from "@/lib/buyer-golden-spine-run-id";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
@@ -101,14 +102,14 @@ export function resolveBuyerGoldenJourneyNav(
 
   const execBase = normalizedPath(getShowcaseExecutiveHref());
   const manifestBase = normalizedPath(getShowcaseManifestHref());
-  const manifestRecord = `/signed-records/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`;
+  const manifestRecord = signedRecordDetailPath(SHOWCASE_STATIC_DEMO_MANIFEST_ID);
   const manifestArchitecturePath = `/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}/architecture`;
 
   let stepIdx: number | null = null;
 
   const signedRecordFriendly = /^\/architecture\/reviews\/([^/]+)\/signed-record\b/.exec(path);
-  // Live SQL golden manifests use seeded GUIDs under `/signed-records/{id}` (not only the static showcase id).
-  const signedRecordCanonical = /^\/signed-records\/([^/]+)$/.exec(path);
+  // Live SQL golden manifests use seeded GUIDs under `/governance/signed-records/{id}` (legacy `/signed-records/{id}` redirects here).
+  const signedRecordCanonical = /^\/(?:governance\/)?signed-records\/([^/]+)$/.exec(path);
 
   if (signedRecordFriendly !== null && isBuyerGoldenSpineRunId(signedRecordFriendly[1] ?? "")) {
     stepIdx = 1;

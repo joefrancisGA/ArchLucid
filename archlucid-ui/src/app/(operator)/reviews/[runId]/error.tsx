@@ -15,6 +15,7 @@ import { reportClientError } from "@/lib/error-telemetry";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 
 /**
  * Segment error boundary for `/architecture/reviews/[runId]` so review detail client failures show buyer-safe recovery
@@ -61,7 +62,7 @@ export default function RunDetailSegmentError({
         </OperatorErrorCallout>
         <div className="flex flex-wrap items-center gap-2">
           <Button type="button" variant="primary" asChild>
-            <Link href={`/signed-records/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`}>
+            <Link href={signedRecordDetailPath(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}>
               Open sample review
             </Link>
           </Button>

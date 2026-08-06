@@ -13,6 +13,7 @@ import {
 } from "@/lib/demo-preview-page-copy";
 import { buildDemoPreviewConditionsText } from "@/lib/demo-preview-present";
 import { MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
+import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 import { isDeterministicExplanationFallback } from "@/types/explanation";
 import { cn } from "@/lib/utils";
@@ -111,7 +112,7 @@ export function DemoPreviewSignedReviewSection(props: DemoPreviewExecutiveConclu
       {manifest?.manifestId ? (
         <p className="mt-4">
           <Link
-            href={`/signed-records/${encodeURIComponent(manifest.manifestId)}`}
+            href={signedRecordDetailPath(manifest.manifestId)}
             className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
           >
             Open signed review record

@@ -28,6 +28,7 @@ vi.mock("@/hooks/use-architecture-draft-autosave", () => ({
     conflictMessage: null,
     saveDraft,
     reloadDraft,
+    hasPersistedDraft: true,
   }),
 }));
 
@@ -50,6 +51,7 @@ vi.mock("@/lib/architecture-draft-handoff-gate", async () => {
 
 import { ArchitectureDraftWorkspace } from "./ArchitectureDraftWorkspace";
 import { ARCHITECTURE_DRAFT_WORKSPACE_LEAD } from "@/lib/create-vs-review-intake-copy";
+import { ARCHITECTURE_NEW_DRAFT_SEGMENT } from "@/lib/architecture-routes";
 
 const spawnedDraft = {
   draftId: "arch-001",
@@ -84,6 +86,16 @@ beforeEach(() => {
 });
 
 describe("ArchitectureDraftWorkspace", () => {
+  it("opens the empty workspace immediately on /new without fetching a draft", () => {
+    render(<ArchitectureDraftWorkspace architectureId={ARCHITECTURE_NEW_DRAFT_SEGMENT} />);
+
+    expect(getDraftRequest).not.toHaveBeenCalled();
+    expect(screen.getByTestId("architecture-draft-workspace")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-draft-workspace-lead")).toHaveTextContent(
+      ARCHITECTURE_DRAFT_WORKSPACE_LEAD,
+    );
+  });
+
   it("shows drafting-first workspace lead on load (TB-747)", async () => {
     getDraftRequest.mockResolvedValue({
       ...spawnedDraft,

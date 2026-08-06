@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  hasArchitectureDraftSaveableContent,
   validateArchitectureDraftIntegrity,
   validateArchitectureReviewReadiness,
 } from "@/lib/architecture-draft-readiness";
@@ -39,5 +40,29 @@ describe("architecture-draft-readiness", () => {
 
     expect(validateArchitectureReviewReadiness(namedReadyExceptName).isValid).toBe(false);
     expect(validateArchitectureReviewReadiness(namedReadyExceptName).blockers).toEqual(["system name"]);
+  });
+
+  it("gates deferred server create until at least one valid field has content", () => {
+    const empty = {
+      freeTextIntent: "",
+      businessOutcome: "",
+      systemName: "",
+    };
+
+    expect(hasArchitectureDraftSaveableContent(empty)).toBe(false);
+
+    const systemNameOnly = {
+      ...empty,
+      systemName: "Claims intake",
+    };
+
+    expect(hasArchitectureDraftSaveableContent(systemNameOnly)).toBe(true);
+
+    const partialInvalidOutcome = {
+      ...empty,
+      businessOutcome: "tiny",
+    };
+
+    expect(hasArchitectureDraftSaveableContent(partialInvalidOutcome)).toBe(false);
   });
 });

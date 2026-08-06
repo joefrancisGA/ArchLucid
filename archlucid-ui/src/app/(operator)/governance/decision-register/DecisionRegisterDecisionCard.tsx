@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { ArchitectureDecisionRegisterEntry } from "@/lib/api/governance-stickiness-api";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 
 import { DECISION_REGISTER_GOVERNANCE_STATUS_SIGNED, DECISION_REGISTER_OPEN_DECISION_LABEL } from "./decision-register-copy";
@@ -56,7 +57,7 @@ export function DecisionRegisterDecisionCard(props: DecisionRegisterDecisionCard
       <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0">
         <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{decision.title}</CardTitle>
         <Button type="button" variant="outline" size="sm" asChild>
-          <Link href={`/signed-records/${decision.manifestId}`} data-testid={`decision-register-open-${decision.decisionId}`}>
+          <Link href={signedRecordDetailPath(decision.manifestId)} data-testid={`decision-register-open-${decision.decisionId}`}>
             {DECISION_REGISTER_OPEN_DECISION_LABEL}
           </Link>
         </Button>
@@ -90,7 +91,7 @@ export function DecisionRegisterDecisionCard(props: DecisionRegisterDecisionCard
           <div>
             <dt className="text-al-text-secondary">Evidence lineage</dt>
             <dd className="m-0">
-              <Link className={OPERATOR_LINK.nav} href={`/signed-records/${decision.manifestId}`}>
+              <Link className={OPERATOR_LINK.nav} href={signedRecordDetailPath(decision.manifestId)}>
                 View signed record
               </Link>
             </dd>

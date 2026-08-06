@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/
 import { useGovernanceMode } from "@/hooks/use-governance-mode";
 import type { RunDetail } from "@/types/authority";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 
 import { runDetailSectionHeadingClass } from "./run-detail-section-heading";
 
@@ -46,7 +47,7 @@ export function RunDetailAuthorityChainSection(props: RunDetailAuthorityChainSec
               {manifestId ? (
                 <Link
                   className={cn("inline-block font-semibold", OPERATOR_LINK.nav)}
-                  href={`/signed-records/${encodeURIComponent(manifestId)}`}
+                  href={signedRecordDetailPath(manifestId)}
                 >
                   Finalized signed review record
                 </Link>

@@ -1,4 +1,5 @@
 import { pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
+import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 import type { PipelineTimelineItem } from "@/types/authority";
 
 export type DemoPreviewTimelineAction = {
@@ -32,7 +33,7 @@ function resolveTimelineAction(
   const normalized = eventType.trim().toLowerCase();
   const runHref = context.isRunDetailAvailable ? `/architecture/reviews/${enc(context.runId)}` : "#artifact-signed-review-record";
   const manifestHref =
-    context.manifestId !== null ? `/signed-records/${enc(context.manifestId)}` : "#artifact-signed-review-record";
+    context.manifestId !== null ? signedRecordDetailPath(context.manifestId) : "#artifact-signed-review-record";
 
   if (normalized === "runstarted" || normalized === "run.started") {
     return { label: "Open review", href: runHref };

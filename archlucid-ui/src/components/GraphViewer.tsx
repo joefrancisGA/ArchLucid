@@ -35,6 +35,7 @@ import {
   graphFindingDetailHref,
 } from "@/lib/graph-finding-deep-links";
 import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
+import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 import {
   graphBuyerTrailDispositionLine,
   graphBuyerTrailMetadataLines,
@@ -715,7 +716,7 @@ export function GraphViewer({
               {buyerTrailPanel && runId.trim().length > 0 && selectedNode.type === "GoldenManifest" ? (
                 <div className="mt-3 flex flex-col gap-2">
                   <Button type="button" variant="default" size="sm" className="h-9 w-full justify-center" asChild>
-                    <Link href={`/signed-records/${encodeURIComponent(selectedNode.id.trim())}`}>
+                    <Link href={signedRecordDetailPath(selectedNode.id.trim())}>
                       Open signed review record
                     </Link>
                   </Button>

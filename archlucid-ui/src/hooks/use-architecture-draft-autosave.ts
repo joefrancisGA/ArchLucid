@@ -2,13 +2,17 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { ARCHITECTURE_CREATION_BOOTSTRAP_INTENT } from "@/lib/architecture-creation-bootstrap";
 import {
   buildArchitectureDraftRegistryEntry,
   upsertArchitectureDraftRegistryEntry,
 } from "@/lib/architecture-draft-registry";
 import type { ArchitectureDraftFieldState } from "@/lib/architecture-draft-readiness";
-import { validateArchitectureDraftIntegrity } from "@/lib/architecture-draft-readiness";
-import { buildDefaultActorSet, getDraftRequest, patchDraftRequest } from "@/lib/api/draft-intake-api";
+import {
+  hasArchitectureDraftSaveableContent,
+  validateArchitectureDraftIntegrity,
+} from "@/lib/architecture-draft-readiness";
+import { buildDefaultActorSet, createDraftRequest, getDraftRequest, patchDraftRequest } from "@/lib/api/draft-intake-api";
 import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture-workflow-intent";
 import { normalizeActorSetForAdmission } from "@/lib/draft-intake-actor-suggestions";
 import type { ActorSet, DraftRequestResponse } from "@/types/draft-intake";
@@ -23,6 +27,9 @@ type UseArchitectureDraftAutosaveArgs = {
   readonly fields: ArchitectureDraftFieldState;
   readonly actorSet: ActorSet;
   readonly enabled?: boolean;
+  /** When true, skip server writes until the operator enters saveable field content. */
+  readonly deferCreateUntilFirstSave?: boolean;
+  readonly onDraftCreated?: (draftId: string) => void;
   readonly onDraftLoaded?: (draft: DraftRequestResponse) => void;
 };
 
@@ -33,6 +40,7 @@ type UseArchitectureDraftAutosaveResult = {
   readonly saveDraft: () => Promise<boolean>;
   readonly markDirty: () => void;
   readonly reloadDraft: () => Promise<void>;
+  readonly hasPersistedDraft: boolean;
 };
 
 function fieldsAreEqual(left: ArchitectureDraftFieldState, right: ArchitectureDraftFieldState): boolean {
@@ -43,19 +51,34 @@ function fieldsAreEqual(left: ArchitectureDraftFieldState, right: ArchitectureDr
   );
 }
 
+function createIntentForDeferredDraft(fields: ArchitectureDraftFieldState): string {
+  const trimmedIntent = fields.freeTextIntent.trim();
+
+  if (trimmedIntent.length > 0) {
+    return trimmedIntent;
+  }
+
+  return ARCHITECTURE_CREATION_BOOTSTRAP_INTENT;
+}
+
 /** Debounced server autosave for architecture drafts — never starts a review. */
 export function useArchitectureDraftAutosave(
   args: UseArchitectureDraftAutosaveArgs,
 ): UseArchitectureDraftAutosaveResult {
   const enabled = args.enabled !== false;
+  const deferCreateUntilFirstSave = args.deferCreateUntilFirstSave === true;
   const [saveState, setSaveState] = useState<ArchitectureDraftSaveState>("idle");
   const [lastSavedUtc, setLastSavedUtc] = useState<string | null>(null);
   const [conflictMessage, setConflictMessage] = useState<string | null>(null);
+  const [hasPersistedDraft, setHasPersistedDraft] = useState(!deferCreateUntilFirstSave);
   const persistedFieldsRef = useRef<ArchitectureDraftFieldState>(args.fields);
   const serverUpdatedUtcRef = useRef<string | null>(null);
   const saveSequenceRef = useRef(0);
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const inFlightSaveRef = useRef<Promise<boolean> | null>(null);
+  const resolvedArchitectureIdRef = useRef<string | null>(
+    deferCreateUntilFirstSave ? null : args.architectureId,
+  );
 
   const isOnline = typeof navigator !== "undefined" ? navigator.onLine : true;
 
@@ -71,6 +94,12 @@ export function useArchitectureDraftAutosave(
 
     if (!isOnline) {
       setSaveState("offline");
+
+      return false;
+    }
+
+    if (!hasArchitectureDraftSaveableContent(args.fields)) {
+      setSaveState("idle");
 
       return false;
     }
@@ -94,7 +123,17 @@ export function useArchitectureDraftAutosave(
 
     const savePromise = (async (): Promise<boolean> => {
       try {
-        const latestServer = await getDraftRequest(args.architectureId);
+        let architectureId = resolvedArchitectureIdRef.current ?? args.architectureId;
+
+        if (deferCreateUntilFirstSave && resolvedArchitectureIdRef.current === null) {
+          const created = await createDraftRequest(createIntentForDeferredDraft(args.fields), CREATE_ARCHITECTURE_INTENT);
+          resolvedArchitectureIdRef.current = created.draftId;
+          architectureId = created.draftId;
+          setHasPersistedDraft(true);
+          args.onDraftCreated?.(created.draftId);
+        }
+
+        const latestServer = await getDraftRequest(architectureId);
 
         if (
           serverUpdatedUtcRef.current !== null &&
@@ -108,7 +147,7 @@ export function useArchitectureDraftAutosave(
           return false;
         }
 
-        const patched = await patchDraftRequest(args.architectureId, {
+        const patched = await patchDraftRequest(architectureId, {
           freeTextIntent: args.fields.freeTextIntent.trim(),
           businessOutcome: args.fields.businessOutcome.trim(),
           systemName: args.fields.systemName.trim() || undefined,
@@ -147,10 +186,19 @@ export function useArchitectureDraftAutosave(
     inFlightSaveRef.current = savePromise;
 
     return savePromise;
-  }, [args.actorSet, args.architectureId, args.fields, enabled, isOnline]);
+  }, [
+    args.actorSet,
+    args.architectureId,
+    args.fields,
+    args.onDraftCreated,
+    deferCreateUntilFirstSave,
+    enabled,
+    isOnline,
+  ]);
 
   const reloadDraft = useCallback(async () => {
-    const draft = await getDraftRequest(args.architectureId);
+    const architectureId = resolvedArchitectureIdRef.current ?? args.architectureId;
+    const draft = await getDraftRequest(architectureId);
     serverUpdatedUtcRef.current = draft.updatedUtc;
     persistedFieldsRef.current = {
       freeTextIntent: draft.document.freeTextIntent,
@@ -161,6 +209,7 @@ export function useArchitectureDraftAutosave(
     setConflictMessage(null);
     // Fresh load / conflict refresh — baseline is synced; wait for a user save before "Saved".
     setSaveState("idle");
+    setHasPersistedDraft(true);
     args.onDraftLoaded?.(draft);
   }, [args]);
 
@@ -183,6 +232,10 @@ export function useArchitectureDraftAutosave(
       return;
     }
 
+    if (!hasArchitectureDraftSaveableContent(args.fields)) {
+      return;
+    }
+
     markDirty();
 
     if (debounceTimerRef.current !== null) {
@@ -198,11 +251,11 @@ export function useArchitectureDraftAutosave(
         clearTimeout(debounceTimerRef.current);
       }
     };
-  }, [enabled, hasUnsavedChanges, markDirty, persistDraft, args.fields]);
+  }, [args.fields, enabled, hasUnsavedChanges, markDirty, persistDraft]);
 
   useEffect(() => {
     function handleOnline() {
-      if (hasUnsavedChanges) {
+      if (hasUnsavedChanges && hasArchitectureDraftSaveableContent(args.fields)) {
         void persistDraft();
       }
     }
@@ -218,7 +271,7 @@ export function useArchitectureDraftAutosave(
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
     };
-  }, [hasUnsavedChanges, persistDraft]);
+  }, [args.fields, hasUnsavedChanges, persistDraft]);
 
   return {
     saveState,
@@ -227,5 +280,6 @@ export function useArchitectureDraftAutosave(
     saveDraft: persistDraft,
     markDirty,
     reloadDraft,
+    hasPersistedDraft,
   };
 }

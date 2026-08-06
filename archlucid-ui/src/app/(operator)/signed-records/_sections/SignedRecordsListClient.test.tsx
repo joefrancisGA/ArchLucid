@@ -49,7 +49,7 @@ describe("SignedRecordsListClient", () => {
         manifestVersion: "1.0.0",
         manifestId: "manifest-abc",
         reviewHref: `/architecture/reviews/${row.runId}`,
-        signedRecordHref: `/signed-records/manifest-abc`,
+        signedRecordHref: `/governance/signed-records/manifest-abc`,
       })),
     );
 
@@ -67,7 +67,7 @@ describe("SignedRecordsListClient", () => {
 
     expect(screen.getByRole("link", { name: "Open signed record" })).toHaveAttribute(
       "href",
-      "/signed-records/manifest-abc",
+      "/governance/signed-records/manifest-abc",
     );
   });
 

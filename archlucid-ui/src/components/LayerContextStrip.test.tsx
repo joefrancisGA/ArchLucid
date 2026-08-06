@@ -70,7 +70,7 @@ describe("LayerContextStrip", () => {
         buyerRouteOrientation={{ label: "View evidence trail", line: "Demo orientation." }}
         buyerGoldenJourneyNav={{
           summaryLine: "Step 3 of 5 · View evidence trail",
-          prev: { label: "Signed review record", href: "/architecture/reviews/x/manifest" },
+          prev: { label: "Signed review record", href: "/architecture/reviews/x/signed-record" },
           next: { label: "Governance approval", href: "/governance/approval-queue" },
           currentStepIndex: 2,
         }}
@@ -78,7 +78,7 @@ describe("LayerContextStrip", () => {
     );
 
     expect(getByTestId("buyer-golden-journey-stepper")).toBeInTheDocument();
-    expect(getByTestId("buyer-journey-prev")).toHaveAttribute("href", "/architecture/reviews/x/manifest");
+    expect(getByTestId("buyer-journey-prev")).toHaveAttribute("href", "/architecture/reviews/x/signed-record");
     expect(getByTestId("buyer-journey-next")).toHaveAttribute("href", "/governance/approval-queue");
 
     const indicators = getByTestId("buyer-golden-journey-step-indicators");
@@ -98,7 +98,7 @@ describe("LayerContextStrip", () => {
         layerId="operate-analysis"
         buyerGoldenJourneyNav={{
           summaryLine: "Step 3 of 5 · View evidence trail",
-          prev: { label: "Signed review record", href: "/architecture/reviews/x/manifest" },
+          prev: { label: "Signed review record", href: "/architecture/reviews/x/signed-record" },
           next: { label: "Governance approval", href: "/governance/approval-queue" },
           currentStepIndex: 2,
         }}

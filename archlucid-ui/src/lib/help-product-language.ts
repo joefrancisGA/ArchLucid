@@ -42,7 +42,9 @@ export function rewriteLegacyHelpOperatorRoutes(markdown: string): string {
   result = result.replace(/\/runs\//g, "/architecture/reviews/");
   result = result.replace(/\/runs\b/g, "/architecture/reviews");
   result = result.replace(/\/architecture\/reviews\/([^)/\s]+)\/manifest\b/g, "/architecture/reviews/$1/signed-record");
-  result = result.replace(/\/manifests\//g, "/signed-records/");
+  result = result.replace(/\/manifests\//g, "/governance/signed-records/");
+  result = result.replace(/(^|[\s([>])\/signed-records\//g, "$1/governance/signed-records/");
+  result = result.replace(/(^|[\s([>])\/signed-records\b/g, "$1/governance/signed-records");
 
   return result;
 }

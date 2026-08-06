@@ -12,7 +12,7 @@ import { CORE_PILOT_PATH_STREAMLINED_LABELS, isStreamlinedCorePilotPath } from "
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import { buildBuyerReviewPackageDispositionLine, buildBuyerReviewPackagePlainStatusHeadline } from "@/lib/review-buyer-disposition-line";
-import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
+import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 import {
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
@@ -339,7 +339,7 @@ function PackageStatusStrip(props: PackageStatusStripProps) {
         <div className="mt-1">
           {props.hasGoldenManifest && hasManifest ? (
             <Link
-              href={`/signed-records/${encodeURIComponent(trimmedManifestId)}`}
+              href={signedRecordDetailPath(trimmedManifestId)}
               className="block rounded outline-none ring-offset-2 hover:underline focus-visible:ring-2 focus-visible:ring-teal-600 dark:ring-offset-neutral-950"
               data-testid="run-detail-finalized-package-link"
             >
@@ -646,7 +646,7 @@ export function RunDetailOutcomeCards({
           {hasGoldenManifest && manifestId !== null && manifestId !== undefined && manifestId.trim().length > 0 ? (
             <Link
               className={cn("mt-2 inline-block", OPERATOR_LINK.nav)}
-              href={`/signed-records/${encodeURIComponent(manifestId.trim())}`}
+              href={signedRecordDetailPath(manifestId.trim())}
             >
               {BUYER_OPEN_SIGNED_RECORD_CTA}
             </Link>

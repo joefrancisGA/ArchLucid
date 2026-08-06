@@ -1,21 +1,31 @@
 "use client";
 
-import Link from "next/link";
-
 import { Button } from "@/components/ui/button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { useCreateArchitectureNavigation } from "@/hooks/use-create-architecture-navigation";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
-import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
 
 /** Header actions for `/architecture/architectures`: help + primary Create architecture CTA. */
 export function ArchitecturesHubHeaderActions(): React.JSX.Element {
+  const createArchitectureNavigation = useCreateArchitectureNavigation();
+
   return (
     <div className="flex flex-wrap items-center gap-2" data-testid="architectures-hub-header-actions">
       <PageContextualHelpButton />
-      <Button variant="primary" size="sm" asChild>
-        <Link href={ARCHITECTURES_NEW_PATH} className="no-underline" data-testid="architectures-page-create">
-          {CREATE_ARCHITECTURE_LABEL}
-        </Link>
+      <Button
+        type="button"
+        variant="primary"
+        size="sm"
+        disabled={createArchitectureNavigation.isNavigating}
+        aria-busy={createArchitectureNavigation.isNavigating}
+        onClick={() => {
+          createArchitectureNavigation.navigate();
+        }}
+        data-testid="architectures-page-create"
+      >
+        {createArchitectureNavigation.isNavigating
+          ? createArchitectureNavigation.loadingLabel
+          : CREATE_ARCHITECTURE_LABEL}
       </Button>
     </div>
   );

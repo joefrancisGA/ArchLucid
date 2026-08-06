@@ -12,6 +12,7 @@ import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-t
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { getShowcaseCompareHref } from "@/lib/buyer-safe-review-navigation";
+import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 export type AskReviewScopeStripProps = {
@@ -45,7 +46,7 @@ export function AskReviewScopeStrip(props: AskReviewScopeStripProps) {
           <>
             <Link
               className={OPERATOR_LINK.nav}
-              href={`/signed-records/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`}
+              href={signedRecordDetailPath(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}
             >
               {BUYER_OPEN_SIGNED_RECORD_CTA}
             </Link>

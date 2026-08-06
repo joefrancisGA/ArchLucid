@@ -77,7 +77,8 @@ Open `http://localhost:8080` and load **`workspace.dsl`** from this directory.
 *(Former thin hub `ARCHITECTURE_INDEX.md` redirects here — see [`../redirects.md`](../redirects.md).)*
 
 ### Orientation
-- **Saved Mermaid + SVG diagrams** — [`architecture_diagrams/README.md`](architecture_diagrams/README.md) (system overview + review happy path)
+- **Saved Mermaid + SVG diagrams** — [`architecture_diagrams/README.md`](architecture_diagrams/README.md) (system overview + zoom-ins)
+- **Platform architecture handbook** — [`architecture_handbook/README.md`](architecture_handbook/README.md) (Markdown spine → regenerable DOCX)
 - **V1 scope contract** — `../library/V1_SCOPE.md`
 - **Developer Day-1** — `../onboarding/day-one-developer.md`
 - **SRE / Platform Day-1** — `../onboarding/day-one-sre.md`

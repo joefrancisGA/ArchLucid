@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const push = vi.fn();
 const prefetch = vi.fn();
-const initializeArchitectureCreation = vi.fn();
+const clearArchitectureCreationDraftId = vi.fn();
 
 vi.mock("react", async () => {
   const actual = await vi.importActual<typeof import("react")>("react");
@@ -23,12 +23,8 @@ vi.mock("next/navigation", () => ({
   usePathname: () => "/",
 }));
 
-vi.mock("@/lib/architecture-creation-init", () => ({
-  initializeArchitectureCreation: () => initializeArchitectureCreation(),
-}));
-
-vi.mock("@/components/architecture/ArchitectureCreationBootstrap", () => ({
-  ArchitectureCreationBootstrap: () => null,
+vi.mock("@/lib/architecture-creation-session", () => ({
+  clearArchitectureCreationDraftId: () => clearArchitectureCreationDraftId(),
 }));
 
 vi.mock("@/components/architecture/ArchitectureDraftWorkspace", () => ({
@@ -39,6 +35,7 @@ import {
   CREATE_ARCHITECTURE_NAVIGATION_TIMEOUT_MS,
   useCreateArchitectureNavigation,
 } from "./use-create-architecture-navigation";
+import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
 
 describe("useCreateArchitectureNavigation", () => {
   const assign = vi.fn();
@@ -48,8 +45,7 @@ describe("useCreateArchitectureNavigation", () => {
     push.mockReset();
     prefetch.mockReset();
     assign.mockReset();
-    initializeArchitectureCreation.mockReset();
-    initializeArchitectureCreation.mockResolvedValue({ draftId: "draft-1" });
+    clearArchitectureCreationDraftId.mockReset();
     vi.stubGlobal("location", {
       ...window.location,
       pathname: "/",
@@ -63,6 +59,18 @@ describe("useCreateArchitectureNavigation", () => {
     vi.unstubAllGlobals();
   });
 
+  it("opens the draft workspace without pre-creating a server draft", () => {
+    const { result } = renderHook(() => useCreateArchitectureNavigation());
+
+    act(() => {
+      result.current.navigate();
+    });
+
+    expect(clearArchitectureCreationDraftId).toHaveBeenCalled();
+    expect(push).toHaveBeenCalledWith(ARCHITECTURES_NEW_PATH);
+    expect(result.current.isNavigating).toBe(true);
+  });
+
   it("releases a depressed CTA after the soft-nav timeout", async () => {
     const { result } = renderHook(() => useCreateArchitectureNavigation());
 
@@ -71,14 +79,13 @@ describe("useCreateArchitectureNavigation", () => {
     });
 
     expect(result.current.isNavigating).toBe(true);
-    expect(push).toHaveBeenCalled();
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(CREATE_ARCHITECTURE_NAVIGATION_TIMEOUT_MS);
     });
 
     expect(result.current.isNavigating).toBe(false);
-    expect(assign).toHaveBeenCalledWith("/architecture/architectures/new");
+    expect(assign).toHaveBeenCalledWith(ARCHITECTURES_NEW_PATH);
     expect(result.current.error).toBeNull();
   });
 });

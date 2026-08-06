@@ -4,6 +4,9 @@ export const ARCHITECTURES_LIST_PATH = "/architecture/architectures" as const;
 /** Bootstrap a new architecture draft (client redirect to `/architecture/architectures/{id}`). */
 export const ARCHITECTURES_NEW_PATH = "/architecture/architectures/new" as const;
 
+/** Route segment for the unsaved new-draft workspace — not a server draft id. */
+export const ARCHITECTURE_NEW_DRAFT_SEGMENT = "new" as const;
+
 /** Architecture reviews list (hub). */
 export const REVIEWS_LIST_PATH = "/architecture/reviews" as const;
 
@@ -22,6 +25,10 @@ export const SOURCE_ARCHITECTURE_QUERY_PARAM = "sourceArchitectureId" as const;
 
 export function architectureDraftPath(architectureId: string): string {
   return `${ARCHITECTURES_LIST_PATH}/${encodeURIComponent(architectureId)}`;
+}
+
+export function isArchitectureNewDraftSegment(architectureId: string): boolean {
+  return architectureId.trim() === ARCHITECTURE_NEW_DRAFT_SEGMENT;
 }
 
 export function reviewDetailPath(reviewId: string): string {
@@ -58,7 +65,7 @@ export function parseArchitectureDraftIdFromPath(pathname: string): string | nul
 
   const segment = pathname.slice(prefix.length).split("/")[0]?.trim() ?? "";
 
-  if (segment.length === 0 || segment === "new") {
+  if (segment.length === 0 || segment === ARCHITECTURE_NEW_DRAFT_SEGMENT) {
     return null;
   }
 

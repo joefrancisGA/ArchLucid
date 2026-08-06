@@ -2,7 +2,7 @@ import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 /** Workbook path pattern for MMX (dynamic manifest id). */
-export const SIGNED_RECORD_CANONICAL_PATH_PATTERN = "/signed-records/[manifestId]" as const;
+export const SIGNED_RECORD_CANONICAL_PATH_PATTERN = "/governance/signed-records/[manifestId]" as const;
 
 export const SIGNED_RECORD_CLAIM_DISCIPLINE =
   "This signed review record packages decisions, findings, and downloadable artifacts for one finalized review — it is application-layer lineage closure, not a CPA SOC 2 attestation or a published third-party pen-test report. Open Audit or Assurance status when you need broader assurance cites.";

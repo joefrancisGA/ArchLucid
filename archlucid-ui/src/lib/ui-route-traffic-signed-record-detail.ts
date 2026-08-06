@@ -5,7 +5,7 @@
 export const SIGNED_RECORD_DETAIL_TRAFFIC_ROW_ID = "MMX";
 
 /** Canonical path pattern tracked on the MMX workbook row. */
-export const SIGNED_RECORD_DETAIL_TRAFFIC_PATH = "/signed-records/[manifestId]";
+export const SIGNED_RECORD_DETAIL_TRAFFIC_PATH = "/governance/signed-records/[manifestId]";
 
 /** Workbook Section column value (owner catalog). */
 export const SIGNED_RECORD_DETAIL_TRAFFIC_SECTION = "Marketing";

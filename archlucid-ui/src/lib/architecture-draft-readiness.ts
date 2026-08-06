@@ -15,6 +15,19 @@ export type ArchitectureDraftValidationResult = {
   readonly blockers: readonly string[];
 };
 
+/** True when the operator entered content worth a first server persist (deferred-create gate). */
+export function hasArchitectureDraftSaveableContent(fields: ArchitectureDraftFieldState): boolean {
+  const hasSystemName = fields.systemName.trim().length > 0;
+  const hasOutcome = fields.businessOutcome.trim().length > 0;
+  const hasIntent = fields.freeTextIntent.trim().length > 0;
+
+  if (!hasSystemName && !hasOutcome && !hasIntent) {
+    return false;
+  }
+
+  return validateArchitectureDraftIntegrity(fields).isValid;
+}
+
 export function validateArchitectureDraftIntegrity(
   fields: ArchitectureDraftFieldState,
 ): ArchitectureDraftValidationResult {

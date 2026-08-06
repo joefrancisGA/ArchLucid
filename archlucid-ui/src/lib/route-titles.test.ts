@@ -27,6 +27,7 @@ describe("getRouteTitle — dynamic review detail", () => {
 
 describe("getRouteTitle — manifest detail", () => {
   it("returns Signed review record", () => {
+    expect(getRouteTitle("/governance/signed-records/abc-123")).toBe("Signed review record");
     expect(getRouteTitle("/signed-records/abc-123")).toBe("Signed review record");
   });
 });
