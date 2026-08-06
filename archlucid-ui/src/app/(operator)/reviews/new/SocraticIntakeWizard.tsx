@@ -30,6 +30,7 @@ import {
   submitDraftRequest,
 } from "@/lib/api/draft-intake-api";
 import { architectureDraftPath, SOURCE_ARCHITECTURE_QUERY_PARAM } from "@/lib/architecture-routes";
+import { architectureDraftDisplayName } from "@/lib/architecture-draft-status";
 import {
   architectureCreationDefaultActorSet,
   applyArchitectureCreationDraftToFormState,
@@ -229,6 +230,12 @@ export function SocraticIntakeWizard() {
   const canSubmit = draftId !== null && allClarificationsHandled && !busy && !blocksLlmExecution;
 
   const stepLabel = useMemo(() => `Step ${step + 1} of ${INTAKE_STEPS.length}`, [step]);
+
+  // Prefer system name / intent for the saved-architecture banner; keep the GUID in the draft href only.
+  const sourceArchitectureDisplayName = useMemo(
+    () => architectureDraftDisplayName(systemName, freeTextIntent),
+    [freeTextIntent, systemName],
+  );
 
   useEffect(() => {
     if (exampleTemplate === null || exampleTemplatePrefillAppliedRef.current) {
@@ -577,10 +584,14 @@ export function SocraticIntakeWizard() {
         <Card className="border-teal-200 bg-teal-50 dark:border-teal-800 dark:bg-teal-950/40">
           <CardHeader>
             <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Reviewing saved architecture</CardTitle>
-            <CardDescription>
+            <CardDescription data-testid="socratic-source-architecture-banner">
               This review evaluates a snapshot of{" "}
-              <Link href={architectureDraftPath(sourceArchitectureId)} className="font-medium underline">
-                architecture {sourceArchitectureId}
+              <Link
+                href={architectureDraftPath(sourceArchitectureId)}
+                className="font-medium underline"
+                title={`Architecture id ${sourceArchitectureId}`}
+              >
+                {sourceArchitectureDisplayName}
               </Link>
               . Later edits to the architecture draft will not change this review&apos;s evidence basis.
             </CardDescription>
