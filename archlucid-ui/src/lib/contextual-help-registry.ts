@@ -461,6 +461,19 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/administration/developer",
+    entry: {
+      whatIsThisPage:
+        "Internal developer tools - evaluate branded themes and try CLI demos for operator diagnostics; not part of the customer settings navigation.",
+      whatToDoNext:
+        "Use the theme selector for visual evaluation, try the CLI demo card when validating local tooling, then open Engineering troubleshooting or System health for live runbooks.",
+      whyEmpty:
+        "Theme and CLI cards always render for authorized operators; empty results only appear inside the CLI demo after a command returns no output.",
+      whereToConfigurePrerequisite:
+        "Requires an authenticated Admin session with advanced/developer route access; customer settings hubs do not deep-link here.",
+    },
+  },
+  {
     prefix: DIGESTS_HUB_PATH,
     entry: DIGESTS_HUB_CONTEXTUAL_HELP,
   },

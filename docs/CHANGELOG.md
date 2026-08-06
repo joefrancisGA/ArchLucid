@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-06 - UI: Internal developer tools Evidence chrome (SDX)
+
+`/administration/developer` ships DeveloperSettingsEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map cli-usage, traffic Notes under Admin (row ID SDX; path aligned off legacy settings/developer / DSE), and honest Evidence score 45. Admin diagnostic hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-06 - UI: Architecture intelligence Evidence chrome (AIN)
 
 `/architecture/architecture-intelligence` ships ArchitectureIntelligenceEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map evidence-trail, traffic Notes under Core review (row ID AIN), and honest Evidence score 50. Closed-loop reasoning hub hard-caps higher Evidence; no CPA / third-party pen-test implication.

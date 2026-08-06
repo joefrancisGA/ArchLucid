@@ -343,6 +343,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "alerts", label: "Teams integration" },
   },
   { prefix: "/administration/connection-status", topic: { slug: "integration-readiness", label: "How integration readiness works" } },
+  { prefix: "/administration/developer", topic: { slug: "cli-usage", label: "Internal developer tools" } },
   {
     prefix: "/operate/integration-events/dlq",
     topic: { slug: "integration-readiness", label: "Integration event dead letters" },

@@ -66,6 +66,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/governance/audit",
       "/administration/system-health",
       "/administration/connection-status",
+      "/administration/developer",
       "/architecture/digests",
       "/digests",
       "/digest-subscriptions",
@@ -519,6 +520,15 @@ describe("contextual-help-registry (TB-733)", () => {
     expect(entry?.whatIsThisPage).toContain("Connection status");
     expect(entry?.whatToDoNext).toContain("System health");
     expect(entry?.whatToDoNextAction?.href).toBe("/administration/system-health");
+  });
+
+  it("resolves Internal developer tools Category-1 help (SDX)", () => {
+    expect(contextualHelpForPathname("/administration/developer")?.whatIsThisPage).toContain(
+      "Internal developer tools",
+    );
+    expect(contextualHelpForPathname("/administration/developer")?.whatToDoNext).toContain(
+      "theme selector",
+    );
   });
 
   it("resolves Demo readiness Category-1 help (ADD)", () => {
