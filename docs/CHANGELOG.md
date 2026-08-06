@@ -10,6 +10,14 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-06 - Perf: rollup/compare off bare ResultJson (TB-2053)
+
+`GetRunDetailForRollupAsync` loads agent results through `GetRollupProjectionByRunIdAsync` (relational columns + JSON subpaths for claims/findings/controls) instead of full `ResultJson`. Hot-path inventory + shape guards updated. Does not claim CPA / third-party pen-test.
+
+## 2026-08-06 - UI: Auth bootstrap Evidence chrome (AUB)
+
+`/auth/bootstrap` ships AuthBootstrapEvidenceOrientationStrip (public Sources + claim-discipline) on invitation / select-workspace / create-workspace / no-access steps, traffic Notes under Auth (row ID AUB), and honest Evidence score 40. Post-sign-in handoff hard-caps higher Evidence; not an operator PageContextualHelp surface; no CPA / third-party pen-test implication.
+
 ## 2026-08-06 - UI: First review guide Evidence chrome (ARF)
 
 `/architecture/first-review-guide` ships FirstReviewGuideEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map getting-started, traffic Notes under Onboarding (row ID ARF), and honest Evidence score 50. Onboarding checklist hard-caps below help-specialty COR; no CPA / third-party pen-test implication.
