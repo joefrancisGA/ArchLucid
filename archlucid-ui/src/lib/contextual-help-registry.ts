@@ -1118,6 +1118,19 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/administration/scim-provisioning",
+    entry: {
+      whatIsThisPage:
+        "SCIM provisioning - issue, verify, and revoke inbound directory tokens so your IdP can sync users into this workspace.",
+      whatToDoNext:
+        "Copy the SCIM base URL, create a token, verify it against Service Provider Config, then revoke tokens you no longer need.",
+      whyEmpty:
+        "Active tokens appear after creation; an empty list means no inbound provisioning tokens exist yet for this tenant.",
+      whereToConfigurePrerequisite:
+        "Managing SCIM tokens needs Admin authority; pair tokens with SSO and identity setup before enforcing directory sync.",
+    },
+  },
+  {
     prefix: "/administration/identity-providers/role-mapping",
     entry: {
       whatIsThisPage:

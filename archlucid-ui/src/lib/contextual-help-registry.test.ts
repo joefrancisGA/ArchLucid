@@ -120,6 +120,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/administration/identity-providers/oidc",
       "/administration/identity-providers/saml",
       "/administration/identity/sso-wizard",
+      "/administration/scim-provisioning",
       "/administration/identity-providers/role-mapping",
       "/administration/identity-providers/diagnostics",
       "/administration/api-keys",
@@ -240,6 +241,15 @@ describe("contextual-help-registry (TB-733)", () => {
     );
     expect(contextualHelpForPathname("/administration/identity/sso-wizard")?.whatToDoNext).toContain(
       "Choose a protocol",
+    );
+  });
+
+  it("resolves SCIM provisioning Category-1 help (ASC)", () => {
+    expect(contextualHelpForPathname("/administration/scim-provisioning")?.whatIsThisPage).toContain(
+      "SCIM provisioning",
+    );
+    expect(contextualHelpForPathname("/administration/scim-provisioning")?.whatToDoNext).toContain(
+      "Copy the SCIM base URL",
     );
   });
 

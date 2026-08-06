@@ -386,6 +386,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "enterprise-onboarding", label: "SSO wizard" },
   },
   {
+    prefix: "/administration/scim-provisioning",
+    topic: { slug: "enterprise-onboarding", label: "SCIM provisioning" },
+  },
+  {
     prefix: "/administration/identity-providers/diagnostics",
     topic: { slug: "enterprise-onboarding", label: "Identity diagnostics" },
   },
