@@ -354,6 +354,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     prefix: "/admin/demo-readiness",
     topic: { slug: "path-chooser", label: "Demo readiness" },
   },
+  {
+    prefix: "/admin/deployment-status",
+    topic: { slug: "troubleshooting", label: "Deployment status" },
+  },
   { prefix: "/settings/cloud-connections/aws", topic: { slug: "cloud-connections-aws", label: "AWS cloud connection" } },
   { prefix: "/settings/cloud-connections/gcp", topic: { slug: "cloud-connections-gcp", label: "GCP cloud connection" } },
   { prefix: "/settings/cloud-connections", topic: { slug: "cloud-connections", label: "Cloud connections" } },

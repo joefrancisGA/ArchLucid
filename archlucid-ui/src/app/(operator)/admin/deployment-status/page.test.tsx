@@ -16,6 +16,10 @@ vi.mock("@/lib/deployment-fingerprint", () => ({
   }),
 }));
 
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+}));
+
 import AdminDeploymentStatusPage from "./page";
 
 function jsonResponse(data: unknown, status = 200) {

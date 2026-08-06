@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 
+import { DeploymentStatusEvidenceOrientationStrip } from "@/app/(operator)/admin/deployment-status/_sections/DeploymentStatusEvidenceOrientationStrip";
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { StatusPill } from "@/components/StatusPill";
 import { Button } from "@/components/ui/button";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { cn } from "@/lib/utils";
 import { displayDeploymentField, resolveOverallTone } from "@/lib/admin-deployment-status";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -52,11 +54,14 @@ export function AdminDeploymentStatusPageView(props: Props) {
   return (
     <div className="mx-auto max-w-4xl space-y-6 px-4 py-6" data-testid="admin-deployment-status-page">
       <header className="space-y-3">
-        <div className="space-y-1">
-          <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Deployment status</h1>
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-            Internal view of release identity, health, and whether production components agree on BUILD_ID.
-          </p>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0 flex-1 space-y-1">
+            <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Deployment status</h1>
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+              Internal view of release identity, health, and whether production components agree on BUILD_ID.
+            </p>
+          </div>
+          <PageContextualHelpButton />
         </div>
         <div className="flex flex-wrap items-center gap-3" data-testid="admin-deployment-status-overall">
           <StatusPill status={overallTone} domain="health" ariaLabel={`Overall status: ${overallTone}`} />
@@ -85,6 +90,8 @@ export function AdminDeploymentStatusPageView(props: Props) {
           </Link>
         </div>
       </header>
+
+      <DeploymentStatusEvidenceOrientationStrip />
 
       {m.error !== null ? (
         <p className={cn("m-0 text-rose-800 dark:text-rose-200", OPERATOR_TYPOGRAPHY.body)} role="alert">

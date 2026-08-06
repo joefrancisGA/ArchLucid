@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-05 - UI: Deployment status Evidence chrome (ADE)
+
+`/admin/deployment-status` ships DeploymentStatusEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map troubleshooting, traffic Notes under Admin, and honest Evidence score 45. Admin diagnostic hub hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-05 - UI: Demo readiness Evidence chrome (ADD)
 
 `/admin/demo-readiness` ships DemoReadinessEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map path-chooser, traffic Notes under Admin, and honest Evidence score 45. Admin diagnostic hub hard-caps higher Evidence; no CPA / third-party pen-test implication.

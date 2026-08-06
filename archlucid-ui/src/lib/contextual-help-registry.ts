@@ -623,6 +623,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/admin/deployment-status",
+    entry: {
+      whatIsThisPage:
+        "Deployment status - internal release identity, health, and BUILD_ID agreement across frontend, API, and worker.",
+      whatToDoNext:
+        "Refresh status, open System health when readiness fails, or Diagnostics dashboard for deeper platform probes.",
+      whyEmpty: "Identity fields appear after the admin deployment-status probe returns for this environment.",
+      whereToConfigurePrerequisite:
+        "This page requires ArchLucid personnel access; customer tenants never see deployment identity here.",
+    },
+  },
+  {
     prefix: "/help/getting-started",
     entry: {
       whatIsThisPage:

@@ -83,6 +83,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/admin/tenant-health",
       "/admin/trial-funnel",
       "/admin/demo-readiness",
+      "/admin/deployment-status",
       "/help/getting-started",
       "/help/how-it-works",
       "/help/troubleshooting",
@@ -438,6 +439,15 @@ describe("contextual-help-registry (TB-733)", () => {
       "Demo readiness",
     );
     expect(contextualHelpForPathname("/admin/demo-readiness")?.whatToDoNext).toContain(
+      "System health",
+    );
+  });
+
+  it("resolves Deployment status Category-1 help (ADE)", () => {
+    expect(contextualHelpForPathname("/admin/deployment-status")?.whatIsThisPage).toContain(
+      "Deployment status",
+    );
+    expect(contextualHelpForPathname("/admin/deployment-status")?.whatToDoNext).toContain(
       "System health",
     );
   });
