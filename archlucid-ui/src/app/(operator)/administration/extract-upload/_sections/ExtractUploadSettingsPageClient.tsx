@@ -10,6 +10,7 @@ import { ExtractUploadConstraintsPanel } from "@/components/usability/ExtractUpl
 import { ExtractUploadFileProgressList } from "@/components/usability/ExtractUploadFileProgressList";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { AzureExtractorDemoScenarioPicker } from "@/components/wizard/AzureExtractorDemoScenarioPicker";
 import { AzureExtractorQuickStartCommandPanel } from "@/components/wizard/AzureExtractorQuickStartCommandPanel";
 import type { ApiProblemDetails } from "@/lib/api-problem";
@@ -29,6 +30,8 @@ import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-s
 import { showError, showSuccess } from "@/lib/toast";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+
+import { ExtractUploadSettingsEvidenceOrientationStrip } from "./ExtractUploadSettingsEvidenceOrientationStrip";
 
 const EXTRACTOR_SCRIPT_CDN_URL =
   process.env.NEXT_PUBLIC_EXTRACTOR_SCRIPT_CDN_URL?.trim() ||
@@ -217,12 +220,17 @@ export function ExtractUploadSettingsPageClient() {
 
   return (
     <div className="w-full max-w-3xl space-y-6">
-      <div>
-        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Extract &amp; Upload</h1>
-        <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          Run the read-only Azure extractor locally, validate the ZIP, then upload it for architecture reviews.
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Extract &amp; Upload</h1>
+          <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            Run the read-only Azure extractor locally, validate the ZIP, then upload it for architecture reviews.
+          </p>
+        </div>
+        <PageContextualHelpButton />
       </div>
+
+      <ExtractUploadSettingsEvidenceOrientationStrip />
 
       <ExtractUploadConstraintsPanel />
 

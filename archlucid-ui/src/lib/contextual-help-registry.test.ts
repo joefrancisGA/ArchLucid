@@ -119,6 +119,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/administration/preferences",
       "/administration/account-security",
       "/administration/auth-domains",
+      "/administration/extract-upload",
       "/administration/security-trust",
       "/administration/billing",
       "/administration/ai-usage",
@@ -230,6 +231,15 @@ describe("contextual-help-registry (TB-733)", () => {
     );
     expect(contextualHelpForPathname("/administration/account-security")?.whatToDoNext).toContain(
       "sign-in",
+    );
+  });
+
+  it("resolves Sign-in domains settings Category-1 help (ADU)", () => {
+    expect(contextualHelpForPathname("/administration/auth-domains")?.whatIsThisPage).toContain(
+      "Sign-in domains",
+    );
+    expect(contextualHelpForPathname("/administration/auth-domains")?.whatToDoNext).toContain(
+      "Identity providers",
     );
   });
 
@@ -475,12 +485,11 @@ describe("contextual-help-registry (TB-733)", () => {
   });
 
   it("resolves Connection status Category-1 help (ADC)", () => {
-    expect(contextualHelpForPathname("/administration/connection-status")?.whatIsThisPage).toContain(
-      "Connection status",
-    );
-    expect(contextualHelpForPathname("/administration/connection-status")?.whatToDoNext).toContain(
-      "System health",
-    );
+    const entry = contextualHelpForPathname("/administration/connection-status");
+
+    expect(entry?.whatIsThisPage).toContain("Connection status");
+    expect(entry?.whatToDoNext).toContain("System health");
+    expect(entry?.whatToDoNextAction?.href).toBe("/administration/system-health");
   });
 
   it("resolves Demo readiness Category-1 help (ADD)", () => {

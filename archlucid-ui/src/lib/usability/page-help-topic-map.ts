@@ -388,6 +388,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "enterprise-onboarding", label: "Sign-in domains" },
   },
   {
+    prefix: "/administration/extract-upload",
+    topic: { slug: "evidence-intake", label: "Extract and Upload" },
+  },
+  {
     prefix: "/administration/users/invite-reviewer",
     topic: { slug: "users-and-roles", label: "Invite a reviewer" },
   },

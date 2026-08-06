@@ -3,12 +3,18 @@
  * questions per operator route. Long-form guides remain on `/help/{slug}` via `page-help-topic-map.ts`.
  */
 
+import { ADVISORY_SCANS_SCHEDULES_HREF } from "@/lib/advisory-scans-route";
+import { REVIEWS_LIST_PATH } from "@/lib/architecture-routes";
 import {
   DIGESTS_HUB_PATH,
   DIGESTS_SCHEDULE_TAB_PATH,
+  DIGESTS_SUBSCRIPTIONS_TAB_PATH,
   LEGACY_DIGESTS_HUB_PATH,
   LEGACY_DIGEST_SUBSCRIPTIONS_PATH,
 } from "@/lib/digests-route-paths";
+import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance-route-paths";
+import { PLANNING_PATH } from "@/lib/planning-route";
+import { PRODUCT_LEARNING_PATH } from "@/lib/product-learning-route";
 import {
   LEGACY_SETTINGS_ROLES_PATH,
 } from "@/lib/settings-admin-route-paths";
@@ -97,6 +103,10 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whyEmpty: "Tiles stay at zero until governance and audit activity exists in the current workspace scope.",
       whereToConfigurePrerequisite:
         "Switch workspace or project scope from the header switcher — figures never roll up across workspaces.",
+      whatToDoNextAction: {
+        label: "Open approval queue",
+        href: GOVERNANCE_APPROVAL_QUEUE_PATH,
+      },
     },
   },
   {
@@ -345,6 +355,10 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whyEmpty: "Decisions appear after reviews are signed with recorded architecture decisions.",
       whereToConfigurePrerequisite:
         "Decision register respects the workspace and project selected in the header switcher.",
+      whatToDoNextAction: {
+        label: "Open architecture reviews",
+        href: REVIEWS_LIST_PATH,
+      },
     },
   },
   {
@@ -414,6 +428,10 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
         "Readiness tiles appear after connector probes load; optional connectors stay listed until configured.",
       whereToConfigurePrerequisite:
         "Configuring connectors needs a role that can manage workspace integrations.",
+      whatToDoNextAction: {
+        label: "Open System health",
+        href: "/administration/system-health",
+      },
     },
   },
   {
@@ -441,6 +459,10 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
         label: "Open Schedule tab",
         href: DIGESTS_SCHEDULE_TAB_PATH,
       },
+      whereToConfigureAction: {
+        label: "Open Subscriptions tab",
+        href: DIGESTS_SUBSCRIPTIONS_TAB_PATH,
+      },
     },
   },
   {
@@ -453,6 +475,10 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whyEmpty: "Plan detail appears after a plan is generated from captured feedback.",
       whereToConfigurePrerequisite:
         "Plans respect the workspace and project selected in the header switcher.",
+      whatToDoNextAction: {
+        label: "Open Improvement planning",
+        href: PLANNING_PATH,
+      },
     },
   },
   {
@@ -464,6 +490,10 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whyEmpty: "Themes and plans appear after feedback is captured and analyzed.",
       whereToConfigurePrerequisite:
         "Planning insights respect the workspace and project selected in the header switcher.",
+      whatToDoNextAction: {
+        label: "Open Pilot feedback",
+        href: PRODUCT_LEARNING_PATH,
+      },
     },
   },
   {
@@ -476,6 +506,14 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whyEmpty: "Preview results appear after you choose a baseline review and run a simulation.",
       whereToConfigurePrerequisite:
         "Impact preview needs at least one finalized architecture review in this workspace.",
+      whatToDoNextAction: {
+        label: "Open architecture reviews",
+        href: REVIEWS_LIST_PATH,
+      },
+      whereToConfigureAction: {
+        label: "Open architecture reviews",
+        href: REVIEWS_LIST_PATH,
+      },
     },
   },
   {
@@ -488,6 +526,10 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whyEmpty: "Feedback rows appear after operators capture review outcomes in this workspace.",
       whereToConfigurePrerequisite:
         "Pilot feedback is an Internal Ops surface — System Admin authority is typically required.",
+      whatToDoNextAction: {
+        label: "Open Improvement planning",
+        href: PLANNING_PATH,
+      },
     },
   },
   {
@@ -522,6 +564,14 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whyEmpty: "Scans appear after you generate one from a finalized review.",
       whereToConfigurePrerequisite:
         "Finalize a review first; optional baseline comparison highlights drift.",
+      whatToDoNextAction: {
+        label: "Open Schedules tab",
+        href: ADVISORY_SCANS_SCHEDULES_HREF,
+      },
+      whereToConfigureAction: {
+        label: "Open architecture reviews",
+        href: REVIEWS_LIST_PATH,
+      },
     },
   },
   {
@@ -1054,6 +1104,19 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
         "Domain rows load after the auth-domains API responds; unverified domains stay pending until DNS TXT succeeds.",
       whereToConfigurePrerequisite:
         "Enforcement needs Admin authority, a verified domain, recovery admins, and a configured identity provider.",
+    },
+  },
+  {
+    prefix: "/administration/extract-upload",
+    entry: {
+      whatIsThisPage:
+        "Extract and Upload - run the read-only Azure extractor locally, validate the ZIP, then upload inventory for architecture reviews.",
+      whatToDoNext:
+        "Copy the quick-start command, upload a validated ZIP, then open Start a review when the package is ready.",
+      whyEmpty:
+        "Upload controls are ready when you have Admin or Execute authority; progress rows appear after a package is selected.",
+      whereToConfigurePrerequisite:
+        "Uploading packages needs workspace authority; cloud connectors are optional for evidence-only ZIP intake.",
     },
   },
   {
