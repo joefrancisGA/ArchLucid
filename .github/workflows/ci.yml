@@ -942,11 +942,15 @@ jobs:
       - name: TECH_BACKLOG next recommended batch hygiene
         run: python scripts/ci/check_tech_backlog_next_batch.py
 
+      - name: TECH_BACKLOG open-by-category counts freshness
+        run: python scripts/ci/refresh_tech_backlog_category_counts.py --check
+
       - name: Buyer-surface / backlog guard unit tests
         continue-on-error: true
         run: |
           python -m unittest discover -s scripts/ci/tests -p "test_detect_buyer_surface_changes.py"
           python -m unittest discover -s scripts/ci/tests -p "test_check_tech_backlog_next_batch.py"
+          python -m unittest discover -s scripts/ci/tests -p "test_refresh_tech_backlog_category_counts.py"
           python -m unittest discover -s scripts/ci/tests -p "test_report_real_mode_evidence_freshness.py"
 
       - name: Buyer-polished demo env coherence (TB-273 / BDA-024)

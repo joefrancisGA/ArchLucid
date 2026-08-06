@@ -135,7 +135,7 @@ Mirror the discipline in `.cursor/commands/ship-next-improvement.md`, targeting 
 2. If the target branch doesn't exist yet (locally or on the remote), create it from the current `master`: `git checkout -b <branch> master` (or `git fetch origin master && git checkout -b <branch> origin/master`). If it already exists, check it out and pull latest.
 3. Implement the fix for the new `TB-###` completely, with tests appropriate to scope.
 4. **Quality gate** (in order, fixing issues before moving on): `/check-compiler-errors` → `/deslop` (diff vs `master`) → `/review-bugbot` (`Diff: uncommitted changes`) → `/review-security` (`Diff: uncommitted changes`) → re-run `/check-compiler-errors` if anything changed.
-5. Mark `TB-###` **Done** in `TECH_BACKLOG.md` (title column + `Updated:` line with closure summary) and update `PD-###` to **Escalated to TB-### — Done**.
+5. Mark `TB-###` **Done** in `TECH_BACKLOG.md` (title column + `Updated:` line with closure summary), run `python scripts/ci/refresh_tech_backlog_category_counts.py --write`, and update `PD-###` to **Escalated to TB-### — Done**.
 6. Stage only paths changed for this fix — never `git add -A` on a dirty tree. Commit with a message referencing `TB-###` (style: `TB-###: <one-sentence why>.`), push to `<branch>`.
 7. Run the **CI gate** — `/fix-ci` against the resulting PR or direct-push run, fixing failures one at a time until green.
 
