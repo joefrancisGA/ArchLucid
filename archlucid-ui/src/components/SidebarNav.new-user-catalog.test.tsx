@@ -89,7 +89,7 @@ const COLLAPSED_GROUPS: ReadonlyArray<RequestedGroup> = [
   },
   {
     toggleTestId: "sidebar-group-toggle-operate-governance",
-    hrefs: ["/governance/findings", "/governance/risk-exceptions", "/governance/setup"],
+    hrefs: ["/governance/findings", "/governance/exceptions", "/governance/setup"],
   },
   {
     toggleTestId: "sidebar-group-toggle-operate-integrations",
@@ -97,7 +97,7 @@ const COLLAPSED_GROUPS: ReadonlyArray<RequestedGroup> = [
   },
   {
     toggleTestId: "sidebar-group-toggle-operator-admin",
-    hrefs: ["/administration/settings/tenant", "/administration/settings/billing", "/administration/settings/support"],
+    hrefs: ["/administration/tenant", "/administration/billing", "/administration/support"],
   },
 ];
 

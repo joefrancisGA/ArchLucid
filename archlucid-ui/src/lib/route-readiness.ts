@@ -10,6 +10,7 @@ import {
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
 } from "@/lib/governance-route-paths";
 import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
+import { DIGESTS_HUB_PATH, LEGACY_DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 
 export type RouteReadinessTier = "demo-ready" | "advanced-only" | "admin-only" | "hidden";
 
@@ -25,8 +26,8 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/executive/scorecard": "demo-ready",
   "/architecture/reviews": "demo-ready",
   "/governance/findings": "advanced-only",
-  "/administration/settings/security-trust": "demo-ready",
-  "/administration/settings/preferences": "demo-ready",
+  "/administration/security-trust": "demo-ready",
+  "/administration/preferences": "demo-ready",
   "/workspace/security-trust": "demo-ready",
   "/sponsor-report/executive-summary": "advanced-only",
   "/sponsor-report/pilot-outcomes": "advanced-only",
@@ -36,7 +37,8 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/replay": "advanced-only",
   "/governance/advisory-scans": "advanced-only",
   "/insights/planning": "advanced-only",
-  "/digests": "advanced-only",
+  [DIGESTS_HUB_PATH]: "advanced-only",
+  [LEGACY_DIGESTS_HUB_PATH]: "advanced-only",
   [IMPACT_PREVIEW_PATH]: "advanced-only",
   "/integrations/teams": "advanced-only",
   "/integrations/cloud-connections": "admin-only",
@@ -47,7 +49,7 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/integrations/servicenow": "admin-only",
   "/integrations/webhooks": "advanced-only",
   "/administration/connection-status": "advanced-only",
-  "/administration/settings/ai-usage": "admin-only",
+  "/administration/ai-usage": "admin-only",
   "/settings/cost-reporting": "admin-only",
   "/governance/setup": "advanced-only",
   [GOVERNANCE_APPROVAL_QUEUE_PATH]: "advanced-only",
@@ -76,16 +78,16 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/admin/tenant-health": "hidden",
   "/admin/support": "admin-only",
   "/admin/users": "admin-only",
-  "/administration/settings/support": "admin-only",
-  "/administration/settings/users": "admin-only",
-  "/administration/settings/tenant": "admin-only",
-  "/administration/settings/tenant/recycle-bin": "admin-only",
-  "/administration/settings/baseline": "advanced-only",
-  "/administration/settings/developer": "advanced-only",
-  "/administration/settings/billing": "advanced-only",
+  "/administration/support": "admin-only",
+  "/administration/users": "admin-only",
+  "/administration/tenant": "admin-only",
+  "/administration/tenant/recycle-bin": "admin-only",
+  "/administration/baseline": "advanced-only",
+  "/administration/developer": "advanced-only",
+  "/administration/billing": "advanced-only",
   "/settings/webhooks": "advanced-only",
   "/settings/roles": "admin-only",
-  "/administration/settings/api-keys": "admin-only",
+  "/administration/api-keys": "admin-only",
 };
 
 /**
@@ -137,24 +139,24 @@ import { isCtoDemoPresenterSafeModeEnv } from "@/lib/cto-demo-presenter-pack";
 
 /** Presenter safe mode hides billing, settings, and admin surfaces (#10). */
 const PRESENTER_SAFE_MODE_NAV_HIDE = new Set<string>([
-  "/administration/settings",
-  "/administration/settings/billing",
-  "/administration/settings/tenant",
-  "/administration/settings/api-keys",
+  "/administration",
+  "/administration/billing",
+  "/administration/tenant",
+  "/administration/api-keys",
   "/settings/roles",
-  "/administration/settings/baseline",
-  "/administration/settings/developer",
+  "/administration/baseline",
+  "/administration/developer",
   "/settings/webhooks",
   "/integrations/webhooks",
   "/integrations/cloud-connections",
   "/settings/cloud-connections",
-  "/administration/settings/identity-providers",
-  "/administration/settings/identity-providers/saml",
-  "/administration/settings/identity-providers/oidc",
-  "/administration/settings/identity-providers/role-mapping",
-  "/administration/settings/identity-providers/diagnostics",
-  "/administration/settings/identity/sso-wizard",
-  "/administration/settings/scim-provisioning",
+  "/administration/identity-providers",
+  "/administration/identity-providers/saml",
+  "/administration/identity-providers/oidc",
+  "/administration/identity-providers/role-mapping",
+  "/administration/identity-providers/diagnostics",
+  "/administration/identity/sso-wizard",
+  "/administration/scim-provisioning",
   "/sponsor-report/executive-summary",
   "/sponsor-report/pilot-outcomes",
   "/sponsor-report/roi-summary",
@@ -164,7 +166,7 @@ const PRESENTER_SAFE_MODE_NAV_HIDE = new Set<string>([
 const DEMO_MODE_EXPLICIT_NAV_HIDE = new Set<string>([
   ARCHITECTURE_SCORECARD_PATH,
   "/insights/search-review-evidence",
-  "/administration/settings/tenant/recycle-bin",
+  "/administration/tenant/recycle-bin",
 ]);
 
 function normalizeOperatorNavHrefForDemo(href: string): string {
@@ -189,7 +191,7 @@ function shouldHideOperatorNavLinkInPresenterSafeMode(href: string): boolean {
     return true;
   }
 
-  if (navKey.startsWith("/administration/settings/") || navKey.startsWith("/admin")) {
+  if (navKey.startsWith("/administration/") || navKey.startsWith("/admin")) {
     return true;
   }
 

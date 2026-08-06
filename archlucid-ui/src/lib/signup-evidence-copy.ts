@@ -1,23 +1,28 @@
-import { inAppHelpHref } from "@/lib/product-documentation-registry";
-
 export const SIGNUP_CANONICAL_PATH = "/signup" as const;
 
+/** Honest scope — calm procurement language; do not lead with absent CPA / pen-test as the visual climax. */
 export const SIGNUP_CLAIM_DISCIPLINE =
-  "Evaluation signup and access requests create a workspace for trying ArchLucid — they are not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Security & trust or Pricing before treating signup copy as procurement evidence.";
+  "This page starts an evaluation workspace request. Assurance downloads, SOC self-assessment status, and pen-test summaries live on Security & trust and Trust Center—not on this form. Do not treat signup copy as a signed-review diligence package, a CPA SOC 2 attestation, or a published third-party pen-test report.";
 
 export const SIGNUP_SOURCES_INTRO =
-  "Use these evaluation links when signup questions turn into packaging, assurance, or first-review follow-ups.";
+  "Packaging and assurance links not covered in the form above.";
+
+export const SIGNUP_SOURCES_HEADING = "Related";
+
+export const SIGNUP_CLAIM_DISCIPLINE_HEADING = "What this page covers";
 
 export type SignupSourceLink = {
   readonly label: string;
   readonly href: string;
 };
 
-/** Marketing Sources — no self-href to /signup. */
+/**
+ * Marketing Sources — no self-href to /signup.
+ * One link each; omit Sample / Security / Getting started (hero, claim, or nav already cover them).
+ * Product FAQ appears only here on-page (footer also links FAQ site-wide).
+ */
 export const SIGNUP_SOURCES: readonly SignupSourceLink[] = [
-  { label: "Product FAQ", href: "/faq" },
   { label: "Pricing", href: "/pricing" },
-  { label: "Security & trust", href: "/security-trust" },
-  { label: "Getting started", href: inAppHelpHref("getting-started") },
-  { label: "How ArchLucid works", href: inAppHelpHref("how-it-works") },
+  { label: "Trust Center", href: "/trust" },
+  { label: "Product FAQ", href: "/faq" },
 ] as const;

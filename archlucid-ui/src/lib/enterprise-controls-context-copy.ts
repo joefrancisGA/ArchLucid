@@ -587,27 +587,40 @@ export const digestsHistoryHeadingReader = "History (inspect)";
 export const digestsListRefreshButtonTitleOperator = "Reload digest list and health status.";
 
 export const digestsListRefreshButtonTitleReader =
-  "Reload digest list and health status. Email subscriptions are configured under Subscriptions (Execute+).";
+  "Reload digest list and health status. Changing email subscriptions needs operator permission.";
 /** Digest subscriptions — subscription list **`h3`** (`components/digests/DigestSubscriptionsContent.tsx`). */
-export const digestSubscriptionsYourSubscriptionsHeadingOperator = "Your subscriptions";
+/**
+ * Follows the sibling `Current rules` / `Current routing` pattern above. The tab,
+ * section heading, list heading, and empty state now all say "destinations" — the
+ * list previously said "Your subscriptions" above a "No delivery destinations yet"
+ * empty state, which read as two different features.
+ */
+export const digestSubscriptionsYourSubscriptionsHeadingOperator = "Current destinations";
 
-export const digestSubscriptionsYourSubscriptionsHeadingReader = "Your subscriptions (inspect)";
+export const digestSubscriptionsYourSubscriptionsHeadingReader = "Current destinations (inspect)";
 
-/** Digest subscriptions — primary create when rank cannot mutate in the shell. */
-export const digestSubscriptionsCreateSubscriptionButtonLabelReaderRank = "Create subscription (Execute+)";
+/**
+ * Digest subscriptions — primary create when rank cannot mutate in the shell.
+ *
+ * Buyer-facing wording: "operator permission", matching
+ * {@link policyPacksCreatePackButtonLabelReaderRank}. `Execute+` is the internal
+ * authority-rank name and must not appear on a control a buyer reads.
+ */
+export const digestSubscriptionsCreateSubscriptionButtonLabelReaderRank =
+  "Create subscription (operator permission)";
 
-export const digestSubscriptionsToggleToDisabledReaderRank = "Disable (Execute+)";
+export const digestSubscriptionsToggleToDisabledReaderRank = "Disable (operator permission)";
 
-export const digestSubscriptionsToggleToEnabledReaderRank = "Enable (Execute+)";
+export const digestSubscriptionsToggleToEnabledReaderRank = "Enable (operator permission)";
 
-/** Digest subscriptions — delivery attempts (`GET`). */
+/** Digest subscriptions — delivery attempts (read-only). */
 export const digestSubscriptionsDeliveryAttemptsButtonLabelReaderRank = "Delivery attempts (inspect)";
 
 export const digestSubscriptionsDeliveryAttemptsButtonTitleOperator =
-  "Load recent digest delivery attempts for this subscription (GET).";
+  "Load recent digest delivery attempts for this subscription.";
 
 export const digestSubscriptionsDeliveryAttemptsButtonTitleReader =
-  "Load delivery attempts (GET). Create and toggle need Execute+ on the API.";
+  "Load delivery attempts. Creating or toggling a subscription needs operator permission.";
 
 /** Digest subscriptions — empty list. */
 export const digestSubscriptionsEmptyListOperatorLine =

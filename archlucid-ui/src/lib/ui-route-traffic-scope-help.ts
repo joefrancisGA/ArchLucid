@@ -1,0 +1,17 @@
+/**
+ * Traffic workbook row ID for Workspace and scope guide help.
+ * Owner backlog shorthand: HSX.
+ */
+export const SCOPE_HELP_TRAFFIC_ROW_ID = "HSX";
+
+/** Canonical path tracked on the HSX workbook row. */
+export const SCOPE_HELP_TRAFFIC_PATH = "/help/scope";
+
+/** Workbook Section column value (template catalog). */
+export const SCOPE_HELP_TRAFFIC_SECTION = "Help topic";
+
+/**
+ * Owner workbook Notes for HSX — documents Evidence chrome on scope help.
+ */
+export const SCOPE_HELP_TRAFFIC_NOTE =
+  "Workspace and scope help (Help topic) - HelpTopicMarkdownView with PageContextualHelpButton (topic map scope; Category-1 registry), workspace Sources + claim-discipline orientation strip, curated WORKSPACE_SCOPE_GUIDE markdown. Sibling HUX/HOE = users-and-roles. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-05) — help-topic orientation hard-caps higher Evidence.";

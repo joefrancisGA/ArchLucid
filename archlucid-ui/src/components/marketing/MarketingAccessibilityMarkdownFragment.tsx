@@ -250,7 +250,8 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
       ? HELP_PAGE_LAYOUT.sectionH3
       : cn(OPERATOR_SHELL_SCROLL_OFFSET_CLASS, "mt-4 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle);
   const tableTextClass = isPrivacy || isHelp ? OPERATOR_TYPOGRAPHY.body : OPERATOR_TYPOGRAPHY.body;
-  const renderOptions: RenderInlineOptions = { linkMode: isHelp ? "help" : "external-only" };
+  // Privacy needs in-app /help, /trust, and #section links (same allowance as help topics).
+  const renderOptions: RenderInlineOptions = { linkMode: isHelp || isPrivacy ? "help" : "external-only" };
   const markdownBody =
     isHelp
       ? props.sourceDocPath !== undefined && props.sourceDocPath.trim().length > 0
@@ -259,7 +260,9 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
             helpTopicSlug: props.helpTopicSlug,
           })
         : sanitizeBareMarkdownFileReferences(props.markdownBody)
-      : props.markdownBody;
+      : isPrivacy
+        ? sanitizeBareMarkdownFileReferences(props.markdownBody)
+        : props.markdownBody;
 
   const lines = markdownBody.replace(/\r\n/g, "\n").split("\n");
   const blocks: ReactNode[] = [];
@@ -277,7 +280,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
       continue;
     }
 
-    if (isHelp && /^(\*{3,}|-{3,}|_{3,})\s*$/.test(line.trim())) {
+    if ((isHelp || isPrivacy) && /^(\*{3,}|-{3,}|_{3,})\s*$/.test(line.trim())) {
       i++;
       continue;
     }

@@ -49,14 +49,15 @@ describe("digest-setup-gap-actions", () => {
     ]);
 
     expect(mapped[0]?.actionLabel).toBe("Create subscription");
-    expect(mapped[0]?.href).toBe("/digests?tab=subscriptions");
+    expect(mapped[0]?.href).toBe("/architecture/digests?tab=subscriptions");
     expect(mapped[1]?.actionLabel).toBe("Configure schedule");
-    expect(mapped[1]?.href).toBe("/digests?tab=schedule");
+    expect(mapped[1]?.href).toBe("/architecture/digests?tab=schedule");
   });
 
   it("resolves overall status kinds", () => {
     expect(resolveDigestOverallStatus(baseSnap()).kind).toBe("draft");
-    expect(resolveDigestOverallStatus(baseSnap()).label).toBe("Setup needed");
+    // One status vocabulary across the hub, Subscriptions, and Schedule tabs.
+    expect(resolveDigestOverallStatus(baseSnap()).label).toBe("Setup incomplete");
     expect(
       resolveDigestOverallStatus(
         baseSnap({

@@ -3,12 +3,13 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { useCallback, useEffect, useState, type ReactElement } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactElement } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
+import { DigestsBrowseHistorySkeleton } from "@/components/digests/DigestsBrowseHistorySkeleton";
 import { DigestsBrowseIncludesPreview } from "@/components/digests/DigestsBrowseIncludesPreview";
 import { DigestsBrowseSetupChecklist } from "@/components/digests/DigestsBrowseSetupChecklist";
 import {
@@ -21,12 +22,36 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { StatusTag } from "@/components/ui/status-tag";
-import { buildDigestSetupChecklistItems, formatDigestInstant } from "@/lib/digest-setup-gap-actions";
+import {
+  buildDigestSetupChecklistItems,
+  digestSetupHasIncompleteActionableStep,
+  formatDigestInstant,
+  type DigestSetupChecklistItem,
+} from "@/lib/digest-setup-gap-actions";
+import {
+  DIGEST_EXPORT_ACTION_LABEL,
+  DIGEST_DELIVERY_DIAGNOSTIC_NOTE,
+  buildDigestExportFile,
+  digestDeliveryAttemptHasDiagnostic,
+  digestDeliveryDiagnostics,
+  resolveDigestDeliveryAttemptStatus,
+  resolveDigestDeliveryStatus,
+  type DigestExportFile,
+} from "@/lib/digest-delivery-presentation";
+import {
+  DIGEST_COVERAGE_COLUMN_HEADER,
+  resolveDigestPeriodCoverage,
+  type DigestPeriodCoverage,
+} from "@/lib/digest-period-coverage";
 import {
   DIGESTS_BROWSE_EMPTY_DESCRIPTION,
   DIGESTS_BROWSE_EMPTY_TITLE,
+  DIGESTS_BROWSE_INCLUDES_SECTION_TITLE,
+  DIGESTS_BROWSE_LOADING_LABEL,
+  DIGESTS_BROWSE_SETUP_UNKNOWN_DESCRIPTION,
+  DIGESTS_BROWSE_SETUP_UNKNOWN_TITLE,
 } from "@/lib/digests-browse-copy";
-import type { EnterpriseStatusKind } from "@/lib/design-tokens";
+import { digestRowElementId, digestIdFromLocationHash } from "@/lib/digests-browse-deep-link";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
@@ -49,31 +74,6 @@ export type DigestsBrowseContentProps = {
   readonly healthSnap?: WeeklyDigestHealthDto | null;
 };
 
-function resolveDeliveryStatus(
-  attempts: readonly DigestDeliveryAttempt[],
-): { kind: EnterpriseStatusKind; label: string } {
-  if (attempts.length === 0) {
-    return { kind: "draft", label: "Not delivered" };
-  }
-
-  const hasFailure: boolean = attempts.some((a) => /fail|error/i.test(a.status));
-  const hasSuccess: boolean = attempts.some((a) => /success|delivered|sent|ok/i.test(a.status));
-
-  if (hasFailure && !hasSuccess) {
-    return { kind: "blocked", label: "Delivery failed" };
-  }
-
-  if (hasFailure && hasSuccess) {
-    return { kind: "needs-attention", label: "Partial delivery" };
-  }
-
-  if (hasSuccess) {
-    return { kind: "ready", label: "Delivered" };
-  }
-
-  return { kind: "in-progress", label: attempts[0]?.status ?? "Pending" };
-}
-
 function uniqueRecipients(attempts: readonly DigestDeliveryAttempt[]): string {
   const destinations: string[] = [
     ...new Set(
@@ -94,16 +94,22 @@ function uniqueRecipients(attempts: readonly DigestDeliveryAttempt[]): string {
   return `${destinations.slice(0, 2).join(", ")} +${destinations.length - 2}`;
 }
 
+/**
+ * Saves the digest body to disk. The anchor is attached to the document and the
+ * object URL is released on the next task so Firefox and Safari finish the
+ * download before the blob is revoked.
+ */
 function downloadDigestExport(digest: ArchitectureDigest): void {
-  const blob = new Blob([digest.contentMarkdown ?? ""], {
-    type: "text/plain;charset=utf-8",
-  });
+  const file: DigestExportFile = buildDigestExportFile(digest);
+  const blob = new Blob([file.contents], { type: file.mimeType });
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement("a");
   anchor.href = url;
-  anchor.download = `${digest.title.replace(/[^\w\-]+/g, "_").slice(0, 64) || "digest"}.txt`;
+  anchor.download = file.fileName;
+  document.body.appendChild(anchor);
   anchor.click();
-  URL.revokeObjectURL(url);
+  document.body.removeChild(anchor);
+  window.setTimeout(() => URL.revokeObjectURL(url), 0);
 }
 
 /**
@@ -115,9 +121,25 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
   const [selected, setSelected] = useState<ArchitectureDigest | null>(null);
   const [deliveryAttempts, setDeliveryAttempts] = useState<DigestDeliveryAttempt[]>([]);
   const [rowAttempts, setRowAttempts] = useState<Record<string, DigestDeliveryAttempt[]>>({});
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [previewOpen, setPreviewOpen] = useState(true);
+  const detailPanelRef = useRef<HTMLElement | null>(null);
+
+  const selectDigest = useCallback(async (digestId: string): Promise<void> => {
+    setFailure(null);
+
+    try {
+      const full = await getArchitectureDigest(digestId);
+      setSelected(full);
+      const attempts = await listDigestDeliveryAttempts(digestId);
+      setDeliveryAttempts(attempts);
+      setRowAttempts((prev) => ({ ...prev, [digestId]: attempts }));
+      setPreviewOpen(true);
+    } catch (e) {
+      setFailure(toApiLoadFailure(e));
+    }
+  }, []);
 
   const loadDigests = useCallback(async () => {
     setLoading(true);
@@ -125,11 +147,13 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
 
     try {
       const data = await listArchitectureDigests(40);
+
+      // Paint the history table before per-digest delivery rows resolve (TB-1502).
       setDigests(data);
       setSelected(null);
       setDeliveryAttempts([]);
+      setLoading(false);
 
-      // Prefetch delivery rows so the history table can show recipients and status without an extra click.
       const attemptEntries = await Promise.all(
         data.map(async (digest) => {
           try {
@@ -150,8 +174,8 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
     } catch (e) {
       setFailure(toApiLoadFailure(e));
       setRowAttempts({});
-    } finally {
       setLoading(false);
+    } finally {
       onLoaded?.();
     }
   }, [onLoaded]);
@@ -160,25 +184,46 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
     void loadDigests();
   }, [loadDigests, refreshToken]);
 
-  async function selectDigest(d: ArchitectureDigest): Promise<void> {
-    setFailure(null);
-
-    try {
-      const full = await getArchitectureDigest(d.digestId);
-      setSelected(full);
-      const attempts = await listDigestDeliveryAttempts(d.digestId);
-      setDeliveryAttempts(attempts);
-      setRowAttempts((prev) => ({ ...prev, [d.digestId]: attempts }));
-      setPreviewOpen(true);
-    } catch (e) {
-      setFailure(toApiLoadFailure(e));
+  /**
+   * Honors `/digests?tab=browse#digest-{id}` from the hub Preview action and
+   * schedule links (TB-1501). Re-runs on hashchange so repeat clicks re-select.
+   */
+  useEffect(() => {
+    if (digests.length === 0) {
+      return;
     }
-  }
 
-  const setupChecklist =
+    function selectFromHash(): void {
+      const hashDigestId: string | null = digestIdFromLocationHash(window.location.hash);
+
+      if (hashDigestId === null) {
+        return;
+      }
+
+      const match: ArchitectureDigest | undefined = digests.find(
+        (digest) => digest.digestId === hashDigestId,
+      );
+
+      if (match === undefined) {
+        return;
+      }
+
+      void selectDigest(match.digestId).then(() => {
+        detailPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
+
+    selectFromHash();
+    window.addEventListener("hashchange", selectFromHash);
+
+    return () => window.removeEventListener("hashchange", selectFromHash);
+  }, [digests, selectDigest]);
+
+  const setupChecklist: readonly DigestSetupChecklistItem[] | null =
     healthSnap !== null ? buildDigestSetupChecklistItems(healthSnap, digests.length > 0) : null;
   const setupIncomplete: boolean =
-    setupChecklist !== null ? setupChecklist.some((item) => !item.complete) : false;
+    setupChecklist !== null ? digestSetupHasIncompleteActionableStep(setupChecklist) : false;
+  const showEmptyComposition: boolean = !loading && digests.length === 0 && failure === null;
 
   return (
     <div className="w-full max-w-[1400px]" data-testid="digests-browse-content">
@@ -203,26 +248,38 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
         </div>
       ) : null}
 
-      {loading && digests.length === 0 && failure === null ? (
-        <p className={cn("mt-4 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>Loading digests…</p>
+      {loading && failure === null ? (
+        <>
+          <span className="sr-only">{DIGESTS_BROWSE_LOADING_LABEL}</span>
+          <DigestsBrowseHistorySkeleton />
+        </>
       ) : null}
 
-      {!loading && digests.length === 0 && failure === null ? (
-        <div className="mt-4 space-y-4" data-testid="digests-browse-empty-state">
-          {setupChecklist !== null && setupIncomplete ? (
+      {showEmptyComposition ? (
+        <div className="mt-4 space-y-3" data-testid="digests-browse-empty-state">
+          {setupChecklist !== null ? (
             <DigestsBrowseSetupChecklist items={setupChecklist} />
-          ) : null}
-          <DigestsBrowseIncludesPreview />
-          <EnterpriseCompactEmptyState
-            testId="digests-empty-state"
-            title={DIGESTS_BROWSE_EMPTY_TITLE}
-            description={DIGESTS_BROWSE_EMPTY_DESCRIPTION}
-          />
+          ) : (
+            <EnterpriseCompactEmptyState
+              testId="digests-empty-state"
+              title={DIGESTS_BROWSE_SETUP_UNKNOWN_TITLE}
+              description={DIGESTS_BROWSE_SETUP_UNKNOWN_DESCRIPTION}
+            />
+          )}
+          <CollapsibleSection
+            title={DIGESTS_BROWSE_INCLUDES_SECTION_TITLE}
+            defaultOpen={false}
+            sectionTestId="digests-browse-includes-disclosure"
+          >
+            <DigestsBrowseIncludesPreview />
+          </CollapsibleSection>
         </div>
       ) : null}
 
       {setupChecklist !== null && setupIncomplete && digests.length > 0 ? (
-        <DigestsBrowseSetupChecklist items={setupChecklist} />
+        <div className="mt-4">
+          <DigestsBrowseSetupChecklist items={setupChecklist} />
+        </div>
       ) : null}
 
       {digests.length > 0 ? (
@@ -235,7 +292,7 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
               <EnterpriseTableHead>
                 <EnterpriseTableHeadRow>
                   <EnterpriseTableHeaderCell>Digest</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Period</EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>{DIGEST_COVERAGE_COLUMN_HEADER}</EnterpriseTableHeaderCell>
                   <EnterpriseTableHeaderCell>Generated</EnterpriseTableHeaderCell>
                   <EnterpriseTableHeaderCell>Recipients</EnterpriseTableHeaderCell>
                   <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
@@ -245,11 +302,16 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
               <EnterpriseTableBody>
                 {digests.map((digest) => {
                   const attempts = rowAttempts[digest.digestId] ?? [];
-                  const status = resolveDeliveryStatus(attempts);
+                  const status = resolveDigestDeliveryStatus(attempts);
+                  const coverage: DigestPeriodCoverage = resolveDigestPeriodCoverage(digest);
                   const selectedRow = selected?.digestId === digest.digestId;
 
                   return (
-                    <EnterpriseTableRow key={digest.digestId} selected={selectedRow}>
+                    <EnterpriseTableRow
+                      key={digest.digestId}
+                      id={digestRowElementId(digest.digestId)}
+                      selected={selectedRow}
+                    >
                       <EnterpriseTableCell>
                         <button
                           type="button"
@@ -257,15 +319,20 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
                             "cursor-pointer text-left text-al-link underline-offset-2 hover:underline",
                             OPERATOR_TYPOGRAPHY.body,
                           )}
-                          onClick={() => void selectDigest(digest)}
+                          onClick={() => void selectDigest(digest.digestId)}
                         >
                           {digest.title}
                         </button>
                       </EnterpriseTableCell>
                       <EnterpriseTableCell>
-                        <span className={OPERATOR_TYPOGRAPHY.helper}>
-                          {digest.comparedToRunId ? "Compared period" : "Current period"}
-                        </span>
+                        <span className={cn("block", OPERATOR_TYPOGRAPHY.helper)}>{coverage.label}</span>
+                        {coverage.detail !== null ? (
+                          <span
+                            className={cn("block text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                          >
+                            {coverage.detail}
+                          </span>
+                        ) : null}
                       </EnterpriseTableCell>
                       <EnterpriseTableCell>
                         <span className={OPERATOR_TYPOGRAPHY.helper}>{formatDigestInstant(digest.generatedUtc)}</span>
@@ -277,7 +344,12 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
                         <StatusTag kind={status.kind} label={status.label} />
                       </EnterpriseTableCell>
                       <EnterpriseTableCell>
-                        <Button type="button" size="sm" variant="outline" onClick={() => void selectDigest(digest)}>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          onClick={() => void selectDigest(digest.digestId)}
+                        >
                           Open
                         </Button>
                       </EnterpriseTableCell>
@@ -291,6 +363,7 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
           <section
             className="min-w-0 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950"
             data-testid="digests-detail-panel"
+            ref={detailPanelRef}
           >
             {!selected ? (
               <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
@@ -316,11 +389,13 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
 
                 <div>
                   <h4 className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                    Included sections
+                    {DIGEST_COVERAGE_COLUMN_HEADER}
                   </h4>
                   <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                    Review activity, governance signals, findings, and advisory scan highlights when available for the
-                    period.
+                    {resolveDigestPeriodCoverage(selected).label}
+                    {resolveDigestPeriodCoverage(selected).detail !== null
+                      ? ` · ${resolveDigestPeriodCoverage(selected).detail}`
+                      : ""}
                   </p>
                 </div>
 
@@ -345,17 +420,23 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
                   </h4>
                   <div className="mt-1">
                     <StatusTag
-                      kind={resolveDeliveryStatus(deliveryAttempts).kind}
-                      label={resolveDeliveryStatus(deliveryAttempts).label}
+                      kind={resolveDigestDeliveryStatus(deliveryAttempts).kind}
+                      label={resolveDigestDeliveryStatus(deliveryAttempts).label}
                     />
                   </div>
                   {deliveryAttempts.length > 0 ? (
-                    <ul className={cn("m-0 mt-2 list-disc space-y-1 pl-5 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
+                    <ul
+                      className={cn("m-0 mt-2 list-disc space-y-1 pl-5 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}
+                      data-testid="digests-delivery-attempts"
+                    >
                       {deliveryAttempts.map((a) => (
                         <li key={a.attemptId}>
-                          {a.status} · {a.channelType} · {formatDigestInstant(a.attemptedUtc)}
-                          {a.errorMessage ? (
-                            <span className="text-rose-700 dark:text-rose-300"> — {a.errorMessage}</span>
+                          {resolveDigestDeliveryAttemptStatus(a).label} · {a.channelType} ·{" "}
+                          {formatDigestInstant(a.attemptedUtc)}
+                          {digestDeliveryAttemptHasDiagnostic(a) ? (
+                            <span className="block text-al-text-secondary">
+                              {DIGEST_DELIVERY_DIAGNOSTIC_NOTE}
+                            </span>
                           ) : null}
                         </li>
                       ))}
@@ -370,6 +451,7 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
                     variant="secondary"
                     onClick={() => setPreviewOpen((open) => !open)}
                     data-testid="digests-preview-toggle"
+                    aria-expanded={previewOpen}
                   >
                     {previewOpen ? "Hide preview" : "Preview"}
                   </Button>
@@ -380,7 +462,7 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
                     onClick={() => downloadDigestExport(selected)}
                     data-testid="digests-download-export"
                   >
-                    Download / export
+                    {DIGEST_EXPORT_ACTION_LABEL}
                   </Button>
                 </div>
 
@@ -410,6 +492,16 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
                       <div>
                         <dt className="font-medium text-al-text-primary">Compared to</dt>
                         <dd className="m-0 font-mono">{selected.comparedToRunId}</dd>
+                      </div>
+                    ) : null}
+                    {digestDeliveryDiagnostics(deliveryAttempts).length > 0 ? (
+                      <div data-testid="digests-delivery-diagnostics">
+                        <dt className="font-medium text-al-text-primary">Delivery diagnostics</dt>
+                        {digestDeliveryDiagnostics(deliveryAttempts).map((line) => (
+                          <dd key={line} className="m-0 font-mono break-words">
+                            {line}
+                          </dd>
+                        ))}
                       </div>
                     ) : null}
                   </dl>

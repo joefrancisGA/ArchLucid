@@ -75,7 +75,7 @@ describe("buyerPolishedRouteOrientation", () => {
   });
 
   it("returns null for risk exceptions — the page carries its own governance banner", () => {
-    expect(buyerPolishedRouteOrientation("/governance/risk-exceptions")).toBeNull();
+    expect(buyerPolishedRouteOrientation("/governance/exceptions")).toBeNull();
   });
 
   it("returns null for policy packs — the page carries its own policy-pack basis banner", () => {
@@ -133,7 +133,7 @@ describe("buyerPolishedRouteOrientation", () => {
   });
 
   it("orients the operator security-trust route for procurement reviewers", () => {
-    const canonical = buyerPolishedRouteOrientation("/administration/settings/security-trust");
+    const canonical = buyerPolishedRouteOrientation("/administration/security-trust");
     const legacy = buyerPolishedRouteOrientation("/workspace/security-trust");
 
     expect(canonical?.label).toBe("Security & trust");

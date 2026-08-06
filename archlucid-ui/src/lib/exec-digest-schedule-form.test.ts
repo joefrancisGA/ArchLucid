@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   computeExecDigestNextSendInstant,
+  execDigestFormFromPreferencesWithBrowserDefault,
   formatExecDigestConfiguredCadenceSentence,
   formatExecDigestLiveScheduleSummary,
   formatExecDigestNextSendPreview,
@@ -66,6 +67,20 @@ describe("exec-digest-schedule-form", () => {
         dayOfWeek: 1,
         hourOfDay: 8,
       }),
+    ).toBe(true);
+  });
+
+  /**
+   * A never-configured tenant is seeded with the browser zone rather than the API's
+   * UTC default. That seeding must not surface as an operator edit on first paint.
+   */
+  it("does not report unsaved changes for the seeded browser-zone default", () => {
+    const saved = prefs({ isConfigured: false, ianaTimeZoneId: "UTC", recipientEmails: [] });
+    const seeded = execDigestFormFromPreferencesWithBrowserDefault(saved);
+
+    expect(hasUnsavedExecDigestChanges(saved, seeded)).toBe(false);
+    expect(
+      hasUnsavedExecDigestChanges(saved, { ...seeded, ianaTimeZoneId: "Asia/Tokyo" }),
     ).toBe(true);
   });
 

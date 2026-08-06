@@ -1,0 +1,24 @@
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
+
+export const PILOT_ROI_MODEL_HELP_CANONICAL_PATH = "/help/pilot-roi-model" as const;
+
+export const PILOT_ROI_MODEL_HELP_CLAIM_DISCIPLINE =
+  "This pilot ROI model guide is operator orientation for how sponsor ROI figures are labeled and sourced - it is not a signed-review diligence Sources package, financial reporting, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Architecture scorecard, ROI summary, or Baseline when you need live packages or workspace numbers.";
+
+export const PILOT_ROI_MODEL_HELP_SOURCES_INTRO =
+  "Use these follow-ups when ROI methodology turns into scorecard numbers, baseline capture, or sponsor outcomes.";
+
+export type PilotRoiModelHelpSourceLink = {
+  readonly label: string;
+  readonly href: string;
+};
+
+/** Operator Sources - no self-href to `/help/pilot-roi-model`. */
+export const PILOT_ROI_MODEL_HELP_SOURCES: readonly PilotRoiModelHelpSourceLink[] = [
+  { label: "Architecture scorecard", href: "/insights/architecture-scorecard" },
+  { label: "ROI summary", href: "/sponsor-report/roi-summary" },
+  { label: "Pilot outcomes", href: "/sponsor-report/pilot-outcomes" },
+  { label: "Workspace baseline", href: "/administration/baseline" },
+  { label: "Pilot guide", href: inAppHelpHref("pilot-guide") },
+  { label: "Executive summary help", href: inAppHelpHref("executive-summary") },
+] as const;

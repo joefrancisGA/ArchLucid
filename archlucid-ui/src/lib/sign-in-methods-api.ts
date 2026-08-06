@@ -1,4 +1,9 @@
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import {
+  SignInMethodsApiError,
+  classifySignInMethodsHttpFailure,
+  classifySignInMethodsUnknownFailure,
+} from "@/lib/sign-in-methods-problem";
 
 export type SignInMethodSummary = {
   identityId: string;
@@ -32,11 +37,18 @@ async function signInMethodsFetch<T>(path: string, init?: RequestInit): Promise<
     ...init,
   });
 
-  const response = await fetch(path, opts);
+  let response: Response;
+
+  try {
+    response = await fetch(path, opts);
+  } catch (error) {
+    throw new SignInMethodsApiError(classifySignInMethodsUnknownFailure(error));
+  }
 
   if (!response.ok) {
     const text = await response.text();
-    throw new Error(text || `Sign-in methods request failed (HTTP ${response.status}).`);
+    const contentType = response.headers.get("content-type");
+    throw new SignInMethodsApiError(classifySignInMethodsHttpFailure(response.status, text, contentType));
   }
 
   if (response.status === 204) {

@@ -182,7 +182,7 @@ export default function RiskExceptionsClient() {
       {buyerPolishedShell ? (
         <GovernanceApprovalStatusBanner className="mb-3" />
       ) : (
-        <LayerHeader pageKey="risk-exceptions" density="compact" className="mb-3" />
+        <LayerHeader pageKey="exceptions" density="compact" className="mb-3" />
       )}
 
       <OperatorPageHeader title={pageTitle} subtitle={pageSubtitle} />

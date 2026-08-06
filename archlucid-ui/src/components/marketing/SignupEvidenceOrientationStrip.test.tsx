@@ -5,15 +5,19 @@ import { SignupEvidenceOrientationStrip } from "@/components/marketing/SignupEvi
 import { SIGNUP_CANONICAL_PATH, SIGNUP_SOURCES } from "@/lib/signup-evidence-copy";
 
 describe("SignupEvidenceOrientationStrip", () => {
-  it("lists evaluation Sources without self-linking signup", () => {
+  it("lists a lean Related set without duplicating sample/security or self-linking signup", () => {
     render(<SignupEvidenceOrientationStrip />);
 
-    expect(screen.getByTestId("signup-sources")).toBeInTheDocument();
     expect(screen.getByTestId("signup-claim-discipline")).toHaveTextContent(
-      /Evaluation access|CPA SOC 2|third-party pen/i,
+      /What this page covers|CPA SOC 2|third-party pen|Trust Center/i,
     );
 
     const sources = screen.getByTestId("signup-sources");
+
+    expect(sources).toHaveTextContent(/Related/i);
+    expect(SIGNUP_SOURCES).toHaveLength(3);
+    expect(within(sources).queryByRole("link", { name: /See a sample review/i })).not.toBeInTheDocument();
+    expect(within(sources).queryByRole("link", { name: /Security/i })).not.toBeInTheDocument();
 
     for (const link of SIGNUP_SOURCES) {
       expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);

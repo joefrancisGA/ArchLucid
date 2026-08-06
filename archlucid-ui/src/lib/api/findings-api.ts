@@ -4,6 +4,7 @@ import type {
   FindingLlmAudit,
 } from "@/types/explanation";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
+import { mapFindingInspectApiPayload } from "@/lib/finding-inspect-payload-map";
 import {
   apiGet,
   apiPostJson,
@@ -30,8 +31,10 @@ export async function getFindingInspect(
   const includeTypedPayload = options?.includeTypedPayload ?? true;
   const query = includeTypedPayload ? "" : "?includeTypedPayload=false";
 
-  return apiGet<FindingInspectPayload>(
-    `/v1/architecture/run/${encodeURIComponent(runId)}/findings/${encodeURIComponent(findingId)}/inspect${query}`,
+  return mapFindingInspectApiPayload(
+    await apiGet<Record<string, unknown>>(
+      `/v1/architecture/run/${encodeURIComponent(runId)}/findings/${encodeURIComponent(findingId)}/inspect${query}`,
+    ),
   );
 }
 

@@ -11,7 +11,7 @@ describe("usability lib", () => {
     expect(pageHelpTopicForPathname("/architecture/reviews/new")?.slug).toBe("evidence-intake");
     expect(pageHelpTopicForPathname("/alerts")?.slug).toBe("alerts");
     expect(pageHelpTopicForPathname("/alert-rules")?.slug).toBe("alerts");
-    expect(pageHelpTopicForPathname("/governance/dashboard")?.slug).toBe("getting-started");
+    expect(pageHelpTopicForPathname("/governance/dashboard")?.slug).toBeUndefined();
     expect(pageHelpTopicForPathname("/governance/dashboard")?.label).toBe("Workspace overview");
     expect(pageHelpTopicForPathname("/governance/alerts")?.slug).toBe("alerts");
     expect(pageHelpTopicForPathname("/governance/alert-rules")?.slug).toBe("alerts");
@@ -23,21 +23,29 @@ describe("usability lib", () => {
     expect(pageHelpTopicForPathname("/architecture/architectures")?.slug).toBe("getting-started");
     expect(pageHelpTopicForPathname("/architecture/architectures")?.label).toBe("Getting started");
     expect(pageHelpTopicForPathname("/architecture/architectures/draft-id-123")?.slug).toBe("getting-started");
-    expect(pageHelpTopicForPathname("/digests")?.slug).toBe("getting-started");
-    expect(pageHelpTopicForPathname("/insights/planning")?.slug).toBe("getting-started");
-    expect(pageHelpTopicForPathname("/administration/settings/billing")?.slug).toBe("billing-and-plans");
-    expect(pageHelpTopicForPathname("/administration/settings/billing")?.label).toBe("Billing and plans");
+    expect(pageHelpTopicForPathname("/architecture/digests")?.slug).toBe("digests");
+    expect(pageHelpTopicForPathname("/architecture/digests")?.label).toBe("Architecture digests");
+    expect(pageHelpTopicForPathname("/digests")?.slug).toBe("digests");
+    expect(pageHelpTopicForPathname("/help/digests")?.slug).toBe("digests");
+    expect(pageHelpTopicForPathname("/insights/planning")?.slug).toBeUndefined();
+    expect(pageHelpTopicForPathname("/insights/planning")?.label).toBe("Improvement planning");
+    expect(pageHelpTopicForPathname("/administration/billing")?.slug).toBe("billing-and-plans");
+    expect(pageHelpTopicForPathname("/administration/billing")?.label).toBe("Billing and plans");
     expect(pageHelpTopicForPathname("/help/billing-and-plans")?.slug).toBe("billing-and-plans");
     expect(pageHelpTopicForPathname("/help/billing-and-plans")?.label).toBe("Billing and plans");
     expect(pageHelpTopicForPathname("/help/repeat-review-loop")?.slug).toBe("repeat-review-loop");
     expect(pageHelpTopicForPathname("/help/repeat-review-loop")?.label).toBe("Repeat-review loop");
     expect(pageHelpTopicForPathname("/help/audit-trail")?.slug).toBe("audit-trail");
     expect(pageHelpTopicForPathname("/help/audit-trail")?.label).toBe("Audit trail");
-    expect(pageHelpTopicForPathname("/insights/impact-preview")?.slug).toBe("getting-started");
+    expect(pageHelpTopicForPathname("/insights/impact-preview")?.slug).toBeUndefined();
     expect(pageHelpTopicForPathname("/insights/impact-preview")?.label).toBe("Impact preview");
-    expect(pageHelpTopicForPathname("/governance/advisory-scans")?.slug).toBe("getting-started");
+    expect(pageHelpTopicForPathname("/governance/advisory-scans")?.slug).toBeUndefined();
+    expect(pageHelpTopicForPathname("/governance/advisory-scans")?.label).toBe("Advisory scans");
+    expect(pageHelpTopicForPathname("/governance/decision-register")?.slug).toBeUndefined();
+    expect(pageHelpTopicForPathname("/administration/tenant")?.slug).toBe("scope");
+    expect(pageHelpTopicForPathname("/internal-operations/recommendation-learning")?.slug).toBe("pilot-feedback");
     expect(pageHelpTopicForPathname("/architecture/reviews/run-1/artifacts/cost-summary")?.slug).toBe("review-artifacts");
-    expect(pageHelpTopicForPathname("/signed-records/manifest-1/artifacts/cost-summary")?.slug).toBe(
+    expect(pageHelpTopicForPathname("/governance/signed-records/manifest-1/artifacts/cost-summary")?.slug).toBe(
       "review-artifacts",
     );
     expect(pageHelpTopicForPathname("/sponsor-report/roi-summary")?.slug).toBe("pilot-roi-model");

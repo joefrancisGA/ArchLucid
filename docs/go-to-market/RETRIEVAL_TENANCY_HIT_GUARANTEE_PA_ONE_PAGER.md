@@ -6,6 +6,7 @@
 
 **Last reviewed:** 2026-07-29
 
-**Canonical handout:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md#retrieval-tenancy-hit-guarantee-m-153`](BUYER_SECURITY_PROCUREMENT_PACKET.md#retrieval-tenancy-hit-guarantee-m-153).
+**Canonical handout:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md#retrieval-tenancy-hit-guarantee-m-153`](BUYER_SECURITY_PROCUREMENT_PACKET.md#retrieval-tenancy-hit-guarantee-m-153).  
+**Engineering SoT:** [`../library/RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md`](../library/RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md) (**TB-1001** Done).
 
-Control path, reviewer checks, claim boundary, and residuals live only in the buyer security procurement packet. This file keeps the historical path stable for GTM **M-153** and [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+Control path, reviewer checks, and claim boundary live in the buyer security procurement packet; the engineering matrix is the contributor SoT. This file keeps the historical path stable for GTM **M-153** and [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).

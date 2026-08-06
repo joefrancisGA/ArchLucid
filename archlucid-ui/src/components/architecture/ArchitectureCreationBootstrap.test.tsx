@@ -151,15 +151,22 @@ describe("ArchitectureCreationBootstrap", () => {
 
   it("retains existing drafts when start-new fails", async () => {
     listArchitectureDraftRegistryEntries.mockReturnValue([draftEntry()]);
-    initializeArchitectureCreation.mockResolvedValue({ draftId: null });
+    initializeArchitectureCreation.mockResolvedValue({
+      draftId: null,
+      failureDetail: "Could not start a new architecture draft. Try again.\nHTTP 401\nCorrelation ID: corr-test",
+    });
 
     render(<ArchitectureCreationBootstrap />);
 
     fireEvent.click(await screen.findByTestId("architecture-creation-start-new"));
 
-    expect(await screen.findByTestId("architecture-creation-bootstrap-error")).toBeInTheDocument();
+    const errorBanner = await screen.findByTestId("architecture-creation-bootstrap-error");
+    expect(errorBanner).toHaveTextContent("HTTP 401");
+    expect(errorBanner).toHaveTextContent("Correlation ID: corr-test");
+    expect(errorBanner.className).toMatch(/bg-red-50/);
     expect(screen.getByTestId("architecture-creation-bootstrap-resume-choice")).toBeInTheDocument();
     expect(screen.getByText("Claims intake draft")).toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-creation-retry")).not.toBeInTheDocument();
     expect(replace).not.toHaveBeenCalled();
   });
 
@@ -201,6 +208,9 @@ describe("ArchitectureCreationBootstrap", () => {
 
     expect(screen.getByTestId("architecture-creation-bootstrap-error")).toHaveTextContent(
       CREATE_ARCHITECTURE_DRAFT_START_FAILED_MESSAGE,
+    );
+    expect(screen.getByTestId("architecture-creation-bootstrap-error")).toHaveTextContent(
+      "Timed out after 45 seconds waiting for the API.",
     );
     expect(screen.getByTestId("architecture-creation-bootstrap-ready")).toBeInTheDocument();
     expect(replace).not.toHaveBeenCalled();

@@ -203,12 +203,13 @@ Done **TB-071** builds required filters and Done **TB-604** rejects scope-mismat
 
 ### Residuals (honest)
 
+Engineering SoT: [`RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md`](../library/RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md) (**TB-1001** Done). Query filter (**TB-071**), upsert validation (**TB-604**), and scoped Graph-RAG expand are implemented; platform `Guid.Empty` corpus is intentional shared content. Follow-on claim CI: **TB-1002**. DiD erosion / wrong-scope upstream: **M-213** / **TB-1232**. Complements Layer A catalogs and INV-001; does not claim a per-tenant Search service or cryptographic isolation.
+
 | Open work | Purpose |
 | --- | --- |
-| **TB-1001** | PA query/upsert/graph/shared-corpus guarantee matrix |
-| **TB-1002** | Claim-drift regression guard |
+| **TB-1002** | Claim-drift regression guard (anti per-tenant-index / filter-optional) |
 
-**Related:** [`../security/ASK_RAG_THREAT_MODEL.md`](../security/ASK_RAG_THREAT_MODEL.md) · [`../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md) · [ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md) · [Isolation claims (M-195)](#isolation-claims-vs-inv001-adr0037-m-195) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+**Related:** [`../library/RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md`](../library/RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md) · [`../security/ASK_RAG_THREAT_MODEL.md`](../security/ASK_RAG_THREAT_MODEL.md) · [`../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md) · [ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md) · [Isolation claims (M-195)](#isolation-claims-vs-inv001-adr0037-m-195) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## Prompt-injection resistance (M-115) {#prompt-injection-resistance-m-115}
 
@@ -464,10 +465,13 @@ Do not say “every policy pack blocks finalize,” “SoD requires a different 
 
 ### Residuals (honest)
 
-- **TB-1022** supplies the block-vs-advisory matrix and lifecycle order.
-- **TB-1023** guards governance claim drift.
+Engineering SoT: [`PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md`](../library/PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md) (**TB-1022** Done). Block vs advisory vs SoD ownership and lifecycle order are published. Follow-on claim CI: **TB-1023**. Deep dive: [`../library/PRE_COMMIT_GOVERNANCE_GATE.md`](../library/PRE_COMMIT_GOVERNANCE_GATE.md). Does not claim packs are certifications or that the gate is always on.
 
-**Related:** [Finding disposition concurrency (M-141)](#finding-disposition-concurrency-m-141) · [Security reviewer audit trail (M-118)](#security-reviewer-audit-trail-m-118) · [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) · [Policy-pack evaluation hybrid (M-236)](#policy-pack-evaluation-hybrid-m-236) · [`../library/PRE_COMMIT_GOVERNANCE_GATE.md`](../library/PRE_COMMIT_GOVERNANCE_GATE.md) · [ADR 0034 (SoD actor keys)](../architecture/adrs/0034-segregation-of-duties-entra-oid-actor-keys.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+| Open work | Purpose |
+| --- | --- |
+| **TB-1023** | Anti-pack-equals-certification / priorityFloor-blocks / SoD-on-commit claim-drift guard |
+
+**Related:** [Finding disposition concurrency (M-141)](#finding-disposition-concurrency-m-141) · [Security reviewer audit trail (M-118)](#security-reviewer-audit-trail-m-118) · [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) · [Policy-pack evaluation hybrid (M-236)](#policy-pack-evaluation-hybrid-m-236) · [`../library/PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md`](../library/PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md) · [`../library/PRE_COMMIT_GOVERNANCE_GATE.md`](../library/PRE_COMMIT_GOVERNANCE_GATE.md) · [ADR 0034 (SoD actor keys)](../architecture/adrs/0034-segregation-of-duties-entra-oid-actor-keys.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## Policy-pack evaluation — compiled vs data plane (M-236) {#policy-pack-evaluation-hybrid-m-236}
 
@@ -558,10 +562,13 @@ The presence of a mutable field does not invalidate an append-only event trail. 
 
 ### Residuals (honest)
 
-- **TB-1009** defines the append-only versus mutable matrix and destructive-update analysis.
-- **TB-1010** adds language regression coverage.
+Engineering SoT: [`APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md`](../library/APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md) (**TB-1009** Done). Append-only / sealed vs mutable inventory and Update-destruction matrix are published with **enforcement tiers** (SQL DENY + registry for sealed evidence/audit; repository-shape append for `FindingReviewEvents`). Follow-on claim CI: **TB-1010**. Deep dive: [`../library/EVIDENCE_IMMUTABILITY.md`](../library/EVIDENCE_IMMUTABILITY.md). Does not claim platform WORM (ADR 0040).
 
-**Related:** [Security reviewer audit trail (M-118)](#security-reviewer-audit-trail-m-118) · [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) · [Comparison/replay snapshot (M-175)](#comparison-replay-immutable-snapshot-m-175) · [Authority vs AgentTask loop (M-159)](#authority-vs-agenttask-loop-m-159) · [ADR 0039](../architecture/adrs/0039-commit-sealed-evidence-immutability.md) · [ADR 0040](../architecture/adrs/0040-tamper-evident-lineage-without-worm-storage.md) · [`../library/EVIDENCE_IMMUTABILITY.md`](../library/EVIDENCE_IMMUTABILITY.md) · [`../library/AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+| Open work | Purpose |
+| --- | --- |
+| **TB-1010** | Anti-editable-audit / in-place-seal-rewrite / platform-WORM claim-drift guard |
+
+**Related:** [Security reviewer audit trail (M-118)](#security-reviewer-audit-trail-m-118) · [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) · [Comparison/replay snapshot (M-175)](#comparison-replay-immutable-snapshot-m-175) · [Authority vs AgentTask loop (M-159)](#authority-vs-agenttask-loop-m-159) · [ADR 0039](../architecture/adrs/0039-commit-sealed-evidence-immutability.md) · [ADR 0040](../architecture/adrs/0040-tamper-evident-lineage-without-worm-storage.md) · [`../library/APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md`](../library/APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md) · [`../library/EVIDENCE_IMMUTABILITY.md`](../library/EVIDENCE_IMMUTABILITY.md) · [`../library/AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## Authority pipeline versus AgentTask loop (M-159) {#authority-vs-agenttask-loop-m-159}
 
@@ -587,7 +594,7 @@ Dual coordinator storage and orchestrators were retired through ADR 0030. The cu
 | Trial / QuickStart or selective re-execute | Yes | Task state permits it |
 | Finish a finalized Authority run | No | Already finalized |
 | Async queued run without context snapshot | No | Do not force task-loop completion |
-| `result` outside generated/waiting states | No | Invalid lifecycle |
+| `result` outside generated/waiting/partial-recovery states | No | Invalid lifecycle |
 
 ### Reviewer check
 
@@ -606,11 +613,13 @@ Dual coordinator storage and orchestrators were retired through ADR 0030. The cu
 
 ### Residuals (honest)
 
-- **TB-1007** supplies the canonical-versus-task-loop forbid matrix.
-- **TB-1008** guards against dual-pipeline and forced-execute claim drift.
-- Next strangler slice language: [M-185](#strangler-next-slice-result-sunset-m-185) / **TB-1034**.
+Engineering SoT: [`AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md`](../library/AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md) (**TB-1007** Done). Authority is product-default; AgentTask verbs are an intentional extension loop, not a second storage pipeline. Follow-on claim CI: **TB-1008**. Next strangler slice language: [M-185](#strangler-next-slice-result-sunset-m-185) / **TB-1034**. Soft-bridge retirement: **TB-1204**. Does not reopen Done **TB-305**/**TB-919**.
 
-**Related:** [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) · [Strangler next slice (M-185)](#strangler-next-slice-result-sunset-m-185) · [Transactional finalize vs outbox (M-163)](#transactional-finalize-vs-outbox-m-163) · [ADR 0030](../architecture/adrs/0030-coordinator-authority-pipeline-unification.md) · [ADR 0042](../architecture/adrs/0042-canonical-run-write-surface.md) · [`../library/API_CONTRACTS.md`](../library/API_CONTRACTS.md) · [`../library/ARCHITECTURE_FLOWS.md`](../library/ARCHITECTURE_FLOWS.md) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+| Open work | Purpose |
+| --- | --- |
+| **TB-1008** | Anti-always-execute / dual-pipeline-alive claim-drift guard |
+
+**Related:** [`../library/AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md`](../library/AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md) · [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) · [Strangler next slice (M-185)](#strangler-next-slice-result-sunset-m-185) · [Transactional finalize vs outbox (M-163)](#transactional-finalize-vs-outbox-m-163) · [ADR 0030](../architecture/adrs/0030-coordinator-authority-pipeline-unification.md) · [ADR 0042](../architecture/adrs/0042-canonical-run-write-surface.md) · [`../library/API_CONTRACTS.md`](../library/API_CONTRACTS.md) · [`../library/ARCHITECTURE_FLOWS.md`](../library/ARCHITECTURE_FLOWS.md) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## Transactional finalize versus async outbox (M-163) {#transactional-finalize-vs-outbox-m-163}
 
@@ -637,10 +646,10 @@ Use the committed manifest to establish the architecture-package record. Use del
 
 | Class | Examples |
 | --- | --- |
-| Never silent best-effort | Sealed package commit; Required audit (INV-003 / **TB-953**); outbox **enqueue** for commit-tied work; tenant isolation / hard budget |
-| Disclosed best-effort OK | Informational audit; metering secondary writes; cache/metrics; actual delivery lag (at-least-once — **TB-992**) |
+| Never silent best-effort | Sealed package commit; Required audit where classified (INV-003 / **TB-953**); **retrieval** outbox enqueue with commit (ADR 0004); tenant isolation / hard budget |
+| Disclosed best-effort OK | Informational audit; metering secondary writes; cache/metrics; actual delivery lag (at-least-once — **TB-992**); integration-event enqueue via `TryPublishOrEnqueue` fail-open residual (see engineering SoT §6) |
 
-Transactional finalize (same UoW / ADR 0004 / `AuthorityCommittedPipelineFinalizer`) owns committed golden manifest, sealed evidence, run anchors, and **enqueue** of retrieval/integration outbox rows. Outbox/async workers own Search indexing, SB/webhook delivery, Cosmos/export-blob push, and post-commit projections.
+Transactional finalize (same UoW / ADR 0004 / `AuthorityCommittedPipelineFinalizer`) owns committed golden manifest, sealed evidence, run anchors, and **retrieval** outbox enqueue. Integration fan-out enqueue is preferred-but-see-residual. Outbox/async workers own Search indexing, SB/webhook delivery, Cosmos/export-blob push, and post-commit projections.
 
 ### PA review
 
@@ -655,11 +664,13 @@ Do not say “committed means delivered,” “Required audit means all audit si
 
 ### Residuals (honest)
 
-- **TB-1011** defines the finalize vs outbox + never-silent-best-effort matrix.
-- **TB-1012** adds anti-committed-equals-indexed / all-audit-transactional honesty CI.
-- Does not turn asynchronous delivery into a synchronous guarantee; does not claim DTF exactly-once (**TB-924**).
+Engineering SoT: [`TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md`](../library/TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md) (**TB-1011** Done). Finalize UoW vs outbox/async split and never-silent vs disclosed best-effort matrix are published (including Authority vs AgentTask audit-path and integration `Try*` enqueue residuals). Follow-on claim CI: **TB-1012**. Does not turn asynchronous delivery into a synchronous guarantee; does not claim DTF exactly-once (**TB-924**).
 
-**Related:** [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) · [Append-only / sealed evidence (M-161)](#append-only-sealed-evidence-m-161) · [Outbox replay vs idempotency (M-145)](#outbox-replay-vs-idempotency-m-145) · [Read-after-write client readiness (M-165)](#read-after-write-client-m-165) · [Security reviewer audit trail (M-118)](#security-reviewer-audit-trail-m-118) · [Authority vs AgentTask loop (M-159)](#authority-vs-agenttask-loop-m-159) · [ADR 0004](../architecture/adrs/0004-transactional-outbox-retrieval-indexing.md) · [`../library/DATA_CONSISTENCY_MATRIX.md`](../library/DATA_CONSISTENCY_MATRIX.md) · [`../library/ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md`](../library/ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md) · [`../library/AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+| Open work | Purpose |
+| --- | --- |
+| **TB-1012** | Anti-committed-equals-indexed / all-audit-transactional claim-drift guard |
+
+**Related:** [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) · [Append-only / sealed evidence (M-161)](#append-only-sealed-evidence-m-161) · [Outbox replay vs idempotency (M-145)](#outbox-replay-vs-idempotency-m-145) · [Read-after-write client readiness (M-165)](#read-after-write-client-m-165) · [Security reviewer audit trail (M-118)](#security-reviewer-audit-trail-m-118) · [Authority vs AgentTask loop (M-159)](#authority-vs-agenttask-loop-m-159) · [ADR 0004](../architecture/adrs/0004-transactional-outbox-retrieval-indexing.md) · [`../library/TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md`](../library/TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md) · [`../library/DATA_CONSISTENCY_MATRIX.md`](../library/DATA_CONSISTENCY_MATRIX.md) · [`../library/ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md`](../library/ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md) · [`../library/AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## Transactional outbox — replay versus idempotency (M-145) {#outbox-replay-vs-idempotency-m-145}
 
@@ -862,10 +873,13 @@ Evidence, findings, manifest, artifacts, and audit events each have a role. A ne
 
 ### Residuals (honest)
 
-- **TB-1003** defines the single-unit-of-truth and hop-label contract.
-- **TB-1004** prevents “findings equal package” and uncommitted-finalized claim drift.
+Engineering SoT: [`COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md`](../library/COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md) (**TB-1003** Done). Commit path, `ManifestHash`, and proof-language taxonomy are implemented; hop-skip surfaces must use honest labels. Follow-on claim CI: **TB-1004**. Sealed evidence inventory: **TB-1009** Done ([`APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md`](../library/APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md)). Decision-grade finding provenance: **TB-1221**. Does not claim WORM or PKI beyond app-layer hash lineage.
 
-**Related:** [`../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md) · [ADR 0040](../architecture/adrs/0040-tamper-evident-lineage-without-worm-storage.md) · [`../library/AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md) · [Operator primary object (M-177)](#operator-primary-object-nav-collapse-m-177) · [Minimum pilot trust packet (M-191)](#minimum-pilot-trust-packet-m-191) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+| Open work | Purpose |
+| --- | --- |
+| **TB-1004** | Anti-substitute / fake-chain-hop claim-drift guard |
+
+**Related:** [`../library/COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md`](../library/COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md) · [`../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md) · [ADR 0040](../architecture/adrs/0040-tamper-evident-lineage-without-worm-storage.md) · [`../library/AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md) · [Operator primary object (M-177)](#operator-primary-object-nav-collapse-m-177) · [Minimum pilot trust packet (M-191)](#minimum-pilot-trust-packet-m-191) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## Operator primary object and navigation collapse (M-177) {#operator-primary-object-nav-collapse-m-177}
 
@@ -905,11 +919,13 @@ Canonical operator spine: `/reviews` and `/reviews/{runId}` package context. `/g
 
 ### Residuals (honest)
 
-- **TB-1026** inventories nav-collapse surfaces.
-- **TB-1027** aligns positioning and glossary pointers.
-- Full vocab rewrite is out of scope.
+Engineering SoT: [`OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md`](../library/OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md) (**TB-1026** Done). Primary-object hierarchy, canonical `/reviews` spine, and collapse surfaces are published. Follow-on claim CI: **TB-1027**. Full vocab rewrite is out of scope.
 
-**Related:** [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) · [`UI_GLOSSARY_V1.md`](UI_GLOSSARY_V1.md) · [`POSITIONING.md#create-vs-review--adversarial-evaluation-closed`](POSITIONING.md#create-vs-review--adversarial-evaluation-closed) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+| Open work | Purpose |
+| --- | --- |
+| **TB-1027** | Anti-finding-as-primary / dual-product-create-review claim-drift guard |
+
+**Related:** [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) · [`../library/OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md`](../library/OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md) · [`UI_GLOSSARY_V1.md`](UI_GLOSSARY_V1.md) · [`POSITIONING.md#create-vs-review--adversarial-evaluation-closed`](POSITIONING.md#create-vs-review--adversarial-evaluation-closed) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## SOC 2 / pen-test — honest procurement talk-track (M-197) {#soc2-pentest-honest-talk-track-m-197}
 
@@ -2171,7 +2187,7 @@ Former standalone body: `docs/go-to-market/INV001_DECIDE_ONCE_COMMITTED_MANIFEST
 
 **Audience:** Principal architects and procurement reviewers who fuse tenant, decide, and commit stories.
 
-**Decision:** Keep three vocabularies separate. Committed golden manifest proves **finalization identity + hash lineage**, not semantic faithfulness, zero AgentTask overlay, or crypto tenant isolation. Tenant single-derivation matrix (**TB-999**) is shipped; do not sell the triad as closed while **TB-1003** (and named residual owners) remain Not started, or while honesty CI (**TB-1000**) / DiD erosion (**TB-1232**) remain open.
+**Decision:** Keep three vocabularies separate. Committed golden manifest proves **finalization identity + hash lineage**, not semantic faithfulness, zero AgentTask overlay, or crypto tenant isolation. Tenant single-derivation (**TB-999**) and committed-manifest unit-of-truth (**TB-1003**) matrices are shipped; do not sell the triad as closed while honesty CI (**TB-1000** / **TB-1004**) / DiD erosion (**TB-1232**) / fused triad matrix (**TB-1416**) remain open.
 
 ### Vocabulary (do not fuse)
 
@@ -2200,7 +2216,7 @@ Former standalone body: `docs/go-to-market/INV001_DECIDE_ONCE_COMMITTED_MANIFEST
 
 1. Ask which “decide-once” the buyer means — tenant, quality gate, or architecture commit.
 2. Confirm committed ≠ evidence-grounded / no-overlay / crypto-isolated.
-3. Confirm triad is not sold as closed while **TB-1003** remains Not started (tenant matrix **TB-999** is Done; **TB-1000** / **TB-1232** residuals still open).
+3. Confirm triad is not sold as closed while **TB-1416** / honesty CI (**TB-1000** / **TB-1004**) / **TB-1232** remain open (tenant **TB-999** and committed-manifest **TB-1003** matrices are Done).
 4. Treat a fourth fused “decide” story as a review finding.
 
 ### Claim boundary
@@ -2210,7 +2226,7 @@ Do not equate INV-001 tenant decide-once with architecture decided once or INV-0
 ### Residuals (honest)
 
 - **TB-1416** / **TB-1417** own the fused matrix contract and language guards.
-- Ship-order hint: **TB-1003** next among residual contracts (**TB-999** Done).
+- Ship-order hint: fused triad matrix **TB-1416** next among residual contracts (**TB-999** / **TB-1003** Done).
 - Complements **M-150** / **M-154** / **M-194** / **M-203** / **M-207** / **M-213** / **M-198** / **M-247**.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
 
@@ -3438,11 +3454,14 @@ Former standalone body: `docs/go-to-market/LAYER_BOUNDARY_IRREVERSIBLE_LEAK_PA_O
 | 1 | Wrong catalog / unscoped product SQL path | Cross-tenant data exposure | **TB-999** / **TB-1018** · [M-151](#tenant-identity-single-derivation-m-151) · [M-169](#empty-scope-catalog-routing-m-169) |
 | 2 | Retrieval filter / upsert / expand miss | Cross-tenant chunk hit | **TB-1001** · [M-153](#retrieval-tenancy-hit-guarantee-m-153) |
 | 3 | Empty / unrestricted `AllowedTools` hole | Model-influenced side-effect surface | **TB-950** · [LLM trust boundary (M-149)](#llm-trust-boundary-ingress-m-149) |
-| 4 | Predicate-only / convention DiD erosion | “WHERE TenantId=” as sole story | **TB-1232** · [DiD structural (M-256)](#tenant-isolation-structural-vs-convention-m-256) |
+| 4 | INV-001 header / ambient re-derive | Wrong tenant identity at depth | **TB-999** · [M-151](#tenant-identity-single-derivation-m-151) |
+| 5 | Substitute for committed golden manifest | Claim / integrity theater | **TB-1003** · [M-155](#committed-golden-manifest-unit-of-truth-m-155) |
+| 6 | Fat persistence shapes on buyer routes | DTO-boundary regression | Done DTO boundary (do not reopen lightly) |
+| Related | Predicate-only / convention DiD erosion | “WHERE TenantId=” as sole story | **TB-1232** · [DiD structural (M-256)](#tenant-isolation-structural-vs-convention-m-256) |
 
 ### Claim boundary
 
-Do not promise that assembly/layer architecture tests alone prove multi-tenant isolation or make cross-tenant leaks impossible. Say: compile-time DAG + Layer A catalogs + INV-001 + retrieval filters; name residual irreversible classes (wrong catalog / unscoped path) and the **TB-950** tool hole.
+Do not promise that assembly/layer architecture tests alone prove multi-tenant isolation or make cross-tenant leaks impossible. Say: compile-time DAG + Layer A catalogs + INV-001 + retrieval filters; name residual irreversible classes (wrong catalog / unscoped path) and the **TB-950** tool hole. Engineering SoT: [`LAYER_BOUNDARY_IRREVERSIBLE_LEAK_MATRIX.md`](../library/LAYER_BOUNDARY_IRREVERSIBLE_LEAK_MATRIX.md).
 
 ### Safe pin
 
@@ -3450,19 +3469,20 @@ Do not promise that assembly/layer architecture tests alone prove multi-tenant i
 
 ### PA review
 
-1. Ask which residual class is in scope (catalog, retrieval, tools, DiD erosion).
+1. Ask which residual class is in scope (catalog, retrieval, tools, DiD erosion, claim integrity).
 2. Confirm NetArchTest is not sold as the isolation proof.
 3. Confirm allowlisted exceptions are named, not silent.
 4. Treat “architecture tests make leaks impossible” as a review finding.
 
 ### Residuals (honest)
 
-- **TB-1005** / **TB-1006** own the residual matrix and anti-NetArchTest-equals-isolation honesty CI.
-- Does not reopen Done **TB-027**–**TB-032**.
-- Cite [`../library/ARCHITECTURE_CONSTRAINTS.md`](../library/ARCHITECTURE_CONSTRAINTS.md), [`../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md).
-- This handout does not claim CPA SOC 2 or a published third-party penetration test.
+Engineering SoT: [`LAYER_BOUNDARY_IRREVERSIBLE_LEAK_MATRIX.md`](../library/LAYER_BOUNDARY_IRREVERSIBLE_LEAK_MATRIX.md) (**TB-1005** Done). Compile-time DAG guards are implemented; they do **not** close ranked runtime residuals. Follow-on claim CI: **TB-1006**. Does not reopen Done **TB-027**–**TB-032**. Does not claim CPA SOC 2 or a published third-party penetration test.
 
-**Related:** [Isolation claims (M-195)](#isolation-claims-vs-inv001-adr0037-m-195) · [Empty-scope catalog routing (M-169)](#empty-scope-catalog-routing-m-169) · [Tenant identity (M-151)](#tenant-identity-single-derivation-m-151) · [Retrieval tenancy (M-153)](#retrieval-tenancy-hit-guarantee-m-153) · [Comparison/replay snapshot (M-175)](#comparison-replay-immutable-snapshot-m-175) · [DiD structural vs convention (M-256)](#tenant-isolation-structural-vs-convention-m-256) · [LLM trust boundary (M-149)](#llm-trust-boundary-ingress-m-149) · [`../library/ARCHITECTURE_CONSTRAINTS.md`](../library/ARCHITECTURE_CONSTRAINTS.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+| Open work | Purpose |
+| --- | --- |
+| **TB-1006** | Anti-NetArchTest-equals-isolation / silent-allowlist claim-drift guard |
+
+**Related:** [`../library/LAYER_BOUNDARY_IRREVERSIBLE_LEAK_MATRIX.md`](../library/LAYER_BOUNDARY_IRREVERSIBLE_LEAK_MATRIX.md) · [Isolation claims (M-195)](#isolation-claims-vs-inv001-adr0037-m-195) · [Empty-scope catalog routing (M-169)](#empty-scope-catalog-routing-m-169) · [Tenant identity (M-151)](#tenant-identity-single-derivation-m-151) · [Retrieval tenancy (M-153)](#retrieval-tenancy-hit-guarantee-m-153) · [Comparison/replay snapshot (M-175)](#comparison-replay-immutable-snapshot-m-175) · [DiD structural vs convention (M-256)](#tenant-isolation-structural-vs-convention-m-256) · [LLM trust boundary (M-149)](#llm-trust-boundary-ingress-m-149) · [`../library/ARCHITECTURE_CONSTRAINTS.md`](../library/ARCHITECTURE_CONSTRAINTS.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## Comparison/replay — minimal immutable snapshot (M-175) {#comparison-replay-immutable-snapshot-m-175}
 
@@ -3517,12 +3537,13 @@ Do not promise that artifact-mode replay proves architecture is unchanged, or th
 
 ### Residuals (honest)
 
-- **TB-1024** / **TB-1025** own comparison/replay drift language guards.
-- Does not claim platform WORM on comparison rows.
-- Cite Flow C + [`../library/API_CONTRACTS.md`](../library/API_CONTRACTS.md) comparison-replay verify §.
-- This handout does not claim CPA SOC 2 or a published third-party penetration test.
+Engineering SoT: [`COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md`](../library/COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md) (**TB-1024** Done). Minimal immutable snapshot set, replay modes, and illusion surfaces are published. Follow-on claim CI: **TB-1025**. Does not claim platform WORM on comparison rows (ADR 0040). Cite Flow C + [`../library/API_CONTRACTS.md`](../library/API_CONTRACTS.md) comparison-replay verify §. This handout does not claim CPA SOC 2 or a published third-party penetration test.
 
-**Related:** [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) · [Append-only / sealed evidence (M-161)](#append-only-sealed-evidence-m-161) · [First-15 / package spine (M-181)](#pa-first-15-package-spine-ia-m-181) · [Offline-verifiable export (M-268)](#offline-verifiable-export-portability-m-268) · [Layer residual / irreversible leak (M-157)](#layer-boundary-irreversible-leak-m-157) · [`../library/ARCHITECTURE_FLOWS.md`](../library/ARCHITECTURE_FLOWS.md) · [`../library/API_CONTRACTS.md`](../library/API_CONTRACTS.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+| Open work | Purpose |
+| --- | --- |
+| **TB-1025** | Anti-artifact-mode-equals-stable / live-UI-verify claim-drift guard |
+
+**Related:** [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) · [Append-only / sealed evidence (M-161)](#append-only-sealed-evidence-m-161) · [First-15 / package spine (M-181)](#pa-first-15-package-spine-ia-m-181) · [Offline-verifiable export (M-268)](#offline-verifiable-export-portability-m-268) · [Layer residual / irreversible leak (M-157)](#layer-boundary-irreversible-leak-m-157) · [`../library/COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md`](../library/COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md) · [`../library/ARCHITECTURE_FLOWS.md`](../library/ARCHITECTURE_FLOWS.md) · [`../library/API_CONTRACTS.md`](../library/API_CONTRACTS.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## First-15 + package-spine IA + dismissal-reducing see-list (M-181) {#pa-first-15-package-spine-ia-m-181}
 
@@ -3593,10 +3614,7 @@ Do not promise “15 minutes without founder narration,” “product-led first 
 
 ### Residuals (honest)
 
-- **TB-1030** / **TB-1031** own first-15 / package-spine language guards.
-- Live validation remains **M-44** / **M-48**; does not reopen those V1.1 rows.
-- Cite [`../library/CANONICAL_FIRST_RUN_PATH.md#expert-principal-architect-15-minute-lane`](../library/CANONICAL_FIRST_RUN_PATH.md#expert-principal-architect-15-minute-lane) + [`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md`](FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md).
-- This handout does not claim CPA SOC 2 or a published third-party penetration test.
+Engineering SoT: [`../library/PA_FIRST_15_PACKAGE_SPINE_IA_CONTRACT.md`](../library/PA_FIRST_15_PACKAGE_SPINE_IA_CONTRACT.md) (**TB-1030** Done). Must-complete set, package-spine IA unlock, minute-12 checkpoint, and narration-forcing residuals are published. Follow-on claim CI: **TB-1031**. Live validation remains **M-44** / **M-48**; does not reopen those V1.1 rows. Expert-lane ceremony: [`../library/CANONICAL_FIRST_RUN_PATH.md#expert-principal-architect-15-minute-lane`](../library/CANONICAL_FIRST_RUN_PATH.md#expert-principal-architect-15-minute-lane) + [`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md`](FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md). This handout does not claim CPA SOC 2 or a published third-party penetration test.
 
 **Related:** [Operator primary object (M-177)](#operator-primary-object-nav-collapse-m-177) · [Core Pilot happy-path (M-242)](#core-pilot-happy-path-m-242) · [Shared hallucination defense plane (M-212)](#shared-hallucination-defense-plane-m-212) · [Comparison/replay snapshot (M-175)](#comparison-replay-immutable-snapshot-m-175) · [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) · [`../library/CANONICAL_FIRST_RUN_PATH.md#expert-principal-architect-15-minute-lane`](../library/CANONICAL_FIRST_RUN_PATH.md#expert-principal-architect-15-minute-lane) · [`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md`](FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 

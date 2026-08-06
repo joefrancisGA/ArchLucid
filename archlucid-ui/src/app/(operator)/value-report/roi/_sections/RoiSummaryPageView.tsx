@@ -121,7 +121,7 @@ export function RoiSummaryPageView(props: Props) {
             <Link href="/sponsor-report/pilot-outcomes" className={OPERATOR_LINK.inline}>
               Pilot value report
             </Link>
-            <Link href="/administration/settings/baseline" className={OPERATOR_LINK.inline}>
+            <Link href="/administration/baseline" className={OPERATOR_LINK.inline}>
 
               Baseline settings
 
@@ -170,7 +170,9 @@ export function RoiSummaryPageView(props: Props) {
             What this means
           </h2>
           <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-            {interpretRoiSummaryMeaning(heroMetrics, hourly.hourlyUsd)}
+            {interpretRoiSummaryMeaning(heroMetrics, hourly.hourlyUsd, {
+              isDefaultRate: hourly.isDefaultRate,
+            })}
           </p>
         </section>
 
@@ -230,11 +232,17 @@ export function RoiSummaryPageView(props: Props) {
         </CollapsibleSection>
 
         <div className="grid gap-4 lg:grid-cols-2">
-          <RoiTelemetryCard window="rolling30" period={heroPeriod} hourlyUsd={hourly.hourlyUsd} />
+          <RoiTelemetryCard
+            window="rolling30"
+            period={heroPeriod}
+            hourlyUsd={hourly.hourlyUsd}
+            isDefaultRate={hourly.isDefaultRate}
+          />
           <RoiTelemetryCard
             window="pilotToDate"
             period={{ report: pilotToDate.report, blocks: pilotToDate.blocks }}
             hourlyUsd={hourly.hourlyUsd}
+            isDefaultRate={hourly.isDefaultRate}
           />
         </div>
 

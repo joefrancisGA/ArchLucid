@@ -22,12 +22,11 @@ vi.mock("@/lib/toast", () => ({
 import { SignupForm } from "./SignupForm";
 
 describe("SignupForm", () => {
-  it("blocks submit when validation fails", async () => {
+  it("disables submit until required fields are valid (TB-2010)", () => {
     render(<SignupForm />);
 
-    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
-
-    expect(await screen.findByText(/Enter a valid email/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeDisabled();
+    expect(screen.getByTestId("signup-form-readiness")).toHaveTextContent(/work email/i);
     expect(pushMock).not.toHaveBeenCalled();
   });
 
@@ -51,6 +50,11 @@ describe("SignupForm", () => {
     fireEvent.change(screen.getByLabelText(/Work email/i), { target: { value: "ops@example.com" } });
     fireEvent.change(screen.getByLabelText(/Full name/i), { target: { value: "Ops User" } });
     fireEvent.change(screen.getByLabelText(/Organization name/i), { target: { value: "Contoso Trial Org" } });
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
     fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
 
     await waitFor(() => {

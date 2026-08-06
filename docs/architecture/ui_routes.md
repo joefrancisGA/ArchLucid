@@ -188,9 +188,9 @@ Columns:
 | `/onboard` | Deprecated alias | App Router shim permanently redirects to `/onboarding` (query preserved; canonical UX on **ARF**) |
 | `/getting-started` | Deprecated alias | App Router shim permanently redirects to `/onboarding` (query preserved) |
 | `/help` | In-app help index | Open directly |
-| `/help/first-architecture-review` | Your first architecture review (specialty guide) | `HelpCorePilotGuideView` with stepper + gated finalize CTAs (**HCO**) |
-| `/help/core-pilot` | Legacy help slug alias | Resolves to **HCO** (`first-architecture-review`); same `HelpCorePilotGuideView` (**ECO**) |
-| `/help/[topic]` | Rendered help topic | e.g. `/help/getting-started`, `/help/billing-and-plans` (specialty `HelpBillingAndPlansGuideView`, **HBX**), `/help/executive-summary` (specialty `HelpExecutiveSummaryGuideView`, **EXE**), `/help/findings` (specialty `HelpFindingsGuideView`, **HFX**), `/help/governance-approval` (specialty `HelpGovernanceApprovalGuideView`, **GO**), `/help/path-chooser` (buyer markdown chooser, **HPX**), `/help/developer-troubleshooting` (Admin-gated internal-runbook, **HDX**), `/help/governance-api-contracts` (Admin-gated API contracts reference, **HG**), `/help/alerts` (slugs in `product-documentation-registry.ts`) |
+| `/help/first-architecture-review` | Your first architecture review (specialty guide) | `HelpCorePilotGuideView` with stepper + gated finalize CTAs (**COR**) |
+| `/help/core-pilot` | Legacy help slug alias | Resolves to **COR** (`first-architecture-review`); same `HelpCorePilotGuideView` (**ECO**) |
+| `/help/[topic]` | Rendered help topic | e.g. `/help/getting-started`, `/help/billing-and-plans` (specialty `HelpBillingAndPlansGuideView`, **HBX**), `/help/executive-summary` (specialty `HelpExecutiveSummaryGuideView`, **EXE**), `/help/findings` (specialty `HelpFindingsGuideView`, **HFX**), `/help/governance-approval` (specialty `HelpGovernanceApprovalGuideView`, **GO**), `/help/path-chooser` (buyer markdown chooser, **HPX**), `/help/developer-troubleshooting` (Admin-gated internal-runbook, **HDX**), `/help/governance-api-contracts` (Admin-gated API contracts reference, **HG**), `/help/alerts`, `/help/digests` (specialty `HelpDigestsGuideView`, **HDG**; slugs in `product-documentation-registry.ts`) |
 | `/demo` | CTO demo tour entry | CTO demo pack env; else redirects `/` |
 | `/demo/explain` | Internal demo explanation | T2: `GET /v1/demo/explain`; T3 mock; blocked in strict T1 |
 | `/snapshot/[runId]` | Hard-retired | Former App Router redirect to `/architecture/reviews/{runId}?readOnly=1` — no page or redirect (use canonical review workspace leave-behind) |
@@ -249,9 +249,10 @@ Layer guidance copy for many governance/analysis routes: `archlucid-ui/src/lib/l
 | `/insights/impact-preview` | Impact preview | T3 mock |
 | `/value-report/pilot` | Sponsor proof snapshot (no DOCX) | T1/T2 after finalized architecture package |
 | `/value-report/roi` | ROI / hours summary | T1 illustrative; T2 with seed |
-| `/digests` | Digests hub (Browse + Subscriptions + Schedule) | T3 mock; Schedule tab (**DIS**) hosts ExecDigestScheduleContent |
-| `/digests?tab=schedule` | Executive digest schedule | ExecDigestScheduleContent; preferences via `/v1/tenant/exec-digest-preferences` (**DIS**) |
-| `/settings/exec-digest` | Retired pre-release bookmark | No redirect or App Router page; canonical schedule on **DIS** (`/digests?tab=schedule`, TB-1901–TB-1905); former traffic row **EEX** removed |
+| `/architecture/digests` | Digests hub (Browse + Subscriptions + Schedule) | T3 mock; Schedule tab (**DIS**) hosts ExecDigestScheduleContent |
+| `/architecture/digests?tab=schedule` | Executive digest schedule | ExecDigestScheduleContent; preferences via `/v1/tenant/exec-digest-preferences` (**DIS**) |
+| `/digests` | Legacy redirect | Permanent redirect to `/architecture/digests` |
+| `/settings/exec-digest` | Retired pre-release bookmark | No redirect or App Router page; canonical schedule on **DIS** (`/architecture/digests?tab=schedule`, TB-1901–TB-1905); former traffic row **EEX** removed |
 | `/digest-subscriptions` | Digest subscriptions | T3 mock |
 | `/patterns` | Architecture pattern library | T3 mock or API if seeded |
 | `/portfolio` | Retired — redirects to `/architecture/executive-dashboard` | Legacy bookmark only |
@@ -273,20 +274,23 @@ Lighter chrome than the full architect workspace; `(executive)` route group does
 
 | URL | Purpose | How to view |
 |-----|---------|-------------|
-| `/administration/settings` | General settings (appearance, support bundle) | Layout OK T1; blocked in strict demo — T3 bypass or full architect workspace |
-| `/administration/settings/billing` | Billing and plans | Admin + full architect workspace + API |
-| `/administration/settings/identity-providers` | Identity provider config | Admin + API |
-| `/administration/settings/identity/sso-wizard` | SSO setup wizard | Admin + API |
-| `/administration/settings/api-keys` | API key management | Admin + API |
-| `/administration/settings/scim-provisioning` | SCIM provisioning | Admin + API |
+| `/administration` | Settings hub — searchable tenant-administration index; sidebar "Settings" target (IA-016 hub-first). Personal settings are **not** here; they ship in the top-bar account menu | Layout OK T1; blocked in strict demo — T3 bypass or full architect workspace |
+| `/administration/settings` | Legacy redirect | Permanent redirect to `/administration` |
+| `/administration/billing` | Billing and plans | Admin + full architect workspace + API |
+| `/administration/identity-providers` | Identity provider config | Admin + API |
+| `/administration/identity/sso-wizard` | SSO setup wizard | Admin + API |
+| `/administration/api-keys` | API key management | Admin + API |
+| `/administration/scim-provisioning` | SCIM provisioning | Admin + API |
 | `/settings/cloud-connections` | Cloud connections | Admin + API |
-| `/administration/settings/tenant` | Tenant settings | Admin + API |
-| `/administration/settings/tenant/recycle-bin` | Tenant recycle bin | Admin + API |
+| `/administration/tenant` | Workspace settings — trial, cost settings, request scope. `AdminAuthority`; non-admin callers get `TenantSettingsRestrictedState` | Admin + API |
+| `/administration/tenant/recycle-bin` | Tenant recycle bin | Admin + API |
+| `/administration/preferences` | Personal appearance and preferences. Ungated (writes only the caller's own record); reached from the top-bar account menu | Any signed-in user |
+| `/administration/account-security` | Personal sign-in methods, linking, removal. Ungated; reached from the top-bar account menu | Any signed-in user |
 | `/settings/cost-reporting` | Cost reporting | Admin + API |
 | `/settings/webhooks` | Webhooks | Admin + API |
 | `/settings/roles` | Role assignment | Admin + API |
-| `/administration/settings/baseline` | ROI baseline config | T3 mock |
-| `/administration/settings/extract-upload` | Extract/upload config | Allowed in CTO demo (`DEMO_ALLOWED_SETTINGS_PATHS`) |
+| `/administration/baseline` | ROI baseline config | T3 mock |
+| `/administration/extract-upload` | Extract/upload config | Allowed in CTO demo (`DEMO_ALLOWED_SETTINGS_PATHS`) |
 ### Admin
 
 Requires **Admin authority**, full architect workspace, no demo nav blockers, and Tier 2 API (or Tier 3 mock with E2E bypass).

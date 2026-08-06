@@ -1,5 +1,9 @@
 import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
 import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
+import {
+  rewriteHelpMarkdownDocLinks,
+  sanitizeBareMarkdownFileReferences,
+} from "@/lib/help-markdown-presentation";
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 
 import {
@@ -171,8 +175,49 @@ export function stripPrivacyPolicyRelatedDocumentsSection(markdown: string): str
   return normalized.slice(0, markerIndex).trim();
 }
 
+/** Horizontal rules are section separators in the controlled source — not public page content. */
+export function stripPrivacyPolicyHorizontalRules(markdown: string): string {
+  return markdown
+    .replace(/\r\n/g, "\n")
+    .split("\n")
+    .filter((line) => !/^(\*{3,}|-{3,}|_{3,})\s*$/.test(line.trim()))
+    .join("\n");
+}
+
+/**
+ * Rewrites repo-relative doc links for the public privacy page and removes leftover `.md` paths.
+ * Contributor-only references (Art. 30 note, threat model) become public routes or plain prose.
+ */
+export function preparePrivacyPolicyMarkdownForPresentation(markdown: string): string {
+  const withoutOperatorOnlyRefs = markdown
+    .replace(
+      /^For operator-facing processing activity records \(GDPR Article 30\), see \[.*?\]\(.*?\)\.\s*$/gim,
+      "",
+    )
+    .replace(
+      /see the \[Trust Center\]\((?:[^)]*trust-center\.md)\) and \[System Threat Model\]\([^)]+\)/gi,
+      "see the [Trust Center](/trust)",
+    )
+    .replace(/\[Trust Center\]\([^)]*trust-center\.md[^)]*\)/gi, "[Trust Center](/trust)")
+    .replace(/\[[^\]]*\]\([^)]*SECURITY\.md[^)]*\)/gi, "[Security and trust](/security-trust)")
+    .replace(
+      /Prior versions will be available in the repository's git history\./gi,
+      "Prior versions are retained for compliance review.",
+    );
+
+  const rewritten = rewriteHelpMarkdownDocLinks(
+    withoutOperatorOnlyRefs,
+    PRIVACY_POLICY_CONTROLLED_SOURCE_PATH,
+  );
+
+  return sanitizeBareMarkdownFileReferences(rewritten);
+}
+
 export function preparePrivacyPolicyBodyMarkdown(markdown: string): string {
-  return stripPrivacyPolicyRelatedDocumentsSection(stripPrivacyPolicyPageChrome(markdown));
+  const stripped = stripPrivacyPolicyRelatedDocumentsSection(stripPrivacyPolicyPageChrome(markdown));
+  const withoutRules = stripPrivacyPolicyHorizontalRules(stripped);
+
+  return preparePrivacyPolicyMarkdownForPresentation(withoutRules).trim();
 }
 
 export function resolvePrivacyPolicyQuickNavLinks(

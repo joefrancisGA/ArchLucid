@@ -32,7 +32,7 @@ export type LayerGuidancePageKey =
   | "governance-resolution"
   | "governance-workflow"
   | "recurrence-schedules"
-  | "risk-exceptions"
+  | "exceptions"
   | "policy-packs"
   | "alert-rules"
   | "alert-routing"
@@ -234,7 +234,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     enterpriseFootnote:
       "Schedules clone a finalized review on the cadence you define; manage approvals and risk disposition on linked governance surfaces.",
   },
-  "risk-exceptions": {
+  exceptions: {
     layerBadge: "Governance",
     headline: "Track active waivers, expirations, owners, and linked governance decisions.",
     useWhen:

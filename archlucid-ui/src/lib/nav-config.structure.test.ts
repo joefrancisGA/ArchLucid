@@ -104,7 +104,7 @@ describe("nav-config structure", () => {
     const analysis = NAV_GROUPS.find((group) => group.id === "operate-analysis");
 
     expect(analysis?.label).toBe("Insights");
-    expect(analysis?.caption).toBe("Explore evidence, findings, and decisions across reviews.");
+    expect(analysis?.caption).toBe("Explore evidence, findings, decisions, and sponsor value reports across reviews.");
   });
 
   it("sets requiredAuthority on every Analysis nav link", () => {
@@ -149,8 +149,7 @@ describe("nav-config structure", () => {
 
     expect(advanced).toBeDefined();
 
-    // Impact preview moved to ReadAuthority (browsing only; Simulate itself stays Execute-gated in the UI/API) —
-    // Insights currently has no ExecuteAuthority links, so this loop is a no-op regression guard for future additions.
+    // Executive value report is Execute-gated; sponsor outcomes and ROI summary stay ReadAuthority.
     for (const link of advanced!.links) {
       if (link.requiredAuthority === "ExecuteAuthority") {
         expect(link.tier, link.href).not.toBe("essential");
@@ -161,9 +160,10 @@ describe("nav-config structure", () => {
   it("keeps buyer-polished operate group membership aligned", () => {
     const analysisHrefs = NAV_GROUPS.find((group) => group.id === "operate-analysis")!.links.map((link) => link.href);
     const governanceHrefs = NAV_GROUPS.find((group) => group.id === "operate-governance")!.links.map((link) => link.href);
-    const reportsHrefs = NAV_GROUPS.find((group) => group.id === "operate-reports")!.links.map((link) => link.href);
     const integrationsHrefs = NAV_GROUPS.find((group) => group.id === "operate-integrations")!.links.map((link) => link.href);
     const systemAdminHrefs = NAV_GROUPS.find((group) => group.id === "operator-system-admin")!.links.map((link) => link.href);
+
+    expect(NAV_GROUPS.some((group) => group.id === "operate-reports")).toBe(false);
 
     expect(analysisHrefs).toEqual([
       "/insights/evidence-graph",
@@ -174,31 +174,29 @@ describe("nav-config structure", () => {
       "/insights/planning",
       "/insights/architecture-scorecard",
       "/insights/patterns",
+      "/sponsor-report/executive-summary",
+      "/sponsor-report/pilot-outcomes",
+      "/sponsor-report/roi-summary",
     ]);
 
     const pilotHrefs = NAV_GROUPS.find((group) => group.id === "pilot")!.links.map((link) => link.href);
 
     expect(pilotHrefs).toContain("/architecture/architecture-intelligence");
+    expect(pilotHrefs).toContain("/architecture/digests");
     expect(governanceHrefs).toEqual([
       "/governance/approval-queue",
       "/governance/findings",
-      "/governance/risk-exceptions",
+      "/governance/exceptions",
       "/governance/policy-packs",
       "/governance/standards-and-rules",
       "/governance/decision-register",
-      "/signed-records",
+      "/governance/signed-records",
       "/governance/advisory-scans",
       "/governance/audit",
       "/governance/alerts",
       "/governance/alert-rules",
       "/governance/recurrence-schedules",
       "/governance/setup",
-    ]);
-    expect(reportsHrefs).toEqual([
-      "/sponsor-report/executive-summary",
-      "/sponsor-report/pilot-outcomes",
-      "/sponsor-report/roi-summary",
-      "/digests",
     ]);
     expect(integrationsHrefs).toEqual([
       "/integrations/cloud-connections",
@@ -214,7 +212,7 @@ describe("nav-config structure", () => {
     expect(systemAdminHrefs).toContain("/replay");
     expect(systemAdminHrefs).not.toContain("/health");
     expect(systemAdminHrefs).not.toContain("/governance/advisory-scans");
-    expect(systemAdminHrefs).not.toContain("/administration/settings/tenant");
+    expect(systemAdminHrefs).not.toContain("/administration/tenant");
     expect(systemAdminHrefs).not.toContain("/workspace/security-trust");
     // Recommendation learning and Review feedback stay under Internal Operations (employee-only /
     // showSystemAdministrationNav). Improvement planning lives under Insights.
@@ -222,27 +220,27 @@ describe("nav-config structure", () => {
     expect(systemAdminHrefs).toContain("/internal/product-learning");
     expect(systemAdminHrefs).not.toContain("/insights/planning");
     expect(systemAdminHrefs).not.toContain("/planning");
-    expect(systemAdminHrefs).not.toContain("/digests");
+    expect(systemAdminHrefs).not.toContain("/architecture/digests");
     expect(systemAdminHrefs).not.toContain("/sponsor-report/pilot-outcomes");
     expect(systemAdminHrefs).not.toContain("/sponsor-report/roi-summary");
-    expect(systemAdminHrefs).not.toContain("/administration/settings/identity-providers");
-    expect(systemAdminHrefs).not.toContain("/administration/settings/identity/sso-wizard");
-    expect(systemAdminHrefs).not.toContain("/administration/settings/api-keys");
-    expect(systemAdminHrefs).not.toContain("/administration/settings/scim-provisioning");
+    expect(systemAdminHrefs).not.toContain("/administration/identity-providers");
+    expect(systemAdminHrefs).not.toContain("/administration/identity/sso-wizard");
+    expect(systemAdminHrefs).not.toContain("/administration/api-keys");
+    expect(systemAdminHrefs).not.toContain("/administration/scim-provisioning");
 
     const adminHrefs = NAV_GROUPS.find((group) => group.id === "operator-admin")!.links.map((link) => link.href);
 
-    expect(adminHrefs).toContain("/administration/settings/security-trust");
-    expect(adminHrefs).toContain("/administration/settings/users");
+    expect(adminHrefs).toContain("/administration/security-trust");
+    expect(adminHrefs).toContain("/administration/users");
     expect(adminHrefs).not.toContain("/settings/roles");
-    expect(adminHrefs).toContain("/administration/settings/support");
-    expect(adminHrefs).toContain("/administration/settings/ai-usage");
+    expect(adminHrefs).toContain("/administration/support");
+    expect(adminHrefs).toContain("/administration/ai-usage");
     expect(adminHrefs).toContain("/administration/connection-status");
     expect(adminHrefs).toContain("/administration/system-health");
-    expect(adminHrefs).toContain("/administration/settings/identity-providers");
-    expect(adminHrefs).toContain("/administration/settings/identity/sso-wizard");
-    expect(adminHrefs).toContain("/administration/settings/api-keys");
-    expect(adminHrefs).toContain("/administration/settings/scim-provisioning");
+    expect(adminHrefs).toContain("/administration/identity-providers");
+    expect(adminHrefs).toContain("/administration/identity/sso-wizard");
+    expect(adminHrefs).toContain("/administration/api-keys");
+    expect(adminHrefs).toContain("/administration/scim-provisioning");
     expect(adminHrefs).not.toContain("/governance/recurrence-schedules");
   });
 
@@ -283,15 +281,13 @@ describe("nav-config structure", () => {
 
   it("keeps governance nav hrefs under /governance/* (TB-405)", () => {
     const governance = NAV_GROUPS.find((group) => group.id === "operate-governance");
-    const governanceNamespaceExceptions = new Set(["/signed-records"]);
 
     expect(governance).toBeDefined();
 
     for (const link of governance!.links) {
       expect(
         link.href === "/governance/approval-queue"
-          || link.href.startsWith("/governance/")
-          || governanceNamespaceExceptions.has(link.href),
+          || link.href.startsWith("/governance/"),
         link.href,
       ).toBe(true);
     }

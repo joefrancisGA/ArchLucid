@@ -71,7 +71,7 @@ function healthSemanticClass(status: string): string {
     return "bg-orange-500/12 text-orange-950 dark:bg-orange-500/18 dark:text-orange-100";
   }
 
-  if (s === "demo limited" || s === "action needed") {
+  if (s === "demo limited" || s === "sample scope" || s === "action needed") {
     return "bg-[var(--al-status-warn-bg)] text-[var(--al-status-warn-fg)]";
   }
 

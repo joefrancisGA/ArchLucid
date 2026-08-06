@@ -20,7 +20,7 @@ export const CTO_DEMO_KNOWN_VALID_ROUTE_PREFIXES: readonly string[] = [
   "/audit",
   "/insights/evidence-graph",
   "/manifests",
-  "/signed-records",
+  "/governance/signed-records",
   "/architecture/reviews",
   "/executive",
   "/snapshot",

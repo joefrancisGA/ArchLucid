@@ -1,0 +1,24 @@
+import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
+
+export const INTEGRATION_EVENTS_DLQ_CANONICAL_PATH = "/operate/integration-events/dlq" as const;
+
+export const INTEGRATION_EVENTS_DLQ_CLAIM_DISCIPLINE =
+  "This dead-letter queue is an Internal Operations triage surface for failed outbound integration events — it is not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Rows can span every tenant; fix the root cause before bulk retry, and open Integration readiness or System health for connector posture.";
+
+export const INTEGRATION_EVENTS_DLQ_SOURCES_INTRO =
+  "Use these follow-ups when a dead-letter needs readiness checks, channel config, or operational health context.";
+
+export type IntegrationEventsDlqSourceLink = {
+  readonly label: string;
+  readonly href: string;
+};
+
+/** Operator Sources — no self-href to the DLQ page. */
+export const INTEGRATION_EVENTS_DLQ_SOURCES: readonly IntegrationEventsDlqSourceLink[] = [
+  { label: "Integration readiness", href: INTEGRATIONS_READINESS_PATH },
+  { label: "System health", href: "/administration/system-health" },
+  { label: "Webhooks", href: "/integrations/webhooks" },
+  { label: "Jira", href: "/integrations/jira" },
+  { label: "Troubleshooting", href: inAppHelpHref("troubleshooting") },
+] as const;

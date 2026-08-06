@@ -141,7 +141,7 @@ export function LlmBudgetStatusPill() {
         <PopoverContent data-testid="llm-budget-status-pill-popover">
           <LlmBudgetUtilizationMeter />
           <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.helper)}>
-            <Link href="/administration/settings/billing#billing-usage" className={OPERATOR_LINK.nav}>
+            <Link href="/administration/billing#billing-usage" className={OPERATOR_LINK.nav}>
               View usage on Billing &amp; plans
             </Link>
             {" · "}

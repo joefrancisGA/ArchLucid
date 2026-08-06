@@ -20,7 +20,7 @@ export type UsersAndRolesHelpSourceLink = {
 /** Operator Sources — no self-href to users-and-roles or operator-auth-roles alias. */
 export const USERS_AND_ROLES_HELP_SOURCES: readonly UsersAndRolesHelpSourceLink[] = [
   { label: "Users settings", href: SETTINGS_USERS_USERS_TAB_PATH },
-  { label: "Invite a reviewer", href: "/administration/settings/users/invite-reviewer" },
+  { label: "Invite a reviewer", href: "/administration/users/invite-reviewer" },
   { label: "Scope guide", href: inAppHelpHref("scope") },
   { label: "Security & trust", href: "/security-trust" },
   { label: "Getting started", href: inAppHelpHref("getting-started") },

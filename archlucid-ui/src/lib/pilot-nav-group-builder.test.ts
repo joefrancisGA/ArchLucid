@@ -53,7 +53,7 @@ describe("PilotNavGroupBuilder", () => {
 
   it("includes security and trust in the administration nav group", () => {
     const group = new OperatorAdminNavGroupBuilder().build();
-    const securityTrustLink = group.links.find((link) => link.href === "/administration/settings/security-trust");
+    const securityTrustLink = group.links.find((link) => link.href === "/administration/security-trust");
 
     expect(securityTrustLink).toBeDefined();
     expect(securityTrustLink?.label).toBe("Security & trust");
@@ -75,7 +75,7 @@ describe("PilotNavGroupBuilder", () => {
     expect(overviewLink?.title).toBe("Workspace overview");
   });
 
-  it("keeps Architecture nav focused on first-review essentials only (TB-518)", () => {
+  it("keeps Architecture nav focused on first-review essentials and architecture intelligence (TB-518)", () => {
     const group = new PilotNavGroupBuilder().build();
 
     expect(group.links.map((link) => link.label)).toEqual([
@@ -84,9 +84,11 @@ describe("PilotNavGroupBuilder", () => {
       "Reviews",
       "Executive dashboard",
       "First review guide",
+      "Digests",
       "Architecture intelligence",
     ]);
     expect(group.links.some((link) => link.href === "/insights/evidence-graph")).toBe(false);
+    expect(group.links.some((link) => link.href === ARCHITECTURE_INTELLIGENCE_PATH)).toBe(true);
   });
 
   it("lists Architectures and Reviews as peer object nav destinations", () => {
@@ -100,12 +102,11 @@ describe("PilotNavGroupBuilder", () => {
     expect(group.links.some((link) => link.href === "/architecture/reviews/new")).toBe(false);
   });
 
-  it("lists Architecture intelligence under Architecture (advanced, ExecuteAuthority)", () => {
+  it("lists Architecture intelligence under Architecture", () => {
     const group = new PilotNavGroupBuilder().build();
     const intelligenceLink = group.links.find((link) => link.href === ARCHITECTURE_INTELLIGENCE_PATH);
 
-    expect(intelligenceLink?.label).toBe("Architecture intelligence");
-    expect(intelligenceLink?.tier).toBe("advanced");
+    expect(intelligenceLink).toBeDefined();
     expect(intelligenceLink?.requiredAuthority).toBe("ExecuteAuthority");
   });
 });

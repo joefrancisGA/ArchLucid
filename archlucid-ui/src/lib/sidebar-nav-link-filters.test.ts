@@ -46,7 +46,7 @@ describe("filterSidebarNavClusterLinks", () => {
 });
 
 describe("presentSidebarNavLinkForCluster", () => {
-  it("trims Internal Operations tooltips to the link label", () => {
+  it("strips Internal Operations tooltip labels so hover text is description-only", () => {
     const presented = presentSidebarNavLinkForCluster(
       {
         href: "/admin/rag-health",
@@ -59,7 +59,26 @@ describe("presentSidebarNavLinkForCluster", () => {
       "system-admin",
     );
 
-    expect(presented.title).toBe(OPERATOR_NAV_LINK_LABELS.knowledgeIndexHealth);
+    expect(presented.title).toBe("per-corpus index freshness and embedding dimension");
+    expect(presented.title).not.toContain(OPERATOR_NAV_LINK_LABELS.knowledgeIndexHealth);
+  });
+
+  it("strips label prefixes for administration nav rows", () => {
+    const presented = presentSidebarNavLinkForCluster(
+      {
+        href: "/administration",
+        label: "Settings",
+        title: "Settings — searchable index of workspace, governance, integration, billing, and support configuration",
+        tier: "essential",
+        requiredAuthority: "ReadAuthority",
+      },
+      false,
+      "platform-admin",
+    );
+
+    expect(presented.title).toBe(
+      "searchable index of workspace, governance, integration, billing, and support configuration",
+    );
   });
 
   it("preserves review-workflow nav titles outside Internal Operations", () => {

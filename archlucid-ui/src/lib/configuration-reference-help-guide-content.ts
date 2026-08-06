@@ -36,15 +36,15 @@ export const CONFIGURATION_REFERENCE_HELP_TASK_SECTIONS: readonly ConfigurationR
 export const CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS = {
   openSsoWizard: {
     label: "Configure SSO",
-    href: "/administration/settings/identity/sso-wizard",
+    href: "/administration/identity/sso-wizard",
   },
   openIdentityProviders: {
     label: "Identity providers",
-    href: "/administration/settings/identity-providers",
+    href: "/administration/identity-providers",
   },
   openApiKeys: {
     label: "API keys",
-    href: "/administration/settings/api-keys",
+    href: "/administration/api-keys",
   },
   openConfigurationSummary: {
     label: "Configuration summary",

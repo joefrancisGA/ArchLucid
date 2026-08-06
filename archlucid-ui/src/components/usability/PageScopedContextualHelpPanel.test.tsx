@@ -9,6 +9,14 @@ const FULL_ENTRY: PageContextualHelpEntry = {
   whatToDoNext: "Do the next thing.",
   whyEmpty: "Empty because nothing happened yet.",
   whereToConfigurePrerequisite: "Configure prerequisites in settings UI.",
+  whatToDoNextAction: {
+    label: "Open Schedule tab",
+    href: "/architecture/digests?tab=schedule",
+  },
+  whereToConfigureAction: {
+    label: "Open Schedule tab",
+    href: "/architecture/digests?tab=schedule",
+  },
 };
 
 describe("PageScopedContextualHelpPanel", () => {
@@ -28,6 +36,14 @@ describe("PageScopedContextualHelpPanel", () => {
     expect(screen.getByText("Do the next thing.")).toBeInTheDocument();
     expect(screen.getByText("Empty because nothing happened yet.")).toBeInTheDocument();
     expect(screen.getByText("Configure prerequisites in settings UI.")).toBeInTheDocument();
+
+    const nextAction = screen.getByTestId("page-scoped-contextual-help-next-action");
+
+    expect(nextAction).toHaveAttribute("href", "/architecture/digests?tab=schedule");
+
+    const configureAction = screen.getByTestId("page-scoped-contextual-help-configure-action");
+
+    expect(configureAction).toHaveAttribute("href", "/architecture/digests?tab=schedule");
 
     const learnMore = screen.getByTestId("page-scoped-contextual-help-learn-more");
 
@@ -51,5 +67,25 @@ describe("PageScopedContextualHelpPanel", () => {
     expect(screen.queryByText("Why is this empty?")).not.toBeInTheDocument();
     expect(screen.queryByText("Where to configure")).not.toBeInTheDocument();
     expect(screen.queryByTestId("page-scoped-contextual-help-learn-more")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("page-scoped-contextual-help-next-action")).not.toBeInTheDocument();
+  });
+
+  it("keeps the full topic in the accessible name when short trigger text is set", () => {
+    render(
+      <PageScopedContextualHelpPanel
+        entry={{
+          whatIsThisPage: "Only required fields.",
+          whatToDoNext: "Next step only.",
+        }}
+        triggerLabel="Reviews"
+        triggerText="Help"
+        learnMoreHref={null}
+      />,
+    );
+
+    const trigger = screen.getByTestId("page-contextual-help-button");
+
+    expect(trigger).toHaveAttribute("aria-label", "Help: Reviews");
+    expect(trigger).toHaveTextContent("Help");
   });
 });

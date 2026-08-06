@@ -8,7 +8,6 @@ vi.mock("@/lib/demo-ui-env", () => ({
 }));
 
 vi.mock("@/lib/cto-demo-presenter-pack", () => ({
-  isCtoDemoOperatorToolingEnv: () => true,
   isCtoDemoInternalOperatorControlsEnv: () => internalControlsForced.on,
   isCtoDemoPackEnv: () => false,
 }));

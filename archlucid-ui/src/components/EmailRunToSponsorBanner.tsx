@@ -470,7 +470,7 @@ export function EmailRunToSponsorBanner({
             </Button>
             <Link
               className={cn("font-semibold text-teal-900 underline underline-offset-2 dark:text-teal-200", OPERATOR_TYPOGRAPHY.helper)}
-              href="/administration/settings/baseline"
+              href="/administration/baseline"
             >
               Baseline settings
             </Link>

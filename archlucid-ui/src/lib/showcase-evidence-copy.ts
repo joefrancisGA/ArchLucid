@@ -1,0 +1,21 @@
+export const SHOWCASE_CANONICAL_PATH_PREFIX = "/showcase/" as const;
+
+export const SHOWCASE_CLAIM_DISCIPLINE =
+  "This showcase presents an illustrative finalized architecture sample for evaluation — it is not a signed-review diligence Sources package from your tenant, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Security & trust or start an evaluation when you need live workspace evidence.";
+
+export const SHOWCASE_SOURCES_INTRO =
+  "Use these evaluation links when the sample review turns into signup, assurance, or a live product tour.";
+
+export type ShowcaseSourceLink = {
+  readonly label: string;
+  readonly href: string;
+};
+
+/** Marketing Sources — no self-href under `/showcase/`. */
+export const SHOWCASE_SOURCES: readonly ShowcaseSourceLink[] = [
+  { label: "Start evaluation", href: "/signup" },
+  { label: "Get started", href: "/get-started" },
+  { label: "Demo preview", href: "/demo/preview" },
+  { label: "Security & trust", href: "/security-trust" },
+  { label: "Product FAQ", href: "/faq" },
+] as const;

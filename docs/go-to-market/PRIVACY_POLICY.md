@@ -14,9 +14,7 @@
 
 This privacy policy describes how ArchLucid ("we", "us", "our") collects, uses, shares, and protects personal information when you visit our website at `archlucid.net` or use the ArchLucid platform (the "Service"). It applies to all visitors, trial users, and paying customers.
 
-For operator-facing processing activity records (GDPR Article 30), see [`docs/security/PRIVACY_NOTE.md`](../security/PRIVACY_NOTE.md).
-
-For data processing agreement terms, see [`DPA_TEMPLATE.md`](DPA_TEMPLATE.md).
+For data processing agreement terms, see the [Data Processing Agreement](DPA_TEMPLATE.md).
 
 ---
 
@@ -60,7 +58,7 @@ On **`archlucid.net` public marketing routes only**, we may offer **Microsoft Cl
 
 Operators may disable marketing analytics entirely via the **`NEXT_PUBLIC_ARCHLUCID_MARKETING_ANALYTICS_DISABLED=true`** environment flag on the marketing front (Clarity does not load even after consent). See **`archlucid-ui/.env.example`**.
 
-Clarity is a Microsoft subprocessors path — see [`SUBPROCESSORS.md`](SUBPROCESSORS.md). You can clear the preference anytime by removing site data for `archlucid.net` or using browser controls.
+Clarity is a Microsoft subprocessors path — see the [subprocessors list](SUBPROCESSORS.md). You can clear the preference anytime by removing site data for `archlucid.net` or using browser controls.
 
 ---
 
@@ -91,7 +89,7 @@ We share personal information only in the following circumstances:
 | **Your organization** | Tenant administrators can view audit logs and user activity within their tenant scope | Database-per-tenant catalog isolation; RBAC role enforcement |
 | **Legal compliance** | Response to valid legal process (subpoena, court order) | We will notify affected customers unless legally prohibited |
 
-We do **not** sell, rent, or trade personal information to third parties. The full subprocessor list is maintained at [`SUBPROCESSORS.md`](SUBPROCESSORS.md).
+We do **not** sell, rent, or trade personal information to third parties. The full subprocessor list is maintained in our [subprocessors register](SUBPROCESSORS.md).
 
 ---
 
@@ -101,7 +99,7 @@ We do **not** sell, rent, or trade personal information to third parties. The fu
 |-----------|-----------------|-------------------|
 | **Account data** | Duration of subscription + 90 days post-termination | Tenant deletion cascade |
 | **Architecture content** (processor role) | Per subscription agreement; customer controls export and deletion | Product export features (ZIP, DOCX, CSV) + tenant deletion |
-| **Audit events** | Per audit retention policy (default: hot 90 days, warm 1 year, cold per contract) | Automated tiered archival; see [`docs/library/AUDIT_RETENTION_POLICY.md`](../library/AUDIT_RETENTION_POLICY.md) |
+| **Audit events** | Per audit retention policy (default: hot 90 days, warm 1 year, cold per contract) | Automated tiered archival; see the [audit retention policy](../library/AUDIT_RETENTION_POLICY.md) |
 | **Transactional email records** | Idempotency keys only (no email bodies stored); cascade-deleted with tenant | Tenant deletion |
 | **Onboarding funnel telemetry** | Aggregated: Application Insights retention. Per-tenant (flag-gated): 90 days | Automated SQL prune job |
 | **Server logs** | Application Insights workspace retention (platform default) | Azure Monitor lifecycle |
@@ -175,7 +173,7 @@ ArchLucid is hosted on Microsoft Azure. Data may be processed in the Azure regio
 - **Adequacy decisions** where applicable
 - **Supplementary measures** as documented in our DPA template
 
-The primary Azure region for the ArchLucid SaaS offering is documented in the order form or security pack. See [`SUBPROCESSORS.md`](SUBPROCESSORS.md) for details.
+The primary Azure region for the ArchLucid SaaS offering is documented in the order form or security pack. See the [subprocessors register](SUBPROCESSORS.md) for details.
 
 ---
 
@@ -204,7 +202,7 @@ We implement technical and organizational measures to protect personal informati
 - Prompt redaction before LLM calls
 - Secret scanning, container scanning, and OWASP ZAP in CI
 
-For full details, see the [Trust Center](trust-center.md) and [System Threat Model](../security/SYSTEM_THREAT_MODEL.md).
+For full details, see the [Trust Center](trust-center.md).
 
 ---
 
@@ -220,7 +218,7 @@ We may update this policy to reflect changes in our practices or legal requireme
 
 - We will update the "Effective date" and "Last reviewed" dates at the top of this page.
 - We will notify active customers via the Service or email for material changes.
-- Prior versions will be available in the repository's git history.
+- Prior versions are retained for compliance review.
 
 ---
 
@@ -229,7 +227,7 @@ We may update this policy to reflect changes in our practices or legal requireme
 For privacy-related questions, requests, or complaints:
 
 - **Email:** `privacy@archlucid.net`
-- **Security disclosures:** `security@archlucid.net` (see [`SECURITY.md`](../library/contributor-reference/SECURITY.md))
+- **Security disclosures:** `security@archlucid.net` (see [Security and trust](../library/contributor-reference/SECURITY.md))
 
 ---
 
@@ -237,10 +235,10 @@ For privacy-related questions, requests, or complaints:
 
 | Doc | Use |
 |-----|-----|
-| [PRIVACY_NOTE.md](../security/PRIVACY_NOTE.md) | Operator-facing GDPR Art. 30 processing activity records |
-| [DPA_TEMPLATE.md](DPA_TEMPLATE.md) | Data Processing Agreement template |
-| [SUBPROCESSORS.md](SUBPROCESSORS.md) | Current subprocessor list |
-| [trust-center.md](trust-center.md) | Trust Center index |
-| [PII_EMAIL.md](../security/PII_EMAIL.md) | PII boundary for transactional email |
-| [PII_RETENTION_CONVERSATIONS.md](../security/PII_RETENTION_CONVERSATIONS.md) | PII classification for conversation data |
-| [AUDIT_RETENTION_POLICY.md](../library/AUDIT_RETENTION_POLICY.md) | Audit data retention tiers |
+| [Privacy note](../security/PRIVACY_NOTE.md) | Operator-facing GDPR Art. 30 processing activity records |
+| [Data Processing Agreement](DPA_TEMPLATE.md) | Data Processing Agreement template |
+| [Subprocessors](SUBPROCESSORS.md) | Current subprocessor list |
+| [Trust Center](trust-center.md) | Trust Center index |
+| [PII email boundary](../security/PII_EMAIL.md) | PII boundary for transactional email |
+| [Conversation PII retention](../security/PII_RETENTION_CONVERSATIONS.md) | PII classification for conversation data |
+| [Audit retention policy](../library/AUDIT_RETENTION_POLICY.md) | Audit data retention tiers |

@@ -19,8 +19,7 @@ export type HealthSummaryTileId =
   | "readiness"
   | "configuration"
   | "ai-services"
-  | "background-tasks"
-  | "last-refreshed";
+  | "background-tasks";
 
 export type HealthSummaryTile = {
   readonly id: HealthSummaryTileId;
@@ -100,13 +99,6 @@ export function buildHealthSummaryTiles(input: {
   const backgroundSeverity = aggregateSeverityFromRows(rowsForCheckIds(readinessEntries, BACKGROUND_CHECK_IDS));
   const overallSeverity = resolveHealthDisplaySeverity(input.overallStatus);
 
-  const lastRefreshedValue =
-    input.loading
-      ? "Refreshing…"
-      : input.lastRefreshedAt === null
-        ? "—"
-        : input.lastRefreshedAt.toLocaleString();
-
   return [
     {
       id: "overall",
@@ -137,12 +129,6 @@ export function buildHealthSummaryTiles(input: {
       label: "Background tasks",
       value: summarizeTileStatus(backgroundSeverity),
       severity: backgroundSeverity,
-    },
-    {
-      id: "last-refreshed",
-      label: "Last refreshed",
-      value: lastRefreshedValue,
-      severity: "neutral",
     },
   ];
 }

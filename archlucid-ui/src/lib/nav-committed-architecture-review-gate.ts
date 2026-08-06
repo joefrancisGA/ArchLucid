@@ -41,11 +41,11 @@ export function pathnameEligibleBeforeFirstCommittedArchitectureReview(pathWitho
     return true;
   }
 
-  if (pathWithoutQuery === "/administration/settings/baseline" || pathWithoutQuery.startsWith("/administration/settings/baseline/")) {
+  if (pathWithoutQuery === "/administration/baseline" || pathWithoutQuery.startsWith("/administration/baseline/")) {
     return true;
   }
 
-  if (pathWithoutQuery === "/administration/settings/tenant" || pathWithoutQuery.startsWith("/administration/settings/tenant/")) {
+  if (pathWithoutQuery === "/administration/tenant" || pathWithoutQuery.startsWith("/administration/tenant/")) {
     return true;
   }
 

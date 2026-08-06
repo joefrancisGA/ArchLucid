@@ -1,6 +1,18 @@
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import { ADVISORY_SCANS_SCHEDULES_HREF } from "@/lib/advisory-scans-route";
-import { DIGESTS_BROWSE_SEND_TEST_LABEL } from "@/lib/digests-browse-copy";
+import {
+  DIGESTS_SCHEDULE_TAB_PATH,
+  DIGESTS_SUBSCRIPTIONS_TAB_PATH,
+} from "@/lib/digests-route-paths";
+import {
+  DIGESTS_BROWSE_GENERATE_FIRST_DETAIL,
+  DIGESTS_BROWSE_GENERATE_FIRST_DONE_DETAIL,
+  DIGESTS_BROWSE_GENERATE_FIRST_LABEL,
+  DIGESTS_BROWSE_HISTORY_PENDING_DETAIL,
+  DIGESTS_BROWSE_HISTORY_READY_DETAIL,
+  DIGESTS_BROWSE_RELATED_ADVISORY_LABEL,
+  DIGESTS_BROWSE_SETUP_STATUS_LABEL,
+} from "@/lib/digests-browse-copy";
 import type { WeeklyDigestHealthDto } from "@/types/operate-rhythm";
 
 /** Actionable setup gap for the digests health card. */
@@ -39,7 +51,7 @@ export function mapDigestSetupGap(gap: string): DigestSetupGapAction {
       title: "No active subscriptions",
       impact: "Generated digests have no outbound recipients in this scope.",
       actionLabel: "Create subscription",
-      href: "/digests?tab=subscriptions",
+      href: DIGESTS_SUBSCRIPTIONS_TAB_PATH,
     };
   }
 
@@ -48,7 +60,7 @@ export function mapDigestSetupGap(gap: string): DigestSetupGapAction {
       title: "Executive recipients not configured",
       impact: "Sponsor emails will not receive the executive rollup.",
       actionLabel: "Configure schedule",
-      href: "/digests?tab=schedule",
+      href: DIGESTS_SCHEDULE_TAB_PATH,
     };
   }
 
@@ -56,7 +68,7 @@ export function mapDigestSetupGap(gap: string): DigestSetupGapAction {
     title: "Digest setup needs attention",
     impact: trimmed.length > 0 ? trimmed : "Complete digest configuration to enable delivery.",
     actionLabel: "Configure schedule",
-    href: "/digests?tab=schedule",
+    href: DIGESTS_SCHEDULE_TAB_PATH,
   };
 }
 
@@ -72,7 +84,8 @@ export type DigestOverallStatus = {
 export type DigestSetupChecklistItem = {
   readonly id: string;
   readonly label: string;
-  readonly href: string;
+  /** `null` when the step has no destination to send the operator to (status-only row). */
+  readonly href: string | null;
   readonly complete: boolean;
   readonly detail: string;
 };
@@ -93,7 +106,7 @@ export function resolveDigestOverallStatus(snap: WeeklyDigestHealthDto): DigestO
     snap.enabledDigestSubscriptionCount === 0 &&
     !snap.executiveEmailDigestEnabled
   ) {
-    return { kind: "draft", label: "Setup needed" };
+    return { kind: "draft", label: DIGESTS_BROWSE_SETUP_STATUS_LABEL };
   }
 
   return { kind: "needs-attention", label: "Action needed" };
@@ -115,7 +128,7 @@ export function resolveDigestNextBestAction(snap: WeeklyDigestHealthDto): Digest
       title: "Add recipients or subscriptions",
       impact: "Add digest subscriptions so generated digests have outbound recipients.",
       actionLabel: "Add subscriptions",
-      href: "/digests?tab=subscriptions",
+      href: DIGESTS_SUBSCRIPTIONS_TAB_PATH,
     };
   }
 
@@ -124,7 +137,7 @@ export function resolveDigestNextBestAction(snap: WeeklyDigestHealthDto): Digest
       title: "Configure executive recipients",
       impact: "Optional sponsor rollup emails are configured on the Schedule tab.",
       actionLabel: "Configure schedule",
-      href: "/digests?tab=schedule",
+      href: DIGESTS_SCHEDULE_TAB_PATH,
     };
   }
 
@@ -134,9 +147,9 @@ export function resolveDigestNextBestAction(snap: WeeklyDigestHealthDto): Digest
     snap.latestArchitectureDigestGeneratedUtc.trim() === ""
   ) {
     return {
-      title: "Send test digest",
-      impact: "Generate the first digest to verify delivery and preview content.",
-      actionLabel: DIGESTS_BROWSE_SEND_TEST_LABEL,
+      title: DIGESTS_BROWSE_GENERATE_FIRST_LABEL,
+      impact: DIGESTS_BROWSE_GENERATE_FIRST_DETAIL,
+      actionLabel: DIGESTS_BROWSE_RELATED_ADVISORY_LABEL,
       href: ADVISORY_SCANS_SCHEDULES_HREF,
     };
   }
@@ -166,32 +179,41 @@ export function buildDigestSetupChecklistItems(
     {
       id: "recipients",
       label: "Add recipients or subscriptions",
-      href: "/digests?tab=subscriptions",
+      href: DIGESTS_SUBSCRIPTIONS_TAB_PATH,
       complete: hasRecipients,
       detail: hasRecipients ? "Active digest subscriptions configured." : "Add outbound recipients for delivery.",
     },
     {
       id: "test",
-      label: DIGESTS_BROWSE_SEND_TEST_LABEL,
+      label: DIGESTS_BROWSE_GENERATE_FIRST_LABEL,
       href: ADVISORY_SCANS_SCHEDULES_HREF,
       complete: hasTestDigest,
-      detail: hasTestDigest ? "At least one digest has been generated." : "Verify delivery with a test digest.",
+      detail: hasTestDigest
+        ? DIGESTS_BROWSE_GENERATE_FIRST_DONE_DETAIL
+        : DIGESTS_BROWSE_GENERATE_FIRST_DETAIL,
     },
     {
+      // Status-only: the checklist renders on Browse, so linking here would be a self-link.
       id: "history",
       label: "Review generated history",
-      href: "/digests?tab=browse",
+      href: null,
       complete: hasGeneratedDigests,
-      detail: hasGeneratedDigests ? "Digest history is available below." : "Generated digests will appear in this list.",
+      detail: hasGeneratedDigests
+        ? DIGESTS_BROWSE_HISTORY_READY_DETAIL
+        : DIGESTS_BROWSE_HISTORY_PENDING_DETAIL,
     },
   ];
 }
 
-export function digestSetupShowsRecipientClarification(snap: WeeklyDigestHealthDto): boolean {
-  const hasSubscriptionGap: boolean = snap.setupGaps.some((gap) => /digest subscriptions/i.test(gap));
-  const hasExecutiveGap: boolean = snap.setupGaps.some((gap) => /executive email digest/i.test(gap));
-
-  return hasSubscriptionGap && hasExecutiveGap;
+/**
+ * True when a step the operator can still act on is incomplete.
+ * The status-only `history` row is excluded — it is an outcome, not a task,
+ * so an empty history alone must not make the surface look misconfigured.
+ */
+export function digestSetupHasIncompleteActionableStep(
+  items: readonly DigestSetupChecklistItem[],
+): boolean {
+  return items.some((item) => item.href !== null && !item.complete);
 }
 
 /** True when schedules, subscriptions, or executive email already have some configuration. */

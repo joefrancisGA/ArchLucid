@@ -17,6 +17,7 @@ import {
 import type { NavGroupConfig } from "@/lib/nav-config.types";
 import {
   GOVERNANCE_APPROVAL_QUEUE_PATH,
+  GOVERNANCE_EXCEPTIONS_PATH,
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
 } from "@/lib/governance-route-paths";
 import { GOVERNANCE_SETUP_HREF } from "@/lib/governance-setup-route";
@@ -57,7 +58,7 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
           requiredAuthority: "ReadAuthority",
         },
         {
-          href: "/governance/risk-exceptions",
+          href: GOVERNANCE_EXCEPTIONS_PATH,
           label: OPERATOR_NAV_LINK_LABELS.riskExceptions,
           title: "Track active waivers and expirations",
           icon: ShieldX,

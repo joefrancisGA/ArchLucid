@@ -5,11 +5,12 @@ import { SystemHealthSourcesStrip } from "@/app/(operator)/administration/system
 import { SYSTEM_HEALTH_CANONICAL_PATH, SYSTEM_HEALTH_SOURCES } from "@/lib/system-health-evidence-copy";
 
 describe("SystemHealthSourcesStrip", () => {
-  it("lists follow-up Sources without self-linking system-health", () => {
+  it("lists Related operator surfaces without self-linking system-health or claim-boundary band", () => {
     render(<SystemHealthSourcesStrip />);
 
     expect(screen.getByTestId("system-health-sources")).toBeInTheDocument();
-    expect(screen.getByTestId("system-health-claim-discipline")).toHaveTextContent(/diligence Sources trail/i);
+    expect(screen.queryByTestId("system-health-claim-discipline")).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Related operator surfaces/i })).toBeInTheDocument();
 
     const sources = screen.getByTestId("system-health-sources");
 

@@ -297,6 +297,8 @@ Former standalone body: `docs/library/FIRST_15_MINUTES_FOR_PRINCIPAL_ARCHITECTS.
 
 **Timing validation:** GTM backlog **M-44 (V1.1)** — observed first-session cohort measures whether experts hit the step-4 checkpoint within 15 minutes without facilitator narration. Until that cohort completes, do **not** claim product-led “15 minutes without founder narration” as proven (see claim boundary / **M-180**).
 
+**Engineering SoT (must-complete + IA unlock + residuals):** [`PA_FIRST_15_PACKAGE_SPINE_IA_CONTRACT.md`](PA_FIRST_15_PACKAGE_SPINE_IA_CONTRACT.md) (**TB-1030** Done). Follow-on honesty CI: **TB-1031**.
+
 ### Objective (one)
 
 **Produce one committed finding you would raise in a real architecture review — or stop at minute 12 and record why ArchLucid did not beat your frontier-AI workflow.**

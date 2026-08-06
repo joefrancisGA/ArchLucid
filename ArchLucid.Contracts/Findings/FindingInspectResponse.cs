@@ -249,4 +249,18 @@ public sealed class FindingInspectResponse
         get;
         init;
     }
+
+    /// <summary>Authoritative trust label for operator inspect surfaces (enriched at read time).</summary>
+    public string? TrustLabel
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Short reason accompanying <see cref="TrustLabel" />.</summary>
+    public string? TrustLabelReason
+    {
+        get;
+        init;
+    }
 }

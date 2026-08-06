@@ -412,11 +412,16 @@ function AppShellInner({ children }: AppShellClientProps) {
           Skip to main content
         </a>
         <div ref={shellRootRef} key={chromeMode} className="flex min-h-screen flex-col overflow-x-hidden bg-neutral-50 dark:bg-neutral-950">
-          <div ref={stickyHeaderRef} className="sticky top-0 z-30 overflow-x-hidden bg-neutral-50 shadow-sm dark:bg-neutral-950 print:hidden">
+          {/* Sticky budget: optional trial strip + one-row top bar only. Journey caption scrolls with the page. */}
+          <div
+            ref={stickyHeaderRef}
+            data-testid="app-shell-sticky-header"
+            className="sticky top-0 z-30 bg-neutral-50 shadow-sm dark:bg-neutral-950 print:hidden"
+          >
             <FrictionlessTrialBanner />
             <OperatorShellTopBar onOpenHelpSearch={openHelpSearch} />
-            <CtoDemoJourneyCaptionBar />
           </div>
+          <CtoDemoJourneyCaptionBar />
           <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, OPERATOR_SHELL_BODY_ROW_CLASS)}>
             <nav
               data-testid="sidebar-nav"

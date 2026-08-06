@@ -38,7 +38,7 @@ export function GraphEvidenceTrailGuidanceDisclosure(props: GraphEvidenceTrailGu
         <p className="m-0">{BUYER_EVIDENCE_TRAIL_LAYER_DISCLOSURE_LEAD}</p>
         <p className="m-0">{block.useWhen}</p>
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{BUYER_GRAPH_WHAT_THIS_PROVES}</p>
-        {GRAPH_PAGE_HELP_TOPIC !== null ? (
+        {GRAPH_PAGE_HELP_TOPIC?.slug != null ? (
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
             <InAppHelpLink
               helpSlug={GRAPH_PAGE_HELP_TOPIC.slug}

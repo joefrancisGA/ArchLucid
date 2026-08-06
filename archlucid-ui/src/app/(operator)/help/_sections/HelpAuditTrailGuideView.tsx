@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
+import { AuditTrailHelpEvidenceOrientationStrip } from "@/app/(operator)/help/_sections/AuditTrailHelpEvidenceOrientationStrip";
 import { HelpAuditTrailPageHeader } from "@/app/(operator)/help/_sections/HelpAuditTrailPageHeader";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
@@ -79,6 +80,8 @@ export function HelpAuditTrailGuideView(props: HelpAuditTrailGuideViewProps): Re
           void onRefresh();
         }}
       />
+
+      <AuditTrailHelpEvidenceOrientationStrip />
 
       <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
         <Card

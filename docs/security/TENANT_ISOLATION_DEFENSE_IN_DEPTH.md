@@ -94,7 +94,7 @@ flowchart TB
 ### Layer E — Blob and auxiliary stores
 
 - `ArtifactBlobTenantPaths` — tenant prefix on blob keys
-- Vector index / Cosmos: tenant id on queries and writes (see retrieval architecture tests)
+- Vector index / Azure AI Search / Ask / Graph-RAG: mandatory scope `$filter` + fail-closed upsert + scoped Graph-RAG expand — see [`RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md`](../library/RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md) (**TB-1001**); retrieval architecture tests
 
 ### Layer F — Platform cross-tenant (explicit exception)
 

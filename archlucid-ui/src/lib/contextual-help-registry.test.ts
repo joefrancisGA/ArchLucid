@@ -46,8 +46,12 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/dpa-template",
       "/help/soc2-self-assessment",
       "/help/path-chooser",
+      "/help/evaluator-workbook",
+      "/help/enterprise-onboarding",
+      "/help/pilot-roi-model",
       "/help/policy-pack-delta-demo",
       "/help/configuration-reference",
+      "/help/cli-usage",
       "/help/first-review",
       "/help/first-value-20-minutes",
       "/help/developer-troubleshooting",
@@ -59,41 +63,74 @@ describe("contextual-help-registry (TB-733)", () => {
       "/architecture/reviews/new",
       "/governance/audit",
       "/administration/system-health",
+      "/administration/connection-status",
+      "/architecture/digests",
       "/digests",
+      "/digest-subscriptions",
+      "/help/digests",
       "/insights/planning/plans",
       "/insights/planning",
+      "/insights/impact-preview",
       "/internal/product-learning",
+      "/why-archlucid",
+      "/demo/explain",
       "/governance/advisory-scans",
       "/sponsor-report/executive-summary",
       "/sponsor-report/pilot-outcomes",
       "/executive/scorecard",
       "/governance/alert-rules",
       "/governance/approval-requests",
-      "/signed-records",
+      "/governance/signed-records",
       "/admin/tenant-health",
       "/admin/trial-funnel",
+      "/admin/demo-readiness",
+      "/admin/deployment-status",
       "/help/getting-started",
       "/help/how-it-works",
       "/help/troubleshooting",
       "/help/alerts",
       "/help/billing-and-plans",
+      "/help/security-trust",
+      "/help/procurement",
+      "/help/scope",
+      "/help/audit-trail",
+      "/help/evidence-trail",
+      "/help/evidence-intake",
       "/help/findings",
       "/help/governance-approval",
       "/help/review-guide",
+      "/help/repeat-review-loop",
       "/help/pilot-guide",
+      "/help/first-architecture-review",
+      "/help/core-pilot",
+      "/help/first-pilot-path",
+      "/help/first-hour-operator-path",
       "/help/cloud-connections/azure",
       "/help/azure-permissions",
       "/help/glossary",
       "/help/operator-auth-roles",
       "/help/users-and-roles",
       "/help/cloud-connections",
-      "/administration/settings/users/invite-reviewer",
-      "/administration/settings/users",
+      "/administration/users/invite-reviewer",
+      "/administration/users",
+      "/settings/roles",
+      "/administration/identity-providers/role-mapping",
+      "/administration/api-keys",
+      "/administration/preferences",
+      "/administration/account-security",
+      "/administration/auth-domains",
+      "/administration/extract-upload",
+      "/administration/security-trust",
+      "/administration/billing",
+      "/administration/ai-usage",
+      "/administration/baseline",
       "/integrations/cloud-connections",
       "/integrations/jira",
+      "/integrations/itsm/oauth/callback",
       "/integrations/servicenow",
       "/integrations/slack",
       "/integrations/webhooks",
+      "/operate/integration-events/dlq",
       "/integrations/teams",
       "/settings/cloud-connections",
     ]);
@@ -114,7 +151,6 @@ describe("contextual-help-registry (TB-733)", () => {
 
   it("resolves Overview home without stealing other routes (HOM / TB-1667)", () => {
     expect(contextualHelpForPathname("/")?.whatIsThisPage).toContain("Overview");
-    expect(contextualHelpForPathname("/administration/connection-status")).toBeNull();
     expect(contextualHelpForPathname("/architecture/architectures")).toBeNull();
   });
 
@@ -162,8 +198,49 @@ describe("contextual-help-registry (TB-733)", () => {
   });
 
   it("resolves users-and-roles settings Category-1 help (AUX)", () => {
-    expect(contextualHelpForPathname("/administration/settings/users")?.whatIsThisPage).toContain("Invite users");
-    expect(contextualHelpForPathname("/administration/settings/users")?.whatToDoNext).toContain("Invite a teammate");
+    expect(contextualHelpForPathname("/administration/users")?.whatIsThisPage).toContain("Invite users");
+    expect(contextualHelpForPathname("/administration/users")?.whatToDoNext).toContain("Invite a teammate");
+  });
+
+  it("resolves Role mapping settings Category-1 help (ADO)", () => {
+    expect(
+      contextualHelpForPathname("/administration/identity-providers/role-mapping")?.whatIsThisPage,
+    ).toContain("Role mapping");
+    expect(
+      contextualHelpForPathname("/administration/identity-providers/role-mapping")?.whatToDoNext,
+    ).toContain("diagnostics");
+  });
+
+  it("resolves API keys settings Category-1 help (ADP)", () => {
+    expect(contextualHelpForPathname("/administration/api-keys")?.whatIsThisPage).toContain("API keys");
+    expect(contextualHelpForPathname("/administration/api-keys")?.whatToDoNext).toContain("Audit");
+  });
+
+  it("resolves Preferences settings Category-1 help (ADR)", () => {
+    expect(contextualHelpForPathname("/administration/preferences")?.whatIsThisPage).toContain(
+      "Preferences",
+    );
+    expect(contextualHelpForPathname("/administration/preferences")?.whatToDoNext).toContain(
+      "theme",
+    );
+  });
+
+  it("resolves Account security settings Category-1 help (ADS)", () => {
+    expect(contextualHelpForPathname("/administration/account-security")?.whatIsThisPage).toContain(
+      "Account security",
+    );
+    expect(contextualHelpForPathname("/administration/account-security")?.whatToDoNext).toContain(
+      "sign-in",
+    );
+  });
+
+  it("resolves Sign-in domains settings Category-1 help (ADU)", () => {
+    expect(contextualHelpForPathname("/administration/auth-domains")?.whatIsThisPage).toContain(
+      "Sign-in domains",
+    );
+    expect(contextualHelpForPathname("/administration/auth-domains")?.whatToDoNext).toContain(
+      "Identity providers",
+    );
   });
 
   it("resolves approval lineage Category-1 help (GAI)", () => {
@@ -185,10 +262,10 @@ describe("contextual-help-registry (TB-733)", () => {
   });
 
   it("resolves signed-record detail Category-1 help (MMX)", () => {
-    expect(contextualHelpForPathname("/signed-records/demo-manifest")?.whatIsThisPage).toContain(
+    expect(contextualHelpForPathname("/governance/signed-records/demo-manifest")?.whatIsThisPage).toContain(
       "Signed review record",
     );
-    expect(contextualHelpForPathname("/signed-records/demo-manifest")?.whatToDoNext).toContain(
+    expect(contextualHelpForPathname("/governance/signed-records/demo-manifest")?.whatToDoNext).toContain(
       "export the review bundle",
     );
   });
@@ -243,6 +320,80 @@ describe("contextual-help-registry (TB-733)", () => {
     expect(contextualHelpForPathname("/help/pilot-guide")?.whatToDoNext).toContain("architecture review");
   });
 
+  it("resolves first architecture review help Category-1 help (COR)", () => {
+    expect(contextualHelpForPathname("/help/first-architecture-review")?.whatIsThisPage).toContain(
+      "Your first architecture review",
+    );
+    expect(contextualHelpForPathname("/help/first-architecture-review")?.whatToDoNext).toContain(
+      "architecture review",
+    );
+    expect(contextualHelpForPathname("/help/core-pilot")?.whatIsThisPage).toContain(
+      "Your first architecture review",
+    );
+  });
+
+  it("resolves demo explain Category-1 help (DEX)", () => {
+    expect(contextualHelpForPathname("/demo/explain")?.whatIsThisPage).toContain("Demo explain");
+    expect(contextualHelpForPathname("/demo/explain")?.whatToDoNext).toContain("Validate review");
+  });
+
+  it("resolves evidence trail help Category-1 help (EV)", () => {
+    expect(contextualHelpForPathname("/help/evidence-trail")?.whatIsThisPage).toContain("Evidence graph");
+    expect(contextualHelpForPathname("/help/evidence-trail")?.whatToDoNext).toContain("Evidence graph");
+  });
+
+  it("resolves evidence intake help Category-1 help (EVI)", () => {
+    expect(contextualHelpForPathname("/help/evidence-intake")?.whatIsThisPage).toContain("Start a review");
+    expect(contextualHelpForPathname("/help/evidence-intake")?.whatToDoNext).toContain(
+      "architecture review",
+    );
+  });
+
+  it("resolves first-pilot-path help alias Category-1 help (FIR)", () => {
+    expect(contextualHelpForPathname("/help/first-pilot-path")?.whatIsThisPage).toContain(
+      "Your first architecture review",
+    );
+  });
+
+  it("resolves evaluator-workbook help alias Category-1 help (HEE)", () => {
+    expect(contextualHelpForPathname("/help/evaluator-workbook")?.whatIsThisPage).toContain(
+      "primary next action",
+    );
+  });
+
+  it("resolves enterprise onboarding help Category-1 help (HEX)", () => {
+    expect(contextualHelpForPathname("/help/enterprise-onboarding")?.whatIsThisPage).toContain(
+      "Enterprise onboarding",
+    );
+    expect(contextualHelpForPathname("/help/enterprise-onboarding")?.whatToDoNext).toContain(
+      "Identity providers",
+    );
+  });
+
+  it("resolves pilot ROI model help Category-1 help (PI)", () => {
+    expect(contextualHelpForPathname("/help/pilot-roi-model")?.whatIsThisPage).toContain(
+      "Pilot ROI model",
+    );
+    expect(contextualHelpForPathname("/help/pilot-roi-model")?.whatToDoNext).toContain(
+      "Architecture scorecard",
+    );
+  });
+
+  it("resolves first-hour-operator-path help alias Category-1 help (HFE)", () => {
+    expect(contextualHelpForPathname("/help/first-hour-operator-path")?.whatIsThisPage).toContain(
+      "Your first architecture review",
+    );
+  });
+
+  it("resolves repeat-review loop help Category-1 help (HRX)", () => {
+    expect(contextualHelpForPathname("/help/repeat-review-loop")?.whatIsThisPage).toContain(
+      "Repeat-review loop",
+    );
+    expect(contextualHelpForPathname("/help/repeat-review-loop")?.whatToDoNext).toContain(
+      "Compare two reviews",
+    );
+  });
+
   it("resolves jira integration Category-1 help (IJX)", () => {
     expect(contextualHelpForPathname("/integrations/jira")?.whatIsThisPage).toContain("Jira integration");
     expect(contextualHelpForPathname("/integrations/jira")?.whatToDoNext).toContain("Test the connector");
@@ -274,11 +425,38 @@ describe("contextual-help-registry (TB-733)", () => {
   });
 
   it("resolves invite-reviewer Category-1 help (SRI)", () => {
-    expect(contextualHelpForPathname("/administration/settings/users/invite-reviewer")?.whatIsThisPage).toContain(
+    expect(contextualHelpForPathname("/administration/users/invite-reviewer")?.whatIsThisPage).toContain(
       "Invite a reviewer",
     );
-    expect(contextualHelpForPathname("/administration/settings/users/invite-reviewer")?.whatToDoNext).toContain(
+    expect(contextualHelpForPathname("/administration/users/invite-reviewer")?.whatToDoNext).toContain(
       "invitation",
+    );
+  });
+
+  it("resolves Billing & plans settings Category-1 help (ABI)", () => {
+    expect(contextualHelpForPathname("/administration/billing")?.whatIsThisPage).toContain(
+      "Billing & plans",
+    );
+    expect(contextualHelpForPathname("/administration/billing")?.whatToDoNext).toContain(
+      "Available plans",
+    );
+  });
+
+  it("resolves AI usage settings Category-1 help (ADI)", () => {
+    expect(contextualHelpForPathname("/administration/ai-usage")?.whatIsThisPage).toContain(
+      "AI usage and cost",
+    );
+    expect(contextualHelpForPathname("/administration/ai-usage")?.whatToDoNext).toContain(
+      "Billing & plans",
+    );
+  });
+
+  it("resolves Baseline settings Category-1 help (ADA)", () => {
+    expect(contextualHelpForPathname("/administration/baseline")?.whatIsThisPage).toContain(
+      "Baseline settings",
+    );
+    expect(contextualHelpForPathname("/administration/baseline")?.whatToDoNext).toContain(
+      "Pilot ROI model",
     );
   });
 
@@ -298,8 +476,41 @@ describe("contextual-help-registry (TB-733)", () => {
     expect(contextualHelpForPathname("/sponsor-report/pilot-outcomes")?.whatToDoNext).toContain("reporting period");
   });
 
+  it("resolves system-health Category-1 help with Connection status action (ADY)", () => {
+    const entry = contextualHelpForPathname("/administration/system-health");
+
+    expect(entry?.whatIsThisPage).toContain("service health");
+    expect(entry?.whatToDoNextAction?.label).toBe("Open Connection status");
+    expect(entry?.whatToDoNextAction?.href).toBe("/administration/connection-status");
+  });
+
+  it("resolves Connection status Category-1 help (ADC)", () => {
+    const entry = contextualHelpForPathname("/administration/connection-status");
+
+    expect(entry?.whatIsThisPage).toContain("Connection status");
+    expect(entry?.whatToDoNext).toContain("System health");
+    expect(entry?.whatToDoNextAction?.href).toBe("/administration/system-health");
+  });
+
+  it("resolves Demo readiness Category-1 help (ADD)", () => {
+    expect(contextualHelpForPathname("/admin/demo-readiness")?.whatIsThisPage).toContain(
+      "Demo readiness",
+    );
+    expect(contextualHelpForPathname("/admin/demo-readiness")?.whatToDoNext).toContain(
+      "System health",
+    );
+  });
+
+  it("resolves Deployment status Category-1 help (ADE)", () => {
+    expect(contextualHelpForPathname("/admin/deployment-status")?.whatIsThisPage).toContain(
+      "Deployment status",
+    );
+    expect(contextualHelpForPathname("/admin/deployment-status")?.whatToDoNext).toContain(
+      "System health",
+    );
+  });
+
   it("returns null for routes not yet migrated", () => {
-    expect(contextualHelpForPathname("/administration/connection-status")).toBeNull();
     expect(contextualHelpForPathname("/architecture/architectures")).toBeNull();
   });
 

@@ -5,7 +5,7 @@
 export const INVITE_REVIEWER_TRAFFIC_ROW_ID = "SRI";
 
 /** Canonical path tracked on the SRI workbook row. */
-export const INVITE_REVIEWER_TRAFFIC_PATH = "/administration/settings/users/invite-reviewer";
+export const INVITE_REVIEWER_TRAFFIC_PATH = "/administration/users/invite-reviewer";
 
 /** Workbook Section column value (template catalog). */
 export const INVITE_REVIEWER_TRAFFIC_SECTION = "Admin";

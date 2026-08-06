@@ -18,4 +18,22 @@ describe("MarketingPublicFooter", () => {
     expect(screen.queryByRole("link", { name: "Privacy" })).toBeNull();
     expect(screen.getByRole("link", { name: "Product FAQ" })).toHaveAttribute("href", "/faq");
   });
+
+  it("shows Francis Architecture, LLC copyright", () => {
+    render(<MarketingPublicFooter />);
+
+    expect(screen.getByTestId("marketing-public-footer-copyright")).toHaveTextContent(
+      `© ${new Date().getFullYear()} Francis Architecture, LLC. All rights reserved.`,
+    );
+  });
+
+  it("omits Sign in on signup routes where the header already exposes it", async () => {
+    const { usePathname } = await import("next/navigation");
+    vi.mocked(usePathname).mockReturnValue("/signup");
+
+    render(<MarketingPublicFooter />);
+
+    expect(screen.queryByRole("link", { name: "Sign in" })).toBeNull();
+    expect(screen.getByRole("link", { name: "Product FAQ" })).toHaveAttribute("href", "/faq");
+  });
 });

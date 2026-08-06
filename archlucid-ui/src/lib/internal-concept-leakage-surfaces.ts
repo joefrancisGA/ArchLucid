@@ -1,6 +1,6 @@
 /** Customer-facing modules scanned by {@link ./internal-concept-leakage-guard.test.ts} (IA-013). */
 export const INTERNAL_CONCEPT_LEAKAGE_SURFACES = [
-  "src/app/(operator)/administration/settings/users/_sections/SettingsRolesPageView.tsx",
+  "src/app/(operator)/administration/users/_sections/SettingsRolesPageView.tsx",
   "src/app/(operator)/admin/trial-funnel/_sections/TrialFunnelOpsPageClient.tsx",
   "src/app/(operator)/integrations/cloud-connections/_sections/Tier2ConnectionWizard.tsx",
   "src/lib/buyer-polish-copy.ts",

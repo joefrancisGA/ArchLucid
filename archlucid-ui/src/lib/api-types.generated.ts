@@ -94109,6 +94109,8 @@ export interface components {
             runId?: string;
             severity?: components["schemas"]["FindingSeverity"];
             trackedExternally?: boolean;
+            trustLabel?: null | string;
+            trustLabelReason?: null | string;
             typedPayload?: null | components["schemas"]["JsonElement"];
         };
         FindingLlmAuditResult: {

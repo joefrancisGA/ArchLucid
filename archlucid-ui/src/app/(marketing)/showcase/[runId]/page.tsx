@@ -6,6 +6,7 @@ import {
   DemoPreviewMarketingBody,
   DemoPreviewNotAvailable,
 } from "../../demo/preview/DemoPreviewMarketingBody";
+import { ShowcaseEvidenceOrientationStrip } from "@/components/marketing/ShowcaseEvidenceOrientationStrip";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 import { MARKETING_UPSTREAM_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
 import { getShowcaseStaticDemoPayload } from "@/lib/showcase-static-demo";
@@ -270,6 +271,8 @@ function ShowcasePayloadView({
 
       <ShowcaseLead>{trimLeadDescription(payload.run.description)}</ShowcaseLead>
 
+      <ShowcaseEvidenceOrientationStrip />
+
       <ShowcaseExecutiveSummary payload={payload} />
 
       <div className="mt-6">
@@ -370,6 +373,8 @@ export default async function MarketingShowcasePage(props: PageProps) {
         <main className="mx-auto max-w-5xl px-4 py-10">
           <ShowcaseHero runId={runId} />
 
+          <ShowcaseEvidenceOrientationStrip />
+
           <div className="mt-6">
             <DemoPreviewNotAvailable />
           </div>
@@ -386,6 +391,8 @@ export default async function MarketingShowcasePage(props: PageProps) {
       return (
         <main className="mx-auto max-w-5xl px-4 py-10">
           <ShowcaseHero runId={runId} />
+
+          <ShowcaseEvidenceOrientationStrip />
 
           <ShowcaseLoadFailed />
 

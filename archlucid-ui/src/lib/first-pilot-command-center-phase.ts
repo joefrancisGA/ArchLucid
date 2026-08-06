@@ -132,7 +132,7 @@ export function resolveFirstPilotCommandCenterPhase(input: {
       summary:
         "Add architecture evidence — brief, documents, diagrams, IaC, or a cloud inventory ZIP (AWS, Azure, or GCP) — or acknowledge the sample review before starting the first architecture review.",
 
-      href: "/administration/settings/extract-upload",
+      href: "/administration/extract-upload",
 
       cta: "Add evidence",
 

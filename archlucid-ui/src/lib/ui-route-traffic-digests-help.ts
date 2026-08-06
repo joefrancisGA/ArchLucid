@@ -1,0 +1,17 @@
+/**
+ * Traffic workbook row ID for Digests help.
+ * Owner backlog shorthand: HDG.
+ */
+export const DIGESTS_HELP_TRAFFIC_ROW_ID = "HDG";
+
+/** Canonical path tracked on the HDG workbook row. */
+export const DIGESTS_HELP_TRAFFIC_PATH = "/help/digests";
+
+/** Workbook Section column value (template catalog). */
+export const DIGESTS_HELP_TRAFFIC_SECTION = "Help topic";
+
+/**
+ * Owner workbook Notes for HDG — Digests specialty help (TB-2049).
+ */
+export const DIGESTS_HELP_TRAFFIC_NOTE =
+  "Digests help (Help topic) - HelpDigestsGuideView with PageContextualHelpButton (topic map digests; Category-1 registry), workspace Sources + claim-discipline orientation strip, Schedule/Subscriptions/Browse CTAs, how-digests-work stepper. Operator orientation guide — not a signed-record Sources trail. Sibling DI = hub; DIS = schedule. Does not imply CPA SOC 2 or third-party pen-test publication. Score 50/100 (2026-08-05) — help-topic orientation hard-caps higher Evidence.";

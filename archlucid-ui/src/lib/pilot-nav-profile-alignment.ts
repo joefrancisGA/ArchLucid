@@ -16,7 +16,6 @@ export const PILOT_NAV_OPERATE_GROUP_IDS = [
   "operate-analysis",
   "operate-architect-advanced",
   "operate-governance",
-  "operate-reports",
   "operate-integrations",
 ] as const;
 

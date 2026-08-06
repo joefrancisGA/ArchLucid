@@ -3,21 +3,61 @@
  * questions per operator route. Long-form guides remain on `/help/{slug}` via `page-help-topic-map.ts`.
  */
 
+import { ADVISORY_SCANS_SCHEDULES_HREF } from "@/lib/advisory-scans-route";
+import { REVIEWS_LIST_PATH } from "@/lib/architecture-routes";
+import {
+  DIGESTS_HUB_PATH,
+  DIGESTS_SCHEDULE_TAB_PATH,
+  DIGESTS_SUBSCRIPTIONS_TAB_PATH,
+  LEGACY_DIGESTS_HUB_PATH,
+  LEGACY_DIGEST_SUBSCRIPTIONS_PATH,
+} from "@/lib/digests-route-paths";
+import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance-route-paths";
+import { PLANNING_PATH } from "@/lib/planning-route";
+import { PRODUCT_LEARNING_PATH } from "@/lib/product-learning-route";
+import {
+  LEGACY_SETTINGS_ROLES_PATH,
+} from "@/lib/settings-admin-route-paths";
 import {
   PROVENANCE_CONTEXTUAL_HELP,
   pathIsRunProvenance,
 } from "@/lib/provenance-evidence-copy";
+
+/** Optional in-app deep link for a Category-1 field (TB-2049 Digests golden / TB-2051). */
+export type PageContextualHelpAction = {
+  readonly label: string;
+  readonly href: string;
+};
 
 export type PageContextualHelpEntry = {
   readonly whatIsThisPage: string;
   readonly whatToDoNext: string;
   readonly whyEmpty?: string;
   readonly whereToConfigurePrerequisite?: string;
+  readonly whatToDoNextAction?: PageContextualHelpAction;
+  readonly whereToConfigureAction?: PageContextualHelpAction;
 };
 
 type PageContextualHelpRow = {
   readonly prefix: string;
   readonly entry: PageContextualHelpEntry;
+};
+
+const DIGESTS_HUB_CONTEXTUAL_HELP: PageContextualHelpEntry = {
+  whatIsThisPage:
+    "Send scheduled summaries of review activity, governance signals, findings, and advisory scans.",
+  whatToDoNext: "Open the Schedule tab to set timing and recipients, then preview or send a test digest.",
+  whyEmpty: "Generated digests appear here after a schedule and recipients are configured.",
+  whereToConfigurePrerequisite:
+    "Recipient subscriptions and executive rollup settings live on the Schedule tab.",
+  whatToDoNextAction: {
+    label: "Open Schedule tab",
+    href: DIGESTS_SCHEDULE_TAB_PATH,
+  },
+  whereToConfigureAction: {
+    label: "Open Schedule tab",
+    href: DIGESTS_SCHEDULE_TAB_PATH,
+  },
 };
 
 const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
@@ -63,6 +103,10 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whyEmpty: "Tiles stay at zero until governance and audit activity exists in the current workspace scope.",
       whereToConfigurePrerequisite:
         "Switch workspace or project scope from the header switcher — figures never roll up across workspaces.",
+      whatToDoNextAction: {
+        label: "Open approval queue",
+        href: GOVERNANCE_APPROVAL_QUEUE_PATH,
+      },
     },
   },
   {
@@ -126,7 +170,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whatIsThisPage:
         "Explain how review evidence is handled, what stays in your tenant, and how three-layer isolation works.",
       whatToDoNext:
-        "Open Trust Center or Security and trust for diligence artifacts, then review Sources before sponsor briefings.",
+        "Open Trust Center or Assurance status for diligence artifacts, then review Sources before sponsor briefings.",
       whyEmpty: "This guide always shows isolation and data-handling content when the help topic loads.",
       whereToConfigurePrerequisite: "Confirm residency and subprocessors during procurement with your account team.",
     },
@@ -166,6 +210,41 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/help/evaluator-workbook",
+    entry: {
+      whatIsThisPage:
+        "Map your current goal to one primary next action for evaluate, pilot, procurement, sponsor, or engineering support.",
+      whatToDoNext:
+        "Pick the matching goal branch, open the primary cite, then use Sources before treating orientation as diligence.",
+      whyEmpty: "Branches always appear when this help topic loads.",
+      whereToConfigurePrerequisite: "Start or finalize a review when your goal needs product evidence, not just orientation.",
+    },
+  },
+  {
+    prefix: "/help/enterprise-onboarding",
+    entry: {
+      whatIsThisPage:
+        "Enterprise onboarding checklist - configure SSO, roles, governance, policy packs, audit export, and optional Azure evidence for a hosted tenant.",
+      whatToDoNext:
+        "Open Identity providers for SSO, Users and roles for access, then Assurance status for assurance orientation.",
+      whyEmpty: "This guide is always available; live identity and role surfaces appear after workspace configuration.",
+      whereToConfigurePrerequisite:
+        "SSO and role changes need System Admin authority in the current workspace.",
+    },
+  },
+  {
+    prefix: "/help/pilot-roi-model",
+    entry: {
+      whatIsThisPage:
+        "Pilot ROI model - how sponsor ROI figures are labeled, sourced, and kept buyer-safe in proof packets.",
+      whatToDoNext:
+        "Open Architecture scorecard or ROI summary for live numbers, or Workspace baseline when anchors need capture.",
+      whyEmpty: "This guide is always available; scorecard and baseline surfaces populate after reviews and tenant setup.",
+      whereToConfigurePrerequisite:
+        "Baseline and scorecard numbers need a role that can read tenant settings and finalized reviews.",
+    },
+  },
+  {
     prefix: "/help/policy-pack-delta-demo",
     entry: {
       whatIsThisPage:
@@ -185,6 +264,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
         "Open the matching settings CTA (SSO, identity providers, or API keys), then expand the key catalog appendix only if needed.",
       whyEmpty: "This guide always shows configuration tasks when the help topic loads.",
       whereToConfigurePrerequisite: "Admin access to identity settings, API keys, and the configuration summary.",
+    },
+  },
+  {
+    prefix: "/help/cli-usage",
+    entry: {
+      whatIsThisPage:
+        "CLI usage engineering runbook — non-interactive archlucid commands, environment variables, exit codes, and API starter fixtures.",
+      whatToDoNext:
+        "Prefer customer Troubleshooting and System health first, then use CLI detail; open engineering troubleshooting when logs need deeper triage.",
+      whyEmpty: "This reference always shows when the help topic loads.",
+      whereToConfigurePrerequisite:
+        "CLI and API automation need credentials and workspace scope configured for the target environment.",
     },
   },
   {
@@ -264,6 +355,10 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whyEmpty: "Decisions appear after reviews are signed with recorded architecture decisions.",
       whereToConfigurePrerequisite:
         "Decision register respects the workspace and project selected in the header switcher.",
+      whatToDoNextAction: {
+        label: "Open architecture reviews",
+        href: REVIEWS_LIST_PATH,
+      },
     },
   },
   {
@@ -306,23 +401,68 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     prefix: "/administration/system-health",
     entry: {
       whatIsThisPage:
-        "Check workspace service health, required dependencies, and deployment identity for this tenant.",
+        "Confirm workspace service health, required dependencies, and deployment identity for this tenant.",
       whatToDoNext:
-        "Refresh readiness, open Connection status when a dependency fails, or follow Troubleshooting help.",
+        "Refresh readiness, then open Connection status when a dependency needs follow-up.",
       whyEmpty: "Health rows appear after the readiness probe returns for this workspace.",
       whereToConfigurePrerequisite:
-        "Dependency connectivity is configured under Administration connection settings.",
+        "Dependency connectivity is configured under Administration → Connection status.",
+      whatToDoNextAction: {
+        label: "Open Connection status",
+        href: "/administration/connection-status",
+      },
+      whereToConfigureAction: {
+        label: "Open Connection status",
+        href: "/administration/connection-status",
+      },
     },
   },
   {
-    prefix: "/digests",
+    prefix: "/administration/connection-status",
     entry: {
       whatIsThisPage:
-        "Send scheduled summaries of review activity, governance signals, findings, and advisory scans.",
-      whatToDoNext: "Open the Schedule tab to set timing and recipients, then preview or send a test digest.",
-      whyEmpty: "Generated digests appear here after a schedule and recipients are configured.",
+        "Connection status - see which notification, ticketing, publishing, and delivery integrations are ready, recommended, or optional for this workspace.",
+      whatToDoNext:
+        "Open a connector that needs configuration, or System health when dependency checks need follow-up.",
+      whyEmpty:
+        "Readiness tiles appear after connector probes load; optional connectors stay listed until configured.",
       whereToConfigurePrerequisite:
-        "Recipient subscriptions and executive rollup settings live on the Schedule tab.",
+        "Configuring connectors needs a role that can manage workspace integrations.",
+      whatToDoNextAction: {
+        label: "Open System health",
+        href: "/administration/system-health",
+      },
+    },
+  },
+  {
+    prefix: DIGESTS_HUB_PATH,
+    entry: DIGESTS_HUB_CONTEXTUAL_HELP,
+  },
+  {
+    prefix: LEGACY_DIGESTS_HUB_PATH,
+    entry: DIGESTS_HUB_CONTEXTUAL_HELP,
+  },
+  {
+    prefix: LEGACY_DIGEST_SUBSCRIPTIONS_PATH,
+    entry: DIGESTS_HUB_CONTEXTUAL_HELP,
+  },
+  {
+    prefix: "/help/digests",
+    entry: {
+      whatIsThisPage:
+        "Architecture digests — how scheduled operator summaries are configured, delivered, and browsed.",
+      whatToDoNext: "Open the Digests hub Schedule tab to set cadence and recipients, then manage subscriptions.",
+      whyEmpty: "This guide is always available; generated digests appear after schedule and recipients are configured.",
+      whereToConfigurePrerequisite:
+        "Cadence and recipients live on Digests Schedule; destinations live on Subscriptions.",
+      whatToDoNextAction: {
+        label: "Open Schedule tab",
+        href: DIGESTS_SCHEDULE_TAB_PATH,
+      },
+      whereToConfigureAction: {
+        label: "Open Subscriptions tab",
+        href: DIGESTS_SUBSCRIPTIONS_TAB_PATH,
+      },
     },
   },
   {
@@ -335,6 +475,10 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whyEmpty: "Plan detail appears after a plan is generated from captured feedback.",
       whereToConfigurePrerequisite:
         "Plans respect the workspace and project selected in the header switcher.",
+      whatToDoNextAction: {
+        label: "Open Improvement planning",
+        href: PLANNING_PATH,
+      },
     },
   },
   {
@@ -346,6 +490,30 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whyEmpty: "Themes and plans appear after feedback is captured and analyzed.",
       whereToConfigurePrerequisite:
         "Planning insights respect the workspace and project selected in the header switcher.",
+      whatToDoNextAction: {
+        label: "Open Pilot feedback",
+        href: PRODUCT_LEARNING_PATH,
+      },
+    },
+  },
+  {
+    // TB-2050 — Learn more omitted (no specialty); Category-1 still mounts.
+    prefix: "/insights/impact-preview",
+    entry: {
+      whatIsThisPage:
+        "Estimate before-and-after effects of proposed architecture changes against a finalized review baseline.",
+      whatToDoNext: "Select a finalized review baseline, set comparison scope, then run the impact preview.",
+      whyEmpty: "Preview results appear after you choose a baseline review and run a simulation.",
+      whereToConfigurePrerequisite:
+        "Impact preview needs at least one finalized architecture review in this workspace.",
+      whatToDoNextAction: {
+        label: "Open architecture reviews",
+        href: REVIEWS_LIST_PATH,
+      },
+      whereToConfigureAction: {
+        label: "Open architecture reviews",
+        href: REVIEWS_LIST_PATH,
+      },
     },
   },
   {
@@ -358,6 +526,34 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whyEmpty: "Feedback rows appear after operators capture review outcomes in this workspace.",
       whereToConfigurePrerequisite:
         "Pilot feedback is an Internal Ops surface — System Admin authority is typically required.",
+      whatToDoNextAction: {
+        label: "Open Improvement planning",
+        href: PLANNING_PATH,
+      },
+    },
+  },
+  {
+    prefix: "/why-archlucid",
+    entry: {
+      whatIsThisPage:
+        "Why ArchLucid — operator demo/proof page with seeded telemetry, sponsor pack, and first-value report for the demo review.",
+      whatToDoNext:
+        "Inspect snapshot and sponsor pack sections, open marketing /why for buyer comparison, or Assurance status for assurance orientation.",
+      whyEmpty: "Sections populate after the demo tenant snapshot and related read endpoints load.",
+      whereToConfigurePrerequisite:
+        "A seeded demo review is required; Claims/Retail labels stay withheld until the demo identity is unambiguous.",
+    },
+  },
+  {
+    prefix: "/demo/explain",
+    entry: {
+      whatIsThisPage:
+        "Demo explain — example provenance graph and citations-bound explanation for a seeded architecture review.",
+      whatToDoNext:
+        "Inspect the provenance and explanation panels, then start a real review or open Validate review for live packages.",
+      whyEmpty: "Panels appear after the demo explain API returns a seeded review payload.",
+      whereToConfigurePrerequisite:
+        "A seeded demo tenant review is required; this route stays hidden from buyer nav when demo explain is unavailable.",
     },
   },
   {
@@ -368,6 +564,14 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whyEmpty: "Scans appear after you generate one from a finalized review.",
       whereToConfigurePrerequisite:
         "Finalize a review first; optional baseline comparison highlights drift.",
+      whatToDoNextAction: {
+        label: "Open Schedules tab",
+        href: ADVISORY_SCANS_SCHEDULES_HREF,
+      },
+      whereToConfigureAction: {
+        label: "Open architecture reviews",
+        href: REVIEWS_LIST_PATH,
+      },
     },
   },
   {
@@ -429,7 +633,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
-    prefix: "/signed-records",
+    prefix: "/governance/signed-records",
     entry: {
       whatIsThisPage:
         "Signed review record — the finalized package of decisions, findings, and downloadable artifacts for one architecture review.",
@@ -462,6 +666,30 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whyEmpty: "Cohort rows appear after trial tenants record signup and review activity in the selected period.",
       whereToConfigurePrerequisite:
         "This page requires tenant administrator access; customer tenants never see other tenants here.",
+    },
+  },
+  {
+    prefix: "/admin/demo-readiness",
+    entry: {
+      whatIsThisPage:
+        "Demo readiness - internal employee diagnostic checklist for buyer CTO demo preflight across this workspace.",
+      whatToDoNext:
+        "Run the readiness checks, open System health when a dependency fails, or Trial funnel when conversion context is needed.",
+      whyEmpty: "Checklist rows appear after the internal readiness probe returns for this deployment.",
+      whereToConfigurePrerequisite:
+        "This page requires tenant administrator access; customer tenants never see this diagnostic.",
+    },
+  },
+  {
+    prefix: "/admin/deployment-status",
+    entry: {
+      whatIsThisPage:
+        "Deployment status - internal release identity, health, and BUILD_ID agreement across frontend, API, and worker.",
+      whatToDoNext:
+        "Refresh status, open System health when readiness fails, or Diagnostics dashboard for deeper platform probes.",
+      whyEmpty: "Identity fields appear after the admin deployment-status probe returns for this environment.",
+      whereToConfigurePrerequisite:
+        "This page requires ArchLucid personnel access; customer tenants never see deployment identity here.",
     },
   },
   {
@@ -526,6 +754,78 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/help/security-trust",
+    entry: {
+      whatIsThisPage:
+        "Security and trust help — assurance ladder, data handling, subprocessors, and diligence materials for operators and buyers.",
+      whatToDoNext:
+        "Open Assurance status or Trust Center for live assurance surfaces, or Audit when you need governed trails.",
+      whyEmpty: "This guide is always available; downloadable diligence packs appear on Trust Center when published.",
+      whereToConfigurePrerequisite:
+        "No configuration is required — this page is assurance orientation vocabulary only.",
+    },
+  },
+  {
+    prefix: "/help/procurement",
+    entry: {
+      whatIsThisPage:
+        "Procurement FAQ — buyer-facing answers on diligence packs, questionnaires, and how to request security review materials.",
+      whatToDoNext:
+        "Open Assurance status or Trust Center for public assurance, or settings Security & trust when requesting NDA-gated packs.",
+      whyEmpty: "This FAQ is always available; NDA packs require contacting the security mailbox listed in the guide.",
+      whereToConfigurePrerequisite:
+        "No workspace toggle is required — this page is procurement orientation vocabulary only.",
+    },
+  },
+  {
+    prefix: "/help/scope",
+    entry: {
+      whatIsThisPage:
+        "Workspace and scope guide — how tenant, workspace, and project boundaries work with the header switcher.",
+      whatToDoNext:
+        "Confirm the header scope switcher, then open Users and roles or Users settings when access needs adjustment.",
+      whyEmpty: "This guide is always available; live scope labels appear in the operator header after sign-in.",
+      whereToConfigurePrerequisite:
+        "Changing tenant or project membership needs Admin authority in the target workspace.",
+    },
+  },
+  {
+    prefix: "/help/audit-trail",
+    entry: {
+      whatIsThisPage:
+        "Audit trail help — how immutable audit events, correlation identifiers, and export posture support governed review.",
+      whatToDoNext:
+        "Open Audit for live activity, Findings when a concern needs triage, or Assurance status for assurance surfaces.",
+      whyEmpty: "This guide is always available; live audit rows appear after workspace actions are recorded.",
+      whereToConfigurePrerequisite:
+        "Audit visibility follows workspace roles; confirm the header workspace before exporting trails.",
+    },
+  },
+  {
+    prefix: "/help/evidence-trail",
+    entry: {
+      whatIsThisPage:
+        "Evidence graph guide — how to trace findings, artifacts, and provenance without exposing raw engineering logs.",
+      whatToDoNext:
+        "Open the live Evidence graph, Search review evidence, or Validate review when you need package-level trails.",
+      whyEmpty: "This guide is always available; live graph nodes appear after finalized reviews exist.",
+      whereToConfigurePrerequisite:
+        "Evidence graph depth follows finalized reviews in the current workspace and project scope.",
+    },
+  },
+  {
+    prefix: "/help/evidence-intake",
+    entry: {
+      whatIsThisPage:
+        "Start a review guide — how to begin from a brief, diagram, document, or cloud evidence and verify intake before finalize.",
+      whatToDoNext:
+        "Open New architecture review to start intake, or Your first architecture review when you need the guided walkthrough.",
+      whyEmpty: "This guide is always available; live intake drafts appear after you create architecture reviews.",
+      whereToConfigurePrerequisite:
+        "Creating reviews needs a role that can start architecture reviews in this workspace.",
+    },
+  },
+  {
     prefix: "/help/findings",
     entry: {
       whatIsThisPage:
@@ -562,6 +862,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/help/repeat-review-loop",
+    entry: {
+      whatIsThisPage:
+        "Repeat-review loop - compare packages, replay authority, and collect second-review proof after the first finalized review.",
+      whatToDoNext:
+        "Open Compare two reviews, start the next review, or Validate review when you need live package trails.",
+      whyEmpty: "This guide is always available; compare and replay surfaces populate after finalized reviews exist.",
+      whereToConfigurePrerequisite:
+        "Stickiness workflows need at least one finalized architecture review in this workspace.",
+    },
+  },
+  {
     prefix: "/help/pilot-guide",
     entry: {
       whatIsThisPage:
@@ -571,6 +883,54 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whyEmpty: "This guide is always available; live pilot outcomes appear after reviews and sponsor reports exist.",
       whereToConfigurePrerequisite:
         "Running a pilot needs a workspace where operators can create and finalize architecture reviews.",
+    },
+  },
+  {
+    prefix: "/help/first-architecture-review",
+    entry: {
+      whatIsThisPage:
+        "Your first architecture review — guided path from evidence intake to a finalized package and sponsor-ready exports.",
+      whatToDoNext:
+        "Start an architecture review from the hero CTA, or open the sample review when you want a completed outcome first.",
+      whyEmpty: "This guide is always available; live review packages appear after you create architecture reviews.",
+      whereToConfigurePrerequisite:
+        "Creating reviews needs a role that can start architecture reviews in this workspace.",
+    },
+  },
+  {
+    prefix: "/help/core-pilot",
+    entry: {
+      whatIsThisPage:
+        "Your first architecture review — guided path from evidence intake to a finalized package and sponsor-ready exports.",
+      whatToDoNext:
+        "Start an architecture review from the hero CTA, or open the sample review when you want a completed outcome first.",
+      whyEmpty: "This guide is always available; live review packages appear after you create architecture reviews.",
+      whereToConfigurePrerequisite:
+        "Creating reviews needs a role that can start architecture reviews in this workspace.",
+    },
+  },
+  {
+    prefix: "/help/first-pilot-path",
+    entry: {
+      whatIsThisPage:
+        "Your first architecture review — guided path from evidence intake to a finalized package and sponsor-ready exports.",
+      whatToDoNext:
+        "Start an architecture review from the hero CTA, or open the sample review when you want a completed outcome first.",
+      whyEmpty: "This guide is always available; live review packages appear after you create architecture reviews.",
+      whereToConfigurePrerequisite:
+        "Creating reviews needs a role that can start architecture reviews in this workspace.",
+    },
+  },
+  {
+    prefix: "/help/first-hour-operator-path",
+    entry: {
+      whatIsThisPage:
+        "Your first architecture review — guided path from evidence intake to a finalized package and sponsor-ready exports.",
+      whatToDoNext:
+        "Start an architecture review from the hero CTA, or open the sample review when you want a completed outcome first.",
+      whyEmpty: "This guide is always available; live review packages appear after you create architecture reviews.",
+      whereToConfigurePrerequisite:
+        "Creating reviews needs a role that can start architecture reviews in this workspace.",
     },
   },
   {
@@ -603,7 +963,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whatIsThisPage:
         "Glossary — searchable product terms for operators and buyers reviewing ArchLucid vocabulary.",
       whatToDoNext:
-        "Look up a term, then open Getting started or Security & trust when you need live workflow or assurance orientation.",
+        "Look up a term, then open Getting started or Assurance status when you need live workflow or assurance orientation.",
       whyEmpty: "Glossary terms are always listed; search filters the catalog without needing a live review.",
       whereToConfigurePrerequisite:
         "No configuration is required — this page is orientation vocabulary only.",
@@ -615,7 +975,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whatIsThisPage:
         "Users and roles — ArchLucid app roles, capabilities, and how operators invite teammates (alias of users-and-roles).",
       whatToDoNext:
-        "Open Users settings to invite or assign roles, or Security & trust when you need assurance orientation.",
+        "Open Users settings to invite or assign roles, or Assurance status when you need assurance orientation.",
       whyEmpty: "This guide is always available; live directory rows appear after users are invited or provisioned.",
       whereToConfigurePrerequisite:
         "Managing users needs Admin authority; SSO may be required before invited users can sign in.",
@@ -627,7 +987,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whatIsThisPage:
         "Users and roles — ArchLucid app roles, capabilities, and how operators invite teammates for this workspace.",
       whatToDoNext:
-        "Open Users settings to invite or assign roles, or Security & trust when you need assurance orientation.",
+        "Open Users settings to invite or assign roles, or Assurance status when you need assurance orientation.",
       whyEmpty: "This guide is always available; live directory rows appear after users are invited or provisioned.",
       whereToConfigurePrerequisite:
         "Managing users needs Admin authority; SSO may be required before invited users can sign in.",
@@ -646,7 +1006,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
-    prefix: "/administration/settings/users/invite-reviewer",
+    prefix: "/administration/users/invite-reviewer",
     entry: {
       whatIsThisPage:
         "Invite a reviewer — send Reader or Auditor access so a teammate can sign off on architecture reviews.",
@@ -658,7 +1018,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
-    prefix: "/administration/settings/users",
+    prefix: "/administration/users",
     entry: {
       whatIsThisPage:
         "Invite users, assign ArchLucid app roles, and manage API keys for this workspace tenant.",
@@ -667,6 +1027,148 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whyEmpty: "Directory rows appear after invitations are accepted or users are provisioned for this tenant.",
       whereToConfigurePrerequisite:
         "SSO and identity-provider mapping may be required before enterprise users can sign in.",
+    },
+  },
+  {
+    prefix: LEGACY_SETTINGS_ROLES_PATH,
+    entry: {
+      whatIsThisPage:
+        "Invite users, assign ArchLucid app roles, and manage API keys for this workspace tenant.",
+      whatToDoNext:
+        "Invite a teammate, open Roles and permissions to adjust authority, or manage API keys when you have Admin authority.",
+      whyEmpty: "Directory rows appear after invitations are accepted or users are provisioned for this tenant.",
+      whereToConfigurePrerequisite:
+        "SSO and identity-provider mapping may be required before enterprise users can sign in.",
+    },
+  },
+  {
+    prefix: "/administration/identity-providers/role-mapping",
+    entry: {
+      whatIsThisPage:
+        "Role mapping - see how IdP groups or claims become ArchLucid app roles for this workspace tenant.",
+      whatToDoNext:
+        "Review mapping status, edit SAML role mapping when needed, then open diagnostics to test claims before inviting users.",
+      whyEmpty:
+        "Status cards load after auth diagnostics respond; Unmapped means no elevated roles until a matching claim is configured.",
+      whereToConfigurePrerequisite:
+        "Editing mappings needs Admin authority and a configured SAML or OIDC identity source.",
+    },
+  },
+  {
+    prefix: "/administration/api-keys",
+    entry: {
+      whatIsThisPage:
+        "API keys - manage Admin and read-only automation credentials for approved enterprise workspace access.",
+      whatToDoNext:
+        "Review credential status, rotate or issue overlap keys when needed, then open Audit when rotation events need a governed trail.",
+      whyEmpty:
+        "Summary and credential rows load after API key settings respond; enterprise-only workspaces may keep this surface disabled.",
+      whereToConfigurePrerequisite:
+        "Rotating keys needs Admin authority; some tenants require SSO-only sign-in and disable API keys.",
+    },
+  },
+  {
+    prefix: "/administration/preferences",
+    entry: {
+      whatIsThisPage:
+        "Preferences - personal appearance settings saved to your ArchLucid account for this device and signed-in profile.",
+      whatToDoNext:
+        "Choose a theme, then open Account security when sign-in controls need attention or Getting started for onboarding.",
+      whyEmpty:
+        "Theme controls are ready whenever you are signed in; saved preferences sync after the preferences API responds.",
+      whereToConfigurePrerequisite:
+        "No Admin role is required - preferences write only your own account record.",
+    },
+  },
+  {
+    prefix: "/administration/account-security",
+    entry: {
+      whatIsThisPage:
+        "Account security - manage personal sign-in methods linked to your ArchLucid account for this workspace.",
+      whatToDoNext:
+        "Review linked methods, add email after a fresh sign-in when needed, then open Preferences or Security and trust help for related controls.",
+      whyEmpty:
+        "Method rows load after the sign-in methods API responds; empty lists mean no secondary methods are linked yet.",
+      whereToConfigurePrerequisite:
+        "Adding or removing methods needs a recent sign-in; email matches alone never link accounts.",
+    },
+  },
+  {
+    prefix: "/administration/auth-domains",
+    entry: {
+      whatIsThisPage:
+        "Sign-in domains - verify email domain ownership, test SSO routing, and enable domain enforcement for this workspace.",
+      whatToDoNext:
+        "Add and verify a domain, test routing, then open Identity providers before enabling SSO enforcement.",
+      whyEmpty:
+        "Domain rows load after the auth-domains API responds; unverified domains stay pending until DNS TXT succeeds.",
+      whereToConfigurePrerequisite:
+        "Enforcement needs Admin authority, a verified domain, recovery admins, and a configured identity provider.",
+    },
+  },
+  {
+    prefix: "/administration/extract-upload",
+    entry: {
+      whatIsThisPage:
+        "Extract and Upload - run the read-only Azure extractor locally, validate the ZIP, then upload inventory for architecture reviews.",
+      whatToDoNext:
+        "Copy the quick-start command, upload a validated ZIP, then open Start a review when the package is ready.",
+      whyEmpty:
+        "Upload controls are ready when you have Admin or Execute authority; progress rows appear after a package is selected.",
+      whereToConfigurePrerequisite:
+        "Uploading packages needs workspace authority; cloud connectors are optional for evidence-only ZIP intake.",
+    },
+  },
+  {
+    prefix: "/administration/security-trust",
+    entry: {
+      whatIsThisPage:
+        "Operator Security & trust — procurement-oriented materials, tenant isolation posture, retention notes, and NDA-gated diligence requests for this workspace.",
+      whatToDoNext:
+        "Open Assurance status or Trust Center for assurance surfaces, or Audit when you need governed activity trails.",
+      whyEmpty:
+        "Public materials list here when published; NDA-gated packs require contacting security@archlucid.net.",
+      whereToConfigurePrerequisite:
+        "No workspace toggle is required — this page orients operators to published and NDA diligence paths.",
+    },
+  },
+  {
+    prefix: "/administration/billing",
+    entry: {
+      whatIsThisPage:
+        "Billing & plans - view the current subscription, compare available plans, and manage usage and wallet controls for this workspace.",
+      whatToDoNext:
+        "Review the current plan card, compare Available plans, then open AI usage or Billing help when spend questions need methodology.",
+      whyEmpty:
+        "Plan and usage cards appear after billing data loads for this tenant; wallet controls need Admin authority to mutate.",
+      whereToConfigurePrerequisite:
+        "Changing plans or payment methods needs a role that can manage workspace billing.",
+    },
+  },
+  {
+    prefix: "/administration/ai-usage",
+    entry: {
+      whatIsThisPage:
+        "AI usage and cost - monitor estimated AI spend, remaining budget, and the workflows driving cost for this workspace.",
+      whatToDoNext:
+        "Review KPIs and daily usage, then open Billing & plans when budget caps or plan changes are needed.",
+      whyEmpty:
+        "Spend cards appear after cost-reporting data loads; quiet empty periods hide zeroed cockpit noise until activity resumes.",
+      whereToConfigurePrerequisite:
+        "Budget edits need a role that can manage workspace billing; estimated spend is not invoice-accurate.",
+    },
+  },
+  {
+    prefix: "/administration/baseline",
+    entry: {
+      whatIsThisPage:
+        "Baseline settings - capture ROI measurement anchors (review cycle hours, prep time, people per review) for this workspace.",
+      whatToDoNext:
+        "Save or clear baseline anchors, then open Pilot ROI model help or Architecture scorecard when numbers need methodology.",
+      whyEmpty:
+        "Fields load after tenant baseline API responds; empty values mean conservative defaults until you save anchors.",
+      whereToConfigurePrerequisite:
+        "Saving baseline anchors needs Execute authority in this workspace.",
     },
   },
   {
@@ -692,6 +1194,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whyEmpty: "Health and settings load after this workspace can reach the ITSM connector configuration.",
       whereToConfigurePrerequisite:
         "Platform credentials are often configured by an administrator; tenant overrides on this page need Operate authority.",
+    },
+  },
+  {
+    prefix: "/integrations/itsm/oauth/callback",
+    entry: {
+      whatIsThisPage:
+        "Atlassian OAuth callback — completes Jira connector consent after Atlassian redirects back to ArchLucid.",
+      whatToDoNext:
+        "When consent succeeds, return to Jira integration settings to run a health probe; on failure, retry Connect with Atlassian.",
+      whyEmpty: "This page only appears after an OAuth redirect; status text replaces empty layouts.",
+      whereToConfigurePrerequisite:
+        "Starting OAuth requires Operate authority and a configured Atlassian app registration.",
     },
   },
   {
@@ -728,6 +1242,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whyEmpty: "Subscriptions appear after you save a webhook URL for this workspace.",
       whereToConfigurePrerequisite:
         "Creating or changing subscriptions requires a role that can manage alert routing.",
+    },
+  },
+  {
+    prefix: "/operate/integration-events/dlq",
+    entry: {
+      whatIsThisPage:
+        "Integration event dead letters — Internal Operations queue for outbound integration publishes that exceeded retries.",
+      whatToDoNext:
+        "Inspect the failing event, fix connector or destination root cause, then retry or suppress; open Integration readiness or System health for posture.",
+      whyEmpty: "An empty list means no dead-lettered outbox rows are waiting across tenants.",
+      whereToConfigurePrerequisite:
+        "Admin authority is required to retry or suppress; the queue spans all tenants, not only the header workspace.",
     },
   },
   {

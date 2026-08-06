@@ -5,7 +5,7 @@ let searchParams = new URLSearchParams();
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
-  usePathname: () => "/digests",
+  usePathname: () => "/architecture/digests",
   useSearchParams: () => searchParams,
 }));
 

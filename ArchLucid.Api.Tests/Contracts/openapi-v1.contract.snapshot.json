@@ -12545,6 +12545,18 @@
           "trackedExternally": {
             "type": "boolean"
           },
+          "trustLabel": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "trustLabelReason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "typedPayload": {
             "anyOf": [
               {

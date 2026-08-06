@@ -18,6 +18,8 @@ import {
 
   Plug,
 
+  Settings,
+
   ShieldCheck,
 
   UserCog,
@@ -34,6 +36,7 @@ import type { NavGroupConfig } from "@/lib/nav-config.types";
 
 import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
 
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
 
@@ -57,25 +60,44 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
       links: [
 
+        // Hub-first (IA-016 / decision D5): the "Settings" slot targets the searchable index, not a leaf page.
+        // The hub stays ReadAuthority because it also publishes read-only rows (billing, security & trust).
         {
 
-          href: "/administration/settings/tenant",
+          href: SETTINGS_ROOT_PATH,
 
           label: OPERATOR_NAV_LINK_LABELS.settings,
 
-          title: `${OPERATOR_NAV_LINK_LABELS.workspaceSettings} — trial, digest email, and request scope`,
+          title: "Settings — searchable index of workspace, governance, integration, billing, and support configuration",
 
-          icon: Building2,
+          icon: Settings,
 
           tier: "extended",
 
-          requiredAuthority: "ExecuteAuthority",
+          requiredAuthority: "ReadAuthority",
 
         },
 
         {
 
-          href: "/administration/settings/users",
+          href: "/administration/tenant",
+
+          label: OPERATOR_NAV_LINK_LABELS.workspaceSettings,
+
+          title: `${OPERATOR_NAV_LINK_LABELS.workspaceSettings} — trial, cost settings, and request scope`,
+
+          icon: Building2,
+
+          tier: "extended",
+
+          // Tenant-scoped configuration is admin-only; the API enforces the same floor on the writes.
+          requiredAuthority: "AdminAuthority",
+
+        },
+
+        {
+
+          href: "/administration/users",
 
           label: "Users & roles",
 
@@ -91,7 +113,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
         {
 
-          href: "/administration/settings/identity-providers",
+          href: "/administration/identity-providers",
 
           label: "Identity providers",
 
@@ -107,7 +129,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
         {
 
-          href: "/administration/settings/identity/sso-wizard",
+          href: "/administration/identity/sso-wizard",
 
           label: "SSO wizard",
 
@@ -123,7 +145,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
         {
 
-          href: "/administration/settings/api-keys",
+          href: "/administration/api-keys",
 
           label: "API keys",
 
@@ -139,7 +161,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
         {
 
-          href: "/administration/settings/scim-provisioning",
+          href: "/administration/scim-provisioning",
 
           label: "SCIM provisioning",
 
@@ -155,7 +177,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
         {
 
-          href: "/administration/settings/billing",
+          href: "/administration/billing",
 
           label: "Billing & plans",
 
@@ -171,7 +193,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
         {
 
-          href: "/administration/settings/ai-usage",
+          href: "/administration/ai-usage",
 
           label: OPERATOR_NAV_LINK_LABELS.aiUsage,
 
@@ -188,7 +210,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
         {
 
-          href: "/administration/settings/security-trust",
+          href: "/administration/security-trust",
 
           label: OPERATOR_NAV_LINK_LABELS.securityTrust,
 
@@ -206,7 +228,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
         {
 
-          href: "/administration/settings/tenant/recycle-bin",
+          href: "/administration/tenant/recycle-bin",
 
           label: "Projects recycle bin",
 
@@ -254,7 +276,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
         {
 
-          href: "/administration/settings/support",
+          href: "/administration/support",
 
           label: "Support",
 

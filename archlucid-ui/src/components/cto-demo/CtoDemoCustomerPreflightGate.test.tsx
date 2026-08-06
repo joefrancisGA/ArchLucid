@@ -57,7 +57,7 @@ describe("CtoDemoCustomerPreflightGate", () => {
 
     expect(screen.getByText(BUYER_CTO_DEMO_START_FAILED_MESSAGE)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Try again" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Contact support" })).toHaveAttribute("href", "/administration/settings/support");
+    expect(screen.getByRole("link", { name: "Contact support" })).toHaveAttribute("href", "/administration/support");
     expect(screen.queryByText(/api-ready/i)).toBeNull();
   });
 });

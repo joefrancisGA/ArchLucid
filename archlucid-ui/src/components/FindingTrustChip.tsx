@@ -4,10 +4,12 @@ import { cn } from "@/lib/utils";
 import { enterpriseStatusTagClass, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import {
+  deriveFindingTrustLabel,
   FINDING_PROVENANCE_ORIGIN_EXPLANATIONS,
-  resolveFindingProvenance,
+  mapFindingTrustLabelToProvenance,
   type FindingProvenanceGrounding,
   type FindingProvenanceOrigin,
+  type FindingTrustLabelName,
 } from "@/lib/finding-provenance-display";
 
 export type FindingTrustChipKind =
@@ -28,6 +30,7 @@ export type FindingTrustChipModel = {
   title: string;
   origin: FindingProvenanceOrigin;
   grounding: FindingProvenanceGrounding;
+  trustSource: "wire" | "inferred";
 };
 
 const chipClassByKind: Record<FindingTrustChipKind, string> = {
@@ -92,13 +95,15 @@ export function deriveFindingTrustChip(
   finding: QuickDecisionFinding,
   options?: { readonly isSimulatorRun?: boolean },
 ): FindingTrustChipModel {
-  const provenance = resolveFindingProvenance({
+  const derived = deriveFindingTrustLabel({
     trustLabel: finding.trustLabel,
     policyRuleId: finding.policyRuleId,
     evidenceRefCount: finding.evidenceRefCount,
     confidenceLevel: finding.confidenceLevel,
     isSimulatorRun: options?.isSimulatorRun,
   });
+
+  const provenance = mapFindingTrustLabelToProvenance(derived.label as FindingTrustLabelName);
 
   let kind = kindFromProvenance(provenance.origin, provenance.grounding);
 
@@ -123,6 +128,7 @@ export function deriveFindingTrustChip(
     title: `${originExplanation}${groundingSuffix}`,
     origin: provenance.origin,
     grounding: provenance.grounding,
+    trustSource: derived.source,
   };
 }
 
@@ -147,6 +153,7 @@ export function FindingTrustChip(props: FindingTrustChipProps) {
       data-testid={`finding-trust-chip-${chip.kind}`}
       data-finding-origin={chip.origin}
       data-finding-grounding={chip.grounding}
+      data-trust-source={chip.trustSource}
     >
       <span>{chip.label}</span>
       {chip.grounding !== "Not applicable" ? (

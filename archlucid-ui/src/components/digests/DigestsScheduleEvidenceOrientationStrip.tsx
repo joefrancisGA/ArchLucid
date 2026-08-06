@@ -3,17 +3,20 @@
 import Link from "next/link";
 
 import {
-  DIGESTS_SCHEDULE_CLAIM_DISCIPLINE,
   DIGESTS_SCHEDULE_SOURCES,
   DIGESTS_SCHEDULE_SOURCES_INTRO,
 } from "@/lib/digests-schedule-evidence-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
-/** Workspace Sources + claim discipline for DIS `/digests?tab=schedule`. */
+/**
+ * Workspace Sources for the Schedule tab (DIS).
+ *
+ * Owner decision 2026-08-05: no claim-boundary band — see {@link DigestsSourcesStrip}.
+ */
 export function DigestsScheduleEvidenceOrientationStrip(): React.JSX.Element {
   return (
-    <div className="space-y-3" data-testid="digests-schedule-orientation">
+    <div data-testid="digests-schedule-orientation">
       <section
         className="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
         aria-labelledby="digests-schedule-sources-heading"
@@ -38,16 +41,6 @@ export function DigestsScheduleEvidenceOrientationStrip(): React.JSX.Element {
           ))}
         </ul>
       </section>
-
-      <aside
-        className="rounded-md border border-amber-200/80 bg-amber-50/50 p-3 dark:border-amber-900/40 dark:bg-amber-950/20"
-        data-testid="digests-schedule-claim-discipline"
-      >
-        <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-          Delivery cadence only
-        </h2>
-        <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>{DIGESTS_SCHEDULE_CLAIM_DISCIPLINE}</p>
-      </aside>
     </div>
   );
 }

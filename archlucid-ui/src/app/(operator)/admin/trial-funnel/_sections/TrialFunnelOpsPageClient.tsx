@@ -596,7 +596,7 @@ export function TrialFunnelOpsPageClient(): ReactElement {
                     <EnterpriseTableCell>{row.attentionLabel ?? "On track"}</EnterpriseTableCell>
                     <EnterpriseTableCell>
                       <Link
-                        href="/administration/settings/ai-usage"
+                        href="/administration/ai-usage"
                         className="text-sky-700 underline underline-offset-2 dark:text-sky-300"
                       >
                         View AI usage

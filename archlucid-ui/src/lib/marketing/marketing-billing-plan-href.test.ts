@@ -7,7 +7,7 @@ import {
 
 describe("marketing-billing-plan-href", () => {
   it("builds operator billing path with plan query", () => {
-    expect(buildOperatorBillingPlanPath("team")).toBe("/administration/settings/billing?plan=team");
+    expect(buildOperatorBillingPlanPath("team")).toBe("/administration/billing?plan=team");
   });
 
   it("routes marketing self-serve through sign-in with billing returnUrl", () => {

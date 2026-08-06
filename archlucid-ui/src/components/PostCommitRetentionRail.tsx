@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { ReactElement } from "react";
 
 import { useOperateCapability } from "@/hooks/use-operate-capability";
+import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
@@ -87,7 +88,7 @@ export function PostCommitRetentionRail({
         {!buyerPolishedShell ? (
           <>
             <Button type="button" asChild variant="secondary" size="sm" className="justify-center sm:justify-start">
-              <Link href="/digests" title="Advisory scans, architecture digests, and executive email">
+              <Link href={DIGESTS_HUB_PATH} title="Advisory scans, architecture digests, and executive email">
                 Weekly architecture digest
               </Link>
             </Button>

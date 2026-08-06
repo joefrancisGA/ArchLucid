@@ -11,15 +11,9 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
+import { resolveDigestNextBestAction } from "@/lib/digest-setup-gap-actions";
+import { digestHashFragment } from "@/lib/digests-browse-deep-link";
 import {
-  digestsHaveExistingConfiguration,
-  resolveDigestNextBestAction,
-} from "@/lib/digest-setup-gap-actions";
-import { ADVISORY_SCANS_SCHEDULES_HREF } from "@/lib/advisory-scans-route";
-import {
-  DIGESTS_BROWSE_PREVIEW_DISABLED_TITLE,
-  DIGESTS_BROWSE_SEND_TEST_LABEL,
-  DIGESTS_BROWSE_SEND_TEST_TITLE,
   DIGESTS_PRIVACY_DETAILS_TRIGGER,
   DIGESTS_PRIVACY_NOTE,
   DIGESTS_SCHEDULE_PREVIEW_LABEL,
@@ -66,6 +60,8 @@ const SUBSCRIPTIONS_TAB_READER_TITLE =
 const SCHEDULE_TAB_READER_TITLE =
   "Schedule is readable; saving or enabling delivery requires a role that can manage digests.";
 
+const PREVIEW_LATEST_TITLE = "Opens the most recently generated digest summary.";
+
 /**
  * Single `/digests` surface: browse, subscriptions, and executive digest schedule. Tab state in `?tab=` for deep links.
  */
@@ -89,14 +85,10 @@ export function DigestsHubClient(): ReactElement {
     [rawTab],
   );
 
+  // Always carry `?tab=` so shared and traffic deep links survive tab selection (TB-1505).
   const onSelectTab = useCallback(
     (id: string) => {
       const tabId: DigestsHubTabId = digestsHubTabFromSearchParam(id);
-
-      if (tabId === "browse") {
-        router.push(pathname);
-        return;
-      }
 
       router.push(`${pathname}?${TAB_PARAM}=${encodeURIComponent(tabId)}`);
     },
@@ -126,18 +118,15 @@ export function DigestsHubClient(): ReactElement {
   const latestDigestId: string | null | undefined = healthSnap?.latestArchitectureDigestId;
   const previewDigestId = latestDigestId?.trim() ?? "";
   const hasPreviewDigest: boolean = previewDigestId !== "";
-  const previewActionTitle = hasPreviewDigest
-    ? "Opens the most recently generated digest summary."
-    : DIGESTS_BROWSE_PREVIEW_DISABLED_TITLE;
-  const sendTestActionTitle = DIGESTS_BROWSE_SEND_TEST_TITLE;
+  const previewHref: string = `${pathname}?${TAB_PARAM}=browse${digestHashFragment(previewDigestId)}`;
 
-  const configured: boolean = healthSnap !== null && digestsHaveExistingConfiguration(healthSnap);
+  /**
+   * One primary job per page (TB-1539): the next unresolved setup step while the
+   * loop is incomplete, otherwise reading the latest digest. The Browse setup
+   * checklist owns the full step list, so the header never repeats it.
+   */
   const nextBestAction = healthSnap !== null ? resolveDigestNextBestAction(healthSnap) : null;
-  const primaryHref: string = nextBestAction?.href ?? (configured ? "/digests?tab=schedule" : "/digests?tab=subscriptions");
-  const primaryLabel: string = nextBestAction?.actionLabel ?? (configured ? "Configure weekly digest" : "Create digest");
-  const previewHref: string = hasPreviewDigest
-    ? `/digests?tab=browse#digest-${encodeURIComponent(previewDigestId)}`
-    : "/digests";
+  const previewIsPrimary: boolean = nextBestAction === null && hasPreviewDigest;
 
   const pageSubtitle: string =
     activeTab === "schedule"
@@ -148,32 +137,22 @@ export function DigestsHubClient(): ReactElement {
   const browseHeaderActions =
     showBrowseHeaderActions ? (
       <>
-        <Button asChild size="sm" variant="primary" data-testid="digests-primary-action">
-          <Link href={primaryHref}>{primaryLabel}</Link>
-        </Button>
-        <Button
-          asChild={hasPreviewDigest}
-          size="sm"
-          variant="outline"
-          data-testid="digests-preview-action"
-          title={previewActionTitle}
-          disabled={!hasPreviewDigest}
-        >
-          {hasPreviewDigest ? (
+        {nextBestAction !== null ? (
+          <Button asChild size="sm" variant="primary" data-testid="digests-primary-action">
+            <Link href={nextBestAction.href}>{nextBestAction.actionLabel}</Link>
+          </Button>
+        ) : null}
+        {hasPreviewDigest ? (
+          <Button
+            asChild
+            size="sm"
+            variant={previewIsPrimary ? "primary" : "outline"}
+            data-testid="digests-preview-action"
+            title={PREVIEW_LATEST_TITLE}
+          >
             <Link href={previewHref}>{DIGESTS_SCHEDULE_PREVIEW_LABEL}</Link>
-          ) : (
-            <span>{DIGESTS_SCHEDULE_PREVIEW_LABEL}</span>
-          )}
-        </Button>
-        <Button
-          asChild
-          size="sm"
-          variant="outline"
-          data-testid="digests-send-test-action"
-          title={sendTestActionTitle}
-        >
-          <Link href={ADVISORY_SCANS_SCHEDULES_HREF}>{DIGESTS_BROWSE_SEND_TEST_LABEL}</Link>
-        </Button>
+          </Button>
+        ) : null}
       </>
     ) : null;
 
@@ -190,51 +169,7 @@ export function DigestsHubClient(): ReactElement {
         actions={browseHeaderActions}
       />
 
-      {activeTab === "schedule" ? (
-        <div className="mt-4">
-          <DigestsScheduleEvidenceOrientationStrip />
-        </div>
-      ) : (
-        <DigestsSourcesStrip />
-      )}
-
-      {activeTab === "schedule" ? (
-        <WeeklyDigestHealthBanner
-          refreshToken={healthRefreshToken}
-          onHealthLoaded={onHealthLoaded}
-          variant="schedule"
-          loadOnly
-        />
-      ) : (
-        <WeeklyDigestHealthBanner
-          refreshToken={healthRefreshToken}
-          onHealthLoaded={onHealthLoaded}
-          variant={healthBannerVariant}
-        />
-      )}
-
-      {activeTab !== "subscriptions" && activeTab !== "schedule" ? (
-        buyerPolishedShell ? (
-          <CollapsibleSection
-            title={DIGESTS_PRIVACY_DETAILS_TRIGGER}
-            defaultOpen={false}
-            sectionTestId="digests-privacy-details"
-          >
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{DIGESTS_PRIVACY_NOTE}</p>
-          </CollapsibleSection>
-        ) : (
-          <p
-            className={cn(
-              "mb-4 m-0 max-w-3xl rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400",
-              OPERATOR_TYPOGRAPHY.helper,
-            )}
-            data-testid="digests-privacy-note"
-          >
-            {DIGESTS_PRIVACY_NOTE}
-          </p>
-        )
-      ) : null}
-
+      {/* Tabs sit immediately under the header so hub navigation precedes orientation chrome. */}
       <Tabs value={activeTab} onValueChange={onSelectTab} className="mb-4">
         <TabsList aria-label="Digest hub sections" data-testid="digests-hub-tablist">
           {DIGESTS_HUB_TAB_IDS.map((id) => {
@@ -258,6 +193,51 @@ export function DigestsHubClient(): ReactElement {
             );
           })}
         </TabsList>
+
+        {activeTab === "schedule" ? (
+          <div className="mt-4">
+            <DigestsScheduleEvidenceOrientationStrip />
+          </div>
+        ) : (
+          <DigestsSourcesStrip />
+        )}
+
+        {activeTab === "schedule" ? (
+          <WeeklyDigestHealthBanner
+            refreshToken={healthRefreshToken}
+            onHealthLoaded={onHealthLoaded}
+            variant="schedule"
+            loadOnly
+          />
+        ) : (
+          <WeeklyDigestHealthBanner
+            refreshToken={healthRefreshToken}
+            onHealthLoaded={onHealthLoaded}
+            variant={healthBannerVariant}
+          />
+        )}
+
+        {activeTab !== "subscriptions" && activeTab !== "schedule" ? (
+          buyerPolishedShell ? (
+            <CollapsibleSection
+              title={DIGESTS_PRIVACY_DETAILS_TRIGGER}
+              defaultOpen={false}
+              sectionTestId="digests-privacy-details"
+            >
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{DIGESTS_PRIVACY_NOTE}</p>
+            </CollapsibleSection>
+          ) : (
+            <p
+              className={cn(
+                "mb-4 m-0 max-w-3xl rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400",
+                OPERATOR_TYPOGRAPHY.helper,
+              )}
+              data-testid="digests-privacy-note"
+            >
+              {DIGESTS_PRIVACY_NOTE}
+            </p>
+          )
+        ) : null}
 
         <TabsContent value="browse" className="mt-4" data-testid="digests-hub-panel">
           <DigestsBrowseContent

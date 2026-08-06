@@ -28,8 +28,8 @@ export function isNavLinkActive(pathname: string, href: string): boolean {
     return pathname === REVIEWS_LIST_PATH;
   }
 
-  if (pathPart === "/administration/settings/tenant") {
-    return pathname === "/administration/settings/tenant";
+  if (pathPart === "/administration/tenant") {
+    return pathname === "/administration/tenant";
   }
 
   return pathname === pathPart || pathname.startsWith(`${pathPart}/`);

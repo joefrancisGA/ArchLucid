@@ -21,7 +21,7 @@ export const REVIEW_TERMINOLOGY_HIGH_TRAFFIC_SURFACE_PATHS = [
   "src/components/wizard/steps/WizardStepBaselineZip.tsx",
   "src/components/draft-intake/DraftIntakeReasoningPanel.tsx",
   "src/components/draft-intake/DraftIntakeWhatIfBranchPanel.tsx",
-  "src/app/(operator)/administration/settings/extract-upload/_sections/ExtractUploadSettingsPageClient.tsx",
+  "src/app/(operator)/administration/extract-upload/_sections/ExtractUploadSettingsPageClient.tsx",
   "src/app/(operator)/insights/architecture-scorecard/_sections/PilotScorecardPageView.tsx",
   "src/app/(operator)/value-report/pilot/_sections/PilotValueReportPageView.tsx",
   "src/app/(operator)/governance/policy-packs/_sections/PolicyRuleAuthoringWizard.tsx",

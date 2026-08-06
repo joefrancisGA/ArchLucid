@@ -12,7 +12,9 @@ describe("DigestsScheduleEvidenceOrientationStrip", () => {
     render(<DigestsScheduleEvidenceOrientationStrip />);
 
     expect(screen.getByTestId("digests-schedule-sources")).toBeInTheDocument();
-    expect(screen.getByTestId("digests-schedule-claim-discipline")).toBeInTheDocument();
+
+    // Owner decision 2026-08-05: no claim-boundary band on the digests hub.
+    expect(screen.queryByTestId("digests-schedule-claim-discipline")).not.toBeInTheDocument();
 
     for (const link of DIGESTS_SCHEDULE_SOURCES) {
       expect(screen.getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);

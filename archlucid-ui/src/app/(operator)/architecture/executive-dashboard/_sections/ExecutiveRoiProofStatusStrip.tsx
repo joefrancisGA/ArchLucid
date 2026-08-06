@@ -89,7 +89,7 @@ export function ExecutiveRoiProofStatusStrip(props: ExecutiveRoiProofStatusStrip
         </Link>
         {" · "}
         <Link
-          href="/administration/settings/baseline"
+          href="/administration/baseline"
           className="font-medium text-teal-800 underline dark:text-teal-300"
           data-testid="exec-roi-proof-baseline-settings-link"
         >

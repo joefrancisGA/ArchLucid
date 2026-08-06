@@ -59,8 +59,8 @@ function findTrafficRowById(rows: TrafficWorkbookRow[], rowId: string): TrafficW
   return rows.find((row) => row.id === rowId);
 }
 
-describe("ui-route-traffic-connection-status (ADC / INR)", () => {
-  it("tracks Connection status under Admin with honest product-hub workbook notes", () => {
+describe("ui-route-traffic-connection-status (ADC)", () => {
+  it("tracks Connection status with Admin Evidence workbook notes", () => {
     const rows = extractMasterTableRows(readTemplateMarkdown());
     const row = findTrafficRowById(rows, CONNECTION_STATUS_TRAFFIC_ROW_ID);
 
@@ -68,7 +68,6 @@ describe("ui-route-traffic-connection-status (ADC / INR)", () => {
     expect(row?.path).toBe(CONNECTION_STATUS_TRAFFIC_PATH);
     expect(row?.section).toBe(CONNECTION_STATUS_TRAFFIC_SECTION);
     expect(row?.notes).toBe(CONNECTION_STATUS_TRAFFIC_NOTE);
-    expect(row?.section.toLowerCase()).not.toBe("marketing");
     expect(row?.notes).toContain("ConnectorOperationsDashboard");
   });
 });

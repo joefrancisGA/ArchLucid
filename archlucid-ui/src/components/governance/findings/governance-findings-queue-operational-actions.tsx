@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 import { governanceFindingInspectHref } from "@/components/governance/findings/governance-findings-navigation";
 import { buildArchitectureIntelligenceRunHref } from "@/lib/architecture-intelligence-run-href";
+import { GOVERNANCE_EXCEPTIONS_PATH } from "@/lib/governance-route-paths";
 
 export type GovernanceQueueRiskExceptionAction = {
   readonly href: string;
@@ -21,7 +22,7 @@ export function resolveGovernanceQueueRiskExceptionAction(
   row: GovernanceFindingQueueRow,
 ): GovernanceQueueRiskExceptionAction {
   if ((row.waiverExpiresAtUtc?.trim() ?? "").length > 0) {
-    return { href: "/governance/risk-exceptions", label: "View exception" };
+    return { href: GOVERNANCE_EXCEPTIONS_PATH, label: "View exception" };
   }
 
   return {

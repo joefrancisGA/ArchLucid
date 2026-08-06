@@ -43,7 +43,7 @@ describe("enterprise Tabs primitive drift guard (TB-665)", () => {
   it("migrates TB-670 call sites onto shared Tabs imports", () => {
     const helpTabsShell = readRepoFile("archlucid-ui/src/app/(operator)/help/HelpTabsShell.tsx");
     const settingsRoles = readRepoFile(
-      "archlucid-ui/src/app/(operator)/administration/settings/users/_sections/SettingsRolesPageView.tsx",
+      "archlucid-ui/src/app/(operator)/administration/users/_sections/SettingsRolesPageView.tsx",
     );
     const deliverables = readRepoFile("archlucid-ui/src/components/BuyerDeliverablesArtifactTabs.tsx");
 

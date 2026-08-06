@@ -12,11 +12,28 @@ import {
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { PROVENANCE_HELP_TOPIC, pathIsRunProvenance } from "@/lib/provenance-evidence-copy";
+import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 
 export type PageHelpTopic = {
-  readonly slug: string;
+  /**
+   * In-app `/help/{slug}` target for Learn more.
+   * Omit (undefined) when Category-1 should mount without Learn more (TB-2048 / TB-2050).
+   */
+  readonly slug?: string;
   readonly label: string;
 };
+
+/** First-run / onboarding / help-topic paths allowed to keep `getting-started` or `how-it-works` Learn more. */
+export const PAGE_HELP_FIRST_RUN_GENERIC_LEARN_MORE_ALLOWLIST_PREFIXES = [
+  "/architecture/first-review-guide",
+  "/help/getting-started",
+  "/help/how-it-works",
+  ARCHITECTURES_LIST_PATH,
+  "/architectures",
+  "/help",
+  /** Learning proof page — job is product orientation; how-it-works is honest. */
+  "/why-archlucid",
+] as const;
 
 const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   // Overview hero help — same topic the former "Learn / View workflow" links opened.
@@ -55,6 +72,22 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "pilot-guide", label: "Pilot guide" },
   },
   {
+    prefix: "/help/first-architecture-review",
+    topic: { slug: "first-architecture-review", label: "Your first architecture review" },
+  },
+  {
+    prefix: "/help/core-pilot",
+    topic: { slug: "first-architecture-review", label: "Your first architecture review" },
+  },
+  {
+    prefix: "/help/first-pilot-path",
+    topic: { slug: "first-architecture-review", label: "Your first architecture review" },
+  },
+  {
+    prefix: "/help/first-hour-operator-path",
+    topic: { slug: "first-architecture-review", label: "Your first architecture review" },
+  },
+  {
     prefix: "/help/cloud-connections/azure",
     topic: { slug: "cloud-connections-azure", label: "Connect Azure securely" },
   },
@@ -84,7 +117,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/reviews/new", topic: { slug: "evidence-intake", label: START_REVIEW_LABEL } },
   { prefix: "/architecture/reviews", topic: { slug: "review-packages", label: "Reviews" } },
   {
-    prefix: "/signed-records",
+    prefix: SIGNED_RECORDS_LIST_PATH,
     topic: { slug: "review-packages", label: "Signed review records" },
   },
   { prefix: EXECUTIVE_DASHBOARD_HREF, topic: { slug: "executive-summary", label: "Executive dashboard" } },
@@ -106,12 +139,14 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   { prefix: "/governance/audit", topic: { slug: "audit-trail", label: "Audit trail" } },
   {
+    // Secondary hub — no decision-register specialty; omit Learn more (TB-2050).
     prefix: "/governance/decision-register",
-    topic: { slug: "getting-started", label: "Decision register" },
+    topic: { label: "Decision register" },
   },
   {
+    // Secondary hub — no workspace-health specialty; omit Learn more (TB-2050). Do not reopen TB-1668 mount.
     prefix: "/governance/dashboard",
-    topic: { slug: "getting-started", label: "Workspace overview" },
+    topic: { label: "Workspace overview" },
   },
   {
     prefix: "/governance/alerts",
@@ -148,19 +183,56 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   { prefix: "/sponsor-report", topic: { slug: "executive-summary", label: "Executive summary" } },
   { prefix: "/sponsor-report", topic: { slug: "executive-summary", label: "Executive summary" } },
-  { prefix: "/digests", topic: { slug: "getting-started", label: "Architecture digests" } },
-  { prefix: "/insights/planning", topic: { slug: "getting-started", label: "Improvement planning" } },
+  { prefix: "/architecture/digests", topic: { slug: "digests", label: "Architecture digests" } },
+  { prefix: "/digests", topic: { slug: "digests", label: "Architecture digests" } },
+  { prefix: "/digest-subscriptions", topic: { slug: "digests", label: "Architecture digests" } },
+  { prefix: "/help/digests", topic: { slug: "digests", label: "Architecture digests" } },
+  {
+    // Secondary hub — no planning specialty; omit Learn more (TB-2050).
+    prefix: "/insights/planning",
+    topic: { label: "Improvement planning" },
+  },
   {
     prefix: "/internal/product-learning",
     topic: { slug: "pilot-feedback", label: "Pilot feedback" },
   },
-  { prefix: "/administration/settings/billing", topic: { slug: "billing-and-plans", label: "Billing and plans" } },
+  {
+    // Learning / product-orientation allowlist — how-it-works matches the page job (TB-2050).
+    prefix: "/why-archlucid",
+    topic: { slug: "how-it-works", label: "Why ArchLucid" },
+  },
+  {
+    prefix: "/demo/explain",
+    topic: { slug: "evidence-trail", label: "Demo explain" },
+  },
+  { prefix: "/administration/billing", topic: { slug: "billing-and-plans", label: "Billing and plans" } },
+  { prefix: "/administration/ai-usage", topic: { slug: "billing-and-plans", label: "AI usage and cost" } },
   { prefix: "/help/billing-and-plans", topic: { slug: "billing-and-plans", label: "Billing and plans" } },
+  {
+    prefix: "/help/security-trust",
+    topic: { slug: "security-trust", label: "Security and trust" },
+  },
+  {
+    prefix: "/help/procurement",
+    topic: { slug: "procurement", label: "Procurement FAQ" },
+  },
+  {
+    prefix: "/help/scope",
+    topic: { slug: "scope", label: "Workspace and scope" },
+  },
   {
     prefix: "/help/repeat-review-loop",
     topic: { slug: "repeat-review-loop", label: "Repeat-review loop" },
   },
   { prefix: "/help/audit-trail", topic: { slug: "audit-trail", label: "Audit trail" } },
+  {
+    prefix: "/help/evidence-trail",
+    topic: { slug: "evidence-trail", label: "Evidence graph" },
+  },
+  {
+    prefix: "/help/evidence-intake",
+    topic: { slug: "evidence-intake", label: "Start a review" },
+  },
   {
     prefix: "/help/data-handling-tenant-isolation",
     topic: { slug: "data-handling-tenant-isolation", label: "Data handling and tenant isolation" },
@@ -178,12 +250,28 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "path-chooser", label: "Choose your next step" },
   },
   {
+    prefix: "/help/evaluator-workbook",
+    topic: { slug: "path-chooser", label: "Choose your next step" },
+  },
+  {
+    prefix: "/help/enterprise-onboarding",
+    topic: { slug: "enterprise-onboarding", label: "Enterprise onboarding checklist" },
+  },
+  {
+    prefix: "/help/pilot-roi-model",
+    topic: { slug: "pilot-roi-model", label: "Pilot ROI model" },
+  },
+  {
     prefix: "/help/policy-pack-delta-demo",
     topic: { slug: "policy-pack-delta-demo", label: "Policy-pack delta demo" },
   },
   {
     prefix: "/help/configuration-reference",
     topic: { slug: "configuration-reference", label: "Configuration reference" },
+  },
+  {
+    prefix: "/help/cli-usage",
+    topic: { slug: "cli-usage", label: "CLI usage" },
   },
   {
     prefix: "/help/first-review",
@@ -205,9 +293,20 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     prefix: "/help/api-contracts",
     topic: { slug: "governance-api-contracts", label: "API contracts (technical reference)" },
   },
-  { prefix: "/insights/impact-preview", topic: { slug: "getting-started", label: "Impact preview" } },
-  { prefix: "/internal-operations/recommendation-learning", topic: { slug: "getting-started", label: "How recommendation learning works" } },
-  { prefix: "/governance/advisory-scans", topic: { slug: "getting-started", label: "Advisory scans" } },
+  {
+    // Secondary hub — no impact-preview specialty; omit Learn more (TB-2050).
+    prefix: "/insights/impact-preview",
+    topic: { label: "Impact preview" },
+  },
+  {
+    prefix: "/internal-operations/recommendation-learning",
+    topic: { slug: "pilot-feedback", label: "How recommendation learning works" },
+  },
+  {
+    // Secondary hub — no advisory-scans specialty; omit Learn more (TB-2050).
+    prefix: "/governance/advisory-scans",
+    topic: { label: "Advisory scans" },
+  },
   { prefix: "/integrations/cloud-connections/azure", topic: { slug: "azure-permissions", label: "Azure permissions" } },
   { prefix: "/settings/cloud-connections/azure", topic: { slug: "azure-permissions", label: "Azure permissions" } },
   { prefix: "/integrations/cloud-connections/aws", topic: { slug: "cloud-connections-aws", label: "AWS cloud connection" } },
@@ -217,6 +316,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   {
     prefix: "/integrations/jira",
     topic: { slug: "integration-readiness", label: "Jira integration" },
+  },
+  {
+    prefix: "/integrations/itsm/oauth/callback",
+    topic: { slug: "integration-readiness", label: "Atlassian OAuth callback" },
   },
   {
     prefix: "/integrations/servicenow",
@@ -235,6 +338,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "alerts", label: "Teams integration" },
   },
   { prefix: "/administration/connection-status", topic: { slug: "integration-readiness", label: "How integration readiness works" } },
+  {
+    prefix: "/operate/integration-events/dlq",
+    topic: { slug: "integration-readiness", label: "Integration event dead letters" },
+  },
   { prefix: "/administration/system-health", topic: { slug: "troubleshooting", label: "Troubleshooting" } },
   { prefix: "/admin/integrations/itsm", topic: { slug: "integration-readiness", label: "How integration readiness works" } },
   {
@@ -245,23 +352,66 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     prefix: "/admin/trial-funnel",
     topic: { slug: "billing-and-plans", label: "Trial funnel" },
   },
+  {
+    prefix: "/admin/demo-readiness",
+    topic: { slug: "path-chooser", label: "Demo readiness" },
+  },
+  {
+    prefix: "/admin/deployment-status",
+    topic: { slug: "troubleshooting", label: "Deployment status" },
+  },
   { prefix: "/settings/cloud-connections/aws", topic: { slug: "cloud-connections-aws", label: "AWS cloud connection" } },
   { prefix: "/settings/cloud-connections/gcp", topic: { slug: "cloud-connections-gcp", label: "GCP cloud connection" } },
   { prefix: "/settings/cloud-connections", topic: { slug: "cloud-connections", label: "Cloud connections" } },
   {
-    prefix: "/administration/settings/identity-providers",
+    prefix: "/administration/identity-providers/role-mapping",
+    topic: { slug: "users-and-roles", label: "Role mapping" },
+  },
+  {
+    prefix: "/administration/identity-providers",
     topic: { slug: "enterprise-onboarding", label: "SSO and identity" },
   },
   {
-    prefix: "/administration/settings/users/invite-reviewer",
+    prefix: "/administration/api-keys",
+    topic: { slug: "users-and-roles", label: "API keys" },
+  },
+  {
+    prefix: "/administration/preferences",
+    topic: { slug: "getting-started", label: "Preferences" },
+  },
+  {
+    prefix: "/administration/account-security",
+    topic: { slug: "security-trust", label: "Account security" },
+  },
+  {
+    prefix: "/administration/auth-domains",
+    topic: { slug: "enterprise-onboarding", label: "Sign-in domains" },
+  },
+  {
+    prefix: "/administration/extract-upload",
+    topic: { slug: "evidence-intake", label: "Extract and Upload" },
+  },
+  {
+    prefix: "/administration/users/invite-reviewer",
     topic: { slug: "users-and-roles", label: "Invite a reviewer" },
   },
   {
-    prefix: "/administration/settings/users",
+    prefix: "/settings/roles",
     topic: { slug: "users-and-roles", label: "Users and roles" },
   },
-  { prefix: "/administration/settings/tenant", topic: { slug: "getting-started", label: OPERATOR_NAV_LINK_LABELS.settings } },
-  { prefix: "/administration/settings/baseline", topic: { slug: "pilot-roi-model", label: "View ROI methodology" } },
+  {
+    prefix: "/administration/users",
+    topic: { slug: "users-and-roles", label: "Users and roles" },
+  },
+  {
+    prefix: "/administration/security-trust",
+    topic: { slug: "security-trust", label: "Security and trust" },
+  },
+  {
+    prefix: "/administration/tenant",
+    topic: { slug: "scope", label: OPERATOR_NAV_LINK_LABELS.settings },
+  },
+  { prefix: "/administration/baseline", topic: { slug: "pilot-roi-model", label: "View ROI methodology" } },
   { prefix: "/help", topic: { slug: "getting-started", label: "Help" } },
 ];
 

@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
+import { ReviewStartInlineError } from "@/components/review-intake/ReviewStartInlineError";
 import { initializeArchitectureCreation } from "@/lib/architecture-creation-init";
 import { clearArchitectureCreationDraftId } from "@/lib/architecture-creation-session";
 import { trackArchitectureDraftResumeClick } from "@/lib/architecture-draft-resume-telemetry";
@@ -38,6 +39,7 @@ import {
   CREATE_ARCHITECTURE_DRAFT_START_FAILED_MESSAGE,
   CREATE_ARCHITECTURE_STARTING_LABEL,
 } from "@/lib/review-start-progress-copy";
+import { formatVerboseApiFailureMessage } from "@/lib/resolve-api-error-message";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -155,7 +157,9 @@ export function ArchitectureCreationBootstrap(): React.JSX.Element {
     clearArchitectureCreationDraftId();
 
     createTimeoutIdRef.current = window.setTimeout(() => {
-      failCreate(CREATE_ARCHITECTURE_DRAFT_START_FAILED_MESSAGE);
+      failCreate(
+        `${CREATE_ARCHITECTURE_DRAFT_START_FAILED_MESSAGE}\nTimed out after ${CREATE_ARCHITECTURE_BOOTSTRAP_TIMEOUT_MS / 1000} seconds waiting for the API.`,
+      );
     }, CREATE_ARCHITECTURE_BOOTSTRAP_TIMEOUT_MS);
 
     void initializeArchitectureCreation()
@@ -166,7 +170,7 @@ export function ArchitectureCreationBootstrap(): React.JSX.Element {
         }
 
         if (result.draftId === null) {
-          failCreate(CREATE_ARCHITECTURE_DRAFT_START_FAILED_MESSAGE);
+          failCreate(result.failureDetail ?? CREATE_ARCHITECTURE_DRAFT_START_FAILED_MESSAGE);
 
           return;
         }
@@ -178,12 +182,12 @@ export function ArchitectureCreationBootstrap(): React.JSX.Element {
 
         router.replace(architectureDraftPath(result.draftId));
       })
-      .catch(() => {
+      .catch((caught: unknown) => {
         if (!createInFlightRef.current) {
           return;
         }
 
-        failCreate(CREATE_ARCHITECTURE_DRAFT_START_FAILED_MESSAGE);
+        failCreate(formatVerboseApiFailureMessage(caught, CREATE_ARCHITECTURE_DRAFT_START_FAILED_MESSAGE));
       });
   };
 
@@ -228,9 +232,7 @@ export function ArchitectureCreationBootstrap(): React.JSX.Element {
   return (
     <div className="max-w-2xl space-y-4" data-testid="architecture-creation-bootstrap-ready">
       {error !== null ? (
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} role="alert" data-testid="architecture-creation-bootstrap-error">
-          {error}
-        </p>
+        <ReviewStartInlineError message={error} testId="architecture-creation-bootstrap-error" />
       ) : null}
 
       {hasDrafts ? (
@@ -268,11 +270,6 @@ export function ArchitectureCreationBootstrap(): React.JSX.Element {
             {VIEW_ALL_DRAFTS_LABEL}
           </Link>
         </Button>
-        {error !== null ? (
-          <Button type="button" variant="outline" size="sm" onClick={startNewDraft} data-testid="architecture-creation-retry">
-            Retry
-          </Button>
-        ) : null}
       </div>
 
       <div className="space-y-1">

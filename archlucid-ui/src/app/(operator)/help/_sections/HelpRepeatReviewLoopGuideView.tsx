@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
 import { HelpRepeatReviewLoopPageHeader } from "@/app/(operator)/help/_sections/HelpRepeatReviewLoopPageHeader";
+import { RepeatReviewLoopHelpEvidenceOrientationStrip } from "@/app/(operator)/help/_sections/RepeatReviewLoopHelpEvidenceOrientationStrip";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -79,6 +80,8 @@ export function HelpRepeatReviewLoopGuideView(props: HelpRepeatReviewLoopGuideVi
           void onRefresh();
         }}
       />
+
+      <RepeatReviewLoopHelpEvidenceOrientationStrip />
 
       <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
         <Card

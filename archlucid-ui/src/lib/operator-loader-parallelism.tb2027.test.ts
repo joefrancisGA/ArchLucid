@@ -26,16 +26,8 @@ describe("TB-2027 operator loader parallelism", () => {
     );
   });
 
-  it("parallelizes tenant settings trial + digest with digest isolation", () => {
-    const source = readUiSource(
-      "src/app/(operator)/administration/settings/tenant/_sections/load-tenant-settings-page-data.ts",
-    );
-
-    expect(source).toContain("loadExecDigestPreferencesIsolated");
-    expect(source).toMatch(
-      /await Promise\.all\(\[\s*tryGetTenantTrialStatus\(\),\s*loadExecDigestPreferencesIsolated\(\)/,
-    );
-  });
+  // The tenant settings loader used to parallelize trial + digest. The digest schedule editor moved to the
+  // Digests hub, leaving a single fetch here, so there is no longer a parallelism invariant to guard.
 
   it("uses allSettled for governance setup policy + routing signals", () => {
     const source = readUiSource(

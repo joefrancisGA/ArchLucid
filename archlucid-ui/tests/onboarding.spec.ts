@@ -59,7 +59,7 @@ test.describe("Fresh tenant onboarding — mocked API", () => {
         (response) => response.url().includes("/api/proxy/api/auth/me") && response.ok(),
         { timeout: 60_000 },
       ),
-      page.goto("/administration/settings/identity-providers"),
+      page.goto("/administration/identity-providers"),
     ]);
 
     await expect(page.getByTestId("identity-providers-settings-shell")).toBeVisible({ timeout: 60_000 });

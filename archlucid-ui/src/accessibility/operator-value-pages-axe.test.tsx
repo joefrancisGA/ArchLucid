@@ -192,7 +192,7 @@ vi.mock("@/app/(operator)/value-report/_sections/load-value-report-page-data", (
 
 import SponsorReportExecutiveSummaryPage from "@/app/(operator)/sponsor-report/executive-summary/page";
 import AdvisoryScansPage from "@/app/(operator)/governance/advisory-scans/page";
-import DigestsPage from "@/app/(operator)/digests/page";
+import DigestsPage from "@/app/(operator)/architecture/digests/page";
 import PlanningPage from "@/app/(operator)/insights/planning/page";
 
 expect.extend(toHaveNoViolations);

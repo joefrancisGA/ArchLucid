@@ -133,8 +133,8 @@ export const OPERATOR_NAV_LINK_LABELS = {
   pilotBaselines: "ROI baselines",
   /** Architecture scorecard (`/insights/architecture-scorecard`). */
   scorecard: BUYER_TERMINOLOGY.reviewScorecard,
-  alerts: "Alert inbox",
-  alertRules: "Alerts",
+  alerts: "Alerts",
+  alertRules: "Alert Rules",
   policyPacks: "Policy packs",
   /** Standards & rules (`/governance/standards-and-rules`). */
   governanceResolution: "Standards & rules",
@@ -178,7 +178,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   cloudConnections: "Cloud connections",
   systemHealth: "System health",
   digests: "Digests",
-  /** Settings hub (`/administration/settings`); workspace entry often `/administration/settings/tenant`. */
+  /** Settings hub (`/administration`); workspace entry often `/administration/tenant`. */
   settings: "Settings",
   workspaceSettings: "Workspace settings",
 } as const;

@@ -35,4 +35,8 @@ export type FindingInspectPayload = {
   assignedToUserId?: string | null;
   /** TB-395 target remediation due (not deferral revisit). */
   remediationDueUtc?: string | null;
+  /** Authoritative trust label from inspect API enrichment. */
+  trustLabel?: string | null;
+  /** Short reason accompanying trustLabel. */
+  trustLabelReason?: string | null;
 };

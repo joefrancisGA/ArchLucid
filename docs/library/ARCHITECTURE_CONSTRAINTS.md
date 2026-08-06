@@ -7,7 +7,7 @@
 
 Automated checks that selected **ArchLucid** assemblies respect layering and dependency boundaries. Implementation: **`ArchLucid.Architecture.Tests`** ([`DependencyConstraintTests.cs`(../../ArchLucid.Architecture.Tests/DependencyConstraintTests.cs)), using **[NetArchTest.Rules](https://github.com/BenMorris/NetArchTest)** (central version in [`Directory.Packages.props`(../../Directory.Packages.props)).
 
-**See also:** [ARCHITECTURE_COMPONENTS.md](ARCHITECTURE_COMPONENTS.md) (what each module is for), [TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md) (how `Suite=Core` and fast-core filters run in CI and locally).
+**See also:** [ARCHITECTURE_COMPONENTS.md](ARCHITECTURE_COMPONENTS.md) (what each module is for), [TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md) (how `Suite=Core` and fast-core filters run in CI and locally), [LAYER_BOUNDARY_IRREVERSIBLE_LEAK_MATRIX.md](LAYER_BOUNDARY_IRREVERSIBLE_LEAK_MATRIX.md) (**TB-1005** — NetArchTest ≠ isolation; ranked runtime residuals).
 
 ---
 

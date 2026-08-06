@@ -11,14 +11,22 @@ describe("next.config administration routes (TB-406 / TB-522 / TB-751)", () => {
     expect(
       redirectRules?.find(
         (rule) =>
-          rule.source === "/workspace/security-trust"
-          && rule.destination === "/administration/settings/security-trust",
+          rule.source === "/administration/settings"
+          && rule.destination === "/administration",
       )?.permanent,
     ).toBe(true);
 
     expect(
       redirectRules?.find(
-        (rule) => rule.source === "/admin/users" && rule.destination === "/administration/settings/users",
+        (rule) =>
+          rule.source === "/workspace/security-trust"
+          && rule.destination === "/administration/security-trust",
+      )?.permanent,
+    ).toBe(true);
+
+    expect(
+      redirectRules?.find(
+        (rule) => rule.source === "/admin/users" && rule.destination === "/administration/users",
       )?.permanent,
     ).toBe(true);
 
@@ -26,7 +34,7 @@ describe("next.config administration routes (TB-406 / TB-522 / TB-751)", () => {
       redirectRules?.find(
         (rule) =>
           rule.source === "/settings/roles"
-          && rule.destination === "/administration/settings/users?tab=roles",
+          && rule.destination === "/administration/users?tab=roles",
       )?.permanent,
     ).toBe(true);
   });
@@ -39,21 +47,21 @@ describe("next.config administration routes (TB-406 / TB-522 / TB-751)", () => {
     expect(
       rewriteRules?.some(
         (rule) =>
-          rule.source === "/administration/settings/security-trust"
-          || rule.source === "/administration/settings/security-trust/:path*",
+          rule.source === "/administration/security-trust"
+          || rule.source === "/administration/security-trust/:path*",
       ),
     ).toBe(false);
 
     expect(
       rewriteRules?.some(
-        (rule) => rule.source === "/administration/settings/users" || rule.source === "/administration/settings/users/:path*",
+        (rule) => rule.source === "/administration/users" || rule.source === "/administration/users/:path*",
       ),
     ).toBe(false);
 
     expect(
       rewriteRules?.some(
         (rule) =>
-          rule.source === "/administration/settings/support" || rule.source === "/administration/settings/support/:path*",
+          rule.source === "/administration/support" || rule.source === "/administration/support/:path*",
       ),
     ).toBe(false);
   });

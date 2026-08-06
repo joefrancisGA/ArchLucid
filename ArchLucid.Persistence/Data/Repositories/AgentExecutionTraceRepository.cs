@@ -40,6 +40,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
                                                 AND AttemptIndex > @AttemptIndex;
                                               """;
 
+        // Dual-write TB-931 hot scalars so list/cost paths prefer typed columns over JSON_VALUE alone.
         const string sql = """
                            INSERT INTO AgentExecutionTraces
                            (
@@ -57,7 +58,14 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
                                FullResponseBlobKey,
                                ModelDeploymentName,
                                ModelVersion,
-                               SystemPromptContentHash
+                               SystemPromptContentHash,
+                               InputTokenCount,
+                               OutputTokenCount,
+                               ReasoningTokenCount,
+                               EstimatedCostUsd,
+                               ModelAlias,
+                               QualityWarning,
+                               QualityRejected
                            )
                            VALUES
                            (
@@ -75,7 +83,14 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
                                @FullResponseBlobKey,
                                @ModelDeploymentName,
                                @ModelVersion,
-                               @SystemPromptContentHash
+                               @SystemPromptContentHash,
+                               @InputTokenCount,
+                               @OutputTokenCount,
+                               @ReasoningTokenCount,
+                               @EstimatedCostUsd,
+                               @ModelAlias,
+                               @QualityWarning,
+                               @QualityRejected
                            );
                            """;
 
@@ -122,7 +137,14 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
                 trace.FullResponseBlobKey,
                 trace.ModelDeploymentName,
                 trace.ModelVersion,
-                trace.SystemPromptContentHash
+                trace.SystemPromptContentHash,
+                trace.InputTokenCount,
+                trace.OutputTokenCount,
+                trace.ReasoningTokenCount,
+                trace.EstimatedCostUsd,
+                ModelAlias = TruncateModelAlias(trace.ModelAlias),
+                trace.QualityWarning,
+                trace.QualityRejected
             },
             cancellationToken: cancellationToken));
     }
@@ -381,7 +403,8 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
 
         const string updateSql = """
                                  UPDATE AgentExecutionTraces
-                                 SET TraceJson = @TraceJson
+                                 SET TraceJson = @TraceJson,
+                                     QualityWarning = @QualityWarning
                                  WHERE TraceId = @TraceId;
                                  """;
 
@@ -391,7 +414,8 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
                 new
                 {
                     TraceId = traceId,
-                    TraceJson = updatedJson
+                    TraceJson = updatedJson,
+                    QualityWarning = qualityWarning
                 },
                 cancellationToken: cancellationToken));
     }
@@ -432,7 +456,8 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
 
         const string updateSql = """
                                  UPDATE AgentExecutionTraces
-                                 SET TraceJson = @TraceJson
+                                 SET TraceJson = @TraceJson,
+                                     QualityRejected = @QualityRejected
                                  WHERE TraceId = @TraceId;
                                  """;
 
@@ -442,7 +467,8 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
                 new
                 {
                     TraceId = traceId,
-                    TraceJson = updatedJson
+                    TraceJson = updatedJson,
+                    QualityRejected = qualityRejected
                 },
                 cancellationToken: cancellationToken));
     }
@@ -1110,5 +1136,17 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
             QualityWarning = row.QualityWarning,
             QualityRejected = row.QualityRejected,
         };
+    }
+
+    /// <summary>Matches <c>dbo.AgentExecutionTraces.ModelAlias</c> NVARCHAR(260).</summary>
+    private static string? TruncateModelAlias(string? modelAlias)
+    {
+        if (string.IsNullOrEmpty(modelAlias))
+            return modelAlias;
+
+        if (modelAlias.Length <= 260)
+            return modelAlias;
+
+        return modelAlias[..260];
     }
 }

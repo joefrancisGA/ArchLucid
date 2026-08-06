@@ -5,11 +5,10 @@ import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
-import { ColorModeToggle } from "@/components/ColorModeToggle";
 import { MarketingResourcesMenu } from "@/components/marketing/MarketingResourcesMenu";
 import { Button } from "@/components/ui/button";
+import { MARKETING_PUBLIC_NAV_LINK_CLASS } from "@/lib/marketing-public-nav-link-class";
 import { appSiteHref } from "@/lib/site-urls";
-import { cn } from "@/lib/utils";
 
 type MarketingPublicHeaderProps = {
   readonly liveDemoLinked: boolean;
@@ -20,22 +19,7 @@ type MarketingPublicHeaderProps = {
  * `bg-al-surface-base` when dark: text utilities lose. Colors come from globals.css
  * `.marketing-public-nav-link` hex rules so contrast does not depend on Tailwind `dark:` merge.
  */
-const MARKETING_NAV_LINK_CLASS = cn(
-  "marketing-public-nav-link inline-flex h-7 shrink-0 items-center justify-center rounded-md px-3 text-xs font-semibold",
-  "transition-colors hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2",
-  "focus-visible:ring-neutral-400 focus-visible:ring-offset-2 dark:hover:bg-neutral-800",
-);
-
-function shouldHideThemeToggleOnMarketingRoute(pathname: string): boolean {
-  return (
-    pathname === "/pricing" ||
-    pathname.startsWith("/pricing/") ||
-    pathname === "/signup" ||
-    pathname.startsWith("/signup/") ||
-    pathname === "/faq" ||
-    pathname.startsWith("/faq/")
-  );
-}
+const MARKETING_NAV_LINK_CLASS = MARKETING_PUBLIC_NAV_LINK_CLASS;
 
 function isSignupVerifyFocusRoute(pathname: string): boolean {
   return pathname === "/signup/verify";
@@ -43,7 +27,6 @@ function isSignupVerifyFocusRoute(pathname: string): boolean {
 
 export function MarketingPublicHeader(props: MarketingPublicHeaderProps): React.JSX.Element {
   const pathname = usePathname();
-  const hideThemeToggle = shouldHideThemeToggleOnMarketingRoute(pathname);
   const focusAuth = isSignupVerifyFocusRoute(pathname);
 
   return (
@@ -81,7 +64,6 @@ export function MarketingPublicHeader(props: MarketingPublicHeaderProps): React.
           )}
         </div>
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-          {hideThemeToggle || focusAuth ? null : <ColorModeToggle />}
           {focusAuth ? null : (
             <Button asChild variant="outline" size="sm">
               <Link href={appSiteHref("/auth/signin")}>Sign in</Link>

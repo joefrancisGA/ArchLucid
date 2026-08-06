@@ -34,7 +34,7 @@ export function SupportBundleDownloadButton({
 
       {showDiagnosticsLink ? (
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          <Link className={OPERATOR_LINK.nav} href="/administration/settings/support">
+          <Link className={OPERATOR_LINK.nav} href="/administration/support">
             Open support diagnostics
           </Link>
         </p>

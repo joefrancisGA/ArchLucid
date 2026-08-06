@@ -9,8 +9,10 @@ describe("DigestsSourcesStrip", () => {
     render(<DigestsSourcesStrip />);
 
     expect(screen.getByTestId("digests-sources")).toBeInTheDocument();
-    expect(screen.getByTestId("digests-claim-discipline")).toBeInTheDocument();
-    expect(screen.getByText(/summarize workspace activity/i)).toBeInTheDocument();
+
+    // Owner decision 2026-08-05: no claim-boundary band on the digests hub.
+    expect(screen.queryByTestId("digests-claim-discipline")).not.toBeInTheDocument();
+    expect(screen.queryByText(/Do not imply CPA SOC 2/i)).not.toBeInTheDocument();
 
     const sources = screen.getByTestId("digests-sources");
 

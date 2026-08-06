@@ -5,12 +5,14 @@ import {
   Layers,
   LayoutDashboard,
   ListOrdered,
+  Newspaper,
 } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
 import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture-intelligence-route";
 import { BUYER_ONBOARDING_NAV_TOOLTIP } from "@/lib/buyer-polish-copy";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture-routes";
+import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
@@ -74,7 +76,14 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
           defaultVisibleInCollapsedSidebar: true,
         },
         {
-          // String literal required: scripts/ci/assert_route_tier_policy_nav.py parses href:"..." only.
+          href: DIGESTS_HUB_PATH as typeof DIGESTS_HUB_PATH & "/architecture/digests",
+          label: OPERATOR_NAV_LINK_LABELS.digests,
+          title: "Digests — generated digests, subscriptions, and sponsor schedule",
+          icon: Newspaper,
+          tier: "advanced",
+          requiredAuthority: "ReadAuthority",
+        },
+        {
           href: ARCHITECTURE_INTELLIGENCE_PATH as typeof ARCHITECTURE_INTELLIGENCE_PATH & "/architecture/architecture-intelligence",
           label: "Architecture intelligence",
           title: "Architecture intelligence — closed-loop reasoning and golden regression checks",

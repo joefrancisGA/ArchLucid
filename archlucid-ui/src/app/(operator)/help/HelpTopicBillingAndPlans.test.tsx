@@ -164,7 +164,7 @@ describe("HelpBillingAndPlansGuideView", () => {
     ).toHaveAttribute("href", "/pricing");
     expect(
       within(actionPanel).getByRole("link", { name: BILLING_HELP_PRIMARY_ACTIONS.manageBilling.label }),
-    ).toHaveAttribute("href", "/administration/settings/billing");
+    ).toHaveAttribute("href", "/administration/billing");
     expect(within(actionPanel).getByRole("button", { name: "Manage billing" })).toBeEnabled();
     expect(screen.queryByTestId("help-billing-no-permission-hint")).not.toBeInTheDocument();
   });
@@ -219,7 +219,7 @@ describe("HelpBillingAndPlansGuideView", () => {
     );
     expect(within(actionPanel).getByRole("link", { name: "Open Billing and plans" })).toHaveAttribute(
       "href",
-      "/administration/settings/billing",
+      "/administration/billing",
     );
     expect(screen.queryByRole("button", { name: "Manage billing" })).not.toBeInTheDocument();
     expect(

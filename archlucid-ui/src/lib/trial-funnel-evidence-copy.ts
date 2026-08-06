@@ -16,8 +16,8 @@ export type TrialFunnelSourceLink = {
 /** Operator Sources — no self-href to `/admin/trial-funnel`. */
 export const TRIAL_FUNNEL_SOURCES: readonly TrialFunnelSourceLink[] = [
   { label: "Tenant health", href: "/admin/tenant-health" },
-  { label: "AI usage", href: "/administration/settings/ai-usage" },
-  { label: "Billing settings", href: "/administration/settings/billing" },
+  { label: "AI usage", href: "/administration/ai-usage" },
+  { label: "Billing settings", href: "/administration/billing" },
   { label: "Billing and plans help", href: inAppHelpHref("billing-and-plans") },
   { label: "Audit", href: "/governance/audit" },
 ] as const;

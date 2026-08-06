@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   type WhyArchLucidDemoUniverse,
@@ -18,7 +19,10 @@ export function WhyArchLucidPageHeader(props: WhyArchLucidPageHeaderProps) {
 
   return (
     <header className="space-y-2">
-      <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Why ArchLucid</h1>
+      <div className="flex flex-wrap items-center gap-2">
+        <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>Why ArchLucid</h1>
+        <PageContextualHelpButton />
+      </div>
 
       <div
         role="status"

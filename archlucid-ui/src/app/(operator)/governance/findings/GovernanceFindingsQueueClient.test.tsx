@@ -201,14 +201,14 @@ describe("GovernanceFindingsQueueClient", () => {
     );
     expect(within(desktopRegion).getByRole("link", { name: "View exception" })).toHaveAttribute(
       "href",
-      "/governance/risk-exceptions",
+      "/governance/exceptions",
     );
 
     const mobileRegion = screen.getByTestId("governance-findings-queue-mobile");
     expect(within(mobileRegion).getByRole("link", { name: "View risk" })).toBeInTheDocument();
     expect(within(mobileRegion).getByRole("link", { name: "View exception" })).toHaveAttribute(
       "href",
-      "/governance/risk-exceptions",
+      "/governance/exceptions",
     );
     expect(screen.getByTestId("architecture-risk-register-summary-open")).toHaveTextContent("Open risks: 1");
   });

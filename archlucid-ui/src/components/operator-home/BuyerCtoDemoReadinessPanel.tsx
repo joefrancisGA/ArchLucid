@@ -26,7 +26,7 @@ import { buildCtoDemoRunOfShowMarkdown } from "@/lib/buyer-cto-demo-tour";
 import { groupDemoReadinessChecksBySection } from "@/lib/demo-readiness-check-sections";
 import { emitDemoReadinessInternalSignal } from "@/lib/demo-readiness-internal-telemetry";
 import { EXPLORE_ARCHLUCID_ROW_CLASS } from "@/components/operator-home/explore-archlucid-row-class";
-import { isCtoDemoInternalOperatorControlsEnv, isCtoDemoOperatorToolingEnv } from "@/lib/cto-demo-presenter-pack";
+import { isCtoDemoInternalOperatorControlsEnv } from "@/lib/cto-demo-presenter-pack";
 import { OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 
 export type BuyerCtoDemoReadinessPanelProps = {
@@ -89,7 +89,7 @@ function DemoReadinessCheckRow(props: { readonly check: BuyerCtoDemoReadinessChe
 }
 
 /** Internal demo-operator preflight — showcase seed and golden journey checks. */
-export function BuyerCtoDemoReadinessPanel(props: BuyerCtoDemoReadinessPanelProps = {}): React.JSX.Element | null {
+export function BuyerCtoDemoReadinessPanel(props: BuyerCtoDemoReadinessPanelProps = {}): React.JSX.Element {
   const [result, setResult] = useState<BuyerCtoDemoReadinessResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [lastCheckedAt, setLastCheckedAt] = useState<string | null>(null);
@@ -109,16 +109,8 @@ export function BuyerCtoDemoReadinessPanel(props: BuyerCtoDemoReadinessPanelProp
   }, []);
 
   useEffect(() => {
-    if (!isCtoDemoOperatorToolingEnv()) {
-      return;
-    }
-
     void runChecks();
   }, [runChecks]);
-
-  if (!isCtoDemoOperatorToolingEnv()) {
-    return null;
-  }
 
   const statusKind = result === null ? "needs-attention" : buyerCtoDemoReadinessStatusKind(result.verdict);
   const embedded = layout === "embedded";

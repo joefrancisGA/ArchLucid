@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 
 import { FrictionlessTrialLauncher } from "@/components/marketing/FrictionlessTrialLauncher";
 import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
+import { TryEvidenceOrientationStrip } from "@/components/marketing/TryEvidenceOrientationStrip";
 import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export const metadata: Metadata = {
@@ -22,6 +23,7 @@ export default function TryPage(): ReactNode {
         every decision leaves an audit trail, so you can judge the product on its own terms. When you are ready, start
         an evaluation with your own architecture evidence or sign in.
       </p>
+      <TryEvidenceOrientationStrip />
       <div className="mt-6" data-testid="try-page-launcher">
         <FrictionlessTrialLauncher />
       </div>

@@ -15,7 +15,7 @@ This doc describes the main runtime flows in “sequence narrative” form. It�
 
 **Goal:** Turn an `ArchitectureRequest` into a finalized, versioned architecture package (API: golden manifest).
 
-**Important:** There are **two ways** the product reaches that outcome. **`POST /v1/architecture/request`** always persists the run and, on **SQL storage**, enters **`IAuthorityRunOrchestrator`** (context ingestion → knowledge graph → findings → decisioning → artifact synthesis) via **`AuthorityPipelineStagesExecutor`**. Separately, a **legacy coordinator** path still supports **in-host agent execution** (`POST …/execute`), **external** per-task submission (`POST …/result`), and a **merge commit** (`POST …/commit`) when the run is driven by **AgentTask** / **AgentResult** rows. **Choose one mental model per run** after inspecting **`GET /v1/architecture/run/{runId}`** (see decision tree below).
+**Important:** There are **two ways** the product reaches that outcome. **`POST /v1/architecture/request`** always persists the run and, on **SQL storage**, enters **`IAuthorityRunOrchestrator`** (context ingestion → knowledge graph → findings → decisioning → artifact synthesis) via **`AuthorityPipelineStagesExecutor`**. Separately, a **legacy coordinator** path still supports **in-host agent execution** (`POST …/execute`), **external** per-task submission (`POST …/result`), and a **merge commit** (`POST …/commit`) when the run is driven by **AgentTask** / **AgentResult** rows. **Choose one mental model per run** after inspecting **`GET /v1/architecture/run/{runId}`** (see decision tree below). PA/integrator matrix: [`AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md`](AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md) (**TB-1007**).
 
 #### A0 — Authority pipeline (ingestion → graph → findings → artifacts)
 
@@ -80,6 +80,8 @@ flowchart TD
 ### Flow C: Comparison lifecycle (compare → persist record → replay/export → verify drift)
 
 **Goal**: create comparisons that are persisted, inspectable, replayable, and exportable again.
+
+**PA / procurement matrix (TB-1024):** minimal immutable snapshot + artifact/regenerate/verify vs UI illusion — [`COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md`](COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md) (**TB-1024** Done). Honesty CI follow-on: **TB-1025**.
 
 #### C1: Create and persist an end-to-end run comparison
 

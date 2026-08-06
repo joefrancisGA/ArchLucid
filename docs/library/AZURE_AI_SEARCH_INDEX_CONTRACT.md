@@ -22,6 +22,7 @@ Implementation references:
 
 - Upsert + vector query: `ArchLucid.Retrieval/Indexing/AzureSearchSdkClient.cs` (`ToSearchDocument`, `SearchAsync`)
 - OData scope filter: `ArchLucid.Retrieval/Indexing/AzureSearchTenantScopeFilterBuilder.cs`
+- Tenancy hit guarantee (query / upsert / Graph-RAG / platform sentinel): [`RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md`](RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md) (**TB-1001**)
 - Domain model: `ArchLucid.Retrieval/Models/RetrievalChunk.cs`, `CorpusKind` enum
 
 ---

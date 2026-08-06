@@ -8,8 +8,7 @@ import { filterNavLinksForOperatorShell, listNavGroupsVisibleInOperatorShell } f
 describe("committed architecture review nav promotion", () => {
   const pilot = NAV_GROUPS.find((g) => g.id === "pilot");
   const analysis = NAV_GROUPS.find((g) => g.id === "operate-analysis");
-  // /sponsor-report/pilot-outcomes lives in operate-reports (moved out of operator-system-admin, nav placement audit 2026-07-05).
-  const reports = NAV_GROUPS.find((g) => g.id === "operate-reports");
+  // /sponsor-report/pilot-outcomes lives in Insights (formerly operate-reports).
 
   it("TB-524: keeps Getting started essential before first commit and demotes after", () => {
     expect(pilot).toBeDefined();
@@ -46,7 +45,6 @@ describe("committed architecture review nav promotion", () => {
 
   it("promotes Compare and pilot outcomes to essential tier after first commit", () => {
     expect(analysis).toBeDefined();
-    expect(reports).toBeDefined();
 
     const promotedAnalysis = applyCommittedArchitectureReviewNavPromotions(analysis!.links, true);
     const compare = promotedAnalysis.find((l) => l.href === "/insights/compare-two-reviews");
@@ -54,8 +52,7 @@ describe("committed architecture review nav promotion", () => {
     expect(compare?.tier).toBe("essential");
     expect(compare?.defaultVisibleInCollapsedSidebar).toBeUndefined();
 
-    const promotedReports = applyCommittedArchitectureReviewNavPromotions(reports!.links, true);
-    const outcomes = promotedReports.find((l) => l.href === "/sponsor-report/pilot-outcomes");
+    const outcomes = promotedAnalysis.find((l) => l.href === "/sponsor-report/pilot-outcomes");
 
     expect(outcomes?.tier).toBe("essential");
     expect(outcomes?.defaultVisibleInCollapsedSidebar).toBeUndefined();

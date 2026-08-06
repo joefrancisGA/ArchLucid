@@ -285,19 +285,75 @@ export function formatRoiSummaryUsdWithRateBasis(
   };
 }
 
-export function interpretRoiSummaryMeaning(metrics: RoiSummaryPeriodMetrics, hourlyUsd: number): string {
+export function interpretRoiSummaryMeaning(
+  metrics: RoiSummaryPeriodMetrics,
+  hourlyUsd: number,
+  options?: { readonly isDefaultRate?: boolean; readonly demoDerived?: boolean },
+): string {
   if (metrics.hours <= 1e-9) {
     return "ArchLucid needs finalized reviews before it can estimate review-time savings for this period. Complete a review or add governance signals to unlock a directional value estimate.";
   }
 
   const hoursLabel = formatHours(metrics.hours);
-  const valueLabel = metrics.showUsdEstimate ? formatUsd(metrics.usdEstimate) : "a directional dollar estimate";
+  const usdWithBasis = formatRoiSummaryUsdWithRateBasis(
+    metrics.hours,
+    metrics.usdEstimate,
+    metrics.showUsdEstimate,
+    {
+      isDefaultRate: options?.isDefaultRate ?? true,
+      demoDerived: options?.demoDerived,
+    },
+  );
+  const valueLabel = metrics.showUsdEstimate ? usdWithBasis.display : "a directional dollar estimate";
 
   if (metrics.showUsdEstimate) {
-    return `ArchLucid estimates approximately ${hoursLabel} of review and rework time avoided in this period — about ${valueLabel} at a loaded hourly cost of ${formatUsd(hourlyUsd)}. This is intended for pilot value discussions, not financial reporting.`;
+    return `ArchLucid estimates approximately ${hoursLabel} of review and rework time avoided in this period — about ${valueLabel} (${usdWithBasis.rateBasisLabel.toLowerCase()} at ${formatUsd(hourlyUsd)}/hr). This is intended for pilot value discussions, not financial reporting.`;
   }
 
   return `ArchLucid estimates approximately ${hoursLabel} of review and rework time avoided in this period. Add more findings or raise the loaded hourly cost to surface a meaningful dollar estimate.`;
+}
+
+export function formatRoiSummaryRateLabel(
+  options: { readonly isDefaultRate: boolean; readonly demoDerived?: boolean },
+): string {
+  return formatRoiSummaryUsdWithRateBasis(1, 1, true, options).rateBasisLabel;
+}
+
+export function buildRoiSummaryExportMarkdown(input: {
+  readonly windowTitle: string;
+  readonly metrics: RoiSummaryPeriodMetrics;
+  readonly hourlyUsd: number;
+  readonly isDefaultRate: boolean;
+  readonly demoDerived?: boolean;
+}): string {
+  const usd = formatRoiSummaryUsdWithRateBasis(
+    input.metrics.hours,
+    input.metrics.usdEstimate,
+    input.metrics.showUsdEstimate,
+    { isDefaultRate: input.isDefaultRate, demoDerived: input.demoDerived },
+  );
+
+  const lines = [
+    `# ROI summary — ${input.windowTitle}`,
+    "",
+    `Hours saved: ${formatRoiSummaryHoursDisplay(input.metrics.hours)}`,
+    `Estimated value: ${usd.display}`,
+    `Rate basis: ${usd.rateBasisLabel}`,
+    `Loaded hourly cost: ${formatUsd(input.hourlyUsd)}`,
+    "",
+    interpretRoiSummaryMeaning(input.metrics, input.hourlyUsd, {
+      isDefaultRate: input.isDefaultRate,
+      demoDerived: input.demoDerived,
+    }),
+    "",
+    roiSummaryDirectionalDisclaimer(),
+  ];
+
+  return lines.join("\n");
+}
+
+export function roiSummaryDirectionalDisclaimer(): string {
+  return "This estimate is directional. It is intended for pilot value discussions, not financial reporting.";
 }
 
 export function roiSummaryZeroStateHeadline(): string {
@@ -306,10 +362,6 @@ export function roiSummaryZeroStateHeadline(): string {
 
 export function roiSummaryZeroStateBody(): string {
   return "Finalized reviews or governance blocks are needed before ArchLucid can calculate savings.";
-}
-
-export function roiSummaryDirectionalDisclaimer(): string {
-  return "This estimate is directional. It is intended for pilot value discussions, not financial reporting.";
 }
 
 export function roiSummaryBasisOfEstimateCopy(): string {

@@ -46,7 +46,7 @@ describe("trust-center-marketing (TB-737)", () => {
 
     for (const href of hrefs) {
       expect(href.startsWith("/auth")).toBe(false);
-      expect(href.startsWith("/administration/settings")).toBe(false);
+      expect(href.startsWith("/administration")).toBe(false);
     }
   });
 });

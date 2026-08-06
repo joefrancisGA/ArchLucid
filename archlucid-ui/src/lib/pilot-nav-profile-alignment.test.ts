@@ -34,7 +34,6 @@ describe("pilot-nav-profile-alignment", () => {
       "operate-analysis",
       "operate-architect-advanced",
       "operate-governance",
-      "operate-reports",
       "operate-integrations",
     ]);
   });

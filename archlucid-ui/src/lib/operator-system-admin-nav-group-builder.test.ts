@@ -1,12 +1,8 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { BUYER_CTO_DEMO_READINESS_HEADING } from "@/lib/buyer-polish-copy";
 import { OperatorSystemAdminNavGroupBuilder } from "@/lib/operator-system-admin-nav-group-builder";
-
-vi.mock("@/lib/cto-demo-presenter-pack", () => ({
-  isCtoDemoOperatorToolingEnv: () => true,
-}));
 
 describe("OperatorSystemAdminNavGroupBuilder", () => {
   it("gates internal telemetry links at AdminAuthority (TB-648)", () => {
@@ -36,12 +32,13 @@ describe("OperatorSystemAdminNavGroupBuilder", () => {
     expect(group.links.map((link) => link.label)).not.toContain("Integration DLQ");
   });
 
-  it("includes demo readiness under Internal Operations when operator demo tooling is enabled", () => {
+  it("includes demo readiness under Internal Operations for administrators", () => {
     const group = new OperatorSystemAdminNavGroupBuilder().build();
     const demoReadiness = group.links.find((link) => link.href === "/admin/demo-readiness");
 
     expect(demoReadiness?.label).toBe(BUYER_CTO_DEMO_READINESS_HEADING);
     expect(demoReadiness?.requiredAuthority).toBe("AdminAuthority");
+    expect(demoReadiness?.tier).toBe("advanced");
   });
 
   it("includes Review feedback under Internal Operations", () => {

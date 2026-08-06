@@ -2,10 +2,12 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { CorePilotHelpEvidenceOrientationStrip } from "@/app/(operator)/help/_sections/CorePilotHelpEvidenceOrientationStrip";
 import { HelpCorePilotWorkflowStepper } from "@/app/(operator)/help/_sections/HelpCorePilotWorkflowStepper";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   CORE_PILOT_HELP_CLOUD_ACTIONS,
   CORE_PILOT_HELP_DEFERRED_ITEMS,
@@ -64,9 +66,16 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
     <article className={OPERATOR_LAYOUT.majorSectionGap} data-testid="help-core-pilot-guide">
       <HelpTopicHashScroll />
       <header className={HELP_PAGE_LAYOUT.articleHeader}>
-        <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{entry.title}</h1>
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{entry.summary}</p>
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          <div className="min-w-0 space-y-1">
+            <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{entry.title}</h1>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{entry.summary}</p>
+          </div>
+          <PageContextualHelpButton />
+        </div>
       </header>
+
+      <CorePilotHelpEvidenceOrientationStrip />
 
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")}>

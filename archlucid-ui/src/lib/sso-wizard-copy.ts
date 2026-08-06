@@ -10,9 +10,9 @@ export const SSO_WIZARD_STATUS_NOT_ACTIVE =
 
 export const SSO_WIZARD_BACK_LINK_LABEL = "Back to identity providers";
 
-export const SSO_WIZARD_IDENTITY_PROVIDERS_HREF = "/administration/settings/identity-providers";
+export const SSO_WIZARD_IDENTITY_PROVIDERS_HREF = "/administration/identity-providers";
 
-export const SSO_WIZARD_SETTINGS_HREF = "/administration/settings";
+export const SSO_WIZARD_SETTINGS_HREF = "/administration";
 
 export const SSO_WIZARD_BREADCRUMB_CONFIGURE = "Configure SSO";
 

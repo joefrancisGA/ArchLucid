@@ -5,9 +5,12 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { completeItsmAtlassianOAuthConsent } from "@/lib/api/itsm-outbound-api";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { INTEGRATIONS_JIRA_PATH } from "@/lib/integrations-nav-paths";
+
+import { ItsmOAuthCallbackEvidenceOrientationStrip } from "./ItsmOAuthCallbackEvidenceOrientationStrip";
 
 export function ItsmAtlassianOAuthCallbackClient(): React.ReactElement {
   const searchParams = useSearchParams();
@@ -74,8 +77,14 @@ export function ItsmAtlassianOAuthCallbackClient(): React.ReactElement {
   }, [searchParams]);
 
   return (
-    <div className="max-w-[640px] space-y-4">
-      <h2 className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)}>Atlassian connector consent</h2>
+    <div className="max-w-[640px] space-y-4" data-testid="itsm-oauth-callback-page">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <h2 className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)}>Atlassian connector consent</h2>
+        <PageContextualHelpButton />
+      </div>
+
+      <ItsmOAuthCallbackEvidenceOrientationStrip />
+
       <p
         role={failed ? "alert" : "status"}
         aria-live="polite"

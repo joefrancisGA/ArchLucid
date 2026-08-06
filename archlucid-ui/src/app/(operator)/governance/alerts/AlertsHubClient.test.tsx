@@ -84,7 +84,7 @@ describe("AlertsHubClient", () => {
   it("shows inbox-only triage surface with concise orientation copy", () => {
     render(<AlertsHubClient />);
     expect(screen.getByTestId("stub-inbox")).toBeInTheDocument();
-    expect(screen.getByTestId("alerts-page-title")).toHaveTextContent("Alert inbox");
+    expect(screen.getByTestId("alerts-page-title")).toHaveTextContent("Alerts");
     expect(screen.getByText(ALERTS_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.getByText(ALERTS_CONTEXT_NOTE)).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();

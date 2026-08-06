@@ -24,7 +24,7 @@ describe("presenter safe mode nav hiding", () => {
     vi.stubEnv("NEXT_PUBLIC_DEMO_MODE", "true");
     vi.stubEnv("NEXT_PUBLIC_OPERATOR_EXPERIENCE", "");
 
-    expect(shouldHideOperatorNavLinkInDemo("/administration/settings/billing", true)).toBe(true);
+    expect(shouldHideOperatorNavLinkInDemo("/administration/billing", true)).toBe(true);
     expect(shouldHideOperatorNavLinkInDemo("/insights/evidence-graph", true)).toBe(false);
 
     vi.unstubAllEnvs();

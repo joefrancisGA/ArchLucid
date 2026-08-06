@@ -124,7 +124,7 @@ describe("ExecDigestScheduleContent", () => {
     expect(screen.getByTestId("exec-digest-saved-summary")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Manage delivery destinations" })).toHaveAttribute(
       "href",
-      "/digests?tab=subscriptions",
+      "/architecture/digests?tab=subscriptions",
     );
   });
 
@@ -254,7 +254,7 @@ describe("ExecDigestScheduleContent", () => {
 
     expect(await screen.findByRole("link", { name: "Preview latest generated digest" })).toHaveAttribute(
       "href",
-      "/digests?tab=browse#digest-digest-1",
+      "/architecture/digests?tab=browse#digest-digest-1",
     );
   });
 

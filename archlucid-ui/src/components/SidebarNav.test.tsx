@@ -172,7 +172,7 @@ describe("SidebarNav (primary navigation)", () => {
     // Reader mock rank: Settings (Execute) is hidden; Billing (Read) remains.
     expect(within(adminNav).getByRole("link", { name: "Billing & plans" })).toHaveAttribute(
       "href",
-      "/administration/settings/billing",
+      "/administration/billing",
     );
   });
 

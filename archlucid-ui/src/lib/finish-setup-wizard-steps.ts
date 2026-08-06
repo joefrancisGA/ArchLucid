@@ -36,7 +36,7 @@ export const FINISH_SETUP_WIZARD_STEPS: readonly FinishSetupWizardStep[] = [
     id: "identity",
     label: "Configure identity (OIDC / SAML)",
     description: "Wire your IdP so operators sign in with corporate credentials.",
-    href: "/administration/settings/identity/sso-wizard",
+    href: "/administration/identity/sso-wizard",
     cta: "Open SSO wizard",
     isDone: () => false,
   },

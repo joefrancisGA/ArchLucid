@@ -11,7 +11,7 @@ describe("run artifact preview route contract (TB-1821 / RER)", () => {
     const runId = "22222222-2222-4222-8222-222222222222";
 
     expect(signedRecordArtifactPath(manifestId, artifactId)).toBe(
-      `/signed-records/${manifestId}/artifacts/${artifactId}`,
+      `/governance/signed-records/${manifestId}/artifacts/${artifactId}`,
     );
 
     const rerPage = join(

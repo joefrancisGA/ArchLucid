@@ -234,37 +234,37 @@ Former standalone body: `docs/go-to-market/PA_CLAIM_HONESTY_BULLETS_BATCH_B.md` 
 
 | Do not promise | Do promise |
 | --- | --- |
-| Dedicated Azure AI Search index per tenant or crypto-proof isolation from a Search hit. | Mandatory OData scope `$filter` + upsert scope validation + Graph-RAG expand from scoped snapshot; platform sentinel ≠ cross-tenant leak. |
+| Dedicated Azure AI Search index per tenant or crypto-proof isolation from a Search hit. | Mandatory OData scope `$filter` + upsert scope validation + Graph-RAG expand from scoped snapshot; platform sentinel ≠ cross-tenant leak. Engineering matrix: [`RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md`](RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md) (**TB-1001**). Follow-on honesty CI: **TB-1002**. |
 
 #### M-154 — Committed manifest unit of truth
 
 | Do not promise | Do promise |
 | --- | --- |
-| Findings lists, Ask/RAG answers, drafts, uncommitted runs, Simulator output, or UI summaries are the signed finalized package or full Evidence→audit chain. | Only committed golden manifest (`GoldenManifestId` + `ManifestHash`) is unit of truth; label hop-skips (conversational / draft / illustrative / estimate). |
+| Findings lists, Ask/RAG answers, drafts, uncommitted runs, Simulator output, or UI summaries are the signed finalized package or full Evidence→audit chain. | Only committed golden manifest (`GoldenManifestId` + `ManifestHash`) is unit of truth; label hop-skips (conversational / draft / illustrative / estimate). Engineering matrix: [`COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md`](COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md) (**TB-1003**). Follow-on honesty CI: **TB-1004**. |
 
 #### M-156 — Layer boundary / NetArchTest
 
 | Do not promise | Do promise |
 | --- | --- |
-| Assembly/layer architecture tests alone prove multi-tenant isolation or make cross-tenant leaks impossible. | Compile-time DAG guards + Layer A catalogs + INV-001 + retrieval filters; name residual irreversible class (wrong catalog / unscoped path) and **TB-950** tool hole. |
+| Assembly/layer architecture tests alone prove multi-tenant isolation or make cross-tenant leaks impossible. | Compile-time DAG guards + Layer A catalogs + INV-001 + retrieval filters; name residual irreversible class (wrong catalog / unscoped path) and **TB-950** tool hole. Engineering matrix: [`LAYER_BOUNDARY_IRREVERSIBLE_LEAK_MATRIX.md`](LAYER_BOUNDARY_IRREVERSIBLE_LEAK_MATRIX.md) (**TB-1005**). Follow-on honesty CI: **TB-1006**. |
 
 #### M-158 — Authority versus AgentTask loop
 
 | Do not promise | Do promise |
 | --- | --- |
-| Every create requires `execute` before value; dual coordinator/authority storage still ships. | Authority pipeline canonical for new surfaces; `execute`/`result`/`commit` only when intentionally owning AgentTask semantics; forbid finishing an authority-finalized run via task loop. |
+| Every create requires `execute` before value; dual coordinator/authority storage still ships. | Authority pipeline canonical for new surfaces; `execute`/`result`/`commit` only when intentionally owning AgentTask semantics; forbid finishing an authority-finalized run via task loop. Engineering matrix: [`AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md`](AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md) (**TB-1007**). Follow-on honesty CI: **TB-1008**. |
 
 #### M-160 — Append-only / sealed evidence
 
 | Do not promise | Do promise |
 | --- | --- |
-| Editable audit log, in-place rewrite of commit-sealed findings/manifests, or platform-operated WORM. | Append-only `AuditEvents` + sealed evidence registry + hash/export verify; corrections append new events or enrichment overlay. |
+| Editable audit log, in-place rewrite of commit-sealed findings/manifests, or platform-operated WORM. | Append-only `AuditEvents` + sealed evidence registry + hash/export verify; corrections append new events or enrichment overlay. Engineering matrix: [`APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md`](APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md) (**TB-1009**). Follow-on honesty CI: **TB-1010**. |
 
 #### M-162 — Finalize versus outbox
 
 | Do not promise | Do promise |
 | --- | --- |
-| Commit success means Search indexed, webhooks delivered, Cosmos projected, or every audit event is transactional. | Sealed package + durable outbox enqueue in finalize; disclose Required vs informational audit and delivery lag. |
+| Commit success means Search indexed, webhooks delivered, Cosmos projected, or every audit event is transactional. | Sealed package + durable **retrieval** outbox enqueue in finalize (ADR 0004); disclose integration `Try*` enqueue residual, Required vs informational audit, and delivery lag. Engineering matrix: [`TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md`](TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md) (**TB-1011**). Follow-on honesty CI: **TB-1012**. |
 
 #### M-164 — Read-after-write
 
@@ -294,19 +294,19 @@ Former standalone body: `docs/go-to-market/PA_CLAIM_HONESTY_BULLETS_BATCH_B.md` 
 
 | Do not promise | Do promise |
 | --- | --- |
-| Every policy pack blocks finalize; `priorityFloor` is a commit gate; packs are certifications; SoD requires a different committer; gate is always on. | Optional gate + enforcing assignment thresholds; Advisory/warn-only do not block; SoD = approval submitter≠approver (platform + org roles). |
+| Every policy pack blocks finalize; `priorityFloor` is a commit gate; packs are certifications; SoD requires a different committer; gate is always on. | Optional gate + enforcing assignment thresholds; Advisory/warn-only do not block; SoD = approval submitter≠approver (platform + org roles). Engineering matrix: [`PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md`](PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md) (**TB-1022**). Follow-on honesty CI: **TB-1023**. |
 
 #### M-174 — Comparison/replay drift
 
 | Do not promise | Do promise |
 | --- | --- |
-| Artifact-mode replay proves architecture unchanged; live mutable UI side-by-side equals verify. | Persisted `ComparisonRecord` + committed manifests on both sides; **verify** (422 on mismatch) for buyer drift/stable claims; label artifact-only as stored delta replay. |
+| Artifact-mode replay proves architecture unchanged; live mutable UI side-by-side equals verify. | Persisted `ComparisonRecord` + committed manifests on both sides; **verify** (422 on mismatch) for buyer drift/stable claims; label artifact-only as stored delta replay. Engineering matrix: [`COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md`](COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md) (**TB-1024**). Follow-on honesty CI: **TB-1025**. |
 
 #### M-176 — Operator primary object
 
 | Do not promise | Do promise |
 | --- | --- |
-| Findings or decisions are the hireable unit of truth; create and review are two equal products. | **Architecture package** as primary product noun; review = lifecycle; findings/decisions are children. |
+| Findings or decisions are the hireable unit of truth; create and review are two equal products. | **Architecture package** as primary product noun; review = lifecycle; findings/decisions are children. Engineering matrix: [`OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md`](OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md) (**TB-1026**). Follow-on honesty CI: **TB-1027**. |
 
 #### M-178 — `/see-it` static versus live boundary
 
@@ -318,7 +318,7 @@ Former standalone body: `docs/go-to-market/PA_CLAIM_HONESTY_BULLETS_BATCH_B.md` 
 
 | Do not promise | Do promise |
 | --- | --- |
-| “15 minutes without founder narration,” “product-led first value,” “no SE required,” or “won’t dismiss” without package spine + minute-12 checkpoint; absent **M-44** cohort as proof. | Finalize + sponsor export co-located on `/reviews/{runId}`; non-obvious finding + evidence → commit → unaided export as PA Q10 see list. |
+| “15 minutes without founder narration,” “product-led first value,” “no SE required,” or “won’t dismiss” without package spine + minute-12 checkpoint; absent **M-44** cohort as proof. | Finalize + sponsor export co-located on `/reviews/{runId}`; non-obvious finding + evidence → commit → unaided export as PA Q10 see list. Engineering matrix: [`PA_FIRST_15_PACKAGE_SPINE_IA_CONTRACT.md`](PA_FIRST_15_PACKAGE_SPINE_IA_CONTRACT.md) (**TB-1030**). |
 
 #### M-182 — Launch-load failure order
 

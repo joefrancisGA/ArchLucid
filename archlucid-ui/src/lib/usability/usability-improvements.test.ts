@@ -65,7 +65,7 @@ describe("usability improvements", () => {
     expect(routeViewExplanationForPathname("/governance")).toBeNull();
     expect(routeViewExplanationForPathname("/governance/policy-packs")).toBeNull();
     expect(routeViewExplanationForPathname("/governance/standards-and-rules")).toBeNull();
-    expect(routeViewExplanationForPathname("/governance/risk-exceptions")).toBeNull();
+    expect(routeViewExplanationForPathname("/governance/exceptions")).toBeNull();
     expect(routeViewExplanationForPathname("/governance/findings")).toBeNull();
   });
 

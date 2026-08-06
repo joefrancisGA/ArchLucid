@@ -130,6 +130,15 @@ export const HELP_TOPICS: HelpTopic[] = [
     routes: ["/alerts", "/alert-rules", "/governance/alerts", "/governance/alert-rules"],
   },
   {
+    id: "digests",
+    title: "Architecture digests",
+    keywords: ["digest", "schedule", "subscription", "summary", "exec digest"],
+    summary:
+      "Schedule operator summaries of review activity, configure recipients, and browse generated digests.",
+    docPath: "",
+    routes: ["/architecture/digests", "/digests", "/help/digests"],
+  },
+  {
     id: "policy-packs",
     title: "Policy packs",
     keywords: ["governance", "compliance", "pack", "conflicts", "precedence"],

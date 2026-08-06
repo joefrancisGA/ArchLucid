@@ -29,16 +29,4 @@ export const NAV_ROUTE_NAMESPACE_EXCEPTIONS: readonly NavRouteNamespaceException
     canonicalPrefixes: ["/admin"],
     exceptionReason: "Pilot feedback ops surface uses Internal namespace; grouped under System admin for employee operators (TB-408 pending).",
   },
-  {
-    navGroupId: "operate-reports",
-    href: "/digests",
-    canonicalPrefixes: ["/sponsor-report"],
-    exceptionReason: "Digest subscriptions hub uses a top-level route; promoted from Internal Ops to Reports (governance-digest theme, nav placement audit 2026-07-05).",
-  },
-  {
-    navGroupId: "operate-governance",
-    href: "/signed-records",
-    canonicalPrefixes: ["/governance"],
-    exceptionReason: "Signed review records use a top-level route; grouped under Enterprise governance until TB-408.",
-  },
 ];

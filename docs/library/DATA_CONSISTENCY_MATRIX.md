@@ -13,6 +13,8 @@ This document states **what consistency guarantees callers should assume** for m
 
 Make explicit which paths are **strongly consistent** (read-your-writes within a transaction), **transactionally outboxed** (eventually processed), or **eventually aligned** (cross-service).
 
+**PA / procurement matrix (TB-1011):** finalize UoW vs outbox/async + never-silent best-effort — [`TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md`](TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md) (**TB-1011** Done). Honesty CI follow-on: **TB-1012**.
+
 ## Assumptions
 
 - Primary authority state lives in **`dbo.Runs`** and related authority tables scoped by tenant/workspace/project.

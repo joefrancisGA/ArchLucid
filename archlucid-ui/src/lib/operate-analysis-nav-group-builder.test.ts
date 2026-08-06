@@ -2,13 +2,14 @@ import { describe, expect, it } from "vitest";
 
 import { OperateAnalysisNavGroupBuilder } from "@/lib/operate-analysis-nav-group-builder";
 import { OperateGovernanceNavGroupBuilder } from "@/lib/operate-governance-nav-group-builder";
+import { GOVERNANCE_EXCEPTIONS_PATH } from "@/lib/governance-route-paths";
 
 describe("OperateAnalysisNavGroupBuilder", () => {
   it("uses Insights group label and caption (TB-525)", () => {
     const group = new OperateAnalysisNavGroupBuilder().build();
 
     expect(group.label).toBe("Insights");
-    expect(group.caption).toBe("Explore evidence, findings, and decisions across reviews.");
+    expect(group.caption).toBe("Explore evidence, findings, decisions, and sponsor value reports across reviews.");
   });
 
   it("lists Evidence graph first in Insights nav (TB-519)", () => {
@@ -20,7 +21,7 @@ describe("OperateAnalysisNavGroupBuilder", () => {
     expect(graphLink?.keyShortcut).toBe("alt+y");
   });
 
-  it("lists Pattern library last in Insights nav", () => {
+  it("lists sponsor reports after Pattern library in Insights nav", () => {
     const group = new OperateAnalysisNavGroupBuilder().build();
 
     expect(group.links.map((link) => link.href)).toEqual([
@@ -32,15 +33,20 @@ describe("OperateAnalysisNavGroupBuilder", () => {
       "/insights/planning",
       "/insights/architecture-scorecard",
       "/insights/patterns",
+      "/sponsor-report/executive-summary",
+      "/sponsor-report/pilot-outcomes",
+      "/sponsor-report/roi-summary",
     ]);
-    expect(group.links.at(-1)?.label).toBe("Pattern library");
-    expect(group.links.at(-1)?.navBadge).toBe("Preview");
+    expect(group.links.at(-4)?.label).toBe("Pattern library");
+    expect(group.links.at(-4)?.navBadge).toBe("Preview");
+    expect(group.links.at(-3)?.label).toBe("Executive value report");
+    expect(group.links.at(-1)?.label).toBe("ROI report");
   });
 
-  it("lists Architecture scorecard before Pattern library in Insights nav", () => {
+  it("does not list Architecture intelligence in Insights nav", () => {
     const group = new OperateAnalysisNavGroupBuilder().build();
 
-    expect(group.links.at(-2)?.label).toBe("Architecture scorecard");
+    expect(group.links.some((link) => link.href === "/architecture/architecture-intelligence")).toBe(false);
   });
 
   it("lists Improvement planning after Impact preview in Insights nav", () => {
@@ -59,5 +65,12 @@ describe("OperateGovernanceNavGroupBuilder", () => {
     const advisoryLink = group.links.find((link) => link.href === "/governance/advisory-scans");
 
     expect(advisoryLink?.label).toBe("Advisory scans");
+  });
+
+  it("uses canonical exceptions path for waivers register", () => {
+    const group = new OperateGovernanceNavGroupBuilder().build();
+    const exceptionsLink = group.links.find((link) => link.href === GOVERNANCE_EXCEPTIONS_PATH);
+
+    expect(exceptionsLink?.label).toBe("Exceptions");
   });
 });

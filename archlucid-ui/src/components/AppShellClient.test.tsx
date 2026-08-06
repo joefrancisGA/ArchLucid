@@ -1,4 +1,4 @@
-import { screen, waitFor } from "@testing-library/react";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AppShellClient } from "@/components/AppShellClient";
@@ -126,6 +126,12 @@ describe("AppShellClient — LLM budget chrome", () => {
       </AppShellClient>,
     );
 
+    await waitFor(() => {
+      expect(screen.getByTestId("operator-shell-topbar-more-trigger")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("operator-shell-topbar-more-trigger"));
+
     expect(await screen.findByTestId("llm-budget-status-pill")).toBeInTheDocument();
     await waitFor(
       () => {
@@ -145,6 +151,12 @@ describe("AppShellClient — LLM budget chrome", () => {
     );
 
     await waitFor(() => {
+      expect(screen.getByTestId("operator-shell-topbar-more-trigger")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("operator-shell-topbar-more-trigger"));
+
+    await waitFor(() => {
       expect(screen.queryByTestId("llm-budget-status-pill")).not.toBeInTheDocument();
     });
 
@@ -161,8 +173,33 @@ describe("AppShellClient — LLM budget chrome", () => {
     );
 
     await waitFor(() => {
+      expect(screen.getByTestId("operator-shell-topbar-more-trigger")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("operator-shell-topbar-more-trigger"));
+
+    await waitFor(() => {
       expect(screen.queryByTestId("llm-budget-status-pill")).not.toBeInTheDocument();
     });
+  });
+
+  it("keeps sticky chrome to trial banner + top bar and leaves journey caption outside sticky", async () => {
+    renderWithOperatorQuery(
+      <AppShellClient>
+        <div>child</div>
+      </AppShellClient>,
+    );
+
+    const sticky = await screen.findByTestId("app-shell-sticky-header");
+    const topbar = screen.getByTestId("app-shell-topbar");
+    const journey = screen.queryByTestId("cto-demo-journey-caption-bar");
+
+    expect(sticky.contains(topbar)).toBe(true);
+    expect(sticky.querySelector("[data-testid='app-shell-topbar']")).not.toBeNull();
+
+    if (journey !== null) {
+      expect(sticky.contains(journey)).toBe(false);
+    }
   });
 });
 

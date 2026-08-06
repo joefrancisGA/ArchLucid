@@ -29,13 +29,13 @@ const CORE_PILOT_ALIAS_SURFACES = [
 ] as const;
 
 describe("core-pilot-help-alias-route (ECO)", () => {
-  it("tracks the legacy bookmark path separately from the canonical HCO path", () => {
+  it("tracks the legacy bookmark path separately from the canonical COR path", () => {
     expect(CORE_PILOT_HELP_ALIAS_PATH).toBe(LEGACY_CORE_PILOT_HELP_PATH);
     expect(CORE_PILOT_HELP_ALIAS_CANONICAL_PATH).toBe(FIRST_ARCHITECTURE_REVIEW_HELP_PATH);
     expect(CORE_PILOT_HELP_ALIAS_PATH).not.toBe(CORE_PILOT_HELP_ALIAS_CANONICAL_PATH);
   });
 
-  it("reuses the HCO specialty metadata for the legacy alias slug", () => {
+  it("reuses the COR specialty metadata for the legacy alias slug", () => {
     expect(CORE_PILOT_HELP_ALIAS_ROUTE_METADATA.robots).toEqual({ index: false, follow: false });
     expect(CORE_PILOT_HELP_ALIAS_ROUTE_METADATA.title).toBe("Your first architecture review");
   });

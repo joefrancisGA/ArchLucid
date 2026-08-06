@@ -19,11 +19,13 @@ const ALL_LABELS: readonly FindingTrustLabelName[] = [
   "Degraded",
   "MissingCitation",
   "DeterministicFallback",
+  "DeterministicRule",
 ] as const;
 
 describe("mapFindingTrustLabelToProvenance", () => {
   it.each([
     ["DeterministicFallback", "Deterministic rule", "Not applicable"],
+    ["DeterministicRule", "Deterministic rule", "Not applicable"],
     ["RealModel", "AI-generated", "Evidence-backed"],
     ["EvidenceBacked", "AI-generated", "Evidence-backed"],
     ["Estimated", "AI-generated", "Estimated"],
@@ -36,7 +38,7 @@ describe("mapFindingTrustLabelToProvenance", () => {
   });
 
   it("covers every FindingTrustLabel name", () => {
-    expect(ALL_LABELS).toHaveLength(8);
+    expect(ALL_LABELS).toHaveLength(9);
 
     for (const label of ALL_LABELS) {
       const display = mapFindingTrustLabelToProvenance(label);
@@ -73,7 +75,7 @@ describe("deriveFindingTrustLabelName", () => {
   });
 
   it("infers deterministic when a policy rule id is present", () => {
-    expect(deriveFindingTrustLabelName({ policyRuleId: "cis-az-001" })).toBe("DeterministicFallback");
+    expect(deriveFindingTrustLabelName({ policyRuleId: "cis-az-001" })).toBe("DeterministicRule");
   });
 
   it("infers simulator when the parent review is simulator-mode", () => {

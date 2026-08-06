@@ -77,8 +77,8 @@ export function FindingInspectFindingBody({
 
   const evidenceRefCount = payload.evidence?.length ?? 0;
   const modelProvenance = buildFindingModelProvenanceRow({
-    trustLabel: typedPayloadLookupString(payload, "trustLabel"),
-    trustLabelReason: typedPayloadLookupString(payload, "trustLabelReason"),
+    trustLabel: payload.trustLabel ?? typedPayloadLookupString(payload, "trustLabel"),
+    trustLabelReason: payload.trustLabelReason ?? typedPayloadLookupString(payload, "trustLabelReason"),
     policyRuleId: payload.decisionRuleId,
     evidenceRefCount,
     confidenceLevel: typedPayloadLookupString(payload, "confidenceLevel"),

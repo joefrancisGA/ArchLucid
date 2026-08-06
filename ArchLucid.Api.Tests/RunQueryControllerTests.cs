@@ -298,6 +298,7 @@ public sealed class RunQueryControllerTests
             Mock.Of<IAgentToolInvocationRecordRepository>(),
             findingEvidenceChainService ?? Mock.Of<IFindingEvidenceChainService>(),
             Mock.Of<IFindingInspectReadRepository>(),
+            Mock.Of<IFindingTrustLabelMapper>(),
             Mock.Of<IReasoningSummaryBuilder>(),
             scopeProvider.Object,
             Mock.Of<ITraceabilityBundleBuilder>(),

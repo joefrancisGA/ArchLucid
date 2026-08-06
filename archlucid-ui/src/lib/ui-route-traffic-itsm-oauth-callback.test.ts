@@ -7,6 +7,7 @@ import {
   ITSM_OAUTH_CALLBACK_TRAFFIC_NOTE,
   ITSM_OAUTH_CALLBACK_TRAFFIC_PATH,
   ITSM_OAUTH_CALLBACK_TRAFFIC_ROW_ID,
+  ITSM_OAUTH_CALLBACK_TRAFFIC_SECTION,
 } from "@/lib/ui-route-traffic-itsm-oauth-callback";
 
 const TEMPLATE_PATH = "docs/architecture/ui_route_traffic_estimates.template.md";
@@ -14,6 +15,7 @@ const TEMPLATE_PATH = "docs/architecture/ui_route_traffic_estimates.template.md"
 type TrafficWorkbookRow = {
   id: string;
   path: string;
+  section: string;
   notes: string;
 };
 
@@ -40,9 +42,10 @@ function extractMasterTableRows(markdown: string): TrafficWorkbookRow[] {
     }
 
     rows.push({
-      id: cells[1],
-      path: cells[2].replace(/^`|`$/g, ""),
-      notes: cells[8],
+      id: cells[1] ?? "",
+      path: (cells[2] ?? "").replace(/^`|`$/g, ""),
+      section: cells[7] ?? "",
+      notes: cells[8] ?? "",
     });
   }
 
@@ -53,14 +56,17 @@ function findTrafficRowById(rows: TrafficWorkbookRow[], rowId: string): TrafficW
   return rows.find((row) => row.id === rowId);
 }
 
-describe("ui-route-traffic-itsm-oauth-callback (TB-1781)", () => {
+describe("ui-route-traffic-itsm-oauth-callback (IIO)", () => {
   it("tracks the OAuth callback on IIO with honest workbook notes", () => {
     const rows = extractMasterTableRows(readTemplateMarkdown());
     const row = findTrafficRowById(rows, ITSM_OAUTH_CALLBACK_TRAFFIC_ROW_ID);
 
     expect(row).toBeDefined();
     expect(row?.path).toBe(ITSM_OAUTH_CALLBACK_TRAFFIC_PATH);
+    expect(row?.section).toBe(ITSM_OAUTH_CALLBACK_TRAFFIC_SECTION);
     expect(row?.notes).toBe(ITSM_OAUTH_CALLBACK_TRAFFIC_NOTE);
+    expect(row?.notes).toContain("ItsmAtlassianOAuthCallbackClient");
+    expect(row?.notes).toContain("Sources");
     expect(row?.notes.toLowerCase()).not.toContain("blocked-by-redirect");
     expect(row?.notes.toLowerCase()).not.toContain("blocked by redirect");
   });

@@ -20,6 +20,12 @@ export const GOVERNANCE_ALERTS_PATH = "/governance/alerts";
 
 export const GOVERNANCE_ALERT_RULES_PATH = "/governance/alert-rules";
 
+/** Risk exceptions / waivers register (left-nav). */
+export const GOVERNANCE_EXCEPTIONS_PATH = "/governance/exceptions" as const;
+
+/** Legacy exceptions path — permanent redirect to {@link GOVERNANCE_EXCEPTIONS_PATH}. */
+export const LEGACY_GOVERNANCE_RISK_EXCEPTIONS_PATH = "/governance/risk-exceptions" as const;
+
 /** Legacy browser paths — permanent redirects to canonical (TB-405). */
 export const LEGACY_POLICY_PACKS_PATH = "/policy-packs";
 
@@ -71,6 +77,13 @@ export function pathMatchesGovernanceAlerts(pathname: string): boolean {
 
 export function pathMatchesGovernanceAlertRules(pathname: string): boolean {
   return pathMatchesRoutePrefix(pathname, GOVERNANCE_ALERT_RULES_PATH);
+}
+
+export function pathMatchesGovernanceExceptions(pathname: string): boolean {
+  return (
+    pathMatchesRoutePrefix(pathname, GOVERNANCE_EXCEPTIONS_PATH)
+    || pathMatchesRoutePrefix(pathname, LEGACY_GOVERNANCE_RISK_EXCEPTIONS_PATH)
+  );
 }
 
 /** Exact approval-queue page — not the whole `/governance/*` tree. */

@@ -218,7 +218,7 @@ export const TROUBLESHOOTING_COMMON_ISSUES: readonly TroubleshootingIssue[] = [
     nextSteps: [
       { label: "Authentication and sign-in", href: inAppHelpHref("authentication-sign-in") },
       { label: "Open users and roles", href: inAppHelpHref("users-and-roles") },
-      { label: "Open workspace settings", href: "/administration/settings/tenant" },
+      { label: "Open workspace settings", href: "/administration/tenant" },
       ...supportEscalationLinks(),
     ],
   },

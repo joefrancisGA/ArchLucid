@@ -143,7 +143,7 @@ describe("RiskExceptionsClient", () => {
   });
 
   it("does not duplicate explain-this-view guidance for risk exceptions", () => {
-    expect(routeViewExplanationForPathname("/governance/risk-exceptions")).toBeNull();
+    expect(routeViewExplanationForPathname("/governance/exceptions")).toBeNull();
   });
 
   it("revokes after confirmation", async () => {

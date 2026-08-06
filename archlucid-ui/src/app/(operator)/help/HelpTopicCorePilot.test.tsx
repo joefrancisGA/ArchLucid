@@ -76,7 +76,7 @@ describe("HelpCorePilotGuideView", () => {
     expect(screen.getAllByTestId("core-pilot-primary-start-cta")).toHaveLength(1);
   });
 
-  it("does not link recursively to View pilot guide anywhere on the page (TB-1040)", () => {
+  it("does not link recursively to View pilot guide in the hero path (TB-1040)", () => {
     if (entry === undefined) {
       throw new Error("Expected first-architecture-review documentation entry.");
     }
@@ -86,6 +86,7 @@ describe("HelpCorePilotGuideView", () => {
     // TB-1043 later added a legitimate cross-link to the distinct "Pilot guide" topic in
     // core-pilot-related-guides — only the exact self-referential "View pilot guide" label is banned.
     expect(screen.queryByRole("link", { name: "View pilot guide" })).toBeNull();
+    expect(within(screen.getByTestId("core-pilot-summary-card")).queryByRole("link", { name: /pilot guide/i })).toBeNull();
   });
 
   it("renders a five-step workflow stepper with action links", () => {

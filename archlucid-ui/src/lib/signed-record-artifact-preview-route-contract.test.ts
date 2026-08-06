@@ -11,7 +11,7 @@ describe("signed-record artifact preview route contract (TB-1947 / MAM)", () => 
     const artifactId = "cost-summary";
 
     expect(signedRecordArtifactPath(manifestId, artifactId)).toBe(
-      `/signed-records/${manifestId}/artifacts/${artifactId}`,
+      `/governance/signed-records/${manifestId}/artifacts/${artifactId}`,
     );
 
     const appRoot = join(process.cwd(), "src", "app", "(operator)");

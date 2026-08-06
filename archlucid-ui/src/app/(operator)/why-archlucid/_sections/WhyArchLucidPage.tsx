@@ -16,6 +16,7 @@ import {
   type SectionError,
   type WhyArchLucidPageState,
 } from "@/app/(operator)/why-archlucid/_sections/why-archlucid-page-state";
+import { WhyArchLucidEvidenceOrientationStrip } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidEvidenceOrientationStrip";
 import { WhyArchLucidFirstValueReportSection } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidFirstValueReportSection";
 import { WhyArchLucidMeasuredContextSection } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidMeasuredContextSection";
 import { WhyArchLucidPageFooter } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidPageFooter";
@@ -135,6 +136,8 @@ export function WhyArchLucidPage() {
       aria-busy={state.loading}
     >
       <WhyArchLucidPageHeader universe={payloadUniverse} failClosed={failClosed} />
+
+      <WhyArchLucidEvidenceOrientationStrip />
 
       <WhyArchLucidSnapshotSection state={state} />
       <WhyArchLucidSponsorEvidencePackSection state={state} universe={payloadUniverse} />

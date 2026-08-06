@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
+import { SeeItEvidenceOrientationStrip } from "@/components/marketing/SeeItEvidenceOrientationStrip";
 import { WELCOME_SEE_IT_CTA_LABEL } from "@/components/marketing/welcome-marketing-copy";
 import { Button } from "@/components/ui/button";
 import {
@@ -81,6 +82,8 @@ export default async function SeeItMarketingPage() {
 
         <SeeItDeliverablePreview />
       </section>
+
+      <SeeItEvidenceOrientationStrip />
 
       <div
         className={cn(

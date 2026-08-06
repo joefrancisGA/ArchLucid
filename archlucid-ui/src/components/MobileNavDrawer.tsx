@@ -20,6 +20,7 @@ import { useOperatorShellNavRows } from "@/hooks/useOperatorShellNavRows";
 import { useGovernanceMode } from "@/hooks/use-governance-mode";
 import { useSidebarNavGroupExpansion } from "@/hooks/useSidebarNavGroupExpansion";
 import { findSidebarNavGroupIdsForActivePath } from "@/lib/sidebar-nav-active-group-expansion";
+import { applyBuyerDemoSecondaryNavCollapse } from "@/lib/sidebar-nav-buyer-demo-collapse";
 import {
   isSidebarCollapsibleNavGroupId,
   sidebarNavGroupIsExpanded,
@@ -56,12 +57,19 @@ export function MobileNavDrawer() {
       return;
     }
 
+    applyBuyerDemoSecondaryNavCollapse({
+      pathname: pathname ?? "/",
+      buyerPolishedShell,
+      demoUi,
+      setGroupExpanded,
+    });
+
     const activeGroupIds = findSidebarNavGroupIdsForActivePath(allRows, pathname ?? "/");
 
     for (const groupId of activeGroupIds) {
       setGroupExpanded(groupId, true);
     }
-  }, [allRows, mounted, pathname, setGroupExpanded]);
+  }, [allRows, buyerPolishedShell, demoUi, mounted, pathname, setGroupExpanded]);
 
   function closeDrawer(): void {
     setOpen(false);

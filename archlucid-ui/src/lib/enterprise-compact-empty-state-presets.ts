@@ -109,8 +109,8 @@ export const IDENTITY_PROVIDERS_CATALOG_EMPTY_COMPACT: EnterpriseCompactEmptySta
   description:
     "OIDC and SAML settings are configured in your hosting environment. Use the SSO wizard for guided tenant setup; this read-only table populates when values are present.",
   actions: [
-    { label: "Open SSO wizard", href: "/administration/settings/identity/sso-wizard", variant: "primary" },
-    { label: "SCIM provisioning", href: "/administration/settings/scim-provisioning", variant: "outline" },
+    { label: "Open SSO wizard", href: "/administration/identity/sso-wizard", variant: "primary" },
+    { label: "SCIM provisioning", href: "/administration/scim-provisioning", variant: "outline" },
   ],
 };
 

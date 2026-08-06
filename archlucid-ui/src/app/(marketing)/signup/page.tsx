@@ -8,32 +8,28 @@ import { SignupForm } from "@/components/marketing/SignupForm";
 import { CUSTOMER_AUTH_EVALUATION_SIGNUP_LEAD } from "@/lib/auth/customer-auth-messaging";
 import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isPublicSelfServiceSignupEnabled } from "@/lib/marketing/is-public-signup-enabled";
+import { SIGNUP_PAGE_INVITE_ONLY_LEAD } from "@/lib/signup-invite-only-copy";
 import { cn } from "@/lib/utils";
+
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "Start your evaluation",
   description:
-    "Create an evaluation workspace with sample architecture review data. Sign in later with a work account or email one-time code.",
+    "Request evaluation access or create an evaluation workspace with sample architecture review data. Sign in later with a work account or email one-time code.",
 };
 
 export default function SignupPage() {
   const publicSignupEnabled = isPublicSelfServiceSignupEnabled();
 
   return (
-    <MarketingPageShell className={cn("mx-auto w-full max-w-[640px] px-4 py-10 sm:py-12")}>
-      <header className="text-center">
+    <MarketingPageShell variant="reading" className={cn("mx-auto w-full px-4 py-10 sm:py-12")}>
+      <header className="text-left">
         <h1 className={MARKETING_TYPOGRAPHY.pageTitle}>Start your evaluation</h1>
-        <p className={cn("mt-3 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>
+        <p className={cn("mt-3 max-w-2xl text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>
           {publicSignupEnabled
             ? `${CUSTOMER_AUTH_EVALUATION_SIGNUP_LEAD} No sales call required.`
-            : "Request access to join the private beta. When approved, you will receive an invitation to create your evaluation workspace."}
-        </p>
-        <p className={cn("mt-4 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>
-          Questions before you start? Read the{" "}
-          <Link href="/faq" className={MARKETING_SURFACES.inlineLink}>
-            Product FAQ
-          </Link>{" "}
-          for evaluation, pricing, and security answers.
+            : SIGNUP_PAGE_INVITE_ONLY_LEAD}
         </p>
         <p className={cn("mt-4 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>
           Already have an account?{" "}

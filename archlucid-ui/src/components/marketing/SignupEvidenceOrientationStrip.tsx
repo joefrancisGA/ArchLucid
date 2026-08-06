@@ -2,7 +2,9 @@ import Link from "next/link";
 
 import {
   SIGNUP_CLAIM_DISCIPLINE,
+  SIGNUP_CLAIM_DISCIPLINE_HEADING,
   SIGNUP_SOURCES,
+  SIGNUP_SOURCES_HEADING,
   SIGNUP_SOURCES_INTRO,
 } from "@/lib/signup-evidence-copy";
 import { MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -21,7 +23,7 @@ export function SignupEvidenceOrientationStrip(): React.JSX.Element {
           id="signup-sources-heading"
           className={cn("m-0 text-al-text-primary", MARKETING_TYPOGRAPHY.cardTitle)}
         >
-          Sources for follow-up
+          {SIGNUP_SOURCES_HEADING}
         </h2>
         <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>
           {SIGNUP_SOURCES_INTRO}
@@ -41,13 +43,15 @@ export function SignupEvidenceOrientationStrip(): React.JSX.Element {
       </section>
 
       <aside
-        className="rounded-md border border-amber-200/80 bg-amber-50/50 p-3 dark:border-amber-900/40 dark:bg-amber-950/20"
+        className="rounded-md border border-neutral-200 bg-neutral-50/40 p-3 dark:border-neutral-700 dark:bg-neutral-900/30"
         data-testid="signup-claim-discipline"
       >
         <h2 className={cn("m-0 text-al-text-primary", MARKETING_TYPOGRAPHY.cardTitle)}>
-          Evaluation access only
+          {SIGNUP_CLAIM_DISCIPLINE_HEADING}
         </h2>
-        <p className={cn("m-0 mt-2", MARKETING_TYPOGRAPHY.body)}>{SIGNUP_CLAIM_DISCIPLINE}</p>
+        <p className={cn("m-0 mt-2 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>
+          {SIGNUP_CLAIM_DISCIPLINE}
+        </p>
       </aside>
     </div>
   );

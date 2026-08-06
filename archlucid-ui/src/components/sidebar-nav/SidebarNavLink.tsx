@@ -13,6 +13,7 @@ import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { onboardingTourAnchorForHref } from "@/lib/onboarding-tour";
 import { pilotNavLinkTestId } from "@/lib/pilot-nav-link-test-ids";
 import { registryKeyToAriaKeyShortcuts } from "@/lib/shortcut-registry";
+import { SIDEBAR_DAILY_HREFS_BY_GROUP } from "@/lib/sidebar-nav-daily-links";
 
 type SidebarNavLinkProps = {
   readonly presented: NavLinkItem;
@@ -37,11 +38,11 @@ export function SidebarNavLink(props: SidebarNavLinkProps): ReactElement {
       {...(onboardingAnchor !== undefined ? { "data-onboarding": onboardingAnchor } : {})}
       {...(pilotNavTestId !== undefined ? { "data-testid": pilotNavTestId } : {})}
       className={cn(
-        "shell-nav-link flex min-w-0 items-center gap-2 rounded-md px-2 py-1 hover:bg-neutral-100 dark:hover:bg-neutral-800",
+        "shell-nav-link flex min-w-0 items-center gap-2 rounded-md py-1.5 pr-2 hover:bg-neutral-100 dark:hover:bg-neutral-800",
         OPERATOR_TYPOGRAPHY.navLabel,
         props.active
-          ? DESIGN_TOKENS.interactive.navActive
-          : "text-neutral-900 dark:text-neutral-100",
+          ? cn("pl-1.5", DESIGN_TOKENS.interactive.navActive)
+          : "border-l-2 border-l-transparent pl-1.5 text-neutral-900 dark:text-neutral-100",
       )}
       title={
         props.advancedDemo
@@ -78,5 +79,7 @@ export function SidebarNavLink(props: SidebarNavLinkProps): ReactElement {
   );
 }
 
-/** Hrefs pinned above the Governance body when they exist on `operate-governance` links in `nav-config`. */
-export const SIDEBAR_GOVERNANCE_PINNED_HREFS = new Set<string>([]);
+/** @deprecated Prefer {@link SIDEBAR_DAILY_HREFS_BY_GROUP}; retained for older imports. */
+export const SIDEBAR_GOVERNANCE_PINNED_HREFS = new Set<string>(
+  SIDEBAR_DAILY_HREFS_BY_GROUP["operate-governance"] ?? [],
+);

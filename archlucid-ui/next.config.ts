@@ -139,18 +139,40 @@ const nextConfig: NextConfig = {
       // Legacy executive / portfolio bookmarks → architecture executive dashboard.
       { source: "/executive/dashboard", destination: "/architecture/executive-dashboard", permanent: true },
       { source: "/portfolio", destination: "/architecture/executive-dashboard", permanent: true },
-      // Legacy administration bookmarks (TB-406 / TB-522 / TB-751) → operator settings tree.
+      { source: "/signed-records", destination: "/governance/signed-records", permanent: true },
+      { source: "/signed-records/:path*", destination: "/governance/signed-records/:path*", permanent: true },
+      { source: "/manifests", destination: "/governance/signed-records", permanent: true },
+      { source: "/manifests/:path*", destination: "/governance/signed-records/:path*", permanent: true },
+      { source: "/digests", destination: "/architecture/digests", permanent: true },
       {
-        source: "/workspace/security-trust",
-        destination: "/administration/settings/security-trust",
+        source: "/digest-subscriptions",
+        destination: "/architecture/digests?tab=subscriptions",
         permanent: true,
       },
-      { source: "/admin/users", destination: "/administration/settings/users", permanent: true },
+      { source: "/administration", destination: "/administration", permanent: true },
+      { source: "/administration/:path*", destination: "/administration/:path*", permanent: true },
+      { source: "/workspace/security-trust", destination: "/administration/security-trust", permanent: true },
+      { source: "/admin/users", destination: "/administration/users", permanent: true },
+      { source: "/admin/support", destination: "/administration/support", permanent: true },
       // Legacy governance bookmarks (TB-405) → canonical governance tree.
       { source: "/audit", destination: "/governance/audit", permanent: true },
-      { source: "/settings/roles", destination: "/administration/settings/users?tab=roles", permanent: true },
+      {
+        source: "/settings/roles",
+        destination: "/administration/users?tab=roles",
+        permanent: true,
+      },
       // Legacy integrations bookmark (TB-407 / TB-750) → operator integrations tree.
       { source: "/settings/cloud-connections", destination: "/integrations/cloud-connections", permanent: true },
+      {
+        source: "/governance/risk-exceptions",
+        destination: "/governance/exceptions",
+        permanent: true,
+      },
+      {
+        source: "/governance/risk-exceptions/:path*",
+        destination: "/governance/exceptions/:path*",
+        permanent: true,
+      },
     ];
   },
   async rewrites() {
@@ -159,7 +181,7 @@ const nextConfig: NextConfig = {
       // Must precede the generic run-scoped signed-record rewrite below.
       {
         source: "/architecture/reviews/claims-intake-modernization/signed-record",
-        destination: "/signed-records/a1c2e3f4-a5b6-7890-abcd-ef1234567890",
+        destination: "/governance/signed-records/a1c2e3f4-a5b6-7890-abcd-ef1234567890",
       },
       // Run-scoped signed record deep link lands on the review package (manifest summary section).
       { source: "/architecture/reviews/:id/signed-record", destination: "/reviews/:id" },

@@ -2,6 +2,8 @@
 
 import { CircleHelp } from "lucide-react";
 
+import { AccountSettingsMenu } from "@/components/shell/AccountSettingsMenu";
+import { OperatorShellTopBarMoreMenu } from "@/components/shell/OperatorShellTopBarMoreMenu";
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { AuthPanel } from "@/components/AuthPanel";
 import { AuthorityThemeToggle } from "@/components/AuthorityThemeToggle";
@@ -33,6 +35,7 @@ type OperatorShellTopBarProps = {
 
 /**
  * Operator shell header: brand rail (sidebar width), content-aligned search, session controls.
+ * Single horizontal row — secondary tools live in a portaled overflow menu.
  */
 export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.Element {
   const showDevOperatorChrome = isOperatorExperienceFullShellEnv();
@@ -47,13 +50,17 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
   return (
     <header
       data-testid="app-shell-topbar"
-      className="overflow-x-hidden border-b border-neutral-200 bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-950"
+      className="border-b border-neutral-200 bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-950"
     >
-      <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, "flex min-w-0 overflow-x-hidden")}>
+      {/*
+        Avoid overflow-x-hidden here: it forces overflow-y:auto on the short header.
+        Single-row nowrap + min-w-0 keeps the sticky chrome budget thin.
+      */}
+      <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, "flex min-w-0 flex-nowrap")}>
         <div
           data-testid="app-shell-topbar-primary"
           className={cn(
-            "flex min-w-0 shrink-0 items-center gap-3 px-4 py-2.5 lg:px-3",
+            "flex min-w-0 shrink-0 items-center gap-3 px-4 py-2 lg:px-3",
             OPERATOR_SHELL_SIDEBAR_WIDTH_LG_CLASS,
           )}
         >
@@ -65,47 +72,58 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
           </h1>
         </div>
 
-        <div className={cn("flex min-w-0 flex-1 flex-wrap items-center gap-x-3 gap-y-2 py-2.5", OPERATOR_SHELL_CONTENT_PADDING_X_CLASS)}>
-          <div className="min-w-0 flex-1 basis-full sm:basis-auto sm:max-w-md lg:max-w-lg xl:max-w-xl">
+        <div
+          className={cn(
+            "flex min-w-0 flex-1 flex-nowrap items-center gap-x-3 py-2",
+            OPERATOR_SHELL_CONTENT_PADDING_X_CLASS,
+          )}
+        >
+          <div className="min-w-0 flex-1 sm:max-w-md lg:max-w-lg xl:max-w-xl">
             <GlobalSearchBar />
           </div>
 
           <div
             data-testid="app-shell-topbar-session"
-            className="flex min-w-0 flex-wrap items-center justify-end gap-2 sm:ml-auto"
+            className="ml-auto flex min-w-0 shrink-0 flex-nowrap items-center justify-end gap-2"
           >
             <div
               data-testid="app-shell-topbar-context"
-              className="flex min-w-0 flex-wrap items-center gap-2"
+              className="flex min-w-0 flex-nowrap items-center gap-2"
             >
               <ScopeSwitcher density="compact" />
             </div>
             <AuthPanel />
-            <div className="flex items-center gap-2 border-l border-neutral-200 pl-2 dark:border-neutral-700">
-              <ToolbarHelpTooltip
-                aria-label={OPERATOR_HELP_ARIA_LABEL}
-                content={OPERATOR_HELP_TOOLTIP}
-                aria-keyshortcuts={OPERATOR_HELP_ARIA_KEYSHORTCUTS}
-              >
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="inline-flex h-7 w-7 items-center justify-center p-0"
-                  data-testid="operator-shell-help-trigger"
-                  data-help-tooltip-trigger=""
-                  data-help-tooltip-icon="help"
-                  aria-label={OPERATOR_HELP_ARIA_LABEL}
-                  aria-keyshortcuts={OPERATOR_HELP_ARIA_KEYSHORTCUTS}
-                  onClick={() => {
-                    props.onOpenHelpSearch();
-                  }}
-                >
-                  <CircleHelp className="size-[18px]" aria-hidden />
-                </Button>
-              </ToolbarHelpTooltip>
-              {showAuthorityThemeToggle ? <AuthorityThemeToggle /> : null}
-              {showLlmBudgetPill ? <LlmBudgetStatusPill /> : null}
+            <div className="flex shrink-0 items-center gap-2 border-l border-neutral-200 pl-2 dark:border-neutral-700">
+              <OperatorShellTopBarMoreMenu>
+                <div className="flex flex-col gap-2" data-testid="app-shell-topbar-more-tools">
+                  <ToolbarHelpTooltip
+                    aria-label={OPERATOR_HELP_ARIA_LABEL}
+                    content={OPERATOR_HELP_TOOLTIP}
+                    aria-keyshortcuts={OPERATOR_HELP_ARIA_KEYSHORTCUTS}
+                  >
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="inline-flex h-8 w-full items-center justify-start gap-2 px-2"
+                      data-testid="operator-shell-help-trigger"
+                      data-help-tooltip-trigger=""
+                      data-help-tooltip-icon="help"
+                      aria-label={OPERATOR_HELP_ARIA_LABEL}
+                      aria-keyshortcuts={OPERATOR_HELP_ARIA_KEYSHORTCUTS}
+                      onClick={() => {
+                        props.onOpenHelpSearch();
+                      }}
+                    >
+                      <CircleHelp className="size-[18px]" aria-hidden />
+                      <span>Help</span>
+                    </Button>
+                  </ToolbarHelpTooltip>
+                  {showAuthorityThemeToggle ? <AuthorityThemeToggle /> : null}
+                  {showLlmBudgetPill ? <LlmBudgetStatusPill /> : null}
+                </div>
+              </OperatorShellTopBarMoreMenu>
+              <AccountSettingsMenu />
             </div>
           </div>
         </div>

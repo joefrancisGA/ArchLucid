@@ -5,6 +5,7 @@ const admitDraftRequest = vi.fn();
 const answerDraftQuestion = vi.fn();
 const createDraftRequest = vi.fn();
 const getDraftQuestions = vi.fn();
+const getDraftRequest = vi.fn();
 const patchDraftRequest = vi.fn();
 const skipDraftQuestion = vi.fn();
 const submitDraftRequest = vi.fn();
@@ -34,6 +35,7 @@ vi.mock("@/hooks/use-llm-monthly-budget-execution-gate", () => ({
 vi.mock("@/lib/api/draft-intake-api", () => ({
   admitDraftRequest: (...args: unknown[]) => admitDraftRequest(...args),
   createDraftRequest: (...args: unknown[]) => createDraftRequest(...args),
+  getDraftRequest: (...args: unknown[]) => getDraftRequest(...args),
   patchDraftRequest: (...args: unknown[]) => patchDraftRequest(...args),
   getDraftQuestions: (...args: unknown[]) => getDraftQuestions(...args),
   answerDraftQuestion: (...args: unknown[]) => answerDraftQuestion(...args),
@@ -164,6 +166,61 @@ function fillStep0ForAdmission(): void {
 describe("SocraticIntakeWizard", () => {
   beforeEach(() => {
     searchParamsGet.mockImplementation(() => null);
+    getDraftRequest.mockReset();
+  });
+
+  it("shows the saved architecture system name instead of the draft id in the banner", async () => {
+    const sourceArchitectureId = "ef3f1b90-69e3-42be-bc2b-0533f5a6d84a";
+
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "sourceArchitectureId") {
+        return sourceArchitectureId;
+      }
+
+      return null;
+    });
+
+    getDraftRequest.mockResolvedValue({
+      draftId: sourceArchitectureId,
+      tenantId: "tenant-1",
+      workspaceId: "workspace-1",
+      projectId: "project-1",
+      status: "Drafting",
+      document: {
+        freeTextIntent: VALID_GUIDED_INTENT,
+        systemName: "Claims intake modernization",
+        businessOutcome: "Reduce manual triage time by thirty percent.",
+        actorSet: {
+          actors: [
+            {
+              label: "Claims analyst",
+              kind: "Human",
+              trustOrigin: "Internal",
+              contract: "Sync",
+              origin: "Asserted",
+              confidence: 100,
+            },
+          ],
+        },
+      },
+      createdUtc: "2026-08-05T12:00:00Z",
+      updatedUtc: "2026-08-05T12:00:00Z",
+    });
+
+    render(<SocraticIntakeWizard />);
+
+    await waitFor(() => {
+      expect(getDraftRequest).toHaveBeenCalledWith(sourceArchitectureId);
+    });
+
+    const banner = await screen.findByTestId("socratic-source-architecture-banner");
+
+    expect(banner).toHaveTextContent("Claims intake modernization");
+    expect(banner).not.toHaveTextContent(sourceArchitectureId);
+    expect(screen.getByRole("link", { name: "Claims intake modernization" })).toHaveAttribute(
+      "href",
+      `/architecture/architectures/${sourceArchitectureId}`,
+    );
   });
 
   it("prefills guided intake from template=claims-intake-modernization without auto-submitting", () => {

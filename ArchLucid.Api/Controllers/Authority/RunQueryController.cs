@@ -67,6 +67,7 @@ public sealed class RunQueryController(
     IAgentToolInvocationRecordRepository agentToolInvocationRecordRepository,
     IFindingEvidenceChainService findingEvidenceChainService,
     IFindingInspectReadRepository findingInspectReadRepository,
+    IFindingTrustLabelMapper findingTrustLabelMapper,
     IReasoningSummaryBuilder reasoningSummaryBuilder,
     IScopeContextProvider scopeContextProvider,
     ITraceabilityBundleBuilder traceabilityBundleBuilder,
@@ -758,7 +759,10 @@ public sealed class RunQueryController(
                 ProblemTypes.ResourceNotFound);
         }
 
-        return Ok(body.WithReasoningSummaryFromBuilder(reasoningSummaryBuilder));
+        return Ok(
+            FindingInspectTrustLabelEnricher.Enrich(
+                body.WithReasoningSummaryFromBuilder(reasoningSummaryBuilder),
+                findingTrustLabelMapper));
     }
 
     /// <summary>ZIP bundle: run summary, audit slice for the run, and decision traces (size-capped).</summary>

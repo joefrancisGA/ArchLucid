@@ -1,10 +1,12 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 
 import { HelpTopicPdfDownloadButton } from "@/components/help/HelpTopicPdfDownloadButton";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
@@ -15,11 +17,15 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 type HelpTopicMarkdownViewProps = {
   entry: ProductDocumentationEntry;
   markdown: string;
+  /** Optional Evidence orientation strip (Sources + claim discipline). */
+  readonly evidenceOrientation?: ReactNode;
+  /** When true, show Category-1 PageContextualHelpButton in the header actions. */
+  readonly showContextualHelp?: boolean;
 };
 
 /** Renders curated repo markdown inside the operator help shell (no GitHub chrome). */
 export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.ReactElement {
-  const { entry, markdown } = props;
+  const { entry, markdown, evidenceOrientation, showContextualHelp } = props;
   const sourceDocPath = entry.sourcePaths[0] ?? "";
   const preserveMaintenanceMetadata = entry.audience === "developer";
   const preparedMarkdown = prepareHelpMarkdownForPresentation(markdown, sourceDocPath, {
@@ -38,6 +44,7 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
             <p className={`m-0 ${OPERATOR_TYPOGRAPHY.helper}`}>{entry.summary}</p>
           </div>
           <div className="flex flex-wrap items-center gap-2" data-testid="help-topic-export-actions">
+            {showContextualHelp ? <PageContextualHelpButton /> : null}
             <HelpTopicPdfDownloadButton entry={entry} />
             <HelpTopicPrintButton entry={entry} />
           </div>
@@ -53,6 +60,8 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
           </p>
         ) : null}
       </header>
+
+      {evidenceOrientation}
 
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
         <div className={HELP_PAGE_LAYOUT.contentColumn} data-testid="help-topic-content">

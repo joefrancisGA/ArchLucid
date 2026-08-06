@@ -1,10 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("@/lib/cto-demo-presenter-pack", () => ({
-  isCtoDemoOperatorToolingEnv: () => true,
-}));
-
 vi.mock("@/components/operator-home/BuyerCtoDemoReadinessPanel", () => ({
   BuyerCtoDemoReadinessPanel: () => <div data-testid="buyer-cto-demo-readiness-panel" />,
 }));
@@ -14,6 +10,10 @@ vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
     callerAuthorityRank: 3,
     isAuthorityLoading: false,
   }),
+}));
+
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
 }));
 
 import { DemoReadinessAdminPageClient } from "@/app/(operator)/admin/demo-readiness/_sections/DemoReadinessAdminPageClient";

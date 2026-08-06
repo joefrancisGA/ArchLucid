@@ -1492,4 +1492,32 @@ describe("MarketingAccessibilityMarkdownFragment privacy presentation", () => {
     expect(screen.getByRole("region", { name: "Scrollable comparison table 1" })).toBeInTheDocument();
     expect(screen.getByRole("region", { name: "Scrollable comparison table 2" })).toBeInTheDocument();
   });
+
+  it("skips horizontal rules and keeps in-app privacy links clickable", () => {
+    const markdownBody = [
+      "See the [Data Processing Agreement](/help/dpa-template).",
+      "",
+      "---",
+      "",
+      "## 1. Who we are",
+      "",
+      "Visit the [Trust Center](/trust).",
+    ].join("\n");
+
+    render(
+      <MarketingAccessibilityMarkdownFragment
+        markdownBody={markdownBody}
+        tableCaption="ArchLucid privacy policy details"
+        presentation="privacy"
+      />,
+    );
+
+    expect(screen.queryByText("---")).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Data Processing Agreement" })).toHaveAttribute(
+      "href",
+      "/help/dpa-template",
+    );
+    expect(screen.getByRole("link", { name: "Trust Center" })).toHaveAttribute("href", "/trust");
+    expect(screen.getByRole("heading", { level: 2, name: "1. Who we are" })).toBeInTheDocument();
+  });
 });

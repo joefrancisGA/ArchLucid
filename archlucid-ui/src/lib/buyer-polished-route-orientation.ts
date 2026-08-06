@@ -11,6 +11,7 @@ import {
   pathMatchesGovernanceAlertRules,
   pathMatchesGovernanceApprovalQueue,
   pathMatchesGovernanceAudit,
+  pathMatchesGovernanceExceptions,
 } from "@/lib/governance-route-paths";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isPinnedDemoWorkspaceRunId } from "@/lib/demo-workspace-scope";
@@ -153,7 +154,7 @@ export function buyerPolishedRouteOrientation(
     return null;
   }
 
-  if (path === "/governance/risk-exceptions" || path.startsWith("/governance/risk-exceptions/")) {
+  if (pathMatchesGovernanceExceptions(path)) {
     return null;
   }
 
@@ -288,7 +289,7 @@ export function buyerPolishedRouteOrientation(
     return null;
   }
 
-  if (path === "/administration/settings/security-trust" || path === "/workspace/security-trust") {
+  if (path === "/administration/security-trust" || path === "/workspace/security-trust") {
     return {
       label: "Security & trust",
       line: "Procurement-facing security posture, trust center, and assessment materials.",
