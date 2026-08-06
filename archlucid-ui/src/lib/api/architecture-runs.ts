@@ -331,7 +331,7 @@ export async function getManifestSummary(
   manifestId: string,
   options?: { readonly scopeHeaders?: Record<string, string> },
 ): Promise<ManifestSummary> {
-  return apiGet<ManifestSummary>(`/v1/authority/signed-records/${manifestId}/summary`, options);
+  return apiGet<ManifestSummary>(`/v1/authority/signed-review-records/${manifestId}/summary`, options);
 }
 
 /** Lists all synthesized artifacts for a manifest (metadata only, no binary content). */
@@ -339,7 +339,7 @@ export async function listArtifacts(
   manifestId: string,
   options?: { readonly scopeHeaders?: Record<string, string> },
 ): Promise<ArtifactDescriptor[]> {
-  return apiGet<ArtifactDescriptor[]>(`/v1/artifacts/signed-records/${manifestId}`, options);
+  return apiGet<ArtifactDescriptor[]>(`/v1/artifacts/signed-review-records/${manifestId}`, options);
 }
 
 /** JSON metadata for one artifact (no binary download). */
@@ -348,7 +348,7 @@ export async function getArtifactDescriptor(
   artifactId: string,
 ): Promise<ArtifactDescriptor> {
   return apiGet<ArtifactDescriptor>(
-    `/v1/artifacts/signed-records/${manifestId}/artifact/${artifactId}/descriptor`,
+    `/v1/artifacts/signed-review-records/${manifestId}/artifact/${artifactId}/descriptor`,
   );
 }
 
@@ -373,7 +373,7 @@ export async function fetchArtifactContentUtf8(
   maxBytes: number = DEFAULT_ARTIFACT_PREVIEW_MAX_BYTES,
 ): Promise<ArtifactContentFetchResult> {
   await ensureOidcBearerReady();
-  const path = `/v1/artifacts/signed-records/${encodeURIComponent(manifestId)}/artifact/${encodeURIComponent(artifactId)}`;
+  const path = `/v1/artifacts/signed-review-records/${encodeURIComponent(manifestId)}/artifact/${encodeURIComponent(artifactId)}`;
   const { url, headers } = await resolveBinaryGetRequest(path);
   const h = withCorrelationHeaders(headers);
   const response = await fetch(url, {

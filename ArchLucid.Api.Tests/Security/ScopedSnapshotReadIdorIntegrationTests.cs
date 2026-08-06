@@ -284,7 +284,7 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
             "metering summary",
             (client, tenantId) =>
                 client.GetAsync(
-                    $"/v1/admin/metering/tenants/{tenantId:D}/summary?periodStart={Uri.EscapeDataString(start.ToString("O"))}&periodEnd={Uri.EscapeDataString(end.ToString("O"))}"));
+                    $"/v1/admin/metering/summary?periodStart={Uri.EscapeDataString(start.ToString("O"))}&periodEnd={Uri.EscapeDataString(end.ToString("O"))}"));
     }
 
     [SkippableFact]

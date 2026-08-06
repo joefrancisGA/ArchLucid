@@ -22,18 +22,15 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.Api.Controllers.Planning;
 
 /// <summary>
-///     HTTP API for retrieving the architecture knowledge graph snapshot associated with a run.
+///     HTTP API for retrieving the evidence graph snapshot associated with an architecture review.
 /// </summary>
 /// <remarks>
-///     Routes are prefixed <c>api/graph</c> and require the <see cref="ArchLucidPolicies.ReadAuthority" /> policy.
-///     The graph is projected from the persisted <see cref="GraphSnapshot" /> stored in the
-///     canonical run detail and returned as a <see cref="GraphViewModel" /> with typed node and edge view models.
+///     Canonical routes under <c>v1/evidence-graph</c> (ADR 0064 alias <c>/v1/graph</c> removed).
 /// </remarks>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/evidence-graph")]
-[Route("v{version:apiVersion}/graph")]
 [EnableRateLimiting("fixed")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class GraphController(
@@ -48,7 +45,6 @@ public sealed class GraphController(
     ///     scope.
     /// </summary>
     [HttpGet("reviews/{runId:guid}")]
-    [HttpGet("runs/{runId:guid}")]
     [ProducesResponseType(typeof(GraphViewModel), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
@@ -82,7 +78,6 @@ public sealed class GraphController(
     ///     Returns a page of graph nodes (stable snapshot order) and edges whose endpoints both appear on that page.
     /// </summary>
     [HttpGet("reviews/{runId:guid}/nodes")]
-    [HttpGet("runs/{runId:guid}/nodes")]
     [ProducesResponseType(typeof(GraphNodesPageResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetArchitectureGraphNodesPage(
@@ -161,7 +156,7 @@ public sealed class GraphController(
         {
             return this.PayloadTooLargeProblem(
                 $"This graph has {detail.GraphSnapshot.Nodes.Count} nodes; the temporal snapshot endpoint allows at most "
-                + $"{limits.FullGraphResponseMaxNodes} for resolved run '{resolved.RunId:D}'. Use GET /v1/graph/runs/{resolved.RunId:D}/nodes with page/pageSize (resolvedRunId returned in this problem).",
+                + $"{limits.FullGraphResponseMaxNodes} for resolved run '{resolved.RunId:D}'. Use GET /v1/evidence-graph/reviews/{resolved.RunId:D}/nodes with page/pageSize (resolvedRunId returned in this problem).",
                 ProblemTypes.GraphTooLargeForFullResponse,
                 extensions: new Dictionary<string, object?> { ["resolvedRunId"] = resolved.RunId });
         }

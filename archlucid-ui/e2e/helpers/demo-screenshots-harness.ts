@@ -207,7 +207,7 @@ export async function runDemoScreenshotPreflight(
         );
       } else {
         const manifestRes = await request.get(
-          `${liveApiBase}/v1/authority/manifests/${encodeURIComponent(goldenManifestId)}/summary`,
+          `${liveApiBase}/v1/authority/signed-review-records/${encodeURIComponent(goldenManifestId)}/summary`,
           { headers: liveAcceptHeaders() },
         );
 

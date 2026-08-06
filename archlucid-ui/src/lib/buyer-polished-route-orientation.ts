@@ -29,6 +29,9 @@ import {
 } from "@/lib/governance-overview-copy";
 
 import {
+  pathMatchesSettingsSecurityTrust,
+} from "@/lib/settings-admin-route-paths";
+import {
   pathMatchesSignedRecordsDetailRoute,
   reviewSignedRecordPath,
   signedRecordDetailPath,
@@ -294,7 +297,7 @@ export function buyerPolishedRouteOrientation(
     return null;
   }
 
-  if (path === "/administration/security-trust" || path === "/workspace/security-trust") {
+  if (pathMatchesSettingsSecurityTrust(path)) {
     return {
       label: "Security & trust",
       line: "Procurement-facing security posture, trust center, and assessment materials.",

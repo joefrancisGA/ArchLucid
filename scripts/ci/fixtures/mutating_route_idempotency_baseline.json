@@ -146,7 +146,7 @@
     "POST /v1/explain/runs/{runId}/holistic-critic": "dry-run-no-persist",
     "POST /v1/governance/policy-packs/dry-run": "explicit-idempotency-key",
     "POST /v1/governance/policy-packs/{id}/dry-run": "explicit-idempotency-key",
-    "POST /v1/governance/pre-commit/simulate": "dry-run-no-persist",
+    "POST /v1/governance/pre-finalize/simulate": "dry-run-no-persist",
     "POST /v1/governance/promotions": "dry-run-no-persist",
     "POST /v1/governance/recurrence-schedules": "operator-documented-safe-retry",
     "POST /v1/governance/recurrence-schedules/preview-next-runs": "dry-run-no-persist",

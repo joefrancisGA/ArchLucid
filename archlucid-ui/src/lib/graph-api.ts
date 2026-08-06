@@ -11,7 +11,7 @@ export async function getProvenanceGraph(runId: string): Promise<GraphViewModel>
 
 /** Fetches the full architecture graph for a run (may return 413 when node count exceeds API limit). */
 export async function getArchitectureGraph(runId: string): Promise<GraphViewModel> {
-  return fetchArchLucidJson<GraphViewModel>(`/v1/graph/runs/${runId}`);
+  return fetchArchLucidJson<GraphViewModel>(`/v1/evidence-graph/reviews/${runId}`);
 }
 
 export type ArchitectureGraphTemporalSnapshot =
@@ -23,7 +23,7 @@ export async function getArchitectureGraphTemporalSnapshot(
   asOfIsoUtc: string,
 ): Promise<ArchitectureGraphTemporalSnapshot> {
   const rid = anchorRunId.trim();
-  const path = `/v1/graph/snapshot?runId=${encodeURIComponent(rid)}&asOf=${encodeURIComponent(asOfIsoUtc)}`;
+  const path = `/v1/evidence-graph/snapshot?runId=${encodeURIComponent(rid)}&asOf=${encodeURIComponent(asOfIsoUtc)}`;
 
   await ensureOidcBearerReady();
   const { url, headers } = await resolveRequest(path);
@@ -114,7 +114,7 @@ export async function getArchitectureGraphPage(
     pageSize: String(pageSize),
   });
 
-  return fetchArchLucidJson<GraphNodesPageResponse>(`/v1/graph/runs/${runId}/nodes?${q.toString()}`);
+  return fetchArchLucidJson<GraphNodesPageResponse>(`/v1/evidence-graph/reviews/${runId}/nodes?${q.toString()}`);
 }
 
 /**

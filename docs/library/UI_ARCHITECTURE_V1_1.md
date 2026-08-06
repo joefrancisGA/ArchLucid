@@ -73,7 +73,7 @@ The items below remain **out of scope for V1** and are intentionally deferred to
 
 - **Canonical alias paths** (`/signed-records`, `/signed-records/{id}`, `/reviews/{runId}/signed-record`) with **permanent redirects** from legacy manifest segments already existed in `next.config.ts` (same pattern as `/runs` → `/reviews`), plus a canonical helper module `archlucid-ui/src/lib/signed-records-paths.ts`.
 - **Closed this pass:** the one remaining internal hand-rolled hardcoded builder — `manifestHref()` in `archlucid-ui/src/app/(operator)/search/_sections/retrieval-hit-display.ts` — now calls `signedRecordDetailPath()` instead of building `/manifests/${id}` directly. Two stale live-API E2E selectors (`live-api-trial-signup.spec.ts`, `live-api-trial-end-to-end.spec.ts`) asserting the legacy `a[href^="/manifests/"]` prefix were updated to `a[href^="/signed-records/"]` to match already-shipped production behavior elsewhere (e.g. `RunDetailAuthorityChainSection.tsx` already emitted the canonical path). Robots-disallow (`public-marketing-seo-paths.ts`) and the CTO demo valid-route allowlist (`buyer-cto-demo-cto-questions.ts`) were extended to include `/signed-records/` alongside the legacy `/manifests/` entries.
-- Backend `/v1/authority/manifests/*` routes, `manifestId` fields, internal component/type names, and `/manifest.webmanifest` were **not** touched, per the original scope boundary.
+- Backend `/v1/authority/signed-review-records/*` routes, `manifestId` fields, internal component/type names, and `/manifest.webmanifest` were **not** touched, per the original scope boundary.
 
 **Verification:** `retrieval-hit-display.test.ts` and `src/lib/marketing` Vitest suites pass (39/39, 14 files) against the updated paths.
 

@@ -711,7 +711,7 @@ Former standalone body: `docs/go-to-market/UPWORK_LISTINGS.md` → this subsecti
 |-----|------------------------|-------------|-------|
 | **M-24** | AI Architecture Governance Review | **ArchLucid AI & Cloud Architecture Readiness Review** | **Ready** (below) |
 | **M-25** | Azure Architecture Readiness Review | **ArchLucid Cloud Governance Review (Azure-first)** | **Ready** (below) |
-| **M-26** | Architecture Decision Record Cleanup | Readiness Review slice (capture + decision register) | Not started |
+| **M-26** | Architecture Decision Record Cleanup | Readiness Review slice (capture + decision register) | **Ready** (below) |
 
 #### M-24 — AI Architecture Governance Review
 
@@ -870,6 +870,85 @@ with a scoped SOW outline.
 | Can you whitelabel? | Yes when scoped (consultant firm / client branding on the report). |
 
 **Owner publish checklist:** Paste title + description into Upwork; set private milestone or fixed-price after scope; prefer a redacted Azure-path sample only if cleared; point buyers at [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md) Addendum D only after SOW close; publish on Upwork (in-repo **M-25** draft Done; marketplace go-live is owner).
+
+#### M-26 — Architecture Decision Record Cleanup
+
+**Upwork title (≤70 chars):**
+
+```text
+Architecture Decision Record Cleanup — Evidence-Linked ADRs
+```
+
+**Category / skills (suggested):** Enterprise Architecture · Technical Writing · Solution Architecture · Knowledge Management. Optional: Cloud Architecture, Compliance, Confluence.
+
+**One-line thumbnail:**
+
+```text
+Turn scattered ADRs and tribal decisions into a structured decision register with evidence links and a sponsor-safe cleanup report.
+```
+
+**Full description (paste):**
+
+```text
+I deliver a fixed-scope Architecture Decision Record Cleanup engagement —
+a Readiness Review slice focused on capture + decisioning: your scattered
+ADRs, Confluence pages, and tribal architecture decisions become a structured
+decision register with evidence links you can reopen later.
+
+What you get
+• Inventory of in-scope decisions (accepted, superseded, missing, conflicting)
+• Structured decision register with clear dispositions
+• Evidence links from each decision back to the artifacts that justify it
+• Gap list (decisions that exist only in chat/slides with no durable record)
+• Short cleanup report (DOCX/PDF; whitelabel available when scoped)
+• Optional path into a full ArchLucid AI & Cloud Architecture Readiness Review
+
+How it works
+1. Scope call (20–30 min) — which domain and how many decisions matter in
+   the next 30–60 days
+2. Intake — ADRs, Confluence/wiki exports, diagrams, prior ARB notes you can
+   share under contract (or a labeled sample path if we start synthetic)
+3. Capture + decisioning pass in ArchLucid — normalize, link evidence, flag gaps
+4. Walkthrough — register, conflicts, and recommended next writes
+5. Handoff — register excerpt + cleanup report; optional expansion to a full
+   Readiness Review or subscription (separate order form)
+
+This is a packaged decision-hygiene outcome, not “we will rewrite your entire
+EA practice,” and not a certification engagement.
+
+Good fit if you are
+• Sitting on years of ADRs that nobody trusts in reviews
+• Preparing for an ARB where decisions must be findable and attributable
+• A mid-market CTO, fractional CTO, or consultant cleaning a client estate
+
+Not a fit if you need
+• A full multi-system architecture readiness package as day one (use the
+   AI Architecture Governance Review listing)
+• CPA-issued SOC 2 or published third-party pen test as deliverables
+• Guaranteed migration of every historical Confluence page
+
+Pricing
+Private quote after scope. Indicative bands for planning (not a public list):
+lightweight low-four-figures when narrowly bounded · larger estates quoted as a
+Readiness Review upper band or Option B pilot. SaaS subscription is a separate
+commercial step after the cleanup proves value.
+
+Next step
+Message me with: (1) approx how many decisions / ADRs are in scope,
+(2) where they live today (repo, Confluence, slides), (3) the review or ARB
+date you are aiming at. I will reply with a scoped SOW outline.
+```
+
+**Deliverables checklist:** (1) Decision register excerpt; (2) ADR / decision inventory + gap list; (3) Short cleanup report (DOCX or PDF); (4) 30-minute walkthrough; (5) Written limitations (out of scope / not migrated).
+
+| Q | A |
+|---|---|
+| Will you rewrite every ADR in our wiki? | No. We scope a bounded set and produce a durable register + gap list. |
+| Is this the full architecture readiness package? | It is a capture + decisioning slice. Full Readiness Review is a separate (or follow-on) SKU. |
+| Do you require ArchLucid SaaS day one? | Delivery uses ArchLucid as the review workbench; subscription is optional after value is clear. |
+| Can you whitelabel? | Yes when scoped. |
+
+**Owner publish checklist:** Paste title + description into Upwork; set private milestone or fixed-price after scope; do not imply full-estate ADR migration; point buyers at [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md) Addendum D only after SOW close; publish on Upwork (in-repo **M-26** draft Done; marketplace go-live is owner).
 
 ### Paid offer test (private) {#paid-offer-test-private}
 

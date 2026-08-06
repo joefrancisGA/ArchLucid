@@ -167,7 +167,7 @@ public sealed class TenantIsolationSmokeTests
         using HttpClient clientB = factory.CreateClient();
         WireScope(clientB, TenantB, WorkspaceB, ProjectB);
 
-        HttpResponseMessage art = await clientB.GetAsync($"/v1/artifacts/manifests/{manifestId:D}");
+        HttpResponseMessage art = await clientB.GetAsync($"/v1/artifacts/signed-review-records/{manifestId:D}");
         art.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 

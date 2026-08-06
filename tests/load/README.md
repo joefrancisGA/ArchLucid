@@ -8,8 +8,8 @@
 
 | Profile | VUs / duration (defaults) | Primary flows |
 |--------|----------------------------|---------------|
-| `core` (default) | 10 VUs, 5m | `POST /v1/architecture/request` → `POST .../execute` → `POST .../commit` → `GET /v1/authority/manifests/{id}/summary` → `GET /v1/artifacts/manifests/{id}` |
-| `read` | 50 VUs, 5m | `GET /v1/authority/projects/{project}/runs` → `GET /v1/authority/runs/{id}` → optional `GET /v1/authority/manifests/{id}/summary` when a committed manifest exists |
+| `core` (default) | 10 VUs, 5m | `POST /v1/architecture/request` → `POST .../execute` → `POST .../commit` → `GET /v1/authority/signed-review-records/{id}/summary` → `GET /v1/artifacts/signed-review-records/{id}` |
+| `read` | 50 VUs, 5m | `GET /v1/authority/projects/{project}/runs` → `GET /v1/authority/runs/{id}` → optional `GET /v1/authority/signed-review-records/{id}/summary` when a committed manifest exists |
 | `mixed` | 5 writers + 25 readers, 10m | Same as `core` on writers, `read` on readers |
 
 **Run (single profile):**
@@ -117,7 +117,7 @@ All scripts accept **`ARCHLUCID_BASE_URL`** (preferred) or **`BASE_URL`** (alias
 
 ## `k6-api-smoke.js` — operator path (CI + local)
 
-Exercises a **Core Pilot-shaped** slice: **`GET /health/ready`**, **`GET /version`**, **`POST /v1/architecture/request`**, **`GET /v1/architecture/review/{id}`** (run snapshot), **`GET /v1/authority/projects/{project}/runs?take=10`**, then (unless **`ARCHLUCID_K6_OPERATOR_MINIMAL=1`**) **`POST /v1/internal/architecture/runs/{id}/seed-fake-results`**, **`POST /v1/architecture/review/{id}/commit`**, **`GET /v1/artifacts/manifests/{manifestId}`** (artifact descriptors). **CI/pilot smoke budgets** use **`k6api:*`** tags and **`ARCHLUCID_K6_P95_*`** env overrides — **not** contractual production SLOs (see **`docs/library/PERFORMANCE_TESTING.md`**).
+Exercises a **Core Pilot-shaped** slice: **`GET /health/ready`**, **`GET /version`**, **`POST /v1/architecture/request`**, **`GET /v1/architecture/review/{id}`** (run snapshot), **`GET /v1/authority/projects/{project}/runs?take=10`**, then (unless **`ARCHLUCID_K6_OPERATOR_MINIMAL=1`**) **`POST /v1/internal/architecture/runs/{id}/seed-fake-results`**, **`POST /v1/architecture/review/{id}/commit`**, **`GET /v1/artifacts/signed-review-records/{manifestId}`** (artifact descriptors). **CI/pilot smoke budgets** use **`k6api:*`** tags and **`ARCHLUCID_K6_P95_*`** env overrides — **not** contractual production SLOs (see **`docs/library/PERFORMANCE_TESTING.md`**).
 
 **Environment**
 

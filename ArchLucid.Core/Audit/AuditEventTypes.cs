@@ -484,7 +484,7 @@ public static class AuditEventTypes
 
     /// <summary>
     ///     Operator ran pre-commit gate what-if with synthetic findings (
-    ///     <c>POST /v1/governance/pre-commit/simulate</c>). Payload summarizes request parameters and gate outcome; no
+    ///     <c>POST /v1/governance/pre-finalize/simulate</c>). Payload summarizes request parameters and gate outcome; no
     ///     manifest commit.
     /// </summary>
     public const string GovernancePreCommitSimulationEvaluated = "GovernancePreCommitSimulationEvaluated";

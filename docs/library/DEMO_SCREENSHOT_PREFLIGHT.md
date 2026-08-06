@@ -102,3 +102,7 @@ These IDs must resolve. If any are missing, the corresponding page will show an 
 1. Check that both env flags above are set.
 2. Confirm the static demo spine constants in `src/lib/showcase-static-demo.ts` match the values expected by any API seed script.
 3. If the API is seeded, the static fallback won't fire — verify `NEXT_PUBLIC_DEMO_STATIC_OPERATOR=true` or `NEXT_PUBLIC_DEMO_MODE=true` to force static payloads.
+
+## Public showcase frames (M-108)
+
+Shot list and Contoso≠Claims caption rules: [`../go-to-market/SHOWCASE_SCREENSHOT_CAPTURE_CHECKLIST.md`](../go-to-market/SHOWCASE_SCREENSHOT_CAPTURE_CHECKLIST.md).

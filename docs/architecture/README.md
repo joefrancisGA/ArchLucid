@@ -79,6 +79,7 @@ Open `http://localhost:8080` and load **`workspace.dsl`** from this directory.
 ### Orientation
 - **Saved Mermaid + SVG diagrams** — [`architecture_diagrams/README.md`](architecture_diagrams/README.md) (system overview + zoom-ins)
 - **Platform architecture handbook** — [`architecture_handbook/README.md`](architecture_handbook/README.md) (Markdown spine → regenerable DOCX)
+- **Handbook vs product capabilities** — [`PLATFORM_HANDBOOK_VS_PRODUCT_CAPABILITIES.md`](PLATFORM_HANDBOOK_VS_PRODUCT_CAPABILITIES.md) (what ArchLucid exports vs repo meta-docs)
 - **V1 scope contract** — `../library/V1_SCOPE.md`
 - **Developer Day-1** — `../onboarding/day-one-developer.md`
 - **SRE / Platform Day-1** — `../onboarding/day-one-sre.md`

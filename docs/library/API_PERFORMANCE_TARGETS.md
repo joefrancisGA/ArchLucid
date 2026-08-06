@@ -60,7 +60,7 @@ These satisfy expanded regression coverage but are not in the numbered “top te
 | `POST /v1/diagnostics/client-error` | `k6ci:client_error_telemetry` | **928** |
 | `GET /v1/authority/projects/{projectSlug}/runs` | `k6api:list_authority_runs` | **928** |
 | `POST /v1/internal/architecture/runs/{runId}/seed-fake-results` | `k6api:seed_fake` | **6600** |
-| `GET /v1/artifacts/manifests/{manifestId}` | `k6api:artifacts_list` | **928** |
+| `GET /v1/artifacts/signed-review-records/{manifestId}` | `k6api:artifacts_list` | **928** |
 
 ## Coverage gaps
 

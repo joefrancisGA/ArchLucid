@@ -38,6 +38,8 @@ Buyer surfaces say **architecture review**, **finalize**, and **signed review re
 - [`VOCABULARY_ROSETTA.md`](../../library/VOCABULARY_ROSETTA.md) end-state rule is superseded: public API/schema use buyer nouns; dual vocabulary is no longer permanent policy.
 - Supersedes the "do not change HTTP paths without ADR" freeze in [`CONCEPT_VOCABULARY.md`](../../library/CONCEPT_VOCABULARY.md) § Constraints for the nouns listed above (this ADR is that change).
 
+**Status note (2026-08-06):** Temporary dual routes from decisions 3–5 (`/v1/graph`, `/governance/pre-commit`, short `signed-records`, nested `…/manifest` and Docx `…/runs/…/architecture-package`) were **deleted** pre-release (no paying callers). Canonical paths only: `evidence-graph`, `pre-finalize`, `signed-review-records`, `…/signed-review-record`. Obsolete tenant-in-path admin aliases (`ReferenceEvidenceAdminLegacyController`, `GET …/metering/tenants/{id}/summary`) were removed the same day.
+
 ## Alternatives considered
 
 1. **Add `v2` routes only.** Rejected by owner — prefer in-place `v1` rename pre-release.

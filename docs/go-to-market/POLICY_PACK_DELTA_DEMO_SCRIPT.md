@@ -107,7 +107,7 @@ Severity enum: `Info=0`, `Warning=1`, `Error=2`, `Critical=3` ([`PRE_COMMIT_GOVE
 When the live snapshot is thin, inject synthetic severities without changing SQL findings:
 
 ```http
-POST /v1/governance/pre-commit/simulate
+POST /v1/governance/pre-finalize/simulate
 Content-Type: application/json
 
 {
@@ -183,7 +183,7 @@ GET /v1/audit/export/csv?runId={runId}&eventType=GovernancePreCommitSimulationEv
 
 | Event type | When |
 |------------|------|
-| `GovernancePreCommitSimulationEvaluated` | After `POST /v1/governance/pre-commit/simulate` |
+| `GovernancePreCommitSimulationEvaluated` | After `POST /v1/governance/pre-finalize/simulate` |
 | `GovernanceDryRunRequested` | After governance policy-pack dry-run routes |
 | `GovernancePreCommitBlocked` | Real commit blocked (409 `#governance-pre-commit-blocked`) |
 | `GovernancePreCommitWarned` | Warn-only severities configured; commit proceeds |

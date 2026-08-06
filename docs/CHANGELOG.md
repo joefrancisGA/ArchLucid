@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-06 - GTM: **M-26** ADR Upwork listing + partial **M-136**/**M-137**/**M-108**/**M-09** artifacts
+
+Paste-ready ADR Cleanup listing in [`QUOTE_TO_PROOF_PACKET.md#upwork-listings-draft`](go-to-market/QUOTE_TO_PROOF_PACKET.md#upwork-listings-draft); fictional-org trademark screen; scenario framing variants; showcase screenshot + landing sign-off checklists. Does not rewrite other open GTM/tech backlog rows.
+
 ## 2026-08-06 - Docs: LLM execution vs quality outcome taxonomy (TB-963)
 
 [LLM_EXECUTION_VS_QUALITY_OUTCOME.md](library/LLM_EXECUTION_VS_QUALITY_OUTCOME.md) ships the two-axis matrix (admissibility first, quality second), failureClass / gate / triage mapping, and durable persist checklist for **TB-964**/**TB-965**. GTM **M-123**/**M-124** cite the library SoT. Does not claim CPA / third-party pen-test or perfect AI quality.

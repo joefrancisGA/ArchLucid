@@ -183,9 +183,9 @@ Every pilot starts here. The architect workspace presents this layer by default 
 | List runs | `GET /v1/architecture/runs` | Runs list (`/runs`) | `archlucid runs list` |
 | Run detail and pipeline timeline | `GET /v1/authority/runs/{runId}/pipeline-timeline` | Run detail page | `archlucid run status` |
 | Manifest summary | `GET /v1/architecture/manifests/{id}` | Manifest summary tab | — |
-| Artifact list and review | `GET /v1/artifacts/manifests/{manifestId}` | Artifacts table + Review page | `archlucid artifacts` |
+| Artifact list and review | `GET /v1/artifacts/signed-review-records/{manifestId}` | Artifacts table + Review page | `archlucid artifacts` |
 | Artifact download | `GET /v1/artifacts/…/download` | Download button per artifact | — |
-| Bundle ZIP download | `GET /v1/artifacts/manifests/{id}/bundle` | Bundle ZIP button | — |
+| Bundle ZIP download | `GET /v1/artifacts/signed-review-records/{id}/bundle` | Bundle ZIP button | — |
 | DOCX architecture package | `GET /v1/docx/runs/{runId}/architecture-package` | Export button on run detail | — |
 | Run-export ZIP | `GET /v1/artifacts/runs/{runId}/export` | Export ZIP button | — |
 | Cross-run executive ROI summary | `GET /v1/roi/executive-summary` | Home dashboard (`ExecutiveRoiSummarySection`) | — |
@@ -258,8 +258,8 @@ Available immediately after a first finalized architecture package. Enabled by c
 | Optional AI explanation of diff | Requires AI provider config | Compare two reviews — AI narrative section |
 | Comparison replay (artifact / regenerate / verify) | `POST /v1/architecture/compare/replay` | Replay a review (`/replay`) |
 | Run replay (authority chain re-validation) | `POST /v1/authority/replay` | Replay — authority mode |
-| Provenance graph (full, decision subgraph, neighborhood) | `GET /v1/graph/runs/{runId}/provenance` | Graph (`/graph`) |
-| Architecture graph | `GET /v1/graph/runs/{runId}/architecture` | Graph — architecture mode |
+| Provenance graph (full, decision subgraph, neighborhood) | `GET /v1/evidence-graph/reviews/{runId}/provenance` | Graph (`/graph`) |
+| Architecture graph | `GET /v1/evidence-graph/reviews/{runId}/architecture` | Graph — architecture mode |
 | Natural-language Ask | `POST /v1/ask/threads` | Ask (`/ask`) |
 | Advisory scans | `POST /v1/advisory/scans` | Advisory (`/advisory`) |
 | Architecture digests | `GET /v1/advisory/digests` | Digests (`/digests`) |

@@ -65,10 +65,10 @@ Documentation and weighted-readiness framing distinguish:
 
 ## Operator artifacts (`/v1/artifacts`)
 
-- **List** `GET /v1/artifacts/manifests/{manifestId}`: **200** with a JSON **array** (possibly empty) when the manifest exists in scope. Items are ordered **by name (case-insensitive), then artifact id** (stable for UI tables and bundle ZIP entry order).
-- **Bundle** `GET /v1/artifacts/manifests/{manifestId}/bundle`: **404** with **`#manifest-not-found`** when the manifest is unknown/out of scope; **404** with **`#resource-not-found`** when the manifest exists but there is no bundle or zero artifacts (list may still return `[]`). Use **problem `type` / `title`**, not status code alone.
+- **List** `GET /v1/artifacts/signed-review-records/{manifestId}`: **200** with a JSON **array** (possibly empty) when the manifest exists in scope. Items are ordered **by name (case-insensitive), then artifact id** (stable for UI tables and bundle ZIP entry order).
+- **Bundle** `GET /v1/artifacts/signed-review-records/{manifestId}/bundle`: **404** with **`#manifest-not-found`** when the manifest is unknown/out of scope; **404** with **`#resource-not-found`** when the manifest exists but there is no bundle or zero artifacts (list may still return `[]`). Use **problem `type` / `title`**, not status code alone.
 - **Run export ZIP** `GET /v1/artifacts/runs/{runId}/export`: committed run only; see OpenAPI for response shape.
-- **Descriptor / file download** under `/v1/artifacts/manifests/{manifestId}/artifact/{artifactId}` (and `…/descriptor`): manifest must be in scope; missing artifact → **404** **`#resource-not-found`**.
+- **Descriptor / file download** under `/v1/artifacts/signed-review-records/{manifestId}/artifact/{artifactId}` (and `…/descriptor`): manifest must be in scope; missing artifact → **404** **`#resource-not-found`**.
 
 UI alignment: **`docs/operator-shell.md`**.
 
@@ -157,7 +157,7 @@ CLI: `archlucid first-value-report <runId> [--save]` Â· `archlucid reference-e
 
 **Admin tenants registry:** `GET /v1/admin/tenants` — **AdminAuthority**; lists registry rows (not RLS-scoped). `POST /v1/admin/tenants` provisions a net-new tenant (idempotent by derived slug; seeds default policy packs). `POST /v1/admin/tenants/{id}/suspend` / `POST /v1/admin/tenants/{id}/unsuspend` shut off or resume the tenant surface without starting erasure quarantine (**204**; **409** when the tenant is already in erasure quarantine). Architect workspace: **`/admin/tenants`** (Internal Operations). Scheduled erasure remains `POST /v1/admin/tenants/{id}/delete` under **PlatformTenantDeletionAuthority**.
 
-**Admin metering summary:** `GET /v1/admin/metering/summary?periodStart=&periodEnd=` — **AdminAuthority**; tenant from ambient scope (TB-279). Legacy alias `GET /v1/admin/metering/tenants/{tenantId}/summary` remains one release with route↔scope binding.
+**Admin metering summary:** `GET /v1/admin/metering/summary?periodStart=&periodEnd=` — **AdminAuthority**; tenant from ambient scope (TB-279). Legacy alias `GET /v1/admin/metering/summary` remains one release with route↔scope binding.
 
 **Executive summary (reports):** `GET /v1/reports/executive-summary` — **ReadAuthority**; canonical ambient-scope contract (TB-280). Legacy `GET api/authority/executive-summary/{tenantId}` removed.
 

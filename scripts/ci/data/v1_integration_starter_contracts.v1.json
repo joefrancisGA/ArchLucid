@@ -128,14 +128,14 @@
       "id": "pre-commit-governance-gate",
       "label": "Simulate or commit pre-commit governance gate",
       "cliHints": [
-        "curl POST /v1/governance/pre-commit/simulate",
+        "curl POST /v1/governance/pre-finalize/simulate",
         "curl POST /v1/architecture/review/{runId}/finalize"
       ],
       "steps": [
         {
           "id": "simulate-pre-commit",
           "method": "POST",
-          "path": "/v1/governance/pre-commit/simulate",
+          "path": "/v1/governance/pre-finalize/simulate",
           "expectedSuccessStatuses": [200],
           "responseShape": "PreCommitGateResult",
           "requestShapeExample": {

@@ -353,7 +353,6 @@ public sealed class AuthorityQueryController(
     /// <param name="ct">Cancellation token.</param>
     /// <returns><see cref="ManifestSummaryResponse" />, or 404 when unknown or out of scope.</returns>
     [HttpGet("signed-review-records/{manifestId:guid}/summary")]
-    [HttpGet("signed-records/{manifestId:guid}/summary")]
     [ProducesResponseType(typeof(ManifestSummaryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -441,9 +440,8 @@ public sealed class AuthorityQueryController(
         return Ok(graph);
     }
 
-    /// <summary>Returns the hydrated golden manifest JSON for the run when committed.</summary>
+    /// <summary>Returns the hydrated signed review record JSON for the review when finalized.</summary>
     [HttpGet("reviews/{runId:guid}/signed-review-record")]
-    [HttpGet("reviews/{runId:guid}/manifest")]
     [ProducesResponseType(typeof(ManifestDocument), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

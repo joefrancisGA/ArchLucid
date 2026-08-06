@@ -1320,7 +1320,7 @@ export async function waitForAuthorityManifestSummaryReady(
   const encoded = encodeURIComponent(manifestId);
 
   while (Date.now() < deadline) {
-    const res = await request.get(`${resolveLiveApiBase()}/v1/authority/signed-records/${encoded}/summary`, {
+    const res = await request.get(`${resolveLiveApiBase()}/v1/authority/signed-review-records/${encoded}/summary`, {
       headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
     });
 
@@ -1329,14 +1329,14 @@ export async function waitForAuthorityManifestSummaryReady(
     }
 
     if (res.status() !== 404) {
-      await throwIfNotOk(res, `GET /v1/authority/signed-records/${encoded}/summary`);
+      await throwIfNotOk(res, `GET /v1/authority/signed-review-records/${encoded}/summary`);
     }
 
     await new Promise((r) => setTimeout(r, 1000));
   }
 
   throw new Error(
-    `Authority manifest summary for ${manifestId} not ready (GET /v1/authority/signed-records/{id}/summary) within ${liveE2eCommitWaitMs(timeoutMs)}ms`,
+    `Authority manifest summary for ${manifestId} not ready (GET /v1/authority/signed-review-records/{id}/summary) within ${liveE2eCommitWaitMs(timeoutMs)}ms`,
   );
 }
 
@@ -2029,9 +2029,9 @@ export async function getAlertRulesRaw(
   });
 }
 
-/** GET `/v1/graph/runs/{runGuid}` — knowledge graph for run. */
+/** GET `/v1/evidence-graph/reviews/{runGuid}` — knowledge graph for run. */
 export async function getGraphForRunRaw(request: APIRequestContext, runGuidPathSegment: string): Promise<APIResponse> {
-  return request.get(`${resolveLiveApiBase()}/v1/graph/runs/${runGuidPathSegment}`, {
+  return request.get(`${resolveLiveApiBase()}/v1/evidence-graph/reviews/${runGuidPathSegment}`, {
     headers: liveAcceptHeaders(),
   });
 }

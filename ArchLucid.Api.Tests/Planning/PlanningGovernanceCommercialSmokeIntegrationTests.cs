@@ -22,7 +22,7 @@ public sealed class PlanningGovernanceCommercialSmokeIntegrationTests(ArchLucidA
         Guid fakeRunId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
 
         using HttpResponseMessage response =
-            await client.GetAsync($"/v1/graph/runs/{fakeRunId:D}");
+            await client.GetAsync($"/v1/evidence-graph/reviews/{fakeRunId:D}");
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }

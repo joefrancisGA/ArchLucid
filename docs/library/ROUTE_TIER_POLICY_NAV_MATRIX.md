@@ -107,9 +107,9 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Admin/JobsController.cs` | `/v1/jobs` | none | ReadAuthority |  |  |
 | `Admin/MarketingPricingQuoteAgingAdminController.cs` | `/v1/admin/marketing/pricing-quote-aging` | none | AdminAuthority |  |  |
 | `Admin/MarketingPricingQuoteFollowUpAdminController.cs` | `/v1/admin/marketing/pricing-quote-requests` | none | AdminAuthority |  |  |
+| `Admin/MeteringAdminController.cs` | `/v1/admin/metering` | none | AdminAuthority | /administration/ai-usage |  |
 | `Admin/PromptVariantsAdminController.cs` | `/v1/admin/prompt-variants` | none | AdminAuthority |  |  |
 | `Admin/ReferenceEvidenceAdminController.cs` | `/v1/admin/reference-evidence` | none | AdminAuthority |  |  |
-| `Admin/ReferenceEvidenceAdminLegacyController.cs` | `/v1/admin/tenants/{tenantId:guid}/reference-evidence` | none | AdminAuthority |  |  |
 | `Admin/RoiBulletinAdminController.cs` | `/v1/admin/roi-bulletin-preview` | none | AdminAuthority |  |  |
 | `Admin/ScimTokensAdminController.cs` | `/v1/admin/scim/tokens` | none | AdminAuthority |  |  |
 | `Admin/ScopeDebugController.cs` | `/v1/scope` | none | ReadAuthority |  |  |
@@ -192,7 +192,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Findings/FindingRemediationAssignmentController.cs` | `/v1/findings` | standard | ExecuteAuthority | /governance/findings |  |
 | `Governance/GovernanceController.cs` | `/v1/governance` | standard | ReadAuthority | /governance/approval-queue |  |
 | `Governance/GovernanceCoverageController.cs` | `/v1/governance` | standard | ReadAuthority |  |  |
-| `Governance/GovernancePreCommitSimulationController.cs` | `/v1/governance/pre-commit` | standard | ReadAuthority |  |  |
+| `Governance/GovernancePreCommitSimulationController.cs` | `/v1/governance/pre-finalize` | standard | ReadAuthority |  |  |
 | `Governance/GovernancePreviewController.cs` | `/v1/governance-preview` | standard | ReadAuthority |  |  |
 | `Governance/GovernanceResolutionController.cs` | `/v1/governance-resolution` | standard | ReadAuthority | /governance/standards-and-rules |  |
 | `Governance/GovernanceStickinessController.cs` | `/v1/governance` | standard | ReadAuthority |  |  |
@@ -230,7 +230,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Planning/ConversationController.cs` | `/v1/conversations` | standard | ReadAuthority |  |  |
 | `Planning/ExplanationController.cs` | `/v1/explain` | standard | ReadAuthority |  |  |
 | `Planning/FindingFeedbackController.cs` | `/v1/explain` | standard | ExecuteAuthority |  |  |
-| `Planning/GraphController.cs` | `/v1/graph` | standard | ReadAuthority | /insights/evidence-graph |  |
+| `Planning/GraphController.cs` | `/v1/evidence-graph` | standard | ReadAuthority | /insights/evidence-graph |  |
 | `Planning/ProvenanceController.cs` | `/v1/provenance` | standard | ReadAuthority |  |  |
 | `Planning/ProvenanceQueryController.cs` | `/v1/authority` | standard | ReadAuthority |  |  |
 | `Planning/RetrievalController.cs` | `/v1/retrieval` | standard | ReadAuthority | /insights/search-review-evidence |  |

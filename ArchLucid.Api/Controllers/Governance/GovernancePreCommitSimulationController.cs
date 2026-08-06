@@ -16,12 +16,11 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchLucid.Api.Controllers.Governance;
 
-/// <summary>Pre-commit gate simulation against persisted findings plus optional synthetic injections.</summary>
+/// <summary>Pre-finalize governance gate simulation against persisted findings plus optional synthetic injections.</summary>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/governance/pre-finalize")]
-[Route("v{version:apiVersion}/governance/pre-commit")]
 [EnableRateLimiting("fixed")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]

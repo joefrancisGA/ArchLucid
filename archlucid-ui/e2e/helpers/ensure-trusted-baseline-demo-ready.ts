@@ -28,7 +28,7 @@ async function sleepTrustedBaselineBackoff(attempt: number): Promise<void> {
 
 async function trustedBaselineGraphReady(request: APIRequestContext): Promise<boolean> {
   const graphSegment = toRunGuidPathSegment(TRUSTED_BASELINE_RUN_ID_N);
-  const graphRes = await getLiveApiPathWithTransientRetries(request, `/v1/graph/runs/${graphSegment}`);
+  const graphRes = await getLiveApiPathWithTransientRetries(request, `/v1/evidence-graph/reviews/${graphSegment}`);
 
   if (!graphRes.ok()) {
     return false;
@@ -93,7 +93,7 @@ export async function ensureTrustedBaselineDemoReady(request: APIRequestContext)
 
     const manifestRes = await getLiveApiPathWithTransientRetries(
       request,
-      `/v1/authority/manifests/${encodeURIComponent(goldenManifestId)}/summary`,
+      `/v1/authority/signed-review-records/${encodeURIComponent(goldenManifestId)}/summary`,
     );
 
     if (!manifestRes.ok()) {

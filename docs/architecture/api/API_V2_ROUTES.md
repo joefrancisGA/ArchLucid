@@ -55,7 +55,7 @@ Version prefix: **`v1`** (Asp.Versioning `1.0`). This document originally propos
 | `GET` | `/v1/runs/{runId}/artifacts/{artifactId}` | File download. |
 | `GET` | `/v1/runs/{runId}/artifacts/bundle` | ZIP bundle. |
 
-Legacy `GET /v1/artifacts/manifests/{manifestId}/…` remains for backward compatibility.
+Legacy `GET /v1/artifacts/signed-review-records/{manifestId}/…` remains for backward compatibility.
 
 ### Review trail
 

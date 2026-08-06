@@ -43,7 +43,6 @@ const DEMO_MODE_OMIT_OPERATOR_HREFS = new Set<string>([
   "/administration/support",
   "/administration/users",
   "/administration/security-trust",
-  "/workspace/security-trust",
   "/governance/alerts",
   "/governance/alert-rules",
   "/governance/policy-packs",

@@ -50,7 +50,7 @@ This lane minimizes decisions and produces a **finalized architecture package** 
 1. **Guided intake** — open `/reviews/new`, use **Guided intake (recommended)**, enter intent/outcome/actors, admit the draft, answer or skip MUST questions, submit to spawn a review. Capture `runId`.
 2. **Execute** — `POST /v1/architecture/review/{runId}/execute` (or UI equivalent) to ready-to-finalize state.
 3. **Finalize** — finalize architecture package (API: `commit` / golden manifest); confirm `goldenManifestId` on review detail.
-4. **Artifacts** — `GET /v1/artifacts/manifests/{manifestId}` returns â‰¥ 1 descriptor.
+4. **Artifacts** — `GET /v1/artifacts/signed-review-records/{manifestId}` returns â‰¥ 1 descriptor.
 5. **Proof packet** — `dotnet run --project ArchLucid.Cli -- pilot proof-packet <runId> --out artifacts/proof-packet/<runId>`; read `sponsor-proof-packet-index.md` and `limitations.md`.
 
 **Expert/API shortcut:** `POST /v1/architecture/request` remains valid when the architect already has a complete brief.

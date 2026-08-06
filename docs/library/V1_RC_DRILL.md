@@ -101,9 +101,9 @@ Repeat **2A.1–2A.4** with a **different** `requestId` and **`systemName`** (or
 
 | Step | Action | Pass criteria |
 |------|--------|----------------|
-| 3.1 | `GET /v1/artifacts/manifests/{goldenManifestId}` | **200**; JSON **array** with **â‰¥ 1** descriptor for each review (`runId`) you care about (empty array is valid only if you explicitly expect no synthesized rows—usually **not** for RC) |
+| 3.1 | `GET /v1/artifacts/signed-review-records/{goldenManifestId}` | **200**; JSON **array** with **â‰¥ 1** descriptor for each review (`runId`) you care about (empty array is valid only if you explicitly expect no synthesized rows—usually **not** for RC) |
 | 3.2 | Open **architect workspace** (optional): **Runs** (review list) → run → **Manifest** / **Artifacts** | List matches API; **Review** / download works ([operator-shell.md](operator-shell.md)) |
-| 3.3 | `GET /v1/artifacts/manifests/{goldenManifestId}/bundle` (optional) | **200** ZIP, or **404** with documented problem type when no bundle (distinct from unknown manifest—[API_CONTRACTS.md](API_CONTRACTS.md)) |
+| 3.3 | `GET /v1/artifacts/signed-review-records/{goldenManifestId}/bundle` (optional) | **200** ZIP, or **404** with documented problem type when no bundle (distinct from unknown manifest—[API_CONTRACTS.md](API_CONTRACTS.md)) |
 
 ---
 
