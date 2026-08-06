@@ -14,6 +14,10 @@ Release entries newest-first. Each section condenses the detailed prompt logs pr
 
 `GetRunDetailForRollupAsync` loads agent results through `GetRollupProjectionByRunIdAsync` (relational columns + JSON subpaths for claims/findings/controls) instead of full `ResultJson`. Hot-path inventory + shape guards updated. Does not claim CPA / third-party pen-test.
 
+## 2026-08-06 - UI: Compliance journey Evidence chrome (COM)
+
+`/compliance-journey` ships ComplianceJourneyEvidenceOrientationStrip (evaluation Sources + claim-discipline), traffic Notes under Marketing (row ID COM), and honest Evidence score 40. Marketing posture summary hard-caps higher Evidence; not an operator PageContextualHelp surface; no CPA / third-party pen-test implication.
+
 ## 2026-08-06 - UI: Auth invite Evidence chrome (AUI)
 
 `/auth/invite` ships AuthInviteEvidenceOrientationStrip (public Sources + claim-discipline) on InvitationAcceptPageClient, traffic Notes under Auth (row ID AUI), and honest Evidence score 40. Pre-sign-in invitation handoff hard-caps higher Evidence; not an operator PageContextualHelp surface; no CPA / third-party pen-test implication.
