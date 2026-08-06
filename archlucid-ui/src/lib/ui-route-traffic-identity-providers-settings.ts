@@ -8,7 +8,7 @@ export const IDENTITY_PROVIDERS_SETTINGS_TRAFFIC_ROW_ID = "AID";
 export const IDENTITY_PROVIDERS_SETTINGS_TRAFFIC_PATH = "/administration/identity-providers";
 
 /** Workbook Section column value (template catalog). */
-export const IDENTITY_PROVIDERS_SETTINGS_TRAFFIC_SECTION = "Settings";
+export const IDENTITY_PROVIDERS_SETTINGS_TRAFFIC_SECTION = "Admin";
 
 /**
  * Owner workbook Notes for AID - documents Evidence chrome on identity-providers hub.

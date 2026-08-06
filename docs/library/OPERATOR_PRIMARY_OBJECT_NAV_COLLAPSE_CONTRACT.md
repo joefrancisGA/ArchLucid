@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — operator primary-object hierarchy and nav/route collapse (TB-1026); not a buyer-facing trust claim.
+
 # Operator primary-object hierarchy + nav/route collapse contract
 
 **Status:** Active (V1)  

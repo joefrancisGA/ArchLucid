@@ -22,7 +22,7 @@ describe("FrictionlessTrialBanner", () => {
     const banner = screen.getByTestId("frictionless-trial-banner");
     const row = banner.firstElementChild;
 
-    expect(banner).toHaveClass("px-4", "py-2");
+    expect(banner).toHaveClass("px-4", "py-1");
     expect(row).not.toBeNull();
     expect(row?.className).toMatch(/\bflex-nowrap\b/);
     expect(row?.className).not.toMatch(/\bflex-wrap\b/);

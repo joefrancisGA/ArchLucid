@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — transactional finalize vs outbox/async boundary (TB-1011); not a buyer-facing trust claim.
+
 # Transactional finalize vs outbox / async contract
 
 **Status:** Active (V1)  

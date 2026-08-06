@@ -9,11 +9,58 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
   <header
     class="space-y-2"
   >
-    <h1
-      class="text-xl font-semibold leading-7 tracking-tight text-al-text-primary"
+    <div
+      class="flex flex-wrap items-center gap-2"
     >
-      Why ArchLucid
-    </h1>
+      <h1
+        class="m-0 text-xl font-semibold leading-7 tracking-tight text-al-text-primary"
+      >
+        Why ArchLucid
+      </h1>
+      <span
+        class="inline-flex items-center"
+      >
+        <button
+          aria-expanded="false"
+          aria-label="Help: Architecture workflow"
+          class="inline-flex items-center justify-center whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 font-semibold hover:bg-neutral-100 hover:text-[color:var(--al-text-primary)] dark:hover:bg-neutral-800 rounded-md text-xs h-8 gap-1.5 px-2 text-neutral-700 dark:text-neutral-300"
+          data-testid="page-contextual-help-button"
+          title="Help: Architecture workflow"
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            class="lucide lucide-circle-question-mark h-4 w-4"
+            fill="none"
+            height="24"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <circle
+              cx="12"
+              cy="12"
+              r="10"
+            />
+            <path
+              d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"
+            />
+            <path
+              d="M12 17h.01"
+            />
+          </svg>
+          <span
+            class="text-xs font-normal leading-[18px] text-al-text-secondary"
+          >
+            Architecture workflow
+          </span>
+        </button>
+      </span>
+    </div>
     <div
       class="rounded border px-3 py-2 text-sm border-neutral-200 bg-neutral-50 text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-200"
       data-testid="why-archlucid-universe-banner"
@@ -35,6 +82,87 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
       See how ArchLucid turns architecture review into a governed decision package — executive summary, signed review record, evidence trail, governance approval, and audit record — using the Retail baseline sample workspace as a walkthrough.
     </p>
   </header>
+  <div
+    class="space-y-3"
+    data-testid="why-archlucid-orientation"
+  >
+    <section
+      aria-labelledby="why-archlucid-sources-heading"
+      class="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
+      data-testid="why-archlucid-sources"
+    >
+      <h2
+        class="m-0 text-[15px] font-semibold leading-[22px] text-al-text-primary"
+        id="why-archlucid-sources-heading"
+      >
+        Sources for follow-up
+      </h2>
+      <p
+        class="m-0 mt-1 max-w-3xl text-xs font-normal leading-[18px] text-al-text-secondary"
+      >
+        Use these follow-ups when demo proof turns into marketing comparison, sponsor packaging, or assurance orientation.
+      </p>
+      <ul
+        class="m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-1 p-0 text-xs font-normal leading-[18px] text-al-text-secondary"
+      >
+        <li>
+          <a
+            class="text-al-text-primary underline decoration-al-text-secondary/35 underline-offset-2 hover:text-[var(--al-accent-link)] hover:decoration-[var(--al-accent-link)] font-medium"
+            href="/why"
+          >
+            Why ArchLucid (marketing)
+          </a>
+        </li>
+        <li>
+          <a
+            class="text-al-text-primary underline decoration-al-text-secondary/35 underline-offset-2 hover:text-[var(--al-accent-link)] hover:decoration-[var(--al-accent-link)] font-medium"
+            href="/see-it"
+          >
+            See a sample review
+          </a>
+        </li>
+        <li>
+          <a
+            class="text-al-text-primary underline decoration-al-text-secondary/35 underline-offset-2 hover:text-[var(--al-accent-link)] hover:decoration-[var(--al-accent-link)] font-medium"
+            href="/sponsor-report/pilot-outcomes"
+          >
+            Pilot outcomes
+          </a>
+        </li>
+        <li>
+          <a
+            class="text-al-text-primary underline decoration-al-text-secondary/35 underline-offset-2 hover:text-[var(--al-accent-link)] hover:decoration-[var(--al-accent-link)] font-medium"
+            href="/help/getting-started"
+          >
+            How ArchLucid works
+          </a>
+        </li>
+        <li>
+          <a
+            class="text-al-text-primary underline decoration-al-text-secondary/35 underline-offset-2 hover:text-[var(--al-accent-link)] hover:decoration-[var(--al-accent-link)] font-medium"
+            href="/security-trust"
+          >
+            Security & trust
+          </a>
+        </li>
+      </ul>
+    </section>
+    <aside
+      class="rounded-md border border-amber-200/80 bg-amber-50/50 p-3 dark:border-amber-900/40 dark:bg-amber-950/20"
+      data-testid="why-archlucid-claim-discipline"
+    >
+      <h2
+        class="m-0 text-[15px] font-semibold leading-[22px] text-al-text-primary"
+      >
+        Demo proof orientation only
+      </h2>
+      <p
+        class="m-0 mt-2 text-[13px] font-normal leading-5 text-al-text-primary"
+      >
+        This Why ArchLucid page is an operator demo/proof surface over seeded telemetry and sample review outputs — it is not a signed-review diligence Sources trail from your production tenant, a CPA SOC 2 attestation, or a published third-party pen-test report. Open the public /why comparison, Security & trust, or a finalized architecture review when you need diligence-grade trails.
+      </p>
+    </aside>
+  </div>
   <section
     aria-labelledby="why-archlucid-counters-heading"
     class="space-y-3"

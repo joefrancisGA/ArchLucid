@@ -122,7 +122,7 @@ describe("MarketingTierPricingSection", () => {
     const billingLink = teamScope.getByTestId("pricing-team-subscribe-stripe");
 
     expect(billingLink.getAttribute("href")).toBe(
-      "/auth/signin?returnUrl=%2Fadministration%2Fsettings%2Fbilling%3Fplan%3Dteam",
+      "/auth/signin?returnUrl=%2Fadministration%2Fbilling%3Fplan%3Dteam",
     );
     expect(teamScope.getAllByRole("link", { name: /start team evaluation/i })).toHaveLength(2);
   });

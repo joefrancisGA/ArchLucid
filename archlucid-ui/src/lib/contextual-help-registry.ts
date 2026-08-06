@@ -450,7 +450,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     prefix: "/help/digests",
     entry: {
       whatIsThisPage:
-        "Architecture digests — how scheduled operator summaries are configured, delivered, and browsed.",
+        "Architecture digests — how scheduled digest summaries are configured, delivered, and browsed.",
       whatToDoNext: "Open the Digests hub Schedule tab to set cadence and recipients, then manage subscriptions.",
       whyEmpty: "This guide is always available; generated digests appear after schedule and recipients are configured.",
       whereToConfigurePrerequisite:
@@ -892,7 +892,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
         "Your first architecture review — guided path from evidence intake to a finalized package and sponsor-ready exports.",
       whatToDoNext:
         "Start an architecture review from the hero CTA, or open the sample review when you want a completed outcome first.",
-      whyEmpty: "This guide is always available; live review packages appear after you create architecture reviews.",
+      whyEmpty: "This guide is always available; live architecture reviews appear after you create them.",
       whereToConfigurePrerequisite:
         "Creating reviews needs a role that can start architecture reviews in this workspace.",
     },
@@ -904,7 +904,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
         "Your first architecture review — guided path from evidence intake to a finalized package and sponsor-ready exports.",
       whatToDoNext:
         "Start an architecture review from the hero CTA, or open the sample review when you want a completed outcome first.",
-      whyEmpty: "This guide is always available; live review packages appear after you create architecture reviews.",
+      whyEmpty: "This guide is always available; live architecture reviews appear after you create them.",
       whereToConfigurePrerequisite:
         "Creating reviews needs a role that can start architecture reviews in this workspace.",
     },
@@ -916,7 +916,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
         "Your first architecture review — guided path from evidence intake to a finalized package and sponsor-ready exports.",
       whatToDoNext:
         "Start an architecture review from the hero CTA, or open the sample review when you want a completed outcome first.",
-      whyEmpty: "This guide is always available; live review packages appear after you create architecture reviews.",
+      whyEmpty: "This guide is always available; live architecture reviews appear after you create them.",
       whereToConfigurePrerequisite:
         "Creating reviews needs a role that can start architecture reviews in this workspace.",
     },
@@ -928,7 +928,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
         "Your first architecture review — guided path from evidence intake to a finalized package and sponsor-ready exports.",
       whatToDoNext:
         "Start an architecture review from the hero CTA, or open the sample review when you want a completed outcome first.",
-      whyEmpty: "This guide is always available; live review packages appear after you create architecture reviews.",
+      whyEmpty: "This guide is always available; live architecture reviews appear after you create them.",
       whereToConfigurePrerequisite:
         "Creating reviews needs a role that can start architecture reviews in this workspace.",
     },

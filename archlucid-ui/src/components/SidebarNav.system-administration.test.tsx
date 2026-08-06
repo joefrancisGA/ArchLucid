@@ -153,7 +153,7 @@ describe("SidebarNav — Internal Operations section", () => {
       expect(screen.queryByTestId("sidebar-group-toggle-operator-system-admin")).toBeNull();
     });
 
-    expect(screen.queryByRole("navigation", { name: "Internal Operations" })).toBeNull();
+    expect(screen.queryByRole("group", { name: "Internal Operations" })).toBeNull();
     expect(screen.queryByRole("link", { name: OPERATOR_NAV_LINK_LABELS.knowledgeIndexHealth })).toBeNull();
   });
 
@@ -185,7 +185,7 @@ describe("SidebarNav — Internal Operations section", () => {
     fireEvent.click(screen.getByTestId("sidebar-group-toggle-operator-system-admin"));
 
     await waitFor(() => {
-      expect(screen.getByRole("navigation", { name: "Internal Operations" })).toBeInTheDocument();
+      expect(screen.getByRole("group", { name: "Internal Operations" })).toBeInTheDocument();
     });
   });
 
@@ -197,7 +197,7 @@ describe("SidebarNav — Internal Operations section", () => {
     fireEvent.click(screen.getByTestId("sidebar-group-toggle-operate-analysis"));
 
     await waitFor(() => {
-      expect(screen.getByRole("navigation", { name: "Insights" })).toBeInTheDocument();
+      expect(screen.getByRole("group", { name: "Insights" })).toBeInTheDocument();
     });
 
     expect(screen.queryByRole("link", { name: "Architecture advisory" })).toBeNull();
@@ -213,7 +213,7 @@ describe("SidebarNav — Internal Operations section", () => {
       expect(screen.getByTestId("sidebar-group-toggle-operator-system-admin")).toHaveAttribute("aria-expanded", "true");
     });
 
-    const internalOpsNav = screen.getByRole("navigation", { name: "Internal Operations" });
+    const internalOpsNav = screen.getByRole("group", { name: "Internal Operations" });
     const ragLink = within(internalOpsNav).getByRole("link", {
       name: OPERATOR_NAV_LINK_LABELS.knowledgeIndexHealth,
     });
@@ -253,6 +253,6 @@ describe("SidebarNav — Internal Operations section", () => {
       expect(governanceToggle).toHaveAttribute("aria-expanded", "true");
     });
 
-    expect(screen.getByRole("navigation", { name: "Governance" })).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Governance" })).toBeInTheDocument();
   });
 });

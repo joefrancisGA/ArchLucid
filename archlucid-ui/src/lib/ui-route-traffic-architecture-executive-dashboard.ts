@@ -10,7 +10,7 @@ export const ARCHITECTURE_EXECUTIVE_DASHBOARD_TRAFFIC_ROW_ID = "ARE";
 export const ARCHITECTURE_EXECUTIVE_DASHBOARD_TRAFFIC_PATH = EXECUTIVE_DASHBOARD_HREF;
 
 /** Workbook Section column value — executive portfolio surface, not marketing. */
-export const ARCHITECTURE_EXECUTIVE_DASHBOARD_TRAFFIC_SECTION = "Executive";
+export const ARCHITECTURE_EXECUTIVE_DASHBOARD_TRAFFIC_SECTION = "Core review";
 
 /**
  * Owner workbook Notes for ARE — documents the live executive ROI dashboard.

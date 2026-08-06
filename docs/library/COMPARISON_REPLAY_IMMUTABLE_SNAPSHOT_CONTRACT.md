@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — comparison/replay minimal immutable snapshot set (TB-1024); not a buyer-facing trust claim.
+
 # Comparison/replay — minimal immutable snapshot contract
 
 **Status:** Active (V1)  

@@ -8,7 +8,7 @@ export const AUTH_DOMAINS_SETTINGS_TRAFFIC_ROW_ID = "ADU";
 export const AUTH_DOMAINS_SETTINGS_TRAFFIC_PATH = "/administration/auth-domains";
 
 /** Workbook Section column value (template catalog). */
-export const AUTH_DOMAINS_SETTINGS_TRAFFIC_SECTION = "Settings";
+export const AUTH_DOMAINS_SETTINGS_TRAFFIC_SECTION = "Admin";
 
 /**
  * Owner workbook Notes for ADU - documents Evidence chrome on Sign-in domains.

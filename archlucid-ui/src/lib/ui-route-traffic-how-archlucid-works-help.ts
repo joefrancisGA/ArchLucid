@@ -14,4 +14,4 @@ export const HOW_ARCHLUCID_WORKS_HELP_TRAFFIC_SECTION = "Help alias";
  * Owner workbook Notes for HHX — documents Evidence chrome on How ArchLucid works.
  */
 export const HOW_ARCHLUCID_WORKS_HELP_TRAFFIC_NOTE =
-  "How ArchLucid works help (Help topic) - HelpHowArchLucidWorksGuideView with PageContextualHelpButton (topic map how-it-works; Category-1 registry), workspace Sources + claim-discipline orientation strip, workflow diagram, get-started CTAs. Orientation guide — not a signed-record Sources trail. Related HGX = Getting started. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-03) — help-topic orientation hard-caps higher Evidence.";
+  "Alias → `/help/getting-started#how-archlucid-works` (HGX). Fold hit share into HGX on next `/al-ui-tableupdate` pass.";

@@ -71,7 +71,7 @@ describe("HelpTopicAuditTrail", () => {
     render(<HelpAuditTrailGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
     expect(screen.getByRole("link", { name: "Open audit trail" })).toHaveAttribute("href", "/governance/audit");
-    expect(screen.getByRole("link", { name: "Governance approval" })).toHaveAttribute(
+    expect(screen.getAllByRole("link", { name: "Governance approval" })[0]).toHaveAttribute(
       "href",
       "/help/governance-approval",
     );

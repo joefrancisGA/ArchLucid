@@ -134,7 +134,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     title: "Architecture digests",
     keywords: ["digest", "schedule", "subscription", "summary", "exec digest"],
     summary:
-      "Schedule operator summaries of review activity, configure recipients, and browse generated digests.",
+      "Schedule digest summaries of review activity, configure recipients, and browse generated digests.",
     docPath: "",
     routes: ["/architecture/digests", "/digests", "/help/digests"],
   },

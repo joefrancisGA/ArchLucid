@@ -149,8 +149,9 @@ const nextConfig: NextConfig = {
         destination: "/architecture/digests?tab=subscriptions",
         permanent: true,
       },
-      { source: "/administration", destination: "/administration", permanent: true },
-      { source: "/administration/:path*", destination: "/administration/:path*", permanent: true },
+      // Legacy nested settings bookmarks (pre-flatten) → flat /administration/* pages.
+      { source: "/administration/settings", destination: "/administration", permanent: true },
+      { source: "/administration/settings/:path*", destination: "/administration/:path*", permanent: true },
       { source: "/workspace/security-trust", destination: "/administration/security-trust", permanent: true },
       { source: "/admin/users", destination: "/administration/users", permanent: true },
       { source: "/admin/support", destination: "/administration/support", permanent: true },

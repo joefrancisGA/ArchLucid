@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — layer residual-boundary and irreversible-leak matrix (TB-1005); not a buyer-facing trust claim.
+
 # Layer residual-boundary + irreversible-leak matrix (TB-1005)
 
 > **Audience:** Contributors, principal architects, and GTM claim reviewers.  

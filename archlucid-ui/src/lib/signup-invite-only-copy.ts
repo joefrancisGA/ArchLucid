@@ -6,7 +6,7 @@ export const SIGNUP_INVITE_ONLY_PANEL_LEAD =
   "Enter your work email below. We review each request and send an evaluation workspace invitation when approved—typically within two business days.";
 
 export const SIGNUP_INVITE_ONLY_FORM_INTRO =
-  "This starts a guided evaluation workspace request—not instant product access, checkout, or a procurement diligence package.";
+  "This starts a guided evaluation workspace request—not instant product access, checkout, or a procurement diligence Sources trail.";
 
 /** Primary submit — action on filled fields, not a click-to-reveal gate. */
 export const SIGNUP_INVITE_ONLY_SUBMIT_LABEL = "Send evaluation request";

@@ -12,7 +12,7 @@ describe("marketing-billing-plan-href", () => {
 
   it("routes marketing self-serve through sign-in with billing returnUrl", () => {
     expect(buildMarketingSelfServeBillingHref("architect")).toBe(
-      "/auth/signin?returnUrl=%2Fadministration%2Fsettings%2Fbilling%3Fplan%3Darchitect",
+      "/auth/signin?returnUrl=%2Fadministration%2Fbilling%3Fplan%3Darchitect",
     );
   });
 });

@@ -10,7 +10,7 @@ export const AI_USAGE_SETTINGS_TRAFFIC_ROW_ID = "ADI";
 export const AI_USAGE_SETTINGS_TRAFFIC_PATH = AI_USAGE_SETTINGS_PATH;
 
 /** Workbook Section column value (template catalog). */
-export const AI_USAGE_SETTINGS_TRAFFIC_SECTION = "Settings";
+export const AI_USAGE_SETTINGS_TRAFFIC_SECTION = "Admin";
 
 /**
  * Owner workbook Notes for ADI - documents Evidence chrome on AI usage and cost.

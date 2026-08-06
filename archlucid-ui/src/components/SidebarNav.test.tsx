@@ -87,7 +87,7 @@ describe("SidebarNav (primary navigation)", () => {
   it("shows Architecture and Operate groups for role-eligible destinations without unlock panel", () => {
     render(<SidebarNav />);
 
-    const reviewNav = screen.getByRole("navigation", { name: "Architecture" });
+    const reviewNav = screen.getByRole("group", { name: "Architecture" });
     expect(reviewNav).toBeInTheDocument();
     expect(within(reviewNav).getByRole("link", { name: "Overview" })).toHaveAttribute("href", "/");
     expect(within(reviewNav).getByRole("link", { name: ARCHITECTURE_DRAFTS_LIST_LABEL })).toHaveAttribute(
@@ -114,7 +114,7 @@ describe("SidebarNav (primary navigation)", () => {
       expect(screen.getByTestId("sidebar-group-toggle-operate-analysis")).toHaveAttribute("aria-expanded", "true");
     });
 
-    const analysisNav = screen.getByRole("navigation", { name: "Insights" });
+    const analysisNav = screen.getByRole("group", { name: "Insights" });
     expect(within(analysisNav).getByRole("link", { name: "Compare two reviews" })).toHaveAttribute(
       "href",
       "/insights/compare-two-reviews",
@@ -142,7 +142,7 @@ describe("SidebarNav (primary navigation)", () => {
       expect(screen.getByTestId("sidebar-group-toggle-operate-governance")).toHaveAttribute("aria-expanded", "true");
     });
 
-    expect(screen.getByRole("navigation", { name: "Governance" })).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Governance" })).toBeInTheDocument();
     expect(screen.getByTestId("sidebar-group-toggle-operate-analysis")).toHaveAttribute("aria-expanded", "false");
   });
 
@@ -168,7 +168,7 @@ describe("SidebarNav (primary navigation)", () => {
       expect(adminToggle).toHaveAttribute("aria-expanded", "true");
     });
 
-    const adminNav = screen.getByRole("navigation", { name: "Administration" });
+    const adminNav = screen.getByRole("group", { name: "Administration" });
     // Reader mock rank: Settings (Execute) is hidden; Billing (Read) remains.
     expect(within(adminNav).getByRole("link", { name: "Billing & plans" })).toHaveAttribute(
       "href",
@@ -211,7 +211,7 @@ describe("SidebarNav buyer-polished desktop shell", () => {
     expect(screen.getByTestId("sidebar-group-toggle-pilot")).toHaveAttribute("aria-expanded", "true");
     expect(screen.getByText("Architecture")).toBeInTheDocument();
 
-    const nav = screen.getByRole("navigation", { name: "Architecture" });
+    const nav = screen.getByRole("group", { name: "Architecture" });
     expect(within(nav).getByRole("link", { name: "Overview" })).toHaveAttribute("href", "/");
     expect(within(nav).getByRole("link", { name: ARCHITECTURE_DRAFTS_LIST_LABEL })).toHaveAttribute(
       "href",

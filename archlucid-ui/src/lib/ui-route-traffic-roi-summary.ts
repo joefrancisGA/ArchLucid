@@ -9,7 +9,7 @@ export const ROI_SUMMARY_TRAFFIC_PATH = "/sponsor-report/roi-summary";
  * Absorbs former VRX (legacy `/value-report/roi` redirect) hit share.
  */
 export const ROI_SUMMARY_TRAFFIC_NOTE =
-  "Sponsor ROI summary report (canonical). Absorbs former VRX hit share from retired legacy `/value-report/roi` bookmark (hard-retired — 404). Does not imply CPA SOC 2 or third-party pen-test publication.";
+  "Sponsor ROI summary report (canonical). Absorbs former VRX hit share from retired legacy `/value-report/roi` bookmark row (LegacyRoiSummaryRedirectPage still permanentRedirects here). Does not imply CPA SOC 2 or third-party pen-test publication.";
 
 /** Workbook Section column value — operator sponsor-report job, not pre-login marketing. */
 export const ROI_SUMMARY_TRAFFIC_SECTION = "Sponsor report";

@@ -151,6 +151,13 @@ describe("SidebarNav — new-user buyer-polished catalog (no committed review)",
         expect(toggle).toHaveAttribute("aria-expanded", "true");
       });
 
+      const moreId = group.toggleTestId.replace("sidebar-group-toggle-", "sidebar-group-more-");
+      const moreButton = document.querySelector(`[data-testid="${moreId}"]`);
+
+      if (moreButton !== null) {
+        fireEvent.click(moreButton);
+      }
+
       for (const href of group.hrefs) {
         expect(hrefRendered(href)).toBe(true);
       }
@@ -162,6 +169,12 @@ describe("SidebarNav — new-user buyer-polished catalog (no committed review)",
     await waitFor(() => {
       expect(screen.getByTestId(ADMIN_GROUP!.toggleTestId)).toHaveAttribute("aria-expanded", "true");
     });
+
+    const adminMore = document.querySelector('[data-testid="sidebar-group-more-operator-admin"]');
+
+    if (adminMore !== null) {
+      fireEvent.click(adminMore);
+    }
 
     for (const href of ADMIN_GROUP!.hrefs) {
       expect(hrefRendered(href)).toBe(true);

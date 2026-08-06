@@ -8,7 +8,7 @@ export const OPERATOR_BILLING_SETTINGS_TRAFFIC_ROW_ID = "ABI";
 export const OPERATOR_BILLING_SETTINGS_TRAFFIC_PATH = "/administration/billing";
 
 /** Workbook Section column value (template catalog). */
-export const OPERATOR_BILLING_SETTINGS_TRAFFIC_SECTION = "Settings";
+export const OPERATOR_BILLING_SETTINGS_TRAFFIC_SECTION = "Admin";
 
 /**
  * Owner workbook Notes for ABI - documents Evidence chrome on Billing & plans.

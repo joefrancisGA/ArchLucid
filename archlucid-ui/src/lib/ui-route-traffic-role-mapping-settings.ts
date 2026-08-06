@@ -9,7 +9,7 @@ export const ROLE_MAPPING_SETTINGS_TRAFFIC_PATH =
   "/administration/identity-providers/role-mapping";
 
 /** Workbook Section column value (template catalog). */
-export const ROLE_MAPPING_SETTINGS_TRAFFIC_SECTION = "Settings";
+export const ROLE_MAPPING_SETTINGS_TRAFFIC_SECTION = "Admin";
 
 /**
  * Owner workbook Notes for ADO - documents Evidence chrome on Role mapping.

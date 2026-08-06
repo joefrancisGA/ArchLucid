@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — append-only vs commit-sealed evidence surfaces (TB-1009); not a buyer-facing trust claim.
+
 # Append-only and sealed evidence contract
 
 **Status:** Active (V1)  

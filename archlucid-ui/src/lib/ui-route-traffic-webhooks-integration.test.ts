@@ -64,7 +64,7 @@ describe("ui-route-traffic-webhooks-integration (IWX)", () => {
     expect(row?.path).toBe(WEBHOOKS_INTEGRATION_TRAFFIC_PATH);
     expect(row?.section).toBe(WEBHOOKS_INTEGRATION_TRAFFIC_SECTION);
     expect(row?.notes).toBe(WEBHOOKS_INTEGRATION_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("WebhooksSettingsClient");
+    expect(row?.notes).toContain("WebhooksIntegrationPageClient");
     expect(row?.notes).toContain("Sources");
   });
 });

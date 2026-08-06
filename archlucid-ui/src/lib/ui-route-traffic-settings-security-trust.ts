@@ -10,7 +10,7 @@ export const SETTINGS_SECURITY_TRUST_TRAFFIC_ROW_ID = "WSX";
 export const SETTINGS_SECURITY_TRUST_TRAFFIC_PATH = SETTINGS_SECURITY_TRUST_PATH;
 
 /** Workbook Section column value (template catalog). */
-export const SETTINGS_SECURITY_TRUST_TRAFFIC_SECTION = "Settings";
+export const SETTINGS_SECURITY_TRUST_TRAFFIC_SECTION = "Admin";
 
 /**
  * Owner workbook Notes for WSX — documents Evidence chrome on settings security-trust.

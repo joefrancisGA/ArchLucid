@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — PA first-15 completion and package-spine IA unlock (TB-1030); not a buyer-facing trust claim.
+
 # PA first-15 completion + narration-free package-spine IA unlock contract
 
 **Status:** Active (V1)  

@@ -17,7 +17,7 @@ export const EXECUTIVE_SUMMARY_HELP_TRAFFIC_SECTION = "Help topic";
  * Owner workbook Notes for EXE - documents the specialty HelpExecutiveSummaryGuideView surface.
  */
 export const EXECUTIVE_SUMMARY_HELP_TRAFFIC_NOTE =
-  "Specialty sponsor ROI guide - HelpExecutiveSummaryGuideView on EXECUTIVE_SPONSOR_BRIEF sponsor sections with CTAs to /sponsor-report/executive-summary (SPE) and executive dashboard. Not bare FAQ HelpTopicMarkdownView.";
+  "Specialty sponsor ROI + product overview guide - HelpExecutiveSummaryGuideView on EXECUTIVE_SPONSOR_BRIEF (overview + pilot sections). Absorbs former HPR/EPR (`/help/product-overview`) twin (TB-1739). CTAs to /sponsor-report/executive-summary (SPE) and executive dashboard. Not bare FAQ HelpTopicMarkdownView.";
 
 /** Live sponsor value report path referenced from EXE handoffs (workbook row SPE). */
 export const EXECUTIVE_SUMMARY_HELP_SPONSOR_REPORT_PATH = SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH;

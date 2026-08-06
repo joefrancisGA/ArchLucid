@@ -10,7 +10,7 @@ describe("OperatorSecurityTrustPageView", () => {
 
     expect(screen.getByText(/Security materials for procurement/i)).toBeInTheDocument();
     expect(screen.queryByText(/Review and evidence trail/i)).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /Trust Center/i })).toHaveAttribute("href", "/trust");
+    expect(screen.getAllByRole("link", { name: /Trust Center/i })[0]).toHaveAttribute("href", "/trust");
     expect(screen.getByRole("link", { name: /Procurement contact/i })).toHaveAttribute(
       "href",
       expect.stringContaining("mailto:security@archlucid.net"),

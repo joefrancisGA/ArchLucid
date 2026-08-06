@@ -6,7 +6,7 @@ import { describe, expect, it } from "vitest";
 const TEMPLATE_PATH = "docs/architecture/ui_route_traffic_estimates.template.md";
 
 /** Retired traffic row — Alert rules hub is scored on SAX (GOA is approval-queue). */
-const RETIRED_SETTINGS_ALERTS_TRAFFIC_ROW_ID = "SEL";
+const RETIRED_SETTINGS_ALERTS_TRAFFIC_ROW_ID = "SEA";
 
 type TrafficWorkbookRow = {
   id: string;
@@ -50,7 +50,7 @@ function extractMasterTableRows(markdown: string): TrafficWorkbookRow[] {
 }
 
 describe("ui-route-traffic settings alerts retirement (TB-1886)", () => {
-  it("keeps retired SEL bookmark; Alert rules hub stays on SAX", () => {
+  it("keeps retired SEA bookmark; Alert rules hub stays on SAX", () => {
     const rows = extractMasterTableRows(readTemplateMarkdown());
     const selRow = rows.find((row) => row.id === RETIRED_SETTINGS_ALERTS_TRAFFIC_ROW_ID);
     const saxRow = rows.find((row) => row.id === "SAX");

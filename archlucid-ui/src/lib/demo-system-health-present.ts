@@ -146,7 +146,7 @@ export function buildDemoOperationalChecks(): DemoOperationalCheck[] {
       id: "digest-delivery",
       label: "Digest delivery",
       status: "Not configured",
-      explanation: "Optional — configure digests when you want scheduled operator summaries.",
+      explanation: "Optional — configure digests when you want scheduled digest summaries.",
     },
     {
       id: "integration-readiness",

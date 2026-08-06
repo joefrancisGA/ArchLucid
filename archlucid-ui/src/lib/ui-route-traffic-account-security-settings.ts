@@ -10,7 +10,7 @@ export const ACCOUNT_SECURITY_SETTINGS_TRAFFIC_ROW_ID = "ADS";
 export const ACCOUNT_SECURITY_SETTINGS_TRAFFIC_PATH = SETTINGS_ACCOUNT_SECURITY_PATH;
 
 /** Workbook Section column value (template catalog). */
-export const ACCOUNT_SECURITY_SETTINGS_TRAFFIC_SECTION = "Settings";
+export const ACCOUNT_SECURITY_SETTINGS_TRAFFIC_SECTION = "Admin";
 
 /**
  * Owner workbook Notes for ADS - documents Evidence chrome on Account security.

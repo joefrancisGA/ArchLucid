@@ -8,7 +8,7 @@ export const BASELINE_SETTINGS_TRAFFIC_ROW_ID = "ADA";
 export const BASELINE_SETTINGS_TRAFFIC_PATH = "/administration/baseline";
 
 /** Workbook Section column value (template catalog). */
-export const BASELINE_SETTINGS_TRAFFIC_SECTION = "Settings";
+export const BASELINE_SETTINGS_TRAFFIC_SECTION = "Admin";
 
 /**
  * Owner workbook Notes for ADA - documents Evidence chrome on Baseline settings.

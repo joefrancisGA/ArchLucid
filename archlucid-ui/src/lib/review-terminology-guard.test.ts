@@ -159,7 +159,7 @@ describe("review terminology guard", () => {
     const alignedRoutes = [
       { path: "/insights/evidence-graph", navLabel: OPERATOR_NAV_LINK_LABELS.evidenceTrail, paletteHref: "/insights/evidence-graph" },
       { path: "/governance/findings", navLabel: OPERATOR_NAV_LINK_LABELS.findings, paletteHref: null },
-      { path: "/administration/tenant", navLabel: OPERATOR_NAV_LINK_LABELS.settings, paletteHref: null },
+      { path: "/administration/tenant", navLabel: OPERATOR_NAV_LINK_LABELS.workspaceSettings, paletteHref: null },
     ] as const;
 
     for (const route of alignedRoutes) {

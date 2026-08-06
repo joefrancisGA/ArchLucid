@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — retrieval tenancy hit guarantee for Ask/Search/Graph-RAG (TB-1001); not a buyer-facing trust claim.
+
 # Retrieval tenancy hit guarantee (Ask / Azure AI Search / Graph-RAG / TB-1001)
 
 > **Audience:** Contributors, principal architects, and GTM claim reviewers.  

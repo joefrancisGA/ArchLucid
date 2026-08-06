@@ -10,7 +10,7 @@ export const PREFERENCES_SETTINGS_TRAFFIC_ROW_ID = "ADR";
 export const PREFERENCES_SETTINGS_TRAFFIC_PATH = SETTINGS_PREFERENCES_PATH;
 
 /** Workbook Section column value (template catalog). */
-export const PREFERENCES_SETTINGS_TRAFFIC_SECTION = "Settings";
+export const PREFERENCES_SETTINGS_TRAFFIC_SECTION = "Admin";
 
 /**
  * Owner workbook Notes for ADR - documents Evidence chrome on Preferences.

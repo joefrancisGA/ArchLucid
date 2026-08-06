@@ -8,7 +8,7 @@ export const EXTRACT_UPLOAD_SETTINGS_TRAFFIC_ROW_ID = "ADX";
 export const EXTRACT_UPLOAD_SETTINGS_TRAFFIC_PATH = "/administration/extract-upload";
 
 /** Workbook Section column value (template catalog). */
-export const EXTRACT_UPLOAD_SETTINGS_TRAFFIC_SECTION = "Settings";
+export const EXTRACT_UPLOAD_SETTINGS_TRAFFIC_SECTION = "Admin";
 
 /**
  * Owner workbook Notes for ADX - documents Evidence chrome on Extract and Upload.

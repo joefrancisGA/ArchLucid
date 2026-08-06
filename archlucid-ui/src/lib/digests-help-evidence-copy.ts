@@ -8,7 +8,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export const DIGESTS_HELP_CANONICAL_PATH = "/help/digests" as const;
 
 export const DIGESTS_HELP_CLAIM_DISCIPLINE =
-  "This digests guide explains scheduled operator summaries — it is not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Schedule, Subscriptions, or Browse when you need live configuration.";
+  "This digests guide explains scheduled digest summaries — it is not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Schedule, Subscriptions, or Browse when you need live configuration.";
 
 export const DIGESTS_HELP_SOURCES_INTRO =
   "Use these follow-ups when cadence, recipients, or generated digests still need attention.";

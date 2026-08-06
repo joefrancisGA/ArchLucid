@@ -51,9 +51,9 @@ describe("ui-route-traffic removed ITSM hub (pre-release cleanup)", () => {
     expect(rows.some((row) => row.path === "/integrations/itsm")).toBe(false);
   });
 
-  it("tracks Connection status on INR with honest workbook notes", () => {
+  it("tracks Connection status on ADC with honest workbook notes", () => {
     const rows = extractMasterTableRows(readTemplateMarkdown());
-    const row = rows.find((entry) => entry.id === "INR");
+    const row = rows.find((entry) => entry.id === "ADC");
 
     expect(row?.path).toBe("/administration/connection-status");
     expect(row?.notes).toContain("ConnectorOperationsDashboard");

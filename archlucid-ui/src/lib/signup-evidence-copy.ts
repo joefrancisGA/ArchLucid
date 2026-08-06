@@ -2,7 +2,7 @@ export const SIGNUP_CANONICAL_PATH = "/signup" as const;
 
 /** Honest scope — calm procurement language; do not lead with absent CPA / pen-test as the visual climax. */
 export const SIGNUP_CLAIM_DISCIPLINE =
-  "This page starts an evaluation workspace request. Assurance downloads, SOC self-assessment status, and pen-test summaries live on Security & trust and Trust Center—not on this form. Do not treat signup copy as a signed-review diligence package, a CPA SOC 2 attestation, or a published third-party pen-test report.";
+  "This page starts an evaluation workspace request. Assurance downloads, SOC self-assessment status, and pen-test summaries live on Security & trust and Trust Center—not on this form. Do not treat signup copy as a signed-review diligence Sources trail, a CPA SOC 2 attestation, or a published third-party pen-test report.";
 
 export const SIGNUP_SOURCES_INTRO =
   "Packaging and assurance links not covered in the form above.";

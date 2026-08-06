@@ -140,9 +140,9 @@ describe("ui-route-traffic-path-chooser-help (HPX)", () => {
 
     expect(row?.section.toLowerCase()).not.toBe("marketing");
 
-    expect(row?.notes).toContain("stripPathChooserContributorLeakage");
+    expect(row?.notes).toContain("HelpPathChooserGuideView");
 
-    expect(row?.notes).toContain("TB-1711");
+    expect(row?.notes).toContain("TB-1712");
 
   });
 

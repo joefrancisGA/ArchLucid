@@ -14,4 +14,4 @@ export const REVIEWS_NEW_TRAFFIC_SECTION = "Core review";
  * Owner workbook Notes for RNX — documents Evidence chrome on Start review.
  */
 export const REVIEWS_NEW_TRAFFIC_NOTE =
-  "Start review intake - ReviewsNewPageChrome with OperatorPageHeader PageContextualHelpButton (topic map evidence-intake / Start review; Category-1 registry), Sources follow-up strip + claim-discipline callout (intake only, not diligence trail), path switcher wizards. Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication.";
+  "Start review intake - ReviewsNewPageChrome with OperatorPageHeader PageContextualHelpButton (topic map evidence-intake / Start review; Category-1 registry), path switcher wizards. Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication.";

@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — pre-finalize gate block vs advisory and SoD ownership (TB-1022); not a buyer-facing trust claim.
+
 # Pre-finalize gate — block vs advisory + SoD ownership contract
 
 **Status:** Active (V1)  

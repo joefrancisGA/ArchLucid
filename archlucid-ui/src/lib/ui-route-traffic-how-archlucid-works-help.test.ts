@@ -64,7 +64,7 @@ describe("ui-route-traffic-how-archlucid-works-help (HHX)", () => {
     expect(row?.path).toBe(HOW_ARCHLUCID_WORKS_HELP_TRAFFIC_PATH);
     expect(row?.section).toBe(HOW_ARCHLUCID_WORKS_HELP_TRAFFIC_SECTION);
     expect(row?.notes).toBe(HOW_ARCHLUCID_WORKS_HELP_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("HelpHowArchLucidWorksGuideView");
-    expect(row?.notes).toContain("Sources");
+    expect(row?.notes).toContain("getting-started");
+    expect(row?.notes).toContain("HGX");
   });
 });

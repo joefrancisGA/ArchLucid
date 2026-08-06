@@ -24,6 +24,87 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
     Proof of diligence, not a performance guarantee: every finding traces to evidence, and the finalized package is hash-verified and auditable.
   </p>
   <div
+    class="mt-6 space-y-3 text-left"
+    data-testid="why-orientation"
+  >
+    <section
+      aria-labelledby="why-sources-heading"
+      class="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
+      data-testid="why-sources"
+    >
+      <h2
+        class="m-0 text-[15px] font-semibold leading-[22px] text-al-text-primary"
+        id="why-sources-heading"
+      >
+        Sources for follow-up
+      </h2>
+      <p
+        class="m-0 mt-1 max-w-3xl text-[13px] font-normal leading-5 text-al-text-primary"
+      >
+        Use these evaluation links when the comparison story turns into a sample proof, signup, or assurance review.
+      </p>
+      <ul
+        class="m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-1 p-0 text-[13px] font-normal leading-5 text-al-text-primary"
+      >
+        <li>
+          <a
+            class="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+            href="/see-it"
+          >
+            See a sample review
+          </a>
+        </li>
+        <li>
+          <a
+            class="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+            href="/signup"
+          >
+            Start evaluation
+          </a>
+        </li>
+        <li>
+          <a
+            class="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+            href="/get-started"
+          >
+            Get started
+          </a>
+        </li>
+        <li>
+          <a
+            class="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+            href="/security-trust"
+          >
+            Security & trust
+          </a>
+        </li>
+        <li>
+          <a
+            class="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+            href="/trust"
+          >
+            Trust Center
+          </a>
+        </li>
+      </ul>
+    </section>
+    <aside
+      class="rounded-md border border-amber-200/80 bg-amber-50/50 p-3 dark:border-amber-900/40 dark:bg-amber-950/20"
+      data-testid="why-claim-discipline"
+    >
+      <h2
+        class="m-0 text-[15px] font-semibold leading-[22px] text-al-text-primary"
+      >
+        Marketing comparison only
+      </h2>
+      <p
+        class="m-0 mt-2 text-[13px] font-normal leading-5 text-al-text-primary"
+      >
+        This Why ArchLucid page compares product fit for evaluation — it is marketing differentiation orientation, not a signed-review diligence Sources package from your tenant, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Security & trust, Trust Center, or start an evaluation when you need live workspace evidence.
+      </p>
+    </aside>
+  </div>
+  <div
     class="mt-8"
   >
     <section
