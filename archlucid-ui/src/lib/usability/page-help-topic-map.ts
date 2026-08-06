@@ -113,6 +113,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   { prefix: ARCHITECTURES_LIST_PATH, topic: { slug: "getting-started", label: "Getting started" } },
   { prefix: "/architecture/architectures/new", topic: { slug: "first-architecture-review", label: "Create architecture" } },
+  {
+    prefix: "/architecture/architecture-intelligence",
+    topic: { slug: "evidence-trail", label: "Architecture intelligence" },
+  },
   { prefix: "/architectures", topic: { slug: "getting-started", label: "Getting started" } },
   { prefix: "/architecture/reviews/new", topic: { slug: "evidence-intake", label: START_REVIEW_LABEL } },
   { prefix: "/reviews/new", topic: { slug: "evidence-intake", label: START_REVIEW_LABEL } },

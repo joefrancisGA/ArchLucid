@@ -62,6 +62,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/reviews/new",
       "/architecture/reviews/new",
       "/architecture/architectures/new",
+      "/architecture/architecture-intelligence",
       "/governance/audit",
       "/administration/system-health",
       "/administration/connection-status",
@@ -148,6 +149,9 @@ describe("contextual-help-registry (TB-733)", () => {
     expect(contextualHelpForPathname("/reviews/new")?.whatIsThisPage).toContain("Start an architecture review");
     expect(contextualHelpForPathname("/architecture/architectures/new")?.whatIsThisPage).toContain(
       "Create architecture",
+    );
+    expect(contextualHelpForPathname("/architecture/architecture-intelligence")?.whatIsThisPage).toContain(
+      "Architecture intelligence",
     );
     expect(contextualHelpForPathname("/governance/findings?filter=open")?.whatToDoNext).toContain("Assign owners");
     expect(contextualHelpForPathname("/sponsor-report/executive-summary")?.whatIsThisPage).toContain(

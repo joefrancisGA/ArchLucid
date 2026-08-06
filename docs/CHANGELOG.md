@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-06 - UI: Architecture intelligence Evidence chrome (AIN)
+
+`/architecture/architecture-intelligence` ships ArchitectureIntelligenceEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map evidence-trail, traffic Notes under Core review (row ID AIN), and honest Evidence score 50. Closed-loop reasoning hub hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-06 - UI: Learn more job-match Vitest (TB-2052)
 
 CI suite learn-more-job-match.test.ts + inventory bans generic getting-started / how-it-works Learn more on secondary hubs, keeps Digests specialty + Schedule deep links, and asserts Category-1 still mounts when Learn more is omitted. **TB-2048**–**TB-2052** cluster closed. Does not claim CPA / third-party pen-test.
