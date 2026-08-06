@@ -114,8 +114,10 @@ describe("operatorCopyForProblem", () => {
       { errorCode: "QUALITY_GATE_REJECTED", title: "Conflict", detail: "Rejected" },
       "fallback",
     );
-    expect(qualityGate.heading).toBe("Quality gate rejected");
+    expect(qualityGate.heading).toBe("Quality gate rejected (not an outage)");
     expect(qualityGate.hint).toContain("QUALITY_GATE_REJECTION.md");
+    expect(qualityGate.hint?.toLowerCase()).toContain("not a platform or llm outage");
+    expect(qualityGate.hint?.toLowerCase()).not.toContain("model failed");
 
     const proofHold = operatorCopyForProblem(
       { errorCode: "PROOF_PACKET_HOLD", title: "Hold", detail: "Blocked" },

@@ -162,6 +162,30 @@ export function resolveQualityRejectedCommitBlockedReason(): string {
 /** Returns matching forbidden phrases found in copy (empty = honest for TB-965 guards). */
 export function findForbiddenQualityOutagePhrases(copy: string): string[] {
   const haystack = copy;
+  const hits: string[] = [];
 
-  return FORBIDDEN_QUALITY_OUTCOME_OUTAGE_PHRASES.filter((phrase) => haystack.includes(phrase));
+  for (const phrase of FORBIDDEN_QUALITY_OUTCOME_OUTAGE_PHRASES) {
+    let from = 0;
+
+    while (from <= haystack.length) {
+      const idx = haystack.indexOf(phrase, from);
+
+      if (idx < 0) {
+        break;
+      }
+
+      // Allow intentional negations such as "not a platform outage" / "not an LLM outage".
+      const ahead = haystack.slice(Math.max(0, idx - 12), idx).toLowerCase();
+
+      if (ahead.includes("not a ") || ahead.includes("not an ")) {
+        from = idx + phrase.length;
+        continue;
+      }
+
+      hits.push(phrase);
+      break;
+    }
+  }
+
+  return hits;
 }

@@ -28,6 +28,24 @@ describe("resolvePartialRunCommitBlockedReason (TB-937)", () => {
     ).toContain("partially failed");
   });
 
+  it("blocks quality-rejected and Failed with distinct copy (TB-965)", () => {
+    const quality = resolvePartialRunCommitBlockedReason({
+      legacyRunStatus: "ExecutionCompletedQualityRejected",
+      findingCoverageAlreadyBlocking: false,
+    });
+
+    expect(quality).toContain("Quality gate rejected");
+    expect(quality).toContain("not a platform outage");
+    expect(quality?.toLowerCase()).not.toContain("llm error");
+
+    const failed = resolvePartialRunCommitBlockedReason({
+      legacyRunStatus: "Failed",
+      findingCoverageAlreadyBlocking: false,
+    });
+
+    expect(failed).toContain("execution failed");
+  });
+
   it("blocks when outcome matrix has non-Succeeded required agents", () => {
     const reason = resolvePartialRunCommitBlockedReason({
       legacyRunStatus: "ReadyForCommit",

@@ -64,6 +64,48 @@ describe("run-detail-workspace-derive", () => {
     expect(inProgress.label).toBe("Analysis in progress");
   });
 
+  it("distinguishes quality-gate reject from execution failed (TB-965)", () => {
+    const quality = deriveRunDetailWorkspaceStatus({
+      run: {
+        runId: "r1",
+        projectId: "p1",
+        createdUtc: "2026-01-01T00:00:00Z",
+        legacyRunStatus: "ExecutionCompletedQualityRejected",
+      } as RunSummary,
+      manifestId: null,
+      manifestStatus: null,
+      showProgressTracker: false,
+      operatorGovernanceDecision: null,
+      buyerPolishedArtifactTable: false,
+    });
+
+    expect(quality).toMatchObject({
+      label: "Quality gate rejected",
+      kind: "quality-gate-rejected",
+      statusTagKind: "needs-attention",
+    });
+
+    const failed = deriveRunDetailWorkspaceStatus({
+      run: {
+        runId: "r1",
+        projectId: "p1",
+        createdUtc: "2026-01-01T00:00:00Z",
+        legacyRunStatus: "Failed",
+      } as RunSummary,
+      manifestId: null,
+      manifestStatus: null,
+      showProgressTracker: false,
+      operatorGovernanceDecision: null,
+      buyerPolishedArtifactTable: false,
+    });
+
+    expect(failed).toMatchObject({
+      label: "Execution failed",
+      kind: "execution-failed",
+      statusTagKind: "needs-attention",
+    });
+  });
+
   it("prefers unresolved issue count for blocking approval count", () => {
     const count = deriveBlockingApprovalCount({
       unresolvedIssueCount: 2,
