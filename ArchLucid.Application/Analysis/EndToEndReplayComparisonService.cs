@@ -1,5 +1,7 @@
 using ArchLucid.Application.Diffs;
+using ArchLucid.Application.Findings;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Metadata;
@@ -22,7 +24,8 @@ public sealed class EndToEndReplayComparisonService(
     IRunExportRecordRepository runExportRecordRepository,
     IAgentResultDiffService agentResultDiffService,
     IManifestDiffService manifestDiffService,
-    IExportRecordDiffService exportRecordDiffService) : IEndToEndReplayComparisonService
+    IExportRecordDiffService exportRecordDiffService,
+    ICrossReviewFindingCorrelationService crossReviewFindingCorrelationService) : IEndToEndReplayComparisonService
 {
     private readonly IRunDetailQueryService _runDetailQueryService = runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
 
@@ -36,6 +39,9 @@ public sealed class EndToEndReplayComparisonService(
         _agentResultDiffService = agentResultDiffService ?? throw new ArgumentNullException(nameof(agentResultDiffService));
 
     private readonly IManifestDiffService _manifestDiffService = manifestDiffService ?? throw new ArgumentNullException(nameof(manifestDiffService));
+
+    private readonly ICrossReviewFindingCorrelationService _crossReviewFindingCorrelationService =
+        crossReviewFindingCorrelationService ?? throw new ArgumentNullException(nameof(crossReviewFindingCorrelationService));
 
     public async Task<EndToEndReplayComparisonReport> BuildAsync(string leftRunId, string rightRunId, CancellationToken cancellationToken = default)
     {
@@ -88,7 +94,24 @@ public sealed class EndToEndReplayComparisonService(
         }
 
         AddInterpretationNotes(report);
+        CrossReviewFindingCorrelationResult correlation = _crossReviewFindingCorrelationService.Correlate(
+            CollectFindings(leftDetail),
+            CollectFindings(rightDetail));
+        report.FindingCorrelation = ComparisonFindingCorrelationMetadataBuilder.Build(correlation);
+
         return report;
+    }
+
+    private static List<ArchitectureFinding> CollectFindings(ArchitectureRunDetail detail)
+    {
+        ArgumentNullException.ThrowIfNull(detail);
+
+        List<ArchitectureFinding> findings = [];
+
+        foreach (AgentResult result in detail.Results)
+            findings.AddRange(result.Findings);
+
+        return findings;
     }
 
     private static RunMetadataDiffResult BuildRunDiff(ArchitectureRun leftRun, ArchitectureRun rightRun)

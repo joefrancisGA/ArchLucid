@@ -1,4 +1,5 @@
 ﻿using ArchLucid.Application.Analysis;
+using ArchLucid.Contracts.Findings;
 
 using FluentAssertions;
 
@@ -45,11 +46,18 @@ public sealed class EndToEndReplayComparisonExportServiceTests
         EndToEndReplayComparisonReport report = new()
         {
             LeftRunId = "L1", RightRunId = "R2", InterpretationNotes = ["note-a"], Warnings = ["warn-b"],
+            FindingCorrelation = new ComparisonFindingCorrelationMetadata
+            {
+                PrimaryCorrelationMethod = nameof(FindingCorrelationMethod.PolicyRuleAndFingerprint),
+                PolicyRuleMatchCount = 1,
+                HonestyNote = "test honesty",
+            },
         };
 
         string md = sut.GenerateMarkdown(report, profile: null);
 
         md.IndexOf("---", StringComparison.Ordinal).Should().BeGreaterThan(0, "default profile inserts a Markdown horizontal rule after the summary");
+        md.Should().Contain("Finding correlation method:");
         md.Should().Contain("## Run Metadata Diff");
         md.Should().Contain("### Interpretation Notes");
         md.Should().Contain("note-a");

@@ -35,7 +35,8 @@ public sealed class EndToEndReplayComparisonServiceTests
             _exportRepo.Object,
             _agentDiff.Object,
             _manifestDiff.Object,
-            _exportDiff.Object);
+            _exportDiff.Object,
+            new ArchLucid.Application.Findings.CrossReviewFindingCorrelationService());
     }
 
     private static ArchitectureRun Run(string id, string? manifestVersion = null)

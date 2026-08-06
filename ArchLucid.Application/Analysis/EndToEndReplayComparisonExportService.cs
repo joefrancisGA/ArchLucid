@@ -79,6 +79,17 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
         sb.AppendLine("<p class=\"meta\">Right Run ID: " + EscapeHtml(report.RightRunId) + "</p>");
         sb.AppendLine("<p class=\"meta\">Generated UTC: " + EscapeHtml(TimeProvider.System.UtcNowDateTime().ToString("O")) + "</p>");
         sb.AppendLine("<p class=\"meta\">Profile: " + EscapeHtml(p) + "</p>");
+
+        if (report.FindingCorrelation is not null)
+        {
+            ComparisonFindingCorrelationMetadata metadata = report.FindingCorrelation;
+            sb.AppendLine("<p class=\"meta\">Finding correlation method: " + EscapeHtml(metadata.PrimaryCorrelationMethod) + "</p>");
+            sb.AppendLine("<p class=\"meta\">Finding dedupe key format: " + EscapeHtml(ComparisonFindingCorrelationMetadata.DedupeKeyFormat) + "</p>");
+            sb.AppendLine("<p class=\"meta\">Policy-rule matches: " + metadata.PolicyRuleMatchCount + "</p>");
+            sb.AppendLine("<p class=\"meta\">Fuzzy (possible) matches: " + metadata.FuzzyMatchCount + "</p>");
+            sb.AppendLine("<p class=\"meta\">Correlation honesty: " + EscapeHtml(metadata.HonestyNote) + "</p>");
+        }
+
         sb.AppendLine("<hr/>");
         string summaryHtml = MarkdownToSimpleHtml(summaryFormatter.FormatMarkdown(report).Trim());
         sb.AppendLine(summaryHtml);
@@ -285,6 +296,19 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
         sb.AppendLine($"- Left Run ID: {report.LeftRunId}");
         sb.AppendLine($"- Right Run ID: {report.RightRunId}");
         sb.AppendLine($"- Generated UTC: {TimeProvider.System.UtcNowDateTime():O}");
+
+        if (report.FindingCorrelation is not null)
+        {
+            ComparisonFindingCorrelationMetadata metadata = report.FindingCorrelation;
+            sb.AppendLine($"- Finding correlation method: {metadata.PrimaryCorrelationMethod}");
+            sb.AppendLine($"- Finding dedupe key format: {ComparisonFindingCorrelationMetadata.DedupeKeyFormat}");
+            sb.AppendLine($"- Policy-rule matches: {metadata.PolicyRuleMatchCount}");
+            sb.AppendLine($"- Fuzzy (possible) matches: {metadata.FuzzyMatchCount}");
+            sb.AppendLine($"- Unmatched left findings: {metadata.UnmatchedLeftCount}");
+            sb.AppendLine($"- Unmatched right findings: {metadata.UnmatchedRightCount}");
+            sb.AppendLine($"- Correlation honesty: {metadata.HonestyNote}");
+        }
+
         sb.AppendLine();
     }
 

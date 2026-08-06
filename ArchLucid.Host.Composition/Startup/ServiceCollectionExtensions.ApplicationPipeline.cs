@@ -242,6 +242,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<ArchLucid.Application.Runs.Orchestration.Events.IReviewCompletedEventHandler, ArchLucid.Application.Runs.Orchestration.Events.ReviewCompletedEventHandler>();
         services.AddScoped<ISampleRunPurgeService, SampleRunPurgeService>();
         services.AddSingleton<IFindingTrustLabelMapper, FindingTrustLabelMapper>();
+        services.AddSingleton<ICrossReviewFindingCorrelationService, CrossReviewFindingCorrelationService>();
         services.AddScoped<IRunDetailQueryService, RunDetailQueryService>();
         services.AddScoped<IAuthorityRunDetailOperatorEnricher, AuthorityRunDetailOperatorEnricher>();
         services.Configure<RunRoiEstimatorOptions>(configuration.GetSection(RunRoiEstimatorOptions.SectionPath));

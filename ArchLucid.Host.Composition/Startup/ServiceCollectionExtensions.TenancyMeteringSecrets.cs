@@ -14,6 +14,7 @@ using ArchLucid.Core.IntegrationSecrets;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Host.Core.Configuration.IntegrationSecrets;
 using ArchLucid.Host.Core.Configuration.Secrets;
+using ArchLucid.Host.Core.Tenancy;
 using ArchLucid.Host.Composition.Metering;
 using ArchLucid.Persistence.Metering;
 
@@ -108,6 +109,11 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<ITenantTrialSeatSkipCache, TenantTrialSeatSkipCache>();
         services.AddScoped<TrialSeatAccountant>();
         services.AddScoped<ITenantUsageStatusService, TenantUsageStatusService>();
+        services.AddScoped<ITenantMigrationStatusService, TenantMigrationStatusService>();
+        services.AddScoped<ITenantMigrationRetrievalOutboxDrainer, TenantMigrationRetrievalOutboxDrainer>();
+        services.AddScoped<ITenantMigrationProjectionRefreshService, TenantMigrationProjectionRefreshService>();
+        services.AddScoped<ITenantMigrationVerificationProbe, TenantMigrationVerificationProbe>();
+        services.AddScoped<ITenantCatalogMigrationOrchestrator, TenantCatalogMigrationOrchestrator>();
         services.AddScoped<TrialLifecycleTransitionEngine>();
 
         services.AddSingleton<InMemoryIntegrationSecretStore>();

@@ -579,6 +579,21 @@ public static class AuditEventTypes
     /// <summary>Platform audit: tenant surface resumed after admin suspend (<c>SuspendedUtc</c> cleared).</summary>
     public const string TenantUnsuspended = "TenantUnsuspended";
 
+    /// <summary>Platform audit: tenant catalog migration fan-out started (scope freeze / writes suspended).</summary>
+    public const string TenantCatalogMigrationStarted = "TenantCatalogMigrationStarted";
+
+    /// <summary>Platform audit: post-cutover projection refresh orchestration completed for a catalog migration.</summary>
+    public const string TenantCatalogMigrationProjectionRefreshCompleted = "TenantCatalogMigrationProjectionRefreshCompleted";
+
+    /// <summary>Platform audit: automated migration verification probe passed before reopening writes.</summary>
+    public const string TenantCatalogMigrationVerificationPassed = "TenantCatalogMigrationVerificationPassed";
+
+    /// <summary>Platform audit: automated migration verification probe failed.</summary>
+    public const string TenantCatalogMigrationVerificationFailed = "TenantCatalogMigrationVerificationFailed";
+
+    /// <summary>Platform audit: tenant catalog migration completed and writes reopened.</summary>
+    public const string TenantCatalogMigrationCompleted = "TenantCatalogMigrationCompleted";
+
     /// <summary>
     ///     Platform audit (<c>dbo.PlatformAuditEvents</c>): tenant offboarding removed tenant-scoped SQL + blobs; not
     ///     written to <c>dbo.AuditEvents</c>.

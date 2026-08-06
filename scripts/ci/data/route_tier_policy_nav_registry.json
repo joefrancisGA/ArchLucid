@@ -152,6 +152,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Admin/AdminTenantCatalogMigrationController.cs",
+      "class_name": "AdminTenantCatalogMigrationController",
+      "route_template": "v{version:apiVersion}/admin/tenants",
+      "normalized_prefix": "/v1/admin/tenants",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Admin/AdminTenantsController.cs",
       "class_name": "AdminTenantsController",
       "route_template": "v{version:apiVersion}/admin/tenants",
@@ -1716,6 +1726,16 @@
       "class_name": "TenantBaselineController",
       "route_template": "v{version:apiVersion}/tenant/baseline",
       "normalized_prefix": "/v1/tenant/baseline",
+      "commercial_tier": "none",
+      "class_policy": "Authorize",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Tenancy/TenantCatalogMigrationStatusController.cs",
+      "class_name": "TenantCatalogMigrationStatusController",
+      "route_template": "v{version:apiVersion}/tenant",
+      "normalized_prefix": "/v1/tenant",
       "commercial_tier": "none",
       "class_policy": "Authorize",
       "exemption": null,
