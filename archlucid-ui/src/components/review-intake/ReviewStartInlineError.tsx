@@ -26,7 +26,7 @@ export function ReviewStartInlineError(props: ReviewStartInlineErrorProps): Reac
       role="alert"
       data-testid={props.testId ?? "review-start-inline-error"}
       className={cn(
-        "m-0 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-red-900 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-100",
+        "m-0 whitespace-pre-wrap rounded-md border border-red-200 bg-red-50 px-3 py-2 text-red-900 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-100",
         OPERATOR_TYPOGRAPHY.body,
         props.className,
       )}

@@ -20,6 +20,8 @@ import {
 } from "@/lib/architecture-draft-registry";
 import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture-workflow-intent";
 import { buildDefaultActorSet, createDraftRequest, getDraftRequest } from "@/lib/api/draft-intake-api";
+import { formatVerboseApiFailureMessage } from "@/lib/resolve-api-error-message";
+import { CREATE_ARCHITECTURE_DRAFT_START_FAILED_MESSAGE } from "@/lib/review-start-progress-copy";
 import type { DraftRequestResponse } from "@/types/draft-intake";
 
 export type ArchitectureCreationInitResult = {
@@ -27,6 +29,8 @@ export type ArchitectureCreationInitResult = {
   readonly draft: DraftRequestResponse | null;
   readonly questionSelection: ReturnType<typeof buildArchitectureCreationQuestionSelection>;
   readonly timings: ArchitectureCreationInitTimings;
+  /** Pre-release diagnostic text when draft restore/create failed; null on success. */
+  readonly failureDetail: string | null;
 };
 
 let inFlightInit: Promise<ArchitectureCreationInitResult> | null = null;
@@ -49,7 +53,12 @@ function registerArchitectureDraft(draft: DraftRequestResponse): void {
   upsertArchitectureDraftRegistryEntry(buildArchitectureDraftRegistryEntry(draft));
 }
 
-async function restoreOrCreateDraft(timings: ArchitectureCreationInitTimings): Promise<DraftRequestResponse | null> {
+type RestoreOrCreateDraftOutcome = {
+  readonly draft: DraftRequestResponse | null;
+  readonly failureDetail: string | null;
+};
+
+async function restoreOrCreateDraft(timings: ArchitectureCreationInitTimings): Promise<RestoreOrCreateDraftOutcome> {
   const existingDraftId = readArchitectureCreationDraftId();
 
   if (existingDraftId !== null) {
@@ -59,7 +68,7 @@ async function restoreOrCreateDraft(timings: ArchitectureCreationInitTimings): P
       );
       registerArchitectureDraft(restored);
 
-      return restored;
+      return { draft: restored, failureDetail: null };
     } catch {
       clearArchitectureCreationDraftId();
     }
@@ -72,9 +81,12 @@ async function restoreOrCreateDraft(timings: ArchitectureCreationInitTimings): P
     writeArchitectureCreationDraftId(created.draftId);
     registerArchitectureDraft(created);
 
-    return created;
-  } catch {
-    return null;
+    return { draft: created, failureDetail: null };
+  } catch (error) {
+    return {
+      draft: null,
+      failureDetail: formatVerboseApiFailureMessage(error, CREATE_ARCHITECTURE_DRAFT_START_FAILED_MESSAGE),
+    };
   }
 }
 
@@ -90,15 +102,16 @@ export async function initializeArchitectureCreation(): Promise<ArchitectureCrea
   Object.assign(timings, staticTimings);
 
   inFlightInit = (async () => {
-    const draft = await restoreOrCreateDraft(timings);
+    const outcome = await restoreOrCreateDraft(timings);
     timings.total = Math.round(performance.now() - totalStartedAt);
-    emitArchitectureCreationInitTelemetry(timings, draft === null ? "failed" : "ready");
+    emitArchitectureCreationInitTelemetry(timings, outcome.draft === null ? "failed" : "ready");
 
     return {
-      draftId: draft?.draftId ?? null,
-      draft,
+      draftId: outcome.draft?.draftId ?? null,
+      draft: outcome.draft,
       questionSelection: staticSelection,
       timings,
+      failureDetail: outcome.failureDetail,
     };
   })();
 

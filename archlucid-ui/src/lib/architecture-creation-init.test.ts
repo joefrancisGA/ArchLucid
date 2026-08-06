@@ -88,6 +88,30 @@ describe("initializeArchitectureCreation", () => {
 
     expect(createDraftRequest).toHaveBeenCalledTimes(1);
     expect(result.draftId).toBe("draft-recreated");
+    expect(result.failureDetail).toBeNull();
     expect(readArchitectureCreationDraftId()).toBe("draft-recreated");
+  });
+
+  it("surfaces verbose API failure detail when draft create fails", async () => {
+    const { ApiRequestError } = await import("@/lib/api-request-error");
+    createDraftRequest.mockRejectedValue(
+      new ApiRequestError("Request failed (401 Unauthorized)", {
+        problem: {
+          detail: "Authentication is required.",
+          title: "Unauthorized",
+          status: 401,
+          type: "about:blank",
+        },
+        correlationId: "corr-create",
+        httpStatus: 401,
+      }),
+    );
+
+    const result = await initializeArchitectureCreation();
+
+    expect(result.draftId).toBeNull();
+    expect(result.failureDetail).toContain("Authentication is required.");
+    expect(result.failureDetail).toContain("HTTP 401");
+    expect(result.failureDetail).toContain("Correlation ID: corr-create");
   });
 });
