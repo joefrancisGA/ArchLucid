@@ -18,6 +18,10 @@ CI suite learn-more-job-match.test.ts + inventory bans generic getting-started /
 
 Allowlisted secondary hubs expose in-app `{ label, href }` actions on Category-1 what-to-do-next / where-to-configure (Digests Schedule/Subscriptions golden retained; advisory Schedules, planning ↔ pilot feedback, impact-preview → reviews, workspace health → approval queue, Connection status ↔ System health). Vitest allowlist guard ships. **TB-2052** remains open. Does not claim CPA / third-party pen-test.
 
+## 2026-08-06 - UI: OIDC identity-provider Evidence chrome (AOI)
+
+`/administration/identity-providers/oidc` ships IdentityProvidersOidcEvidenceOrientationStrip (workspace Sources + claim-discipline), shared PageContextualHelp + Category-1 registry + topic map enterprise-onboarding, traffic Notes under Settings (row ID AOI; path aligned off legacy settings/identity-providers/oidc / SOI), and honest Evidence score 50. Settings access-hub hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-06 - UI: Create architecture Evidence chrome (ANE)
 
 `/architecture/architectures/new` ships ArchitecturesNewEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map first-architecture-review, traffic Notes under Core review (row ID ANE), and honest Evidence score 50. Create-bootstrap hard-caps higher Evidence; drafting does not start a review; no CPA / third-party pen-test implication.

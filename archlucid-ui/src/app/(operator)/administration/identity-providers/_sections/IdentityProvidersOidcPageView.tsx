@@ -41,6 +41,8 @@ export function IdentityProvidersOidcPageView(props: IdentityProvidersOidcPageVi
       lastRefreshedAt={props.model.lastRefreshedAt}
       onRefresh={() => void props.model.refresh()}
     >
+      <IdentityProvidersOidcEvidenceOrientationStrip />
+
       <Card data-testid="identity-providers-oidc-status-card">
         <CardHeader>
           <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>OIDC/JWT status</CardTitle>

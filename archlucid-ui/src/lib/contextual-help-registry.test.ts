@@ -116,6 +116,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/administration/users",
       "/settings/roles",
       "/administration/identity-providers",
+      "/administration/identity-providers/oidc",
       "/administration/identity-providers/role-mapping",
       "/administration/api-keys",
       "/administration/preferences",

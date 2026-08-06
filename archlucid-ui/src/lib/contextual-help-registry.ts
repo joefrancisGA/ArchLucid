@@ -1068,6 +1068,19 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/administration/identity-providers/oidc",
+    entry: {
+      whatIsThisPage:
+        "OIDC/JWT - review discovery status, authority, audience, and role-claim readiness for this workspace.",
+      whatToDoNext:
+        "Confirm discovery health, open the SSO wizard when authority needs updates, then validate role mapping before inviting users.",
+      whyEmpty:
+        "Status cards load after OIDC diagnostics respond; Not configured means no OIDC authority is published yet.",
+      whereToConfigurePrerequisite:
+        "Changing OIDC settings needs Admin authority and a reachable identity-provider discovery endpoint.",
+    },
+  },
+  {
     prefix: "/administration/identity-providers/role-mapping",
     entry: {
       whatIsThisPage:

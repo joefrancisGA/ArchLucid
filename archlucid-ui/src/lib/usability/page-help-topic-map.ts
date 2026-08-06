@@ -369,6 +369,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "users-and-roles", label: "Role mapping" },
   },
   {
+    prefix: "/administration/identity-providers/oidc",
+    topic: { slug: "enterprise-onboarding", label: "OIDC identity provider" },
+  },
+  {
     prefix: "/administration/identity-providers",
     topic: { slug: "enterprise-onboarding", label: "SSO and identity" },
   },
