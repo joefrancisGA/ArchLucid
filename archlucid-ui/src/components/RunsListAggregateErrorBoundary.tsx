@@ -5,7 +5,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 import { Component, type ErrorInfo, type ReactNode } from "react";
 
-import { RunsListClient, type RunsListClientProps } from "@/app/(operator)/reviews/RunsListClient";
+import { RunsListClient, type RunsListClientProps } from "@/app/(operator)/architecture/reviews/RunsListClient";
 import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
 import { Button } from "@/components/ui/button";
 import { getBuyerSafeReviewsTableLink } from "@/lib/buyer-safe-review-navigation";

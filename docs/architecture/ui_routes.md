@@ -112,15 +112,21 @@ Constants live in `archlucid-ui/src/lib/showcase-static-demo.ts` and `archlucid-
 
 ## Legacy URL redirects
 
-Configured in `archlucid-ui/next.config.ts` — **namespace force-canonical only** (paired with App Router rewrites):
+Configured in `archlucid-ui/next.config.ts` — **namespace force-canonical** (reviews on-disk path matches public URL under `app/(operator)/architecture/reviews`):
 
 | Source | Destination |
 |--------|-------------|
 | `/reviews`, `/reviews/*` | `/architecture/reviews`, `/architecture/reviews/*` (301) |
 | `/reviews/:id/manifest` | `/architecture/reviews/:id/signed-record` (301) |
 | `/architectures`, `/architectures/*` | `/architecture/architectures`, `/architecture/architectures/*` (301) |
+| `/policy-packs`, `/policy-packs/*` | `/governance/policy-packs`, `/governance/policy-packs/*` (301) |
+| `/audit` | `/governance/audit` (301) |
+| `/alerts` | `/governance/alerts` (301) |
+| `/alert-rules`, `/alert-rules/*` | `/governance/alert-rules` (301) |
+| `/signed-records`, `/signed-records/*` | `/governance/signed-records/*` (301) |
+| `/value-report`, `/value-report/pilot`, `/value-report/roi` | `/sponsor-report/*` (301) |
 
-All other former bookmark redirects and App Router shims (`/runs`, `/manifests`, governance top-level, `/dashboard`, `/value-report*`, `/planning`, `/product-learning`, finding `/inspect`, settings/admin aliases, etc.) are **hard-retired (404)**. Use canonical nav paths only.
+`/settings/roles` is a **rewrite** (not 301) to `/administration/users?tab=roles`.
 
 **Note:** README and older docs may reference `/manifests/[manifestId]/artifacts/[artifactId]`; that route no longer has a `page.tsx`. Artifact review is reached from review or manifest detail.
 

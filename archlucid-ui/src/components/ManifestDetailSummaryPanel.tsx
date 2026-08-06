@@ -7,6 +7,7 @@ import { CopyIdButton } from "@/components/CopyIdButton";
 import { ManifestJsonActions } from "@/components/ManifestJsonActions";
 import { Button } from "@/components/ui/button";
 import { getBundleDownloadUrl } from "@/lib/api";
+import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import {
   OPERATOR_DISCLOSURE_TRIGGER_CLASS,
@@ -312,7 +313,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
                 {SHOWCASE_STATIC_DEMO_AUDIT_TRAIL_EVENT_COUNT} {BUYER_EXAMPLE_COUNT_SUFFIX}
               </p>
               <Link
-                href={`/audit?runId=${encodeURIComponent(canonicalizeDemoRunId(summary.runId))}`}
+                href={auditTrailNavHref(canonicalizeDemoRunId(summary.runId))}
                 className={cn("m-0 mt-2 inline-block", OPERATOR_LINK.nav)}
               >
                 View audit trail
@@ -393,7 +394,7 @@ function countsGridTiles(summary: ManifestSummary, options: CountsGridTilesOptio
     : "grid grid-cols-2 gap-3 sm:grid-cols-4";
 
   const graphHref = `/insights/evidence-graph?runId=${encodeURIComponent(summary.runId)}`;
-  const auditHref = `/audit?runId=${encodeURIComponent(summary.runId)}`;
+  const auditHref = auditTrailNavHref(summary.runId);
 
   const manifestTileLabelClass = cn("m-0", OPERATOR_NAV_GROUP_LABEL, "font-medium text-neutral-500 dark:text-neutral-400");
 

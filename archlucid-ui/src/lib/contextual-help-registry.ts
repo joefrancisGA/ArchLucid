@@ -685,6 +685,26 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/governance/approval-queue",
+    entry: {
+      whatIsThisPage:
+        "Governance approval queue — submit, approve, or reject architecture-review decisions for this workspace.",
+      whatToDoNext:
+        "Load a review context, submit an approval request when ready, then approve or reject with an audit-friendly comment.",
+      whyEmpty: "Pending requests appear after a finalized architecture review is submitted for governance decision.",
+      whereToConfigurePrerequisite:
+        "Open Findings or Workspace health when you need triage or KPI context before deciding.",
+      whatToDoNextAction: {
+        label: "Open findings",
+        href: "/governance/findings",
+      },
+      whereToConfigureAction: {
+        label: "Open workspace health",
+        href: "/governance/dashboard",
+      },
+    },
+  },
+  {
     prefix: "/governance/approval-requests",
     entry: {
       whatIsThisPage:
@@ -694,6 +714,10 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whyEmpty: "Lineage appears after an approval request exists for a finalized architecture review.",
       whereToConfigurePrerequisite:
         "Submit or open an approval from the governance approval queue after a review is ready for decision.",
+      whatToDoNextAction: {
+        label: "Open approval queue",
+        href: GOVERNANCE_APPROVAL_QUEUE_PATH,
+      },
     },
   },
   {

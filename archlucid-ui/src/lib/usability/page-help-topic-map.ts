@@ -139,6 +139,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/replay", topic: { slug: "comparison-replay", label: "Validate review" } },
   { prefix: "/governance/findings", topic: { slug: "governance-approval", label: OPERATOR_NAV_LINK_LABELS.findings } },
   {
+    prefix: "/governance/approval-queue",
+    topic: { slug: "governance-approval", label: "Approval queue" },
+  },
+  {
     prefix: "/governance/approval-requests",
     topic: { slug: "governance-approval", label: "Approval lineage" },
   },
@@ -170,10 +174,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "policy-packs", label: "Policy packs" },
   },
   { prefix: "/governance", topic: { slug: "governance-approval", label: "Governance approval" } },
-  { prefix: "/audit", topic: { slug: "audit-trail", label: "Audit trail" } },
-  { prefix: "/alerts", topic: { slug: "alerts", label: "Alerts" } },
-  { prefix: "/alert-rules", topic: { slug: "alerts", label: "How alerts work" } },
-  { prefix: "/policy-packs", topic: { slug: "policy-packs", label: "Policy packs" } },
+  { prefix: "/governance/audit", topic: { slug: "audit-trail", label: "Audit trail" } },
+  { prefix: "/governance/alerts", topic: { slug: "alerts", label: "Alerts" } },
+  { prefix: "/governance/alert-rules", topic: { slug: "alerts", label: "How alerts work" } },
+  { prefix: "/governance/policy-packs", topic: { slug: "policy-packs", label: "Policy packs" } },
   {
     prefix: "/sponsor-report/roi-summary",
     topic: { slug: "pilot-roi-model", label: "View ROI methodology" },

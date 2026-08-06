@@ -1,7 +1,7 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { ReviewsNewSourcesStrip } from "@/app/(operator)/reviews/new/ReviewsNewSourcesStrip";
+import { ReviewsNewSourcesStrip } from "@/app/(operator)/architecture/reviews/new/ReviewsNewSourcesStrip";
 import { REVIEWS_NEW_CANONICAL_PATH, REVIEWS_NEW_SOURCES } from "@/lib/reviews-new-evidence-copy";
 
 describe("ReviewsNewSourcesStrip", () => {

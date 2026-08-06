@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { applyPatternLibraryHrefSetGate, applyPatternLibraryNavGate } from "@/lib/apply-pattern-library-nav-gate";
+import { PATTERN_LIBRARY_NAV_UNAVAILABLE_TITLE } from "@/lib/pattern-library-copy";
 import type { NavGroupConfig } from "@/lib/nav-config.types";
 import type { NavGroupWithVisibleLinks } from "@/lib/nav-shell-visibility";
 
@@ -28,7 +29,7 @@ const analysisGroup: NavGroupConfig = {
 };
 
 describe("applyPatternLibraryNavGate", () => {
-  it("omits Pattern library when below threshold", () => {
+  it("marks Pattern library disabled when below threshold", () => {
     const rows: NavGroupWithVisibleLinks[] = [
       {
         group: analysisGroup,
@@ -37,11 +38,17 @@ describe("applyPatternLibraryNavGate", () => {
     ];
 
     const gated = applyPatternLibraryNavGate(rows, false);
+    const patternLink = gated[0]?.visibleLinks.find((link) => link.href === "/insights/patterns");
 
-    expect(gated[0]?.visibleLinks.map((link) => link.href)).toEqual(["/insights/evidence-graph"]);
+    expect(patternLink?.navLinkDisabled).toBe(true);
+    expect(patternLink?.navLinkDisabledTitle).toBe(PATTERN_LIBRARY_NAV_UNAVAILABLE_TITLE);
+    expect(gated[0]?.visibleLinks.map((link) => link.href)).toEqual([
+      "/insights/evidence-graph",
+      "/insights/patterns",
+    ]);
   });
 
-  it("keeps Pattern library when threshold is met", () => {
+  it("keeps Pattern library enabled when threshold is met", () => {
     const rows: NavGroupWithVisibleLinks[] = [
       {
         group: analysisGroup,
@@ -50,15 +57,17 @@ describe("applyPatternLibraryNavGate", () => {
     ];
 
     const gated = applyPatternLibraryNavGate(rows, true);
+    const patternLink = gated[0]?.visibleLinks.find((link) => link.href === "/insights/patterns");
 
+    expect(patternLink?.navLinkDisabled).toBeUndefined();
     expect(gated[0]?.visibleLinks.map((link) => link.href)).toEqual(["/insights/evidence-graph", "/insights/patterns"]);
   });
 });
 
 describe("applyPatternLibraryHrefSetGate", () => {
-  it("removes /insights/patterns from the href set when hidden", () => {
+  it("keeps /insights/patterns in the href set when nav row is disabled", () => {
     const gated = applyPatternLibraryHrefSetGate(new Set(["/insights/evidence-graph", "/insights/patterns"]), false);
 
-    expect([...gated]).toEqual(["/insights/evidence-graph"]);
+    expect([...gated]).toEqual(["/insights/evidence-graph", "/insights/patterns"]);
   });
 });

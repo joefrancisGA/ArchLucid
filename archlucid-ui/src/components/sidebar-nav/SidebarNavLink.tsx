@@ -31,19 +31,45 @@ export function SidebarNavLink(props: SidebarNavLinkProps): ReactElement {
   const Icon = presented.icon;
   const onboardingAnchor = onboardingTourAnchorForHref(presented.href);
   const pilotNavTestId = pilotNavLinkTestId(presented.href);
+  const sharedClassName = cn(
+    "shell-nav-link flex min-w-0 items-center gap-2 rounded-md py-1.5 pr-2",
+    OPERATOR_TYPOGRAPHY.navLabel,
+    props.active
+      ? cn("pl-1.5", DESIGN_TOKENS.interactive.navActive)
+      : "border-l-2 border-l-transparent pl-1.5 text-neutral-900 dark:text-neutral-100",
+  );
+  const labelContent = (
+    <>
+      {Icon ? <Icon className="h-4 w-4 shrink-0 opacity-90" aria-hidden /> : null}
+      <span className="min-w-0 truncate">{presented.label}</span>
+      {presented.navBadge ? (
+        <Badge variant="outline" className={cn("ml-auto shrink-0", OPERATOR_TYPOGRAPHY.badge)}>
+          {presented.navBadge}
+        </Badge>
+      ) : null}
+      {props.afterLabel}
+    </>
+  );
+
+  if (presented.navLinkDisabled === true) {
+    return (
+      <span
+        {...(pilotNavTestId !== undefined ? { "data-testid": pilotNavTestId } : {})}
+        className={cn(sharedClassName, "cursor-not-allowed text-neutral-500 dark:text-neutral-400")}
+        title={presented.navLinkDisabledTitle ?? presented.title}
+        aria-disabled="true"
+      >
+        {labelContent}
+      </span>
+    );
+  }
 
   return (
     <Link
       href={presented.href}
       {...(onboardingAnchor !== undefined ? { "data-onboarding": onboardingAnchor } : {})}
       {...(pilotNavTestId !== undefined ? { "data-testid": pilotNavTestId } : {})}
-      className={cn(
-        "shell-nav-link flex min-w-0 items-center gap-2 rounded-md py-1.5 pr-2 hover:bg-neutral-100 dark:hover:bg-neutral-800",
-        OPERATOR_TYPOGRAPHY.navLabel,
-        props.active
-          ? cn("pl-1.5", DESIGN_TOKENS.interactive.navActive)
-          : "border-l-2 border-l-transparent pl-1.5 text-neutral-900 dark:text-neutral-100",
-      )}
+      className={cn(sharedClassName, "hover:bg-neutral-100 dark:hover:bg-neutral-800")}
       title={
         props.advancedDemo
           ? `${presented.title} (Advanced — optional)`
@@ -67,14 +93,7 @@ export function SidebarNavLink(props: SidebarNavLinkProps): ReactElement {
         props.onNavigate?.();
       }}
     >
-      {Icon ? <Icon className="h-4 w-4 shrink-0 opacity-90" aria-hidden /> : null}
-      <span className="min-w-0 truncate">{presented.label}</span>
-      {presented.navBadge ? (
-        <Badge variant="outline" className={cn("ml-auto shrink-0", OPERATOR_TYPOGRAPHY.badge)}>
-          {presented.navBadge}
-        </Badge>
-      ) : null}
-      {props.afterLabel}
+      {labelContent}
     </Link>
   );
 }

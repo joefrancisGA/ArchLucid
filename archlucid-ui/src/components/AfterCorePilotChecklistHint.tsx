@@ -15,6 +15,7 @@ import {
   CORE_PILOT_CHECKLIST_CHANGED_EVENT,
   readAfterCorePilotWhatsNextDismissed,
 } from "@/lib/core-pilot-checklist-storage";
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
 import { useCorePilotDerivedStepStatus } from "@/lib/use-core-pilot-derived-step-status";
 import { NAV_DISCLOSURE } from "@/lib/nav-disclosure-copy";
 
@@ -47,7 +48,7 @@ const suggestions: Suggestion[] = [
   },
   {
     title: "Review policy packs",
-    href: "/policy-packs",
+    href: GOVERNANCE_POLICY_PACKS_PATH,
     description: "Versions, effective content, and how governance rules attach to your scope.",
     sidebarNote: `Use “${NAV_DISCLOSURE.extended.show}” and, for the full Enterprise slice, “${NAV_DISCLOSURE.advanced.show}”.`,
   },

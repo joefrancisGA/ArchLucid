@@ -3,6 +3,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 
 import { StatusTag } from "@/components/ui/status-tag";
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
 import { OPERATOR_DEMO_REVIEW_POLICY_PACK_DISPLAY_NAME } from "@/lib/operator-demo-review";
 
 export type DemoReviewPolicyCalloutProps = {
@@ -38,7 +39,7 @@ export function DemoReviewPolicyCallout(props: DemoReviewPolicyCalloutProps): Re
         <div className="flex flex-wrap items-center gap-2">
           <StatusTag kind="ready" label={`Pack: ${policyPackName}`} />
           <Link
-            href="/policy-packs"
+            href={GOVERNANCE_POLICY_PACKS_PATH}
             className={cn("font-semibold text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-100", OPERATOR_TYPOGRAPHY.cardTitle)}
           >
             View policy packs

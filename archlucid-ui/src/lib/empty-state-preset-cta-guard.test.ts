@@ -11,7 +11,19 @@ import {
 
 describe("empty-state preset CTA guard (IA-012)", () => {
   it("documents permanent redirect sources synced with next.config.ts", () => {
-    expect(NEXT_CONFIG_PERMANENT_REDIRECT_SOURCE_PATHS).toEqual(["/audit"]);
+    expect(NEXT_CONFIG_PERMANENT_REDIRECT_SOURCE_PATHS).toEqual([
+      "/audit",
+      "/alerts",
+      "/alert-rules",
+      "/policy-packs",
+      "/signed-records",
+      "/manifests",
+      "/value-report",
+      "/settings/cloud-connections",
+      "/digests",
+      "/digest-subscriptions",
+      "/governance/risk-exceptions",
+    ]);
   });
 
   it("strips query strings when matching redirect sources", () => {

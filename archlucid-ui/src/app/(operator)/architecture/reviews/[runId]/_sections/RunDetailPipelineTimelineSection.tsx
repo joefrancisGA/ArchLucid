@@ -7,6 +7,7 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OperatorSectionRetryButton } from "@/components/OperatorSectionRetryButton";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { PipelineTimelineItem } from "@/types/authority";
@@ -27,7 +28,7 @@ function pipelineTimelineDescription(runId: string, buyerPolishedArtifactTable: 
         Major milestones only — granular events and timestamps live in the{" "}
         <Link
           className={OPERATOR_LINK.nav}
-          href={`/audit?runId=${encodeURIComponent(runId)}`}
+          href={auditTrailNavHref(runId)}
         >
           {BUYER_SURFACE_VOCABULARY.auditTrail}
         </Link>
@@ -68,7 +69,7 @@ function pipelineTimelineBody(props: RunDetailPipelineTimelineSectionProps): Rea
           For the full {BUYER_SURFACE_VOCABULARY.auditTrail.toLowerCase()} with every recorded milestone, open{" "}
           <Link
             className={OPERATOR_LINK.nav}
-            href={`/audit?runId=${encodeURIComponent(runId)}`}
+            href={auditTrailNavHref(runId)}
           >
             {BUYER_SURFACE_VOCABULARY.auditTrail}
           </Link>

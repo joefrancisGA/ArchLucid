@@ -36,14 +36,14 @@ export const REPORT_PROBLEM_V1_SURFACES: readonly ReportProblemSurfaceEntry[] = 
     id: "reviews-hub-unexpected-response",
     kind: "reviews-hub-fatal",
     routePattern: "/architecture/reviews",
-    componentPath: "app/(operator)/reviews/_sections/RunsPageView.tsx",
+    componentPath: "app/(operator)/architecture/reviews/_sections/RunsPageView.tsx",
     description: "Reviews hub unexpected/broken response — not the empty-state list.",
   },
   {
     id: "review-detail-hard-load-failure",
     kind: "review-detail-fatal",
     routePattern: "/architecture/reviews/[runId]",
-    componentPath: "app/(operator)/reviews/[runId]/_sections/RunDetailPageView.tsx",
+    componentPath: "app/(operator)/architecture/reviews/[runId]/_sections/RunDetailPageView.tsx",
     description: "Review detail page-level load failure.",
   },
   {
@@ -65,7 +65,7 @@ export const REPORT_PROBLEM_V1_SURFACES: readonly ReportProblemSurfaceEntry[] = 
     id: "review-commit-export-page-failure",
     kind: "review-commit-export-fatal",
     routePattern: "/architecture/reviews/[runId]",
-    componentPath: "app/(operator)/reviews/[runId]/_sections/RunDetailPageView.tsx",
+    componentPath: "app/(operator)/architecture/reviews/[runId]/_sections/RunDetailPageView.tsx",
     description: "Commit, seal, or export failure surfaced as page-level error on a review.",
   },
   {

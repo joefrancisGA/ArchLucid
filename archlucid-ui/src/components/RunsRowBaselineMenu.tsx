@@ -6,6 +6,7 @@ import type { RefObject } from "react";
 import Link from "next/link";
 import { useRef } from "react";
 
+import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import { persistCompareBaselineRunId } from "@/lib/compare-baseline-run";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { showSuccess } from "@/lib/toast";
@@ -47,7 +48,7 @@ export function RunsRowBaselineMenu(props: { runId: string }) {
         >
           View governance approval
         </Link>
-        <Link href={`/audit?runId=${runEnc}`} className="text-teal-800 underline underline-offset-2 dark:text-teal-300">
+        <Link href={auditTrailNavHref(props.runId)} className="text-teal-800 underline underline-offset-2 dark:text-teal-300">
           View audit trail
         </Link>
         <Link href={`/insights/ask-review-questions?runId=${runEnc}`} className="text-teal-800 underline underline-offset-2 dark:text-teal-300">

@@ -14,6 +14,7 @@ import {
   tryParseCuratedRulesDocumentJson,
   type CuratedRulesDocument,
 } from "@/lib/policy-pack-curated-rules-v1";
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type PolicyPackNaturalLanguageBuilderProps = {
@@ -48,7 +49,7 @@ export function PolicyPackNaturalLanguageBuilder(props: PolicyPackNaturalLanguag
         data-testid="policy-pack-nl-human-review-callout"
       >
         <strong>Generated packs require human review before publish.</strong>{" "}
-        <Link href="/policy-packs" className={OPERATOR_LINK.inline}>
+        <Link href={GOVERNANCE_POLICY_PACKS_PATH} className={OPERATOR_LINK.inline}>
           Open Policy Packs editor
         </Link>{" "}
         to refine rules before activation.

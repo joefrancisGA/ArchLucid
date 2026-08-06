@@ -39,5 +39,9 @@ export const PATTERN_LIBRARY_NAV_BADGE = "Preview";
 
 export const PATTERN_LIBRARY_NAV_LINK_LABEL = "Pattern library";
 
+/** Shown on the disabled sidebar row until aggregate privacy threshold is met. */
+export const PATTERN_LIBRARY_NAV_UNAVAILABLE_TITLE =
+  "Unlocks when anonymized pattern statistics meet the minimum tenant threshold across finalized reviews.";
+
 export const PATTERN_LIBRARY_WHAT_IS_PATTERN =
   "A pattern is a recurring architecture shape ArchLucid observes across anonymized reviews — with adoption, risk, and governance signals to help you compare options.";

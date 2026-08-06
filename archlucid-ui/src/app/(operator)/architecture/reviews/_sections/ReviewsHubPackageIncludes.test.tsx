@@ -1,8 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { ReviewsHubPackageIncludes } from "@/app/(operator)/reviews/_sections/ReviewsHubPackageIncludes";
-import { REVIEWS_HUB_INCLUDES_ITEMS } from "@/app/(operator)/reviews/_sections/reviews-hub-copy";
+import { ReviewsHubPackageIncludes } from "@/app/(operator)/architecture/reviews/_sections/ReviewsHubPackageIncludes";
+import { REVIEWS_HUB_INCLUDES_ITEMS } from "@/app/(operator)/architecture/reviews/_sections/reviews-hub-copy";
 
 describe("ReviewsHubPackageIncludes", () => {
   it("renders distinct review deliverable chips without review-record qualifier overlap", () => {

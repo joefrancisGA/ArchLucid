@@ -1,4 +1,5 @@
 import { getDocHref } from "@/lib/help-topics";
+import { GOVERNANCE_ALERTS_PATH, GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
 
 /**
  * Operator pages → repo-root-relative doc path (optional #fragment for GitHub heading navigation).

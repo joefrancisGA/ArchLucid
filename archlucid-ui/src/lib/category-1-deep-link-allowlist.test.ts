@@ -41,6 +41,15 @@ const ALLOWLIST: readonly {
     nextHref: GOVERNANCE_APPROVAL_QUEUE_PATH,
   },
   {
+    pathname: "/governance/approval-queue",
+    nextHref: "/governance/findings",
+    configureHref: "/governance/dashboard",
+  },
+  {
+    pathname: "/governance/approval-requests/sample/lineage",
+    nextHref: GOVERNANCE_APPROVAL_QUEUE_PATH,
+  },
+  {
     pathname: "/governance/decision-register",
     nextHref: REVIEWS_LIST_PATH,
   },

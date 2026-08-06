@@ -2,6 +2,7 @@
 
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -36,7 +37,7 @@ export function GovernanceInteractiveQuickstartContent({
       </div>
       <ol className={cn("m-0 list-decimal space-y-2 pl-5 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
         <li>
-          <Link href="/policy-packs" className="font-medium text-teal-800 underline dark:text-teal-300">
+          <Link href={GOVERNANCE_POLICY_PACKS_PATH} className="font-medium text-teal-800 underline dark:text-teal-300">
             Open policy packs
           </Link>
           {" — assign or publish the rule set that governs your scope."}
@@ -60,7 +61,7 @@ export function GovernanceInteractiveQuickstartContent({
       )}
       <div className="flex flex-wrap gap-2 border-t border-neutral-200 pt-3 dark:border-neutral-700">
         <Button asChild size="sm" variant="secondary">
-          <Link href="/policy-packs">Policy packs</Link>
+          <Link href={GOVERNANCE_POLICY_PACKS_PATH}>Policy packs</Link>
         </Button>
         <Button asChild size="sm" variant="outline">
           <Link href={ARCHITECTURES_NEW_PATH}>{CREATE_ARCHITECTURE_LABEL}</Link>

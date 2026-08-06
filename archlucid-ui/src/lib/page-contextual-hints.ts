@@ -8,9 +8,11 @@ export type PageContextualHint = {
   learnMoreHref?: string;
 };
 
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
+
 const HINTS: readonly { prefix: string; hint: PageContextualHint }[] = [
   {
-    prefix: "/audit",
+    prefix: GOVERNANCE_AUDIT_PATH,
     hint: {
       id: "audit-trail",
       message: "Save named filter views for repeat investigations. Export CSV when you need an offline audit packet.",

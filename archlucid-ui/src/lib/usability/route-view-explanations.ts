@@ -9,9 +9,11 @@ export type RouteViewExplanation = {
   readonly nextAction: string;
 };
 
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
+
 const ROUTE_VIEW_EXPLANATIONS: readonly { prefix: string; explanation: RouteViewExplanation }[] = [
   {
-    prefix: "/audit",
+    prefix: GOVERNANCE_AUDIT_PATH,
     explanation: {
       title: "Audit trail",
       summary: "Append-only record of authenticated actions in your workspace — search, filter, and export.",

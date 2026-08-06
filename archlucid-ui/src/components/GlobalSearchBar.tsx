@@ -13,6 +13,7 @@ import {
   GLOBAL_SEARCH_PLACEHOLDER,
   globalSearchInputTitle,
 } from "@/lib/keyboard-shortcut-display";
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { searchHelpTopics } from "@/lib/usability/search-help-topics";
 
@@ -204,7 +205,7 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
                 {results?.policyPacks?.map((pack) => (
                   <li key={pack.policyPackId}>
                     <Link
-                      href={`/policy-packs?packId=${encodeURIComponent(pack.policyPackId)}`}
+                      href={`${GOVERNANCE_POLICY_PACKS_PATH}?packId=${encodeURIComponent(pack.policyPackId)}`}
                       className={cn("block rounded px-1 py-1.5 hover:bg-neutral-100 dark:hover:bg-neutral-900", OPERATOR_TYPOGRAPHY.body)}
                       onClick={() => setOpen(false)}
                     >

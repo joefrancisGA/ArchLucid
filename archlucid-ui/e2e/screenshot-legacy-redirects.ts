@@ -8,6 +8,7 @@ export const SCREENSHOT_LEGACY_REDIRECT_URL_PATTERNS: Readonly<Record<string, Re
   "/audit": /\/governance\/audit(?:\?|$|#)/,
   "/alerts": /\/governance\/alerts(?:\?|$|#)/,
   "/alert-rules": /\/governance\/alert-rules(?:\?|$|#)/,
+  "/policy-packs": /\/governance\/policy-packs(?:\?|$|#)/,
 };
 
 /** Demo run alias slugs normalize to canonical showcase ids (see demo-run-alias-path-redirect.ts). */

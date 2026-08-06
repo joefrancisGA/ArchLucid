@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { RunDetailDecisionDeltaPanel } from "@/app/(operator)/reviews/[runId]/_sections/RunDetailDecisionDeltaPanel";
+import { RunDetailDecisionDeltaPanel } from "@/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailDecisionDeltaPanel";
 import {
   RUN_DETAIL_DECISION_DELTA_PANEL_TEST_ID,
   RUN_DETAIL_DECISION_DELTA_ROW_TEST_ID,

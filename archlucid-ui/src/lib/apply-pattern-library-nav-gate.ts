@@ -1,11 +1,20 @@
 import type { NavLinkItem } from "@/lib/nav-config.types";
 import type { NavGroupWithVisibleLinks } from "@/lib/nav-shell-visibility";
+import { PATTERN_LIBRARY_NAV_UNAVAILABLE_TITLE } from "@/lib/pattern-library-copy";
 import { PATTERN_LIBRARY_PATH } from "@/lib/pattern-library-route";
 
 const PATTERN_LIBRARY_NAV_HREF = PATTERN_LIBRARY_PATH;
 
-export function omitPatternLibraryNavLink(links: ReadonlyArray<NavLinkItem>): NavLinkItem[] {
-  return links.filter((link) => link.href !== PATTERN_LIBRARY_NAV_HREF);
+function markPatternLibraryNavLinkDisabled(link: NavLinkItem): NavLinkItem {
+  if (link.href !== PATTERN_LIBRARY_NAV_HREF) {
+    return link;
+  }
+
+  return {
+    ...link,
+    navLinkDisabled: true,
+    navLinkDisabledTitle: PATTERN_LIBRARY_NAV_UNAVAILABLE_TITLE,
+  };
 }
 
 export function applyPatternLibraryNavGate(
@@ -16,12 +25,10 @@ export function applyPatternLibraryNavGate(
     return [...rows];
   }
 
-  return rows
-    .map((row) => ({
-      ...row,
-      visibleLinks: omitPatternLibraryNavLink(row.visibleLinks),
-    }))
-    .filter((row) => row.visibleLinks.length > 0);
+  return rows.map((row) => ({
+    ...row,
+    visibleLinks: row.visibleLinks.map(markPatternLibraryNavLinkDisabled),
+  }));
 }
 
 export function applyPatternLibraryHrefSetGate(
@@ -32,8 +39,5 @@ export function applyPatternLibraryHrefSetGate(
     return new Set(hrefs);
   }
 
-  const gated = new Set(hrefs);
-  gated.delete(PATTERN_LIBRARY_NAV_HREF);
-
-  return gated;
+  return new Set(hrefs);
 }

@@ -67,8 +67,8 @@ vi.mock("@/lib/save-tenant-review-cycle-baseline", async (importOriginal) => {
   };
 });
 
-vi.mock("@/app/(operator)/reviews/new/NewRunWizardDeferredChunks", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/app/(operator)/reviews/new/NewRunWizardDeferredChunks")>();
+vi.mock("@/app/(operator)/architecture/reviews/new/NewRunWizardDeferredChunks", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/app/(operator)/architecture/reviews/new/NewRunWizardDeferredChunks")>();
   return {
     ...actual,
     WizardPostCreateEvidenceUploadPanel: (await import("@/components/wizard/steps/WizardPostCreateEvidenceUploadPanel")).WizardPostCreateEvidenceUploadPanel,

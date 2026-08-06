@@ -86,7 +86,7 @@ vi.mock("@/components/draft-intake/DraftIntakeActorEditor", () => ({
   ),
 }));
 
-vi.mock("@/app/(operator)/reviews/new/SocraticIntakeWizardDeferredPanels", () => ({
+vi.mock("@/app/(operator)/architecture/reviews/new/SocraticIntakeWizardDeferredPanels", () => ({
   DraftIntakeDecisionReceiptCard: () => null,
   SocraticIntakeWizardAdvancedRail: () => null,
 }));
@@ -96,7 +96,7 @@ vi.mock("@/lib/toast", () => ({
   showError: vi.fn(),
 }));
 
-import { SocraticIntakeWizard } from "@/app/(operator)/reviews/new/SocraticIntakeWizard";
+import { SocraticIntakeWizard } from "@/app/(operator)/architecture/reviews/new/SocraticIntakeWizard";
 import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture-workflow-intent";
 import {
   GUIDED_INTAKE_CONTINUE_TO_DISCOVERY,

@@ -11,6 +11,6 @@ describe("BUYER_COMMAND_PALETTE_CURATED_TASKS", () => {
     expect(hrefs.some((h) => h.includes("/insights/compare-two-reviews?"))).toBe(true);
     expect(hrefs.some((h) => h.includes(`/governance/approval-queue?runId=`))).toBe(true);
     expect(hrefs).toContain("/governance/findings");
-    expect(hrefs.some((h) => h.includes(`/audit?runId=`))).toBe(true);
+    expect(hrefs.some((h) => h.includes(`/governance/audit?runId=`))).toBe(true);
   });
 });

@@ -42,7 +42,7 @@ import {
   tryStaticDemoGovernancePromotions,
   warnStaticDemoPayloadFallbackOutsidePackagedDeployOnce,
 } from "@/lib/operator-static-demo";
-import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
+import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import {
   GOVERNANCE_OVERVIEW_HOW_IT_WORKS_TRIGGER,
   GOVERNANCE_OVERVIEW_HEADER_NEXT_ACTION,
@@ -69,6 +69,7 @@ import type {
   GovernancePromotionRecord,
 } from "@/types/governance-workflow";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { ApprovalQueueEvidenceOrientationStrip } from "./ApprovalQueueEvidenceOrientationStrip";
 import { GovernanceOverviewPanel } from "./GovernanceOverviewPanel";
 import { deriveGovernanceApprovalWorkflowState } from "./governance-approval-workflow-state";
 import { GovernanceReviewContextBar } from "./GovernanceReviewContextBar";
@@ -627,7 +628,7 @@ export function GovernanceWorkflowPageContent() {
               </p>
               <GovernanceApprovalStoryCard
                 row={approvalWorkflowState.primaryApprovedRequest!}
-                auditTrailHref={`/audit?runId=${encodeURIComponent(activeRunId)}`}
+                auditTrailHref={auditTrailNavHref(activeRunId)}
                 emphasizeComplete
                 decisionRecordTitle={GOVERNANCE_APPROVAL_DECISION_RECORD_TITLE}
               />
