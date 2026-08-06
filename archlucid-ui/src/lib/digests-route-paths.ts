@@ -1,13 +1,15 @@
-﻿import type { DigestsHubTabId } from "@/lib/digests-hub-tab";
+import type { DigestsHubTabId } from "@/lib/digests-hub-tab";
+import { digestsHubTabFromSearchParam } from "@/lib/digests-hub-tab";
 
 /** Canonical Architecture digests hub path (Architecture nav group). */
 export const DIGESTS_HUB_PATH = "/architecture/digests";
 
-/** Legacy top-level path ΓÇö permanent redirect to {@link DIGESTS_HUB_PATH}. */
+/** Legacy top-level path — rewrite alias for {@link DIGESTS_HUB_PATH} (no permanent redirect). */
 export const LEGACY_DIGESTS_HUB_PATH = "/digests";
 
-/** Legacy subscriptions bookmark path used by contextual help and rewrite aliases. */
+/** Legacy subscriptions bookmark — rewrite alias; hub opens the Subscriptions tab from pathname. */
 export const LEGACY_DIGEST_SUBSCRIPTIONS_PATH = "/digest-subscriptions";
+
 /** Builds a hub tab deep link on the canonical path. */
 export function digestsHubTabPath(tab: DigestsHubTabId): string {
   return `${DIGESTS_HUB_PATH}?tab=${encodeURIComponent(tab)}`;
@@ -36,9 +38,39 @@ export function digestsBrowseDigestDeepLink(digestId: string): string {
   return `${DIGESTS_BROWSE_TAB_PATH}#digest-${encodeURIComponent(trimmed)}`;
 }
 
-/** True when `pathname` is the hub on the canonical or legacy redirect path. */
+/** True when `pathname` is the hub on the canonical or legacy rewrite paths. */
 export function pathMatchesDigestsHub(pathname: string): boolean {
-  const normalized = pathname.length > 1 && pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
+  const normalized = normalizeDigestsHubPathname(pathname);
 
-  return normalized === DIGESTS_HUB_PATH || normalized === LEGACY_DIGESTS_HUB_PATH;
+  return (
+    normalized === DIGESTS_HUB_PATH
+    || normalized === LEGACY_DIGESTS_HUB_PATH
+    || normalized === LEGACY_DIGEST_SUBSCRIPTIONS_PATH
+  );
+}
+
+/** Canonical hub pathname for tab navigation — upgrades legacy rewrite paths. */
+export function digestsHubNavigationPathname(pathname: string): string {
+  const normalized = normalizeDigestsHubPathname(pathname);
+
+  if (normalized === LEGACY_DIGESTS_HUB_PATH || normalized === LEGACY_DIGEST_SUBSCRIPTIONS_PATH) {
+    return DIGESTS_HUB_PATH;
+  }
+
+  return normalized;
+}
+
+/** Resolves the active hub tab from pathname + `?tab=` (legacy subscriptions path defaults to Subscriptions). */
+export function digestsHubTabFromLocation(pathname: string, tabParam: string | null): DigestsHubTabId {
+  const normalized = normalizeDigestsHubPathname(pathname);
+
+  if (normalized === LEGACY_DIGEST_SUBSCRIPTIONS_PATH) {
+    return "subscriptions";
+  }
+
+  return digestsHubTabFromSearchParam(tabParam);
+}
+
+function normalizeDigestsHubPathname(pathname: string): string {
+  return pathname.length > 1 && pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
 }
