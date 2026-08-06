@@ -1,0 +1,9 @@
+flowchart LR
+  COMMIT["Authority finalize / commit"] --> OUTBOX["Retrieval indexing outbox"]
+  OUTBOX --> WORKER["Worker drains outbox"]
+  WORKER --> EMB["Embedding batches"]
+  EMB --> STORE["Vector / search store<br/>config-driven"]
+  ASK["Ask / grounded chat"] --> RET["ArchLucid.Retrieval"]
+  RET --> STORE
+  RET --> LLM["Azure OpenAI optional"]
+  RET --> ANS["Grounded answer + citations"]

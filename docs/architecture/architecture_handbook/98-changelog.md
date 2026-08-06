@@ -1,0 +1,10 @@
+# Changelog (handbook)
+
+| Version | Date | Notes |
+|---------|------|-------|
+| 2026.08.06f | 2026-08-06 | Expansion set 5: LLM adapters, Key Vault secrets, kill switches, outbound webhooks, audit catalog, DbUp migration, cache layers, blob CAS layout, notification channels, rate limiting. |
+| 2026.08.06e | 2026-08-06 | Expansion set 4: cloud extractors, knowledge graph, findings taxonomy, artifact registry, comparison catalog, Ask lifecycle, hosted services, demo surfaces, CLI map, Terraform order. |
+| 2026.08.06d | 2026-08-06 | Expansion set 3: intake through agent-task/simulator. |
+| 2026.08.06c | 2026-08-06 | Expansion set 2: ER through API heatmap + release workflow. |
+| 2026.08.06b | 2026-08-06 | Restored spine + stages/threats/buyer/drift. |
+| living | prior | Original chapters 00–12 + 99. |

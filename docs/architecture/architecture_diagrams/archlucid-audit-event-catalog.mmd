@@ -1,0 +1,7 @@
+flowchart LR
+  Types["AuditEventTypes"] --> Log["IAuditService.LogAsync"]
+  Log --> Table["dbo.AuditEvents"]
+  Table --> Repo["IAuditRepository"]
+  Repo --> Hot["HotPathRelationalQueryShapes"]
+  Repo --> Bundle["TraceabilityBundleBuilder"]
+  Types --> Guard["DoNotCollideAcrossPipelinesTests"]

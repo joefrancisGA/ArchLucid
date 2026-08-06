@@ -1156,6 +1156,10 @@ jobs:
         continue-on-error: true
         run: python scripts/ci/check_mermaid_syntax.py docs/ARCHITECTURE_ON_ONE_PAGE.md
 
+      - name: Architecture diagrams drift (mmd/svg/png + handbook refs)
+        continue-on-error: true
+        run: python scripts/ci/check_architecture_diagrams_drift.py
+
       - name: Runbook freshness (informational)
         continue-on-error: true
         run: python scripts/ci/check_doc_freshness.py
