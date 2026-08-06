@@ -16,7 +16,6 @@ import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { useReviewIntakeNavigation } from "@/hooks/use-review-intake-navigation";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import {
-  OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO,
   OPERATOR_HOME_BEST_FOR_EVALUATING_BADGE,
   OPERATOR_HOME_CLOUD_EVIDENCE_LINK,
   OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_BODY,
@@ -132,12 +131,6 @@ export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps)
       data-variant={variant}
       aria-busy={reviewNavigation.isNavigating || createArchitectureNavigation.isNavigating}
     >
-      {!isCompact ? (
-        <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
-          {OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO}
-        </p>
-      ) : null}
-
       <div
         className={cn("grid gap-3 sm:grid-cols-2 md:grid-cols-3", OPERATOR_LAYOUT.inlineGap)}
         role="status"
