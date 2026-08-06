@@ -180,7 +180,7 @@ public sealed class RunDetailQueryServiceTests
 
         _runRepo.Setup(r => r.GetByIdAsync(_scope, _runGuid1, It.IsAny<CancellationToken>()))
             .ReturnsAsync(record);
-        _resultRepo.Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), Run1N, It.IsAny<CancellationToken>()))
+        _resultRepo.Setup(r => r.GetRollupProjectionByRunIdAsync(It.IsAny<ScopeContext>(), Run1N, It.IsAny<CancellationToken>()))
             .ReturnsAsync([agentResult]);
         _unifiedManifestReader
             .Setup(r => r.ReadByRunIdAsync(_scope, _runGuid1, It.IsAny<CancellationToken>()))
@@ -194,6 +194,12 @@ public sealed class RunDetailQueryServiceTests
         result.Tasks.Should().BeEmpty();
         result.DecisionTraces.Should().BeEmpty();
         result.AgentExecutionLlmCostEstimate.Should().BeNull();
+        _resultRepo.Verify(
+            r => r.GetRollupProjectionByRunIdAsync(It.IsAny<ScopeContext>(), Run1N, It.IsAny<CancellationToken>()),
+            Times.Once);
+        _resultRepo.Verify(
+            r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
         _taskRepo.Verify(
             r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Never);

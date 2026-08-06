@@ -44,6 +44,15 @@ public interface IAgentResultRepository
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    ///     Rollup/compare projection without loading full <c>ResultJson</c> LOBs (TB-2053).
+    ///     Populates claims, evidence refs, findings, and proposed-change controls/warnings only.
+    /// </summary>
+    Task<IReadOnlyList<AgentResult>> GetRollupProjectionByRunIdAsync(
+        ScopeContext scope,
+        string runId,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     ///     Replaces the persisted <see cref="AgentResult" /> for one run/task pair (quality-gate auto-retry path only).
     /// </summary>
     Task ReplaceForRunTaskAsync(

@@ -238,5 +238,7 @@ public sealed class HotPathRelationalQueryShapeTests
         AgentResultListSql.GetByRunIdSelectResultJson.Should().Contain("ResultJson");
         AgentResultListSql.ListEvidenceProposalsSelectColumns.Should().Contain("ProposedEvidenceJson");
         AgentResultListSql.ListEvidenceProposalsSelectColumns.Should().NotContain("ResultJson");
+        AgentResultListSql.GetByRunIdSelectRollupProjection.Should().Contain("JSON_QUERY(ar.ResultJson, '$.findings')");
+        AgentResultListSql.GetByRunIdSelectRollupProjection.Should().NotContain("SELECT ar.ResultJson");
     }
 }

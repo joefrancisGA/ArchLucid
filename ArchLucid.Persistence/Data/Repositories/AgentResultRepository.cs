@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Persistence;
@@ -425,6 +426,199 @@ public sealed class AgentResultRepository(
         return markers;
     }
 
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<AgentResult>> GetRollupProjectionByRunIdAsync(
+        ScopeContext scope,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        RunChildRunScopeSql.RequireScope(scope);
+
+        string sql = $"""
+                      {AgentResultListSql.GetByRunIdSelectRollupProjection}
+                      FROM AgentResults ar
+                      {RunChildRunScopeSql.InnerJoinRuns("ar")}
+                      WHERE ar.RunId = @RunId
+                        AND {RunChildRunScopeSql.ScopeWhereClause}
+                      ORDER BY ar.CreatedUtc
+                      {SqlPagingSyntax.FirstRowsOnly(1000)};
+                      """;
+
+        (IDbConnection conn, bool ownsConnection) =
+            await ExternalDbConnection.ResolveAsync(connectionFactory, connection: null, cancellationToken);
+
+        IEnumerable<RollupProjectionRow> rows;
+        try
+        {
+            rows = await conn.QueryAsync<RollupProjectionRow>(
+                new CommandDefinition(
+                    sql,
+                    new
+                    {
+                        RunId = RunChildRunScopeSql.ToSqlRunId(runId),
+                        scope.TenantId,
+                        scope.WorkspaceId,
+                        ScopeProjectId = scope.ProjectId,
+                    },
+                    cancellationToken: cancellationToken));
+        }
+        finally
+        {
+            ExternalDbConnection.DisposeIfOwned(conn, ownsConnection);
+        }
+
+        List<AgentResult> projected = [];
+
+        foreach (RollupProjectionRow row in rows)
+        {
+            if (!Enum.TryParse(row.AgentType, ignoreCase: true, out AgentType agentType))
+                continue;
+
+            AgentResult result = new()
+            {
+                ResultId = row.ResultId,
+                TaskId = row.TaskId,
+                RunId = RunChildRunScopeSql.ToContractRunId(row.RunId),
+                AgentType = agentType,
+                Confidence = row.Confidence,
+                CreatedUtc = row.CreatedUtc,
+                Claims = DeserializeClaimList(row.ClaimsJson, runId),
+                EvidenceRefs = DeserializeStringList(row.EvidenceRefsJson, runId, "evidenceRefs"),
+                Findings = DeserializeFindingList(row.FindingsJson, runId),
+                ProposedChanges = BuildProposedChanges(row.RequiredControlsJson, row.WarningsJson, runId),
+            };
+
+            projected.Add(AgentResultRollupProjection.StripHeavyFields(result));
+        }
+
+        IReadOnlyDictionary<string, AgentResultEnrichmentRecord> enrichments =
+            await _agentResultEnrichmentRepository.GetByResultIdsAsync(
+                projected.Select(static r => r.ResultId).ToList(),
+                cancellationToken).ConfigureAwait(false);
+
+        return ApplyRollupEnrichments(projected, enrichments);
+    }
+
+    private static IReadOnlyList<AgentResult> ApplyRollupEnrichments(
+        IReadOnlyList<AgentResult> projected,
+        IReadOnlyDictionary<string, AgentResultEnrichmentRecord> enrichmentsByResultId)
+    {
+        if (enrichmentsByResultId.Count == 0)
+            return projected;
+
+        List<AgentResult> merged = [];
+
+        foreach (AgentResult baseResult in projected)
+        {
+            if (!enrichmentsByResultId.TryGetValue(baseResult.ResultId, out AgentResultEnrichmentRecord? enrichment))
+            {
+                merged.Add(baseResult);
+                continue;
+            }
+
+            // Prefer scalar calibration; when an enriched blob exists, re-project it so compare stays field-complete
+            // without retaining reasoning/topology LOBs from the enrichment payload.
+            if (!string.IsNullOrWhiteSpace(enrichment.EnrichedResultJson))
+            {
+                AgentResult? enriched;
+
+                try
+                {
+                    enriched = JsonSerializer.Deserialize<AgentResult>(enrichment.EnrichedResultJson, ContractJson.Default);
+                }
+                catch (JsonException ex)
+                {
+                    throw new InvalidOperationException(
+                        $"Enriched AgentResult JSON for '{baseResult.ResultId}' could not be deserialized.", ex);
+                }
+
+                if (enriched is not null)
+                {
+                    merged.Add(AgentResultRollupProjection.StripHeavyFields(enriched));
+                    continue;
+                }
+            }
+
+            if (enrichment.CalibratedConfidence.HasValue)
+                baseResult.CalibratedConfidence = enrichment.CalibratedConfidence;
+
+            merged.Add(baseResult);
+        }
+
+        return merged;
+    }
+
+    private static List<string> DeserializeClaimList(string? claimsJson, string runId)
+    {
+        if (string.IsNullOrWhiteSpace(claimsJson))
+            return [];
+
+        try
+        {
+            // Route through AgentResult so AgentResultClaimListJsonConverter accepts legacy claim shapes.
+            AgentResult? shell = JsonSerializer.Deserialize<AgentResult>(
+                $"{{\"claims\":{claimsJson}}}",
+                ContractJson.Default);
+
+            return shell?.Claims ?? [];
+        }
+        catch (JsonException ex)
+        {
+            throw new InvalidOperationException(
+                $"Failed to deserialize rollup claims for run '{runId}'.", ex);
+        }
+    }
+
+    private static List<string> DeserializeStringList(string? json, string runId, string fieldName)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+            return [];
+
+        try
+        {
+            return JsonSerializer.Deserialize<List<string>>(json, ContractJson.Default) ?? [];
+        }
+        catch (JsonException ex)
+        {
+            throw new InvalidOperationException(
+                $"Failed to deserialize rollup {fieldName} for run '{runId}'.", ex);
+        }
+    }
+
+    private static List<ArchitectureFinding> DeserializeFindingList(string? findingsJson, string runId)
+    {
+        if (string.IsNullOrWhiteSpace(findingsJson))
+            return [];
+
+        try
+        {
+            return JsonSerializer.Deserialize<List<ArchitectureFinding>>(findingsJson, ContractJson.Default) ?? [];
+        }
+        catch (JsonException ex)
+        {
+            throw new InvalidOperationException(
+                $"Failed to deserialize rollup findings for run '{runId}'.", ex);
+        }
+    }
+
+    private static AgentTopologyProposal? BuildProposedChanges(
+        string? requiredControlsJson,
+        string? warningsJson,
+        string runId)
+    {
+        List<string> requiredControls = DeserializeStringList(requiredControlsJson, runId, "requiredControls");
+        List<string> warnings = DeserializeStringList(warningsJson, runId, "warnings");
+
+        if (requiredControls.Count == 0 && warnings.Count == 0)
+            return null;
+
+        return new AgentTopologyProposal
+        {
+            RequiredControls = requiredControls,
+            Warnings = warnings,
+        };
+    }
+
     public async Task<IReadOnlyList<EvidenceProposalListItem>> ListEvidenceProposalsAsync(
         ScopeContext scope,
         CancellationToken cancellationToken = default)
@@ -684,6 +878,75 @@ public sealed class AgentResultRepository(
         }
 
         public DateTime CreatedUtc
+        {
+            get;
+            init;
+        }
+    }
+
+    private sealed class RollupProjectionRow
+    {
+        public string ResultId
+        {
+            get;
+            init;
+        } = null!;
+
+        public string TaskId
+        {
+            get;
+            init;
+        } = null!;
+
+        public Guid RunId
+        {
+            get;
+            init;
+        }
+
+        public string AgentType
+        {
+            get;
+            init;
+        } = null!;
+
+        public double Confidence
+        {
+            get;
+            init;
+        }
+
+        public DateTime CreatedUtc
+        {
+            get;
+            init;
+        }
+
+        public string? ClaimsJson
+        {
+            get;
+            init;
+        }
+
+        public string? EvidenceRefsJson
+        {
+            get;
+            init;
+        }
+
+        public string? FindingsJson
+        {
+            get;
+            init;
+        }
+
+        public string? RequiredControlsJson
+        {
+            get;
+            init;
+        }
+
+        public string? WarningsJson
         {
             get;
             init;

@@ -10,17 +10,17 @@ Regenerate: `python scripts/ci/refresh_tech_backlog_category_counts.py --write`
 | --- | ---: |
 | Correctness | 3 |
 | Testability | 127 |
-| Reliability | 15 |
+| Reliability | 21 |
 | Deployability | 4 |
 | AI/Agent readiness | 12 |
 | Architectural integrity | 11 |
-| Adoption friction | 361 |
+| Adoption friction | 365 |
 | Commercial / marketability | 9 |
 | Data consistency | 4 |
 | Cutting-edge AI | 3 |
 | Explainability | 3 |
 | Proof-of-ROI / executive value | 2 |
-| Trustworthiness | 177 |
+| Trustworthiness | 184 |
 | Maintainability | 9 |
 | Traceability | 4 |
 | Interoperability | 4 |
@@ -34,15 +34,15 @@ Regenerate: `python scripts/ci/refresh_tech_backlog_category_counts.py --write`
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **800** |
+| **Total (unique open)** | **817** |
 
-**By priority band:** P0 **15** | P1 **653** | P2 **115** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **32** | P1 **653** | P2 **115** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
 > **Scope:** Engineering-owned technical backlog items deferred from current sessions; audience is contributors and the AI assistant; not a buyer or operator document. Not a substitute for ADRs or the pending-questions owner decisions file.
 
-**Updated:** 2026-08-06 (**TB-965** **Done** — quality vs execution UX + Vitest; **TB-963** SoT). Prior: 2026-08-06 (**TB-934**/**TB-935**/**TB-2028**–**TB-2030** promoted to **P0** — open UI performance peers). Prior: 2026-08-06 (**TB-2053**–**TB-2062** opened — Performance wave 4: top-10 untracked opportunities refiled as **P0** **V1**; prior **TB-2048**–**TB-2057** IDs were consumed by Learn more cluster — do not reuse). Prior: 2026-08-06 (**TB-963** **Done** — LLM_EXECUTION_VS_QUALITY_OUTCOME.md taxonomy + persist checklist; GTM **M-123**/**M-124** SoT). Prior: 2026-08-06 (**TB-2052** **Done** — Learn more job-match Vitest suite; secondary-hub ban + Digests golden; **TB-2048**—**TB-2052** cluster closed). Prior: 2026-08-05 (**TB-2051** **Done** — Category-1 deep-link CTAs on allowlisted hubs; Digests golden retained; Vitest allowlist; **TB-2052** remains open). Prior: 2026-08-05 (**TB-2050** **Done** — secondary-hub Learn more off getting-started/how-it-works; omit when no specialty; **TB-2051**–**TB-2052** remain open). Prior: 2026-08-05 (**TB-2049** **Done** ? Digests Learn more to `/help/digests` specialty + Schedule Category-1 deep links; traffic **DI**/**DIS**/**HDG**; **TB-2050**?**TB-2052** remain open). Prior: 2026-08-05 (**TB-2048** **Done** ? Learn more job-match in [`UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md) + UI ARCHITECTURE pointer; ban generic getting-started/how-it-works on secondary hubs; **TB-2049**?**TB-2052** remain open). Prior: 2026-08-05 (**TB-2048**?**TB-2052** opened ? P0 page-scoped contextual help *quality*: Learn more must match page job (ban generic `getting-started`/`how-it-works` on secondary hubs), Digests golden remap + Schedule deep link, secondary-hub sweep, actionable Category-1 popover links, Vitest; owner Digests help review 2026-08-05; traffic **OCH**; complements open mount cluster **TB-1666**?**TB-1670** ? do not reopen). Prior: 2026-08-05 (**TB-931** **Done** ? typed hot scalars on `AgentExecutionTraces` (DbUp **294**); list + LLM cost prefer typed columns with JSON_VALUE COALESCE; dual-write Create + quality columns; inventory). Prior: 2026-08-05 (**TB-1030** **Done** ? [`PA_FIRST_15_PACKAGE_SPINE_IA_CONTRACT.md`](PA_FIRST_15_PACKAGE_SPINE_IA_CONTRACT.md) must-complete + package-spine IA unlock + minute-12 + narration residuals; GTM **M-181** + claim-boundary cites; **TB-1031** remains open). Prior: 2026-08-05 (**TB-1026** **Done** ? [`OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md`](OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md) package primary + `/reviews` spine + collapse surfaces; GTM **M-177** + claim-boundary cites; **TB-1027** remains open). Prior: 2026-08-05 (**TB-1024** **Done** ? [`COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md`](COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md) minimal immutable snapshot + artifact/regenerate/verify modes; GTM **M-175** + claim-boundary cites; **TB-1025** remains open). Prior: 2026-08-05 (**TB-1022** **Done** ? [`PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md`](PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md) block vs advisory + SoD ownership matrix; GTM **M-173** + claim-boundary cites; **TB-1023** remains open). Prior: 2026-08-05 (**TB-1011** **Done** ? [`TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md`](TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md) finalize vs outbox + never-silent best-effort matrix; GTM **M-163** + claim-boundary cites; **TB-1012** remains open). Prior: 2026-08-05 (**TB-1009** **Done** ? [`APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md`](APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md) append-only/sealed vs mutable + Update-destruction matrix; GTM **M-161** + claim-boundary cites; **TB-1010** remains open). Prior: 2026-08-05 (**TB-1007** **Done** ? [`AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md`](AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md) Authority canonical + AgentTask forbid matrix; GTM **M-159** + Flow A1 cites; **TB-1008** remains open). Prior: 2026-08-05 (**TB-1005** **Done** ? [`LAYER_BOUNDARY_IRREVERSIBLE_LEAK_MATRIX.md`](LAYER_BOUNDARY_IRREVERSIBLE_LEAK_MATRIX.md) NetArchTest vs ranked runtime residuals; GTM **M-157** + claim-boundary cites; **TB-1006** remains open). Prior: 2026-08-05 (**TB-1003** **Done** ? [`COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md`](COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md) unit-of-truth + hop/label matrix; GTM **M-155** + claim-boundary cites; **TB-1004** remains open). Prior: 2026-08-05 (**TB-1001** **Done** ? [`RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md`](RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md) Ask/Search/Graph-RAG hit guarantee matrix; GTM **M-153** + Layer E / Ask threat-model cites; **TB-1002** remains open). Prior: 2026-08-05 (**TB-999** **Done** ? [`TENANT_IDENTITY_SINGLE_DERIVATION_CONTRACT.md`](TENANT_IDENTITY_SINGLE_DERIVATION_CONTRACT.md) decide-once matrix; GTM **M-151** + Layer B cites; **TB-1000** remains open). Prior: 2026-08-05 (**TB-997** **Done** ? [`LLM_TRUST_BOUNDARY_INGRESS_CONFINEMENT_CONTRACT.md`](LLM_TRUST_BOUNDARY_INGRESS_CONFINEMENT_CONTRACT.md) ingress vs confinement matrix; GTM **M-149** + claim-boundary cites; **TB-952** remains open). Prior: 2026-08-04 (**TB-995** **Done** ? [`POLLY_VS_RUN_LEVEL_SEMANTICS_CONTRACT.md`](POLLY_VS_RUN_LEVEL_SEMANTICS_CONTRACT.md) transport vs partial/cache/budget matrix; `LLM_RETRY` + GTM **M-147** + claim-boundary cites; does not close **TB-941**?**TB-945**). Prior: 2026-08-04 (**TB-968** **Done** ? `IItsmInboundWebhookReplayGuard` + in-memory 24h dedupe; delivery-id / Atlassian identifier / synthetic replay keys; `Integration.ItsmInboundWebhookReplayIgnored` audit; optional timestamp skew without HMAC; [`ITSM_INBOUND_WEBHOOK_REPLAY_GUARD.md`](runbooks/ITSM_INBOUND_WEBHOOK_REPLAY_GUARD.md); hostile-traffic inventory Replay ? Y). Prior: 2026-08-04 (**TB-2038**?**TB-2041** opened ? operator short-helper measure caps: design-system contract + `OperatorPageHeader`/`PageHeading` + dashboard inventory + Vitest; Overview `/` premature `max-w-prose`/`max-w-2xl` fixed in-session). Prior: 2026-08-04 (**TB-967** **Done** ? `InboundWebhookBoundedBodyReader` Content-Length + hard ceiling before HMAC; ITSM/Stripe/Marketplace/Slack; 413; unit/arch/integration tests; inventory updated). Prior: 2026-08-04 (**TB-966** **Done** ? `INBOUND_WEBHOOK_HOSTILE_TRAFFIC.md` PA order rate?size?verify?parse + surface matrix + checklist; INV-015 refresh; GTM **M-125**/**M-126** cite SoT; **TB-968** remains open). Prior: 2026-08-03 (**TB-955** **Done** ? Required audit abandon metric + pageable Prometheus alerts; domain?audit orphan probe + job; triage runbook; informational TryLogAsync excluded). Prior: 2026-08-03 (**TB-954** **Done** ? `RequiredAuditEventTypes` registry + arch test forbids `TryLogAsync` on Required types; INV-003 enforcement note; Core + Architecture tests). Prior: 2026-08-03 (**TB-951** **Done** ? ?3 indirect doc/README/ADR corpus scenarios + `indirect-doc-injection.json` with `expectedContained` residual; CI assert + eval_agent_quality strict; no 100% detection claim). Prior: 2026-08-03 (**TB-950** **Done** ? production-like empty/null `AllowedTools` fail-closed; `*` unrestricted sentinel; DemoSeed concrete tools; TB-082 tests updated). Prior: 2026-08-03 (**TB-949** **Done** ? untrusted customer-content `CUSTOMER_CONTENT_BEGIN`/`END` + framing; Agent/Ask composers; contract doc; unit + wiring tests; hygiene ? security boundary). Prior: 2026-08-03 (**DI** Evidence chrome ? /digests Sources + claim discipline; Vitest; traffic **DI**). Prior: 2026-08-03 (**PLA** Evidence chrome ? `/planning` Sources + claim discipline + topic honesty `how-it-works`; Vitest; traffic **PLA**). Prior: 2026-08-03 (**TB-897** **Done** ? Quick Scan layered identity/abuse limits + CAPTCHA/sign-in friction codes; mig **292**; abuse ? spend ceiling). Prior: 2026-08-03 (**SCX** Evidence chrome ? `/insights/architecture-scorecard` Sources + Category-1 registry + directional ROI claim; Vitest; traffic **SCX**; **TB-1956**?**TB-1960** remain Done). Prior: 2026-08-03 (**TB-1668** GDX/alerts topic slice ? `/governance/dashboard` Sources + registry + topic honesty; `/governance/alerts` ? `alerts`; Vitest; traffic **GDX**; remaining mount hubs open). Prior: 2026-08-03 (**TB-1667** HOM slice ? `/` remounts `OperatorHomePageChrome` + Category-1 registry; Vitest; traffic **HOM**; remaining hubs open). Prior: 2026-08-03 (**TB-1746**/**TB-1749**/**TB-1750** **Done** ? `/help/soc2-self-assessment` specialty buyer guide + Trust CTA / IA dual / Help Center; Vitest; traffic **HES**; **TB-1747**/**TB-1748** retained). Prior: 2026-08-03 (**TB-1386** **Done** ? `/help/governance-api-contracts` specialty API contracts guide + title honesty; Vitest; traffic **HG**). Prior: 2026-08-02 (**TB-1691**/**TB-1692**/**TB-1694**/**TB-1695** **Done** ? `/help/first-value-20-minutes` Admin specialty guide; Vitest; traffic **HEF**). Prior: 2026-08-02 (**TB-1676**/**TB-1678**/**TB-1679**/**TB-1680** **Done** ? `/help/dpa-template` specialty buyer DPA guide; Vitest; traffic **HDP**). Prior: 2026-07-31 (Open **P1** summary rows reordered - human-impact ship order for /ship-next-improvement; 723 open P1s; see `### P1 - human-impact ship order`).
+**Updated:** 2026-08-06 (**TB-2072**–**TB-2079** opened — long-running operations contract + unified operation API + async execute + cancel + shell activity + Tier B wait UX + latency-tier CI; all **P0** **V1**). Prior: 2026-08-06 (**TB-2053** **Done** — `GetRollupProjectionByRunIdAsync` JSON subpaths; rollup/compare off bare `ResultJson`). Prior: 2026-08-06 (**TB-965** **Done** — quality vs execution UX + Vitest; **TB-963** SoT). Prior: 2026-08-06 (**TB-934**/**TB-935**/**TB-2028**–**TB-2030** promoted to **P0** — open UI performance peers). Prior: 2026-08-06 (**TB-2053**–**TB-2062** opened — Performance wave 4: top-10 untracked opportunities refiled as **P0** **V1**; prior **TB-2048**–**TB-2057** IDs were consumed by Learn more cluster — do not reuse). Prior: 2026-08-06 (**TB-963** **Done** — LLM_EXECUTION_VS_QUALITY_OUTCOME.md taxonomy + persist checklist; GTM **M-123**/**M-124** SoT). Prior: 2026-08-06 (**TB-2052** **Done** — Learn more job-match Vitest suite; secondary-hub ban + Digests golden; **TB-2048**—**TB-2052** cluster closed). Prior: 2026-08-05 (**TB-2051** **Done** — Category-1 deep-link CTAs on allowlisted hubs; Digests golden retained; Vitest allowlist; **TB-2052** remains open). Prior: 2026-08-05 (**TB-2050** **Done** — secondary-hub Learn more off getting-started/how-it-works; omit when no specialty; **TB-2051**–**TB-2052** remain open). Prior: 2026-08-05 (**TB-2049** **Done** ? Digests Learn more to `/help/digests` specialty + Schedule Category-1 deep links; traffic **DI**/**DIS**/**HDG**; **TB-2050**?**TB-2052** remain open). Prior: 2026-08-05 (**TB-2048** **Done** ? Learn more job-match in [`UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md) + UI ARCHITECTURE pointer; ban generic getting-started/how-it-works on secondary hubs; **TB-2049**?**TB-2052** remain open). Prior: 2026-08-05 (**TB-2048**?**TB-2052** opened ? P0 page-scoped contextual help *quality*: Learn more must match page job (ban generic `getting-started`/`how-it-works` on secondary hubs), Digests golden remap + Schedule deep link, secondary-hub sweep, actionable Category-1 popover links, Vitest; owner Digests help review 2026-08-05; traffic **OCH**; complements open mount cluster **TB-1666**?**TB-1670** ? do not reopen). Prior: 2026-08-05 (**TB-931** **Done** ? typed hot scalars on `AgentExecutionTraces` (DbUp **294**); list + LLM cost prefer typed columns with JSON_VALUE COALESCE; dual-write Create + quality columns; inventory). Prior: 2026-08-05 (**TB-1030** **Done** ? [`PA_FIRST_15_PACKAGE_SPINE_IA_CONTRACT.md`](PA_FIRST_15_PACKAGE_SPINE_IA_CONTRACT.md) must-complete + package-spine IA unlock + minute-12 + narration residuals; GTM **M-181** + claim-boundary cites; **TB-1031** remains open). Prior: 2026-08-05 (**TB-1026** **Done** ? [`OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md`](OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md) package primary + `/reviews` spine + collapse surfaces; GTM **M-177** + claim-boundary cites; **TB-1027** remains open). Prior: 2026-08-05 (**TB-1024** **Done** ? [`COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md`](COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md) minimal immutable snapshot + artifact/regenerate/verify modes; GTM **M-175** + claim-boundary cites; **TB-1025** remains open). Prior: 2026-08-05 (**TB-1022** **Done** ? [`PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md`](PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md) block vs advisory + SoD ownership matrix; GTM **M-173** + claim-boundary cites; **TB-1023** remains open). Prior: 2026-08-05 (**TB-1011** **Done** ? [`TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md`](TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md) finalize vs outbox + never-silent best-effort matrix; GTM **M-163** + claim-boundary cites; **TB-1012** remains open). Prior: 2026-08-05 (**TB-1009** **Done** ? [`APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md`](APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md) append-only/sealed vs mutable + Update-destruction matrix; GTM **M-161** + claim-boundary cites; **TB-1010** remains open). Prior: 2026-08-05 (**TB-1007** **Done** ? [`AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md`](AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md) Authority canonical + AgentTask forbid matrix; GTM **M-159** + Flow A1 cites; **TB-1008** remains open). Prior: 2026-08-05 (**TB-1005** **Done** ? [`LAYER_BOUNDARY_IRREVERSIBLE_LEAK_MATRIX.md`](LAYER_BOUNDARY_IRREVERSIBLE_LEAK_MATRIX.md) NetArchTest vs ranked runtime residuals; GTM **M-157** + claim-boundary cites; **TB-1006** remains open). Prior: 2026-08-05 (**TB-1003** **Done** ? [`COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md`](COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md) unit-of-truth + hop/label matrix; GTM **M-155** + claim-boundary cites; **TB-1004** remains open). Prior: 2026-08-05 (**TB-1001** **Done** ? [`RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md`](RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md) Ask/Search/Graph-RAG hit guarantee matrix; GTM **M-153** + Layer E / Ask threat-model cites; **TB-1002** remains open). Prior: 2026-08-05 (**TB-999** **Done** ? [`TENANT_IDENTITY_SINGLE_DERIVATION_CONTRACT.md`](TENANT_IDENTITY_SINGLE_DERIVATION_CONTRACT.md) decide-once matrix; GTM **M-151** + Layer B cites; **TB-1000** remains open). Prior: 2026-08-05 (**TB-997** **Done** ? [`LLM_TRUST_BOUNDARY_INGRESS_CONFINEMENT_CONTRACT.md`](LLM_TRUST_BOUNDARY_INGRESS_CONFINEMENT_CONTRACT.md) ingress vs confinement matrix; GTM **M-149** + claim-boundary cites; **TB-952** remains open). Prior: 2026-08-04 (**TB-995** **Done** ? [`POLLY_VS_RUN_LEVEL_SEMANTICS_CONTRACT.md`](POLLY_VS_RUN_LEVEL_SEMANTICS_CONTRACT.md) transport vs partial/cache/budget matrix; `LLM_RETRY` + GTM **M-147** + claim-boundary cites; does not close **TB-941**?**TB-945**). Prior: 2026-08-04 (**TB-968** **Done** ? `IItsmInboundWebhookReplayGuard` + in-memory 24h dedupe; delivery-id / Atlassian identifier / synthetic replay keys; `Integration.ItsmInboundWebhookReplayIgnored` audit; optional timestamp skew without HMAC; [`ITSM_INBOUND_WEBHOOK_REPLAY_GUARD.md`](runbooks/ITSM_INBOUND_WEBHOOK_REPLAY_GUARD.md); hostile-traffic inventory Replay ? Y). Prior: 2026-08-04 (**TB-2038**?**TB-2041** opened ? operator short-helper measure caps: design-system contract + `OperatorPageHeader`/`PageHeading` + dashboard inventory + Vitest; Overview `/` premature `max-w-prose`/`max-w-2xl` fixed in-session). Prior: 2026-08-04 (**TB-967** **Done** ? `InboundWebhookBoundedBodyReader` Content-Length + hard ceiling before HMAC; ITSM/Stripe/Marketplace/Slack; 413; unit/arch/integration tests; inventory updated). Prior: 2026-08-04 (**TB-966** **Done** ? `INBOUND_WEBHOOK_HOSTILE_TRAFFIC.md` PA order rate?size?verify?parse + surface matrix + checklist; INV-015 refresh; GTM **M-125**/**M-126** cite SoT; **TB-968** remains open). Prior: 2026-08-03 (**TB-955** **Done** ? Required audit abandon metric + pageable Prometheus alerts; domain?audit orphan probe + job; triage runbook; informational TryLogAsync excluded). Prior: 2026-08-03 (**TB-954** **Done** ? `RequiredAuditEventTypes` registry + arch test forbids `TryLogAsync` on Required types; INV-003 enforcement note; Core + Architecture tests). Prior: 2026-08-03 (**TB-951** **Done** ? ?3 indirect doc/README/ADR corpus scenarios + `indirect-doc-injection.json` with `expectedContained` residual; CI assert + eval_agent_quality strict; no 100% detection claim). Prior: 2026-08-03 (**TB-950** **Done** ? production-like empty/null `AllowedTools` fail-closed; `*` unrestricted sentinel; DemoSeed concrete tools; TB-082 tests updated). Prior: 2026-08-03 (**TB-949** **Done** ? untrusted customer-content `CUSTOMER_CONTENT_BEGIN`/`END` + framing; Agent/Ask composers; contract doc; unit + wiring tests; hygiene ? security boundary). Prior: 2026-08-03 (**DI** Evidence chrome ? /digests Sources + claim discipline; Vitest; traffic **DI**). Prior: 2026-08-03 (**PLA** Evidence chrome ? `/planning` Sources + claim discipline + topic honesty `how-it-works`; Vitest; traffic **PLA**). Prior: 2026-08-03 (**TB-897** **Done** ? Quick Scan layered identity/abuse limits + CAPTCHA/sign-in friction codes; mig **292**; abuse ? spend ceiling). Prior: 2026-08-03 (**SCX** Evidence chrome ? `/insights/architecture-scorecard` Sources + Category-1 registry + directional ROI claim; Vitest; traffic **SCX**; **TB-1956**?**TB-1960** remain Done). Prior: 2026-08-03 (**TB-1668** GDX/alerts topic slice ? `/governance/dashboard` Sources + registry + topic honesty; `/governance/alerts` ? `alerts`; Vitest; traffic **GDX**; remaining mount hubs open). Prior: 2026-08-03 (**TB-1667** HOM slice ? `/` remounts `OperatorHomePageChrome` + Category-1 registry; Vitest; traffic **HOM**; remaining hubs open). Prior: 2026-08-03 (**TB-1746**/**TB-1749**/**TB-1750** **Done** ? `/help/soc2-self-assessment` specialty buyer guide + Trust CTA / IA dual / Help Center; Vitest; traffic **HES**; **TB-1747**/**TB-1748** retained). Prior: 2026-08-03 (**TB-1386** **Done** ? `/help/governance-api-contracts` specialty API contracts guide + title honesty; Vitest; traffic **HG**). Prior: 2026-08-02 (**TB-1691**/**TB-1692**/**TB-1694**/**TB-1695** **Done** ? `/help/first-value-20-minutes` Admin specialty guide; Vitest; traffic **HEF**). Prior: 2026-08-02 (**TB-1676**/**TB-1678**/**TB-1679**/**TB-1680** **Done** ? `/help/dpa-template` specialty buyer DPA guide; Vitest; traffic **HDP**). Prior: 2026-07-31 (Open **P1** summary rows reordered - human-impact ship order for /ship-next-improvement; 723 open P1s; see `### P1 - human-impact ship order`).
 
 
 **BDA register:** all **150** buyer-demo defects are **BDA-001?150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276?282** **Done** (batches **5DU-route-tenant-p0**, **5DU-route-tenant-p1**). **DTO boundary:** **TB-283?288** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**, **5DX-trust-p2**). **Coverage hardening:** **TB-289?294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295?300** **Done** (batch **5DW-trust-paid-p1b**); **TB-301** **Done** (batch **5DX-trust-p2**). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS?5DV**; **0** grandfathered unclassified). **Insight-density:** **TB-382?385** **Done** (Prompts A?F through `5d7af0811`; drift guard **insight-density-tb382-385**). **ITSM integration seams:** **TB-386?398** (2026-06-22 assessment ? V1 seam hardening + V1.1/V2 connector follow-on). **TB-386?397 Done** (2026-06-22 through 2026-06-27). **First-party connector V1.1?åÆV1 GA promotion (2026-07-03):** Jira/ServiceNow/Confluence/Slack/Microsoft Teams moved to **V1 GA** (`V1_DEFERRED.md` ?º6/?º6a); **TB-599?ÇôTB-602** track the resulting tightening work (native-create default posture, OAuth upgrade, live-validation parity, buyer-copy sweep). **Next recommended batch:** **TB-398** (full enterprise ITSM connector ?Çö **V2** ITSM cluster; out of V1/V1.1 unless owner promotes) remains separate and unaffected by the promotion. Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
@@ -191,6 +191,10 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 **TB-2021 ? TB-2032** were added 2026-07-31 from an **owner ask** for quantified UI speedups (top-10 + follow-up audit of alerts/home/alert-rules). Baseline still shows `/reviews/[runId]` **2,255 kB**, `/reviews` **1,695 kB**, `/governance` **1,417 kB**, `/welcome` **736 kB** First Load JS. Does **not** recreate open **TB-934** (hub First Load JS) or **TB-935** (list Query + virtualization) ? execute those as peers. Does **not** reopen Done **TB-933**/**TB-930**/**TB-560**?**TB-573**/**TB-691**?**TB-698**. **TB-2021** (P1) post-933 run-detail sync shell cut ? **Done** (2026-08-03; baseline remeasure pending). **TB-2022** (P1) operator slim first-paint ? **Done** (2026-08-03; always buyer-summary). **TB-2023** (P1) alerts inbox mount fan-out ? **Done** (2026-08-03; `GET /v1/alerts/inbox-summary`). **TB-2024** (P2) alert-rules tab code-split ? **Done** (2026-08-03). **TB-2025** (P2) home empty-SSR refetch skip ? **Done** (2026-08-03; authoritative empty SSR). **TB-2026** (P2) nested Suspense streaming ? **Done** (2026-08-03; alerts hub + run-detail below-fold). **TB-2027** (P2) loader/proxy parallelization ? **Done** (2026-08-03; five hot loaders + `DATA_FLOW_AND_STATE` §9). **TB-2028**?**TB-2029** (P2) `/welcome` shell cut, SSE/poll hygiene. **TB-2030** (P2) baseline expansion. **TB-2031** (P2) field CWV triage gate ? **Done** (2026-08-03; [`FIELD_WEB_VITALS_TRIAGE.md`](../runbooks/FIELD_WEB_VITALS_TRIAGE.md); pairs GTM **G-QA-06**/**G-QA-07**). **TB-2032** (P3) marketing `next/image` ? **Done** (2026-08-03, **waived**; [`tb2032_marketing_lcp_image_waiver.md`](../architecture/tb2032_marketing_lcp_image_waiver.md)). No new GTM IDs. Cross-ref [`reviews_run_detail_bundle_composition_tb697.md`](../architecture/reviews_run_detail_bundle_composition_tb697.md), [`UI_ARCHITECTURE_V1_1.md`](UI_ARCHITECTURE_V1_1.md) §1/§7, [`run_detail_summary_lazy_load_tb930.md`](../architecture/run_detail_summary_lazy_load_tb930.md).
 
 **TB-2053 — TB-2062** were added 2026-08-06 (refile) from the owner ask for the **top-10 untracked performance opportunities** (after slim export/rollup callers + lazy finding `PayloadJson`). Earlier filing under **TB-2048**–**TB-2057** was overwritten when those IDs were assigned to the Learn more job-match cluster (**Done**). All **P0** **V1**: slim Application rollup/compare off fat `ResultJson` (**TB-2053**); ROI history/trends/portfolio stop N× fat detail (**TB-2054**); retrieval indexing outbox no bodies + bounded parallel (**TB-2055**); post-commit projection + export-blob outbox bounded parallel (**TB-2056**); comparison list omit `PayloadJson` (**TB-2057**); tenant-erasure quarantine middleware cache (**TB-2058**); `GetRunDetailAsync` default bodies opt-in (**TB-2059**); decision-node materialization off commit HTTP (**TB-2060**); `/dashboard` + `/signed-records` First Load JS (**TB-2061**); audit list cache hit-rate under write churn (**TB-2062**). Does **not** reopen Done **TB-929**/**TB-930**/**TB-931**/**TB-2021**–**TB-2027**. Peers still open: **TB-934**/**TB-935**/**TB-2028**–**TB-2030**; **TB-932** stays **V2**.
+
+**TB-2044** and **TB-2063 — TB-2071** were added 2026-08-06 from the **principal architect critique round 5** post-**TB-2042**–**TB-2047** confusion audit (compare **CXX**, finding inspect, tenant migration fan-out). Finding: backend correlation and migration orchestration shipped but operator golden paths still over-claim—compare UI diffs findings by message text while exports use ADR 0063 fingerprints; trust chips disagree across inspect/detail/export; migration banner is narrow vs fan-out doc; three “correlation” vocabularies collide. **TB-2044** (P0) trust labels on all finding export paths—promoted from P1. **TB-2063** (P0) wire `AgentResultDiffService` to fingerprint correlation. **TB-2064** (P0) compare UI correlation metadata. **TB-2065** (P0) disambiguate finding correlation vocabulary (ADR 0063 vs ITSM vs ROI). **TB-2066** (P0) finding inspect authoritative trust enricher. **TB-2067** (P0) distinct `DeterministicRule` vs `DeterministicFallback` UI. **TB-2068** (P0) migration banner AppShell scope + polling + suspend copy. **TB-2069** (P0) align migration projection refresh + verification probe with `TENANT_MIGRATION_FANOUT.md`. **TB-2070** (P0) migration operator visibility (stage, correlation id, errors). **TB-2071** (P0) compare trust-label and run-mode asymmetry in delta narrative. Does **not** reopen Done **TB-2042**/**TB-2043**/**TB-2045**–**TB-2047**. IDs skip perf **TB-2053**–**TB-2062** and Learn more **TB-2048**–**TB-2052**.
+
+**TB-2072 — TB-2079** were added 2026-08-06 from the owner ask: *which ArchLucid operations exceed 3–4 seconds and what wait/async UX should we build?* Finding: review pipeline has SSE + poll (`useRunSummaryStream`, `RunProgressTracker`) but **Tier C** work (Real-mode execute/replay, architecture-intelligence) exceeds the **60s** UI proxy and default Front Door origin timeout while handlers allow **900s**; progress is fragmented across run summary flags and `BackgroundJobs` with no unified operation handle, cancel API, or shell-level in-flight surface; ~**82%** of routes lack segment `loading.tsx`. All **P0** **V1**: latency-tier SoT contract (**TB-2072**); edge timeout + job/operation tenant-scope audit (**TB-2073**); unified `GET /v1/operations/{id}` (**TB-2074**); async execute/replay siblings 202 + Location (**TB-2075**); cooperative cancel (**TB-2076**); shell activity / in-flight store (**TB-2077**); Tier B staged wait + admin/integrations route loading sweep (**TB-2078**); CI latency-tier gate (**TB-2079**). Canonical doc: [`LONG_RUNNING_OPERATIONS_CONTRACT.md`](LONG_RUNNING_OPERATIONS_CONTRACT.md). Does **not** duplicate **TB-2029** (SSE poll hygiene), **TB-937**–**TB-943** (partial-run semantics), **TB-960**–**TB-962** (ACA worker drain), or replace authority outbox queue mode.
 
 **TB-937 ? TB-945** were added 2026-07-22 from the owner question on what **Polly retries + circuit breaker + 429 backoff** do *not* cover for a multi-step agent pipeline (partial completion, poisoned cache, mid-run budget exhaustion, plus related orchestration gaps). Transport resilience stays as-is ([`LLM_RETRY_AND_CIRCUIT_BREAKER.md`](LLM_RETRY_AND_CIRCUIT_BREAKER.md), ADR 0005). This cluster adds **run-level** semantics: partial-run contract + UI (**TB-937**), selective re-execute (**TB-938**), run-scoped budget reservation modeled on Quick Scan **TB-894** (**TB-939**), completion-cache admission/poison bust (**TB-940**), per-`(RunId,TaskId)` spend cap (**TB-941**), downstream consistency after partial/re-execute (**TB-942**), zombie execute reconciliation (**TB-943**), semantic-failure classification (**TB-944**), and a chaos/integration suite (**TB-945**). Does **not** reopen **TB-039** (idempotent skip Done), **TB-043** (remediation Polly decoupling Done), or pull the gated DTF epic (**TB-920**?**TB-924**) unless reservation + selective re-execute prove insufficient. Suggested order: **937 ? 940 ? 939 ? 938 ? 941 ? 942 ? 943 ? 944 ? 945**. **ACA Worker host layer** (replica death / scale-in / buyer-visible interrupt): **TB-960**?**TB-962** (2026-07-23).
 
@@ -1117,7 +1121,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-2050 | **Done** (2026-08-05) — Secondary hubs remap/omit Learn more off generic getting-started/how-it-works; see ## TB-2050 below | Adoption friction P0 — **V1**; with **TB-2048**; planning / decision-register / advisory / impact-preview / … | M |
 | TB-2051 | **Done** (2026-08-05) — Category-1 popover — actionable deep-link CTAs for next/configure fields; Digests golden retained; allowlisted hubs; see ## TB-2051 below | Adoption friction P0 ? **V1**; with **TB-2048**; Digests Schedule is golden | S |
 | TB-2052 | **Done** (2026-08-06) — Vitest — Learn more job-match + Digests golden + ban generic secondary-hub targets; learn-more-job-match.test.ts; see ## TB-2052 below | Testability P0 ? **V1**; after **TB-2049**?**TB-2051**; pairs **TB-1670** (do not reopen) | S |
-| TB-2053 | Slim Application rollup/compare off full `ResultJson` — make `GetRunDetailForRollupAsync` truly projection-slim; see ## TB-2053 below | Performance P0 — **V1**; owner top-10 untracked perf refile 2026-08-06; after slim export/rollup callers | M |
+| TB-2053 | **Done** (2026-08-06) — Slim Application rollup/compare off full `ResultJson` via `GetRollupProjectionByRunIdAsync`; see ## TB-2053 below | Performance P0 — **V1**; owner top-10 untracked perf refile 2026-08-06; after slim export/rollup callers | M |
 | TB-2054 | ROI history/trends/portfolio — stop N× fat `GetRunDetailAsync`; see ## TB-2054 below | Performance P0 — **V1**; owner top-10 untracked perf refile 2026-08-06; `ExecutiveRoiSummaryService` | L |
 | TB-2055 | Retrieval indexing outbox — omit artifact bodies + bounded parallel drain; see ## TB-2055 below | Performance P0 — **V1**; owner top-10 untracked perf refile 2026-08-06; `RetrievalIndexingOutboxProcessor` | M |
 | TB-2056 | Post-commit projection + export-blob outboxes — bounded parallel batch drain; see ## TB-2056 below | Performance P0 — **V1**; owner top-10 untracked perf refile 2026-08-06; peers **TB-586** pattern | M |
@@ -1127,6 +1131,24 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-2060 | Move V2 decision-node materialization off commit HTTP path; see ## TB-2060 below | Performance P0 — **V1**; owner top-10 untracked perf refile 2026-08-06; commit latency | M |
 | TB-2061 | First Load JS cut for `/dashboard` + `/signed-records` (beyond **TB-2030** gate); see ## TB-2061 below | Performance P0 — **V1**; owner top-10 untracked perf refile 2026-08-06; peer **TB-934**/**TB-2028** | M |
 | TB-2062 | Audit list cache hit-rate under write-churn invalidation; see ## TB-2062 below | Performance P0 — **V1**; owner top-10 untracked perf refile 2026-08-06; `CachingAuditRepository` | M |
+| TB-2044 | Trust labels on all finding export paths (extend beyond run-detail CSV); see ## TB-2044 below | Trustworthiness P0 — **V1**; round 5; promoted 2026-08-06 | M |
+| TB-2063 | Compare finding delta — wire `AgentResultDiffService` to ADR 0063 fingerprint correlation; see ## TB-2063 below | Trustworthiness P0 — **V1**; round 5 after **TB-2042**; traffic **CXX** | M |
+| TB-2064 | Compare UI — surface finding correlation metadata (export-parity honesty); see ## TB-2064 below | Trustworthiness P0 — **V1**; round 5; with **TB-2063**; traffic **CXX** | M |
+| TB-2065 | Product language — disambiguate finding correlation (ADR 0063 / ITSM / ROI); see ## TB-2065 below | Adoption friction P0 — **V1**; round 5; help + ITSM surfaces | S |
+| TB-2066 | Finding inspect — authoritative trust enricher with real run context; see ## TB-2066 below | Trustworthiness P0 — **V1**; round 5; pairs **TB-2044** | M |
+| TB-2067 | Trust chip — distinct UI for `DeterministicRule` vs `DeterministicFallback`; see ## TB-2067 below | Trustworthiness P0 — **V1**; round 5; `finding-provenance-display.ts` | S |
+| TB-2068 | Tenant migration banner — AppShell scope + polling + suspend copy; see ## TB-2068 below | Reliability P0 — **V1**; round 5 after **TB-2045** | M |
+| TB-2069 | Migration orchestration — align projection refresh + verification with fan-out doc; see ## TB-2069 below | Reliability P0 — **V1**; round 5 after **TB-2046**/**TB-2047** | M |
+| TB-2070 | Migration operator visibility — stage, correlation id, verification errors; see ## TB-2070 below | Adoption friction P0 — **V1**; round 5; tenant + admin surfaces | M |
+| TB-2071 | Compare workspace — trust-label and run-mode asymmetry in delta narrative; see ## TB-2071 below | Trustworthiness P0 — **V1**; round 5; traffic **CXX** | M |
+| TB-2072 | Long-running operations — latency-tier contract + operation inventory SoT; see ## TB-2072 below | Reliability P0 — **V1**; owner LRO ask 2026-08-06; [`LONG_RUNNING_OPERATIONS_CONTRACT.md`](LONG_RUNNING_OPERATIONS_CONTRACT.md) | S |
+| TB-2073 | LRO prerequisites — Front Door origin timeout doc + `GET /v1/jobs/{id}` tenant-scope audit; see ## TB-2073 below | Trustworthiness P0 — **V1**; before **TB-2074**; pairs proxy 60s ceiling | S |
+| TB-2074 | Unified operation resource — `GET /v1/operations/{operationId}` projecting runs + background jobs; see ## TB-2074 below | Reliability P0 — **V1**; after **TB-2073**; replaces documented-missing `/v1/runs/{id}/progress` | M |
+| TB-2075 | Async execute/replay siblings — 202 + `Location` for Real-mode Tier C; see ## TB-2075 below | Reliability P0 — **V1**; keep sync routes for Simulator/CI; pairs **TB-2074** | L |
+| TB-2076 | Operation cancellation — `POST /v1/operations/{id}/cancel` + cooperative stage checks; see ## TB-2076 below | Reliability P0 — **V1**; after **TB-2074**; cost control for abandoned runs | M |
+| TB-2077 | Shell activity surface — global in-flight operations store + header affordance; see ## TB-2077 below | Adoption friction P0 — **V1**; UI; polls **TB-2074** / existing SSE | M |
+| TB-2078 | Tier B staged wait UX + administration/integrations `loading.tsx` sweep; see ## TB-2078 below | Adoption friction P0 — **V1**; Ask/commit/export/quick-scan/bulk evidence; ~104 routes | L |
+| TB-2079 | API latency-tier CI gate — interactive vs extended-sync vs async-required per endpoint; see ## TB-2079 below | Performance P0 — **V1**; after **TB-2072**; enforces contract | M |
 | TB-2006 | Architecture draft workspace ? disable Start review until readiness; drop validation toast; see ## TB-2006 below | Adoption friction P1 ? **V1**; owner ask 2026-07-29; with **TB-2005** | S |
 | TB-2007 | Pilot baseline wizard ? disable Next/Save until valid; inline field errors; see ## TB-2007 below | Adoption friction P1 ? **V1**; with **TB-2005**; first-session overlay | S |
 | TB-2008 | Admin toast-validation ? Tenant cost settings + governance bulk disposition; see ## TB-2008 below | Adoption friction P1 ? **V1**; with **TB-2005** | S |
@@ -47168,6 +47190,306 @@ Operators must read three intros before reaching the Trust Center link list.
 **Out of scope:** Full Playwright of every help popover; mount-null guard (**TB-1670**).
 
 **Size estimate:** S.
+
+---
+
+## TB-2053 — Slim Application rollup/compare off full ResultJson (P0)
+
+**Window:** V1 — Performance.
+
+**Status:** **Done** (2026-08-06).
+
+**Shipped:**
+
+1. `IAgentResultRepository.GetRollupProjectionByRunIdAsync` + `AgentResultListSql.GetByRunIdSelectRollupProjection` (relational identity + JSON_QUERY subpaths).
+2. `GetRunDetailForRollupAsync` wired to rollup projection; `AgentResultRollupProjection.StripHeavyFields` clears reasoning/topology/finding forensics.
+3. Hot-path inventory + shape guards; Api/Persistence unit + contract tests.
+
+**Priority:** P0.
+
+**Acceptance:** Rollup/compare does not call bare `GetByRunIdAsync` / `SELECT ar.ResultJson`. **Met** 2026-08-06.
+
+**Depends on:** Slim export/rollup callers (**TB-930**/**TB-931** Done).
+
+**Out of scope:** ROI N× detail (**TB-2054**); default `GetRunDetailAsync` bodies (**TB-2059**).
+
+**Size estimate:** M.
+
+---
+
+## TB-2072 — Long-running operations latency-tier contract (P0)
+
+**Window:** V1 — Reliability / Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner LRO ask 2026-08-06; codebase audit (execute 900s/handler vs proxy 60s; fragmented progress models).
+
+**Why:** Operators and integrators have no single contract for which endpoints may block, which must return 202, and what progress fields mean. Without a SoT, UI spinners and sync HTTP holds will keep diverging from production Real-mode behavior.
+
+**Approach:**
+
+1. Publish and maintain [`LONG_RUNNING_OPERATIONS_CONTRACT.md`](LONG_RUNNING_OPERATIONS_CONTRACT.md) (latency tiers A–D, operation inventory, security/scalability notes).
+2. Cross-link from `API_CONTRACTS.md`, `API_PERFORMANCE_TARGETS.md`, `FIRST_REAL_VALUE.md`, and `archlucid-ui/AGENTS.md`.
+3. Mark each listed endpoint with its tier in the contract table; update when routes change.
+
+**Acceptance:**
+
+- Contract doc merged with tier taxonomy, operation inventory, and implementation order.
+- At least three sibling docs link to it.
+- No claim that `GET /v1/runs/{runId}/progress` exists (use operations + authority SSE).
+
+**Affected files:** `docs/library/LONG_RUNNING_OPERATIONS_CONTRACT.md`, `docs/library/API_CONTRACTS.md`, `docs/library/API_PERFORMANCE_TARGETS.md`.
+
+**Depends on:** None (foundation for **TB-2073**–**TB-2079**).
+
+**Out of scope:** Implementing API/UI changes (sibling TBs).
+
+**Size estimate:** S.
+
+---
+
+## TB-2073 — LRO prerequisites — edge timeout + job poll tenant scope (P0)
+
+**Window:** V1 — Trustworthiness.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner LRO ask 2026-08-06; `PROXY_UPSTREAM_FETCH_TIMEOUT_MS` (60s) vs `PerHandlerTimeoutSeconds` (900s); `infra/terraform-edge/` has no explicit `origin_response_timeout`.
+
+**Why:** Before exposing a unified operation handle, we must document the real HTTP ceiling stack and confirm `GET /v1/jobs/{jobId}` enforces tenant/workspace scope (not GUID obscurity alone).
+
+**Approach:**
+
+1. Document deployed Front Door / App Service / Container Apps origin timeout values in contract doc or `infra/terraform-edge/README.md`.
+2. Audit `JobsController` (and any operation poll predecessor) for tenant-scoped lookup; add integration test if gap found.
+3. Record findings in `LONG_RUNNING_OPERATIONS_CONTRACT.md` § Security.
+
+**Acceptance:**
+
+- Written timeout ceiling matrix (proxy 60s, RSC 45s, Front Door default, handler 900s).
+- Job poll authorization verified or fixed with test.
+- No security regression on cross-tenant operation id probe.
+
+**Affected files:** `ArchLucid.Api/Controllers/**/JobsController.cs`, `infra/terraform-edge/`, `docs/library/LONG_RUNNING_OPERATIONS_CONTRACT.md`, Api integration tests.
+
+**Depends on:** **TB-2072** (contract shell).
+
+**Out of scope:** Unified operations API (**TB-2074**).
+
+**Size estimate:** S.
+
+---
+
+## TB-2074 — Unified operation resource API (P0)
+
+**Window:** V1 — Reliability.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner LRO ask 2026-08-06; fragmented `RunSummaryDto` flags vs `BackgroundJobInfo`; documented-but-unimplemented `GET /v1/runs/{runId}/progress`.
+
+**Why:** Clients need one poll target for execute, replay, exports, and pipeline work — with `state`, `stepLabel`, `currentStep`/`totalSteps`, and `heartbeatUtc` — instead of ad hoc job URLs per feature.
+
+**Approach:**
+
+1. Add `GET /v1/operations/{operationId}` returning unified DTO (see contract doc).
+2. Project existing run pipeline state and `BackgroundJobs` rows into the DTO (adapter layer; no third persistence store in V1 unless required).
+3. OpenAPI snapshot + `ArchLucid.Api.Client` regeneration.
+4. Return `Location` header from async accept endpoints (**TB-2075** peers).
+
+**Acceptance:**
+
+- OpenAPI documents operation resource; snapshot tests pass.
+- Poll returns tenant-scoped operation for run execute job and background DOCX job.
+- `percentComplete` is **not** on the wire shape.
+
+**Affected files:** `ArchLucid.Application/` (new operation query service), `ArchLucid.Api/Controllers/`, `ArchLucid.Contracts/`, OpenAPI snapshot, `BackgroundJobInfo` mapper.
+
+**Depends on:** **TB-2073** (tenant scope audit).
+
+**Out of scope:** Cancel (**TB-2076**); UI shell (**TB-2077**).
+
+**Size estimate:** M.
+
+---
+
+## TB-2075 — Async execute/replay siblings — 202 + operation handle (P0)
+
+**Window:** V1 — Reliability.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner LRO ask 2026-08-06; `POST .../execute` holds HTTP until all agents complete (minutes in Real mode) while proxy aborts at 60s.
+
+**Why:** Real-mode execute and replay are Tier C — they cannot remain synchronous-only without false client failures and duplicate resubmits.
+
+**Approach:**
+
+1. Add `POST /v1/architecture/review/{runId}/execute/async` and `.../replay/async` returning **202** + `Location: /v1/operations/{id}`.
+2. Keep existing synchronous routes for Simulator mode and CI contract tests.
+3. Worker or in-process queue executes orchestrator; operation state updates between agent stages.
+4. Idempotency semantics unchanged on accept.
+
+**Acceptance:**
+
+- Real-mode UI can start execute without holding a 60s+ HTTP request.
+- Integration test: async accept → poll until `Succeeded` or `Failed`.
+- Sync route behavior unchanged for Simulator.
+
+**Affected files:** `RunsController.cs`, `ArchitectureRunExecuteOrchestrator.cs`, `ReplayRunService.cs`, operation projection (**TB-2074**), UI execute callers.
+
+**Depends on:** **TB-2074**.
+
+**Out of scope:** Architecture-intelligence async (follow-on if still sync after this); authority create queue (already outbox).
+
+**Size estimate:** L.
+
+---
+
+## TB-2076 — Operation cancellation API (P0)
+
+**Window:** V1 — Reliability / Cost-effectiveness.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner LRO ask 2026-08-06; `CancellationToken` plumbed but no `POST .../cancel` for runs or jobs.
+
+**Why:** Abandoned multi-agent runs continue billing tokens; operators need an honest cancel affordance with cooperative stage boundaries.
+
+**Approach:**
+
+1. `POST /v1/operations/{operationId}/cancel` → `CancelRequested` state.
+2. Orchestrator and background job processor check flag between stages (not mid-LLM-token).
+3. Audit event for cancel request; UI button on shell activity (**TB-2077**).
+
+**Acceptance:**
+
+- Cancel stops subsequent agent dispatches on an in-flight execute.
+- Terminal state `Cancelled` distinguishable from `Failed`.
+- No claim of immediate mid-completion abort.
+
+**Affected files:** Operation service, execute orchestrator, `BackgroundJobQueueProcessorHostedService.cs`, `RunsController` or `OperationsController`.
+
+**Depends on:** **TB-2074**.
+
+**Out of scope:** Provider refund of in-flight completion tokens.
+
+**Size estimate:** M.
+
+---
+
+## TB-2077 — Shell activity surface — in-flight operations (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner LRO ask 2026-08-06; progress lost on navigation; no global notification surface beyond Sonner toasts.
+
+**Why:** Users who navigate away during a 2-minute execute lose visibility; completion is easy to miss.
+
+**Approach:**
+
+1. Client store (TanStack Query) keyed by `operationId` with poll against **TB-2074** (fallback: existing SSE for run pipeline).
+2. Header/shell affordance listing in-flight operations with step label + elapsed time.
+3. Toast on terminal state when user is elsewhere; link back to run/detail.
+4. Reuse `ReviewStartStagedProgress` / `OperatorLoadingNotice` patterns — named stages, no fake %.
+
+**Acceptance:**
+
+- Starting async execute shows shell activity entry within 1s.
+- Navigating to another route preserves in-flight list until terminal.
+- Vitest for store + shell component; `aria-live` on active operation row.
+
+**Affected files:** `archlucid-ui/src/components/` (new activity surface), `AppShellClient.tsx`, hooks, `useRunSummaryStream.ts` integration.
+
+**Depends on:** **TB-2074** (poll target); can stub against run SSE until API lands.
+
+**Out of scope:** Full notification center / inbox product.
+
+**Size estimate:** M.
+
+---
+
+## TB-2078 — Tier B staged wait UX + route loading sweep (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner LRO ask 2026-08-06; only ~23/127 routes have `loading.tsx`; Tier B endpoints use button spinners only.
+
+**Why:** Commit, Ask, quick-scan, exports, retrieval, and bulk evidence routinely exceed 4s without staged messaging; administration and integrations show generic pulse on multi-second RSC loads.
+
+**Approach:**
+
+1. Shared `useLongOperationWait` hook: named stages, 10s/30s escalation copy, timeout recovery (extends `OperatorBrandedTransientFailure`).
+2. Wire Tier B surfaces: commit, Ask (non-stream), quick-scan, DOCX/export downloads, retrieval search, bulk evidence, policy-pack dry run.
+3. Add segment `loading.tsx` (or `error.tsx` where missing) for `administration/*` and `integrations/*` route trees — page-shaped skeletons where possible.
+4. Vitest for escalation copy triggers.
+
+**Acceptance:**
+
+- Documented matrix mapping Tier B routes → wait component.
+- Administration + integrations routes have segment `loading.tsx` or documented exception.
+- No new fake progress percentages.
+
+**Affected files:** `archlucid-ui/src/hooks/`, `archlucid-ui/src/app/(operator)/administration/`, `integrations/`, commit/ask/export clients.
+
+**Depends on:** **TB-2072** (tier list).
+
+**Out of scope:** Tier C async (**TB-2075**); bundle size (**TB-934**).
+
+**Size estimate:** L.
+
+---
+
+## TB-2079 — API latency-tier CI gate (P0)
+
+**Window:** V1 — Performance.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner LRO ask 2026-08-06; `API_PERFORMANCE_TARGETS.md` exists but no enforcement that Tier C endpoints return 202.
+
+**Why:** Without CI, new endpoints will reintroduce synchronous multi-minute holds.
+
+**Approach:**
+
+1. Machine-readable tier manifest (JSON) listing route templates + tier (A/B/C/D) sourced from contract doc.
+2. CI script: fail if Tier C controller action returns 200 without `[AsyncRequired]` opt-in attribute (or equivalent registry); fail if Tier A p95 budget regresses in k6 smoke where defined.
+3. Document regeneration in `docs/engineering/BUILD.md`.
+
+**Acceptance:**
+
+- CI fails on intentional Tier C sync regression (test fixture).
+- Manifest checked into `scripts/ci/data/`.
+- Contract doc references gate.
+
+**Affected files:** `scripts/ci/check_api_latency_tiers.py` (new), `scripts/ci/data/api_latency_tiers.v1.json`, `ArchLucid.Api.Tests/`, `LONG_RUNNING_OPERATIONS_CONTRACT.md`.
+
+**Depends on:** **TB-2072**.
+
+**Out of scope:** Full k6 suite expansion.
+
+**Size estimate:** M.
 
 ---
 
