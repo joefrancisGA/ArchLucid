@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-07 - UI: Data-handling help Evidence chrome (HED)
+
+`/help/data-handling` strengthens HelpDataHandlingTenantIsolationGuideView claim-discipline + Category-1 on the canon path, traffic Notes under Help topic (row ID HED), and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-07 - UI: Creating-runs help alias Evidence notes (HER)
 
 `/help/creating-runs` documents legacy slug alias to review-guide (HelpReviewGuideView Evidence chrome + Category-1 on alias path), traffic Notes under Help alias (row ID HER), and honest Evidence score 52 (inherits HR). Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.

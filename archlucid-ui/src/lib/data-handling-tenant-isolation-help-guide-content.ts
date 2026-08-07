@@ -37,9 +37,13 @@ export const DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES: readonly DataHandlingT
   { label: "Trust Center", href: "/trust" },
   { label: "Security and trust", href: inAppHelpHref("security-trust") },
   { label: "Audit trail help", href: inAppHelpHref("audit-trail") },
-  { label: "Data handling overview", href: inAppHelpHref("data-handling") },
   { label: "Subprocessors", href: inAppHelpHref("subprocessors") },
   { label: "DPA template", href: inAppHelpHref("dpa-template") },
   { label: "Procurement FAQ", href: inAppHelpHref("procurement") },
   { label: "Open audit trail", href: GOVERNANCE_AUDIT_PATH },
 ] as const;
+
+/** Honesty note — isolation language is orientation, not CPA SOC 2 or third-party pen-test publication. */
+export const DATA_HANDLING_TENANT_ISOLATION_HELP_CLAIM_DISCIPLINE =
+  "This page explains how ArchLucid handles review evidence and enforces tenant scope. It does not publish a CPA-issued SOC 2 report or a third-party pen-test summary, and it is not a countersigned DPA.";
+

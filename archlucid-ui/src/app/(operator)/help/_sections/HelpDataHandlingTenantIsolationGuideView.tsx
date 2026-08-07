@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
+  DATA_HANDLING_TENANT_ISOLATION_HELP_CLAIM_DISCIPLINE,
   DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW,
   DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_SUBTITLE,
   DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_TITLE,
@@ -36,7 +37,7 @@ type HelpDataHandlingTenantIsolationGuideViewProps = {
   readonly markdown: string;
 };
 
-/** Buyer-safe data handling + tenant isolation orientation for `/help/data-handling-tenant-isolation`. */
+/** Buyer-safe data handling + tenant isolation orientation for `/help/data-handling`. */
 export function HelpDataHandlingTenantIsolationGuideView(
   props: HelpDataHandlingTenantIsolationGuideViewProps,
 ): React.ReactElement {
@@ -130,6 +131,13 @@ export function HelpDataHandlingTenantIsolationGuideView(
             ))}
           </ul>
         </section>
+
+        <p
+          className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="help-data-handling-tenant-isolation-claim-discipline"
+        >
+          {DATA_HANDLING_TENANT_ISOLATION_HELP_CLAIM_DISCIPLINE}
+        </p>
       </div>
 
       <div className={HELP_PAGE_LAYOUT.contentGrid}>

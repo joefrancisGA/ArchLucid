@@ -279,8 +279,12 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "evidence-intake", label: "Start a review" },
   },
   {
+    prefix: "/help/data-handling",
+    topic: { slug: "data-handling", label: "Data handling and tenant isolation" },
+  },
+  {
     prefix: "/help/data-handling-tenant-isolation",
-    topic: { slug: "data-handling-tenant-isolation", label: "Data handling and tenant isolation" },
+    topic: { slug: "data-handling", label: "Data handling and tenant isolation" },
   },
   {
     prefix: "/help/dpa-template",
@@ -292,10 +296,6 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/help/path-chooser",
-    topic: { slug: "path-chooser", label: "Choose your next step" },
-  },
-  {
-    prefix: "/help/evaluator-workbook",
     topic: { slug: "path-chooser", label: "Choose your next step" },
   },
   {
@@ -332,10 +332,6 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/help/governance-api-contracts",
-    topic: { slug: "governance-api-contracts", label: "API contracts (technical reference)" },
-  },
-  {
-    prefix: "/help/api-contracts",
     topic: { slug: "governance-api-contracts", label: "API contracts (technical reference)" },
   },
   {
@@ -459,7 +455,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/administration/model-governance",
-    topic: { slug: "how-it-works", label: "AI and model governance" },
+    topic: { slug: "getting-started", label: "AI and model governance" },
   },
   {
     prefix: "/administration/users/invite-reviewer",
