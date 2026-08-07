@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { isOperatorNavLinkAdvancedInDemo, shouldHideOperatorNavLinkInDemo } from "./route-readiness";
+import { isOperatorNavLinkAdvancedInDemo, operatorRouteReadiness, shouldHideOperatorNavLinkInDemo } from "./route-readiness";
 
 describe("shouldHideOperatorNavLinkInDemo", () => {
   it("hides non-allowlisted advanced routes in demo mode", () => {
@@ -16,6 +16,14 @@ describe("shouldHideOperatorNavLinkInDemo", () => {
 
   it("does not hide when demo mode is off", () => {
     expect(shouldHideOperatorNavLinkInDemo("/replay", false)).toBe(false);
+  });
+});
+
+describe("operatorRouteReadiness", () => {
+  it("treats legacy governance bookmarks as advanced-only via canonicalization", () => {
+    for (const href of ["/audit", "/policy-packs", "/alerts", "/alert-rules"]) {
+      expect(operatorRouteReadiness(href)).toBe("advanced-only");
+    }
   });
 });
 

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
-import { PilotValueReportPageClient } from "@/app/(operator)/value-report/pilot/_sections/PilotValueReportPageClient";
-import { loadPilotValueReportPageData } from "@/app/(operator)/value-report/pilot/_sections/load-pilot-value-report-page-data";
+import { PilotValueReportPageClient } from "@/app/(operator)/sponsor-report/pilot-outcomes/_sections/PilotValueReportPageClient";
+import { loadPilotValueReportPageData } from "@/app/(operator)/sponsor-report/pilot-outcomes/_sections/load-pilot-value-report-page-data";
 import {
   PILOT_OUTCOMES_PAGE_TITLE,
   SPONSOR_REPORT_SECTION_LABEL,

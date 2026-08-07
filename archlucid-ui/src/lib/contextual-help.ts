@@ -1,4 +1,5 @@
 import { getDocHref } from "@/lib/help-topics";
+import { REVIEWS_LIST_PATH } from "@/lib/architecture-routes";
 import { GOVERNANCE_ALERTS_PATH, GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
 
 /**
@@ -7,6 +8,7 @@ import { GOVERNANCE_ALERTS_PATH, GOVERNANCE_AUDIT_PATH } from "@/lib/governance-
  */
 const PAGE_KEY_TO_DOC_REF: Readonly<Record<string, string>> = {
   "/runs": "docs/library/customer-facing/OPERATOR_QUICKSTART.md#operator-ui",
+  [REVIEWS_LIST_PATH]: "docs/library/customer-facing/OPERATOR_QUICKSTART.md#operator-ui",
   "/runs/[id]": "docs/library/customer-facing/WORKSPACE_NAVIGATION_GUIDE.md#main-workflow",
   "/insights/compare-two-reviews": "docs/library/COMPARISON_REPLAY.md",
   "/governance/approval-queue": "docs/library/PRE_COMMIT_GOVERNANCE_GATE.md",

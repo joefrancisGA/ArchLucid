@@ -26,7 +26,7 @@ import {
   SIGNED_RECORD_ARTIFACT_WHAT_IS_THIS_HEADING,
   signedRecordArtifactPageSubtitle,
 } from "@/lib/signed-record-artifact-page-copy";
-import { signedRecordDetailPath } from "@/lib/signed-records-paths";
+import { SIGNED_RECORDS_LIST_PATH, signedRecordDetailPath } from "@/lib/signed-records-paths";
 
 import { SignedRecordArtifactPageHeader } from "./SignedRecordArtifactPageHeader";
 import type { SignedRecordArtifactPageSuccessModel } from "./signed-record-artifact-page-model";
@@ -55,7 +55,7 @@ export function SignedRecordArtifactPageView(props: SignedRecordArtifactPageView
   return (
     <div className="w-full max-w-[1200px] space-y-6 px-1 py-2 sm:px-0" data-testid="signed-record-artifact-page">
       <nav aria-label="Breadcrumb" className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-        <Link className={OPERATOR_LINK.nav} href="/signed-records">
+        <Link className={OPERATOR_LINK.nav} href={SIGNED_RECORDS_LIST_PATH}>
           Signed review records
         </Link>
         {" · "}

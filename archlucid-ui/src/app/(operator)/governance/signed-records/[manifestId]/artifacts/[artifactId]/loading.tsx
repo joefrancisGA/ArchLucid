@@ -14,7 +14,7 @@ export default function SignedRecordArtifactLoading(): React.JSX.Element {
       aria-busy="true"
     >
       <nav aria-label="Breadcrumb" className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-        <Link className={OPERATOR_LINK.nav} href="/signed-records">
+        <Link className={OPERATOR_LINK.nav} href={SIGNED_RECORDS_LIST_PATH}>
           Signed review records
         </Link>
       </nav>

@@ -20,7 +20,7 @@ describe("create vs review intake differentiation (TB-747)", () => {
   });
 
   it("uses evidence-first progress copy on the quick review intake wizard", () => {
-    const wizardSource = readUiSource("app/(operator)/reviews/new/FirstPilotIntakeWizard.tsx");
+    const wizardSource = readUiSource("app/(operator)/architecture/reviews/new/FirstPilotIntakeWizard.tsx");
 
     expect(wizardSource).toContain("REVIEW_INTAKE_EVIDENCE_FIRST_PROGRESS_TITLE");
     expect(wizardSource).toContain("REVIEW_INTAKE_EVIDENCE_FIRST_PROGRESS_LEAD");

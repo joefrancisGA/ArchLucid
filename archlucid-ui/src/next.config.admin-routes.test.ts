@@ -110,6 +110,12 @@ describe("next.config administration routes (TB-406 / TB-522 / TB-751)", () => {
     ).toBe(false);
   });
 
+  it("redirects legacy /runs to architecture reviews", async () => {
+    const redirectRules = await nextConfig.redirects?.();
+
+    expect(redirectRules?.find((rule) => rule.source === "/runs")?.destination).toBe("/architecture/reviews");
+  });
+
   it("redirects legacy /dashboard to the canonical executive dashboard", async () => {
     const redirectRules = await nextConfig.redirects?.();
 

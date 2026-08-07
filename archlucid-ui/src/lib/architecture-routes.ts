@@ -13,6 +13,9 @@ export const REVIEWS_LIST_PATH = "/architecture/reviews" as const;
 /** Legacy top-level reviews path — permanent redirect to {@link REVIEWS_LIST_PATH}. */
 export const LEGACY_REVIEWS_LIST_PATH = "/reviews" as const;
 
+/** Legacy runs list bookmark — permanent redirect to {@link REVIEWS_LIST_PATH}. */
+export const LEGACY_RUNS_LIST_PATH = "/runs" as const;
+
 /** Left-nav Reviews destination — scoped to the default project. */
 export const REVIEWS_LIST_NAV_HREF = "/architecture/reviews?projectId=default" as const;
 

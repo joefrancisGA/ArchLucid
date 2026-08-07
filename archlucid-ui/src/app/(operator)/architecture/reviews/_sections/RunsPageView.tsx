@@ -14,6 +14,7 @@ import { RunsIndexBeforeAfterPanel } from "@/components/RunsIndexBeforeAfterPane
 import { RunsListAggregateErrorBoundary } from "@/components/RunsListAggregateErrorBoundary";
 import { RunsListProofHeadline } from "@/components/RunsListProofHeadline";
 import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
+import { REVIEWS_LIST_PATH } from "@/lib/architecture-routes";
 import {
   BUYER_RUNS_LIST_MALFORMED_BODY,
   BUYER_RUNS_LIST_MALFORMED_HEADING,
@@ -73,7 +74,7 @@ export function RunsPageView(props: Props) {
           </>
         }
         helpKey="runs-list-overview"
-        docsPageKey="/runs"
+        docsPageKey={REVIEWS_LIST_PATH}
         actions={<ReviewsHubHeaderActions />}
       />
 

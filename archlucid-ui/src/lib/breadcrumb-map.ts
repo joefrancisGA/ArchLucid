@@ -25,7 +25,9 @@ import {
   GOVERNANCE_ALERT_RULES_PATH,
   GOVERNANCE_APPROVAL_QUEUE_PATH,
   GOVERNANCE_POLICY_PACKS_PATH,
+  LEGACY_AUDIT_PATH,
   pathMatchesGovernanceApprovalQueue,
+  pathMatchesRoutePrefix,
 } from "@/lib/governance-route-paths";
 import {
   LEGACY_SIGNED_RECORDS_LIST_PATH,
@@ -290,7 +292,7 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
     return [{ label: GOVERNANCE_OVERVIEW_PAGE_TITLE }];
   }
 
-  if (normalized === "/audit" || normalized.startsWith("/audit/")) {
+  if (pathMatchesRoutePrefix(normalized, LEGACY_AUDIT_PATH)) {
     const runId = options?.queryRunId?.trim();
 
     if (runId === undefined || runId.length === 0) {

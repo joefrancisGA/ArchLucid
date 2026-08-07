@@ -11,6 +11,7 @@ import {
 } from "@/lib/governance-route-paths";
 import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
 import { DIGESTS_HUB_PATH, LEGACY_DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
+import { canonicalizeLegacyOperatorRoutePath } from "@/lib/canonicalize-legacy-operator-route-path";
 
 export type RouteReadinessTier = "demo-ready" | "advanced-only" | "admin-only" | "hidden";
 
@@ -58,11 +59,7 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/governance/audit": "advanced-only",
   "/governance/alerts": "advanced-only",
   "/governance/alert-rules": "advanced-only",
-  "/policy-packs": "advanced-only",
-  "/audit": "advanced-only",
   "/administration/system-health": "demo-ready",
-  "/alerts": "advanced-only",
-  "/alert-rules": "advanced-only",
   "/demo/explain": "hidden",
 
   "/internal/product-learning": "advanced-only",
@@ -101,7 +98,7 @@ export function operatorRouteReadiness(href: string): RouteReadinessTier {
     return fromTable ?? "demo-ready";
   }
 
-  const trimmedPath = path.trim().length === 0 ? "/" : path;
+  const trimmedPath = canonicalizeLegacyOperatorRoutePath(path.trim().length === 0 ? "/" : path);
 
   if (trimmedPath.startsWith("/governance/approval-requests")) {
     return "admin-only";
@@ -128,10 +125,6 @@ const DEMO_MODE_ADVANCED_NAV_ALLOWLIST = new Set<string>([
   "/governance/policy-packs",
   "/governance/alerts",
   "/governance/alert-rules",
-  "/audit",
-  "/policy-packs",
-  "/alerts",
-  "/alert-rules",
 ]);
 
 import { isCtoDemoPresenterSafeModeEnv } from "@/lib/cto-demo-presenter-pack";
@@ -170,7 +163,7 @@ const DEMO_MODE_EXPLICIT_NAV_HIDE = new Set<string>([
 
 function normalizeOperatorNavHrefForDemo(href: string): string {
   const [path, query] = href.split("?", 2);
-  const trimmed = path.trim().length === 0 ? "/" : path;
+  const trimmed = canonicalizeLegacyOperatorRoutePath(path.trim().length === 0 ? "/" : path);
 
   if (trimmed === "/architecture/reviews" && query !== undefined && query.includes("projectId=")) {
     return "/architecture/reviews?projectId=default";

@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { PilotOutcomesEvidenceOrientationStrip } from "@/app/(operator)/value-report/pilot/_sections/PilotOutcomesEvidenceOrientationStrip";
+import { PilotOutcomesEvidenceOrientationStrip } from "@/app/(operator)/sponsor-report/pilot-outcomes/_sections/PilotOutcomesEvidenceOrientationStrip";
 import {
   PILOT_OUTCOMES_CANONICAL_PATH,
   PILOT_OUTCOMES_SOURCES,

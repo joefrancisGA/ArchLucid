@@ -124,6 +124,8 @@ const nextConfig: NextConfig = {
       },
       { source: "/reviews", destination: "/architecture/reviews", permanent: true },
       { source: "/reviews/:path*", destination: "/architecture/reviews/:path*", permanent: true },
+      { source: "/runs", destination: "/architecture/reviews", permanent: true },
+      { source: "/runs/:path*", destination: "/architecture/reviews/:path*", permanent: true },
       {
         source: "/architecture/reviews/:id/manifest",
         destination: "/architecture/reviews/:id/signed-record",

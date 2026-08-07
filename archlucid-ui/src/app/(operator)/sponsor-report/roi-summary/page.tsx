@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
-import { RoiSummaryPageClient } from "@/app/(operator)/value-report/roi/_sections/RoiSummaryPageClient";
-import { loadRoiSummaryPageData } from "@/app/(operator)/value-report/roi/_sections/load-roi-summary-page-data";
+import { RoiSummaryPageClient } from "@/app/(operator)/sponsor-report/roi-summary/_sections/RoiSummaryPageClient";
+import { loadRoiSummaryPageData } from "@/app/(operator)/sponsor-report/roi-summary/_sections/load-roi-summary-page-data";
 import { SPONSOR_REPORT_SECTION_LABEL } from "@/lib/sponsor-report-navigation";
 
 export const metadata: Metadata = {

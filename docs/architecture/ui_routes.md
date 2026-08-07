@@ -117,6 +117,7 @@ Configured in `archlucid-ui/next.config.ts` — **namespace force-canonical** (r
 | Source | Destination |
 |--------|-------------|
 | `/reviews`, `/reviews/*` | `/architecture/reviews`, `/architecture/reviews/*` (301) |
+| `/runs`, `/runs/*` | `/architecture/reviews`, `/architecture/reviews/*` (301) |
 | `/reviews/:id/manifest` | `/architecture/reviews/:id/signed-record` (301) |
 | `/dashboard` | `/architecture/executive-dashboard` (301) |
 | `/executive/dashboard`, `/portfolio` | `/architecture/executive-dashboard` (301) |
