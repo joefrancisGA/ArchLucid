@@ -1,6 +1,7 @@
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ContextIngestion.Interfaces;
+using ArchLucid.Contracts.Scoping;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.KnowledgeGraph.Interfaces;
@@ -135,6 +136,69 @@ public sealed class AuthorityQueryServiceGetRunDetailArtifactBundleTests
                     It.IsAny<Guid>(),
                     It.Is<bool>(static v => v),
                     It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Theory]
+    [InlineData(typeof(InMemoryAuthorityQueryService))]
+    [InlineData(typeof(DapperAuthorityQueryService))]
+    public async Task GetRunDetailForRetrievalIndexingAsync_loads_bundle_metadata_without_bodies(
+        Type implementationType)
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        Guid manifestId = Guid.NewGuid();
+        ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId };
+
+        RunRecord run = new()
+        {
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ScopeProjectId = projectId,
+            RunId = runId,
+            ProjectId = "default",
+            GoldenManifestId = manifestId,
+        };
+
+        ArtifactBundle bundle = new() { ManifestId = manifestId, BundleId = Guid.NewGuid() };
+
+        Mock<IRunRepository> runs = new();
+        runs.Setup(r => r.GetByIdAsync(scope, runId, It.IsAny<CancellationToken>())).ReturnsAsync(run);
+
+        Mock<IContextSnapshotRepository> contextSnapshots = new();
+        Mock<IGraphSnapshotRepository> graphSnapshots = new();
+        Mock<IFindingsSnapshotRepository> findingsSnapshots = new();
+        Mock<IDecisionTraceRepository> traces = new();
+        Mock<IGoldenManifestRepository> manifests = new();
+        Mock<IArtifactBundleRepository> bundles = new();
+        bundles
+            .Setup(b => b.GetByManifestIdAsync(scope, manifestId, false, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(bundle);
+
+        Mock<IAgentExecutionTraceRepository> traceRows = CreateTraceRepoStub();
+
+        IAuthorityQueryService sut = CreateQueryService(
+            implementationType,
+            runs.Object,
+            contextSnapshots.Object,
+            graphSnapshots.Object,
+            findingsSnapshots.Object,
+            traces.Object,
+            manifests.Object,
+            bundles.Object,
+            traceRows.Object);
+
+        RunDetailDto? detail = await sut.GetRunDetailForRetrievalIndexingAsync(scope, runId, CancellationToken.None);
+
+        detail.Should().NotBeNull();
+        detail!.ArtifactBundle.Should().BeSameAs(bundle);
+        bundles.Verify(
+            b => b.GetByManifestIdAsync(scope, manifestId, false, It.IsAny<CancellationToken>()),
+            Times.Once);
+        contextSnapshots.Verify(
+            r => r.GetByIdAsync(It.IsAny<ReadScopeTriple>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 

@@ -62,12 +62,13 @@ public sealed class RetrievalIndexingOutboxProcessorCorrelationTests
 
         Mock<IAuthorityQueryService> query = new();
         query
-            .Setup(q => q.GetRunDetailAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
+            .Setup(q => q.GetRunDetailForRetrievalIndexingAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((RunDetailDto?)null);
 
         ServiceCollection services = [];
         services.AddScoped(_ => outbox.Object);
         services.AddScoped(_ => query.Object);
+        services.AddScoped(_ => Mock.Of<IArtifactQueryService>());
         services.AddScoped(_ => Mock.Of<IRetrievalRunCompletionIndexer>());
         services.AddScoped(_ => Mock.Of<IProvenanceBuilder>());
         ServiceProvider provider = services.BuildServiceProvider();
@@ -156,8 +157,13 @@ public sealed class RetrievalIndexingOutboxProcessorCorrelationTests
 
         Mock<IAuthorityQueryService> query = new();
         query
-            .Setup(q => q.GetRunDetailAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
+            .Setup(q => q.GetRunDetailForRetrievalIndexingAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(detail);
+
+        Mock<IArtifactQueryService> artifactQuery = new();
+        artifactQuery
+            .Setup(q => q.GetArtifactsByManifestIdAsync(It.IsAny<ScopeContext>(), manifest.ManifestId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
 
         Mock<IProvenanceBuilder> provenanceBuilder = new();
         provenanceBuilder
@@ -182,6 +188,7 @@ public sealed class RetrievalIndexingOutboxProcessorCorrelationTests
         ServiceCollection services = [];
         services.AddScoped(_ => outbox.Object);
         services.AddScoped(_ => query.Object);
+        services.AddScoped(_ => artifactQuery.Object);
         services.AddScoped(_ => indexer.Object);
         services.AddScoped(_ => provenanceBuilder.Object);
         ServiceProvider provider = services.BuildServiceProvider();

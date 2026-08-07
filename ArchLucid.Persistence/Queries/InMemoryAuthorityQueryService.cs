@@ -186,6 +186,48 @@ public sealed class InMemoryAuthorityQueryService(
     }
 
     /// <inheritdoc />
+    public async Task<RunDetailDto?> GetRunDetailForRetrievalIndexingAsync(ScopeContext scope, Guid runId, CancellationToken ct)
+    {
+        RunRecord? run = await runRepository.GetByIdAsync(scope, runId, ct);
+
+        if (run is null)
+            return null;
+
+        Task<GraphSnapshot?> graphTask = run.GraphSnapshotId.HasValue
+            ? graphSnapshotProjectionCache.GetOrLoadAsync(
+                scope,
+                run.RunId,
+                run.GraphSnapshotId.Value,
+                token => graphSnapshotRepository.GetByIdAsync(scope, run.GraphSnapshotId!.Value, token),
+                ct)
+            : Task.FromResult<GraphSnapshot?>(null);
+        Task<FindingsSnapshot?> findingsTask = run.FindingsSnapshotId.HasValue
+            ? findingsSnapshotRepository.GetByIdAsync(scope, run.FindingsSnapshotId.Value, ct)
+            : Task.FromResult<FindingsSnapshot?>(null);
+        Task<DecisionTraceDto?> traceTask = run.DecisionTraceId.HasValue
+            ? decisionTraceRepository.GetByIdAsync(scope, run.DecisionTraceId.Value, ct)
+            : Task.FromResult<DecisionTraceDto?>(null);
+        Task<ManifestDocument?> manifestTask = run.GoldenManifestId.HasValue
+            ? goldenManifestRepository.GetByIdAsync(scope, run.GoldenManifestId.Value, ct)
+            : Task.FromResult<ManifestDocument?>(null);
+        Task<ArtifactBundle?> bundleTask = run.GoldenManifestId.HasValue
+            ? artifactBundleRepository.GetByManifestIdAsync(scope, run.GoldenManifestId.Value, loadArtifactBodies: false, ct)
+            : Task.FromResult<ArtifactBundle?>(null);
+
+        await Task.WhenAll(graphTask, findingsTask, traceTask, manifestTask, bundleTask);
+
+        return new RunDetailDto
+        {
+            Run = run,
+            GraphSnapshot = await graphTask,
+            FindingsSnapshot = await findingsTask,
+            AuthorityTrace = await traceTask,
+            GoldenManifest = await manifestTask,
+            ArtifactBundle = await bundleTask,
+        };
+    }
+
+    /// <inheritdoc />
     public async Task<RunDetailDto?> GetRunDetailForBuyerSummaryAsync(ScopeContext scope, Guid runId, CancellationToken ct)
     {
         RunRecord? run = await runRepository.GetByIdAsync(scope, runId, ct);

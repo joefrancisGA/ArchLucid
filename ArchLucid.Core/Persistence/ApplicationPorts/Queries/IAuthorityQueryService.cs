@@ -98,6 +98,15 @@ public interface IAuthorityQueryService
         CancellationToken ct);
 
     /// <summary>
+    ///     Retrieval indexing outbox path (TB-2055): graph, findings, trace, manifest, and artifact metadata without
+    ///     context snapshot, disposition coverage, or artifact bodies (bodies loaded separately for indexing).
+    /// </summary>
+    Task<RunDetailDto?> GetRunDetailForRetrievalIndexingAsync(
+        ScopeContext scope,
+        Guid runId,
+        CancellationToken ct);
+
+    /// <summary>
     ///     Projects a golden manifest into a compact summary (counts and metadata) without returning the full document.
     /// </summary>
     /// <returns>Summary DTO, or <see langword="null" /> when the manifest id is unknown in <paramref name="scope" />.</returns>
