@@ -11,7 +11,7 @@ Regenerate after opening or closing summary-table rows:
 | --- | ---: |
 | Correctness | 3 |
 | Testability | 127 |
-| Reliability | 20 |
+| Reliability | 19 |
 | Deployability | 4 |
 | AI/Agent readiness | 12 |
 | Architectural integrity | 11 |
@@ -35,9 +35,9 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **804** |
+| **Total (unique open)** | **803** |
 
-**By priority band:** P0 **20** | P1 **652** | P2 **115** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **19** | P1 **652** | P2 **115** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
