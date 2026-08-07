@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-07 - Trustworthiness: TB-2067 distinct DeterministicFallback trust chip
+
+Trust chips and provenance aggregates now distinguish policy-rule findings from deterministic fallbacks when the live model path failed. Wire `trustLabelReason` populates the chip tooltip when supplied.
+
 ## 2026-08-07 - Trustworthiness: TB-2066 finding inspect trust enricher run context
 
 Finding inspect now derives trust labels from parent run structural execution mode and degradation signals instead of hardcoded Real-mode context.

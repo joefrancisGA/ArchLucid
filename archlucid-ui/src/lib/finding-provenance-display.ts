@@ -15,7 +15,11 @@ export type FindingTrustLabelName =
   | "DeterministicFallback"
   | "DeterministicRule";
 
-export type FindingProvenanceOrigin = "Deterministic rule" | "AI-generated" | "Simulated";
+export type FindingProvenanceOrigin =
+  | "Deterministic rule"
+  | "Deterministic fallback"
+  | "AI-generated"
+  | "Simulated";
 
 export type FindingProvenanceGrounding =
   | "Evidence-backed"
@@ -32,6 +36,8 @@ export type FindingProvenanceDisplay = {
 export const FINDING_PROVENANCE_ORIGIN_EXPLANATIONS: Record<FindingProvenanceOrigin, string> = {
   "Deterministic rule":
     "A deterministic policy rule fired; the rationale comes from the rule definition, not a model.",
+  "Deterministic fallback":
+    "The live model path failed; this finding uses a deterministic fallback — verify independently before sign-off.",
   "AI-generated":
     "A language model produced this finding; check the grounding label and linked evidence before signing off.",
   Simulated:
@@ -80,9 +86,10 @@ export function normalizeFindingTrustLabelName(raw: string | null | undefined): 
 /** Maps each FindingTrustLabel value to reviewer-facing origin × grounding. */
 export function mapFindingTrustLabelToProvenance(label: FindingTrustLabelName): FindingProvenanceDisplay {
   switch (label) {
-    case "DeterministicFallback":
     case "DeterministicRule":
       return { origin: "Deterministic rule", grounding: "Not applicable" };
+    case "DeterministicFallback":
+      return { origin: "Deterministic fallback", grounding: "Not applicable" };
     case "RealModel":
       return { origin: "AI-generated", grounding: "Evidence-backed" };
     case "EvidenceBacked":
@@ -172,6 +179,7 @@ export function resolveFindingProvenance(input: DeriveFindingTrustLabelInput): F
 export type FindingProvenanceAggregateCounts = {
   readonly total: number;
   readonly deterministicRule: number;
+  readonly deterministicFallback: number;
   readonly aiGenerated: number;
   readonly aiEvidenceBacked: number;
   readonly simulated: number;
@@ -181,6 +189,7 @@ export function aggregateFindingProvenance(
   items: readonly DeriveFindingTrustLabelInput[],
 ): FindingProvenanceAggregateCounts {
   let deterministicRule = 0;
+  let deterministicFallback = 0;
   let aiGenerated = 0;
   let aiEvidenceBacked = 0;
   let simulated = 0;
@@ -190,6 +199,8 @@ export function aggregateFindingProvenance(
 
     if (provenance.origin === "Deterministic rule") {
       deterministicRule += 1;
+    } else if (provenance.origin === "Deterministic fallback") {
+      deterministicFallback += 1;
     } else if (provenance.origin === "Simulated") {
       simulated += 1;
     } else {
@@ -204,6 +215,7 @@ export function aggregateFindingProvenance(
   return {
     total: items.length,
     deterministicRule,
+    deterministicFallback,
     aiGenerated,
     aiEvidenceBacked,
     simulated,
@@ -221,6 +233,12 @@ export function formatFindingProvenanceAggregateLine(counts: FindingProvenanceAg
   if (counts.deterministicRule > 0) {
     parts.push(
       `${counts.deterministicRule} from deterministic rule${counts.deterministicRule === 1 ? "" : "s"}`,
+    );
+  }
+
+  if (counts.deterministicFallback > 0) {
+    parts.push(
+      `${counts.deterministicFallback} deterministic fallback${counts.deterministicFallback === 1 ? "" : "s"}`,
     );
   }
 

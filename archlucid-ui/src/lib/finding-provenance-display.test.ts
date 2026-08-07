@@ -24,7 +24,7 @@ const ALL_LABELS: readonly FindingTrustLabelName[] = [
 
 describe("mapFindingTrustLabelToProvenance", () => {
   it.each([
-    ["DeterministicFallback", "Deterministic rule", "Not applicable"],
+    ["DeterministicFallback", "Deterministic fallback", "Not applicable"],
     ["DeterministicRule", "Deterministic rule", "Not applicable"],
     ["RealModel", "AI-generated", "Evidence-backed"],
     ["EvidenceBacked", "AI-generated", "Evidence-backed"],
@@ -111,6 +111,7 @@ describe("aggregateFindingProvenance", () => {
     expect(counts).toEqual({
       total: 5,
       deterministicRule: 2,
+      deterministicFallback: 0,
       aiGenerated: 3,
       aiEvidenceBacked: 2,
       simulated: 0,
@@ -122,5 +123,24 @@ describe("aggregateFindingProvenance", () => {
 
   it("returns null for an empty aggregate", () => {
     expect(formatFindingProvenanceAggregateLine(aggregateFindingProvenance([]))).toBeNull();
+  });
+
+  it("counts deterministic fallback separately from policy rules", () => {
+    const counts = aggregateFindingProvenance([
+      { policyRuleId: "r1" },
+      { trustLabel: "DeterministicFallback" },
+    ]);
+
+    expect(counts).toEqual({
+      total: 2,
+      deterministicRule: 1,
+      deterministicFallback: 1,
+      aiGenerated: 0,
+      aiEvidenceBacked: 0,
+      simulated: 0,
+    });
+    expect(formatFindingProvenanceAggregateLine(counts)).toBe(
+      "2 findings — 1 from deterministic rule, 1 deterministic fallback",
+    );
   });
 });
