@@ -24160,6 +24160,9 @@
           "completionStateDiffers": {
             "type": "boolean"
           },
+          "executionModesDiffer": {
+            "type": "boolean"
+          },
           "manifestVersionsDiffer": {
             "type": "boolean"
           },

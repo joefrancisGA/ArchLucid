@@ -152919,6 +152919,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("completionStateDiffers")]
         public bool? CompletionStateDiffers { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("executionModesDiffer")]
+        public bool? ExecutionModesDiffer { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("manifestVersionsDiffer")]
         public bool? ManifestVersionsDiffer { get; set; } = default!;
 
