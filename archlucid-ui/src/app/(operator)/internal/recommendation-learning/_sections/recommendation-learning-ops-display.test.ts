@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   profileStateLabel,
   resolveDeployEnvironmentLabel,
-} from "@/app/(operator)/internal-operations/recommendation-learning/_sections/recommendation-learning-ops-display";
+} from "@/app/(operator)/internal/recommendation-learning/_sections/recommendation-learning-ops-display";
 
 describe("recommendation-learning-ops-display", () => {
   it("maps profile state labels for operators", () => {

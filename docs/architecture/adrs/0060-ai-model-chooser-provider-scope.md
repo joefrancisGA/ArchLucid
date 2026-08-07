@@ -4,9 +4,10 @@
 
 # ADR 0060: AI model chooser — provider scope, customer-provided connections, and activation gates
 
-- **Status:** Accepted
+- **Status:** Accepted — **D1 superseded in part** by [ADR 0065](0065-curated-multi-engine-model-catalog.md) (2026-08-07). **D2, D5, D6, D7 remain operative**; **D3** (TB-872) and **D4** (TB-873) are re-sequenced by ADR 0065 D7′ with their evaluation gates retained.
 - **Date:** 2026-07-18
 - **Accepted:** 2026-07-18 (owner)
+- **Superseded by:** [ADR 0065 — Curated multi-engine model catalog](0065-curated-multi-engine-model-catalog.md) for **D1 only** (2026-08-07). ADR 0065 records that **no D1 reassessment trigger had fired**; reopening was an owner strategic bet.
 
 ## Context
 

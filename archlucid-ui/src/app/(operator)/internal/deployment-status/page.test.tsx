@@ -30,7 +30,7 @@ describe("AdminDeploymentStatusPage", () => {
   it("renders identity fields and match agreement from the admin API", async () => {
     const fetchMock = vi.fn(async (url: string | URL) => {
       const s = String(url);
-      expect(s).toContain("/api/proxy/v1/admin/deployment-status");
+      expect(s).toContain("/api/proxy/v1/internal/deployment-status");
       expect(s).toContain("frontendBuildId=frontendsha");
 
       return jsonResponse({

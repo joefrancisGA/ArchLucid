@@ -17,7 +17,7 @@ export type BaselineSettingsSourceLink = {
 export const BASELINE_SETTINGS_SOURCES: readonly BaselineSettingsSourceLink[] = [
   { label: "Pilot ROI model", href: inAppHelpHref("pilot-roi-model") },
   { label: "Architecture scorecard", href: "/insights/architecture-scorecard" },
-  { label: "ROI summary", href: "/sponsor-report/roi-summary" },
-  { label: "Pilot outcomes", href: "/sponsor-report/pilot-outcomes" },
+  { label: "ROI summary", href: "/insights/roi-summary" },
+  { label: "Pilot outcomes", href: "/insights/pilot-outcomes" },
   { label: "Billing & plans", href: "/administration/billing" },
 ] as const;

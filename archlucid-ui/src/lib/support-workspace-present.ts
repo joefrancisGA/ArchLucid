@@ -55,7 +55,7 @@ export const SUPPORT_TROUBLESHOOTING_SHORTCUTS: readonly SupportTroubleshootingS
     id: "system-health",
     title: "Check system health",
     detail: "Start here for API readiness, dependency status, and recent health signals.",
-    route: "/admin/health",
+    route: "/internal/health",
   },
   {
     id: "troubleshooting-guide",

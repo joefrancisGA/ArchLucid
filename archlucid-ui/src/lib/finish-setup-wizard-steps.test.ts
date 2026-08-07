@@ -12,14 +12,14 @@ describe("finish-setup-wizard-steps", () => {
 
     expect(healthStep).toBeDefined();
     expect(healthStep?.href).toBe(FINISH_SETUP_SYSTEM_HEALTH_PATH);
-    expect(healthStep?.href).not.toContain("/admin/health");
+    expect(healthStep?.href).not.toContain("/internal/health");
   });
 
   it("omits the health step on managed SaaS deployments", () => {
     const steps = resolveFinishSetupWizardSteps({ selfHosted: false });
 
     expect(steps.some((step) => step.id === "health")).toBe(false);
-    expect(steps.every((step) => step.href !== "/admin/health")).toBe(true);
+    expect(steps.every((step) => step.href !== "/internal/health")).toBe(true);
   });
 
   it("keeps the health step on self-hosted deployments", () => {

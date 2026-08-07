@@ -1,11 +1,11 @@
 /**
- * Traffic workbook row ID for Validate review (`/replay`).
+ * Traffic workbook row ID for Validate review (`/internal/replay`).
  * Owner backlog shorthand: REP.
  */
 export const REPLAY_TRAFFIC_ROW_ID = "REP";
 
 /** Canonical path tracked on the REP workbook row. */
-export const REPLAY_TRAFFIC_PATH = "/replay";
+export const REPLAY_TRAFFIC_PATH = "/internal/replay";
 
 /** Workbook Section column value (template catalog — Marketing row for operator Execute tool). */
 export const REPLAY_TRAFFIC_SECTION = "Marketing";

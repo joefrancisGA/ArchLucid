@@ -21,5 +21,5 @@ export const SIGNED_RECORD_SOURCES: readonly SignedRecordSourceLink[] = [
   { label: "Findings", href: "/governance/findings" },
   { label: "Audit", href: GOVERNANCE_AUDIT_PATH },
   { label: "Assurance status", href: "/security-trust" },
-  { label: "How ArchLucid works", href: inAppHelpHref("how-it-works") },
+  { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
 ] as const;

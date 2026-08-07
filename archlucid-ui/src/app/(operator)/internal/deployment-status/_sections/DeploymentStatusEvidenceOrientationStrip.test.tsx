@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { DeploymentStatusEvidenceOrientationStrip } from "@/app/(operator)/admin/deployment-status/_sections/DeploymentStatusEvidenceOrientationStrip";
+import { DeploymentStatusEvidenceOrientationStrip } from "@/app/(operator)/internal/deployment-status/_sections/DeploymentStatusEvidenceOrientationStrip";
 import {
   DEPLOYMENT_STATUS_CANONICAL_PATH,
   DEPLOYMENT_STATUS_SOURCES,

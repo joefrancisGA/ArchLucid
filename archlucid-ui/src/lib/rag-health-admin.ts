@@ -12,7 +12,7 @@ export type AdminRagHealthResponse = {
 };
 
 export async function fetchAdminRagHealth(): Promise<AdminRagHealthResponse> {
-  const res = await fetch("/api/proxy/v1/admin/rag-health", {
+  const res = await fetch("/api/proxy/v1/internal/rag-health", {
     method: "GET",
     credentials: "include",
     cache: "no-store",

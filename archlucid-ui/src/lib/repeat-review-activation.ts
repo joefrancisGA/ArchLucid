@@ -80,12 +80,12 @@ export function resolveRepeatReviewActivation(input: {
     actions: [
       {
         label: "Replay latest review",
-        href: latestHref !== null ? `/replay?runId=${encodeURIComponent(input.latestRunId!)}` : "/replay",
+        href: latestHref !== null ? `/replay?runId=${encodeURIComponent(input.latestRunId!)}` : "/internal/replay",
         reason: "Reconstruct authority pipeline when investigating regressions.",
       },
       {
         label: "Executive value report",
-        href: "/sponsor-report/executive-summary",
+        href: "/insights/executive-summary",
         reason: "Sponsor-safe ROI rollup with source labels and freshness disposition.",
       },
       {

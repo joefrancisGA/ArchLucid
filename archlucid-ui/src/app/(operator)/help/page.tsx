@@ -21,7 +21,10 @@ export default function HelpPage() {
         <h1 className={`m-0 ${OPERATOR_TYPOGRAPHY.pageTitle}`}>Help</h1>
         <p className={`m-0 ${OPERATOR_TYPOGRAPHY.helper}`}>
           Start with <strong>Guides</strong> for review workflows and cloud connections. See{" "}
-          <Link className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300" href="/help/how-it-works">
+          <Link
+            className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+            href="/help/getting-started#how-archlucid-works"
+          >
             How ArchLucid works
           </Link>{" "}
           for the workflow, the{" "}

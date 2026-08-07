@@ -205,7 +205,7 @@ describe("SidebarNav — Internal Operations section", () => {
   });
 
   it("expands Internal Operations and highlights an active internal route", async () => {
-    mockPathname.mockReturnValue("/admin/rag-health");
+    mockPathname.mockReturnValue("/internal/rag-health");
 
     render(<SidebarNav />);
 
@@ -218,7 +218,7 @@ describe("SidebarNav — Internal Operations section", () => {
       name: OPERATOR_NAV_LINK_LABELS.knowledgeIndexHealth,
     });
 
-    expect(ragLink).toHaveAttribute("href", "/admin/rag-health");
+    expect(ragLink).toHaveAttribute("href", "/internal/rag-health");
     expect(ragLink).toHaveAttribute("aria-current", "page");
     expect(ragLink).not.toHaveTextContent("per-corpus");
   });

@@ -8,10 +8,10 @@ describe("OperatorSystemAdminNavGroupBuilder", () => {
   it("gates internal telemetry links at AdminAuthority (TB-648)", () => {
     const group = new OperatorSystemAdminNavGroupBuilder().build();
     const gatedHrefs = new Set([
-      "/admin/trial-funnel",
-      "/admin/fleet-llm-cogs",
-      "/admin/rag-health",
-      "/operate/integration-events/dlq",
+      "/internal/trial-funnel",
+      "/internal/fleet-llm-cogs",
+      "/internal/rag-health",
+      "/internal/integration-events/dlq",
     ]);
 
     for (const link of group.links) {
@@ -23,8 +23,8 @@ describe("OperatorSystemAdminNavGroupBuilder", () => {
 
   it("uses buyer-facing labels for knowledge index and failed integration nav (TB-648)", () => {
     const group = new OperatorSystemAdminNavGroupBuilder().build();
-    const ragLink = group.links.find((link) => link.href === "/admin/rag-health");
-    const dlqLink = group.links.find((link) => link.href === "/operate/integration-events/dlq");
+    const ragLink = group.links.find((link) => link.href === "/internal/rag-health");
+    const dlqLink = group.links.find((link) => link.href === "/internal/integration-events/dlq");
 
     expect(ragLink?.label).toBe(OPERATOR_NAV_LINK_LABELS.knowledgeIndexHealth);
     expect(dlqLink?.label).toBe(OPERATOR_NAV_LINK_LABELS.failedIntegrationMessages);
@@ -34,7 +34,7 @@ describe("OperatorSystemAdminNavGroupBuilder", () => {
 
   it("includes demo readiness under Internal Operations for administrators", () => {
     const group = new OperatorSystemAdminNavGroupBuilder().build();
-    const demoReadiness = group.links.find((link) => link.href === "/admin/demo-readiness");
+    const demoReadiness = group.links.find((link) => link.href === "/internal/demo-readiness");
 
     expect(demoReadiness?.label).toBe(BUYER_CTO_DEMO_READINESS_HEADING);
     expect(demoReadiness?.requiredAuthority).toBe("AdminAuthority");

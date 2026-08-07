@@ -19,6 +19,10 @@ import { Download } from "lucide-react";
 import { RUN_PACKAGE_EXPORT_LABELS } from "@/lib/i18n";
 import { runExecutiveSummaryExportHref } from "@/lib/api/run-summary-export-api";
 import {
+  getRunPackageExportUrl,
+  SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT,
+} from "@/lib/api/downloads-api";
+import {
   MARKETING_TYPOGRAPHY,
   OPERATOR_DISCLOSURE_TRIGGER_CLASS,
   OPERATOR_LINK,
@@ -27,14 +31,7 @@ import {
 } from "@/lib/design-tokens";
 import type { RunSummary } from "@/types/authority";
 
-function runPackageExportHref(runId: string, format: "docx" | "pdf" | "html"): string {
-  return `/api/proxy/v1/runs/${encodeURIComponent(runId)}/export/${format}`;
-}
-
 /** Shown instead of a live download link when the page is rendering curated sample data (no backend-persisted review). */
-const SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT =
-  "Downloads aren't available for this sample review. Start a review with your own input to export a package.";
-
 function BuyerExecutiveBriefExports({ runId, usedStaticDemoRun }: { runId: string; usedStaticDemoRun: boolean }) {
   return (
     <details className="text-right">
@@ -83,19 +80,19 @@ function RunPackageExportButtons({
   return (
     <div className="mt-1 flex flex-wrap gap-2">
       <Button variant="outline" size="sm" asChild>
-        <Link href={runPackageExportHref(runId, "docx")} prefetch={false} target="_blank">
+        <Link href={getRunPackageExportUrl(runId, "docx")} prefetch={false} target="_blank">
           <Download className="mr-2 h-4 w-4" />
           {RUN_PACKAGE_EXPORT_LABELS.docx}
         </Link>
       </Button>
       <Button variant="outline" size="sm" asChild>
-        <Link href={runPackageExportHref(runId, "pdf")} prefetch={false} target="_blank">
+        <Link href={getRunPackageExportUrl(runId, "pdf")} prefetch={false} target="_blank">
           <Download className="mr-2 h-4 w-4" />
           {RUN_PACKAGE_EXPORT_LABELS.pdf}
         </Link>
       </Button>
       <Button variant="outline" size="sm" asChild>
-        <Link href={runPackageExportHref(runId, "html")} prefetch={false} target="_blank">
+        <Link href={getRunPackageExportUrl(runId, "html")} prefetch={false} target="_blank">
           <Download className="mr-2 h-4 w-4" />
           {RUN_PACKAGE_EXPORT_LABELS.html}
         </Link>

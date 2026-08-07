@@ -19,5 +19,5 @@ export const HELP_TOPIC_CATCHALL_SOURCES: readonly HelpTopicCatchAllSourceLink[]
   { label: "Getting started", href: inAppHelpHref("getting-started") },
   { label: "Troubleshooting", href: inAppHelpHref("troubleshooting") },
   { label: "Help center", href: "/help" },
-  { label: "How ArchLucid works", href: inAppHelpHref("how-it-works") },
+  { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
 ] as const;

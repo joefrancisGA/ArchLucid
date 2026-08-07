@@ -5,7 +5,7 @@
 export const INTEGRATION_EVENTS_DLQ_TRAFFIC_ROW_ID = "OID";
 
 /** Canonical path tracked on the OID workbook row. */
-export const INTEGRATION_EVENTS_DLQ_TRAFFIC_PATH = "/operate/integration-events/dlq";
+export const INTEGRATION_EVENTS_DLQ_TRAFFIC_PATH = "/internal/integration-events/dlq";
 
 /** Workbook Section column value (template catalog). */
 export const INTEGRATION_EVENTS_DLQ_TRAFFIC_SECTION = "Advisory";

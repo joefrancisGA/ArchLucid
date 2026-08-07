@@ -671,7 +671,7 @@ describe("help-markdown-presentation", () => {
     const loaded = tryLoadProductDocumentation("data-handling");
 
     expect(loaded).not.toBeNull();
-    expect(tryLoadProductDocumentation("data-handling-tenant-isolation")?.entry.slug).toBe("data-handling");
+    expect(tryLoadProductDocumentation("data-handling-tenant-isolation")).toBeNull();
 
     const sourcePath = loaded!.entry.sourcePaths[0] ?? "";
     const prepared = prepareHelpMarkdownForPresentation(loaded!.markdown, sourcePath, {
@@ -989,14 +989,14 @@ describe("help-markdown-presentation", () => {
     expect(prepared).not.toContain("M-245");
   });
 
-  it("keeps presented product-overview help buyer-safe (TB-1738)", () => {
-    const loaded = tryLoadProductDocumentation("product-overview");
+  it("keeps presented executive-summary help buyer-safe (TB-1738)", () => {
+    const loaded = tryLoadProductDocumentation("executive-summary");
 
     expect(loaded).not.toBeNull();
 
     const sourcePath = loaded!.entry.sourcePaths[0] ?? "";
     const prepared = prepareHelpMarkdownForPresentation(loaded!.markdown, sourcePath, {
-      helpTopicSlug: "product-overview",
+      helpTopicSlug: "executive-summary",
     }).toLowerCase();
 
     expect(prepared).not.toContain("explainabilitytrace");

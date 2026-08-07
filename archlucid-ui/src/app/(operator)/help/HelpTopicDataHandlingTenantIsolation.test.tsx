@@ -10,7 +10,7 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 }));
 
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/help/data-handling-tenant-isolation",
+  usePathname: () => "/help/data-handling",
 }));
 
 import { HelpDataHandlingTenantIsolationGuideView } from "@/app/(operator)/help/_sections/HelpDataHandlingTenantIsolationGuideView";
@@ -22,9 +22,8 @@ import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presenta
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
 describe("HelpDataHandlingTenantIsolationGuideView", () => {
-  const loaded = tryLoadProductDocumentation("data-handling-tenant-isolation");
+  const loaded = tryLoadProductDocumentation("data-handling");
 
-  // TB-1652 / TB-1658: data-handling-tenant-isolation folded into data-handling — entry resolves to the alias target.
   it("loads tenant-isolation help from the monorepo", () => {
     expect(loaded).not.toBeNull();
     expect(loaded?.entry.title).toBe("What ArchLucid does with your data");
@@ -32,7 +31,7 @@ describe("HelpDataHandlingTenantIsolationGuideView", () => {
 
   it("renders specialty diligence chrome with three-layer isolation (TB-1659)", () => {
     if (loaded === null) {
-      throw new Error("Expected data-handling-tenant-isolation documentation to load.");
+      throw new Error("Expected data-handling documentation to load.");
     }
 
     const sourcePath = loaded.entry.sourcePaths[0] ?? "";

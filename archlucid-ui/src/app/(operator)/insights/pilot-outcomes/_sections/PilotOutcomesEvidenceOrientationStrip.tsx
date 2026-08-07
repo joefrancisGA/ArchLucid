@@ -10,7 +10,7 @@ import {
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
-/** Workspace Sources + claim discipline for SPP `/sponsor-report/pilot-outcomes`. */
+/** Workspace Sources + claim discipline for SPP `/insights/pilot-outcomes`. */
 export function PilotOutcomesEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <div className="space-y-3 print:hidden" data-testid="pilot-outcomes-orientation">

@@ -4421,7 +4421,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/admin/configuration/summary": {
+    "/v1/internal/configuration/summary": {
         parameters: {
             query?: never;
             header?: never;
@@ -4695,7 +4695,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/admin/deployment-status": {
+    "/v1/internal/deployment-status": {
         parameters: {
             query?: never;
             header?: never;
@@ -9832,7 +9832,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/admin/integrations/confluence/first-value-report": {
+    "/v1/internal/integrations/confluence/first-value-report": {
         parameters: {
             query?: never;
             header?: never;
@@ -9983,7 +9983,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/admin/integrations/outbox/retry-dead-letter": {
+    "/v1/internal/integrations/outbox/retry-dead-letter": {
         parameters: {
             query?: never;
             header?: never;
@@ -11661,7 +11661,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/admin/rag-health": {
+    "/v1/internal/rag-health": {
         parameters: {
             query?: never;
             header?: never;
@@ -14774,7 +14774,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/admin/tenant-health": {
+    "/v1/internal/tenant-health": {
         parameters: {
             query?: never;
             header?: never;
@@ -15051,7 +15051,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/admin/tenants": {
+    "/v1/internal/tenants": {
         parameters: {
             query?: never;
             header?: never;
@@ -15316,7 +15316,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/admin/tenants/{id}/delete": {
+    "/v1/internal/tenants/{id}/delete": {
         parameters: {
             query?: never;
             header?: never;
@@ -15460,7 +15460,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/admin/tenants/{id}/erasure/legal-hold": {
+    "/v1/internal/tenants/{id}/erasure/legal-hold": {
         parameters: {
             query?: never;
             header?: never;
@@ -15730,7 +15730,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/admin/tenants/{id}/erasure/restore": {
+    "/v1/internal/tenants/{id}/erasure/restore": {
         parameters: {
             query?: never;
             header?: never;
@@ -15870,7 +15870,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/admin/tenants/{id}/suspend": {
+    "/v1/internal/tenants/{id}/suspend": {
         parameters: {
             query?: never;
             header?: never;
@@ -16010,7 +16010,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/admin/tenants/{id}/unsuspend": {
+    "/v1/internal/tenants/{id}/unsuspend": {
         parameters: {
             query?: never;
             header?: never;

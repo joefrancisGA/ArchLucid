@@ -94,10 +94,11 @@ REDIRECT_ONLY_APP_PATHS = frozenset(
 
 # Next.config-only redirect bookmarks that stay in the owner traffic workbook (TB-1887).
 # /settings/exec-digest retired from the workbook (EEX removed); migration still maps to DIS.
+# /help/core-pilot retired from the workbook (ECO removed, TB-2050) — no App Router page or
+# redirect remains; do not re-add via this set.
 TRAFFIC_TRACKED_REDIRECT_BOOKMARKS = frozenset(
     {
         "/settings/alerts",
-        "/help/core-pilot",
     }
 )
 
@@ -285,7 +286,7 @@ def infer_section(path: str, *, help_alias_paths: set[str]) -> str:
         return "Help topic"
     if path.startswith("/executive"):
         return "Executive"
-    if path.startswith("/sponsor-report"):
+    if path.startswith("/insights/executive-summary"):
         return "Sponsor report"
     if path.startswith("/architecture/digests") or path.startswith("/digests") or path == "/digest-subscriptions":
         return "Digests"

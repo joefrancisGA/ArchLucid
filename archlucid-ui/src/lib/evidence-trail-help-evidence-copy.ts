@@ -18,7 +18,7 @@ export type EvidenceTrailHelpSourceLink = {
 export const EVIDENCE_TRAIL_HELP_SOURCES: readonly EvidenceTrailHelpSourceLink[] = [
   { label: "Evidence graph", href: EVIDENCE_GRAPH_PATH },
   { label: "Search review evidence", href: "/insights/search-review-evidence" },
-  { label: "Validate review", href: "/replay" },
+  { label: "Validate review", href: "/internal/replay" },
   { label: "Findings help", href: inAppHelpHref("findings") },
   { label: "Audit trail help", href: inAppHelpHref("audit-trail") },
   { label: "Demo explain", href: "/demo/explain" },

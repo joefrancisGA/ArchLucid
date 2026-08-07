@@ -5,7 +5,7 @@
 export const TRIAL_FUNNEL_TRAFFIC_ROW_ID = "ATD";
 
 /** Canonical path tracked on the ATD workbook row. */
-export const TRIAL_FUNNEL_TRAFFIC_PATH = "/admin/trial-funnel";
+export const TRIAL_FUNNEL_TRAFFIC_PATH = "/internal/trial-funnel";
 
 /** Workbook Section column value (owner catalog). */
 export const TRIAL_FUNNEL_TRAFFIC_SECTION = "Admin";

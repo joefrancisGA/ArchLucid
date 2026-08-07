@@ -11,7 +11,7 @@ describe("architecture-scorecard-page-copy", () => {
     expect(
       ARCHITECTURE_SCORECARD_SOURCES.some((link) => link.href === ARCHITECTURE_SCORECARD_CANONICAL_PATH),
     ).toBe(false);
-    expect(ARCHITECTURE_SCORECARD_SOURCES.some((link) => link.href === "/sponsor-report/roi-summary")).toBe(
+    expect(ARCHITECTURE_SCORECARD_SOURCES.some((link) => link.href === "/insights/roi-summary")).toBe(
       true,
     );
     expect(ARCHITECTURE_SCORECARD_CLAIM_DISCIPLINE.toLowerCase()).toContain("directional");

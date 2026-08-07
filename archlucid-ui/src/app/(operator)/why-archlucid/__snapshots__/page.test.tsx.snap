@@ -124,7 +124,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
         <li>
           <a
             class="text-al-text-primary underline decoration-al-text-secondary/35 underline-offset-2 hover:text-[var(--al-accent-link)] hover:decoration-[var(--al-accent-link)] font-medium"
-            href="/sponsor-report/pilot-outcomes"
+            href="/insights/pilot-outcomes"
           >
             Pilot outcomes
           </a>

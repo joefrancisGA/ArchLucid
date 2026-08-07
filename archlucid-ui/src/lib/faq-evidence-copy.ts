@@ -19,5 +19,5 @@ export const FAQ_SOURCES: readonly FaqSourceLink[] = [
   { label: "Assurance status", href: "/security-trust" },
   { label: "Start evaluation", href: "/signup" },
   { label: "Getting started", href: inAppHelpHref("getting-started") },
-  { label: "How ArchLucid works", href: inAppHelpHref("how-it-works") },
+  { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
 ] as const;

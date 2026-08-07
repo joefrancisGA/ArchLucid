@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn(), refresh: vi.fn() }),
-  usePathname: () => "/sponsor-report/executive-summary",
+  usePathname: () => "/insights/executive-summary",
   useSearchParams: () => ({
     get: () => null,
     toString: () => "",
@@ -162,7 +162,7 @@ vi.mock("@/app/(operator)/insights/planning/_sections/load-planning-page-data", 
   };
 });
 
-vi.mock("@/app/(operator)/sponsor-report/executive-summary/_sections/load-value-report-page-data", () => ({
+vi.mock("@/app/(operator)/insights/executive-summary/_sections/load-value-report-page-data", () => ({
   loadValueReportPageData: () =>
     Promise.resolve({
       initialFromUtc: "2026-01-01T00:00",
@@ -190,7 +190,7 @@ vi.mock("@/app/(operator)/sponsor-report/executive-summary/_sections/load-value-
     }),
 }));
 
-import SponsorReportExecutiveSummaryPage from "@/app/(operator)/sponsor-report/executive-summary/page";
+import SponsorReportExecutiveSummaryPage from "@/app/(operator)/insights/executive-summary/page";
 import AdvisoryScansPage from "@/app/(operator)/governance/advisory-scans/page";
 import DigestsPage from "@/app/(operator)/architecture/digests/page";
 import PlanningPage from "@/app/(operator)/insights/planning/page";

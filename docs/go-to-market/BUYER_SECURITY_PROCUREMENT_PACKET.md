@@ -4685,7 +4685,7 @@ A: Current sub-processors are listed in [`SUBPROCESSORS.md`](SUBPROCESSORS.md). 
 
 ### 3. Where is customer **data processed / stored**?
 
-**Answer:** **Vendor-hosted** Azure workloads. Region choices depend on the contracted Azure regions and private-connectivity setup negotiated at onboarding. For buyer-facing isolation and residency messaging, see [Data handling and tenant isolation](/help/data-handling-tenant-isolation). Platform administrators configure regional storage during provisioning; procurement reviewers do not need application configuration keys.
+**Answer:** **Vendor-hosted** Azure workloads. Region choices depend on the contracted Azure regions and private-connectivity setup negotiated at onboarding. For buyer-facing isolation and residency messaging, see [Data handling and tenant isolation](/help/data-handling). Platform administrators configure regional storage during provisioning; procurement reviewers do not need application configuration keys.
 
 ### 4. Can we authenticate with **Okta / Ping / Auth0** instead of Microsoft Entra ID?
 

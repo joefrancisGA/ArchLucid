@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { TenantHealthEvidenceOrientationStrip } from "@/app/(operator)/admin/tenant-health/_sections/TenantHealthEvidenceOrientationStrip";
+import { TenantHealthEvidenceOrientationStrip } from "@/app/(operator)/internal/tenant-health/_sections/TenantHealthEvidenceOrientationStrip";
 import {
   TENANT_HEALTH_CANONICAL_PATH,
   TENANT_HEALTH_SOURCES,

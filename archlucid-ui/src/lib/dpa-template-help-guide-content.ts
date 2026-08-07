@@ -46,7 +46,7 @@ export const DPA_TEMPLATE_HELP_SOURCES: readonly DpaTemplateHelpSourceLink[] = [
   { label: "Data handling", href: inAppHelpHref("data-handling") },
   {
     label: "Data handling and tenant isolation",
-    href: inAppHelpHref("data-handling-tenant-isolation"),
+    href: inAppHelpHref("data-handling"),
   },
   { label: "Procurement FAQ", href: inAppHelpHref("procurement") },
 ] as const;

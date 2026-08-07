@@ -41,7 +41,7 @@ Subscriptions receive the **next generated digest** once an advisory schedule ru
 2. **Single creation path** — `DigestSubscriptionCreateForm` is the only create affordance; collapsed behind **Create subscription** when rows exist.
 3. **Channel-aware form** — Labels, placeholders, helpers, and Teams/Slack connector readiness gates (`fetchTenantIntegrationsOperations` + setup links).
 4. **Duplicate email guard** — Client-side block before POST; excludes the subscription being edited.
-5. **Sensitive content callout** — Links to `/help/data-handling-tenant-isolation`.
+5. **Sensitive content callout** — Links to `/help/data-handling`.
 6. **List management** — Masked destinations for read-only users; Pause/Resume; delivery history; Refresh on list heading only.
 7. **Sample mode** — `isBuyerPolishedOperatorShellEnv()` blocks mutations with evaluation CTA (no enabled-looking save).
 

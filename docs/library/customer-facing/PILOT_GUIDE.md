@@ -45,7 +45,7 @@ The guided workflow on **Home** walks readiness → evidence → create → exec
 3. **Finalize** the architecture package to lock the signed review record and exports.
 4. **Open exports** — download the sponsor packet and executive summary.
 
-For step-by-step depth, open [Your first architecture review](/help/core-pilot) or the checklist on **Onboarding**.
+For step-by-step depth, open [Your first architecture review](/help/first-architecture-review) or the checklist on **Onboarding**.
 
 ## Review outputs
 

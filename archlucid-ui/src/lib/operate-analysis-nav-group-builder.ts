@@ -27,6 +27,9 @@ import { PLANNING_PATH } from "@/lib/planning-route";
 import { SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
 import {
   EXECUTIVE_SUMMARY_PAGE_TITLE,
+  SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
+  SPONSOR_REPORT_PILOT_OUTCOMES_PATH,
+  SPONSOR_REPORT_ROI_SUMMARY_PATH,
   SPONSOR_REPORT_SECTION_LABEL,
 } from "@/lib/sponsor-report-navigation";
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
@@ -110,7 +113,8 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
         navBadge: PATTERN_LIBRARY_NAV_BADGE,
       },
       {
-        href: "/sponsor-report/executive-summary",
+        // String literals required: scripts/ci/assert_route_tier_policy_nav.py parses href:"..." only.
+        href: SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH as typeof SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH & "/insights/executive-summary",
         label: EXECUTIVE_SUMMARY_PAGE_TITLE,
         title: `${SPONSOR_REPORT_SECTION_LABEL} — executive value report and exports`,
         icon: FileText,
@@ -118,7 +122,7 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
         requiredAuthority: "ExecuteAuthority",
       },
       {
-        href: "/sponsor-report/pilot-outcomes",
+        href: SPONSOR_REPORT_PILOT_OUTCOMES_PATH as typeof SPONSOR_REPORT_PILOT_OUTCOMES_PATH & "/insights/pilot-outcomes",
         label: OPERATOR_NAV_LINK_LABELS.pilotValueReport,
         title: "Pilot outcomes — finalized-review metrics and governance signals",
         icon: FileCheck2,
@@ -126,7 +130,7 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
         requiredAuthority: "ReadAuthority",
       },
       {
-        href: "/sponsor-report/roi-summary",
+        href: SPONSOR_REPORT_ROI_SUMMARY_PATH as typeof SPONSOR_REPORT_ROI_SUMMARY_PATH & "/insights/roi-summary",
         label: OPERATOR_NAV_LINK_LABELS.roiReport,
         title: "ROI summary — hours estimate from severities and governance blocks",
         icon: TrendingUp,

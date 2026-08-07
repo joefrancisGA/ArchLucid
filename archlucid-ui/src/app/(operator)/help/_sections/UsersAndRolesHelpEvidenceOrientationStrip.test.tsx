@@ -3,7 +3,6 @@ import { describe, expect, it } from "vitest";
 
 import { UsersAndRolesHelpEvidenceOrientationStrip } from "@/app/(operator)/help/_sections/UsersAndRolesHelpEvidenceOrientationStrip";
 import {
-  OPERATOR_AUTH_ROLES_HELP_ALIAS_PATH,
   USERS_AND_ROLES_HELP_CANONICAL_PATH,
   USERS_AND_ROLES_HELP_SOURCES,
 } from "@/lib/users-and-roles-help-evidence-copy";
@@ -20,9 +19,6 @@ describe("UsersAndRolesHelpEvidenceOrientationStrip", () => {
     }
 
     expect(USERS_AND_ROLES_HELP_SOURCES.some((link) => link.href === USERS_AND_ROLES_HELP_CANONICAL_PATH)).toBe(
-      false,
-    );
-    expect(USERS_AND_ROLES_HELP_SOURCES.some((link) => link.href === OPERATOR_AUTH_ROLES_HELP_ALIAS_PATH)).toBe(
       false,
     );
   });

@@ -19,5 +19,5 @@ export const AZURE_PERMISSIONS_HELP_SOURCES: readonly AzurePermissionsHelpSource
   { label: "Connect Azure securely", href: inAppHelpHref("cloud-connections-azure") },
   { label: "Cloud connections help", href: inAppHelpHref("cloud-connections") },
   { label: "Assurance status", href: "/security-trust" },
-  { label: "How ArchLucid works", href: inAppHelpHref("how-it-works") },
+  { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
 ] as const;

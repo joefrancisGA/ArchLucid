@@ -30,7 +30,7 @@ describe("HelpUsersAndRolesGuideView", () => {
   it("registers the users and roles help entry", () => {
     expect(entry?.slug).toBe("users-and-roles");
     expect(entry?.title).toBe(USERS_AND_ROLES_PAGE_TITLE);
-    expect(getProductDocumentationEntry("operator-auth-roles")?.slug).toBe("users-and-roles");
+    expect(getProductDocumentationEntry("operator-auth-roles")).toBeNull();
   });
 
   it("renders one H1 and customer intro without internal engineering sections", () => {

@@ -10,7 +10,7 @@ import {
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
-/** Workspace Sources + claim discipline for SPE `/sponsor-report/executive-summary` (and legacy `/value-report`). */
+/** Workspace Sources + claim discipline for SPE `/insights/executive-summary` (and legacy `/value-report`). */
 export function ValueReportEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <div className="space-y-3 print:hidden" data-testid="value-report-orientation">

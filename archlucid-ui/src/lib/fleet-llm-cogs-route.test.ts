@@ -68,11 +68,11 @@ describe("fleet-llm-cogs-route (AFX)", () => {
 
   it("keeps marketing sitemap inventory off the fleet LLM COGS path", () => {
     expect(MARKETING_SITEMAP_PATHNAMES).not.toContain(FLEET_LLM_COGS_PATH);
-    expect(MARKETING_ROBOTS_DISALLOW_PREFIXES).toContain("/admin/");
-    expect(FLEET_LLM_COGS_PATH.startsWith("/admin/")).toBe(true);
+    expect(MARKETING_ROBOTS_DISALLOW_PREFIXES).toContain("/internal/");
+    expect(FLEET_LLM_COGS_PATH.startsWith("/internal/")).toBe(true);
   });
 
-  it("keeps product handoffs on canonical /admin/fleet-llm-cogs", () => {
+  it("keeps product handoffs on canonical /internal/fleet-llm-cogs", () => {
     const repoRoot = join(process.cwd(), "..");
 
     for (const relativePath of PRODUCT_FLEET_LLM_COGS_SURFACES) {

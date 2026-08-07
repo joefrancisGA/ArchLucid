@@ -35,7 +35,7 @@ type OperatorShellTopBarProps = {
 
 /**
  * Operator shell header: brand rail (sidebar width), content-aligned search, session controls.
- * Single horizontal row — secondary tools live in a portaled overflow menu.
+ * Help stays a freestanding top-bar control; optional secondary tools use a portaled overflow menu.
  */
 export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.Element {
   const showDevOperatorChrome = isOperatorExperienceFullShellEnv();
@@ -43,6 +43,7 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
   const showLlmBudgetPill =
     showDevOperatorChrome && callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
   const showAuthorityThemeToggle = isUiAuthorityThemeEvalEnabledEnv();
+  const showMoreMenu = showAuthorityThemeToggle || showLlmBudgetPill;
 
   useSearchShortcut();
   useCommandPaletteChunkPreload();
@@ -94,35 +95,37 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
             </div>
             <AuthPanel />
             <div className="flex shrink-0 items-center gap-2 border-l border-neutral-200 pl-2 dark:border-neutral-700">
-              <OperatorShellTopBarMoreMenu>
-                <div className="flex flex-col gap-2" data-testid="app-shell-topbar-more-tools">
-                  <ToolbarHelpTooltip
-                    aria-label={OPERATOR_HELP_ARIA_LABEL}
-                    content={OPERATOR_HELP_TOOLTIP}
-                    aria-keyshortcuts={OPERATOR_HELP_ARIA_KEYSHORTCUTS}
-                  >
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="inline-flex h-8 w-full items-center justify-start gap-2 px-2"
-                      data-testid="operator-shell-help-trigger"
-                      data-help-tooltip-trigger=""
-                      data-help-tooltip-icon="help"
-                      aria-label={OPERATOR_HELP_ARIA_LABEL}
-                      aria-keyshortcuts={OPERATOR_HELP_ARIA_KEYSHORTCUTS}
-                      onClick={() => {
-                        props.onOpenHelpSearch();
-                      }}
-                    >
-                      <CircleHelp className="size-[18px]" aria-hidden />
-                      <span>Help</span>
-                    </Button>
-                  </ToolbarHelpTooltip>
-                  {showAuthorityThemeToggle ? <AuthorityThemeToggle /> : null}
-                  {showLlmBudgetPill ? <LlmBudgetStatusPill /> : null}
-                </div>
-              </OperatorShellTopBarMoreMenu>
+              <ToolbarHelpTooltip
+                aria-label={OPERATOR_HELP_ARIA_LABEL}
+                content={OPERATOR_HELP_TOOLTIP}
+                aria-keyshortcuts={OPERATOR_HELP_ARIA_KEYSHORTCUTS}
+              >
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="inline-flex h-8 items-center gap-1.5 px-2"
+                  data-testid="operator-shell-help-trigger"
+                  data-help-tooltip-trigger=""
+                  data-help-tooltip-icon="help"
+                  aria-label={OPERATOR_HELP_ARIA_LABEL}
+                  aria-keyshortcuts={OPERATOR_HELP_ARIA_KEYSHORTCUTS}
+                  onClick={() => {
+                    props.onOpenHelpSearch();
+                  }}
+                >
+                  <CircleHelp className="size-[18px]" aria-hidden />
+                  <span className="hidden sm:inline">Help</span>
+                </Button>
+              </ToolbarHelpTooltip>
+              {showMoreMenu ? (
+                <OperatorShellTopBarMoreMenu>
+                  <div className="flex flex-col gap-2" data-testid="app-shell-topbar-more-tools">
+                    {showAuthorityThemeToggle ? <AuthorityThemeToggle /> : null}
+                    {showLlmBudgetPill ? <LlmBudgetStatusPill /> : null}
+                  </div>
+                </OperatorShellTopBarMoreMenu>
+              ) : null}
               <AccountSettingsMenu />
             </div>
           </div>

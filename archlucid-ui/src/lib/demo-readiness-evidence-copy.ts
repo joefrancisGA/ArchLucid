@@ -1,6 +1,6 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
-export const DEMO_READINESS_CANONICAL_PATH = "/admin/demo-readiness" as const;
+export const DEMO_READINESS_CANONICAL_PATH = "/internal/demo-readiness" as const;
 
 export const DEMO_READINESS_CLAIM_DISCIPLINE =
   "This Demo readiness page is an internal employee diagnostic for buyer CTO demo checks - it is not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open System health, Trial funnel, or Audit when you need live dependency, conversion, or governed trails.";
@@ -13,11 +13,11 @@ export type DemoReadinessSourceLink = {
   readonly href: string;
 };
 
-/** Operator Sources - no self-href to `/admin/demo-readiness`. */
+/** Operator Sources - no self-href to `/internal/demo-readiness`. */
 export const DEMO_READINESS_SOURCES: readonly DemoReadinessSourceLink[] = [
   { label: "System health", href: "/administration/system-health" },
-  { label: "Trial funnel", href: "/admin/trial-funnel" },
-  { label: "Tenant health", href: "/admin/tenant-health" },
+  { label: "Trial funnel", href: "/internal/trial-funnel" },
+  { label: "Tenant health", href: "/internal/tenant-health" },
   { label: "Live demo", href: "/live-demo" },
   { label: "Choose your next step", href: inAppHelpHref("path-chooser") },
 ] as const;

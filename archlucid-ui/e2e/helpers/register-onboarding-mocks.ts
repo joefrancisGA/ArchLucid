@@ -18,7 +18,7 @@ async function fulfillJson(route: Route, status: number, body: unknown): Promise
 
 /**
  * Minimal mocked payloads for the post-registration onboarding rail (`GET /v1/tenant/trial-status`) and read-only
- * identity alignment (`GET /v1/admin/configuration/summary`). Other backend proxy requests fall through to the mock API server.
+ * identity alignment (`GET /v1/internal/configuration/summary`). Other backend proxy requests fall through to the mock API server.
  */
 export async function registerFreshTenantOnboardingMocks(page: Page): Promise<void> {
   await page.route("**/*", async (route) => {
@@ -62,7 +62,7 @@ export async function registerFreshTenantOnboardingMocks(page: Page): Promise<vo
       return;
     }
 
-    if (method === "GET" && path.startsWith("/v1/admin/configuration/summary")) {
+    if (method === "GET" && path.startsWith("/v1/internal/configuration/summary")) {
       await fulfillJson(route, 200, {
         keys: [
           {

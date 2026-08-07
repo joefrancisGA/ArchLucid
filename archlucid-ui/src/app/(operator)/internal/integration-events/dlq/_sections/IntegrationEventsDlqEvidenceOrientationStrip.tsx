@@ -10,7 +10,7 @@ import {
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
-/** Workspace Sources + claim discipline for OID `/operate/integration-events/dlq`. */
+/** Workspace Sources + claim discipline for OID `/internal/integration-events/dlq`. */
 export function IntegrationEventsDlqEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <div className="space-y-3" data-testid="integration-events-dlq-orientation">

@@ -15,15 +15,15 @@ describe("getBreadcrumbs", () => {
   });
 
   it("maps internal recommendation learning breadcrumbs", () => {
-    expect(getBreadcrumbs("/internal-operations/recommendation-learning")).toEqual([
-      { label: "Internal Operations", href: "/admin/health" },
+    expect(getBreadcrumbs("/internal/recommendation-learning")).toEqual([
+      { label: "Internal Operations", href: "/internal/health" },
       { label: "Recommendation Learning" },
     ]);
   });
 
   it("maps internal product-learning breadcrumbs", () => {
     expect(getBreadcrumbs("/internal/product-learning")).toEqual([
-      { label: "Internal Operations", href: "/admin/health" },
+      { label: "Internal Operations", href: "/internal/health" },
       { label: OPERATOR_NAV_LINK_LABELS.pilotFeedback },
     ]);
   });
@@ -199,18 +199,14 @@ describe("getBreadcrumbs", () => {
     ]);
   });
 
-  it("maps how-it-works and data-handling breadcrumbs to page titles", () => {
-    expect(getBreadcrumbs("/help/how-it-works")).toEqual([
-      { label: "Help", href: "/help" },
-      { label: "How ArchLucid works" },
-    ]);
+  it("maps the data-handling breadcrumb to its page title", () => {
     expect(getBreadcrumbs("/help/data-handling")).toEqual([
       { label: "Help", href: "/help" },
       { label: "What ArchLucid does with your data" },
     ]);
   });
 
-  it("maps core-pilot breadcrumb to the buyer page title (TB-1041)", () => {
+  it("maps first-architecture-review breadcrumb to the buyer page title (TB-1041)", () => {
     expect(getBreadcrumbs("/help/first-architecture-review")).toEqual([
       { label: "Help", href: "/help" },
       { label: "Your first architecture review" },
@@ -371,9 +367,9 @@ describe("getBreadcrumbs", () => {
   });
 
   it("capitalizes ITSM acronym in admin integrations breadcrumb", () => {
-    expect(getBreadcrumbs("/admin/integrations/itsm")).toEqual([
+    expect(getBreadcrumbs("/internal/integrations/itsm")).toEqual([
       { label: "Admin", href: "/admin" },
-      { label: "Integrations", href: "/admin/integrations" },
+      { label: "Integrations", href: "/internal/integrations" },
       { label: "ITSM connectors" },
     ]);
   });

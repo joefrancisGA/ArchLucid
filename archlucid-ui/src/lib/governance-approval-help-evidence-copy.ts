@@ -1,4 +1,4 @@
-import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_APPROVAL_QUEUE_PATH, GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const GOVERNANCE_APPROVAL_HELP_CANONICAL_PATH = "/help/governance-approval" as const;
@@ -17,7 +17,7 @@ export type GovernanceApprovalHelpSourceLink = {
 /** Operator Sources — no self-href to `/help/governance-approval`. */
 export const GOVERNANCE_APPROVAL_HELP_SOURCES: readonly GovernanceApprovalHelpSourceLink[] = [
   { label: "Approval queue", href: GOVERNANCE_APPROVAL_QUEUE_PATH },
-  { label: "Workspace Health", href: "/governance/dashboard" },
+  { label: "Workspace Health", href: GOVERNANCE_WORKSPACE_HEALTH_HREF },
   { label: "Findings", href: "/governance/findings" },
   { label: "Audit", href: "/governance/audit" },
   { label: "Audit trail help", href: inAppHelpHref("audit-trail") },

@@ -88,7 +88,7 @@ const ALLOWLIST: readonly {
   {
     pathname: "/help/comparison-replay",
     nextHref: "/insights/compare-two-reviews",
-    configureHref: "/replay",
+    configureHref: "/internal/replay",
   },
   {
     pathname: "/governance/approval-requests/sample/lineage",

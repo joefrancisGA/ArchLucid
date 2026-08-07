@@ -12,11 +12,13 @@ import {
   Shield,
   ShieldX,
   SlidersHorizontal,
+  HeartPulse,
 } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
 import {
   GOVERNANCE_APPROVAL_QUEUE_PATH,
+  GOVERNANCE_WORKSPACE_HEALTH_HREF,
   GOVERNANCE_EXCEPTIONS_PATH,
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
 } from "@/lib/governance-route-paths";
@@ -145,6 +147,15 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
           label: OPERATOR_NAV_LINK_LABELS.governanceSetupGuide,
           title: "Governance setup — operating rhythm for approvals, audit, and policy packs",
           icon: CalendarCheck,
+          tier: "extended",
+          requiredAuthority: "ReadAuthority",
+        },
+        {
+          // String literal required: scripts/ci/assert_route_tier_policy_nav.py parses href:"..." only.
+          href: GOVERNANCE_WORKSPACE_HEALTH_HREF as typeof GOVERNANCE_WORKSPACE_HEALTH_HREF & "/architecture/executive-dashboard#workspace-health",
+          label: OPERATOR_NAV_LINK_LABELS.workspaceHealth,
+          title: "Workspace health — governance posture KPIs for the active workspace scope",
+          icon: HeartPulse,
           tier: "extended",
           requiredAuthority: "ReadAuthority",
         },

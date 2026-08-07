@@ -17,7 +17,7 @@ export type WhyArchLucidSourceLink = {
 export const WHY_ARCHLUCID_SOURCES: readonly WhyArchLucidSourceLink[] = [
   { label: "Why ArchLucid (marketing)", href: "/why" },
   { label: "See a sample review", href: "/see-it" },
-  { label: "Pilot outcomes", href: "/sponsor-report/pilot-outcomes" },
-  { label: "How ArchLucid works", href: inAppHelpHref("how-it-works") },
+  { label: "Pilot outcomes", href: "/insights/pilot-outcomes" },
+  { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
   { label: "Assurance status", href: "/security-trust" },
 ] as const;

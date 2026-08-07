@@ -18,6 +18,6 @@ export const ALERTS_HELP_SOURCES: readonly AlertsHelpSourceLink[] = [
   { label: "Alerts inbox", href: "/governance/alerts" },
   { label: "Alert rules", href: "/governance/alert-rules" },
   { label: "Audit", href: "/governance/audit" },
-  { label: "How ArchLucid works", href: inAppHelpHref("how-it-works") },
+  { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
   { label: "Getting started", href: inAppHelpHref("getting-started") },
 ] as const;

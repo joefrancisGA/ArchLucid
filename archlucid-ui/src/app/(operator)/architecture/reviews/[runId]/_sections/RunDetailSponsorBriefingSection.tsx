@@ -77,9 +77,7 @@ export function resolveRunDetailSponsorBriefingSection(
       manifestId={manifestId}
       curatedSampleRun={model.usedStaticDemoRun}
       buyerPolishedArtifactTable={model.buyerPolishedArtifactTable}
-      sponsorDocxAvailable={model.artifacts.some(
-        (artifact) => artifact.artifactId === "architecture-review-board",
-      )}
+      sponsorDocxAvailable={manifestId.length > 0}
     />
   );
 }

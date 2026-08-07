@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 const hoistedAdminConfigurationLoad = vi.hoisted(() => ({ demo: false }));
 
-vi.mock("@/app/(operator)/admin/configuration/_sections/load-admin-configuration-page-data", () => ({
+vi.mock("@/app/(operator)/internal/configuration/_sections/load-admin-configuration-page-data", () => ({
   loadAdminConfigurationPageData: () => Promise.resolve(hoistedAdminConfigurationLoad),
 }));
 
@@ -12,7 +12,7 @@ vi.mock("@/lib/proxy-fetch-registration-scope", () => ({
   mergeRegistrationScopeForProxy: (init: RequestInit) => init,
 }));
 
-import AdminConfigurationPage from "@/app/(operator)/admin/configuration/page";
+import AdminConfigurationPage from "@/app/(operator)/internal/configuration/page";
 
 expect.extend(toHaveNoViolations);
 
@@ -38,7 +38,7 @@ describe("AdminConfigurationPage — axe (Vitest)", () => {
                 ? input.url
                 : String(input);
 
-        if (s.includes("/v1/admin/configuration/summary")) {
+        if (s.includes("/v1/internal/configuration/summary")) {
           return jsonResponse({
             keys: [
               {

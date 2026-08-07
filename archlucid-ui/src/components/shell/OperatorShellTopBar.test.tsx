@@ -11,6 +11,7 @@ import { PERSONA_SHELL_WORDMARK_ARIA_LABEL } from "@/lib/persona-shell-vocabular
 
 const fullShellMock = vi.hoisted(() => ({ value: true }));
 const fetchBudgetCached = vi.hoisted(() => vi.fn());
+const authorityThemeEvalMock = vi.hoisted(() => ({ value: false }));
 
 const navAuthMock = vi.hoisted(() => ({
   callerAuthorityRank: 3,
@@ -24,6 +25,15 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
     ...actual,
     isOperatorExperienceFullShellEnv: () => fullShellMock.value,
     isNextPublicDemoMode: () => false,
+  };
+});
+
+vi.mock("@/lib/ui-authority-theme", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/ui-authority-theme")>();
+
+  return {
+    ...actual,
+    isUiAuthorityThemeEvalEnabledEnv: () => authorityThemeEvalMock.value,
   };
 });
 
@@ -72,6 +82,7 @@ function openMoreMenu(): void {
 describe("OperatorShellTopBar", () => {
   beforeEach(() => {
     fullShellMock.value = true;
+    authorityThemeEvalMock.value = false;
     navAuthMock.callerAuthorityRank = AUTHORITY_RANK.AdminAuthority;
     navAuthMock.isAuthorityLoading = false;
     fetchBudgetCached.mockResolvedValue({
@@ -103,7 +114,26 @@ describe("OperatorShellTopBar", () => {
     expect(searchInput.closest(".mx-auto")).toBeNull();
   });
 
-  it("keeps the top bar on one row and parks secondary tools in a more menu", async () => {
+  it("exposes Help on the top bar without opening the more menu", () => {
+    const onOpenHelpSearch = vi.fn();
+
+    render(
+      <TooltipProvider>
+        <OperatorShellTopBar onOpenHelpSearch={onOpenHelpSearch} />
+      </TooltipProvider>,
+    );
+
+    const help = screen.getByTestId("operator-shell-help-trigger");
+
+    expect(help).toHaveAttribute("aria-label", "Help (F1)");
+    expect(help).toHaveAttribute("data-help-tooltip-icon", "help");
+    expect(screen.getByTestId("app-shell-topbar-session").contains(help)).toBe(true);
+
+    fireEvent.click(help);
+    expect(onOpenHelpSearch).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps the top bar on one row and parks only secondary tools in a more menu", async () => {
     render(
       <TooltipProvider>
         <OperatorShellTopBar onOpenHelpSearch={vi.fn()} />
@@ -116,12 +146,12 @@ describe("OperatorShellTopBar", () => {
     expect(screen.getByTestId("app-shell-topbar")).not.toHaveClass("overflow-x-hidden");
     expect(sessionRail.className).toMatch(/\bflex-nowrap\b/);
     expect(contextRail.className).toMatch(/\bflex-nowrap\b/);
+    expect(screen.getByTestId("operator-shell-help-trigger")).toBeInTheDocument();
     expect(screen.getByTestId("operator-shell-topbar-more-trigger")).toBeInTheDocument();
-    expect(screen.queryByTestId("operator-shell-help-trigger")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("llm-budget-status-pill")).not.toBeInTheDocument();
 
     openMoreMenu();
 
-    expect(screen.getByTestId("operator-shell-help-trigger")).toHaveAttribute("aria-label", "Help (F1)");
     expect(await screen.findByTestId("llm-budget-status-pill")).toBeInTheDocument();
     expect(screen.queryByTestId("operator-shell-resources-trigger")).not.toBeInTheDocument();
     expect(screen.getByTestId("archlucid-wordmark-link")).toHaveAttribute(
@@ -130,7 +160,7 @@ describe("OperatorShellTopBar", () => {
     );
   });
 
-  it("renders workspace chrome before the more-menu overflow tools", async () => {
+  it("renders workspace chrome before Help and the more-menu overflow tools", async () => {
     render(
       <TooltipProvider>
         <OperatorShellTopBar onOpenHelpSearch={vi.fn()} />
@@ -140,33 +170,20 @@ describe("OperatorShellTopBar", () => {
     const sessionRail = screen.getByTestId("app-shell-topbar-session");
     const contextRail = screen.getByTestId("app-shell-topbar-context");
     const scopeTrigger = screen.getByTestId("operator-scope-switcher-trigger");
+    const helpTrigger = screen.getByTestId("operator-shell-help-trigger");
     const moreTrigger = screen.getByTestId("operator-shell-topbar-more-trigger");
 
     expect(sessionRail.contains(contextRail)).toBe(true);
     expect(contextRail.contains(scopeTrigger)).toBe(true);
     expect(screen.queryByTestId("executive-operator-shell-switcher")).not.toBeInTheDocument();
-    expect(scopeTrigger.compareDocumentPosition(moreTrigger) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(scopeTrigger.compareDocumentPosition(helpTrigger) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(helpTrigger.compareDocumentPosition(moreTrigger) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
     openMoreMenu();
     expect(await screen.findByTestId("llm-budget-status-pill")).toBeInTheDocument();
   });
 
-  it("does not leave help triggers in the session rail until more is opened", () => {
-    render(
-      <TooltipProvider>
-        <OperatorShellTopBar onOpenHelpSearch={vi.fn()} />
-      </TooltipProvider>,
-    );
-
-    const sessionRail = screen.getByTestId("app-shell-topbar-session");
-    const helpTriggers = sessionRail.querySelectorAll("[data-help-tooltip-trigger]");
-
-    expect(helpTriggers).toHaveLength(0);
-    openMoreMenu();
-    expect(screen.getByTestId("operator-shell-help-trigger")).toHaveAttribute("data-help-tooltip-icon", "help");
-  });
-
-  it("omits dev-only chrome in buyer-default shell mode but keeps help in more menu", () => {
+  it("omits the more menu in buyer-default shell when no secondary tools remain", () => {
     fullShellMock.value = false;
 
     render(
@@ -175,8 +192,8 @@ describe("OperatorShellTopBar", () => {
       </TooltipProvider>,
     );
 
-    openMoreMenu();
     expect(screen.getByTestId("operator-shell-help-trigger")).toHaveAttribute("aria-label", "Help (F1)");
+    expect(screen.queryByTestId("operator-shell-topbar-more-trigger")).not.toBeInTheDocument();
     expect(screen.queryByTestId("llm-budget-status-pill")).not.toBeInTheDocument();
     expect(screen.queryByTestId("shell-setup-health-chip")).not.toBeInTheDocument();
   });
@@ -190,7 +207,8 @@ describe("OperatorShellTopBar", () => {
       </TooltipProvider>,
     );
 
-    openMoreMenu();
+    expect(screen.getByTestId("operator-shell-help-trigger")).toBeInTheDocument();
+    expect(screen.queryByTestId("operator-shell-topbar-more-trigger")).not.toBeInTheDocument();
 
     await waitFor(() => {
       expect(screen.queryByTestId("llm-budget-status-pill")).not.toBeInTheDocument();

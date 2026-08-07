@@ -18,8 +18,8 @@ export type RepeatReviewLoopHelpSourceLink = {
 export const REPEAT_REVIEW_LOOP_HELP_SOURCES: readonly RepeatReviewLoopHelpSourceLink[] = [
   { label: "Compare two reviews", href: "/insights/compare-two-reviews" },
   { label: "Start next review", href: "/architecture/reviews/new" },
-  { label: "Validate review", href: "/replay" },
+  { label: "Validate review", href: "/internal/replay" },
   { label: "Your first architecture review", href: FIRST_ARCHITECTURE_REVIEW_HELP_PATH },
-  { label: "Pilot outcomes", href: "/sponsor-report/pilot-outcomes" },
+  { label: "Pilot outcomes", href: "/insights/pilot-outcomes" },
   { label: "Review guide", href: inAppHelpHref("review-guide") },
 ] as const;

@@ -30,7 +30,7 @@ export function TenantLlmJudgeGuideCard(): React.JSX.Element {
         </p>
         <InAppHelpLink helpSlug="configuration-reference" label="Configuration reference" variant="text" />
         {" · "}
-        <Link href="/admin/fleet-llm-cogs" className="font-medium text-teal-800 underline dark:text-teal-300">
+        <Link href="/internal/fleet-llm-cogs" className="font-medium text-teal-800 underline dark:text-teal-300">
           Fleet LLM cost view
         </Link>
       </CardContent>

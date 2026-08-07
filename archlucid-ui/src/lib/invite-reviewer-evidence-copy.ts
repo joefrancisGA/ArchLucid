@@ -20,5 +20,5 @@ export const INVITE_REVIEWER_SOURCES: readonly InviteReviewerSourceLink[] = [
   { label: "Users and roles help", href: inAppHelpHref("users-and-roles") },
   { label: "SSO and identity", href: "/administration/identity-providers" },
   { label: "Assurance status", href: "/security-trust" },
-  { label: "How ArchLucid works", href: inAppHelpHref("how-it-works") },
+  { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
 ] as const;

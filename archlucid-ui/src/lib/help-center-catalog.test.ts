@@ -14,8 +14,8 @@ import {
 import { getProductDocumentationEntry, normalizeHelpTopicSlug } from "@/lib/product-documentation-registry";
 
 describe("help-center-catalog", () => {
-  it("keeps the default landing grid to fifteen featured topics", () => {
-    expect(HELP_CENTER_FEATURED_SLUGS).toHaveLength(15);
+  it("keeps the default landing grid to fourteen featured topics", () => {
+    expect(HELP_CENTER_FEATURED_SLUGS).toHaveLength(14);
   });
 
   it("features review-guide on the help landing grid for browse discovery", () => {
@@ -106,15 +106,19 @@ describe("help topic slug aliases", () => {
     expect(normalizeHelpTopicSlug("cloud-connections/gcp")).toBe("cloud-connections-gcp");
     expect(getProductDocumentationEntry("cloud-connections/azure")?.title).toBe("Connect Azure securely");
     expect(getProductDocumentationEntry("users-and-roles")?.slug).toBe("users-and-roles");
-    expect(getProductDocumentationEntry("operator-auth-roles")?.slug).toBe("users-and-roles");
-    expect(normalizeHelpTopicSlug("api-contracts")).toBe("governance-api-contracts");
-    expect(getProductDocumentationEntry("api-contracts")?.title).toBe("API contracts (technical reference)");
-    expect(normalizeHelpTopicSlug("evaluator-workbook")).toBe("path-chooser");
-    expect(getProductDocumentationEntry("evaluator-workbook")?.slug).toBe("path-chooser");
-    expect(normalizeHelpTopicSlug("first-hour-operator-path")).toBe("first-architecture-review");
-    expect(getProductDocumentationEntry("first-hour-operator-path")?.slug).toBe("first-architecture-review");
-    expect(normalizeHelpTopicSlug("first-pilot-path")).toBe("first-architecture-review");
-    expect(getProductDocumentationEntry("first-pilot-path")?.slug).toBe("first-architecture-review");
+    expect(getProductDocumentationEntry("governance-api-contracts")?.title).toBe(
+      "API contracts (technical reference)",
+    );
+    expect(getProductDocumentationEntry("path-chooser")?.slug).toBe("path-chooser");
+    expect(getProductDocumentationEntry("first-architecture-review")?.slug).toBe("first-architecture-review");
+  });
+
+  it("no longer resolves retired help topic aliases (TB-2050)", () => {
+    expect(getProductDocumentationEntry("operator-auth-roles")).toBeNull();
+    expect(getProductDocumentationEntry("api-contracts")).toBeNull();
+    expect(getProductDocumentationEntry("evaluator-workbook")).toBeNull();
+    expect(getProductDocumentationEntry("first-hour-operator-path")).toBeNull();
+    expect(getProductDocumentationEntry("first-pilot-path")).toBeNull();
   });
 });
 

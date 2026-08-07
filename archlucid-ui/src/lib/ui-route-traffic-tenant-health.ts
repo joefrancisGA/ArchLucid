@@ -5,7 +5,7 @@
 export const TENANT_HEALTH_TRAFFIC_ROW_ID = "ATX";
 
 /** Canonical path tracked on the ATX workbook row. */
-export const TENANT_HEALTH_TRAFFIC_PATH = "/admin/tenant-health";
+export const TENANT_HEALTH_TRAFFIC_PATH = "/internal/tenant-health";
 
 /** Workbook Section column value (owner catalog). */
 export const TENANT_HEALTH_TRAFFIC_SECTION = "Admin";

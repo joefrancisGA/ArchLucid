@@ -17,7 +17,7 @@ export const AUDIT_TRAIL_SOURCES: readonly AuditTrailSourceLink[] = [
   { label: "Findings", href: "/governance/findings" },
   { label: "Decision register", href: "/governance/decision-register" },
   { label: "Audit trail help", href: inAppHelpHref("audit-trail") },
-  { label: "How ArchLucid works", href: inAppHelpHref("how-it-works") },
+  { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
 ] as const;
 
 export const AUDIT_TRAIL_CANONICAL_PATH = "/governance/audit" as const;

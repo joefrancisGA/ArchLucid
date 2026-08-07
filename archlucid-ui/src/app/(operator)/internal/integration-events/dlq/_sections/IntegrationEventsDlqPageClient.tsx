@@ -26,7 +26,7 @@ type LoadState =
   | { status: "blocked"; message: string };
 
 const listPath = "/api/proxy/v1/admin/integration-outbox/dead-letters?maxRows=100";
-const bulkRetryPath = "/api/proxy/v1/admin/integrations/outbox/retry-dead-letter";
+const bulkRetryPath = "/api/proxy/v1/internal/integrations/outbox/retry-dead-letter";
 
 function formatAgeUtc(deadLetteredUtc: string | undefined | null): string {
   if (deadLetteredUtc === undefined || deadLetteredUtc === null || deadLetteredUtc === "") {

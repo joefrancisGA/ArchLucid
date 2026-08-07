@@ -5,7 +5,9 @@ import {
   INTEGRATIONS_SERVICENOW_PATH,
 } from "@/lib/integrations-nav-paths";
 
-export const ITSM_CONNECTORS_ADMIN_PATH = "/admin/integrations/itsm";
+import { INTERNAL_ITSM_CONNECTORS_PATH } from "@/lib/internal-ops-route-paths";
+
+export const ITSM_CONNECTORS_ADMIN_PATH = INTERNAL_ITSM_CONNECTORS_PATH;
 
 export const ITSM_CONNECTORS_ADMIN_LABEL = "ITSM connectors";
 

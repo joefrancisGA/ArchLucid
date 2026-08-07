@@ -1,6 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
+import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture-scorecard-route";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 
 import { SponsorExportsSection } from "./SponsorExportsSection";
@@ -18,7 +20,7 @@ describe("SponsorExportsSection", () => {
     const previewLinks = screen.getAllByRole("link", { name: v.sponsorExportsPreviewSampleAction });
 
     expect(previewLinks).toHaveLength(2);
-    expect(previewLinks[0]).toHaveAttribute("href", v.sponsorExportsScorecardSampleHref);
+    expect(previewLinks[0]).toHaveAttribute("href", ARCHITECTURE_SCORECARD_PATH);
     expect(previewLinks[1]).toHaveAttribute("href", v.sponsorExportsPilotValueSampleHref);
     expect(screen.getByRole("link", { name: v.sponsorExportsRoiAction })).toHaveAttribute(
       "href",
@@ -33,7 +35,7 @@ describe("SponsorExportsSection", () => {
 
     expect(screen.getByRole("link", { name: v.sponsorExportsScorecardAction })).toHaveAttribute(
       "href",
-      "/executive/scorecard",
+      EXECUTIVE_DASHBOARD_HREF,
     );
     expect(screen.getByRole("link", { name: v.sponsorExportsPilotValueAction })).toHaveAttribute(
       "href",

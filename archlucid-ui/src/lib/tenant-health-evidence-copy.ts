@@ -1,6 +1,6 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
-export const TENANT_HEALTH_CANONICAL_PATH = "/admin/tenant-health" as const;
+export const TENANT_HEALTH_CANONICAL_PATH = "/internal/tenant-health" as const;
 
 export const TENANT_HEALTH_CLAIM_DISCIPLINE =
   "Tenant health scores summarize engagement, governance activity, and pilot funnel stage for customer-success operators — they are not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open System health or Audit when you need operational or governed trails.";
@@ -17,7 +17,7 @@ export type TenantHealthSourceLink = {
 export const TENANT_HEALTH_SOURCES: readonly TenantHealthSourceLink[] = [
   { label: "System health", href: "/administration/system-health" },
   { label: "Audit", href: "/governance/audit" },
-  { label: "Data handling & isolation", href: inAppHelpHref("data-handling-tenant-isolation") },
+  { label: "Data handling & isolation", href: inAppHelpHref("data-handling") },
   { label: "Troubleshooting", href: inAppHelpHref("troubleshooting") },
-  { label: "How ArchLucid works", href: inAppHelpHref("how-it-works") },
+  { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
 ] as const;

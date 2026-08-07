@@ -20,5 +20,5 @@ export const ALERT_ROUTING_SOURCES: readonly AlertRoutingSourceLink[] = [
   { label: "Alert conditions", href: governanceAlertRulesTabHref("rules") },
   { label: "Integrations (webhooks)", href: "/integrations/webhooks" },
   { label: "How alerts work", href: inAppHelpHref("alerts") },
-  { label: "How ArchLucid works", href: inAppHelpHref("how-it-works") },
+  { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
 ] as const;

@@ -10,7 +10,7 @@ import {
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
-/** Workspace Sources + claim discipline for ATD `/admin/trial-funnel`. */
+/** Workspace Sources + claim discipline for ATD `/internal/trial-funnel`. */
 export function TrialFunnelEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <div className="space-y-3" data-testid="trial-funnel-orientation">

@@ -540,7 +540,7 @@ describe("EmailRunToSponsorBanner", () => {
     expect(mockTelemetry).not.toHaveBeenCalled();
   });
 
-  it("shows a direct sponsor DOCX download when the committed manifest includes architecture-review-board", async () => {
+  it("shows a direct sponsor DOCX download via the run package export route", async () => {
     render(<EmailRunToSponsorBanner {...bannerProps} sponsorDocxAvailable />);
 
     await waitFor(() => {
@@ -550,12 +550,12 @@ describe("EmailRunToSponsorBanner", () => {
     const sponsorDocx = screen.getByTestId("email-run-to-sponsor-sponsor-docx");
     expect(sponsorDocx).toHaveAttribute(
       "href",
-      "/api/proxy/v1/artifacts/signed-review-records/manifest-fixture/artifact/architecture-review-board",
+      "/api/proxy/v1/runs/run-42/export/docx",
     );
     expect(sponsorDocx).toHaveTextContent("Download Sponsor Export (DOCX)");
   });
 
-  it("hides the direct sponsor DOCX download when no architecture-review-board artifact is present", async () => {
+  it("hides the direct sponsor DOCX download when sponsorDocxAvailable is false", async () => {
     render(<EmailRunToSponsorBanner {...bannerProps} sponsorDocxAvailable={false} />);
 
     await waitFor(() => {

@@ -1604,8 +1604,8 @@ export function stripExecutiveSummaryContributorLeakage(markdown: string): strin
     .replace(/V1_SCOPE\.md/gi, "/help/procurement")
     .replace(/`?SECURITY\.md`?/gi, "[Security and trust](/help/security-trust)")
     .replace(/contributor-reference\/SECURITY\.md/gi, "/help/security-trust")
-    .replace(/`?MULTI_TENANT_RLS\.md`?/gi, "[Data handling and tenant isolation](/help/data-handling-tenant-isolation)")
-    .replace(/MULTI_TENANT_RLS\.md/gi, "/help/data-handling-tenant-isolation")
+    .replace(/`?MULTI_TENANT_RLS\.md`?/gi, "[Data handling and tenant isolation](/help/data-handling)")
+    .replace(/MULTI_TENANT_RLS\.md/gi, "/help/data-handling")
     .replace(/`?ArchLucid\.Contracts`?/gi, "versioned API contracts")
     .replace(/ArchLucid\.Contracts/gi, "versioned API contracts")
     .replace(/\(\*\*TB-\d+\*\*\)/gi, "")
@@ -1626,7 +1626,7 @@ export function stripExecutiveSummaryContributorLeakage(markdown: string): strin
     /\*\*Where does tenant data live\?\*\*[\s\S]*?(?=\n\n\*\*|\n## |\n---\n|$)/i,
     [
       "**Where does tenant data live?**",
-      "Hosted deployments use Azure-native storage and SQL with dedicated tenant catalogs. See [Data handling and tenant isolation](/help/data-handling-tenant-isolation) and [Security and trust](/help/security-trust).",
+      "Hosted deployments use Azure-native storage and SQL with dedicated tenant catalogs. See [Data handling and tenant isolation](/help/data-handling) and [Security and trust](/help/security-trust).",
     ].join("\n"),
   );
 
@@ -2559,8 +2559,8 @@ export function stripExecutiveSummarySponsorBriefLeakage(markdown: string): stri
     .replace(/ROI_MODEL\.md/gi, "/help/pilot-roi-model")
     .replace(/`?PRODUCT_PACKAGING\.md`?/gi, "[Executive summary](/help/executive-summary#what-archlucid-is)")
     .replace(/PRODUCT_PACKAGING\.md/gi, "/help/executive-summary#what-archlucid-is")
-    .replace(/`\/value-report`/gi, "`/sponsor-report/executive-summary`")
-    .replace(/\/value-report/gi, "/sponsor-report/executive-summary")
+    .replace(/`\/value-report`/gi, "`/insights/executive-summary`")
+    .replace(/\/value-report/gi, "/insights/executive-summary")
     .replace(/`?SPONSOR_BANNER_FIRST_COMMIT_BADGE\.md`?/gi, "sponsor banner documentation")
     .replace(/SPONSOR_BANNER_FIRST_COMMIT_BADGE\.md/gi, "sponsor banner documentation");
 }
@@ -2882,7 +2882,7 @@ export function alignDataHandlingIsolationHonesty(markdown: string): string {
   return markdown
     .replace(
       /Each customer tenant uses a dedicated database\.\s*Cross-tenant data access is not part of the product design\./gi,
-      "Each customer tenant uses a dedicated database catalog. Tenant identity is decided at the host boundary, and API requests carry a tenant scope that the data layer enforces on tenant-facing queries — that is the standard customer path, not a claim that every staff or platform surface is free of cross-tenant aggregation. For isolation and assurance detail, see [Security and trust](/help/security-trust). For the three-layer isolation deep-dive, see [Data handling and tenant isolation](/help/data-handling-tenant-isolation).",
+      "Each customer tenant uses a dedicated database catalog. Tenant identity is decided at the host boundary, and API requests carry a tenant scope that the data layer enforces on tenant-facing queries — that is the standard customer path, not a claim that every staff or platform surface is free of cross-tenant aggregation. For isolation and assurance detail, see [Security and trust](/help/security-trust). For the three-layer isolation deep-dive, see [Data handling and tenant isolation](/help/data-handling).",
     )
     .replace(/\n{3,}/g, "\n\n");
 }

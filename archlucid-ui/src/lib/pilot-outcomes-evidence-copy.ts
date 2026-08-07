@@ -18,7 +18,7 @@ export type PilotOutcomesSourceLink = {
   readonly href: string;
 };
 
-/** Operator Sources — no self-href to `/sponsor-report/pilot-outcomes`. */
+/** Operator Sources — no self-href to `/insights/pilot-outcomes`. */
 export const PILOT_OUTCOMES_SOURCES: readonly PilotOutcomesSourceLink[] = [
   { label: "Executive summary", href: SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH },
   { label: "ROI summary", href: SPONSOR_REPORT_ROI_SUMMARY_PATH },

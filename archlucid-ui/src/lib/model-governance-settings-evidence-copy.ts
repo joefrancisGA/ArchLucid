@@ -19,6 +19,6 @@ export const MODEL_GOVERNANCE_SETTINGS_SOURCES: readonly ModelGovernanceSettings
   { label: "AI usage and cost", href: "/administration/ai-usage" },
   { label: "Billing and plans help", href: inAppHelpHref("billing-and-plans") },
   { label: "Billing & plans", href: "/administration/billing" },
-  { label: "How ArchLucid works", href: inAppHelpHref("how-it-works") },
+  { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
   { label: "Assurance status", href: "/security-trust" },
 ] as const;

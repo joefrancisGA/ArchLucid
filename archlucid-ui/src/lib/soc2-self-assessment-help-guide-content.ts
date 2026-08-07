@@ -72,7 +72,7 @@ export const SOC2_SELF_ASSESSMENT_HELP_SOURCES: readonly Soc2SelfAssessmentHelpS
   { label: "Subprocessors", href: inAppHelpHref("subprocessors") },
   {
     label: "Data handling and tenant isolation",
-    href: inAppHelpHref("data-handling-tenant-isolation"),
+    href: inAppHelpHref("data-handling"),
   },
 ] as const;
 

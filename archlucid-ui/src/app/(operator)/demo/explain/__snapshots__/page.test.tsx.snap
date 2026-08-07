@@ -130,7 +130,7 @@ exports[`DemoExplainPage (proof page snapshot) > renders the side-by-side proven
         <li>
           <a
             class="text-al-text-primary underline decoration-al-text-secondary/35 underline-offset-2 hover:text-[var(--al-accent-link)] hover:decoration-[var(--al-accent-link)] font-medium"
-            href="/replay"
+            href="/internal/replay"
           >
             Validate review
           </a>

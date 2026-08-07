@@ -828,6 +828,14 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1168 | ~~Billing Included AI usage unit collision (dollars vs credits)~~ **Done** 2026-07-29 | Trustworthiness P0 **V1** — with **TB-1166** |
 | TB-1169 | Billing sales-led CTAs dead-end into toasts — navigate instead | Adoption friction P1 **V1** — with **TB-1170** |
 | TB-1170 | Billing composition — anchor-jump buttons, duplicate primary, operator spacing | Adoption friction P1 **V1** — with **TB-1169** |
+| TB-2103 | Operator-curated model catalog — DDL-backed registry + internal curation surface | Maintainability P1 **V1.1** — ADR 0065 D2; deletes `ConfigAgentModelAliasRegistry`; first of the ADR 0065 train |
+| TB-2104 | Structured-output capability ladder + fail-closed routing | Correctness P1 **V1.1** — ADR 0065 D4; after **TB-2103** |
+| TB-2105 | Engine evaluation evidence — attached and surfaced, **not gating** | Trustworthiness P1 **V1.1** — ADR 0065 D3; reuses **TB-683** harness + judges; selection never refused on measured quality; explicit `NotEvaluated` |
+| TB-2110 | Two-tier engine selection — workspace allowed set + per-review user choice | Adoption friction P1 **V1.1** — ADR 0065 D13; bounds within-workspace engine variance; server-side enforcement of the allowed set |
+| TB-2106 | Engine identity as first-class run provenance + replay diff | Traceability P1 **V1.1** — ADR 0065 D5; deliberately **not** in `ManifestHash` |
+| TB-2107 | Per-engine tokenizer + USD rate profiles | Cost-effectiveness P2 **V1.1** — ADR 0065 D6; after **TB-2103** |
+| TB-2109 | Non-Azure engine data-boundary gate — subprocessor disclosure + regulated-evidence acknowledgment | Compliance readiness P1 **V1.1** — ADR 0065 D11; must precede **TB-2108** / **TB-873** availability |
+| TB-872 | Customer-provided Azure OpenAI connection (first BYO path) | Cost-effectiveness P2 **V1.1** — re-sequenced to ship first by ADR 0065 D7; builds the per-tenant connection + Key Vault boundary later engines reuse |
 
 ## Hold for reassessment (not Cursor-shippable until owner promotes / G-REAL-06)
 
@@ -847,7 +855,8 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-687 | Prompt A/B iteration harness | P2 **V2** |
 | TB-688 | Per-tier model-generation refresh cadence | P2 **V2** |
 | TB-690 | Fine-tuning activation gate | P2 **V2** |
-| TB-873 | Generic OpenAI-compatible endpoint adapter | P3 **V2**; after **TB-872**; ADR 0060 D4 gates |
+| TB-873 | Generic OpenAI-compatible endpoint adapter | P3 **V1.1/V2 boundary** — promoted by ADR 0065 D7; after **TB-872**; gates retained via ADR 0065 D3/D4 (**TB-2104**, **TB-2105**) |
+| TB-2108 | First non-Azure ArchLucid-managed engine adapter | P3 **V2**; ADR 0065 D1; gated on **TB-2103**–**TB-2107**, **TB-2109**, **TB-872** |
 | TB-932 | Offload large JSON payloads to blob storage | P3 **V2**; after **TB-929**–**TB-931** + measured sizes |
 
 ## Curated slices

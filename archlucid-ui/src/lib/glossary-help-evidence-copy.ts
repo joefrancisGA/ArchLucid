@@ -16,7 +16,7 @@ export type GlossaryHelpSourceLink = {
 /** Operator Sources — no self-href to `/help/glossary`. */
 export const GLOSSARY_HELP_SOURCES: readonly GlossaryHelpSourceLink[] = [
   { label: "Getting started", href: inAppHelpHref("getting-started") },
-  { label: "How ArchLucid works", href: inAppHelpHref("how-it-works") },
+  { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
   { label: "Assurance status", href: "/security-trust" },
   { label: "Audit", href: "/governance/audit" },
   { label: "Pilot guide", href: inAppHelpHref("pilot-guide") },

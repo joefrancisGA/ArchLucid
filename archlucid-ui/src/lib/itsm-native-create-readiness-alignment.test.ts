@@ -29,10 +29,10 @@ describe("itsm-native-create-readiness-alignment", () => {
       "archlucid-ui/src/app/(operator)/architecture/reviews/[runId]/findings/[findingId]/FindingInspectItsmWorkflowPanel.tsx",
     );
     const adminPage = readRepoFile(
-      "archlucid-ui/src/app/(operator)/admin/integrations/itsm/_sections/AdminItsmConnectorsPageClient.tsx",
+      "archlucid-ui/src/app/(operator)/internal/integrations/itsm/_sections/AdminItsmConnectorsPageClient.tsx",
     );
     const wizard = readRepoFile(
-      "archlucid-ui/src/app/(operator)/admin/integrations/itsm/_sections/AdminItsmConnectorOnboardingWizard.tsx",
+      "archlucid-ui/src/app/(operator)/internal/integrations/itsm/_sections/AdminItsmConnectorOnboardingWizard.tsx",
     );
 
     const findingSurfaces = `${findingPanel}\n${findingDetail}\n${itsmWorkflow}`;

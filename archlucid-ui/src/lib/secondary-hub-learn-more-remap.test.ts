@@ -16,7 +16,7 @@ const SECONDARY_HUB_PATHS = LEARN_MORE_JOB_MATCH_SECONDARY_HUB_PATHS.filter(
 );
 
 describe("TB-2050 secondary-hub Learn more remap", () => {
-  it("bans generic getting-started/how-it-works Learn more on secondary hubs", () => {
+  it("bans generic getting-started Learn more on secondary hubs", () => {
     for (const path of SECONDARY_HUB_PATHS) {
       const topic = pageHelpTopicForPathname(path);
       const slug = topic?.slug;
@@ -37,12 +37,12 @@ describe("TB-2050 secondary-hub Learn more remap", () => {
     expect(PAGE_HELP_FIRST_RUN_GENERIC_LEARN_MORE_ALLOWLIST_PREFIXES).toContain("/architectures");
     expect(PAGE_HELP_FIRST_RUN_GENERIC_LEARN_MORE_ALLOWLIST_PREFIXES).toContain("/why-archlucid");
     expect(pageHelpTopicForPathname("/architectures")?.slug).toBe("getting-started");
-    expect(pageHelpTopicForPathname("/why-archlucid")?.slug).toBe("how-it-works");
+    expect(pageHelpTopicForPathname("/why-archlucid")?.slug).toBe("getting-started");
   });
 
   it("remaps tenant settings and recommendation-learning off getting-started", () => {
     expect(pageHelpTopicForPathname("/administration/tenant")?.slug).toBe("scope");
-    expect(pageHelpTopicForPathname("/internal-operations/recommendation-learning")?.slug).toBe(
+    expect(pageHelpTopicForPathname("/internal/recommendation-learning")?.slug).toBe(
       "pilot-feedback",
     );
   });

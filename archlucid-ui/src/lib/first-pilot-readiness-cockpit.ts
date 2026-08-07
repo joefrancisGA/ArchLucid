@@ -109,7 +109,7 @@ export function buildFirstPilotReadinessRows(input: {
       group: "platform" as const,
       status: configLintCopy.status,
       summary: configLintCopy.summary,
-      href: canAdmin ? "/admin/health" : inAppHelpHref("troubleshooting"),
+      href: canAdmin ? "/internal/health" : inAppHelpHref("troubleshooting"),
       cta: canAdmin ? "Open config lint" : "Troubleshooting guide",
     },
     {

@@ -143,7 +143,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Configuration reference",
     "sectionSlug": "",
     "sectionHeading": "Configuration reference — overview",
-    "excerpt": "This document lists operator-facing configuration keys (colon paths or environment names) recognized by `archlucid config check` and by `GET /v1/admin/config-summary` / `GET /v1/admin/configuration/summary` (presence plus optional redacted scalars; never raw secrets). `GET /v1/admin/config-lint` returns structured b…"
+    "excerpt": "This document lists operator-facing configuration keys (colon paths or environment names) recognized by `archlucid config check` and by `GET /v1/admin/config-summary` / `GET /v1/internal/configuration/summary` (presence plus optional redacted scalars; never raw secrets). `GET /v1/admin/config-lint` returns structured b…"
   },
   {
     "docPath": "docs/library/CONFIGURATION_REFERENCE.md",
@@ -577,7 +577,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "3-where-is-customer-data-processed-stored",
     "sectionHeading": "3. Where is customer data processed / stored?",
-    "excerpt": "Answer: Vendor-hosted Azure workloads (region choices depend on contracted Azure regions and private-connectivity setup). For buyer-facing isolation and residency messaging, see [Data handling and tenant isolation](/help/data-handling-tenant-isolation). Architectural networking guidance: [CUSTOMER_TRUST_AND_ACCESS.m…"
+    "excerpt": "Answer: Vendor-hosted Azure workloads (region choices depend on contracted Azure regions and private-connectivity setup). For buyer-facing isolation and residency messaging, see [Data handling and tenant isolation](/help/data-handling). Architectural networking guidance: [CUSTOMER_TRUST_AND_ACCESS.m…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",

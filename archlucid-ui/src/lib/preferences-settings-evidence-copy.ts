@@ -19,6 +19,6 @@ export const PREFERENCES_SETTINGS_SOURCES: readonly PreferencesSettingsSourceLin
   { label: "Getting started", href: inAppHelpHref("getting-started") },
   { label: "Account security", href: "/administration/account-security" },
   { label: "Users and roles", href: "/administration/users" },
-  { label: "How ArchLucid works", href: inAppHelpHref("how-it-works") },
+  { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
   { label: "Assurance status", href: "/security-trust" },
 ] as const;

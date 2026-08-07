@@ -17,7 +17,7 @@ export const REVIEWS_NEW_SOURCES: readonly ReviewsNewSourceLink[] = [
   { label: "First review guide", href: "/architecture/first-review-guide" },
   { label: "Review guide help", href: inAppHelpHref("review-guide") },
   { label: "Evidence intake help", href: inAppHelpHref("evidence-intake") },
-  { label: "How ArchLucid works", href: inAppHelpHref("how-it-works") },
+  { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
 ] as const;
 
 export const REVIEWS_NEW_CANONICAL_PATH = "/architecture/reviews/new" as const;

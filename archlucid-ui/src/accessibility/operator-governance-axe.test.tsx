@@ -129,7 +129,6 @@ vi.mock("@/lib/toast", () => ({
 }));
 
 import GovernanceWorkflowPage from "@/app/(operator)/governance/approval-queue/page";
-import GovernanceDashboardPage from "@/app/(operator)/governance/dashboard/page";
 import GovernanceResolutionPage from "@/app/(operator)/governance/standards-and-rules/page";
 import GovernanceFindingsPage from "@/app/(operator)/governance/findings/page";
 import PolicyPacksPage from "@/app/(operator)/governance/policy-packs/page";
@@ -141,16 +140,6 @@ describe("operator governance pages — axe (Vitest)", () => {
     "GovernanceWorkflowPage has no serious axe violations",
     async () => {
       const { container } = render(<GovernanceWorkflowPage />);
-
-      expect(await axe(container)).toHaveNoViolations();
-    },
-    45_000,
-  );
-
-  it(
-    "GovernanceDashboardPage has no serious axe violations",
-    async () => {
-      const { container } = render(<GovernanceDashboardPage />);
 
       expect(await axe(container)).toHaveNoViolations();
     },

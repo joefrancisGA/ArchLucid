@@ -16,4 +16,4 @@ export const GOVERNANCE_DASHBOARD_TRAFFIC_SECTION = "Alerts/gov";
  * Owner workbook Notes for GDX — documents the live workspace-health dashboard surface.
  */
 export const GOVERNANCE_DASHBOARD_TRAFFIC_NOTE =
-  "Executive Workspace Health dashboard - ExecutiveWorkspaceHealthDashboard with hero PageContextualHelp (Learn more omitted — no workspace-health specialty; TB-2050; not governance-approval), Category-1 registry, Sources follow-up strip + claim-discipline callout (scoped aggregates / planning hours, not diligence trail), DecisionsNeededSummaryCard, five KPI tiles, Bypass audit panel. Alerts topic-map honesty sibling (`/governance/alerts` -> alerts). TB-1668 GDX/alerts topic slice. Demo shell may still redirect away (BDA-107). Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication.";
+  "Retired standalone page — workspace-health KPIs merged onto ARE (`/architecture/executive-dashboard#workspace-health`). App Router shim at `/governance/dashboard` redirects; hit share absorbed by ARE.";

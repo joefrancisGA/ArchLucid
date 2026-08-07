@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { IntegrationEventsDlqEvidenceOrientationStrip } from "@/app/(operator)/operate/integration-events/dlq/_sections/IntegrationEventsDlqEvidenceOrientationStrip";
+import { IntegrationEventsDlqEvidenceOrientationStrip } from "@/app/(operator)/internal/integration-events/dlq/_sections/IntegrationEventsDlqEvidenceOrientationStrip";
 import {
   INTEGRATION_EVENTS_DLQ_CANONICAL_PATH,
   INTEGRATION_EVENTS_DLQ_SOURCES,

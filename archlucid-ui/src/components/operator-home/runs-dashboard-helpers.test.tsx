@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   ArchitecturePackageOriginBadge,
+  ArchitecturePackageOriginMetadataLine,
   deriveRunsDashboardTabCounts,
   formatRunsDashboardTabLabelWithCount,
   isRunApprovedPackage,
@@ -147,5 +148,33 @@ describe("ArchitecturePackageOriginBadge (TB-740)", () => {
     rerender(<ArchitecturePackageOriginBadge run={run} buyerPolishedShell={false} />);
 
     expect(screen.queryByTestId("architecture-package-origin-created")).toBeNull();
+  });
+});
+
+describe("ArchitecturePackageOriginMetadataLine", () => {
+  it("names the origin axis so Reviewed cannot read as a governance verdict", () => {
+    const run: RunSummary = {
+      runId: "reviewed-run",
+      projectId: "default",
+      packageOrigin: "Reviewed",
+    };
+
+    render(<ArchitecturePackageOriginMetadataLine run={run} buyerPolishedShell />);
+
+    expect(screen.getByTestId("architecture-package-origin-reviewed").textContent).toMatch(
+      /Package origin:\s*Reviewed/,
+    );
+  });
+
+  it("stays hidden outside the buyer-polished shell", () => {
+    const run: RunSummary = {
+      runId: "reviewed-run",
+      projectId: "default",
+      packageOrigin: "Reviewed",
+    };
+
+    render(<ArchitecturePackageOriginMetadataLine run={run} buyerPolishedShell={false} />);
+
+    expect(screen.queryByTestId("architecture-package-origin-reviewed")).toBeNull();
   });
 });

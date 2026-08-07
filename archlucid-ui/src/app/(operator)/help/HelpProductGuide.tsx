@@ -64,7 +64,7 @@ export function HelpProductGuide() {
         </CardHeader>
         <CardContent className={cn(OPERATOR_LAYOUT.controlClusterGap, OPERATOR_TYPOGRAPHY.body)}>
           <p className="m-0">
-            <Link className={OPERATOR_LINK.inline} href={inAppHelpHref("how-it-works")}>
+            <Link className={OPERATOR_LINK.inline} href={inAppHelpHref("getting-started", "how-archlucid-works")}>
               How ArchLucid works
             </Link>{" "}
             — workflow from evidence through findings, governance, and exports.
@@ -94,7 +94,7 @@ export function HelpProductGuide() {
                 executive summary
               </Link>{" "}
               or{" "}
-              <Link className={OPERATOR_LINK.inline} href="/sponsor-report/executive-summary">
+              <Link className={OPERATOR_LINK.inline} href="/insights/executive-summary">
                 value report
               </Link>
               .

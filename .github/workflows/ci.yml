@@ -252,9 +252,50 @@ jobs:
           node --test integrations/azure-devops-task-manifest-delta-pr-comment/post-pr-thread.test.mjs
           node --test integrations/azure-devops-task-manifest-delta/job-summary.test.mjs
 
+  docs-link-scope-gate:
+    name: "Docs: link integrity + scope-header ratchet (blocking)"
+    # Genuinely merge-blocking, unlike the advisory `doc-markdown-links` job below. Kept small on
+    # purpose: relative-link integrity is finite and fixable, and the scope-header check runs in
+    # changed-files-only ratchet mode so the legacy headerless backlog cannot block unrelated work.
+    needs:
+      - gitleaks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # Full history so the ratchet can resolve the merge base against the base ref.
+          fetch-depth: 0
+
+      - name: Fetch PR base for scope-header ratchet
+        if: github.event_name == 'pull_request'
+        run: git fetch origin "${{ github.event.pull_request.base.ref }}" --no-tags
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Check relative markdown links
+        run: python scripts/ci/check_md_links.py
+
+      - name: Doc link integrity batch guard (TB-170)
+        run: python -m unittest discover -s scripts/ci/tests -p "test_doc_links_batch.py"
+
+      - name: Doc scope header â€” changed files only (ratchet)
+        run: |
+          python scripts/ci/check_doc_scope_header.py \
+            --changed-only \
+            --base-ref "origin/${{ github.event.pull_request.base.ref || github.event.repository.default_branch }}"
+
+      - name: Doc scope header guard unit tests
+        run: |
+          cd scripts/ci
+          python -m unittest test_check_doc_scope_header test_backfill_doc_scope_headers
+
   doc-markdown-links:
     name: "Docs: markdown link integrity"
     # Warn-only: job + per-step continue-on-error so every doc/link guard runs and surfaces failures in one CI run.
+    # Link integrity and the scope-header ratchet are additionally gated by `docs-link-scope-gate` above.
     continue-on-error: true
     needs:
       - gitleaks
@@ -1067,10 +1108,12 @@ jobs:
         continue-on-error: true
         run: python scripts/ci/check_synthetic_roi_bulletin_sample.py
 
-      - name: Doc scope header
+      - name: Doc scope header (full tree â€” advisory backlog count)
         continue-on-error: true
-        # Merge-blocking: every active ``docs/**/*.md`` (except ``docs/archive/``) must open with
-        # ``> **Scope:**`` on the first non-empty line. README.md uses ``<!-- **Scope:** ... -->``.
+        # Advisory on purpose: every active ``docs/**/*.md`` (except ``docs/archive/``) *should* open
+        # with ``> **Scope:**`` on the first non-empty line (README.md uses ``<!-- **Scope:** ... -->``),
+        # but the legacy backlog is far too large for a whole-tree gate. This step keeps the remaining
+        # count visible; the merge-blocking gate is the changed-files ratchet in ``docs-link-scope-gate``.
         # See ``scripts/ci/check_doc_scope_header.py`` and ``scripts/ci/backfill_doc_scope_headers.py``.
         run: python scripts/ci/check_doc_scope_header.py
 

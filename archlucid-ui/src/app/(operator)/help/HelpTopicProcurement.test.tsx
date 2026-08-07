@@ -101,7 +101,7 @@ describe("HelpTopicMarkdownView procurement FAQ", () => {
         ? preparedMarkdown.slice(residencyHeadingIndex, nextHeadingIndex)
         : preparedMarkdown.slice(residencyHeadingIndex);
 
-    expect(residencySection).toMatch(/data-handling-tenant-isolation/i);
+    expect(residencySection).toMatch(/data-handling/i);
     expect(residencySection).toMatch(/Azure regions|contracted Azure regions/i);
     expect(residencySection.toLowerCase()).not.toContain("artifactlargepayload");
     expect(residencySection.toLowerCase()).not.toContain("tenantprovisioning");
@@ -113,7 +113,7 @@ describe("HelpTopicMarkdownView procurement FAQ", () => {
 
     expect(screen.getByRole("link", { name: /Data handling and tenant isolation/i })).toHaveAttribute(
       "href",
-      "/help/data-handling-tenant-isolation",
+      "/help/data-handling",
     );
   });
 

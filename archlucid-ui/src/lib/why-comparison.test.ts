@@ -76,7 +76,7 @@ describe("why-comparison (front-door table drift guards)", () => {
     }
 
     expect(hrefs).toContain("/help/audit-trail");
-    expect(hrefs).toContain("/help/data-handling-tenant-isolation");
+    expect(hrefs).toContain("/help/data-handling");
     expect(hrefs).toContain("/security-trust");
     expect(hrefs).toContain("/help/authentication-sign-in");
     expect(hrefs).toContain("/trust");

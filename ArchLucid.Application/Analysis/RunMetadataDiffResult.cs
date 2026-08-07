@@ -48,4 +48,11 @@ public sealed class RunMetadataDiffResult
         get;
         set;
     }
+
+    /// <summary><c>true</c> when both runs share the same non-real structural execution mode.</summary>
+    public bool SharedNonRealExecutionMode
+    {
+        get;
+        set;
+    }
 }

@@ -13,7 +13,7 @@ export const MARKETING_SURFACE_BANNED_LINK_TARGET_PATTERNS: readonly RegExp[] = 
 ] as const;
 
 export const MARKETING_SURFACE_BANNED_INTERNAL_ROUTE_PREFIXES: readonly string[] = [
-  "/admin/",
+  "/internal/",
   "/governance/",
   "/administration/",
   "/operate/",

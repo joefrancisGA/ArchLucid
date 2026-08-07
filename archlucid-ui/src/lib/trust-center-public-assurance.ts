@@ -57,7 +57,7 @@ export const TRUST_CENTER_RELATED_HELP_LINKS: readonly TrustCenterRelatedHelpLin
   {
     id: "tenant-isolation",
     label: "Data handling and tenant isolation",
-    href: "/help/data-handling-tenant-isolation",
+    href: "/help/data-handling",
   },
   {
     id: "subprocessors",
@@ -65,9 +65,9 @@ export const TRUST_CENTER_RELATED_HELP_LINKS: readonly TrustCenterRelatedHelpLin
     href: "/help/subprocessors",
   },
   {
-    id: "how-it-works",
+    id: "getting-started",
     label: "How ArchLucid works",
-    href: "/help/how-it-works",
+    href: "/help/getting-started#how-archlucid-works",
   },
   {
     id: "audit-trail",

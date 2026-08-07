@@ -103,16 +103,19 @@ describe("MarketingTrustCenterBuyerBody", () => {
     );
   });
 
-  it("cross-links tenant isolation, subprocessors, how-it-works, and audit trail help topics", () => {
+  it("cross-links tenant isolation, subprocessors, getting-started, and audit trail help topics", () => {
     render(<MarketingTrustCenterBuyerBody lastReviewedUtc="2026-05-01" />);
 
     const related = screen.getByTestId("trust-center-related-help");
     expect(within(related).getByTestId("trust-related-help-tenant-isolation")).toHaveAttribute(
       "href",
-      "/help/data-handling-tenant-isolation",
+      "/help/data-handling",
     );
     expect(within(related).getByTestId("trust-related-help-subprocessors")).toHaveAttribute("href", "/help/subprocessors");
-    expect(within(related).getByTestId("trust-related-help-how-it-works")).toHaveAttribute("href", "/help/how-it-works");
+    expect(within(related).getByTestId("trust-related-help-getting-started")).toHaveAttribute(
+      "href",
+      "/help/getting-started#how-archlucid-works",
+    );
     expect(within(related).getByTestId("trust-related-help-audit-trail")).toHaveAttribute("href", "/help/audit-trail");
   });
 

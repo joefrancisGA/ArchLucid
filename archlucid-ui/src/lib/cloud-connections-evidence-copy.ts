@@ -19,5 +19,5 @@ export const CLOUD_CONNECTIONS_SOURCES: readonly CloudConnectionsSourceLink[] = 
   { label: "Start an evidence-only review", href: "/architecture/reviews/new" },
   { label: "Cloud connections help", href: inAppHelpHref("cloud-connections") },
   { label: "Azure permissions", href: inAppHelpHref("azure-permissions") },
-  { label: "How ArchLucid works", href: inAppHelpHref("how-it-works") },
+  { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
 ] as const;

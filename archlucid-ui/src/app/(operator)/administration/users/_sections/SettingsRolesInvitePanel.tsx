@@ -98,7 +98,7 @@ export function SettingsRolesInvitePanel({ directoryUnavailable, onRetry, onInvi
               Retry directory
             </Button>
             <Button type="button" variant="ghost" size="sm" asChild>
-              <a href="/admin/health">System health</a>
+              <a href="/internal/health">System health</a>
             </Button>
             <Button type="button" variant="ghost" size="sm" asChild>
               <Link href="/help/troubleshooting#permissions-or-sign-in-issue">Open troubleshooting</Link>

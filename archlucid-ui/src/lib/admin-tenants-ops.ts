@@ -27,7 +27,7 @@ async function readProblemDetail(res: Response): Promise<string> {
 }
 
 export async function listAdminTenants(): Promise<AdminTenantRecord[]> {
-  const res = await fetch("/api/proxy/v1/admin/tenants", {
+  const res = await fetch("/api/proxy/v1/internal/tenants", {
     method: "GET",
     credentials: "include",
     cache: "no-store",
@@ -43,7 +43,7 @@ export async function listAdminTenants(): Promise<AdminTenantRecord[]> {
 export async function provisionAdminTenant(
   body: AdminTenantProvisionRequest,
 ): Promise<AdminTenantProvisioningResult> {
-  const res = await fetch("/api/proxy/v1/admin/tenants", {
+  const res = await fetch("/api/proxy/v1/internal/tenants", {
     method: "POST",
     credentials: "include",
     headers: { "Content-Type": "application/json" },
@@ -58,7 +58,7 @@ export async function provisionAdminTenant(
 }
 
 export async function suspendAdminTenant(tenantId: string): Promise<void> {
-  const res = await fetch(`/api/proxy/v1/admin/tenants/${encodeURIComponent(tenantId)}/suspend`, {
+  const res = await fetch(`/api/proxy/v1/internal/tenants/${encodeURIComponent(tenantId)}/suspend`, {
     method: "POST",
     credentials: "include",
   });
@@ -69,7 +69,7 @@ export async function suspendAdminTenant(tenantId: string): Promise<void> {
 }
 
 export async function unsuspendAdminTenant(tenantId: string): Promise<void> {
-  const res = await fetch(`/api/proxy/v1/admin/tenants/${encodeURIComponent(tenantId)}/unsuspend`, {
+  const res = await fetch(`/api/proxy/v1/internal/tenants/${encodeURIComponent(tenantId)}/unsuspend`, {
     method: "POST",
     credentials: "include",
   });

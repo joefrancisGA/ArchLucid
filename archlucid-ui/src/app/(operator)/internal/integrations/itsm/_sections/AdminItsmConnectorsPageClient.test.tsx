@@ -132,10 +132,10 @@ describe("AdminItsmConnectorsPageClient", () => {
 
   it("keeps admin ITSM source surfaces free of banned appsettings and V1-window chrome (TB-1430)", () => {
     const adminPage = readRepoFile(
-      "archlucid-ui/src/app/(operator)/admin/integrations/itsm/_sections/AdminItsmConnectorsPageClient.tsx",
+      "archlucid-ui/src/app/(operator)/internal/integrations/itsm/_sections/AdminItsmConnectorsPageClient.tsx",
     );
     const wizard = readRepoFile(
-      "archlucid-ui/src/app/(operator)/admin/integrations/itsm/_sections/AdminItsmConnectorOnboardingWizard.tsx",
+      "archlucid-ui/src/app/(operator)/internal/integrations/itsm/_sections/AdminItsmConnectorOnboardingWizard.tsx",
     );
     const haystack = `${adminPage}\n${wizard}`.toLowerCase();
 

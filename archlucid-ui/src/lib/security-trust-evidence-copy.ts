@@ -19,5 +19,5 @@ export const SECURITY_TRUST_SOURCES: readonly SecurityTrustSourceLink[] = [
   { label: "Product FAQ", href: "/faq" },
   { label: "Pricing", href: "/pricing" },
   { label: "Privacy policy", href: "/privacy" },
-  { label: "How ArchLucid works", href: inAppHelpHref("how-it-works") },
+  { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
 ] as const;

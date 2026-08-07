@@ -128,6 +128,9 @@ public sealed class EndToEndReplayComparisonService(
         result.StatusDiffers = !Equals(leftRun.Status, rightRun.Status);
         result.CompletionStateDiffers = leftRun.CompletedUtc is null != rightRun.CompletedUtc is null;
         result.ExecutionModesDiffer = leftRun.StructuralExecutionMode != rightRun.StructuralExecutionMode;
+        result.SharedNonRealExecutionMode =
+            !result.ExecutionModesDiffer
+            && leftRun.StructuralExecutionMode != StructuralExecutionMode.Real;
         return result;
     }
 
@@ -137,6 +140,11 @@ public sealed class EndToEndReplayComparisonService(
         {
             report.InterpretationNotes.Add(
                 "Structural execution mode differs between the two reviews — finding, cost, and narrative deltas may not be directly comparable. Confirm per-finding trust labels on inspect and export paths.");
+        }
+        else if (report.RunDiff.SharedNonRealExecutionMode)
+        {
+            report.InterpretationNotes.Add(
+                "Both reviews used the same non-real structural execution mode — treat finding and cost deltas as directional only and confirm per-finding trust labels on inspect and export paths.");
         }
 
         if (report.AgentResultDiff is not null && report.ManifestDiff is not null)

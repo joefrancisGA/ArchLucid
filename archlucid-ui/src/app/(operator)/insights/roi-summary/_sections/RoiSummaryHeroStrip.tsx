@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 
-import { PilotValueReportMetricCard } from "@/app/(operator)/sponsor-report/pilot-outcomes/_sections/PilotValueReportMetricCard";
+import { PilotValueReportMetricCard } from "@/app/(operator)/insights/pilot-outcomes/_sections/PilotValueReportMetricCard";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   computeRoiSummaryPeriodMetrics,

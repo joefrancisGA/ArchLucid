@@ -20,5 +20,5 @@ export const FINDINGS_HELP_SOURCES: readonly FindingsHelpSourceLink[] = [
   { label: "Search review evidence", href: "/insights/search-review-evidence" },
   { label: "Decision register", href: "/governance/decision-register" },
   { label: "Audit trail", href: inAppHelpHref("audit-trail") },
-  { label: "How ArchLucid works", href: inAppHelpHref("how-it-works") },
+  { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
 ] as const;

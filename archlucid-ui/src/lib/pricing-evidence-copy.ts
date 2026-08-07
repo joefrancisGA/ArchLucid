@@ -19,5 +19,5 @@ export const PRICING_SOURCES: readonly PricingSourceLink[] = [
   { label: "Assurance status", href: "/security-trust" },
   { label: "Trust Center", href: "/trust" },
   { label: "Billing and plans help", href: inAppHelpHref("billing-and-plans") },
-  { label: "How ArchLucid works", href: inAppHelpHref("how-it-works") },
+  { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
 ] as const;

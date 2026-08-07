@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { TrialFunnelEvidenceOrientationStrip } from "@/app/(operator)/admin/trial-funnel/_sections/TrialFunnelEvidenceOrientationStrip";
+import { TrialFunnelEvidenceOrientationStrip } from "@/app/(operator)/internal/trial-funnel/_sections/TrialFunnelEvidenceOrientationStrip";
 import { TRIAL_FUNNEL_CANONICAL_PATH, TRIAL_FUNNEL_SOURCES } from "@/lib/trial-funnel-evidence-copy";
 
 describe("TrialFunnelEvidenceOrientationStrip", () => {

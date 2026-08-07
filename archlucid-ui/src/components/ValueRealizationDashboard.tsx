@@ -135,7 +135,7 @@ export function ValueRealizationDashboard() {
           </p>
           <p className="m-0 mt-2">
             <Link
-              href="/sponsor-report/roi-summary"
+              href="/insights/roi-summary"
               className={cn("font-medium text-teal-700 underline-offset-4 hover:underline dark:text-teal-400", OPERATOR_TYPOGRAPHY.body)}
             >
               Open ROI assumptions &amp; sensitivity →

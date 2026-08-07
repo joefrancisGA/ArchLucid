@@ -49,7 +49,7 @@ describe("presentSidebarNavLinkForCluster", () => {
   it("strips Internal Operations tooltip labels so hover text is description-only", () => {
     const presented = presentSidebarNavLinkForCluster(
       {
-        href: "/admin/rag-health",
+        href: "/internal/rag-health",
         label: OPERATOR_NAV_LINK_LABELS.knowledgeIndexHealth,
         title: `${OPERATOR_NAV_LINK_LABELS.knowledgeIndexHealth} — per-corpus index freshness and embedding dimension`,
         tier: "advanced",

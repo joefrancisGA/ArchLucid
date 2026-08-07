@@ -2,7 +2,7 @@
 export const EXECUTIVE_SUMMARY_TRAFFIC_ROW_ID = "SPE";
 
 /** Canonical browser path for the sponsor executive summary report. */
-export const EXECUTIVE_SUMMARY_TRAFFIC_PATH = "/sponsor-report/executive-summary";
+export const EXECUTIVE_SUMMARY_TRAFFIC_PATH = "/insights/executive-summary";
 
 /**
  * Owner workbook Notes for SPE — sponsor-report surface, not marketing.

@@ -100,7 +100,7 @@ export function useIdentityProvidersSettingsPage(
       const opts = mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" }, cache: "no-store" });
 
       const [summaryRes, diagnosticsRes, authConfigRes, oidcRes, samlRes] = await Promise.all([
-        fetch("/api/proxy/v1/admin/configuration/summary?includeEffectiveValues=true", opts),
+        fetch("/api/proxy/v1/internal/configuration/summary?includeEffectiveValues=true", opts),
         fetch("/api/proxy/v1/admin/diagnostics/identity-providers", opts),
         fetch("/api/proxy/v1/admin/auth/configuration-diagnostics", opts),
         fetch("/api/proxy/v1/admin/auth/oidc-diagnostics", opts),

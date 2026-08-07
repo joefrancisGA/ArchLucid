@@ -64,7 +64,7 @@ export const PATH_CHOOSER_HELP_BRANCHES: readonly PathChooserHelpBranch[] = [
     },
     fallback: {
       label: "Data handling and tenant isolation",
-      href: inAppHelpHref("data-handling-tenant-isolation"),
+      href: inAppHelpHref("data-handling"),
     },
   },
   {
@@ -101,7 +101,7 @@ export const PATH_CHOOSER_HELP_SOURCES: readonly PathChooserHelpSourceLink[] = [
   { label: "Procurement FAQ", href: inAppHelpHref("procurement") },
   {
     label: "Data handling and tenant isolation",
-    href: inAppHelpHref("data-handling-tenant-isolation"),
+    href: inAppHelpHref("data-handling"),
   },
   { label: "Executive summary", href: inAppHelpHref("executive-summary") },
 ] as const;

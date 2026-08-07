@@ -107,7 +107,7 @@ describe("DataArchivalDegradedBanner", () => {
       expect(screen.getByTestId("governance-dashboard-data-archival-degraded")).toBeInTheDocument();
     });
     expect(screen.getByRole("alert")).toHaveTextContent(/retention history may be incomplete/i);
-    expect(screen.getByRole("link", { name: /system health/i })).toHaveAttribute("href", "/admin/health");
+    expect(screen.getByRole("link", { name: /system health/i })).toHaveAttribute("href", "/internal/health");
     expect(screen.getByRole("alert")).not.toHaveTextContent(/worker log/i);
     expect(screen.getByRole("alert")).not.toHaveTextContent(/readiness check/i);
   });

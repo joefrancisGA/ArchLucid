@@ -17,7 +17,7 @@ export const COMPARE_SOURCES: readonly CompareSourceLink[] = [
   { label: "Evidence trail", href: "/insights/evidence-graph" },
   { label: "Search review evidence", href: "/insights/search-review-evidence" },
   { label: "Compare and replay help", href: inAppHelpHref("comparison-replay") },
-  { label: "How ArchLucid works", href: inAppHelpHref("how-it-works") },
+  { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
 ] as const;
 
 export const COMPARE_CANONICAL_PATH = "/insights/compare-two-reviews" as const;

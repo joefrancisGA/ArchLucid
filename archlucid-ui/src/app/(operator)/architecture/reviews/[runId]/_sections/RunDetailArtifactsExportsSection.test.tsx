@@ -90,7 +90,10 @@ describe("RunDetailArtifactsExportsSection", () => {
     expect(screen.queryByText("Artifacts & exports")).not.toBeInTheDocument();
     expect(screen.getByText(/decisions, findings, and supporting evidence for this review/i)).toBeInTheDocument();
     expect(screen.queryByText(/manifest/i)).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Download architecture review report (DOCX)" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Download architecture review report (DOCX)" })).toHaveAttribute(
+      "href",
+      "/api/proxy/v1/runs/run-1/export/docx",
+    );
     expect(container.querySelector("details")).toHaveAttribute("open");
   });
 
@@ -213,5 +216,32 @@ describe("RunDetailArtifactsExportsSection", () => {
 
     expect(screen.getByTestId("fatal-page-report-problem-row")).toBeInTheDocument();
     expect(screen.getByTestId("report-problem-trigger")).toBeInTheDocument();
+  });
+
+  it("disables architecture review report download for curated sample reviews", () => {
+    render(
+      <RunDetailArtifactsExportsSection
+        manifestId="manifest-1"
+        runId="claims-intake-modernization"
+        buyerPolishedArtifactTable
+        artifacts={[]}
+        artifactsFailure={null}
+        artifactsMalformed={null}
+        goldenManifestJsonForExport={null}
+        manifestSummaryForUi={manifestSummary}
+        manifestSummary={manifestSummary}
+        trustEvidenceCard={null}
+        samplePolicyPackContextLine={null}
+        usedStaticDemoRun
+        deliverablesDefaultOpen
+      />,
+    );
+
+    const download = screen.getByRole("button", { name: "Download architecture review report (DOCX)" });
+    expect(download).toBeDisabled();
+    expect(screen.queryByRole("link", { name: "Download architecture review report (DOCX)" })).not.toBeInTheDocument();
+    expect(
+      screen.getByText(/Downloads aren't available for this sample review/i),
+    ).toBeInTheDocument();
   });
 });

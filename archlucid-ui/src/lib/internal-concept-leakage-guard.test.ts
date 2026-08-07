@@ -40,19 +40,20 @@ describe("internal concept leakage guard (IA-013)", () => {
     expect(BUYER_SALES_LED_PRICING_NOTE).toContain("guided evaluation");
   });
 
-  it("folds starting-reviews and creating-runs into the review-guide alias", () => {
-    expect(normalizeHelpTopicSlug("creating-runs")).toBe("review-guide");
+  it("no longer resolves the retired starting-reviews and creating-runs aliases", () => {
+    expect(normalizeHelpTopicSlug("creating-runs")).toBe("creating-runs");
     expect(getProductDocumentationEntry("review-guide")?.title).toBe("Review guide");
-    expect(getProductDocumentationEntry("creating-runs")?.slug).toBe("review-guide");
+    expect(getProductDocumentationEntry("creating-runs")).toBeNull();
+    expect(getProductDocumentationEntry("starting-reviews")).toBeNull();
     expect(inAppHelpHref("review-guide")).toBe("/help/review-guide");
   });
 
-  it("points runs empty-state help at the canonical starting-reviews slug", () => {
-    expect(RUNS_EMPTY.helpTopicPath).toBe("starting-reviews");
+  it("points runs empty-state help at the canonical review-guide slug", () => {
+    expect(RUNS_EMPTY.helpTopicPath).toBe("review-guide");
   });
 
   it("labels sponsor report pilot outcomes breadcrumb segment", () => {
-    const crumbs = getBreadcrumbs("/sponsor-report/pilot-outcomes");
+    const crumbs = getBreadcrumbs("/insights/pilot-outcomes");
 
     expect(crumbs.some((crumb) => crumb.label === "Sponsor report")).toBe(true);
     expect(crumbs.some((crumb) => crumb.label === "Pilot outcomes")).toBe(true);

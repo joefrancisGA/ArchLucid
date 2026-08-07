@@ -1,6 +1,6 @@
 import type { CircuitGateRow, HealthReadyResponse } from "@/lib/health-dashboard-types";
 import type { ConfigLintPayload } from "@/lib/health-config-lint-presentation";
-import type { ConfigurationHealthPayload } from "@/app/(operator)/admin/health/_sections/admin-health-types";
+import type { ConfigurationHealthPayload } from "@/app/(operator)/internal/health/_sections/admin-health-types";
 
 import { presentConfigLintFindings } from "@/lib/health-config-lint-presentation";
 import {

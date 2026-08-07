@@ -128,7 +128,8 @@ public sealed class AuthorityRunEventsController(
             HasGovernanceWarnings = x.HasGovernanceWarnings,
             RunDegradedExecution = x.RunDegradedExecution,
             DegradedExecutionAgents = x.DegradedExecutionAgents,
-            PackageOrigin = x.PackageOrigin
+            PackageOrigin = x.PackageOrigin,
+            StructuralExecutionMode = x.StructuralExecutionMode,
         };
     }
 }

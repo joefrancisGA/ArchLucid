@@ -331,7 +331,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
           </Link>
           <Link
             className={cn("inline-flex rounded-full border border-neutral-200 bg-white px-2 py-0.5 font-medium text-teal-800 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper)}
-            href="/replay"
+            href="/internal/replay"
           >
             Replay
           </Link>

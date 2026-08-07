@@ -33,9 +33,9 @@ describe("OperateAnalysisNavGroupBuilder", () => {
       "/insights/planning",
       "/insights/architecture-scorecard",
       "/insights/patterns",
-      "/sponsor-report/executive-summary",
-      "/sponsor-report/pilot-outcomes",
-      "/sponsor-report/roi-summary",
+      "/insights/executive-summary",
+      "/insights/pilot-outcomes",
+      "/insights/roi-summary",
     ]);
     expect(group.links.at(-4)?.label).toBe("Pattern library");
     expect(group.links.at(-4)?.navBadge).toBe("Preview");

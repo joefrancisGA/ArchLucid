@@ -198,7 +198,6 @@ Columns:
 | `/getting-started` | Deprecated alias | App Router shim permanently redirects to `/onboarding` (query preserved) |
 | `/help` | In-app help index | Open directly |
 | `/help/first-architecture-review` | Your first architecture review (specialty guide) | `HelpCorePilotGuideView` with stepper + gated finalize CTAs (**COR**) |
-| `/help/core-pilot` | Legacy help slug alias | Resolves to **COR** (`first-architecture-review`); same `HelpCorePilotGuideView` (**ECO**) |
 | `/help/[topic]` | Rendered help topic | e.g. `/help/getting-started`, `/help/billing-and-plans` (specialty `HelpBillingAndPlansGuideView`, **HBX**), `/help/executive-summary` (specialty `HelpExecutiveSummaryGuideView`, **EXE**), `/help/findings` (specialty `HelpFindingsGuideView`, **HFX**), `/help/governance-approval` (specialty `HelpGovernanceApprovalGuideView`, **GO**), `/help/path-chooser` (buyer markdown chooser, **HPX**), `/help/developer-troubleshooting` (Admin-gated internal-runbook, **HDX**), `/help/governance-api-contracts` (Admin-gated API contracts reference, **HG**), `/help/alerts`, `/help/digests` (specialty `HelpDigestsGuideView`, **HDG**; slugs in `product-documentation-registry.ts`) |
 | `/demo` | CTO demo tour entry | CTO demo pack env; else redirects `/` |
 | `/demo/explain` | Internal demo explanation | T2: `GET /v1/demo/explain`; T3 mock; blocked in strict T1 |
@@ -235,7 +234,7 @@ Query keys for compare: `priorRunId`/`laterRunId` (buyer) or `leftRunId`/`rightR
 | `/governance/dashboard` | Executive Workspace Health | T1/T3 tiles |
 | `/governance/setup` | Governance setup guide | T1 deep links (read-only) |
 | `/governance/recurrence-schedules` | Recurrence schedules | T3 mock or T2 |
-| `/sponsor-report/executive-summary` | Sponsor value DOCX export | T2 finalized reviews + Execute role |
+| `/insights/executive-summary` | Sponsor value DOCX export | T2 finalized reviews + Execute role |
 | `/administration/security-trust` | Operator Security & trust | T1/T2; distinct from public `/security-trust` |
 
 Layer guidance copy for many governance/analysis routes: `archlucid-ui/src/lib/layer-guidance.ts`. Sidebar source of truth: `archlucid-ui/src/lib/nav-config.ts` and `archlucid-ui/docs/NAV_CONFIG_CONTRACT.md`.
@@ -250,12 +249,12 @@ Layer guidance copy for many governance/analysis routes: `archlucid-ui/src/lib/l
 | `/administration/connection-status` | Connection status (connector readiness hub) | Administration nav; `ConnectorOperationsDashboard` + contextual help. T3 mock or T2 |
 | `/integrations/teams` | Microsoft Teams wiring | T3 mock |
 | `/administration/system-health` | System health dashboard | Live/ready checks, build identity, buyer-polished demo variant; contextual help → troubleshooting (**ADY**) |
-| `/replay` | Replay authority chain | `/replay?runId=claims-intake-modernization`; T2 for real replay |
+| `/internal/replay` | Replay authority chain | `/replay?runId=claims-intake-modernization`; T2 for real replay |
 | `/planning` | Planning hub | T1/T3 |
 | `/planning/plans/[planId]` | Plan detail | T1: `claims-intake-modernization-plan` |
 | `/insights/impact-preview` | Impact preview | T3 mock |
-| `/sponsor-report/pilot-outcomes` | Sponsor proof snapshot (no DOCX) | T1/T2 after finalized architecture package |
-| `/sponsor-report/roi-summary` | ROI / hours summary | T1 illustrative; T2 with seed |
+| `/insights/pilot-outcomes` | Sponsor proof snapshot (no DOCX) | T1/T2 after finalized architecture package |
+| `/insights/roi-summary` | ROI / hours summary | T1 illustrative; T2 with seed |
 | `/architecture/digests` | Digests hub (Browse + Subscriptions + Schedule) | T3 mock; Schedule tab (**DIS**) hosts ExecDigestScheduleContent |
 | `/architecture/digests?tab=schedule` | Executive digest schedule | ExecDigestScheduleContent; preferences via `/v1/tenant/exec-digest-preferences` (**DIS**) |
 | `/digests` | Legacy rewrite alias | Internal rewrite to `/architecture/digests` |
@@ -265,7 +264,7 @@ Layer guidance copy for many governance/analysis routes: `archlucid-ui/src/lib/l
 | `/portfolio` | Retired — redirects to `/architecture/executive-dashboard` | Legacy bookmark only |
 | `/operate/architecture-graph` | Legacy Operate shim | App Router redirect to `/insights/evidence-graph` (query preserved; canonical UX on **INE**) |
 | `/architecture/architecture-intelligence` | Closed-loop architecture reasoning lab | Execute role; deep-link with `?runId=` from reviews/findings. Golden fixture + publish round trip. |
-| `/operate/integration-events/dlq` | Integration event DLQ | Full architect workspace + Admin + T2 API |
+| `/internal/integration-events/dlq` | Integration event DLQ | Full architect workspace + Admin + T2 API |
 
 ### Executive route group
 
@@ -304,16 +303,16 @@ Requires **Admin authority**, full architect workspace, no demo nav blockers, an
 
 | URL | Purpose | How to view |
 |-----|---------|-------------|
-| `/admin/health` | Admin health / diagnostics | T2 + Admin; T3 screenshot harness |
-| `/admin/configuration` | Effective configuration snapshot | Same |
-| `/admin/pricing-quote-aging` | Pricing quote SLA dashboard | Same |
-| `/admin/trial-funnel` | Trial funnel operations | Same |
-| `/admin/fleet-llm-cogs` | Fleet LLM COGS visibility | AdminAuthority + System Admin nav; per-tenant UTC-month COGS pressure table (**AFX**) |
-| `/admin/tenant-health` | Per-tenant health admin | Same |
-| `/admin/tenants` | Provision / shut off tenants | Same |
-| `/admin/rag-health` | RAG / retrieval health | Same |
+| `/internal/health` | Admin health / diagnostics | T2 + Admin; T3 screenshot harness |
+| `/internal/configuration` | Effective configuration snapshot | Same |
+| `/internal/pricing-quote-aging` | Pricing quote SLA dashboard | Same |
+| `/internal/trial-funnel` | Trial funnel operations | Same |
+| `/internal/fleet-llm-cogs` | Fleet LLM COGS visibility | AdminAuthority + System Admin nav; per-tenant UTC-month COGS pressure table (**AFX**) |
+| `/internal/tenant-health` | Per-tenant health admin | Same |
+| `/internal/tenants` | Provision / shut off tenants | Same |
+| `/internal/rag-health` | RAG / retrieval health | Same |
 | `/admin/support` | Admin support tools | Same |
-| `/admin/evidence-proposals` | Evidence proposal admin | Same |
+| `/internal/evidence-proposals` | Evidence proposal admin | Same |
 | `/admin/users` | User administration | Same |
 
 ---

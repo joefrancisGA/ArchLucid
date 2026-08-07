@@ -37,7 +37,7 @@ export const SHORTCUTS: ShortcutEntry[] = [
   {
     key: "alt+p",
     label: "Validate",
-    route: "/replay",
+    route: "/internal/replay",
     description: "Validate review",
   },
   {

@@ -35,7 +35,7 @@ describe("support-workspace-present", () => {
 
   it("resolves troubleshooting hrefs", () => {
     expect(resolveSupportTroubleshootingHref("help:troubleshooting")).toBe("/help/troubleshooting");
-    expect(resolveSupportTroubleshootingHref("/admin/health")).toBe("/admin/health");
+    expect(resolveSupportTroubleshootingHref("/internal/health")).toBe("/internal/health");
   });
 
   it("exposes support email constant", () => {

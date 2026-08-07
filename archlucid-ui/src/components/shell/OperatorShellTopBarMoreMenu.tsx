@@ -42,8 +42,9 @@ type OperatorShellTopBarMoreMenuProps = {
 };
 
 /**
- * Portaled overflow for secondary top-bar tools (help, theme, budget) so the sticky
- * header stays a single row without wrapping or a scrollport.
+ * Portaled overflow for secondary top-bar tools (theme, budget) so the sticky
+ * header stays a single row without wrapping or a scrollport. Help is freestanding
+ * on the top bar — do not park it here.
  */
 export function OperatorShellTopBarMoreMenu(props: OperatorShellTopBarMoreMenuProps): React.JSX.Element {
   const [open, setOpen] = useState(false);

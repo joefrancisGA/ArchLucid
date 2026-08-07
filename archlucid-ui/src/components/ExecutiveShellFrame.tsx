@@ -67,8 +67,8 @@ export function ExecutiveShellFrame({ children }: ExecutiveShellFrameProps) {
             <div className="flex min-w-0 flex-wrap items-center gap-2">
               <Button variant="ghost" className="h-auto shrink-0 p-0" asChild>
                 <ArchLucidWordmarkLink
-                  href="/executive/scorecard"
-                  aria-label="ArchLucid — executive scorecard"
+                  href={EXECUTIVE_DASHBOARD_HREF}
+                  aria-label="ArchLucid — executive dashboard"
                   variant="operator"
                 />
               </Button>
@@ -80,16 +80,6 @@ export function ExecutiveShellFrame({ children }: ExecutiveShellFrameProps) {
               >
                 <Link href={EXECUTIVE_DASHBOARD_HREF} data-testid="executive-shell-nav-dashboard">
                   Dashboard
-                </Link>
-              </Button>
-              <Button
-                asChild
-                variant="ghost"
-                size="sm"
-                className={executiveNavLinkClassName(pathname.startsWith("/executive/scorecard"))}
-              >
-                <Link href="/executive/scorecard" data-testid="executive-shell-nav-scorecard">
-                  Scorecard
                 </Link>
               </Button>
             </div>

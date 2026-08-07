@@ -24,7 +24,7 @@ export function ValueReportEmptyState(): React.JSX.Element {
       ]}
       footer={
         <Button asChild size="sm" variant="outline" className="border-neutral-300 dark:border-neutral-600">
-          <Link href="/sponsor-report/pilot-outcomes">{BUYER_VIEW_SAMPLE_VALUE_REPORT_CTA}</Link>
+          <Link href="/insights/pilot-outcomes">{BUYER_VIEW_SAMPLE_VALUE_REPORT_CTA}</Link>
         </Button>
       }
     />

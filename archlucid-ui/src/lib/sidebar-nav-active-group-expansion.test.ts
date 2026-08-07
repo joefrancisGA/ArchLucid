@@ -13,7 +13,7 @@ describe("findSidebarNavGroupIdsForActivePath", () => {
     vi.stubEnv("NEXT_PUBLIC_FEATURES_SHOW_SYSTEM_ADMINISTRATION_NAV", "true");
     const rows = listNavGroupsVisibleInOperatorShell(NAV_GROUPS, true, true, 3, false, "all", true);
 
-    expect(findSidebarNavGroupIdsForActivePath(rows, "/admin/rag-health")).toEqual(["operator-system-admin"]);
+    expect(findSidebarNavGroupIdsForActivePath(rows, "/internal/rag-health")).toEqual(["operator-system-admin"]);
   });
 
   it("returns governance when a governance child route is active", () => {

@@ -5,7 +5,7 @@
 export const DEPLOYMENT_STATUS_TRAFFIC_ROW_ID = "ADE";
 
 /** Canonical path tracked on the ADE workbook row. */
-export const DEPLOYMENT_STATUS_TRAFFIC_PATH = "/admin/deployment-status";
+export const DEPLOYMENT_STATUS_TRAFFIC_PATH = "/internal/deployment-status";
 
 /** Workbook Section column value (template catalog). */
 export const DEPLOYMENT_STATUS_TRAFFIC_SECTION = "Admin";

@@ -74,7 +74,7 @@ const BLUEPRINT_STEPS: WizardBlueprintStep[] = [
           Hit <strong>live/ready</strong> probes and jot the <strong>version</strong> string for ticketing. The footer strip surfaces quick health cues in-product.
         </p>
         <p className="m-0">
-          <Link href="/admin/health" className="font-medium text-teal-700 underline-offset-4 hover:underline dark:text-teal-400">
+          <Link href="/internal/health" className="font-medium text-teal-700 underline-offset-4 hover:underline dark:text-teal-400">
             Open admin health diagnostics →
           </Link>
         </p>

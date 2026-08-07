@@ -16,9 +16,10 @@ import {
   downloadFirstValueReportPdf,
   markSponsorPackSent,
   getArchitecturePackageDocxUrl,
-  getArtifactDownloadUrl,
   getBundleDownloadUrl,
   getRunExportDownloadUrl,
+  getRunPackageExportUrl,
+  SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT,
 } from "@/lib/api";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { isApiRequestError } from "@/lib/api-request-error";
@@ -44,7 +45,8 @@ export type EmailRunToSponsorBannerProps = {
   runId: string;
   manifestId: string;
   /**
-   * When true, the committed manifest includes the `architecture-review-board` artifact — show a one-click sponsor DOCX download.
+   * When true, show a one-click architecture review report DOCX (`GET /v1/runs/{runId}/export/docx`).
+   * Prefer any committed finalized review — the former `architecture-review-board` artifact-id check was invalid (GUID routes).
    */
   sponsorDocxAvailable?: boolean;
   /**
@@ -82,8 +84,8 @@ function computeUtcDayN(firstCommitIso: string, nowMs: number): number | null {
 }
 
 /**
- * Post-commit pilot ROI hub: primary PDF download (canonical sponsor projection), optional direct sponsor DOCX when the
- * committed manifest includes `architecture-review-board`, plus links to Markdown, architecture package DOCX, ZIP
+ * Post-commit pilot ROI hub: primary PDF download (canonical sponsor projection), optional architecture review
+ * report DOCX via {@link getRunPackageExportUrl}, plus links to Markdown, architecture package DOCX, ZIP
  * exports, and the in-product scorecard — no duplicate generation logic on the client.
  *
  * Render only when the server has confirmed a **Committed** manifest summary (see `runs/[runId]/page.tsx`).
@@ -595,14 +597,24 @@ export function EmailRunToSponsorBanner({
                     ? "Create sponsor scorecard (PDF)"
                     : "Generate pilot scorecard package"}
         </Button>
-        {sponsorDocxAvailable ? (
+        {sponsorDocxAvailable && !curatedSampleRun ? (
           <Button variant="secondary" asChild>
             <ExportTrackedAnchor
-              href={getArtifactDownloadUrl(manifestId, "architecture-review-board")}
+              href={getRunPackageExportUrl(runId, "docx")}
               data-testid="email-run-to-sponsor-sponsor-docx"
             >
               Download Sponsor Export (DOCX)
             </ExportTrackedAnchor>
+          </Button>
+        ) : null}
+        {sponsorDocxAvailable && curatedSampleRun ? (
+          <Button
+            variant="secondary"
+            disabled
+            title={SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT}
+            data-testid="email-run-to-sponsor-sponsor-docx"
+          >
+            Download Sponsor Export (DOCX)
           </Button>
         ) : null}
         {sentToSponsorUtc !== null ? (

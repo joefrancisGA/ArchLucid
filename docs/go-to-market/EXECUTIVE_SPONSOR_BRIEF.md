@@ -16,7 +16,7 @@ This file is the outward **sponsor story of record**: why a pilot matters, what 
 
 ## Related
 
-- **[Your first architecture review](/help/core-pilot)** — guided first-session checklist
+- **[Your first architecture review](/help/first-architecture-review)** — guided first-session checklist
 - **[Pilot ROI model](/help/pilot-roi-model)** — how pilot value is measured
 - **[Specialty review templates](/help/specialty-walkthroughs)** — Azure SaaS, AI governance, and healthcare starter packs
 - **[Procurement FAQ](/help/procurement)** — InfoSec and enterprise questionnaire answers

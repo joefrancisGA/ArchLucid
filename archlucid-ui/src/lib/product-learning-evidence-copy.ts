@@ -20,5 +20,5 @@ export const PRODUCT_LEARNING_SOURCES: readonly ProductLearningSourceLink[] = [
   { label: "Architecture reviews", href: "/architecture/reviews" },
   { label: "Start a review", href: "/architecture/reviews/new" },
   { label: "Pilot feedback help", href: inAppHelpHref("pilot-feedback") },
-  { label: "AI recommendation learning", href: "/internal-operations/recommendation-learning" },
+  { label: "AI recommendation learning", href: "/internal/recommendation-learning" },
 ] as const;

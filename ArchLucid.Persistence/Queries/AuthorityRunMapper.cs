@@ -1,4 +1,5 @@
 using ArchLucid.Core.Manifest;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Persistence.Models;
 
 namespace ArchLucid.Persistence.Queries;
@@ -30,7 +31,8 @@ internal static class AuthorityRunMapper
             ArtifactBundleId = run.ArtifactBundleId,
             HasWarnings = run.HasWarnings,
             HasGovernanceWarnings = run.HasGovernanceWarnings,
-            PackageOrigin = run.PackageOrigin
+            PackageOrigin = run.PackageOrigin,
+            StructuralExecutionMode = run.StructuralExecutionMode,
         };
     }
 

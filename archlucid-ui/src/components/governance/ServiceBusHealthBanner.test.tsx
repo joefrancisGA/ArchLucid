@@ -81,7 +81,7 @@ describe("ServiceBusHealthBanner", () => {
       expect(screen.getByTestId("service-bus-health-degraded-banner")).toBeInTheDocument();
     });
     expect(screen.getByRole("alert")).toHaveTextContent(/some analysis tasks are delayed/i);
-    expect(screen.getByRole("link", { name: "System health" })).toHaveAttribute("href", "/admin/health");
+    expect(screen.getByRole("link", { name: "System health" })).toHaveAttribute("href", "/internal/health");
     expect(screen.queryByText(/system health \(operators\)/i)).not.toBeInTheDocument();
   });
 });

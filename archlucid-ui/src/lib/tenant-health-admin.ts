@@ -15,7 +15,7 @@ export type AdminTenantHealthListResponse = {
 };
 
 export async function fetchAdminTenantHealthList(): Promise<AdminTenantHealthListResponse> {
-  const res = await fetch("/api/proxy/v1/admin/tenant-health", {
+  const res = await fetch("/api/proxy/v1/internal/tenant-health", {
     method: "GET",
     credentials: "include",
     cache: "no-store",

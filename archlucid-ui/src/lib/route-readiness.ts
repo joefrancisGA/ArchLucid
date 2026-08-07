@@ -5,6 +5,7 @@
 import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture-scorecard-route";
 import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import {
   GOVERNANCE_APPROVAL_QUEUE_PATH,
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
@@ -24,17 +25,17 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/insights/ask-review-questions": "demo-ready",
   "/insights/search-review-evidence": "demo-ready",
   [ARCHITECTURE_SCORECARD_PATH]: "demo-ready",
-  "/executive/scorecard": "demo-ready",
+  [EXECUTIVE_DASHBOARD_HREF]: "demo-ready",
   "/architecture/reviews": "demo-ready",
   "/governance/findings": "advanced-only",
   "/administration/security-trust": "demo-ready",
   "/administration/preferences": "demo-ready",
-  "/sponsor-report/executive-summary": "advanced-only",
-  "/sponsor-report/pilot-outcomes": "advanced-only",
-  "/sponsor-report/roi-summary": "advanced-only",
+  "/insights/executive-summary": "advanced-only",
+  "/insights/pilot-outcomes": "advanced-only",
+  "/insights/roi-summary": "advanced-only",
   [EVIDENCE_GRAPH_PATH]: "advanced-only",
   [COMPARE_TWO_REVIEWS_PATH]: "advanced-only",
-  "/replay": "advanced-only",
+  "/internal/replay": "advanced-only",
   "/governance/advisory-scans": "advanced-only",
   "/insights/planning": "advanced-only",
   [DIGESTS_HUB_PATH]: "advanced-only",
@@ -52,7 +53,6 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/settings/cost-reporting": "admin-only",
   "/governance/setup": "advanced-only",
   [GOVERNANCE_APPROVAL_QUEUE_PATH]: "advanced-only",
-  "/governance/dashboard": "advanced-only",
   [GOVERNANCE_STANDARDS_AND_RULES_PATH]: "advanced-only",
   "/governance/policy-packs": "advanced-only",
   "/governance/audit": "advanced-only",
@@ -62,15 +62,15 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/demo/explain": "hidden",
 
   "/internal/product-learning": "advanced-only",
-  "/internal-operations/recommendation-learning": "advanced-only",
-  "/admin/health": "admin-only",
-  "/admin/deployment-status": "admin-only",
-  "/admin/configuration": "admin-only",
-  "/admin/pricing-quote-aging": "hidden",
-  "/admin/trial-funnel": "admin-only",
-  "/admin/fleet-llm-cogs": "hidden",
-  "/admin/tenants": "hidden",
-  "/admin/tenant-health": "hidden",
+  "/internal/recommendation-learning": "advanced-only",
+  "/internal/health": "admin-only",
+  "/internal/deployment-status": "admin-only",
+  "/internal/configuration": "admin-only",
+  "/internal/pricing-quote-aging": "hidden",
+  "/internal/trial-funnel": "admin-only",
+  "/internal/fleet-llm-cogs": "hidden",
+  "/internal/tenants": "hidden",
+  "/internal/tenant-health": "hidden",
   "/admin/support": "admin-only",
   "/admin/users": "admin-only",
   "/administration/support": "admin-only",
@@ -97,7 +97,8 @@ export function operatorRouteReadiness(href: string): RouteReadinessTier {
     return fromTable ?? "demo-ready";
   }
 
-  const trimmedPath = canonicalizeLegacyOperatorRoutePath(path.trim().length === 0 ? "/" : path);
+  const trimmedPath = canonicalizeLegacyOperatorRoutePath(path.trim().length === 0 ? "/" : path).split("#")[0]
+    ?? path;
 
   if (trimmedPath.startsWith("/governance/approval-requests")) {
     return "admin-only";
@@ -147,9 +148,9 @@ const PRESENTER_SAFE_MODE_NAV_HIDE = new Set<string>([
   "/administration/identity-providers/diagnostics",
   "/administration/identity/sso-wizard",
   "/administration/scim-provisioning",
-  "/sponsor-report/executive-summary",
-  "/sponsor-report/pilot-outcomes",
-  "/sponsor-report/roi-summary",
+  "/insights/executive-summary",
+  "/insights/pilot-outcomes",
+  "/insights/roi-summary",
 ]);
 
 /** Pilot-tier links that are hidden in buyer demo nav (reduce noise vs core review story). */
@@ -161,7 +162,8 @@ const DEMO_MODE_EXPLICIT_NAV_HIDE = new Set<string>([
 
 function normalizeOperatorNavHrefForDemo(href: string): string {
   const [path, query] = href.split("?", 2);
-  const trimmed = canonicalizeLegacyOperatorRoutePath(path.trim().length === 0 ? "/" : path);
+  const trimmed = canonicalizeLegacyOperatorRoutePath(path.trim().length === 0 ? "/" : path).split("#")[0]
+    ?? path;
 
   if (trimmed === "/architecture/reviews" && query !== undefined && query.includes("projectId=")) {
     return "/architecture/reviews?projectId=default";

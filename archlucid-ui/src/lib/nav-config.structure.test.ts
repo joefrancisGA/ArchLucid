@@ -174,9 +174,9 @@ describe("nav-config structure", () => {
       "/insights/planning",
       "/insights/architecture-scorecard",
       "/insights/patterns",
-      "/sponsor-report/executive-summary",
-      "/sponsor-report/pilot-outcomes",
-      "/sponsor-report/roi-summary",
+      "/insights/executive-summary",
+      "/insights/pilot-outcomes",
+      "/insights/roi-summary",
     ]);
 
     const pilotHrefs = NAV_GROUPS.find((group) => group.id === "pilot")!.links.map((link) => link.href);
@@ -197,6 +197,7 @@ describe("nav-config structure", () => {
       "/governance/alert-rules",
       "/governance/recurrence-schedules",
       "/governance/setup",
+      "/architecture/executive-dashboard#workspace-health",
     ]);
     expect(integrationsHrefs).toEqual([
       "/integrations/cloud-connections",
@@ -207,22 +208,22 @@ describe("nav-config structure", () => {
       "/integrations/slack",
       "/integrations/webhooks",
     ]);
-    expect(systemAdminHrefs).toContain("/admin/rag-health");
-    expect(systemAdminHrefs).toContain("/admin/deployment-status");
-    expect(systemAdminHrefs).toContain("/replay");
+    expect(systemAdminHrefs).toContain("/internal/rag-health");
+    expect(systemAdminHrefs).toContain("/internal/deployment-status");
+    expect(systemAdminHrefs).toContain("/internal/replay");
     expect(systemAdminHrefs).not.toContain("/health");
     expect(systemAdminHrefs).not.toContain("/governance/advisory-scans");
     expect(systemAdminHrefs).not.toContain("/administration/tenant");
     expect(systemAdminHrefs).not.toContain("/workspace/security-trust");
     // Recommendation learning and Review feedback stay under Internal Operations (employee-only /
     // showSystemAdministrationNav). Improvement planning lives under Insights.
-    expect(systemAdminHrefs).toContain("/internal-operations/recommendation-learning");
+    expect(systemAdminHrefs).toContain("/internal/recommendation-learning");
     expect(systemAdminHrefs).toContain("/internal/product-learning");
     expect(systemAdminHrefs).not.toContain("/insights/planning");
     expect(systemAdminHrefs).not.toContain("/planning");
     expect(systemAdminHrefs).not.toContain("/architecture/digests");
-    expect(systemAdminHrefs).not.toContain("/sponsor-report/pilot-outcomes");
-    expect(systemAdminHrefs).not.toContain("/sponsor-report/roi-summary");
+    expect(systemAdminHrefs).not.toContain("/insights/pilot-outcomes");
+    expect(systemAdminHrefs).not.toContain("/insights/roi-summary");
     expect(systemAdminHrefs).not.toContain("/administration/identity-providers");
     expect(systemAdminHrefs).not.toContain("/administration/identity/sso-wizard");
     expect(systemAdminHrefs).not.toContain("/administration/api-keys");

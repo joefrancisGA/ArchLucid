@@ -12,7 +12,7 @@ This document lists operator-facing configuration **keys** (colon paths or envir
 
 ## Tenant data residency (administrator)
 
-Buyer-facing residency messaging lives in **[Data handling and tenant isolation](/help/data-handling-tenant-isolation)** and the Procurement FAQ — not here. Platform operators configure regional allowlists and blob service URIs at provision time:
+Buyer-facing residency messaging lives in **[Data handling](/help/data-handling)** and the Procurement FAQ — not here. Platform operators configure regional allowlists and blob service URIs at provision time:
 
 | Key | Default | Purpose |
 |-----|---------|---------|

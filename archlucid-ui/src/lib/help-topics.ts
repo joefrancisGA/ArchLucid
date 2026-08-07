@@ -91,7 +91,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     keywords: ["verify", "drift", "validation"],
     summary: "Validate whether a finalized review can still be reproduced and its signed review record remains valid.",
     docPath: "docs/library/COMPARISON_REPLAY.md",
-    routes: ["/replay"],
+    routes: ["/internal/replay"],
   },
   {
     id: "graph",
@@ -152,7 +152,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     keywords: ["ready", "health", "circuit", "diagnostics", "metrics"],
     summary: "In-app readiness checks, circuit breaker gates, and onboarding funnel counters — same signals as CLI doctor without leaving the workspace.",
     docPath: "docs/library/customer-facing/OPERATOR_ADMIN_DIAGNOSTICS.md",
-    routes: ["/administration/system-health", "/admin/health"],
+    routes: ["/administration/system-health", "/internal/health"],
   },
   {
     id: "admin-configuration",
@@ -161,7 +161,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     summary:
       "Read-only Effective configuration snapshot: catalog sections, declared sources, set flags, and masked values for sensitive keys.",
     docPath: "docs/library/CONFIGURATION_REFERENCE.md",
-    routes: ["/admin/configuration"],
+    routes: ["/internal/configuration"],
   },
   {
     id: "troubleshooting",

@@ -20,4 +20,9 @@ describe("sponsor-report-navigation", () => {
     expect(isSponsorReportOutcomesSurface("/value-report")).toBe(false);
     expect(isSponsorReportOutcomesSurface("/architecture/reviews")).toBe(false);
   });
+
+  it("detects legacy sponsor-report bookmarks", () => {
+    expect(isSponsorReportOutcomesSurface("/sponsor-report/executive-summary")).toBe(true);
+    expect(isSponsorReportOutcomesSurface("/sponsor-report/pilot-outcomes")).toBe(true);
+  });
 });

@@ -48,7 +48,7 @@ export const CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS = {
   },
   openConfigurationSummary: {
     label: "Configuration summary",
-    href: "/admin/configuration",
+    href: "/internal/configuration",
   },
 } as const;
 
@@ -66,7 +66,7 @@ export const CONFIGURATION_REFERENCE_HELP_SOURCES: readonly ConfigurationReferen
   { label: "Security and trust", href: inAppHelpHref("security-trust") },
   {
     label: "Data handling and tenant isolation",
-    href: inAppHelpHref("data-handling-tenant-isolation"),
+    href: inAppHelpHref("data-handling"),
   },
 ] as const;
 

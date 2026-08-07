@@ -142,7 +142,7 @@ export function SystemHealthPageView(props: Props) {
       <CollapsibleSection title="Technical details" defaultOpen={false} sectionTestId="system-health-operator-claim-scope">
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           {SYSTEM_HEALTH_CLAIM_DISCIPLINE} Tenant administrators can open{" "}
-          <Link href="/admin/health" className={OPERATOR_LINK.nav}>
+          <Link href="/internal/health" className={OPERATOR_LINK.nav}>
             Diagnostics dashboard
           </Link>{" "}
           for configuration advisories, circuit breakers, and onboarding activity.

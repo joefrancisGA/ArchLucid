@@ -17,7 +17,7 @@ export type ScopeHelpSourceLink = {
 export const SCOPE_HELP_SOURCES: readonly ScopeHelpSourceLink[] = [
   { label: "Users and roles", href: inAppHelpHref("users-and-roles") },
   { label: "Users settings", href: "/administration/users" },
-  { label: "Data handling & isolation", href: inAppHelpHref("data-handling-tenant-isolation") },
+  { label: "Data handling & isolation", href: inAppHelpHref("data-handling") },
   { label: "Getting started", href: inAppHelpHref("getting-started") },
   { label: "Assurance status", href: "/security-trust" },
 ] as const;

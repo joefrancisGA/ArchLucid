@@ -1,6 +1,6 @@
 import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture-scorecard-route";
-import { inAppHelpHref } from "@/lib/product-documentation-registry";
-import { SPONSOR_REPORT_ROI_SUMMARY_PATH } from "@/lib/sponsor-report-navigation";
+import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance-route-paths";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";import { SPONSOR_REPORT_ROI_SUMMARY_PATH } from "@/lib/sponsor-report-navigation";
 
 export const ARCHITECTURE_SCORECARD_CLAIM_DISCIPLINE =
   "Savings figures are directional for pilot value discussions — not financial reporting and not a signed-review diligence Sources trail. Do not imply CPA SOC 2 attestation or a published third-party pen test from this page.";
@@ -19,7 +19,7 @@ export const ARCHITECTURE_SCORECARD_SOURCES: readonly ArchitectureScorecardSourc
   { label: "Architecture reviews", href: "/architecture/reviews" },
   { label: "ROI methodology help", href: inAppHelpHref("pilot-roi-model") },
   { label: "Workspace baseline settings", href: "/administration/baseline" },
-  { label: "Workspace overview", href: "/governance/dashboard" },
+  { label: "Workspace overview", href: GOVERNANCE_WORKSPACE_HEALTH_HREF },
 ] as const;
 
 export const ARCHITECTURE_SCORECARD_CANONICAL_PATH = ARCHITECTURE_SCORECARD_PATH;

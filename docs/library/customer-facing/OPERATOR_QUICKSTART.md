@@ -1,4 +1,4 @@
-﻿> **Scope:** Evaluator / Admin command quickstart — API, CLI, and local UI after the environment is running. **Not** the default buyer help path — architects should start with [Your first architecture review](/help/core-pilot) or [Getting started](/help/getting-started).
+﻿> **Scope:** Evaluator / Admin command quickstart — API, CLI, and local UI after the environment is running. **Not** the default buyer help path — architects should start with [Your first architecture review](/help/first-architecture-review) or [Getting started](/help/getting-started).
 
 > **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 

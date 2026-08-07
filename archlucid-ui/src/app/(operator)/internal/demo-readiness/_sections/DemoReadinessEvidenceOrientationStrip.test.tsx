@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { DemoReadinessEvidenceOrientationStrip } from "@/app/(operator)/admin/demo-readiness/_sections/DemoReadinessEvidenceOrientationStrip";
+import { DemoReadinessEvidenceOrientationStrip } from "@/app/(operator)/internal/demo-readiness/_sections/DemoReadinessEvidenceOrientationStrip";
 import {
   DEMO_READINESS_CANONICAL_PATH,
   DEMO_READINESS_SOURCES,

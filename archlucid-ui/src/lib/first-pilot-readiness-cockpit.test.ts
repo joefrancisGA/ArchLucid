@@ -137,7 +137,7 @@ describe("buildFirstPilotReadinessRows", () => {
       configLint: null,
     });
 
-    expect(rows.find((r) => r.id === "config-lint")?.href).toBe("/admin/health");
+    expect(rows.find((r) => r.id === "config-lint")?.href).toBe("/internal/health");
   });
 
   it("routes read-only users to troubleshooting for config lint", () => {

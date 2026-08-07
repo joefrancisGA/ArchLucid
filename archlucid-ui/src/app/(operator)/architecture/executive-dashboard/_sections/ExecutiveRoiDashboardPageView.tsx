@@ -15,6 +15,7 @@ import {
   isExecutiveSampleWorkspaceData,
 } from "@/lib/executive-dashboard-workspace-state";
 import { EXECUTIVE_DASHBOARD_SCOPE_DETAILS_TRIGGER } from "@/lib/executive-dashboard-page-copy";
+import { EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_SECTION_ID } from "@/lib/executive-dashboard-route";
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -29,6 +30,7 @@ import {
   ExecutiveRoiEnvironmentSavingsSectionDeferred,
   ExecutiveRoiSummarySectionDeferred,
   ExecutiveRoiTrendSectionDeferred,
+  ExecutiveWorkspaceHealthDashboardDeferred,
   OperatorWelcomeOnboardingDeferred,
   SponsorExportsSectionDeferred,
 } from "./executive-roi-dashboard-deferred-chunks";
@@ -143,6 +145,15 @@ function ExecutiveRoiDashboardPortfolioSections({
           showDetailedKpiCards
         />
       ) : null}
+
+      <section
+        id={EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_SECTION_ID}
+        aria-labelledby="executive-workspace-health-heading"
+        className="scroll-mt-6"
+        data-testid="executive-dashboard-workspace-health-section"
+      >
+        <ExecutiveWorkspaceHealthDashboardDeferred />
+      </section>
 
       <ExecutiveDashboardBaselineWarningBanner variant="setup" />
     </OperatorPageContainer>

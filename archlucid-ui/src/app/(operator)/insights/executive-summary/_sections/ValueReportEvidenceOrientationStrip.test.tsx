@@ -1,7 +1,7 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { ValueReportEvidenceOrientationStrip } from "@/app/(operator)/sponsor-report/executive-summary/_sections/ValueReportEvidenceOrientationStrip";
+import { ValueReportEvidenceOrientationStrip } from "@/app/(operator)/insights/executive-summary/_sections/ValueReportEvidenceOrientationStrip";
 import {
   EXECUTIVE_SUMMARY_CANONICAL_PATH,
   EXECUTIVE_SUMMARY_SOURCES,

@@ -4,10 +4,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { FIRST_ARCHITECTURE_REVIEW_HELP_ROUTE_METADATA } from "@/lib/first-architecture-review-help-route-metadata";
-import {
-  FIRST_ARCHITECTURE_REVIEW_HELP_PATH,
-  LEGACY_CORE_PILOT_HELP_PATH,
-} from "@/lib/first-architecture-review-help-route";
+import { FIRST_ARCHITECTURE_REVIEW_HELP_PATH } from "@/lib/first-architecture-review-help-route";
 import { BUYER_FIRST_REVIEW_HELP_HREF } from "@/lib/first-review-90min-playbook-alignment";
 import {
   MARKETING_ROBOTS_DISALLOW_PREFIXES,
@@ -68,7 +65,7 @@ describe("first-architecture-review-help-route (COR)", () => {
     for (const relativePath of PRODUCT_FIRST_REVIEW_HELP_SURFACES) {
       const source = readFileSync(join(repoRoot, relativePath), "utf8");
       expectCanonicalFirstReviewHelpHandoff(source);
-      expect(source).not.toContain(`href="${LEGACY_CORE_PILOT_HELP_PATH}"`);
+      expect(source).not.toContain('href="/help/core-pilot"');
     }
   });
 });

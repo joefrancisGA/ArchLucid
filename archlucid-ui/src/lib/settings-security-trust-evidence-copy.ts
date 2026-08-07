@@ -19,6 +19,6 @@ export const SETTINGS_SECURITY_TRUST_SOURCES: readonly SettingsSecurityTrustSour
   { label: "Assurance status", href: "/security-trust" },
   { label: "Trust Center", href: "/trust" },
   { label: "Security and trust help", href: inAppHelpHref("security-trust") },
-  { label: "Data handling & isolation", href: inAppHelpHref("data-handling-tenant-isolation") },
+  { label: "Data handling & isolation", href: inAppHelpHref("data-handling") },
   { label: "Audit", href: "/governance/audit" },
 ] as const;

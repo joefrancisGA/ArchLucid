@@ -222,6 +222,7 @@ export function RunDetailPageView(props: {
               : "Policy pack used for this sample review."
             : null
         }
+        usedStaticDemoRun={m.usedStaticDemoRun}
         requestId={
           m.resolvedDetail.run.architectureRequestId ??
           (m.resolvedDetail.run as { requestId?: string }).requestId

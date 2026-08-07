@@ -2,7 +2,7 @@
 export const ROI_SUMMARY_TRAFFIC_ROW_ID = "SPR";
 
 /** Canonical browser path for the sponsor ROI summary report. */
-export const ROI_SUMMARY_TRAFFIC_PATH = "/sponsor-report/roi-summary";
+export const ROI_SUMMARY_TRAFFIC_PATH = "/insights/roi-summary";
 
 /**
  * Owner workbook Notes for SPR — sponsor-report surface, not marketing.

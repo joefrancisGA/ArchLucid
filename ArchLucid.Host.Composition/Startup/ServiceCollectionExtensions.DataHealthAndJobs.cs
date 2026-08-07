@@ -1,5 +1,6 @@
 using ArchLucid.Application.DataConsistency;
 using ArchLucid.Application.Jobs;
+using ArchLucid.Application.Operations;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Hosting;
 using ArchLucid.Host.Composition.Configuration;
@@ -169,6 +170,8 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IBackgroundJobWorkUnitExecutor, BackgroundJobWorkUnitExecutor>();
         services.AddScoped<IBackgroundJobTenantAccessVerifier, BackgroundJobTenantAccessVerifier>();
         services.AddScoped<IBackgroundJobWorkUnitAccessor, BackgroundJobWorkUnitAccessor>();
+        services.AddScoped<IBackgroundJobInfoReader, BackgroundJobInfoReader>();
+        services.AddScoped<IOperationQueryService, OperationQueryService>();
 
         if (hostingRole == ArchLucidHostingRole.Worker)
         {

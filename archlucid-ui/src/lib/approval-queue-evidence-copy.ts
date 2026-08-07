@@ -1,7 +1,7 @@
 import {
   GOVERNANCE_APPROVAL_QUEUE_PATH,
   GOVERNANCE_AUDIT_PATH,
-  GOVERNANCE_DASHBOARD_PATH,
+  GOVERNANCE_WORKSPACE_HEALTH_HREF,
 } from "@/lib/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
@@ -20,7 +20,7 @@ export type ApprovalQueueSourceLink = {
 export const APPROVAL_QUEUE_SOURCES: readonly ApprovalQueueSourceLink[] = [
   { label: "Findings", href: "/governance/findings" },
   { label: "Audit", href: GOVERNANCE_AUDIT_PATH },
-  { label: "Workspace health", href: GOVERNANCE_DASHBOARD_PATH },
+  { label: "Workspace health", href: GOVERNANCE_WORKSPACE_HEALTH_HREF },
   { label: "Governance approval help", href: inAppHelpHref("governance-approval") },
   { label: "How ArchLucid works", href: inAppHelpHref("getting-started") },
 ] as const;

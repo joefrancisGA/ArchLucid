@@ -55,7 +55,7 @@ Including where such data appears in user-provided architecture descriptions, As
 - **Professional content:** technical descriptions, system names, URLs, pasted logs or documents that may identify individuals or systems.
 - **Usage and audit:** operational events recorded in the durable audit log (see product documentation), correlation identifiers, timestamps.
 
-See also conversation retention and security documentation in [Security and trust](/help/security-trust) and [Data handling and tenant isolation](/help/data-handling-tenant-isolation).
+See also conversation retention and security documentation in [Security and trust](/help/security-trust) and [Data handling and tenant isolation](/help/data-handling#isolation).
 
 ---
 

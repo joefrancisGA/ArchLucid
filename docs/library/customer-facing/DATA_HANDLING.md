@@ -6,7 +6,7 @@ Data flow, tenant isolation, audit trail, and portability for architecture revie
 
 ArchLucid takes your architecture brief and optional evidence context, applies policy packs, and produces a **governed architecture package** with findings, decisions, a **signed review record**, and an audit trail. ArchLucid does not execute code in your environment and does not require write access to your systems.
 
-For the end-to-end product workflow, see [How ArchLucid works](/help/how-it-works).
+For the end-to-end product workflow, see [How ArchLucid works](/help/getting-started#how-archlucid-works).
 
 ## What leaves your tenant {#what-leaves-your-tenant}
 
@@ -59,9 +59,9 @@ Finalized architecture packages support exportable governance artifacts for spon
 
 ## Related topics
 
-- [How ArchLucid works](/help/how-it-works) — product workflow from evidence to exports
+- [How ArchLucid works](/help/getting-started#how-archlucid-works) — product workflow from evidence to exports
 - [Security and trust](/help/security-trust) — assurance materials and diligence support
-- [Data handling and tenant isolation](/help/data-handling-tenant-isolation) — three-layer isolation deep-dive
+- [Isolation](/help/data-handling#isolation) — three-layer isolation deep-dive
 - [Trust Center](/trust) — public evidence downloads and procurement posture
 - [Audit trail](/help/audit-trail) — immutable events and export posture
 - [Subprocessors](/help/subprocessors) — hosted processing partners and residency notes

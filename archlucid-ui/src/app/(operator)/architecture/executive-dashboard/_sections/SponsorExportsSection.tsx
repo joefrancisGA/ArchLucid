@@ -6,17 +6,17 @@ import { useEffect, useState } from "react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { getArtifactDownloadUrl } from "@/lib/api";
+import { getRunPackageExportUrl } from "@/lib/api";
+import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture-scorecard-route";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isExplicitStaticDemoMarketingBuild } from "@/lib/buyer-demo-content-gating";
 import { filterCommittedRunsForPicker } from "@/lib/committed-run-picker";
 import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
-import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
 type SponsorDocxTarget = {
   readonly runId: string;
-  readonly manifestId: string;
 };
 
 type SponsorExportOutputCardProps = {
@@ -88,7 +88,8 @@ function SponsorExportOutputCard(props: SponsorExportOutputCardProps): React.JSX
 
 /**
  * Sponsor-ready quick links for executive reporting exports and ROI framing context.
- * Includes a direct sponsor DOCX download when a committed manifest exposes `architecture-review-board`.
+ * Includes a direct architecture review report DOCX download for the first committed review
+ * (`GET /v1/runs/{runId}/export/docx`).
  */
 export type SponsorExportsSectionProps = {
   readonly surface?: "operator" | "executive";
@@ -113,33 +114,10 @@ export function SponsorExportsSection({
         mergeDemoOnEmpty: isExplicitStaticDemoMarketingBuild(),
       });
       const committed = filterCommittedRunsForPicker(items);
+      const first = committed[0];
 
-      for (const run of committed) {
-        try {
-          const response = await fetch(
-            `/api/proxy/v1/runs/${encodeURIComponent(run.runId)}/artifacts`,
-            mergeRegistrationScopeForProxy({ method: "GET" }),
-          );
-
-          if (!response.ok) {
-            continue;
-          }
-
-          const artifacts = (await response.json()) as Array<{ artifactId?: string; manifestId?: string | null }>;
-          const hasBoard = artifacts.some(
-            (row) => (row.artifactId ?? "").toLowerCase() === "architecture-review-board",
-          );
-          const manifestId = artifacts
-            .map((row) => (row.manifestId ?? "").trim())
-            .find((id) => id.length > 0);
-
-          if (hasBoard && manifestId !== undefined && !cancelled) {
-            setSponsorDocx({ runId: run.runId, manifestId });
-            break;
-          }
-        } catch {
-          // Try next committed run.
-        }
+      if (first !== undefined && !cancelled) {
+        setSponsorDocx({ runId: first.runId });
       }
     })();
 
@@ -165,7 +143,7 @@ export function SponsorExportsSection({
             description={v.sponsorExportsDocxDescription}
             locked={false}
             primaryActionLabel={v.sponsorExportsDocxAction}
-            externalHref={getArtifactDownloadUrl(sponsorDocx.manifestId, "architecture-review-board")}
+            externalHref={getRunPackageExportUrl(sponsorDocx.runId, "docx")}
             testId="sponsor-exports-docx-download"
           />
         ) : null}
@@ -174,9 +152,9 @@ export function SponsorExportsSection({
           description={v.sponsorExportsScorecardDescription}
           locked={exportsLocked}
           primaryActionLabel={v.sponsorExportsScorecardAction}
-          primaryHref="/executive/scorecard"
+          primaryHref={EXECUTIVE_DASHBOARD_HREF}
           previewActionLabel={v.sponsorExportsPreviewSampleAction}
-          previewHref={v.sponsorExportsScorecardSampleHref}
+          previewHref={ARCHITECTURE_SCORECARD_PATH}
           testId="sponsor-exports-scorecard"
         />
         <SponsorExportOutputCard
@@ -184,7 +162,7 @@ export function SponsorExportsSection({
           description={v.sponsorExportsPilotValueDescription}
           locked={exportsLocked}
           primaryActionLabel={v.sponsorExportsPilotValueAction}
-          primaryHref="/sponsor-report/pilot-outcomes"
+          primaryHref="/insights/pilot-outcomes"
           previewActionLabel={v.sponsorExportsPreviewSampleAction}
           previewHref={v.sponsorExportsPilotValueSampleHref}
           testId="sponsor-exports-pilot-value"
@@ -194,7 +172,7 @@ export function SponsorExportsSection({
           description={v.sponsorExportsRoiDescription}
           locked={false}
           primaryActionLabel={v.sponsorExportsRoiAction}
-          primaryHref="/sponsor-report/roi-summary"
+          primaryHref="/insights/roi-summary"
           testId="sponsor-exports-roi-methodology"
         />
       </div>

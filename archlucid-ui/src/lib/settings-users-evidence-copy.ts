@@ -20,5 +20,5 @@ export const SETTINGS_USERS_SOURCES: readonly SettingsUsersSourceLink[] = [
   { label: "SSO and identity", href: "/administration/identity-providers" },
   { label: "Invite a reviewer", href: `${SETTINGS_USERS_PATH}/invite-reviewer` },
   { label: "Assurance status", href: "/security-trust" },
-  { label: "How ArchLucid works", href: inAppHelpHref("how-it-works") },
+  { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
 ] as const;

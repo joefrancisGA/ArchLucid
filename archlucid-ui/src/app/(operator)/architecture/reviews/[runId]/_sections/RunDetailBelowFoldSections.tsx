@@ -239,6 +239,7 @@ export function RunDetailBelowFoldSections(props: RunDetailBelowFoldSectionsProp
                 : "Policy pack used for this sample review."
               : null
           }
+          usedStaticDemoRun={m.usedStaticDemoRun}
           requestId={m.resolvedDetail.run.architectureRequestId ?? (m.resolvedDetail.run as { requestId?: string }).requestId}
         />
       ) : null}

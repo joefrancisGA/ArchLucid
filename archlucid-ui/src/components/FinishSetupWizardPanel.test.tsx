@@ -42,7 +42,7 @@ describe("FinishSetupWizardPanel", () => {
     window.localStorage.clear();
   });
 
-  it("does not link to /admin/health on managed SaaS onboarding", () => {
+  it("does not link to /internal/health on managed SaaS onboarding", () => {
     process.env.NODE_ENV = "production";
     delete process.env.NEXT_PUBLIC_ARCHLUCID_SELF_HOSTED;
 
@@ -50,7 +50,7 @@ describe("FinishSetupWizardPanel", () => {
 
     expect(screen.queryByRole("link", { name: /Open system health/i })).toBeNull();
     expect(screen.queryByRole("link", { name: /admin health/i })).toBeNull();
-    expect(document.querySelector('a[href="/admin/health"]')).toBeNull();
+    expect(document.querySelector('a[href="/internal/health"]')).toBeNull();
   });
 
   it("uses secret-store language in the required setup description", () => {

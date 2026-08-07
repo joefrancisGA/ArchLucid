@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Common;
+
 namespace ArchLucid.Persistence.Queries;
 
 /// <summary>
@@ -151,4 +153,11 @@ public class RunSummaryDto
         get;
         set;
     }
+
+    /// <summary>Structural execution mode roll-up for compare pickers and run lists (TB-2071).</summary>
+    public StructuralExecutionMode StructuralExecutionMode
+    {
+        get;
+        set;
+    } = StructuralExecutionMode.Simulator;
 }

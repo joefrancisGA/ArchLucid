@@ -68,7 +68,7 @@ vi.mock("./insights/planning/_sections/load-planning-page-data", () => {
   };
 });
 
-vi.mock("./internal-operations/recommendation-learning/_sections/load-recommendation-learning-ops-page-data", () => ({
+vi.mock("./internal/recommendation-learning/_sections/load-recommendation-learning-ops-page-data", () => ({
   loadRecommendationLearningOpsPageData: () =>
     Promise.resolve({
       kind: "ready" as const,
@@ -194,7 +194,7 @@ import OnboardingPage from "./architecture/first-review-guide/page";
 import PolicyPacksPage from "./governance/policy-packs/page";
 import PlanningPage from "./insights/planning/page";
 import ProductLearningPage from "./internal/product-learning/page";
-import RecommendationLearningOpsPage from "./internal-operations/recommendation-learning/page";
+import RecommendationLearningOpsPage from "./internal/recommendation-learning/page";
 import SearchPage from "./insights/search-review-evidence/page";
 
 /**

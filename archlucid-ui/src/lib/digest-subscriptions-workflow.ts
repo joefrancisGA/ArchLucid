@@ -13,7 +13,7 @@ export const DIGEST_SUBSCRIPTIONS_PAGE_SUBTITLE =
 export const DIGEST_SUBSCRIPTIONS_SENSITIVE_CONTENT_NOTE =
   "Digests include summary text and links back to ArchLucid. They do not attach raw evidence files unless your workspace enables that separately." as const;
 
-export const DIGEST_SUBSCRIPTIONS_SENSITIVE_CONTENT_HELP_HREF = "/help/data-handling-tenant-isolation" as const;
+export const DIGEST_SUBSCRIPTIONS_SENSITIVE_CONTENT_HELP_HREF = "/help/data-handling" as const;
 
 export const DIGEST_SUBSCRIPTIONS_SEND_TEST_HREF = ADVISORY_SCANS_SCHEDULES_HREF;
 

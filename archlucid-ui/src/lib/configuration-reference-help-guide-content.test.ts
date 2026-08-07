@@ -20,7 +20,7 @@ describe("configuration-reference-help-guide-content", () => {
       "/administration/api-keys",
     );
     expect(CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS.openConfigurationSummary.href).toBe(
-      "/admin/configuration",
+      "/internal/configuration",
     );
   });
 

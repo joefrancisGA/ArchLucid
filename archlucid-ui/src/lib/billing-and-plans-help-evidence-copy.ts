@@ -19,5 +19,5 @@ export const BILLING_AND_PLANS_HELP_SOURCES: readonly BillingAndPlansHelpSourceL
   { label: "Pricing", href: "/pricing" },
   { label: "Audit", href: "/governance/audit" },
   { label: "Getting started", href: inAppHelpHref("getting-started") },
-  { label: "How ArchLucid works", href: inAppHelpHref("how-it-works") },
+  { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
 ] as const;

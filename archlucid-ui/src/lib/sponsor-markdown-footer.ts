@@ -8,7 +8,7 @@ export function buildSponsorMarkdownMethodologyFooter(options?: {
     "## Methodology and limitations",
     "",
     "Savings and cost figures in this export are **directional estimates**, not audited financial statements.",
-    "See the [Pilot ROI model](/sponsor-report/roi-summary) for methodology.",
+    "See the [Pilot ROI model](/insights/roi-summary) for methodology.",
   ];
 
   const timestamp = options?.collectionTimestamp?.trim() ?? "";

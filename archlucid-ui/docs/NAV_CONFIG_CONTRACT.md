@@ -73,7 +73,7 @@ Hub surfaces (`/architecture/first-review-guide`, operator home setup cards, Cor
 |------|-----------|
 | Every action has **exactly one owning page** | Avoid duplicate SSO, health, or role-management flows across hubs. |
 | Hub pages may show **completion status** and **deep-link** only | No embedded forms, wizards, or mutation controls for actions owned elsewhere. |
-| Hub pages must **not** link to `operator-system-admin` cluster routes in default customer shells | e.g. `/admin/health`, `/admin/configuration`, `/operate/integration-events/dlq`, internal value-report tabs. Use buyer-safe `/administration/system-health` when platform health is linked (see **TB-677**). |
+| Hub pages must **not** link to `operator-system-admin` cluster routes in default customer shells | e.g. `/internal/health`, `/internal/configuration`, `/internal/integration-events/dlq`, internal value-report tabs. Use buyer-safe `/administration/system-health` when platform health is linked (see **TB-677**). |
 | Role-gated blocks use **authority flags**, not disclosure alone | Optional setup stays collapsed **and** non-admins see delegation copy only (**TB-678**). |
 
 **Contract module:** `src/lib/onboarding-hub-contract.ts`  
@@ -94,7 +94,7 @@ Cross-ref: First review guide redundancy audit (**TB-674**–**TB-679**).
 - **`OperateCapabilityHints.authority.test.tsx`** — rank-gated Operate sidebar/page cues share the same **`ExecuteAuthority`** numeric floor as **`useOperateCapability`** (governance resolution, audit log, **Alerts inbox**, **governance dashboard** reader cue, alert tooling).
 - **`authority-execute-floor-regression.test.ts`** — same **boolean** for a synthetic **`ExecuteAuthority`** row vs **`operateCapabilityFromRank`**.
 - **`authority-shaped-ui-regression.test.ts`** — every catalog **`ExecuteAuthority`** link hidden at Read / visible at Execute (new rows cannot drift untested); **`operate-governance`** monotonicity Reader→Admin.
-- **`nav-shell-visibility.test.ts`** — Analysis extended **Execute** links (e.g. **`/replay`**) behind **Show more** — tier before rank.
+- **`nav-shell-visibility.test.ts`** — Analysis extended **Execute** links (e.g. **`/internal/replay`**) behind **Show more** — tier before rank.
 - **`current-principal.test.ts`** — **`maxAuthority`** vs **`requiredAuthorityFromRank`** and **`hasEnterpriseOperatorSurfaces`** vs mutation capability.
 - **`nav-config.structure.test.ts`** — duplicate **`href`**s; **Pilot** essentials omit **`requiredAuthority`**; **Operate** **`ExecuteAuthority`** links must not use **`essential`** tier (progressive disclosure + rank story).
 - **`nav-route-namespace.test.ts`** — every nav **`href`** matches its group canonical prefix or **`NAV_ROUTE_NAMESPACE_EXCEPTIONS`** (TB-404).

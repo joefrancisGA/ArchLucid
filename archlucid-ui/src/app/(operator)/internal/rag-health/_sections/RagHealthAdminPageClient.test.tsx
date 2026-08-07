@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { RagHealthAdminPageClient } from "@/app/(operator)/admin/rag-health/_sections/RagHealthAdminPageClient";
+import { RagHealthAdminPageClient } from "@/app/(operator)/internal/rag-health/_sections/RagHealthAdminPageClient";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
 const authMock = vi.hoisted(() => ({

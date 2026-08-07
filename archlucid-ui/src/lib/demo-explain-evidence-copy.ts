@@ -14,7 +14,7 @@ export type DemoExplainSourceLink = {
 /** Operator Sources — no self-href to `/demo/explain`. */
 export const DEMO_EXPLAIN_SOURCES: readonly DemoExplainSourceLink[] = [
   { label: "Start a review", href: "/architecture/reviews/new" },
-  { label: "Validate review", href: "/replay" },
+  { label: "Validate review", href: "/internal/replay" },
   { label: "Evidence trail help", href: "/help/evidence-trail" },
   { label: "Why ArchLucid", href: "/why-archlucid" },
   { label: "Demo preview", href: "/demo/preview" },

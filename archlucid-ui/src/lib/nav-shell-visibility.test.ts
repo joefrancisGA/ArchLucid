@@ -138,8 +138,8 @@ describe("filterNavLinksForOperatorShell", () => {
       true,
     );
 
-    expect(visible.some((l) => l.href === "/admin/health")).toBe(true);
-    expect(visible.some((l) => l.href === "/admin/configuration")).toBe(true);
+    expect(visible.some((l) => l.href === "/internal/health")).toBe(true);
+    expect(visible.some((l) => l.href === "/internal/configuration")).toBe(true);
   });
 
   it("shows System Administration Execute link (/replay) for Admin even when showExtended is off", () => {
@@ -156,7 +156,7 @@ describe("filterNavLinksForOperatorShell", () => {
       true,
     );
 
-    expect(extendedOff.some((l) => l.href === "/replay")).toBe(true);
+    expect(extendedOff.some((l) => l.href === "/internal/replay")).toBe(true);
 
     const extendedOn = filterNavLinksForOperatorShell(
       systemAdmin!.links,
@@ -167,7 +167,7 @@ describe("filterNavLinksForOperatorShell", () => {
       true,
     );
 
-    expect(extendedOn.some((l) => l.href === "/replay")).toBe(true);
+    expect(extendedOn.some((l) => l.href === "/internal/replay")).toBe(true);
   });
 });
 
@@ -481,7 +481,7 @@ describe("listNavGroupsVisibleInOperatorShell — platform-admin surface", () =>
     expect(rows[0]!.visibleLinks.some((l) => l.href === "/administration/connection-status")).toBe(true);
     expect(rows[0]!.visibleLinks.some((l) => l.href === "/administration/system-health")).toBe(true);
     expect(rows[0]!.visibleLinks.some((l) => l.href === "/administration/users")).toBe(true);
-    expect(rows[0]!.visibleLinks.some((l) => l.href === "/admin/pricing-quote-aging")).toBe(false);
+    expect(rows[0]!.visibleLinks.some((l) => l.href === "/internal/pricing-quote-aging")).toBe(false);
   });
 
   it("omits Administration health links for Read and Execute callers without AdminAuthority (TB-647)", () => {
@@ -596,10 +596,10 @@ describe("listNavGroupsVisibleInOperatorShell — system-admin surface", () => {
     );
 
     expect(visible.map((r) => r.group.id)).toEqual(["operator-system-admin"]);
-    expect(visible[0]!.visibleLinks.map((l) => l.href)).toContain("/admin/pricing-quote-aging");
-    expect(visible[0]!.visibleLinks.map((l) => l.href)).toContain("/admin/rag-health");
+    expect(visible[0]!.visibleLinks.map((l) => l.href)).toContain("/internal/pricing-quote-aging");
+    expect(visible[0]!.visibleLinks.map((l) => l.href)).toContain("/internal/rag-health");
     expect(visible[0]!.visibleLinks.map((l) => l.label)).toContain("Knowledge index health");
-    expect(visible[0]!.visibleLinks.map((l) => l.href)).toContain("/replay");
+    expect(visible[0]!.visibleLinks.map((l) => l.href)).toContain("/internal/replay");
   });
 });
 

@@ -18,8 +18,8 @@ describe("getRouteTitle — static routes", () => {
     expect(getRouteTitle("/governance/approval-queue")).toBe(GOVERNANCE_OVERVIEW_PAGE_TITLE);
     expect(getRouteTitle(SIGNED_RECORDS_LIST_PATH)).toBe(OPERATOR_NAV_LINK_LABELS.signedReviewRecords);
     expect(getRouteTitle(EXECUTIVE_DASHBOARD_HREF)).toBe(BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle);
-    expect(getRouteTitle("/executive/scorecard")).toBe(BUYER_EXECUTIVE_SUMMARY_VOCABULARY.scorecardPageTitle);
-    expect(getRouteTitle("/replay")).toBe(OPERATOR_NAV_LINK_LABELS.replayReview);
+    expect(getRouteTitle("/executive/scorecard")).toBe(BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle);
+    expect(getRouteTitle("/internal/replay")).toBe(OPERATOR_NAV_LINK_LABELS.replayReview);
     expect(getRouteTitle("/insights/ask-review-questions")).toBe("Ask review questions");
     expect(getRouteTitle("/insights/search-review-evidence")).toBe("Search review evidence");
   });
@@ -58,6 +58,6 @@ describe("getRouteTitle — unknown path", () => {
   });
 
   it("capitalizes ITSM acronym for itsm path segment", () => {
-    expect(getRouteTitle("/admin/integrations/itsm")).toBe("ITSM connectors");
+    expect(getRouteTitle("/internal/integrations/itsm")).toBe("ITSM connectors");
   });
 });

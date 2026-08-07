@@ -34,7 +34,7 @@ export type AdminDeploymentStatusResponse = {
   readonly generatedAtUtc: string;
 };
 
-export const ADMIN_DEPLOYMENT_STATUS_PROXY_PATH = "/api/proxy/v1/admin/deployment-status";
+export const ADMIN_DEPLOYMENT_STATUS_PROXY_PATH = "/api/proxy/v1/internal/deployment-status";
 
 export function displayDeploymentField(value: string | null | undefined): string {
   const trimmed = (value ?? "").trim();

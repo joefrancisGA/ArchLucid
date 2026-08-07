@@ -16,8 +16,8 @@ export type PilotRoiModelHelpSourceLink = {
 /** Operator Sources - no self-href to `/help/pilot-roi-model`. */
 export const PILOT_ROI_MODEL_HELP_SOURCES: readonly PilotRoiModelHelpSourceLink[] = [
   { label: "Architecture scorecard", href: "/insights/architecture-scorecard" },
-  { label: "ROI summary", href: "/sponsor-report/roi-summary" },
-  { label: "Pilot outcomes", href: "/sponsor-report/pilot-outcomes" },
+  { label: "ROI summary", href: "/insights/roi-summary" },
+  { label: "Pilot outcomes", href: "/insights/pilot-outcomes" },
   { label: "Workspace baseline", href: "/administration/baseline" },
   { label: "Pilot guide", href: inAppHelpHref("pilot-guide") },
   { label: "Executive summary help", href: inAppHelpHref("executive-summary") },

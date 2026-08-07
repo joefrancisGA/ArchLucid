@@ -22,7 +22,7 @@ export const SYSTEM_HEALTH_SOURCES: readonly SystemHealthSourceLink[] = [
   { label: "Architecture digests", href: DIGESTS_HUB_PATH },
   { label: "Governance audit", href: "/governance/audit" },
   { label: "Troubleshooting help", href: inAppHelpHref("troubleshooting") },
-  { label: "How ArchLucid works", href: inAppHelpHref("how-it-works") },
+  { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
 ] as const;
 
 export const SYSTEM_HEALTH_CANONICAL_PATH = "/administration/system-health" as const;

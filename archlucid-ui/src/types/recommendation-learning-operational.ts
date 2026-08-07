@@ -1,6 +1,6 @@
 import type { LearningProfile } from "@/types/recommendation-learning";
 
-export const RECOMMENDATION_LEARNING_CANONICAL_PATH = "/internal-operations/recommendation-learning";
+export const RECOMMENDATION_LEARNING_CANONICAL_PATH = "/internal/recommendation-learning";
 
 export type RecommendationLearningProfileState = "NotBuilt" | "InsufficientData" | "Active";
 

@@ -25,9 +25,10 @@ import { OperatorSectionRetryButton } from "@/components/OperatorSectionRetryBut
 import { Button } from "@/components/ui/button";
 import {
   getArchitectureRequestDownloadUrl,
-  getArtifactDownloadUrl,
   getBundleDownloadUrl,
   getRunExportDownloadUrl,
+  getRunPackageExportUrl,
+  SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT,
 } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { BUYER_MANIFEST_DELIVERABLES_HEADING } from "@/lib/buyer-polish-copy";
@@ -55,6 +56,8 @@ export type RunDetailArtifactsExportsSectionProps = {
   readonly requestId?: string | null;
   /** When set, overrides buyer-polished default collapsed deliverables accordion. */
   readonly deliverablesDefaultOpen?: boolean;
+  /** Curated sample review — no backend export target for architecture-review-board DOCX. */
+  readonly usedStaticDemoRun?: boolean;
 };
 
 function resolveFeasibilityVerdict(
@@ -87,6 +90,7 @@ export function RunDetailArtifactsExportsSection(
     samplePolicyPackContextLine,
     requestId,
     deliverablesDefaultOpen,
+    usedStaticDemoRun = false,
   } = props;
 
   const feasibilityVerdict = resolveFeasibilityVerdict(manifestSummaryForUi, manifestSummary);
@@ -115,11 +119,22 @@ export function RunDetailArtifactsExportsSection(
                 }}
               />
             ) : null}
-            <Button variant="primary" asChild>
-              <ExportTrackedAnchor href={getArtifactDownloadUrl(manifestId, "architecture-review-board")}>
-                Download architecture review report (DOCX)
-              </ExportTrackedAnchor>
-            </Button>
+            {usedStaticDemoRun ? (
+              <div className="flex max-w-prose flex-col gap-1.5">
+                <Button variant="primary" disabled title={SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT}>
+                  Download architecture review report (DOCX)
+                </Button>
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  {SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT}
+                </p>
+              </div>
+            ) : (
+              <Button variant="primary" asChild>
+                <ExportTrackedAnchor href={getRunPackageExportUrl(runId, "docx")}>
+                  Download architecture review report (DOCX)
+                </ExportTrackedAnchor>
+              </Button>
+            )}
             {requestId ? (
               <Button variant="secondary" asChild>
                 <ExportTrackedAnchor href={getArchitectureRequestDownloadUrl(requestId)} download={`ArchitectureRequest-${requestId}.json`}>

@@ -65,7 +65,7 @@ describe("HelpApiContractsGuideView (TB-1384, TB-1386, TB-1388)", () => {
     expect(entry?.slug).toBe("governance-api-contracts");
     expect(entry?.contentKind).toBe("internal-runbook");
     expect(entry?.title).toBe(GOVERNANCE_API_CONTRACTS_HELP_PAGE_TITLE);
-    expect(normalizeHelpTopicSlug("api-contracts")).toBe("governance-api-contracts");
+    expect(normalizeHelpTopicSlug("governance-api-contracts")).toBe("governance-api-contracts");
   });
 
   it("loads API_CONTRACTS.md from the monorepo", () => {

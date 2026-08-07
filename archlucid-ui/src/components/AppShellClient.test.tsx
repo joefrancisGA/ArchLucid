@@ -127,6 +127,7 @@ describe("AppShellClient — LLM budget chrome", () => {
     );
 
     await waitFor(() => {
+      expect(screen.getByTestId("operator-shell-help-trigger")).toBeInTheDocument();
       expect(screen.getByTestId("operator-shell-topbar-more-trigger")).toBeInTheDocument();
     });
 
@@ -151,15 +152,11 @@ describe("AppShellClient — LLM budget chrome", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByTestId("operator-shell-topbar-more-trigger")).toBeInTheDocument();
+      expect(screen.getByTestId("operator-shell-help-trigger")).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByTestId("operator-shell-topbar-more-trigger"));
-
-    await waitFor(() => {
-      expect(screen.queryByTestId("llm-budget-status-pill")).not.toBeInTheDocument();
-    });
-
+    expect(screen.queryByTestId("operator-shell-topbar-more-trigger")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("llm-budget-status-pill")).not.toBeInTheDocument();
     expect(fetchBudgetStatusCached).not.toHaveBeenCalled();
   });
 
@@ -173,14 +170,11 @@ describe("AppShellClient — LLM budget chrome", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByTestId("operator-shell-topbar-more-trigger")).toBeInTheDocument();
+      expect(screen.getByTestId("operator-shell-help-trigger")).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByTestId("operator-shell-topbar-more-trigger"));
-
-    await waitFor(() => {
-      expect(screen.queryByTestId("llm-budget-status-pill")).not.toBeInTheDocument();
-    });
+    expect(screen.queryByTestId("operator-shell-topbar-more-trigger")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("llm-budget-status-pill")).not.toBeInTheDocument();
   });
 
   it("keeps sticky chrome to trial banner + top bar and leaves journey caption outside sticky", async () => {

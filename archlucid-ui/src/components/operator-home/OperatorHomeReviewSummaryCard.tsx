@@ -3,7 +3,7 @@ import Link from "next/link";
 import { InlineMetadataLabel } from "@/components/InlineMetadataLabel";
 import { InlineMetadataLine } from "@/components/InlineMetadataLine";
 import {
-  ArchitecturePackageOriginBadge,
+  ArchitecturePackageOriginMetadataLine,
   resolveRunHomeStatusTag,
   runListPrimaryTitle,
 } from "@/components/operator-home/runs-dashboard-helpers";
@@ -103,18 +103,17 @@ export function OperatorHomeReviewSummaryCard(props: OperatorHomeReviewSummaryCa
 
       {isShowcaseDemo ? (
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.navHelper)}>
-          Completed example review · Approved with monitoring
+          Completed example review
         </p>
       ) : null}
 
-      <ArchitecturePackageOriginBadge run={props.run} buyerPolishedShell={props.buyerPolishedShell} />
+      <ArchitecturePackageOriginMetadataLine run={props.run} buyerPolishedShell={props.buyerPolishedShell} />
 
       {variant === "featured" && isShowcaseDemo ? (
         <div className="space-y-1" data-testid="runs-dashboard-buyer-proof-metadata">
           <p className={cn("m-0", OPERATOR_TYPE_SCALE.sectionTitle, "text-neutral-900 dark:text-neutral-100")}>
             Decision: Package finalized
           </p>
-          <InlineMetadataLine label="Governance approval" value="Approved with monitoring" />
           <p className={cn("m-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
             {BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK(
               SHOWCASE_STATIC_DEMO_SPINE_COUNTS.findingCount,

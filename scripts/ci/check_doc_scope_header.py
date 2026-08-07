@@ -29,23 +29,37 @@ alternatively be expressed as a single-line HTML comment::
 Why HTML for README: the file is overwhelmingly H1-first for GitHub rendering;
 a leading ``>`` blockquote would push the product title below a quote box.
 
+**Two modes**
+
+*Full scan* (default) walks the whole docs tree. It is **advisory** in CI: the
+historical backlog of headerless files is large enough that a whole-tree gate
+could never be switched on, so it runs warn-only to keep the remaining count
+visible.
+
+*Changed-only* (``--changed-only --base-ref <ref>``) checks just the markdown a
+branch touched. This is the **merge-blocking** mode — a ratchet. New and edited
+docs must comply; untouched legacy files do not block, and the backlog can only
+shrink. Use ``scripts/ci/backfill_doc_scope_headers.py`` for the mechanical
+prepend when reducing it deliberately.
+
 Exit codes
 ~~~~~~~~~~
-* ``0`` — every scanned file satisfies the rule.
-* ``1`` — one or more files are missing a valid scope header (CI treats this as
-  a merge-blocking failure once the docs tree is back-filled; use
-  ``scripts/ci/backfill_doc_scope_headers.py`` for the mechanical prepend).
+* ``0`` — every scanned file satisfies the rule (or nothing in scope changed).
+* ``1`` — one or more files are missing a valid scope header.
+* ``2`` — bad invocation, or the ``git diff`` for ``--changed-only`` failed.
 
 Run::
 
     python scripts/ci/check_doc_scope_header.py
     python scripts/ci/check_doc_scope_header.py --no-check-readme
+    python scripts/ci/check_doc_scope_header.py --changed-only --base-ref origin/main
 """
 
 from __future__ import annotations
 
 import argparse
 import re
+import subprocess
 import sys
 from pathlib import Path
 

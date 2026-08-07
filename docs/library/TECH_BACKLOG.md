@@ -1177,9 +1177,10 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-2105 | Suppress dead Status filter / Refresh / last-refreshed on Alerts when no rules exist; see ## TB-2105 below | Adoption friction P0 — **V1**; owner ask 2026-08-07; filtering a structurally empty set | S |
 | TB-2106 | Alerts no-rules empty state: say what a rule does; lead new workspaces to governance setup; see ## TB-2106 below | Adoption friction P0 — **V1**; owner ask 2026-08-07; “enable rules before alerts” is circular | S |
 | TB-2107 | Define the Open vs Blocking alert tile relationship (nest or label) — currently unexplained peers; see ## TB-2107 below | Explainability P0 — **V1**; owner ask 2026-08-07; possible double count | S |
-| TB-2103 | Operator-curated model catalog — DDL-backed `IAgentModelAliasRegistry` replacing `ConfigAgentModelAliasRegistry`; internal-only admin curation surface; lifecycle status + audit on every mutation; see ## TB-2103 below | Maintainability P1 — **V1.1**; ADR 0065 D2′; today curation needs a code change + deploy | L |
-| TB-2104 | Structured-output capability ladder (`StrictJsonSchema` \| `JsonObject` \| `DegradedTextParse`) per catalog row + per-task minimum, fail-closed routing; see ## TB-2104 below | Correctness P1 — **V1.1**; ADR 0065 D4′; replaces global `UseJsonSchemaResponseFormat` as determinant | M |
-| TB-2105 | Engine admission gate — `Approved` per engine × task type requires stored conformance + faithfulness + judge-tolerance artifact; fails closed; see ## TB-2105 below | Trustworthiness P1 — **V1.1**; ADR 0065 D3′; reuses **TB-683** harness + existing judges | L |
+| TB-2103 | Operator-maintained model catalog — DDL-backed `IAgentModelAliasRegistry` replacing `ConfigAgentModelAliasRegistry`; internal-only admin surface; lifecycle + audit on every mutation; see ## TB-2103 below | Maintainability P1 — **V1.1**; ADR 0065 D2′; today curation needs a code change + deploy | L |
+| TB-2104 | Structured-output capability ladder (`StrictJsonSchema` \| `JsonObject` \| `DegradedTextParse`) per catalog row + per-task minimum, fail-closed routing; see ## TB-2104 below | Correctness P1 — **V1.1**; ADR 0065 D4′; the **only** quality-adjacent fail-closed control — function, not quality judgment | M |
+| TB-2105 | Engine evaluation evidence **attached, not gating** — conformance + faithfulness + judge delta per engine × task type stored on the catalog row and surfaced at point of selection; explicit `NotEvaluated`; see ## TB-2105 below | Trustworthiness P1 — **V1.1**; ADR 0065 D3′; reuses **TB-683** harness + existing judges; selection is never refused on measured quality | L |
+| TB-2110 | Two-tier engine selection — workspace admin sets allowed engine set + default; users choose within it per review; authorization + provenance; see ## TB-2110 below | Adoption friction P1 — **V1.1**; ADR 0065 D13; bounds within-workspace engine variance so cross-run comparison stays meaningful | M |
 | TB-2106 | Engine identity as first-class run provenance — trace/`EngineProvenanceJson` completeness + `EndToEndReplayComparisonService` engine diff; explicitly **not** in `ManifestHash`; see ## TB-2106 below | Traceability P1 — **V1.1**; ADR 0065 D5′; replay currently cannot attribute drift to an engine change | M |
 | TB-2107 | Per-engine tokenizer + USD rate profiles on catalog rows; budget guard + `LlmCostEstimator` read from catalog, not deployment-keyed options; see ## TB-2107 below | Cost-effectiveness P2 — **V1.1**; ADR 0065 D6′; `chars / 4` heuristic does not hold cross-tokenizer | M |
 | TB-2108 | First non-Azure ArchLucid-managed engine adapter — `LlmProviderType` activation in `DefaultLlmProviderFactory` for one admitted engine; see ## TB-2108 below | Cost-effectiveness P3 — **V2**; ADR 0065 D1′; gated on **TB-2103**–**TB-2107** and **TB-872** | XL |
@@ -26056,7 +26057,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 3. Replay within window ? HTTP **200**, no mutation, durable `Integration.ItsmInboundWebhookReplayIgnored` audit.
 4. Optional freshness: when `X-ArchLucid-Timestamp` present, enforce `WebhookTimestampSkewSeconds` even without HMAC.
 5. Unit tests: replay does not double-mutate; event-id resolution tests.
-6. Ops runbook [`ITSM_INBOUND_WEBHOOK_REPLAY_GUARD.md`](runbooks/ITSM_INBOUND_WEBHOOK_REPLAY_GUARD.md); [`INBOUND_WEBHOOK_HOSTILE_TRAFFIC.md`](INBOUND_WEBHOOK_HOSTILE_TRAFFIC.md) inventory Replay ? **Y**.
+6. Ops runbook [`ITSM_INBOUND_WEBHOOK_REPLAY_GUARD.md`](../runbooks/ITSM_INBOUND_WEBHOOK_REPLAY_GUARD.md); [`INBOUND_WEBHOOK_HOSTILE_TRAFFIC.md`](INBOUND_WEBHOOK_HOSTILE_TRAFFIC.md) inventory Replay ? **Y**.
 
 **Depends on:** **TB-966**. Benefits from **TB-967** (verify only bounded bodies).
 
@@ -48983,7 +48984,7 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 
 **Approach:**
 
-1. Catalog table in the tenant DDL (`ArchLucid.Persistence/Scripts/ArchLucid.sql`, with `ArchLucid_Unified_Schema.sql` parity) plus a DbUp migration under `ArchLucid.Persistence/Migrations/`. Columns: alias id, provider type, provider connection kind, engine/deployment identity, capability tags, approved task types, structured-output capability level (**TB-2104**), tokenizer profile + USD rates (**TB-2107**), lifecycle status (`Candidate` / `Approved` / `Deprecated` / `Retired`), last-evaluated timestamp, admission artifact reference (**TB-2105**).
+1. Catalog table in the tenant DDL (`ArchLucid.Persistence/Scripts/ArchLucid.sql`, with `ArchLucid_Unified_Schema.sql` parity) plus a DbUp migration under `ArchLucid.Persistence/Migrations/`. Columns: alias id, provider type, provider connection kind, engine/deployment identity, capability tags, offered task types, structured-output capability level (**TB-2104**), tokenizer profile + USD rates (**TB-2107**), data-boundary classification (**TB-2109**), lifecycle status (`Available` / `Deprecated` / `Retired`), and an **independent** per-task-type evaluation state with evidence reference and evaluation date (**TB-2105**). Per ADR 0065 D2′, evaluation state is **not** a lifecycle stage — an `Available` engine may be `NotEvaluated` and is still selectable.
 2. `SqlAgentModelCatalogRepository` (Dapper, repo convention) behind a new port; **delete** `ConfigAgentModelAliasRegistry` rather than leaving both registries live — a second source of truth is the predicted decay path.
 3. Catalog-backed `IAgentModelAliasRegistry` with read-through caching so the completion hot path does not hit SQL per call; explicit cache invalidation on mutation.
 4. Internal-only admin surface: platform-scoped controller under `ArchLucid.Api/Controllers/Admin/` plus an `/internal/*` page, following the existing `/internal` nav-gating pattern (API authorization stays authoritative; nav visibility is not the control).
@@ -49048,39 +49049,40 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 
 ---
 
-## TB-2105 — Engine admission gate: no `Approved` without an evaluation artifact (P1)
+## TB-2105 — Engine evaluation evidence: attached and surfaced, not gating (P1)
 
-**Window:** V1.1 — ADR 0065 D3. After **TB-2103**; **TB-2108** and **TB-873** are gated on this row.
+**Window:** V1.1 — ADR 0065 D3. After **TB-2103**. Does **not** gate **TB-2108** / **TB-873** availability (capability probe **TB-2104** and data boundary **TB-2109** do).
 
 **Status:** Not started.
 
 **Priority:** P1.
 
-**Source:** ADR 0065 D3.
+**Source:** ADR 0065 D3 — owner decision 2026-08-07 that users decide for themselves which engines to use.
 
-**Why:** This is the load-bearing control that makes multi-engine safe and is also the sellable difference between ArchLucid and a raw model picker: an engine becomes selectable because it **passed a stored evaluation**, not because someone added it to a config file. Without it, a cheap engine silently degrading findings quality is indistinguishable from a product regression, and the product's evidence claims stop being defensible. The harness and judges already exist — this row wires them into promotion as a fail-closed gate.
+**Why:** Users are competent to trade quality for cost or speed **when told what they are trading**. An earlier draft of ADR 0065 made evaluation a promotion gate; that was rejected because a gate delays offering a new model until an eval run completes and, with a single operator, "curated" degrades into "whatever got evaluated." This row keeps the measurement and drops the gate: the evidence rides on the catalog row, is surfaced where the engine is chosen, and is recorded in run provenance as measured at time of use. A signed review record reading "engine X, conformance 94%, not evaluated for `Critic`" is more honest than a shortlist that implies a blanket guarantee.
 
 **Approach:**
 
-1. Admission artifact record (per engine × task type): conformance rate against the `AgentResult` schema, faithfulness-harness result against established golden-case floors (**TB-683**, `eval_agent_faithfulness.py`), `AgentOutputLlmSemanticJudge` and `PremiumInsightDensityLlmJudge` scores, incumbent-Standard comparison delta, harness version, timestamp.
-2. Promotion of a catalog row to `Approved` for a task type **requires** a stored passing artifact; promotion **fails closed** without one. Admission is per engine × task type, so an engine may be approved for `Explanation` and refused for `Critic`.
-3. Operator-triggered admission run from the **TB-2103** internal surface; artifact stored and linked from the catalog row; failure is recorded, not discarded.
-4. Re-evaluation is expected on model-version bumps; catalog rows carry last-evaluated timestamp and surface staleness in the internal UI.
+1. Evidence record (per engine × task type): conformance rate against the `AgentResult` schema, faithfulness-harness result against established golden-case floors (**TB-683**, `eval_agent_faithfulness.py`), `AgentOutputLlmSemanticJudge` and `PremiumInsightDensityLlmJudge` scores, incumbent-Standard delta, harness version, evaluation date.
+2. Absence is a **first-class state**, not a null: `NotEvaluated` per engine × task type, rendered as prominently as a score. If this reads as fine print the honesty of the whole design collapses to a disclaimer — treat prominence as an acceptance criterion, not styling.
+3. Operator-triggered evaluation run from the **TB-2103** internal surface; results stored and linked; **failures are stored too** and shown, since "we measured this and it scored poorly" is the signal a user needs.
+4. Selection is **never refused** on measured quality — no code path may turn a score into a routing decision (guard test).
+5. Evidence and evaluation age surface at the point of selection (**TB-2110**) and on run detail, so support can answer "why was this review weaker" from the record.
 
 **Acceptance:**
 
-- A catalog row cannot reach `Approved` for a task type without a passing artifact; a test proves the fail-closed path.
-- Artifacts are retrievable and name the harness version and the incumbent comparison, so a reviewer can argue with the promotion.
-- A failing admission run leaves the row at `Candidate` and records the failure.
-- Re-running admission against the incumbent Azure engine reproduces a pass (guards the gate itself against being vacuous).
+- Evidence, including failing results and explicit `NotEvaluated`, is visible wherever an engine is selected and on run detail.
+- A test proves no routing or selection path consults a quality score to permit or deny an engine.
+- Run provenance records the evaluation state as it stood at time of use, so later re-evaluation does not rewrite history.
+- Re-running evaluation against the incumbent Azure engine reproduces its published numbers (guards the harness against being vacuous).
 
-**Affected files:** new admission artifact table + repository, admission service in `ArchLucid.Application`, `scripts/`/harness invocation glue, catalog promotion path (**TB-2103**), internal admin surface.
+**Affected files:** new evidence table + repository, evaluation service in `ArchLucid.Application`, harness invocation glue under `scripts/`, catalog row projection (**TB-2103**), selection surface (**TB-2110**), run-detail UI, provenance (**TB-2106**).
 
 **Depends on:** **TB-2103**; reuses **TB-683** harness and existing judges.
 
-**Out of scope:** New eval corpora — reuse existing golden cases per the ADR 0065 pilot-economics constraint.
+**Out of scope:** New eval corpora — reuse existing golden cases per the ADR 0065 pilot-economics constraint. Blocking any engine on score (explicitly rejected by ADR 0065 D3′).
 
-**Refs:** ADR 0065 (D3), ADR 0060 (D4 gate c), **TB-683**, **TB-2103**, **TB-2108**, **TB-873**.
+**Refs:** ADR 0065 (D3, D5, D13), ADR 0060 (D4 gate c — relaxed from gate to evidence), **TB-683**, **TB-2103**, **TB-2106**, **TB-2110**.
 
 **Size estimate:** L.
 
@@ -49176,7 +49178,7 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 
 **Approach:**
 
-1. Choose the target engine on evidence, not preference: capability fit for the weakest task minimum (**TB-2104**), whether it can be reached **inside the existing Azure boundary** (materially cheaper on the ADR 0065 D11 / **TB-2109** gate than a direct vendor API), and admission-gate results (**TB-2105**). Record the choice and the reasoning.
+1. Choose the target engine on evidence, not preference: capability fit for the weakest task minimum (**TB-2104**), whether it can be reached **inside the existing Azure boundary** (materially cheaper on the ADR 0065 D11 / **TB-2109** gate than a direct vendor API), and measured evaluation results where available (**TB-2105**). Record the choice and the reasoning.
 2. One `IAgentCompletionClient` adapter; activate its `LlmProviderType` in `DefaultLlmProviderFactory` (replacing the current `NotSupportedException` for that type only).
 3. Prompt re-tuning per engine family as needed; expect a narrower approved task set than the incumbent initially and record which task types failed admission rather than loosening floors.
 4. Resilience parity: circuit breaking, caching (cache key **must** include engine identity), context-length guard, content safety, accounting decorators all apply unchanged.
@@ -49184,7 +49186,8 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 
 **Acceptance:**
 
-- Engine reaches `Approved` for at least one task type through **TB-2105**, with the artifact on file; task types that failed are recorded.
+- Engine passes the **TB-2104** capability probe for every task type it is offered for; task types below its level are not offered.
+- Evaluation evidence is attached where measured and explicitly `NotEvaluated` where not (**TB-2105**) — evidence is **not** a precondition for availability.
 - No `if (provider == …)` branch outside the adapter and the factory.
 - Cache keys include engine identity (test).
 - Data-boundary gate (**TB-2109**) satisfied before first tenant-visible availability.
@@ -49215,7 +49218,7 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 
 **Approach:**
 
-1. Catalog rows carry a data-boundary classification (`AzureBoundary` / `ExternalSubprocessor`); `ExternalSubprocessor` rows cannot reach `Approved` until the disclosure checklist is satisfied.
+1. Catalog rows carry a data-boundary classification (`AzureBoundary` / `ExternalSubprocessor`); `ExternalSubprocessor` rows cannot be **offered** until the disclosure checklist is satisfied. Per ADR 0065 D11 this gate is **not** overridable by user choice — a customer can consent to their own evidence reaching a third party, but no user can make ArchLucid's published subprocessor list accurate.
 2. Update subprocessor list, trust-centre entry, and `docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md` as part of the same change set as the engine, not after.
 3. Workspace-administrator regulated-evidence acknowledgment recorded through `IAuditService` before first use on an `ExternalSubprocessor` engine (reuses the ADR 0060 D4 acknowledgment concept).
 4. Buyer-facing copy states plainly that engine choice covers **completions only** — embeddings remain ArchLucid-managed Azure OpenAI (ADR 0065 D8).
@@ -49223,7 +49226,7 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 
 **Acceptance:**
 
-- An `ExternalSubprocessor` catalog row cannot be approved without the disclosure checklist complete (fail-closed test).
+- An `ExternalSubprocessor` catalog row cannot be offered without the disclosure checklist complete (fail-closed test).
 - First use on such an engine is blocked until an acknowledgment audit event exists for that workspace.
 - Buyer docs name the engine, its boundary, and the completions-only limit.
 
@@ -49234,6 +49237,47 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 **Out of scope:** Any assurance claim beyond what actually exists (see `.cursor/rules/V1_1-assurance-backlog.mdc`).
 
 **Refs:** ADR 0065 (D8, D11), ADR 0060 (D4), **TB-2103**, **TB-2105**, **TB-2108**.
+
+**Size estimate:** M.
+
+---
+
+## TB-2110 — Two-tier engine selection: workspace allowed set + per-review user choice (P1)
+
+**Window:** V1.1 — ADR 0065 D13. After **TB-2103**; pairs with **TB-2105** (evidence at point of selection) and **TB-2106** (per-run provenance).
+
+**Status:** Not started.
+
+**Priority:** P1.
+
+**Source:** Owner decision 2026-08-07 — "my users can decide for themselves which engines they would like to use."
+
+**Why:** Engine choice belongs to the user, but *unbounded* per-user choice across the whole catalog would undermine a product promise. ArchLucid sells comparison across reviews (`EndToEndReplayComparisonService`, decision register, executive rollups); if every reviewer picks independently, within-workspace diffs are dominated by engine variance and "why does my finding count differ from my colleague's on the same architecture" has no answer. Two tiers keep the trade with the person making it while bounding the variance: the workspace admin decides which engines are in play, the user picks among them per review.
+
+**Approach:**
+
+1. Workspace **allowed engine set** + default, stored per the existing `dbo.TenantSettings` pattern (or a structured table if the set outgrows the 512-char value column) via a service mirroring `WorkspaceModelExecutionProfileService`; admin endpoint on `SettingsController` under `AdminAuthority`; audited through `IAuditService`.
+2. Per-review selection at run creation, extending the existing `ArchitectureRequest.ModelExecutionProfileOverride` path rather than adding a parallel mechanism.
+3. Authorization: a non-admin selection outside the workspace allowed set is **refused server-side**; UI omission is not the control (test).
+4. Selection UI surfaces **TB-2105** evidence inline — score, incumbent delta, evaluation age, or explicit `NotEvaluated` — so the choice is informed at the moment it is made rather than documented elsewhere.
+5. Resolved engine + evaluation state recorded in run provenance (**TB-2106**); run detail shows which engine produced the review.
+6. Alias-only exposure per ADR 0065 D2′ — the picker shows curated alias labels and capability/quality facts, never deployment or raw model names.
+
+**Acceptance:**
+
+- Workspace admin can set the allowed set and default; changes are audited.
+- A user can choose any engine in the allowed set per review and cannot choose outside it (server-side test, not UI-only).
+- Evidence (including `NotEvaluated`) is visible in the picker at selection time.
+- Run detail and provenance name the engine actually used.
+- Default behaviour for a workspace that never configures an allowed set is unchanged from today.
+
+**Affected files:** `ArchLucid.Application/Tenancy/*` (new workspace allowed-set service), `ArchLucid.Api/Controllers/Admin/SettingsController.cs`, run-create request + resolver path, `archlucid-ui` reviews/new selection UI + `administration/model-governance` admin UI, run-detail header.
+
+**Depends on:** **TB-2103**; pairs with **TB-2105**, **TB-2106**.
+
+**Out of scope:** Per-agent engine choice by users (execution profiles already cover per-agent tiering); changing the three execution profiles; BYO connections (**TB-872**).
+
+**Refs:** ADR 0065 (D2, D3, D13), ADR 0060 (D2), **TB-870** (workspace profile precedent), **TB-2103**, **TB-2105**, **TB-2106**.
 
 **Size estimate:** M.
 

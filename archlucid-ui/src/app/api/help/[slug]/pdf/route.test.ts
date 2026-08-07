@@ -27,12 +27,12 @@ describe("GET /api/help/[slug]/pdf (TB-726)", () => {
   });
 
   it("redirects public PDF slugs to the static docs-pdf path", async () => {
-    const response = await GET(new NextRequest("http://localhost/api/help/how-it-works/pdf"), {
-      params: Promise.resolve({ slug: "how-it-works" }),
+    const response = await GET(new NextRequest("http://localhost/api/help/getting-started/pdf"), {
+      params: Promise.resolve({ slug: "getting-started" }),
     });
 
     expect(response.status).toBe(307);
-    expect(response.headers.get("location")).toBe("http://localhost/docs-pdf/how-it-works.pdf");
+    expect(response.headers.get("location")).toBe("http://localhost/docs-pdf/getting-started.pdf");
   });
 
   it("returns 401 for customer PDFs without authorization", async () => {

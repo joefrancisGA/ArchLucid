@@ -55,10 +55,10 @@ describe("HelpTopicMarkdownView shared layout", () => {
   });
 
   it("shows browser print export for public PDF-eligible topics", () => {
-    const entry = getProductDocumentationEntry("product-overview");
+    const entry = getProductDocumentationEntry("executive-summary");
 
     if (entry === null || entry.pdfStatus !== "public") {
-      throw new Error("Expected product-overview to be a public PDF-eligible help entry.");
+      throw new Error("Expected executive-summary to be a public PDF-eligible help entry.");
     }
 
     render(<HelpTopicMarkdownView entry={entry} markdown={SHORT_HELP_MARKDOWN} />);

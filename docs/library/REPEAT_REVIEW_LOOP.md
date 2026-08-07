@@ -9,7 +9,7 @@
 
 **Last reviewed:** 2026-07-27
 
-**Prerequisite:** One successful Core Pilot finalize ([Your first architecture review](/help/core-pilot) · [`CORE_PILOT.md`](../CORE_PILOT.md)).
+**Prerequisite:** One successful Core Pilot finalize ([Your first architecture review](/help/first-architecture-review) · [`CORE_PILOT.md`](../CORE_PILOT.md)).
 
 **Habit-loop validation:** [`#second-review-habit-loop-validation`](#second-review-habit-loop-validation) (`SECOND_REVIEW_HABIT_LOOP_VALIDATION.md` alias).
 
@@ -215,5 +215,5 @@ Otherwise hold feature work — market signal insufficient.
 - [Compare and replay](/help/comparison-replay)
 - [Architecture packages](/help/review-packages)
 - [Accelerator chooser](/help/accelerator-chooser)
-- [Your first architecture review](/help/core-pilot)
+- [Your first architecture review](/help/first-architecture-review)
 - [`#second-review-habit-loop-validation`](#second-review-habit-loop-validation) · [`../go-to-market/SECOND_REVIEW_HABIT_LOOP_VALIDATION.md`](../go-to-market/SECOND_REVIEW_HABIT_LOOP_VALIDATION.md) (alias)

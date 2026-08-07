@@ -141,6 +141,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   governanceWorkflow: "Approval queue",
   auditTrail: BUYER_SURFACE_VOCABULARY.auditTrail,
   governanceSetupGuide: "Governance setup",
+  workspaceHealth: "Workspace health",
   securityTrust: "Security & trust",
   aiUsage: "AI usage",
   /** Internal Operations — buyer-facing nav label (TB-648). */

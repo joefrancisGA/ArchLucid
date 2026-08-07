@@ -29,7 +29,7 @@ export const RUNS_EMPTY: EmptyStateProps = {
     { label: "Start an architecture review", href: "/architecture/reviews/new" },
     { label: AZURE_REFERENCE_SAMPLE_REVIEW_CTA_LABEL, href: "/architecture/reviews/claims-intake-modernization", variant: "outline" },
   ],
-  helpTopicPath: "starting-reviews",
+  helpTopicPath: "review-guide",
 };
 
 export const ALERTS_EMPTY_FILTERED: EmptyStateProps = {

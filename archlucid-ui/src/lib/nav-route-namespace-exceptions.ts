@@ -1,32 +1,7 @@
 import type { NavRouteNamespaceException } from "@/lib/nav-route-namespace-policy";
 
 /**
- * Intentional nav-group ↔ URL prefix mismatches until TB-408 canonical route moves land.
+ * Intentional nav-group ↔ URL prefix mismatches.
  * CI: `nav-route-namespace.test.ts`. Policy: `docs/NAV_CONFIG_CONTRACT.md` § Route namespace.
  */
-export const NAV_ROUTE_NAMESPACE_EXCEPTIONS: readonly NavRouteNamespaceException[] = [
-  {
-    navGroupId: "operator-system-admin",
-    href: "/operate/integration-events/dlq",
-    canonicalPrefixes: ["/admin"],
-    exceptionReason: "Integration dead-letter tooling uses operate namespace pending Internal Ops route consolidation (TB-408).",
-  },
-  {
-    navGroupId: "operator-system-admin",
-    href: "/replay",
-    canonicalPrefixes: ["/admin"],
-    exceptionReason: "Validate review tool duplicated under Internal Ops for employee diagnostics (also in Operate analysis history).",
-  },
-  {
-    navGroupId: "operator-system-admin",
-    href: "/internal-operations/recommendation-learning",
-    canonicalPrefixes: ["/admin"],
-    exceptionReason: "Recommendation learning ops surface uses Internal Ops namespace; grouped under System admin for employee operators (TB-408 pending).",
-  },
-  {
-    navGroupId: "operator-system-admin",
-    href: "/internal/product-learning",
-    canonicalPrefixes: ["/admin"],
-    exceptionReason: "Pilot feedback ops surface uses Internal namespace; grouped under System admin for employee operators (TB-408 pending).",
-  },
-];
+export const NAV_ROUTE_NAMESPACE_EXCEPTIONS: readonly NavRouteNamespaceException[] = [];

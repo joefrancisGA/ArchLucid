@@ -31,7 +31,7 @@ vi.mock("@/components/ScopeSwitcher", () => ({
 import { ExecutiveShellFrame } from "./ExecutiveShellFrame";
 
 describe("ExecutiveShellFrame", () => {
-  it("renders dashboard and scorecard nav links with correct hrefs", () => {
+  it("renders dashboard nav link with correct href", () => {
     render(
       <ExecutiveShellFrame>
         <p>child</p>
@@ -39,7 +39,7 @@ describe("ExecutiveShellFrame", () => {
     );
 
     expect(screen.getByTestId("executive-shell-nav-dashboard")).toHaveAttribute("href", EXECUTIVE_DASHBOARD_HREF);
-    expect(screen.getByTestId("executive-shell-nav-scorecard")).toHaveAttribute("href", "/executive/scorecard");
+    expect(screen.queryByTestId("executive-shell-nav-scorecard")).not.toBeInTheDocument();
   });
 
   it("renders an architect workspace handoff link instead of a persona switcher", () => {

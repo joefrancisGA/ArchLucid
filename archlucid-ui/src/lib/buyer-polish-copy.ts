@@ -1090,6 +1090,13 @@ export const BUYER_ARCHITECTURE_PACKAGE_ORIGIN_CREATED_BADGE = "Created";
 
 export const BUYER_ARCHITECTURE_PACKAGE_ORIGIN_REVIEWED_BADGE = "Reviewed";
 
+/**
+ * Axis label used when package origin renders as a metadata line instead of a pill.
+ * Origin is provenance (who authored the architecture), not a governance verdict — surfaces that
+ * show both must label it, or `Reviewed` reads as a second, conflicting outcome next to the status tag.
+ */
+export const BUYER_ARCHITECTURE_PACKAGE_ORIGIN_METADATA_LABEL = "Package origin";
+
 /** Footer navigation on home reviews card — distinct from the All status filter pill. */
 export const BUYER_RUNS_DASHBOARD_OPEN_REVIEW_PACKAGES_CTA = "Open all reviews";
 

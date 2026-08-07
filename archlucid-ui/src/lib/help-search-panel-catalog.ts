@@ -64,7 +64,7 @@ const START_HERE_TOPICS: readonly HelpSearchPanelTopic[] = [
     title: "How ArchLucid works",
     description: "Product workflow from architecture evidence through findings, decisions, governance, and exports.",
     keywords: ["how it works", "workflow", "review flow", "evidence", "exports", "governance"],
-    action: { kind: "route", href: "/help/how-it-works", helpSlug: "how-it-works" },
+    action: { kind: "route", href: "/help/getting-started#how-archlucid-works", helpSlug: "getting-started" },
   },
   {
     id: "path-chooser",
@@ -351,7 +351,6 @@ const ROUTE_RECOMMENDED_TOPIC_IDS: readonly { readonly prefix: string; readonly 
   { prefix: "/", topicIds: ["getting-started-help", "how-archlucid-works", "first-review-guide", "product-faq", "create-first-review"] },
   { prefix: "/architecture/first-review-guide", topicIds: ["how-archlucid-works", "first-review-guide", "product-faq", "create-first-review", "sample-review"] },
   { prefix: "/help/first-architecture-review", topicIds: CORE_PILOT_NEXT_STEP_TOPIC_IDS },
-  { prefix: "/help/core-pilot", topicIds: CORE_PILOT_NEXT_STEP_TOPIC_IDS },
   { prefix: "/help", topicIds: ["getting-started-help", "how-archlucid-works", "path-chooser", "first-review-guide", "product-faq", "cloud-connections", "data-handling-help", "security-trust-help", "troubleshoot"] },
   { prefix: "/pricing", topicIds: ["product-faq", "first-review-guide"] },
   { prefix: "/signup", topicIds: ["authentication-sign-in", "product-faq", "first-review-guide"] },

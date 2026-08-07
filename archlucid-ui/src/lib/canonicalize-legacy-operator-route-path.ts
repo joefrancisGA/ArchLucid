@@ -1,9 +1,14 @@
-import { LEGACY_REVIEWS_LIST_PATH, LEGACY_RUNS_LIST_PATH, REVIEWS_LIST_PATH } from "@/lib/architecture-routes";
+import {
+  EXECUTIVE_DASHBOARD_HREF,
+  EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF,
+} from "@/lib/executive-dashboard-route";
+import { LEGACY_EXECUTIVE_SCORECARD_PATH } from "@/lib/executive-scorecard-route";
 import { DIGESTS_HUB_PATH, LEGACY_DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 import {
   GOVERNANCE_ALERT_RULES_PATH,
   GOVERNANCE_ALERTS_PATH,
   GOVERNANCE_AUDIT_PATH,
+  GOVERNANCE_DASHBOARD_PATH,
   GOVERNANCE_EXCEPTIONS_PATH,
   GOVERNANCE_POLICY_PACKS_PATH,
   LEGACY_ALERTS_PATH,
@@ -14,13 +19,57 @@ import {
 } from "@/lib/governance-route-paths";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import { LEGACY_SIGNED_RECORDS_LIST_PATH, SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
+import {
+  LEGACY_SPONSOR_REPORT_ROOT_PATH,
+  SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
+  SPONSOR_REPORT_PILOT_OUTCOMES_PATH,
+  SPONSOR_REPORT_ROI_SUMMARY_PATH,
+} from "@/lib/sponsor-report-navigation";
+import {
+  INTERNAL_CONFIGURATION_PATH,
+  INTERNAL_DEMO_READINESS_PATH,
+  INTERNAL_DEPLOYMENT_STATUS_PATH,
+  INTERNAL_EVIDENCE_PROPOSALS_PATH,
+  INTERNAL_FLEET_LLM_COGS_PATH,
+  INTERNAL_HEALTH_PATH,
+  INTERNAL_INTEGRATION_EVENTS_DLQ_PATH,
+  INTERNAL_PRICING_QUOTE_AGING_PATH,
+  INTERNAL_RAG_HEALTH_PATH,
+  INTERNAL_RECOMMENDATION_LEARNING_PATH,
+  INTERNAL_REPLAY_PATH,
+  INTERNAL_TENANT_HEALTH_PATH,
+  INTERNAL_TENANTS_PATH,
+  INTERNAL_TRIAL_FUNNEL_PATH,
+} from "@/lib/internal-ops-route-paths";
 
 const LEGACY_ALERT_RULES_PATH = "/alert-rules";
 const LEGACY_CLOUD_CONNECTIONS_PATH = "/settings/cloud-connections";
 const LEGACY_DIGEST_SUBSCRIPTIONS_PATH = "/digest-subscriptions";
 const LEGACY_MANIFESTS_PATH = "/manifests";
 const LEGACY_SETTINGS_ROLES_PATH = "/settings/roles";
+const LEGACY_ADMIN_ROOT_PATH = "/admin";
+const LEGACY_INTERNAL_OPERATIONS_ROOT_PATH = "/internal-operations";
+const LEGACY_OPERATE_INTEGRATION_EVENTS_DLQ_PATH = "/operate/integration-events/dlq";
+const LEGACY_REPLAY_PATH = "/replay";
+const LEGACY_SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH = "/sponsor-report/executive-summary";
+const LEGACY_SPONSOR_REPORT_PILOT_OUTCOMES_PATH = "/sponsor-report/pilot-outcomes";
+const LEGACY_SPONSOR_REPORT_ROI_SUMMARY_PATH = "/sponsor-report/roi-summary";
 const ADMINISTRATION_USERS_PATH = "/administration/users";
+
+const LEGACY_ADMIN_PATH_MAP: Readonly<Record<string, string>> = {
+  "/admin/pricing-quote-aging": INTERNAL_PRICING_QUOTE_AGING_PATH,
+  "/admin/trial-funnel": INTERNAL_TRIAL_FUNNEL_PATH,
+  "/admin/fleet-llm-cogs": INTERNAL_FLEET_LLM_COGS_PATH,
+  "/admin/tenant-health": INTERNAL_TENANT_HEALTH_PATH,
+  "/admin/tenants": INTERNAL_TENANTS_PATH,
+  "/admin/health": INTERNAL_HEALTH_PATH,
+  "/admin/deployment-status": INTERNAL_DEPLOYMENT_STATUS_PATH,
+  "/admin/rag-health": INTERNAL_RAG_HEALTH_PATH,
+  "/admin/configuration": INTERNAL_CONFIGURATION_PATH,
+  "/admin/evidence-proposals": INTERNAL_EVIDENCE_PROPOSALS_PATH,
+  "/admin/demo-readiness": INTERNAL_DEMO_READINESS_PATH,
+  "/admin/integrations/itsm": "/internal/integrations/itsm",
+};
 
 /**
  * Maps legacy bookmark paths to canonical operator routes for readiness, help, and orientation lookups.
@@ -79,6 +128,52 @@ export function canonicalizeLegacyOperatorRoutePath(pathname: string): string {
 
   if (normalized === LEGACY_SETTINGS_ROLES_PATH) {
     return ADMINISTRATION_USERS_PATH;
+  }
+
+  if (normalized === LEGACY_SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH || normalized === LEGACY_SPONSOR_REPORT_ROOT_PATH) {
+    return SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH;
+  }
+
+  if (normalized === LEGACY_SPONSOR_REPORT_PILOT_OUTCOMES_PATH) {
+    return SPONSOR_REPORT_PILOT_OUTCOMES_PATH;
+  }
+
+  if (normalized === LEGACY_SPONSOR_REPORT_ROI_SUMMARY_PATH) {
+    return SPONSOR_REPORT_ROI_SUMMARY_PATH;
+  }
+
+  if (pathMatchesRoutePrefix(normalized, LEGACY_EXECUTIVE_SCORECARD_PATH)) {
+    return EXECUTIVE_DASHBOARD_HREF;
+  }
+
+  if (pathMatchesRoutePrefix(normalized, GOVERNANCE_DASHBOARD_PATH)) {
+    return EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF;
+  }
+
+  if (pathMatchesRoutePrefix(normalized, LEGACY_SPONSOR_REPORT_ROOT_PATH)) {
+    return normalized.replace(LEGACY_SPONSOR_REPORT_ROOT_PATH, "/insights");
+  }
+
+  if (normalized === LEGACY_REPLAY_PATH || normalized.startsWith(`${LEGACY_REPLAY_PATH}/`)) {
+    return normalized.replace(LEGACY_REPLAY_PATH, INTERNAL_REPLAY_PATH);
+  }
+
+  if (normalized === LEGACY_OPERATE_INTEGRATION_EVENTS_DLQ_PATH) {
+    return INTERNAL_INTEGRATION_EVENTS_DLQ_PATH;
+  }
+
+  if (normalized === `${LEGACY_INTERNAL_OPERATIONS_ROOT_PATH}/recommendation-learning`) {
+    return INTERNAL_RECOMMENDATION_LEARNING_PATH;
+  }
+
+  const legacyAdminTarget = LEGACY_ADMIN_PATH_MAP[normalized];
+
+  if (legacyAdminTarget !== undefined) {
+    return legacyAdminTarget;
+  }
+
+  if (pathMatchesRoutePrefix(normalized, LEGACY_ADMIN_ROOT_PATH)) {
+    return normalized.replace(LEGACY_ADMIN_ROOT_PATH, "/internal");
   }
 
   return normalized;

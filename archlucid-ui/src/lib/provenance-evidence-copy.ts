@@ -26,7 +26,7 @@ export function buildProvenanceSources(runId: string): readonly ProvenanceSource
     { label: "Evidence trail", href: evidenceHref },
     { label: "Search review evidence", href: "/insights/search-review-evidence" },
     { label: "Evidence trail help", href: inAppHelpHref("evidence-trail") },
-    { label: "How ArchLucid works", href: inAppHelpHref("how-it-works") },
+    { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
   ] as const;
 }
 

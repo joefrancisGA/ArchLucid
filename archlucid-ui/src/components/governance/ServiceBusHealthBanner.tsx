@@ -64,7 +64,7 @@ export function ServiceBusHealthBanner() {
       <p className="m-0 font-semibold text-amber-900 dark:text-amber-100">{SERVICE_BUS_HEALTH_LABELS.bannerTitle}</p>
       <p className="m-0 mt-1 leading-snug">
         {SERVICE_BUS_HEALTH_LABELS.bannerBody}{" "} 
-        <Link href="/admin/health" className="font-medium text-amber-950 underline underline-offset-2 dark:text-amber-100">
+        <Link href="/internal/health" className="font-medium text-amber-950 underline underline-offset-2 dark:text-amber-100">
           {SERVICE_BUS_HEALTH_LABELS.systemHealthLink}
         </Link>
         .

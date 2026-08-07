@@ -50,7 +50,7 @@ export function ProductLearningPageView(props: Props) {
           <h2 className="mt-0">{BUYER_TERMINOLOGY.evaluationFeedback}</h2>
           <p className={cn("max-w-3xl leading-relaxed", OPERATOR_TYPOGRAPHY.helper)}>
             {PILOT_FEEDBACK_VOCABULARY.pageLead} This view is separate from{" "}
-            <Link href="/internal-operations/recommendation-learning" className={OPERATOR_LINK.inline}>
+            <Link href="/internal/recommendation-learning" className={OPERATOR_LINK.inline}>
               AI recommendation learning
             </Link>{" "}
             (advisory acceptance weights).

@@ -17,7 +17,7 @@ export type SecurityTrustHelpSourceLink = {
 export const SECURITY_TRUST_HELP_SOURCES: readonly SecurityTrustHelpSourceLink[] = [
   { label: "Assurance status", href: "/security-trust" },
   { label: "Trust Center", href: "/trust" },
-  { label: "Data handling & isolation", href: inAppHelpHref("data-handling-tenant-isolation") },
+  { label: "Data handling & isolation", href: inAppHelpHref("data-handling") },
   { label: "SOC 2 self-assessment", href: inAppHelpHref("soc2-self-assessment") },
   { label: "Audit", href: "/governance/audit" },
 ] as const;

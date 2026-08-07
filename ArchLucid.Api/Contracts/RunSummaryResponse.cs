@@ -1,5 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Contracts.Common;
+
 namespace ArchLucid.Api.Contracts;
 
 /// <summary>
@@ -142,6 +144,13 @@ public class RunSummaryResponse
 
     /// <inheritdoc cref="ArchLucid.Persistence.Queries.RunSummaryDto.PackageOrigin" />
     public string? PackageOrigin
+    {
+        get;
+        set;
+    }
+
+    /// <inheritdoc cref="ArchLucid.Persistence.Queries.RunSummaryDto.StructuralExecutionMode" />
+    public StructuralExecutionMode StructuralExecutionMode
     {
         get;
         set;

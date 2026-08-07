@@ -13,7 +13,7 @@ describe("ValueReportEmptyState", () => {
     expect(screen.getByRole("link", { name: "Start an architecture review" })).toHaveAttribute("href", "/architecture/reviews/new");
     expect(screen.getByRole("link", { name: "View sample value report" })).toHaveAttribute(
       "href",
-      "/sponsor-report/pilot-outcomes",
+      "/insights/pilot-outcomes",
     );
     expect(screen.queryByRole("link", { name: "Create architecture" })).not.toBeInTheDocument();
     expect(screen.queryByText(/Load sample workspace/i)).not.toBeInTheDocument();

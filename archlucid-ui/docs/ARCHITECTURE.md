@@ -156,7 +156,7 @@ The shell **does** shape navigation (and light Enterprise copy) using the authen
 | `/manifests/[manifestId]/artifacts/[artifactId]` | (artifact review page) | Server | Artifact metadata, content preview (pretty + raw), sibling navigation |
 | `/graph` | `GraphPage` | Client | Run ID input, mode selector, graph loading, React Flow rendering |
 | `/insights/compare-two-reviews` | `ComparePage` | Client | Two run IDs, parallel fetch (legacy + structured + AI), three result views |
-| `/replay` | `ReplayPage` | Client | Run ID input, mode selector, replay submission, validation display |
+| `/internal/replay` | `ReplayPage` | Client | Run ID input, mode selector, replay submission, validation display |
 | `/ask` | `AskPage` | Client | Conversational AI interface for architecture questions |
 | `/search` | `SearchPage` | Client | Semantic search across run content |
 | `/governance/advisory-scans` | `GovernanceAdvisoryScansPage` (hub) | Server shell + `AdvisoryHubClient` | `?tab=` — **scans** (default; improvement advisor), **schedules** (scan windows; legacy `/advisory` + `/advisory-scheduling` via next.config — TB-1124). |

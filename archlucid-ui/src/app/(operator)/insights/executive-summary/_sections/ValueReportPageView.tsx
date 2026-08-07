@@ -182,7 +182,7 @@ export function ValueReportPageView({ model }: ValueReportPageViewProps) {
         {showDemoSampleNote ? (
           <p className={cn("m-0 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-al-text-secondary dark:border-neutral-800 dark:bg-neutral-900/40", OPERATOR_TYPOGRAPHY.helper)} data-testid="value-report-demo-note">
             {BUYER_VALUE_REPORT_DEMO_SAMPLE_NOTE}{" "}
-            <a href="/sponsor-report/pilot-outcomes" className="text-teal-700 underline underline-offset-2 dark:text-teal-300">
+            <a href="/insights/pilot-outcomes" className="text-teal-700 underline underline-offset-2 dark:text-teal-300">
               View sample value report
             </a>
             .

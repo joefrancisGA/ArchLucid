@@ -173,7 +173,7 @@ Only when the page needs **browser interactivity**: button clicks that change wh
 In this codebase, these are client pages:
 - `/graph` — user types a run ID, picks a mode, clicks "Load graph"
 - `/compare` — user types two run IDs, clicks "Compare"
-- `/replay` — user types a run ID, clicks "Replay"
+- `/internal/replay` — user types a run ID, clicks "Replay"
 
 Everything else (runs list, run detail, manifest, artifact review) is **server-rendered**.
 
@@ -507,7 +507,7 @@ See [Section 14](#14-graph-viewer).
 **File:** `app/compare/page.tsx` (**client component**)  
 See [Section 13](#13-compare--replay-flow).
 
-### `/replay` — Authority replay
+### `/internal/replay` — Authority replay
 
 **File:** `app/replay/page.tsx` (**client component**)  
 See [Section 13](#13-compare--replay-flow).
@@ -605,7 +605,7 @@ This is a **client component** because the operator types two run IDs and clicks
    - `LegacyRunComparisonView` — run-level + manifest flat diffs
    - `AiComparisonExplanationView` — summary, major changes, tradeoffs, narrative
 
-### Replay (`/replay`)
+### Replay (`/internal/replay`)
 
 Another **client component**. Operator enters a run ID, picks a mode, clicks **Replay**.
 

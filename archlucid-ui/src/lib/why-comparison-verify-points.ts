@@ -18,7 +18,7 @@ export const WHY_COMPARISON_VERIFY_LINK_ROWS: readonly WhyVerifyLink[][] = [
     { label: "Audit trail", href: "/help/audit-trail" },
   ],
   [
-    { label: "Data handling and tenant isolation", href: "/help/data-handling-tenant-isolation" },
+    { label: "Data handling and tenant isolation", href: "/help/data-handling" },
     { label: "Assurance status", href: "/security-trust" },
   ],
   [

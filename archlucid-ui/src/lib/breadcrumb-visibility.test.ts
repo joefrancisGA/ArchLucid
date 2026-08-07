@@ -27,7 +27,7 @@ describe("shouldShowBreadcrumbTrail", () => {
       shouldShowBreadcrumbTrail("/integrations/cloud-connections", trail("/integrations/cloud-connections")),
     ).toBe(false);
     expect(
-      shouldShowBreadcrumbTrail("/sponsor-report/pilot-outcomes", trail("/sponsor-report/pilot-outcomes")),
+      shouldShowBreadcrumbTrail("/insights/pilot-outcomes", trail("/insights/pilot-outcomes")),
     ).toBe(false);
     expect(shouldShowBreadcrumbTrail("/governance/audit", trail("/governance/audit", { buyerPolishedShell: true }))).toBe(
       false,
@@ -63,14 +63,14 @@ describe("shouldShowBreadcrumbTrail", () => {
     ).toBe(true);
     expect(
       shouldShowBreadcrumbTrail(
-        "/internal-operations/recommendation-learning",
-        trail("/internal-operations/recommendation-learning"),
+        "/internal/recommendation-learning",
+        trail("/internal/recommendation-learning"),
       ),
     ).toBe(true);
     expect(
       shouldShowBreadcrumbTrail("/internal/product-learning", trail("/internal/product-learning")),
     ).toBe(true);
-    expect(shouldShowBreadcrumbTrail("/admin/integrations/itsm", trail("/admin/integrations/itsm"))).toBe(true);
+    expect(shouldShowBreadcrumbTrail("/internal/integrations/itsm", trail("/internal/integrations/itsm"))).toBe(true);
   });
 
   it("hides when the page renders its own breadcrumb wayfinding", () => {

@@ -28,7 +28,7 @@ const HINTS: readonly { prefix: string; hint: PageContextualHint }[] = [
     },
   },
   {
-    prefix: "/replay",
+    prefix: "/internal/replay",
     hint: {
       id: "replay-review",
       message: "Validate stored review output for a single review — not a visual diff.",

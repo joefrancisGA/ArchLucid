@@ -37,7 +37,7 @@ Governance approvals, policy packs, alerts, and audit stay available after the f
 
 ## Related guides
 
-- [Your first architecture review](/help/core-pilot)
+- [Your first architecture review](/help/first-architecture-review)
 - [Your first architecture review](/help/first-architecture-review)
 - [Architecture packages](/help/review-packages)
 - [Workspace and scope guide](/help/scope)

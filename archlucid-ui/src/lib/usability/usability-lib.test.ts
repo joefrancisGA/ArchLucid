@@ -46,14 +46,14 @@ describe("usability lib", () => {
     expect(pageHelpTopicForPathname("/governance/advisory-scans")?.label).toBe("Advisory scans");
     expect(pageHelpTopicForPathname("/governance/decision-register")?.slug).toBeUndefined();
     expect(pageHelpTopicForPathname("/administration/tenant")?.slug).toBe("scope");
-    expect(pageHelpTopicForPathname("/internal-operations/recommendation-learning")?.slug).toBe("pilot-feedback");
+    expect(pageHelpTopicForPathname("/internal/recommendation-learning")?.slug).toBe("pilot-feedback");
     expect(pageHelpTopicForPathname("/architecture/reviews/run-1/artifacts/cost-summary")?.slug).toBe("review-artifacts");
     expect(pageHelpTopicForPathname("/governance/signed-records/manifest-1/artifacts/cost-summary")?.slug).toBe(
       "review-artifacts",
     );
-    expect(pageHelpTopicForPathname("/sponsor-report/roi-summary")?.slug).toBe("pilot-roi-model");
-    expect(pageHelpTopicForPathname("/sponsor-report/roi-summary")?.label).toBe("View ROI methodology");
-    expect(pageHelpTopicForPathname("/sponsor-report/pilot-outcomes")?.slug).toBe("executive-summary");
+    expect(pageHelpTopicForPathname("/insights/roi-summary")?.slug).toBe("pilot-roi-model");
+    expect(pageHelpTopicForPathname("/insights/roi-summary")?.label).toBe("View ROI methodology");
+    expect(pageHelpTopicForPathname("/insights/pilot-outcomes")?.slug).toBe("executive-summary");
   });
 
   it("searchHelpTopics finds pilot guide", () => {

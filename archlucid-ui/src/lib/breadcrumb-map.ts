@@ -155,9 +155,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   teams: "Teams",
   webhooks: "Webhooks",
   scope: "Workspace and scope",
-  "how-it-works": "How ArchLucid works",
   "data-handling": "What ArchLucid does with your data",
-  "core-pilot": "Your first architecture review",
   "first-architecture-review": "Your first architecture review",
   "developer-troubleshooting": "Engineering troubleshooting runbook",
 };
@@ -219,24 +217,24 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
     ];
   }
 
-  if (normalized === "/internal-operations/recommendation-learning") {
+  if (normalized === "/internal/recommendation-learning") {
     return [
-      { label: "Internal Operations", href: "/admin/health" },
+      { label: "Internal Operations", href: "/internal/health" },
       { label: "Recommendation Learning" },
     ];
   }
 
   if (normalized === "/internal/product-learning") {
     return [
-      { label: "Internal Operations", href: "/admin/health" },
+      { label: "Internal Operations", href: "/internal/health" },
       { label: OPERATOR_NAV_LINK_LABELS.pilotFeedback },
     ];
   }
 
   if (normalized === ITSM_CONNECTORS_ADMIN_PATH) {
     return [
-      { label: "Admin", href: "/admin" },
-      { label: "Integrations", href: "/admin/integrations" },
+      { label: "Internal Operations", href: "/internal/health" },
+      { label: "Integrations", href: "/internal/integrations" },
       { label: ITSM_CONNECTORS_ADMIN_LABEL },
     ];
   }
@@ -310,7 +308,7 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
     ];
   }
 
-  if (normalized === "/help/users-and-roles" || normalized === "/help/operator-auth-roles") {
+  if (normalized === "/help/users-and-roles") {
     return [
       { label: "Support", href: "/help" },
       { label: "Users and roles" },

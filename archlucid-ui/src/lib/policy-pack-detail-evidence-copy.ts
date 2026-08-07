@@ -18,7 +18,7 @@ export const POLICY_PACK_DETAIL_SOURCES: readonly PolicyPackDetailSourceLink[] =
   { label: "Architecture reviews", href: "/architecture/reviews" },
   { label: "Findings", href: "/governance/findings" },
   { label: "Governance approval help", href: inAppHelpHref("governance-approval") },
-  { label: "How ArchLucid works", href: inAppHelpHref("how-it-works") },
+  { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
 ] as const;
 
 export const POLICY_PACK_DETAIL_PATH_PREFIX = "/governance/policy-packs/" as const;

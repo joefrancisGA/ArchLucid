@@ -125,6 +125,37 @@ public sealed class EndToEndReplayComparisonServiceTests
     }
 
     [SkippableFact]
+    public async Task BuildAsync_WhenExecutionModesMatchNonReal_AddsDirectionalInterpretationNote()
+    {
+        ArchitectureRunDetail left = new()
+        {
+            Run = Run("left", "v1", StructuralExecutionMode.Simulator),
+            Results = [],
+            Manifest = Manifest("left", "v1"),
+        };
+        ArchitectureRunDetail right = new()
+        {
+            Run = Run("right", "v1", StructuralExecutionMode.Simulator),
+            Results = [],
+            Manifest = Manifest("right", "v1"),
+        };
+
+        _runDetailQueryService.Setup(s => s.GetRunDetailForRollupAsync("left", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(left);
+        _runDetailQueryService.Setup(s => s.GetRunDetailForRollupAsync("right", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(right);
+        _exportRepo.Setup(r => r.GetByRunIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<RunExportRecord>());
+        _manifestDiff.Setup(m => m.Compare(left.Manifest, right.Manifest)).Returns(new ManifestDiffResult());
+
+        EndToEndReplayComparisonReport report = await _sut.BuildAsync("left", "right");
+
+        report.RunDiff.SharedNonRealExecutionMode.Should().BeTrue();
+        report.InterpretationNotes.Should().Contain(note =>
+            note.Contains("directional only", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [SkippableFact]
     public async Task BuildAsync_WhenLeftRunMissing_ThrowsRunNotFoundException()
     {
         _runDetailQueryService.Setup(s => s.GetRunDetailForRollupAsync("missing", It.IsAny<CancellationToken>()))

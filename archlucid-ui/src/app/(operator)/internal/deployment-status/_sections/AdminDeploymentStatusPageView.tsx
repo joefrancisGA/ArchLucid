@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 
-import { DeploymentStatusEvidenceOrientationStrip } from "@/app/(operator)/admin/deployment-status/_sections/DeploymentStatusEvidenceOrientationStrip";
+import { DeploymentStatusEvidenceOrientationStrip } from "@/app/(operator)/internal/deployment-status/_sections/DeploymentStatusEvidenceOrientationStrip";
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { StatusPill } from "@/components/StatusPill";
 import { Button } from "@/components/ui/button";
@@ -83,7 +83,7 @@ export function AdminDeploymentStatusPageView(props: Props) {
             </span>
           ) : null}
           <Link
-            href="/admin/health"
+            href="/internal/health"
             className={cn("text-al-accent underline-offset-2 hover:underline", OPERATOR_TYPOGRAPHY.body)}
           >
             Open diagnostics dashboard

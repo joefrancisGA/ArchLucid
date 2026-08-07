@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF } from "@/lib/executive-dashboard-route";
 import { OperateGovernanceNavGroupBuilder } from "@/lib/operate-governance-nav-group-builder";
 
 describe("OperateGovernanceNavGroupBuilder", () => {
@@ -19,5 +20,13 @@ describe("OperateGovernanceNavGroupBuilder", () => {
     expect(setupGuide?.label).toBe("Governance setup");
     expect(setupGuide?.title?.toLowerCase()).not.toContain("evaluation");
     expect(setupGuide?.title?.toLowerCase()).not.toContain("pilot");
+  });
+
+  it("places Workspace health last in governance nav", () => {
+    const group = new OperateGovernanceNavGroupBuilder().build();
+    const lastLink = group.links[group.links.length - 1];
+
+    expect(lastLink?.href).toBe(EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF);
+    expect(lastLink?.label).toBe("Workspace health");
   });
 });

@@ -1,12 +1,10 @@
-import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
-import { ExecutiveScorecardClient } from "./ExecutiveScorecardClient";
-import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { EXECUTIVE_SCORECARD_REDIRECT_HREF } from "@/lib/executive-scorecard-route";
 
-export const metadata: Metadata = {
-  title: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.scorecardPageTitle,
-};
-
+/**
+ * Legacy bookmark shim — sponsor scorecard KPIs live on the executive dashboard.
+ */
 export default function ExecutiveScorecardPage() {
-  return <ExecutiveScorecardClient />;
+  redirect(EXECUTIVE_SCORECARD_REDIRECT_HREF);
 }

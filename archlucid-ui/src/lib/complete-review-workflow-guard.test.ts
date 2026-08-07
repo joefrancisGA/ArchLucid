@@ -31,22 +31,24 @@ const CORE_PILOT_BANNED_PHRASES: readonly string[] = [
 ] as const;
 
 /**
- * TB-1379: first-pilot-path / COMPLETE_REVIEW_WORKFLOW folded into Your first architecture review.
+ * TB-1379 / TB-2050: first-pilot-path alias retired — COMPLETE_REVIEW_WORKFLOW content
+ * lives directly on the canonical Your first architecture review topic.
  */
 describe("complete review workflow → Core Pilot (TB-1379)", () => {
-  const aliasSlug = "first-pilot-path";
+  const retiredAliasSlug = "first-pilot-path";
   const canonicalSlug = "first-architecture-review";
 
-  it("aliases first-pilot-path to first-architecture-review", () => {
-    expect(normalizeHelpTopicSlug(aliasSlug)).toBe(canonicalSlug);
+  it("no longer resolves the retired first-pilot-path alias", () => {
+    expect(normalizeHelpTopicSlug(retiredAliasSlug)).toBe(retiredAliasSlug);
+    expect(getProductDocumentationEntry(retiredAliasSlug)).toBeNull();
 
-    const entry = getProductDocumentationEntry(aliasSlug);
+    const entry = getProductDocumentationEntry(canonicalSlug);
 
     expect(entry?.slug).toBe(canonicalSlug);
     expect(entry?.title).toBe("Your first architecture review");
     expect(entry?.audience).toBe("buyer");
     expect(entry?.sourcePaths).toEqual(["docs/CORE_PILOT.md"]);
-    expect(inAppHelpHref(aliasSlug)).toBe(`/help/${canonicalSlug}`);
+    expect(inAppHelpHref(canonicalSlug)).toBe(`/help/${canonicalSlug}`);
   });
 
   it("keeps Core Pilot markdown free of internal operator and runbook phrases", () => {
@@ -74,7 +76,7 @@ describe("complete review workflow → Core Pilot (TB-1379)", () => {
   });
 
   it("hides maintenance metadata when prepared for buyer help presentation", () => {
-    const loaded = tryLoadProductDocumentation(aliasSlug);
+    const loaded = tryLoadProductDocumentation(canonicalSlug);
 
     expect(loaded).not.toBeNull();
 

@@ -1,6 +1,6 @@
 /**
  * TB-2052 — secondary-hub inventory for Learn more job-match Vitest.
- * Paths must not resolve Learn more to getting-started / how-it-works
+ * Paths must not resolve Learn more to getting-started
  * unless they appear on PAGE_HELP_FIRST_RUN_GENERIC_LEARN_MORE_ALLOWLIST_PREFIXES.
  */
 
@@ -19,7 +19,7 @@ export const LEARN_MORE_JOB_MATCH_SECONDARY_HUB_PATHS = [
 export type LearnMoreJobMatchSecondaryHubPath =
   (typeof LEARN_MORE_JOB_MATCH_SECONDARY_HUB_PATHS)[number];
 
-export const GENERIC_LEARN_MORE_SLUGS = ["getting-started", "how-it-works"] as const;
+export const GENERIC_LEARN_MORE_SLUGS = ["getting-started"] as const;
 
 export function isGenericLearnMoreSlug(slug: string | undefined): boolean {
   if (slug == null || slug.length === 0) {

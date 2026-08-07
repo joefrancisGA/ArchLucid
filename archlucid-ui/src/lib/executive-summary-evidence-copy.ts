@@ -18,7 +18,7 @@ export const EXECUTIVE_SUMMARY_SOURCES: readonly ExecutiveSummarySourceLink[] = 
   { label: "Architecture reviews", href: "/architecture/reviews" },
   { label: "ROI methodology help", href: inAppHelpHref("executive-summary") },
   { label: "Assurance status", href: "/security-trust" },
-  { label: "How ArchLucid works", href: inAppHelpHref("how-it-works") },
+  { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
 ] as const;
 
 export const EXECUTIVE_SUMMARY_CANONICAL_PATH = SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH;

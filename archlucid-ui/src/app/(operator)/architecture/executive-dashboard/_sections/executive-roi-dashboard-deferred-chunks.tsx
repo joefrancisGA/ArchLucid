@@ -124,3 +124,14 @@ export const ExecutiveDashboardSupportingMetricsSectionDeferred: ComponentType<E
       loading: () => <ExecutiveDashboardDeferredSectionLoading label="Loading supporting metrics" />,
     },
   );
+
+export const ExecutiveWorkspaceHealthDashboardDeferred: ComponentType = dynamic(
+  () =>
+    import("@/components/ExecutiveWorkspaceHealthDashboard").then(
+      (module) => module.ExecutiveWorkspaceHealthDashboard,
+    ),
+  {
+    ssr: false,
+    loading: () => <ExecutiveDashboardDeferredSectionLoading label="Loading workspace health" />,
+  },
+);

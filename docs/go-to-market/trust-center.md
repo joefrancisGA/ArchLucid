@@ -26,7 +26,7 @@ For spreadsheets (SIG-, CAIQ-style rows), use **[Procurement FAQ](/help/procurem
 
 ## Healthcare and PHI
 
-ArchLucid is for **architecture and governance evidence** about systems you describe — not a regulated record system for clinical care. **Do not upload PHI** into briefs, uploads, or free-text fields intended for architecture context. For **BAA**, **MSA/DPA** wording, or **contractual** posture beyond the in-repo templates ([DPA template](/help/dpa-template), [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md), [`V1_SCOPE.md`](../library/V1_SCOPE.md)), contact **`sales@archlucid.net`**. For **tenant isolation** and residency messaging aimed at procurement, see [Data handling and tenant isolation](/help/data-handling-tenant-isolation). Deeper **vertical positioning** (Medicare/Medicaid–adjacent patterns, starter HIPAA *program* mapping for conversations — not a legal attestation) lives in [`POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md#healthcare-vertical-positioning-sales--architecture`](../library/walkthroughs/POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md#healthcare-vertical-positioning-sales--architecture) (`buyer-jobs/HEALTHCARE_CLAIMS_POLICY_REVIEW.md` alias). This section states product fit and data-handling expectations only; it does **not** add new compliance-certification claims beyond what linked documents already say.
+ArchLucid is for **architecture and governance evidence** about systems you describe — not a regulated record system for clinical care. **Do not upload PHI** into briefs, uploads, or free-text fields intended for architecture context. For **BAA**, **MSA/DPA** wording, or **contractual** posture beyond the in-repo templates ([DPA template](/help/dpa-template), [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md), [`V1_SCOPE.md`](../library/V1_SCOPE.md)), contact **`sales@archlucid.net`**. For **tenant isolation** and residency messaging aimed at procurement, see [Data handling and tenant isolation](/help/data-handling#isolation). Deeper **vertical positioning** (Medicare/Medicaid–adjacent patterns, starter HIPAA *program* mapping for conversations — not a legal attestation) lives in [`POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md#healthcare-vertical-positioning-sales--architecture`](../library/walkthroughs/POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md#healthcare-vertical-positioning-sales--architecture) (`buyer-jobs/HEALTHCARE_CLAIMS_POLICY_REVIEW.md` alias). This section states product fit and data-handling expectations only; it does **not** add new compliance-certification claims beyond what linked documents already say.
 
 ---
 
@@ -58,7 +58,7 @@ The ZIP includes the DPA template, subprocessors register, SLA summary, `securit
 
 ## Tenant isolation (production)
 
-Production tenant data is isolated with a **database-per-tenant** model (`SystemWithPerTenantCatalogs`) and connection routing — not SQL row-level security as the primary control. The accepted architecture decision is documented in **ADR** [0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md); normative detail lives in [Tenant isolation defense in depth](../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md). Buyer-facing summary: [Data handling and tenant isolation](/help/data-handling-tenant-isolation).
+Production tenant data is isolated with a **database-per-tenant** model (`SystemWithPerTenantCatalogs`) and connection routing — not SQL row-level security as the primary control. The accepted architecture decision is documented in **ADR** [0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md); normative detail lives in [Tenant isolation defense in depth](../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md). Buyer-facing summary: [Data handling and tenant isolation](/help/data-handling#isolation).
 
 ---
 
@@ -151,7 +151,7 @@ ArchLucid publishes internal analysis, architecture, and control-mapping documen
 - [Evidence pack overview](../security/EVIDENCE_PACK.md)
 - [Managed identity and SQL / Blob boundaries](../security/MANAGED_IDENTITY_SQL_BLOB.md)
 - [Gitleaks pre-receive guidance](../security/GITLEAKS_PRE_RECEIVE.md)
-- [Tenant isolation (buyer-facing)](/help/data-handling-tenant-isolation)
+- [Tenant isolation (buyer-facing)](/help/data-handling#isolation)
 
 ---
 

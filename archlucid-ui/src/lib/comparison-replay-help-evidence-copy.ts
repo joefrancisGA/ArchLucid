@@ -16,7 +16,7 @@ export type ComparisonReplayHelpSourceLink = {
 /** Operator Sources — no self-href to `/help/comparison-replay`. */
 export const COMPARISON_REPLAY_HELP_SOURCES: readonly ComparisonReplayHelpSourceLink[] = [
   { label: "Compare two reviews", href: "/insights/compare-two-reviews" },
-  { label: "Validate review", href: "/replay" },
+  { label: "Validate review", href: "/internal/replay" },
   { label: "Repeat-review loop", href: inAppHelpHref("repeat-review-loop") },
   { label: "Architecture reviews", href: "/architecture/reviews" },
   { label: "Evidence trail", href: "/insights/evidence-graph" },

@@ -1,17 +1,20 @@
 import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture-scorecard-route";
 import { BUYER_VALUE_REPORT_PAGE_TITLE } from "@/lib/buyer-polish-copy";
 
-/** Canonical browser path for the sponsor report section. */
-export const SPONSOR_REPORT_ROOT_SEGMENT = "sponsor-report";
+/** Canonical URL segment for sponsor value reports (under Insights). */
+export const SPONSOR_REPORT_ROOT_SEGMENT = "insights";
 
 export const SPONSOR_REPORT_SECTION_LABEL = "Sponsor report";
 
 /** Page title for sponsor executive summary — matches ValueReportPageView H1 (BUYER_VALUE_REPORT_PAGE_TITLE). */
 export const EXECUTIVE_SUMMARY_PAGE_TITLE = BUYER_VALUE_REPORT_PAGE_TITLE;
 
-export const SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH = "/sponsor-report/executive-summary";
-export const SPONSOR_REPORT_PILOT_OUTCOMES_PATH = "/sponsor-report/pilot-outcomes";
-export const SPONSOR_REPORT_ROI_SUMMARY_PATH = "/sponsor-report/roi-summary";
+export const SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH = "/insights/executive-summary";
+export const SPONSOR_REPORT_PILOT_OUTCOMES_PATH = "/insights/pilot-outcomes";
+export const SPONSOR_REPORT_ROI_SUMMARY_PATH = "/insights/roi-summary";
+
+/** @deprecated Bookmark alias — use {@link SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH}. */
+export const LEGACY_SPONSOR_REPORT_ROOT_PATH = "/insights/executive-summary";
 
 /** Architecture scorecard lives under Insights; kept for Outcomes tab strip consumers. */
 export const SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH = ARCHITECTURE_SCORECARD_PATH;
@@ -25,8 +28,15 @@ export function isSponsorReportOutcomesSurface(pathname: string): boolean {
   const normalized = pathname.replace(/\/$/, "") || "/";
 
   return (
-    normalized.startsWith("/sponsor-report") ||
-    normalized === ARCHITECTURE_SCORECARD_PATH ||
-    normalized.startsWith(`${ARCHITECTURE_SCORECARD_PATH}/`)
+    normalized === SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH
+    || normalized === SPONSOR_REPORT_PILOT_OUTCOMES_PATH
+    || normalized === SPONSOR_REPORT_ROI_SUMMARY_PATH
+    || normalized === LEGACY_SPONSOR_REPORT_ROOT_PATH
+    || normalized === `${LEGACY_SPONSOR_REPORT_ROOT_PATH}/executive-summary`
+    || normalized === `${LEGACY_SPONSOR_REPORT_ROOT_PATH}/pilot-outcomes`
+    || normalized === `${LEGACY_SPONSOR_REPORT_ROOT_PATH}/roi-summary`
+    || normalized.startsWith(`${LEGACY_SPONSOR_REPORT_ROOT_PATH}/`)
+    || normalized === ARCHITECTURE_SCORECARD_PATH
+    || normalized.startsWith(`${ARCHITECTURE_SCORECARD_PATH}/`)
   );
 }

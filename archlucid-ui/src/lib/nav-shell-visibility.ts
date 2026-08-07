@@ -28,17 +28,15 @@ const BUYER_POLISHED_SHELL_OMIT_NAV_HREFS = new Set<string>(["/administration/ap
 const DEMO_MODE_OMIT_OPERATOR_HREFS = new Set<string>([
   "/insights/planning",
   "/internal/product-learning",
-  "/internal-operations/recommendation-learning",
+  "/internal/recommendation-learning",
   IMPACT_PREVIEW_PATH,
-  "/replay",
+  "/internal/replay",
   "/insights/search-review-evidence",
   COMPARE_TWO_REVIEWS_PATH,
   "/governance/advisory-scans",
   "/demo/explain",
-  "/admin/health",
-  "/admin/configuration",
-  "/admin/support",
-  "/admin/users",
+  "/internal/health",
+  "/internal/configuration",
   "/administration/support",
   "/administration/users",
   "/administration/security-trust",
@@ -61,9 +59,9 @@ const DEMO_MODE_OMIT_OPERATOR_HREFS = new Set<string>([
   "/administration/baseline",
   "/administration/api-keys",
   "/administration/ai-usage",
-  "/sponsor-report/executive-summary",
-  "/sponsor-report/pilot-outcomes",
-  "/sponsor-report/roi-summary",
+  "/insights/executive-summary",
+  "/insights/pilot-outcomes",
+  "/insights/roi-summary",
 ]);
 
 function isPublicDemoThinNavSurface(): boolean {
@@ -156,7 +154,7 @@ export type NavGroupWithVisibleLinks = {
  * @see `authority-execute-floor-regression.test.ts` — **Execute floor** parity (nav **`ExecuteAuthority`** row vs mutation boolean) + **`operate-governance`** config invariants under **`filterNavLinksByAuthority`** alone (complements tier∩rank tests above).
  * @see `authority-shaped-ui-regression.test.ts` — catalog **`ExecuteAuthority`** links vs Read/Execute rank (this module composes those links after **tier**).
  * @see `nav-shell-visibility.test.ts` — empty-group omission after tier then authority; default Reader Enterprise strip;
- *   Execute rank does not bypass extended tier without disclosure toggles; **Core Pilot** **`/replay`** (extended **Execute**)
+ *   Execute rank does not bypass extended tier without disclosure toggles; **Core Pilot** **`/internal/replay`** (extended **Execute**)
  *   stays hidden until **Show more** even at Admin rank.
  * @see `OperatorNavAuthorityProvider.test.tsx` — conservative rank during JWT `/me` refetch (feeds this module indirectly).
  * @see `enterprise-authority-ui-shaping.test.tsx` — **`useOperateCapability`** → **`disabled`** / **`readOnly`** on representative Enterprise pages (incl. governance submit fields).

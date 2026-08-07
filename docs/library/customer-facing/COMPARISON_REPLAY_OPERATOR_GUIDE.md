@@ -38,4 +38,4 @@ Replay does **not** replace starting a new architecture review when your evidenc
 - [Architecture packages](/help/review-packages) — open and finalize packages before comparing.
 - [Repeat-review stickiness loop](/help/repeat-review-loop) — second-review value after the first finalize.
 - [Prior manifest retrieval](/help/prior-manifest-retrieval) — how finalized packages become searchable memory for Ask.
-- [Your first architecture review](/help/core-pilot) — complete one package before deep compare work.
+- [Your first architecture review](/help/first-architecture-review) — complete one package before deep compare work.

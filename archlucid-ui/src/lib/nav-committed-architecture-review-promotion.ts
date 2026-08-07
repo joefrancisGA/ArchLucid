@@ -7,7 +7,7 @@ import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
 const COMMITTED_ARCHITECTURE_REVIEW_PROMOTED_HREFS = new Set<string>([
   COMPARE_TWO_REVIEWS_PATH,
   EVIDENCE_GRAPH_PATH,
-  "/sponsor-report/pilot-outcomes",
+  "/insights/pilot-outcomes",
 ]);
 
 /** Pilot essentials demoted to extended tier after the first committed review (TB-524). */

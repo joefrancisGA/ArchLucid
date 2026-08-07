@@ -20,7 +20,7 @@ export const PLANNING_PLAN_DETAIL_SOURCES: readonly PlanningPlanDetailSourceLink
   { label: "Architecture reviews", href: "/architecture/reviews" },
   { label: "Findings", href: "/governance/findings" },
   { label: "Product learning", href: "/internal/product-learning" },
-  { label: "How ArchLucid works", href: inAppHelpHref("how-it-works") },
+  { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
 ] as const;
 
 export { PLANNING_PLAN_DETAIL_PATH_PREFIX };

@@ -36,9 +36,9 @@ describe("onboarding hub IA drift guard (TB-680)", () => {
   });
 
   it("detects forbidden internal href prefixes", () => {
-    const violations = findHubPageContractViolations('href="/admin/health"');
+    const violations = findHubPageContractViolations('href="/internal/health"');
 
-    expect(violations).toContainEqual({ kind: "forbidden-href", marker: "/admin/" });
+    expect(violations).toContainEqual({ kind: "forbidden-href", marker: "/internal/" });
   });
 
   it("detects embedded wizard markers", () => {
@@ -51,8 +51,8 @@ describe("onboarding hub IA drift guard (TB-680)", () => {
     const optionalSetup = readUiFile("src/app/(operator)/architecture/first-review-guide/_sections/OptionalWorkspaceSetupList.tsx");
 
     expect(optionalSetup).toContain("FINISH_SETUP_SYSTEM_HEALTH_PATH");
-    expect(optionalSetup).not.toContain("/admin/health");
-    expect(HUB_PAGE_FORBIDDEN_INTERNAL_HREF_PREFIXES).toContain("/admin/");
+    expect(optionalSetup).not.toContain("/internal/health");
+    expect(HUB_PAGE_FORBIDDEN_INTERNAL_HREF_PREFIXES).toContain("/internal/");
   });
 
   it("keeps AGENTS.md linked to the hub contract", () => {

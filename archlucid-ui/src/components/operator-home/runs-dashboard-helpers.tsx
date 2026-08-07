@@ -1,9 +1,11 @@
 "use client";
 
+import { InlineMetadataLine } from "@/components/InlineMetadataLine";
 import { StatusTag } from "@/components/ui/status-tag";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
 import {
   BUYER_ARCHITECTURE_PACKAGE_ORIGIN_CREATED_BADGE,
+  BUYER_ARCHITECTURE_PACKAGE_ORIGIN_METADATA_LABEL,
   BUYER_ARCHITECTURE_PACKAGE_ORIGIN_REVIEWED_BADGE,
   BUYER_RUNS_DASHBOARD_FILTER_ALL,
   BUYER_RUNS_DASHBOARD_TAB_APPROVED,
@@ -163,27 +165,70 @@ function packageOriginBadgeLabel(origin: ArchitecturePackageOriginToken): string
   return BUYER_ARCHITECTURE_PACKAGE_ORIGIN_REVIEWED_BADGE;
 }
 
-export function ArchitecturePackageOriginBadge(props: {
-  readonly run: RunSummary;
-  readonly buyerPolishedShell: boolean;
-  readonly className?: string;
-}) {
-  if (!props.buyerPolishedShell) {
+type ResolvedPackageOrigin = {
+  readonly origin: ArchitecturePackageOriginToken;
+  readonly label: string;
+};
+
+/** Shared visibility gate for both origin presentations: buyer-polished shell, known origin only. */
+function resolveBuyerPackageOrigin(
+  run: RunSummary,
+  buyerPolishedShell: boolean,
+): ResolvedPackageOrigin | null {
+  if (!buyerPolishedShell) {
     return null;
   }
 
-  const origin = resolveRunSummaryPackageOrigin(props.run);
+  const origin = resolveRunSummaryPackageOrigin(run);
 
   if (origin === null) {
     return null;
   }
 
+  return { origin, label: packageOriginBadgeLabel(origin) };
+}
+
+export type ArchitecturePackageOriginProps = {
+  readonly run: RunSummary;
+  readonly buyerPolishedShell: boolean;
+  readonly className?: string;
+};
+
+/** Compact origin pill for dense list rows, where no governance status tag sits directly above it. */
+export function ArchitecturePackageOriginBadge(props: ArchitecturePackageOriginProps) {
+  const resolved = resolveBuyerPackageOrigin(props.run, props.buyerPolishedShell);
+
+  if (resolved === null) {
+    return null;
+  }
+
   return (
     <StatusTag
-      kind={origin === "created" ? "ready" : "neutral"}
-      label={packageOriginBadgeLabel(origin)}
+      kind={resolved.origin === "created" ? "ready" : "neutral"}
+      label={resolved.label}
       className={props.className}
-      data-testid={`architecture-package-origin-${origin}`}
+      data-testid={`architecture-package-origin-${resolved.origin}`}
+    />
+  );
+}
+
+/**
+ * Labeled origin line for cards that also show a governance status tag. Provenance rendered as a
+ * bare pill next to a verdict pill reads as a competing outcome, so the axis has to be named.
+ */
+export function ArchitecturePackageOriginMetadataLine(props: ArchitecturePackageOriginProps) {
+  const resolved = resolveBuyerPackageOrigin(props.run, props.buyerPolishedShell);
+
+  if (resolved === null) {
+    return null;
+  }
+
+  return (
+    <InlineMetadataLine
+      label={BUYER_ARCHITECTURE_PACKAGE_ORIGIN_METADATA_LABEL}
+      value={resolved.label}
+      className={props.className}
+      testId={`architecture-package-origin-${resolved.origin}`}
     />
   );
 }

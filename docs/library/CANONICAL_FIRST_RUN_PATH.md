@@ -89,7 +89,7 @@ Give architects a **linear checklist** for creating the first **architecture rev
 
 ### Related (UI walkthrough)
 
-- **[Your first architecture review](/help/core-pilot)** — guided first-session checklist.
+- **[Your first architecture review](/help/first-architecture-review)** — guided first-session checklist.
 - [`#first-run-wizard-architect-workspace`](#first-run-wizard-architect-workspace) — design and UX notes (`FIRST_RUN_WIZARD.md` alias).
 - **[Pilot guide](/help/pilot-guide)** — pilot-facing scope and support boundaries.
 - **[Workspace navigation](/help/pilot-nav-profile)** — sidebar and first-review path.

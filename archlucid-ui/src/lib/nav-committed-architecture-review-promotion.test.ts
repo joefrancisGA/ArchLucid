@@ -8,7 +8,7 @@ import { filterNavLinksForOperatorShell, listNavGroupsVisibleInOperatorShell } f
 describe("committed architecture review nav promotion", () => {
   const pilot = NAV_GROUPS.find((g) => g.id === "pilot");
   const analysis = NAV_GROUPS.find((g) => g.id === "operate-analysis");
-  // /sponsor-report/pilot-outcomes lives in Insights (formerly operate-reports).
+  // /insights/pilot-outcomes lives in Insights (formerly operate-reports).
 
   it("TB-524: keeps Getting started essential before first commit and demotes after", () => {
     expect(pilot).toBeDefined();
@@ -52,7 +52,7 @@ describe("committed architecture review nav promotion", () => {
     expect(compare?.tier).toBe("essential");
     expect(compare?.defaultVisibleInCollapsedSidebar).toBeUndefined();
 
-    const outcomes = promotedAnalysis.find((l) => l.href === "/sponsor-report/pilot-outcomes");
+    const outcomes = promotedAnalysis.find((l) => l.href === "/insights/pilot-outcomes");
 
     expect(outcomes?.tier).toBe("essential");
     expect(outcomes?.defaultVisibleInCollapsedSidebar).toBeUndefined();

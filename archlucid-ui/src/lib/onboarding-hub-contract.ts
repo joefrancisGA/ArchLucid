@@ -20,10 +20,10 @@ export const HUB_PAGE_DRIFT_GUARD_SOURCES = [
 
 /** Internal Operations / staff-only href prefixes that must not appear on hub surfaces. */
 export const HUB_PAGE_FORBIDDEN_INTERNAL_HREF_PREFIXES = [
-  "/admin/",
-  "/operate/integration-events/dlq",
-  "/sponsor-report/pilot-outcomes",
-  "/sponsor-report/roi-summary",
+  "/internal/",
+  "/internal/integration-events/dlq",
+  "/insights/pilot-outcomes",
+  "/insights/roi-summary",
 ] as const;
 
 /** Embedded wizards/forms owned by settings or setup flows — hubs link out instead. */

@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { TrialFunnelOpsPageClient } from "@/app/(operator)/admin/trial-funnel/_sections/TrialFunnelOpsPageClient";
+import { TrialFunnelOpsPageClient } from "@/app/(operator)/internal/trial-funnel/_sections/TrialFunnelOpsPageClient";
 import { TRIAL_FUNNEL_PAGE_SUBTITLE } from "@/lib/trial-funnel-metric-contract";
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({

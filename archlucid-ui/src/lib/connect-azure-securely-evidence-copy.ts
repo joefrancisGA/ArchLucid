@@ -19,5 +19,5 @@ export const CONNECT_AZURE_SECURELY_SOURCES: readonly ConnectAzureSecurelySource
   { label: "Cloud connections help", href: inAppHelpHref("cloud-connections") },
   { label: "Azure permissions guide", href: inAppHelpHref("azure-permissions") },
   { label: "Assurance status", href: "/security-trust" },
-  { label: "How ArchLucid works", href: inAppHelpHref("how-it-works") },
+  { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
 ] as const;

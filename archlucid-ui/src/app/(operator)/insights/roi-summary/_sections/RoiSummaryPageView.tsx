@@ -118,7 +118,7 @@ export function RoiSummaryPageView(props: Props) {
             aria-label="Related value reports"
             className={cn("flex flex-wrap items-center gap-x-3 gap-y-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
           >
-            <Link href="/sponsor-report/pilot-outcomes" className={OPERATOR_LINK.inline}>
+            <Link href="/insights/pilot-outcomes" className={OPERATOR_LINK.inline}>
               Pilot value report
             </Link>
             <Link href="/administration/baseline" className={OPERATOR_LINK.inline}>
@@ -152,7 +152,7 @@ export function RoiSummaryPageView(props: Props) {
                 <Link href="/architecture/reviews/new">{BUYER_START_ARCHITECTURE_REVIEW_CTA}</Link>
               </Button>
               <Button asChild variant="secondary">
-                <Link href="/sponsor-report/pilot-outcomes">Open sample pilot outcomes</Link>
+                <Link href="/insights/pilot-outcomes">Open sample pilot outcomes</Link>
               </Button>
               <Button asChild variant="outline">
                 <Link href={ROI_SUMMARY_METHODOLOGY_HELP_HREF}>Review methodology</Link>

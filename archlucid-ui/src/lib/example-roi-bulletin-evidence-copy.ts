@@ -14,7 +14,7 @@ export type ExampleRoiBulletinSourceLink = {
 /** Marketing Sources - no self-href to `/example-roi-bulletin`. */
 export const EXAMPLE_ROI_BULLETIN_SOURCES: readonly ExampleRoiBulletinSourceLink[] = [
   { label: "Pilot ROI model (help)", href: "/help/pilot-roi-model" },
-  { label: "Executive summary", href: "/sponsor-report/executive-summary" },
+  { label: "Executive summary", href: "/insights/executive-summary" },
   { label: "Assurance status", href: "/security-trust" },
   { label: "Start evaluation", href: "/signup" },
   { label: "Product FAQ", href: "/faq" },

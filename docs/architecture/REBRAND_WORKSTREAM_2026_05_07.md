@@ -32,4 +32,4 @@ CI guard: [`scripts/ci/assert_brand_category_seam.py`](../../scripts/ci/assert_b
 
 ## Related
 
-- Superseded tracker (first rename wave): [`REBRAND_WORKSTREAM_2026_04_23.md`](../archive/assessments/REBRAND_WORKSTREAM_2026_04_23.md)
+- Superseded tracker (first rename wave): `REBRAND_WORKSTREAM_2026_04_23.md` — deleted 2026-08-02; this document is its successor (see [`redirects.md`](../redirects.md))

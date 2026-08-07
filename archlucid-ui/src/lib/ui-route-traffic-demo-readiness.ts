@@ -5,7 +5,7 @@
 export const DEMO_READINESS_TRAFFIC_ROW_ID = "ADD";
 
 /** Canonical path tracked on the ADD workbook row. */
-export const DEMO_READINESS_TRAFFIC_PATH = "/admin/demo-readiness";
+export const DEMO_READINESS_TRAFFIC_PATH = "/internal/demo-readiness";
 
 /** Workbook Section column value (template catalog). */
 export const DEMO_READINESS_TRAFFIC_SECTION = "Admin";

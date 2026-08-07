@@ -1,13 +1,18 @@
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { canonicalizeLegacyOperatorRoutePath } from "@/lib/canonicalize-legacy-operator-route-path";
 import { isInvalidDynamicRouteToken } from "@/lib/route-dynamic-param";
 import { ROUTE_TITLES } from "@/lib/route-static-titles";
 
 /** Human-readable title for route announcements and accessibility copy. */
 export function getRouteTitle(pathname: string): string {
-  const normalized = pathname.length > 1 && pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
+  const withoutHash = pathname.split("#")[0] ?? pathname;
+  const normalized =
+    withoutHash.length > 1 && withoutHash.endsWith("/") ? withoutHash.slice(0, -1) : withoutHash;
+  const canonical = canonicalizeLegacyOperatorRoutePath(normalized);
+  const lookupPath = canonical.split("#")[0] ?? canonical;
 
-  if (ROUTE_TITLES[normalized] !== undefined) {
-    return ROUTE_TITLES[normalized];
+  if (ROUTE_TITLES[lookupPath] !== undefined) {
+    return ROUTE_TITLES[lookupPath];
   }
 
   if (/^\/architecture\/reviews\/[^/]+$/.test(normalized)) {
@@ -40,7 +45,7 @@ export function getRouteTitle(pathname: string): string {
   }
 
   if (last === "itsm") {
-    return normalized === "/admin/integrations/itsm" ? "ITSM connectors" : "ITSM";
+    return normalized === "/internal/integrations/itsm" ? "ITSM connectors" : "ITSM";
   }
 
   return last.charAt(0).toUpperCase() + last.slice(1).replaceAll("-", " ");

@@ -174,12 +174,6 @@
     "url": "/help"
   },
   {
-    "title": "ArchLucid product overview",
-    "summary": "What ArchLucid is, the problems it solves, core value pillars, and sponsor-ready elevator pitches.",
-    "category": "Go-to-Market",
-    "url": "/help/product-overview"
-  },
-  {
     "title": "Audit trail",
     "summary": "Immutable audit events, correlation identifiers, and buyer-safe export posture.",
     "category": "Go-to-Market",
@@ -210,22 +204,10 @@
     "url": "/help/dpa-template"
   },
   {
-    "title": "Data handling and tenant isolation",
-    "summary": "How review evidence flows through ArchLucid, what stays in your tenant, and how logical isolation is enforced.",
-    "category": "Go-to-Market",
-    "url": "/help/data-handling-tenant-isolation"
-  },
-  {
     "title": "Enterprise onboarding checklist",
     "summary": "Checklist for configuring a hosted ArchLucid enterprise tenant: SSO, roles, governance, policy packs, audit export, and optional Azure cloud evidence.",
     "category": "Go-to-Market",
     "url": "/help/enterprise-onboarding"
-  },
-  {
-    "title": "Evidence-only review guide",
-    "summary": "Fast path when connector access is not approved yet \u2014 upload briefs, diagrams, or exports and finalize without cloud inventory.",
-    "category": "Go-to-Market",
-    "url": "/help/evidence-only-review"
   },
   {
     "title": "Executive sponsor brief",
@@ -244,12 +226,6 @@
     "summary": "Pilot value report narrative generated from measured and baseline metrics.",
     "category": "Go-to-Market",
     "url": "/help"
-  },
-  {
-    "title": "How ArchLucid works",
-    "summary": "From architecture evidence to findings, decisions, governance records, and sponsor-ready outputs.",
-    "category": "Go-to-Market",
-    "url": "/help/how-it-works"
   },
   {
     "title": "Marketing showcase notes",
@@ -306,12 +282,6 @@
     "url": "/help/security-trust"
   },
   {
-    "title": "Starting architecture reviews",
-    "summary": "Create an architecture review: name the review, upload evidence, add context, confirm scope, and finalize the review.",
-    "category": "Go-to-Market",
-    "url": "/help/starting-reviews"
-  },
-  {
     "title": "Subprocessors",
     "summary": "Third-party subprocessors register for hosted ArchLucid.",
     "category": "Go-to-Market",
@@ -358,6 +328,12 @@
     "summary": "System status, workspace readiness, assistant diagnostics, and observability signals for platform health.",
     "category": "Operations",
     "url": "/help/admin-diagnostics"
+  },
+  {
+    "title": "Architecture digests",
+    "summary": "Schedule summaries of review activity, governance signals, findings, and advisory scans for operators.",
+    "category": "Operations",
+    "url": "/help/digests"
   },
   {
     "title": "Azure Boards integration",
@@ -466,6 +442,12 @@
     "summary": "Packaging, tiers, and when to use Pilot vs Operate surfaces.",
     "category": "Operations",
     "url": "/help"
+  },
+  {
+    "title": "Policy packs",
+    "summary": "See which pack and rules apply to reviews, and how ArchLucid resolves conflicts when packs disagree.",
+    "category": "Operations",
+    "url": "/help/policy-packs"
   },
   {
     "title": "Prior manifest retrieval",

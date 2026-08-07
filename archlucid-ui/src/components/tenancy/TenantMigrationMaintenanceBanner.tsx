@@ -95,7 +95,7 @@ export function TenantMigrationMaintenanceBanner() {
       </p>
       <p className="m-0 mt-1 leading-snug">
         {message}{" "}
-        <Link href="/admin/health" className="font-medium text-sky-950 underline underline-offset-2 dark:text-sky-100">
+        <Link href="/internal/health" className="font-medium text-sky-950 underline underline-offset-2 dark:text-sky-100">
           System health
         </Link>
         .

@@ -63,9 +63,60 @@ describe("OperatorHomeReviewSummaryCard", () => {
     const emphasizedLabels = proofMetadata.querySelectorAll(".font-medium");
 
     expect(Array.from(emphasizedLabels).map((node) => node.textContent)).toEqual(
-      expect.arrayContaining(["Governance approval:", "Evidence trail:", "Audit trail:"]),
+      expect.arrayContaining(["Evidence trail:", "Audit trail:"]),
     );
-    expect(proofMetadata.textContent).toMatch(/Governance approval:\s*Approved with monitoring/);
     expect(proofMetadata.textContent).toMatch(/Audit trail:\s*Complete/);
+  });
+
+  it("states the governance verdict once, on the status tag", () => {
+    const run: RunSummary = {
+      runId: "claims-intake-modernization",
+      projectId: "default",
+      description: "Claims Intake sample",
+      createdUtc: "2026-01-15T12:00:00.000Z",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+      hasGovernanceWarnings: true,
+      findingCount: 4,
+      warningCount: 1,
+    };
+
+    render(
+      <OperatorHomeReviewSummaryCard
+        run={run}
+        href="/architecture/reviews/claims-intake-modernization"
+        buyerPolishedShell
+        variant="featured"
+      />,
+    );
+
+    expect(screen.getByTestId("run-home-status-tag-claims-intake-modernization")).toHaveTextContent(
+      "Approved with monitoring",
+    );
+    expect(screen.getAllByText(/Approved with monitoring/)).toHaveLength(1);
+  });
+
+  it("labels package origin so it does not read as a second verdict", () => {
+    const run: RunSummary = {
+      runId: "claims-intake-modernization",
+      projectId: "default",
+      description: "Claims Intake sample",
+      createdUtc: "2026-01-15T12:00:00.000Z",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+      hasGovernanceWarnings: true,
+    };
+
+    render(
+      <OperatorHomeReviewSummaryCard
+        run={run}
+        href="/architecture/reviews/claims-intake-modernization"
+        buyerPolishedShell
+      />,
+    );
+
+    const origin = screen.getByTestId("architecture-package-origin-reviewed");
+
+    expect(origin.textContent).toMatch(/Package origin:\s*Reviewed/);
   });
 });

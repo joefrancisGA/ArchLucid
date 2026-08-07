@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 
-import { DemoReadinessEvidenceOrientationStrip } from "@/app/(operator)/admin/demo-readiness/_sections/DemoReadinessEvidenceOrientationStrip";
+import { DemoReadinessEvidenceOrientationStrip } from "@/app/(operator)/internal/demo-readiness/_sections/DemoReadinessEvidenceOrientationStrip";
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
 import { BuyerCtoDemoReadinessPanel } from "@/components/operator-home/BuyerCtoDemoReadinessPanel";
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
@@ -53,7 +53,7 @@ export function DemoReadinessAdminPageClient(): React.JSX.Element {
           <PageContextualHelpButton />
         </div>
         <Button asChild variant="outline" size="sm" className="h-8">
-          <Link href="/admin/health">{INTERNAL_DEMO_READINESS_DIAGNOSTICS_LINK}</Link>
+          <Link href="/internal/health">{INTERNAL_DEMO_READINESS_DIAGNOSTICS_LINK}</Link>
         </Button>
       </header>
       <DemoReadinessEvidenceOrientationStrip />

@@ -21,7 +21,7 @@
         "src/app/(operator)/reviews",
         "src/app/(operator)/governance",
         "src/app/(operator)/architecture/architectures",
-        "src/app/(operator)/admin",
+        "src/app/(operator)/internal",
         "src/app/(operator)/integrations",
         "src/app/(operator)/help",
         "src/app/(operator)/settings",
@@ -39,13 +39,7 @@
         "src/app/(operator)/health",
         "src/app/(operator)/signed-records",
         "src/app/(operator)/onboarding",
-        "src/app/(operator)/operate",
         "src/app/(operator)/planning",
-        "src/app/(operator)/product-learning",
-        "src/app/(operator)/internal/product-learning",
-        "src/app/(operator)/recommendation-learning",
-        "src/app/(operator)/internal-operations",
-        "src/app/(operator)/replay",
         "src/app/(operator)/scorecard",
         "src/app/(operator)/search",
         "src/app/(operator)/value-report",
@@ -79,9 +73,7 @@
     {
       "id": "app-operator-e",
       "label": "app-operator-e (7/9)",
-      "paths": [
-        "src/app/(operator)/sponsor-report"
-      ]
+      "paths": []
     },
     {
       "id": "app-marketing",

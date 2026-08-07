@@ -1,5 +1,6 @@
 import {
   EXECUTIVE_SUMMARY_PAGE_TITLE,
+  LEGACY_SPONSOR_REPORT_ROOT_PATH,
   SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH,
   SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
   SPONSOR_REPORT_PILOT_OUTCOMES_PATH,
@@ -30,8 +31,8 @@ function matchesExecutiveSummary(path: string): boolean {
   const normalized = normalizeOutcomesPath(path);
 
   return (
-    normalized === SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH ||
-    normalized === "/sponsor-report"
+    normalized === SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH
+    || normalized === LEGACY_SPONSOR_REPORT_ROOT_PATH
   );
 }
 

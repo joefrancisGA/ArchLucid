@@ -116,7 +116,7 @@ export function OperatorOutboxDiagnosticsCard(): React.JSX.Element {
         ) : null}
 
         <p className="m-0">
-          <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/operate/integration-events/dlq">
+          <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/internal/integration-events/dlq">
             Open integration dead-letter queue
           </Link>
         </p>

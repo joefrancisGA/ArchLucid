@@ -20,5 +20,5 @@ export const ADVISORY_SCANS_SOURCES: readonly AdvisoryScansSourceLink[] = [
   { label: "Findings", href: "/governance/findings" },
   { label: "Schedules tab", href: ADVISORY_SCANS_SCHEDULES_HREF },
   { label: "Audit", href: "/governance/audit" },
-  { label: "How ArchLucid works", href: inAppHelpHref("how-it-works") },
+  { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
 ] as const;

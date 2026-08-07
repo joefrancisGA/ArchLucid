@@ -24,6 +24,20 @@ export function getArtifactDownloadUrl(manifestId: string, artifactId: string): 
   return `/api/proxy/v1/artifacts/signed-review-records/${manifestId}/artifact/${artifactId}`;
 }
 
+export type RunPackageExportFormat = "docx" | "pdf" | "html";
+
+/**
+ * Finalized architecture-review-board package export (`RunsExportController`).
+ * Prefer this over {@link getArtifactDownloadUrl} with the profile token — artifact routes require a GUID id.
+ */
+export function getRunPackageExportUrl(runId: string, format: RunPackageExportFormat): string {
+  return `/api/proxy/v1/runs/${encodeURIComponent(runId)}/export/${format}`;
+}
+
+/** Curated sample / static demo reviews have no backend-persisted export target. */
+export const SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT =
+  "Downloads aren't available for this sample review. Start a review with your own input to export a package.";
+
 /** Returns the proxy URL for downloading the full artifact bundle ZIP for a manifest. */
 export function getBundleDownloadUrl(manifestId: string): string {
   return `/api/proxy/v1/artifacts/signed-review-records/${manifestId}/bundle`;

@@ -115,7 +115,7 @@ export function SystemHealthDemoPageView(props: SystemHealthDemoPageViewProps) {
         <CollapsibleSection title="Technical details" defaultOpen={false} sectionTestId="system-health-technical-details">
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
             {SYSTEM_HEALTH_CLAIM_DISCIPLINE} Internal diagnostics, dependency probes, and deployment identity are available on the{" "}
-            <Link href="/admin/health" className={OPERATOR_LINK.nav}>
+            <Link href="/internal/health" className={OPERATOR_LINK.nav}>
               Diagnostics dashboard
             </Link>
             .

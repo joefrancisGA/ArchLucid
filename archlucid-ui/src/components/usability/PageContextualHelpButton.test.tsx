@@ -30,7 +30,7 @@ describe("PageContextualHelpButton", () => {
   });
 
   it("falls back to a direct help link when the route is not migrated", () => {
-    mockUsePathname.mockReturnValue("/sponsor-report/roi-summary");
+    mockUsePathname.mockReturnValue("/insights/roi-summary");
 
     render(<PageContextualHelpButton />);
 

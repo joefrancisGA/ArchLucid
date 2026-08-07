@@ -54,15 +54,7 @@ function isCrossNamespaceOrientationPath(normalizedPath: string): boolean {
     return true;
   }
 
-  if (normalizedPath.startsWith("/internal-operations/")) {
-    return true;
-  }
-
   if (normalizedPath.startsWith("/internal/")) {
-    return true;
-  }
-
-  if (normalizedPath.startsWith("/admin/")) {
     return true;
   }
 
