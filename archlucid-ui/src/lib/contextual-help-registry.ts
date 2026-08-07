@@ -1163,6 +1163,26 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/help/cloud-connections/gcp",
+    entry: {
+      whatIsThisPage:
+        "Connect GCP securely — Workload Identity Federation, Cloud Asset Viewer, project scope, and validation without service-account JSON keys.",
+      whatToDoNext:
+        "Follow the federation steps, then open the GCP cloud connection settings to validate the attachment.",
+      whyEmpty: "This guide is always available; live GCP connection status appears on the Cloud connections hub.",
+      whereToConfigurePrerequisite:
+        "GCP attachment is optional — evidence-only reviews work without a cloud connector.",
+      whatToDoNextAction: {
+        label: "Open GCP connection settings",
+        href: "/integrations/cloud-connections/gcp",
+      },
+      whereToConfigureAction: {
+        label: "Open Cloud connections help",
+        href: "/help/cloud-connections",
+      },
+    },
+  },
+  {
     prefix: "/help/azure-permissions",
     entry: {
       whatIsThisPage:

@@ -118,6 +118,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/first-hour-operator-path",
       "/help/cloud-connections/azure",
       "/help/cloud-connections/aws",
+      "/help/cloud-connections/gcp",
       "/help/azure-permissions",
       "/help/glossary",
       "/help/operator-auth-roles",
@@ -383,6 +384,18 @@ describe("contextual-help-registry (TB-733)", () => {
       "/integrations/cloud-connections/aws",
     );
     expect(contextualHelpForPathname("/help/cloud-connections/aws")?.whereToConfigureAction?.href).toBe(
+      "/help/cloud-connections",
+    );
+  });
+
+  it("resolves Connect GCP securely help Category-1 help (HGC)", () => {
+    expect(contextualHelpForPathname("/help/cloud-connections/gcp")?.whatIsThisPage).toContain(
+      "Connect GCP securely",
+    );
+    expect(contextualHelpForPathname("/help/cloud-connections/gcp")?.whatToDoNextAction?.href).toBe(
+      "/integrations/cloud-connections/gcp",
+    );
+    expect(contextualHelpForPathname("/help/cloud-connections/gcp")?.whereToConfigureAction?.href).toBe(
       "/help/cloud-connections",
     );
   });

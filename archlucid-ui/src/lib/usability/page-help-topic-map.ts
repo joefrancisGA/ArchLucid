@@ -117,6 +117,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "cloud-connections-aws", label: "Connect AWS securely" },
   },
   {
+    prefix: "/help/cloud-connections/gcp",
+    topic: { slug: "cloud-connections-gcp", label: "Connect GCP securely" },
+  },
+  {
     prefix: "/help/azure-permissions",
     topic: { slug: "azure-permissions", label: "Azure permissions" },
   },

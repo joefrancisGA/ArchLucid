@@ -50,6 +50,10 @@ Coalesce audit-list scope revision bumps within 3s during append bursts so first
 
 Deferred below-fold executive-dashboard panels and the signed-records list client chunk via `next/dynamic`; extended `check:first-load-js` tracked routes and baseline for `/architecture/executive-dashboard` and `/governance/signed-records`.
 
+## 2026-08-07 - UI: Connect GCP securely help Evidence chrome (HGC)
+
+`/help/cloud-connections/gcp` ships ConnectGcpSecurelyHelpEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map cloud-connections-gcp, traffic Notes under Help alias (row ID HGC), and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-07 - UI: Connect AWS securely help Evidence chrome (HEC)
 
 `/help/cloud-connections/aws` ships ConnectAwsSecurelyHelpEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map cloud-connections-aws, traffic Notes under Help alias (row ID HEC; owner HEW renamed to match template), and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.

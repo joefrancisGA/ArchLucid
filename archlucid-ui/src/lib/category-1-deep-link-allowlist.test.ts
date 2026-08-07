@@ -81,6 +81,11 @@ const ALLOWLIST: readonly {
     configureHref: "/help/cloud-connections",
   },
   {
+    pathname: "/help/cloud-connections/gcp",
+    nextHref: "/integrations/cloud-connections/gcp",
+    configureHref: "/help/cloud-connections",
+  },
+  {
     pathname: "/governance/approval-requests/sample/lineage",
     nextHref: GOVERNANCE_APPROVAL_QUEUE_PATH,
   },

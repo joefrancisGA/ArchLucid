@@ -26,6 +26,7 @@ import { AuthenticationSignInHelpEvidenceOrientationStrip } from "../_sections/A
 import { AzureBoardsHelpEvidenceOrientationStrip } from "../_sections/AzureBoardsHelpEvidenceOrientationStrip";
 import { CaiqSigResponseHelpEvidenceOrientationStrip } from "../_sections/CaiqSigResponseHelpEvidenceOrientationStrip";
 import { ConnectAwsSecurelyHelpEvidenceOrientationStrip } from "../_sections/ConnectAwsSecurelyHelpEvidenceOrientationStrip";
+import { ConnectGcpSecurelyHelpEvidenceOrientationStrip } from "../_sections/ConnectGcpSecurelyHelpEvidenceOrientationStrip";
 import { ScopeHelpEvidenceOrientationStrip } from "../_sections/ScopeHelpEvidenceOrientationStrip";
 import { ProcurementHelpEvidenceOrientationStrip } from "../_sections/ProcurementHelpEvidenceOrientationStrip";
 import { EvidenceTrailHelpEvidenceOrientationStrip } from "../_sections/EvidenceTrailHelpEvidenceOrientationStrip";
@@ -193,6 +194,17 @@ function renderHelpTopicView(
         markdown={loaded.markdown}
         showContextualHelp
         evidenceOrientation={<ConnectAwsSecurelyHelpEvidenceOrientationStrip />}
+      />
+    );
+  }
+
+  if (loaded.entry.slug === "cloud-connections-gcp") {
+    return (
+      <HelpTopicMarkdownView
+        entry={loaded.entry}
+        markdown={loaded.markdown}
+        showContextualHelp
+        evidenceOrientation={<ConnectGcpSecurelyHelpEvidenceOrientationStrip />}
       />
     );
   }
