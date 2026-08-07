@@ -6,6 +6,8 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react
 
 import { ArchitectureIntelligenceEvidenceOrientationStrip } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceEvidenceOrientationStrip";
 import { ArchitectureIntelligenceProductRoundTrip } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceProductRoundTrip";
+import { AiBudgetSpendNotice } from "@/components/ai-budget/AiBudgetSpendNotice";
+import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { governanceFindingInspectHref } from "@/components/governance/findings/governance-findings-navigation";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
@@ -104,6 +106,9 @@ type ClosedLoopReasoningResult = {
   budgetRejectReason?: string | null;
   budgetEstimatedTokens?: number;
   budgetMaxTokens?: number;
+  budgetEstimatedCostUsd?: number | null;
+  budgetRemainingUsd?: number | null;
+  budgetEnforced?: boolean;
   productFindings?: Array<{
     findingId: string;
     title: string;
@@ -255,10 +260,42 @@ function primaryDescriptionFromSources(sources: ClosedLoopReasoningSourceText[])
   return descriptionSource?.content?.trim() ?? "";
 }
 
+/**
+ * Spend summary for a completed run. Prefers real USD, which is what the AI usage dashboard and the
+ * budget pill report; falls back to the token sizing used for the analysis-depth check when no LLM
+ * cost rates are configured.
+ */
+function formatReasoningSpendSummary(result: ClosedLoopReasoningResult): string {
+  const parts: string[] = [];
+
+  if (typeof result.budgetEstimatedCostUsd === "number") {
+    parts.push(`Estimated cost $${result.budgetEstimatedCostUsd.toFixed(2)}`);
+  }
+
+  if (typeof result.budgetRemainingUsd === "number") {
+    parts.push(`$${result.budgetRemainingUsd.toFixed(2)} AI budget remaining`);
+  }
+
+  if (
+    parts.length === 0 &&
+    typeof result.budgetEstimatedTokens === "number" &&
+    typeof result.budgetMaxTokens === "number"
+  ) {
+    parts.push(`Est. tokens ${result.budgetEstimatedTokens}/${result.budgetMaxTokens}`);
+  }
+
+  if (parts.length === 0) {
+    return "";
+  }
+
+  return ` · ${parts.join(" · ")}`;
+}
+
 export function ArchitectureIntelligencePageClient() {
   const searchParams = useSearchParams();
   const inboundRunId = searchParams.get("runId")?.trim() ?? "";
   const inboundFrom = searchParams.get("from")?.trim() ?? "";
+  const { blocksLlmExecution } = useLlmMonthlyBudgetExecutionGate();
 
   const [architectureDescription, setArchitectureDescription] = useState("");
   const [prioritiesRaw, setPrioritiesRaw] = useState("");
@@ -630,7 +667,7 @@ export function ArchitectureIntelligencePageClient() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="architecture-review-tier">Review tier (token budget)</Label>
+          <Label htmlFor="architecture-review-tier">Analysis depth</Label>
           <select
             id="architecture-review-tier"
             data-testid="architecture-intelligence-review-tier"
@@ -651,14 +688,22 @@ export function ArchitectureIntelligencePageClient() {
               </option>
             ))}
           </select>
+          <p className={cn(OPERATOR_TYPOGRAPHY.helper)} data-testid="architecture-intelligence-depth-hint">
+            Deeper analysis runs more specialist roles and accepts larger sources, so it costs more.
+          </p>
         </div>
+
+        <AiBudgetSpendNotice
+          action="Architecture reasoning"
+          testId="architecture-intelligence-budget-notice"
+        />
 
         <div className="flex flex-wrap gap-2">
           {canAnalyzeHydratedReview ? (
             <Button
               type="button"
               data-testid="architecture-intelligence-analyze-review-button"
-              disabled={isBusy}
+              disabled={isBusy || blocksLlmExecution}
               onClick={() => void analyzeThisReview()}
             >
               {loadingAction === "analyze"
@@ -670,7 +715,7 @@ export function ArchitectureIntelligencePageClient() {
             type="button"
             variant={canAnalyzeHydratedReview ? "outline" : "primary"}
             data-testid="architecture-intelligence-run-button"
-            disabled={isBusy}
+            disabled={isBusy || blocksLlmExecution}
             onClick={() => void runReasoning()}
           >
             {loadingAction === "reasoning" ? "Running architecture reasoning…" : "Run architecture reasoning"}
@@ -679,7 +724,7 @@ export function ArchitectureIntelligencePageClient() {
             type="button"
             variant="outline"
             data-testid="architecture-intelligence-golden-test-button"
-            disabled={isBusy}
+            disabled={isBusy || blocksLlmExecution}
             onClick={() => void runGoldenTest()}
           >
             {loadingAction === "golden" ? "Running golden test…" : "Run golden test"}
@@ -697,7 +742,7 @@ export function ArchitectureIntelligencePageClient() {
             type="button"
             variant="outline"
             data-testid="architecture-intelligence-publish-button"
-            disabled={isBusy || activeRunId === null}
+            disabled={isBusy || activeRunId === null || blocksLlmExecution}
             onClick={() => void publishRun()}
           >
             {loadingAction === "publish" ? "Publishing…" : "Publish to findings/advisory"}
@@ -800,7 +845,7 @@ function ArchitectureIntelligenceReasoningResults(props: ArchitectureIntelligenc
             OPERATOR_TYPOGRAPHY.body,
           )}
         >
-          Token budget rejected: {props.result.budgetRejectReason ?? "Review tier estimated-token budget exceeded."}
+          Analysis not started: {props.result.budgetRejectReason ?? "Pre-flight AI budget admission rejected this analysis."}
         </p>
       ) : null}
 
@@ -814,9 +859,7 @@ function ArchitectureIntelligenceReasoningResults(props: ArchitectureIntelligenc
         {props.result.cacheHit
           ? `Cache hit${props.result.cacheReuseReason ? ` (${props.result.cacheReuseReason})` : ""}`
           : "Cache miss"}
-        {typeof props.result.budgetEstimatedTokens === "number" && typeof props.result.budgetMaxTokens === "number"
-          ? ` · Est. tokens ${props.result.budgetEstimatedTokens}/${props.result.budgetMaxTokens}`
-          : ""}
+        {formatReasoningSpendSummary(props.result)}
       </p>
 
       <ArchitectureIntelligenceProductRoundTrip

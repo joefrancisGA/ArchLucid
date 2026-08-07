@@ -4,13 +4,13 @@ public sealed class ArchitectureIntelligenceBudgetDecision
 {
     private ArchitectureIntelligenceBudgetDecision(
         bool permitted,
-        int estimatedTokens,
-        int maxTokens,
+        ArchitectureIntelligenceBudgetEstimate estimate,
         string? rejectReason)
     {
+        ArgumentNullException.ThrowIfNull(estimate);
+
         Permitted = permitted;
-        EstimatedTokens = estimatedTokens;
-        MaxTokens = maxTokens;
+        Estimate = estimate;
         RejectReason = rejectReason;
     }
 
@@ -19,12 +19,7 @@ public sealed class ArchitectureIntelligenceBudgetDecision
         get;
     }
 
-    public int EstimatedTokens
-    {
-        get;
-    }
-
-    public int MaxTokens
+    public ArchitectureIntelligenceBudgetEstimate Estimate
     {
         get;
     }
@@ -34,12 +29,22 @@ public sealed class ArchitectureIntelligenceBudgetDecision
         get;
     }
 
-    public static ArchitectureIntelligenceBudgetDecision Permit(int estimatedTokens, int maxTokens) =>
-        new(true, estimatedTokens, maxTokens, null);
+    public int EstimatedTokens => Estimate.EstimatedTokens;
+
+    /// <summary>Depth sizing, retained under the original name so existing callers keep compiling.</summary>
+    public int MaxTokens => Estimate.DepthTokenAllowance;
+
+    public decimal? EstimatedCostUsd => Estimate.EstimatedCostUsd;
+
+    public decimal? RemainingBudgetUsd => Estimate.RemainingBudgetUsd;
+
+    public bool BudgetEnforced => Estimate.BudgetEnforced;
+
+    public static ArchitectureIntelligenceBudgetDecision Permit(ArchitectureIntelligenceBudgetEstimate estimate) =>
+        new(true, estimate, null);
 
     public static ArchitectureIntelligenceBudgetDecision Reject(
-        int estimatedTokens,
-        int maxTokens,
+        ArchitectureIntelligenceBudgetEstimate estimate,
         string reason) =>
-        new(false, estimatedTokens, maxTokens, reason);
+        new(false, estimate, reason);
 }

@@ -8,10 +8,14 @@ import { ArchitectureDraftFormFields } from "@/components/architecture/Architect
 import { ArchitectureDraftGuidanceDisclosure } from "@/components/architecture/ArchitectureDraftGuidanceDisclosure";
 import { ArchitectureDraftHandoffBanner } from "@/components/architecture/ArchitectureDraftHandoffBanner";
 import { ArchitectureDraftSaveStatus } from "@/components/architecture/ArchitectureDraftSaveStatus";
+import { AiBudgetSpendNotice } from "@/components/ai-budget/AiBudgetSpendNotice";
+import { DraftIntakeAdvancedSection } from "@/components/draft-intake/DraftIntakeAdvancedSection";
+import { DraftIntakeReasoningPanel } from "@/components/draft-intake/DraftIntakeReasoningPanel";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useArchitectureDraftAutosave, type ArchitectureDraftSaveState } from "@/hooks/use-architecture-draft-autosave";
+import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { SOFT_NAVIGATION_TIMEOUT_MS } from "@/hooks/use-soft-navigation-loading";
 import { useUnsavedChangesGuard } from "@/hooks/use-unsaved-changes-guard";
 import {
@@ -63,6 +67,7 @@ type ArchitectureDraftWorkspaceProps = {
 export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProps): React.JSX.Element {
   const router = useRouter();
   const isNewDraft = isArchitectureNewDraftSegment(props.architectureId);
+  const { blocksLlmExecution } = useLlmMonthlyBudgetExecutionGate();
   const [loading, setLoading] = useState(!isNewDraft);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [draft, setDraft] = useState<DraftRequestResponse | null>(null);
@@ -80,6 +85,8 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
 
   const linkedReviewId = architectureDraftSpawnedRunId(draft);
   const handoffEditorLocked = linkedReviewId !== null && !handoffAcknowledged;
+  // Reasoning needs a real draft id — unavailable on /new until the first deferred create succeeds.
+  const refinementDraftId = draft?.draftId?.trim() || (isNewDraft ? null : props.architectureId.trim() || null);
 
   const handleDraftCreated = useCallback(
     (draftId: string) => {
@@ -368,6 +375,20 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
           />
         </CardContent>
       </Card>
+
+      {refinementDraftId !== null && !handoffEditorLocked ? (
+        <DraftIntakeAdvancedSection defaultOpen={false}>
+          <AiBudgetSpendNotice
+            action="Draft reasoning"
+            testId="architecture-draft-ai-budget-notice"
+          />
+          <DraftIntakeReasoningPanel
+            draftId={refinementDraftId}
+            disabled={exitPending || blocksLlmExecution}
+            embedded
+          />
+        </DraftIntakeAdvancedSection>
+      ) : null}
 
       <div className="flex flex-wrap gap-2">
         {linkedReviewId !== null ? (

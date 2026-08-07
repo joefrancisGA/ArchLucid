@@ -6237,6 +6237,18 @@
           "adversarial": {
             "$ref": "#/components/schemas/AdversarialReviewResult"
           },
+          "budgetEnforced": {
+            "type": "boolean"
+          },
+          "budgetEstimatedCostUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
           "budgetEstimatedTokens": {
             "format": "int32",
             "type": "integer"
@@ -6253,6 +6265,15 @@
           },
           "budgetRejected": {
             "type": "boolean"
+          },
+          "budgetRemainingUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
           },
           "cacheHit": {
             "type": "boolean"

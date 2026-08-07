@@ -86,20 +86,11 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
             request.RunId = Guid.NewGuid().ToString("N");
         }
 
-        ArchitectureIntelligenceBudgetDecision budget = _tierBudgetGuard.Evaluate(request);
+        ArchitectureIntelligenceBudgetDecision budget = await _tierBudgetGuard.EvaluateAsync(request, cancellationToken);
 
         if (!budget.Permitted)
         {
-            return new ClosedLoopReasoningResult
-            {
-                RunId = request.RunId,
-                BudgetRejected = true,
-                BudgetRejectReason = budget.RejectReason,
-                BudgetEstimatedTokens = budget.EstimatedTokens,
-                BudgetMaxTokens = budget.MaxTokens,
-                PublishBlocked = true,
-                PublishBlockReasons = [budget.RejectReason ?? "Review tier token budget exceeded."],
-            };
+            return ArchitectureIntelligenceBudgetResultApplier.CreateRejected(request.RunId, budget);
         }
 
         ReviewCacheDependencyManifest? cacheManifest = null;
@@ -113,8 +104,7 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
             {
                 cached.CacheHit = true;
                 cached.CacheReuseReason = cacheManifest.ReuseReason ?? "dependency-manifest-match";
-                cached.BudgetEstimatedTokens = budget.EstimatedTokens;
-                cached.BudgetMaxTokens = budget.MaxTokens;
+                ArchitectureIntelligenceBudgetResultApplier.Apply(cached, budget);
 
                 if (request.PublishToProduct && !cached.PublishedToProduct)
                 {
@@ -284,8 +274,6 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
             IntegrityPassedFindingIds = publishDecision.IntegrityPassedFindingIds.ToList(),
             RunId = request.RunId,
             ModelId = model.ModelId,
-            BudgetEstimatedTokens = budget.EstimatedTokens,
-            BudgetMaxTokens = budget.MaxTokens,
             ProductFindings = ArchitectureIntelligenceProductBridge.ToFindings(
                 publishDecision.PublishableFindings,
                 validationByFindingId),
@@ -297,6 +285,8 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
                 projectId,
                 request.RunId),
         };
+
+        ArchitectureIntelligenceBudgetResultApplier.Apply(result, budget);
 
         if (request.PublishToProduct)
         {

@@ -5,6 +5,26 @@ import { ArchitectureIntelligencePageClient } from "./ArchitectureIntelligencePa
 
 const searchParamsGet = vi.fn<(key: string) => string | null>(() => null);
 
+vi.mock("@/hooks/use-llm-monthly-budget-execution-gate", () => ({
+  useLlmMonthlyBudgetExecutionGate: () => ({
+    loading: false,
+    status: {
+      monthlyBudgetMonitoringActive: true,
+      blocksAdditionalLlmExecution: false,
+      utcMonth: "2026-08",
+      hardCutoffUsdPerUtcMonth: 75,
+      effectiveHardCapUsd: 75,
+      purchasedCapBumpUsd: 0,
+      estimatedUsdPressure: 25,
+      assumedNextCallReservationUsd: 0.5,
+      hardCapUtilizationFraction: 0.33,
+      warnFraction: 0.75,
+      remainingBudgetUsd: 50,
+    },
+    blocksLlmExecution: false,
+  }),
+}));
+
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
 
@@ -49,6 +69,10 @@ describe("ArchitectureIntelligencePageClient", () => {
     expect(screen.getByRole("button", { name: "Publish to findings/advisory" })).toBeInTheDocument();
     expect(screen.getByTestId("architecture-intelligence-publish-toggle")).toBeInTheDocument();
     expect(screen.getByTestId("architecture-intelligence-review-tier")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-intelligence-depth-hint")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-intelligence-budget-notice")).toHaveTextContent(
+      "Architecture reasoning uses AI budget.",
+    );
     expect(screen.queryByTestId("architecture-intelligence-analyze-review-button")).not.toBeInTheDocument();
   });
 

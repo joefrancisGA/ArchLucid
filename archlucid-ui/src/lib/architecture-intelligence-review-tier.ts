@@ -15,11 +15,11 @@ export function architectureIntelligenceReviewTierLabel(
 ): string {
   switch (tier) {
     case "Trial":
-      return "Trial (lowest token budget)";
+      return "Light (fewest specialist roles, lowest cost)";
     case "Standard":
       return "Standard (default)";
     case "Deep":
-      return "Deep (highest token budget)";
+      return "Deep (most specialist roles, highest cost)";
     default: {
       const _exhaustive: never = tier;
       return _exhaustive;

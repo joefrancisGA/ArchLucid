@@ -3,11 +3,13 @@
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 
+import { AiBudgetSpendNotice } from "@/components/ai-budget/AiBudgetSpendNotice";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AiOutputGovernanceLabel } from "@/components/AiOutputGovernanceLabel";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { generateHolisticCritique } from "@/lib/api/holistic-critic-api";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -20,6 +22,7 @@ export type RunDetailHolisticCriticPanelProps = {
 
 export function RunDetailHolisticCriticPanel(props: RunDetailHolisticCriticPanelProps) {
   const { runId, hasGoldenManifest } = props;
+  const { blocksLlmExecution } = useLlmMonthlyBudgetExecutionGate();
 
   const [focus, setFocus] = useState("");
   const [busy, setBusy] = useState(false);
@@ -42,6 +45,7 @@ export function RunDetailHolisticCriticPanel(props: RunDetailHolisticCriticPanel
         </p>
       </CardHeader>
       <CardContent className="space-y-3 pt-0">
+        <AiBudgetSpendNotice action="Holistic critique" testId="holistic-critic-budget-notice" />
         <div className="space-y-1">
           <label htmlFor="holistic-critic-focus" className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
             Optional focus (security, cost, reliability…)
@@ -50,7 +54,7 @@ export function RunDetailHolisticCriticPanel(props: RunDetailHolisticCriticPanel
             id="holistic-critic-focus"
             value={focus}
             onChange={(e) => setFocus(e.target.value)}
-            disabled={busy}
+            disabled={busy || blocksLlmExecution}
             placeholder="Example: disaster recovery and regional failover"
             data-testid="holistic-critic-focus"
           />
@@ -58,7 +62,7 @@ export function RunDetailHolisticCriticPanel(props: RunDetailHolisticCriticPanel
         <Button
           type="button"
           size="sm"
-          disabled={busy || runId.trim().length === 0}
+          disabled={busy || blocksLlmExecution || runId.trim().length === 0}
           data-testid="holistic-critic-generate"
           onClick={() => {
             void (async () => {

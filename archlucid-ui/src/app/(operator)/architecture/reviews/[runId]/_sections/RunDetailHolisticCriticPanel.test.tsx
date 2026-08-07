@@ -7,6 +7,26 @@ vi.mock("@/lib/api/holistic-critic-api", () => ({
   generateHolisticCritique: vi.fn(),
 }));
 
+vi.mock("@/hooks/use-llm-monthly-budget-execution-gate", () => ({
+  useLlmMonthlyBudgetExecutionGate: () => ({
+    loading: false,
+    status: {
+      monthlyBudgetMonitoringActive: true,
+      blocksAdditionalLlmExecution: false,
+      utcMonth: "2026-08",
+      hardCutoffUsdPerUtcMonth: 75,
+      effectiveHardCapUsd: 75,
+      purchasedCapBumpUsd: 0,
+      estimatedUsdPressure: 25,
+      assumedNextCallReservationUsd: 0.5,
+      hardCapUtilizationFraction: 0.33,
+      warnFraction: 0.75,
+      remainingBudgetUsd: 50,
+    },
+    blocksLlmExecution: false,
+  }),
+}));
+
 describe("RunDetailHolisticCriticPanel", () => {
   it("renders nothing when the review is not committed", () => {
     const { container } = render(
@@ -24,6 +44,10 @@ describe("RunDetailHolisticCriticPanel", () => {
     });
 
     render(<RunDetailHolisticCriticPanel runId="run-1" hasGoldenManifest={true} />);
+
+    expect(screen.getByTestId("holistic-critic-budget-notice")).toHaveTextContent(
+      "Holistic critique uses AI budget.",
+    );
 
     screen.getByTestId("holistic-critic-generate").click();
 

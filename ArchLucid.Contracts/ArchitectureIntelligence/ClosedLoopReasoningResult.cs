@@ -157,7 +157,7 @@ public class ClosedLoopReasoningResult
         set;
     }
 
-    /// <summary>True when the pre-flight per-tier token budget rejected the run.</summary>
+    /// <summary>True when pre-flight admission rejected the run on analysis depth or remaining AI budget.</summary>
     public bool BudgetRejected
     {
         get;
@@ -177,6 +177,27 @@ public class ClosedLoopReasoningResult
     }
 
     public int BudgetMaxTokens
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Estimated pre-tax cost of this analysis, or null when no LLM cost rates are configured.</summary>
+    public decimal? BudgetEstimatedCostUsd
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Tenant AI budget left this UTC month, or null when no budget policy resolved.</summary>
+    public decimal? BudgetRemainingUsd
+    {
+        get;
+        set;
+    }
+
+    /// <summary>True when both a cost estimate and a remaining balance were available for the USD comparison.</summary>
+    public bool BudgetEnforced
     {
         get;
         set;

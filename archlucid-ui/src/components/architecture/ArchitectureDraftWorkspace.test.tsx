@@ -36,6 +36,30 @@ vi.mock("@/hooks/use-unsaved-changes-guard", () => ({
   useUnsavedChangesGuard: vi.fn(),
 }));
 
+vi.mock("@/hooks/use-llm-monthly-budget-execution-gate", () => ({
+  useLlmMonthlyBudgetExecutionGate: () => ({
+    loading: false,
+    status: {
+      monthlyBudgetMonitoringActive: true,
+      blocksAdditionalLlmExecution: false,
+      utcMonth: "2026-08",
+      hardCutoffUsdPerUtcMonth: 75,
+      effectiveHardCapUsd: 75,
+      purchasedCapBumpUsd: 0,
+      estimatedUsdPressure: 25,
+      assumedNextCallReservationUsd: 0.5,
+      hardCapUtilizationFraction: 0.33,
+      warnFraction: 0.75,
+      remainingBudgetUsd: 50,
+    },
+    blocksLlmExecution: false,
+  }),
+}));
+
+vi.mock("@/components/draft-intake/DraftIntakeReasoningPanel", () => ({
+  DraftIntakeReasoningPanel: () => <div data-testid="draft-intake-reasoning-stub">Reasoning stub</div>,
+}));
+
 vi.mock("@/lib/architecture-draft-handoff-gate", async () => {
   const actual = await vi.importActual<typeof import("@/lib/architecture-draft-handoff-gate")>(
     "@/lib/architecture-draft-handoff-gate",
@@ -111,6 +135,22 @@ describe("ArchitectureDraftWorkspace", () => {
         ARCHITECTURE_DRAFT_WORKSPACE_LEAD,
       );
     });
+
+    expect(screen.getByTestId("draft-intake-advanced-section")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-draft-ai-budget-notice")).toHaveTextContent(
+      "Draft reasoning uses AI budget.",
+    );
+    expect(screen.getByTestId("draft-intake-reasoning-stub")).toBeInTheDocument();
+  });
+
+  it("hides AI refinement while the post-spawn handoff lock is active", async () => {
+    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-draft-handoff-banner")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("draft-intake-advanced-section")).not.toBeInTheDocument();
   });
 
   it("locks the editor and promotes the linked review when a draft already spawned a review", async () => {

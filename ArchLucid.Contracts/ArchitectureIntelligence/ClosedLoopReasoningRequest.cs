@@ -76,7 +76,9 @@ public class ClosedLoopReasoningRequest
     }
 
     /// <summary>
-    /// Review depth for TB-1992 per-tier estimated-token budgets. Defaults to <see cref="ArchitectureIntelligenceReviewTier.Standard"/>.
+    /// Analysis depth (TB-1992): how many specialist roles run and how large an input the run is sized for.
+    /// Spend is capped in USD against the tenant AI budget, not by this value.
+    /// Defaults to <see cref="ArchitectureIntelligenceReviewTier.Standard"/>.
     /// </summary>
     public ArchitectureIntelligenceReviewTier ReviewTier
     {
