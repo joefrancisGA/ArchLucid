@@ -56,6 +56,11 @@ const ALLOWLIST: readonly {
     configureHref: "/architecture/reviews/new",
   },
   {
+    pathname: "/help/admin-diagnostics",
+    nextHref: "/administration/system-health",
+    configureHref: "/help/developer-troubleshooting",
+  },
+  {
     pathname: "/governance/approval-requests/sample/lineage",
     nextHref: GOVERNANCE_APPROVAL_QUEUE_PATH,
   },

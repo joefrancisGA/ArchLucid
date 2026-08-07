@@ -48,6 +48,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "accelerator-chooser", label: "Accelerator chooser" },
   },
   {
+    prefix: "/help/admin-diagnostics",
+    topic: { slug: "admin-diagnostics", label: "Admin diagnostics" },
+  },
+  {
     prefix: "/help/how-it-works",
     topic: { slug: "getting-started", label: "Getting started" },
   },

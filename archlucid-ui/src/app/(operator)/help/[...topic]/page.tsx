@@ -21,6 +21,7 @@ import { HelpPilotGuideView } from "../_sections/HelpPilotGuideView";
 import { HelpConfigurationReferenceGuideView } from "../_sections/HelpConfigurationReferenceGuideView";
 import { SecurityTrustHelpEvidenceOrientationStrip } from "../_sections/SecurityTrustHelpEvidenceOrientationStrip";
 import { AcceleratorChooserHelpEvidenceOrientationStrip } from "../_sections/AcceleratorChooserHelpEvidenceOrientationStrip";
+import { AdminDiagnosticsHelpEvidenceOrientationStrip } from "../_sections/AdminDiagnosticsHelpEvidenceOrientationStrip";
 import { ScopeHelpEvidenceOrientationStrip } from "../_sections/ScopeHelpEvidenceOrientationStrip";
 import { ProcurementHelpEvidenceOrientationStrip } from "../_sections/ProcurementHelpEvidenceOrientationStrip";
 import { EvidenceTrailHelpEvidenceOrientationStrip } from "../_sections/EvidenceTrailHelpEvidenceOrientationStrip";
@@ -269,6 +270,17 @@ function renderHelpTopicView(
         markdown={loaded.markdown}
         showContextualHelp
         evidenceOrientation={<AcceleratorChooserHelpEvidenceOrientationStrip />}
+      />
+    );
+  }
+
+  if (loaded.entry.slug === "admin-diagnostics") {
+    return (
+      <HelpTopicMarkdownView
+        entry={loaded.entry}
+        markdown={loaded.markdown}
+        showContextualHelp
+        evidenceOrientation={<AdminDiagnosticsHelpEvidenceOrientationStrip />}
       />
     );
   }

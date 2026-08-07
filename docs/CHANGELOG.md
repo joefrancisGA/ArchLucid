@@ -14,6 +14,10 @@ Release entries newest-first. Each section condenses the detailed prompt logs pr
 
 Authority finalize no longer runs `IDecisionEngineV2` node persistence synchronously. `DecisionEngineV2NodeMaterialization` post-commit outbox work enqueues on every successful commit; `DecisionEngineV2NodeMaterializer` idempotently populates `GET /v1/architecture/review/{runId}/decisions` after the outbox drains.
 
+## 2026-08-07 - UI: Admin diagnostics help Evidence chrome (HAE)
+
+`/help/admin-diagnostics` ships AdminDiagnosticsHelpEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map admin-diagnostics, traffic Notes under Help topic (row ID HAE), and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-06 - UI: Accelerator chooser help Evidence chrome (HAX)
 
 `/help/accelerator-chooser` ships AcceleratorChooserHelpEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map accelerator-chooser, traffic Notes under Help topic (row ID HAX), and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.

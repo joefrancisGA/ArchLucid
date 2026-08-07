@@ -821,6 +821,26 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/help/admin-diagnostics",
+    entry: {
+      whatIsThisPage:
+        "Admin diagnostics — system status, workspace readiness, assistant diagnostics, and observability signals for platform health.",
+      whatToDoNext:
+        "Open System health for live probes, or Engineering troubleshooting when CLI and log triage are required.",
+      whyEmpty: "This guide is always available; live probe tiles appear on System health after the workspace responds.",
+      whereToConfigurePrerequisite:
+        "Deep diagnostics often require ArchLucid personnel or admin roles; customer tenants use Troubleshooting first.",
+      whatToDoNextAction: {
+        label: "Open System health",
+        href: "/administration/system-health",
+      },
+      whereToConfigureAction: {
+        label: "Open Engineering troubleshooting",
+        href: "/help/developer-troubleshooting",
+      },
+    },
+  },
+  {
     prefix: "/help/getting-started",
     entry: {
       whatIsThisPage:
