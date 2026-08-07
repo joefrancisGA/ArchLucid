@@ -7,6 +7,7 @@ using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Application.Runs.Orchestration.Events;
 using ArchLucid.Application.Runs.Sample;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Configuration;
@@ -46,31 +47,46 @@ public sealed class PostCommitProjectionOutboxProcessor(
     public async Task<int> ProcessPendingBatchAsync(CancellationToken ct)
     {
         PostCommitProjectionOutboxProcessorOptions opts = VerifiedOptions(_processorOptions.Value);
+        int maxConcurrent = Math.Clamp(opts.MaxConcurrentBatchEntries, 1, MaxBatch);
 
+        using IServiceScope dequeueScope = _scopeFactory.CreateScope();
+        IPostCommitProjectionOutboxRepository outbox =
+            dequeueScope.ServiceProvider.GetRequiredService<IPostCommitProjectionOutboxRepository>();
+
+        IReadOnlyList<PostCommitProjectionOutboxEntry> batch =
+            await outbox.DequeuePendingAsync(MaxBatch, opts.LeaseDurationSeconds, ct).ConfigureAwait(false);
+
+        await BoundedBatchParallelism.ForEachAsync(
+            batch,
+            maxConcurrent,
+            (entry, token) => ProcessEntryWithIsolationAsync(entry, opts, token),
+            ct).ConfigureAwait(false);
+
+        return batch.Count;
+    }
+
+    private async Task ProcessEntryWithIsolationAsync(
+        PostCommitProjectionOutboxEntry entry,
+        PostCommitProjectionOutboxProcessorOptions opts,
+        CancellationToken ct)
+    {
         using IServiceScope scope = _scopeFactory.CreateScope();
         IPostCommitProjectionOutboxRepository outbox =
             scope.ServiceProvider.GetRequiredService<IPostCommitProjectionOutboxRepository>();
         IAuditService auditService = scope.ServiceProvider.GetRequiredService<IAuditService>();
 
-        IReadOnlyList<PostCommitProjectionOutboxEntry> batch =
-            await outbox.DequeuePendingAsync(MaxBatch, opts.LeaseDurationSeconds, ct);
-
-        foreach (PostCommitProjectionOutboxEntry entry in batch)
-
-            try
-            {
-                await ProcessEntryAsync(scope, outbox, auditService, entry, ct);
-            }
-            catch (OperationCanceledException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                await OnProcessingFailedAsync(outbox, auditService, entry, ex, opts, ct);
-            }
-
-        return batch.Count;
+        try
+        {
+            await ProcessEntryAsync(scope, outbox, auditService, entry, ct).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            await OnProcessingFailedAsync(outbox, auditService, entry, ex, opts, ct).ConfigureAwait(false);
+        }
     }
 
     private async Task ProcessEntryAsync(
@@ -326,6 +342,7 @@ public sealed class PostCommitProjectionOutboxProcessor(
         int maxAttempts = ClampInt(configured.MaxAttemptsBeforeDeadLetter, 1, 999);
         int baseSecs = ClampInt(configured.RetryBackoffBaseSeconds, 1, 86_400);
         int maxSecs = ClampInt(configured.RetryBackoffMaxSeconds, 1, 86_400 * 7);
+        int maxConcurrent = ClampInt(configured.MaxConcurrentBatchEntries, 1, MaxBatch);
 
         if (maxSecs < baseSecs)
             maxSecs = baseSecs;
@@ -336,6 +353,7 @@ public sealed class PostCommitProjectionOutboxProcessor(
             MaxAttemptsBeforeDeadLetter = maxAttempts,
             RetryBackoffBaseSeconds = baseSecs,
             RetryBackoffMaxSeconds = maxSecs,
+            MaxConcurrentBatchEntries = maxConcurrent,
         };
     }
 

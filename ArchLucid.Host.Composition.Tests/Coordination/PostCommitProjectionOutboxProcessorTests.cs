@@ -188,4 +188,92 @@ public sealed class PostCommitProjectionOutboxProcessorTests
             Times.Once);
         outbox.Verify(o => o.MarkProcessedAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
     }
+
+    [Fact]
+    public async Task ProcessPendingBatchAsync_creates_isolated_scope_per_dequeued_entry()
+    {
+        Guid runId = Guid.NewGuid();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
+        };
+
+        List<PostCommitProjectionOutboxEntry> entries =
+        [
+            new()
+            {
+                OutboxId = Guid.NewGuid(),
+                WorkType = PostCommitProjectionWorkTypes.ProvenanceSnapshotMaterialization,
+                RunId = runId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime()
+            },
+            new()
+            {
+                OutboxId = Guid.NewGuid(),
+                WorkType = PostCommitProjectionWorkTypes.ProvenanceSnapshotMaterialization,
+                RunId = runId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime()
+            },
+            new()
+            {
+                OutboxId = Guid.NewGuid(),
+                WorkType = PostCommitProjectionWorkTypes.ProvenanceSnapshotMaterialization,
+                RunId = runId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime()
+            },
+        ];
+
+        Mock<IPostCommitProjectionOutboxRepository> outbox = new();
+        outbox
+            .Setup(o => o.DequeuePendingAsync(25, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(entries);
+        outbox
+            .Setup(o => o.MarkProcessedAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IAuthorityQueryService> authorityQuery = new();
+        authorityQuery
+            .Setup(q => q.GetRunDetailAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunDetailDto?)null);
+
+        ServiceCollection services = [];
+        services.AddScoped(_ => outbox.Object);
+        services.AddScoped(_ => authorityQuery.Object);
+        services.AddScoped(_ => Mock.Of<IProvenanceGraphAccessService>());
+        services.AddScoped(_ => Mock.Of<IAuditService>());
+        ServiceProvider provider = services.BuildServiceProvider();
+
+        int scopeCreates = 0;
+        Mock<IServiceScopeFactory> scopeFactory = new();
+        scopeFactory.Setup(f => f.CreateScope()).Returns(() =>
+        {
+            Interlocked.Increment(ref scopeCreates);
+            Mock<IServiceScope> entryScope = new();
+            entryScope.Setup(s => s.ServiceProvider).Returns(provider);
+            entryScope.Setup(s => s.Dispose());
+            return entryScope.Object;
+        });
+
+        PostCommitProjectionOutboxProcessor sut = new(
+            scopeFactory.Object,
+            Options.Create(new PostCommitProjectionOutboxProcessorOptions { MaxConcurrentBatchEntries = 3 }),
+            TimeProvider.System,
+            NullLogger<PostCommitProjectionOutboxProcessor>.Instance);
+
+        await sut.ProcessPendingBatchAsync(CancellationToken.None);
+
+        scopeCreates.Should().BeGreaterOrEqualTo(entries.Count + 1);
+        outbox.Verify(o => o.MarkProcessedAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Exactly(entries.Count));
+    }
 }
