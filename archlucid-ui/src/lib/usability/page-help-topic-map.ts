@@ -24,10 +24,11 @@ export type PageHelpTopic = {
   readonly label: string;
 };
 
-/** First-run / onboarding / help-topic paths allowed to keep `getting-started` Learn more. */
+/** First-run / onboarding / help-topic paths allowed to keep `getting-started` or `how-it-works` Learn more. */
 export const PAGE_HELP_FIRST_RUN_GENERIC_LEARN_MORE_ALLOWLIST_PREFIXES = [
   "/architecture/first-review-guide",
   "/help/getting-started",
+  "/help/how-it-works",
   ARCHITECTURES_LIST_PATH,
   "/architectures",
   "/help",
@@ -68,6 +69,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "comparison-replay", label: "Compare and replay" },
   },
   {
+    prefix: "/help/how-it-works",
+    topic: { slug: "getting-started", label: "Getting started" },
+  },
+  {
     prefix: "/help/troubleshooting",
     topic: { slug: "troubleshooting", label: "Troubleshooting" },
   },
@@ -99,7 +104,14 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     prefix: "/help/core-pilot",
     topic: { slug: "first-architecture-review", label: "Your first architecture review" },
   },
-
+  {
+    prefix: "/help/first-pilot-path",
+    topic: { slug: "first-architecture-review", label: "Your first architecture review" },
+  },
+  {
+    prefix: "/help/first-hour-operator-path",
+    topic: { slug: "first-architecture-review", label: "Your first architecture review" },
+  },
   {
     prefix: "/help/cloud-connections/azure",
     topic: { slug: "cloud-connections-azure", label: "Connect Azure securely" },
@@ -123,6 +135,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   {
     prefix: "/help/cloud-connections",
     topic: { slug: "cloud-connections", label: "Cloud connections" },
+  },
+  {
+    prefix: "/help/operator-auth-roles",
+    topic: { slug: "users-and-roles", label: "Users and roles" },
   },
   {
     prefix: "/help/users-and-roles",
@@ -222,9 +238,9 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "pilot-feedback", label: "Pilot feedback" },
   },
   {
-    // Learning / product-orientation allowlist — getting-started matches the page job (TB-2050).
+    // Learning / product-orientation allowlist — how-it-works matches the page job (TB-2050).
     prefix: "/why-archlucid",
-    topic: { slug: "getting-started", label: "Why ArchLucid" },
+    topic: { slug: "how-it-works", label: "Why ArchLucid" },
   },
   {
     prefix: "/demo/explain",
@@ -259,6 +275,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "evidence-intake", label: "Start a review" },
   },
   {
+    prefix: "/help/data-handling-tenant-isolation",
+    topic: { slug: "data-handling-tenant-isolation", label: "Data handling and tenant isolation" },
+  },
+  {
     prefix: "/help/dpa-template",
     topic: { slug: "dpa-template", label: "Data Processing Agreement (template)" },
   },
@@ -268,6 +288,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/help/path-chooser",
+    topic: { slug: "path-chooser", label: "Choose your next step" },
+  },
+  {
+    prefix: "/help/evaluator-workbook",
     topic: { slug: "path-chooser", label: "Choose your next step" },
   },
   {
@@ -304,6 +328,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/help/governance-api-contracts",
+    topic: { slug: "governance-api-contracts", label: "API contracts (technical reference)" },
+  },
+  {
+    prefix: "/help/api-contracts",
     topic: { slug: "governance-api-contracts", label: "API contracts (technical reference)" },
   },
   {
@@ -427,7 +455,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/administration/model-governance",
-    topic: { slug: "getting-started", label: "AI and model governance" },
+    topic: { slug: "how-it-works", label: "AI and model governance" },
   },
   {
     prefix: "/administration/users/invite-reviewer",

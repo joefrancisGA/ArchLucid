@@ -167,7 +167,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
-    prefix: "/help/data-handling",
+    prefix: "/help/data-handling-tenant-isolation",
     entry: {
       whatIsThisPage:
         "Explain how review evidence is handled, what stays in your tenant, and how three-layer isolation works.",
@@ -202,6 +202,17 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
   },
   {
     prefix: "/help/path-chooser",
+    entry: {
+      whatIsThisPage:
+        "Map your current goal to one primary next action for evaluate, pilot, procurement, sponsor, or engineering support.",
+      whatToDoNext:
+        "Pick the matching goal branch, open the primary cite, then use Sources before treating orientation as diligence.",
+      whyEmpty: "Branches always appear when this help topic loads.",
+      whereToConfigurePrerequisite: "Start or finalize a review when your goal needs product evidence, not just orientation.",
+    },
+  },
+  {
+    prefix: "/help/evaluator-workbook",
     entry: {
       whatIsThisPage:
         "Map your current goal to one primary next action for evaluate, pilot, procurement, sponsor, or engineering support.",
@@ -911,6 +922,19 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    // Alias URL still reachable; canon topic is getting-started (how-it-works fold).
+    prefix: "/help/how-it-works",
+    entry: {
+      whatIsThisPage:
+        "Getting started — how ArchLucid turns evidence into findings, decisions, and governance-ready review outputs (includes How ArchLucid works).",
+      whatToDoNext:
+        "Start a review, open the sample walkthrough, or pick a path from Choose your next step when you know your goal.",
+      whyEmpty: "This guide is always available; review metrics appear after you create or finalize reviews.",
+      whereToConfigurePrerequisite:
+        "Choose a workspace in the header scope switcher before starting a real (non-sample) review.",
+    },
+  },
+  {
     prefix: "/help/troubleshooting",
     entry: {
       whatIsThisPage:
@@ -1091,8 +1115,31 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
-    /** Legacy slug alias — same Category-1 copy as first-architecture-review (ECO / COR). */
     prefix: "/help/core-pilot",
+    entry: {
+      whatIsThisPage:
+        "Your first architecture review — guided path from evidence intake to a finalized package and sponsor-ready exports.",
+      whatToDoNext:
+        "Start an architecture review from the hero CTA, or open the sample review when you want a completed outcome first.",
+      whyEmpty: "This guide is always available; live architecture reviews appear after you create them.",
+      whereToConfigurePrerequisite:
+        "Creating reviews needs a role that can start architecture reviews in this workspace.",
+    },
+  },
+  {
+    prefix: "/help/first-pilot-path",
+    entry: {
+      whatIsThisPage:
+        "Your first architecture review — guided path from evidence intake to a finalized package and sponsor-ready exports.",
+      whatToDoNext:
+        "Start an architecture review from the hero CTA, or open the sample review when you want a completed outcome first.",
+      whyEmpty: "This guide is always available; live architecture reviews appear after you create them.",
+      whereToConfigurePrerequisite:
+        "Creating reviews needs a role that can start architecture reviews in this workspace.",
+    },
+  },
+  {
+    prefix: "/help/first-hour-operator-path",
     entry: {
       whatIsThisPage:
         "Your first architecture review — guided path from evidence intake to a finalized package and sponsor-ready exports.",
@@ -1177,6 +1224,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whyEmpty: "Glossary terms are always listed; search filters the catalog without needing a live review.",
       whereToConfigurePrerequisite:
         "No configuration is required — this page is orientation vocabulary only.",
+    },
+  },
+  {
+    prefix: "/help/operator-auth-roles",
+    entry: {
+      whatIsThisPage:
+        "Users and roles — ArchLucid app roles, capabilities, and how operators invite teammates (alias of users-and-roles).",
+      whatToDoNext:
+        "Open Users settings to invite or assign roles, or Assurance status when you need assurance orientation.",
+      whyEmpty: "This guide is always available; live directory rows appear after users are invited or provisioned.",
+      whereToConfigurePrerequisite:
+        "Managing users needs Admin authority; SSO may be required before invited users can sign in.",
     },
   },
   {
