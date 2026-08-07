@@ -8,6 +8,15 @@ describe("next.config administration routes (TB-406 / TB-522 / TB-751)", () => {
 
     expect(redirectRules).toBeDefined();
 
+    expect(redirectRules?.some((rule) => rule.source === "/administration" && rule.destination === "/administration")).toBe(
+      false,
+    );
+    expect(
+      redirectRules?.some(
+        (rule) => rule.source === "/administration/:path*" && rule.destination === "/administration/:path*",
+      ),
+    ).toBe(false);
+
     expect(
       redirectRules?.find(
         (rule) =>
@@ -99,6 +108,14 @@ describe("next.config administration routes (TB-406 / TB-522 / TB-751)", () => {
           rule.source === "/administration/support" || rule.source === "/administration/support/:path*",
       ),
     ).toBe(false);
+  });
+
+  it("redirects legacy /dashboard to the canonical executive dashboard", async () => {
+    const redirectRules = await nextConfig.redirects?.();
+
+    expect(redirectRules?.find((rule) => rule.source === "/dashboard")?.destination).toBe(
+      "/architecture/executive-dashboard",
+    );
   });
 
   it("does not ship a redirect for retired /recommendation-learning bookmark", async () => {

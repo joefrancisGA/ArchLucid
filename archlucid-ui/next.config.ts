@@ -137,6 +137,7 @@ const nextConfig: NextConfig = {
       { source: "/architectures", destination: "/architecture/architectures", permanent: true },
       { source: "/architectures/:path*", destination: "/architecture/architectures/:path*", permanent: true },
       // Legacy executive / portfolio bookmarks → architecture executive dashboard.
+      { source: "/dashboard", destination: "/architecture/executive-dashboard", permanent: true },
       { source: "/executive/dashboard", destination: "/architecture/executive-dashboard", permanent: true },
       { source: "/portfolio", destination: "/architecture/executive-dashboard", permanent: true },
       { source: "/signed-records", destination: "/governance/signed-records", permanent: true },
@@ -149,8 +150,6 @@ const nextConfig: NextConfig = {
         destination: "/architecture/digests?tab=subscriptions",
         permanent: true,
       },
-      { source: "/administration", destination: "/administration", permanent: true },
-      { source: "/administration/:path*", destination: "/administration/:path*", permanent: true },
       { source: "/administration/settings", destination: "/administration", permanent: true },
       { source: "/workspace/security-trust", destination: "/administration/security-trust", permanent: true },
       { source: "/admin/users", destination: "/administration/users", permanent: true },

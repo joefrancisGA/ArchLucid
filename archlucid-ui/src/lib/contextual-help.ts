@@ -10,8 +10,8 @@ const PAGE_KEY_TO_DOC_REF: Readonly<Record<string, string>> = {
   "/runs/[id]": "docs/library/customer-facing/WORKSPACE_NAVIGATION_GUIDE.md#main-workflow",
   "/insights/compare-two-reviews": "docs/library/COMPARISON_REPLAY.md",
   "/governance/approval-queue": "docs/library/PRE_COMMIT_GOVERNANCE_GATE.md",
-  "/audit": "docs/library/AUDIT_COVERAGE_MATRIX.md",
-  "/alerts": "docs/library/ALERTS.md",
+  [GOVERNANCE_AUDIT_PATH]: "docs/library/AUDIT_COVERAGE_MATRIX.md",
+  [GOVERNANCE_ALERTS_PATH]: "docs/library/ALERTS.md",
   "/insights/evidence-graph": "docs/library/KNOWLEDGE_GRAPH.md",
 };
 

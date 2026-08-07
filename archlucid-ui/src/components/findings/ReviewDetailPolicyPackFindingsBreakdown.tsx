@@ -7,6 +7,7 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { PolicyPackFindingGroup } from "@/lib/group-findings-by-policy-pack";
 import { resolveReviewDetailPolicyPackHref } from "@/lib/group-findings-by-policy-pack";
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
 import { policyPacksEditHref } from "@/lib/policy-packs-deep-link";
 
 export type ReviewDetailPolicyPackFindingsBreakdownProps = {
@@ -56,7 +57,7 @@ export function ReviewDetailPolicyPackFindingsBreakdown(
 
   const manifestPackHref = resolveReviewDetailPolicyPackHref(manifestRuleSetId);
   const simulateHref =
-    manifestRuleSetId?.trim().length ? policyPacksEditHref(manifestRuleSetId.trim()) : "/policy-packs";
+    manifestRuleSetId?.trim().length ? policyPacksEditHref(manifestRuleSetId.trim()) : GOVERNANCE_POLICY_PACKS_PATH;
 
   return (
     <section
