@@ -279,8 +279,12 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "evidence-intake", label: "Start a review" },
   },
   {
+    prefix: "/help/data-handling",
+    topic: { slug: "data-handling", label: "Data handling and tenant isolation" },
+  },
+  {
     prefix: "/help/data-handling-tenant-isolation",
-    topic: { slug: "data-handling-tenant-isolation", label: "Data handling and tenant isolation" },
+    topic: { slug: "data-handling", label: "Data handling and tenant isolation" },
   },
   {
     prefix: "/help/dpa-template",

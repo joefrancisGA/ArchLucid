@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-07 - UI: Data-handling-tenant-isolation help alias Evidence chrome (HDA)
+
+`/help/data-handling-tenant-isolation` inherits HelpDataHandlingTenantIsolationGuideView Evidence chrome via slug alias → `data-handling` (HED), Category-1 + topic map on the alias path, traffic Notes under Help alias (row ID HDA), and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-07 - UI: Data-handling help Evidence chrome (HED)
 
 `/help/data-handling` strengthens HelpDataHandlingTenantIsolationGuideView claim-discipline + Category-1 on the canon path, traffic Notes under Help topic (row ID HED), and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.
