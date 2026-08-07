@@ -893,6 +893,22 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/help/integration-readiness",
+    entry: {
+      whatIsThisPage:
+        "Integration readiness — which notification, ticketing, publishing, and delivery connectors are ready, recommended, or optional.",
+      whatToDoNext:
+        "Open Connection status for live labels, then configure recommended chat connectors before optional ITSM destinations.",
+      whyEmpty: "This guide is always available; live connector status appears on Connection status after setup.",
+      whereToConfigurePrerequisite:
+        "Connector configuration needs a role that can manage integrations for this workspace.",
+      whatToDoNextAction: {
+        label: "Open Connection status",
+        href: "/administration/connection-status",
+      },
+    },
+  },
+  {
     prefix: "/help/caiq-sig-response",
     entry: {
       whatIsThisPage:

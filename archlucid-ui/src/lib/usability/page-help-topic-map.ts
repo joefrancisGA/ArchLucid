@@ -61,6 +61,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "azure-boards", label: "Azure Boards integration" },
   },
   {
+    prefix: "/help/integration-readiness",
+    topic: { slug: "integration-readiness", label: "Integration readiness" },
+  },
+  {
     prefix: "/help/caiq-sig-response",
     topic: { slug: "caiq-sig-response", label: "CAIQ / SIG questionnaire responses" },
   },

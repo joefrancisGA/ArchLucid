@@ -24,6 +24,7 @@ import { AcceleratorChooserHelpEvidenceOrientationStrip } from "../_sections/Acc
 import { AdminDiagnosticsHelpEvidenceOrientationStrip } from "../_sections/AdminDiagnosticsHelpEvidenceOrientationStrip";
 import { AuthenticationSignInHelpEvidenceOrientationStrip } from "../_sections/AuthenticationSignInHelpEvidenceOrientationStrip";
 import { AzureBoardsHelpEvidenceOrientationStrip } from "../_sections/AzureBoardsHelpEvidenceOrientationStrip";
+import { IntegrationReadinessHelpEvidenceOrientationStrip } from "../_sections/IntegrationReadinessHelpEvidenceOrientationStrip";
 import { CaiqSigResponseHelpEvidenceOrientationStrip } from "../_sections/CaiqSigResponseHelpEvidenceOrientationStrip";
 import { ComparisonReplayHelpEvidenceOrientationStrip } from "../_sections/ComparisonReplayHelpEvidenceOrientationStrip";
 import { ConnectAwsSecurelyHelpEvidenceOrientationStrip } from "../_sections/ConnectAwsSecurelyHelpEvidenceOrientationStrip";
@@ -331,6 +332,17 @@ function renderHelpTopicView(
         markdown={loaded.markdown}
         showContextualHelp
         evidenceOrientation={<AzureBoardsHelpEvidenceOrientationStrip />}
+      />
+    );
+  }
+
+  if (loaded.entry.slug === "integration-readiness") {
+    return (
+      <HelpTopicMarkdownView
+        entry={loaded.entry}
+        markdown={loaded.markdown}
+        showContextualHelp
+        evidenceOrientation={<IntegrationReadinessHelpEvidenceOrientationStrip />}
       />
     );
   }

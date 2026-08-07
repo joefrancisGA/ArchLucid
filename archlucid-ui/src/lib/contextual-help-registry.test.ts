@@ -97,6 +97,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/admin-diagnostics",
       "/help/authentication-sign-in",
       "/help/azure-boards",
+      "/help/integration-readiness",
       "/help/caiq-sig-response",
       "/help/comparison-replay",
       "/help/getting-started",

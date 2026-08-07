@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-07 - UI: Integration readiness help Evidence chrome (HEI)
+
+`/help/integration-readiness` ships IntegrationReadinessHelpEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map integration-readiness, traffic Notes under Help topic (row ID HEI), and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-07 - UI: Executive summary help Evidence chrome (EXE)
 
 `/help/executive-summary` ships ExecutiveSummaryHelpEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map executive-summary, traffic Notes under Help topic (row ID EXE), and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.
