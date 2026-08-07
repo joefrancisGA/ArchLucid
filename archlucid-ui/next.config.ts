@@ -117,15 +117,6 @@ const nextConfig: NextConfig = {
   },
   async rewrites() {
     return [
-      // Legacy digests bookmarks — internal rewrite (no 301 hop); client upgrades pathname for nav.
-      { source: "/digests", destination: "/architecture/digests" },
-      {
-        source: "/digest-subscriptions",
-        destination: "/architecture/digests?tab=subscriptions",
-      },
-      // Legacy exceptions rename — rewrite alias for orientation lookups.
-      { source: "/governance/risk-exceptions", destination: "/governance/exceptions" },
-      { source: "/governance/risk-exceptions/:path*", destination: "/governance/exceptions/:path*" },
       // Friendly demo URL while reusing signed-record detail implementation (`SHOWCASE_STATIC_DEMO_*`).
       // Must precede the generic run-scoped signed-record rewrite below.
       {
@@ -134,7 +125,6 @@ const nextConfig: NextConfig = {
       },
       // Run-scoped signed record deep link lands on the review package (manifest summary section).
       { source: "/architecture/reviews/:id/signed-record", destination: "/architecture/reviews/:id" },
-      { source: "/settings/roles", destination: "/administration/users?tab=roles" },
     ];
   },
 };

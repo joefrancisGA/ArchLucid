@@ -110,24 +110,24 @@ Constants live in `archlucid-ui/src/lib/showcase-static-demo.ts` and `archlucid-
 
 ---
 
-## Legacy URL handling (IA batch 4–6)
+## Legacy URL handling (IA batch 4–7)
 
-`archlucid-ui/next.config.ts` ships **no permanent bookmark redirects**. Use canonical on-disk paths below. Orientation helpers (`canonicalizeLegacyOperatorRoutePath`) still map retired prefixes for help, readiness, and buyer-polish lookups only — registry rows no longer duplicate legacy prefixes (batch 6).
+`archlucid-ui/next.config.ts` ships **no permanent bookmark redirects** and **no bookmark rewrites** (batch 7). Use canonical on-disk paths below. Orientation helpers (`canonicalizeLegacyOperatorRoutePath`) still map retired prefixes for help, readiness, and buyer-polish lookups only.
 
-**Rewrite aliases** (internal — URL may stay on the legacy path until client navigation upgrades it):
+**Rewrite aliases** (product deep links only — not bookmark shims):
 
 | Source | Destination |
 |--------|-------------|
-| `/digests` | `/architecture/digests` |
-| `/digest-subscriptions` | `/architecture/digests?tab=subscriptions` |
-| `/governance/risk-exceptions`, `/governance/risk-exceptions/*` | `/governance/exceptions`, `/governance/exceptions/*` |
-| `/settings/roles` | `/administration/users?tab=roles` |
+| `/architecture/reviews/claims-intake-modernization/signed-record` | `/governance/signed-records/a1c2e3f4-a5b6-7890-abcd-ef1234567890` |
 | `/architecture/reviews/:id/signed-record` | `/architecture/reviews/:id` (run-scoped deep link) |
 
 **Retired bookmarks** (404 — use canonical paths):
 
 | Path | Canonical |
 |------|-----------|
+| `/digests`, `/digest-subscriptions` | `/architecture/digests` (+ `?tab=subscriptions`) |
+| `/governance/risk-exceptions`, `/governance/risk-exceptions/*` | `/governance/exceptions` |
+| `/settings/roles` | `/administration/users?tab=roles` |
 | `/reviews`, `/reviews/*`, `/runs`, `/runs/*` | `/architecture/reviews/*` |
 | `/architectures`, `/architectures/*` | `/architecture/architectures/*` |
 | `/dashboard`, `/executive/dashboard`, `/portfolio` | `/architecture/executive-dashboard` |

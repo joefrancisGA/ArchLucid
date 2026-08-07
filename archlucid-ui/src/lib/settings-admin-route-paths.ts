@@ -19,7 +19,7 @@ export const SETTINGS_USERS_ROLES_TAB_PATH = `${SETTINGS_USERS_PATH}?tab=roles`;
 
 export const SETTINGS_USERS_USERS_TAB_PATH = `${SETTINGS_USERS_PATH}?tab=users`;
 
-/** Legacy roles index — rewrite alias for the Roles tab on {@link SETTINGS_USERS_PATH} (no permanent redirect). */
+/** Legacy roles index — retired bookmark; canonical is {@link SETTINGS_USERS_ROLES_TAB_PATH}. */
 export const LEGACY_SETTINGS_ROLES_PATH = "/settings/roles";
 
 export type SettingsUsersTabId = "users" | "roles" | "keys";

@@ -4,10 +4,10 @@ import { digestsHubTabFromSearchParam } from "@/lib/digests-hub-tab";
 /** Canonical Architecture digests hub path (Architecture nav group). */
 export const DIGESTS_HUB_PATH = "/architecture/digests";
 
-/** Legacy top-level path — rewrite alias for {@link DIGESTS_HUB_PATH} (no permanent redirect). */
+/** Legacy top-level path — retired bookmark; canonical is {@link DIGESTS_HUB_PATH} (orientation only). */
 export const LEGACY_DIGESTS_HUB_PATH = "/digests";
 
-/** Legacy subscriptions bookmark — rewrite alias; hub opens the Subscriptions tab from pathname. */
+/** Legacy subscriptions bookmark — retired; canonical is {@link DIGESTS_SUBSCRIPTIONS_TAB_PATH}. */
 export const LEGACY_DIGEST_SUBSCRIPTIONS_PATH = "/digest-subscriptions";
 
 /** Builds a hub tab deep link on the canonical path. */

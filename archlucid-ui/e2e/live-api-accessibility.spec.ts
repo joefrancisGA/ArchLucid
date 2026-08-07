@@ -65,7 +65,6 @@ const PAGES = [
   },
   { name: "Planning", path: "/planning" },
   { name: "Digests", path: "/architecture/digests" },
-  /** Canonical hub URL — `/digest-subscriptions` redirects here and can race axe mid-scan. */
   { name: "Digest subscriptions", path: "/architecture/digests?tab=subscriptions" },
   { name: "Workspace settings", path: "/administration/tenant" },
   { name: "Settings baseline", path: "/administration/baseline" },

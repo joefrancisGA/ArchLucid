@@ -2,44 +2,40 @@ import { describe, expect, it } from "vitest";
 
 import nextConfig from "../../next.config";
 
-describe("operator legacy rewrite routes (IA batch 3)", () => {
-  it("rewrites digests bookmarks without permanent redirects", async () => {
-    const redirectRules = await nextConfig.redirects?.();
+const RETIRED_BOOKMARK_REWRITE_SOURCES = [
+  "/digests",
+  "/digest-subscriptions",
+  "/governance/risk-exceptions",
+  "/governance/risk-exceptions/:path*",
+  "/settings/roles",
+] as const;
+
+describe("operator next.config rewrites (IA batch 7)", () => {
+  it("does not rewrite retired bookmark paths (orientation canonicalize only)", async () => {
     const rewriteRules = await nextConfig.rewrites?.();
 
-    expect(redirectRules?.find((rule) => rule.source === "/digests")).toBeUndefined();
-    expect(redirectRules?.find((rule) => rule.source === "/digest-subscriptions")).toBeUndefined();
-    expect(
-      rewriteRules?.find((rule) => rule.source === "/digests" && rule.destination === "/architecture/digests"),
-    ).toBeDefined();
-    expect(
-      rewriteRules?.find(
-        (rule) =>
-          rule.source === "/digest-subscriptions"
-          && rule.destination === "/architecture/digests?tab=subscriptions",
-      ),
-    ).toBeDefined();
+    for (const source of RETIRED_BOOKMARK_REWRITE_SOURCES) {
+      expect(rewriteRules?.find((rule) => rule.source === source)).toBeUndefined();
+    }
   });
 
-  it("rewrites legacy governance exceptions paths without permanent redirects", async () => {
-    const redirectRules = await nextConfig.redirects?.();
+  it("keeps signed-record product deep-link rewrites", async () => {
     const rewriteRules = await nextConfig.rewrites?.();
 
-    expect(redirectRules?.find((rule) => rule.source === "/governance/risk-exceptions")).toBeUndefined();
-    expect(redirectRules?.find((rule) => rule.source === "/governance/risk-exceptions/:path*")).toBeUndefined();
     expect(
       rewriteRules?.find(
         (rule) =>
-          rule.source === "/governance/risk-exceptions"
-          && rule.destination === "/governance/exceptions",
+          rule.source === "/architecture/reviews/claims-intake-modernization/signed-record"
+          && rule.destination === "/governance/signed-records/a1c2e3f4-a5b6-7890-abcd-ef1234567890",
       ),
     ).toBeDefined();
     expect(
       rewriteRules?.find(
         (rule) =>
-          rule.source === "/governance/risk-exceptions/:path*"
-          && rule.destination === "/governance/exceptions/:path*",
+          rule.source === "/architecture/reviews/:id/signed-record"
+          && rule.destination === "/architecture/reviews/:id",
       ),
     ).toBeDefined();
+    expect(rewriteRules).toHaveLength(2);
   });
 });

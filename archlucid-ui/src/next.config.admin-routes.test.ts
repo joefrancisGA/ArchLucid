@@ -9,17 +9,14 @@ describe("next.config administration routes (TB-406 / TB-522 / TB-751)", () => {
     expect(redirectRules ?? []).toEqual([]);
   });
 
-  it("rewrites legacy /settings/roles to the users hub without a permanent redirect", async () => {
+  it("does not rewrite legacy bookmark paths (IA batch 7)", async () => {
     const rewriteRules = await nextConfig.rewrites?.();
 
     expect(rewriteRules).toBeDefined();
-    expect(
-      rewriteRules?.find(
-        (rule) =>
-          rule.source === "/settings/roles"
-          && rule.destination === "/administration/users?tab=roles",
-      ),
-    ).toBeDefined();
+    expect(rewriteRules?.find((rule) => rule.source === "/settings/roles")).toBeUndefined();
+    expect(rewriteRules?.find((rule) => rule.source === "/digests")).toBeUndefined();
+    expect(rewriteRules?.find((rule) => rule.source === "/digest-subscriptions")).toBeUndefined();
+    expect(rewriteRules?.find((rule) => rule.source === "/governance/risk-exceptions")).toBeUndefined();
   });
 
   it("does not rewrite canonical architecture URLs to phantom on-disk trees", async () => {
@@ -60,27 +57,5 @@ describe("next.config administration routes (TB-406 / TB-522 / TB-751)", () => {
           rule.source === "/administration/support" || rule.source === "/administration/support/:path*",
       ),
     ).toBe(false);
-  });
-
-  it("rewrites legacy digests and exceptions bookmarks instead of 301 redirects", async () => {
-    const rewriteRules = await nextConfig.rewrites?.();
-
-    expect(
-      rewriteRules?.find((rule) => rule.source === "/digests" && rule.destination === "/architecture/digests"),
-    ).toBeDefined();
-    expect(
-      rewriteRules?.find(
-        (rule) =>
-          rule.source === "/digest-subscriptions"
-          && rule.destination === "/architecture/digests?tab=subscriptions",
-      ),
-    ).toBeDefined();
-    expect(
-      rewriteRules?.find(
-        (rule) =>
-          rule.source === "/governance/risk-exceptions"
-          && rule.destination === "/governance/exceptions",
-      ),
-    ).toBeDefined();
   });
 });
