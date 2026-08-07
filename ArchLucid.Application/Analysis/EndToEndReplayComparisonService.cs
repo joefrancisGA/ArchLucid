@@ -1,5 +1,6 @@
 using ArchLucid.Application.Diffs;
 using ArchLucid.Application.Findings;
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.AgentEvaluation;
