@@ -21,6 +21,76 @@ public sealed class AuthorityQueryServiceGetRunDetailArtifactBundleTests
     [Theory]
     [InlineData(typeof(InMemoryAuthorityQueryService))]
     [InlineData(typeof(DapperAuthorityQueryService))]
+    public async Task GetRunDetailAsync_default_omits_artifact_bodies_opt_in_loads_bodies(
+        Type implementationType)
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        Guid manifestId = Guid.NewGuid();
+        ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId };
+
+        RunRecord run = new()
+        {
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ScopeProjectId = projectId,
+            RunId = runId,
+            ProjectId = "default",
+            GoldenManifestId = manifestId,
+        };
+
+        ArtifactBundle bundle = new() { ManifestId = manifestId, BundleId = Guid.NewGuid() };
+
+        Mock<IRunRepository> runs = new();
+        runs.Setup(r => r.GetByIdAsync(scope, runId, It.IsAny<CancellationToken>())).ReturnsAsync(run);
+
+        Mock<IContextSnapshotRepository> contextSnapshots = new();
+        Mock<IGraphSnapshotRepository> graphSnapshots = new();
+        Mock<IFindingsSnapshotRepository> findingsSnapshots = new();
+        Mock<IDecisionTraceRepository> traces = new();
+        Mock<IGoldenManifestRepository> manifests = new();
+        Mock<IArtifactBundleRepository> bundles = new();
+        bundles
+            .Setup(b => b.GetByManifestIdAsync(scope, manifestId, false, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(bundle);
+        bundles
+            .Setup(b => b.GetByManifestIdAsync(scope, manifestId, true, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(bundle);
+
+        Mock<IAgentExecutionTraceRepository> traceRows = CreateTraceRepoStub();
+
+        IAuthorityQueryService sut = CreateQueryService(
+            implementationType,
+            runs.Object,
+            contextSnapshots.Object,
+            graphSnapshots.Object,
+            findingsSnapshots.Object,
+            traces.Object,
+            manifests.Object,
+            bundles.Object,
+            traceRows.Object);
+
+        RunDetailDto? defaultDetail = await sut.GetRunDetailAsync(scope, runId, CancellationToken.None);
+
+        defaultDetail.Should().NotBeNull();
+        defaultDetail!.ArtifactBundle.Should().BeSameAs(bundle);
+        bundles.Verify(
+            b => b.GetByManifestIdAsync(scope, manifestId, false, It.IsAny<CancellationToken>()),
+            Times.Once);
+
+        RunDetailDto? withBodies = await sut.GetRunDetailAsync(scope, runId, CancellationToken.None, loadArtifactBodies: true);
+
+        withBodies.Should().NotBeNull();
+        bundles.Verify(
+            b => b.GetByManifestIdAsync(scope, manifestId, true, It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Theory]
+    [InlineData(typeof(InMemoryAuthorityQueryService))]
+    [InlineData(typeof(DapperAuthorityQueryService))]
     public async Task GetRunDetailAsync_loads_bundle_by_manifest_when_golden_manifest_set_but_bundle_row_id_null(
         Type implementationType)
     {
@@ -55,7 +125,7 @@ public sealed class AuthorityQueryServiceGetRunDetailArtifactBundleTests
         Mock<IArtifactBundleRepository> bundles = new();
         bundles
             .Setup(b =>
-                b.GetByManifestIdAsync(scope, manifestId, It.Is<bool>(v => v), It.IsAny<CancellationToken>()))
+                b.GetByManifestIdAsync(scope, manifestId, false, It.IsAny<CancellationToken>()))
             .ReturnsAsync(bundle);
 
         Mock<IAgentExecutionTraceRepository> traceRows = CreateTraceRepoStub();
@@ -76,7 +146,7 @@ public sealed class AuthorityQueryServiceGetRunDetailArtifactBundleTests
         detail.Should().NotBeNull();
         detail.ArtifactBundle.Should().BeSameAs(bundle);
         bundles.Verify(
-            b => b.GetByManifestIdAsync(scope, manifestId, It.Is<bool>(v => v), It.IsAny<CancellationToken>()),
+            b => b.GetByManifestIdAsync(scope, manifestId, false, It.IsAny<CancellationToken>()),
             Times.Once);
     }
 

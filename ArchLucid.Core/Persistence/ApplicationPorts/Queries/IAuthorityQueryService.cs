@@ -54,7 +54,7 @@ public interface IAuthorityQueryService
 
     /// <summary>
     ///     Loads the <see cref="RunRecord" /> and, when ids are present, hydrates context/graph/findings/decision trace,
-    ///     golden manifest, and artifact bundle.
+    ///     golden manifest, and artifact bundle metadata.
     /// </summary>
     /// <returns>Aggregated detail, or <see langword="null" /> when the run is missing or out of scope.</returns>
     /// <remarks>
@@ -64,11 +64,14 @@ public interface IAuthorityQueryService
     ///     is set;
     ///     <see cref="RunRecord.ArtifactBundleId" /> is optional denormalization and is not required to load the bundle for
     ///     replay/export/detail.
+    ///     Default <paramref name="loadArtifactBodies" /> is <see langword="false" /> (TB-2059); download/export paths load
+    ///     bodies via <see cref="IArtifactQueryService" /> or pass <see langword="true" /> when inline LOBs are required.
     /// </remarks>
     Task<RunDetailDto?> GetRunDetailAsync(
         ScopeContext scope,
         Guid runId,
-        CancellationToken ct);
+        CancellationToken ct,
+        bool loadArtifactBodies = false);
 
     /// <summary>
     ///     First-paint buyer/operator summary path (TB-930): run header + finding coverage metadata without

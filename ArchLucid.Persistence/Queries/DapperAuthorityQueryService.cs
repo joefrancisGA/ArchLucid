@@ -93,7 +93,11 @@ public sealed class DapperAuthorityQueryService(
         return summary;
     }
 
-    public async Task<RunDetailDto?> GetRunDetailAsync(ScopeContext scope, Guid runId, CancellationToken ct)
+    public async Task<RunDetailDto?> GetRunDetailAsync(
+        ScopeContext scope,
+        Guid runId,
+        CancellationToken ct,
+        bool loadArtifactBodies = false)
     {
         RunRecord? run = await runRepository.GetByIdAsync(scope, runId, ct);
         if (run is null)
@@ -120,7 +124,7 @@ public sealed class DapperAuthorityQueryService(
             ? goldenManifestRepository.GetByIdAsync(scope, run.GoldenManifestId.Value, ct)
             : Task.FromResult<ManifestDocument?>(null);
         Task<ArtifactBundle?> bundleTask = run.GoldenManifestId.HasValue
-            ? artifactBundleRepository.GetByManifestIdAsync(scope, run.GoldenManifestId.Value, loadArtifactBodies: true, ct)
+            ? artifactBundleRepository.GetByManifestIdAsync(scope, run.GoldenManifestId.Value, loadArtifactBodies, ct)
             : Task.FromResult<ArtifactBundle?>(null);
         Task<IReadOnlyList<string>> degradedAgentsTask =
             _agentExecutionTraceRepository.GetDistinctAgentTypesWithLlmResourceFallbackAsync(scope, run.RunId.ToString("N"), ct);

@@ -17,6 +17,7 @@
 | Evidence proposals list | `AgentResultListSql.ListEvidenceProposalsSelectColumns` | `ResultJson` | needs `ProposedEvidenceJson` by purpose |
 | Rollup/compare agent results | `AgentResultListSql.GetByRunIdSelectRollupProjection` + `GetRollupProjectionByRunIdAsync` | bare full `ResultJson` | TB-2053 — JSON subpaths for claims/findings/controls only |
 | Comparison history / search | `ComparisonRecordListSql` + `ComparisonRecordRepository` list methods | `PayloadJson` | TB-2057 — detail via `GetByIdAsync` only |
+| Authority run detail (default) | `IAuthorityQueryService.GetRunDetailAsync` | artifact LOB bodies | TB-2059 — metadata-only bundle; bodies via `IArtifactQueryService` or `loadArtifactBodies: true` |
 
 ## Intentional full-blob readers (documented)
 
@@ -28,6 +29,7 @@
 | Trace by id / task / full run | `GetByTraceIdAsync`, `GetByTaskIdAsync`, `GetByRunIdAsync` | `TraceJson` | forensic / orchestration detail |
 | Finding inspect | `DapperFindingInspectReadRepository` | `PayloadJson` | single-finding inspect |
 | Comparison record by id | `ComparisonRecordRepository.GetByIdAsync` | `PayloadJson` | single-row detail (not a list) |
+| Authority run detail (opt-in bodies) | `IAuthorityQueryService.GetRunDetailAsync(loadArtifactBodies: true)` | artifact LOB bodies | explicit when inline artifact content required |
 | Findings snapshot load | `SqlFindingsSnapshotRepository.GetByIdAsync` / relational read | `FindingsJson` / `PayloadJson` | detail/export |
 | Audit export | `AuditEventsFilteredSelectFromWhereScopeWithDataJsonNoLock` | includes `DataJson` | explicit export flag |
 

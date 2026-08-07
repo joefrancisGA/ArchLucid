@@ -26,6 +26,10 @@ Release entries newest-first. Each section condenses the detailed prompt logs pr
 
 `/governance/alerts?tab=inbox` documents redirect canonicalize to AL hub (TB-1594), traffic Notes under Tab surface (row ID GOI), and honest Evidence score 28. Legacy inbox-tab deep link hard-caps at redirect/shim band; no CPA / third-party pen-test implication.
 
+## 2026-08-07 - Perf: GetRunDetailAsync default omits artifact bodies (TB-2059)
+
+`IAuthorityQueryService.GetRunDetailAsync` defaults `loadArtifactBodies` to false (metadata-only bundle); export/download paths use `IArtifactQueryService` or pass `loadArtifactBodies: true` when inline LOBs are required. Does not claim CPA / third-party pen-test.
+
 ## 2026-08-07 - Perf: comparison list omit PayloadJson (TB-2057)
 
 Comparison history/search (`GetByRunIdAsync`, `GetByExportRecordIdAsync`, `SearchAsync`, `SearchByCursorAsync`) use `ComparisonRecordListSql` without the `PayloadJson` LOB; `GetByIdAsync` unchanged for detail. Does not claim CPA / third-party pen-test.
