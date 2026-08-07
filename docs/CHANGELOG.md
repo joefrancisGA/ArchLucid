@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-07 - Trustworthiness: TB-2064 compare UI finding correlation metadata
+
+Compare-two-reviews now soft-loads end-to-end `findingCorrelation` metadata (method, dedupe key format, match counts, honesty note) with export-parity copy after structured compare succeeds.
+
 ## 2026-08-07 - Trustworthiness: TB-2063 compare finding delta fingerprint correlation
 
 `AgentResultDiffService` now uses ADR 0063 `ICrossReviewFindingCorrelationService` for finding add/remove deltas instead of raw message text comparison, with message-only fallback for findings without stable ids.

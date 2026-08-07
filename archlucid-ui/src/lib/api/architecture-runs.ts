@@ -407,6 +407,22 @@ export async function fetchArtifactContentUtf8(
   };
 }
 
+type EndToEndReplayComparisonWireResponse = {
+  readonly report?: {
+    readonly findingCorrelation?: unknown;
+  } | null;
+};
+
+/** Full end-to-end replay comparison report (includes finding correlation metadata for export parity). */
+export async function compareRunsEndToEnd(
+  leftRunId: string,
+  rightRunId: string,
+): Promise<EndToEndReplayComparisonWireResponse> {
+  return apiGet<EndToEndReplayComparisonWireResponse>(
+    `/v1/architecture/review/compare/end-to-end?leftRunId=${encodeURIComponent(leftRunId)}&rightRunId=${encodeURIComponent(rightRunId)}`,
+  );
+}
+
 /** Legacy flat-diff comparison between two runs (run-level + optional manifest diffs). */
 export async function compareRuns(leftRunId: string, rightRunId: string): Promise<RunComparison> {
   return apiGet<RunComparison>(

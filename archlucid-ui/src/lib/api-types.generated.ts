@@ -92552,9 +92552,18 @@ export interface components {
             fileName?: string;
             format?: string;
         };
+        ComparisonFindingCorrelationMetadata: {
+            fuzzyMatchCount?: number;
+            honestyNote?: string;
+            policyRuleMatchCount?: number;
+            primaryCorrelationMethod?: string;
+            unmatchedLeftCount?: number;
+            unmatchedRightCount?: number;
+        };
         EndToEndReplayComparisonReport: {
             agentResultDiff?: null | components["schemas"]["AgentResultDiffResult"];
             exportDiffs?: components["schemas"]["ExportRecordDiffResult"][];
+            findingCorrelation?: null | components["schemas"]["ComparisonFindingCorrelationMetadata"];
             interpretationNotes?: string[];
             leftRunId?: string;
             manifestDiff?: null | components["schemas"]["ManifestDiffResult"];
