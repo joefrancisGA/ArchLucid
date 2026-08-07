@@ -76,6 +76,11 @@ const ALLOWLIST: readonly {
     configureHref: "/trust",
   },
   {
+    pathname: "/help/cloud-connections/aws",
+    nextHref: "/integrations/cloud-connections/aws",
+    configureHref: "/help/cloud-connections",
+  },
+  {
     pathname: "/governance/approval-requests/sample/lineage",
     nextHref: GOVERNANCE_APPROVAL_QUEUE_PATH,
   },

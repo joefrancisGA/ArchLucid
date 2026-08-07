@@ -5,6 +5,7 @@
 
 import { ADVISORY_SCANS_SCHEDULES_HREF } from "@/lib/advisory-scans-route";
 import { REVIEWS_LIST_PATH } from "@/lib/architecture-routes";
+import { canonicalizeLegacyOperatorRoutePath } from "@/lib/canonicalize-legacy-operator-route-path";
 import {
   DIGESTS_HUB_PATH,
   DIGESTS_SCHEDULE_TAB_PATH,
@@ -360,18 +361,6 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
         label: "Open architecture reviews",
         href: REVIEWS_LIST_PATH,
       },
-    },
-  },
-  {
-    prefix: "/reviews/new",
-    entry: {
-      whatIsThisPage:
-        "Start an architecture review by choosing an intake path and submitting evidence for analysis.",
-      whatToDoNext:
-        "Pick quick, guided, or detailed intake, complete the required fields, then submit to create the review.",
-      whyEmpty: "Path choices appear immediately; review results appear after you submit intake.",
-      whereToConfigurePrerequisite:
-        "Reviews use the workspace and project selected in the header switcher.",
     },
   },
   {
@@ -1154,6 +1143,26 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/help/cloud-connections/aws",
+    entry: {
+      whatIsThisPage:
+        "Connect AWS securely — OIDC-federated read-only IAM, Resource Explorer inventory, and validation without long-lived access keys.",
+      whatToDoNext:
+        "Follow the federation steps, then open the AWS cloud connection settings to validate the attachment.",
+      whyEmpty: "This guide is always available; live AWS connection status appears on the Cloud connections hub.",
+      whereToConfigurePrerequisite:
+        "AWS attachment is optional — evidence-only reviews work without a cloud connector.",
+      whatToDoNextAction: {
+        label: "Open AWS connection settings",
+        href: "/integrations/cloud-connections/aws",
+      },
+      whereToConfigureAction: {
+        label: "Open Cloud connections help",
+        href: "/help/cloud-connections",
+      },
+    },
+  },
+  {
     prefix: "/help/azure-permissions",
     entry: {
       whatIsThisPage:
@@ -1581,16 +1590,6 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
         "Creating or changing the Teams destination requires a role that can manage alert routing.",
     },
   },
-  {
-    prefix: "/settings/cloud-connections",
-    entry: {
-      whatIsThisPage:
-        "Legacy cloud-connections URL — redirects to the Integrations cloud connections landing hub.",
-      whatToDoNext: "Use the redirected Cloud connections page to configure providers or evidence-only upload.",
-      whyEmpty: "This path only redirects; connection status appears on the canonical Integrations page.",
-      whereToConfigurePrerequisite: "Choose a workspace in the header scope switcher on the destination page.",
-    },
-  },
 ];
 
 /** All registry rows — exported for content-constraint Vitest guards. */
@@ -1600,7 +1599,8 @@ export function allPageContextualHelpRows(): readonly PageContextualHelpRow[] {
 
 /** Resolve short-form contextual help for an operator pathname, or `null` when not migrated yet. */
 export function contextualHelpForPathname(pathname: string): PageContextualHelpEntry | null {
-  const path = (pathname ?? "").split("?")[0] ?? "";
+  const rawPath = (pathname ?? "").split("?")[0] ?? "";
+  const path = canonicalizeLegacyOperatorRoutePath(rawPath);
 
   if (pathIsRunProvenance(path)) {
     return PROVENANCE_CONTEXTUAL_HELP;

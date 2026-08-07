@@ -1,0 +1,23 @@
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
+
+export const CONNECT_AWS_SECURELY_CANONICAL_PATH = "/help/cloud-connections/aws" as const;
+
+export const CONNECT_AWS_SECURELY_CLAIM_DISCIPLINE =
+  "This guide explains how to attach AWS with OIDC-federated read-only IAM and Resource Explorer inventory — it is connector setup orientation, not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Assurance status or the live Cloud connections hub before treating setup guidance as assurance evidence.";
+
+export const CONNECT_AWS_SECURELY_SOURCES_INTRO =
+  "Use these follow-ups when AWS setup needs the live hub, parent cloud-connections help, sibling cloud guides, or assurance cites.";
+
+export type ConnectAwsSecurelySourceLink = {
+  readonly label: string;
+  readonly href: string;
+};
+
+/** Operator Sources — no self-href to `/help/cloud-connections/aws`. */
+export const CONNECT_AWS_SECURELY_SOURCES: readonly ConnectAwsSecurelySourceLink[] = [
+  { label: "Cloud connections hub", href: "/integrations/cloud-connections" },
+  { label: "AWS connection settings", href: "/integrations/cloud-connections/aws" },
+  { label: "Cloud connections help", href: inAppHelpHref("cloud-connections") },
+  { label: "Connect Azure securely", href: inAppHelpHref("cloud-connections-azure") },
+  { label: "Assurance status", href: "/security-trust" },
+] as const;

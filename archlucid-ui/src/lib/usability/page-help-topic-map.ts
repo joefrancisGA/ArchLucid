@@ -2,6 +2,7 @@
  * Maps operator routes to in-app `/help/{slug}` topics for contextual help buttons.
  */
 
+import { canonicalizeLegacyOperatorRoutePath } from "@/lib/canonicalize-legacy-operator-route-path";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture-routes";
 import { ALERTS_HOW_ALERTS_WORK_LABEL } from "@/lib/alerts-page-copy";
 import { START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
@@ -112,6 +113,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "cloud-connections-azure", label: "Connect Azure securely" },
   },
   {
+    prefix: "/help/cloud-connections/aws",
+    topic: { slug: "cloud-connections-aws", label: "Connect AWS securely" },
+  },
+  {
     prefix: "/help/azure-permissions",
     topic: { slug: "azure-permissions", label: "Azure permissions" },
   },
@@ -139,7 +144,6 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   { prefix: "/architectures", topic: { slug: "getting-started", label: "Getting started" } },
   { prefix: "/architecture/reviews/new", topic: { slug: "evidence-intake", label: START_REVIEW_LABEL } },
-  { prefix: "/reviews/new", topic: { slug: "evidence-intake", label: START_REVIEW_LABEL } },
   { prefix: "/architecture/reviews", topic: { slug: "review-packages", label: "Reviews" } },
   {
     prefix: SIGNED_RECORDS_LIST_PATH,
@@ -475,7 +479,8 @@ const ARTIFACT_PREVIEW_HELP_TOPIC: PageHelpTopic = {
 };
 
 export function pageHelpTopicForPathname(pathname: string): PageHelpTopic | null {
-  const path = (pathname ?? "").split("?")[0] ?? "";
+  const rawPath = (pathname ?? "").split("?")[0] ?? "";
+  const path = canonicalizeLegacyOperatorRoutePath(rawPath);
 
   if (path.includes("/artifacts/")) {
     return ARTIFACT_PREVIEW_HELP_TOPIC;

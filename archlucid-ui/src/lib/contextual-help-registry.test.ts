@@ -59,7 +59,6 @@ describe("contextual-help-registry (TB-733)", () => {
       "/governance/standards-and-rules",
       "/governance/policy-packs",
       "/governance/decision-register",
-      "/reviews/new",
       "/architecture/reviews/new",
       "/architecture/architectures",
       "/architecture/architectures/new",
@@ -118,6 +117,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/first-pilot-path",
       "/help/first-hour-operator-path",
       "/help/cloud-connections/azure",
+      "/help/cloud-connections/aws",
       "/help/azure-permissions",
       "/help/glossary",
       "/help/operator-auth-roles",
@@ -152,7 +152,6 @@ describe("contextual-help-registry (TB-733)", () => {
       "/integrations/webhooks",
       "/operate/integration-events/dlq",
       "/integrations/teams",
-      "/settings/cloud-connections",
     ]);
   });
 
@@ -208,7 +207,9 @@ describe("contextual-help-registry (TB-733)", () => {
     expect(contextualHelpForPathname("/integrations/cloud-connections/azure")?.whatIsThisPage).toContain(
       "read-only evidence collection",
     );
-    expect(contextualHelpForPathname("/settings/cloud-connections")?.whatIsThisPage).toContain("Legacy");
+    expect(contextualHelpForPathname("/settings/cloud-connections")?.whatIsThisPage).toContain(
+      "read-only evidence collection",
+    );
   });
 
   it("resolves run provenance Category-1 help (RRP)", () => {
@@ -372,6 +373,18 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/soc2-self-assessment",
     );
     expect(contextualHelpForPathname("/help/caiq-sig-response")?.whereToConfigureAction?.href).toBe("/trust");
+  });
+
+  it("resolves Connect AWS securely help Category-1 help (HEC)", () => {
+    expect(contextualHelpForPathname("/help/cloud-connections/aws")?.whatIsThisPage).toContain(
+      "Connect AWS securely",
+    );
+    expect(contextualHelpForPathname("/help/cloud-connections/aws")?.whatToDoNextAction?.href).toBe(
+      "/integrations/cloud-connections/aws",
+    );
+    expect(contextualHelpForPathname("/help/cloud-connections/aws")?.whereToConfigureAction?.href).toBe(
+      "/help/cloud-connections",
+    );
   });
 
   it("resolves signed-record detail Category-1 help (MMX)", () => {

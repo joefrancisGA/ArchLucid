@@ -25,6 +25,7 @@ import { AdminDiagnosticsHelpEvidenceOrientationStrip } from "../_sections/Admin
 import { AuthenticationSignInHelpEvidenceOrientationStrip } from "../_sections/AuthenticationSignInHelpEvidenceOrientationStrip";
 import { AzureBoardsHelpEvidenceOrientationStrip } from "../_sections/AzureBoardsHelpEvidenceOrientationStrip";
 import { CaiqSigResponseHelpEvidenceOrientationStrip } from "../_sections/CaiqSigResponseHelpEvidenceOrientationStrip";
+import { ConnectAwsSecurelyHelpEvidenceOrientationStrip } from "../_sections/ConnectAwsSecurelyHelpEvidenceOrientationStrip";
 import { ScopeHelpEvidenceOrientationStrip } from "../_sections/ScopeHelpEvidenceOrientationStrip";
 import { ProcurementHelpEvidenceOrientationStrip } from "../_sections/ProcurementHelpEvidenceOrientationStrip";
 import { EvidenceTrailHelpEvidenceOrientationStrip } from "../_sections/EvidenceTrailHelpEvidenceOrientationStrip";
@@ -181,6 +182,17 @@ function renderHelpTopicView(
       <HelpConnectAzureSecurelyGuideView
         entry={loaded.entry}
         returnHref={resolveAzurePermissionsReturnHref(readSearchParam(searchParams, "returnTo"))}
+      />
+    );
+  }
+
+  if (loaded.entry.slug === "cloud-connections-aws") {
+    return (
+      <HelpTopicMarkdownView
+        entry={loaded.entry}
+        markdown={loaded.markdown}
+        showContextualHelp
+        evidenceOrientation={<ConnectAwsSecurelyHelpEvidenceOrientationStrip />}
       />
     );
   }

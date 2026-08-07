@@ -1,0 +1,18 @@
+/**
+ * Traffic workbook row ID for Connect AWS securely help.
+ * Owner backlog shorthand: HEC (owner HEW renamed to match template cloud-connections/aws HEC).
+ */
+export const CONNECT_AWS_SECURELY_HELP_TRAFFIC_ROW_ID = "HEC";
+
+/** Canonical path tracked on the HEC workbook row. */
+export const CONNECT_AWS_SECURELY_HELP_TRAFFIC_PATH = "/help/cloud-connections/aws";
+
+/** Workbook Section column value - help alias under cloud-connections. */
+export const CONNECT_AWS_SECURELY_HELP_TRAFFIC_SECTION = "Help alias";
+
+/**
+ * Owner workbook Notes for HEC - documents Evidence chrome on aws cloud-connections help.
+ * ASCII-only for Windows console note scripts.
+ */
+export const CONNECT_AWS_SECURELY_HELP_TRAFFIC_NOTE =
+  "Connect AWS securely help (Help alias) - HelpTopicMarkdownView with PageContextualHelpButton (topic map cloud-connections-aws; Category-1 registry), ConnectAwsSecurelyHelpEvidenceOrientationStrip (workspace Sources + claim-discipline), curated CLOUD_CONNECTIONS.md connect-aws-securely section. Sibling HCE = parent cloud-connections help; HC = Azure; HGC = GCP; INC = live AWS settings. Owner HEW renamed to HEC to match template. Not bare HelpTopicMarkdownView without orientation. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-07) - help-topic orientation hard-caps higher Evidence.";
