@@ -28,7 +28,8 @@ import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_NAV_GROUP_LA
 import type { ComparedPair } from "@/app/(operator)/insights/compare-two-reviews/_sections/compare-page-helpers";
 import { CompareFindingCorrelationSection } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareFindingCorrelationSection";
 import { CompareGovernanceDiffSection } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareGovernanceDiffSection";
-import { ComparePairEvidenceCiteStrip } from "@/app/(operator)/insights/compare-two-reviews/_sections/ComparePairEvidenceCiteStrip";
+import { CompareExecutionModeHonestyStrip } from "@/components/compare/CompareExecutionModeHonestyStrip";
+import { resolveCompareExecutionModeHonesty } from "@/lib/compare-execution-mode-honesty";
 
 export type CompareResultsPanelProps = {
   showStaleInputsWarning: boolean;
@@ -102,6 +103,12 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
   const citeUpdatedRunId = lastComparedPair?.right ?? rightTrim;
   const showPairCiteStrip =
     hasResultsToNavigate && citeBaselineRunId.trim().length > 0 && citeUpdatedRunId.trim().length > 0;
+  const executionModeHonesty = resolveCompareExecutionModeHonesty(leftPickedSummary, rightPickedSummary);
+  const showExecutionModeHonesty =
+    hasResultsToNavigate &&
+    executionModeHonesty !== null &&
+    citeBaselineRunId.trim().length > 0 &&
+    citeUpdatedRunId.trim().length > 0;
 
   return (
     <section className="space-y-6" aria-label="Comparison results">
@@ -292,6 +299,15 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
       ) : null}
 
       <ClientErrorBoundary title="Comparison results failed to render">
+        {showExecutionModeHonesty ? (
+          <CompareExecutionModeHonestyStrip
+            baselineRunId={citeBaselineRunId}
+            updatedRunId={citeUpdatedRunId}
+            baselinePickedSummary={leftPickedSummary}
+            updatedPickedSummary={rightPickedSummary}
+          />
+        ) : null}
+
         {comparisonNarrativeLoading ? (
           <OperatorLoadingNotice>
             <strong>Generating comparison narrative.</strong>
@@ -310,6 +326,14 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
             <p className={cn("m-0 mb-1 uppercase tracking-wide text-teal-800 dark:text-teal-200", OPERATOR_NAV_GROUP_LABEL)}>
               ✦ AI narrative
             </p>
+            {executionModeHonesty?.advisoryParagraph !== null && executionModeHonesty?.advisoryParagraph !== undefined ? (
+              <p
+                className={cn("m-0 mb-2 text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="compare-ask-narrative-mode-advisory"
+              >
+                {executionModeHonesty.advisoryParagraph}
+              </p>
+            ) : null}
             <p className="m-0 whitespace-pre-wrap">{comparisonNarrative}</p>
           </div>
         ) : null}

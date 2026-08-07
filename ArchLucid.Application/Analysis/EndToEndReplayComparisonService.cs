@@ -1,6 +1,6 @@
 using ArchLucid.Application.Diffs;
 using ArchLucid.Application.Findings;
-using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Architecture;
@@ -121,15 +121,23 @@ public sealed class EndToEndReplayComparisonService(
         AddIfChanged(result.ChangedFields, "Status", leftRun.Status, rightRun.Status);
         AddIfChanged(result.ChangedFields, "CurrentManifestVersion", leftRun.CurrentManifestVersion, rightRun.CurrentManifestVersion);
         AddIfChanged(result.ChangedFields, "CompletedUtc", leftRun.CompletedUtc, rightRun.CompletedUtc);
+        AddIfChanged(result.ChangedFields, "StructuralExecutionMode", leftRun.StructuralExecutionMode, rightRun.StructuralExecutionMode);
         result.RequestIdsDiffer = !string.Equals(leftRun.RequestId, rightRun.RequestId, StringComparison.OrdinalIgnoreCase);
         result.ManifestVersionsDiffer = !string.Equals(leftRun.CurrentManifestVersion, rightRun.CurrentManifestVersion, StringComparison.OrdinalIgnoreCase);
         result.StatusDiffers = !Equals(leftRun.Status, rightRun.Status);
         result.CompletionStateDiffers = leftRun.CompletedUtc is null != rightRun.CompletedUtc is null;
+        result.ExecutionModesDiffer = leftRun.StructuralExecutionMode != rightRun.StructuralExecutionMode;
         return result;
     }
 
     private static void AddInterpretationNotes(EndToEndReplayComparisonReport report)
     {
+        if (report.RunDiff.ExecutionModesDiffer)
+        {
+            report.InterpretationNotes.Add(
+                "Structural execution mode differs between the two reviews — finding, cost, and narrative deltas may not be directly comparable. Confirm per-finding trust labels on inspect and export paths.");
+        }
+
         if (report.AgentResultDiff is not null && report.ManifestDiff is not null)
         {
             bool agentChanged = report.AgentResultDiff.AgentDeltas.Any(d =>

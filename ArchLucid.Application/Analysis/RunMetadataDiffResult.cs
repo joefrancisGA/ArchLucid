@@ -41,4 +41,11 @@ public sealed class RunMetadataDiffResult
         get;
         set;
     }
+
+    /// <summary><c>true</c> when the two runs used different <see cref="Contracts.Common.StructuralExecutionMode" /> values.</summary>
+    public bool ExecutionModesDiffer
+    {
+        get;
+        set;
+    }
 }

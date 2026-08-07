@@ -39,7 +39,7 @@ public sealed class EndToEndReplayComparisonServiceTests
             new ArchLucid.Application.Findings.CrossReviewFindingCorrelationService());
     }
 
-    private static ArchitectureRun Run(string id, string? manifestVersion = null)
+    private static ArchitectureRun Run(string id, string? manifestVersion = null, StructuralExecutionMode mode = StructuralExecutionMode.Simulator)
     {
         return new ArchitectureRun
         {
@@ -47,7 +47,8 @@ public sealed class EndToEndReplayComparisonServiceTests
             RequestId = "req",
             Status = ArchitectureRunStatus.Committed,
             CreatedUtc = TimeProvider.System.UtcNowDateTime(),
-            CurrentManifestVersion = manifestVersion
+            CurrentManifestVersion = manifestVersion,
+            StructuralExecutionMode = mode,
         };
     }
 
@@ -90,6 +91,37 @@ public sealed class EndToEndReplayComparisonServiceTests
         _runDetailQueryService.Verify(s => s.GetRunDetailForRollupAsync("left", It.IsAny<CancellationToken>()), Times.Once);
         _runDetailQueryService.Verify(s => s.GetRunDetailForRollupAsync("right", It.IsAny<CancellationToken>()), Times.Once);
         _manifestDiff.Verify(m => m.Compare(left.Manifest, right.Manifest), Times.Once);
+    }
+
+    [SkippableFact]
+    public async Task BuildAsync_WhenExecutionModesDiffer_AddsInterpretationNote()
+    {
+        ArchitectureRunDetail left = new()
+        {
+            Run = Run("left", "v1", StructuralExecutionMode.Real),
+            Results = [],
+            Manifest = Manifest("left", "v1"),
+        };
+        ArchitectureRunDetail right = new()
+        {
+            Run = Run("right", "v1", StructuralExecutionMode.Simulator),
+            Results = [],
+            Manifest = Manifest("right", "v1"),
+        };
+
+        _runDetailQueryService.Setup(s => s.GetRunDetailForRollupAsync("left", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(left);
+        _runDetailQueryService.Setup(s => s.GetRunDetailForRollupAsync("right", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(right);
+        _exportRepo.Setup(r => r.GetByRunIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<RunExportRecord>());
+        _manifestDiff.Setup(m => m.Compare(left.Manifest, right.Manifest)).Returns(new ManifestDiffResult());
+
+        EndToEndReplayComparisonReport report = await _sut.BuildAsync("left", "right");
+
+        report.RunDiff.ExecutionModesDiffer.Should().BeTrue();
+        report.InterpretationNotes.Should().Contain(note =>
+            note.Contains("Structural execution mode differs", StringComparison.OrdinalIgnoreCase));
     }
 
     [SkippableFact]
