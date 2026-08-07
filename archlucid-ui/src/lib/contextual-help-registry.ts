@@ -1175,6 +1175,19 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    /** Legacy slug alias — same Category-1 copy as first-architecture-review (HEV / COR). */
+    prefix: "/help/evidence-only-review",
+    entry: {
+      whatIsThisPage:
+        "Your first architecture review — guided path from evidence intake to a finalized package and sponsor-ready exports.",
+      whatToDoNext:
+        "Start an architecture review from the hero CTA, or open the sample review when you want a completed outcome first.",
+      whyEmpty: "This guide is always available; live architecture reviews appear after you create them.",
+      whereToConfigurePrerequisite:
+        "Creating reviews needs a role that can start architecture reviews in this workspace.",
+    },
+  },
+  {
     prefix: "/help/cloud-connections/azure",
     entry: {
       whatIsThisPage:

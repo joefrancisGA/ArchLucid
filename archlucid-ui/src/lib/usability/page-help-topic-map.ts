@@ -117,6 +117,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "first-architecture-review", label: "Your first architecture review" },
   },
   {
+    prefix: "/help/evidence-only-review",
+    topic: { slug: "first-architecture-review", label: "Your first architecture review" },
+  },
+  {
     prefix: "/help/cloud-connections/azure",
     topic: { slug: "cloud-connections-azure", label: "Connect Azure securely" },
   },

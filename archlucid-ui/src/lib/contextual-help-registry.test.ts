@@ -119,6 +119,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/core-pilot",
       "/help/first-pilot-path",
       "/help/first-hour-operator-path",
+      "/help/evidence-only-review",
       "/help/cloud-connections/azure",
       "/help/cloud-connections/aws",
       "/help/cloud-connections/gcp",
