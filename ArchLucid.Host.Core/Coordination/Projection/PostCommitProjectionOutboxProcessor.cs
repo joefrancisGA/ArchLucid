@@ -168,6 +168,13 @@ public sealed class PostCommitProjectionOutboxProcessor(
             return false;
         }
 
+        if (entry.WorkType == PostCommitProjectionWorkTypes.DecisionEngineV2NodeMaterialization)
+        {
+            await ProcessDecisionEngineV2NodeMaterializationAsync(scope, entry, ct);
+
+            return false;
+        }
+
         throw new InvalidOperationException($"Unknown post-commit projection work type '{entry.WorkType}'.");
     }
 
@@ -249,6 +256,20 @@ public sealed class PostCommitProjectionOutboxProcessor(
         IFindingIacStubGenerator generator = scope.ServiceProvider.GetRequiredService<IFindingIacStubGenerator>();
 
         await generator.GenerateAndPersistStubsForRunAsync(runGuid.ToString("N"), ct);
+    }
+
+    private static async Task ProcessDecisionEngineV2NodeMaterializationAsync(
+        IServiceScope scope,
+        PostCommitProjectionOutboxEntry entry,
+        CancellationToken ct)
+    {
+        if (entry.RunId is not Guid runGuid)
+            throw new InvalidOperationException("DecisionEngineV2NodeMaterialization requires RunId.");
+
+        IDecisionEngineV2NodeMaterializer materializer =
+            scope.ServiceProvider.GetRequiredService<IDecisionEngineV2NodeMaterializer>();
+
+        await materializer.MaterializeIfMissingAsync(runGuid.ToString("N"), ct);
     }
 
     private async Task OnProcessingFailedAsync(

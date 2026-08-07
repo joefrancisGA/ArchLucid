@@ -12,4 +12,6 @@ public static class PostCommitProjectionWorkTypes
     public const string FindingPriorityRerank = "FindingPriorityRerank";
 
     public const string IacStubGeneration = "IacStubGeneration";
+
+    public const string DecisionEngineV2NodeMaterialization = "DecisionEngineV2NodeMaterialization";
 }

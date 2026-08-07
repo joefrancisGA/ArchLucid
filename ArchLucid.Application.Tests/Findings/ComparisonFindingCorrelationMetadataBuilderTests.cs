@@ -1,3 +1,5 @@
+using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Findings;
 using ArchLucid.Contracts.Findings;
 
 using FluentAssertions;

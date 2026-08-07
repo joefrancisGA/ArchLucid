@@ -1,6 +1,7 @@
 using System.Diagnostics;
 
 using ArchLucid.Application.Provenance;
+using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
@@ -275,5 +276,53 @@ public sealed class PostCommitProjectionOutboxProcessorTests
 
         scopeCreates.Should().BeGreaterOrEqualTo(entries.Count + 1);
         outbox.Verify(o => o.MarkProcessedAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Exactly(entries.Count));
+    }
+
+    [Fact]
+    public async Task ProcessPendingBatchAsync_invokes_decision_node_materializer()
+    {
+        Guid outboxId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        Mock<IPostCommitProjectionOutboxRepository> outbox = new();
+        outbox
+            .Setup(o => o.DequeuePendingAsync(25, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new PostCommitProjectionOutboxEntry
+                {
+                    OutboxId = outboxId,
+                    WorkType = PostCommitProjectionWorkTypes.DecisionEngineV2NodeMaterialization,
+                    RunId = runId,
+                    TenantId = Guid.NewGuid(),
+                    WorkspaceId = Guid.NewGuid(),
+                    ProjectId = Guid.NewGuid(),
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime()
+                }
+            ]);
+        outbox.Setup(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+
+        Mock<IDecisionEngineV2NodeMaterializer> materializer = new();
+        materializer
+            .Setup(m => m.MaterializeIfMissingAsync(runId.ToString("N"), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        ServiceCollection services = [];
+        services.AddScoped(_ => outbox.Object);
+        services.AddScoped(_ => materializer.Object);
+        services.AddScoped(_ => Mock.Of<IAuditService>());
+        ServiceProvider provider = services.BuildServiceProvider();
+
+        PostCommitProjectionOutboxProcessor sut = new(
+            provider.GetRequiredService<IServiceScopeFactory>(),
+            Options.Create(new PostCommitProjectionOutboxProcessorOptions()),
+            TimeProvider.System,
+            NullLogger<PostCommitProjectionOutboxProcessor>.Instance);
+
+        await sut.ProcessPendingBatchAsync(CancellationToken.None);
+
+        materializer.Verify(
+            m => m.MaterializeIfMissingAsync(runId.ToString("N"), It.IsAny<CancellationToken>()),
+            Times.Once);
+        outbox.Verify(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>()), Times.Once);
     }
 }

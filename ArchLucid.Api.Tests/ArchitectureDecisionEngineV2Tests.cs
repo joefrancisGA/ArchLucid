@@ -2,8 +2,11 @@
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
+using ArchLucid.Persistence.Coordination.Projection;
 
 using FluentAssertions;
+
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ArchLucid.Api.Tests;
 
@@ -29,6 +32,7 @@ public sealed class ArchitectureDecisionEngineV2Tests(ArchLucidApiFactory factor
         await executeResponse.EnsureSuccessForTestAsync();
         HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
         await commitResponse.EnsureSuccessForTestAsync();
+        await DrainPostCommitProjectionOutboxAsync();
         HttpResponseMessage decisionsResponse = await Client.GetAsync($"/v1/architecture/review/{runId}/decisions");
         decisionsResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -39,5 +43,19 @@ public sealed class ArchitectureDecisionEngineV2Tests(ArchLucidApiFactory factor
         payload.Decisions.Should().Contain(d => d.Topic == "TopologyAcceptance");
         payload.Decisions.Should().Contain(d => d.Topic == "SecurityControlPromotion");
         payload.Decisions.Should().Contain(d => d.Topic == "ComplexityDisposition");
+    }
+
+    private async Task DrainPostCommitProjectionOutboxAsync()
+    {
+        IPostCommitProjectionOutboxProcessor processor =
+            Factory.Services.GetRequiredService<IPostCommitProjectionOutboxProcessor>();
+
+        for (int attempt = 0; attempt < 10; attempt++)
+        {
+            int processed = await processor.ProcessPendingBatchAsync(CancellationToken.None);
+
+            if (processed == 0)
+                break;
+        }
     }
 }

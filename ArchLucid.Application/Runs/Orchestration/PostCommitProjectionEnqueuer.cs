@@ -35,6 +35,12 @@ public sealed class PostCommitProjectionEnqueuer(IPostCommitProjectionOutboxRepo
                 {
                     ProjectId = scope.ProjectId.ToString("N")
                 }),
+                cancellationToken),
+            EnqueueAsync(
+                PostCommitProjectionWorkTypes.DecisionEngineV2NodeMaterialization,
+                scope,
+                runGuid,
+                null,
                 cancellationToken)
         ];
 
