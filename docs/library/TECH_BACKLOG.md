@@ -10933,7 +10933,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 **Size estimate:** **M** ? ~1 eng day.
 
-**Cross-ref:** sonnet Q16 (`sonnet_questions_06042026.md`), **TB-072**.
+**Cross-ref:** sonnet Q16 (former `docs/archive/assessments/sonnet_questions_06042026.md`; see [`docs/redirects.md`](../redirects.md)), **TB-072**.
 
 ---
 
@@ -11245,7 +11245,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 **Out of scope:** WORM/immutable storage tier, HSM signing, FK repoint detection, new hash columns/migrations (per ADR 0040).
 
-**Refs:** ADR-0039; ADR-0040; TB-303; TB-306; `sonnet_questions_06042026.md` Q7.
+**Refs:** ADR-0039; ADR-0040; TB-303; TB-306; former `sonnet_questions_06042026.md` Q7 (deleted; see [`docs/redirects.md`](../redirects.md)).
 
 ## TB-309 ? Durable outbox for post-commit projection side effects
 
