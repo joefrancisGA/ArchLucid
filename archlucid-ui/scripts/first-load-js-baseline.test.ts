@@ -58,8 +58,8 @@ Route (app)                                          Revalidate  Expire
     const routes = buildTrackedRouteFirstLoadJsMap(stats);
 
     expect(routes.get("/welcome")).toBe(711.5);
-    expect(routes.get("/reviews")).toBe(1710.6);
-    expect(routes.get("/reviews/[runId]")).toBe(2237.5);
+    expect(routes.get("/architecture/reviews")).toBe(1710.6);
+    expect(routes.get("/architecture/reviews/[runId]")).toBe(2237.5);
     expect(routes.get("/governance/approval-queue")).toBe(1462.7);
     expect(routes.get("/architecture/executive-dashboard")).toBe(1546);
     expect(routes.get("/governance/signed-records")).toBe(1436.3);
@@ -70,6 +70,8 @@ Route (app)                                          Revalidate  Expire
     const stats = readRouteBundleStats(NEXT16_STATS_FIXTURE);
     const statsRoutes = parseRouteBundleStatsFirstLoadJsKb(stats);
 
+    expect(resolveTrackedRouteFirstLoadJsKb(statsRoutes, "/architecture/reviews")).toBe(1710.6);
+    expect(resolveTrackedRouteFirstLoadJsKb(statsRoutes, "/architecture/reviews/[runId]")).toBe(2237.5);
     expect(resolveTrackedRouteFirstLoadJsKb(statsRoutes, "/reviews")).toBe(1710.6);
     expect(resolveTrackedRouteFirstLoadJsKb(statsRoutes, "/reviews/[runId]")).toBe(2237.5);
   });
@@ -84,24 +86,24 @@ Route (app)                                          Revalidate  Expire
     expect(result.messages.some((message) => message.startsWith("FAIL:"))).toBe(false);
   });
 
-  it("fails when /reviews exceeds baseline tolerance", () => {
+  it("fails when /architecture/reviews exceeds baseline tolerance", () => {
     const stats = readRouteBundleStats(NEXT16_STATS_FIXTURE);
     const actualRoutes = buildTrackedRouteFirstLoadJsMap(stats);
     const baseline = readBaseline(join(process.cwd(), DEFAULT_BASELINE_RELATIVE_PATH));
-    const reviewsBaselineKb = baseline.routes["/reviews"]?.firstLoadJsKb;
+    const reviewsBaselineKb = baseline.routes["/architecture/reviews"]?.firstLoadJsKb;
 
     expect(reviewsBaselineKb).toBeTypeOf("number");
 
     // Must clear baseline + tolerance; hard-coded kB drifts when the baseline is refreshed.
     actualRoutes.set(
-      "/reviews",
+      "/architecture/reviews",
       (reviewsBaselineKb as number) + baseline.regressionToleranceKb + 1,
     );
 
     const result = compareFirstLoadJsBudget(actualRoutes, baseline);
 
     expect(result.ok).toBe(false);
-    expect(result.messages.some((message) => message.includes("/reviews"))).toBe(true);
+    expect(result.messages.some((message) => message.includes("/architecture/reviews"))).toBe(true);
   });
 
   it("keeps committed baseline aligned with tracked routes", () => {

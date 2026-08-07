@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedUtc": "2026-08-07T06:05:11.121Z",
+  "updatedUtc": "2026-08-07T15:35:00.000Z",
   "regressionToleranceKb": 25,
   "routes": {
     "/welcome": {
@@ -9,10 +9,10 @@
     "/governance/approval-queue": {
       "firstLoadJsKb": 1462.7
     },
-    "/reviews": {
+    "/architecture/reviews": {
       "firstLoadJsKb": 1710.6
     },
-    "/reviews/[runId]": {
+    "/architecture/reviews/[runId]": {
       "firstLoadJsKb": 2237.5
     },
     "/architecture/executive-dashboard": {
@@ -22,5 +22,5 @@
       "firstLoadJsKb": 1436.3
     }
   },
-  "notes": "RC11 refresh after OpenAPI api-types.generated.ts regeneration (string enums + expanded 4xx/5xx schemas). Captured from CI #2632 First Load JS check values. Refresh after intentional bundle changes: `npm run build && npm run write:first-load-js-baseline`."
+  "notes": "IA batch 6: tracked routes use canonical /architecture/reviews paths (legacy /reviews keys retired). Refresh after intentional bundle changes: `npm run build && npm run write:first-load-js-baseline`."
 }

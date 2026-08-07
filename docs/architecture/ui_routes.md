@@ -110,9 +110,9 @@ Constants live in `archlucid-ui/src/lib/showcase-static-demo.ts` and `archlucid-
 
 ---
 
-## Legacy URL handling (IA batch 4)
+## Legacy URL handling (IA batch 4–6)
 
-`archlucid-ui/next.config.ts` ships **no permanent bookmark redirects**. Use canonical on-disk paths below. Orientation helpers (`canonicalizeLegacyOperatorRoutePath`) still map retired prefixes for help and readiness lookups only.
+`archlucid-ui/next.config.ts` ships **no permanent bookmark redirects**. Use canonical on-disk paths below. Orientation helpers (`canonicalizeLegacyOperatorRoutePath`) still map retired prefixes for help, readiness, and buyer-polish lookups only — registry rows no longer duplicate legacy prefixes (batch 6).
 
 **Rewrite aliases** (internal — URL may stay on the legacy path until client navigation upgrades it):
 

@@ -65,6 +65,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "caiq-sig-response", label: "CAIQ / SIG questionnaire responses" },
   },
   {
+    prefix: "/help/comparison-replay",
+    topic: { slug: "comparison-replay", label: "Compare and replay" },
+  },
+  {
     prefix: "/help/how-it-works",
     topic: { slug: "getting-started", label: "Getting started" },
   },
@@ -345,7 +349,6 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { label: "Advisory scans" },
   },
   { prefix: "/integrations/cloud-connections/azure", topic: { slug: "azure-permissions", label: "Azure permissions" } },
-  { prefix: "/settings/cloud-connections/azure", topic: { slug: "azure-permissions", label: "Azure permissions" } },
   { prefix: "/integrations/cloud-connections/aws", topic: { slug: "cloud-connections-aws", label: "AWS cloud connection" } },
   { prefix: "/integrations/cloud-connections/gcp", topic: { slug: "cloud-connections-gcp", label: "GCP cloud connection" } },
   { prefix: "/integrations/cloud-connections", topic: { slug: "cloud-connections", label: "Cloud connections" } },
@@ -398,9 +401,6 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     prefix: "/admin/deployment-status",
     topic: { slug: "troubleshooting", label: "Deployment status" },
   },
-  { prefix: "/settings/cloud-connections/aws", topic: { slug: "cloud-connections-aws", label: "AWS cloud connection" } },
-  { prefix: "/settings/cloud-connections/gcp", topic: { slug: "cloud-connections-gcp", label: "GCP cloud connection" } },
-  { prefix: "/settings/cloud-connections", topic: { slug: "cloud-connections", label: "Cloud connections" } },
   {
     prefix: "/administration/identity-providers/role-mapping",
     topic: { slug: "users-and-roles", label: "Role mapping" },

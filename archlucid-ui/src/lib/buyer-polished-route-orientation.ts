@@ -1,3 +1,4 @@
+import { canonicalizeLegacyOperatorRoutePath } from "@/lib/canonicalize-legacy-operator-route-path";
 import {
   SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH,
   SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
@@ -67,7 +68,8 @@ export function buyerPolishedRouteOrientation(
   readonly label: string;
   readonly line: string;
 } | null {
-  const path = (pathname.split("?")[0] ?? "").trim().replace(/\/$/, "");
+  const rawPath = (pathname.split("?")[0] ?? "").trim().replace(/\/$/, "");
+  const path = canonicalizeLegacyOperatorRoutePath(rawPath.length === 0 ? "/" : rawPath).split("?")[0] ?? rawPath;
 
   const inspectRiskFinding = /^\/architecture\/reviews\/[^/]+\/findings\/[^/]+\/(?:inspect|evidence-trace)\b/.exec(path);
 
@@ -257,10 +259,6 @@ export function buyerPolishedRouteOrientation(
       label: "Review",
       line: "Review record — outcomes, findings, artifacts, downloads, and deep links into evidence surfaces.",
     };
-  }
-
-  if (path.startsWith("/policy-packs")) {
-    return null;
   }
 
   if (path.startsWith("/insights/ask-review-questions")) {

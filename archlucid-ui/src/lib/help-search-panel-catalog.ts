@@ -1,4 +1,5 @@
 import type { HelpTabId } from "@/components/HelpPanel";
+import { canonicalizeLegacyOperatorRoutePath } from "@/lib/canonicalize-legacy-operator-route-path";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
 import { REVIEW_TERMINOLOGY_BANNED_OPERATOR_PATTERNS } from "@/lib/review-terminology-surfaces";
 
@@ -363,10 +364,6 @@ const ROUTE_RECOMMENDED_TOPIC_IDS: readonly { readonly prefix: string; readonly 
     prefix: "/administration/connection-status",
     topicIds: ["integration-readiness", "cloud-connections", "troubleshoot"],
   },
-  {
-    prefix: "/settings/cloud-connections",
-    topicIds: ["cloud-connections", "connect-azure", "azure-permissions", "connect-aws", "connect-gcp", "troubleshoot"],
-  },
   { prefix: "/governance", topicIds: ["governance-workflow", "risk-register", "policy-packs"] },
   { prefix: "/governance/policy-packs", topicIds: ["policy-packs", "governance-workflow"] },
   { prefix: "/architecture/reviews/new", topicIds: ["create-first-review", "upload-evidence", "first-review-guide"] },
@@ -379,8 +376,9 @@ const ROUTE_RECOMMENDED_TOPIC_IDS: readonly { readonly prefix: string; readonly 
 function normalizePathname(pathname: string): string {
   const withoutQuery = (pathname ?? "").split("?")[0] ?? "";
   const trimmed = withoutQuery.replace(/\/$/, "");
+  const canonical = canonicalizeLegacyOperatorRoutePath(trimmed.length === 0 ? "/" : trimmed).split("?")[0] ?? trimmed;
 
-  return trimmed.length === 0 ? "/" : trimmed;
+  return canonical.length === 0 ? "/" : canonical;
 }
 
 function helpSlugFromPath(path: string): string | null {

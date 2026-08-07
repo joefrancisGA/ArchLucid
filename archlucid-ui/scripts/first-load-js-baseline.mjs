@@ -21,8 +21,8 @@ export const DEFAULT_ROUTE_BUNDLE_STATS_RELATIVE_PATH = join(
 /** Routes tracked for UI performance regression gates (TB-573). */
 export const TRACKED_ROUTES = [
   "/welcome",
-  "/reviews",
-  "/reviews/[runId]",
+  "/architecture/reviews",
+  "/architecture/reviews/[runId]",
   "/governance/approval-queue",
   "/architecture/executive-dashboard",
   "/governance/signed-records",
@@ -108,7 +108,7 @@ export function parseRouteBundleStatsFirstLoadJsKb(stats) {
   return routes;
 }
 
-/** Legacy baseline keys → canonical Next 16 app-router paths in route-bundle-stats.json. */
+/** @deprecated Legacy baseline keys kept for one release so stale JSON still resolves. */
 const TRACKED_ROUTE_STATS_ALIASES = {
   "/reviews": "/architecture/reviews",
   "/reviews/[runId]": "/architecture/reviews/[runId]",
