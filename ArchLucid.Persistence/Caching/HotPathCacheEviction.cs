@@ -68,8 +68,15 @@ public static class HotPathCacheEviction
     }
 
     /// <summary>
+    ///     Maximum interval between audit-list scope revision bumps during append bursts (TB-2062). Keeps first-page
+    ///     cache keys stable under pipeline write churn while the list TTL bounds staleness.
+    /// </summary>
+    internal const int AuditListInvalidationCoalesceSeconds = 3;
+
+    /// <summary>
     ///     Bumps the scope revision stamp read by <see cref="Audit.CachingAuditRepository" /> so prior audit list cache
-    ///     entries are bypassed without enumerating filter/take variants (TB-581).
+    ///     entries are bypassed without enumerating filter/take variants (TB-581). Bursts coalesce within
+    ///     <see cref="AuditListInvalidationCoalesceSeconds" /> (TB-2062).
     /// </summary>
     public static async Task InvalidateAuditListScopeAsync(
         IHotPathReadCache cache,
@@ -81,12 +88,24 @@ public static class HotPathCacheEviction
 
         string revisionKey = HotPathCacheKeys.AuditListScopeRevision(scope);
 
+        RunListScopeRevisionState? current = await cache.GetOrCreateAsync(
+            revisionKey,
+            _ => Task.FromResult<RunListScopeRevisionState?>(new RunListScopeRevisionState { Revision = 0 }),
+            ct);
+
+        long nowTicks = TimeProvider.System.GetUtcNow().Ticks;
+        long lastRevision = current?.Revision ?? 0;
+        long coalesceTicks = TimeSpan.FromSeconds(AuditListInvalidationCoalesceSeconds).Ticks;
+
+        if (lastRevision > 0 && nowTicks - lastRevision < coalesceTicks)
+            return;
+
         await cache.RemoveAsync(revisionKey, ct);
 
         await cache.GetOrCreateAsync(
             revisionKey,
             _ => Task.FromResult<RunListScopeRevisionState?>(
-                new RunListScopeRevisionState { Revision = TimeProvider.System.GetUtcNow().Ticks }),
+                new RunListScopeRevisionState { Revision = nowTicks }),
             ct);
     }
 

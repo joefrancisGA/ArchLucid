@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-07 - Performance: TB-2062 audit list cache coalesced invalidation
+
+Coalesce audit-list scope revision bumps within 3s during append bursts so first-page `CachingAuditRepository` reads keep cache hits under pipeline write churn; 15s list TTL still bounds staleness.
+
 ## 2026-08-07 - Performance: TB-2061 dashboard + signed-records First Load JS
 
 Deferred below-fold executive-dashboard panels and the signed-records list client chunk via `next/dynamic`; extended `check:first-load-js` tracked routes and baseline for `/architecture/executive-dashboard` and `/governance/signed-records`.
