@@ -3325,10 +3325,12 @@ END
 
 GO
 
-IF NOT EXISTS (
+-- Require base user table (N'U'): after ADR 0064 / migration 295, dbo.Runs is a synonym for dbo.Reviews.
+IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+AND NOT EXISTS (
     SELECT 1 FROM sys.indexes
     WHERE name = N'IX_Runs_ArchiveRetention'
-      AND object_id = OBJECT_ID(N'dbo.Runs'))
+      AND object_id = OBJECT_ID(N'dbo.Runs', N'U'))
 BEGIN
     CREATE NONCLUSTERED INDEX IX_Runs_ArchiveRetention
         ON dbo.Runs (CreatedUtc ASC)
@@ -3682,6 +3684,8 @@ GO
 /* ---- DbUp 159 parity: commit idempotency + project RBAC overlays ---- */
 
 IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'CommitRunIdempotency' AND schema_id = SCHEMA_ID('dbo'))
+   AND OBJECT_ID(N'dbo.CommitRunIdempotency') IS NULL
+   AND OBJECT_ID(N'dbo.FinalizeReviewIdempotency', N'U') IS NULL
 BEGIN
     CREATE TABLE dbo.CommitRunIdempotency
     (
@@ -3740,10 +3744,12 @@ END;
 
 GO
 
-IF NOT EXISTS (
+-- Require base user table (N'U'): after ADR 0064 / migration 295, dbo.Runs is a synonym for dbo.Reviews.
+IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+AND NOT EXISTS (
     SELECT 1 FROM sys.indexes
     WHERE name = N'IX_Runs_Scope_Project_CreatedUtc'
-      AND object_id = OBJECT_ID(N'dbo.Runs'))
+      AND object_id = OBJECT_ID(N'dbo.Runs', N'U'))
 BEGIN
     CREATE NONCLUSTERED INDEX IX_Runs_Scope_Project_CreatedUtc
         ON dbo.Runs (TenantId, WorkspaceId, ScopeProjectId, ProjectId, CreatedUtc DESC);
@@ -3780,11 +3786,13 @@ IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
     ALTER TABLE dbo.Runs ADD OtelTraceId NVARCHAR(64) NULL;
 
 /* DbUp 061 parity: covering list index for dbo.Runs scope + CreatedUtc DESC (avoids key lookups into clustered PK under concurrent writes). */
-IF NOT EXISTS (
+-- Require base user table (N'U'): after ADR 0064 / migration 295, dbo.Runs is a synonym for dbo.Reviews.
+IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+AND NOT EXISTS (
     SELECT 1
     FROM sys.indexes
     WHERE name = N'IX_Runs_Scope_CreatedUtc'
-      AND object_id = OBJECT_ID(N'dbo.Runs'))
+      AND object_id = OBJECT_ID(N'dbo.Runs', N'U'))
 BEGIN
     CREATE NONCLUSTERED INDEX IX_Runs_Scope_CreatedUtc
         ON dbo.Runs (TenantId, WorkspaceId, ScopeProjectId, CreatedUtc DESC)
@@ -6947,6 +6955,8 @@ GO
 /* ---- DbUp 159 parity: commit-run idempotency + project role assignments (see Migrations/159_CommitRunIdempotency_ProjectRoleAssignments.sql) ---- */
 
 IF OBJECT_ID(N'dbo.CommitRunIdempotency', N'U') IS NULL
+   AND OBJECT_ID(N'dbo.CommitRunIdempotency') IS NULL
+   AND OBJECT_ID(N'dbo.FinalizeReviewIdempotency', N'U') IS NULL
 BEGIN
     CREATE TABLE dbo.CommitRunIdempotency
     (

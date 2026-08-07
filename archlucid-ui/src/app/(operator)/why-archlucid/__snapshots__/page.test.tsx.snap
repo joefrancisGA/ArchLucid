@@ -159,7 +159,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
       <p
         class="m-0 mt-2 text-[13px] font-normal leading-5 text-al-text-primary"
       >
-        This Why ArchLucid page is an operator demo/proof surface over seeded telemetry and sample review outputs — it is not a signed-review diligence Sources trail from your production tenant, a CPA SOC 2 attestation, or a published third-party pen-test report. Open the public /why comparison, Assurance status, or a finalized architecture review when you need diligence-grade trails.
+        This Why ArchLucid page is an internal demo/proof surface over seeded telemetry and sample review outputs — it is not a signed-review diligence Sources trail from your production tenant, a CPA SOC 2 attestation, or a published third-party pen-test report. Open the public /why comparison, Assurance status, or a finalized signed review record when you need diligence-grade trails.
       </p>
     </aside>
   </div>

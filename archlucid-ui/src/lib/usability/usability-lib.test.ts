@@ -25,7 +25,7 @@ describe("usability lib", () => {
     expect(pageHelpTopicForPathname("/architecture/architectures")?.label).toBe("Getting started");
     expect(pageHelpTopicForPathname("/architecture/architectures/draft-id-123")?.slug).toBe("getting-started");
     expect(pageHelpTopicForPathname("/architecture/digests")?.slug).toBe("digests");
-    expect(pageHelpTopicForPathname("/settings/roles")?.slug).toBe("users-and-roles");
+    expect(pageHelpTopicForPathname("/administration/users")?.slug).toBe("users-and-roles");
     expect(pageHelpTopicForPathname("/architecture/digests")?.label).toBe("Architecture digests");
     expect(pageHelpTopicForPathname("/digests")?.slug).toBe("digests");
     expect(pageHelpTopicForPathname("/digest-subscriptions")?.slug).toBe("digests");

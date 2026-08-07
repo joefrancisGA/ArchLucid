@@ -14,4 +14,4 @@ export const SECURITY_TRUST_TRAFFIC_SECTION = "Marketing";
  * Owner workbook Notes for SEC — documents Evidence chrome on Security & trust.
  */
 export const SECURITY_TRUST_TRAFFIC_NOTE =
-  "Assurance status (Marketing) - MarketingSecurityTrustView with SecurityTrustEvidenceOrientationStrip (evaluation Sources + claim-discipline: engagement metadata only; not diligence package / CPA SOC 2 / third-party pen-test), assurance ladder + public/NDA CTAs. Not an operator PageContextualHelp surface. Does not imply CPA SOC 2 or third-party pen-test publication. Score 40/100 (2026-08-04) — marketing assurance page hard-caps higher Evidence.";
+  "Assurance status (Marketing) - MarketingSecurityTrustView with SecurityTrustEvidenceOrientationStrip (evaluation Sources + claim-discipline: engagement metadata only; not a signed-review diligence Sources trail / CPA SOC 2 / third-party pen-test), assurance ladder + public/NDA CTAs. Not an operator PageContextualHelp surface. Does not imply CPA SOC 2 or third-party pen-test publication. Score 40/100 (2026-08-04) — marketing assurance page hard-caps higher Evidence.";
