@@ -31,7 +31,13 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/settings/support": "/administration/support",
     "/workspace/security-trust": "/administration/security-trust",
     "/settings/security-trust": "/administration/security-trust",
-    "/governance-resolution": "/governance/resolution",
+    "/governance-resolution": "/governance/standards-and-rules",
+    "/governance/resolution": "/governance/standards-and-rules",
+    "/ask": "/insights/ask-review-questions",
+    "/graph": "/insights/evidence-graph",
+    "/search": "/insights/search-review-evidence",
+    "/compare": "/insights/compare-two-reviews",
+    "/scorecard": "/insights/architecture-scorecard",
     "/help/cloud-connections-azure": "/help/cloud-connections/azure",
     "/help/cloud-connections-aws": "/help/cloud-connections/aws",
     "/help/cloud-connections-gcp": "/help/cloud-connections/gcp",
@@ -257,9 +263,11 @@ def infer_section(path: str, *, help_alias_paths: set[str]) -> str:
         return "Core review"
     if path.startswith("/architecture/executive-dashboard"):
         return "Executive"
-    if path.startswith("/architecture-intelligence"):
+    if path.startswith("/architecture/architecture-intelligence") or path.startswith(
+        "/architecture-intelligence"
+    ):
         return "Core review"
-    if path in ("/", "/dashboard", "/ask"):
+    if path in ("/", "/dashboard", "/ask") or path.startswith("/insights/ask-review-questions"):
         return "Core review"
     if path.startswith("/governance/advisory-scans") or path.startswith("/operate"):
         return "Advisory"

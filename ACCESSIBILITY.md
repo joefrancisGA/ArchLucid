@@ -39,7 +39,7 @@ The following **16** routes are the **priority operator coverage** set (wizard, 
 | Advisory | `/governance/advisory-scans` | Scanned |
 | Governance dashboard | `/governance/dashboard` | Scanned |
 | Governance workflow | `/governance/approval-queue` | Scanned |
-| Tenant settings | `/administration/settings/tenant` | Scanned |
+| Tenant settings | `/administration/tenant` | Scanned |
 | Value report | `/value-report` | Scanned |
 | Audit | `/governance/audit` | Scanned |
 | Policy packs | `/governance/policy-packs` | Scanned |

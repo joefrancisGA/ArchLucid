@@ -58,7 +58,8 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
           requiredAuthority: "ReadAuthority",
         },
         {
-          href: GOVERNANCE_EXCEPTIONS_PATH,
+          // String literal required: scripts/ci/assert_route_tier_policy_nav.py parses href:"..." only.
+          href: "/governance/exceptions" as typeof GOVERNANCE_EXCEPTIONS_PATH,
           label: OPERATOR_NAV_LINK_LABELS.riskExceptions,
           title: "Track active waivers and expirations",
           icon: ShieldX,

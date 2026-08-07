@@ -1,7 +1,7 @@
 archlucid-ui/src/app/(executive)/executive/scorecard/ExecutiveScorecardClient.tsx
 archlucid-ui/src/app/(operator)/_sections/load-operator-home-runs-dashboard-model.ts
-archlucid-ui/src/app/(operator)/administration/settings/identity-providers/_sections/IdentityProvidersSettingsShell.tsx
-archlucid-ui/src/app/(operator)/administration/settings/tenant/_sections/load-tenant-settings-page-data.ts
+archlucid-ui/src/app/(operator)/administration/identity-providers/_sections/IdentityProvidersSettingsShell.tsx
+archlucid-ui/src/app/(operator)/administration/tenant/_sections/load-tenant-settings-page-data.ts
 archlucid-ui/src/app/(operator)/administration/system-health/_sections/use-system-health-page.ts
 archlucid-ui/src/app/(operator)/architecture/executive-dashboard/_sections/ExecutiveRoiDashboardLiveKpiCards.tsx
 archlucid-ui/src/app/(operator)/architecture/executive-dashboard/_sections/ExecutiveRoiDashboardPageView.tsx
@@ -49,6 +49,9 @@ archlucid-ui/src/app/(operator)/reviews/[runId]/findings/[findingId]/_sections/f
 archlucid-ui/src/app/(operator)/reviews/[runId]/findings/[findingId]/_sections/load-finding-detail-page-model.ts
 archlucid-ui/src/app/(operator)/reviews/new/NewRunWizardClient.tsx
 archlucid-ui/src/app/(operator)/reviews/new/QuickReviewWizard.tsx
+archlucid-ui/src/app/(operator)/governance/signed-records/[manifestId]/_sections/load-manifest-detail-page-model.ts
+archlucid-ui/src/app/(operator)/governance/signed-records/[manifestId]/artifacts/[artifactId]/_sections/load-signed-record-artifact-page-model.ts
+archlucid-ui/src/app/(operator)/governance/signed-records/[manifestId]/loading.tsx
 archlucid-ui/src/app/(operator)/signed-records/[manifestId]/_sections/load-manifest-detail-page-model.ts
 archlucid-ui/src/app/(operator)/signed-records/[manifestId]/artifacts/[artifactId]/_sections/load-signed-record-artifact-page-model.ts
 archlucid-ui/src/app/(operator)/signed-records/[manifestId]/loading.tsx

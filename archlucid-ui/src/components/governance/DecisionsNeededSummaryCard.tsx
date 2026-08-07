@@ -6,7 +6,6 @@ import Link from "next/link";
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
 import { Card, CardContent } from "@/components/ui/card";
 import type { GovernanceDecisionsNeededSummary } from "@/lib/api/governance-stickiness-api";
-import { GOVERNANCE_EXCEPTIONS_PATH } from "@/lib/governance-route-paths";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type DecisionsNeededTile = {
@@ -47,7 +46,7 @@ export function buildDecisionsNeededTiles(summary: GovernanceDecisionsNeededSumm
       key: "waiversExpiringWithin14Days",
       label: "Waivers expiring (14d)",
       count: summary.waiversExpiringWithin14Days,
-      href: GOVERNANCE_EXCEPTIONS_PATH,
+      href: "/governance/exceptions",
       cautionAccent: summary.waiversExpiringWithin14Days > 0,
     },
     {

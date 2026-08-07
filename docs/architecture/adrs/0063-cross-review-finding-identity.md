@@ -32,4 +32,4 @@ Operators compare two finalized reviews, replay runs, and export sponsor artifac
 | **TB-2043** | Comparison export metadata — correlation method honesty |
 | **TB-2044** | Trust labels on all finding export paths |
 
-Authoritative tracking: [`docs/library/TECH_BACKLOG_OPEN.md`](../library/TECH_BACKLOG_OPEN.md) § TB-2042–TB-2047.
+Authoritative tracking: [`docs/library/TECH_BACKLOG_OPEN.md`](../../library/TECH_BACKLOG_OPEN.md) § TB-2042–TB-2047.
