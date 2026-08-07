@@ -13,6 +13,8 @@
 
 **Wall-clock benchmark (request → committed manifest):** [`#real-mode-e2e-benchmark`](#real-mode-e2e-benchmark) (`REAL_MODE_BENCHMARK.md` alias).
 
+**Long-running Real-mode execute:** Do not assume a single sync HTTP hold survives edge/proxy timeouts — see **[LONG_RUNNING_OPERATIONS_CONTRACT.md](LONG_RUNNING_OPERATIONS_CONTRACT.md)** (**TB-2072**) latency tier **C** and planned async execute siblings (**TB-2075**).
+
 ## What you need
 
 1. **Shell gate (opt-in):** set **`ARCHLUCID_REAL_AOAI=1`** in the environment where you run the CLI. Without this, `--real` is ignored for safety (no surprise spend against a subscription you did not intend).

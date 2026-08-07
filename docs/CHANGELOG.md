@@ -10,6 +10,14 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-07 - Reliability: TB-2072 long-running operations latency-tier contract
+
+Published [`LONG_RUNNING_OPERATIONS_CONTRACT.md`](library/LONG_RUNNING_OPERATIONS_CONTRACT.md) with tiers A–D, operation inventory, and an explicit non-claim that `GET /v1/runs/{runId}/progress` does not exist; cross-linked from API contracts, performance targets, first-real-value, and UI AGENTS.
+
+## 2026-08-07 - Trustworthiness: TB-2071 compare execution-mode honesty
+
+Compare-two-reviews now surfaces per-run execution mode badges, mode-mismatch warnings, and trust-label advisories on AI delta narratives when baseline and updated reviews are not equally grounded.
+
 ## 2026-08-07 - Adoption friction: TB-2070 migration operator visibility
 
 Tenant and admin surfaces now show catalog migration stage, correlation id, migration id, and last verification error on the AppShell banner and `/admin/health` diagnostics card.

@@ -7,6 +7,8 @@
 
 **Error bodies (RFC 9457 Problem Details, obsoletes RFC 7807):** See **[API_ERROR_CONTRACT.md](API_ERROR_CONTRACT.md)** for Problem+JSON shape, stable **`type`** URIs, and correlation behavior.
 
+**Long-running operations (latency tiers A–D + inventory):** See **[LONG_RUNNING_OPERATIONS_CONTRACT.md](LONG_RUNNING_OPERATIONS_CONTRACT.md)** (**TB-2072**) — which endpoints may block vs must return **202**, and that **`GET /v1/runs/{runId}/progress` does not exist**.
+
 ## API versioning
 
 - **URL path:** Major version is in the path: **`/v1/...`** (see controller routes `v{version:apiVersion}`).

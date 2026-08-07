@@ -6,6 +6,8 @@
 
 Publish **route-oriented** p95 ceilings enforced by **k6 `thresholds`** on merge-blocking CI jobs and duplicated by **`scripts/ci/assert_k6_ci_smoke_summary.py`**, so regressions fail the workflow without changing runtime API code.
 
+**Longer than k6 smoke:** For which product endpoints may block vs must go async (tiers A–D), see **[LONG_RUNNING_OPERATIONS_CONTRACT.md](LONG_RUNNING_OPERATIONS_CONTRACT.md)** (**TB-2072**). Latency-tier **CI enforcement** beyond k6 tags is **TB-2079**.
+
 ## Assumptions
 
 - **Synthetic CI profile:** **`tests/load/ci-smoke.js`** (**`k6-ci-smoke`**) and **`tests/load/k6-api-smoke.js`** (**`k6-smoke-api`**) against **`ArchLucid.Api`** on GitHub Actions with SQL Server service container and DevelopmentBypass (**`.github/workflows/ci.yml`**).
