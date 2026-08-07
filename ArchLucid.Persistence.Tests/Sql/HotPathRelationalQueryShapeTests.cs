@@ -1,3 +1,4 @@
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Sql;
 
 namespace ArchLucid.Persistence.Tests.Sql;
@@ -230,6 +231,15 @@ public sealed class HotPathRelationalQueryShapeTests
         FindingRecordListSql.SelectMetadataColumns.Should().NotContain("PayloadJson");
         FindingRecordListSql.SelectMetadataColumns.Should().Contain("FindingRecordId");
         FindingRecordListSql.SelectMetadataColumns.Should().Contain("Title");
+    }
+
+    [SkippableFact]
+    public void Comparison_record_list_projection_omits_payload_json()
+    {
+        ComparisonRecordListSql.SelectColumnsWithoutPayloadJson.Should().NotContain("PayloadJson");
+        ComparisonRecordListSql.SelectColumnsWithoutPayloadJson.Should().Contain("ComparisonRecordId");
+        ComparisonRecordListSql.SelectColumnsWithoutPayloadJson.Should().Contain("SummaryMarkdown");
+        ComparisonRecordRunIdSql.ProjectionRow.Should().Contain("PayloadJson");
     }
 
     [SkippableFact]

@@ -16,6 +16,7 @@
 | Weekly critical findings sample | `DapperWeeklyArchitectureCriticalFindingSummaryRepository` | `PayloadJson` | title/category only |
 | Evidence proposals list | `AgentResultListSql.ListEvidenceProposalsSelectColumns` | `ResultJson` | needs `ProposedEvidenceJson` by purpose |
 | Rollup/compare agent results | `AgentResultListSql.GetByRunIdSelectRollupProjection` + `GetRollupProjectionByRunIdAsync` | bare full `ResultJson` | TB-2053 — JSON subpaths for claims/findings/controls only |
+| Comparison history / search | `ComparisonRecordListSql` + `ComparisonRecordRepository` list methods | `PayloadJson` | TB-2057 — detail via `GetByIdAsync` only |
 
 ## Intentional full-blob readers (documented)
 
@@ -26,6 +27,7 @@
 | Trace forensics | `GetPagedByRunIdAsync` | `TraceJson` | internal operator forensics endpoint |
 | Trace by id / task / full run | `GetByTraceIdAsync`, `GetByTaskIdAsync`, `GetByRunIdAsync` | `TraceJson` | forensic / orchestration detail |
 | Finding inspect | `DapperFindingInspectReadRepository` | `PayloadJson` | single-finding inspect |
+| Comparison record by id | `ComparisonRecordRepository.GetByIdAsync` | `PayloadJson` | single-row detail (not a list) |
 | Findings snapshot load | `SqlFindingsSnapshotRepository.GetByIdAsync` / relational read | `FindingsJson` / `PayloadJson` | detail/export |
 | Audit export | `AuditEventsFilteredSelectFromWhereScopeWithDataJsonNoLock` | includes `DataJson` | explicit export flag |
 
@@ -38,7 +40,7 @@
 
 ## Drift guards
 
-- `ArchLucid.Persistence.Tests/Sql/HotPathRelationalQueryShapeTests.cs` — run/audit/trace/finding/agent-result list constants (typed-column preference + no bare `TraceJson`)
+- `ArchLucid.Persistence.Tests/Sql/HotPathRelationalQueryShapeTests.cs` — run/audit/trace/finding/agent-result/comparison list constants (typed-column preference + no bare `TraceJson`)
 - `AgentExecutionTraceRepositoryContractTests.GetPagedSummariesByRunIdAsync_returns_summary_slice_and_total`
 
 ## Measurement note

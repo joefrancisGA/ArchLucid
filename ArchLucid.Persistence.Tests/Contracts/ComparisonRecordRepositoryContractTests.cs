@@ -148,6 +148,29 @@ public abstract class ComparisonRecordRepositoryContractTests
     }
 
     [SkippableFact]
+    public async Task List_methods_omit_payload_json_detail_includes_payload()
+    {
+        SkipIfSqlServerUnavailable();
+        IComparisonRecordRepository repo = CreateRepository();
+        string runId = Guid.NewGuid().ToString("N");
+        const string fatPayload = """{"marker":"list-should-not-return-this"}""";
+        ComparisonRecord row = CreateRecord("cmp_list_" + Guid.NewGuid().ToString("N"));
+        row.LeftRunId = runId;
+        row.PayloadJson = fatPayload;
+
+        await BeforeSqlComparisonRecordPersistAsync(row, CancellationToken.None);
+        await repo.CreateAsync(row, CancellationToken.None);
+
+        IReadOnlyList<ComparisonRecord> list = await repo.GetByRunIdAsync(runId, CancellationToken.None);
+
+        ComparisonRecord listed = list.Single(r => r.ComparisonRecordId == row.ComparisonRecordId);
+        listed.PayloadJson.Should().BeEmpty();
+
+        ComparisonRecord? detail = await repo.GetByIdAsync(row.ComparisonRecordId, CancellationToken.None);
+        detail!.PayloadJson.Should().Be(fatPayload);
+    }
+
+    [SkippableFact]
     public async Task SearchByCursor_invalid_sort_throws()
     {
         SkipIfSqlServerUnavailable();
