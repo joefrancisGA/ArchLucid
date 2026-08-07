@@ -522,9 +522,13 @@ GO
 /* ---- Authority / Dapper persistence + Decisioning (GUID dbo.Runs) ---- */
 /*
   Authority rule-audit traces live in dbo.DecisioningTraces (coordinator dbo.DecisionTraces dropped in migration 296).
+  After ADR 0064 / DbUp 295, dbo.Runs may already exist as a synonym for dbo.Reviews — OBJECT_ID(...,'U') is NULL then,
+  so also skip CREATE when any object (table or synonym) or the renamed base table is present.
 */
 
-IF OBJECT_ID('dbo.Runs', 'U') IS NULL
+IF OBJECT_ID(N'dbo.Runs', N'U') IS NULL
+   AND OBJECT_ID(N'dbo.Runs') IS NULL
+   AND OBJECT_ID(N'dbo.Reviews', N'U') IS NULL
 BEGIN
     CREATE TABLE dbo.Runs
     (
@@ -1729,7 +1733,9 @@ IF OBJECT_ID(N'dbo.DecisioningTraces', N'U') IS NOT NULL
 
 GO
 
-IF OBJECT_ID('dbo.GoldenManifests', 'U') IS NULL
+IF OBJECT_ID(N'dbo.GoldenManifests', N'U') IS NULL
+   AND OBJECT_ID(N'dbo.GoldenManifests') IS NULL
+   AND OBJECT_ID(N'dbo.SignedReviewRecords', N'U') IS NULL
 BEGIN
     CREATE TABLE dbo.GoldenManifests
     (
@@ -8198,39 +8204,26 @@ END;
 
 GO
 
-/* ADR 0064 — buyer-vocabulary spine rename + synonyms (parity with DbUp 295). */
-IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL AND OBJECT_ID(N'dbo.Reviews', N'U') IS NULL
+/* 297: Tenant catalog migration fan-out state (TB-2045–TB-2047). */
+IF OBJECT_ID(N'dbo.TenantCatalogMigrations', N'U') IS NULL
 BEGIN
-    EXEC sp_rename N'dbo.Runs', N'Reviews';
-END;
-GO
+    CREATE TABLE dbo.TenantCatalogMigrations
+    (
+        MigrationId            UNIQUEIDENTIFIER NOT NULL
+            CONSTRAINT DF_TenantCatalogMigrations_MigrationId DEFAULT NEWSEQUENTIALID(),
+        TenantId               UNIQUEIDENTIFIER NOT NULL,
+        CorrelationId          NVARCHAR(128)    NOT NULL,
+        Stage                  NVARCHAR(64)     NOT NULL,
+        StartedUtc             DATETIME2(7)     NOT NULL
+            CONSTRAINT DF_TenantCatalogMigrations_StartedUtc DEFAULT SYSUTCDATETIME(),
+        CompletedUtc           DATETIME2(7)     NULL,
+        MaintenanceMessage     NVARCHAR(1000)   NOT NULL,
+        VerificationPassedUtc  DATETIME2(7)     NULL,
+        LastVerificationError  NVARCHAR(2000)   NULL,
+        CONSTRAINT PK_TenantCatalogMigrations PRIMARY KEY (MigrationId)
+    );
 
-IF OBJECT_ID(N'dbo.Reviews', N'U') IS NOT NULL AND OBJECT_ID(N'dbo.Runs', N'SN') IS NULL
-BEGIN
-    CREATE SYNONYM dbo.Runs FOR dbo.Reviews;
+    CREATE UNIQUE INDEX UX_TenantCatalogMigrations_Tenant_Active
+        ON dbo.TenantCatalogMigrations (TenantId)
+        WHERE CompletedUtc IS NULL;
 END;
-GO
-
-IF OBJECT_ID(N'dbo.GoldenManifests', N'U') IS NOT NULL AND OBJECT_ID(N'dbo.SignedReviewRecords', N'U') IS NULL
-BEGIN
-    EXEC sp_rename N'dbo.GoldenManifests', N'SignedReviewRecords';
-END;
-GO
-
-IF OBJECT_ID(N'dbo.SignedReviewRecords', N'U') IS NOT NULL AND OBJECT_ID(N'dbo.GoldenManifests', N'SN') IS NULL
-BEGIN
-    CREATE SYNONYM dbo.GoldenManifests FOR dbo.SignedReviewRecords;
-END;
-GO
-
-IF OBJECT_ID(N'dbo.CommitRunIdempotency', N'U') IS NOT NULL AND OBJECT_ID(N'dbo.FinalizeReviewIdempotency', N'U') IS NULL
-BEGIN
-    EXEC sp_rename N'dbo.CommitRunIdempotency', N'FinalizeReviewIdempotency';
-END;
-GO
-
-IF OBJECT_ID(N'dbo.FinalizeReviewIdempotency', N'U') IS NOT NULL AND OBJECT_ID(N'dbo.CommitRunIdempotency', N'SN') IS NULL
-BEGIN
-    CREATE SYNONYM dbo.CommitRunIdempotency FOR dbo.FinalizeReviewIdempotency;
-END;
-GO

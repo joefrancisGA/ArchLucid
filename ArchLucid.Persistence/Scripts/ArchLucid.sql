@@ -503,9 +503,13 @@ GO
 /* ---- Authority / Dapper persistence + Decisioning (GUID dbo.Runs) ---- */
 /*
   Authority rule-audit traces live in dbo.DecisioningTraces (coordinator dbo.DecisionTraces dropped in migration 296).
+  After ADR 0064 / DbUp 295, dbo.Runs may already exist as a synonym for dbo.Reviews — OBJECT_ID(...,'U') is NULL then,
+  so also skip CREATE when any object (table or synonym) or the renamed base table is present.
 */
 
-IF OBJECT_ID('dbo.Runs', 'U') IS NULL
+IF OBJECT_ID(N'dbo.Runs', N'U') IS NULL
+   AND OBJECT_ID(N'dbo.Runs') IS NULL
+   AND OBJECT_ID(N'dbo.Reviews', N'U') IS NULL
 BEGIN
     CREATE TABLE dbo.Runs
     (
@@ -1675,7 +1679,9 @@ IF OBJECT_ID(N'dbo.DecisioningTraces', N'U') IS NOT NULL
     ALTER TABLE dbo.DecisioningTraces ADD ArchivedUtc DATETIME2 NULL;
 GO
 
-IF OBJECT_ID('dbo.GoldenManifests', 'U') IS NULL
+IF OBJECT_ID(N'dbo.GoldenManifests', N'U') IS NULL
+   AND OBJECT_ID(N'dbo.GoldenManifests') IS NULL
+   AND OBJECT_ID(N'dbo.SignedReviewRecords', N'U') IS NULL
 BEGIN
     CREATE TABLE dbo.GoldenManifests
     (
