@@ -144,14 +144,6 @@ const nextConfig: NextConfig = {
       { source: "/portfolio", destination: "/architecture/executive-dashboard", permanent: true },
       { source: "/signed-records", destination: "/governance/signed-records", permanent: true },
       { source: "/signed-records/:path*", destination: "/governance/signed-records/:path*", permanent: true },
-      { source: "/manifests", destination: "/governance/signed-records", permanent: true },
-      { source: "/manifests/:path*", destination: "/governance/signed-records/:path*", permanent: true },
-      { source: "/digests", destination: "/architecture/digests", permanent: true },
-      {
-        source: "/digest-subscriptions",
-        destination: "/architecture/digests?tab=subscriptions",
-        permanent: true,
-      },
       // Legacy nested settings bookmarks (pre-flatten) → flat /administration/* pages.
       { source: "/administration/settings", destination: "/administration", permanent: true },
       { source: "/administration/settings/:path*", destination: "/administration/:path*", permanent: true },
@@ -170,20 +162,19 @@ const nextConfig: NextConfig = {
       { source: "/value-report/roi", destination: "/sponsor-report/roi-summary", permanent: true },
       // Legacy integrations bookmark (TB-407 / TB-750) → operator integrations tree.
       { source: "/settings/cloud-connections", destination: "/integrations/cloud-connections", permanent: true },
-      {
-        source: "/governance/risk-exceptions",
-        destination: "/governance/exceptions",
-        permanent: true,
-      },
-      {
-        source: "/governance/risk-exceptions/:path*",
-        destination: "/governance/exceptions/:path*",
-        permanent: true,
-      },
     ];
   },
   async rewrites() {
     return [
+      // Legacy digests bookmarks — internal rewrite (no 301 hop); client upgrades pathname for nav.
+      { source: "/digests", destination: "/architecture/digests" },
+      {
+        source: "/digest-subscriptions",
+        destination: "/architecture/digests?tab=subscriptions",
+      },
+      // Legacy exceptions rename — rewrite alias for orientation lookups.
+      { source: "/governance/risk-exceptions", destination: "/governance/exceptions" },
+      { source: "/governance/risk-exceptions/:path*", destination: "/governance/exceptions/:path*" },
       // Friendly demo URL while reusing signed-record detail implementation (`SHOWCASE_STATIC_DEMO_*`).
       // Must precede the generic run-scoped signed-record rewrite below.
       {

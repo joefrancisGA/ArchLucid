@@ -4,17 +4,21 @@ import {
   GOVERNANCE_ALERT_RULES_PATH,
   GOVERNANCE_ALERTS_PATH,
   GOVERNANCE_AUDIT_PATH,
+  GOVERNANCE_EXCEPTIONS_PATH,
   GOVERNANCE_POLICY_PACKS_PATH,
   LEGACY_ALERTS_PATH,
   LEGACY_AUDIT_PATH,
+  LEGACY_GOVERNANCE_RISK_EXCEPTIONS_PATH,
   LEGACY_POLICY_PACKS_PATH,
   pathMatchesRoutePrefix,
 } from "@/lib/governance-route-paths";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
+import { LEGACY_SIGNED_RECORDS_LIST_PATH, SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 
 const LEGACY_ALERT_RULES_PATH = "/alert-rules";
 const LEGACY_CLOUD_CONNECTIONS_PATH = "/settings/cloud-connections";
 const LEGACY_DIGEST_SUBSCRIPTIONS_PATH = "/digest-subscriptions";
+const LEGACY_MANIFESTS_PATH = "/manifests";
 
 /**
  * Maps legacy bookmark paths to canonical operator routes for readiness, help, and orientation lookups.
@@ -57,6 +61,18 @@ export function canonicalizeLegacyOperatorRoutePath(pathname: string): string {
 
   if (normalized === LEGACY_DIGEST_SUBSCRIPTIONS_PATH) {
     return `${DIGESTS_HUB_PATH}?tab=subscriptions`;
+  }
+
+  if (pathMatchesRoutePrefix(normalized, LEGACY_GOVERNANCE_RISK_EXCEPTIONS_PATH)) {
+    return normalized.replace(LEGACY_GOVERNANCE_RISK_EXCEPTIONS_PATH, GOVERNANCE_EXCEPTIONS_PATH);
+  }
+
+  if (pathMatchesRoutePrefix(normalized, LEGACY_MANIFESTS_PATH)) {
+    return normalized.replace(LEGACY_MANIFESTS_PATH, SIGNED_RECORDS_LIST_PATH);
+  }
+
+  if (pathMatchesRoutePrefix(normalized, LEGACY_SIGNED_RECORDS_LIST_PATH)) {
+    return normalized.replace(LEGACY_SIGNED_RECORDS_LIST_PATH, SIGNED_RECORDS_LIST_PATH);
   }
 
   return normalized;

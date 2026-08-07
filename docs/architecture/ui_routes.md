@@ -77,7 +77,7 @@ To browse interactively, run `e2e/start-e2e-with-mock.ts` (see `playwright.mock.
 |------|-----|
 | Review package | `/reviews/claims-intake-modernization` |
 | Friendly manifest URL | `/reviews/claims-intake-modernization/manifest` |
-| Manifest (UUID) | `/manifests/a1c2e3f4-a5b6-7890-abcd-ef1234567890` |
+| Manifest (UUID) | `/governance/signed-records/a1c2e3f4-a5b6-7890-abcd-ef1234567890` |
 | Finding | `/reviews/claims-intake-modernization/findings/phi-minimization-risk` |
 | Finding inspect | `/reviews/claims-intake-modernization/findings/phi-minimization-risk/inspect` |
 | Provenance | `/reviews/claims-intake-modernization/provenance` |
@@ -128,9 +128,23 @@ Configured in `archlucid-ui/next.config.ts` — **namespace force-canonical** (r
 | `/signed-records`, `/signed-records/*` | `/governance/signed-records/*` (301) |
 | `/value-report`, `/value-report/pilot`, `/value-report/roi` | `/sponsor-report/*` (301) |
 
+**Rewrite aliases** (no 301 hop — URL may stay on the legacy path until client navigation upgrades it):
+
+| Source | Destination |
+|--------|-------------|
+| `/digests` | `/architecture/digests` |
+| `/digest-subscriptions` | `/architecture/digests?tab=subscriptions` |
+| `/governance/risk-exceptions`, `/governance/risk-exceptions/*` | `/governance/exceptions`, `/governance/exceptions/*` |
+
 `/settings/roles` is a **rewrite** (not 301) to `/administration/users?tab=roles`.
 
-**Note:** Legacy `/manifests/[manifestId]/artifacts/[artifactId]` and top-level `/signed-records/.../artifacts/...` redirect to canonical `/governance/signed-records/[manifestId]/artifacts/[artifactId]` (MAM — live App Router preview). Run-scoped `/architecture/reviews/[runId]/artifacts/[artifactId]` (RER) redirects to MAM when a golden manifest exists.
+**Retired bookmarks** (no redirect or rewrite — use canonical paths):
+
+| Path | Canonical |
+|------|-----------|
+| `/manifests`, `/manifests/*` | `/governance/signed-records/*` (or legacy `/signed-records/*` 301) |
+
+**Note:** Legacy top-level `/signed-records/.../artifacts/...` redirect to canonical `/governance/signed-records/[manifestId]/artifacts/[artifactId]` (MAM — live App Router preview). `/manifests/*` is **retired** (no redirect); use `/governance/signed-records/*` or `/signed-records/*`. Run-scoped `/architecture/reviews/[runId]/artifacts/[artifactId]` (RER) redirects to MAM when a golden manifest exists.
 
 ---
 
@@ -187,7 +201,7 @@ Columns:
 | `/reviews/[runId]/provenance` | Evidence provenance diagram | Append to populated review URL |
 | `/reviews/[runId]/findings/[findingId]` | Finding detail | T1: `…/findings/phi-minimization-risk` |
 | `/reviews/[runId]/findings/[findingId]/inspect` | Finding evidence trace inspect | Same finding + `/inspect` |
-| `/manifests/[manifestId]` | Manifest summary, artifacts, bundle | T1: `a1c2e3f4-a5b6-7890-abcd-ef1234567890` |
+| `/governance/signed-records/[manifestId]` | Signed review record summary, artifacts, bundle | T1: `a1c2e3f4-a5b6-7890-abcd-ef1234567890` |
 | `/graph` | Deprecated alias | Retired pre-release bookmark — no App Router page or redirect; canonical UX on **INE** (`/insights/evidence-graph`) |
 | `/insights/evidence-graph` | Evidence graph (trace table + interactive graph) | T1: `?runId=claims-intake-modernization` → **Load graph**; deep links via `runId` + `graphNodeId` (**INE**) |
 | `/onboarding` | In-product onboarding | T1/T2; T2 may show `trialSampleRunId` from API |
@@ -222,7 +236,7 @@ Query keys for compare: `priorRunId`/`laterRunId` (buyer) or `leftRunId`/`rightR
 |-----|---------|-------------|
 | `/governance/advisory-scans` | Advisory scans hub (Scans + Schedules tabs) | T3 mock or T2 API; blocked in strict T1 nav; legacy `/advisory` + `/advisory-scheduling` → next.config redirects here; **AD** = `?tab=schedules`, **ADS** = default Scans tab |
 | `/governance/findings` | Architecture risk register | T1 static; T2: `?runId=<seeded-run>` for review context |
-| `/governance/risk-exceptions` | Risk exceptions / waivers | T3 mock or T2 seed |
+| `/governance/exceptions` | Risk exceptions / waivers | T3 mock or T2 seed |
 | `/policy-packs` | Policy pack inventory | T1 static list |
 | `/governance/policy-packs` | Governance-scoped pack registry | Same as hub in demo |
 | `/governance/policy-packs/[id]` | Policy pack detail | T1: `healthcare-claims-v3-pack` |
@@ -259,9 +273,9 @@ Layer guidance copy for many governance/analysis routes: `archlucid-ui/src/lib/l
 | `/value-report/roi` | ROI / hours summary | T1 illustrative; T2 with seed |
 | `/architecture/digests` | Digests hub (Browse + Subscriptions + Schedule) | T3 mock; Schedule tab (**DIS**) hosts ExecDigestScheduleContent |
 | `/architecture/digests?tab=schedule` | Executive digest schedule | ExecDigestScheduleContent; preferences via `/v1/tenant/exec-digest-preferences` (**DIS**) |
-| `/digests` | Legacy redirect | Permanent redirect to `/architecture/digests` |
+| `/digests` | Legacy rewrite alias | Internal rewrite to `/architecture/digests` |
 | `/settings/exec-digest` | Retired pre-release bookmark | No redirect or App Router page; canonical schedule on **DIS** (`/architecture/digests?tab=schedule`, TB-1901–TB-1905); former traffic row **EEX** removed |
-| `/digest-subscriptions` | Digest subscriptions | T3 mock |
+| `/digest-subscriptions` | Legacy rewrite alias | Internal rewrite to `/architecture/digests?tab=subscriptions` |
 | `/patterns` | Architecture pattern library | T3 mock or API if seeded |
 | `/portfolio` | Retired — redirects to `/architecture/executive-dashboard` | Legacy bookmark only |
 | `/operate/architecture-graph` | Legacy Operate shim | App Router redirect to `/insights/evidence-graph` (query preserved; canonical UX on **INE**) |

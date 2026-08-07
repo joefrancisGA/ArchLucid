@@ -23,7 +23,7 @@ export const GOVERNANCE_ALERT_RULES_PATH = "/governance/alert-rules";
 /** Risk exceptions / waivers register (left-nav). */
 export const GOVERNANCE_EXCEPTIONS_PATH = "/governance/exceptions" as const;
 
-/** Legacy exceptions path — permanent redirect to {@link GOVERNANCE_EXCEPTIONS_PATH}. */
+/** Legacy exceptions path — rewrite alias for {@link GOVERNANCE_EXCEPTIONS_PATH} (no 301 hop). */
 export const LEGACY_GOVERNANCE_RISK_EXCEPTIONS_PATH = "/governance/risk-exceptions" as const;
 
 /** Legacy browser paths — permanent redirects to canonical (TB-405). */

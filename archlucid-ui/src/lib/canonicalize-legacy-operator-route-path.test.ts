@@ -15,4 +15,16 @@ describe("canonicalizeLegacyOperatorRoutePath", () => {
     expect(canonicalizeLegacyOperatorRoutePath("/runs/abc")).toBe("/architecture/reviews/abc");
     expect(canonicalizeLegacyOperatorRoutePath("/reviews/new")).toBe("/architecture/reviews/new");
   });
+
+  it("maps digests and exceptions legacy bookmarks to canonical paths", () => {
+    expect(canonicalizeLegacyOperatorRoutePath("/digests")).toBe("/architecture/digests");
+    expect(canonicalizeLegacyOperatorRoutePath("/digest-subscriptions")).toBe(
+      "/architecture/digests?tab=subscriptions",
+    );
+    expect(canonicalizeLegacyOperatorRoutePath("/governance/risk-exceptions")).toBe("/governance/exceptions");
+    expect(canonicalizeLegacyOperatorRoutePath("/manifests/demo-id")).toBe("/governance/signed-records/demo-id");
+    expect(canonicalizeLegacyOperatorRoutePath("/signed-records/demo-id")).toBe(
+      "/governance/signed-records/demo-id",
+    );
+  });
 });

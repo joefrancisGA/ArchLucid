@@ -17,12 +17,8 @@ describe("empty-state preset CTA guard (IA-012)", () => {
       "/alert-rules",
       "/policy-packs",
       "/signed-records",
-      "/manifests",
       "/value-report",
       "/settings/cloud-connections",
-      "/digests",
-      "/digest-subscriptions",
-      "/governance/risk-exceptions",
     ]);
   });
 

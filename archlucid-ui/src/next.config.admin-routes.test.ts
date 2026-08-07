@@ -129,4 +129,30 @@ describe("next.config administration routes (TB-406 / TB-522 / TB-751)", () => {
 
     expect(redirectRules?.find((rule) => rule.source === "/recommendation-learning")).toBeUndefined();
   });
+
+  it("rewrites legacy digests and exceptions bookmarks instead of 301 redirects", async () => {
+    const redirectRules = await nextConfig.redirects?.();
+    const rewriteRules = await nextConfig.rewrites?.();
+
+    expect(redirectRules?.find((rule) => rule.source === "/digests")).toBeUndefined();
+    expect(redirectRules?.find((rule) => rule.source === "/digest-subscriptions")).toBeUndefined();
+    expect(redirectRules?.find((rule) => rule.source === "/governance/risk-exceptions")).toBeUndefined();
+    expect(
+      rewriteRules?.find((rule) => rule.source === "/digests" && rule.destination === "/architecture/digests"),
+    ).toBeDefined();
+    expect(
+      rewriteRules?.find(
+        (rule) =>
+          rule.source === "/digest-subscriptions"
+          && rule.destination === "/architecture/digests?tab=subscriptions",
+      ),
+    ).toBeDefined();
+  });
+
+  it("does not ship redirects for retired /manifests bookmarks", async () => {
+    const redirectRules = await nextConfig.redirects?.();
+
+    expect(redirectRules?.find((rule) => rule.source === "/manifests")).toBeUndefined();
+    expect(redirectRules?.find((rule) => rule.source === "/manifests/:path*")).toBeUndefined();
+  });
 });
