@@ -1,6 +1,6 @@
 namespace ArchLucid.Application.Operations;
 
-internal enum OperationIdKind
+public enum OperationIdKind
 {
   Job,
   Run
