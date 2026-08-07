@@ -22,6 +22,7 @@ import { HelpConfigurationReferenceGuideView } from "../_sections/HelpConfigurat
 import { SecurityTrustHelpEvidenceOrientationStrip } from "../_sections/SecurityTrustHelpEvidenceOrientationStrip";
 import { AcceleratorChooserHelpEvidenceOrientationStrip } from "../_sections/AcceleratorChooserHelpEvidenceOrientationStrip";
 import { AdminDiagnosticsHelpEvidenceOrientationStrip } from "../_sections/AdminDiagnosticsHelpEvidenceOrientationStrip";
+import { AuthenticationSignInHelpEvidenceOrientationStrip } from "../_sections/AuthenticationSignInHelpEvidenceOrientationStrip";
 import { ScopeHelpEvidenceOrientationStrip } from "../_sections/ScopeHelpEvidenceOrientationStrip";
 import { ProcurementHelpEvidenceOrientationStrip } from "../_sections/ProcurementHelpEvidenceOrientationStrip";
 import { EvidenceTrailHelpEvidenceOrientationStrip } from "../_sections/EvidenceTrailHelpEvidenceOrientationStrip";
@@ -281,6 +282,17 @@ function renderHelpTopicView(
         markdown={loaded.markdown}
         showContextualHelp
         evidenceOrientation={<AdminDiagnosticsHelpEvidenceOrientationStrip />}
+      />
+    );
+  }
+
+  if (loaded.entry.slug === "authentication-sign-in") {
+    return (
+      <HelpTopicMarkdownView
+        entry={loaded.entry}
+        markdown={loaded.markdown}
+        showContextualHelp
+        evidenceOrientation={<AuthenticationSignInHelpEvidenceOrientationStrip />}
       />
     );
   }

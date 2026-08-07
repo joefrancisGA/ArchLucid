@@ -841,6 +841,26 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/help/authentication-sign-in",
+    entry: {
+      whatIsThisPage:
+        "Authentication and sign-in — passwordless work or school accounts, email one-time codes, invitations, SSO, and recovery.",
+      whatToDoNext:
+        "Sign in when ready, or open Users and roles / Account security when you need workspace access or recovery steps.",
+      whyEmpty: "This guide is always available; live invitations and SSO settings appear after your tenant configures identity.",
+      whereToConfigurePrerequisite:
+        "SSO and identity-provider changes usually need an Admin role; evaluators can still use email one-time codes when enabled.",
+      whatToDoNextAction: {
+        label: "Open Users and roles help",
+        href: "/help/users-and-roles",
+      },
+      whereToConfigureAction: {
+        label: "Open Account security",
+        href: "/administration/account-security",
+      },
+    },
+  },
+  {
     prefix: "/help/getting-started",
     entry: {
       whatIsThisPage:

@@ -61,6 +61,11 @@ const ALLOWLIST: readonly {
     configureHref: "/help/developer-troubleshooting",
   },
   {
+    pathname: "/help/authentication-sign-in",
+    nextHref: "/help/users-and-roles",
+    configureHref: "/administration/account-security",
+  },
+  {
     pathname: "/governance/approval-requests/sample/lineage",
     nextHref: GOVERNANCE_APPROVAL_QUEUE_PATH,
   },

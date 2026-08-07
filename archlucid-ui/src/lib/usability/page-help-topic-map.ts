@@ -52,6 +52,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "admin-diagnostics", label: "Admin diagnostics" },
   },
   {
+    prefix: "/help/authentication-sign-in",
+    topic: { slug: "authentication-sign-in", label: "Authentication and sign-in" },
+  },
+  {
     prefix: "/help/how-it-works",
     topic: { slug: "getting-started", label: "Getting started" },
   },
