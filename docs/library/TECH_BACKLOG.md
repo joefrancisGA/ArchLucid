@@ -21,7 +21,7 @@ Regenerate after opening or closing summary-table rows:
 | Cutting-edge AI | 3 |
 | Explainability | 3 |
 | Proof-of-ROI / executive value | 2 |
-| Trustworthiness | 180 |
+| Trustworthiness | 179 |
 | Maintainability | 9 |
 | Traceability | 4 |
 | Interoperability | 4 |
@@ -35,9 +35,9 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **803** |
+| **Total (unique open)** | **802** |
 
-**By priority band:** P0 **19** | P1 **652** | P2 **115** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **18** | P1 **652** | P2 **115** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -1136,7 +1136,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-2063 | **Done** (2026-08-07) — compare finding delta uses ADR 0063 fingerprint correlation in `AgentResultDiffService`; see ## TB-2063 below | Trustworthiness P0 — **V1**; round 5 after **TB-2042**; traffic **CXX** | M |
 | TB-2064 | **Done** (2026-08-07) — compare UI surfaces end-to-end finding correlation metadata (export-parity honesty); see ## TB-2064 below | Trustworthiness P0 — **V1**; round 5; with **TB-2063**; traffic **CXX** | M |
 | TB-2065 | **Done** (2026-08-07) — product language disambiguates cross-review, ITSM ticket linkage, and ROI portfolio deduplication; see ## TB-2065 below | Adoption friction P0 — **V1**; round 5; help + ITSM surfaces | S |
-| TB-2066 | Finding inspect — authoritative trust enricher with real run context; see ## TB-2066 below | Trustworthiness P0 — **V1**; round 5; pairs **TB-2044** | M |
+| TB-2066 | **Done** (2026-08-07) — finding inspect trust enricher uses real run execution context; see ## TB-2066 below | Trustworthiness P0 — **V1**; round 5; pairs **TB-2044** | M |
 | TB-2067 | Trust chip — distinct UI for `DeterministicRule` vs `DeterministicFallback`; see ## TB-2067 below | Trustworthiness P0 — **V1**; round 5; `finding-provenance-display.ts` | S |
 | TB-2068 | Tenant migration banner — AppShell scope + polling + suspend copy; see ## TB-2068 below | Reliability P0 — **V1**; round 5 after **TB-2045** | M |
 | TB-2069 | Migration orchestration — align projection refresh + verification with fan-out doc; see ## TB-2069 below | Reliability P0 — **V1**; round 5 after **TB-2046**/**TB-2047** | M |
@@ -47416,6 +47416,28 @@ Operators must read three intros before reaching the Trust Center link list.
 **Acceptance:** All client-side finding export golden paths carry the same authoritative trust label as run-detail CSV when the API supplies it. **Met** 2026-08-07.
 
 **Peers:** **TB-2066** (inspect enricher), run-detail CSV (`ArchitectureRunFindingsCsvFormatter`).
+
+**Size estimate:** M.
+
+----
+
+## TB-2066 — Finding inspect authoritative trust enricher (P0)
+
+**Window:** V1 — Trustworthiness.
+
+**Status:** **Done** (2026-08-07).
+
+**Shipped:**
+
+1. `FindingInspectTrustContextResolver` derives `AgentTrustContext` from parent run `StructuralExecutionMode`, `RealModeFellBackToSimulator`, and trace deployment fallback signals.
+2. `DapperFindingInspectReadRepository` loads run execution fields; in-memory inspect path hydrates from `RunDetailDto`.
+3. `FindingInspectTrustLabelEnricher` no longer hardcodes Real/non-degraded context; unit tests cover simulator, fallback, and LLM-resource degradation paths.
+
+**Priority:** P0.
+
+**Acceptance:** Inspect `trustLabel` / `trustLabelReason` align with run-detail enrichment for simulator and degraded runs. **Met** 2026-08-07.
+
+**Peers:** **TB-2044** (export trust labels), **FindingTrustLabelEnricher** (run detail).
 
 **Size estimate:** M.
 
