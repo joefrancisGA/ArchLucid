@@ -11,7 +11,7 @@ Regenerate after opening or closing summary-table rows:
 | --- | ---: |
 | Correctness | 3 |
 | Testability | 127 |
-| Reliability | 21 |
+| Reliability | 20 |
 | Deployability | 4 |
 | AI/Agent readiness | 12 |
 | Architectural integrity | 11 |
@@ -35,9 +35,9 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **801** |
+| **Total (unique open)** | **800** |
 
-**By priority band:** P0 **17** | P1 **652** | P2 **115** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **16** | P1 **652** | P2 **115** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -1138,7 +1138,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-2065 | **Done** (2026-08-07) — product language disambiguates cross-review, ITSM ticket linkage, and ROI portfolio deduplication; see ## TB-2065 below | Adoption friction P0 — **V1**; round 5; help + ITSM surfaces | S |
 | TB-2066 | **Done** (2026-08-07) — finding inspect trust enricher uses real run execution context; see ## TB-2066 below | Trustworthiness P0 — **V1**; round 5; pairs **TB-2044** | M |
 | TB-2067 | **Done** (2026-08-07) — distinct `DeterministicRule` vs `DeterministicFallback` trust chip and provenance origin; see ## TB-2067 below | Trustworthiness P0 — **V1**; round 5; `finding-provenance-display.ts` | S |
-| TB-2068 | Tenant migration banner — AppShell scope + polling + suspend copy; see ## TB-2068 below | Reliability P0 — **V1**; round 5 after **TB-2045** | M |
+| TB-2068 | **Done** (2026-08-07) — tenant migration banner on AppShell with polling + stage suspend copy; see ## TB-2068 below | Reliability P0 — **V1**; round 5 after **TB-2045** | M |
 | TB-2069 | Migration orchestration — align projection refresh + verification with fan-out doc; see ## TB-2069 below | Reliability P0 — **V1**; round 5 after **TB-2046**/**TB-2047** | M |
 | TB-2070 | Migration operator visibility — stage, correlation id, verification errors; see ## TB-2070 below | Adoption friction P0 — **V1**; round 5; tenant + admin surfaces | M |
 | TB-2071 | Compare workspace — trust-label and run-mode asymmetry in delta narrative; see ## TB-2071 below | Trustworthiness P0 — **V1**; round 5; traffic **CXX** | M |
@@ -47416,6 +47416,28 @@ Operators must read three intros before reaching the Trust Center link list.
 **Acceptance:** All client-side finding export golden paths carry the same authoritative trust label as run-detail CSV when the API supplies it. **Met** 2026-08-07.
 
 **Peers:** **TB-2066** (inspect enricher), run-detail CSV (`ArchitectureRunFindingsCsvFormatter`).
+
+**Size estimate:** M.
+
+----
+
+## TB-2068 — Tenant migration banner AppShell scope + polling + suspend copy (P0)
+
+**Window:** V1 — Reliability.
+
+**Status:** **Done** (2026-08-07).
+
+**Shipped:**
+
+1. `TenantMigrationMaintenanceBanner` mounted from `AppShellStatusBanners` on all operator shell routes (removed route-local duplicates on governance/value-report layouts).
+2. Polls `GET /v1/tenant/catalog-migration-status` every 30s while the shell is mounted; failed polls retain the last active banner.
+3. `tenant-migration-banner-copy.ts` maps fan-out stages to suspend/stale-read copy when the API omits a custom maintenance message.
+
+**Priority:** P0.
+
+**Acceptance:** Operators see migration suspend messaging on any operator route, with live refresh during long migrations. **Met** 2026-08-07.
+
+**Peers:** **TB-2045** (initial banner), **TB-2046**/**TB-2047** (orchestration), `TENANT_MIGRATION_FANOUT.md`.
 
 **Size estimate:** M.
 
