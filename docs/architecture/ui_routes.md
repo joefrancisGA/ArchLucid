@@ -118,7 +118,8 @@ Configured in `archlucid-ui/next.config.ts` — **namespace force-canonical** (r
 |--------|-------------|
 | `/reviews`, `/reviews/*` | `/architecture/reviews`, `/architecture/reviews/*` (301) |
 | `/reviews/:id/manifest` | `/architecture/reviews/:id/signed-record` (301) |
-| `/architectures`, `/architectures/*` | `/architecture/architectures`, `/architecture/architectures/*` (301) |
+| `/dashboard` | `/architecture/executive-dashboard` (301) |
+| `/executive/dashboard`, `/portfolio` | `/architecture/executive-dashboard` (301) |
 | `/policy-packs`, `/policy-packs/*` | `/governance/policy-packs`, `/governance/policy-packs/*` (301) |
 | `/audit` | `/governance/audit` (301) |
 | `/alerts` | `/governance/alerts` (301) |
@@ -128,7 +129,7 @@ Configured in `archlucid-ui/next.config.ts` — **namespace force-canonical** (r
 
 `/settings/roles` is a **rewrite** (not 301) to `/administration/users?tab=roles`.
 
-**Note:** README and older docs may reference `/manifests/[manifestId]/artifacts/[artifactId]`; that route no longer has a `page.tsx`. Artifact review is reached from review or manifest detail.
+**Note:** Legacy `/manifests/[manifestId]/artifacts/[artifactId]` and top-level `/signed-records/.../artifacts/...` redirect to canonical `/governance/signed-records/[manifestId]/artifacts/[artifactId]` (MAM — live App Router preview). Run-scoped `/architecture/reviews/[runId]/artifacts/[artifactId]` (RER) redirects to MAM when a golden manifest exists.
 
 ---
 

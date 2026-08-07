@@ -18,7 +18,6 @@ const REDIRECT_ONLY_PATHS = [
   "/admin/cloud-connections/aws",
   "/governance/signed-records",
   "/governance/signed-records/[manifestId]",
-  "/governance/signed-records/[manifestId]/artifacts/[artifactId]",
   "/settings/cost-reporting",
 ];
 
@@ -53,6 +52,7 @@ describe("ui-route-traffic-template-canonical-guard (TB-748)", () => {
     expect(paths.length).toBeGreaterThan(0);
     expect(paths).toContain("/governance/alerts");
     expect(paths).toContain("/integrations/cloud-connections");
+    expect(paths).toContain("/governance/signed-records/[manifestId]/artifacts/[artifactId]");
 
     for (const legacyPath of REDIRECT_ONLY_PATHS) {
       expect(paths).not.toContain(legacyPath);
