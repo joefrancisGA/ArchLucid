@@ -20,7 +20,7 @@ public static class FindingInspectTrustLabelEnricher
             EvaluationConfidenceScore = response.EvaluationConfidenceScore ?? 0,
         };
 
-        AgentTrustContext context = new(IsSimulatorDerived: false, IsDegraded: false, IsRealModel: true);
+        AgentTrustContext context = FindingInspectTrustContextResolver.Resolve(response);
         FindingTrustSummary summary = mapper.Map(finding, context);
 
         return new FindingInspectResponse
@@ -61,6 +61,8 @@ public static class FindingInspectTrustLabelEnricher
             ExternalTrackingSummary = response.ExternalTrackingSummary,
             TrustLabel = summary.Label.ToString(),
             TrustLabelReason = summary.ShortReason,
+            RunStructuralExecutionMode = response.RunStructuralExecutionMode,
+            RunRealModeFellBackToSimulator = response.RunRealModeFellBackToSimulator,
         };
     }
 }

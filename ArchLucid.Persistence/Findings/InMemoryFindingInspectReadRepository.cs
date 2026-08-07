@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Scoping;
@@ -118,7 +119,9 @@ public sealed class InMemoryFindingInspectReadRepository(IAuthorityQueryService 
             ReasoningTrace = match.Trace.ReasoningTrace,
             ReasoningTraceDigestSha256 = match.Trace.ReasoningTraceDigestSha256,
             AssignedToUserId = match.AssignedToUserId,
-            RemediationDueUtc = match.RemediationDueUtc
+            RemediationDueUtc = match.RemediationDueUtc,
+            RunStructuralExecutionMode = detail.Run.StructuralExecutionMode,
+            RunRealModeFellBackToSimulator = detail.Run.RealModeFellBackToSimulator,
         };
     }
 

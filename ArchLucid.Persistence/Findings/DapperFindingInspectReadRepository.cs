@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
@@ -63,6 +64,8 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
                   r.RunId,
                   r.CurrentManifestVersion,
                   r.GoldenManifestId,
+                  r.StructuralExecutionMode,
+                  r.RealModeFellBackToSimulator,
                   dt.AppliedRuleIdsJson
               FROM dbo.FindingRecords fr
               INNER JOIN dbo.FindingsSnapshots fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
@@ -102,6 +105,8 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
                   r.RunId,
                   r.CurrentManifestVersion,
                   r.GoldenManifestId,
+                  r.StructuralExecutionMode,
+                  r.RealModeFellBackToSimulator,
                   dt.AppliedRuleIdsJson
               FROM dbo.FindingRecords fr
               INNER JOIN dbo.FindingsSnapshots fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
@@ -259,6 +264,8 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
             RemediationDueUtc = row.RemediationDueUtc is null
                 ? null
                 : new DateTimeOffset(DateTime.SpecifyKind(row.RemediationDueUtc.Value, DateTimeKind.Utc)),
+            RunStructuralExecutionMode = row.StructuralExecutionMode,
+            RunRealModeFellBackToSimulator = row.RealModeFellBackToSimulator,
         };
     }
 
@@ -367,6 +374,18 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
         }
 
         public Guid? GoldenManifestId
+        {
+            get;
+            init;
+        }
+
+        public StructuralExecutionMode StructuralExecutionMode
+        {
+            get;
+            init;
+        }
+
+        public bool RealModeFellBackToSimulator
         {
             get;
             init;

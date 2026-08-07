@@ -1,4 +1,7 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
+
+using ArchLucid.Contracts.Common;
 
 namespace ArchLucid.Contracts.Findings;
 
@@ -259,6 +262,22 @@ public sealed class FindingInspectResponse
 
     /// <summary>Short reason accompanying <see cref="TrustLabel" />.</summary>
     public string? TrustLabelReason
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Parent run structural execution mode for server-side trust enrichment (not serialized).</summary>
+    [JsonIgnore]
+    public StructuralExecutionMode? RunStructuralExecutionMode
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Parent run pilot simulator substitution flag for trust enrichment (not serialized).</summary>
+    [JsonIgnore]
+    public bool? RunRealModeFellBackToSimulator
     {
         get;
         init;
