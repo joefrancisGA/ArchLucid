@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-07 - Reliability: TB-2069 migration fan-out stage orchestration
+
+Tenant catalog migration APIs now enforce fan-out stage order with acknowledge-catalog-attach, stage-gated projection refresh and verification, and tenant-scoped cache invalidation.
+
 ## 2026-08-07 - Reliability: TB-2068 tenant migration banner AppShell scope
 
 Tenant catalog migration maintenance messaging now renders from `AppShellStatusBanners` on all operator routes, polls status every 30s, and shows stage-specific suspend copy aligned with `TENANT_MIGRATION_FANOUT.md`.

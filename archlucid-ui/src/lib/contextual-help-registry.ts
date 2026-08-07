@@ -881,6 +881,26 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/help/caiq-sig-response",
+    entry: {
+      whatIsThisPage:
+        "CAIQ / SIG questionnaire responses — pre-filled CAIQ Lite and SIG Core mapped to in-repo evidence for procurement reviewers.",
+      whatToDoNext:
+        "Use the questionnaire pre-fills with counsel, then open SOC 2 self-assessment or Trust Center for related assurance surfaces.",
+      whyEmpty: "This guide is always available; live diligence packs appear after your tenant publishes Trust Center materials.",
+      whereToConfigurePrerequisite:
+        "CPA SOC 2 attestation and third-party pen-test publication remain owner programs outside this page.",
+      whatToDoNextAction: {
+        label: "Open SOC 2 self-assessment",
+        href: "/help/soc2-self-assessment",
+      },
+      whereToConfigureAction: {
+        label: "Open Trust Center",
+        href: "/trust",
+      },
+    },
+  },
+  {
     prefix: "/help/getting-started",
     entry: {
       whatIsThisPage:

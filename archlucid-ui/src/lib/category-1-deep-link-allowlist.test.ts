@@ -71,6 +71,11 @@ const ALLOWLIST: readonly {
     configureHref: "/help/integration-readiness",
   },
   {
+    pathname: "/help/caiq-sig-response",
+    nextHref: "/help/soc2-self-assessment",
+    configureHref: "/trust",
+  },
+  {
     pathname: "/governance/approval-requests/sample/lineage",
     nextHref: GOVERNANCE_APPROVAL_QUEUE_PATH,
   },

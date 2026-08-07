@@ -84,12 +84,19 @@ describe("contextual-help-registry (TB-733)", () => {
       "/sponsor-report/pilot-outcomes",
       "/executive/scorecard",
       "/governance/alert-rules",
+      "/governance/approval-queue",
       "/governance/approval-requests",
       "/governance/signed-records",
       "/admin/tenant-health",
       "/admin/trial-funnel",
       "/admin/demo-readiness",
       "/admin/deployment-status",
+      "/help",
+      "/help/accelerator-chooser",
+      "/help/admin-diagnostics",
+      "/help/authentication-sign-in",
+      "/help/azure-boards",
+      "/help/caiq-sig-response",
       "/help/getting-started",
       "/help/how-it-works",
       "/help/troubleshooting",
@@ -355,6 +362,16 @@ describe("contextual-help-registry (TB-733)", () => {
     expect(contextualHelpForPathname("/help/cloud-connections")?.whatToDoNext).toContain(
       "Cloud connections hub",
     );
+  });
+
+  it("resolves CAIQ/SIG response help Category-1 help (ECA)", () => {
+    expect(contextualHelpForPathname("/help/caiq-sig-response")?.whatIsThisPage).toContain(
+      "CAIQ / SIG questionnaire",
+    );
+    expect(contextualHelpForPathname("/help/caiq-sig-response")?.whatToDoNextAction?.href).toBe(
+      "/help/soc2-self-assessment",
+    );
+    expect(contextualHelpForPathname("/help/caiq-sig-response")?.whereToConfigureAction?.href).toBe("/trust");
   });
 
   it("resolves signed-record detail Category-1 help (MMX)", () => {

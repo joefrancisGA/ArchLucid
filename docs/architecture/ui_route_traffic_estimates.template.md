@@ -246,7 +246,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | HAP | `/help/api-contracts` | 0.02% | 0 | 0 | 2 | Help alias | None |
 | HEA | `/help/authentication-sign-in` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HEZ | `/help/azure-boards` | 0.02% | 0 | 0 | 2 | Help topic | None |
-| ECA | `/help/caiq-sig-response` | 0.02% | 0 | 0 | 2 | Help topic | None |
+| ECA | `/help/caiq-sig-response` | 0.02% | 0 | 0 | 2 | Help topic | CAIQ/SIG response help (Help topic) - HelpTopicMarkdownView with PageContextualHelpButton (topic map caiq-sig-response; Category-1 registry), CaiqSigResponseHelpEvidenceOrientationStrip (workspace Sources + claim-discipline), curated CAIQ_LITE_2026.md + SIG_CORE_2026.md. Sibling SOC = soc2-self-assessment; PRO = procurement; TXX = Trust Center; HE. = catch-all residual. Owner HEC renamed to ECA to avoid collision with template cloud-connections/aws HEC. Not bare HelpTopicMarkdownView without orientation. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-07) - help-topic orientation hard-caps higher Evidence. |
 | HEC | `/help/cloud-connections/aws` | 0.02% | 0 | 0 | 2 | Help alias | None |
 | HGC | `/help/cloud-connections/gcp` | 0.02% | 0 | 0 | 2 | Help alias | None |
 | CO | `/help/comparison-replay` | 0.02% | 0 | 0 | 2 | Help topic | None |
