@@ -14,6 +14,7 @@ if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj `
     --no-build `
     -c Release `
+    --settings test.runsettings `
     --filter "FullyQualifiedName~OpenApiContractSnapshotTests"
 
 # Buyer snapshot is refreshed in a separate step during v1-only baseline updates.
@@ -21,5 +22,6 @@ if ($env:ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT -ne '1') {
     dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj `
         --no-build `
         -c Release `
+        --settings test.runsettings `
         --filter "FullyQualifiedName~OpenApiBuyerContractSnapshotTests"
 }

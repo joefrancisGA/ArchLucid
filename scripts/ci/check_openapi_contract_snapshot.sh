@@ -17,6 +17,7 @@ bash scripts/ci/ensure_openapi_contract_build.sh
 dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj \
   --no-build \
   -c Release \
+  --settings test.runsettings \
   --filter "FullyQualifiedName~OpenApiContractSnapshotTests"
 
 # Buyer snapshot is refreshed in a separate step during v1-only baseline updates.
@@ -24,5 +25,6 @@ if [ "${ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT:-}" != "1" ]; then
   dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj \
     --no-build \
     -c Release \
+    --settings test.runsettings \
     --filter "FullyQualifiedName~OpenApiBuyerContractSnapshotTests"
 fi
