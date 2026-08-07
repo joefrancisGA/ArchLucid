@@ -1079,6 +1079,19 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    /** Legacy slug alias — same Category-1 copy as review-guide (HER / HR). */
+    prefix: "/help/creating-runs",
+    entry: {
+      whatIsThisPage:
+        "Review guide — field reference for naming a review, uploading evidence, confirming scope, and finalizing the package.",
+      whatToDoNext:
+        "Start an architecture review, or open the First review guide when you need the walkthrough instead of field detail.",
+      whyEmpty: "This guide is always available; live architecture reviews appear after you create them in this workspace.",
+      whereToConfigurePrerequisite:
+        "Creating reviews needs a role that can start architecture reviews in this workspace.",
+    },
+  },
+  {
     prefix: "/help/repeat-review-loop",
     entry: {
       whatIsThisPage:
