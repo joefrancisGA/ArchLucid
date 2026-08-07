@@ -23,6 +23,7 @@ import type { GoldenManifestComparison } from "@/types/comparison";
 import type { ComparisonExplanation } from "@/types/explanation";
 import type { RunComparison, RunSummary } from "@/types/authority";
 import { BUYER_COMPARE_TECHNICAL_APPENDIX_LABEL } from "@/lib/buyer-polish-copy";
+import { CROSS_REVIEW_FINDING_CORRELATION_PANEL_TITLE } from "@/lib/finding-correlation-vocabulary";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ComparedPair } from "@/app/(operator)/insights/compare-two-reviews/_sections/compare-page-helpers";
 import { CompareFindingCorrelationSection } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareFindingCorrelationSection";
@@ -251,7 +252,7 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
                 )}
                 {golden !== null && (
                   <li>
-                    <a href="#compare-finding-correlation">Finding correlation (export parity)</a>
+                    <a href="#compare-finding-correlation">{CROSS_REVIEW_FINDING_CORRELATION_PANEL_TITLE}</a>
                   </li>
                 )}
                 {golden !== null && (

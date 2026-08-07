@@ -3,6 +3,8 @@
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ItsmOutboundQuickActions } from "@/components/ItsmOutboundQuickActions";
+import { FindingCorrelationVocabularyDisambiguation } from "@/components/FindingCorrelationVocabularyDisambiguation";
+import { ITSM_TICKET_LINKAGE_CREATE_INTRO, ITSM_TICKET_LINKAGE_DUPLICATE_BLOCKED } from "@/lib/finding-correlation-vocabulary";
 import { useItsmNativeCreateEnabled } from "@/lib/use-itsm-native-create-enabled";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -19,7 +21,12 @@ export function FindingInspectItsmWorkflowPanel({
   const nativeCreateEnabled = useItsmNativeCreateEnabled();
 
   if (!nativeCreateEnabled && !humanReviewStatusLabel) {
-    return <ItsmOutboundQuickActions findingId={findingId} />;
+    return (
+      <div className="space-y-3">
+        <ItsmOutboundQuickActions findingId={findingId} />
+        <FindingCorrelationVocabularyDisambiguation testId="finding-inspect-correlation-vocabulary" />
+      </div>
+    );
   }
 
   return (
@@ -37,8 +44,7 @@ export function FindingInspectItsmWorkflowPanel({
         ) : null}
         {nativeCreateEnabled ? (
           <p className="text-al-text-secondary">
-            Create a linked Jira issue or ServiceNow incident from this finding in one click. Duplicate creation per
-            provider is blocked when a correlation already exists.
+            {ITSM_TICKET_LINKAGE_CREATE_INTRO} {ITSM_TICKET_LINKAGE_DUPLICATE_BLOCKED}
           </p>
         ) : (
           <p className="text-al-text-secondary">
@@ -47,6 +53,7 @@ export function FindingInspectItsmWorkflowPanel({
           </p>
         )}
         <ItsmOutboundQuickActions findingId={findingId} />
+        <FindingCorrelationVocabularyDisambiguation testId="finding-inspect-correlation-vocabulary" />
       </CardContent>
     </Card>
   );

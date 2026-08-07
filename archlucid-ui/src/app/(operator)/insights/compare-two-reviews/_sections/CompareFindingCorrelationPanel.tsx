@@ -1,7 +1,8 @@
 import { cn } from "@/lib/utils";
-import type { ReactElement } from "react";
+import type { ReactElement, ReactNode } from "react";
 
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
+import { FindingCorrelationVocabularyDisambiguation } from "@/components/FindingCorrelationVocabularyDisambiguation";
 import {
   buildCompareFindingCorrelationCountRows,
   COMPARE_FINDING_CORRELATION_DEDUPE_KEY_FORMAT,
@@ -9,6 +10,7 @@ import {
   compareFindingCorrelationMethodLabel,
   type CompareFindingCorrelationMetadata,
 } from "@/lib/compare-finding-correlation";
+import { CROSS_REVIEW_FINDING_CORRELATION_PANEL_TITLE } from "@/lib/finding-correlation-vocabulary";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type CompareFindingCorrelationPanelProps = {
@@ -17,66 +19,70 @@ export type CompareFindingCorrelationPanelProps = {
   readonly softFailureMessage: string | null;
 };
 
+function CompareFindingCorrelationSectionShell(props: {
+  readonly className: string;
+  readonly children: ReactNode;
+  readonly busy?: boolean;
+}): ReactElement {
+  return (
+    <section
+      id="compare-finding-correlation"
+      className={props.className}
+      data-testid="compare-finding-correlation-section"
+      aria-busy={props.busy === true ? true : undefined}
+    >
+      {props.children}
+      {props.busy === true ? null : <FindingCorrelationVocabularyDisambiguation />}
+    </section>
+  );
+}
+
 export function CompareFindingCorrelationPanel(props: CompareFindingCorrelationPanelProps): ReactElement {
   const { metadata, loading, softFailureMessage } = props;
 
   if (loading) {
     return (
-      <section
-        id="compare-finding-correlation"
+      <CompareFindingCorrelationSectionShell
+        busy
         className="mt-6 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-900"
-        data-testid="compare-finding-correlation-section"
-        aria-busy="true"
       >
         <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
           <strong>Loading finding correlation metadata…</strong>
         </p>
-      </section>
+      </CompareFindingCorrelationSectionShell>
     );
   }
 
   if (softFailureMessage !== null) {
     return (
-      <section
-        id="compare-finding-correlation"
-        className="mt-6 rounded-lg border border-dashed border-amber-300 bg-amber-50/60 p-4 dark:border-amber-700 dark:bg-amber-950/20"
-        data-testid="compare-finding-correlation-section"
-      >
+      <CompareFindingCorrelationSectionShell className="mt-6 rounded-lg border border-dashed border-amber-300 bg-amber-50/60 p-4 dark:border-amber-700 dark:bg-amber-950/20">
         <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-          Finding correlation (export parity)
+          {CROSS_REVIEW_FINDING_CORRELATION_PANEL_TITLE}
         </p>
         <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           Could not load {softFailureMessage}. Structured and supplementary compare sections above remain authoritative
           for review deltas.
         </p>
-      </section>
+      </CompareFindingCorrelationSectionShell>
     );
   }
 
   if (metadata === null) {
     return (
-      <section
-        id="compare-finding-correlation"
-        className="mt-6 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-900"
-        data-testid="compare-finding-correlation-section"
-      >
-        <OperatorEmptyState title="Finding correlation (export parity)">
+      <CompareFindingCorrelationSectionShell className="mt-6 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-900">
+        <OperatorEmptyState title={CROSS_REVIEW_FINDING_CORRELATION_PANEL_TITLE}>
           No finding correlation metadata on this comparison (API may predate correlation export metadata).
         </OperatorEmptyState>
-      </section>
+      </CompareFindingCorrelationSectionShell>
     );
   }
 
   const countRows = buildCompareFindingCorrelationCountRows(metadata);
 
   return (
-    <section
-      id="compare-finding-correlation"
-      className="mt-6 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-900"
-      data-testid="compare-finding-correlation-section"
-    >
+    <CompareFindingCorrelationSectionShell className="mt-6 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-900">
       <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-        Finding correlation (export parity)
+        {CROSS_REVIEW_FINDING_CORRELATION_PANEL_TITLE}
       </p>
       <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         {COMPARE_FINDING_CORRELATION_EXPORT_PARITY_NOTE}
@@ -120,6 +126,6 @@ export function CompareFindingCorrelationPanel(props: CompareFindingCorrelationP
           <strong className="text-al-text-primary">Correlation honesty:</strong> {metadata.honestyNote}
         </p>
       ) : null}
-    </section>
+    </CompareFindingCorrelationSectionShell>
   );
 }

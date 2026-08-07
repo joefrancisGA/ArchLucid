@@ -6,6 +6,7 @@ import { Workflow } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
 import { PageHeading } from "@/components/PageHeading";
+import { FindingCorrelationVocabularyDisambiguation } from "@/components/FindingCorrelationVocabularyDisambiguation";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -189,6 +190,8 @@ export function AdminItsmConnectorsPageClient(): React.ReactElement {
           )}
         </CardContent>
       </Card>
+
+      <FindingCorrelationVocabularyDisambiguation testId="admin-itsm-correlation-vocabulary" />
     </div>
   );
 }

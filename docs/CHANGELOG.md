@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-07 - Adoption friction: TB-2065 finding correlation vocabulary disambiguation
+
+Compare, ITSM ticket linkage, and executive ROI surfaces now use distinct vocabulary for cross-review correlation (ADR 0063), ITSM ticket linkages, and portfolio FindingId deduplication.
+
 ## 2026-08-07 - Trustworthiness: TB-2064 compare UI finding correlation metadata
 
 Compare-two-reviews now soft-loads end-to-end `findingCorrelation` metadata (method, dedupe key format, match counts, honesty note) with export-parity copy after structured compare succeeds.

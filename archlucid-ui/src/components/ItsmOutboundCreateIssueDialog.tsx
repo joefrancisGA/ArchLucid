@@ -25,6 +25,10 @@ import {
   listItsmFindingCorrelations,
   type ItsmFindingCorrelationListItem,
 } from "@/lib/api/itsm-outbound-api";
+import {
+  ITSM_TICKET_LINKAGE_CREATE_INTRO,
+  ITSM_TICKET_LINKAGE_DUPLICATE_BLOCKED,
+} from "@/lib/finding-correlation-vocabulary";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { useItsmNativeCreateEnabled } from "@/lib/use-itsm-native-create-enabled";
 import { showSuccess } from "@/lib/toast";
@@ -151,8 +155,7 @@ export function ItsmOutboundCreateIssueDialog({
           <DialogHeader>
             <DialogTitle>Create linked work item</DialogTitle>
             <DialogDescription>
-              Create a Jira issue, Azure Boards work item, or ServiceNow incident from this finding. Duplicate creation
-              per provider is blocked when a correlation already exists.
+              {ITSM_TICKET_LINKAGE_CREATE_INTRO} {ITSM_TICKET_LINKAGE_DUPLICATE_BLOCKED}
             </DialogDescription>
           </DialogHeader>
 
