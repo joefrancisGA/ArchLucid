@@ -56,6 +56,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "authentication-sign-in", label: "Authentication and sign-in" },
   },
   {
+    prefix: "/help/azure-boards",
+    topic: { slug: "azure-boards", label: "Azure Boards integration" },
+  },
+  {
     prefix: "/help/how-it-works",
     topic: { slug: "getting-started", label: "Getting started" },
   },

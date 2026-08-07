@@ -23,6 +23,7 @@ import { SecurityTrustHelpEvidenceOrientationStrip } from "../_sections/Security
 import { AcceleratorChooserHelpEvidenceOrientationStrip } from "../_sections/AcceleratorChooserHelpEvidenceOrientationStrip";
 import { AdminDiagnosticsHelpEvidenceOrientationStrip } from "../_sections/AdminDiagnosticsHelpEvidenceOrientationStrip";
 import { AuthenticationSignInHelpEvidenceOrientationStrip } from "../_sections/AuthenticationSignInHelpEvidenceOrientationStrip";
+import { AzureBoardsHelpEvidenceOrientationStrip } from "../_sections/AzureBoardsHelpEvidenceOrientationStrip";
 import { ScopeHelpEvidenceOrientationStrip } from "../_sections/ScopeHelpEvidenceOrientationStrip";
 import { ProcurementHelpEvidenceOrientationStrip } from "../_sections/ProcurementHelpEvidenceOrientationStrip";
 import { EvidenceTrailHelpEvidenceOrientationStrip } from "../_sections/EvidenceTrailHelpEvidenceOrientationStrip";
@@ -293,6 +294,17 @@ function renderHelpTopicView(
         markdown={loaded.markdown}
         showContextualHelp
         evidenceOrientation={<AuthenticationSignInHelpEvidenceOrientationStrip />}
+      />
+    );
+  }
+
+  if (loaded.entry.slug === "azure-boards") {
+    return (
+      <HelpTopicMarkdownView
+        entry={loaded.entry}
+        markdown={loaded.markdown}
+        showContextualHelp
+        evidenceOrientation={<AzureBoardsHelpEvidenceOrientationStrip />}
       />
     );
   }

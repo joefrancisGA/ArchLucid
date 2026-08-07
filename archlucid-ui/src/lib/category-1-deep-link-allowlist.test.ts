@@ -66,6 +66,11 @@ const ALLOWLIST: readonly {
     configureHref: "/administration/account-security",
   },
   {
+    pathname: "/help/azure-boards",
+    nextHref: "/integrations/azure-boards",
+    configureHref: "/help/integration-readiness",
+  },
+  {
     pathname: "/governance/approval-requests/sample/lineage",
     nextHref: GOVERNANCE_APPROVAL_QUEUE_PATH,
   },

@@ -46,6 +46,10 @@ Deferred below-fold executive-dashboard panels and the signed-records list clien
 
 Authority finalize no longer runs `IDecisionEngineV2` node persistence synchronously. `DecisionEngineV2NodeMaterialization` post-commit outbox work enqueues on every successful commit; `DecisionEngineV2NodeMaterializer` idempotently populates `GET /v1/architecture/review/{runId}/decisions` after the outbox drains.
 
+## 2026-08-07 - UI: Azure Boards help Evidence chrome (HEZ)
+
+`/help/azure-boards` ships AzureBoardsHelpEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map azure-boards, traffic Notes under Help topic (row ID HEZ), and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-07 - UI: Authentication sign-in help Evidence chrome (HEA)
 
 `/help/authentication-sign-in` ships AuthenticationSignInHelpEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map authentication-sign-in, traffic Notes under Help topic (row ID HEA), and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.
