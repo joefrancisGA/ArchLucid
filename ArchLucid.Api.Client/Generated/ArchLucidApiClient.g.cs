@@ -134480,6 +134480,13 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("adversarial")]
         public AdversarialReviewResult? Adversarial { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("budgetEnforced")]
+        public bool? BudgetEnforced { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("budgetEstimatedCostUsd")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
+        public double? BudgetEstimatedCostUsd { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("budgetEstimatedTokens")]
         public int? BudgetEstimatedTokens { get; set; } = default!;
 
@@ -134491,6 +134498,10 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("budgetRejected")]
         public bool? BudgetRejected { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("budgetRemainingUsd")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
+        public double? BudgetRemainingUsd { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("cacheHit")]
         public bool? CacheHit { get; set; } = default!;
