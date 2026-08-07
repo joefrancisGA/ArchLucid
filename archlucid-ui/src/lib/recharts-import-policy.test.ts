@@ -52,8 +52,8 @@ describe("recharts import policy (TB-570)", () => {
     const hotPathModules = [
       join(SRC_ROOT, "app", "(operator)", "_sections", "OperatorHomePageView.tsx"),
       join(SRC_ROOT, "app", "(operator)", "page.tsx"),
-      join(SRC_ROOT, "app", "(operator)", "reviews", "page.tsx"),
-      join(SRC_ROOT, "app", "(operator)", "reviews", "[runId]", "page.tsx"),
+      join(SRC_ROOT, "app", "(operator)", "architecture", "reviews", "page.tsx"),
+      join(SRC_ROOT, "app", "(operator)", "architecture", "reviews", "[runId]", "page.tsx"),
     ];
 
     for (const modulePath of hotPathModules) {

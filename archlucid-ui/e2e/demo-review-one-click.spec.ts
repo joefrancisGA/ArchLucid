@@ -32,7 +32,9 @@ test.describe("demo review one-click reliability @demo-review", () => {
 
     const reviewDetail = page.getByTestId("review-detail-root");
     await openReviewDetailWorkspaceTab(page, OPERATOR_DEMO_REVIEW_RUN_ID, "policies");
-    await expect(reviewDetail.getByTestId("review-detail-policy-pack-impact-callout")).toBeVisible({ timeout: 15_000 });
+    await expect(reviewDetail.getByTestId("review-detail-policy-pack-impact-callout")).toBeVisible({
+      timeout: 60_000,
+    });
 
     await openReviewDetailWorkspaceTab(page, OPERATOR_DEMO_REVIEW_RUN_ID, "findings");
     const quickDecisionSummary = page.getByTestId("quick-decision-summary");

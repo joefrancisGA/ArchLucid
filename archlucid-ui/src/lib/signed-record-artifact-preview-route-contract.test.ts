@@ -17,6 +17,7 @@ describe("signed-record artifact preview route contract (TB-1947 / MAM)", () => 
     const appRoot = join(process.cwd(), "src", "app", "(operator)");
     const mamPage = join(
       appRoot,
+      "governance",
       "signed-records",
       "[manifestId]",
       "artifacts",
@@ -25,6 +26,7 @@ describe("signed-record artifact preview route contract (TB-1947 / MAM)", () => 
     );
     const loader = join(
       appRoot,
+      "governance",
       "signed-records",
       "[manifestId]",
       "artifacts",
@@ -34,6 +36,7 @@ describe("signed-record artifact preview route contract (TB-1947 / MAM)", () => 
     );
     const view = join(
       appRoot,
+      "governance",
       "signed-records",
       "[manifestId]",
       "artifacts",

@@ -22,7 +22,7 @@ const FORBIDDEN_LOCAL_SAVINGS_MATH =
 
 const PRODUCTION_ROUTE_ROOTS = [
   join(uiRoot, "src", "app", "(operator)", "architecture", "executive-dashboard"),
-  join(uiRoot, "src", "app", "(operator)", "value-report"),
+  join(uiRoot, "src", "app", "(operator)", "sponsor-report"),
   join(uiRoot, "src", "app", "(executive)"),
 ];
 

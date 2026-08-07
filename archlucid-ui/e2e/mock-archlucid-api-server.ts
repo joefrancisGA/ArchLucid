@@ -81,8 +81,8 @@ function sendJson(res: http.ServerResponse, status: number, body: unknown): void
 
 function tryParseManifestSummaryPath(pathname: string): string | null {
   const patterns = [
-    /^\/v1\/authority\/(?:manifests|signed-records)\/([^/]+)\/summary$/,
-    /^\/api\/authority\/(?:manifests|signed-records)\/([^/]+)\/summary$/,
+    /^\/v1\/authority\/(?:manifests|signed-records|signed-review-records)\/([^/]+)\/summary$/,
+    /^\/api\/authority\/(?:manifests|signed-records|signed-review-records)\/([^/]+)\/summary$/,
   ];
 
   for (const pattern of patterns) {
@@ -114,8 +114,8 @@ function jsonForManifestSummary(manifestId: string): { status: number; body: unk
 
 function tryParseArtifactListPath(pathname: string): string | null {
   const patterns = [
-    /^\/v1\/artifacts\/(?:manifests|signed-records)\/([^/]+)$/,
-    /^\/api\/artifacts\/(?:manifests|signed-records)\/([^/]+)$/,
+    /^\/v1\/artifacts\/(?:manifests|signed-records|signed-review-records)\/([^/]+)$/,
+    /^\/api\/artifacts\/(?:manifests|signed-records|signed-review-records)\/([^/]+)$/,
   ];
 
   for (const pattern of patterns) {

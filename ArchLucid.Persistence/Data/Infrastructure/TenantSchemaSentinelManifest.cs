@@ -16,7 +16,8 @@ public static class TenantSchemaSentinelManifest
         },
         new SchemaSentinelExpectation
         {
-            TableName = "Runs",
+            // ADR 0064 / migration 295: base table renamed; dbo.Runs remains a synonym.
+            TableName = "Reviews",
             Columns =
             [
                 new SchemaSentinelColumn { ColumnName = "RunId", SqlDataType = "uniqueidentifier" },
@@ -26,7 +27,8 @@ public static class TenantSchemaSentinelManifest
         },
         new SchemaSentinelExpectation
         {
-            TableName = "GoldenManifests",
+            // ADR 0064 / migration 295: base table renamed; dbo.GoldenManifests remains a synonym.
+            TableName = "SignedReviewRecords",
             Columns =
             [
                 new SchemaSentinelColumn { ColumnName = "ManifestId", SqlDataType = "uniqueidentifier" },

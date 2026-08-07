@@ -51,7 +51,7 @@ describe("TenantMigrationMaintenanceBanner", () => {
       expect(screen.getByTestId("tenant-migration-maintenance-banner")).toBeInTheDocument();
     });
 
-    expect(screen.getByText("Writes frozen during catalog move.")).toBeInTheDocument();
+    expect(screen.getByText(/Writes frozen during catalog move\./)).toBeInTheDocument();
   });
 
   it("stays hidden when migration is inactive", async () => {
