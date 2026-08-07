@@ -34,7 +34,12 @@ export function TenantCatalogMigrationDiagnosticsSection() {
         return;
       }
 
-      if (status === null || !status.inMigration) {
+      if (status === null) {
+        setLoading(false);
+        return;
+      }
+
+      if (!status.inMigration) {
         setInMigration(false);
         setMessage(null);
         setStageLabel(null);

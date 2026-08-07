@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-07 - Adoption friction: TB-2070 migration operator visibility
+
+Tenant and admin surfaces now show catalog migration stage, correlation id, migration id, and last verification error on the AppShell banner and `/admin/health` diagnostics card.
+
 ## 2026-08-07 - Reliability: TB-2069 migration fan-out stage orchestration
 
 Tenant catalog migration APIs now enforce fan-out stage order with acknowledge-catalog-attach, stage-gated projection refresh and verification, and tenant-scoped cache invalidation.
@@ -49,6 +53,10 @@ Coalesce audit-list scope revision bumps within 3s during append bursts so first
 ## 2026-08-07 - Performance: TB-2061 dashboard + signed-records First Load JS
 
 Deferred below-fold executive-dashboard panels and the signed-records list client chunk via `next/dynamic`; extended `check:first-load-js` tracked routes and baseline for `/architecture/executive-dashboard` and `/governance/signed-records`.
+
+## 2026-08-07 - UI: Core-pilot help alias Evidence notes (ECO)
+
+`/help/core-pilot` documents legacy slug alias to first-architecture-review (HelpCorePilotGuideView Evidence chrome + Category-1 on alias path), traffic Notes under Help alias (row ID ECO; owner HEO renamed to match template), and honest Evidence score 52 (inherits COR). Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.
 
 ## 2026-08-07 - UI: Compare and replay help Evidence chrome (CO)
 
