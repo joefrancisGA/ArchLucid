@@ -77,6 +77,25 @@ public sealed class PostCommitProjectionEnqueuer(IPostCommitProjectionOutboxRepo
         return Task.WhenAll(tasks);
     }
 
+    /// <summary>
+    ///     Enqueues durable decision-node materialization for idempotent commit replay when the original
+    ///     post-commit row may be missing or not yet processed (TB-2060).
+    /// </summary>
+    public Task EnqueueDecisionEngineV2NodeMaterializationAsync(
+        Guid runGuid,
+        ScopeContext scope,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        return EnqueueAsync(
+            PostCommitProjectionWorkTypes.DecisionEngineV2NodeMaterialization,
+            scope,
+            runGuid,
+            null,
+            cancellationToken);
+    }
+
     private Task EnqueueAsync(
         string workType,
         ScopeContext scope,

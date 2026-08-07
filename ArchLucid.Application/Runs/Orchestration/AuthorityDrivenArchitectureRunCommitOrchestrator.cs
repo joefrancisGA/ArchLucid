@@ -621,6 +621,12 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         if (_logger.IsEnabled(LogLevel.Information))
             _logger.LogInformation("Commit run idempotent return (authority): RunId={RunId} ManifestId={ManifestId} TraceId={TraceId}",
                 LogSanitizer.Sanitize(runId), goldenId.ToString("D"), traceId.ToString("D"));
+
+        if (Guid.TryParseExact(runId, "N", out Guid runGuid) || Guid.TryParse(runId, out runGuid))
+        {
+            await _postCommitProjectionEnqueuer.EnqueueDecisionEngineV2NodeMaterializationAsync(runGuid, scope, cancellationToken);
+        }
+
         return new CommitRunResult
         {
             Manifest = contract,

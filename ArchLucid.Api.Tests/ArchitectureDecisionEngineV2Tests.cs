@@ -32,7 +32,7 @@ public sealed class ArchitectureDecisionEngineV2Tests(ArchLucidApiFactory factor
         await executeResponse.EnsureSuccessForTestAsync();
         HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
         await commitResponse.EnsureSuccessForTestAsync();
-        await DrainPostCommitProjectionOutboxAsync();
+        await WaitForDecisionNodesAsync(runId);
         HttpResponseMessage decisionsResponse = await Client.GetAsync($"/v1/architecture/review/{runId}/decisions");
         decisionsResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -45,17 +45,30 @@ public sealed class ArchitectureDecisionEngineV2Tests(ArchLucidApiFactory factor
         payload.Decisions.Should().Contain(d => d.Topic == "ComplexityDisposition");
     }
 
-    private async Task DrainPostCommitProjectionOutboxAsync()
+    private async Task WaitForDecisionNodesAsync(string runId)
     {
         IPostCommitProjectionOutboxProcessor processor =
             Factory.Services.GetRequiredService<IPostCommitProjectionOutboxProcessor>();
 
-        for (int attempt = 0; attempt < 10; attempt++)
+        for (int attempt = 0; attempt < 30; attempt++)
         {
-            int processed = await processor.ProcessPendingBatchAsync(CancellationToken.None);
+            await processor.ProcessPendingBatchAsync(CancellationToken.None);
 
-            if (processed == 0)
-                break;
+            HttpResponseMessage decisionsResponse =
+                await Client.GetAsync($"/v1/architecture/review/{runId}/decisions");
+
+            if (decisionsResponse.IsSuccessStatusCode)
+            {
+                DecisionNodeResponseDto? payload =
+                    await decisionsResponse.Content.ReadFromJsonAsync<DecisionNodeResponseDto>(JsonOptions);
+
+                if (payload is not null && payload.Decisions.Count > 0)
+                    return;
+            }
+
+            await Task.Delay(100);
         }
+
+        throw new TimeoutException($"Decision nodes were not materialized for run '{runId}' within the test wait window.");
     }
 }
