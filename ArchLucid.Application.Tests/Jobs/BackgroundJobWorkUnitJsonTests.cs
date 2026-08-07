@@ -85,4 +85,10 @@ public sealed class BackgroundJobWorkUnitJsonTests
         typed.Payload.FindingId.Should().Be("finding-abc");
         typed.Payload.Provider.Should().Be(ItsmOutboundIssueProvider.ServiceNow);
     }
+
+    [SkippableFact]
+    public void TryDeserialize_malformed_json_returns_null()
+    {
+        BackgroundJobWorkUnitJson.TryDeserialize("{not-json").Should().BeNull();
+    }
 }

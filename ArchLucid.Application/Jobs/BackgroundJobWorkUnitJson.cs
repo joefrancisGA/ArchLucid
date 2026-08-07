@@ -25,4 +25,22 @@ public static class BackgroundJobWorkUnitJson
         ArgumentNullException.ThrowIfNull(json);
         return string.IsNullOrWhiteSpace(json) ? null : JsonSerializer.Deserialize<BackgroundJobWorkUnit>(json, Options);
     }
+
+    /// <summary>
+    ///     Fail-closed read for tenant-scope authorization — malformed JSON must not leak job existence via 500.
+    /// </summary>
+    public static BackgroundJobWorkUnit? TryDeserialize(string json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+            return null;
+
+        try
+        {
+            return JsonSerializer.Deserialize<BackgroundJobWorkUnit>(json, Options);
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
+    }
 }

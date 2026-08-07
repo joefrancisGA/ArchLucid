@@ -22,6 +22,7 @@ public sealed class InMemoryBackgroundJobQueue(
 
     private readonly ConcurrentDictionary<string, BackgroundJobInfo> _info = new(StringComparer.Ordinal);
     private readonly ConcurrentDictionary<string, BackgroundJobFile> _files = new(StringComparer.Ordinal);
+    private readonly ConcurrentDictionary<string, BackgroundJobWorkUnit> _workUnits = new(StringComparer.Ordinal);
 
     public async Task<string> EnqueueAsync(
         BackgroundJobWorkUnit workUnit,
@@ -45,10 +46,12 @@ public sealed class InMemoryBackgroundJobQueue(
             ContentType: null,
             RetryCount: 0,
             MaxRetries: safeMaxRetries);
+        _workUnits[id] = workUnit;
 
         if (!await _pendingJobs.WaitAsync(0, cancellationToken))
         {
             _info.TryRemove(id, out _);
+            _workUnits.TryRemove(id, out _);
 
             throw new InvalidOperationException(
                 $"The background job queue is at capacity ({InMemoryBackgroundJobQueueLimits.MaxPendingJobs} pending jobs). Try again later.");
@@ -59,6 +62,7 @@ public sealed class InMemoryBackgroundJobQueue(
 
         _pendingJobs.Release();
         _info.TryRemove(id, out _);
+        _workUnits.TryRemove(id, out _);
 
         throw new InvalidOperationException("The background job queue writer is not accepting jobs.");
     }
@@ -75,6 +79,13 @@ public sealed class InMemoryBackgroundJobQueue(
         return string.IsNullOrWhiteSpace(jobId)
             ? Task.FromResult<BackgroundJobFile?>(null)
             : Task.FromResult(_files.TryGetValue(jobId, out BackgroundJobFile? file) ? file : null);
+    }
+
+    public Task<BackgroundJobWorkUnit?> TryGetWorkUnitAsync(string jobId, CancellationToken cancellationToken = default)
+    {
+        return string.IsNullOrWhiteSpace(jobId)
+            ? Task.FromResult<BackgroundJobWorkUnit?>(null)
+            : Task.FromResult(_workUnits.TryGetValue(jobId, out BackgroundJobWorkUnit? unit) ? unit : null);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -187,6 +198,7 @@ public sealed class InMemoryBackgroundJobQueue(
         {
             _info.TryRemove(old.JobId, out _);
             _files.TryRemove(old.JobId, out _);
+            _workUnits.TryRemove(old.JobId, out _);
         }
     }
 }

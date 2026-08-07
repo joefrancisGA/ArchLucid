@@ -106,7 +106,7 @@ Minimum fields (no `percentComplete` on the wire):
 | Order | ID | Deliverable |
 |------:|----|-------------|
 | 1 | **TB-2072** | This contract (done when merged) |
-| 2 | **TB-2073** | Timeout ceiling matrix + job poll tenant audit |
+| 2 | **TB-2073** | Timeout ceiling matrix + job poll tenant audit (**Done** 2026-08-07) |
 | 3 | **TB-2074** | `GET /v1/operations/{operationId}` |
 | 4 | **TB-2075** | Async execute/replay 202 + `Location` |
 | 5 | **TB-2076** | Cancel |
@@ -122,3 +122,24 @@ Minimum fields (no `percentComplete` on the wire):
 - Tier B surfaces should use staged wait / route `loading.tsx` (**TB-2078**), not infinite silent spinners.
 - Tier C Real-mode execute/replay should poll operations (after **TB-2074**) or existing job URLs until the unified resource ships.
 - Product language: prefer *architecture review* / *export* over *job* in buyer chrome; *job* remains OK on admin/diagnostic surfaces.
+
+---
+
+## 9. HTTP timeout ceiling matrix (TB-2073)
+
+Documented stack limits that sit **below** long Real-mode handler work. Values are **deployed-contract references**, not buyer SLAs.
+
+| Layer | Setting / constant | Typical ceiling | Notes |
+|-------|-------------------|-------------------|-------|
+| Next.js RSC / server loaders | `SERVER_UPSTREAM_FETCH_TIMEOUT_MS` | **45s** | `archlucid-ui/src/lib/server-fetch-timeouts.ts` |
+| UI API proxy (JSON) | `PROXY_UPSTREAM_FETCH_TIMEOUT_MS` | **60s** | `archlucid-ui/src/app/api/proxy/[...path]/route.ts` |
+| UI API proxy (multipart upload) | `PROXY_UPSTREAM_UPLOAD_FETCH_TIMEOUT_MS` | **10 min** | Large evidence uploads only |
+| Azure Front Door Standard origin | `origin_response_timeout` (platform default) | **60s** when unset | This repo's `infra/terraform-edge/` does **not** override origin response timeout — treat **60s** as the edge default until explicitly configured |
+| App Service / Container Apps origin | Platform / ingress defaults | **~230s** (varies by SKU) | Still below multi-minute Real-mode execute |
+| Agent handler outer timeout | `AgentExecution:Resilience:PerHandlerTimeoutSeconds` | **900s** default | `ConfigurationKeyCatalog` / appsettings |
+
+**Implication:** Tier C Real-mode `POST .../execute` and replay must not rely on a single sync HTTP round-trip through the UI proxy or Front Door without **202 + operation poll** (**TB-2075** / **TB-2074**).
+
+### Job poll tenant scope (TB-2073)
+
+`GET /v1/jobs/{jobId}` and `GET /v1/jobs/{jobId}/file` enforce tenant/workspace scope via `IBackgroundJobTenantAccessVerifier` (work-unit resolution + scoped run lookup). Cross-tenant probes receive **404** (not 403) to avoid job-id existence leaks.

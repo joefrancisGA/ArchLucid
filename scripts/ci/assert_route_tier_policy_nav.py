@@ -146,6 +146,18 @@ def parse_nav_hrefs(ui_nav_dir: Path) -> set[str]:
                 continue
             for m in re.finditer(r'"(/[^"]+)"', line):
                 hrefs.add(m.group(1))
+
+    # Nav builders increasingly import path constants; harvest canonical literals for parity checks.
+    for extra in (
+        ui_nav_dir / "internal-ops-route-paths.ts",
+        ui_nav_dir / "product-learning-route.ts",
+    ):
+        if not extra.is_file():
+            continue
+        for line in extra.read_text(encoding="utf-8").splitlines():
+            for m in re.finditer(r'=\s*"(/[^"]+)"\s+as const', line):
+                hrefs.add(m.group(1))
+
     return hrefs
 
 

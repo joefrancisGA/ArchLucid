@@ -34,6 +34,10 @@ See `variables.tf` and `terraform.tfvars.example`.
 
 **X-Correlation-ID** is forwarded through Front Door by default. Keep sending it from clients so support can tie **WAF logs**, **Front Door metrics**, and **ArchLucid.Api** logs together.
 
+## Origin response timeout (TB-2073)
+
+This Terraform root does **not** set `origin_response_timeout` on Front Door origin groups. Azure Front Door **Standard** uses the platform default (**60s** origin response timeout unless overridden in the portal or a future IaC change). That ceiling sits **below** Real-mode agent execute (`PerHandlerTimeoutSeconds` up to **900s**) and above the Next.js UI proxy/RSC caps documented in [`docs/library/LONG_RUNNING_OPERATIONS_CONTRACT.md`](../../docs/library/LONG_RUNNING_OPERATIONS_CONTRACT.md) §9. Tier C work must use **202 + operation poll**, not a single sync HTTP hold through Front Door.
+
 ## CDN cache behavior (TB-868)
 
 Front Door **Standard** honors origin **`Cache-Control`** headers. The UI origin (`archlucid-ui/next.config.ts`, production) sends:

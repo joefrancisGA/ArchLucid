@@ -167,6 +167,8 @@ public static partial class ServiceCollectionExtensions
         bool durable = string.Equals(jobsSnapshot.Mode, "Durable", StringComparison.OrdinalIgnoreCase);
 
         services.AddScoped<IBackgroundJobWorkUnitExecutor, BackgroundJobWorkUnitExecutor>();
+        services.AddScoped<IBackgroundJobTenantAccessVerifier, BackgroundJobTenantAccessVerifier>();
+        services.AddScoped<IBackgroundJobWorkUnitAccessor, BackgroundJobWorkUnitAccessor>();
 
         if (hostingRole == ArchLucidHostingRole.Worker)
         {

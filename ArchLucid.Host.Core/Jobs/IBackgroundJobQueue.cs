@@ -12,4 +12,9 @@ public interface IBackgroundJobQueue
     Task<BackgroundJobInfo?> GetInfoAsync(string jobId, CancellationToken cancellationToken = default);
 
     Task<BackgroundJobFile?> GetFileAsync(string jobId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Returns the serialized work unit for tenant-scope authorization on poll/download (TB-2073).
+    /// </summary>
+    Task<BackgroundJobWorkUnit?> TryGetWorkUnitAsync(string jobId, CancellationToken cancellationToken = default);
 }

@@ -539,7 +539,7 @@
       "commercial_tier": "standard",
       "class_policy": "ReadAuthority",
       "exemption": null,
-      "nav_operator_href": "/internal-operations/recommendation-learning"
+      "nav_operator_href": "/internal/recommendation-learning"
     },
     {
       "controller_file": "AgentExecution/AgentExecutionCostPreviewController.cs",
@@ -1109,7 +1109,7 @@
       "commercial_tier": "none",
       "class_policy": "RequireAdmin",
       "exemption": null,
-      "nav_operator_href": "/admin/health"
+      "nav_operator_href": "/internal/health"
     },
     {
       "controller_file": "Diagnostics/OperatorTaskSuccessDiagnosticsController.cs",
@@ -1559,7 +1559,7 @@
       "commercial_tier": "standard",
       "class_policy": "ReadAuthority",
       "exemption": null,
-      "nav_operator_href": "/replay"
+      "nav_operator_href": "/internal/replay"
     },
     {
       "controller_file": "Planning/ConversationController.cs",
@@ -1819,7 +1819,7 @@
       "commercial_tier": "standard",
       "class_policy": "Authorize",
       "exemption": null,
-      "nav_operator_href": "/sponsor-report/roi-summary"
+      "nav_operator_href": "/insights/roi-summary"
     },
     {
       "controller_file": "Tenancy/TenantPilotValueReportController.cs",
@@ -1829,7 +1829,7 @@
       "commercial_tier": "none",
       "class_policy": "Authorize",
       "exemption": null,
-      "nav_operator_href": "/sponsor-report/pilot-outcomes"
+      "nav_operator_href": "/insights/pilot-outcomes"
     },
     {
       "controller_file": "Tenancy/TenantTrialController.cs",
@@ -1899,7 +1899,7 @@
       "commercial_tier": "standard",
       "class_policy": "ExecuteAuthority",
       "exemption": null,
-      "nav_operator_href": "/sponsor-report/executive-summary"
+      "nav_operator_href": "/insights/executive-summary"
     },
     {
       "controller_file": "VersionController.cs",

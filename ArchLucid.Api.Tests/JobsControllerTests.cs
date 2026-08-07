@@ -1,6 +1,8 @@
 using ArchLucid.Api.Controllers.Admin;
 using ArchLucid.Application.Jobs;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Jobs;
+using ArchLucid.TestSupport;
 
 using FluentAssertions;
 
@@ -15,9 +17,27 @@ namespace ArchLucid.Api.Tests;
 [Trait("Suite", "Core")]
 public sealed class JobsControllerTests
 {
-    private static JobsController CreateSut(Mock<IBackgroundJobQueue> jobs)
+    private static readonly ScopeContext DefaultScope = new()
     {
-        JobsController controller = new(jobs.Object)
+        TenantId = ScopeIds.DefaultTenant,
+        WorkspaceId = ScopeIds.DefaultWorkspace,
+        ProjectId = ScopeIds.DefaultProject
+    };
+
+    private static JobsController CreateSut(
+        Mock<IBackgroundJobQueue> jobs,
+        Mock<IBackgroundJobTenantAccessVerifier>? tenantAccess = null,
+        Mock<IScopeContextProvider>? scopeProvider = null)
+    {
+        Mock<IBackgroundJobTenantAccessVerifier> access = tenantAccess ?? new Mock<IBackgroundJobTenantAccessVerifier>();
+        access
+            .Setup(v => v.IsAccessibleAsync(It.IsAny<string>(), It.IsAny<ScopeContext>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        Mock<IScopeContextProvider> scope = scopeProvider ?? new Mock<IScopeContextProvider>();
+        scope.Setup(p => p.GetCurrentScope()).Returns(DefaultScope);
+
+        JobsController controller = new(jobs.Object, access.Object, scope.Object)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
@@ -35,6 +55,23 @@ public sealed class JobsControllerTests
 
         ObjectResult obj = result.Should().BeAssignableTo<ObjectResult>().Subject;
         obj.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        jobs.Verify(j => j.GetInfoAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [SkippableFact]
+    public async Task GetJob_cross_tenant_returns_404()
+    {
+        Mock<IBackgroundJobQueue> jobs = new();
+        Mock<IBackgroundJobTenantAccessVerifier> access = new();
+        access
+            .Setup(v => v.IsAccessibleAsync("foreign", DefaultScope, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+        JobsController sut = CreateSut(jobs, access);
+
+        IActionResult result = await sut.GetJob("foreign", CancellationToken.None);
+
+        ObjectResult obj = result.Should().BeAssignableTo<ObjectResult>().Subject;
+        obj.StatusCode.Should().Be(StatusCodes.Status404NotFound);
         jobs.Verify(j => j.GetInfoAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -85,6 +122,23 @@ public sealed class JobsControllerTests
 
         ObjectResult obj = result.Should().BeAssignableTo<ObjectResult>().Subject;
         obj.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        jobs.Verify(j => j.GetFileAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [SkippableFact]
+    public async Task DownloadJobFile_cross_tenant_returns_404()
+    {
+        Mock<IBackgroundJobQueue> jobs = new();
+        Mock<IBackgroundJobTenantAccessVerifier> access = new();
+        access
+            .Setup(v => v.IsAccessibleAsync("foreign", DefaultScope, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+        JobsController sut = CreateSut(jobs, access);
+
+        IActionResult result = await sut.DownloadJobFile("foreign", CancellationToken.None);
+
+        ObjectResult obj = result.Should().BeAssignableTo<ObjectResult>().Subject;
+        obj.StatusCode.Should().Be(StatusCodes.Status404NotFound);
         jobs.Verify(j => j.GetFileAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 

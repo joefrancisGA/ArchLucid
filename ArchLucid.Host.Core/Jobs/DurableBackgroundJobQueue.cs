@@ -76,4 +76,17 @@ public sealed class DurableBackgroundJobQueue(
 
         return await resultBlobs.DownloadAsync(row.ResultBlobName, row.FileName, row.ContentType, cancellationToken);
     }
+
+    public async Task<BackgroundJobWorkUnit?> TryGetWorkUnitAsync(string jobId, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(jobId))
+            return null;
+
+        BackgroundJobRow? row = await repository.GetAsync(jobId, cancellationToken);
+
+        if (row is null || string.IsNullOrWhiteSpace(row.WorkUnitJson))
+            return null;
+
+        return BackgroundJobWorkUnitJson.TryDeserialize(row.WorkUnitJson);
+    }
 }

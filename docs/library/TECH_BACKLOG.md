@@ -15,35 +15,36 @@ Regenerate after opening or closing summary-table rows:
 | Deployability | 4 |
 | AI/Agent readiness | 12 |
 | Architectural integrity | 11 |
-| Adoption friction | 369 |
+| Adoption friction | 378 |
 | Commercial / marketability | 9 |
 | Data consistency | 4 |
 | Cutting-edge AI | 3 |
-| Explainability | 3 |
+| Explainability | 4 |
 | Proof-of-ROI / executive value | 2 |
 | Trustworthiness | 177 |
 | Maintainability | 9 |
 | Traceability | 4 |
 | Interoperability | 4 |
+| Compliance readiness | 1 |
 | Performance | 12 |
 | Scalability | 4 |
-| Cost-effectiveness | 8 |
+| Cost-effectiveness | 9 |
 | Supportability | 2 |
 | Code hygiene | 1 |
 | Stickiness | 1 |
-| Accessibility | 3 |
+| Accessibility | 4 |
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **802** |
+| **Total (unique open)** | **815** |
 
-**By priority band:** P0 **18** | P1 **652** | P2 **115** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **29** | P1 **653** | P2 **115** | P3 **10** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
 > **Scope:** Engineering-owned technical backlog items deferred from current sessions; audience is contributors and the AI assistant; not a buyer or operator document. Not a substitute for ADRs or the pending-questions owner decisions file.
 
-**Updated:** 2026-08-07 (**TB-2095** opened — P0 clarify or remove vague Deliverables “Policy pack used for this review.” line). Prior: 2026-08-07 (**TB-2094** opened — P0 remove page-local `← Settings` back arrows on administration child pages). Prior: 2026-08-07 (**TB-2072** **Done** — long-running operations latency-tier contract + operation inventory SoT). Prior: 2026-08-07 (**TB-2071** **Done** — compare workspace execution-mode honesty strip + delta narrative trust advisory). Prior: 2026-08-07 (**TB-2070** **Done** — P0 remove “About …” scope/details blocks; merge needed copy into title/header). Prior: 2026-08-07 (**TB-2092** opened — P0 remove mid-page operator “Sources for follow-up” blocks). Prior: 2026-08-07 (**TB-2090**/**TB-2091** opened — P0 remove all breadcrumbs; P0 remove SOC 2 / pen-test disclaimer warnings system-wide). Prior: 2026-08-07 (**TB-2069** **Done** — tenant migration fan-out stage guards + acknowledge-catalog-attach API). Prior: 2026-08-07 (**TB-2068** **Done** — tenant migration banner on AppShell with polling + stage suspend copy). Prior: 2026-08-07 (**TB-2066** **Done** — finding inspect trust labels use parent run execution mode + degradation signals). Prior: 2026-08-07 (**TB-2062** **Done** — audit list scope revision bumps coalesce during append bursts; first-page cache hit-rate under write churn). Prior: 2026-08-07 (**TB-2061** **Done** — `/dashboard` + `/signed-records` First Load JS deferred chunks + CI gate routes). Prior: 2026-08-07 (**TB-2060** **Done** — V2 decision-node materialization moved to post-commit outbox; commit HTTP path no longer runs `IDecisionEngineV2`). Prior: 2026-08-07 (**TB-2057** **Done** — comparison list/search omit `PayloadJson`; detail via `GetByIdAsync`). Prior: 2026-08-07 (**TB-2055** **Done** — retrieval indexing outbox slim `GetRunDetailForRetrievalIndexingAsync` + bounded parallel drain). Prior: 2026-08-07 (**TB-1949** **Done** — MAM traffic workbook retagged Core review; ui_routes.md honesty; Vitest). Prior: 2026-08-06 (**TB-2080**–**TB-2089** opened — architecture simplification: delete duplicate UI/workers/controllers, pilot profile, gate unwired features/outboxes, DDL drift gate, API/CI consolidation). Prior: 2026-08-06 (**TB-2054** **Done** — ROI uses `GetRunDetailForRoiAsync` rollup+mute; no N× fat `GetRunDetailAsync`). Prior: 2026-08-06 (**TB-2072**–**TB-2079** opened — long-running operations contract + unified operation API + async execute + cancel + shell activity + Tier B wait UX + latency-tier CI; all **P0** **V1**). Prior: 2026-08-06 (**TB-2053** **Done** — `GetRollupProjectionByRunIdAsync` JSON subpaths; rollup/compare off bare `ResultJson`). Prior: 2026-08-06 (**TB-965** **Done** — quality vs execution UX + Vitest; **TB-963** SoT). Prior: 2026-08-06 (**TB-934**/**TB-935**/**TB-2028**–**TB-2030** promoted to **P0** — open UI performance peers). Prior: 2026-08-06 (**TB-2053**–**TB-2062** opened — Performance wave 4: top-10 untracked opportunities refiled as **P0** **V1**; prior **TB-2048**–**TB-2057** IDs were consumed by Learn more cluster — do not reuse). Prior: 2026-08-06 (**TB-963** **Done** — LLM_EXECUTION_VS_QUALITY_OUTCOME.md taxonomy + persist checklist; GTM **M-123**/**M-124** SoT). Prior: 2026-08-06 (**TB-2052** **Done** — Learn more job-match Vitest suite; secondary-hub ban + Digests golden; **TB-2048**—**TB-2052** cluster closed). Prior: 2026-08-05 (**TB-2051** **Done** — Category-1 deep-link CTAs on allowlisted hubs; Digests golden retained; Vitest allowlist; **TB-2052** remains open). Prior: 2026-08-05 (**TB-2050** **Done** — secondary-hub Learn more off getting-started/how-it-works; omit when no specialty; **TB-2051**–**TB-2052** remain open). Prior: 2026-08-05 (**TB-2049** **Done** ? Digests Learn more to `/help/digests` specialty + Schedule Category-1 deep links; traffic **DI**/**DIS**/**HDG**; **TB-2050**?**TB-2052** remain open). Prior: 2026-08-05 (**TB-2048** **Done** ? Learn more job-match in [`UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md) + UI ARCHITECTURE pointer; ban generic getting-started/how-it-works on secondary hubs; **TB-2049**?**TB-2052** remain open). Prior: 2026-08-05 (**TB-2048**?**TB-2052** opened ? P0 page-scoped contextual help *quality*: Learn more must match page job (ban generic `getting-started`/`how-it-works` on secondary hubs), Digests golden remap + Schedule deep link, secondary-hub sweep, actionable Category-1 popover links, Vitest; owner Digests help review 2026-08-05; traffic **OCH**; complements open mount cluster **TB-1666**?**TB-1670** ? do not reopen). Prior: 2026-08-05 (**TB-931** **Done** ? typed hot scalars on `AgentExecutionTraces` (DbUp **294**); list + LLM cost prefer typed columns with JSON_VALUE COALESCE; dual-write Create + quality columns; inventory). Prior: 2026-08-05 (**TB-1030** **Done** ? [`PA_FIRST_15_PACKAGE_SPINE_IA_CONTRACT.md`](PA_FIRST_15_PACKAGE_SPINE_IA_CONTRACT.md) must-complete + package-spine IA unlock + minute-12 + narration residuals; GTM **M-181** + claim-boundary cites; **TB-1031** remains open). Prior: 2026-08-05 (**TB-1026** **Done** ? [`OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md`](OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md) package primary + `/reviews` spine + collapse surfaces; GTM **M-177** + claim-boundary cites; **TB-1027** remains open). Prior: 2026-08-05 (**TB-1024** **Done** ? [`COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md`](COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md) minimal immutable snapshot + artifact/regenerate/verify modes; GTM **M-175** + claim-boundary cites; **TB-1025** remains open). Prior: 2026-08-05 (**TB-1022** **Done** ? [`PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md`](PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md) block vs advisory + SoD ownership matrix; GTM **M-173** + claim-boundary cites; **TB-1023** remains open). Prior: 2026-08-05 (**TB-1011** **Done** ? [`TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md`](TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md) finalize vs outbox + never-silent best-effort matrix; GTM **M-163** + claim-boundary cites; **TB-1012** remains open). Prior: 2026-08-05 (**TB-1009** **Done** ? [`APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md`](APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md) append-only/sealed vs mutable + Update-destruction matrix; GTM **M-161** + claim-boundary cites; **TB-1010** remains open). Prior: 2026-08-05 (**TB-1007** **Done** ? [`AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md`](AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md) Authority canonical + AgentTask forbid matrix; GTM **M-159** + Flow A1 cites; **TB-1008** remains open). Prior: 2026-08-05 (**TB-1005** **Done** ? [`LAYER_BOUNDARY_IRREVERSIBLE_LEAK_MATRIX.md`](LAYER_BOUNDARY_IRREVERSIBLE_LEAK_MATRIX.md) NetArchTest vs ranked runtime residuals; GTM **M-157** + claim-boundary cites; **TB-1006** remains open). Prior: 2026-08-05 (**TB-1003** **Done** ? [`COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md`](COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md) unit-of-truth + hop/label matrix; GTM **M-155** + claim-boundary cites; **TB-1004** remains open). Prior: 2026-08-05 (**TB-1001** **Done** ? [`RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md`](RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md) Ask/Search/Graph-RAG hit guarantee matrix; GTM **M-153** + Layer E / Ask threat-model cites; **TB-1002** remains open). Prior: 2026-08-05 (**TB-999** **Done** ? [`TENANT_IDENTITY_SINGLE_DERIVATION_CONTRACT.md`](TENANT_IDENTITY_SINGLE_DERIVATION_CONTRACT.md) decide-once matrix; GTM **M-151** + Layer B cites; **TB-1000** remains open). Prior: 2026-08-05 (**TB-997** **Done** ? [`LLM_TRUST_BOUNDARY_INGRESS_CONFINEMENT_CONTRACT.md`](LLM_TRUST_BOUNDARY_INGRESS_CONFINEMENT_CONTRACT.md) ingress vs confinement matrix; GTM **M-149** + claim-boundary cites; **TB-952** remains open). Prior: 2026-08-04 (**TB-995** **Done** ? [`POLLY_VS_RUN_LEVEL_SEMANTICS_CONTRACT.md`](POLLY_VS_RUN_LEVEL_SEMANTICS_CONTRACT.md) transport vs partial/cache/budget matrix; `LLM_RETRY` + GTM **M-147** + claim-boundary cites; does not close **TB-941**?**TB-945**). Prior: 2026-08-04 (**TB-968** **Done** ? `IItsmInboundWebhookReplayGuard` + in-memory 24h dedupe; delivery-id / Atlassian identifier / synthetic replay keys; `Integration.ItsmInboundWebhookReplayIgnored` audit; optional timestamp skew without HMAC; [`ITSM_INBOUND_WEBHOOK_REPLAY_GUARD.md`](runbooks/ITSM_INBOUND_WEBHOOK_REPLAY_GUARD.md); hostile-traffic inventory Replay ? Y). Prior: 2026-08-04 (**TB-2038**?**TB-2041** opened ? operator short-helper measure caps: design-system contract + `OperatorPageHeader`/`PageHeading` + dashboard inventory + Vitest; Overview `/` premature `max-w-prose`/`max-w-2xl` fixed in-session). Prior: 2026-08-04 (**TB-967** **Done** ? `InboundWebhookBoundedBodyReader` Content-Length + hard ceiling before HMAC; ITSM/Stripe/Marketplace/Slack; 413; unit/arch/integration tests; inventory updated). Prior: 2026-08-04 (**TB-966** **Done** ? `INBOUND_WEBHOOK_HOSTILE_TRAFFIC.md` PA order rate?size?verify?parse + surface matrix + checklist; INV-015 refresh; GTM **M-125**/**M-126** cite SoT; **TB-968** remains open). Prior: 2026-08-03 (**TB-955** **Done** ? Required audit abandon metric + pageable Prometheus alerts; domain?audit orphan probe + job; triage runbook; informational TryLogAsync excluded). Prior: 2026-08-03 (**TB-954** **Done** ? `RequiredAuditEventTypes` registry + arch test forbids `TryLogAsync` on Required types; INV-003 enforcement note; Core + Architecture tests). Prior: 2026-08-03 (**TB-951** **Done** ? ?3 indirect doc/README/ADR corpus scenarios + `indirect-doc-injection.json` with `expectedContained` residual; CI assert + eval_agent_quality strict; no 100% detection claim). Prior: 2026-08-03 (**TB-950** **Done** ? production-like empty/null `AllowedTools` fail-closed; `*` unrestricted sentinel; DemoSeed concrete tools; TB-082 tests updated). Prior: 2026-08-03 (**TB-949** **Done** ? untrusted customer-content `CUSTOMER_CONTENT_BEGIN`/`END` + framing; Agent/Ask composers; contract doc; unit + wiring tests; hygiene ? security boundary). Prior: 2026-08-03 (**DI** Evidence chrome ? /digests Sources + claim discipline; Vitest; traffic **DI**). Prior: 2026-08-03 (**PLA** Evidence chrome ? `/planning` Sources + claim discipline + topic honesty `how-it-works`; Vitest; traffic **PLA**). Prior: 2026-08-03 (**TB-897** **Done** ? Quick Scan layered identity/abuse limits + CAPTCHA/sign-in friction codes; mig **292**; abuse ? spend ceiling). Prior: 2026-08-03 (**SCX** Evidence chrome ? `/insights/architecture-scorecard` Sources + Category-1 registry + directional ROI claim; Vitest; traffic **SCX**; **TB-1956**?**TB-1960** remain Done). Prior: 2026-08-03 (**TB-1668** GDX/alerts topic slice ? `/governance/dashboard` Sources + registry + topic honesty; `/governance/alerts` ? `alerts`; Vitest; traffic **GDX**; remaining mount hubs open). Prior: 2026-08-03 (**TB-1667** HOM slice ? `/` remounts `OperatorHomePageChrome` + Category-1 registry; Vitest; traffic **HOM**; remaining hubs open). Prior: 2026-08-03 (**TB-1746**/**TB-1749**/**TB-1750** **Done** ? `/help/soc2-self-assessment` specialty buyer guide + Trust CTA / IA dual / Help Center; Vitest; traffic **HES**; **TB-1747**/**TB-1748** retained). Prior: 2026-08-03 (**TB-1386** **Done** ? `/help/governance-api-contracts` specialty API contracts guide + title honesty; Vitest; traffic **HG**). Prior: 2026-08-02 (**TB-1691**/**TB-1692**/**TB-1694**/**TB-1695** **Done** ? `/help/first-value-20-minutes` Admin specialty guide; Vitest; traffic **HEF**). Prior: 2026-08-02 (**TB-1676**/**TB-1678**/**TB-1679**/**TB-1680** **Done** ? `/help/dpa-template` specialty buyer DPA guide; Vitest; traffic **HDP**). Prior: 2026-07-31 (Open **P1** summary rows reordered - human-impact ship order for /ship-next-improvement; 723 open P1s; see `### P1 - human-impact ship order`).
+**Updated:** 2026-08-07 (**TB-2096**–**TB-2107** opened — owner page ratings: P0 Evidence graph fold budget / vocabulary / single legend / dead review-trail tip / one sample notice / picker label / canvas toolbar gating, plus P0 Alerts duplicate configure-rules CTA, never-evaluated `0` counters, dead no-rules controls, circular empty-state copy, Open-vs-Blocking tile relationship). Prior: 2026-08-07 (**TB-2073** **Done** — HTTP timeout ceiling matrix + `GET /v1/jobs/{id}` tenant-scope enforcement). Prior: 2026-08-07 (**TB-2095** opened — P0 clarify or remove vague Deliverables “Policy pack used for this review.” line). Prior: 2026-08-07 (**TB-2094** opened — P0 remove page-local `← Settings` back arrows on administration child pages). Prior: 2026-08-07 (**TB-2072** **Done** — long-running operations latency-tier contract + operation inventory SoT). Prior: 2026-08-07 (**TB-2071** **Done** — compare workspace execution-mode honesty strip + delta narrative trust advisory). Prior: 2026-08-07 (**TB-2070** **Done** — P0 remove “About …” scope/details blocks; merge needed copy into title/header). Prior: 2026-08-07 (**TB-2092** opened — P0 remove mid-page operator “Sources for follow-up” blocks). Prior: 2026-08-07 (**TB-2090**/**TB-2091** opened — P0 remove all breadcrumbs; P0 remove SOC 2 / pen-test disclaimer warnings system-wide). Prior: 2026-08-07 (**TB-2069** **Done** — tenant migration fan-out stage guards + acknowledge-catalog-attach API). Prior: 2026-08-07 (**TB-2068** **Done** — tenant migration banner on AppShell with polling + stage suspend copy). Prior: 2026-08-07 (**TB-2066** **Done** — finding inspect trust labels use parent run execution mode + degradation signals). Prior: 2026-08-07 (**TB-2062** **Done** — audit list scope revision bumps coalesce during append bursts; first-page cache hit-rate under write churn). Prior: 2026-08-07 (**TB-2061** **Done** — `/dashboard` + `/signed-records` First Load JS deferred chunks + CI gate routes). Prior: 2026-08-07 (**TB-2060** **Done** — V2 decision-node materialization moved to post-commit outbox; commit HTTP path no longer runs `IDecisionEngineV2`). Prior: 2026-08-07 (**TB-2057** **Done** — comparison list/search omit `PayloadJson`; detail via `GetByIdAsync`). Prior: 2026-08-07 (**TB-2055** **Done** — retrieval indexing outbox slim `GetRunDetailForRetrievalIndexingAsync` + bounded parallel drain). Prior: 2026-08-07 (**TB-1949** **Done** — MAM traffic workbook retagged Core review; ui_routes.md honesty; Vitest). Prior: 2026-08-06 (**TB-2080**–**TB-2089** opened — architecture simplification: delete duplicate UI/workers/controllers, pilot profile, gate unwired features/outboxes, DDL drift gate, API/CI consolidation). Prior: 2026-08-06 (**TB-2054** **Done** — ROI uses `GetRunDetailForRoiAsync` rollup+mute; no N× fat `GetRunDetailAsync`). Prior: 2026-08-06 (**TB-2072**–**TB-2079** opened — long-running operations contract + unified operation API + async execute + cancel + shell activity + Tier B wait UX + latency-tier CI; all **P0** **V1**). Prior: 2026-08-06 (**TB-2053** **Done** — `GetRollupProjectionByRunIdAsync` JSON subpaths; rollup/compare off bare `ResultJson`). Prior: 2026-08-06 (**TB-965** **Done** — quality vs execution UX + Vitest; **TB-963** SoT). Prior: 2026-08-06 (**TB-934**/**TB-935**/**TB-2028**–**TB-2030** promoted to **P0** — open UI performance peers). Prior: 2026-08-06 (**TB-2053**–**TB-2062** opened — Performance wave 4: top-10 untracked opportunities refiled as **P0** **V1**; prior **TB-2048**–**TB-2057** IDs were consumed by Learn more cluster — do not reuse). Prior: 2026-08-06 (**TB-963** **Done** — LLM_EXECUTION_VS_QUALITY_OUTCOME.md taxonomy + persist checklist; GTM **M-123**/**M-124** SoT). Prior: 2026-08-06 (**TB-2052** **Done** — Learn more job-match Vitest suite; secondary-hub ban + Digests golden; **TB-2048**—**TB-2052** cluster closed). Prior: 2026-08-05 (**TB-2051** **Done** — Category-1 deep-link CTAs on allowlisted hubs; Digests golden retained; Vitest allowlist; **TB-2052** remains open). Prior: 2026-08-05 (**TB-2050** **Done** — secondary-hub Learn more off getting-started/how-it-works; omit when no specialty; **TB-2051**–**TB-2052** remain open). Prior: 2026-08-05 (**TB-2049** **Done** ? Digests Learn more to `/help/digests` specialty + Schedule Category-1 deep links; traffic **DI**/**DIS**/**HDG**; **TB-2050**?**TB-2052** remain open). Prior: 2026-08-05 (**TB-2048** **Done** ? Learn more job-match in [`UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md) + UI ARCHITECTURE pointer; ban generic getting-started/how-it-works on secondary hubs; **TB-2049**?**TB-2052** remain open). Prior: 2026-08-05 (**TB-2048**?**TB-2052** opened ? P0 page-scoped contextual help *quality*: Learn more must match page job (ban generic `getting-started`/`how-it-works` on secondary hubs), Digests golden remap + Schedule deep link, secondary-hub sweep, actionable Category-1 popover links, Vitest; owner Digests help review 2026-08-05; traffic **OCH**; complements open mount cluster **TB-1666**?**TB-1670** ? do not reopen). Prior: 2026-08-05 (**TB-931** **Done** ? typed hot scalars on `AgentExecutionTraces` (DbUp **294**); list + LLM cost prefer typed columns with JSON_VALUE COALESCE; dual-write Create + quality columns; inventory). Prior: 2026-08-05 (**TB-1030** **Done** ? [`PA_FIRST_15_PACKAGE_SPINE_IA_CONTRACT.md`](PA_FIRST_15_PACKAGE_SPINE_IA_CONTRACT.md) must-complete + package-spine IA unlock + minute-12 + narration residuals; GTM **M-181** + claim-boundary cites; **TB-1031** remains open). Prior: 2026-08-05 (**TB-1026** **Done** ? [`OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md`](OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md) package primary + `/reviews` spine + collapse surfaces; GTM **M-177** + claim-boundary cites; **TB-1027** remains open). Prior: 2026-08-05 (**TB-1024** **Done** ? [`COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md`](COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md) minimal immutable snapshot + artifact/regenerate/verify modes; GTM **M-175** + claim-boundary cites; **TB-1025** remains open). Prior: 2026-08-05 (**TB-1022** **Done** ? [`PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md`](PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md) block vs advisory + SoD ownership matrix; GTM **M-173** + claim-boundary cites; **TB-1023** remains open). Prior: 2026-08-05 (**TB-1011** **Done** ? [`TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md`](TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md) finalize vs outbox + never-silent best-effort matrix; GTM **M-163** + claim-boundary cites; **TB-1012** remains open). Prior: 2026-08-05 (**TB-1009** **Done** ? [`APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md`](APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md) append-only/sealed vs mutable + Update-destruction matrix; GTM **M-161** + claim-boundary cites; **TB-1010** remains open). Prior: 2026-08-05 (**TB-1007** **Done** ? [`AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md`](AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md) Authority canonical + AgentTask forbid matrix; GTM **M-159** + Flow A1 cites; **TB-1008** remains open). Prior: 2026-08-05 (**TB-1005** **Done** ? [`LAYER_BOUNDARY_IRREVERSIBLE_LEAK_MATRIX.md`](LAYER_BOUNDARY_IRREVERSIBLE_LEAK_MATRIX.md) NetArchTest vs ranked runtime residuals; GTM **M-157** + claim-boundary cites; **TB-1006** remains open). Prior: 2026-08-05 (**TB-1003** **Done** ? [`COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md`](COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md) unit-of-truth + hop/label matrix; GTM **M-155** + claim-boundary cites; **TB-1004** remains open). Prior: 2026-08-05 (**TB-1001** **Done** ? [`RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md`](RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md) Ask/Search/Graph-RAG hit guarantee matrix; GTM **M-153** + Layer E / Ask threat-model cites; **TB-1002** remains open). Prior: 2026-08-05 (**TB-999** **Done** ? [`TENANT_IDENTITY_SINGLE_DERIVATION_CONTRACT.md`](TENANT_IDENTITY_SINGLE_DERIVATION_CONTRACT.md) decide-once matrix; GTM **M-151** + Layer B cites; **TB-1000** remains open). Prior: 2026-08-05 (**TB-997** **Done** ? [`LLM_TRUST_BOUNDARY_INGRESS_CONFINEMENT_CONTRACT.md`](LLM_TRUST_BOUNDARY_INGRESS_CONFINEMENT_CONTRACT.md) ingress vs confinement matrix; GTM **M-149** + claim-boundary cites; **TB-952** remains open). Prior: 2026-08-04 (**TB-995** **Done** ? [`POLLY_VS_RUN_LEVEL_SEMANTICS_CONTRACT.md`](POLLY_VS_RUN_LEVEL_SEMANTICS_CONTRACT.md) transport vs partial/cache/budget matrix; `LLM_RETRY` + GTM **M-147** + claim-boundary cites; does not close **TB-941**?**TB-945**). Prior: 2026-08-04 (**TB-968** **Done** ? `IItsmInboundWebhookReplayGuard` + in-memory 24h dedupe; delivery-id / Atlassian identifier / synthetic replay keys; `Integration.ItsmInboundWebhookReplayIgnored` audit; optional timestamp skew without HMAC; [`ITSM_INBOUND_WEBHOOK_REPLAY_GUARD.md`](runbooks/ITSM_INBOUND_WEBHOOK_REPLAY_GUARD.md); hostile-traffic inventory Replay ? Y). Prior: 2026-08-04 (**TB-2038**?**TB-2041** opened ? operator short-helper measure caps: design-system contract + `OperatorPageHeader`/`PageHeading` + dashboard inventory + Vitest; Overview `/` premature `max-w-prose`/`max-w-2xl` fixed in-session). Prior: 2026-08-04 (**TB-967** **Done** ? `InboundWebhookBoundedBodyReader` Content-Length + hard ceiling before HMAC; ITSM/Stripe/Marketplace/Slack; 413; unit/arch/integration tests; inventory updated). Prior: 2026-08-04 (**TB-966** **Done** ? `INBOUND_WEBHOOK_HOSTILE_TRAFFIC.md` PA order rate?size?verify?parse + surface matrix + checklist; INV-015 refresh; GTM **M-125**/**M-126** cite SoT; **TB-968** remains open). Prior: 2026-08-03 (**TB-955** **Done** ? Required audit abandon metric + pageable Prometheus alerts; domain?audit orphan probe + job; triage runbook; informational TryLogAsync excluded). Prior: 2026-08-03 (**TB-954** **Done** ? `RequiredAuditEventTypes` registry + arch test forbids `TryLogAsync` on Required types; INV-003 enforcement note; Core + Architecture tests). Prior: 2026-08-03 (**TB-951** **Done** ? ?3 indirect doc/README/ADR corpus scenarios + `indirect-doc-injection.json` with `expectedContained` residual; CI assert + eval_agent_quality strict; no 100% detection claim). Prior: 2026-08-03 (**TB-950** **Done** ? production-like empty/null `AllowedTools` fail-closed; `*` unrestricted sentinel; DemoSeed concrete tools; TB-082 tests updated). Prior: 2026-08-03 (**TB-949** **Done** ? untrusted customer-content `CUSTOMER_CONTENT_BEGIN`/`END` + framing; Agent/Ask composers; contract doc; unit + wiring tests; hygiene ? security boundary). Prior: 2026-08-03 (**DI** Evidence chrome ? /digests Sources + claim discipline; Vitest; traffic **DI**). Prior: 2026-08-03 (**PLA** Evidence chrome ? `/planning` Sources + claim discipline + topic honesty `how-it-works`; Vitest; traffic **PLA**). Prior: 2026-08-03 (**TB-897** **Done** ? Quick Scan layered identity/abuse limits + CAPTCHA/sign-in friction codes; mig **292**; abuse ? spend ceiling). Prior: 2026-08-03 (**SCX** Evidence chrome ? `/insights/architecture-scorecard` Sources + Category-1 registry + directional ROI claim; Vitest; traffic **SCX**; **TB-1956**?**TB-1960** remain Done). Prior: 2026-08-03 (**TB-1668** GDX/alerts topic slice ? `/governance/dashboard` Sources + registry + topic honesty; `/governance/alerts` ? `alerts`; Vitest; traffic **GDX**; remaining mount hubs open). Prior: 2026-08-03 (**TB-1667** HOM slice ? `/` remounts `OperatorHomePageChrome` + Category-1 registry; Vitest; traffic **HOM**; remaining hubs open). Prior: 2026-08-03 (**TB-1746**/**TB-1749**/**TB-1750** **Done** ? `/help/soc2-self-assessment` specialty buyer guide + Trust CTA / IA dual / Help Center; Vitest; traffic **HES**; **TB-1747**/**TB-1748** retained). Prior: 2026-08-03 (**TB-1386** **Done** ? `/help/governance-api-contracts` specialty API contracts guide + title honesty; Vitest; traffic **HG**). Prior: 2026-08-02 (**TB-1691**/**TB-1692**/**TB-1694**/**TB-1695** **Done** ? `/help/first-value-20-minutes` Admin specialty guide; Vitest; traffic **HEF**). Prior: 2026-08-02 (**TB-1676**/**TB-1678**/**TB-1679**/**TB-1680** **Done** ? `/help/dpa-template` specialty buyer DPA guide; Vitest; traffic **HDP**). Prior: 2026-07-31 (Open **P1** summary rows reordered - human-impact ship order for /ship-next-improvement; 723 open P1s; see `### P1 - human-impact ship order`).
 
 
 **BDA register:** all **150** buyer-demo defects are **BDA-001?150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276?282** **Done** (batches **5DU-route-tenant-p0**, **5DU-route-tenant-p1**). **DTO boundary:** **TB-283?288** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**, **5DX-trust-p2**). **Coverage hardening:** **TB-289?294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295?300** **Done** (batch **5DW-trust-paid-p1b**); **TB-301** **Done** (batch **5DX-trust-p2**). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS?5DV**; **0** grandfathered unclassified). **Insight-density:** **TB-382?385** **Done** (Prompts A?F through `5d7af0811`; drift guard **insight-density-tb382-385**). **ITSM integration seams:** **TB-386?398** (2026-06-22 assessment ? V1 seam hardening + V1.1/V2 connector follow-on). **TB-386?397 Done** (2026-06-22 through 2026-06-27). **First-party connector V1.1?åÆV1 GA promotion (2026-07-03):** Jira/ServiceNow/Confluence/Slack/Microsoft Teams moved to **V1 GA** (`V1_DEFERRED.md` ?º6/?º6a); **TB-599?ÇôTB-602** track the resulting tightening work (native-create default posture, OAuth upgrade, live-validation parity, buyer-copy sweep). **Next recommended batch:** **TB-398** (full enterprise ITSM connector ?Çö **V2** ITSM cluster; out of V1/V1.1 unless owner promotes) remains separate and unaffected by the promotion. Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
@@ -196,6 +197,8 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 **TB-2044** and **TB-2063 — TB-2071** were added 2026-08-06 from the **principal architect critique round 5** post-**TB-2042**–**TB-2047** confusion audit (compare **CXX**, finding inspect, tenant migration fan-out). Finding: backend correlation and migration orchestration shipped but operator golden paths still over-claim—compare UI diffs findings by message text while exports use ADR 0063 fingerprints; trust chips disagree across inspect/detail/export; migration banner is narrow vs fan-out doc; three “correlation” vocabularies collide. **TB-2044** (P0) trust labels on all finding export paths—promoted from P1. **TB-2063** (P0) wire `AgentResultDiffService` to fingerprint correlation. **TB-2064** (P0) compare UI correlation metadata. **TB-2065** (P0) disambiguate finding correlation vocabulary (ADR 0063 vs ITSM vs ROI). **TB-2066** (P0) finding inspect authoritative trust enricher. **TB-2067** (P0) distinct `DeterministicRule` vs `DeterministicFallback` UI. **TB-2068** (P0) migration banner AppShell scope + polling + suspend copy. **TB-2069** (P0) align migration projection refresh + verification probe with `TENANT_MIGRATION_FANOUT.md`. **TB-2070** (P0) migration operator visibility (stage, correlation id, errors). **TB-2071** (P0) compare trust-label and run-mode asymmetry in delta narrative. Does **not** reopen Done **TB-2042**/**TB-2043**/**TB-2045**–**TB-2047**. IDs skip perf **TB-2053**–**TB-2062** and Learn more **TB-2048**–**TB-2052**.
 
 **TB-2072 — TB-2079** were added 2026-08-06 from the owner ask: *which ArchLucid operations exceed 3–4 seconds and what wait/async UX should we build?* Finding: review pipeline has SSE + poll (`useRunSummaryStream`, `RunProgressTracker`) but **Tier C** work (Real-mode execute/replay, architecture-intelligence) exceeds the **60s** UI proxy and default Front Door origin timeout while handlers allow **900s**; progress is fragmented across run summary flags and `BackgroundJobs` with no unified operation handle, cancel API, or shell-level in-flight surface; ~**82%** of routes lack segment `loading.tsx`. All **P0** **V1**: latency-tier SoT contract (**TB-2072**); edge timeout + job/operation tenant-scope audit (**TB-2073**); unified `GET /v1/operations/{id}` (**TB-2074**); async execute/replay siblings 202 + Location (**TB-2075**); cooperative cancel (**TB-2076**); shell activity / in-flight store (**TB-2077**); Tier B staged wait + admin/integrations route loading sweep (**TB-2078**); CI latency-tier gate (**TB-2079**). Canonical doc: [`LONG_RUNNING_OPERATIONS_CONTRACT.md`](LONG_RUNNING_OPERATIONS_CONTRACT.md). Does **not** duplicate **TB-2029** (SSE poll hygiene), **TB-937**–**TB-943** (partial-run semantics), **TB-960**–**TB-962** (ACA worker drain), or replace authority outbox queue mode.
+
+**TB-2096** and **TB-2097** were added 2026-08-07 from an **owner UI chrome ask** on the Claims Intake Evidence graph spine page. Finding: three stacked journey affordances (prev/next arrows, numbered step pills, and a **Review lifecycle** hero that re-lists sibling steps) duplicate wayfinding; owner wants only the middle step pills. Separately, the current-step pill still says **Evidence trail** while product vocabulary and page title are **Evidence graph**. All **P0** **V1**: keep middle pills only — remove arrow row + Review lifecycle banner (**TB-2096**); rename journey step label to **Evidence graph** (**TB-2097**).
 
 **TB-2095** was added 2026-08-07 from an **owner UI clarity ask** on the Claims Intake sample review Evidence/Deliverables tab. Finding: a bordered callout shows only “Policy pack used for this review.” without naming the pack, while the header already shows **Review template: Healthcare Claims Policy Pack v3.4.1** — the orphan sentence has no referent. **P0** **V1**: remove the vague line or replace it with an explicit pack name (+ optional one-line purpose) via `policyPackBuyerLabel` (**TB-2095**).
 
@@ -1149,7 +1152,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-2070 | **Done** (2026-08-07) — migration operator visibility on tenant banner + admin health; see ## TB-2070 below | Adoption friction P0 — **V1**; round 5; tenant + admin surfaces | M |
 | TB-2071 | **Done** (2026-08-07) — compare execution-mode honesty + trust advisory on delta narratives; see ## TB-2071 below | Trustworthiness P0 — **V1**; round 5; traffic **CXX** | M |
 | TB-2072 | **Done** (2026-08-07) — Long-running operations latency-tier contract + operation inventory SoT; see ## TB-2072 below | Reliability P0 — **V1**; owner LRO ask 2026-08-06; [`LONG_RUNNING_OPERATIONS_CONTRACT.md`](LONG_RUNNING_OPERATIONS_CONTRACT.md) | S |
-| TB-2073 | LRO prerequisites — Front Door origin timeout doc + `GET /v1/jobs/{id}` tenant-scope audit; see ## TB-2073 below | Trustworthiness P0 — **V1**; before **TB-2074**; pairs proxy 60s ceiling | S |
+| TB-2073 | **Done** (2026-08-07) — HTTP timeout ceiling matrix + `GET /v1/jobs/{id}` tenant-scope enforcement via `IBackgroundJobTenantAccessVerifier`; see ## TB-2073 below | Trustworthiness P0 — **V1**; before **TB-2074**; pairs proxy 60s ceiling | S |
 | TB-2074 | Unified operation resource — `GET /v1/operations/{operationId}` projecting runs + background jobs; see ## TB-2074 below | Reliability P0 — **V1**; after **TB-2073**; replaces documented-missing `/v1/runs/{id}/progress` | M |
 | TB-2075 | Async execute/replay siblings — 202 + `Location` for Real-mode Tier C; see ## TB-2075 below | Reliability P0 — **V1**; keep sync routes for Simulator/CI; pairs **TB-2074** | L |
 | TB-2076 | Operation cancellation — `POST /v1/operations/{id}/cancel` + cooperative stage checks; see ## TB-2076 below | Reliability P0 — **V1**; after **TB-2074**; cost control for abandoned runs | M |
@@ -1162,6 +1165,27 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-2093 | Remove “About …” scope/details blocks; merge needed copy into OperatorPageHeader title block; see ## TB-2093 below | Adoption friction P0 — **V1**; owner ask 2026-08-07; e.g. About planning scope | M |
 | TB-2094 | Remove page-local `← Settings` back arrows on administration child pages; see ## TB-2094 below | Adoption friction P0 — **V1**; owner ask 2026-08-07; dead `/settings#` + orphan hub parent | S |
 | TB-2095 | Clarify or remove vague Deliverables “Policy pack used for this review.” callout; see ## TB-2095 below | Adoption friction P0 — **V1**; owner ask 2026-08-07; Claims Intake Evidence tab | S |
+| TB-2096 | Evidence graph spine: keep only the step pills — drop prev/next arrows + Review lifecycle hero, hold a canvas fold budget; see ## TB-2096 below | Adoption friction P0 — **V1**; owner ask 2026-08-07; 14 chrome bands push the graph below the fold | M |
+| TB-2097 | Settle Evidence graph vs Evidence trail vocabulary on the graph surface (step pill, hero body, export CTA); see ## TB-2097 below | Adoption friction P0 — **V1**; owner ask 2026-08-07; four names for two objects | S |
+| TB-2098 | Collapse the three simultaneous Evidence graph legends into one; see ## TB-2098 below | Adoption friction P0 — **V1**; owner ask 2026-08-07; type chips vs role rows contradict | S |
+| TB-2099 | Remove the dead “Start in review-trail mode” graph tip — no such control exists; see ## TB-2099 below | Adoption friction P0 — **V1**; owner ask 2026-08-07; instructs an impossible action | S |
+| TB-2100 | Reduce four simultaneous Evidence graph sample-data notices to one; see ## TB-2100 below | Adoption friction P0 — **V1**; owner ask 2026-08-07; repetition reads as anxiety, not honesty | S |
+| TB-2101 | Drop the “(pick an architecture review)” label parenthetical from `AskRunIdPicker`; see ## TB-2101 below | Adoption friction P0 — **V1**; owner ask 2026-08-07; label restates itself | S |
+| TB-2102 | Name the graph canvas toolbar group; gate Highlight path / Focus selection until a node is selected; see ## TB-2102 below | Accessibility P0 — **V1**; owner ask 2026-08-07; unlabeled group + dead-end buttons | S |
+| TB-2103 | One configure-alert-rules affordance per Alerts state, one label — drop header/empty-state duplication; see ## TB-2103 below | Adoption friction P0 — **V1**; owner ask 2026-08-07; same href twice (thrice in healthy_clear) | S |
+| TB-2104 | Never-evaluated alert counters must not render `0` — false clean-posture claim; see ## TB-2104 below | Trustworthiness P0 — **V1**; owner ask 2026-08-07; contradicts “Rules not configured” tile | S |
+| TB-2105 | Suppress dead Status filter / Refresh / last-refreshed on Alerts when no rules exist; see ## TB-2105 below | Adoption friction P0 — **V1**; owner ask 2026-08-07; filtering a structurally empty set | S |
+| TB-2106 | Alerts no-rules empty state: say what a rule does; lead new workspaces to governance setup; see ## TB-2106 below | Adoption friction P0 — **V1**; owner ask 2026-08-07; “enable rules before alerts” is circular | S |
+| TB-2107 | Define the Open vs Blocking alert tile relationship (nest or label) — currently unexplained peers; see ## TB-2107 below | Explainability P0 — **V1**; owner ask 2026-08-07; possible double count | S |
+| TB-2103 | Operator-curated model catalog — DDL-backed `IAgentModelAliasRegistry` replacing `ConfigAgentModelAliasRegistry`; internal-only admin curation surface; lifecycle status + audit on every mutation; see ## TB-2103 below | Maintainability P1 — **V1.1**; ADR 0065 D2′; today curation needs a code change + deploy | L |
+| TB-2104 | Structured-output capability ladder (`StrictJsonSchema` \| `JsonObject` \| `DegradedTextParse`) per catalog row + per-task minimum, fail-closed routing; see ## TB-2104 below | Correctness P1 — **V1.1**; ADR 0065 D4′; replaces global `UseJsonSchemaResponseFormat` as determinant | M |
+| TB-2105 | Engine admission gate — `Approved` per engine × task type requires stored conformance + faithfulness + judge-tolerance artifact; fails closed; see ## TB-2105 below | Trustworthiness P1 — **V1.1**; ADR 0065 D3′; reuses **TB-683** harness + existing judges | L |
+| TB-2106 | Engine identity as first-class run provenance — trace/`EngineProvenanceJson` completeness + `EndToEndReplayComparisonService` engine diff; explicitly **not** in `ManifestHash`; see ## TB-2106 below | Traceability P1 — **V1.1**; ADR 0065 D5′; replay currently cannot attribute drift to an engine change | M |
+| TB-2107 | Per-engine tokenizer + USD rate profiles on catalog rows; budget guard + `LlmCostEstimator` read from catalog, not deployment-keyed options; see ## TB-2107 below | Cost-effectiveness P2 — **V1.1**; ADR 0065 D6′; `chars / 4` heuristic does not hold cross-tokenizer | M |
+| TB-2108 | First non-Azure ArchLucid-managed engine adapter — `LlmProviderType` activation in `DefaultLlmProviderFactory` for one admitted engine; see ## TB-2108 below | Cost-effectiveness P3 — **V2**; ADR 0065 D1′; gated on **TB-2103**–**TB-2107** and **TB-872** | XL |
+| TB-2109 | Non-Azure engine data-boundary gate — subprocessor disclosure + trust-center/buyer-packet update + workspace-admin regulated-evidence acknowledgment in audit before first use; see ## TB-2109 below | Compliance readiness P1 — **V1.1**; ADR 0065 D11; documentation is a merge gate, not a follow-up | M |
+| TB-2096 | Keep only middle golden-journey step pills — remove prev/next arrows + Review lifecycle hero; see ## TB-2096 below | Adoption friction P0 — **V1**; owner ask 2026-08-07; Evidence graph spine | S |
+| TB-2097 | Rename golden-journey step pill “Evidence trail” → “Evidence graph”; see ## TB-2097 below | Adoption friction P0 — **V1**; owner ask 2026-08-07; aligns BUYER_SURFACE_VOCABULARY | S |
 | TB-2006 | Architecture draft workspace ? disable Start review until readiness; drop validation toast; see ## TB-2006 below | Adoption friction P1 ? **V1**; owner ask 2026-07-29; with **TB-2005** | S |
 | TB-2007 | Pilot baseline wizard ? disable Next/Save until valid; inline field errors; see ## TB-2007 below | Adoption friction P1 ? **V1**; with **TB-2005**; first-session overlay | S |
 | TB-2008 | Admin toast-validation ? Tenant cost settings + governance bulk disposition; see ## TB-2008 below | Adoption friction P1 ? **V1**; with **TB-2005** | S |
@@ -1917,7 +1941,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-869 | **Done** (2026-07-18) ? Model alias & capability registry ? customer-facing aliases + capability tags + approved-task lists decoupled from deployment names; `ConfigAgentModelAliasRegistry` + `AgentModelAliasResolver`; alias bound on tier router resolve and recorded on `AgentExecutionTrace.ModelAlias`; fail-closed task approval; see `## TB-869` below | AI/Agent readiness P1 ? **V1.1**; ADR 0060 D2 | M |
 | TB-870 | **Done** (2026-07-18) ? workspace model-governance policy: Economy/Balanced/HighAssurance workspace default + per-review override resolved server-side; `RunStarterTaskFactory` tier policy; admin settings API + audit events; see `## TB-870` below | AI/Agent readiness P1 ? **V1.1**; depends on **TB-869**; ADR 0060 D2/D7 | M |
 | TB-871 | **Done** (2026-07-19) ? Settings ? AI and Model Governance admin UI + model visibility: `/administration/settings/model-governance`, catalog API, wizard profile override, generated-by alias disclosure, audit-trail titles; see `## TB-871` below | Adoption friction P1 ? **V1.1**; depends on **TB-869**, **TB-870** | M |
-| TB-872 | Customer-provided Azure OpenAI connection (first BYO path) ? ADR 0060 Accepted (gate cleared); per-tenant endpoint/deployment/credential via `ISecretProvider` / Key Vault; per-tenant client resolution on the existing adapter; usage recorded, wallet enforcement skipped per ADR 0060 D6; see `## TB-872` below | Cost-effectiveness P2 ? **V1.1**; depends on **TB-869**?**TB-871** | L |
+| TB-872 | Customer-provided Azure OpenAI connection (first BYO path) ? ADR 0060 Accepted (gate cleared); per-tenant endpoint/deployment/credential via `ISecretProvider` / Key Vault; per-tenant client resolution on the existing adapter; usage recorded, wallet enforcement skipped per ADR 0060 D6; **re-sequenced to ship first by ADR 0065 D7** (builds the per-tenant connection entity + Key Vault boundary + connection-scoped health that every later engine reuses); see `## TB-872` below | Cost-effectiveness P2 ? **V1.1**; depends on **TB-869**?**TB-871** | L |
 | TB-793 | **Done** (2026-07-15) ? `UsersAdminController` (`POST/GET/DELETE /v1/admin/users/invite|invitations`); `dbo.UserInvitations` migration **277**; Dapper + in-memory repositories; `UserInvitationAdminService`; API integration tests; see `## TB-793` below | Trustworthiness P0 ? **V1**; confirmed private-beta access-path blocker (Assessment 2026-07-15, P0-1) | M |
 | TB-794 | **Done** (2026-07-15) ? removed invite/role preview-success toasts; `admin-user-invitations.ts` + `PendingInvitationsPanel` wired to TB-793 list/revoke APIs; Vitest guards; see `## TB-794` below | Trustworthiness P0 ? **V1**; depends on **TB-793** | S |
 | TB-795 | **Done** (2026-07-15) ? invite API integration test matrix + `live-api-invite-flow.spec.ts` in JwtBearer/ApiKey CI jobs; expired invite status mapping; see `## TB-795` below | Correctness P0 ? **V1**; depends on **TB-793**, **TB-794** | S |
@@ -2212,7 +2236,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-687 | Prompt A/B iteration harness ?Çö wire `VariantAwareAgentSystemPromptCatalog` to offline/live eval scores for weighted variant selection; see `## TB-687` below | AI/Agent readiness P2 ? **V2**; depends on **TB-683** measurement loop; found during AI quality/cost/speed review 2026-07-07 | M |
 | TB-688 | Per-tier model-generation refresh cadence ?Çö evaluate newer Azure OpenAI deployments per Economy/Standard/Premium tier against golden cohort; config-only swap when quality/cost improves; see `## TB-688` below | AI/Agent readiness P2 ? **V2**; depends on **TB-683**; found during AI quality/cost/speed review 2026-07-07 | S |
 | TB-690 | Fine-tuning activation gate ?Çö promote `DisabledFineTuningJobOrchestrator` only when **TB-683** corpus is stable, DPA signed, and **GoldenCohortFineTuningPromotionGate** passes; see `## TB-690` below | Cutting-edge AI P2 ? **V2**; infrastructure **TB-594** shipped; found during AI quality/cost/speed review 2026-07-07 | L |
-| TB-873 | Generic OpenAI-compatible endpoint adapter (second BYO path) ? **GATED: structured-output capability probe + per-alias faithfulness-harness pass artifact** (ADR 0060 Accepted); one adapter for customer-hosted OpenAI-compatible gateways / open-weight servers; hosted third-party endpoints require audited workspace-admin regulated-evidence acknowledgment; see `## TB-873` below | Cutting-edge AI P3 ? **V2**; remaining gates per ADR 0060 D4; depends on **TB-872**; go-path of closed **TB-689** | XL |
+| TB-873 | Generic OpenAI-compatible endpoint adapter (second BYO path) ? **GATED: structured-output capability probe + per-alias faithfulness-harness pass artifact** (ADR 0060 Accepted; both gates **retained** but now expressed through ADR 0065 D3/D4, and the item is **promoted from V2 to the V1.1/V2 boundary** by ADR 0065 D7); one adapter for customer-hosted OpenAI-compatible gateways / open-weight servers; hosted third-party endpoints require audited workspace-admin regulated-evidence acknowledgment; see `## TB-873` below | Cutting-edge AI P3 ? **V2**; remaining gates per ADR 0060 D4; depends on **TB-872**; go-path of closed **TB-689** | XL |
 | TB-904 | ~~Storage account security + redundancy baseline~~ **Done** (2026-07-20) ? TLS 1.2 + HTTPS-only explicit; `public_network_access_enabled` default false; `environment_tier = production` requires GRS+; `BACKUP_AND_DR.md` reconciled; partial TB-903 gate on this root; see `## TB-904` below | Trustworthiness P1 ? **V2**; WAF Security + Reliability pillars 2026-07-20 | S |
 | TB-910 | Cross-stack FinOps tagging convention ? extend Container Apps `Application`/`Environment`/`CostCenter` tag merge to all Terraform roots; optional tag-policy check; see `## TB-910` below | Cost-effectiveness P2 ? **V2**; WAF Cost pillar 2026-07-20 | M |
 | TB-911 | Reserved capacity / savings plan applicability assessment (assessment-only) ? evaluate steady-state floor (API min replicas ? 2, Redis, SQL) against reservation options once real usage exists; see `## TB-911` below | Cost-effectiveness P3 ? **V2**; WAF Cost pillar 2026-07-20; needs production usage data first | S |
@@ -48501,6 +48525,717 @@ Operators must read three intros before reaching the Trust Center link list.
 **Out of scope:** Renaming “Review template” in the header; policy-pack governance hub IA; DOCX download 404 wiring (separate defect if still open).
 
 **Size estimate:** S.
+
+---
+
+## TB-2096 — Evidence graph spine: keep only the step pills; hold a canvas fold budget (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner ask 2026-08-07 — `/insights/evidence-graph?runId=claims-intake-modernization` stacks prev/next arrows, numbered step pills, **and** a **Review lifecycle** hero that lists the same siblings again. Owner: keep only the middle portion (step pills).
+
+**Why:** On the curated Claims Intake spine the page renders **fourteen** chrome/explanation bands above the graph canvas: prev/next arrows + `Step 3 of 5 · …` summary line, five numbered step pills, the Review lifecycle hero with three outbound buttons, page title + subtitle, review picker, picker status line, Graph view / Trace table tabs + helper, sample banner + “Why am I seeing this?”, three scope pills, node count, node-kind chip legend, `GraphViewerLegend` row, canvas toolbar, and a prose LEGEND card. The canvas — the entire reason the route exists — starts roughly three-quarters of the way down the first viewport. An architect arriving from a finding deep link must scroll before the product does anything. The arrows and the hero are pure duplication of the pills.
+
+**Approach:**
+
+1. In `BuyerGoldenJourneyLayerContextStrip.tsx`, stop rendering the prev/next links and the `summaryLine`; keep the numbered step chips only. Leave `resolveBuyerGoldenJourneyNav` returning `prev`/`next`/`summaryLine` (other callers + tests rely on the shape) or narrow the type in the same PR if no caller remains.
+2. Remove `EvidenceGraphLifecycleStatusBanner` from the evidence-graph composition. Its three CTAs (**View signed review record**, **View governance approval**, **View audit trail**) are steps 2, 4, and 5 — already reachable from the pills; do not re-add them elsewhere.
+3. Fold the tabs helper (`EVIDENCE_GRAPH_TABS_HELPER`) away — “Graph view” and “Trace table” are self-describing.
+4. Add a Vitest asserting the ordered band count above the canvas on the spine route, so future chrome additions fail loudly.
+
+**Acceptance:**
+
+- Evidence graph shows exactly one journey affordance: the numbered step pills.
+- No `Step N of 5 …` summary line, no prev/next arrows, no **Review lifecycle** hero on the graph route.
+- Graph canvas top sits within **~400 px** of the content-area top at 1440×900 (measure in the Vitest/Playwright harness, not by eye).
+- Vitest guards the band inventory; step-pill navigation still reaches steps 1–5.
+
+**Affected files:** `components/shell/BuyerGoldenJourneyLayerContextStrip.tsx`; `components/governance/EvidenceGraphLifecycleStatusBanner.tsx` (delete usage; delete component if unreferenced); `lib/evidence-graph-page.ts` (`EVIDENCE_GRAPH_BANNER_TITLE`/`_BODY`, `EVIDENCE_GRAPH_TABS_HELPER`, the three `VIEW_*` labels); `insights/evidence-graph/_sections/GraphPageContent.tsx`, `GraphPageControls.tsx`; `lib/buyer-golden-journey-nav.ts` (only if the nav shape narrows); related Vitest.
+
+**Depends on:** None. Pairs **TB-2098**/**TB-2100** (both also reclaim bands above the canvas); complements **TB-2090** (breadcrumbs).
+
+**Out of scope:** Redesigning the graph canvas itself; changing the five-step spine definition or its order; the vocabulary rename (**TB-2097**).
+
+**Size estimate:** M.
+
+---
+
+## TB-2097 — Settle “Evidence graph” vs “Evidence trail” on the graph surface (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner ask 2026-08-07 — the step pill for this route says **Evidence trail**; owner expects **Evidence graph**.
+
+**Why:** One route currently answers to four names. Left nav and `EVIDENCE_GRAPH_PAGE_TITLE` say **Evidence graph**; the step pill (`BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS[2].label`), the hero body (`EVIDENCE_GRAPH_BANNER_BODY = "Evidence trail for this review."`), and the export CTA (`BUYER_EVIDENCE_GRAPH_EXPORT_EVIDENCE_TRAIL_CTA`) say **Evidence trail**; the tabs say **Graph view** / **Trace table**. A buyer cannot tell whether these are one surface or four. Note that “Evidence trail” is also a defined **glossary concept** (`ProductConceptsGlossary.tsx`, `customer-glossary-manifest.ts`) and the label on ~10 Related-links strips — a blind global rename would destroy a legitimate term.
+
+**Approach — decide the split first, then apply:**
+
+1. **Decision (do this before editing):** either (**A**) “Evidence graph” is the only name and “Evidence trail” is retired from the glossary and Related strips, or (**B**) “Evidence trail” stays the **concept** (evidence → findings → decisions → record) and “Evidence graph” is the **surface** that renders it. **Prefer B** — it keeps the glossary honest and is a one-line rule agents can follow.
+2. Under either decision, the **step pill must say “Evidence graph”** (it names a destination, not a concept): `buyer-golden-journey-nav.ts` line ~45.
+3. Rename `BUYER_EVIDENCE_GRAPH_EXPORT_EVIDENCE_TRAIL_CTA` copy to “Export evidence graph” (or “Export trace table” if it targets the trace presentation — check `presentation=trace` on its href).
+4. `EVIDENCE_GRAPH_BANNER_BODY` dies with **TB-2096**; if the hero survives review, its body must not introduce a second name.
+5. Record the chosen rule in [`UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md) vocabulary section and add a Vitest guarding the pill label + surface titles.
+
+**Acceptance:**
+
+- Step-3 pill reads **Evidence graph**; deep links from findings and the golden journey still resolve.
+- No surface title, tab, hero, or CTA on `/insights/evidence-graph` says “Evidence trail” unless decision **B** is documented and it is referring to the concept.
+- The surface/concept rule is written down in the design system, not just in this row.
+- Glossary and Related-links labels remain consistent with the recorded decision (no half-renamed corpus).
+
+**Affected files:** `lib/buyer-golden-journey-nav.ts`; `lib/buyer-polish-copy.ts` (export CTA); `lib/evidence-graph-page.ts`; `UI_DESIGN_SYSTEM.md`; if decision **A**: `ProductConceptsGlossary.tsx`, `customer-glossary-manifest.ts`, `*-evidence-copy.ts` Related strips, `Breadcrumbs.test.tsx`, `contextual-help-registry.test.ts`, `demo-journey-telemetry.test.ts`, `buyer-cto-demo-tour.test.ts`.
+
+**Depends on:** None; sequence after **TB-2096** if the hero is being deleted anyway.
+
+**Out of scope:** Renaming “Trace table” or “Graph view”; renaming the `/insights/evidence-graph` path; the dead mode tip (**TB-2099**).
+
+**Size estimate:** S.
+
+---
+
+## TB-2098 — Collapse the three simultaneous Evidence graph legends into one (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner page rating 2026-08-07 — three legends render at once above/beside one graph.
+
+**Why:** In buyer-trail presentation `GraphLoadedExperience` renders `GraphNodeKindLegendChips` (or `GraphReviewTrailLegendChips`) **and** `GraphViewerLegend`, while `GraphViewer` additionally renders a prose **LEGEND** card beside the canvas. They are not merely redundant — they disagree: the chip row keys off node **types** (`DECISION`, `FINDING`, `ARTIFACT`, `REVIEW`, `COMPONENT`) and the second row off node **roles** (Review node, Finding, Evidence / artifact, Agent step). A reader cannot map one to the other, so the legend teaches nothing while costing two of the bands **TB-2096** is trying to reclaim.
+
+**Approach:**
+
+1. Pick a single legend vocabulary — the node **types** actually rendered by `graph-mapper`, so the legend matches what the canvas draws.
+2. Keep exactly one legend component, rendered **beside or over** the canvas (the existing right-hand card position is fine); delete the other two call sites in `GraphLoadedExperience` (buyer branch lines ~120–129, operator branch lines ~249–256).
+3. Fold any surviving prose from `GraphViewer`’s card into that legend, or move it into the node detail panel where a selected node can be explained concretely.
+4. Vitest: exactly one element with an accessible “Legend” name on the loaded graph, in both buyer and operator presentations.
+
+**Acceptance:**
+
+- One legend on the loaded Evidence graph in every presentation mode.
+- Legend keys match the node kinds the canvas actually renders — no type-vs-role mismatch.
+- Legend no longer occupies a full-width band above the canvas.
+
+**Affected files:** `insights/evidence-graph/_sections/GraphLoadedExperience.tsx`; `components/GraphNodeKindLegendChips.tsx`; `components/GraphReviewTrailLegendChips.tsx`; `components/usability/GraphViewerLegend.tsx`; `components/GraphViewer.tsx` (prose LEGEND card ~lines 515–525); related Vitest.
+
+**Depends on:** None; pairs **TB-2096** (same fold budget) and **TB-2099** (the tip lives inside `GraphViewerLegend`).
+
+**Out of scope:** Recolouring node kinds; graph layout algorithm; the trace-table presentation.
+
+**Size estimate:** S.
+
+---
+
+## TB-2099 — Remove the dead “Start in review-trail mode” graph tip (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner page rating 2026-08-07 — the graph tip instructs an action the UI cannot perform.
+
+**Why:** `GraphViewerLegend` renders **“Tip: Start in review-trail mode; use filters to reduce noise.”** There is no “review-trail mode” control on the page: the scope pills are **Evidence provenance**, **Decision traceability**, **Architecture context** (`BUYER_EVIDENCE_TRAIL_GRAPH_MODE_OPTIONS`), and “review-trail” only exists as an internal `presentation="buyerTrail"` prop. The tip names a leftover internal mode, so a buyer who follows it hunts for a control that does not exist — worse than no tip, and it also leaks internal vocabulary (see `internal-concept-leakage-guard.test.ts`).
+
+**Approach:**
+
+1. Delete the tip span from `GraphViewerLegend.tsx` (~line 28). Default: **no replacement** — the scope pills are visible and self-describing.
+2. If a first-run hint is still wanted, attach it to the scope-pill group with the **actual** pill label (e.g. “Start with Evidence provenance”) and source the string from the same `BUYER_EVIDENCE_TRAIL_GRAPH_MODE_OPTIONS` entry so a future rename cannot orphan it again.
+3. Extend `internal-concept-leakage-guard.test.ts` (or add a graph-scoped Vitest) to forbid `/review-trail\s*mode/i` in buyer-facing graph copy.
+
+**Acceptance:**
+
+- No buyer-facing copy references “review-trail mode”.
+- Any surviving hint names a control that exists on screen and derives its label from the mode-options source of truth.
+- Guard test fails if the string returns.
+
+**Affected files:** `components/usability/GraphViewerLegend.tsx`; `insights/evidence-graph/_sections/graph-page-helpers.ts` (label source); `lib/internal-concept-leakage-guard.test.ts` or new Vitest.
+
+**Depends on:** None; land with **TB-2098** since both touch `GraphViewerLegend`.
+
+**Out of scope:** Removing the type filter itself; renaming the scope pills.
+
+**Size estimate:** S.
+
+---
+
+## TB-2100 — Reduce four simultaneous Evidence graph sample-data notices to one (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner page rating 2026-08-07 — “Claims Intake sample / not your workspace” is stated four times on one screen.
+
+**Why:** On the spine route a buyer sees the top-bar **Claims Intake Demo** badge, `GraphReviewPickerStatus` (“Showing Claims Intake sample (not your workspace)”), the `GraphSampleModeBanner` chip (“Claims intake sample (not your workspace)” + **Why am I seeing this?**), and — in operator mode — a closing paragraph repeating it again. The honesty intent is correct and must be preserved; the repetition is not honesty, it reads as anxiety and consumes bands the canvas needs. One clearly-placed notice with a disclosure carries the same claim.
+
+**Approach:**
+
+1. Keep **`GraphSampleModeBanner` in `compact` mode** as the single in-page notice — it already pairs the one-line status with the **Why am I seeing this?** disclosure and a **Use my review** CTA.
+2. Suppress `GraphReviewPickerStatus` sample states while that banner is visible (keep its *error* / *no-packages* states — those are different claims, not duplicates).
+3. Delete the trailing operator paragraph in `GraphLoadedExperience` (~lines 269–274).
+4. Leave the top-bar demo badge alone — it is shell-level scope, not page-level claim.
+5. Vitest: exactly one in-page sample notice on the spine route; the “not your workspace” claim is still present (assert it does **not** vanish entirely).
+
+**Acceptance:**
+
+- One in-page sample-data notice on `/insights/evidence-graph` for the curated run, plus the shell badge.
+- The “sample / not your tenant workspace” claim and its **Why am I seeing this?** explanation remain reachable.
+- Picker error and no-completed-packages states still render.
+
+**Affected files:** `insights/evidence-graph/_sections/GraphSampleModeBanner.tsx`, `GraphReviewPickerStatus.tsx`, `GraphLoadedExperience.tsx`, `GraphPageControls.tsx`; related Vitest.
+
+**Depends on:** None; pairs **TB-2096**.
+
+**Out of scope:** Removing the shell demo badge; changing what counts as a sample run (`showcase-static-demo.ts`); the same pattern on other routes (file separately if the sweep is wanted).
+
+**Size estimate:** S.
+
+---
+
+## TB-2101 — Drop the “(pick an architecture review)” label parenthetical (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner page rating 2026-08-07 — the picker label renders as “Review (pick an architecture review)”.
+
+**Why:** `AskRunIdPicker` appends `"(pick an architecture review)"` to its label (~line 245). A field labelled **Review** rendering a populated `<select>` already communicates that; the parenthetical restates the label as an instruction, lengthens the visible label past a scannable width, and makes the accessible name noisier for screen-reader users. Placeholder text is the right home for a prompt, not the label.
+
+**Approach:**
+
+1. Remove the parenthetical from the label; if a prompt is needed for the empty state, put it on the placeholder option, not the `<label>`.
+2. Check every `AskRunIdPicker` mount (graph, ask, compare, impact preview) — the parenthetical is shared, so removal is a cross-surface change; confirm no surface relied on it as its only instruction.
+3. Update Vitest / snapshots asserting the composed label text.
+
+**Acceptance:**
+
+- Picker label reads **Review** (plus required/optional affordance) on every mount.
+- Empty-selection guidance survives as placeholder or helper text, not label text.
+- Accessible name is the label alone; unit tests updated.
+
+**Affected files:** `components/AskRunIdPicker.tsx` (~line 245) + tests; snapshots on surfaces that mount it.
+
+**Depends on:** None.
+
+**Out of scope:** Redesigning the picker into a combobox; changing `committedOnly` / auto-pick behaviour.
+
+**Size estimate:** S.
+
+---
+
+## TB-2102 — Name the graph canvas toolbar; gate selection-dependent buttons (P0)
+
+**Window:** V1 — Accessibility.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner page rating 2026-08-07 — canvas toolbar is an unlabeled row where two buttons do nothing until a node is selected.
+
+**Why:** The canvas exposes **Fit**, **100%**, **Highlight path**, **Focus selection**, **Reset** as a bare button row with no group name, so assistive tech announces five unrelated buttons with no shared context. **Highlight path** and **Focus selection** both require a selected node; with nothing selected they are silent no-ops, which reads as a broken control rather than an unmet precondition. The scope-pill group already models the fix (`role="group" aria-label="Graph scope"`).
+
+**Approach:**
+
+1. Wrap the toolbar in `role="group"` with `aria-label="Graph canvas controls"` (mirror the `data-testid` convention used by `graph-scope-pills`).
+2. Compute a `hasSelection` flag from the canvas selection state; `disabled` + `title` (“Select a node to highlight its path”) on **Highlight path** and **Focus selection** while it is false.
+3. Zoom controls (**Fit**, **100%**, **Reset**) stay always-enabled.
+4. Vitest: group has an accessible name; the two selection-dependent buttons are disabled with no selection and enabled once `defaultSelectedGraphNodeId` resolves.
+
+**Acceptance:**
+
+- Canvas toolbar is an accessibly-named group.
+- **Highlight path** / **Focus selection** are disabled with an explanatory `title` until a node is selected, and enabled afterwards.
+- No control silently no-ops; zoom/reset unaffected.
+
+**Affected files:** `insights/evidence-graph/_sections/GraphInteractiveCanvas.tsx`; `components/GraphViewer.tsx` (toolbar + selection state); related Vitest.
+
+**Depends on:** None.
+
+**Out of scope:** Adding new canvas capabilities; keyboard-driven node traversal (file separately if wanted); minimap.
+
+**Size estimate:** S.
+
+---
+
+## TB-2103 — One configure-alert-rules affordance per Alerts state, one label (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner ask 2026-08-07 — “I don’t like that there is a link near the top for configuring alert rules and a button near the bottom of the page to do the same.”
+
+**Why:** `/governance/alerts` renders two affordances pointing at the **same** href, `governanceAlertRulesTabHref("rules")`, under **two different labels**: the header link **Configure alert rules** (`AlertsHubChrome.tsx` lines ~42–48, `ALERTS_CONFIGURE_RULES_LINK_LABEL`) and the empty-state primary **Configure alerts** (`alerts-inbox-workspace-context.ts` lines ~78–91, `ALERTS_ACTION_CONFIGURE_ALERT_RULES`). A **third** instance fires in the `healthy_clear` branch (lines ~117–123) when rules exist and nothing is open — the steady state — so an operator sees the header link plus a redundant outline button. The two labels also read as different capabilities: “Configure alerts” vs “Configure alert rules” gives no clue they land on one screen.
+
+**Approach:**
+
+1. **Collapse the label:** keep `ALERTS_CONFIGURE_RULES_LINK_LABEL` (“Configure alert rules”) as the single string; mark `ALERTS_ACTION_CONFIGURE_ALERT_RULES` `@deprecated` re-exporting it, then remove once callers (`alerts-help-guide-content.ts`, `governance-setup-guide-steps.ts`) are updated.
+2. **One affordance per state** — the empty state and the header must not both offer it:
+   - `no_rules`: the empty-state primary **is** the page’s job. Keep it; suppress the header link.
+   - `no_reviews` / `filtered` / populated inbox: keep the header link; it is the correct home for a secondary admin jump.
+   - `healthy_clear`: drop the pushed action at lines ~117–123 entirely — the header link covers it.
+3. Thread the resolved variant (or a `showHeaderConfigureLink` flag) from the controller into `AlertsHubChrome` so the header can suppress itself; do not duplicate variant logic in the chrome.
+4. Update `AlertsHubClient.buyer-polished.test.tsx` (currently asserts the header link exists unconditionally) and `alerts-inbox-workspace-context.test.ts`; add a Vitest asserting **exactly one** element resolving to the alert-rules href in every variant.
+
+**Acceptance:**
+
+- Exactly one configure-alert-rules affordance on `/governance/alerts` in every empty and populated state.
+- One label — “Configure alert rules” — on the alerts surface, help guide, and governance setup step.
+- `healthy_clear` no longer pushes a third instance.
+- Vitest covers all four variants × capability on/off.
+
+**Affected files:** `governance/alerts/AlertsHubChrome.tsx`; `lib/alerts-inbox-workspace-context.ts`; `lib/alerts-page-copy.ts`; `components/alerts/use-alerts-inbox-controller.ts` (expose variant); `lib/alerts-help-guide-content.ts`; `governance/setup/_sections/governance-setup-guide-steps.ts`; `AlertsHubClient.buyer-polished.test.tsx`, `alerts-inbox-workspace-context.test.ts`.
+
+**Depends on:** None. Land with **TB-2105** (same no-rules state cleanup).
+
+**Out of scope:** Redesigning `/governance/alert-rules` itself; capability gating rules (already handled by `useOperateCapability`); the `PageContextualHelpButton` in the same header row.
+
+**Size estimate:** S.
+
+---
+
+## TB-2104 — Never-evaluated alert counters must not render `0` (P0)
+
+**Window:** V1 — Trustworthiness.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner page rating 2026-08-07 — Alerts shows **Open 0 / Acknowledged 0 / Resolved 0 / Blocking 0** on a workspace where the fifth tile says **Rules not configured**.
+
+**Why:** Four zeros on a governance surface assert “we evaluated your posture and it is clean.” When no alert rule exists, nothing has ever been evaluated, so the correct statement is **not measured** — and the page says both at once, since `Last evaluated` correctly renders `Rules not configured` beside them. This is a false-assurance claim of exactly the kind the claim-discipline chrome exists to prevent, and it is the highest-severity item on the page: an empty inbox is fine, a *misleading* inbox is not.
+
+The fix is already in scope — `AlertsInboxSummaryRow` **receives `hasAlertRules`** and consults it for the last-evaluated tile only:
+
+```ts
+if (!hasAlertRules) {
+  return ALERTS_SUMMARY_LAST_EVALUATED_RULES_NOT_CONFIGURED;   // line ~45
+}
+```
+
+while the four counters go through `countValue`, which ignores it (line ~58).
+
+**Approach:**
+
+1. Add a not-measured sentinel next to the existing last-evaluated sentinels in `alerts-page-copy.ts` (e.g. `ALERTS_SUMMARY_COUNT_NOT_EVALUATED = "—"` with an `aria-label`/`title` of “Not evaluated — no alert rules configured”; a dash alone must not be the accessible name).
+2. In `AlertsInboxSummaryRow`, return that sentinel from `countValue` when `!hasAlertRules` (and, once rules exist but `lastEvaluatedUtc === null`, for the never-evaluated case as well — a rule that has never run has also measured nothing).
+3. Keep `tabular-nums` layout stable so the tile row does not reflow between states.
+4. Vitest: no `0` renders in the summary row when `hasAlertRules` is false; counters render numerically once rules exist and an evaluation timestamp is present; the accessible name explains the dash.
+5. Sweep for the same shape on peer governance tiles (findings, approval queue) and file follow-ons if they repeat it — do **not** silently widen this row.
+
+**Acceptance:**
+
+- With no alert rules, none of Open / Acknowledged / Resolved / Blocking renders a numeric `0`.
+- Screen-reader name for the not-measured tiles states why there is no number.
+- Numeric counters return as soon as rules exist and have evaluated at least once.
+- No contradiction between the counters and the `Last evaluated` tile in any state.
+
+**Affected files:** `components/alerts/AlertsInboxSummaryRow.tsx`; `lib/alerts-page-copy.ts`; `lib/alerts-inbox-summary.ts` (if the never-evaluated distinction needs surfacing); `components/alerts/AlertsInboxInteractiveClient.tsx` (props already threaded); related Vitest.
+
+**Depends on:** None.
+
+**Out of scope:** Changing how the API computes counts; the Open-vs-Blocking definition (**TB-2107**); the loading `…` placeholder.
+
+**Size estimate:** S.
+
+---
+
+## TB-2105 — Suppress dead Status filter / Refresh on Alerts when no rules exist (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner page rating 2026-08-07 — Status filter, **Refresh**, and “Not refreshed yet” sit above an empty state that says no rules are configured.
+
+**Why:** In the `no_rules` state the inbox is not merely empty, it is **structurally incapable** of having members: no rule means no evaluation means no alert, regardless of status filter or refresh. Offering a filter defaulted to **Open** plus a **Refresh** button invites the operator to fiddle with controls that cannot change the outcome, and splits attention across five affordances when the page has exactly one next action. “Not refreshed yet” beside a Refresh button compounds it by implying stale data where there is no data.
+
+**Approach:**
+
+1. Thread `hasAlertRules` (and `workspaceContext.loading`) into `AlertsInboxControls` — `AlertsInboxInteractiveClient` already holds both but does not pass them.
+2. When rules are absent and workspace context has settled, **hide** the status select, Refresh, last-refreshed line, and batch-selection affordances. Prefer hiding over disabling here: a disabled control still asks to be understood, and the empty state already explains the situation.
+3. Keep controls rendered in `no_reviews` and `filtered` (those sets *can* become non-empty).
+4. Treat “Not refreshed yet” as a **separate systemic decision** — the string is duplicated across ~15 page headers (`OperatorHomePageHeader`, `SystemHealthPageHeader`, `AuditPageHeader`, `PolicyPacksPageHeader`, `AlertRulesPageHeader`, …). Fix it locally here; file a follow-on for the shared pattern rather than editing all fifteen in this row.
+5. Vitest: controls absent in `no_rules`, present in `no_reviews` / `filtered` / populated.
+
+**Acceptance:**
+
+- `no_rules` Alerts renders exactly one actionable affordance (the empty-state primary from **TB-2103**) plus the summary tiles.
+- Status filter, Refresh, last-refreshed, and batch controls are absent — not merely disabled — in that state.
+- Other empty variants keep their controls.
+- Follow-on row exists for the cross-page “Not refreshed yet” pattern.
+
+**Affected files:** `components/alerts/AlertsInboxControls.tsx`; `components/alerts/AlertsInboxInteractiveClient.tsx`; `components/alerts/use-alerts-inbox-controller.ts`; related Vitest.
+
+**Depends on:** None. Land with **TB-2103**.
+
+**Out of scope:** Removing the controls in populated states; polling/auto-refresh behaviour; the fifteen-page “Not refreshed yet” sweep (follow-on).
+
+**Size estimate:** S.
+
+---
+
+## TB-2106 — Alerts no-rules empty state: say what a rule does (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner page rating 2026-08-07 — the empty state is circular and does not explain the thing it asks you to create.
+
+**Why:** `ALERTS_EMPTY_NO_RULES_TITLE` / `_BODY` read **“No alert rules configured / Enable alert rules before governance alerts can be generated.”** That tells an admin they need rules in order to have rules. It never states what a rule evaluates, what it produces, or why they would want one — so the only way to evaluate the feature is to click into a rule builder and reverse-engineer it. For a first-run governance control that is the highest-drop-off moment on the page.
+
+**Approach:**
+
+1. Rewrite the body to name one **concrete, real** rule the product can actually express — e.g. “Alert when a finalized review produces a blocking finding.” Verify the example against the rule model in `/governance/alert-rules` before shipping copy; a fabricated example is worse than the circular one.
+2. Reconsider action order for a genuinely new workspace: **Open governance setup** may be the better primary and **Configure alert rules** the secondary, since the setup guide teaches the model first. Keep `governanceSetupSecondary` as-is for `no_reviews`.
+3. Keep the body one sentence plus the example; this state must not grow into a mid-page explainer (see **TB-2093** on “About …” blocks).
+4. Update `alerts-inbox-workspace-context.test.ts` and any snapshot asserting the current body.
+
+**Acceptance:**
+
+- No-rules body names a concrete rule the product actually supports, verified against the alert-rule model.
+- A first-time admin can tell what alert rules do without leaving the page.
+- Action order matches the new-workspace decision, documented in the row when chosen.
+- Copy stays within one sentence + one example.
+
+**Affected files:** `lib/alerts-page-copy.ts`; `lib/alerts-inbox-workspace-context.ts` (action order); `alerts-inbox-workspace-context.test.ts`; `lib/alerts-help-guide-content.ts` if the example is reused.
+
+**Depends on:** **TB-2103** (label collapse) — take the copy pass after the affordance count settles.
+
+**Out of scope:** Rewriting the other three empty variants; the `/governance/setup` guide content; onboarding tours.
+
+**Size estimate:** S.
+
+---
+
+## TB-2107 — Define the Open vs Blocking alert tile relationship (P0)
+
+**Window:** V1 — Explainability.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner page rating 2026-08-07 — **Open alerts** and **Blocking alerts** are presented as equal peers with no stated relationship.
+
+**Why:** `AlertsInboxSummaryRow` lays out Open / Acknowledged / Resolved / Blocking as four sibling tiles. The first three are **lifecycle states** (mutually exclusive); **Blocking** is a **severity** that cuts across them. A blocking alert is presumably also open, so the row mixes two axes and the numbers appear to double-count. An operator reading “Open 3 / Blocking 2” cannot tell whether there are three alerts or five — on a governance dashboard that ambiguity is a reporting defect, not cosmetics.
+
+**Approach:**
+
+1. Confirm the intended semantics against `alerts-inbox-summary.ts` and the API: is `blocking` a subset of `open`, or of all statuses?
+2. Present the axis explicitly. Preferred: render Blocking as a **subordinate line inside the Open tile** (“3 open · 2 blocking”), or label it **“Blocking (of open)”**. Alternative: group the three lifecycle tiles and separate severity visually.
+3. Add the `title`/helper text stating the relationship so the answer does not depend on layout inference alone.
+4. Vitest asserting the subset relationship is expressed in the accessible text, not only visually.
+
+**Acceptance:**
+
+- The Open/Blocking relationship is stated in text, not implied by tile order.
+- A reader can derive the total alert count unambiguously from the row.
+- Semantics verified against the summary source, not assumed.
+
+**Affected files:** `components/alerts/AlertsInboxSummaryRow.tsx`; `lib/alerts-inbox-summary.ts`; `lib/alerts-page-copy.ts`; related Vitest.
+
+**Depends on:** **TB-2104** (same component; take the not-measured sentinel first so the subset text has a defined state to render in).
+
+**Out of scope:** Adding new severity tiers; changing alert lifecycle states; the alert list table columns.
+
+**Size estimate:** S.
+
+---
+
+## TB-2103 — Operator-curated model catalog (DDL-backed registry + internal curation surface) (P1)
+
+**Window:** V1.1 — ADR 0065 D2 (accepted 2026-08-07). First item in the ADR 0065 train; **TB-2104**–**TB-2107** build on this row.
+
+**Status:** Not started.
+
+**Priority:** P1.
+
+**Source:** Owner ask 2026-08-07 — "I should have an internal page that lets me set the curated list."
+
+**Why:** The governed model registry exists but is **three entries hard-coded in a C# constructor** (`ConfigAgentModelAliasRegistry`, seeded from `IAgentModelTierResolver` deployments). Curating the list — adding an engine, deprecating one, retagging capabilities, changing which task types an alias may serve — therefore requires a code change, a review, and a deploy. `ModelGovernanceCatalogBuilder` already projects the registry to the admin API and `ModelGovernanceSettingsCard.tsx` already renders it **read-only**, so the read path and UI shell exist; only the editable, durable catalog is missing. Every later ADR 0065 decision (capability ladder, admission gate, tokenizer/rate profiles) needs somewhere to store per-engine facts, and this is that place.
+
+**Approach:**
+
+1. Catalog table in the tenant DDL (`ArchLucid.Persistence/Scripts/ArchLucid.sql`, with `ArchLucid_Unified_Schema.sql` parity) plus a DbUp migration under `ArchLucid.Persistence/Migrations/`. Columns: alias id, provider type, provider connection kind, engine/deployment identity, capability tags, approved task types, structured-output capability level (**TB-2104**), tokenizer profile + USD rates (**TB-2107**), lifecycle status (`Candidate` / `Approved` / `Deprecated` / `Retired`), last-evaluated timestamp, admission artifact reference (**TB-2105**).
+2. `SqlAgentModelCatalogRepository` (Dapper, repo convention) behind a new port; **delete** `ConfigAgentModelAliasRegistry` rather than leaving both registries live — a second source of truth is the predicted decay path.
+3. Catalog-backed `IAgentModelAliasRegistry` with read-through caching so the completion hot path does not hit SQL per call; explicit cache invalidation on mutation.
+4. Internal-only admin surface: platform-scoped controller under `ArchLucid.Api/Controllers/Admin/` plus an `/internal/*` page, following the existing `/internal` nav-gating pattern (API authorization stays authoritative; nav visibility is not the control).
+5. Audit every mutation through `IAuditService` with new `AuditEventTypes` entries (`ModelCatalog.EntryCreated` / `EntryUpdated` / `LifecycleChanged`).
+6. Tenant-facing responses continue to expose **alias ids only** — no deployment or model names leak to tenant API or UI (ADR 0065 D2, unchanged from ADR 0060 D2).
+
+**Acceptance:**
+
+- A platform operator can add, retag, and deprecate a catalog entry with no deploy; the change takes effect on the next resolution without a restart.
+- `ConfigAgentModelAliasRegistry` is deleted; a test asserts exactly one `IAgentModelAliasRegistry` registration.
+- Every mutation writes an audit event with actor and before/after.
+- No tenant-scoped response contains a deployment or raw model name (guard test).
+- Existing three aliases (`economy-general`, `standard-general`, `premium-assurance`) seed from the migration so behaviour is unchanged on upgrade.
+
+**Affected files:** new DDL + migration (`ArchLucid.Persistence`), new repository + port, `ArchLucid.AgentRuntime/AgentModelAliases/*` (registry replacement), `ArchLucid.Application/Admin/ModelGovernanceCatalogBuilder.cs`, new admin controller, `archlucid-ui/src/app/(operator)/internal/*` page, `ModelGovernanceSettingsCard.tsx` (read path unchanged).
+
+**Depends on:** None (**TB-869**–**TB-871** already Done).
+
+**Out of scope:** Adding any new engine (**TB-2108**); per-tenant connections (**TB-872**); changing the three execution profiles.
+
+**Refs:** ADR 0065 (D1, D2), ADR 0060 (D2), **TB-869**–**TB-871**, **TB-2104**–**TB-2109**.
+
+**Size estimate:** L.
+
+---
+
+## TB-2104 — Structured-output capability ladder + fail-closed routing (P1)
+
+**Window:** V1.1 — ADR 0065 D4. After **TB-2103** (needs the catalog column).
+
+**Status:** Not started.
+
+**Priority:** P1.
+
+**Source:** ADR 0065 D4.
+
+**Why:** Structured output is currently an all-or-nothing host toggle (`AzureOpenAI:UseJsonSchemaResponseFormat`) with a runtime HTTP 400 fallback from `json_schema` to JSON-object mode. That works when there is exactly one engine. With several, an engine that cannot honour a strict schema must be **refused for schema-dependent tasks**, not silently degraded — silent degradation shows up as a rise in `SchemaRemediationAgentCompletionClientAdapter` retries and a quiet cost and quality regression rather than an error anyone sees.
+
+**Approach:**
+
+1. `AgentModelStructuredOutputLevel` enum: `StrictJsonSchema` > `JsonObject` > `DegradedTextParse`; persisted per catalog row.
+2. Each task type declares a **minimum** required level (agent handlers and the judge/explanation paths declare theirs; schema-bound agent results require `StrictJsonSchema`).
+3. Routing (`TieredAgentCompletionRouter` / alias resolution) refuses an engine below the task minimum and surfaces a typed error; no fallback to a weaker mode.
+4. Retain the Azure host toggle as the Azure default only; it stops being the global determinant.
+5. Capability probe (shared with **TB-873**) records the observed level on the catalog row and re-checks on a configurable failure pattern.
+
+**Acceptance:**
+
+- An engine marked `JsonObject` cannot be approved or routed for a `StrictJsonSchema` task; the refusal is a typed error with the alias and required level named.
+- No code path silently downgrades response format across engines; the Azure 400-retry remains internal to the Azure adapter.
+- Probe result and probe timestamp are stored on the catalog row.
+
+**Affected files:** `ArchLucid.AgentRuntime/AgentModelAliases/*`, `TieredAgentCompletionRouter.cs`, `AzureOpenAiCompletionClient.cs` (scope the existing fallback), catalog schema (**TB-2103**), agent handler task declarations.
+
+**Depends on:** **TB-2103**.
+
+**Out of scope:** Building the non-Azure adapters themselves (**TB-873**, **TB-2108**).
+
+**Refs:** ADR 0065 (D4), ADR 0060 (D4 gate b), **TB-2103**, **TB-2105**, **TB-873**.
+
+**Size estimate:** M.
+
+---
+
+## TB-2105 — Engine admission gate: no `Approved` without an evaluation artifact (P1)
+
+**Window:** V1.1 — ADR 0065 D3. After **TB-2103**; **TB-2108** and **TB-873** are gated on this row.
+
+**Status:** Not started.
+
+**Priority:** P1.
+
+**Source:** ADR 0065 D3.
+
+**Why:** This is the load-bearing control that makes multi-engine safe and is also the sellable difference between ArchLucid and a raw model picker: an engine becomes selectable because it **passed a stored evaluation**, not because someone added it to a config file. Without it, a cheap engine silently degrading findings quality is indistinguishable from a product regression, and the product's evidence claims stop being defensible. The harness and judges already exist — this row wires them into promotion as a fail-closed gate.
+
+**Approach:**
+
+1. Admission artifact record (per engine × task type): conformance rate against the `AgentResult` schema, faithfulness-harness result against established golden-case floors (**TB-683**, `eval_agent_faithfulness.py`), `AgentOutputLlmSemanticJudge` and `PremiumInsightDensityLlmJudge` scores, incumbent-Standard comparison delta, harness version, timestamp.
+2. Promotion of a catalog row to `Approved` for a task type **requires** a stored passing artifact; promotion **fails closed** without one. Admission is per engine × task type, so an engine may be approved for `Explanation` and refused for `Critic`.
+3. Operator-triggered admission run from the **TB-2103** internal surface; artifact stored and linked from the catalog row; failure is recorded, not discarded.
+4. Re-evaluation is expected on model-version bumps; catalog rows carry last-evaluated timestamp and surface staleness in the internal UI.
+
+**Acceptance:**
+
+- A catalog row cannot reach `Approved` for a task type without a passing artifact; a test proves the fail-closed path.
+- Artifacts are retrievable and name the harness version and the incumbent comparison, so a reviewer can argue with the promotion.
+- A failing admission run leaves the row at `Candidate` and records the failure.
+- Re-running admission against the incumbent Azure engine reproduces a pass (guards the gate itself against being vacuous).
+
+**Affected files:** new admission artifact table + repository, admission service in `ArchLucid.Application`, `scripts/`/harness invocation glue, catalog promotion path (**TB-2103**), internal admin surface.
+
+**Depends on:** **TB-2103**; reuses **TB-683** harness and existing judges.
+
+**Out of scope:** New eval corpora — reuse existing golden cases per the ADR 0065 pilot-economics constraint.
+
+**Refs:** ADR 0065 (D3), ADR 0060 (D4 gate c), **TB-683**, **TB-2103**, **TB-2108**, **TB-873**.
+
+**Size estimate:** L.
+
+---
+
+## TB-2106 — Engine identity as first-class run provenance + replay diff (P1)
+
+**Window:** V1.1 — ADR 0065 D5. Can proceed in parallel with **TB-2103**.
+
+**Status:** Not started.
+
+**Priority:** P1.
+
+**Source:** ADR 0065 D5.
+
+**Why:** `AgentExecutionTraces` already records `ModelDeploymentName`, `ModelVersion`, `ModelAlias`, and prompt hash per call, and `Runs.EngineProvenanceJson` aggregates it and is commit-frozen by `CommittedRunHeaderAnchorRegistry`. But `EndToEndReplayComparisonService` compares `StructuralExecutionMode` and **not** engine identity, so once tenants can choose engines, a replay diff cannot tell the reviewer that the outputs differ because the engine changed — which is the single most likely cause. The resolved execution profile is also not frozen on the run; it lives in request JSON and audit only.
+
+**Approach:**
+
+1. Add engine identity, catalog alias, structured-output level, and **resolved execution profile** to `ReviewRunEngineProvenance`; freeze with the existing anchor mechanism.
+2. Extend `RunMetadataDiffResult` / `EndToEndReplayComparisonService` with engine-identity and profile diff fields; when they differ, surface an engine change as the **leading** interpretation for output drift.
+3. Add engine/deployment to the `AiUsageEvents` and `UsageEvents` accounting path so cost attribution by engine is possible (today they carry `ProviderKind` only).
+4. Reconcile the OpenTelemetry `llm_deployment` metric label, which is host-configuration-driven (`LlmTelemetryLabelOptions`, default `"unknown"`), with the actual per-call engine.
+5. **Do not** add engine identity to `ManifestHash`. `ManifestHashService` canonicalizes structural manifest sections; commit-freezing already provides immutability, and adding a hashed field changes hashes for all new commits while buying no property the anchor trigger does not already give. Record this as a deliberate exclusion with a test asserting the hash payload is unchanged.
+
+**Acceptance:**
+
+- Two runs differing only by engine produce a replay diff that names the engine change.
+- Resolved execution profile is readable from the committed run header, not only from request JSON.
+- Cost per engine is derivable from the usage ledgers.
+- A test asserts `ManifestHash` canonical input is unchanged by this row.
+
+**Affected files:** `ArchLucid.Contracts/Runs/ReviewRunEngineProvenance.cs`, `RunEngineProvenanceCaptureService` / `ReviewRunEngineProvenanceAggregator`, `ArchLucid.Application/Analysis/EndToEndReplayComparisonService.cs` + `RunMetadataDiffResult.cs`, `LlmCompletionAccountingClient.cs`, `AiUsageEvents` schema + repository, `ArchLucidInstrumentation`.
+
+**Depends on:** None hard; pairs naturally with **TB-2103**.
+
+**Out of scope:** Changing `ManifestHash` semantics; re-signing historical records.
+
+**Refs:** ADR 0065 (D5), ADR 0045, ADR 0039, **TB-2103**.
+
+**Size estimate:** M.
+
+---
+
+## TB-2107 — Per-engine tokenizer and USD rate profiles (P2)
+
+**Window:** V1.1 — ADR 0065 D6. After **TB-2103**.
+
+**Status:** Not started.
+
+**Priority:** P2.
+
+**Source:** ADR 0065 D6.
+
+**Why:** `CharHeuristicTokenCounter` estimates `chars / 4` and `ArchitectureIntelligenceReviewTierBudgetGuard` uses the same heuristic plus a fixed role overhead for **pre-flight** budget gating. That heuristic is calibrated to one tokenizer family; across engines it drifts, so the guard admits work it should refuse or refuses work it should admit. `LlmCostEstimator` reads USD/M rates from a deployment-keyed options dictionary with a live admin override table, which does not extend cleanly to a catalog-driven engine list.
+
+**Approach:**
+
+1. Tokenizer profile per catalog row: either an accepted heuristic (with a documented error margin) or an engine-specific counter; `ITokenCounter` resolution becomes engine-aware.
+2. Move USD input/output/reasoning rates onto the catalog row; `LlmCostEstimator` reads from the catalog, keeping the existing `HostLlmCostEstimationUsdRates` admin override as a precedence layer.
+3. `ArchitectureIntelligenceReviewTierBudgetGuard` and the wallet/budget trackers estimate through the engine-aware counter.
+4. Keep actual post-call usage authoritative — `AzureOpenAiChatTokenUsageReader` already reads real usage; estimation is only for pre-flight gating, and the ADR's accepted looseness applies to estimates only.
+
+**Acceptance:**
+
+- Pre-flight estimate error per engine is documented on the catalog row and asserted within its stated margin against recorded actuals for the golden cases.
+- Cost estimation for a catalog engine requires no `appsettings` change.
+- Existing Azure behaviour and rates are unchanged after migration (regression test).
+
+**Affected files:** `ArchLucid.AgentRuntime/Tokens/*`, `LlmCostEstimator.cs`, `ArchLucid.Core/Configuration/ILlmCostEstimator.cs`, `ArchitectureIntelligenceReviewTierBudgetGuard.cs`, catalog schema (**TB-2103**).
+
+**Depends on:** **TB-2103**.
+
+**Out of scope:** Replacing recorded actual usage with estimates; live vendor pricing feeds.
+
+**Refs:** ADR 0065 (D6), **TB-2103**, **TB-2106**.
+
+**Size estimate:** M.
+
+---
+
+## TB-2108 — First non-Azure ArchLucid-managed engine adapter (P3)
+
+**Window:** V2 — ADR 0065 D1. **GATED** on **TB-2103**–**TB-2107**, **TB-2109**, and **TB-872**. Do not start before those land.
+
+**Status:** Not started.
+
+**Priority:** P3.
+
+**Source:** ADR 0065 D1 (supersedes ADR 0060 D1).
+
+**Why:** This is the row that actually delivers engine diversity, and it is deliberately **last**: it is only safe once the catalog, the capability ladder, the admission gate, engine provenance, per-engine cost profiles, and the data-boundary gate exist. Sequencing it first would be building the risky part before the controls that bound it.
+
+**Approach:**
+
+1. Choose the target engine on evidence, not preference: capability fit for the weakest task minimum (**TB-2104**), whether it can be reached **inside the existing Azure boundary** (materially cheaper on the ADR 0065 D11 / **TB-2109** gate than a direct vendor API), and admission-gate results (**TB-2105**). Record the choice and the reasoning.
+2. One `IAgentCompletionClient` adapter; activate its `LlmProviderType` in `DefaultLlmProviderFactory` (replacing the current `NotSupportedException` for that type only).
+3. Prompt re-tuning per engine family as needed; expect a narrower approved task set than the incumbent initially and record which task types failed admission rather than loosening floors.
+4. Resilience parity: circuit breaking, caching (cache key **must** include engine identity), context-length guard, content safety, accounting decorators all apply unchanged.
+5. Fallback stays within the same engine family per ADR 0065 D12 — no cross-engine failover.
+
+**Acceptance:**
+
+- Engine reaches `Approved` for at least one task type through **TB-2105**, with the artifact on file; task types that failed are recorded.
+- No `if (provider == …)` branch outside the adapter and the factory.
+- Cache keys include engine identity (test).
+- Data-boundary gate (**TB-2109**) satisfied before first tenant-visible availability.
+
+**Affected files:** new adapter in `ArchLucid.AgentRuntime`, `DefaultLlmProviderFactory.cs`, `LlmProviderDescriptor.cs` (activate the relevant factory method), caching key derivation, catalog seed row.
+
+**Depends on:** **TB-2103**, **TB-2104**, **TB-2105**, **TB-2106**, **TB-2107**, **TB-2109**, **TB-872**.
+
+**Out of scope:** Embeddings on any non-Azure engine (ADR 0065 D8 — index binding); more than one new engine in this row.
+
+**Refs:** ADR 0065 (D1, D8, D12), ADR 0020, ADR 0060 (D1, superseded), **TB-193**, **TB-873**.
+
+**Size estimate:** XL.
+
+---
+
+## TB-2109 — Non-Azure engine data-boundary gate: subprocessor disclosure + regulated-evidence acknowledgment (P1)
+
+**Window:** V1.1 — ADR 0065 D11. Must land **before** any engine outside the Azure boundary becomes tenant-selectable (**TB-2108**, **TB-873**).
+
+**Status:** Not started.
+
+**Priority:** P1.
+
+**Source:** ADR 0065 D11.
+
+**Why:** The published trust centre, subprocessor list, and buyer security packet all rest on customer evidence staying inside the ArchLucid Azure boundary. An engine reachable only via a third-party API changes that statement of fact, and shipping the capability before the disclosure would make published buyer documents inaccurate — the most expensive class of error for this product. Treating documentation as a **gate** rather than a follow-up is the whole point of this row.
+
+**Approach:**
+
+1. Catalog rows carry a data-boundary classification (`AzureBoundary` / `ExternalSubprocessor`); `ExternalSubprocessor` rows cannot reach `Approved` until the disclosure checklist is satisfied.
+2. Update subprocessor list, trust-centre entry, and `docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md` as part of the same change set as the engine, not after.
+3. Workspace-administrator regulated-evidence acknowledgment recorded through `IAuditService` before first use on an `ExternalSubprocessor` engine (reuses the ADR 0060 D4 acknowledgment concept).
+4. Buyer-facing copy states plainly that engine choice covers **completions only** — embeddings remain ArchLucid-managed Azure OpenAI (ADR 0065 D8).
+5. Claim discipline: no wording implying CPA-attested SOC 2 or published third-party pen test.
+
+**Acceptance:**
+
+- An `ExternalSubprocessor` catalog row cannot be approved without the disclosure checklist complete (fail-closed test).
+- First use on such an engine is blocked until an acknowledgment audit event exists for that workspace.
+- Buyer docs name the engine, its boundary, and the completions-only limit.
+
+**Affected files:** catalog schema (**TB-2103**), promotion gate, `IAuditService` event types, `docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md`, trust-centre + subprocessor content, `archlucid-ui/src/lib/*trust*` copy.
+
+**Depends on:** **TB-2103**.
+
+**Out of scope:** Any assurance claim beyond what actually exists (see `.cursor/rules/V1_1-assurance-backlog.mdc`).
+
+**Refs:** ADR 0065 (D8, D11), ADR 0060 (D4), **TB-2103**, **TB-2105**, **TB-2108**.
+
+**Size estimate:** M.
 
 ---
 

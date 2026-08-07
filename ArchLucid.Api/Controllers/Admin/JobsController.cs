@@ -1,6 +1,7 @@
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Jobs;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Jobs;
 
 using Asp.Versioning;
@@ -22,7 +23,10 @@ namespace ArchLucid.Api.Controllers.Admin;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
 [EnableRateLimiting("fixed")]
-public sealed class JobsController(IBackgroundJobQueue jobs) : ControllerBase
+public sealed class JobsController(
+    IBackgroundJobQueue jobs,
+    IBackgroundJobTenantAccessVerifier tenantAccessVerifier,
+    IScopeContextProvider scopeContextProvider) : ControllerBase
 {
     /// <summary>Returns the current status of a background job.</summary>
     /// <param name="jobId">Background job identifier.</param>
@@ -36,7 +40,16 @@ public sealed class JobsController(IBackgroundJobQueue jobs) : ControllerBase
         if (string.IsNullOrWhiteSpace(jobId))
             return this.BadRequestProblem("jobId is required.", ProblemTypes.ValidationFailed);
 
+        if (!await tenantAccessVerifier.IsAccessibleAsync(
+                jobId,
+                scopeContextProvider.GetCurrentScope(),
+                cancellationToken))
+        {
+            return this.NotFoundProblem($"Job '{jobId}' was not found.", ProblemTypes.ResourceNotFound);
+        }
+
         BackgroundJobInfo? info = await jobs.GetInfoAsync(jobId, cancellationToken);
+
         return info is null
             ? this.NotFoundProblem($"Job '{jobId}' was not found.", ProblemTypes.ResourceNotFound)
             : Ok(info);
@@ -59,7 +72,16 @@ public sealed class JobsController(IBackgroundJobQueue jobs) : ControllerBase
         if (string.IsNullOrWhiteSpace(jobId))
             return this.BadRequestProblem("jobId is required.", ProblemTypes.ValidationFailed);
 
+        if (!await tenantAccessVerifier.IsAccessibleAsync(
+                jobId,
+                scopeContextProvider.GetCurrentScope(),
+                cancellationToken))
+        {
+            return this.NotFoundProblem($"Job '{jobId}' was not found.", ProblemTypes.ResourceNotFound);
+        }
+
         BackgroundJobInfo? info = await jobs.GetInfoAsync(jobId, cancellationToken);
+
         if (info is null)
             return this.NotFoundProblem($"Job '{jobId}' was not found.", ProblemTypes.ResourceNotFound);
 
