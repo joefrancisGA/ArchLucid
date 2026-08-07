@@ -85,7 +85,7 @@ internal static class ExecutiveRoiTrailing30DayMetricsCalculator
                     return discoveredFindingIds.Count;
 
                 ArchitectureRunDetail? detail =
-                    await runDetailQueryService.GetRunDetailAsync(summary.RunId, cancellationToken).ConfigureAwait(false);
+                    await runDetailQueryService.GetRunDetailForRoiAsync(summary.RunId, cancellationToken).ConfigureAwait(false);
 
                 if (detail is null)
                     continue;

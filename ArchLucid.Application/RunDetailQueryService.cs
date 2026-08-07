@@ -229,6 +229,28 @@ public sealed class RunDetailQueryService(
     }
 
     /// <inheritdoc/>
+    public async Task<ArchitectureRunDetail?> GetRunDetailForRoiAsync(string runId, CancellationToken cancellationToken = default)
+    {
+        ArchitectureRunDetail? detail = await GetRunDetailForRollupAsync(runId, cancellationToken).ConfigureAwait(false);
+
+        if (detail is null)
+            return null;
+
+        if (detail.Run.FindingsSnapshotId is not { } findingsSnapshotId)
+            return detail;
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        IReadOnlyDictionary<string, FindingMuteFlag> muteFlags =
+            await findingRecordMuteRepository.GetMuteFlagsAsync(findingsSnapshotId, scope, cancellationToken)
+                .ConfigureAwait(false);
+
+        if (muteFlags.Count > 0)
+            FindingMuteFlagApplier.Apply(detail.Results, muteFlags);
+
+        return detail;
+    }
+
+    /// <inheritdoc/>
     public async Task<IReadOnlyList<RunSummary>> ListRunSummariesAsync(CancellationToken cancellationToken = default)
     {
         ScopeContext scope = scopeContextProvider.GetCurrentScope();

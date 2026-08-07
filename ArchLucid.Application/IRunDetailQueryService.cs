@@ -28,6 +28,15 @@ public interface IRunDetailQueryService
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    ///     ROI history/trends/portfolio path (TB-2054): same projection as
+    ///     <see cref="GetRunDetailForRollupAsync"/> plus finding mute flags when a findings snapshot exists.
+    ///     Avoids N× full <see cref="GetRunDetailAsync"/> LOB loads while preserving mute honesty.
+    /// </summary>
+    Task<ArchitectureRunDetail?> GetRunDetailForRoiAsync(
+        string runId,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     ///     Returns lightweight <see cref="RunSummary" /> entries for the most recent runs,
     ///     ordered descending by creation time. Suitable for list/dashboard views.
     /// </summary>

@@ -116,7 +116,7 @@ public sealed class ExecutiveRoiSummaryService(
         List<ArchitectureRunDetail> latestDetails = [];
         foreach (RunSummary summary in selectedSummaries)
         {
-            ArchitectureRunDetail? detail = await _runDetailQueryService.GetRunDetailAsync(summary.RunId, cancellationToken).ConfigureAwait(false);
+            ArchitectureRunDetail? detail = await _runDetailQueryService.GetRunDetailForRoiAsync(summary.RunId, cancellationToken).ConfigureAwait(false);
 
             if (detail is null)
                 continue;
@@ -307,7 +307,7 @@ public sealed class ExecutiveRoiSummaryService(
             List<ArchitectureRunDetail> latestDetails = [];
             foreach (RunSummary summary in selectedSummaries)
             {
-                ArchitectureRunDetail? detail = await _runDetailQueryService.GetRunDetailAsync(summary.RunId, cancellationToken).ConfigureAwait(false);
+                ArchitectureRunDetail? detail = await _runDetailQueryService.GetRunDetailForRoiAsync(summary.RunId, cancellationToken).ConfigureAwait(false);
 
                 if (detail is null)
                     continue;
@@ -415,7 +415,7 @@ public sealed class ExecutiveRoiSummaryService(
                     continue;
 
                 string monthKey = summary.CreatedUtc.ToString("yyyy-MM", System.Globalization.CultureInfo.InvariantCulture);
-                ArchitectureRunDetail? detail = await _runDetailQueryService.GetRunDetailAsync(summary.RunId, cancellationToken).ConfigureAwait(false);
+                ArchitectureRunDetail? detail = await _runDetailQueryService.GetRunDetailForRoiAsync(summary.RunId, cancellationToken).ConfigureAwait(false);
 
                 if (detail is null)
                     continue;
@@ -512,7 +512,7 @@ public sealed class ExecutiveRoiSummaryService(
 
         foreach (RunSummary summary in selectedSummaries)
         {
-            ArchitectureRunDetail? detail = await _runDetailQueryService.GetRunDetailAsync(summary.RunId, cancellationToken).ConfigureAwait(false);
+            ArchitectureRunDetail? detail = await _runDetailQueryService.GetRunDetailForRoiAsync(summary.RunId, cancellationToken).ConfigureAwait(false);
 
             if (detail is null)
                 continue;
@@ -655,7 +655,7 @@ public sealed class ExecutiveRoiSummaryService(
                     continue;
 
                 ArchitectureRunDetail? detail =
-                    await _runDetailQueryService.GetRunDetailAsync(summary.RunId, cancellationToken).ConfigureAwait(false);
+                    await _runDetailQueryService.GetRunDetailForRoiAsync(summary.RunId, cancellationToken).ConfigureAwait(false);
 
                 if (detail is null)
                     continue;

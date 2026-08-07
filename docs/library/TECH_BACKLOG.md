@@ -47218,6 +47218,30 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ---
 
+## TB-2054 — ROI history/trends/portfolio off fat GetRunDetailAsync (P0)
+
+**Window:** V1 — Performance.
+
+**Status:** **Done** (2026-08-06).
+
+**Shipped:**
+
+1. `IRunDetailQueryService.GetRunDetailForRoiAsync` — rollup projection (`GetRunDetailForRollupAsync`) plus finding mute flags when `FindingsSnapshotId` exists.
+2. `ExecutiveRoiSummaryService` and `ExecutiveRoiTrailing30DayMetricsCalculator` call `GetRunDetailForRoiAsync` instead of N× fat `GetRunDetailAsync`.
+3. Api/Application unit tests + ROI wiring guard (never calls fat path).
+
+**Priority:** P0.
+
+**Acceptance:** ROI history/trends/portfolio does not call fat `GetRunDetailAsync` per run. **Met** 2026-08-06.
+
+**Depends on:** Slim rollup projection (**TB-2053** Done).
+
+**Out of scope:** Default `GetRunDetailAsync` bodies opt-in (**TB-2059**).
+
+**Size estimate:** L.
+
+---
+
 ## TB-2072 — Long-running operations latency-tier contract (P0)
 
 **Window:** V1 — Reliability / Adoption friction.
