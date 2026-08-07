@@ -15,7 +15,7 @@ Regenerate after opening or closing summary-table rows:
 | Deployability | 4 |
 | AI/Agent readiness | 12 |
 | Architectural integrity | 11 |
-| Adoption friction | 364 |
+| Adoption friction | 368 |
 | Commercial / marketability | 9 |
 | Data consistency | 4 |
 | Cutting-edge AI | 3 |
@@ -35,15 +35,15 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **800** |
+| **Total (unique open)** | **804** |
 
-**By priority band:** P0 **16** | P1 **652** | P2 **115** | P3 **9** | unlabeled **8**.
+**By priority band:** P0 **20** | P1 **652** | P2 **115** | P3 **9** | unlabeled **8**.
 
 <!-- tech-backlog-open-by-category:end -->
 
 > **Scope:** Engineering-owned technical backlog items deferred from current sessions; audience is contributors and the AI assistant; not a buyer or operator document. Not a substitute for ADRs or the pending-questions owner decisions file.
 
-**Updated:** 2026-08-07 (**TB-2068** **Done** — tenant migration banner on AppShell with polling + stage suspend copy). Prior: 2026-08-07 (**TB-2067** **Done** — distinct trust chip and provenance origin for `DeterministicFallback` vs `DeterministicRule`). Prior: 2026-08-07 (**TB-2066** **Done** — finding inspect trust labels use parent run execution mode + degradation signals). Prior: 2026-08-07 (**TB-2062** **Done** — audit list scope revision bumps coalesce during append bursts; first-page cache hit-rate under write churn). Prior: 2026-08-07 (**TB-2061** **Done** — `/dashboard` + `/signed-records` First Load JS deferred chunks + CI gate routes). Prior: 2026-08-07 (**TB-2060** **Done** — V2 decision-node materialization moved to post-commit outbox; commit HTTP path no longer runs `IDecisionEngineV2`). Prior: 2026-08-07 (**TB-2057** **Done** — comparison list/search omit `PayloadJson`; detail via `GetByIdAsync`). Prior: 2026-08-07 (**TB-2055** **Done** — retrieval indexing outbox slim `GetRunDetailForRetrievalIndexingAsync` + bounded parallel drain). Prior: 2026-08-07 (**TB-1949** **Done** — MAM traffic workbook retagged Core review; ui_routes.md honesty; Vitest). Prior: 2026-08-06 (**TB-2080**–**TB-2089** opened — architecture simplification: delete duplicate UI/workers/controllers, pilot profile, gate unwired features/outboxes, DDL drift gate, API/CI consolidation). Prior: 2026-08-06 (**TB-2054** **Done** — ROI uses `GetRunDetailForRoiAsync` rollup+mute; no N× fat `GetRunDetailAsync`). Prior: 2026-08-06 (**TB-2072**–**TB-2079** opened — long-running operations contract + unified operation API + async execute + cancel + shell activity + Tier B wait UX + latency-tier CI; all **P0** **V1**). Prior: 2026-08-06 (**TB-2053** **Done** — `GetRollupProjectionByRunIdAsync` JSON subpaths; rollup/compare off bare `ResultJson`). Prior: 2026-08-06 (**TB-965** **Done** — quality vs execution UX + Vitest; **TB-963** SoT). Prior: 2026-08-06 (**TB-934**/**TB-935**/**TB-2028**–**TB-2030** promoted to **P0** — open UI performance peers). Prior: 2026-08-06 (**TB-2053**–**TB-2062** opened — Performance wave 4: top-10 untracked opportunities refiled as **P0** **V1**; prior **TB-2048**–**TB-2057** IDs were consumed by Learn more cluster — do not reuse). Prior: 2026-08-06 (**TB-963** **Done** — LLM_EXECUTION_VS_QUALITY_OUTCOME.md taxonomy + persist checklist; GTM **M-123**/**M-124** SoT). Prior: 2026-08-06 (**TB-2052** **Done** — Learn more job-match Vitest suite; secondary-hub ban + Digests golden; **TB-2048**—**TB-2052** cluster closed). Prior: 2026-08-05 (**TB-2051** **Done** — Category-1 deep-link CTAs on allowlisted hubs; Digests golden retained; Vitest allowlist; **TB-2052** remains open). Prior: 2026-08-05 (**TB-2050** **Done** — secondary-hub Learn more off getting-started/how-it-works; omit when no specialty; **TB-2051**–**TB-2052** remain open). Prior: 2026-08-05 (**TB-2049** **Done** ? Digests Learn more to `/help/digests` specialty + Schedule Category-1 deep links; traffic **DI**/**DIS**/**HDG**; **TB-2050**?**TB-2052** remain open). Prior: 2026-08-05 (**TB-2048** **Done** ? Learn more job-match in [`UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md) + UI ARCHITECTURE pointer; ban generic getting-started/how-it-works on secondary hubs; **TB-2049**?**TB-2052** remain open). Prior: 2026-08-05 (**TB-2048**?**TB-2052** opened ? P0 page-scoped contextual help *quality*: Learn more must match page job (ban generic `getting-started`/`how-it-works` on secondary hubs), Digests golden remap + Schedule deep link, secondary-hub sweep, actionable Category-1 popover links, Vitest; owner Digests help review 2026-08-05; traffic **OCH**; complements open mount cluster **TB-1666**?**TB-1670** ? do not reopen). Prior: 2026-08-05 (**TB-931** **Done** ? typed hot scalars on `AgentExecutionTraces` (DbUp **294**); list + LLM cost prefer typed columns with JSON_VALUE COALESCE; dual-write Create + quality columns; inventory). Prior: 2026-08-05 (**TB-1030** **Done** ? [`PA_FIRST_15_PACKAGE_SPINE_IA_CONTRACT.md`](PA_FIRST_15_PACKAGE_SPINE_IA_CONTRACT.md) must-complete + package-spine IA unlock + minute-12 + narration residuals; GTM **M-181** + claim-boundary cites; **TB-1031** remains open). Prior: 2026-08-05 (**TB-1026** **Done** ? [`OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md`](OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md) package primary + `/reviews` spine + collapse surfaces; GTM **M-177** + claim-boundary cites; **TB-1027** remains open). Prior: 2026-08-05 (**TB-1024** **Done** ? [`COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md`](COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md) minimal immutable snapshot + artifact/regenerate/verify modes; GTM **M-175** + claim-boundary cites; **TB-1025** remains open). Prior: 2026-08-05 (**TB-1022** **Done** ? [`PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md`](PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md) block vs advisory + SoD ownership matrix; GTM **M-173** + claim-boundary cites; **TB-1023** remains open). Prior: 2026-08-05 (**TB-1011** **Done** ? [`TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md`](TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md) finalize vs outbox + never-silent best-effort matrix; GTM **M-163** + claim-boundary cites; **TB-1012** remains open). Prior: 2026-08-05 (**TB-1009** **Done** ? [`APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md`](APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md) append-only/sealed vs mutable + Update-destruction matrix; GTM **M-161** + claim-boundary cites; **TB-1010** remains open). Prior: 2026-08-05 (**TB-1007** **Done** ? [`AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md`](AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md) Authority canonical + AgentTask forbid matrix; GTM **M-159** + Flow A1 cites; **TB-1008** remains open). Prior: 2026-08-05 (**TB-1005** **Done** ? [`LAYER_BOUNDARY_IRREVERSIBLE_LEAK_MATRIX.md`](LAYER_BOUNDARY_IRREVERSIBLE_LEAK_MATRIX.md) NetArchTest vs ranked runtime residuals; GTM **M-157** + claim-boundary cites; **TB-1006** remains open). Prior: 2026-08-05 (**TB-1003** **Done** ? [`COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md`](COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md) unit-of-truth + hop/label matrix; GTM **M-155** + claim-boundary cites; **TB-1004** remains open). Prior: 2026-08-05 (**TB-1001** **Done** ? [`RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md`](RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md) Ask/Search/Graph-RAG hit guarantee matrix; GTM **M-153** + Layer E / Ask threat-model cites; **TB-1002** remains open). Prior: 2026-08-05 (**TB-999** **Done** ? [`TENANT_IDENTITY_SINGLE_DERIVATION_CONTRACT.md`](TENANT_IDENTITY_SINGLE_DERIVATION_CONTRACT.md) decide-once matrix; GTM **M-151** + Layer B cites; **TB-1000** remains open). Prior: 2026-08-05 (**TB-997** **Done** ? [`LLM_TRUST_BOUNDARY_INGRESS_CONFINEMENT_CONTRACT.md`](LLM_TRUST_BOUNDARY_INGRESS_CONFINEMENT_CONTRACT.md) ingress vs confinement matrix; GTM **M-149** + claim-boundary cites; **TB-952** remains open). Prior: 2026-08-04 (**TB-995** **Done** ? [`POLLY_VS_RUN_LEVEL_SEMANTICS_CONTRACT.md`](POLLY_VS_RUN_LEVEL_SEMANTICS_CONTRACT.md) transport vs partial/cache/budget matrix; `LLM_RETRY` + GTM **M-147** + claim-boundary cites; does not close **TB-941**?**TB-945**). Prior: 2026-08-04 (**TB-968** **Done** ? `IItsmInboundWebhookReplayGuard` + in-memory 24h dedupe; delivery-id / Atlassian identifier / synthetic replay keys; `Integration.ItsmInboundWebhookReplayIgnored` audit; optional timestamp skew without HMAC; [`ITSM_INBOUND_WEBHOOK_REPLAY_GUARD.md`](runbooks/ITSM_INBOUND_WEBHOOK_REPLAY_GUARD.md); hostile-traffic inventory Replay ? Y). Prior: 2026-08-04 (**TB-2038**?**TB-2041** opened ? operator short-helper measure caps: design-system contract + `OperatorPageHeader`/`PageHeading` + dashboard inventory + Vitest; Overview `/` premature `max-w-prose`/`max-w-2xl` fixed in-session). Prior: 2026-08-04 (**TB-967** **Done** ? `InboundWebhookBoundedBodyReader` Content-Length + hard ceiling before HMAC; ITSM/Stripe/Marketplace/Slack; 413; unit/arch/integration tests; inventory updated). Prior: 2026-08-04 (**TB-966** **Done** ? `INBOUND_WEBHOOK_HOSTILE_TRAFFIC.md` PA order rate?size?verify?parse + surface matrix + checklist; INV-015 refresh; GTM **M-125**/**M-126** cite SoT; **TB-968** remains open). Prior: 2026-08-03 (**TB-955** **Done** ? Required audit abandon metric + pageable Prometheus alerts; domain?audit orphan probe + job; triage runbook; informational TryLogAsync excluded). Prior: 2026-08-03 (**TB-954** **Done** ? `RequiredAuditEventTypes` registry + arch test forbids `TryLogAsync` on Required types; INV-003 enforcement note; Core + Architecture tests). Prior: 2026-08-03 (**TB-951** **Done** ? ?3 indirect doc/README/ADR corpus scenarios + `indirect-doc-injection.json` with `expectedContained` residual; CI assert + eval_agent_quality strict; no 100% detection claim). Prior: 2026-08-03 (**TB-950** **Done** ? production-like empty/null `AllowedTools` fail-closed; `*` unrestricted sentinel; DemoSeed concrete tools; TB-082 tests updated). Prior: 2026-08-03 (**TB-949** **Done** ? untrusted customer-content `CUSTOMER_CONTENT_BEGIN`/`END` + framing; Agent/Ask composers; contract doc; unit + wiring tests; hygiene ? security boundary). Prior: 2026-08-03 (**DI** Evidence chrome ? /digests Sources + claim discipline; Vitest; traffic **DI**). Prior: 2026-08-03 (**PLA** Evidence chrome ? `/planning` Sources + claim discipline + topic honesty `how-it-works`; Vitest; traffic **PLA**). Prior: 2026-08-03 (**TB-897** **Done** ? Quick Scan layered identity/abuse limits + CAPTCHA/sign-in friction codes; mig **292**; abuse ? spend ceiling). Prior: 2026-08-03 (**SCX** Evidence chrome ? `/insights/architecture-scorecard` Sources + Category-1 registry + directional ROI claim; Vitest; traffic **SCX**; **TB-1956**?**TB-1960** remain Done). Prior: 2026-08-03 (**TB-1668** GDX/alerts topic slice ? `/governance/dashboard` Sources + registry + topic honesty; `/governance/alerts` ? `alerts`; Vitest; traffic **GDX**; remaining mount hubs open). Prior: 2026-08-03 (**TB-1667** HOM slice ? `/` remounts `OperatorHomePageChrome` + Category-1 registry; Vitest; traffic **HOM**; remaining hubs open). Prior: 2026-08-03 (**TB-1746**/**TB-1749**/**TB-1750** **Done** ? `/help/soc2-self-assessment` specialty buyer guide + Trust CTA / IA dual / Help Center; Vitest; traffic **HES**; **TB-1747**/**TB-1748** retained). Prior: 2026-08-03 (**TB-1386** **Done** ? `/help/governance-api-contracts` specialty API contracts guide + title honesty; Vitest; traffic **HG**). Prior: 2026-08-02 (**TB-1691**/**TB-1692**/**TB-1694**/**TB-1695** **Done** ? `/help/first-value-20-minutes` Admin specialty guide; Vitest; traffic **HEF**). Prior: 2026-08-02 (**TB-1676**/**TB-1678**/**TB-1679**/**TB-1680** **Done** ? `/help/dpa-template` specialty buyer DPA guide; Vitest; traffic **HDP**). Prior: 2026-07-31 (Open **P1** summary rows reordered - human-impact ship order for /ship-next-improvement; 723 open P1s; see `### P1 - human-impact ship order`).
+**Updated:** 2026-08-07 (**TB-2093** opened — P0 remove “About …” scope/details blocks; merge needed copy into title/header). Prior: 2026-08-07 (**TB-2092** opened — P0 remove mid-page operator “Sources for follow-up” blocks). Prior: 2026-08-07 (**TB-2090**/**TB-2091** opened — P0 remove all breadcrumbs; P0 remove SOC 2 / pen-test disclaimer warnings system-wide). Prior: 2026-08-07 (**TB-2069** **Done** — tenant migration fan-out stage guards + acknowledge-catalog-attach API). Prior: 2026-08-07 (**TB-2068** **Done** — tenant migration banner on AppShell with polling + stage suspend copy). Prior: 2026-08-07 (**TB-2066** **Done** — finding inspect trust labels use parent run execution mode + degradation signals). Prior: 2026-08-07 (**TB-2062** **Done** — audit list scope revision bumps coalesce during append bursts; first-page cache hit-rate under write churn). Prior: 2026-08-07 (**TB-2061** **Done** — `/dashboard` + `/signed-records` First Load JS deferred chunks + CI gate routes). Prior: 2026-08-07 (**TB-2060** **Done** — V2 decision-node materialization moved to post-commit outbox; commit HTTP path no longer runs `IDecisionEngineV2`). Prior: 2026-08-07 (**TB-2057** **Done** — comparison list/search omit `PayloadJson`; detail via `GetByIdAsync`). Prior: 2026-08-07 (**TB-2055** **Done** — retrieval indexing outbox slim `GetRunDetailForRetrievalIndexingAsync` + bounded parallel drain). Prior: 2026-08-07 (**TB-1949** **Done** — MAM traffic workbook retagged Core review; ui_routes.md honesty; Vitest). Prior: 2026-08-06 (**TB-2080**–**TB-2089** opened — architecture simplification: delete duplicate UI/workers/controllers, pilot profile, gate unwired features/outboxes, DDL drift gate, API/CI consolidation). Prior: 2026-08-06 (**TB-2054** **Done** — ROI uses `GetRunDetailForRoiAsync` rollup+mute; no N× fat `GetRunDetailAsync`). Prior: 2026-08-06 (**TB-2072**–**TB-2079** opened — long-running operations contract + unified operation API + async execute + cancel + shell activity + Tier B wait UX + latency-tier CI; all **P0** **V1**). Prior: 2026-08-06 (**TB-2053** **Done** — `GetRollupProjectionByRunIdAsync` JSON subpaths; rollup/compare off bare `ResultJson`). Prior: 2026-08-06 (**TB-965** **Done** — quality vs execution UX + Vitest; **TB-963** SoT). Prior: 2026-08-06 (**TB-934**/**TB-935**/**TB-2028**–**TB-2030** promoted to **P0** — open UI performance peers). Prior: 2026-08-06 (**TB-2053**–**TB-2062** opened — Performance wave 4: top-10 untracked opportunities refiled as **P0** **V1**; prior **TB-2048**–**TB-2057** IDs were consumed by Learn more cluster — do not reuse). Prior: 2026-08-06 (**TB-963** **Done** — LLM_EXECUTION_VS_QUALITY_OUTCOME.md taxonomy + persist checklist; GTM **M-123**/**M-124** SoT). Prior: 2026-08-06 (**TB-2052** **Done** — Learn more job-match Vitest suite; secondary-hub ban + Digests golden; **TB-2048**—**TB-2052** cluster closed). Prior: 2026-08-05 (**TB-2051** **Done** — Category-1 deep-link CTAs on allowlisted hubs; Digests golden retained; Vitest allowlist; **TB-2052** remains open). Prior: 2026-08-05 (**TB-2050** **Done** — secondary-hub Learn more off getting-started/how-it-works; omit when no specialty; **TB-2051**–**TB-2052** remain open). Prior: 2026-08-05 (**TB-2049** **Done** ? Digests Learn more to `/help/digests` specialty + Schedule Category-1 deep links; traffic **DI**/**DIS**/**HDG**; **TB-2050**?**TB-2052** remain open). Prior: 2026-08-05 (**TB-2048** **Done** ? Learn more job-match in [`UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md) + UI ARCHITECTURE pointer; ban generic getting-started/how-it-works on secondary hubs; **TB-2049**?**TB-2052** remain open). Prior: 2026-08-05 (**TB-2048**?**TB-2052** opened ? P0 page-scoped contextual help *quality*: Learn more must match page job (ban generic `getting-started`/`how-it-works` on secondary hubs), Digests golden remap + Schedule deep link, secondary-hub sweep, actionable Category-1 popover links, Vitest; owner Digests help review 2026-08-05; traffic **OCH**; complements open mount cluster **TB-1666**?**TB-1670** ? do not reopen). Prior: 2026-08-05 (**TB-931** **Done** ? typed hot scalars on `AgentExecutionTraces` (DbUp **294**); list + LLM cost prefer typed columns with JSON_VALUE COALESCE; dual-write Create + quality columns; inventory). Prior: 2026-08-05 (**TB-1030** **Done** ? [`PA_FIRST_15_PACKAGE_SPINE_IA_CONTRACT.md`](PA_FIRST_15_PACKAGE_SPINE_IA_CONTRACT.md) must-complete + package-spine IA unlock + minute-12 + narration residuals; GTM **M-181** + claim-boundary cites; **TB-1031** remains open). Prior: 2026-08-05 (**TB-1026** **Done** ? [`OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md`](OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md) package primary + `/reviews` spine + collapse surfaces; GTM **M-177** + claim-boundary cites; **TB-1027** remains open). Prior: 2026-08-05 (**TB-1024** **Done** ? [`COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md`](COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md) minimal immutable snapshot + artifact/regenerate/verify modes; GTM **M-175** + claim-boundary cites; **TB-1025** remains open). Prior: 2026-08-05 (**TB-1022** **Done** ? [`PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md`](PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_CONTRACT.md) block vs advisory + SoD ownership matrix; GTM **M-173** + claim-boundary cites; **TB-1023** remains open). Prior: 2026-08-05 (**TB-1011** **Done** ? [`TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md`](TRANSACTIONAL_FINALIZE_VS_OUTBOX_CONTRACT.md) finalize vs outbox + never-silent best-effort matrix; GTM **M-163** + claim-boundary cites; **TB-1012** remains open). Prior: 2026-08-05 (**TB-1009** **Done** ? [`APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md`](APPEND_ONLY_AND_SEALED_EVIDENCE_CONTRACT.md) append-only/sealed vs mutable + Update-destruction matrix; GTM **M-161** + claim-boundary cites; **TB-1010** remains open). Prior: 2026-08-05 (**TB-1007** **Done** ? [`AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md`](AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md) Authority canonical + AgentTask forbid matrix; GTM **M-159** + Flow A1 cites; **TB-1008** remains open). Prior: 2026-08-05 (**TB-1005** **Done** ? [`LAYER_BOUNDARY_IRREVERSIBLE_LEAK_MATRIX.md`](LAYER_BOUNDARY_IRREVERSIBLE_LEAK_MATRIX.md) NetArchTest vs ranked runtime residuals; GTM **M-157** + claim-boundary cites; **TB-1006** remains open). Prior: 2026-08-05 (**TB-1003** **Done** ? [`COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md`](COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md) unit-of-truth + hop/label matrix; GTM **M-155** + claim-boundary cites; **TB-1004** remains open). Prior: 2026-08-05 (**TB-1001** **Done** ? [`RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md`](RETRIEVAL_TENANCY_HIT_GUARANTEE_CONTRACT.md) Ask/Search/Graph-RAG hit guarantee matrix; GTM **M-153** + Layer E / Ask threat-model cites; **TB-1002** remains open). Prior: 2026-08-05 (**TB-999** **Done** ? [`TENANT_IDENTITY_SINGLE_DERIVATION_CONTRACT.md`](TENANT_IDENTITY_SINGLE_DERIVATION_CONTRACT.md) decide-once matrix; GTM **M-151** + Layer B cites; **TB-1000** remains open). Prior: 2026-08-05 (**TB-997** **Done** ? [`LLM_TRUST_BOUNDARY_INGRESS_CONFINEMENT_CONTRACT.md`](LLM_TRUST_BOUNDARY_INGRESS_CONFINEMENT_CONTRACT.md) ingress vs confinement matrix; GTM **M-149** + claim-boundary cites; **TB-952** remains open). Prior: 2026-08-04 (**TB-995** **Done** ? [`POLLY_VS_RUN_LEVEL_SEMANTICS_CONTRACT.md`](POLLY_VS_RUN_LEVEL_SEMANTICS_CONTRACT.md) transport vs partial/cache/budget matrix; `LLM_RETRY` + GTM **M-147** + claim-boundary cites; does not close **TB-941**?**TB-945**). Prior: 2026-08-04 (**TB-968** **Done** ? `IItsmInboundWebhookReplayGuard` + in-memory 24h dedupe; delivery-id / Atlassian identifier / synthetic replay keys; `Integration.ItsmInboundWebhookReplayIgnored` audit; optional timestamp skew without HMAC; [`ITSM_INBOUND_WEBHOOK_REPLAY_GUARD.md`](runbooks/ITSM_INBOUND_WEBHOOK_REPLAY_GUARD.md); hostile-traffic inventory Replay ? Y). Prior: 2026-08-04 (**TB-2038**?**TB-2041** opened ? operator short-helper measure caps: design-system contract + `OperatorPageHeader`/`PageHeading` + dashboard inventory + Vitest; Overview `/` premature `max-w-prose`/`max-w-2xl` fixed in-session). Prior: 2026-08-04 (**TB-967** **Done** ? `InboundWebhookBoundedBodyReader` Content-Length + hard ceiling before HMAC; ITSM/Stripe/Marketplace/Slack; 413; unit/arch/integration tests; inventory updated). Prior: 2026-08-04 (**TB-966** **Done** ? `INBOUND_WEBHOOK_HOSTILE_TRAFFIC.md` PA order rate?size?verify?parse + surface matrix + checklist; INV-015 refresh; GTM **M-125**/**M-126** cite SoT; **TB-968** remains open). Prior: 2026-08-03 (**TB-955** **Done** ? Required audit abandon metric + pageable Prometheus alerts; domain?audit orphan probe + job; triage runbook; informational TryLogAsync excluded). Prior: 2026-08-03 (**TB-954** **Done** ? `RequiredAuditEventTypes` registry + arch test forbids `TryLogAsync` on Required types; INV-003 enforcement note; Core + Architecture tests). Prior: 2026-08-03 (**TB-951** **Done** ? ?3 indirect doc/README/ADR corpus scenarios + `indirect-doc-injection.json` with `expectedContained` residual; CI assert + eval_agent_quality strict; no 100% detection claim). Prior: 2026-08-03 (**TB-950** **Done** ? production-like empty/null `AllowedTools` fail-closed; `*` unrestricted sentinel; DemoSeed concrete tools; TB-082 tests updated). Prior: 2026-08-03 (**TB-949** **Done** ? untrusted customer-content `CUSTOMER_CONTENT_BEGIN`/`END` + framing; Agent/Ask composers; contract doc; unit + wiring tests; hygiene ? security boundary). Prior: 2026-08-03 (**DI** Evidence chrome ? /digests Sources + claim discipline; Vitest; traffic **DI**). Prior: 2026-08-03 (**PLA** Evidence chrome ? `/planning` Sources + claim discipline + topic honesty `how-it-works`; Vitest; traffic **PLA**). Prior: 2026-08-03 (**TB-897** **Done** ? Quick Scan layered identity/abuse limits + CAPTCHA/sign-in friction codes; mig **292**; abuse ? spend ceiling). Prior: 2026-08-03 (**SCX** Evidence chrome ? `/insights/architecture-scorecard` Sources + Category-1 registry + directional ROI claim; Vitest; traffic **SCX**; **TB-1956**?**TB-1960** remain Done). Prior: 2026-08-03 (**TB-1668** GDX/alerts topic slice ? `/governance/dashboard` Sources + registry + topic honesty; `/governance/alerts` ? `alerts`; Vitest; traffic **GDX**; remaining mount hubs open). Prior: 2026-08-03 (**TB-1667** HOM slice ? `/` remounts `OperatorHomePageChrome` + Category-1 registry; Vitest; traffic **HOM**; remaining hubs open). Prior: 2026-08-03 (**TB-1746**/**TB-1749**/**TB-1750** **Done** ? `/help/soc2-self-assessment` specialty buyer guide + Trust CTA / IA dual / Help Center; Vitest; traffic **HES**; **TB-1747**/**TB-1748** retained). Prior: 2026-08-03 (**TB-1386** **Done** ? `/help/governance-api-contracts` specialty API contracts guide + title honesty; Vitest; traffic **HG**). Prior: 2026-08-02 (**TB-1691**/**TB-1692**/**TB-1694**/**TB-1695** **Done** ? `/help/first-value-20-minutes` Admin specialty guide; Vitest; traffic **HEF**). Prior: 2026-08-02 (**TB-1676**/**TB-1678**/**TB-1679**/**TB-1680** **Done** ? `/help/dpa-template` specialty buyer DPA guide; Vitest; traffic **HDP**). Prior: 2026-07-31 (Open **P1** summary rows reordered - human-impact ship order for /ship-next-improvement; 723 open P1s; see `### P1 - human-impact ship order`).
 
 
 **BDA register:** all **150** buyer-demo defects are **BDA-001?150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276?282** **Done** (batches **5DU-route-tenant-p0**, **5DU-route-tenant-p1**). **DTO boundary:** **TB-283?288** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**, **5DX-trust-p2**). **Coverage hardening:** **TB-289?294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295?300** **Done** (batch **5DW-trust-paid-p1b**); **TB-301** **Done** (batch **5DX-trust-p2**). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS?5DV**; **0** grandfathered unclassified). **Insight-density:** **TB-382?385** **Done** (Prompts A?F through `5d7af0811`; drift guard **insight-density-tb382-385**). **ITSM integration seams:** **TB-386?398** (2026-06-22 assessment ? V1 seam hardening + V1.1/V2 connector follow-on). **TB-386?397 Done** (2026-06-22 through 2026-06-27). **First-party connector V1.1?åÆV1 GA promotion (2026-07-03):** Jira/ServiceNow/Confluence/Slack/Microsoft Teams moved to **V1 GA** (`V1_DEFERRED.md` ?º6/?º6a); **TB-599?ÇôTB-602** track the resulting tightening work (native-create default posture, OAuth upgrade, live-validation parity, buyer-copy sweep). **Next recommended batch:** **TB-398** (full enterprise ITSM connector ?Çö **V2** ITSM cluster; out of V1/V1.1 unless owner promotes) remains separate and unaffected by the promotion. Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
@@ -196,6 +196,8 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 **TB-2044** and **TB-2063 — TB-2071** were added 2026-08-06 from the **principal architect critique round 5** post-**TB-2042**–**TB-2047** confusion audit (compare **CXX**, finding inspect, tenant migration fan-out). Finding: backend correlation and migration orchestration shipped but operator golden paths still over-claim—compare UI diffs findings by message text while exports use ADR 0063 fingerprints; trust chips disagree across inspect/detail/export; migration banner is narrow vs fan-out doc; three “correlation” vocabularies collide. **TB-2044** (P0) trust labels on all finding export paths—promoted from P1. **TB-2063** (P0) wire `AgentResultDiffService` to fingerprint correlation. **TB-2064** (P0) compare UI correlation metadata. **TB-2065** (P0) disambiguate finding correlation vocabulary (ADR 0063 vs ITSM vs ROI). **TB-2066** (P0) finding inspect authoritative trust enricher. **TB-2067** (P0) distinct `DeterministicRule` vs `DeterministicFallback` UI. **TB-2068** (P0) migration banner AppShell scope + polling + suspend copy. **TB-2069** (P0) align migration projection refresh + verification probe with `TENANT_MIGRATION_FANOUT.md`. **TB-2070** (P0) migration operator visibility (stage, correlation id, errors). **TB-2071** (P0) compare trust-label and run-mode asymmetry in delta narrative. Does **not** reopen Done **TB-2042**/**TB-2043**/**TB-2045**–**TB-2047**. IDs skip perf **TB-2053**–**TB-2062** and Learn more **TB-2048**–**TB-2052**.
 
 **TB-2072 — TB-2079** were added 2026-08-06 from the owner ask: *which ArchLucid operations exceed 3–4 seconds and what wait/async UX should we build?* Finding: review pipeline has SSE + poll (`useRunSummaryStream`, `RunProgressTracker`) but **Tier C** work (Real-mode execute/replay, architecture-intelligence) exceeds the **60s** UI proxy and default Front Door origin timeout while handlers allow **900s**; progress is fragmented across run summary flags and `BackgroundJobs` with no unified operation handle, cancel API, or shell-level in-flight surface; ~**82%** of routes lack segment `loading.tsx`. All **P0** **V1**: latency-tier SoT contract (**TB-2072**); edge timeout + job/operation tenant-scope audit (**TB-2073**); unified `GET /v1/operations/{id}` (**TB-2074**); async execute/replay siblings 202 + Location (**TB-2075**); cooperative cancel (**TB-2076**); shell activity / in-flight store (**TB-2077**); Tier B staged wait + admin/integrations route loading sweep (**TB-2078**); CI latency-tier gate (**TB-2079**). Canonical doc: [`LONG_RUNNING_OPERATIONS_CONTRACT.md`](LONG_RUNNING_OPERATIONS_CONTRACT.md). Does **not** duplicate **TB-2029** (SSE poll hygiene), **TB-937**–**TB-943** (partial-run semantics), **TB-960**–**TB-962** (ACA worker drain), or replace authority outbox queue mode.
+
+**TB-2090 — TB-2093** were added 2026-08-07 from an **owner UI chrome ask**. Finding: (1) shell breadcrumbs still render on pages already reachable from the left navbar, and breadcrumb visibility/`breadcrumb-map` rules have become a maintenance maze without clear buyer value; (2) nearly every Evidence / claim-discipline orientation strip repeats CPA SOC 2 and third-party pen-test disclaimer warnings that dilute attention and are unnecessary outside dedicated assurance surfaces; (3) mid-page **Sources for follow-up** blocks on operator hubs add a third chrome band (after header + primary content) that feels excessive when Learn more / left nav already cover related links; (4) collapsible **About …** scope/details panels (e.g. **About planning scope**) duplicate or bury orientation that belongs in the title/header lead. All **P0** **V1**: remove breadcrumbs system-wide (**TB-2090**); remove SOC 2 / pen-test disclaimer warnings system-wide (**TB-2091**); remove mid-page operator **Sources for follow-up** strips (**TB-2092**); remove **About …** blocks and merge needed copy into the title block (**TB-2093**). Does **not** reopen Done tech tracking **TB-135**/**TB-136** or owner GTM **G-REAL-05**/**G-ASSURANCE-02** — those remain owner programs; this cluster only deletes repetitive product-UI chrome.
 
 **TB-937 ? TB-945** were added 2026-07-22 from the owner question on what **Polly retries + circuit breaker + 429 backoff** do *not* cover for a multi-step agent pipeline (partial completion, poisoned cache, mid-run budget exhaustion, plus related orchestration gaps). Transport resilience stays as-is ([`LLM_RETRY_AND_CIRCUIT_BREAKER.md`](LLM_RETRY_AND_CIRCUIT_BREAKER.md), ADR 0005). This cluster adds **run-level** semantics: partial-run contract + UI (**TB-937**), selective re-execute (**TB-938**), run-scoped budget reservation modeled on Quick Scan **TB-894** (**TB-939**), completion-cache admission/poison bust (**TB-940**), per-`(RunId,TaskId)` spend cap (**TB-941**), downstream consistency after partial/re-execute (**TB-942**), zombie execute reconciliation (**TB-943**), semantic-failure classification (**TB-944**), and a chaos/integration suite (**TB-945**). Does **not** reopen **TB-039** (idempotent skip Done), **TB-043** (remediation Polly decoupling Done), or pull the gated DTF epic (**TB-920**?**TB-924**) unless reservation + selective re-execute prove insufficient. Suggested order: **937 ? 940 ? 939 ? 938 ? 941 ? 942 ? 943 ? 944 ? 945**. **ACA Worker host layer** (replica death / scale-in / buyer-visible interrupt): **TB-960**?**TB-962** (2026-07-23).
 
@@ -1139,7 +1141,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-2066 | **Done** (2026-08-07) — finding inspect trust enricher uses real run execution context; see ## TB-2066 below | Trustworthiness P0 — **V1**; round 5; pairs **TB-2044** | M |
 | TB-2067 | **Done** (2026-08-07) — distinct `DeterministicRule` vs `DeterministicFallback` trust chip and provenance origin; see ## TB-2067 below | Trustworthiness P0 — **V1**; round 5; `finding-provenance-display.ts` | S |
 | TB-2068 | **Done** (2026-08-07) — tenant migration banner on AppShell with polling + stage suspend copy; see ## TB-2068 below | Reliability P0 — **V1**; round 5 after **TB-2045** | M |
-| TB-2069 | Migration orchestration — align projection refresh + verification with fan-out doc; see ## TB-2069 below | Reliability P0 — **V1**; round 5 after **TB-2046**/**TB-2047** | M |
+| TB-2069 | **Done** (2026-08-07) — migration orchestration aligned with fan-out stages; see ## TB-2069 below | Reliability P0 — **V1**; round 5 after **TB-2046**/**TB-2047** | M |
 | TB-2070 | Migration operator visibility — stage, correlation id, verification errors; see ## TB-2070 below | Adoption friction P0 — **V1**; round 5; tenant + admin surfaces | M |
 | TB-2071 | Compare workspace — trust-label and run-mode asymmetry in delta narrative; see ## TB-2071 below | Trustworthiness P0 — **V1**; round 5; traffic **CXX** | M |
 | TB-2072 | Long-running operations — latency-tier contract + operation inventory SoT; see ## TB-2072 below | Reliability P0 — **V1**; owner LRO ask 2026-08-06; [`LONG_RUNNING_OPERATIONS_CONTRACT.md`](LONG_RUNNING_OPERATIONS_CONTRACT.md) | S |
@@ -1150,6 +1152,10 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-2077 | Shell activity surface — global in-flight operations store + header affordance; see ## TB-2077 below | Adoption friction P0 — **V1**; UI; polls **TB-2074** / existing SSE | M |
 | TB-2078 | Tier B staged wait UX + administration/integrations `loading.tsx` sweep; see ## TB-2078 below | Adoption friction P0 — **V1**; Ask/commit/export/quick-scan/bulk evidence; ~104 routes | L |
 | TB-2079 | API latency-tier CI gate — interactive vs extended-sync vs async-required per endpoint; see ## TB-2079 below | Performance P0 — **V1**; after **TB-2072**; enforces contract | M |
+| TB-2090 | Remove all breadcrumbs (shell + page-local) — delete map/visibility chrome and tests; see ## TB-2090 below | Adoption friction P0 — **V1**; owner ask 2026-08-07; left-nav is enough | M |
+| TB-2091 | Remove SOC 2 / pen-test disclaimer warnings system-wide from Evidence/claim-discipline chrome; see ## TB-2091 below | Adoption friction P0 — **V1**; owner ask 2026-08-07; do not reopen **TB-135**/**TB-136** | L |
+| TB-2092 | Remove mid-page operator “Sources for follow-up” blocks system-wide; see ## TB-2092 below | Adoption friction P0 — **V1**; owner ask 2026-08-07; pairs **TB-2091** | L |
+| TB-2093 | Remove “About …” scope/details blocks; merge needed copy into OperatorPageHeader title block; see ## TB-2093 below | Adoption friction P0 — **V1**; owner ask 2026-08-07; e.g. About planning scope | M |
 | TB-2006 | Architecture draft workspace ? disable Start review until readiness; drop validation toast; see ## TB-2006 below | Adoption friction P1 ? **V1**; owner ask 2026-07-29; with **TB-2005** | S |
 | TB-2007 | Pilot baseline wizard ? disable Next/Save until valid; inline field errors; see ## TB-2007 below | Adoption friction P1 ? **V1**; with **TB-2005**; first-session overlay | S |
 | TB-2008 | Admin toast-validation ? Tenant cost settings + governance bulk disposition; see ## TB-2008 below | Adoption friction P1 ? **V1**; with **TB-2005** | S |
@@ -47421,6 +47427,30 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ----
 
+## TB-2069 — Migration orchestration fan-out alignment (P0)
+
+**Window:** V1 — Reliability.
+
+**Status:** **Done** (2026-08-07).
+
+**Shipped:**
+
+1. `TenantCatalogMigrationOrchestrator` enforces fan-out stage order (`WrongStage` when out of sequence).
+2. `POST .../catalog-migration/acknowledge-catalog-attach` advances scope freeze → catalog attach/detach.
+3. Projection refresh requires catalog attach stage; verification requires projection refresh; complete requires verification pass.
+4. Projection refresh invalidates tenant-scoped hot-path caches (run lists, tenant metadata) per `TENANT_MIGRATION_FANOUT.md`.
+5. `TenantCatalogMigrationOrchestratorTests` covers the golden fan-out sequence.
+
+**Priority:** P0.
+
+**Acceptance:** Admin migration APIs match the four fan-out stages in order; projection refresh and verification cannot skip catalog cutover. **Met** 2026-08-07.
+
+**Peers:** **TB-2046**/**TB-2047** (projection + probe), **TB-2068** (operator banner), `TENANT_MIGRATION_FANOUT.md`.
+
+**Size estimate:** M.
+
+----
+
 ## TB-2068 — Tenant migration banner AppShell scope + polling + suspend copy (P0)
 
 **Window:** V1 — Reliability.
@@ -48186,6 +48216,153 @@ Operators must read three intros before reaching the Trust Center link list.
 **Depends on:** None.
 
 **Out of scope:** Deleting test projects or lowering coverage targets.
+
+**Size estimate:** M.
+
+---
+
+## TB-2090 — Remove all breadcrumbs system-wide (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner ask 2026-08-07 — breadcrumbs still appear on pages reachable from the left navbar; visibility/`breadcrumb-map` rules have become complicated without clear buyer value. Owner decision: remove breadcrumbs entirely.
+
+**Why:** Breadcrumb chrome duplicates left-nav wayfinding, adds visual noise on primary operator hubs, and forces ongoing map/visibility maintenance (cross-namespace exceptions, buyer-polished shell interactions, page-local trails). Simpler IA: sidebar + page title (+ back links where truly needed) without a third trail.
+
+**Approach:**
+
+1. Stop mounting shell breadcrumbs (`AppShellMainAffordances` / `Breadcrumbs` / any executive-shell equivalent).
+2. Delete or gut `breadcrumb-map.ts`, `breadcrumb-visibility.ts`, and `Breadcrumbs.tsx` (and tests); remove page-local breadcrumb wayfinding that duplicates the shell trail.
+3. Update buyer operate-back-link helpers that key off `showShellBreadcrumbs`; prefer explicit back links only where hierarchy is not in the left nav.
+4. Sweep Vitest, Playwright, docs (`operator-shell`, NAV contract, QA checklists) that assert breadcrumb presence; replace with title/nav assertions where needed.
+
+**Acceptance:**
+
+- No breadcrumb trail renders on operator, marketing, help, or executive shells.
+- `breadcrumb-map` / `breadcrumb-visibility` / `Breadcrumbs` are removed or reduced to dead-code-free stubs with no production mounts.
+- Unit + e2e suites green without breadcrumb presence asserts.
+- Left-nav + page headers remain the primary wayfinding; no regression of buyer golden-journey stepper (that is not breadcrumbs).
+
+**Affected files:** `archlucid-ui/src/components/Breadcrumbs.tsx`, `archlucid-ui/src/lib/breadcrumb-map.ts`, `archlucid-ui/src/lib/breadcrumb-visibility.ts`, `archlucid-ui/src/components/shell/AppShellMainAffordances.tsx`, `archlucid-ui/src/lib/buyer-polished-operate-back-link.ts`, finding/manifest wayfinding sections, e2e specs asserting breadcrumbs, related docs under `docs/library/` / `archlucid-ui/docs/`.
+
+**Depends on:** None.
+
+**Out of scope:** Redesigning left nav; removing buyer golden-journey layer context strip / stepper; LayerContextStrip content (unless it is itself a breadcrumb trail).
+
+**Size estimate:** M.
+
+---
+
+## TB-2091 — Remove SOC 2 / pen-test disclaimer warnings system-wide (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner ask 2026-08-07 — pages show SOC 2 and pen-test warnings that are not necessary; remove such warnings throughout the system.
+
+**Why:** Claim-discipline / Evidence orientation strips and related copy repeat “not a CPA SOC 2 attestation / not a published third-party pen-test” across hubs that have nothing to do with assurance. The repetition adds noise, trains buyers to ignore disclaimers, and was never meant to be universal chrome. Dedicated Trust Center / SOC 2 self-assessment honesty can stay factual without stamping every route.
+
+**Approach:**
+
+1. Inventory UI copy and strips that mention CPA SOC 2 attestation or third-party pen-test publication as a page-level warning (evidence-copy modules, `*EvidenceOrientationStrip*`, contextual-help registry claim lines, marketing claim-discipline bands).
+2. Remove those disclaimer sentences/bands from operator, help, settings, integrations, and marketing chrome that is not an assurance/diligence surface.
+3. On dedicated assurance surfaces (`/trust`, `/security-trust`, `/help/soc2-self-assessment`, procurement diligence pages), keep concise factual status only — do not invent CPA/pen-test artifacts; do not reintroduce blanket “do not imply…” bands on unrelated pages.
+4. Update Vitest that currently assert presence/absence of CPA/pen-test disclaimer text; add a regression guard that forbids the boilerplate phrase on non-allowlisted routes.
+5. Clean contributor-only notes in `ui-route-traffic-*.ts` that only exist to echo the same disclaimer (optional follow-through once UI is clean).
+
+**Acceptance:**
+
+- Operator/marketing hubs no longer show SOC 2 CPA or third-party pen-test warning chrome by default.
+- Allowlisted assurance pages remain honest (no false CPA/pen-test claims).
+- Vitest regression guard prevents reintroduction of the boilerplate disclaimer on non-allowlisted routes.
+- Does **not** reopen Done **TB-135**/**TB-136** or imply GTM **G-REAL-05**/**G-ASSURANCE-02** are closed.
+
+**Affected files:** `archlucid-ui/src/lib/*evidence-copy*.ts`, `archlucid-ui/src/app/**/**/*EvidenceOrientationStrip*.tsx`, `archlucid-ui/src/lib/contextual-help-registry.ts`, related Vitest; optionally `archlucid-ui/src/lib/ui-route-traffic-*.ts` note strings.
+
+**Depends on:** None (can ship before or after **TB-2090**).
+
+**Out of scope:** Executing SOC 2 CPA attestation or third-party pen-test programs; changing Trust Center downloadable artifact inventory; buyer GTM cohort work.
+
+**Size estimate:** L.
+
+---
+
+## TB-2092 — Remove mid-page operator “Sources for follow-up” blocks (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner ask 2026-08-07 — mid-page **Sources for follow-up** blocks on operator pages feel excessive; remove such blocks from the system (the heading/section that sits in the middle of operator pages, not diligence Sources trails on signed-record detail).
+
+**Why:** Dozens of `*EvidenceOrientationStrip` / `*SourcesStrip` components render a bordered **Sources for follow-up** section between the page header and primary work (digests, settings, integrations, governance hubs, architecture drafts, etc.). Related links already exist via left nav, Learn more / contextual help, and in-page CTAs. The strip adds chrome density without advancing the page job.
+
+**Approach:**
+
+1. Inventory operator mounts of the literal heading **Sources for follow-up** (and near-identical Sources strips under `archlucid-ui/src/app/(operator)/**` plus shared digests/governance strips used on operator hubs).
+2. Remove the mid-page Sources section from those pages — unmount strip components or delete the Sources card while keeping any page-specific CTAs that live outside the strip.
+3. Prefer deleting dead strip components + `*-evidence-copy.ts` link lists that exist only to feed them; keep copy modules only if still used for footer/help.
+4. Update Vitest/Playwright that assert `Sources for follow-up` / `*-sources` testids; add a regression guard forbidding that heading on operator app routes (allowlist only if a true diligence Sources trail must remain — default: none for hub pages).
+5. Coordinate with **TB-2091**: if a strip only existed to host CPA/pen-test claim-discipline + Sources links, delete the whole strip in one pass.
+
+**Acceptance:**
+
+- No operator hub/settings/integrations/governance/architecture page shows a mid-page **Sources for follow-up** block.
+- Unit + e2e green; regression guard prevents reintroduction on `(operator)` hubs.
+- PageContextualHelp / Learn more and left nav remain available for related topics.
+- Does **not** remove the signed-review evidence trail / Cite Sources UX that is the actual diligence product surface (unless it is literally the same mid-page Sources-for-follow-up chrome — then remove that chrome only).
+
+**Affected files:** `archlucid-ui/src/app/(operator)/**/**/*EvidenceOrientationStrip*.tsx`, `archlucid-ui/src/app/(operator)/**/**/*SourcesStrip*.tsx`, `archlucid-ui/src/components/digests/DigestsSourcesStrip.tsx`, `archlucid-ui/src/components/digests/DigestsScheduleEvidenceOrientationStrip.tsx`, related `*-evidence-copy.ts`, Vitest.
+
+**Depends on:** None; natural merge with **TB-2091** when the same strip hosts both Sources links and CPA/pen-test disclaimers.
+
+**Out of scope:** Marketing-site orientation strips (unless they use the same component on an operator-routed page); redesigning Help Center IA; breadcrumb removal (**TB-2090**).
+
+**Size estimate:** L.
+
+---
+
+## TB-2093 — Remove “About …” scope/details blocks; merge into title block (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner ask 2026-08-07 — pages such as Improvement planning show an **About planning scope** collapsible; if something is important it should live in the title/header block at the top, not in a separate About block. Remove such About blocks system-wide.
+
+**Why:** `CollapsibleSection` / `LayerHeader` / aside panels titled **About …** (`*SCOPE_DETAILS_TRIGGER`, `*LAYER_GUIDANCE_TRIGGER`, e.g. About planning scope, About Overview, About this dashboard, About alert configuration, About policy packs, About identity providers, About webhooks, About Slack notifications) sit below the page header and bury orientation. Buyers should get one short lead under the H1; Expand-for-scope chrome is noise.
+
+**Approach:**
+
+1. Inventory operator (and help specialty) surfaces using `SCOPE_DETAILS_TRIGGER` / `LAYER_GUIDANCE_TRIGGER` / `CollapsibleSection title="About …"` / `collapsibleGuidance="About …"` / WebhooksAboutPanel / Slack “About …” asides / `ExplainThisViewBanner` “About this page”.
+2. For each: decide whether the body has buyer-critical one-liner content — if yes, merge into `OperatorPageHeader` / `PageHeading` description (title block); if no, delete.
+3. Remove the About collapsible/aside entirely; delete unused trigger constants and tests that assert the About control.
+4. Keep technical/admin appendix content behind existing Learn more / help topics — do not recreate a second About panel.
+5. Add a Vitest/guard that forbids new `SCOPE_DETAILS_TRIGGER` / “About {page}” collapsibles on operator hubs (allowlist only if owner later reopens a specific surface).
+
+**Acceptance:**
+
+- No mid-page **About …** scope/details collapsible on operator hubs (planning, overview, executive dashboard, alert rules, policy packs, identity providers, impact preview, webhooks, Slack, etc.).
+- Any retained orientation is a short lead in the title/header block, not a separate About section.
+- Buyer-polished + unit tests updated; regression guard prevents reintroduction.
+- Help specialty guides: same rule — fold critical one-liners into the guide header; no About collapsible for scope.
+
+**Affected files:** `PlanningPageView.tsx`, `OperatorHomePageView.tsx`, `ExecutiveRoiDashboardPageView.tsx`, `AlertRulesHubClient.tsx`, `PolicyPacksPageView.tsx`, `IdentityProvidersSettingsShell.tsx`, `EvolutionReviewPageView.tsx`, `WebhooksAboutPanel.tsx`, `SlackIntegrationAside.tsx`, `ExplainThisViewBanner.tsx`, `*SCOPE_DETAILS_TRIGGER` copy modules, related Vitest.
+
+**Depends on:** None; pairs with **TB-2092** (Sources strips) when both chrome bands appear on the same page.
+
+**Out of scope:** Breadcrumbs (**TB-2090**); CPA/pen-test disclaimer text (**TB-2091**); Sources-for-follow-up strips (**TB-2092**); marketing “About the sample” on get-started unless it uses the same operator pattern.
 
 **Size estimate:** M.
 

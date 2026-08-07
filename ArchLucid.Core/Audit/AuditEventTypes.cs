@@ -582,6 +582,9 @@ public static class AuditEventTypes
     /// <summary>Platform audit: tenant catalog migration fan-out started (scope freeze / writes suspended).</summary>
     public const string TenantCatalogMigrationStarted = "TenantCatalogMigrationStarted";
 
+    /// <summary>Platform audit: catalog attach/detach acknowledged before projection refresh.</summary>
+    public const string TenantCatalogMigrationCatalogAttachAcknowledged = "TenantCatalogMigrationCatalogAttachAcknowledged";
+
     /// <summary>Platform audit: post-cutover projection refresh orchestration completed for a catalog migration.</summary>
     public const string TenantCatalogMigrationProjectionRefreshCompleted = "TenantCatalogMigrationProjectionRefreshCompleted";
 

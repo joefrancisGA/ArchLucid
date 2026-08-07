@@ -47,6 +47,17 @@ public sealed class AdminTenantCatalogMigrationController(
         return MapOutcome(outcome, migrationId);
     }
 
+    [HttpPost("{tenantId:guid}/catalog-migration/acknowledge-catalog-attach")]
+    [ProducesResponseType(StatusCodes.Status202Accepted)]
+    public async Task<IActionResult> AcknowledgeCatalogAttachDetachAsync(Guid tenantId, CancellationToken cancellationToken)
+    {
+        TenantCatalogMigrationCommandOutcome outcome = await _orchestrator
+            .AcknowledgeCatalogAttachDetachAsync(tenantId, ResolveActorUserId(), ResolveActorUserName(), cancellationToken)
+            .ConfigureAwait(false);
+
+        return MapOutcome(outcome, null);
+    }
+
     [HttpPost("{tenantId:guid}/catalog-migration/projection-refresh")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> RunProjectionRefreshAsync(
@@ -130,6 +141,7 @@ public sealed class AdminTenantCatalogMigrationController(
             TenantCatalogMigrationCommandOutcome.NoActiveMigration => this.NotFoundProblem("No active catalog migration.", ProblemTypes.ResourceNotFound),
             TenantCatalogMigrationCommandOutcome.VerificationRequired => Conflict(new { message = "Verification probe must pass before completion." }),
             TenantCatalogMigrationCommandOutcome.VerificationFailed => Conflict(new { message = "Verification probe failed." }),
+            TenantCatalogMigrationCommandOutcome.WrongStage => Conflict(new { message = "Catalog migration is not in the expected fan-out stage for this operation." }),
             TenantCatalogMigrationCommandOutcome.AlreadyInDesiredState => NoContent(),
             _ => throw new InvalidOperationException($"Unhandled migration outcome: {outcome}"),
         };

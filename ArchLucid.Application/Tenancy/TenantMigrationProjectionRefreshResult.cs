@@ -14,4 +14,10 @@ public sealed class TenantMigrationProjectionRefreshResult
         get;
         init;
     }
+
+    public int TenantScopeCachesInvalidated
+    {
+        get;
+        init;
+    }
 }

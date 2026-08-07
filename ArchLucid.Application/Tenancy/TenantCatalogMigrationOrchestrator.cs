@@ -14,8 +14,7 @@ public sealed class TenantCatalogMigrationOrchestrator(
     IPlatformAuditRepository platformAuditRepository,
     TimeProvider timeProvider) : ITenantCatalogMigrationOrchestrator
 {
-    private const string DefaultMaintenanceMessage =
-        "Tenant catalog migration in progress — value-report and governance reads may be stale; writes are frozen until verification completes.";
+    private const string DefaultMaintenanceMessage = TenantMigrationMaintenanceMessages.DefaultSuspendMessage;
 
     private readonly ITenantCatalogMigrationRepository _migrationRepository =
         migrationRepository ?? throw new ArgumentNullException(nameof(migrationRepository));
@@ -90,6 +89,40 @@ public sealed class TenantCatalogMigrationOrchestrator(
         return (TenantCatalogMigrationCommandOutcome.Applied, migrationId);
     }
 
+    public async Task<TenantCatalogMigrationCommandOutcome> AcknowledgeCatalogAttachDetachAsync(
+        Guid tenantId,
+        string actorUserId,
+        string actorUserName,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(actorUserId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(actorUserName);
+
+        TenantCatalogMigrationRecord? active =
+            await _migrationRepository.GetActiveByTenantIdAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+        if (active is null)
+            return TenantCatalogMigrationCommandOutcome.NoActiveMigration;
+
+        if (active.Stage != TenantCatalogMigrationStage.ScopeFreeze)
+            return TenantCatalogMigrationCommandOutcome.WrongStage;
+
+        await _migrationRepository
+            .UpdateStageAsync(active.MigrationId, TenantCatalogMigrationStage.CatalogAttachDetach, cancellationToken)
+            .ConfigureAwait(false);
+
+        await AppendPlatformAuditAsync(
+            AuditEventTypes.TenantCatalogMigrationCatalogAttachAcknowledged,
+            tenantId,
+            actorUserId,
+            actorUserName,
+            active.CorrelationId,
+            new { migrationId = active.MigrationId, stage = TenantCatalogMigrationStage.CatalogAttachDetach.ToString() },
+            cancellationToken).ConfigureAwait(false);
+
+        return TenantCatalogMigrationCommandOutcome.Applied;
+    }
+
     public async Task<(TenantCatalogMigrationCommandOutcome Outcome, TenantMigrationProjectionRefreshResult? Refresh)> RunProjectionRefreshAsync(
         Guid tenantId,
         Guid workspaceId,
@@ -107,9 +140,8 @@ public sealed class TenantCatalogMigrationOrchestrator(
         if (active is null)
             return (TenantCatalogMigrationCommandOutcome.NoActiveMigration, null);
 
-        await _migrationRepository
-            .UpdateStageAsync(active.MigrationId, TenantCatalogMigrationStage.CatalogAttachDetach, cancellationToken)
-            .ConfigureAwait(false);
+        if (active.Stage != TenantCatalogMigrationStage.CatalogAttachDetach)
+            return (TenantCatalogMigrationCommandOutcome.WrongStage, null);
 
         await _migrationRepository
             .UpdateStageAsync(active.MigrationId, TenantCatalogMigrationStage.ProjectionRefresh, cancellationToken)
@@ -117,10 +149,6 @@ public sealed class TenantCatalogMigrationOrchestrator(
 
         TenantMigrationProjectionRefreshResult refresh = await _projectionRefreshService
             .RefreshAsync(tenantId, workspaceId, projectId, cancellationToken)
-            .ConfigureAwait(false);
-
-        await _migrationRepository
-            .UpdateStageAsync(active.MigrationId, TenantCatalogMigrationStage.Verification, cancellationToken)
             .ConfigureAwait(false);
 
         await AppendPlatformAuditAsync(
@@ -134,6 +162,7 @@ public sealed class TenantCatalogMigrationOrchestrator(
                 migrationId = active.MigrationId,
                 refresh.RetrievalIndexingRowsProcessed,
                 refresh.RoiCacheKeysInvalidated,
+                refresh.TenantScopeCachesInvalidated,
             },
             cancellationToken).ConfigureAwait(false);
 
@@ -155,6 +184,20 @@ public sealed class TenantCatalogMigrationOrchestrator(
         if (active is null)
             return (TenantCatalogMigrationCommandOutcome.NoActiveMigration, null);
 
+        bool isFirstVerificationAttempt = active.Stage == TenantCatalogMigrationStage.ProjectionRefresh;
+        bool isVerificationRetry = active.Stage == TenantCatalogMigrationStage.Verification
+            && active.VerificationPassedUtc is null;
+
+        if (!isFirstVerificationAttempt && !isVerificationRetry)
+            return (TenantCatalogMigrationCommandOutcome.WrongStage, null);
+
+        if (isFirstVerificationAttempt)
+        {
+            await _migrationRepository
+                .UpdateStageAsync(active.MigrationId, TenantCatalogMigrationStage.Verification, cancellationToken)
+                .ConfigureAwait(false);
+        }
+
         TenantMigrationVerificationProbeResult probe = await _verificationProbe
             .RunAsync(tenantId, cancellationToken)
             .ConfigureAwait(false);
@@ -175,7 +218,7 @@ public sealed class TenantCatalogMigrationOrchestrator(
             actorUserId,
             actorUserName,
             active.CorrelationId,
-            new { migrationId = active.MigrationId, probe.ProbeRunId, probe.ErrorMessage },
+            new { migrationId = active.MigrationId, probe.ProbeRunId, probe.ErrorMessage, probe.WriteFreezeVerified, probe.AuthorizationBoundaryVerified },
             cancellationToken).ConfigureAwait(false);
 
         if (!probe.Passed)
@@ -198,6 +241,9 @@ public sealed class TenantCatalogMigrationOrchestrator(
 
         if (active is null)
             return TenantCatalogMigrationCommandOutcome.NoActiveMigration;
+
+        if (active.Stage != TenantCatalogMigrationStage.Verification)
+            return TenantCatalogMigrationCommandOutcome.WrongStage;
 
         if (active.VerificationPassedUtc is null)
             return TenantCatalogMigrationCommandOutcome.VerificationRequired;

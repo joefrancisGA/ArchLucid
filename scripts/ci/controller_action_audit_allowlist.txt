@@ -21,6 +21,7 @@ ArchLucid.Api.Controllers.Admin.TenantsAdminController.SuspendAsync
 ArchLucid.Api.Controllers.Admin.TenantsAdminController.UnsuspendAsync
 # Durable audit: TenantCatalogMigrationOrchestrator appends migration lifecycle events to platform audit.
 ArchLucid.Api.Controllers.Admin.AdminTenantCatalogMigrationController.StartAsync
+ArchLucid.Api.Controllers.Admin.AdminTenantCatalogMigrationController.AcknowledgeCatalogAttachDetachAsync
 ArchLucid.Api.Controllers.Admin.AdminTenantCatalogMigrationController.RunProjectionRefreshAsync
 ArchLucid.Api.Controllers.Admin.AdminTenantCatalogMigrationController.RunVerificationAsync
 ArchLucid.Api.Controllers.Admin.AdminTenantCatalogMigrationController.CompleteAsync

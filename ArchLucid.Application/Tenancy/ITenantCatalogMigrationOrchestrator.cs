@@ -9,6 +9,12 @@ public interface ITenantCatalogMigrationOrchestrator
         string actorUserName,
         CancellationToken cancellationToken);
 
+    Task<TenantCatalogMigrationCommandOutcome> AcknowledgeCatalogAttachDetachAsync(
+        Guid tenantId,
+        string actorUserId,
+        string actorUserName,
+        CancellationToken cancellationToken);
+
     Task<(TenantCatalogMigrationCommandOutcome Outcome, TenantMigrationProjectionRefreshResult? Refresh)> RunProjectionRefreshAsync(
         Guid tenantId,
         Guid workspaceId,

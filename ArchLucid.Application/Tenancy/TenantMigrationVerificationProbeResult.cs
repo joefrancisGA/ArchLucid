@@ -20,4 +20,16 @@ public sealed class TenantMigrationVerificationProbeResult
         get;
         init;
     }
+
+    public bool WriteFreezeVerified
+    {
+        get;
+        init;
+    }
+
+    public bool AuthorizationBoundaryVerified
+    {
+        get;
+        init;
+    }
 }
