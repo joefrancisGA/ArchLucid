@@ -1,23 +1,18 @@
-import { CORE_PILOT_HELP_ALIAS_PATH } from "@/lib/core-pilot-help-alias-route";
-import { FIRST_ARCHITECTURE_REVIEW_HELP_PATH } from "@/lib/first-architecture-review-help-route";
-
 /**
- * Traffic workbook row ID for the legacy Core Pilot help bookmark.
- * Owner backlog shorthand: ECO.
+ * Traffic workbook row ID for legacy `/help/core-pilot` alias.
+ * Owner backlog shorthand: ECO (template ID; formerly HEO on some owner copies).
  */
 export const CORE_PILOT_HELP_ALIAS_TRAFFIC_ROW_ID = "ECO";
 
-/** Legacy alias path tracked on the ECO workbook row. */
-export const CORE_PILOT_HELP_ALIAS_TRAFFIC_PATH = CORE_PILOT_HELP_ALIAS_PATH;
+/** Canonical path tracked on the ECO workbook row. */
+export const CORE_PILOT_HELP_ALIAS_TRAFFIC_PATH = "/help/core-pilot";
 
-/** Canonical first-review help path that ECO resolves to (workbook row COR). */
-export const CORE_PILOT_HELP_ALIAS_CANONICAL_PATH = FIRST_ARCHITECTURE_REVIEW_HELP_PATH;
-
-/** Workbook Section column value — deprecated help alias, not a separate topic. */
+/** Workbook Section column value - retired slug alias under Help. */
 export const CORE_PILOT_HELP_ALIAS_TRAFFIC_SECTION = "Help alias";
 
 /**
- * Owner workbook Notes for ECO — documents the legacy slug alias bookmark.
+ * Owner workbook Notes for ECO - documents Evidence chrome inherited via HelpCorePilotGuideView.
+ * ASCII-only for Windows console note scripts.
  */
 export const CORE_PILOT_HELP_ALIAS_TRAFFIC_NOTE =
-  "Deprecated operator bookmark — merged to Your first architecture review on **COR** (`/help/first-architecture-review`). Slug alias `core-pilot` → `first-architecture-review` in HELP_TOPIC_SLUG_ALIASES; catalog migration merges workbook Hit% onto COR.";
+  "Deprecated core-pilot help alias (Help alias) - slug alias core-pilot -> first-architecture-review; renders HelpCorePilotGuideView Evidence chrome (Sources strip + claim-discipline + PageContextualHelp + Category-1 on alias path). Canon COR = /help/first-architecture-review. Body lives in CORE_PILOT.md. Sibling HFE/FIR = other COR aliases. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-07) - help-topic orientation hard-caps higher Evidence (alias inherits COR).";

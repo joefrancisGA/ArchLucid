@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-07 - UI: Core-pilot help alias Evidence notes (ECO)
+
+`/help/core-pilot` documents legacy slug alias to first-architecture-review (HelpCorePilotGuideView Evidence chrome + Category-1 on alias path), traffic Notes under Help alias (row ID ECO; owner HEO renamed to match template), and honest Evidence score 52 (inherits COR). Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-07 - Reliability: TB-2072 long-running operations latency-tier contract
 
 Published [`LONG_RUNNING_OPERATIONS_CONTRACT.md`](library/LONG_RUNNING_OPERATIONS_CONTRACT.md) with tiers A–D, operation inventory, and an explicit non-claim that `GET /v1/runs/{runId}/progress` does not exist; cross-linked from API contracts, performance targets, first-real-value, and UI AGENTS.
@@ -61,10 +65,6 @@ Coalesce audit-list scope revision bumps within 3s during append bursts so first
 ## 2026-08-07 - Performance: TB-2061 dashboard + signed-records First Load JS
 
 Deferred below-fold executive-dashboard panels and the signed-records list client chunk via `next/dynamic`; extended `check:first-load-js` tracked routes and baseline for `/architecture/executive-dashboard` and `/governance/signed-records`.
-
-## 2026-08-07 - UI: Core-pilot help alias Evidence notes (ECO)
-
-`/help/core-pilot` documents legacy slug alias to first-architecture-review (HelpCorePilotGuideView Evidence chrome + Category-1 on alias path), traffic Notes under Help alias (row ID ECO; owner HEO renamed to match template), and honest Evidence score 52 (inherits COR). Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.
 
 ## 2026-08-07 - UI: Compare and replay help Evidence chrome (CO)
 

@@ -45,30 +45,26 @@ function extractMasterTableRows(markdown: string): TrafficWorkbookRow[] {
     }
 
     rows.push({
-      id: cells[1],
-      path: cells[2].replace(/^`|`$/g, ""),
-      section: cells[7],
-      notes: cells[8],
+      id: cells[1] ?? "",
+      path: (cells[2] ?? "").replace(/^`|`$/g, ""),
+      section: cells[7] ?? "",
+      notes: cells[8] ?? "",
     });
   }
 
   return rows;
 }
 
-function findTrafficRowById(rows: TrafficWorkbookRow[], rowId: string): TrafficWorkbookRow | undefined {
-  return rows.find((row) => row.id === rowId);
-}
-
 describe("ui-route-traffic-core-pilot-help-alias (ECO)", () => {
-  it("tracks the legacy core-pilot help alias with honest workbook notes", () => {
+  it("tracks core-pilot help alias with honest workbook notes", () => {
     const rows = extractMasterTableRows(readTemplateMarkdown());
-    const row = findTrafficRowById(rows, CORE_PILOT_HELP_ALIAS_TRAFFIC_ROW_ID);
+    const row = rows.find((candidate) => candidate.id === CORE_PILOT_HELP_ALIAS_TRAFFIC_ROW_ID);
 
     expect(row).toBeDefined();
     expect(row?.path).toBe(CORE_PILOT_HELP_ALIAS_TRAFFIC_PATH);
     expect(row?.section).toBe(CORE_PILOT_HELP_ALIAS_TRAFFIC_SECTION);
     expect(row?.notes).toBe(CORE_PILOT_HELP_ALIAS_TRAFFIC_NOTE);
-    expect(row?.section.toLowerCase()).not.toBe("marketing");
-    expect(row?.notes).toContain("COR");
+    expect(row?.notes).toContain("HelpCorePilotGuideView");
+    expect(row?.notes).toContain("Score 52");
   });
 });

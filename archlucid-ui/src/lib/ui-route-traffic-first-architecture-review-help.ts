@@ -1,7 +1,4 @@
-import {
-  FIRST_ARCHITECTURE_REVIEW_HELP_PATH,
-  LEGACY_CORE_PILOT_HELP_PATH,
-} from "@/lib/first-architecture-review-help-route";
+import { FIRST_ARCHITECTURE_REVIEW_HELP_PATH } from "@/lib/first-architecture-review-help-route";
 
 /**
  * Traffic workbook row ID for Your first architecture review help.
@@ -20,6 +17,3 @@ export const FIRST_ARCHITECTURE_REVIEW_HELP_TRAFFIC_SECTION = "Help topic";
  */
 export const FIRST_ARCHITECTURE_REVIEW_HELP_TRAFFIC_NOTE =
   "Your first architecture review (Help topic) - HelpCorePilotGuideView with PageContextualHelpButton (topic map first-architecture-review; Category-1 registry), workspace Sources + claim-discipline orientation strip, hero Start review CTA, five-step stepper, and gated finalize steps (TB-1040). Legacy alias /help/core-pilot (ECO). Not bare HelpTopicMarkdownView. Sibling HP = pilot-guide; FIR/HFE/ECO = aliases. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-05) — help-topic orientation hard-caps higher Evidence.";
-
-/** Alias path tracked separately as Help alias when present in the workbook. */
-export const LEGACY_CORE_PILOT_HELP_TRAFFIC_ALIAS_PATH = LEGACY_CORE_PILOT_HELP_PATH;
