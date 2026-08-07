@@ -1,14 +1,20 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   buyerPolishedShellVitestOverride,
   extendBuyerPolishedShellVitestMock,
 } from "@/testing/buyer-polished-shell-vitest-override";
+import { TENANT_MIGRATION_STATUS_POLL_MS } from "@/lib/tenant-migration-banner-copy";
+import { fetchTenantCatalogMigrationStatus } from "@/lib/fetch-tenant-catalog-migration-status";
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) =>
   extendBuyerPolishedShellVitestMock(importOriginal),
 );
+
+vi.mock("@/lib/fetch-tenant-catalog-migration-status", () => ({
+  fetchTenantCatalogMigrationStatus: vi.fn(),
+}));
 
 import { TenantMigrationMaintenanceBanner } from "./TenantMigrationMaintenanceBanner";
 
@@ -21,29 +27,25 @@ vi.mock("@/lib/operator-static-demo", () => ({
   isStaticDemoPayloadFallbackEnabled: () => false,
 }));
 
-const originalFetch = globalThis.fetch;
+const fetchStatusMock = vi.mocked(fetchTenantCatalogMigrationStatus);
 
 describe("TenantMigrationMaintenanceBanner", () => {
   beforeEach(() => {
     buyerPolishedShellVitestOverride.value = false;
+    fetchStatusMock.mockReset();
   });
 
   afterEach(() => {
-    globalThis.fetch = originalFetch;
     vi.restoreAllMocks();
+    vi.useRealTimers();
   });
 
   it("renders maintenance copy when migration is active", async () => {
-    globalThis.fetch = vi.fn(async () =>
-      new Response(
-        JSON.stringify({
-          inMigration: true,
-          message: "Writes frozen during catalog move.",
-          stage: "ProjectionRefresh",
-        }),
-        { status: 200 },
-      ),
-    ) as typeof fetch;
+    fetchStatusMock.mockResolvedValue({
+      inMigration: true,
+      message: "Writes frozen during catalog move.",
+      stage: "ProjectionRefresh",
+    });
 
     render(<TenantMigrationMaintenanceBanner />);
 
@@ -51,20 +53,81 @@ describe("TenantMigrationMaintenanceBanner", () => {
       expect(screen.getByTestId("tenant-migration-maintenance-banner")).toBeInTheDocument();
     });
 
-    expect(screen.getByText("Writes frozen during catalog move.")).toBeInTheDocument();
+    expect(screen.getByText(/Writes frozen during catalog move/)).toBeInTheDocument();
+    expect(screen.getByText(/Projection refresh/)).toBeInTheDocument();
   });
 
-  it("stays hidden when migration is inactive", async () => {
-    globalThis.fetch = vi.fn(async () =>
-      new Response(JSON.stringify({ inMigration: false }), { status: 200 }),
-    ) as typeof fetch;
+  it("uses stage suspend copy when the server omits a custom message", async () => {
+    fetchStatusMock.mockResolvedValue({
+      inMigration: true,
+      stage: "ScopeFreeze",
+    });
 
     render(<TenantMigrationMaintenanceBanner />);
 
     await waitFor(() => {
-      expect(globalThis.fetch).toHaveBeenCalled();
+      expect(screen.getByTestId("tenant-migration-maintenance-banner")).toBeInTheDocument();
+    });
+
+    expect(screen.getByText(/new writes are suspended/i)).toBeInTheDocument();
+  });
+
+  it("stays hidden when migration is inactive", async () => {
+    fetchStatusMock.mockResolvedValue({ inMigration: false });
+
+    render(<TenantMigrationMaintenanceBanner />);
+
+    await waitFor(() => {
+      expect(fetchStatusMock).toHaveBeenCalled();
     });
 
     expect(screen.queryByTestId("tenant-migration-maintenance-banner")).not.toBeInTheDocument();
+  });
+
+  it("polls migration status and clears the banner when migration completes", async () => {
+    fetchStatusMock
+      .mockResolvedValueOnce({ inMigration: true, message: "Writes suspended." })
+      .mockResolvedValueOnce({ inMigration: false });
+
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    render(<TenantMigrationMaintenanceBanner />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("tenant-migration-maintenance-banner")).toBeInTheDocument();
+    });
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(TENANT_MIGRATION_STATUS_POLL_MS);
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("tenant-migration-maintenance-banner")).not.toBeInTheDocument();
+    });
+
+    expect(fetchStatusMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("keeps the banner visible when a later poll fails", async () => {
+    fetchStatusMock
+      .mockResolvedValueOnce({ inMigration: true, stage: "Verification" })
+      .mockResolvedValueOnce(null);
+
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    render(<TenantMigrationMaintenanceBanner />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("tenant-migration-maintenance-banner")).toBeInTheDocument();
+    });
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(TENANT_MIGRATION_STATUS_POLL_MS);
+    });
+
+    await waitFor(() => {
+      expect(fetchStatusMock).toHaveBeenCalledTimes(2);
+    });
+
+    expect(screen.getByTestId("tenant-migration-maintenance-banner")).toBeInTheDocument();
+    expect(screen.getByText(/verification is running/i)).toBeInTheDocument();
   });
 });

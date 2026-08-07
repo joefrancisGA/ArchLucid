@@ -1,5 +1,6 @@
 "use client";
 
+import { TenantMigrationMaintenanceBanner } from "@/components/tenancy/TenantMigrationMaintenanceBanner";
 import { CtoDemoStaticFallbackPresenterBanner } from "@/components/cto-demo/CtoDemoStaticFallbackPresenterBanner";
 import { ServiceBusHealthBanner } from "@/components/governance/ServiceBusHealthBanner";
 import { LlmBudgetApproachingLimitBanner } from "@/components/LlmBudgetApproachingLimitBanner";
@@ -19,6 +20,7 @@ type AppShellStatusBannersProps = {
 export function AppShellStatusBanners({ variant }: AppShellStatusBannersProps) {
   return (
     <>
+      <TenantMigrationMaintenanceBanner />
       {variant === "full" ? <CtoDemoStaticFallbackPresenterBanner /> : null}
       <PublicDemoAiUsageBanner />
       <ServiceBusHealthBanner />

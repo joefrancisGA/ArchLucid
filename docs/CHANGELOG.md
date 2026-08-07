@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-07 - Reliability: TB-2068 tenant migration banner AppShell scope
+
+Tenant catalog migration maintenance messaging now renders from `AppShellStatusBanners` on all operator routes, polls status every 30s, and shows stage-specific suspend copy aligned with `TENANT_MIGRATION_FANOUT.md`.
+
 ## 2026-08-07 - Trustworthiness: TB-2067 distinct DeterministicFallback trust chip
 
 Trust chips and provenance aggregates now distinguish policy-rule findings from deterministic fallbacks when the live model path failed. Wire `trustLabelReason` populates the chip tooltip when supplied.

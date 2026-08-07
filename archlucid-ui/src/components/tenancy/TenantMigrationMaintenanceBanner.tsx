@@ -7,50 +7,71 @@ import { fetchTenantCatalogMigrationStatus } from "@/lib/fetch-tenant-catalog-mi
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import {
+  formatTenantMigrationStageLabel,
+  resolveTenantMigrationSuspendMessage,
+  TENANT_MIGRATION_STATUS_POLL_MS,
+} from "@/lib/tenant-migration-banner-copy";
 import { cn } from "@/lib/utils";
 
-const DEFAULT_MESSAGE =
-  "Tenant catalog migration in progress — value-report and governance reads may be stale; writes are frozen until verification completes.";
+function isMigrationBannerSuppressed(): boolean {
+  return (
+    isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled() || isBuyerPolishedOperatorShellEnv()
+  );
+}
 
 /**
- * Maintenance banner for tenant catalog migration fan-out (TB-2045).
+ * Operator-shell maintenance banner for tenant catalog migration fan-out (TB-2045, TB-2068).
  */
 export function TenantMigrationMaintenanceBanner() {
   const [message, setMessage] = useState<string | null>(null);
+  const [stageLabel, setStageLabel] = useState<string | null>(null);
 
   useEffect(() => {
-    if (isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled() || isBuyerPolishedOperatorShellEnv()) {
+    if (isMigrationBannerSuppressed()) {
       return;
     }
 
     let cancelled = false;
+    let requestGeneration = 0;
 
     async function load() {
+      const generation = ++requestGeneration;
       const status = await fetchTenantCatalogMigrationStatus();
 
-      if (cancelled) {
+      if (cancelled || generation !== requestGeneration) {
         return;
       }
 
-      if (status?.inMigration) {
-        setMessage(status.message?.trim() || DEFAULT_MESSAGE);
+      if (status === null) {
+        return;
+      }
+
+      if (status.inMigration) {
+        setMessage(resolveTenantMigrationSuspendMessage(status));
+        setStageLabel(formatTenantMigrationStageLabel(status.stage));
       } else {
         setMessage(null);
+        setStageLabel(null);
       }
     }
 
     void load();
+    const timer = window.setInterval(() => {
+      void load();
+    }, TENANT_MIGRATION_STATUS_POLL_MS);
 
     return () => {
       cancelled = true;
+      window.clearInterval(timer);
     };
   }, []);
 
-  if (isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled() || isBuyerPolishedOperatorShellEnv()) {
+  if (isMigrationBannerSuppressed()) {
     return null;
   }
 
-  if (!message) {
+  if (message === null) {
     return null;
   }
 
@@ -63,7 +84,9 @@ export function TenantMigrationMaintenanceBanner() {
       role="alert"
       data-testid="tenant-migration-maintenance-banner"
     >
-      <p className="m-0 font-semibold text-sky-950 dark:text-sky-100">Catalog migration in progress</p>
+      <p className="m-0 font-semibold text-sky-950 dark:text-sky-100">
+        Catalog migration in progress{stageLabel !== null ? ` — ${stageLabel}` : ""}
+      </p>
       <p className="m-0 mt-1 leading-snug">
         {message}{" "}
         <Link href="/admin/health" className="font-medium text-sky-950 underline underline-offset-2 dark:text-sky-100">

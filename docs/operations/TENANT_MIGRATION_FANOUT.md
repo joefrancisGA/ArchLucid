@@ -11,7 +11,7 @@ When a tenant moves between database catalogs or workspaces, ArchLucid uses an o
 
 ## What operators see
 
-- Maintenance messaging on value-report and governance surfaces during the window.
+- Maintenance messaging on all operator shell routes during the window (AppShell status banners; TB-2068).
 - Audit events for migration start/complete with actor and correlation id.
 - No silent data merge across tenants — fan-out is per-tenant only.
 
