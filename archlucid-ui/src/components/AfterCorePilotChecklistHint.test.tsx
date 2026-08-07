@@ -65,7 +65,7 @@ describe("AfterCorePilotChecklistHint", () => {
       "href",
       "/governance/alert-rules",
     );
-    expect(screen.getByRole("link", { name: "Review policy packs" })).toHaveAttribute("href", "/policy-packs");
+    expect(screen.getByRole("link", { name: "Review policy packs" })).toHaveAttribute("href", "/governance/policy-packs");
     expect(screen.getByTestId("after-core-pilot-intro")).toBeInTheDocument();
     expect(screen.getByTestId("after-core-pilot-sidebar-note-0")).toBeInTheDocument();
   });

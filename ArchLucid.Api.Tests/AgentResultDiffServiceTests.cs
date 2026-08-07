@@ -1,4 +1,5 @@
 using ArchLucid.Application.Diffs;
+using ArchLucid.Application.Findings;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
@@ -55,7 +56,7 @@ public sealed class AgentResultDiffServiceTests
             }
         ];
 
-        AgentResultDiffService service = new();
+        AgentResultDiffService service = new(new CrossReviewFindingCorrelationService());
 
         AgentResultDiffResult diff = service.Compare("RUN-LEFT", left, "RUN-RIGHT", right);
 

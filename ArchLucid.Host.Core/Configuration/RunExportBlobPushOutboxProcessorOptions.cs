@@ -34,4 +34,11 @@ public sealed class RunExportBlobPushOutboxProcessorOptions
         get;
         set;
     } = 900;
+
+    /// <summary>Maximum outbox rows processed concurrently within one dequeued batch.</summary>
+    public int MaxConcurrentBatchEntries
+    {
+        get;
+        set;
+    } = 4;
 }

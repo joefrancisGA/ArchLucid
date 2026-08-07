@@ -20,7 +20,7 @@ export type GraphEdgeVm = {
   reasoningTrace?: string | null;
 };
 
-/** Paginated architecture graph (GET /v1/graph/runs/{runId}/nodes). */
+/** Paginated architecture graph (GET /v1/evidence-graph/reviews/{runId}/nodes). */
 export type GraphNodesPageResponse = {
   page: number;
   pageSize: number;

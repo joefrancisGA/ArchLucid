@@ -13,7 +13,7 @@ namespace ArchLucid.Api.Tests;
 
 /// <summary>
 ///     Parallel <c>POST /v1/alert-rules</c> with identical <see cref="AlertRule.Name" />: there is no uniqueness guard on
-///     the name. With in-memory storage, rules are not in <c>dbo.AlertRules</c> â€” the list API is the ground truth.
+///     the name. With in-memory storage, rules are not in <c>dbo.AlertRules</c> — the list API is the ground truth.
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Slow")]

@@ -2,7 +2,7 @@
 
 import type { ReactElement } from "react";
 
-import { FindingInspectPolicyRuleCallout } from "@/app/(operator)/reviews/[runId]/findings/[findingId]/FindingInspectPolicyRuleCallout";
+import { FindingInspectPolicyRuleCallout } from "@/app/(operator)/architecture/reviews/[runId]/findings/[findingId]/FindingInspectPolicyRuleCallout";
 import { FindingPolicyProvenancePanel } from "@/components/findings/FindingPolicyProvenancePanel";
 import type { FindingPolicyEvidenceCitationModel } from "@/lib/finding-policy-evidence-citations";
 

@@ -9,7 +9,7 @@ import { InlineMetadataLabel } from "@/components/InlineMetadataLabel";
 import { InlineMetadataLine } from "@/components/InlineMetadataLine";
 import { RunStatusBadge } from "@/components/RunStatusBadge";
 import { Button } from "@/components/ui/button";
-import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
+import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import { BUYER_RUN_INSPECTOR_FINALIZED_LABEL } from "@/lib/buyer-polish-copy";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
@@ -38,6 +38,7 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { buyerDemoPackageCardMeta } from "@/lib/buyer-demo-package-card-meta";
+import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import {
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
@@ -298,7 +299,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
                   <Link href={`/governance/approval-queue?runId=${encodeURIComponent(run.runId)}`}>View governance approval</Link>
                 </Button>
                 <Button variant="outline" size="sm" className="w-full" asChild>
-                  <Link href={`/audit?runId=${encodeURIComponent(run.runId)}`}>View audit trail</Link>
+                  <Link href={auditTrailNavHref(run.runId)}>View audit trail</Link>
                 </Button>
                 <Button variant="outline" size="sm" className="w-full" asChild>
                   <Link href={`/insights/ask-review-questions?runId=${encodeURIComponent(run.runId)}`}>Ask about this review</Link>

@@ -56,7 +56,7 @@ function extractMasterTableRows(markdown: string): TrafficWorkbookRow[] {
 }
 
 describe("ui-route-traffic-security-trust (SEC)", () => {
-  it("tracks Security & trust with honest workbook notes", () => {
+  it("tracks Assurance status with honest workbook notes", () => {
     const rows = extractMasterTableRows(readTemplateMarkdown());
     const row = rows.find((candidate) => candidate.id === SECURITY_TRUST_TRAFFIC_ROW_ID);
 

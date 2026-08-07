@@ -1,4 +1,6 @@
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Manifest;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Persistence;
@@ -178,6 +180,59 @@ public abstract class AgentResultRepositoryContractTests
         markers[0].ResultId.Should().Be("marker-r1");
         markers[0].RunId.Should().Be(runId);
         markers[0].AgentType.Should().Be(AgentType.Topology);
+    }
+
+    [SkippableFact]
+    public async Task Create_then_GetRollupProjectionByRunId_keeps_claims_and_strips_reasoning()
+    {
+        SkipIfSqlServerUnavailable();
+        IAgentResultRepository repo = CreateRepository();
+        string requestId = "arr-rollup-req-" + Guid.NewGuid().ToString("N");
+        string runId = Guid.NewGuid().ToString("N");
+        AgentTask task = NewTaskRow(runId, "res-task-rollup");
+
+        await PrepareRunTaskChainAsync(requestId, runId, task, CancellationToken.None);
+
+        AgentResult seeded = NewResult(runId, task.TaskId, "rollup-r1", TimeProvider.System.UtcNowDateTime());
+        seeded.Claims = ["claim-one"];
+        seeded.EvidenceRefs = ["ev-one"];
+        seeded.ReasoningTrace = "should-not-survive-in-memory-strip-path";
+        seeded.Findings =
+        [
+            new ArchitectureFinding
+            {
+                Message = "finding-one",
+                Severity = FindingSeverity.Warning,
+                IacStub = "stub",
+            },
+        ];
+        seeded.ProposedChanges = new AgentTopologyProposal
+        {
+            RequiredControls = ["ctrl-one"],
+            Warnings = ["warn-one"],
+            AddedServices = [new ManifestService { ServiceName = "svc" }],
+        };
+
+        await repo.CreateAsync(seeded, CancellationToken.None);
+
+        IReadOnlyList<AgentResult> projected =
+            await repo.GetRollupProjectionByRunIdAsync(
+                ArchitectureCommitTestSeed.AsScopeContext(),
+                runId,
+                CancellationToken.None);
+
+        projected.Should().ContainSingle();
+        projected[0].ResultId.Should().Be("rollup-r1");
+        projected[0].Claims.Should().ContainSingle("claim-one");
+        projected[0].EvidenceRefs.Should().ContainSingle("ev-one");
+        projected[0].Findings.Should().ContainSingle(f => f.Message == "finding-one");
+        projected[0].ProposedChanges.Should().NotBeNull();
+        AgentTopologyProposal proposed = projected[0].ProposedChanges!;
+        proposed.RequiredControls.Should().ContainSingle("ctrl-one");
+        proposed.Warnings.Should().ContainSingle("warn-one");
+        proposed.AddedServices.Should().BeEmpty();
+        projected[0].ReasoningTrace.Should().BeNull();
+        projected[0].Findings[0].IacStub.Should().BeNull();
     }
 
     private static AgentTask NewTaskRow(string runId, string taskId)

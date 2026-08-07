@@ -1,6 +1,7 @@
 ﻿using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Persistence.Tenancy;
 
 using FluentAssertions;
 
@@ -112,7 +113,7 @@ public sealed class TrialSeatAccountantTests
     {
         ITenantTrialSeatSkipCache skipCache = new TenantTrialSeatSkipCache(new MemoryCache(new MemoryCacheOptions()));
 
-        return new TrialSeatAccountant(tenants, skipCache);
+        return new TrialSeatAccountant(new TenantGetByIdRequestCache(tenants), tenants, skipCache);
     }
 
     private static TenantRecord CreateActiveTrialTenant(Guid tenantId)

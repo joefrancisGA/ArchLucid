@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 
@@ -29,7 +29,7 @@ public sealed class ShipGateExportMatrixProbeTests
                     return Task.FromResult(TextResponse(HttpStatusCode.OK, "# First value\n\nCommitted run summary.", "text/markdown"));
                 }
 
-                if (path.EndsWith($"/v1/architecture/run/{RunId}/analysis-report/export/docx", StringComparison.Ordinal))
+                if (path.EndsWith($"/v1/architecture/review/{RunId}/analysis-report/export/docx", StringComparison.Ordinal))
                 {
                     return Task.FromResult(BytesResponse(
                         HttpStatusCode.OK,
@@ -45,7 +45,7 @@ public sealed class ShipGateExportMatrixProbeTests
                         "application/zip"));
                 }
 
-                if (path.EndsWith($"/v1/architecture/run/{RunId}/traceability-bundle.zip", StringComparison.Ordinal))
+                if (path.EndsWith($"/v1/architecture/review/{RunId}/traceability-bundle.zip", StringComparison.Ordinal))
                 {
                     return Task.FromResult(BytesResponse(
                         HttpStatusCode.OK,
@@ -81,7 +81,7 @@ public sealed class ShipGateExportMatrixProbeTests
                     return Task.FromResult(TextResponse(HttpStatusCode.OK, "# First value\n\nCommitted run summary.", "text/markdown"));
                 }
 
-                if (path.EndsWith($"/v1/architecture/run/{RunId}/analysis-report/export/docx", StringComparison.Ordinal))
+                if (path.EndsWith($"/v1/architecture/review/{RunId}/analysis-report/export/docx", StringComparison.Ordinal))
                 {
                     return Task.FromResult(BytesResponse(
                         HttpStatusCode.OK,
@@ -94,7 +94,7 @@ public sealed class ShipGateExportMatrixProbeTests
                     return Task.FromResult(BytesResponse(HttpStatusCode.OK, new byte[128], "application/zip"));
                 }
 
-                if (path.EndsWith($"/v1/architecture/run/{RunId}/traceability-bundle.zip", StringComparison.Ordinal))
+                if (path.EndsWith($"/v1/architecture/review/{RunId}/traceability-bundle.zip", StringComparison.Ordinal))
                 {
                     return Task.FromResult(BytesResponse(
                         HttpStatusCode.OK,

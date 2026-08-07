@@ -21,6 +21,10 @@ vi.mock("@/lib/toast", () => ({
   showSuccess: vi.fn(),
 }));
 
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => <button type="button">Page help</button>,
+}));
+
 import { SsoWizardPageClient } from "./_sections/SsoWizardPageClient";
 import { SSO_WIZARD_BANNED_UI_PATTERNS } from "@/lib/sso-wizard-copy";
 

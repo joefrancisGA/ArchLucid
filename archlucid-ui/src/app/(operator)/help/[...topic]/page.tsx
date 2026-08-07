@@ -20,6 +20,10 @@ import { HelpReviewGuideView } from "../_sections/HelpReviewGuideView";
 import { HelpPilotGuideView } from "../_sections/HelpPilotGuideView";
 import { HelpConfigurationReferenceGuideView } from "../_sections/HelpConfigurationReferenceGuideView";
 import { SecurityTrustHelpEvidenceOrientationStrip } from "../_sections/SecurityTrustHelpEvidenceOrientationStrip";
+import { AcceleratorChooserHelpEvidenceOrientationStrip } from "../_sections/AcceleratorChooserHelpEvidenceOrientationStrip";
+import { AdminDiagnosticsHelpEvidenceOrientationStrip } from "../_sections/AdminDiagnosticsHelpEvidenceOrientationStrip";
+import { AuthenticationSignInHelpEvidenceOrientationStrip } from "../_sections/AuthenticationSignInHelpEvidenceOrientationStrip";
+import { AzureBoardsHelpEvidenceOrientationStrip } from "../_sections/AzureBoardsHelpEvidenceOrientationStrip";
 import { ScopeHelpEvidenceOrientationStrip } from "../_sections/ScopeHelpEvidenceOrientationStrip";
 import { ProcurementHelpEvidenceOrientationStrip } from "../_sections/ProcurementHelpEvidenceOrientationStrip";
 import { EvidenceTrailHelpEvidenceOrientationStrip } from "../_sections/EvidenceTrailHelpEvidenceOrientationStrip";
@@ -40,6 +44,7 @@ import { HelpSpecialtyWalkthroughTemplatesView } from "../_sections/HelpSpecialt
 import { HelpGettingStartedGuideView } from "../_sections/HelpGettingStartedGuideView";
 import { HelpCloudConnectionsGuideView } from "../_sections/HelpCloudConnectionsGuideView";
 import { HelpTopicAuthorityGate } from "../_sections/HelpTopicAuthorityGate";
+import { HelpTopicCatchAllEvidenceOrientationStrip } from "../_sections/HelpTopicCatchAllEvidenceOrientationStrip";
 import { HelpTopicMarkdownClient } from "../_sections/HelpTopicMarkdownClient";
 import { HelpTopicNotFoundView } from "../_sections/HelpTopicNotFoundView";
 import { HelpTroubleshootingGuideView } from "../_sections/HelpTroubleshootingGuideView";
@@ -260,6 +265,50 @@ function renderHelpTopicView(
     );
   }
 
+  if (loaded.entry.slug === "accelerator-chooser") {
+    return (
+      <HelpTopicMarkdownView
+        entry={loaded.entry}
+        markdown={loaded.markdown}
+        showContextualHelp
+        evidenceOrientation={<AcceleratorChooserHelpEvidenceOrientationStrip />}
+      />
+    );
+  }
+
+  if (loaded.entry.slug === "admin-diagnostics") {
+    return (
+      <HelpTopicMarkdownView
+        entry={loaded.entry}
+        markdown={loaded.markdown}
+        showContextualHelp
+        evidenceOrientation={<AdminDiagnosticsHelpEvidenceOrientationStrip />}
+      />
+    );
+  }
+
+  if (loaded.entry.slug === "authentication-sign-in") {
+    return (
+      <HelpTopicMarkdownView
+        entry={loaded.entry}
+        markdown={loaded.markdown}
+        showContextualHelp
+        evidenceOrientation={<AuthenticationSignInHelpEvidenceOrientationStrip />}
+      />
+    );
+  }
+
+  if (loaded.entry.slug === "azure-boards") {
+    return (
+      <HelpTopicMarkdownView
+        entry={loaded.entry}
+        markdown={loaded.markdown}
+        showContextualHelp
+        evidenceOrientation={<AzureBoardsHelpEvidenceOrientationStrip />}
+      />
+    );
+  }
+
   if (loaded.entry.slug === "scope") {
     return (
       <HelpTopicMarkdownView
@@ -326,7 +375,14 @@ function renderHelpTopicView(
     );
   }
 
-  return <HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />;
+  return (
+    <HelpTopicMarkdownView
+      entry={loaded.entry}
+      markdown={loaded.markdown}
+      showContextualHelp
+      evidenceOrientation={<HelpTopicCatchAllEvidenceOrientationStrip />}
+    />
+  );
 }
 
 export async function generateMetadata(props: HelpTopicPageProps): Promise<Metadata> {

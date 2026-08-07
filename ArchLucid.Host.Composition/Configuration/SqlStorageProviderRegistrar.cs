@@ -230,6 +230,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         });
 
         services.AddScoped<ITenantDatabaseBindingRepository, DapperTenantDatabaseBindingRepository>();
+        services.AddScoped<ITenantCatalogMigrationRepository, DapperTenantCatalogMigrationRepository>();
         services.AddScoped<IWarmTenantCatalogStandbyRepository, DapperWarmTenantCatalogStandbyRepository>();
         services.AddScoped<IWarmTenantCatalogReplenishService, WarmTenantCatalogReplenishService>();
         services.AddScoped<ITenantDatabaseResolver>(sp =>

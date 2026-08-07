@@ -13,7 +13,8 @@ export const ARCHITECTURE_INTELLIGENCE_TRAFFIC_PATH = ARCHITECTURE_INTELLIGENCE_
 export const ARCHITECTURE_INTELLIGENCE_TRAFFIC_SECTION = "Core review";
 
 /**
- * Owner workbook Notes for AIN/AR2 — documents the closed-loop reasoning operator hub.
+ * Owner workbook Notes for AIN/AR2 - documents Evidence chrome on Architecture intelligence.
+ * ASCII-only for Windows console note scripts.
  */
 export const ARCHITECTURE_INTELLIGENCE_TRAFFIC_NOTE =
-  "Closed-loop architecture reasoning operator surface - ArchitectureIntelligencePageClient runs reasoning/golden tests and publish-to-findings round trip. Deep links from reviews/findings via runId query. Canonical path /architecture/architecture-intelligence.";
+  "Architecture intelligence (Core review) - ArchitectureIntelligencePageClient with PageContextualHelpButton (topic map evidence-trail; Category-1 registry), workspace Sources + claim-discipline orientation strip, closed-loop reasoning / golden harness / publish-to-findings. Sibling RNX = start review; EV = evidence-trail help; HFX = findings help. Reasoning operator surface - not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 50/100 (2026-08-06) - closed-loop reasoning hub hard-caps higher Evidence.";

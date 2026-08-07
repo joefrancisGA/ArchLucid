@@ -16,6 +16,8 @@ describe("buildInspectFindingWorkItemBody", () => {
     decisionRuleId: "rule-x",
     decisionRuleName: "Egress audit",
     evidenceExcerpts: ["subnet-1 (lines 12-14)", "diagram.png"],
+    trustLabel: "DeterministicRule",
+    trustLabelReason: "Policy rule matched.",
   } as const;
 
   it("produces Markdown with links and headings", () => {
@@ -26,6 +28,7 @@ describe("buildInspectFindingWorkItemBody", () => {
     expect(text).toContain("`r1`");
     expect(text).toContain("- ArchLucid run: https://demo.example.org/architecture/reviews/r1");
     expect(text).toContain("- Finding (explain page): https://demo.example.org/architecture/reviews/r1/findings/f1");
+    expect(text).toContain("**Trust label:** DeterministicRule — Policy rule matched.");
   });
 
   it("uses Jira wiki markers for Jira variant", () => {
@@ -33,6 +36,7 @@ describe("buildInspectFindingWorkItemBody", () => {
 
     expect(text).toContain("h2. ArchLucid Finding");
     expect(text).toContain("|ArchLucid finding — explain page)");
+    expect(text).toContain("*Trust label:* DeterministicRule — Policy rule matched.");
   });
 
   it("produces ServiceNow plain text with short description, steps, and footer ids", () => {
@@ -44,6 +48,7 @@ describe("buildInspectFindingWorkItemBody", () => {
     expect(text).toContain("Finding ID: f1");
     expect(text).toContain("Run ID: r1");
     expect(text).toContain("Add firewall rules.");
+    expect(text).toContain("Trust label: DeterministicRule — Policy rule matched.");
   });
 
   it("shows Not available sections when sparse", () => {
@@ -65,6 +70,14 @@ describe("buildInspectFindingWorkItemBody", () => {
     const text = buildInspectFindingWorkItemBody("markdown", sparse);
     expect(text.includes("What was flagged")).toBe(true);
     expect(text.includes("Not available")).toBe(true);
+  });
+
+  it("includes trust fields in JSON export", () => {
+    const text = buildInspectFindingWorkItemBody("json", inspectInput);
+    const parsed = JSON.parse(text) as { trustLabel: string; trustLabelReason: string };
+
+    expect(parsed.trustLabel).toBe("DeterministicRule");
+    expect(parsed.trustLabelReason).toBe("Policy rule matched.");
   });
 });
 
@@ -117,5 +130,23 @@ describe("buildTraceRowWorkItemBody", () => {
     expect(parsed.schema).toBe("archlucid.work-item.v1");
     expect(parsed.findingId).toBe("find-z");
     expect(parsed.links.inspect).toContain("/findings/find-z/evidence-trace");
+  });
+
+  it("includes trust label in markdown and JSON when provided", () => {
+    const withTrust = {
+      ...traceInput,
+      trustLabel: "ModelInference",
+      trustLabelReason: "Agent cited evidence.",
+    };
+
+    const markdown = buildTraceRowWorkItemBody("markdown", withTrust);
+    expect(markdown).toContain("**Trust label:** ModelInference — Agent cited evidence.");
+
+    const json = JSON.parse(buildTraceRowWorkItemBody("json", withTrust)) as {
+      trustLabel: string;
+      trustLabelReason: string;
+    };
+    expect(json.trustLabel).toBe("ModelInference");
+    expect(json.trustLabelReason).toBe("Agent cited evidence.");
   });
 });

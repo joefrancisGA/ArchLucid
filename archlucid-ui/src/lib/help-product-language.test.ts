@@ -19,6 +19,27 @@ describe("help-product-language", () => {
     );
   });
 
+  it("rewrites legacy signed-records paths to governance canonical", () => {
+    expect(rewriteLegacyHelpOperatorRoutes("[Record](/signed-records/abc) and [list](/signed-records)")).toBe(
+      "[Record](/governance/signed-records/abc) and [list](/governance/signed-records)",
+    );
+    expect(rewriteLegacyHelpOperatorRoutes("[Manifest](/manifests/abc/artifacts/x)")).toBe(
+      "[Manifest](/governance/signed-records/abc/artifacts/x)",
+    );
+  });
+
+  it("rewrites legacy workspace security-trust path to administration canonical", () => {
+    expect(rewriteLegacyHelpOperatorRoutes("Open [Security & trust](/workspace/security-trust)")).toBe(
+      "Open [Security & trust](/administration/security-trust)",
+    );
+  });
+
+  it("rewrites legacy settings roles path to users hub roles tab", () => {
+    expect(rewriteLegacyHelpOperatorRoutes("Manage [Roles](/settings/roles)")).toBe(
+      "Manage [Roles](/administration/users?tab=roles)",
+    );
+  });
+
   it("maps manifest and run jargon to product language", () => {
     const input =
       "manifest exists for that manifest; golden manifest summary; RunId=abc; run not ready for commit.";

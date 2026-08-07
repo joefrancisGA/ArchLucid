@@ -99,7 +99,7 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
     <MarketingPageShell variant="trust" className="space-y-10">
       <section aria-labelledby="security-trust-hero" className="space-y-4 border-b border-neutral-200 pb-8 dark:border-neutral-800">
         <h1 id="security-trust-hero" className={MARKETING_TYPOGRAPHY.pageTitle}>
-          Security and trust
+          Assurance status
         </h1>
         <p className={cn("m-0 max-w-3xl text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>{SECURITY_TRUST_HERO_SUPPORTING}</p>
         <p

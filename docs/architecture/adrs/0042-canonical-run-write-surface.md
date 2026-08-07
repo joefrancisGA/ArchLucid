@@ -1,11 +1,11 @@
-# ADR 0042: Canonical run-lifecycle write surface (alias deprecation)
+﻿# ADR 0042: Canonical run-lifecycle write surface (alias deprecation)
 
 **Status:** Accepted  
 **Date:** 2026-06-06  
 **Deciders:** Architecture review  
 **Related:** [ADR 0030](0030-coordinator-authority-pipeline-unification.md), TB-302, TB-305
 
-**Status note (2026-07-20, TB-919 — owner decision):** The **`v1/requests`**, **`v1/runs/{runId}/submit`**, and **`v1/runs/{runId}/manifest/finalize`** aliases (§ Decision 1) are **deleted**, not merely deprecated. Owner rationale: ArchLucid is still pre-release with no paying customer and no published client holding the aliases, so the deprecation/sunset window this ADR's § Alternatives Considered #1 said "even a hypothetical caller needs" has no real caller to protect — the "later TB" from § Decision 1 is **TB-919**. `RunAliasDeprecationMiddleware`, `RunWriteLifecycleRoutes`'s alias-template members, and the `archlucid_run_lifecycle_deprecated_alias_requests_total` counter (§ Verification) were removed with the routes. **This closes the last open item in the coordinator strangler migration** (see `docs/architecture/COORDINATOR_STRANGLER_INVENTORY.md`). If a future integrator ever depends on the deleted aliases, restoring them requires a new ADR, not reverting this note.
+**Status note (2026-07-20, TB-919 — owner decision):** The **`v1/requests`**, **`v1/runs/{runId}/submit`**, and **`v1/runs/{runId}/manifest/finalize`** aliases (Â§ Decision 1) are **deleted**, not merely deprecated. Owner rationale: ArchLucid is still pre-release with no paying customer and no published client holding the aliases, so the deprecation/sunset window this ADR's Â§ Alternatives Considered #1 said "even a hypothetical caller needs" has no real caller to protect — the "later TB" from Â§ Decision 1 is **TB-919**. `RunAliasDeprecationMiddleware`, `RunWriteLifecycleRoutes`'s alias-template members, and the `archlucid_run_lifecycle_deprecated_alias_requests_total` counter (Â§ Verification) were removed with the routes. **This closes the last open item in the coordinator strangler migration** (see `docs/architecture/COORDINATOR_STRANGLER_INVENTORY.md`). If a future integrator ever depends on the deleted aliases, restoring them requires a new ADR, not reverting this note.
 
 ## Context
 
@@ -13,9 +13,9 @@ ADR 0030 PR A3/A4 collapsed the **data/orchestrator** dual pipeline: the coordin
 
 1. **Dual public write verbs** for each run-lifecycle operation on `RunsController`:
    - `POST v1/architecture/request` + alias `POST /v1/requests`
-   - `POST v1/architecture/run/{runId}/execute` + alias `POST /v1/runs/{runId}/submit`
-   - `POST v1/architecture/run/{runId}/commit` + alias `POST /v1/runs/{runId}/manifest/finalize`
-2. An **external result-push path** `POST v1/architecture/run/{runId}/result` (`SubmitAgentResult`) that injects an `AgentResult` directly.
+   - `POST v1/architecture/review/{runId}/execute` + alias `POST /v1/runs/{runId}/submit`
+   - `POST v1/architecture/review/{runId}/finalize` + alias `POST /v1/runs/{runId}/manifest/finalize`
+2. An **external result-push path** `POST v1/architecture/review/{runId}/result` (`SubmitAgentResult`) that injects an `AgentResult` directly.
 3. **Decision primitives** (`DecisionEngineV2`, `IDecisionNodeRepository`, `DecisionNodeManifestMerger`) registered under a method named `RegisterCoordinatorDecisionEngineAndRepositories`, suggesting coordinator-era code.
 
 Evidence (first-party clients): the UI (`archlucid-ui/src/lib/api/architecture-runs.ts`) and the CLI (`ArchLucid.Cli`) call only the `v1/architecture/*` family. The `v1/runs/*` and `v1/requests` aliases have **no first-party consumer** — they exist only in the OpenAPI surface.

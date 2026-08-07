@@ -34,6 +34,7 @@ import {
   EXECUTIVE_WORKSPACE_HEALTH_LAYER_GUIDANCE_TRIGGER,
   EXECUTIVE_WORKSPACE_HEALTH_SESSION_SCOPE_SUMMARY,
 } from "@/lib/executive-workspace-health-page-copy";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ComplianceDriftTrendPoint, GovernanceDashboardSummary } from "@/types/governance-dashboard";
@@ -330,7 +331,7 @@ export function ExecutiveWorkspaceHealthDashboard() {
             <ul className={cn("m-0 mt-2 list-none space-y-1 p-0", OPERATOR_TYPOGRAPHY.body)}>
               <li>
                 Blocked: <span className="font-mono font-medium text-neutral-900 dark:text-neutral-100">{blockCountLabel}</span>{" "}
-                <Link className={OPERATOR_LINK.nav} href="/audit">
+                <Link className={OPERATOR_LINK.nav} href={GOVERNANCE_AUDIT_PATH}>
                   Audit log
                 </Link>
               </li>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ArchLucid architecture diagrams</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 1.5rem; line-height: 1.45; }
+    h1 { font-size: 1.4rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 1.25rem 0; }
+    img { max-width: min(960px, 100%); height: auto; border: 1px solid #ddd; }
+    code { font-size: 0.9em; }
+  </style>
+</head>
+<body>
+  <h1>ArchLucid architecture diagrams</h1>
+  <p>Rendered SVG copies of Mermaid sources under <code>docs/architecture/architecture_diagrams/</code>.</p>
+  <ul>
+    <li><h2>archlucid-system-overview</h2><img src="../../architecture_diagrams/archlucid-system-overview.svg" alt="archlucid-system-overview" /></li>
+    <li><h2>archlucid-review-happy-path</h2><img src="../../architecture_diagrams/archlucid-review-happy-path.svg" alt="archlucid-review-happy-path" /></li>
+    <li><h2>archlucid-authority-pipeline</h2><img src="../../architecture_diagrams/archlucid-authority-pipeline.svg" alt="archlucid-authority-pipeline" /></li>
+    <li><h2>archlucid-authority-vs-coordinator</h2><img src="../../architecture_diagrams/archlucid-authority-vs-coordinator.svg" alt="archlucid-authority-vs-coordinator" /></li>
+    <li><h2>archlucid-async-outbox-path</h2><img src="../../architecture_diagrams/archlucid-async-outbox-path.svg" alt="archlucid-async-outbox-path" /></li>
+    <li><h2>archlucid-export-replay</h2><img src="../../architecture_diagrams/archlucid-export-replay.svg" alt="archlucid-export-replay" /></li>
+    <li><h2>archlucid-comparison-drift</h2><img src="../../architecture_diagrams/archlucid-comparison-drift.svg" alt="archlucid-comparison-drift" /></li>
+    <li><h2>archlucid-dotnet-project-graph</h2><img src="../../architecture_diagrams/archlucid-dotnet-project-graph.svg" alt="archlucid-dotnet-project-graph" /></li>
+    <li><h2>archlucid-governance-policy-packs</h2><img src="../../architecture_diagrams/archlucid-governance-policy-packs.svg" alt="archlucid-governance-policy-packs" /></li>
+    <li><h2>archlucid-retrieval-rag</h2><img src="../../architecture_diagrams/archlucid-retrieval-rag.svg" alt="archlucid-retrieval-rag" /></li>
+    <li><h2>archlucid-artifact-synthesis</h2><img src="../../architecture_diagrams/archlucid-artifact-synthesis.svg" alt="archlucid-artifact-synthesis" /></li>
+    <li><h2>archlucid-security-model</h2><img src="../../architecture_diagrams/archlucid-security-model.svg" alt="archlucid-security-model" /></li>
+    <li><h2>archlucid-tenant-isolation</h2><img src="../../architecture_diagrams/archlucid-tenant-isolation.svg" alt="archlucid-tenant-isolation" /></li>
+    <li><h2>archlucid-azure-topology</h2><img src="../../architecture_diagrams/archlucid-azure-topology.svg" alt="archlucid-azure-topology" /></li>
+    <li><h2>archlucid-operator-ui-shell</h2><img src="../../architecture_diagrams/archlucid-operator-ui-shell.svg" alt="archlucid-operator-ui-shell" /></li>
+    <li><h2>archlucid-first-run-pilot</h2><img src="../../architecture_diagrams/archlucid-first-run-pilot.svg" alt="archlucid-first-run-pilot" /></li>
+    <li><h2>archlucid-integrations-itsm</h2><img src="../../architecture_diagrams/archlucid-integrations-itsm.svg" alt="archlucid-integrations-itsm" /></li>
+    <li><h2>archlucid-stage-context-ingestion</h2><img src="../../architecture_diagrams/archlucid-stage-context-ingestion.svg" alt="archlucid-stage-context-ingestion" /></li>
+    <li><h2>archlucid-stage-knowledge-graph</h2><img src="../../architecture_diagrams/archlucid-stage-knowledge-graph.svg" alt="archlucid-stage-knowledge-graph" /></li>
+    <li><h2>archlucid-stage-findings</h2><img src="../../architecture_diagrams/archlucid-stage-findings.svg" alt="archlucid-stage-findings" /></li>
+    <li><h2>archlucid-stage-decisioning</h2><img src="../../architecture_diagrams/archlucid-stage-decisioning.svg" alt="archlucid-stage-decisioning" /></li>
+    <li><h2>archlucid-stage-artifacts-finalize</h2><img src="../../architecture_diagrams/archlucid-stage-artifacts-finalize.svg" alt="archlucid-stage-artifacts-finalize" /></li>
+    <li><h2>archlucid-failure-resilience</h2><img src="../../architecture_diagrams/archlucid-failure-resilience.svg" alt="archlucid-failure-resilience" /></li>
+    <li><h2>archlucid-failover-continuity</h2><img src="../../architecture_diagrams/archlucid-failover-continuity.svg" alt="archlucid-failover-continuity" /></li>
+    <li><h2>archlucid-threat-ask-rag</h2><img src="../../architecture_diagrams/archlucid-threat-ask-rag.svg" alt="archlucid-threat-ask-rag" /></li>
+    <li><h2>archlucid-threat-webhooks</h2><img src="../../architecture_diagrams/archlucid-threat-webhooks.svg" alt="archlucid-threat-webhooks" /></li>
+    <li><h2>archlucid-data-model-er</h2><img src="../../architecture_diagrams/archlucid-data-model-er.svg" alt="archlucid-data-model-er" /></li>
+    <li><h2>archlucid-config-precedence</h2><img src="../../architecture_diagrams/archlucid-config-precedence.svg" alt="archlucid-config-precedence" /></li>
+    <li><h2>archlucid-authn-route-matrix</h2><img src="../../architecture_diagrams/archlucid-authn-route-matrix.svg" alt="archlucid-authn-route-matrix" /></li>
+    <li><h2>archlucid-pilot-day0-day1</h2><img src="../../architecture_diagrams/archlucid-pilot-day0-day1.svg" alt="archlucid-pilot-day0-day1" /></li>
+    <li><h2>archlucid-finops-cost</h2><img src="../../architecture_diagrams/archlucid-finops-cost.svg" alt="archlucid-finops-cost" /></li>
+    <li><h2>archlucid-observability-map</h2><img src="../../architecture_diagrams/archlucid-observability-map.svg" alt="archlucid-observability-map" /></li>
+    <li><h2>archlucid-dr-failover-drill</h2><img src="../../architecture_diagrams/archlucid-dr-failover-drill.svg" alt="archlucid-dr-failover-drill" /></li>
+    <li><h2>archlucid-policy-pack-sdlc</h2><img src="../../architecture_diagrams/archlucid-policy-pack-sdlc.svg" alt="archlucid-policy-pack-sdlc" /></li>
+    <li><h2>archlucid-api-surface-heatmap</h2><img src="../../architecture_diagrams/archlucid-api-surface-heatmap.svg" alt="archlucid-api-surface-heatmap" /></li>
+    <li><h2>archlucid-evidence-intake</h2><img src="../../architecture_diagrams/archlucid-evidence-intake.svg" alt="archlucid-evidence-intake" /></li>
+    <li><h2>archlucid-golden-manifest-anatomy</h2><img src="../../architecture_diagrams/archlucid-golden-manifest-anatomy.svg" alt="archlucid-golden-manifest-anatomy" /></li>
+    <li><h2>archlucid-decision-trace-replay</h2><img src="../../architecture_diagrams/archlucid-decision-trace-replay.svg" alt="archlucid-decision-trace-replay" /></li>
+    <li><h2>archlucid-billing-trial-marketplace</h2><img src="../../architecture_diagrams/archlucid-billing-trial-marketplace.svg" alt="archlucid-billing-trial-marketplace" /></li>
+    <li><h2>archlucid-scim-users-roles</h2><img src="../../architecture_diagrams/archlucid-scim-users-roles.svg" alt="archlucid-scim-users-roles" /></li>
+    <li><h2>archlucid-digest-alert-subscriptions</h2><img src="../../architecture_diagrams/archlucid-digest-alert-subscriptions.svg" alt="archlucid-digest-alert-subscriptions" /></li>
+    <li><h2>archlucid-hot-path-performance</h2><img src="../../architecture_diagrams/archlucid-hot-path-performance.svg" alt="archlucid-hot-path-performance" /></li>
+    <li><h2>archlucid-storage-provider-modes</h2><img src="../../architecture_diagrams/archlucid-storage-provider-modes.svg" alt="archlucid-storage-provider-modes" /></li>
+    <li><h2>archlucid-compliance-claim-honesty</h2><img src="../../architecture_diagrams/archlucid-compliance-claim-honesty.svg" alt="archlucid-compliance-claim-honesty" /></li>
+    <li><h2>archlucid-agent-task-simulator-matrix</h2><img src="../../architecture_diagrams/archlucid-agent-task-simulator-matrix.svg" alt="archlucid-agent-task-simulator-matrix" /></li>
+    <li><h2>archlucid-cloud-extractors</h2><img src="../../architecture_diagrams/archlucid-cloud-extractors.svg" alt="archlucid-cloud-extractors" /></li>
+    <li><h2>archlucid-knowledge-graph-model</h2><img src="../../architecture_diagrams/archlucid-knowledge-graph-model.svg" alt="archlucid-knowledge-graph-model" /></li>
+    <li><h2>archlucid-findings-taxonomy</h2><img src="../../architecture_diagrams/archlucid-findings-taxonomy.svg" alt="archlucid-findings-taxonomy" /></li>
+    <li><h2>archlucid-artifact-generator-registry</h2><img src="../../architecture_diagrams/archlucid-artifact-generator-registry.svg" alt="archlucid-artifact-generator-registry" /></li>
+    <li><h2>archlucid-comparison-types-catalog</h2><img src="../../architecture_diagrams/archlucid-comparison-types-catalog.svg" alt="archlucid-comparison-types-catalog" /></li>
+    <li><h2>archlucid-ask-thread-lifecycle</h2><img src="../../architecture_diagrams/archlucid-ask-thread-lifecycle.svg" alt="archlucid-ask-thread-lifecycle" /></li>
+    <li><h2>archlucid-hosted-services-inventory</h2><img src="../../architecture_diagrams/archlucid-hosted-services-inventory.svg" alt="archlucid-hosted-services-inventory" /></li>
+    <li><h2>archlucid-demo-public-surfaces</h2><img src="../../architecture_diagrams/archlucid-demo-public-surfaces.svg" alt="archlucid-demo-public-surfaces" /></li>
+    <li><h2>archlucid-cli-command-map</h2><img src="../../architecture_diagrams/archlucid-cli-command-map.svg" alt="archlucid-cli-command-map" /></li>
+    <li><h2>archlucid-terraform-root-order</h2><img src="../../architecture_diagrams/archlucid-terraform-root-order.svg" alt="archlucid-terraform-root-order" /></li>
+    <li><h2>archlucid-llm-provider-adapters</h2><img src="../../architecture_diagrams/archlucid-llm-provider-adapters.svg" alt="archlucid-llm-provider-adapters" /></li>
+    <li><h2>archlucid-secrets-keyvault-resolution</h2><img src="../../architecture_diagrams/archlucid-secrets-keyvault-resolution.svg" alt="archlucid-secrets-keyvault-resolution" /></li>
+    <li><h2>archlucid-kill-switches-circuit-breakers</h2><img src="../../architecture_diagrams/archlucid-kill-switches-circuit-breakers.svg" alt="archlucid-kill-switches-circuit-breakers" /></li>
+    <li><h2>archlucid-outbound-webhook-delivery</h2><img src="../../architecture_diagrams/archlucid-outbound-webhook-delivery.svg" alt="archlucid-outbound-webhook-delivery" /></li>
+    <li><h2>archlucid-audit-event-catalog</h2><img src="../../architecture_diagrams/archlucid-audit-event-catalog.svg" alt="archlucid-audit-event-catalog" /></li>
+    <li><h2>archlucid-dbup-schema-migration</h2><img src="../../architecture_diagrams/archlucid-dbup-schema-migration.svg" alt="archlucid-dbup-schema-migration" /></li>
+    <li><h2>archlucid-cache-layers</h2><img src="../../architecture_diagrams/archlucid-cache-layers.svg" alt="archlucid-cache-layers" /></li>
+    <li><h2>archlucid-blob-content-addressed-layout</h2><img src="../../architecture_diagrams/archlucid-blob-content-addressed-layout.svg" alt="archlucid-blob-content-addressed-layout" /></li>
+    <li><h2>archlucid-notification-channel-matrix</h2><img src="../../architecture_diagrams/archlucid-notification-channel-matrix.svg" alt="archlucid-notification-channel-matrix" /></li>
+    <li><h2>archlucid-rate-limiting-throttling</h2><img src="../../architecture_diagrams/archlucid-rate-limiting-throttling.svg" alt="archlucid-rate-limiting-throttling" /></li>
+    <li><h2>archlucid-private-link-network</h2><img src="../../architecture_diagrams/archlucid-private-link-network.svg" alt="archlucid-private-link-network" /></li>
+    <li><h2>archlucid-container-deploy-units</h2><img src="../../architecture_diagrams/archlucid-container-deploy-units.svg" alt="archlucid-container-deploy-units" /></li>
+    <li><h2>archlucid-ci-product-pipeline</h2><img src="../../architecture_diagrams/archlucid-ci-product-pipeline.svg" alt="archlucid-ci-product-pipeline" /></li>
+    <li><h2>archlucid-golden-cohort-eval</h2><img src="../../architecture_diagrams/archlucid-golden-cohort-eval.svg" alt="archlucid-golden-cohort-eval" /></li>
+    <li><h2>archlucid-workspace-project-hierarchy</h2><img src="../../architecture_diagrams/archlucid-workspace-project-hierarchy.svg" alt="archlucid-workspace-project-hierarchy" /></li>
+    <li><h2>archlucid-entra-role-claims</h2><img src="../../architecture_diagrams/archlucid-entra-role-claims.svg" alt="archlucid-entra-role-claims" /></li>
+    <li><h2>archlucid-correlation-tracing</h2><img src="../../architecture_diagrams/archlucid-correlation-tracing.svg" alt="archlucid-correlation-tracing" /></li>
+    <li><h2>archlucid-content-safety-ingress</h2><img src="../../architecture_diagrams/archlucid-content-safety-ingress.svg" alt="archlucid-content-safety-ingress" /></li>
+    <li><h2>archlucid-health-checks-catalog</h2><img src="../../architecture_diagrams/archlucid-health-checks-catalog.svg" alt="archlucid-health-checks-catalog" /></li>
+    <li><h2>archlucid-hosting-roles-split</h2><img src="../../architecture_diagrams/archlucid-hosting-roles-split.svg" alt="archlucid-hosting-roles-split" /></li>
+    <li><h2>archlucid-mutating-idempotency-keys</h2><img src="../../architecture_diagrams/archlucid-mutating-idempotency-keys.svg" alt="archlucid-mutating-idempotency-keys" /></li>
+    <li><h2>archlucid-soft-delete-retention-purge</h2><img src="../../architecture_diagrams/archlucid-soft-delete-retention-purge.svg" alt="archlucid-soft-delete-retention-purge" /></li>
+    <li><h2>archlucid-manifest-commit-sod</h2><img src="../../architecture_diagrams/archlucid-manifest-commit-sod.svg" alt="archlucid-manifest-commit-sod" /></li>
+    <li><h2>archlucid-export-package-formats</h2><img src="../../architecture_diagrams/archlucid-export-package-formats.svg" alt="archlucid-export-package-formats" /></li>
+    <li><h2>archlucid-openapi-audience-versioning</h2><img src="../../architecture_diagrams/archlucid-openapi-audience-versioning.svg" alt="archlucid-openapi-audience-versioning" /></li>
+    <li><h2>archlucid-sql-open-resilience</h2><img src="../../architecture_diagrams/archlucid-sql-open-resilience.svg" alt="archlucid-sql-open-resilience" /></li>
+    <li><h2>archlucid-billing-provider-adapters</h2><img src="../../architecture_diagrams/archlucid-billing-provider-adapters.svg" alt="archlucid-billing-provider-adapters" /></li>
+    <li><h2>archlucid-ui-bff-proxy-session</h2><img src="../../architecture_diagrams/archlucid-ui-bff-proxy-session.svg" alt="archlucid-ui-bff-proxy-session" /></li>
+    <li><h2>archlucid-agent-allowed-tools-dispatch</h2><img src="../../architecture_diagrams/archlucid-agent-allowed-tools-dispatch.svg" alt="archlucid-agent-allowed-tools-dispatch" /></li>
+    <li><h2>archlucid-technology-ledger-lifecycle</h2><img src="../../architecture_diagrams/archlucid-technology-ledger-lifecycle.svg" alt="archlucid-technology-ledger-lifecycle" /></li>
+  </ul>
+</body>
+</html>

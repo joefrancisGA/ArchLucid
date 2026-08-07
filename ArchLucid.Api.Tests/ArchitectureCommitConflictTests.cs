@@ -26,7 +26,7 @@ public sealed class ArchitectureCommitConflictTests(ArchLucidApiFactory factory)
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
-        HttpResponseMessage commit = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
+        HttpResponseMessage commit = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
 
         commit.StatusCode.Should().Be(HttpStatusCode.Conflict);
         using JsonDocument doc = JsonDocument.Parse(await commit.Content.ReadAsStringAsync());

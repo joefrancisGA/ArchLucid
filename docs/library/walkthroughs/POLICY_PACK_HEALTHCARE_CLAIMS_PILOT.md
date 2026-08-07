@@ -1,4 +1,4 @@
-> **Reviewed:** 2026-07-27
+﻿> **Reviewed:** 2026-07-27
 
 > **Scope:** Healthcare claims vertical pilot — assign `healthcare-claims-v3` policy pack, run review, pre-commit gate, and commit using shipped demo seed references — plus buyer-job packaging / demo proof shape / healthcare vertical positioning (formerly the body of `docs/go-to-market/buyer-jobs/HEALTHCARE_CLAIMS_POLICY_REVIEW.md`; that filename remains a path-stable Specialty alias).
 
@@ -96,7 +96,7 @@ Authorization: Bearer {token}
 **API**
 
 ```http
-GET /v1/architecture/run/claims-intake-modernization
+GET /v1/architecture/review/claims-intake-modernization
 Authorization: Bearer {token}
 ```
 
@@ -143,7 +143,7 @@ See [`PRE_COMMIT_GOVERNANCE_GATE.md`](../PRE_COMMIT_GOVERNANCE_GATE.md) for seve
 <summary>Administrator details — HTTP path</summary>
 
 ```http
-POST /v1/architecture/run/claims-intake-modernization/commit
+POST /v1/architecture/review/claims-intake-modernization/commit
 Authorization: Bearer {token}
 ```
 
@@ -258,7 +258,7 @@ ArchLucid helps teams produce **reviewable architecture manifests, findings, and
 
 ### Demo proof shape (Demo-derived only) {#demo-proof-shape-demo-derived-only}
 
-**Evidence basis:** **Demo-derived** · **Deferred scope** for production PHI environments. Synthetic/demo evidence only — no production PHI.
+**Evidence basis:** **Demo-derived** Â· **Deferred scope** for production PHI environments. Synthetic/demo evidence only — no production PHI.
 
 | Finding (illustrative) | Category | Evidence label |
 | --- | --- | --- |
@@ -275,7 +275,7 @@ ArchLucid helps teams produce **reviewable architecture manifests, findings, and
 - [`README.md`](README.md) — accelerator pack index
 - [`FIRST_PILOT_OPERATOR_PATH.md`](../../runbooks/FIRST_PILOT_OPERATOR_PATH.md) — single V1 first-pilot path
 - [`CORE_PILOT.md`](../../CORE_PILOT.md) — four-step Core Pilot spine
-- [`AZURE_SAAS_READINESS_REVIEW.md`](AZURE_SAAS_READINESS_REVIEW.md) · [`AI_GOVERNANCE_REVIEW.md`](AI_GOVERNANCE_REVIEW.md) — sibling accelerators
+- [`AZURE_SAAS_READINESS_REVIEW.md`](AZURE_SAAS_READINESS_REVIEW.md) Â· [`AI_GOVERNANCE_REVIEW.md`](AI_GOVERNANCE_REVIEW.md) — sibling accelerators
 - [`docs/samples/policy-packs/README.md`](../../samples/policy-packs/README.md) — sample pack JSON shapes
 - [`BUYER_ORIENTATION_ONE_SCREEN.md`](../../go-to-market/BUYER_ORIENTATION_ONE_SCREEN.md) — buyer pass/hold + next-step chooser
-- [`#buyer-job-packaging`](#buyer-job-packaging) · [`../../go-to-market/buyer-jobs/HEALTHCARE_CLAIMS_POLICY_REVIEW.md`](../../go-to-market/buyer-jobs/HEALTHCARE_CLAIMS_POLICY_REVIEW.md) (alias) — Specialty buyer-job path
+- [`#buyer-job-packaging`](#buyer-job-packaging) Â· [`../../go-to-market/buyer-jobs/HEALTHCARE_CLAIMS_POLICY_REVIEW.md`](../../go-to-market/buyer-jobs/HEALTHCARE_CLAIMS_POLICY_REVIEW.md) (alias) — Specialty buyer-job path

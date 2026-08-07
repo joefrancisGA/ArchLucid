@@ -1,4 +1,4 @@
-> **Scope:** Buyer — ArchLucid V1 — release checklist - full detail, tables, and links in the sections below.
+﻿> **Scope:** Buyer — ArchLucid V1 — release checklist - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -16,7 +16,7 @@
 ## 1. Scope freeze
 
 - [ ] **V1 scope** is unchanged or [V1_SCOPE.md](V1_SCOPE.md) is updated with date + notes (no silent drift).
-- [ ] **Out-of-scope items** for V1.1+ are acknowledged in release notes or internal deferral list (see V1 scope §3).
+- [ ] **Out-of-scope items** for V1.1+ are acknowledged in release notes or internal deferral list (see V1 scope Â§3).
 - [ ] **OpenAPI / contract** snapshot or API version string reviewed if you ship client bundles ([API_CONTRACTS.md](API_CONTRACTS.md)).
 - [ ] **Optional features** (integration events, webhooks, governance-heavy paths) are either **off**, **on with config documented**, or **explicitly excluded** from this release’s “supported surface” statement.
 
@@ -52,7 +52,7 @@
 - [ ] **Simulator/live divergence** artifact attached: `python scripts/ci/build_simulator_live_divergence_from_bundle.py --bundle-dir <OutDir> …` or full cohort path via `check_simulator_live_divergence.py` — block when `buyerFacingFullRealBlocked` is true (also emitted by `Emit-ReleaseReadinessEvidence.ps1`).
 - [ ] **Architecture invariant RC summary** attached: `python scripts/ci/report_architecture_invariant_enforcement.py --json-out architecture-invariant-rc-summary.json --markdown-out architecture-invariant-rc-summary.md`.
 - [ ] **Data consistency readiness** summary attached: `python scripts/ci/report_data_consistency_mode_readiness.py --json-out data-consistency-readiness.json --markdown-out data-consistency-readiness.md`.
-- [ ] **First-value timing budget** uses PASS ≤ 10 min / WARN 10–20 min / HOLD > 20 min on create→commit→artifact steps in `first-pilot-timing-budget.json`.
+- [ ] **First-value timing budget** uses PASS â‰¤ 10 min / WARN 10–20 min / HOLD > 20 min on create→commit→artifact steps in `first-pilot-timing-budget.json`.
 - [ ] **Azure IaC parity + managed identity** artifacts present when hosted profile applies: `azure-iac-parity-proof.json`, `managed-identity-verification.json`.
 - [ ] **V1 RC drill deploy readiness**: after `scripts/v1-rc-drill.ps1`, confirm `artifacts/v1-rc-drill-result.json` reports `deployReadinessStatus`.
 - [ ] **Smoke with SQL** (when V1 includes Sql persistence): `scripts/release-smoke.ps1` with **`ARCHLUCID_SMOKE_SQL`** (or **`ConnectionStrings__ArchLucid`**) or `-SqlConnectionString` — see [RELEASE_SMOKE.md](RELEASE_SMOKE.md).
@@ -81,17 +81,17 @@
 - [ ] **Observability** (if production): metrics/logs dashboards or queries smoke-tested for one synthetic run ([OPERATIONS_ADMIN.md](OPERATIONS_ADMIN.md) if applicable).
 - [ ] **MVO page path verified this environment** (hosted / SaaS): AMW shows `archlucid_*` (or API `up`) via `pwsh ./scripts/ops/verify-amw-p0-metrics.ps1`; critical action-group **Test** reaches the founder for at least one P0 rule — checklist [`SOLO_OPERATOR_MVO_OBSERVABILITY.md`](../operations/SOLO_OPERATOR_MVO_OBSERVABILITY.md) (**TB-957**); log pass/fail for GTM **M-120**.
 - [ ] **Agent output quality corpus** recorded: `python scripts/ci/eval_agent_corpus.py --markdown-report artifacts/agent-output-quality.md --enforce-quality-gate` for tagged release candidates, or documented as skipped for simulator-only internal builds.
-- [ ] **Real-LLM credibility (when ship posture includes real AOAI):** complete **[`OWNER_REAL_MODE_EVIDENCE_CHECKLIST.md`](../runbooks/OWNER_REAL_MODE_EVIDENCE_CHECKLIST.md)** (repo variable, gate script, `artifacts/release/real-llm-evidence-gate.json`); at least one session logged per [REAL_LLM_RUN_EVIDENCE_TEMPLATE.md](../quality/REAL_LLM_RUN_EVIDENCE_TEMPLATE.md) and [MANUAL_QA_CHECKLIST.md](../quality/MANUAL_QA_CHECKLIST.md) §B.7 — **not** required when the release is simulator-only end-to-end.
+- [ ] **Real-LLM credibility (when ship posture includes real AOAI):** complete **[`OWNER_REAL_MODE_EVIDENCE_CHECKLIST.md`](../runbooks/OWNER_REAL_MODE_EVIDENCE_CHECKLIST.md)** (repo variable, gate script, `artifacts/release/real-llm-evidence-gate.json`); at least one session logged per [REAL_LLM_RUN_EVIDENCE_TEMPLATE.md](../quality/REAL_LLM_RUN_EVIDENCE_TEMPLATE.md) and [MANUAL_QA_CHECKLIST.md](../quality/MANUAL_QA_CHECKLIST.md) Â§B.7 — **not** required when the release is simulator-only end-to-end.
 
 ---
 
 ## 4. Guided operator flow validation
 
-Execute the **core path** from [V1_SCOPE.md](V1_SCOPE.md) §4 (or [customer-facing/customer-facing/PILOT_GUIDE.md](customer-facing/PILOT_GUIDE.md) Option A/B):
+Execute the **core path** from [V1_SCOPE.md](V1_SCOPE.md) Â§4 (or [customer-facing/customer-facing/PILOT_GUIDE.md](customer-facing/PILOT_GUIDE.md) Option A/B):
 
 - [ ] **Create architecture request (review)** — `POST /v1/architecture/request` (or CLI path) succeeds; **`runId`** captured.
-- [ ] **Execute** — `POST /v1/architecture/run/{runId}/execute` (or environment’s equivalent) completes to a committable state.
-- [ ] **Finalize** — `POST /v1/architecture/run/{runId}/commit` succeeds; **`409`** behavior understood if retried wrong state ([API_CONTRACTS.md](API_CONTRACTS.md)).
+- [ ] **Execute** — `POST /v1/architecture/review/{runId}/execute` (or environment’s equivalent) completes to a committable state.
+- [ ] **Finalize** — `POST /v1/architecture/review/{runId}/finalize` succeeds; **`409`** behavior understood if retried wrong state ([API_CONTRACTS.md](API_CONTRACTS.md)).
 - [ ] **Artifacts** — at least one artifact descriptor for finalized **`goldenManifestId`** (API list or CLI `artifacts`).
 - [ ] **Architect workspace** (if in scope): open run → manifest/artifacts **Review** / **Download** works ([operator-shell.md](operator-shell.md)).
 - [ ] **Compare** — two-run compare produces an expected structured or legacy diff in UI or API ([COMPARISON_REPLAY.md](COMPARISON_REPLAY.md)).
@@ -153,7 +153,7 @@ Pick **at least one** drill appropriate to your tier; record date and outcome.
 ## 9. Known issues and deferrals
 
 - [ ] **Known issues** list attached to release (internal or pilot-facing): symptom, workaround, target fix.
-- [ ] **Deferred work** references [V1_SCOPE.md](V1_SCOPE.md) §3 or your backlog IDs (no implied warranty for deferred areas).
+- [ ] **Deferred work** references [V1_SCOPE.md](V1_SCOPE.md) Â§3 or your backlog IDs (no implied warranty for deferred areas).
 - [ ] **Playwright / UI E2E** — if only mock-backed E2E ran, state clearly that **live API+UI** was validated manually ([RELEASE_SMOKE.md](RELEASE_SMOKE.md)).
 - [ ] **Security review** items (Entra, keys, private endpoints) closed or explicitly waived with owner ([GOLDEN_PATH.md](GOLDEN_PATH.md), [onboarding/day-one-security.md](../onboarding/day-one-security.md)).
 
@@ -169,4 +169,4 @@ Pick **at least one** drill appropriate to your tier; record date and outcome.
 
 ---
 
-**Maintenance:** When release practice changes, update this checklist and cross-links in [V1_SCOPE.md](V1_SCOPE.md) §6 and [architecture/README.md](../architecture/README.md).
+**Maintenance:** When release practice changes, update this checklist and cross-links in [V1_SCOPE.md](V1_SCOPE.md) Â§6 and [architecture/README.md](../architecture/README.md).

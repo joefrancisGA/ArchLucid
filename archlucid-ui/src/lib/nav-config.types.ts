@@ -33,6 +33,10 @@ export type NavLinkItem = {
   icon?: LucideIcon;
   /** Optional badge shown beside the label (e.g. Preview). */
   navBadge?: string;
+  /** When true, render a non-navigable sidebar row (e.g. gated feature below privacy threshold). */
+  navLinkDisabled?: boolean;
+  /** Tooltip for disabled nav rows. */
+  navLinkDisabledTitle?: string;
 };
 
 /**

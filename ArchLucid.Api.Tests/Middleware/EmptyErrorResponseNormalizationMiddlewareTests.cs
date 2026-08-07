@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Api.Middleware;
 
@@ -19,7 +19,7 @@ public sealed class EmptyErrorResponseNormalizationMiddlewareTests
         {
             Response = { Body = new MemoryStream(), StatusCode = StatusCodes.Status404NotFound }
         };
-        context.Request.Path = "/v1/architecture/run/not-a-guid";
+        context.Request.Path = "/v1/architecture/review/not-a-guid";
 
         EmptyErrorResponseNormalizationMiddleware sut = new(_ =>
         {

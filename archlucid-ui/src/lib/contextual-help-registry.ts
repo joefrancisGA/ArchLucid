@@ -16,8 +16,9 @@ import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance-route-paths";
 import { PLANNING_PATH } from "@/lib/planning-route";
 import { PRODUCT_LEARNING_PATH } from "@/lib/product-learning-route";
 import {
-  LEGACY_SETTINGS_ROLES_PATH,
-} from "@/lib/settings-admin-route-paths";
+  ARCHITECTURES_DRAFT_CONTEXTUAL_HELP,
+  pathIsArchitectureDraftDetail,
+} from "@/lib/architectures-draft-evidence-copy";
 import {
   PROVENANCE_CONTEXTUAL_HELP,
   pathIsRunProvenance,
@@ -386,6 +387,56 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/architecture/architectures",
+    entry: {
+      whatIsThisPage:
+        "Architectures list - browse and resume saved architecture drafts before filing evidence for review.",
+      whatToDoNext:
+        "Open a draft to continue editing, or Create architecture when you need a new brief, then Start a review when ready.",
+      whyEmpty: "Drafts appear after the architectures API responds; empty lists mean no drafts are saved yet.",
+      whereToConfigurePrerequisite:
+        "Drafting uses the workspace and project selected in the header switcher; listing drafts does not start a review.",
+    },
+  },
+  {
+    prefix: "/architecture/architectures/new",
+    entry: {
+      whatIsThisPage:
+        "Create architecture - start a new architecture draft or continue a saved draft before filing evidence for review.",
+      whatToDoNext:
+        "Start a new draft or resume a recent one, then open Start a review when the brief is ready for evidence intake.",
+      whyEmpty:
+        "Recent drafts appear after the architectures API responds; empty lists mean no drafts are saved yet.",
+      whereToConfigurePrerequisite:
+        "Drafting uses the workspace and project selected in the header switcher; creating a draft does not start a review.",
+    },
+  },
+  {
+    prefix: "/architecture/architecture-intelligence",
+    entry: {
+      whatIsThisPage:
+        "Architecture intelligence - run closed-loop architecture reasoning or the golden regression harness against a free-form description, then publish findings into the workspace review trail when ready.",
+      whatToDoNext:
+        "Paste or edit a description, choose Run architecture reasoning or Run golden harness, then use Publish findings into review when the output is ready to attach as findings.",
+      whyEmpty:
+        "Results appear after a successful run; empty panels mean you have not submitted a description yet or the last run returned no structured output.",
+      whereToConfigurePrerequisite:
+        "Requires an authenticated Core API session and LLM/reasoning configuration for the tenant; sibling Start a review files evidence for a full review pipeline.",
+    },
+  },
+  {
+    prefix: "/architecture/first-review-guide",
+    entry: {
+      whatIsThisPage:
+        "First review guide - checklist onboarding for your first architecture review, including required setup and optional workspace steps.",
+      whatToDoNext:
+        "Clear required setup blockers, follow the walkthrough next step, then Start a review when the workspace is ready for evidence intake.",
+      whyEmpty: "Progress updates as you complete walkthrough steps; empty optional setup means those integrations are not required yet.",
+      whereToConfigurePrerequisite:
+        "Required setup uses the current workspace and project scope from the header switcher.",
+    },
+  },
+  {
     prefix: "/governance/audit",
     entry: {
       whatIsThisPage:
@@ -432,6 +483,19 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
         label: "Open System health",
         href: "/administration/system-health",
       },
+    },
+  },
+  {
+    prefix: "/administration/developer",
+    entry: {
+      whatIsThisPage:
+        "Internal developer tools - evaluate branded themes and try CLI demos for operator diagnostics; not part of the customer settings navigation.",
+      whatToDoNext:
+        "Use the theme selector for visual evaluation, try the CLI demo card when validating local tooling, then open Engineering troubleshooting or System health for live runbooks.",
+      whyEmpty:
+        "Theme and CLI cards always render for authorized operators; empty results only appear inside the CLI demo after a command returns no output.",
+      whereToConfigurePrerequisite:
+        "Requires an authenticated Admin session with advanced/developer route access; customer settings hubs do not deep-link here.",
     },
   },
   {
@@ -621,6 +685,26 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/governance/approval-queue",
+    entry: {
+      whatIsThisPage:
+        "Governance approval queue — submit, approve, or reject architecture-review decisions for this workspace.",
+      whatToDoNext:
+        "Load a review context, submit an approval request when ready, then approve or reject with an audit-friendly comment.",
+      whyEmpty: "Pending requests appear after a finalized architecture review is submitted for governance decision.",
+      whereToConfigurePrerequisite:
+        "Open Findings or Workspace health when you need triage or KPI context before deciding.",
+      whatToDoNextAction: {
+        label: "Open findings",
+        href: "/governance/findings",
+      },
+      whereToConfigureAction: {
+        label: "Open workspace health",
+        href: "/governance/dashboard",
+      },
+    },
+  },
+  {
     prefix: "/governance/approval-requests",
     entry: {
       whatIsThisPage:
@@ -630,6 +714,10 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whyEmpty: "Lineage appears after an approval request exists for a finalized architecture review.",
       whereToConfigurePrerequisite:
         "Submit or open an approval from the governance approval queue after a review is ready for decision.",
+      whatToDoNextAction: {
+        label: "Open approval queue",
+        href: GOVERNANCE_APPROVAL_QUEUE_PATH,
+      },
     },
   },
   {
@@ -690,6 +778,106 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whyEmpty: "Identity fields appear after the admin deployment-status probe returns for this environment.",
       whereToConfigurePrerequisite:
         "This page requires ArchLucid personnel access; customer tenants never see deployment identity here.",
+    },
+  },
+  {
+    prefix: "/help",
+    entry: {
+      whatIsThisPage:
+        "In-app help topic — curated product documentation for operators and evaluators in this workspace.",
+      whatToDoNext:
+        "Read the topic, then open Getting started or Troubleshooting when you need the next operator path.",
+      whyEmpty: "Help topics are always available; live workspace data appears on operator surfaces after reviews start.",
+      whereToConfigurePrerequisite:
+        "Workspace and project scope come from the shell header switcher once you are signed in.",
+      whatToDoNextAction: {
+        label: "Open Getting started",
+        href: "/help/getting-started",
+      },
+      whereToConfigureAction: {
+        label: "Open Troubleshooting",
+        href: "/help/troubleshooting",
+      },
+    },
+  },
+  {
+    prefix: "/help/accelerator-chooser",
+    entry: {
+      whatIsThisPage:
+        "Accelerator chooser — map buyer jobs to starter proof packs after your first finalized architecture review.",
+      whatToDoNext:
+        "Pick an accelerator that matches the job, then open Path chooser or start a review with the matching starter pack.",
+      whyEmpty: "This guide is always available; live accelerators appear on Home after you finalize a first review.",
+      whereToConfigurePrerequisite:
+        "Starter packs assume a workspace with at least one finalized architecture review.",
+      whatToDoNextAction: {
+        label: "Open Path chooser",
+        href: "/help/path-chooser",
+      },
+      whereToConfigureAction: {
+        label: "Start a review",
+        href: "/architecture/reviews/new",
+      },
+    },
+  },
+  {
+    prefix: "/help/admin-diagnostics",
+    entry: {
+      whatIsThisPage:
+        "Admin diagnostics — system status, workspace readiness, assistant diagnostics, and observability signals for platform health.",
+      whatToDoNext:
+        "Open System health for live probes, or Engineering troubleshooting when CLI and log triage are required.",
+      whyEmpty: "This guide is always available; live probe tiles appear on System health after the workspace responds.",
+      whereToConfigurePrerequisite:
+        "Deep diagnostics often require ArchLucid personnel or admin roles; customer tenants use Troubleshooting first.",
+      whatToDoNextAction: {
+        label: "Open System health",
+        href: "/administration/system-health",
+      },
+      whereToConfigureAction: {
+        label: "Open Engineering troubleshooting",
+        href: "/help/developer-troubleshooting",
+      },
+    },
+  },
+  {
+    prefix: "/help/authentication-sign-in",
+    entry: {
+      whatIsThisPage:
+        "Authentication and sign-in — passwordless work or school accounts, email one-time codes, invitations, SSO, and recovery.",
+      whatToDoNext:
+        "Sign in when ready, or open Users and roles / Account security when you need workspace access or recovery steps.",
+      whyEmpty: "This guide is always available; live invitations and SSO settings appear after your tenant configures identity.",
+      whereToConfigurePrerequisite:
+        "SSO and identity-provider changes usually need an Admin role; evaluators can still use email one-time codes when enabled.",
+      whatToDoNextAction: {
+        label: "Open Users and roles help",
+        href: "/help/users-and-roles",
+      },
+      whereToConfigureAction: {
+        label: "Open Account security",
+        href: "/administration/account-security",
+      },
+    },
+  },
+  {
+    prefix: "/help/azure-boards",
+    entry: {
+      whatIsThisPage:
+        "Azure Boards integration — connect Azure DevOps for work item creation from ArchLucid findings.",
+      whatToDoNext:
+        "Open Azure Boards settings to connect or test the destination, then confirm Integration readiness.",
+      whyEmpty: "This guide is always available; live connector status appears after Azure DevOps is configured for the workspace.",
+      whereToConfigurePrerequisite:
+        "Outbound work-item creation needs a role that can manage integrations for this workspace.",
+      whatToDoNextAction: {
+        label: "Open Azure Boards settings",
+        href: "/integrations/azure-boards",
+      },
+      whereToConfigureAction: {
+        label: "Open Integration readiness help",
+        href: "/help/integration-readiness",
+      },
     },
   },
   {
@@ -1030,18 +1218,6 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
-    prefix: LEGACY_SETTINGS_ROLES_PATH,
-    entry: {
-      whatIsThisPage:
-        "Invite users, assign ArchLucid app roles, and manage API keys for this workspace tenant.",
-      whatToDoNext:
-        "Invite a teammate, open Roles and permissions to adjust authority, or manage API keys when you have Admin authority.",
-      whyEmpty: "Directory rows appear after invitations are accepted or users are provisioned for this tenant.",
-      whereToConfigurePrerequisite:
-        "SSO and identity-provider mapping may be required before enterprise users can sign in.",
-    },
-  },
-  {
     prefix: "/administration/identity-providers",
     entry: {
       whatIsThisPage:
@@ -1055,6 +1231,84 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/administration/identity-providers/oidc",
+    entry: {
+      whatIsThisPage:
+        "OIDC/JWT - review discovery status, authority, audience, and role-claim readiness for this workspace.",
+      whatToDoNext:
+        "Confirm discovery health, open the SSO wizard when authority needs updates, then validate role mapping before inviting users.",
+      whyEmpty:
+        "Status cards load after OIDC diagnostics respond; Not configured means no OIDC authority is published yet.",
+      whereToConfigurePrerequisite:
+        "Changing OIDC settings needs Admin authority and a reachable identity-provider discovery endpoint.",
+    },
+  },
+  {
+    prefix: "/administration/identity-providers/saml",
+    entry: {
+      whatIsThisPage:
+        "SAML - configure SP metadata URL, issuer, signing, and IdP claim mapping for workspace federation.",
+      whatToDoNext:
+        "Fetch IdP metadata, confirm issuer and role claim fields, save the SP configuration, then open diagnostics or role mapping before inviting users.",
+      whyEmpty:
+        "The configuration form always renders for authorized Admins; empty claim tables mean metadata has not been fetched or mapping rows are not filled yet.",
+      whereToConfigurePrerequisite:
+        "Changing SAML settings needs Admin authority and a reachable IdP metadata URL; signing certificate health is reviewed on Identity diagnostics.",
+    },
+  },
+  {
+    prefix: "/administration/identity/sso-wizard",
+    entry: {
+      whatIsThisPage:
+        "SSO wizard - guided OIDC or SAML setup that discovers provider metadata, maps roles, tests connection, then activates SSO for this workspace.",
+      whatToDoNext:
+        "Choose a protocol, fetch metadata, map IdP claims to ArchLucid roles, run a test connection, then activate only after the test succeeds.",
+      whyEmpty:
+        "Wizard steps always render for authorized Admins; empty issuer or mapping fields mean metadata has not been fetched or claims are not filled yet.",
+      whereToConfigurePrerequisite:
+        "Activating SSO needs Admin authority and a reachable IdP metadata or discovery URL; current sign-in stays unchanged until the final activate step.",
+    },
+  },
+  {
+    prefix: "/administration/scim-provisioning",
+    entry: {
+      whatIsThisPage:
+        "SCIM provisioning - issue, verify, and revoke inbound directory tokens so your IdP can sync users into this workspace.",
+      whatToDoNext:
+        "Copy the SCIM base URL, create a token, verify it against Service Provider Config, then revoke tokens you no longer need.",
+      whyEmpty:
+        "Active tokens appear after creation; an empty list means no inbound provisioning tokens exist yet for this tenant.",
+      whereToConfigurePrerequisite:
+        "Managing SCIM tokens needs Admin authority; pair tokens with SSO and identity setup before enforcing directory sync.",
+    },
+  },
+  {
+    prefix: "/administration/tenant",
+    entry: {
+      whatIsThisPage:
+        "Tenant settings - configure workspace defaults, quality gates, cost settings, and tenant-wide options for this organization.",
+      whatToDoNext:
+        "Review workspace scope, adjust quality gates or cost settings when needed, then open Projects recycle bin to restore deleted architecture projects.",
+      whyEmpty:
+        "Cards always render for authorized Admins; empty technical scope values mean the workspace switcher has not selected a tenant, workspace, or project yet.",
+      whereToConfigurePrerequisite:
+        "Changing tenant defaults needs Admin authority; active workspace and project selection lives in the header workspace switcher.",
+    },
+  },
+  {
+    prefix: "/administration/tenant/recycle-bin",
+    entry: {
+      whatIsThisPage:
+        "Projects recycle bin - browse soft-deleted architecture projects for this tenant and restore them when names are free.",
+      whatToDoNext:
+        "Refresh the list, restore a deleted project when you have Execute authority, then open Architectures or Tenant settings to continue work.",
+      whyEmpty:
+        "Empty means no soft-deleted projects remain in the retention window, or the recycle-bin API has not returned rows yet.",
+      whereToConfigurePrerequisite:
+        "Browsing needs Admin access; restore requires Execute authority. Retention and workspace scope live under Tenant settings.",
+    },
+  },
+  {
     prefix: "/administration/identity-providers/role-mapping",
     entry: {
       whatIsThisPage:
@@ -1065,6 +1319,19 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
         "Status cards load after auth diagnostics respond; Unmapped means no elevated roles until a matching claim is configured.",
       whereToConfigurePrerequisite:
         "Editing mappings needs Admin authority and a configured SAML or OIDC identity source.",
+    },
+  },
+  {
+    prefix: "/administration/identity-providers/diagnostics",
+    entry: {
+      whatIsThisPage:
+        "Identity diagnostics - validate federation health probes, OIDC and SAML strips, and token test mapping before enabling SSO for all users.",
+      whatToDoNext:
+        "Refresh probes, review failing health strips, run token test mapping when claims look wrong, then return to OIDC or Role mapping to fix configuration.",
+      whyEmpty:
+        "Health and checklist panels appear after diagnostics APIs respond; empty strips mean probes have not loaded yet or the provider is not configured.",
+      whereToConfigurePrerequisite:
+        "Running diagnostics needs Admin authority and configured identity-provider endpoints; technical detail panels may require the internal operator shell.",
     },
   },
   {
@@ -1130,6 +1397,19 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
         "Upload controls are ready when you have Admin or Execute authority; progress rows appear after a package is selected.",
       whereToConfigurePrerequisite:
         "Uploading packages needs workspace authority; cloud connectors are optional for evidence-only ZIP intake.",
+    },
+  },
+  {
+    prefix: "/administration/model-governance",
+    entry: {
+      whatIsThisPage:
+        "AI and model governance - manage the workspace default execution profile and governed model aliases used on reviews.",
+      whatToDoNext:
+        "Review the effective profile, set or clear a tenant override, then open AI usage when spend signals need attention.",
+      whyEmpty:
+        "Catalog rows load after the model-governance API responds; empty registries mean aliases are not published yet.",
+      whereToConfigurePrerequisite:
+        "Changing execution profiles needs Admin authority in this workspace.",
     },
   },
   {
@@ -1304,6 +1584,10 @@ export function contextualHelpForPathname(pathname: string): PageContextualHelpE
 
   if (pathIsRunProvenance(path)) {
     return PROVENANCE_CONTEXTUAL_HELP;
+  }
+
+  if (pathIsArchitectureDraftDetail(path)) {
+    return ARCHITECTURES_DRAFT_CONTEXTUAL_HELP;
   }
 
   const sorted = [...PAGE_CONTEXTUAL_HELP].sort((left, right) => right.prefix.length - left.prefix.length);

@@ -14,7 +14,6 @@ public static class SealedEvidenceTableRegistry
         "dbo.AuditEvents",
         "dbo.AgentResults",
         "dbo.AgentEvidencePackages",
-        "dbo.DecisionTraces",
         "dbo.DecisionNodes",
         "dbo.DecisioningTraces",
         "dbo.ContextSnapshots",

@@ -1,0 +1,7 @@
+flowchart LR
+  MAN["Golden manifest<br/>+ snapshots"] --> SYN["ArtifactSynthesisService"]
+  SYN --> G1["IArtifactGenerator…"]
+  G1 --> BUNDLE["ArtifactBundle"]
+  BUNDLE --> VAL["Validate bundle"]
+  VAL --> PACK["ArtifactPackagingService<br/>ZIP / DOCX / package"]
+  PACK --> UI["Review detail downloads"]

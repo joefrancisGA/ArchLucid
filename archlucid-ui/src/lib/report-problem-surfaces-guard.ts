@@ -29,15 +29,15 @@ export const REPORT_PROBLEM_SURFACE_WIRING_RULES: readonly ReportProblemSurfaceW
     requiredMarkers: ["review-detail-hard-load-failure"],
     additionalSourceRoots: [
       "components/ReviewPackageLoadFailureView.tsx",
-      "app/(operator)/reviews/[runId]/_sections/RunDetailPageFetchErrorView.tsx",
-      "app/(operator)/reviews/[runId]/_sections/RunDetailPageMalformedResponseView.tsx",
-      "app/(operator)/reviews/[runId]/error.tsx",
+      "app/(operator)/architecture/reviews/[runId]/_sections/RunDetailPageFetchErrorView.tsx",
+      "app/(operator)/architecture/reviews/[runId]/_sections/RunDetailPageMalformedResponseView.tsx",
+      "app/(operator)/architecture/reviews/[runId]/error.tsx",
     ],
   },
   {
     surfaceId: "executive-value-report-load-failure",
     requiredMarkers: ["OperatorApiProblem"],
-    additionalSourceRoots: ["app/(operator)/value-report/pilot/_sections/PilotValueReportPageView.tsx"],
+    additionalSourceRoots: ["app/(operator)/sponsor-report/pilot-outcomes/_sections/PilotValueReportPageView.tsx"],
   },
   {
     surfaceId: "governance-findings-queue-hard-failure",
@@ -46,7 +46,7 @@ export const REPORT_PROBLEM_SURFACE_WIRING_RULES: readonly ReportProblemSurfaceW
   {
     surfaceId: "review-commit-export-page-failure",
     requiredMarkers: ["OperatorApiProblem", "review-commit-export-page-failure"],
-    additionalSourceRoots: ["app/(operator)/reviews/[runId]/_sections/RunDetailArtifactsExportsSection.tsx"],
+    additionalSourceRoots: ["app/(operator)/architecture/reviews/[runId]/_sections/RunDetailArtifactsExportsSection.tsx"],
   },
   {
     surfaceId: "operator-api-problem-high-stakes",

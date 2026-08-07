@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 
 using ArchLucid.Core.Scoping;
 
@@ -56,7 +56,7 @@ public sealed class WorkspaceProjectScopeIdorIntegrationTests(IdorSeedFixture se
     {
         await AssertWrongWorkspaceRouteDeniedAsync(
             "run ROI estimate",
-            static (client, runId) => client.GetAsync($"/v1/architecture/run/{runId}/roi"));
+            static (client, runId) => client.GetAsync($"/v1/architecture/review/{runId}/roi"));
     }
 
     [SkippableFact]

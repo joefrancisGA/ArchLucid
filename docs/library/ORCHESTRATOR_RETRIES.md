@@ -1,8 +1,8 @@
-> **Scope:** Contributor-reference — Authority run orchestrator retry, timeout, and resume semantics for operators and support.
+﻿> **Scope:** Contributor-reference — Authority run orchestrator retry, timeout, and resume semantics for operators and support.
 
 # Authority orchestrator — retries, timeouts, and resume
 
-**Related:** [ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md) (Flow A) · [CANONICAL_PIPELINE.md](CANONICAL_PIPELINE.md) · `AuthorityRunOrchestrator` (`ArchLucid.Application/Runs/Orchestration`)
+**Related:** [ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md) (Flow A) Â· [CANONICAL_PIPELINE.md](CANONICAL_PIPELINE.md) Â· `AuthorityRunOrchestrator` (`ArchLucid.Application/Runs/Orchestration`)
 
 This document describes how **`AuthorityRunOrchestrator`** recovers from transient failures, bounds pipeline duration, and resumes queued work. It applies to the SQL-backed authority pipeline registered behind **`IAuthorityRunOrchestrator`** in production hosts.
 
@@ -68,7 +68,7 @@ The **authority pipeline** and the **legacy coordinator** (`POST …/execute` �
 
 For **coordinator-driven** runs in **`Failed`** or **`ExecutionCompletedQualityRejected`** status:
 
-1. **`POST /v1/architecture/run/{runId}/execute`** may be called again on the same run id.
+1. **`POST /v1/architecture/review/{runId}/execute`** may be called again on the same run id.
 2. The execute orchestrator emits audit event **`Run.RetryRequested`** with the previous status before re-running agent tasks.
 3. Idempotent execute: if all expected **`AgentResult`** rows already exist, execute returns the prior outcome without re-invoking the LLM.
 

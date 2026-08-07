@@ -30,10 +30,6 @@ public static class DataConsistencyOrphanProbeRegistry
             "RunId",
             "Agent sub-entity purged via run lifecycle stored procedures; not independently background-probed."),
         OptOut(
-            "DecisionTraces",
-            "RunId",
-            "Decision sub-entity purged via run lifecycle stored procedures; not independently background-probed."),
-        OptOut(
             "AgentEvidencePackages",
             "RunId",
             "Agent sub-entity purged via run lifecycle stored procedures; not independently background-probed."),

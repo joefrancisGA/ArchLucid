@@ -5,7 +5,7 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     Stable JSON shape for <c>artifacts/release/metadata.json</c> (script: Write-ReleasePackageArtifacts.ps1) â€” 56R
+///     Stable JSON shape for <c>artifacts/release/metadata.json</c> (script: Write-ReleasePackageArtifacts.ps1) — 56R
 ///     handoff.
 /// </summary>
 [Trait("Category", "Unit")]

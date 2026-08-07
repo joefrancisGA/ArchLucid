@@ -56,7 +56,7 @@ The feature is **optional**, **OFF by default**, and **separate** from core tena
 ## 5. Audit evidence
 
 - Each export batch writes a row to `dbo.FineTuningTrainingExportAudits` (tenant-scoped).
-- Model registry rows in `dbo.FineTunedModelRegistryEntries` record job id, base deployment, promoted deployment, eval ratio, and rollback timestamps.
+- V1 runtime model registry is **`InMemoryFineTunedModelRegistry`** (process-local). Schema table `dbo.FineTunedModelRegistryEntries` is reserved for future SQL registry parity and is not written by application code yet.
 
 ---
 

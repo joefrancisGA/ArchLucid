@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { AuthInviteEvidenceOrientationStrip } from "@/app/(operator)/auth/invite/AuthInviteEvidenceOrientationStrip";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { storeInvitationToken } from "@/lib/auth/email-otp-session";
 import {
@@ -90,6 +91,8 @@ export function InvitationAcceptPageClient() {
           </Button>
         </div>
       ) : null}
+
+      <AuthInviteEvidenceOrientationStrip />
     </div>
   );
 }

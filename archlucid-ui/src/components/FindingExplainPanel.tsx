@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
@@ -130,7 +130,7 @@ export function FindingExplainPanel({
               <>
                 From{" "}
                 <code className="rounded bg-violet-200/80 px-1 text-[0.65rem] dark:bg-violet-900/80">
-                  GET /v1/architecture/run/…/findings/…/evidence-chain
+                  GET /v1/architecture/review/…/findings/…/evidence-chain
                 </code>
                 .
               </>
@@ -232,7 +232,7 @@ export function FindingExplainPanel({
                   id="finding-audit-system"
                   className={cn("m-0 font-semibold text-neutral-500 dark:text-neutral-400", OPERATOR_NAV_GROUP_LABEL)}
                 >
-                  System prompt (redacted) · trace {audit.traceId}
+                  System prompt (redacted) Â· trace {audit.traceId}
                 </p>
                 <pre className={cn("max-h-48 overflow-auto whitespace-pre-wrap rounded-md bg-neutral-100 p-2 dark:bg-neutral-900", OPERATOR_TYPOGRAPHY.micro)}>
                   {audit.systemPromptRedacted.trim().length > 0 ? audit.systemPromptRedacted : "(empty)"}
@@ -256,7 +256,7 @@ export function FindingExplainPanel({
                   {audit.rawResponseRedacted.trim().length > 0 ? audit.rawResponseRedacted : "(empty)"}
                 </pre>
                 <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                  Model: {audit.modelDeploymentName ?? "—"} · Agent: {audit.agentType}
+                  Model: {audit.modelDeploymentName ?? "—"} Â· Agent: {audit.agentType}
                 </p>
               </div>
             </DocumentLayout>

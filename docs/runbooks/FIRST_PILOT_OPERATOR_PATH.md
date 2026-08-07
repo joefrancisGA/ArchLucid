@@ -1,4 +1,4 @@
-> **Scope:** Internal SE/ops runbook — platform readiness, printable first-run evidence checklist, pilot proof collection, phase-level recovery, and time-boxed first value in 20 minutes. Absorbs the former `FIRST_RUN_EVIDENCE_CHECKLIST.md` body. **Not the default customer help path.** Customer architects: use [Your first architecture review](/help/first-architecture-review).
+﻿> **Scope:** Internal SE/ops runbook — platform readiness, printable first-run evidence checklist, pilot proof collection, phase-level recovery, and time-boxed first value in 20 minutes. Absorbs the former `FIRST_RUN_EVIDENCE_CHECKLIST.md` body. **Not the default customer help path.** Customer architects: use [Your first architecture review](/help/first-architecture-review).
 
 # First-pilot operator path (internal runbook)
 
@@ -8,7 +8,7 @@
 
 **Last reviewed:** 2026-08-03
 
-**Canonical seven-step minimum path:** [`../library/CANONICAL_FIRST_RUN_PATH.md`](../library/CANONICAL_FIRST_RUN_PATH.md) (command wrapper: `scripts/Run-CanonicalFirstPilotPath.ps1`). **Canonical four-step narrative:** [`CORE_PILOT.md`](../CORE_PILOT.md). **This file is the canonical operational checklist.** **Before you start (Azure + config):** [`PILOT_PREREQUISITES.md`](PILOT_PREREQUISITES.md). **Production-like preflight:** [`FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md`](FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md). **Time-boxed evaluators:** § **First value in 20 minutes** below. **In-product rail:** operator **Home** → **First-pilot path (about 20 minutes)** strip. **Starter pack chooser:** [`templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md`](../../templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md). **Golden walkthrough:** [`DEMO_QUICKSTART.md#golden-accelerator-walkthrough-regulated-saas`](../go-to-market/DEMO_QUICKSTART.md#golden-accelerator-walkthrough-regulated-saas) (`GOLDEN_ACCELERATOR_WALKTHROUGH.md` alias). **Evidence checklist (printable):** [#printable-first-run-evidence-checklist](#printable-first-run-evidence-checklist) (`FIRST_RUN_EVIDENCE_CHECKLIST.md` alias). **Stuck mid-pilot:** [`FIRST_PILOT_TROUBLESHOOTING.md`](FIRST_PILOT_TROUBLESHOOTING.md) · **Support triage:** [`FIRST_PILOT_SUPPORT_TRIAGE.md`](FIRST_PILOT_SUPPORT_TRIAGE.md).
+**Canonical seven-step minimum path:** [`../library/CANONICAL_FIRST_RUN_PATH.md`](../library/CANONICAL_FIRST_RUN_PATH.md) (command wrapper: `scripts/Run-CanonicalFirstPilotPath.ps1`). **Canonical four-step narrative:** [`CORE_PILOT.md`](../CORE_PILOT.md). **This file is the canonical operational checklist.** **Before you start (Azure + config):** [`PILOT_PREREQUISITES.md`](PILOT_PREREQUISITES.md). **Production-like preflight:** [`FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md`](FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md). **Time-boxed evaluators:** Â§ **First value in 20 minutes** below. **In-product rail:** operator **Home** → **First-pilot path (about 20 minutes)** strip. **Starter pack chooser:** [`templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md`](../../templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md). **Golden walkthrough:** [`DEMO_QUICKSTART.md#golden-accelerator-walkthrough-regulated-saas`](../go-to-market/DEMO_QUICKSTART.md#golden-accelerator-walkthrough-regulated-saas) (`GOLDEN_ACCELERATOR_WALKTHROUGH.md` alias). **Evidence checklist (printable):** [#printable-first-run-evidence-checklist](#printable-first-run-evidence-checklist) (`FIRST_RUN_EVIDENCE_CHECKLIST.md` alias). **Stuck mid-pilot:** [`FIRST_PILOT_TROUBLESHOOTING.md`](FIRST_PILOT_TROUBLESHOOTING.md) Â· **Support triage:** [`FIRST_PILOT_SUPPORT_TRIAGE.md`](FIRST_PILOT_SUPPORT_TRIAGE.md).
 
 
 ## Inputs, outputs, and stop conditions
@@ -27,12 +27,12 @@ When Phase D completes with `-RunId` and sponsor handoff flags as needed, expect
 | Artifact | Path (under proof working dir) |
 | --- | --- |
 | Command center (primary) | `first-pilot-command-center.md` |
-| Go/no-go findings | `go-no-go-summary.md` · `go-no-go-summary.json` |
+| Go/no-go findings | `go-no-go-summary.md` Â· `go-no-go-summary.json` |
 | Committed-run bundle | `first-pilot-evidence/` (first-value report, observability summary, deltas) |
-| Commercial index | `quote-to-proof-packet.md` · `commercial-next-step.json` · `commercial-closeout.md` |
+| Commercial index | `quote-to-proof-packet.md` Â· `commercial-next-step.json` Â· `commercial-closeout.md` |
 | Run detail first-screen proof status | Architect workspace **Run detail** → **Proof status** strip (READY/WARN/HOLD from `pilot-run-deltas`) |
 | Data consistency | `data-consistency-readiness/data-consistency-summary.json` |
-| Config / drift (hosted) | `config-lint-production-like-hosted-pilot.md` · `route-tier-policy-nav-parity.md` |
+| Config / drift (hosted) | `config-lint-production-like-hosted-pilot.md` Â· `route-tier-policy-nav-parity.md` |
 
 Do not hand-edit missing proof into the packet — re-run collectors per [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](FIRST_PILOT_EVIDENCE_BUNDLE.md).
 
@@ -70,9 +70,9 @@ Former standalone body: `docs/runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md` → this
 | 3 | Run **Azure extractor Tier 1** in the customer subscription (PowerShell, read-only, no ArchLucid secrets in customer tenant). | Script completes; ZIP contains `manifest.json` and cost/inventory payloads. | [`AZURE_EXTRACTOR.md`](../library/AZURE_EXTRACTOR.md) |
 | 4 | Sign in to architect workspace; open **New architecture review** (`/reviews/new`; legacy `/runs/new`). | Wizard loads; auth succeeds (no endless 401/403). | [`CANONICAL_FIRST_RUN_PATH.md#first-architecture-review-walkthrough`](../library/CANONICAL_FIRST_RUN_PATH.md#first-architecture-review-walkthrough) |
 | 5 | Create architecture request and note **run id** from success path or review list. | Review appears in **Reviews** with status **Tasks generated** or later. | [`WORKSPACE_NAVIGATION_GUIDE.md`](../library/customer-facing/WORKSPACE_NAVIGATION_GUIDE.md) |
-| 6 | **Upload extractor ZIP** to the review (`POST /v1/azure-extractor/upload` or UI equivalent). | Upload returns 200; audit/event log shows ingest; evidence attached to run. | [`AZURE_EXTRACTOR.md`](../library/AZURE_EXTRACTOR.md) § ingest |
+| 6 | **Upload extractor ZIP** to the review (`POST /v1/azure-extractor/upload` or UI equivalent). | Upload returns 200; audit/event log shows ingest; evidence attached to run. | [`AZURE_EXTRACTOR.md`](../library/AZURE_EXTRACTOR.md) Â§ ingest |
 | 7 | **Execute** agents on the review. | Review reaches **Ready to finalize** (or explicit failure with `X-Correlation-ID`). | [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md) |
-| 8 | **Finalize** the architecture package (signed review record). | Signed review record visible; artifacts list non-empty. | [`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.1 |
+| 8 | **Finalize** the architecture package (signed review record). | Signed review record visible; artifacts list non-empty. | [`V1_SCOPE.md`](../library/V1_SCOPE.md) Â§2.1 |
 | 9 | Inspect **artifacts**, findings, and explanation aggregate. | Sponsor-facing summary loads; ROI/savings labels show basis text when present. | [`CANONICAL_FIRST_RUN_PATH.md#first-architecture-review-walkthrough`](../library/CANONICAL_FIRST_RUN_PATH.md#first-architecture-review-walkthrough) |
 | 10 | Export **sponsor packet** (markdown/DOCX/PDF as configured). | File downloads; no placeholder-only demo unless intentionally using static demo run. | [`PILOT_GUIDE.md`](../library/customer-facing/PILOT_GUIDE.md) |
 | 11 | Capture **`X-Correlation-ID`** (and run id) for any failed step before opening support. | IDs recorded in ticket/runbook notes. | [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md) |
@@ -104,7 +104,7 @@ See [`docs/library/REPEAT_REVIEW_LOOP.md`](../library/REPEAT_REVIEW_LOOP.md) for
 
 ## First value in 20 minutes (time-boxed) {#first-value-in-20-minutes}
 
-Shortest path from zero to a sponsor-safe artifact when platform wiring is already green. For the full phased checklist, continue with § **Phase A** below.
+Shortest path from zero to a sponsor-safe artifact when platform wiring is already green. For the full phased checklist, continue with Â§ **Phase A** below.
 
 **Mode expectation:** Steps below work in **simulator** mode without Azure OpenAI credentials. Label outputs **Simulator** unless you configured real-mode and collected live LLM evidence.
 
@@ -145,7 +145,7 @@ Shortest path from zero to a sponsor-safe artifact when platform wiring is alrea
 
 ## First value in 20 minutes (time-boxed)
 
-Shortest path from zero to a sponsor-safe artifact when platform wiring is already green. For the full phased checklist, continue with § **Phase A** below.
+Shortest path from zero to a sponsor-safe artifact when platform wiring is already green. For the full phased checklist, continue with Â§ **Phase A** below.
 
 **Mode expectation:** Steps below work in **simulator** mode without Azure OpenAI credentials. Label outputs **Simulator** unless you configured real-mode and collected live LLM evidence.
 
@@ -201,14 +201,14 @@ Canonical reference: [`OPERATOR_UI_EXPERIENCE_MODES.md`](../library/OPERATOR_UI_
 
 | Step | Action | Success signal | Surface |
 |------|--------|----------------|---------|
-| A1 | Configure SQL connection string, `ArchLucidAuth:Mode`, and hosting role (`Hosting:Role` for API and/or Worker). | `GET /health/ready` returns **Healthy** (or documented degraded entries are accepted). | API · [`CONFIGURATION_REFERENCE.md`](../library/CONFIGURATION_REFERENCE.md) |
+| A1 | Configure SQL connection string, `ArchLucidAuth:Mode`, and hosting role (`Hosting:Role` for API and/or Worker). | `GET /health/ready` returns **Healthy** (or documented degraded entries are accepted). | API Â· [`CONFIGURATION_REFERENCE.md`](../library/CONFIGURATION_REFERENCE.md) |
 | A0a | Run prerequisites check for your target profile (`.\scripts\Test-ArchLucidPrerequisites.ps1 -Profile FirstPilotMinimum` or `ProductionLike`). | No **BLOCK** rows; Azure AI Search callout understood for production-like. | [`PILOT_PREREQUISITES.md`](PILOT_PREREQUISITES.md) |
-| A0 | Run one-command pilot readiness preflight: `archlucid pilot preflight` (use `--no-api` for offline config-only check; `--include-itsm` to probe ITSM health; `--md --markdown-out report.md` for an owner-ready markdown summary; `--json` for CI). Checks: config + auth lint, execution mode, Azure AI Search endpoint, proof-packet claim-lint rules, API health, OpenAPI contract. | No **BLOCK** rows; WARN rows reviewed and understood. | CLI · [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](FIRST_PILOT_EVIDENCE_BUNDLE.md) |
+| A0 | Run one-command pilot readiness preflight: `archlucid pilot preflight` (use `--no-api` for offline config-only check; `--include-itsm` to probe ITSM health; `--md --markdown-out report.md` for an owner-ready markdown summary; `--json` for CI). Checks: config + auth lint, execution mode, Azure AI Search endpoint, proof-packet claim-lint rules, API health, OpenAPI contract. | No **BLOCK** rows; WARN rows reviewed and understood. | CLI Â· [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](FIRST_PILOT_EVIDENCE_BUNDLE.md) |
 | A0b | *(Preferred handoff)* Run the proof pipeline without `-RunId` for readiness-only go/no-go. | **`first-pilot-command-center.md`** shows phased **READY/WARN/HOLD**; missing finalized review is **WARN** (not a crash). Full findings table: `go-no-go-summary.md`. | `./scripts/collect-first-pilot-proof.ps1` |
-| A2 | Start API + worker (or combined host); confirm DbUp migrations applied. | `GET /version` returns build identity; logs show catalog ready. | API · [`PILOT_GUIDE.md`](../library/customer-facing/PILOT_GUIDE.md) |
-| A3 | Sign in to architect workspace (`/auth/signin` or dev bypass locally only). | Home loads; no endless 401/403 on `/api/proxy`. | UI · [`CANONICAL_FIRST_RUN_PATH.md#first-run-wizard-architect-workspace`](../library/CANONICAL_FIRST_RUN_PATH.md#first-run-wizard-architect-workspace) |
+| A2 | Start API + worker (or combined host); confirm DbUp migrations applied. | `GET /version` returns build identity; logs show catalog ready. | API Â· [`PILOT_GUIDE.md`](../library/customer-facing/PILOT_GUIDE.md) |
+| A3 | Sign in to architect workspace (`/auth/signin` or dev bypass locally only). | Home loads; no endless 401/403 on `/api/proxy`. | UI Â· [`CANONICAL_FIRST_RUN_PATH.md#first-run-wizard-architect-workspace`](../library/CANONICAL_FIRST_RUN_PATH.md#first-run-wizard-architect-workspace) |
 
-**Failure recovery (Phase A):** auth loops → [`FIRST_PILOT_TROUBLESHOOTING.md`](FIRST_PILOT_TROUBLESHOOTING.md) § auth · `archlucid auth diagnostics` (admin API key) · SQL/migration errors → [`SQL_SCRIPTS.md`](../library/SQL_SCRIPTS.md) · capture **`X-Correlation-ID`** on every failed API call.
+**Failure recovery (Phase A):** auth loops → [`FIRST_PILOT_TROUBLESHOOTING.md`](FIRST_PILOT_TROUBLESHOOTING.md) Â§ auth Â· `archlucid auth diagnostics` (admin API key) Â· SQL/migration errors → [`SQL_SCRIPTS.md`](../library/SQL_SCRIPTS.md) Â· capture **`X-Correlation-ID`** on every failed API call.
 
 ### Ignore for first pilot
 
@@ -219,33 +219,33 @@ Until you have one **finalized** architecture package, you do **not** need: Oper
 
 | Step | Action | Success signal | Surface |
 |------|--------|----------------|---------|
-| B1 | Run **Azure extractor Tier 1** in the **customer** subscription (read-only PowerShell; no ArchLucid secrets in customer tenant). Share [`BUYER_SECURITY_PROCUREMENT_PACKET.md#azure-extractor--infosec-pre-read`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#azure-extractor--infosec-pre-read) with InfoSec if approval is required. | ZIP contains `manifest.json` and cost/inventory payloads. | Customer script · [`AZURE_EXTRACTOR.md`](../library/AZURE_EXTRACTOR.md) · InfoSec pre-read |
-| B2 | *(Alternative)* Use **demo evidence** only for evaluator dry-runs: open Workspace A Product Tour review (no extractor required). | Review detail shows committed manifest + artifacts. | UI · [`go-to-market/DEMO_WORKSPACES.md`](../go-to-market/DEMO_WORKSPACES.md) |
+| B1 | Run **Azure extractor Tier 1** in the **customer** subscription (read-only PowerShell; no ArchLucid secrets in customer tenant). Share [`BUYER_SECURITY_PROCUREMENT_PACKET.md#azure-extractor--infosec-pre-read`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#azure-extractor--infosec-pre-read) with InfoSec if approval is required. | ZIP contains `manifest.json` and cost/inventory payloads. | Customer script Â· [`AZURE_EXTRACTOR.md`](../library/AZURE_EXTRACTOR.md) Â· InfoSec pre-read |
+| B2 | *(Alternative)* Use **demo evidence** only for evaluator dry-runs: open Workspace A Product Tour review (no extractor required). | Review detail shows committed manifest + artifacts. | UI Â· [`go-to-market/DEMO_WORKSPACES.md`](../go-to-market/DEMO_WORKSPACES.md) |
 
-**Failure recovery (Phase B):** extractor script errors → [`AZURE_EXTRACTOR.md`](../library/AZURE_EXTRACTOR.md) § troubleshooting · wrong scope headers on demo URLs → DEMO_WORKSPACES scope triplet table.
+**Failure recovery (Phase B):** extractor script errors → [`AZURE_EXTRACTOR.md`](../library/AZURE_EXTRACTOR.md) Â§ troubleshooting Â· wrong scope headers on demo URLs → DEMO_WORKSPACES scope triplet table.
 
 
 ## Phase C — Review lifecycle
 
 | Step | Action | Success signal | Surface |
 |------|--------|----------------|---------|
-| C1 | **Create** architecture review — architect workspace **New review** (`/reviews/new`; legacy `/runs/new`) or `archlucid run create`. | Review appears in **Reviews** with status progressing past **Created**. | UI · CLI · `POST /v1/architecture/request` |
-| C2 | **Upload extractor ZIP** to the review (`POST /v1/azure-extractor/upload` or review-detail upload). | Upload 200; ingest event in timeline. | API · UI |
-| C3 | **Execute** agents on the review. | Status **Ready to finalize** (API/CLI may still show `ReadyForCommit`; or explicit failure with correlation id). | `POST /v1/architecture/run/{runId}/execute` · pipeline timeline |
-| C4 | *(Optional)* Assign a **V1 policy pack** and run pre-finalize dry-run when governance is in pilot scope. | Dry-run shows blocking vs warning findings. | `POST /v1/governance/policy-packs/dry-run` · [`PRE_COMMIT_GOVERNANCE_GATE.md`](../library/PRE_COMMIT_GOVERNANCE_GATE.md) |
-| C5 | **Finalize** architecture package. | Package / manifest id visible; artifacts table non-empty. | `POST /v1/architecture/run/{runId}/commit` · review detail **Finalize** |
+| C1 | **Create** architecture review — architect workspace **New review** (`/reviews/new`; legacy `/runs/new`) or `archlucid run create`. | Review appears in **Reviews** with status progressing past **Created**. | UI Â· CLI Â· `POST /v1/architecture/request` |
+| C2 | **Upload extractor ZIP** to the review (`POST /v1/azure-extractor/upload` or review-detail upload). | Upload 200; ingest event in timeline. | API Â· UI |
+| C3 | **Execute** agents on the review. | Status **Ready to finalize** (API/CLI may still show `ReadyForCommit`; or explicit failure with correlation id). | `POST /v1/architecture/review/{runId}/execute` Â· pipeline timeline |
+| C4 | *(Optional)* Assign a **V1 policy pack** and run pre-finalize dry-run when governance is in pilot scope. | Dry-run shows blocking vs warning findings. | `POST /v1/governance/policy-packs/dry-run` Â· [`PRE_COMMIT_GOVERNANCE_GATE.md`](../library/PRE_COMMIT_GOVERNANCE_GATE.md) |
+| C5 | **Finalize** architecture package. | Package / manifest id visible; artifacts table non-empty. | `POST /v1/architecture/review/{runId}/finalize` Â· review detail **Finalize** |
 
-**Failure recovery (Phase C):** execute stalls → [`FIRST_PILOT_TROUBLESHOOTING.md`](FIRST_PILOT_TROUBLESHOOTING.md) · pre-finalize blocked → disposition findings per gate doc · finalize/commit 409 → governance extension `#governance-pre-commit-blocked`.
+**Failure recovery (Phase C):** execute stalls → [`FIRST_PILOT_TROUBLESHOOTING.md`](FIRST_PILOT_TROUBLESHOOTING.md) Â· pre-finalize blocked → disposition findings per gate doc Â· finalize/commit 409 → governance extension `#governance-pre-commit-blocked`.
 
 
 ## Phase D — Architecture package and sponsor export
 
 | Step | Action | Success signal | Surface |
 |------|--------|----------------|---------|
-| D1 | Inspect **findings**, explanation aggregate, and **artifacts** on review detail. | Sponsor-readable summary; severity badges; evidence refs present. | UI review detail · `GET /v1/architecture/run/{runId}` |
+| D1 | Inspect **findings**, explanation aggregate, and **artifacts** on review detail. | Sponsor-readable summary; severity badges; evidence refs present. | UI review detail Â· `GET /v1/architecture/review/{runId}` |
 | D1b | Follow the **Next after finalize** card: one **primary** action (sponsor packet) plus optional compare, evidence chain, governance dry-run, or quote-to-proof index. | Primary CTA scrolls to sponsor deliverables; optional links stay secondary. | Review detail post-finalize habit loop |
-| D2a | Capture **ROI baseline** labels before sponsor send (review-cycle hours, architect prep, documentation effort, evidence assembly; source: buyer-provided / defaulted / demo-derived / not collected). In the **Full Wizard** on [`/reviews/new`](../../archlucid-ui/src/app/(operator)/reviews/new/page.tsx), the optional **Baseline metrics** step persists review-cycle hours via `PUT /v1/tenant/baseline` before review submit (skip leaves scorecard defaults). | Scorecard rows populated or explicitly **not collected**; proof marks demo-derived as walkthrough-only. | [`PILOT_SUCCESS_SCORECARD.md`](../go-to-market/PILOT_SUCCESS_SCORECARD.md) §2 · `go-no-go-summary.json` · `roiBasisStatus` |
-| D2 | Export **sponsor packet** (markdown/DOCX/PDF per tenant config) or **Email this review to your sponsor** when manifest exists. | Download succeeds; ROI basis labels show evidence source (not placeholder-only unless static demo). | UI exports · [`go-to-market/EXECUTIVE_SPONSOR_BRIEF.md`](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md) |
+| D2a | Capture **ROI baseline** labels before sponsor send (review-cycle hours, architect prep, documentation effort, evidence assembly; source: buyer-provided / defaulted / demo-derived / not collected). In the **Full Wizard** on [`/reviews/new`](../../archlucid-ui/src/app/(operator)/reviews/new/page.tsx), the optional **Baseline metrics** step persists review-cycle hours via `PUT /v1/tenant/baseline` before review submit (skip leaves scorecard defaults). | Scorecard rows populated or explicitly **not collected**; proof marks demo-derived as walkthrough-only. | [`PILOT_SUCCESS_SCORECARD.md`](../go-to-market/PILOT_SUCCESS_SCORECARD.md) Â§2 Â· `go-no-go-summary.json` Â· `roiBasisStatus` |
+| D2 | Export **sponsor packet** (markdown/DOCX/PDF per tenant config) or **Email this review to your sponsor** when manifest exists. | Download succeeds; ROI basis labels show evidence source (not placeholder-only unless static demo). | UI exports Â· [`go-to-market/EXECUTIVE_SPONSOR_BRIEF.md`](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md) |
 | D3 | Record **run id**, manifest id, and any **`X-Correlation-ID`** for support before escalating. | Ticket-ready notes. | [`TROUBLESHOOTING.md`](../runbooks/TROUBLESHOOTING.md) |
 | D4 | Collect first-pilot proof with `-RunId` for sponsor/procurement handoff. | **`first-pilot-command-center.md`** (primary status) plus `go-no-go-summary.md` and committed-run evidence folder with checksum manifest and buyer-safe artifacts. Production-like or sponsor handoff also collects `config-lint-production-like-hosted-pilot.md`, `route-tier-policy-nav-parity.md`, and `procurement-deal-ready-check.txt` (deal-ready **PASS/HOLD**). | [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](FIRST_PILOT_EVIDENCE_BUNDLE.md) |
 | D5 | *(Optional workflow handoff)* Attach proof artifacts to a GitHub PR/issue or Azure DevOps work item. | Work item links to the sponsor packet, evidence manifest, and send/hold status without requiring a V1.1 connector. | [`V1_WORKFLOW_HANDOFF_GITHUB_AZDO.md`](V1_WORKFLOW_HANDOFF_GITHUB_AZDO.md) |

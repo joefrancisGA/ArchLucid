@@ -1,4 +1,8 @@
 import { getFindingEvidenceTraceHref } from "@/lib/finding-evidence-navigation";
+import {
+  findingTrustExportJsonFields,
+  formatFindingTrustExportLine,
+} from "@/lib/finding-trust-export";
 export type WorkItemClipboardFormat =
   | "markdown"
   | "jiraWiki"
@@ -17,6 +21,8 @@ export type FindingWorkItemJsonDocument = {
   recommendedAction: string;
   status: string;
   ruleId: string;
+  trustLabel?: string;
+  trustLabelReason?: string;
   links: {
     review: string;
     finding: string;
@@ -39,6 +45,8 @@ export type FindingWorkItemBuildInput = {
   decisionRuleId: string | null;
   decisionRuleName: string | null;
   evidenceExcerpts: string[];
+  trustLabel?: string | null;
+  trustLabelReason?: string | null;
 };
 
 function na(value: string | null | undefined): string {
@@ -89,6 +97,8 @@ export type TraceRowWorkItemInput = {
   statusLabel: string | null;
   ruleId: string | null;
   siteOrigin: string;
+  trustLabel?: string | null;
+  trustLabelReason?: string | null;
 };
 
 function traceRowWorkItemLinks(input: TraceRowWorkItemInput): {
@@ -112,6 +122,7 @@ function traceRowWorkItemLinks(input: TraceRowWorkItemInput): {
 
 function buildTraceRowWorkItemJsonDocument(input: TraceRowWorkItemInput): FindingWorkItemJsonDocument {
   const links = traceRowWorkItemLinks(input);
+  const trustFields = findingTrustExportJsonFields(input);
 
   return {
     schema: "archlucid.work-item.v1",
@@ -122,6 +133,7 @@ function buildTraceRowWorkItemJsonDocument(input: TraceRowWorkItemInput): Findin
     recommendedAction: na(input.recommendedAction),
     status: na(input.statusLabel),
     ruleId: na(input.ruleId),
+    ...trustFields,
     links: {
       review: links.runUrl,
       finding: links.findingUrl,
@@ -138,6 +150,7 @@ export function buildTraceRowWorkItemBody(format: WorkItemClipboardFormat, input
   const reco = na(input.recommendedAction);
   const status = na(input.statusLabel);
   const rule = na(input.ruleId);
+  const trustLine = formatFindingTrustExportLine(input);
 
   if (format === "json") {
     return JSON.stringify(buildTraceRowWorkItemJsonDocument(input), null, 2);
@@ -152,6 +165,13 @@ export function buildTraceRowWorkItemBody(format: WorkItemClipboardFormat, input
       `*Severity:* ${severity}`,
       `*Status:* ${status}`,
       `*Rule id:* ${rule}`,
+    ];
+
+    if (trustLine !== null) {
+      lines.push(`*Trust label:* ${trustLine}`);
+    }
+
+    lines.push(
       "",
       "*Recommended action*",
       reco,
@@ -160,20 +180,27 @@ export function buildTraceRowWorkItemBody(format: WorkItemClipboardFormat, input
       `* (${links.runUrl}|ArchLucid review)`,
       `* (${links.findingUrl}|Finding — explain page)`,
       `* (${links.inspectUrl}|Structured inspector — Why?)`,
-    ];
+    );
 
     return lines.join("\n");
   }
 
   if (format === "serviceNowText") {
     const remediationStep = reco !== "Not available" ? reco : "Apply remediation per team standards.";
+    const descriptionLines = [
+      `Severity: ${severity}`,
+      `Status: ${status}`,
+    ];
+
+    if (trustLine !== null) {
+      descriptionLines.push(`Trust label: ${trustLine}`);
+    }
 
     return [
       `Short description: ArchLucid finding — ${title} (${input.findingId})`,
       "",
       "Description:",
-      `Severity: ${severity}`,
-      `Status: ${status}`,
+      ...descriptionLines,
       "",
       "Recommended action:",
       reco,
@@ -188,7 +215,7 @@ export function buildTraceRowWorkItemBody(format: WorkItemClipboardFormat, input
     ].join("\n");
   }
 
-  return [
+  const markdownLines = [
     "## Finding: " + title,
     "",
     "**Severity:** " + severity,
@@ -196,6 +223,13 @@ export function buildTraceRowWorkItemBody(format: WorkItemClipboardFormat, input
     "**Finding ID:** `" + input.findingId + "`",
     "**Run:** `" + input.runId + "`",
     "**Rule id:** " + rule,
+  ];
+
+  if (trustLine !== null) {
+    markdownLines.push("**Trust label:** " + trustLine);
+  }
+
+  markdownLines.push(
     "",
     "### Recommended action",
     reco,
@@ -204,7 +238,9 @@ export function buildTraceRowWorkItemBody(format: WorkItemClipboardFormat, input
     `- ArchLucid review: ${links.runUrl}`,
     `- Finding (explain page): ${links.findingUrl}`,
     `- Structured inspector: ${links.inspectUrl}`,
-  ].join("\n");
+  );
+
+  return markdownLines.join("\n");
 }
 
 /**
@@ -224,6 +260,8 @@ export function buildInspectFindingWorkItemBody(format: WorkItemClipboardFormat,
   const reco = na(input.recommendedAction);
   const severity = na(input.severityLabel);
   const ruleLine = ruleSummary(input.decisionRuleName, input.decisionRuleId);
+  const trustLine = formatFindingTrustExportLine(input);
+  const trustJson = findingTrustExportJsonFields(input);
 
   const evidenceBlock =
     input.evidenceExcerpts.length > 0 ? input.evidenceExcerpts.map((e) => `- ${na(e)}`).join("\n") : "- Not available";
@@ -239,6 +277,7 @@ export function buildInspectFindingWorkItemBody(format: WorkItemClipboardFormat,
         recommendedAction: reco,
         status: "Not available",
         ruleId: ruleLine,
+        ...trustJson,
         whatWasFlagged: whatFlagged,
         whyItMatters,
         evidence: input.evidenceExcerpts.length > 0 ? input.evidenceExcerpts : ["Not available"],
@@ -262,6 +301,13 @@ export function buildInspectFindingWorkItemBody(format: WorkItemClipboardFormat,
       "",
       "*Run:* " + "`" + input.runId + "`",
       `*Decision rule:* ${ruleLine}`,
+    ];
+
+    if (trustLine !== null) {
+      lines.push(`*Trust label:* ${trustLine}`);
+    }
+
+    lines.push(
       "",
       "*What was flagged*",
       whatFlagged,
@@ -280,7 +326,7 @@ export function buildInspectFindingWorkItemBody(format: WorkItemClipboardFormat,
       "*Links*",
       `* (${explainUrl}|ArchLucid finding — explain page)`,
       `* (${inspectUrl}|Structured inspector — Why?)`,
-    ];
+    );
 
     return lines.join("\n");
   }
@@ -292,12 +338,17 @@ export function buildInspectFindingWorkItemBody(format: WorkItemClipboardFormat,
         : ["1. Not available"];
 
     const remediationStep = reco !== "Not available" ? reco : "Apply remediation per team standards.";
+    const descriptionLines = [`Severity: ${severity}`];
+
+    if (trustLine !== null) {
+      descriptionLines.push(`Trust label: ${trustLine}`);
+    }
 
     return [
       `Short description: ${heading} (${input.findingId})`,
       "",
       "Description:",
-      `Severity: ${severity}`,
+      ...descriptionLines,
       "",
       "What was flagged:",
       whatFlagged,
@@ -321,13 +372,20 @@ export function buildInspectFindingWorkItemBody(format: WorkItemClipboardFormat,
     ].join("\n");
   }
 
-  return [
+  const markdownLines = [
     `## Finding: ${heading}`,
     "",
     "**Severity:** " + severity,
     "**Finding ID:** `" + input.findingId + "`",
     "**Run:** `" + input.runId + "`",
     "**Decision rule:** " + ruleLine,
+  ];
+
+  if (trustLine !== null) {
+    markdownLines.push("**Trust label:** " + trustLine);
+  }
+
+  markdownLines.push(
     "",
     "### What was flagged",
     whatFlagged,
@@ -345,7 +403,9 @@ export function buildInspectFindingWorkItemBody(format: WorkItemClipboardFormat,
     `- ArchLucid run: ${base}`,
     `- Finding (explain page): ${explainUrl}`,
     `- Structured inspector: ${inspectUrl}`,
-  ].join("\n");
+  );
+
+  return markdownLines.join("\n");
 }
 
 export async function writeWorkItemBodyToClipboard(text: string): Promise<boolean> {

@@ -1,4 +1,6 @@
 import { getDocHref } from "@/lib/help-topics";
+import { REVIEWS_LIST_PATH } from "@/lib/architecture-routes";
+import { GOVERNANCE_ALERTS_PATH, GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
 
 /**
  * Operator pages → repo-root-relative doc path (optional #fragment for GitHub heading navigation).
@@ -6,11 +8,12 @@ import { getDocHref } from "@/lib/help-topics";
  */
 const PAGE_KEY_TO_DOC_REF: Readonly<Record<string, string>> = {
   "/runs": "docs/library/customer-facing/OPERATOR_QUICKSTART.md#operator-ui",
+  [REVIEWS_LIST_PATH]: "docs/library/customer-facing/OPERATOR_QUICKSTART.md#operator-ui",
   "/runs/[id]": "docs/library/customer-facing/WORKSPACE_NAVIGATION_GUIDE.md#main-workflow",
   "/insights/compare-two-reviews": "docs/library/COMPARISON_REPLAY.md",
   "/governance/approval-queue": "docs/library/PRE_COMMIT_GOVERNANCE_GATE.md",
-  "/audit": "docs/library/AUDIT_COVERAGE_MATRIX.md",
-  "/alerts": "docs/library/ALERTS.md",
+  [GOVERNANCE_AUDIT_PATH]: "docs/library/AUDIT_COVERAGE_MATRIX.md",
+  [GOVERNANCE_ALERTS_PATH]: "docs/library/ALERTS.md",
   "/insights/evidence-graph": "docs/library/KNOWLEDGE_GRAPH.md",
 };
 

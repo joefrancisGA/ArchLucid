@@ -19,6 +19,7 @@ export type FindingTrustChipKind =
   | "simulator-derived"
   | "heuristic"
   | "deterministic-rule"
+  | "deterministic-fallback"
   | "degraded";
 
 export type FindingTrustChipModel = {
@@ -40,6 +41,7 @@ const chipClassByKind: Record<FindingTrustChipKind, string> = {
   "simulator-derived": enterpriseStatusTagClass("in-progress"),
   heuristic: enterpriseStatusTagClass("neutral"),
   "deterministic-rule": enterpriseStatusTagClass("ready"),
+  "deterministic-fallback": enterpriseStatusTagClass("needs-attention"),
   degraded: enterpriseStatusTagClass("needs-attention"),
 };
 
@@ -49,6 +51,10 @@ function kindFromProvenance(
 ): FindingTrustChipKind {
   if (origin === "Deterministic rule") {
     return "deterministic-rule";
+  }
+
+  if (origin === "Deterministic fallback") {
+    return "deterministic-fallback";
   }
 
   if (origin === "Simulated") {
@@ -120,12 +126,16 @@ export function deriveFindingTrustChip(
     provenance.grounding === "Not applicable"
       ? ""
       : ` Grounding: ${provenance.grounding}.`;
+  const wireReason = finding.trustLabelReason?.trim();
 
   return {
     kind,
     label: provenance.origin,
     groundingLabel: provenance.grounding,
-    title: `${originExplanation}${groundingSuffix}`,
+    title:
+      derived.source === "wire" && wireReason !== undefined && wireReason.length > 0
+        ? wireReason
+        : `${originExplanation}${groundingSuffix}`,
     origin: provenance.origin,
     grounding: provenance.grounding,
     trustSource: derived.source,

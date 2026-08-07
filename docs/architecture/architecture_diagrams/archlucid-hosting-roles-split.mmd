@@ -1,0 +1,10 @@
+flowchart TB
+  Res["HostingRoleResolver"] --> Enum["ArchLucidHostingRole"]
+  Enum --> Comb["Combined default"]
+  Enum --> Api["Api HTTP plus limited work"]
+  Enum --> Worker["Worker background loops"]
+  Comb --> Prog["ArchLucid.Api Program"]
+  Api --> Prog
+  Worker --> WH["WorkerHostPipelineExtensions"]
+  Api --> Ret["RetentionPurgeWorker Api-only"]
+  Worker --> Jobs["ContainerJobsOffloadRules"]

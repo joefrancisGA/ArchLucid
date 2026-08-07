@@ -2,6 +2,7 @@ using System.Diagnostics;
 
 using ArchLucid.Application.Analysis;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Security;
@@ -9,6 +10,7 @@ using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Persistence.Coordination.Export;
 using ArchLucid.Persistence.Orchestration;
 
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 using Serilog.Context;
@@ -40,7 +42,29 @@ public sealed class RunExportBlobPushOutboxProcessor(
     public async Task<int> ProcessPendingBatchAsync(CancellationToken ct)
     {
         RunExportBlobPushOutboxProcessorOptions opts = VerifiedOptions(_processorOptions.Value);
+        int maxConcurrent = Math.Clamp(opts.MaxConcurrentBatchEntries, 1, MaxBatch);
 
+        using IServiceScope dequeueScope = _scopeFactory.CreateScope();
+        IRunExportBlobPushOutboxRepository outbox =
+            dequeueScope.ServiceProvider.GetRequiredService<IRunExportBlobPushOutboxRepository>();
+
+        IReadOnlyList<RunExportBlobPushOutboxEntry> batch =
+            await outbox.DequeuePendingAsync(MaxBatch, opts.LeaseDurationSeconds, ct).ConfigureAwait(false);
+
+        await BoundedBatchParallelism.ForEachAsync(
+            batch,
+            maxConcurrent,
+            (entry, token) => ProcessEntryWithIsolationAsync(entry, opts, token),
+            ct).ConfigureAwait(false);
+
+        return batch.Count;
+    }
+
+    private async Task ProcessEntryWithIsolationAsync(
+        RunExportBlobPushOutboxEntry entry,
+        RunExportBlobPushOutboxProcessorOptions opts,
+        CancellationToken ct)
+    {
         using IServiceScope scope = _scopeFactory.CreateScope();
         IRunExportBlobPushOutboxRepository outbox =
             scope.ServiceProvider.GetRequiredService<IRunExportBlobPushOutboxRepository>();
@@ -50,25 +74,19 @@ public sealed class RunExportBlobPushOutboxProcessor(
             scope.ServiceProvider.GetRequiredService<IRunExportBlobPushService>();
         IAuditService auditService = scope.ServiceProvider.GetRequiredService<IAuditService>();
 
-        IReadOnlyList<RunExportBlobPushOutboxEntry> batch =
-            await outbox.DequeuePendingAsync(MaxBatch, opts.LeaseDurationSeconds, ct);
-
-        foreach (RunExportBlobPushOutboxEntry entry in batch)
-
-            try
-            {
-                await ProcessEntryAsync(outbox, packageBuilder, pushService, auditService, entry, opts, ct);
-            }
-            catch (OperationCanceledException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                await OnProcessingFailedAsync(outbox, auditService, entry, ex, opts, ct);
-            }
-
-        return batch.Count;
+        try
+        {
+            await ProcessEntryAsync(outbox, packageBuilder, pushService, auditService, entry, opts, ct)
+                .ConfigureAwait(false);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            await OnProcessingFailedAsync(outbox, auditService, entry, ex, opts, ct).ConfigureAwait(false);
+        }
     }
 
     private async Task ProcessEntryAsync(
@@ -256,6 +274,7 @@ public sealed class RunExportBlobPushOutboxProcessor(
         int maxAttempts = ClampInt(configured.MaxAttemptsBeforeDeadLetter, 1, 999);
         int baseSecs = ClampInt(configured.RetryBackoffBaseSeconds, 1, 86_400);
         int maxSecs = ClampInt(configured.RetryBackoffMaxSeconds, 1, 86_400 * 7);
+        int maxConcurrent = ClampInt(configured.MaxConcurrentBatchEntries, 1, MaxBatch);
 
         if (maxSecs < baseSecs)
             maxSecs = baseSecs;
@@ -266,6 +285,7 @@ public sealed class RunExportBlobPushOutboxProcessor(
             MaxAttemptsBeforeDeadLetter = maxAttempts,
             RetryBackoffBaseSeconds = baseSecs,
             RetryBackoffMaxSeconds = maxSecs,
+            MaxConcurrentBatchEntries = maxConcurrent,
         };
     }
 

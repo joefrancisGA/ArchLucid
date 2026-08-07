@@ -82,6 +82,8 @@ function buildFindingWorkItemInput(
     decisionRuleId: payload.decisionRuleId,
     decisionRuleName: payload.decisionRuleName,
     evidenceExcerpts: evidenceLinesFromInspectPayload(payload),
+    trustLabel: payload.trustLabel ?? null,
+    trustLabelReason: payload.trustLabelReason ?? null,
   };
 }
 

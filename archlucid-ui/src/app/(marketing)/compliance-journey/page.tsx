@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { ComplianceJourneyEvidenceOrientationStrip } from "@/components/marketing/ComplianceJourneyEvidenceOrientationStrip";
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 
 export const metadata: Metadata = {
@@ -18,7 +19,8 @@ export default function ComplianceJourneyPage() {
         engineering controls so buyers can diligence the product without mistaking roadmap for certification. This page
         summarizes what is in scope now — no new certifications are claimed here.
       </p>
-      <ul className="list-disc space-y-2 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
+      <ComplianceJourneyEvidenceOrientationStrip />
+      <ul className="mt-6 list-disc space-y-2 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
         <li>
           <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/trust">
             Trust Center

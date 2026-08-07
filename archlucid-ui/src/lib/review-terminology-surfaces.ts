@@ -23,7 +23,7 @@ export const REVIEW_TERMINOLOGY_HIGH_TRAFFIC_SURFACE_PATHS = [
   "src/components/draft-intake/DraftIntakeWhatIfBranchPanel.tsx",
   "src/app/(operator)/administration/extract-upload/_sections/ExtractUploadSettingsPageClient.tsx",
   "src/app/(operator)/insights/architecture-scorecard/_sections/PilotScorecardPageView.tsx",
-  "src/app/(operator)/value-report/pilot/_sections/PilotValueReportPageView.tsx",
+  "src/app/(operator)/sponsor-report/pilot-outcomes/_sections/PilotValueReportPageView.tsx",
   "src/app/(operator)/governance/policy-packs/_sections/PolicyRuleAuthoringWizard.tsx",
   "src/app/(executive)/executive/scorecard/ExecutiveScorecardClient.tsx",
 ] as const;
@@ -139,9 +139,9 @@ export const REVIEW_TERMINOLOGY_NAV_EMPTY_GLOSSARY_SURFACE_PATHS = [
 /** Nav caption and reviews hub modules scanned for retired package list nouns. */
 export const REVIEW_TERMINOLOGY_ARCHITECTURE_PACKAGE_LIST_NOUN_SURFACE_PATHS = [
   "src/lib/pilot-nav-group-builder.ts",
-  "src/app/(operator)/reviews/_sections/reviews-hub-copy.ts",
-  "src/app/(operator)/reviews/_sections/ReviewsHubReviewInventory.tsx",
-  "src/app/(operator)/reviews/_sections/ReviewsHubHeaderActions.tsx",
+  "src/app/(operator)/architecture/reviews/_sections/reviews-hub-copy.ts",
+  "src/app/(operator)/architecture/reviews/_sections/ReviewsHubReviewInventory.tsx",
+  "src/app/(operator)/architecture/reviews/_sections/ReviewsHubHeaderActions.tsx",
 ] as const;
 
 /**
@@ -224,10 +224,10 @@ export const REVIEW_TERMINOLOGY_FIRST_HOUR_SURFACE_PATHS = [
   "src/components/CorePilotNextStepsCard.tsx",
   "src/components/CommitRunButton.tsx",
   "src/components/RunAgentQualityWarningsPanel.tsx",
-  "src/app/(operator)/reviews/new/SocraticIntakeWizard.tsx",
-  "src/app/(operator)/reviews/new/QuickStartWizard.tsx",
-  "src/app/(operator)/reviews/new/QuickReviewWizard.tsx",
-  "src/app/(operator)/reviews/RunsListClient.tsx",
+  "src/app/(operator)/architecture/reviews/new/SocraticIntakeWizard.tsx",
+  "src/app/(operator)/architecture/reviews/new/QuickStartWizard.tsx",
+  "src/app/(operator)/architecture/reviews/new/QuickReviewWizard.tsx",
+  "src/app/(operator)/architecture/reviews/RunsListClient.tsx",
 ] as const;
 
 /**
@@ -235,14 +235,14 @@ export const REVIEW_TERMINOLOGY_FIRST_HOUR_SURFACE_PATHS = [
  * Scanned by {@link ./review-terminology-guard.test.ts} for {@link REVIEW_TERMINOLOGY_BANNED_PRIMARY_RUN_PATTERNS}.
  */
 export const REVIEW_TERMINOLOGY_REVIEW_PACKAGE_DETAIL_SURFACE_PATHS = [
-  "src/app/(operator)/reviews/[runId]/_sections/RunDetailPageView.tsx",
-  "src/app/(operator)/reviews/[runId]/_sections/ReviewPackageSummaryHeader.tsx",
-  "src/app/(operator)/reviews/[runId]/_sections/ReviewPackagePrimaryAction.tsx",
-  "src/app/(operator)/reviews/[runId]/_sections/resolve-review-package-attention-line.ts",
-  "src/app/(operator)/reviews/[runId]/_sections/RunDetailExecutiveSummaryCtaCard.tsx",
-  "src/app/(operator)/reviews/[runId]/_sections/RunDetailGovernanceCta.tsx",
-  "src/app/(operator)/reviews/[runId]/_sections/RunDetailCaptureEvidenceSection.tsx",
-  "src/app/(operator)/reviews/[runId]/_sections/RunDetailExecutiveBottomLine.tsx",
+  "src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailPageView.tsx",
+  "src/app/(operator)/architecture/reviews/[runId]/_sections/ReviewPackageSummaryHeader.tsx",
+  "src/app/(operator)/architecture/reviews/[runId]/_sections/ReviewPackagePrimaryAction.tsx",
+  "src/app/(operator)/architecture/reviews/[runId]/_sections/resolve-review-package-attention-line.ts",
+  "src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailExecutiveSummaryCtaCard.tsx",
+  "src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailGovernanceCta.tsx",
+  "src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailCaptureEvidenceSection.tsx",
+  "src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailExecutiveBottomLine.tsx",
   "src/components/RunDetailOutcomeCards.tsx",
   "src/components/usability/ReviewPackagePlainSummary.tsx",
   "src/components/usability/ReviewPackageEvidenceDensityStrip.tsx",

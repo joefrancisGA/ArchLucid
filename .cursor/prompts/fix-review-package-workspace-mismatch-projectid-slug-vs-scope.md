@@ -1,4 +1,4 @@
-# Fix: post-generation architecture package fails to open — `workspace-mismatch` false positive
+﻿# Fix: post-generation architecture package fails to open — `workspace-mismatch` false positive
 
 > Diagnosed 2026-07-07 from a screenshot of the architect workspace (`Claims Intake Demo` workspace, local
 > dev) showing:
@@ -150,7 +150,7 @@ a coverage gap, not a contradiction of the diagnosis above.
    (no scope switcher change).
 2. Generate a review via the Quick review wizard (or any wizard) and let it redirect to
    `/reviews/{runId}?fromGeneration=1`.
-3. Confirm you hit the `workspace-mismatch` screen. Then call `GET /v1/architecture/run/{runId}`
+3. Confirm you hit the `workspace-mismatch` screen. Then call `GET /v1/architecture/review/{runId}`
    directly (or whichever endpoint the active env uses — check `isBuyerPolishedOperatorShellEnv()`) and
    confirm the JSON `run.projectId` is a non-GUID slug (e.g. the system name you typed, or `"default"`)
    while `run.scopeProjectId` (if present in the JSON at all) matches `33333333-3333-3333-3333-333333333333`

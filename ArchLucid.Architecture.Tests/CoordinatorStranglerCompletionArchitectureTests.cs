@@ -104,7 +104,7 @@ public sealed class CoordinatorStranglerCompletionArchitectureTests
         RunWriteLifecycleRoutes.All.Should().HaveCount(3);
         RunWriteLifecycleRoutes.All.Select(route => route.Operation)
             .Should()
-            .BeEquivalentTo(["create", "execute", "commit"]);
+            .BeEquivalentTo(["create", "execute", "finalize"]);
         RunWriteLifecycleRoutes.All.Should().OnlyContain(route =>
             route.CanonicalTemplate.Contains("architecture", StringComparison.OrdinalIgnoreCase));
     }

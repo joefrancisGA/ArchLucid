@@ -1,4 +1,4 @@
-using System.Net.Http.Json;
+﻿using System.Net.Http.Json;
 using System.Text.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
@@ -76,7 +76,7 @@ public class ArchitectureTests(ArchLucidApiFactory factory) : IntegrationTestBas
 
         await seed.EnsureSuccessForTestAsync();
         HttpResponseMessage commit = await Client.PostAsync(
-            $"/v1/architecture/run/{runId}/commit",
+            $"/v1/architecture/review/{runId}/finalize",
             null);
 
         await commit.EnsureSuccessForTestAsync();

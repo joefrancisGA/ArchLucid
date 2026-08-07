@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
@@ -55,13 +55,13 @@ public sealed class MutatingEndpointIdempotencyContractIntegrationTests(ArchLuci
         CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
-        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
         await executeResponse.EnsureSuccessForTestAsync();
 
         string idempotencyKey = "tb323-commit-" + Guid.NewGuid().ToString("N");
         object commitBody = new { notifySponsor = false };
 
-        using HttpRequestMessage firstCommit = new(HttpMethod.Post, $"/v1/architecture/run/{runId}/commit");
+        using HttpRequestMessage firstCommit = new(HttpMethod.Post, $"/v1/architecture/review/{runId}/finalize");
         firstCommit.Content = JsonContent(commitBody);
         firstCommit.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);
 
@@ -72,7 +72,7 @@ public sealed class MutatingEndpointIdempotencyContractIntegrationTests(ArchLuci
         firstCommitPayload.Should().NotBeNull();
         string firstManifestVersion = firstCommitPayload!.Manifest.Metadata.ManifestVersion;
 
-        using HttpRequestMessage secondCommit = new(HttpMethod.Post, $"/v1/architecture/run/{runId}/commit");
+        using HttpRequestMessage secondCommit = new(HttpMethod.Post, $"/v1/architecture/review/{runId}/finalize");
         secondCommit.Content = JsonContent(commitBody);
         secondCommit.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);
 
@@ -98,9 +98,9 @@ public sealed class MutatingEndpointIdempotencyContractIntegrationTests(ArchLuci
         CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
-        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
         await executeResponse.EnsureSuccessForTestAsync();
-        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
+        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
         await commitResponse.EnsureSuccessForTestAsync();
         CommitRunResponseDto? commitPayload =
             await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);

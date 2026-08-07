@@ -134,13 +134,13 @@ export function GraphPageContent() {
       case "provenance-full":
         return `/v1/provenance/runs/${rid}/graph`;
       case "decision-subgraph":
-        return `/v1/graph/runs/${rid}/decisions/${decisionId.trim() || "{decisionId}"}`;
+        return `/v1/evidence-graph/reviews/${rid}/decisions/${decisionId.trim() || "{decisionId}"}`;
       case "node-neighborhood":
-        return `/v1/graph/runs/${rid}/nodes/${nodeId.trim() || "{nodeId}"}/neighborhood`;
+        return `/v1/evidence-graph/reviews/${rid}/nodes/${nodeId.trim() || "{nodeId}"}/neighborhood`;
       case "architecture":
-        return `/v1/graph/runs/${rid}`;
+        return `/v1/evidence-graph/reviews/${rid}`;
       default:
-        return `/v1/graph/runs/${rid}`;
+        return `/v1/evidence-graph/reviews/${rid}`;
     }
   }, [decisionId, mode, nodeId, runId]);
 

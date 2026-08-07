@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Text;
 using System.Text.Json;
 
@@ -93,7 +93,7 @@ internal static class FirstReviewCompletionProbe
             {
                 SignalId = "run-detail",
                 Success = false,
-                Detail = "GET /v1/architecture/run/{runId} failed or returned no run.",
+                Detail = "GET /v1/architecture/review/{runId} failed or returned no run.",
             });
 
             return results;

@@ -162,7 +162,7 @@ vi.mock("@/app/(operator)/insights/planning/_sections/load-planning-page-data", 
   };
 });
 
-vi.mock("@/app/(operator)/value-report/_sections/load-value-report-page-data", () => ({
+vi.mock("@/app/(operator)/sponsor-report/executive-summary/_sections/load-value-report-page-data", () => ({
   loadValueReportPageData: () =>
     Promise.resolve({
       initialFromUtc: "2026-01-01T00:00",

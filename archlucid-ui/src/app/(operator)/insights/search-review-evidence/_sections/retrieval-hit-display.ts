@@ -1,6 +1,6 @@
 import { evidenceGraphHref } from "@/lib/evidence-graph-route";
 import { findingInspectHref } from "@/lib/finding-policy-evidence-citations";
-import { signedRecordDetailPath } from "@/lib/signed-records-paths";
+import { reviewSignedRecordPath, signedRecordDetailPath } from "@/lib/signed-records-paths";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 
 import type { RetrievalHit } from "./retrieval-hit";
@@ -158,7 +158,7 @@ export function buildRetrievalHitActionLink(
 
   if (sourceType === "ManifestDecision" && runId !== null) {
     return {
-      href: `/architecture/reviews/${encodeURIComponent(runId)}/manifest`,
+      href: reviewSignedRecordPath(runId),
       label: "Open decision in review",
     };
   }
@@ -176,7 +176,7 @@ export function buildRetrievalHitActionLink(
 
   if (decisionId.length > 0 && runId !== null) {
     return {
-      href: `/architecture/reviews/${encodeURIComponent(runId)}/manifest`,
+      href: reviewSignedRecordPath(runId),
       label: "Open decision in review",
     };
   }

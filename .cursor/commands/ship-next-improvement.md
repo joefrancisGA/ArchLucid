@@ -114,9 +114,10 @@ If Step 0 selected a **P0** candidate from `TECH_BACKLOG.md`:
 1. Implement it completely with tests/verification appropriate to scope.
 2. Run the **Quality gate** (below).
 3. Mark **Done** in `TECH_BACKLOG.md` (title column + `Updated:` line at top with closure summary).
-4. Commit and push to **`master`** (or user-named branch).
-5. Run the **CI gate** (below).
-6. Go to **Step 5**.
+4. Refresh open-by-category counts: `python scripts/ci/refresh_tech_backlog_category_counts.py --write` (keeps the top-of-file running open list accurate; CI enforces `--check`).
+5. Commit and push to **`master`** (or user-named branch).
+6. Run the **CI gate** (below).
+7. Go to **Step 5**.
 
 Otherwise → **Step 2**.
 
@@ -124,7 +125,7 @@ Otherwise → **Step 2**.
 
 If Step 0 selected a **P1** candidate from `TECH_BACKLOG.md`:
 
-1. Implement, run the **Quality gate** (below), mark Done in `TECH_BACKLOG.md`, commit, push to **`master`**.
+1. Implement, run the **Quality gate** (below), mark Done in `TECH_BACKLOG.md`, run `python scripts/ci/refresh_tech_backlog_category_counts.py --write`, commit, push to **`master`**.
 2. Run the **CI gate** (below).
 3. Go to **Step 5**.
 
@@ -136,7 +137,7 @@ If Step 0 selected a **Tier 1/2 or Promoted-to-V1** candidate from `LATEST_GPT55
 
 1. Implement it.
 2. Run the **Quality gate** (below).
-3. Mark Done in `TECH_BACKLOG.md` when a TB-ID exists; update whichever assessment file listed it (`LATEST_GPT55.md` §17 or `LATEST_EXPOSURE.md` §20) to acknowledge closure (move to shipped pointer — do not leave as open Tier entry).
+3. Mark Done in `TECH_BACKLOG.md` when a TB-ID exists; run `python scripts/ci/refresh_tech_backlog_category_counts.py --write` when the summary table changed; update whichever assessment file listed it (`LATEST_GPT55.md` §17 or `LATEST_EXPOSURE.md` §20) to acknowledge closure (move to shipped pointer — do not leave as open Tier entry).
 4. Commit, push to **`master`**.
 5. Run the **CI gate** (below).
 6. Go to **Step 5**.
@@ -149,7 +150,7 @@ If Step 0 selected a **P2/P3 or unlabeled** backlog candidate:
 
 1. Implement the first open row.
 2. Run the **Quality gate** (below).
-3. Mark Done in `TECH_BACKLOG.md`, commit, push to **`master`**.
+3. Mark Done in `TECH_BACKLOG.md`, run `python scripts/ci/refresh_tech_backlog_category_counts.py --write`, commit, push to **`master`**.
 4. Run the **CI gate** (below).
 5. Go to **Step 5**.
 

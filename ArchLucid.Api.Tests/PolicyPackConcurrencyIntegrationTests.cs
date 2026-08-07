@@ -14,7 +14,7 @@ namespace ArchLucid.Api.Tests;
 /// <summary>
 ///     Parallel <c>POST /v1/policy-packs</c> with identical name in the same scope: the model does not enforce a unique
 ///     name, so all writers can succeed. With <c>ArchLucid:StorageProvider=InMemory</c> (default
-///     <see cref="ArchLucidApiFactory" />), packs live in the in-process store â€” list by HTTP, not <c>dbo</c> probes.
+///     <see cref="ArchLucidApiFactory" />), packs live in the in-process store — list by HTTP, not <c>dbo</c> probes.
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Slow")]

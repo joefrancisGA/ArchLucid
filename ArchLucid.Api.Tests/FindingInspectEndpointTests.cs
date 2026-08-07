@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Application.Bootstrap;
@@ -106,7 +106,7 @@ public sealed class FindingInspectEndpointTests(ArchLucidApiFactory factory) : I
 
         HttpResponseMessage response =
             await Client.GetAsync(
-                $"/v1/architecture/run/{baselineRunGuid:D}/findings/{DemoPrimaryFindingId}/inspect");
+                $"/v1/architecture/review/{baselineRunGuid:D}/findings/{DemoPrimaryFindingId}/inspect");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -130,7 +130,7 @@ public sealed class FindingInspectEndpointTests(ArchLucidApiFactory factory) : I
 
         HttpResponseMessage response =
             await Client.GetAsync(
-                $"/v1/architecture/run/{mismatchedRunGuid:D}/findings/{DemoPrimaryFindingId}/inspect");
+                $"/v1/architecture/review/{mismatchedRunGuid:D}/findings/{DemoPrimaryFindingId}/inspect");
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }

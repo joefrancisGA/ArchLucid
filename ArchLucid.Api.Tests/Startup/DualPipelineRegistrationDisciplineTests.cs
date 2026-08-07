@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ArchLucid.Api.Tests.Startup;
 
 /// <summary>
-///     ADR 0030 PR A3 (2026-04-24) closure invariant â€” the original ADR 0010 dual-pipeline boundary
+///     ADR 0030 PR A3 (2026-04-24) closure invariant — the original ADR 0010 dual-pipeline boundary
 ///     has fully collapsed onto the authority side. <c>ICoordinatorGoldenManifestRepository</c> and
 ///     <c>ICoordinatorDecisionTraceRepository</c> were deleted, the legacy
 ///     <c>ArchitectureRunCommitOrchestrator</c> + <c>RunCommitPathSelector</c> +

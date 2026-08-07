@@ -1,4 +1,5 @@
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { ITSM_ADMIN_TICKET_LINKAGE_DESCRIPTION } from "@/lib/finding-correlation-vocabulary";
 import { SETTINGS_SECURITY_TRUST_PATH } from "@/lib/settings-admin-route-paths";
 
 import { INTERNAL_DEVELOPER_TOOLS_CATALOG_DESCRIPTION } from "../developer/developer-settings-copy";
@@ -169,7 +170,7 @@ export const SETTINGS_MASTER_SECTIONS: readonly SettingsMasterSection[] = [
       {
         id: "itsm-jira",
         title: "Jira",
-        description: "Outbound ITSM correlation and tenant connector settings.",
+        description: ITSM_ADMIN_TICKET_LINKAGE_DESCRIPTION,
         href: "/integrations/jira",
         cta: "Open Jira settings",
         keywords: ["jira", "itsm", "ticket"],
@@ -184,7 +185,7 @@ export const SETTINGS_MASTER_SECTIONS: readonly SettingsMasterSection[] = [
       {
         id: "itsm-servicenow",
         title: "ServiceNow",
-        description: "Outbound ITSM correlation and tenant connector settings.",
+        description: ITSM_ADMIN_TICKET_LINKAGE_DESCRIPTION,
         href: "/integrations/servicenow",
         cta: "Open ServiceNow settings",
         keywords: ["servicenow", "itsm", "ticket"],

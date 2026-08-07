@@ -25,7 +25,7 @@ public sealed class ArchitectureAgentCompareTests(ArchLucidApiFactory factory) :
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
-        await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        await Client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
 
         var replayRequest = new
         {
@@ -33,7 +33,7 @@ public sealed class ArchitectureAgentCompareTests(ArchLucidApiFactory factory) :
         };
 
         HttpResponseMessage replayResponse = await Client.PostAsync(
-            $"/v1/architecture/run/{runId}/replay",
+            $"/v1/architecture/review/{runId}/replay",
             JsonContent(replayRequest));
 
         await replayResponse.EnsureSuccessForTestAsync();
@@ -42,7 +42,7 @@ public sealed class ArchitectureAgentCompareTests(ArchLucidApiFactory factory) :
         string replayRunId = replayPayload!.ReplayRunId;
 
         HttpResponseMessage compareResponse = await Client.GetAsync(
-            $"/v1/architecture/run/compare/agents/summary?leftRunId={runId}&rightRunId={replayRunId}");
+            $"/v1/architecture/review/compare/agents/summary?leftRunId={runId}&rightRunId={replayRunId}");
 
         compareResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 

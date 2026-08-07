@@ -214,11 +214,11 @@ public sealed class ApiProblemDetailsExceptionFilterTests
     [SkippableFact]
     public void TryMapDatabaseException_NetworkTransientSqlException_Returns503DatabaseTimeout()
     {
-        DefaultHttpContext http = CreateHttpContextForMapper("/v1/architecture/run/x/commit", "net-transient-cid");
+        DefaultHttpContext http = CreateHttpContextForMapper("/v1/architecture/review/x/commit", "net-transient-cid");
 
         bool mapped = ApplicationProblemMapper.TryMapDatabaseException(
             SqlExceptionTestFactory.Create(10053),
-            "/v1/architecture/run/x/commit",
+            "/v1/architecture/review/x/commit",
             http,
             out ObjectResult? result);
 
@@ -233,11 +233,11 @@ public sealed class ApiProblemDetailsExceptionFilterTests
     [SkippableFact]
     public void TryMapDatabaseException_DeadlockSqlException_Returns409Conflict()
     {
-        DefaultHttpContext http = CreateHttpContextForMapper("/v1/architecture/run/x/commit", "deadlock-cid");
+        DefaultHttpContext http = CreateHttpContextForMapper("/v1/architecture/review/x/commit", "deadlock-cid");
 
         bool mapped = ApplicationProblemMapper.TryMapDatabaseException(
             SqlExceptionTestFactory.Create(1205),
-            "/v1/architecture/run/x/commit",
+            "/v1/architecture/review/x/commit",
             http,
             out ObjectResult? result);
 

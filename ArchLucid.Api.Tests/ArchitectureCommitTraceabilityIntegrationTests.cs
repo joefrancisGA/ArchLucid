@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -16,7 +16,7 @@ namespace ArchLucid.Api.Tests;
 /// <summary>
 ///     Commit path through the real API host uses the production
 ///     <see cref="ArchLucid.Decisioning.Interfaces.IDecisionEngine" />
-///     (not mocks). After ADR 0030 PR A3 (2026-04-24), the only commit path is the Authority FK chain â€” these tests
+///     (not mocks). After ADR 0030 PR A3 (2026-04-24), the only commit path is the Authority FK chain Ã¢â‚¬” these tests
 ///     now assert the authority traceability invariant: the projected manifest must reference the rule-audit trace id
 ///     in <c>Metadata.DecisionTraceIds</c>.
 /// </summary>
@@ -51,9 +51,9 @@ public sealed class ArchitectureCommitTraceabilityIntegrationTests
         created.Should().NotBeNull();
         string runId = created.Run.RunId;
 
-        HttpResponseMessage executeResponse = await client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        HttpResponseMessage executeResponse = await client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
         await executeResponse.EnsureSuccessForTestAsync();
-        HttpResponseMessage commitResponse = await client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
+        HttpResponseMessage commitResponse = await client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
         commitResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
         CommitRunResponse? commitPayload =

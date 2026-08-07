@@ -7,6 +7,7 @@ using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Application.Runs.Orchestration.Events;
 using ArchLucid.Application.Runs.Sample;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Configuration;
@@ -46,31 +47,46 @@ public sealed class PostCommitProjectionOutboxProcessor(
     public async Task<int> ProcessPendingBatchAsync(CancellationToken ct)
     {
         PostCommitProjectionOutboxProcessorOptions opts = VerifiedOptions(_processorOptions.Value);
+        int maxConcurrent = Math.Clamp(opts.MaxConcurrentBatchEntries, 1, MaxBatch);
 
+        using IServiceScope dequeueScope = _scopeFactory.CreateScope();
+        IPostCommitProjectionOutboxRepository outbox =
+            dequeueScope.ServiceProvider.GetRequiredService<IPostCommitProjectionOutboxRepository>();
+
+        IReadOnlyList<PostCommitProjectionOutboxEntry> batch =
+            await outbox.DequeuePendingAsync(MaxBatch, opts.LeaseDurationSeconds, ct).ConfigureAwait(false);
+
+        await BoundedBatchParallelism.ForEachAsync(
+            batch,
+            maxConcurrent,
+            (entry, token) => ProcessEntryWithIsolationAsync(entry, opts, token),
+            ct).ConfigureAwait(false);
+
+        return batch.Count;
+    }
+
+    private async Task ProcessEntryWithIsolationAsync(
+        PostCommitProjectionOutboxEntry entry,
+        PostCommitProjectionOutboxProcessorOptions opts,
+        CancellationToken ct)
+    {
         using IServiceScope scope = _scopeFactory.CreateScope();
         IPostCommitProjectionOutboxRepository outbox =
             scope.ServiceProvider.GetRequiredService<IPostCommitProjectionOutboxRepository>();
         IAuditService auditService = scope.ServiceProvider.GetRequiredService<IAuditService>();
 
-        IReadOnlyList<PostCommitProjectionOutboxEntry> batch =
-            await outbox.DequeuePendingAsync(MaxBatch, opts.LeaseDurationSeconds, ct);
-
-        foreach (PostCommitProjectionOutboxEntry entry in batch)
-
-            try
-            {
-                await ProcessEntryAsync(scope, outbox, auditService, entry, ct);
-            }
-            catch (OperationCanceledException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                await OnProcessingFailedAsync(outbox, auditService, entry, ex, opts, ct);
-            }
-
-        return batch.Count;
+        try
+        {
+            await ProcessEntryAsync(scope, outbox, auditService, entry, ct).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            await OnProcessingFailedAsync(outbox, auditService, entry, ex, opts, ct).ConfigureAwait(false);
+        }
     }
 
     private async Task ProcessEntryAsync(
@@ -148,6 +164,13 @@ public sealed class PostCommitProjectionOutboxProcessor(
         if (entry.WorkType == PostCommitProjectionWorkTypes.IacStubGeneration)
         {
             await ProcessIacStubGenerationAsync(scope, entry, ct);
+
+            return false;
+        }
+
+        if (entry.WorkType == PostCommitProjectionWorkTypes.DecisionEngineV2NodeMaterialization)
+        {
+            await ProcessDecisionEngineV2NodeMaterializationAsync(scope, entry, ct);
 
             return false;
         }
@@ -233,6 +256,20 @@ public sealed class PostCommitProjectionOutboxProcessor(
         IFindingIacStubGenerator generator = scope.ServiceProvider.GetRequiredService<IFindingIacStubGenerator>();
 
         await generator.GenerateAndPersistStubsForRunAsync(runGuid.ToString("N"), ct);
+    }
+
+    private static async Task ProcessDecisionEngineV2NodeMaterializationAsync(
+        IServiceScope scope,
+        PostCommitProjectionOutboxEntry entry,
+        CancellationToken ct)
+    {
+        if (entry.RunId is not Guid runGuid)
+            throw new InvalidOperationException("DecisionEngineV2NodeMaterialization requires RunId.");
+
+        IDecisionEngineV2NodeMaterializer materializer =
+            scope.ServiceProvider.GetRequiredService<IDecisionEngineV2NodeMaterializer>();
+
+        await materializer.MaterializeIfMissingAsync(runGuid.ToString("N"), ct);
     }
 
     private async Task OnProcessingFailedAsync(
@@ -326,6 +363,7 @@ public sealed class PostCommitProjectionOutboxProcessor(
         int maxAttempts = ClampInt(configured.MaxAttemptsBeforeDeadLetter, 1, 999);
         int baseSecs = ClampInt(configured.RetryBackoffBaseSeconds, 1, 86_400);
         int maxSecs = ClampInt(configured.RetryBackoffMaxSeconds, 1, 86_400 * 7);
+        int maxConcurrent = ClampInt(configured.MaxConcurrentBatchEntries, 1, MaxBatch);
 
         if (maxSecs < baseSecs)
             maxSecs = baseSecs;
@@ -336,6 +374,7 @@ public sealed class PostCommitProjectionOutboxProcessor(
             MaxAttemptsBeforeDeadLetter = maxAttempts,
             RetryBackoffBaseSeconds = baseSecs,
             RetryBackoffMaxSeconds = maxSecs,
+            MaxConcurrentBatchEntries = maxConcurrent,
         };
     }
 

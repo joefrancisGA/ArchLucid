@@ -51,7 +51,7 @@
 
 ## 3. Run overage
 
-Run overage is charged when the Customer's monthly run count exceeds the included allowance for the subscribed tier. Runs are counted per committed architecture run (a call to `POST /v1/architecture/run/{runId}/commit`). Development and simulator runs that do not reach commit are not counted.
+Run overage is charged when the Customer's monthly run count exceeds the included allowance for the subscribed tier. Runs are counted per committed architecture run (a call to `POST /v1/architecture/review/{runId}/finalize`). Development and simulator runs that do not reach commit are not counted.
 
 | Field | Value |
 |-------|-------|

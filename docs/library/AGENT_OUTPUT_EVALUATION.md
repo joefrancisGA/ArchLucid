@@ -1,9 +1,11 @@
-> **Scope:** Contributor-reference — Agent output structural evaluation - full detail, tables, and links in the sections below.
+﻿> **Scope:** Contributor-reference — Agent output structural evaluation - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
 # Agent output structural evaluation
+
+**Execution vs quality taxonomy:** [LLM_EXECUTION_VS_QUALITY_OUTCOME.md](LLM_EXECUTION_VS_QUALITY_OUTCOME.md) (**TB-963**).
 
 ## 1. Objective
 
@@ -89,7 +91,7 @@ Beyond structural completeness, **`AgentOutputSemanticEvaluator`** performs a de
 |-----------|-------------|
 | **Claims quality** | Fraction of items in `claims[]` that have non-empty `evidenceRefs[]` or a non-empty `evidence` string. |
 | **Findings quality** | Fraction of items in `findings[]` with non-empty `severity`, `description` (>10 chars), and `recommendation` (>5 chars). |
-| **Overall score** | Weighted average: Claims × **0.4** + Findings × **0.6**. When only one dimension is present, that dimension's ratio is the overall score. Zero when both arrays are absent or empty. |
+| **Overall score** | Weighted average: Claims Ã— **0.4** + Findings Ã— **0.6**. When only one dimension is present, that dimension's ratio is the overall score. Zero when both arrays are absent or empty. |
 
 ### OTel metric
 
@@ -133,7 +135,7 @@ Registered as **singleton** (`IAgentOutputSemanticEvaluator → CompositeAgentOu
 
 When an **`AgentEvidencePackage`** exists for the run, **`AgentResultEvidenceFaithfulnessChecker`** (`ArchLucid.AgentRuntime`) computes **`AgentResultFaithfulnessSupportRatio`**: a deterministic overlap between claim tokens and flattened evidence text plus resolved evidence-reference hits (not LLM entailment). **`AgentOutputTraceQualityEvaluator`** and **`AgentOutputEvaluationRecorder`** attach this ratio to **`AgentOutputSemanticScore.AgentResultFaithfulnessSupportRatio`** when evaluating traces.
 
-- **`GET /v1/architecture/run/{runId}/agent-evaluation`** (**`RunAgentEvaluationController`**) loads evidence per trace and sets **`score.Semantic.AgentResultFaithfulnessSupportRatio`** for API responses (OpenAPI: **`agentResultFaithfulnessSupportRatio`** on the semantic score object).
+- **`GET /v1/architecture/review/{runId}/agent-evaluation`** (**`RunAgentEvaluationController`**) loads evidence per trace and sets **`score.Semantic.AgentResultFaithfulnessSupportRatio`** for API responses (OpenAPI: **`agentResultFaithfulnessSupportRatio`** on the semantic score object).
 - **Embedding faithfulness (optional):** when **`ArchLucid:Agents:Faithfulness:EmbeddingEnabled`** is **true**, **`IAgentResultEmbeddingFaithfulnessScorer`** computes **`AgentOutputSemanticScore.AgentResultEmbeddingFaithfulnessMeanCosine`**: mean (over claims + findings with text) of average max cosine between chunked hypothesis text and chunked evidence text via **`IEmbeddingService`**. This is **additive telemetry** and **does not** replace **`AgentResultFaithfulnessSupportRatio`**. **PII / data-plane:** chunks may include request/policy/catalog language already present in evidence packages—same classification and Azure OpenAI data handling as retrieval embeddings (review **`AzureOpenAI:EmbeddingDeploymentName`** posture and DPA/subprocessor docs before enabling in sensitive tenants). **`archlucid_agent_output_embedding_faithfulness_mean_cosine`** records a **[0,1]** telemetry mapping when the value is present. Staging appsettings ship **`EmbeddingEnabled: true`**; Production ships **`false`** by default.
 - **PilotStrict:** floor **`PilotStrictMinAgentResultFaithfulnessSupportRatio`** (`AgentOutputQualityGateOptions`) rejects traces strictly below the ratio when evidence is present (distinct from aggregate explanation **`PilotStrictMinFaithfulnessSupportRatio`**). **`Mode=PilotStrict` requires this property to be set**; **`AgentOutputQualityGateOptionsValidator`** fails host startup otherwise. **`appsettings.Staging.json`** / **`appsettings.Production.json`** set **0.7**.
 - **`HeuristicEvaluatorTightenedThresholds`:** tightens **`HeuristicAgentOutputSemanticEvaluator`** thresholds without changing contract shapes.
@@ -165,7 +167,7 @@ These labels are product evidence posture, not legal, compliance, or audit attes
 - **`appsettings.Advanced.json`:** override only when a host needs non-default thresholds.
 - **Environment / platform overrides:** use **`ArchLucid:AgentOutput:QualityGate:*`** (for example `ArchLucid__AgentOutput__QualityGate__EnforceOnReject`); **`docs/library/CONFIGURATION_REFERENCE.md`** lists keys.
 
-**Release credibility posture (owner, 2026-05-01):** Buyers who design on Azure and for AI systems should see a **high bar**. **Release candidates must not ship** when **reference** real-mode or (once required) golden-cohort real-LLM evidence shows **insufficient** structural/semantic scores or a **material rate** of **rejected** gate outcomes at the configured floors—**warn-only** is not enough for perceived credibility. Operational follow-up: name the **reference Azure OpenAI deployment**, then tune **`StructuralWarnBelow` / `SemanticWarnBelow` / `StructuralRejectBelow` / `SemanticRejectBelow`** **conservatively** (often **tighter** than initial defaults) and wire failing gates into **required** release or branch-protection automation. **Offline PR signal:** `scripts/ci/eval_agent_corpus.py` scores committed **simulator** **`AgentResult`** JSON under **`tests/eval-corpus/agent-results/`** with the same structural/semantic heuristics and default gate floors; use `--markdown-report` for an RC appendix and **`--enforce-quality-gate`** when a tagged build must fail on **rejected** simulator rows. **Manual QA** lay definitions, threshold discipline, and operator actions: [`docs/quality/MANUAL_QA_CHECKLIST.md`](../quality/MANUAL_QA_CHECKLIST.md) § **8.4**.
+**Release credibility posture (owner, 2026-05-01):** Buyers who design on Azure and for AI systems should see a **high bar**. **Release candidates must not ship** when **reference** real-mode or (once required) golden-cohort real-LLM evidence shows **insufficient** structural/semantic scores or a **material rate** of **rejected** gate outcomes at the configured floors—**warn-only** is not enough for perceived credibility. Operational follow-up: name the **reference Azure OpenAI deployment**, then tune **`StructuralWarnBelow` / `SemanticWarnBelow` / `StructuralRejectBelow` / `SemanticRejectBelow`** **conservatively** (often **tighter** than initial defaults) and wire failing gates into **required** release or branch-protection automation. **Offline PR signal:** `scripts/ci/eval_agent_corpus.py` scores committed **simulator** **`AgentResult`** JSON under **`tests/eval-corpus/agent-results/`** with the same structural/semantic heuristics and default gate floors; use `--markdown-report` for an RC appendix and **`--enforce-quality-gate`** when a tagged build must fail on **rejected** simulator rows. **Manual QA** lay definitions, threshold discipline, and operator actions: [`docs/quality/MANUAL_QA_CHECKLIST.md`](../quality/MANUAL_QA_CHECKLIST.md) Â§ **8.4**.
 
 **Release cohort green bar (planning baseline, 2026-05-09):** Tiered targets on the committed **release cohort** — **canonical SKU `gpt-4o`** (operator lock 2026-05-11; see **`GOLDEN_COHORT_REAL_LLM_GATE.md`** **section 10**) — structural completeness, quality-gate rejects, semantic score percentiles, explainability trace completeness mean, adversarial qualitative bar are summarized there — **not** merge-blocking unless you wire automation to enforce them.
 
@@ -202,7 +204,7 @@ Add a new JSON file per scenario (minimal fields only); keep fixtures **small** 
 ## 8. Operational Considerations
 
 - **Full prompts**: Blob upload (plus SQL **`Full*Inline`** fallback) runs after trace insert for **Real** execution; **Simulator** skips full-text blob/inline; see **`docs/AGENT_TRACE_FORENSICS.md`**. Optional JSON reference cases: **`AgentExecution:ReferenceEvaluation`** → **`archlucid_agent_output_reference_case_*`** metrics and **`dbo.AgentOutputEvaluationResults`**.
-- **Offline rollup CLI:** `archlucid agent-eval rollup --from-json <agent-evaluation.json> [--json]` summarizes an export of **`GET /v1/architecture/run/{runId}/agent-evaluation`** without AOAI credentials. **Simulator vs real LLM mode is not embedded** in that JSON — correlate with run provenance / deployment configuration before treating rows as production evidence.
+- **Offline rollup CLI:** `archlucid agent-eval rollup --from-json <agent-evaluation.json> [--json]` summarizes an export of **`GET /v1/architecture/review/{runId}/agent-evaluation`** without AOAI credentials. **Simulator vs real LLM mode is not embedded** in that JSON — correlate with run provenance / deployment configuration before treating rows as production evidence.
 - **Dashboards**: **`archlucid_agent_output_structural_completeness_ratio`** (histogram), **`archlucid_agent_output_semantic_score`** (histogram), **`archlucid_agent_output_parse_failures_total`** (counter), and optional **`archlucid_agent_output_quality_gate_total`** (counter)—see **`docs/OBSERVABILITY.md`**.
 - **Low score logs**: Recorder warns below **0.5** completeness for both structural and semantic scores (configurable in code if product asks).
 - **Evolution**: Per-**`AgentType`** key lists live in **`GetExpectedKeys`** for future stricter Topology/Cost/Critic profiles.
@@ -242,8 +244,8 @@ Deterministic **retrieval citation faithfulness** for agent output text against 
 | **Runner** | `python scripts/ci/eval_agent_faithfulness.py` (add `--enforce` for merge-blocking) |
 | **Report** | `docs/quality/faithfulness-report.md` (auto-generated) |
 | **PR CI** | `.github/workflows/ci.yml` → `ci-agent-offline-regression` runs **`--enforce`** (Phase A) |
-| **Positive readiness floor** | Mean support ratio **≥ 0.80** (`minPositiveSupportRatio`) |
-| **Negative-control ceiling** | Mean support ratio **≤ 0.35** (`maxNegativeSupportRatio`) — missing-citation, wrong-corpus, and unsupported ROI/cost cases must flag detectors |
+| **Positive readiness floor** | Mean support ratio **â‰¥ 0.80** (`minPositiveSupportRatio`) |
+| **Negative-control ceiling** | Mean support ratio **â‰¤ 0.35** (`maxNegativeSupportRatio`) — missing-citation, wrong-corpus, and unsupported ROI/cost cases must flag detectors |
 | **Combined diagnostic ratio** | Historical all-case view only; **not** merge-blocking when split cohorts are both present |
 
 **Env overrides:** `ARCHLUCID_FAITHFULNESS_MIN_POSITIVE_SUPPORT_RATIO`, `ARCHLUCID_FAITHFULNESS_MAX_NEGATIVE_SUPPORT_RATIO`, `ARCHLUCID_FAITHFULNESS_MIN_SUPPORT_RATIO` (combined diagnostic floor when no split cohorts).
@@ -257,7 +259,7 @@ If any item fails, classify the sponsor packet as not ready and follow [`QUALITY
 **What the product emits today**
 
 - After each **successful** architecture **`execute`**, **`AgentOutputEvaluationRecorder`** records **OpenTelemetry** histograms and counters documented in **`OBSERVABILITY.md`**: **`archlucid_agent_output_structural_completeness_ratio`**, **`archlucid_agent_output_semantic_score`**, **`archlucid_agent_output_quality_gate_total`**, **`archlucid_agent_output_parse_failures_total`** (labels include **`agent_type`**; gate counter includes **`outcome`**).
-- **Per run (no warehouse required):** **`GET /v1/architecture/run/{runId}/agent-evaluation`** returns the same scoring for that run’s traces (averages per row + summary).
+- **Per run (no warehouse required):** **`GET /v1/architecture/review/{runId}/agent-evaluation`** returns the same scoring for that run’s traces (averages per row + summary).
 
 **There is no first-party “weekly agent score email” in the API** — trending and notifications are expected to come from whatever receives **OTel** (Azure Monitor / Application Insights + **Metric alerts**, **Grafana** + **Alerting**, Prometheus + **Alertmanager**, etc.).
 
@@ -266,8 +268,8 @@ If any item fails, classify the sponsor packet as not ready and follow [`QUALITY
 | Approach | What you do |
 |----------|-------------|
 | **Grafana** (or similar) | Panels on the histograms above: **p50/p90/p95** over time, split by **`agent_type`**; separate stat panel for **`rate(archlucid_agent_output_quality_gate_total{outcome="rejected"}[1d])`**. Pair with **`OBSERVABILITY.md`** naming. |
-| **Azure Monitor / App Insights** | If the host exports OTLP or **custom metrics** land in App Insights, use **Metrics** explorer or a **Workbook** (pattern: golden cohort cost workbook in **`docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md`** §5). **KQL** (when custom metrics are in `customMetrics`) can time-series **`archlucid_agent_output_semantic_score`** and **`archlucid_agent_output_structural_completeness_ratio`** — exact field names depend on exporter mapping. |
-| **Manual / pilot** | For a single tenant, call **`agent-evaluation`** after important runs and paste aggregates into your pilot log (see **`docs/quality/MANUAL_QA_CHECKLIST.md`** §8.3–8.4). |
+| **Azure Monitor / App Insights** | If the host exports OTLP or **custom metrics** land in App Insights, use **Metrics** explorer or a **Workbook** (pattern: golden cohort cost workbook in **`docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md`** Â§5). **KQL** (when custom metrics are in `customMetrics`) can time-series **`archlucid_agent_output_semantic_score`** and **`archlucid_agent_output_structural_completeness_ratio`** — exact field names depend on exporter mapping. |
+| **Manual / pilot** | For a single tenant, call **`agent-evaluation`** after important runs and paste aggregates into your pilot log (see **`docs/quality/MANUAL_QA_CHECKLIST.md`** Â§8.3–8.4). |
 
 **Get email when something is wrong (or on a schedule)**
 

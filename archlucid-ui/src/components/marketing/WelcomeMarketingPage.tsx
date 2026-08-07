@@ -105,7 +105,7 @@ export function WelcomeMarketingPage(props: {
             </Link>
             {" · "}
             <Link className={MARKETING_SURFACES.inlineLink} href="/security-trust">
-              Security and trust
+              Assurance status
             </Link>
           </p>
         </section>

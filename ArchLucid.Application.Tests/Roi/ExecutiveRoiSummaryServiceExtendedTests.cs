@@ -121,7 +121,7 @@ public sealed class ExecutiveRoiSummaryServiceExtendedTests
             [paymentsSummary, claimsSummary]);
 
         runQuery
-            .Setup(query => query.GetRunDetailAsync(paymentsRunId.ToString("N"), It.IsAny<CancellationToken>()))
+            .Setup(query => query.GetRunDetailForRoiAsync(paymentsRunId.ToString("N"), It.IsAny<CancellationToken>()))
             .ReturnsAsync(BuildDetail(paymentsRunId, "Payments", null, committedUtc,
             [
                 new ArchitectureFinding
@@ -134,7 +134,7 @@ public sealed class ExecutiveRoiSummaryServiceExtendedTests
             ]));
 
         runQuery
-            .Setup(query => query.GetRunDetailAsync(claimsRunId.ToString("N"), It.IsAny<CancellationToken>()))
+            .Setup(query => query.GetRunDetailForRoiAsync(claimsRunId.ToString("N"), It.IsAny<CancellationToken>()))
             .ReturnsAsync(BuildDetail(claimsRunId, "Claims", null, committedUtc,
             [
                 new ArchitectureFinding
@@ -195,7 +195,7 @@ public sealed class ExecutiveRoiSummaryServiceExtendedTests
             [paymentsSummary, claimsSummary]);
 
         runQuery
-            .Setup(query => query.GetRunDetailAsync(paymentsRunId.ToString("N"), It.IsAny<CancellationToken>()))
+            .Setup(query => query.GetRunDetailForRoiAsync(paymentsRunId.ToString("N"), It.IsAny<CancellationToken>()))
             .ReturnsAsync(BuildDetail(paymentsRunId, "Payments", null, committedUtc,
             [
                 new ArchitectureFinding
@@ -208,7 +208,7 @@ public sealed class ExecutiveRoiSummaryServiceExtendedTests
             ]));
 
         runQuery
-            .Setup(query => query.GetRunDetailAsync(claimsRunId.ToString("N"), It.IsAny<CancellationToken>()))
+            .Setup(query => query.GetRunDetailForRoiAsync(claimsRunId.ToString("N"), It.IsAny<CancellationToken>()))
             .ReturnsAsync(BuildDetail(claimsRunId, "Claims", null, committedUtc,
             [
                 new ArchitectureFinding
@@ -271,7 +271,7 @@ public sealed class ExecutiveRoiSummaryServiceExtendedTests
             [paymentsSummary, claimsSummary]);
 
         runQuery
-            .Setup(query => query.GetRunDetailAsync(paymentsRunId.ToString("N"), It.IsAny<CancellationToken>()))
+            .Setup(query => query.GetRunDetailForRoiAsync(paymentsRunId.ToString("N"), It.IsAny<CancellationToken>()))
             .ReturnsAsync(BuildDetail(paymentsRunId, "Payments", paymentsSnapshotId, committedUtc,
             [
                 new ArchitectureFinding
@@ -285,7 +285,7 @@ public sealed class ExecutiveRoiSummaryServiceExtendedTests
             ]));
 
         runQuery
-            .Setup(query => query.GetRunDetailAsync(claimsRunId.ToString("N"), It.IsAny<CancellationToken>()))
+            .Setup(query => query.GetRunDetailForRoiAsync(claimsRunId.ToString("N"), It.IsAny<CancellationToken>()))
             .ReturnsAsync(BuildDetail(claimsRunId, "Claims", claimsSnapshotId, committedUtc,
             [
                 new ArchitectureFinding
@@ -355,7 +355,7 @@ public sealed class ExecutiveRoiSummaryServiceExtendedTests
         Mock<IRunDetailQueryService> runQuery = CreateTenantScopedRunQuery(primaryTenantId, [summary]);
 
         runQuery
-            .Setup(query => query.GetRunDetailAsync(runId.ToString("N"), It.IsAny<CancellationToken>()))
+            .Setup(query => query.GetRunDetailForRoiAsync(runId.ToString("N"), It.IsAny<CancellationToken>()))
             .ReturnsAsync(BuildDetail(runId, "Payments", null, committedUtc,
             [
                 new ArchitectureFinding
@@ -415,7 +415,7 @@ public sealed class ExecutiveRoiSummaryServiceExtendedTests
             .ReturnsAsync((new[] { recentSummary, staleSummary }, false, null));
 
         runQuery
-            .Setup(query => query.GetRunDetailAsync(recentRunId.ToString("N"), It.IsAny<CancellationToken>()))
+            .Setup(query => query.GetRunDetailForRoiAsync(recentRunId.ToString("N"), It.IsAny<CancellationToken>()))
             .ReturnsAsync(BuildDetail(recentRunId, "Payments", null, recent, []));
 
         ExecutiveRoiSummaryService sut = CreateSut(runQuery.Object, Mock.Of<ITenantEstimatedUsdSavingsResolver>());
@@ -466,7 +466,7 @@ public sealed class ExecutiveRoiSummaryServiceExtendedTests
             string runIdHex = runId.ToString("N");
 
             runQuery
-                .Setup(query => query.GetRunDetailAsync(runIdHex, It.IsAny<CancellationToken>()))
+                .Setup(query => query.GetRunDetailForRoiAsync(runIdHex, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(BuildDetail(runId, $"System-{index}", Guid.NewGuid(), monthUtc, [], structuralExecutionMode: mode));
         }
 
@@ -504,7 +504,7 @@ public sealed class ExecutiveRoiSummaryServiceExtendedTests
             .ReturnsAsync((new[] { summary }, false, null));
 
         runQuery
-            .Setup(query => query.GetRunDetailAsync(runId.ToString("N"), It.IsAny<CancellationToken>()))
+            .Setup(query => query.GetRunDetailForRoiAsync(runId.ToString("N"), It.IsAny<CancellationToken>()))
             .ReturnsAsync(BuildDetail(runId, "Payments", null, committedUtc,
             [
                 new ArchitectureFinding

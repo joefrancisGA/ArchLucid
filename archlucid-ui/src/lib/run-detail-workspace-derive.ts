@@ -13,6 +13,11 @@ import {
 } from "@/lib/quick-decision-summary-derive";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
+import {
+  isQualityRejectedRunStatus,
+  resolveExecutionFailedWorkspaceStatusLabel,
+  resolveQualityRejectedWorkspaceStatusLabel,
+} from "@/lib/execution-vs-quality-outcome-copy";
 import type { ManifestSummary, RunDetail, RunSummary } from "@/types/authority";
 
 export type RunDetailWorkspaceStatusKind =
@@ -22,7 +27,9 @@ export type RunDetailWorkspaceStatusKind =
   | "awaiting-decision"
   | "changes-requested"
   | "approved"
-  | "finalized";
+  | "finalized"
+  | "quality-gate-rejected"
+  | "execution-failed";
 
 export type RunDetailWorkspaceStatus = {
   readonly label: string;
@@ -220,6 +227,24 @@ export function deriveRunDetailWorkspaceStatus(input: DeriveRunDetailWorkspaceSt
   const manifestStatus = manifestStatusForDisplay(input.manifestStatus);
   const gateLabel = governanceGateLabelFromManifestStatus(input.manifestStatus);
   const pipelineLabel = deriveRunListPipelineLabel(input.run as RunSummary);
+  const legacyStatus = (input.run.legacyRunStatus ?? "").trim();
+
+  // TB-965: quality reject ≠ outage; surface before generic draft/complete labels.
+  if (manifestId.length === 0 && isQualityRejectedRunStatus(legacyStatus)) {
+    return {
+      label: resolveQualityRejectedWorkspaceStatusLabel(),
+      kind: "quality-gate-rejected",
+      statusTagKind: "needs-attention",
+    };
+  }
+
+  if (manifestId.length === 0 && legacyStatus === "Failed") {
+    return {
+      label: resolveExecutionFailedWorkspaceStatusLabel(),
+      kind: "execution-failed",
+      statusTagKind: "needs-attention",
+    };
+  }
 
   if (manifestId.length > 0) {
     if (/reject/i.test(governanceDecision) || gateLabel === "Failed") {

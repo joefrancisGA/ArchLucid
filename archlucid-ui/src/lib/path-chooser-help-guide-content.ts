@@ -11,7 +11,7 @@ export const PATH_CHOOSER_HELP_OVERVIEW =
   "Pick the branch that matches your goal, open the primary product or help surface, and use Sources before treating orientation copy as diligence evidence.";
 
 export const PATH_CHOOSER_HELP_CLAIM_DISCIPLINE =
-  "SOC 2 CPA attestation and third-party pen-test publication are not implied here. Trust Center and Security and trust remain the sponsor-safe diligence cites.";
+  "SOC 2 CPA attestation and third-party pen-test publication are not implied here. Trust Center and Assurance status remain the sponsor-safe diligence cites.";
 
 export const PATH_CHOOSER_HELP_PRIMARY_ACTIONS = {
   startReview: {

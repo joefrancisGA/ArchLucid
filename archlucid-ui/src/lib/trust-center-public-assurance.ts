@@ -82,4 +82,4 @@ export const TRUST_CENTER_PAGE_PURPOSE =
 
 /** `/security-trust` — executive assurance ladder; depth and ZIP downloads live on `/trust`. */
 export const SECURITY_TRUST_PAGE_PURPOSE =
-  "Executive assurance summary — engagement metadata by maturity tier. For downloadable artifacts and the evidence pack, use the Trust Center." as const;
+  "Assurance status — engagement metadata by maturity tier. For downloadable artifacts and the evidence pack, use the Trust Center." as const;

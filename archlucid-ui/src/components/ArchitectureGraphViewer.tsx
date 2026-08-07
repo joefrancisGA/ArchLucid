@@ -49,7 +49,7 @@ export type ArchitectureGraphViewerProps = {
 };
 
 /**
- * Read-only architecture graph preview for run detail: loads `GET /v1/graph/runs/{runId}` and renders React Flow
+ * Read-only architecture graph preview for run detail: loads `GET /v1/evidence-graph/reviews/{runId}` and renders React Flow
  * with compact chrome (see {@link GraphViewer} `compactChrome`).
  */
 export function ArchitectureGraphViewer(props: ArchitectureGraphViewerProps) {

@@ -1,4 +1,4 @@
-> **Scope:** Canonical redirect map for the documentation audit â€” former paths, where content lives now, and why the old file was removed. Use this instead of keeping redirect stub markdown files in the tree; update inbound links to the **canonical** column when you touch a caller.
+> **Scope:** Canonical redirect map for the documentation audit — former paths, where content lives now, and why the old file was removed. Use this instead of keeping redirect stub markdown files in the tree; update inbound links to the **canonical** column when you touch a caller.
 
 > **Spine doc:** [`START_HERE.md`](START_HERE.md).
 
@@ -6,7 +6,7 @@
 
 **Last reviewed:** 2026-08-02
 
-Human readers and agents should follow **canonical** paths below. This file is the only redirect surface â€” do not recreate thin "moved" stub files.
+Human readers and agents should follow **canonical** paths below. This file is the only redirect surface — do not recreate thin "moved" stub files.
 
 ## How to use
 
@@ -188,7 +188,7 @@ Human readers and agents should follow **canonical** paths below. This file is t
 | `docs/go-to-market/PROCUREMENT_RESPONSE_ACCELERATOR.md` (body) | [`docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md`](go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#procurement-response-accelerator) | SIG/CAIQ accelerator folded into buyer security packet; filename kept as path-stable alias |
 | `docs/go-to-market/MODEL_SEATS_COUNTER_POSITIONING_TEST.md` | [`docs/go-to-market/DIFFERENTIATION_PROOF_PACKET.md`](go-to-market/DIFFERENTIATION_PROOF_PACKET.md#model-seats-counter-positioning-message-test) | Model-seats message test folded into differentiation proof packet |
 | `docs/go-to-market/ADMIN_SURFACE_FIRST_60S_AUDIT.md` | [`archlucid-ui/docs/NAV_CONFIG_CONTRACT.md`](../archlucid-ui/docs/NAV_CONFIG_CONTRACT.md) | Point-in-time first-60s admin leakage audit; living contract is nav tests + NAV_CONFIG_CONTRACT |
-| `docs/go-to-market/BUSINESS_VALUE_CHEAT_SHEET.md` | [`docs/go-to-market/POSITIONING.md`](go-to-market/POSITIONING.md#product-datasheet) | Orphan featureâ†’outcome table; buyer capability claims live in positioning datasheet section |
+| `docs/go-to-market/BUSINESS_VALUE_CHEAT_SHEET.md` | [`docs/go-to-market/POSITIONING.md`](go-to-market/POSITIONING.md#product-datasheet) | Orphan feature→outcome table; buyer capability claims live in positioning datasheet section |
 | `docs/go-to-market/PRODUCT_DATASHEET.md` (body) | [`docs/go-to-market/POSITIONING.md`](go-to-market/POSITIONING.md#product-datasheet) | Datasheet body folded into positioning; filename kept as path-stable alias |
 | `docs/go-to-market/V1_1_PUBLIC_REFERENCE_CUSTOMER_CHECKLIST.md` | [`docs/go-to-market/reference-customers/README.md`](go-to-market/reference-customers/README.md#named-reference-customer-capture) | Empty V1.1 stub; capture + publication checklists live in the reference-customers index |
 | `docs/go-to-market/M06_WORKSPACE_B_LANDING_CLAIM_REVIEW.md` | [`docs/archive/gtm-internal/M06_WORKSPACE_B_LANDING_CLAIM_REVIEW.md`](archive/gtm-internal/M06_WORKSPACE_B_LANDING_CLAIM_REVIEW.md) | Closed M-06 / G-REAL-04 claim review archived from live GTM |
@@ -255,7 +255,7 @@ Human readers and agents should follow **canonical** paths below. This file is t
 | `docs/go-to-market/FOUNDER_UI_ABSORPTION_AND_EXPLORATORY.md` (body) | [`docs/architecture/FOUNDER_UI_ACCEPTANCE_ROUTINE.md`](architecture/FOUNDER_UI_ACCEPTANCE_ROUTINE.md#absorption-process-m-100--shipped) | M-100/M-102 absorption + exploratory cadence folded into founder UI acceptance routine; filename kept as path-stable GTM alias |
 | `docs/security/templates/evidence-packet-security-reviewer.template.md` (body) | [`docs/runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md`](runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md#security-reviewer-evidence-packet) | Security-reviewer evidence packet folded into first-pilot evidence bundle; filename kept as path-stable template alias |
 | `docs/go-to-market/BUYER_OPERATOR_PATH_CHOOSER.md` | [`docs/go-to-market/BUYER_ORIENTATION_ONE_SCREEN.md`](go-to-market/BUYER_ORIENTATION_ONE_SCREEN.md#choose-your-next-step) | Next-step chooser folded into buyer orientation |
-| `docs/go-to-market/REFERENCE_CUSTOMER_TRACKING_CHECKLIST.md` | [`docs/go-to-market/reference-customers/README.md`](go-to-market/reference-customers/README.md#per-customer-tracking-checklist-ah) | Tracking checklist aâ€“h folded into reference-customers index |
+| `docs/go-to-market/REFERENCE_CUSTOMER_TRACKING_CHECKLIST.md` | [`docs/go-to-market/reference-customers/README.md`](go-to-market/reference-customers/README.md#per-customer-tracking-checklist-ah) | Tracking checklist a–h folded into reference-customers index |
 | `docs/go-to-market/HEALTHCARE_VERTICAL_BRIEF.md` | [`docs/library/walkthroughs/POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md`](library/walkthroughs/POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md#healthcare-vertical-positioning-sales--architecture) | Healthcare sales/architecture brief folded into healthcare claims walkthrough (via former buyer-job) |
 | `docs/go-to-market/REFERENCE_CUSTOMER_FIRST_CONTACT_TEMPLATE.md` | [`docs/go-to-market/reference-customers/README.md`](go-to-market/reference-customers/README.md#5-first-contact-email-template) | First-contact email folded into reference-customers index |
 | `docs/go-to-market/NAMED_REFERENCE_CUSTOMER_CAPTURE.md` (body) | [`docs/go-to-market/reference-customers/README.md`](go-to-market/reference-customers/README.md#named-reference-customer-capture) | Named-reference capture folded into reference-customers index; filename kept as path-stable alias |
@@ -270,10 +270,10 @@ Human readers and agents should follow **canonical** paths below. This file is t
 | `docs/library/GOLDEN_CHANGE_PATH.md` (body) | [`docs/library/CONTRIBUTOR_CODE_MAP.md`](library/CONTRIBUTOR_CODE_MAP.md#golden-change-path) | Golden change-path checklists folded into contributor code map; filename kept as path-stable template alias |
 | `docs/GOLDEN_CHANGE_PATH.md` | [`docs/library/CONTRIBUTOR_CODE_MAP.md`](library/CONTRIBUTOR_CODE_MAP.md#golden-change-path) | Legacy root bookmark for golden change path |
 | `docs/archive/ONBOARDING_HAPPY_PATH_2026_04_17.md` | [`docs/onboarding/day-one-developer.md`](onboarding/day-one-developer.md#following-the-request-past-create-execute--commit--retrieval--ask) | Single-request lifecycle narrative |
-| `docs/archive/ONBOARDING_GOLDEN_PATH_2026_04_17.md` | [`docs/library/GOLDEN_PATH.md`](library/GOLDEN_PATH.md) | Environment maturity sequencing (Zero â†’ Azure) |
+| `docs/archive/ONBOARDING_GOLDEN_PATH_2026_04_17.md` | [`docs/library/GOLDEN_PATH.md`](library/GOLDEN_PATH.md) | Environment maturity sequencing (Zero → Azure) |
 | `docs/integrations/SSO_AUTH0_CONFIGURATION.md` | [`docs/integrations/IDP_PROVISIONING.md`](integrations/IDP_PROVISIONING.md) | Auth0 SSO (Â§2) |
 | `docs/integrations/SSO_OKTA_CONFIGURATION.md` | [`docs/integrations/IDP_PROVISIONING.md`](integrations/IDP_PROVISIONING.md) | Okta SSO (Â§3) |
-| `docs/archive/ONBOARDING_CONTRIBUTOR_ONBOARDING_2026_04_17.md` | [`docs/onboarding/day-one-developer.md`](onboarding/day-one-developer.md) | Duplicate contributor stub â€” no unique content |
+| `docs/archive/ONBOARDING_CONTRIBUTOR_ONBOARDING_2026_04_17.md` | [`docs/onboarding/day-one-developer.md`](onboarding/day-one-developer.md) | Duplicate contributor stub — no unique content |
 | `docs/archive/FIRST_5_DOCS.md` | [`docs/START_HERE.md`](START_HERE.md) | Legacy five-doc spine bookmark stub |
 | `docs/archive/FIRST_FIVE_DOCS.md` | [`docs/START_HERE.md`](START_HERE.md) | Alternate spelling of `FIRST_5_DOCS` stub |
 | `docs/READ_THIS_FIRST.md` | [`docs/START_HERE.md`](START_HERE.md) | Deprecated Y/N routing stub (2026-04-27) |
@@ -289,7 +289,7 @@ Human readers and agents should follow **canonical** paths below. This file is t
 
 ---
 
-## 2026-04-23 SaaS-framing moves (`docs/library/` â†’ `docs/engineering/`)
+## 2026-04-23 SaaS-framing moves (`docs/library/` → `docs/engineering/`)
 
 | Former path | Canonical path | Notes |
 |-------------|----------------|-------|
@@ -302,7 +302,7 @@ Human readers and agents should follow **canonical** paths below. This file is t
 
 ---
 
-## Customer-facing body moves (`docs/library/` â†’ `docs/library/customer-facing/`)
+## Customer-facing body moves (`docs/library/` → `docs/library/customer-facing/`)
 
 | Former path | Canonical path | Notes |
 |-------------|----------------|-------|
@@ -329,7 +329,7 @@ Human readers and agents should follow **canonical** paths below. This file is t
 | `docs/deployment/STAGING_DEPLOYMENT_CHECKLIST.md` | [`docs/runbooks/PRODUCTION_DEPLOYMENT.md`](runbooks/PRODUCTION_DEPLOYMENT.md#part-a--staging) | Staging operator checklist |
 | `docs/deployment/STAGING_PRE_DEPLOY_VERIFICATION.md` | [`docs/runbooks/PRODUCTION_DEPLOYMENT.md`](runbooks/PRODUCTION_DEPLOYMENT.md#a1-pre-deploy-verification-before-terraform-apply-or-cd) | Staging pre-deploy gates |
 | `docs/runbooks/CANARY_DEPLOYMENT.md` | [`docs/runbooks/PRODUCTION_DEPLOYMENT.md`](runbooks/PRODUCTION_DEPLOYMENT.md#part-c--canary-promotion-container-apps) | Canary / revision traffic split |
-| `docs/runbooks/STAGING_TRIAL_VALIDATION_CHECKLIST.md` | [`docs/runbooks/PRODUCTION_DEPLOYMENT.md`](runbooks/PRODUCTION_DEPLOYMENT.md#a5-staging-trial-funnel-validation-pre-rc-sign-off) | Staging trial funnel pre-RC checklist (phases 1â€“7) |
+| `docs/runbooks/STAGING_TRIAL_VALIDATION_CHECKLIST.md` | [`docs/runbooks/PRODUCTION_DEPLOYMENT.md`](runbooks/PRODUCTION_DEPLOYMENT.md#a5-staging-trial-funnel-validation-pre-rc-sign-off) | Staging trial funnel pre-RC checklist (phases 1–7) |
 | `docs/runbooks/STRIPE_OPERATOR_CHECKLIST.md` | [`docs/go-to-market/STRIPE_CHECKOUT.md`](go-to-market/STRIPE_CHECKOUT.md#operator-completion-checklist) | Stripe Team tier operator strike list |
 | `docs/runbooks/STRIPE_STAGING_E2E_VERIFICATION.md` | [`docs/go-to-market/STRIPE_CHECKOUT.md`](go-to-market/STRIPE_CHECKOUT.md#staging-end-to-end-verification-stripe-test-mode) | Staging Stripe TEST verification + SQL |
 
@@ -398,10 +398,10 @@ Human readers and agents should follow **canonical** paths below. This file is t
 
 | Former path | Canonical path | Notes |
 |-------------|----------------|-------|
-| `docs/archive/MARKETABILITY_ASSESSMENT_2026_04_15_PRE_M2.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Mixed framing â€” pre-M2 |
-| `docs/archive/MARKETABILITY_ASSESSMENT_2026_04_15_PRE_M3.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Mixed framing â€” post-M1+M2 |
-| `docs/archive/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY_PRE_TRUST_CENTER.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | SaaS-only â€” pre-Trust Center |
-| `docs/archive/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY_PRE_IMP2_6.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | SaaS-only â€” post-Trust Center |
+| `docs/archive/MARKETABILITY_ASSESSMENT_2026_04_15_PRE_M2.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Mixed framing — pre-M2 |
+| `docs/archive/MARKETABILITY_ASSESSMENT_2026_04_15_PRE_M3.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Mixed framing — post-M1+M2 |
+| `docs/archive/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY_PRE_TRUST_CENTER.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | SaaS-only — pre-Trust Center |
+| `docs/archive/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY_PRE_IMP2_6.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | SaaS-only — post-Trust Center |
 | `docs/MARKETABILITY_ASSESSMENT_2026_04_15.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Legacy root alias (mixed framing) |
 | `docs/archive/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY_PRE_trust-center.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Old filename casing alias |
 | `docs/archive/IMPROVEMENTS_COMPLETE_2026_04_21.md` | [`docs/archive/assessments/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](assessments/LATEST_GPT55.md) | Superseded schema-validation summary; see `docs/CHANGELOG.md` for component history |
@@ -519,6 +519,10 @@ Human readers and agents should follow **canonical** paths below. This file is t
 | `docs/archive/assessments/PILOT_UX_BACKLOG_2026_06_15.md` | [`docs/library/TECH_BACKLOG.md`](library/TECH_BACKLOG.md) | Pilot UX backlog snapshot deleted 2026-08-02; items absorbed into TECH_BACKLOG |
 | `docs/archive/assessments/PRODUCT_DRIFT_ONBOARDING_NARRATIVE_2026_06_15.md` | [`docs/library/TECH_BACKLOG.md`](library/TECH_BACKLOG.md) | Onboarding narrative drift assessment deleted 2026-08-02; TB-337–344 remain in TECH_BACKLOG |
 | `docs/archive/assessments/PRODUCT_UX_IMPLEMENTATION_LEAKAGE_AUDIT_2026_06_15.md` | [`docs/architecture/PRODUCT_UX_IMPLEMENTATION_LEAKAGE_AUDIT_2026_06_15.md`](architecture/PRODUCT_UX_IMPLEMENTATION_LEAKAGE_AUDIT_2026_06_15.md) | UX implementation leakage audit moved out of archive 2026-08-02 |
+| `docs/archive/assessments/sonnet_questions_06042026.md` | [`docs/library/TECH_BACKLOG.md`](library/TECH_BACKLOG.md) | Sonnet architecture Q pack deleted 2026-08-02; TB-273/274 context remains in TECH_BACKLOG |
+| `docs/archive/assessments/REBRAND_WORKSTREAM_2026_04_23.md` | [`docs/architecture/REBRAND_WORKSTREAM_2026_05_07.md`](architecture/REBRAND_WORKSTREAM_2026_05_07.md) | First rebrand-wave tracker deleted 2026-08-02; superseded by 2026-05-07 workstream |
+| `docs/archive/assessments/README.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archive assessments folder index deleted 2026-08-02; use live LATEST |
+| `docs/archive/assessments/QUALITY_IMPROVEMENT_DECISIONS_2026_04_20.md` | [`docs/library/TECH_BACKLOG.md`](library/TECH_BACKLOG.md) | Quality-improvement decisions log deleted 2026-08-02; delivery tracking lives in TECH_BACKLOG |
 | `docs/archive/assessments/ArchLucid_Assessment_Weighted_Readiness_2026_05_07_Independent_First_Principles_78_33.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
 | `docs/archive/assessments/ARCHLUCID_ASSESSMENT_WEIGHTED_READINESS_2026_05_07_INDEPENDENT_FIRST_PRINCIPLES_78_33__docs_library.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
 | `docs/archive/assessments/ArchLucid_Assessment_Weighted_Readiness_2026_05_07_Independent_First_Principles_78_39.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Archived *assessment* snapshot deleted 2026-08-01 (bulk); use live LATEST |
@@ -627,13 +631,13 @@ Human readers and agents should follow **canonical** paths below. This file is t
 | `docs/engineering/CONTRIBUTOR_ON_ONE_PAGE.md` | [`docs/CONTRIBUTOR_ON_ONE_PAGE.md`](CONTRIBUTOR_ON_ONE_PAGE.md) | Duplicate of CI-guarded root one-pager |
 | `docs/library/ARCHITECTURE_ON_A_PAGE.md` | [`docs/ARCHITECTURE_ON_ONE_PAGE.md`](ARCHITECTURE_ON_ONE_PAGE.md) | Self-demoted narrative duplicate of canonical C4 poster |
 | `docs/library/CODE_MAP.md` | [`docs/library/CONTRIBUTOR_CODE_MAP.md`](library/CONTRIBUTOR_CODE_MAP.md) | Path table folded into contributor code map |
-| `docs/library/customer-facing/CUSTOMER_GLOSSARY.md` | In-app `/help/glossary` (`archlucid-ui/src/lib/customer-glossary-manifest.ts`) | Thin stub removed â€” terms are app-rendered |
+| `docs/library/customer-facing/CUSTOMER_GLOSSARY.md` | In-app `/help/glossary` (`archlucid-ui/src/lib/customer-glossary-manifest.ts`) | Thin stub removed — terms are app-rendered |
 | `docs/ARCHITECTURE_INDEX.md` | [`docs/architecture/README.md`](architecture/README.md) | Thin hub superseded by architecture README |
 | `docs/library/OPENAPI_CLIENT_DRIFT_OPERATOR_NOTE.md` | [`docs/library/OPENAPI_CONTRACT_DRIFT.md`](library/OPENAPI_CONTRACT_DRIFT.md) | Checklist folded into contract-drift doc |
 | `docs/library/customer-facing/HOW_IT_WORKS.md` | [`docs/library/customer-facing/HOW_ARCHLUCID_WORKS.md`](library/customer-facing/HOW_ARCHLUCID_WORKS.md) Â· [`DATA_HANDLING.md`](library/customer-facing/DATA_HANDLING.md) | Maintainer split stub removed |
-| `docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md` | In-app `/help/troubleshooting` (`troubleshooting-help-guide-content.ts`) | Thin stub removed â€” guide is app-rendered |
-| `docs/library/MARKETING_PRODUCT_SEPARATION_TECHNICAL_BACKLOG.md` | [`docs/library/TECH_BACKLOG.md`](library/TECH_BACKLOG.md) (TB-729â€“731) | Superseded satellite removed |
-| `docs/library/IA_TAXONOMY_TECHNICAL_BACKLOG.md` | [`docs/library/TECH_BACKLOG.md`](library/TECH_BACKLOG.md) (TB-732â€“737) | Superseded satellite removed |
+| `docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md` | In-app `/help/troubleshooting` (`troubleshooting-help-guide-content.ts`) | Thin stub removed — guide is app-rendered |
+| `docs/library/MARKETING_PRODUCT_SEPARATION_TECHNICAL_BACKLOG.md` | [`docs/library/TECH_BACKLOG.md`](library/TECH_BACKLOG.md) (TB-729–731) | Superseded satellite removed |
+| `docs/library/IA_TAXONOMY_TECHNICAL_BACKLOG.md` | [`docs/library/TECH_BACKLOG.md`](library/TECH_BACKLOG.md) (TB-732–737) | Superseded satellite removed |
 | `docs/go-to-market/BULK_EVIDENCE_UPLOAD_V1.md` | [`docs/library/V1_DEFERRED.md`](library/V1_DEFERRED.md#6k-evidence-bulk-upload--limits-and-batching) | Thin orphan; GA cap/ZIP rule lives in deferred inventory |
 | `docs/archive/assessments/MARKETABILITY_ASSESSMENT_2026_04_15.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Duplicate of consolidated series |
 | `docs/archive/assessments/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY.md` | [`docs/assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | Duplicate of consolidated series |

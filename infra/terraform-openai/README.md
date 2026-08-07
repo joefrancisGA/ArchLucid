@@ -4,11 +4,11 @@ Optional root that creates **`azurerm_consumption_budget_resource_group`** for *
 
 ## Usage
 
-1. Copy **`terraform.tfvars.example`** â†’ **`terraform.tfvars`**.
+1. Copy **`terraform.tfvars.example`** → **`terraform.tfvars`**.
 2. Set **`openai_consumption_budget_resource_group_id`** (budget creation defaults **on** as of 2026-07-20; no budget is created until this id is set). Use **`openai_consumption_budget_contact_emails`** or rely on default **`openai_consumption_budget_contact_roles`** (`Owner`).
-3. `terraform init` â†’ `plan` â†’ `apply`.
+3. `terraform init` → `plan` → `apply`.
 
-This root does **not** create the Cognitive Services account; provision OpenAI separately (portal, Bicep, or another Terraform root) and point this stack at the accountâ€™s resource group.
+This root does **not** create the Cognitive Services account; provision OpenAI separately (portal, Bicep, or another Terraform root) and point this stack at the account’s resource group.
 
 ## Outputs
 

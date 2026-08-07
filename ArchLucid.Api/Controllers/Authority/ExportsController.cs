@@ -43,7 +43,7 @@ public sealed class ExportsController(
     IExportRecordDiffSummaryFormatter exportRecordDiffSummaryFormatter,
     IAuditService auditService) : ControllerBase
 {
-    [HttpGet("run/{runId}/exports")]
+    [HttpGet("review/{runId}/exports")]
     [ProducesResponseType(typeof(RunExportHistoryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetRunExportHistory(
@@ -59,7 +59,7 @@ public sealed class ExportsController(
         return Ok(new RunExportHistoryResponse { Exports = records.ToList() });
     }
 
-    [HttpGet("run/exports/{exportRecordId}")]
+    [HttpGet("review/exports/{exportRecordId}")]
     [ProducesResponseType(typeof(RunExportRecordResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetExportRecord(
@@ -74,7 +74,7 @@ public sealed class ExportsController(
         return Ok(new RunExportRecordResponse { Record = record });
     }
 
-    [HttpGet("run/exports/compare")]
+    [HttpGet("review/exports/compare")]
     [ProducesResponseType(typeof(ExportRecordDiffResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> CompareExportRecords(
@@ -93,7 +93,7 @@ public sealed class ExportsController(
     }
 
     // idempotency-posture: operator-documented-safe-retry
-    [HttpPost("run/exports/compare/summary")]
+    [HttpPost("review/exports/compare/summary")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(ExportRecordDiffSummaryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -142,7 +142,7 @@ public sealed class ExportsController(
     }
 
     // idempotency-posture: operator-documented-safe-retry
-    [HttpPost("run/exports/{exportRecordId}/replay")]
+    [HttpPost("review/exports/{exportRecordId}/replay")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -167,7 +167,7 @@ public sealed class ExportsController(
     }
 
     // idempotency-posture: operator-documented-safe-retry
-    [HttpPost("run/exports/{exportRecordId}/replay/metadata")]
+    [HttpPost("review/exports/{exportRecordId}/replay/metadata")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(ReplayExportMetadataResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

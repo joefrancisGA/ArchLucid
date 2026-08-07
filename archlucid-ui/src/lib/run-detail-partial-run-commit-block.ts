@@ -1,6 +1,12 @@
 /**
  * TB-937: block finalize when required agents are incomplete or the run is explicitly partial.
+ * TB-965: also block when quality gate rejected (distinct copy from execution failure).
  */
+
+import {
+  isQualityRejectedRunStatus,
+  resolveQualityRejectedCommitBlockedReason,
+} from "@/lib/execution-vs-quality-outcome-copy";
 
 export type AgentExecutionOutcomeWire = {
   readonly agentType?: string | null;
@@ -18,12 +24,20 @@ export function resolvePartialRunCommitBlockedReason(args: {
 
   const status = (args.legacyRunStatus ?? "").trim();
 
+  if (isQualityRejectedRunStatus(status)) {
+    return resolveQualityRejectedCommitBlockedReason();
+  }
+
   if (status === "PartiallyCompleted") {
     return "Required assessment agents are incomplete — re-execute before finalizing.";
   }
 
   if (status === "FailedPartial") {
     return "This review partially failed — one or more required agents did not succeed. Re-execute before finalizing.";
+  }
+
+  if (status === "Failed") {
+    return "Agent execution failed — fix configuration or infrastructure, then re-execute before finalizing.";
   }
 
   const outcomes = args.agentExecutionOutcomes ?? [];

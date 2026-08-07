@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 
+import { ArchitectureIntelligenceEvidenceOrientationStrip } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceEvidenceOrientationStrip";
 import { ArchitectureIntelligenceProductRoundTrip } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceProductRoundTrip";
 import { governanceFindingInspectHref } from "@/components/governance/findings/governance-findings-navigation";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
@@ -12,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   ARCHITECTURE_INTELLIGENCE_REVIEW_TIERS,
   architectureIntelligenceReviewTierLabel,
@@ -578,7 +580,10 @@ export function ArchitectureIntelligencePageClient() {
         title="Architecture intelligence"
         subtitle="Run closed-loop architecture reasoning or the golden regression harness against a free-form description."
         titleTestId="architecture-intelligence-page-title"
+        actions={<PageContextualHelpButton />}
       />
+
+      <ArchitectureIntelligenceEvidenceOrientationStrip />
 
       {inboundContextLine ? (
         <p

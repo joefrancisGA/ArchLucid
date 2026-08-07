@@ -19,8 +19,10 @@ export const SETTINGS_USERS_ROLES_TAB_PATH = `${SETTINGS_USERS_PATH}?tab=roles`;
 
 export const SETTINGS_USERS_USERS_TAB_PATH = `${SETTINGS_USERS_PATH}?tab=users`;
 
-/** Legacy roles index — permanent redirect to canonical users tab URL (TB-522). */
+/** Legacy roles index — rewrite alias for the Roles tab on {@link SETTINGS_USERS_PATH} (no permanent redirect). */
 export const LEGACY_SETTINGS_ROLES_PATH = "/settings/roles";
+
+export type SettingsUsersTabId = "users" | "roles" | "keys";
 
 /**
  * User-scoped settings. These write only the caller's own record, so they are published from the top-bar
@@ -62,6 +64,51 @@ export function pathMatchesSettingsUsers(pathname: string): boolean {
 
 export function pathMatchesLegacySettingsRoles(pathname: string): boolean {
   return pathMatchesRoutePrefix(pathname, LEGACY_SETTINGS_ROLES_PATH);
+}
+
+/** Canonical users hub pathname for tab navigation — upgrades legacy rewrite paths. */
+export function settingsUsersNavigationPathname(pathname: string): string {
+  const normalized = normalizeSettingsAdminPathname(pathname);
+
+  if (normalized === LEGACY_SETTINGS_ROLES_PATH) {
+    return SETTINGS_USERS_PATH;
+  }
+
+  return normalized;
+}
+
+/** Resolves the active users hub tab from pathname + `?tab=` (legacy roles path defaults to Roles). */
+export function settingsUsersTabFromLocation(
+  pathname: string,
+  tabParam: string | null,
+  canManageApiKeys: boolean,
+): SettingsUsersTabId {
+  const normalized = normalizeSettingsAdminPathname(pathname);
+
+  if (normalized === LEGACY_SETTINGS_ROLES_PATH) {
+    return "roles";
+  }
+
+  return sanitizeSettingsUsersTabParam(tabParam, canManageApiKeys);
+}
+
+export function sanitizeSettingsUsersTabParam(
+  raw: string | null,
+  canManageApiKeys: boolean,
+): SettingsUsersTabId {
+  if (raw === "roles") {
+    return "roles";
+  }
+
+  if (raw === "keys" && canManageApiKeys) {
+    return "keys";
+  }
+
+  return "users";
+}
+
+function normalizeSettingsAdminPathname(pathname: string): string {
+  return pathname.length > 1 && pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
 }
 
 export function pathMatchesSettingsSecurityTrust(pathname: string): boolean {

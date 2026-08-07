@@ -1,4 +1,4 @@
-> **Scope:** Canonical product-facing HTTP paths under v1 for implementers and client authors; not auth configuration, OpenAPI bundles, or non-HTTP contracts.
+﻿> **Scope:** Canonical product-facing HTTP paths under v1 for implementers and client authors; not auth configuration, OpenAPI bundles, or non-HTTP contracts.
 
 # ArchLucid Product REST API — Canonical Routes
 
@@ -30,14 +30,14 @@ Version prefix: **`v1`** (Asp.Versioning `1.0`). This document originally propos
 | `GET` | `/v1/runs` | Paged envelope (`PagedResponse`). Query: `page`, `pageSize`, optional `status`, `fromUtc`, `toUtc`. |
 | `GET` | `/v1/runs/{runId}` | Run detail (`Guid`). Aligns with authority summary/detail projections. |
 | `GET` | `/v1/runs/{runId}/progress` | Lightweight status snapshot for polling. |
-| `POST` | `/v1/architecture/run/{runId}/execute` | Canonical assessment-execution route. |
+| `POST` | `/v1/architecture/review/{runId}/execute` | Canonical assessment-execution route. |
 
 ### Manifest
 
 | Method | Path | Notes |
 |--------|------|--------|
 | `GET` | `/v1/runs/{runId}/manifest` | Golden manifest body when committed. |
-| `POST` | `/v1/architecture/run/{runId}/commit` | Canonical finalize/commit route. Idempotent with server semantics + optional `Idempotency-Key`. |
+| `POST` | `/v1/architecture/review/{runId}/finalize` | Canonical finalize/commit route. Idempotent with server semantics + optional `Idempotency-Key`. |
 
 ### Findings
 
@@ -55,7 +55,7 @@ Version prefix: **`v1`** (Asp.Versioning `1.0`). This document originally propos
 | `GET` | `/v1/runs/{runId}/artifacts/{artifactId}` | File download. |
 | `GET` | `/v1/runs/{runId}/artifacts/bundle` | ZIP bundle. |
 
-Legacy `GET /v1/artifacts/manifests/{manifestId}/…` remains for backward compatibility.
+Legacy `GET /v1/artifacts/signed-review-records/{manifestId}/…` remains for backward compatibility.
 
 ### Review trail
 

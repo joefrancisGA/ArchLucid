@@ -60,6 +60,7 @@ Short, durable decisions for ArchLucid. Each file is **immutable** once accepted
 | [0059](0059-spa-bff-http-only-session-plan.md) | SPA BFF / HttpOnly session plan for GA (XSS residual H-10) (**Status: Proposed**) |
 | [0060](0060-ai-model-chooser-provider-scope.md) | AI model chooser — provider scope, BYO Azure OpenAI, activation gates (**Status: Accepted** 2026-07-18) |
 | [0061](0061-ddos-protection-posture-v1.md) | DDoS protection posture for V1 — Front Door platform DDoS; defer Network Protection (~$2,944/mo) until revisit triggers (**Status: Accepted** 2026-07-21; TB-908) |
+| [0064](0064-buyer-vocabulary-api-and-schema-alignment.md) | Buyer-vocabulary API + spine SQL rename on **v1** (no v2) — review/finalize/signed-review-record (**Status: Accepted** 2026-08-05) |
 | [**Template (strict sections)**](template.md) | **MUST** include Trade-offs, Constraints, Expected |
 | [**Template (full skeleton)**](adr-template-full.md) | Longer skeleton for new numbered ADRs *(not an ADR)* |
 

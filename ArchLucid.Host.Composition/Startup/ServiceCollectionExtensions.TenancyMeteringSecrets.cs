@@ -14,8 +14,10 @@ using ArchLucid.Core.IntegrationSecrets;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Host.Core.Configuration.IntegrationSecrets;
 using ArchLucid.Host.Core.Configuration.Secrets;
+using ArchLucid.Host.Core.Tenancy;
 using ArchLucid.Host.Composition.Metering;
 using ArchLucid.Persistence.Metering;
+using ArchLucid.Persistence.Tenancy;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Memory;
@@ -106,8 +108,14 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IMarketingAttributionService, MarketingAttributionService>();
         services.AddScoped<TrialLimitGate>();
         services.AddSingleton<ITenantTrialSeatSkipCache, TenantTrialSeatSkipCache>();
+        services.AddScoped<ITenantGetByIdRequestCache, TenantGetByIdRequestCache>();
         services.AddScoped<TrialSeatAccountant>();
         services.AddScoped<ITenantUsageStatusService, TenantUsageStatusService>();
+        services.AddScoped<ITenantMigrationStatusService, TenantMigrationStatusService>();
+        services.AddScoped<ITenantMigrationRetrievalOutboxDrainer, TenantMigrationRetrievalOutboxDrainer>();
+        services.AddScoped<ITenantMigrationProjectionRefreshService, TenantMigrationProjectionRefreshService>();
+        services.AddScoped<ITenantMigrationVerificationProbe, TenantMigrationVerificationProbe>();
+        services.AddScoped<ITenantCatalogMigrationOrchestrator, TenantCatalogMigrationOrchestrator>();
         services.AddScoped<TrialLifecycleTransitionEngine>();
 
         services.AddSingleton<InMemoryIntegrationSecretStore>();

@@ -1,0 +1,8 @@
+flowchart LR
+  SeedReq["TechnologyLedgerRequestSeeder"] --> Cmd["ITechnologyLedgerRunCommandService"]
+  SeedEv["TechnologyLedgerEvidenceSeeder"] --> Cmd
+  SeedTop["TechnologyLedgerTopologyProposalSeeder"] --> Cmd
+  Cmd --> Repo["ITechnologyLedgerRepository"]
+  Repo --> API["GET PATCH technology-ledger"]
+  Replay["AuthorityReplayService"] --> Repo
+  Cmd --> Audit["TechnologyLedgerEntryUpdated"]

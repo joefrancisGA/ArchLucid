@@ -1,4 +1,4 @@
-﻿import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const SECURITY_TRUST_CANONICAL_PATH = "/security-trust" as const;
 
@@ -18,6 +18,6 @@ export const SECURITY_TRUST_SOURCES: readonly SecurityTrustSourceLink[] = [
   { label: "Trust Center", href: "/trust" },
   { label: "Product FAQ", href: "/faq" },
   { label: "Pricing", href: "/pricing" },
-  { label: "Privacy", href: "/privacy" },
+  { label: "Privacy policy", href: "/privacy" },
   { label: "How ArchLucid works", href: inAppHelpHref("how-it-works") },
 ] as const;

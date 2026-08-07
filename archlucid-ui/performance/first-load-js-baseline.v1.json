@@ -1,19 +1,25 @@
 {
   "schemaVersion": 1,
-  "updatedUtc": "2026-07-17T13:35:00.000Z",
+  "updatedUtc": "2026-08-07T06:05:11.121Z",
   "regressionToleranceKb": 25,
   "routes": {
     "/welcome": {
-      "firstLoadJsKb": 736
+      "firstLoadJsKb": 711.5
     },
     "/governance/approval-queue": {
-      "firstLoadJsKb": 1417
+      "firstLoadJsKb": 1462.7
     },
     "/reviews": {
-      "firstLoadJsKb": 1695.3
+      "firstLoadJsKb": 1710.6
     },
     "/reviews/[runId]": {
-      "firstLoadJsKb": 2255.2
+      "firstLoadJsKb": 2237.5
+    },
+    "/architecture/executive-dashboard": {
+      "firstLoadJsKb": 1546
+    },
+    "/governance/signed-records": {
+      "firstLoadJsKb": 1436.3
     }
   },
   "notes": "RC11 refresh after OpenAPI api-types.generated.ts regeneration (string enums + expanded 4xx/5xx schemas). Captured from CI #2632 First Load JS check values. Refresh after intentional bundle changes: `npm run build && npm run write:first-load-js-baseline`."

@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — Comparison replay in ArchLucid - full detail, tables, and links in the sections below.
+﻿> **Scope:** Contributor-reference — Comparison replay in ArchLucid - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -14,17 +14,17 @@ Comparison replay lets you take a **previously persisted comparison record** and
 
 Supported comparison types:
 
-- **End-to-end replay** – full run‑vs‑run comparison (`ComparisonType = "end-to-end-replay"`)  
+- **End-to-end replay** – full runâ€‘vsâ€‘run comparison (`ComparisonType = "end-to-end-replay"`)  
 - **Export-record diff** – diff between two export records (`ComparisonType = "export-record-diff"`)
 
-\*PDF is currently supported for end‑to‑end replay only.
+\*PDF is currently supported for endâ€‘toâ€‘end replay only.
 
 ---
 
 ### Core concepts
 
 - **Comparison record** (`ComparisonRecord`)  
-  Created by comparison APIs (e.g. end‑to‑end run compare, export-record diff summary) when `persist` is enabled. Stores:
+  Created by comparison APIs (e.g. endâ€‘toâ€‘end run compare, export-record diff summary) when `persist` is enabled. Stores:
   - `ComparisonRecordId`
   - `ComparisonType` (`"end-to-end-replay"` or `"export-record-diff"`)
   - `PayloadJson` – the serialized comparison payload
@@ -32,12 +32,12 @@ Supported comparison types:
 
 - **Replay modes** (`ReplayMode`)  
   Controlled by the `replayMode` field on the replay request:
-  - `"artifact"` (default) – **artifact replay**; use the stored payload as‑is  
+  - `"artifact"` (default) – **artifact replay**; use the stored payload asâ€‘is  
   - `"regenerate"` – rerun the comparison from the original runs/exports  
   - `"verify"` – regenerate and compare against stored payload, returning **drift analysis**
 
 - **Export profiles** (`Profile`)  
-  For end‑to‑end replay, you can select an export profile:
+  For endâ€‘toâ€‘end replay, you can select an export profile:
   - `"default"` (or `null`)  
   - `"short"` – shorter report, limited sections  
   - `"detailed"` – full sections  
@@ -66,7 +66,7 @@ Supported comparison types:
 - `ComparisonRecordId` – taken from the route parameter  
 - `Format` – `"markdown"`, `"html"`, `"docx"`, or `"pdf"`  
 - `ReplayMode` – `"artifact"`, `"regenerate"`, `"verify"`  
-- `Profile` – optional export profile for end‑to‑end  
+- `Profile` – optional export profile for endâ€‘toâ€‘end  
 - `PersistReplay` – whether to persist a new comparison record for this replay
 
 ---
@@ -102,11 +102,11 @@ Response headers:
 - `X-ArchLucid-ComparisonType` – `"end-to-end-replay"` or `"export-record-diff"`  
 - `X-ArchLucid-ReplayMode` – `"artifact" | "regenerate" | "verify"`  
 - `X-ArchLucid-VerificationPassed` – `true`/`false` for verify mode  
-- `X-ArchLucid-VerificationMessage` – human‑readable verification message (optional)  
+- `X-ArchLucid-VerificationMessage` – humanâ€‘readable verification message (optional)  
 - `X-ArchLucid-LeftRunId` / `X-ArchLucid-RightRunId` – run IDs (when available)  
 - `X-ArchLucid-LeftExportRecordId` / `X-ArchLucid-RightExportRecordId` – export record IDs (when available)  
-- `X-ArchLucid-CreatedUtc` – original comparison record timestamp (ISO‑8601)  
-- `X-ArchLucid-Format-Profile` – export profile used (end‑to‑end)  
+- `X-ArchLucid-CreatedUtc` – original comparison record timestamp (ISOâ€‘8601)  
+- `X-ArchLucid-Format-Profile` – export profile used (endâ€‘toâ€‘end)  
 - `X-ArchLucid-PersistedReplayRecordId` – **new comparison record ID**, when `persistReplay = true`
 
 ---
@@ -204,7 +204,7 @@ Use this endpoint when you only need the **shape** of the replay (type, format, 
 
 #### A. Persisted end-to-end comparison, then replay as Markdown
 
-1. Run an end‑to‑end comparison and **persist** it (e.g., `POST /v1/architecture/run/compare/end-to-end/summary?leftRunId=...&rightRunId=...` with `{ "persist": true }`).  
+1. Run an endâ€‘toâ€‘end comparison and **persist** it (e.g., `POST /v1/architecture/review/compare/end-to-end/summary?leftRunId=...&rightRunId=...` with `{ "persist": true }`).  
 2. Read `X-ArchLucid-ComparisonRecordId` from the response headers.  
 3. Replay and download the summary as Markdown:
 
@@ -234,7 +234,7 @@ curl -X POST \
 
 2. Inspect headers:
    - `X-ArchLucid-VerificationPassed: true` / `false`  
-   - `X-ArchLucid-VerificationMessage` – high‑level drift message
+   - `X-ArchLucid-VerificationMessage` – highâ€‘level drift message
 
 3. (Optional) Use drift analysis APIs if exposed, or log the replay metadata for audit.
 
@@ -283,7 +283,7 @@ To fetch the stored comparison summary (or a regenerated markdown summary if non
 
 ### Notes and limitations
 
-- **PDF format** is currently only available for end‑to‑end replay (`ComparisonType = "end-to-end-replay"`).  
+- **PDF format** is currently only available for endâ€‘toâ€‘end replay (`ComparisonType = "end-to-end-replay"`).  
 - **Export-record diff** replays support **Markdown** and **DOCX**.  
 - If the underlying runs or export records have been deleted, **regenerate** and **verify** modes may fail; artifact replay continues to work as long as the stored payload is present.  
 - Comparison records are immutable; replay persistence creates **new** records rather than mutating existing ones.

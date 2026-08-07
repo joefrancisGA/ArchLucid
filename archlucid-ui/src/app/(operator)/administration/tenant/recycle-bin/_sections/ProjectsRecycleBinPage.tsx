@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
 
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -15,10 +16,13 @@ import {
   EnterpriseTableHeaderCell,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+
+import { ProjectsRecycleBinEvidenceOrientationStrip } from "./ProjectsRecycleBinEvidenceOrientationStrip";
 
 const RECYCLE_BIN_PATH = `/api/proxy/${ApiV1Routes.tenantWorkspacesRecycleBin}`;
 
@@ -279,24 +283,30 @@ export function ProjectsRecycleBinPage() {
 
   return (
     <div className="w-full max-w-3xl space-y-6" data-testid="projects-recycle-bin-page">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0 flex-1">
-          <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Projects recycle bin</h1>
-          <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{PAGE_DESCRIPTION}</p>
-        </div>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          disabled={loading}
-          aria-label="Refresh recycle bin list"
-          onClick={() => {
-            void reload();
-          }}
-        >
-          {loading ? "Refreshing…" : "Refresh"}
-        </Button>
-      </div>
+      <OperatorPageHeader
+        title="Projects recycle bin"
+        subtitle={PAGE_DESCRIPTION}
+        titleTestId="projects-recycle-bin-page-title"
+        actions={
+          <>
+            <PageContextualHelpButton />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={loading}
+              aria-label="Refresh recycle bin list"
+              onClick={() => {
+                void reload();
+              }}
+            >
+              {loading ? "Refreshing…" : "Refresh"}
+            </Button>
+          </>
+        }
+      />
+
+      <ProjectsRecycleBinEvidenceOrientationStrip />
 
       {!isAuthorityLoading && !canRestoreExecute ? (
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>

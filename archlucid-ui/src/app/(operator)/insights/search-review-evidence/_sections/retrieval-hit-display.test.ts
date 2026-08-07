@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { reviewSignedRecordPath } from "@/lib/signed-records-paths";
+
 import {
   buildRetrievalHitActionLink,
   buildRetrievalHitEvidenceTrailHref,
@@ -80,6 +82,23 @@ describe("buildRetrievalHitActionLink", () => {
     expect(link).toEqual({
       href: `/governance/signed-records/${SAMPLE_MANIFEST_ID}`,
       label: "Open signed review record",
+    });
+  });
+
+  it("links manifest decisions to the run-scoped signed record path", () => {
+    const link = buildRetrievalHitActionLink(
+      hit({
+        sourceType: "ManifestDecision",
+        sourceId: SAMPLE_MANIFEST_ID,
+        decisionId: "approve-phi-boundary",
+        findingId: undefined,
+      }),
+      SAMPLE_RUN_ID,
+    );
+
+    expect(link).toEqual({
+      href: reviewSignedRecordPath(SAMPLE_RUN_ID),
+      label: "Open decision in review",
     });
   });
 

@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — V1 release-candidate (RC) drill - full detail, tables, and links in the sections below.
+﻿> **Scope:** Contributor-reference — V1 release-candidate (RC) drill - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -7,9 +7,9 @@
 
 **Audience:** Release owners, SRE, and pilot leads validating a **candidate build** or **fresh environment** before sign-off.
 
-**Purpose:** One **ordered** end-to-end path through the **V1 operator surface**—aligned with [V1_SCOPE.md](V1_SCOPE.md) §4, [V1_RELEASE_CHECKLIST.md](V1_RELEASE_CHECKLIST.md), and the actual HTTP routes in OpenAPI (`/openapi/v1.json`).
+**Purpose:** One **ordered** end-to-end path through the **V1 operator surface**—aligned with [V1_SCOPE.md](V1_SCOPE.md) Â§4, [V1_RELEASE_CHECKLIST.md](V1_RELEASE_CHECKLIST.md), and the actual HTTP routes in OpenAPI (`/openapi/v1.json`).
 
-**What this is not:** Full regression (see [TEST_STRUCTURE.md](TEST_STRUCTURE.md)), Terraform apply validation (see [DEPLOYMENT_TERRAFORM.md](DEPLOYMENT_TERRAFORM.md)), or Playwright UI proof against a live API (see [RELEASE_SMOKE.md](RELEASE_SMOKE.md) §57R).
+**What this is not:** Full regression (see [TEST_STRUCTURE.md](TEST_STRUCTURE.md)), Terraform apply validation (see [DEPLOYMENT_TERRAFORM.md](DEPLOYMENT_TERRAFORM.md)), or Playwright UI proof against a live API (see [RELEASE_SMOKE.md](RELEASE_SMOKE.md) Â§57R).
 
 ---
 
@@ -83,9 +83,9 @@ You need **two finalized architecture packages** (two **`runId`** values in the 
 | Step | HTTP | Notes |
 |------|------|--------|
 | 2A.1 | `POST /v1/architecture/request` | Body: structured [ArchitectureRequest](API_CONTRACTS.md) (see [customer-facing/customer-facing/OPERATOR_QUICKSTART.md](customer-facing/OPERATOR_QUICKSTART.md)); capture **`run.runId`** from JSON |
-| 2A.2 | `POST /v1/architecture/run/{runId}/execute` | Waits until agent work completes for this request/executor configuration |
-| 2A.3 | `POST /v1/architecture/run/{runId}/commit` | Produces golden manifest; **409** if wrong state ([API_CONTRACTS.md](API_CONTRACTS.md)) |
-| 2A.4 | `GET /v1/architecture/run/{runId}` | Confirm **`run.goldenManifestId`** is non-null |
+| 2A.2 | `POST /v1/architecture/review/{runId}/execute` | Waits until agent work completes for this request/executor configuration |
+| 2A.3 | `POST /v1/architecture/review/{runId}/finalize` | Produces golden manifest; **409** if wrong state ([API_CONTRACTS.md](API_CONTRACTS.md)) |
+| 2A.4 | `GET /v1/architecture/review/{runId}` | Confirm **`run.goldenManifestId`** is non-null |
 
 ### Run B
 
@@ -101,9 +101,9 @@ Repeat **2A.1–2A.4** with a **different** `requestId` and **`systemName`** (or
 
 | Step | Action | Pass criteria |
 |------|--------|----------------|
-| 3.1 | `GET /v1/artifacts/manifests/{goldenManifestId}` | **200**; JSON **array** with **≥ 1** descriptor for each review (`runId`) you care about (empty array is valid only if you explicitly expect no synthesized rows—usually **not** for RC) |
+| 3.1 | `GET /v1/artifacts/signed-review-records/{goldenManifestId}` | **200**; JSON **array** with **â‰¥ 1** descriptor for each review (`runId`) you care about (empty array is valid only if you explicitly expect no synthesized rows—usually **not** for RC) |
 | 3.2 | Open **architect workspace** (optional): **Runs** (review list) → run → **Manifest** / **Artifacts** | List matches API; **Review** / download works ([operator-shell.md](operator-shell.md)) |
-| 3.3 | `GET /v1/artifacts/manifests/{goldenManifestId}/bundle` (optional) | **200** ZIP, or **404** with documented problem type when no bundle (distinct from unknown manifest—[API_CONTRACTS.md](API_CONTRACTS.md)) |
+| 3.3 | `GET /v1/artifacts/signed-review-records/{goldenManifestId}/bundle` (optional) | **200** ZIP, or **404** with documented problem type when no bundle (distinct from unknown manifest—[API_CONTRACTS.md](API_CONTRACTS.md)) |
 
 ---
 
@@ -111,11 +111,11 @@ Repeat **2A.1–2A.4** with a **different** `requestId` and **`systemName`** (or
 
 | Step | Action | Pass criteria |
 |------|--------|----------------|
-| 4.1 | `GET /v1/architecture/run/compare/end-to-end?leftRunId={A}&rightRunId={B}` | **200**; response contains comparison payload (structured + legacy surfaces per implementation) |
+| 4.1 | `GET /v1/architecture/review/compare/end-to-end?leftRunId={A}&rightRunId={B}` | **200**; response contains comparison payload (structured + legacy surfaces per implementation) |
 | 4.2 | (Optional) `GET /v1/authority/compare/runs?leftRunId={A}&rightRunId={B}` | **200**; run-level + manifest comparison block as expected |
 | 4.3 | (Optional) **UI:** **Compare** workflow with same `runId`s ([operator-shell.md](operator-shell.md); label may still say **Compare runs**) | Prefill and outcome match API |
 
-**Persist + CLI replay (optional, deeper):** `POST /v1/architecture/run/compare/end-to-end/summary` with **`persist: true`** records a comparison; then **`archlucid comparisons replay`** ([CLI_USAGE.md](CLI_USAGE.md)).
+**Persist + CLI replay (optional, deeper):** `POST /v1/architecture/review/compare/end-to-end/summary` with **`persist: true`** records a comparison; then **`archlucid comparisons replay`** ([CLI_USAGE.md](CLI_USAGE.md)).
 
 ---
 
@@ -126,7 +126,7 @@ V1 includes **two** replay concepts—exercise at least **one** for RC; **author
 | Path | HTTP | Pass criteria |
 |------|------|----------------|
 | **Authority replay (recommended)** | `POST /v1/authority/replay` | Body: `{ "runId": "<guid>", "mode": "ReconstructOnly" }` — **200**; validation flags in response. Modes: **`ReconstructOnly`** (validate only), **`RebuildManifest`**, **`RebuildArtifacts`** (see `ReplayMode` in source: `ArchLucid.Persistence.Coordination/Replay/ReplayMode.cs`). |
-| **Coordinator replay (optional)** | `POST /v1/architecture/run/{runId}/replay` | Optional JSON body (`executionMode`, `commitReplay`, …); can **mutate** data — use only when you intend to re-execute agents ([ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md)). |
+| **Coordinator replay (optional)** | `POST /v1/architecture/review/{runId}/replay` | Optional JSON body (`executionMode`, `commitReplay`, …); can **mutate** data — use only when you intend to re-execute agents ([ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md)). |
 
 **Auth:** Authority replay requires **`ExecuteAuthority`** (same policy family as execute/commit).
 

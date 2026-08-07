@@ -1,4 +1,4 @@
-using ArchLucid.Api.Contracts;
+﻿using ArchLucid.Api.Contracts;
 using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
@@ -96,7 +96,7 @@ public sealed class DemoViewerController(
         return Ok(response);
     }
 
-    /// <summary>Run aggregate (same shape as <c>GET /v1/architecture/run/{runId}</c>).</summary>
+    /// <summary>Run aggregate (same shape as <c>GET /v1/architecture/review/{runId}</c>).</summary>
     [HttpGet("runs/{runId}")]
     [ProducesResponseType(typeof(RunDetailsResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -146,7 +146,7 @@ public sealed class DemoViewerController(
         return Ok(response);
     }
 
-    /// <summary>Provenance graph for one run (same payload as <c>GET /v1/architecture/runs/{runId}/provenance</c>).</summary>
+    /// <summary>Provenance graph for one run (same payload as <c>GET /v1/architecture/reviews/{runId}/provenance</c>).</summary>
     [HttpGet("runs/{runId}/graph")]
     [ProducesResponseType(typeof(ArchitectureRunProvenanceGraph), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

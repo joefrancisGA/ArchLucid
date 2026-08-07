@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -30,9 +30,9 @@ public sealed class ArchitectureAnalysisDocxTests(ArchLucidApiFactory factory) :
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
-        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
         await executeResponse.EnsureSuccessForTestAsync();
-        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
+        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
         await commitResponse.EnsureSuccessForTestAsync();
         var request = new
         {
@@ -50,7 +50,7 @@ public sealed class ArchitectureAnalysisDocxTests(ArchLucidApiFactory factory) :
         };
 
         HttpResponseMessage response = await Client.PostAsync(
-            $"/v1/architecture/run/{runId}/analysis-report/export/docx",
+            $"/v1/architecture/review/{runId}/analysis-report/export/docx",
             JsonContent(request));
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -73,9 +73,9 @@ public sealed class ArchitectureAnalysisDocxTests(ArchLucidApiFactory factory) :
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
-        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
         await executeResponse.EnsureSuccessForTestAsync();
-        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
+        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
         await commitResponse.EnsureSuccessForTestAsync();
         var request = new
         {
@@ -93,7 +93,7 @@ public sealed class ArchitectureAnalysisDocxTests(ArchLucidApiFactory factory) :
         };
 
         HttpResponseMessage start = await Client.PostAsync(
-            $"/v1/architecture/run/{runId}/analysis-report/export/docx/async",
+            $"/v1/architecture/review/{runId}/analysis-report/export/docx/async",
             JsonContent(request));
 
         start.StatusCode.Should().Be(HttpStatusCode.Accepted);

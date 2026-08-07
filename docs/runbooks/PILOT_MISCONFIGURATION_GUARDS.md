@@ -1,11 +1,11 @@
-> **Scope:** Operator runbook — misconfiguration risks under Core Pilot cognitive load (SAQ-012). UI/API detection and recovery; not a substitute for tenant isolation ADR 0037 review.
+﻿> **Scope:** Operator runbook — misconfiguration risks under Core Pilot cognitive load (SAQ-012). UI/API detection and recovery; not a substitute for tenant isolation ADR 0037 review.
 
 # Pilot misconfiguration guards
 
 **Audience:** Pilot operators, sales engineers, support.  
 **Last reviewed:** 2026-06-17
 
-**Related:** [`FIRST_PILOT_OPERATOR_PATH.md`](FIRST_PILOT_OPERATOR_PATH.md) · [`ARCHITECTURE_FLOWS.md`](../library/ARCHITECTURE_FLOWS.md) · [`TENANT_DATABASE_TOPOLOGY.md`](../library/TENANT_DATABASE_TOPOLOGY.md) · [`CONFIGURATION_REFERENCE.md`](../library/CONFIGURATION_REFERENCE.md)
+**Related:** [`FIRST_PILOT_OPERATOR_PATH.md`](FIRST_PILOT_OPERATOR_PATH.md) Â· [`ARCHITECTURE_FLOWS.md`](../library/ARCHITECTURE_FLOWS.md) Â· [`TENANT_DATABASE_TOPOLOGY.md`](../library/TENANT_DATABASE_TOPOLOGY.md) Â· [`CONFIGURATION_REFERENCE.md`](../library/CONFIGURATION_REFERENCE.md)
 
 ---
 
@@ -20,7 +20,7 @@
 | **Sponsor send before commit** | No manifest on review detail; sponsor banner absent | Finalize step incomplete on Home checklist | Execute → **Finalize / commit** golden manifest first |
 | **PilotStrict HOLD ignored** | `agentOutputPilotStrictEvidenceSatisfied=false` | Sponsor PDF + **Mark as sent** disabled; AI readiness alert | Open first-value report; resolve faithfulness/citation gaps; re-run if needed |
 | **Unsourced ROI dollar claims** | `projectedDollarClaimsSponsorSafe=false` | Projected-dollar / ROI baseline alerts on sponsor banner | Capture baselines on `/settings/baseline` or `/scorecard#roi-baselines` |
-| **Dual run lifecycle confusion** | Operator uses legacy coordinator execute on authority-pipeline run (or vice versa) | Pipeline timeline vs agent-task UI mismatch | Inspect `GET /v1/architecture/run/{runId}`; pick **one** model per run per [`ARCHITECTURE_FLOWS.md`](../library/ARCHITECTURE_FLOWS.md) Flow A0 |
+| **Dual run lifecycle confusion** | Operator uses legacy coordinator execute on authority-pipeline run (or vice versa) | Pipeline timeline vs agent-task UI mismatch | Inspect `GET /v1/architecture/review/{runId}`; pick **one** model per run per [`ARCHITECTURE_FLOWS.md`](../library/ARCHITECTURE_FLOWS.md) Flow A0 |
 
 ---
 

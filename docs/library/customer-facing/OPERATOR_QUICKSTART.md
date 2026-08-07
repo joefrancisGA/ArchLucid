@@ -1,4 +1,4 @@
-> **Scope:** Evaluator / Admin command quickstart — API, CLI, and local UI after the environment is running. **Not** the default buyer help path — architects should start with [Your first architecture review](/help/core-pilot) or [Getting started](/help/getting-started).
+﻿> **Scope:** Evaluator / Admin command quickstart — API, CLI, and local UI after the environment is running. **Not** the default buyer help path — architects should start with [Your first architecture review](/help/core-pilot) or [Getting started](/help/getting-started).
 
 > **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 
@@ -7,7 +7,7 @@
 
 **Buyer UI path:** [Your first architecture review](/help/first-architecture-review)
 
-**SE/ops phases:** [FIRST_PILOT_OPERATOR_PATH.md](../../runbooks/FIRST_PILOT_OPERATOR_PATH.md) · **Stuck:** [FIRST_PILOT_TROUBLESHOOTING.md](../../runbooks/FIRST_PILOT_TROUBLESHOOTING.md) · [Troubleshooting](/help/troubleshooting)
+**SE/ops phases:** [FIRST_PILOT_OPERATOR_PATH.md](../../runbooks/FIRST_PILOT_OPERATOR_PATH.md) Â· **Stuck:** [FIRST_PILOT_TROUBLESHOOTING.md](../../runbooks/FIRST_PILOT_TROUBLESHOOTING.md) Â· [Troubleshooting](/help/troubleshooting)
 
 **Canonical action map (UI + API + CLI):** [OPERATOR_ATLAS.md](../OPERATOR_ATLAS.md).
 
@@ -53,7 +53,7 @@ curl -s http://localhost:5128/health/ready
 
 - **`GET /version`** — returns JSON with `informationalVersion`, `assemblyVersion`, `commitSha`, `runtimeFramework`, and `environment`. No authentication required.
 - **Startup log** — look for **`Pilot/support configuration snapshot`** (includes `BuildInformationalVersion`, `BuildAssemblyVersion`, `BuildFileVersion`, `BuildCommitSha`, `RuntimeFramework`).
-- **`/health/ready`** and **`/health`** — detailed JSON includes `version` (same value as **`GET /version`** field `informationalVersion`) and `commitSha`, plus per-check status and durations. Authenticated **`/health`** also includes **`circuit_breakers`** with **`data.gates[]`** (**`name`**, **`state`**) for Azure OpenAI completion/embedding breakers ([OBSERVABILITY.md](../OBSERVABILITY.md) § Health JSON).
+- **`/health/ready`** and **`/health`** — detailed JSON includes `version` (same value as **`GET /version`** field `informationalVersion`) and `commitSha`, plus per-check status and durations. Authenticated **`/health`** also includes **`circuit_breakers`** with **`data.gates[]`** (**`name`**, **`state`**) for Azure OpenAI completion/embedding breakers ([OBSERVABILITY.md](../OBSERVABILITY.md) Â§ Health JSON).
 - Set CI or local publish with **`/p:SourceRevisionId=$(git rev-parse HEAD)`** to embed the commit SHA automatically.
 
 ```bash
@@ -120,17 +120,17 @@ curl -s -X POST "$BASE/v1/architecture/request" \
 ```
 
 ```bash
-curl -s -X POST "$BASE/v1/architecture/run/RUN_ID/execute" -H "X-Correlation-ID: pilot-demo-2"
+curl -s -X POST "$BASE/v1/architecture/review/RUN_ID/execute" -H "X-Correlation-ID: pilot-demo-2"
 ```
 
 ```bash
-curl -s -X POST "$BASE/v1/architecture/run/RUN_ID/commit" -H "X-Correlation-ID: pilot-demo-3"
+curl -s -X POST "$BASE/v1/architecture/review/RUN_ID/commit" -H "X-Correlation-ID: pilot-demo-3"
 ```
 
-**Traceability bundle (audit hand-off ZIP):** `GET /v1/architecture/run/{runId}/traceability-bundle.zip` returns `application/zip` with run summary, a scoped audit slice, and decision traces. The API applies a **size cap** and may respond with **413** when the bundle would exceed it. Use the same **ReadAuthority** auth and scope headers as other `/v1/architecture/...` reads.
+**Traceability bundle (audit hand-off ZIP):** `GET /v1/architecture/review/{runId}/traceability-bundle.zip` returns `application/zip` with run summary, a scoped audit slice, and decision traces. The API applies a **size cap** and may respond with **413** when the bundle would exceed it. Use the same **ReadAuthority** auth and scope headers as other `/v1/architecture/...` reads.
 
 ```bash
-curl -sS -o traceability-RUN_ID.zip "$BASE/v1/architecture/run/RUN_ID/traceability-bundle.zip"
+curl -sS -o traceability-RUN_ID.zip "$BASE/v1/architecture/review/RUN_ID/traceability-bundle.zip"
 ```
 
 ---

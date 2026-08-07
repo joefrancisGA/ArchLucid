@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Staging end-to-end Playwright spec for the trial funnel — **Stripe TEST mode only**.
  *
  * **Path note (consultative).** The prompt nominated `archlucid-ui/tests/e2e/...`,
@@ -23,7 +23,7 @@
  *
  * **What it intentionally does NOT do:** anything Stripe LIVE. No
  * `sk_live_*` traffic, no Marketplace publish, no DNS cutover. See
- * `docs/library/V1_DEFERRED.md` § 6b and owner Q17.
+ * `docs/library/V1_DEFERRED.md` Â§ 6b and owner Q17.
  */
 import { expect, test, type Page } from "@playwright/test";
 
@@ -126,7 +126,7 @@ test.describe("trial-funnel-test-mode (staging, Stripe TEST mode)", () => {
       await expect(finalizeManifestCue).toBeVisible({ timeout: 60_000 });
 
       const commitResPromise = page.waitForResponse(
-        (res) => res.url().includes("/architecture/run/") && res.url().endsWith("/commit"),
+        (res) => res.url().includes("/architecture/review/") && res.url().endsWith("/commit"),
       );
       await page.getByRole("button", { name: /finalize manifest/i }).click();
 

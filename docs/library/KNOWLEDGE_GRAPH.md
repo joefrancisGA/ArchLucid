@@ -30,7 +30,7 @@ Configured under **`ArchLucid:KnowledgeGraph`** (see `KnowledgeGraphLimitsOption
 | Option | Role |
 |--------|------|
 | **`MaxNodes`** | After **`IGraphBuilder`** runs, **`KnowledgeGraphService`** truncates to this many nodes (first N in builder order), drops edges that reference removed nodes, and appends a **`Warnings`** entry. **`0`** disables truncation (not recommended for hostile/large ingestion). Default **100000**. |
-| **`FullGraphResponseMaxNodes`** | **`GET /v1/graph/runs/{runId}`** returns **413** when **`GraphSnapshot.Nodes.Count`** exceeds this value; clients must use **`GET /v1/graph/runs/{runId}/nodes`** with **`page`** / **`pageSize`** (max **`PaginationDefaults.MaxPageSize`** = 200). **`0`** disables the guard. Default **500**. |
+| **`FullGraphResponseMaxNodes`** | **`GET /v1/evidence-graph/reviews/{runId}`** returns **413** when **`GraphSnapshot.Nodes.Count`** exceeds this value; clients must use **`GET /v1/evidence-graph/reviews/{runId}/nodes`** with **`page`** / **`pageSize`** (max **`PaginationDefaults.MaxPageSize`** = 200). **`0`** disables the guard. Default **500**. |
 
 **Persistence:** **`SqlGraphSnapshotRepository`** bulk-inserts node rows, node/edge property rows, indexed edges, and warnings via **`GraphSnapshotSqlBulkCopy`** (**SqlBulkCopy**) to avoid per-row round-trips and SQL Server parameter limits. Hydration loads node properties with a subquery scoped by **`GraphSnapshotId`** (no huge **`IN (@RowIds…)`** lists). Header reads for **`GetByIdAsync`** / **`GetLatestByContextSnapshotIdAsync`** omit **`NVARCHAR(MAX)`** JSON columns when relational slices are present; legacy **`EdgesJson`** is loaded only when relational edges exist and edge properties need JSON merge.
 

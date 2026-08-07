@@ -1,7 +1,10 @@
 import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
 import { GOVERNANCE_OVERVIEW_PAGE_TITLE } from "@/lib/governance-overview-copy";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import { describe, expect, it } from "vitest";
 
 import { getRouteTitle } from "./route-titles";
@@ -9,13 +12,16 @@ import { getRouteTitle } from "./route-titles";
 describe("getRouteTitle — static routes", () => {
   it("returns known titles", () => {
     expect(getRouteTitle("/")).toBe("Overview");
-    expect(getRouteTitle("/alerts")).toBe("Alerts");
+    expect(getRouteTitle(GOVERNANCE_AUDIT_PATH)).toBe(OPERATOR_NAV_LINK_LABELS.auditTrail);
     expect(getRouteTitle("/architecture/reviews/new")).toBe(START_REVIEW_LABEL);
     expect(getRouteTitle("/architectures/draft-1")).toBe(CREATE_ARCHITECTURE_LABEL);
     expect(getRouteTitle("/governance/approval-queue")).toBe(GOVERNANCE_OVERVIEW_PAGE_TITLE);
-    expect(getRouteTitle("/signed-records")).toBe("Signed review records");
+    expect(getRouteTitle(SIGNED_RECORDS_LIST_PATH)).toBe(OPERATOR_NAV_LINK_LABELS.signedReviewRecords);
     expect(getRouteTitle(EXECUTIVE_DASHBOARD_HREF)).toBe(BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle);
     expect(getRouteTitle("/executive/scorecard")).toBe(BUYER_EXECUTIVE_SUMMARY_VOCABULARY.scorecardPageTitle);
+    expect(getRouteTitle("/replay")).toBe(OPERATOR_NAV_LINK_LABELS.replayReview);
+    expect(getRouteTitle("/insights/ask-review-questions")).toBe("Ask review questions");
+    expect(getRouteTitle("/insights/search-review-evidence")).toBe("Search review evidence");
   });
 });
 
@@ -27,7 +33,7 @@ describe("getRouteTitle — dynamic review detail", () => {
 
 describe("getRouteTitle — manifest detail", () => {
   it("returns Signed review record", () => {
-    expect(getRouteTitle("/signed-records/abc-123")).toBe("Signed review record");
+    expect(getRouteTitle("/governance/signed-records/abc-123")).toBe("Signed review record");
   });
 });
 

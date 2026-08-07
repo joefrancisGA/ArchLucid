@@ -1,3 +1,4 @@
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Sql;
 
 namespace ArchLucid.Persistence.Tests.Sql;
@@ -233,10 +234,21 @@ public sealed class HotPathRelationalQueryShapeTests
     }
 
     [SkippableFact]
+    public void Comparison_record_list_projection_omits_payload_json()
+    {
+        ComparisonRecordListSql.SelectColumnsWithoutPayloadJson.Should().NotContain("PayloadJson");
+        ComparisonRecordListSql.SelectColumnsWithoutPayloadJson.Should().Contain("ComparisonRecordId");
+        ComparisonRecordListSql.SelectColumnsWithoutPayloadJson.Should().Contain("SummaryMarkdown");
+        ComparisonRecordRunIdSql.ProjectionRow.Should().Contain("PayloadJson");
+    }
+
+    [SkippableFact]
     public void Agent_result_list_shapes_document_intentional_result_json_and_proposal_omit()
     {
         AgentResultListSql.GetByRunIdSelectResultJson.Should().Contain("ResultJson");
         AgentResultListSql.ListEvidenceProposalsSelectColumns.Should().Contain("ProposedEvidenceJson");
         AgentResultListSql.ListEvidenceProposalsSelectColumns.Should().NotContain("ResultJson");
+        AgentResultListSql.GetByRunIdSelectRollupProjection.Should().Contain("JSON_QUERY(ar.ResultJson, '$.findings')");
+        AgentResultListSql.GetByRunIdSelectRollupProjection.Should().NotContain("SELECT ar.ResultJson");
     }
 }

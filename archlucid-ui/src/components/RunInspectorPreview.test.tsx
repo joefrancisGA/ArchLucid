@@ -102,7 +102,7 @@ describe("RunInspectorPreview", () => {
     );
     expect(screen.getByRole("link", { name: "View audit trail" })).toHaveAttribute(
       "href",
-      "/audit?runId=claims-intake-modernization",
+      "/governance/audit?runId=claims-intake-modernization",
     );
     expect(screen.getByRole("link", { name: "Ask about this review" })).toHaveAttribute(
       "href",

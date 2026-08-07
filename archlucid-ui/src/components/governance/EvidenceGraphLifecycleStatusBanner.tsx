@@ -9,13 +9,14 @@ import {
 } from "@/lib/evidence-graph-page";
 import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
 
 const showcaseRunEnc = encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID);
 const signedRecordHref = getShowcaseManifestHref();
 const governanceApprovalHref = `/governance/approval-queue?runId=${showcaseRunEnc}`;
-const auditTrailHref = `/audit?runId=${showcaseRunEnc}`;
+const auditTrailHref = auditTrailNavHref(SHOWCASE_STATIC_DEMO_RUN_ID);
 
 export type EvidenceGraphLifecycleStatusBannerProps = {
   readonly className?: string;

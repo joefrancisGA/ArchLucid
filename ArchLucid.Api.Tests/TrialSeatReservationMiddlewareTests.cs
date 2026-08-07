@@ -3,6 +3,7 @@
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Persistence.Tenancy;
 
 using FluentAssertions;
 
@@ -35,6 +36,7 @@ public sealed class TrialSeatReservationMiddlewareTests
         services.AddSingleton<IHttpContextAccessor>(_ => new HttpContextAccessor { HttpContext = http });
         services.AddSingleton<IScopeContextProvider, HttpScopeContextProvider>();
         services.AddSingleton(tenants.Object);
+        services.AddSingleton<ITenantGetByIdRequestCache, TenantGetByIdRequestCache>();
         services.AddSingleton<ITenantTrialSeatSkipCache, TenantTrialSeatSkipCache>();
         services.AddSingleton<TrialSeatAccountant>();
 

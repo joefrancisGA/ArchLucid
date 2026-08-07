@@ -22,7 +22,7 @@ export type LoadArchitectureGraphViewModelResult =
 const PAGINATED_ARCHITECTURE_NOTE =
   "Full graph response exceeded the API size limit; loaded all pages via the paginated endpoint. Edges appear only when both endpoints fall on the same page — some cross-page links may be missing from this view.";
 
-/** Loads the architecture-oriented graph for a run (`GET /v1/graph/runs/{runId}`), merging pages on 413. */
+/** Loads the architecture-oriented graph for a run (`GET /v1/evidence-graph/reviews/{runId}`), merging pages on 413. */
 export async function loadArchitectureGraphViewModel(runId: string): Promise<LoadArchitectureGraphViewModelResult> {
   const rid = runId.trim();
 
@@ -61,7 +61,7 @@ export async function loadArchitectureGraphViewModel(runId: string): Promise<Loa
   }
 }
 
-/** Loads a temporal architecture graph for a review (`GET /v1/graph/snapshot`). */
+/** Loads a temporal architecture graph for a review (`GET /v1/evidence-graph/snapshot`). */
 export async function loadArchitectureGraphViewModelAtAsOf(
   anchorRunId: string,
   asOfIsoUtc: string,

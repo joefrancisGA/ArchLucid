@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Negative-path API checks (live ArchLucid.Api + Sql). Run:
  *   npx playwright test
  */
@@ -153,7 +153,7 @@ test.describe("live-api-negative-paths", () => {
   test("POST execute for unknown run id returns 404", async ({ request }) => {
     test.setTimeout(60_000);
 
-    const res = await request.post(`${liveApiBase}/v1/architecture/run/${crypto.randomUUID()}/execute`, {
+    const res = await request.post(`${liveApiBase}/v1/architecture/review/${crypto.randomUUID()}/execute`, {
       headers: liveAcceptHeaders(),
     });
 
@@ -163,7 +163,7 @@ test.describe("live-api-negative-paths", () => {
   test("POST commit for unknown run id returns 404", async ({ request }) => {
     test.setTimeout(60_000);
 
-    const res = await request.post(`${liveApiBase}/v1/architecture/run/${crypto.randomUUID()}/commit`, {
+    const res = await request.post(`${liveApiBase}/v1/architecture/review/${crypto.randomUUID()}/commit`, {
       headers: liveAcceptHeaders(),
     });
 
@@ -173,7 +173,7 @@ test.describe("live-api-negative-paths", () => {
   test("GET run detail with malformed run id returns 400 or 404", async ({ request }) => {
     test.setTimeout(60_000);
 
-    const res = await request.get(`${liveApiBase}/v1/architecture/run/not-a-guid`, {
+    const res = await request.get(`${liveApiBase}/v1/architecture/review/not-a-guid`, {
       headers: liveAcceptHeaders(),
     });
 

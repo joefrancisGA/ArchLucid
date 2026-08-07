@@ -13,6 +13,7 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { BUYER_VIEW_SIGNED_RECORD_CTA } from "@/lib/buyer-polish-copy";
 import { POST_COMMIT_INTEGRATION_LINK_TITLES } from "@/lib/operator-health-labels";
 import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
+import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
@@ -70,7 +71,7 @@ export function PostCommitRetentionRail({
                     canonicalizeDemoRunId(runId) === SHOWCASE_STATIC_DEMO_RUN_ID &&
                     goldenManifestId.trim() === SHOWCASE_STATIC_DEMO_MANIFEST_ID
                       ? getShowcaseManifestHref()
-                      : `/signed-records/${encodeURIComponent(goldenManifestId.trim())}`
+                      : signedRecordDetailPath(goldenManifestId.trim())
                   }
                 >
                   {BUYER_VIEW_SIGNED_RECORD_CTA}

@@ -1,4 +1,4 @@
-> **Scope:** Evaluators who want the shipped `archlucid try` Docker stack to call their Azure OpenAI instead of the simulator; not production deployment architecture, cost governance beyond the noted token default, or ADR-level rationale (see the linked ADR) — plus the real-mode end-to-end wall-clock benchmark (formerly the body of `REAL_MODE_BENCHMARK.md`; that filename remains a path-stable alias).
+﻿> **Scope:** Evaluators who want the shipped `archlucid try` Docker stack to call their Azure OpenAI instead of the simulator; not production deployment architecture, cost governance beyond the noted token default, or ADR-level rationale (see the linked ADR) — plus the real-mode end-to-end wall-clock benchmark (formerly the body of `REAL_MODE_BENCHMARK.md`; that filename remains a path-stable alias).
 
 > **Reviewed:** 2026-07-31
 
@@ -109,8 +109,8 @@ The benchmark exercises the full request-to-manifest pipeline:
 | Phase | API call | What happens |
 | --- | --- | --- |
 | **Create** | `POST /v1/architecture/request` | Validates the brief, creates a run, dispatches agent tasks. |
-| **Execute** | `POST /v1/architecture/run/{id}/execute` + poll `GET /v1/architecture/run/{id}` | Agents produce results (LLM calls in real mode, deterministic stubs in simulator). |
-| **Commit** | `POST /v1/architecture/run/{id}/commit` | Merges agent results into a versioned architecture manifest. |
+| **Execute** | `POST /v1/architecture/review/{id}/execute` + poll `GET /v1/architecture/review/{id}` | Agents produce results (LLM calls in real mode, deterministic stubs in simulator). |
+| **Commit** | `POST /v1/architecture/review/{id}/commit` | Merges agent results into a versioned architecture manifest. |
 
 The script records wall-clock milliseconds for each phase, prints JSON to stdout, and (unless `-SkipArtifact`) writes **`artifacts/benchmark-real-mode-latest.json`** at the repository root. For how to combine this file with k6 outputs and ROI tables for sponsors, see [`PILOT_SUCCESS_SCORECARD.md#proof-of-value-snapshot-assembly`](../go-to-market/PILOT_SUCCESS_SCORECARD.md#proof-of-value-snapshot-assembly).
 

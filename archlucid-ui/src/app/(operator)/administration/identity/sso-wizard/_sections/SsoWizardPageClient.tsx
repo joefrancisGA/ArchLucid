@@ -6,10 +6,12 @@ import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import {
   formatSsoWizardActivateError,
@@ -35,6 +37,7 @@ import {
 import { showError, showSuccess } from "@/lib/toast";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
+import { SsoWizardEvidenceOrientationStrip } from "./SsoWizardEvidenceOrientationStrip";
 import { SsoWizardFooter } from "./SsoWizardFooter";
 import { SsoWizardProtocolHelpDisclosure } from "./SsoWizardProtocolHelpDisclosure";
 import { SsoWizardProtocolSelector } from "./SsoWizardProtocolSelector";
@@ -308,14 +311,18 @@ export function SsoWizardPageClient() {
           </Link>
         </p>
 
-        <div className="space-y-2">
-          <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{SSO_WIZARD_PAGE_TITLE}</h1>
-          <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{SSO_WIZARD_PAGE_INTRO}</p>
-          <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="status">
-            {SSO_WIZARD_STATUS_NOT_ACTIVE}
-          </p>
-        </div>
+        <OperatorPageHeader
+          title={SSO_WIZARD_PAGE_TITLE}
+          subtitle={SSO_WIZARD_PAGE_INTRO}
+          titleTestId="sso-wizard-page-title"
+          actions={<PageContextualHelpButton />}
+        />
+        <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="status">
+          {SSO_WIZARD_STATUS_NOT_ACTIVE}
+        </p>
       </header>
+
+      <SsoWizardEvidenceOrientationStrip />
 
       <SsoWizardStepper currentStep={step} completedSteps={completedSteps} />
 

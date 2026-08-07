@@ -298,6 +298,9 @@ public sealed class PolicyPackDryRunServiceTests
         public Task<ArchitectureRunDetail?> GetRunDetailForRollupAsync(string runId, CancellationToken cancellationToken = default) =>
             GetRunDetailAsync(runId, cancellationToken);
 
+        public Task<ArchitectureRunDetail?> GetRunDetailForRoiAsync(string runId, CancellationToken cancellationToken = default) =>
+            GetRunDetailAsync(runId, cancellationToken);
+
         public Task<IReadOnlyList<RunSummary>> ListRunSummariesAsync(CancellationToken cancellationToken = default) =>
             Task.FromResult<IReadOnlyList<RunSummary>>([]);
 

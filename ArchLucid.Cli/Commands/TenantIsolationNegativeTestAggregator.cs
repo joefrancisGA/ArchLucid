@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Text.Json;
 
 namespace ArchLucid.Cli.Commands;
@@ -91,17 +91,17 @@ internal static class TenantIsolationNegativeTestProbeCatalog
         [
             new TenantIsolationNegativeTestProbeDefinition(
                 "cross-tenant-run-get",
-                $"/v1/architecture/run/{runId}",
+                $"/v1/architecture/review/{runId}",
                 "deny-status",
                 "Cross-tenant GET run detail must not succeed."),
             new TenantIsolationNegativeTestProbeDefinition(
                 "cross-tenant-run-roi",
-                $"/v1/architecture/run/{runId}/roi",
+                $"/v1/architecture/review/{runId}/roi",
                 "deny-status",
                 "Cross-tenant GET run ROI must not succeed."),
             new TenantIsolationNegativeTestProbeDefinition(
                 "cross-tenant-run-provenance",
-                $"/v1/architecture/runs/{runId}/provenance",
+                $"/v1/architecture/reviews/{runId}/provenance",
                 "deny-status",
                 "Cross-tenant GET run provenance must not succeed."),
             new TenantIsolationNegativeTestProbeDefinition(

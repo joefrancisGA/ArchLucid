@@ -12,8 +12,10 @@ export function normalizeTelemetryRoute(pathname: string): string {
     normalized = normalized.replace(/^\/reviews\/[^/]+/i, "/architecture/reviews/[runId]");
   }
 
-  normalized = normalized.replace(/\/(?:manifests|signed-records)\/[^/]+/i, "/signed-records/[manifestId]");
-  normalized = normalized.replace(/\/signed-records\/[^/]+/i, "/signed-records/[recordId]");
+  normalized = normalized.replace(
+    /\/(?:manifests|governance\/signed-records|signed-records)\/[^/]+/i,
+    "/governance/signed-records/[manifestId]",
+  );
 
   if (normalized.length === 0) {
     return "/";

@@ -33,8 +33,8 @@ function matchesLiveProxyManifestSummary(url: URL, manifestId: string): boolean 
   const encoded = encodeURIComponent(manifestId);
 
   return (
-    path === `/v1/authority/signed-records/${encoded}/summary`
-    || path === `/v1/authority/manifests/${encoded}/summary`
+    path === `/v1/authority/signed-review-records/${encoded}/summary`
+    || path === `/v1/authority/signed-review-records/${encoded}/summary`
   );
 }
 

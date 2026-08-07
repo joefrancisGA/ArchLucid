@@ -10,9 +10,197 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-07 - Trustworthiness: TB-2067 distinct DeterministicFallback trust chip
+
+Trust chips and provenance aggregates now distinguish policy-rule findings from deterministic fallbacks when the live model path failed. Wire `trustLabelReason` populates the chip tooltip when supplied.
+
+## 2026-08-07 - Trustworthiness: TB-2066 finding inspect trust enricher run context
+
+Finding inspect now derives trust labels from parent run structural execution mode and degradation signals instead of hardcoded Real-mode context.
+
+## 2026-08-07 - Adoption friction: TB-2065 finding correlation vocabulary disambiguation
+
+Compare, ITSM ticket linkage, and executive ROI surfaces now use distinct vocabulary for cross-review correlation (ADR 0063), ITSM ticket linkages, and portfolio FindingId deduplication.
+
+## 2026-08-07 - Trustworthiness: TB-2064 compare UI finding correlation metadata
+
+Compare-two-reviews now soft-loads end-to-end `findingCorrelation` metadata (method, dedupe key format, match counts, honesty note) with export-parity copy after structured compare succeeds.
+
+## 2026-08-07 - Trustworthiness: TB-2063 compare finding delta fingerprint correlation
+
+`AgentResultDiffService` now uses ADR 0063 `ICrossReviewFindingCorrelationService` for finding add/remove deltas instead of raw message text comparison, with message-only fallback for findings without stable ids.
+
+## 2026-08-07 - Trustworthiness: TB-2044 finding export trust labels
+
+Authoritative `trustLabel` / `trustLabelReason` now flow through work-item clipboard exports, bulk ITSM JSON export, and ADR/MADR markdown when the API supplies wire labels — parity with run-detail CSV.
+
+## 2026-08-07 - Performance: TB-2062 audit list cache coalesced invalidation
+
+Coalesce audit-list scope revision bumps within 3s during append bursts so first-page `CachingAuditRepository` reads keep cache hits under pipeline write churn; 15s list TTL still bounds staleness.
+
+## 2026-08-07 - Performance: TB-2061 dashboard + signed-records First Load JS
+
+Deferred below-fold executive-dashboard panels and the signed-records list client chunk via `next/dynamic`; extended `check:first-load-js` tracked routes and baseline for `/architecture/executive-dashboard` and `/governance/signed-records`.
+
+## 2026-08-07 - Performance: TB-2060 decision-node materialization off commit path
+
+Authority finalize no longer runs `IDecisionEngineV2` node persistence synchronously. `DecisionEngineV2NodeMaterialization` post-commit outbox work enqueues on every successful commit; `DecisionEngineV2NodeMaterializer` idempotently populates `GET /v1/architecture/review/{runId}/decisions` after the outbox drains.
+
+## 2026-08-07 - UI: Azure Boards help Evidence chrome (HEZ)
+
+`/help/azure-boards` ships AzureBoardsHelpEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map azure-boards, traffic Notes under Help topic (row ID HEZ), and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
+## 2026-08-07 - UI: Authentication sign-in help Evidence chrome (HEA)
+
+`/help/authentication-sign-in` ships AuthenticationSignInHelpEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map authentication-sign-in, traffic Notes under Help topic (row ID HEA), and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
+## 2026-08-07 - UI: Admin diagnostics help Evidence chrome (HAE)
+
+`/help/admin-diagnostics` ships AdminDiagnosticsHelpEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map admin-diagnostics, traffic Notes under Help topic (row ID HAE), and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
+## 2026-08-06 - UI: Accelerator chooser help Evidence chrome (HAX)
+
+`/help/accelerator-chooser` ships AcceleratorChooserHelpEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map accelerator-chooser, traffic Notes under Help topic (row ID HAX), and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
+## 2026-08-06 - UI: Help topic catch-all Evidence chrome (HE.)
+
+`/help/[...topic]` residual markdown path ships HelpTopicCatchAllEvidenceOrientationStrip (Sources + claim-discipline), PageContextualHelp + Category-1 `/help` fallback (specialty prefixes still win), traffic Notes under Help topic (row ID HE.), and honest Evidence score 52. Catch-all residual hard-caps at help specialty orientation band; no CPA / third-party pen-test implication.
+
+## 2026-08-06 - UI: Approval queue Evidence chrome (GOP)
+
+`/governance/approval-queue` ships ApprovalQueueEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map governance-approval, traffic Notes under Alerts/gov (row ID GOP; added to template), and honest Evidence score 50. Decision-workflow hub hard-caps higher Evidence without audit export depth; no CPA / third-party pen-test implication.
+
+## 2026-08-06 - UI: Alerts inbox legacy tab Evidence notes (GOI)
+
+`/governance/alerts?tab=inbox` documents redirect canonicalize to AL hub (TB-1594), traffic Notes under Tab surface (row ID GOI), and honest Evidence score 28. Legacy inbox-tab deep link hard-caps at redirect/shim band; no CPA / third-party pen-test implication.
+
+## 2026-08-07 - Perf: GetRunDetailAsync default omits artifact bodies (TB-2059)
+
+`IAuthorityQueryService.GetRunDetailAsync` defaults `loadArtifactBodies` to false (metadata-only bundle); export/download paths use `IArtifactQueryService` or pass `loadArtifactBodies: true` when inline LOBs are required. Does not claim CPA / third-party pen-test.
+
+## 2026-08-07 - Perf: comparison list omit PayloadJson (TB-2057)
+
+Comparison history/search (`GetByRunIdAsync`, `GetByExportRecordIdAsync`, `SearchAsync`, `SearchByCursorAsync`) use `ComparisonRecordListSql` without the `PayloadJson` LOB; `GetByIdAsync` unchanged for detail. Does not claim CPA / third-party pen-test.
+
+## 2026-08-07 - Perf: retrieval indexing outbox slim detail + parallel drain (TB-2055)
+
+`GetRunDetailForRetrievalIndexingAsync` omits artifact bodies on the outbox hot path; full bodies load via `IArtifactQueryService` only for indexing. Batch drain uses `BoundedBatchParallelism` (TB-586 pattern). Does not claim CPA / third-party pen-test.
+
+## 2026-08-06 - UI: Alert rules simulation tab Evidence notes (GOS)
+
+`/governance/alert-rules?tab=simulation` documents inherited SAX hub Evidence chrome (AlertRulesEvidenceOrientationStrip + PageContextualHelp already on the hub), traffic Notes under Tab surface (row ID GOS), and honest Evidence score 48. Simulation-tab deep link hard-caps at alert-config band; no CPA / third-party pen-test implication.
+
+## 2026-08-06 - Perf: ROI off fat GetRunDetailAsync (TB-2054)
+
+`GetRunDetailForRoiAsync` serves ROI history/trends/portfolio via rollup projection plus finding mute flags when a snapshot exists — replacing N× full `GetRunDetailAsync` LOB loads. Does not claim CPA / third-party pen-test.
+
+## 2026-08-06 - Perf: rollup/compare off bare ResultJson (TB-2053)
+
+`GetRunDetailForRollupAsync` loads agent results through `GetRollupProjectionByRunIdAsync` (relational columns + JSON subpaths for claims/findings/controls) instead of full `ResultJson`. Hot-path inventory + shape guards updated. Does not claim CPA / third-party pen-test.
+
+## 2026-08-06 - UI: Alert rules Conditions tab Evidence notes (GLR)
+
+`/governance/alert-rules?tab=rules` documents inherited SAX hub Evidence chrome (AlertRulesEvidenceOrientationStrip + PageContextualHelp already on the hub), traffic Notes under Tab surface (row ID GLR; owner GOR renamed to avoid collision with template routing GOR), and honest Evidence score 48. Conditions-tab deep link hard-caps at alert-config band; no CPA / third-party pen-test implication.
+
+## 2026-08-06 - UI: Alert rules composite tab Evidence notes (GOC)
+
+`/governance/alert-rules?tab=composite` documents inherited SAX hub Evidence chrome (AlertRulesEvidenceOrientationStrip + PageContextualHelp already on the hub), traffic Notes under Tab surface (row ID GOC), and honest Evidence score 48. Composite-tab deep link hard-caps at alert-config band; no CPA / third-party pen-test implication.
+
+## 2026-08-06 - UI: Advisory scans Scans tab Evidence notes (ADT)
+
+`/governance/advisory-scans?tab=scans` documents inherited ADV hub Evidence chrome (Sources strip + PageContextualHelp already on the hub), traffic Notes under Tab surface (row ID ADT; owner GOA renamed to avoid collision with template alert-rules GOA), and honest Evidence score 48. Scans-tab deep link hard-caps below ADV launcher; no CPA / third-party pen-test implication.
+
+## 2026-08-06 - UI: Example ROI bulletin Evidence chrome (EXA)
+
+`/example-roi-bulletin` ships ExampleRoiBulletinEvidenceOrientationStrip (evaluation Sources + claim-discipline), traffic Notes under Marketing (row ID EXA), and honest Evidence score 40. Marketing synthetic bulletin hard-caps higher Evidence; not an operator PageContextualHelp surface; no CPA / third-party pen-test implication.
+
+## 2026-08-06 - UI: Compliance journey Evidence chrome (COM)
+
+`/compliance-journey` ships ComplianceJourneyEvidenceOrientationStrip (evaluation Sources + claim-discipline), traffic Notes under Marketing (row ID COM), and honest Evidence score 40. Marketing posture summary hard-caps higher Evidence; not an operator PageContextualHelp surface; no CPA / third-party pen-test implication.
+
+## 2026-08-06 - UI: Auth invite Evidence chrome (AUI)
+
+`/auth/invite` ships AuthInviteEvidenceOrientationStrip (public Sources + claim-discipline) on InvitationAcceptPageClient, traffic Notes under Auth (row ID AUI), and honest Evidence score 40. Pre-sign-in invitation handoff hard-caps higher Evidence; not an operator PageContextualHelp surface; no CPA / third-party pen-test implication.
+
+## 2026-08-06 - UI: Auth bootstrap Evidence chrome (AUB)
+
+`/auth/bootstrap` ships AuthBootstrapEvidenceOrientationStrip (public Sources + claim-discipline) on invitation / select-workspace / create-workspace / no-access steps, traffic Notes under Auth (row ID AUB), and honest Evidence score 40. Post-sign-in handoff hard-caps higher Evidence; not an operator PageContextualHelp surface; no CPA / third-party pen-test implication.
+
+## 2026-08-06 - UI: First review guide Evidence chrome (ARF)
+
+`/architecture/first-review-guide` ships FirstReviewGuideEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map getting-started, traffic Notes under Onboarding (row ID ARF), and honest Evidence score 50. Onboarding checklist hard-caps below help-specialty COR; no CPA / third-party pen-test implication.
+
+## 2026-08-06 - UI: Architectures list Evidence chrome (ARA)
+
+`/architecture/architectures` ships ArchitecturesListEvidenceOrientationStrip (workspace Sources + claim-discipline), ArchitecturesHubHeaderActions PageContextualHelp + Category-1 registry + topic map getting-started, traffic Notes under Core review (row ID ARA; template AR remains legacy `/architectures`), and honest Evidence score 50. Draft inventory hard-caps below ANE create-bootstrap; listing drafts does not start a review; no CPA / third-party pen-test implication.
+
+## 2026-08-06 - UI: Architecture draft detail Evidence chrome (ARR)
+
+`/architecture/architectures/[architectureId]` ships ArchitecturesDraftEvidenceOrientationStrip (workspace Sources + claim-discipline), ArchitectureDraftWorkspace PageContextualHelp + Category-1 via pathIsArchitectureDraftDetail + topic map getting-started, traffic Notes under Core review (row ID ARR; template ARA remains legacy `/architectures/[architectureId]`), and honest Evidence score 50. Drafting workspace hard-caps below ANE create-bootstrap; saving a draft does not start a review; no CPA / third-party pen-test implication.
+
+## 2026-08-06 - UI: Model-failed vs quality-rejected distinction (TB-965)
+
+Review detail and API problem copy separate quality-gate HOLD from execution failures; Vitest forbids LLM-error conflation on quality paths. Builds on **TB-963** taxonomy SoT. Does not claim CPA / third-party pen-test or perfect AI quality.
+
+## 2026-08-06 - GTM: **M-26** ADR Upwork listing + partial **M-136**/**M-137**/**M-108**/**M-09** artifacts
+
+Paste-ready ADR Cleanup listing in [`QUOTE_TO_PROOF_PACKET.md#upwork-listings-draft`](go-to-market/QUOTE_TO_PROOF_PACKET.md#upwork-listings-draft); fictional-org trademark screen; scenario framing variants; showcase screenshot + landing sign-off checklists. Does not rewrite other open GTM/tech backlog rows.
+
+## 2026-08-06 - Docs: LLM execution vs quality outcome taxonomy (TB-963)
+
+[LLM_EXECUTION_VS_QUALITY_OUTCOME.md](library/LLM_EXECUTION_VS_QUALITY_OUTCOME.md) ships the two-axis matrix (admissibility first, quality second), failureClass / gate / triage mapping, and durable persist checklist for **TB-964**/**TB-965**. GTM **M-123**/**M-124** cite the library SoT. Does not claim CPA / third-party pen-test or perfect AI quality.
+
+## 2026-08-06 - UI: Tenant settings Evidence chrome (ATE)
+
+`/administration/tenant` ships TenantSettingsEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map scope, traffic Notes under Settings (row ID ATE; path aligned off legacy settings/tenant / STX), and honest Evidence score 50. Settings access-hub hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
+## 2026-08-06 - UI: Projects recycle bin Evidence chrome (STR)
+
+`/administration/tenant/recycle-bin` ships ProjectsRecycleBinEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map scope, traffic Notes under Settings (row ID STR; path aligned off legacy settings/tenant/recycle-bin; owner ARE renamed to avoid collision with template executive-dashboard ARE), and honest Evidence score 50. Settings access-hub hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
+## 2026-08-06 - UI: SCIM provisioning Evidence chrome (ASC)
+
+`/administration/scim-provisioning` ships ScimProvisioningEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map enterprise-onboarding, traffic Notes under Settings (row ID ASC; path aligned off legacy settings/scim-provisioning / SSX), and honest Evidence score 50. Settings access-hub hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
+## 2026-08-06 - UI: SSO wizard Evidence chrome (ASS)
+
+`/administration/identity/sso-wizard` ships SsoWizardEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map enterprise-onboarding, traffic Notes under Settings (row ID ASS; path aligned off legacy settings/identity/sso-wizard / SIS), and honest Evidence score 50. Settings access-hub hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
+## 2026-08-06 - UI: SAML identity-provider Evidence chrome (ASA)
+
+`/administration/identity-providers/saml` ships IdentityProvidersSamlEvidenceOrientationStrip (workspace Sources + claim-discipline), shared PageContextualHelp + Category-1 registry + topic map enterprise-onboarding, traffic Notes under Settings (row ID ASA; path aligned off legacy settings/identity-providers/saml / SSA), and honest Evidence score 50. Settings access-hub hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
+## 2026-08-06 - UI: Identity diagnostics Evidence chrome (SEI)
+
+`/administration/identity-providers/diagnostics` ships IdentityProvidersDiagnosticsEvidenceOrientationStrip (workspace Sources + claim-discipline), shared PageContextualHelp + Category-1 registry + topic map enterprise-onboarding, traffic Notes under Settings (row ID SEI; path aligned off legacy settings/identity-providers/diagnostics), and honest Evidence score 45. Admin diagnostic hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
+## 2026-08-06 - UI: Internal developer tools Evidence chrome (SDX)
+
+`/administration/developer` ships DeveloperSettingsEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map cli-usage, traffic Notes under Admin (row ID SDX; path aligned off legacy settings/developer / DSE), and honest Evidence score 45. Admin diagnostic hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
+## 2026-08-06 - UI: Architecture intelligence Evidence chrome (AIN)
+
+`/architecture/architecture-intelligence` ships ArchitectureIntelligenceEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map evidence-trail, traffic Notes under Core review (row ID AIN), and honest Evidence score 50. Closed-loop reasoning hub hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
+## 2026-08-06 - UI: Learn more job-match Vitest (TB-2052)
+
+CI suite learn-more-job-match.test.ts + inventory bans generic getting-started / how-it-works Learn more on secondary hubs, keeps Digests specialty + Schedule deep links, and asserts Category-1 still mounts when Learn more is omitted. **TB-2048**–**TB-2052** cluster closed. Does not claim CPA / third-party pen-test.
+
 ## 2026-08-05 - UI: Category-1 popover deep-link CTAs (TB-2051)
 
 Allowlisted secondary hubs expose in-app `{ label, href }` actions on Category-1 what-to-do-next / where-to-configure (Digests Schedule/Subscriptions golden retained; advisory Schedules, planning ↔ pilot feedback, impact-preview → reviews, workspace health → approval queue, Connection status ↔ System health). Vitest allowlist guard ships. **TB-2052** remains open. Does not claim CPA / third-party pen-test.
+
+## 2026-08-06 - UI: OIDC identity-provider Evidence chrome (AOI)
+
+`/administration/identity-providers/oidc` ships IdentityProvidersOidcEvidenceOrientationStrip (workspace Sources + claim-discipline), shared PageContextualHelp + Category-1 registry + topic map enterprise-onboarding, traffic Notes under Settings (row ID AOI; path aligned off legacy settings/identity-providers/oidc / SOI), and honest Evidence score 50. Settings access-hub hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
+## 2026-08-06 - UI: Create architecture Evidence chrome (ANE)
+
+`/architecture/architectures/new` ships ArchitecturesNewEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map first-architecture-review, traffic Notes under Core review (row ID ANE), and honest Evidence score 50. Create-bootstrap hard-caps higher Evidence; drafting does not start a review; no CPA / third-party pen-test implication.
+
+## 2026-08-05 - UI: AI and model governance Evidence chrome (AMO)
+
+`/administration/model-governance` ships ModelGovernanceSettingsEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map how-it-works, traffic Notes under Settings (row ID AMO; path aligned off legacy settings/model-governance / SEM), and honest Evidence score 50. Settings commercial-hub hard-caps higher Evidence; no CPA / third-party pen-test implication.
 
 ## 2026-08-05 - UI: SSO and identity hub Evidence chrome (AID)
 

@@ -1,4 +1,4 @@
-> **Reviewed:** 2026-07-27
+﻿> **Reviewed:** 2026-07-27
 
 > **Scope:** AI governance accelerator — Responsible AI policy pack, findings, governance gate, and sponsor export; V1 surfaces only — plus buyer-job packaging / demo proof shape (formerly the body of `docs/go-to-market/buyer-jobs/AI_GOVERNANCE_REVIEW.md`; that filename remains a path-stable Specialty alias).
 
@@ -51,7 +51,7 @@
 **API**
 
 ```http
-GET /v1/architecture/run/61c60d76-2b80-93f9-46bb-2f66fd608b9b
+GET /v1/architecture/review/61c60d76-2b80-93f9-46bb-2f66fd608b9b
 Authorization: Bearer {token}
 ```
 
@@ -94,7 +94,7 @@ Framework mapping is **thematic only** — see disclaimer in pack metadata and a
 **API**
 
 ```http
-GET /v1/architecture/run/{runId}/findings
+GET /v1/architecture/review/{runId}/findings
 Authorization: Bearer {token}
 ```
 
@@ -133,13 +133,13 @@ See [`PRE_COMMIT_GOVERNANCE_GATE.md`](../PRE_COMMIT_GOVERNANCE_GATE.md).
 
 1. Disposition blocking findings or record approval per tenant workflow.
 2. **Finalize** when the gate passes.
-3. Optional: **Governance dashboard** for cross-review approvals ([`PRODUCT_PACKAGING.md`](../PRODUCT_PACKAGING.md) Operate · governance).
+3. Optional: **Governance dashboard** for cross-review approvals ([`PRODUCT_PACKAGING.md`](../PRODUCT_PACKAGING.md) Operate Â· governance).
 
 <details>
 <summary>Administrator details — HTTP path</summary>
 
 ```http
-POST /v1/architecture/run/{runId}/commit
+POST /v1/architecture/review/{runId}/finalize
 Authorization: Bearer {token}
 ```
 
@@ -250,7 +250,7 @@ Use [`PILOT_SUCCESS_SCORECARD.md`](../../go-to-market/PILOT_SUCCESS_SCORECARD.md
 
 ### Demo proof shape (Demo-derived only) {#demo-proof-shape-demo-derived-only}
 
-**Evidence basis:** **Demo-derived** · **Estimate** for ROI rows without buyer baselines. Not a verified customer outcome or production attestation.
+**Evidence basis:** **Demo-derived** Â· **Estimate** for ROI rows without buyer baselines. Not a verified customer outcome or production attestation.
 
 | Finding (illustrative) | Category | Evidence label |
 | --- | --- | --- |
@@ -269,5 +269,5 @@ Use [`PILOT_SUCCESS_SCORECARD.md`](../../go-to-market/PILOT_SUCCESS_SCORECARD.md
 - [`POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md`](POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md) — regulated vertical variant
 - [`CUSTOM_AGENT_HANDLER_GUIDE.md`](../CUSTOM_AGENT_HANDLER_GUIDE.md) — in-repo agent extension (advanced)
 - [`EXECUTIVE_SPONSOR_BRIEF.md`](../../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md)
-- [`#buyer-job-packaging`](#buyer-job-packaging) · [`../../go-to-market/buyer-jobs/AI_GOVERNANCE_REVIEW.md`](../../go-to-market/buyer-jobs/AI_GOVERNANCE_REVIEW.md) (alias) — Specialty buyer-job path
+- [`#buyer-job-packaging`](#buyer-job-packaging) Â· [`../../go-to-market/buyer-jobs/AI_GOVERNANCE_REVIEW.md`](../../go-to-market/buyer-jobs/AI_GOVERNANCE_REVIEW.md) (alias) — Specialty buyer-job path
 - [`../../samples/policy-packs/ai-governance-responsible-ai-rules-v1.json`](../../samples/policy-packs/ai-governance-responsible-ai-rules-v1.json) — curated rules corpus sample

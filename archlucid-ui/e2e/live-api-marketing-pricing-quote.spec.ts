@@ -53,7 +53,7 @@ test.describe("live-api-marketing-pricing-quote", () => {
 
     await section.getByLabel(/Work email/i).fill(`e2e-quote-ui-${Date.now()}@example.com`);
     await section.getByLabel(/^Company$/i).fill("E2E Quote UI Co");
-    // Accessible name includes the helper line under "Message" â€” match prefix, not exact.
+    // Accessible name includes the helper line under "Message" — match prefix, not exact.
     await section.getByRole("textbox", { name: /^Message/i }).fill("Playwright quote path via UI proxy.");
 
     const quoteResponsePromise = page.waitForResponse(

@@ -10,6 +10,7 @@ import {
 } from "@/lib/showcase-quick-nav-contract";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 import { SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID } from "@/lib/showcase-static-demo";
+import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 
 function primaryFindingIdForShowcase(payload: DemoCommitPagePreviewResponse): string {
   const rows = payload.runExplanation?.findingTraceConfidences;
@@ -64,7 +65,7 @@ export function ShowcaseQuickNav({
             <Link href={reviewHref} className={btnClass}>
               Review
             </Link>
-            <Link href={`/signed-records/${encodeURIComponent(manifestId)}`} className={btnClass}>
+            <Link href={signedRecordDetailPath(manifestId)} className={btnClass}>
               Open signed record
             </Link>
             <Link href={findingHref} className={btnClass}>

@@ -1,4 +1,4 @@
-import type { components } from "@/lib/api-types.generated";
+﻿import type { components } from "@/lib/api-types.generated";
 
 /** AI-generated explanation of a single run's decisions, risks, costs, and compliance. */
 export type RunExplanation = {
@@ -121,7 +121,7 @@ export type FindingExplainabilityEvidence = {
   ruleId: string;
 };
 
-/** Pointers linking one finding to persisted run artifacts (`GET /v1/architecture/run/.../findings/.../evidence-chain`). */
+/** Pointers linking one finding to persisted run artifacts (`GET /v1/architecture/review/.../findings/.../evidence-chain`). */
 export type FindingEvidenceChain = {
   runId: string;
   findingId: string;

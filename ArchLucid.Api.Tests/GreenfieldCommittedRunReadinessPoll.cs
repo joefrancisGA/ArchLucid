@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -29,7 +29,7 @@ internal static class GreenfieldCommittedRunReadinessPoll
         return WaitUntilAsync(
             async ct =>
             {
-                using HttpResponseMessage response = await client.GetAsync($"/v1/architecture/run/{runId}", ct);
+                using HttpResponseMessage response = await client.GetAsync($"/v1/architecture/review/{runId}", ct);
 
                 if (!response.IsSuccessStatusCode)
                     return false;
@@ -39,7 +39,7 @@ internal static class GreenfieldCommittedRunReadinessPoll
 
                 return detail?.Run is { Status: "Committed", CurrentManifestVersion: { Length: > 0 } };
             },
-            "GET /v1/architecture/run/{runId} did not show a committed run with manifest after commit.",
+            "GET /v1/architecture/review/{runId} did not show a committed run with manifest after commit.",
             cancellationToken);
     }
 
@@ -54,7 +54,7 @@ internal static class GreenfieldCommittedRunReadinessPoll
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
-        using HttpResponseMessage response = await client.GetAsync($"/v1/architecture/run/{runId}", cancellationToken);
+        using HttpResponseMessage response = await client.GetAsync($"/v1/architecture/review/{runId}", cancellationToken);
 
         if (!response.IsSuccessStatusCode)
             return false;
@@ -67,7 +67,7 @@ internal static class GreenfieldCommittedRunReadinessPoll
 
     /// <summary>
     ///     Polls until execute has promoted the run to <c>ReadyForCommit</c> with agent results visible on
-    ///     <c>GET /v1/architecture/run/{runId}</c>. Prevents POST /commit racing snapshot/materialization under CI SQL load.
+    ///     <c>GET /v1/architecture/review/{runId}</c>. Prevents POST /commit racing snapshot/materialization under CI SQL load.
     ///     Note: <c>CurrentManifestVersion</c> is populated only after commit, not at ReadyForCommit.
     /// </summary>
     internal static Task WaitUntilRunManifestReadableForCommitAsync(
@@ -78,7 +78,7 @@ internal static class GreenfieldCommittedRunReadinessPoll
         return WaitUntilAsync(
             async ct =>
             {
-                using HttpResponseMessage response = await client.GetAsync($"/v1/architecture/run/{runId}", ct);
+                using HttpResponseMessage response = await client.GetAsync($"/v1/architecture/review/{runId}", ct);
 
                 if (!response.IsSuccessStatusCode)
                     return false;
@@ -94,7 +94,7 @@ internal static class GreenfieldCommittedRunReadinessPoll
 
                 return detail.Results is { Count: > 0 };
             },
-            "GET /v1/architecture/run/{runId} did not show ReadyForCommit with agent results before commit.",
+            "GET /v1/architecture/review/{runId} did not show ReadyForCommit with agent results before commit.",
             cancellationToken,
             maxAttempts: 30,
             maxDelayMs: 4000);
@@ -124,7 +124,7 @@ internal static class GreenfieldCommittedRunReadinessPoll
         bounded.CancelAfter(TimeSpan.FromSeconds(30));
 
         using HttpResponseMessage response =
-            await client.GetAsync($"/v1/architecture/run/{runId}", bounded.Token);
+            await client.GetAsync($"/v1/architecture/review/{runId}", bounded.Token);
 
         string body = await response.Content.ReadAsStringAsync(bounded.Token);
 

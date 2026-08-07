@@ -262,10 +262,10 @@ cd archlucid-ui && npm ci && npm test
 1. **Create review** – `POST /v1/architecture/request`  
    Submit an `ArchitectureRequest` (system name, environment, cloud provider, constraints). Returns a **`runId`** and agent tasks.
 
-2. **Submit agent results** – `POST /v1/architecture/run/{runId}/result`  
+2. **Submit agent results** – `POST /v1/architecture/review/{runId}/result`  
    Submit results from topology, cost, and compliance agents.
 
-3. **Commit** – `POST /v1/architecture/run/{runId}/commit`  
+3. **Commit** – `POST /v1/architecture/review/{runId}/finalize`  
    Merge results and produce a versioned manifest. Requires at least one agent result per run.
 
 4. **Get manifest** – `GET /v1/architecture/manifest/{version}`  
@@ -273,10 +273,10 @@ cd archlucid-ui && npm ci && npm test
 
 Other endpoints:
 
-- `GET /v1/architecture/run/{runId}` – Fetch run status, tasks, and results
-- `POST /v1/architecture/run/{runId}/seed-fake-results` – (Development only) Seed deterministic fake results for smoke testing
-- `POST /v1/architecture/run/{runId}/analysis-report` – Build an analysis report (evidence, manifest, diagram, summary, determinism, diffs)
-- `POST /v1/architecture/run/{runId}/analysis-report/export/docx` – Export the analysis report as a Word document (DOCX)
+- `GET /v1/architecture/review/{runId}` – Fetch run status, tasks, and results
+- `POST /v1/architecture/review/{runId}/seed-fake-results` – (Development only) Seed deterministic fake results for smoke testing
+- `POST /v1/architecture/review/{runId}/analysis-report` – Build an analysis report (evidence, manifest, diagram, summary, determinism, diffs)
+- `POST /v1/architecture/review/{runId}/analysis-report/export/docx` – Export the analysis report as a Word document (DOCX)
 
 ### Analysis report and DOCX export
 

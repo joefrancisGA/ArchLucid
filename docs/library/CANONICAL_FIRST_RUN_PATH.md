@@ -1,4 +1,4 @@
-> **Scope:** Single canonical minimum viable first-run path for V1 pilot operators (seven mandatory steps), plus the architect-workspace first-review UI walkthrough (formerly the body of `FIRST_RUN_WALKTHROUGH.md`; that filename remains a path-stable alias), the first-run wizard design notes (formerly the body of `FIRST_RUN_WIZARD.md`; that filename remains a path-stable alias for help-center / UI drawers), the controlled-pilot first-run proof checklist (formerly the body of `CONTROLLED_PILOT_FIRST_RUN_CHECKLIST.md`; that filename remains a path-stable alias), the hosted-pilot strict single-path quickstart (formerly the body of `HOSTED_PILOT_SINGLE_PATH.md`; that filename remains a path-stable alias), and the expert principal-architect 15-minute lane (formerly the body of `FIRST_15_MINUTES_FOR_PRINCIPAL_ARCHITECTS.md`; that filename remains a path-stable alias for **M-44** / **M-180** callers). Audience is customer-facing operator onboarding, not a contributor reference.
+﻿> **Scope:** Single canonical minimum viable first-run path for V1 pilot operators (seven mandatory steps), plus the architect-workspace first-review UI walkthrough (formerly the body of `FIRST_RUN_WALKTHROUGH.md`; that filename remains a path-stable alias), the first-run wizard design notes (formerly the body of `FIRST_RUN_WIZARD.md`; that filename remains a path-stable alias for help-center / UI drawers), the controlled-pilot first-run proof checklist (formerly the body of `CONTROLLED_PILOT_FIRST_RUN_CHECKLIST.md`; that filename remains a path-stable alias), the hosted-pilot strict single-path quickstart (formerly the body of `HOSTED_PILOT_SINGLE_PATH.md`; that filename remains a path-stable alias), and the expert principal-architect 15-minute lane (formerly the body of `FIRST_15_MINUTES_FOR_PRINCIPAL_ARCHITECTS.md`; that filename remains a path-stable alias for **M-44** / **M-180** callers). Audience is customer-facing operator onboarding, not a contributor reference.
 
 > **Reviewed:** 2026-07-31
 
@@ -15,7 +15,7 @@
 **First-run wizard design (`/reviews/new`):** [`#first-run-wizard-architect-workspace`](#first-run-wizard-architect-workspace) (`FIRST_RUN_WIZARD.md` alias)  
 **Expert principal-architect lane (15 min):** [`#expert-principal-architect-15-minute-lane`](#expert-principal-architect-15-minute-lane) (`FIRST_15_MINUTES_FOR_PRINCIPAL_ARCHITECTS.md` alias)  
 **Hosted / strict RC single path:** [`#hosted-pilot-single-path`](#hosted-pilot-single-path) (`HOSTED_PILOT_SINGLE_PATH.md` alias)  
-**Integration commitments (V1 vs V1.1):** [`../go-to-market/INTEGRATION_CATALOG.md`](../go-to-market/INTEGRATION_CATALOG.md) § Commitment boundary  
+**Integration commitments (V1 vs V1.1):** [`../go-to-market/INTEGRATION_CATALOG.md`](../go-to-market/INTEGRATION_CATALOG.md) Â§ Commitment boundary  
 **Contributor/engineer path (not customer):** [`../engineering/FIRST_30_MINUTES.md`](../engineering/FIRST_30_MINUTES.md)
 
 ---
@@ -28,7 +28,7 @@
 | **2** | Run first-run preflight | `dotnet run --project ArchLucid.Cli -- --json pilot preflight` | No **BLOCK** rows |
 | **3** | Readiness-only proof (no finalized architecture package yet) | `.\scripts\collect-first-pilot-proof.ps1` | `first-pilot-command-center.md` shows phased status |
 | **4** | Sign in and start one architecture review | Architect workspace `/reviews/new` or `POST /v1/architecture/request` | `runId` captured |
-| **5** | Finalize the architecture package | `POST /v1/architecture/run/{runId}/commit` (or UI Finalize) | `goldenManifestId` present |
+| **5** | Finalize the architecture package | `POST /v1/architecture/review/{runId}/finalize` (or UI Finalize) | `goldenManifestId` present |
 | **6** | Collect committed-run proof | `.\scripts\collect-first-pilot-proof.ps1 -RunId <runId>` | `first-pilot-evidence/first-value-report.md` attached |
 | **7** | Sponsor handoff only when SEND-eligible | `.\scripts\collect-first-pilot-proof.ps1 -RunId <runId> -SponsorHandoff -FailOnHold` | `sponsorPacketDisposition` not **HOLD**; `sendEligible` true |
 
@@ -278,7 +278,7 @@ Primary architect reference: **[OPERATOR_QUICKSTART.md](customer-facing/OPERATOR
 
 ## Secondary (not first-run)
 
-Operate compare/replay/graph lanes, V1.1 connectors, MCP, marketplace checkout, and broad integration catalog reading are **out of scope** for the default first run. See [`FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) § Ignore for first pilot.
+Operate compare/replay/graph lanes, V1.1 connectors, MCP, marketplace checkout, and broad integration catalog reading are **out of scope** for the default first run. See [`FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) Â§ Ignore for first pilot.
 
 ---
 
@@ -315,7 +315,7 @@ Success is **decision signal**, not completing every UI surface.
 | **4** | **STOP-IF-VALUE-NOT-SEEN checkpoint** — see below. | 12–13 min | Pass → step 5; Fail → stop |
 | **5** | **Commit** the manifest — only if step 4 passed. | 13–14 min | `goldenManifestId` present |
 | **6** | Locate the **sponsor export** or architecture package — unaided. | 14–15 min | Sendable artifact path found |
-| **7** | *(Optional)* Walk **one** finding's evidence trail — only when step 4 was marginal. | ≤15 min total | Evidence chain stronger than raw AI output |
+| **7** | *(Optional)* Walk **one** finding's evidence trail — only when step 4 was marginal. | â‰¤15 min total | Evidence chain stronger than raw AI output |
 
 ### Step 4 — STOP-IF-VALUE-NOT-SEEN (mandatory)
 
@@ -338,7 +338,7 @@ This checkpoint prevents ceremony completion without value signal — the most c
 | Operate: Graph, Compare, Replay | Not required for first value signal |
 | Governance dashboards and policy-pack configuration | Deep links below — use after commit |
 | ROI baseline scorecard and procurement pack | Post-handoff only |
-| Azure extractor setup when brief + uploads suffice | Evidence-only path: [`CORE_PILOT.md`](../CORE_PILOT.md) § Evidence-only |
+| Azure extractor setup when brief + uploads suffice | Evidence-only path: [`CORE_PILOT.md`](../CORE_PILOT.md) Â§ Evidence-only |
 | Reading full V1 scope or integration catalog | Expert lane assumes platform is already provisioned |
 
 ### Optional deep links (after step 4 passes or after commit)
@@ -346,7 +346,7 @@ This checkpoint prevents ceremony completion without value signal — the most c
 | Topic | Doc |
 | --- | --- |
 | Evidence trail / audit rows for one finding | [`../go-to-market/FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md#principal-architect-insight-validation`](../go-to-market/FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md#principal-architect-insight-validation) (alias: [`PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`](../go-to-market/Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md)) |
-| Governance gates and policy packs | [`PRODUCT_PACKAGING.md`](PRODUCT_PACKAGING.md) · [`../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md`](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md) |
+| Governance gates and policy packs | [`PRODUCT_PACKAGING.md`](PRODUCT_PACKAGING.md) Â· [`../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md`](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md) |
 | Sponsor packet and export labels | [`../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md`](../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md) |
 | Full seven-step canonical pilot | [Seven mandatory steps](#seven-mandatory-steps) |
 | One-sitting timing narrative (operators) | [`../runbooks/FIRST_CREDIBLE_REVIEW_ONE_SITTING.md`](../runbooks/FIRST_CREDIBLE_REVIEW_ONE_SITTING.md) |

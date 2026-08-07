@@ -14,6 +14,7 @@ import {
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID } from "@/lib/showcase-static-demo";
+import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 
 type HealthcareClaimsPolicyPackDetailProps = {
   readonly policyPackId: string;
@@ -89,7 +90,7 @@ export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPa
 
       <section className="flex flex-wrap gap-3">
         <Button asChild variant="default">
-          <Link href={`/signed-records/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`}>
+          <Link href={signedRecordDetailPath(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}>
             {buyerPolishedShell ? BUYER_OPEN_SIGNED_RECORD_CTA : "Open Claims Intake review record"}
           </Link>
         </Button>

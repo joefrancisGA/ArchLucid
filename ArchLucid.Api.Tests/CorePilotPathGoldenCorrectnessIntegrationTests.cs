@@ -1,4 +1,4 @@
-using System.IO.Compression;
+﻿using System.IO.Compression;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text;
@@ -44,10 +44,10 @@ public sealed class CorePilotPathGoldenCorrectnessIntegrationTests
         created.Should().NotBeNull();
         string runId = created!.Run.RunId;
 
-        HttpResponseMessage executeResponse = await client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        HttpResponseMessage executeResponse = await client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
         await executeResponse.EnsureSuccessForTestAsync();
 
-        HttpResponseMessage commitResponse = await client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
+        HttpResponseMessage commitResponse = await client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
         commitResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
         HttpResponseMessage reportResponse = await client.GetAsync($"/v1/pilots/runs/{runId}/first-value-report");
@@ -95,7 +95,7 @@ public sealed class CorePilotPathGoldenCorrectnessIntegrationTests
         severityTotal.Should().BeGreaterThanOrEqualTo(expected.MinimumFindingsBySeverityTotal);
 
         HttpResponseMessage zipResponse =
-            await client.GetAsync($"/v1/architecture/run/{runId}/traceability-bundle.zip");
+            await client.GetAsync($"/v1/architecture/review/{runId}/traceability-bundle.zip");
         zipResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         IReadOnlyList<string> zipNames = ReadZipEntryNames(await zipResponse.Content.ReadAsByteArrayAsync());
 

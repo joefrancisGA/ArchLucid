@@ -1,7 +1,7 @@
-namespace ArchLucid.Api.Models;
+﻿namespace ArchLucid.Api.Models;
 
 /// <summary>
-///     Body for <c>PATCH /v1/architecture/run/{runId}/pin</c>. When <see cref="IsPinned" /> is omitted, the server toggles
+///     Body for <c>PATCH /v1/architecture/review/{runId}/pin</c>. When <see cref="IsPinned" /> is omitted, the server toggles
 ///     the current pin state.
 /// </summary>
 public sealed class PinRunRequest

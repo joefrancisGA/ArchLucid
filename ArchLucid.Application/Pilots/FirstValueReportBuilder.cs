@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Text;
 
 using ArchLucid.Application.Runs;
@@ -126,7 +126,7 @@ public sealed class FirstValueReportBuilder(
             await TryResolveTenantBrandingAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
         AppendTenantFirstValueBrandingMarkdown(sb, tenantBranding);
         sb.AppendLine(
-            "This one-page summary is generated from committed run data in ArchLucid. The **computed deltas** below replace the legacy baseline placeholders for the numbers ArchLucid can derive on its own; the qualitative baseline table at the bottom is still operator-filled. See repository `docs/PILOT_ROI_MODEL.md` §4 for the full metric catalog.");
+            "This one-page summary is generated from committed run data in ArchLucid. The **computed deltas** below replace the legacy baseline placeholders for the numbers ArchLucid can derive on its own; the qualitative baseline table at the bottom is still operator-filled. See repository `docs/PILOT_ROI_MODEL.md` Â§4 for the full metric catalog.");
         sb.AppendLine();
         AppendSponsorFirstPageStatusBlock(sb, detail, sponsorSafeDisposition, proofCompleteness, deltas, run, roiClaimGate);
         SponsorSafeProofStatusMarkdownFormatter.AppendMarkdownSection(sb, sponsorSafeDisposition, buyerSafeGate, proofCompleteness, deltas, run);
@@ -194,7 +194,7 @@ public sealed class FirstValueReportBuilder(
         sb.AppendLine();
         sb.AppendLine($"- Operator review UI: {ui}/reviews/{run.RunId}");
         sb.AppendLine($"- Pilot scorecard: {ui}/scorecard");
-        sb.AppendLine($"- API anchor (authenticated): {baseUrl}/v1/architecture/run/{run.RunId}");
+        sb.AppendLine($"- API anchor (authenticated): {baseUrl}/v1/architecture/review/{run.RunId}");
         return new FirstValueReportBuildResult(
             sb.ToString(),
             evidenceCompleteness,
@@ -400,9 +400,9 @@ public sealed class FirstValueReportBuilder(
         sb.AppendLine();
         sb.AppendLine("### Evidence links");
         sb.AppendLine();
-        sb.AppendLine($"- [Run detail JSON]({baseUrl}/v1/architecture/run/{run.RunId}) (`GET /v1/architecture/run/{{runId}}`)");
+        sb.AppendLine($"- [Run detail JSON]({baseUrl}/v1/architecture/review/{run.RunId}) (`GET /v1/architecture/review/{{runId}}`)");
         sb.AppendLine(
-            $"- [Decision nodes]({baseUrl}/v1/architecture/run/{run.RunId}/decisions) (`GET /v1/architecture/run/{{runId}}/decisions`) — after commit");
+            $"- [Decision nodes]({baseUrl}/v1/architecture/review/{run.RunId}/decisions) (`GET /v1/architecture/review/{{runId}}/decisions`) — after commit");
         sb.AppendLine();
     }
 
@@ -445,7 +445,7 @@ public sealed class FirstValueReportBuilder(
         sb.AppendLine(
             $"| PilotStrict agent-output posture | {(c.AgentOutputPilotStrictEvidenceSatisfied ? "Satisfied — no PilotStrict trace/faithfulness failures attested for this run." : "**FAILED** — PilotStrict quality gate reported rejecting signals; withhold sponsor-grade real-mode claims until traces pass.")} |");
         sb.AppendLine($"| Evidence-basis labels | {FormatEvidenceBasisLabels(c, deltas, run)} |");
-        sb.AppendLine($"| Proof sendability (API mirror) | `{c.ProofSendability}` · `{c.PublishingTier}` · **{c.EvidenceCompleteness}** |");
+        sb.AppendLine($"| Proof sendability (API mirror) | `{c.ProofSendability}` Â· `{c.PublishingTier}` Â· **{c.EvidenceCompleteness}** |");
         sb.AppendLine(
             CultureInfo.InvariantCulture,
             $"| Sponsor-proof readiness (classification) | {(Enum.TryParse(c.SponsorProofReadiness, ignoreCase: false, out SponsorProofReadinessClassification readiness) ? SponsorProofReadinessClassifier.DescribeForMarkdownTable(readiness) : "**Incomplete** — classification unavailable.")} |");
@@ -500,7 +500,7 @@ public sealed class FirstValueReportBuilder(
         sb.AppendLine();
         sb.AppendLine("| Metric | Value |");
         sb.AppendLine("| --- | ---: |");
-        sb.AppendLine($"| Net score (up − down) | {snapshot.FindingFeedbackNetScore.ToString(CultureInfo.InvariantCulture)} |");
+        sb.AppendLine($"| Net score (up âˆ’ down) | {snapshot.FindingFeedbackNetScore.ToString(CultureInfo.InvariantCulture)} |");
         sb.AppendLine($"| Votes recorded | {snapshot.FindingFeedbackVoteCount.ToString(CultureInfo.InvariantCulture)} |");
         sb.AppendLine();
     }
@@ -570,7 +570,7 @@ public sealed class FirstValueReportBuilder(
         }
 
         sb.AppendLine($"Wall-clock from `RunRecord.CreatedUtc` to `GoldenManifest.CommittedUtc`: **{wall:c}**.");
-        sb.AppendLine($"Created: `{deltas.RunCreatedUtc:O}` · Committed: `{deltas.ManifestCommittedUtc:O}`.");
+        sb.AppendLine($"Created: `{deltas.RunCreatedUtc:O}` Â· Committed: `{deltas.ManifestCommittedUtc:O}`.");
         sb.AppendLine();
     }
 
@@ -609,7 +609,7 @@ public sealed class FirstValueReportBuilder(
         }
 
         sb.AppendLine();
-        sb.AppendLine($"Full trace payloads: [GET /v1/architecture/run/{runId}]({baseUrl}/v1/architecture/run/{runId}) (`decisionTraces` array when present).");
+        sb.AppendLine($"Full trace payloads: [GET /v1/architecture/review/{runId}]({baseUrl}/v1/architecture/review/{runId}) (`decisionTraces` array when present).");
         sb.AppendLine();
     }
 

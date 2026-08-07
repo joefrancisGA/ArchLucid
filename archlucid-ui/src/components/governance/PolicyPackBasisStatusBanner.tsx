@@ -10,13 +10,14 @@ import {
 import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SHOWCASE_PHI_FINDING_GRAPH_NODE_ID } from "@/lib/finding-inspect-graph-evidence";
+import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
 
 const showcaseRunEnc = encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID);
 const signedRecordHref = getShowcaseManifestHref();
 const evidenceTrailHref = `/insights/evidence-graph?runId=${showcaseRunEnc}&graphNodeId=${encodeURIComponent(SHOWCASE_PHI_FINDING_GRAPH_NODE_ID)}`;
-const auditTrailHref = `/audit?runId=${showcaseRunEnc}`;
+const auditTrailHref = auditTrailNavHref(SHOWCASE_STATIC_DEMO_RUN_ID);
 
 export type PolicyPackBasisStatusBannerProps = {
   readonly className?: string;

@@ -5,7 +5,7 @@ namespace ArchLucid.Provenance;
 ///     project lineage.
 /// </summary>
 /// <remarks>
-///     Returned by <c>GET /v1/graph/snapshot</c>. Property names serialize in camelCase for JSON clients under default API
+///     Returned by <c>GET /v1/evidence-graph/snapshot</c>. Property names serialize in camelCase for JSON clients under default API
 ///     settings.
 /// </remarks>
 public sealed class ArchitectureGraphTemporalSnapshotResponse

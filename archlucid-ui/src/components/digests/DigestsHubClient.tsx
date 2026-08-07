@@ -26,7 +26,11 @@ import {
   DIGESTS_SCHEDULE_TAB_RESPONSIBILITY,
   DIGESTS_SUBSCRIPTIONS_TAB_RESPONSIBILITY,
 } from "@/lib/exec-digest-schedule-page-model";
-import { DIGESTS_HUB_TAB_IDS, digestsHubTabFromSearchParam, type DigestsHubTabId } from "@/lib/digests-hub-tab";
+import { DIGESTS_HUB_TAB_IDS, type DigestsHubTabId } from "@/lib/digests-hub-tab";
+import {
+  digestsHubNavigationPathname,
+  digestsHubTabFromLocation,
+} from "@/lib/digests-route-paths";
 import {
   digestsListRefreshButtonTitleOperator,
   digestsListRefreshButtonTitleReader,
@@ -80,19 +84,20 @@ export function DigestsHubClient(): ReactElement {
   const [lastUpdatedUtc, setLastUpdatedUtc] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
 
+  const hubPathname = useMemo(() => digestsHubNavigationPathname(pathname), [pathname]);
   const activeTab: DigestsHubTabId = useMemo(
-    () => digestsHubTabFromSearchParam(rawTab),
-    [rawTab],
+    () => digestsHubTabFromLocation(pathname, rawTab),
+    [pathname, rawTab],
   );
 
   // Always carry `?tab=` so shared and traffic deep links survive tab selection (TB-1505).
   const onSelectTab = useCallback(
     (id: string) => {
-      const tabId: DigestsHubTabId = digestsHubTabFromSearchParam(id);
+      const tabId: DigestsHubTabId = digestsHubTabFromLocation(hubPathname, id);
 
-      router.push(`${pathname}?${TAB_PARAM}=${encodeURIComponent(tabId)}`);
+      router.push(`${hubPathname}?${TAB_PARAM}=${encodeURIComponent(tabId)}`);
     },
-    [pathname, router],
+    [hubPathname, router],
   );
 
   const onHealthLoaded = useCallback((snap: WeeklyDigestHealthDto | null) => {

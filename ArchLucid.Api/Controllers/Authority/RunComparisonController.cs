@@ -53,7 +53,7 @@ public sealed class RunComparisonController(
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
-    [HttpGet("run/compare/agents")]
+    [HttpGet("review/compare/agents")]
     [ProducesResponseType(typeof(AgentResultCompareResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -74,7 +74,7 @@ public sealed class RunComparisonController(
         return Ok(ComparisonResponseMapper.ToAgentResultCompareResponse(diff));
     }
 
-    [HttpGet("run/compare/agents/summary")]
+    [HttpGet("review/compare/agents/summary")]
     [ProducesResponseType(typeof(AgentResultCompareSummaryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -96,7 +96,7 @@ public sealed class RunComparisonController(
         return Ok(ComparisonResponseMapper.ToAgentResultCompareSummaryResponse(summary, diff));
     }
 
-    [HttpGet("run/compare/end-to-end")]
+    [HttpGet("review/compare/end-to-end")]
     [ProducesResponseType(typeof(EndToEndReplayComparisonResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -110,7 +110,7 @@ public sealed class RunComparisonController(
     }
 
     // idempotency-posture: operator-documented-safe-retry
-    [HttpPost("run/compare/end-to-end/summary")]
+    [HttpPost("review/compare/end-to-end/summary")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(EndToEndReplayComparisonSummaryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -138,7 +138,7 @@ public sealed class RunComparisonController(
         return Ok(ComparisonResponseMapper.ToEndToEndSummaryResponse(summary));
     }
 
-    [HttpGet("run/compare/end-to-end/export")]
+    [HttpGet("review/compare/end-to-end/export")]
     [ProducesResponseType(typeof(EndToEndReplayComparisonExportResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -155,7 +155,7 @@ public sealed class RunComparisonController(
         return Ok(ComparisonResponseMapper.ToEndToEndExportResponse(fileName, markdown));
     }
 
-    [HttpGet("run/compare/end-to-end/export/file")]
+    [HttpGet("review/compare/end-to-end/export/file")]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -173,7 +173,7 @@ public sealed class RunComparisonController(
         return ApiFileResults.RangeText(Request, markdown, "text/markdown", fileName);
     }
 
-    [HttpGet("run/compare/end-to-end/export/docx")]
+    [HttpGet("review/compare/end-to-end/export/docx")]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

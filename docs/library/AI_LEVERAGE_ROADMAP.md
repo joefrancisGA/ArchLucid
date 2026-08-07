@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — Canonical AI leverage catalogue for product and engineering leads; prioritised opportunities to exploit AI across the platform—not the reliability/usability backlog in `LATEST.md` or a procurement deliverable.
+﻿> **Scope:** Contributor-reference — Canonical AI leverage catalogue for product and engineering leads; prioritised opportunities to exploit AI across the platform—not the reliability/usability backlog in `LATEST.md` or a procurement deliverable.
 
 # ArchLucid AI Leverage Roadmap
 
@@ -8,8 +8,8 @@
 
 **Scope boundaries:**
 - V1 items reuse existing agent runtime, LLM client, and transport — no new infra contracts, feature-flaggable.
-- V1.1 items coordinate with already-pinned V1.1 scope in `V1_DEFERRED.md` (MCP §6d, multi-cloud §6n, ITSM §6/6a). Cross-run executive ROI is **V1** ([V1_SCOPE.md](V1_SCOPE.md) §2.8).
-- V2 items require new substrate, fine-tuning MLOps, or cross-tenant analytics (explicitly out of V1 per `V1_DEFERRED.md` §1).
+- V1.1 items coordinate with already-pinned V1.1 scope in `V1_DEFERRED.md` (MCP Â§6d, multi-cloud Â§6n, ITSM Â§6/6a). Cross-run executive ROI is **V1** ([V1_SCOPE.md](V1_SCOPE.md) Â§2.8).
+- V2 items require new substrate, fine-tuning MLOps, or cross-tenant analytics (explicitly out of V1 per `V1_DEFERRED.md` Â§1).
 
 ---
 
@@ -51,7 +51,7 @@ Create a new service IFindingIacStubGenerator in ArchLucid.Application/Agents/Ia
 
 **Cursor prompt:**
 ```text
-Create a new endpoint POST /v1/architecture/request/draft in ArchLucid.Api/Controllers/Planning/ArchitectureRequestController.cs. Accept a DraftArchitectureRequestInput containing a free-text description (string, required, MinLength 20). Call IAgentCompletionClient with the system prompt: "You are an enterprise architecture intake assistant. Given this system description, produce a JSON object with keys: suggestedConstraints (string[]), suggestedCapabilities (string[]), suggestedAssumptions (string[]), topologyHints (string[]), securityBaselineHints (string[]). Be specific and concise. Return ONLY valid JSON." Return the parsed result as DraftArchitectureRequestResponse. In archlucid-ui, add a "✨ Suggest fields" button to the New Request form that calls this endpoint and pre-fills the constraint and capability fields, with each pre-filled value visually marked as AI-suggested until the operator edits or accepts it.
+Create a new endpoint POST /v1/architecture/request/draft in ArchLucid.Api/Controllers/Planning/ArchitectureRequestController.cs. Accept a DraftArchitectureRequestInput containing a free-text description (string, required, MinLength 20). Call IAgentCompletionClient with the system prompt: "You are an enterprise architecture intake assistant. Given this system description, produce a JSON object with keys: suggestedConstraints (string[]), suggestedCapabilities (string[]), suggestedAssumptions (string[]), topologyHints (string[]), securityBaselineHints (string[]). Be specific and concise. Return ONLY valid JSON." Return the parsed result as DraftArchitectureRequestResponse. In archlucid-ui, add a "âœ¨ Suggest fields" button to the New Request form that calls this endpoint and pre-fills the constraint and capability fields, with each pre-filled value visually marked as AI-suggested until the operator edits or accepts it.
 ```
 
 ---
@@ -135,7 +135,7 @@ In EffectiveGovernanceResolver.cs (or its caller in the commit path), when a gov
 
 **Cursor prompt:**
 ```text
-Create IFindingPriorityReranker in ArchLucid.Application/Findings/. After an architecture run commits, collect all ArchitectureFindings for the run. Group them by severity. For each severity tier, call IAgentCompletionClient with: "You are an enterprise risk advisor. Rank these {n} architecture findings from most to least urgent business impact for a {industryVertical} organisation. Return ONLY a JSON array of findingId strings in priority order." Persist the rank as a new int column PriorityRank on dbo.Findings via a DbUp migration. Add an ?orderBy=priority query param to GET /v1/architecture/run/{runId} findings response. Guard with config key AgentRuntime:RerankFindings (default false).
+Create IFindingPriorityReranker in ArchLucid.Application/Findings/. After an architecture run commits, collect all ArchitectureFindings for the run. Group them by severity. For each severity tier, call IAgentCompletionClient with: "You are an enterprise risk advisor. Rank these {n} architecture findings from most to least urgent business impact for a {industryVertical} organisation. Return ONLY a JSON array of findingId strings in priority order." Persist the rank as a new int column PriorityRank on dbo.Findings via a DbUp migration. Add an ?orderBy=priority query param to GET /v1/architecture/review/{runId} findings response. Guard with config key AgentRuntime:RerankFindings (default false).
 ```
 
 ---
@@ -149,7 +149,7 @@ Create IFindingPriorityReranker in ArchLucid.Application/Findings/. After an arc
 
 **Cursor prompt:**
 ```text
-Add a new export variant RunSummaryOnePager to ArchitectureReviewBoardExportDocumentFactory.cs. It should: 1) count findings by severity (Critical/High/Medium/Low); 2) call IAgentCompletionClient with the top-5 High/Critical findings and produce a 3-sentence executive summary; 3) populate a new Markdown template templates/exports/run-summary-one-pager.md.hbs with severity counts, the AI summary, and top-3 finding titles. Expose it as GET /v1/architecture/run/{runId}/export/summary in ArchitectureExportController.cs and add a "Download Executive Summary" button in the archlucid-ui run detail page next to the existing export options.
+Add a new export variant RunSummaryOnePager to ArchitectureReviewBoardExportDocumentFactory.cs. It should: 1) count findings by severity (Critical/High/Medium/Low); 2) call IAgentCompletionClient with the top-5 High/Critical findings and produce a 3-sentence executive summary; 3) populate a new Markdown template templates/exports/run-summary-one-pager.md.hbs with severity counts, the AI summary, and top-3 finding titles. Expose it as GET /v1/architecture/review/{runId}/export/summary in ArchitectureExportController.cs and add a "Download Executive Summary" button in the archlucid-ui run detail page next to the existing export options.
 ```
 
 ---
@@ -163,7 +163,7 @@ Add a new export variant RunSummaryOnePager to ArchitectureReviewBoardExportDocu
 
 **Cursor prompt:**
 ```text
-Create a new endpoint POST /v1/governance/policy-pack/draft in GovernanceController.cs. Accept a DraftPolicyPackInput with FreeTextIntent (string, MinLength 20). Load 3–4 existing bundled policy pack rule examples from the manifest as few-shot context. Call IAgentCompletionClient with the prompt: "You are a cloud governance expert. Based on the following intent, draft a valid ArchLucid policy pack rule JSON object conforming to this schema: {PolicyPackRule schema}. Use these existing rules as examples: {fewShotExamples}." Return the draft as DraftPolicyPackRuleResponse (with a prominent disclaimer that it requires human review before activation). In archlucid-ui, add a "✨ Draft a rule from plain English" button to the Policy Pack editor that opens a text input and shows the draft in side-by-side view with the schema.
+Create a new endpoint POST /v1/governance/policy-pack/draft in GovernanceController.cs. Accept a DraftPolicyPackInput with FreeTextIntent (string, MinLength 20). Load 3–4 existing bundled policy pack rule examples from the manifest as few-shot context. Call IAgentCompletionClient with the prompt: "You are a cloud governance expert. Based on the following intent, draft a valid ArchLucid policy pack rule JSON object conforming to this schema: {PolicyPackRule schema}. Use these existing rules as examples: {fewShotExamples}." Return the draft as DraftPolicyPackRuleResponse (with a prominent disclaimer that it requires human review before activation). In archlucid-ui, add a "âœ¨ Draft a rule from plain English" button to the Policy Pack editor that opens a text input and shows the draft in side-by-side view with the schema.
 ```
 
 ---
@@ -266,14 +266,14 @@ Update .github/workflows/template-eval-harness.yml to add a scheduled trigger (c
 ### 19. Portfolio chat over the knowledge graph
 **Why it matters:** "Which of my systems still expose public SQL endpoints?" Operator asks free-form questions across the whole tenant graph, not just one run.
 
-**Why V1.1:** Requires graph-to-LLM structured tool calls. Aligns naturally with the MCP inbound membrane pinned for V1.1 in `V1_DEFERRED.md` §6d — seven read-only tools including `GetProvenanceGraph` and `GetGovernanceStatus` are the natural backing.
+**Why V1.1:** Requires graph-to-LLM structured tool calls. Aligns naturally with the MCP inbound membrane pinned for V1.1 in `V1_DEFERRED.md` Â§6d — seven read-only tools including `GetProvenanceGraph` and `GetGovernanceStatus` are the natural backing.
 
 ---
 
 ### 20. Auto-tagged drift narratives between runs
 **Why it matters:** "You added a public IP to your web tier; this regressed a finding you fixed in Run 47." The product starts remembering and narrating your architectural history. Directly proves stickiness through product memory.
 
-**Why V1.1:** Needs cross-run state tracking and a narrative LLM pass. Complements the V1 cross-run executive ROI summary ([V1_SCOPE.md](V1_SCOPE.md) §2.8) but does not depend on it.
+**Why V1.1:** Needs cross-run state tracking and a narrative LLM pass. Complements the V1 cross-run executive ROI summary ([V1_SCOPE.md](V1_SCOPE.md) Â§2.8) but does not depend on it.
 
 ---
 
@@ -296,12 +296,12 @@ Update .github/workflows/template-eval-harness.yml to add a scheduled trigger (c
 ### 23. Cross-tenant pattern learning (opt-in, anonymised)
 **Why it matters:** "85% of healthcare tenants that hit your finding-cluster applied this mitigation." Massive competitive differentiation — but only credible at scale.
 
-**Why V2:** Cross-tenant analytics is **explicitly out of V1** per `V1_DEFERRED.md` §1. Requires consent flow, k-anonymity guarantees, and legal review. Earliest sensible timeline is after V1.1 provides sufficient per-tenant telemetry volume to base the model on.
+**Why V2:** Cross-tenant analytics is **explicitly out of V1** per `V1_DEFERRED.md` Â§1. Requires consent flow, k-anonymity guarantees, and legal review. Earliest sensible timeline is after V1.1 provides sufficient per-tenant telemetry volume to base the model on.
 
 ---
 
 ### 24. Fine-tuned ArchLucid SLM for the Critic role
-**Why it matters:** A small specialist model trained on accumulated ArchLucid runs replaces generic GPT-4o for the Critic. 5–10× cheaper, faster, and arguably better-grounded for architecture critique than a general model.
+**Why it matters:** A small specialist model trained on accumulated ArchLucid runs replaces generic GPT-4o for the Critic. 5–10Ã— cheaper, faster, and arguably better-grounded for architecture critique than a general model.
 
 **Why V2:** Needs data volume (~50k labelled runs), a fine-tuning MLOps pipeline, eval harness maturity (#15, #18 must ship first), and an AOAI fine-tuning or Azure ML serving substrate. None exists in V1 or V1.1; only worth starting after V1.1 telemetry confirms stable training labels.
 
@@ -310,7 +310,7 @@ Update .github/workflows/template-eval-harness.yml to add a scheduled trigger (c
 ### 25. Outbound MCP client — ArchLucid calls external tool servers for live evidence
 **Why it matters:** Agents call Azure Resource Graph MCP, GitHub MCP, ServiceNow MCP for live evidence during a run. Step-change in evidence freshness — architecture analysis is grounded in live infrastructure state, not a snapshot from the extractor.
 
-**Why V2:** Already pinned to V2 (out of V1.1) per `V1_DEFERRED.md` §6d. Requires allowlist + approval-class mapping that doesn't exist in the V1.1 inbound MCP membrane scope. Must not widen without a separate owner decision in `PENDING_QUESTIONS.md`.
+**Why V2:** Already pinned to V2 (out of V1.1) per `V1_DEFERRED.md` Â§6d. Requires allowlist + approval-class mapping that doesn't exist in the V1.1 inbound MCP membrane scope. Must not widen without a separate owner decision in `PENDING_QUESTIONS.md`.
 
 ---
 
@@ -346,7 +346,7 @@ The 25 items in this roadmap are additive to the 25 items in `docs/assessments/L
 |---|---|
 | #4 Streaming Ask | #2 Add Streaming Support for Ask Endpoint |
 | #5 Multi-model tiered orchestration | #3 Implement Multi-Model Orchestration |
-| #11 Compare-runs explainer | Partially covered by LATEST.md #5 (cross-run executive ROI — V1 §2.8) |
+| #11 Compare-runs explainer | Partially covered by LATEST.md #5 (cross-run executive ROI — V1 Â§2.8) |
 
 LATEST.md items #2 and #3 carry the Cursor prompts needed for V1 delivery; this document provides the deeper rationale and sequencing context for all 25. For V1 items not yet in LATEST.md (#1, #3, #6–#15), Cursor prompts are included here and summarised in LATEST.md.
 
@@ -360,7 +360,7 @@ This roadmap focuses on **operator-facing LLM features** and **agent prompt dept
 |-------|----------|---------|
 | V1 first slice (**TB-021**) | [`RAG_CORPUS_KIND_POLICY_PACK_DESIGN.md`](RAG_CORPUS_KIND_POLICY_PACK_DESIGN.md) — `CorpusKind` + `PolicyPackCorpusIndexer` | V1-now — approved 2026-05-23 |
 | V1 corpus + eval (**TB-021**) | [`RAG_QUALITY_TECHNICAL_BACKLOG.md`](RAG_QUALITY_TECHNICAL_BACKLOG.md) **RAG-V1-000**–**005** | V1-now — schedulable from assessments |
-| V1.1 expansion | Same doc **RAG-V1.1-*** | [`V1_DEFERRED.md`](V1_DEFERRED.md) §6q |
+| V1.1 expansion | Same doc **RAG-V1.1-*** | [`V1_DEFERRED.md`](V1_DEFERRED.md) Â§6q |
 | V2 advanced | Same doc **RAG-V2-*** | V2 backlog |
 
 **Synergy:** Roadmap **#3** (per-finding Ask) and **#11** (compare narrative) benefit directly from **RAG-V1-002** (prior manifest) and **RAG-V1-004** (platform docs). Roadmap **#6** (Critic second-pass) pairs with **RAG-V1-001** (policy-pack corpus) for citation-backed dispute findings.

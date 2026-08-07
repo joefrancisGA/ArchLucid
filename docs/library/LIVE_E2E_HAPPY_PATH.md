@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — Live E2E — architect workspace vs real API + SQL (Playwright) - full detail, tables, and links in the sections below.
+﻿> **Scope:** Contributor-reference — Live E2E — architect workspace vs real API + SQL (Playwright) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -20,7 +20,7 @@
 | `archlucid-ui/e2e/live-api-conflict-journey.spec.ts` | `live-api-conflict-journey` | Second **commit** → **200** (idempotent, same `manifestVersion`); **ManifestGenerated** audit count unchanged; run detail UI still **Committed**. **404** `#run-not-found` on commit for a random missing `runId`. |
 | `archlucid-ui/e2e/live-api-governance-rejection.spec.ts` | `live-api-governance-rejection` | Governance **submit → reject** (`e2e-rejector`); audit **`GovernanceApprovalRejected`**; **400** on approve-after-reject and duplicate reject; **`/governance`** UI shows **Rejected**. |
 | `archlucid-ui/e2e/live-api-error-states.spec.ts` | `live-api-error-states` | UI resilience: fake run detail, **`/runs`** list, **`/audit`** no-results search, **`/governance/dashboard`** load (no mock API). |
-| `archlucid-ui/e2e/live-api-negative-paths.spec.ts` | `live-api-negative-paths` | API-only negatives: **`GovernanceSelfApprovalBlocked`** + **`#governance-self-approval`** (approve as same **`Developer`** actor as submitter); **`GET /v1/architecture/run/{id}`** **404** `#run-not-found`; **`POST /v1/architecture/request`** with **`{}`** → **400** or **422**. |
+| `archlucid-ui/e2e/live-api-negative-paths.spec.ts` | `live-api-negative-paths` | API-only negatives: **`GovernanceSelfApprovalBlocked`** + **`#governance-self-approval`** (approve as same **`Developer`** actor as submitter); **`GET /v1/architecture/review/{id}`** **404** `#run-not-found`; **`POST /v1/architecture/request`** with **`{}`** → **400** or **422**. |
 | `archlucid-ui/e2e/live-api-advisory-flow.spec.ts` | `live-api-advisory-flow` | Advisory scan scheduling: create → commit run, **`POST /v1/advisory/scans`** (skip if 404), audit trail asserts **`AdvisoryScanScheduled`** or **`AdvisoryScanExecuted`**. |
 | `archlucid-ui/e2e/live-api-replay-export.spec.ts` | `live-api-replay-export` | Replay and re-export: create → commit run, **`POST /v1/replay/run/{id}`** (skip if 404), **`GET /v1/artifacts/runs/{id}/export`** ZIP, audit trail asserts **`ReplayExecuted`** + **`RunExported`**. |
 | `archlucid-ui/e2e/live-api-analysis-report.spec.ts` | `live-api-analysis-report` | Analysis report generation: create → commit run, **`POST /v1/reports/analysis`** (skip if 404), audit trail asserts **`ArchitectureAnalysisReportGenerated`**; optional DOCX export via **`GET /v1/exports/docx/runs/{id}/architecture-package`**. |
@@ -28,7 +28,7 @@
 | `archlucid-ui/e2e/live-api-compare-runs.spec.ts` | `live-api-compare-runs` | Two reviews create → execute → commit (capture two `runId` values); **`GET /v1/authority/compare/runs`**; UI **`/compare?leftRunId=…&rightRunId=…`** asserts **`#compare-structured`** + **Comparison request outcome** panel; **404** when second run id is missing. |
 | `archlucid-ui/e2e/live-api-review-manifest-roundtrip.spec.ts` | `live-api-review-manifest-roundtrip` | Canonical showcase **`/reviews/claims-intake-modernization`** — **Review outcome summary** finalized manifest link → **`/manifests/…`** → breadcrumb back to review (parity with mock `run-manifest-journey`). |
 | `archlucid-ui/e2e/live-api-alert-rules.spec.ts` | `live-api-alert-rules` | **`POST /v1/alert-rules`** + list; UI **`/alerts`** with axe (critical/serious = 0). |
-| `archlucid-ui/e2e/live-api-search-ask-graph.spec.ts` | `live-api-search-ask-graph` | Runs list by **`systemName`**; **`GET /v1/graph/runs/{guid}`**; optional **`POST /v1/ask`** (timeout/transport soft-fails); UI **`/search`** and **`/ask`** axe. |
+| `archlucid-ui/e2e/live-api-search-ask-graph.spec.ts` | `live-api-search-ask-graph` | Runs list by **`systemName`**; **`GET /v1/evidence-graph/reviews/{guid}`**; optional **`POST /v1/ask`** (timeout/transport soft-fails); UI **`/search`** and **`/ask`** axe. |
 | `archlucid-ui/e2e/live-api-trial-signup.spec.ts` / `live-api-trial-end-to-end.spec.ts` | trial signup / end-to-end | Self-serve **`POST /v1/register`** — requires **`Auth:PublicSignup:Mode=PublicSelfService`** + UI **`NEXT_PUBLIC_PUBLIC_SIGNUP_MODE=public-self-service`** (see **`docs/runbooks/TRIAL_END_TO_END.md`**). |
 | `archlucid-ui/e2e/live-api-whitelabel-export.spec.ts` | `live-api-whitelabel-export` | Whitelabel consulting DOCX modal — **skips** under buyer-polished deliverables chrome (product default). |
 | `archlucid-ui/e2e/live-api-digest-webhook.spec.ts` | `live-api-digest-webhook` | **`POST/GET /v1/digest-subscriptions`**, toggle, audit **`DigestSubscriptionCreated`** / **`DigestSubscriptionToggled`**; skipped placeholder for webhook dry-run (no HTTP surface). |
@@ -59,10 +59,10 @@
 
 1. **`GET /health/ready`** — fail fast if the API is not up (`beforeAll`).
 2. **`POST /v1/architecture/request`** — create a **review**; capture **`runId`** (API and routes still use `run`).
-3. **`POST /v1/architecture/run/{runId}/execute`** — simulator execution.
-4. **Poll `GET /v1/architecture/run/{runId}`** until **`run.status`** is **`ReadyForCommit`** (numeric **`4`**) or already committed. Each poll retries a few times on **HTTP 5xx** (short backoff) to ride out transient SQL/API blips.
-5. **`POST /v1/architecture/run/{runId}/commit`** — finalize architecture package; read **`manifest.metadata.manifestVersion`**.
-6. **`GET /v1/architecture/run/{runId}`** — read **`run.goldenManifestId`** for UI navigation.
+3. **`POST /v1/architecture/review/{runId}/execute`** — simulator execution.
+4. **Poll `GET /v1/architecture/review/{runId}`** until **`run.status`** is **`ReadyForCommit`** (numeric **`4`**) or already committed. Each poll retries a few times on **HTTP 5xx** (short backoff) to ride out transient SQL/API blips.
+5. **`POST /v1/architecture/review/{runId}/finalize`** — finalize architecture package; read **`manifest.metadata.manifestVersion`**.
+6. **`GET /v1/architecture/review/{runId}`** — read **`run.goldenManifestId`** for UI navigation.
 7. **UI:** **`/runs`** → **`/runs/{runId}`** — assert **Golden Manifest** link → **`/manifests/{goldenManifestId}`** — **Manifest** heading, **Artifacts**, table, **Download bundle (ZIP)**.
 8. **`GET /v1/artifacts/runs/{runId}/export`** — non-empty ZIP; emits **`RunExported`** audit.
 9. **`POST /v1/governance/approval-requests`** — **`dev` → `test`**, manifest version from commit.
@@ -92,12 +92,12 @@ sequenceDiagram
   T->>API: GET /health/ready
   T->>API: POST /v1/architecture/request
   API->>SQL: persist run
-  T->>API: POST /v1/architecture/run/{id}/execute
+  T->>API: POST /v1/architecture/review/{id}/execute
   API->>SQL: agents + authority pipeline
   loop until ReadyForCommit
-    T->>API: GET /v1/architecture/run/{id}
+    T->>API: GET /v1/architecture/review/{id}
   end
-  T->>API: POST /v1/architecture/run/{id}/commit
+  T->>API: POST /v1/architecture/review/{id}/commit
   API->>SQL: manifest + traces
   T->>UI: /runs → /runs/{id} → /manifests/{manifestId}
   UI->>API: server components fetch run/manifest/artifacts
@@ -117,7 +117,7 @@ The **`live-api-conflict-journey`** spec complements the happy path:
 
 - After a successful commit, a second **`POST …/commit`** returns **200** with the same manifest version (**idempotent**); **`ManifestGenerated`** audit count must not increase.
 - **`GET /v1/audit/search?runId=…`** must not gain an extra **`ManifestGenerated`** row after the idempotent second commit.
-- **`GET /v1/architecture/run/{runId}`** must still show **Committed** status.
+- **`GET /v1/architecture/review/{runId}`** must still show **Committed** status.
 - Committing a **non-existent** `runId` returns **404** with **`#run-not-found`**.
 
 Shared helpers: **`commitRunRaw`**, **`waitForReadyForCommit`** (exported from **`live-api-client.ts`**).

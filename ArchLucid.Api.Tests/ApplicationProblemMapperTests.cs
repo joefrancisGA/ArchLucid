@@ -1,4 +1,4 @@
-using ArchLucid.Api.ProblemDetails;
+﻿using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
@@ -63,7 +63,7 @@ public sealed class ApplicationProblemMapperTests
     public void TryMapUnhandledException_QualityGateRejected_Returns409_with_stable_extensions()
     {
         AgentOutputQualityGateRejectedException ex = new("run-1", "trace-1", "Topology");
-        DefaultHttpContext http = CreateHttpContext("/v1/architecture/run/run-1/execute", "corr-qg");
+        DefaultHttpContext http = CreateHttpContext("/v1/architecture/review/run-1/execute", "corr-qg");
 
         bool mapped = ApplicationProblemMapper.TryMapUnhandledException(ex, http, out ObjectResult? result);
 
@@ -85,7 +85,7 @@ public sealed class ApplicationProblemMapperTests
     public void TryMapUnhandledException_QualityGateRejected_includes_evaluationReason_when_present()
     {
         AgentOutputQualityGateRejectedException ex = new("run-1", "trace-1", "Topology", "missing_or_empty_citations");
-        DefaultHttpContext http = CreateHttpContext("/v1/architecture/run/run-1/execute", "corr-qg2");
+        DefaultHttpContext http = CreateHttpContext("/v1/architecture/review/run-1/execute", "corr-qg2");
 
         bool mapped = ApplicationProblemMapper.TryMapUnhandledException(ex, http, out ObjectResult? result);
 
@@ -99,7 +99,7 @@ public sealed class ApplicationProblemMapperTests
     {
         InvalidOperationException inner = new("Unsupported agent type key: Foo");
         AgentHandlerExecutionException ex = new(AgentTypeKeys.Topology, AgentType.Topology, inner);
-        DefaultHttpContext http = CreateHttpContext("/v1/architecture/run/abc/replay", "corr-agent");
+        DefaultHttpContext http = CreateHttpContext("/v1/architecture/review/abc/replay", "corr-agent");
 
         bool mapped = ApplicationProblemMapper.TryMapUnhandledException(ex, http, out ObjectResult? result);
 
@@ -118,7 +118,7 @@ public sealed class ApplicationProblemMapperTests
         SchemaValidationResult validation = new();
         validation.Errors.Add("schema error one");
         GoldenManifestSchemaValidationException ex = new(validation);
-        DefaultHttpContext http = CreateHttpContext("/v1/architecture/run/x/replay", "corr-schema");
+        DefaultHttpContext http = CreateHttpContext("/v1/architecture/review/x/replay", "corr-schema");
 
         bool mapped = ApplicationProblemMapper.TryMapUnhandledException(ex, http, out ObjectResult? result);
 

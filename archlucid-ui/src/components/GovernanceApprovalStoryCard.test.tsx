@@ -55,11 +55,11 @@ describe("GovernanceApprovalStoryCard", () => {
     };
 
     render(
-      <GovernanceApprovalStoryCard row={row} auditTrailHref="/audit?runId=claims-intake-modernization" />,
+      <GovernanceApprovalStoryCard row={row} auditTrailHref="/governance/audit?runId=claims-intake-modernization" />,
     );
 
     const link = screen.getByRole("link", { name: "Open audit trail" });
 
-    expect(link).toHaveAttribute("href", "/audit?runId=claims-intake-modernization");
+    expect(link).toHaveAttribute("href", "/governance/audit?runId=claims-intake-modernization");
   });
 });

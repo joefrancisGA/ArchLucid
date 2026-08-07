@@ -188,6 +188,8 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddScoped<ITenantDeletionService, TenantDeletionService>();
         services.AddScoped<ITenantErasureCommandService, TenantErasureCommandService>();
         services.AddScoped<ITenantSuspendCommandService, TenantSuspendCommandService>();
+        services.AddSingleton<ITenantCatalogMigrationRepository, InMemoryTenantCatalogMigrationRepository>();
+        services.AddSingleton<ITenantMigrationRetrievalOutboxDrainer, NoOpTenantMigrationRetrievalOutboxDrainer>();
         services.AddSingleton<IBillingLedger, InMemoryBillingLedger>();
         services.AddSingleton<ITenantCustomerSuccessRepository, InMemoryTenantCustomerSuccessRepository>();
         services.AddSingleton<ICorePilotTeamChecklistRepository, InMemoryCorePilotTeamChecklistRepository>();

@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 
@@ -144,7 +144,7 @@ public sealed class GenuinelyUntestedControllersIntegrationTests
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
 
         HttpResponseMessage response =
-            await client.GetAsync("/v1/internal/architecture/run/missing-run/agent-evaluation");
+            await client.GetAsync("/v1/internal/architecture/review/missing-run/agent-evaluation");
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }

@@ -1,4 +1,4 @@
-> **Reviewed:** 2026-07-27
+﻿> **Reviewed:** 2026-07-27
 
 > **Scope:** Azure SaaS readiness accelerator — WAF-aligned and SaaS security baseline policy packs on Azure extractor evidence; V1 surfaces only — plus buyer-job packaging / demo proof shape (formerly the body of `docs/go-to-market/buyer-jobs/AZURE_SAAS_READINESS.md`; that filename remains a path-stable Specialty alias).
 
@@ -124,9 +124,9 @@ Curated WAF pillar rules (12 rules): [`azure-waf-rules-v1.json`](../../samples/p
 <summary>Administrator details — HTTP paths</summary>
 
 ```http
-POST /v1/architecture/run/{runId}/execute
+POST /v1/architecture/review/{runId}/execute
 POST /v1/governance/policy-packs/dry-run
-POST /v1/architecture/run/{runId}/commit
+POST /v1/architecture/review/{runId}/finalize
 Authorization: Bearer {token}
 ```
 
@@ -216,7 +216,7 @@ No Jira, ServiceNow, Teams, Slack, Confluence, MCP, or outbound webhooks are req
 2. **Ingest evidence** — Upload extractor ZIP on review detail (`POST /v1/azure-extractor/upload`).
 3. **Assign policy packs** — WAF analogue + SaaS security baseline packs to project scope.
 4. **Execute** — Run the review pipeline; inspect findings tied to `saas-ctrl-*` and cost/topology evidence.
-5. **Finalize** — Lock the architecture package when findings and gate status are acceptable (`POST /v1/architecture/run/{runId}/commit`).
+5. **Finalize** — Lock the architecture package when findings and gate status are acceptable (`POST /v1/architecture/review/{runId}/finalize`).
 6. **Export** — Download architecture package / sponsor exports from review detail.
 
 Detailed UI/API steps: sections above. Spine: [`FIRST_PILOT_OPERATOR_PATH.md`](../../runbooks/FIRST_PILOT_OPERATOR_PATH.md).
@@ -245,7 +245,7 @@ Use [`PILOT_SUCCESS_SCORECARD.md`](../../go-to-market/PILOT_SUCCESS_SCORECARD.md
 
 ### Demo proof shape (Demo-derived only) {#demo-proof-shape-demo-derived-only}
 
-**Evidence basis:** **Demo-derived** · **Manual review required** for AI narrative. Not a verified customer deployment.
+**Evidence basis:** **Demo-derived** Â· **Manual review required** for AI narrative. Not a verified customer deployment.
 
 | Finding (illustrative) | Category | Evidence label |
 | --- | --- | --- |
@@ -265,4 +265,4 @@ Use [`PILOT_SUCCESS_SCORECARD.md`](../../go-to-market/PILOT_SUCCESS_SCORECARD.md
 - [`CORE_PILOT.md`](../../CORE_PILOT.md) — four-step Core Pilot
 - [`PRODUCT_PACKAGING.md`](../PRODUCT_PACKAGING.md) — capability inventory
 - [`AZURE_EXTRACTOR.md`](../AZURE_EXTRACTOR.md) — extractor script and upload contract
-- [`#buyer-job-packaging`](#buyer-job-packaging) · [`../../go-to-market/buyer-jobs/AZURE_SAAS_READINESS.md`](../../go-to-market/buyer-jobs/AZURE_SAAS_READINESS.md) (alias) — Specialty buyer-job path
+- [`#buyer-job-packaging`](#buyer-job-packaging) Â· [`../../go-to-market/buyer-jobs/AZURE_SAAS_READINESS.md`](../../go-to-market/buyer-jobs/AZURE_SAAS_READINESS.md) (alias) — Specialty buyer-job path

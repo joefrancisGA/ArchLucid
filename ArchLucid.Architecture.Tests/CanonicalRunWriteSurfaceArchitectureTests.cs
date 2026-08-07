@@ -24,6 +24,14 @@ public sealed class CanonicalRunWriteSurfaceArchitectureTests
     private static readonly string RepoRoot = FindRepoRoot();
 
     [Fact]
+    public void Adr0064_exists()
+    {
+        File.Exists(Path.Combine(RepoRoot, "docs", "architecture", "adrs", "0064-buyer-vocabulary-api-and-schema-alignment.md"))
+            .Should()
+            .BeTrue();
+    }
+
+    [Fact]
     public void Adr0042_exists()
     {
         File.Exists(Path.Combine(RepoRoot, "docs", "architecture", "adrs", "0042-canonical-run-write-surface.md"))

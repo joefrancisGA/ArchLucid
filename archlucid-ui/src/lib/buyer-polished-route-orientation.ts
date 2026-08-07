@@ -29,6 +29,14 @@ import {
 } from "@/lib/governance-overview-copy";
 
 import {
+  pathMatchesSettingsSecurityTrust,
+} from "@/lib/settings-admin-route-paths";
+import {
+  pathMatchesSignedRecordsDetailRoute,
+  reviewSignedRecordPath,
+  signedRecordDetailPath,
+} from "@/lib/signed-records-paths";
+import {
   SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
@@ -102,16 +110,16 @@ export function buyerPolishedRouteOrientation(
     };
   }
 
-  if (path.includes(`/signed-records/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`)) {
+  if (path.includes(signedRecordDetailPath(SHOWCASE_STATIC_DEMO_MANIFEST_ID))) {
     return {
       label: SIGNED_MANIFEST_LABEL,
       line: `${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE} — decisions, monitored risks, and deliverables.`,
     };
   }
 
-  const friendlyManifestPath = `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}/manifest`.replace(/\/$/, "");
+  const friendlySignedRecordPath = reviewSignedRecordPath(SHOWCASE_STATIC_DEMO_RUN_ID).replace(/\/$/, "");
 
-  if (path.replace(/\/$/, "") === friendlyManifestPath) {
+  if (path.replace(/\/$/, "") === friendlySignedRecordPath) {
     return {
       label: SIGNED_MANIFEST_LABEL,
       line: `${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE} — decisions, monitored risks, and deliverables.`,
@@ -127,7 +135,7 @@ export function buyerPolishedRouteOrientation(
     };
   }
 
-  if (path.startsWith("/signed-records/")) {
+  if (pathMatchesSignedRecordsDetailRoute(path)) {
     return {
       label: SIGNED_MANIFEST_LABEL,
       line: `${BUYER_SURFACE_VOCABULARY.finalizedSignedManifestRecord} — decisions, findings counts, artifacts, and download bundle.`,
@@ -289,7 +297,7 @@ export function buyerPolishedRouteOrientation(
     return null;
   }
 
-  if (path === "/administration/security-trust" || path === "/workspace/security-trust") {
+  if (pathMatchesSettingsSecurityTrust(path)) {
     return {
       label: "Security & trust",
       line: "Procurement-facing security posture, trust center, and assessment materials.",

@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { MarketingSecurityTrustView } from "@/components/marketing/MarketingSecurityTrustView";
 
 export const metadata: Metadata = {
-  title: "Security & trust",
+  title: "Assurance status",
   description:
     "Assurance engagement metadata for ArchLucid — public summaries, diligence-only materials, and planned cycles — with NDA handling for sensitive reports.",
 };

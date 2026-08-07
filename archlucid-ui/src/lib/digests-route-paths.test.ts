@@ -6,7 +6,10 @@ import {
   DIGESTS_SCHEDULE_TAB_PATH,
   DIGESTS_SUBSCRIPTIONS_TAB_PATH,
   digestsBrowseDigestDeepLink,
+  digestsHubNavigationPathname,
+  digestsHubTabFromLocation,
   digestsHubTabPath,
+  LEGACY_DIGEST_SUBSCRIPTIONS_PATH,
   pathMatchesDigestsHub,
 } from "@/lib/digests-route-paths";
 
@@ -29,6 +32,14 @@ describe("digests-route-paths", () => {
   it("matches canonical and legacy hub pathnames", () => {
     expect(pathMatchesDigestsHub("/architecture/digests")).toBe(true);
     expect(pathMatchesDigestsHub("/digests")).toBe(true);
+    expect(pathMatchesDigestsHub("/digest-subscriptions")).toBe(true);
     expect(pathMatchesDigestsHub("/architecture/reviews")).toBe(false);
+  });
+
+  it("resolves legacy subscriptions bookmarks to the Subscriptions tab and canonical navigation", () => {
+    expect(digestsHubTabFromLocation(LEGACY_DIGEST_SUBSCRIPTIONS_PATH, null)).toBe("subscriptions");
+    expect(digestsHubNavigationPathname(LEGACY_DIGEST_SUBSCRIPTIONS_PATH)).toBe(DIGESTS_HUB_PATH);
+    expect(digestsHubNavigationPathname("/digests")).toBe(DIGESTS_HUB_PATH);
+    expect(digestsHubNavigationPathname(DIGESTS_HUB_PATH)).toBe(DIGESTS_HUB_PATH);
   });
 });

@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using System.Security.Cryptography;
 using System.Text;
@@ -29,14 +29,14 @@ public sealed class FinalizedEvidenceImmutabilityIntegrationTests(ArchLucidApiFa
         CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
-        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
         await executeResponse.EnsureSuccessForTestAsync();
-        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
+        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
         await commitResponse.EnsureSuccessForTestAsync();
 
         string fingerprintBefore = await GoldenManifestRawFingerprintAsync(runId);
 
-        HttpResponseMessage secondCommit = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
+        HttpResponseMessage secondCommit = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
         secondCommit.StatusCode.Should().Be(HttpStatusCode.OK);
         string fingerprintAfterSecondCommit = await GoldenManifestRawFingerprintAsync(runId);
         fingerprintAfterSecondCommit.Should().Be(fingerprintBefore);
@@ -52,7 +52,7 @@ public sealed class FinalizedEvidenceImmutabilityIntegrationTests(ArchLucidApiFa
         };
 
         HttpResponseMessage submitResponse = await Client.PostAsync(
-            $"/v1/architecture/run/{runId}/result",
+            $"/v1/architecture/review/{runId}/result",
             JsonContent(new { result = forgedResult }));
         submitResponse.StatusCode.Should().BeOneOf(HttpStatusCode.BadRequest, HttpStatusCode.Conflict);
 
@@ -70,16 +70,16 @@ public sealed class FinalizedEvidenceImmutabilityIntegrationTests(ArchLucidApiFa
         CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
-        HttpResponseMessage firstExecute = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        HttpResponseMessage firstExecute = await Client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
         await firstExecute.EnsureSuccessForTestAsync();
         ExecuteRunResponseDto? firstPayload =
             await firstExecute.Content.ReadFromJsonAsync<ExecuteRunResponseDto>(JsonOptions);
         firstPayload.Should().NotBeNull();
 
-        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
+        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
         await commitResponse.EnsureSuccessForTestAsync();
 
-        HttpResponseMessage secondExecute = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        HttpResponseMessage secondExecute = await Client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
         secondExecute.StatusCode.Should().Be(HttpStatusCode.OK);
         ExecuteRunResponseDto? secondPayload =
             await secondExecute.Content.ReadFromJsonAsync<ExecuteRunResponseDto>(JsonOptions);

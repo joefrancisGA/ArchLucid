@@ -8,6 +8,15 @@ describe("next.config administration routes (TB-406 / TB-522 / TB-751)", () => {
 
     expect(redirectRules).toBeDefined();
 
+    expect(redirectRules?.some((rule) => rule.source === "/administration" && rule.destination === "/administration")).toBe(
+      false,
+    );
+    expect(
+      redirectRules?.some(
+        (rule) => rule.source === "/administration/:path*" && rule.destination === "/administration/:path*",
+      ),
+    ).toBe(false);
+
     expect(
       redirectRules?.find(
         (rule) =>
@@ -30,13 +39,48 @@ describe("next.config administration routes (TB-406 / TB-522 / TB-751)", () => {
       )?.permanent,
     ).toBe(true);
 
+    expect(redirectRules?.find((rule) => rule.source === "/settings/roles")).toBeUndefined();
+  });
+
+  it("rewrites legacy /settings/roles to the users hub without a permanent redirect", async () => {
+    const rewriteRules = await nextConfig.rewrites?.();
+
+    expect(rewriteRules).toBeDefined();
     expect(
-      redirectRules?.find(
+      rewriteRules?.find(
         (rule) =>
           rule.source === "/settings/roles"
           && rule.destination === "/administration/users?tab=roles",
-      )?.permanent,
-    ).toBe(true);
+      ),
+    ).toBeDefined();
+  });
+
+  it("keeps permanent redirects for legacy alerts and value-report bookmarks", async () => {
+    const redirectRules = await nextConfig.redirects?.();
+
+    expect(redirectRules?.find((rule) => rule.source === "/alerts")?.destination).toBe("/governance/alerts");
+    expect(redirectRules?.find((rule) => rule.source === "/alert-rules")?.destination).toBe(
+      "/governance/alert-rules",
+    );
+    expect(redirectRules?.find((rule) => rule.source === "/policy-packs")?.destination).toBe(
+      "/governance/policy-packs",
+    );
+    expect(redirectRules?.find((rule) => rule.source === "/value-report")?.destination).toBe(
+      "/sponsor-report/executive-summary",
+    );
+  });
+
+  it("does not rewrite canonical architecture URLs to phantom on-disk trees", async () => {
+    const rewriteRules = await nextConfig.rewrites?.();
+
+    expect(rewriteRules).toBeDefined();
+    expect(rewriteRules?.some((rule) => rule.source === "/architecture/architectures")).toBe(false);
+    expect(rewriteRules?.some((rule) => rule.source === "/architecture/architectures/:path*")).toBe(false);
+    expect(rewriteRules?.some((rule) => rule.source === "/architecture/reviews")).toBe(false);
+    expect(rewriteRules?.some((rule) => rule.source === "/architecture/reviews/:path*")).toBe(false);
+    expect(
+      rewriteRules?.find((rule) => rule.source === "/architecture/reviews/:id/signed-record")?.destination,
+    ).toBe("/architecture/reviews/:id");
   });
 
   it("does not rewrite canonical administration URLs to legacy App Router trees (TB-751)", async () => {
@@ -64,6 +108,20 @@ describe("next.config administration routes (TB-406 / TB-522 / TB-751)", () => {
           rule.source === "/administration/support" || rule.source === "/administration/support/:path*",
       ),
     ).toBe(false);
+  });
+
+  it("redirects legacy /runs to architecture reviews", async () => {
+    const redirectRules = await nextConfig.redirects?.();
+
+    expect(redirectRules?.find((rule) => rule.source === "/runs")?.destination).toBe("/architecture/reviews");
+  });
+
+  it("redirects legacy /dashboard to the canonical executive dashboard", async () => {
+    const redirectRules = await nextConfig.redirects?.();
+
+    expect(redirectRules?.find((rule) => rule.source === "/dashboard")?.destination).toBe(
+      "/architecture/executive-dashboard",
+    );
   });
 
   it("does not ship a redirect for retired /recommendation-learning bookmark", async () => {

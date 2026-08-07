@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
@@ -25,9 +25,9 @@ public sealed class ArchitectureAnalysisExportTests(ArchLucidApiFactory factory)
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
-        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
         await executeResponse.EnsureSuccessForTestAsync();
-        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
+        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
         await commitResponse.EnsureSuccessForTestAsync();
         var request = new
         {
@@ -45,7 +45,7 @@ public sealed class ArchitectureAnalysisExportTests(ArchLucidApiFactory factory)
         };
 
         HttpResponseMessage response = await Client.PostAsync(
-            $"/v1/architecture/run/{runId}/analysis-report/export",
+            $"/v1/architecture/review/{runId}/analysis-report/export",
             JsonContent(request));
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);

@@ -1,4 +1,4 @@
-using ArchLucid.Api.ProblemDetails;
+﻿using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Api.Startup;
@@ -23,7 +23,7 @@ namespace ArchLucid.Api.Controllers.Authority;
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
 [ApiVersion("1.0")]
-[Route("v{version:apiVersion}/architecture/run/{runId:guid}/evidence")]
+[Route("v{version:apiVersion}/architecture/review/{runId:guid}/evidence")]
 [EnableRateLimiting("evidenceBulkUpload")]
 [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status429TooManyRequests)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]

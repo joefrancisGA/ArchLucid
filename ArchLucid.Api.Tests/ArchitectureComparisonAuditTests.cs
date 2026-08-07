@@ -27,14 +27,14 @@ public sealed class ArchitectureComparisonAuditTests(ArchLucidApiFactory factory
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
-        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
         executeResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
+        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
         commitResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
         HttpResponseMessage replayResponse = await Client.PostAsync(
-            $"/v1/architecture/run/{runId}/replay",
+            $"/v1/architecture/review/{runId}/replay",
             JsonContent(new
             {
                 commitReplay = true,
@@ -52,7 +52,7 @@ public sealed class ArchitectureComparisonAuditTests(ArchLucidApiFactory factory
             ["leftRunId"] = runId,
             ["rightRunId"] = replayRunId
         };
-        string summaryPath = QueryHelpers.AddQueryString("/v1/architecture/run/compare/end-to-end/summary", query);
+        string summaryPath = QueryHelpers.AddQueryString("/v1/architecture/review/compare/end-to-end/summary", query);
         HttpResponseMessage compareResponse =
             await Client.PostAsync(summaryPath, JsonContent(new { persist = true }));
 

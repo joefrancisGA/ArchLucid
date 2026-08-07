@@ -1,4 +1,4 @@
-import type { APIRequestContext } from "@playwright/test";
+﻿import type { APIRequestContext } from "@playwright/test";
 
 import { TRUSTED_BASELINE_RUN_ID_N } from "./demo-screenshots-harness";
 import { postDemoSeedWithTransientRetries } from "./ensure-demo-workspace-seed";
@@ -28,7 +28,7 @@ async function sleepTrustedBaselineBackoff(attempt: number): Promise<void> {
 
 async function trustedBaselineGraphReady(request: APIRequestContext): Promise<boolean> {
   const graphSegment = toRunGuidPathSegment(TRUSTED_BASELINE_RUN_ID_N);
-  const graphRes = await getLiveApiPathWithTransientRetries(request, `/v1/graph/runs/${graphSegment}`);
+  const graphRes = await getLiveApiPathWithTransientRetries(request, `/v1/evidence-graph/reviews/${graphSegment}`);
 
   if (!graphRes.ok()) {
     return false;
@@ -58,7 +58,7 @@ async function trustedBaselineAuditReady(request: APIRequestContext): Promise<bo
 export async function ensureTrustedBaselineDemoReady(request: APIRequestContext): Promise<void> {
   await postDemoSeedWithTransientRetries(request);
 
-  const runPath = `/v1/architecture/run/${encodeURIComponent(TRUSTED_BASELINE_RUN_ID_N)}`;
+  const runPath = `/v1/architecture/review/${encodeURIComponent(TRUSTED_BASELINE_RUN_ID_N)}`;
   let lastDetail = "unknown";
 
   for (let attempt = 0; attempt < maxTrustedBaselinePollAttempts; attempt++) {
@@ -93,7 +93,7 @@ export async function ensureTrustedBaselineDemoReady(request: APIRequestContext)
 
     const manifestRes = await getLiveApiPathWithTransientRetries(
       request,
-      `/v1/authority/manifests/${encodeURIComponent(goldenManifestId)}/summary`,
+      `/v1/authority/signed-review-records/${encodeURIComponent(goldenManifestId)}/summary`,
     );
 
     if (!manifestRes.ok()) {

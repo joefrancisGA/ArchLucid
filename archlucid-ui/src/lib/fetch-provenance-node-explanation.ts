@@ -1,4 +1,4 @@
-import { applyPathTemplate, parseProvenanceExplanationPayload } from "@/lib/provenance-explanation-payload";
+﻿import { applyPathTemplate, parseProvenanceExplanationPayload } from "@/lib/provenance-explanation-payload";
 
 export type ProvenanceNodeExplanationFetchResult = Readonly<{
   message: string;
@@ -11,7 +11,7 @@ export async function fetchProvenanceNodeExplanationViaProxy(
   nodeId: string,
 ): Promise<ProvenanceNodeExplanationFetchResult> {
   const url =
-    `/api/proxy/v1/architecture/runs/${encodeURIComponent(runId)}/provenance/${encodeURIComponent(nodeId)}/explanation`;
+    `/api/proxy/v1/architecture/reviews/${encodeURIComponent(runId)}/provenance/${encodeURIComponent(nodeId)}/explanation`;
 
   try {
     const res = await fetch(url, {

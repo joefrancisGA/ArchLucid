@@ -32,7 +32,7 @@ describe("API client review/compare contracts (55R smoke)", () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
     const url = String(fetchMock.mock.calls[0][0]);
 
-    expect(url).toContain("/v1/artifacts/signed-records/manifest-xyz");
+    expect(url).toContain("/v1/artifacts/signed-review-records/manifest-xyz");
     expect(url).not.toContain("/artifact/");
   });
 
@@ -53,7 +53,7 @@ describe("API client review/compare contracts (55R smoke)", () => {
 
     const url = String(fetchMock.mock.calls[0][0]);
 
-    expect(url).toContain("/v1/artifacts/signed-records/m1/artifact/a1/descriptor");
+    expect(url).toContain("/v1/artifacts/signed-review-records/m1/artifact/a1/descriptor");
   });
 
   it("compareRuns encodes left and right run query params", async () => {

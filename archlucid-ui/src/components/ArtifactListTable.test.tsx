@@ -37,7 +37,7 @@ describe("ArtifactListTable", () => {
 
     const links = screen.getAllByRole("link", { name: "Download" });
     expect(links).toHaveLength(2);
-    expect(links[0].getAttribute("href")).toContain("/api/proxy/v1/artifacts/signed-records/manifest-1/artifact/");
+    expect(links[0].getAttribute("href")).toContain("/api/proxy/v1/artifacts/signed-review-records/manifest-1/artifact/");
   });
 
   it("renders headers with zero data rows when artifact list is empty", () => {
@@ -149,14 +149,14 @@ describe("ArtifactListTable", () => {
     const row = {
       artifactId: "artifact-guid-md",
       artifactType: "MarkdownReport",
-      name: "Sponsor briefing â€” Claims Intake Modernization.md",
+      name: "Sponsor briefing — Claims Intake Modernization.md",
       format: "text/markdown",
       createdUtc: "2020-01-01T00:00:00Z",
       contentHash: "abcdef123456",
     };
     render(<ArtifactListTable manifestId="manifest-1" artifacts={[row]} sponsorMode />);
 
-    expect(screen.queryByText("Sponsor briefing â€” Claims Intake Modernization")).toBeNull();
+    expect(screen.queryByText("Sponsor briefing — Claims Intake Modernization")).toBeNull();
     expect(screen.getByRole("columnheader", { name: "Output" })).toBeInTheDocument();
   });
 

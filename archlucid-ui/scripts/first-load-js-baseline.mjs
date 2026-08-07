@@ -24,6 +24,8 @@ export const TRACKED_ROUTES = [
   "/reviews",
   "/reviews/[runId]",
   "/governance/approval-queue",
+  "/architecture/executive-dashboard",
+  "/governance/signed-records",
 ];
 
 const ROUTE_LINE =
@@ -106,6 +108,12 @@ export function parseRouteBundleStatsFirstLoadJsKb(stats) {
   return routes;
 }
 
+/** Legacy baseline keys → canonical Next 16 app-router paths in route-bundle-stats.json. */
+const TRACKED_ROUTE_STATS_ALIASES = {
+  "/reviews": "/architecture/reviews",
+  "/reviews/[runId]": "/architecture/reviews/[runId]",
+};
+
 /**
  * @param {Map<string, number>} statsRoutes
  * @param {string} trackedRoute
@@ -123,6 +131,12 @@ export function resolveTrackedRouteFirstLoadJsKb(statsRoutes, trackedRoute) {
 
   if (pageMatch !== undefined) {
     return pageMatch;
+  }
+
+  const aliasRoute = TRACKED_ROUTE_STATS_ALIASES[trackedRoute];
+
+  if (aliasRoute !== undefined) {
+    return resolveTrackedRouteFirstLoadJsKb(statsRoutes, aliasRoute);
   }
 
   return undefined;

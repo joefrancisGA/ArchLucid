@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 
 using ArchLucid.Api.Swagger;
 
@@ -30,7 +30,7 @@ public sealed class ProblemDetailsResponsesOperationFilterTests
 
         ApiDescription apiDescription = new()
         {
-            RelativePath = "v1/architecture/run/{runId}/execute",
+            RelativePath = "v1/architecture/review/{runId}/execute",
             ActionDescriptor = new ActionDescriptor()
         };
 

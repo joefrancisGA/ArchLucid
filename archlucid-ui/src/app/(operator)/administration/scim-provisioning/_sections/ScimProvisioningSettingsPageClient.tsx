@@ -7,6 +7,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -94,6 +95,8 @@ import {
   buildScimVerifyFailureMessage,
 } from "@/lib/scim-provisioning-verify-present";
 import { showError, showSuccess } from "@/lib/toast";
+
+import { ScimProvisioningEvidenceOrientationStrip } from "./ScimProvisioningEvidenceOrientationStrip";
 
 type ScimTokenSummary = {
   id: string;
@@ -342,7 +345,10 @@ export function ScimProvisioningSettingsPageClient() {
         title={SCIM_PROVISIONING_PAGE_TITLE}
         subtitle={SCIM_PROVISIONING_PAGE_SUBTITLE}
         titleTestId="scim-provisioning-page-title"
+        actions={<PageContextualHelpButton />}
       />
+
+      <ScimProvisioningEvidenceOrientationStrip />
 
       <p
         className={cn(

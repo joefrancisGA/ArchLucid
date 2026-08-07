@@ -115,12 +115,12 @@ In the **New run** wizard, **leave every field at its default** and click **Subm
 In a second terminal:
 
 ```bash
-curl -s http://localhost:5000/v1/architecture/run/$(\
+curl -s http://localhost:5000/v1/architecture/review/$(\
   curl -s "http://localhost:5000/v1/architecture/runs?pageSize=1" | \
   python -c "import sys,json;print(json.load(sys.stdin)['items'][0]['runId'])")
 ```
 
-(One line is fine if you copy it as-is. Pure-shell PowerShell variant: open the run in the UI and copy the **Run ID** from the URL, then `curl -s http://localhost:5000/v1/architecture/run/<RUN_ID>`.)
+(One line is fine if you copy it as-is. Pure-shell PowerShell variant: open the run in the UI and copy the **Run ID** from the URL, then `curl -s http://localhost:5000/v1/architecture/review/<RUN_ID>`.)
 
 > *What to expect:* the JSON response shows `status`, the agent task list, and any submitted results. The status will progress to `ReadyForCommit` once all simulator agents have reported.
 
@@ -129,7 +129,7 @@ curl -s http://localhost:5000/v1/architecture/run/$(\
 In the UI, on the run detail page, click **Commit**. (Or via curl, replacing `<RUN_ID>`):
 
 ```bash
-curl -s -X POST http://localhost:5000/v1/architecture/run/<RUN_ID>/commit
+curl -s -X POST http://localhost:5000/v1/architecture/review/<RUN_ID>/commit
 ```
 
 > *What to expect:* a JSON response with a `manifestVersion` (e.g. `1`). The UI now shows a **Manifest** tab populated with the merged decisions.

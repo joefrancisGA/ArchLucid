@@ -63,4 +63,11 @@ public sealed class EndToEndReplayComparisonReport
         get;
         set;
     } = [];
+
+    /// <summary>Cross-review finding correlation metadata for export honesty (TB-2043).</summary>
+    public ComparisonFindingCorrelationMetadata? FindingCorrelation
+    {
+        get;
+        set;
+    }
 }

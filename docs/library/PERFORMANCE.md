@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — Performance — caching and hot paths (ArchLucid) - full detail, tables, and links in the sections below.
+﻿> **Scope:** Contributor-reference — Performance — caching and hot paths (ArchLucid) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -89,15 +89,15 @@ Azure **hosting** order-of-operations (no capacity promise): **[../engineering/.
 
 ## k6 operator-path smoke (CI baseline)
 
-**What:** After a green **`.NET: full regression (SQL)`**, CI runs **`tests/load/k6-api-smoke.js`** (native k6 on the Ubuntu runner) against a fresh **`ArchLucid.Api`** process and SQL catalog **`ArchLucidK6Smoke`**. The script exercises a **Core Pilot-shaped** slice: **`/health/ready`** (expects JSON **`status: "Healthy"`**), **`/version`**, **`POST /v1/architecture/request`**, **`GET /v1/architecture/run/{id}`**, **`GET /v1/authority/projects/default/runs?take=10`**, then (default) **`POST …/seed-fake-results`**, **`POST …/commit`**, **`GET /v1/artifacts/manifests/{manifestId}`**. Budgets are **per-`k6api` tag** (tier-style **`ARCHLUCID_K6_P95_*`** env overrides) — **CI/pilot smoke only**, not a throughput proof; details in **[PERFORMANCE_TESTING.md](PERFORMANCE_TESTING.md)**.
+**What:** After a green **`.NET: full regression (SQL)`**, CI runs **`tests/load/k6-api-smoke.js`** (native k6 on the Ubuntu runner) against a fresh **`ArchLucid.Api`** process and SQL catalog **`ArchLucidK6Smoke`**. The script exercises a **Core Pilot-shaped** slice: **`/health/ready`** (expects JSON **`status: "Healthy"`**), **`/version`**, **`POST /v1/architecture/request`**, **`GET /v1/architecture/review/{id}`**, **`GET /v1/authority/projects/default/runs?take=10`**, then (default) **`POST …/seed-fake-results`**, **`POST …/commit`**, **`GET /v1/artifacts/signed-review-records/{manifestId}`**. Budgets are **per-`k6api` tag** (tier-style **`ARCHLUCID_K6_P95_*`** env overrides) — **CI/pilot smoke only**, not a throughput proof; details in **[PERFORMANCE_TESTING.md](PERFORMANCE_TESTING.md)**.
 
-**Job:** **`Performance: k6 API smoke (operator path)`** in **`.github/workflows/ci.yml`**. **~60s** profile: ramp to **5** VUs (10s hold 40s ramp 10s). **Merge-blocking:** k6 **`thresholds`** + Python **`scripts/ci/assert_k6_ci_smoke_summary.py --per-tag-k6-api-smoke`** (**`http_req_failed`** ≤ **2%**, per-tag p95 caps; global fallback p95 ≤ **2000 ms**). Artifact **`k6-smoke-results`** holds the summary JSON.
+**Job:** **`Performance: k6 API smoke (operator path)`** in **`.github/workflows/ci.yml`**. **~60s** profile: ramp to **5** VUs (10s hold 40s ramp 10s). **Merge-blocking:** k6 **`thresholds`** + Python **`scripts/ci/assert_k6_ci_smoke_summary.py --per-tag-k6-api-smoke`** (**`http_req_failed`** â‰¤ **2%**, per-tag p95 caps; global fallback p95 â‰¤ **2000 ms**). Artifact **`k6-smoke-results`** holds the summary JSON.
 
 **Local:** See **[`tests/load/README.md`](../../tests/load/README.md)**. Full hot-path baselines and Compose **`full-stack`**: **[LOAD_TEST_BASELINE.md](LOAD_TEST_BASELINE.md)**.
 
 ## k6 per-tenant burst (weekly)
 
-**What:** **[`tests/load/per-tenant-burst.js`](../../tests/load/per-tenant-burst.js)** runs **10** fixed tenant scopes (HTTP **`x-tenant-id`** / workspace / project GUIDs), each at **5** iterations/s for **5 minutes** (override with **`K6_BURST_DURATION`**). Each iteration executes the operator path: **`POST /v1/architecture/request`** → **`POST …/seed-fake-results`** → **`POST …/commit`** → **`GET /v1/artifacts/manifests/{manifestId}`**.
+**What:** **[`tests/load/per-tenant-burst.js`](../../tests/load/per-tenant-burst.js)** runs **10** fixed tenant scopes (HTTP **`x-tenant-id`** / workspace / project GUIDs), each at **5** iterations/s for **5 minutes** (override with **`K6_BURST_DURATION`**). Each iteration executes the operator path: **`POST /v1/architecture/request`** → **`POST …/seed-fake-results`** → **`POST …/commit`** → **`GET /v1/artifacts/signed-review-records/{manifestId}`**.
 
 **Job:** **`.github/workflows/k6-per-tenant-burst-scheduled.yml`** (weekly **Monday 06:15 UTC** + **`workflow_dispatch`**). Thresholds: **`scripts/ci/assert_k6_ci_smoke_summary.py`** with **`--max-p95-ms 3000`** and failed-rate cap **5%** (burstier than merge-blocking smokes). Summary artifact: **`k6-per-tenant-burst-summary`**.
 

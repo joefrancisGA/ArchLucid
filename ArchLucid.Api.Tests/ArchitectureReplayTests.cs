@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
@@ -27,7 +27,7 @@ public sealed class ArchitectureReplayTests(ArchLucidApiFactory factory) : Integ
         };
 
         HttpResponseMessage replayResponse = await Client.PostAsync(
-            $"/v1/architecture/run/{runId}/replay",
+            $"/v1/architecture/review/{runId}/replay",
             JsonContent(replayRequest));
 
         replayResponse.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -53,9 +53,9 @@ public sealed class ArchitectureReplayTests(ArchLucidApiFactory factory) : Integ
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
-        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
         await executeResponse.EnsureSuccessForTestAsync();
-        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
+        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
         await commitResponse.EnsureSuccessForTestAsync();
         const string rightVersion = "v1-replay";
 
@@ -67,7 +67,7 @@ public sealed class ArchitectureReplayTests(ArchLucidApiFactory factory) : Integ
         };
 
         HttpResponseMessage replayResponse = await Client.PostAsync(
-            $"/v1/architecture/run/{runId}/replay",
+            $"/v1/architecture/review/{runId}/replay",
             JsonContent(replayRequest));
 
         replayResponse.StatusCode.Should().Be(HttpStatusCode.OK);

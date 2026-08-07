@@ -4,6 +4,7 @@ using System.Text.Json;
 
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Persistence.Data.Infrastructure;
+using ArchLucid.Persistence.Sql;
 
 using Dapper;
 
@@ -127,7 +128,7 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
 
         string sql = $"""
                       SELECT TOP 200
-                          {ComparisonRecordRunIdSql.ProjectionRow}
+                          {ComparisonRecordListSql.SelectColumnsWithoutPayloadJson}
                       FROM ComparisonRecords
                       WHERE LeftRunId = @RunId OR RightRunId = @RunId
                       ORDER BY CreatedUtc DESC;
@@ -138,7 +139,7 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
             new { RunId = runGuid },
             cancellationToken: cancellationToken));
 
-        return MaterializeNormalized(rows);
+        return ComparisonRecordListProjection.MaterializeWithoutPayloadJson(rows);
     }
 
     public async Task<IReadOnlyList<ComparisonRecord>> GetByExportRecordIdAsync(
@@ -149,7 +150,7 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
 
         string sql = $"""
                       SELECT TOP 200
-                          {ComparisonRecordRunIdSql.ProjectionRow}
+                          {ComparisonRecordListSql.SelectColumnsWithoutPayloadJson}
                       FROM ComparisonRecords
                       WHERE LeftExportRecordId = @ExportRecordId OR RightExportRecordId = @ExportRecordId
                       ORDER BY CreatedUtc DESC;
@@ -160,7 +161,7 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
             new { ExportRecordId = exportRecordId },
             cancellationToken: cancellationToken));
 
-        return MaterializeNormalized(rows);
+        return ComparisonRecordListProjection.MaterializeWithoutPayloadJson(rows);
     }
 
     public async Task<IReadOnlyList<ComparisonRecord>> SearchAsync(
@@ -184,7 +185,7 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
         // - tag matching is stored as JSON in an NVARCHAR column (OPENJSON)
         string baseSql = $"""
                           SELECT
-                              {ComparisonRecordRunIdSql.ProjectionRow}
+                              {ComparisonRecordListSql.SelectColumnsWithoutPayloadJson}
                           FROM ComparisonRecords
                           WHERE 1 = 1
                           """;
@@ -229,7 +230,7 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
             parameters,
             cancellationToken: cancellationToken));
 
-        return MaterializeNormalized(rows);
+        return ComparisonRecordListProjection.MaterializeWithoutPayloadJson(rows);
     }
 
     public async Task<IReadOnlyList<ComparisonRecord>> SearchByCursorAsync(
@@ -251,7 +252,7 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
     {
         string baseSql = $"""
                           SELECT
-                              {ComparisonRecordRunIdSql.ProjectionRow}
+                              {ComparisonRecordListSql.SelectColumnsWithoutPayloadJson}
                           FROM ComparisonRecords
                           WHERE 1 = 1
                           """;
@@ -310,7 +311,7 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
             parameters,
             cancellationToken: cancellationToken));
 
-        return MaterializeNormalized(rows);
+        return ComparisonRecordListProjection.MaterializeWithoutPayloadJson(rows);
     }
 
     public async Task<bool> UpdateLabelAndTagsAsync(
@@ -343,16 +344,6 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
             ComparisonRecordRunIdSql.NormalizeRunIdsForRead(record);
 
         return record;
-    }
-
-    private static List<ComparisonRecord> MaterializeNormalized(IEnumerable<ComparisonRecord> rows)
-    {
-        List<ComparisonRecord> list = rows.ToList();
-
-        foreach (ComparisonRecord r in list)
-            ComparisonRecordRunIdSql.NormalizeRunIdsForRead(r);
-
-        return list;
     }
 
     private static string ResolveOrderColumn(string? sortBy)

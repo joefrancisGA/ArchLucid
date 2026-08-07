@@ -39,7 +39,6 @@ export const BUYER_POLISHED_ROUTE_PAGE_LEAD_INVENTORY: readonly BuyerPolishedRou
   { route: "/governance/approval-queue", operatorPageLead: GOVERNANCE_OVERVIEW_PAGE_LEAD },
   { route: "/governance/audit", operatorPageLead: AUDIT_TRAIL_PAGE_SUBTITLE },
   { route: "/governance/audit", operatorPageLead: GOVERNANCE_OVERVIEW_PAGE_LEAD },
-  { route: "/audit", operatorPageLead: AUDIT_TRAIL_PAGE_SUBTITLE },
   { route: "/governance/alert-rules", operatorPageLead: ALERTS_CONFIGURATION_PAGE_SUBTITLE },
   { route: "/governance/alert-rules", operatorPageLead: GOVERNANCE_OVERVIEW_PAGE_LEAD },
   { route: "/governance/advisory-scans", operatorPageLead: ADVISORY_SCANS_PAGE_LEAD },

@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — V1 HTTP integration correctness drill against a running API.
+﻿> **Scope:** Contributor-reference — V1 HTTP integration correctness drill against a running API.
 
 # V1 integration correctness drill
 
@@ -60,16 +60,16 @@ Each row includes: **route**, **expectedStatus**, **actualStatus**, **correlatio
 | --- | --- | --- |
 | Health | `GET /health/ready` | Target reachable |
 | Create | `POST /v1/architecture/request` | Happy-path create |
-| Classify lifecycle | `GET /v1/architecture/run/{runId}` | **Authority pipeline** if committed without `execute`; else **legacy coordinator** after `execute` + poll |
+| Classify lifecycle | `GET /v1/architecture/review/{runId}` | **Authority pipeline** if committed without `execute`; else **legacy coordinator** after `execute` + poll |
 | Commit | `POST …/commit` (initial when needed) | Coordinator path completion |
 | Idempotent commit | Second `POST …/commit` | **200** retry-safe per [`API_CONTRACTS.md`](API_CONTRACTS.md) |
-| Artifacts | `GET /v1/artifacts/manifests/{manifestId}` (+ descriptor) | Listing and metadata |
+| Artifacts | `GET /v1/artifacts/signed-review-records/{manifestId}` (+ descriptor) | Listing and metadata |
 | Explain | `GET /v1/explain/runs/{runId}/aggregate` | Aggregate explanation |
 | Compare explain (negative) | `GET /v1/explain/compare/explain?baseRunId={runId}&targetRunId={missing}` | **404** when target run lacks golden manifest |
 | Descriptor integrity | Parsed fields on first artifact descriptor | `artifactId` required; `manifestId` linkage validated |
 | First value | `GET /v1/pilots/runs/{runId}/first-value-report` | Sponsor Markdown |
 | Negative run | `GET …/run/{missing}` | **404** + `#run-not-found` |
-| Negative manifest | `GET /v1/artifacts/manifests/{missing}` | **404** + `#manifest-not-found` or `#resource-not-found` |
+| Negative manifest | `GET /v1/artifacts/signed-review-records/{missing}` | **404** + `#manifest-not-found` or `#resource-not-found` |
 
 ---
 

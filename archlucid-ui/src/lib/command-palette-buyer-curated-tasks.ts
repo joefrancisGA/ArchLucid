@@ -1,3 +1,4 @@
+import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import type { CuratedPaletteTask } from "@/lib/command-palette-curated-tasks";
 import {
   getShowcaseCompareHref,
@@ -60,7 +61,7 @@ export const BUYER_COMMAND_PALETTE_CURATED_TASKS: readonly CuratedPaletteTask[] 
   },
   {
     label: BUYER_SURFACE_VOCABULARY.auditTrail,
-    href: `/audit?runId=${showcaseRunEnc}`,
+    href: auditTrailNavHref(SHOWCASE_STATIC_DEMO_RUN_ID),
     searchValue: "audit trail compliance chronology events",
   },
   {

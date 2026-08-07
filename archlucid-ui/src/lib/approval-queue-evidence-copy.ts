@@ -1,0 +1,28 @@
+import {
+  GOVERNANCE_APPROVAL_QUEUE_PATH,
+  GOVERNANCE_AUDIT_PATH,
+  GOVERNANCE_DASHBOARD_PATH,
+} from "@/lib/governance-route-paths";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
+
+export const APPROVAL_QUEUE_CLAIM_DISCIPLINE =
+  "This approval queue records submit / approve / reject decisions for architecture reviews in the current workspace — an operator workflow surface, not a complete diligence Sources package on its own, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Audit or the linked review when you need the fuller trail.";
+
+export const APPROVAL_QUEUE_SOURCES_INTRO =
+  "Use these follow-ups when a decision needs findings triage, audit trail, workspace health, or governance orientation.";
+
+export type ApprovalQueueSourceLink = {
+  readonly label: string;
+  readonly href: string;
+};
+
+/** Operator Sources — no self-href to the approval queue. */
+export const APPROVAL_QUEUE_SOURCES: readonly ApprovalQueueSourceLink[] = [
+  { label: "Findings", href: "/governance/findings" },
+  { label: "Audit", href: GOVERNANCE_AUDIT_PATH },
+  { label: "Workspace health", href: GOVERNANCE_DASHBOARD_PATH },
+  { label: "Governance approval help", href: inAppHelpHref("governance-approval") },
+  { label: "How ArchLucid works", href: inAppHelpHref("getting-started") },
+] as const;
+
+export const APPROVAL_QUEUE_CANONICAL_PATH = GOVERNANCE_APPROVAL_QUEUE_PATH;

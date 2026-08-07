@@ -4,6 +4,7 @@ import type { ReactElement } from "react";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import { MARKETING_CAPTION_TEXT_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import { cn } from "@/lib/utils";
 
@@ -69,7 +70,7 @@ export function ShowcaseOutcomeStrip(props: ShowcaseOutcomeStripProps): ReactEle
       )}
 
       {hasManifest ? (
-        <Link className={cardClass} href={`/signed-records/${encManifest}`}>
+        <Link className={cardClass} href={signedRecordDetailPath(encManifest)}>
           <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>{`2 · ${SIGNED_MANIFEST_LABEL}`}</span>
           <span className={outcomeCaptionClass}>Signed architecture record and deliverables index</span>
         </Link>
@@ -88,7 +89,7 @@ export function ShowcaseOutcomeStrip(props: ShowcaseOutcomeStripProps): ReactEle
           <span className={outcomeCaptionClass}>Traceability from evidence to decisions</span>
         </Link>
       ) : hasManifest ? (
-        <Link className={cardClass} href={`/signed-records/${encManifest}`}>
+        <Link className={cardClass} href={signedRecordDetailPath(encManifest)}>
           <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>
             {`3 · ${BUYER_SURFACE_VOCABULARY.evidenceGraphNav}`}
           </span>
@@ -109,7 +110,7 @@ export function ShowcaseOutcomeStrip(props: ShowcaseOutcomeStripProps): ReactEle
           <span className={outcomeCaptionClass}>{governanceSubtitle}</span>
         </Link>
       ) : hasManifest ? (
-        <Link className={cardClass} href={`/signed-records/${encManifest}`}>
+        <Link className={cardClass} href={signedRecordDetailPath(encManifest)}>
           <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>4 · Governance approval</span>
           <span className={outcomeCaptionClass}>{governanceSubtitle}</span>
         </Link>
@@ -129,7 +130,7 @@ export function ShowcaseOutcomeStrip(props: ShowcaseOutcomeStripProps): ReactEle
             <span className={outcomeCaptionClass}>Recorded lifecycle events for this review</span>
           </Link>
         ) : hasManifest ? (
-          <Link className={cardClass} href={`/signed-records/${encManifest}`}>
+          <Link className={cardClass} href={signedRecordDetailPath(encManifest)}>
             <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>
               {`5 · ${BUYER_SURFACE_VOCABULARY.auditTrail}`}
             </span>

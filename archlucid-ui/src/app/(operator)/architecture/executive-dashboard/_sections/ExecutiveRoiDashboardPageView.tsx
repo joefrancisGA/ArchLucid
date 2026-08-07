@@ -4,10 +4,8 @@ import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { ExecutiveDashboardDataProvider, useExecutiveDashboardData } from "@/components/executive/ExecutiveDashboardDataContext";
 import { ExecutiveDashboardEmptyState } from "@/components/executive/ExecutiveDashboardEmptyState";
-import { ExecutiveDashboardHowItWorks } from "@/components/executive/ExecutiveDashboardHowItWorks";
 import { ExecutiveDashboardPageHero } from "@/components/executive/ExecutiveDashboardPageHero";
 import { ExecutiveDashboardSampleWorkspaceBanner } from "@/components/executive/ExecutiveDashboardSampleWorkspaceBanner";
-import { OperatorWelcomeOnboarding } from "@/components/OperatorWelcomeOnboarding";
 import type { ExecutiveTimeRange } from "@/lib/executive-time-range";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -20,16 +18,20 @@ import { EXECUTIVE_DASHBOARD_SCOPE_DETAILS_TRIGGER } from "@/lib/executive-dashb
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { ExecutiveComplianceDriftTrendSection } from "./ExecutiveComplianceDriftTrendSection";
 import { ExecutiveDashboardBaselineWarningBanner } from "./ExecutiveDashboardBaselineWarningBanner";
 import { ExecutiveDashboardNextActionSection } from "./ExecutiveDashboardNextActionSection";
 import { ExecutiveDashboardPrimaryMetricsSection } from "./ExecutiveDashboardPrimaryMetricsSection";
-import { ExecutiveDashboardSupportingMetricsSection } from "./ExecutiveDashboardSupportingMetricsSection";
-import { ExecutiveRoiEnvironmentSavingsSection } from "./ExecutiveRoiEnvironmentSavingsSection";
-import { ExecutiveRoiSummarySection } from "./ExecutiveRoiSummarySection";
-import { ExecutiveRoiTrendSection } from "./ExecutiveRoiTrendSection";
-import { SponsorExportsSection } from "./SponsorExportsSection";
-import { BusinessImpactSummaryWidget } from "./BusinessImpactSummaryWidget";
+import {
+  BusinessImpactSummaryWidgetDeferred,
+  ExecutiveComplianceDriftTrendSectionDeferred,
+  ExecutiveDashboardHowItWorksDeferred,
+  ExecutiveDashboardSupportingMetricsSectionDeferred,
+  ExecutiveRoiEnvironmentSavingsSectionDeferred,
+  ExecutiveRoiSummarySectionDeferred,
+  ExecutiveRoiTrendSectionDeferred,
+  OperatorWelcomeOnboardingDeferred,
+  SponsorExportsSectionDeferred,
+} from "./executive-roi-dashboard-deferred-chunks";
 
 export type ExecutiveRoiDashboardPageViewProps = {
   readonly surface?: "operator" | "executive";
@@ -69,7 +71,7 @@ function ExecutiveRoiDashboardPortfolioSections({
     <OperatorPageContainer variant="dashboard" className="space-y-6">
       {showSampleBanner ? <ExecutiveDashboardSampleWorkspaceBanner /> : null}
 
-      {!dashboardEmpty ? <OperatorWelcomeOnboarding /> : null}
+      {!dashboardEmpty ? <OperatorWelcomeOnboardingDeferred /> : null}
 
       <ExecutiveDashboardPageHero dashboardEmpty={dashboardEmpty} />
 
@@ -87,7 +89,7 @@ function ExecutiveRoiDashboardPortfolioSections({
       {dashboardEmpty ? (
         <>
           <ExecutiveDashboardEmptyState />
-          {!buyerPolishedShell ? <ExecutiveDashboardHowItWorks /> : null}
+          {!buyerPolishedShell ? <ExecutiveDashboardHowItWorksDeferred /> : null}
         </>
       ) : (
         <>
@@ -101,7 +103,7 @@ function ExecutiveRoiDashboardPortfolioSections({
       )}
 
       {hasCommittedReviews ? (
-        <SponsorExportsSection surface={surface} hasCommittedReviews={hasCommittedReviews} />
+        <SponsorExportsSectionDeferred surface={surface} hasCommittedReviews={hasCommittedReviews} />
       ) : null}
 
       {hasCommittedReviews ? (
@@ -109,8 +111,8 @@ function ExecutiveRoiDashboardPortfolioSections({
           <h2 id="executive-findings-heading" className={`m-0 ${OPERATOR_TYPOGRAPHY.sectionTitle}`}>
             {v.latestFindingsSectionTitle}
           </h2>
-          <BusinessImpactSummaryWidget summary={summary} loading={summaryLoading} surface={surface} />
-          <ExecutiveRoiSummarySection
+          <BusinessImpactSummaryWidgetDeferred summary={summary} loading={summaryLoading} surface={surface} />
+          <ExecutiveRoiSummarySectionDeferred
             summary={summary}
             loading={summaryLoading}
             summaryError={summaryError}
@@ -120,7 +122,7 @@ function ExecutiveRoiDashboardPortfolioSections({
       ) : null}
 
       {hasCommittedReviews && (hasDriftData || driftLoading) ? (
-        <ExecutiveComplianceDriftTrendSection
+        <ExecutiveComplianceDriftTrendSectionDeferred
           points={driftPoints}
           loading={driftLoading}
           error={driftError}
@@ -129,13 +131,13 @@ function ExecutiveRoiDashboardPortfolioSections({
 
       {hasCommittedReviews ? (
         <div className="grid gap-4 lg:grid-cols-2">
-          <ExecutiveRoiTrendSection defaultTimeRange={defaultTrendRange} showTimeRangeSelector />
-          <ExecutiveRoiEnvironmentSavingsSection />
+          <ExecutiveRoiTrendSectionDeferred defaultTimeRange={defaultTrendRange} showTimeRangeSelector />
+          <ExecutiveRoiEnvironmentSavingsSectionDeferred />
         </div>
       ) : null}
 
       {hasCommittedReviews ? (
-        <ExecutiveDashboardSupportingMetricsSection
+        <ExecutiveDashboardSupportingMetricsSectionDeferred
           summary={summary ?? null}
           loading={summaryLoading ?? false}
           showDetailedKpiCards

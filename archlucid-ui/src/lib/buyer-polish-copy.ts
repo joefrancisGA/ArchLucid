@@ -800,7 +800,7 @@ export const BUYER_RISK_REGISTER_EMPTY_BODY =
 
 export const BUYER_RISK_REGISTER_EMPTY_SECONDARY_ACTION = "View governance decisions";
 
-export const BUYER_RISK_EXCEPTIONS_PAGE_TITLE = "Risk exceptions";
+export const BUYER_RISK_EXCEPTIONS_PAGE_TITLE = "Exceptions";
 
 export const BUYER_RISK_EXCEPTIONS_PAGE_LEAD = RISK_EXCEPTIONS_PAGE_SUBTITLE;
 

@@ -50,6 +50,8 @@ export function buildRunFindingsItsmJsonExportDocument(
       statusLabel: finding.isMuted ? "Muted" : "Open",
       ruleId: finding.policyRuleId ?? null,
       siteOrigin,
+      trustLabel: finding.trustLabel ?? null,
+      trustLabelReason: finding.trustLabelReason ?? null,
     });
 
     return JSON.parse(jsonBody) as FindingWorkItemJsonDocument;
@@ -82,6 +84,8 @@ export type GovernanceFindingWorkItemExportRow = {
   recommended: string;
   status: string;
   policyRuleId?: string | null;
+  trustLabel?: string | null;
+  trustLabelReason?: string | null;
   recordKind: "finding" | "decision";
 };
 
@@ -101,6 +105,8 @@ export function buildGovernanceFindingsItsmJsonExportDocument(
         statusLabel: row.status,
         ruleId: row.policyRuleId ?? null,
         siteOrigin,
+        trustLabel: row.trustLabel ?? null,
+        trustLabelReason: row.trustLabelReason ?? null,
       });
 
       return JSON.parse(jsonBody) as FindingWorkItemJsonDocument;

@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — Load test baseline (API hot paths) - full detail, tables, and links in the sections below.
+﻿> **Scope:** Contributor-reference — Load test baseline (API hot paths) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -22,7 +22,7 @@ Record **repeatable** latency and throughput for the five highest-traffic API pa
 - **No public SMB or shared infra** for test data; Compose binds SQL/Redis/Azurite locally on the runner.
 - **List endpoints:** prefer **keyset** cursors where the API exposes them (e.g. **`GET /v1/audit/search?beforeUtc=…`** for audit); offset pagination remains on some paths — see **`docs/API_CONTRACTS.md`**.
 - **Merge-blocking** k6 operator-path smoke runs in **`.github/workflows/ci.yml`** after full regression (`tests/load/k6-api-smoke.js`) with **per-tag Core Pilot smoke budgets** (`k6api:*` thresholds + **`scripts/ci/assert_k6_ci_smoke_summary.py --per-tag-k6-api-smoke`**). The **Compose full-stack** workflow **`.github/workflows/load-test.yml`** remains **manual only** for longer / heavier profiles.
-- k6 **checks** rate threshold is **0.85**; **`http_req_duration` p(95)** cap is **2000** ms from the **Initial** baseline (2× ~773 ms p95, rounded up to 500 ms). Re-run the recorder after material infra or API changes and refresh this doc + `hotpaths.js`.
+- k6 **checks** rate threshold is **0.85**; **`http_req_duration` p(95)** cap is **2000** ms from the **Initial** baseline (2Ã— ~773 ms p95, rounded up to 500 ms). Re-run the recorder after material infra or API changes and refresh this doc + `hotpaths.js`.
 
 ## Architecture overview
 
@@ -73,7 +73,7 @@ Record **repeatable** latency and throughput for the five highest-traffic API pa
 
 1. Start Docker Desktop (or Linux engine), then from repo root run **`pwsh ./scripts/load/record_baseline.ps1`** or **`bash scripts/load/record_baseline.sh`** (Compose full-stack + k6 in `grafana/k6` + `print_k6_summary_metrics.py` + teardown).  
 2. Paste **p50 / p95 / p99 / rate** into the table above and set **`git rev-parse HEAD`** (or the GitHub Actions run URL) in the last column.  
-3. Update **`scripts/load/hotpaths.js`**: replace the `http_req_duration` threshold with the **Suggested** line printed by the Python script (2× observed p95, rounded up to 500 ms).  
+3. Update **`scripts/load/hotpaths.js`**: replace the `http_req_duration` threshold with the **Suggested** line printed by the Python script (2Ã— observed p95, rounded up to 500 ms).  
 
 **CI alternative:** **Actions → Load test (k6, Compose full-stack)** — align inputs to **VUs 5** and **duration 2m** for parity; copy the job-summary k6 table and artifact `k6-summary.json`.
 
@@ -105,7 +105,7 @@ Raise `ci/benchmark-baseline.json` only when a change **intentionally** improves
 
 k6 runs with **`options.thresholds`** in `ci-smoke.js` (non-zero exit on breach). The Python step is a **duplicate** check on the exported summary.
 
-| Env var (override) | Default (ms except rate) | SLO tier (see **`API_SLOS.md`** § Latency tiers) |
+| Env var (override) | Default (ms except rate) | SLO tier (see **`API_SLOS.md`** Â§ Latency tiers) |
 | --- | --- | --- |
 | `ARCHLUCID_K6_P95_HEALTH_LIVE_MS` | 300 | Tier 1 — `/health/live` |
 | `ARCHLUCID_K6_P95_HEALTH_READY_MS` | 1200 | Ready probes (noisier than Tier 1 external 300 ms) |
@@ -130,13 +130,13 @@ The **`k6-ci-smoke`** CI job uses **`--per-tag-ci-smoke`** so each scenario is i
 
 | Scenario | Executor | VUs | Duration | Endpoint | Threshold |
 | --- | --- | --- | --- | --- | --- |
-| `health` | constant-vus | 5 | 20 s | `GET /health/live` (`k6ci:health_live`), `GET /health/ready` (`k6ci:health_ready`) | live p(95) ≤ 300 ms; ready p(95) ≤ 1200 ms (ready includes SQL / probes) |
-| `create_run` | constant-vus | 2 | 30 s | `POST /v1/architecture/request` | p(95) ≤ 6600 ms — see **`API_PERFORMANCE_TARGETS.md`** |
-| `list_runs` | constant-vus | 3 | 20 s (`startTime: "5s"`) | `GET /v1/architecture/runs` | p(95) ≤ 928 ms |
-| `audit_search` | constant-vus | 2 | 20 s | `GET /v1/audit/search?take=20` | p(95) ≤ 928 ms |
-| `version` | constant-vus | 2 | 20 s | `GET /version` (`k6ci:version`) | p(95) ≤ 928 ms |
-| `get_run_detail` | constant-vus | 2 | 20 s (`startTime: "8s"`) | `GET /v1/architecture/runs` then `POST` create then `GET /v1/architecture/run/{id}` (`k6ci:list_for_get_run`, `k6ci:get_run_detail`) | each tag p(95) ≤ 928 ms |
-| `client_error_telemetry` | constant-vus | 1 | 18 s (`startTime: "10s"`) | `POST /v1/diagnostics/client-error` (expects **204**) | p(95) ≤ 928 ms |
+| `health` | constant-vus | 5 | 20 s | `GET /health/live` (`k6ci:health_live`), `GET /health/ready` (`k6ci:health_ready`) | live p(95) â‰¤ 300 ms; ready p(95) â‰¤ 1200 ms (ready includes SQL / probes) |
+| `create_run` | constant-vus | 2 | 30 s | `POST /v1/architecture/request` | p(95) â‰¤ 6600 ms — see **`API_PERFORMANCE_TARGETS.md`** |
+| `list_runs` | constant-vus | 3 | 20 s (`startTime: "5s"`) | `GET /v1/architecture/runs` | p(95) â‰¤ 928 ms |
+| `audit_search` | constant-vus | 2 | 20 s | `GET /v1/audit/search?take=20` | p(95) â‰¤ 928 ms |
+| `version` | constant-vus | 2 | 20 s | `GET /version` (`k6ci:version`) | p(95) â‰¤ 928 ms |
+| `get_run_detail` | constant-vus | 2 | 20 s (`startTime: "8s"`) | `GET /v1/architecture/runs` then `POST` create then `GET /v1/architecture/review/{id}` (`k6ci:list_for_get_run`, `k6ci:get_run_detail`) | each tag p(95) â‰¤ 928 ms |
+| `client_error_telemetry` | constant-vus | 1 | 18 s (`startTime: "10s"`) | `POST /v1/diagnostics/client-error` (expects **204**) | p(95) â‰¤ 928 ms |
 
 Global failure threshold: `http_req_failed` rate `< 2 %` (aligned with **`ARCHLUCID_K6_HTTP_FAIL_RATE_MAX`**). Total wall-clock duration: ~30 s (longest scenario).
 

@@ -152,6 +152,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Admin/AdminTenantCatalogMigrationController.cs",
+      "class_name": "AdminTenantCatalogMigrationController",
+      "route_template": "v{version:apiVersion}/admin/tenants",
+      "normalized_prefix": "/v1/admin/tenants",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Admin/AdminTenantsController.cs",
       "class_name": "AdminTenantsController",
       "route_template": "v{version:apiVersion}/admin/tenants",
@@ -352,6 +362,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Admin/MeteringAdminController.cs",
+      "class_name": "MeteringAdminController",
+      "route_template": "v{version:apiVersion}/admin/metering",
+      "normalized_prefix": "/v1/admin/metering",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
+      "nav_operator_href": "/administration/ai-usage"
+    },
+    {
       "controller_file": "Admin/PromptVariantsAdminController.cs",
       "class_name": "PromptVariantsAdminController",
       "route_template": "v{version:apiVersion}/admin/prompt-variants",
@@ -366,16 +386,6 @@
       "class_name": "ReferenceEvidenceAdminController",
       "route_template": "v{version:apiVersion}/admin/reference-evidence",
       "normalized_prefix": "/v1/admin/reference-evidence",
-      "commercial_tier": "none",
-      "class_policy": "AdminAuthority",
-      "exemption": null,
-      "nav_operator_href": null
-    },
-    {
-      "controller_file": "Admin/ReferenceEvidenceAdminLegacyController.cs",
-      "class_name": "ReferenceEvidenceAdminLegacyController",
-      "route_template": "v{version:apiVersion}/admin/tenants/{tenantId:guid}/reference-evidence",
-      "normalized_prefix": "/v1/admin/tenants/{tenantId:guid}/reference-evidence",
       "commercial_tier": "none",
       "class_policy": "AdminAuthority",
       "exemption": null,
@@ -844,8 +854,8 @@
     {
       "controller_file": "Authority/EvidenceBulkUploadController.cs",
       "class_name": "EvidenceBulkUploadController",
-      "route_template": "v{version:apiVersion}/architecture/run/{runId:guid}/evidence",
-      "normalized_prefix": "/v1/architecture/run/{runId:guid}/evidence",
+      "route_template": "v{version:apiVersion}/architecture/review/{runId:guid}/evidence",
+      "normalized_prefix": "/v1/architecture/review/{runId:guid}/evidence",
       "commercial_tier": "none",
       "class_policy": "ExecuteAuthority",
       "exemption": null,
@@ -1204,8 +1214,8 @@
     {
       "controller_file": "Governance/GovernancePreCommitSimulationController.cs",
       "class_name": "GovernancePreCommitSimulationController",
-      "route_template": "v{version:apiVersion}/governance/pre-commit",
-      "normalized_prefix": "/v1/governance/pre-commit",
+      "route_template": "v{version:apiVersion}/governance/pre-finalize",
+      "normalized_prefix": "/v1/governance/pre-finalize",
       "commercial_tier": "standard",
       "class_policy": "ReadAuthority",
       "exemption": null,
@@ -1584,8 +1594,8 @@
     {
       "controller_file": "Planning/GraphController.cs",
       "class_name": "GraphController",
-      "route_template": "v{version:apiVersion}/graph",
-      "normalized_prefix": "/v1/graph",
+      "route_template": "v{version:apiVersion}/evidence-graph",
+      "normalized_prefix": "/v1/evidence-graph",
       "commercial_tier": "standard",
       "class_policy": "ReadAuthority",
       "exemption": null,
@@ -1716,6 +1726,16 @@
       "class_name": "TenantBaselineController",
       "route_template": "v{version:apiVersion}/tenant/baseline",
       "normalized_prefix": "/v1/tenant/baseline",
+      "commercial_tier": "none",
+      "class_policy": "Authorize",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Tenancy/TenantCatalogMigrationStatusController.cs",
+      "class_name": "TenantCatalogMigrationStatusController",
+      "route_template": "v{version:apiVersion}/tenant",
+      "normalized_prefix": "/v1/tenant",
       "commercial_tier": "none",
       "class_policy": "Authorize",
       "exemption": null,

@@ -1,0 +1,8 @@
+flowchart LR
+  DF["ArchLucid.Api Dockerfile"] --> Img["shared container image"]
+  Img --> Api["dotnet ArchLucid.Api.dll"]
+  Img --> Worker["dotnet ArchLucid.Worker.dll"]
+  Img --> Jobs["dotnet ArchLucid.Jobs.Cli.dll"]
+  UI["archlucid-ui Dockerfile"] --> Next["Next.js UI image"]
+  Role["Hosting Role"] --> Api
+  Role --> Worker

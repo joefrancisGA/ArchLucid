@@ -77,7 +77,7 @@ Read the file top-down; major comment banners include:
 
 1. **`/* ---- Core ---- */`** — `ArchitectureRequests` (requests are still keyed here; run header is **`dbo.Runs`**).
 2. **`/* ---- Agents ---- */`** — `AgentTasks`, `AgentResults`, FK batches.
-3. **`/* ---- Manifest / evidence ---- */`** — `EvidenceBundles`, `DecisionTraces`, `AgentEvidencePackages`, `AgentExecutionTraces`. (**`dbo.GoldenManifestVersions`** was removed in ADR 0030 PR A4 / migration `111_DropGoldenManifestVersions_Legacy.sql`; coordinator-shaped manifests persist under **`dbo.GoldenManifests`** on the Authority path.)
+3. **`/* ---- Manifest / evidence ---- */`** — `EvidenceBundles`, `AgentEvidencePackages`, `AgentExecutionTraces`. (**`dbo.GoldenManifestVersions`** was removed in ADR 0030 PR A4 / migration `111_DropGoldenManifestVersions_Legacy.sql`; coordinator-shaped manifests persist under **`dbo.GoldenManifests`** on the Authority path. **`dbo.DecisionTraces`** and unwired Confluence publish tables were removed in migration **`296_DropUnusedCoordinatorAndConfluenceTables.sql`**; authority rule audits persist under **`dbo.DecisioningTraces`**.)
 4. **`/* ---- RunExportRecords ---- */`** — Export records linked by string `RunId` (correlates with **`dbo.Runs.RunId`** as **N** hex).
 5. **`/* ---- ComparisonRecords ---- */`** — Comparisons, replay payloads, label/tags, FKs.
 6. **`/* ---- Decision Engine v2 ---- */`** — `DecisionNodes`, `AgentEvaluations`.
@@ -184,6 +184,8 @@ sequenceDiagram
 | **032_ProductLearningPlanningBridge.sql** | **59R:** Improvement themes, bounded plans (`BoundedActionsJson`), links to **`ArchitectureRuns`**, **`ProductLearningPilotSignals`**, and authority bundle artifacts / pilot hints. |
 | **047_DropForeignKeysToArchitectureRuns.sql** | Drops **15** FK constraints from coordinator / learning tables to **`dbo.ArchitectureRuns`** (see migration header for names). Does **not** add FKs to **`dbo.Runs`** (**`UNIQUEIDENTIFIER`** vs legacy **`NVARCHAR(64)`** **`RunId`**). |
 | **049_DropArchitectureRunsTable.sql** | **`DROP TABLE dbo.ArchitectureRuns`** when present (after **047**). Greenfield **`ArchLucid.sql`** no longer creates **`ArchitectureRuns`**. |
+| **111_DropGoldenManifestVersions_Legacy.sql** | **`DROP TABLE dbo.GoldenManifestVersions`** (ADR 0030 PR A4). |
+| **296_DropUnusedCoordinatorAndConfluenceTables.sql** | **`DROP TABLE`** **`dbo.ConfluencePublishJobs`**, **`dbo.ConfluencePublishingTargets`**, **`dbo.DecisionTraces`** (unused / unwired). Rollback: **`Rollback/R296_*.sql`**. |
 | **050_PolicyPackChangeLog.sql** | Append-only **`dbo.PolicyPackChangeLog`** (policy pack / version / assignment mutations). |
 | **051_AuditEvents_DenyUpdateDelete.sql** | When database role **`ArchLucidApp`** exists: **`DENY UPDATE`** and **`DENY DELETE`** on **`dbo.AuditEvents`** (append-only enforcement). Skips if role absent. See **`docs/AUDIT_COVERAGE_MATRIX.md`**. |
 | **116_CheckJson_CorePayloadColumns.sql** | **`CHECK (ISJSON(…) = 1)`** on selected **`NVARCHAR(MAX)`** JSON contract columns when no row violates the predicate. Rollback: **`Rollback/R116_CheckJson_CorePayloadColumns.sql`**. |

@@ -1,4 +1,4 @@
-> **Scope:** HTTP 409 when agent output fails the post-execute quality gate (BlockRunOnReject) — problem details, configuration, and operator actions.
+﻿> **Scope:** HTTP 409 when agent output fails the post-execute quality gate (BlockRunOnReject) — problem details, configuration, and operator actions.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -14,7 +14,7 @@ When a workspace enforces **agent output quality** after a successful **POST** `
 
 - **`ArchLucid:AgentOutput:QualityGate:Enabled`** is **true** (typical production-like hosts).
 - **`EnforceOnReject`** and **`BlockRunOnReject`** are both **true** (otherwise rejected traces are logged/metered but execute may still complete without this 409).
-- Callers can issue **ReadAuthority** requests to **`GET /v1/architecture/run/{runId}/agent-evaluation`** for the same run.
+- Callers can issue **ReadAuthority** requests to **`GET /v1/architecture/review/{runId}/agent-evaluation`** for the same run.
 
 ## 3. Constraints
 
@@ -39,7 +39,7 @@ When a workspace enforces **agent output quality** after a successful **POST** `
 ## 6. Data flow (diagnosis)
 
 1. Read the **409** body: note **`traceId`**, **`agentLabel`**, **`detail`**, **`supportHint`**, **`runbook`**.
-2. Call **`GET /v1/architecture/run/{runId}/agent-evaluation`** — inspect **structural** / **semantic** columns and **gate** context for that trace.
+2. Call **`GET /v1/architecture/review/{runId}/agent-evaluation`** — inspect **structural** / **semantic** columns and **gate** context for that trace.
 3. Check **logs** with the response **correlation** id (e.g. `X-Correlation-ID` / **`extensions`** if your client logged them).
 4. Confirm **configuration** merged for the environment: **`ArchLucid:AgentOutput:QualityGate`** (see [CONFIGURATION_REFERENCE.md](../library/CONFIGURATION_REFERENCE.md)).
 
@@ -62,6 +62,7 @@ When a workspace enforces **agent output quality** after a successful **POST** `
 
 ## Related documents
 
+- [LLM_EXECUTION_VS_QUALITY_OUTCOME.md](../library/LLM_EXECUTION_VS_QUALITY_OUTCOME.md) — execution vs quality taxonomy (**TB-963**)
 - [AGENT_OUTPUT_EVALUATION.md](../library/AGENT_OUTPUT_EVALUATION.md) — scoring, gate, judge
 - [MANUAL_QA_CHECKLIST.md](../quality/MANUAL_QA_CHECKLIST.md) — operator QA
 - [TECH_BACKLOG.md](../library/TECH_BACKLOG.md) — TB items related to quality gate hardening

@@ -72,7 +72,7 @@ Start with the row that matches your change. Check the follow-through items that
 | Architect workspace route | Update route/page tests, nav config, progressive disclosure rules, accessibility coverage, and [`ROUTE_TIER_POLICY_NAV_MATRIX.md`](ROUTE_TIER_POLICY_NAV_MATRIX.md) if there is an API/nav boundary. |
 | Commercial tier | Update `[RequiresCommercialTenantTier]` usage, route-tier-policy-nav registry, [`PRODUCT_PACKAGING.md`](PRODUCT_PACKAGING.md), and [`COMMERCIAL_TIER_CODE_ALIGNMENT.md`](COMMERCIAL_TIER_CODE_ALIGNMENT.md). |
 | Audit event | Update event constants, emitters, tests, [`AUDIT_EVENT_MODEL.md`](AUDIT_EVENT_MODEL.md), and [`AUDIT_COVERAGE_MATRIX.md`](AUDIT_COVERAGE_MATRIX.md). |
-| Retrieval or agent behavior | Update agent/runtime tests, quality gates, forensic UI/docs, [`AGENT_OUTPUT_EVALUATION.md`](AGENT_OUTPUT_EVALUATION.md), and [`AGENT_TRACE_FORENSICS.md`](AGENT_TRACE_FORENSICS.md). |
+| Retrieval or agent behavior | Update agent/runtime tests, quality gates, forensic UI/docs, [`AGENT_OUTPUT_EVALUATION.md`](AGENT_OUTPUT_EVALUATION.md), [LLM_EXECUTION_VS_QUALITY_OUTCOME.md](LLM_EXECUTION_VS_QUALITY_OUTCOME.md), and [`AGENT_TRACE_FORENSICS.md`](AGENT_TRACE_FORENSICS.md). |
 | Pricing, trust, or procurement copy | Update the canonical source first, then dependent summaries. Use [`trust-center.md`](../go-to-market/trust-center.md), [`PRICING_PHILOSOPHY.md`](../go-to-market/PRICING_PHILOSOPHY.md), and procurement pack guards. |
 | V1 scope boundary | Update [`V1_SCOPE.md`](V1_SCOPE.md) first. If the work is deferred, update [`V1_DEFERRED.md`](V1_DEFERRED.md); if it changes buyer integration commitments, update [`INTEGRATION_CATALOG.md`](../go-to-market/INTEGRATION_CATALOG.md). |
 

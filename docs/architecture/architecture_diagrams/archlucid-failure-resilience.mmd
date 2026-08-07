@@ -1,0 +1,27 @@
+flowchart TB
+  subgraph create["Create / enqueue"]
+    TX["Single create-run UoW<br/>Run header + pipeline outbox"]
+    FAIL_API["API crash after commit"]
+    ORPHAN["No orphaned run without outbox row<br/>ADR 0038"]
+  end
+
+  subgraph worker["Worker completion"]
+    CLAIM["Claim pipeline outbox work"]
+    STAGES["Stages + finalize"]
+    RETRY["Orchestrator SQL retries<br/>ORCHESTRATOR_RETRIES"]
+    LEASE["Hosted-service lease / retry"]
+  end
+
+  subgraph partial["Partial failure modes"]
+    STAGE_FAIL["Stage exception → run failed / resumable"]
+    COSMOS_LAG["Cosmos graph projection lags SQL<br/>outbox drains later"]
+    INLINE["Inline mode: failure in API request"]
+  end
+
+  TX --> FAIL_API --> ORPHAN
+  TX --> CLAIM --> STAGES
+  STAGES --> RETRY
+  STAGES --> LEASE
+  STAGES --> STAGE_FAIL
+  STAGES --> COSMOS_LAG
+  TX -.->|"AsyncAuthorityPipeline false"| INLINE

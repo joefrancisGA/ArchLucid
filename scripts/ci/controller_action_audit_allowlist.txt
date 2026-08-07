@@ -19,6 +19,11 @@ ArchLucid.Api.Controllers.Admin.TenantsAdminController.ProvisionAsync
 # Durable audit: TenantSuspendCommandService appends TenantSuspended / TenantUnsuspended to platform audit.
 ArchLucid.Api.Controllers.Admin.TenantsAdminController.SuspendAsync
 ArchLucid.Api.Controllers.Admin.TenantsAdminController.UnsuspendAsync
+# Durable audit: TenantCatalogMigrationOrchestrator appends migration lifecycle events to platform audit.
+ArchLucid.Api.Controllers.Admin.AdminTenantCatalogMigrationController.StartAsync
+ArchLucid.Api.Controllers.Admin.AdminTenantCatalogMigrationController.RunProjectionRefreshAsync
+ArchLucid.Api.Controllers.Admin.AdminTenantCatalogMigrationController.RunVerificationAsync
+ArchLucid.Api.Controllers.Admin.AdminTenantCatalogMigrationController.CompleteAsync
 # Durable audit: TenantDeletionService logs TenantDataDeleted when purge completes; TenantErasureCommandService logs platform erasure lifecycle events.
 ArchLucid.Api.Controllers.Admin.AdminTenantsController.StartTenantErasureOffboardAsync
 ArchLucid.Api.Controllers.Admin.AdminTenantsController.RestoreTenantErasureQuarantineAsync

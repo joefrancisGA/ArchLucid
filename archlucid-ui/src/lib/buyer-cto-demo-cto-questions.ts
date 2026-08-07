@@ -1,3 +1,4 @@
+import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 
@@ -17,7 +18,7 @@ export const CTO_DEMO_KNOWN_VALID_ROUTE_PREFIXES: readonly string[] = [
   "/pricing",
   "/see-it",
   "/governance",
-  "/audit",
+  "/governance/audit",
   "/insights/evidence-graph",
   "/manifests",
   "/governance/signed-records",
@@ -81,7 +82,7 @@ export const CTO_DEMO_QUESTIONS: readonly CtoDemoQuestion[] = [
     question: "Can it integrate with our tools?",
     answer:
       "V1 exposes a documented REST API and CLI; Jira, Teams, and webhooks are on the V1.1 roadmap.",
-    proofHref: "/audit?runId=claims-intake-modernization",
+    proofHref: auditTrailNavHref("claims-intake-modernization"),
     proofLabel: "Audit trail",
     proofQueryParam: "focus=api",
   },

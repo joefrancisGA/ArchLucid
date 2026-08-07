@@ -61,9 +61,14 @@ describe("contextual-help-registry (TB-733)", () => {
       "/governance/decision-register",
       "/reviews/new",
       "/architecture/reviews/new",
+      "/architecture/architectures",
+      "/architecture/architectures/new",
+      "/architecture/architecture-intelligence",
+      "/architecture/first-review-guide",
       "/governance/audit",
       "/administration/system-health",
       "/administration/connection-status",
+      "/administration/developer",
       "/architecture/digests",
       "/digests",
       "/digest-subscriptions",
@@ -113,14 +118,21 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/cloud-connections",
       "/administration/users/invite-reviewer",
       "/administration/users",
-      "/settings/roles",
       "/administration/identity-providers",
+      "/administration/identity-providers/oidc",
+      "/administration/identity-providers/saml",
+      "/administration/identity/sso-wizard",
+      "/administration/scim-provisioning",
+      "/administration/tenant",
+      "/administration/tenant/recycle-bin",
       "/administration/identity-providers/role-mapping",
+      "/administration/identity-providers/diagnostics",
       "/administration/api-keys",
       "/administration/preferences",
       "/administration/account-security",
       "/administration/auth-domains",
       "/administration/extract-upload",
+      "/administration/model-governance",
       "/administration/security-trust",
       "/administration/billing",
       "/administration/ai-usage",
@@ -143,6 +155,21 @@ describe("contextual-help-registry (TB-733)", () => {
     );
     expect(contextualHelpForPathname("/architecture/reviews")?.whatIsThisPage).toContain("architecture reviews");
     expect(contextualHelpForPathname("/reviews/new")?.whatIsThisPage).toContain("Start an architecture review");
+    expect(contextualHelpForPathname("/architecture/architectures/new")?.whatIsThisPage).toContain(
+      "Create architecture",
+    );
+    expect(contextualHelpForPathname("/architecture/architectures")?.whatIsThisPage).toContain(
+      "Architectures list",
+    );
+    expect(contextualHelpForPathname("/architecture/architectures/draft-abc")?.whatIsThisPage).toContain(
+      "Architecture draft workspace",
+    );
+    expect(contextualHelpForPathname("/architecture/architecture-intelligence")?.whatIsThisPage).toContain(
+      "Architecture intelligence",
+    );
+    expect(contextualHelpForPathname("/architecture/first-review-guide")?.whatIsThisPage).toContain(
+      "First review guide",
+    );
     expect(contextualHelpForPathname("/governance/findings?filter=open")?.whatToDoNext).toContain("Assign owners");
     expect(contextualHelpForPathname("/sponsor-report/executive-summary")?.whatIsThisPage).toContain(
       "Sponsor executive summary",
@@ -152,7 +179,7 @@ describe("contextual-help-registry (TB-733)", () => {
 
   it("resolves Overview home without stealing other routes (HOM / TB-1667)", () => {
     expect(contextualHelpForPathname("/")?.whatIsThisPage).toContain("Overview");
-    expect(contextualHelpForPathname("/architecture/architectures")).toBeNull();
+    expect(contextualHelpForPathname("/sponsor-report/roi-summary")).toBeNull();
   });
 
   it("resolves governance dashboard Category-1 help (GDX)", () => {
@@ -212,6 +239,56 @@ describe("contextual-help-registry (TB-733)", () => {
     ).toContain("diagnostics");
   });
 
+  it("resolves SAML identity-provider Category-1 help (ASA)", () => {
+    expect(contextualHelpForPathname("/administration/identity-providers/saml")?.whatIsThisPage).toContain(
+      "SAML",
+    );
+    expect(contextualHelpForPathname("/administration/identity-providers/saml")?.whatToDoNext).toContain(
+      "Fetch IdP metadata",
+    );
+  });
+
+  it("resolves SSO wizard Category-1 help (ASS)", () => {
+    expect(contextualHelpForPathname("/administration/identity/sso-wizard")?.whatIsThisPage).toContain(
+      "SSO wizard",
+    );
+    expect(contextualHelpForPathname("/administration/identity/sso-wizard")?.whatToDoNext).toContain(
+      "Choose a protocol",
+    );
+  });
+
+  it("resolves SCIM provisioning Category-1 help (ASC)", () => {
+    expect(contextualHelpForPathname("/administration/scim-provisioning")?.whatIsThisPage).toContain(
+      "SCIM provisioning",
+    );
+    expect(contextualHelpForPathname("/administration/scim-provisioning")?.whatToDoNext).toContain(
+      "Copy the SCIM base URL",
+    );
+  });
+
+  it("resolves Projects recycle bin Category-1 help (STR)", () => {
+    expect(contextualHelpForPathname("/administration/tenant/recycle-bin")?.whatIsThisPage).toContain(
+      "Projects recycle bin",
+    );
+    expect(contextualHelpForPathname("/administration/tenant/recycle-bin")?.whatToDoNext).toContain(
+      "Refresh the list",
+    );
+  });
+
+  it("resolves Tenant settings Category-1 help (ATE)", () => {
+    expect(contextualHelpForPathname("/administration/tenant")?.whatIsThisPage).toContain("Tenant settings");
+    expect(contextualHelpForPathname("/administration/tenant")?.whatToDoNext).toContain("quality gates");
+  });
+
+  it("resolves Identity diagnostics Category-1 help (SEI)", () => {
+    expect(
+      contextualHelpForPathname("/administration/identity-providers/diagnostics")?.whatIsThisPage,
+    ).toContain("Identity diagnostics");
+    expect(
+      contextualHelpForPathname("/administration/identity-providers/diagnostics")?.whatToDoNext,
+    ).toContain("Refresh probes");
+  });
+
   it("resolves API keys settings Category-1 help (ADP)", () => {
     expect(contextualHelpForPathname("/administration/api-keys")?.whatIsThisPage).toContain("API keys");
     expect(contextualHelpForPathname("/administration/api-keys")?.whatToDoNext).toContain("Audit");
@@ -250,6 +327,15 @@ describe("contextual-help-registry (TB-733)", () => {
     );
     expect(contextualHelpForPathname("/administration/extract-upload")?.whatToDoNext).toContain(
       "Start a review",
+    );
+  });
+
+  it("resolves AI and model governance Category-1 help (AMO)", () => {
+    expect(contextualHelpForPathname("/administration/model-governance")?.whatIsThisPage).toContain(
+      "AI and model governance",
+    );
+    expect(contextualHelpForPathname("/administration/model-governance")?.whatToDoNext).toContain(
+      "AI usage",
     );
   });
 
@@ -502,6 +588,15 @@ describe("contextual-help-registry (TB-733)", () => {
     expect(entry?.whatToDoNextAction?.href).toBe("/administration/system-health");
   });
 
+  it("resolves Internal developer tools Category-1 help (SDX)", () => {
+    expect(contextualHelpForPathname("/administration/developer")?.whatIsThisPage).toContain(
+      "Internal developer tools",
+    );
+    expect(contextualHelpForPathname("/administration/developer")?.whatToDoNext).toContain(
+      "theme selector",
+    );
+  });
+
   it("resolves Demo readiness Category-1 help (ADD)", () => {
     expect(contextualHelpForPathname("/admin/demo-readiness")?.whatIsThisPage).toContain(
       "Demo readiness",
@@ -521,7 +616,7 @@ describe("contextual-help-registry (TB-733)", () => {
   });
 
   it("returns null for routes not yet migrated", () => {
-    expect(contextualHelpForPathname("/architecture/architectures")).toBeNull();
+    expect(contextualHelpForPathname("/sponsor-report/roi-summary")).toBeNull();
   });
 
   it("keeps each page within the Category 1 word budget", () => {

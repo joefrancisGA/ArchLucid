@@ -3,7 +3,7 @@
 import Link from "next/link";
 
 import { RunDetailArchitectureSummaryCard } from "@/components/reviews/RunDetailArchitectureSummaryCard";
-import { RunDetailRecommendedActionsPanel } from "@/app/(operator)/reviews/[runId]/_sections/RunDetailRecommendedActionsPanel";
+import { RunDetailRecommendedActionsPanel } from "@/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailRecommendedActionsPanel";
 import { Button } from "@/components/ui/button";
 import type { ArchitectureCreationUserAssertions } from "@/lib/architecture-structured-content-types";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";

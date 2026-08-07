@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -125,7 +125,7 @@ internal static class CitationIntegrityEvaluator
                     finding.FindingId,
                     CitationIntegrityVerdict.Fail,
                     "Missing evidence reference or citation for decision-grade finding.",
-                    $"GET /v1/architecture/run/{runId}#finding={finding.FindingId}"));
+                    $"GET /v1/architecture/review/{runId}#finding={finding.FindingId}"));
 
                 continue;
             }
@@ -142,7 +142,7 @@ internal static class CitationIntegrityEvaluator
                 result.ResultId,
                 CitationIntegrityVerdict.Fail,
                 "Policy or ROI claim lacks evidence reference and structured citation.",
-                $"GET /v1/architecture/run/{runId}#result={result.ResultId}"));
+                $"GET /v1/architecture/review/{runId}#result={result.ResultId}"));
         }
     }
 
@@ -168,7 +168,7 @@ internal static class CitationIntegrityEvaluator
                     findingId,
                     CitationIntegrityVerdict.Fail,
                     "Citation SourceId is empty.",
-                    $"GET /v1/architecture/run/{runId}#finding={findingId}"));
+                    $"GET /v1/architecture/review/{runId}#finding={findingId}"));
 
                 continue;
             }
@@ -182,7 +182,7 @@ internal static class CitationIntegrityEvaluator
                     findingId,
                     CitationIntegrityVerdict.Warn,
                     "Citation description is empty (weak traceability).",
-                    $"GET /v1/architecture/run/{runId}#finding={findingId}"));
+                    $"GET /v1/architecture/review/{runId}#finding={findingId}"));
             }
         }
     }

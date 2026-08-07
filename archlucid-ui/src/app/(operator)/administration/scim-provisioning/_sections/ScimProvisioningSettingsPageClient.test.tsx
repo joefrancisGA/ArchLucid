@@ -3,6 +3,10 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { ScimProvisioningSettingsPageClient } from "./ScimProvisioningSettingsPageClient";
 
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => <button type="button">Page help</button>,
+}));
+
 const BANNED_CUSTOMER_COPY = [
   "ServiceProviderConfig",
   "Calls GET",

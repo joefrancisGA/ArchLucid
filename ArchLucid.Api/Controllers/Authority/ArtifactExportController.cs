@@ -61,8 +61,7 @@ public sealed class ArtifactExportController(
     ///     Lists artifact descriptors for a golden manifest. Returns <c>200 OK</c> with a JSON array (possibly empty)
     ///     sorted by name then id; <c>404</c> when the manifest is missing in the current scope.
     /// </summary>
-    [HttpGet("manifests/{manifestId:guid}")]
-    [HttpGet("signed-records/{manifestId:guid}")]
+    [HttpGet("signed-review-records/{manifestId:guid}")]
     [ProducesResponseType(typeof(IReadOnlyList<ArtifactDescriptorResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -85,7 +84,7 @@ public sealed class ArtifactExportController(
     }
 
     /// <summary>Product route: artifact descriptors for the run's golden manifest.</summary>
-    [HttpGet("/v{version:apiVersion}/runs/{runId:guid}/artifacts")]
+    [HttpGet("/v{version:apiVersion}/architecture/reviews/{runId:guid}/artifacts")]
     [ProducesResponseType(typeof(IReadOnlyList<ArtifactDescriptorResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -107,7 +106,7 @@ public sealed class ArtifactExportController(
     }
 
     /// <summary>Product route: bundle ZIP for the run's golden manifest.</summary>
-    [HttpGet("/v{version:apiVersion}/runs/{runId:guid}/artifacts/bundle")]
+    [HttpGet("/v{version:apiVersion}/architecture/reviews/{runId:guid}/artifacts/bundle")]
     [Produces("application/zip")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
@@ -130,7 +129,7 @@ public sealed class ArtifactExportController(
     }
 
     /// <summary>Product route: download one artifact file for the run's golden manifest.</summary>
-    [HttpGet("/v{version:apiVersion}/runs/{runId:guid}/artifacts/{artifactId:guid}")]
+    [HttpGet("/v{version:apiVersion}/architecture/reviews/{runId:guid}/artifacts/{artifactId:guid}")]
     [Produces("application/octet-stream")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
@@ -156,8 +155,7 @@ public sealed class ArtifactExportController(
     ///     JSON metadata for one artifact (operator review). <c>404</c> if the manifest is out of scope or the artifact id is
     ///     not in that manifest�s bundle.
     /// </summary>
-    [HttpGet("manifests/{manifestId:guid}/artifact/{artifactId:guid}/descriptor")]
-    [HttpGet("signed-records/{manifestId:guid}/artifact/{artifactId:guid}/descriptor")]
+    [HttpGet("signed-review-records/{manifestId:guid}/artifact/{artifactId:guid}/descriptor")]
     [ProducesResponseType(typeof(ArtifactDescriptorResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -189,8 +187,7 @@ public sealed class ArtifactExportController(
     ///     Downloads one synthesized artifact file. Requires manifest in scope; same 404 semantics as the descriptor
     ///     endpoint.
     /// </summary>
-    [HttpGet("manifests/{manifestId:guid}/artifact/{artifactId:guid}")]
-    [HttpGet("signed-records/{manifestId:guid}/artifact/{artifactId:guid}")]
+    [HttpGet("signed-review-records/{manifestId:guid}/artifact/{artifactId:guid}")]
     [Produces("application/octet-stream")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
@@ -232,8 +229,7 @@ public sealed class ArtifactExportController(
     ///     the manifest is missing; <c>404</c> with resource-not-found when the manifest exists but has no bundle or zero
     ///     artifacts.
     /// </summary>
-    [HttpGet("manifests/{manifestId:guid}/bundle")]
-    [HttpGet("signed-records/{manifestId:guid}/bundle")]
+    [HttpGet("signed-review-records/{manifestId:guid}/bundle")]
     [Produces("application/zip")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
@@ -269,7 +265,7 @@ public sealed class ArtifactExportController(
     }
 
     /// <summary>Downloads the ADR 0052 decision receipt JSON for a committed infeasible run.</summary>
-    [HttpGet("runs/{runId:guid}/decision-receipt")]
+    [HttpGet("reviews/{runId:guid}/decision-receipt")]
     [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
@@ -304,7 +300,7 @@ public sealed class ArtifactExportController(
     ///     ZIP export of run manifest, trace, and artifacts when the run is committed; artifacts ordered like the
     ///     manifest bundle list.
     /// </summary>
-    [HttpGet("runs/{runId:guid}/export")]
+    [HttpGet("reviews/{runId:guid}/export")]
     [Produces("application/zip")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
@@ -358,7 +354,7 @@ public sealed class ArtifactExportController(
     ///     Recomputes the golden manifest hash and compares it to the commit-time <c>ManifestGenerated</c> audit anchor.
     ///     Returns <c>200 OK</c> with status <c>Match</c>, <c>Mismatch</c>, or <c>NotAttested</c> (read-only; no repair).
     /// </summary>
-    [HttpGet("runs/{runId:guid}/export/verify")]
+    [HttpGet("reviews/{runId:guid}/export/verify")]
     [ProducesResponseType(typeof(RunExportLineageVerificationResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -377,7 +373,7 @@ public sealed class ArtifactExportController(
     /// <summary>
     ///     Advisory Terraform ZIP for a run (placeholder README + stub file; CLI aztfexport wrapping is documented in README).
     /// </summary>
-    [HttpGet("runs/{runId:guid}/terraform-advisory-export")]
+    [HttpGet("reviews/{runId:guid}/terraform-advisory-export")]
     [Produces("application/zip")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
@@ -409,7 +405,7 @@ public sealed class ArtifactExportController(
     ///     <c>RunExportBlobPushSucceeded</c> / <c>RunExportBlobPushFailed</c> / <c>RunExportBlobPushDeadLettered</c>.
     /// </summary>
     // idempotency-posture: operator-documented-safe-retry
-    [HttpPost("runs/{runId:guid}/export/push")]
+    [HttpPost("reviews/{runId:guid}/export/push")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
@@ -469,7 +465,7 @@ public sealed class ArtifactExportController(
     ///     Requires <c>TerraformGitHubPr:Enabled=true</c> and valid GitHub credentials in configuration.
     /// </summary>
     // idempotency-posture: operator-documented-safe-retry
-    [HttpPost("runs/{runId:guid}/terraform-pr")]
+    [HttpPost("reviews/{runId:guid}/terraform-pr")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(TerraformPrCreatedResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]

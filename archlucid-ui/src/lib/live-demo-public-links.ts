@@ -1,3 +1,4 @@
+import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { evidenceGraphHref } from "@/lib/evidence-graph-route";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
@@ -46,7 +47,7 @@ export function resolveLiveDemoInspectHref(
     case "governance":
       return `/governance/approval-queue?runId=${enc(effectiveRunId)}`;
     case "audit-trail":
-      return `/audit?runId=${enc(effectiveRunId)}`;
+      return auditTrailNavHref(effectiveRunId);
     default: {
       const exhaustive: never = destination;
       return exhaustive;

@@ -1,3 +1,5 @@
+# Sync with Mermaid zoom-ins: docs/architecture/C4_MERMAID_SYNC.md
+# SQL container = Azure SQL with SystemWithPerTenantCatalogs (ADR 0037; no SQL RLS).
 workspace "ArchLucid" "ArchLucid C4 model (high level)" {
 
     model {
@@ -8,7 +10,7 @@ workspace "ArchLucid" "ArchLucid C4 model (high level)" {
             api = container "ArchLucid.Api" "ASP.NET Core REST API, OpenAPI, auth, OTel." "C# / .NET"
             worker = container "ArchLucid.Worker" "Background: outboxes, advisory, indexing." "C# / .NET"
             ui = container "archlucid-ui" "Next.js operator shell (proxies to API)." "TypeScript / React"
-            database = container "SQL Server" "Authority + coordinator relational state, audit, outboxes." "Azure SQL"
+            database = container "SQL Server" "Authority relational state in per-tenant catalogs (SystemWithPerTenantCatalogs; no SQL RLS — ADR 0037), audit, outboxes." "Azure SQL"
             blob = container "Blob storage" "Artifacts, agent trace payloads (optional)." "Azure Blob"
             bus = container "Service Bus" "Integration events (optional)." "Azure Service Bus"
         }

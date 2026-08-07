@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Net.Http.Headers;
 
 using ArchLucid.Cli.SecondRun;
@@ -67,7 +67,7 @@ internal static class SecondRunCommand
         await Console.Out.WriteLineAsync($"  RunId: {runId}");
 
         await Console.Out.WriteLineAsync();
-        await Console.Out.WriteLineAsync("Step 2/4: POST /v1/architecture/run/{runId}/execute (best-effort)...");
+        await Console.Out.WriteLineAsync("Step 2/4: POST /v1/architecture/review/{runId}/execute (best-effort)...");
         ArchLucidApiClient.ExecuteRunResult? exec = await client.ExecuteRunAsync(runId, cancellationToken);
 
         if (exec is null || !exec.Success)
@@ -119,7 +119,7 @@ internal static class SecondRunCommand
         else
         {
             await Console.Out.WriteLineAsync();
-            await Console.Out.WriteLineAsync("Step 4/4: POST /v1/architecture/run/{runId}/commit...");
+            await Console.Out.WriteLineAsync("Step 4/4: POST /v1/architecture/review/{runId}/finalize...");
             ArchLucidApiClient.CommitRunResult? commit = await client.CommitRunAsync(runId, cancellationToken);
 
             if (commit is null || !commit.Success)

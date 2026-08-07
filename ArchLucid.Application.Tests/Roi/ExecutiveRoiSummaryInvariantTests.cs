@@ -114,7 +114,7 @@ public sealed class ExecutiveRoiSummaryInvariantTests
             .ReturnsAsync((new[] { summary }, false, null));
 
         runQuery
-            .Setup(query => query.GetRunDetailAsync(runId.ToString("N"), It.IsAny<CancellationToken>()))
+            .Setup(query => query.GetRunDetailForRoiAsync(runId.ToString("N"), It.IsAny<CancellationToken>()))
             .ReturnsAsync(BuildDetailWithFindings(runId, committedUtc, [
                 new ArchitectureFinding
                 {
@@ -287,14 +287,14 @@ public sealed class ExecutiveRoiSummaryInvariantTests
             .ReturnsAsync((new[] { summary }, false, null));
 
         runQuery
-            .Setup(query => query.GetRunDetailAsync(runId.ToString("N"), It.IsAny<CancellationToken>()))
+            .Setup(query => query.GetRunDetailForRoiAsync(runId.ToString("N"), It.IsAny<CancellationToken>()))
             .ReturnsAsync(BuildDetailWithFindings(runId, committedUtc, []));
 
         ArchitectureRunDetail detail = BuildDetailWithFindings(runId, committedUtc, []);
         detail.Run.FindingsSnapshotId = snapshotId;
 
         runQuery
-            .Setup(query => query.GetRunDetailAsync(runId.ToString("N"), It.IsAny<CancellationToken>()))
+            .Setup(query => query.GetRunDetailForRoiAsync(runId.ToString("N"), It.IsAny<CancellationToken>()))
             .ReturnsAsync(detail);
 
         ExecutiveRoiSummaryService service = ExecutiveRoiSummaryServiceTestSupport.CreateService(

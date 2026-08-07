@@ -114,7 +114,7 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
-      // Force-canonical public URL namespace — paired with rewrites to on-disk /reviews pages.
+      // Force-canonical public URL namespace — legacy /reviews bookmarks redirect to /architecture/reviews.
       // Specific /reviews/* aliases must precede the /reviews/:path* catch-all.
       { source: "/reviews/:id/manifest", destination: "/architecture/reviews/:id/signed-record", permanent: true },
       {
@@ -124,6 +124,8 @@ const nextConfig: NextConfig = {
       },
       { source: "/reviews", destination: "/architecture/reviews", permanent: true },
       { source: "/reviews/:path*", destination: "/architecture/reviews/:path*", permanent: true },
+      { source: "/runs", destination: "/architecture/reviews", permanent: true },
+      { source: "/runs/:path*", destination: "/architecture/reviews/:path*", permanent: true },
       {
         source: "/architecture/reviews/:id/manifest",
         destination: "/architecture/reviews/:id/signed-record",
@@ -137,6 +139,7 @@ const nextConfig: NextConfig = {
       { source: "/architectures", destination: "/architecture/architectures", permanent: true },
       { source: "/architectures/:path*", destination: "/architecture/architectures/:path*", permanent: true },
       // Legacy executive / portfolio bookmarks → architecture executive dashboard.
+      { source: "/dashboard", destination: "/architecture/executive-dashboard", permanent: true },
       { source: "/executive/dashboard", destination: "/architecture/executive-dashboard", permanent: true },
       { source: "/portfolio", destination: "/architecture/executive-dashboard", permanent: true },
       { source: "/signed-records", destination: "/governance/signed-records", permanent: true },
@@ -157,11 +160,14 @@ const nextConfig: NextConfig = {
       { source: "/admin/support", destination: "/administration/support", permanent: true },
       // Legacy governance bookmarks (TB-405) → canonical governance tree.
       { source: "/audit", destination: "/governance/audit", permanent: true },
-      {
-        source: "/settings/roles",
-        destination: "/administration/users?tab=roles",
-        permanent: true,
-      },
+      { source: "/policy-packs", destination: "/governance/policy-packs", permanent: true },
+      { source: "/policy-packs/:path*", destination: "/governance/policy-packs/:path*", permanent: true },
+      { source: "/alerts", destination: "/governance/alerts", permanent: true },
+      { source: "/alert-rules", destination: "/governance/alert-rules", permanent: true },
+      { source: "/alert-rules/:path*", destination: "/governance/alert-rules/:path*", permanent: true },
+      { source: "/value-report", destination: "/sponsor-report/executive-summary", permanent: true },
+      { source: "/value-report/pilot", destination: "/sponsor-report/pilot-outcomes", permanent: true },
+      { source: "/value-report/roi", destination: "/sponsor-report/roi-summary", permanent: true },
       // Legacy integrations bookmark (TB-407 / TB-750) → operator integrations tree.
       { source: "/settings/cloud-connections", destination: "/integrations/cloud-connections", permanent: true },
       {
@@ -185,13 +191,8 @@ const nextConfig: NextConfig = {
         destination: "/governance/signed-records/a1c2e3f4-a5b6-7890-abcd-ef1234567890",
       },
       // Run-scoped signed record deep link lands on the review package (manifest summary section).
-      { source: "/architecture/reviews/:id/signed-record", destination: "/reviews/:id" },
-      // Public /architecture/reviews/* URLs map to on-disk app/(operator)/reviews pages.
-      { source: "/architecture/reviews", destination: "/reviews" },
-      { source: "/architecture/reviews/:path*", destination: "/reviews/:path*" },
-      // Public /architecture/architectures/* URLs map to on-disk app/(operator)/architectures pages.
-      { source: "/architecture/architectures", destination: "/architectures" },
-      { source: "/architecture/architectures/:path*", destination: "/architectures/:path*" },
+      { source: "/architecture/reviews/:id/signed-record", destination: "/architecture/reviews/:id" },
+      { source: "/settings/roles", destination: "/administration/users?tab=roles" },
     ];
   },
 };

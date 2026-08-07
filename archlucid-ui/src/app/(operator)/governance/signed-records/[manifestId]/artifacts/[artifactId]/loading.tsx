@@ -1,8 +1,9 @@
-import { cn } from "@/lib/utils";
+﻿import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SIGNED_RECORD_ARTIFACT_PAGE_TITLE } from "@/lib/signed-record-artifact-page-copy";
+import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 
 export default function SignedRecordArtifactLoading(): React.JSX.Element {
   return (
@@ -14,7 +15,7 @@ export default function SignedRecordArtifactLoading(): React.JSX.Element {
       aria-busy="true"
     >
       <nav aria-label="Breadcrumb" className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-        <Link className={OPERATOR_LINK.nav} href="/signed-records">
+        <Link className={OPERATOR_LINK.nav} href={SIGNED_RECORDS_LIST_PATH}>
           Signed review records
         </Link>
       </nav>

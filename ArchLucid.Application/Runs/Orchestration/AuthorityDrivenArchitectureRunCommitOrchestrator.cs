@@ -1,16 +1,14 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text.Json;
 
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
-using ArchLucid.Application.Decisions;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Runs.Telemetry;
 using ArchLucid.Contracts.Abstractions.Integrations;
 using ArchLucid.Contracts.Agents;
-using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Decisioning.Decisions;
 using ArchLucid.Decisioning.DecisionTraces;
@@ -29,7 +27,6 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Persistence.Queries;
-using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Merge;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Data.Repositories;
@@ -58,11 +55,8 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     IAgentResultRepository agentResultRepository,
     IGraphSnapshotRepository graphSnapshotRepository,
     IFindingsSnapshotRepository findingsSnapshotRepository,
-    IAgentEvaluationService agentEvaluationService,
     IDecisionEngine decisionEngine,
     ICommitPipelineManifestReuseService commitPipelineManifestReuseService,
-    IDecisionEngineV2 decisionEngineV2,
-    IDecisionNodeRepository decisionNodeRepository,
     DecisioningIdTraceRepository decisionTraceRepository,
     DecisioningIGoldenManifestRepository goldenManifestRepository,
     IAuthorityCommitProjectionBuilder projectionBuilder,
@@ -113,18 +107,10 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     private readonly IBaselineMutationAuditService _baselineMutationAudit =
         baselineMutationAudit ?? throw new ArgumentNullException(nameof(baselineMutationAudit));
 
-    private readonly IAgentEvaluationService
-        _agentEvaluationService = agentEvaluationService ?? throw new ArgumentNullException(nameof(agentEvaluationService));
-
-    private readonly IDecisionEngine _decisionEngine = decisionEngine ?? throw new ArgumentNullException(nameof(decisionEngine));
-
     private readonly ICommitPipelineManifestReuseService _commitPipelineManifestReuseService =
         commitPipelineManifestReuseService ?? throw new ArgumentNullException(nameof(commitPipelineManifestReuseService));
 
-    private readonly IDecisionEngineV2 _decisionEngineV2 = decisionEngineV2 ?? throw new ArgumentNullException(nameof(decisionEngineV2));
-
-    private readonly IDecisionNodeRepository
-        _decisionNodeRepository = decisionNodeRepository ?? throw new ArgumentNullException(nameof(decisionNodeRepository));
+    private readonly IDecisionEngine _decisionEngine = decisionEngine ?? throw new ArgumentNullException(nameof(decisionEngine));
 
     private readonly DecisioningIdTraceRepository _decisionTraceRepository =
         decisionTraceRepository ?? throw new ArgumentNullException(nameof(decisionTraceRepository));
@@ -491,12 +477,6 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
 
         ManifestDocument persisted =
             finalization.PersistedManifest ?? throw new InvalidOperationException("Manifest finalization returned no persisted model.");
-        await EnsureDecisionEngineV2NodesMaterializedAsync(
-            runId,
-            request,
-            evidencePackageForTelemetry,
-            agentResultsForTelemetry,
-            cancellationToken);
         await _baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Architecture.RunCompleted, actor, runId,
             $"ManifestVersion={contract.Metadata.ManifestVersion}; SystemName={contract.SystemName}; WarningCount={persisted.Warnings.Count}; CommitPath=authority",
             cancellationToken);
@@ -641,50 +621,18 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         if (_logger.IsEnabled(LogLevel.Information))
             _logger.LogInformation("Commit run idempotent return (authority): RunId={RunId} ManifestId={ManifestId} TraceId={TraceId}",
                 LogSanitizer.Sanitize(runId), goldenId.ToString("D"), traceId.ToString("D"));
-        await EnsureDecisionEngineV2NodesMaterializedAsync(runId, request, preloadedEvidence: null, preloadedAgentResults: null, cancellationToken);
+
+        if (Guid.TryParseExact(runId, "N", out Guid runGuid) || Guid.TryParse(runId, out runGuid))
+        {
+            await _postCommitProjectionEnqueuer.EnqueueDecisionEngineV2NodeMaterializationAsync(runGuid, scope, cancellationToken);
+        }
+
         return new CommitRunResult
         {
             Manifest = contract,
             DecisionTraces = [traceDto],
             Warnings = manifestModel.Warnings.Count == 0 ? [] : [.. manifestModel.Warnings]
         };
-    }
-
-    /// <summary>
-    ///     Persists coordinator <see cref = "IDecisionEngineV2"/> decision nodes when missing so read
-    ///     <c>GET /v1/architecture/run/{runId}/decisions</c> is populated after authority commit (idempotent).
-    /// </summary>
-    private async Task EnsureDecisionEngineV2NodesMaterializedAsync(
-        string runId,
-        ArchitectureRequest request,
-        AgentEvidencePackage? preloadedEvidence,
-        IReadOnlyList<AgentResult>? preloadedAgentResults,
-        CancellationToken cancellationToken)
-    {
-        IReadOnlyList<DecisionNode> existing = DecisionRecordMapper.ToDomain(
-            await _decisionNodeRepository.GetByRunIdAsync(runId, cancellationToken));
-
-        if (existing.Count > 0)
-            return;
-        ScopeContext commitNodesScope = _scopeContextProvider.GetCurrentScope();
-        IReadOnlyList<AgentTask> tasks = await _taskRepository.GetByRunIdAsync(commitNodesScope, runId, cancellationToken);
-
-        if (tasks.Count == 0)
-            return;
-        AgentEvidencePackage evidence = preloadedEvidence ?? await GetEvidencePackageForCommitOrThrowAsync(runId, cancellationToken);
-        IReadOnlyList<AgentResult> results = preloadedAgentResults
-            ?? await _agentResultRepository.GetByRunIdAsync(commitNodesScope, runId, cancellationToken);
-
-        if (results.Count == 0)
-            return;
-        IReadOnlyList<AgentEvaluation> evaluations = await _agentEvaluationService.EvaluateAsync(runId, request, evidence, tasks, results, cancellationToken);
-        IReadOnlyList<DecisionNode> decisionNodes = await _decisionEngineV2.ResolveAsync(runId, request, tasks, results, evaluations, cancellationToken);
-
-        if (decisionNodes.Count == 0)
-            return;
-        await _decisionNodeRepository.CreateManyAsync(
-            DecisionRecordMapper.ToRecords(decisionNodes),
-            cancellationToken);
     }
 
     private async Task<AgentEvidencePackage> GetEvidencePackageForCommitOrThrowAsync(string runId, CancellationToken cancellationToken)

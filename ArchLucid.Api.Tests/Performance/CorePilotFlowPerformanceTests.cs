@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
@@ -11,7 +11,7 @@ using Xunit.Abstractions;
 namespace ArchLucid.Api.Tests.Performance;
 
 /// <summary>
-///     In-process performance gate for the pilot path: create â†’ seed fake results â†’ commit â†’ get manifest, using the
+///     In-process performance gate for the pilot path: create Ã¢â€ ’ seed fake results Ã¢â€ ’ commit Ã¢â€ ’ get manifest, using the
 ///     same simulator + in-memory storage profile as the fast integration suite (not production SQL latency).
 /// </summary>
 [Trait("Suite", "Core")]
@@ -48,7 +48,7 @@ public sealed class CorePilotFlowPerformanceTests(ArchLucidApiFactory factory, I
         tSeed.Sw.Stop();
         await seedResponse.EnsureSuccessForTestAsync();
         tCommit.Sw.Start();
-        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
+        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
         tCommit.Sw.Stop();
         await commitResponse.EnsureSuccessForTestAsync();
         CommitRunResponseDto? commit =
@@ -86,7 +86,7 @@ public sealed class CorePilotFlowPerformanceTests(ArchLucidApiFactory factory, I
         }
 
         ms.Sort();
-        // Nearest-rank p95: 1-based rank ceil(0.95 * n) â†’ 0-based index.
+        // Nearest-rank p95: 1-based rank ceil(0.95 * n) Ã¢â€ ’ 0-based index.
         int rank1Based = (int)Math.Ceiling(0.95 * ms.Count);
         int p95Index = Math.Max(0, Math.Min(ms.Count - 1, rank1Based - 1));
         long p95 = ms[p95Index];
@@ -112,7 +112,7 @@ public sealed class CorePilotFlowPerformanceTests(ArchLucidApiFactory factory, I
         HttpResponseMessage seedResponse =
             await Client.PostAsync($"/v1/internal/architecture/runs/{runId}/seed-fake-results", null);
         await seedResponse.EnsureSuccessForTestAsync();
-        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
+        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
         await commitResponse.EnsureSuccessForTestAsync();
         CommitRunResponseDto? commit =
             await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);

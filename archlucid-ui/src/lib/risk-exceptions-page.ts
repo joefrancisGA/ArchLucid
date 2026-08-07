@@ -1,4 +1,4 @@
-export const RISK_EXCEPTIONS_PAGE_TITLE = "Risk exceptions";
+export const RISK_EXCEPTIONS_PAGE_TITLE = "Exceptions";
 
 export const RISK_EXCEPTIONS_PAGE_SUBTITLE =
   "Track approved waivers and deferred findings for this review, including owner, expiration, evidence, and linked governance decision.";

@@ -11,18 +11,18 @@ export type HelpTopic = {
   summary: string;
   /**
    * Relative path under repo root (for copy/paste; web URL via getDocHref).
-   * Empty when the topic is app-rendered only â€” prefer `routes` that start with `/help`.
+   * Empty when the topic is app-rendered only — prefer `routes` that start with `/help`.
    */
   docPath: string;
   /** App routes where this topic is most relevant (pathname prefix or exact). */
   routes: string[];
 };
 
-/** Topics for the Help drawer â€œTroubleshootingâ€ tab (ops / auth / support). */
+/** Topics for the Help drawer “Troubleshooting” tab (ops / auth / support). */
 export const TROUBLESHOOTING_HELP_TOPIC_IDS = new Set<string>(["troubleshooting", "auth", "cli", "support-bundle"]);
 
 /**
- * Guides tab default ordering â€” buyer golden path first (new review â†’ reviews â†’ evidence trail â†’ Ask â†’ governance).
+ * Guides tab default ordering — buyer golden path first (new review → reviews → evidence trail → Ask → governance).
  */
 export const GOLDEN_PATH_GUIDE_TOPIC_IDS: readonly string[] = [
   "first-run",
@@ -47,7 +47,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     title: "First-run evidence checklist (internal runbook)",
     keywords: ["checklist", "first run", "pilot", "extractor", "audit", "roi", "admin"],
     summary:
-      "Admin-only SE/ops printable checklist â€” extractor ZIP, finalize, ROI proof, and audit export. Buyers should use Your first architecture review instead.",
+      "Admin-only SE/ops printable checklist — extractor ZIP, finalize, ROI proof, and audit export. Buyers should use Your first architecture review instead.",
     docPath: "docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md",
     routes: ["/", "/architecture/first-review-guide", "/architecture/reviews/new", EXECUTIVE_DASHBOARD_HREF],
   },
@@ -81,7 +81,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     id: "compare",
     title: "Compare two reviews",
     keywords: ["diff", "delta", "replay"],
-    summary: "Use Compare to diff two reviewsâ€™ reviews and persisted comparison records.",
+    summary: "Use Compare to diff two reviews’ reviews and persisted comparison records.",
     docPath: "docs/library/COMPARISON_REPLAY.md",
     routes: ["/insights/compare-two-reviews"],
   },
@@ -98,7 +98,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     title: "Review trail graph",
     keywords: ["provenance", "knowledge graph"],
     summary:
-      "Visual review trail for one architecture review â€” evidence map and provenance tied to the selected review context.",
+      "Visual review trail for one architecture review — evidence map and provenance tied to the selected review context.",
     docPath: "docs/library/KNOWLEDGE_GRAPH.md",
     routes: ["/insights/evidence-graph"],
   },
@@ -116,7 +116,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     title: "Governance approvals",
     keywords: ["approval", "promote", "staging", "production"],
     summary:
-      "Submit â†’ review â†’ approve â†’ promote: walk approvals for a finalized review when your workspace enables governance.",
+      "Submit → review → approve → promote: walk approvals for a finalized review when your workspace enables governance.",
     docPath: "docs/library/customer-facing/GOVERNANCE_APPROVAL_OPERATOR_GUIDE.md",
     routes: ["/governance/approval-queue"],
   },
@@ -144,13 +144,13 @@ export const HELP_TOPICS: HelpTopic[] = [
     keywords: ["governance", "compliance", "pack", "conflicts", "precedence"],
     summary: "Policy packs bundle rules and defaults; assign scope and inspect effective governance.",
     docPath: "docs/library/customer-facing/POLICY_PACKS_OPERATOR_GUIDE.md",
-    routes: ["/policy-packs", "/governance/policy-packs", "/governance/standards-and-rules"],
+    routes: ["/governance/policy-packs", "/governance/standards-and-rules"],
   },
   {
     id: "system-health",
     title: "System health dashboard",
     keywords: ["ready", "health", "circuit", "diagnostics", "metrics"],
-    summary: "In-app readiness checks, circuit breaker gates, and onboarding funnel counters â€” same signals as CLI doctor without leaving the workspace.",
+    summary: "In-app readiness checks, circuit breaker gates, and onboarding funnel counters — same signals as CLI doctor without leaving the workspace.",
     docPath: "docs/library/customer-facing/OPERATOR_ADMIN_DIAGNOSTICS.md",
     routes: ["/administration/system-health", "/admin/health"],
   },
@@ -243,7 +243,7 @@ export function getDocHref(docPath: string): string | null {
 }
 
 /**
- * Prefer an explicit `/helpâ€¦` route on the topic; otherwise resolve `docPath` to an in-app help href.
+ * Prefer an explicit `/help…` route on the topic; otherwise resolve `docPath` to an in-app help href.
  */
 export function getHelpTopicHref(topic: HelpTopic): string | null {
   const helpRoute = topic.routes.find((route) => {

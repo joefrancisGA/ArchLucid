@@ -231,7 +231,7 @@ describe("EmailRunToSponsorBanner", () => {
 
     const bundle = screen.getByRole("link", { name: /review bundle \(zip\)/i });
 
-    expect(bundle.getAttribute("href")).toContain("/api/proxy/v1/artifacts/signed-records/manifest-fixture/bundle");
+    expect(bundle.getAttribute("href")).toContain("/api/proxy/v1/artifacts/signed-review-records/manifest-fixture/bundle");
   });
 
   it("renders the API problem callout when the download throws a generic error", async () => {
@@ -550,7 +550,7 @@ describe("EmailRunToSponsorBanner", () => {
     const sponsorDocx = screen.getByTestId("email-run-to-sponsor-sponsor-docx");
     expect(sponsorDocx).toHaveAttribute(
       "href",
-      "/api/proxy/v1/artifacts/signed-records/manifest-fixture/artifact/architecture-review-board",
+      "/api/proxy/v1/artifacts/signed-review-records/manifest-fixture/artifact/architecture-review-board",
     );
     expect(sponsorDocx).toHaveTextContent("Download Sponsor Export (DOCX)");
   });

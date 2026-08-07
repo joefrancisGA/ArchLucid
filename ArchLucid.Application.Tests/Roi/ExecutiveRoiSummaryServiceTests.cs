@@ -85,14 +85,14 @@ public sealed class ExecutiveRoiSummaryServiceTests
             .ReturnsAsync((new[] { newerSummary, olderSummary, otherSystemSummary }, false, null));
 
         runQuery
-            .Setup(query => query.GetRunDetailAsync(newerRunId.ToString("N"), It.IsAny<CancellationToken>()))
+            .Setup(query => query.GetRunDetailForRoiAsync(newerRunId.ToString("N"), It.IsAny<CancellationToken>()))
             .ReturnsAsync(BuildDetail(newerRunId, "Payments", findingsSnapshotId, newer, [
                 new ArchitectureFinding { Category = "Security", Severity = FindingSeverity.Error, Message = "a" },
                 new ArchitectureFinding { Category = "Security", Severity = FindingSeverity.Error, Message = "b" },
             ]));
 
         runQuery
-            .Setup(query => query.GetRunDetailAsync(otherSystemSummary.RunId, It.IsAny<CancellationToken>()))
+            .Setup(query => query.GetRunDetailForRoiAsync(otherSystemSummary.RunId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(BuildDetail(Guid.Parse(otherSystemSummary.RunId), "Claims", null, newer, [
                 new ArchitectureFinding { Category = "Compliance", Severity = FindingSeverity.Warning, Message = "c" },
             ]));
@@ -121,6 +121,12 @@ public sealed class ExecutiveRoiSummaryServiceTests
         response.TopSystemicIssues[0].Category.Should().Be("Security");
         response.TopSystemicIssues[0].Severity.Should().Be(nameof(FindingSeverity.Error));
         response.TopSystemicIssues[0].Count.Should().Be(2);
+        runQuery.Verify(
+            query => query.GetRunDetailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        runQuery.Verify(
+            query => query.GetRunDetailForRoiAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.AtLeastOnce);
     }
 
     [Fact]
@@ -155,7 +161,7 @@ public sealed class ExecutiveRoiSummaryServiceTests
             .ReturnsAsync((new[] { paymentsSummary, claimsSummary }, false, null));
 
         runQuery
-            .Setup(query => query.GetRunDetailAsync(paymentsRunId.ToString("N"), It.IsAny<CancellationToken>()))
+            .Setup(query => query.GetRunDetailForRoiAsync(paymentsRunId.ToString("N"), It.IsAny<CancellationToken>()))
             .ReturnsAsync(BuildDetail(paymentsRunId, "Payments", null, committedUtc, [
                 new ArchitectureFinding
                 {
@@ -167,7 +173,7 @@ public sealed class ExecutiveRoiSummaryServiceTests
             ]));
 
         runQuery
-            .Setup(query => query.GetRunDetailAsync(claimsRunId.ToString("N"), It.IsAny<CancellationToken>()))
+            .Setup(query => query.GetRunDetailForRoiAsync(claimsRunId.ToString("N"), It.IsAny<CancellationToken>()))
             .ReturnsAsync(BuildDetail(claimsRunId, "Claims", null, committedUtc, [
                 new ArchitectureFinding
                 {
@@ -210,7 +216,7 @@ public sealed class ExecutiveRoiSummaryServiceTests
             .ReturnsAsync((new[] { summary }, false, null));
 
         runQuery
-            .Setup(query => query.GetRunDetailAsync(runId.ToString("N"), It.IsAny<CancellationToken>()))
+            .Setup(query => query.GetRunDetailForRoiAsync(runId.ToString("N"), It.IsAny<CancellationToken>()))
             .ReturnsAsync(BuildDetail(runId, "Payments", null, committedUtc,
             [
                 new ArchitectureFinding

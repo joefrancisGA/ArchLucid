@@ -1,4 +1,4 @@
-using ArchLucid.Application.Bootstrap;
+﻿using ArchLucid.Application.Bootstrap;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Explanation;
 using ArchLucid.Contracts.Architecture;
@@ -114,23 +114,23 @@ public sealed class RunTrustEvidenceCardBuilder(
             new()
             {
                 Rel = "traceabilityZip",
-                Path = FormattableString.Invariant($"/v1/architecture/run/{enc}/traceability-bundle.zip"),
+                Path = FormattableString.Invariant($"/v1/architecture/review/{enc}/traceability-bundle.zip"),
                 Label = "Review-trail ZIP",
             },
             new()
             {
-                Rel = "traces", Path = FormattableString.Invariant($"/v1/architecture/run/{enc}/traces"), Label = "Agent execution traces",
+                Rel = "traces", Path = FormattableString.Invariant($"/v1/architecture/review/{enc}/traces"), Label = "Agent execution traces",
             },
             new()
             {
-                Rel = "evidence", Path = FormattableString.Invariant($"/v1/architecture/run/{enc}/evidence"), Label = "Evidence package",
+                Rel = "evidence", Path = FormattableString.Invariant($"/v1/architecture/review/{enc}/evidence"), Label = "Evidence package",
             },
         ];
         if (!string.IsNullOrWhiteSpace(topFindingId))
             links.Add(new RunTrustEvidenceRouteRef
             {
                 Rel = "topFindingEvidenceChain",
-                Path = FormattableString.Invariant($"/v1/architecture/run/{enc}/findings/{Uri.EscapeDataString(topFindingId)}/evidence-chain"),
+                Path = FormattableString.Invariant($"/v1/architecture/review/{enc}/findings/{Uri.EscapeDataString(topFindingId)}/evidence-chain"),
                 Label = "Top finding evidence chain",
             });
 

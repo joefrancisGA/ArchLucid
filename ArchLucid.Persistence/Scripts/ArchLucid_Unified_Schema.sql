@@ -99,6 +99,7 @@ GO
 
 /* ---- Manifest / evidence ---- */
 /* dbo.GoldenManifestVersions removed — ADR 0030 PR A4 (migration 111). Coordinator-shaped manifests persist via dbo.GoldenManifests. */
+/* dbo.DecisionTraces removed — migration 296; authority rule audits persist via dbo.DecisioningTraces. */
 
 IF OBJECT_ID(N'dbo.EvidenceBundles', N'U') IS NULL
 BEGIN
@@ -108,23 +109,6 @@ BEGIN
         RequestDescription NVARCHAR(MAX) NOT NULL,
         EvidenceJson       NVARCHAR(MAX) NOT NULL,
         CreatedUtc         DATETIME2     NOT NULL
-    );
-END
-
-GO
-
-IF OBJECT_ID(N'dbo.DecisionTraces', N'U') IS NULL
-BEGIN
-    CREATE TABLE dbo.DecisionTraces
-    (
-        TraceId          NVARCHAR(64)     NOT NULL PRIMARY KEY,
-        RunId            UNIQUEIDENTIFIER NOT NULL,
-        EventType        NVARCHAR(100) NOT NULL,
-        EventDescription NVARCHAR(MAX) NOT NULL,
-        EventJson        NVARCHAR(MAX) NOT NULL,
-        CreatedUtc       DATETIME2     NOT NULL,
-        INDEX IX_DecisionTraces_RunId NONCLUSTERED (RunId),
-        INDEX IX_DecisionTraces_CreatedUtc NONCLUSTERED (CreatedUtc DESC)
     );
 END
 
@@ -537,8 +521,7 @@ GO
 
 /* ---- Authority / Dapper persistence + Decisioning (GUID dbo.Runs) ---- */
 /*
-  DecisioningTraces is used instead of DecisionTraces because dbo.DecisionTraces already
-  exists for the API/commit trail above.
+  Authority rule-audit traces live in dbo.DecisioningTraces (coordinator dbo.DecisionTraces dropped in migration 296).
 */
 
 IF OBJECT_ID('dbo.Runs', 'U') IS NULL
@@ -2368,16 +2351,6 @@ IF OBJECT_ID(N'dbo.AgentResults', N'U') IS NOT NULL
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_AgentResults_Runs_RunId')
         ALTER TABLE dbo.AgentResults WITH NOCHECK ADD CONSTRAINT FK_AgentResults_Runs_RunId
-            FOREIGN KEY (RunId) REFERENCES dbo.Runs (RunId);
-END;
-
-GO
-
-IF OBJECT_ID(N'dbo.DecisionTraces', N'U') IS NOT NULL
-   AND OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
-BEGIN
-    IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_DecisionTraces_Runs_RunId')
-        ALTER TABLE dbo.DecisionTraces WITH NOCHECK ADD CONSTRAINT FK_DecisionTraces_Runs_RunId
             FOREIGN KEY (RunId) REFERENCES dbo.Runs (RunId);
 END;
 
@@ -5881,16 +5854,6 @@ END;
 
 GO
 
-IF OBJECT_ID(N'dbo.DecisionTraces', N'U') IS NOT NULL
-   AND NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_DecisionTraces_EventJson_IsJson')
-   AND NOT EXISTS (SELECT 1 FROM dbo.DecisionTraces AS t WHERE ISJSON(t.EventJson) <> 1)
-BEGIN
-    ALTER TABLE dbo.DecisionTraces ADD CONSTRAINT CK_DecisionTraces_EventJson_IsJson
-        CHECK (ISJSON(EventJson) = 1);
-END;
-
-GO
-
 IF OBJECT_ID(N'dbo.DecisioningTraces', N'U') IS NOT NULL
    AND NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_DecisioningTraces_AppliedRuleIdsJson_IsJson')
    AND NOT EXISTS (SELECT 1 FROM dbo.DecisioningTraces AS t WHERE ISJSON(t.AppliedRuleIdsJson) <> 1)
@@ -6064,67 +6027,7 @@ END;
 
 GO
 
-/* 102: Confluence Cloud publisher targets + jobs (see Migrations/102_ConfluencePublishing.sql). */
-IF OBJECT_ID(N'dbo.ConfluencePublishingTargets', N'U') IS NULL
-BEGIN
-    CREATE TABLE dbo.ConfluencePublishingTargets
-    (
-        Id UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_ConfluencePublishingTargets PRIMARY KEY,
-        TenantId UNIQUEIDENTIFIER NOT NULL,
-        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
-        ProjectId UNIQUEIDENTIFIER NOT NULL,
-        BaseUrl NVARCHAR(512) NOT NULL,
-        SpaceKey NVARCHAR(64) NOT NULL,
-        ParentPageId NVARCHAR(64) NULL,
-        AuthorEmail NVARCHAR(320) NOT NULL,
-        SecretReference NVARCHAR(256) NOT NULL,
-        IsActive BIT NOT NULL CONSTRAINT DF_ConfluencePublishingTargets_IsActive DEFAULT (1),
-        CreatedUtc DATETIMEOFFSET(7) NOT NULL,
-        CreatedBy NVARCHAR(320) NOT NULL,
-        UpdatedUtc DATETIMEOFFSET(7) NULL
-    );
-
-    CREATE UNIQUE INDEX UX_ConfluencePublishingTargets_TenantProject
-        ON dbo.ConfluencePublishingTargets (TenantId, WorkspaceId, ProjectId)
-        WHERE IsActive = 1;
-END;
-
-GO
-
-IF OBJECT_ID(N'dbo.ConfluencePublishJobs', N'U') IS NULL
-BEGIN
-    CREATE TABLE dbo.ConfluencePublishJobs
-    (
-        Id UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_ConfluencePublishJobs PRIMARY KEY,
-        TenantId UNIQUEIDENTIFIER NOT NULL,
-        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
-        ProjectId UNIQUEIDENTIFIER NOT NULL,
-        TargetId UNIQUEIDENTIFIER NOT NULL,
-        RunId UNIQUEIDENTIFIER NOT NULL,
-        ManifestVersion NVARCHAR(64) NOT NULL,
-        DiffBadgeState NVARCHAR(16) NOT NULL,
-        PreviousBadgeState NVARCHAR(16) NULL,
-        PayloadJson NVARCHAR(MAX) NOT NULL,
-        IdempotencyKey VARBINARY(32) NOT NULL,
-        Status NVARCHAR(16) NOT NULL,
-        Attempts INT NOT NULL CONSTRAINT DF_ConfluencePublishJobs_Attempts DEFAULT (0),
-        NextAttemptUtc DATETIMEOFFSET(7) NOT NULL,
-        LastErrorReason NVARCHAR(64) NULL,
-        LastErrorMessage NVARCHAR(2000) NULL,
-        ConfluencePageId NVARCHAR(64) NULL,
-        EnqueuedUtc DATETIMEOFFSET(7) NOT NULL,
-        CompletedUtc DATETIMEOFFSET(7) NULL,
-        CONSTRAINT FK_ConfluencePublishJobs_ConfluencePublishingTargets FOREIGN KEY (TargetId)
-            REFERENCES dbo.ConfluencePublishingTargets (Id),
-        CONSTRAINT UX_ConfluencePublishJobs_IdempotencyKey UNIQUE (TenantId, IdempotencyKey)
-    );
-
-    CREATE INDEX IX_ConfluencePublishJobs_NextAttempt
-        ON dbo.ConfluencePublishJobs (Status, NextAttemptUtc)
-        INCLUDE (TenantId, TargetId);
-END;
-
-GO
+/* 102/296: Confluence SQL targets + jobs removed — publish path is config + HTTP only (migration 296). */
 
 /* 106: Marketing pricing quote requests (see Migrations/106_MarketingPricingQuoteRequests.sql). */
 IF OBJECT_ID(N'dbo.MarketingPricingQuoteRequests', N'U') IS NULL
@@ -6466,13 +6369,6 @@ BEGIN
     WHERE ct.TargetRunId IS NOT NULL
       AND EXISTS (SELECT 1 FROM #PurgeRuns p WHERE p.RunId = ct.TargetRunId);
 
-    IF OBJECT_ID(N'dbo.ConfluencePublishJobs', N'U') IS NOT NULL
-    BEGIN
-        DELETE j
-        FROM dbo.ConfluencePublishJobs AS j
-        WHERE EXISTS (SELECT 1 FROM #PurgeRuns p WHERE p.RunId = j.RunId);
-    END;
-
     DELETE ada
     FROM dbo.AlertDeliveryAttempts AS ada
     WHERE EXISTS (
@@ -6556,13 +6452,6 @@ BEGIN
     DELETE aep
     FROM dbo.AgentEvidencePackages AS aep
     WHERE EXISTS (SELECT 1 FROM #PurgeRuns p WHERE TRY_CAST(aep.RunId AS UNIQUEIDENTIFIER) = p.RunId);
-
-    IF OBJECT_ID(N'dbo.DecisionTraces', N'U') IS NOT NULL
-    BEGIN
-        DELETE dt
-        FROM dbo.DecisionTraces AS dt
-        WHERE EXISTS (SELECT 1 FROM #PurgeRuns p WHERE TRY_CAST(dt.RunId AS UNIQUEIDENTIFIER) = p.RunId);
-    END;
 
     IF OBJECT_ID(N'dbo.ProductLearningImprovementPlanArchitectureRuns', N'U') IS NOT NULL
     BEGIN
@@ -8306,3 +8195,42 @@ BEGIN
         ON dbo.ArchitectureKnowledgeModels (TenantId, RunId)
         WHERE RunId IS NOT NULL;
 END;
+
+GO
+
+/* ADR 0064 — buyer-vocabulary spine rename + synonyms (parity with DbUp 295). */
+IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL AND OBJECT_ID(N'dbo.Reviews', N'U') IS NULL
+BEGIN
+    EXEC sp_rename N'dbo.Runs', N'Reviews';
+END;
+GO
+
+IF OBJECT_ID(N'dbo.Reviews', N'U') IS NOT NULL AND OBJECT_ID(N'dbo.Runs', N'SN') IS NULL
+BEGIN
+    CREATE SYNONYM dbo.Runs FOR dbo.Reviews;
+END;
+GO
+
+IF OBJECT_ID(N'dbo.GoldenManifests', N'U') IS NOT NULL AND OBJECT_ID(N'dbo.SignedReviewRecords', N'U') IS NULL
+BEGIN
+    EXEC sp_rename N'dbo.GoldenManifests', N'SignedReviewRecords';
+END;
+GO
+
+IF OBJECT_ID(N'dbo.SignedReviewRecords', N'U') IS NOT NULL AND OBJECT_ID(N'dbo.GoldenManifests', N'SN') IS NULL
+BEGIN
+    CREATE SYNONYM dbo.GoldenManifests FOR dbo.SignedReviewRecords;
+END;
+GO
+
+IF OBJECT_ID(N'dbo.CommitRunIdempotency', N'U') IS NOT NULL AND OBJECT_ID(N'dbo.FinalizeReviewIdempotency', N'U') IS NULL
+BEGIN
+    EXEC sp_rename N'dbo.CommitRunIdempotency', N'FinalizeReviewIdempotency';
+END;
+GO
+
+IF OBJECT_ID(N'dbo.FinalizeReviewIdempotency', N'U') IS NOT NULL AND OBJECT_ID(N'dbo.CommitRunIdempotency', N'SN') IS NULL
+BEGIN
+    CREATE SYNONYM dbo.CommitRunIdempotency FOR dbo.FinalizeReviewIdempotency;
+END;
+GO

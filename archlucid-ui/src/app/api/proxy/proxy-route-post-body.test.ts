@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+﻿import { NextRequest } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { POST } from "./[...path]/route";
@@ -64,7 +64,7 @@ describe("POST /api/proxy/[...path] body limits", () => {
 
   it("allows multipart evidence uploads larger than the JSON cap and under 100 MB", async () => {
     const payload = new Uint8Array(PROXY_MAX_BODY_BYTES + 2_048);
-    const req = new NextRequest("http://localhost/api/proxy/v1/architecture/run/r1/evidence/bulk", {
+    const req = new NextRequest("http://localhost/api/proxy/v1/architecture/review/r1/evidence/bulk", {
       method: "POST",
       headers: {
         "content-type": "multipart/form-data; boundary=----x",
@@ -85,7 +85,7 @@ describe("POST /api/proxy/[...path] body limits", () => {
   });
 
   it("returns 413 when multipart evidence upload exceeds the 100 MB cap", async () => {
-    const req = new NextRequest("http://localhost/api/proxy/v1/architecture/run/r1/evidence/bulk", {
+    const req = new NextRequest("http://localhost/api/proxy/v1/architecture/review/r1/evidence/bulk", {
       method: "POST",
       headers: {
         "content-type": "multipart/form-data; boundary=----x",

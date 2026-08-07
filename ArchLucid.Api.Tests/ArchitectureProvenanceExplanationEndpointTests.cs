@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text.Encodings.Web;
 using System.Text.Json;
@@ -47,7 +47,7 @@ public sealed class ArchitectureProvenanceExplanationEndpointTests
         string runId = created.Run.RunId;
 
         HttpResponseMessage response =
-            await client.GetAsync($"/v1/architecture/run/{runId}/provenance/test-node/explanation");
+            await client.GetAsync($"/v1/architecture/review/{runId}/provenance/test-node/explanation");
 
         response.StatusCode.Should().Be(HttpStatusCode.NotImplemented);
 
@@ -79,7 +79,7 @@ public sealed class ArchitectureProvenanceExplanationEndpointTests
 
         HttpResponseMessage plural =
             await client.GetAsync(
-                $"/v1/architecture/runs/{Uri.EscapeDataString(runId)}/provenance/node-b/explanation");
+                $"/v1/architecture/reviews/{Uri.EscapeDataString(runId)}/provenance/node-b/explanation");
 
         plural.StatusCode.Should().Be(HttpStatusCode.NotImplemented);
         plural.Content.Headers.ContentType?.MediaType.Should().Be("application/problem+json");
@@ -94,7 +94,7 @@ public sealed class ArchitectureProvenanceExplanationEndpointTests
         Guid missingRun = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
 
         HttpResponseMessage response =
-            await client.GetAsync($"/v1/architecture/run/{missingRun:D}/provenance/a-node/explanation");
+            await client.GetAsync($"/v1/architecture/review/{missingRun:D}/provenance/a-node/explanation");
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }

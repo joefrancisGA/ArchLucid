@@ -12,7 +12,10 @@ namespace ArchLucid.Persistence.Audit;
 /// </summary>
 public sealed class CachingAuditRepository(IAuditRepository inner, IHotPathReadCache hotPathReadCache) : IAuditRepository
 {
-    /// <summary>Short TTL for admin audit list/search; scope revision bump invalidates on append (TB-581).</summary>
+    /// <summary>
+    ///     Short TTL for admin audit list/search; scope revision bump invalidates on append (TB-581), coalesced during
+    ///     bursts (TB-2062).
+    /// </summary>
     private const int ListAbsoluteExpirationSeconds = 15;
 
     private readonly IHotPathReadCache _hotPathReadCache =

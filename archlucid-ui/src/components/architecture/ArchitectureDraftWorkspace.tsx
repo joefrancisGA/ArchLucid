@@ -18,6 +18,7 @@ import {
   applyArchitectureCreationDraftToFormState,
   architectureCreationDefaultActorSet,
 } from "@/lib/architecture-creation-init";
+import { writeArchitectureCreationDraftId } from "@/lib/architecture-creation-session";
 import {
   acknowledgeArchitectureDraftHandoff,
   architectureDraftSpawnedRunId,
@@ -35,6 +36,8 @@ import {
 import { validateArchitectureReviewReadiness } from "@/lib/architecture-draft-readiness";
 import {
   ARCHITECTURES_LIST_PATH,
+  architectureDraftPath,
+  isArchitectureNewDraftSegment,
   reviewDetailPath,
   startReviewFromArchitectureHref,
 } from "@/lib/architecture-routes";
@@ -59,7 +62,8 @@ type ArchitectureDraftWorkspaceProps = {
 /** Long-lived architecture draft editor — save and resume without starting a review. */
 export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProps): React.JSX.Element {
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
+  const isNewDraft = isArchitectureNewDraftSegment(props.architectureId);
+  const [loading, setLoading] = useState(!isNewDraft);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [draft, setDraft] = useState<DraftRequestResponse | null>(null);
   const [fields, setFields] = useState({
@@ -77,13 +81,24 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   const linkedReviewId = architectureDraftSpawnedRunId(draft);
   const handoffEditorLocked = linkedReviewId !== null && !handoffAcknowledged;
 
-  const { saveState, lastSavedUtc, conflictMessage, saveDraft, reloadDraft } = useArchitectureDraftAutosave({
-    architectureId: props.architectureId,
-    fields,
-    actorSet,
-    enabled: !handoffEditorLocked,
-    onDraftLoaded: setDraft,
-  });
+  const handleDraftCreated = useCallback(
+    (draftId: string) => {
+      writeArchitectureCreationDraftId(draftId);
+      router.replace(architectureDraftPath(draftId));
+    },
+    [router],
+  );
+
+  const { saveState, lastSavedUtc, conflictMessage, saveDraft, reloadDraft, hasPersistedDraft } =
+    useArchitectureDraftAutosave({
+      architectureId: props.architectureId,
+      fields,
+      actorSet,
+      enabled: !handoffEditorLocked,
+      deferCreateUntilFirstSave: isNewDraft,
+      onDraftCreated: isNewDraft ? handleDraftCreated : undefined,
+      onDraftLoaded: setDraft,
+    });
 
   const hasUnsavedChanges = saveState === "unsaved" || saveState === "saving" || saveState === "error";
   useUnsavedChangesGuard({ when: hasUnsavedChanges && !handoffEditorLocked });
@@ -96,6 +111,10 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   const reviewReadiness = useMemo(() => validateArchitectureReviewReadiness(fields), [fields]);
 
   const loadDraft = useCallback(async () => {
+    if (isNewDraft) {
+      return;
+    }
+
     setLoading(true);
     setLoadError(null);
 
@@ -123,11 +142,15 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     } finally {
       setLoading(false);
     }
-  }, [props.architectureId]);
+  }, [isNewDraft, props.architectureId]);
 
   useEffect(() => {
+    if (isNewDraft) {
+      return;
+    }
+
     void loadDraft();
-  }, [loadDraft]);
+  }, [isNewDraft, loadDraft]);
 
   useEffect(() => {
     if (linkedReviewId === null) {
@@ -188,6 +211,12 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   }, []);
 
   const handleSaveAndExit = useCallback(async () => {
+    if (isNewDraft && !hasPersistedDraft) {
+      router.push(ARCHITECTURES_LIST_PATH);
+
+      return;
+    }
+
     setExitPending(true);
 
     const saved = await saveDraft();
@@ -210,9 +239,15 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     }, SOFT_NAVIGATION_TIMEOUT_MS);
 
     router.push(ARCHITECTURES_LIST_PATH);
-  }, [router, saveDraft]);
+  }, [hasPersistedDraft, isNewDraft, router, saveDraft]);
 
   const handleStartReview = useCallback(async () => {
+    if (isNewDraft && !hasPersistedDraft) {
+      showError("Start architecture review", "Save the architecture draft before starting a review.");
+
+      return;
+    }
+
     if (!reviewReadiness.isValid) {
       showError(
         "Start architecture review",
@@ -238,7 +273,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     );
 
     router.push(startReviewFromArchitectureHref(props.architectureId));
-  }, [draft, linkedReviewId, props.architectureId, reviewReadiness, router, saveDraft]);
+  }, [draft, hasPersistedDraft, isNewDraft, linkedReviewId, props.architectureId, reviewReadiness, router, saveDraft]);
 
   const handleAcknowledgeHandoff = useCallback(() => {
     if (linkedReviewId === null) {
@@ -344,7 +379,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
             type="button"
             variant="primary"
             size="sm"
-            disabled={saveState === "saving"}
+            disabled={saveState === "saving" || (isNewDraft && !hasPersistedDraft)}
             onClick={() => {
               void handleStartReview();
             }}

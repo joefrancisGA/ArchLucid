@@ -1,0 +1,25 @@
+import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture-intelligence-route";
+import { REVIEWS_LIST_PATH, REVIEWS_NEW_PATH } from "@/lib/architecture-routes";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
+
+export const ARCHITECTURE_INTELLIGENCE_CANONICAL_PATH = ARCHITECTURE_INTELLIGENCE_PATH;
+
+export const ARCHITECTURE_INTELLIGENCE_CLAIM_DISCIPLINE =
+  "This Architecture intelligence page runs closed-loop reasoning and optional publish-to-findings - it is not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Findings, Start a review, or Audit when you need live packages or assurance cites.";
+
+export const ARCHITECTURE_INTELLIGENCE_SOURCES_INTRO =
+  "Use these follow-ups when reasoning output turns into findings triage, review intake, or assurance cites.";
+
+export type ArchitectureIntelligenceSourceLink = {
+  readonly label: string;
+  readonly href: string;
+};
+
+/** Operator Sources - no self-href to architecture-intelligence. */
+export const ARCHITECTURE_INTELLIGENCE_SOURCES: readonly ArchitectureIntelligenceSourceLink[] = [
+  { label: "Findings", href: "/governance/findings" },
+  { label: "Start a review", href: REVIEWS_NEW_PATH },
+  { label: "Architecture reviews", href: REVIEWS_LIST_PATH },
+  { label: "Evidence trail help", href: inAppHelpHref("evidence-trail") },
+  { label: "Audit", href: "/governance/audit" },
+] as const;

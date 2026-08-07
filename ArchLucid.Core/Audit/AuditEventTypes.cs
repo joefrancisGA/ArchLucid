@@ -1,4 +1,4 @@
-namespace ArchLucid.Core.Audit;
+﻿namespace ArchLucid.Core.Audit;
 
 public static class AuditEventTypes
 {
@@ -10,7 +10,7 @@ public static class AuditEventTypes
     /// <summary>Durable audit when a run's golden manifest is finalized (committed) in one atomic transaction with outbox.</summary>
     public const string ManifestFinalized = "ManifestFinalized";
 
-    /// <summary>Run submission (<c>POST /v1/architecture/run/{runId}/execute</c>).</summary>
+    /// <summary>Run submission (<c>POST /v1/architecture/review/{runId}/execute</c>).</summary>
     public const string RunSubmitted = "RunSubmitted";
 
     /// <summary>Operator viewed committed manifest JSON (<c>GET /v1/runs/{runId}/manifest</c>).</summary>
@@ -148,7 +148,7 @@ public static class AuditEventTypes
 
     public const string ReplayExecuted = "ReplayExecuted";
 
-    /// <summary>Workspace curation: <c>PATCH /v1/architecture/run/{{runId}}/pin</c> set or toggled <c>dbo.Runs.IsPinned</c>.</summary>
+    /// <summary>Workspace curation: <c>PATCH /v1/architecture/review/{{runId}}/pin</c> set or toggled <c>dbo.Runs.IsPinned</c>.</summary>
     public const string RunPinStateChanged = "RunPinStateChanged";
 
     /// <summary>Operator updated a Technology Ledger entry (<c>PATCH /v1/runs/{{runId}}/technology-ledger/{{entryId}}</c>).</summary>
@@ -484,7 +484,7 @@ public static class AuditEventTypes
 
     /// <summary>
     ///     Operator ran pre-commit gate what-if with synthetic findings (
-    ///     <c>POST /v1/governance/pre-commit/simulate</c>). Payload summarizes request parameters and gate outcome; no
+    ///     <c>POST /v1/governance/pre-finalize/simulate</c>). Payload summarizes request parameters and gate outcome; no
     ///     manifest commit.
     /// </summary>
     public const string GovernancePreCommitSimulationEvaluated = "GovernancePreCommitSimulationEvaluated";
@@ -578,6 +578,21 @@ public static class AuditEventTypes
 
     /// <summary>Platform audit: tenant surface resumed after admin suspend (<c>SuspendedUtc</c> cleared).</summary>
     public const string TenantUnsuspended = "TenantUnsuspended";
+
+    /// <summary>Platform audit: tenant catalog migration fan-out started (scope freeze / writes suspended).</summary>
+    public const string TenantCatalogMigrationStarted = "TenantCatalogMigrationStarted";
+
+    /// <summary>Platform audit: post-cutover projection refresh orchestration completed for a catalog migration.</summary>
+    public const string TenantCatalogMigrationProjectionRefreshCompleted = "TenantCatalogMigrationProjectionRefreshCompleted";
+
+    /// <summary>Platform audit: automated migration verification probe passed before reopening writes.</summary>
+    public const string TenantCatalogMigrationVerificationPassed = "TenantCatalogMigrationVerificationPassed";
+
+    /// <summary>Platform audit: automated migration verification probe failed.</summary>
+    public const string TenantCatalogMigrationVerificationFailed = "TenantCatalogMigrationVerificationFailed";
+
+    /// <summary>Platform audit: tenant catalog migration completed and writes reopened.</summary>
+    public const string TenantCatalogMigrationCompleted = "TenantCatalogMigrationCompleted";
 
     /// <summary>
     ///     Platform audit (<c>dbo.PlatformAuditEvents</c>): tenant offboarding removed tenant-scoped SQL + blobs; not

@@ -47,7 +47,7 @@ const ERROR_CODE_HEADINGS: Record<string, string> = {
   EXPORT_FAILED: "Export failed",
   UNAVAILABLE_IN_PRODUCTION: "Not available in this environment",
   BATCH_REPLAY_ALL_FAILED: "Batch replay failed",
-  QUALITY_GATE_REJECTED: "Quality gate rejected",
+  QUALITY_GATE_REJECTED: "Quality gate rejected (not an outage)",
   UPSTREAM_INTEGRATION_FAILED: "Upstream integration failed",
   GOVERNANCE_PRE_COMMIT_BLOCKED: "Governance blocked commit",
   PROOF_PACKET_HOLD: "Proof packet blocked",
@@ -88,7 +88,7 @@ const ERROR_CODE_REMEDIATION: Record<string, string> = {
   BATCH_REPLAY_ALL_FAILED:
     "None of the replay jobs in the batch succeeded. Open individual replay results for error detail, then retry failed items.",
   QUALITY_GATE_REJECTED:
-    "Agent output did not meet the workspace quality bar. Review evidence depth, rerun execute after adding context, or adjust quality settings with a workspace owner. See docs/runbooks/QUALITY_GATE_REJECTION.md.",
+    "Agent output did not meet the workspace quality bar — this is not a platform or LLM outage. Enrich evidence or context, review scores, then re-execute; or ask a workspace owner about quality settings. See docs/runbooks/QUALITY_GATE_REJECTION.md.",
   UPSTREAM_INTEGRATION_FAILED:
     "An upstream identity or integration dependency failed. Verify OIDC/SAML settings, network reachability, and IdP metadata before retrying.",
   GOVERNANCE_PRE_COMMIT_BLOCKED:

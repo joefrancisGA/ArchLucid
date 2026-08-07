@@ -4,7 +4,7 @@ using ArchLucid.Contracts.Findings;
 
 namespace ArchLucid.Api.Models;
 
-/// <summary>POST body for <c>/v1/governance/pre-commit/simulate</c> — dry-run gate with extra synthetic findings.</summary>
+/// <summary>POST body for <c>/v1/governance/pre-finalize/simulate</c> — dry-run gate with extra synthetic findings.</summary>
 public sealed class PreCommitSyntheticSimulationRequest
 {
     [Required]

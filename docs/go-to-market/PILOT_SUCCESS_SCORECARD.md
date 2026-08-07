@@ -1,4 +1,4 @@
-> **Reviewed:** 2026-07-31
+﻿> **Reviewed:** 2026-07-31
 
 > **Scope:** ArchLucid pilot success scorecard — full detail, tables, and links below — plus the steering / ARB decision memo template (formerly `STEERING_DECISION_MEMO_TEMPLATE.md`), the customer onboarding operating playbook (formerly `CUSTOMER_ONBOARDING_PLAYBOOK.md`), the pilot ROI measurement model (formerly the body of `docs/library/PILOT_ROI_MODEL.md`; that filename remains a path-stable alias for product/CI strings), the renewal/expansion playbook plus customer health scoring (formerly the body of `RENEWAL_EXPANSION_PLAYBOOK.md`; that filename remains a path-stable alias), the minimum viable pilot success lane (formerly the body of `docs/library/MINIMUM_VIABLE_PILOT_SUCCESS.md`; that filename remains a path-stable alias for operator cookbooks), the internal dogfood pilot kit (formerly the body of `docs/library/DOGFOOD_PILOT_KIT.md`; that filename remains a path-stable alias for M-93 / PMF Pilot A), and the proof-of-value snapshot assembly playbook (formerly the body of `docs/library/PROOF_OF_VALUE_SNAPSHOT.md`; that filename remains a path-stable alias).
 
@@ -48,14 +48,14 @@ This lane minimizes decisions and produces a **finalized architecture package** 
 ### The five-step lane (first-time architect — guided intake recommended)
 
 1. **Guided intake** — open `/reviews/new`, use **Guided intake (recommended)**, enter intent/outcome/actors, admit the draft, answer or skip MUST questions, submit to spawn a review. Capture `runId`.
-2. **Execute** — `POST /v1/architecture/run/{runId}/execute` (or UI equivalent) to ready-to-finalize state.
+2. **Execute** — `POST /v1/architecture/review/{runId}/execute` (or UI equivalent) to ready-to-finalize state.
 3. **Finalize** — finalize architecture package (API: `commit` / golden manifest); confirm `goldenManifestId` on review detail.
-4. **Artifacts** — `GET /v1/artifacts/manifests/{manifestId}` returns ≥ 1 descriptor.
+4. **Artifacts** — `GET /v1/artifacts/signed-review-records/{manifestId}` returns â‰¥ 1 descriptor.
 5. **Proof packet** — `dotnet run --project ArchLucid.Cli -- pilot proof-packet <runId> --out artifacts/proof-packet/<runId>`; read `sponsor-proof-packet-index.md` and `limitations.md`.
 
 **Expert/API shortcut:** `POST /v1/architecture/request` remains valid when the architect already has a complete brief.
 
-**Time budget (lane):** first-value timing targets PASS ≤ 10 minutes create→finalize→artifact per `V1_RELEASE_CHECKLIST.md`. That is the **operator first-win** gate for this lane — complementary to §2.4 operational metrics (**Average run duration** < 5 min target; **Wizard-to-finalize** aspirational p50 ≤ 15 min), not a substitute for those scorecard rows.
+**Time budget (lane):** first-value timing targets PASS â‰¤ 10 minutes create→finalize→artifact per `V1_RELEASE_CHECKLIST.md`. That is the **operator first-win** gate for this lane — complementary to Â§2.4 operational metrics (**Average run duration** < 5 min target; **Wizard-to-finalize** aspirational p50 â‰¤ 15 min), not a substitute for those scorecard rows.
 
 ### Strict verification (recommended before sponsor handoff)
 
@@ -77,7 +77,7 @@ Copy the **`--- FAILURE (triage) ---`** block from the failing script ([PILOT_GU
 
 ### Related (minimum viable lane)
 
-- V1 scope core path: [V1_SCOPE.md](../library/V1_SCOPE.md) §4
+- V1 scope core path: [V1_SCOPE.md](../library/V1_SCOPE.md) Â§4
 - Differentiator talking points: [DIFFERENTIATION_PROOF_PACKET.md](DIFFERENTIATION_PROOF_PACKET.md#deal-cycle-heuristic-matrix)
 
 ---
@@ -128,9 +128,9 @@ Measure these before the pilot (baseline) and at pilot end (actual). The delta i
 
 | Metric | How to measure | Target | Pilot actual | Source |
 |--------|---------------|--------|--------------|--------|
-| **Run success rate** | Percentage of runs that reach "Committed" status without errors | ≥ 90% | _______% | Run status counts in API or UI |
+| **Run success rate** | Percentage of runs that reach "Committed" status without errors | â‰¥ 90% | _______% | Run status counts in API or UI |
 | **Average run duration** | Wall-clock time from run creation to manifest availability | < 5 min | _______ min | `archlucid.authority.run_duration_ms` OTel histogram |
-| **Wizard-to-finalize wall-clock** | Minutes from wizard submit to first finalized architecture package (wizard-sourced runs only; metric key still `wizard_to_committed_minutes`) | p50 ≤ 15 min (aspirational) | p50 _______ / p95 _______ min | `archlucid.pilot.wizard_to_committed_minutes` OTel histogram (`execution_mode`, `preset_used`) |
+| **Wizard-to-finalize wall-clock** | Minutes from wizard submit to first finalized architecture package (wizard-sourced runs only; metric key still `wizard_to_committed_minutes`) | p50 â‰¤ 15 min (aspirational) | p50 _______ / p95 _______ min | `archlucid.pilot.wizard_to_committed_minutes` OTel histogram (`execution_mode`, `preset_used`) |
 | **LLM cost per run** | Average Azure OpenAI consumption per run | < $10 | $_______ | `archlucid.llm_*` OTel metrics, Azure billing |
 
 ---
@@ -160,7 +160,7 @@ Collect via stakeholder interviews at pilot midpoint and end. Score each on a 1�
 | 4 | Agree / useful |
 | 5 | Strongly agree / very useful |
 
-**Qualitative success threshold:** Average score ≥ 3.5 across all questions at pilot end.
+**Qualitative success threshold:** Average score â‰¥ 3.5 across all questions at pilot end.
 
 ---
 
@@ -188,11 +188,11 @@ Former standalone: `docs/go-to-market/CUSTOMER_ONBOARDING_PLAYBOOK.md` → this 
 
 This playbook aligns with the six-week pilot timeline above and the technical quickstart in [../OPERATOR_QUICKSTART.md](../library/customer-facing/OPERATOR_QUICKSTART.md).
 
-**Pricing:** Current tier pricing, pilot fee, and design-partner terms are in [PRICING_PHILOSOPHY.md §4–§5](PRICING_PHILOSOPHY.md). Do not restate prices here.
+**Pricing:** Current tier pricing, pilot fee, and design-partner terms are in [PRICING_PHILOSOPHY.md Â§4–Â§5](PRICING_PHILOSOPHY.md). Do not restate prices here.
 
-**Enterprise hosted SaaS:** Use the step-by-step checklist in [`HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md`](../library/HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md) for SCIM, SAML/OIDC, policy packs, governance, and audit export wiring (ArchLucid-hosted only — not self-hosted V2). For SAML workforce SSO, complete **[§2.1 claim-mapping tables](../library/HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md#saml-claim-mapping-reference)** (Entra, Okta, Ping) and pre-flight with **`archlucid auth validate-saml`** before cutover.
+**Enterprise hosted SaaS:** Use the step-by-step checklist in [`HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md`](../library/HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md) for SCIM, SAML/OIDC, policy packs, governance, and audit export wiring (ArchLucid-hosted only — not self-hosted V2). For SAML workforce SSO, complete **[Â§2.1 claim-mapping tables](../library/HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md#saml-claim-mapping-reference)** (Entra, Okta, Ping) and pre-flight with **`archlucid auth validate-saml`** before cutover.
 
-**Custom policy pack authoring (PS):** After the Customer's **first committed manifest**, review whether recurring finding themes or governance gaps indicate a need for customer-specific packs beyond bundled **`PlatformDefault`** packs. When gaps are consistent across runs, position the productized SKUs from the public **`/pricing`** page (Custom Policy Pack Authoring section), [PRICING_PHILOSOPHY.md §4.2](PRICING_PHILOSOPHY.md#42-custom-policy-pack-authoring-professional-services), and the SoW template [`CUSTOM_POLICY_PACK_AUTHORING_SOW_TEMPLATE.md`](CUSTOM_POLICY_PACK_AUTHORING_SOW_TEMPLATE.md). Prefer **ArchLucid-owned (shared)** tier when Customer accepts generalized pattern reuse; use **customer-exclusive** when confidentiality dominates. Do not quote PS fees outside the canonical pricing files.
+**Custom policy pack authoring (PS):** After the Customer's **first committed manifest**, review whether recurring finding themes or governance gaps indicate a need for customer-specific packs beyond bundled **`PlatformDefault`** packs. When gaps are consistent across runs, position the productized SKUs from the public **`/pricing`** page (Custom Policy Pack Authoring section), [PRICING_PHILOSOPHY.md Â§4.2](PRICING_PHILOSOPHY.md#42-custom-policy-pack-authoring-professional-services), and the SoW template [`CUSTOM_POLICY_PACK_AUTHORING_SOW_TEMPLATE.md`](CUSTOM_POLICY_PACK_AUTHORING_SOW_TEMPLATE.md). Prefer **ArchLucid-owned (shared)** tier when Customer accepts generalized pattern reuse; use **customer-exclusive** when confidentiality dominates. Do not quote PS fees outside the canonical pricing files.
 
 ### Onboarding phases
 
@@ -217,7 +217,7 @@ This playbook aligns with the six-week pilot timeline above and the technical qu
 | Admin completes first-run wizard | Customer | Sample preset selected, first run visible |
 | Team members invited (2–5 operators) | Customer admin | Users can sign in and view runs |
 | First sample run executed and reviewed | Joint | Champion can navigate findings, manifest, explainability traces |
-| Scorecard metrics baseline captured | Joint | Pre-pilot values recorded per §2 |
+| Scorecard metrics baseline captured | Joint | Pre-pilot values recorded per Â§2 |
 
 **Common blockers:** Team availability, confusion about presets (provide preset selection guidance).
 
@@ -290,33 +290,33 @@ After successful pilot conversion:
 
 | Criterion | Threshold |
 |-----------|-----------|
-| Review cycle time reduction | ≥ 25% reduction vs. baseline |
-| Run success rate | ≥ 85% |
-| Finding usefulness (qualitative) | Average ≥ 3.0 |
-| At least one compliance gap caught pre-deploy | ≥ 1 finding that would have been missed manually |
+| Review cycle time reduction | â‰¥ 25% reduction vs. baseline |
+| Run success rate | â‰¥ 85% |
+| Finding usefulness (qualitative) | Average â‰¥ 3.0 |
+| At least one compliance gap caught pre-deploy | â‰¥ 1 finding that would have been missed manually |
 
 ### 5.2 Target (pilot supports a purchase recommendation)
 
 | Criterion | Threshold |
 |-----------|-----------|
-| Review cycle time reduction | ≥ 40% reduction vs. baseline |
-| Run success rate | ≥ 90% |
-| Finding usefulness (qualitative) | Average ≥ 3.5 |
-| Compliance gaps caught pre-deploy | ≥ 3 findings |
-| Governance compliance rate | ≥ 80% of manifests pass gate |
-| Overall qualitative score | Average ≥ 3.5 across all questions |
-| ROI projection (annualized) | ≥ 300% using actual pilot numbers in ROI model |
+| Review cycle time reduction | â‰¥ 40% reduction vs. baseline |
+| Run success rate | â‰¥ 90% |
+| Finding usefulness (qualitative) | Average â‰¥ 3.5 |
+| Compliance gaps caught pre-deploy | â‰¥ 3 findings |
+| Governance compliance rate | â‰¥ 80% of manifests pass gate |
+| Overall qualitative score | Average â‰¥ 3.5 across all questions |
+| ROI projection (annualized) | â‰¥ 300% using actual pilot numbers in ROI model |
 
 ### 5.3 Stretch (pilot demonstrates transformative value)
 
 | Criterion | Threshold |
 |-----------|-----------|
-| Review cycle time reduction | ≥ 60% reduction vs. baseline |
-| Run success rate | ≥ 95% |
-| Finding usefulness (qualitative) | Average ≥ 4.0 |
-| Compliance gaps caught pre-deploy | ≥ 5 findings |
-| Architect willingness to recommend | Average ≥ 4.5 |
-| ROI projection (annualized) | ≥ 500% using actual pilot numbers |
+| Review cycle time reduction | â‰¥ 60% reduction vs. baseline |
+| Run success rate | â‰¥ 95% |
+| Finding usefulness (qualitative) | Average â‰¥ 4.0 |
+| Compliance gaps caught pre-deploy | â‰¥ 5 findings |
+| Architect willingness to recommend | Average â‰¥ 4.5 |
+| ROI projection (annualized) | â‰¥ 500% using actual pilot numbers |
 
 ---
 
@@ -376,7 +376,7 @@ Before presenting, run through [`QUOTE_TO_PROOF_PACKET.md#commercial-conversion-
 
 ## Proof-of-value snapshot assembly {#proof-of-value-snapshot-assembly}
 
-Former standalone body: `docs/library/PROOF_OF_VALUE_SNAPSHOT.md` → this section (filename kept as a path-stable alias). Complements [§6 Report template for leadership](#6-report-template-for-leadership) and [`#pilot-roi-measurement`](#pilot-roi-measurement). **Not** a financial guarantee or substitute for purchaser legal diligence.
+Former standalone body: `docs/library/PROOF_OF_VALUE_SNAPSHOT.md` → this section (filename kept as a path-stable alias). Complements [Â§6 Report template for leadership](#6-report-template-for-leadership) and [`#pilot-roi-measurement`](#pilot-roi-measurement). **Not** a financial guarantee or substitute for purchaser legal diligence.
 
 **Path-stable alias:** [`../library/PROOF_OF_VALUE_SNAPSHOT.md`](../library/PROOF_OF_VALUE_SNAPSHOT.md).
 
@@ -390,7 +390,7 @@ Deliver a reproducible dossier tying four independent signals:
 
 1. **Throughput of the pilot workflow** — end-to-end wall clock from scripted create → committed manifest (`benchmark-real-mode-e2e.ps1`).
 2. **Service behavior under scripted load** — aggregate HTTP latency and failure rate — **k6** `--summary-export` (`tests/load/ci-smoke.js` is the smallest merge-blocking profile; fuller baselines live in [`LOAD_TEST_BASELINE.md`](../library/LOAD_TEST_BASELINE.md)).
-3. **Economics grounded in organizational inputs** — values copied from Pilot ROI spreadsheets or first-value Markdown tables (`MEASURED_VS_BASELINE`, deltas in [`#pilot-roi-measurement`](#pilot-roi-measurement) §4–5 narratives).
+3. **Economics grounded in organizational inputs** — values copied from Pilot ROI spreadsheets or first-value Markdown tables (`MEASURED_VS_BASELINE`, deltas in [`#pilot-roi-measurement`](#pilot-roi-measurement) Â§4–5 narratives).
 4. **Auditability completeness** — per-finding `traceCompletenessRatio` (`GET /v1/explain/runs/{runId}/findings/{findingId}/explainability`) aggregated qualitatively (table of sample findings + Prometheus histogram `archlucid_explainability_trace_completeness_ratio` in [`OBSERVABILITY.md`](../library/OBSERVABILITY.md) when telemetry export is configured).
 
 ### Assumptions
@@ -459,7 +459,7 @@ Deliver a reproducible dossier tying four independent signals:
 - [`PROOF_PACK_REDACTION_PROFILES.md`](../library/PROOF_PACK_REDACTION_PROFILES.md) — operational redaction profiles for sponsor and benchmark packs.
 - [`FIRST_REAL_VALUE.md#real-mode-e2e-benchmark`](../library/FIRST_REAL_VALUE.md#real-mode-e2e-benchmark) — PowerShell schema + k6 JSON format (`REAL_MODE_BENCHMARK.md` alias).
 - [`LOAD_TEST_BASELINE.md`](../library/LOAD_TEST_BASELINE.md) — k6 scenarios, thresholds, baseline table conventions.
-- [`#pilot-roi-measurement`](#pilot-roi-measurement) · [`ROI_MODEL.md`](ROI_MODEL.md) — measurement + business case linkage.
+- [`#pilot-roi-measurement`](#pilot-roi-measurement) Â· [`ROI_MODEL.md`](ROI_MODEL.md) — measurement + business case linkage.
 - [`OBSERVABILITY.md`](../library/OBSERVABILITY.md) — trace completeness histogram and alert rationale.
 - API: `GET /v1/explain/runs/{runId}/findings/{findingId}/explainability` (see OpenAPI / `ExplanationController`).
 
@@ -484,7 +484,7 @@ One-page steering / ARB memo aligned to this scorecard’s language. **Audience:
 
 ### Decision
 
-**Recommendation:** ☐ Proceed with bounded pilot ☐ Defer ☐ Reject (capture short reason below)
+**Recommendation:** â˜ Proceed with bounded pilot â˜ Defer â˜ Reject (capture short reason below)
 
 **Rationale (3–5 bullets):**
 
@@ -519,7 +519,7 @@ One-page steering / ARB memo aligned to this scorecard’s language. **Audience:
 | Traceability / evidence | |
 | Stakeholder confidence | |
 
-**Minimum bar:** See [`#minimum-success-bar`](#minimum-success-bar) / [`#strong-success-bar`](#strong-success-bar) and this scorecard §5.
+**Minimum bar:** See [`#minimum-success-bar`](#minimum-success-bar) / [`#strong-success-bar`](#strong-success-bar) and this scorecard Â§5.
 
 ### Commercial / procurement notes (optional)
 
@@ -786,7 +786,7 @@ Each dimension has its own scale definition (adapt from template above). Documen
 
 ##### Composite score
 
-**Composite = Σ(dimension score × dimension weight)**
+**Composite = Î£(dimension score Ã— dimension weight)**
 
 | Composite range | Health status | Color |
 |----------------|---------------|-------|
@@ -837,7 +837,7 @@ WHERE TenantId = @TenantId
 
 | Milestone | Action | Owner |
 |-----------|--------|-------|
-| **R-90 days** | Review health score ([§1](#1-customer-health-scoring)); analyze usage trends; identify expansion signals | CSM |
+| **R-90 days** | Review health score ([Â§1](#1-customer-health-scoring)); analyze usage trends; identify expansion signals | CSM |
 | **R-60 days** | Renewal conversation with champion; review ROI model actuals vs pilot projections ([ROI_MODEL.md](ROI_MODEL.md)); discuss tier alignment | CSM + Account Exec |
 | **R-30 days** | Commercial terms finalized; pricing adjustment if tier change; order form prepared ([ORDER_FORM_TEMPLATE.md](ORDER_FORM_TEMPLATE.md)) | Account Exec |
 | **Renewal date** | Signed order form; billing updated; success confirmation email | Operations |
@@ -892,7 +892,7 @@ If a customer churns:
 
 | Metric | Target (placeholder) | Definition |
 |--------|---------------------|------------|
-| **Net revenue retention (NRR)** | > 110% | (Starting ARR + expansion − contraction − churn) / Starting ARR |
+| **Net revenue retention (NRR)** | > 110% | (Starting ARR + expansion âˆ’ contraction âˆ’ churn) / Starting ARR |
 | **Gross churn rate** | < 10% annual | Lost ARR / Starting ARR |
 | **Expansion revenue %** | > 25% of new bookings | Expansion ARR / Total new ARR |
 | **Time-to-renewal-decision** | < 30 days before expiry | Days between first renewal conversation and signed order |
@@ -915,22 +915,22 @@ This is **not** a substitute for external design-partner pilots. It validates fl
 
 ### Alignment to Core Pilot
 
-Follow the **four steps** in **[CORE_PILOT.md](../CORE_PILOT.md)** §3 as the default lane:
+Follow the **four steps** in **[CORE_PILOT.md](../CORE_PILOT.md)** Â§3 as the default lane:
 
 1. Create architecture request
 2. Execute the run (pipeline completes)
 3. Commit the manifest
 4. Review manifest summary and artifacts (exportable package)
 
-**Anti-creep:** Do not expand scope to advanced Operate layers for the first dogfood pass unless the pilot charter explicitly includes them. **[CORE_PILOT.md](../CORE_PILOT.md)** §1 explains what stays secondary.
+**Anti-creep:** Do not expand scope to advanced Operate layers for the first dogfood pass unless the pilot charter explicitly includes them. **[CORE_PILOT.md](../CORE_PILOT.md)** Â§1 explains what stays secondary.
 
-**Subject matter:** Pick one **real** internal initiative (e.g. a subsystem, integration, or platform decision) that would normally get an architecture package — not synthetic demo-only inputs unless you mark outcomes as **non-customer** and never copy demo numerics into **[PMF_VALIDATION_TRACKER.md](../archive/gtm-internal/PMF_VALIDATION_TRACKER.md)** as if they were measured baselines (see [`#pilot-roi-measurement`](#pilot-roi-measurement) §4.1.1).
+**Subject matter:** Pick one **real** internal initiative (e.g. a subsystem, integration, or platform decision) that would normally get an architecture package — not synthetic demo-only inputs unless you mark outcomes as **non-customer** and never copy demo numerics into **[PMF_VALIDATION_TRACKER.md](../archive/gtm-internal/PMF_VALIDATION_TRACKER.md)** as if they were measured baselines (see [`#pilot-roi-measurement`](#pilot-roi-measurement) Â§4.1.1).
 
 ### Baseline capture worksheet (before dogfood)
 
-Ground in [`#pilot-roi-measurement`](#pilot-roi-measurement) §3 (especially §3.1–§3.2). Answer **qualitatively** first; add **hours or counts** only when you actually measured them (interview, ticketing, calendar, or comparable system of record).
+Ground in [`#pilot-roi-measurement`](#pilot-roi-measurement) Â§3 (especially Â§3.1–Â§3.2). Answer **qualitatively** first; add **hours or counts** only when you actually measured them (interview, ticketing, calendar, or comparable system of record).
 
-| # | Prompt (from ROI model §3 spirit) | Your notes (words / ranges OK) | Numeric only if measured |
+| # | Prompt (from ROI model Â§3 spirit) | Your notes (words / ranges OK) | Numeric only if measured |
 |---|-----------------------------------|-------------------------------|---------------------------|
 | B1 | Current **elapsed time** from “request / brief” to “reviewable package” for one representative workflow | | |
 | B2 | **Manual effort** to assemble narrative, manifest-like content, diagrams, evidence | | |
@@ -941,15 +941,15 @@ Ground in [`#pilot-roi-measurement`](#pilot-roi-measurement) §3 (especially §3
 **Outputs:**
 
 - Copy **summaries** into your internal charter or this scorecard’s other sections — not straight into **[PMF_VALIDATION_TRACKER.md](../archive/gtm-internal/PMF_VALIDATION_TRACKER.md)** baselines unless the tracker row definitions match numerically.
-- For **[PMF_VALIDATION_TRACKER.md](../archive/gtm-internal/PMF_VALIDATION_TRACKER.md)**: leave **Baseline** as **TBD** until you have a defensible number or agreed **Unknown** per tracker §2.2; describe gaps only in **Notes**.
+- For **[PMF_VALIDATION_TRACKER.md](../archive/gtm-internal/PMF_VALIDATION_TRACKER.md)**: leave **Baseline** as **TBD** until you have a defensible number or agreed **Unknown** per tracker Â§2.2; describe gaps only in **Notes**.
 
 ### Outcome capture worksheet (after dogfood window)
 
-Ground in [`#pilot-roi-measurement`](#pilot-roi-measurement) §4 and §4.1 primary metrics table.
+Ground in [`#pilot-roi-measurement`](#pilot-roi-measurement) Â§4 and Â§4.1 primary metrics table.
 
 | Bucket | What to capture | Where it usually comes from |
 |--------|-----------------|------------------------------|
-| **Computed (when applicable)** | Time to committed manifest; findings totals/severity; LLM calls; audit row count bounds; evidence chain for top finding | First-value report / run detail / APIs described in ROI §4.1 |
+| **Computed (when applicable)** | Time to committed manifest; findings totals/severity; LLM calls; audit row count bounds; evidence chain for top finding | First-value report / run detail / APIs described in ROI Â§4.1 |
 | **Operator-judged** | Time to reviewable package; manual prep reduction; traceability; change visibility; governance evidence readiness | Interviews + short written assessment |
 | **Secondary** | Onboarding friction, blockers, export usefulness, reviewer confidence | Pilot retro notes |
 
@@ -959,19 +959,19 @@ Ground in [`#pilot-roi-measurement`](#pilot-roi-measurement) §4 and §4.1 prima
 | O2 | **Findings** — total and whether mix felt defensible | | |
 | O3 | **Cost / footprint** awareness (LLM calls, agreed envelope) | | |
 | O4 | **Audit / observability** — enough rows to tell the story | | |
-| O5 | **Qualitative bar** — did we meet ROI §5.1 minimum success? §5.2 strong? | | |
+| O5 | **Qualitative bar** — did we meet ROI Â§5.1 minimum success? Â§5.2 strong? | | |
 
-**Outputs:** Prefer this scorecard’s synthesis first; then reflect **honest** **Result** cells in **[PMF_VALIDATION_TRACKER.md](../archive/gtm-internal/PMF_VALIDATION_TRACKER.md)** only when values are **Captured** per tracker §2.2 (**TBD**, **Unknown**, **See scorecard**, or real numbers).
+**Outputs:** Prefer this scorecard’s synthesis first; then reflect **honest** **Result** cells in **[PMF_VALIDATION_TRACKER.md](../archive/gtm-internal/PMF_VALIDATION_TRACKER.md)** only when values are **Captured** per tracker Â§2.2 (**TBD**, **Unknown**, **See scorecard**, or real numbers).
 
 ### Updating Pilot A in PMF_VALIDATION_TRACKER.md (without inventing numbers)
 
 **Allowed without PMF widening:**
 
 - **Notes** column for **Pilot A** rows — cite this kit, link scorecard, clarify internal dogfood vs external pilot.
-- **Status** transitions that match reality (**Pending** → **Captured** when qualitative or numeric evidence exists — see tracker §2.2).
+- **Status** transitions that match reality (**Pending** → **Captured** when qualitative or numeric evidence exists — see tracker Â§2.2).
 - **ICP score** / **ICP segment** when scored per **[BUYER_PERSONAS.md](BUYER_PERSONAS.md#ideal-customer-profile-icp)** (else leave **TBD**).
 
-**Not allowed:** Fabricating **Baseline** or **Result** numerics to “fill the table.” If only qualitative signal exists, use **See scorecard** for **Result** and **Captured** **Status**, per **[PMF_VALIDATION_TRACKER.md](../archive/gtm-internal/PMF_VALIDATION_TRACKER.md)** §2.2.
+**Not allowed:** Fabricating **Baseline** or **Result** numerics to “fill the table.” If only qualitative signal exists, use **See scorecard** for **Result** and **Captured** **Status**, per **[PMF_VALIDATION_TRACKER.md](../archive/gtm-internal/PMF_VALIDATION_TRACKER.md)** Â§2.2.
 
 Hypothesis mapping (reminder):
 
@@ -985,7 +985,7 @@ Hypothesis mapping (reminder):
 ### Related (dogfood kit)
 
 - **[CORE_PILOT.md](../CORE_PILOT.md)** — operator path of record
-- [`#pilot-roi-measurement`](#pilot-roi-measurement) — baseline §3, during-pilot §4–§4.1, demo redaction §4.1.1
+- [`#pilot-roi-measurement`](#pilot-roi-measurement) — baseline Â§3, during-pilot Â§4–Â§4.1, demo redaction Â§4.1.1
 - **[PMF_VALIDATION_TRACKER.md](../archive/gtm-internal/PMF_VALIDATION_TRACKER.md)** — **Pilot A** evidence rows
 - **[PILOT_GUIDE.md](../library/customer-facing/PILOT_GUIDE.md)** — fuller pilot onboarding
 
@@ -995,14 +995,14 @@ Hypothesis mapping (reminder):
 
 | Doc | Use |
 |-----|-----|
-| [`#proof-of-value-snapshot-assembly`](#proof-of-value-snapshot-assembly) · [`../library/PROOF_OF_VALUE_SNAPSHOT.md`](../library/PROOF_OF_VALUE_SNAPSHOT.md) (alias) | Sponsor PoV dossier assembly (bench + k6 + ROI + explainability) |
-| [`#dogfood-pilot-kit`](#dogfood-pilot-kit) · [`../library/DOGFOOD_PILOT_KIT.md`](../library/DOGFOOD_PILOT_KIT.md) (alias) | Internal ArchLucid-on-ArchLucid dogfood worksheets (M-93) |
-| [`#minimum-viable-pilot-success-lane`](#minimum-viable-pilot-success-lane) · [`../library/MINIMUM_VIABLE_PILOT_SUCCESS.md`](../library/MINIMUM_VIABLE_PILOT_SUCCESS.md) (alias) | Five-step operator first-win lane |
-| [`#pilot-roi-measurement`](#pilot-roi-measurement) · [`../library/PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md) (alias) | Pilot measurement companion (formerly standalone) |
+| [`#proof-of-value-snapshot-assembly`](#proof-of-value-snapshot-assembly) Â· [`../library/PROOF_OF_VALUE_SNAPSHOT.md`](../library/PROOF_OF_VALUE_SNAPSHOT.md) (alias) | Sponsor PoV dossier assembly (bench + k6 + ROI + explainability) |
+| [`#dogfood-pilot-kit`](#dogfood-pilot-kit) Â· [`../library/DOGFOOD_PILOT_KIT.md`](../library/DOGFOOD_PILOT_KIT.md) (alias) | Internal ArchLucid-on-ArchLucid dogfood worksheets (M-93) |
+| [`#minimum-viable-pilot-success-lane`](#minimum-viable-pilot-success-lane) Â· [`../library/MINIMUM_VIABLE_PILOT_SUCCESS.md`](../library/MINIMUM_VIABLE_PILOT_SUCCESS.md) (alias) | Five-step operator first-win lane |
+| [`#pilot-roi-measurement`](#pilot-roi-measurement) Â· [`../library/PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md) (alias) | Pilot measurement companion (formerly standalone) |
 | [ROI_MODEL.md](ROI_MODEL.md) | Fill in with actual pilot numbers to calculate ROI (includes operational cost guide) |
 | [BUYER_PERSONAS.md](BUYER_PERSONAS.md) | Which persona presents the report (Section 6) and to whom |
 | [POSITIONING.md](POSITIONING.md) | Value pillars to reference in the executive summary |
-| [`#renewal-and-expansion-playbook`](#renewal-and-expansion-playbook) · [`RENEWAL_EXPANSION_PLAYBOOK.md`](RENEWAL_EXPANSION_PLAYBOOK.md) (alias) | Health scoring + renewal after pilot conversion |
+| [`#renewal-and-expansion-playbook`](#renewal-and-expansion-playbook) Â· [`RENEWAL_EXPANSION_PLAYBOOK.md`](RENEWAL_EXPANSION_PLAYBOOK.md) (alias) | Health scoring + renewal after pilot conversion |
 | [../PILOT_GUIDE.md](../library/customer-facing/PILOT_GUIDE.md) | Technical setup for the pilot environment |
 | [../PRODUCT_LEARNING.md](../library/PRODUCT_LEARNING.md) | How pilot feedback signals are captured and analyzed |
 | [../OBSERVABILITY.md](../library/OBSERVABILITY.md) | OTel metric names referenced in this scorecard |

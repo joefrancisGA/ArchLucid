@@ -6,7 +6,7 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import type { RunDetailAgentResult } from "@/types/authority";
 
-import { runDetailSectionHeadingClass } from "@/app/(operator)/reviews/[runId]/_sections/run-detail-section-heading";
+import { runDetailSectionHeadingClass } from "@/app/(operator)/architecture/reviews/[runId]/_sections/run-detail-section-heading";
 
 export type ReviewAgentExecutionLogSectionProps = {
   readonly results: readonly RunDetailAgentResult[] | null | undefined;

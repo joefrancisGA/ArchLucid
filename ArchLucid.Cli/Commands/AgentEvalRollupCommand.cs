@@ -1,4 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -11,7 +11,7 @@ namespace ArchLucid.Cli.Commands;
 
 /// <summary>
 ///     Offline rollup of persisted <see cref="AgentOutputEvaluationSummary" /> JSON (for example exported from
-///     <c>GET /v1/architecture/run/{runId}/agent-evaluation</c>) — does not imply real-LLM vs simulator mode labels.
+///     <c>GET /v1/architecture/review/{runId}/agent-evaluation</c>) — does not imply real-LLM vs simulator mode labels.
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "Console + file IO; exercised via Cli tests.")]
 internal static class AgentEvalRollupCommand
@@ -138,7 +138,7 @@ internal static class AgentEvalRollupCommand
         sb.AppendLine(FormattableString.Invariant($"- Run: `{rollup.RunId}`"));
         sb.AppendLine(FormattableString.Invariant($"- EvaluatedAtUtc (payload): `{rollup.EvaluatedAtUtc:O}`"));
         sb.AppendLine(FormattableString.Invariant(
-            $"- Scored traces: `{rollup.ScoresCounted}` · skipped traces: `{rollup.TracesSkippedCount}` · parse failures inside scores: `{rollup.ParseFailuresInsideScores}`"));
+            $"- Scored traces: `{rollup.ScoresCounted}` Â· skipped traces: `{rollup.TracesSkippedCount}` Â· parse failures inside scores: `{rollup.ParseFailuresInsideScores}`"));
 
         string structuralLine = rollup.PayloadStructuralMean is { } sm
             ? FormattableString.Invariant($"- Mean structural completeness (payload averages): {sm:P1}")

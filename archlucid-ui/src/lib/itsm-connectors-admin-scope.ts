@@ -24,7 +24,7 @@ export const ITSM_CONNECTORS_WIZARD_PREREQUISITES_DESCRIPTION =
   "Outbound credentials are configured by your platform team — this wizard only saves per-tenant routing overrides.";
 
 export const ITSM_CONNECTORS_WIZARD_NATIVE_DISABLED_MESSAGE =
-  "Native outbound create is disabled for this deployment. Ask a platform administrator to enable one-click Jira/ServiceNow create after smoke validation. Clipboard export and correlations remain enabled.";
+  "Native outbound create is disabled for this deployment. Ask a platform administrator to enable one-click Jira/ServiceNow create after smoke validation. Clipboard export and ITSM ticket linkages remain enabled.";
 
 export const ITSM_CONNECTORS_JIRA_CREDENTIALS_NOT_CONFIGURED =
   "not configured — ask a platform administrator to add Jira credentials";

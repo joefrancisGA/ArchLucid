@@ -1,11 +1,11 @@
-> **Scope:** Contributor-reference — ArchLucid architecture (Key flows) - full detail, tables, and links in the sections below.
+﻿> **Scope:** Contributor-reference — ArchLucid architecture (Key flows) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
 ## ArchLucid architecture (Key flows)
 
-**Canonical poster:** [ARCHITECTURE_ON_ONE_PAGE.md](../ARCHITECTURE_ON_ONE_PAGE.md) · **Operator atlas:** [OPERATOR_ATLAS.md](OPERATOR_ATLAS.md)
+**Canonical poster:** [ARCHITECTURE_ON_ONE_PAGE.md](../ARCHITECTURE_ON_ONE_PAGE.md) Â· **Operator atlas:** [OPERATOR_ATLAS.md](OPERATOR_ATLAS.md)
 
 This doc describes the main runtime flows in “sequence narrative” form. It’s meant to be readable without diagrams.
 
@@ -15,7 +15,7 @@ This doc describes the main runtime flows in “sequence narrative” form. It�
 
 **Goal:** Turn an `ArchitectureRequest` into a finalized, versioned architecture package (API: golden manifest).
 
-**Important:** There are **two ways** the product reaches that outcome. **`POST /v1/architecture/request`** always persists the run and, on **SQL storage**, enters **`IAuthorityRunOrchestrator`** (context ingestion → knowledge graph → findings → decisioning → artifact synthesis) via **`AuthorityPipelineStagesExecutor`**. Separately, a **legacy coordinator** path still supports **in-host agent execution** (`POST …/execute`), **external** per-task submission (`POST …/result`), and a **merge commit** (`POST …/commit`) when the run is driven by **AgentTask** / **AgentResult** rows. **Choose one mental model per run** after inspecting **`GET /v1/architecture/run/{runId}`** (see decision tree below). PA/integrator matrix: [`AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md`](AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md) (**TB-1007**).
+**Important:** There are **two ways** the product reaches that outcome. **`POST /v1/architecture/request`** always persists the run and, on **SQL storage**, enters **`IAuthorityRunOrchestrator`** (context ingestion → knowledge graph → findings → decisioning → artifact synthesis) via **`AuthorityPipelineStagesExecutor`**. Separately, a **legacy coordinator** path still supports **in-host agent execution** (`POST …/execute`), **external** per-task submission (`POST …/result`), and a **merge commit** (`POST …/commit`) when the run is driven by **AgentTask** / **AgentResult** rows. **Choose one mental model per run** after inspecting **`GET /v1/architecture/review/{runId}`** (see decision tree below). PA/integrator matrix: [`AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md`](AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md) (**TB-1007**).
 
 #### A0 — Authority pipeline (ingestion → graph → findings → artifacts)
 
@@ -31,8 +31,8 @@ Use when the run is intentionally driven by **coordinator agent tasks** and **`A
 
 1. **Create review** — Same `POST /v1/architecture/request` (authority coordination still creates the run row; starter tasks may exist for non-deferred creates).
 2. **Tasks** — `AgentTask` rows for topology/cost/compliance/critic; statuses such as **`TasksGenerated`**, **`WaitingForResults`**.
-3. **Execute or submit results** — **`POST /v1/architecture/run/{runId}/execute`** (`IAgentExecutor`) and/or **`POST /v1/architecture/run/{runId}/result`** (external **`AgentResult`** per task).
-4. **Commit** — **`POST /v1/architecture/run/{runId}/commit`** when **ReadyForCommit**; merges coordinator results into a **`GoldenManifest`**.
+3. **Execute or submit results** — **`POST /v1/architecture/review/{runId}/execute`** (`IAgentExecutor`) and/or **`POST /v1/architecture/review/{runId}/result`** (external **`AgentResult`** per task).
+4. **Commit** — **`POST /v1/architecture/review/{runId}/finalize`** when **ReadyForCommit**; merges coordinator results into a **`GoldenManifest`**.
 5. **Fetch artifacts** — Run detail, exports, etc.
 
 #### Flow A1: Decision tree (which path am I on?)
@@ -50,7 +50,7 @@ flowchart TD
 
 **Linear checklist (same logic):**
 
-1. **GET** `/v1/architecture/run/{runId}`.
+1. **GET** `/v1/architecture/review/{runId}`.
 2. If the response shows **finalized architecture package** (API: golden manifest) / authority-final fields → **Authority-complete**; skip **`execute`/`result`** unless you have a defined **task-level** integration for an **unfinished** legacy phase.
 3. If **no context snapshot** yet and **`AsyncAuthorityPipeline`** applies → **wait** for pipeline or queue completion.
 4. If **tasks** exist and status allows **execute**/**result** → **coordinator path** through **`commit`**.

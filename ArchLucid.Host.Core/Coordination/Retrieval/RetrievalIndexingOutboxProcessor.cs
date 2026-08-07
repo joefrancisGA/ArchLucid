@@ -1,6 +1,7 @@
 using System.Diagnostics;
 
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Models;
@@ -12,6 +13,7 @@ using ArchLucid.Persistence.Queries;
 using ArchLucid.Provenance;
 using ArchLucid.Retrieval.Indexing;
 
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 using Serilog.Context;
@@ -43,44 +45,59 @@ public sealed class RetrievalIndexingOutboxProcessor(
     public async Task<int> ProcessPendingBatchAsync(CancellationToken ct)
     {
         RetrievalIndexingOutboxProcessorOptions opts = VerifiedOptions(_processorOptions.Value);
+        int maxConcurrent = Math.Clamp(opts.MaxConcurrentBatchEntries, 1, MaxBatch);
 
-        using IServiceScope scope = _scopeFactory.CreateScope();
+        using IServiceScope dequeueScope = _scopeFactory.CreateScope();
         IRetrievalIndexingOutboxRepository outbox =
-            scope.ServiceProvider.GetRequiredService<IRetrievalIndexingOutboxRepository>();
-        IAuthorityQueryService query = scope.ServiceProvider.GetRequiredService<IAuthorityQueryService>();
-        IRetrievalRunCompletionIndexer indexer =
-            scope.ServiceProvider.GetRequiredService<IRetrievalRunCompletionIndexer>();
-        IProvenanceBuilder provenanceBuilder = scope.ServiceProvider.GetRequiredService<IProvenanceBuilder>();
+            dequeueScope.ServiceProvider.GetRequiredService<IRetrievalIndexingOutboxRepository>();
 
         IReadOnlyList<RetrievalIndexingOutboxEntry> batch =
-            await outbox.DequeuePendingAsync(MaxBatch, opts.LeaseDurationSeconds, ct);
+            await outbox.DequeuePendingAsync(MaxBatch, opts.LeaseDurationSeconds, ct).ConfigureAwait(false);
 
-        foreach (RetrievalIndexingOutboxEntry entry in batch)
-
-            try
-            {
-                await ProcessEntryAsync(outbox, query, indexer, provenanceBuilder, entry, ct);
-            }
-            catch (OperationCanceledException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                await OnProcessingFailedAsync(outbox, entry, ex, opts, ct);
-            }
+        await BoundedBatchParallelism.ForEachAsync(
+            batch,
+            maxConcurrent,
+            (entry, token) => ProcessEntryWithIsolationAsync(entry, opts, token),
+            ct).ConfigureAwait(false);
 
         return batch.Count;
     }
 
+    private async Task ProcessEntryWithIsolationAsync(
+        RetrievalIndexingOutboxEntry entry,
+        RetrievalIndexingOutboxProcessorOptions opts,
+        CancellationToken ct)
+    {
+        using IServiceScope scope = _scopeFactory.CreateScope();
+        IRetrievalIndexingOutboxRepository outbox =
+            scope.ServiceProvider.GetRequiredService<IRetrievalIndexingOutboxRepository>();
+
+        try
+        {
+            await ProcessEntryAsync(scope, outbox, entry, ct).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            await OnProcessingFailedAsync(outbox, entry, ex, opts, ct).ConfigureAwait(false);
+        }
+    }
+
     private async Task ProcessEntryAsync(
+        IServiceScope scope,
         IRetrievalIndexingOutboxRepository outbox,
-        IAuthorityQueryService query,
-        IRetrievalRunCompletionIndexer indexer,
-        IProvenanceBuilder provenanceBuilder,
         RetrievalIndexingOutboxEntry entry,
         CancellationToken ct)
     {
+        IAuthorityQueryService query = scope.ServiceProvider.GetRequiredService<IAuthorityQueryService>();
+        IArtifactQueryService artifactQuery = scope.ServiceProvider.GetRequiredService<IArtifactQueryService>();
+        IRetrievalRunCompletionIndexer indexer =
+            scope.ServiceProvider.GetRequiredService<IRetrievalRunCompletionIndexer>();
+        IProvenanceBuilder provenanceBuilder = scope.ServiceProvider.GetRequiredService<IProvenanceBuilder>();
+
         using Activity? activity = ArchLucidInstrumentation.RetrievalIndexingOutbox.StartActivity(
             "RetrievalIndexingOutbox.ProcessEntry");
         string correlationId = FormattableString.Invariant($"retrieval-outbox:{entry.OutboxId:D}");
@@ -101,7 +118,8 @@ public sealed class RetrievalIndexingOutboxProcessor(
 
         using IDisposable ambientScope = AmbientScopeContext.Push(scopeContext);
 
-        RunDetailDto? detail = await query.GetRunDetailAsync(scopeContext, entry.RunId, ct);
+        RunDetailDto? detail = await query.GetRunDetailForRetrievalIndexingAsync(scopeContext, entry.RunId, ct)
+            .ConfigureAwait(false);
 
         if (detail?.GoldenManifest is null ||
             detail.GraphSnapshot is null ||
@@ -111,7 +129,7 @@ public sealed class RetrievalIndexingOutboxProcessor(
             _logger.LogWarning(
                 "Skipping retrieval indexing for run {RunId}: incomplete run detail.",
                 entry.RunId);
-            await outbox.MarkProcessedAsync(entry.OutboxId, ct);
+            await outbox.MarkProcessedAsync(entry.OutboxId, ct).ConfigureAwait(false);
 
             return;
         }
@@ -119,7 +137,7 @@ public sealed class RetrievalIndexingOutboxProcessor(
         ManifestDocument manifest = detail.GoldenManifest;
         GraphSnapshot graphSnapshot = detail.GraphSnapshot;
         FindingsSnapshot findings = detail.FindingsSnapshot;
-        IReadOnlyList<SynthesizedArtifact> artifacts = detail.ArtifactBundle?.Artifacts ?? [];
+        IReadOnlyList<SynthesizedArtifact> provenanceArtifacts = detail.ArtifactBundle?.Artifacts ?? [];
 
         DecisionProvenanceGraph graph = provenanceBuilder.Build(new ProvenanceBuildInput
         {
@@ -128,21 +146,30 @@ public sealed class RetrievalIndexingOutboxProcessor(
             Graph = graphSnapshot,
             Manifest = manifest,
             DecisionTrace = detail.AuthorityTrace,
-            Artifacts = artifacts
+            Artifacts = provenanceArtifacts
         });
+
+        IReadOnlyList<SynthesizedArtifact> indexingArtifacts = provenanceArtifacts;
+
+        if (manifest.ManifestId != Guid.Empty)
+        {
+            indexingArtifacts = await artifactQuery
+                .GetArtifactsByManifestIdAsync(scopeContext, manifest.ManifestId, ct)
+                .ConfigureAwait(false);
+        }
 
         await indexer.IndexAuthorityRunAsync(
             entry.TenantId,
             entry.WorkspaceId,
             entry.ProjectId,
             manifest,
-            artifacts,
+            indexingArtifacts,
             graph,
             findings,
             graphSnapshot,
-            ct);
+            ct).ConfigureAwait(false);
 
-        await outbox.MarkProcessedAsync(entry.OutboxId, ct);
+        await outbox.MarkProcessedAsync(entry.OutboxId, ct).ConfigureAwait(false);
     }
 
     private async Task OnProcessingFailedAsync(
@@ -164,7 +191,7 @@ public sealed class RetrievalIndexingOutboxProcessor(
 
         if (RetriesExhaustedAfterThisFailure(entry, opts))
         {
-            await outbox.RecordDeadLetterAsync(entry.OutboxId, summary, ct);
+            await outbox.RecordDeadLetterAsync(entry.OutboxId, summary, ct).ConfigureAwait(false);
 
             if (_logger.IsEnabled(LogLevel.Error))
 
@@ -182,7 +209,8 @@ public sealed class RetrievalIndexingOutboxProcessor(
         TimeSpan delay = RetryDelayAfterFailure(entry, opts);
         DateTime nextAttemptUtc = utcNow.Add(delay);
 
-        await outbox.RecordBackoffAfterProcessingFailureAsync(entry.OutboxId, nextAttemptUtc, summary, ct);
+        await outbox.RecordBackoffAfterProcessingFailureAsync(entry.OutboxId, nextAttemptUtc, summary, ct)
+            .ConfigureAwait(false);
     }
 
     private static bool RetriesExhaustedAfterThisFailure(
@@ -218,6 +246,7 @@ public sealed class RetrievalIndexingOutboxProcessor(
         int maxAttempts = ClampInt(configured.MaxAttemptsBeforeDeadLetter, 1, 999);
         int baseSecs = ClampInt(configured.RetryBackoffBaseSeconds, 1, 86_400);
         int maxSecs = ClampInt(configured.RetryBackoffMaxSeconds, 1, 86_400 * 7);
+        int maxConcurrent = ClampInt(configured.MaxConcurrentBatchEntries, 1, MaxBatch);
 
         if (maxSecs < baseSecs)
             maxSecs = baseSecs;
@@ -228,6 +257,7 @@ public sealed class RetrievalIndexingOutboxProcessor(
             MaxAttemptsBeforeDeadLetter = maxAttempts,
             RetryBackoffBaseSeconds = baseSecs,
             RetryBackoffMaxSeconds = maxSecs,
+            MaxConcurrentBatchEntries = maxConcurrent,
         };
     }
 

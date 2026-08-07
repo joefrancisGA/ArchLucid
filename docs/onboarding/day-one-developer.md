@@ -1,4 +1,4 @@
-> **Scope:** Day one — Developer (week one) - full detail, tables, and links in the sections below.
+﻿> **Scope:** Day one — Developer (week one) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -9,7 +9,7 @@
 
 **First run (before this page):** complete [`engineering/FIRST_30_MINUTES.md`](../engineering/FIRST_30_MINUTES.md) — the canonical Docker-only contributor path from `START_HERE.md`.
 
-**Canonical operator action map:** [OPERATOR_ATLAS.md](../library/OPERATOR_ATLAS.md) (UI route × API × CLI × authority — use this instead of memorizing scattered onboarding-only lists).
+**Canonical operator action map:** [OPERATOR_ATLAS.md](../library/OPERATOR_ATLAS.md) (UI route Ã— API Ã— CLI Ã— authority — use this instead of memorizing scattered onboarding-only lists).
 
 > **Install order moved.** See [INSTALL_ORDER.md](../engineering/INSTALL_ORDER.md). This page covers Developer week-one tasks **after** install.
 
@@ -157,7 +157,7 @@ flowchart LR
 2. **Create run** — covered in the mental model above. For the **architect workspace** guided flow (presets → review → pipeline tracking), see [`CANONICAL_FIRST_RUN_PATH.md#first-run-wizard-architect-workspace`](../library/CANONICAL_FIRST_RUN_PATH.md#first-run-wizard-architect-workspace).
 3. **Execute authority** — Pipeline stages ingest context, graph, findings, decisioning, artifacts (see traces: `ArchLucid.AuthorityRun` in logs/telemetry).
 4. **Agents** — `AgentExecution:Mode` `Simulator` (deterministic) or `Real` (Azure OpenAI). Token usage and optional per-tenant metrics: [`OPERATIONS_LLM_QUOTA.md`](../library/OPERATIONS_LLM_QUOTA.md).
-5. **Commit** — `POST /v1/architecture/run/{runId}/commit` when the run is ready; handle `409` for invalid state.
+5. **Commit** — `POST /v1/architecture/review/{runId}/finalize` when the run is ready; handle `409` for invalid state.
 6. **Retrieval** — After commit, indexing work is processed asynchronously; query `GET /v1/retrieval/search` when enabled.
 7. **Ask (optional)** — Threaded Q&A uses the same scope and LLM stack; see Ask controller routes under `/v1/ask`.
 
@@ -167,7 +167,7 @@ flowchart LR
 
 You won't need these day one, but they're the fastest way to answer "is my local stack actually healthy?" once you're past your first small PR:
 
-- **Liveness:** `GET /health/live` · **Readiness:** `GET /health/ready` (SQL, schema, packs)
+- **Liveness:** `GET /health/live` Â· **Readiness:** `GET /health/ready` (SQL, schema, packs)
 - **Admin (privileged):** `GET /v1/admin/diagnostics/outboxes`, `.../leases`, feature flags — see [`OPERATIONS_ADMIN.md`](../library/OPERATIONS_ADMIN.md)
 - **Full .NET regression with SQL** (beyond the Core corset in the checklist above): `scripts/run-full-regression-docker-sql.ps1` / `.sh` (sets `ARCHLUCID_SQL_TEST`)
 - **RTO / RPO tier defaults:** [`RTO_RPO_TARGETS.md`](../library/RTO_RPO_TARGETS.md) — production targets include relational RPO under five minutes via SQL geo-replication; [`runbooks/DATABASE_FAILOVER.md`](../runbooks/DATABASE_FAILOVER.md) for failover steps.

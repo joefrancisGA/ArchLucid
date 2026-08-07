@@ -8,9 +8,13 @@ namespace ArchLucid.Application.Tenancy;
 ///     key).
 /// </summary>
 public sealed class TrialSeatAccountant(
+    ITenantGetByIdRequestCache tenantGetByIdRequestCache,
     ITenantRepository tenantRepository,
     ITenantTrialSeatSkipCache seatSkipCache)
 {
+    private readonly ITenantGetByIdRequestCache _tenantGetByIdRequestCache =
+        tenantGetByIdRequestCache ?? throw new ArgumentNullException(nameof(tenantGetByIdRequestCache));
+
     private readonly ITenantRepository _tenantRepository =
         tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
 
@@ -34,7 +38,8 @@ public sealed class TrialSeatAccountant(
         if (_seatSkipCache.IsSeatClaimNotRequired(scope.TenantId))
             return;
 
-        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken);
+        TenantRecord? tenant = await _tenantGetByIdRequestCache
+            .GetByIdAsync(scope.TenantId, cancellationToken);
 
         if (!TenantTrialSeatPolicy.RequiresSeatClaim(tenant))
         {

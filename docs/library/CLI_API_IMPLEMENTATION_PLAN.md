@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — Step-by-Step Implementation Plan: CLI–API Architecture - full detail, tables, and links in the sections below.
+﻿> **Scope:** Contributor-reference — Step-by-Step Implementation Plan: CLI–API Architecture - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -250,10 +250,10 @@ Use a minimal in-process test server (e.g. `WebApplicationFactory` from `ArchLuc
 |--------|----------|---------|
 | GET | `/health` | Health check. |
 | POST | `/v1/architecture/request` | Create run; body: `ArchitectureRequest`. |
-| GET | `/v1/architecture/run/{runId}` | Get run, tasks, results. |
-| POST | `/v1/architecture/run/{runId}/result` | Submit agent result. |
-| POST | `/v1/architecture/run/{runId}/commit` | Merge results and produce manifest. |
+| GET | `/v1/architecture/review/{runId}` | Get run, tasks, results. |
+| POST | `/v1/architecture/review/{runId}/result` | Submit agent result. |
+| POST | `/v1/architecture/review/{runId}/finalize` | Merge results and produce manifest. |
 | GET | `/v1/architecture/manifest/{version}` | Get manifest by version. |
-| POST | `/v1/architecture/run/{runId}/seed-fake-results` | Dev only; seed fake results. |
+| POST | `/v1/architecture/review/{runId}/seed-fake-results` | Dev only; seed fake results. |
 
 Base URL default: `http://localhost:5128` (from `ARCHLUCID_API_URL` or `archlucid.json` `apiUrl`). All JSON camelCase; errors use RFC 9457 Problem Details-style `detail`/`title` or legacy `error`/`errors`.

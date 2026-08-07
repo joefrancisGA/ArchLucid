@@ -87,13 +87,13 @@ export const FINDINGS_HELP_SEVERITY_ROWS: readonly FindingsHelpSeverityRow[] = [
 export const FINDINGS_HELP_PROVENANCE_TITLE = "Where findings come from";
 
 export const FINDINGS_HELP_PROVENANCE_INTRO =
-  "Every finding is labeled by origin so you know what you are signing off on. Deterministic-rule findings come from policy pack rules. AI-generated findings come from a language model and carry a grounding label. Simulated findings come from the deterministic simulator and should not be cited as live-model evidence.";
+  "Every finding is labeled by origin so you know what you are signing off on. Deterministic-rule findings come from policy pack rules. Deterministic-fallback findings appear when the live model path failed and a fallback path produced the row — verify independently. AI-generated findings come from a language model and carry a grounding label. Simulated findings come from the deterministic simulator and should not be cited as live-model evidence.";
 
 export const FINDINGS_HELP_PROVENANCE_AXES = [
   {
     axis: "Origin",
     answers: "Who produced the finding?",
-    values: "Deterministic rule · AI-generated · Simulated",
+    values: "Deterministic rule · Deterministic fallback · AI-generated · Simulated",
   },
   {
     axis: "Grounding",
@@ -107,6 +107,11 @@ export const FINDINGS_HELP_PROVENANCE_ORIGINS = [
     origin: "Deterministic rule",
     description:
       "A policy rule fired; the rationale comes from the rule definition, not a model.",
+  },
+  {
+    origin: "Deterministic fallback",
+    description:
+      "The live model path failed; this finding uses a deterministic fallback — verify independently before sign-off.",
   },
   {
     origin: "AI-generated",

@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 
@@ -26,7 +26,7 @@ public sealed class ArchitectureRunPinIntegrationTests(ArchLucidApiFactory facto
         string runId = created!.Run!.RunId!;
 
         HttpResponseMessage firstPin = await Client.PatchAsync(
-            $"/v1/architecture/run/{runId}/pin",
+            $"/v1/architecture/review/{runId}/pin",
             new StringContent("{}", Encoding.UTF8, "application/json"));
 
         firstPin.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -41,7 +41,7 @@ public sealed class ArchitectureRunPinIntegrationTests(ArchLucidApiFactory facto
         summary!.IsPinned.Should().BeTrue();
 
         HttpResponseMessage unpin = await Client.PatchAsync(
-            $"/v1/architecture/run/{runId}/pin",
+            $"/v1/architecture/review/{runId}/pin",
             JsonContent(new { isPinned = false }));
 
         unpin.StatusCode.Should().Be(HttpStatusCode.OK);

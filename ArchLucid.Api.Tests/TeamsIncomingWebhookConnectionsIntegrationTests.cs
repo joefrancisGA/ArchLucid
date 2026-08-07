@@ -91,7 +91,7 @@ public sealed class TeamsIncomingWebhookConnectionsIntegrationTests(JwtLocalSign
         TeamsIncomingWebhookConnectionUpsertRequest putBody = new()
         {
             KeyVaultSecretName = "kv-teams-webhook-ref",
-            Label = "demo tenant â€” replace before publishing",
+            Label = "demo tenant — replace before publishing",
             EnabledTriggers =
             [
                 "com.archlucid.authority.run.completed",

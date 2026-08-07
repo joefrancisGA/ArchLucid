@@ -1,4 +1,4 @@
-import { captureTraceContextFromResponse } from "@/lib/correlation";
+﻿import { captureTraceContextFromResponse } from "@/lib/correlation";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import {
   apiPostNoContent,
@@ -21,12 +21,12 @@ async function fetchBrowserDownload(
 }
 
 export function getArtifactDownloadUrl(manifestId: string, artifactId: string): string {
-  return `/api/proxy/v1/artifacts/signed-records/${manifestId}/artifact/${artifactId}`;
+  return `/api/proxy/v1/artifacts/signed-review-records/${manifestId}/artifact/${artifactId}`;
 }
 
 /** Returns the proxy URL for downloading the full artifact bundle ZIP for a manifest. */
 export function getBundleDownloadUrl(manifestId: string): string {
-  return `/api/proxy/v1/artifacts/signed-records/${manifestId}/bundle`;
+  return `/api/proxy/v1/artifacts/signed-review-records/${manifestId}/bundle`;
 }
 
 /** Returns the proxy URL for the advisory Terraform placeholder export ZIP. */
@@ -94,7 +94,7 @@ export function getDraftDecisionReceiptDownloadUrl(draftId: string): string {
 
 /** Returns the proxy URL for the traceability ZIP (run summary + audit slice + decision traces, size-capped on API). */
 export function getTraceabilityBundleDownloadUrl(runId: string): string {
-  return `/api/proxy/v1/architecture/run/${encodeURIComponent(runId)}/traceability-bundle.zip`;
+  return `/api/proxy/v1/architecture/review/${encodeURIComponent(runId)}/traceability-bundle.zip`;
 }
 
 /** Returns the proxy URL for downloading the original ArchitectureRequest JSON. */
@@ -121,7 +121,7 @@ export async function downloadConsultingArchitectureReportDocx(
   }
 
   await ensureOidcBearerReady();
-  const path = `/v1/architecture/run/${encodeURIComponent(runId)}/analysis-report/export/docx/consulting`;
+  const path = `/v1/architecture/review/${encodeURIComponent(runId)}/analysis-report/export/docx/consulting`;
   const url = `/api/proxy${path}`;
   const headers = new Headers();
   headers.set(
@@ -231,7 +231,7 @@ export async function createAndDownloadComparisonPdf(leftRunId: string, rightRun
   }
 
   await ensureOidcBearerReady();
-  const path = `/v1/architecture/run/compare/end-to-end/summary?leftRunId=${encodeURIComponent(leftRunId)}&rightRunId=${encodeURIComponent(rightRunId)}`;
+  const path = `/v1/architecture/review/compare/end-to-end/summary?leftRunId=${encodeURIComponent(leftRunId)}&rightRunId=${encodeURIComponent(rightRunId)}`;
   const url = `/api/proxy${path}`;
   const headers = new Headers();
   headers.set("Accept", "application/json");

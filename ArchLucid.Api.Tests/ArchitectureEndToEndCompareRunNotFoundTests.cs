@@ -15,7 +15,7 @@ public sealed class ArchitectureEndToEndCompareRunNotFoundTests(ArchLucidApiFact
     public async Task CompareRunsEndToEnd_WhenRunMissing_Returns404RunNotFound()
     {
         HttpResponseMessage response = await Client.GetAsync(
-            "/v1/architecture/run/compare/end-to-end?leftRunId=missing-left&rightRunId=missing-right");
+            "/v1/architecture/review/compare/end-to-end?leftRunId=missing-left&rightRunId=missing-right");
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         string json = await response.Content.ReadAsStringAsync();

@@ -7,7 +7,7 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     HTTP coverage for <c>POST /v1/pilots/board-pack.pdf</c> â€” quarterly board pack (
+///     HTTP coverage for <c>POST /v1/pilots/board-pack.pdf</c> — quarterly board pack (
 ///     <see cref="ArchLucid.Core.Authorization.ArchLucidPolicies.ExecuteAuthority" />, Standard+ tier).
 /// </summary>
 [Trait("Category", "Integration")]

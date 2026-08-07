@@ -44,6 +44,22 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/architecture/first-review-guide", topic: { slug: "getting-started", label: BUYER_ONBOARDING_PAGE_TITLE } },
   { prefix: "/help/getting-started", topic: { slug: "getting-started", label: "Getting started" } },
   {
+    prefix: "/help/accelerator-chooser",
+    topic: { slug: "accelerator-chooser", label: "Accelerator chooser" },
+  },
+  {
+    prefix: "/help/admin-diagnostics",
+    topic: { slug: "admin-diagnostics", label: "Admin diagnostics" },
+  },
+  {
+    prefix: "/help/authentication-sign-in",
+    topic: { slug: "authentication-sign-in", label: "Authentication and sign-in" },
+  },
+  {
+    prefix: "/help/azure-boards",
+    topic: { slug: "azure-boards", label: "Azure Boards integration" },
+  },
+  {
     prefix: "/help/how-it-works",
     topic: { slug: "getting-started", label: "Getting started" },
   },
@@ -112,6 +128,11 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "users-and-roles", label: "Users and roles" },
   },
   { prefix: ARCHITECTURES_LIST_PATH, topic: { slug: "getting-started", label: "Getting started" } },
+  { prefix: "/architecture/architectures/new", topic: { slug: "first-architecture-review", label: "Create architecture" } },
+  {
+    prefix: "/architecture/architecture-intelligence",
+    topic: { slug: "evidence-trail", label: "Architecture intelligence" },
+  },
   { prefix: "/architectures", topic: { slug: "getting-started", label: "Getting started" } },
   { prefix: "/architecture/reviews/new", topic: { slug: "evidence-intake", label: START_REVIEW_LABEL } },
   { prefix: "/reviews/new", topic: { slug: "evidence-intake", label: START_REVIEW_LABEL } },
@@ -133,6 +154,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/insights/compare-two-reviews", topic: { slug: "comparison-replay", label: "Compare and replay" } },
   { prefix: "/replay", topic: { slug: "comparison-replay", label: "Validate review" } },
   { prefix: "/governance/findings", topic: { slug: "governance-approval", label: OPERATOR_NAV_LINK_LABELS.findings } },
+  {
+    prefix: "/governance/approval-queue",
+    topic: { slug: "governance-approval", label: "Approval queue" },
+  },
   {
     prefix: "/governance/approval-requests",
     topic: { slug: "governance-approval", label: "Approval lineage" },
@@ -165,10 +190,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "policy-packs", label: "Policy packs" },
   },
   { prefix: "/governance", topic: { slug: "governance-approval", label: "Governance approval" } },
-  { prefix: "/audit", topic: { slug: "audit-trail", label: "Audit trail" } },
-  { prefix: "/alerts", topic: { slug: "alerts", label: "Alerts" } },
-  { prefix: "/alert-rules", topic: { slug: "alerts", label: "How alerts work" } },
-  { prefix: "/policy-packs", topic: { slug: "policy-packs", label: "Policy packs" } },
+  { prefix: "/governance/audit", topic: { slug: "audit-trail", label: "Audit trail" } },
+  { prefix: "/governance/alerts", topic: { slug: "alerts", label: "Alerts" } },
+  { prefix: "/governance/alert-rules", topic: { slug: "alerts", label: "How alerts work" } },
+  { prefix: "/governance/policy-packs", topic: { slug: "policy-packs", label: "Policy packs" } },
   {
     prefix: "/sponsor-report/roi-summary",
     topic: { slug: "pilot-roi-model", label: "View ROI methodology" },
@@ -338,6 +363,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "alerts", label: "Teams integration" },
   },
   { prefix: "/administration/connection-status", topic: { slug: "integration-readiness", label: "How integration readiness works" } },
+  { prefix: "/administration/developer", topic: { slug: "cli-usage", label: "Internal developer tools" } },
   {
     prefix: "/operate/integration-events/dlq",
     topic: { slug: "integration-readiness", label: "Integration event dead letters" },
@@ -368,6 +394,30 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "users-and-roles", label: "Role mapping" },
   },
   {
+    prefix: "/administration/identity-providers/oidc",
+    topic: { slug: "enterprise-onboarding", label: "OIDC identity provider" },
+  },
+  {
+    prefix: "/administration/identity-providers/saml",
+    topic: { slug: "enterprise-onboarding", label: "SAML identity provider" },
+  },
+  {
+    prefix: "/administration/identity/sso-wizard",
+    topic: { slug: "enterprise-onboarding", label: "SSO wizard" },
+  },
+  {
+    prefix: "/administration/scim-provisioning",
+    topic: { slug: "enterprise-onboarding", label: "SCIM provisioning" },
+  },
+  {
+    prefix: "/administration/tenant/recycle-bin",
+    topic: { slug: "scope", label: "Projects recycle bin" },
+  },
+  {
+    prefix: "/administration/identity-providers/diagnostics",
+    topic: { slug: "enterprise-onboarding", label: "Identity diagnostics" },
+  },
+  {
     prefix: "/administration/identity-providers",
     topic: { slug: "enterprise-onboarding", label: "SSO and identity" },
   },
@@ -392,12 +442,12 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "evidence-intake", label: "Extract and Upload" },
   },
   {
-    prefix: "/administration/users/invite-reviewer",
-    topic: { slug: "users-and-roles", label: "Invite a reviewer" },
+    prefix: "/administration/model-governance",
+    topic: { slug: "how-it-works", label: "AI and model governance" },
   },
   {
-    prefix: "/settings/roles",
-    topic: { slug: "users-and-roles", label: "Users and roles" },
+    prefix: "/administration/users/invite-reviewer",
+    topic: { slug: "users-and-roles", label: "Invite a reviewer" },
   },
   {
     prefix: "/administration/users",

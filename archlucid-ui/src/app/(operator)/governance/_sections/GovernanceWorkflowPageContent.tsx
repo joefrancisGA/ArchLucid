@@ -35,6 +35,7 @@ import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { CtoDemoGovernancePreviewHint } from "@/components/OperateCapabilityHints";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import {
   shouldSeedStaticDemoGovernanceRecordsForRun,
   STATIC_DEMO_GOVERNANCE_FALLBACK_STATUS,
@@ -42,7 +43,7 @@ import {
   tryStaticDemoGovernancePromotions,
   warnStaticDemoPayloadFallbackOutsidePackagedDeployOnce,
 } from "@/lib/operator-static-demo";
-import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
+import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import {
   GOVERNANCE_OVERVIEW_HOW_IT_WORKS_TRIGGER,
   GOVERNANCE_OVERVIEW_HEADER_NEXT_ACTION,
@@ -69,6 +70,7 @@ import type {
   GovernancePromotionRecord,
 } from "@/types/governance-workflow";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { ApprovalQueueEvidenceOrientationStrip } from "./ApprovalQueueEvidenceOrientationStrip";
 import { GovernanceOverviewPanel } from "./GovernanceOverviewPanel";
 import { deriveGovernanceApprovalWorkflowState } from "./governance-approval-workflow-state";
 import { GovernanceReviewContextBar } from "./GovernanceReviewContextBar";
@@ -552,6 +554,8 @@ export function GovernanceWorkflowPageContent() {
         actions={overviewHeaderActions}
       />
 
+      <ApprovalQueueEvidenceOrientationStrip />
+
       {toast ? (
         <div className="fixed bottom-6 right-6 z-50 max-w-sm" role="status">
           <div
@@ -627,7 +631,7 @@ export function GovernanceWorkflowPageContent() {
               </p>
               <GovernanceApprovalStoryCard
                 row={approvalWorkflowState.primaryApprovedRequest!}
-                auditTrailHref={`/audit?runId=${encodeURIComponent(activeRunId)}`}
+                auditTrailHref={auditTrailNavHref(activeRunId)}
                 emphasizeComplete
                 decisionRecordTitle={GOVERNANCE_APPROVAL_DECISION_RECORD_TITLE}
               />

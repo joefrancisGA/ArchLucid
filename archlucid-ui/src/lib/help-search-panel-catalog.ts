@@ -1,4 +1,5 @@
 import type { HelpTabId } from "@/components/HelpPanel";
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
 import { REVIEW_TERMINOLOGY_BANNED_OPERATOR_PATTERNS } from "@/lib/review-terminology-surfaces";
 
 export const HELP_SEARCH_PANEL_SUBTITLE =
@@ -172,7 +173,7 @@ const GOVERNANCE_TOPICS: readonly HelpSearchPanelTopic[] = [
     title: "Policy packs",
     description: "Understand which standards and rules were applied.",
     keywords: ["policy", "packs", "compliance", "rules", "standards"],
-    action: { kind: "route", href: "/policy-packs", helpSlug: null },
+    action: { kind: "route", href: GOVERNANCE_POLICY_PACKS_PATH, helpSlug: null },
   },
 ];
 
@@ -367,7 +368,7 @@ const ROUTE_RECOMMENDED_TOPIC_IDS: readonly { readonly prefix: string; readonly 
     topicIds: ["cloud-connections", "connect-azure", "azure-permissions", "connect-aws", "connect-gcp", "troubleshoot"],
   },
   { prefix: "/governance", topicIds: ["governance-workflow", "risk-register", "policy-packs"] },
-  { prefix: "/policy-packs", topicIds: ["policy-packs", "governance-workflow"] },
+  { prefix: "/governance/policy-packs", topicIds: ["policy-packs", "governance-workflow"] },
   { prefix: "/architecture/reviews/new", topicIds: ["create-first-review", "upload-evidence", "first-review-guide"] },
   { prefix: "/architecture/reviews", topicIds: ["review-findings", "finalize-review", "review-artifacts"] },
   { prefix: "/administration/users", topicIds: ["users-and-roles", "sso-identity"] },

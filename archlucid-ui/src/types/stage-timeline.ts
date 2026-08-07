@@ -1,4 +1,4 @@
-/** One authority pipeline stage row (`GET /v1/architecture/run/{runId}/stage-timeline`). */
+﻿/** One authority pipeline stage row (`GET /v1/architecture/review/{runId}/stage-timeline`). */
 export type StageTimelineSummary = {
   stageName: string;
   startedUtc: string;

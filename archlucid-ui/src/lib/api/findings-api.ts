@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   FindingEvidenceChain,
   FindingExplainability,
   FindingLlmAudit,
@@ -15,7 +15,7 @@ import {
 } from "./http";
 
 /** Read-model inspector: typed payload, rules, evidence citations, audit correlation (ReadAuthority). */
-/** Run-scoped: GET /v1/architecture/run/{runId}/findings/{findingId}/inspect */
+/** Run-scoped: GET /v1/architecture/review/{runId}/findings/{findingId}/inspect */
 export type GetFindingInspectOptions = {
   /**
    * When false, omits relational PayloadJson LOB (detail first-paint). Default true keeps full typed payload.
@@ -33,7 +33,7 @@ export async function getFindingInspect(
 
   return mapFindingInspectApiPayload(
     await apiGet<Record<string, unknown>>(
-      `/v1/architecture/run/${encodeURIComponent(runId)}/findings/${encodeURIComponent(findingId)}/inspect${query}`,
+      `/v1/architecture/review/${encodeURIComponent(runId)}/findings/${encodeURIComponent(findingId)}/inspect${query}`,
     ),
   );
 }
@@ -52,7 +52,7 @@ export async function getFindingEvidenceChain(runId: string, findingId: string):
   const encodedFinding = encodeURIComponent(findingId);
 
   return apiGet<FindingEvidenceChain>(
-    `/v1/architecture/run/${encodeURIComponent(runId)}/findings/${encodedFinding}/evidence-chain`,
+    `/v1/architecture/review/${encodeURIComponent(runId)}/findings/${encodedFinding}/evidence-chain`,
   );
 }
 
@@ -102,7 +102,7 @@ export async function downloadRunFindingsCsv(runId: string): Promise<void> {
   }
 
   await ensureOidcBearerReady();
-  const path = `/v1/architecture/run/${encodeURIComponent(runId)}/findings/export/csv`;
+  const path = `/v1/architecture/review/${encodeURIComponent(runId)}/findings/export/csv`;
   const { url, headers } = await resolveBinaryGetRequest(path);
   const requestHeaders = withCorrelationHeaders(new Headers(headers));
   requestHeaders.set("Accept", "text/csv");

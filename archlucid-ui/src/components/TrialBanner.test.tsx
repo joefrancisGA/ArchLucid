@@ -137,7 +137,7 @@ describe("TrialBanner", () => {
 
     expect(screen.getByText(/12 days until hard purge/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Export reviews" })).toHaveAttribute("href", "/architecture/reviews");
-    expect(screen.getByRole("link", { name: "Export audit trail" })).toHaveAttribute("href", "/audit");
+    expect(screen.getByRole("link", { name: "Export audit trail" })).toHaveAttribute("href", "/governance/audit");
   });
 
   it("hides non-export trial strip off home when pathname is not /", async () => {

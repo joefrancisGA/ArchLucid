@@ -9,7 +9,7 @@ namespace ArchLucid.Api.Tests;
 /// <summary>
 ///     Ensures <see cref="OpenApiContractWebAppFactory" /> (InMemory storage, no SQL) and
 ///     <see cref="GreenfieldSqlApiFactory" /> (Sql + DbUp) expose the same anonymous public HTTP surface
-///     for health and OpenAPI â€” catches wiring regressions that break only one storage path.
+///     for health and OpenAPI — catches wiring regressions that break only one storage path.
 /// </summary>
 [Trait("Category", "Slow")]
 [Trait("Suite", "Core")]

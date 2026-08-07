@@ -1,6 +1,6 @@
-namespace ArchLucid.Contracts.Requests;
+﻿namespace ArchLucid.Contracts.Requests;
 
-/// <summary>Optional body for POST <c>/v1/architecture/run/{{runId}}/commit</c>.</summary>
+/// <summary>Optional body for POST <c>/v1/architecture/review/{{runId}}/commit</c>.</summary>
 public sealed class CommitRunRequest
 {
     /// <summary>

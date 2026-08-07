@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Typed helpers for Playwright live-API E2E against ArchLucid.Api
  * (`live-api-journey.spec.ts`, `live-api-conflict-journey.spec.ts`, `live-api-governance-rejection.spec.ts`, …).
  *
@@ -495,7 +495,7 @@ function isTransientCommitConflict(status: number, body: string): boolean {
 }
 
 function throwCommitHttpError(status: number, body: string, runId: string): never {
-  const message = `POST /v1/architecture/run/${runId}/commit failed ${status}: ${body.slice(0, 500)}`;
+  const message = `POST /v1/architecture/review/${runId}/commit failed ${status}: ${body.slice(0, 500)}`;
 
   if (status >= 500 && status < 600) {
     throw new InfraTransientError(message);
@@ -578,14 +578,14 @@ export async function createRun(
   throw new InfraTransientError("createRun: retry loop exhausted");
 }
 
-/** POST `/v1/architecture/run/{runId}/execute` — run agents (Simulator in CI). */
+/** POST `/v1/architecture/review/{runId}/execute` — run agents (Simulator in CI). */
 export async function executeRun(
   request: APIRequestContext,
   runId: string,
   tenantScope?: LiveTenantScopeHeaders | null,
 ): Promise<unknown> {
   for (let attempt = 0; attempt < maxArchitectureMutationAttempts(); attempt++) {
-    const res = await request.post(`${resolveLiveApiBase()}/v1/architecture/run/${runId}/execute`, {
+    const res = await request.post(`${resolveLiveApiBase()}/v1/architecture/review/${runId}/execute`, {
       headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
     });
     const status = res.status();
@@ -605,14 +605,14 @@ export async function executeRun(
           responseBody,
           attempt,
           maxArchitectureMutationAttempts(),
-          `POST /v1/architecture/run/${runId}/execute`,
+          `POST /v1/architecture/review/${runId}/execute`,
         )
       ) {
         continue;
       }
 
       throw new Error(
-        `POST /v1/architecture/run/${runId}/execute failed ${status}: ${responseBody.slice(0, 500)}`,
+        `POST /v1/architecture/review/${runId}/execute failed ${status}: ${responseBody.slice(0, 500)}`,
       );
     }
 
@@ -622,7 +622,7 @@ export async function executeRun(
   throw new InfraTransientError("executeRun: retry loop exhausted");
 }
 
-/** POST `/v1/architecture/run/{runId}/commit` — merge and persist golden manifest. */
+/** POST `/v1/architecture/review/{runId}/finalize` — merge and persist golden manifest. */
 export async function commitRun(
   request: APIRequestContext,
   runId: string,
@@ -646,7 +646,7 @@ export async function commitRun(
       return alreadyCommitted;
     }
 
-    const res = await request.post(`${resolveLiveApiBase()}/v1/architecture/run/${runId}/commit`, {
+    const res = await request.post(`${resolveLiveApiBase()}/v1/architecture/review/${runId}/commit`, {
       headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
       timeout: commitAttemptHttpTimeoutMs,
     });
@@ -672,7 +672,7 @@ export async function commitRun(
         body,
         infrastructureAttempt,
         maxCommitInfrastructureAttempts(),
-        `POST /v1/architecture/run/${runId}/commit`,
+        `POST /v1/architecture/review/${runId}/commit`,
         { startedAtMs: retryStartedMs },
       )
     ) {
@@ -724,7 +724,7 @@ export async function commitRunRaw(
       );
     }
 
-    const res = await request.post(`${resolveLiveApiBase()}/v1/architecture/run/${runId}/commit`, {
+    const res = await request.post(`${resolveLiveApiBase()}/v1/architecture/review/${runId}/commit`, {
       headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
       timeout: commitAttemptHttpTimeoutMs,
     });
@@ -745,7 +745,7 @@ export async function commitRunRaw(
           responseBody,
           infrastructureAttempt,
           maxCommitInfrastructureAttempts(),
-          `POST /v1/architecture/run/${runId}/commit`,
+          `POST /v1/architecture/review/${runId}/commit`,
           { startedAtMs: retryStartedMs },
         )
       ) {
@@ -770,13 +770,13 @@ export type CommitRunResponseJson = {
   };
 };
 
-/** GET `/v1/architecture/run/{runId}` — raw response (404/409 negative paths). */
+/** GET `/v1/architecture/review/{runId}` — raw response (404/409 negative paths). */
 export async function getRunDetailsRaw(
   request: APIRequestContext,
   runId: string,
   tenantScope?: LiveTenantScopeHeaders | null,
 ): Promise<APIResponse> {
-  return request.get(`${resolveLiveApiBase()}/v1/architecture/run/${runId}`, {
+  return request.get(`${resolveLiveApiBase()}/v1/architecture/review/${runId}`, {
     headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
   });
 }
@@ -1077,7 +1077,7 @@ export function countFindingsInAuthorityRunDetailPayload(payload: unknown): numb
   return Array.isArray(findings) ? findings.length : 0;
 }
 
-/** GET `/v1/architecture/run/{runId}` — run aggregate including golden manifest id after commit. */
+/** GET `/v1/architecture/review/{runId}` — run aggregate including golden manifest id after commit. */
 export async function getRunDetails(
   request: APIRequestContext,
   runId: string,
@@ -1085,7 +1085,7 @@ export async function getRunDetails(
 ): Promise<RunDetailsJson> {
   const res = await getRunDetailsRaw(request, runId, tenantScope);
 
-  await throwIfNotOk(res, "GET /v1/architecture/run/...");
+  await throwIfNotOk(res, "GET /v1/architecture/review/...");
 
   return res.json() as Promise<RunDetailsJson>;
 }
@@ -1103,7 +1103,7 @@ export async function getRunDetailsWithTransientRetries(
 ): Promise<RunDetailsJson> {
   for (let attempt = 0; attempt < maxRunDetailPollAttempts; attempt++) {
     try {
-      const res = await request.get(`${resolveLiveApiBase()}/v1/architecture/run/${runId}`, {
+      const res = await request.get(`${resolveLiveApiBase()}/v1/architecture/review/${runId}`, {
         headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
       });
       const code = res.status();
@@ -1120,7 +1120,7 @@ export async function getRunDetailsWithTransientRetries(
         continue;
       }
 
-      await throwIfNotOk(res, "GET /v1/architecture/run/...");
+      await throwIfNotOk(res, "GET /v1/architecture/review/...");
 
       return res.json() as Promise<RunDetailsJson>;
     } catch (error) {
@@ -1232,7 +1232,7 @@ export async function waitForRunDetailCommitted(
   }
 
   throw new Error(
-    `Run ${runId} did not reach Committed (GET /v1/architecture/run/{id}) within ${liveE2eCommitWaitMs(timeoutMs)}ms`,
+    `Run ${runId} did not reach Committed (GET /v1/architecture/review/{id}) within ${liveE2eCommitWaitMs(timeoutMs)}ms`,
   );
 }
 
@@ -1320,7 +1320,7 @@ export async function waitForAuthorityManifestSummaryReady(
   const encoded = encodeURIComponent(manifestId);
 
   while (Date.now() < deadline) {
-    const res = await request.get(`${resolveLiveApiBase()}/v1/authority/signed-records/${encoded}/summary`, {
+    const res = await request.get(`${resolveLiveApiBase()}/v1/authority/signed-review-records/${encoded}/summary`, {
       headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
     });
 
@@ -1329,14 +1329,14 @@ export async function waitForAuthorityManifestSummaryReady(
     }
 
     if (res.status() !== 404) {
-      await throwIfNotOk(res, `GET /v1/authority/signed-records/${encoded}/summary`);
+      await throwIfNotOk(res, `GET /v1/authority/signed-review-records/${encoded}/summary`);
     }
 
     await new Promise((r) => setTimeout(r, 1000));
   }
 
   throw new Error(
-    `Authority manifest summary for ${manifestId} not ready (GET /v1/authority/signed-records/{id}/summary) within ${liveE2eCommitWaitMs(timeoutMs)}ms`,
+    `Authority manifest summary for ${manifestId} not ready (GET /v1/authority/signed-review-records/{id}/summary) within ${liveE2eCommitWaitMs(timeoutMs)}ms`,
   );
 }
 
@@ -1761,19 +1761,19 @@ export async function getRunExportZip(
   });
 }
 
-/** GET `/v1/architecture/run/{runId}/exports` — export audit rows incl. persisted analysis JSON (demo whitelabel pre-fill). */
+/** GET `/v1/architecture/review/{runId}/exports` — export audit rows incl. persisted analysis JSON (demo whitelabel pre-fill). */
 export async function getRunArchitectureExportHistoryRaw(
   request: APIRequestContext,
   runId: string,
   tenantScope?: LiveTenantScopeHeaders | null,
 ): Promise<APIResponse> {
-  return request.get(`${resolveLiveApiBase()}/v1/architecture/run/${encodeURIComponent(runId)}/exports`, {
+  return request.get(`${resolveLiveApiBase()}/v1/architecture/review/${encodeURIComponent(runId)}/exports`, {
     headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
   });
 }
 
 /**
- * POST `/v1/architecture/run/{runId}/analysis-report/export/docx/consulting` — consulting-template DOCX
+ * POST `/v1/architecture/review/{runId}/analysis-report/export/docx/consulting` — consulting-template DOCX
  * (`CanExportConsultingDocx` policy + ExecuteAuthority); returns raw HTTP for Playwright assertions.
  */
 export async function postConsultingAnalysisDocxRaw(
@@ -1792,7 +1792,7 @@ export async function postConsultingAnalysisDocxRaw(
   );
 
   return request.post(
-    `${resolveLiveApiBase()}/v1/architecture/run/${encodeURIComponent(runId)}/analysis-report/export/docx/consulting`,
+    `${resolveLiveApiBase()}/v1/architecture/review/${encodeURIComponent(runId)}/analysis-report/export/docx/consulting`,
     { data: {}, headers },
   );
 }
@@ -1915,14 +1915,14 @@ export async function postAdvisoryScanRaw(
   });
 }
 
-/** POST `/v1/architecture/run/{runId}/replay` — architecture replay (`ReplayRunRequest` accepts `{}`). */
+/** POST `/v1/architecture/review/{runId}/replay` — architecture replay (`ReplayRunRequest` accepts `{}`). */
 export async function postReplayRunRaw(
   request: APIRequestContext,
   runId: string,
   tenantScope?: LiveTenantScopeHeaders | null,
 ): Promise<APIResponse> {
   const encoded = encodeURIComponent(runId);
-  const label = `POST /v1/architecture/run/${encoded}/replay`;
+  const label = `POST /v1/architecture/review/${encoded}/replay`;
   const retryStartedMs = Date.now();
   let infrastructureAttempt = 0;
 
@@ -1933,7 +1933,7 @@ export async function postReplayRunRaw(
       );
     }
 
-    const res = await request.post(`${resolveLiveApiBase()}/v1/architecture/run/${encoded}/replay`, {
+    const res = await request.post(`${resolveLiveApiBase()}/v1/architecture/review/${encoded}/replay`, {
       data: {},
       headers: mergeTenantScope(liveJsonHeaders(), tenantScope),
       timeout: commitAttemptHttpTimeoutMs,
@@ -2029,9 +2029,9 @@ export async function getAlertRulesRaw(
   });
 }
 
-/** GET `/v1/graph/runs/{runGuid}` — knowledge graph for run. */
+/** GET `/v1/evidence-graph/reviews/{runGuid}` — knowledge graph for run. */
 export async function getGraphForRunRaw(request: APIRequestContext, runGuidPathSegment: string): Promise<APIResponse> {
-  return request.get(`${resolveLiveApiBase()}/v1/graph/runs/${runGuidPathSegment}`, {
+  return request.get(`${resolveLiveApiBase()}/v1/evidence-graph/reviews/${runGuidPathSegment}`, {
     headers: liveAcceptHeaders(),
   });
 }

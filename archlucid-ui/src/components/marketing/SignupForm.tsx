@@ -358,7 +358,7 @@ export function SignupForm() {
               className="font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
               href="/security-trust"
             >
-              security and trust
+              assurance status
             </Link>
             . To protect the demo environment, evaluation workspaces may have usage limits.
           </p>

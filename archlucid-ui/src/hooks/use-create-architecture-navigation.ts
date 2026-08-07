@@ -2,7 +2,7 @@
 
 import { useCallback } from "react";
 
-import { initializeArchitectureCreation } from "@/lib/architecture-creation-init";
+import { clearArchitectureCreationDraftId } from "@/lib/architecture-creation-session";
 import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
 import {
   CREATE_ARCHITECTURE_NAVIGATION_FAILED_MESSAGE,
@@ -16,20 +16,19 @@ import {
 /** @deprecated Prefer SOFT_NAVIGATION_TIMEOUT_MS — kept for existing test imports. */
 export const CREATE_ARCHITECTURE_NAVIGATION_TIMEOUT_MS = SOFT_NAVIGATION_TIMEOUT_MS;
 
-function preloadCreateArchitecturePageModules(): void {
-  void import("@/components/architecture/ArchitectureCreationBootstrap");
+function preloadArchitectureDraftWorkspaceModules(): void {
   void import("@/components/architecture/ArchitectureDraftWorkspace");
 }
 
-/** Fast homepage navigation for Create Architecture — architecture route, no review initialization. */
+/** Opens the new-architecture draft workspace — no server draft until the first field save. */
 export function useCreateArchitectureNavigation() {
   const { navigate: softNavigate, reset, isNavigating, error } = useSoftNavigationLoading({
     timeoutErrorMessage: CREATE_ARCHITECTURE_NAVIGATION_FAILED_MESSAGE,
   });
 
   const navigate = useCallback(() => {
-    preloadCreateArchitecturePageModules();
-    void initializeArchitectureCreation();
+    preloadArchitectureDraftWorkspaceModules();
+    clearArchitectureCreationDraftId();
     softNavigate(ARCHITECTURES_NEW_PATH);
   }, [softNavigate]);
 

@@ -181,7 +181,7 @@ public static class ProblemSupportHints
 
         if (typeUri == ProblemTypes.GraphTooLargeForFullResponse)
             return
-                "Use GET /v1/graph/runs/{runId}/nodes with page/pageSize to retrieve the architecture graph in pages (max page size 200). Cross-page edges are omitted per page; export or downstream analytics may be needed for full linkage.";
+                "Use GET /v1/evidence-graph/reviews/{runId}/nodes with page/pageSize to retrieve the architecture graph in pages (max page size 200). Cross-page edges are omitted per page; export or downstream analytics may be needed for full linkage.";
 
         if (typeUri == ProblemTypes.RequestPayloadTooLarge)
             return

@@ -3,6 +3,7 @@ namespace ArchLucid.Persistence.Sql;
 /// <summary>
 ///     Documents intentional agent-result list SQL shapes for TB-929 inventory / shape guards.
 ///     Slim first-paint without <c>ResultJson</c> is tracked under <c>TB-930</c>.
+///     Rollup/compare projection (TB-2053) omits bare full-row <c>ResultJson</c>.
 /// </summary>
 internal static class AgentResultListSql
 {
@@ -16,6 +17,24 @@ internal static class AgentResultListSql
     /// </summary>
     public const string GetByRunIdSelectAgentTypeMarkers = """
                                                            SELECT ar.ResultId, ar.TaskId, ar.RunId, ar.AgentType, ar.Confidence, ar.CreatedUtc
+                                                           """;
+
+    /// <summary>
+    ///     Rollup/compare projection (TB-2053) — relational identity plus JSON subpaths used by diffs / severity
+    ///     rollups. Must not SELECT bare <c>ar.ResultJson</c> (reasoning / topology LOBs stay in storage).
+    /// </summary>
+    public const string GetByRunIdSelectRollupProjection = """
+                                                           SELECT ar.ResultId,
+                                                                  ar.TaskId,
+                                                                  ar.RunId,
+                                                                  ar.AgentType,
+                                                                  ar.Confidence,
+                                                                  ar.CreatedUtc,
+                                                                  JSON_QUERY(ar.ResultJson, '$.claims') AS ClaimsJson,
+                                                                  JSON_QUERY(ar.ResultJson, '$.evidenceRefs') AS EvidenceRefsJson,
+                                                                  JSON_QUERY(ar.ResultJson, '$.findings') AS FindingsJson,
+                                                                  JSON_QUERY(ar.ResultJson, '$.proposedChanges.requiredControls') AS RequiredControlsJson,
+                                                                  JSON_QUERY(ar.ResultJson, '$.proposedChanges.warnings') AS WarningsJson
                                                            """;
 
     /// <summary>

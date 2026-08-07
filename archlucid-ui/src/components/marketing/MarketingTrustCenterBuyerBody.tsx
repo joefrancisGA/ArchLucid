@@ -105,10 +105,10 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
               Contact security
             </Link>
             <Link href="/privacy" className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300">
-              Privacy disclosures
+              Privacy policy
             </Link>
             <Link href="/security-trust" className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300">
-              Security and trust details
+              Assurance status
             </Link>
           </nav>
         </div>
@@ -171,7 +171,7 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
         <p className={cn("m-0 mt-2 max-w-prose text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           CAIQ, SOC 2 self-assessment, SIG Core, and owner-conducted pen-test materials are included in the
           anonymous evidence pack ZIP below. Individual help topics may require sign-in; the ZIP does not.
-          Independent third-party penetration testing is planned, not yet scheduled â€” not implied by these artifacts.
+          Independent third-party penetration testing is planned, not yet scheduled — not implied by these artifacts.
         </p>
         <ul className="m-0 mt-5 grid list-none gap-4 p-0 md:grid-cols-2">
           {TRUST_PUBLIC_ASSURANCE_ARTIFACTS.map((artifact) => (

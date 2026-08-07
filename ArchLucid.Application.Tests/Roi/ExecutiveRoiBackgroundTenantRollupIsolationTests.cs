@@ -287,7 +287,7 @@ public sealed class ExecutiveRoiBackgroundTenantRollupIsolationTests
             });
 
         runQuery
-            .Setup(query => query.GetRunDetailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(query => query.GetRunDetailForRoiAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((string runId, CancellationToken _) =>
             {
                 Guid? ambientTenant = AmbientScopeContext.CurrentOverride?.TenantId;

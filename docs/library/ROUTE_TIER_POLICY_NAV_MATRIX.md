@@ -1,4 +1,4 @@
-> **Scope:** Authoritative crosswalk of HTTP route families → commercial tier gate (if any), ASP.NET authorization policy, and operator nav visibility — for procurement reviewers and contributors avoiding “UI link implies HTTP access” confusion.
+﻿> **Scope:** Authoritative crosswalk of HTTP route families → commercial tier gate (if any), ASP.NET authorization policy, and operator nav visibility — for procurement reviewers and contributors avoiding “UI link implies HTTP access” confusion.
 
 # Route, tier, policy, and navigation matrix
 
@@ -8,7 +8,7 @@ This matrix complements **[PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md)** four-bo
 
 | Signal | Current value |
 | --- | --- |
-| Registry rows | **191** controller route families (`route-tier-policy-nav-registry-count`) |
+| Registry rows | **193** controller route families (`route-tier-policy-nav-registry-count`) |
 | Executable registry | `scripts/ci/data/route_tier_policy_nav_registry.json` |
 | CI command | `python scripts/ci/assert_route_tier_policy_nav.py` |
 | Regenerate intentionally | `python scripts/ci/assert_route_tier_policy_nav.py --sync` |
@@ -18,9 +18,9 @@ Reviewer shorthand: the appendix below is generated from the executable registry
 
 ## Pilot-critical routes (sample)
 
-| HTTP route family | Commercial tier gate (`RequiresCommercialTenantTier`) | Primary policy (`[Authorize(Policy=…)]`) | Nav (`href` · tier · `requiredAuthority`) | Notes |
+| HTTP route family | Commercial tier gate (`RequiresCommercialTenantTier`) | Primary policy (`[Authorize(Policy=…)]`) | Nav (`href` Â· tier Â· `requiredAuthority`) | Notes |
 | --- | --- | --- | --- | --- |
-| `GET/POST /v1/pilots/*` (excluding Standard-only actions) | None on controller base (`PilotsController` uses `ReadAuthority`) | Mix: base **ReadAuthority**; `PUT scorecard/baselines`, `POST closeout` **ExecuteAuthority** | Pilot: `/`, `/reviews/new`, `/reviews?projectId=default` · essential · (unset) | `POST …/sponsor-one-pager` **Standard** per PRODUCT_PACKAGING §4 |
+| `GET/POST /v1/pilots/*` (excluding Standard-only actions) | None on controller base (`PilotsController` uses `ReadAuthority`) | Mix: base **ReadAuthority**; `PUT scorecard/baselines`, `POST closeout` **ExecuteAuthority** | Pilot: `/`, `/reviews/new`, `/reviews?projectId=default` Â· essential Â· (unset) | `POST …/sponsor-one-pager` **Standard** per PRODUCT_PACKAGING Â§4 |
 | `GET/POST /v1/runs/*`, run detail APIs | None on typical read paths (verify per action) | **ReadAuthority** / **ExecuteAuthority** per action | Pilot essential + extended **`/governance/findings`** | Compare PRODUCT_PACKAGING Layer A/B inventories |
 | `GET /v1/tenant/trial-status` | None | **ReadAuthority** (`TenantTrialController.GetTrialStatusAsync`) | (indirect — Home / trial widgets) | Class `[Authorize]` + action policy |
 | `POST /v1/diagnostics/core-pilot-rail-step` | None | **`[AllowAnonymous]`** on action (overrides controller **ReadAuthority**); **fixed** rate limit | N/A | Core Pilot checklist counter only (`ClientErrorTelemetryController`) |
@@ -29,9 +29,9 @@ Reviewer shorthand: the appendix below is generated from the executable registry
 
 | HTTP route family | Tier gate | Policy | Nav | Notes |
 | --- | --- | --- | --- | --- |
-| `POST /v1/governance/approval-requests` | **Standard** (per PRODUCT_PACKAGING §4 inventory) | **ExecuteAuthority** typical | **`operate-governance`** links · extended+ | Sub-tier → **404** |
-| `GET/POST /v1/alerts/*` | **Standard** min for many mutations (verify controller) | Mixed Read/Execute | **`/alerts`** · tier **essential** for hub | Tier gate per Commercial filter |
-| `GET/POST /v1/compare`, `/v1/replay` | **Standard** (per packaging doc) | Mixed | `/compare`, `/replay` · extended | Progressive disclosure |
+| `POST /v1/governance/approval-requests` | **Standard** (per PRODUCT_PACKAGING Â§4 inventory) | **ExecuteAuthority** typical | **`operate-governance`** links Â· extended+ | Sub-tier → **404** |
+| `GET/POST /v1/alerts/*` | **Standard** min for many mutations (verify controller) | Mixed Read/Execute | **`/alerts`** Â· tier **essential** for hub | Tier gate per Commercial filter |
+| `GET/POST /v1/compare`, `/v1/replay` | **Standard** (per packaging doc) | Mixed | `/compare`, `/replay` Â· extended | Progressive disclosure |
 
 ## Single source of truth order
 
@@ -68,7 +68,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 - **Allowlist / exemption reasons:** `scripts/ci/data/route_tier_policy_nav_exemptions.json`.
 - **Nav / exemption overrides:** `scripts/ci/data/route_tier_policy_nav_overrides.json`.
 
-<!-- route-tier-policy-nav-registry-count:191 -->
+<!-- route-tier-policy-nav-registry-count:193 -->
 
 | Controller source | API prefix (normalized) | commercial_tier (class) | class_policy | Operator nav href (parity only) | Exemption code |
 | --- | --- | --- | --- | --- | --- |
@@ -87,6 +87,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Admin/AdminQualityGateDiagnosticsController.cs` | `/v1/admin/diagnostics` | none | AdminAuthority |  |  |
 | `Admin/AdminQuickScanSafetyController.cs` | `/v1/admin/quick-scan/safety` | none | AdminAuthority |  |  |
 | `Admin/AdminRagHealthController.cs` | `/v1/admin` | none | AdminAuthority |  |  |
+| `Admin/AdminTenantCatalogMigrationController.cs` | `/v1/admin/tenants` | none | AdminAuthority |  |  |
 | `Admin/AdminTenantsController.cs` | `/v1/admin/tenants` | none | PlatformTenantDeletionAuthority | /administration/users |  |
 | `Admin/AdminTrialFunnelOperationalController.cs` | `/v1/admin/operational` | none | AdminAuthority |  |  |
 | `Admin/AuditController.cs` | `/v1/audit` | none | ReadAuthority | /governance/audit |  |
@@ -107,9 +108,9 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Admin/JobsController.cs` | `/v1/jobs` | none | ReadAuthority |  |  |
 | `Admin/MarketingPricingQuoteAgingAdminController.cs` | `/v1/admin/marketing/pricing-quote-aging` | none | AdminAuthority |  |  |
 | `Admin/MarketingPricingQuoteFollowUpAdminController.cs` | `/v1/admin/marketing/pricing-quote-requests` | none | AdminAuthority |  |  |
+| `Admin/MeteringAdminController.cs` | `/v1/admin/metering` | none | AdminAuthority | /administration/ai-usage |  |
 | `Admin/PromptVariantsAdminController.cs` | `/v1/admin/prompt-variants` | none | AdminAuthority |  |  |
 | `Admin/ReferenceEvidenceAdminController.cs` | `/v1/admin/reference-evidence` | none | AdminAuthority |  |  |
-| `Admin/ReferenceEvidenceAdminLegacyController.cs` | `/v1/admin/tenants/{tenantId:guid}/reference-evidence` | none | AdminAuthority |  |  |
 | `Admin/RoiBulletinAdminController.cs` | `/v1/admin/roi-bulletin-preview` | none | AdminAuthority |  |  |
 | `Admin/ScimTokensAdminController.cs` | `/v1/admin/scim/tokens` | none | AdminAuthority |  |  |
 | `Admin/ScopeDebugController.cs` | `/v1/scope` | none | ReadAuthority |  |  |
@@ -156,7 +157,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Authority/AzureExtractorUploadController.cs` | `/v1/azure-extractor` | none | ReadAuthority |  |  |
 | `Authority/CloudInventoryExtractorUploadController.cs` | `/v1/extractor` | none | ReadAuthority |  |  |
 | `Authority/DocxExportController.cs` | `/v1/docx` | standard | ReadAuthority |  |  |
-| `Authority/EvidenceBulkUploadController.cs` | `/v1/architecture/run/{runId:guid}/evidence` | none | ExecuteAuthority |  |  |
+| `Authority/EvidenceBulkUploadController.cs` | `/v1/architecture/review/{runId:guid}/evidence` | none | ExecuteAuthority |  |  |
 | `Authority/ExportsController.cs` | `/v1/architecture` | standard | ReadAuthority |  |  |
 | `Authority/FastPathContextController.cs` | `/v1/architecture` | none | ReadAuthority |  |  |
 | `Authority/GcpTier2ConnectionController.cs` | `/v1/gcp-extractor/connections` | none | ExecuteAuthority | /integrations/cloud-connections |  |
@@ -192,7 +193,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Findings/FindingRemediationAssignmentController.cs` | `/v1/findings` | standard | ExecuteAuthority | /governance/findings |  |
 | `Governance/GovernanceController.cs` | `/v1/governance` | standard | ReadAuthority | /governance/approval-queue |  |
 | `Governance/GovernanceCoverageController.cs` | `/v1/governance` | standard | ReadAuthority |  |  |
-| `Governance/GovernancePreCommitSimulationController.cs` | `/v1/governance/pre-commit` | standard | ReadAuthority |  |  |
+| `Governance/GovernancePreCommitSimulationController.cs` | `/v1/governance/pre-finalize` | standard | ReadAuthority |  |  |
 | `Governance/GovernancePreviewController.cs` | `/v1/governance-preview` | standard | ReadAuthority |  |  |
 | `Governance/GovernanceResolutionController.cs` | `/v1/governance-resolution` | standard | ReadAuthority | /governance/standards-and-rules |  |
 | `Governance/GovernanceStickinessController.cs` | `/v1/governance` | standard | ReadAuthority |  |  |
@@ -230,7 +231,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Planning/ConversationController.cs` | `/v1/conversations` | standard | ReadAuthority |  |  |
 | `Planning/ExplanationController.cs` | `/v1/explain` | standard | ReadAuthority |  |  |
 | `Planning/FindingFeedbackController.cs` | `/v1/explain` | standard | ExecuteAuthority |  |  |
-| `Planning/GraphController.cs` | `/v1/graph` | standard | ReadAuthority | /insights/evidence-graph |  |
+| `Planning/GraphController.cs` | `/v1/evidence-graph` | standard | ReadAuthority | /insights/evidence-graph |  |
 | `Planning/ProvenanceController.cs` | `/v1/provenance` | standard | ReadAuthority |  |  |
 | `Planning/ProvenanceQueryController.cs` | `/v1/authority` | standard | ReadAuthority |  |  |
 | `Planning/RetrievalController.cs` | `/v1/retrieval` | standard | ReadAuthority | /insights/search-review-evidence |  |
@@ -244,6 +245,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Support/SupportProblemReportsController.cs` | `/v1/support` | none | ExecuteAuthority |  |  |
 | `Tenancy/CorePilotTeamChecklistController.cs` | `/v1/tenant/core-pilot-checklist` | standard | Authorize | /architecture/first-review-guide |  |
 | `Tenancy/TenantBaselineController.cs` | `/v1/tenant/baseline` | none | Authorize |  |  |
+| `Tenancy/TenantCatalogMigrationStatusController.cs` | `/v1/tenant` | none | Authorize |  |  |
 | `Tenancy/TenantCostSettingsController.cs` | `/v1/tenant/cost-settings` | none | Authorize |  |  |
 | `Tenancy/TenantCustomerSuccessController.cs` | `/v1/tenant/customer-success` | standard | Authorize |  |  |
 | `Tenancy/TenantErasureLegalHoldController.cs` | `/v1/tenant/erasure` | none | Authorize |  |  |

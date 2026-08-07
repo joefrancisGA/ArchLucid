@@ -1,0 +1,7 @@
+flowchart LR
+  Pipe["SqlOpenResilienceDefaults BuildSqlOpenRetryPipeline"] --> Det["SqlTransientDetector"]
+  Det --> Delay["SqlOpenRetryDelayCalculator"]
+  Pipe --> Scoped["SqlScopedResolutionDbConnectionFactory"]
+  Pipe --> Replica["ReadReplicaRoutedConnectionFactory"]
+  Pipe --> Audit["AuditSqlRetryPolicyProvider"]
+  Reg["SqlStorageProviderRegistrar"] --> Pipe

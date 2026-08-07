@@ -7,7 +7,7 @@ using FluentAssertions;
 
 namespace ArchLucid.Api.Tests;
 
-/// <summary>HTTP coverage for <c>GET /v1/pilots/outcome-summary</c> â€” trailing 30-day rollup for operator home.</summary>
+/// <summary>HTTP coverage for <c>GET /v1/pilots/outcome-summary</c> — trailing 30-day rollup for operator home.</summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
 public sealed class PilotOutcomeSummaryEndpointTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)

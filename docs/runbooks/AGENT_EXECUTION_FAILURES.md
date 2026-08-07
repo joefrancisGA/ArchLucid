@@ -1,4 +1,4 @@
-> **Scope:** Agent execution failures - full detail, tables, and links in the sections below.
+﻿> **Scope:** Agent execution failures - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -77,7 +77,7 @@ Use `LastFailureReason` JSON (`failureClass`, optional `triageScenarioId`) on fa
 
 **fallbackToSimulator:** See step 2a above; use `--strict-real` in CI; mark proof artifacts HOLD when fallback occurred.
 
-**partialRequiredAgentsIncomplete:** Run detail / buyer-summary expose `AgentExecutionOutcomes` and `LegacyRunStatus` of `PartiallyCompleted` or `FailedPartial`. Finalize and commit stay blocked until every required agent (Topology, Cost, Compliance, Critic) is Succeeded. Prefer selective re-execute (`POST /v1/architecture/run/{runId}/execute/selective`, UI **Retry failed agents**) so successful agents are not re-billed (**TB-938**); full execute remains available. Polly retries a single completion call — they do not invent a complete required-agent set.
+**partialRequiredAgentsIncomplete:** Run detail / buyer-summary expose `AgentExecutionOutcomes` and `LegacyRunStatus` of `PartiallyCompleted` or `FailedPartial`. Finalize and commit stay blocked until every required agent (Topology, Cost, Compliance, Critic) is Succeeded. Prefer selective re-execute (`POST /v1/architecture/review/{runId}/execute/selective`, UI **Retry failed agents**) so successful agents are not re-billed (**TB-938**); full execute remains available. Polly retries a single completion call — they do not invent a complete required-agent set.
 
 See also [`docs/library/FIRST_REAL_VALUE.md`](../library/FIRST_REAL_VALUE.md) and [`docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md`](GOLDEN_COHORT_REAL_LLM_GATE.md).
 
@@ -92,6 +92,7 @@ See also [`docs/library/FIRST_REAL_VALUE.md`](../library/FIRST_REAL_VALUE.md) an
 
 ## Related docs
 
+- [docs/library/LLM_EXECUTION_VS_QUALITY_OUTCOME.md](../library/LLM_EXECUTION_VS_QUALITY_OUTCOME.md) — execution vs quality two-axis contract (**TB-963**).
 - `docs/BUILD.md` — configuration and test SQL variables.  
 - `docs/ALERTS.md` — alert routes (separate from agent execution).  
 - `SECRET_AND_CERT_ROTATION.md` — API keys and endpoints.

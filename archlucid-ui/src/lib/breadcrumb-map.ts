@@ -8,6 +8,7 @@ import {
   REVIEWS_LIST_PATH,
   REVIEWS_NEW_PATH,
   parseArchitectureDraftIdFromPath,
+  reviewDetailPath,
 } from "@/lib/architecture-routes";
 import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
 import { compareRunBuyerDisplayLabel } from "@/lib/compare-run-display-label";
@@ -24,7 +25,9 @@ import {
   GOVERNANCE_ALERT_RULES_PATH,
   GOVERNANCE_APPROVAL_QUEUE_PATH,
   GOVERNANCE_POLICY_PACKS_PATH,
+  LEGACY_AUDIT_PATH,
   pathMatchesGovernanceApprovalQueue,
+  pathMatchesRoutePrefix,
 } from "@/lib/governance-route-paths";
 import {
   LEGACY_SIGNED_RECORDS_LIST_PATH,
@@ -289,7 +292,7 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
     return [{ label: GOVERNANCE_OVERVIEW_PAGE_TITLE }];
   }
 
-  if (normalized === "/audit" || normalized.startsWith("/audit/")) {
+  if (pathMatchesRoutePrefix(normalized, LEGACY_AUDIT_PATH)) {
     const runId = options?.queryRunId?.trim();
 
     if (runId === undefined || runId.length === 0) {
@@ -532,7 +535,7 @@ function injectReviewPackagePathCrumbs(
     reviewHref = `${REVIEWS_LIST_PATH}/${encodeURIComponent(runId)}`;
   } else if (segments[0] === "reviews" && segments.length >= 3) {
     runId = segments[1] ?? "";
-    reviewHref = `/reviews/${encodeURIComponent(runId)}`;
+    reviewHref = reviewDetailPath(runId);
   } else {
     return items;
   }
@@ -868,6 +871,6 @@ function tryBuildGovernanceRunScopedBreadcrumbs(
   return [
     { label: "Reviews", href: reviewsListHref },
     { label: packageTitle, href: reviewHref },
-    { label: "Governance" },
+    { label: GOVERNANCE_OVERVIEW_PAGE_TITLE },
   ];
 }

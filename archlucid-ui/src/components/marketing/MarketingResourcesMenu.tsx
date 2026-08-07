@@ -132,7 +132,7 @@ export function MarketingResourcesMenu({ liveDemoLinked }: MarketingResourcesMen
             )}
             onClick={closeMenu}
           >
-            Security &amp; assurance
+            Assurance status
           </Link>
           <Link
             href="/privacy"
@@ -143,7 +143,7 @@ export function MarketingResourcesMenu({ liveDemoLinked }: MarketingResourcesMen
             )}
             onClick={closeMenu}
           >
-            Privacy
+            Privacy policy
           </Link>
           <Link
             href="/why"

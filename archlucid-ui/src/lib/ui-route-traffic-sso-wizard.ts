@@ -1,0 +1,18 @@
+/**
+ * Traffic workbook row ID for SSO wizard.
+ * Owner backlog shorthand: ASS (template formerly SIS on legacy settings path).
+ */
+export const SSO_WIZARD_TRAFFIC_ROW_ID = "ASS";
+
+/** Canonical path tracked on the ASS workbook row. */
+export const SSO_WIZARD_TRAFFIC_PATH = "/administration/identity/sso-wizard";
+
+/** Workbook Section column value (template catalog). */
+export const SSO_WIZARD_TRAFFIC_SECTION = "Settings";
+
+/**
+ * Owner workbook Notes for ASS - documents Evidence chrome on SSO wizard.
+ * ASCII-only for Windows console note scripts.
+ */
+export const SSO_WIZARD_TRAFFIC_NOTE =
+  "SSO wizard (Settings/Admin) - SsoWizardPageClient with PageContextualHelpButton (topic map enterprise-onboarding; Category-1 registry), workspace Sources + claim-discipline orientation strip, guided OIDC/SAML discover / map / test / activate. Sibling AID = identity-providers hub; ASA = saml; AOI = oidc; SEI = diagnostics. Access configuration - not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 50/100 (2026-08-06) - settings access-hub hard-caps higher Evidence.";

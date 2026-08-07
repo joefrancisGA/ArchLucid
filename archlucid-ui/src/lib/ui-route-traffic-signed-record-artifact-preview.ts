@@ -15,7 +15,9 @@ export const SIGNED_RECORD_ARTIFACT_PREVIEW_TRAFFIC_PATH =
 
 /**
  * Owner workbook Notes for MAM — canonical signed-record artifact preview (SoT for RER redirect).
- * Section retag to Core review stays on TB-1949.
  */
 export const SIGNED_RECORD_ARTIFACT_PREVIEW_TRAFFIC_NOTE =
   "Manifest-scoped artifact preview — App Router page under signed-records (TB-1821 SoT). Run-scoped RER redirects here. Download/proxy paths remain available.";
+
+/** Workbook Section column value (Core review — not Marketing). */
+export const SIGNED_RECORD_ARTIFACT_PREVIEW_TRAFFIC_SECTION = "Core review";

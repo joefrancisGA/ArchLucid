@@ -40,5 +40,7 @@ describe("buildPlainLanguageQualityBlockSummary", () => {
 
     expect(buildPlainLanguageQualityBlockSummary(rows)).toContain("Critic");
     expect(buildPlainLanguageQualityBlockSummary(rows)).toContain("blocked");
+    expect(buildPlainLanguageQualityBlockSummary(rows)).toContain("not an LLM outage");
+    expect(buildPlainLanguageQualityBlockSummary(rows)?.toLowerCase()).not.toContain("model failed");
   });
 });

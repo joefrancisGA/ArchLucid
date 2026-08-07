@@ -1,3 +1,4 @@
+import { REVIEWS_NEW_PATH } from "@/lib/architecture-routes";
 import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
@@ -16,7 +17,7 @@ export type ReviewGuideHelpSourceLink = {
 
 /** Operator Sources — no self-href to `/help/review-guide`. */
 export const REVIEW_GUIDE_HELP_SOURCES: readonly ReviewGuideHelpSourceLink[] = [
-  { label: "Start a review", href: "/reviews/new" },
+  { label: "Start a review", href: REVIEWS_NEW_PATH },
   { label: "First review guide", href: FIRST_REVIEW_GUIDE_PATH },
   { label: "Architecture reviews", href: "/architecture/reviews" },
   { label: "Findings help", href: inAppHelpHref("findings") },

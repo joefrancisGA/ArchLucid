@@ -1,4 +1,4 @@
-{
+﻿{
   "annotations": {
     "list": [
       {
@@ -26,7 +26,7 @@
       "id": 10,
       "options": {
         "code": { "language": "plaintext", "showLineNumbers": false, "showMiniMap": false },
-        "content": "## Trace viewer\n\n1. `GET /v1/architecture/run/$runId` → copy **`run.otelTraceId`**.\n2. Open your trace UI with that **32-char hex** (same `{traceId}` placeholder as operator UI / CLI `ARCHLUCID_TRACE_VIEWER_URL_TEMPLATE`).\n\nExample: `[Open trace](${TRACE_VIEWER_BASE:raw}/$runId)` — replace **`TRACE_VIEWER_BASE`** with your Grafana Explore or Jaeger base (Grafana variables cannot substitute API responses; use the runbook for the exact URL).",
+        "content": "## Trace viewer\n\n1. `GET /v1/architecture/review/$runId` → copy **`run.otelTraceId`**.\n2. Open your trace UI with that **32-char hex** (same `{traceId}` placeholder as operator UI / CLI `ARCHLUCID_TRACE_VIEWER_URL_TEMPLATE`).\n\nExample: `[Open trace](${TRACE_VIEWER_BASE:raw}/$runId)` — replace **`TRACE_VIEWER_BASE`** with your Grafana Explore or Jaeger base (Grafana variables cannot substitute API responses; use the runbook for the exact URL).",
         "mode": "markdown"
       },
       "title": "Trace viewer link (manual)",

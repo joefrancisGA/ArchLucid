@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — Performance testing (k6 smoke) - full detail, tables, and links in the sections below.
+﻿> **Scope:** Contributor-reference — Performance testing (k6 smoke) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -75,7 +75,7 @@ See **`docs/TEST_EXECUTION_MODEL.md`** — job **`Performance: k6 API smoke (ope
 
 ### Core Pilot operator-path smoke budget (merge gate)
 
-**`tests/load/k6-api-smoke.js`** enforces **per-request-tag** p(95) ceilings (via k6 **`thresholds`**) for the default **Core Pilot-shaped** HTTP slice: **`/health/ready`**, **`GET /version`**, **`POST /v1/architecture/request`**, **`GET /v1/architecture/run/{id}`** (run snapshot), **`GET /v1/authority/projects/…/runs`**, then **`POST …/seed-fake-results`** → **`POST …/commit`** → **`GET /v1/artifacts/manifests/{manifestId}`** (descriptor listing). Caps default to the same tier hints as **`ci-smoke.js`** (**`ARCHLUCID_K6_P95_HEALTH_READY_MS`**, **`ARCHLUCID_K6_P95_TIER2_MS`**, **`ARCHLUCID_K6_P95_TIER3_MS`**, optional **`ARCHLUCID_K6_P95_SEED_FAKE_MS`** / **`ARCHLUCID_K6_P95_COMMIT_MS`**, **`ARCHLUCID_K6_HTTP_FAIL_RATE_MAX`**).
+**`tests/load/k6-api-smoke.js`** enforces **per-request-tag** p(95) ceilings (via k6 **`thresholds`**) for the default **Core Pilot-shaped** HTTP slice: **`/health/ready`**, **`GET /version`**, **`POST /v1/architecture/request`**, **`GET /v1/architecture/review/{id}`** (run snapshot), **`GET /v1/authority/projects/…/runs`**, then **`POST …/seed-fake-results`** → **`POST …/commit`** → **`GET /v1/artifacts/signed-review-records/{manifestId}`** (descriptor listing). Caps default to the same tier hints as **`ci-smoke.js`** (**`ARCHLUCID_K6_P95_HEALTH_READY_MS`**, **`ARCHLUCID_K6_P95_TIER2_MS`**, **`ARCHLUCID_K6_P95_TIER3_MS`**, optional **`ARCHLUCID_K6_P95_SEED_FAKE_MS`** / **`ARCHLUCID_K6_P95_COMMIT_MS`**, **`ARCHLUCID_K6_HTTP_FAIL_RATE_MAX`**).
 
 **What this budget proves:** on a **fresh SQL catalog** with **Simulator** agents and **DevelopmentBypass**, the **first-pilot-shaped API sequence** stays within **documented CI/pilot smoke ceilings** and does not regress sharply on latency or check failures versus recent baseline PRs.
 

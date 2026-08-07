@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { cn } from "@/lib/utils";
 import { OPERATOR_CALLOUT_SUCCESS_CLASS, OPERATOR_CALLOUT_WARN_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -38,7 +38,7 @@ function countNonEmptyFiles(files: File[]): number {
 }
 
 /**
- * Bulk evidence upload for a review run (`POST /v1/architecture/run/{runId}/evidence/bulk`).
+ * Bulk evidence upload for a review run (`POST /v1/architecture/review/{runId}/evidence/bulk`).
  * @see `BulkEvidenceUpload.test.tsx`
  */
 export function BulkEvidenceUpload({ runId }: BulkEvidenceUploadProps) {

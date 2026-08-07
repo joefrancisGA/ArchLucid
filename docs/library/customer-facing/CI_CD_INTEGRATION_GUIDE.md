@@ -1,12 +1,12 @@
-> **Scope:** Customer-facing — embed ArchLucid into GitHub Actions and Azure DevOps pipelines using the V1 REST + CLI surfaces.
+﻿> **Scope:** Customer-facing — embed ArchLucid into GitHub Actions and Azure DevOps pipelines using the V1 REST + CLI surfaces.
 
 # CI/CD integration guide (V1)
 
 **Audience:** Platform engineers wiring architecture review into pull-request or release pipelines using the **V1 REST + CLI** surfaces. First-party **Jira**, **ServiceNow**, **Teams**, and **Slack** connectors are **V1 GA** for UI-driven workflows; this guide focuses on pipeline automation that does not require those connectors.
 
-**Canonical automation spine:** [`V1_AUTOMATION_HANDOFF_PACK.md`](../V1_AUTOMATION_HANDOFF_PACK.md) · CLI reference: [`CLI_USAGE.md`](../CLI_USAGE.md)
+**Canonical automation spine:** [`V1_AUTOMATION_HANDOFF_PACK.md`](../V1_AUTOMATION_HANDOFF_PACK.md) Â· CLI reference: [`CLI_USAGE.md`](../CLI_USAGE.md)
 
-**Copy-paste workflow examples:** [`examples/github-actions/archlucid-architecture-review.yml`](../../../examples/github-actions/archlucid-architecture-review.yml) · [`examples/azure-devops/archlucid-architecture-review.yml`](../../../examples/azure-devops/archlucid-architecture-review.yml)
+**Copy-paste workflow examples:** [`examples/github-actions/archlucid-architecture-review.yml`](../../../examples/github-actions/archlucid-architecture-review.yml) Â· [`examples/azure-devops/archlucid-architecture-review.yml`](../../../examples/azure-devops/archlucid-architecture-review.yml)
 
 ---
 
@@ -17,9 +17,9 @@ The product calls these steps an **architecture review** that you **finalize** i
 | Step (buyer language) | REST (API still uses run/commit) | CLI |
 | --- | --- | --- |
 | Create architecture review | `POST /v1/architecture/request` | `archlucid run` (optional `--idempotency-key`) |
-| Execute | `POST /v1/architecture/run/{runId}/execute` | `archlucid architecture execute <runId>` |
-| Poll | `GET /v1/architecture/run/{runId}` | `archlucid status <runId>` |
-| Finalize architecture package | `POST /v1/architecture/run/{runId}/commit` | `archlucid commit <runId>` |
+| Execute | `POST /v1/architecture/review/{runId}/execute` | `archlucid architecture execute <runId>` |
+| Poll | `GET /v1/architecture/review/{runId}` | `archlucid status <runId>` |
+| Finalize architecture package | `POST /v1/architecture/review/{runId}/finalize` | `archlucid commit <runId>` |
 | Export | `GET /v1/artifacts/runs/{runId}/export` | `archlucid artifacts export <runId>` |
 | Sponsor report | `GET /v1/pilots/runs/{runId}/first-value-report` | `archlucid first-value-report <runId>` |
 
@@ -93,7 +93,7 @@ jobs:
 
       - name: Execute review
         run: |
-          curl -sS -X POST "${ARCHLUCID_API_URL}/v1/architecture/run/${{ steps.create.outputs.run_id }}/execute" \
+          curl -sS -X POST "${ARCHLUCID_API_URL}/v1/architecture/review/${{ steps.create.outputs.run_id }}/execute" \
             -H "X-ArchLucid-Api-Key: ${ARCHLUCID_API_KEY}" \
             -H "X-Correlation-ID: gh-exec-${{ github.run_id }}"
 
@@ -101,7 +101,7 @@ jobs:
         run: |
           RUN_ID="${{ steps.create.outputs.run_id }}"
           for i in $(seq 1 60); do
-            STATUS=$(curl -sS "${ARCHLUCID_API_URL}/v1/architecture/run/${RUN_ID}" \
+            STATUS=$(curl -sS "${ARCHLUCID_API_URL}/v1/architecture/review/${RUN_ID}" \
               -H "X-ArchLucid-Api-Key: ${ARCHLUCID_API_KEY}" | jq -r '.status')
             echo "status=${STATUS} attempt=${i}"
             if [ "$STATUS" = "ReadyForCommit" ] || [ "$STATUS" = "Committed" ]; then
@@ -115,7 +115,7 @@ jobs:
       - name: Commit and fail on governance pre-commit block (409)
         run: |
           HTTP_CODE=$(curl -sS -o commit-body.json -w "%{http_code}" \
-            -X POST "${ARCHLUCID_API_URL}/v1/architecture/run/${{ steps.create.outputs.run_id }}/commit" \
+            -X POST "${ARCHLUCID_API_URL}/v1/architecture/review/${{ steps.create.outputs.run_id }}/commit" \
             -H "X-ArchLucid-Api-Key: ${ARCHLUCID_API_KEY}" \
             -H "X-Correlation-ID: gh-commit-${{ github.run_id }}")
           if [ "$HTTP_CODE" = "409" ]; then

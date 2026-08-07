@@ -18,10 +18,10 @@ namespace ArchLucid.Api.Tests;
 public sealed class ExportReplayServiceTests
 {
     // BuildReplayFileName is private but its rules are:
-    //   - blank input â†’ "replayed_export.docx"
-    //   - "report.docx" â†’ "report_replay.docx"
-    //   - "report.v2.docx" â†’ "report.v2_replay.docx"  (only last extension)
-    //   - "noext" â†’ "noext_replay"
+    //   - blank input → "replayed_export.docx"
+    //   - "report.docx" → "report_replay.docx"
+    //   - "report.v2.docx" → "report.v2_replay.docx"  (only last extension)
+    //   - "noext" → "noext_replay"
 
     private static string CallBuildReplayFileName(string originalFileName)
     {

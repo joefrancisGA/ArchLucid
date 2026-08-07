@@ -58,7 +58,7 @@ public sealed class InMemoryComparisonRecordRepository : IComparisonRecordReposi
                     string.Equals(r.LeftRunId, runId, StringComparison.Ordinal) ||
                     string.Equals(r.RightRunId, runId, StringComparison.Ordinal))
                 .OrderByDescending(r => r.CreatedUtc)
-                .Select(Clone)
+                .Select(r => ComparisonRecordListProjection.WithoutPayloadJson(Clone(r)))
                 .ToList();
 
             return Task.FromResult<IReadOnlyList<ComparisonRecord>>(list);
@@ -79,7 +79,7 @@ public sealed class InMemoryComparisonRecordRepository : IComparisonRecordReposi
                     string.Equals(r.LeftExportRecordId, exportRecordId, StringComparison.Ordinal) ||
                     string.Equals(r.RightExportRecordId, exportRecordId, StringComparison.Ordinal))
                 .OrderByDescending(r => r.CreatedUtc)
-                .Select(Clone)
+                .Select(r => ComparisonRecordListProjection.WithoutPayloadJson(Clone(r)))
                 .ToList();
 
             return Task.FromResult<IReadOnlyList<ComparisonRecord>>(list);
@@ -123,7 +123,11 @@ public sealed class InMemoryComparisonRecordRepository : IComparisonRecordReposi
                 label,
                 tags);
             query = ApplyOrdering(query, sortBy, sortDir);
-            List<ComparisonRecord> page = query.Skip(safeSkip).Take(safeLimit).ToList();
+            List<ComparisonRecord> page = query
+                .Skip(safeSkip)
+                .Take(safeLimit)
+                .Select(ComparisonRecordListProjection.WithoutPayloadJson)
+                .ToList();
 
             return Task.FromResult<IReadOnlyList<ComparisonRecord>>(page);
         }
@@ -186,7 +190,10 @@ public sealed class InMemoryComparisonRecordRepository : IComparisonRecordReposi
                            0));
 
             query = ApplyOrdering(query, sortBy, sortDir);
-            List<ComparisonRecord> page = query.Take(safeLimit).ToList();
+            List<ComparisonRecord> page = query
+                .Take(safeLimit)
+                .Select(ComparisonRecordListProjection.WithoutPayloadJson)
+                .ToList();
 
             return Task.FromResult<IReadOnlyList<ComparisonRecord>>(page);
         }

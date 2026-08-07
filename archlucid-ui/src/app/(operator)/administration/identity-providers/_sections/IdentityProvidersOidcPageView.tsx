@@ -15,6 +15,7 @@ import {
 } from "@/lib/identity-providers-settings-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
+import { IdentityProvidersOidcEvidenceOrientationStrip } from "./IdentityProvidersOidcEvidenceOrientationStrip";
 import { IdentityProvidersSettingsShell } from "./IdentityProvidersSettingsShell";
 import type { UseIdentityProvidersSettingsPageModel } from "./use-identity-providers-settings-page";
 
@@ -41,6 +42,8 @@ export function IdentityProvidersOidcPageView(props: IdentityProvidersOidcPageVi
       lastRefreshedAt={props.model.lastRefreshedAt}
       onRefresh={() => void props.model.refresh()}
     >
+      <IdentityProvidersOidcEvidenceOrientationStrip />
+
       <Card data-testid="identity-providers-oidc-status-card">
         <CardHeader>
           <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>OIDC/JWT status</CardTitle>

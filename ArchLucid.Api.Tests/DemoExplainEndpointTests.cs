@@ -17,18 +17,18 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     HTTP coverage for <c>GET /v1/demo/explain</c> â€” the public proof endpoint that powers the operator-shell
+///     HTTP coverage for <c>GET /v1/demo/explain</c> — the public proof endpoint that powers the operator-shell
 ///     <c>/demo/explain</c> route. Two scenarios exercise the security-critical 404 paths:
 ///     <list type="bullet">
 ///         <item>
 ///             <description>
-///                 <b>Demo:Enabled=false</b> (factory default) â€” <see cref="FeatureGateFilter" /> short-circuits
+///                 <b>Demo:Enabled=false</b> (factory default) — <see cref="FeatureGateFilter" /> short-circuits
 ///                 before the action runs.
 ///             </description>
 ///         </item>
 ///         <item>
 ///             <description>
-///                 <b>Demo:Enabled=true</b> but no committed demo run â€” <see cref="DemoReadModelClient" />
+///                 <b>Demo:Enabled=true</b> but no committed demo run — <see cref="DemoReadModelClient" />
 ///                 returns null and the controller emits <c>NotFoundProblem</c>.
 ///             </description>
 ///         </item>
@@ -116,7 +116,7 @@ public sealed class DemoExplainEndpointTests(ArchLucidApiFactory factory) : ICla
                 RunId = ContosoRetailDemoIdentifiers.AuthorityRunBaselineId.ToString("N"),
                 ManifestVersion = ContosoRetailDemoIdentifiers.ManifestBaseline,
                 IsDemoData = true,
-                DemoStatusMessage = "demo tenant â€” replace before publishing",
+                DemoStatusMessage = "demo tenant — replace before publishing",
                 RunExplanation = new RunExplanationSummary
                 {
                     Explanation = new ExplanationResult { Summary = "Stub" },

@@ -1,4 +1,4 @@
-import { ensureOidcBearerReady, resolveRequest, withCorrelationHeaders } from "@/lib/api/http";
+﻿import { ensureOidcBearerReady, resolveRequest, withCorrelationHeaders } from "@/lib/api/http";
 
 export type BulkEvidenceUploadProgress = {
   loadedBytes: number;
@@ -34,7 +34,7 @@ export async function postBulkEvidenceMultipartWithProgress(
 ): Promise<BulkEvidenceUploadHttpResult> {
   await ensureOidcBearerReady();
 
-  const path = `/v1/architecture/run/${encodeURIComponent(runId)}/evidence/bulk`;
+  const path = `/v1/architecture/review/${encodeURIComponent(runId)}/evidence/bulk`;
   const { url, headers } = await resolveRequest(path);
   const requestHeaders = withCorrelationHeaders(headers);
 

@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Models;
@@ -21,7 +21,7 @@ public sealed class ArchitectureEndToEndComparisonTests(ArchLucidApiFactory fact
             Client, JsonOptions, "REQ-E2E-001");
 
         string summaryUrl =
-            $"/v1/architecture/run/compare/end-to-end/summary?leftRunId={Uri.EscapeDataString(runId)}&rightRunId={Uri.EscapeDataString(replayRunId)}";
+            $"/v1/architecture/review/compare/end-to-end/summary?leftRunId={Uri.EscapeDataString(runId)}&rightRunId={Uri.EscapeDataString(replayRunId)}";
 
         HttpResponseMessage response = await Client.PostAsync(
             summaryUrl,

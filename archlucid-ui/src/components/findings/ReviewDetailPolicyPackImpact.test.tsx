@@ -32,7 +32,7 @@ describe("ReviewDetailPolicyPackImpactCallout", () => {
     );
     expect(screen.getByTestId("review-detail-policy-pack-impact-audit")).toHaveAttribute(
       "href",
-      "/audit?runId=run-abc",
+      "/governance/audit?runId=run-abc",
     );
   });
 });

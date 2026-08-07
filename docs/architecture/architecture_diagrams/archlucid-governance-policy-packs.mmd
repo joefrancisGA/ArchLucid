@@ -1,0 +1,35 @@
+flowchart TB
+  subgraph content["Policy pack content"]
+    DRAFT["LLM draft rules"]
+    CRITIC["Critic review"]
+    SME["Human SME approve"]
+    PACK["Policy pack JSON/YAML<br/>rules · alerts · advisories"]
+  end
+
+  subgraph assign["Scope assignment"]
+    T["Tenant assignment"]
+    W["Workspace assignment"]
+    P["Project assignment"]
+  end
+
+  subgraph resolve["Effective governance"]
+    MERGE["Hierarchical merge<br/>tenant → workspace → project"]
+    EFF["EffectiveGovernance<br/>resolved rule set"]
+  end
+
+  subgraph apply["Decisioning & surfaces"]
+    ENG["Governance / advisory engine<br/>ArchLucid.Decisioning"]
+    FIND["Findings · alerts · digests"]
+    MAN["Golden manifest sections"]
+  end
+
+  DRAFT --> CRITIC --> SME --> PACK
+  PACK --> T
+  PACK --> W
+  PACK --> P
+  T --> MERGE
+  W --> MERGE
+  P --> MERGE
+  MERGE --> EFF --> ENG
+  ENG --> FIND
+  ENG --> MAN

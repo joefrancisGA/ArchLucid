@@ -8,6 +8,10 @@ vi.mock("next/link", () => ({
   default: ({ href, children }: { href: string; children: React.ReactNode }) => <a href={href}>{children}</a>,
 }));
 
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => <button type="button">Page help</button>,
+}));
+
 describe("DeveloperSettingsPageClient", () => {
   it("surfaces only shipped internal developer tool widgets", () => {
     render(<DeveloperSettingsPageClient />);
@@ -16,6 +20,8 @@ describe("DeveloperSettingsPageClient", () => {
     expect(screen.getByText(INTERNAL_DEVELOPER_TOOLS_SHIPPED_INVENTORY[0])).toBeInTheDocument();
     expect(screen.getByTestId("authority-theme-dev-selector")).toBeInTheDocument();
     expect(screen.getByTestId("try-cli-demo-card")).toBeInTheDocument();
-    expect(screen.queryByText(/diagnostics/i)).not.toBeInTheDocument();
+    expect(screen.getByTestId("developer-settings-sources")).toBeInTheDocument();
+    // No unshipped Diagnostics product widget — Sources may still link admin-diagnostics help.
+    expect(screen.queryByRole("heading", { name: /^Diagnostics$/i })).not.toBeInTheDocument();
   });
 });

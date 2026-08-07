@@ -18,7 +18,7 @@ export function getRouteTitle(pathname: string): string {
     return CREATE_ARCHITECTURE_LABEL;
   }
 
-  if (/^\/signed-records\/[^/]+$/.test(normalized)) {
+  if (/^\/(?:governance\/)?signed-records\/[^/]+$/.test(normalized)) {
     return "Signed review record";
   }
 

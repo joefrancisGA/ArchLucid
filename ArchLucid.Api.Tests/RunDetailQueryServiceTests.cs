@@ -5,6 +5,7 @@ using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Core.Scoping;
@@ -22,7 +23,7 @@ using Moq;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     Unit tests for <see cref="RunDetailQueryService" /> â€” the canonical run detail assembly path.
+///     Unit tests for <see cref="RunDetailQueryService" /> — the canonical run detail assembly path.
 /// </summary>
 /// <remarks>
 ///     ADR 0030 PR A3 (2026-04-24): the legacy <c>ICoordinatorDecisionTraceRepository</c> was deleted.
@@ -180,7 +181,7 @@ public sealed class RunDetailQueryServiceTests
 
         _runRepo.Setup(r => r.GetByIdAsync(_scope, _runGuid1, It.IsAny<CancellationToken>()))
             .ReturnsAsync(record);
-        _resultRepo.Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), Run1N, It.IsAny<CancellationToken>()))
+        _resultRepo.Setup(r => r.GetRollupProjectionByRunIdAsync(It.IsAny<ScopeContext>(), Run1N, It.IsAny<CancellationToken>()))
             .ReturnsAsync([agentResult]);
         _unifiedManifestReader
             .Setup(r => r.ReadByRunIdAsync(_scope, _runGuid1, It.IsAny<CancellationToken>()))
@@ -194,6 +195,12 @@ public sealed class RunDetailQueryServiceTests
         result.Tasks.Should().BeEmpty();
         result.DecisionTraces.Should().BeEmpty();
         result.AgentExecutionLlmCostEstimate.Should().BeNull();
+        _resultRepo.Verify(
+            r => r.GetRollupProjectionByRunIdAsync(It.IsAny<ScopeContext>(), Run1N, It.IsAny<CancellationToken>()),
+            Times.Once);
+        _resultRepo.Verify(
+            r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
         _taskRepo.Verify(
             r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Never);
@@ -202,6 +209,49 @@ public sealed class RunDetailQueryServiceTests
             Times.Never);
         _muteRepo.Verify(
             r => r.GetMuteFlagsAsync(It.IsAny<Guid>(), It.IsAny<ScopeContext>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [SkippableFact]
+    public async Task GetRunDetailForRoiAsync_applies_mute_flags_on_rollup_projection()
+    {
+        Guid snapshotId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        RunRecord record = CommittedRunRecord(decisionTraceId: Guid.NewGuid());
+        record.FindingsSnapshotId = snapshotId;
+        GoldenManifest manifest = Manifest(Run1N);
+        AgentResult agentResult = new()
+        {
+            ResultId = "r1",
+            RunId = Run1N,
+            TaskId = "t1",
+            Findings = [new ArchitectureFinding { FindingId = "f1", Message = "gap" }],
+        };
+
+        _runRepo.Setup(r => r.GetByIdAsync(_scope, _runGuid1, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(record);
+        _resultRepo.Setup(r => r.GetRollupProjectionByRunIdAsync(It.IsAny<ScopeContext>(), Run1N, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([agentResult]);
+        _unifiedManifestReader
+            .Setup(r => r.ReadByRunIdAsync(_scope, _runGuid1, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(manifest);
+        _muteRepo
+            .Setup(r => r.GetMuteFlagsAsync(snapshotId, _scope, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new Dictionary<string, FindingMuteFlag>(StringComparer.Ordinal)
+                {
+                    ["f1"] = new FindingMuteFlag(isMuted: true, muteReason: "noise"),
+                });
+
+        ArchitectureRunDetail? result = await _sut.GetRunDetailForRoiAsync(Run1N);
+
+        result.Should().NotBeNull();
+        result!.Results[0].Findings[0].IsMuted.Should().BeTrue();
+        result.Tasks.Should().BeEmpty();
+        _muteRepo.Verify(
+            r => r.GetMuteFlagsAsync(snapshotId, _scope, It.IsAny<CancellationToken>()),
+            Times.Once);
+        _resultRepo.Verify(
+            r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 

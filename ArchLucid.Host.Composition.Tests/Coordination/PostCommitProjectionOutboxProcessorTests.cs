@@ -1,6 +1,7 @@
 using System.Diagnostics;
 
 using ArchLucid.Application.Provenance;
+using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
@@ -187,5 +188,141 @@ public sealed class PostCommitProjectionOutboxProcessorTests
                 It.IsAny<CancellationToken>()),
             Times.Once);
         outbox.Verify(o => o.MarkProcessedAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task ProcessPendingBatchAsync_creates_isolated_scope_per_dequeued_entry()
+    {
+        Guid runId = Guid.NewGuid();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
+        };
+
+        List<PostCommitProjectionOutboxEntry> entries =
+        [
+            new()
+            {
+                OutboxId = Guid.NewGuid(),
+                WorkType = PostCommitProjectionWorkTypes.ProvenanceSnapshotMaterialization,
+                RunId = runId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime()
+            },
+            new()
+            {
+                OutboxId = Guid.NewGuid(),
+                WorkType = PostCommitProjectionWorkTypes.ProvenanceSnapshotMaterialization,
+                RunId = runId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime()
+            },
+            new()
+            {
+                OutboxId = Guid.NewGuid(),
+                WorkType = PostCommitProjectionWorkTypes.ProvenanceSnapshotMaterialization,
+                RunId = runId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime()
+            },
+        ];
+
+        Mock<IPostCommitProjectionOutboxRepository> outbox = new();
+        outbox
+            .Setup(o => o.DequeuePendingAsync(25, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(entries);
+        outbox
+            .Setup(o => o.MarkProcessedAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IAuthorityQueryService> authorityQuery = new();
+        authorityQuery
+            .Setup(q => q.GetRunDetailAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunDetailDto?)null);
+
+        ServiceCollection services = [];
+        services.AddScoped(_ => outbox.Object);
+        services.AddScoped(_ => authorityQuery.Object);
+        services.AddScoped(_ => Mock.Of<IProvenanceGraphAccessService>());
+        services.AddScoped(_ => Mock.Of<IAuditService>());
+        ServiceProvider provider = services.BuildServiceProvider();
+
+        int scopeCreates = 0;
+        Mock<IServiceScopeFactory> scopeFactory = new();
+        scopeFactory.Setup(f => f.CreateScope()).Returns(() =>
+        {
+            Interlocked.Increment(ref scopeCreates);
+            Mock<IServiceScope> entryScope = new();
+            entryScope.Setup(s => s.ServiceProvider).Returns(provider);
+            entryScope.Setup(s => s.Dispose());
+            return entryScope.Object;
+        });
+
+        PostCommitProjectionOutboxProcessor sut = new(
+            scopeFactory.Object,
+            Options.Create(new PostCommitProjectionOutboxProcessorOptions { MaxConcurrentBatchEntries = 3 }),
+            TimeProvider.System,
+            NullLogger<PostCommitProjectionOutboxProcessor>.Instance);
+
+        await sut.ProcessPendingBatchAsync(CancellationToken.None);
+
+        scopeCreates.Should().BeGreaterOrEqualTo(entries.Count + 1);
+        outbox.Verify(o => o.MarkProcessedAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Exactly(entries.Count));
+    }
+
+    [Fact]
+    public async Task ProcessPendingBatchAsync_invokes_decision_node_materializer()
+    {
+        Guid outboxId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        Mock<IPostCommitProjectionOutboxRepository> outbox = new();
+        outbox
+            .Setup(o => o.DequeuePendingAsync(25, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new PostCommitProjectionOutboxEntry
+                {
+                    OutboxId = outboxId,
+                    WorkType = PostCommitProjectionWorkTypes.DecisionEngineV2NodeMaterialization,
+                    RunId = runId,
+                    TenantId = Guid.NewGuid(),
+                    WorkspaceId = Guid.NewGuid(),
+                    ProjectId = Guid.NewGuid(),
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime()
+                }
+            ]);
+        outbox.Setup(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+
+        Mock<IDecisionEngineV2NodeMaterializer> materializer = new();
+        materializer
+            .Setup(m => m.MaterializeIfMissingAsync(runId.ToString("N"), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        ServiceCollection services = [];
+        services.AddScoped(_ => outbox.Object);
+        services.AddScoped(_ => materializer.Object);
+        services.AddScoped(_ => Mock.Of<IAuditService>());
+        ServiceProvider provider = services.BuildServiceProvider();
+
+        PostCommitProjectionOutboxProcessor sut = new(
+            provider.GetRequiredService<IServiceScopeFactory>(),
+            Options.Create(new PostCommitProjectionOutboxProcessorOptions()),
+            TimeProvider.System,
+            NullLogger<PostCommitProjectionOutboxProcessor>.Instance);
+
+        await sut.ProcessPendingBatchAsync(CancellationToken.None);
+
+        materializer.Verify(
+            m => m.MaterializeIfMissingAsync(runId.ToString("N"), It.IsAny<CancellationToken>()),
+            Times.Once);
+        outbox.Verify(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>()), Times.Once);
     }
 }

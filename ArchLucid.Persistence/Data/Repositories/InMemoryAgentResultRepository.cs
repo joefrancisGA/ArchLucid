@@ -168,6 +168,65 @@ public sealed class InMemoryAgentResultRepository(IAgentResultEnrichmentReposito
         }
     }
 
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<AgentResult>> GetRollupProjectionByRunIdAsync(
+        ScopeContext scope,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        _ = scope;
+
+        List<AgentResult> projected;
+        lock (_gate)
+        {
+            projected = _results
+                .Where(r => string.Equals(r.RunId, runId, StringComparison.Ordinal))
+                .OrderBy(r => r.CreatedUtc)
+                .Select(static r => AgentResultRollupProjection.StripHeavyFields(Clone(r)))
+                .ToList();
+        }
+
+        IReadOnlyDictionary<string, AgentResultEnrichmentRecord> enrichments =
+            await _agentResultEnrichmentRepository.GetByResultIdsAsync(
+                projected.Select(static r => r.ResultId).ToList(),
+                cancellationToken).ConfigureAwait(false);
+
+        if (enrichments.Count == 0)
+            return projected;
+
+        List<AgentResult> merged = [];
+
+        foreach (AgentResult baseResult in projected)
+        {
+            if (!enrichments.TryGetValue(baseResult.ResultId, out AgentResultEnrichmentRecord? enrichment))
+            {
+                merged.Add(baseResult);
+                continue;
+            }
+
+            if (!string.IsNullOrWhiteSpace(enrichment.EnrichedResultJson))
+            {
+                AgentResult? enriched = JsonSerializer.Deserialize<AgentResult>(
+                    enrichment.EnrichedResultJson,
+                    ContractJson.Default);
+
+                if (enriched is not null)
+                {
+                    merged.Add(AgentResultRollupProjection.StripHeavyFields(enriched));
+                    continue;
+                }
+            }
+
+            if (enrichment.CalibratedConfidence.HasValue)
+                baseResult.CalibratedConfidence = enrichment.CalibratedConfidence;
+
+            merged.Add(baseResult);
+        }
+
+        return merged;
+    }
+
     public async Task<IReadOnlyList<EvidenceProposalListItem>> ListEvidenceProposalsAsync(
         ScopeContext scope,
         CancellationToken cancellationToken = default)

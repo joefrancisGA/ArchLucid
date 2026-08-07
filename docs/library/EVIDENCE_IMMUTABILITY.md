@@ -36,7 +36,7 @@ Pre-commit stages may rewrite draft rows; after commit, sealed tables accept **I
 | Golden manifests | `dbo.GoldenManifests` + children | Sealed | In-place updates possible via app | DENY UPDATE/DELETE |
 | Artifact bundles | `dbo.ArtifactBundles` + children | Sealed | Same | DENY UPDATE/DELETE |
 | Context / graph / findings snapshots | `dbo.ContextSnapshots*`, `dbo.GraphSnapshot*`, `dbo.FindingsSnapshot*`, `dbo.Finding*` | Sealed | Append at commit; no legitimate post-commit edit | DENY UPDATE/DELETE |
-| Decision traces | `dbo.DecisionTraces`, `dbo.DecisionNodes`, `dbo.DecisioningTraces` | Sealed | Append at commit | DENY UPDATE/DELETE |
+| Decision traces | `dbo.DecisionNodes`, `dbo.DecisioningTraces` | Sealed | Append at commit | DENY UPDATE/DELETE (`dbo.DecisionTraces` dropped in migration **296**) |
 | Run header | `dbo.Runs` | **Anchor-sealed post-commit** | Status, disposition, ITSM fields | **TB-310:** evidence-anchor columns immutable via trigger + app guard; lifecycle columns mutable |
 
 ## Post-commit write paths (addressed)

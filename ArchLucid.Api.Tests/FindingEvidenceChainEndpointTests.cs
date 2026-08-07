@@ -17,7 +17,7 @@ public sealed class FindingEvidenceChainEndpointTests(ArchLucidApiFactory factor
         Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
 
         HttpResponseMessage response = await Client.GetAsync(
-            $"/v1/architecture/run/{runId:D}/findings/any-finding/evidence-chain");
+            $"/v1/architecture/review/{runId:D}/findings/any-finding/evidence-chain");
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }

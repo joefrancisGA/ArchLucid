@@ -190,6 +190,10 @@ type RunDetailOptionalWireExtras = {
     readonly agentTypeKey?: string | null;
     readonly failureClass?: string | null;
     readonly reasonCode?: string | null;
+    /** TB-965: RealAgentFailureTriageCatalog scenario id when present. */
+    readonly triageScenarioId?: string | null;
+    /** TB-965 / TB-964: structural | semantic | faithfulness when quality path recorded it. */
+    readonly rejectReasonCategory?: string | null;
   } | null;
   estimatedUsdSavingsSummary?: {
     estimatedUsdSavings?: number | null;

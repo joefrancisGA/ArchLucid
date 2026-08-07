@@ -104,6 +104,23 @@ describe("deriveFindingTrustChip", () => {
     expect(chip.groundingLabel).toBe("Not applicable");
   });
 
+  it("marks wire DeterministicFallback as a distinct fallback chip", () => {
+    const chip = deriveFindingTrustChip(
+      baseFinding({
+        trustLabel: "DeterministicFallback",
+        policyRuleId: "cis-az-001",
+        evidenceRefCount: 2,
+        confidenceLevel: "High",
+      }),
+    );
+
+    expect(chip.kind).toBe("deterministic-fallback");
+    expect(chip.label).toBe("Deterministic fallback");
+    expect(chip.groundingLabel).toBe("Not applicable");
+    expect(chip.title).toContain("verify independently");
+    expect(chip.trustSource).toBe("wire");
+  });
+
   it("marks simulator runs as simulated", () => {
     const chip = deriveFindingTrustChip(baseFinding({ evidenceRefCount: 2 }), {
       isSimulatorRun: true,

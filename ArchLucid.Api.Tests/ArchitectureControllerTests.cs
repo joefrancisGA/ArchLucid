@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -15,7 +15,7 @@ namespace ArchLucid.Api.Tests;
 /// <summary>
 ///     Each test uses a new <see cref="ArchLucidApiFactory" /> so the per-test SQL Server database is isolated (see
 ///     <c>docs/BUILD.md</c> for connection resolution).
-///     Shared state could collide when multiple tests reuse one factory database for the same <c>RunId</c> â€”
+///     Shared state could collide when multiple tests reuse one factory database for the same <c>RunId</c> Ã¢â‚¬”
 ///     <c>dbo.GoldenManifests</c> enforces at most one active manifest per run (filtered unique index
 ///     <c>UQ_GoldenManifests_RunId_Active</c>; see <c>dbo.sp_FinalizeManifest</c>).
 /// </summary>
@@ -85,7 +85,7 @@ public sealed class ArchitectureControllerTests
 
             string runId = created.Run.RunId;
 
-            HttpResponseMessage getResponse = await client.GetAsync($"/v1/architecture/run/{runId}");
+            HttpResponseMessage getResponse = await client.GetAsync($"/v1/architecture/review/{runId}");
 
             getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -113,7 +113,7 @@ public sealed class ArchitectureControllerTests
             string runId = created!.Run.RunId;
 
             HttpResponseMessage executeResponse = await client.PostAsync(
-                $"/v1/architecture/run/{runId}/execute",
+                $"/v1/architecture/review/{runId}/execute",
                 null);
 
             executeResponse.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -124,7 +124,7 @@ public sealed class ArchitectureControllerTests
             executePayload.RunId.Should().Be(runId);
             executePayload.Results.Should().HaveCount(4);
 
-            HttpResponseMessage getRunResponse = await client.GetAsync($"/v1/architecture/run/{runId}");
+            HttpResponseMessage getRunResponse = await client.GetAsync($"/v1/architecture/review/{runId}");
             await getRunResponse.EnsureSuccessForTestAsync();
             GetRunResponseDto? getRunPayload =
                 await getRunResponse.Content.ReadFromJsonAsync<GetRunResponseDto>(JsonOptions);
@@ -146,9 +146,9 @@ public sealed class ArchitectureControllerTests
                 await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
             string runId = created!.Run.RunId;
 
-            HttpResponseMessage executeResponse = await client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+            HttpResponseMessage executeResponse = await client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
             await executeResponse.EnsureSuccessForTestAsync();
-            HttpResponseMessage commitResponse = await client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
+            HttpResponseMessage commitResponse = await client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
 
             commitResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -181,7 +181,7 @@ public sealed class ArchitectureControllerTests
             created.Should().NotBeNull();
             string runId = created.Run.RunId;
 
-            HttpResponseMessage executeResponse = await client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+            HttpResponseMessage executeResponse = await client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
 
             executeResponse.StatusCode.Should().Be(HttpStatusCode.OK);
             ExecuteRunResponseDto? executePayload =
@@ -209,9 +209,9 @@ public sealed class ArchitectureControllerTests
             string runId = created.Run.RunId;
             runId.Should().NotBeNullOrWhiteSpace();
 
-            HttpResponseMessage executeResponse = await client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+            HttpResponseMessage executeResponse = await client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
             await executeResponse.EnsureSuccessForTestAsync();
-            HttpResponseMessage commitResponse = await client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
+            HttpResponseMessage commitResponse = await client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
             await commitResponse.EnsureSuccessForTestAsync();
             CommitRunResponseDto? commitPayload =
                 await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
@@ -220,7 +220,7 @@ public sealed class ArchitectureControllerTests
             string manifestVersion = commitPayload.Manifest.Metadata.ManifestVersion;
             manifestVersion.Should()
                 .NotBeNullOrWhiteSpace(
-                    "ADR 0030 PR A3 â€” authority engine projects v-prefixed semver via AuthorityCommitProjectionBuilder.MapMetadata");
+                    "ADR 0030 PR A3 Ã¢â‚¬” authority engine projects v-prefixed semver via AuthorityCommitProjectionBuilder.MapMetadata");
             manifestVersion.Should().StartWith("v");
 
             HttpResponseMessage manifestResponse =
@@ -253,15 +253,15 @@ public sealed class ArchitectureControllerTests
             string runId = created.Run.RunId;
             runId.Should().NotBeNullOrWhiteSpace();
 
-            HttpResponseMessage getRunResponse = await client.GetAsync($"/v1/architecture/run/{runId}");
+            HttpResponseMessage getRunResponse = await client.GetAsync($"/v1/architecture/review/{runId}");
             await getRunResponse.EnsureSuccessForTestAsync();
             GetRunResponseDto? getRunPayload =
                 await getRunResponse.Content.ReadFromJsonAsync<GetRunResponseDto>(JsonOptions);
             getRunPayload!.Tasks.Should().HaveCount(4);
 
-            HttpResponseMessage executeResponse = await client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+            HttpResponseMessage executeResponse = await client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
             await executeResponse.EnsureSuccessForTestAsync();
-            HttpResponseMessage commitResponse = await client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
+            HttpResponseMessage commitResponse = await client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
             await commitResponse.EnsureSuccessForTestAsync();
             CommitRunResponseDto? commitPayload =
                 await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
@@ -270,7 +270,7 @@ public sealed class ArchitectureControllerTests
             string manifestVersion = commitPayload.Manifest.Metadata.ManifestVersion;
             manifestVersion.Should()
                 .NotBeNullOrWhiteSpace(
-                    "ADR 0030 PR A3 â€” authority engine projects v-prefixed semver via AuthorityCommitProjectionBuilder.MapMetadata");
+                    "ADR 0030 PR A3 Ã¢â‚¬” authority engine projects v-prefixed semver via AuthorityCommitProjectionBuilder.MapMetadata");
             manifestVersion.Should().StartWith("v");
 
             HttpResponseMessage manifestResponse =

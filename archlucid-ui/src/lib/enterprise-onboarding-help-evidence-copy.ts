@@ -18,7 +18,7 @@ export const ENTERPRISE_ONBOARDING_HELP_SOURCES: readonly EnterpriseOnboardingHe
   { label: "Identity providers", href: "/administration/settings/identity-providers" },
   { label: "Users and roles", href: inAppHelpHref("users-and-roles") },
   { label: "Security and trust help", href: inAppHelpHref("security-trust") },
-  { label: "Security & trust hub", href: "/security-trust" },
+  { label: "Assurance status", href: "/security-trust" },
   { label: "Cloud connections", href: "/integrations/cloud-connections" },
   { label: "Getting started", href: inAppHelpHref("getting-started") },
 ] as const;

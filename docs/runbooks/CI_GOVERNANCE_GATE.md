@@ -1,4 +1,4 @@
-> **Scope:** Platform engineers wiring ArchLucid **pre-commit governance** and **PilotStrict** checks into GitHub Actions or Azure DevOps — reference pipelines only; no new API surface.
+﻿> **Scope:** Platform engineers wiring ArchLucid **pre-commit governance** and **PilotStrict** checks into GitHub Actions or Azure DevOps — reference pipelines only; no new API surface.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -35,14 +35,14 @@ Related docs:
 
 ## Minimal CI starters
 
-Copy-paste GitHub Actions and Azure DevOps snippets that call **`POST /v1/governance/pre-commit/simulate`** (dry-run, no manifest commit) or **`POST /v1/architecture/run/{runId}/commit`** (real gate) using an Operator-scoped API key secret — aligned with [`scripts/ci/data/v1_integration_starter_contracts.v1.json`](../../scripts/ci/data/v1_integration_starter_contracts.v1.json).
+Copy-paste GitHub Actions and Azure DevOps snippets that call **`POST /v1/governance/pre-finalize/simulate`** (dry-run, no manifest commit) or **`POST /v1/architecture/review/{runId}/finalize`** (real gate) using an Operator-scoped API key secret — aligned with [`scripts/ci/data/v1_integration_starter_contracts.v1.json`](../../scripts/ci/data/v1_integration_starter_contracts.v1.json).
 
 ### When to use which mode
 
 | Mode | API | Use when |
 | --- | --- | --- |
-| **Simulate** | `POST /v1/governance/pre-commit/simulate` | You already have a **ReadyForCommit** or **Committed** `runId` (nightly tag, manual workflow input) and want a **dry-run** gate check without mutating the golden manifest |
-| **Finalize** (API `commit`) | `POST /v1/architecture/run/{runId}/commit` | The review finished execute and is **ReadyForCommit** (ready to finalize) — CI should attempt real finalize and fail on governance block |
+| **Simulate** | `POST /v1/governance/pre-finalize/simulate` | You already have a **ReadyForCommit** or **Committed** `runId` (nightly tag, manual workflow input) and want a **dry-run** gate check without mutating the golden manifest |
+| **Finalize** (API `commit`) | `POST /v1/architecture/review/{runId}/finalize` | The review finished execute and is **ReadyForCommit** (ready to finalize) — CI should attempt real finalize and fail on governance block |
 | **Full PR gate** | create → execute → poll → finalize (`commit`) | Infrastructure or architecture files changed on a PR — use [`examples/ci/archlucid-governance-gate.yml`](../../examples/ci/archlucid-governance-gate.yml) |
 
 ### CI secrets (simulate / commit modes)
@@ -56,7 +56,7 @@ Copy-paste GitHub Actions and Azure DevOps snippets that call **`POST /v1/govern
 
 ### Simulate mode (dry-run)
 
-**OpenAPI:** `POST /v1/governance/pre-commit/simulate`  
+**OpenAPI:** `POST /v1/governance/pre-finalize/simulate`  
 **Body:** `PreCommitSyntheticSimulationRequest` — `runId` (required), optional `syntheticSeverity`, `syntheticCount` for what-if findings.
 
 **Success:** HTTP **200** with `PreCommitGateResult`:
@@ -77,7 +77,7 @@ Example request shape (sanitized — see starter contracts JSON):
 
 ### Finalize mode (real gate; API `commit`)
 
-**OpenAPI:** `POST /v1/architecture/run/{runId}/commit`
+**OpenAPI:** `POST /v1/architecture/review/{runId}/finalize`
 
 | HTTP | Problem `type` fragment | CI action |
 | --- | --- | --- |
@@ -112,9 +112,9 @@ Example request shape (sanitized — see starter contracts JSON):
 
 ```text
 POST /v1/architecture/request     (from repo JSON + PR context)
-POST /v1/architecture/run/{runId}/execute
-GET  /v1/architecture/run/{runId}   (poll until ReadyForCommit or terminal failure)
-POST /v1/architecture/run/{runId}/commit
+POST /v1/architecture/review/{runId}/execute
+GET  /v1/architecture/review/{runId}   (poll until ReadyForCommit or terminal failure)
+POST /v1/architecture/review/{runId}/finalize
 GET  /v1/pilots/runs/{runId}/pilot-run-deltas   (PilotStrict / sponsor-send post-check)
 ```
 
@@ -175,7 +175,7 @@ PilotStrict or agent quality gate blocked completion before commit. **Fail the C
 
 Maps to **`PreCommitGateResult`** in application code. **Fail the CI check** and link architects to the operator review.
 
-Simulate without commit: `POST /v1/governance/pre-commit/simulate` (dry-run only).
+Simulate without commit: `POST /v1/governance/pre-finalize/simulate` (dry-run only).
 
 ### 3. PilotStrict HOLD after successful commit
 

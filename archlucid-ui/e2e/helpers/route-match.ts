@@ -39,21 +39,21 @@ export function matchesAuthorityRunManifestGet(url: URL, runId: string): boolean
 export function matchesManifestSummaryGet(url: URL, manifestId: string): boolean {
   return (
     url.search === "" &&
-    backendApiPath(url) === `/v1/authority/signed-records/${encodeURIComponent(manifestId)}/summary`
+    backendApiPath(url) === `/v1/authority/signed-review-records/${encodeURIComponent(manifestId)}/summary`
   );
 }
 
 export function matchesArtifactListGet(url: URL, manifestId: string): boolean {
   return (
     url.search === "" &&
-    backendApiPath(url) === `/v1/artifacts/signed-records/${encodeURIComponent(manifestId)}`
+    backendApiPath(url) === `/v1/artifacts/signed-review-records/${encodeURIComponent(manifestId)}`
   );
 }
 
 export function matchesArtifactBundleGet(url: URL, manifestId: string): boolean {
   return (
     url.search === "" &&
-    backendApiPath(url) === `/v1/artifacts/signed-records/${encodeURIComponent(manifestId)}/bundle`
+    backendApiPath(url) === `/v1/artifacts/signed-review-records/${encodeURIComponent(manifestId)}/bundle`
   );
 }
 

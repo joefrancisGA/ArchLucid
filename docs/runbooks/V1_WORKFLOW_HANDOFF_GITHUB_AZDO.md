@@ -1,4 +1,4 @@
-> **Scope:** V1 workflow handoff using existing ArchLucid artifacts only. No first-party Jira, ServiceNow, Confluence, Slack, Teams, CloudEvents subscriber, or MCP connector is required or implied.
+﻿> **Scope:** V1 workflow handoff using existing ArchLucid artifacts only. No first-party Jira, ServiceNow, Confluence, Slack, Teams, CloudEvents subscriber, or MCP connector is required or implied.
 
 # V1 workflow handoff — GitHub and Azure DevOps
 
@@ -67,7 +67,7 @@ dotnet run --project ArchLucid.Cli/ArchLucid.Cli.csproj -- first-value-report <r
 dotnet run --project ArchLucid.Cli/ArchLucid.Cli.csproj -- reference-evidence <runId> --api-base-url https://your-api.example
 ```
 
-Inspect run state before retrying execute/commit: `GET /v1/architecture/run/{runId}` — see [Authority vs coordinator integrator table](../library/API_CONTRACTS.md#architecture-run-authority-pipeline-vs-coordinator-execute--result--commit).
+Inspect run state before retrying execute/commit: `GET /v1/architecture/review/{runId}` — see [Authority vs coordinator integrator table](../library/API_CONTRACTS.md#architecture-run-authority-pipeline-vs-coordinator-execute--result--commit).
 
 ## 2. GitHub PR / issue comment template
 
@@ -77,7 +77,7 @@ See filled sample: [`fixtures/v1-workflow-handoff-github-comment.sample.md`](fix
 ## ArchLucid architecture review handoff
 
 - Review/run id: `<runId>`
-- Manifest id: `<manifestId>` (from `GET /v1/architecture/run/{runId}` or support packet)
+- Manifest id: `<manifestId>` (from `GET /v1/architecture/review/{runId}` or support packet)
 - Evidence source: buyer evidence / accepted demo workspace
 - Sponsor disposition: `<SEND|HOLD|READINESS_ONLY>` (from `go-no-go-summary.json`)
 - Quality gate: PilotStrict sponsor-evidence pass / documented caveat

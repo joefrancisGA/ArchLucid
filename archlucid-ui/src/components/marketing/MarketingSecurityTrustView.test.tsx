@@ -5,6 +5,12 @@ import { MarketingSecurityTrustView } from "./MarketingSecurityTrustView";
 import { securityTrustEngagementRows } from "@/lib/security-trust-content";
 
 describe("MarketingSecurityTrustView", () => {
+  it("renders Assurance status as the page title", () => {
+    render(<MarketingSecurityTrustView />);
+
+    expect(screen.getByRole("heading", { level: 1, name: "Assurance status" })).toBeInTheDocument();
+  });
+
   it("renders all five engagement rows from the content lib", () => {
     render(<MarketingSecurityTrustView />);
 

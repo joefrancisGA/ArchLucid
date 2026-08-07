@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — Trusted baseline (49R pass 2 — Corrected 50R, Corrected 51R discipline) - full detail, tables, and links in the sections below.
+﻿> **Scope:** Contributor-reference — Trusted baseline (49R pass 2 — Corrected 50R, Corrected 51R discipline) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -40,8 +40,8 @@ This document defines what the repo treats as **intentionally complete and demo-
 1. Configure `ConnectionStrings:ArchLucid` (SQL Server) and `ArchLucid:StorageProvider` = `Sql` if using the full SQL stack.
 2. Start API → logs show schema bootstrap (if applicable), DbUp, optional demo seed.
 3. `GET /health` → healthy.
-4. `GET /v1/architecture/run/6e8c4a102b1f4c9a9d3e10b2a4f0c501` (with auth) → 200 with manifest.
-5. `GET /v1/architecture/run/compare/agents?leftRunId=6e8c4a102b1f4c9a9d3e10b2a4f0c501&rightRunId=6e8c4a102b1f4c9a9d3e10b2a4f0c502` → 200.
+4. `GET /v1/architecture/review/6e8c4a102b1f4c9a9d3e10b2a4f0c501` (with auth) → 200 with manifest.
+5. `GET /v1/architecture/review/compare/agents?leftRunId=6e8c4a102b1f4c9a9d3e10b2a4f0c501&rightRunId=6e8c4a102b1f4c9a9d3e10b2a4f0c502` → 200.
 6. `GET /v1.0/architecture/manifest/compare?leftVersion=contoso-baseline-v1&rightVersion=contoso-hardened-v1` → 200 (adjust host/version as needed).
 
 Later features may ship in the same repo; **this list** is the boundary for “Corrected 50R” foundation closure.

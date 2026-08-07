@@ -1,4 +1,4 @@
-using ArchLucid.Cli.Commands;
+﻿using ArchLucid.Cli.Commands;
 using ArchLucid.Contracts.Common;
 
 using FluentAssertions;
@@ -68,7 +68,7 @@ public sealed class RunSupportPacketFormatterTests
         text.Should().Contain("Manifest version: 1.9.0");
         text.Should().Contain("OpenTelemetry trace id: abc123");
         text.Should().Contain("Submitted agent results (count): 1");
-        text.Should().Contain("GET http://localhost:5128/v1/architecture/run/rid");
+        text.Should().Contain("GET http://localhost:5128/v1/architecture/review/rid");
         text.Should().Contain("\"gitSha\":\"deadbeef\"");
     }
 }
