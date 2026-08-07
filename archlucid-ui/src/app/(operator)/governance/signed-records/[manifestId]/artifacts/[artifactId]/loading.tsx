@@ -1,8 +1,9 @@
-import { cn } from "@/lib/utils";
+﻿import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SIGNED_RECORD_ARTIFACT_PAGE_TITLE } from "@/lib/signed-record-artifact-page-copy";
+import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 
 export default function SignedRecordArtifactLoading(): React.JSX.Element {
   return (
