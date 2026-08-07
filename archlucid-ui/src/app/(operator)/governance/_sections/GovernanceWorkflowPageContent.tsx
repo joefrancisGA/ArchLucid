@@ -35,6 +35,7 @@ import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { CtoDemoGovernancePreviewHint } from "@/components/OperateCapabilityHints";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import {
   shouldSeedStaticDemoGovernanceRecordsForRun,
   STATIC_DEMO_GOVERNANCE_FALLBACK_STATUS,
