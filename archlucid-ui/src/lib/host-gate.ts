@@ -25,59 +25,71 @@ const EXTRA_MARKETING_EXACT_PATHS: readonly string[] = [
 
 const EXTRA_MARKETING_PREFIXES: readonly string[] = ["/showcase/", "/signup/"];
 
-/** Operator / workspace path prefixes that must not render on the marketing host. */
-const OPERATOR_PATH_PREFIXES: readonly string[] = [
+/** Canonical operator paths for split-site host routing. */
+const CANONICAL_OPERATOR_PATH_PREFIXES: readonly string[] = [
   "/auth/",
-  // Keep `/api/*` on both hosts — marketing signup/quote/quick-scan use same-origin `/api/proxy`.
-  "/architecture/reviews",
-  "/reviews",
   "/architecture/reviews",
   "/architecture/architectures",
-  "/runs",
-  "/manifests",
-  "/signed-records",
+  "/architecture/first-review-guide",
+  "/architecture/digests",
+  "/governance",
+  "/integrations",
+  "/administration",
+  "/admin",
+  "/sponsor-report",
+  "/help",
   "/why-archlucid",
   COMPARE_TWO_REVIEWS_PATH,
-  LEGACY_COMPARE_PATH,
   "/replay",
   "/executive",
-  "/alerts",
-  "/admin",
-  "/administration",
   EVIDENCE_GRAPH_PATH,
   PATTERN_LIBRARY_PATH,
-  LEGACY_GRAPH_PATH,
   LEGACY_OPERATE_ARCHITECTURE_GRAPH_PATH,
-  "/governance",
   LEGACY_ONBOARD_PATH,
   "/onboarding",
-  "/architecture/first-review-guide",
   PLANNING_PATH,
-  "/policy-packs",
   PRODUCT_LEARNING_PATH,
-  LEGACY_PRODUCT_LEARNING_PATH,
   "/internal-operations",
-  "/digest-subscriptions",
   "/advisory-scheduling",
-  "/integrations",
-  "/help",
   SEARCH_REVIEW_EVIDENCE_PATH,
-  LEGACY_SEARCH_PATH,
-  ARCHITECTURE_SCORECARD_PATH,
-  LEGACY_SCORECARD_PATH,
-  ASK_REVIEW_QUESTIONS_PATH,
-  LEGACY_ASK_PATH,
   "/demo",
   "/getting-started",
   IMPACT_PREVIEW_PATH,
-  LEGACY_EVOLUTION_REVIEW_PATH,
-  "/sponsor-report",
   DIGESTS_HUB_PATH,
-  LEGACY_DIGESTS_HUB_PATH,
   "/workspace",
-  "/architecture/architectures",
+  ASK_REVIEW_QUESTIONS_PATH,
+  ARCHITECTURE_SCORECARD_PATH,
+];
+
+/**
+ * Retired bookmark prefixes — no `next.config` redirect (IA batch 4), but split-host must still
+ * forward these to the app origin so users land on the app 404 instead of marketing chrome.
+ */
+const LEGACY_OPERATOR_PATH_PREFIXES: readonly string[] = [
+  "/reviews",
+  "/runs",
   "/architectures",
+  "/manifests",
+  "/signed-records",
+  "/alerts",
+  "/policy-packs",
+  "/audit",
+  "/digest-subscriptions",
+  "/value-report",
+  LEGACY_COMPARE_PATH,
+  LEGACY_GRAPH_PATH,
+  LEGACY_PRODUCT_LEARNING_PATH,
+  LEGACY_SEARCH_PATH,
+  LEGACY_SCORECARD_PATH,
+  LEGACY_ASK_PATH,
+  LEGACY_EVOLUTION_REVIEW_PATH,
+  LEGACY_DIGESTS_HUB_PATH,
   LEGACY_LOGIN_PATH,
+];
+
+const OPERATOR_PATH_PREFIXES: readonly string[] = [
+  ...CANONICAL_OPERATOR_PATH_PREFIXES,
+  ...LEGACY_OPERATOR_PATH_PREFIXES,
 ];
 
 function hostnameFromOrigin(origin: string | null): string | null {

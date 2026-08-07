@@ -12,7 +12,7 @@ function escapeRegExpLiteral(value: string): string {
 
 /**
  * Primary page title on the reviews index server page (`src/app/(operator)/reviews/page.tsx`): rendered as
- * {@code <h1>} by {@link OperatorPageHeader}. Canonical URL is `/reviews`; `/runs` permanently redirects there
+ * {@code <h1>} by {@link OperatorPageHeader}. Canonical URL is `/architecture/reviews`.
  * (`next.config.ts`).
  */
 export const RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN = new RegExp(

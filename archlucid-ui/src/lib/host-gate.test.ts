@@ -28,6 +28,13 @@ describe("host-gate path classifiers", () => {
     expect(isOperatorPath("/welcome")).toBe(false);
   });
 
+  it("treats legacy bookmark paths as operator paths for split-host handoff", () => {
+    expect(isOperatorPath("/reviews")).toBe(true);
+    expect(isOperatorPath("/reviews/abc")).toBe(true);
+    expect(isOperatorPath("/policy-packs")).toBe(true);
+    expect(isOperatorPath("/signed-records/demo")).toBe(true);
+  });
+
   it("treats welcome/pricing/signup as marketing-only", () => {
     expect(isMarketingOnlyPath("/welcome")).toBe(true);
     expect(isMarketingOnlyPath("/pricing")).toBe(true);

@@ -2,13 +2,13 @@ import { type Locator } from "@playwright/test";
 
 import { SHOWCASE_DEMO_RUN_ID } from "../fixtures";
 
-/** Recent packages section on the buyer-polished `/reviews` hub. */
+/** Recent packages section on the buyer-polished reviews hub (`/architecture/reviews`). */
 export function reviewsHubRecentPackagesSection(main: Locator): Locator {
   return main.getByTestId("reviews-hub-recent-packages").first();
 }
 
 /**
- * Buyer-polished `/reviews` hub table row for a package (sample reviews use `reviews-hub-sample-row`).
+ * Buyer-polished `/architecture/reviews` hub table row for a package (sample reviews use `reviews-hub-sample-row`).
  */
 export function reviewsHubPackageRow(main: Locator, runId: string = SHOWCASE_DEMO_RUN_ID): Locator {
   return main

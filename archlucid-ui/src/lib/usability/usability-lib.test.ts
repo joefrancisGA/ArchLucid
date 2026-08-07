@@ -9,6 +9,7 @@ describe("usability lib", () => {
     expect(pageHelpTopicForPathname("/")?.slug).toBe("first-architecture-review");
     expect(pageHelpTopicForPathname("/")?.label).toBe("Architecture workflow");
     expect(pageHelpTopicForPathname("/architecture/reviews/new")?.slug).toBe("evidence-intake");
+    expect(pageHelpTopicForPathname("/reviews/new")?.slug).toBe("evidence-intake");
     expect(pageHelpTopicForPathname("/alerts")?.slug).toBe("alerts");
     expect(pageHelpTopicForPathname("/alert-rules")?.slug).toBe("alerts");
     expect(pageHelpTopicForPathname("/governance/dashboard")?.slug).toBeUndefined();

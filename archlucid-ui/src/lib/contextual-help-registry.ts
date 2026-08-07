@@ -1600,7 +1600,7 @@ export function allPageContextualHelpRows(): readonly PageContextualHelpRow[] {
 /** Resolve short-form contextual help for an operator pathname, or `null` when not migrated yet. */
 export function contextualHelpForPathname(pathname: string): PageContextualHelpEntry | null {
   const rawPath = (pathname ?? "").split("?")[0] ?? "";
-  const path = canonicalizeLegacyOperatorRoutePath(rawPath);
+  const path = (canonicalizeLegacyOperatorRoutePath(rawPath).split("?")[0] ?? rawPath).trim() || "/";
 
   if (pathIsRunProvenance(path)) {
     return PROVENANCE_CONTEXTUAL_HELP;

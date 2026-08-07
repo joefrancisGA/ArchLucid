@@ -27,7 +27,7 @@ test.describe("operator shell smoke", () => {
   });
 
   test("runs list with default project shows a run row without generic error boundary @smoke", async ({ page }) => {
-    // Canonical list URL is `/reviews` (`next.config.ts` redirects `/runs`); go direct to avoid redirect flake on CI.
+    // Canonical list URL is `/architecture/reviews`; go direct to avoid flake on CI.
     await page.goto("/architecture/reviews?projectId=default");
 
     await expect(

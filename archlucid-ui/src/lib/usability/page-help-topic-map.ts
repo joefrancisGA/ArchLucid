@@ -480,7 +480,7 @@ const ARTIFACT_PREVIEW_HELP_TOPIC: PageHelpTopic = {
 
 export function pageHelpTopicForPathname(pathname: string): PageHelpTopic | null {
   const rawPath = (pathname ?? "").split("?")[0] ?? "";
-  const path = canonicalizeLegacyOperatorRoutePath(rawPath);
+  const path = (canonicalizeLegacyOperatorRoutePath(rawPath).split("?")[0] ?? rawPath).trim() || "/";
 
   if (path.includes("/artifacts/")) {
     return ARTIFACT_PREVIEW_HELP_TOPIC;

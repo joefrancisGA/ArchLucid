@@ -75,22 +75,22 @@ To browse interactively, run `e2e/start-e2e-with-mock.ts` (see `playwright.mock.
 
 | What | URL |
 |------|-----|
-| Review package | `/reviews/claims-intake-modernization` |
-| Friendly manifest URL | `/reviews/claims-intake-modernization/manifest` |
+| Review package | `/architecture/reviews/claims-intake-modernization` |
+| Friendly signed-record URL | `/architecture/reviews/claims-intake-modernization/signed-record` |
 | Manifest (UUID) | `/governance/signed-records/a1c2e3f4-a5b6-7890-abcd-ef1234567890` |
-| Finding | `/reviews/claims-intake-modernization/findings/phi-minimization-risk` |
-| Finding inspect | `/reviews/claims-intake-modernization/findings/phi-minimization-risk/inspect` |
-| Provenance | `/reviews/claims-intake-modernization/provenance` |
+| Finding | `/architecture/reviews/claims-intake-modernization/findings/phi-minimization-risk` |
+| Finding inspect | `/architecture/reviews/claims-intake-modernization/findings/phi-minimization-risk/inspect` |
+| Provenance | `/architecture/reviews/claims-intake-modernization/provenance` |
 | Compare | `/compare?priorRunId=claims-intake-run-v1&laterRunId=claims-intake-run-v2` |
 | Graph | `/graph?runId=claims-intake-modernization` (then click **Load graph**) |
 | Ask | `/ask` or `/ask?runId=claims-intake-modernization` |
-| Executive review | `/reviews/claims-intake-modernization` |
+| Executive review | `/architecture/reviews/claims-intake-modernization` |
 | Policy pack detail | `/governance/policy-packs/healthcare-claims-v3-pack` |
 | Approval lineage | `/governance/approval-requests/claims-intake-approval-001/lineage` |
 | Planning plan | `/planning/plans/claims-intake-modernization-plan` |
 | Public showcase | `/showcase/claims-intake-modernization` |
 
-**Frictionless trial:** `/try` enables a browser-only session and lands on `/reviews/claims-intake-modernization`.
+**Frictionless trial:** `/try` enables a browser-only session and lands on `/architecture/reviews/claims-intake-modernization`.
 
 Constants live in `archlucid-ui/src/lib/showcase-static-demo.ts` and `archlucid-ui/e2e/fixtures/ids.ts`.
 
@@ -98,15 +98,15 @@ Constants live in `archlucid-ui/src/lib/showcase-static-demo.ts` and `archlucid-
 
 | Story | Run ID | Example URL |
 |-------|--------|---------------|
-| Contoso baseline | `6e8c4a102b1f4c9a9d3e10b2a4f0c501` | `/reviews/6e8c4a102b1f4c9a9d3e10b2a4f0c501` |
-| Contoso hardened | `6e8c4a102b1f4c9a9d3e10b2a4f0c502` | `/reviews/6e8c4a102b1f4c9a9d3e10b2a4f0c502` |
+| Contoso baseline | `6e8c4a102b1f4c9a9d3e10b2a4f0c501` | `/architecture/reviews/6e8c4a102b1f4c9a9d3e10b2a4f0c501` |
+| Contoso hardened | `6e8c4a102b1f4c9a9d3e10b2a4f0c502` | `/architecture/reviews/6e8c4a102b1f4c9a9d3e10b2a4f0c502` |
 | Compare pair | both above | `/compare?leftRunId=6e8c4a102b1f4c9a9d3e10b2a4f0c501&rightRunId=6e8c4a102b1f4c9a9d3e10b2a4f0c502` |
-| Workspace A (product tour) | `b6ab57c8-84b1-8ac6-28d8-d790efcd1dbf` | `/reviews/b6ab57c8-84b1-8ac6-28d8-d790efcd1dbf` |
-| Workspace B (regulated) | `61c60d76-2b80-93f9-46bb-2f66fd608b9b` | `/reviews/61c60d76-2b80-93f9-46bb-2f66fd608b9b` |
+| Workspace A (product tour) | `b6ab57c8-84b1-8ac6-28d8-d790efcd1dbf` | `/architecture/reviews/b6ab57c8-84b1-8ac6-28d8-d790efcd1dbf` |
+| Workspace B (regulated) | `61c60d76-2b80-93f9-46bb-2f66fd608b9b` | `/architecture/reviews/61c60d76-2b80-93f9-46bb-2f66fd608b9b` |
 
-**Reviews list:** `/reviews?projectId=default` after seed completes.
+**Reviews list:** `/architecture/reviews?projectId=default` after seed completes.
 
-**New review with live pipeline:** `/reviews/new` → leave defaults → **Submit** (simulator agents). See [FIRST_30_MINUTES.md](../engineering/FIRST_30_MINUTES.md).
+**New review with live pipeline:** `/architecture/reviews/new` → leave defaults → **Submit** (simulator agents). See [FIRST_30_MINUTES.md](../engineering/FIRST_30_MINUTES.md).
 
 ---
 
@@ -166,11 +166,11 @@ Columns:
 | `/quick-start` | Deprecated alias | App Router shim permanently redirects to `/get-started` (query preserved; canonical UX on **GXX**) |
 | `/security-trust` | Public Security & trust (metadata only) | Open directly |
 | `/see-it` | “See it in 30 seconds” pitch | Open directly |
-| `/showcase/[runId]` | Public completed review showcase | T1: `/showcase/claims-intake-modernization`. QuickNav deep-links into `/reviews/*` only when demo static fallback is active; otherwise sign-in CTA (`showcase-quick-nav-contract.ts`). |
+| `/showcase/[runId]` | Public completed review showcase | T1: `/showcase/claims-intake-modernization`. QuickNav deep-links into `/architecture/reviews/*` when demo static fallback is active; otherwise sign-in CTA (`showcase-quick-nav-contract.ts`). |
 | `/signup` | Self-service trial signup | Open directly; submit needs backend |
 | `/signup/verify` | Email verification | Layout only unless signup completed |
 | `/trust` | Trust Center | Open directly |
-| `/try` | Frictionless trial launcher | Opens `/reviews/claims-intake-modernization` |
+| `/try` | Frictionless trial launcher | Opens `/architecture/reviews/claims-intake-modernization` |
 | `/welcome` | Welcome / product overview | Open directly |
 | `/why` | Why ArchLucid buyer narrative | Open directly |
 
@@ -188,13 +188,13 @@ Columns:
 |-----|---------|-------------|
 | `/` | Architect home — checklist and quick links | T1 or T2 |
 | `/architecture/executive-dashboard` | Portfolio overview / executive ROI dashboard (**ARE**) | T1 static tiles; T2 after seed; PageContextualHelp → executive-summary |
-| `/dashboard` | Retired — redirects to `/architecture/executive-dashboard` | Legacy bookmark (**DSH**) |
-| `/reviews` | List architecture packages | T2: `/reviews?projectId=default`; T1: static paged list |
-| `/reviews/new` | New architecture review wizard | T2: submit default run; T1: wizard UI (submit needs API) |
-| `/reviews/[runId]` | Architecture package detail | T1: `claims-intake-modernization`; T2: seed GUIDs above |
-| `/reviews/[runId]/provenance` | Evidence provenance diagram | Append to populated review URL |
-| `/reviews/[runId]/findings/[findingId]` | Finding detail | T1: `…/findings/phi-minimization-risk` |
-| `/reviews/[runId]/findings/[findingId]/inspect` | Finding evidence trace inspect | Same finding + `/inspect` |
+| `/dashboard` | Retired bookmark | 404 — use `/architecture/executive-dashboard` |
+| `/architecture/reviews` | List architecture packages | T2: `?projectId=default`; T1: static paged list |
+| `/architecture/reviews/new` | New architecture review wizard | T2: submit default run; T1: wizard UI (submit needs API) |
+| `/architecture/reviews/[runId]` | Architecture package detail | T1: `claims-intake-modernization`; T2: seed GUIDs above |
+| `/architecture/reviews/[runId]/provenance` | Evidence provenance diagram | Append to populated review URL |
+| `/architecture/reviews/[runId]/findings/[findingId]` | Finding detail | T1: `…/findings/phi-minimization-risk` |
+| `/architecture/reviews/[runId]/findings/[findingId]/inspect` | Finding evidence trace inspect | Same finding + `/inspect` |
 | `/governance/signed-records/[manifestId]` | Signed review record summary, artifacts, bundle | T1: `a1c2e3f4-a5b6-7890-abcd-ef1234567890` |
 | `/graph` | Deprecated alias | Retired pre-release bookmark — no App Router page or redirect; canonical UX on **INE** (`/insights/evidence-graph`) |
 | `/insights/evidence-graph` | Evidence graph (trace table + interactive graph) | T1: `?runId=claims-intake-modernization` → **Load graph**; deep links via `runId` + `graphNodeId` (**INE**) |
@@ -228,24 +228,22 @@ Query keys for compare: `priorRunId`/`laterRunId` (buyer) or `leftRunId`/`rightR
 
 | URL | Purpose | How to view |
 |-----|---------|-------------|
-| `/governance/advisory-scans` | Advisory scans hub (Scans + Schedules tabs) | T3 mock or T2 API; blocked in strict T1 nav; legacy `/advisory` + `/advisory-scheduling` → next.config redirects here; **AD** = `?tab=schedules`, **ADS** = default Scans tab |
+| `/governance/advisory-scans` | Advisory scans hub (Scans + Schedules tabs) | T3 mock or T2 API; blocked in strict T1 nav; **AD** = `?tab=schedules`, **ADS** = default Scans tab |
 | `/governance/findings` | Architecture risk register | T1 static; T2: `?runId=<seeded-run>` for review context |
 | `/governance/exceptions` | Risk exceptions / waivers | T3 mock or T2 seed |
-| `/policy-packs` | Policy pack inventory | T1 static list |
-| `/governance/policy-packs` | Governance-scoped pack registry | Same as hub in demo |
-| `/governance/policy-packs/[id]` | Policy pack detail | T1: `healthcare-claims-v3-pack` |
-| `/governance-resolution` | Effective policy stack (read-only) | T1/T3 |
+| `/governance/policy-packs` | Policy pack inventory and detail | T1: `healthcare-claims-v3-pack` |
+| `/governance/standards-and-rules` | Effective policy stack (read-only) | T1/T3 |
 | `/governance/approval-queue` | Approval queue / governance workflow (submit → promote) | T1 static; T2 with governance seed; bare `/governance` is not a page |
 | `/governance/approval-requests/[id]/lineage` | Approval request lineage | T1: `claims-intake-approval-001` |
-| `/audit` | Tenant audit trail | T1 static events; T2 seeded audit |
+| `/governance/audit` | Tenant audit trail | T1 static events; T2 seeded audit |
+| `/governance/alerts` | Alerts hub (inbox + tabs) | T1 inbox; tabs: `?tab=rules`, `routing`, `composite`, `simulation` |
+| `/governance/alert-rules` | Alert rules configuration | Same as `/governance/alerts?tab=rules` |
 | `/governance/decision-register` | Decision register | T1/T3 |
-| `/alerts` | Alerts hub (inbox + tabs) | T1 inbox; tabs: `?tab=rules`, `routing`, `composite`, `simulation` |
-| `/alert-routing` | Alert routing (standalone) | Same as `/alerts?tab=routing` |
 | `/governance/dashboard` | Executive Workspace Health | T1/T3 tiles |
-| `/governance/setup` | Governance setup guide (legacy `/governance/first-30-days` redirects) | T1 deep links (read-only) |
+| `/governance/setup` | Governance setup guide | T1 deep links (read-only) |
 | `/governance/recurrence-schedules` | Recurrence schedules | T3 mock or T2 |
-| `/value-report` | Sponsor value DOCX export | T2 finalized reviews + Execute role |
-| `/workspace/security-trust` | Operator Security & trust | T1/T2; distinct from public `/security-trust` |
+| `/sponsor-report/executive-summary` | Sponsor value DOCX export | T2 finalized reviews + Execute role |
+| `/administration/security-trust` | Operator Security & trust | T1/T2; distinct from public `/security-trust` |
 
 Layer guidance copy for many governance/analysis routes: `archlucid-ui/src/lib/layer-guidance.ts`. Sidebar source of truth: `archlucid-ui/src/lib/nav-config.ts` and `archlucid-ui/docs/NAV_CONFIG_CONTRACT.md`.
 
@@ -263,8 +261,8 @@ Layer guidance copy for many governance/analysis routes: `archlucid-ui/src/lib/l
 | `/planning` | Planning hub | T1/T3 |
 | `/planning/plans/[planId]` | Plan detail | T1: `claims-intake-modernization-plan` |
 | `/insights/impact-preview` | Impact preview | T3 mock |
-| `/value-report/pilot` | Sponsor proof snapshot (no DOCX) | T1/T2 after finalized architecture package |
-| `/value-report/roi` | ROI / hours summary | T1 illustrative; T2 with seed |
+| `/sponsor-report/pilot-outcomes` | Sponsor proof snapshot (no DOCX) | T1/T2 after finalized architecture package |
+| `/sponsor-report/roi-summary` | ROI / hours summary | T1 illustrative; T2 with seed |
 | `/architecture/digests` | Digests hub (Browse + Subscriptions + Schedule) | T3 mock; Schedule tab (**DIS**) hosts ExecDigestScheduleContent |
 | `/architecture/digests?tab=schedule` | Executive digest schedule | ExecDigestScheduleContent; preferences via `/v1/tenant/exec-digest-preferences` (**DIS**) |
 | `/digests` | Legacy rewrite alias | Internal rewrite to `/architecture/digests` |
@@ -282,8 +280,8 @@ Lighter chrome than the full architect workspace; `(executive)` route group does
 
 | URL | Purpose | How to view |
 |-----|---------|-------------|
-| `/executive/dashboard` | Retired — redirects to `/architecture/executive-dashboard` | Legacy bookmark (**EXD**) |
-| `/executive/reviews`, `/executive/reviews/*` | Retired — redirect to `/reviews` | Legacy bookmark only |
+| `/executive/dashboard` | Retired bookmark | 404 — use `/architecture/executive-dashboard` |
+| `/executive/reviews`, `/executive/reviews/*` | Retired bookmark | 404 — use `/architecture/reviews/*` |
 | `/executive/scorecard` | Executive scorecard | T1/T3 with showcase run |
 
 ### Settings
@@ -291,7 +289,7 @@ Lighter chrome than the full architect workspace; `(executive)` route group does
 | URL | Purpose | How to view |
 |-----|---------|-------------|
 | `/administration` | Settings hub — searchable tenant-administration index; sidebar "Settings" target (IA-016 hub-first). Personal settings are **not** here; they ship in the top-bar account menu | Layout OK T1; blocked in strict demo — T3 bypass or full architect workspace |
-| `/administration/settings` | Legacy redirect | Permanent redirect to `/administration` |
+| `/administration/settings` | Retired bookmark | 404 — use `/administration` |
 | `/administration/billing` | Billing and plans | Admin + full architect workspace + API |
 | `/administration/identity-providers` | Identity provider config | Admin + API |
 | `/administration/identity/sso-wizard` | SSO setup wizard | Admin + API |
@@ -331,7 +329,7 @@ Requires **Admin authority**, full architect workspace, no demo nav blockers, an
 
 | Goal | Fastest path |
 |------|----------------|
-| Architecture package with findings, manifest, artifacts | T1 → `/reviews/claims-intake-modernization` |
+| Architecture package with findings, manifest, artifacts | T1 → `/architecture/reviews/claims-intake-modernization` |
 | Side-by-side compare | T1 → `/compare?priorRunId=claims-intake-run-v1&laterRunId=claims-intake-run-v2` |
 | Evidence graph | T1 → `/graph?runId=claims-intake-modernization` + **Load graph** |
 | Governance, audit, alerts | T1 static or T3 mock harness |

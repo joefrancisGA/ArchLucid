@@ -26,5 +26,9 @@ describe("canonicalizeLegacyOperatorRoutePath", () => {
     expect(canonicalizeLegacyOperatorRoutePath("/signed-records/demo-id")).toBe(
       "/governance/signed-records/demo-id",
     );
+    expect(canonicalizeLegacyOperatorRoutePath("/settings/roles")).toBe("/administration/users");
+    expect(canonicalizeLegacyOperatorRoutePath("/settings/cloud-connections")).toBe(
+      "/integrations/cloud-connections",
+    );
   });
 });

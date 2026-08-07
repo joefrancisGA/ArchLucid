@@ -19,6 +19,8 @@ const LEGACY_ALERT_RULES_PATH = "/alert-rules";
 const LEGACY_CLOUD_CONNECTIONS_PATH = "/settings/cloud-connections";
 const LEGACY_DIGEST_SUBSCRIPTIONS_PATH = "/digest-subscriptions";
 const LEGACY_MANIFESTS_PATH = "/manifests";
+const LEGACY_SETTINGS_ROLES_PATH = "/settings/roles";
+const ADMINISTRATION_USERS_PATH = "/administration/users";
 
 /**
  * Maps legacy bookmark paths to canonical operator routes for readiness, help, and orientation lookups.
@@ -73,6 +75,10 @@ export function canonicalizeLegacyOperatorRoutePath(pathname: string): string {
 
   if (pathMatchesRoutePrefix(normalized, LEGACY_SIGNED_RECORDS_LIST_PATH)) {
     return normalized.replace(LEGACY_SIGNED_RECORDS_LIST_PATH, SIGNED_RECORDS_LIST_PATH);
+  }
+
+  if (normalized === LEGACY_SETTINGS_ROLES_PATH) {
+    return ADMINISTRATION_USERS_PATH;
   }
 
   return normalized;
