@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-06 - UI: Accelerator chooser help Evidence chrome (HAX)
+
+`/help/accelerator-chooser` ships AcceleratorChooserHelpEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map accelerator-chooser, traffic Notes under Help topic (row ID HAX), and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-06 - UI: Help topic catch-all Evidence chrome (HE.)
 
 `/help/[...topic]` residual markdown path ships HelpTopicCatchAllEvidenceOrientationStrip (Sources + claim-discipline), PageContextualHelp + Category-1 `/help` fallback (specialty prefixes still win), traffic Notes under Help topic (row ID HE.), and honest Evidence score 52. Catch-all residual hard-caps at help specialty orientation band; no CPA / third-party pen-test implication.
@@ -21,6 +25,10 @@ Release entries newest-first. Each section condenses the detailed prompt logs pr
 ## 2026-08-06 - UI: Alerts inbox legacy tab Evidence notes (GOI)
 
 `/governance/alerts?tab=inbox` documents redirect canonicalize to AL hub (TB-1594), traffic Notes under Tab surface (row ID GOI), and honest Evidence score 28. Legacy inbox-tab deep link hard-caps at redirect/shim band; no CPA / third-party pen-test implication.
+
+## 2026-08-07 - Perf: retrieval indexing outbox slim detail + parallel drain (TB-2055)
+
+`GetRunDetailForRetrievalIndexingAsync` omits artifact bodies on the outbox hot path; full bodies load via `IArtifactQueryService` only for indexing. Batch drain uses `BoundedBatchParallelism` (TB-586 pattern). Does not claim CPA / third-party pen-test.
 
 ## 2026-08-06 - UI: Alert rules simulation tab Evidence notes (GOS)
 

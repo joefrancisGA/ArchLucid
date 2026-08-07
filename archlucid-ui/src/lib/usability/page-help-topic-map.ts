@@ -44,6 +44,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/architecture/first-review-guide", topic: { slug: "getting-started", label: BUYER_ONBOARDING_PAGE_TITLE } },
   { prefix: "/help/getting-started", topic: { slug: "getting-started", label: "Getting started" } },
   {
+    prefix: "/help/accelerator-chooser",
+    topic: { slug: "accelerator-chooser", label: "Accelerator chooser" },
+  },
+  {
     prefix: "/help/how-it-works",
     topic: { slug: "getting-started", label: "Getting started" },
   },

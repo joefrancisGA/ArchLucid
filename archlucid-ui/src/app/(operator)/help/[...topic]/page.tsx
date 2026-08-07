@@ -20,6 +20,7 @@ import { HelpReviewGuideView } from "../_sections/HelpReviewGuideView";
 import { HelpPilotGuideView } from "../_sections/HelpPilotGuideView";
 import { HelpConfigurationReferenceGuideView } from "../_sections/HelpConfigurationReferenceGuideView";
 import { SecurityTrustHelpEvidenceOrientationStrip } from "../_sections/SecurityTrustHelpEvidenceOrientationStrip";
+import { AcceleratorChooserHelpEvidenceOrientationStrip } from "../_sections/AcceleratorChooserHelpEvidenceOrientationStrip";
 import { ScopeHelpEvidenceOrientationStrip } from "../_sections/ScopeHelpEvidenceOrientationStrip";
 import { ProcurementHelpEvidenceOrientationStrip } from "../_sections/ProcurementHelpEvidenceOrientationStrip";
 import { EvidenceTrailHelpEvidenceOrientationStrip } from "../_sections/EvidenceTrailHelpEvidenceOrientationStrip";
@@ -257,6 +258,17 @@ function renderHelpTopicView(
         markdown={loaded.markdown}
         showContextualHelp
         evidenceOrientation={<SecurityTrustHelpEvidenceOrientationStrip />}
+      />
+    );
+  }
+
+  if (loaded.entry.slug === "accelerator-chooser") {
+    return (
+      <HelpTopicMarkdownView
+        entry={loaded.entry}
+        markdown={loaded.markdown}
+        showContextualHelp
+        evidenceOrientation={<AcceleratorChooserHelpEvidenceOrientationStrip />}
       />
     );
   }
