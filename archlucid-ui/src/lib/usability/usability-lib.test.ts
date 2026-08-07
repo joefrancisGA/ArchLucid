@@ -9,8 +9,9 @@ describe("usability lib", () => {
     expect(pageHelpTopicForPathname("/")?.slug).toBe("first-architecture-review");
     expect(pageHelpTopicForPathname("/")?.label).toBe("Architecture workflow");
     expect(pageHelpTopicForPathname("/architecture/reviews/new")?.slug).toBe("evidence-intake");
-    expect(pageHelpTopicForPathname("/alerts")?.slug).toBe("alerts");
-    expect(pageHelpTopicForPathname("/alert-rules")?.slug).toBe("alerts");
+    // Legacy top-level /alerts and /alert-rules bookmarks are not help-mapped; use governance URLs.
+    expect(pageHelpTopicForPathname("/alerts")?.slug).toBeUndefined();
+    expect(pageHelpTopicForPathname("/alert-rules")?.slug).toBeUndefined();
     expect(pageHelpTopicForPathname("/governance/dashboard")?.slug).toBeUndefined();
     expect(pageHelpTopicForPathname("/governance/dashboard")?.label).toBe("Workspace overview");
     expect(pageHelpTopicForPathname("/governance/alerts")?.slug).toBe("alerts");

@@ -8,7 +8,7 @@ export const SSO_WIZARD_TRAFFIC_ROW_ID = "ASS";
 export const SSO_WIZARD_TRAFFIC_PATH = "/administration/identity/sso-wizard";
 
 /** Workbook Section column value (template catalog). */
-export const SSO_WIZARD_TRAFFIC_SECTION = "Settings";
+export const SSO_WIZARD_TRAFFIC_SECTION = "Admin";
 
 /**
  * Owner workbook Notes for ASS - documents Evidence chrome on SSO wizard.

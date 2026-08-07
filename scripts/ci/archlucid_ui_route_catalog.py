@@ -41,9 +41,12 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/help/cloud-connections-azure": "/help/cloud-connections/azure",
     "/help/cloud-connections-aws": "/help/cloud-connections/aws",
     "/help/cloud-connections-gcp": "/help/cloud-connections/gcp",
-    "/manifests": "/signed-records",
-    "/manifests/[manifestId]": "/signed-records/[manifestId]",
-    "/manifests/[manifestId]/artifacts/[artifactId]": "/signed-records/[manifestId]/artifacts/[artifactId]",
+    "/manifests": "/governance/signed-records",
+    "/manifests/[manifestId]": "/governance/signed-records/[manifestId]",
+    "/manifests/[manifestId]/artifacts/[artifactId]": "/governance/signed-records/[manifestId]/artifacts/[artifactId]",
+    "/signed-records": "/governance/signed-records",
+    "/signed-records/[manifestId]": "/governance/signed-records/[manifestId]",
+    "/signed-records/[manifestId]/artifacts/[artifactId]": "/governance/signed-records/[manifestId]/artifacts/[artifactId]",
     "/settings/cost-reporting": "/administration/ai-usage",
     "/settings/ai-usage": "/administration/ai-usage",
     # TB-1124: Advisory scans hub under Governance (next.config permanent redirects only).
@@ -100,6 +103,15 @@ TRAFFIC_TRACKED_REDIRECT_BOOKMARKS = frozenset(
         "/help/core-pilot",
     }
 )
+
+# Stable IDs when sync inserts catalog paths that Vitest modules already name.
+PREFERRED_NEW_ROW_IDS: dict[str, str] = {
+    "/settings/alerts": "SEA",
+    "/help/core-pilot": "ECO",
+    "/governance/signed-records/[manifestId]": "MMX",
+    "/help/api-contracts": "HAC",
+    "/help/policy-packs": "HPP",
+}
 
 
 @dataclass(frozen=True)

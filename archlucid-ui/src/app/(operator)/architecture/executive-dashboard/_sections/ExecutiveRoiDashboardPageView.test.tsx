@@ -72,7 +72,8 @@ describe("ExecutiveRoiDashboardPageView executive surface", () => {
     expect(screen.getByTestId("executive-dashboard-empty-state")).toBeInTheDocument();
     expect(screen.getByTestId("executive-dashboard-page-hero")).toHaveAttribute("data-dashboard-empty", "true");
     expect(screen.queryByTestId("executive-dashboard-preview-metrics")).toBeNull();
-    expect(screen.getByTestId("executive-dashboard-how-it-works")).toBeInTheDocument();
+    // How-it-works loads via next/dynamic; sync tests see the deferred loading shell.
+    expect(screen.getByTestId("executive-dashboard-deferred-chunk-loading")).toBeInTheDocument();
     expect(screen.queryByTestId("executive-primary-decisions-needed")).not.toBeInTheDocument();
     expect(screen.queryByTestId("sponsor-exports-section")).toBeNull();
     expect(screen.getByRole("heading", { level: 2, name: "Executive dashboard" })).toBeInTheDocument();

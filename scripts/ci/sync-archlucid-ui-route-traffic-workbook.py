@@ -11,6 +11,7 @@ from pathlib import Path
 
 from archlucid_ui_route_catalog import (
     DEFAULT_NEW_HIT_PCT,
+    PREFERRED_NEW_ROW_IDS,
     TRAFFIC_TRACKED_REDIRECT_BOOKMARKS,
     app_router_page_count,
     build_catalog,
@@ -37,16 +38,36 @@ class SyncReport:
     retained: int = 0
 
 
+_LEGACY_MERGE_STUB_NOTES = re.compile(
+    r"(?i)\bdeprecated\b|\bmerged to\b|legacy .+ bookmark|canonical .+ is [A-Z]{2,}",
+)
+
+
+def _is_legacy_merge_stub(notes: str) -> bool:
+    """True when Notes only document a redirect stub that collided onto a live path."""
+    return bool(_LEGACY_MERGE_STUB_NOTES.search(notes or ""))
+
+
 def _merge_rows(existing: dict[str, str], incoming: dict[str, str]) -> dict[str, str]:
-    merged = existing.copy()
-    incoming_score = int(incoming["score"])
-    existing_score = int(merged["score"])
-    if incoming_score > existing_score:
-        merged["score"] = incoming["score"]
-    merged_pct = parse_hit_pct(merged["pct"]) + parse_hit_pct(incoming["pct"])
+    # Prefer the live canonical row (ID + Notes) when a legacy redirect stub collides.
+    existing_stub = _is_legacy_merge_stub(existing.get("notes", ""))
+    incoming_stub = _is_legacy_merge_stub(incoming.get("notes", ""))
+    if existing_stub and not incoming_stub:
+        base = incoming.copy()
+        other = existing
+    else:
+        base = existing.copy()
+        other = incoming
+
+    merged = base
+    other_score = int(other["score"])
+    base_score = int(merged["score"])
+    if other_score > base_score:
+        merged["score"] = other["score"]
+    merged_pct = parse_hit_pct(merged["pct"]) + parse_hit_pct(other["pct"])
     merged["pct"] = f"{merged_pct:g}%"
-    if merged.get("notes", "None") == "None" and incoming.get("notes", "None") != "None":
-        merged["notes"] = incoming["notes"]
+    if merged.get("notes", "None") == "None" and other.get("notes", "None") != "None":
+        merged["notes"] = other["notes"]
     return merged
 
 
@@ -92,7 +113,11 @@ def sync_rows(existing_rows: list[dict[str, str]]) -> tuple[list[dict[str, str]]
             retained_by_path[path]["section"] = catalog[path].section
             continue
         entry = catalog[path]
-        row_id = suggest_row_id(path, used_ids)
+        preferred = PREFERRED_NEW_ROW_IDS.get(path)
+        if preferred and preferred not in used_ids:
+            row_id = preferred
+        else:
+            row_id = suggest_row_id(path, used_ids)
         used_ids.add(row_id)
         retained_by_path[path] = {
             "id": row_id,

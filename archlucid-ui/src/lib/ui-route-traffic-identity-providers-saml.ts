@@ -8,7 +8,7 @@ export const IDENTITY_PROVIDERS_SAML_TRAFFIC_ROW_ID = "ASA";
 export const IDENTITY_PROVIDERS_SAML_TRAFFIC_PATH = "/administration/identity-providers/saml";
 
 /** Workbook Section column value (template catalog). */
-export const IDENTITY_PROVIDERS_SAML_TRAFFIC_SECTION = "Settings";
+export const IDENTITY_PROVIDERS_SAML_TRAFFIC_SECTION = "Admin";
 
 /**
  * Owner workbook Notes for ASA - documents Evidence chrome on SAML settings.

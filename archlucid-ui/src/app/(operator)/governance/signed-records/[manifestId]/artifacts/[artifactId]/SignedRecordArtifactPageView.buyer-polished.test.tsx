@@ -12,20 +12,20 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ refresh: vi.fn() }),
-  usePathname: () => "/signed-records/manifest-1/artifacts/artifact-1",
+  usePathname: () => "/governance/signed-records/manifest-1/artifacts/artifact-1",
 }));
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
 }));
 
-import { SignedRecordArtifactPageView } from "@/app/(operator)/signed-records/[manifestId]/artifacts/[artifactId]/_sections/SignedRecordArtifactPageView";
+import { SignedRecordArtifactPageView } from "@/app/(operator)/governance/signed-records/[manifestId]/artifacts/[artifactId]/_sections/SignedRecordArtifactPageView";
 import {
   BUYER_SIGNED_RECORD_ARTIFACT_PAGE_SUBTITLE,
   SIGNED_RECORD_ARTIFACT_PAGE_SUBTITLE,
   SIGNED_RECORD_ARTIFACT_SCOPE_OVERVIEW,
 } from "@/lib/signed-record-artifact-page-copy";
-import type { SignedRecordArtifactPageSuccessModel } from "@/app/(operator)/signed-records/[manifestId]/artifacts/[artifactId]/_sections/signed-record-artifact-page-model";
+import type { SignedRecordArtifactPageSuccessModel } from "@/app/(operator)/governance/signed-records/[manifestId]/artifacts/[artifactId]/_sections/signed-record-artifact-page-model";
 
 const model: SignedRecordArtifactPageSuccessModel = {
   manifestId: "11111111-1111-4111-8111-111111111111",

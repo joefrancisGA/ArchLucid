@@ -7,14 +7,14 @@ const refresh = vi.fn();
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ refresh }),
-  usePathname: () => "/signed-records/manifest-1/artifacts/artifact-1",
+  usePathname: () => "/governance/signed-records/manifest-1/artifacts/artifact-1",
 }));
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
 }));
 
-import { SignedRecordArtifactPageHeader } from "@/app/(operator)/signed-records/[manifestId]/artifacts/[artifactId]/_sections/SignedRecordArtifactPageHeader";
+import { SignedRecordArtifactPageHeader } from "@/app/(operator)/governance/signed-records/[manifestId]/artifacts/[artifactId]/_sections/SignedRecordArtifactPageHeader";
 
 describe("SignedRecordArtifactPageHeader", () => {
   it("renders h1, help, refresh, and last-refreshed metadata", () => {

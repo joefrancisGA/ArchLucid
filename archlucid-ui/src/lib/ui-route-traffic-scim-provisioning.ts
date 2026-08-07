@@ -8,7 +8,7 @@ export const SCIM_PROVISIONING_TRAFFIC_ROW_ID = "ASC";
 export const SCIM_PROVISIONING_TRAFFIC_PATH = "/administration/scim-provisioning";
 
 /** Workbook Section column value (template catalog). */
-export const SCIM_PROVISIONING_TRAFFIC_SECTION = "Settings";
+export const SCIM_PROVISIONING_TRAFFIC_SECTION = "Admin";
 
 /**
  * Owner workbook Notes for ASC - documents Evidence chrome on SCIM provisioning.
