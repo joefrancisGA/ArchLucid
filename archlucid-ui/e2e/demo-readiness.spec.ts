@@ -105,7 +105,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
       "/",
       "/architecture/reviews?projectId=default",
       `/architecture/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`,
-      `/architecture/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}/signed-record`,
+      `/governance/signed-records/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`,
       "/governance/approval-queue",
       "/help",
       `/architecture/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}/findings/${encodeURIComponent("phi-minimization-risk")}`,
@@ -158,7 +158,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
     await expect(claimsTableRow).toBeVisible();
     await reviewsHubPackagePrimaryAction(appMain, SHOWCASE_DEMO_RUN_ID).click();
     const afterListClickUrl = new RegExp(
-      `(?:/governance/signed-records/${escapeRegExpSource(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}|/architecture/reviews/${escapeRegExpSource(SHOWCASE_DEMO_RUN_ID)}(?:/signed-record|/architecture)?)`,
+      `(?:/governance/signed-records/${escapeRegExpSource(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}|/architecture/reviews/${escapeRegExpSource(SHOWCASE_DEMO_RUN_ID)}(?:/architecture)?)`,
     );
     await expect(page).toHaveURL(afterListClickUrl);
 
@@ -170,7 +170,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
     await expect(page).toHaveURL(showcaseDemoReviewDetailUrlPattern());
     await expectMainHasNoHardFailureChrome(page);
 
-    await page.goto(`/architecture/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}/signed-record`);
+    await page.goto(`/governance/signed-records/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`);
     await expect(
       getAppMain(page).getByRole("heading", { level: 1, name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN }).first(),
     ).toBeVisible({ timeout: 60_000 });

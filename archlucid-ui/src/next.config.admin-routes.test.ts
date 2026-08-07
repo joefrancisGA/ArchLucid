@@ -22,14 +22,12 @@ describe("next.config administration routes (TB-406 / TB-522 / TB-751)", () => {
   it("does not rewrite canonical architecture URLs to phantom on-disk trees", async () => {
     const rewriteRules = await nextConfig.rewrites?.();
 
-    expect(rewriteRules).toBeDefined();
+    expect(rewriteRules ?? []).toEqual([]);
     expect(rewriteRules?.some((rule) => rule.source === "/architecture/architectures")).toBe(false);
     expect(rewriteRules?.some((rule) => rule.source === "/architecture/architectures/:path*")).toBe(false);
     expect(rewriteRules?.some((rule) => rule.source === "/architecture/reviews")).toBe(false);
     expect(rewriteRules?.some((rule) => rule.source === "/architecture/reviews/:path*")).toBe(false);
-    expect(
-      rewriteRules?.find((rule) => rule.source === "/architecture/reviews/:id/signed-record")?.destination,
-    ).toBe("/architecture/reviews/:id");
+    expect(rewriteRules?.find((rule) => rule.source === "/architecture/reviews/:id/signed-record")).toBeUndefined();
   });
 
   it("does not rewrite canonical administration URLs to legacy App Router trees (TB-751)", async () => {

@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { SHOWCASE_STATIC_DEMO_MANIFEST_ID } from "@/lib/showcase-static-demo";
 import {
   buyerPolishedShellVitestOverride,
   extendBuyerPolishedShellVitestMock,
@@ -90,7 +91,7 @@ describe("RunInspectorPreview", () => {
     fireEvent.click(screen.getByText("Related actions"));
     expect(screen.getByRole("link", { name: "View signed record" })).toHaveAttribute(
       "href",
-      "/architecture/reviews/claims-intake-modernization/signed-record",
+      `/governance/signed-records/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`,
     );
     expect(screen.getByRole("link", { name: "View evidence graph" })).toHaveAttribute(
       "href",

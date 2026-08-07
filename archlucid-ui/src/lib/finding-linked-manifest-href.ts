@@ -1,6 +1,6 @@
-import { reviewSignedRecordPath } from "@/lib/signed-records-paths";
+import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator-static-demo";
-import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { SHOWCASE_STATIC_DEMO_MANIFEST_ID } from "@/lib/showcase-static-demo";
 
 /**
  * When the run is the curated static demo, returns the signed review record detail href for linked-package CTAs.
@@ -11,5 +11,5 @@ export function findingLinkedManifestDetailHrefForRun(runId: string): string | n
     return null;
   }
 
-  return reviewSignedRecordPath(SHOWCASE_STATIC_DEMO_RUN_ID);
+  return signedRecordDetailPath(SHOWCASE_STATIC_DEMO_MANIFEST_ID);
 }

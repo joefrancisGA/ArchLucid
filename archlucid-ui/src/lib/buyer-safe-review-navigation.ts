@@ -5,9 +5,11 @@ import { isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
 import { SHOWCASE_PHI_FINDING_GRAPH_NODE_ID } from "@/lib/finding-inspect-graph-evidence";
 import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator-static-demo";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
-import { reviewSignedRecordPath } from "@/lib/signed-records-paths";
+import { reviewDetailPath } from "@/lib/architecture-routes";
+import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 import {
   SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID,
+  SHOWCASE_STATIC_DEMO_MANIFEST_ID,
   SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
 } from "@/lib/showcase-static-demo";
@@ -22,9 +24,9 @@ export function getShowcaseWalkthroughHref(): string {
   return `/showcase/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
 }
 
-/** Finalized signed record for the Claims Intake static spine (human-friendly path rewrites to manifest detail). */
+/** Finalized signed record for the Claims Intake static spine (canonical manifest detail). */
 export function getShowcaseManifestHref(): string {
-  return reviewSignedRecordPath(SHOWCASE_STATIC_DEMO_RUN_ID);
+  return signedRecordDetailPath(SHOWCASE_STATIC_DEMO_MANIFEST_ID);
 }
 
 /** Evidence trail graph for the Claims Intake static spine (pre-focused finding node when available). */
@@ -127,7 +129,7 @@ export function getBuyerSafeSignedManifestTableLink(runId: string): PrimaryRevie
   }
 
   return {
-    href: reviewSignedRecordPath(id),
+    href: reviewDetailPath(id),
     label: BUYER_VIEW_SIGNED_RECORD_CTA,
   };
 }

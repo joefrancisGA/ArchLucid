@@ -48,8 +48,8 @@ test.describe(
     await expectBuyerGoldenJourneyStepper(page);
     await expectNoGenericErrorBoundary(page);
 
-    // Step 2 — Signed manifest (friendly URL; rewrites to manifest detail implementation)
-    await page.goto(BUYER_GOLDEN_PATH_HREFS.signedManifestFriendly);
+    // Step 2 — Signed manifest (canonical governance detail)
+    await page.goto(BUYER_GOLDEN_PATH_HREFS.signedManifestCanonical);
     await expect(page).toHaveURL(showcaseSignedManifestBrowserUrlPattern());
     await expect(
       getAppMain(page).getByRole("heading", { level: 1, name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN }).first(),

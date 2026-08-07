@@ -1,3 +1,5 @@
+import { reviewDetailPath } from "@/lib/architecture-routes";
+
 /** Canonical buyer-facing list path for signed review records (TB-405 / IA-001). */
 export const SIGNED_RECORDS_LIST_PATH = "/governance/signed-records";
 
@@ -31,9 +33,9 @@ export function signedRecordDetailPath(manifestId: string): string {
   return `${SIGNED_RECORDS_LIST_PATH}/${encodeURIComponent(manifestId.trim())}`;
 }
 
-/** Run-scoped signed record deep link when manifest id is not yet known. */
+/** Run-scoped signed record CTA — opens the review package (manifest section when finalized). */
 export function reviewSignedRecordPath(runId: string): string {
-  return `/architecture/reviews/${encodeURIComponent(runId.trim())}/signed-record`;
+  return reviewDetailPath(runId);
 }
 
 /** Artifact row within a signed review record. */

@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { SHOWCASE_STATIC_DEMO_MANIFEST_ID } from "@/lib/showcase-static-demo";
+
 const BACKUP_ENV = process.env;
 
 describe("buyer-safe-review-navigation", () => {
@@ -65,7 +67,7 @@ describe("buyer-safe-review-navigation", () => {
 
     const mod = await import("./buyer-safe-review-navigation");
 
-    expect(mod.getShowcaseManifestHref()).toBe("/architecture/reviews/claims-intake-modernization/signed-record");
+    expect(mod.getShowcaseManifestHref()).toBe(`/governance/signed-records/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`);
   });
 
   it("builds showcase compare href with v1 and v2 static spine run ids", async () => {
@@ -85,6 +87,6 @@ describe("buyer-safe-review-navigation", () => {
     const manifest = mod.getBuyerSafeSignedManifestTableLink("claims-intake-modernization");
 
     expect(manifest.label).toBe("View signed record");
-    expect(manifest.href).toBe("/architecture/reviews/claims-intake-modernization/signed-record");
+    expect(manifest.href).toBe(`/governance/signed-records/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`);
   });
 });

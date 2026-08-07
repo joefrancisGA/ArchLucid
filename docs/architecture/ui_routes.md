@@ -76,8 +76,7 @@ To browse interactively, run `e2e/start-e2e-with-mock.ts` (see `playwright.mock.
 | What | URL |
 |------|-----|
 | Review package | `/architecture/reviews/claims-intake-modernization` |
-| Friendly signed-record URL | `/architecture/reviews/claims-intake-modernization/signed-record` |
-| Manifest (UUID) | `/governance/signed-records/a1c2e3f4-a5b6-7890-abcd-ef1234567890` |
+| Signed review record | `/governance/signed-records/a1c2e3f4-a5b6-7890-abcd-ef1234567890` |
 | Finding | `/architecture/reviews/claims-intake-modernization/findings/phi-minimization-risk` |
 | Finding inspect | `/architecture/reviews/claims-intake-modernization/findings/phi-minimization-risk/inspect` |
 | Provenance | `/architecture/reviews/claims-intake-modernization/provenance` |
@@ -110,21 +109,15 @@ Constants live in `archlucid-ui/src/lib/showcase-static-demo.ts` and `archlucid-
 
 ---
 
-## Legacy URL handling (IA batch 4–7)
+## Legacy URL handling (IA batch 4–8)
 
-`archlucid-ui/next.config.ts` ships **no permanent bookmark redirects** and **no bookmark rewrites** (batch 7). Use canonical on-disk paths below. Orientation helpers (`canonicalizeLegacyOperatorRoutePath`) still map retired prefixes for help, readiness, and buyer-polish lookups only.
-
-**Rewrite aliases** (product deep links only — not bookmark shims):
-
-| Source | Destination |
-|--------|-------------|
-| `/architecture/reviews/claims-intake-modernization/signed-record` | `/governance/signed-records/a1c2e3f4-a5b6-7890-abcd-ef1234567890` |
-| `/architecture/reviews/:id/signed-record` | `/architecture/reviews/:id` (run-scoped deep link) |
+`archlucid-ui/next.config.ts` ships **no redirects and no rewrites**. Use canonical on-disk paths below. Orientation helpers (`canonicalizeLegacyOperatorRoutePath`) still map retired prefixes for help, readiness, and buyer-polish lookups only.
 
 **Retired bookmarks** (404 — use canonical paths):
 
 | Path | Canonical |
 |------|-----------|
+| `/architecture/reviews/*/signed-record` | `/architecture/reviews/*` or `/governance/signed-records/{manifestId}` when manifest id is known |
 | `/digests`, `/digest-subscriptions` | `/architecture/digests` (+ `?tab=subscriptions`) |
 | `/governance/risk-exceptions`, `/governance/risk-exceptions/*` | `/governance/exceptions` |
 | `/settings/roles` | `/administration/users?tab=roles` |

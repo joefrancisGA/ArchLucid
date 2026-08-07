@@ -116,16 +116,7 @@ const nextConfig: NextConfig = {
     return [];
   },
   async rewrites() {
-    return [
-      // Friendly demo URL while reusing signed-record detail implementation (`SHOWCASE_STATIC_DEMO_*`).
-      // Must precede the generic run-scoped signed-record rewrite below.
-      {
-        source: "/architecture/reviews/claims-intake-modernization/signed-record",
-        destination: "/governance/signed-records/a1c2e3f4-a5b6-7890-abcd-ef1234567890",
-      },
-      // Run-scoped signed record deep link lands on the review package (manifest summary section).
-      { source: "/architecture/reviews/:id/signed-record", destination: "/architecture/reviews/:id" },
-    ];
+    return [];
   },
 };
 
