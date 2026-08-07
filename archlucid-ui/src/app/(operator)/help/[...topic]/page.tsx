@@ -25,6 +25,7 @@ import { AdminDiagnosticsHelpEvidenceOrientationStrip } from "../_sections/Admin
 import { AuthenticationSignInHelpEvidenceOrientationStrip } from "../_sections/AuthenticationSignInHelpEvidenceOrientationStrip";
 import { AzureBoardsHelpEvidenceOrientationStrip } from "../_sections/AzureBoardsHelpEvidenceOrientationStrip";
 import { CaiqSigResponseHelpEvidenceOrientationStrip } from "../_sections/CaiqSigResponseHelpEvidenceOrientationStrip";
+import { ComparisonReplayHelpEvidenceOrientationStrip } from "../_sections/ComparisonReplayHelpEvidenceOrientationStrip";
 import { ConnectAwsSecurelyHelpEvidenceOrientationStrip } from "../_sections/ConnectAwsSecurelyHelpEvidenceOrientationStrip";
 import { ConnectGcpSecurelyHelpEvidenceOrientationStrip } from "../_sections/ConnectGcpSecurelyHelpEvidenceOrientationStrip";
 import { ScopeHelpEvidenceOrientationStrip } from "../_sections/ScopeHelpEvidenceOrientationStrip";
@@ -341,6 +342,17 @@ function renderHelpTopicView(
         markdown={loaded.markdown}
         showContextualHelp
         evidenceOrientation={<CaiqSigResponseHelpEvidenceOrientationStrip />}
+      />
+    );
+  }
+
+  if (loaded.entry.slug === "comparison-replay") {
+    return (
+      <HelpTopicMarkdownView
+        entry={loaded.entry}
+        markdown={loaded.markdown}
+        showContextualHelp
+        evidenceOrientation={<ComparisonReplayHelpEvidenceOrientationStrip />}
       />
     );
   }

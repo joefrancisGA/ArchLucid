@@ -96,6 +96,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/authentication-sign-in",
       "/help/azure-boards",
       "/help/caiq-sig-response",
+      "/help/comparison-replay",
       "/help/getting-started",
       "/help/how-it-works",
       "/help/troubleshooting",
@@ -374,6 +375,16 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/soc2-self-assessment",
     );
     expect(contextualHelpForPathname("/help/caiq-sig-response")?.whereToConfigureAction?.href).toBe("/trust");
+  });
+
+  it("resolves Compare and replay help Category-1 help (CO)", () => {
+    expect(contextualHelpForPathname("/help/comparison-replay")?.whatIsThisPage).toContain(
+      "Compare and replay",
+    );
+    expect(contextualHelpForPathname("/help/comparison-replay")?.whatToDoNextAction?.href).toBe(
+      "/insights/compare-two-reviews",
+    );
+    expect(contextualHelpForPathname("/help/comparison-replay")?.whereToConfigureAction?.href).toBe("/replay");
   });
 
   it("resolves Connect AWS securely help Category-1 help (HEC)", () => {

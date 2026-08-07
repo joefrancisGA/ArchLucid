@@ -890,6 +890,26 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/help/comparison-replay",
+    entry: {
+      whatIsThisPage:
+        "Compare and replay — diff two architecture reviews, replay a saved comparison, and verify drift without re-running a full review.",
+      whatToDoNext:
+        "Open Compare two reviews for a live pair diff, or Validate review when you need to re-check a finalized package.",
+      whyEmpty: "This guide is always available; live compare and validate tools appear after you finalize architecture reviews.",
+      whereToConfigurePrerequisite:
+        "Pairwise compare needs two finalized reviews in this workspace; validate needs one finalized package.",
+      whatToDoNextAction: {
+        label: "Open Compare two reviews",
+        href: "/insights/compare-two-reviews",
+      },
+      whereToConfigureAction: {
+        label: "Open Validate review",
+        href: "/replay",
+      },
+    },
+  },
+  {
     prefix: "/help/getting-started",
     entry: {
       whatIsThisPage:

@@ -86,6 +86,11 @@ const ALLOWLIST: readonly {
     configureHref: "/help/cloud-connections",
   },
   {
+    pathname: "/help/comparison-replay",
+    nextHref: "/insights/compare-two-reviews",
+    configureHref: "/replay",
+  },
+  {
     pathname: "/governance/approval-requests/sample/lineage",
     nextHref: GOVERNANCE_APPROVAL_QUEUE_PATH,
   },

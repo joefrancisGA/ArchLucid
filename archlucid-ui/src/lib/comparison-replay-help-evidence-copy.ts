@@ -1,0 +1,23 @@
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
+
+export const COMPARISON_REPLAY_HELP_CANONICAL_PATH = "/help/comparison-replay" as const;
+
+export const COMPARISON_REPLAY_HELP_CLAIM_DISCIPLINE =
+  "This Compare and replay guide orients operators on diffing two architecture reviews and validating a finalized package — it is help orientation, not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Compare two reviews or Validate review when you need live workspace tools.";
+
+export const COMPARISON_REPLAY_HELP_SOURCES_INTRO =
+  "Use these follow-ups when compare/replay vocabulary turns into live diffs, validation, or the repeat-review stickiness loop.";
+
+export type ComparisonReplayHelpSourceLink = {
+  readonly label: string;
+  readonly href: string;
+};
+
+/** Operator Sources — no self-href to `/help/comparison-replay`. */
+export const COMPARISON_REPLAY_HELP_SOURCES: readonly ComparisonReplayHelpSourceLink[] = [
+  { label: "Compare two reviews", href: "/insights/compare-two-reviews" },
+  { label: "Validate review", href: "/replay" },
+  { label: "Repeat-review loop", href: inAppHelpHref("repeat-review-loop") },
+  { label: "Architecture reviews", href: "/architecture/reviews" },
+  { label: "Evidence trail", href: "/insights/evidence-graph" },
+] as const;
