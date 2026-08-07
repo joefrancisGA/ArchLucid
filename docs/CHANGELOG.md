@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-07 - Trustworthiness: TB-2066 finding inspect trust enricher run context
+
+Finding inspect now derives trust labels from parent run structural execution mode and degradation signals instead of hardcoded Real-mode context.
+
 ## 2026-08-07 - Adoption friction: TB-2065 finding correlation vocabulary disambiguation
 
 Compare, ITSM ticket linkage, and executive ROI surfaces now use distinct vocabulary for cross-review correlation (ADR 0063), ITSM ticket linkages, and portfolio FindingId deduplication.
