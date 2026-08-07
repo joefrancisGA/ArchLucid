@@ -46,6 +46,11 @@ const ALLOWLIST: readonly {
     configureHref: "/governance/dashboard",
   },
   {
+    pathname: "/help/subprocessors",
+    nextHref: "/help/getting-started",
+    configureHref: "/help/troubleshooting",
+  },
+  {
     pathname: "/governance/approval-requests/sample/lineage",
     nextHref: GOVERNANCE_APPROVAL_QUEUE_PATH,
   },

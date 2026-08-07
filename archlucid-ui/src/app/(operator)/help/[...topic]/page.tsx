@@ -40,6 +40,7 @@ import { HelpSpecialtyWalkthroughTemplatesView } from "../_sections/HelpSpecialt
 import { HelpGettingStartedGuideView } from "../_sections/HelpGettingStartedGuideView";
 import { HelpCloudConnectionsGuideView } from "../_sections/HelpCloudConnectionsGuideView";
 import { HelpTopicAuthorityGate } from "../_sections/HelpTopicAuthorityGate";
+import { HelpTopicCatchAllEvidenceOrientationStrip } from "../_sections/HelpTopicCatchAllEvidenceOrientationStrip";
 import { HelpTopicMarkdownClient } from "../_sections/HelpTopicMarkdownClient";
 import { HelpTopicNotFoundView } from "../_sections/HelpTopicNotFoundView";
 import { HelpTroubleshootingGuideView } from "../_sections/HelpTroubleshootingGuideView";
@@ -326,7 +327,14 @@ function renderHelpTopicView(
     );
   }
 
-  return <HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />;
+  return (
+    <HelpTopicMarkdownView
+      entry={loaded.entry}
+      markdown={loaded.markdown}
+      showContextualHelp
+      evidenceOrientation={<HelpTopicCatchAllEvidenceOrientationStrip />}
+    />
+  );
 }
 
 export async function generateMetadata(props: HelpTopicPageProps): Promise<Metadata> {
