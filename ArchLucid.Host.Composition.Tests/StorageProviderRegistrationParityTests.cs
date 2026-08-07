@@ -1,3 +1,4 @@
+using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Host.Composition.Configuration;
@@ -65,6 +66,8 @@ public sealed class StorageProviderRegistrationParityTests
     [
         typeof(InMemoryAuditRepository),
         typeof(InMemoryRetrievalGroundingTraceWriter),
+        // NoOp registered on InMemory storage; Sql path wires TenantMigrationRetrievalOutboxDrainer in host composition.
+        typeof(ITenantMigrationRetrievalOutboxDrainer),
     ];
 
     [Fact]

@@ -70,7 +70,15 @@ function flashNodeRow(nodeId: string): void {
 }
 
 export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): React.JSX.Element {
-  const { graph, runId, provenanceTraceId } = props;
+  const { runId, provenanceTraceId } = props;
+  // OpenAPI may omit optional arrays; normalize before .length / .map so SSR/demo payloads cannot crash.
+  const graph: ArchitectureRunProvenanceGraph = {
+    ...props.graph,
+    nodes: props.graph.nodes ?? [],
+    edges: props.graph.edges ?? [],
+    timeline: props.graph.timeline ?? [],
+    traceabilityGaps: props.graph.traceabilityGaps ?? [],
+  };
   const [viewMode, setViewMode] = useState<ProvenanceViewMode>("graph");
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [highlightedEdgeId, setHighlightedEdgeId] = useState<string | null>(null);

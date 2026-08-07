@@ -82,7 +82,11 @@ public sealed class AdminTenantCatalogMigrationController(
             return MapOutcome(outcome, null);
 
         if (outcome == TenantCatalogMigrationCommandOutcome.VerificationFailed)
-            return Conflict(probe);
+        {
+            return this.ConflictProblem(
+                probe.ErrorMessage ?? "Verification probe failed.",
+                ProblemTypes.Conflict);
+        }
 
         return Ok(probe);
     }
@@ -126,10 +130,18 @@ public sealed class AdminTenantCatalogMigrationController(
         {
             TenantCatalogMigrationCommandOutcome.Applied => Accepted(new { migrationId }),
             TenantCatalogMigrationCommandOutcome.NotFound => this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound),
-            TenantCatalogMigrationCommandOutcome.AlreadyActive => Conflict(new { migrationId, message = "Migration already active." }),
+            TenantCatalogMigrationCommandOutcome.AlreadyActive => this.ConflictProblem(
+                migrationId is null
+                    ? "Migration already active."
+                    : $"Migration already active (migrationId={migrationId:D}).",
+                ProblemTypes.Conflict),
             TenantCatalogMigrationCommandOutcome.NoActiveMigration => this.NotFoundProblem("No active catalog migration.", ProblemTypes.ResourceNotFound),
-            TenantCatalogMigrationCommandOutcome.VerificationRequired => Conflict(new { message = "Verification probe must pass before completion." }),
-            TenantCatalogMigrationCommandOutcome.VerificationFailed => Conflict(new { message = "Verification probe failed." }),
+            TenantCatalogMigrationCommandOutcome.VerificationRequired => this.ConflictProblem(
+                "Verification probe must pass before completion.",
+                ProblemTypes.Conflict),
+            TenantCatalogMigrationCommandOutcome.VerificationFailed => this.ConflictProblem(
+                "Verification probe failed.",
+                ProblemTypes.Conflict),
             TenantCatalogMigrationCommandOutcome.AlreadyInDesiredState => NoContent(),
             _ => throw new InvalidOperationException($"Unhandled migration outcome: {outcome}"),
         };

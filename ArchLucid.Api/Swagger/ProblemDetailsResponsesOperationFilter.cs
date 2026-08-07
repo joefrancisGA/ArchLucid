@@ -16,9 +16,12 @@ public sealed class ProblemDetailsResponsesOperationFilter : IOperationFilter
 
         if (operation.Responses.TryGetValue("404", out IOpenApiResponse? notFound))
         {
-            if (path.Contains("run/") && (path.Contains("compare") || path.Contains("commit") ||
+            // Review-noun paths (/architecture/review/…) replaced legacy /run/ aliases; match both.
+            bool isRunOrReviewPath = path.Contains("run/") || path.Contains("review/");
+
+            if (isRunOrReviewPath && (path.Contains("compare") || path.Contains("commit") ||
                                           path.Contains("execute") || path.Contains("replay") ||
-                                          path.Contains("/run/")))
+                                          path.Contains("/run/") || path.Contains("/review/")))
                 notFound.Description = (notFound.Description ?? "").TrimEnd() +
                                        " Problem type: `#run-not-found` when the referenced run does not exist.";
             if (path.Contains("comparisons"))
@@ -33,7 +36,8 @@ public sealed class ProblemDetailsResponsesOperationFilter : IOperationFilter
             return;
 
         bool isRunExecuteQualityGate =
-            (path.Contains("/run/") && path.Contains("/execute")) || path.EndsWith("/submit");
+            ((path.Contains("/run/") || path.Contains("/review/")) && path.Contains("/execute"))
+            || path.EndsWith("/submit");
 
         if (isRunExecuteQualityGate)
             conflict.Description = (conflict.Description ?? "").TrimEnd() +

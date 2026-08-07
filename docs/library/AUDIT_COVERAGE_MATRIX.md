@@ -713,14 +713,29 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `IntegrationConfluenceFirstValueReportPublished` | `Integration.ConfluenceFirstValueReportPublished` | `ConfluencePublishingAdminController` (`POST …/admin/integrations/confluence/first-value-report`) |
 | `ArchitectureIntelligenceRunCompleted` | `ArchitectureIntelligence.RunCompleted` | `ArchitectureIntelligenceController` (architecture intelligence run / golden paths) |
 | `ArchitectureIntelligenceGoldenTestCompleted` | `ArchitectureIntelligence.GoldenTestCompleted` | `ArchitectureIntelligenceController` (golden test completion) |
-| `TenantCatalogMigrationStarted` | `TenantCatalogMigrationStarted` | `TenantCatalogMigrationOrchestrator` (catalog migration fan-out start / write suspend) |
-| `TenantCatalogMigrationProjectionRefreshCompleted` | `TenantCatalogMigrationProjectionRefreshCompleted` | `TenantCatalogMigrationOrchestrator` (post-cutover projection refresh) |
-| `TenantCatalogMigrationVerificationPassed` | `TenantCatalogMigrationVerificationPassed` | `TenantCatalogMigrationOrchestrator` (verification probe passed) |
-| `TenantCatalogMigrationVerificationFailed` | `TenantCatalogMigrationVerificationFailed` | `TenantCatalogMigrationOrchestrator` (verification probe failed) |
-| `TenantCatalogMigrationCompleted` | `TenantCatalogMigrationCompleted` | `TenantCatalogMigrationOrchestrator` (migration complete / writes reopened) |
+| `TenantCatalogMigrationStarted` | `TenantCatalogMigrationStarted` | `TenantCatalogMigrationOrchestrator` (`POST /v1/admin/tenants/{tenantId}/catalog-migration/start`) |
+| `TenantCatalogMigrationProjectionRefreshCompleted` | `TenantCatalogMigrationProjectionRefreshCompleted` | `TenantCatalogMigrationOrchestrator` (`POST /v1/admin/tenants/{tenantId}/catalog-migration/projection-refresh`) |
+| `TenantCatalogMigrationVerificationPassed` | `TenantCatalogMigrationVerificationPassed` | `TenantCatalogMigrationOrchestrator` (`POST /v1/admin/tenants/{tenantId}/catalog-migration/verify` when probe passes) |
+| `TenantCatalogMigrationVerificationFailed` | `TenantCatalogMigrationVerificationFailed` | `TenantCatalogMigrationOrchestrator` (`POST /v1/admin/tenants/{tenantId}/catalog-migration/verify` when probe fails) |
+| `TenantCatalogMigrationCompleted` | `TenantCatalogMigrationCompleted` | `TenantCatalogMigrationOrchestrator` (`POST /v1/admin/tenants/{tenantId}/catalog-migration/complete`) |
 | `PilotScorecardValueMetricsSubmitted` | `PilotScorecardValueMetricsSubmitted` | `PilotsController` |
 
 When adding a Core constant, add a row here and bump `audit-core-const-count`.
+
+**OpenAPI review-noun aliases (canonical HTTP surface):** mutating paths under `/v1/architecture/review/…`, `/v1/artifacts/reviews/…`, and `/v1/authority/reviews/…` are the buyer-facing spellings of the same audited operations documented above for `/v1/architecture/run/…`, `/v1/artifacts/runs/…`, and `/v1/authority/runs/…`. Explicit route mentions for CI:
+
+- `POST /v1/architecture/review/compare/end-to-end/summary`
+- `POST /v1/architecture/review/exports/compare/summary`
+- `POST /v1/architecture/review/exports/{exportRecordId}/replay`
+- `POST /v1/architecture/review/exports/{exportRecordId}/replay/metadata`
+- `POST /v1/architecture/review/{runId}/evidence/bulk`
+- `POST /v1/architecture/review/{runId}/execute/selective`
+- `POST /v1/architecture/review/{runId}/finalize`
+- `POST /v1/architecture/review/{runId}/replay`
+- `POST /v1/architecture/review/{runId}/result`
+- `POST /v1/artifacts/reviews/{runId}/export/push`
+- `POST /v1/artifacts/reviews/{runId}/terraform-pr`
+- `POST /v1/authority/reviews/{runId}/disposition`
 
 ---
 

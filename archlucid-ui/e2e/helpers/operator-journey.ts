@@ -343,9 +343,9 @@ export async function gotoRunDetailForMockFixtureRun(page: Page): Promise<void> 
   await page.goto(`/architecture/reviews/${encodeURIComponent(FIXTURE_RUN_ID)}`);
 }
 
-/** Manifest detail for a known id (encode-safe). */
+/** Manifest detail for a known id (encode-safe). Prefer canonical governance path (legacy `/signed-records/*` redirects). */
 export async function gotoManifestDetail(page: Page, manifestId: string): Promise<void> {
-  await page.goto(`/signed-records/${encodeURIComponent(manifestId)}`);
+  await page.goto(`/governance/signed-records/${encodeURIComponent(manifestId)}`);
 }
 
 /** Manifest page wired in the mock server for empty artifact list semantics. */
@@ -612,7 +612,7 @@ export function runsDashboardBuyerProofSummary(page: Page): Locator {
 export function outcomeStripSignedRecordLink(outcomeStrip: Locator): Locator {
   return outcomeStrip
     .locator(
-      '[data-testid="run-detail-finalized-package-link"], a[href^="/signed-records/"], a[href^="/manifests/"], a[href$="/signed-record"]',
+      '[data-testid="run-detail-finalized-package-link"], a[href*="/signed-records/"], a[href^="/manifests/"], a[href$="/signed-record"]',
     )
     .first();
 }
