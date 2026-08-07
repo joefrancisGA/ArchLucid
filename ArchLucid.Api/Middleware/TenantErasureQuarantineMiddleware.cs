@@ -45,7 +45,8 @@ internal sealed class TenantErasureQuarantineMiddleware(RequestDelegate next)
             return;
         }
 
-        ITenantRepository tenants = context.RequestServices.GetRequiredService<ITenantRepository>();
+        ITenantGetByIdRequestCache tenants =
+            context.RequestServices.GetRequiredService<ITenantGetByIdRequestCache>();
         TenantRecord? tenant = await tenants.GetByIdAsync(scope.TenantId, context.RequestAborted);
         TimeProvider timeProvider = context.RequestServices.GetRequiredService<TimeProvider>();
         DateTimeOffset utcNow = timeProvider.GetUtcNow();
