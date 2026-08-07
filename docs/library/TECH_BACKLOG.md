@@ -21,7 +21,7 @@ Regenerate after opening or closing summary-table rows:
 | Cutting-edge AI | 3 |
 | Explainability | 3 |
 | Proof-of-ROI / executive value | 2 |
-| Trustworthiness | 182 |
+| Trustworthiness | 181 |
 | Maintainability | 9 |
 | Traceability | 4 |
 | Interoperability | 4 |
@@ -35,7 +35,7 @@ Regenerate after opening or closing summary-table rows:
 | Differentiability | 3 |
 | Operability | 1 |
 | Other / uncategorized | 8 |
-| **Total (unique open)** | **806** |
+| **Total (unique open)** | **805** |
 
 **By priority band:** P0 **21** | P1 **652** | P2 **115** | P3 **9** | unlabeled **8**.
 
@@ -1133,7 +1133,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-2061 | **Done** (2026-08-07) — First Load JS cut for `/dashboard` + `/signed-records`; see ## TB-2061 below | Performance P0 — **V1**; owner top-10 untracked perf refile 2026-08-06; peer **TB-934**/**TB-2028** | M |
 | TB-2062 | **Done** (2026-08-07) — audit list cache coalesced invalidation under write churn; see ## TB-2062 below | Performance P0 — **V1**; owner top-10 untracked perf refile 2026-08-06; `CachingAuditRepository` | M |
 | TB-2044 | **Done** (2026-08-07) — trust labels on all finding export paths (work-item clipboard, ITSM JSON, ADR/MADR); see ## TB-2044 below | Trustworthiness P0 — **V1**; round 5; promoted 2026-08-06 | M |
-| TB-2063 | Compare finding delta — wire `AgentResultDiffService` to ADR 0063 fingerprint correlation; see ## TB-2063 below | Trustworthiness P0 — **V1**; round 5 after **TB-2042**; traffic **CXX** | M |
+| TB-2063 | **Done** (2026-08-07) — compare finding delta uses ADR 0063 fingerprint correlation in `AgentResultDiffService`; see ## TB-2063 below | Trustworthiness P0 — **V1**; round 5 after **TB-2042**; traffic **CXX** | M |
 | TB-2064 | Compare UI — surface finding correlation metadata (export-parity honesty); see ## TB-2064 below | Trustworthiness P0 — **V1**; round 5; with **TB-2063**; traffic **CXX** | M |
 | TB-2065 | Product language — disambiguate finding correlation (ADR 0063 / ITSM / ROI); see ## TB-2065 below | Adoption friction P0 — **V1**; round 5; help + ITSM surfaces | S |
 | TB-2066 | Finding inspect — authoritative trust enricher with real run context; see ## TB-2066 below | Trustworthiness P0 — **V1**; round 5; pairs **TB-2044** | M |

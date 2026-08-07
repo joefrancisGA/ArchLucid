@@ -10,9 +10,9 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
-## 2026-08-07 - Trustworthiness: TB-2063 compare finding fingerprint correlation
+## 2026-08-07 - Trustworthiness: TB-2063 compare finding delta fingerprint correlation
 
-`AgentResultDiffService` now uses ADR 0063 cross-review fingerprint correlation for finding add/remove deltas instead of raw message text comparison.
+`AgentResultDiffService` now uses ADR 0063 `ICrossReviewFindingCorrelationService` for finding add/remove deltas instead of raw message text comparison, with message-only fallback for findings without stable ids.
 
 ## 2026-08-07 - Trustworthiness: TB-2044 finding export trust labels
 
