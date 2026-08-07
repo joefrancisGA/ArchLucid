@@ -21,14 +21,14 @@ test.describe("Sponsor executive shell redirect @sponsor-redirect", () => {
     await stubSponsorOnlyPrincipal(page);
     await page.goto("/architecture/reviews?projectId=default");
 
-    await expect(page).toHaveURL(/\/reviews(\?projectId=default)?$/, { timeout: 15_000 });
+    await expect(page).toHaveURL(/\/architecture\/reviews(\?projectId=default)?$/, { timeout: 15_000 });
   });
 
   test("Sponsor-only deep link to review detail stays on operator reviews shell", async ({ page }) => {
     await stubSponsorOnlyPrincipal(page);
     await page.goto("/architecture/reviews/demo-run-id");
 
-    await expect(page).toHaveURL(/\/reviews\/demo-run-id$/, { timeout: 15_000 });
+    await expect(page).toHaveURL(/\/architecture\/reviews\/demo-run-id$/, { timeout: 15_000 });
   });
 
   test("Sponsor-only principal is redirected from governance workflow to dashboard", async ({ page }) => {

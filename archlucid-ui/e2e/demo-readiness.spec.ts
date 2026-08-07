@@ -32,7 +32,7 @@ async function expectBrandedNotFoundSurface(page: Page): Promise<void> {
   await expect(main.getByTestId("not-found-review-packages")).toBeVisible();
 }
 
-/** Canonical run detail path is `/architecture/reviews/{runId}`; `/runs/*` permanently redirects (see `next.config.ts`). */
+/** Canonical run detail path is `/architecture/reviews/{runId}`; legacy `/runs/*` bookmarks are retired (IA batch 4). */
 function showcaseDemoReviewDetailUrlPattern(): RegExp {
   return new RegExp(`/(?:reviews|runs)/${escapeRegExpSource(SHOWCASE_DEMO_RUN_ID)}`);
 }
@@ -145,7 +145,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
     await expect(runsDashboardBuyerProofSummary(page)).toBeVisible();
 
     await page.goto("/architecture/reviews/new");
-    await expect(page).toHaveURL(/\/reviews\/new/);
+    await expect(page).toHaveURL(/\/architecture\/reviews\/new/);
 
     await page.goto("/architecture/reviews?projectId=default");
     await expect(
@@ -158,7 +158,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
     await expect(claimsTableRow).toBeVisible();
     await reviewsHubPackagePrimaryAction(appMain, SHOWCASE_DEMO_RUN_ID).click();
     const afterListClickUrl = new RegExp(
-      `(?:/signed-records/${escapeRegExpSource(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}|/reviews/${escapeRegExpSource(SHOWCASE_DEMO_RUN_ID)}/(?:manifest|architecture)|/(?:reviews|runs)/${escapeRegExpSource(SHOWCASE_DEMO_RUN_ID)})`,
+      `(?:/governance/signed-records/${escapeRegExpSource(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}|/architecture/reviews/${escapeRegExpSource(SHOWCASE_DEMO_RUN_ID)}(?:/signed-record|/architecture)?)`,
     );
     await expect(page).toHaveURL(afterListClickUrl);
 

@@ -110,41 +110,35 @@ Constants live in `archlucid-ui/src/lib/showcase-static-demo.ts` and `archlucid-
 
 ---
 
-## Legacy URL redirects
+## Legacy URL handling (IA batch 4)
 
-Configured in `archlucid-ui/next.config.ts` — **namespace force-canonical** (reviews on-disk path matches public URL under `app/(operator)/architecture/reviews`):
+`archlucid-ui/next.config.ts` ships **no permanent bookmark redirects**. Use canonical on-disk paths below. Orientation helpers (`canonicalizeLegacyOperatorRoutePath`) still map retired prefixes for help and readiness lookups only.
 
-| Source | Destination |
-|--------|-------------|
-| `/reviews`, `/reviews/*` | `/architecture/reviews`, `/architecture/reviews/*` (301) |
-| `/runs`, `/runs/*` | `/architecture/reviews`, `/architecture/reviews/*` (301) |
-| `/reviews/:id/manifest` | `/architecture/reviews/:id/signed-record` (301) |
-| `/dashboard` | `/architecture/executive-dashboard` (301) |
-| `/executive/dashboard`, `/portfolio` | `/architecture/executive-dashboard` (301) |
-| `/policy-packs`, `/policy-packs/*` | `/governance/policy-packs`, `/governance/policy-packs/*` (301) |
-| `/audit` | `/governance/audit` (301) |
-| `/alerts` | `/governance/alerts` (301) |
-| `/alert-rules`, `/alert-rules/*` | `/governance/alert-rules` (301) |
-| `/signed-records`, `/signed-records/*` | `/governance/signed-records/*` (301) |
-| `/value-report`, `/value-report/pilot`, `/value-report/roi` | `/sponsor-report/*` (301) |
-
-**Rewrite aliases** (no 301 hop — URL may stay on the legacy path until client navigation upgrades it):
+**Rewrite aliases** (internal — URL may stay on the legacy path until client navigation upgrades it):
 
 | Source | Destination |
 |--------|-------------|
 | `/digests` | `/architecture/digests` |
 | `/digest-subscriptions` | `/architecture/digests?tab=subscriptions` |
 | `/governance/risk-exceptions`, `/governance/risk-exceptions/*` | `/governance/exceptions`, `/governance/exceptions/*` |
+| `/settings/roles` | `/administration/users?tab=roles` |
+| `/architecture/reviews/:id/signed-record` | `/architecture/reviews/:id` (run-scoped deep link) |
 
-`/settings/roles` is a **rewrite** (not 301) to `/administration/users?tab=roles`.
-
-**Retired bookmarks** (no redirect or rewrite — use canonical paths):
+**Retired bookmarks** (404 — use canonical paths):
 
 | Path | Canonical |
 |------|-----------|
-| `/manifests`, `/manifests/*` | `/governance/signed-records/*` (or legacy `/signed-records/*` 301) |
+| `/reviews`, `/reviews/*`, `/runs`, `/runs/*` | `/architecture/reviews/*` |
+| `/architectures`, `/architectures/*` | `/architecture/architectures/*` |
+| `/dashboard`, `/executive/dashboard`, `/portfolio` | `/architecture/executive-dashboard` |
+| `/audit`, `/policy-packs/*`, `/alerts`, `/alert-rules/*` | `/governance/*` |
+| `/signed-records`, `/signed-records/*` | `/governance/signed-records/*` |
+| `/manifests`, `/manifests/*` | `/governance/signed-records/*` |
+| `/value-report`, `/value-report/pilot`, `/value-report/roi` | `/sponsor-report/*` |
+| `/administration/settings`, `/admin/users`, `/workspace/security-trust`, `/admin/support` | `/administration/*` |
+| `/settings/cloud-connections` | `/integrations/cloud-connections` |
 
-**Note:** Legacy top-level `/signed-records/.../artifacts/...` redirect to canonical `/governance/signed-records/[manifestId]/artifacts/[artifactId]` (MAM — live App Router preview). `/manifests/*` is **retired** (no redirect); use `/governance/signed-records/*` or `/signed-records/*`. Run-scoped `/architecture/reviews/[runId]/artifacts/[artifactId]` (RER) redirects to MAM when a golden manifest exists.
+**Note:** Run-scoped `/architecture/reviews/[runId]/artifacts/[artifactId]` (RER) may redirect to MAM when a golden manifest exists (application logic, not `next.config`).
 
 ---
 

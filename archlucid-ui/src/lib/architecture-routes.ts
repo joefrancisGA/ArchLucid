@@ -10,10 +10,10 @@ export const ARCHITECTURE_NEW_DRAFT_SEGMENT = "new" as const;
 /** Architecture reviews list (hub). */
 export const REVIEWS_LIST_PATH = "/architecture/reviews" as const;
 
-/** Legacy top-level reviews path — permanent redirect to {@link REVIEWS_LIST_PATH}. */
+/** Legacy top-level reviews path — retired bookmark; canonical is {@link REVIEWS_LIST_PATH}. */
 export const LEGACY_REVIEWS_LIST_PATH = "/reviews" as const;
 
-/** Legacy runs list bookmark — permanent redirect to {@link REVIEWS_LIST_PATH}. */
+/** Legacy runs list bookmark — retired; canonical is {@link REVIEWS_LIST_PATH}. */
 export const LEGACY_RUNS_LIST_PATH = "/runs" as const;
 
 /** Left-nav Reviews destination — scoped to the default project. */

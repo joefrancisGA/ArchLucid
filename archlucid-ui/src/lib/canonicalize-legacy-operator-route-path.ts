@@ -22,7 +22,7 @@ const LEGACY_MANIFESTS_PATH = "/manifests";
 
 /**
  * Maps legacy bookmark paths to canonical operator routes for readiness, help, and orientation lookups.
- * Permanent redirects in `next.config.ts` still serve external bookmarks — this avoids duplicating table keys.
+ * Permanent redirects were removed in IA batch 4 — external legacy URLs 404 unless covered by a rewrite below.
  */
 export function canonicalizeLegacyOperatorRoutePath(pathname: string): string {
   const normalized = pathname.trim().length === 0 ? "/" : pathname;

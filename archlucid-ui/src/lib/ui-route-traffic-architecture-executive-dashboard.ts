@@ -16,7 +16,7 @@ export const ARCHITECTURE_EXECUTIVE_DASHBOARD_TRAFFIC_SECTION = "Core review";
  * Owner workbook Notes for ARE — documents the live executive ROI dashboard.
  */
 export const ARCHITECTURE_EXECUTIVE_DASHBOARD_TRAFFIC_NOTE =
-  "Canonical executive ROI portfolio dashboard — ExecutiveRoiDashboardPageView with hero, KPI tiles, trend charts, sponsor exports, and PageContextualHelp → executive-summary. Legacy /dashboard (DSH), /executive/dashboard (EXD), and /portfolio redirect here (TB-608).";
+  "Canonical executive ROI portfolio dashboard — ExecutiveRoiDashboardPageView with hero, KPI tiles, trend charts, sponsor exports, and PageContextualHelp → executive-summary. Legacy /dashboard (DSH), /executive/dashboard (EXD), and /portfolio bookmarks are retired (IA batch 4).";
 
 /** Legacy operator bookmark merged onto ARE during executive dashboard consolidation. */
 export const LEGACY_OPERATOR_EXECUTIVE_DASHBOARD_PATH = "/dashboard";

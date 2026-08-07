@@ -3,18 +3,10 @@ import { describe, expect, it } from "vitest";
 import nextConfig from "../next.config";
 
 describe("next.config integrations routes (TB-407 / TB-750)", () => {
-  it("keeps permanent redirects for legacy cloud-connections URL", async () => {
+  it("does not ship permanent bookmark redirects", async () => {
     const redirectRules = await nextConfig.redirects?.();
 
-    expect(redirectRules).toBeDefined();
-
-    expect(
-      redirectRules?.find(
-        (rule) =>
-          rule.source === "/settings/cloud-connections"
-          && rule.destination === "/integrations/cloud-connections",
-      )?.permanent,
-    ).toBe(true);
+    expect(redirectRules ?? []).toEqual([]);
   });
 
   it("does not keep pre-release Integration readiness / operations / ITSM hub redirects", async () => {

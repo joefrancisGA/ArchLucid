@@ -1,7 +1,7 @@
 /** Canonical buyer-facing list path for signed review records (TB-405 / IA-001). */
 export const SIGNED_RECORDS_LIST_PATH = "/governance/signed-records";
 
-/** Legacy top-level path — permanent redirect to {@link SIGNED_RECORDS_LIST_PATH}. */
+/** Legacy top-level path — retired bookmark; canonical is {@link SIGNED_RECORDS_LIST_PATH}. */
 export const LEGACY_SIGNED_RECORDS_LIST_PATH = "/signed-records";
 
 /** True when `pathname` is the list or any detail/artifact route (canonical or legacy). */

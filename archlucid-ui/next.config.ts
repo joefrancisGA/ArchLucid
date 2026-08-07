@@ -113,56 +113,7 @@ const nextConfig: NextConfig = {
     ];
   },
   async redirects() {
-    return [
-      // Force-canonical public URL namespace — legacy /reviews bookmarks redirect to /architecture/reviews.
-      // Specific /reviews/* aliases must precede the /reviews/:path* catch-all.
-      { source: "/reviews/:id/manifest", destination: "/architecture/reviews/:id/signed-record", permanent: true },
-      {
-        source: "/reviews/claims-intake-modernization/architecture",
-        destination: "/architecture/reviews/claims-intake-modernization/signed-record",
-        permanent: true,
-      },
-      { source: "/reviews", destination: "/architecture/reviews", permanent: true },
-      { source: "/reviews/:path*", destination: "/architecture/reviews/:path*", permanent: true },
-      { source: "/runs", destination: "/architecture/reviews", permanent: true },
-      { source: "/runs/:path*", destination: "/architecture/reviews/:path*", permanent: true },
-      {
-        source: "/architecture/reviews/:id/manifest",
-        destination: "/architecture/reviews/:id/signed-record",
-        permanent: true,
-      },
-      {
-        source: "/architecture/reviews/claims-intake-modernization/architecture",
-        destination: "/architecture/reviews/claims-intake-modernization/signed-record",
-        permanent: true,
-      },
-      { source: "/architectures", destination: "/architecture/architectures", permanent: true },
-      { source: "/architectures/:path*", destination: "/architecture/architectures/:path*", permanent: true },
-      // Legacy executive / portfolio bookmarks → architecture executive dashboard.
-      { source: "/dashboard", destination: "/architecture/executive-dashboard", permanent: true },
-      { source: "/executive/dashboard", destination: "/architecture/executive-dashboard", permanent: true },
-      { source: "/portfolio", destination: "/architecture/executive-dashboard", permanent: true },
-      { source: "/signed-records", destination: "/governance/signed-records", permanent: true },
-      { source: "/signed-records/:path*", destination: "/governance/signed-records/:path*", permanent: true },
-      // Legacy nested settings bookmarks (pre-flatten) → flat /administration/* pages.
-      { source: "/administration/settings", destination: "/administration", permanent: true },
-      { source: "/administration/settings/:path*", destination: "/administration/:path*", permanent: true },
-      { source: "/workspace/security-trust", destination: "/administration/security-trust", permanent: true },
-      { source: "/admin/users", destination: "/administration/users", permanent: true },
-      { source: "/admin/support", destination: "/administration/support", permanent: true },
-      // Legacy governance bookmarks (TB-405) → canonical governance tree.
-      { source: "/audit", destination: "/governance/audit", permanent: true },
-      { source: "/policy-packs", destination: "/governance/policy-packs", permanent: true },
-      { source: "/policy-packs/:path*", destination: "/governance/policy-packs/:path*", permanent: true },
-      { source: "/alerts", destination: "/governance/alerts", permanent: true },
-      { source: "/alert-rules", destination: "/governance/alert-rules", permanent: true },
-      { source: "/alert-rules/:path*", destination: "/governance/alert-rules/:path*", permanent: true },
-      { source: "/value-report", destination: "/sponsor-report/executive-summary", permanent: true },
-      { source: "/value-report/pilot", destination: "/sponsor-report/pilot-outcomes", permanent: true },
-      { source: "/value-report/roi", destination: "/sponsor-report/roi-summary", permanent: true },
-      // Legacy integrations bookmark (TB-407 / TB-750) → operator integrations tree.
-      { source: "/settings/cloud-connections", destination: "/integrations/cloud-connections", permanent: true },
-    ];
+    return [];
   },
   async rewrites() {
     return [
