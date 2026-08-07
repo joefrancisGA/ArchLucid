@@ -26399,7 +26399,20 @@
           "inMigration": {
             "type": "boolean"
           },
+          "lastVerificationError": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "message": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "migrationId": {
+            "format": "uuid",
             "type": [
               "null",
               "string"
