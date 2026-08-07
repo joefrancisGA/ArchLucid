@@ -20,6 +20,8 @@ describe("buildRunFindingsItsmJsonExportDocument", () => {
         muteReason: null,
         enforcementTier: "PolicyViolation",
         policyRuleId: "rule-1",
+        trustLabel: "DeterministicRule",
+        trustLabelReason: "Matched egress policy.",
       },
     ];
 
@@ -36,6 +38,8 @@ describe("buildRunFindingsItsmJsonExportDocument", () => {
     expect(document.workItems[0]?.findingId).toBe("f1");
     expect(document.workItems[0]?.severity).toBe("High");
     expect(document.workItems[0]?.links.inspect).toContain("/findings/f1/evidence-trace");
+    expect(document.workItems[0]?.trustLabel).toBe("DeterministicRule");
+    expect(document.workItems[0]?.trustLabelReason).toBe("Matched egress policy.");
   });
 });
 
@@ -51,6 +55,8 @@ describe("buildGovernanceFindingsItsmJsonExportDocument", () => {
           recommended: "Fix it.",
           status: "Open",
           recordKind: "finding",
+          trustLabel: "DeterministicRule",
+          trustLabelReason: "Rule matched.",
         },
         {
           runId: "run-z",
@@ -68,5 +74,6 @@ describe("buildGovernanceFindingsItsmJsonExportDocument", () => {
     expect(document.schema).toBe("archlucid.governance-findings-export.v1");
     expect(document.findingCount).toBe(1);
     expect(document.workItems[0]?.findingId).toBe("find-z");
+    expect(document.workItems[0]?.trustLabel).toBe("DeterministicRule");
   });
 });

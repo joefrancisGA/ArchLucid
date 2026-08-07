@@ -1,5 +1,6 @@
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { sortQuickDecisionFindings } from "@/lib/quick-decision-summary-derive";
+import { formatFindingTrustExportLine } from "@/lib/finding-trust-export";
 import type { RunExplanationSummary } from "@/types/explanation";
 import { isDeterministicExplanationFallback } from "@/types/explanation";
 
@@ -34,6 +35,8 @@ export type AdrGeneratorFindingSlice = {
   recommendation: string;
   severityLabel: string;
   aiReasoningExcerpt: string;
+  trustLabel?: string | null;
+  trustLabelReason?: string | null;
 };
 
 export type AdrGeneratorRunInput = {
@@ -186,6 +189,8 @@ export function buildAdrGeneratorRunInput(args: {
     recommendation: f.recommendation,
     severityLabel: args.severityLabelForFinding(f.severityValue),
     aiReasoningExcerpt: truncatePlain(f.aiReasoning.reasoningTrace, EXCERPT_CAP),
+    trustLabel: f.trustLabel ?? null,
+    trustLabelReason: f.trustLabelReason ?? null,
   }));
 
   return {
@@ -274,8 +279,11 @@ export function buildMadrMarkdownFromRun(input: AdrGeneratorRunInput): string {
               f.aiReasoningExcerpt.trim().length > 0 && f.aiReasoningExcerpt.trim() !== rec
                 ? `\n\n_AI reasoning excerpt:_ ${f.aiReasoningExcerpt.trim()}`
                 : "";
+            const trustLine = formatFindingTrustExportLine(f);
+            const trustBullet =
+              trustLine !== null ? `\n- **Trust label:** ${trustLine}` : "";
 
-            return `### ${i + 1}. [${f.severityLabel}] ${f.title}\n\n- **Finding id:** \`${f.findingId}\`\n- **Recommendation / reasoning:** ${rec}${excerpt}\n`;
+            return `### ${i + 1}. [${f.severityLabel}] ${f.title}\n\n- **Finding id:** \`${f.findingId}\`${trustBullet}\n- **Recommendation / reasoning:** ${rec}${excerpt}\n`;
           })
           .join("\n");
 

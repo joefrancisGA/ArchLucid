@@ -10,6 +10,14 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-07 - Trustworthiness: TB-2063 compare finding fingerprint correlation
+
+`AgentResultDiffService` now uses ADR 0063 cross-review fingerprint correlation for finding add/remove deltas instead of raw message text comparison.
+
+## 2026-08-07 - Trustworthiness: TB-2044 finding export trust labels
+
+Authoritative `trustLabel` / `trustLabelReason` now flow through work-item clipboard exports, bulk ITSM JSON export, and ADR/MADR markdown when the API supplies wire labels — parity with run-detail CSV.
+
 ## 2026-08-07 - Performance: TB-2062 audit list cache coalesced invalidation
 
 Coalesce audit-list scope revision bumps within 3s during append bursts so first-page `CachingAuditRepository` reads keep cache hits under pipeline write churn; 15s list TTL still bounds staleness.

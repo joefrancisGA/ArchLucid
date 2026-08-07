@@ -44,6 +44,8 @@ describe("adr-from-run", () => {
           recommendation: "Encrypt and pin region.",
           severityLabel: "High",
           aiReasoningExcerpt: "Model cited graph path.",
+          trustLabel: "ModelInference",
+          trustLabelReason: "Cited graph path.",
         },
       ],
     };
@@ -58,6 +60,7 @@ describe("adr-from-run", () => {
     expect(md).toContain("## Consequences");
     expect(md).toContain(input.runId);
     expect(md).toContain("[High] Store PII in-region");
+    expect(md).toContain("**Trust label:** ModelInference — Cited graph path.");
     expect(md).toContain("Driver A");
   });
 
@@ -116,6 +119,38 @@ describe("adr-from-run", () => {
     expect(input.findings.length).toBe(2);
     expect(input.findings[0]?.findingId).toBe("high");
     expect(input.findings[1]?.findingId).toBe("low");
+  });
+
+  it("buildAdrGeneratorRunInput forwards trust labels from quick decision findings", () => {
+    const finding: QuickDecisionFinding = {
+      findingId: "f-trust",
+      title: "Trust me",
+      recommendation: "Fix",
+      severityValue: 2,
+      findingOrder: 0,
+      aiReasoning: { wireJson: "{}", reasoningTrace: "trace" },
+      isMuted: false,
+      muteReason: null,
+      trustLabel: "DeterministicRule",
+      trustLabelReason: "Rule hit.",
+    };
+
+    const input = buildAdrGeneratorRunInput({
+      runId: "r1",
+      projectId: "p1",
+      reviewTitle: "T",
+      createdUtc: "2026-01-01T00:00:00.000Z",
+      manifestStatusLabel: null,
+      policyPackLabel: null,
+      manifestCounts: null,
+      explanationSummary: null,
+      quickDecisionFindings: [finding],
+      maxFindings: 5,
+      severityLabelForFinding: severityBadgeLabel,
+    });
+
+    expect(input.findings[0]?.trustLabel).toBe("DeterministicRule");
+    expect(input.findings[0]?.trustLabelReason).toBe("Rule hit.");
   });
 
   it("buildAdrExplanationSlice maps provenance and faithfulness flags", () => {
