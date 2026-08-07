@@ -786,7 +786,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whatIsThisPage:
         "In-app help topic — curated product documentation for operators and evaluators in this workspace.",
       whatToDoNext:
-        "Read the topic, then open Getting started or Troubleshooting when you need the next operator path.",
+        "Read the topic, then open Getting started or Troubleshooting when you need the next step.",
       whyEmpty: "Help topics are always available; live workspace data appears on operator surfaces after reviews start.",
       whereToConfigurePrerequisite:
         "Workspace and project scope come from the shell header switcher once you are signed in.",

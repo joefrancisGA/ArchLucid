@@ -40,7 +40,7 @@ describe("OperateAnalysisNavGroupBuilder", () => {
     expect(group.links.at(-4)?.label).toBe("Pattern library");
     expect(group.links.at(-4)?.navBadge).toBe("Preview");
     expect(group.links.at(-3)?.label).toBe("Executive value report");
-    expect(group.links.at(-1)?.label).toBe("ROI report");
+    expect(group.links.at(-1)?.label).toBe("ROI summary");
   });
 
   it("does not list Architecture intelligence in Insights nav", () => {

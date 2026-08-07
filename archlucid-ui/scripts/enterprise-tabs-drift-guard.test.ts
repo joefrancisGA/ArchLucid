@@ -48,7 +48,7 @@ describe("enterprise Tabs primitive drift guard (TB-665)", () => {
     const deliverables = readRepoFile("archlucid-ui/src/components/BuyerDeliverablesArtifactTabs.tsx");
 
     expect(helpTabsShell).toContain('@/components/ui/tabs');
-    expect(settingsRoles).toContain("sanitizeSettingsRolesTab");
+    expect(settingsRoles).toContain("settingsUsersTabFromLocation");
     expect(settingsRoles).toContain("onValueChange={onSelectTab}");
     expect(deliverables).toContain("TabsContent");
   });

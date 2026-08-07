@@ -46,7 +46,7 @@ Full operation-level rows: **Operations → durable audit** and **Baseline mutat
 
 ---
 
-<!-- audit-core-const-count:362 -->
+<!-- audit-core-const-count:367 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -713,6 +713,11 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `IntegrationConfluenceFirstValueReportPublished` | `Integration.ConfluenceFirstValueReportPublished` | `ConfluencePublishingAdminController` (`POST …/admin/integrations/confluence/first-value-report`) |
 | `ArchitectureIntelligenceRunCompleted` | `ArchitectureIntelligence.RunCompleted` | `ArchitectureIntelligenceController` (architecture intelligence run / golden paths) |
 | `ArchitectureIntelligenceGoldenTestCompleted` | `ArchitectureIntelligence.GoldenTestCompleted` | `ArchitectureIntelligenceController` (golden test completion) |
+| `TenantCatalogMigrationStarted` | `TenantCatalogMigrationStarted` | `TenantCatalogMigrationOrchestrator` (catalog migration fan-out start / write suspend) |
+| `TenantCatalogMigrationProjectionRefreshCompleted` | `TenantCatalogMigrationProjectionRefreshCompleted` | `TenantCatalogMigrationOrchestrator` (post-cutover projection refresh) |
+| `TenantCatalogMigrationVerificationPassed` | `TenantCatalogMigrationVerificationPassed` | `TenantCatalogMigrationOrchestrator` (verification probe passed) |
+| `TenantCatalogMigrationVerificationFailed` | `TenantCatalogMigrationVerificationFailed` | `TenantCatalogMigrationOrchestrator` (verification probe failed) |
+| `TenantCatalogMigrationCompleted` | `TenantCatalogMigrationCompleted` | `TenantCatalogMigrationOrchestrator` (migration complete / writes reopened) |
 | `PilotScorecardValueMetricsSubmitted` | `PilotScorecardValueMetricsSubmitted` | `PilotsController` |
 
 When adding a Core constant, add a row here and bump `audit-core-const-count`.
