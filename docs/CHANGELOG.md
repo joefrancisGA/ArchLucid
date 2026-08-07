@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-07 - Performance: TB-2061 dashboard + signed-records First Load JS
+
+Deferred below-fold executive-dashboard panels and the signed-records list client chunk via `next/dynamic`; extended `check:first-load-js` tracked routes and baseline for `/architecture/executive-dashboard` and `/governance/signed-records`.
+
 ## 2026-08-07 - Performance: TB-2060 decision-node materialization off commit path
 
 Authority finalize no longer runs `IDecisionEngineV2` node persistence synchronously. `DecisionEngineV2NodeMaterialization` post-commit outbox work enqueues on every successful commit; `DecisionEngineV2NodeMaterializer` idempotently populates `GET /v1/architecture/review/{runId}/decisions` after the outbox drains.

@@ -13,6 +13,7 @@ import {
   parseRouteBundleStatsFirstLoadJsKb,
   readBaseline,
   readRouteBundleStats,
+  resolveTrackedRouteFirstLoadJsKb,
 } from "./first-load-js-baseline.mjs";
 
 const FIXTURE_LOG = `
@@ -56,11 +57,21 @@ Route (app)                                          Revalidate  Expire
     const stats = readRouteBundleStats(NEXT16_STATS_FIXTURE);
     const routes = buildTrackedRouteFirstLoadJsMap(stats);
 
-    expect(routes.get("/welcome")).toBe(724.9);
-    expect(routes.get("/reviews")).toBe(1564);
-    expect(routes.get("/reviews/[runId]")).toBe(2010.4);
-    expect(routes.get("/governance/approval-queue")).toBe(1340.5);
-    expect(parseRouteBundleStatsFirstLoadJsKb(stats).size).toBeGreaterThanOrEqual(4);
+    expect(routes.get("/welcome")).toBe(711.5);
+    expect(routes.get("/reviews")).toBe(1710.6);
+    expect(routes.get("/reviews/[runId]")).toBe(2237.5);
+    expect(routes.get("/governance/approval-queue")).toBe(1462.7);
+    expect(routes.get("/architecture/executive-dashboard")).toBe(1546);
+    expect(routes.get("/governance/signed-records")).toBe(1436.3);
+    expect(parseRouteBundleStatsFirstLoadJsKb(stats).size).toBeGreaterThanOrEqual(6);
+  });
+
+  it("resolves legacy /reviews tracked keys from canonical architecture routes", () => {
+    const stats = readRouteBundleStats(NEXT16_STATS_FIXTURE);
+    const statsRoutes = parseRouteBundleStatsFirstLoadJsKb(stats);
+
+    expect(resolveTrackedRouteFirstLoadJsKb(statsRoutes, "/reviews")).toBe(1710.6);
+    expect(resolveTrackedRouteFirstLoadJsKb(statsRoutes, "/reviews/[runId]")).toBe(2237.5);
   });
 
   it("passes when actual sizes are within baseline tolerance", () => {

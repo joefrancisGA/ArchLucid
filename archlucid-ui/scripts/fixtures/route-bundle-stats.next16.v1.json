@@ -1,30 +1,44 @@
 [
   {
     "route": "/welcome",
-    "firstLoadUncompressedJsBytes": 742298,
+    "firstLoadUncompressedJsBytes": 728576,
     "firstLoadChunkPaths": [
       ".next/static/chunks/welcome.js"
     ]
   },
   {
-    "route": "/reviews",
-    "firstLoadUncompressedJsBytes": 1601536,
+    "route": "/architecture/reviews",
+    "firstLoadUncompressedJsBytes": 1751654,
     "firstLoadChunkPaths": [
       ".next/static/chunks/reviews.js"
     ]
   },
   {
-    "route": "/reviews/[runId]",
-    "firstLoadUncompressedJsBytes": 2058650,
+    "route": "/architecture/reviews/[runId]",
+    "firstLoadUncompressedJsBytes": 2291200,
     "firstLoadChunkPaths": [
       ".next/static/chunks/run-detail.js"
     ]
   },
   {
     "route": "/governance/approval-queue",
-    "firstLoadUncompressedJsBytes": 1372672,
+    "firstLoadUncompressedJsBytes": 1497805,
     "firstLoadChunkPaths": [
       ".next/static/chunks/governance.js"
+    ]
+  },
+  {
+    "route": "/architecture/executive-dashboard",
+    "firstLoadUncompressedJsBytes": 1583104,
+    "firstLoadChunkPaths": [
+      ".next/static/chunks/executive-dashboard.js"
+    ]
+  },
+  {
+    "route": "/governance/signed-records",
+    "firstLoadUncompressedJsBytes": 1470771,
+    "firstLoadChunkPaths": [
+      ".next/static/chunks/signed-records.js"
     ]
   }
 ]

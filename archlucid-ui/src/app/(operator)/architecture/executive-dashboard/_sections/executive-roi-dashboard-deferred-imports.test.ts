@@ -1,0 +1,59 @@
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
+import { describe, expect, it } from "vitest";
+
+const sectionsDir = dirname(fileURLToPath(import.meta.url));
+
+const pageViewSource = readFileSync(join(sectionsDir, "ExecutiveRoiDashboardPageView.tsx"), "utf8");
+const deferredSource = readFileSync(
+  join(sectionsDir, "executive-roi-dashboard-deferred-chunks.tsx"),
+  "utf8",
+);
+
+const bannedStaticImports = [
+  '@/components/OperatorWelcomeOnboarding"',
+  '@/components/executive/ExecutiveDashboardHowItWorks"',
+  './SponsorExportsSection"',
+  './BusinessImpactSummaryWidget"',
+  './ExecutiveRoiSummarySection"',
+  './ExecutiveComplianceDriftTrendSection"',
+  './ExecutiveRoiTrendSection"',
+  './ExecutiveRoiEnvironmentSavingsSection"',
+  './ExecutiveDashboardSupportingMetricsSection"',
+] as const;
+
+describe("executive dashboard deferred imports (TB-2061)", () => {
+  it("keeps below-fold panels off the page view static import graph", () => {
+    for (const bannedImport of bannedStaticImports) {
+      expect(pageViewSource).not.toContain(bannedImport);
+    }
+
+    expect(pageViewSource).toContain("executive-roi-dashboard-deferred-chunks");
+    expect(pageViewSource).toContain("OperatorWelcomeOnboardingDeferred");
+    expect(pageViewSource).toContain("ExecutiveDashboardHowItWorksDeferred");
+    expect(pageViewSource).toContain("SponsorExportsSectionDeferred");
+    expect(pageViewSource).toContain("BusinessImpactSummaryWidgetDeferred");
+    expect(pageViewSource).toContain("ExecutiveRoiSummarySectionDeferred");
+    expect(pageViewSource).toContain("ExecutiveComplianceDriftTrendSectionDeferred");
+    expect(pageViewSource).toContain("ExecutiveRoiTrendSectionDeferred");
+    expect(pageViewSource).toContain("ExecutiveRoiEnvironmentSavingsSectionDeferred");
+    expect(pageViewSource).toContain("ExecutiveDashboardSupportingMetricsSectionDeferred");
+  });
+
+  it("dynamic-imports each deferred executive dashboard panel", () => {
+    expect(deferredSource).toContain('import("@/components/OperatorWelcomeOnboarding")');
+    expect(deferredSource).toContain('import("@/components/executive/ExecutiveDashboardHowItWorks")');
+    expect(deferredSource).toContain('import("./SponsorExportsSection")');
+    expect(deferredSource).toContain('import("./BusinessImpactSummaryWidget")');
+    expect(deferredSource).toContain('import("./ExecutiveRoiSummarySection")');
+    expect(deferredSource).toContain('import("./ExecutiveComplianceDriftTrendSection")');
+    expect(deferredSource).toContain('import("./ExecutiveRoiTrendSection")');
+    expect(deferredSource).toContain('import("./ExecutiveRoiEnvironmentSavingsSection")');
+    expect(deferredSource).toContain(
+      'import("./ExecutiveDashboardSupportingMetricsSection")',
+    );
+    expect(deferredSource).toContain("next/dynamic");
+  });
+});
