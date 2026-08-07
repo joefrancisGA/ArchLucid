@@ -3,6 +3,8 @@ export type TenantCatalogMigrationStatus = {
   message?: string | null;
   correlationId?: string | null;
   stage?: string | null;
+  migrationId?: string | null;
+  lastVerificationError?: string | null;
 };
 
 /** Tenant catalog migration maintenance status (`GET /v1/tenant/catalog-migration-status`). */

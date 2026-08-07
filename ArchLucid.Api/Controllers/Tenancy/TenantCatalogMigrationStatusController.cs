@@ -41,6 +41,8 @@ public sealed class TenantCatalogMigrationStatusController(
                 Message = snapshot.Message,
                 CorrelationId = snapshot.CorrelationId,
                 Stage = snapshot.Stage,
+                MigrationId = snapshot.MigrationId,
+                LastVerificationError = snapshot.LastVerificationError,
             });
     }
 }

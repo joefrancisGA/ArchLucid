@@ -16,6 +16,7 @@ import {
   HealthSummaryTileGrid,
 } from "@/components/health-dashboard/HealthDashboardSections";
 import { HealthBuildDetailsDisclosure } from "@/components/health-dashboard/HealthBuildDetailsDisclosure";
+import { TenantCatalogMigrationDiagnosticsSection } from "@/components/tenancy/TenantCatalogMigrationDiagnosticsSection";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isDataArchivalHealthDegraded } from "@/lib/health-dashboard-types";
@@ -91,6 +92,8 @@ export function AdminHealthPageView(props: Props) {
         />
         <HealthBuildDetailsDisclosure version={m.version} testId="admin-health-build-identity" />
       </header>
+
+      <TenantCatalogMigrationDiagnosticsSection />
 
       {m.readyError !== null ? (
         <p className={cn("m-0 text-rose-800 dark:text-rose-200", OPERATOR_TYPOGRAPHY.body)} role="alert">

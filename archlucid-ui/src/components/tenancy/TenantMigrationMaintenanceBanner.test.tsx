@@ -130,4 +130,23 @@ describe("TenantMigrationMaintenanceBanner", () => {
     expect(screen.getByTestId("tenant-migration-maintenance-banner")).toBeInTheDocument();
     expect(screen.getByText(/verification is running/i)).toBeInTheDocument();
   });
+
+  it("shows correlation id and verification error details when provided", async () => {
+    fetchStatusMock.mockResolvedValue({
+      inMigration: true,
+      stage: "Verification",
+      correlationId: "corr-abc-123",
+      migrationId: "11111111-2222-3333-4444-555555555555",
+      lastVerificationError: "Committed review could not be loaded from the target catalog.",
+    });
+
+    render(<TenantMigrationMaintenanceBanner />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("tenant-migration-operator-details")).toBeInTheDocument();
+    });
+
+    expect(screen.getByText("corr-abc-123")).toBeInTheDocument();
+    expect(screen.getByText(/could not be loaded/i)).toBeInTheDocument();
+  });
 });

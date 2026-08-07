@@ -28,4 +28,16 @@ public sealed class TenantCatalogMigrationStatusResponse
         get;
         set;
     }
+
+    public Guid? MigrationId
+    {
+        get;
+        set;
+    }
+
+    public string? LastVerificationError
+    {
+        get;
+        set;
+    }
 }

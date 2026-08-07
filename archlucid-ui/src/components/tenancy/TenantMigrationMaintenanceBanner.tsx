@@ -8,6 +8,7 @@ import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/dem
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import {
+  buildTenantMigrationOperatorDetailLines,
   formatTenantMigrationStageLabel,
   resolveTenantMigrationSuspendMessage,
   TENANT_MIGRATION_STATUS_POLL_MS,
@@ -26,6 +27,9 @@ function isMigrationBannerSuppressed(): boolean {
 export function TenantMigrationMaintenanceBanner() {
   const [message, setMessage] = useState<string | null>(null);
   const [stageLabel, setStageLabel] = useState<string | null>(null);
+  const [operatorDetails, setOperatorDetails] = useState<
+    ReturnType<typeof buildTenantMigrationOperatorDetailLines>
+  >([]);
 
   useEffect(() => {
     if (isMigrationBannerSuppressed()) {
@@ -50,9 +54,11 @@ export function TenantMigrationMaintenanceBanner() {
       if (status.inMigration) {
         setMessage(resolveTenantMigrationSuspendMessage(status));
         setStageLabel(formatTenantMigrationStageLabel(status.stage));
+        setOperatorDetails(buildTenantMigrationOperatorDetailLines(status));
       } else {
         setMessage(null);
         setStageLabel(null);
+        setOperatorDetails([]);
       }
     }
 
@@ -94,6 +100,19 @@ export function TenantMigrationMaintenanceBanner() {
         </Link>
         .
       </p>
+      {operatorDetails.length > 0 ? (
+        <dl
+          className="m-0 mt-2 grid gap-1 text-sm text-sky-950/90 dark:text-sky-100/90"
+          data-testid="tenant-migration-operator-details"
+        >
+          {operatorDetails.map((detail) => (
+            <div key={detail.label} className="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0">
+              <dt className="font-medium">{detail.label}</dt>
+              <dd className="m-0 break-all font-mono text-xs">{detail.value}</dd>
+            </div>
+          ))}
+        </dl>
+      ) : null}
     </div>
   );
 }

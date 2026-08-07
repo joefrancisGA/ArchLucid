@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Security.Claims;
 
+using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Authorization;
@@ -20,13 +21,41 @@ namespace ArchLucid.Api.Controllers.Admin;
 [Route("v{version:apiVersion}/admin/tenants")]
 public sealed class AdminTenantCatalogMigrationController(
     ITenantCatalogMigrationOrchestrator orchestrator,
-    ITenantRepository tenantRepository) : ControllerBase
+    ITenantRepository tenantRepository,
+    ITenantMigrationStatusService tenantMigrationStatusService) : ControllerBase
 {
     private readonly ITenantCatalogMigrationOrchestrator _orchestrator =
         orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
 
     private readonly ITenantRepository _tenantRepository =
         tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
+
+    private readonly ITenantMigrationStatusService _tenantMigrationStatusService =
+        tenantMigrationStatusService ?? throw new ArgumentNullException(nameof(tenantMigrationStatusService));
+
+    [HttpGet("{tenantId:guid}/catalog-migration/status")]
+    [ProducesResponseType(typeof(TenantCatalogMigrationStatusResponse), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetStatusAsync(Guid tenantId, CancellationToken cancellationToken)
+    {
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenant is null)
+            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
+
+        TenantMigrationStatusSnapshot snapshot =
+            await _tenantMigrationStatusService.GetForTenantAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+        return Ok(
+            new TenantCatalogMigrationStatusResponse
+            {
+                InMigration = snapshot.InMigration,
+                Message = snapshot.Message,
+                CorrelationId = snapshot.CorrelationId,
+                Stage = snapshot.Stage,
+                MigrationId = snapshot.MigrationId,
+                LastVerificationError = snapshot.LastVerificationError,
+            });
+    }
 
     [HttpPost("{tenantId:guid}/catalog-migration/start")]
     [ProducesResponseType(StatusCodes.Status202Accepted)]

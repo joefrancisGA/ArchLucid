@@ -60,3 +60,38 @@ export function formatTenantMigrationStageLabel(stage: string | null | undefined
 
   return STAGE_LABELS[normalized] ?? normalized;
 }
+
+export type TenantMigrationOperatorDetailLine = {
+  label: string;
+  value: string;
+};
+
+/** Correlation id, migration id, and verification errors for operator diagnostics (TB-2070). */
+export function buildTenantMigrationOperatorDetailLines(
+  status: Pick<
+    TenantCatalogMigrationStatus,
+    "correlationId" | "migrationId" | "lastVerificationError"
+  >,
+): TenantMigrationOperatorDetailLine[] {
+  const lines: TenantMigrationOperatorDetailLine[] = [];
+
+  const correlationId = status.correlationId?.trim();
+
+  if (correlationId !== undefined && correlationId.length > 0) {
+    lines.push({ label: "Correlation id", value: correlationId });
+  }
+
+  const migrationId = status.migrationId?.trim();
+
+  if (migrationId !== undefined && migrationId.length > 0) {
+    lines.push({ label: "Migration id", value: migrationId });
+  }
+
+  const verificationError = status.lastVerificationError?.trim();
+
+  if (verificationError !== undefined && verificationError.length > 0) {
+    lines.push({ label: "Last verification error", value: verificationError });
+  }
+
+  return lines;
+}

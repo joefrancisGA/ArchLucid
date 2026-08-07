@@ -26,6 +26,8 @@ public sealed class TenantMigrationStatusService(ITenantCatalogMigrationReposito
             Message = active.MaintenanceMessage,
             CorrelationId = active.CorrelationId,
             Stage = active.Stage.ToString(),
+            MigrationId = active.MigrationId,
+            LastVerificationError = active.LastVerificationError,
         };
     }
 }

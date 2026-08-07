@@ -26,4 +26,16 @@ public sealed class TenantMigrationStatusSnapshot
         get;
         init;
     }
+
+    public Guid? MigrationId
+    {
+        get;
+        init;
+    }
+
+    public string? LastVerificationError
+    {
+        get;
+        init;
+    }
 }
