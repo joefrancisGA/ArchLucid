@@ -258,6 +258,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/help/executive-summary",
+    entry: {
+      whatIsThisPage:
+        "Executive summary help — sponsor-safe pilot proof, ROI framing, and what executives should expect in exports.",
+      whatToDoNext:
+        "Open the live executive value report or dashboard, then review Pilot ROI model when methodology needs clarity.",
+      whyEmpty: "This guide is always available; live sponsor reports populate after finalized reviews exist.",
+      whereToConfigurePrerequisite:
+        "Sponsor exports need a role that can read finalized architecture reviews in this workspace.",
+    },
+  },
+  {
     prefix: "/help/policy-pack-delta-demo",
     entry: {
       whatIsThisPage:

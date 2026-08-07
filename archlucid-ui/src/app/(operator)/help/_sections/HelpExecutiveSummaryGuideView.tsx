@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
+import { ExecutiveSummaryHelpEvidenceOrientationStrip } from "@/app/(operator)/help/_sections/ExecutiveSummaryHelpEvidenceOrientationStrip";
 import { HelpExecutiveSummaryPageHeader } from "@/app/(operator)/help/_sections/HelpExecutiveSummaryPageHeader";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
@@ -115,6 +116,8 @@ export function HelpExecutiveSummaryGuideView(
             </Link>
           </CardContent>
         </Card>
+
+        <ExecutiveSummaryHelpEvidenceOrientationStrip />
       </div>
 
       <div className={HELP_PAGE_LAYOUT.contentGrid}>

@@ -70,5 +70,6 @@ describe("ui-route-traffic-executive-summary-help (EXE)", () => {
     expect(row?.notes).toBe(EXECUTIVE_SUMMARY_HELP_TRAFFIC_NOTE);
     expect(row?.section.toLowerCase()).not.toBe("marketing");
     expect(row?.notes).toContain("HelpExecutiveSummaryGuideView");
+    expect(row?.notes).toContain("Score 52");
   });
 });

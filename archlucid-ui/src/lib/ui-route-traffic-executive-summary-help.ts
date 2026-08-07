@@ -14,10 +14,11 @@ export const EXECUTIVE_SUMMARY_HELP_TRAFFIC_PATH = EXECUTIVE_SUMMARY_HELP_PATH;
 export const EXECUTIVE_SUMMARY_HELP_TRAFFIC_SECTION = "Help topic";
 
 /**
- * Owner workbook Notes for EXE - documents the specialty HelpExecutiveSummaryGuideView surface.
+ * Owner workbook Notes for EXE - documents specialty HelpExecutiveSummaryGuideView Evidence chrome.
+ * ASCII-only for Windows console note scripts.
  */
 export const EXECUTIVE_SUMMARY_HELP_TRAFFIC_NOTE =
-  "Specialty sponsor ROI + product overview guide - HelpExecutiveSummaryGuideView on EXECUTIVE_SPONSOR_BRIEF (overview + pilot sections). Absorbs former HPR/EPR (`/help/product-overview`) twin (TB-1739). CTAs to /sponsor-report/executive-summary (SPE) and executive dashboard. Not bare FAQ HelpTopicMarkdownView.";
+  "Executive summary help (Help topic) - HelpExecutiveSummaryGuideView with PageContextualHelpButton (topic map executive-summary; Category-1 registry), workspace Sources + claim-discipline orientation strip, sponsor value-report / executive-dashboard / pilot-roi CTAs, prepared EXECUTIVE_SPONSOR_BRIEF.md (overview + pilot). Absorbs former product-overview twin (TB-1739). Not bare HelpTopicMarkdownView. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-07) - help-topic orientation hard-caps higher Evidence.";
 
 /** Live sponsor value report path referenced from EXE handoffs (workbook row SPE). */
 export const EXECUTIVE_SUMMARY_HELP_SPONSOR_REPORT_PATH = SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH;

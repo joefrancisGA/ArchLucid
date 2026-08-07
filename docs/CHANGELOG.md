@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-07 - UI: Executive summary help Evidence chrome (EXE)
+
+`/help/executive-summary` ships ExecutiveSummaryHelpEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map executive-summary, traffic Notes under Help topic (row ID EXE), and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-07 - UI: Evidence-only-review help alias Evidence chrome (HEV)
 
 `/help/evidence-only-review` inherits HelpCorePilotGuideView Evidence chrome via slug alias → `first-architecture-review` (COR; prefer `#fast-path-evidence-only`), Category-1 + topic map on the alias path, traffic Notes under Help alias (row ID HEV), and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.
