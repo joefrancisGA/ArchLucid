@@ -70,6 +70,9 @@ describe("ui-route-traffic-architecture-executive-dashboard (ARE)", () => {
     expect(row?.notes).toBe(ARCHITECTURE_EXECUTIVE_DASHBOARD_TRAFFIC_NOTE);
     expect(row?.section.toLowerCase()).not.toBe("marketing");
     expect(row?.notes).toContain("ExecutiveRoiDashboardPageView");
+    expect(row?.notes).toContain("claim-discipline");
     expect(row?.notes).toContain("DSH");
+    expect(row?.notes).toContain("Score 72");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
