@@ -66,5 +66,6 @@ describe("ui-route-traffic-audit-trail-help (H)", () => {
     expect(row?.notes).toBe(AUDIT_TRAIL_HELP_TRAFFIC_NOTE);
     expect(row?.notes).toContain("HelpAuditTrailGuideView");
     expect(row?.notes).toContain("Sources");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
