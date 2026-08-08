@@ -72,5 +72,6 @@ describe("ui-route-traffic-governance-api-contracts-help (HG)", () => {
     expect(row?.notes).toContain("HelpApiContractsGuideView");
     expect(row?.notes).toContain("TB-1386");
     expect(row?.notes).toContain("TB-1388");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
