@@ -44,6 +44,7 @@ import { FindingInspectItsmWorkflowPanel } from "../FindingInspectItsmWorkflowPa
 import { FindingInspectRecommendedActionSection } from "../FindingInspectRecommendedActionSection";
 import { FindingInspectWhyMattersSection } from "../FindingInspectWhyMattersSection";
 import { FindingDetailDecisionSummary } from "./FindingDetailDecisionSummary";
+import { FindingDetailEvidenceOrientationStrip } from "./FindingDetailEvidenceOrientationStrip";
 import { FindingDetailOperationalActions } from "./FindingDetailOperationalActions";
 import { FindingDetailWayfinding } from "./FindingDetailWayfinding";
 import {
@@ -123,6 +124,8 @@ export function FindingDetailPageView(props: Props) {
         reviewFindingsHref={reviewFindingsHref}
         currentPageLabel={pageTitle}
       />
+
+      <FindingDetailEvidenceOrientationStrip runId={runId} findingId={decodedFindingId} />
 
       {showBuyerPolishedBody ? (
         <div className="space-y-4">
