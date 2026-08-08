@@ -83,7 +83,7 @@ Product and test projects under **`ArchLucid.*/`** (paths relative to repo root;
 
 - **Evidence contract:** [`ASSESSMENT_INPUTS.md`](ASSESSMENT_INPUTS.md) — ordered reads before broad scans; **`@Assessment-Scope-V1_1`** for **`(A)` / `(B)`** rules.
 - **Current score + backlog:** [`../assessments/LATEST_GPT55.md`](../assessments/LATEST_GPT55.md) only — **one** standing weighted pass.
-- **History:** [`../archive/assessments/`](../archive/assessments/) and archived quality narratives — **not** for quoting today's headline readiness (see **"One workflow"** in **`ASSESSMENT_INPUTS.md`**).
+- **History:** archived quality narratives were deleted **2026-07-31**; the canonical old→new map is [`redirects.md`](../redirects.md) — **not** for quoting today's headline readiness (see **"One workflow"** in **`ASSESSMENT_INPUTS.md`**).
 
 ## HTTP / OpenAPI (refresh when changing wire shape)
 

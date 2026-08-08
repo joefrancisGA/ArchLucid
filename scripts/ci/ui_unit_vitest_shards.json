@@ -18,9 +18,7 @@
       "id": "app-operator-a",
       "label": "app-operator-a (3/9)",
       "paths": [
-        "src/app/(operator)/reviews",
         "src/app/(operator)/governance",
-        "src/app/(operator)/architecture/architectures",
         "src/app/(operator)/admin",
         "src/app/(operator)/integrations",
         "src/app/(operator)/help",

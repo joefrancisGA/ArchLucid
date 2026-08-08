@@ -13,7 +13,7 @@
 
 | Step | `ArchLucid.Cli` (see `Program.cs` cases) | REST (`ArchLucid.Api`) | Architect workspace |
 |------|------------------------------------------|-------------------------|-------------|
-| Create / drive **review** | `run`, `status`, `submit`, `commit`, `seed`, `artifacts` | `/v1/...` authority and architecture routes (versioned under `/v1` per `README.md`) | [`archlucid-ui/src/app/(operator)/reviews/new/page.tsx`](../../archlucid-ui/src/app/(operator)/reviews/new/page.tsx) → **review** detail [`runs/[runId]/page.tsx`](../../archlucid-ui/src/app/(operator)/reviews/[runId]/page.tsx) (legacy `/runs/` paths) |
+| Create / drive **review** | `run`, `status`, `submit`, `commit`, `seed`, `artifacts` | `/v1/...` authority and architecture routes (versioned under `/v1` per `README.md`) | [`architecture/reviews/new/page.tsx`](../../archlucid-ui/src/app/(operator)/architecture/reviews/new/page.tsx) → **review** detail [`architecture/reviews/[runId]/page.tsx`](../../archlucid-ui/src/app/(operator)/architecture/reviews/[runId]/page.tsx) (routes moved under `architecture/` per ADR 0064) |
 | Health / support | `health`, `doctor` / `check`, `trace <runId>`, `support-bundle` | `GET /health/live`, `GET /health/ready`, `GET /version` | Same **review** detail page surfaces pipeline + downloads |
 | Aggregate explanation | — | `GET /v1/explain/runs/{runId}/aggregate` (`ExplanationController`, **`ReadAuthority`**) | Collapsible “Explanation (aggregate)” on **review** detail |
 
