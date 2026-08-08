@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Security.Claims;
 
 using ArchLucid.Api.ProblemDetails;
@@ -152,30 +151,4 @@ public sealed class AdminTenantCatalogMigrationController(
 
     private string ResolveActorUserName() =>
         User.FindFirstValue(ClaimTypes.Name) ?? User.Identity?.Name ?? ResolveActorUserId();
-}
-
-[ExcludeFromCodeCoverage(Justification = "API request DTO.")]
-public sealed class StartTenantCatalogMigrationRequest
-{
-    public string CorrelationId
-    {
-        get;
-        set;
-    } = Guid.NewGuid().ToString("N");
-}
-
-[ExcludeFromCodeCoverage(Justification = "API request DTO.")]
-public sealed class TenantCatalogMigrationScopeRequest
-{
-    public Guid WorkspaceId
-    {
-        get;
-        set;
-    }
-
-    public Guid ProjectId
-    {
-        get;
-        set;
-    }
 }

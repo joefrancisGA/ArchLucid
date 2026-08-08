@@ -2,7 +2,8 @@
   163: INV-002 — dbo.Runs.StructuralExecutionMode NOT NULL execution labeling + extend IX_Runs_Scope_CreatedUtc INCLUDE.
 */
 
-IF COL_LENGTH(N'dbo.Runs', N'StructuralExecutionMode') IS NULL
+IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+AND COL_LENGTH(N'dbo.Runs', N'StructuralExecutionMode') IS NULL
 BEGIN
     ALTER TABLE dbo.Runs ADD
         StructuralExecutionMode NVARCHAR(32) NOT NULL

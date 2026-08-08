@@ -3,7 +3,8 @@
   Extends IX_Runs_Scope_CreatedUtc INCLUDE list (parity with migration 153).
 */
 
-IF COL_LENGTH(N'dbo.Runs', N'IsSample') IS NULL
+IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+AND COL_LENGTH(N'dbo.Runs', N'IsSample') IS NULL
     ALTER TABLE dbo.Runs ADD IsSample BIT NOT NULL CONSTRAINT DF_Runs_IsSample DEFAULT (0);
 GO
 

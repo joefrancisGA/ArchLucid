@@ -57,9 +57,9 @@ public sealed class OpenApiContractInvariantsTests(OpenApiContractWebAppFactory 
         required.Any(n => string.Equals(n?.GetValue<string>(), "structuralExecutionMode", StringComparison.Ordinal)).Should()
             .BeTrue("structuralExecutionMode must be required on ArchitectureRun in OpenAPI");
 
-        // TB-919 (2026-07-20): the "/v1/runs/{runId}/submit" deprecated alias was deleted with the coordinator
+        // TB-919 (2026-07-20): the "/v1/architecture/reviews/{runId}/submit" deprecated alias was deleted with the coordinator
         // strangler migration closure; "/v1/architecture/review/{runId}/execute" above is the sole route now.
-        paths.ContainsKey("/v1/runs/{runId}/submit").Should().BeFalse(
+        paths.ContainsKey("/v1/architecture/reviews/{runId}/submit").Should().BeFalse(
             "the deprecated run-lifecycle alias routes were retired by TB-919 — this path must not reappear without a new ADR");
     }
 

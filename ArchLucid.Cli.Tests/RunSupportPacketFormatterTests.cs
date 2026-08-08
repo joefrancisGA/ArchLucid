@@ -31,7 +31,7 @@ public sealed class RunSupportPacketFormatterTests
     {
         RunSupportPacketFormatter.ResolveNextStep(ArchitectureRunStatus.Committed, null)
             .Should()
-            .Contain("GET /v1/architecture/run");
+            .Contain("GET /v1/architecture/review");
     }
 
     [Fact]

@@ -1,4 +1,5 @@
-IF COL_LENGTH(N'dbo.Runs', N'IsPublicShowcase') IS NULL
+IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+AND COL_LENGTH(N'dbo.Runs', N'IsPublicShowcase') IS NULL
     ALTER TABLE dbo.Runs ADD IsPublicShowcase BIT NOT NULL CONSTRAINT DF_Runs_IsPublicShowcase DEFAULT (0);
 GO
 

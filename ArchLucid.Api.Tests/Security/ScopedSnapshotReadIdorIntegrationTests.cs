@@ -56,7 +56,7 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
     {
         await AssertCrossTenantRouteDeniedAsync(
             "authority run detail",
-            static (client, runId) => client.GetAsync($"/v1/runs/{runId}"));
+            static (client, runId) => client.GetAsync($"/v1/architecture/review/{runId}"));
     }
 
     [SkippableFact]
@@ -80,7 +80,7 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
     {
         await AssertCrossTenantRouteDeniedAsync(
             "run artifact list",
-            static (client, runId) => client.GetAsync($"/v1/runs/{runId}/artifacts"));
+            static (client, runId) => client.GetAsync($"/v1/architecture/reviews/{runId}/artifacts"));
     }
 
     [SkippableFact]
@@ -88,7 +88,7 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
     {
         await AssertCrossTenantRouteDeniedAsync(
             "artifact run export zip",
-            static (client, runId) => client.GetAsync($"/v1/artifacts/runs/{runId}/export"));
+            static (client, runId) => client.GetAsync($"/v1/artifacts/reviews/{runId}/export"));
     }
 
     [SkippableFact]
@@ -98,7 +98,7 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
             "artifact run export blob push",
             static (client, runId) =>
                 client.PostAsJsonAsync(
-                    $"/v1/artifacts/runs/{runId}/export/push",
+                    $"/v1/artifacts/reviews/{runId}/export/push",
                     new { destinationSasUrl = PlaceholderAzureBlobSasUrl }));
     }
 
@@ -134,7 +134,7 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
         await AssertCrossTenantRouteDeniedAsync(
             "terraform advisory PR",
             static (client, runId) =>
-                client.PostAsync($"/v1/artifacts/runs/{runId}/terraform-pr", content: null));
+                client.PostAsync($"/v1/artifacts/reviews/{runId}/terraform-pr", content: null));
     }
 
     [SkippableFact]
@@ -190,7 +190,7 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
     {
         await AssertCrossTenantRouteDeniedAsync(
             "run artifact bundle",
-            static (client, runId) => client.GetAsync($"/v1/runs/{runId}/artifacts/bundle"));
+            static (client, runId) => client.GetAsync($"/v1/architecture/reviews/{runId}/artifacts/bundle"));
     }
 
     [SkippableFact]
@@ -311,7 +311,7 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
         WireScope(client, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
 
         HttpResponseMessage response = await client.PostAsJsonAsync(
-            $"/v1/artifacts/runs/{seed.RunId}/export/push",
+            $"/v1/artifacts/reviews/{seed.RunId}/export/push",
             new { destinationSasUrl = "https://127.0.0.1/evil/archlucid.zip?sv=2022-11-02&ss=b&srt=sco&sp=w&sig=x" });
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -334,7 +334,7 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
         WireScope(client, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
 
         HttpResponseMessage response = await client.PostAsJsonAsync(
-            $"/v1/artifacts/runs/{seed.RunId}/export/push",
+            $"/v1/artifacts/reviews/{seed.RunId}/export/push",
             new { destinationSasUrl = "https://evil.example.com/exports/archlucid.zip?sig=x" });
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -362,7 +362,7 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
         WireScope(client, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
 
         HttpResponseMessage response = await client.PostAsJsonAsync(
-            $"/v1/artifacts/runs/{seed.RunId}/export/push",
+            $"/v1/artifacts/reviews/{seed.RunId}/export/push",
             new { destinationSasUrl = PlaceholderAzureBlobSasUrl });
 
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
@@ -389,7 +389,7 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
         using HttpClient client = factory.CreateClient();
         WireScope(client, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
 
-        HttpResponseMessage list = await client.GetAsync($"/v1/runs/{seed.RunId}/artifacts");
+        HttpResponseMessage list = await client.GetAsync($"/v1/architecture/reviews/{seed.RunId}/artifacts");
         await list.EnsureSuccessForTestAsync();
 
         string listJson = await list.Content.ReadAsStringAsync();
@@ -405,7 +405,7 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
         Guid artifactId = artifactsElement[0].GetProperty("artifactId").GetGuid();
 
         HttpResponseMessage download =
-            await client.GetAsync($"/v1/runs/{seed.RunId}/artifacts/{artifactId:D}");
+            await client.GetAsync($"/v1/architecture/reviews/{seed.RunId}/artifacts/{artifactId:D}");
 
         await download.EnsureSuccessForTestAsync();
         download.Content.Headers.ContentType?.MediaType.Should().NotBeNullOrWhiteSpace();

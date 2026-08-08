@@ -80,6 +80,7 @@ public static partial class GreenfieldBaselineMigrationRunner
                 // Partial replay without sentinel drift: stamp 001–050 so DbUp continues at 051+.
                 CommitBaselineJournalThrough050(connection);
                 StampRunTelemetryMigration138WhenDboTableExists(connection, null);
+                StampBuyerSpineScriptsThrough295WhenReviewsPresent(connection, null);
 
                 return;
             }
@@ -116,6 +117,7 @@ public static partial class GreenfieldBaselineMigrationRunner
 
         CommitBaselineJournalThrough050(connection);
         StampRunTelemetryMigration138WhenDboTableExists(connection, null);
+        StampBuyerSpineScriptsThrough295WhenReviewsPresent(connection, null);
     }
 
     private static void CommitBaselineJournalThrough050(SqlConnection connection)
@@ -140,6 +142,39 @@ public static partial class GreenfieldBaselineMigrationRunner
         if (string.IsNullOrEmpty(resourceName))
             return;
 
+        StampScriptNameIfMissing(connection, tx, resourceName);
+    }
+
+    /// <summary>
+    ///     ADR 0064: when <c>dbo.Reviews</c> already exists, <c>dbo.Runs</c> is a synonym. Replaying <c>051</c>–<c>295</c>
+    ///     can still hit non-idempotent index/DDL paths; stamp those scripts so DbUp continues at <c>296</c>+.
+    /// </summary>
+    private static void StampBuyerSpineScriptsThrough295WhenReviewsPresent(SqlConnection connection, SqlTransaction? tx)
+    {
+        using SqlCommand probe = new(
+            "SELECT CASE WHEN OBJECT_ID(N'dbo.Reviews', N'U') IS NOT NULL THEN 1 ELSE 0 END;",
+            connection,
+            tx);
+        object? scalar = probe.ExecuteScalar();
+        if (scalar is null or DBNull || Convert.ToInt32(scalar, CultureInfo.InvariantCulture) == 0)
+            return;
+
+        foreach (string resourceName in GetOrderedIncrementalMigrationResourceNames())
+        {
+            Match match = MigrationNumberRegex().Match(resourceName);
+            if (!match.Success)
+                continue;
+
+            int n = int.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
+            if (n is < 51 or > 295)
+                continue;
+
+            StampScriptNameIfMissing(connection, tx, resourceName);
+        }
+    }
+
+    private static void StampScriptNameIfMissing(SqlConnection connection, SqlTransaction? tx, string resourceName)
+    {
         using SqlCommand stamp = new(
             """
             IF NOT EXISTS (SELECT 1 FROM dbo.SchemaVersions WHERE ScriptName = @ScriptName)

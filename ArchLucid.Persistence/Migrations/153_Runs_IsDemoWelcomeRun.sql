@@ -3,7 +3,8 @@
   Extends IX_Runs_Scope_CreatedUtc INCLUDE list (parity with migration 123).
 */
 
-IF COL_LENGTH(N'dbo.Runs', N'IsDemoWelcomeRun') IS NULL
+IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+AND COL_LENGTH(N'dbo.Runs', N'IsDemoWelcomeRun') IS NULL
     ALTER TABLE dbo.Runs ADD IsDemoWelcomeRun BIT NOT NULL CONSTRAINT DF_Runs_IsDemoWelcomeRun DEFAULT (0);
 GO
 

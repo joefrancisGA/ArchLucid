@@ -35,6 +35,7 @@ public sealed class InternalArchitectureTraceForensicsController(
     ///     Returns full <see cref="AgentExecutionTrace" /> rows including prompts and raw model output for operator forensics.
     /// </summary>
     [HttpGet("run/{runId}/traces/forensics")]
+    [HttpGet("review/{runId}/traces/forensics")]
     [ProducesResponseType(typeof(AgentExecutionTraceForensicsPageResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetRunTraceForensics(

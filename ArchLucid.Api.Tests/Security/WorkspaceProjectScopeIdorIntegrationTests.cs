@@ -40,7 +40,7 @@ public sealed class WorkspaceProjectScopeIdorIntegrationTests(IdorSeedFixture se
     {
         await AssertWrongWorkspaceRouteDeniedAsync(
             "authority run detail",
-            static (client, runId) => client.GetAsync($"/v1/runs/{runId}"));
+            static (client, runId) => client.GetAsync($"/v1/architecture/reviews/{runId}"));
     }
 
     [SkippableFact]
@@ -48,7 +48,7 @@ public sealed class WorkspaceProjectScopeIdorIntegrationTests(IdorSeedFixture se
     {
         await AssertWrongWorkspaceRouteDeniedAsync(
             "run artifact list",
-            static (client, runId) => client.GetAsync($"/v1/runs/{runId}/artifacts"));
+            static (client, runId) => client.GetAsync($"/v1/architecture/reviews/{runId}/artifacts"));
     }
 
     [SkippableFact]
@@ -80,7 +80,7 @@ public sealed class WorkspaceProjectScopeIdorIntegrationTests(IdorSeedFixture se
     {
         await AssertWrongWorkspaceRouteDeniedAsync(
             "artifact run export zip",
-            static (client, runId) => client.GetAsync($"/v1/artifacts/runs/{runId}/export"));
+            static (client, runId) => client.GetAsync($"/v1/artifacts/reviews/{runId}/export"));
     }
 
     private async Task AssertWrongWorkspaceRouteDeniedAsync(

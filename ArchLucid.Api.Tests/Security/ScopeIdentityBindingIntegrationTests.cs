@@ -24,7 +24,7 @@ public sealed class ScopeIdentityBindingIntegrationTests
     private const string AdminInvitationsPath = "/v1/admin/users/invitations";
 
     private const string ArtifactRunExportProbePath =
-        "/v1/artifacts/runs/00000000-0000-0000-0000-000000000001/export";
+        "/v1/artifacts/reviews/00000000-0000-0000-0000-000000000001/export";
 
     private static readonly Guid ForgedTenantId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
 
