@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
@@ -261,10 +260,7 @@ export function ApiKeysSettingsPageClient() {
   return (
     <div className="w-full max-w-5xl space-y-6" data-testid="api-keys-settings-page">
       <header className="space-y-3">
-        <Button asChild variant="ghost" size="sm" className="h-8 px-0 text-teal-800 dark:text-teal-300">
-          <Link href="/settings#settings-section-advanced">← Settings</Link>
-        </Button>
-        <div className="flex flex-wrap items-start justify-between gap-3">
+<div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{API_KEYS_PAGE_TITLE}</h1>
             <p className={cn("mt-1 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>

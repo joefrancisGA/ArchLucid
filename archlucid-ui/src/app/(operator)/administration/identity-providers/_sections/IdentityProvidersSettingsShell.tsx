@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import {
   IDENTITY_PROVIDERS_NAV_DIAGNOSTICS,
   IDENTITY_PROVIDERS_NAV_OIDC,
@@ -74,10 +73,6 @@ export function IdentityProvidersSettingsShell(props: IdentityProvidersSettingsS
 
   return (
     <div className="w-full max-w-4xl space-y-6" data-testid="identity-providers-settings-shell">
-      <Button asChild variant="ghost" size="sm" className="h-8 px-0 text-teal-800 dark:text-teal-300">
-        <Link href="/settings#settings-section-advanced">← Settings</Link>
-      </Button>
-
       <IdentityProvidersSettingsPageHeader
         pageTitle={resolvedTitle}
         subtitle={headerSubtitle}
