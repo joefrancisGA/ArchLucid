@@ -68,5 +68,6 @@ describe("ui-route-traffic-run-artifact-preview (RER)", () => {
     expect(row?.notes).toContain("resolveGoldenManifestIdForRun");
     expect(row?.notes).toContain("GAR");
     expect(row?.notes).toContain("Score 28");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
