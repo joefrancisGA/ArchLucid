@@ -393,7 +393,7 @@ export function SocraticIntakeWizard() {
       if (!admission.admitted) {
         setRedirectReason(admission.redirectReason ?? admission.verdict.summary);
         setRedirectVerdict(admission.verdict);
-        showError("Guided intake", admission.redirectReason ?? "Admission gate redirected this draft.");
+        showError("Guided intake", admission.redirectReason ?? "Readiness checks redirected this draft.");
         return;
       }
 
@@ -812,7 +812,7 @@ export function SocraticIntakeWizard() {
               {busy
                 ? isCreateArchitectureFlow
                   ? CREATE_ARCHITECTURE_STARTING_LABEL
-                  : "Checking admission…"
+                  : "Checking readiness…"
                 : isCreateArchitectureFlow
                   ? GUIDED_INTAKE_CONTINUE_TO_DISCOVERY
                   : GUIDED_INTAKE_CONTINUE_TO_CLARIFICATIONS}

@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import dynamic from "next/dynamic";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
 
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
@@ -58,11 +58,22 @@ function reviewsNewPathTabTestId(path: ReviewsNewActivePath): string {
   }
 }
 
+function reviewsNewPathHref(pathname: string, path: ReviewsNewActivePath, searchParams: URLSearchParams): string {
+  const next = new URLSearchParams(searchParams.toString());
+  next.set("path", path);
+
+  const query = next.toString();
+
+  return query.length > 0 ? `${pathname}?${query}` : pathname;
+}
+
 /**
  * Path switcher at the top of `/architecture/reviews/new`: quick start, guided intake, or templates wizard.
  * Wizards load on demand so the initial `/architecture/reviews/new` chunk stays smaller.
  */
 export function ReviewsNewPathSwitcher() {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/architecture/reviews/new";
   const searchParams = useSearchParams();
   const baselineFirst = searchParams?.get("baseline") === "1";
   const presetGreenfield = searchParams?.get("preset") === "greenfield";
@@ -111,6 +122,8 @@ export function ReviewsNewPathSwitcher() {
   const selectPath = (path: ReviewsNewActivePath) => {
     setActivePath(path);
     persistActivePath(path);
+    const params = new URLSearchParams(searchParams?.toString() ?? "");
+    router.replace(reviewsNewPathHref(pathname, path, params), { scroll: false });
   };
 
   return (

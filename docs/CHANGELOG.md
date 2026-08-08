@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-07 - UI: Start review Guided intake tab Evidence notes (ENE)
+
+`/architecture/reviews/new?path=guided-intake` documents inheritance of RNX hub Evidence chrome, syncs the path switcher to `?path=`, softens buyer-facing admission jargon, traffic Notes under Tab surface (row ID ENE), and honest Evidence score 48. Path-tab surface hard-caps higher Evidence; no CPA / third-party pen-test implication.
+
 ## 2026-08-07 - UI: Integration readiness help Evidence chrome (HEI)
 
 `/help/integration-readiness` ships IntegrationReadinessHelpEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelp + Category-1 registry + topic map integration-readiness, traffic Notes under Help topic (row ID HEI), and honest Evidence score 52. Help-topic orientation hard-caps higher Evidence; no CPA / third-party pen-test implication.

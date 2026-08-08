@@ -2,12 +2,15 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const useSearchParams = vi.fn();
+const replace = vi.fn();
 
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
   return {
     ...actual,
     useSearchParams: () => useSearchParams(),
+    usePathname: () => "/architecture/reviews/new",
+    useRouter: () => ({ replace }),
     redirect: vi.fn(),
     permanentRedirect: vi.fn(),
     notFound: vi.fn(),
@@ -41,6 +44,7 @@ describe("ReviewsNewPathSwitcher (first-run tenant)", () => {
   beforeEach(() => {
     window.localStorage.clear();
     useSearchParams.mockReturnValue(new URLSearchParams());
+    replace.mockClear();
   });
 
   it("shows review-start tabs immediately and switches modes", async () => {
@@ -62,6 +66,10 @@ describe("ReviewsNewPathSwitcher (first-run tenant)", () => {
     });
 
     expect(screen.getByRole("tab", { name: "Guided intake" })).toHaveAttribute("aria-selected", "true");
+    expect(replace).toHaveBeenCalledWith(
+      "/architecture/reviews/new?path=guided-intake",
+      expect.objectContaining({ scroll: false }),
+    );
   });
 
   it("moves selection with ArrowRight keyboard navigation on the tablist", async () => {

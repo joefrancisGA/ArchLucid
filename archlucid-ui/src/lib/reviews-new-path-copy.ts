@@ -13,7 +13,7 @@ export const REVIEWS_NEW_BRIEF_PLACEHOLDER =
 /** Mode-specific hint shown under the path tabs (one sentence per active mode). */
 export const REVIEWS_NEW_PATH_HINTS: Record<ReviewsNewPathMode, string> = {
   "guided-intake":
-    "Structured clarifying questions when you want admission gates and branch drafts before analysis.",
+    "Structured clarifying questions when you want readiness checks and branch drafts before analysis.",
   "quick-review":
     "Fastest first-pilot path: review title, attach evidence, and start analysis in one screen.",
   detailed:

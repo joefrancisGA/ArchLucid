@@ -10,7 +10,8 @@ describe("reviews-new-path-copy buyer-facing copy", () => {
   it("guided-intake hint describes structured clarifying questions without repeating the mode name", () => {
     expect(REVIEWS_NEW_PATH_HINTS["guided-intake"]).not.toMatch(/guided intake/i);
     expect(REVIEWS_NEW_PATH_HINTS["guided-intake"]).toMatch(/clarifying questions/i);
-    expect(REVIEWS_NEW_PATH_HINTS["guided-intake"]).toMatch(/admission gates/i);
+    expect(REVIEWS_NEW_PATH_HINTS["guided-intake"]).toMatch(/readiness checks/i);
+    expect(REVIEWS_NEW_PATH_HINTS["guided-intake"]).not.toMatch(/admission gates/i);
   });
 
   it("quick-review hint is clearly for the fastest first-pilot path", () => {
