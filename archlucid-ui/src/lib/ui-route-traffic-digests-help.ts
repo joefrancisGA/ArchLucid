@@ -1,6 +1,6 @@
 /**
  * Traffic workbook row ID for Digests help.
- * Owner backlog shorthand: HDG.
+ * Owner backlog shorthand: HDG (owner formerly HDI).
  */
 export const DIGESTS_HELP_TRAFFIC_ROW_ID = "HDG";
 
@@ -12,6 +12,7 @@ export const DIGESTS_HELP_TRAFFIC_SECTION = "Help topic";
 
 /**
  * Owner workbook Notes for HDG — Digests specialty help (TB-2049).
+ * ASCII-only for Windows console note scripts.
  */
 export const DIGESTS_HELP_TRAFFIC_NOTE =
-  "Digests help (Help topic) - HelpDigestsGuideView with PageContextualHelpButton (topic map digests; Category-1 registry), workspace Sources + claim-discipline orientation strip, Schedule/Subscriptions/Browse CTAs, how-digests-work stepper. Operator orientation guide — not a signed-record Sources trail. Sibling DI = hub; DIS = schedule. Does not imply CPA SOC 2 or third-party pen-test publication. Score 50/100 (2026-08-05) — help-topic orientation hard-caps higher Evidence.";
+  "Digests help (Help topic) - HelpDigestsGuideView with PageContextualHelpButton (topic map digests; Category-1 registry), workspace Sources + claim-discipline orientation strip, Schedule/Subscriptions/Browse CTAs, how-digests-work stepper. Operator orientation guide - not a signed-record Sources trail. Sibling ARD = hub; ARS = schedule; ARB = browse; AIS = subscriptions. Owner HDI renamed to HDG to match template. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-08) - help-topic orientation hard-caps higher Evidence.";

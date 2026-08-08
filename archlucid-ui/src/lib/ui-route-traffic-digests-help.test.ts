@@ -65,5 +65,7 @@ describe("ui-route-traffic-digests-help (HDG)", () => {
     expect(row?.section).toBe(DIGESTS_HELP_TRAFFIC_SECTION);
     expect(row?.notes).toBe(DIGESTS_HELP_TRAFFIC_NOTE);
     expect(row?.notes).toContain("HelpDigestsGuideView");
+    expect(row?.notes).toContain("Score 52");
+    expect(rows.find((candidate) => candidate.id === "HDI")).toBeUndefined();
   });
 });
