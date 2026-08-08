@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+﻿import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
@@ -67,7 +67,7 @@ describe("ui-route-traffic-planning-plan-detail (INL)", () => {
     expect(row?.section).toBe(PLANNING_PLAN_DETAIL_TRAFFIC_SECTION);
     expect(row?.notes).toBe(PLANNING_PLAN_DETAIL_TRAFFIC_NOTE);
     expect(row?.notes).toContain("PlanningPlanDetailPageView");
-    expect(row?.notes).toContain("Score 52");
+    expect(row?.notes).toContain("Score 58");
     expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });

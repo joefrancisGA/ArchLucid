@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+﻿import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
@@ -66,7 +66,7 @@ describe("ui-route-traffic-recommendation-learning (INE)", () => {
     expect(row?.notes).toBe(RECOMMENDATION_LEARNING_TRAFFIC_NOTE);
     expect(row?.notes).toContain("RecommendationLearningOpsPageClient");
     expect(row?.notes).toContain("Sources");
-    expect(row?.notes).toContain("Score 45");
+    expect(row?.notes).toContain("Score 58");
     expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });

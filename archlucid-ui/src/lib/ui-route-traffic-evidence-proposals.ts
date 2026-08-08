@@ -1,4 +1,4 @@
-import { INTERNAL_EVIDENCE_PROPOSALS_PATH } from "@/lib/internal-ops-route-paths";
+﻿import { INTERNAL_EVIDENCE_PROPOSALS_PATH } from "@/lib/internal-ops-route-paths";
 
 /**
  * Traffic workbook row ID for Evidence proposals.
@@ -17,4 +17,4 @@ export const EVIDENCE_PROPOSALS_TRAFFIC_SECTION = "Admin";
  * ASCII-only for Windows console note scripts.
  */
 export const EVIDENCE_PROPOSALS_TRAFFIC_NOTE =
- "Evidence proposals (Admin) - AdminEvidenceProposalsPageClient with PageContextualHelpButton (topic map evidence-trail; Category-1 registry), promote queue. Internal agent catalog candidates - not a signed-record Sources trail. Score 50/100 (2026-08-08) - admin triage hub hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
+ "Evidence proposals (Admin) - AdminEvidenceProposalsPageClient with PageContextualHelpButton (topic map evidence-trail; Category-1 registry), promote queue. Internal agent catalog candidates - not a signed-record Sources trail.admin hub at SET/ADY Evidence band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";

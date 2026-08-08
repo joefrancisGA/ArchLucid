@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Traffic workbook row ID for Accessibility marketing page.
  * Owner backlog shorthand: AXX.
  */
@@ -15,4 +15,4 @@ export const ACCESSIBILITY_TRAFFIC_SECTION = "Marketing";
  * ASCII-only for Windows console note scripts.
  */
 export const ACCESSIBILITY_TRAFFIC_NOTE =
- "Accessibility (Marketing) - AccessibilityMarketingPublicView with AccessibilityEvidenceOrientationStrip (evaluation Sources + claim-discipline: public accessibility statement only / completed VPAT download), status card, WCAG target, known limitations, barrier reporting. Not an operator PageContextualHelp surface. Score 45/100 (2026-08-08) - marketing accessibility-statement page hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
+ "Accessibility (Marketing) - AccessibilityMarketingPublicView with AccessibilityEvidenceOrientationStrip (evaluation Sources + claim-discipline: public accessibility statement only / completed VPAT download), status card, WCAG target, known limitations, barrier reporting. Not an operator PageContextualHelp surface.marketing/learning ceiling below operator Evidence band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";

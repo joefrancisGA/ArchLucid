@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+﻿import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
@@ -66,7 +66,7 @@ describe("ui-route-traffic-privacy (PRB)", () => {
     expect(row?.notes).toBe(PRIVACY_TRAFFIC_NOTE);
     expect(row?.notes).toContain("PrivacyPolicyPageClient");
     expect(row?.notes).toContain("PrivacyEvidenceOrientationStrip");
-    expect(row?.notes).toContain("Score 40");
+    expect(row?.notes).toContain("Score 58");
     expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });

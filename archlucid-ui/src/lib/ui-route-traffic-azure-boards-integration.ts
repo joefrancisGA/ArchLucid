@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Traffic workbook row ID for Azure Boards integration settings.
  * Owner backlog shorthand: INZ.
  */
@@ -15,4 +15,4 @@ export const AZURE_BOARDS_INTEGRATION_TRAFFIC_SECTION = "Integrations";
  * ASCII-only for Windows console note scripts.
  */
 export const AZURE_BOARDS_INTEGRATION_TRAFFIC_NOTE =
- "Azure Boards integration (Integrations) - AzureBoardsIntegrationPageClient with OperatorPageHeader PageContextualHelpButton (topic map azure-boards; Category-1 registry), connection settings + health probe + default work-item behavior. Outbound ITSM config hub â€” not a signed-record Sources trail. Sibling IJX = Jira; ISX = ServiceNow; HEZ = azure-boards help; ACS = connection-status. Score 48/100 (2026-08-08) - integration-config hub hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
+ "Azure Boards integration (Integrations) - AzureBoardsIntegrationPageClient with OperatorPageHeader PageContextualHelpButton (topic map azure-boards; Category-1 registry), connection settings + health probe + default work-item behavior. Outbound ITSM config hub Ã¢â‚¬â€ not a signed-record Sources trail. Sibling IJX = Jira; ISX = ServiceNow; HEZ = azure-boards help; ACS = connection-status.integration-config hub at SCE Evidence band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";

@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+﻿import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
@@ -65,7 +65,7 @@ describe("ui-route-traffic-digests-browse-tab (ARB)", () => {
     expect(row?.section).toBe(DIGESTS_BROWSE_TAB_TRAFFIC_SECTION);
     expect(row?.notes).toBe(DIGESTS_BROWSE_TAB_TRAFFIC_NOTE);
     expect(row?.notes).toContain("DigestsBrowseSetupChecklist");
-    expect(row?.notes).toContain("Score 48");
+    expect(row?.notes).toContain("Score 58");
     expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });

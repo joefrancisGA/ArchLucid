@@ -1,4 +1,4 @@
-import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
+﻿import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
 
 /**
  * Traffic workbook row ID for AI usage and cost settings.
@@ -17,4 +17,4 @@ export const AI_USAGE_SETTINGS_TRAFFIC_SECTION = "Admin";
  * ASCII-only for Windows console note scripts.
  */
 export const AI_USAGE_SETTINGS_TRAFFIC_NOTE =
- "AI usage and cost (Settings/Admin) - CostReportingSettingsPageView with PageContextualHelpButton (topic map billing-and-plans; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, KPIs / budget / daily usage / activity. Sibling ABI = billing; HBX = billing-and-plans help; AAX = admin ai-usage-cost. Estimated spend controls - not invoice-accurate or a signed-record Sources trail. Score 50/100 (2026-08-05) - settings commercial-hub hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
+ "AI usage and cost (Settings/Admin) - CostReportingSettingsPageView with PageContextualHelpButton (topic map billing-and-plans; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, KPIs / budget / daily usage / activity. Sibling ABI = billing; HBX = billing-and-plans help; AAX = admin ai-usage-cost. Estimated spend controls - not invoice-accurate or a signed-record Sources trail.admin hub at SET/ADY Evidence band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";

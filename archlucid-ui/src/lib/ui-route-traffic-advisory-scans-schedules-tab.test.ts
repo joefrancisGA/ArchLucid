@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+﻿import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
@@ -72,7 +72,7 @@ describe("ui-route-traffic-advisory-scans-schedules-tab (AD)", () => {
     expect(row?.notes).toContain("AdvisorySchedulesContent");
     expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
     expect(row?.notes).toContain("Sources");
-    expect(row?.notes).toContain("Score 48");
+    expect(row?.notes).toContain("Score 58");
     expect(row?.notes).toContain("TB-1124");
     expect(row?.notes).toContain("cannot improve further toward 80");
   });

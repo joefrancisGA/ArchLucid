@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+﻿import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
@@ -66,7 +66,7 @@ describe("ui-route-traffic-architecture-diagram-tab (RED)", () => {
     expect(row?.notes).toBe(ARCHITECTURE_DIAGRAM_TAB_TRAFFIC_NOTE);
     expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
     expect(row?.notes).toContain("archTab=diagram");
-    expect(row?.notes).toContain("Score 48");
+    expect(row?.notes).toContain("Score 58");
     expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });

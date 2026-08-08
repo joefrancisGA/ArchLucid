@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Traffic workbook row ID for session-expired auth handoff.
  * Owner backlog shorthand: ASU.
  */
@@ -11,7 +11,7 @@ export const SESSION_EXPIRED_TRAFFIC_PATH = "/auth/session-expired";
 export const SESSION_EXPIRED_TRAFFIC_SECTION = "Auth";
 
 /**
- * Owner workbook Notes for ASU â€” documents Evidence chrome on session-expired.
+ * Owner workbook Notes for ASU Ã¢â‚¬â€ documents Evidence chrome on session-expired.
  */
 export const SESSION_EXPIRED_TRAFFIC_NOTE =
- "Session expired (Auth) - SessionExpiredClient/SessionExpiredView with. Not an operator PageContextualHelp surface (signed-out). Sibling ASI = /auth/signin; LOG = legacy /login. Score 40/100 (2026-08-05) â€” auth session-expired handoff hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
+ "Session expired (Auth) - SessionExpiredClient/SessionExpiredView with. Not an operator PageContextualHelp surface (signed-out). Sibling ASI = /auth/signin; LOG = legacy /login.auth-gate ceiling below operator Evidence band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";

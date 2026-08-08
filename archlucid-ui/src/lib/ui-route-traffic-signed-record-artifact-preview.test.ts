@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+﻿import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
@@ -74,7 +74,7 @@ describe("ui-route-traffic-signed-record-artifact-preview (TB-1946 / TB-1949 / G
     expect(row?.notes).toContain("RER");
     expect(row?.notes).toContain("SignedRecordArtifactPageView");
     expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
-    expect(row?.notes).toContain("Score 52");
+    expect(row?.notes).toContain("Score 68");
     expect(rows.find((candidate) => candidate.id === "SIM")).toBeUndefined();
   });
 });

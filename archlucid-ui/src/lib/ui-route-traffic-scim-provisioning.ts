@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Traffic workbook row ID for SCIM provisioning.
  * Owner backlog shorthand: ASC (template formerly SSX on legacy settings path).
  */
@@ -15,4 +15,4 @@ export const SCIM_PROVISIONING_TRAFFIC_SECTION = "Settings";
  * ASCII-only for Windows console note scripts.
  */
 export const SCIM_PROVISIONING_TRAFFIC_NOTE =
- "SCIM provisioning (Settings/Admin) - ScimProvisioningSettingsPageClient with PageContextualHelpButton (topic map enterprise-onboarding; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, inbound token issue / verify / revoke. Sibling AID = identity-providers hub; ASS = sso-wizard; AUX = users. Access configuration - not a signed-record Sources trail. Score 50/100 (2026-08-06) - settings access-hub hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
+ "SCIM provisioning (Settings/Admin) - ScimProvisioningSettingsPageClient with PageContextualHelpButton (topic map enterprise-onboarding; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, inbound token issue / verify / revoke. Sibling AID = identity-providers hub; ASS = sso-wizard; AUX = users. Access configuration - not a signed-record Sources trail.admin hub at SET/ADY Evidence band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";

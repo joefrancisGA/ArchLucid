@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Traffic workbook row ID for SAML identity-provider settings.
  * Owner backlog shorthand: ASA (template formerly SSA on legacy settings path).
  */
@@ -15,4 +15,4 @@ export const IDENTITY_PROVIDERS_SAML_TRAFFIC_SECTION = "Settings";
  * ASCII-only for Windows console note scripts.
  */
 export const IDENTITY_PROVIDERS_SAML_TRAFFIC_NOTE =
- "SAML identity provider (Settings/Admin) - IdentityProvidersSamlPageClient with PageContextualHelpButton (shared header; topic map enterprise-onboarding; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, SamlSpConfigurationForm metadata / issuer / claim mapping. Sibling AID = identity-providers hub; AOI = oidc; ADO = role-mapping; SEI = diagnostics. Access configuration - not a signed-record Sources trail. Score 50/100 (2026-08-06) - settings access-hub hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
+ "SAML identity provider (Settings/Admin) - IdentityProvidersSamlPageClient with PageContextualHelpButton (shared header; topic map enterprise-onboarding; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, SamlSpConfigurationForm metadata / issuer / claim mapping. Sibling AID = identity-providers hub; AOI = oidc; ADO = role-mapping; SEI = diagnostics. Access configuration - not a signed-record Sources trail.admin hub at SET/ADY Evidence band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
