@@ -69,5 +69,6 @@ describe("ui-route-traffic-auth-domains-settings (ADU)", () => {
     expect(row?.section).toBe(AUTH_DOMAINS_SETTINGS_TRAFFIC_SECTION);
     expect(row?.notes).toBe(AUTH_DOMAINS_SETTINGS_TRAFFIC_NOTE);
     expect(row?.notes).toContain("AuthDomainsPageClient");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
