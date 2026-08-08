@@ -66,5 +66,6 @@ describe("ui-route-traffic-cli-usage-help (HCX)", () => {
     expect(row?.notes).toBe(CLI_USAGE_HELP_TRAFFIC_NOTE);
     expect(row?.notes).toContain("HelpCliUsageTechnicalReferenceView");
     expect(row?.notes).toContain("Sources");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
