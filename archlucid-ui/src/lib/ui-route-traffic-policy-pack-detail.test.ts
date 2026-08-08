@@ -65,5 +65,8 @@ describe("ui-route-traffic-policy-pack-detail (GPI)", () => {
     expect(row?.section).toBe(POLICY_PACK_DETAIL_TRAFFIC_SECTION);
     expect(row?.notes).toBe(POLICY_PACK_DETAIL_TRAFFIC_NOTE);
     expect(row?.notes).toContain("PolicyPackDetailClient");
+    expect(row?.notes).toContain("PolicyPackDetailSourcesStrip");
+    expect(row?.notes).toContain("Score 48");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
