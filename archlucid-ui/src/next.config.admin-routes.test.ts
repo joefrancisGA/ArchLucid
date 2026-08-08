@@ -3,12 +3,16 @@ import { describe, expect, it } from "vitest";
 import nextConfig from "../next.config";
 
 describe("next.config administration routes (TB-406 / TB-522 / TB-751)", () => {
-  it("ships architectures force-canonical redirects only (no broad bookmark redirect table)", async () => {
+  it("ships architectures and reviews force-canonical redirects (no broad bookmark redirect table)", async () => {
     const redirectRules = await nextConfig.redirects?.();
 
     expect(redirectRules ?? []).toEqual([
       { source: "/architectures", destination: "/architecture/architectures", permanent: true },
       { source: "/architectures/:path*", destination: "/architecture/architectures/:path*", permanent: true },
+      { source: "/reviews", destination: "/architecture/reviews", permanent: true },
+      { source: "/reviews/:path*", destination: "/architecture/reviews/:path*", permanent: true },
+      { source: "/runs", destination: "/architecture/reviews", permanent: true },
+      { source: "/runs/:path*", destination: "/architecture/reviews/:path*", permanent: true },
     ]);
   });
 

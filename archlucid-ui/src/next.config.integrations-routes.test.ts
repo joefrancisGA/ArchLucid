@@ -3,10 +3,17 @@ import { describe, expect, it } from "vitest";
 import nextConfig from "../next.config";
 
 describe("next.config integrations routes (TB-407 / TB-750)", () => {
-  it("does not ship permanent bookmark redirects", async () => {
+  it("ships architectures and reviews force-canonical redirects only (no integrations bookmark table)", async () => {
     const redirectRules = await nextConfig.redirects?.();
 
-    expect(redirectRules ?? []).toEqual([]);
+    expect(redirectRules ?? []).toEqual([
+      { source: "/architectures", destination: "/architecture/architectures", permanent: true },
+      { source: "/architectures/:path*", destination: "/architecture/architectures/:path*", permanent: true },
+      { source: "/reviews", destination: "/architecture/reviews", permanent: true },
+      { source: "/reviews/:path*", destination: "/architecture/reviews/:path*", permanent: true },
+      { source: "/runs", destination: "/architecture/reviews", permanent: true },
+      { source: "/runs/:path*", destination: "/architecture/reviews/:path*", permanent: true },
+    ]);
   });
 
   it("does not keep pre-release Integration readiness / operations / ITSM hub redirects", async () => {

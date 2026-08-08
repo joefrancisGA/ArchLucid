@@ -13,6 +13,18 @@ describe("help-product-language", () => {
     );
   });
 
+  it("rewrites legacy /reviews/ paths to /architecture/reviews/ without double-prefixing", () => {
+    expect(rewriteLegacyHelpOperatorRoutes("Open `/reviews/abc` or [detail](/reviews/abc).")).toBe(
+      "Open `/architecture/reviews/abc` or [detail](/architecture/reviews/abc).",
+    );
+    expect(rewriteLegacyHelpOperatorRoutes("[List](/reviews) and [New](/reviews/new)")).toBe(
+      "[List](/architecture/reviews) and [New](/architecture/reviews/new)",
+    );
+    expect(rewriteLegacyHelpOperatorRoutes("[Already](/architecture/reviews/abc)")).toBe(
+      "[Already](/architecture/reviews/abc)",
+    );
+  });
+
   it("rewrites review manifest routes to review detail", () => {
     expect(rewriteLegacyHelpOperatorRoutes("[Summary](/architecture/reviews/abc/manifest)")).toBe(
       "[Summary](/architecture/reviews/abc)",

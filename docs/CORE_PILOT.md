@@ -12,8 +12,8 @@ For your first session, focus on completing **one** architecture review. Cloud c
 
 Start with evidence, run the review, finalize the architecture package, then share sponsor-ready outputs.
 
-- [Start architecture review](/reviews/new)
-- [Open sample review](/reviews/claims-intake-modernization)
+- [Start architecture review](/architecture/reviews/new)
+- [Open sample review](/architecture/reviews/claims-intake-modernization)
 - [View pilot guide](/help/pilot-guide)
 
 ## Run the first review
@@ -130,8 +130,8 @@ Former first-hour guide success signals for a first session:
 
 ## Ready to begin?
 
-- [Start architecture review](/reviews/new)
-- [Open sample review](/reviews/claims-intake-modernization)
+- [Start architecture review](/architecture/reviews/new)
+- [Open sample review](/architecture/reviews/claims-intake-modernization)
 
 <details>
 <summary>What this guide covers</summary>

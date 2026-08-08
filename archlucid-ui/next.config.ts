@@ -118,6 +118,11 @@ const nextConfig: NextConfig = {
       // Do not rewrite `/architecture/architectures` back onto a deleted on-disk tree (phantom rewrite).
       { source: "/architectures", destination: "/architecture/architectures", permanent: true },
       { source: "/architectures/:path*", destination: "/architecture/architectures/:path*", permanent: true },
+      // Force-canonical reviews namespace — legacy `/reviews` and `/runs` bookmarks (LEGACY_* in architecture-routes).
+      { source: "/reviews", destination: "/architecture/reviews", permanent: true },
+      { source: "/reviews/:path*", destination: "/architecture/reviews/:path*", permanent: true },
+      { source: "/runs", destination: "/architecture/reviews", permanent: true },
+      { source: "/runs/:path*", destination: "/architecture/reviews/:path*", permanent: true },
     ];
   },
   async rewrites() {

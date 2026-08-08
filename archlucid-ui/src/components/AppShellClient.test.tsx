@@ -1,4 +1,4 @@
-import { fireEvent, screen, waitFor } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AppShellClient } from "@/components/AppShellClient";
@@ -128,12 +128,11 @@ describe("AppShellClient — LLM budget chrome", () => {
 
     await waitFor(() => {
       expect(screen.getByTestId("operator-shell-help-trigger")).toBeInTheDocument();
-      expect(screen.getByTestId("operator-shell-topbar-more-trigger")).toBeInTheDocument();
+      expect(screen.getByTestId("llm-budget-status-pill")).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByTestId("operator-shell-topbar-more-trigger"));
+    expect(screen.queryByTestId("operator-shell-topbar-more-trigger")).not.toBeInTheDocument();
 
-    expect(await screen.findByTestId("llm-budget-status-pill")).toBeInTheDocument();
     await waitFor(
       () => {
         expect(screen.getByTestId("llm-budget-approaching-limit-banner")).toBeInTheDocument();

@@ -31,8 +31,10 @@ describe("OperatorHomePageHeader", () => {
 
     expect(screen.getByTestId("operator-home-page-title")).toHaveTextContent("Overview");
     expect(screen.getByRole("heading", { level: 2, name: "Overview" })).toBeInTheDocument();
-    expect(screen.getByText(operatorHomePageSubtitle(false))).toBeInTheDocument();
-    expect(screen.getByText(operatorHomePageSubtitle(false)).className).toContain("max-w-none");
+    expect(screen.getByTestId("operator-home-page-subtitle")).toHaveTextContent(
+      operatorHomePageSubtitle(false),
+    );
+    expect(screen.getByTestId("operator-home-page-subtitle").className).toContain("max-w-none");
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-header-actions")).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-refresh-button")).toBeInTheDocument();
@@ -43,5 +45,16 @@ describe("OperatorHomePageHeader", () => {
     fireEvent.click(screen.getByTestId("operator-home-refresh-button"));
 
     expect(requestRefresh).toHaveBeenCalledTimes(1);
+  });
+
+  it("bolds One lifecycle: on the buyer-polished Overview lead", () => {
+    render(<OperatorHomePageHeader subtitle={operatorHomePageSubtitle(true)} />);
+
+    const label = screen.getByText("One lifecycle:");
+    expect(label.tagName).toBe("STRONG");
+    expect(label.className).toContain("font-bold");
+    expect(screen.getByTestId("operator-home-page-subtitle")).toHaveTextContent(
+      operatorHomePageSubtitle(true),
+    );
   });
 });

@@ -1,11 +1,9 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import { Button } from "@/components/ui/button";
 import { DismissControl } from "@/components/usability/DismissControl";
 import {
   dismissFirstVisitHelp,
@@ -17,7 +15,10 @@ import {
 import { FIRST_VISIT_HELP_THREE_THINGS } from "@/lib/onboarding-secondary-surfaces";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-/** Auto-surfaces contextual help once per session on operator home; remembers dismissal per path. */
+/**
+ * Auto-surfaces a one-time tip on operator home.
+ * Deep-link CTA is omitted — Overview already exposes Architecture workflow via PageContextualHelpButton.
+ */
 export function FirstVisitHelpAutoOpen() {
   const pathname = usePathname() ?? "/";
   const [visible, setVisible] = useState(false);
@@ -56,12 +57,7 @@ export function FirstVisitHelpAutoOpen() {
       <p className="m-0 text-al-text-primary">
         <span className="font-medium">3 things to know:</span> {FIRST_VISIT_HELP_THREE_THINGS}
       </p>
-      <div className="flex flex-wrap gap-2">
-        <Button asChild type="button" size="sm">
-          <Link href={`/help/${slug}`}>Open help</Link>
-        </Button>
-        <DismissControl onDismiss={close} />
-      </div>
+      <DismissControl variant="outline" onDismiss={close} />
     </div>
   );
 }
