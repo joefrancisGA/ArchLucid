@@ -2,6 +2,7 @@ using ArchLucid.Application.AiUsage;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;
 using ArchLucid.Application.Evidence;
+using ArchLucid.Application.Operations;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Abstractions.Agents;
@@ -135,6 +136,8 @@ public sealed class ArchitectureRunOrchestrationAuditTests
                 BuildPermissiveAiBudgetPolicyResolver(),
                 BuildDemoModeOffOptionsMonitor()),
             new ArchLucid.Application.Budgeting.PassThroughRunScopedLlmBudgetReservationService(),
+            new OperationCancellationRegistry(),
+            new OperationRunCancellationMarker(runRepository),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
     }
 
