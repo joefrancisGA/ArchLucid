@@ -66,5 +66,6 @@ describe("ui-route-traffic-why (WHY)", () => {
     expect(row?.notes).toBe(WHY_TRAFFIC_NOTE);
     expect(row?.notes).toContain("WhyArchlucidMarketingView");
     expect(row?.notes).toContain("Sources");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
