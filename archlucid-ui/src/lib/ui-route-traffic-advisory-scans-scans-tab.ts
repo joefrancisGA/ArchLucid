@@ -9,7 +9,7 @@ export const ADVISORY_SCANS_SCANS_TAB_TRAFFIC_ROW_ID = "ADT";
 /** Canonical path tracked on the ADT workbook row. */
 export const ADVISORY_SCANS_SCANS_TAB_TRAFFIC_PATH = ADVISORY_SCANS_SCANS_HREF;
 
-/** Workbook Section column value — query-tab deep link on a governance hub. */
+/** Workbook Section column value â€” query-tab deep link on a governance hub. */
 export const ADVISORY_SCANS_SCANS_TAB_TRAFFIC_SECTION = "Tab surface";
 
 /**
@@ -17,4 +17,4 @@ export const ADVISORY_SCANS_SCANS_TAB_TRAFFIC_SECTION = "Tab surface";
  * ASCII-only for Windows console note scripts.
  */
 export const ADVISORY_SCANS_SCANS_TAB_TRAFFIC_NOTE =
-  "Advisory scans Scans tab (Tab surface) - inherits ADV hub Evidence chrome (PageContextualHelpButton + Category-1 registry on /governance/advisory-scans; AdvisoryScansEvidenceOrientationStrip Sources + claim-discipline above tabs). Default Scans tab content (recommendation generate). Sibling ADV = hub; AD = Schedules tab. Follow-up recommendations - not a signed-record Sources trail. Score 48/100 (2026-08-06) - scans-tab deep link hard-caps higher Evidence (below ADV launcher 50; same band as AD schedules). Owner GOA renamed to ADT to avoid collision with template alert-rules GOA.";
+ "Advisory scans Scans tab (Tab surface) - inherits ADV hub Evidence chrome (PageContextualHelpButton + Category-1 registry on /governance/advisory-scans; Sources follow-up chrome removed (TB-2092) Sources + claim-discipline above tabs). Default Scans tab content (recommendation generate). Sibling ADV = hub; AD = Schedules tab. Follow-up recommendations - not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 48/100 (2026-08-06) - scans-tab deep link hard-caps higher Evidence (below ADV launcher 50; same band as AD schedules). Owner GOA renamed to ADT to avoid collision with template alert-rules GOA. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
