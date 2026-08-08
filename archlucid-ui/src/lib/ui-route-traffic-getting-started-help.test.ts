@@ -66,5 +66,6 @@ describe("ui-route-traffic-getting-started-help (HGX)", () => {
     expect(row?.notes).toBe(GETTING_STARTED_HELP_TRAFFIC_NOTE);
     expect(row?.notes).toContain("HelpGettingStartedGuideView");
     expect(row?.notes).toContain("Sources");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
