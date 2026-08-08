@@ -17149,6 +17149,82 @@
         },
         "type": "object"
       },
+      "OperationResponse": {
+        "properties": {
+          "currentStep": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "heartbeatUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "operationId": {
+            "type": "string"
+          },
+          "resultRef": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/OperationResultRefResponse"
+              }
+            ]
+          },
+          "state": {
+            "$ref": "#/components/schemas/OperationState"
+          },
+          "stepLabel": {
+            "type": "string"
+          },
+          "totalSteps": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "OperationResultRefResponse": {
+        "properties": {
+          "downloadPath": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "jobId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "runId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "OperationState": {
+        "enum": [
+          "Pending",
+          "Running",
+          "Succeeded",
+          "Failed",
+          "Canceled"
+        ],
+        "type": "string"
+      },
       "OperatorDemoReviewFindingSummary": {
         "properties": {
           "policyRuleKey": {
@@ -24190,6 +24266,9 @@
           "requestIdsDiffer": {
             "type": "boolean"
           },
+          "sharedNonRealExecutionMode": {
+            "type": "boolean"
+          },
           "statusDiffers": {
             "type": "boolean"
           }
@@ -24841,6 +24920,9 @@
           "runId": {
             "format": "uuid",
             "type": "string"
+          },
+          "structuralExecutionMode": {
+            "$ref": "#/components/schemas/StructuralExecutionMode"
           }
         },
         "required": [
@@ -35356,6 +35438,9 @@
     },
     {
       "name": "MeteringAdmin"
+    },
+    {
+      "name": "Operations"
     },
     {
       "name": "OperatorSavedViews"
