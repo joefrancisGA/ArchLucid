@@ -8,7 +8,7 @@ import {
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
-/** Sources + claim discipline for `/planning/plans/[planId]` (PPP Evidence). */
+/** Sources + claim discipline for `/insights/planning/plans/[planId]` (INL Evidence). */
 export function PlanningPlanDetailSourcesStrip(): React.JSX.Element {
   return (
     <div className="mt-4 space-y-3" data-testid="planning-plan-detail-orientation">

@@ -55,15 +55,18 @@ function extractMasterTableRows(markdown: string): TrafficWorkbookRow[] {
   return rows;
 }
 
-describe("ui-route-traffic-planning-plan-detail (PPP)", () => {
+describe("ui-route-traffic-planning-plan-detail (INL)", () => {
   it("tracks Improvement plan detail with honest workbook notes", () => {
     const rows = extractMasterTableRows(readTemplateMarkdown());
     const row = rows.find((candidate) => candidate.id === PLANNING_PLAN_DETAIL_TRAFFIC_ROW_ID);
+    const ppp = rows.find((candidate) => candidate.id === "PPP");
 
+    expect(ppp).toBeUndefined();
     expect(row).toBeDefined();
     expect(row?.path).toBe(PLANNING_PLAN_DETAIL_TRAFFIC_PATH);
     expect(row?.section).toBe(PLANNING_PLAN_DETAIL_TRAFFIC_SECTION);
     expect(row?.notes).toBe(PLANNING_PLAN_DETAIL_TRAFFIC_NOTE);
     expect(row?.notes).toContain("PlanningPlanDetailPageView");
+    expect(row?.notes).toContain("Score 52");
   });
 });
