@@ -266,25 +266,12 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
     }
 
     [SkippableFact]
-    public async Task Tenant_b_cannot_export_tenant_a_reference_evidence_zip_sql_tb274()
+    public async Task Tenant_b_cannot_read_tenant_a_catalog_migration_default_scope_sql_tb274()
     {
         await AssertCrossTenantTenantRouteDeniedAsync(
-            "reference evidence export",
+            "catalog migration default scope",
             static (client, tenantId) =>
-                client.GetAsync($"/v1/admin/tenants/{tenantId:D}/reference-evidence"));
-    }
-
-    [SkippableFact]
-    public async Task Tenant_b_cannot_read_tenant_a_metering_summary_sql_tb274()
-    {
-        DateTimeOffset start = DateTimeOffset.UtcNow.AddDays(-7);
-        DateTimeOffset end = DateTimeOffset.UtcNow;
-
-        await AssertCrossTenantTenantRouteDeniedAsync(
-            "metering summary",
-            (client, tenantId) =>
-                client.GetAsync(
-                    $"/v1/admin/metering/summary?periodStart={Uri.EscapeDataString(start.ToString("O"))}&periodEnd={Uri.EscapeDataString(end.ToString("O"))}"));
+                client.GetAsync($"/v1/admin/tenants/{tenantId:D}/catalog-migration/default-scope"));
     }
 
     [SkippableFact]

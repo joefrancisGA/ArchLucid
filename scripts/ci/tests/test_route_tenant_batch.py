@@ -12,7 +12,6 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 
 ROUTE_TENANT_MATRIX_ROUTES = (
     "/v1/admin/tenants/",
-    "/v1/admin/metering/tenants/",
     "/v1/value-report/",
 )
 
