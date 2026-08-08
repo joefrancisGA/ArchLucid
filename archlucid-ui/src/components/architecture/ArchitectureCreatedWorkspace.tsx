@@ -5,6 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { ArchitectureCreatedClarificationsPanel } from "@/components/architecture/ArchitectureCreatedClarificationsPanel";
 import { ArchitectureCreatedCompactFirstViewport } from "@/components/architecture/ArchitectureCreatedCompactFirstViewport";
+import { ArchitectureCreatedDiagramEvidenceOrientationStrip } from "@/components/architecture/ArchitectureCreatedDiagramEvidenceOrientationStrip";
 import { ArchitectureCreatedOverviewPanel } from "@/components/architecture/ArchitectureCreatedOverviewPanel";
 import { ArchitectureCreatedWorkspaceHeader } from "@/components/architecture/ArchitectureCreatedWorkspaceHeader";
 import { ArchitectureDiagramPanel } from "@/components/architecture/ArchitectureDiagramPanel";
