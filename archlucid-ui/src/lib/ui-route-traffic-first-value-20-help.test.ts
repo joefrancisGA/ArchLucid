@@ -66,5 +66,6 @@ describe("ui-route-traffic-first-value-20-help (HEF)", () => {
     expect(row?.notes).toBe(FIRST_VALUE_20_HELP_TRAFFIC_NOTE);
     expect(row?.notes).toContain("HelpFirstValue20GuideView");
     expect(row?.notes).toContain("Admin-gated");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
