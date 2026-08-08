@@ -7,6 +7,10 @@ import { StatusPill } from "@/components/StatusPill";
 import { Button } from "@/components/ui/button";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_PAGE_CONTAINER, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  operatorLastRefreshedExactLabel,
+  operatorLastRefreshedLabel,
+} from "@/lib/operator-last-refreshed-label";
 import type { HealthDisplaySeverity } from "@/lib/health-readiness-presentation";
 
 export const HEALTH_DASHBOARD_PAGE_CLASS = cn(OPERATOR_PAGE_CONTAINER.variant.workflow, "max-w-[1120px]");
@@ -19,8 +23,7 @@ type HealthRefreshToolbarProps = {
 };
 
 export function HealthRefreshToolbar(props: HealthRefreshToolbarProps) {
-  const lastRefreshedLabel =
-    props.lastRefreshedAt === null ? "Not refreshed yet" : props.lastRefreshedAt.toLocaleString();
+  const lastRefreshedLabel = operatorLastRefreshedLabel(props.lastRefreshedAt);
 
   return (
     <div className="flex flex-wrap items-center gap-3">
@@ -34,7 +37,11 @@ export function HealthRefreshToolbar(props: HealthRefreshToolbarProps) {
       >
         {props.loading ? "Refreshing…" : "Refresh"}
       </Button>
-      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid={`${props.refreshTestId}-timestamp`}>
+      <p
+        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid={`${props.refreshTestId}-timestamp`}
+        title={operatorLastRefreshedExactLabel(props.lastRefreshedAt)}
+      >
         Last refreshed: {props.loading ? "Refreshing…" : lastRefreshedLabel}
       </p>
     </div>

@@ -9,6 +9,10 @@ import { Button } from "@/components/ui/button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
+  operatorLastRefreshedExactLabel,
+  operatorLastRefreshedLabel,
+} from "@/lib/operator-last-refreshed-label";
+import {
   AUDIT_TRAIL_LAST_UPDATED_PREFIX,
   AUDIT_TRAIL_REFRESH_ACTION,
   AUDIT_TRAIL_REFRESHING_ACTION,
@@ -26,8 +30,7 @@ export type AuditPageHeaderProps = {
 
 /** Shared `/governance/audit` hero — title, lead, contextual help, refresh, and last-refreshed metadata. */
 export function AuditPageHeader(props: AuditPageHeaderProps): React.JSX.Element {
-  const lastRefreshedLabel =
-    props.lastRefreshedAt === null ? "Not refreshed yet" : props.lastRefreshedAt.toLocaleString();
+  const lastRefreshedLabel = operatorLastRefreshedLabel(props.lastRefreshedAt);
 
   return (
     <OperatorPageHeader
@@ -40,6 +43,7 @@ export function AuditPageHeader(props: AuditPageHeaderProps): React.JSX.Element 
           <span
             className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
             data-testid="audit-last-refreshed"
+            title={operatorLastRefreshedExactLabel(props.lastRefreshedAt)}
           >
             {AUDIT_TRAIL_LAST_UPDATED_PREFIX}: {props.searching ? AUDIT_TRAIL_REFRESHING_ACTION : lastRefreshedLabel}
           </span>

@@ -1,11 +1,21 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import type { ReactNode } from "react";
 
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import {
+  OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO,
+  OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_BODY,
+  OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_LABEL,
+} from "@/lib/buyer-polish-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  operatorLastRefreshedExactLabel,
+  operatorLastRefreshedLabel,
+} from "@/lib/operator-last-refreshed-label";
 import {
   OPERATOR_HOME_ACTION_REFRESH,
   OPERATOR_HOME_ACTION_REFRESHING,
@@ -18,18 +28,33 @@ export type OperatorHomePageHeaderProps = {
   readonly subtitle: string;
 };
 
+function operatorHomeSubtitleContent(subtitle: string): ReactNode {
+  if (subtitle !== OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO) {
+    return subtitle;
+  }
+
+  return (
+    <>
+      <strong className="font-bold text-al-text-primary">
+        {OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_LABEL}
+      </strong>{" "}
+      {OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_BODY}
+    </>
+  );
+}
+
 /** Shared `/` Overview hero — title, lead, contextual help, refresh, and last-refreshed metadata. */
 export function OperatorHomePageHeader(props: OperatorHomePageHeaderProps): React.JSX.Element {
   const { refreshing, lastRefreshedAt, requestRefresh } = useOperatorHomeRefresh();
-  const lastRefreshedLabel =
-    lastRefreshedAt === null ? "Not refreshed yet" : lastRefreshedAt.toLocaleString();
+  const lastRefreshedLabel = operatorLastRefreshedLabel(lastRefreshedAt);
 
   return (
     <OperatorPageHeader
       title={OPERATOR_HOME_PAGE_TITLE}
       titleTestId="operator-home-page-title"
-      subtitle={props.subtitle}
-      subtitleClassName="max-w-none"
+      subtitle={operatorHomeSubtitleContent(props.subtitle)}
+      subtitleClassName="max-w-none [&_strong]:font-bold"
+      subtitleTestId="operator-home-page-subtitle"
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="operator-home-header-actions">
           <PageContextualHelpButton />
@@ -52,6 +77,7 @@ export function OperatorHomePageHeader(props: OperatorHomePageHeaderProps): Reac
             OPERATOR_TYPOGRAPHY.helper,
           )}
           data-testid="operator-home-last-refreshed"
+          title={operatorLastRefreshedExactLabel(lastRefreshedAt)}
         >
           <strong className="font-bold text-al-text-primary">
             {OPERATOR_HOME_LAST_REFRESHED_PREFIX}:

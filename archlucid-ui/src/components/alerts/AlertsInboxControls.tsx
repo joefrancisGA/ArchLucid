@@ -20,6 +20,7 @@ import {
 } from "@/lib/enterprise-controls-context-copy";
 import { ALERTS_INBOX_LABELS } from "@/lib/i18n";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_NOT_REFRESHED_LABEL } from "@/lib/operator-last-refreshed-label";
 import { formatRelativeTime } from "@/lib/relative-time";
 
 export type AlertsInboxControlsProps = {
@@ -48,7 +49,7 @@ function formatLastUpdatedLabel(lastRefreshedUtc: string | null, loading: boolea
   }
 
   if (lastRefreshedUtc === null) {
-    return "Not refreshed yet";
+    return OPERATOR_NOT_REFRESHED_LABEL;
   }
 
   return `Updated ${formatRelativeTime(lastRefreshedUtc)}`;

@@ -9,6 +9,10 @@ import { Button } from "@/components/ui/button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
+  operatorLastRefreshedExactLabel,
+  operatorLastRefreshedLabel,
+} from "@/lib/operator-last-refreshed-label";
+import {
   ALERTS_CONFIGURATION_ACTION_REFRESH,
   ALERTS_CONFIGURATION_ACTION_REFRESHING,
   ALERTS_CONFIGURATION_LAST_REFRESHED_PREFIX,
@@ -26,8 +30,7 @@ export type AlertRulesPageHeaderProps = {
 
 /** Shared `/governance/alert-rules` hero — title, lead, contextual help, refresh, and inbox shortcut. */
 export function AlertRulesPageHeader(props: AlertRulesPageHeaderProps): React.JSX.Element {
-  const lastRefreshedLabel =
-    props.lastRefreshedAt === null ? "Not refreshed yet" : props.lastRefreshedAt.toLocaleString();
+  const lastRefreshedLabel = operatorLastRefreshedLabel(props.lastRefreshedAt);
 
   return (
     <OperatorPageHeader
@@ -60,6 +63,7 @@ export function AlertRulesPageHeader(props: AlertRulesPageHeaderProps): React.JS
         <span
           className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="alert-rules-last-refreshed"
+          title={operatorLastRefreshedExactLabel(props.lastRefreshedAt)}
         >
           {ALERTS_CONFIGURATION_LAST_REFRESHED_PREFIX}:{" "}
           {props.refreshing ? ALERTS_CONFIGURATION_ACTION_REFRESHING : lastRefreshedLabel}

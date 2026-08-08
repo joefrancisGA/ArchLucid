@@ -74,6 +74,7 @@ export function OperatorHomeReviewSummaryCard(props: OperatorHomeReviewSummaryCa
   const updatedLabel = formatRunHomeListUpdatedLabel(props.run);
   const findingsMetadata = formatFindingsMetadata(props.run);
   const isShowcaseDemo = isShowcaseStaticDemoRunId(props.run.runId ?? "");
+  const showcaseProofMetadata = variant === "featured" && isShowcaseDemo;
   const insightText = [insightLine, updatedLabel].filter((part) => part !== null).join(" · ");
 
   return (
@@ -109,9 +110,10 @@ export function OperatorHomeReviewSummaryCard(props: OperatorHomeReviewSummaryCa
 
       <ArchitecturePackageOriginMetadataLine run={props.run} buyerPolishedShell={props.buyerPolishedShell} />
 
-      {variant === "featured" && isShowcaseDemo ? (
+      {showcaseProofMetadata ? (
         <div className="space-y-1" data-testid="runs-dashboard-buyer-proof-metadata">
-          <p className={cn("m-0", OPERATOR_TYPE_SCALE.sectionTitle, "text-neutral-900 dark:text-neutral-100")}>
+          {/* Decision is metadata, not the card title — it must not outrank the review link above. */}
+          <p className={cn("m-0", OPERATOR_TYPE_SCALE.cardTitle, "text-neutral-900 dark:text-neutral-100")}>
             Decision: Package finalized
           </p>
           <p className={cn("m-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
@@ -134,7 +136,8 @@ export function OperatorHomeReviewSummaryCard(props: OperatorHomeReviewSummaryCa
         </dl>
       )}
 
-      {insightText.length > 0 ? (
+      {/* The proof block already states findings, monitored risk, and the decision — do not restate them. */}
+      {!showcaseProofMetadata && insightText.length > 0 ? (
         <p
           className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.navHelper)}
           data-testid={`run-home-list-insight-${props.run.runId}`}

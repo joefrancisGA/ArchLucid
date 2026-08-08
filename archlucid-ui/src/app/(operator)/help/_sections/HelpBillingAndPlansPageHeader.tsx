@@ -7,6 +7,10 @@ import { Button } from "@/components/ui/button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
+  operatorLastRefreshedExactLabel,
+  operatorLastRefreshedLabel,
+} from "@/lib/operator-last-refreshed-label";
+import {
   BILLING_HELP_ACTION_REFRESH,
   BILLING_HELP_ACTION_REFRESHING,
   BILLING_HELP_LAST_REFRESHED_PREFIX,
@@ -22,8 +26,7 @@ export type HelpBillingAndPlansPageHeaderProps = {
 
 /** Shared `/help/billing-and-plans` hero — title, lead, contextual help, refresh, and last-refreshed metadata. */
 export function HelpBillingAndPlansPageHeader(props: HelpBillingAndPlansPageHeaderProps): React.JSX.Element {
-  const lastRefreshedLabel =
-    props.lastRefreshedAt === null ? "Not refreshed yet" : props.lastRefreshedAt.toLocaleString();
+  const lastRefreshedLabel = operatorLastRefreshedLabel(props.lastRefreshedAt);
 
   return (
     <OperatorPageHeader
@@ -49,6 +52,7 @@ export function HelpBillingAndPlansPageHeader(props: HelpBillingAndPlansPageHead
         <span
           className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="help-billing-last-refreshed"
+          title={operatorLastRefreshedExactLabel(props.lastRefreshedAt)}
         >
           {BILLING_HELP_LAST_REFRESHED_PREFIX}: {props.refreshing ? BILLING_HELP_ACTION_REFRESHING : lastRefreshedLabel}
         </span>

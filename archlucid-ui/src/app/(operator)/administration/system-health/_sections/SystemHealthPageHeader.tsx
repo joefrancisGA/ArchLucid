@@ -6,6 +6,10 @@ import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  operatorLastRefreshedExactLabel,
+  operatorLastRefreshedLabel,
+} from "@/lib/operator-last-refreshed-label";
 import { SYSTEM_HEALTH_PAGE_TITLE } from "@/lib/system-health-page-copy";
 
 export type SystemHealthPageHeaderProps = {
@@ -19,8 +23,7 @@ export type SystemHealthPageHeaderProps = {
 /** Shared System health hero — title, lead, contextual help, and refresh in the first viewport. */
 export function SystemHealthPageHeader(props: SystemHealthPageHeaderProps): React.JSX.Element {
   const refreshTestId = props.refreshTestId ?? "system-health-refresh";
-  const lastRefreshedLabel =
-    props.lastRefreshedAt === null ? "Not refreshed yet" : props.lastRefreshedAt.toLocaleString();
+  const lastRefreshedLabel = operatorLastRefreshedLabel(props.lastRefreshedAt);
 
   return (
     <OperatorPageHeader
@@ -46,6 +49,7 @@ export function SystemHealthPageHeader(props: SystemHealthPageHeaderProps): Reac
         <span
           className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="system-health-refresh-timestamp"
+          title={operatorLastRefreshedExactLabel(props.lastRefreshedAt)}
         >
           Last refreshed: {props.loading ? "Refreshing…" : lastRefreshedLabel}
         </span>

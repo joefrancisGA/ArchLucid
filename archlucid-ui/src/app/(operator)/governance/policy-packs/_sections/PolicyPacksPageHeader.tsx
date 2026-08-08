@@ -9,6 +9,10 @@ import { Button } from "@/components/ui/button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
+  operatorLastRefreshedExactLabel,
+  operatorLastRefreshedLabel,
+} from "@/lib/operator-last-refreshed-label";
+import {
   POLICY_PACKS_ACTION_REFRESH,
   POLICY_PACKS_ACTION_REFRESHING,
   POLICY_PACKS_LAST_REFRESHED_PREFIX,
@@ -26,8 +30,7 @@ export type PolicyPacksPageHeaderProps = {
 
 /** Shared `/governance/policy-packs` hero — title, lead, contextual help, refresh, and resolution shortcut. */
 export function PolicyPacksPageHeader(props: PolicyPacksPageHeaderProps): React.JSX.Element {
-  const lastRefreshedLabel =
-    props.lastRefreshedAt === null ? "Not refreshed yet" : props.lastRefreshedAt.toLocaleString();
+  const lastRefreshedLabel = operatorLastRefreshedLabel(props.lastRefreshedAt);
 
   return (
     <OperatorPageHeader
@@ -60,6 +63,7 @@ export function PolicyPacksPageHeader(props: PolicyPacksPageHeaderProps): React.
         <span
           className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="policy-packs-last-refreshed"
+          title={operatorLastRefreshedExactLabel(props.lastRefreshedAt)}
         >
           {POLICY_PACKS_LAST_REFRESHED_PREFIX}:{" "}
           {props.refreshing ? POLICY_PACKS_ACTION_REFRESHING : lastRefreshedLabel}

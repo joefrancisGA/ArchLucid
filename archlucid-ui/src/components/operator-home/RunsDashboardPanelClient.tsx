@@ -477,7 +477,7 @@ export function RunsDashboardPanelClient({
                         <FilterChip
                           key={id}
                           data-testid={`runs-dashboard-filter-${id}`}
-                          className={buyerFilterChipClass(selected, false)}
+                          className={buyerFilterChipClass(selected, false, statusTabCounts[id] === 0)}
                           aria-pressed={selected}
                           aria-label={`Filter reviews: ${label}`}
                           onClick={() => {
