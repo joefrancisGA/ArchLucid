@@ -69,5 +69,6 @@ describe("ui-route-traffic-architectures-new (ANE)", () => {
     expect(row?.section).toBe(ARCHITECTURES_NEW_TRAFFIC_SECTION);
     expect(row?.notes).toBe(ARCHITECTURES_NEW_TRAFFIC_NOTE);
     expect(row?.notes).toContain("NewArchitecturePage");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
