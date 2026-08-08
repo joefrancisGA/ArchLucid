@@ -51,7 +51,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 
 | ID | Path | Hit% | Scores | Weight | Deficit | Section | Notes |
 |----|------|------|--------|--------|---------|---------|-------|
-| IDL | `/internal/integration-events/dlq` | 0.02% | 0 | 0 | 2 | Advisory | None |
+| IDL | `/internal/integration-events/dlq` | 0.02% | 0 | 0 | 2 | Advisory | None | |
 | INE | `/internal/recommendation-learning` | 0.02% | 0 | 0 | 2 | Admin | None |
 | INT | `/internal/tenants` | 0.02% | 0 | 0 | 2 | Admin | None |
 | PRB | `/privacy` | 0.02% | 0 | 0 | 2 | Marketing | None |
@@ -59,7 +59,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | RE | `/architecture/reviews` | 12% | 58 | 696 | 504 | Core review | None |
 | RRF | `/architecture/reviews/[runId]/findings/[findingId]` | 9% | 50 | 450 | 450 | Core review | None |
 | RRE | `/architecture/reviews/[runId]` | 10.04% | 60 | 602.4 | 401.6 | Core review | Review workspace detail. Absorbs former SRN hit share from retired legacy `/snapshot/[runId]` bookmark row (hard-retired â€” use `/architecture/reviews/{runId}?readOnly=1` leave-behind). Canonical leave-behind UX. Does not imply CPA SOC 2 or third-party pen-test publication. |
-| POR | `/architecture/executive-dashboard` | 8.35% | 68 | 567.8 | 267.2 | Executive | None |
+| POR | `/architecture/executive-dashboard` | 8.35% | 68 | 567.8 | 267.2 | Executive | None | |
 | ACB | `/auth/callback` | 5% | 54 | 270 | 230 | Auth | None |
 | ASI | `/auth/signin` | 5% | 54 | 270 | 230 | Auth | None |
 | HOM | `/` | 3% | 55 | 165 | 135 | Core review | Operator Overview home - OperatorHomePageView with remounted OperatorHomePageChrome (title/refresh/PageContextualHelp -> first-architecture-review + Category-1 registry for `/`), phase-aware PilotCommandCenterCard (Do-this-next / dual-path / NBA; in-card help suppressed to avoid double icons), Recent reviews, ROI strip, sample explore, workspace context. TB-1667 HOM slice. Not a diligence Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 55/100 (2026-08-03) â€” launcher/command center hard-caps higher Evidence. |
