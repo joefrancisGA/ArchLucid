@@ -21,6 +21,7 @@ import {
   SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF,
 } from "@/lib/showcase-static-demo";
 
+import { ArchitectureCreatedActivityEvidenceOrientationStrip } from "@/components/architecture/ArchitectureCreatedActivityEvidenceOrientationStrip";
 import { ReviewSealedIndicatorChip } from "@/components/reviews/ReviewSealedIndicatorChip";
 import { ReviewGenerationCreatedNotice } from "@/components/review-intake/ReviewGenerationCreatedNotice";
 import type { BuildArchitectureCreatedHomeModelInput } from "@/lib/architecture-created-home-model";
@@ -732,7 +733,8 @@ export function RunDetailPageView(props: {
                         </>
                       ),
                       activity: (
-                        <>
+                        <div className="space-y-4">
+                          <ArchitectureCreatedActivityEvidenceOrientationStrip />
                           {!m.manifestId && m.showProgressTracker ? (
                             <div id="architecture-assessment-progress" className="scroll-mt-24">
                               <RunDetailProgressTrackerDeferred runId={m.routeRunId} initialSummary={m.progressForPipelineUi} />
@@ -757,7 +759,7 @@ export function RunDetailPageView(props: {
                           <Suspense fallback={<RunDetailMidDeferredSkeleton />}>
                             <RunDetailMidDeferredSections context={deferredContext} />
                           </Suspense>
-                        </>
+                        </div>
                       ),
                       submittedArchitecture: (
                         <RunDetailSubmittedArchitectureSection
