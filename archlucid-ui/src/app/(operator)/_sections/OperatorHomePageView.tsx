@@ -38,6 +38,7 @@ import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator-home-workspac
 import { cn } from "@/lib/utils";
 
 import { OperatorHomePageHeader } from "./OperatorHomePageHeader";
+import { OperatorHomeEvidenceOrientationStrip } from "./OperatorHomeEvidenceOrientationStrip";
 import type { OperatorHomePageViewModel } from "./operator-home-page-view-model";
 
 type OperatorHomePageViewProps = {
@@ -179,6 +180,7 @@ export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
         <OperatorHomeDeferredOnboarding />
         <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.majorSectionGap}>
           <OperatorHomePageChrome buyerPolishedShell={buyerPolishedShell} />
+          <OperatorHomeEvidenceOrientationStrip />
           {buyerPolishedShell ? <BuyerPolishedHomePageBody model={model} /> : <OperatorHomePageBody model={model} />}
         </OperatorPageContainer>
       </OperatorHomeRefreshProvider>
