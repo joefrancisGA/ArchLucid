@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCallback, useId, useMemo, useState } from "react";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { SpecialtyWalkthroughsHelpEvidenceOrientationStrip } from "@/app/(operator)/help/_sections/SpecialtyWalkthroughsHelpEvidenceOrientationStrip";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { ReviewStartInlineError } from "@/components/review-intake/ReviewStartInlineError";
@@ -20,6 +21,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { StatusTag } from "@/components/ui/status-tag";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { useReviewIntakeNavigation } from "@/hooks/use-review-intake-navigation";
 import {
