@@ -66,5 +66,6 @@ describe("ui-route-traffic-try (TRY)", () => {
     expect(row?.notes).toBe(TRY_TRAFFIC_NOTE);
     expect(row?.notes).toContain("TryPage");
     expect(row?.notes).toContain("Sources");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
