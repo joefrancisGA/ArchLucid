@@ -3,10 +3,12 @@
 import Link from "next/link";
 
 import { PatternLibraryDomainPlatformBadges, PatternLibrarySignalBadges } from "./PatternLibraryFiltersPanel";
+import { PatternLibraryDetailEvidenceOrientationStrip } from "./PatternLibraryDetailEvidenceOrientationStrip";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { findPatternLibraryRecord } from "@/lib/pattern-library-catalog";
 import { OPERATOR_CARD, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { PATTERN_LIBRARY_PATH, patternLibraryDetailPath } from "@/lib/pattern-library-route";
@@ -47,7 +49,12 @@ export function PatternLibraryDetailClient(props: PatternLibraryDetailClientProp
         </Link>
       </p>
 
-      <OperatorPageHeader title={record.name} subtitle={record.description} titleTestId="pattern-library-detail-title">
+      <OperatorPageHeader
+        title={record.name}
+        subtitle={record.description}
+        titleTestId="pattern-library-detail-title"
+        actions={<PageContextualHelpButton />}
+      >
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="outline">{provenance.badgeLabel}</Badge>
           <PatternLibraryDomainPlatformBadges domains={record.domains} platforms={record.platforms} />
@@ -57,6 +64,8 @@ export function PatternLibraryDetailClient(props: PatternLibraryDetailClientProp
           </p>
         </div>
       </OperatorPageHeader>
+
+      <PatternLibraryDetailEvidenceOrientationStrip />
 
       <div className="flex flex-wrap gap-2">
         <Button asChild size="sm" variant="primary">
