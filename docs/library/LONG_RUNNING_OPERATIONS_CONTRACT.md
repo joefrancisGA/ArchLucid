@@ -54,10 +54,11 @@ Update this table when routes change. Tiers are **product contract**, not k6 tag
 | Health live/ready | `GET /health/live`, `GET /health/ready` | A | N/A | Keep sync |
 | List / get run | `GET /v1/architecture/reviews`, `GET /v1/architecture/review/{runId}` | A–B | Run DTO flags | Keep sync |
 | Create request | `POST /v1/architecture/request` | B–C | Run created | Sync OK for Simulator; Real may stay sync if fast path |
-| Execute (sync) | `POST /v1/architecture/review/{runId}/execute` | C in Real | Blocks until agents complete | Keep for Simulator/CI; add **async sibling** (**TB-2075**) |
-| Execute (async) | `POST .../execute/async` (planned) | C | **202** + operation | **TB-2075** |
+| Execute (sync) | `POST /v1/architecture/review/{runId}/execute` | C in Real | Blocks until agents complete | Keep for Simulator/CI |
+| Execute (async) | `POST /v1/architecture/review/{runId}/execute/async` | C | **202** + `Location: /v1/operations/run:{runId}` | **Done** (**TB-2075** 2026-08-08) |
 | Finalize / commit | `POST .../finalize` (and commit aliases) | B–C | Run status | Prefer sync when short; watch edge ceilings |
-| Replay (sync) | `POST` replay / validate paths | C in Real | Blocks | Async sibling (**TB-2075**) |
+| Replay (sync) | `POST` replay / validate paths | C in Real | Blocks | Keep for Simulator/CI |
+| Replay (async) | `POST /v1/architecture/review/{runId}/replay/async` | C | **202** + `Location: /v1/operations/run:{replayRunId}` | **Done** (**TB-2075** 2026-08-08) |
 | Compare | `POST` compare / insights compare | B–C | Comparison record | Sync when bounded; async if Real regenerate is long |
 | Export / DOCX / PDF jobs | Background job enqueue + `GET /v1/jobs/{jobId}` | D | `BackgroundJobInfo` state | Project into **TB-2074** operations |
 | Outbox drains (retrieval, export blob, projections) | Worker / hosted services | D | Metrics / admin health | Not user-facing HTTP |
@@ -110,7 +111,7 @@ Minimum fields (no `percentComplete` on the wire):
 | 1 | **TB-2072** | This contract (done when merged) |
 | 2 | **TB-2073** | Timeout ceiling matrix + job poll tenant audit (**Done** 2026-08-07) |
 | 3 | **TB-2074** | `GET /v1/operations/{operationId}` (**Done** 2026-08-07) |
-| 4 | **TB-2075** | Async execute/replay 202 + `Location` |
+| 4 | **TB-2075** | Async execute/replay 202 + `Location` (**Done** 2026-08-08) |
 | 5 | **TB-2076** | Cancel |
 | 6 | **TB-2077** | Shell in-flight operations affordance |
 | 7 | **TB-2078** | Tier B staged wait UX + `loading.tsx` sweep |

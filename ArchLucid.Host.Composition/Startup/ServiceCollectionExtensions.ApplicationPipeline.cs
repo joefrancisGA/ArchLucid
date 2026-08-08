@@ -45,6 +45,7 @@ using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Drafts;
 using ArchLucid.Application.Drafts.QuestionSelection;
 using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Application.Runs.Async;
 using ArchLucid.Application.Governance.Coverage;
 using ArchLucid.Application.Runs.TechnologyLedger;
 using ArchLucid.Application.Runs.Sample;
@@ -361,6 +362,12 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IRunRationaleService, RunRationaleService>();
         services.AddScoped<IArchitectureRunProvenanceService, ArchitectureRunProvenanceService>();
         services.AddScoped<IReplayRunService, ReplayRunService>();
+        services.AddSingleton<ArchitectureRunAsyncOperationQueue>();
+        services.AddSingleton<IArchitectureRunAsyncOperationQueue>(static sp =>
+            sp.GetRequiredService<ArchitectureRunAsyncOperationQueue>());
+        services.AddSingleton<IArchitectureRunAsyncOperationRegistrar, ArchitectureRunAsyncOperationRegistrar>();
+        services.AddScoped<IArchitectureRunAsyncOperationAcceptor, ArchitectureRunAsyncOperationAcceptor>();
+        services.AddHostedService<ArchitectureRunAsyncOperationHostedService>();
         services.AddScoped<IDeterminismCheckService, DeterminismCheckService>();
         services.AddScoped<IExportReplayService, ExportReplayService>();
         services.AddScoped<IArchitectureRequestDraftService, ArchitectureRequestDraftService>();

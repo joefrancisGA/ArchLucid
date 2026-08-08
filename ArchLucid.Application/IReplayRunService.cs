@@ -17,4 +17,21 @@ public interface IReplayRunService
         bool commitReplay = false,
         string? manifestVersionOverride = null,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Creates the replay run record and cloned tasks without executing agents (TB-2075).
+    /// </summary>
+    /// <exception cref="RunNotFoundException">Thrown when the original run does not exist.</exception>
+    Task<string> PrepareReplayRunAsync(string originalRunId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Executes agents for a run created by <see cref="PrepareReplayRunAsync" /> (TB-2075).
+    /// </summary>
+    Task<ReplayRunResult> ExecutePreparedReplayAsync(
+        string preparedReplayRunId,
+        string originalRunId,
+        string executionMode = ExecutionModes.Current,
+        bool commitReplay = false,
+        string? manifestVersionOverride = null,
+        CancellationToken cancellationToken = default);
 }

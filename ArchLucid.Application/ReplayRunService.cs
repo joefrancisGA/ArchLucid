@@ -92,32 +92,49 @@ public sealed class ReplayRunService(
     public async Task<ReplayRunResult> ReplayAsync(string originalRunId, string executionMode = ExecutionModes.Current, bool commitReplay = false,
         string? manifestVersionOverride = null, CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(originalRunId);
-        ArgumentNullException.ThrowIfNull(executionMode);
+        string replayRunId = await PrepareReplayRunAsync(originalRunId, cancellationToken);
+
+        return await ExecutePreparedReplayAsync(
+            replayRunId,
+            originalRunId,
+            executionMode,
+            commitReplay,
+            manifestVersionOverride,
+            cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public async Task<string> PrepareReplayRunAsync(string originalRunId, CancellationToken cancellationToken = default)
+    {
         ArgumentException.ThrowIfNullOrWhiteSpace(originalRunId);
-        ArgumentException.ThrowIfNullOrWhiteSpace(executionMode);
-        ArgumentNullException.ThrowIfNull(authorityRunRepository);
-        ArgumentNullException.ThrowIfNull(scopeContextProvider);
-        ArchitectureRunDetail sourceDetail = await runDetailQueryService.GetRunDetailAsync(originalRunId, cancellationToken) ??
+
+        ArchitectureRunDetail sourceDetail = await _runDetailQueryService.GetRunDetailAsync(originalRunId, cancellationToken) ??
                                              throw new RunNotFoundException(originalRunId);
         ArchitectureRun originalRun = sourceDetail.Run;
         List<AgentTask> tasks = sourceDetail.Tasks;
         cancellationToken.ThrowIfCancellationRequested();
+
         if (tasks.Count == 0)
             throw new InvalidOperationException($"No tasks found for run '{originalRunId}'.");
-        ArchitectureRequest request = await requestRepository.GetByIdAsync(originalRun.RequestId, cancellationToken) ??
+
+        ArchitectureRequest request = await _requestRepository.GetByIdAsync(originalRun.RequestId, cancellationToken) ??
                                       throw new InvalidOperationException($"Request '{originalRun.RequestId}' not found.");
-        AgentEvidencePackage evidence = await agentEvidencePackageRepository.GetByRunIdAsync(originalRunId, cancellationToken) ??
-                                        throw new InvalidOperationException($"Evidence package for run '{originalRunId}' not found.");
+
+        if (await _agentEvidencePackageRepository.GetByRunIdAsync(originalRunId, cancellationToken) is null)
+            throw new InvalidOperationException($"Evidence package for run '{originalRunId}' not found.");
+
         string replayRunId = Guid.NewGuid().ToString("N");
         Guid replayGuid = Guid.Parse(replayRunId);
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         RunRecord? sourceAuthorityRun = null;
+
         if (Guid.TryParse(originalRunId, out Guid originalGuid))
-            sourceAuthorityRun = await authorityRunRepository.GetByIdAsync(scope, originalGuid, cancellationToken);
+            sourceAuthorityRun = await _authorityRunRepository.GetByIdAsync(scope, originalGuid, cancellationToken);
+
         RunRecord replayAuthority = ReplayAuthorityRunRecordFactory.CreateForReplay(replayGuid, scope, sourceAuthorityRun, request);
-        await authorityRunRepository.SaveAsync(replayAuthority, cancellationToken);
+        await _authorityRunRepository.SaveAsync(replayAuthority, cancellationToken);
         cancellationToken.ThrowIfCancellationRequested();
+
         List<AgentTask> replayTasks = tasks.Select(t => new AgentTask
         {
             TaskId = Guid.NewGuid().ToString("N"),
@@ -135,61 +152,136 @@ public sealed class ReplayRunService(
         // SimulatorExecutionTraceRecordingExecutor persists dbo.AgentExecutionTraces with FK_AgentExecutionTraces_Task.
         await _taskRepository.CreateManyAsync(replayTasks, cancellationToken);
 
-        AgentEvidencePackage replayEvidence = CloneEvidenceForReplay(evidence, replayRunId);
-        IAgentExecutor executor = agentExecutorResolver.Resolve(executionMode);
-        IReadOnlyList<AgentResult> results = await executor.ExecuteAsync(replayRunId, request, replayEvidence, replayTasks, cancellationToken);
+        return replayRunId;
+    }
+
+    /// <inheritdoc />
+    public async Task<ReplayRunResult> ExecutePreparedReplayAsync(
+        string preparedReplayRunId,
+        string originalRunId,
+        string executionMode = ExecutionModes.Current,
+        bool commitReplay = false,
+        string? manifestVersionOverride = null,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(preparedReplayRunId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(originalRunId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(executionMode);
+
+        ArchitectureRunDetail sourceDetail = await _runDetailQueryService.GetRunDetailAsync(originalRunId, cancellationToken) ??
+                                             throw new RunNotFoundException(originalRunId);
+        ArchitectureRun originalRun = sourceDetail.Run;
+        ArchitectureRequest request = await _requestRepository.GetByIdAsync(originalRun.RequestId, cancellationToken) ??
+                                      throw new InvalidOperationException($"Request '{originalRun.RequestId}' not found.");
+        AgentEvidencePackage evidence = await _agentEvidencePackageRepository.GetByRunIdAsync(originalRunId, cancellationToken) ??
+                                        throw new InvalidOperationException($"Evidence package for run '{originalRunId}' not found.");
+
+        ArchitectureRunDetail replayDetail = await _runDetailQueryService.GetRunDetailAsync(preparedReplayRunId, cancellationToken) ??
+                                             throw new RunNotFoundException(preparedReplayRunId);
+        IReadOnlyList<AgentTask> replayTasks = replayDetail.Tasks;
+
+        if (replayTasks.Count == 0)
+            throw new InvalidOperationException($"No tasks found for replay run '{preparedReplayRunId}'.");
+
+        AgentEvidencePackage replayEvidence = CloneEvidenceForReplay(evidence, preparedReplayRunId);
+        IAgentExecutor executor = _agentExecutorResolver.Resolve(executionMode);
+        IReadOnlyList<AgentResult> results = await executor.ExecuteAsync(
+            preparedReplayRunId,
+            request,
+            replayEvidence,
+            replayTasks,
+            cancellationToken);
         cancellationToken.ThrowIfCancellationRequested();
+
         GoldenManifest? manifest = null;
         List<DecisionTraceDto> decisionTraces = [];
         List<string> warnings = [];
+
         if (!commitReplay)
+        {
             return new ReplayRunResult
             {
                 OriginalRunId = originalRunId,
-                ReplayRunId = replayRunId,
+                ReplayRunId = preparedReplayRunId,
                 ExecutionMode = executionMode,
                 Results = results.ToList(),
                 Manifest = manifest,
                 DecisionTraces = decisionTraces,
                 Warnings = warnings
             };
+        }
+
         string manifestVersion = string.IsNullOrWhiteSpace(manifestVersionOverride)
             ? BuildReplayManifestVersion(originalRun.CurrentManifestVersion)
             : manifestVersionOverride;
         IReadOnlyList<AgentEvaluation> evaluations =
-            await _agentEvaluationService.EvaluateAsync(replayRunId, request, replayEvidence, replayTasks, results, cancellationToken);
+            await _agentEvaluationService.EvaluateAsync(preparedReplayRunId, request, replayEvidence, replayTasks, results, cancellationToken);
         IReadOnlyList<DecisionNode> decisionNodes =
-            await _decisionEngineV2.ResolveAsync(replayRunId, request, replayTasks, results, evaluations, cancellationToken);
-        DecisionMergeResult merge = decisionEngineService.MergeResults(replayRunId, request, manifestVersion, results, evaluations, decisionNodes,
+            await _decisionEngineV2.ResolveAsync(preparedReplayRunId, request, replayTasks, results, evaluations, cancellationToken);
+        DecisionMergeResult merge = _decisionEngineService.MergeResults(
+            preparedReplayRunId,
+            request,
+            manifestVersion,
+            results,
+            evaluations,
+            decisionNodes,
             originalRun.CurrentManifestVersion);
+
         if (!merge.Success)
             throw new InvalidOperationException($"Replay merge failed: {string.Join("; ", merge.Errors)}");
+
         manifest = merge.Manifest;
         decisionTraces = merge.DecisionTraces.Select(DecisionTraceRecordMapper.ToDto).ToList();
         warnings = merge.Warnings;
+        Guid replayGuid = Guid.Parse(preparedReplayRunId);
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         Guid manifestId = Guid.NewGuid();
         Guid contextSnapshotId = Guid.NewGuid();
         Guid graphSnapshotId = Guid.NewGuid();
         Guid findingsSnapshotId = Guid.NewGuid();
         Guid authorityDecisionTraceId = Guid.NewGuid();
         AuthorityChainKeying chainKeying = new(manifestId, contextSnapshotId, graphSnapshotId, findingsSnapshotId, authorityDecisionTraceId);
-        await using IArchLucidUnitOfWork uow = await unitOfWorkFactory.CreateAsync(cancellationToken);
+        await using IArchLucidUnitOfWork uow = await _unitOfWorkFactory.CreateAsync(cancellationToken);
+
         try
         {
             AuthorityManifestPersistResult chainPersisted;
-            // ADR 0030 PR A3 (2026-04-24): the legacy ICoordinatorDecisionTraceRepository second write to
-            // dbo.DecisionTraces was removed along with the interface itself. The Authority FK chain writer
-            // already persists the committed decision trace (chainKeying.DecisionTraceId → dbo.AuthorityDecisionTraces);
-            // RunDetailQueryService now reads decision traces from the authority table only.
+
             if (uow.SupportsExternalTransaction)
-                chainPersisted = await _authorityCommittedManifestChainWriter.PersistCommittedChainAsync(scope, replayGuid, request.SystemName, manifest,
-                    chainKeying, TimeProvider.System.UtcNowDateTime(), true, cancellationToken, uow.Connection, uow.Transaction);
+                chainPersisted = await _authorityCommittedManifestChainWriter.PersistCommittedChainAsync(
+                    scope,
+                    replayGuid,
+                    request.SystemName,
+                    manifest,
+                    chainKeying,
+                    TimeProvider.System.UtcNowDateTime(),
+                    true,
+                    cancellationToken,
+                    uow.Connection,
+                    uow.Transaction);
             else
-                chainPersisted = await _authorityCommittedManifestChainWriter.PersistCommittedChainAsync(scope, replayGuid, request.SystemName, manifest,
-                    chainKeying, TimeProvider.System.UtcNowDateTime(), true, cancellationToken);
+                chainPersisted = await _authorityCommittedManifestChainWriter.PersistCommittedChainAsync(
+                    scope,
+                    replayGuid,
+                    request.SystemName,
+                    manifest,
+                    chainKeying,
+                    TimeProvider.System.UtcNowDateTime(),
+                    true,
+                    cancellationToken);
+
             await uow.CommitAsync(cancellationToken);
-            await AuthorityCommittedChainDurableAudit.TryLogAsync(_auditService, scopeContextProvider, _actorContext, _logger, replayGuid, request.SystemName,
-                chainPersisted, "replay-commit", true, cancellationToken);
+            await AuthorityCommittedChainDurableAudit.TryLogAsync(
+                _auditService,
+                _scopeContextProvider,
+                _actorContext,
+                _logger,
+                replayGuid,
+                request.SystemName,
+                chainPersisted,
+                "replay-commit",
+                true,
+                cancellationToken);
         }
         catch
         {
@@ -200,7 +292,7 @@ public sealed class ReplayRunService(
         return new ReplayRunResult
         {
             OriginalRunId = originalRunId,
-            ReplayRunId = replayRunId,
+            ReplayRunId = preparedReplayRunId,
             ExecutionMode = executionMode,
             Results = results.ToList(),
             Manifest = manifest,
