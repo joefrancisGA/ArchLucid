@@ -15,7 +15,9 @@ import {
 } from "@/components/ui/select";
 
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 
+import { AdminConfigurationEvidenceOrientationStrip } from "./AdminConfigurationEvidenceOrientationStrip";
 import { AdminConfigurationLintFindingList } from "./AdminConfigurationLintFindingList";
 import { formatSources, normalizePath, sectionToTestIdSegment } from "./admin-configuration-helpers";
 import type { AdminConfigurationPageViewModel } from "./admin-configuration-view-model";
@@ -39,13 +41,17 @@ export function AdminConfigurationPageView(props: Props) {
   return (
     <div className="w-full max-w-[1200px] space-y-6" data-testid="admin-configuration-page">
       <div>
-        <div className="flex flex-wrap items-center gap-3">
-          <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Configuration summary</h1>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Configuration summary</h1>
+            <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+              Effective values for non-sensitive keys; secrets and connection material are masked by the API. With more than
+              one API replica, per-process graph caches are not shared — configure Redis before scale-out.
+            </p>
+          </div>
+          <PageContextualHelpButton />
         </div>
-        <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          Effective values for non-sensitive keys; secrets and connection material are masked by the API. With more than
-          one API replica, per-process graph caches are not shared — configure Redis before scale-out.
-        </p>
+        <AdminConfigurationEvidenceOrientationStrip />
         <div className="mt-3 flex flex-wrap items-end gap-4">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="admin-config-search">Search by key path</Label>
