@@ -72,5 +72,6 @@ describe("ui-route-traffic-governance-approval-help (GO)", () => {
     expect(row?.notes).toContain("HelpGovernanceApprovalGuideView");
     expect(row?.notes).toContain("Sources");
     expect(row?.notes).toContain("TB-1387");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
