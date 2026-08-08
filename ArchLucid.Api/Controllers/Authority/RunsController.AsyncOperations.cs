@@ -1,3 +1,4 @@
+using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
@@ -23,6 +24,7 @@ public sealed partial class RunsController
     /// </summary>
     [HttpPost("review/{runId}/execute/async")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [AsyncRequired]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
@@ -84,6 +86,7 @@ public sealed partial class RunsController
     /// </summary>
     [HttpPost("review/{runId}/replay/async")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [AsyncRequired]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]

@@ -100,7 +100,7 @@ Minimum fields (no `percentComplete` on the wire):
 | Scalability | Async Tier C reduces connection pile-up at the edge; workers absorb Real-mode fan-out. |
 | Reliability | Sync Tier C through a 60s proxy produces false client failures and duplicate resubmits — prefer 202 + idempotent accept. |
 | Cost | Operation state should reuse run/job rows in V1 (adapter) unless a third store is required (**TB-2074**). |
-| CI | Latency-tier gate per endpoint family is **TB-2079** (after this contract). |
+| CI | Latency-tier gate: `python scripts/ci/check_api_latency_tiers.py` (**TB-2079** **Done** 2026-08-08); manifest `scripts/ci/data/api_latency_tiers.v1.json`. |
 
 ---
 
@@ -114,8 +114,13 @@ Minimum fields (no `percentComplete` on the wire):
 | 4 | **TB-2075** | Async execute/replay 202 + `Location` (**Done** 2026-08-08) |
 | 5 | **TB-2076** | Cancel (**Done** 2026-08-08) |
 | 6 | **TB-2077** | Shell in-flight operations affordance (**Done** 2026-08-08) |
+<<<<<<< HEAD
 | 7 | **TB-2078** | Tier B staged wait UX + `loading.tsx` sweep (**Done** 2026-08-08) |
 | 8 | **TB-2079** | API latency-tier CI gate |
+=======
+| 7 | **TB-2078** | Tier B staged wait UX + `loading.tsx` sweep |
+| 8 | **TB-2079** | API latency-tier CI gate (**Done** 2026-08-08) |
+>>>>>>> f8679e8e7 (TB-2079: fail CI when Tier C async accepts regress to sync holds.)
 
 ---
 

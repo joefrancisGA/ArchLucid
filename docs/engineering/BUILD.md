@@ -166,6 +166,13 @@ Shared resolution lives in **`ArchLucid.TestSupport`** (`SqlServerIntegrationTes
 
 **CI:** The **`dotnet-full-regression`** job in **`.github/workflows/ci.yml`** sets **`ARCHLUCID_SQL_TEST`** against the **SQL Server 2022** service container (corset build/test shards do not start SQL). **`guards-pre-corset`** runs text/Python guards in parallel with Tier **0.x** Terraform/OpenAPI; **`dotnet-fast-core-build`** **`needs`** that job plus Terraform validate so invalid IaC or policy drift fails before corset **restore/build** and parallel **fast-core test** shards.
 
+**API latency tiers (TB-2079):** Machine-readable route tiers live in **`scripts/ci/data/api_latency_tiers.v1.json`** (sourced from **`docs/library/LONG_RUNNING_OPERATIONS_CONTRACT.md`**). Regenerate or edit that JSON when adding Tier C/D HTTP surfaces, mark async accepts with **`[AsyncRequired]`** + **`ProducesResponseType(Status202Accepted)`**, and keep Simulator/CI sync execute/replay on **`tierCSyncPathAllowlist`**. Local check:
+
+```bash
+python scripts/ci/check_api_latency_tiers.py
+python -m unittest discover -s scripts/ci/tests -p "test_check_api_latency_tiers.py"
+```
+
 ### Application layer unit tests (`ArchLucid.Application.Tests`)
 
 - **`Suite=Core`** / **`Category=Unit`**: hashing/idempotency helpers and **`ArchitectureRunService`** idempotency paths (replay vs **`ConflictException`**) using mocked coordinators and repositories—no SQL required.

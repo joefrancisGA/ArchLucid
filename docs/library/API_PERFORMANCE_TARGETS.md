@@ -6,7 +6,7 @@
 
 Publish **route-oriented** p95 ceilings enforced by **k6 `thresholds`** on merge-blocking CI jobs and duplicated by **`scripts/ci/assert_k6_ci_smoke_summary.py`**, so regressions fail the workflow without changing runtime API code.
 
-**Longer than k6 smoke:** For which product endpoints may block vs must go async (tiers A–D), see **[LONG_RUNNING_OPERATIONS_CONTRACT.md](LONG_RUNNING_OPERATIONS_CONTRACT.md)** (**TB-2072**). Latency-tier **CI enforcement** beyond k6 tags is **TB-2079**.
+**Longer than k6 smoke:** For which product endpoints may block vs must go async (tiers A–D), see **[LONG_RUNNING_OPERATIONS_CONTRACT.md](LONG_RUNNING_OPERATIONS_CONTRACT.md)** (**TB-2072**). Latency-tier **CI enforcement** is **TB-2079** (**Done**): `python scripts/ci/check_api_latency_tiers.py` + manifest `scripts/ci/data/api_latency_tiers.v1.json` (wired in `scripts/ci/run_guards_pre_corset.sh`).
 
 ## Assumptions
 

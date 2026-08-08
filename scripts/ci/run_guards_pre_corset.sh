@@ -22,6 +22,7 @@ python3 scripts/ci/assert_openapi_mutations_in_audit_matrix.py
 python3 scripts/ci/check_audit_matrix.py
 python3 scripts/ci/detect_mutating_route_idempotency_drift.py
 python3 scripts/ci/assert_route_tier_policy_nav.py
+python3 scripts/ci/check_api_latency_tiers.py
 python3 scripts/ci/assert_ui_route_traffic_workbook_canonical.py
 python3 scripts/ci/test_coordinator_parity_probe.py
 python3 scripts/ci/assert_rollback_scripts_exist.py
@@ -49,6 +50,7 @@ python -m unittest discover -s scripts/ci/tests -p "test_maintainability_batch_5
 python -m unittest discover -s scripts/ci/tests -p "test_decision_explainability_batch_tb050_tb053_tb051.py"
 python -m unittest discover -s scripts/ci/tests -p "test_traceability_batch_5ce.py"
 python -m unittest discover -s scripts/ci/tests -p "test_stickiness_batch_tb057.py"
+python -m unittest discover -s scripts/ci/tests -p "test_check_api_latency_tiers.py"
 
 python3 scripts/ci/check_migration_numbering.py || true
 python3 scripts/ci/check_test_configure_await.py
