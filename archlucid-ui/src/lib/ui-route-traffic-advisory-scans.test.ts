@@ -66,5 +66,6 @@ describe("ui-route-traffic-advisory-scans (ADV)", () => {
     expect(row?.notes).toBe(ADVISORY_SCANS_TRAFFIC_NOTE);
     expect(row?.notes).toContain("AdvisoryHubClient");
     expect(row?.notes).toContain("Sources");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
