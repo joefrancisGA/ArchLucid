@@ -69,5 +69,6 @@ describe("ui-route-traffic-developer-settings (SDX)", () => {
     expect(row?.section).toBe(DEVELOPER_SETTINGS_TRAFFIC_SECTION);
     expect(row?.notes).toBe(DEVELOPER_SETTINGS_TRAFFIC_NOTE);
     expect(row?.notes).toContain("DeveloperSettingsPageClient");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
