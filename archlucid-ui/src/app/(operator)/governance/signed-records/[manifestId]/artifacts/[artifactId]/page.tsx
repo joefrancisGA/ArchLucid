@@ -8,7 +8,7 @@ import { isInvalidDynamicRouteToken, isInvalidManifestRouteId } from "@/lib/rout
 import { loadSignedRecordArtifactPageModel } from "./_sections/load-signed-record-artifact-page-model";
 import { SignedRecordArtifactPageView } from "./_sections/SignedRecordArtifactPageView";
 
-/** Server signed-record artifact preview route (MAM). */
+/** Server signed-record artifact preview route (GAR / TB-1947). */
 export default async function SignedRecordArtifactPage({
   params,
 }: {
@@ -41,10 +41,7 @@ export default async function SignedRecordArtifactPage({
   if (result.kind === "descriptor-malformed") {
     return (
       <div className="w-full max-w-[1200px] space-y-4 px-1 py-2 sm:px-0">
-        <OperatorMalformedCallout>
-          <strong>Signed-record artifact response was not usable.</strong>
-          <p className="mt-2">{result.message}</p>
-        </OperatorMalformedCallout>
+        <OperatorMalformedCallout message={result.message} />
       </div>
     );
   }

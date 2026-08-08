@@ -19,6 +19,7 @@ describe("run artifact preview route contract (TB-1821 / RER)", () => {
       "src",
       "app",
       "(operator)",
+      "architecture",
       "reviews",
       "[runId]",
       "artifacts",

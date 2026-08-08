@@ -35,9 +35,18 @@ describe("artifactPreviewHref (TB-1822 / TB-1948)", () => {
 
   it("targets App Router pages that exist on disk", () => {
     const appRoot = join(process.cwd(), "src", "app", "(operator)");
-    const rerPage = join(appRoot, "reviews", "[runId]", "artifacts", "[artifactId]", "page.tsx");
+    const rerPage = join(
+      appRoot,
+      "architecture",
+      "reviews",
+      "[runId]",
+      "artifacts",
+      "[artifactId]",
+      "page.tsx",
+    );
     const mamPage = join(
       appRoot,
+      "governance",
       "signed-records",
       "[manifestId]",
       "artifacts",

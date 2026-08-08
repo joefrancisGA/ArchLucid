@@ -59,8 +59,8 @@ function findTrafficRowById(rows: TrafficWorkbookRow[], rowId: string): TrafficW
   return rows.find((row) => row.id === rowId);
 }
 
-describe("ui-route-traffic-signed-record-artifact-preview (TB-1946 / TB-1949)", () => {
-  it("tracks MAM under Core review as live signed-record artifact preview SoT for RER redirect", () => {
+describe("ui-route-traffic-signed-record-artifact-preview (TB-1946 / TB-1949 / GAR)", () => {
+  it("tracks GAR under Alerts/gov as live signed-record artifact preview SoT for RER redirect", () => {
     const rows = extractMasterTableRows(readTemplateMarkdown());
     const row = findTrafficRowById(rows, SIGNED_RECORD_ARTIFACT_PREVIEW_TRAFFIC_ROW_ID);
 
@@ -72,6 +72,7 @@ describe("ui-route-traffic-signed-record-artifact-preview (TB-1946 / TB-1949)", 
     expect(row?.notes.toLowerCase()).not.toContain("ghost");
     expect(row?.notes).toContain("TB-1821");
     expect(row?.notes).toContain("RER");
-    expect(row?.notes.toLowerCase()).toContain("app router");
+    expect(row?.notes).toContain("SignedRecordArtifactPageView");
+    expect(row?.notes).toContain("SignedRecordEvidenceOrientationStrip");
   });
 });

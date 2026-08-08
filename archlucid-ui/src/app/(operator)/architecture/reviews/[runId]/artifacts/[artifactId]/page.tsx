@@ -4,7 +4,7 @@ import { isInvalidDynamicRouteToken } from "@/lib/route-dynamic-param";
 import { resolveGoldenManifestIdForRun } from "@/lib/resolve-golden-manifest-id-for-run";
 import { signedRecordArtifactPath } from "@/lib/signed-records-paths";
 
-/** Run-scoped artifact preview resolves to canonical signed-record artifact URL (RER → MAM). */
+/** Run-scoped artifact preview resolves to canonical signed-record artifact URL (RER -> GAR). */
 export default async function RunArtifactPreviewRedirectPage({
   params,
 }: {

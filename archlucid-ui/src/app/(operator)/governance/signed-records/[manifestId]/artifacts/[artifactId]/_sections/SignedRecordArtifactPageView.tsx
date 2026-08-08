@@ -10,6 +10,7 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getArtifactDownloadUrl } from "@/lib/api";
+import { reviewDetailPath } from "@/lib/architecture-routes";
 import {
   getArtifactDisplayLabel,
   getArtifactFormatLabel,
@@ -28,6 +29,7 @@ import {
 } from "@/lib/signed-record-artifact-page-copy";
 import { SIGNED_RECORDS_LIST_PATH, signedRecordDetailPath } from "@/lib/signed-records-paths";
 
+import { SignedRecordEvidenceOrientationStrip } from "../../../_sections/SignedRecordEvidenceOrientationStrip";
 import { SignedRecordArtifactPageHeader } from "./SignedRecordArtifactPageHeader";
 import type { SignedRecordArtifactPageSuccessModel } from "./signed-record-artifact-page-model";
 
@@ -43,7 +45,7 @@ function formatDate(iso: string): string {
   }
 }
 
-/** Buyer-safe artifact preview for `/signed-records/[manifestId]/artifacts/[artifactId]`. */
+/** Buyer-safe artifact preview for GAR `/governance/signed-records/.../artifacts/...`. */
 export function SignedRecordArtifactPageView(props: SignedRecordArtifactPageViewProps): React.JSX.Element {
   const model = props.model;
   const buyerPolishedLayout = model.buyerPolishedLayout;
@@ -65,7 +67,7 @@ export function SignedRecordArtifactPageView(props: SignedRecordArtifactPageView
         {model.runId !== null ? (
           <>
             {" · "}
-            <Link className={OPERATOR_LINK.nav} href={`/architecture/reviews/${encodeURIComponent(model.runId)}`}>
+            <Link className={OPERATOR_LINK.nav} href={reviewDetailPath(model.runId)}>
               Open review
             </Link>
           </>
@@ -77,6 +79,8 @@ export function SignedRecordArtifactPageView(props: SignedRecordArtifactPageView
       </nav>
 
       <SignedRecordArtifactPageHeader subtitle={signedRecordArtifactPageSubtitle(buyerPolishedLayout)} />
+
+      <SignedRecordEvidenceOrientationStrip />
 
       {buyerPolishedLayout ? (
         <CollapsibleSection

@@ -12,20 +12,20 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ refresh: vi.fn() }),
-  usePathname: () => "/signed-records/manifest-1/artifacts/artifact-1",
+  usePathname: () => "/governance/signed-records/manifest-1/artifacts/artifact-1",
 }));
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
 }));
 
-import { SignedRecordArtifactPageView } from "@/app/(operator)/signed-records/[manifestId]/artifacts/[artifactId]/_sections/SignedRecordArtifactPageView";
+import { SignedRecordArtifactPageView } from "./_sections/SignedRecordArtifactPageView";
 import {
   BUYER_SIGNED_RECORD_ARTIFACT_PAGE_SUBTITLE,
   SIGNED_RECORD_ARTIFACT_PAGE_SUBTITLE,
   SIGNED_RECORD_ARTIFACT_SCOPE_OVERVIEW,
 } from "@/lib/signed-record-artifact-page-copy";
-import type { SignedRecordArtifactPageSuccessModel } from "@/app/(operator)/signed-records/[manifestId]/artifacts/[artifactId]/_sections/signed-record-artifact-page-model";
+import type { SignedRecordArtifactPageSuccessModel } from "./_sections/signed-record-artifact-page-model";
 
 const model: SignedRecordArtifactPageSuccessModel = {
   manifestId: "11111111-1111-4111-8111-111111111111",
@@ -56,12 +56,13 @@ const model: SignedRecordArtifactPageSuccessModel = {
 };
 
 describe("SignedRecordArtifactPageView buyer-polished shell", () => {
-  it("uses buyer subtitle, refresh, and collapsed scope copy", () => {
+  it("uses buyer subtitle, refresh, orientation strip, and collapsed scope copy", () => {
     render(<SignedRecordArtifactPageView model={model} />);
 
     expect(screen.getByText(BUYER_SIGNED_RECORD_ARTIFACT_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.queryByText(SIGNED_RECORD_ARTIFACT_PAGE_SUBTITLE)).not.toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+    expect(screen.getByTestId("signed-record-orientation")).toBeInTheDocument();
     expect(screen.getByTestId("signed-record-artifact-refresh-button")).toBeInTheDocument();
     expect(screen.getByTestId("signed-record-artifact-scope-details")).toBeInTheDocument();
     expect(screen.getByTestId("signed-record-artifact-scope-overview")).toHaveTextContent(

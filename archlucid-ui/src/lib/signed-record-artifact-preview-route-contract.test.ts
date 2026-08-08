@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 
 import { signedRecordArtifactPath } from "@/lib/signed-records-paths";
 
-describe("signed-record artifact preview route contract (TB-1947 / MAM)", () => {
+describe("signed-record artifact preview route contract (TB-1947 / GAR)", () => {
   it("physical preview page loads descriptor model and page view", () => {
     const manifestId = "11111111-1111-4111-8111-111111111111";
     const artifactId = "cost-summary";
@@ -17,6 +17,7 @@ describe("signed-record artifact preview route contract (TB-1947 / MAM)", () => 
     const appRoot = join(process.cwd(), "src", "app", "(operator)");
     const mamPage = join(
       appRoot,
+      "governance",
       "signed-records",
       "[manifestId]",
       "artifacts",
@@ -25,6 +26,7 @@ describe("signed-record artifact preview route contract (TB-1947 / MAM)", () => 
     );
     const loader = join(
       appRoot,
+      "governance",
       "signed-records",
       "[manifestId]",
       "artifacts",
@@ -34,6 +36,7 @@ describe("signed-record artifact preview route contract (TB-1947 / MAM)", () => 
     );
     const view = join(
       appRoot,
+      "governance",
       "signed-records",
       "[manifestId]",
       "artifacts",
