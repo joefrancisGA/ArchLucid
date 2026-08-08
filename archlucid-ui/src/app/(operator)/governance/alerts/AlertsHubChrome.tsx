@@ -17,6 +17,8 @@ import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
+import { AlertsInboxEvidenceOrientationStrip } from "./AlertsInboxEvidenceOrientationStrip";
+
 type AlertsHubChromeProps = {
   readonly children: React.ReactNode;
 };
@@ -51,6 +53,8 @@ export function AlertsHubChrome({ children }: AlertsHubChromeProps): React.JSX.E
       >
         {!buyerPolishedShell ? <AlertsGovernanceContextPanel canMutateAlertInbox={canMutateAlertInbox} /> : null}
       </OperatorPageHeader>
+
+      <AlertsInboxEvidenceOrientationStrip />
 
       <div className="min-w-0" data-testid="alert-hub-panel" aria-label="Alert inbox">
         {children}

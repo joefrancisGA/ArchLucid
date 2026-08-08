@@ -13,6 +13,8 @@ export type AuthFlowShellProps = {
   readonly showEvaluationSignupLink?: boolean;
   /** When true, shows a post-sign-in return promise above the panel. */
   readonly hasReturnDestination?: boolean;
+  /** Optional Evidence orientation strip below the auth panel (ASI/ACB). */
+  readonly afterPanel?: ReactNode;
 };
 
 /**
@@ -24,6 +26,7 @@ export function AuthFlowShell({
   children,
   showEvaluationSignupLink = true,
   hasReturnDestination = false,
+  afterPanel = null,
 }: AuthFlowShellProps) {
   return (
     <div
@@ -58,6 +61,8 @@ export function AuthFlowShell({
         >
           {children}
         </div>
+
+        {afterPanel}
 
         <footer className="mt-4 space-y-2">
           <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>

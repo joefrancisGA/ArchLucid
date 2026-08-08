@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 
+import { SignInEvidenceOrientationStrip } from "@/app/(operator)/auth/signin/SignInEvidenceOrientationStrip";
 import { AuthFlowShell } from "@/components/auth/AuthFlowShell";
 import { isSafeReturnPath } from "@/lib/navigation/safe-return-path";
 import { SessionExpiredView } from "@/app/(operator)/auth/signin/SessionExpiredView";
@@ -21,7 +22,7 @@ export function SignInClient() {
 
   if (showsSessionMessage && !sessionAcknowledged) {
     return (
-      <AuthFlowShell hasReturnDestination={hasReturnDestination}>
+      <AuthFlowShell hasReturnDestination={hasReturnDestination} afterPanel={<SignInEvidenceOrientationStrip />}>
         <SessionExpiredView
           reason={reason}
           onSignIn={() => {
