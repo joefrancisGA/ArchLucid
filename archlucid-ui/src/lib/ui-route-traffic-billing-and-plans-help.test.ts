@@ -66,5 +66,6 @@ describe("ui-route-traffic-billing-and-plans-help (HBX)", () => {
     expect(row?.notes).toBe(BILLING_AND_PLANS_HELP_TRAFFIC_NOTE);
     expect(row?.notes).toContain("HelpBillingAndPlansGuideView");
     expect(row?.notes).toContain("Sources");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
