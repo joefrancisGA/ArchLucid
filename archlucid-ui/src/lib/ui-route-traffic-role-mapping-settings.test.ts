@@ -69,5 +69,6 @@ describe("ui-route-traffic-role-mapping-settings (ADO)", () => {
     expect(row?.section).toBe(ROLE_MAPPING_SETTINGS_TRAFFIC_SECTION);
     expect(row?.notes).toBe(ROLE_MAPPING_SETTINGS_TRAFFIC_NOTE);
     expect(row?.notes).toContain("IdentityProvidersRoleMappingPageView");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
