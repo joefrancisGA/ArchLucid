@@ -69,5 +69,6 @@ describe("ui-route-traffic-api-keys-settings (ADP)", () => {
     expect(row?.section).toBe(API_KEYS_SETTINGS_TRAFFIC_SECTION);
     expect(row?.notes).toBe(API_KEYS_SETTINGS_TRAFFIC_NOTE);
     expect(row?.notes).toContain("ApiKeysSettingsPageClient");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
