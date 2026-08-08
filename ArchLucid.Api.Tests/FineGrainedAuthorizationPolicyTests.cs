@@ -20,7 +20,7 @@ public sealed class CommitRunRequiresCommitPermissionTests(OperatorWithoutCommit
     public async Task CommitRun_returns_403_when_commit_run_permission_claim_missing()
     {
         HttpResponseMessage response = await _client.PostAsync(
-            $"/v1/architecture/review/{Guid.NewGuid():D}/commit",
+            $"/v1/architecture/review/{Guid.NewGuid():D}/finalize",
             null);
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
@@ -75,7 +75,7 @@ public sealed class ArchitecturePackageDocxRequiresExportPermissionTests(ReaderR
     public async Task ExportRunDocx_returns_403_when_export_consulting_docx_claim_missing()
     {
         HttpResponseMessage response = await _client.GetAsync(
-            $"/v1/docx/runs/{Guid.Empty:D}/architecture-package");
+            $"/v1/docx/reviews/{Guid.Empty:D}/architecture-package");
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }

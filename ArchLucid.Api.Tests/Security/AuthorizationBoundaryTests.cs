@@ -36,7 +36,7 @@ public sealed class AuthorizationBoundaryTests(ApiKeyReaderAndAdminArchLucidApiF
     {
         using HttpClient client = CreateReaderClient();
         using HttpResponseMessage response = await client.PostAsync(
-            "/v1/architecture/review/00000000-0000-0000-0000-000000000000/commit",
+            "/v1/architecture/review/00000000-0000-0000-0000-000000000000/finalize",
             null);
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
