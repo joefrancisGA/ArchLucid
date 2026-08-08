@@ -24,6 +24,7 @@ import { AcceleratorChooserHelpEvidenceOrientationStrip } from "../_sections/Acc
 import { AdminDiagnosticsHelpEvidenceOrientationStrip } from "../_sections/AdminDiagnosticsHelpEvidenceOrientationStrip";
 import { AuthenticationSignInHelpEvidenceOrientationStrip } from "../_sections/AuthenticationSignInHelpEvidenceOrientationStrip";
 import { AzureBoardsHelpEvidenceOrientationStrip } from "../_sections/AzureBoardsHelpEvidenceOrientationStrip";
+import { PolicyPacksHelpEvidenceOrientationStrip } from "../_sections/PolicyPacksHelpEvidenceOrientationStrip";
 import { IntegrationReadinessHelpEvidenceOrientationStrip } from "../_sections/IntegrationReadinessHelpEvidenceOrientationStrip";
 import { PilotFeedbackHelpEvidenceOrientationStrip } from "../_sections/PilotFeedbackHelpEvidenceOrientationStrip";
 import { PilotNavProfileHelpEvidenceOrientationStrip } from "../_sections/PilotNavProfileHelpEvidenceOrientationStrip";
@@ -334,6 +335,17 @@ function renderHelpTopicView(
         markdown={loaded.markdown}
         showContextualHelp
         evidenceOrientation={<AzureBoardsHelpEvidenceOrientationStrip />}
+      />
+    );
+  }
+
+  if (loaded.entry.slug === "policy-packs") {
+    return (
+      <HelpTopicMarkdownView
+        entry={loaded.entry}
+        markdown={loaded.markdown}
+        showContextualHelp
+        evidenceOrientation={<PolicyPacksHelpEvidenceOrientationStrip />}
       />
     );
   }

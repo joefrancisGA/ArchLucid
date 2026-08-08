@@ -1,0 +1,20 @@
+import { POLICY_PACKS_HELP_PATH } from "@/lib/policy-packs-page";
+
+/**
+ * Traffic workbook row ID for Policy packs help.
+ * Owner backlog shorthand: HEO (template formerly HPO).
+ */
+export const POLICY_PACKS_HELP_TRAFFIC_ROW_ID = "HEO";
+
+/** Canonical path tracked on the HEO workbook row. */
+export const POLICY_PACKS_HELP_TRAFFIC_PATH = POLICY_PACKS_HELP_PATH;
+
+/** Workbook Section column value - in-app help topic. */
+export const POLICY_PACKS_HELP_TRAFFIC_SECTION = "Help topic";
+
+/**
+ * Owner workbook Notes for HEO - documents Evidence chrome on Policy packs help.
+ * ASCII-only for Windows console note scripts.
+ */
+export const POLICY_PACKS_HELP_TRAFFIC_NOTE =
+  "Policy packs help (Help topic) - HelpTopicMarkdownView with PageContextualHelp + PolicyPacksHelpEvidenceOrientationStrip (Sources + claim-discipline), curated POLICY_PACKS_OPERATOR_GUIDE.md. Sibling GPP = live policy packs; GOT = standards-and-rules; POL = delta demo. Template HPO renamed to HEO to match owner. Not bare catch-all help chrome. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-08) - help-topic orientation hard-caps higher Evidence.";
