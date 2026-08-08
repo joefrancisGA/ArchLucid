@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { CtoDemoSegregationCallout } from "@/components/cto-demo/CtoDemoSegregationCallout";
 import { CtoDemoBuyerValueStrip } from "@/components/cto-demo/CtoDemoBuyerValueStrip";
@@ -53,9 +53,8 @@ import {
   GOVERNANCE_OVERVIEW_WORKSPACE_HEALTH_LINK_LABEL,
   governanceOverviewPageLead,
   GOVERNANCE_REVIEW_CONTEXT_PAGE_LEAD,
-  GOVERNANCE_REVIEW_CONTEXT_PAGE_TITLE,
 } from "@/lib/governance-overview-copy";
-import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance-route-paths";
+import { governanceApprovalQueueHref, GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance-route-paths";
 import {
   BUYER_GOVERNANCE_APPROVAL_RECORD_LEAD,
   BUYER_GOVERNANCE_GOVERNED_USE_SCOPE,
@@ -85,6 +84,7 @@ import {
   type GovernanceWorkflowPendingReview,
   type GovernanceWorkflowToastState,
 } from "./governance-workflow-helpers";
+import { loadGovernanceReviewContext } from "./load-governance-review-context";
 import {
   GOVERNANCE_APPROVAL_DECISION_RECORD_TITLE,
   GOVERNANCE_APPROVAL_REQUESTS_COMPACT_SECTION_LEAD,
@@ -94,11 +94,14 @@ import {
 } from "@/lib/governance-workflow-section-copy";
 
 export function GovernanceWorkflowPageContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const canMutateWorkflow = useOperateCapability();
   const [toast, setToast] = useState<GovernanceWorkflowToastState>(null);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const submitSectionRef = useRef<HTMLDivElement | null>(null);
+  const approvalsSectionRef = useRef<HTMLElement | null>(null);
+  const deepLinkFocusHandledRef = useRef<string | null>(null);
 
   const [submitRunId, setSubmitRunId] = useState("");
   const [submitManifestVersion, setSubmitManifestVersion] = useState("");
@@ -109,6 +112,7 @@ export function GovernanceWorkflowPageContent() {
 
   const [queryRunId, setQueryRunId] = useState("");
   const [activeRunId, setActiveRunId] = useState<string | null>(null);
+  const [activeReviewDisplayTitle, setActiveReviewDisplayTitle] = useState<string | null>(null);
   const [workflowActor, setWorkflowActor] = useState("");
 
   const [approvals, setApprovals] = useState<GovernanceApprovalRequest[]>([]);
@@ -154,15 +158,24 @@ export function GovernanceWorkflowPageContent() {
 
   const [activateBusyId, setActivateBusyId] = useState<string | null>(null);
 
+  const replaceApprovalQueueUrl = useCallback(
+    (runId: string | null): void => {
+      router.replace(governanceApprovalQueueHref(runId), { scroll: false });
+    },
+    [router],
+  );
+
   const clearReviewContext = useCallback((): void => {
     setActiveRunId(null);
+    setActiveReviewDisplayTitle(null);
     setApprovals([]);
     setPromotions([]);
     setActivations([]);
     setListFailure(null);
     setShowingStaticDemoGovernanceRecords(false);
     setPendingReview(null);
-  }, []);
+    replaceApprovalQueueUrl(null);
+  }, [replaceApprovalQueueUrl]);
 
   useEffect(() => {
     warnStaticDemoPayloadFallbackOutsidePackagedDeployOnce();
@@ -289,9 +302,10 @@ export function GovernanceWorkflowPageContent() {
     }
 
     setActiveRunId(id);
-    setSubmitRunId((prev) => (prev.trim().length === 0 ? id : prev));
+    setSubmitRunId(id);
+    replaceApprovalQueueUrl(id);
     void loadLists(id);
-  }, [queryRunId, loadLists]);
+  }, [queryRunId, loadLists, replaceApprovalQueueUrl]);
 
   const refreshIfActive = useCallback(async () => {
     if (activeRunId !== null) {
@@ -308,9 +322,79 @@ export function GovernanceWorkflowPageContent() {
 
     setQueryRunId(fromQuery);
     setActiveRunId(fromQuery);
-    setSubmitRunId((prev) => (prev.trim().length === 0 ? fromQuery : prev));
+
+    // Always adopt the deep-link runId into the submit form — preferAutoPick on the submit
+    // section's AskRunIdPicker must not win the race and silently overwrite it afterward.
+    setSubmitRunId(fromQuery);
     void loadLists(fromQuery);
   }, [searchParams, loadLists]);
+
+  useEffect(() => {
+    if (activeRunId === null) {
+      setActiveReviewDisplayTitle(null);
+
+      return;
+    }
+
+    let cancelled = false;
+
+    void loadGovernanceReviewContext(activeRunId).then((context) => {
+      if (cancelled) {
+        return;
+      }
+
+      setActiveReviewDisplayTitle(context.displayTitle);
+      setSubmitManifestVersion(context.manifestVersion ?? "");
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeRunId]);
+
+  useEffect(() => {
+    const fromQuery = searchParams.get("runId")?.trim() ?? "";
+
+    if (fromQuery.length === 0) {
+      return;
+    }
+
+    if (listsLoading) {
+      return;
+    }
+
+    if (activeRunId !== fromQuery) {
+      return;
+    }
+
+    if (deepLinkFocusHandledRef.current === fromQuery) {
+      return;
+    }
+
+    deepLinkFocusHandledRef.current = fromQuery;
+
+    const phase = approvalWorkflowState.phase;
+    const focusesApprovals =
+      phase === "pending" || phase === "mixed" || phase === "approved" || phase === "rejected";
+
+    const handle = window.setTimeout(() => {
+      if (focusesApprovals) {
+        approvalsSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      } else if (phase === "no_requests") {
+        submitSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, 50);
+
+    return () => window.clearTimeout(handle);
+  }, [searchParams, listsLoading, activeRunId, approvalWorkflowState.phase]);
+
+  const focusPendingApprovals = useCallback((): void => {
+    if (!isReviewContext) {
+      return;
+    }
+
+    approvalsSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [isReviewContext]);
 
   const focusSubmitSection = useCallback((): void => {
     const selectedRunId = queryRunId.trim();
@@ -333,9 +417,9 @@ export function GovernanceWorkflowPageContent() {
 
     const runId = submitRunId.trim();
 
+    // The submit button is already disabled while these fields are incomplete — this guard is
+    // a safety net only, so it returns quietly instead of duplicating a validation toast.
     if (!runId || !submitManifestVersion.trim()) {
-      setToast({ kind: "err", message: "Choose a review and enter a review record version." });
-
       return;
     }
 
@@ -495,7 +579,7 @@ export function GovernanceWorkflowPageContent() {
     approvalWorkflowState.canShowCompletionMessaging &&
     approvalWorkflowState.primaryApprovedRequest !== null;
   const workflowOutcomeLine = governanceWorkflowOutcomeLineForPhase(approvalWorkflowState.phase);
-  const pageTitle = isReviewContext ? GOVERNANCE_REVIEW_CONTEXT_PAGE_TITLE : GOVERNANCE_OVERVIEW_PAGE_TITLE;
+  const pageTitle = GOVERNANCE_OVERVIEW_PAGE_TITLE;
   const pageLead = isReviewContext
     ? showBuyerApprovalStory
       ? BUYER_GOVERNANCE_GOVERNED_USE_SCOPE
@@ -579,7 +663,7 @@ export function GovernanceWorkflowPageContent() {
           setQueryRunId={setQueryRunId}
           onLoadReview={onLoadRun}
           onFocusSubmit={focusSubmitSection}
-          onFocusPending={() => undefined}
+          onFocusPending={focusPendingApprovals}
           listsLoading={listsLoading}
         />
       ) : null}
@@ -600,6 +684,7 @@ export function GovernanceWorkflowPageContent() {
 
           <GovernanceReviewContextBar
             activeRunId={activeRunId}
+            reviewDisplayTitle={activeReviewDisplayTitle}
             buyerPolishedShell={buyerPolishedShell}
             canMutateWorkflow={canMutateWorkflow}
             listsLoading={listsLoading}
@@ -656,6 +741,7 @@ export function GovernanceWorkflowPageContent() {
               buyerSuppressGovernanceSubmitChrome={buyerSuppressGovernanceSubmitChrome}
               canMutateWorkflow={canMutateWorkflow}
               hideGovernanceQueryLoadCard
+              preferAutoPick={false}
               submitRunId={submitRunId}
               setSubmitRunId={setSubmitRunId}
               submitManifestVersion={submitManifestVersion}
@@ -673,7 +759,12 @@ export function GovernanceWorkflowPageContent() {
 
           <Separator className="mb-10" />
 
-          <section className="mb-10" data-testid="governance-approval-requests-section">
+          <section
+            ref={approvalsSectionRef}
+            id="governance-approval-requests"
+            className="mb-10"
+            data-testid="governance-approval-requests-section"
+          >
             {showingStaticDemoGovernanceRecords ? (
               <p
                 role="status"

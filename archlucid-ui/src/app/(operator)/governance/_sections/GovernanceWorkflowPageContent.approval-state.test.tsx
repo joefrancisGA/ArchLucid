@@ -12,6 +12,8 @@ const apiHoisted = vi.hoisted(() => ({
   getGovernanceDashboard: vi.fn(),
   getGovernanceDecisionsNeededSummary: vi.fn(),
   listRunsByProjectPaged: vi.fn(),
+  getRunSummary: vi.fn(),
+  getRunDetail: vi.fn(),
 }));
 
 vi.mock("@/hooks/use-operate-capability", () => ({
@@ -54,6 +56,8 @@ vi.mock("@/lib/api", async (importOriginal) => {
     getGovernanceDashboard: apiHoisted.getGovernanceDashboard,
     getGovernanceDecisionsNeededSummary: apiHoisted.getGovernanceDecisionsNeededSummary,
     listRunsByProjectPaged: apiHoisted.listRunsByProjectPaged,
+    getRunSummary: apiHoisted.getRunSummary,
+    getRunDetail: apiHoisted.getRunDetail,
   };
 });
 
@@ -105,6 +109,14 @@ describe("GovernanceWorkflowPageContent approval state", () => {
       pageSize: 50,
       hasMore: false,
     });
+    apiHoisted.getRunSummary.mockResolvedValue({
+      runId: "gov-ui-shape-run",
+      projectId: "default",
+      createdUtc: "",
+      displayName: "",
+      description: "",
+    });
+    apiHoisted.getRunDetail.mockResolvedValue({ data: { run: { currentManifestVersion: "" } } });
   });
 
   it("shows no-request guidance without completion messaging when a review has no approval history", async () => {

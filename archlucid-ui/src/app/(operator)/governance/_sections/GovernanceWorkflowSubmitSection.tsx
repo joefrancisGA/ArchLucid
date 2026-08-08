@@ -41,6 +41,8 @@ type GovernanceWorkflowSubmitSectionProps = {
   buyerSuppressGovernanceSubmitChrome: boolean;
   canMutateWorkflow: boolean;
   hideGovernanceQueryLoadCard: boolean;
+  /** Passed through to the review picker's auto-pick behavior. Defaults to true for backward compat. */
+  preferAutoPick?: boolean;
   submitRunId: string;
   setSubmitRunId: (v: string) => void;
   submitManifestVersion: string;
@@ -61,6 +63,7 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
     buyerSuppressGovernanceSubmitChrome,
     canMutateWorkflow,
     hideGovernanceQueryLoadCard,
+    preferAutoPick = true,
     submitRunId,
     setSubmitRunId,
     submitManifestVersion,
@@ -78,6 +81,27 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
   if (buyerSuppressGovernanceSubmitChrome) {
     return null;
   }
+
+  const missingSubmitFields: string[] = [];
+
+  if (submitRunId.trim().length === 0) {
+    missingSubmitFields.push("review");
+  }
+
+  if (submitManifestVersion.trim().length === 0) {
+    missingSubmitFields.push("review record version");
+  }
+
+  if (submitSource.trim().length === 0) {
+    missingSubmitFields.push("source environment");
+  }
+
+  if (submitTarget.trim().length === 0) {
+    missingSubmitFields.push("target environment");
+  }
+
+  const submitReadinessMessage: string =
+    missingSubmitFields.length === 0 ? "Ready to submit." : `Missing: ${missingSubmitFields.join(", ")}.`;
 
   return (
     <section className="mb-10">
@@ -119,7 +143,7 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
                 value={submitRunId}
                 onChange={setSubmitRunId}
                 selectedThreadId=""
-                preferAutoPick={canMutateWorkflow}
+                preferAutoPick={preferAutoPick && canMutateWorkflow}
                 disabled={!canMutateWorkflow}
               />
             </div>
@@ -203,7 +227,14 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
               type="button"
               data-testid="governance-submit-approval-button"
               onClick={() => void onSubmitApproval()}
-              disabled={submitBusy || !canMutateWorkflow || submitRunId.trim().length === 0 || submitSource.trim().length === 0 || submitTarget.trim().length === 0}
+              disabled={
+                submitBusy ||
+                !canMutateWorkflow ||
+                submitRunId.trim().length === 0 ||
+                submitManifestVersion.trim().length === 0 ||
+                submitSource.trim().length === 0 ||
+                submitTarget.trim().length === 0
+              }
               title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
             >
               {submitBusy
@@ -212,6 +243,14 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
                   ? "Submit for governance approval"
                   : governanceWorkflowSubmitForApprovalButtonLabelReaderRank}
             </Button>
+            {canMutateWorkflow ? (
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="governance-submit-readiness"
+              >
+                {submitReadinessMessage}
+              </p>
+            ) : null}
             {!canMutateWorkflow ? (
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="note">
                 {isBuyerSafeDemoMarketingChromeEnv() || isStaticDemoPayloadFallbackEnabled() ? (

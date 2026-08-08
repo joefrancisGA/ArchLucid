@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useAskProjectRunsQuery } from "@/hooks/use-ask-project-runs-query";
+import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
 import { shouldMergeOperatorDemoAlertSample } from "@/lib/operator-static-demo";
 import { isShowcaseDemoRunId } from "@/lib/graph-page-state";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -24,6 +25,16 @@ import {
 } from "@/lib/buyer-polish-copy";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
+
+function findRunSummaryById(items: readonly RunSummary[], runId: string): RunSummary | undefined {
+  const needle = runId.trim().toLowerCase();
+
+  if (needle.length === 0) {
+    return undefined;
+  }
+
+  return items.find((row) => (row.runId ?? "").trim().toLowerCase() === needle);
+}
 
 function operatorAllowsSyntheticAskRunPick(): boolean {
   return (
@@ -239,32 +250,46 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
     onChange(SHOWCASE_STATIC_DEMO_RUN_ID);
   }, [autoSelectSyntheticSample, loadError, preferAutoPick, value, onChange]);
 
-  const optionalCopy =
-    selectedThreadId.trim().length > 0
-      ? "(optional when a conversation already has review context)"
-      : "(pick an architecture review)";
+  const trimmedValue = value.trim();
+  const optionalHint =
+    trimmedValue.length > 0
+      ? null
+      : selectedThreadId.trim().length > 0
+        ? "(optional when a conversation already has review context)"
+        : "(pick an architecture review)";
+
+  const reviewFieldLabel = (
+    <Label htmlFor={selectControlId}>
+      {labelText}
+      {optionalHint !== null ? (
+        <>
+          {" "}
+          <span className="font-normal text-al-text-secondary">{optionalHint}</span>
+        </>
+      ) : null}
+    </Label>
+  );
 
   if (loadError) {
     if (operatorAllowsSyntheticAskRunPick()) {
-      const selectedInSynthetic = value === SHOWCASE_STATIC_DEMO_RUN_ID;
+      const selectedInSynthetic = isShowcaseDemoRunId(trimmedValue);
+      const selectValue = selectedInSynthetic
+        ? SHOWCASE_STATIC_DEMO_RUN_ID
+        : trimmedValue.length > 0
+          ? trimmedValue
+          : undefined;
+      const showOrphanDeepLink = trimmedValue.length > 0 && !selectedInSynthetic;
 
       return (
         <div className="space-y-2">
-          <Label htmlFor={selectControlId}>
-            {labelText} {optionalCopy}
-          </Label>
-          <Select
-            disabled={disabled}
-            value={
-              selectedInSynthetic ? SHOWCASE_STATIC_DEMO_RUN_ID : value.trim().length > 0 ? value : undefined
-            }
-            onValueChange={onChange}
-          >
+          {reviewFieldLabel}
+          <Select disabled={disabled} value={selectValue} onValueChange={onChange}>
             <SelectTrigger id={selectControlId} className={cn("font-mono", OPERATOR_TYPOGRAPHY.body)}>
               <SelectValue placeholder="Choose demo review" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value={SHOWCASE_STATIC_DEMO_RUN_ID}>Claims Intake Modernization Review</SelectItem>
+              {showOrphanDeepLink ? <SelectItem value={trimmedValue}>{trimmedValue}</SelectItem> : null}
             </SelectContent>
           </Select>
           {!hideFieldHelper ? (
@@ -276,15 +301,20 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
       );
     }
 
+    const showOrphanDeepLink = trimmedValue.length > 0 && !isShowcaseDemoRunId(trimmedValue);
+
     return (
       <div className="space-y-2">
-        <Label htmlFor={selectControlId}>
-          {labelText} {optionalCopy}
-        </Label>
-        <Select disabled>
+        {reviewFieldLabel}
+        <Select disabled value={trimmedValue.length > 0 ? trimmedValue : undefined}>
           <SelectTrigger id={selectControlId} className={cn("font-mono", OPERATOR_TYPOGRAPHY.body)}>
             <SelectValue placeholder={reviewsUnavailablePlaceholder} />
           </SelectTrigger>
+          {showOrphanDeepLink ? (
+            <SelectContent>
+              <SelectItem value={trimmedValue}>{trimmedValue}</SelectItem>
+            </SelectContent>
+          ) : null}
         </Select>
         {!hideFieldHelper ? (
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{reviewsUnavailableHint}</p>
@@ -294,13 +324,20 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
   }
 
   if (loading) {
+    const hasDeepLinkValue = trimmedValue.length > 0;
+
     return (
       <div className="space-y-2">
-        <Label htmlFor={selectControlId}>{labelText}</Label>
-        <Select disabled>
+        {reviewFieldLabel}
+        <Select disabled value={hasDeepLinkValue ? trimmedValue : undefined}>
           <SelectTrigger id={selectControlId} className={cn("font-mono", OPERATOR_TYPOGRAPHY.body)}>
             <SelectValue placeholder="Loading reviews…" />
           </SelectTrigger>
+          {hasDeepLinkValue ? (
+            <SelectContent>
+              <SelectItem value={trimmedValue}>{trimmedValue}</SelectItem>
+            </SelectContent>
+          ) : null}
         </Select>
       </div>
     );
@@ -310,21 +347,24 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
     const allowSyntheticPick = operatorAllowsSyntheticAskRunPick() && preferAutoPick;
 
     if (allowSyntheticPick) {
+      const selectedInSynthetic = isShowcaseDemoRunId(trimmedValue);
+      const selectValue = selectedInSynthetic
+        ? SHOWCASE_STATIC_DEMO_RUN_ID
+        : trimmedValue.length > 0
+          ? trimmedValue
+          : SHOWCASE_STATIC_DEMO_RUN_ID;
+      const showOrphanDeepLink = trimmedValue.length > 0 && !selectedInSynthetic;
+
       return (
         <div className="space-y-2">
-          <Label htmlFor={selectControlId}>
-            {labelText} {optionalCopy}
-          </Label>
-          <Select
-            disabled={disabled}
-            value={value.trim().length > 0 ? value : SHOWCASE_STATIC_DEMO_RUN_ID}
-            onValueChange={onChange}
-          >
+          {reviewFieldLabel}
+          <Select disabled={disabled} value={selectValue} onValueChange={onChange}>
             <SelectTrigger id={selectControlId} className={cn("font-mono", OPERATOR_TYPOGRAPHY.body)}>
               <SelectValue placeholder="Choose demo review" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value={SHOWCASE_STATIC_DEMO_RUN_ID}>Claims Intake Modernization Review</SelectItem>
+              {showOrphanDeepLink ? <SelectItem value={trimmedValue}>{trimmedValue}</SelectItem> : null}
             </SelectContent>
           </Select>
           {!hideFieldHelper ? (
@@ -336,15 +376,20 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
       );
     }
 
+    const showOrphanDeepLink = trimmedValue.length > 0 && !isShowcaseDemoRunId(trimmedValue);
+
     return (
       <div className="space-y-2">
-        <Label htmlFor={selectControlId}>
-          {labelText} {optionalCopy}
-        </Label>
-        <Select disabled>
+        {reviewFieldLabel}
+        <Select disabled value={trimmedValue.length > 0 ? trimmedValue : undefined}>
           <SelectTrigger id={selectControlId} className={cn("font-mono", OPERATOR_TYPOGRAPHY.body)}>
             <SelectValue placeholder={emptyListPlaceholderText} />
           </SelectTrigger>
+          {showOrphanDeepLink ? (
+            <SelectContent>
+              <SelectItem value={trimmedValue}>{trimmedValue}</SelectItem>
+            </SelectContent>
+          ) : null}
         </Select>
         {!hideFieldHelper ? (
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
@@ -366,12 +411,13 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
     );
   }
 
-  const selectedInList = items.some((r) => r.runId === value);
-  const selectValue = selectedInList ? value : undefined;
+  const selectedRow = findRunSummaryById(items, value);
+  const selectValue = selectedRow?.runId ?? (trimmedValue.length > 0 ? trimmedValue : undefined);
+  const showOrphanDeepLink = trimmedValue.length > 0 && selectedRow === undefined;
 
   return (
     <div className="space-y-2">
-      <Label htmlFor={selectControlId}>{labelText}</Label>
+      {reviewFieldLabel}
       <Select disabled={disabled} value={selectValue} onValueChange={onChange}>
         <SelectTrigger id={selectControlId} className={cn("font-mono", OPERATOR_TYPOGRAPHY.body)}>
           <SelectValue placeholder="Choose an architecture review" />
@@ -379,9 +425,10 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
         <SelectContent>
           {items.map((row) => (
             <SelectItem key={row.runId} value={row.runId}>
-              {(row.description ?? "").trim().length > 0 ? row.description : row.runId}
+              {buyerFacingReviewTitleFromSummary(row)}
             </SelectItem>
           ))}
+          {showOrphanDeepLink ? <SelectItem value={trimmedValue}>{trimmedValue}</SelectItem> : null}
         </SelectContent>
       </Select>
     </div>
