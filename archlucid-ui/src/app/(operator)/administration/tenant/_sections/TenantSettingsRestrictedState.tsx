@@ -1,10 +1,6 @@
-import Link from "next/link";
-
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
-import { SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
 import { cn } from "@/lib/utils";
 
 export const TENANT_SETTINGS_RESTRICTED_DESCRIPTION =
@@ -20,9 +16,6 @@ export function TenantSettingsRestrictedState(): React.JSX.Element {
   return (
     <div className="w-full max-w-3xl space-y-6" data-testid="tenant-settings-restricted">
       <div>
-        <Button asChild variant="ghost" size="sm" className="mb-2 h-8 px-0 text-teal-800 dark:text-teal-300">
-          <Link href={SETTINGS_ROOT_PATH}>← {OPERATOR_NAV_LINK_LABELS.settings}</Link>
-        </Button>
         <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{OPERATOR_NAV_LINK_LABELS.workspaceSettings}</h1>
         <p className={cn("mt-1 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} role="alert">
           {TENANT_SETTINGS_RESTRICTED_DESCRIPTION}

@@ -3,12 +3,16 @@
 import Link from "next/link";
 
 import { cn } from "@/lib/utils";
-
 import { ArtifactListTable } from "@/components/ArtifactListTable";
 import { ArtifactReviewContent } from "@/components/ArtifactReviewContent";
-import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { getArtifactDownloadUrl } from "@/lib/api";
 import { reviewDetailPath } from "@/lib/architecture-routes";
 import {
@@ -21,14 +25,14 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import {
-  SIGNED_RECORD_ARTIFACT_SCOPE_DETAILS_TRIGGER,
-  SIGNED_RECORD_ARTIFACT_SCOPE_OVERVIEW,
   SIGNED_RECORD_ARTIFACT_SIBLINGS_HEADING,
   SIGNED_RECORD_ARTIFACT_WHAT_IS_THIS_HEADING,
   signedRecordArtifactPageSubtitle,
 } from "@/lib/signed-record-artifact-page-copy";
-import { SIGNED_RECORDS_LIST_PATH, signedRecordDetailPath } from "@/lib/signed-records-paths";
-
+import {
+  SIGNED_RECORDS_LIST_PATH,
+  signedRecordDetailPath,
+} from "@/lib/signed-records-paths";
 import { SignedRecordArtifactPageHeader } from "./SignedRecordArtifactPageHeader";
 import type { SignedRecordArtifactPageSuccessModel } from "./signed-record-artifact-page-model";
 
@@ -78,19 +82,7 @@ export function SignedRecordArtifactPageView(props: SignedRecordArtifactPageView
       </nav>
 
       <SignedRecordArtifactPageHeader subtitle={signedRecordArtifactPageSubtitle(buyerPolishedLayout)} />
-{buyerPolishedLayout ? (
-        <CollapsibleSection
-          title={SIGNED_RECORD_ARTIFACT_SCOPE_DETAILS_TRIGGER}
-          defaultOpen={false}
-          sectionTestId="signed-record-artifact-scope-details"
-        >
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="signed-record-artifact-scope-overview">
-            {SIGNED_RECORD_ARTIFACT_SCOPE_OVERVIEW}
-          </p>
-        </CollapsibleSection>
-      ) : null}
-
-      <Card data-testid="signed-record-artifact-metadata-card">
+<Card data-testid="signed-record-artifact-metadata-card">
         <CardHeader>
           <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{SIGNED_RECORD_ARTIFACT_WHAT_IS_THIS_HEADING}</CardTitle>
           <CardDescription>{getArtifactTypeDescription(model.descriptor.artifactType)}</CardDescription>

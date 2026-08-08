@@ -53,7 +53,8 @@ describe("HelpConfigurationReferenceGuideView", () => {
     expect(screen.getByTestId("help-configuration-reference-guide")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("help-configuration-reference-task-sections")).toBeInTheDocument();
-    expect(screen.queryByTestId("help-configuration-reference-claim-discipline")).toBeNull(); // TB-2092
+    expect(screen.getByTestId("help-configuration-reference-claim-discipline")).toBeInTheDocument();
+
     const appendix = screen.getByTestId("help-configuration-reference-catalog-appendix");
 
     expect(appendix.tagName.toLowerCase()).toBe("details");
@@ -74,11 +75,7 @@ describe("HelpConfigurationReferenceGuideView", () => {
     ).toHaveAttribute("href", CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS.openApiKeys.href);
 
     expect(screen.queryByTestId("help-configuration-reference-sources")).toBeNull(); // TB-2092
-    for (const link of CONFIGURATION_REFERENCE_HELP_SOURCES) {
-      expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
-    }
-
-    for (const banned of CONFIGURATION_REFERENCE_BANNED_HREF_FRAGMENTS) {
+for (const banned of CONFIGURATION_REFERENCE_BANNED_HREF_FRAGMENTS) {
       expect(preparedMarkdown, `banned href fragment still present: ${banned}`).not.toContain(`](${banned}`);
       expect(preparedMarkdown, `banned href fragment still present: ${banned}`).not.toMatch(
         new RegExp(`\\]\\([^)]*${banned.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`, "i"),

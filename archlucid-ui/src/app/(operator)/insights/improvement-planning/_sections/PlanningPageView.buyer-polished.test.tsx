@@ -56,7 +56,7 @@ describe("PlanningPageView buyer-polished shell", () => {
 
     expect(screen.getByText(IMPROVEMENT_PLANNING_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
     expect(screen.queryByText(/Planning insights are generated from captured review feedback/i)).not.toBeInTheDocument();
-    expect(screen.getByText(IMPROVEMENT_PLANNING_SCOPE_DETAILS_TRIGGER)).toBeInTheDocument();
+    expect(screen.queryByText(IMPROVEMENT_PLANNING_SCOPE_DETAILS_TRIGGER)).toBeNull(); // TB-2093
     expect(screen.queryByText(/Technical scope details/i)).not.toBeInTheDocument();
   });
 });

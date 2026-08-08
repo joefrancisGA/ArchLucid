@@ -8,10 +8,6 @@ import { PolicyPackImpactSimulationCard } from "@/components/PolicyPackImpactSim
 import { PolicyPackBasisStatusBanner } from "@/components/governance/PolicyPackBasisStatusBanner";
 import { buildPolicyPackEnforcedRuleRows } from "@/lib/policy-pack-enforced-rules";
 import {
-  POLICY_PACKS_LAYER_GUIDANCE_TRIGGER,
-  POLICY_PACKS_SCOPE_DETAILS_TRIGGER,
-  POLICY_PACKS_VIEW_EXPLANATION_NEXT_ACTION,
-  POLICY_PACKS_VIEW_EXPLANATION_SUMMARY,
   policyPacksPageSubtitle,
 } from "@/lib/policy-packs-page";
 import {
@@ -28,13 +24,19 @@ import { PolicyPacksMetricStrip } from "./PolicyPacksMetricStrip";
 import { PolicyPacksPageHeader } from "./PolicyPacksPageHeader";
 import { PolicyPacksRegisteredListSection } from "./PolicyPacksRegisteredListSection";
 import { PolicyPacksAdvancedAuthoringPanel } from "./PolicyPacksAdvancedAuthoringPanel";
-import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
-import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-
+import {
+  OPERATOR_LAYOUT,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
 import type { PolicyPacksPageTab } from "./policy-packs-page-view-model";
 
 type Props = {
@@ -80,8 +82,7 @@ export function PolicyPacksPageView(props: Props) {
         <LayerHeader
           pageKey="policy-packs"
           density="compact"
-          collapsibleGuidance={POLICY_PACKS_LAYER_GUIDANCE_TRIGGER}
-          className="mb-3"
+className="mb-3"
         />
       ) : null}
 
@@ -91,19 +92,7 @@ export function PolicyPacksPageView(props: Props) {
         lastRefreshedAt={m.lastRefreshedAt}
         onRefresh={m.load}
       />
-{m.buyerPolishedShell ? (
-        <CollapsibleSection
-          title={POLICY_PACKS_SCOPE_DETAILS_TRIGGER}
-          defaultOpen={false}
-          sectionTestId="policy-packs-scope-details"
-        >
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="policy-packs-scope-overview">
-            {POLICY_PACKS_VIEW_EXPLANATION_SUMMARY} {POLICY_PACKS_VIEW_EXPLANATION_NEXT_ACTION}
-          </p>
-        </CollapsibleSection>
-      ) : null}
-
-      {!m.buyerPolishedShell ? (
+{!m.buyerPolishedShell ? (
         <PolicyPacksMarketingIntro buyerPolishedShell={m.buyerPolishedShell} canMutatePacks={m.canMutatePacks} />
       ) : null}
 

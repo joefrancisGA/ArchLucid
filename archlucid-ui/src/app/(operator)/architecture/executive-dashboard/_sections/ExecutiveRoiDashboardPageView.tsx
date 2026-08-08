@@ -1,8 +1,10 @@
 "use client";
 
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
-import { CollapsibleSection } from "@/components/CollapsibleSection";
-import { ExecutiveDashboardDataProvider, useExecutiveDashboardData } from "@/components/executive/ExecutiveDashboardDataContext";
+import {
+  ExecutiveDashboardDataProvider,
+  useExecutiveDashboardData,
+} from "@/components/executive/ExecutiveDashboardDataContext";
 import { ExecutiveDashboardEmptyState } from "@/components/executive/ExecutiveDashboardEmptyState";
 import { ExecutiveDashboardPageHero } from "@/components/executive/ExecutiveDashboardPageHero";
 import { ExecutiveDashboardSampleWorkspaceBanner } from "@/components/executive/ExecutiveDashboardSampleWorkspaceBanner";
@@ -14,15 +16,11 @@ import {
   isExecutiveDashboardEmpty,
   isExecutiveSampleWorkspaceData,
 } from "@/lib/executive-dashboard-workspace-state";
-import { EXECUTIVE_DASHBOARD_SCOPE_DETAILS_TRIGGER } from "@/lib/executive-dashboard-page-copy";
 import { EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_SECTION_ID } from "@/lib/executive-dashboard-route";
-import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-
 import { ExecutiveDashboardBaselineWarningBanner } from "./ExecutiveDashboardBaselineWarningBanner";
 import { ExecutiveDashboardNextActionSection } from "./ExecutiveDashboardNextActionSection";
 import { ExecutiveDashboardPrimaryMetricsSection } from "./ExecutiveDashboardPrimaryMetricsSection";
-
 import {
   BusinessImpactSummaryWidgetDeferred,
   ExecutiveComplianceDriftTrendSectionDeferred,
@@ -35,7 +33,6 @@ import {
   OperatorWelcomeOnboardingDeferred,
   SponsorExportsSectionDeferred,
 } from "./executive-roi-dashboard-deferred-chunks";
-
 export type ExecutiveRoiDashboardPageViewProps = {
   readonly surface?: "operator" | "executive";
 };
@@ -77,18 +74,7 @@ function ExecutiveRoiDashboardPortfolioSections({
       {!dashboardEmpty ? <OperatorWelcomeOnboardingDeferred /> : null}
 
       <ExecutiveDashboardPageHero dashboardEmpty={dashboardEmpty} />
-{buyerPolishedShell && dashboardEmpty ? (
-        <CollapsibleSection
-          title={EXECUTIVE_DASHBOARD_SCOPE_DETAILS_TRIGGER}
-          defaultOpen={false}
-          sectionTestId="executive-dashboard-scope-details"
-        >
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{v.portfolioPageLead}</p>
-          <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>{v.howItWorksDescription}</p>
-        </CollapsibleSection>
-      ) : null}
-
-      {dashboardEmpty ? (
+{dashboardEmpty ? (
         <>
           <ExecutiveDashboardEmptyState />
           {!buyerPolishedShell ? <ExecutiveDashboardHowItWorksDeferred /> : null}

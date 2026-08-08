@@ -1,13 +1,17 @@
 /**
  * TB-2091 — forbid universal CPA SOC 2 / third-party pen-test disclaimer chrome
  * outside dedicated assurance surfaces.
+ *
+ * Scans git-tracked files only so concurrent untracked Evidence WIP does not fail the suite.
  */
-import { readdirSync, readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-const LIB_ROOT = join(process.cwd(), "src", "lib");
+const UI_ROOT = process.cwd();
+const REPO_ROOT = join(UI_ROOT, "..");
 
 /** Basename stems allowed to keep factual CPA / pen-test honesty. */
 const ALLOWLIST_STEMS = new Set([
@@ -42,15 +46,14 @@ const FORBIDDEN = [
   /and does not imply CPA SOC 2 attestation/i,
 ];
 
-const SCAN_SUFFIXES = [
-  "evidence-copy.ts",
-  "guide-content.ts",
-  "page-copy.ts",
-  "-sources.ts",
-] as const;
+function shouldScan(relativePath: string): boolean {
+  const fileName = relativePath.split("/").pop() ?? "";
 
-function shouldScan(fileName: string): boolean {
   if (fileName.endsWith(".test.ts")) {
+    return false;
+  }
+
+  if (!relativePath.startsWith("archlucid-ui/src/lib/")) {
     return false;
   }
 
@@ -58,40 +61,39 @@ function shouldScan(fileName: string): boolean {
     return true;
   }
 
-  return SCAN_SUFFIXES.some((suffix) => fileName.endsWith(suffix));
+  return (
+    fileName.includes("evidence-copy")
+    || fileName.endsWith("guide-content.ts")
+    || fileName.endsWith("page-copy.ts")
+    || fileName.endsWith("-sources.ts")
+  );
 }
 
-function collectLibFiles(dir: string): string[] {
-  const out: string[] = [];
+function listTrackedLibCandidates(): string[] {
+  const output = execFileSync(
+    "git",
+    ["ls-files", "--", "archlucid-ui/src/lib"],
+    { cwd: REPO_ROOT, encoding: "utf8" },
+  );
 
-  for (const entry of readdirSync(dir, { withFileTypes: true })) {
-    const full = join(dir, entry.name);
-
-    if (entry.isDirectory()) {
-      out.push(...collectLibFiles(full));
-      continue;
-    }
-
-    if (entry.isFile() && shouldScan(entry.name)) {
-      out.push(full);
-    }
-  }
-
-  return out;
+  return output
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0 && shouldScan(line));
 }
 
 describe("TB-2091 CPA / pen-test disclaimer chrome guard", () => {
   it("keeps boilerplate out of non-allowlisted claim/copy modules", () => {
     const violations: string[] = [];
 
-    for (const absolutePath of collectLibFiles(LIB_ROOT)) {
-      const stem = absolutePath.replace(/\\/g, "/").split("/").pop()?.replace(/\.ts$/, "") ?? "";
+    for (const relativePath of listTrackedLibCandidates()) {
+      const stem = relativePath.split("/").pop()?.replace(/\.ts$/, "") ?? "";
 
       if (ALLOWLIST_STEMS.has(stem)) {
         continue;
       }
 
-      const source = readFileSync(absolutePath, "utf8");
+      const source = readFileSync(join(REPO_ROOT, relativePath), "utf8");
 
       for (const pattern of FORBIDDEN) {
         if (pattern.test(source)) {

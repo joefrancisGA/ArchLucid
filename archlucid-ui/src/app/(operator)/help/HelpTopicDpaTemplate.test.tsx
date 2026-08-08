@@ -52,8 +52,8 @@ describe("HelpDpaTemplateGuideView", () => {
     expect(visible).toContain("not a countersigned");
     expect(screen.getByTestId("help-dpa-template-guide")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.queryByTestId("help-dpa-template-claim-discipline")).toBeNull(); // TB-2092
-    expect(screen.queryByTestId("help-dpa-template-orientation")).toBeNull(); // TB-2092
+    expect(screen.getByTestId("help-dpa-template-claim-discipline")).toBeInTheDocument();
+    expect(screen.getByTestId("help-dpa-template-orientation")).toBeInTheDocument();
     expect(screen.getByTestId("help-dpa-template-full-disclosure")).toBeInTheDocument();
 
     const actionPanel = screen.getByTestId("help-dpa-template-action-panel");
@@ -70,10 +70,6 @@ describe("HelpDpaTemplateGuideView", () => {
     ).toHaveAttribute("href", DPA_TEMPLATE_HELP_PRIMARY_ACTIONS.openSubprocessors.href);
 
     expect(screen.queryByTestId("help-dpa-template-sources")).toBeNull(); // TB-2092
-    for (const link of DPA_TEMPLATE_HELP_SOURCES) {
-      expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
-    }
-
-    expect(screen.getAllByRole("link", { name: /trust center/i }).length).toBeGreaterThan(0);
+expect(screen.getAllByRole("link", { name: /trust center/i }).length).toBeGreaterThan(0);
   });
 });

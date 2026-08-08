@@ -55,9 +55,10 @@ describe("HelpFirstValue20GuideView", () => {
     expect(screen.getByTestId("help-first-value-20-page-title")).toHaveTextContent(
       FIRST_VALUE_20_HELP_PAGE_TITLE,
     );
-    expect(screen.queryByTestId("help-first-value-20-claim-discipline")).toBeNull(); // TB-2092
+    expect(screen.getByTestId("help-first-value-20-claim-discipline")).toBeInTheDocument();
     expect(screen.getByTestId("help-first-value-20-job-matrix")).toBeInTheDocument();
-    expect(screen.queryByTestId("help-first-value-20-orientation")).toBeNull(); // TB-2092
+    expect(screen.getByTestId("help-first-value-20-orientation")).toBeInTheDocument();
+
     const actionPanel = screen.getByTestId("help-first-value-20-action-panel");
 
     expect(
@@ -67,10 +68,6 @@ describe("HelpFirstValue20GuideView", () => {
     ).toHaveAttribute("href", FIRST_VALUE_20_HELP_PRIMARY_ACTIONS.openBuyerFirstReview.href);
 
     expect(screen.queryByTestId("help-first-value-20-sources")).toBeNull(); // TB-2092
-    for (const link of FIRST_VALUE_20_HELP_SOURCES) {
-      expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
-    }
-
-    expect(visible).not.toContain("first-pilot operator path");
+expect(visible).not.toContain("first-pilot operator path");
   });
 });

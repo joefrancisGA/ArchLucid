@@ -51,7 +51,7 @@ describe("HelpSoc2SelfAssessmentGuideView", () => {
     expect(visible).toContain("not a soc 2 type i");
     expect(screen.getByTestId("help-soc2-self-assessment-guide")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.queryByTestId("help-soc2-self-assessment-claim-discipline")).toBeNull(); // TB-2092
+    expect(screen.getByTestId("help-soc2-self-assessment-claim-discipline")).toBeInTheDocument();
     expect(screen.getByTestId("help-soc2-self-assessment-job-matrix")).toBeInTheDocument();
     expect(screen.getByTestId("help-soc2-self-assessment-page-title")).toHaveTextContent(
       SOC2_SELF_ASSESSMENT_HELP_PAGE_TITLE,
@@ -71,11 +71,7 @@ describe("HelpSoc2SelfAssessmentGuideView", () => {
     ).toHaveAttribute("href", SOC2_SELF_ASSESSMENT_HELP_PRIMARY_ACTIONS.openCaiqSig.href);
 
     expect(screen.queryByTestId("help-soc2-self-assessment-sources")).toBeNull(); // TB-2092
-    for (const link of SOC2_SELF_ASSESSMENT_HELP_SOURCES) {
-      expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
-    }
-
-    expect(screen.getAllByRole("link", { name: /caiq/i }).length).toBeGreaterThan(0);
+expect(screen.getAllByRole("link", { name: /caiq/i }).length).toBeGreaterThan(0);
   });
 
   it("renders SOC2 Type I roadmap without calendar commitments (TB-1748)", () => {

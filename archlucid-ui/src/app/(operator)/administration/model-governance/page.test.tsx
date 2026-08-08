@@ -12,12 +12,12 @@ vi.mock("./_sections/ModelGovernanceSettingsCard", () => ({
 import ModelGovernanceSettingsPage from "./page";
 
 describe("ModelGovernanceSettingsPage", () => {
-  it("renders one page title and Settings back link without duplicate governance heading (TB-1928)", () => {
+  it("renders one page title without Settings back link or duplicate governance heading (TB-1928 / TB-2094)", () => {
     render(<ModelGovernanceSettingsPage />);
 
     expect(screen.getByRole("heading", { level: 1, name: "AI and model governance" })).toBeInTheDocument();
     expect(screen.getAllByRole("heading", { name: "AI and model governance" })).toHaveLength(1);
-    expect(screen.getByRole("link", { name: "← Settings" })).toHaveAttribute("href", "/administration");
+    expect(screen.queryByRole("link", { name: "← Settings" })).not.toBeInTheDocument();
     expect(screen.getByTestId("model-governance-settings-card-stub")).toBeInTheDocument();
   });
 });

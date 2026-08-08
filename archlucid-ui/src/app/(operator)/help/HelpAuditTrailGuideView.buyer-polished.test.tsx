@@ -39,7 +39,7 @@ import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 describe("HelpAuditTrailGuideView buyer-polished shell", () => {
   const loaded = tryLoadProductDocumentation("audit-trail");
 
-  it("uses buyer subtitle, refresh, action panel, and collapsed overview copy", () => {
+  it("uses buyer subtitle, refresh, and overview without About scope chrome", () => {
     if (loaded === null) {
       throw new Error("Expected audit-trail documentation to load.");
     }
@@ -50,8 +50,8 @@ describe("HelpAuditTrailGuideView buyer-polished shell", () => {
     expect(screen.queryByText(AUDIT_TRAIL_HELP_PAGE_SUBTITLE_OPERATOR)).not.toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("help-audit-trail-refresh-button")).toBeInTheDocument();
-    expect(screen.getByTestId("help-audit-trail-scope-details")).toBeInTheDocument();
-    expect(screen.getByText(AUDIT_TRAIL_HELP_SCOPE_DETAILS_TRIGGER)).toBeInTheDocument();
+    expect(screen.queryByTestId("help-audit-trail-scope-details")).toBeNull();
+    expect(screen.queryByText(AUDIT_TRAIL_HELP_SCOPE_DETAILS_TRIGGER)).toBeNull(); // TB-2093
     expect(screen.getByTestId("help-audit-trail-overview")).toHaveTextContent(AUDIT_TRAIL_HELP_OVERVIEW);
     expect(screen.getByTestId("help-audit-trail-action-panel")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open audit trail" })).toHaveAttribute("href", "/governance/audit");

@@ -1,5 +1,5 @@
 /**
- * Plain-language "About this page" copy for routes without their own orientation header.
+ * Plain-language route orientation copy for routes without their own orientation header.
  * Routes with {@link OperatorPageHeader}, layer strips, or governance banners return `null`.
  */
 

@@ -1,12 +1,14 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
-import { OperatorLoadingNotice, OperatorTryNext } from "@/components/OperatorShellMessage";
+import {
+  OperatorLoadingNotice,
+  OperatorTryNext,
+} from "@/components/OperatorShellMessage";
 import { PlanningExportReadinessNote } from "@/components/planning/PlanningExportReadinessNote";
 import { PlanningPlansTable } from "@/components/planning/PlanningPlansTable";
 import { PlanningSummarySection } from "@/components/planning/PlanningSummarySection";
@@ -20,13 +22,11 @@ import {
   IMPROVEMENT_PLANNING_FAILURE_TRY_NEXT,
   IMPROVEMENT_PLANNING_PAGE_TITLE,
   IMPROVEMENT_PLANNING_PRODUCT_SAFE_INTRO,
-  IMPROVEMENT_PLANNING_SCOPE_DETAILS_TRIGGER,
   IMPROVEMENT_PLANNING_SCOPE_LINE,
   IMPROVEMENT_PLANNING_TECHNICAL_SCOPE_BODY,
   IMPROVEMENT_PLANNING_TECHNICAL_SCOPE_TITLE,
   planningPageSubtitle,
 } from "@/lib/planning-page-copy";
-
 import { PlanningPageEmptyState } from "./PlanningPageEmptyState";
 import { PlanningPageHeader } from "./PlanningPageHeader";
 import type { PlanningPageViewModel } from "./planning-page-view-model";
@@ -58,7 +58,8 @@ export function PlanningPageView(props: Props) {
           void m.load();
         }}
       />
-{!buyerPolishedShell ? (
+
+      {!buyerPolishedShell ? (
         <>
           <p className={cn("max-w-3xl leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
             {IMPROVEMENT_PLANNING_PRODUCT_SAFE_INTRO}
@@ -77,14 +78,9 @@ export function PlanningPageView(props: Props) {
           </CollapsibleSection>
         </>
       ) : (
-        <CollapsibleSection
-          title={IMPROVEMENT_PLANNING_SCOPE_DETAILS_TRIGGER}
-          defaultOpen={false}
-          sectionTestId="planning-scope-details"
-        >
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{IMPROVEMENT_PLANNING_SCOPE_LINE}</p>
-          <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>{IMPROVEMENT_PLANNING_TECHNICAL_SCOPE_BODY}</p>
-        </CollapsibleSection>
+        <p className={cn("max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          {IMPROVEMENT_PLANNING_SCOPE_LINE}
+        </p>
       )}
 
       {m.usedPlanningDemoFallback ? (

@@ -8,10 +8,12 @@ import { useOperateCapability } from "@/hooks/use-operate-capability";
 import {
   alertsPageSubtitle,
   ALERTS_CONFIGURE_RULES_LINK_LABEL,
-  ALERTS_LAYER_GUIDANCE_TRIGGER,
 } from "@/lib/alerts-page-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  OPERATOR_LINK,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
 import { governanceAlertRulesTabHref } from "@/lib/governance-route-paths";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
@@ -29,7 +31,8 @@ export function AlertsHubChrome({ children }: AlertsHubChromeProps): React.JSX.E
   return (
     <div className="px-0">
       {buyerPolishedShell ? (
-        <LayerHeader pageKey="alerts" density="compact" collapsibleGuidance={ALERTS_LAYER_GUIDANCE_TRIGGER} />
+        <LayerHeader pageKey="alerts" density="compact"
+/>
       ) : null}
 
       <OperatorPageHeader

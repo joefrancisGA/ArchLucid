@@ -60,11 +60,7 @@ describe("HelpGettingStartedGuideView", () => {
     );
 
     expect(screen.queryByTestId("help-getting-started-sources")).toBeNull(); // TB-2092
-    for (const link of GETTING_STARTED_HELP_SOURCES) {
-      expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
-    }
-
-    expect(GETTING_STARTED_HELP_SOURCES.some((link) => link.href === GETTING_STARTED_HELP_PATH)).toBe(false);
+expect(GETTING_STARTED_HELP_SOURCES.some((link) => link.href === GETTING_STARTED_HELP_PATH)).toBe(false);
     expect(screen.getByTestId("getting-started-quick-start-card")).toBeInTheDocument();
 
     const quickStart = screen.getByTestId("getting-started-quick-start-card");

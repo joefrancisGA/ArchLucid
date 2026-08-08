@@ -1,7 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
-
+import {
+  useMemo,
+  useState,
+} from "react";
 import { cn } from "@/lib/utils";
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
 import { GovernanceConflictsTable } from "@/components/governance/GovernanceConflictsTable";
@@ -27,7 +29,10 @@ import {
   governanceResolutionResolutionDetailsHeadingReader,
 } from "@/lib/enterprise-controls-context-copy";
 import { triggerGovernanceResolutionMarkdownDownload } from "@/lib/governance-resolution-markdown";
-import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  OPERATOR_DISCLOSURE_TRIGGER_CLASS,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import {
   buildStandardsRuleRows,
@@ -36,14 +41,15 @@ import {
   EMPTY_STANDARDS_RULES_FILTER_STATE,
   filterStandardsRuleRows,
 } from "@/lib/standards-rules-rows";
-import { STANDARDS_RULES_PAGE_SUBTITLE, STANDARDS_RULES_PAGE_TITLE } from "@/lib/standards-rules-page";
-
+import {
+  STANDARDS_RULES_PAGE_SUBTITLE,
+  STANDARDS_RULES_PAGE_TITLE,
+} from "@/lib/standards-rules-page";
 import type { GovernanceResolutionPageViewModel } from "./governance-resolution-page-view-model";
 import { StandardsRulesEmptyState } from "./StandardsRulesEmptyState";
 import { StandardsRulesFilters } from "./StandardsRulesFilters";
 import { StandardsRulesSummaryStrip } from "./StandardsRulesSummaryStrip";
 import { StandardsRulesTable } from "./StandardsRulesTable";
-
 type Props = {
   readonly model: GovernanceResolutionPageViewModel;
 };
@@ -252,7 +258,8 @@ export function GovernanceResolutionPageView(props: Props) {
 
   return (
     <div className="max-w-6xl">
-      <LayerHeader pageKey="governance-resolution" density="compact" collapsibleGuidance="About policy resolution" />
+      <LayerHeader pageKey="governance-resolution" density="compact"
+/>
       <OperatorPageHeader
         title={OPERATOR_NAV_LINK_LABELS.governanceResolution}
         subtitle={m.canMutateEnterprisePolicySurfaces ? governanceResolutionPageLeadOperator : governanceResolutionPageLeadReader}

@@ -45,7 +45,8 @@ describe("HelpEngineeringTroubleshootingGuideView", () => {
 
     expect(screen.getByTestId("help-engineering-troubleshooting-guide")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.queryByTestId("help-engineering-troubleshooting-claim-discipline")).toBeNull(); // TB-2092
+    expect(screen.getByTestId("help-engineering-troubleshooting-claim-discipline")).toBeInTheDocument();
+
     const actionPanel = screen.getByTestId("help-engineering-troubleshooting-action-panel");
 
     expect(
@@ -58,11 +59,7 @@ describe("HelpEngineeringTroubleshootingGuideView", () => {
     );
 
     expect(screen.queryByTestId("help-engineering-troubleshooting-sources")).toBeNull(); // TB-2092
-    for (const link of ENGINEERING_TROUBLESHOOTING_HELP_SOURCES) {
-      expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
-    }
-
-    expect(preparedMarkdown).not.toMatch(/\]\([^)]*architecture\/adrs\//i);
+expect(preparedMarkdown).not.toMatch(/\]\([^)]*architecture\/adrs\//i);
     expect(preparedMarkdown).not.toMatch(/\bTB-\d+\b/);
   });
 });

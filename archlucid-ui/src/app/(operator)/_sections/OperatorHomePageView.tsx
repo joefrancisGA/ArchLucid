@@ -1,42 +1,33 @@
 "use client";
 
 import { DevTestingQuickSwitchPanel } from "@/components/dev-testing/DevTestingQuickSwitchPanel";
-import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OperatorHomeAdvancedGuidancePanel } from "@/components/operator-home/OperatorHomeAdvancedGuidancePanel";
 import {
   OperatorHomeDeferredOnboarding,
   OperatorHomeFirstValueCallout,
 } from "@/components/operator-home/OperatorHomeDeferredOnboarding";
-
 import { OperatorHomeExamplesPlacement } from "@/components/operator-home/OperatorHomeExamplesPlacement";
-
 import {
-
   OperatorHomeRunsPanel,
-
 } from "@/components/operator-home/OperatorHomeDeferredPanels";
-
 import { OperatorHomeWorkspaceContextDisclosure } from "@/components/operator-home/OperatorHomeWorkspaceContextDisclosure";
 import { OperatorHomeExecutiveRoiStrip } from "@/components/operator-home/OperatorHomeExecutiveRoiStrip";
 import { BuyerPolishedHomeHeroSection } from "@/components/operator-home/BuyerPolishedHomeHeroSection";
-
 import { OperatorHomeWorkspaceActivityProvider } from "@/components/operator-home/operator-home-workspace-activity-context";
-
 import { PilotCommandCenterCard } from "@/components/usability/PilotCommandCenterCard";
 import { OperatorHomeGate } from "@/components/OperatorHomeGate";
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
-import { OPERATOR_HOME_PRIMARY_SECTION_HEADING, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  OPERATOR_HOME_PRIMARY_SECTION_HEADING,
+  OPERATOR_LAYOUT,
+} from "@/lib/design-tokens";
 import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import {
-  OPERATOR_HOME_SCOPE_DETAILS_TRIGGER,
-  OPERATOR_HOME_SCOPE_OVERVIEW,
   operatorHomePageSubtitle,
 } from "@/lib/operator-home-page-copy";
 import { OperatorHomeRefreshProvider } from "@/lib/operator-home-refresh-context";
 import { OPERATOR_HOME_RECENT_REVIEWS_HEADING } from "@/lib/operator-home-recent-reviews-heading";
 import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator-home-workspace-metrics";
-import { cn } from "@/lib/utils";
-
 import { OperatorHomePageHeader } from "./OperatorHomePageHeader";
 import type { OperatorHomePageViewModel } from "./operator-home-page-view-model";
 
@@ -56,19 +47,7 @@ function OperatorHomePageChrome(props: { readonly buyerPolishedShell: boolean })
   return (
     <>
       <OperatorHomePageHeader subtitle={operatorHomePageSubtitle(props.buyerPolishedShell)} />
-
-      {props.buyerPolishedShell ? (
-        <CollapsibleSection
-          title={OPERATOR_HOME_SCOPE_DETAILS_TRIGGER}
-          defaultOpen={false}
-          sectionTestId="operator-home-scope-details"
-        >
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="operator-home-scope-overview">
-            {OPERATOR_HOME_SCOPE_OVERVIEW}
-          </p>
-        </CollapsibleSection>
-      ) : null}
-    </>
+</>
   );
 }
 

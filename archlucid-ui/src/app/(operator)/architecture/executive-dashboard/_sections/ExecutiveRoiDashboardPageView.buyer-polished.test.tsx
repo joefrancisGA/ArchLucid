@@ -71,12 +71,10 @@ describe("ExecutiveRoiDashboardPageView buyer-polished shell", () => {
         EXECUTIVE_DASHBOARD_PAGE_SUBTITLE_OPERATOR,
       ),
     ).not.toBeInTheDocument();
-    expect(screen.getByTestId("executive-dashboard-scope-details")).toHaveTextContent(
-      EXECUTIVE_DASHBOARD_PAGE_SUBTITLE_OPERATOR,
-    );
+    expect(screen.queryByTestId("executive-dashboard-scope-details")).toBeNull(); // TB-2093
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("executive-dashboard-refresh-button")).toBeInTheDocument();
-    expect(screen.getByText(EXECUTIVE_DASHBOARD_SCOPE_DETAILS_TRIGGER)).toBeInTheDocument();
+    expect(screen.queryByText(EXECUTIVE_DASHBOARD_SCOPE_DETAILS_TRIGGER)).toBeNull(); // TB-2093
     expect(screen.queryByTestId("executive-dashboard-how-it-works")).not.toBeInTheDocument();
   });
 });

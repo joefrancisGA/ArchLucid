@@ -184,9 +184,7 @@ export function ItsmProductIntegrationPageClient(props: Props): React.ReactEleme
         </p>
       </header>
 
-      {null}
-
-      {loadError ? (
+{loadError ? (
         <p className={cn("text-red-600 dark:text-red-400", OPERATOR_TYPOGRAPHY.body)} role="alert">
           {loadError}
         </p>

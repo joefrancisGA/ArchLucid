@@ -38,7 +38,7 @@ export function ExplainThisViewBanner() {
         "mb-3 flex flex-wrap items-start justify-between gap-2 rounded-md border border-neutral-200 bg-neutral-50/90 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/50",
         OPERATOR_TYPOGRAPHY.body,
       )}
-      aria-label={`About ${explanation.title}`}
+      aria-label={explanation.title}
       data-testid="explain-this-view-banner"
       role="note"
     >
@@ -52,20 +52,7 @@ export function ExplainThisViewBanner() {
             <InlineGuidanceLabel label="Next:" testId="inline-guidance-what-to-do-next" /> {explanation.nextAction}
           </span>
         </p>
-        <details className="m-0" data-testid="explain-this-view-details">
-          <summary
-            className={cn(
-              "cursor-pointer list-none text-neutral-600 underline decoration-neutral-300 underline-offset-2 dark:text-neutral-400 dark:decoration-neutral-600",
-              OPERATOR_TYPOGRAPHY.helper,
-            )}
-          >
-            About this page
-          </summary>
-          <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            {explanation.summary}
-          </p>
-        </details>
-      </div>
+</div>
       <DismissControl
         iconOnly
         ariaLabel={`Dismiss ${explanation.title} help`}

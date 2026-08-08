@@ -62,7 +62,7 @@ describe("HelpTopicExecutiveSummary", () => {
     expect(screen.getByTestId("help-executive-summary-guide")).toBeInTheDocument();
     expect(screen.getByTestId("help-executive-summary-page-title")).toHaveTextContent("Executive summary");
     expect(screen.queryByTestId("executive-summary-help-sources")).toBeNull(); // TB-2092
-    expect(screen.queryByTestId("executive-summary-help-claim-discipline")).toBeNull(); // TB-2092
+    expect(screen.getByTestId("executive-summary-help-claim-discipline")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /open executive value report/i })).toHaveAttribute(
       "href",
       SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,

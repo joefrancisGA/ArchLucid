@@ -89,7 +89,7 @@ describe("HelpBillingAndPlansGuideView buyer-polished shell", () => {
     expect(screen.queryByText(BILLING_HELP_PAGE_SUBTITLE)).not.toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("help-billing-refresh-button")).toBeInTheDocument();
-    expect(screen.getByText(BILLING_HELP_SCOPE_DETAILS_TRIGGER)).toBeInTheDocument();
+    expect(screen.queryByText(BILLING_HELP_SCOPE_DETAILS_TRIGGER)).toBeNull(); // TB-2093
     expect(screen.getByTestId("help-billing-overview")).toHaveTextContent(BILLING_HELP_OVERVIEW);
   });
 });

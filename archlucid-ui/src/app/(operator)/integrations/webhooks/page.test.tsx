@@ -432,11 +432,11 @@ describe("WebhooksIntegrationPage", () => {
     expect(screen.getByRole("group", { name: /Webhook events/i })).toBeInTheDocument();
   });
 
-  it("includes accessible about panel content", async () => {
+  it("does not render mid-page About webhooks panel (TB-2093)", async () => {
     render(<WebhooksIntegrationPage />);
 
-    const about = await screen.findByTestId("webhooks-about-panel");
-    expect(within(about).getByRole("heading", { name: /About webhooks/i })).toBeInTheDocument();
-    expect(within(about).getByText(/How delivery is secured/i)).toBeInTheDocument();
+    expect(await screen.findByTestId("webhooks-page")).toBeInTheDocument();
+    expect(screen.queryByTestId("webhooks-about-panel")).toBeNull();
+    expect(screen.queryByRole("heading", { name: /About webhooks/i })).toBeNull();
   });
 });

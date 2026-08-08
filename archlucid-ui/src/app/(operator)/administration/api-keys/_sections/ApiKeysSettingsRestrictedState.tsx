@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 import { cn } from "@/lib/utils";
 
 import {
@@ -7,7 +5,6 @@ import {
   API_KEYS_RESTRICTED_TITLE,
   API_KEYS_SURFACE_DISABLED_DESCRIPTION,
 } from "@/lib/api-keys-settings-copy";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -24,9 +21,6 @@ export function ApiKeysSettingsRestrictedState(props: ApiKeysSettingsRestrictedS
   return (
     <div className="w-full max-w-3xl space-y-6" data-testid="api-keys-settings-restricted">
       <div>
-        <Button asChild variant="ghost" size="sm" className="mb-2 h-8 px-0 text-teal-800 dark:text-teal-300">
-          <Link href="/administration">← Settings</Link>
-        </Button>
         <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{API_KEYS_RESTRICTED_TITLE}</h1>
         <p className={cn("mt-1 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} role="alert">
           {description}

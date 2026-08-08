@@ -26,7 +26,7 @@ describe("Start review page", () => {
     expect(screen.getByTestId("reviews-new-page-title")).toHaveTextContent(START_REVIEW_LABEL);
     expect(screen.getByText(REVIEWS_NEW_PAGE_LEAD)).toBeInTheDocument();
     expect(screen.queryByTestId("reviews-new-sources")).toBeNull(); // TB-2092
-    expect(screen.queryByTestId("reviews-new-claim-discipline")).toBeNull(); // TB-2092
+    expect(screen.getByTestId("reviews-new-claim-discipline")).toBeInTheDocument();
     expect(screen.getByText(/Intake only/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Review guide help" })).toHaveAttribute(
       "href",
