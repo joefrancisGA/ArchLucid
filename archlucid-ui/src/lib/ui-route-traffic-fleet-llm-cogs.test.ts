@@ -71,5 +71,6 @@ describe("ui-route-traffic-fleet-llm-cogs (AFX)", () => {
     expect(row?.section.toLowerCase()).not.toBe("marketing");
     expect(row?.notes).toContain("FleetLlmCogsPageClient");
     expect(row?.notes).toContain("AdminAuthority");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });

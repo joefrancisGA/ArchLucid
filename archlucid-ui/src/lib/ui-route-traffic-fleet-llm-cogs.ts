@@ -1,5 +1,3 @@
-import { FLEET_LLM_COGS_PATH } from "@/lib/fleet-llm-cogs-route";
-
 /**
  * Traffic workbook row ID for Fleet LLM COGS.
  * Owner backlog shorthand: AFX.
@@ -7,13 +5,13 @@ import { FLEET_LLM_COGS_PATH } from "@/lib/fleet-llm-cogs-route";
 export const FLEET_LLM_COGS_TRAFFIC_ROW_ID = "AFX";
 
 /** Canonical path tracked on the AFX workbook row. */
-export const FLEET_LLM_COGS_TRAFFIC_PATH = FLEET_LLM_COGS_PATH;
+export const FLEET_LLM_COGS_TRAFFIC_PATH = "/internal/fleet-llm-cogs";
 
-/** Workbook Section column value — platform System Admin surface. */
+/** Workbook Section column value. */
 export const FLEET_LLM_COGS_TRAFFIC_SECTION = "Admin";
 
 /**
- * Owner workbook Notes for AFX — documents the fleet LLM COGS admin dashboard.
+ * Owner workbook Notes for AFX - documents Evidence chrome on Fleet LLM COGS.
+ * ASCII-only for Windows console note scripts.
  */
-export const FLEET_LLM_COGS_TRAFFIC_NOTE =
-  "Platform admin fleet LLM COGS dashboard — FleetLlmCogsPageClient gated on AdminAuthority with per-tenant UTC-month estimated pressure, hard-cap utilization, gross-margin risk labels, and budget completeness table. GET /v1/admin/operational/fleet-llm-cogs via fetchAdminFleetLlmCogsDashboard. Internal COGS estimates only (not Azure invoice or customer charges). System Admin nav (features.showSystemAdministrationNav). route-readiness hidden.";
+export const FLEET_LLM_COGS_TRAFFIC_NOTE =  "Fleet LLM COGS (Admin) - FleetLlmCogsAdminPageClient with PageContextualHelpButton (Category-1 registry), Learn more / claim-discipline orientation strip (Sources follow-up removed TB-2092), fleet cost table. Internal ops cost console - not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 35/100 (2026-08-08) - admin cost console hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
