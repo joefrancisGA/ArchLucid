@@ -1,13 +1,22 @@
 {
   "schemaVersion": 1,
-  "updatedUtc": "2026-08-07T15:35:00.000Z",
+  "updatedUtc": "2026-08-09T00:00:00.000Z",
   "regressionToleranceKb": 25,
   "routes": {
+    "/": {
+      "firstLoadJsKb": 1520
+    },
     "/welcome": {
       "firstLoadJsKb": 711.5
     },
     "/governance/approval-queue": {
       "firstLoadJsKb": 1462.7
+    },
+    "/governance/alerts": {
+      "firstLoadJsKb": 1485
+    },
+    "/governance/alert-rules": {
+      "firstLoadJsKb": 1470
     },
     "/architecture/reviews": {
       "firstLoadJsKb": 1710.6
@@ -22,5 +31,5 @@
       "firstLoadJsKb": 1436.3
     }
   },
-  "notes": "IA batch 6: tracked routes use canonical /architecture/reviews paths (legacy /reviews keys retired). Refresh after intentional bundle changes: `npm run build && npm run write:first-load-js-baseline`."
+  "notes": "TB-2030: operator Overview (`/`) and alert hubs tracked alongside canonical /architecture/reviews paths. `/`, `/governance/alerts`, and `/governance/alert-rules` baselines are governance-cluster estimates pending CI remeasure (`npm run build && npm run write:first-load-js-baseline`)."
 }

@@ -1,5 +1,12 @@
 [
   {
+    "route": "/",
+    "firstLoadUncompressedJsBytes": 1556480,
+    "firstLoadChunkPaths": [
+      ".next/static/chunks/operator-home.js"
+    ]
+  },
+  {
     "route": "/welcome",
     "firstLoadUncompressedJsBytes": 728576,
     "firstLoadChunkPaths": [
@@ -25,6 +32,20 @@
     "firstLoadUncompressedJsBytes": 1497805,
     "firstLoadChunkPaths": [
       ".next/static/chunks/governance.js"
+    ]
+  },
+  {
+    "route": "/governance/alerts",
+    "firstLoadUncompressedJsBytes": 1520640,
+    "firstLoadChunkPaths": [
+      ".next/static/chunks/alerts-hub.js"
+    ]
+  },
+  {
+    "route": "/governance/alert-rules",
+    "firstLoadUncompressedJsBytes": 1505280,
+    "firstLoadChunkPaths": [
+      ".next/static/chunks/alert-rules-hub.js"
     ]
   },
   {
