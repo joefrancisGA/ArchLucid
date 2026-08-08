@@ -69,5 +69,6 @@ describe("ui-route-traffic-tenant-settings (ATE)", () => {
     expect(row?.section).toBe(TENANT_SETTINGS_TRAFFIC_SECTION);
     expect(row?.notes).toBe(TENANT_SETTINGS_TRAFFIC_NOTE);
     expect(row?.notes).toContain("TenantSettingsPageView");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
