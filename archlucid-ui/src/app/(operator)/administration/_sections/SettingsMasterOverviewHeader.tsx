@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import type { OperatorScopeRecord } from "@/lib/operator-scope-storage";
@@ -25,11 +26,14 @@ function formatScopeSummary(scope: OperatorScopeRecord | null): string {
 export function SettingsMasterOverviewHeader(props: SettingsMasterOverviewHeaderProps) {
   return (
     <header className="space-y-3" data-testid="settings-master-overview-header">
-      <div>
-        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Settings</h1>
-        <p className={cn("mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          Manage workspace, governance, integration, security, billing, and support configuration.
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Settings</h1>
+          <p className={cn("mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            Manage workspace, governance, integration, security, billing, and support configuration.
+          </p>
+        </div>
+        <PageContextualHelpButton />
       </div>
       <dl className={cn("m-0 flex flex-wrap gap-3", OPERATOR_TYPOGRAPHY.helper)}>
         <div className="rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 dark:border-neutral-800">

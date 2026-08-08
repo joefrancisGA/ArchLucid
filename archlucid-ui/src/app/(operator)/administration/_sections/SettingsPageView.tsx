@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 
 import { SETTINGS_MASTER_SECTIONS, settingsMasterSectionDomId } from "./settings-master-catalog";
 import { buildSettingsMasterVisibleSections } from "./settings-master-page-model";
+import { AdministrationHubEvidenceOrientationStrip } from "./AdministrationHubEvidenceOrientationStrip";
 import { SettingsMasterDestinationCard } from "./SettingsMasterDestinationCard";
 import { SettingsMasterOverviewHeader } from "./SettingsMasterOverviewHeader";
 import { SettingsMasterRecentChangesCard } from "./SettingsMasterRecentChangesCard";
@@ -48,6 +49,8 @@ export function SettingsPageView() {
   return (
     <div className="w-full max-w-6xl space-y-6" data-testid="settings-page">
       <SettingsMasterOverviewHeader scope={scope} environmentLabel={environmentLabel} />
+
+      <AdministrationHubEvidenceOrientationStrip />
 
       <SettingsMasterSearchField
         value={searchQuery}
