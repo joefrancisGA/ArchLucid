@@ -69,5 +69,6 @@ describe("ui-route-traffic-ai-usage-settings (ADI)", () => {
     expect(row?.section).toBe(AI_USAGE_SETTINGS_TRAFFIC_SECTION);
     expect(row?.notes).toBe(AI_USAGE_SETTINGS_TRAFFIC_NOTE);
     expect(row?.notes).toContain("CostReportingSettingsPageView");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
