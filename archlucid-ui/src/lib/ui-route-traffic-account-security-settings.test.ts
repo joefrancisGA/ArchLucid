@@ -69,5 +69,6 @@ describe("ui-route-traffic-account-security-settings (ADS)", () => {
     expect(row?.section).toBe(ACCOUNT_SECURITY_SETTINGS_TRAFFIC_SECTION);
     expect(row?.notes).toBe(ACCOUNT_SECURITY_SETTINGS_TRAFFIC_NOTE);
     expect(row?.notes).toContain("AccountSecurityPageClient");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
