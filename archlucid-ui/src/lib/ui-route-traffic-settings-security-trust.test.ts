@@ -66,5 +66,6 @@ describe("ui-route-traffic-settings-security-trust (WSX)", () => {
     expect(row?.notes).toBe(SETTINGS_SECURITY_TRUST_TRAFFIC_NOTE);
     expect(row?.notes).toContain("OperatorSecurityTrustPageView");
     expect(row?.notes).toContain("Sources");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });

@@ -13,7 +13,7 @@ export const SETTINGS_SECURITY_TRUST_TRAFFIC_PATH = SETTINGS_SECURITY_TRUST_PATH
 export const SETTINGS_SECURITY_TRUST_TRAFFIC_SECTION = "Admin";
 
 /**
- * Owner workbook Notes for WSX — documents Evidence chrome on settings security-trust.
+ * Owner workbook Notes for WSX â€” documents Evidence chrome on settings security-trust.
  */
 export const SETTINGS_SECURITY_TRUST_TRAFFIC_NOTE =
-  "Security & trust (Settings) - OperatorSecurityTrustPageView with PageContextualHelpButton (topic map security-trust; Category-1 registry), workspace Sources + claim-discipline orientation strip, procurement materials + NDA/roadmap honesty. Sibling SEC = /security-trust hub; HSE = /help/security-trust; TXX = /trust. Operator orientation — not a signed-record Sources trail. Score 50/100 (2026-08-05) — settings assurance-hub hard-caps higher Evidence.";
+ "Security & trust (Settings) - OperatorSecurityTrustPageView with PageContextualHelpButton (topic map security-trust; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, procurement materials + NDA/roadmap honesty. Sibling SEC = /security-trust hub; HSE = /help/security-trust; TXX = /trust. Operator orientation â€” not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 50/100 (2026-08-05) â€” settings assurance-hub hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
