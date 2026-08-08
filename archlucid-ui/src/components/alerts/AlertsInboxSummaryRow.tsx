@@ -3,6 +3,9 @@ import { cn } from "@/lib/utils";
 import {
   ALERTS_SUMMARY_ACKNOWLEDGED_LABEL,
   ALERTS_SUMMARY_BLOCKING_LABEL,
+  ALERTS_SUMMARY_COUNT_NOT_EVALUATED,
+  ALERTS_SUMMARY_COUNT_NOT_EVALUATED_NEVER_RUN_ARIA,
+  ALERTS_SUMMARY_COUNT_NOT_EVALUATED_NO_RULES_ARIA,
   ALERTS_SUMMARY_LAST_EVALUATED_LABEL,
   ALERTS_SUMMARY_LAST_EVALUATED_NEVER,
   ALERTS_SUMMARY_LAST_EVALUATED_RULES_NOT_CONFIGURED,
@@ -21,11 +24,24 @@ export type AlertsInboxSummaryRowProps = {
   readonly workspaceContextLoading: boolean;
 };
 
-function SummaryMetric(props: { readonly label: string; readonly value: string }): React.JSX.Element {
+type SummaryCountDisplay = {
+  readonly value: string;
+  readonly valueAriaLabel?: string;
+};
+
+function SummaryMetric(props: {
+  readonly label: string;
+  readonly value: string;
+  readonly valueAriaLabel?: string;
+}): React.JSX.Element {
   return (
     <div className="rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 dark:border-neutral-800">
       <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{props.label}</p>
-      <p className={cn("m-0 mt-1 font-semibold tabular-nums text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+      <p
+        className={cn("m-0 mt-1 font-semibold tabular-nums text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
+        aria-label={props.valueAriaLabel}
+        title={props.valueAriaLabel}
+      >
         {props.value}
       </p>
     </div>
@@ -53,9 +69,66 @@ function formatLastEvaluatedLabel(
   return formatRelativeTime(lastEvaluatedUtc);
 }
 
+/** Counters stay unmeasured until rules exist and at least one evaluation timestamp is present (TB-2104). */
+export function resolveAlertsSummaryCountDisplay(args: {
+  readonly value: number;
+  readonly loading: boolean;
+  readonly workspaceContextLoading: boolean;
+  readonly hasAlertRules: boolean;
+  readonly lastEvaluatedUtc: string | null;
+}): SummaryCountDisplay {
+  if (args.loading || args.workspaceContextLoading) {
+    return { value: "…" };
+  }
+
+  if (!args.hasAlertRules) {
+    return {
+      value: ALERTS_SUMMARY_COUNT_NOT_EVALUATED,
+      valueAriaLabel: ALERTS_SUMMARY_COUNT_NOT_EVALUATED_NO_RULES_ARIA,
+    };
+  }
+
+  if (args.lastEvaluatedUtc === null) {
+    return {
+      value: ALERTS_SUMMARY_COUNT_NOT_EVALUATED,
+      valueAriaLabel: ALERTS_SUMMARY_COUNT_NOT_EVALUATED_NEVER_RUN_ARIA,
+    };
+  }
+
+  return { value: finiteIntegerCountDisplay(args.value) };
+}
+
 export function AlertsInboxSummaryRow(props: AlertsInboxSummaryRowProps): React.JSX.Element {
   const { summary, loading, hasAlertRules, workspaceContextLoading } = props;
-  const countValue = (value: number): string => (loading ? "…" : finiteIntegerCountDisplay(value));
+
+  const openDisplay = resolveAlertsSummaryCountDisplay({
+    value: summary.open,
+    loading,
+    workspaceContextLoading,
+    hasAlertRules,
+    lastEvaluatedUtc: summary.lastEvaluatedUtc,
+  });
+  const acknowledgedDisplay = resolveAlertsSummaryCountDisplay({
+    value: summary.acknowledged,
+    loading,
+    workspaceContextLoading,
+    hasAlertRules,
+    lastEvaluatedUtc: summary.lastEvaluatedUtc,
+  });
+  const resolvedDisplay = resolveAlertsSummaryCountDisplay({
+    value: summary.resolved,
+    loading,
+    workspaceContextLoading,
+    hasAlertRules,
+    lastEvaluatedUtc: summary.lastEvaluatedUtc,
+  });
+  const blockingDisplay = resolveAlertsSummaryCountDisplay({
+    value: summary.blocking,
+    loading,
+    workspaceContextLoading,
+    hasAlertRules,
+    lastEvaluatedUtc: summary.lastEvaluatedUtc,
+  });
 
   return (
     <section
@@ -63,10 +136,26 @@ export function AlertsInboxSummaryRow(props: AlertsInboxSummaryRowProps): React.
       data-testid="alerts-inbox-summary-row"
       aria-label="Alert inbox summary"
     >
-      <SummaryMetric label={ALERTS_SUMMARY_OPEN_LABEL} value={countValue(summary.open)} />
-      <SummaryMetric label={ALERTS_SUMMARY_ACKNOWLEDGED_LABEL} value={countValue(summary.acknowledged)} />
-      <SummaryMetric label={ALERTS_SUMMARY_RESOLVED_LABEL} value={countValue(summary.resolved)} />
-      <SummaryMetric label={ALERTS_SUMMARY_BLOCKING_LABEL} value={countValue(summary.blocking)} />
+      <SummaryMetric
+        label={ALERTS_SUMMARY_OPEN_LABEL}
+        value={openDisplay.value}
+        valueAriaLabel={openDisplay.valueAriaLabel}
+      />
+      <SummaryMetric
+        label={ALERTS_SUMMARY_ACKNOWLEDGED_LABEL}
+        value={acknowledgedDisplay.value}
+        valueAriaLabel={acknowledgedDisplay.valueAriaLabel}
+      />
+      <SummaryMetric
+        label={ALERTS_SUMMARY_RESOLVED_LABEL}
+        value={resolvedDisplay.value}
+        valueAriaLabel={resolvedDisplay.valueAriaLabel}
+      />
+      <SummaryMetric
+        label={ALERTS_SUMMARY_BLOCKING_LABEL}
+        value={blockingDisplay.value}
+        valueAriaLabel={blockingDisplay.valueAriaLabel}
+      />
       <SummaryMetric
         label={ALERTS_SUMMARY_LAST_EVALUATED_LABEL}
         value={formatLastEvaluatedLabel(

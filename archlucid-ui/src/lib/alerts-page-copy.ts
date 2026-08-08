@@ -64,6 +64,17 @@ export const ALERTS_SUMMARY_LAST_EVALUATED_LABEL = "Last evaluated";
 export const ALERTS_SUMMARY_LAST_EVALUATED_RULES_NOT_CONFIGURED = "Rules not configured";
 export const ALERTS_SUMMARY_LAST_EVALUATED_NEVER = "Never evaluated";
 
+/** Visible sentinel when Open/Acknowledged/Resolved/Blocking are not measured (TB-2104). */
+export const ALERTS_SUMMARY_COUNT_NOT_EVALUATED = "—";
+
+/** Accessible name for count tiles when no alert rules exist (dash alone is not enough). */
+export const ALERTS_SUMMARY_COUNT_NOT_EVALUATED_NO_RULES_ARIA =
+  "Not evaluated — no alert rules configured";
+
+/** Accessible name when rules exist but no evaluation has run yet. */
+export const ALERTS_SUMMARY_COUNT_NOT_EVALUATED_NEVER_RUN_ARIA =
+  "Not evaluated — alert rules have not run yet";
+
 export const ALERTS_EMPTY_HEALTHY_TITLE = "No open alerts";
 export const ALERTS_EMPTY_HEALTHY_BODY =
   "All evaluated governance alerts are clear for the selected status.";
