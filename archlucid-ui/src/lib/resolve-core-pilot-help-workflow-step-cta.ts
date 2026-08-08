@@ -9,12 +9,29 @@ export type CorePilotHelpWorkflowStepCta = {
   readonly helperText: string | null;
 };
 
-const START_REVIEW_FIRST: CorePilotHelpWorkflowStepCta = {
+/**
+ * Shared gate for steps 3–5 before any review exists. Steps that resolve to this CTA are
+ * collapsed into one note by the stepper instead of repeating an identical control per step.
+ */
+export const CORE_PILOT_HELP_START_REVIEW_FIRST_CTA: CorePilotHelpWorkflowStepCta = {
   enabled: true,
   href: "/architecture/reviews/new",
   label: "Start a review first",
   helperText: "Open detail, finalize, and exports unlock after you start a review.",
 };
+
+const START_REVIEW_FIRST: CorePilotHelpWorkflowStepCta = CORE_PILOT_HELP_START_REVIEW_FIRST_CTA;
+
+/** True when a resolved step CTA is the shared "no review yet" gate. */
+export function isCorePilotHelpStartReviewFirstCta(
+  cta: CorePilotHelpWorkflowStepCta | null,
+): boolean {
+  if (cta === null || cta === undefined) {
+    return false;
+  }
+
+  return cta.label === CORE_PILOT_HELP_START_REVIEW_FIRST_CTA.label;
+}
 
 function reviewDetailHref(runId: string): string {
   return `/architecture/reviews/${encodeURIComponent(runId)}`;

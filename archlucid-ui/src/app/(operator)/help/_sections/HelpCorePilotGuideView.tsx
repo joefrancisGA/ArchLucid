@@ -2,16 +2,16 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
-import { CorePilotHelpEvidenceOrientationStrip } from "@/app/(operator)/help/_sections/CorePilotHelpEvidenceOrientationStrip";
+import { CorePilotHelpOrientationFooter } from "@/app/(operator)/help/_sections/CorePilotHelpOrientationFooter";
 import { HelpCorePilotWorkflowStepper } from "@/app/(operator)/help/_sections/HelpCorePilotWorkflowStepper";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { CORE_PILOT_HELP_SOURCES_INTRO } from "@/lib/core-pilot-help-evidence-copy";
 import {
   CORE_PILOT_HELP_CLOUD_ACTIONS,
   CORE_PILOT_HELP_DEFERRED_ITEMS,
-  CORE_PILOT_HELP_DEPTH_GUIDES,
   CORE_PILOT_HELP_DISCLOSURE,
   CORE_PILOT_HELP_GUIDE_HEADINGS,
   CORE_PILOT_HELP_HOME_STATUS_NOTE,
@@ -19,6 +19,7 @@ import {
   CORE_PILOT_HELP_SUMMARY_COPY,
   CORE_PILOT_HELP_SUMMARY_TITLE,
 } from "@/lib/core-pilot-help-guide-content";
+import { corePilotHelpRelatedGuides } from "@/lib/core-pilot-help-related-guides";
 import { cn } from "@/lib/utils";
 import {
   DESIGN_TOKENS,
@@ -49,9 +50,10 @@ function HelpDisclosure(props: {
   readonly title: string;
   readonly children: ReactNode;
   readonly testId?: string;
+  readonly defaultOpen?: boolean;
 }): React.ReactElement {
   return (
-    <details className={HELP_PAGE_LAYOUT.details} data-testid={props.testId}>
+    <details className={HELP_PAGE_LAYOUT.details} data-testid={props.testId} open={props.defaultOpen === true}>
       <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}>{props.title}</summary>
       <div className={cn(HELP_PAGE_LAYOUT.detailsBody, OPERATOR_TYPOGRAPHY.body)}>{props.children}</div>
     </details>
@@ -61,6 +63,7 @@ function HelpDisclosure(props: {
 /** Guided first-review workflow for `/help/first-architecture-review` — action-oriented, not prose documentation. */
 export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): React.ReactElement {
   const { entry } = props;
+  const relatedGuides = corePilotHelpRelatedGuides();
 
   return (
     <article className={OPERATOR_LAYOUT.majorSectionGap} data-testid="help-core-pilot-guide">
@@ -74,8 +77,6 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
           <PageContextualHelpButton />
         </div>
       </header>
-
-      <CorePilotHelpEvidenceOrientationStrip />
 
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")}>
@@ -118,7 +119,7 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
             </section>
           </div>
 
-          <HelpDisclosure title={CORE_PILOT_HELP_DISCLOSURE.whatThisGuideCovers.title}>
+          <HelpDisclosure title={CORE_PILOT_HELP_DISCLOSURE.whatThisGuideCovers.title} defaultOpen>
             {CORE_PILOT_HELP_DISCLOSURE.whatThisGuideCovers.body}
           </HelpDisclosure>
 
@@ -245,8 +246,11 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
             <h2 id="depth-guides-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
               Related guides
             </h2>
+            <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {CORE_PILOT_HELP_SOURCES_INTRO}
+            </p>
             <ul className={cn("m-0 flex flex-wrap gap-x-4 gap-y-2 p-0 list-none", OPERATOR_TYPOGRAPHY.body)}>
-              {CORE_PILOT_HELP_DEPTH_GUIDES.map((guide) => (
+              {relatedGuides.map((guide) => (
                 <li key={guide.href}>
                   <Link
                     href={guide.href}
@@ -267,6 +271,8 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
               </Link>
             </p>
           </section>
+
+          <CorePilotHelpOrientationFooter />
         </div>
 
         <HelpTopicTableOfContents headings={CORE_PILOT_HELP_GUIDE_HEADINGS} />
