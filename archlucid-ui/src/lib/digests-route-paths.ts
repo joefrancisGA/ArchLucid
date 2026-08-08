@@ -15,7 +15,7 @@ export function digestsHubTabPath(tab: DigestsHubTabId): string {
   return `${DIGESTS_HUB_PATH}?tab=${encodeURIComponent(tab)}`;
 }
 
-/** Canonical Digests Schedule tab (traffic row DIS). */
+/** Canonical Digests Schedule tab (traffic row ARS). */
 export const DIGESTS_SCHEDULE_TAB_PATH = digestsHubTabPath("schedule");
 
 /** Alias retained for schedule evidence copy and traffic rows. */

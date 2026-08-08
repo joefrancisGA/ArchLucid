@@ -55,7 +55,7 @@ function extractMasterTableRows(markdown: string): TrafficWorkbookRow[] {
   return rows;
 }
 
-describe("ui-route-traffic-digests-schedule (DIS)", () => {
+describe("ui-route-traffic-digests-schedule (ARS)", () => {
   it("tracks Digests Schedule with honest workbook notes and no SEX row", () => {
     const rows = extractMasterTableRows(readTemplateMarkdown());
     const row = rows.find((candidate) => candidate.id === DIGESTS_SCHEDULE_TRAFFIC_ROW_ID);
@@ -67,6 +67,7 @@ describe("ui-route-traffic-digests-schedule (DIS)", () => {
     expect(row?.section).toBe(DIGESTS_SCHEDULE_TRAFFIC_SECTION);
     expect(row?.notes).toBe(DIGESTS_SCHEDULE_TRAFFIC_NOTE);
     expect(row?.notes).toContain("DigestsScheduleEvidenceOrientationStrip");
+    expect(row?.notes).toContain("Score 52");
     expect(row?.notes.toLowerCase()).not.toContain("/settings/exec-digest");
   });
 });
