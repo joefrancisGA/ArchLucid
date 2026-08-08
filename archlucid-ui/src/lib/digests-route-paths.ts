@@ -21,7 +21,7 @@ export const DIGESTS_SCHEDULE_TAB_PATH = digestsHubTabPath("schedule");
 /** Alias retained for schedule evidence copy and traffic rows. */
 export const DIGESTS_SCHEDULE_CANONICAL_PATH = DIGESTS_SCHEDULE_TAB_PATH;
 
-/** Canonical Digests Subscriptions tab (traffic row DIX). */
+/** Canonical Digests Subscriptions tab (traffic row AIS). */
 export const DIGESTS_SUBSCRIPTIONS_TAB_PATH = digestsHubTabPath("subscriptions");
 
 /** Canonical Digests Browse tab (traffic row ARB). */

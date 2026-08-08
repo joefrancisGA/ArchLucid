@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-08 - UI: Digests Subscriptions tab Evidence notes (AIS)
+
+- `/architecture/digests?tab=subscriptions` (AIS) inherits ARD Evidence chrome; traffic Notes score **48** (tab surface).
+
 ## 2026-08-08 - UI: Digests Schedule tab Evidence notes (ARS)
 
 - `/architecture/digests?tab=schedule` (ARS) DigestsScheduleEvidenceOrientationStrip; traffic Notes score **52**. Template row **DIS → ARS**; subscriptions id **ARS → AIS**.
