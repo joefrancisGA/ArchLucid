@@ -45,6 +45,8 @@ export function AlertsInboxInteractiveClient({ initialModel = null }: AlertsInbo
         pageMixSummary={controller.pageMixSummary}
         hasLoadFailure={controller.failure !== null}
         lastRefreshedUtc={controller.lastRefreshedUtc}
+        hasAlertRules={controller.workspaceContext.hasAlertRules}
+        workspaceContextLoading={controller.workspaceContext.loading}
         onStatusChange={controller.changeStatusFilter}
         onRefresh={() => {
           void controller.load();

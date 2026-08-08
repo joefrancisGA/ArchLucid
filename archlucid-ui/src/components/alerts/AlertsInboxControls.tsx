@@ -36,6 +36,9 @@ export type AlertsInboxControlsProps = {
   readonly pageMixSummary: string | null;
   readonly hasLoadFailure: boolean;
   readonly lastRefreshedUtc: string | null;
+  /** When false and workspace context has settled, hide filter/refresh/batch (TB-2105). */
+  readonly hasAlertRules: boolean;
+  readonly workspaceContextLoading: boolean;
   readonly onStatusChange: (value: string) => void;
   readonly onRefresh: () => void;
   readonly onAcknowledgeSelected: () => void;
@@ -54,7 +57,23 @@ function formatLastUpdatedLabel(lastRefreshedUtc: string | null, loading: boolea
   return `Updated ${formatRelativeTime(lastRefreshedUtc)}`;
 }
 
+/** True when Status/Refresh/batch controls should render (hidden for settled no_rules — TB-2105). */
+export function shouldShowAlertsInboxControls(
+  hasAlertRules: boolean,
+  workspaceContextLoading: boolean,
+): boolean {
+  if (workspaceContextLoading) {
+    return true;
+  }
+
+  return hasAlertRules;
+}
+
 export function AlertsInboxControls(props: AlertsInboxControlsProps) {
+  if (!shouldShowAlertsInboxControls(props.hasAlertRules, props.workspaceContextLoading)) {
+    return null;
+  }
+
   return (
     <>
       <div
