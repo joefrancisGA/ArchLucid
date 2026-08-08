@@ -3,6 +3,12 @@ export type ReviewsNewPathMode = "quick-review" | "guided-intake" | "detailed";
 /** Deep link for born-governed creation intake (guided clarifying questions). */
 export const REVIEWS_NEW_GUIDED_INTAKE_HREF = "/architecture/reviews/new?path=guided-intake" as const;
 
+/** Deep link for templates / imports detailed wizard path. */
+export const REVIEWS_NEW_DETAILED_HREF = "/architecture/reviews/new?path=detailed" as const;
+
+/** Deep link for quick-start first-pilot path. */
+export const REVIEWS_NEW_QUICK_REVIEW_HREF = "/architecture/reviews/new?path=quick-review" as const;
+
 /** Homepage Create Architecture — canonical architecture draft bootstrap route. */
 export const REVIEWS_NEW_CREATE_ARCHITECTURE_HREF = "/architecture/architectures/new" as const;
 
