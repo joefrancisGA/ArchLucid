@@ -66,5 +66,6 @@ describe("ui-route-traffic-settings-users (AUX)", () => {
     expect(row?.notes).toBe(SETTINGS_USERS_TRAFFIC_NOTE);
     expect(row?.notes).toContain("SettingsRolesPageView");
     expect(row?.notes).toContain("Sources");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
