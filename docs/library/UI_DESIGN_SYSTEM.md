@@ -76,11 +76,20 @@ Use precise product language throughout the UI — labels, headings, empty state
 | Architecture package / review | Run, job, task |
 | Finding | Issue, alert (unless it is an alert) |
 | Residual risk | Open issue |
-| Evidence trail / graph | Logs, output |
+| Evidence trail / Evidence graph (see split below) | Logs, output |
 | Signed review record (package) | Signed decision record, golden manifest |
 | Decision (disposition) | Calling the package a decision record |
 | Governance approval | Sign-off, approval |
 | Audit trail | History |
+
+**Evidence trail vs Evidence graph (TB-2097 — decision B):**
+
+| Term | Role | Use when |
+|------|------|----------|
+| **Evidence trail** | **Concept** — the diligence chain evidence → findings → decisions → signed review record | Glossary, Related-links, help topics, and copy that names the *idea* of governed linkage |
+| **Evidence graph** | **Surface** — `/insights/evidence-graph` and journey destinations that open that route | Page titles, nav, golden-journey step pills, surface CTAs that name the graph UI |
+
+Do **not** use “Evidence trail” as the title, tab, or destination pill for `/insights/evidence-graph`. Keep glossary and Related-links “Evidence trail” labels unless an explicit rename of the concept is approved.
 
 ### Technical details
 

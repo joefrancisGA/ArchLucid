@@ -218,7 +218,7 @@ describe("buildCtoDemoRunOfShowMarkdown", () => {
 
     expect(markdown).toContain("Signed review record");
 
-    expect(markdown).toContain("Evidence trail");
+    expect(markdown).toContain("Evidence graph");
 
     expect(markdown).toContain("Governance approval");
 

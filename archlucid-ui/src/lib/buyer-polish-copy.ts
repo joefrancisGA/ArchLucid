@@ -1303,7 +1303,8 @@ export const BUYER_EVIDENCE_GRAPH_OPEN_DECISION_RECORD_CTA = "Open decision";
 
 export const BUYER_EVIDENCE_GRAPH_VIEW_EVIDENCE_CHAIN_CTA = "View evidence chain";
 
-export const BUYER_EVIDENCE_GRAPH_EXPORT_EVIDENCE_TRAIL_CTA = "Export evidence trail";
+/** Opens the Trace table presentation (`presentation=trace`) — not a file download. */
+export const BUYER_EVIDENCE_GRAPH_EXPORT_EVIDENCE_TRAIL_CTA = "Export trace table";
 
 export const BUYER_GRAPH_PAGE_LEAD = BUYER_EVIDENCE_TRAIL_PAGE_SUBTITLE;
 
