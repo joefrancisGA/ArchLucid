@@ -26,6 +26,7 @@ import { AuthenticationSignInHelpEvidenceOrientationStrip } from "../_sections/A
 import { AzureBoardsHelpEvidenceOrientationStrip } from "../_sections/AzureBoardsHelpEvidenceOrientationStrip";
 import { PolicyPacksHelpEvidenceOrientationStrip } from "../_sections/PolicyPacksHelpEvidenceOrientationStrip";
 import { PriorManifestRetrievalHelpEvidenceOrientationStrip } from "../_sections/PriorManifestRetrievalHelpEvidenceOrientationStrip";
+import { ReportAProblemHelpEvidenceOrientationStrip } from "../_sections/ReportAProblemHelpEvidenceOrientationStrip";
 import { IntegrationReadinessHelpEvidenceOrientationStrip } from "../_sections/IntegrationReadinessHelpEvidenceOrientationStrip";
 import { PilotFeedbackHelpEvidenceOrientationStrip } from "../_sections/PilotFeedbackHelpEvidenceOrientationStrip";
 import { PilotNavProfileHelpEvidenceOrientationStrip } from "../_sections/PilotNavProfileHelpEvidenceOrientationStrip";
