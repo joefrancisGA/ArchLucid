@@ -19,6 +19,8 @@ export const SETTINGS_USERS_ROLES_TAB_PATH = `${SETTINGS_USERS_PATH}?tab=roles`;
 
 export const SETTINGS_USERS_USERS_TAB_PATH = `${SETTINGS_USERS_PATH}?tab=users`;
 
+export const SETTINGS_USERS_KEYS_TAB_PATH = `${SETTINGS_USERS_PATH}?tab=keys`;
+
 /** Legacy roles index — retired bookmark; canonical is {@link SETTINGS_USERS_ROLES_TAB_PATH}. */
 export const LEGACY_SETTINGS_ROLES_PATH = "/settings/roles";
 

@@ -206,7 +206,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | SSA | `/administration/identity-providers/saml` | 0.02% | 0 | 0 | 2 | Admin | None |
 | SEM | `/administration/model-governance` | 0.02% | 0 | 0 | 2 | Admin | None |
 | ADR | `/administration/preferences` | 0.02% | 0 | 0 | 2 | Admin | Preferences (Settings) - PreferencesSettingsPageView with PageContextualHelpButton (topic map getting-started; Category-1 registry), workspace Sources + claim-discipline orientation strip, appearance / theme. Sibling ADS = account-security; HGX = getting-started help. Personal account settings - not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 50/100 (2026-08-05) - settings personal-hub hard-caps higher Evidence. |
-| SEK | `/administration/users?tab=keys` | 0.02% | 0 | 0 | 2 | Tab surface | None |
+| SEU | `/administration/users?tab=keys` | 0.02% | 0 | 0 | 2 | Tab surface | Users and roles API keys tab (Tab surface) - inherits AUX hub Evidence chrome (SettingsRolesPageView PageContextualHelpButton + Category-1 registry on /administration/users; SettingsUsersEvidenceOrientationStrip above tabs). SettingsRolesPageView syncs ?tab=keys via router.replace; AdminAuthority-gated keys panel. Sibling SSU = users; SER = roles; AUX = hub. Template SEK renamed to SEU to match owner. Does not imply CPA SOC 2 or third-party pen-test publication. Score 48/100 (2026-08-07) - path-tab surface hard-caps higher Evidence (below AUX access hub). |
 | SSU | `/administration/users?tab=users` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | AR | `/architecture/architectures` | 0.02% | 0 | 0 | 2 | Core review | None |
 | ARA | `/architecture/architectures/[architectureId]` | 0.02% | 0 | 0 | 2 | Core review | None |

@@ -10,6 +10,14 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-08 - UI: Users API keys tab Evidence notes (SEU)
+
+- `/administration/users?tab=keys` (SEU) inherits AUX Evidence chrome; traffic Notes score **48** (tab surface). Template row **SEK → SEU**.
+
+## 2026-08-08 - UI: Restore governance/dashboard topic-map after PIL scoop
+
+- Restored secondary-hub `/governance/dashboard` topic-map entry (Workspace overview / TB-2050) scooped during PIL Evidence commit.
+
 ## 2026-08-08 - UI: Pilot nav profile help Evidence notes (PIL)
 
 - `/help/pilot-nav-profile` (PIL) Category-1 + topic map + `PilotNavProfileHelpEvidenceOrientationStrip`; traffic Notes score **52** (help specialty).
