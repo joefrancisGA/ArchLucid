@@ -66,5 +66,6 @@ describe("ui-route-traffic-jira-integration (IJX)", () => {
     expect(row?.notes).toBe(JIRA_INTEGRATION_TRAFFIC_NOTE);
     expect(row?.notes).toContain("ItsmProductIntegrationPageClient");
     expect(row?.notes).toContain("Sources");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
