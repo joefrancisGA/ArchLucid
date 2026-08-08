@@ -66,5 +66,6 @@ describe("ui-route-traffic-showcase (SRH)", () => {
     expect(row?.notes).toBe(SHOWCASE_TRAFFIC_NOTE);
     expect(row?.notes).toContain("MarketingShowcasePage");
     expect(row?.notes).toContain("Sources");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
