@@ -69,5 +69,6 @@ describe("ui-route-traffic-baseline-settings (ADA)", () => {
     expect(row?.section).toBe(BASELINE_SETTINGS_TRAFFIC_SECTION);
     expect(row?.notes).toBe(BASELINE_SETTINGS_TRAFFIC_NOTE);
     expect(row?.notes).toContain("BaselineSettingsClient");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
