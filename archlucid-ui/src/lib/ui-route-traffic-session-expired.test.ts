@@ -66,5 +66,6 @@ describe("ui-route-traffic-session-expired (ASU)", () => {
     expect(row?.notes).toBe(SESSION_EXPIRED_TRAFFIC_NOTE);
     expect(row?.notes).toContain("SessionExpiredClient");
     expect(row?.notes).toContain("Sources");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
