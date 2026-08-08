@@ -64,5 +64,6 @@ describe("ui-route-traffic-alert-rules-routing-tab (ALE)", () => {
     expect(row?.notes).toBe(ALERT_RULES_ROUTING_TAB_TRAFFIC_NOTE);
     expect(row?.notes).toContain("AlertRoutingContent");
     expect(row?.notes).toContain("Sources");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
