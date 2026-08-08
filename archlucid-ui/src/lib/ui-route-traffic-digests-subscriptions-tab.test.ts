@@ -66,5 +66,6 @@ describe("ui-route-traffic-digests-subscriptions-tab (AIS)", () => {
     expect(row?.notes).toBe(DIGESTS_SUBSCRIPTIONS_TAB_TRAFFIC_NOTE);
     expect(row?.notes).toContain("DigestSubscriptionsReadinessPanel");
     expect(row?.notes).toContain("Score 48");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
