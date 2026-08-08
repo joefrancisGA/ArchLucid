@@ -12,7 +12,11 @@ import {
   resolveDemoSeededOverviewSamplePackage,
   shouldInjectDemoSeededOverviewSample,
 } from "@/lib/demo-seeded-overview";
-import { OPERATOR_LAYOUT, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
+import {
+  OPERATOR_HOME_SUBSECTION_LABEL,
+  OPERATOR_LAYOUT,
+  OPERATOR_TYPE_SCALE,
+} from "@/lib/design-tokens";
 import { featuredCompletedSampleReviewHref } from "@/lib/fetch-tenant-homepage-settings-client";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import {
@@ -98,7 +102,7 @@ export function OperatorHomeDoThisNextCard(): React.JSX.Element {
     <div className={cn("space-y-3", OPERATOR_LAYOUT.inlineGap)} data-testid="operator-home-do-this-next">
       <h3
         id="operator-home-do-this-next-heading"
-        className={cn("m-0", OPERATOR_TYPE_SCALE.sectionTitle)}
+        className={OPERATOR_HOME_SUBSECTION_LABEL}
       >
         {OPERATOR_HOME_DO_THIS_NEXT_HEADING}
       </h3>

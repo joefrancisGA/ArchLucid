@@ -13,6 +13,10 @@ import {
 } from "@/lib/buyer-polish-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
+  operatorLastRefreshedExactLabel,
+  operatorLastRefreshedLabel,
+} from "@/lib/operator-last-refreshed-label";
+import {
   OPERATOR_HOME_ACTION_REFRESH,
   OPERATOR_HOME_ACTION_REFRESHING,
   OPERATOR_HOME_LAST_REFRESHED_PREFIX,
@@ -42,8 +46,7 @@ function operatorHomeSubtitleContent(subtitle: string): ReactNode {
 /** Shared `/` Overview hero — title, lead, contextual help, refresh, and last-refreshed metadata. */
 export function OperatorHomePageHeader(props: OperatorHomePageHeaderProps): React.JSX.Element {
   const { refreshing, lastRefreshedAt, requestRefresh } = useOperatorHomeRefresh();
-  const lastRefreshedLabel =
-    lastRefreshedAt === null ? "Not refreshed yet" : lastRefreshedAt.toLocaleString();
+  const lastRefreshedLabel = operatorLastRefreshedLabel(lastRefreshedAt);
 
   return (
     <OperatorPageHeader
@@ -74,6 +77,7 @@ export function OperatorHomePageHeader(props: OperatorHomePageHeaderProps): Reac
             OPERATOR_TYPOGRAPHY.helper,
           )}
           data-testid="operator-home-last-refreshed"
+          title={operatorLastRefreshedExactLabel(lastRefreshedAt)}
         >
           <strong className="font-bold text-al-text-primary">
             {OPERATOR_HOME_LAST_REFRESHED_PREFIX}:

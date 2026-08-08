@@ -11,6 +11,10 @@ import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabula
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
+  operatorLastRefreshedExactLabel,
+  operatorLastRefreshedLabel,
+} from "@/lib/operator-last-refreshed-label";
+import {
   EXECUTIVE_DASHBOARD_ACTION_REFRESH,
   EXECUTIVE_DASHBOARD_ACTION_REFRESHING,
   EXECUTIVE_DASHBOARD_LAST_REFRESHED_PREFIX,
@@ -30,8 +34,7 @@ export function ExecutiveDashboardPageHero({
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const { refreshing, lastRefreshedAt, refreshDashboard } = useExecutiveDashboardData();
 
-  const lastRefreshedLabel =
-    lastRefreshedAt === null ? "Not refreshed yet" : lastRefreshedAt.toLocaleString();
+  const lastRefreshedLabel = operatorLastRefreshedLabel(lastRefreshedAt);
 
   return (
     <div
@@ -78,6 +81,7 @@ export function ExecutiveDashboardPageHero({
           <span
             className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
             data-testid="executive-dashboard-last-refreshed"
+            title={operatorLastRefreshedExactLabel(lastRefreshedAt)}
           >
             {EXECUTIVE_DASHBOARD_LAST_REFRESHED_PREFIX}:{" "}
             {refreshing ? EXECUTIVE_DASHBOARD_ACTION_REFRESHING : lastRefreshedLabel}

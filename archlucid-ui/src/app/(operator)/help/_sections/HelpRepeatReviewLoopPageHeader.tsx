@@ -8,6 +8,10 @@ import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { Button } from "@/components/ui/button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  operatorLastRefreshedExactLabel,
+  operatorLastRefreshedLabel,
+} from "@/lib/operator-last-refreshed-label";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import {
   REPEAT_REVIEW_LOOP_HELP_ACTION_REFRESH,
@@ -28,8 +32,7 @@ export type HelpRepeatReviewLoopPageHeaderProps = {
 export function HelpRepeatReviewLoopPageHeader(
   props: HelpRepeatReviewLoopPageHeaderProps,
 ): React.JSX.Element {
-  const lastRefreshedLabel =
-    props.lastRefreshedAt === null ? "Not refreshed yet" : props.lastRefreshedAt.toLocaleString();
+  const lastRefreshedLabel = operatorLastRefreshedLabel(props.lastRefreshedAt);
 
   return (
     <OperatorPageHeader
@@ -57,6 +60,7 @@ export function HelpRepeatReviewLoopPageHeader(
         <span
           className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="help-repeat-review-loop-last-refreshed"
+          title={operatorLastRefreshedExactLabel(props.lastRefreshedAt)}
         >
           {REPEAT_REVIEW_LOOP_HELP_LAST_REFRESHED_PREFIX}:{" "}
           {props.refreshing ? REPEAT_REVIEW_LOOP_HELP_ACTION_REFRESHING : lastRefreshedLabel}

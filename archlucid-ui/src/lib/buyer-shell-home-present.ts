@@ -246,13 +246,21 @@ export function shellHealthReadinessSummary(healthLoadFailed: boolean, healthSta
 const BUYER_FILTER_CHIP_DISABLED_CLASS =
   "cursor-not-allowed border-neutral-200 bg-neutral-50 text-neutral-400 opacity-70 dark:border-neutral-800 dark:bg-neutral-900/40 dark:text-neutral-500";
 
+/** Selectable but currently empty — muted so `(0)` counts do not compete with populated filters. */
+const BUYER_FILTER_CHIP_EMPTY_CLASS =
+  "border-neutral-200 bg-white text-neutral-400 hover:border-neutral-300 hover:bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-500 dark:hover:border-neutral-700";
+
 export function buyerFilterChipActiveClass(active: boolean): string {
   return active ? BUYER_FILTER_CHIP_ACTIVE_CLASS : BUYER_FILTER_CHIP_IDLE_CLASS;
 }
 
-export function buyerFilterChipClass(active: boolean, disabled: boolean): string {
+export function buyerFilterChipClass(active: boolean, disabled: boolean, empty: boolean = false): string {
   if (disabled) {
     return BUYER_FILTER_CHIP_DISABLED_CLASS;
+  }
+
+  if (empty && !active) {
+    return BUYER_FILTER_CHIP_EMPTY_CLASS;
   }
 
   return buyerFilterChipActiveClass(active);

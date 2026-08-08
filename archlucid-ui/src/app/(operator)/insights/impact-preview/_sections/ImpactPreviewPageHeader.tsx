@@ -7,6 +7,10 @@ import { Button } from "@/components/ui/button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
+  operatorLastRefreshedExactLabel,
+  operatorLastRefreshedLabel,
+} from "@/lib/operator-last-refreshed-label";
+import {
   IMPACT_PREVIEW_ACTION_REFRESH,
   IMPACT_PREVIEW_ACTION_REFRESHING,
   IMPACT_PREVIEW_LAST_REFRESHED_PREFIX,
@@ -22,8 +26,7 @@ export type ImpactPreviewPageHeaderProps = {
 
 /** Shared `/insights/impact-preview` hero — title, lead, contextual help, refresh, and last-refreshed metadata. */
 export function ImpactPreviewPageHeader(props: ImpactPreviewPageHeaderProps): React.JSX.Element {
-  const lastRefreshedLabel =
-    props.lastRefreshedAt === null ? "Not refreshed yet" : props.lastRefreshedAt.toLocaleString();
+  const lastRefreshedLabel = operatorLastRefreshedLabel(props.lastRefreshedAt);
 
   return (
     <OperatorPageHeader
@@ -49,6 +52,7 @@ export function ImpactPreviewPageHeader(props: ImpactPreviewPageHeaderProps): Re
         <span
           className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="impact-preview-last-refreshed"
+          title={operatorLastRefreshedExactLabel(props.lastRefreshedAt)}
         >
           {IMPACT_PREVIEW_LAST_REFRESHED_PREFIX}: {props.listLoading ? IMPACT_PREVIEW_ACTION_REFRESHING : lastRefreshedLabel}
         </span>

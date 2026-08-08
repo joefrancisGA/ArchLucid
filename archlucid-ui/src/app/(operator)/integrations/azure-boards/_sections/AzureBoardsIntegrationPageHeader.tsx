@@ -9,6 +9,10 @@ import { Button } from "@/components/ui/button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
+  operatorLastRefreshedExactLabel,
+  operatorLastRefreshedLabel,
+} from "@/lib/operator-last-refreshed-label";
+import {
   AZURE_BOARDS_ACTION_REFRESH,
   AZURE_BOARDS_ACTION_REFRESHING,
   AZURE_BOARDS_LAST_REFRESHED_PREFIX,
@@ -28,8 +32,7 @@ export type AzureBoardsIntegrationPageHeaderProps = {
 export function AzureBoardsIntegrationPageHeader(
   props: AzureBoardsIntegrationPageHeaderProps,
 ): React.JSX.Element {
-  const lastRefreshedLabel =
-    props.lastRefreshedAt === null ? "Not refreshed yet" : props.lastRefreshedAt.toLocaleString();
+  const lastRefreshedLabel = operatorLastRefreshedLabel(props.lastRefreshedAt);
 
   return (
     <OperatorPageHeader
@@ -62,6 +65,7 @@ export function AzureBoardsIntegrationPageHeader(
         <span
           className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="azure-boards-last-refreshed"
+          title={operatorLastRefreshedExactLabel(props.lastRefreshedAt)}
         >
           {AZURE_BOARDS_LAST_REFRESHED_PREFIX}:{" "}
           {props.refreshing ? AZURE_BOARDS_ACTION_REFRESHING : lastRefreshedLabel}
