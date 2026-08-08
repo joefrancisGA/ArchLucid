@@ -70,6 +70,6 @@ describe("ui-route-traffic-evidence-graph (GRA)", () => {
     expect(row?.notes).toBe(EVIDENCE_GRAPH_TRAFFIC_NOTE);
     expect(row?.section.toLowerCase()).not.toBe("marketing");
     expect(row?.notes).toContain("GraphPageContent");
-    expect(row?.notes).toContain("GRA");
+    expect(row?.notes).toContain("evidence");
   });
 });
