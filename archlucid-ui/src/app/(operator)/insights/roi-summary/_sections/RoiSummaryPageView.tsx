@@ -104,7 +104,7 @@ export function RoiSummaryPageView(props: Props) {
       <div className="flex flex-wrap items-center justify-end gap-2 print:hidden">
         <PageContextualHelpButton />
       </div>
-      <ValueReportOutcomesNav />
+<ValueReportOutcomesNav />
       <DocumentLayout>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>

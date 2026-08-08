@@ -1,15 +1,19 @@
-/** Traffic workbook row ID for sponsor ROI summary. */
+/**
+ * Traffic workbook row ID for sponsor ROI summary.
+ * Owner backlog shorthand: SPR.
+ */
 export const ROI_SUMMARY_TRAFFIC_ROW_ID = "SPR";
 
 /** Canonical browser path for the sponsor ROI summary report. */
 export const ROI_SUMMARY_TRAFFIC_PATH = "/insights/roi-summary";
 
+/** Workbook Section column value - operator sponsor-report job, not pre-login marketing. */
+export const ROI_SUMMARY_TRAFFIC_SECTION = "Sponsor report";
+
 /**
- * Owner workbook Notes for SPR — sponsor-report surface, not marketing.
+ * Owner workbook Notes for SPR - sponsor-report surface, not marketing.
  * Absorbs former VRX hit share from retired legacy `/value-report/roi` bookmark row.
+ * ASCII-only for Windows console note scripts.
  */
 export const ROI_SUMMARY_TRAFFIC_NOTE =
-  "Sponsor ROI summary report (canonical). Absorbs former VRX hit share from retired legacy `/value-report/roi` bookmark row.";
-
-/** Workbook Section column value — operator sponsor-report job, not pre-login marketing. */
-export const ROI_SUMMARY_TRAFFIC_SECTION = "Sponsor report";
+  "Sponsor ROI summary (Sponsor report) - RoiSummaryPageView with PageContextualHelpButton (topic map executive-summary; Category-1 registry), RoiSummaryEvidenceOrientationStrip (workspace Sources + claim-discipline: directional ROI only), Outcomes nav, hero metrics, methodology disclosure. Absorbs former VRX hit share from retired legacy `/value-report/roi` bookmark row. Sibling SPE = executive-summary; ARE = executive-dashboard. Period ROI estimate - not a signed-record Sources trail alone. Does not imply CPA SOC 2 or third-party pen-test publication. Score 50/100 (2026-08-08) - directional ROI launcher hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
