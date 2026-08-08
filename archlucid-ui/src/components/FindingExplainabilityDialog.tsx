@@ -18,11 +18,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
+import { SeverityTag } from "@/components/ui/severity-tag";
 import { getFindingExplainability } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
-  findingEvidenceCountPlainLine,
+  findingRationalePreview,
   findingSeverityAudienceCopy,
   findingTraceCompletenessPlainEnglish,
 } from "@/lib/finding-explainability-summary";
@@ -97,16 +98,16 @@ export function FindingExplainabilityDialog({
   const severityInspect =
     data !== null ? findingSeverityAudienceCopy(data.severity) : { meaningForOperators: "", suggestedNext: "" };
 
-  const evidenceRefs = data?.evidence?.evidenceRefs ?? [];
-
-  const trimmedNarrative = data !== null ? data.narrativeText.trim() : "";
-
-  const trimmedConclusion = (data?.evidence?.conclusion ?? "").trim();
-
-  const inspectTeaserSource = trimmedNarrative.length > 0 ? trimmedNarrative : trimmedConclusion;
-
-  const inspectTeaser =
-    inspectTeaserSource.length > 0 ? truncateForList(inspectTeaserSource, 260) : null;
+  // Suppressed when the persisted narrative only restates the finding title already shown above it.
+  const rationalePreview =
+    data !== null
+      ? findingRationalePreview({
+          narrativeText: data.narrativeText,
+          conclusion: data.evidence?.conclusion ?? "",
+          title: data.title,
+          findingId: data.findingId,
+        })
+      : null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -142,16 +143,13 @@ export function FindingExplainabilityDialog({
 
         {!loading && failure === null && data !== null ? (
           <div className={cn("space-y-4 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="outline" className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>
-                {data.findingId}
-              </Badge>
-              <Badge variant="secondary">{data.severity}</Badge>
-              <span className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{data.engineType}</span>
-            </div>
-            <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)} title={data.title}>
+            <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)} title={data.title}>
               {truncateForList(data.title, 280)}
             </p>
+            <div className="flex flex-wrap items-center gap-2">
+              <SeverityTag severity={data.severity} />
+              <span className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{data.engineType}</span>
+            </div>
 
             <section
               aria-labelledby="finding-inspect-summary-heading"
@@ -161,25 +159,22 @@ export function FindingExplainabilityDialog({
               )}
             >
               <h3 id="finding-inspect-summary-heading" className={cn("m-0 font-semibold text-neutral-600 dark:text-neutral-400", OPERATOR_NAV_GROUP_LABEL)}>
-                Inspect first
+                Why this finding was created
               </h3>
+              {rationalePreview !== null ? (
+                <p className={cn("m-0 mt-2 text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
+                  {truncateForList(rationalePreview, 260)}
+                </p>
+              ) : null}
               <p className={cn("m-0 mt-2 text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
-                <span className="font-semibold">Severity read:</span> {severityInspect.meaningForOperators}
+                <span className="font-semibold">Severity:</span> {severityInspect.meaningForOperators}
               </p>
               <p className={cn("m-0 mt-1.5 text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
                 <span className="font-semibold">Suggested next step:</span> {severityInspect.suggestedNext}
               </p>
               <p className={cn("m-0 mt-1.5 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
-                {findingTraceCompletenessPlainEnglish(ratioPct)}
+                <span className="font-semibold">Evidence completeness:</span> {findingTraceCompletenessPlainEnglish(ratioPct)}
               </p>
-              <p className={cn("m-0 mt-1.5 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
-                {findingEvidenceCountPlainLine(evidenceRefs)}
-              </p>
-              {inspectTeaser !== null ? (
-                <p className={cn("m-0 mt-1.5 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-                  <span className="font-semibold">Rationale preview:</span> {inspectTeaser}
-                </p>
-              ) : null}
             </section>
 
             <ExplainabilityTraceTree data={data} />
@@ -207,6 +202,12 @@ export function FindingExplainabilityDialog({
                 {technicalAuditSummary}
               </summary>
               <div className="space-y-4 border-t border-neutral-200 px-3 py-3 dark:border-neutral-700">
+                <div className={cn("flex flex-wrap items-center gap-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                  <span>Finding id</span>
+                  <Badge variant="outline" className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>
+                    {data.findingId}
+                  </Badge>
+                </div>
                 {data.evidence ? (
                   <section aria-labelledby="finding-evidence-heading" className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-3">
                     <h3 id="finding-evidence-heading" className={cn("mb-2 font-semibold text-sky-950 dark:text-sky-100", OPERATOR_TYPOGRAPHY.cardTitle)}>

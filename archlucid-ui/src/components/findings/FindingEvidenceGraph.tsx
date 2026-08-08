@@ -132,7 +132,9 @@ export function FindingEvidenceGraph(props: FindingEvidenceGraphProps) {
   const [loadNote, setLoadNote] = useState<string | null>(null);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const [viewMode, setViewMode] = useState<FindingEvidenceGraphViewMode>("context");
+  const [viewMode, setViewMode] = useState<FindingEvidenceGraphViewMode>(
+    defaultFindingEvidenceGraphViewMode(graphNodeIdsExamined.length),
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -163,9 +165,7 @@ export function FindingEvidenceGraph(props: FindingEvidenceGraphProps) {
 
       setGraph(result.graph);
       setLoadNote(result.note);
-      setViewMode(
-        defaultFindingEvidenceGraphViewMode(result.graph.nodes.length, graphNodeIdsExamined.length),
-      );
+      setViewMode(defaultFindingEvidenceGraphViewMode(graphNodeIdsExamined.length));
       setLoading(false);
     })();
 

@@ -46,7 +46,7 @@ function TraceSection(props: {
  * Sponsor-readable hierarchy for persisted explainability traces (assessment Tier 2).
  *
  * Ordered for a human reader: what ArchLucid decided, what evidence backs it, how certain it is —
- * with the rule identifier (an implementation detail) collapsed underneath.
+ * with the rule identifier (an implementation detail) collapsed between them.
  */
 export function ExplainabilityTraceTree(props: ExplainabilityTraceTreeProps) {
   const { data } = props;
@@ -101,7 +101,9 @@ export function ExplainabilityTraceTree(props: ExplainabilityTraceTreeProps) {
       </TraceSection>
 
       <TraceSection title="Confidence" testId="explainability-trace-confidence" defaultOpen>
-        {confidence.label !== null ? <FindingConfidenceBadge level={confidenceLabel} /> : null}
+        {confidence.label !== null ? (
+          <FindingConfidenceBadge level={confidenceLabel} />
+        ) : null}
         <p className={cn("m-0 mt-2 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           {confidence.reason}
         </p>

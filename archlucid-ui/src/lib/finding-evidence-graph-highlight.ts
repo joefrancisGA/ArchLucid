@@ -111,7 +111,7 @@ export function applyFindingEvidenceGraphHighlight(
 
   const highlightedNodes = nodes.map((node) => {
     const examined = isGraphNodeExamined(node.id, examinedIds);
-    const baseStyle: CSSProperties = node.style ?? {};
+    const baseStyle = node.style ?? {};
 
     if (examined) {
       return { ...node, style: examinedNodeStyle(baseStyle) };
