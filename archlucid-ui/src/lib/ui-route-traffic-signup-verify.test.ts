@@ -66,5 +66,6 @@ describe("ui-route-traffic-signup-verify (SVX)", () => {
     expect(row?.notes).toBe(SIGNUP_VERIFY_TRAFFIC_NOTE);
     expect(row?.notes).toContain("SignupVerifyEvidenceOrientationStrip");
     expect(row?.notes).toContain("Sources");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
