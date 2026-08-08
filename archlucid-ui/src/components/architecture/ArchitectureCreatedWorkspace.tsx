@@ -7,6 +7,7 @@ import { ArchitectureCreatedClarificationsPanel } from "@/components/architectur
 import { ArchitectureCreatedCompactFirstViewport } from "@/components/architecture/ArchitectureCreatedCompactFirstViewport";
 import { ArchitectureCreatedDiagramEvidenceOrientationStrip } from "@/components/architecture/ArchitectureCreatedDiagramEvidenceOrientationStrip";
 import { ArchitectureCreatedEvidenceOrientationStrip } from "@/components/architecture/ArchitectureCreatedEvidenceOrientationStrip";
+import { ArchitectureCreatedFindingsEvidenceOrientationStrip } from "@/components/architecture/ArchitectureCreatedFindingsEvidenceOrientationStrip";
 import { ArchitectureCreatedOverviewPanel } from "@/components/architecture/ArchitectureCreatedOverviewPanel";
 import { ArchitectureCreatedWorkspaceHeader } from "@/components/architecture/ArchitectureCreatedWorkspaceHeader";
 import { ArchitectureDiagramPanel } from "@/components/architecture/ArchitectureDiagramPanel";
@@ -204,7 +205,10 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
         </TabsContent>
 
         <TabsContent value="findings" data-testid="architecture-workspace-panel-findings">
-          {props.panels.findings}
+          <div className="space-y-4">
+            <ArchitectureCreatedFindingsEvidenceOrientationStrip />
+            {props.panels.findings}
+          </div>
         </TabsContent>
 
         <TabsContent value="evidence" data-testid="architecture-workspace-panel-evidence">
