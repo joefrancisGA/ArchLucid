@@ -66,5 +66,6 @@ describe("ui-route-traffic-teams-integration (ITX)", () => {
     expect(row?.notes).toBe(TEAMS_INTEGRATION_TRAFFIC_NOTE);
     expect(row?.notes).toContain("TeamsNotificationsIntegrationPageView");
     expect(row?.notes).toContain("Sources");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
