@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-08 - UI: Users Roles tab Evidence notes (SER)
+
+- `/administration/users?tab=roles` (SER) inherits AUX Evidence chrome; traffic Notes score **48** (tab surface). Template row **SRX → SER**.
+
 ## 2026-08-08 - UI: Users API keys tab Evidence notes (SEU)
 
 - `/administration/users?tab=keys` (SEU) inherits AUX Evidence chrome; traffic Notes score **48** (tab surface). Template row **SEK → SEU**.
