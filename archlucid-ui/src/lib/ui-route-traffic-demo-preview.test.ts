@@ -66,5 +66,6 @@ describe("ui-route-traffic-demo-preview (DPX)", () => {
     expect(row?.notes).toBe(DEMO_PREVIEW_TRAFFIC_NOTE);
     expect(row?.notes).toContain("DemoPreviewEvidenceOrientationStrip");
     expect(row?.notes).toContain("Sources");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
