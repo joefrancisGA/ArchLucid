@@ -1,4 +1,4 @@
-﻿import { readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
@@ -66,5 +66,6 @@ describe("ui-route-traffic-security-trust (SEC)", () => {
     expect(row?.notes).toBe(SECURITY_TRUST_TRAFFIC_NOTE);
     expect(row?.notes).toContain("MarketingSecurityTrustView");
     expect(row?.notes).toContain("Sources");
+    expect(.notes).toContain("cannot improve further toward 80");
   });
 });
