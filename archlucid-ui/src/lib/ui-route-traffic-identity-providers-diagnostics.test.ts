@@ -69,5 +69,6 @@ describe("ui-route-traffic-identity-providers-diagnostics (SEI)", () => {
     expect(row?.section).toBe(IDENTITY_PROVIDERS_DIAGNOSTICS_TRAFFIC_SECTION);
     expect(row?.notes).toBe(IDENTITY_PROVIDERS_DIAGNOSTICS_TRAFFIC_NOTE);
     expect(row?.notes).toContain("IdentityProvidersDiagnosticsPageView");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });

@@ -6,7 +6,7 @@ export const IDENTITY_PROVIDERS_DIAGNOSTICS_TRAFFIC_ROW_ID = "SEI";
 
 /** Canonical path tracked on the SEI workbook row. */
 export const IDENTITY_PROVIDERS_DIAGNOSTICS_TRAFFIC_PATH =
-  "/administration/identity-providers/diagnostics";
+ "/administration/identity-providers/diagnostics";
 
 /** Workbook Section column value (template catalog). */
 export const IDENTITY_PROVIDERS_DIAGNOSTICS_TRAFFIC_SECTION = "Settings";
@@ -16,4 +16,4 @@ export const IDENTITY_PROVIDERS_DIAGNOSTICS_TRAFFIC_SECTION = "Settings";
  * ASCII-only for Windows console note scripts.
  */
 export const IDENTITY_PROVIDERS_DIAGNOSTICS_TRAFFIC_NOTE =
-  "Identity diagnostics (Settings/Admin) - IdentityProvidersDiagnosticsPageView with PageContextualHelpButton (shared header; topic map enterprise-onboarding; Category-1 registry), workspace Sources + claim-discipline orientation strip, health probes / OIDC+SAML strips / token test mapping. Sibling AID = identity-providers hub; AOI = oidc; ADO = role-mapping. Access diagnostic surface - not a signed-record Sources trail. Score 45/100 (2026-08-06) - admin diagnostic hard-caps higher Evidence.";
+ "Identity diagnostics (Settings/Admin) - IdentityProvidersDiagnosticsPageView with PageContextualHelpButton (shared header; topic map enterprise-onboarding; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, health probes / OIDC+SAML strips / token test mapping. Sibling AID = identity-providers hub; AOI = oidc; ADO = role-mapping. Access diagnostic surface - not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 45/100 (2026-08-06) - admin diagnostic hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
