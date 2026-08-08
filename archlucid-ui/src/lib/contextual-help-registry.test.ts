@@ -51,6 +51,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/enterprise-onboarding",
       "/help/pilot-roi-model",
       "/help/executive-summary",
+      "/help/product-overview",
       "/help/policy-pack-delta-demo",
       "/help/configuration-reference",
       "/help/cli-usage",

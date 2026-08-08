@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-08 - UI: Product overview help alias Evidence notes (EPR)
+
+- Category-1 + topic map for `/help/product-overview` (EPR) → EXE slug; traffic Notes score **52** (help specialty alias). Template row **HPR → EPR**.
+
 ## 2026-08-07 - UI: Start review Guided intake tab Evidence notes (ENE)
 
 `/architecture/reviews/new?path=guided-intake` documents inheritance of RNX hub Evidence chrome, syncs the path switcher to `?path=`, softens buyer-facing admission jargon, traffic Notes under Tab surface (row ID ENE), and honest Evidence score 48. Path-tab surface hard-caps higher Evidence; no CPA / third-party pen-test implication.

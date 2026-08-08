@@ -323,6 +323,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "executive-summary", label: "Executive summary" },
   },
   {
+    prefix: "/help/product-overview",
+    topic: { slug: "executive-summary", label: "Executive summary" },
+  },
+  {
     prefix: "/help/policy-pack-delta-demo",
     topic: { slug: "policy-pack-delta-demo", label: "Policy-pack delta demo" },
   },
