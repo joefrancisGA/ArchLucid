@@ -5412,7 +5412,8 @@
           "Pending",
           "Running",
           "Succeeded",
-          "Failed"
+          "Failed",
+          "Canceled"
         ],
         "type": "string"
       },
@@ -17221,7 +17222,8 @@
           "Running",
           "Succeeded",
           "Failed",
-          "Canceled"
+          "Canceled",
+          "CancelRequested"
         ],
         "type": "string"
       },
