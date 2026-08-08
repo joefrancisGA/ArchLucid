@@ -27,6 +27,7 @@ import { AzureBoardsHelpEvidenceOrientationStrip } from "../_sections/AzureBoard
 import { PolicyPacksHelpEvidenceOrientationStrip } from "../_sections/PolicyPacksHelpEvidenceOrientationStrip";
 import { PriorManifestRetrievalHelpEvidenceOrientationStrip } from "../_sections/PriorManifestRetrievalHelpEvidenceOrientationStrip";
 import { ReportAProblemHelpEvidenceOrientationStrip } from "../_sections/ReportAProblemHelpEvidenceOrientationStrip";
+import { SubprocessorsHelpEvidenceOrientationStrip } from "../_sections/SubprocessorsHelpEvidenceOrientationStrip";
 import { IntegrationReadinessHelpEvidenceOrientationStrip } from "../_sections/IntegrationReadinessHelpEvidenceOrientationStrip";
 import { PilotFeedbackHelpEvidenceOrientationStrip } from "../_sections/PilotFeedbackHelpEvidenceOrientationStrip";
 import { PilotNavProfileHelpEvidenceOrientationStrip } from "../_sections/PilotNavProfileHelpEvidenceOrientationStrip";
@@ -370,6 +371,17 @@ function renderHelpTopicView(
         markdown={loaded.markdown}
         showContextualHelp
         evidenceOrientation={<ReportAProblemHelpEvidenceOrientationStrip />}
+      />
+    );
+  }
+
+  if (loaded.entry.slug === "subprocessors") {
+    return (
+      <HelpTopicMarkdownView
+        entry={loaded.entry}
+        markdown={loaded.markdown}
+        showContextualHelp
+        evidenceOrientation={<SubprocessorsHelpEvidenceOrientationStrip />}
       />
     );
   }
