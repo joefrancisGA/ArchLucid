@@ -11,7 +11,8 @@ export const FAQ_TRAFFIC_PATH = "/faq";
 export const FAQ_TRAFFIC_SECTION = "Marketing";
 
 /**
- * Owner workbook Notes for FXX — documents Evidence chrome on Product FAQ.
+ * Owner workbook Notes for FXX - documents Evidence chrome on Product FAQ.
+ * ASCII-only for Windows console note scripts.
  */
 export const FAQ_TRAFFIC_NOTE =
-  "Product FAQ (Marketing) - MarketingFaqPageClient (max-w-6xl rail) with FaqEvidenceOrientationStrip (evaluation Sources + claim-discipline: evaluation orientation only), filtered sticky TOC + scroll spy, search status + auto-expand, hash deep links, related answer links, Sign-in and access category, sitemap + OG metadata. Not an operator PageContextualHelp surface. Score 52/100 (2026-08-08) — layout/search/SEO pass; marketing FAQ still hard-caps higher Evidence.";
+  "Product FAQ (Marketing) - MarketingFaqPageClient (max-w-6xl rail) with FaqEvidenceOrientationStrip (evaluation Sources + claim-discipline: evaluation orientation only), filtered sticky TOC + scroll spy, search status + auto-expand, hash deep links, related answer links, Sign-in and access category, sitemap + OG metadata. Not an operator PageContextualHelp surface. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-08) - marketing FAQ hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
