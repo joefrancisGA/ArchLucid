@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-08 - UI: Azure Boards help alias Evidence notes (HAZ)
+
+- Category-1 + topic map for `/help/integrations/azure-boards` (HAZ) → HEZ slug; traffic Notes score **52** (help specialty alias). Template row **EIN → HAZ**. Synced HEZ template Notes to match shipped canon chrome.
+
 ## 2026-08-08 - UI: Product overview help alias Evidence notes (EPR)
 
 - Category-1 + topic map for `/help/product-overview` (EPR) → EXE slug; traffic Notes score **52** (help specialty alias). Template row **HPR → EPR**.
