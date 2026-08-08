@@ -1,6 +1,6 @@
 /**
  * k6 operator-path smoke — Core Pilot-style regression probe for CI/local:
- * health/ready, version, create run, run snapshot (GET architecture/run/{id}), authority runs list,
+ * health/ready, version, create run, run snapshot (GET architecture/review/{id}), authority runs list,
  * then optional finish path (DevelopmentBypass + Simulator): seed-fake-results → commit → artifact descriptors.
  *
  * Budget labels (thresholds + Python duplicate gate): **CI / pilot smoke ceilings**, aligned with
@@ -72,7 +72,7 @@ function buildThresholds() {
 
 function waitForRunReadyForCommit(runId, headers) {
   for (let attempt = 0; attempt < RUN_READY_POLL_ATTEMPTS; attempt++) {
-    const r = http.get(`${BASE}/v1/architecture/run/${encodeURIComponent(runId)}`, {
+    const r = http.get(`${BASE}/v1/architecture/review/${encodeURIComponent(runId)}`, {
       headers,
       tags: { k6api: "run_status" },
     });
@@ -153,14 +153,14 @@ export function operatorPath() {
   }
 
   if (!MINIMAL && runId !== null && runId.length > 0) {
-    r = http.get(`${BASE}/v1/architecture/run/${encodeURIComponent(runId)}`, {
+    r = http.get(`${BASE}/v1/architecture/review/${encodeURIComponent(runId)}`, {
       headers: h,
       tags: { k6api: "run_status" },
     });
     check(r, { "run status 200": (res) => res.status === 200 });
   }
 
-  const listUrl = `${BASE}/v1/authority/projects/${encodeURIComponent(PROJECT_SLUG)}/runs?take=10`;
+  const listUrl = `${BASE}/v1/authority/projects/${encodeURIComponent(PROJECT_SLUG)}/reviews?take=10`;
   r = http.get(listUrl, { headers: h, tags: { k6api: "list_authority_runs" } });
   check(r, { "authority runs 200": (res) => res.status === 200 });
 
@@ -178,7 +178,7 @@ export function operatorPath() {
 
   waitForRunReadyForCommit(runId, h);
 
-  r = http.post(`${BASE}/v1/architecture/run/${encodeURIComponent(runId)}/commit`, "{}", {
+  r = http.post(`${BASE}/v1/architecture/review/${encodeURIComponent(runId)}/finalize`, "{}", {
     headers: jsonHeaders,
     tags: { k6api: "pilot_commit" },
     timeout: "120s",
@@ -203,7 +203,7 @@ export function operatorPath() {
     return;
   }
 
-  r = http.get(`${BASE}/v1/artifacts/manifests/${encodeURIComponent(manifestId)}`, {
+  r = http.get(`${BASE}/v1/artifacts/signed-review-records/${encodeURIComponent(manifestId)}`, {
     headers: h,
     tags: { k6api: "artifacts_list" },
   });

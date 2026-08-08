@@ -16,7 +16,7 @@ export type UseRunSummaryStreamResult = {
 const FALLBACK_POLL_MS = 3000;
 
 /**
- * Live run summary updates via SSE (`GET /v1/authority/runs/{id}/events` through `/api/proxy`), with HTTP polling fallback.
+ * Live run summary updates via SSE (`GET /v1/authority/reviews/{id}/events` through `/api/proxy`), with HTTP polling fallback.
  */
 export function useRunSummaryStream(
   runId: string | null,
@@ -41,7 +41,7 @@ export function useRunSummaryStream(
 
     fallbackStartedRef.current = false;
     let cancelled = false;
-    const url = `${typeof window !== "undefined" ? window.location.origin : ""}/api/proxy/v1/authority/runs/${encodeURIComponent(runId)}/events`;
+    const url = `${typeof window !== "undefined" ? window.location.origin : ""}/api/proxy/v1/authority/reviews/${encodeURIComponent(runId)}/events`;
 
     const clearFallback = () => {
       if (fallbackIntervalRef.current !== undefined) {

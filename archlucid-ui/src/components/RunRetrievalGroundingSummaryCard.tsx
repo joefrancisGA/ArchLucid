@@ -83,7 +83,7 @@ export function RunRetrievalGroundingSummaryCard(props: {
         <p className="m-0">
           <a
             className="font-medium underline underline-offset-2"
-            href={`/api/proxy/v1/authority/runs/${encodeURIComponent(props.runId)}/retrieval-grounding`}
+            href={`/api/proxy/v1/authority/reviews/${encodeURIComponent(props.runId)}/retrieval-grounding`}
           >
             Open full retrieval-grounding JSON
           </a>

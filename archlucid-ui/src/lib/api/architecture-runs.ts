@@ -177,10 +177,10 @@ export async function getArchitectureRunProvenance(
   );
 }
 
-/** Lists recent runs for a project (GET /v1/authority/projects/{id}/runs). */
+/** Lists recent runs for a project (GET /v1/authority/projects/{id}/reviews). */
 export async function listRunsByProject(projectId: string, take = 20): Promise<RunSummary[]> {
   return apiGet<RunSummary[]>(
-    `/v1/authority/projects/${encodeURIComponent(projectId)}/runs?take=${take}`,
+    `/v1/authority/projects/${encodeURIComponent(projectId)}/reviews?take=${take}`,
   );
 }
 
@@ -204,12 +204,12 @@ export async function listRunsByProjectPaged(
     q.set("pageSize", String(pageSize));
   }
 
-  // Do not send includeArchived: GET /v1/authority/projects/{id}/runs does not declare it.
+  // Do not send includeArchived: GET /v1/authority/projects/{id}/reviews does not declare it.
   // OpenApiUndeclaredQueryParameterFilter returns 400 "Unknown query parameter 'includeArchived'".
   // List SQL already excludes ArchivedUtc until a declared API ships.
 
   return apiGet<PagedResponse<RunSummary>>(
-    `/v1/authority/projects/${encodeURIComponent(projectId)}/runs?${q}`,
+    `/v1/authority/projects/${encodeURIComponent(projectId)}/reviews?${q}`,
     options?.scopeHeaders !== undefined ? { scopeHeaders: options.scopeHeaders } : undefined,
   );
 }
@@ -224,7 +224,7 @@ export async function getRunSummary(
   runId: string,
   options?: { readonly scopeHeaders?: Record<string, string> },
 ): Promise<RunSummary> {
-  return apiGet<RunSummary>(`/v1/authority/runs/${runId}/summary`, options);
+  return apiGet<RunSummary>(`/v1/authority/reviews/${runId}/summary`, options);
 }
 
 /** Fetches the full run detail envelope (run metadata, snapshots, manifest, trace, bundle). */
@@ -232,7 +232,7 @@ export async function getRunDetail(
   runId: string,
   options?: { readonly scopeHeaders?: Record<string, string> },
 ): Promise<ApiResponseWithTrace<RunDetail>> {
-  return apiGetJsonWithTrace<RunDetail>(`/v1/authority/runs/${runId}`, options);
+  return apiGetJsonWithTrace<RunDetail>(`/v1/authority/reviews/${runId}`, options);
 }
 
 /** Buyer-proof run detail — whitelisted fields only (TB-283). */
@@ -240,7 +240,7 @@ export async function getBuyerRunDetailSummary(
   runId: string,
   options?: { readonly scopeHeaders?: Record<string, string> },
 ): Promise<ApiResponseWithTrace<RunDetail>> {
-  return apiGetJsonWithTrace<RunDetail>(`/v1/authority/runs/${runId}/buyer-summary`, options);
+  return apiGetJsonWithTrace<RunDetail>(`/v1/authority/reviews/${runId}/buyer-summary`, options);
 }
 
 export type RunOperatorGovernanceDispositionRequest = {
@@ -262,14 +262,14 @@ export async function recordRunOperatorGovernanceDisposition(
   body: RunOperatorGovernanceDispositionRequest,
 ): Promise<RunOperatorGovernanceDispositionResponse> {
   return apiPostJson<RunOperatorGovernanceDispositionResponse>(
-    `/v1/authority/runs/${encodeURIComponent(runId)}/disposition`,
+    `/v1/authority/reviews/${encodeURIComponent(runId)}/disposition`,
     body,
   );
 }
 
 /** Structural provenance graph for a completed authority run (422 if snapshots incomplete). */
 export async function getRunProvenance(runId: string): Promise<DecisionProvenanceGraph> {
-  return apiGet<DecisionProvenanceGraph>(`/v1/authority/runs/${runId}/provenance`);
+  return apiGet<DecisionProvenanceGraph>(`/v1/authority/reviews/${runId}/provenance`);
 }
 
 /** Authority pipeline stage outcomes (`GET /v1/architecture/review/{runId}/stage-timeline`, TB-250). */
@@ -281,7 +281,7 @@ export async function getRunStageTimeline(runId: string): Promise<StageTimelineS
 
 /** Run-scoped audit events oldest-first (pipeline / lifecycle timeline for operators). */
 export async function getRunPipelineTimeline(runId: string): Promise<PipelineTimelineItem[]> {
-  return apiGet<PipelineTimelineItem[]>(`/v1/authority/runs/${runId}/pipeline-timeline`);
+  return apiGet<PipelineTimelineItem[]>(`/v1/authority/reviews/${runId}/pipeline-timeline`);
 }
 
 /** Paginated agent execution traces (LLM audit rows) for a coordinator architecture run. */
@@ -322,7 +322,7 @@ export async function getRunRetrievalGrounding(
   runId: string,
 ): Promise<ApiResponseWithTrace<RunRetrievalGroundingPayload>> {
   return apiGetJsonWithTrace<RunRetrievalGroundingPayload>(
-    `/v1/authority/runs/${encodeURIComponent(runId)}/retrieval-grounding`,
+    `/v1/authority/reviews/${encodeURIComponent(runId)}/retrieval-grounding`,
   );
 }
 
@@ -440,9 +440,9 @@ export async function compareGoldenManifestRuns(
   );
 }
 
-/** Latest authority manifest document JSON for a run (`GET /v1/authority/runs/{runId}/manifest`). */
+/** Latest authority manifest document JSON for a run (`GET /v1/authority/reviews/{runId}/signed-review-record`). */
 export async function getAuthorityRunManifest(runId: string): Promise<unknown> {
-  return apiGet<unknown>(`/v1/authority/runs/${encodeURIComponent(runId)}/manifest`);
+  return apiGet<unknown>(`/v1/authority/reviews/${encodeURIComponent(runId)}/signed-review-record`);
 }
 
 /** Requests an AI-generated narrative explanation of the differences between two runs. */

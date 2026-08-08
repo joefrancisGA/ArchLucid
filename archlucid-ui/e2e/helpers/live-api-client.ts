@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Typed helpers for Playwright live-API E2E against ArchLucid.Api
  * (`live-api-journey.spec.ts`, `live-api-conflict-journey.spec.ts`, `live-api-governance-rejection.spec.ts`, …).
  *
@@ -495,7 +495,7 @@ function isTransientCommitConflict(status: number, body: string): boolean {
 }
 
 function throwCommitHttpError(status: number, body: string, runId: string): never {
-  const message = `POST /v1/architecture/review/${runId}/commit failed ${status}: ${body.slice(0, 500)}`;
+  const message = `POST /v1/architecture/review/${runId}/finalize failed ${status}: ${body.slice(0, 500)}`;
 
   if (status >= 500 && status < 600) {
     throw new InfraTransientError(message);
@@ -517,7 +517,7 @@ async function tryFetchCommittedRunCommitShape(
       return { manifest: { metadata: { manifestVersion } } };
     }
   } catch {
-    // Best-effort idempotent reconcile when POST /commit raced or returned transient 409.
+    // Best-effort idempotent reconcile when POST /finalize raced or returned transient 409.
   }
 
   return null;
@@ -646,7 +646,7 @@ export async function commitRun(
       return alreadyCommitted;
     }
 
-    const res = await request.post(`${resolveLiveApiBase()}/v1/architecture/review/${runId}/commit`, {
+    const res = await request.post(`${resolveLiveApiBase()}/v1/architecture/review/${runId}/finalize`, {
       headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
       timeout: commitAttemptHttpTimeoutMs,
     });
@@ -672,7 +672,7 @@ export async function commitRun(
         body,
         infrastructureAttempt,
         maxCommitInfrastructureAttempts(),
-        `POST /v1/architecture/review/${runId}/commit`,
+        `POST /v1/architecture/review/${runId}/finalize`,
         { startedAtMs: retryStartedMs },
       )
     ) {
@@ -724,7 +724,7 @@ export async function commitRunRaw(
       );
     }
 
-    const res = await request.post(`${resolveLiveApiBase()}/v1/architecture/review/${runId}/commit`, {
+    const res = await request.post(`${resolveLiveApiBase()}/v1/architecture/review/${runId}/finalize`, {
       headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
       timeout: commitAttemptHttpTimeoutMs,
     });
@@ -745,7 +745,7 @@ export async function commitRunRaw(
           responseBody,
           infrastructureAttempt,
           maxCommitInfrastructureAttempts(),
-          `POST /v1/architecture/review/${runId}/commit`,
+          `POST /v1/architecture/review/${runId}/finalize`,
           { startedAtMs: retryStartedMs },
         )
       ) {
@@ -781,7 +781,7 @@ export async function getRunDetailsRaw(
   });
 }
 
-/** GET `/v1/authority/runs/{runId}` — scoped authority aggregate incl. findings snapshot (demo workspace smoke counts). */
+/** GET `/v1/authority/reviews/{runId}` — scoped authority aggregate incl. findings snapshot (demo workspace smoke counts). */
 export async function getAuthorityRunDetailRaw(
   request: APIRequestContext,
   runId: string,
@@ -790,7 +790,7 @@ export async function getAuthorityRunDetailRaw(
 ): Promise<APIResponse> {
   const encoded = encodeURIComponent(runId);
 
-  return request.get(`${resolveLiveApiBase()}/v1/authority/runs/${encoded}`, {
+  return request.get(`${resolveLiveApiBase()}/v1/authority/reviews/${encoded}`, {
     headers: mergeTenantScope(liveAcceptHeaders(options?.apiKey), tenantScope),
   });
 }
@@ -804,7 +804,7 @@ export async function getAuthorityBuyerSummaryRaw(
 ): Promise<APIResponse> {
   const encoded = encodeURIComponent(runId);
 
-  return request.get(`${resolveLiveApiBase()}/v1/authority/runs/${encoded}/buyer-summary`, {
+  return request.get(`${resolveLiveApiBase()}/v1/authority/reviews/${encoded}/buyer-summary`, {
     headers: mergeTenantScope(liveAcceptHeaders(options?.apiKey), tenantScope),
   });
 }
@@ -1247,7 +1247,7 @@ export async function waitForAuthorityRunSummaryReady(
   const encoded = encodeURIComponent(runId);
 
   while (Date.now() < deadline) {
-    const res = await request.get(`${resolveLiveApiBase()}/v1/authority/runs/${encoded}/summary`, {
+    const res = await request.get(`${resolveLiveApiBase()}/v1/authority/reviews/${encoded}/summary`, {
       headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
     });
 
@@ -1256,14 +1256,14 @@ export async function waitForAuthorityRunSummaryReady(
     }
 
     if (res.status() !== 404) {
-      await throwIfNotOk(res, `GET /v1/authority/runs/${encoded}/summary`);
+      await throwIfNotOk(res, `GET /v1/authority/reviews/${encoded}/summary`);
     }
 
     await new Promise((r) => setTimeout(r, 1000));
   }
 
   throw new Error(
-    `Authority run summary for ${runId} not ready (GET /v1/authority/runs/{id}/summary) within ${liveE2eCommitWaitMs(timeoutMs)}ms`,
+    `Authority run summary for ${runId} not ready (GET /v1/authority/reviews/{id}/summary) within ${liveE2eCommitWaitMs(timeoutMs)}ms`,
   );
 }
 
@@ -1278,7 +1278,7 @@ export async function waitForAuthorityBuyerSummaryGoldenManifest(
   const encoded = encodeURIComponent(runId);
 
   while (Date.now() < deadline) {
-    const res = await request.get(`${resolveLiveApiBase()}/v1/authority/runs/${encoded}/buyer-summary`, {
+    const res = await request.get(`${resolveLiveApiBase()}/v1/authority/reviews/${encoded}/buyer-summary`, {
       headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
     });
 
@@ -1298,7 +1298,7 @@ export async function waitForAuthorityBuyerSummaryGoldenManifest(
         continue;
       }
 
-      await throwIfNotOk(res, `GET /v1/authority/runs/${encoded}/buyer-summary`);
+      await throwIfNotOk(res, `GET /v1/authority/reviews/${encoded}/buyer-summary`);
     }
 
     await new Promise((r) => setTimeout(r, 1000));
