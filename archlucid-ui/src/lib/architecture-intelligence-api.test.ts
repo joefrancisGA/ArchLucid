@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   buildArchitectureIntelligenceRunRequest,
+  buildArchitectureIntelligenceSourcesFromDraftFields,
   formatArchitectureIntelligenceSpendSummary,
   primaryDescriptionFromSources,
 } from "./architecture-intelligence-api";
@@ -18,6 +19,30 @@ describe("architecture-intelligence-api", () => {
         },
       ]),
     ).toBe("primary brief");
+  });
+
+  it("builds source texts from draft form fields", () => {
+    expect(
+      buildArchitectureIntelligenceSourcesFromDraftFields({
+        systemName: "Claims intake",
+        freeTextIntent: "Modernize routing",
+        businessOutcome: "Reduce manual work",
+      }),
+    ).toEqual([
+      {
+        fileName: "architecture-description.txt",
+        contentType: "text/plain",
+        content: "System: Claims intake\n\nModernize routing\n\nBusiness outcome: Reduce manual work",
+      },
+    ]);
+
+    expect(
+      buildArchitectureIntelligenceSourcesFromDraftFields({
+        systemName: "  ",
+        freeTextIntent: "",
+        businessOutcome: "",
+      }),
+    ).toEqual([]);
   });
 
   it("builds a publish request over hydrated sources", () => {

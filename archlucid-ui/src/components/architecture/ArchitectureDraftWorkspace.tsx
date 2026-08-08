@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { ArchitectureDraftAiRefinePanel } from "@/components/architecture/ArchitectureDraftAiRefinePanel";
 import { ArchitectureDraftFormFields } from "@/components/architecture/ArchitectureDraftFormFields";
 import { ArchitectureDraftGuidanceDisclosure } from "@/components/architecture/ArchitectureDraftGuidanceDisclosure";
 import { ArchitectureDraftHandoffBanner } from "@/components/architecture/ArchitectureDraftHandoffBanner";
@@ -379,8 +380,13 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       {refinementDraftId !== null && !handoffEditorLocked ? (
         <DraftIntakeAdvancedSection defaultOpen={false}>
           <AiBudgetSpendNotice
-            action="Draft reasoning"
+            action="Architecture reasoning"
             testId="architecture-draft-ai-budget-notice"
+          />
+          <ArchitectureDraftAiRefinePanel
+            fields={fields}
+            linkedReviewId={linkedReviewId}
+            disabled={exitPending || blocksLlmExecution}
           />
           <DraftIntakeReasoningPanel
             draftId={refinementDraftId}

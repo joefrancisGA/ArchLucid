@@ -197,6 +197,11 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { label: "Decision register" },
   },
   {
+    // Secondary hub — no workspace-health specialty; omit Learn more (TB-2050). Do not reopen TB-1668 mount.
+    prefix: "/governance/dashboard",
+    topic: { label: "Workspace overview" },
+  },
+  {
     prefix: "/governance/alerts",
     topic: { slug: "alerts", label: ALERTS_HOW_ALERTS_WORK_LABEL },
   },

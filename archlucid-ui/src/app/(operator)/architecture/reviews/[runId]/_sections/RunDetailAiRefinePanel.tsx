@@ -3,14 +3,13 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
-import { ArchitectureIntelligenceProductRoundTrip } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceProductRoundTrip";
+import { ArchitectureIntelligenceRefineResultSummary } from "@/components/architecture-intelligence/ArchitectureIntelligenceRefineResultSummary";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import {
   buildArchitectureIntelligenceRunRequest,
   fetchArchitectureIntelligenceProductSourceContext,
-  formatArchitectureIntelligenceSpendSummary,
   primaryDescriptionFromSources,
   runArchitectureIntelligenceReasoning,
   type ClosedLoopReasoningResult,
@@ -219,59 +218,12 @@ export function RunDetailAiRefinePanel(props: RunDetailAiRefinePanelProps) {
         </p>
       ) : null}
 
-      {result !== null ? <RunDetailAiRefineResultSummary result={result} /> : null}
-    </div>
-  );
-}
-
-function RunDetailAiRefineResultSummary(props: { readonly result: ClosedLoopReasoningResult }) {
-  const { result } = props;
-
-  return (
-    <div className="space-y-2" data-testid="run-detail-ai-refine-results">
-      {result.budgetRejected ? (
-        <p
-          role="alert"
-          data-testid="run-detail-ai-refine-budget-rejected"
-          className={cn(
-            "rounded-md border border-rose-600/40 bg-al-surface-raised p-2 text-al-text-primary",
-            OPERATOR_TYPOGRAPHY.body,
-          )}
-        >
-          Analysis not started:{" "}
-          {result.budgetRejectReason ?? "Pre-flight AI budget admission rejected this analysis."}
-        </p>
+      {result !== null ? (
+        <ArchitectureIntelligenceRefineResultSummary
+          result={result}
+          testIdPrefix="run-detail-ai-refine"
+        />
       ) : null}
-
-      {result.publishBlocked ? (
-        <p
-          role="alert"
-          data-testid="run-detail-ai-refine-publish-blocked"
-          className={cn(
-            "rounded-md border border-rose-600/40 bg-al-surface-raised p-2 text-al-text-primary",
-            OPERATOR_TYPOGRAPHY.body,
-          )}
-        >
-          Publish blocked:{" "}
-          {(result.publishBlockReasons ?? []).join(" · ") || "trust gate rejected publishable output."}
-        </p>
-      ) : null}
-
-      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-        Model elements: {result.model?.elements?.length ?? 0} · Integrity-passed findings:{" "}
-        {result.integrityPassedFindingIds?.length ?? 0}
-        {result.cacheHit
-          ? ` · Cache hit${result.cacheReuseReason ? ` (${result.cacheReuseReason})` : ""}`
-          : " · Cache miss"}
-        {formatArchitectureIntelligenceSpendSummary(result)}
-      </p>
-
-      <ArchitectureIntelligenceProductRoundTrip
-        runId={result.runId ?? undefined}
-        publishedToProduct={result.publishedToProduct === true}
-        publishedRecommendationCount={result.publishedRecommendationCount}
-        publishSkipReason={result.publishSkipReason}
-      />
     </div>
   );
 }

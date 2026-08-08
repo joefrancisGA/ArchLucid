@@ -60,6 +60,12 @@ vi.mock("@/components/draft-intake/DraftIntakeReasoningPanel", () => ({
   DraftIntakeReasoningPanel: () => <div data-testid="draft-intake-reasoning-stub">Reasoning stub</div>,
 }));
 
+vi.mock("@/components/architecture/ArchitectureDraftAiRefinePanel", () => ({
+  ArchitectureDraftAiRefinePanel: () => (
+    <div data-testid="architecture-draft-ai-refine-stub">Closed-loop refine stub</div>
+  ),
+}));
+
 vi.mock("@/lib/architecture-draft-handoff-gate", async () => {
   const actual = await vi.importActual<typeof import("@/lib/architecture-draft-handoff-gate")>(
     "@/lib/architecture-draft-handoff-gate",
@@ -138,8 +144,9 @@ describe("ArchitectureDraftWorkspace", () => {
 
     expect(screen.getByTestId("draft-intake-advanced-section")).toBeInTheDocument();
     expect(screen.getByTestId("architecture-draft-ai-budget-notice")).toHaveTextContent(
-      "Draft reasoning uses AI budget.",
+      "Architecture reasoning uses AI budget.",
     );
+    expect(screen.getByTestId("architecture-draft-ai-refine-stub")).toBeInTheDocument();
     expect(screen.getByTestId("draft-intake-reasoning-stub")).toBeInTheDocument();
   });
 

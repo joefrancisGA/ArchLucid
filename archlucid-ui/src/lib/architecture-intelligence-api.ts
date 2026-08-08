@@ -134,6 +134,46 @@ export function formatArchitectureIntelligenceSpendSummary(result: ClosedLoopRea
   return ` · ${parts.join(" · ")}`;
 }
 
+/**
+ * Builds closed-loop source texts from architecture draft form fields so operators can refine
+ * before a product review exists.
+ */
+export function buildArchitectureIntelligenceSourcesFromDraftFields(fields: {
+  readonly freeTextIntent: string;
+  readonly businessOutcome: string;
+  readonly systemName: string;
+}): ClosedLoopReasoningSourceText[] {
+  const systemName = fields.systemName.trim();
+  const overview = fields.freeTextIntent.trim();
+  const outcome = fields.businessOutcome.trim();
+
+  const lines: string[] = [];
+
+  if (systemName.length > 0) {
+    lines.push(`System: ${systemName}`);
+  }
+
+  if (overview.length > 0) {
+    lines.push(overview);
+  }
+
+  if (outcome.length > 0) {
+    lines.push(`Business outcome: ${outcome}`);
+  }
+
+  if (lines.length === 0) {
+    return [];
+  }
+
+  return [
+    {
+      fileName: DEFAULT_ARCHITECTURE_FILE_NAME,
+      contentType: DEFAULT_CONTENT_TYPE,
+      content: lines.join("\n\n"),
+    },
+  ];
+}
+
 async function postJson<T>(path: string, body: unknown): Promise<T> {
   const response = await fetch(path, {
     method: "POST",
