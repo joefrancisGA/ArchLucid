@@ -32,6 +32,7 @@ import {
   roiSummaryZeroStateHeadline,
 } from "@/lib/roi-summary-sponsor-presentation";
 
+import { RoiSummaryEvidenceOrientationStrip } from "./RoiSummaryEvidenceOrientationStrip";
 import { RoiSummaryHeroStrip } from "./RoiSummaryHeroStrip";
 import { RoiSummaryLoadedHourlyCostField } from "./RoiSummaryLoadedHourlyCostField";
 import type { RoiSummaryPageViewModel } from "./roi-summary-page-view-model";
@@ -65,7 +66,7 @@ export function RoiSummaryPageView(props: Props) {
       <OperatorPageContainer variant="dashboard" className="space-y-4">
         {layerHeader}
         <ValueReportOutcomesNav />
-        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading ROI summary…</p>
+        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading ROI summaryâ€¦</p>
       </OperatorPageContainer>
     );
   }
@@ -210,7 +211,7 @@ export function RoiSummaryPageView(props: Props) {
           <ul className={cn("m-0 mt-3 list-none space-y-2 p-0", OPERATOR_TYPOGRAPHY.body)}>
             {dataNeeds.map((item) => (
               <li key={item.label} className="flex items-start gap-2 text-al-text-secondary">
-                <span aria-hidden="true">{item.met ? "✓" : "○"}</span>
+                <span aria-hidden="true">{item.met ? "âœ“" : "â—‹"}</span>
                 <span>{item.label}</span>
               </li>
             ))}
