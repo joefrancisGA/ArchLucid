@@ -69,5 +69,6 @@ describe("ui-route-traffic-identity-providers-settings (AID)", () => {
     expect(row?.section).toBe(IDENTITY_PROVIDERS_SETTINGS_TRAFFIC_SECTION);
     expect(row?.notes).toBe(IDENTITY_PROVIDERS_SETTINGS_TRAFFIC_NOTE);
     expect(row?.notes).toContain("IdentityProvidersSettingsPageView");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
