@@ -1,4 +1,4 @@
-import { GOVERNANCE_DASHBOARD_PATH, GOVERNANCE_POLICY_PACKS_PATH, governanceAlertRulesTabHref } from "@/lib/governance-route-paths";
+import { GOVERNANCE_WORKSPACE_HEALTH_HREF, GOVERNANCE_POLICY_PACKS_PATH, governanceAlertRulesTabHref } from "@/lib/governance-route-paths";
 import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 
 import type {
@@ -48,7 +48,7 @@ export const GOVERNANCE_SETUP_GUIDE_STEPS: readonly GovernanceSetupStepDefinitio
     description: "Confirm that sponsors can see posture, risk, drift, approvals, and value signals.",
     outcome: "Sponsors can brief from workspace health without assembling slides.",
     primaryActionLabel: "Open workspace overview",
-    primaryActionHref: GOVERNANCE_DASHBOARD_PATH,
+    primaryActionHref: GOVERNANCE_WORKSPACE_HEALTH_HREF,
   },
 ] as const;
 

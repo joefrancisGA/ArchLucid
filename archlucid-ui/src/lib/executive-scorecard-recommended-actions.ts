@@ -1,4 +1,5 @@
 import type { ExecutiveOrphanCandidateSummary } from "@/lib/executive-summary-markdown";
+import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance-route-paths";
 import type { PilotValueReportTimelineRow } from "@/types/pilot-value-report";
 
 export type ExecutiveScorecardRecommendedAction = {
@@ -78,7 +79,7 @@ export function buildExecutiveScorecardRecommendedActions(
       id: "compliance-drift",
       headline: `Review ${n} drifted ${n === 1 ? "policy change" : "policy changes"}`,
       explanation: `Your team recorded ${n} compliance drift ${n === 1 ? "event" : "events"} in this range. Open workspace health to inspect policy pack activity.`,
-      href: "/governance/dashboard",
+      href: GOVERNANCE_WORKSPACE_HEALTH_HREF,
       sortWeight: n,
     });
   }

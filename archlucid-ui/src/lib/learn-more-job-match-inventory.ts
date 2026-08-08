@@ -13,7 +13,6 @@ export const LEARN_MORE_JOB_MATCH_SECONDARY_HUB_PATHS = [
   "/governance/decision-register",
   "/governance/advisory-scans",
   "/insights/impact-preview",
-  "/governance/dashboard",
 ] as const;
 
 export type LearnMoreJobMatchSecondaryHubPath =

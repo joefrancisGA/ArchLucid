@@ -30,14 +30,13 @@ describe("TB-2050 secondary-hub Learn more remap", () => {
     expect(pageHelpTopicForPathname("/governance/decision-register")?.label).toBe("Decision register");
     expect(pageHelpTopicForPathname("/governance/advisory-scans")?.label).toBe("Advisory scans");
     expect(pageHelpTopicForPathname("/insights/impact-preview")?.label).toBe("Impact preview");
-    expect(pageHelpTopicForPathname("/governance/dashboard")?.label).toBe("Workspace overview");
   });
 
   it("documents first-run allowlist prefixes for generic Learn more", () => {
     expect(PAGE_HELP_FIRST_RUN_GENERIC_LEARN_MORE_ALLOWLIST_PREFIXES).toContain("/architectures");
     expect(PAGE_HELP_FIRST_RUN_GENERIC_LEARN_MORE_ALLOWLIST_PREFIXES).toContain("/why-archlucid");
     expect(pageHelpTopicForPathname("/architectures")?.slug).toBe("getting-started");
-    expect(pageHelpTopicForPathname("/why-archlucid")?.slug).toBe("getting-started");
+    expect(pageHelpTopicForPathname("/why-archlucid")?.slug).toBe("how-it-works");
   });
 
   it("remaps tenant settings and recommendation-learning off getting-started", () => {

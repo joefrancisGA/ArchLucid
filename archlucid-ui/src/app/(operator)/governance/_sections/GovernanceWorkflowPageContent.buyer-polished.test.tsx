@@ -2,6 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { GOVERNANCE_OVERVIEW_PAGE_LEAD, BUYER_GOVERNANCE_OVERVIEW_PAGE_LEAD } from "@/lib/governance-overview-copy";
+import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance-route-paths";
 
 const apiHoisted = vi.hoisted(() => ({
   listApprovalRequests: vi.fn(),
@@ -150,7 +151,7 @@ describe("GovernanceWorkflowPageContent buyer-polished chrome (TB-1434)", () => 
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Workspace overview" })).toHaveAttribute(
       "href",
-      "/governance/dashboard",
+      GOVERNANCE_WORKSPACE_HEALTH_HREF,
     );
     expect(screen.getByTestId("layer-header-collapsible-guidance")).toBeInTheDocument();
     expect(screen.getByTestId("governance-interactive-quickstart")).toBeInTheDocument();

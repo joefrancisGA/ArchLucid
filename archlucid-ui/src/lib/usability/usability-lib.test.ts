@@ -12,8 +12,6 @@ describe("usability lib", () => {
     expect(pageHelpTopicForPathname("/reviews/new")?.slug).toBe("evidence-intake");
     expect(pageHelpTopicForPathname("/alerts")?.slug).toBe("alerts");
     expect(pageHelpTopicForPathname("/alert-rules")?.slug).toBe("alerts");
-    expect(pageHelpTopicForPathname("/governance/dashboard")?.slug).toBeUndefined();
-    expect(pageHelpTopicForPathname("/governance/dashboard")?.label).toBe("Workspace overview");
     expect(pageHelpTopicForPathname("/governance/alerts")?.slug).toBe("alerts");
     expect(pageHelpTopicForPathname("/governance/alert-rules")?.slug).toBe("alerts");
     expect(pageHelpTopicForPathname("/governance/alert-rules")?.label).toBe("How alerts work");

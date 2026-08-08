@@ -23,7 +23,6 @@ export default defineConfig([
     files: [
       "src/app/(operator)/**/*.{ts,tsx}",
       "src/app/(marketing)/**/*.{ts,tsx}",
-      "src/app/(executive)/**/*.{ts,tsx}",
       "src/components/**/*.{ts,tsx}",
       "src/lib/**/*.{ts,tsx}",
     ],

@@ -45,13 +45,6 @@ describe("buyerPolishedRouteOrientation", () => {
     );
   });
 
-  it("orients the executive scorecard route", () => {
-    const o = buyerPolishedRouteOrientation("/executive/scorecard");
-
-    expect(o?.label).toBe("Sponsor scorecard");
-    expect(o?.line).toBe("Value metrics and recommended actions.");
-  });
-
   it("orients the operator review scorecard route without repeating scorecard in the layer label", () => {
     const o = buyerPolishedRouteOrientation("/insights/architecture-scorecard");
 

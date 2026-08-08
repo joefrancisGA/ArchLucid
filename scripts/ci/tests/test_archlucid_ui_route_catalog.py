@@ -132,6 +132,44 @@ def test_migrate_workbook_path_maps_legacy_executive_dashboard_bookmarks() -> No
     assert migrate_workbook_path("/portfolio") == "/architecture/executive-dashboard"
 
 
+def test_migrate_workbook_path_maps_legacy_admin_internal_ops() -> None:
+    assert migrate_workbook_path("/admin/health") == "/internal/health"
+    assert migrate_workbook_path("/admin/tenant-health") == "/internal/tenant-health"
+    assert migrate_workbook_path("/admin/fleet-llm-cogs") == "/internal/fleet-llm-cogs"
+    assert migrate_workbook_path("/admin/demo-readiness") == "/internal/demo-readiness"
+    assert migrate_workbook_path("/admin/integrations/itsm") == "/internal/integrations/itsm"
+
+
+def test_migrate_workbook_path_maps_legacy_sponsor_report_to_insights() -> None:
+    assert migrate_workbook_path("/sponsor-report/executive-summary") == "/insights/executive-summary"
+    assert migrate_workbook_path("/sponsor-report/roi-summary") == "/insights/roi-summary"
+    assert migrate_workbook_path("/sponsor-report/pilot-outcomes") == "/insights/pilot-outcomes"
+    assert migrate_workbook_path("/value-report") == "/insights/executive-summary"
+
+
+def test_migrate_workbook_path_maps_legacy_replay_and_signed_records() -> None:
+    assert migrate_workbook_path("/replay") == "/internal/replay"
+    assert migrate_workbook_path("/signed-records") == "/governance/signed-records"
+    assert (
+        migrate_workbook_path("/signed-records/[manifestId]")
+        == "/governance/signed-records/[manifestId]"
+    )
+    assert (
+        migrate_workbook_path("/manifests/[manifestId]")
+        == "/governance/signed-records/[manifestId]"
+    )
+
+
+def test_infer_section_maps_internal_and_insights_sponsor_paths() -> None:
+    catalog = build_catalog()
+    assert catalog["/internal/health"].section == "Admin"
+    assert catalog["/internal/replay"].section == "Marketing"
+    assert catalog["/internal/product-learning"].section == "Onboarding"
+    assert catalog["/internal/integration-events/dlq"].section == "Advisory"
+    assert catalog["/insights/roi-summary"].section == "Sponsor report"
+    assert catalog["/insights/pilot-outcomes"].section == "Sponsor report"
+
+
 def test_build_catalog_tracks_evidence_graph_as_planning() -> None:
     catalog = build_catalog()
     assert "/insights/evidence-graph" in catalog

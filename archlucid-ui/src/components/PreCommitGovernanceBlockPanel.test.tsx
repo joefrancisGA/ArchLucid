@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
+import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance-route-paths";
 import { PreCommitGovernanceBlockPanel } from "./PreCommitGovernanceBlockPanel";
 
 describe("PreCommitGovernanceBlockPanel", () => {
@@ -43,7 +44,7 @@ describe("PreCommitGovernanceBlockPanel", () => {
 
     expect(screen.getByTestId("pre-commit-governance-block-audit-link")).toHaveAttribute(
       "href",
-      "/governance/dashboard",
+      GOVERNANCE_WORKSPACE_HEALTH_HREF,
     );
   });
 });

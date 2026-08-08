@@ -8,13 +8,12 @@ import {
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 import {
   GOVERNANCE_APPROVAL_QUEUE_PATH,
-  GOVERNANCE_DASHBOARD_PATH,
   GOVERNANCE_EXCEPTIONS_PATH,
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
 } from "@/lib/governance-route-paths";
 import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
 import { ARCHITECTURES_LIST_PATH, ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
+import { EXECUTIVE_DASHBOARD_HREF, EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF } from "@/lib/executive-dashboard-route";
 import { BUYER_CTO_DEMO_READINESS_HEADING } from "@/lib/buyer-polish-copy";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
@@ -50,7 +49,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/insights/patterns": PATTERN_LIBRARY_PAGE_TITLE,
   "/architecture/architecture-intelligence": "Architecture intelligence",
   [GOVERNANCE_APPROVAL_QUEUE_PATH]: GOVERNANCE_OVERVIEW_PAGE_TITLE,
-  [GOVERNANCE_DASHBOARD_PATH]: OPERATOR_NAV_LINK_LABELS.workspaceHealth,
+  [EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF]: OPERATOR_NAV_LINK_LABELS.workspaceHealth,
   "/governance/findings": OPERATOR_NAV_LINK_LABELS.findings,
   [GOVERNANCE_EXCEPTIONS_PATH]: OPERATOR_NAV_LINK_LABELS.riskExceptions,
   "/governance/decision-register": OPERATOR_NAV_LINK_LABELS.decisionRegister,

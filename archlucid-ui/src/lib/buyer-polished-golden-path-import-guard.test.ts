@@ -17,7 +17,6 @@ const GOLDEN_PATH_ROOTS = [
   join(uiRoot, "src", "app", "(operator)", "manifests"),
   join(uiRoot, "src", "app", "(operator)", "governance"),
   join(uiRoot, "src", "app", "(operator)", "dashboard"),
-  join(uiRoot, "src", "app", "(executive)"),
   join(uiRoot, "src", "app", "(operator)", "ask"),
 ];
 

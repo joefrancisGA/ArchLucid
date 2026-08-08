@@ -8,7 +8,7 @@ export const PRODUCT_LEARNING_TRAFFIC_ROW_ID = "PRC";
 export const PRODUCT_LEARNING_TRAFFIC_PATH = "/internal/product-learning";
 
 /** Workbook Section column value (template catalog). */
-export const PRODUCT_LEARNING_TRAFFIC_SECTION = "Marketing";
+export const PRODUCT_LEARNING_TRAFFIC_SECTION = "Onboarding";
 
 /**
  * Owner workbook Notes for PRC — documents Evidence chrome on Pilot feedback.

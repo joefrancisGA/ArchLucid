@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { useRoiLoadedHourlyUsd } from "@/hooks/use-roi-loaded-hourly-usd";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
+import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance-route-paths";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
@@ -127,7 +128,7 @@ export function RoiSummaryPageView(props: Props) {
 
             </Link>
 
-            <Link href="/governance/dashboard" className={OPERATOR_LINK.inline}>
+            <Link href={GOVERNANCE_WORKSPACE_HEALTH_HREF} className={OPERATOR_LINK.inline}>
               Workspace health
             </Link>
           </nav>

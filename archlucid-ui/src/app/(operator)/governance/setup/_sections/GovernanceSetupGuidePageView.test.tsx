@@ -10,6 +10,7 @@ import {
   GOVERNANCE_SETUP_OUTCOMES_HEADING,
   GOVERNANCE_SETUP_PAGE_SUBTITLE,
 } from "@/lib/governance-setup-route";
+import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance-route-paths";
 
 describe("GovernanceSetupGuidePageView", () => {
   it("renders outcome-framed setup copy without implementation jargon", () => {
@@ -48,7 +49,7 @@ describe("GovernanceSetupGuidePageView", () => {
     );
     expect(screen.getByRole("link", { name: "Open workspace overview" })).toHaveAttribute(
       "href",
-      "/governance/dashboard",
+      GOVERNANCE_WORKSPACE_HEALTH_HREF,
     );
     // TB-1137: only recommended-next carries primary CTA weight; future steps are outline.
     expect(screen.getByTestId("governance-setup-step-1-cta")).toHaveAttribute("data-cta-variant", "primary");

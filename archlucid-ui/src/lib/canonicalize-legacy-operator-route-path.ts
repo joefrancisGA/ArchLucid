@@ -1,14 +1,13 @@
 import {
-  EXECUTIVE_DASHBOARD_HREF,
-  EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF,
-} from "@/lib/executive-dashboard-route";
-import { LEGACY_EXECUTIVE_SCORECARD_PATH } from "@/lib/executive-scorecard-route";
+  LEGACY_REVIEWS_LIST_PATH,
+  LEGACY_RUNS_LIST_PATH,
+  REVIEWS_LIST_PATH,
+} from "@/lib/architecture-routes";
 import { DIGESTS_HUB_PATH, LEGACY_DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 import {
   GOVERNANCE_ALERT_RULES_PATH,
   GOVERNANCE_ALERTS_PATH,
   GOVERNANCE_AUDIT_PATH,
-  GOVERNANCE_DASHBOARD_PATH,
   GOVERNANCE_EXCEPTIONS_PATH,
   GOVERNANCE_POLICY_PACKS_PATH,
   LEGACY_ALERTS_PATH,
@@ -73,7 +72,7 @@ const LEGACY_ADMIN_PATH_MAP: Readonly<Record<string, string>> = {
 
 /**
  * Maps legacy bookmark paths to canonical operator routes for readiness, help, and orientation lookups.
- * Permanent redirects were removed in IA batch 4 — external legacy URLs 404 unless covered by a rewrite below.
+ * Hard-retired paths (`/governance/dashboard`, `/executive/scorecard`) are not mapped — host-gate 404s them.
  */
 export function canonicalizeLegacyOperatorRoutePath(pathname: string): string {
   const normalized = pathname.trim().length === 0 ? "/" : pathname;
@@ -140,14 +139,6 @@ export function canonicalizeLegacyOperatorRoutePath(pathname: string): string {
 
   if (normalized === LEGACY_SPONSOR_REPORT_ROI_SUMMARY_PATH) {
     return SPONSOR_REPORT_ROI_SUMMARY_PATH;
-  }
-
-  if (pathMatchesRoutePrefix(normalized, LEGACY_EXECUTIVE_SCORECARD_PATH)) {
-    return EXECUTIVE_DASHBOARD_HREF;
-  }
-
-  if (pathMatchesRoutePrefix(normalized, GOVERNANCE_DASHBOARD_PATH)) {
-    return EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF;
   }
 
   if (pathMatchesRoutePrefix(normalized, LEGACY_SPONSOR_REPORT_ROOT_PATH)) {

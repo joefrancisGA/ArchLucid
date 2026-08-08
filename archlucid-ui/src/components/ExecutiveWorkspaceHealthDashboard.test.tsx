@@ -5,13 +5,14 @@ import {
   buyerPolishedShellVitestOverride,
   extendBuyerPolishedShellVitestMock,
 } from "@/testing/buyer-polished-shell-vitest-override";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) =>
   extendBuyerPolishedShellVitestMock(importOriginal),
 );
 
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/governance/dashboard",
+  usePathname: () => EXECUTIVE_DASHBOARD_HREF,
 }));
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({

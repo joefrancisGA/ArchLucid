@@ -55,6 +55,7 @@ import {
   GOVERNANCE_REVIEW_CONTEXT_PAGE_LEAD,
   GOVERNANCE_REVIEW_CONTEXT_PAGE_TITLE,
 } from "@/lib/governance-overview-copy";
+import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance-route-paths";
 import {
   BUYER_GOVERNANCE_APPROVAL_RECORD_LEAD,
   BUYER_GOVERNANCE_GOVERNED_USE_SCOPE,
@@ -506,7 +507,7 @@ export function GovernanceWorkflowPageContent() {
       <PageContextualHelpButton />
       {!isReviewContext ? (
         <Link
-          href="/governance/dashboard"
+          href={GOVERNANCE_WORKSPACE_HEALTH_HREF}
           className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.micro)}
           data-testid="governance-overview-workspace-health-link"
         >

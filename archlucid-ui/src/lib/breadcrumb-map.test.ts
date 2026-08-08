@@ -96,13 +96,6 @@ describe("getBreadcrumbs", () => {
     ]);
   });
 
-  it("maps governance dashboard segments", () => {
-    expect(getBreadcrumbs("/governance/dashboard")).toEqual([
-      { label: "Governance", href: "/governance/approval-queue" },
-      { label: "Governance dashboard" },
-    ]);
-  });
-
   it("maps operator ROI dashboard as portfolio overview", () => {
     expect(getBreadcrumbs(EXECUTIVE_DASHBOARD_HREF)).toEqual([
       { label: "Architecture" },
@@ -368,7 +361,7 @@ describe("getBreadcrumbs", () => {
 
   it("capitalizes ITSM acronym in admin integrations breadcrumb", () => {
     expect(getBreadcrumbs("/internal/integrations/itsm")).toEqual([
-      { label: "Admin", href: "/admin" },
+      { label: "Internal Operations", href: "/internal/health" },
       { label: "Integrations", href: "/internal/integrations" },
       { label: "ITSM connectors" },
     ]);

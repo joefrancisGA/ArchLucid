@@ -5,6 +5,7 @@
 import { expect, test } from "@playwright/test";
 
 import { RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN } from "./fixtures";
+import { EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF } from "@/lib/executive-dashboard-route";
 import { liveApiBase } from "./helpers/live-api-client";
 import { auditPageMainHeading, clickAuditSearchAndWaitForSuccessfulResponse, expandAuditBuyerFiltersIfPresent, expectAuditSearchNoResults } from "./helpers/operator-journey";
 
@@ -88,10 +89,10 @@ test.describe("live-api-error-states", () => {
     });
   });
 
-  test("governance dashboard loads without uncaught errors", async ({ page }) => {
+  test("executive dashboard workspace health loads without uncaught errors", async ({ page }) => {
     test.setTimeout(60_000);
 
-    await page.goto("/governance/dashboard");
+    await page.goto(EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF);
 
     // Heading copy was rebranded to "Executive Workspace Health" (full operator) / "Workspace
     // overview" (buyer-polished) in ExecutiveWorkspaceHealthDashboard.tsx — "Governance dashboard"

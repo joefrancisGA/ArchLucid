@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   GOVERNANCE_ALERT_RULES_PATH,
   GOVERNANCE_ALERTS_PATH,
-  GOVERNANCE_DASHBOARD_PATH,
+  GOVERNANCE_WORKSPACE_HEALTH_HREF,
   governanceAlertRulesTabHref,
   governanceAlertsTabHref,
 } from "@/lib/governance-route-paths";
@@ -12,7 +12,7 @@ describe("governance-route-paths", () => {
   it("exposes canonical governance alert paths", () => {
     expect(GOVERNANCE_ALERTS_PATH).toBe("/governance/alerts");
     expect(GOVERNANCE_ALERT_RULES_PATH).toBe("/governance/alert-rules");
-    expect(GOVERNANCE_DASHBOARD_PATH).toBe("/governance/dashboard");
+    expect(GOVERNANCE_WORKSPACE_HEALTH_HREF).toBe("/architecture/executive-dashboard#workspace-health");
   });
 
   it("builds alert-rules tab hrefs on the dedicated configuration route", () => {

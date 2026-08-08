@@ -376,7 +376,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { label: "Impact preview" },
   },
   {
-    prefix: "/internal-operations/recommendation-learning",
+    prefix: "/internal/recommendation-learning",
     topic: { slug: "pilot-feedback", label: "How recommendation learning works" },
   },
   {

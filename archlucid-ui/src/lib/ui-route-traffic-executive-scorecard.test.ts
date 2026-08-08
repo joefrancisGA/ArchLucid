@@ -4,19 +4,16 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
-  EXECUTIVE_SCORECARD_TRAFFIC_NOTE,
   EXECUTIVE_SCORECARD_TRAFFIC_PATH,
   EXECUTIVE_SCORECARD_TRAFFIC_ROW_ID,
-  EXECUTIVE_SCORECARD_TRAFFIC_SECTION,
 } from "@/lib/ui-route-traffic-executive-scorecard";
+import { ARCHITECTURE_EXECUTIVE_DASHBOARD_TRAFFIC_ROW_ID } from "@/lib/ui-route-traffic-architecture-executive-dashboard";
 
 const TEMPLATE_PATH = "docs/architecture/ui_route_traffic_estimates.template.md";
 
 type TrafficWorkbookRow = {
   id: string;
   path: string;
-  section: string;
-  notes: string;
 };
 
 function readTemplateMarkdown(): string {
@@ -47,24 +44,21 @@ function extractMasterTableRows(markdown: string): TrafficWorkbookRow[] {
     rows.push({
       id: cells[1] ?? "",
       path: (cells[2] ?? "").replace(/^`|`$/g, ""),
-      section: cells[7] ?? "",
-      notes: cells[8] ?? "",
     });
   }
 
   return rows;
 }
 
-describe("ui-route-traffic-executive-scorecard (ESX)", () => {
-  it("tracks Sponsor scorecard with honest workbook notes", () => {
+describe("ui-route-traffic-executive-scorecard (ESX removed)", () => {
+  it("does not track retired ESX shim; sponsor scorecard absorbed by ARE", () => {
     const rows = extractMasterTableRows(readTemplateMarkdown());
-    const row = rows.find((candidate) => candidate.id === EXECUTIVE_SCORECARD_TRAFFIC_ROW_ID);
+    const esxRow = rows.find((row) => row.id === EXECUTIVE_SCORECARD_TRAFFIC_ROW_ID);
+    const areRow = rows.find((row) => row.id === ARCHITECTURE_EXECUTIVE_DASHBOARD_TRAFFIC_ROW_ID);
+    const retiredPathRow = rows.find((row) => row.path === EXECUTIVE_SCORECARD_TRAFFIC_PATH);
 
-    expect(row).toBeDefined();
-    expect(row?.path).toBe(EXECUTIVE_SCORECARD_TRAFFIC_PATH);
-    expect(row?.section).toBe(EXECUTIVE_SCORECARD_TRAFFIC_SECTION);
-    expect(row?.notes).toBe(EXECUTIVE_SCORECARD_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("ExecutiveScorecardClient");
-    expect(row?.notes).toContain("Sources");
+    expect(esxRow).toBeUndefined();
+    expect(retiredPathRow).toBeUndefined();
+    expect(areRow).toBeDefined();
   });
 });

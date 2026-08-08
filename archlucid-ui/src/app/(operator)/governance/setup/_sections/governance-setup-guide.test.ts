@@ -5,6 +5,7 @@ import {
   isGovernanceFoundationIndicatorComplete,
   summarizeGovernanceSetupProgress,
 } from "@/app/(operator)/governance/setup/_sections/governance-setup-guide-steps";
+import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance-route-paths";
 import { presentGovernanceSetupStepStatus } from "@/app/(operator)/governance/setup/_sections/governance-setup-step-status-present";
 
 describe("governance-setup-guide-steps", () => {
@@ -13,7 +14,7 @@ describe("governance-setup-guide-steps", () => {
     expect(GOVERNANCE_SETUP_GUIDE_STEPS[0]?.primaryActionLabel).toBe("Configure policy packs");
     expect(GOVERNANCE_SETUP_GUIDE_STEPS[0]?.outcome.length).toBeGreaterThan(0);
     expect(GOVERNANCE_SETUP_GUIDE_STEPS[4]?.primaryActionLabel).toBe("Open workspace overview");
-    expect(GOVERNANCE_SETUP_GUIDE_STEPS[4]?.primaryActionHref).toBe("/governance/dashboard");
+    expect(GOVERNANCE_SETUP_GUIDE_STEPS[4]?.primaryActionHref).toBe(GOVERNANCE_WORKSPACE_HEALTH_HREF);
   });
 
   it("summarizes progress from step statuses", () => {

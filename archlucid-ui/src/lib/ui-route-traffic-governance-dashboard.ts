@@ -1,4 +1,4 @@
-import { GOVERNANCE_DASHBOARD_PATH } from "@/lib/governance-route-paths";
+import { EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF } from "@/lib/executive-dashboard-route";
 
 /**
  * Traffic workbook row ID for Executive Workspace Health dashboard.
@@ -6,14 +6,17 @@ import { GOVERNANCE_DASHBOARD_PATH } from "@/lib/governance-route-paths";
  */
 export const GOVERNANCE_DASHBOARD_TRAFFIC_ROW_ID = "GDX";
 
-/** Canonical path tracked on the GDX workbook row. */
-export const GOVERNANCE_DASHBOARD_TRAFFIC_PATH = GOVERNANCE_DASHBOARD_PATH;
+/** Retired standalone path — KPIs live on ARE (#workspace-health). */
+export const GOVERNANCE_DASHBOARD_TRAFFIC_PATH = "/governance/dashboard";
 
 /** Workbook Section column value — Alerts/gov, not marketing. */
 export const GOVERNANCE_DASHBOARD_TRAFFIC_SECTION = "Alerts/gov";
 
 /**
- * Owner workbook Notes for GDX — documents the live workspace-health dashboard surface.
+ * Owner workbook Notes for GDX — documents the retired workspace-health bookmark.
  */
 export const GOVERNANCE_DASHBOARD_TRAFFIC_NOTE =
-  "Retired standalone page — workspace-health KPIs merged onto ARE (`/architecture/executive-dashboard#workspace-health`). App Router shim at `/governance/dashboard` redirects; hit share absorbed by ARE.";
+  "Retired standalone page — workspace-health KPIs merged onto ARE (`/architecture/executive-dashboard#workspace-health`). Legacy `/governance/dashboard` bookmark hard-retired (host-gate 404); hit share absorbed by ARE.";
+
+/** Canonical in-app destination for GDX traffic attribution. */
+export const GOVERNANCE_DASHBOARD_TRAFFIC_CANONICAL_HREF = EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF;

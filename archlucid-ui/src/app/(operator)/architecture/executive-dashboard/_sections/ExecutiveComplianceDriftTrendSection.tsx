@@ -8,6 +8,7 @@ import { ComplianceDriftOpenResolvedChart } from "@/components/ComplianceDriftOp
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getComplianceDriftTrend } from "@/lib/api";
 import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance-route-paths";
 import type { ComplianceDriftTrendPoint } from "@/types/governance-dashboard";
 
 function rollingBounds30Days(): { fromUtc: string; toUtc: string } {
@@ -104,7 +105,7 @@ export function ExecutiveComplianceDriftTrendSection({
           )
         ) : null}
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-          <Link href="/governance/dashboard" className={OPERATOR_LINK.inline}>
+          <Link href={GOVERNANCE_WORKSPACE_HEALTH_HREF} className={OPERATOR_LINK.inline}>
             Open executive workspace health
           </Link>
         </p>

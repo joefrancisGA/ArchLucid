@@ -38,14 +38,6 @@ describe("resolveSponsorExecutiveRedirectTarget", () => {
     ).toBeNull();
   });
 
-  it("returns null for executive scorecard routes", () => {
-    expect(
-      resolveSponsorExecutiveRedirectTarget({
-        pathname: "/executive/scorecard",
-      }),
-    ).toBeNull();
-  });
-
   it("returns null for the consolidated dashboard route", () => {
     expect(
       resolveSponsorExecutiveRedirectTarget({

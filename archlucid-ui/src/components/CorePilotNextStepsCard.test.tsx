@@ -8,6 +8,7 @@ vi.mock("@/lib/core-pilot-commit-context", async (importOriginal) => {
 });
 
 import { START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
+import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance-route-paths";
 import { CorePilotNextStepsCard } from "@/components/CorePilotNextStepsCard";
 import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 
@@ -260,7 +261,7 @@ describe("CorePilotNextStepsCard", () => {
       expect(screen.getByTestId("pilot-step-badge")).toHaveTextContent("Step 4 of 4");
       expect(screen.getByRole("link", { name: /workspace health \(sponsor view\)/i })).toHaveAttribute(
         "href",
-        "/governance/dashboard",
+        GOVERNANCE_WORKSPACE_HEALTH_HREF,
       );
       expect(screen.getByRole("link", { name: /open ask \(operate\)/i })).toHaveAttribute("href", "/insights/ask-review-questions");
     });

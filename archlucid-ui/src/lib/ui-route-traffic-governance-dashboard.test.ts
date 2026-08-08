@@ -4,19 +4,16 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
-  GOVERNANCE_DASHBOARD_TRAFFIC_NOTE,
   GOVERNANCE_DASHBOARD_TRAFFIC_PATH,
   GOVERNANCE_DASHBOARD_TRAFFIC_ROW_ID,
-  GOVERNANCE_DASHBOARD_TRAFFIC_SECTION,
 } from "@/lib/ui-route-traffic-governance-dashboard";
+import { ARCHITECTURE_EXECUTIVE_DASHBOARD_TRAFFIC_ROW_ID } from "@/lib/ui-route-traffic-architecture-executive-dashboard";
 
 const TEMPLATE_PATH = "docs/architecture/ui_route_traffic_estimates.template.md";
 
 type TrafficWorkbookRow = {
   id: string;
   path: string;
-  section: string;
-  notes: string;
 };
 
 function readTemplateMarkdown(): string {
@@ -47,24 +44,21 @@ function extractMasterTableRows(markdown: string): TrafficWorkbookRow[] {
     rows.push({
       id: cells[1] ?? "",
       path: (cells[2] ?? "").replace(/^`|`$/g, ""),
-      section: cells[7] ?? "",
-      notes: cells[8] ?? "",
     });
   }
 
   return rows;
 }
 
-describe("ui-route-traffic-governance-dashboard (GDX)", () => {
-  it("tracks workspace-health dashboard with honest workbook notes", () => {
+describe("ui-route-traffic-governance-dashboard (GDX removed)", () => {
+  it("does not track retired GDX shim; workspace health stays on ARE", () => {
     const rows = extractMasterTableRows(readTemplateMarkdown());
-    const row = rows.find((candidate) => candidate.id === GOVERNANCE_DASHBOARD_TRAFFIC_ROW_ID);
+    const gdxRow = rows.find((row) => row.id === GOVERNANCE_DASHBOARD_TRAFFIC_ROW_ID);
+    const areRow = rows.find((row) => row.id === ARCHITECTURE_EXECUTIVE_DASHBOARD_TRAFFIC_ROW_ID);
+    const retiredPathRow = rows.find((row) => row.path === GOVERNANCE_DASHBOARD_TRAFFIC_PATH);
 
-    expect(row).toBeDefined();
-    expect(row?.path).toBe(GOVERNANCE_DASHBOARD_TRAFFIC_PATH);
-    expect(row?.section).toBe(GOVERNANCE_DASHBOARD_TRAFFIC_SECTION);
-    expect(row?.notes).toBe(GOVERNANCE_DASHBOARD_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("ExecutiveWorkspaceHealthDashboard");
-    expect(row?.notes).toContain("not governance-approval");
+    expect(gdxRow).toBeUndefined();
+    expect(retiredPathRow).toBeUndefined();
+    expect(areRow).toBeDefined();
   });
 });

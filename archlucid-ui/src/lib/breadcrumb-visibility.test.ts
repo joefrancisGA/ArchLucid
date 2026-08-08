@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import type { BreadcrumbItem } from "./breadcrumb-map";
 import { getBreadcrumbs } from "./breadcrumb-map";
 import { shouldShowBreadcrumbTrail } from "./breadcrumb-visibility";
@@ -17,7 +18,7 @@ describe("shouldShowBreadcrumbTrail", () => {
   });
 
   it("hides shallow two-level trails that mirror sidebar active state", () => {
-    expect(shouldShowBreadcrumbTrail("/governance/dashboard", trail("/governance/dashboard"))).toBe(false);
+    expect(shouldShowBreadcrumbTrail(EXECUTIVE_DASHBOARD_HREF, trail(EXECUTIVE_DASHBOARD_HREF))).toBe(false);
     expect(shouldShowBreadcrumbTrail("/governance/findings", trail("/governance/findings"))).toBe(false);
     expect(shouldShowBreadcrumbTrail("/governance/alert-rules", trail("/governance/alert-rules"))).toBe(false);
     expect(shouldShowBreadcrumbTrail("/administration/billing", trail("/administration/billing"))).toBe(

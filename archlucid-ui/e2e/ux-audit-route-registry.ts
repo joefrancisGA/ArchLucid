@@ -1,3 +1,4 @@
+import { EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF } from "@/lib/executive-dashboard-route";
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 
 import { EXECUTIVE_ROI_DASHBOARD_PATHS } from "./helpers/executive-roi-dashboard";
@@ -41,7 +42,7 @@ export const UX_AUDIT_OPERATOR_BUYER_ROUTES: readonly UxAuditRouteEntry[] = [
   { slug: "settings-security-trust", href: "/administration/security-trust", persona: "security-architect" },
   { slug: "policy-packs", href: "/governance/policy-packs", persona: "security-architect" },
   { slug: "governance", href: "/governance/approval-queue", persona: "governance-reviewer" },
-  { slug: "governance-dashboard", href: "/governance/dashboard", persona: "governance-reviewer" },
+  { slug: "governance-dashboard", href: EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF, persona: "governance-reviewer" },
   {
     slug: "audit",
     href: auditTrailNavHref(SHOWCASE_DEMO_RUN_ID),

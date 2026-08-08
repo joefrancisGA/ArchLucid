@@ -41,9 +41,16 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/help/cloud-connections-azure": "/help/cloud-connections/azure",
     "/help/cloud-connections-aws": "/help/cloud-connections/aws",
     "/help/cloud-connections-gcp": "/help/cloud-connections/gcp",
-    "/manifests": "/signed-records",
-    "/manifests/[manifestId]": "/signed-records/[manifestId]",
-    "/manifests/[manifestId]/artifacts/[artifactId]": "/signed-records/[manifestId]/artifacts/[artifactId]",
+    "/manifests": "/governance/signed-records",
+    "/manifests/[manifestId]": "/governance/signed-records/[manifestId]",
+    "/manifests/[manifestId]/artifacts/[artifactId]": (
+        "/governance/signed-records/[manifestId]/artifacts/[artifactId]"
+    ),
+    "/signed-records": "/governance/signed-records",
+    "/signed-records/[manifestId]": "/governance/signed-records/[manifestId]",
+    "/signed-records/[manifestId]/artifacts/[artifactId]": (
+        "/governance/signed-records/[manifestId]/artifacts/[artifactId]"
+    ),
     "/settings/cost-reporting": "/administration/ai-usage",
     "/settings/ai-usage": "/administration/ai-usage",
     # TB-1124: Advisory scans hub under Governance (next.config permanent redirects only).
@@ -80,6 +87,34 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/settings": "/administration",
     "/administration/settings": "/administration",
     "/governance/risk-exceptions": "/governance/exceptions",
+    # Internal Operations rename (was /admin/* platform surfaces).
+    "/admin/health": "/internal/health",
+    "/admin/tenant-health": "/internal/tenant-health",
+    "/admin/configuration": "/internal/configuration",
+    "/admin/rag-health": "/internal/rag-health",
+    "/admin/integrations/itsm": "/internal/integrations/itsm",
+    "/admin/tenants": "/internal/tenants",
+    "/admin/evidence-proposals": "/internal/evidence-proposals",
+    "/admin/fleet-llm-cogs": "/internal/fleet-llm-cogs",
+    "/admin/pricing-quote-aging": "/internal/pricing-quote-aging",
+    "/admin/trial-funnel": "/internal/trial-funnel",
+    "/admin/demo-readiness": "/internal/demo-readiness",
+    "/admin/deployment-status": "/internal/deployment-status",
+    # Sponsor report → Insights.
+    "/sponsor-report": "/insights/executive-summary",
+    "/sponsor-report/executive-summary": "/insights/executive-summary",
+    "/sponsor-report/roi-summary": "/insights/roi-summary",
+    "/sponsor-report/pilot-outcomes": "/insights/pilot-outcomes",
+    "/sponsor-report/architecture-scorecard": "/insights/architecture-scorecard",
+    "/value-report": "/insights/executive-summary",
+    "/value-report/roi": "/insights/roi-summary",
+    "/value-report/pilot": "/insights/pilot-outcomes",
+    # Validate review (replay) under Internal Operations.
+    "/replay": "/internal/replay",
+    # Legacy internal-ops path segments.
+    "/internal-operations/recommendation-learning": "/internal/recommendation-learning",
+    "/operate/integration-events/dlq": "/internal/integration-events/dlq",
+    "/product-learning": "/internal/product-learning",
 }
 
 # Legacy App Router redirect stubs — canonical nav hrefs live under /governance/advisory-scans (TB-1124).
@@ -278,6 +313,14 @@ def infer_section(path: str, *, help_alias_paths: set[str]) -> str:
         return "Settings"
     if path.startswith("/integrations"):
         return "Integrations"
+    if path.startswith("/internal"):
+        if path.startswith("/internal/integration-events"):
+            return "Advisory"
+        if path == "/internal/product-learning":
+            return "Onboarding"
+        if path == "/internal/replay":
+            return "Marketing"
+        return "Admin"
     if path.startswith("/admin"):
         return "Admin"
     if path.startswith("/auth") or path == "/login" or path == "/403":
@@ -286,7 +329,11 @@ def infer_section(path: str, *, help_alias_paths: set[str]) -> str:
         return "Help topic"
     if path.startswith("/executive"):
         return "Executive"
-    if path.startswith("/insights/executive-summary"):
+    if (
+        path.startswith("/insights/executive-summary")
+        or path.startswith("/insights/roi-summary")
+        or path.startswith("/insights/pilot-outcomes")
+    ):
         return "Sponsor report"
     if path.startswith("/architecture/digests") or path.startswith("/digests") or path == "/digest-subscriptions":
         return "Digests"
@@ -298,7 +345,6 @@ def infer_section(path: str, *, help_alias_paths: set[str]) -> str:
         path == "/architecture/first-review-guide"
         or path.startswith("/onboard")
         or path.startswith("/getting-started")
-        or path == "/product-learning"
     ):
         return "Onboarding"
     if path.startswith("/planning") or path.startswith("/graph") or path == "/compare":

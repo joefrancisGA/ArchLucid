@@ -25,7 +25,6 @@ export const REVIEW_TERMINOLOGY_HIGH_TRAFFIC_SURFACE_PATHS = [
   "src/app/(operator)/insights/architecture-scorecard/_sections/PilotScorecardPageView.tsx",
   "src/app/(operator)/insights/pilot-outcomes/_sections/PilotValueReportPageView.tsx",
   "src/app/(operator)/governance/policy-packs/_sections/PolicyRuleAuthoringWizard.tsx",
-  "src/app/(executive)/executive/scorecard/ExecutiveScorecardClient.tsx",
 ] as const;
 
 /** Lowercase phrase fragments that must not appear as primary user-facing labels on scanned surfaces. */

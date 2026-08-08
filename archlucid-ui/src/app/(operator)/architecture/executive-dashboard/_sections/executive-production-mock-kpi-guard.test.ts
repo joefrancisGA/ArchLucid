@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -23,7 +23,6 @@ const FORBIDDEN_LOCAL_SAVINGS_MATH =
 const PRODUCTION_ROUTE_ROOTS = [
   join(uiRoot, "src", "app", "(operator)", "architecture", "executive-dashboard"),
   join(uiRoot, "src", "app", "(operator)", "value-report"),
-  join(uiRoot, "src", "app", "(executive)"),
 ];
 
 const GUARD_SELF_FILES = [
@@ -32,6 +31,10 @@ const GUARD_SELF_FILES = [
 ];
 
 function listSourceFiles(dir: string, acc: string[] = []): string[] {
+  if (!existsSync(dir)) {
+    return acc;
+  }
+
   for (const entry of readdirSync(dir)) {
     const full = join(dir, entry);
     const stat = statSync(full);

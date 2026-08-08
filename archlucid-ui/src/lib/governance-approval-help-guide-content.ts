@@ -3,6 +3,7 @@ import {
   GOVERNANCE_APPROVAL_QUEUE_PATH,
   GOVERNANCE_AUDIT_PATH,
   GOVERNANCE_RESOLUTION_PATH,
+  GOVERNANCE_WORKSPACE_HEALTH_HREF,
 } from "@/lib/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
@@ -21,7 +22,7 @@ export const GOVERNANCE_APPROVAL_HELP_PRIMARY_ACTIONS = {
   },
   openDashboard: {
     label: "Open governance dashboard",
-    href: "/governance/dashboard",
+    href: GOVERNANCE_WORKSPACE_HEALTH_HREF,
   },
   openRiskRegister: {
     label: "View the risk register",
@@ -224,7 +225,7 @@ export const GOVERNANCE_APPROVAL_HELP_COMMON_ACTIONS: readonly GovernanceApprova
   {
     label: "Review pending requests",
     description: "See cross-review pending work on the governance dashboard.",
-    href: "/governance/dashboard",
+    href: GOVERNANCE_WORKSPACE_HEALTH_HREF,
   },
   {
     label: "Record a governance decision",
@@ -234,7 +235,7 @@ export const GOVERNANCE_APPROVAL_HELP_COMMON_ACTIONS: readonly GovernanceApprova
   {
     label: "Open the governance dashboard",
     description: "Monitor pending approvals, recent decisions, and policy changes.",
-    href: "/governance/dashboard",
+    href: GOVERNANCE_WORKSPACE_HEALTH_HREF,
   },
   {
     label: "View the risk register",

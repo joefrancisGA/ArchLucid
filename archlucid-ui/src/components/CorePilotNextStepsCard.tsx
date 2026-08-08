@@ -17,6 +17,7 @@ import {
 } from "@/lib/core-pilot-commit-progress";
 import { fetchCorePilotCommitContextCached } from "@/lib/core-pilot-commit-context";
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
+import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance-route-paths";
 import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-disclosure-storage";
 import { OPERATOR_START_REVIEW_QUICK_ACTION_LABEL } from "@/lib/operator-nav-labels";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -360,7 +361,7 @@ export function CorePilotNextStepsCard() {
             Now available (optional):
           </p>
           <Link
-            href="/governance/dashboard"
+            href={GOVERNANCE_WORKSPACE_HEALTH_HREF}
             className="text-neutral-600 underline decoration-neutral-400 underline-offset-2 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-200"
           >
             Workspace health (sponsor view)

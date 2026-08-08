@@ -8,6 +8,7 @@ import type { PreCommitGovernanceBlockView } from "@/lib/pre-commit-governance-b
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { policyPacksEditHref } from "@/lib/policy-packs-deep-link";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance-route-paths";
 
 export type PreCommitGovernanceBlockPanelProps = {
   readonly runId: string;
@@ -113,7 +114,7 @@ export function PreCommitGovernanceBlockPanel(props: PreCommitGovernanceBlockPan
           Governance bypass and override guidance →
         </Link>
         <Link
-          href="/governance/dashboard"
+          href={GOVERNANCE_WORKSPACE_HEALTH_HREF}
           className={OPERATOR_LINK.nav}
           data-testid="pre-commit-governance-block-audit-link"
         >

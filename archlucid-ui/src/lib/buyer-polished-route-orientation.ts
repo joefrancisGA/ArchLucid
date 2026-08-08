@@ -139,13 +139,6 @@ export function buyerPolishedRouteOrientation(
     return null;
   }
 
-  if (path === "/executive/scorecard") {
-    return {
-      label: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.scorecardPageTitle,
-      line: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.scorecardLayerContextLine,
-    };
-  }
-
   if (path.startsWith("/insights/evidence-graph")) {
     return null;
   }
@@ -167,10 +160,6 @@ export function buyerPolishedRouteOrientation(
   }
 
   if (pathMatchesGovernanceAlerts(path)) {
-    return null;
-  }
-
-  if (path === "/governance/dashboard" || path.startsWith("/governance/dashboard/")) {
     return null;
   }
 

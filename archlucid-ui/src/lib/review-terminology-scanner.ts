@@ -39,7 +39,6 @@ const EXCLUDED_RELATIVE_PATH_FRAGMENTS = [
 export const REVIEW_TERMINOLOGY_GLOBAL_SCAN_ROOTS = [
   "src/app/(operator)",
   "src/app/(marketing)",
-  "src/app/(executive)",
   "src/components",
   "src/lib",
 ] as const;

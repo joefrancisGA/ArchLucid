@@ -166,6 +166,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/administration/baseline",
       "/integrations/cloud-connections",
       "/integrations/jira",
+      "/integrations/azure-boards",
       "/integrations/itsm/oauth/callback",
       "/integrations/servicenow",
       "/integrations/slack",
