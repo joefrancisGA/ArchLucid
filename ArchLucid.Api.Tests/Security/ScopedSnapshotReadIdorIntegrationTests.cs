@@ -198,7 +198,7 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
     {
         await AssertCrossTenantRouteDeniedAsync(
             "retrieval grounding",
-            static (client, runId) => client.GetAsync($"/v1/authority/runs/{runId}/retrieval-grounding"));
+            static (client, runId) => client.GetAsync($"/v1/authority/reviews/{runId}/retrieval-grounding"));
     }
 
     [SkippableFact]
@@ -206,7 +206,7 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
     {
         await AssertCrossTenantRouteDeniedAsync(
             "authority run detail v1",
-            static (client, runId) => client.GetAsync($"/v1/authority/runs/{runId}"));
+            static (client, runId) => client.GetAsync($"/v1/authority/reviews/{runId}"));
     }
 
     [SkippableFact]

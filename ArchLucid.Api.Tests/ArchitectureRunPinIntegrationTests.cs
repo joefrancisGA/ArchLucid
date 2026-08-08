@@ -34,7 +34,7 @@ public sealed class ArchitectureRunPinIntegrationTests(ArchLucidApiFactory facto
         firstPayload.Should().NotBeNull();
         firstPayload!.IsPinned.Should().BeTrue();
 
-        HttpResponseMessage summaryAfterPin = await Client.GetAsync($"/v1/authority/runs/{runId}/summary");
+        HttpResponseMessage summaryAfterPin = await Client.GetAsync($"/v1/authority/reviews/{runId}/summary");
         await summaryAfterPin.EnsureSuccessForTestAsync();
         RunSummaryResponse? summary = await summaryAfterPin.Content.ReadFromJsonAsync<RunSummaryResponse>(JsonOptions);
         summary.Should().NotBeNull();

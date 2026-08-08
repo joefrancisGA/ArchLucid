@@ -48,7 +48,7 @@ public sealed class ArchitectureRunDetailsTests(ArchLucidApiFactory factory) : I
 
         Guid authorityRunKey = Guid.Parse(runId);
         HttpResponseMessage authorityDetailResponse =
-            await Client.GetAsync($"/v1/authority/runs/{authorityRunKey:D}");
+            await Client.GetAsync($"/v1/authority/reviews/{authorityRunKey:D}");
         await authorityDetailResponse.EnsureSuccessForTestAsync();
         using JsonDocument authorityDetailDoc =
             JsonDocument.Parse(await authorityDetailResponse.Content.ReadAsStringAsync());

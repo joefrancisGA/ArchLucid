@@ -24,7 +24,7 @@ public sealed class BuyerAudienceProblemDetailsIntegrationTests
         _ = client.DefaultRequestHeaders.TryAddWithoutValidation(ProblemDetailsAudienceHttpContext.AudienceHeaderName, "buyer");
 
         Guid missingRun = Guid.Parse("00000000-0000-0000-0000-000000000099");
-        HttpResponseMessage response = await client.GetAsync($"/v1/authority/runs/{missingRun:D}/buyer-summary");
+        HttpResponseMessage response = await client.GetAsync($"/v1/authority/reviews/{missingRun:D}/buyer-summary");
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
 
         string body = await response.Content.ReadAsStringAsync();

@@ -31,7 +31,7 @@ public sealed class ReplayCommitOriginalGoldenManifestIsolationIntegrationTests(
         await executeResponse.EnsureSuccessForTestAsync();
         HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
         await commitResponse.EnsureSuccessForTestAsync();
-        HttpResponseMessage detailBeforeReplay = await Client.GetAsync($"/v1/authority/runs/{runId}");
+        HttpResponseMessage detailBeforeReplay = await Client.GetAsync($"/v1/authority/reviews/{runId}");
         await detailBeforeReplay.EnsureSuccessForTestAsync();
         string bodyBefore = await detailBeforeReplay.Content.ReadAsStringAsync();
         string fingerprintBefore = GoldenManifestRawFingerprint(bodyBefore);
@@ -48,14 +48,14 @@ public sealed class ReplayCommitOriginalGoldenManifestIsolationIntegrationTests(
         ReplayRunResponseDto? replayPayload = await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponseDto>(JsonOptions);
         replayPayload!.ReplayRunId.Should().NotBe(runId);
 
-        HttpResponseMessage detailAfterReplay = await Client.GetAsync($"/v1/authority/runs/{runId}");
+        HttpResponseMessage detailAfterReplay = await Client.GetAsync($"/v1/authority/reviews/{runId}");
         await detailAfterReplay.EnsureSuccessForTestAsync();
         string bodyAfter = await detailAfterReplay.Content.ReadAsStringAsync();
         string fingerprintAfter = GoldenManifestRawFingerprint(bodyAfter);
 
         fingerprintAfter.Should().Be(fingerprintBefore);
 
-        HttpResponseMessage replayRunDetail = await Client.GetAsync($"/v1/authority/runs/{replayPayload.ReplayRunId}");
+        HttpResponseMessage replayRunDetail = await Client.GetAsync($"/v1/authority/reviews/{replayPayload.ReplayRunId}");
         replayRunDetail.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 

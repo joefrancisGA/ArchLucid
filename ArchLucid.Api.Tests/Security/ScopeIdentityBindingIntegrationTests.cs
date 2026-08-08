@@ -17,7 +17,7 @@ namespace ArchLucid.Api.Tests.Security;
 [Trait("Category", "Integration")]
 public sealed class ScopeIdentityBindingIntegrationTests
 {
-    private const string RunsListPath = "/v1/authority/projects/default/runs?take=1";
+    private const string RunsListPath = "/v1/authority/projects/default/reviews?take=1";
 
     private const string ScopeDebugPath = "/v1/scope";
 

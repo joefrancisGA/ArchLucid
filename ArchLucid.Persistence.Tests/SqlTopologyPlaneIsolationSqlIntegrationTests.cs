@@ -28,10 +28,11 @@ public sealed class SqlTopologyPlaneIsolationSqlIntegrationTests
         PreparedTopologyDatabases d = PrepareTopologyDatabasesOrSkip();
 
         await TableShouldExistAsync(d.SystemCatalogConnectionString, "TenantDatabaseBindings", expected: true);
-        // Tenant baseline + DbUp define dbo.Runs; system plane excludes that product DDL (legacy dbo.ArchitectureRuns was dropped in 049).
+        // Tenant baseline + DbUp define dbo.Reviews (ADR 0064); dbo.Runs is a synonym after migration 295.
+        await TableShouldExistAsync(d.SystemCatalogConnectionString, "Reviews", expected: false);
         await TableShouldExistAsync(d.SystemCatalogConnectionString, "Runs", expected: false);
 
-        await TableShouldExistAsync(d.TenantCatalogConnectionString, "Runs", expected: true);
+        await TableShouldExistAsync(d.TenantCatalogConnectionString, "Reviews", expected: true);
         await TableShouldExistAsync(d.TenantCatalogConnectionString, "TenantDatabaseBindings", expected: false);
     }
 

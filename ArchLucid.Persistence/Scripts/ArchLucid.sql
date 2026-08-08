@@ -8608,7 +8608,8 @@ BEGIN
     DECLARE @cntAgentTrace INT = 0;
     DECLARE @cntComparison INT = 0;
 
-    IF COL_LENGTH(N'dbo.GoldenManifests', N'ArchivedUtc') IS NOT NULL
+    IF COL_LENGTH(N'dbo.SignedReviewRecords', N'ArchivedUtc') IS NOT NULL
+       OR COL_LENGTH(N'dbo.GoldenManifests', N'ArchivedUtc') IS NOT NULL
     BEGIN
         UPDATE gm
         SET ArchivedUtc = SYSUTCDATETIME()

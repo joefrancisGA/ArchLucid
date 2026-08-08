@@ -82,10 +82,12 @@ END
 
 -- Runs: global archive retention job uses WHERE ArchivedUtc IS NULL AND CreatedUtc < @Cutoff
 -- with no scope columns. IX_Runs_Scope_CreatedUtc (see migration 061 for covering INCLUDE) leads with TenantId.
-IF NOT EXISTS (
+-- After ADR 0064 / migration 295, dbo.Runs may be a synonym — DDL only when base user table exists.
+IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+AND NOT EXISTS (
     SELECT 1 FROM sys.indexes
     WHERE name = N'IX_Runs_ArchiveRetention'
-      AND object_id = OBJECT_ID(N'dbo.Runs'))
+      AND object_id = OBJECT_ID(N'dbo.Runs', N'U'))
 BEGIN
     CREATE NONCLUSTERED INDEX IX_Runs_ArchiveRetention
         ON dbo.Runs (CreatedUtc ASC)

@@ -89,7 +89,7 @@ public sealed class FinalizedEvidenceImmutabilityIntegrationTests(ArchLucidApiFa
 
     private async Task<string> GoldenManifestRawFingerprintAsync(string runId)
     {
-        HttpResponseMessage detailResponse = await Client.GetAsync($"/v1/authority/runs/{runId}");
+        HttpResponseMessage detailResponse = await Client.GetAsync($"/v1/authority/reviews/{runId}");
         await detailResponse.EnsureSuccessForTestAsync();
         string body = await detailResponse.Content.ReadAsStringAsync();
 
