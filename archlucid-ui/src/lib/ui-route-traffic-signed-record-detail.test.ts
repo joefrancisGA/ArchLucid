@@ -66,5 +66,6 @@ describe("ui-route-traffic-signed-record-detail (MMX)", () => {
     expect(row?.notes).toBe(SIGNED_RECORD_DETAIL_TRAFFIC_NOTE);
     expect(row?.notes).toContain("ManifestDetailPageView");
     expect(row?.notes).toContain("Sources");
+    expect(.notes).toContain("cannot improve further toward 80");
   });
 });
