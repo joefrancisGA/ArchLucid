@@ -5,11 +5,11 @@ import * as React from "react";
 import * as LabelPrimitive from "@radix-ui/react-label";
 import { cva, type VariantProps } from "class-variance-authority";
 
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_FORM_FIELD_LABEL_CLASS } from "@/lib/design-tokens";
 
 const labelVariants = cva(
-  (cn("font-semibold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70", OPERATOR_TYPOGRAPHY.body))
-)
+  `${OPERATOR_FORM_FIELD_LABEL_CLASS} peer-disabled:cursor-not-allowed peer-disabled:opacity-70`,
+);
 
 const Label = React.forwardRef<
   React.ElementRef<typeof LabelPrimitive.Root>,

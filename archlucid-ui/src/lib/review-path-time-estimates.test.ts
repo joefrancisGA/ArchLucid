@@ -6,7 +6,7 @@ describe("review-path-time-estimates", () => {
   it("formats quick review estimate", () => {
     const estimate = formatReviewPathTimeEstimate("quick-review");
     expect(estimate).toContain("2–5 min");
-    expect(estimate).toContain("to start analysis");
+    expect(estimate).toContain("to start a review");
     expect(estimate).not.toContain("pipeline execution");
   });
 

@@ -21,11 +21,11 @@ describe("InlineGuidanceText", () => {
 
   it("emphasizes the fastest first-pilot path scan label", () => {
     render(
-      <InlineGuidanceText text="Fastest first-pilot path: review title, attach evidence, and start analysis in one screen." />,
+      <InlineGuidanceText text="Fastest first-pilot path: review title, attach evidence, and start a review in one screen." />,
     );
 
     expect(screen.getByText("Fastest first-pilot path:").tagName).toBe("STRONG");
-    expect(screen.getByText(/review title, attach evidence, and start analysis in one screen\./)).toBeInTheDocument();
+    expect(screen.getByText(/review title, attach evidence, and start a review in one screen\./)).toBeInTheDocument();
   });
 
   it("capitalizes label-style guidance bodies after the colon", () => {

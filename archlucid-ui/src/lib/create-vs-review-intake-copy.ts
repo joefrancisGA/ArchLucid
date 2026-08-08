@@ -3,11 +3,12 @@
  * Review paths live under `/architecture/reviews/new`; create paths under `/architectures/**`.
  */
 
-/** Quick-review progress header — evidence before optional brief. */
-export const REVIEW_INTAKE_EVIDENCE_FIRST_PROGRESS_TITLE = "Start from architecture evidence";
-
+/**
+ * Quick-review intake lead — evidence preferred, context-only path allowed. Sits on the form card itself:
+ * the page lead already covers cloud-optional framing, so this states only the evidence-or-context rule.
+ */
 export const REVIEW_INTAKE_EVIDENCE_FIRST_PROGRESS_LEAD =
-  "Upload a diagram or document, then add context. Evidence drives the review — cloud connection stays optional.";
+  "Attach a diagram or document when you have one, or describe the architecture in enough detail if you are not uploading files.";
 
 /** Architecture draft workspace — iterative brief before review handoff. */
 export const ARCHITECTURE_DRAFT_WORKSPACE_LEAD =

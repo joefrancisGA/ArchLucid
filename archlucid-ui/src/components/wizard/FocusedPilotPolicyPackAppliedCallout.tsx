@@ -2,11 +2,7 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReactElement } from "react";
 
-import { StatusTag } from "@/components/ui/status-tag";
-import {
-  FOCUSED_PILOT_MODE_COPY,
-  FOCUSED_PILOT_MODE_PACK_DISPLAY_NAMES,
-} from "@/lib/focused-pilot-mode-policy-packs";
+import { FOCUSED_PILOT_MODE_COPY } from "@/lib/focused-pilot-mode-policy-packs";
 
 export type FocusedPilotPolicyPackAppliedCalloutProps = {
   readonly className?: string;
@@ -32,11 +28,6 @@ export function FocusedPilotPolicyPackAppliedCallout(
       <p className={cn("m-0 mt-2 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
         {FOCUSED_PILOT_MODE_COPY.appliedCalloutBody}
       </p>
-      <div className="mt-3 flex flex-wrap gap-2">
-        {FOCUSED_PILOT_MODE_PACK_DISPLAY_NAMES.map((packName) => (
-          <StatusTag key={packName} kind="neutral" label={packName} />
-        ))}
-      </div>
     </div>
   );
 }

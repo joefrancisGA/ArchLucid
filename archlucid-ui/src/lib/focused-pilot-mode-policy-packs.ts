@@ -28,6 +28,11 @@ export const FOCUSED_PILOT_MODE_COPY = {
   appliedCalloutBody: CORE_PILOT_PATH_STREAMLINED_LABELS.standardsAppliedBody,
   toggleAssistiveOn: CORE_PILOT_PATH_STREAMLINED_LABELS.focusedPilotToggleAssistiveOn,
   toggleAssistiveOff: CORE_PILOT_PATH_STREAMLINED_LABELS.focusedPilotToggleAssistiveOff,
+  choiceLegend: CORE_PILOT_PATH_STREAMLINED_LABELS.reviewScopeChoiceLegend,
+  choiceRecommendedLabel: CORE_PILOT_PATH_STREAMLINED_LABELS.reviewScopeRecommendedLabel,
+  choiceRecommendedDescription: CORE_PILOT_PATH_STREAMLINED_LABELS.reviewScopeRecommendedDescription,
+  choiceAllLabel: CORE_PILOT_PATH_STREAMLINED_LABELS.reviewScopeAllLabel,
+  choiceAllDescription: CORE_PILOT_PATH_STREAMLINED_LABELS.reviewScopeAllDescription,
 } as const;
 
 /** Create-architecture intake — scope card copy (distinct from review quick-start toggle). */
