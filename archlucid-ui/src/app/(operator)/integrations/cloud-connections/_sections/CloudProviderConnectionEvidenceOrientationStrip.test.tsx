@@ -38,4 +38,17 @@ describe("CloudProviderConnectionEvidenceOrientationStrip", () => {
 
     expect(links.some((link) => link.href === CLOUD_PROVIDER_CONNECTION_PATHS.azure)).toBe(false);
   });
+
+  it("lists GCP follow-up Sources without self-linking the GCP detail path", () => {
+    render(<CloudProviderConnectionEvidenceOrientationStrip provider="gcp" />);
+
+    const sources = screen.getByTestId("cloud-connection-gcp-sources");
+    const links = cloudProviderConnectionSources("gcp");
+
+    for (const link of links) {
+      expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
+    }
+
+    expect(links.some((link) => link.href === CLOUD_PROVIDER_CONNECTION_PATHS.gcp)).toBe(false);
+  });
 });

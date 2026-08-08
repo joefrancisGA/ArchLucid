@@ -621,7 +621,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
-    prefix: "/insights/planning/plans",
+    prefix: "/insights/improvement-planning/plans",
     entry: {
       whatIsThisPage:
         "Review one prioritized improvement plan derived from captured feedback, including status and linked themes.",
@@ -637,7 +637,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
-    prefix: "/insights/planning",
+    prefix: "/insights/improvement-planning",
     entry: {
       whatIsThisPage:
         "Convert review feedback into recurring themes, prioritized improvement plans, and exportable summaries.",
@@ -1734,6 +1734,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whyEmpty: "Saved connections and recent collection runs appear after you validate federated credentials.",
       whereToConfigurePrerequisite:
         "Provisioning the service principal usually needs cloud-admin authority; saving the connection in ArchLucid needs Operate authority.",
+    },
+  },
+  {
+    prefix: "/integrations/cloud-connections/gcp",
+    entry: {
+      whatIsThisPage:
+        "GCP cloud connection — configure read-only Cloud Asset Inventory through Workload Identity Federation.",
+      whatToDoNext:
+        "Complete security preflight, record the pool provider and service-account email, save the connection, then re-poll to validate access.",
+      whyEmpty: "Saved connections and last poll timestamps appear after you save a project.",
+      whereToConfigurePrerequisite:
+        "Provisioning Workload Identity Federation usually needs cloud-admin authority; saving the connection in ArchLucid needs Operate authority.",
     },
   },
   {

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 
@@ -7,6 +7,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cloudSecurityPreflightTopics } from "@/lib/cloud-security-preflight-topics";
 
 import { CloudConnectionsProviderHeader } from "./CloudConnectionsProviderHeader";
+import { CloudProviderConnectionEvidenceOrientationStrip } from "./CloudProviderConnectionEvidenceOrientationStrip";
 import { CloudProviderDetailLayout } from "./CloudProviderDetailLayout";
 import {
   CloudSecurityPreflightPanel,
@@ -21,6 +22,8 @@ export function GcpCloudConnectionDetailClient() {
         providerLabel="GCP"
         overview="Read-only Cloud Asset Inventory through Workload Identity Federation."
       />
+
+      <CloudProviderConnectionEvidenceOrientationStrip provider="gcp" />
 
       <CloudProviderDetailLayout
         providerLabel="GCP"

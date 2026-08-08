@@ -24,5 +24,6 @@ describe("GcpCloudConnectionDetailClient", () => {
     expect(detail).toBeInTheDocument();
     expect(detail).not.toHaveTextContent(/Preview/i);
     expect(detail).toHaveTextContent(/Workload Identity Federation/i);
+    expect(screen.getByTestId("cloud-connection-gcp-orientation")).toBeInTheDocument();
   });
 });

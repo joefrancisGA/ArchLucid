@@ -86,8 +86,8 @@ describe("contextual-help-registry (TB-733)", () => {
       "/digests",
       "/digest-subscriptions",
       "/help/digests",
-      "/insights/planning/plans",
-      "/insights/planning",
+      "/insights/improvement-planning/plans",
+      "/insights/improvement-planning",
       "/insights/impact-preview",
       "/internal/product-learning",
       "/why-archlucid",
@@ -167,6 +167,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/integrations/cloud-connections",
       "/integrations/cloud-connections/aws",
       "/integrations/cloud-connections/azure",
+      "/integrations/cloud-connections/gcp",
       "/integrations/jira",
       "/integrations/azure-boards",
       "/integrations/itsm/oauth/callback",
@@ -203,7 +204,7 @@ describe("contextual-help-registry (TB-733)", () => {
     expect(contextualHelpForPathname("/insights/executive-summary")?.whatIsThisPage).toContain(
       "Sponsor executive summary",
     );
-    expect(contextualHelpForPathname("/insights/planning/plans/plan-1")?.whatIsThisPage).toContain("one prioritized improvement plan");
+    expect(contextualHelpForPathname("/insights/improvement-planning/plans/plan-1")?.whatIsThisPage).toContain("one prioritized improvement plan");
   });
 
   it("resolves Overview home without stealing other routes (HOM / TB-1667)", () => {
@@ -229,6 +230,9 @@ describe("contextual-help-registry (TB-733)", () => {
     );
     expect(contextualHelpForPathname("/integrations/cloud-connections/azure")?.whatIsThisPage).toContain(
       "Azure cloud connection",
+    );
+    expect(contextualHelpForPathname("/integrations/cloud-connections/gcp")?.whatIsThisPage).toContain(
+      "GCP cloud connection",
     );
     expect(contextualHelpForPathname("/settings/cloud-connections")?.whatIsThisPage).toContain(
       "read-only evidence collection",
