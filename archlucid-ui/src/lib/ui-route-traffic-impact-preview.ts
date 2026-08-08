@@ -1,0 +1,18 @@
+/**
+ * Traffic workbook row ID for Impact preview.
+ * Owner backlog shorthand: INI (template formerly EXX).
+ */
+export const IMPACT_PREVIEW_TRAFFIC_ROW_ID = "INI";
+
+/** Canonical path tracked on the INI workbook row. */
+export const IMPACT_PREVIEW_TRAFFIC_PATH = "/insights/impact-preview";
+
+/** Workbook Section column value (catalog; insights operator surface). */
+export const IMPACT_PREVIEW_TRAFFIC_SECTION = "Marketing";
+
+/**
+ * Owner workbook Notes for INI - documents Evidence chrome on Impact preview.
+ * ASCII-only for Windows console note scripts.
+ */
+export const IMPACT_PREVIEW_TRAFFIC_NOTE =
+  "Impact preview (Insights) - EvolutionReviewPageView with OperatorPageHeader PageContextualHelpButton (Category-1 registry; topic map label-only Learn more omitted TB-2050), ImpactPreviewEvidenceOrientationStrip (workspace Sources + claim-discipline), proposed-change/baseline simulation setup + results. Formerly /evolution-review (retired; no redirect). Not a signed-record Sources trail by itself. Sibling CXX = compare-two-reviews; REP = validate review. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-08) - insights what-if simulation hard-caps higher Evidence.";
