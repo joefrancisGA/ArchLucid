@@ -363,6 +363,17 @@ function renderHelpTopicView(
     );
   }
 
+  if (loaded.entry.slug === "report-a-problem") {
+    return (
+      <HelpTopicMarkdownView
+        entry={loaded.entry}
+        markdown={loaded.markdown}
+        showContextualHelp
+        evidenceOrientation={<ReportAProblemHelpEvidenceOrientationStrip />}
+      />
+    );
+  }
+
   if (loaded.entry.slug === "integration-readiness") {
     return (
       <HelpTopicMarkdownView
