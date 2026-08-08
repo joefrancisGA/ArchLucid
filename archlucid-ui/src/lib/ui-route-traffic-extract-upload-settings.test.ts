@@ -69,5 +69,6 @@ describe("ui-route-traffic-extract-upload-settings (ADX)", () => {
     expect(row?.section).toBe(EXTRACT_UPLOAD_SETTINGS_TRAFFIC_SECTION);
     expect(row?.notes).toBe(EXTRACT_UPLOAD_SETTINGS_TRAFFIC_NOTE);
     expect(row?.notes).toContain("ExtractUploadSettingsPageClient");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
