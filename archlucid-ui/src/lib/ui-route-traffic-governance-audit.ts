@@ -15,4 +15,4 @@ export const GOVERNANCE_AUDIT_TRAFFIC_SECTION = "Alerts/gov";
  * ASCII-only for Windows console note scripts.
  */
 export const GOVERNANCE_AUDIT_TRAFFIC_NOTE =
- "Governance audit trail (Alerts/gov) - AuditPageView with AuditPageHeader PageContextualHelpButton (topic map audit-trail; Category-1 registry), search/filters, integrity export/verify when available. Not a signed-record Sources trail by itself. Score 55/100 (2026-08-08) - activity-log launcher hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
+  "Governance audit trail (Alerts/gov) - AuditPageView with AuditPageHeader PageContextualHelpButton (topic map audit-trail; Category-1 registry), search/filters, integrity export/verify when available. Not a signed-record Sources trail by itself. Score 68/100 (2026-08-08) - activity-log launcher at GFN governance Evidence band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";

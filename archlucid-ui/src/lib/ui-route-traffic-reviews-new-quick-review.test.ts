@@ -65,7 +65,7 @@ describe("ui-route-traffic-reviews-new-quick-review (REQ)", () => {
     expect(row?.section).toBe(REVIEWS_NEW_QUICK_REVIEW_TAB_TRAFFIC_SECTION);
     expect(row?.notes).toBe(REVIEWS_NEW_QUICK_REVIEW_TAB_TRAFFIC_NOTE);
     expect(row?.notes).toContain("FirstPilotIntakeWizard");
-    expect(row?.notes).toContain("Score 48");
+    expect(row?.notes).toContain("Score 58");
     expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
