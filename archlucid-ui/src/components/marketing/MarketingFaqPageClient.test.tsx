@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { MarketingFaqPageClient } from "./MarketingFaqPageClient";
@@ -19,12 +19,34 @@ describe("MarketingFaqPageClient", () => {
     );
   });
 
-  it("filters accordion items when searching", () => {
+  it("filters accordion items and the table of contents when searching", () => {
     render(<MarketingFaqPageClient />);
 
     fireEvent.change(screen.getByTestId("marketing-faq-search"), { target: { value: "one architect" } });
 
     expect(screen.getByTestId("marketing-faq-item-one-architect-license")).toBeInTheDocument();
     expect(screen.queryByTestId("marketing-faq-item-what-is-archlucid")).not.toBeInTheDocument();
+    expect(screen.getByTestId("marketing-faq-search-status")).toHaveTextContent("Showing 1 of 21 questions.");
+
+    const toc = screen.getByTestId("marketing-faq-toc");
+
+    expect(within(toc).getByRole("link", { name: "Evaluation and first review" })).toBeInTheDocument();
+    expect(within(toc).queryByRole("link", { name: "Product basics" })).not.toBeInTheDocument();
+  });
+
+  it("announces the empty search state with a clear-search action", () => {
+    render(<MarketingFaqPageClient />);
+
+    fireEvent.change(screen.getByTestId("marketing-faq-search"), { target: { value: "zzzz-no-match" } });
+
+    expect(screen.getByTestId("marketing-faq-empty")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Clear search" })).toBeInTheDocument();
+  });
+
+  it("renders related links for comparison and procurement answers", () => {
+    render(<MarketingFaqPageClient />);
+
+    expect(screen.getByRole("link", { name: "Why ArchLucid" })).toHaveAttribute("href", "/why");
+    expect(screen.getByRole("link", { name: "Procurement FAQ" })).toHaveAttribute("href", "/help/procurement");
   });
 });

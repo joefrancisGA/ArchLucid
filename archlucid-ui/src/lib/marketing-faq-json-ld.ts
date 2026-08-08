@@ -20,3 +20,8 @@ export function buildFaqPageLd(siteOrigin: string, items: ReadonlyArray<Marketin
     url: `${origin}/faq`,
   };
 }
+
+/** Safe for dangerouslySetInnerHTML — prevents script injection via FAQ copy edits. */
+export function serializeFaqPageLd(ld: Record<string, unknown>): string {
+  return JSON.stringify(ld).replace(/</g, "\\u003c");
+}

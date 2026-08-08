@@ -20,6 +20,7 @@ export const MARKETING_SITEMAP_PATHNAMES: readonly string[] = [
   "/signup",
   "/signup/verify",
   "/get-started",
+  "/faq",
   `/showcase/${SHOWCASE_STATIC_DEMO_RUN_ID}`,
 ];
 

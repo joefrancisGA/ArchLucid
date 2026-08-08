@@ -1,4 +1,5 @@
 import { formatPublicWorkSchoolProviderClaim } from "@/lib/marketing/public-auth-provider-claims";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 /**
  * Buyer-safe FAQ copy for /faq and FAQPage JSON-LD (TB-254). No internal or roadmap-heavy language.
@@ -8,6 +9,7 @@ import { formatPublicWorkSchoolProviderClaim } from "@/lib/marketing/public-auth
 export type MarketingFaqCategoryId =
   | "product-basics"
   | "evaluation-first-review"
+  | "sign-in-access"
   | "evidence-cloud"
   | "pricing-ai"
   | "governance-audit"
@@ -18,16 +20,23 @@ export type MarketingFaqCategory = {
   readonly title: string;
 };
 
+export type MarketingFaqRelatedLink = {
+  readonly label: string;
+  readonly href: string;
+};
+
 export type MarketingFaqItem = {
   readonly id: string;
   readonly categoryId: MarketingFaqCategoryId;
   readonly question: string;
   readonly answer: string;
+  readonly relatedLinks?: ReadonlyArray<MarketingFaqRelatedLink>;
 };
 
 export const MARKETING_FAQ_CATEGORIES: ReadonlyArray<MarketingFaqCategory> = [
   { id: "product-basics", title: "Product basics" },
   { id: "evaluation-first-review", title: "Evaluation and first review" },
+  { id: "sign-in-access", title: "Sign-in and access" },
   { id: "evidence-cloud", title: "Evidence and cloud access" },
   { id: "pricing-ai", title: "Pricing and AI usage" },
   { id: "governance-audit", title: "Governance and audit" },
@@ -59,7 +68,8 @@ const MARKETING_FAQ_ITEM_TEMPLATES: ReadonlyArray<MarketingFaqItem> = [
     categoryId: "product-basics",
     question: "How is ArchLucid different from ChatGPT, Copilot, Claude, or Gemini?",
     answer:
-      "Frontier AI assistants can draft advice, but they do not commit a signed review record, typed audit ledger, optional pre-commit governance gate, or traversable evidence chain for your workspace. ArchLucid is built for repeatable, sponsor-exportable architecture proof. See the comparison on /why.",
+      "Frontier AI assistants can draft advice, but they do not commit a signed review record, typed audit ledger, optional pre-commit governance gate, or traversable evidence chain for your workspace. ArchLucid is built for repeatable, sponsor-exportable architecture proof.",
+    relatedLinks: [{ label: "Why ArchLucid", href: "/why" }],
   },
   {
     id: "first-review-outcomes",
@@ -84,14 +94,14 @@ const MARKETING_FAQ_ITEM_TEMPLATES: ReadonlyArray<MarketingFaqItem> = [
   },
   {
     id: "how-do-i-sign-in",
-    categoryId: "security-trust",
+    categoryId: "sign-in-access",
     question: "How do I sign in to ArchLucid?",
     // Replaced by buildHowDoISignInFaqAnswer() in getMarketingFaqItems().
     answer: "",
   },
   {
     id: "enterprise-sso-enforcement",
-    categoryId: "security-trust",
+    categoryId: "sign-in-access",
     question: "When does my organization require SSO?",
     answer:
       "Organizations can configure SAML or OpenID Connect and require members of verified domains to use the organization's identity provider. When enforcement applies to your email domain, routine email-code sign-in is not available.",
@@ -171,7 +181,8 @@ const MARKETING_FAQ_ITEM_TEMPLATES: ReadonlyArray<MarketingFaqItem> = [
     categoryId: "security-trust",
     question: "What security assurance materials are available?",
     answer:
-      "Assurance status and the Trust Center describe current controls, data handling, and assurance posture. For procurement diligence (SOC 2 posture, penetration testing, subprocessors), see the full procurement FAQ at /help/procurement. Formal third-party attestations, where applicable, should be handled through the security review process.",
+      "Assurance status and the Trust Center describe current controls, data handling, and assurance posture. For procurement diligence (SOC 2 posture, penetration testing, subprocessors), open the procurement FAQ. Formal third-party attestations, where applicable, should be handled through the security review process.",
+    relatedLinks: [{ label: "Procurement FAQ", href: inAppHelpHref("procurement") }],
   },
   {
     id: "evaluation-not-included",
@@ -216,8 +227,11 @@ export function filterMarketingFaqItems(
     return [...items];
   }
 
+  const categoryTitleById = new Map(MARKETING_FAQ_CATEGORIES.map((category) => [category.id, category.title]));
+
   return items.filter((item) => {
-    const haystack = `${item.question} ${item.answer}`.toLowerCase();
+    const categoryTitle = categoryTitleById.get(item.categoryId) ?? "";
+    const haystack = `${item.question} ${item.answer} ${categoryTitle}`.toLowerCase();
 
     return haystack.includes(normalized);
   });

@@ -19,6 +19,10 @@ describe("MARKETING_SITEMAP_PATHNAMES", () => {
   it("omits noindex example ROI bulletin until buyer rewrite (TB-1520)", () => {
     expect(MARKETING_SITEMAP_PATHNAMES).not.toContain("/example-roi-bulletin");
   });
+
+  it("includes the indexable Product FAQ page", () => {
+    expect(MARKETING_SITEMAP_PATHNAMES).toContain("/faq");
+  });
 });
 
 describe("MARKETING_ROBOTS_DISALLOW_PREFIXES", () => {

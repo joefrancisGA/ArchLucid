@@ -69,8 +69,22 @@ describe("marketing-faq", () => {
   it("links procurement diligence to the in-app procurement FAQ without duplicating SOC 2 detail", () => {
     const item = getMarketingFaqItems().find((entry) => entry.id === "security-assurance-materials");
 
-    expect(item?.answer).toContain("/help/procurement");
+    expect(item?.relatedLinks?.some((link) => link.href.includes("procurement"))).toBe(true);
     expect(item?.answer.toLowerCase()).not.toContain("type ii cpa attestation");
+    expect(item?.answer).not.toContain("/help/procurement");
+  });
+
+  it("places sign-in questions in the Sign-in and access category", () => {
+    const items = getMarketingFaqItems();
+
+    expect(items.find((entry) => entry.id === "how-do-i-sign-in")?.categoryId).toBe("sign-in-access");
+    expect(items.find((entry) => entry.id === "enterprise-sso-enforcement")?.categoryId).toBe("sign-in-access");
+  });
+
+  it("filters items by category title", () => {
+    const hits = filterMarketingFaqItems(getMarketingFaqItems(), "assurance status");
+
+    expect(hits.some((item) => item.id === "customer-data-protection")).toBe(true);
   });
 
   it("filters items by search query", () => {

@@ -5,7 +5,7 @@ import {
   FAQ_SOURCES,
   FAQ_SOURCES_INTRO,
 } from "@/lib/faq-evidence-copy";
-import { MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
+import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 /** Evaluation Sources + claim discipline for `/faq` (FXX Evidence). */
@@ -30,7 +30,7 @@ export function FaqEvidenceOrientationStrip(): React.JSX.Element {
           {FAQ_SOURCES.map((link) => (
             <li key={`${link.href}-${link.label}`}>
               <Link
-                className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+                className={MARKETING_SURFACES.inlineLink}
                 href={link.href}
               >
                 {link.label}

@@ -323,7 +323,7 @@ export const MARKETING_LAYOUT = {
   main: "mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 sm:py-12",
   /** Public trust and assurance pages — wider rail aligned with marketing header (max-w-6xl). */
   mainTrust: "mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-10",
-  mainReading: `${OPERATOR_PAGE_CONTAINER.variant.reading} px-4 py-10`,
+  mainReading: `mx-auto ${OPERATOR_PAGE_CONTAINER.variant.reading} px-4 py-10`,
   /** Public onboarding / get-started — wider centered rail for path cards and milestone grids. */
   mainOnboarding: "mx-auto w-full max-w-[72rem] px-4 py-10 sm:px-6",
   /** Full-bleed welcome hero band — sits above the main content rail. */

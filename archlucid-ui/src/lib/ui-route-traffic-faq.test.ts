@@ -66,5 +66,6 @@ describe("ui-route-traffic-faq (FXX)", () => {
     expect(row?.notes).toBe(FAQ_TRAFFIC_NOTE);
     expect(row?.notes).toContain("MarketingFaqPageClient");
     expect(row?.notes).toContain("Sources");
+    expect(row?.notes).toContain("Score 52");
   });
 });

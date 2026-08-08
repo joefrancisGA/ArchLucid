@@ -14,6 +14,16 @@ export const MARKETING_FAQ_SEARCH_PLACEHOLDER =
 
 export const MARKETING_FAQ_EMPTY_SEARCH_MESSAGE = "No questions match your search." as const;
 
+export const MARKETING_FAQ_CLEAR_SEARCH_LABEL = "Clear search" as const;
+
+export function formatMarketingFaqSearchStatus(shownCount: number, totalCount: number): string {
+  if (shownCount === totalCount) {
+    return `Showing all ${totalCount} questions.`;
+  }
+
+  return `Showing ${shownCount} of ${totalCount} questions.`;
+}
+
 export const MARKETING_FAQ_SECURITY_TRUST_LINK_LABEL = "Open Assurance status" as const;
 
 export const MARKETING_FAQ_START_EVALUATION_CTA = "Start evaluation" as const;

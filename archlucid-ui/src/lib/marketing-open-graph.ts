@@ -17,6 +17,9 @@ export const MARKETING_WHY_OG_DESCRIPTION =
 export const MARKETING_SEE_IT_OG_DESCRIPTION =
   "No-install sample architecture review: executive summary, signed review record, evidence trail, and governance-ready outputs.";
 
+export const MARKETING_FAQ_OG_DESCRIPTION =
+  "Buyer-safe answers on evaluation, pricing, evidence, governance, and assurance for architects and sponsors evaluating ArchLucid.";
+
 const OG_IMAGE_PATH = "/logo/og-default.png";
 const OG_IMAGE_WIDTH = 1200;
 const OG_IMAGE_HEIGHT = 630;

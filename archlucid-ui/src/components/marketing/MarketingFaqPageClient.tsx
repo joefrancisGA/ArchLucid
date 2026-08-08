@@ -2,31 +2,77 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
+import { Input } from "@/components/ui/input";
 import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
+  MARKETING_FAQ_CLEAR_SEARCH_LABEL,
   MARKETING_FAQ_EMPTY_SEARCH_MESSAGE,
   MARKETING_FAQ_SEARCH_LABEL,
   MARKETING_FAQ_SEARCH_PLACEHOLDER,
   MARKETING_FAQ_SECURITY_TRUST_LINK_LABEL,
   MARKETING_FAQ_VIEW_PRICING_LABEL,
+  formatMarketingFaqSearchStatus,
 } from "@/lib/marketing/marketing-faq-page-copy";
 import {
   filterMarketingFaqItems,
-  MARKETING_FAQ_CATEGORIES,
   MARKETING_FAQ_ITEMS,
   marketingFaqItemsByCategory,
 } from "@/lib/marketing-faq";
 
 import { FaqEvidenceOrientationStrip } from "./FaqEvidenceOrientationStrip";
+import { MarketingFaqItemPanel } from "./MarketingFaqItemPanel";
 import { MarketingFaqCtaRow, MarketingFaqPageHero } from "./MarketingFaqPageHero";
+import { MarketingFaqPageToc } from "./MarketingFaqPageToc";
 
 export function MarketingFaqPageClient(): React.JSX.Element {
   const [query, setQuery] = useState("");
+  const [hashTargetId, setHashTargetId] = useState<string | null>(null);
 
   const filteredItems = useMemo(() => filterMarketingFaqItems(MARKETING_FAQ_ITEMS, query), [query]);
   const grouped = useMemo(() => marketingFaqItemsByCategory(filteredItems), [filteredItems]);
+  const visibleCategories = useMemo(() => grouped.map((group) => group.category), [grouped]);
+  const normalizedQuery = query.trim();
+  const isSearchActive = normalizedQuery.length > 0;
+  const searchStatusId = "marketing-faq-search-status";
+
+  useEffect(() => {
+    function readHashTarget(): void {
+      const hashId = window.location.hash.slice(1);
+
+      setHashTargetId(hashId.length > 0 ? hashId : null);
+    }
+
+    function openHashTarget(): void {
+      const hashId = window.location.hash.slice(1);
+
+      if (hashId.length === 0) {
+        return;
+      }
+
+      const target = document.getElementById(hashId);
+
+      if (target instanceof HTMLDetailsElement) {
+        target.open = true;
+      }
+
+      target?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function handleHashChange(): void {
+      readHashTarget();
+      openHashTarget();
+    }
+
+    handleHashChange();
+
+    window.addEventListener("hashchange", handleHashChange);
+
+    return () => {
+      window.removeEventListener("hashchange", handleHashChange);
+    };
+  }, [grouped]);
 
   return (
     <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_12.5rem] lg:items-start">
@@ -38,7 +84,7 @@ export function MarketingFaqPageClient(): React.JSX.Element {
         <label className={cn("mt-8 block font-medium text-al-text-primary", MARKETING_TYPOGRAPHY.cardTitle)} htmlFor="marketing-faq-search">
           {MARKETING_FAQ_SEARCH_LABEL}
         </label>
-        <input
+        <Input
           id="marketing-faq-search"
           type="search"
           value={query}
@@ -46,18 +92,34 @@ export function MarketingFaqPageClient(): React.JSX.Element {
             setQuery(event.target.value);
           }}
           placeholder={MARKETING_FAQ_SEARCH_PLACEHOLDER}
-          className={cn(
-            "mt-2 w-full max-w-xl rounded-md border border-neutral-300 bg-white px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-600 dark:border-neutral-700 dark:bg-neutral-950",
-            MARKETING_TYPOGRAPHY.body,
-          )}
+          className="mt-2 max-w-xl"
           autoComplete="off"
+          aria-describedby={searchStatusId}
           data-testid="marketing-faq-search"
         />
+        <p
+          id={searchStatusId}
+          role="status"
+          aria-live="polite"
+          className={cn("mt-2 text-al-text-secondary", MARKETING_TYPOGRAPHY.meta)}
+          data-testid="marketing-faq-search-status"
+        >
+          {formatMarketingFaqSearchStatus(filteredItems.length, MARKETING_FAQ_ITEMS.length)}
+        </p>
 
         {grouped.length === 0 ? (
-          <p className={cn("mt-8 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)} data-testid="marketing-faq-empty">
-            {MARKETING_FAQ_EMPTY_SEARCH_MESSAGE}
-          </p>
+          <div className="mt-8 space-y-3" data-testid="marketing-faq-empty">
+            <p className={cn("text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>{MARKETING_FAQ_EMPTY_SEARCH_MESSAGE}</p>
+            <button
+              type="button"
+              className={cn(MARKETING_SURFACES.inlineLink, "bg-transparent p-0")}
+              onClick={() => {
+                setQuery("");
+              }}
+            >
+              {MARKETING_FAQ_CLEAR_SEARCH_LABEL}
+            </button>
+          </div>
         ) : (
           <div className="mt-8 space-y-10">
             {grouped.map((group) => (
@@ -72,22 +134,11 @@ export function MarketingFaqPageClient(): React.JSX.Element {
                 </h2>
                 <div className="mt-4 space-y-3">
                   {group.items.map((item) => (
-                    <details
+                    <MarketingFaqItemPanel
                       key={item.id}
-                      id={item.id}
-                      className="group rounded-lg border border-neutral-200 bg-white px-4 py-3 shadow-sm open:shadow-md dark:border-neutral-800 dark:bg-neutral-950"
-                      data-testid={`marketing-faq-item-${item.id}`}
-                    >
-                      <summary
-                        className={cn(
-                          "cursor-pointer list-none font-medium text-al-text-primary marker:content-none [&::-webkit-details-marker]:hidden",
-                          MARKETING_TYPOGRAPHY.cardTitle,
-                        )}
-                      >
-                        {item.question}
-                      </summary>
-                      <p className={cn("mt-3 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>{item.answer}</p>
-                    </details>
+                      item={item}
+                      forceOpen={isSearchActive || item.id === hashTargetId}
+                    />
                   ))}
                 </div>
               </section>
@@ -108,24 +159,7 @@ export function MarketingFaqPageClient(): React.JSX.Element {
         </footer>
       </div>
 
-      <nav
-        aria-label="On this page"
-        className="lg:sticky lg:top-24 lg:max-h-[calc(100dvh-8rem)] lg:overflow-y-auto"
-        data-testid="marketing-faq-toc"
-      >
-        <p className={cn("m-0 font-semibold uppercase tracking-wide text-al-text-primary", MARKETING_TYPOGRAPHY.meta)}>
-          On this page
-        </p>
-        <ul className="m-0 mt-3 list-none space-y-2 p-0">
-          {MARKETING_FAQ_CATEGORIES.map((category) => (
-            <li key={category.id}>
-              <a className={MARKETING_SURFACES.inlineLink} href={`#${category.id}`}>
-                {category.title}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </nav>
+      <MarketingFaqPageToc categories={visibleCategories} />
     </div>
   );
 }

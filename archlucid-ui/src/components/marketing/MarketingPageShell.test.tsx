@@ -28,5 +28,6 @@ describe("MarketingPageShell", () => {
     );
 
     expect(screen.getByRole("main").className).toContain("max-w-3xl");
+    expect(screen.getByRole("main").className).toContain("mx-auto");
   });
 });
