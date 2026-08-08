@@ -66,5 +66,6 @@ describe("ui-route-traffic-configuration-reference-help (CON)", () => {
     expect(row?.notes).toBe(CONFIGURATION_REFERENCE_HELP_TRAFFIC_NOTE);
     expect(row?.notes).toContain("HelpConfigurationReferenceGuideView");
     expect(row?.notes).toContain("SSO wizard");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
