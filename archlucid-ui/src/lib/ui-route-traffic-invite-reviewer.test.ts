@@ -66,5 +66,6 @@ describe("ui-route-traffic-invite-reviewer (SRI)", () => {
     expect(row?.notes).toBe(INVITE_REVIEWER_TRAFFIC_NOTE);
     expect(row?.notes).toContain("InviteReviewerPageView");
     expect(row?.notes).toContain("Sources");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
