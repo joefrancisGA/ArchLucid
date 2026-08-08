@@ -66,5 +66,6 @@ describe("ui-route-traffic-procurement-help (PRO)", () => {
     expect(row?.notes).toBe(PROCUREMENT_HELP_TRAFFIC_NOTE);
     expect(row?.notes).toContain("HelpTopicMarkdownView");
     expect(row?.notes).toContain("Sources");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
