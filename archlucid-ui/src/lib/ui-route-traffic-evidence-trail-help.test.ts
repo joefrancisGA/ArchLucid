@@ -69,5 +69,6 @@ describe("ui-route-traffic-evidence-trail-help (EV)", () => {
     expect(row?.section).toBe(EVIDENCE_TRAIL_HELP_TRAFFIC_SECTION);
     expect(row?.notes).toBe(EVIDENCE_TRAIL_HELP_TRAFFIC_NOTE);
     expect(row?.notes).toContain("HelpTopicMarkdownView");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
