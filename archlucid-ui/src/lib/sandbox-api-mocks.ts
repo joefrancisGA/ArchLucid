@@ -37,7 +37,7 @@ export function trySandboxMockJsonForApiGet(apiPath: string): unknown | undefine
 
   const pathname = apiPathname(apiPath);
 
-  if (pathname === "/v1/architecture/runs") {
+  if (pathname === "/v1/architecture/reviews") {
     return sandboxFixture.architectureRuns;
   }
 
@@ -45,7 +45,7 @@ export function trySandboxMockJsonForApiGet(apiPath: string): unknown | undefine
     return sandboxFixture.auditEventsPage;
   }
 
-  const authorityRuns = /^\/v1\/authority\/projects\/([^/]+)\/runs$/.exec(pathname);
+  const authorityRuns = /^\/v1\/authority\/projects\/([^/]+)\/reviews$/.exec(pathname);
 
   if (authorityRuns !== null) {
     const projectId = authorityRuns[1];
