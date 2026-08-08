@@ -1297,7 +1297,8 @@ Former standalone body: `docs/go-to-market/EXECUTION_MODE_HONESTY_ONE_PAGER.md` 
 ### Residuals (honest)
 
 - **TB-239** is Done for ROI period-mix semantics.
-- **TB-969**–**TB-971** remain open for per-outcome aggregation, persisted cache/task mode, and cross-surface guards.
+- **TB-969** **Done** (2026-08-08) — within-run aggregation contract [`INV002_EXECUTION_MODE_AGGREGATION_CONTRACT.md`](../library/INV002_EXECUTION_MODE_AGGREGATION_CONTRACT.md).
+- **TB-970**–**TB-971** remain open for persisted per-task mode + cross-surface guards.
 - This handout complements, but does not replace, Real-mode proof packets **G-REAL-06** and **G-REAL-07**.
 
 **Related:** [Model-failed vs quality-rejected (M-124)](#model-failed-vs-quality-rejected-m-124) Â· [PilotStrict vs execution mode (M-167)](#pilotstrict-vs-execution-mode-m-167) Â· [Real-execute AOAI throttle (M-230)](#real-execute-aoai-throttle-m-230) Â· [Simulator ROI sponsor forbid (M-139)](#simulator-roi-sponsor-forbid-m-139) Â· [principal architect falsification script](#principal-architect-falsification-script-m-113) Â· [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
