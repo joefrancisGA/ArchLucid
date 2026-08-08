@@ -51,8 +51,6 @@ export type RunDetailArtifactsExportsSectionProps = {
   readonly manifestSummaryForUi: ManifestSummary | null;
   readonly manifestSummary: ManifestSummary | null;
   readonly trustEvidenceCard: RunTrustEvidenceCard | null | undefined;
-  /** Curated demo: show policy-pack diligence line above the table. */
-  readonly samplePolicyPackContextLine: string | null;
   readonly requestId?: string | null;
   /** When set, overrides buyer-polished default collapsed deliverables accordion. */
   readonly deliverablesDefaultOpen?: boolean;
@@ -87,7 +85,6 @@ export function RunDetailArtifactsExportsSection(
     manifestSummaryForUi,
     manifestSummary,
     trustEvidenceCard,
-    samplePolicyPackContextLine,
     requestId,
     deliverablesDefaultOpen,
     usedStaticDemoRun = false,
@@ -145,11 +142,6 @@ export function RunDetailArtifactsExportsSection(
           </div>
           {buyerPolishedArtifactTable ? (
             <div className="m-0 mb-3 space-y-2">
-              {samplePolicyPackContextLine !== null && samplePolicyPackContextLine.trim().length > 0 ? (
-                <p className={cn("m-0 max-w-prose rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 font-medium text-al-text-primary dark:border-neutral-700 dark:bg-neutral-900/50", OPERATOR_TYPOGRAPHY.helper)}>
-                  {samplePolicyPackContextLine.trim()}
-                </p>
-              ) : null}
               <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
                 Rows are grouped by executive and review-board consumers.{" "}
                 <strong className="text-neutral-800 dark:text-neutral-200">Download evidence bundle</strong> is the

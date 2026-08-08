@@ -742,8 +742,6 @@ export const COMPARE_REVIEW_RECORD_DIFF_OPERATOR_INTRO =
 
 export const BUYER_PIPELINE_IN_PROGRESS_LABEL = "In progress";
 
-export const BUYER_REVIEW_DETAIL_POLICY_PACK_NOTE = "Policy pack used for this review.";
-
 export const BUYER_COMPARE_TECHNICAL_APPENDIX_LABEL = "Detailed comparison appendix";
 
 export const BUYER_SEALED_MANIFEST_TOOLTIP =
