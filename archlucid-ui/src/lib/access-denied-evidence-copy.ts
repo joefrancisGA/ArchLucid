@@ -1,0 +1,21 @@
+export const ACCESS_DENIED_CANONICAL_PATH = "/403" as const;
+
+export const ACCESS_DENIED_CLAIM_DISCIPLINE =
+  "Access denied explains that your signed-in account lacks a recognized ArchLucid app role for this tenant — it is an authorization gate, not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. After an administrator grants a role, open Assurance status or a finalized review when you need workspace evidence.";
+
+export const ACCESS_DENIED_SOURCES_INTRO =
+  "Use these follow-ups when access is blocked or you need evaluation orientation before a workspace role is ready.";
+
+export type AccessDeniedSourceLink = {
+  readonly label: string;
+  readonly href: string;
+};
+
+/** Public Sources — no self-href to /403. */
+export const ACCESS_DENIED_SOURCES: readonly AccessDeniedSourceLink[] = [
+  { label: "Sign in", href: "/auth/signin" },
+  { label: "Start evaluation", href: "/signup" },
+  { label: "Assurance status", href: "/security-trust" },
+  { label: "Product FAQ", href: "/faq" },
+  { label: "Privacy", href: "/privacy" },
+] as const;
