@@ -113,7 +113,7 @@ Minimum fields (no `percentComplete` on the wire):
 | 3 | **TB-2074** | `GET /v1/operations/{operationId}` (**Done** 2026-08-07) |
 | 4 | **TB-2075** | Async execute/replay 202 + `Location` (**Done** 2026-08-08) |
 | 5 | **TB-2076** | Cancel (**Done** 2026-08-08) |
-| 6 | **TB-2077** | Shell in-flight operations affordance |
+| 6 | **TB-2077** | Shell in-flight operations affordance (**Done** 2026-08-08) |
 | 7 | **TB-2078** | Tier B staged wait UX + `loading.tsx` sweep |
 | 8 | **TB-2079** | API latency-tier CI gate |
 
@@ -123,7 +123,7 @@ Minimum fields (no `percentComplete` on the wire):
 
 - Do **not** invent a `/v1/runs/{id}/progress` client.
 - Tier B surfaces should use staged wait / route `loading.tsx` (**TB-2078**), not infinite silent spinners.
-- Tier C Real-mode execute/replay should poll operations (after **TB-2074**) or existing job URLs until the unified resource ships.
+- Tier C Real-mode execute/replay should poll operations (**TB-2074**) or existing job URLs; shell activity (**TB-2077**) tracks `Location` handles after async accept.
 - Product language: prefer *architecture review* / *export* over *job* in buyer chrome; *job* remains OK on admin/diagnostic surfaces.
 
 ---

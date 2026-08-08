@@ -4,6 +4,7 @@ import { CircleHelp } from "lucide-react";
 
 import { AccountSettingsMenu } from "@/components/shell/AccountSettingsMenu";
 import { OperatorShellTopBarMoreMenu } from "@/components/shell/OperatorShellTopBarMoreMenu";
+import { ShellInFlightOperationsAffordance } from "@/components/shell/ShellInFlightOperationsAffordance";
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { AuthPanel } from "@/components/AuthPanel";
 import { AuthorityThemeToggle } from "@/components/AuthorityThemeToggle";
@@ -95,6 +96,7 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
             </div>
             <AuthPanel />
             <div className="flex shrink-0 items-center gap-2 border-l border-neutral-200 pl-2 dark:border-neutral-700">
+              <ShellInFlightOperationsAffordance />
               <ToolbarHelpTooltip
                 aria-label={OPERATOR_HELP_ARIA_LABEL}
                 content={OPERATOR_HELP_TOOLTIP}

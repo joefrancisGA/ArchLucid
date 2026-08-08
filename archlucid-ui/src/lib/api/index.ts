@@ -7,6 +7,7 @@ export type { ApiResponseWithTrace } from "./http";
 export {
   apiDelete,
   apiGet,
+  apiPostAcceptedWithLocation,
   apiPostJson,
   apiPostNoContent,
   apiPutJson,
@@ -16,6 +17,7 @@ export {
 } from "./http";
 export * from "./tenant-customer-success";
 export * from "./architecture-runs";
+export * from "./operations-api";
 export * from "./architecture-request-draft-api";
 export * from "./architecture-chat-intake-api";
 export * from "./draft-intake-api";

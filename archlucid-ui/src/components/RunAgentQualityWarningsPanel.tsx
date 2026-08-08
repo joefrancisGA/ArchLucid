@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
 import { SeverityTag } from "@/components/ui/severity-tag";
-import { executeArchitectureRun } from "@/lib/api";
+import { executeArchitectureRunAsync } from "@/lib/api";
 import type { AgentQualityConcernRow } from "@/lib/agent-quality-warnings-presenter";
 import { buildPlainLanguageQualityBlockSummary, QUALITY_GATE_REJECTION_RUNBOOK_PATH } from "@/lib/agent-quality-warnings-presenter";
 import { isApiRequestError } from "@/lib/api-request-error";
@@ -38,7 +38,7 @@ export function RunAgentQualityWarningsPanel(props: RunAgentQualityWarningsPanel
 
     try
     {
-      await executeArchitectureRun(runId);
+      await executeArchitectureRunAsync(runId);
       router.refresh();
     }
     catch (e: unknown)
