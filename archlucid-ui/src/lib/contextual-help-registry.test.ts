@@ -9,8 +9,10 @@ import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import {
   INTERNAL_DEMO_READINESS_PATH,
   INTERNAL_DEPLOYMENT_STATUS_PATH,
+  INTERNAL_RECOMMENDATION_LEARNING_PATH,
   INTERNAL_REPLAY_PATH,
   INTERNAL_TENANT_HEALTH_PATH,
+  INTERNAL_TENANTS_PATH,
   INTERNAL_TRIAL_FUNNEL_PATH,
 } from "@/lib/internal-ops-route-paths";
 
@@ -448,6 +450,33 @@ describe("contextual-help-registry (TB-733)", () => {
   it("resolves tenant-health Category-1 help (ATX)", () => {
     expect(contextualHelpForPathname(INTERNAL_TENANT_HEALTH_PATH)?.whatIsThisPage).toContain("Tenant health");
     expect(contextualHelpForPathname(INTERNAL_TENANT_HEALTH_PATH)?.whatToDoNext).toContain("Refresh the table");
+  });
+
+  it("resolves finding evidence-trace Category-1 help (ERU)", () => {
+    expect(
+      contextualHelpForPathname(
+        "/architecture/reviews/run-1/findings/finding-1/evidence-trace",
+      )?.whatIsThisPage,
+    ).toContain("Evidence trace");
+    expect(
+      contextualHelpForPathname(
+        "/architecture/reviews/run-1/findings/finding-1/evidence-trace",
+      )?.whatToDoNext,
+    ).toContain("finding detail");
+  });
+
+  it("resolves recommendation-learning Category-1 help (INR)", () => {
+    expect(contextualHelpForPathname(INTERNAL_RECOMMENDATION_LEARNING_PATH)?.whatIsThisPage).toContain(
+      "Recommendation learning",
+    );
+    expect(contextualHelpForPathname(INTERNAL_RECOMMENDATION_LEARNING_PATH)?.whatToDoNext).toContain(
+      "preview a rebuild",
+    );
+  });
+
+  it("resolves admin tenants Category-1 help (ATY)", () => {
+    expect(contextualHelpForPathname(INTERNAL_TENANTS_PATH)?.whatIsThisPage).toContain("Tenants");
+    expect(contextualHelpForPathname(INTERNAL_TENANTS_PATH)?.whatToDoNext).toContain("Create a tenant");
   });
 
   it("resolves how-it-works help Category-1 help (HHX alias → getting-started)", () => {

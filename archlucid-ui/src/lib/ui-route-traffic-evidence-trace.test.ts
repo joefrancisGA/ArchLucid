@@ -70,5 +70,7 @@ describe("ui-route-traffic-evidence-trace (ERU)", () => {
     expect(eru?.section).toBe(EVIDENCE_TRACE_TRAFFIC_SECTION);
     expect(eru?.notes).toBe(EVIDENCE_TRACE_TRAFFIC_NOTE);
     expect(eru?.notes).toContain("Absorbs former RR");
+    expect(eru?.notes).toContain("Score 58");
+    expect(eru?.notes).toContain("cannot improve further toward 80");
   });
 });

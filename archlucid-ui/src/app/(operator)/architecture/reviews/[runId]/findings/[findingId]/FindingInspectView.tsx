@@ -7,6 +7,7 @@ import {
   OperatorEvidenceLimitsFooter,
   type OperatorEvidenceLimitsExecutionProps,
 } from "@/components/OperatorEvidenceLimitsFooter";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { ARCHITECTURE_REVIEW_VOCABULARY } from "@/lib/architecture-review-vocabulary";
 import {
@@ -15,10 +16,10 @@ import {
   findingInspectPageEyebrow,
 } from "@/lib/finding-display-from-inspect";
 import { formatFindingHumanReviewStatusLabel } from "@/lib/finding-human-review-display";
-import { getFindingEvidenceTraceHref } from "@/lib/finding-evidence-navigation";
 import {
   EVIDENCE_TRACE_PAGE_SUBTITLE,
-  EVIDENCE_TRACE_PAGE_TITLE,
+  getFindingDetailHref,
+  getFindingEvidenceTraceHref,
 } from "@/lib/finding-evidence-navigation";
 import {
   GOVERNANCE_ACTION_REGION_LEAD,
@@ -30,9 +31,10 @@ import {
   buildFindingPolicyEvidenceCitationsFromInspect,
   resolvePolicyTraceExcerptFromInspect,
 } from "@/lib/finding-policy-evidence-citations";
-import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
+import { EvidenceTraceEvidenceOrientationStrip } from "./EvidenceTraceEvidenceOrientationStrip";
 import { FindingInspectFindingBody } from "./FindingInspectFindingBody";
 import { FindingInspectGovernanceStickinessPanel } from "./FindingInspectGovernanceStickinessPanel";
 import { FindingInspectItsmWorkflowPanel } from "./FindingInspectItsmWorkflowPanel";
@@ -69,7 +71,10 @@ export function FindingInspectView({
     if (buyerPolishedShell && failure) {
       return (
         <div className="w-full max-w-[1440px] space-y-4 p-6">
-          <h1 className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>{EVIDENCE_TRACE_PAGE_TITLE}</h1>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <h1 className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>Evidence trace</h1>
+            <PageContextualHelpButton />
+          </div>
           <FindingOptionalArtifactUnavailable
             heading="Evidence trace temporarily unavailable"
             body="ArchLucid could not load the evidence trace for this finding right now."
@@ -136,12 +141,14 @@ export function FindingInspectView({
   }
 
   const findingTitle = findingDetailHeadingTitle(payload);
-  const inspectHeroTitle = buyerPolishedShell ? EVIDENCE_TRACE_PAGE_TITLE : `${findingTitle} — evidence & trace`;
+  // TB-1826: finding-first H1 so buyers can name the finding from the first viewport.
+  const inspectHeroTitle = findingTitle;
+  const findingDetailHref = getFindingDetailHref(runId, decodedFindingId);
   const policyCitationModel = buildFindingPolicyEvidenceCitationsFromInspect(runId, decodedFindingId, payload);
   const policyTraceExcerpt = resolvePolicyTraceExcerptFromInspect(payload);
 
   return (
-    <div className="w-full max-w-[1440px] space-y-6 p-4">
+    <div className="w-full max-w-[1440px] space-y-6 p-4" data-testid="finding-inspect-view">
       <section
         className="space-y-4"
         aria-labelledby="evidence-trace-region-heading"
@@ -154,17 +161,18 @@ export function FindingInspectView({
               : "space-y-3"
           }
         >
-          <p className={cn("m-0 text-violet-900 dark:text-violet-200", OPERATOR_NAV_GROUP_LABEL)}>
-            {findingInspectPageEyebrow(payload)}
-          </p>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {findingInspectPageEyebrow(payload)}
+            </p>
+            <PageContextualHelpButton />
+          </div>
           <h1 id="evidence-trace-region-heading" className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>
             {inspectHeroTitle}
           </h1>
-          {buyerPolishedShell ? (
-            <p className={cn("m-0 max-w-3xl leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-              {EVIDENCE_TRACE_PAGE_SUBTITLE}
-            </p>
-          ) : null}
+          <p className={cn("m-0 max-w-3xl leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            {EVIDENCE_TRACE_PAGE_SUBTITLE}
+          </p>
           <p className={cn("m-0 max-w-3xl leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
             {findingDetailLeadSentence(payload)}
           </p>
@@ -174,7 +182,18 @@ export function FindingInspectView({
               <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{payload.manifestVersion ?? "—"}</span>
             </p>
           ) : null}
+          <p className="m-0">
+            <Link
+              href={findingDetailHref}
+              className={cn(OPERATOR_LINK.inline, "font-medium")}
+              data-testid="evidence-trace-back-to-finding"
+            >
+              Back to finding
+            </Link>
+          </p>
         </header>
+
+        <EvidenceTraceEvidenceOrientationStrip runId={runId} findingId={decodedFindingId} />
 
         {policyCitationModel.pack !== null || policyCitationModel.policy !== null ? (
           <FindingPolicyCitationHero model={policyCitationModel} traceExcerpt={policyTraceExcerpt} />
@@ -194,7 +213,10 @@ export function FindingInspectView({
         data-testid="finding-governance-action-region"
       >
         <div className="space-y-1">
-          <h2 id="governance-action-region-heading" className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>
+          <h2
+            id="governance-action-region-heading"
+            className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+          >
             {GOVERNANCE_ACTION_REGION_TITLE}
           </h2>
           <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
@@ -217,7 +239,6 @@ export function FindingInspectView({
 
       <OperatorEvidenceLimitsFooter
         runId={runId}
-        findingIdForInspectLink={decodedFindingId}
         execution={runExecutionFootnote}
         inspectMetadata={{
           modelDeploymentName: payload.modelDeploymentName ?? null,
