@@ -47,10 +47,15 @@ export function OperatorHomePageHeader(props: OperatorHomePageHeaderProps): Reac
       }
       metadata={
         <span
-          className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          className={cn(
+            "text-al-text-secondary [&_strong]:font-bold",
+            OPERATOR_TYPOGRAPHY.helper,
+          )}
           data-testid="operator-home-last-refreshed"
         >
-          {OPERATOR_HOME_LAST_REFRESHED_PREFIX}:{" "}
+          <strong className="font-bold text-al-text-primary">
+            {OPERATOR_HOME_LAST_REFRESHED_PREFIX}:
+          </strong>{" "}
           {refreshing ? OPERATOR_HOME_ACTION_REFRESHING : lastRefreshedLabel}
         </span>
       }

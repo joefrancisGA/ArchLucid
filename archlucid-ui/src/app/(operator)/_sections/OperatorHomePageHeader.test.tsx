@@ -29,7 +29,7 @@ describe("OperatorHomePageHeader", () => {
 
     render(<OperatorHomePageHeader subtitle={operatorHomePageSubtitle(false)} />);
 
-expect(screen.getByTestId("operator-home-page-title")).toHaveTextContent("Overview");
+    expect(screen.getByTestId("operator-home-page-title")).toHaveTextContent("Overview");
     expect(screen.getByRole("heading", { level: 2, name: "Overview" })).toBeInTheDocument();
     expect(screen.getByText(operatorHomePageSubtitle(false))).toBeInTheDocument();
     expect(screen.getByText(operatorHomePageSubtitle(false)).className).toContain("max-w-none");
@@ -37,6 +37,8 @@ expect(screen.getByTestId("operator-home-page-title")).toHaveTextContent("Overvi
     expect(screen.getByTestId("operator-home-header-actions")).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-refresh-button")).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-last-refreshed")).toHaveTextContent(/Last refreshed:/i);
+    expect(screen.getByText("Last refreshed:").tagName).toBe("STRONG");
+    expect(screen.getByText("Last refreshed:").className).toContain("font-bold");
 
     fireEvent.click(screen.getByTestId("operator-home-refresh-button"));
 
