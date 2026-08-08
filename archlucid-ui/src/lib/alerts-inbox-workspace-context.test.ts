@@ -11,6 +11,7 @@ import {
   ALERTS_CONFIGURE_RULES_LINK_LABEL,
   ALERTS_EMPTY_HEALTHY_TITLE,
   ALERTS_EMPTY_NO_REVIEWS_TITLE,
+  ALERTS_EMPTY_NO_RULES_BODY,
   ALERTS_EMPTY_NO_RULES_TITLE,
 } from "@/lib/alerts-page-copy";
 import { governanceAlertRulesTabHref } from "@/lib/governance-route-paths";
@@ -99,12 +100,15 @@ describe("buildAlertsInboxEmptyStateProps", () => {
     expect(props.actions?.some((action) => action.href === RULES_HREF)).toBe(false);
   });
 
-  it("maps no_rules to configure alert rules CTA", () => {
+  it("maps no_rules to governance setup primary and configure rules secondary", () => {
     const props = buildAlertsInboxEmptyStateProps("no_rules", true);
     expect(props.title).toBe(ALERTS_EMPTY_NO_RULES_TITLE);
-    expect(props.actions?.[0]?.label).toBe(ALERTS_CONFIGURE_RULES_LINK_LABEL);
-    expect(props.actions?.[0]?.href).toBe(RULES_HREF);
-    expect(props.actions?.[1]?.label).toBe("Open governance setup");
+    expect(props.description).toBe(ALERTS_EMPTY_NO_RULES_BODY);
+    expect(props.description).toContain("critical and high-severity finding count");
+    expect(props.actions?.[0]?.label).toBe("Open governance setup");
+    expect(props.actions?.[0]?.href).toBe("/governance/setup");
+    expect(props.actions?.[1]?.label).toBe(ALERTS_CONFIGURE_RULES_LINK_LABEL);
+    expect(props.actions?.[1]?.href).toBe(RULES_HREF);
   });
 
   it("maps no_reviews to start architecture review CTA", () => {

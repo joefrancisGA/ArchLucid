@@ -85,7 +85,7 @@ export const ALERTS_EMPTY_NO_REVIEWS_BODY =
 
 export const ALERTS_EMPTY_NO_RULES_TITLE = "No alert rules configured";
 export const ALERTS_EMPTY_NO_RULES_BODY =
-  "Enable alert rules before governance alerts can be generated.";
+  "Alert rules evaluate completed reviews and create inbox items when conditions match. Example: raise a Warning alert when critical and high-severity finding count reaches at least 3.";
 
 export const ALERTS_EMPTY_FILTERED_TITLE = "No alerts for this filter";
 export const ALERTS_EMPTY_FILTERED_BODY =

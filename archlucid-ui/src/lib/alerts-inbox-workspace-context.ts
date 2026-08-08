@@ -97,11 +97,15 @@ export function buildAlertsInboxEmptyStateProps(
       description: ALERTS_EMPTY_NO_RULES_BODY,
       actions: [
         {
-          label: ALERTS_CONFIGURE_RULES_LINK_LABEL,
-          href: governanceAlertRulesTabHref("rules"),
+          label: ALERTS_ACTION_OPEN_GOVERNANCE_SETUP_GUIDE,
+          href: ALERTS_ACTION_OPEN_GOVERNANCE_SETUP_GUIDE_HREF,
           variant: "primary",
         },
-        governanceSetupSecondary,
+        {
+          label: ALERTS_CONFIGURE_RULES_LINK_LABEL,
+          href: governanceAlertRulesTabHref("rules"),
+          variant: "outline",
+        },
       ],
     };
   }
