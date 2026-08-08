@@ -67,5 +67,7 @@ describe("ui-route-traffic-cloud-connections (SCE)", () => {
     expect(row?.notes).toContain("PageContextualHelpButton");
     expect(row?.notes).toContain("Sources");
     expect(row?.section.toLowerCase()).not.toBe("marketing");
+    expect(row?.notes).toContain("Score 50");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
