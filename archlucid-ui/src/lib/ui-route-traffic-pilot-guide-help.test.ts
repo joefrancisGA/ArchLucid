@@ -66,5 +66,6 @@ describe("ui-route-traffic-pilot-guide-help (HP)", () => {
     expect(row?.notes).toBe(PILOT_GUIDE_HELP_TRAFFIC_NOTE);
     expect(row?.notes).toContain("HelpPilotGuideView");
     expect(row?.notes).toContain("Sources");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
