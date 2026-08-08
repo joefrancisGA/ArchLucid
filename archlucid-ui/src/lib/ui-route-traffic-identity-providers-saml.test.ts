@@ -69,5 +69,6 @@ describe("ui-route-traffic-identity-providers-saml (ASA)", () => {
     expect(row?.section).toBe(IDENTITY_PROVIDERS_SAML_TRAFFIC_SECTION);
     expect(row?.notes).toBe(IDENTITY_PROVIDERS_SAML_TRAFFIC_NOTE);
     expect(row?.notes).toContain("IdentityProvidersSamlPageClient");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
