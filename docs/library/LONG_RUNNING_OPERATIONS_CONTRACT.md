@@ -64,7 +64,9 @@ Update this table when routes change. Tiers are **product contract**, not k6 tag
 | Authority SSE / run events | Existing SSE where shipped | — | Event stream | Complements operations poll (**TB-2077**) |
 | **Missing** run progress | ~~`GET /v1/runs/{runId}/progress`~~ | — | **Does not exist** | Do **not** implement under that path; use `/v1/operations/{id}` |
 
-### Unified operation DTO (planned — TB-2074)
+### Unified operation DTO (TB-2074 — shipped)
+
+Operation ids use opaque prefixed handles: `job:{jobId}` for background exports and `run:{runId}` for architecture review pipeline state.
 
 Minimum fields (no `percentComplete` on the wire):
 
@@ -83,7 +85,7 @@ Minimum fields (no `percentComplete` on the wire):
 
 | Concern | Contract rule |
 |---------|---------------|
-| Tenant scope | Every poll (`/v1/jobs/{id}`, future `/v1/operations/{id}`) must authorize by tenant/workspace — not GUID secrecy (**TB-2073**). |
+| Tenant scope | Every poll (`/v1/jobs/{id}`, `/v1/operations/{id}`) must authorize by tenant/workspace — not GUID secrecy (**TB-2073** / **TB-2074**). |
 | Cancel | `POST /v1/operations/{id}/cancel` must be cooperative and audited (**TB-2076**). |
 | Cross-tenant probe | Integration tests must reject foreign operation/job ids. |
 | Cost control | Abandoned Real-mode executes should be cancelable; do not leave unbounded AOAI spend without heartbeat/cancel. |
@@ -107,7 +109,7 @@ Minimum fields (no `percentComplete` on the wire):
 |------:|----|-------------|
 | 1 | **TB-2072** | This contract (done when merged) |
 | 2 | **TB-2073** | Timeout ceiling matrix + job poll tenant audit (**Done** 2026-08-07) |
-| 3 | **TB-2074** | `GET /v1/operations/{operationId}` |
+| 3 | **TB-2074** | `GET /v1/operations/{operationId}` (**Done** 2026-08-07) |
 | 4 | **TB-2075** | Async execute/replay 202 + `Location` |
 | 5 | **TB-2076** | Cancel |
 | 6 | **TB-2077** | Shell in-flight operations affordance |
