@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { HelpTourTrigger } from "./HelpTourTrigger";
 import { HelpDocumentationGuide } from "./HelpDocumentationGuide";
 import { HelpProductGuide } from "./HelpProductGuide";
 import { HelpTabsShell } from "./HelpTabsShell";
+import { HelpHubEvidenceOrientationStrip } from "./_sections/HelpHubEvidenceOrientationStrip";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export const metadata: Metadata = {
@@ -38,8 +40,13 @@ export default function HelpPage() {
           for security posture. Open the <strong>Documentation</strong> tab for configuration, CLI, and API reference.
         </p>
         </div>
-        <HelpTourTrigger />
+        <div className="flex flex-wrap items-center gap-2">
+          <PageContextualHelpButton />
+          <HelpTourTrigger />
+        </div>
       </div>
+
+      <HelpHubEvidenceOrientationStrip />
 
       <HelpTabsShell guide={<HelpProductGuide />} docs={<HelpDocumentationGuide />} />
     </OperatorPageContainer>
