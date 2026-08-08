@@ -23,6 +23,7 @@ import {
 import { graphViewModelFilteredByNodeType } from "@/lib/graph-view-model-type-filter";
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
 import { useBasicAdvancedToggle } from "@/hooks/useBasicAdvancedToggle";
+import { GraphBuyerCanvasToolbar } from "@/components/GraphBuyerCanvasToolbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -49,14 +50,8 @@ import {
 } from "@/lib/graph-buyer-path-filter";
 import { applyGraphSelectionFocus } from "@/lib/graph-selection-highlight";
 import {
-  BUYER_EVIDENCE_GRAPH_FIT_GRAPH_CTA,
   BUYER_EVIDENCE_GRAPH_OPEN_DECISION_RECORD_CTA,
   BUYER_EVIDENCE_GRAPH_OPEN_FINDING_DETAIL_CTA,
-  BUYER_EVIDENCE_GRAPH_RESET_VIEW_CTA,
-  BUYER_EVIDENCE_GRAPH_SHOW_ALL_NODES_CTA,
-  BUYER_EVIDENCE_GRAPH_SHOW_SELECTED_PATH_CTA,
-  BUYER_EVIDENCE_GRAPH_TRACE_PATH_CTA,
-  BUYER_EVIDENCE_GRAPH_ZOOM_100_CTA,
 } from "@/lib/buyer-polish-copy";
 import {
   OPERATOR_CALLOUT_WARN_CLASS,
@@ -99,55 +94,6 @@ function pickHeroNodeId(graph: GraphViewModel, preferredId: string | undefined):
   }
 
   return graph.nodes[0] ?? null;
-}
-
-function GraphBuyerCanvasToolbar({
-  onFitGraph,
-  onZoom100,
-  onResetView,
-  onTracePath,
-  onTogglePathOnly,
-  showPathOnly,
-  pathFilterAvailable,
-}: {
-  onFitGraph: () => void;
-  onZoom100: () => void;
-  onResetView: () => void;
-  onTracePath: () => void;
-  onTogglePathOnly: () => void;
-  showPathOnly: boolean;
-  pathFilterAvailable: boolean;
-}) {
-  return (
-    <div
-      className="flex flex-wrap items-center gap-2"
-      data-testid="graph-buyer-canvas-toolbar"
-      role="toolbar"
-      aria-label="Evidence graph canvas tools"
-    >
-      <Button type="button" size="sm" variant="outline" onClick={onFitGraph}>
-        {BUYER_EVIDENCE_GRAPH_FIT_GRAPH_CTA}
-      </Button>
-      <Button type="button" size="sm" variant="outline" onClick={onZoom100}>
-        {BUYER_EVIDENCE_GRAPH_ZOOM_100_CTA}
-      </Button>
-      <Button type="button" size="sm" variant="outline" onClick={onTracePath} disabled={!pathFilterAvailable}>
-        {BUYER_EVIDENCE_GRAPH_TRACE_PATH_CTA}
-      </Button>
-      <Button
-        type="button"
-        size="sm"
-        variant={showPathOnly ? "primary" : "outline"}
-        onClick={onTogglePathOnly}
-        disabled={!pathFilterAvailable}
-      >
-        {showPathOnly ? BUYER_EVIDENCE_GRAPH_SHOW_ALL_NODES_CTA : BUYER_EVIDENCE_GRAPH_SHOW_SELECTED_PATH_CTA}
-      </Button>
-      <Button type="button" size="sm" variant="outline" onClick={onResetView}>
-        {BUYER_EVIDENCE_GRAPH_RESET_VIEW_CTA}
-      </Button>
-    </div>
-  );
 }
 
 function GraphBuyerZoom100Trigger({
@@ -306,8 +252,7 @@ export function GraphViewer({
 
   const fitPadding = buyerTrailPanel ? 0.005 : 0.08;
   const fitMaxZoom = buyerTrailPanel ? 6.2 : 1.52;
-  const pathFilterAvailable =
-    buyerTrailPanel && selectedNode !== null && resolveBuyerTrailPathNodeIds(filtered, selectedNode.id) !== null;
+  const hasSelection = selectedNode !== null;
 
   const handleTracePath = (): void => {
     if (selectedNode === null) {
@@ -433,7 +378,7 @@ export function GraphViewer({
               onTracePath={handleTracePath}
               onTogglePathOnly={handleTogglePathOnly}
               showPathOnly={showPathOnly}
-              pathFilterAvailable={pathFilterAvailable}
+              hasSelection={hasSelection}
             />
           </div>
         ) : null}

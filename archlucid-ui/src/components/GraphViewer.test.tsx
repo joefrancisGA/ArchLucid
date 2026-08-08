@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import { beforeAll, describe, expect, it } from "vitest";
 
 import { GraphViewer } from "./GraphViewer";
@@ -39,14 +39,28 @@ describe("GraphViewer", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders filtered empty-state when the type filter removes every node", () => {
+  it("names buyer canvas controls and enables path actions after default selection resolves", async () => {
     const graph = {
-      nodes: [{ id: "n1", label: "Only Service", type: "Service" }],
-      edges: [] as { source: string; target: string; type: string }[],
+      nodes: [
+        { id: "finding-1", label: "Primary finding", type: "Finding" },
+        { id: "manifest-1", label: "Signed package", type: "GoldenManifest" },
+      ],
+      edges: [{ source: "finding-1", target: "manifest-1", type: "derived_from" }],
     };
 
-    render(<GraphViewer graph={graph} typeFilter="Decision" />);
+    render(
+      <GraphViewer
+        graph={graph}
+        presentation="buyerTrail"
+        defaultSelectedNodeId="finding-1"
+      />,
+    );
 
-    expect(screen.getByText(/No nodes match type "Decision"/)).toBeInTheDocument();
+    const toolbar = await screen.findByRole("group", { name: "Graph canvas controls" });
+
+    await waitFor(() => {
+      expect(within(toolbar).getByRole("button", { name: "Highlight path" })).toBeEnabled();
+      expect(within(toolbar).getByRole("button", { name: "Focus selection" })).toBeEnabled();
+    });
   });
 });
