@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/enterprise-table";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
@@ -28,6 +29,8 @@ import {
   type AdminTenantRecord,
   type AdminTenantTier,
 } from "@/lib/admin-tenants-ops";
+
+import { AdminTenantsEvidenceOrientationStrip } from "./AdminTenantsEvidenceOrientationStrip";
 
 function formatUtc(iso: string | null | undefined): string {
   if (iso == null || iso.trim().length === 0) {
@@ -207,11 +210,16 @@ export function AdminTenantsPageClient() {
   return (
     <div className="w-full max-w-[1440px] space-y-6" data-testid="admin-tenants-page">
       <div>
-        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Tenants</h1>
-        <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          Provision a net-new tenant (seeds bundled policy packs) or shut off an existing tenant without deleting
-          data. Erasure quarantine remains a separate platform deletion path.
-        </p>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Tenants</h1>
+            <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+              Provision a net-new tenant (seeds bundled policy packs) or shut off an existing tenant without deleting
+              data. Erasure quarantine remains a separate platform deletion path.
+            </p>
+          </div>
+          <PageContextualHelpButton />
+        </div>
         <Button
           type="button"
           variant="outline"
@@ -225,6 +233,8 @@ export function AdminTenantsPageClient() {
           {loading ? "Refreshing…" : "Refresh"}
         </Button>
       </div>
+
+      <AdminTenantsEvidenceOrientationStrip />
 
       <section
         className="space-y-3 rounded-md border border-neutral-300 p-4 dark:border-neutral-700"

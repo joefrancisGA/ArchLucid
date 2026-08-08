@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
+import { PrivacyEvidenceOrientationStrip } from "@/components/marketing/PrivacyEvidenceOrientationStrip";
 import { PrivacyPolicyRelatedDocuments } from "@/components/marketing/privacy-policy/PrivacyPolicyRelatedDocuments";
 import { PrivacyPolicyTableOfContents } from "@/components/marketing/privacy-policy/PrivacyPolicyTableOfContents";
 import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
@@ -177,6 +178,8 @@ export function PrivacyPolicyPageClient(props: PrivacyPolicyPageClientProps): Re
               <PrivacyPolicyTableOfContents headings={props.headings} variant="mobile" />
             </div>
           </header>
+
+          <PrivacyEvidenceOrientationStrip />
 
           {props.bodyMarkdown.length > 0 ? (
             <div className="mt-8" data-testid="privacy-policy-body">

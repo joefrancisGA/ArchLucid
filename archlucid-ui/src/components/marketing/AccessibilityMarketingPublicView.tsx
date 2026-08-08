@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
+import { AccessibilityEvidenceOrientationStrip } from "@/components/marketing/AccessibilityEvidenceOrientationStrip";
 import {
   ACCESSIBILITY_PUBLIC_BASICS,
   ACCESSIBILITY_PUBLIC_CURRENT_STATUS,
@@ -42,6 +43,8 @@ export function AccessibilityMarketingPublicView(props: AccessibilityMarketingPu
         <h1 className={MARKETING_TYPOGRAPHY.pageTitle}>Accessibility</h1>
         <p className={cn(MARKETING_TYPOGRAPHY.body, "max-w-3xl text-al-text-secondary")}>{ACCESSIBILITY_PUBLIC_INTRO}</p>
       </header>
+
+      <AccessibilityEvidenceOrientationStrip />
 
       <section
         aria-labelledby="a11y-status-card"

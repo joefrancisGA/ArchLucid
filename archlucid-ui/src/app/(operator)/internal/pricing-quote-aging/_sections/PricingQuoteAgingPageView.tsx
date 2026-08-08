@@ -5,6 +5,7 @@ import { useCallback, useState } from "react";
 
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -36,6 +37,7 @@ import { pricingQuoteAgingRowTone, type PricingQuoteAgingRow } from "@/lib/prici
 import { formatRelativeTime } from "@/lib/relative-time";
 import { acknowledgePricingQuoteRequest, closePricingQuoteRequest } from "@/lib/trial-funnel-ops";
 
+import { PricingQuoteAgingEvidenceOrientationStrip } from "./PricingQuoteAgingEvidenceOrientationStrip";
 import type { PricingQuoteAgingPageViewModel } from "./use-pricing-quote-aging-page";
 
 type Props = {
@@ -226,6 +228,7 @@ export function PricingQuoteAgingPageView(props: Props) {
         }
         actions={
           <div className="flex flex-wrap items-center gap-3">
+            <PageContextualHelpButton />
             {lastUpdatedLabel !== null ? (
               <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="pricing-quote-follow-up-last-updated">
                 {lastUpdatedLabel}
@@ -237,6 +240,8 @@ export function PricingQuoteAgingPageView(props: Props) {
           </div>
         }
       />
+
+      <PricingQuoteAgingEvidenceOrientationStrip />
 
       {headline !== null ? (
         <p

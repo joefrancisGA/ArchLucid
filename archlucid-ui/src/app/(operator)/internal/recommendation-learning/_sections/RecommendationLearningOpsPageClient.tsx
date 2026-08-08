@@ -8,6 +8,7 @@ import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorksp
 import { StatusPill } from "@/components/StatusPill";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -27,6 +28,7 @@ import {
   executeRecommendationLearningRollback,
   reloadRecommendationLearningOpsBundle,
 } from "./load-recommendation-learning-ops-page-data";
+import { RecommendationLearningEvidenceOrientationStrip } from "./RecommendationLearningEvidenceOrientationStrip";
 import {
   copyOperationalIdentifier,
   formatOperationalTimestamp,
@@ -306,6 +308,7 @@ export function RecommendationLearningOpsPageClient(props: Props) {
             </p>
           </div>
           <div className="space-y-2 text-right">
+            <PageContextualHelpButton />
             <StatusPill
               status={production ? "critical" : "neutral"}
               domain="health"
@@ -315,6 +318,7 @@ export function RecommendationLearningOpsPageClient(props: Props) {
             <p className={cn("m-0 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{status.scopeLabel}</p>
           </div>
         </div>
+        <RecommendationLearningEvidenceOrientationStrip />
         <div className="flex flex-wrap gap-3">
           <Button type="button" variant="outline" disabled={isRefreshing} onClick={() => void refresh()}>
             {isRefreshing ? "Refreshing…" : "Refresh counts"}

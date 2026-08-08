@@ -4,11 +4,11 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
-  LEGACY_SETTINGS_ALERTS_TRAFFIC_NOTE,
-  LEGACY_SETTINGS_ALERTS_TRAFFIC_PATH,
-  LEGACY_SETTINGS_ALERTS_TRAFFIC_ROW_ID,
-  LEGACY_SETTINGS_ALERTS_TRAFFIC_SECTION,
-} from "@/lib/ui-route-traffic-legacy-settings-alerts";
+  RECOMMENDATION_LEARNING_TRAFFIC_NOTE,
+  RECOMMENDATION_LEARNING_TRAFFIC_PATH,
+  RECOMMENDATION_LEARNING_TRAFFIC_ROW_ID,
+  RECOMMENDATION_LEARNING_TRAFFIC_SECTION,
+} from "@/lib/ui-route-traffic-recommendation-learning";
 
 const TEMPLATE_PATH = "docs/architecture/ui_route_traffic_estimates.template.md";
 
@@ -55,18 +55,18 @@ function extractMasterTableRows(markdown: string): TrafficWorkbookRow[] {
   return rows;
 }
 
-describe("ui-route-traffic settings alerts retirement (TB-1886)", () => {
-  it("keeps retired SEA bookmark; Alert rules hub stays on SAX", () => {
+describe("ui-route-traffic-recommendation-learning (INE)", () => {
+  it("tracks Recommendation learning with honest workbook notes", () => {
     const rows = extractMasterTableRows(readTemplateMarkdown());
-    const seaRow = rows.find((row) => row.id === LEGACY_SETTINGS_ALERTS_TRAFFIC_ROW_ID);
-    const saxRow = rows.find((row) => row.id === "SAX");
+    const row = rows.find((candidate) => candidate.id === RECOMMENDATION_LEARNING_TRAFFIC_ROW_ID);
 
-    // Next.config-only bookmark kept in the owner traffic workbook (TRAFFIC_TRACKED_REDIRECT_BOOKMARKS).
-    expect(seaRow?.path).toBe(LEGACY_SETTINGS_ALERTS_TRAFFIC_PATH);
-    expect(seaRow?.section).toBe(LEGACY_SETTINGS_ALERTS_TRAFFIC_SECTION);
-    expect(seaRow?.notes).toBe(LEGACY_SETTINGS_ALERTS_TRAFFIC_NOTE);
-    expect(seaRow?.notes).toContain("Score 28");
-    expect(seaRow?.notes).toContain("cannot improve further toward 80");
-    expect(saxRow?.path).toBe("/governance/alert-rules");
+    expect(row).toBeDefined();
+    expect(row?.path).toBe(RECOMMENDATION_LEARNING_TRAFFIC_PATH);
+    expect(row?.section).toBe(RECOMMENDATION_LEARNING_TRAFFIC_SECTION);
+    expect(row?.notes).toBe(RECOMMENDATION_LEARNING_TRAFFIC_NOTE);
+    expect(row?.notes).toContain("RecommendationLearningOpsPageClient");
+    expect(row?.notes).toContain("Sources");
+    expect(row?.notes).toContain("Score 45");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
