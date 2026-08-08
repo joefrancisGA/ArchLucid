@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Traffic workbook row ID for legacy `/help/starting-reviews` alias.
  * Owner backlog shorthand: HET (TB-1258 / TB-1643).
  */
@@ -15,4 +15,4 @@ export const STARTING_REVIEWS_HELP_ALIAS_TRAFFIC_SECTION = "Help alias";
  * ASCII-only for Windows console note scripts.
  */
 export const STARTING_REVIEWS_HELP_ALIAS_TRAFFIC_NOTE =
- "Deprecated starting-reviews help alias (Help alias) - slug alias starting-reviews -> review-guide; renders HelpReviewGuideView Evidence chrome (Sources strip + claim-discipline + PageContextualHelp + Category-1 on alias path). Canon HR = /help/review-guide. Body lives in REVIEW_GUIDE.md (TB-1258 / TB-1643). Sibling HER = creating-runs alias. Score 52/100 (2026-08-08) - help-topic orientation hard-caps higher Evidence (alias inherits HR). Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
+ "Deprecated starting-reviews help alias (Help alias) - slug alias starting-reviews -> review-guide; renders HelpReviewGuideView Evidence chrome (Sources strip + claim-discipline + PageContextualHelp + Category-1 on alias path). Canon HR = /help/review-guide. Body lives in REVIEW_GUIDE.md (TB-1258 / TB-1643). Sibling HER = creating-runs alias. Score 58/100 (2026-08-08) - help-topic orientation hard-caps higher Evidence (alias inherits HR). Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";

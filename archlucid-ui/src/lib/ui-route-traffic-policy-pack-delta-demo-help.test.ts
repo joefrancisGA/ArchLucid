@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+﻿import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
@@ -66,7 +66,7 @@ describe("ui-route-traffic-policy-pack-delta-demo-help (POL)", () => {
     expect(row?.notes).toBe(POLICY_PACK_DELTA_DEMO_HELP_TRAFFIC_NOTE);
     expect(row?.notes).toContain("HelpPolicyPackDeltaDemoGuideView");
     expect(row?.notes).toContain("dry-run");
-    expect(row?.notes).toContain("Score 52");
+    expect(row?.notes).toContain("Score 58");
     expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });

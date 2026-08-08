@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+﻿import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
@@ -65,7 +65,7 @@ describe("ui-route-traffic-comparison-replay-help (CO)", () => {
     expect(row?.section).toBe(COMPARISON_REPLAY_HELP_TRAFFIC_SECTION);
     expect(row?.notes).toBe(COMPARISON_REPLAY_HELP_TRAFFIC_NOTE);
     expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
-    expect(row?.notes).toContain("Score 52");
+    expect(row?.notes).toContain("Score 58");
     expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });

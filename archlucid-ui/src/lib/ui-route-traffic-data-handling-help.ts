@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Traffic workbook row ID for Data handling and tenant isolation help.
  * Owner backlog shorthand: HED (canon; HDA is the retired twin alias).
  */
@@ -15,4 +15,4 @@ export const DATA_HANDLING_HELP_TRAFFIC_SECTION = "Help topic";
  * ASCII-only for Windows console note scripts.
  */
 export const DATA_HANDLING_HELP_TRAFFIC_NOTE =
- "Data handling and tenant isolation help (Help topic) - HelpDataHandlingTenantIsolationGuideView with PageContextualHelpButton (topic map data-handling; Category-1 registry on canon + HDA alias), Sources diligence strip + claim-discipline callout, residency honesty, Trust/security-trust/audit CTAs, prepared DATA_HANDLING.md. Absorbs former HDA twin (TB-1652 / TB-1658). Not bare HelpTopicMarkdownView. Score 52/100 (2026-08-07) - help-topic orientation hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
+ "Data handling and tenant isolation help (Help topic) - HelpDataHandlingTenantIsolationGuideView with PageContextualHelpButton (topic map data-handling; Category-1 registry on canon + HDA alias), Sources diligence strip + claim-discipline callout, residency honesty, Trust/security-trust/audit CTAs, prepared DATA_HANDLING.md. Absorbs former HDA twin (TB-1652 / TB-1658). Not bare HelpTopicMarkdownView. Score 58/100 (2026-08-07) - help-topic ceiling below HEL hub band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";

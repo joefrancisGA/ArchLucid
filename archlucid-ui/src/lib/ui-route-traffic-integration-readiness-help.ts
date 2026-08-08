@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Traffic workbook row ID for Integration readiness help.
  * Owner backlog shorthand: HEI.
  */
@@ -15,4 +15,4 @@ export const INTEGRATION_READINESS_HELP_TRAFFIC_SECTION = "Help topic";
  * ASCII-only for Windows console note scripts.
  */
 export const INTEGRATION_READINESS_HELP_TRAFFIC_NOTE =
- "Integration readiness help (Help topic) - HelpTopicMarkdownView with PageContextualHelpButton (topic map integration-readiness; Category-1 registry), curated INTEGRATION_READINESS.md. Sibling IJX/ISX/INA = live ITSM settings; ACS = connection-status; HEZ = azure-boards help. Not bare HelpTopicMarkdownView without orientation. Score 52/100 (2026-08-07) - help-topic orientation hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
+ "Integration readiness help (Help topic) - HelpTopicMarkdownView with PageContextualHelpButton (topic map integration-readiness; Category-1 registry), curated INTEGRATION_READINESS.md. Sibling IJX/ISX/INA = live ITSM settings; ACS = connection-status; HEZ = azure-boards help. Not bare HelpTopicMarkdownView without orientation. Score 58/100 (2026-08-07) - help-topic ceiling below HEL hub band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";

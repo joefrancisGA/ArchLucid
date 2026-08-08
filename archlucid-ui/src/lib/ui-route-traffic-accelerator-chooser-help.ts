@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Traffic workbook row ID for Accelerator chooser help.
  * Owner backlog shorthand: HAX.
  */
@@ -15,4 +15,4 @@ export const ACCELERATOR_CHOOSER_HELP_TRAFFIC_SECTION = "Help topic";
  * ASCII-only for Windows console note scripts.
  */
 export const ACCELERATOR_CHOOSER_HELP_TRAFFIC_NOTE =
- "Accelerator chooser help (Help topic) - HelpTopicMarkdownView with PageContextualHelpButton (topic map accelerator-chooser; Category-1 registry), curated DEMO_QUICKSTART accelerator-chooser section (contributor leakage stripped). Sibling HPX = path-chooser; COR = first-architecture-review; HE. = catch-all residual. Not bare HelpTopicMarkdownView without orientation. Score 52/100 (2026-08-06) - help-topic orientation hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
+ "Accelerator chooser help (Help topic) - HelpTopicMarkdownView with PageContextualHelpButton (topic map accelerator-chooser; Category-1 registry), curated DEMO_QUICKSTART accelerator-chooser section (contributor leakage stripped). Sibling HPX = path-chooser; COR = first-architecture-review; HE. = catch-all residual. Not bare HelpTopicMarkdownView without orientation. Score 58/100 (2026-08-06) - help-topic ceiling below HEL hub band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";

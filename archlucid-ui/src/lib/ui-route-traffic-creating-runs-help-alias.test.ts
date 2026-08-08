@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+﻿import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
@@ -65,7 +65,7 @@ describe("ui-route-traffic-creating-runs-help-alias (HER)", () => {
     expect(row?.section).toBe(CREATING_RUNS_HELP_ALIAS_TRAFFIC_SECTION);
     expect(row?.notes).toBe(CREATING_RUNS_HELP_ALIAS_TRAFFIC_NOTE);
     expect(row?.notes).toContain("HelpReviewGuideView");
-    expect(row?.notes).toContain("Score 52");
+    expect(row?.notes).toContain("Score 58");
     expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });

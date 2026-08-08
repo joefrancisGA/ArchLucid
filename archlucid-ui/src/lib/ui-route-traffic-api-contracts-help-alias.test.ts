@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+﻿import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
@@ -65,7 +65,7 @@ describe("ui-route-traffic-api-contracts-help-alias (HEP)", () => {
     expect(row?.section).toBe(API_CONTRACTS_HELP_ALIAS_TRAFFIC_SECTION);
     expect(row?.notes).toBe(API_CONTRACTS_HELP_ALIAS_TRAFFIC_NOTE);
     expect(row?.notes).toContain("HelpApiContractsGuideView");
-    expect(row?.notes).toContain("Score 52");
+    expect(row?.notes).toContain("Score 58");
     expect(rows.find((candidate) => candidate.id === "HAP")).toBeUndefined();
   });
 });

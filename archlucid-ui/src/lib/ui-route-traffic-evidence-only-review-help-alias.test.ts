@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+﻿import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
@@ -68,7 +68,7 @@ describe("ui-route-traffic-evidence-only-review-help-alias (HEV)", () => {
     expect(row?.section).toBe(EVIDENCE_ONLY_REVIEW_HELP_ALIAS_TRAFFIC_SECTION);
     expect(row?.notes).toBe(EVIDENCE_ONLY_REVIEW_HELP_ALIAS_TRAFFIC_NOTE);
     expect(row?.notes).toContain("HelpCorePilotGuideView");
-    expect(row?.notes).toContain("Score 52");
+    expect(row?.notes).toContain("Score 58");
     expect(EVIDENCE_ONLY_REVIEW_HELP_ALIAS_CANONICAL_PATH).toBe("/help/first-architecture-review");
   });
 });
