@@ -70,5 +70,6 @@ describe("ui-route-traffic-architecture-intelligence (AR2 / AIN)", () => {
     expect(row?.notes).toBe(ARCHITECTURE_INTELLIGENCE_TRAFFIC_NOTE);
     expect(row?.section.toLowerCase()).not.toBe("marketing");
     expect(row?.notes).toContain("ArchitectureIntelligencePageClient");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
