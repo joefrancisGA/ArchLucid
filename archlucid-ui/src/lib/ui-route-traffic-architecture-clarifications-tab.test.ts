@@ -64,8 +64,9 @@ describe("ui-route-traffic-architecture-clarifications-tab (REC)", () => {
     expect(row?.path).toBe(ARCHITECTURE_CLARIFICATIONS_TAB_TRAFFIC_PATH);
     expect(row?.section).toBe(ARCHITECTURE_CLARIFICATIONS_TAB_TRAFFIC_SECTION);
     expect(row?.notes).toBe(ARCHITECTURE_CLARIFICATIONS_TAB_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("ArchitectureCreatedClarificationsEvidenceOrientationStrip");
+    expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
     expect(row?.notes).toContain("archTab=clarifications");
     expect(row?.notes).toContain("Score 48");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
