@@ -66,5 +66,6 @@ describe("ui-route-traffic-cloud-connections-help (HCE)", () => {
     expect(row?.notes).toBe(CLOUD_CONNECTIONS_HELP_TRAFFIC_NOTE);
     expect(row?.notes).toContain("HelpCloudConnectionsGuideView");
     expect(row?.notes).toContain("Sources");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });

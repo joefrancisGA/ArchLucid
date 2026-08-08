@@ -11,7 +11,8 @@ export const CLOUD_CONNECTIONS_HELP_TRAFFIC_PATH = "/help/cloud-connections";
 export const CLOUD_CONNECTIONS_HELP_TRAFFIC_SECTION = "Help topic";
 
 /**
- * Owner workbook Notes for HCE — documents Evidence chrome on Cloud connections help.
+ * Owner workbook Notes for HCE - documents Evidence chrome on Cloud connections help.
+ * ASCII-only for Windows console note scripts.
  */
 export const CLOUD_CONNECTIONS_HELP_TRAFFIC_NOTE =
-  "Cloud connections help (Help topic) - HelpCloudConnectionsGuideView with PageContextualHelpButton (topic map cloud-connections; Category-1 registry), workspace Sources + claim-discipline orientation, hub/Azure CTAs, curated CLOUD_CONNECTIONS.md body. Orientation guide — not a signed-record Sources trail. Sibling HC = Azure secure-connect alias. Score 52/100 (2026-08-03) — help-topic orientation hard-caps higher Evidence.";
+  "Cloud connections help (Help topic) - HelpCloudConnectionsGuideView with PageContextualHelpButton (topic map cloud-connections; Category-1 registry), Learn more / claim-discipline orientation (Sources follow-up removed TB-2092), hub/Azure CTAs, curated CLOUD_CONNECTIONS.md body. Orientation guide - not a signed-record Sources trail. Sibling HC = Azure secure-connect alias. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-08) - help-topic orientation hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
