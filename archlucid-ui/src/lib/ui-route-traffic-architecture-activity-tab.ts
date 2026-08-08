@@ -6,14 +6,14 @@ export const ARCHITECTURE_ACTIVITY_TAB_TRAFFIC_ROW_ID = "REA";
 
 /** Canonical path tracked on the REA workbook row. */
 export const ARCHITECTURE_ACTIVITY_TAB_TRAFFIC_PATH =
-  "/architecture/reviews/[runId]?archTab=activity" as const;
+ "/architecture/reviews/[runId]?archTab=activity" as const;
 
-/** Workbook Section column value — create-home tab surface. */
+/** Workbook Section column value â€” create-home tab surface. */
 export const ARCHITECTURE_ACTIVITY_TAB_TRAFFIC_SECTION = "Tab surface";
 
 /**
- * Owner workbook Notes for REA — create-home Activity archTab Evidence chrome.
+ * Owner workbook Notes for REA â€” create-home Activity archTab Evidence chrome.
  * ASCII-only for Windows console note scripts.
  */
 export const ARCHITECTURE_ACTIVITY_TAB_TRAFFIC_NOTE =
-  "Create-home Activity archTab (Tab surface) - mounts on ArchitectureCreatedWorkspace when fromGeneration+create-architecture and no signed manifest; ArchitectureCreatedWorkspace syncs ?archTab=activity. ArchitectureCreatedActivityEvidenceOrientationStrip (PageContextualHelpButton + Category-1 registry; Sources + claim-discipline) above progress tracker / technology baseline / outcome cards (TB-1846 sibling band). Twin committed surface is reviewTab=activity on ReviewDetailWorkspace (RRE hub chrome). Sibling REG = governance; RED = diagram; REE = evidence; REF = findings; REO = overview; REC = clarifications. Assessment progress only - not a signed-record Sources trail. Score 48/100 (2026-08-08) - create-home path-tab hard-caps higher Evidence (below RRE hub).";
+ "Create-home Activity archTab (Tab surface) - mounts on ArchitectureCreatedWorkspace when fromGeneration+create-architecture and no signed manifest; ArchitectureCreatedWorkspace syncs ?archTab=activity. above progress tracker / technology baseline / outcome cards (TB-1846 sibling band). Twin committed surface is reviewTab=activity on ReviewDetailWorkspace (RRE hub chrome). Sibling REG = governance; RED = diagram; REE = evidence; REF = findings; REO = overview; REC = clarifications. Assessment progress only - not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 48/100 (2026-08-08) - create-home path-tab hard-caps higher Evidence (below RRE hub). Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
