@@ -7,7 +7,6 @@ import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import type { EmptyStateProps } from "@/components/EmptyState";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
-import { EvidenceGraphLifecycleStatusBanner } from "@/components/governance/EvidenceGraphLifecycleStatusBanner";
 import { CtoDemoBuyerValueStrip } from "@/components/cto-demo/CtoDemoBuyerValueStrip";
 import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 import { isApiRequestError } from "@/lib/api-request-error";
@@ -695,9 +694,7 @@ export function GraphPageContent() {
 
   return (
     <OperatorPageContainer variant="dashboard">
-      {buyerPolishedShell ? (
-        <EvidenceGraphLifecycleStatusBanner className="mb-2" />
-      ) : (
+      {buyerPolishedShell ? null : (
         <CtoDemoBuyerValueStrip stepIndex={2} />
       )}
       <OperatorPageHeader title={pageTitle} subtitle={pageSubtitle} navHref="/insights/evidence-graph" />

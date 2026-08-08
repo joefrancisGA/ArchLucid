@@ -63,7 +63,7 @@ describe("LayerContextStrip", () => {
     unmount();
   });
 
-  it("renders buyer journey stepper when orientation and journey nav are provided", () => {
+  it("renders buyer journey step pills without prev/next or Step N of M summary (TB-2096)", () => {
     const { getByTestId, unmount } = render(
       <LayerContextStrip
         layerId="pilot"
@@ -78,8 +78,9 @@ describe("LayerContextStrip", () => {
     );
 
     expect(getByTestId("buyer-golden-journey-stepper")).toBeInTheDocument();
-    expect(getByTestId("buyer-journey-prev")).toHaveAttribute("href", "/architecture/reviews/x/signed-record");
-    expect(getByTestId("buyer-journey-next")).toHaveAttribute("href", "/governance/approval-queue");
+    expect(screen.queryByTestId("buyer-journey-prev")).toBeNull();
+    expect(screen.queryByTestId("buyer-journey-next")).toBeNull();
+    expect(screen.queryByText(/Step 3 of 5/i)).toBeNull();
 
     const indicators = getByTestId("buyer-golden-journey-step-indicators");
     const currentChip = indicators.querySelector("[aria-current='step']");

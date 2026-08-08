@@ -96,88 +96,61 @@ function BuyerGoldenJourneyStepperNav(props: BuyerGoldenJourneyStepperNavProps):
       className="flex flex-col gap-2 border-t border-neutral-200/70 pt-1.5 dark:border-neutral-700/80"
       data-testid="buyer-golden-journey-stepper"
     >
-      <div className={cn("flex flex-wrap items-center gap-x-3 gap-y-1", OPERATOR_TYPOGRAPHY.helper)}>
-        {nav.prev !== null ? (
-          <Link
-            className="shrink-0 font-medium text-neutral-700 underline decoration-neutral-300 underline-offset-2 hover:text-neutral-950 dark:text-neutral-300 dark:decoration-neutral-600 dark:hover:text-neutral-50"
-            data-testid="buyer-journey-prev"
-            href={nav.prev.href}
-            prefetch
-          >
-            ← {nav.prev.label}
-          </Link>
-        ) : (
-          <span className="shrink-0 text-neutral-600 dark:text-neutral-400">← Start</span>
-        )}
-        <span className="flex min-w-0 flex-1 flex-wrap items-center justify-center gap-2 text-center font-medium text-neutral-700 dark:text-neutral-300">
-          <span>{nav.summaryLine}</span>
-          {demoDataSourceBadge}
-        </span>
-        {nav.next !== null ? (
-          <Link
-            className="shrink-0 font-medium text-neutral-700 underline decoration-neutral-300 underline-offset-2 hover:text-neutral-950 dark:text-neutral-300 dark:decoration-neutral-600 dark:hover:text-neutral-50"
-            data-testid="buyer-journey-next"
-            href={nav.next.href}
-            prefetch
-          >
-            {nav.next.label} →
-          </Link>
-        ) : (
-          <span className="shrink-0 text-neutral-600 dark:text-neutral-400">End →</span>
-        )}
-      </div>
       {nav.currentStepIndex !== null ? (
-        <ol
-          className="m-0 flex list-none flex-wrap gap-1.5 p-0"
-          aria-label="Review journey step indicators"
-          data-testid="buyer-golden-journey-step-indicators"
-        >
-          {BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS.map((def, idx) => {
-            const cur = nav.currentStepIndex;
-            const done = cur !== null && idx < cur;
-            const current = cur !== null && idx === cur;
+        <div className="flex flex-wrap items-center gap-2">
+          <ol
+            className="m-0 flex list-none flex-wrap gap-1.5 p-0"
+            aria-label="Review journey step indicators"
+            data-testid="buyer-golden-journey-step-indicators"
+          >
+            {BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS.map((def, idx) => {
+              const cur = nav.currentStepIndex;
+              const done = cur !== null && idx < cur;
+              const current = cur !== null && idx === cur;
 
-            const chipClass = buyerGoldenJourneyStepChipClass({ done, current });
+              const chipClass = buyerGoldenJourneyStepChipClass({ done, current });
 
-            const chipInner = (
-              <>
-                <span className="tabular-nums">{def.step}.</span>
-                <span>{def.label}</span>
-              </>
-            );
+              const chipInner = (
+                <>
+                  <span className="tabular-nums">{def.step}.</span>
+                  <span>{def.label}</span>
+                </>
+              );
 
-            return (
-              <li key={`${def.step}-${def.href}`}>
-                {current ? (
-                  <span
-                    aria-current="step"
-                    title={def.chipTooltip}
-                    className={cn(
-                      "inline-flex min-h-7 items-center gap-1 rounded-full px-2 py-0.5 font-medium transition",
-                      OPERATOR_TYPOGRAPHY.badge,
-                      chipClass,
-                    )}
-                  >
-                    {chipInner}
-                  </span>
-                ) : (
-                  <Link
-                    href={def.href}
-                    title={def.chipTooltip}
-                    prefetch
-                    className={cn(
-                      "inline-flex min-h-7 items-center gap-1 rounded-full px-2 py-0.5 font-medium no-underline transition hover:opacity-95",
-                      OPERATOR_TYPOGRAPHY.badge,
-                      chipClass,
-                    )}
-                  >
-                    {chipInner}
-                  </Link>
-                )}
-              </li>
-            );
-          })}
-        </ol>
+              return (
+                <li key={`${def.step}-${def.href}`}>
+                  {current ? (
+                    <span
+                      aria-current="step"
+                      title={def.chipTooltip}
+                      className={cn(
+                        "inline-flex min-h-7 items-center gap-1 rounded-full px-2 py-0.5 font-medium transition",
+                        OPERATOR_TYPOGRAPHY.badge,
+                        chipClass,
+                      )}
+                    >
+                      {chipInner}
+                    </span>
+                  ) : (
+                    <Link
+                      href={def.href}
+                      title={def.chipTooltip}
+                      prefetch
+                      className={cn(
+                        "inline-flex min-h-7 items-center gap-1 rounded-full px-2 py-0.5 font-medium no-underline transition hover:opacity-95",
+                        OPERATOR_TYPOGRAPHY.badge,
+                        chipClass,
+                      )}
+                    >
+                      {chipInner}
+                    </Link>
+                  )}
+                </li>
+              );
+            })}
+          </ol>
+          {demoDataSourceBadge}
+        </div>
       ) : null}
     </nav>
   );
