@@ -69,5 +69,6 @@ describe("ui-route-traffic-demo-explain (DEX)", () => {
     expect(row?.section).toBe(DEMO_EXPLAIN_TRAFFIC_SECTION);
     expect(row?.notes).toBe(DEMO_EXPLAIN_TRAFFIC_NOTE);
     expect(row?.notes).toContain("DemoExplainPageView");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
