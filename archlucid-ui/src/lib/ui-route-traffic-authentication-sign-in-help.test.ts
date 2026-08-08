@@ -64,7 +64,8 @@ describe("ui-route-traffic-authentication-sign-in-help (HEA)", () => {
     expect(row?.path).toBe(AUTHENTICATION_SIGN_IN_HELP_TRAFFIC_PATH);
     expect(row?.section).toBe(AUTHENTICATION_SIGN_IN_HELP_TRAFFIC_SECTION);
     expect(row?.notes).toBe(AUTHENTICATION_SIGN_IN_HELP_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("AuthenticationSignInHelpEvidenceOrientationStrip");
+    expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
     expect(row?.notes).toContain("Score 52");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
