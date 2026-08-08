@@ -69,5 +69,6 @@ describe("ui-route-traffic-demo-readiness (ADD)", () => {
     expect(row?.section).toBe(DEMO_READINESS_TRAFFIC_SECTION);
     expect(row?.notes).toBe(DEMO_READINESS_TRAFFIC_NOTE);
     expect(row?.notes).toContain("DemoReadinessAdminPageClient");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
