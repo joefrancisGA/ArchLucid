@@ -44,6 +44,13 @@ POST /v1/architecture/run/{runId}/analysis-report/export/docx/async
 POST /v1/architecture/run/{runId}/analysis-report/export/docx/consulting
 POST /v1/architecture/run/{runId}/analysis-report/export/docx/consulting/async
 POST /v1/architecture/run/{runId}/analysis-report/export/file
+POST /v1/architecture/review/{runId}/analysis-report
+POST /v1/architecture/review/{runId}/analysis-report/export
+POST /v1/architecture/review/{runId}/analysis-report/export/docx
+POST /v1/architecture/review/{runId}/analysis-report/export/docx/async
+POST /v1/architecture/review/{runId}/analysis-report/export/docx/consulting
+POST /v1/architecture/review/{runId}/analysis-report/export/docx/consulting/async
+POST /v1/architecture/review/{runId}/analysis-report/export/file
 POST /v1/architecture/run/{runId}/commit
 POST /v1/architecture/run/{runId}/replay
 POST /v1/architecture/run/{runId}/result
