@@ -67,19 +67,21 @@ export function FirstRunIntakeStepGuide(props: FirstRunIntakeStepGuideProps): Re
 
   return (
     <ol
-      className={cn("m-0 list-none space-y-2 p-0", className)}
+      className={cn("m-0 list-none space-y-3 p-0", className)}
       aria-label="First review steps"
       data-testid="first-run-intake-step-guide"
     >
       {steps.map((step) => (
         <li
           key={step.key}
-          className={cn("rounded-md border px-3 py-2", OPERATOR_TYPOGRAPHY.body, stepClassName(step.state))}
+          className={cn("rounded-md border px-4 py-3", OPERATOR_TYPOGRAPHY.body, stepClassName(step.state))}
           data-testid={`first-run-intake-step-${step.key}`}
           data-step-state={step.state}
         >
           <p className="m-0 font-medium">{step.label}</p>
-          <p className={cn("m-0 mt-0.5 leading-snug opacity-90", OPERATOR_TYPOGRAPHY.helper)}>{step.detail}</p>
+          <p className={cn("m-0 mt-1 leading-relaxed opacity-90", OPERATOR_TYPOGRAPHY.helper)}>
+            {step.detail}
+          </p>
         </li>
       ))}
     </ol>

@@ -213,15 +213,17 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
   };
 
   return (
-    <div className="space-y-4 pb-24" data-testid="first-pilot-intake-wizard">
+    <div className="space-y-5 pb-24" data-testid="first-pilot-intake-wizard">
       {llmBudgetStatus !== null ? <LlmMonthlyBudgetExceededBanner status={llmBudgetStatus} /> : null}
       {exampleTemplate !== null ? <ReviewIntakeExampleTemplateCallout template={exampleTemplate} /> : null}
 
-      <div className="space-y-1" data-testid="first-pilot-intake-progress">
+      <div className="space-y-2" data-testid="first-pilot-intake-progress">
         <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">
           {REVIEW_INTAKE_EVIDENCE_FIRST_PROGRESS_TITLE}
         </p>
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{REVIEW_INTAKE_EVIDENCE_FIRST_PROGRESS_LEAD}</p>
+        <p className={cn("m-0 max-w-3xl leading-relaxed", OPERATOR_TYPOGRAPHY.helper)}>
+          {REVIEW_INTAKE_EVIDENCE_FIRST_PROGRESS_LEAD}
+        </p>
       </div>
 
       <FirstRunIntakeStepGuide titleReady={titleReady} evidenceReady={evidenceReady} />

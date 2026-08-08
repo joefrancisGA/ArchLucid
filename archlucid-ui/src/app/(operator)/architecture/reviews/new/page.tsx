@@ -22,8 +22,8 @@ export default async function NewRunPage() {
   return (
     <OperatorPageContainer variant="workflow">
       <ReviewsNewPageChrome />
-      <NewReviewSampleEscapeLink className="mt-2" />
-      <div id="new-review-wizard" className="mt-4 scroll-mt-24">
+      <NewReviewSampleEscapeLink className="mt-3" />
+      <div id="new-review-wizard" className="mt-6 scroll-mt-24">
         <Suspense fallback={<NewRunWizardSkeleton />}>
           <ReviewsNewPathSwitcher />
         </Suspense>

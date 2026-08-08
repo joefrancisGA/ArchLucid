@@ -127,7 +127,7 @@ export function ReviewsNewPathSwitcher() {
   };
 
   return (
-    <OperatorPageContainer variant="workflow" className="space-y-3">
+    <OperatorPageContainer variant="workflow" className="space-y-5">
       <Suspense fallback={null}>
         <ReviewsNewDeferredIntentCallout />
       </Suspense>
@@ -140,6 +140,7 @@ export function ReviewsNewPathSwitcher() {
           onValueChange={(next) => {
             selectPath(next as ReviewsNewActivePath);
           }}
+          className="space-y-3"
         >
           <TabsList
             aria-label="Review creation path"
@@ -157,16 +158,19 @@ export function ReviewsNewPathSwitcher() {
               </TabsTrigger>
             ))}
           </TabsList>
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="reviews-new-path-hint">
+          <p
+            className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="reviews-new-path-hint"
+          >
             <InlineGuidanceText text={pathHints[activePath]} />
           </p>
-          <TabsContent value="quick-review" className="pt-0" data-testid="reviews-new-path-panel">
+          <TabsContent value="quick-review" className="mt-0 pt-1" data-testid="reviews-new-path-panel">
             <FirstPilotIntakeWizard />
           </TabsContent>
-          <TabsContent value="guided-intake" className="pt-0" data-testid="reviews-new-path-panel">
+          <TabsContent value="guided-intake" className="mt-0 pt-1" data-testid="reviews-new-path-panel">
             <SocraticIntakeWizard />
           </TabsContent>
-          <TabsContent value="detailed" className="pt-0" data-testid="reviews-new-path-panel">
+          <TabsContent value="detailed" className="mt-0 pt-1" data-testid="reviews-new-path-panel">
             <NewRunWizardClient />
           </TabsContent>
         </Tabs>
