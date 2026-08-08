@@ -66,5 +66,6 @@ describe("ui-route-traffic-see-it (SEE)", () => {
     expect(row?.notes).toBe(SEE_IT_TRAFFIC_NOTE);
     expect(row?.notes).toContain("SeeItMarketingPage");
     expect(row?.notes).toContain("Sources");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
