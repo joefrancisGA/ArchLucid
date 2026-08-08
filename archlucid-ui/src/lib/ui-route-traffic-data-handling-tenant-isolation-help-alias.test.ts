@@ -68,5 +68,6 @@ describe("ui-route-traffic-data-handling-tenant-isolation-help-alias (HDA)", () 
     expect(row?.notes).toBe(DATA_HANDLING_TENANT_ISOLATION_HELP_ALIAS_TRAFFIC_NOTE);
     expect(row?.notes).toContain("HelpDataHandlingTenantIsolationGuideView");
     expect(row?.notes).toContain("Score 52");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
