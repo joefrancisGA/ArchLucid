@@ -251,15 +251,16 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
   }, [autoSelectSyntheticSample, loadError, preferAutoPick, value, onChange]);
 
   const trimmedValue = value.trim();
+  // TB-2101: empty-state prompt lives on SelectValue placeholder, not the label.
   const optionalHint =
     trimmedValue.length > 0
       ? null
       : selectedThreadId.trim().length > 0
         ? "(optional when a conversation already has review context)"
-        : "(pick an architecture review)";
+        : null;
 
   const reviewFieldLabel = (
-    <Label htmlFor={selectControlId}>
+    <Label htmlFor={selectControlId} data-testid="ask-run-id-picker-label">
       {labelText}
       {optionalHint !== null ? (
         <>
