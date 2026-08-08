@@ -66,5 +66,6 @@ describe("ui-route-traffic-tenant-health (ATX)", () => {
     expect(row?.notes).toBe(TENANT_HEALTH_TRAFFIC_NOTE);
     expect(row?.notes).toContain("TenantHealthAdminPageClient");
     expect(row?.notes).toContain("Sources");
+    expect(.notes).toContain("cannot improve further toward 80");
   });
 });
