@@ -30,7 +30,7 @@ export function GraphIdleLegend(props: { readonly buyerPolished?: boolean }) {
           provenance and flow. Use the review and mode controls to load or refresh the graph.
         </p>
       )}
-      <GraphNodeKindLegendChips className="mt-3" />
+      <GraphNodeKindLegendChips className="mt-3" aria-label="Sample node kinds" />
       <div className={cn("mt-3 flex flex-wrap items-center gap-3 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         <span className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-600 dark:bg-neutral-900">Review</span>
         <span aria-hidden>→</span>

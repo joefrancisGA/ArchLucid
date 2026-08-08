@@ -2,12 +2,9 @@ import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 import Link from "next/link";
 
-import { GraphNodeKindLegendChips } from "@/components/GraphNodeKindLegendChips";
-import { GraphReviewTrailLegendChips } from "@/components/GraphReviewTrailLegendChips";
 import { GRAPH_MODE_NATIVE_TITLES } from "@/components/GraphIdleLegend";
 import { Button } from "@/components/ui/button";
 import { TabsContent } from "@/components/ui/tabs";
-import { GraphViewerLegend } from "@/components/usability/GraphViewerLegend";
 import { EvidenceTrailTracePanel } from "@/app/(operator)/insights/evidence-graph/_sections/EvidenceTrailTracePanel";
 import {
   BUYER_GRAPH_GOVERNANCE_NEXT_APPROVED,
@@ -17,7 +14,6 @@ import {
 } from "@/lib/buyer-polish-copy";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
-import { graphLooksLikeCoordinatorProvenanceTrail } from "@/lib/graph-mapper";
 import {
   downloadBrowserTextFile,
   graphViewModelToJsonSnapshot,
@@ -117,16 +113,6 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
                   : "Rendering interactive graph…"}
               </span>
             </div>
-            {graphInteractiveReady && !loading ? (
-              <div className={cn("mb-2 space-y-2", graphMainColumnMaxClass)}>
-                {graphLooksLikeCoordinatorProvenanceTrail(graph) && demoUi ? (
-                  <GraphReviewTrailLegendChips buyerPolished showRoles={false} />
-                ) : (
-                  <GraphNodeKindLegendChips />
-                )}
-                <GraphViewerLegend />
-              </div>
-            ) : null}
             <GraphInteractiveCanvas
               graphSurfaceKey={graphSurfaceKey}
               buyerPolishedShell={buyerPolishedShell}
@@ -245,14 +231,6 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
                 Export PNG
               </Button>
             </div>
-          </div>
-          <div className={cn("mb-3", graphMainColumnMaxClass)}>
-            <p className={cn("m-0 mb-1.5", OPERATOR_TYPOGRAPHY.tab, "text-al-text-secondary")}>Legend</p>
-            {graphLooksLikeCoordinatorProvenanceTrail(graph) && demoUi ? (
-              <GraphReviewTrailLegendChips />
-            ) : (
-              <GraphNodeKindLegendChips />
-            )}
           </div>
           <GraphInteractiveCanvas
             graphSurfaceKey={graphSurfaceKey}

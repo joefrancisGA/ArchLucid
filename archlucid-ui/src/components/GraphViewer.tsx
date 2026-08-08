@@ -66,6 +66,7 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { ReasoningTraceReadMore } from "@/components/ReasoningTraceReadMore";
+import { GraphNodeKindLegendChips } from "@/components/GraphNodeKindLegendChips";
 import Link from "next/link";
 
 function pickHeroNodeId(graph: GraphViewModel, preferredId: string | undefined): GraphNodeVm | null {
@@ -512,16 +513,15 @@ export function GraphViewer({
               : "max-h-[70vh] flex flex-col gap-4 overflow-auto rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950"
         }
       >
-        {buyerTrailPanel && interactiveSurfaceReady ? (
-          <div className={cn(
-            "rounded-md border border-slate-200 bg-slate-50/90 p-3 dark:border-slate-700 dark:bg-slate-900/40",
-            OPERATOR_TYPOGRAPHY.body,
-          )}>
-            <p className={cn("m-0 font-semibold text-slate-600 dark:text-slate-400", OPERATOR_NAV_GROUP_LABEL)}>Legend</p>
-            <p className="m-0 mt-1 leading-snug text-slate-800 dark:text-slate-200">
-              Evidence-to-decision trail: each item in the graph represents source context, analysis, findings, decisions,
-              or deliverable evidence; the highlighted finding anchors the signed review record and deliverables bundle.
-            </p>
+        {interactiveSurfaceReady ? (
+          <div
+            className={cn(
+              "rounded-md border border-slate-200 bg-slate-50/90 p-3 dark:border-slate-700 dark:bg-slate-900/40",
+              OPERATOR_TYPOGRAPHY.body,
+            )}
+            data-testid="graph-canvas-legend"
+          >
+            <GraphNodeKindLegendChips />
           </div>
         ) : null}
         {!buyerTrailPanel && !compactChrome ? (

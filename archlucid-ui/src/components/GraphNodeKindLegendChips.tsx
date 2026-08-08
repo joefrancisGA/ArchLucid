@@ -31,10 +31,19 @@ const KINDS: ReadonlyArray<{ k: string; swatch: string; c: string }> = [
 
 /**
  * Compact legend chips for graph node categories — shown in idle state and when the interactive graph is visible.
+ * TB-2098: this is the sole loaded-graph legend vocabulary (node types the canvas draws).
  */
-export function GraphNodeKindLegendChips(props: { className?: string }) {
+export function GraphNodeKindLegendChips(props: {
+  className?: string;
+  /** Accessible name; defaults to Legend for the single canvas legend contract (TB-2098). */
+  "aria-label"?: string;
+}) {
   return (
-    <ul className={cn("m-0 flex flex-wrap gap-2 p-0 list-none", props.className)} data-testid="graph-node-kind-legend">
+    <ul
+      className={cn("m-0 flex flex-wrap gap-2 p-0 list-none", props.className)}
+      data-testid="graph-node-kind-legend"
+      aria-label={props["aria-label"] ?? "Legend"}
+    >
       {KINDS.map((x) => (
         <li
           key={x.k}
