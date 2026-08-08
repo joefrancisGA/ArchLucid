@@ -24,7 +24,7 @@ export const DIGESTS_SCHEDULE_CANONICAL_PATH = DIGESTS_SCHEDULE_TAB_PATH;
 /** Canonical Digests Subscriptions tab (traffic row DIX). */
 export const DIGESTS_SUBSCRIPTIONS_TAB_PATH = digestsHubTabPath("subscriptions");
 
-/** Canonical Digests Browse tab (traffic row DIB). */
+/** Canonical Digests Browse tab (traffic row ARB). */
 export const DIGESTS_BROWSE_TAB_PATH = digestsHubTabPath("browse");
 
 /** Browse tab deep link with digest row hash anchor. */
