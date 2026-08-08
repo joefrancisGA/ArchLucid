@@ -7,7 +7,7 @@ export const JIRA_INTEGRATION_TRAFFIC_ROW_ID = "IJX";
 /** Canonical path tracked on the IJX workbook row. */
 export const JIRA_INTEGRATION_TRAFFIC_PATH = "/integrations/jira";
 
-/** Workbook Section column value (template catalog). */
+/** Workbook Section column value. */
 export const JIRA_INTEGRATION_TRAFFIC_SECTION = "Integrations";
 
 /**
@@ -15,4 +15,4 @@ export const JIRA_INTEGRATION_TRAFFIC_SECTION = "Integrations";
  * ASCII-only for Windows console note scripts.
  */
 export const JIRA_INTEGRATION_TRAFFIC_NOTE =
- "Jira integration (Integrations) - ItsmProductIntegrationPageClient (product=jira) with PageContextualHelpButton (topic map integration-readiness; Category-1 registry), Learn more / claim-discipline orientation strip (Sources follow-up removed TB-2092), health probe, tenant outbound overrides. Outbound ITSM config hub - not a signed-record Sources trail. Sibling ISX = ServiceNow; INA = Azure Boards; SCE = cloud connections. Score 48/100 (2026-08-08) - integration-config hub hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
+  "Jira integration (Integrations) - ItsmProductIntegrationPageClient (product=jira) with PageContextualHelpButton (topic map integration-readiness; Category-1 registry), Learn more / claim-discipline orientation strip (Sources follow-up removed TB-2092), health probe, tenant outbound overrides. Outbound ITSM config hub - not a signed-record Sources trail. Sibling ISX = ServiceNow; INA = Azure Boards; SCE = cloud connections. Score 68/100 (2026-08-08) - integration-config hub at SCE Evidence band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";

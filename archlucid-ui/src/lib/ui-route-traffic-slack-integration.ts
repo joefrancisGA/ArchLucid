@@ -7,7 +7,7 @@ export const SLACK_INTEGRATION_TRAFFIC_ROW_ID = "ISN";
 /** Canonical path tracked on the ISN workbook row. */
 export const SLACK_INTEGRATION_TRAFFIC_PATH = "/integrations/slack";
 
-/** Workbook Section column value (template catalog). */
+/** Workbook Section column value. */
 export const SLACK_INTEGRATION_TRAFFIC_SECTION = "Integrations";
 
 /**
@@ -15,4 +15,4 @@ export const SLACK_INTEGRATION_TRAFFIC_SECTION = "Integrations";
  * ASCII-only for Windows console note scripts.
  */
 export const SLACK_INTEGRATION_TRAFFIC_NOTE =
- "Slack integration (Integrations) - SlackIntegrationPageClient with PageContextualHelpButton (topic map alerts; Category-1 registry), Learn more / claim-discipline orientation strip (Sources follow-up removed TB-2092), destination form + destinations panel. Notification routing config hub - not a signed-record Sources trail. Sibling ITX = Teams; SAX/GOR = alert rules. Score 48/100 (2026-08-08) - integration-config hub hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
+  "Slack integration (Integrations) - SlackIntegrationPageClient with PageContextualHelpButton (topic map alerts; Category-1 registry), Learn more / claim-discipline orientation strip (Sources follow-up removed TB-2092), destination form + destinations panel. Notification routing config hub - not a signed-record Sources trail. Sibling ITX = Teams; SAX/GOR = alert rules. Score 68/100 (2026-08-08) - integration-config hub at SCE Evidence band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
