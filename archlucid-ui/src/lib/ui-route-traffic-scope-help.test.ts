@@ -66,5 +66,6 @@ describe("ui-route-traffic-scope-help (HSX)", () => {
     expect(row?.notes).toBe(SCOPE_HELP_TRAFFIC_NOTE);
     expect(row?.notes).toContain("HelpTopicMarkdownView");
     expect(row?.notes).toContain("Sources");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
