@@ -4,10 +4,9 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
-  ALERTS_INBOX_TAB_TRAFFIC_NOTE,
-  ALERTS_INBOX_TAB_TRAFFIC_PATH,
-  ALERTS_INBOX_TAB_TRAFFIC_ROW_ID,
-  ALERTS_INBOX_TAB_TRAFFIC_SECTION,
+  CANONICAL_ALERTS_INBOX_TRAFFIC_PATH,
+  REMOVED_ALERTS_INBOX_TAB_TRAFFIC_ROW_ID,
+  RETIRED_ALERTS_INBOX_TAB_TRAFFIC_PATH,
 } from "@/lib/ui-route-traffic-alerts-inbox-tab";
 
 const TEMPLATE_PATH = "docs/architecture/ui_route_traffic_estimates.template.md";
@@ -15,7 +14,6 @@ const TEMPLATE_PATH = "docs/architecture/ui_route_traffic_estimates.template.md"
 type TrafficWorkbookRow = {
   id: string;
   path: string;
-  section: string;
   notes: string;
 };
 
@@ -47,7 +45,6 @@ function extractMasterTableRows(markdown: string): TrafficWorkbookRow[] {
     rows.push({
       id: cells[1] ?? "",
       path: (cells[2] ?? "").replace(/^`|`$/g, ""),
-      section: cells[7] ?? "",
       notes: cells[8] ?? "",
     });
   }
@@ -55,17 +52,16 @@ function extractMasterTableRows(markdown: string): TrafficWorkbookRow[] {
   return rows;
 }
 
-describe("ui-route-traffic-alerts-inbox-tab (GOI)", () => {
-  it("tracks legacy inbox tab under Tab surface with redirect Evidence notes", () => {
+describe("ui-route-traffic-alerts-inbox-tab (GOI removed)", () => {
+  it("does not track retired GOI; inbox stays on AL", () => {
     const rows = extractMasterTableRows(readTemplateMarkdown());
-    const row = rows.find((candidate) => candidate.id === ALERTS_INBOX_TAB_TRAFFIC_ROW_ID);
+    const goiRow = rows.find((row) => row.id === REMOVED_ALERTS_INBOX_TAB_TRAFFIC_ROW_ID);
+    const retiredPathRow = rows.find((row) => row.path === RETIRED_ALERTS_INBOX_TAB_TRAFFIC_PATH);
+    const alRow = rows.find((row) => row.path === CANONICAL_ALERTS_INBOX_TRAFFIC_PATH);
 
-    expect(row).toBeDefined();
-    expect(row?.path).toBe(ALERTS_INBOX_TAB_TRAFFIC_PATH);
-    expect(row?.section).toBe(ALERTS_INBOX_TAB_TRAFFIC_SECTION);
-    expect(row?.notes).toBe(ALERTS_INBOX_TAB_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("shouldCanonicalizeAlertsInboxTabParam");
-    expect(row?.notes).toContain("Score 28");
-    expect(row?.notes).toContain("cannot improve further toward 80");
+    expect(goiRow).toBeUndefined();
+    expect(retiredPathRow).toBeUndefined();
+    expect(alRow).toBeDefined();
+    expect(alRow?.notes.toLowerCase()).not.toContain("tab=inbox");
   });
 });

@@ -1,18 +1,11 @@
 /**
- * Traffic workbook row ID for retired Settings alerts bookmark.
- * Owner backlog shorthand: SEA (TB-1886).
+ * Removed traffic workbook row ID for the retired `/settings/alerts` bookmark (TB-1886–TB-1890).
+ * Do not reintroduce — Alert rules hub is scored only on SAX (`/governance/alert-rules`).
  */
-export const LEGACY_SETTINGS_ALERTS_TRAFFIC_ROW_ID = "SEA";
+export const REMOVED_SETTINGS_ALERTS_TRAFFIC_ROW_ID = "SEA";
 
-/** Canonical path tracked on the SEA workbook row (retired; no App Router page). */
-export const LEGACY_SETTINGS_ALERTS_TRAFFIC_PATH = "/settings/alerts";
+/** Retired path — not a live App Router page or next.config redirect. */
+export const RETIRED_SETTINGS_ALERTS_TRAFFIC_PATH = "/settings/alerts";
 
-/** Workbook Section column value (owner catalog). */
-export const LEGACY_SETTINGS_ALERTS_TRAFFIC_SECTION = "Settings";
-
-/**
- * Owner workbook Notes for SEA - retired bookmark honesty.
- * ASCII-only for Windows console note scripts.
- */
-export const LEGACY_SETTINGS_ALERTS_TRAFFIC_NOTE =
- "Retired Settings alerts bookmark (Settings) - no App Router page or next.config redirect (TB-1886/TB-1887). Live Alert rules hub is SAX `/governance/alert-rules`. Traffic-tracked retired bookmark only - not a signed-record Sources trail. Score 28/100 (2026-08-08) - retired-path / shim hard-caps higher Evidence. Owner pass: no UI to improve; cannot improve further toward 80 without reintroducing a live Settings alerts surface (forbidden by TB-1890 anti-reintro).";
+/** Canonical Alert rules hub scored on traffic row SAX. */
+export const CANONICAL_ALERT_RULES_TRAFFIC_PATH = "/governance/alert-rules";

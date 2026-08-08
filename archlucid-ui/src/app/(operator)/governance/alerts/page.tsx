@@ -2,11 +2,7 @@ import { Suspense } from "react";
 import { redirect } from "next/navigation";
 
 import { AlertsInboxPanelSkeleton } from "@/components/skeletons/AlertsInboxPanelSkeleton";
-import {
-  isAlertConfigurationTabParam,
-  shouldCanonicalizeAlertsInboxTabParam,
-  buildAlertsInboxCanonicalHref,
-} from "@/lib/alerts-hub-tab";
+import { isAlertConfigurationTabParam } from "@/lib/alerts-hub-tab";
 import { governanceAlertRulesTabHref } from "@/lib/governance-route-paths";
 
 import { AlertsInboxStreamingBody } from "./_sections/AlertsInboxStreamingBody";
@@ -31,6 +27,7 @@ function readSearchParam(
 
 /**
  * Alerts hub — sync redirects + chrome, then stream inbox under Suspense (TB-2026).
+ * Bare `/governance/alerts` is the inbox; `?tab=inbox` is ignored (no dedicated tab UI).
  */
 export default async function AlertsPage(props: AlertsPageProps) {
   const resolved = await props.searchParams;
@@ -38,15 +35,6 @@ export default async function AlertsPage(props: AlertsPageProps) {
 
   if (isAlertConfigurationTabParam(tab)) {
     redirect(governanceAlertRulesTabHref(tab ?? "rules"));
-  }
-
-  if (shouldCanonicalizeAlertsInboxTabParam(tab)) {
-    redirect(
-      buildAlertsInboxCanonicalHref({
-        status: readSearchParam(resolved, "status"),
-        page: readSearchParam(resolved, "page"),
-      }),
-    );
   }
 
   const status = readSearchParam(resolved, "status");

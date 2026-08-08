@@ -1,8 +1,7 @@
-import { render, screen } from "@testing-library/react";
+﻿import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { ArtifactListTable } from "./ArtifactListTable";
-import { artifactPreviewHref } from "@/lib/artifact-preview-href";
 import { signedRecordArtifactPath } from "@/lib/signed-records-paths";
 
 vi.mock("next/link", () => ({
@@ -54,13 +53,13 @@ describe("ArtifactListTable", () => {
     expect(preview.getAttribute("href")).toBe(signedRecordArtifactPath("manifest-1", "artifact-guid-1"));
   });
 
-  it("uses run-scoped Preview href when runId is set", () => {
+  it("uses GAR Preview href when runId is set (product SoT)", () => {
     render(
       <ArtifactListTable manifestId="manifest-1" artifacts={[sample]} runId="run-guid-1" />,
     );
 
     const preview = screen.getByRole("link", { name: "Preview" });
-    expect(preview.getAttribute("href")).toBe(artifactPreviewHref("manifest-1", "artifact-guid-1", "run-guid-1"));
+    expect(preview.getAttribute("href")).toBe(signedRecordArtifactPath("manifest-1", "artifact-guid-1"));
   });
 
   it("sponsor mode: Output column and role-specific open/download labels; technical details include raw format MIME", () => {
@@ -149,14 +148,14 @@ describe("ArtifactListTable", () => {
     const row = {
       artifactId: "artifact-guid-md",
       artifactType: "MarkdownReport",
-      name: "Sponsor briefing — Claims Intake Modernization.md",
+      name: "Sponsor briefing â€” Claims Intake Modernization.md",
       format: "text/markdown",
       createdUtc: "2020-01-01T00:00:00Z",
       contentHash: "abcdef123456",
     };
     render(<ArtifactListTable manifestId="manifest-1" artifacts={[row]} sponsorMode />);
 
-    expect(screen.queryByText("Sponsor briefing — Claims Intake Modernization")).toBeNull();
+    expect(screen.queryByText("Sponsor briefing â€” Claims Intake Modernization")).toBeNull();
     expect(screen.getByRole("columnheader", { name: "Output" })).toBeInTheDocument();
   });
 

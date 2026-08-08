@@ -2,8 +2,8 @@ import { REVIEWS_LIST_PATH } from "@/lib/architecture-routes";
 import { signedRecordArtifactPath } from "@/lib/signed-records-paths";
 
 /**
- * Run-scoped artifact Preview entry (App Router under reviews → redirect to signed-records).
- * Uses {@link REVIEWS_LIST_PATH} so public vs on-disk list prefix stay consistent.
+ * Run-scoped artifact Preview bookmark path (App Router permanentRedirect → signed-records).
+ * Product Preview links must use {@link artifactPreviewHref} (GAR), not this helper.
  */
 export function runArtifactPreviewPath(runId: string, artifactId: string): string {
   const trimmedRunId = runId.trim();
@@ -13,19 +13,13 @@ export function runArtifactPreviewPath(runId: string, artifactId: string): strin
 }
 
 /**
- * Preview href for an artifact row: run-scoped when `runId` is set, otherwise manifest-scoped.
- * Both targets have App Router `page.tsx` entry points (TB-1821 / TB-1822 / TB-1947 / TB-1948).
+ * Preview href for an artifact row — always signed-record SoT (GAR).
+ * Optional `runId` is ignored for href emission; bookmark RER redirects still resolve run→manifest.
  */
 export function artifactPreviewHref(
   manifestId: string,
   artifactId: string,
-  runId?: string | null,
+  _runId?: string | null,
 ): string {
-  const trimmedRunId = runId?.trim() ?? "";
-
-  if (trimmedRunId.length > 0) {
-    return runArtifactPreviewPath(trimmedRunId, artifactId);
-  }
-
   return signedRecordArtifactPath(manifestId, artifactId);
 }

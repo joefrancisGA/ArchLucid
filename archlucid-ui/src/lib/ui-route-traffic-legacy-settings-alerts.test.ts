@@ -4,10 +4,9 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
-  LEGACY_SETTINGS_ALERTS_TRAFFIC_NOTE,
-  LEGACY_SETTINGS_ALERTS_TRAFFIC_PATH,
-  LEGACY_SETTINGS_ALERTS_TRAFFIC_ROW_ID,
-  LEGACY_SETTINGS_ALERTS_TRAFFIC_SECTION,
+  CANONICAL_ALERT_RULES_TRAFFIC_PATH,
+  REMOVED_SETTINGS_ALERTS_TRAFFIC_ROW_ID,
+  RETIRED_SETTINGS_ALERTS_TRAFFIC_PATH,
 } from "@/lib/ui-route-traffic-legacy-settings-alerts";
 
 const TEMPLATE_PATH = "docs/architecture/ui_route_traffic_estimates.template.md";
@@ -15,7 +14,6 @@ const TEMPLATE_PATH = "docs/architecture/ui_route_traffic_estimates.template.md"
 type TrafficWorkbookRow = {
   id: string;
   path: string;
-  section: string;
   notes: string;
 };
 
@@ -47,7 +45,6 @@ function extractMasterTableRows(markdown: string): TrafficWorkbookRow[] {
     rows.push({
       id: cells[1] ?? "",
       path: (cells[2] ?? "").replace(/^`|`$/g, ""),
-      section: cells[7] ?? "",
       notes: cells[8] ?? "",
     });
   }
@@ -56,17 +53,15 @@ function extractMasterTableRows(markdown: string): TrafficWorkbookRow[] {
 }
 
 describe("ui-route-traffic settings alerts retirement (TB-1886)", () => {
-  it("keeps retired SEA bookmark; Alert rules hub stays on SAX", () => {
+  it("does not track retired SEA; Alert rules hub stays on SAX", () => {
     const rows = extractMasterTableRows(readTemplateMarkdown());
-    const seaRow = rows.find((row) => row.id === LEGACY_SETTINGS_ALERTS_TRAFFIC_ROW_ID);
-    const saxRow = rows.find((row) => row.id === "SAX");
+    const seaRow = rows.find((row) => row.id === REMOVED_SETTINGS_ALERTS_TRAFFIC_ROW_ID);
+    const retiredPathRow = rows.find((row) => row.path === RETIRED_SETTINGS_ALERTS_TRAFFIC_PATH);
+    const saxRow = rows.find((row) => row.path === CANONICAL_ALERT_RULES_TRAFFIC_PATH);
 
-    // Next.config-only bookmark kept in the owner traffic workbook (TRAFFIC_TRACKED_REDIRECT_BOOKMARKS).
-    expect(seaRow?.path).toBe(LEGACY_SETTINGS_ALERTS_TRAFFIC_PATH);
-    expect(seaRow?.section).toBe(LEGACY_SETTINGS_ALERTS_TRAFFIC_SECTION);
-    expect(seaRow?.notes).toBe(LEGACY_SETTINGS_ALERTS_TRAFFIC_NOTE);
-    expect(seaRow?.notes).toContain("Score 28");
-    expect(seaRow?.notes).toContain("cannot improve further toward 80");
-    expect(saxRow?.path).toBe("/governance/alert-rules");
+    expect(seaRow).toBeUndefined();
+    expect(retiredPathRow).toBeUndefined();
+    expect(saxRow).toBeDefined();
+    expect(saxRow?.notes.toLowerCase()).not.toContain("/settings/alerts");
   });
 });

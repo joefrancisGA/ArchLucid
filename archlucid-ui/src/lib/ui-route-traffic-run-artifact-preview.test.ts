@@ -4,10 +4,9 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
-  RUN_ARTIFACT_PREVIEW_TRAFFIC_NOTE,
-  RUN_ARTIFACT_PREVIEW_TRAFFIC_PATH,
-  RUN_ARTIFACT_PREVIEW_TRAFFIC_ROW_ID,
-  RUN_ARTIFACT_PREVIEW_TRAFFIC_SECTION,
+  CANONICAL_SIGNED_RECORD_ARTIFACT_PREVIEW_TRAFFIC_PATH,
+  REMOVED_RUN_ARTIFACT_PREVIEW_TRAFFIC_ROW_ID,
+  RETIRED_RUN_ARTIFACT_PREVIEW_TRAFFIC_PATH,
 } from "@/lib/ui-route-traffic-run-artifact-preview";
 
 const TEMPLATE_PATH = "docs/architecture/ui_route_traffic_estimates.template.md";
@@ -15,7 +14,6 @@ const TEMPLATE_PATH = "docs/architecture/ui_route_traffic_estimates.template.md"
 type TrafficWorkbookRow = {
   id: string;
   path: string;
-  section: string;
   notes: string;
 };
 
@@ -47,7 +45,6 @@ function extractMasterTableRows(markdown: string): TrafficWorkbookRow[] {
     rows.push({
       id: cells[1] ?? "",
       path: (cells[2] ?? "").replace(/^`|`$/g, ""),
-      section: cells[7] ?? "",
       notes: cells[8] ?? "",
     });
   }
@@ -55,19 +52,17 @@ function extractMasterTableRows(markdown: string): TrafficWorkbookRow[] {
   return rows;
 }
 
-describe("ui-route-traffic-run-artifact-preview (RER)", () => {
-  it("tracks run-scoped Preview redirect under Core review with redirect Evidence notes", () => {
+describe("ui-route-traffic-run-artifact-preview (RER removed)", () => {
+  it("does not track RER; artifact Preview stays on GAR", () => {
     const rows = extractMasterTableRows(readTemplateMarkdown());
-    const row = rows.find((candidate) => candidate.id === RUN_ARTIFACT_PREVIEW_TRAFFIC_ROW_ID);
+    const rerRow = rows.find((row) => row.id === REMOVED_RUN_ARTIFACT_PREVIEW_TRAFFIC_ROW_ID);
+    const retiredPathRow = rows.find((row) => row.path === RETIRED_RUN_ARTIFACT_PREVIEW_TRAFFIC_PATH);
+    const garRow = rows.find(
+      (row) => row.path === CANONICAL_SIGNED_RECORD_ARTIFACT_PREVIEW_TRAFFIC_PATH,
+    );
 
-    expect(row).toBeDefined();
-    expect(row?.path).toBe(RUN_ARTIFACT_PREVIEW_TRAFFIC_PATH);
-    expect(row?.section).toBe(RUN_ARTIFACT_PREVIEW_TRAFFIC_SECTION);
-    expect(row?.notes).toBe(RUN_ARTIFACT_PREVIEW_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("permanentRedirect");
-    expect(row?.notes).toContain("resolveGoldenManifestIdForRun");
-    expect(row?.notes).toContain("GAR");
-    expect(row?.notes).toContain("Score 28");
-    expect(row?.notes).toContain("cannot improve further toward 80");
+    expect(rerRow).toBeUndefined();
+    expect(retiredPathRow).toBeUndefined();
+    expect(garRow).toBeDefined();
   });
 });

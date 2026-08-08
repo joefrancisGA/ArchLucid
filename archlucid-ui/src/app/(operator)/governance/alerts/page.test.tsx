@@ -7,9 +7,9 @@ vi.mock("next/navigation", async (importOriginal) => {
   return {
     ...actual,
     redirect: (target: string) => {
-    redirect(target);
-    throw new Error(`redirect:${target}`);
-  },
+      redirect(target);
+      throw new Error(`redirect:${target}`);
+    },
     usePathname: () => "/",
   };
 });
@@ -17,16 +17,15 @@ vi.mock("next/navigation", async (importOriginal) => {
 import AlertsPage from "./page";
 
 describe("AlertsPage", () => {
-  it("redirects legacy tab=inbox to canonical /governance/alerts", async () => {
+  it("renders inbox for legacy tab=inbox without redirect", async () => {
     redirect.mockClear();
 
-    await expect(
-      AlertsPage({
-        searchParams: Promise.resolve({ tab: "inbox", status: "Open" }),
-      }),
-    ).rejects.toThrow("redirect:/governance/alerts?status=Open");
+    const element = await AlertsPage({
+      searchParams: Promise.resolve({ tab: "inbox", status: "Open" }),
+    });
 
-    expect(redirect).toHaveBeenCalledWith("/governance/alerts?status=Open");
+    expect(redirect).not.toHaveBeenCalled();
+    expect(element).toBeTruthy();
   });
 
   it("redirects configuration tabs to alert rules", async () => {

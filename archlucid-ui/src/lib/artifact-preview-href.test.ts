@@ -10,26 +10,26 @@ import {
 } from "@/lib/artifact-preview-href";
 import { signedRecordArtifactPath } from "@/lib/signed-records-paths";
 
-describe("artifactPreviewHref (TB-1822 / TB-1948)", () => {
+describe("artifactPreviewHref (TB-1821 / TB-1822 / TB-1948)", () => {
   const manifestId = "manifest-1";
   const artifactId = "artifact-guid-1";
   const runId = "run-guid-1";
 
-  it("uses run-scoped Preview under REVIEWS_LIST_PATH when runId is set", () => {
+  it("emits GAR Preview even when runId is set (product SoT)", () => {
     expect(artifactPreviewHref(manifestId, artifactId, runId)).toBe(
-      `${REVIEWS_LIST_PATH}/${encodeURIComponent(runId)}/artifacts/${encodeURIComponent(artifactId)}`,
+      signedRecordArtifactPath(manifestId, artifactId),
     );
-    expect(runArtifactPreviewPath(runId, artifactId)).toBe(
-      artifactPreviewHref(manifestId, artifactId, runId),
-    );
-  });
-
-  it("uses signedRecordArtifactPath for manifest-scoped Preview (TB-1948)", () => {
     expect(artifactPreviewHref(manifestId, artifactId)).toBe(
       signedRecordArtifactPath(manifestId, artifactId),
     );
     expect(artifactPreviewHref(manifestId, artifactId, "   ")).toBe(
       signedRecordArtifactPath(manifestId, artifactId),
+    );
+  });
+
+  it("keeps runArtifactPreviewPath for bookmark RER redirects only", () => {
+    expect(runArtifactPreviewPath(runId, artifactId)).toBe(
+      `${REVIEWS_LIST_PATH}/${encodeURIComponent(runId)}/artifacts/${encodeURIComponent(artifactId)}`,
     );
   });
 
@@ -57,8 +57,7 @@ describe("artifactPreviewHref (TB-1822 / TB-1948)", () => {
     expect(existsSync(rerPage)).toBe(true);
     expect(existsSync(mamPage)).toBe(true);
 
-    expect(artifactPreviewHref(manifestId, artifactId, runId)).toContain("/artifacts/");
-    expect(artifactPreviewHref(manifestId, artifactId)).toBe(
+    expect(artifactPreviewHref(manifestId, artifactId, runId)).toBe(
       `/governance/signed-records/${manifestId}/artifacts/${artifactId}`,
     );
   });

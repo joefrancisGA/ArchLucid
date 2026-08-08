@@ -1,18 +1,11 @@
 /**
- * Traffic workbook row ID for Alerts inbox legacy tab deep link.
- * Owner backlog shorthand: GOI.
+ * Removed traffic workbook row ID for legacy `/governance/alerts?tab=inbox` (TB-1594).
+ * Do not reintroduce — inbox is scored only on AL (`/governance/alerts`).
  */
-export const ALERTS_INBOX_TAB_TRAFFIC_ROW_ID = "GOI";
+export const REMOVED_ALERTS_INBOX_TAB_TRAFFIC_ROW_ID = "GOI";
 
-/** Canonical path tracked on the GOI workbook row (legacy query; redirects to AL). */
-export const ALERTS_INBOX_TAB_TRAFFIC_PATH = "/governance/alerts?tab=inbox";
+/** Retired query deep-link — no dedicated inbox-tab UI; product emits bare `/governance/alerts`. */
+export const RETIRED_ALERTS_INBOX_TAB_TRAFFIC_PATH = "/governance/alerts?tab=inbox";
 
-/** Workbook Section column value â€” legacy query-tab deep link on alerts hub. */
-export const ALERTS_INBOX_TAB_TRAFFIC_SECTION = "Tab surface";
-
-/**
- * Owner workbook Notes for GOI - documents redirect to AL hub (no separate inbox-tab chrome).
- * ASCII-only for Windows console note scripts.
- */
-export const ALERTS_INBOX_TAB_TRAFFIC_NOTE =
- "Alerts inbox legacy tab deep link (Tab surface) - `?tab=inbox` canonicalizes to /governance/alerts (AL) via shouldCanonicalizeAlertsInboxTabParam (TB-1594); no dedicated inbox-tab UI. Destination AL hub chrome: AlertsHubChrome with PageContextualHelpButton (topic map alerts) + OperatorPageHeader / AlertsGovernanceContextPanel. Sibling AL = canonical inbox; SAX = alert rules; HA = alerts help. Not a signed-record Sources trail. Score 28/100 (2026-08-06) - legacy tab redirect hard-caps higher Evidence (same band as other redirect/shim surfaces). Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
+/** Canonical alerts inbox scored on traffic row AL. */
+export const CANONICAL_ALERTS_INBOX_TRAFFIC_PATH = "/governance/alerts";

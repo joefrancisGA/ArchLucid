@@ -1,19 +1,14 @@
 /**
- * Traffic workbook row ID for run-scoped artifact Preview redirect.
- * Owner backlog shorthand: RER.
+ * Removed traffic workbook row ID for run-scoped artifact Preview (TB-1821).
+ * Do not reintroduce as a scored surface — Preview hrefs emit GAR only; App Router
+ * RER page remains as a bookmark permanentRedirect into GAR (catalog redirect-only).
  */
-export const RUN_ARTIFACT_PREVIEW_TRAFFIC_ROW_ID = "RER";
+export const REMOVED_RUN_ARTIFACT_PREVIEW_TRAFFIC_ROW_ID = "RER";
 
-/** Canonical path tracked on the RER workbook row. */
-export const RUN_ARTIFACT_PREVIEW_TRAFFIC_PATH =
- "/architecture/reviews/[runId]/artifacts/[artifactId]" as const;
+/** Bookmark redirect path — not scored; product Preview uses GAR. */
+export const RETIRED_RUN_ARTIFACT_PREVIEW_TRAFFIC_PATH =
+  "/architecture/reviews/[runId]/artifacts/[artifactId]" as const;
 
-/** Workbook Section column value (Core review). */
-export const RUN_ARTIFACT_PREVIEW_TRAFFIC_SECTION = "Core review";
-
-/**
- * Owner workbook Notes for RER â€” redirect-only entry to GAR signed-record artifact preview.
- * ASCII-only for Windows console note scripts.
- */
-export const RUN_ARTIFACT_PREVIEW_TRAFFIC_NOTE =
- "Run-scoped artifact Preview entry (Core review) - App Router permanentRedirect after resolveGoldenManifestIdForRun to GAR `/governance/signed-records/[manifestId]/artifacts/[artifactId]` (TB-1821). No dedicated RER chrome; destination GAR mounts SignedRecordArtifactPageView with PageContextualHelp + Sources follow-up chrome removed (TB-2092). Sibling GAR = SoT preview. Score 28/100 (2026-08-08) - redirect/shim hard-caps higher Evidence (same band as other redirect surfaces). Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
+/** Canonical signed-record artifact preview scored on traffic row GAR. */
+export const CANONICAL_SIGNED_RECORD_ARTIFACT_PREVIEW_TRAFFIC_PATH =
+  "/governance/signed-records/[manifestId]/artifacts/[artifactId]" as const;

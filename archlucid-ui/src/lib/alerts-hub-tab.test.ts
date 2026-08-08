@@ -1,17 +1,15 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  buildAlertsInboxCanonicalHref,
-  shouldCanonicalizeAlertsInboxTabParam,
+  alertHubTabFromSearchParam,
+  isAlertConfigurationTabParam,
 } from "@/lib/alerts-hub-tab";
 
 describe("alerts-hub-tab", () => {
-  it("canonicalizes legacy tab=inbox to /governance/alerts", () => {
-    expect(shouldCanonicalizeAlertsInboxTabParam("inbox")).toBe(true);
-    expect(shouldCanonicalizeAlertsInboxTabParam("rules")).toBe(false);
-    expect(buildAlertsInboxCanonicalHref({})).toBe("/governance/alerts");
-    expect(buildAlertsInboxCanonicalHref({ status: "Open", page: "2" })).toBe(
-      "/governance/alerts?status=Open&page=2",
-    );
+  it("treats bare inbox and tab=inbox as non-configuration (no rules redirect)", () => {
+    expect(isAlertConfigurationTabParam("inbox")).toBe(false);
+    expect(isAlertConfigurationTabParam(null)).toBe(false);
+    expect(isAlertConfigurationTabParam("rules")).toBe(true);
+    expect(alertHubTabFromSearchParam("inbox")).toBe("inbox");
   });
 });

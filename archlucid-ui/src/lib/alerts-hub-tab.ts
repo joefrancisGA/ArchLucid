@@ -47,26 +47,3 @@ export function isAlertConfigurationTabParam(param: string | null | undefined): 
   return ALERT_RULES_TAB_SET.has(param);
 }
 
-/** Legacy `?tab=inbox` should canonicalize to `/governance/alerts` (TB-1594). */
-export function shouldCanonicalizeAlertsInboxTabParam(param: string | null | undefined): boolean {
-  return param === "inbox";
-}
-
-export function buildAlertsInboxCanonicalHref(input: {
-  readonly status?: string;
-  readonly page?: string;
-}): string {
-  const search = new URLSearchParams();
-
-  if (input.status !== undefined && input.status.trim().length > 0) {
-    search.set("status", input.status);
-  }
-
-  if (input.page !== undefined && input.page.trim().length > 0) {
-    search.set("page", input.page);
-  }
-
-  const query = search.toString();
-
-  return query.length > 0 ? `/governance/alerts?${query}` : "/governance/alerts";
-}

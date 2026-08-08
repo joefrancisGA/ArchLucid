@@ -119,23 +119,22 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
 
 # Legacy App Router redirect stubs — canonical nav hrefs live under /governance/advisory-scans (TB-1124).
 # /alert-routing has no App Router page after TB-1441 (next.config permanent redirect only).
+# RER run-scoped artifact Preview is bookmark-only permanentRedirect into GAR (not traffic-scored).
 REDIRECT_ONLY_APP_PATHS = frozenset(
     {
         "/advisory",
         "/advisory-scheduling",
         "/alert-routing",
+        "/architecture/reviews/[runId]/artifacts/[artifactId]",
     }
 )
 
-# Next.config-only redirect bookmarks that stay in the owner traffic workbook (TB-1887).
+# Next.config-only redirect bookmarks that stay in the owner traffic workbook.
+# /settings/alerts retired from the workbook (SEA removed, TB-1886–TB-1890); migration still maps to SAX.
 # /settings/exec-digest retired from the workbook (EEX removed); migration still maps to DIS.
 # /help/core-pilot retired from the workbook (ECO removed, TB-2050) — no App Router page or
 # redirect remains; do not re-add via this set.
-TRAFFIC_TRACKED_REDIRECT_BOOKMARKS = frozenset(
-    {
-        "/settings/alerts",
-    }
-)
+TRAFFIC_TRACKED_REDIRECT_BOOKMARKS = frozenset()
 
 
 @dataclass(frozen=True)
@@ -249,8 +248,7 @@ def discover_tab_paths() -> list[str]:
         paths.append(_tab_path("/architecture/digests", "tab", tab_id))
     for tab_id in alert_rules_tabs:
         paths.append(_tab_path("/governance/alert-rules", "tab", tab_id))
-    # Inbox is the only non-redirect tab on the alerts hub.
-    paths.append(_tab_path("/governance/alerts", "tab", "inbox"))
+    # Alerts inbox is bare `/governance/alerts` (AL) — do not invent `?tab=inbox` (GOI removed).
     for tab_id in ("users", "roles", "keys"):
         paths.append(_tab_path("/administration/users", "tab", tab_id))
     for path_mode in ("quick-review", "guided-intake", "detailed"):

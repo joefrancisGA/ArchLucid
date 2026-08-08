@@ -106,11 +106,19 @@ def test_migrate_workbook_path_maps_legacy_settings_alerts() -> None:
     assert migrate_workbook_path("/settings/alerts") == "/governance/alert-rules"
 
 
-def test_build_catalog_tracks_next_config_only_settings_alerts_bookmark() -> None:
+def test_build_catalog_does_not_track_retired_settings_alerts_bookmark() -> None:
     catalog = build_catalog()
-    assert "/settings/alerts" in catalog
-    assert catalog["/settings/alerts"].section == "Settings"
-    assert catalog["/settings/alerts"].source == "redirect_bookmark"
+    assert "/settings/alerts" not in catalog
+
+
+def test_build_catalog_skips_rer_run_artifact_preview_redirect_page() -> None:
+    catalog = build_catalog()
+    assert "/architecture/reviews/[runId]/artifacts/[artifactId]" not in catalog
+
+
+def test_build_catalog_does_not_invent_alerts_inbox_tab_query() -> None:
+    catalog = build_catalog()
+    assert "/governance/alerts?tab=inbox" not in catalog
 
 
 def test_build_catalog_does_not_track_retired_settings_exec_digest_bookmark() -> None:
