@@ -69,5 +69,6 @@ describe("ui-route-traffic-preferences-settings (ADR)", () => {
     expect(row?.section).toBe(PREFERENCES_SETTINGS_TRAFFIC_SECTION);
     expect(row?.notes).toBe(PREFERENCES_SETTINGS_TRAFFIC_NOTE);
     expect(row?.notes).toContain("PreferencesSettingsPageView");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
