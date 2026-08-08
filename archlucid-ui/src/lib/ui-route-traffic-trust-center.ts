@@ -11,7 +11,8 @@ export const TRUST_CENTER_TRAFFIC_PATH = "/trust";
 export const TRUST_CENTER_TRAFFIC_SECTION = "Marketing";
 
 /**
- * Owner workbook Notes for TXX — documents Evidence chrome on Trust Center.
+ * Owner workbook Notes for TXX - documents Evidence chrome on Trust Center.
+ * ASCII-only for Windows console note scripts.
  */
 export const TRUST_CENTER_TRAFFIC_NOTE =
-  "Trust Center (Marketing) - MarketingTrustCenterBuyerBody with TrustCenterEvidenceOrientationStrip (evaluation Sources + claim-discipline: public assurance downloads only; not CPA SOC 2 / third-party pen-test unless linked artifact says so), public evidence pack + diligence contact. Not an operator PageContextualHelp surface. Score 40/100 (2026-08-04) — marketing Trust Center hard-caps higher Evidence.";
+  "Trust Center (Marketing) - MarketingTrustCenterBuyerBody with TrustCenterEvidenceOrientationStrip (evaluation Sources + claim-discipline: public assurance downloads only; not CPA SOC 2 / third-party pen-test unless linked artifact says so), public evidence pack + diligence contact. Not an operator PageContextualHelp surface. Score 40/100 (2026-08-08) - marketing Trust Center hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
