@@ -11,7 +11,8 @@ export const SLACK_INTEGRATION_TRAFFIC_PATH = "/integrations/slack";
 export const SLACK_INTEGRATION_TRAFFIC_SECTION = "Integrations";
 
 /**
- * Owner workbook Notes for ISN — documents Evidence chrome on Slack integration.
+ * Owner workbook Notes for ISN - documents Evidence chrome on Slack integration.
+ * ASCII-only for Windows console note scripts.
  */
 export const SLACK_INTEGRATION_TRAFFIC_NOTE =
-  "Slack integration (Integrations) - SlackIntegrationPageClient with PageContextualHelpButton (topic map alerts; Category-1 registry), workspace Sources + claim-discipline orientation strip, destination form + destinations panel. Notification routing config hub — not a signed-record Sources trail. Sibling ITX = Teams; SAX/GOR = alert rules. Score 48/100 (2026-08-04) — integration-config hub hard-caps higher Evidence.";
+  "Slack integration (Integrations) - SlackIntegrationPageClient with PageContextualHelpButton (topic map alerts; Category-1 registry), Learn more / claim-discipline orientation strip (Sources follow-up removed TB-2092), destination form + destinations panel. Notification routing config hub - not a signed-record Sources trail. Sibling ITX = Teams; SAX/GOR = alert rules. Does not imply CPA SOC 2 or third-party pen-test publication. Score 48/100 (2026-08-08) - integration-config hub hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";

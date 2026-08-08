@@ -66,5 +66,6 @@ describe("ui-route-traffic-slack-integration (ISN)", () => {
     expect(row?.notes).toBe(SLACK_INTEGRATION_TRAFFIC_NOTE);
     expect(row?.notes).toContain("SlackIntegrationPageClient");
     expect(row?.notes).toContain("Sources");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
