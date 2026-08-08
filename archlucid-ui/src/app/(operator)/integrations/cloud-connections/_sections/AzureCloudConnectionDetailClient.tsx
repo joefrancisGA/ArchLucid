@@ -8,6 +8,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cloudSecurityPreflightTopics } from "@/lib/cloud-security-preflight-topics";
 
 import { CloudConnectionsProviderHeader } from "./CloudConnectionsProviderHeader";
+import { CloudProviderConnectionEvidenceOrientationStrip } from "./CloudProviderConnectionEvidenceOrientationStrip";
 import { CloudProviderDetailLayout } from "./CloudProviderDetailLayout";
 import {
   CloudSecurityPreflightPanel,
@@ -23,6 +24,8 @@ export function AzureCloudConnectionDetailClient() {
         providerLabel="Azure"
         overview="Read-only subscription inventory and cost metadata through federated service principal access."
       />
+
+      <CloudProviderConnectionEvidenceOrientationStrip provider="azure" />
 
       <CloudProviderDetailLayout
         providerLabel="Azure"

@@ -166,6 +166,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/administration/baseline",
       "/integrations/cloud-connections",
       "/integrations/cloud-connections/aws",
+      "/integrations/cloud-connections/azure",
       "/integrations/jira",
       "/integrations/azure-boards",
       "/integrations/itsm/oauth/callback",
@@ -227,7 +228,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "read-only evidence collection",
     );
     expect(contextualHelpForPathname("/integrations/cloud-connections/azure")?.whatIsThisPage).toContain(
-      "read-only evidence collection",
+      "Azure cloud connection",
     );
     expect(contextualHelpForPathname("/settings/cloud-connections")?.whatIsThisPage).toContain(
       "read-only evidence collection",

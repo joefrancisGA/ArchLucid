@@ -25,4 +25,17 @@ describe("CloudProviderConnectionEvidenceOrientationStrip", () => {
 
     expect(links.some((link) => link.href === CLOUD_PROVIDER_CONNECTION_PATHS.aws)).toBe(false);
   });
+
+  it("lists Azure follow-up Sources without self-linking the Azure detail path", () => {
+    render(<CloudProviderConnectionEvidenceOrientationStrip provider="azure" />);
+
+    const sources = screen.getByTestId("cloud-connection-azure-sources");
+    const links = cloudProviderConnectionSources("azure");
+
+    for (const link of links) {
+      expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
+    }
+
+    expect(links.some((link) => link.href === CLOUD_PROVIDER_CONNECTION_PATHS.azure)).toBe(false);
+  });
 });

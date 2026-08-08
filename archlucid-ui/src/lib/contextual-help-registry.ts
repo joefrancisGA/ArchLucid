@@ -1725,6 +1725,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/integrations/cloud-connections/azure",
+    entry: {
+      whatIsThisPage:
+        "Azure cloud connection — configure read-only federated service-principal access for subscription inventory collection.",
+      whatToDoNext:
+        "Complete security preflight, run the Tier 2 wizard, save and validate, then return to Cloud connections for workspace status.",
+      whyEmpty: "Saved connections and recent collection runs appear after you validate federated credentials.",
+      whereToConfigurePrerequisite:
+        "Provisioning the service principal usually needs cloud-admin authority; saving the connection in ArchLucid needs Operate authority.",
+    },
+  },
+  {
     prefix: "/integrations/jira",
     entry: {
       whatIsThisPage:
