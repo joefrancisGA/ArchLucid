@@ -11,6 +11,7 @@ import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { Button } from "@/components/ui/button";
 import {
   governanceResolutionChangeRelatedControlsLead,
@@ -39,6 +40,7 @@ import { STANDARDS_RULES_PAGE_SUBTITLE, STANDARDS_RULES_PAGE_TITLE } from "@/lib
 
 import type { GovernanceResolutionPageViewModel } from "./governance-resolution-page-view-model";
 import { StandardsRulesEmptyState } from "./StandardsRulesEmptyState";
+import { StandardsRulesEvidenceOrientationStrip } from "./StandardsRulesEvidenceOrientationStrip";
 import { StandardsRulesFilters } from "./StandardsRulesFilters";
 import { StandardsRulesSummaryStrip } from "./StandardsRulesSummaryStrip";
 import { StandardsRulesTable } from "./StandardsRulesTable";
@@ -211,7 +213,12 @@ export function GovernanceResolutionPageView(props: Props) {
     return (
       <div className="w-full max-w-[1440px]">
         <StandardsRulesGovernanceStatusBanner className="mb-3" />
-        <OperatorPageHeader title={STANDARDS_RULES_PAGE_TITLE} subtitle={STANDARDS_RULES_PAGE_SUBTITLE} />
+        <OperatorPageHeader
+          title={STANDARDS_RULES_PAGE_TITLE}
+          subtitle={STANDARDS_RULES_PAGE_SUBTITLE}
+          actions={<PageContextualHelpButton />}
+        />
+        <StandardsRulesEvidenceOrientationStrip />
         {m.failure !== null ? (
           <div role="alert">
             <OperatorApiProblem
@@ -251,7 +258,9 @@ export function GovernanceResolutionPageView(props: Props) {
       <OperatorPageHeader
         title={OPERATOR_NAV_LINK_LABELS.governanceResolution}
         subtitle={m.canMutateEnterprisePolicySurfaces ? governanceResolutionPageLeadOperator : governanceResolutionPageLeadReader}
+        actions={<PageContextualHelpButton />}
       />
+      <StandardsRulesEvidenceOrientationStrip />
       <GovernanceResolutionRankCue className="mb-3" />
       {m.failure !== null ? (
         <div role="alert">
