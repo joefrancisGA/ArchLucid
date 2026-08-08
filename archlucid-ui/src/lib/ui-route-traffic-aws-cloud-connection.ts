@@ -1,0 +1,18 @@
+/**
+ * Traffic workbook row ID for AWS cloud connection settings.
+ * Owner backlog shorthand: INC.
+ */
+export const AWS_CLOUD_CONNECTION_TRAFFIC_ROW_ID = "INC";
+
+/** Canonical path tracked on the INC workbook row. */
+export const AWS_CLOUD_CONNECTION_TRAFFIC_PATH = "/integrations/cloud-connections/aws";
+
+/** Workbook Section column value (template catalog). */
+export const AWS_CLOUD_CONNECTION_TRAFFIC_SECTION = "Integrations";
+
+/**
+ * Owner workbook Notes for INC - documents Evidence chrome on AWS cloud connection.
+ * ASCII-only for Windows console note scripts.
+ */
+export const AWS_CLOUD_CONNECTION_TRAFFIC_NOTE =
+  "AWS cloud connection (Integrations) - AwsCloudConnectionDetailClient with CloudConnectionsProviderHeader PageContextualHelpButton (topic map cloud-connections-aws; Category-1 registry), CloudProviderConnectionEvidenceOrientationStrip (workspace Sources + claim-discipline), security preflight + IAM role federation + connection details. Sibling SCE = cloud-connections hub; IAZ = Azure; IGC = GCP; HEC = connect-aws help. Read-only connector config — not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 48/100 (2026-08-08) - integration-config hub hard-caps higher Evidence.";

@@ -1713,6 +1713,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/integrations/cloud-connections/aws",
+    entry: {
+      whatIsThisPage:
+        "AWS cloud connection — configure a read-only federated IAM role for Resource Explorer inventory collection.",
+      whatToDoNext:
+        "Complete security preflight, enter the role ARN, save the connection, then re-poll to validate access.",
+      whyEmpty: "Saved connections and last poll timestamps appear after you save a federated role.",
+      whereToConfigurePrerequisite:
+        "Creating the IAM trust role usually needs cloud-admin authority; saving the connection in ArchLucid needs Operate authority.",
+    },
+  },
+  {
     prefix: "/integrations/jira",
     entry: {
       whatIsThisPage:

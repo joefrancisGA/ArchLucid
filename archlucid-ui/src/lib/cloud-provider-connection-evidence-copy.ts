@@ -1,0 +1,50 @@
+import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
+
+export type CloudProviderConnectionKey = "aws" | "azure" | "gcp";
+
+export const CLOUD_PROVIDER_CONNECTION_PATHS: Record<CloudProviderConnectionKey, string> = {
+  aws: "/integrations/cloud-connections/aws",
+  azure: "/integrations/cloud-connections/azure",
+  gcp: "/integrations/cloud-connections/gcp",
+};
+
+export const CLOUD_PROVIDER_CONNECTION_CLAIM_DISCIPLINE =
+  "Cloud provider connection pages configure read-only federated inventory collection — they are not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Cloud connections or Connection status when you need operational readiness trails.";
+
+export const CLOUD_PROVIDER_CONNECTION_SOURCES_INTRO =
+  "Use these follow-ups when federation setup, connection health, or provider help needs attention before treating inventory as authoritative.";
+
+export type CloudProviderConnectionSourceLink = {
+  readonly label: string;
+  readonly href: string;
+};
+
+const PROVIDER_HELP_SLUG: Record<CloudProviderConnectionKey, string> = {
+  aws: "cloud-connections-aws",
+  azure: "cloud-connections-azure",
+  gcp: "cloud-connections-gcp",
+};
+
+const PROVIDER_HELP_LABEL: Record<CloudProviderConnectionKey, string> = {
+  aws: "Connect AWS securely",
+  azure: "Connect Azure securely",
+  gcp: "Connect GCP securely",
+};
+
+/** Operator Sources for a provider detail page — excludes that provider's self-path. */
+export function cloudProviderConnectionSources(
+  provider: CloudProviderConnectionKey,
+): readonly CloudProviderConnectionSourceLink[] {
+  const selfPath = CLOUD_PROVIDER_CONNECTION_PATHS[provider];
+
+  const links: CloudProviderConnectionSourceLink[] = [
+    { label: "Cloud connections", href: CLOUD_CONNECTIONS_PATH },
+    { label: "Connection status", href: "/administration/connection-status" },
+    { label: PROVIDER_HELP_LABEL[provider], href: inAppHelpHref(PROVIDER_HELP_SLUG[provider]) },
+    { label: "Cloud connections help", href: inAppHelpHref("cloud-connections") },
+    { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
+  ];
+
+  return links.filter((link) => link.href !== selfPath);
+}
