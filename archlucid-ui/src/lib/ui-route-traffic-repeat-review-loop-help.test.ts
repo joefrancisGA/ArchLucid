@@ -69,5 +69,6 @@ describe("ui-route-traffic-repeat-review-loop-help (HRX)", () => {
     expect(row?.section).toBe(REPEAT_REVIEW_LOOP_HELP_TRAFFIC_SECTION);
     expect(row?.notes).toBe(REPEAT_REVIEW_LOOP_HELP_TRAFFIC_NOTE);
     expect(row?.notes).toContain("HelpRepeatReviewLoopGuideView");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
