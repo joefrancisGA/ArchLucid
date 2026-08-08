@@ -66,5 +66,6 @@ describe("ui-route-traffic-dpa-template-help (HDP)", () => {
     expect(row?.notes).toBe(DPA_TEMPLATE_HELP_TRAFFIC_NOTE);
     expect(row?.notes).toContain("HelpDpaTemplateGuideView");
     expect(row?.notes).toContain("not countersigned");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
