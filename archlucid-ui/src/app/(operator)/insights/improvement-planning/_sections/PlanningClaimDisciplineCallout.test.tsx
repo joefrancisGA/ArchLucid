@@ -4,7 +4,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it } from "vitest";
 
-import { PlanningClaimDisciplineCallout } from "@/app/(operator)/insights/planning/_sections/PlanningClaimDisciplineCallout";
+import { PlanningClaimDisciplineCallout } from "@/app/(operator)/insights/improvement-planning/_sections/PlanningClaimDisciplineCallout";
 import { PLANNING_CLAIM_DISCIPLINE } from "@/lib/planning-evidence-copy";
 
 const DISMISS_KEY = "archlucid_planning_claim_discipline_dismissed_v1";

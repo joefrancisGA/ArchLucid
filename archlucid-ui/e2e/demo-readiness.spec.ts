@@ -49,7 +49,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
   });
 
   test("runs list shows Claims Intake example without mock-provider leakage", async ({ page }) => {
-    await page.goto("/architecture/reviews?projectId=default");
+    await page.goto("/architecture/reviews");
     await expect(
       page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
     ).toBeVisible();
@@ -103,7 +103,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
   test("demo pages do not leak internal tokens in main content @demo-readiness", async ({ page }) => {
     const paths: string[] = [
       "/",
-      "/architecture/reviews?projectId=default",
+      "/architecture/reviews",
       `/architecture/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`,
       `/governance/signed-records/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`,
       "/governance/approval-queue",
@@ -147,7 +147,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
     await page.goto("/architecture/reviews/new");
     await expect(page).toHaveURL(/\/architecture\/reviews\/new/);
 
-    await page.goto("/architecture/reviews?projectId=default");
+    await page.goto("/architecture/reviews");
     await expect(
       page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
     ).toBeVisible();

@@ -44,7 +44,7 @@ vi.mock("next/navigation", () => ({
   redirect: vi.fn(),
 }));
 
-vi.mock("./insights/planning/_sections/load-planning-page-data", () => {
+vi.mock("./insights/improvement-planning/_sections/load-planning-page-data", () => {
   const summary = {
     generatedUtc: "2026-01-01T00:00:00.000Z",
     themeCount: 0,
@@ -192,7 +192,7 @@ import EvolutionReviewPage from "./insights/impact-preview/page";
 import GovernanceResolutionPage from "./governance/standards-and-rules/page";
 import OnboardingPage from "./architecture/first-review-guide/page";
 import PolicyPacksPage from "./governance/policy-packs/page";
-import PlanningPage from "./insights/planning/page";
+import PlanningPage from "./insights/improvement-planning/page";
 import ProductLearningPage from "./internal/product-learning/page";
 import RecommendationLearningOpsPage from "./internal/recommendation-learning/page";
 import SearchPage from "./insights/search-review-evidence/page";

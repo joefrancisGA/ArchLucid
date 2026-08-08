@@ -27,7 +27,7 @@ export function ManifestDetailPageErrorFrame(props: ManifestDetailPageErrorFrame
   return (
     <div className="w-full max-w-[1200px] space-y-4 px-1 py-2 sm:px-0">
       <nav aria-label="Breadcrumb" className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-        <Link className={OPERATOR_LINK.nav} href="/architecture/reviews?projectId=default">
+        <Link className={OPERATOR_LINK.nav} href="/architecture/reviews">
           Reviews
         </Link>
       </nav>
@@ -42,7 +42,7 @@ export function ManifestDetailPageErrorFrame(props: ManifestDetailPageErrorFrame
 function ManifestDetailPageErrorFooterLinks() {
   return (
     <p className={cn(OPERATOR_TYPOGRAPHY.body)}>
-      <Link className={OPERATOR_LINK.inline} href="/architecture/reviews?projectId=default">Reviews</Link>
+      <Link className={OPERATOR_LINK.inline} href="/architecture/reviews">Reviews</Link>
     </p>
   );
 }

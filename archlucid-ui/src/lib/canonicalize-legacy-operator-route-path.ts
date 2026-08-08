@@ -17,6 +17,14 @@ import {
   pathMatchesRoutePrefix,
 } from "@/lib/governance-route-paths";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
+import {
+  LEGACY_INSIGHTS_PLANNING_PATH,
+  LEGACY_INSIGHTS_PLANNING_PLAN_DETAIL_PATH_PREFIX,
+  LEGACY_PLANNING_PATH,
+  LEGACY_PLANNING_PLAN_DETAIL_PATH_PREFIX,
+  PLANNING_PATH,
+  PLANNING_PLAN_DETAIL_PATH_PREFIX,
+} from "@/lib/planning-route";
 import { LEGACY_SIGNED_RECORDS_LIST_PATH, SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import {
   LEGACY_SPONSOR_REPORT_ROOT_PATH,
@@ -119,6 +127,22 @@ export function canonicalizeLegacyOperatorRoutePath(pathname: string): string {
 
   if (pathMatchesRoutePrefix(normalized, LEGACY_MANIFESTS_PATH)) {
     return normalized.replace(LEGACY_MANIFESTS_PATH, SIGNED_RECORDS_LIST_PATH);
+  }
+
+  if (pathMatchesRoutePrefix(normalized, LEGACY_INSIGHTS_PLANNING_PLAN_DETAIL_PATH_PREFIX)) {
+    return normalized.replace(LEGACY_INSIGHTS_PLANNING_PLAN_DETAIL_PATH_PREFIX, PLANNING_PLAN_DETAIL_PATH_PREFIX);
+  }
+
+  if (pathMatchesRoutePrefix(normalized, LEGACY_INSIGHTS_PLANNING_PATH)) {
+    return normalized.replace(LEGACY_INSIGHTS_PLANNING_PATH, PLANNING_PATH);
+  }
+
+  if (pathMatchesRoutePrefix(normalized, LEGACY_PLANNING_PLAN_DETAIL_PATH_PREFIX)) {
+    return normalized.replace(LEGACY_PLANNING_PLAN_DETAIL_PATH_PREFIX, PLANNING_PLAN_DETAIL_PATH_PREFIX);
+  }
+
+  if (pathMatchesRoutePrefix(normalized, LEGACY_PLANNING_PATH)) {
+    return normalized.replace(LEGACY_PLANNING_PATH, PLANNING_PATH);
   }
 
   if (pathMatchesRoutePrefix(normalized, LEGACY_SIGNED_RECORDS_LIST_PATH)) {

@@ -17,6 +17,7 @@ import { EXECUTIVE_DASHBOARD_HREF, EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF } f
 import { BUYER_CTO_DEMO_READINESS_HEADING } from "@/lib/buyer-polish-copy";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
+import { PLANNING_PATH } from "@/lib/planning-route";
 import { AUDIT_TRAIL_PAGE_TITLE } from "@/lib/audit-trail-page-copy";
 import { GOVERNANCE_OVERVIEW_PAGE_TITLE } from "@/lib/governance-overview-copy";
 import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
@@ -42,7 +43,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/architecture/reviews": RUNS_LIST_PAGE_TITLES.buyerPolished,
   "/architecture/reviews/new": START_REVIEW_LABEL,
   [COMPARE_TWO_REVIEWS_PATH]: OPERATOR_NAV_LINK_LABELS.compareTwoReviews,
-  [EVIDENCE_GRAPH_PATH]: OPERATOR_NAV_LINK_LABELS.evidenceTrail,
+  [EVIDENCE_GRAPH_PATH]: OPERATOR_NAV_LINK_LABELS.evidenceGraph,
   [ASK_REVIEW_QUESTIONS_PATH]: OPERATOR_NAV_LINK_LABELS.askReview,
   [SEARCH_REVIEW_EVIDENCE_PATH]: OPERATOR_NAV_LINK_LABELS.searchEvidence,
   [IMPACT_PREVIEW_PATH]: OPERATOR_NAV_LINK_LABELS.evolutionCandidates,
@@ -64,7 +65,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/governance/setup": OPERATOR_NAV_LINK_LABELS.governanceSetupGuide,
   "/internal/replay": OPERATOR_NAV_LINK_LABELS.replayReview,
   "/administration/system-health": OPERATOR_NAV_LINK_LABELS.systemHealth,
-  "/insights/planning": OPERATOR_NAV_LINK_LABELS.planning,
+  [PLANNING_PATH]: OPERATOR_NAV_LINK_LABELS.planning,
   "/architecture/first-review-guide": OPERATOR_NAV_LINK_LABELS.onboarding,
   "/administration/billing": "Billing & plans",
   "/administration/tenant": OPERATOR_NAV_LINK_LABELS.workspaceSettings,

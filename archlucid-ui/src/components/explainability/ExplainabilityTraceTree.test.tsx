@@ -34,7 +34,26 @@ describe("ExplainabilityTraceTree", () => {
     expect(screen.getByTestId("explainability-trace-rules")).toBeInTheDocument();
     expect(screen.getByTestId("explainability-trace-evidence")).toBeInTheDocument();
     expect(screen.getByTestId("explainability-trace-confidence")).toBeInTheDocument();
-    expect(screen.getByText("High")).toBeInTheDocument();
+    expect(screen.getByText("High confidence")).toBeInTheDocument();
+  });
+
+  it("explains the confidence bucket from evidence count and missing trace dimensions", () => {
+    const lowConfidence: FindingExplainability = {
+      ...sample,
+      confidenceLevel: "Low",
+      missingTraceFields: ["alternativePathsConsidered", "notes"],
+    };
+
+    render(<ExplainabilityTraceTree data={lowConfidence} />);
+
+    expect(screen.getByText(/only one supporting source was identified/)).toBeInTheDocument();
+    expect(screen.getByText(/2 parts of the reasoning trace were left empty/)).toBeInTheDocument();
+  });
+
+  it("summarizes how many sources back the finding", () => {
+    render(<ExplainabilityTraceTree data={sample} />);
+
+    expect(screen.getByText("1 structured source supports this finding.")).toBeInTheDocument();
   });
 
   it("explains heuristic vs evidence-backed findings when evidence references are empty (TB-514)", () => {

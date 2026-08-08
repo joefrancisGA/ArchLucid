@@ -16,7 +16,7 @@ export type PilotFeedbackHelpSourceLink = {
 /** Operator Sources — no self-href to `/help/pilot-feedback`. */
 export const PILOT_FEEDBACK_HELP_SOURCES: readonly PilotFeedbackHelpSourceLink[] = [
   { label: "Pilot feedback", href: PRODUCT_LEARNING_PATH },
-  { label: "Improvement planning", href: "/insights/planning" },
+  { label: "Improvement planning", href: "/insights/improvement-planning" },
   { label: "Architecture reviews", href: "/architecture/reviews" },
   { label: "Start a review", href: "/architecture/reviews/new" },
   { label: "AI recommendation learning", href: "/internal/recommendation-learning" },

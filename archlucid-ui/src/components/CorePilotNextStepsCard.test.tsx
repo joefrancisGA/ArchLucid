@@ -349,7 +349,7 @@ describe("CorePilotNextStepsCard", () => {
 
       expect(screen.getByRole("link", { name: /open architecture review detail/i })).toHaveAttribute(
         "href",
-        "/architecture/reviews?projectId=default",
+        "/architecture/reviews",
       );
     });
 

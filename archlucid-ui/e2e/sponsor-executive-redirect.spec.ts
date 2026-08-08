@@ -19,7 +19,7 @@ async function stubSponsorOnlyPrincipal(page: import("@playwright/test").Page): 
 test.describe("Sponsor executive shell redirect @sponsor-redirect", () => {
   test("Sponsor-only principal stays on canonical reviews list", async ({ page }) => {
     await stubSponsorOnlyPrincipal(page);
-    await page.goto("/architecture/reviews?projectId=default");
+    await page.goto("/architecture/reviews");
 
     await expect(page).toHaveURL(/\/architecture\/reviews(\?projectId=default)?$/, { timeout: 15_000 });
   });

@@ -45,7 +45,7 @@ describe("not-found", () => {
     expect(screen.getByRole("button", { name: "Retry" })).toBeInTheDocument();
     expect(screen.getByTestId("not-found-review-packages")).toHaveAttribute(
       "href",
-      "/architecture/reviews?projectId=default",
+      "/architecture/reviews",
     );
     expect(screen.getByTestId("not-found-start-review")).toHaveAttribute("href", "/architecture/reviews/new");
     expect(screen.getByTestId("not-found-sample-review")).toHaveAttribute(

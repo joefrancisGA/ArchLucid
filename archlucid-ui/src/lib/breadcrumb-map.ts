@@ -92,8 +92,8 @@ const SEGMENT_LABELS: Record<string, string> = {
   reviews: "Reviews",
   new: "New request",
   insights: OPERATOR_NAV_GROUP_LABELS.analysis,
-  "evidence-graph": OPERATOR_NAV_LINK_LABELS.evidenceTrail,
-  graph: OPERATOR_NAV_LINK_LABELS.evidenceTrail,
+  "evidence-graph": OPERATOR_NAV_LINK_LABELS.evidenceGraph,
+  graph: OPERATOR_NAV_LINK_LABELS.evidenceGraph,
   compare: "Compare",
   "compare-two-reviews": OPERATOR_NAV_LINK_LABELS.compareTwoReviews,
   replay: "Validate review",
@@ -173,7 +173,7 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
 
   if (isEvidenceGraphPath(normalized)) {
     return injectBuyerShowcaseReviewPackageCrumb(
-      [{ label: OPERATOR_NAV_LINK_LABELS.evidenceTrail }],
+      [{ label: OPERATOR_NAV_LINK_LABELS.evidenceGraph }],
       normalized,
       options,
     );

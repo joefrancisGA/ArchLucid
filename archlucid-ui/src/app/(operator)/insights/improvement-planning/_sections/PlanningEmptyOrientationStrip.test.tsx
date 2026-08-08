@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { PlanningEmptyOrientationStrip } from "@/app/(operator)/insights/planning/_sections/PlanningEmptyOrientationStrip";
+import { PlanningEmptyOrientationStrip } from "@/app/(operator)/insights/improvement-planning/_sections/PlanningEmptyOrientationStrip";
 import {
   IMPROVEMENT_PLANNING_EMPTY_OUTCOME_TITLE,
   IMPROVEMENT_PLANNING_MATURITY_STAGE_FEEDBACK,

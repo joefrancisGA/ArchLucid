@@ -11,6 +11,7 @@ import {
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
 } from "@/lib/governance-route-paths";
 import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
+import { PLANNING_PATH } from "@/lib/planning-route";
 import { DIGESTS_HUB_PATH, LEGACY_DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 import { canonicalizeLegacyOperatorRoutePath } from "@/lib/canonicalize-legacy-operator-route-path";
 
@@ -20,13 +21,12 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/": "demo-ready",
   "/architecture/first-review-guide": "demo-ready",
   "/architecture/reviews/new": "demo-ready",
-  "/architecture/reviews?projectId=default": "demo-ready",
+  "/architecture/reviews": "demo-ready",
   "/help": "demo-ready",
   "/insights/ask-review-questions": "demo-ready",
   "/insights/search-review-evidence": "demo-ready",
   [ARCHITECTURE_SCORECARD_PATH]: "demo-ready",
   [EXECUTIVE_DASHBOARD_HREF]: "demo-ready",
-  "/architecture/reviews": "demo-ready",
   "/governance/findings": "advanced-only",
   "/administration/security-trust": "demo-ready",
   "/administration/preferences": "demo-ready",
@@ -37,7 +37,7 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   [COMPARE_TWO_REVIEWS_PATH]: "advanced-only",
   "/internal/replay": "advanced-only",
   "/governance/advisory-scans": "advanced-only",
-  "/insights/planning": "advanced-only",
+  [PLANNING_PATH]: "advanced-only",
   [DIGESTS_HUB_PATH]: "advanced-only",
   [LEGACY_DIGESTS_HUB_PATH]: "advanced-only",
   [IMPACT_PREVIEW_PATH]: "advanced-only",
@@ -92,7 +92,7 @@ export function operatorRouteReadiness(href: string): RouteReadinessTier {
   const [path, query] = href.split("?", 2);
 
   if (path === "/architecture/reviews" && query !== undefined && query.includes("projectId=")) {
-    const fromTable = READINESS_BY_PATH["/architecture/reviews?projectId=default"];
+    const fromTable = READINESS_BY_PATH["/architecture/reviews"];
 
     return fromTable ?? "demo-ready";
   }
@@ -166,7 +166,7 @@ function normalizeOperatorNavHrefForDemo(href: string): string {
     ?? path;
 
   if (trimmed === "/architecture/reviews" && query !== undefined && query.includes("projectId=")) {
-    return "/architecture/reviews?projectId=default";
+    return "/architecture/reviews";
   }
 
   return trimmed;

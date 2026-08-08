@@ -1,7 +1,7 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { PlanningSourcesStrip } from "@/app/(operator)/insights/planning/_sections/PlanningSourcesStrip";
+import { PlanningSourcesStrip } from "@/app/(operator)/insights/improvement-planning/_sections/PlanningSourcesStrip";
 import { PLANNING_CANONICAL_PATH, PLANNING_SOURCES } from "@/lib/planning-evidence-copy";
 
 describe("PlanningSourcesStrip", () => {

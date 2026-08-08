@@ -25,7 +25,7 @@ export const SHORTCUTS: ShortcutEntry[] = [
   {
     key: "alt+r",
     label: "Reviews",
-    route: "/architecture/reviews?projectId=default",
+    route: "/architecture/reviews",
     description: "Open reviews list",
   },
   {

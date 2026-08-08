@@ -53,7 +53,7 @@ function expectCanonicalEvidenceGraphHandoff(source: string): void {
   expect(hasCanonicalHandoff).toBe(true);
 }
 
-describe("evidence-graph-route (INE)", () => {
+describe("evidence-graph-route (GRA)", () => {
   it("marks the evidence graph hub as noindex with honest metadata", () => {
     expect(EVIDENCE_GRAPH_ROUTE_METADATA.robots).toEqual({ index: false, follow: false });
     expect(EVIDENCE_GRAPH_ROUTE_METADATA.title).toBe("Evidence graph");

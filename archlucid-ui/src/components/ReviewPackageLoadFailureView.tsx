@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -23,7 +23,7 @@ import {
   type ReviewGenerationHandoffRecord,
 } from "@/lib/review-generation-handoff";
 
-const REVIEW_PACKAGES_HREF = "/architecture/reviews?projectId=default";
+const REVIEW_PACKAGES_HREF = "/architecture/reviews";
 const START_REVIEW_HREF = "/architecture/reviews/new";
 const PENDING_POLL_MS = 3_000;
 const PENDING_MAX_MS = 120_000;

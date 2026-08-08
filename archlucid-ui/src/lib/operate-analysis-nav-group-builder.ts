@@ -41,7 +41,7 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
       {
         // String literals required: scripts/ci/assert_route_tier_policy_nav.py parses href:"..." only.
         href: EVIDENCE_GRAPH_PATH as typeof EVIDENCE_GRAPH_PATH & "/insights/evidence-graph",
-        label: OPERATOR_NAV_LINK_LABELS.evidenceTrail,
+        label: OPERATOR_NAV_LINK_LABELS.evidenceGraph,
         title: this.shortcutTitle("Trace evidence, findings, and decisions", "alt+y"),
         keyShortcut: "alt+y",
         icon: GitGraph,
@@ -84,7 +84,7 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
       },
       {
         // String literals required: scripts/ci/assert_route_tier_policy_nav.py parses href:"..." only.
-        href: PLANNING_PATH as typeof PLANNING_PATH & "/insights/planning",
+        href: PLANNING_PATH as typeof PLANNING_PATH & "/insights/improvement-planning",
         label: OPERATOR_NAV_LINK_LABELS.planning,
         title: "Planning — improvement themes and prioritized plans",
         icon: Kanban,

@@ -119,7 +119,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   architectures: "Architectures",
   reviewPackage: "Reviews",
   /** Evidence graph (`/insights/evidence-graph`). */
-  evidenceTrail: BUYER_SURFACE_VOCABULARY.evidenceGraphNav,
+  evidenceGraph: BUYER_SURFACE_VOCABULARY.evidenceGraphNav,
   /** Left nav destination for `/architecture/reviews/new` — creation intake (brief, diagram, document, optional cloud). */
   capture: CREATE_ARCHITECTURE_LABEL,
   /** First review guide (`/architecture/first-review-guide`). */

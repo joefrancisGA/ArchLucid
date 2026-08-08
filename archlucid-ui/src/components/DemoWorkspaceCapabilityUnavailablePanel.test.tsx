@@ -26,7 +26,7 @@ describe("DemoWorkspaceCapabilityUnavailablePanel", () => {
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open reviews" })).toHaveAttribute(
       "href",
-      "/architecture/reviews?projectId=default",
+      "/architecture/reviews",
     );
     expect(screen.getByRole("link", { name: BUYER_DEMO_CAPABILITY_TROUBLESHOOTING_CTA })).toHaveAttribute(
       "href",

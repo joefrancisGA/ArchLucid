@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 
 import { PlanningClaimDisciplineCallout } from "./PlanningClaimDisciplineCallout";
 
-/** Sources + claim discipline for `/insights/planning` (PLA Evidence). */
+/** Sources + claim discipline for `/insights/improvement-planning` (PLA Evidence). */
 export function PlanningSourcesStrip(): React.JSX.Element {
   return (
     <div className="mt-4 space-y-3" data-testid="planning-orientation">

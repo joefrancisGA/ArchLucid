@@ -59,7 +59,7 @@ function findTrafficRowById(rows: TrafficWorkbookRow[], rowId: string): TrafficW
   return rows.find((row) => row.id === rowId);
 }
 
-describe("ui-route-traffic-evidence-graph (INE)", () => {
+describe("ui-route-traffic-evidence-graph (GRA)", () => {
   it("tracks the canonical evidence graph with honest workbook notes", () => {
     const rows = extractMasterTableRows(readTemplateMarkdown());
     const row = findTrafficRowById(rows, EVIDENCE_GRAPH_TRAFFIC_ROW_ID);

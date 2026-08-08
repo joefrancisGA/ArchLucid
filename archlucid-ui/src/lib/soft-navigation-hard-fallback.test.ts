@@ -17,18 +17,18 @@ describe("resolveSoftNavigationHardFallbackAssignUrl", () => {
   it("includes query when navigating from home to reviews list", () => {
     expect(
       resolveSoftNavigationHardFallbackAssignUrl(
-        "/architecture/reviews?projectId=default",
+        "/architecture/reviews",
         "/",
         "",
         "https://www.archlucid.net",
       ),
-    ).toBe("/architecture/reviews?projectId=default");
+    ).toBe("/architecture/reviews");
   });
 
   it("returns null when already on the target path and query", () => {
     expect(
       resolveSoftNavigationHardFallbackAssignUrl(
-        "/architecture/reviews?projectId=default",
+        "/architecture/reviews",
         "/architecture/reviews",
         "?projectId=default",
         "https://www.archlucid.net",

@@ -28,8 +28,8 @@ describe("usability lib", () => {
     expect(pageHelpTopicForPathname("/digests")?.slug).toBe("digests");
     expect(pageHelpTopicForPathname("/digest-subscriptions")?.slug).toBe("digests");
     expect(pageHelpTopicForPathname("/help/digests")?.slug).toBe("digests");
-    expect(pageHelpTopicForPathname("/insights/planning")?.slug).toBeUndefined();
-    expect(pageHelpTopicForPathname("/insights/planning")?.label).toBe("Improvement planning");
+    expect(pageHelpTopicForPathname("/insights/improvement-planning")?.slug).toBeUndefined();
+    expect(pageHelpTopicForPathname("/insights/improvement-planning")?.label).toBe("Improvement planning");
     expect(pageHelpTopicForPathname("/administration/billing")?.slug).toBe("billing-and-plans");
     expect(pageHelpTopicForPathname("/administration/billing")?.label).toBe("Billing and plans");
     expect(pageHelpTopicForPathname("/help/billing-and-plans")?.slug).toBe("billing-and-plans");

@@ -251,7 +251,7 @@ export function WelcomeModal(props: WelcomeModalProps) {
                   Back
                 </Button>
                 <Button type="button" variant="ghost" className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)} asChild>
-                  <Link href="/architecture/reviews?projectId=default" onClick={onDismiss}>
+                  <Link href="/architecture/reviews" onClick={onDismiss}>
                     Browse reviews
                   </Link>
                 </Button>

@@ -70,7 +70,7 @@ export function OperatorCoArchitectHomeStrip({ buyerPolishedShell = false }: Ope
           </Link>
         </Button>
         <Button asChild variant="outline" size={buyerPolishedShell ? "default" : "sm"} className="cursor-pointer">
-          <Link href="/architecture/reviews?projectId=default">{OPERATOR_CO_ARCHITECT_CTA_OPEN_EXISTING}</Link>
+          <Link href="/architecture/reviews">{OPERATOR_CO_ARCHITECT_CTA_OPEN_EXISTING}</Link>
         </Button>
       </div>
     </section>

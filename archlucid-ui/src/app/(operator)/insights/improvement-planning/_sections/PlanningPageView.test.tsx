@@ -10,8 +10,8 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
-import { PlanningPageView } from "@/app/(operator)/insights/planning/_sections/PlanningPageView";
-import type { PlanningPageViewModel } from "@/app/(operator)/insights/planning/_sections/planning-page-view-model";
+import { PlanningPageView } from "@/app/(operator)/insights/improvement-planning/_sections/PlanningPageView";
+import type { PlanningPageViewModel } from "@/app/(operator)/insights/improvement-planning/_sections/planning-page-view-model";
 import {
   IMPROVEMENT_PLANNING_CAPTURE_FEEDBACK_CTA,
   IMPROVEMENT_PLANNING_EMPTY_TITLE,

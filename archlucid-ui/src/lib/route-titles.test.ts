@@ -53,7 +53,7 @@ describe("getRouteTitle — unknown path", () => {
   });
 
   it("strips trailing slash", () => {
-    expect(getRouteTitle("/insights/planning/")).toBe("Improvement planning");
+    expect(getRouteTitle("/insights/improvement-planning/")).toBe("Improvement planning");
   });
 
   it("capitalizes ITSM acronym for itsm path segment", () => {

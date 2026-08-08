@@ -166,7 +166,7 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
           <OperatorApiProblem failure={legacyFailure} />
           <OperatorTryNext>
             Confirm both reviews exist and are in scope (same tenant/project as the shell). Re-pick reviews from{" "}
-            <Link className={OPERATOR_LINK.nav} href="/architecture/reviews?projectId=default">Reviews</Link> or review detail, then click <strong>Compare</strong>{" "}
+            <Link className={OPERATOR_LINK.nav} href="/architecture/reviews">Reviews</Link> or review detail, then click <strong>Compare</strong>{" "}
             again. Use the correlation ID in API logs if you escalate.
           </OperatorTryNext>
         </>

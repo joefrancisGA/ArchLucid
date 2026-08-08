@@ -30,28 +30,45 @@ describe("finding-evidence-graph-highlight", () => {
     expect(set.has("subnet-a")).toBe(true);
   });
 
-  it("filters to evidence-only subgraph", () => {
-    const filtered = resolveFindingEvidenceGraphViewModel(sampleGraph, ["vm-1", "subnet-a"], "evidenceOnly");
+  it("keeps examined nodes and their direct neighbours on the reasoning path", () => {
+    const filtered = resolveFindingEvidenceGraphViewModel(sampleGraph, ["subnet-a"], "reasoningPath");
 
-    expect(filtered.nodes.map((node) => node.id)).toEqual(["vm-1", "subnet-a"]);
+    expect(filtered.nodes.map((node) => node.id).sort()).toEqual(["subnet-a", "vm-1"]);
     expect(filtered.edges).toHaveLength(1);
+    expect(filtered.nodeCount).toBe(2);
   });
 
-  it("dims non-examined nodes in context mode", () => {
+  it("returns the whole graph in context mode", () => {
+    const filtered = resolveFindingEvidenceGraphViewModel(sampleGraph, ["subnet-a"], "context");
+
+    expect(filtered.nodes).toHaveLength(3);
+  });
+
+  it("keeps neighbours legible on the reasoning path but dims them in context mode", () => {
     const nodes = [
       { id: "vm-1", position: { x: 0, y: 0 }, data: { label: "VM" } },
       { id: "db-9", position: { x: 1, y: 0 }, data: { label: "DB" } },
     ];
     const edges = [{ id: "e1", source: "vm-1", target: "db-9" }];
 
-    const result = applyFindingEvidenceGraphHighlight(nodes, edges, ["vm-1"], "context");
+    const context = applyFindingEvidenceGraphHighlight(nodes, edges, ["vm-1"], "context");
 
-    expect(result.nodes[0]?.style?.opacity).toBe(1);
-    expect(result.nodes[1]?.style?.opacity).toBeLessThan(1);
+    expect(context.nodes[0]?.style?.opacity).toBe(1);
+    expect(context.nodes[1]?.style?.opacity).toBeLessThan(1);
+    expect(context.edges[0]?.animated).toBe(false);
+
+    const reasoningPath = applyFindingEvidenceGraphHighlight(nodes, edges, ["vm-1"], "reasoningPath");
+
+    expect(reasoningPath.nodes[0]?.style?.opacity).toBe(1);
+    expect(reasoningPath.nodes[1]?.style?.opacity).toBeGreaterThan(
+      Number(context.nodes[1]?.style?.opacity ?? 0),
+    );
+    expect(reasoningPath.edges[0]?.animated).toBe(true);
   });
 
-  it("defaults to evidence-only for large graphs with small evidence footprint", () => {
-    expect(defaultFindingEvidenceGraphViewMode(120, 4)).toBe("evidenceOnly");
-    expect(defaultFindingEvidenceGraphViewMode(20, 4)).toBe("context");
+  it("opens on the reasoning path whenever evidence was examined", () => {
+    expect(defaultFindingEvidenceGraphViewMode(4)).toBe("reasoningPath");
+    expect(defaultFindingEvidenceGraphViewMode(1)).toBe("reasoningPath");
+    expect(defaultFindingEvidenceGraphViewMode(0)).toBe("context");
   });
 });

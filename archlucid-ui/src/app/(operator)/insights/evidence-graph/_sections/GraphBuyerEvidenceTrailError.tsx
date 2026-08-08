@@ -40,7 +40,7 @@ export function GraphBuyerEvidenceTrailError(props: GraphBuyerEvidenceTrailError
   const reviewPackageHref =
     runTrim.length > 0
       ? `/architecture/reviews/${encodeURIComponent(runTrim)}`
-      : "/architecture/reviews?projectId=default";
+      : "/architecture/reviews";
 
   const heading = operatorShell ? OPERATOR_GRAPH_LOAD_ERROR_HEADING : BUYER_EVIDENCE_TRAIL_ERROR_HEADING;
   const body = operatorShell ? OPERATOR_GRAPH_LOAD_ERROR_BODY : BUYER_EVIDENCE_TRAIL_ERROR_BODY;

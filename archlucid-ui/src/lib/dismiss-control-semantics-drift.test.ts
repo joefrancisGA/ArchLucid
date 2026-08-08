@@ -37,7 +37,7 @@ describe("dismiss control semantics drift guard", () => {
       const relativePath = filePath.replace(`${SRC_ROOT}\\`, "src\\").replace(`${SRC_ROOT}/`, "src/");
 
       for (const match of source.matchAll(dismissLinkPattern)) {
-        if (match[0].includes('href="/quick-scan"') || match[0].includes('href="/architecture/reviews?projectId=default"')) {
+        if (match[0].includes('href="/quick-scan"') || match[0].includes('href="/architecture/reviews"')) {
           continue;
         }
 

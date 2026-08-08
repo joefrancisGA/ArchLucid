@@ -11,13 +11,13 @@ import {
 import type { NavGroupConfig } from "@/lib/nav-config.types";
 import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture-intelligence-route";
 import { BUYER_ONBOARDING_NAV_TOOLTIP } from "@/lib/buyer-polish-copy";
-import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture-routes";
+import { ARCHITECTURES_LIST_PATH, REVIEWS_LIST_NAV_HREF } from "@/lib/architecture-routes";
 import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
-import { resolveArchitecturesListNavTitle } from "@/lib/operator-nav-labels";
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
+import { resolveArchitecturesListNavTitle } from "@/lib/operator-nav-labels";
 
 const PORTFOLIO_OVERVIEW_NAV_TITLE = "Track ROI, risks, and governance posture";
 
@@ -49,7 +49,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           // String literal required: scripts/ci/assert_route_tier_policy_nav.py parses href:"..." only.
-          href: "/architecture/reviews?projectId=default",
+          href: REVIEWS_LIST_NAV_HREF as typeof REVIEWS_LIST_NAV_HREF & "/architecture/reviews",
           label: OPERATOR_NAV_LINK_LABELS.reviewPackage,
           title: this.shortcutTitle("Browse architecture reviews", "alt+r"),
           keyShortcut: "alt+r",

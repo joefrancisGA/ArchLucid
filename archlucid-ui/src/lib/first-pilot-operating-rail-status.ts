@@ -143,9 +143,9 @@ const FIRST_PILOT_OPERATING_RAIL_STEPS_FALLBACK_HREFS: readonly string[] = [
   "/administration/system-health",
   "/administration/extract-upload",
   "/architecture/reviews/new",
-  "/architecture/reviews?projectId=default",
-  "/architecture/reviews?projectId=default",
-  "/architecture/reviews?projectId=default",
+  "/architecture/reviews",
+  "/architecture/reviews",
+  "/architecture/reviews",
 ];
 
 /**

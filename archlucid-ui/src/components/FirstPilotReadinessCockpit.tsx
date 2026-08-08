@@ -348,7 +348,7 @@ export function FirstPilotReadinessCockpit() {
       ? `/architecture/reviews/${encodeURIComponent(commitCtx.firstCommittedRunId)}`
       : commitCtx.latestRunId !== null
         ? `/architecture/reviews/${encodeURIComponent(commitCtx.latestRunId)}`
-        : "/architecture/reviews?projectId=default";
+        : "/architecture/reviews";
 
   return (
     <OperatorHomeDisclosureSection

@@ -4,14 +4,14 @@ import { describe, expect, it, vi } from "vitest";
 import { IMPROVEMENT_PLANNING_PAGE_SUBTITLE } from "@/lib/planning-page-copy";
 
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/insights/planning",
+  usePathname: () => "/insights/improvement-planning",
 }));
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
 }));
 
-import { PlanningPageHeader } from "@/app/(operator)/insights/planning/_sections/PlanningPageHeader";
+import { PlanningPageHeader } from "@/app/(operator)/insights/improvement-planning/_sections/PlanningPageHeader";
 
 describe("PlanningPageHeader", () => {
   it("renders h2, help, refresh, and last-updated metadata", () => {

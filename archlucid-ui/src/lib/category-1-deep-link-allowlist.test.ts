@@ -105,11 +105,11 @@ const ALLOWLIST: readonly {
     configureHref: REVIEWS_LIST_PATH,
   },
   {
-    pathname: "/insights/planning",
+    pathname: "/insights/improvement-planning",
     nextHref: PRODUCT_LEARNING_PATH,
   },
   {
-    pathname: "/insights/planning/plans/example-plan",
+    pathname: "/insights/improvement-planning/plans/example-plan",
     nextHref: PLANNING_PATH,
   },
   {

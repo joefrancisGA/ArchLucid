@@ -23,7 +23,7 @@ export const COMMAND_PALETTE_ACTIONS: readonly CommandPaletteAction[] = [
   {
     id: "action-open-reviews",
     label: "Open reviews list",
-    href: "/architecture/reviews?projectId=default",
+    href: "/architecture/reviews",
     searchValue: "action open list reviews packages",
   },
   {

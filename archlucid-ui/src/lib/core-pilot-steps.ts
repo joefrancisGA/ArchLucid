@@ -34,7 +34,7 @@ export const CORE_PILOT_STEPS: CorePilotStepBase[] = [
     shortBody: "Execute the review until it reaches ready-to-finalize — watch progress on review detail.",
     detail:
       "The assessment fills topology and findings. If execution fails, capture the correlation id from troubleshooting before retrying.",
-    primaryHref: "/architecture/reviews?projectId=default",
+    primaryHref: "/architecture/reviews",
     primaryLabel: "Open review detail",
   },
   {
@@ -42,7 +42,7 @@ export const CORE_PILOT_STEPS: CorePilotStepBase[] = [
     shortBody: "Finalize when ready — this locks the signed review record, findings, and export surfaces.",
     detail:
       "Finalization produces the governed architecture review. Governance policy may block finalize when blocking findings remain.",
-    primaryHref: "/architecture/reviews?projectId=default",
+    primaryHref: "/architecture/reviews",
     primaryLabel: "Finalize on review detail",
   },
   {
@@ -67,7 +67,7 @@ export const CORE_PILOT_STEPS: CorePilotStepBase[] = [
       "From a finalized architecture review, export audit events for proof-packet handoff — one click on Artifacts & exports.",
     detail:
       "Review-scoped audit CSV is available from Artifacts & exports. Auditor or Admin role required.",
-    primaryHref: "/architecture/reviews?projectId=default",
+    primaryHref: "/architecture/reviews",
     primaryLabel: "Open Artifacts & exports",
   },
   {
@@ -76,7 +76,7 @@ export const CORE_PILOT_STEPS: CorePilotStepBase[] = [
       "Read governed findings, download sponsor artifacts, and share the proof packet with stakeholders.",
     detail:
       "Open the signed review record summary, findings table, and board-pack or markdown exports when your internal review is complete.",
-    primaryHref: "/architecture/reviews?projectId=default",
+    primaryHref: "/architecture/reviews",
     primaryLabel: "Inspect review",
   },
 ];

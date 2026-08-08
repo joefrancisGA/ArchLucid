@@ -28,7 +28,7 @@ test.describe("operator shell smoke", () => {
 
   test("runs list with default project shows a run row without generic error boundary @smoke", async ({ page }) => {
     // Canonical list URL is `/architecture/reviews`; go direct to avoid flake on CI.
-    await page.goto("/architecture/reviews?projectId=default");
+    await page.goto("/architecture/reviews");
 
     await expect(
       page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
@@ -75,7 +75,7 @@ test.describe("operator shell smoke — core proof path", () => {
     await page.goto("/");
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
 
-    await page.goto("/architecture/reviews?projectId=default");
+    await page.goto("/architecture/reviews");
     await expect(
       page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
     ).toBeVisible();

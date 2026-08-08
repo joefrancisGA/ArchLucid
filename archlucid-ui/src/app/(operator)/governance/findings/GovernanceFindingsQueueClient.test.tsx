@@ -147,7 +147,7 @@ describe("GovernanceFindingsQueueClient", () => {
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open reviews" })).toHaveAttribute(
       "href",
-      "/architecture/reviews?projectId=default",
+      "/architecture/reviews",
     );
     expect(screen.getByRole("link", { name: "Open governance workflow" })).toHaveAttribute("href", "/governance/approval-queue");
     expect(screen.getByRole("link", { name: "View policy packs" })).toHaveAttribute(

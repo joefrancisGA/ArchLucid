@@ -98,7 +98,7 @@ export function recentViewLabelFromPathname(pathname: string): string | null {
   }
 
   if (path === "/insights/evidence-graph") {
-    return OPERATOR_NAV_LINK_LABELS.evidenceTrail;
+    return OPERATOR_NAV_LINK_LABELS.evidenceGraph;
   }
 
   if (path === "/governance/findings") {

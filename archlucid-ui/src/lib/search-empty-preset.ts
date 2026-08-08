@@ -10,6 +10,6 @@ export const SEARCH_EMPTY: EmptyStateProps = {
     "Try different wording, clear the review filter, or ensure your workspace has finalized review evidence indexed for search.",
   actions: [
     { label: "Open Ask", href: "/insights/ask-review-questions", variant: "outline" },
-    { label: "View reviews", href: "/architecture/reviews?projectId=default", variant: "outline" },
+    { label: "View reviews", href: "/architecture/reviews", variant: "outline" },
   ],
 };

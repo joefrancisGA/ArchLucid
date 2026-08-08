@@ -52,7 +52,7 @@ export function resolveRepeatReviewActivation(input: {
       actions: [
         {
           label: "Open committed review",
-          href: firstHref ?? latestHref ?? "/architecture/reviews?projectId=default",
+          href: firstHref ?? latestHref ?? "/architecture/reviews",
           reason: "Reuse prior manifest context and unresolved findings from the first commit.",
         },
         {

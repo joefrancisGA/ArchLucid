@@ -67,7 +67,7 @@ export const RECURRENCE_SCHEDULE_EXAMPLES: readonly RecurrenceScheduleExample[] 
 ] as const;
 
 /** Governed reviews index. */
-export const RECURRENCE_SCHEDULES_REVIEW_PACKAGES_HREF = "/architecture/reviews?projectId=default";
+export const RECURRENCE_SCHEDULES_REVIEW_PACKAGES_HREF = "/architecture/reviews";
 
 /** Pending approvals live on the Approval queue page (no standalone list route yet). */
 export const RECURRENCE_SCHEDULES_PENDING_APPROVALS_HREF = GOVERNANCE_APPROVAL_QUEUE_PATH;

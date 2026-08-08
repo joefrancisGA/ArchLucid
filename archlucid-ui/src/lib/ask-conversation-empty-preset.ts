@@ -16,7 +16,7 @@ export const ASK_THREAD_HISTORY_EMPTY: EnterpriseCompactEmptyStateProps = {
   testId: "ask-thread-history-empty-state",
   title: "No saved conversations yet",
   description: "Ask a review question to start a thread. Saved questions appear here for quick resume.",
-  actions: [{ label: "View reviews", href: "/architecture/reviews?projectId=default", variant: "primary" }],
+  actions: [{ label: "View reviews", href: "/architecture/reviews", variant: "primary" }],
 };
 
 /** Ask page when no reviews exist and the workspace cannot auto-select a sample review. */

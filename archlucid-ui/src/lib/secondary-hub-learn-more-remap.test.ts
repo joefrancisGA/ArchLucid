@@ -26,7 +26,7 @@ describe("TB-2050 secondary-hub Learn more remap", () => {
   });
 
   it("keeps Category-1 trigger labels when Learn more is omitted", () => {
-    expect(pageHelpTopicForPathname("/insights/planning")?.label).toBe("Improvement planning");
+    expect(pageHelpTopicForPathname("/insights/improvement-planning")?.label).toBe("Improvement planning");
     expect(pageHelpTopicForPathname("/governance/decision-register")?.label).toBe("Decision register");
     expect(pageHelpTopicForPathname("/governance/advisory-scans")?.label).toBe("Advisory scans");
     expect(pageHelpTopicForPathname("/insights/impact-preview")?.label).toBe("Impact preview");

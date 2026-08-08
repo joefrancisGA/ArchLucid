@@ -65,7 +65,7 @@ describe("operator-nav-labels", () => {
   });
 
   it("TB-606: matches reviews list hrefs only", () => {
-    expect(isReviewsListNavHref("/architecture/reviews?projectId=default")).toBe(true);
+    expect(isReviewsListNavHref("/architecture/reviews")).toBe(true);
     expect(isReviewsListNavHref("/architecture/reviews")).toBe(true);
     expect(isReviewsListNavHref("/architecture/reviews/new")).toBe(false);
     expect(isReviewsListNavHref("/architecture/reviews/run-123")).toBe(false);
@@ -76,7 +76,7 @@ describe("operator-nav-labels", () => {
     expect(resolveReviewsListNavLinkLabel(true)).toBe("Reviews");
 
     const source = {
-      href: "/architecture/reviews?projectId=default",
+      href: "/architecture/reviews",
       label: OPERATOR_NAV_LINK_LABELS.reviewPackage,
       title: "Browse architecture reviews",
     };

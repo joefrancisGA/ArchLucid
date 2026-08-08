@@ -50,7 +50,7 @@ export const MARKETING_ROBOTS_DISALLOW_PREFIXES: readonly string[] = [
   LEGACY_ONBOARDING_START_PATH,
   LEGACY_QUICK_START_PATH,
   `${FIRST_REVIEW_GUIDE_PATH}/`,
-  "/insights/planning/",
+  "/insights/improvement-planning/",
   "/internal/product-learning/",
   "/internal/recommendation-learning/",
   "/digest-subscriptions/",

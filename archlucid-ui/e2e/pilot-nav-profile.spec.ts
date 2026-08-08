@@ -75,7 +75,7 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
 
     // Reviews list keeps full operator chrome; operator home (`/`) can redirect via TrialWelcomeRunDeepLink
     // or mount heavy first-pilot surfaces that flake in mock operator-shell CI.
-    await page.goto("/architecture/reviews?projectId=default");
+    await page.goto("/architecture/reviews");
     await meResponse;
     await dismissBlockingHomeModals(page);
     await expect(page).toHaveURL((url) => new URL(url).pathname === "/architecture/reviews");

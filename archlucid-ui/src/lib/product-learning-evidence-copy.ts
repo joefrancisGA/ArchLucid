@@ -16,7 +16,7 @@ export type ProductLearningSourceLink = {
 
 /** Operator Sources — no self-href to `/internal/product-learning`. */
 export const PRODUCT_LEARNING_SOURCES: readonly ProductLearningSourceLink[] = [
-  { label: "Improvement planning", href: "/insights/planning" },
+  { label: "Improvement planning", href: "/insights/improvement-planning" },
   { label: "Architecture reviews", href: "/architecture/reviews" },
   { label: "Start a review", href: "/architecture/reviews/new" },
   { label: "Pilot feedback help", href: inAppHelpHref("pilot-feedback") },

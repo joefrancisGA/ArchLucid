@@ -8,8 +8,8 @@
 export const LEARN_MORE_JOB_MATCH_SECONDARY_HUB_PATHS = [
   "/architecture/digests",
   "/digests",
-  "/insights/planning",
-  "/insights/planning/plans/plan-1",
+  "/insights/improvement-planning",
+  "/insights/improvement-planning/plans/plan-1",
   "/governance/decision-register",
   "/governance/advisory-scans",
   "/insights/impact-preview",

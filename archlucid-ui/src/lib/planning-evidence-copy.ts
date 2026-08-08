@@ -11,7 +11,7 @@ export type PlanningSourceLink = {
   readonly href: string;
 };
 
-/** Operator Sources — no self-href to `/insights/planning`. */
+/** Operator Sources — no self-href to `/insights/improvement-planning`. */
 export const PLANNING_SOURCES: readonly PlanningSourceLink[] = [
   { label: "Architecture reviews", href: "/architecture/reviews" },
   { label: "Findings", href: "/governance/findings" },

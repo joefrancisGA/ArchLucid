@@ -11,7 +11,7 @@ import { runAxe } from "./helpers/axe-helper";
 const pilotNavGroupAriaLabel = "Architecture";
 
 /** Canonical reviews list route — pilot sidebar + minimal-shell header both link here. */
-const reviewsListNavHref = "/architecture/reviews?projectId=default";
+const reviewsListNavHref = "/architecture/reviews";
 
 /** Client-side App Router navigations do not emit `load`; `commit` matches soft route changes. */
 const reviewsRouteUrlPattern = /\/reviews(?:\/|\?|$|#)/;

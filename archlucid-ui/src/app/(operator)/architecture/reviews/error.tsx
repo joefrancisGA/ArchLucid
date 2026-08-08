@@ -67,7 +67,7 @@ export default function RunsSegmentError({
           Retry
         </Button>
         <Button type="button" variant="outline" asChild>
-          <Link href="/architecture/reviews?projectId=default">Back to reviews</Link>
+          <Link href="/architecture/reviews">Back to reviews</Link>
         </Button>
         <Button type="button" variant="outline" asChild>
           <Link href="/help">Help</Link>

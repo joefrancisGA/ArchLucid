@@ -122,7 +122,7 @@ export const GETTING_STARTED_HELP_WORKFLOW_STEPS: readonly GettingStartedWorkflo
     title: "Analyze the architecture",
     description: "Start the review and monitor progress until findings are ready to inspect.",
     expectedOutputs: "Findings with severity, impact, and evidence labels.",
-    href: "/architecture/reviews?projectId=default",
+    href: "/architecture/reviews",
     ctaLabel: "Open reviews",
   },
   {
@@ -146,7 +146,7 @@ export const GETTING_STARTED_HELP_WORKFLOW_STEPS: readonly GettingStartedWorkflo
     title: "Finalize and share outputs",
     description: "Lock the review and export sponsor-ready artifacts for stakeholders.",
     expectedOutputs: "Signed review record, evidence trail, and exports.",
-    href: "/architecture/reviews?projectId=default",
+    href: "/architecture/reviews",
     ctaLabel: "Open reviews",
   },
 ];

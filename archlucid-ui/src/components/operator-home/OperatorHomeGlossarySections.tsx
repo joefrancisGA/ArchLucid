@@ -40,7 +40,7 @@ const PIPELINE_STEPS: PipelineStepConfig[] = [
     icon: ListOrdered,
     label: "Track Progress",
     description: "Monitor pipeline progress and inspect review detail.",
-    href: "/architecture/reviews?projectId=default",
+    href: "/architecture/reviews",
     shortcut: "Alt+R",
     linkAccessibleName: "Reviews",
   },
@@ -50,7 +50,7 @@ const PIPELINE_STEPS: PipelineStepConfig[] = [
     icon: Play,
     label: "Finalize review",
     description: "Finalize the signed review record and export artifacts.",
-    href: "/architecture/reviews?projectId=default",
+    href: "/architecture/reviews",
   },
   {
     step: 4,
@@ -58,7 +58,7 @@ const PIPELINE_STEPS: PipelineStepConfig[] = [
     icon: FileCheck,
     label: "Review Artifacts",
     description: "Review, download, and share architecture artifacts.",
-    href: "/architecture/reviews?projectId=default",
+    href: "/architecture/reviews",
   },
 ];
 

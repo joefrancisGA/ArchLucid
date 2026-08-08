@@ -1,7 +1,7 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { PlanningPlanDetailSourcesStrip } from "@/app/(operator)/insights/planning/plans/[planId]/_sections/PlanningPlanDetailSourcesStrip";
+import { PlanningPlanDetailSourcesStrip } from "@/app/(operator)/insights/improvement-planning/plans/[planId]/_sections/PlanningPlanDetailSourcesStrip";
 import {
   PLANNING_PLAN_DETAIL_PATH_PREFIX,
   PLANNING_PLAN_DETAIL_SOURCES,

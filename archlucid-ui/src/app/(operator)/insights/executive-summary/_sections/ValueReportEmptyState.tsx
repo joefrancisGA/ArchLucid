@@ -19,7 +19,7 @@ export function ValueReportEmptyState(): React.JSX.Element {
       title={BUYER_VALUE_REPORT_EMPTY_TITLE}
       description={BUYER_VALUE_REPORT_EMPTY_DESCRIPTION}
       actions={[
-        { label: "Open reviews", href: "/architecture/reviews?projectId=default", variant: "primary" },
+        { label: "Open reviews", href: "/architecture/reviews", variant: "primary" },
         { label: BUYER_START_ARCHITECTURE_REVIEW_CTA, href: "/architecture/reviews/new", variant: "outline" },
       ]}
       footer={

@@ -39,7 +39,7 @@ export const ALERTS_EMPTY_FILTERED: EmptyStateProps = {
     "Try another status or time range. Alerts appear when rules evaluate against findings from completed reviews — finish a review first if you are in an empty tenant.",
   actions: [
     { label: "Set up alert rules", href: "/governance/alert-rules" },
-    { label: "View reviews", href: "/architecture/reviews?projectId=default", variant: "outline" },
+    { label: "View reviews", href: "/architecture/reviews", variant: "outline" },
   ],
   helpTopicPath: "alerts",
 };
@@ -79,7 +79,7 @@ export const COMPARE_WAITING: EmptyStateProps = {
   title: "Select two reviews to compare",
   description: "Choose a baseline and updated review to continue.",
   actions: [
-    { label: "Open reviews", href: "/architecture/reviews?projectId=default" },
+    { label: "Open reviews", href: "/architecture/reviews" },
   ],
 };
 
@@ -89,7 +89,7 @@ export const COMPARE_WAITING_BUYER: EmptyStateProps = {
   title: "Select two reviews to compare",
   description: "Choose a baseline and updated review to continue.",
   actions: [
-    { label: "Open reviews", href: "/architecture/reviews?projectId=default" },
+    { label: "Open reviews", href: "/architecture/reviews" },
   ],
 };
 
@@ -99,7 +99,7 @@ export const PLANNING_EMPTY: EmptyStateProps = {
   description:
     "Feedback themes and improvement plans show here when persisted for the current tenant / workspace / project. Scope follows workspace defaults unless you set proxy overrides. Run a committed review first if this tenant is new.",
   actions: [
-    { label: "View reviews", href: "/architecture/reviews?projectId=default" },
+    { label: "View reviews", href: "/architecture/reviews" },
     { label: "Pilot feedback", href: "/internal/product-learning", variant: "outline" },
   ],
 };
@@ -110,7 +110,7 @@ export const GOVERNANCE_WORKFLOW_IDLE: EmptyStateProps = {
   description:
     "Pick a finalized review under Approval requests, then Load — approvals, releases, and activations appear for that review.",
   actions: [
-    { label: "Open reviews", href: "/architecture/reviews?projectId=default", variant: "primary" },
+    { label: "Open reviews", href: "/architecture/reviews", variant: "primary" },
     { label: "Findings", href: "/governance/findings", variant: "outline" },
     { label: "Policy packs", href: GOVERNANCE_POLICY_PACKS_PATH, variant: "outline" },
   ],
@@ -129,7 +129,7 @@ export const GOVERNANCE_WORKFLOW_IDLE_READER: EmptyStateProps = {
   description:
     "Choose a review under Approval requests and click Load to review approvals, promotions, and activations for that run.",
   actions: [
-    { label: "View reviews", href: "/architecture/reviews?projectId=default", variant: "outline" },
+    { label: "View reviews", href: "/architecture/reviews", variant: "outline" },
     { label: "Findings", href: "/governance/findings", variant: "outline" },
   ],
   helpTopicPath: "governance",

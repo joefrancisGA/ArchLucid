@@ -10,9 +10,9 @@ describe("isNavLinkActive", () => {
   });
 
   it("matches /architecture/reviews list but not /architecture/reviews/new or review detail", () => {
-    expect(isNavLinkActive("/architecture/reviews", "/architecture/reviews?projectId=default")).toBe(true);
-    expect(isNavLinkActive("/architecture/reviews/new", "/architecture/reviews?projectId=default")).toBe(false);
-    expect(isNavLinkActive("/architecture/reviews/abc", "/architecture/reviews?projectId=default")).toBe(false);
+    expect(isNavLinkActive("/architecture/reviews", "/architecture/reviews")).toBe(true);
+    expect(isNavLinkActive("/architecture/reviews/new", "/architecture/reviews")).toBe(false);
+    expect(isNavLinkActive("/architecture/reviews/abc", "/architecture/reviews")).toBe(false);
   });
 
   it("matches /architecture/reviews/new exactly", () => {

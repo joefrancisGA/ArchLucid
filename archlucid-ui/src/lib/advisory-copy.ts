@@ -41,7 +41,7 @@ export const ADVISORY_SCANS_CANT_FIND_REVIEW_BODY =
 
 export const ADVISORY_SCANS_OPEN_REVIEW_PACKAGES_LABEL = "Open reviews";
 
-export const ADVISORY_SCANS_OPEN_REVIEW_PACKAGES_HREF = "/architecture/reviews?projectId=default";
+export const ADVISORY_SCANS_OPEN_REVIEW_PACKAGES_HREF = "/architecture/reviews";
 
 export const ADVISORY_SCANS_GENERATE_BUTTON_LABEL = "Generate advisory scan";
 

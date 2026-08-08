@@ -31,7 +31,7 @@ function resolveTrialNextAction(payload: TenantTrialStatusPayload | null): Trial
   }
 
   if (payload?.status === "Active") {
-    return { label: "Commit your first review", href: "/architecture/reviews?projectId=default" };
+    return { label: "Commit your first review", href: "/architecture/reviews" };
   }
 
   if (payload?.status === "Expired" || payload?.status === "ReadOnly" || payload?.status === "ExportOnly") {

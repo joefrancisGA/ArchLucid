@@ -90,7 +90,7 @@ export function buildFirstPilotReadinessRows(input: {
   const baselinesEntered = allBaselinesEntered(input.scorecard);
   const committedRunHref = input.signals.firstCommittedRunId
     ? `/architecture/reviews/${encodeURIComponent(input.signals.firstCommittedRunId)}`
-    : "/architecture/reviews?projectId=default";
+    : "/architecture/reviews";
   const configLintCopy = mapConfigLintReadinessForShell({ canAdmin, lint: input.configLint });
 
   const rows = applyHomeReadinessRowPresentation([

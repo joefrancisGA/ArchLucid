@@ -138,7 +138,7 @@ vi.mock("@/components/planning/PlanningHubClient", () => ({
   PlanningHubClient: () => <div data-testid="stub-planning-hub">Planning</div>,
 }));
 
-vi.mock("@/app/(operator)/insights/planning/_sections/load-planning-page-data", () => {
+vi.mock("@/app/(operator)/insights/improvement-planning/_sections/load-planning-page-data", () => {
   const summary = {
     generatedUtc: "2026-01-01T00:00:00.000Z",
     themeCount: 0,
@@ -193,7 +193,7 @@ vi.mock("@/app/(operator)/insights/executive-summary/_sections/load-value-report
 import SponsorReportExecutiveSummaryPage from "@/app/(operator)/insights/executive-summary/page";
 import AdvisoryScansPage from "@/app/(operator)/governance/advisory-scans/page";
 import DigestsPage from "@/app/(operator)/architecture/digests/page";
-import PlanningPage from "@/app/(operator)/insights/planning/page";
+import PlanningPage from "@/app/(operator)/insights/improvement-planning/page";
 
 expect.extend(toHaveNoViolations);
 

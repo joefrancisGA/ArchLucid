@@ -15,7 +15,7 @@ export function persistReviewsListReturnHref(href: string): void {
 
 export function readReviewsListReturnHref(): string {
   if (typeof window === "undefined") {
-    return "/architecture/reviews?projectId=default";
+    return "/architecture/reviews";
   }
 
   try {
@@ -28,5 +28,5 @@ export function readReviewsListReturnHref(): string {
     /* private mode */
   }
 
-  return "/architecture/reviews?projectId=default";
+  return "/architecture/reviews";
 }

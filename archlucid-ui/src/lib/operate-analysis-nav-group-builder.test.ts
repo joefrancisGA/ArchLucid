@@ -30,7 +30,7 @@ describe("OperateAnalysisNavGroupBuilder", () => {
       "/insights/search-review-evidence",
       "/insights/compare-two-reviews",
       "/insights/impact-preview",
-      "/insights/planning",
+      "/insights/improvement-planning",
       "/insights/architecture-scorecard",
       "/insights/patterns",
       "/insights/executive-summary",
@@ -51,7 +51,7 @@ describe("OperateAnalysisNavGroupBuilder", () => {
 
   it("lists Improvement planning after Impact preview in Insights nav", () => {
     const group = new OperateAnalysisNavGroupBuilder().build();
-    const planningIndex = group.links.findIndex((link) => link.href === "/insights/planning");
+    const planningIndex = group.links.findIndex((link) => link.href === "/insights/improvement-planning");
 
     expect(planningIndex).toBeGreaterThan(0);
     expect(group.links[planningIndex - 1]?.href).toBe("/insights/impact-preview");

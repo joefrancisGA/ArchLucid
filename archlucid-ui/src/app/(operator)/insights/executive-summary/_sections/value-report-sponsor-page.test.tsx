@@ -9,7 +9,7 @@ describe("ValueReportEmptyState", () => {
     render(<ValueReportEmptyState />);
 
     expect(screen.getByText("No finalized reviews in this report period")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Open reviews" })).toHaveAttribute("href", "/architecture/reviews?projectId=default");
+    expect(screen.getByRole("link", { name: "Open reviews" })).toHaveAttribute("href", "/architecture/reviews");
     expect(screen.getByRole("link", { name: "Start an architecture review" })).toHaveAttribute("href", "/architecture/reviews/new");
     expect(screen.getByRole("link", { name: "View sample value report" })).toHaveAttribute(
       "href",

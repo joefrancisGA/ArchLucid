@@ -55,7 +55,7 @@ function extractMasterTableRows(markdown: string): TrafficWorkbookRow[] {
   return rows;
 }
 
-describe("ui-route-traffic-product-learning (PRC)", () => {
+describe("ui-route-traffic-product-learning (INR)", () => {
   it("tracks Pilot feedback with honest workbook notes", () => {
     const rows = extractMasterTableRows(readTemplateMarkdown());
     const row = rows.find((candidate) => candidate.id === PRODUCT_LEARNING_TRAFFIC_ROW_ID);
@@ -65,6 +65,7 @@ describe("ui-route-traffic-product-learning (PRC)", () => {
     expect(row?.section).toBe(PRODUCT_LEARNING_TRAFFIC_SECTION);
     expect(row?.notes).toBe(PRODUCT_LEARNING_TRAFFIC_NOTE);
     expect(row?.notes).toContain("ProductLearningPageView");
-    expect(row?.notes).toContain("Sources");
+    expect(row?.notes).toContain("ProductLearningEvidenceOrientationStrip");
+    expect(row?.notes).toContain("Score 50");
   });
 });

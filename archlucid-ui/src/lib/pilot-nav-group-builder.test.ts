@@ -94,7 +94,7 @@ describe("PilotNavGroupBuilder", () => {
   it("lists Architectures and Reviews as peer object nav destinations", () => {
     const group = new PilotNavGroupBuilder().build();
     const architecturesLink = group.links.find((link) => link.href === ARCHITECTURES_LIST_PATH);
-    const reviewsListLink = group.links.find((link) => link.href === "/architecture/reviews?projectId=default");
+    const reviewsListLink = group.links.find((link) => link.href === "/architecture/reviews");
 
     expect(architecturesLink?.label).toBe(ARCHITECTURE_DRAFTS_LIST_LABEL);
     expect(reviewsListLink?.label).toBe("Reviews");

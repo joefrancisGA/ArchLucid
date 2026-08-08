@@ -26,7 +26,7 @@ const BUYER_POLISHED_SHELL_OMIT_NAV_HREFS = new Set<string>(["/administration/ap
 
 /** In buyer-polished operator builds, omit routes that read as unfinished operator tooling or leak internal surfaces. */
 const DEMO_MODE_OMIT_OPERATOR_HREFS = new Set<string>([
-  "/insights/planning",
+  "/insights/improvement-planning",
   "/internal/product-learning",
   "/internal/recommendation-learning",
   IMPACT_PREVIEW_PATH,

@@ -5,7 +5,7 @@
 export const PLANNING_TRAFFIC_ROW_ID = "PLA";
 
 /** Canonical path tracked on the PLA workbook row. */
-export const PLANNING_TRAFFIC_PATH = "/insights/planning";
+export const PLANNING_TRAFFIC_PATH = "/insights/improvement-planning";
 
 /** Workbook Section column value. */
 export const PLANNING_TRAFFIC_SECTION = "Marketing";

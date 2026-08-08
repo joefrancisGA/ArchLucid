@@ -2,9 +2,13 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { Badge } from "@/components/ui/badge";
+import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown } from "lucide-react";
+import {
+  findingConfidenceExplanation,
+  findingEvidenceCountPlainLine,
+} from "@/lib/finding-explainability-summary";
 import type { FindingExplainability } from "@/types/explanation";
 import { normalizeFindingConfidenceLevel } from "@/types/explanation";
 
@@ -40,6 +44,9 @@ function TraceSection(props: {
 
 /**
  * Sponsor-readable hierarchy for persisted explainability traces (assessment Tier 2).
+ *
+ * Ordered for a human reader: what ArchLucid decided, what evidence backs it, how certain it is —
+ * with the rule identifier (an implementation detail) collapsed underneath.
  */
 export function ExplainabilityTraceTree(props: ExplainabilityTraceTreeProps) {
   const { data } = props;
@@ -51,6 +58,13 @@ export function ExplainabilityTraceTree(props: ExplainabilityTraceTreeProps) {
   const confidenceLabel = normalizeFindingConfidenceLevel(data.confidenceLevel ?? null);
   const evidenceRefs = data.evidence?.evidenceRefs ?? [];
   const rules = data.rulesApplied.length > 0 ? data.rulesApplied : data.evidence?.ruleId ? [data.evidence.ruleId] : [];
+  const missingTraceFields = data.missingTraceFields?.filter((field) => field.trim().length > 0) ?? [];
+
+  const confidence = findingConfidenceExplanation({
+    level: confidenceLabel,
+    evidenceRefCount: evidenceRefs.length,
+    missingTraceFieldCount: missingTraceFields.length,
+  });
 
   return (
     <div className="space-y-2" data-testid="explainability-trace-tree">
@@ -67,6 +81,32 @@ export function ExplainabilityTraceTree(props: ExplainabilityTraceTreeProps) {
         <p className={cn("m-0 mt-2 leading-relaxed text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>{decisionText}</p>
       </section>
 
+      <TraceSection title="Evidence used" testId="explainability-trace-evidence" defaultOpen>
+        {evidenceRefs.length === 0 ? (
+          <p className="m-0 text-neutral-600 dark:text-neutral-400">{EXPLAINABILITY_TRACE_EVIDENCE_EMPTY_COPY}</p>
+        ) : (
+          <>
+            <p className={cn("m-0 mb-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+              {findingEvidenceCountPlainLine(evidenceRefs)}
+            </p>
+            <ul className="m-0 list-disc space-y-1 pl-5">
+              {evidenceRefs.map((ref, index) => (
+                <li key={`${ref}-${index}`} className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>
+                  {ref}
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+      </TraceSection>
+
+      <TraceSection title="Confidence" testId="explainability-trace-confidence" defaultOpen>
+        {confidence.label !== null ? <FindingConfidenceBadge level={confidenceLabel} /> : null}
+        <p className={cn("m-0 mt-2 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+          {confidence.reason}
+        </p>
+      </TraceSection>
+
       <TraceSection title="Rule applied" testId="explainability-trace-rules">
         {rules.length === 0 ? (
           <p className="m-0 text-neutral-600 dark:text-neutral-400">No rules recorded.</p>
@@ -76,32 +116,6 @@ export function ExplainabilityTraceTree(props: ExplainabilityTraceTreeProps) {
               <li key={`${rule}-${index}`}>{rule}</li>
             ))}
           </ul>
-        )}
-      </TraceSection>
-
-      <TraceSection
-        title="Evidence cited"
-        testId="explainability-trace-evidence"
-        defaultOpen={evidenceRefs.length === 0}
-      >
-        {evidenceRefs.length === 0 ? (
-          <p className="m-0 text-neutral-600 dark:text-neutral-400">{EXPLAINABILITY_TRACE_EVIDENCE_EMPTY_COPY}</p>
-        ) : (
-          <ul className="m-0 list-disc space-y-1 pl-5">
-            {evidenceRefs.map((ref, index) => (
-              <li key={`${ref}-${index}`} className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>
-                {ref}
-              </li>
-            ))}
-          </ul>
-        )}
-      </TraceSection>
-
-      <TraceSection title="Confidence" testId="explainability-trace-confidence" defaultOpen>
-        {confidenceLabel !== null ? (
-          <Badge variant="secondary">{confidenceLabel}</Badge>
-        ) : (
-          <p className="m-0 text-neutral-600 dark:text-neutral-400">Confidence not recorded for this finding.</p>
         )}
       </TraceSection>
     </div>

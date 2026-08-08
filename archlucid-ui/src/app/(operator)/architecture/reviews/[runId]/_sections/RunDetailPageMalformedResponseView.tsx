@@ -27,7 +27,7 @@ export function RunDetailPageMalformedResponseView(props: { readonly message: st
           errorCode="malformed-response"
         />
         <p>
-          <Link className={OPERATOR_LINK.nav} href="/architecture/reviews?projectId=default">
+          <Link className={OPERATOR_LINK.nav} href="/architecture/reviews">
             ← Back to reviews
           </Link>
         </p>

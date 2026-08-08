@@ -11,7 +11,7 @@ export default function ManifestDetailNotFound() {
       <OperatorBrandedNotFound showProcessingHint />
       <p className={cn("mt-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         Open a finalized review from{" "}
-        <Link href="/architecture/reviews?projectId=default" className={OPERATOR_LINK.nav}>
+        <Link href="/architecture/reviews" className={OPERATOR_LINK.nav}>
           reviews
         </Link>{" "}
         to reach its signed review record.

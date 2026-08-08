@@ -88,7 +88,7 @@ const PAGES = [
   { name: "Admin health", path: "/internal/health" },
   { name: "Admin configuration", path: "/internal/configuration" },
   { name: "Create architecture (canonical /reviews)", path: "/architecture/reviews/new" },
-  { name: "Reviews list (canonical /reviews)", path: "/architecture/reviews?projectId=default" },
+  { name: "Reviews list (canonical /reviews)", path: "/architecture/reviews" },
   { name: "Run detail (canonical /reviews)", path: `/architecture/reviews/${FIXTURE_RUN_ID}` },
   { name: "Run provenance (canonical /reviews)", path: `/architecture/reviews/${FIXTURE_RUN_ID}/provenance` },
   {
@@ -128,7 +128,7 @@ const LIVE_A11Y_PR_SLICE_LEN = 28;
 /** Golden-path operator surfaces — always in the PR-visible subset (assessment backlog item 18). */
 const GOLDEN_PATH_OPERATOR_A11Y_PAGES = [
   { name: "Overview", path: "/" },
-  { name: "Reviews list (canonical /reviews)", path: "/architecture/reviews?projectId=default" },
+  { name: "Reviews list (canonical /reviews)", path: "/architecture/reviews" },
   { name: "Run detail (canonical /reviews)", path: `/architecture/reviews/${FIXTURE_RUN_ID}` },
   { name: "Manifest detail", path: `/signed-records/${FIXTURE_MANIFEST_ID}` },
 ] as const;

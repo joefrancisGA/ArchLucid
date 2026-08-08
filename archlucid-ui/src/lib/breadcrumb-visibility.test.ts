@@ -130,7 +130,7 @@ describe("shouldShowBreadcrumbTrail", () => {
 
   it("shows trails when reviews list return href preserves filters", () => {
     const reviewId = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
-    const filteredListHref = "/architecture/reviews?projectId=default&status=open";
+    const filteredListHref = "/architecture/reviews&status=open";
 
     expect(
       shouldShowBreadcrumbTrail(`/architecture/reviews/${reviewId}`, trail(`/architecture/reviews/${reviewId}`, { reviewsListReturnHref: filteredListHref }), {

@@ -96,7 +96,7 @@ describe("SidebarNav (primary navigation)", () => {
     );
     expect(within(reviewNav).getByRole("link", { name: "Reviews" })).toHaveAttribute(
       "href",
-      "/architecture/reviews?projectId=default",
+      "/architecture/reviews",
     );
 
     expect(screen.queryByTestId("operate-features-unlock-panel")).toBeNull();

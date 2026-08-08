@@ -105,7 +105,7 @@ const BLUEPRINT_STEPS: WizardBlueprintStep[] = [
         </p>
         <p className="m-0">
           <Link
-            href="/architecture/reviews?projectId=default"
+            href="/architecture/reviews"
             className="font-medium text-teal-700 underline-offset-4 hover:underline dark:text-teal-400"
           >
             Open Reviews → pick your review →
@@ -124,7 +124,7 @@ const BLUEPRINT_STEPS: WizardBlueprintStep[] = [
         </p>
         <p className="m-0">
           <Link
-            href="/architecture/reviews?projectId=default"
+            href="/architecture/reviews"
             className="font-medium text-teal-700 underline-offset-4 hover:underline dark:text-teal-400"
           >
             Open Reviews → finalize from review detail →

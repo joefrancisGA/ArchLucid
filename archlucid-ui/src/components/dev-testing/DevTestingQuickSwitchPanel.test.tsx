@@ -95,7 +95,7 @@ describe("DevTestingQuickSwitchPanel", () => {
     const manifestLink = screen.getByTestId("dev-quick-jump-manifest-44444444-aaaa-bbbb-cccc-dddddddddddd");
     const artifactLink = screen.getByTestId("dev-quick-jump-artifact-55555555-aaaa-bbbb-cccc-dddddddddddd");
 
-    expect(planLink).toHaveAttribute("href", "/insights/planning/plans/11111111-aaaa-bbbb-cccc-dddddddddddd");
+    expect(planLink).toHaveAttribute("href", "/insights/improvement-planning/plans/11111111-aaaa-bbbb-cccc-dddddddddddd");
     expect(runLink).toHaveAttribute("href", "/architecture/reviews/22222222-aaaa-bbbb-cccc-dddddddddddd");
     expect(approvalLink).toHaveAttribute(
       "href",

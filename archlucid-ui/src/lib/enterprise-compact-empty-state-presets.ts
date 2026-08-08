@@ -46,7 +46,7 @@ export const SEARCH_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
   actions: [
     { label: "Open Ask", href: "/insights/ask-review-questions", variant: "outline" },
     { label: "Evidence graph", href: "/insights/evidence-graph", variant: "outline" },
-    { label: "View reviews", href: "/architecture/reviews?projectId=default", variant: "outline" },
+    { label: "View reviews", href: "/architecture/reviews", variant: "outline" },
   ],
 };
 
@@ -68,7 +68,7 @@ export const COMPARE_WAITING_COMPACT: EnterpriseCompactEmptyStateProps = {
   title: "Select two reviews to compare",
   description: "Choose a baseline and updated review to continue.",
   actions: [
-    { label: "Open reviews", href: "/architecture/reviews?projectId=default", variant: "primary" },
+    { label: "Open reviews", href: "/architecture/reviews", variant: "primary" },
   ],
 };
 
@@ -80,7 +80,7 @@ export const COMPARE_ZERO_FINALIZED_COMPACT: EnterpriseCompactEmptyStateProps = 
     "You need at least two finalized reviews before ArchLucid can compare changes over time.",
   actions: [
     { label: BUYER_START_ARCHITECTURE_REVIEW_CTA, href: "/architecture/reviews/new", variant: "primary" },
-    { label: "Open reviews", href: "/architecture/reviews?projectId=default", variant: "outline" },
+    { label: "Open reviews", href: "/architecture/reviews", variant: "outline" },
   ],
 };
 
@@ -90,7 +90,7 @@ export const COMPARE_INSUFFICIENT_FINALIZED_COMPACT: EnterpriseCompactEmptyState
   title: "One finalized review available",
   description: "Finalize one more review to compare changes over time.",
   actions: [
-    { label: "Open reviews", href: "/architecture/reviews?projectId=default", variant: "primary" },
+    { label: "Open reviews", href: "/architecture/reviews", variant: "primary" },
     { label: BUYER_START_ARCHITECTURE_REVIEW_CTA, href: "/architecture/reviews/new", variant: "outline" },
   ],
 };
@@ -121,7 +121,7 @@ export const DECISION_REGISTER_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps =
   description:
     "Finalize a review to lock its signed review record. Architecture decisions from that package then appear here with findings and evidence lineage.",
   actions: [
-    { label: "Open reviews", href: "/architecture/reviews?projectId=default", variant: "primary" },
+    { label: "Open reviews", href: "/architecture/reviews", variant: "primary" },
     { label: "Start architecture review", href: "/architecture/reviews/new", variant: "outline" },
     { label: "Open governance workflow", href: GOVERNANCE_APPROVAL_QUEUE_PATH, variant: "outline" },
   ],
@@ -162,6 +162,6 @@ export const COMPARE_WAITING_BUYER_COMPACT: EnterpriseCompactEmptyStateProps = {
   title: "Select two reviews to compare",
   description: "Choose a baseline and updated review to continue.",
   actions: [
-    { label: "Open reviews", href: "/architecture/reviews?projectId=default", variant: "primary" },
+    { label: "Open reviews", href: "/architecture/reviews", variant: "primary" },
   ],
 };
