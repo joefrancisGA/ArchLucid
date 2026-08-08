@@ -26,6 +26,7 @@ import {
 } from "./search-page-copy";
 import { SearchRetrievalHitCard } from "./SearchRetrievalHitCard";
 import { SearchReviewEvidenceCiteStrip } from "./SearchReviewEvidenceCiteStrip";
+import { SearchReviewEvidenceOrientationStrip } from "./SearchReviewEvidenceOrientationStrip";
 
 type SearchPageViewProps = {
   model: SearchPageViewModel;
@@ -73,6 +74,8 @@ export function SearchPageView({ model }: SearchPageViewProps) {
           actions={<PageContextualHelpButton />}
         />
 
+        <SearchReviewEvidenceOrientationStrip />
+
         <DemoWorkspaceCapabilityUnavailablePanel
           layout="embedded"
           capability="Search review evidence"
@@ -91,6 +94,8 @@ export function SearchPageView({ model }: SearchPageViewProps) {
         navHref={SEARCH_REVIEW_EVIDENCE_PATH}
         actions={<PageContextualHelpButton />}
       />
+
+      <SearchReviewEvidenceOrientationStrip />
 
       {scopedRunId.length > 0 ? <SearchReviewEvidenceCiteStrip runId={scopedRunId} /> : null}
 
