@@ -69,5 +69,6 @@ describe("ui-route-traffic-deployment-status (ADE)", () => {
     expect(row?.section).toBe(DEPLOYMENT_STATUS_TRAFFIC_SECTION);
     expect(row?.notes).toBe(DEPLOYMENT_STATUS_TRAFFIC_NOTE);
     expect(row?.notes).toContain("AdminDeploymentStatusPageView");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
