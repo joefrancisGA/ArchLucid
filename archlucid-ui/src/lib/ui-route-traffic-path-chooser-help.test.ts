@@ -68,5 +68,6 @@ describe("ui-route-traffic-path-chooser-help (HPX)", () => {
     expect(row?.notes).toContain("HelpPathChooserGuideView");
     expect(row?.notes).toContain("TB-1712");
     expect(row?.notes).toContain("Score 52");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
