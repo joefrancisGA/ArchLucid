@@ -66,5 +66,6 @@ describe("ui-route-traffic-first-review-help (FI)", () => {
     expect(row?.notes).toBe(FIRST_REVIEW_HELP_TRAFFIC_NOTE);
     expect(row?.notes).toContain("HelpFirstReviewEvidenceChecklistGuideView");
     expect(row?.notes).toContain("Not a redirect to buyer core-pilot");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
