@@ -65,5 +65,6 @@ describe("ui-route-traffic-compliance-journey (COM)", () => {
     expect(row?.section).toBe(COMPLIANCE_JOURNEY_TRAFFIC_SECTION);
     expect(row?.notes).toBe(COMPLIANCE_JOURNEY_TRAFFIC_NOTE);
     expect(row?.notes).toContain("ComplianceJourneyEvidenceOrientationStrip");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
