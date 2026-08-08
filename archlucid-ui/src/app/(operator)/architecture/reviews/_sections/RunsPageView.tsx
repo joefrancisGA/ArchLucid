@@ -1,17 +1,11 @@
 import { cn } from "@/lib/utils";
 
-import { ReviewsHubBeforeAfterDeltaPanel } from "./ReviewsHubBeforeAfterDeltaPanel";
-import { CollapsibleSection } from "@/components/CollapsibleSection";
-import { InlineGuidanceText } from "@/components/InlineGuidanceText";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
 import { OperatorMalformedCallout, OperatorTryNext } from "@/components/OperatorShellMessage";
 import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
-import { OperatorWelcomeOnboarding } from "@/components/OperatorWelcomeOnboarding";
-import { RunsIndexBeforeAfterPanel } from "@/components/RunsIndexBeforeAfterPanel";
-import { RunsListAggregateErrorBoundary } from "@/components/RunsListAggregateErrorBoundary";
 import { RunsListProofHeadline } from "@/components/RunsListProofHeadline";
 import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { REVIEWS_LIST_PATH } from "@/lib/architecture-routes";
@@ -28,12 +22,20 @@ import {
   REVIEWS_HUB_PAGE_SUBTITLE,
   REVIEWS_HUB_PAGE_TITLE,
 } from "./reviews-hub-copy";
-import { ReviewsHubExploreSamples } from "./ReviewsHubExploreSamples";
 import { ReviewsHubHeaderActions } from "./ReviewsHubHeaderActions";
-import { ReviewsHubPackageIncludes } from "./ReviewsHubPackageIncludes";
+import {
+  OperatorWelcomeOnboardingDeferred,
+  ReviewsHubBeforeAfterDeltaPanelDeferred,
+  ReviewsHubExploreSamplesDeferred,
+  ReviewsHubPackageIncludesDeferred,
+  RunsIndexBeforeAfterPanelDeferred,
+  RunsListAggregateErrorBoundaryDeferred,
+} from "./reviews-hub-deferred-chunks";
 import { ReviewsHubResumeDrafts } from "./ReviewsHubResumeDrafts";
 import { ReviewsHubReviewInventory } from "./ReviewsHubReviewInventory";
 import { ReviewsHubSummaryRow } from "./ReviewsHubSummaryRow";
+import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { InlineGuidanceText } from "@/components/InlineGuidanceText";
 import type { RunsPageModel } from "./runs-page-model";
 import { deriveReviewsWorkspaceSummary } from "./reviews-workspace-summary";
 
@@ -56,7 +58,7 @@ export function RunsPageView(props: Props) {
 
   return (
     <OperatorPageContainer variant="dashboard">
-      <OperatorWelcomeOnboarding serverEligible={m.welcomeOnboardingEligible} />
+      <OperatorWelcomeOnboardingDeferred serverEligible={m.welcomeOnboardingEligible} />
       <OperatorPageHeader
         title={REVIEWS_HUB_PAGE_TITLE}
         subtitle={REVIEWS_HUB_PAGE_SUBTITLE}
@@ -89,8 +91,8 @@ export function RunsPageView(props: Props) {
               defaultOpen={false}
               sectionTestId="reviews-hub-more-ways"
             >
-              <ReviewsHubExploreSamples />
-              <ReviewsHubPackageIncludes />
+              <ReviewsHubExploreSamplesDeferred />
+              <ReviewsHubPackageIncludesDeferred />
             </CollapsibleSection>
           ) : null}
         </>
@@ -102,10 +104,10 @@ export function RunsPageView(props: Props) {
         </div>
       ) : null}
 
-      {hubLoadOk && hasReviews ? <ReviewsHubBeforeAfterDeltaPanel /> : null}
+      {hubLoadOk && hasReviews ? <ReviewsHubBeforeAfterDeltaPanelDeferred /> : null}
 
       {hubLoadOk && hasReviews && m.firstCommittedRunId !== null ? (
-        <RunsIndexBeforeAfterPanel committedRunId={m.firstCommittedRunId} />
+        <RunsIndexBeforeAfterPanelDeferred committedRunId={m.firstCommittedRunId} />
       ) : null}
 
       {loadFailure ? (
@@ -148,7 +150,7 @@ export function RunsPageView(props: Props) {
             {REVIEWS_HUB_ADVANCED_LIST_DISCLOSURE}
           </summary>
           <div className="mt-4">
-            <RunsListAggregateErrorBoundary
+            <RunsListAggregateErrorBoundaryDeferred
               runs={m.runs}
               projectId={m.projectId}
               page={m.page}
