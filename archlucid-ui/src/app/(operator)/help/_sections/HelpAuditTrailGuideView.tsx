@@ -1,19 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
-
+import {
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import { HelpAuditTrailPageHeader } from "@/app/(operator)/help/_sections/HelpAuditTrailPageHeader";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
-import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   AUDIT_TRAIL_HELP_OVERVIEW,
   AUDIT_TRAIL_HELP_PRIMARY_ACTIONS,
-  AUDIT_TRAIL_HELP_SCOPE_DETAILS_TRIGGER,
   auditTrailHelpPageSubtitle,
 } from "@/lib/audit-trail-help-guide-content";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -28,7 +34,6 @@ import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presenta
 import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
-
 type HelpAuditTrailGuideViewProps = {
   readonly entry: ProductDocumentationEntry;
   readonly markdown: string;
@@ -114,21 +119,9 @@ export function HelpAuditTrailGuideView(props: HelpAuditTrailGuideViewProps): Re
 
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
         <div className={cn("min-w-0 space-y-6", "max-w-[42rem] lg:max-w-none")}>
-          {buyerPolishedShell ? (
-            <CollapsibleSection
-              title={AUDIT_TRAIL_HELP_SCOPE_DETAILS_TRIGGER}
-              defaultOpen={false}
-              sectionTestId="help-audit-trail-scope-details"
-            >
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-audit-trail-overview">
-                {AUDIT_TRAIL_HELP_OVERVIEW}
-              </p>
-            </CollapsibleSection>
-          ) : (
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-audit-trail-overview">
-              {AUDIT_TRAIL_HELP_OVERVIEW}
-            </p>
-          )}
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-audit-trail-overview">
+            {AUDIT_TRAIL_HELP_OVERVIEW}
+          </p>
 
           <div
             key={contentKey}

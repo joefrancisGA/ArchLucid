@@ -1,8 +1,6 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-
-import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
@@ -13,14 +11,12 @@ import {
   IMPACT_PREVIEW_ORIENTATION,
   IMPACT_PREVIEW_PAGE_TITLE,
   IMPACT_PREVIEW_PLANNING_HREF,
-  IMPACT_PREVIEW_SCOPE_DETAILS_TRIGGER,
   IMPACT_PREVIEW_TRUST_NOTICE,
   impactPreviewPageSubtitle,
 } from "@/lib/impact-preview-page-copy";
 import { resolveImpactPreviewPageState } from "@/lib/resolve-impact-preview-page-state";
 import { resolveImpactPreviewRecommendation } from "@/lib/resolve-impact-preview-recommendation";
 import { resolveImpactPreviewSummaryMetrics } from "@/lib/resolve-impact-preview-summary-metrics";
-
 import type { EvolutionReviewPageViewModel } from "./evolution-review-view-model";
 import { ImpactPreviewEmptyState } from "./ImpactPreviewEmptyState";
 import { ImpactPreviewEvidenceBasisSection } from "./ImpactPreviewEvidenceBasisSection";
@@ -34,7 +30,6 @@ import { ImpactPreviewSimulationResultsSection } from "./ImpactPreviewSimulation
 import { ImpactPreviewSummaryRow } from "./ImpactPreviewSummaryRow";
 import { useImpactPreviewBaselineAvailability } from "./use-impact-preview-baseline-availability";
 import { useIsOperatorNavHrefReachable } from "./use-is-operator-nav-href-reachable";
-
 type Props = {
   readonly model: EvolutionReviewPageViewModel;
 };
@@ -87,21 +82,14 @@ export function EvolutionReviewPageView(props: Props): React.JSX.Element {
           void m.loadList();
         }}
       />
-{buyerPolishedShell ? (
-        <CollapsibleSection
-          title={IMPACT_PREVIEW_SCOPE_DETAILS_TRIGGER}
-          defaultOpen={false}
-          sectionTestId="impact-preview-scope-details"
-        >
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{IMPACT_PREVIEW_ORIENTATION}</p>
-          <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>{IMPACT_PREVIEW_TRUST_NOTICE}</p>
-        </CollapsibleSection>
-      ) : (
-        <>
-          <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{IMPACT_PREVIEW_ORIENTATION}</p>
-          <ImpactPreviewHowItWorksSection />
-        </>
-      )}
+
+      <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+        {IMPACT_PREVIEW_ORIENTATION}
+      </p>
+      <p className={cn("m-0 mt-2 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        {IMPACT_PREVIEW_TRUST_NOTICE}
+      </p>
+      {!buyerPolishedShell ? <ImpactPreviewHowItWorksSection /> : null}
 
       {m.listLoading && m.candidates.length === 0 && pageState === "ready" ? (
         <OperatorLoadingNotice>

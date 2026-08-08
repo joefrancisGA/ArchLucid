@@ -2,8 +2,11 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
-
+import {
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import { ComplianceDriftChartPdfExport } from "@/components/ComplianceDriftChartPdfExport";
 import { DecisionsNeededSummaryCard } from "@/components/governance/DecisionsNeededSummaryCard";
 import { GovernanceBypassAuditPanel } from "@/components/governance/GovernanceBypassAuditPanel";
@@ -14,28 +17,43 @@ import { LayerHeader } from "@/components/LayerHeader";
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { getComplianceDriftTrend, getGovernanceDashboard } from "@/lib/api";
+import {
+  Card,
+  CardContent,
+} from "@/components/ui/card";
+import {
+  getComplianceDriftTrend,
+  getGovernanceDashboard,
+} from "@/lib/api";
 import { getGovernanceDecisionsNeededSummary } from "@/lib/api/governance-stickiness-api";
 import type { GovernanceDecisionsNeededSummary } from "@/lib/api/governance-stickiness-api";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { fetchPilotValueReportJson } from "@/lib/pilot-value-report-fetch";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
-import { getEffectiveBrowserProxyScopeHeaders, readOperatorScopeFromStorage } from "@/lib/operator-scope-storage";
-import { hoursSurfaced, formatHours, HOURS_PER_PRECOMMIT_BLOCK } from "@/lib/roi-assumptions";
+import {
+  getEffectiveBrowserProxyScopeHeaders,
+  readOperatorScopeFromStorage,
+} from "@/lib/operator-scope-storage";
+import {
+  hoursSurfaced,
+  formatHours,
+  HOURS_PER_PRECOMMIT_BLOCK,
+} from "@/lib/roi-assumptions";
 import { formatExecutiveWorkspaceScopeDescription } from "@/lib/workspace-health-scope-banner";
 import { countAuditEventsInWindow } from "@/lib/workspace-health-audit-count";
 import { computeWorkspaceHealthSlaStats } from "@/lib/workspace-health-sla";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   executiveWorkspaceHealthKpiTitle,
-  EXECUTIVE_WORKSPACE_HEALTH_LAYER_GUIDANCE_TRIGGER,
   EXECUTIVE_WORKSPACE_HEALTH_SESSION_SCOPE_SUMMARY,
 } from "@/lib/executive-workspace-health-page-copy";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance-route-paths";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  OPERATOR_LINK,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
 import type { ComplianceDriftTrendPoint, GovernanceDashboardSummary } from "@/types/governance-dashboard";
 import type { PilotValueReportJson } from "@/types/pilot-value-report";
 
@@ -179,10 +197,7 @@ export function ExecutiveWorkspaceHealthDashboard() {
     <LayerHeader
       pageKey="governance-dashboard"
       density={buyerPolishedShell ? "compact" : "default"}
-      collapsibleGuidance={
-        buyerPolishedShell ? EXECUTIVE_WORKSPACE_HEALTH_LAYER_GUIDANCE_TRIGGER : undefined
-      }
-    />
+/>
   );
 
   if (state.status === "loading" || state.status === "idle") {

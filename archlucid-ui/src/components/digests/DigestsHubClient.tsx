@@ -1,26 +1,24 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 import { useCallback, useMemo, useState, type ReactElement } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { resolveDigestNextBestAction } from "@/lib/digest-setup-gap-actions";
 import { digestHashFragment } from "@/lib/digests-browse-deep-link";
 import {
-  DIGESTS_PRIVACY_DETAILS_TRIGGER,
   DIGESTS_PRIVACY_NOTE,
   DIGESTS_SCHEDULE_PREVIEW_LABEL,
   digestsBrowsePageSubtitle,
   digestsSchedulePageSubtitle,
 } from "@/lib/digests-browse-copy";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   DIGESTS_BROWSE_TAB_RESPONSIBILITY,
   DIGESTS_SCHEDULE_TAB_RESPONSIBILITY,
@@ -68,11 +66,11 @@ const PREVIEW_LATEST_TITLE = "Opens the most recently generated digest summary."
  * Single `/digests` surface: browse, subscriptions, and executive digest schedule. Tab state in `?tab=` for deep links.
  */
 export function DigestsHubClient(): ReactElement {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const router: ReturnType<typeof useRouter> = useRouter();
   const pathname: string = usePathname();
   const searchParams = useSearchParams();
   const canMutate: boolean = useOperateCapability();
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const rawTab: string | null = searchParams.get(TAB_PARAM);
 
   const [healthSnap, setHealthSnap] = useState<WeeklyDigestHealthDto | null>(null);
@@ -197,13 +195,7 @@ export function DigestsHubClient(): ReactElement {
           })}
         </TabsList>
 
-        {activeTab === "schedule" ? (
-          <div className="mt-4">
-</div>
-        ) : (
-)}
-
-        {activeTab === "schedule" ? (
+{activeTab === "schedule" ? (
           <WeeklyDigestHealthBanner
             refreshToken={healthRefreshToken}
             onHealthLoaded={onHealthLoaded}
@@ -219,16 +211,7 @@ export function DigestsHubClient(): ReactElement {
         )}
 
         {activeTab !== "subscriptions" && activeTab !== "schedule" ? (
-          buyerPolishedShell ? (
-            <CollapsibleSection
-              title={DIGESTS_PRIVACY_DETAILS_TRIGGER}
-              defaultOpen={false}
-              sectionTestId="digests-privacy-details"
-            >
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{DIGESTS_PRIVACY_NOTE}</p>
-            </CollapsibleSection>
-          ) : (
-            <p
+          <p
               className={cn(
                 "mb-4 m-0 max-w-3xl rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400",
                 OPERATOR_TYPOGRAPHY.helper,
@@ -237,7 +220,6 @@ export function DigestsHubClient(): ReactElement {
             >
               {DIGESTS_PRIVACY_NOTE}
             </p>
-          )
         ) : null}
 
         <TabsContent value="browse" className="mt-4" data-testid="digests-hub-panel">

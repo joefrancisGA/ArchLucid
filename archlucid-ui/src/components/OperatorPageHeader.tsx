@@ -6,7 +6,8 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type OperatorPageHeaderProps = {
   title: string;
-  subtitle?: string;
+  /** Plain string or rich lead (e.g. bold label prefix on Overview). */
+  subtitle?: ReactNode;
   /**
    * Optional classes for the subtitle paragraph (non-`navHref` path).
    * Overview passes `max-w-none` so short dashboard leads use the full work surface;

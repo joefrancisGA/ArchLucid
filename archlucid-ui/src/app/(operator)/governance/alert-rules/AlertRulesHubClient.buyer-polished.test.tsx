@@ -81,15 +81,15 @@ describe("AlertRulesHubClient buyer-polished shell", () => {
     tabValue.current = null;
   });
 
-  it("uses buyer subtitle, layer guidance, refresh, and collapsed scope copy", () => {
+  it("uses buyer subtitle, refresh, and omits About layer/scope chrome", () => {
     render(<AlertRulesHubClient />);
 
     expect(screen.getByText(BUYER_ALERTS_CONFIGURATION_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.queryByText(ALERTS_CONFIGURATION_PAGE_SUBTITLE)).not.toBeInTheDocument();
-    expect(screen.getByTestId("layer-header-collapsible-guidance")).toBeInTheDocument();
+    expect(screen.queryByTestId("layer-header-collapsible-guidance")).toBeNull(); // TB-2093
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("alert-rules-refresh-button")).toBeInTheDocument();
-    expect(screen.getByTestId("alert-rules-scope-details")).toBeInTheDocument();
+    expect(screen.queryByTestId("alert-rules-scope-details")).toBeNull(); // TB-2093
     expect(screen.queryByText(GOVERNANCE_OVERVIEW_PAGE_LEAD)).not.toBeInTheDocument();
   });
 });

@@ -2,10 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
 import { cn } from "@/lib/utils";
-
-import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { Button } from "@/components/ui/button";
 import {
   IDENTITY_PROVIDERS_NAV_DIAGNOSTICS,
@@ -16,15 +13,15 @@ import {
   IDENTITY_PROVIDERS_PAGE_INTRO,
   IDENTITY_PROVIDERS_PAGE_TITLE,
   IDENTITY_PROVIDERS_SAFETY_NOTICE,
-  IDENTITY_PROVIDERS_SCOPE_DETAILS_TRIGGER,
   identityProvidersPageSubtitle,
 } from "@/lib/identity-providers-settings-copy";
 import type { IdentityProvidersNavId } from "@/lib/identity-providers-settings-types";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-
+import {
+  OPERATOR_LINK,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
 import { IdentityProvidersSettingsPageHeader } from "./IdentityProvidersSettingsPageHeader";
-
 const NAV_ITEMS: ReadonlyArray<{ readonly id: IdentityProvidersNavId; readonly label: string; readonly href: string }> = [
   { id: "overview", label: IDENTITY_PROVIDERS_NAV_OVERVIEW, href: "/administration/identity-providers" },
   { id: "saml", label: IDENTITY_PROVIDERS_NAV_SAML, href: "/administration/identity-providers/saml" },
@@ -74,9 +71,6 @@ export function IdentityProvidersSettingsShell(props: IdentityProvidersSettingsS
     (isOverviewPage
       ? identityProvidersPageSubtitle(buyerPolishedShell)
       : (props.pageIntro ?? IDENTITY_PROVIDERS_PAGE_INTRO));
-  const scopeOverview = isOverviewPage
-    ? `${IDENTITY_PROVIDERS_PAGE_INTRO} ${IDENTITY_PROVIDERS_SAFETY_NOTICE}`
-    : `${props.pageIntro ?? ""} ${IDENTITY_PROVIDERS_SAFETY_NOTICE}`.trim();
 
   return (
     <div className="w-full max-w-4xl space-y-6" data-testid="identity-providers-settings-shell">
@@ -92,24 +86,17 @@ export function IdentityProvidersSettingsShell(props: IdentityProvidersSettingsS
         onRefresh={props.onRefresh}
       />
 
-      {buyerPolishedShell ? (
-        <CollapsibleSection
-          title={IDENTITY_PROVIDERS_SCOPE_DETAILS_TRIGGER}
-          defaultOpen={false}
-          sectionTestId="identity-providers-scope-details"
-        >
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="identity-providers-scope-overview">
-            {scopeOverview}
-          </p>
-        </CollapsibleSection>
-      ) : null}
-
-      {!buyerPolishedShell && isOverviewPage ? (
+      {isOverviewPage ? (
         <div className="space-y-2">
-          <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-            {IDENTITY_PROVIDERS_PAGE_INTRO}
-          </p>
-          <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          {!buyerPolishedShell ? (
+            <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+              {IDENTITY_PROVIDERS_PAGE_INTRO}
+            </p>
+          ) : null}
+          <p
+            className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="identity-providers-safety-notice"
+          >
             {IDENTITY_PROVIDERS_SAFETY_NOTICE}
           </p>
         </div>

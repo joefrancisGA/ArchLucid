@@ -1,15 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
-
+import {
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import { HelpRepeatReviewLoopPageHeader } from "@/app/(operator)/help/_sections/HelpRepeatReviewLoopPageHeader";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
-import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   DESIGN_TOKENS,
@@ -24,11 +31,9 @@ import type { ProductDocumentationEntry } from "@/lib/product-documentation-regi
 import {
   REPEAT_REVIEW_LOOP_HELP_OVERVIEW,
   REPEAT_REVIEW_LOOP_HELP_PRIMARY_ACTIONS,
-  REPEAT_REVIEW_LOOP_HELP_SCOPE_DETAILS_TRIGGER,
   repeatReviewLoopHelpPageSubtitle,
 } from "@/lib/repeat-review-loop-help-guide-content";
 import { cn } from "@/lib/utils";
-
 type HelpRepeatReviewLoopGuideViewProps = {
   readonly entry: ProductDocumentationEntry;
   readonly markdown: string;
@@ -79,7 +84,7 @@ export function HelpRepeatReviewLoopGuideView(props: HelpRepeatReviewLoopGuideVi
           void onRefresh();
         }}
       />
-<div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
+      <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
         <Card
           className="border-teal-200/80 bg-teal-50/40 dark:border-teal-900/50 dark:bg-teal-950/20"
           data-testid="help-repeat-review-loop-action-panel"
@@ -114,21 +119,9 @@ export function HelpRepeatReviewLoopGuideView(props: HelpRepeatReviewLoopGuideVi
 
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
         <div className={cn("min-w-0 space-y-6", "max-w-[42rem] lg:max-w-none")}>
-          {buyerPolishedShell ? (
-            <CollapsibleSection
-              title={REPEAT_REVIEW_LOOP_HELP_SCOPE_DETAILS_TRIGGER}
-              defaultOpen={false}
-              sectionTestId="help-repeat-review-loop-scope-details"
-            >
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-repeat-review-loop-overview">
-                {REPEAT_REVIEW_LOOP_HELP_OVERVIEW}
-              </p>
-            </CollapsibleSection>
-          ) : (
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-repeat-review-loop-overview">
-              {REPEAT_REVIEW_LOOP_HELP_OVERVIEW}
-            </p>
-          )}
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-repeat-review-loop-overview">
+            {REPEAT_REVIEW_LOOP_HELP_OVERVIEW}
+          </p>
 
           <div
             key={contentKey}

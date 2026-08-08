@@ -18,7 +18,7 @@ export const TROUBLESHOOTING_EMAIL_SUPPORT_LINK = {
 function supportEscalationLinks(
   ...additional: readonly TroubleshootingLink[]
 ): readonly TroubleshootingLink[] {
-  return [TROUBLESHOOTING_REPORT_PROBLEM_LINK, TROUBLESHOOTING_EMAIL_SUPPORT_LINK...additional];
+  return [TROUBLESHOOTING_REPORT_PROBLEM_LINK, TROUBLESHOOTING_EMAIL_SUPPORT_LINK, ...additional];
 }
 
 export const TROUBLESHOOTING_HELP_SUBTITLE =
@@ -78,7 +78,7 @@ export const TROUBLESHOOTING_COMMON_ISSUES: readonly TroubleshootingIssue[] = [
     ifStillBlocked: "Open System health. If readiness stays red, download a support bundle and contact support.",
     nextSteps: [
       { label: "Open System health", href: ADMINISTRATION_SYSTEM_HEALTH_PATH },
-      { label: "Open reviews", href: "/architecture/reviews" }...supportEscalationLinks,
+      { label: "Open reviews", href: "/architecture/reviews" }, ...supportEscalationLinks(),
     ],
   },
   {
@@ -147,7 +147,7 @@ export const TROUBLESHOOTING_COMMON_ISSUES: readonly TroubleshootingIssue[] = [
     ifStillBlocked: "Ask a workspace admin to adjust policy thresholds if the block is not appropriate.",
     nextSteps: [
       { label: "Open governance approval", href: inAppHelpHref("governance-approval") },
-      { label: "Open policy packs", href: GOVERNANCE_POLICY_PACKS_PATH }...supportEscalationLinks,
+      { label: "Open policy packs", href: GOVERNANCE_POLICY_PACKS_PATH }, ...supportEscalationLinks(),
     ],
   },
   {
@@ -160,7 +160,7 @@ export const TROUBLESHOOTING_COMMON_ISSUES: readonly TroubleshootingIssue[] = [
     ifStillBlocked: "Check trial banners on Overview for budget or entitlement limits.",
     nextSteps: [
       { label: "View first review guide", href: inAppHelpHref("first-architecture-review") },
-      { label: "Open reviews", href: "/architecture/reviews" }...supportEscalationLinks,
+      { label: "Open reviews", href: "/architecture/reviews" }, ...supportEscalationLinks(),
     ],
   },
   {
@@ -173,7 +173,7 @@ export const TROUBLESHOOTING_COMMON_ISSUES: readonly TroubleshootingIssue[] = [
     ifStillBlocked: "Try a smaller file or a different evidence format before contacting support.",
     nextSteps: [
       { label: "Open evidence upload guide", href: inAppHelpHref("evidence-intake") },
-      { label: "Start architecture review", href: "/architecture/reviews/new" }...supportEscalationLinks,
+      { label: "Start architecture review", href: "/architecture/reviews/new" }, ...supportEscalationLinks(),
     ],
   },
   {
@@ -186,7 +186,7 @@ export const TROUBLESHOOTING_COMMON_ISSUES: readonly TroubleshootingIssue[] = [
     ifStillBlocked: "Contact your workspace administrator or IT team if you cannot reach your organization's sign-in page.",
     nextSteps: [
       { label: "Authentication and sign-in", href: inAppHelpHref("authentication-sign-in") },
-      { label: "Enterprise onboarding checklist", href: inAppHelpHref("enterprise-onboarding") }...supportEscalationLinks,
+      { label: "Enterprise onboarding checklist", href: inAppHelpHref("enterprise-onboarding") }, ...supportEscalationLinks(),
     ],
   },
   {
@@ -199,7 +199,7 @@ export const TROUBLESHOOTING_COMMON_ISSUES: readonly TroubleshootingIssue[] = [
     ifStillBlocked: "Wait a few minutes if you see too many attempts, then try again or use a work or school account.",
     nextSteps: [
       { label: "Authentication and sign-in", href: inAppHelpHref("authentication-sign-in") },
-      { label: "Sign in", href: "/auth/signin" }...supportEscalationLinks,
+      { label: "Sign in", href: "/auth/signin" }, ...supportEscalationLinks(),
     ],
   },
   {
@@ -213,7 +213,7 @@ export const TROUBLESHOOTING_COMMON_ISSUES: readonly TroubleshootingIssue[] = [
     nextSteps: [
       { label: "Authentication and sign-in", href: inAppHelpHref("authentication-sign-in") },
       { label: "Open users and roles", href: inAppHelpHref("users-and-roles") },
-      { label: "Open workspace settings", href: "/administration/tenant" }...supportEscalationLinks,
+      { label: "Open workspace settings", href: "/administration/tenant" }, ...supportEscalationLinks(),
     ],
   },
 ] as const;

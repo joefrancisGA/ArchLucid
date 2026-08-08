@@ -68,7 +68,6 @@ import {
 } from "@/lib/webhook-subscription-connection-test";
 import { showSuccess } from "@/lib/toast";
 
-import { WebhooksAboutPanel } from "./WebhooksAboutPanel";
 import type { AlertRoutingSubscription, WebhookTestResponse } from "@/types/alert-routing";
 
 function isGenericOutboundWebhookChannel(channelType: string): boolean {
@@ -576,9 +575,7 @@ export function WebhooksSettingsClient() {
             </section>
           </form>
         </FormProvider>
-
-        <WebhooksAboutPanel />
-      </div>
+</div>
     </div>
   );
 }

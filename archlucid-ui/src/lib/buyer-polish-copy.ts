@@ -130,8 +130,14 @@ export const OPERATOR_HOME_CONTACT_WORKSPACE_OWNER_HINT = "Contact the workspace
 
 export const OPERATOR_HOME_COMPACT_STARTING_ACTIONS_HEADING = "Start another review";
 
+/** Bold lead label on Overview subtitle (buyer-polished shell). */
+export const OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_LABEL = "One lifecycle:";
+
+export const OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_BODY =
+  "describe your architecture, then run a governed review. The review is the durable work item.";
+
 export const OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO =
-  "One lifecycle: describe your architecture, then run a governed review. The review is the durable work item.";
+  `${OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_LABEL} ${OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_BODY}`;
 
 export const OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_TITLE = "Step 1 — Describe or import your architecture";
 

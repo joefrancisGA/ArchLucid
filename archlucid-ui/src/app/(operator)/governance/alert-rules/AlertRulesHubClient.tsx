@@ -1,10 +1,14 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useCallback, useMemo } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-
-import { CollapsibleSection } from "@/components/CollapsibleSection";
+import {
+  useCallback,
+  useMemo,
+} from "react";
+import {
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
 import { LayerHeader } from "@/components/LayerHeader";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -14,20 +18,21 @@ import {
   type AlertRulesHubTabId,
 } from "@/lib/alerts-hub-tab";
 import {
-  ALERTS_CONFIGURATION_LAYER_GUIDANCE_TRIGGER,
-  ALERTS_CONFIGURATION_SCOPE_DETAILS_TRIGGER,
-  ALERTS_CONTEXT_NOTE,
   alertsConfigurationPageSubtitle,
 } from "@/lib/alerts-page-copy";
 import { governanceAlertRulesTabHref } from "@/lib/governance-route-paths";
-
-import { AlertRulesHubRefreshProvider, useAlertRulesHubRefresh } from "@/lib/alerts-hub-refresh-context";
+import {
+  AlertRulesHubRefreshProvider,
+  useAlertRulesHubRefresh,
+} from "@/lib/alerts-hub-refresh-context";
 import {
   AlertRoutingContentDeferred,
   AlertRulesContentDeferred,
   AlertSimulationTuningSectionDeferred,
   CompositeAlertRulesContentDeferred,
 } from "./_sections/alert-rules-hub-deferred-chunks";
+import { AlertRoutingEvidenceOrientationStrip } from "./_sections/AlertRoutingEvidenceOrientationStrip";
+import { AlertRulesEvidenceOrientationStrip } from "./_sections/AlertRulesEvidenceOrientationStrip";
 import { AlertRulesPageHeader } from "./AlertRulesPageHeader";
 
 const TAB_PARAM = "tab";
@@ -63,11 +68,7 @@ function AlertRulesHubChrome(): React.JSX.Element {
   return (
     <>
       {buyerPolishedShell ? (
-        <LayerHeader
-          pageKey="alert-rules"
-          density="compact"
-          collapsibleGuidance={ALERTS_CONFIGURATION_LAYER_GUIDANCE_TRIGGER}
-        />
+        <LayerHeader pageKey="alert-rules" density="compact" />
       ) : null}
 
       <AlertRulesPageHeader
@@ -76,16 +77,6 @@ function AlertRulesHubChrome(): React.JSX.Element {
         lastRefreshedAt={lastRefreshedAt}
         onRefresh={requestRefresh}
       />
-
-      {buyerPolishedShell ? (
-        <CollapsibleSection
-          title={ALERTS_CONFIGURATION_SCOPE_DETAILS_TRIGGER}
-          defaultOpen={false}
-          sectionTestId="alert-rules-scope-details"
-        >
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{ALERTS_CONTEXT_NOTE}</p>
-        </CollapsibleSection>
-      ) : null}
     </>
   );
 }
@@ -156,9 +147,11 @@ export function AlertRulesHubClient() {
           aria-labelledby={`alert-rules-hub-tab-${activeTab}`}
           data-testid="alert-rules-hub-panel"
         >
-          {activeTab === "routing" ?
-: (
-)}
+          {activeTab === "routing" ? (
+            <AlertRoutingEvidenceOrientationStrip />
+          ) : (
+            <AlertRulesEvidenceOrientationStrip />
+          )}
           {activeTab === "rules" ? <AlertRulesContentDeferred /> : null}
           {activeTab === "routing" ? <AlertRoutingContentDeferred /> : null}
           {activeTab === "composite" ? <CompositeAlertRulesContentDeferred /> : null}

@@ -1,19 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
-
+import {
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import { HelpExecutiveSummaryPageHeader } from "@/app/(operator)/help/_sections/HelpExecutiveSummaryPageHeader";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
-import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   EXECUTIVE_SUMMARY_HELP_OVERVIEW,
   EXECUTIVE_SUMMARY_HELP_PRIMARY_ACTIONS,
-  EXECUTIVE_SUMMARY_HELP_SCOPE_DETAILS_TRIGGER,
   executiveSummaryHelpPageSubtitle,
 } from "@/lib/executive-summary-help-guide-content";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -28,7 +34,6 @@ import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presenta
 import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
-
 type HelpExecutiveSummaryGuideViewProps = {
   readonly entry: ProductDocumentationEntry;
   readonly markdown: string;
@@ -115,25 +120,13 @@ export function HelpExecutiveSummaryGuideView(
             </Link>
           </CardContent>
         </Card>
-</div>
+      </div>
 
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
         <div className={cn("min-w-0 space-y-6", "max-w-[42rem] lg:max-w-none")}>
-          {buyerPolishedShell ? (
-            <CollapsibleSection
-              title={EXECUTIVE_SUMMARY_HELP_SCOPE_DETAILS_TRIGGER}
-              defaultOpen={false}
-              sectionTestId="help-executive-summary-scope-details"
-            >
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-executive-summary-overview">
-                {EXECUTIVE_SUMMARY_HELP_OVERVIEW}
-              </p>
-            </CollapsibleSection>
-          ) : (
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-executive-summary-overview">
-              {EXECUTIVE_SUMMARY_HELP_OVERVIEW}
-            </p>
-          )}
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-executive-summary-overview">
+            {EXECUTIVE_SUMMARY_HELP_OVERVIEW}
+          </p>
 
           <div
             key={contentKey}

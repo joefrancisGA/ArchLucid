@@ -50,8 +50,8 @@ describe("HelpRepeatReviewLoopGuideView buyer-polished shell", () => {
     expect(screen.queryByText(REPEAT_REVIEW_LOOP_HELP_PAGE_SUBTITLE)).not.toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("help-repeat-review-loop-refresh-button")).toBeInTheDocument();
-    expect(screen.getByTestId("help-repeat-review-loop-scope-details")).toBeInTheDocument();
-    expect(screen.getByText(REPEAT_REVIEW_LOOP_HELP_SCOPE_DETAILS_TRIGGER)).toBeInTheDocument();
+    expect(screen.queryByTestId("help-repeat-review-loop-scope-details")).toBeNull();
+    expect(screen.queryByText(REPEAT_REVIEW_LOOP_HELP_SCOPE_DETAILS_TRIGGER)).toBeNull(); // TB-2093
     expect(screen.getByTestId("help-repeat-review-loop-overview")).toHaveTextContent(
       REPEAT_REVIEW_LOOP_HELP_OVERVIEW,
     );
