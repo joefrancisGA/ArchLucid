@@ -7,6 +7,8 @@ import { useQuery } from "@tanstack/react-query";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { Badge } from "@/components/ui/badge";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { PatternLibraryEvidenceOrientationStrip } from "./PatternLibraryEvidenceOrientationStrip";
 import { PatternLibraryFiltersPanel } from "./PatternLibraryFiltersPanel";
 import { PatternLibraryPatternCard } from "./PatternLibraryPatternCard";
 import { PatternLibrarySummaryRow } from "./PatternLibrarySummaryRow";
@@ -65,7 +67,12 @@ export function PatternLibraryPageClient(): React.JSX.Element {
 
   return (
     <div className={cn("w-full max-w-6xl", OPERATOR_LAYOUT.majorSectionGap)} data-testid="pattern-library-page">
-      <OperatorPageHeader title={PATTERN_LIBRARY_PAGE_TITLE} subtitle={PATTERN_LIBRARY_PAGE_SUBTITLE} titleTestId="pattern-library-page-title">
+      <OperatorPageHeader
+        title={PATTERN_LIBRARY_PAGE_TITLE}
+        subtitle={PATTERN_LIBRARY_PAGE_SUBTITLE}
+        titleTestId="pattern-library-page-title"
+        actions={<PageContextualHelpButton />}
+      >
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="outline" data-testid="pattern-library-provenance-badge">
             {provenance.badgeLabel}
@@ -75,6 +82,8 @@ export function PatternLibraryPageClient(): React.JSX.Element {
           <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.micro)}>{provenance.privacyNote}</p>
         </div>
       </OperatorPageHeader>
+
+      <PatternLibraryEvidenceOrientationStrip />
 
       <PatternLibrarySummaryRow summary={summary} />
 

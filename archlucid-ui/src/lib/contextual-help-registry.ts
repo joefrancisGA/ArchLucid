@@ -157,6 +157,20 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    // TB-2050 — Learn more omitted (no specialty); Category-1 still mounts.
+    prefix: "/insights/patterns",
+    entry: {
+      whatIsThisPage:
+        "Browse anonymized architecture patterns with adoption, risk, and governance signals from thresholded aggregates.",
+      whatToDoNext:
+        "Filter the catalog, open a pattern detail, or start a review when a pattern fits your next change.",
+      whyEmpty:
+        "Patterns appear when anonymized aggregates meet privacy thresholds, or when sample catalog data is shown.",
+      whereToConfigurePrerequisite:
+        "Live aggregates need enough finalized reviews across anonymized tenants to meet the privacy threshold.",
+    },
+  },
+  {
     prefix: INTERNAL_REPLAY_PATH,
     entry: {
       whatIsThisPage:

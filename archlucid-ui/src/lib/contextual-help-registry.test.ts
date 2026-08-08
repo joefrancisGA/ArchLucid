@@ -48,6 +48,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/governance/findings",
       "/insights/ask-review-questions",
       "/insights/compare-two-reviews",
+      "/insights/patterns",
       INTERNAL_REPLAY_PATH,
       "/insights/search-review-evidence",
       "/help/data-handling",

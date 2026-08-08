@@ -184,6 +184,11 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "evidence-trail", label: OPERATOR_NAV_LINK_LABELS.searchEvidence },
   },
   { prefix: "/insights/compare-two-reviews", topic: { slug: "comparison-replay", label: "Compare and replay" } },
+  {
+    // Secondary hub — no pattern-library specialty; omit Learn more (TB-2050).
+    prefix: "/insights/patterns",
+    topic: { label: "Pattern library" },
+  },
   { prefix: "/replay", topic: { slug: "comparison-replay", label: "Validate review" } },
   { prefix: "/governance/findings", topic: { slug: "governance-approval", label: OPERATOR_NAV_LINK_LABELS.findings } },
   {
@@ -199,11 +204,6 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     // Secondary hub — no decision-register specialty; omit Learn more (TB-2050).
     prefix: "/governance/decision-register",
     topic: { label: "Decision register" },
-  },
-  {
-    // Secondary hub — no workspace-health specialty; omit Learn more (TB-2050). Do not reopen TB-1668 mount.
-    prefix: "/governance/dashboard",
-    topic: { label: "Workspace overview" },
   },
   {
     prefix: "/governance/alerts",
