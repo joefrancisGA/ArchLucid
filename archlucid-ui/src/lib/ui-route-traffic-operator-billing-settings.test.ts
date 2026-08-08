@@ -69,5 +69,6 @@ describe("ui-route-traffic-operator-billing-settings (ABI)", () => {
     expect(row?.section).toBe(OPERATOR_BILLING_SETTINGS_TRAFFIC_SECTION);
     expect(row?.notes).toBe(OPERATOR_BILLING_SETTINGS_TRAFFIC_NOTE);
     expect(row?.notes).toContain("OperatorBillingSettingsClient");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
