@@ -174,7 +174,9 @@ export function GraphPageControls(props: GraphPageControlsProps) {
               emptyListHint={BUYER_EVIDENCE_GRAPH_EMPTY_LIST_HINT}
               onListAvailabilityChange={onReviewsListAvailabilityChange}
             />
-            {reviewPickerState !== "no-packages" && !compactEmptyWorkspace ? (
+            {reviewPickerState !== "no-packages" &&
+            !compactEmptyWorkspace &&
+            !(sampleGraphActive && reviewPickerState === "sample-review") ? (
               <GraphReviewPickerStatus state={reviewPickerState} className="mt-2" />
             ) : null}
           </div>

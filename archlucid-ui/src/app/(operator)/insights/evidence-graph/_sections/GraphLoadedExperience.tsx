@@ -244,12 +244,6 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
           />
         </>
       ) : null}
-      {demoUi && !buyerPolishedShell ? (
-        <p className={cn("m-0 mt-4 max-w-prose", OPERATOR_TYPOGRAPHY.helper)}>
-          Use the controls above to switch reviews or exploration scope — the illustrative Claims Intake sample
-          (not your tenant workspace) loads this graph automatically.
-        </p>
-      ) : null}
     </>
   );
 }

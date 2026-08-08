@@ -73,4 +73,55 @@ describe("GraphPageControls buyer presentation tabs (TB-669)", () => {
 
     expect(onPresentationViewChange).toHaveBeenCalledWith("trace");
   });
+
+  it("suppresses sample-review picker status when the sample banner owns the claim (TB-2100)", () => {
+    render(
+      <GraphPageControls
+        graphMainColumnMaxClass="max-w-3xl"
+        runId="claims-intake-modernization"
+        onRunIdChange={() => undefined}
+        mode="provenance-full"
+        onModeChange={() => undefined}
+        demoUi
+        buyerPolishedShell
+        showLoadButton={false}
+        loadButtonLabel="Load evidence graph"
+        loading={false}
+        onLoadGraph={() => undefined}
+        decisionId=""
+        nodeId=""
+        reviewPickerState="sample-review"
+        sampleGraphActive
+        showPresentationTabs={false}
+      />,
+    );
+
+    expect(screen.queryByTestId("graph-review-picker-status")).toBeNull();
+  });
+
+  it("still renders picker error and no-packages-adjacent states when sample banner is inactive", () => {
+    const { unmount } = render(
+      <GraphPageControls
+        graphMainColumnMaxClass="max-w-3xl"
+        runId=""
+        onRunIdChange={() => undefined}
+        mode="provenance-full"
+        onModeChange={() => undefined}
+        demoUi
+        buyerPolishedShell
+        showLoadButton={false}
+        loadButtonLabel="Load evidence graph"
+        loading={false}
+        onLoadGraph={() => undefined}
+        decisionId=""
+        nodeId=""
+        reviewPickerState="no-selection"
+        sampleGraphActive={false}
+        showPresentationTabs={false}
+      />,
+    );
+
+    expect(screen.getByTestId("graph-review-picker-status")).toHaveAttribute("data-picker-state", "no-selection");
+    unmount();
+  });
 });
