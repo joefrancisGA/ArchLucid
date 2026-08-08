@@ -66,5 +66,6 @@ describe("ui-route-traffic-reviews-new-detailed (REN)", () => {
     expect(row?.notes).toBe(REVIEWS_NEW_DETAILED_TAB_TRAFFIC_NOTE);
     expect(row?.notes).toContain("NewRunWizardClient");
     expect(row?.notes).toContain("Score 48");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
