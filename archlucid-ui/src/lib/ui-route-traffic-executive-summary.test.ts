@@ -72,6 +72,7 @@ describe("ui-route-traffic-executive-summary (TB-1961)", () => {
     expect(spe?.notes).toContain("Absorbs former VXX");
     expect(spe?.notes).toContain("Sources");
     expect(spe?.notes).toContain("ValueReportPageClient");
+    expect(spe?.notes).toContain("cannot improve further toward 80");
     expect(spe?.section.toLowerCase()).not.toBe("marketing");
   });
 });
