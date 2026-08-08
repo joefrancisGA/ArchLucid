@@ -64,7 +64,8 @@ describe("ui-route-traffic-gcp-cloud-connection (IGC)", () => {
     expect(row?.path).toBe(GCP_CLOUD_CONNECTION_TRAFFIC_PATH);
     expect(row?.section).toBe(GCP_CLOUD_CONNECTION_TRAFFIC_SECTION);
     expect(row?.notes).toBe(GCP_CLOUD_CONNECTION_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("CloudProviderConnectionEvidenceOrientationStrip");
+    expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
     expect(row?.notes).toContain("Score 48");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
