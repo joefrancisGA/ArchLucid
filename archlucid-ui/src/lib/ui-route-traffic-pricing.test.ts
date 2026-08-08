@@ -66,5 +66,7 @@ describe("ui-route-traffic-pricing (P)", () => {
     expect(row?.notes).toBe(PRICING_TRAFFIC_NOTE);
     expect(row?.notes).toContain("PricingEvidenceOrientationStrip");
     expect(row?.section).toBe("Marketing");
+    expect(row?.notes).toContain("Score 42");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
