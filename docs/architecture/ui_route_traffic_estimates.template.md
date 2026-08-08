@@ -52,7 +52,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 
 ---
 
-**OVERALL WEIGHT SCORE:** 0.10%
+**OVERALL WEIGHT SCORE:** 0.11%
 
 ## Master table (score 0 first; then Deficit desc; ties A→Z by path)
 
@@ -225,7 +225,6 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | GOS | `/governance/alert-rules?tab=simulation` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | GOI | `/governance/alerts?tab=inbox` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | GOA | `/governance/approval-queue` | 0.02% | 0 | 0 | 2 | Alerts/gov | None |
-| MA | `/governance/signed-records` | 0.02% | 0 | 0 | 2 | Alerts/gov | None |
 | HE. | `/help/[...topic]` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HAX | `/help/accelerator-chooser` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HAE | `/help/admin-diagnostics` | 0.02% | 0 | 0 | 2 | Help topic | None |
@@ -277,6 +276,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | REO | `/architecture/reviews/[runId]?archTab=overview` | 0.02% | 48 | 0.96 | 1.04 | Tab surface | Create-home Overview archTab (Tab surface) - mounts on ArchitectureCreatedWorkspace when fromGeneration+create-architecture and no signed manifest; ArchitectureCreatedWorkspace syncs ?archTab=overview. ArchitectureCreatedOverviewEvidenceOrientationStrip (PageContextualHelpButton + Category-1 registry; Sources + claim-discipline) above ArchitectureCreatedOverviewPanel (structured brief + missing items). Twin committed surface is reviewTab=overview on ReviewDetailWorkspace (RRE hub chrome). Sibling REA = activity; REC = clarifications; RED = diagram; REE = evidence; REF = findings; REG = governance. Submitted brief only - not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 48/100 (2026-08-08) - create-home path-tab hard-caps higher Evidence (below RRE hub). |
 | REN | `/architecture/reviews/new?path=detailed` | 0.02% | 48 | 0.96 | 1.04 | Tab surface | Start review Templates and imports tab (Tab surface) - inherits RNX hub Evidence chrome (ReviewsNewPageChrome PageContextualHelpButton + Category-1 registry on /architecture/reviews/new; Sources strip above path tabs). ReviewsNewPathSwitcher syncs ?path=detailed; mounts NewRunWizardClient. Sibling REQ = quick-review; ENE = guided-intake; RNX = hub. Does not imply CPA SOC 2 or third-party pen-test publication. Score 48/100 (2026-08-08) - path-tab surface hard-caps higher Evidence (below RNX launcher). |
 | REQ | `/architecture/reviews/new?path=quick-review` | 0.02% | 48 | 0.96 | 1.04 | Tab surface | Start review Quick start tab (Tab surface) - inherits RNX hub Evidence chrome (ReviewsNewPageChrome PageContextualHelpButton + Category-1 registry on /architecture/reviews/new; Sources strip above path tabs). ReviewsNewPathSwitcher syncs ?path=quick-review; mounts FirstPilotIntakeWizard. Sibling REN = detailed; ENE = guided-intake; RNX = hub. Does not imply CPA SOC 2 or third-party pen-test publication. Score 48/100 (2026-08-08) - path-tab surface hard-caps higher Evidence (below RNX launcher). |
+| SI | `/governance/signed-records` | 0.02% | 55 | 1.1 | 0.9 | Alerts/gov | Signed review records list (Alerts/gov) - SignedRecordsListClient with OperatorPageHeader PageContextualHelpButton (topic map review-packages; Category-1 registry on /governance/signed-records), SignedRecordsListEvidenceOrientationStrip (Sources + claim-discipline), finalized-run table with Open review / Open signed record. Sibling MMX = package detail; GAR = artifact preview. Template MA renamed to SI to match owner. Application-layer package index - not CPA SOC 2 or third-party pen-test publication. Score 55/100 (2026-08-08) - list hub hard-caps higher Evidence without Trust Center attestation artifacts (below MMX package detail). |
 
 ---
 

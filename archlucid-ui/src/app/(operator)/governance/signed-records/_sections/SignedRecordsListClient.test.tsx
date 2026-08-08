@@ -56,6 +56,8 @@ describe("SignedRecordsListClient", () => {
     render(<SignedRecordsListClient />);
 
     expect(screen.getByTestId("signed-records-list-page-title")).toHaveTextContent("Signed review records");
+    expect(screen.getByTestId("signed-records-list-orientation")).toBeInTheDocument();
+    expect(screen.getByTestId("signed-records-list-sources")).toBeInTheDocument();
 
     await waitFor(() => {
       expect(screen.getByRole("link", { name: "Claims modernization" })).toBeInTheDocument();
