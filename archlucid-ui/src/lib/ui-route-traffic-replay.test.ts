@@ -66,5 +66,6 @@ describe("ui-route-traffic-replay (REP)", () => {
     expect(row?.notes).toBe(REPLAY_TRAFFIC_NOTE);
     expect(row?.notes).toContain("ReplayFormView");
     expect(row?.notes).toContain("Sources");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
