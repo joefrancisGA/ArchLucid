@@ -69,6 +69,8 @@ describe("ui-route-traffic-roi-summary (TB-1971)", () => {
     expect(spr?.hitPct).toBe("0.12%");
     expect(spr?.section).toBe(ROI_SUMMARY_TRAFFIC_SECTION);
     expect(spr?.notes).toBe(ROI_SUMMARY_TRAFFIC_NOTE);
+    expect(spr?.notes).toContain("RoiSummaryEvidenceOrientationStrip");
+    expect(spr?.notes).toContain("cannot improve further toward 80");
     expect(spr?.notes).toContain("Absorbs former VRX");
     expect(spr?.section.toLowerCase()).not.toBe("marketing");
   });
