@@ -66,5 +66,6 @@ describe("ui-route-traffic-alerts-help (HA)", () => {
     expect(row?.notes).toBe(ALERTS_HELP_TRAFFIC_NOTE);
     expect(row?.notes).toContain("HelpAlertsGuideView");
     expect(row?.notes).toContain("Sources");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
