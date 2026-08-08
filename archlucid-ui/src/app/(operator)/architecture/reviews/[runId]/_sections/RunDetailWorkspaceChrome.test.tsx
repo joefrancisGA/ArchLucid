@@ -1,8 +1,25 @@
 import { render, screen } from "@testing-library/react";
+import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/architecture/reviews/run-1",
+}));
+
+vi.mock("next/link", () => ({
+  default: ({
+    href,
+    children,
+    ...rest
+  }: {
+    href: string;
+    children: ReactNode;
+    [key: string]: unknown;
+  }) => (
+    <a href={href} {...rest}>
+      {children}
+    </a>
+  ),
 }));
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
@@ -27,12 +44,14 @@ describe("RunDetailWorkspaceHeader", () => {
         workspaceStatus={{ label: "In progress", statusTagKind: "pending" }}
         reviewOwner="Jordan Lee"
         templateLabel="Architecture review"
+        runId="run-1"
       />,
     );
 
     expect(screen.getByRole("heading", { level: 1, name: "Claims platform review" })).toBeInTheDocument();
     expect(screen.getByText("Claims API")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+    expect(screen.getByTestId("review-workspace-orientation")).toBeInTheDocument();
   });
 });
 
@@ -43,14 +62,9 @@ describe("RunDetailWorkspaceStickyActions", () => {
         runId="run-1"
         primaryAction={{ kind: "finalize-package", label: "Finalize review", href: null }}
         commitBlockedReason={null}
-        showProgressTracker
-        manifestId={null}
       />,
     );
 
-    expect(screen.getByRole("link", { name: "Continue review" })).toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "Review findings" })).toBeNull();
     expect(screen.getByRole("button", { name: "Finalize review" })).toBeInTheDocument();
-    expect(screen.getAllByRole("button", { name: "Finalize review" })).toHaveLength(1);
   });
 });

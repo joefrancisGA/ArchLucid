@@ -58,7 +58,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | SEA | `/settings/alerts` | 0.02% | 0 | 0 | 2 | Settings | None |
 | RE | `/architecture/reviews` | 12% | 58 | 696 | 504 | Core review | None |
 | RRF | `/architecture/reviews/[runId]/findings/[findingId]` | 9% | 50 | 450 | 450 | Core review | None |
-| RRE | `/architecture/reviews/[runId]` | 10.04% | 60 | 602.4 | 401.6 | Core review | Review workspace detail. Absorbs former SRN hit share from retired legacy `/snapshot/[runId]` bookmark row (SnapshotPage still redirects here with readOnly=1; showcase Claims Intake spine). Canonical leave-behind UX. Contoso/Northwind seed titles stripped on read (M-135/TB-982 display path). Does not imply CPA SOC 2 or third-party pen-test publication. Score 60/100 (2026-08-04) â€” Contoso H1 leak closed via retired-demo branding strip; DemoOnly HOLD honesty retained. |
+| RRE | `/architecture/reviews/[runId]` | 10.04% | 60 | 602.4 | 401.6 | Core review | Review workspace detail. Absorbs former SRN hit share from retired legacy `/snapshot/[runId]` bookmark row (hard-retired â€” use `/architecture/reviews/{runId}?readOnly=1` leave-behind). Canonical leave-behind UX. Does not imply CPA SOC 2 or third-party pen-test publication. |
 | POR | `/architecture/executive-dashboard` | 8.35% | 68 | 567.8 | 267.2 | Executive | None |
 | ACB | `/auth/callback` | 5% | 54 | 270 | 230 | Auth | None |
 | ASI | `/auth/signin` | 5% | 54 | 270 | 230 | Auth | None |

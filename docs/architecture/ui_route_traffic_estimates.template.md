@@ -59,7 +59,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | ID | Path | Hit% | Scores | Weight | Deficit | Section | Notes |
 |----|------|------|--------|--------|---------|---------|-------|
 | RE | `/architecture/reviews` | 12% | 0 | 0 | 1200 | Core review | None |
-| RRE | `/architecture/reviews/[runId]` | 10.04% | 0 | 0 | 1004 | Core review | Review workspace detail. Absorbs former SRN hit share from retired legacy `/snapshot/[runId]` bookmark row (hard-retired — use `/architecture/reviews/{runId}?readOnly=1` leave-behind). Canonical leave-behind UX. Does not imply CPA SOC 2 or third-party pen-test publication. |
+| RRE | `/architecture/reviews/[runId]` | 10.04% | 0 | 0 | 1004 | Core review | Review workspace detail. Absorbs former SRN hit share from retired legacy `/snapshot/[runId]` bookmark row (hard-retired â€” use `/architecture/reviews/{runId}?readOnly=1` leave-behind). Canonical leave-behind UX. Does not imply CPA SOC 2 or third-party pen-test publication. |
 | RRF | `/architecture/reviews/[runId]/findings/[findingId]` | 9% | 0 | 0 | 900 | Core review | None |
 | ARE | `/architecture/executive-dashboard` | 8.04% | 0 | 0 | 804 | Executive | Canonical executive ROI portfolio dashboard — ExecutiveRoiDashboardPageView with hero, KPI tiles, trend charts, sponsor exports, and PageContextualHelp → executive-summary. Legacy /dashboard (DSH), /executive/dashboard (EXD), and /portfolio redirect here (TB-608). |
 | ACB | `/auth/callback` | 5% | 0 | 0 | 500 | Auth | None |
