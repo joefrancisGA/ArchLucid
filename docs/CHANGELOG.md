@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-08 - UI: Architecture digests hub Evidence notes (ARD)
+
+- `/architecture/digests` (ARD) traffic Notes score **71** — documents existing DigestsHubClient Evidence chrome. Template row **DI → ARD**; browse tab id **ARD → ARB**.
+
 ## 2026-08-08 - UI: Users Users tab Evidence notes (SSU)
 
 - `/administration/users?tab=users` (SSU) inherits AUX Evidence chrome; traffic Notes score **48** (tab surface).

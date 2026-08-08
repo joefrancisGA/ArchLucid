@@ -55,7 +55,7 @@ function extractMasterTableRows(markdown: string): TrafficWorkbookRow[] {
   return rows;
 }
 
-describe("ui-route-traffic-digests (DI)", () => {
+describe("ui-route-traffic-digests (ARD)", () => {
   it("tracks Architecture digests with honest workbook notes", () => {
     const rows = extractMasterTableRows(readTemplateMarkdown());
     const row = rows.find((candidate) => candidate.id === DIGESTS_TRAFFIC_ROW_ID);
@@ -65,5 +65,6 @@ describe("ui-route-traffic-digests (DI)", () => {
     expect(row?.section).toBe(DIGESTS_TRAFFIC_SECTION);
     expect(row?.notes).toBe(DIGESTS_TRAFFIC_NOTE);
     expect(row?.notes).toContain("DigestsHubClient");
+    expect(row?.notes).toContain("Score 71");
   });
 });

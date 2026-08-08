@@ -45,13 +45,12 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 
 ---
 
-**OVERALL WEIGHT SCORE:** 57.78%
+**OVERALL WEIGHT SCORE:** 57.80%
 
 ## Master table (score 0 first; then Deficit desc; ties A→Z by path)
 
 | ID | Path | Hit% | Scores | Weight | Deficit | Section | Notes |
 |----|------|------|--------|--------|---------|---------|-------|
-| ARD | `/architecture/digests` | 0.02% | 0 | 0 | 2 | Digests | None |
 | ARB | `/architecture/digests?tab=browse` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | ARS | `/architecture/digests?tab=schedule` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | AIS | `/architecture/digests?tab=subscriptions` | 0.02% | 0 | 0 | 2 | Tab surface | None |
@@ -268,6 +267,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | REG | `/architecture/reviews/[runId]?archTab=governance` | 0.02% | 60 | 1.2 | 0.8 | Tab surface | Create-home-only archTab (TB-1856) - mounts on ArchitectureCreatedWorkspace when fromGeneration+create-architecture and no signed manifest; ignored on committed ReviewDetailWorkspace (twin: reviewTab=decisions-remediation). RunDetailGovernanceDecisionSection pre-commit honesty (TB-1857) with one primary Review findings CTA (TB-1859), secondary activity text link, Sources diligence strip (governance-approval, audit-trail, findings, search-review-evidence, compare-two-reviews), claim-discipline callout, and sponsor/work-item panels gated on manifestId (TB-1858). Not a live approval/audit surface. Does not imply CPA SOC 2 or third-party pen-test publication. |
 | HES | `/help/soc2-self-assessment` | 0.02% | 61 | 1.22 | 0.78 | Help topic | Specialty SOC 2 self-assessment guide - HelpSoc2SelfAssessmentGuideView with Trust Center / CAIQ-SIG / procurement primary CTAs, Sources diligence strip (security-trust, DPA, subprocessors, tenant-isolation), job-matrix IA dual (TB-1749), orientation steps, claim-discipline callout (self-assessment is not CPA Type I/II; Type I dates illustrative), PageContextualHelp, and prepared SOC2_SELF_ASSESSMENT_2026.md (TB-1747 leakage strip + TB-1748 roadmap honesty). Title + Help Center product discovery (TB-1750). Not bare HelpTopicMarkdownView. Does not imply CPA SOC 2 or third-party pen-test publication. Score 61/100 (2026-08-03) — honesty ladder caps higher. |
 | HDP | `/help/dpa-template` | 0.02% | 63 | 1.26 | 0.74 | Help topic | Specialty DPA negotiation template guide - HelpDpaTemplateGuideView with Trust Center / subprocessors / procurement primary CTAs, Sources diligence strip (security-trust, data-handling, tenant-isolation), orientation steps, claim-discipline callout (template is not countersigned; SOC 2 when available is not CPA attestation), PageContextualHelp, and full DPA_TEMPLATE.md deferred behind collapsed disclosure (TB-1676/1678/1680). TB-1677 leakage strip retained. Help Center product tier + advanced discovery (TB-1679). Not bare HelpTopicMarkdownView. Does not imply CPA SOC 2 or third-party pen-test publication. |
+| ARD | `/architecture/digests` | 0.02% | 71 | 1.42 | 0.58 | Digests | Architecture digests - DigestsHubClient with DigestsPageHeader PageContextualHelp (topic map digests / Architecture digests; Category-1 registry + Schedule deep links; trigger text reads Help so the header does not echo its own title), tab bar directly under the header, one primary header action (next unresolved setup step, or Preview latest generated digest once configured), Sources follow-up strip below the tabs with no claim-boundary band (owner decision 2026-08-05), WeeklyDigestHealthBanner reduced to a status strip on every tab (status tag + tab-relevant facts only) so each tab tells the setup story exactly once - Browse via DigestsBrowseSetupChecklist, Subscriptions via DigestSubscriptionsReadinessPanel, Schedule via its own readiness rail. One status vocabulary across tabs (Setup incomplete / Action needed / Ready). Learn more â†’ /help/digests (HDG). Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 71/100 (2026-08-05) after TB-1480 / TB-1501-TB-1505 / TB-2049 - hub launcher hard-caps higher Evidence. |
 | 4XX | `/403` | 0.02% | 76 | 1.52 | 0.48 | Auth | None |
 
 ---
