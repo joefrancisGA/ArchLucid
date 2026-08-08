@@ -66,5 +66,6 @@ describe("ui-route-traffic-reviews-new-guided-intake (ENE)", () => {
     expect(row?.notes).toBe(REVIEWS_NEW_GUIDED_INTAKE_TAB_TRAFFIC_NOTE);
     expect(row?.notes).toContain("SocraticIntakeWizard");
     expect(row?.notes).toContain("Score 48");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
