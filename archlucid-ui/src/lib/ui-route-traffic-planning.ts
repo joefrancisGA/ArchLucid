@@ -11,7 +11,8 @@ export const PLANNING_TRAFFIC_PATH = "/insights/improvement-planning";
 export const PLANNING_TRAFFIC_SECTION = "Marketing";
 
 /**
- * Owner workbook Notes for PLA — documents Evidence chrome on Improvement planning.
+ * Owner workbook Notes for PLA - documents Evidence chrome on Improvement planning.
+ * ASCII-only for Windows console note scripts.
  */
 export const PLANNING_TRAFFIC_NOTE =
-  "Improvement planning - PlanningPageView with PageContextualHelp (Learn more omitted — no planning specialty; TB-2050; Category-1 registry), Sources follow-up strip + dismissible claim-discipline callout (derived themes/plans, not diligence trail), empty-path composition (CTA + maturity/outcome orientation; hides zero KPIs/export until plans exist), priority-score explain, themes/plans tables, export readiness. Not a signed-record Sources trail. Score 54/100 (2026-08-03) — empty-path honesty improved; aggregate planning launcher still hard-caps higher Evidence.";
+  "Improvement planning (Marketing) - PlanningPageView with PageContextualHelp (Learn more omitted - no planning specialty; TB-2050; Category-1 registry), PlanningSourcesStrip + PlanningClaimDisciplineCallout (derived themes/plans, not diligence trail), empty-path composition (CTA + maturity/outcome orientation; hides zero KPIs/export until plans exist), priority-score explain, themes/plans tables, export readiness. Not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 54/100 (2026-08-08) - aggregate planning launcher hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
