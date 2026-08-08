@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   buildEvidenceBackedIntakeBrief,
+  describeFirstPilotIntakeGap,
   isFirstPilotIntakeReady,
   normalizeFirstPilotReviewTitle,
 } from "@/lib/first-pilot-intake";
@@ -43,5 +44,32 @@ describe("first-pilot-intake", () => {
 
   it("normalizeFirstPilotReviewTitle falls back when title is too short", () => {
     expect(normalizeFirstPilotReviewTitle("  ")).toBe("Architecture review");
+  });
+
+  it("describeFirstPilotIntakeGap stays silent while the title is still empty", () => {
+    expect(
+      describeFirstPilotIntakeGap({ title: " ", brief: "", evidenceFileCount: 0 }),
+    ).toBeNull();
+  });
+
+  it("describeFirstPilotIntakeGap asks for evidence or context once a title exists", () => {
+    expect(
+      describeFirstPilotIntakeGap({ title: "Retail API", brief: "", evidenceFileCount: 0 }),
+    ).toBe("Attach evidence or add architecture context to start.");
+  });
+
+  it("describeFirstPilotIntakeGap names the shortfall once context has been started", () => {
+    expect(
+      describeFirstPilotIntakeGap({ title: "Retail API", brief: "x".repeat(40), evidenceFileCount: 0 }),
+    ).toBe("Architecture context needs at least 100 characters (40 so far), or attach evidence instead.");
+  });
+
+  it("describeFirstPilotIntakeGap stays silent whenever submit is allowed", () => {
+    expect(
+      describeFirstPilotIntakeGap({ title: "Retail API", brief: "", evidenceFileCount: 1 }),
+    ).toBeNull();
+    expect(
+      describeFirstPilotIntakeGap({ title: "Retail API", brief: "x".repeat(120), evidenceFileCount: 0 }),
+    ).toBeNull();
   });
 });

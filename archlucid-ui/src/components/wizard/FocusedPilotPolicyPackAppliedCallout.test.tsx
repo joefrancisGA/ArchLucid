@@ -2,9 +2,10 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { FocusedPilotPolicyPackAppliedCallout } from "@/components/wizard/FocusedPilotPolicyPackAppliedCallout";
+import { FOCUSED_PILOT_MODE_PACK_DISPLAY_NAMES } from "@/lib/focused-pilot-mode-policy-packs";
 
 describe("FocusedPilotPolicyPackAppliedCallout", () => {
-  it("lists focused pilot policy packs applied automatically", () => {
+  it("describes default standards without repeating pack display names", () => {
     render(<FocusedPilotPolicyPackAppliedCallout />);
 
     expect(screen.getByTestId("focused-pilot-policy-pack-applied-callout")).toBeTruthy();
@@ -14,11 +15,9 @@ describe("FocusedPilotPolicyPackAppliedCallout", () => {
         /For your first review, ArchLucid evaluates against its default architecture-quality standards — Security, Reliability, Cost, Performance, Operational Excellence, and Sustainability/i,
       ),
     ).toBeTruthy();
-    expect(screen.getByText("Security Architecture Baseline")).toBeTruthy();
-    expect(screen.getByText("Reliability and Resilience")).toBeTruthy();
-    expect(screen.getByText("FinOps & Cloud Cost Optimization")).toBeTruthy();
-    expect(screen.getByText("Performance and Scalability")).toBeTruthy();
-    expect(screen.getByText("Operational Excellence")).toBeTruthy();
-    expect(screen.getByText("Sustainability and Resource Efficiency")).toBeTruthy();
+
+    for (const packName of FOCUSED_PILOT_MODE_PACK_DISPLAY_NAMES) {
+      expect(screen.queryByText(packName)).toBeNull();
+    }
   });
 });

@@ -22,7 +22,7 @@ describe("create vs review intake differentiation (TB-747)", () => {
   it("uses evidence-first progress copy on the quick review intake wizard", () => {
     const wizardSource = readUiSource("app/(operator)/architecture/reviews/new/FirstPilotIntakeWizard.tsx");
 
-    expect(wizardSource).toContain("REVIEW_INTAKE_EVIDENCE_FIRST_PROGRESS_TITLE");
+    // Lead copy now sits on the form card; the separate section header above it was duplicate instruction.
     expect(wizardSource).toContain("REVIEW_INTAKE_EVIDENCE_FIRST_PROGRESS_LEAD");
     expect(wizardSource).toContain("@/lib/create-vs-review-intake-copy");
     expect(wizardSource).not.toContain("Your first review");

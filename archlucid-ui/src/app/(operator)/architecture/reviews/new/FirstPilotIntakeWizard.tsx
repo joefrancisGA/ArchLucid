@@ -16,11 +16,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  QuickReviewProofScopeField,
   proofScopeToRequiredCapabilities,
   type QuickReviewProofScopeId,
 } from "@/components/usability/QuickReviewProofScopeField";
-import { FirstRunIntakeStepGuide } from "@/components/wizard/FirstRunIntakeStepGuide";
 import { FocusedPilotPolicyPackAppliedCallout } from "@/components/wizard/FocusedPilotPolicyPackAppliedCallout";
 import { PilotModePolicyPackToggle } from "@/components/wizard/PilotModePolicyPackToggle";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
@@ -37,15 +35,12 @@ import {
   REVIEW_START_PREPARING_LABEL,
 } from "@/lib/review-start-progress-copy";
 import { applyFocusedPilotModePolicyReferences } from "@/lib/focused-pilot-mode-policy-packs";
-import {
-  REVIEW_INTAKE_EVIDENCE_FIRST_PROGRESS_LEAD,
-  REVIEW_INTAKE_EVIDENCE_FIRST_PROGRESS_TITLE,
-} from "@/lib/create-vs-review-intake-copy";
-import { CORE_PILOT_PATH_STREAMLINED_LABELS } from "@/lib/core-pilot-path-vocabulary";
+import { REVIEW_INTAKE_EVIDENCE_FIRST_PROGRESS_LEAD } from "@/lib/create-vs-review-intake-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import {
   buildEvidenceBackedIntakeBrief,
+  describeFirstPilotIntakeGap,
   isFirstPilotIntakeReady,
   normalizeFirstPilotReviewTitle,
 } from "@/lib/first-pilot-intake";
@@ -57,14 +52,20 @@ import { uploadWizardPendingDocumentEvidence } from "@/lib/wizard-pending-eviden
 import { WizardEvidenceUploadZone } from "./QuickReviewWizardDeferredPanels";
 
 const V1_DEFAULT_CLOUD_PROVIDER: CreateArchitectureRunRequestPayload["cloudProvider"] = "None";
+
+/**
+ * First-run intake sends every proof dimension. The former operator-facing selector was removed because
+ * no pipeline stage branches on these capability tokens, so narrowing them changed nothing a buyer could see.
+ */
 const DEFAULT_PROOF_SCOPE: QuickReviewProofScopeId[] = ["cost", "compliance", "topology"];
+const FIRST_PILOT_REQUIRED_CAPABILITIES: string[] = proofScopeToRequiredCapabilities(DEFAULT_PROOF_SCOPE);
 
 /** Create + multipart evidence upload can exceed the default soft-fail budget on slow links. */
 const FIRST_PILOT_WITH_UPLOAD_TIMEOUT_MS =
   REVIEW_CREATION_PROGRESS_TIMEOUT_MS + PROXY_UPSTREAM_UPLOAD_FETCH_TIMEOUT_MS;
 
 export const FIRST_PILOT_INTAKE_SUBMIT_VALIDATION_MESSAGE =
-  "Add a review title and upload at least one architecture document, or fill in the description.";
+  "Add a review title and either attach architecture evidence or provide enough context in the description.";
 
 function buildFirstPilotPayload(
   title: string,
@@ -106,7 +107,6 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
   const [runTitle, setRunTitle] = useState("");
   const [briefText, setBriefText] = useState("");
   const [evidenceFiles, setEvidenceFiles] = useState<File[]>([]);
-  const [proofScope, setProofScope] = useState<QuickReviewProofScopeId[]>(DEFAULT_PROOF_SCOPE);
   const [focusedPilotModeEnabled, setFocusedPilotModeEnabled] = useState(true);
   const [clientValidationMessage, setClientValidationMessage] = useState<string | null>(null);
   const creationProgress = useReviewCreationProgress();
@@ -126,18 +126,23 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
     [briefText, evidenceFiles, runTitle],
   );
 
+  /**
+   * Readiness is judged on what the operator actually supplied. Passing {@link resolvedBrief} here would
+   * always pass the minimum, because it synthesizes boilerplate long enough to clear the threshold on its own.
+   */
+  const intakeReadiness = {
+    title: runTitle,
+    brief: briefText,
+    evidenceFileCount: evidenceFiles.length,
+  };
+
   const canStart =
-    isFirstPilotIntakeReady({
-      title: runTitle,
-      brief: resolvedBrief,
-      evidenceFileCount: evidenceFiles.length,
-    }) &&
+    isFirstPilotIntakeReady(intakeReadiness) &&
     resolvedBrief.length <= ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH &&
     !creationProgress.isActive &&
     !blocksLlmExecution;
 
-  const titleReady = runTitle.trim().length >= 2;
-  const evidenceReady = evidenceFiles.length > 0;
+  const intakeGap = describeFirstPilotIntakeGap(intakeReadiness);
 
   const submitRun = async () => {
     if (!canStart) {
@@ -166,7 +171,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
       const body = buildFirstPilotPayload(
         runTitle,
         resolvedBrief,
-        proofScopeToRequiredCapabilities(proofScope),
+        FIRST_PILOT_REQUIRED_CAPABILITIES,
         focusedPilotModeEnabled,
       );
       const res = await createArchitectureRun(body);
@@ -216,25 +221,12 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
       {llmBudgetStatus !== null ? <LlmMonthlyBudgetExceededBanner status={llmBudgetStatus} /> : null}
       {exampleTemplate !== null ? <ReviewIntakeExampleTemplateCallout template={exampleTemplate} /> : null}
 
-      <div className="space-y-2" data-testid="first-pilot-intake-progress">
-        <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">
-          {REVIEW_INTAKE_EVIDENCE_FIRST_PROGRESS_TITLE}
-        </p>
-        <p className={cn("m-0 max-w-3xl leading-relaxed", OPERATOR_TYPOGRAPHY.helper)}>
-          {REVIEW_INTAKE_EVIDENCE_FIRST_PROGRESS_LEAD}
-        </p>
-      </div>
-
-      <FirstRunIntakeStepGuide titleReady={titleReady} evidenceReady={evidenceReady} />
-
       <FocusedPilotPolicyPackAppliedCallout />
 
       <Card>
         <CardHeader>
           <CardTitle>{CREATE_REVIEW_PACKAGE_HEADING}</CardTitle>
-          <CardDescription>
-            Start with a title and one architecture diagram. Architecture context is optional when a file is attached.
-          </CardDescription>
+          <CardDescription>{REVIEW_INTAKE_EVIDENCE_FIRST_PROGRESS_LEAD}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
@@ -253,8 +245,9 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
           </div>
 
           <WizardEvidenceUploadZone
-            title="Upload one diagram or document"
-            description="Required for your first review — a diagram, PDF export, or architecture document. Additional files are optional."
+            labelId="first-pilot-evidence"
+            title="Attach evidence (optional)"
+            description="Diagram, PDF export, or architecture document. Accepted: PDF, DOCX, Markdown, text, JSON, YAML, images."
             onFilesSelected={(files) => {
               setEvidenceFiles(files);
               setClientValidationMessage(null);
@@ -274,29 +267,19 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
               placeholder="Add as much useful context as you can: goals, constraints, risks, business drivers, integrations, data flows, security concerns, known tradeoffs, and what you want ArchLucid to focus on."
               data-testid="first-pilot-brief"
             />
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-              {evidenceFiles.length > 0
-                ? `${evidenceFiles.length} file${evidenceFiles.length === 1 ? "" : "s"} attached — architecture context optional.`
-                : "If you do not upload files, provide enough context for ArchLucid to understand what should be reviewed."}
-            </p>
+            {evidenceFiles.length > 0 ? (
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                {`${evidenceFiles.length} file${evidenceFiles.length === 1 ? "" : "s"} attached — architecture context optional.`}
+              </p>
+            ) : null}
           </div>
 
           <AdvancedOptionsAccordion triggerLabel="Review scope (optional)">
-            <div className="space-y-4">
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
-                {CORE_PILOT_PATH_STREAMLINED_LABELS.firstIntakeAdvancedNote}
-              </p>
-              <PilotModePolicyPackToggle
-                enabled={focusedPilotModeEnabled}
-                onEnabledChange={setFocusedPilotModeEnabled}
-              />
-              <QuickReviewProofScopeField
-                selected={proofScope}
-                onChange={(next) => {
-                  setProofScope(next);
-                }}
-              />
-            </div>
+            <PilotModePolicyPackToggle
+              presentation="choice"
+              enabled={focusedPilotModeEnabled}
+              onEnabledChange={setFocusedPilotModeEnabled}
+            />
           </AdvancedOptionsAccordion>
 
           <ReviewPathTimeEstimateBanner pathId="quick-review" />
@@ -316,6 +299,16 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
 
           {creationProgress.error !== null ? (
             <ReviewStartInlineError message={creationProgress.error} testId="first-pilot-submit-error" />
+          ) : null}
+
+          {intakeGap !== null ? (
+            <p
+              className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="first-pilot-readiness"
+              role="status"
+            >
+              {intakeGap}
+            </p>
           ) : null}
 
           <ReviewStartLoadingButton

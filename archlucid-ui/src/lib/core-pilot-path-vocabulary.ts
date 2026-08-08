@@ -23,12 +23,24 @@ export const CORE_PILOT_PATH_STREAMLINED_LABELS = {
   focusedPilotToggleAssistiveOn:
     "Evaluation is limited to the six architecture-quality baseline standards.",
   focusedPilotToggleAssistiveOff: "All enabled standards may contribute findings.",
+  /**
+   * Two-option review-scope choice on first-run intake. Replaces an inverted checkbox where
+   * unchecking silently widened scope — both outcomes are now stated side by side.
+   */
+  reviewScopeChoiceLegend: "Which standards should evaluate this review?",
+  reviewScopeRecommendedLabel: "Recommended standards (default)",
+  reviewScopeRecommendedDescription:
+    "Use the six default architecture-quality standards listed above. Keeps your first review shorter and the findings actionable.",
+  reviewScopeAllLabel: "Every standard enabled for this workspace",
+  reviewScopeAllDescription:
+    "Any standard your workspace has enabled can also contribute findings. Expect a longer review and more findings to work through.",
   firstIntakeLead:
-    "Upload one diagram or document and add architecture context when you can. Evaluation standards apply automatically.",
+    "Attach a diagram or document when you can, or describe enough architecture context to review without files. Evaluation standards apply automatically.",
   firstIntakeAdvancedNote:
     "Focused review scope is on by default. Turn off only if you need every enabled standard to contribute findings.",
   streamlinedFirstReviewBannerLabel: "Quick path:",
-  streamlinedFirstReviewBannerBody: "upload a diagram or document to start. Review scope is pre-configured.",
+  streamlinedFirstReviewBannerBody:
+    "attach evidence or describe your architecture to start. Review scope is pre-configured.",
   operateUnlockLead:
     "Your first session focuses on starting and finalizing a review. Compare, evidence graph, ask-this-review, and enterprise control routes stay hidden until you unlock them — or until you finalize your first review.",
   operateUnlockAnalysisUnlocks: "Analysis — compare, graph, replay, and Q&A",

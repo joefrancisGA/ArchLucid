@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { useState } from "react";
 
@@ -16,8 +16,29 @@ type PilotModePolicyPackToggleProps = {
   readonly onEnabledChange: (enabled: boolean) => void;
   readonly className?: string;
   readonly testId?: string;
-  readonly presentation?: "checkbox" | "scope-card";
+  readonly presentation?: "checkbox" | "scope-card" | "choice";
 };
+
+/** Both review-scope outcomes stated as peers, so neither option is expressed as a negation of the other. */
+const REVIEW_SCOPE_CHOICES: readonly {
+  id: "recommended" | "all";
+  focused: boolean;
+  label: string;
+  description: string;
+}[] = [
+  {
+    id: "recommended",
+    focused: true,
+    label: FOCUSED_PILOT_MODE_COPY.choiceRecommendedLabel,
+    description: FOCUSED_PILOT_MODE_COPY.choiceRecommendedDescription,
+  },
+  {
+    id: "all",
+    focused: false,
+    label: FOCUSED_PILOT_MODE_COPY.choiceAllLabel,
+    description: FOCUSED_PILOT_MODE_COPY.choiceAllDescription,
+  },
+];
 
 function FocusedPilotModeCheckbox(props: PilotModePolicyPackToggleProps): React.JSX.Element {
   const { enabled, onEnabledChange, className, testId = "pilot-mode-policy-pack-toggle" } = props;
@@ -149,10 +170,55 @@ function FocusedPilotModeScopeCard(props: PilotModePolicyPackToggleProps): React
   );
 }
 
+function FocusedPilotModeChoiceGroup(props: PilotModePolicyPackToggleProps): React.JSX.Element {
+  const { enabled, onEnabledChange, className, testId = "pilot-mode-policy-pack-toggle" } = props;
+
+  return (
+    <fieldset className={cn("space-y-2", className)} data-testid={`${testId}-wrap`}>
+      <legend className={OPERATOR_FORM_FIELD_LABEL_CLASS}>{FOCUSED_PILOT_MODE_COPY.choiceLegend}</legend>
+      <div className="space-y-2">
+        {REVIEW_SCOPE_CHOICES.map((choice) => (
+          <label
+            key={choice.id}
+            htmlFor={`${testId}-${choice.id}`}
+            className={cn(
+              "flex cursor-pointer items-start gap-2 rounded-md border px-3 py-2",
+              OPERATOR_TYPOGRAPHY.helper,
+              choice.focused === enabled
+                ? "border-[var(--al-accent-interactive)] bg-al-surface-raised"
+                : "border-neutral-200 dark:border-neutral-700",
+            )}
+          >
+            <input
+              id={`${testId}-${choice.id}`}
+              type="radio"
+              name={`${testId}-review-scope`}
+              className="mt-0.5 h-4 w-4 shrink-0 accent-teal-700"
+              data-testid={`${testId}-${choice.id}`}
+              checked={choice.focused === enabled}
+              onChange={() => {
+                onEnabledChange(choice.focused);
+              }}
+            />
+            <span className="min-w-0 leading-snug">
+              <span className="block font-medium text-al-text-primary">{choice.label}</span>
+              <span className="mt-1 block font-normal text-al-text-secondary">{choice.description}</span>
+            </span>
+          </label>
+        ))}
+      </div>
+    </fieldset>
+  );
+}
+
 /** Limits review policy evaluation to security baseline + cost packs for first-pilot time-to-value. */
 export function PilotModePolicyPackToggle(props: PilotModePolicyPackToggleProps): React.JSX.Element {
   if (props.presentation === "scope-card") {
     return <FocusedPilotModeScopeCard {...props} />;
+  }
+
+  if (props.presentation === "choice") {
+    return <FocusedPilotModeChoiceGroup {...props} />;
   }
 
   return <FocusedPilotModeCheckbox {...props} />;

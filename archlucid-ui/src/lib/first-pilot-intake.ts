@@ -7,6 +7,10 @@ export const FIRST_PILOT_EVIDENCE_ONLY_BRIEF_MIN_CHARS = 100;
 
 export type FirstPilotIntakeReadinessInput = {
   readonly title: string;
+  /**
+   * Operator-entered context only. Never pass the output of {@link buildEvidenceBackedIntakeBrief}:
+   * its boilerplate alone exceeds {@link FIRST_PILOT_MIN_BRIEF_CHARS}, so readiness would always pass.
+   */
   readonly brief: string;
   readonly evidenceFileCount: number;
 };
@@ -51,4 +55,32 @@ export function isFirstPilotIntakeReady(input: FirstPilotIntakeReadinessInput): 
   const evidenceReady = input.evidenceFileCount > 0;
 
   return titleReady && (briefReady || evidenceReady);
+}
+
+/**
+ * Names what still blocks submit, for the line beside a disabled start button (TB-2005).
+ * Delegates the ready check to {@link isFirstPilotIntakeReady} so this can never promise a gate that does not exist.
+ *
+ * Stays silent while the title is missing: an empty first field is already visible, and naming it would
+ * greet the page with an instruction. Only the evidence-or-context rule is invisible from the controls,
+ * since either one satisfies it and the context threshold is not otherwise stated.
+ */
+export function describeFirstPilotIntakeGap(input: FirstPilotIntakeReadinessInput): string | null {
+  if (isFirstPilotIntakeReady(input)) {
+    return null;
+  }
+
+  if (input.title.trim().length < FIRST_PILOT_MIN_TITLE_CHARS) {
+    return null;
+  }
+
+  const briefLength = input.brief.trim().length;
+
+  // Naming the shortfall matters once context exists: otherwise "add architecture context" reads as
+  // wrong to someone who just added some, with no way to see how much more is needed.
+  if (briefLength > 0) {
+    return `Architecture context needs at least ${FIRST_PILOT_MIN_BRIEF_CHARS} characters (${briefLength} so far), or attach evidence instead.`;
+  }
+
+  return "Attach evidence or add architecture context to start.";
 }

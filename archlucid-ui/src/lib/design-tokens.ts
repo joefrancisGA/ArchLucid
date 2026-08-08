@@ -217,6 +217,12 @@ export const OPERATOR_LINK = {
   optional: `${OPERATOR_TYPE_SCALE.helper} font-medium text-al-text-secondary underline decoration-al-text-secondary/40 underline-offset-2 hover:text-al-text-primary hover:decoration-[var(--al-accent-interactive)]`,
 } as const;
 
+/**
+ * Form field caption — `<Label>` and `<legend>` on operator forms (TB-2111).
+ * Never compose with {@link OPERATOR_TYPOGRAPHY.body}: it carries `font-normal`, which wins in Tailwind merge.
+ */
+export const OPERATOR_FORM_FIELD_LABEL_CLASS = "text-[13px] font-semibold leading-5 text-al-text-primary";
+
 /** Semibold scan marker on inline guidance lines — pair with normal-weight body copy after the colon. */
 export const INLINE_GUIDANCE_LABEL_CLASS = "font-semibold text-al-text-primary";
 
