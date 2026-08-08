@@ -64,6 +64,9 @@ describe("ui-route-traffic-reviews-new (RNX)", () => {
     expect(row?.path).toBe(REVIEWS_NEW_TRAFFIC_PATH);
     expect(row?.section).toBe(REVIEWS_NEW_TRAFFIC_SECTION);
     expect(row?.notes).toBe(REVIEWS_NEW_TRAFFIC_NOTE);
+    expect(row?.notes).toContain("ReviewsNewSourcesStrip");
+    expect(row?.notes).toContain("Score 48");
+    expect(row?.notes).toContain("cannot improve further toward 80");
     expect(row?.notes).toContain("ReviewsNewPageChrome");
   });
 });
