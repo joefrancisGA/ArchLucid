@@ -70,9 +70,10 @@ describe("ui-route-traffic-advisory-scans-schedules-tab (AD)", () => {
     expect(row?.notes).toBe(ADVISORY_SCANS_SCHEDULES_TAB_TRAFFIC_NOTE);
     expect(row?.section.toLowerCase()).not.toBe("marketing");
     expect(row?.notes).toContain("AdvisorySchedulesContent");
-    expect(row?.notes).toContain("AdvisoryScansEvidenceOrientationStrip");
+    expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
     expect(row?.notes).toContain("Sources");
     expect(row?.notes).toContain("Score 48");
     expect(row?.notes).toContain("TB-1124");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });

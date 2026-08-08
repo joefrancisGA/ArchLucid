@@ -9,11 +9,11 @@ export const ADVISORY_SCANS_SCHEDULES_TAB_TRAFFIC_ROW_ID = "AD";
 /** Canonical path tracked on the AD workbook row. */
 export const ADVISORY_SCANS_SCHEDULES_TAB_TRAFFIC_PATH = ADVISORY_SCANS_SCHEDULES_HREF;
 
-/** Workbook Section column value — query-tab deep link on a governance hub. */
+/** Workbook Section column value â€” query-tab deep link on a governance hub. */
 export const ADVISORY_SCANS_SCHEDULES_TAB_TRAFFIC_SECTION = "Tab surface";
 
 /**
- * Owner workbook Notes for AD — documents Evidence chrome inherited from ADV hub on Schedules tab.
+ * Owner workbook Notes for AD â€” documents Evidence chrome inherited from ADV hub on Schedules tab.
  */
 export const ADVISORY_SCANS_SCHEDULES_TAB_TRAFFIC_NOTE =
-  "Advisory scans Schedules tab (Tab surface) - inherits ADV hub Evidence chrome (PageContextualHelpButton + Category-1 registry on /governance/advisory-scans; AdvisoryScansEvidenceOrientationStrip Sources + claim-discipline above tabs). AdvisorySchedulesContent + AdvisoryScheduleCreateForm; digest send-test and setup-gap handoffs. Legacy /advisory-scheduling redirects via TB-1124. Sibling ADV = hub/scans. Score 48/100 (2026-08-04) — schedule-config tab hard-caps higher Evidence (below ADV launcher 50).";
+ "Advisory scans Schedules tab (Tab surface) - inherits ADV hub Evidence chrome (PageContextualHelpButton + Category-1 registry on /governance/advisory-scans; Sources follow-up chrome removed (TB-2092) Sources + claim-discipline above tabs). AdvisorySchedulesContent + AdvisoryScheduleCreateForm; digest send-test and setup-gap handoffs. Legacy /advisory-scheduling redirects via TB-1124. Sibling ADV = hub/scans. Does not imply CPA SOC 2 or third-party pen-test publication. Score 48/100 (2026-08-04) â€” schedule-config tab hard-caps higher Evidence (below ADV launcher 50). Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
