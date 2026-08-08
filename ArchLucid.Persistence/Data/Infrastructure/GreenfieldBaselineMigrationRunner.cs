@@ -156,16 +156,19 @@ public static partial class GreenfieldBaselineMigrationRunner
             connection,
             tx);
         object? scalar = probe.ExecuteScalar();
+
         if (scalar is null or DBNull || Convert.ToInt32(scalar, CultureInfo.InvariantCulture) == 0)
             return;
 
         foreach (string resourceName in GetOrderedIncrementalMigrationResourceNames())
         {
             Match match = MigrationNumberRegex().Match(resourceName);
+
             if (!match.Success)
                 continue;
 
             int n = int.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
+
             if (n is < 51 or > 295)
                 continue;
 
@@ -281,10 +284,12 @@ public static partial class GreenfieldBaselineMigrationRunner
         foreach (string resourceName in GetOrderedIncrementalMigrationResourceNames())
         {
             Match match = MigrationNumberRegex().Match(resourceName);
+
             if (!match.Success)
                 continue;
 
             int n = int.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
+
             if (n < minInclusive || n > maxInclusive)
                 continue;
 
@@ -341,10 +346,12 @@ public static partial class GreenfieldBaselineMigrationRunner
         foreach (string resourceName in incremental)
         {
             Match match = numberRegex.Match(resourceName);
+
             if (!match.Success)
                 continue;
 
             int n = int.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
+
             if (n is < 1 or > 50)
                 continue;
 
@@ -366,6 +373,7 @@ public static partial class GreenfieldBaselineMigrationRunner
     private static string ReadEmbeddedScript(Assembly assembly, string name)
     {
         using Stream? stream = assembly.GetManifestResourceStream(name);
+
         if (stream is null)
             throw new InvalidOperationException($"Missing embedded migration script '{name}'.");
 
