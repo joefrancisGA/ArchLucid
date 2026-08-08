@@ -70,5 +70,6 @@ describe("ui-route-traffic-first-architecture-review-help (COR)", () => {
     expect(row?.notes).toBe(FIRST_ARCHITECTURE_REVIEW_HELP_TRAFFIC_NOTE);
     expect(row?.section.toLowerCase()).not.toBe("marketing");
     expect(row?.notes).toContain("HelpCorePilotGuideView");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
