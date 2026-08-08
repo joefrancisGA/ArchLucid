@@ -66,5 +66,6 @@ describe("ui-route-traffic-digests (ARD)", () => {
     expect(row?.notes).toBe(DIGESTS_TRAFFIC_NOTE);
     expect(row?.notes).toContain("DigestsHubClient");
     expect(row?.notes).toContain("Score 71");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
