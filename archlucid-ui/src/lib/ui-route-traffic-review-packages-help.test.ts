@@ -4,11 +4,11 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
-  HELP_TOPIC_CATCHALL_TRAFFIC_NOTE,
-  HELP_TOPIC_CATCHALL_TRAFFIC_PATH,
-  HELP_TOPIC_CATCHALL_TRAFFIC_ROW_ID,
-  HELP_TOPIC_CATCHALL_TRAFFIC_SECTION,
-} from "@/lib/ui-route-traffic-help-topic-catchall";
+  REVIEW_PACKAGES_HELP_TRAFFIC_NOTE,
+  REVIEW_PACKAGES_HELP_TRAFFIC_PATH,
+  REVIEW_PACKAGES_HELP_TRAFFIC_ROW_ID,
+  REVIEW_PACKAGES_HELP_TRAFFIC_SECTION,
+} from "@/lib/ui-route-traffic-review-packages-help";
 
 const TEMPLATE_PATH = "docs/architecture/ui_route_traffic_estimates.template.md";
 
@@ -55,17 +55,17 @@ function extractMasterTableRows(markdown: string): TrafficWorkbookRow[] {
   return rows;
 }
 
-describe("ui-route-traffic-help-topic-catchall (HE.)", () => {
-  it("tracks the help catch-all with honest workbook notes", () => {
+describe("ui-route-traffic-review-packages-help (REV)", () => {
+  it("tracks review-packages help with honest workbook notes", () => {
     const rows = extractMasterTableRows(readTemplateMarkdown());
-    const row = rows.find((candidate) => candidate.id === HELP_TOPIC_CATCHALL_TRAFFIC_ROW_ID);
+    const row = rows.find((candidate) => candidate.id === REVIEW_PACKAGES_HELP_TRAFFIC_ROW_ID);
 
     expect(row).toBeDefined();
-    expect(row?.path).toBe(HELP_TOPIC_CATCHALL_TRAFFIC_PATH);
-    expect(row?.section).toBe(HELP_TOPIC_CATCHALL_TRAFFIC_SECTION);
-    expect(row?.notes).toBe(HELP_TOPIC_CATCHALL_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("PageContextualHelpButton");
-    expect(row?.notes).toContain("Score 52");
+    expect(row?.path).toBe(REVIEW_PACKAGES_HELP_TRAFFIC_PATH);
+    expect(row?.section).toBe(REVIEW_PACKAGES_HELP_TRAFFIC_SECTION);
+    expect(row?.notes).toBe(REVIEW_PACKAGES_HELP_TRAFFIC_NOTE);
+    expect(row?.notes).toContain("HelpReviewPackagesGuideView");
+    expect(row?.notes).toContain("Sources");
     expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
