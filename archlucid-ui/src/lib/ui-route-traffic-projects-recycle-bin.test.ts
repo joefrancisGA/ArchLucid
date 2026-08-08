@@ -69,5 +69,6 @@ describe("ui-route-traffic-projects-recycle-bin (STR)", () => {
     expect(row?.section).toBe(PROJECTS_RECYCLE_BIN_TRAFFIC_SECTION);
     expect(row?.notes).toBe(PROJECTS_RECYCLE_BIN_TRAFFIC_NOTE);
     expect(row?.notes).toContain("ProjectsRecycleBinPage");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
