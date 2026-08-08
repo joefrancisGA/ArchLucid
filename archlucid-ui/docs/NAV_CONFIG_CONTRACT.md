@@ -81,11 +81,9 @@ Hub surfaces (`/architecture/first-review-guide`, operator home setup cards, Cor
 
 Cross-ref: First review guide redundancy audit (**TB-674**–**TB-679**).
 
-### Breadcrumb contract
+### Breadcrumb contract (TB-2090 — removed)
 
-`breadcrumb-map.ts` may show a logical parent label that differs from the URL prefix **only** when the href is listed in `NAV_ROUTE_NAMESPACE_EXCEPTIONS`. Do not invent ad hoc breadcrumb remaps for undocumented cross-namespace paths.
-
-**Shell visibility:** `shouldShowBreadcrumbTrail` in `breadcrumb-visibility.ts` gates the global `<Breadcrumbs />` affordance. Shallow two-level trails that mirror sidebar active state (e.g. `/governance/findings`, `/administration/billing`) are **hidden**; detail, help, cross-namespace, run-scoped, and deep trails remain **visible** unless the route already has page-local wayfinding (`hasPageLocalBreadcrumbWayfinding`) or the buyer-polished golden-journey stepper is active. When shell breadcrumbs are hidden on buyer-polished satellite routes, `BuyerGoldenJourneyLayerContextStrip` may show a contextual **Back to review** link via `resolveBuyerOperateBackLinkWhenShellBreadcrumbsHidden`. Page-local wayfinding (e.g. finding detail `FindingDetailWayfinding`, manifest detail) is unchanged.
+Shell and page-local **breadcrumb trails are removed** (**TB-2090**). Primary wayfinding is left-nav + page titles. Buyer-polished satellite routes may still show a contextual **Back to review** link via `resolveBuyerOperateBackLink` when the golden-journey stepper is not active. Finding/manifest detail pages use explicit back links (`data-testid` …`back-to-review`), not `aria-label="Breadcrumb"`. Do not reintroduce `breadcrumb-map.ts` / `Breadcrumbs.tsx` / `breadcrumb-visibility.ts`.
 
 ### Cross-module Vitest anchors
 

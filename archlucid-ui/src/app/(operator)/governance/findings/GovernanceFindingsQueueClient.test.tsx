@@ -4,7 +4,8 @@ import { beforeEach, beforeAll, describe, expect, it, vi } from "vitest";
 import GovernanceFindingsQueueClient from "@/app/(operator)/governance/findings/GovernanceFindingsQueueClient";
 import { OperatorQueryProvider } from "@/components/OperatorQueryProvider";
 import * as governanceApi from "@/lib/api/governance-stickiness-api";
-import { getBreadcrumbs } from "@/lib/breadcrumb-map";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { ROUTE_TITLES } from "@/lib/route-static-titles";
 import { routeViewExplanationForPathname } from "@/lib/usability/route-view-explanations";
 
 vi.mock("next/navigation", async (importOriginal) => {
@@ -126,11 +127,8 @@ describe("GovernanceFindingsQueueClient", () => {
     vi.mocked(governanceApi.getArchitectureDecisionRegister).mockResolvedValue({ decisions: [] });
   });
 
-  it("maps governance findings breadcrumb to Governance / Findings", () => {
-    expect(getBreadcrumbs("/governance/findings")).toEqual([
-      { label: "Governance", href: "/governance/approval-queue" },
-      { label: "Findings" },
-    ]);
+  it("uses Governance Findings route title consistent with nav labels", () => {
+    expect(ROUTE_TITLES["/governance/findings"]).toBe(OPERATOR_NAV_LINK_LABELS.findings);
   });
 
   it("does not render a duplicate explain-this-view card for the risk register route", () => {

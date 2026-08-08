@@ -210,20 +210,16 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
   return (
     <div className="w-full max-w-[1200px] space-y-6 px-1 py-2 sm:px-0">
       <CtoDemoBuyerValueStrip stepIndex={1} />
-      <nav aria-label="Breadcrumb" className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-        <Link className={OPERATOR_LINK.nav} href="/architecture/reviews">
-          Reviews
-        </Link>
-        {" · "}
-        <Link className={OPERATOR_LINK.nav} href={`/architecture/reviews/${summary.runId}`}>
+      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+        <Link
+          className={OPERATOR_LINK.nav}
+          href={`/architecture/reviews/${summary.runId}`}
+          data-testid="manifest-detail-back-to-review"
+        >
           {buyerPolishedLayout === true && showcasePackage === true
-            ? SHOWCASE_BUYER_REVIEW_TITLE
-            : "Open review"}
+            ? `Back to ${SHOWCASE_BUYER_REVIEW_TITLE}`
+            : "Back to review"}
         </Link>
-        {" · "}
-        <span className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)} aria-current="page">
-          {BUYER_SIGNED_DECISION_RECORD_LABEL}
-        </span>
         {showcasePackage === true && buyerPolishedLayout !== true ? (
           <>
             {" · "}
@@ -235,7 +231,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
             </Link>
           </>
         ) : null}
-      </nav>
+      </p>
 
       {shouldShowOperatorDemoMarketingChrome(buyerPolishedLayout === true, model.usedStaticDemoManifest) ? (
         <OperatorDemoStaticBanner />

@@ -41,9 +41,7 @@ test.describe("visual regression — operator UI", () => {
         name: /Claims Intake Modernization — integration boundaries/i,
       }),
     ).toBeVisible();
-    await expect(page.getByTestId("app-shell-main").getByRole("navigation", { name: "Breadcrumb" })).toContainText(
-      "Reviews",
-    );
+    await expect(page.getByTestId("app-shell-main").getByRole("heading", { level: 1 })).toBeVisible();
 
     await expect(page).toHaveScreenshot("run-detail.png", screenshotOptions);
   });

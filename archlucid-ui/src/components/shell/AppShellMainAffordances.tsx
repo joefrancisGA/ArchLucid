@@ -1,6 +1,5 @@
 "use client";
 
-import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { ContextualPageHintStrip } from "@/components/ContextualPageHintStrip";
 import { OperatorRecentViewsTracker } from "@/components/OperatorRecentViewsTracker";
 import { BuyerGoldenJourneyLayerContextStrip } from "@/components/shell/BuyerGoldenJourneyLayerContextStrip";
@@ -13,7 +12,6 @@ export function AppShellMainAffordances() {
   return (
     <>
       <BuyerGoldenJourneyLayerContextStrip />
-      <Breadcrumbs />
       <OperatorRecentViewsTracker />
       <ReviewsListReturnStateTracker />
       <FirstVisitHelpAutoOpen />

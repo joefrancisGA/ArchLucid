@@ -14,7 +14,6 @@ import { RUNS_EMPTY } from "@/lib/empty-state-presets";
 import { RUNS_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { governanceModeVocabulary } from "@/lib/governance-mode-vocabulary";
 import { OPERATOR_NAV_LINK_LABELS, RUNS_LIST_PAGE_TITLES } from "@/lib/i18n";
-import { getBreadcrumbs } from "@/lib/breadcrumb-map";
 import { COMMAND_PALETTE_CURATED_TASKS } from "@/lib/command-palette-curated-tasks";
 import { ROUTE_TITLES } from "@/lib/route-static-titles";
 import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
@@ -163,9 +162,6 @@ describe("review terminology guard", () => {
     ] as const;
 
     for (const route of alignedRoutes) {
-      const crumbs = getBreadcrumbs(route.path);
-
-      expect(crumbs[crumbs.length - 1]?.label, route.path).toBe(route.navLabel);
       expect(ROUTE_TITLES[route.path], route.path).toBe(route.navLabel);
       expect(pageHelpTopicForPathname(route.path)?.label, route.path).toBe(route.navLabel);
 

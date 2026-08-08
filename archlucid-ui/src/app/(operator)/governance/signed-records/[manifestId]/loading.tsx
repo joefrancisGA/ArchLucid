@@ -22,11 +22,11 @@ export default function ManifestDetailLoading() {
       aria-live="polite"
       aria-busy="true"
     >
-      <nav aria-label="Breadcrumb" className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         <Link className={OPERATOR_LINK.nav} href="/architecture/reviews">
-          Reviews
+          Back to reviews
         </Link>
-      </nav>
+      </p>
       <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>
         {buyerPolishedLayout ? "Architecture review" : "Finalized architecture review"}
       </h1>

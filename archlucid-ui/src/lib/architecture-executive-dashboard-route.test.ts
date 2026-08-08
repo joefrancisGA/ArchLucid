@@ -37,7 +37,6 @@ const EXECUTIVE_DASHBOARD_APP_LAYOUT = join(
 const PRODUCT_EXECUTIVE_DASHBOARD_SURFACES = [
   "archlucid-ui/src/lib/pilot-nav-group-builder.ts",
   "archlucid-ui/src/lib/usability/page-help-topic-map.ts",
-  "archlucid-ui/src/lib/breadcrumb-map.ts",
   "archlucid-ui/src/lib/nav-disclosure-for-path.ts",
   "archlucid-ui/src/lib/executive-kpi-drill-through-hrefs.ts",
 ] as const;
