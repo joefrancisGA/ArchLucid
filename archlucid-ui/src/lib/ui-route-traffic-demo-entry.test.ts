@@ -66,5 +66,6 @@ describe("ui-route-traffic-demo-entry (DXX)", () => {
     expect(row?.notes).toBe(DEMO_ENTRY_TRAFFIC_NOTE);
     expect(row?.notes).toContain("DemoEntryRedirect");
     expect(row?.notes).toContain("Sources");
+    expect(.notes).toContain("cannot improve further toward 80");
   });
 });
