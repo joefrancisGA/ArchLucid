@@ -36,7 +36,7 @@ type OperatorShellTopBarProps = {
 
 /**
  * Operator shell header: brand rail (sidebar width), content-aligned search, session controls.
- * Help stays a freestanding top-bar control; optional secondary tools use a portaled overflow menu.
+ * Help and AI usage stay freestanding; eval-only theme toggle uses the overflow menu when enabled.
  */
 export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.Element {
   const showDevOperatorChrome = isOperatorExperienceFullShellEnv();
@@ -44,7 +44,7 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
   const showLlmBudgetPill =
     showDevOperatorChrome && callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
   const showAuthorityThemeToggle = isUiAuthorityThemeEvalEnabledEnv();
-  const showMoreMenu = showAuthorityThemeToggle || showLlmBudgetPill;
+  const showMoreMenu = showAuthorityThemeToggle;
 
   useSearchShortcut();
   useCommandPaletteChunkPreload();
@@ -120,11 +120,11 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
                   <span className="hidden sm:inline">Help</span>
                 </Button>
               </ToolbarHelpTooltip>
+              {showLlmBudgetPill ? <LlmBudgetStatusPill /> : null}
               {showMoreMenu ? (
                 <OperatorShellTopBarMoreMenu>
                   <div className="flex flex-col gap-2" data-testid="app-shell-topbar-more-tools">
-                    {showAuthorityThemeToggle ? <AuthorityThemeToggle /> : null}
-                    {showLlmBudgetPill ? <LlmBudgetStatusPill /> : null}
+                    <AuthorityThemeToggle />
                   </div>
                 </OperatorShellTopBarMoreMenu>
               ) : null}

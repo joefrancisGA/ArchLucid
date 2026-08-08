@@ -143,7 +143,7 @@ Work through the questions in order.
 **Q4.** Do you need governance, audit trails, or compliance evidence from architecture reviews?
 
 - **Yes** → [Start with the Operate layer evaluation](/governance).
-- **No** → [Start with Pilot (pre-fills greenfield preset)](/reviews/new?preset=greenfield) — request → commit → review.
+- **No** → [Start with Pilot (pre-fills greenfield preset)](/architecture/reviews/new?preset=greenfield) — request → commit → review.
 
 **Q5.** Does your team have at least 3 architects or engineers who regularly author architecture decisions?
 

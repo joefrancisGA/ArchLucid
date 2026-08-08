@@ -3,10 +3,15 @@ import { describe, expect, it } from "vitest";
 import nextConfig from "../next.config";
 
 describe("next.config administration routes (TB-406 / TB-522 / TB-751)", () => {
-  it("ships no permanent bookmark redirects (IA batch 4; architectures force-canonical removed)", async () => {
+  it("ships reviews force-canonical redirects only (IA batch 4; no architectures bookmark table)", async () => {
     const redirectRules = await nextConfig.redirects?.();
 
-    expect(redirectRules ?? []).toEqual([]);
+    expect(redirectRules ?? []).toEqual([
+      { source: "/reviews", destination: "/architecture/reviews", permanent: true },
+      { source: "/reviews/:path*", destination: "/architecture/reviews/:path*", permanent: true },
+      { source: "/runs", destination: "/architecture/reviews", permanent: true },
+      { source: "/runs/:path*", destination: "/architecture/reviews/:path*", permanent: true },
+    ]);
   });
 
   it("does not rewrite legacy bookmark paths (IA batch 7)", async () => {

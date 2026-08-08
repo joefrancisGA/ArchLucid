@@ -133,7 +133,7 @@ describe("OperatorShellTopBar", () => {
     expect(onOpenHelpSearch).toHaveBeenCalledTimes(1);
   });
 
-  it("keeps the top bar on one row and parks only secondary tools in a more menu", async () => {
+  it("keeps the top bar on one row and shows AI usage on the toolbar", async () => {
     render(
       <TooltipProvider>
         <OperatorShellTopBar onOpenHelpSearch={vi.fn()} />
@@ -147,11 +147,7 @@ describe("OperatorShellTopBar", () => {
     expect(sessionRail.className).toMatch(/\bflex-nowrap\b/);
     expect(contextRail.className).toMatch(/\bflex-nowrap\b/);
     expect(screen.getByTestId("operator-shell-help-trigger")).toBeInTheDocument();
-    expect(screen.getByTestId("operator-shell-topbar-more-trigger")).toBeInTheDocument();
-    expect(screen.queryByTestId("llm-budget-status-pill")).not.toBeInTheDocument();
-
-    openMoreMenu();
-
+    expect(screen.queryByTestId("operator-shell-topbar-more-trigger")).not.toBeInTheDocument();
     expect(await screen.findByTestId("llm-budget-status-pill")).toBeInTheDocument();
     expect(screen.queryByTestId("operator-shell-resources-trigger")).not.toBeInTheDocument();
     expect(screen.getByTestId("archlucid-wordmark-link")).toHaveAttribute(
@@ -160,7 +156,7 @@ describe("OperatorShellTopBar", () => {
     );
   });
 
-  it("renders workspace chrome before Help and the more-menu overflow tools", async () => {
+  it("renders workspace chrome before Help and AI usage on the toolbar", async () => {
     render(
       <TooltipProvider>
         <OperatorShellTopBar onOpenHelpSearch={vi.fn()} />
@@ -171,19 +167,17 @@ describe("OperatorShellTopBar", () => {
     const contextRail = screen.getByTestId("app-shell-topbar-context");
     const scopeTrigger = screen.getByTestId("operator-scope-switcher-trigger");
     const helpTrigger = screen.getByTestId("operator-shell-help-trigger");
-    const moreTrigger = screen.getByTestId("operator-shell-topbar-more-trigger");
+    const budgetPill = await screen.findByTestId("llm-budget-status-pill");
 
     expect(sessionRail.contains(contextRail)).toBe(true);
     expect(contextRail.contains(scopeTrigger)).toBe(true);
     expect(screen.queryByTestId("executive-operator-shell-switcher")).not.toBeInTheDocument();
     expect(scopeTrigger.compareDocumentPosition(helpTrigger) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(helpTrigger.compareDocumentPosition(moreTrigger) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-
-    openMoreMenu();
-    expect(await screen.findByTestId("llm-budget-status-pill")).toBeInTheDocument();
+    expect(helpTrigger.compareDocumentPosition(budgetPill) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.queryByTestId("operator-shell-topbar-more-trigger")).not.toBeInTheDocument();
   });
 
-  it("omits the more menu in buyer-default shell when no secondary tools remain", () => {
+  it("omits AI usage and the more menu in buyer-default shell", () => {
     fullShellMock.value = false;
 
     render(
@@ -215,5 +209,23 @@ describe("OperatorShellTopBar", () => {
     });
 
     expect(fetchBudgetCached).not.toHaveBeenCalled();
+  });
+
+  it("keeps the more menu only for the eval authority theme toggle", async () => {
+    authorityThemeEvalMock.value = true;
+
+    render(
+      <TooltipProvider>
+        <OperatorShellTopBar onOpenHelpSearch={vi.fn()} />
+      </TooltipProvider>,
+    );
+
+    expect(await screen.findByTestId("llm-budget-status-pill")).toBeInTheDocument();
+    expect(screen.getByTestId("operator-shell-topbar-more-trigger")).toBeInTheDocument();
+
+    openMoreMenu();
+
+    expect(await screen.findByTestId("app-shell-topbar-more-tools")).toBeInTheDocument();
+    expect(screen.getByTestId("llm-budget-status-pill")).toBeInTheDocument();
   });
 });

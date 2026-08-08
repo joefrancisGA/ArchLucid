@@ -113,9 +113,14 @@ const nextConfig: NextConfig = {
     ];
   },
   async redirects() {
-    // No permanent bookmark redirects (IA batch 4). Legacy `/architectures` 404s;
-    // product hrefs and canonicalizeLegacyOperatorRoutePath use `/architecture/architectures`.
-    return [];
+    // IA batch 4: no `/architectures` bookmark redirects — canonicalizeLegacyOperatorRoutePath handles product hrefs.
+    // Legacy `/reviews` and `/runs` still surface in help markdown; force-canonical server redirects prevent 404s.
+    return [
+      { source: "/reviews", destination: "/architecture/reviews", permanent: true },
+      { source: "/reviews/:path*", destination: "/architecture/reviews/:path*", permanent: true },
+      { source: "/runs", destination: "/architecture/reviews", permanent: true },
+      { source: "/runs/:path*", destination: "/architecture/reviews/:path*", permanent: true },
+    ];
   },
   async rewrites() {
     return [];

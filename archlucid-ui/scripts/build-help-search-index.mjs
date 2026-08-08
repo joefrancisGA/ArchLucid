@@ -43,8 +43,9 @@ function applyHelpTopicProductLanguage(text) {
 
   result = result.replace(/\/runs\//g, "/architecture/reviews/");
   result = result.replace(/\/runs\b/g, "/architecture/reviews");
-  result = result.replace(/\/reviews\//g, "/architecture/reviews/");
-  result = result.replace(/\/reviews\b/g, "/architecture/reviews");
+  // Lookbehind avoids rewriting already-canonical `/architecture/reviews…` paths.
+  result = result.replace(/(?<!\/architecture)\/reviews\//g, "/architecture/reviews/");
+  result = result.replace(/(?<!\/architecture)\/reviews\b/g, "/architecture/reviews");
   result = result.replace(/\/architecture\/reviews\/([^)/\s]+)\/manifest\b/g, "/architecture/reviews/$1/architecture");
 
   return result;
