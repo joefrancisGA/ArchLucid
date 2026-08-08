@@ -16,6 +16,7 @@ import { formatUploadEta, estimateUploadSecondsRemaining } from "@/lib/format-up
 
 import { Button } from "./ui/button";
 import { Progress } from "./ui/progress";
+import { LongOperationWaitNotice } from "@/components/LongOperationWaitNotice";
 
 export interface BulkEvidenceUploadProps {
   runId: string;
@@ -308,7 +309,14 @@ export function BulkEvidenceUpload({ runId }: BulkEvidenceUploadProps) {
       ) : null}
 
       {showProgress ? (
-        <div className="space-y-1" data-testid="bulk-evidence-upload-progress">
+        <div className="space-y-2" data-testid="bulk-evidence-upload-progress">
+          <LongOperationWaitNotice
+            active={uploading}
+            operationLabel="Uploading evidence"
+            stageLabel="Transferring files to ArchLucid"
+            testId="bulk-evidence-long-wait"
+            showTimeoutRecovery={false}
+          />
           <Progress value={progressPercent} className="h-2 w-full" aria-label="Upload progress" />
           <div className={cn("flex justify-between text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             <span>{progressPercent}%</span>

@@ -5,6 +5,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { useState } from "react";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { LongOperationWaitNotice } from "@/components/LongOperationWaitNotice";
 import { Button } from "@/components/ui/button";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { usePilotRoiBaselineCompleteness } from "@/hooks/use-pilot-roi-baseline-completeness";
@@ -89,6 +90,12 @@ export function GenerateSponsorValueReportButton() {
       >
         {busy ? "Generating…" : "Generate sponsor report"}
       </Button>
+      <LongOperationWaitNotice
+        active={busy}
+        operationLabel="Generating sponsor report"
+        stageLabel="Building DOCX export"
+        testId="sponsor-report-long-wait"
+      />
       {error ? (
         <OperatorApiProblem
           problem={error.problem}

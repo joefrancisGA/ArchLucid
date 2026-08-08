@@ -5,6 +5,7 @@ import type { RefObject } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { LongOperationWaitNotice } from "@/components/LongOperationWaitNotice";
 import {
   BUYER_ASK_CARD_TITLE,
   BUYER_ASK_INPUT_PLACEHOLDER,
@@ -30,6 +31,8 @@ export type AskQuestionFormProps = {
   loading: boolean;
   askDisabled: boolean;
   onAsk: () => void;
+  /** Tier B staged wait — pre-stream hold only (not while SSE tokens arrive). */
+  showLongWait?: boolean;
   /** When true, hides grouped starter chips (shown instead under the latest assistant reply). */
   hideBuyerStarterPromptGroups?: boolean;
 };
@@ -123,6 +126,7 @@ export function AskQuestionForm(props: AskQuestionFormProps) {
     loading,
     askDisabled,
     onAsk,
+    showLongWait = false,
     hideBuyerStarterPromptGroups = false,
   } = props;
 
@@ -154,6 +158,13 @@ export function AskQuestionForm(props: AskQuestionFormProps) {
           </p>
         ) : null}
       </div>
+
+      <LongOperationWaitNotice
+        active={showLongWait}
+        operationLabel="Answering your question"
+        stageLabel="Retrieving evidence and composing an answer"
+        testId="ask-long-wait"
+      />
 
       <SuggestedQuestionChips
         buyerPolishedShell={buyerPolishedShell}

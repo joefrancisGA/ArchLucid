@@ -6,6 +6,7 @@ import { useState } from "react";
 import Link from "next/link";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
+import { LongOperationWaitNotice } from "@/components/LongOperationWaitNotice";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { PreCommitGovernanceBlockPanel } from "@/components/PreCommitGovernanceBlockPanel";
 import { Button } from "@/components/ui/button";
@@ -132,6 +133,12 @@ export function CommitRunButton({
 
   return (
     <div className="space-y-3">
+      <LongOperationWaitNotice
+        active={busy}
+        operationLabel="Finalizing architecture review"
+        stageLabel="Saving signed review record"
+        testId="commit-run-long-wait"
+      />
       <div>
         <Button
           type="button"

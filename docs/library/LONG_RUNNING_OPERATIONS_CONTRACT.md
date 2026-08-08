@@ -114,21 +114,39 @@ Minimum fields (no `percentComplete` on the wire):
 | 4 | **TB-2075** | Async execute/replay 202 + `Location` (**Done** 2026-08-08) |
 | 5 | **TB-2076** | Cancel (**Done** 2026-08-08) |
 | 6 | **TB-2077** | Shell in-flight operations affordance (**Done** 2026-08-08) |
-| 7 | **TB-2078** | Tier B staged wait UX + `loading.tsx` sweep |
+| 7 | **TB-2078** | Tier B staged wait UX + `loading.tsx` sweep (**Done** 2026-08-08) |
 | 8 | **TB-2079** | API latency-tier CI gate |
 
 ---
 
-## 8. UI agent notes
+## 8. Tier B wait matrix (TB-2078)
+
+Client surfaces that routinely exceed ~4s should use `LongOperationWaitNotice` / `useLongOperationWait` (named stages + 10s/30s/60s escalation — **no fake %**). Route trees that need RSC transition skeletons use segment `loading.tsx`.
+
+| Surface | Route / entry | Wait component | Notes |
+|---------|---------------|----------------|-------|
+| Finalize / commit | `CommitRunButton` → `POST .../finalize` | `LongOperationWaitNotice` | Tier B–C boundary; keep sync |
+| Ask (sync hold) | `/insights/ask-review-questions` | `LongOperationWaitNotice` while `loading && streamingAssistantContent === null` | Pre-stream hold only; hide once SSE tokens arrive |
+| Sponsor DOCX export | `GenerateSponsorValueReportButton` | `LongOperationWaitNotice` | Download may hit Tier B/D |
+| Bulk evidence upload | `BulkEvidenceUpload` | `LongOperationWaitNotice` + real byte `Progress` | Byte % is real transfer progress, not invented |
+| Administration RSC | `/administration/*` | `administration/loading.tsx` → `GenericPageSkeleton` | Segment skeleton |
+| Integrations RSC | `/integrations/*` | `integrations/loading.tsx` → `GenericPageSkeleton` | Segment skeleton |
+| Quick Scan / retrieval search / policy dry-run | existing page loaders / button busy | Prefer shared hook when adding new sync holds | Follow-on wiring OK without reopening this row |
+
+**Exceptions (documented):** OAuth callback routes under integrations inherit the segment skeleton; no separate exception required.
+
+---
+
+## 9. UI agent notes
 
 - Do **not** invent a `/v1/runs/{id}/progress` client.
-- Tier B surfaces should use staged wait / route `loading.tsx` (**TB-2078**), not infinite silent spinners.
+- Tier B surfaces should use staged wait / route `loading.tsx` (**TB-2078** **Done**), not infinite silent spinners.
 - Tier C Real-mode execute/replay should poll operations (**TB-2074**) or existing job URLs; shell activity (**TB-2077**) tracks `Location` handles after async accept.
 - Product language: prefer *architecture review* / *export* over *job* in buyer chrome; *job* remains OK on admin/diagnostic surfaces.
 
 ---
 
-## 9. HTTP timeout ceiling matrix (TB-2073)
+## 10. HTTP timeout ceiling matrix (TB-2073)
 
 Documented stack limits that sit **below** long Real-mode handler work. Values are **deployed-contract references**, not buyer SLAs.
 
