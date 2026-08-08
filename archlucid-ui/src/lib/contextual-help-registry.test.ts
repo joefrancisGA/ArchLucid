@@ -5,6 +5,14 @@ import {
   contextualHelpForPathname,
   type PageContextualHelpEntry,
 } from "@/lib/contextual-help-registry";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
+import {
+  INTERNAL_DEMO_READINESS_PATH,
+  INTERNAL_DEPLOYMENT_STATUS_PATH,
+  INTERNAL_REPLAY_PATH,
+  INTERNAL_TENANT_HEALTH_PATH,
+  INTERNAL_TRIAL_FUNNEL_PATH,
+} from "@/lib/internal-ops-route-paths";
 
 const INTERNAL_ROUTE_IN_COPY =
   /\/(admin|api|governance|settings|integrations|reviews|architectures|help|graph|compare|replay|value-report|digests|planning|advisory|executive|manifests|signed-records)(\/|\b)/i;
@@ -36,11 +44,11 @@ describe("contextual-help-registry (TB-733)", () => {
       "/",
       "/architecture/reviews",
       "/insights/architecture-scorecard",
-      "/governance/dashboard",
+      "/architecture/executive-dashboard",
       "/governance/findings",
       "/insights/ask-review-questions",
       "/insights/compare-two-reviews",
-      "/replay",
+      INTERNAL_REPLAY_PATH,
       "/insights/search-review-evidence",
       "/help/data-handling",
       "/help/data-handling-tenant-isolation",
@@ -50,6 +58,8 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/evaluator-workbook",
       "/help/enterprise-onboarding",
       "/help/pilot-roi-model",
+      "/help/pilot-feedback",
+      "/help/pilot-nav-profile",
       "/help/executive-summary",
       "/help/product-overview",
       "/help/policy-pack-delta-demo",
@@ -82,17 +92,16 @@ describe("contextual-help-registry (TB-733)", () => {
       "/why-archlucid",
       "/demo/explain",
       "/governance/advisory-scans",
-      "/sponsor-report/executive-summary",
-      "/sponsor-report/pilot-outcomes",
-      "/executive/scorecard",
+      "/insights/executive-summary",
+      "/insights/pilot-outcomes",
       "/governance/alert-rules",
       "/governance/approval-queue",
       "/governance/approval-requests",
       "/governance/signed-records",
-      "/admin/tenant-health",
-      "/admin/trial-funnel",
-      "/admin/demo-readiness",
-      "/admin/deployment-status",
+      INTERNAL_TENANT_HEALTH_PATH,
+      INTERNAL_TRIAL_FUNNEL_PATH,
+      INTERNAL_DEMO_READINESS_PATH,
+      INTERNAL_DEPLOYMENT_STATUS_PATH,
       "/help",
       "/help/accelerator-chooser",
       "/help/admin-diagnostics",
@@ -100,8 +109,6 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/azure-boards",
       "/help/integrations/azure-boards",
       "/help/integration-readiness",
-      "/help/pilot-feedback",
-      "/help/pilot-nav-profile",
       "/help/caiq-sig-response",
       "/help/comparison-replay",
       "/help/getting-started",
@@ -119,6 +126,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/governance-approval",
       "/help/review-guide",
       "/help/creating-runs",
+      "/help/starting-reviews",
       "/help/repeat-review-loop",
       "/help/pilot-guide",
       "/help/first-architecture-review",
@@ -188,7 +196,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "First review guide",
     );
     expect(contextualHelpForPathname("/governance/findings?filter=open")?.whatToDoNext).toContain("Assign owners");
-    expect(contextualHelpForPathname("/sponsor-report/executive-summary")?.whatIsThisPage).toContain(
+    expect(contextualHelpForPathname("/insights/executive-summary")?.whatIsThisPage).toContain(
       "Sponsor executive summary",
     );
     expect(contextualHelpForPathname("/insights/planning/plans/plan-1")?.whatIsThisPage).toContain("one prioritized improvement plan");
@@ -196,12 +204,12 @@ describe("contextual-help-registry (TB-733)", () => {
 
   it("resolves Overview home without stealing other routes (HOM / TB-1667)", () => {
     expect(contextualHelpForPathname("/")?.whatIsThisPage).toContain("Overview");
-    expect(contextualHelpForPathname("/sponsor-report/roi-summary")).toBeNull();
+    expect(contextualHelpForPathname("/insights/roi-summary")).toBeNull();
   });
 
-  it("resolves governance dashboard Category-1 help (GDX)", () => {
-    expect(contextualHelpForPathname("/governance/dashboard")?.whatIsThisPage).toContain("Workspace health");
-    expect(contextualHelpForPathname("/governance/dashboard")?.whyEmpty).toContain("zero");
+  it("resolves executive dashboard Category-1 help (ARE / GDX)", () => {
+    expect(contextualHelpForPathname(EXECUTIVE_DASHBOARD_HREF)?.whatIsThisPage).toContain("Executive dashboard");
+    expect(contextualHelpForPathname(EXECUTIVE_DASHBOARD_HREF)?.whyEmpty).toContain("zero");
   });
 
   it("resolves architecture scorecard Category-1 help (SCX)", () => {
@@ -393,7 +401,7 @@ describe("contextual-help-registry (TB-733)", () => {
     expect(contextualHelpForPathname("/help/comparison-replay")?.whatToDoNextAction?.href).toBe(
       "/insights/compare-two-reviews",
     );
-    expect(contextualHelpForPathname("/help/comparison-replay")?.whereToConfigureAction?.href).toBe("/replay");
+    expect(contextualHelpForPathname("/help/comparison-replay")?.whereToConfigureAction?.href).toBe(INTERNAL_REPLAY_PATH);
   });
 
   it("resolves Connect AWS securely help Category-1 help (HEC)", () => {
@@ -430,8 +438,8 @@ describe("contextual-help-registry (TB-733)", () => {
   });
 
   it("resolves tenant-health Category-1 help (ATX)", () => {
-    expect(contextualHelpForPathname("/admin/tenant-health")?.whatIsThisPage).toContain("Tenant health");
-    expect(contextualHelpForPathname("/admin/tenant-health")?.whatToDoNext).toContain("Refresh the table");
+    expect(contextualHelpForPathname(INTERNAL_TENANT_HEALTH_PATH)?.whatIsThisPage).toContain("Tenant health");
+    expect(contextualHelpForPathname(INTERNAL_TENANT_HEALTH_PATH)?.whatToDoNext).toContain("Refresh the table");
   });
 
   it("resolves how-it-works help Category-1 help (HHX alias → getting-started)", () => {
@@ -579,8 +587,8 @@ describe("contextual-help-registry (TB-733)", () => {
   });
 
   it("resolves validate review Category-1 help (REP)", () => {
-    expect(contextualHelpForPathname("/replay")?.whatIsThisPage).toContain("Validate review");
-    expect(contextualHelpForPathname("/replay")?.whatToDoNext).toContain("validation depth");
+    expect(contextualHelpForPathname(INTERNAL_REPLAY_PATH)?.whatIsThisPage).toContain("Validate review");
+    expect(contextualHelpForPathname(INTERNAL_REPLAY_PATH)?.whatToDoNext).toContain("validation depth");
   });
 
   it("resolves invite-reviewer Category-1 help (SRI)", () => {
@@ -619,20 +627,15 @@ describe("contextual-help-registry (TB-733)", () => {
     );
   });
 
-  it("resolves executive scorecard Category-1 help (ESX)", () => {
-    expect(contextualHelpForPathname("/executive/scorecard")?.whatIsThisPage).toContain("Sponsor scorecard");
-    expect(contextualHelpForPathname("/executive/scorecard")?.whatToDoNext).toContain("time range");
-  });
-
   it("resolves sponsor executive summary Category-1 help (SPE)", () => {
-    expect(contextualHelpForPathname("/sponsor-report/executive-summary")?.whatIsThisPage).toContain(
+    expect(contextualHelpForPathname("/insights/executive-summary")?.whatIsThisPage).toContain(
       "Sponsor executive summary",
     );
   });
 
   it("resolves pilot outcomes Category-1 help (SPP)", () => {
-    expect(contextualHelpForPathname("/sponsor-report/pilot-outcomes")?.whatIsThisPage).toContain("Pilot outcomes");
-    expect(contextualHelpForPathname("/sponsor-report/pilot-outcomes")?.whatToDoNext).toContain("reporting period");
+    expect(contextualHelpForPathname("/insights/pilot-outcomes")?.whatIsThisPage).toContain("Pilot outcomes");
+    expect(contextualHelpForPathname("/insights/pilot-outcomes")?.whatToDoNext).toContain("reporting period");
   });
 
   it("resolves system-health Category-1 help with Connection status action (ADY)", () => {
@@ -661,25 +664,25 @@ describe("contextual-help-registry (TB-733)", () => {
   });
 
   it("resolves Demo readiness Category-1 help (ADD)", () => {
-    expect(contextualHelpForPathname("/admin/demo-readiness")?.whatIsThisPage).toContain(
+    expect(contextualHelpForPathname(INTERNAL_DEMO_READINESS_PATH)?.whatIsThisPage).toContain(
       "Demo readiness",
     );
-    expect(contextualHelpForPathname("/admin/demo-readiness")?.whatToDoNext).toContain(
+    expect(contextualHelpForPathname(INTERNAL_DEMO_READINESS_PATH)?.whatToDoNext).toContain(
       "System health",
     );
   });
 
   it("resolves Deployment status Category-1 help (ADE)", () => {
-    expect(contextualHelpForPathname("/admin/deployment-status")?.whatIsThisPage).toContain(
+    expect(contextualHelpForPathname(INTERNAL_DEPLOYMENT_STATUS_PATH)?.whatIsThisPage).toContain(
       "Deployment status",
     );
-    expect(contextualHelpForPathname("/admin/deployment-status")?.whatToDoNext).toContain(
+    expect(contextualHelpForPathname(INTERNAL_DEPLOYMENT_STATUS_PATH)?.whatToDoNext).toContain(
       "System health",
     );
   });
 
   it("returns null for routes not yet migrated", () => {
-    expect(contextualHelpForPathname("/sponsor-report/roi-summary")).toBeNull();
+    expect(contextualHelpForPathname("/insights/roi-summary")).toBeNull();
   });
 
   it("keeps each page within the Category 1 word budget", () => {

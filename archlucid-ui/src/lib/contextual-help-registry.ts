@@ -21,6 +21,13 @@ import {
 import { PLANNING_PATH } from "@/lib/planning-route";
 import { PRODUCT_LEARNING_PATH } from "@/lib/product-learning-route";
 import {
+  INTERNAL_DEMO_READINESS_PATH,
+  INTERNAL_DEPLOYMENT_STATUS_PATH,
+  INTERNAL_REPLAY_PATH,
+  INTERNAL_TENANT_HEALTH_PATH,
+  INTERNAL_TRIAL_FUNNEL_PATH,
+} from "@/lib/internal-ops-route-paths";
+import {
   ARCHITECTURES_DRAFT_CONTEXTUAL_HELP,
   pathIsArchitectureDraftDetail,
 } from "@/lib/architectures-draft-evidence-copy";
@@ -150,7 +157,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
-    prefix: "/replay",
+    prefix: INTERNAL_REPLAY_PATH,
     entry: {
       whatIsThisPage:
         "Validate review — re-check a finalized architecture review (reconstruct, rebuild outputs, or full regeneration).",
@@ -709,7 +716,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
-    prefix: "/sponsor-report/executive-summary",
+    prefix: "/insights/executive-summary",
     entry: {
       whatIsThisPage:
         "Sponsor executive summary — period preview of finalized reviews, findings, governance activity, and directional ROI for exports.",
@@ -719,7 +726,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
-    prefix: "/sponsor-report/pilot-outcomes",
+    prefix: "/insights/pilot-outcomes",
     entry: {
       whatIsThisPage:
         "Pilot outcomes — period summary of finalized review activity, material findings, governance decisions, and measurable pilot results.",
@@ -791,7 +798,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
-    prefix: "/admin/tenant-health",
+    prefix: INTERNAL_TENANT_HEALTH_PATH,
     entry: {
       whatIsThisPage:
         "Tenant health — internal customer-success scores for engagement, governance activity, and pilot funnel stage by tenant scope.",
@@ -803,7 +810,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
-    prefix: "/admin/trial-funnel",
+    prefix: INTERNAL_TRIAL_FUNNEL_PATH,
     entry: {
       whatIsThisPage:
         "Trial funnel — internal conversion KPIs and cohort rows for trial-stage progress across tenants.",
@@ -815,7 +822,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
-    prefix: "/admin/demo-readiness",
+    prefix: INTERNAL_DEMO_READINESS_PATH,
     entry: {
       whatIsThisPage:
         "Demo readiness - internal employee diagnostic checklist for buyer CTO demo preflight across this workspace.",
@@ -827,7 +834,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
-    prefix: "/admin/deployment-status",
+    prefix: INTERNAL_DEPLOYMENT_STATUS_PATH,
     entry: {
       whatIsThisPage:
         "Deployment status - internal release identity, health, and BUILD_ID agreement across frontend, API, and worker.",
@@ -1011,7 +1018,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       },
       whereToConfigureAction: {
         label: "Open Validate review",
-        href: "/replay",
+        href: INTERNAL_REPLAY_PATH,
       },
     },
   },
@@ -1187,6 +1194,19 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
   {
     /** Legacy slug alias — same Category-1 copy as review-guide (HER / HR). */
     prefix: "/help/creating-runs",
+    entry: {
+      whatIsThisPage:
+        "Review guide — field reference for naming a review, uploading evidence, confirming scope, and finalizing the package.",
+      whatToDoNext:
+        "Start an architecture review, or open the First review guide when you need the walkthrough instead of field detail.",
+      whyEmpty: "This guide is always available; live architecture reviews appear after you create them in this workspace.",
+      whereToConfigurePrerequisite:
+        "Creating reviews needs a role that can start architecture reviews in this workspace.",
+    },
+  },
+  {
+    /** Legacy slug alias — same Category-1 copy as review-guide (HET / HR). */
+    prefix: "/help/starting-reviews",
     entry: {
       whatIsThisPage:
         "Review guide — field reference for naming a review, uploading evidence, confirming scope, and finalizing the package.",
