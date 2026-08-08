@@ -11,7 +11,8 @@ export const WEBHOOKS_INTEGRATION_TRAFFIC_PATH = "/integrations/webhooks";
 export const WEBHOOKS_INTEGRATION_TRAFFIC_SECTION = "Integrations";
 
 /**
- * Owner workbook Notes for IWX — documents Evidence chrome on Webhooks integration.
+ * Owner workbook Notes for IWX - documents Evidence chrome on Webhooks integration.
+ * ASCII-only for Windows console note scripts.
  */
 export const WEBHOOKS_INTEGRATION_TRAFFIC_NOTE =
-  "Webhooks integration (Integrations) - WebhooksIntegrationPageClient with PageContextualHelpButton (topic map integration-readiness; Category-1 registry), workspace Sources + claim-discipline orientation strip, endpoint list + delivery history. Sibling IJX = Jira; ISX = ServiceNow; OID = DLQ; ADY = system-health. Outbound webhook config — not a signed-record Sources trail. Score 45/100 (2026-08-05) — connector config hard-caps higher Evidence.";
+  "Webhooks integration (Integrations) - WebhooksIntegrationPageClient with PageContextualHelpButton (topic map integration-readiness; Category-1 registry), Learn more / claim-discipline orientation strip (Sources follow-up removed TB-2092), endpoint list + delivery history. Sibling IJX = Jira; ISX = ServiceNow; OID = DLQ; ADY = system-health. Outbound webhook config - not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 45/100 (2026-08-08) - connector config hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
