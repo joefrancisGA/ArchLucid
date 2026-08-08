@@ -22,4 +22,4 @@ export const RUN_DETAIL_ACTIVITY_PRE_COMMIT_SOURCES_INTRO =
   "Use these follow-ups when create-home Activity progress turns into findings triage, evidence search, or governance readiness.";
 
 export const RUN_DETAIL_ACTIVITY_PRE_COMMIT_CLAIM_DISCIPLINE =
-  "This create-home Activity tab shows assessment progress and baseline context before finalize. It is not a signed-record Sources trail and does not imply CPA SOC 2 attestation or a published third-party pen test.";
+  "This create-home Activity tab shows assessment progress and baseline context before finalize. It is not a signed-record Sources trail";

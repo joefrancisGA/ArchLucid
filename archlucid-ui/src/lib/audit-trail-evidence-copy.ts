@@ -1,7 +1,7 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const AUDIT_TRAIL_CLAIM_DISCIPLINE =
-  "Audit events are an operator activity log for this workspace — not a signed-review diligence Sources package by themselves. Integrity export/verify when available strengthens provenance, but do not imply CPA SOC 2 attestation or a published third-party pen test from this page.";
+  "Audit events are an operator activity log for this workspace — not a signed-review diligence Sources package by themselves. Integrity export/verify when available strengthens provenance for operators";
 
 export const AUDIT_TRAIL_SOURCES_INTRO =
   "Open the related architecture review or findings when an event needs follow-up; use Audit trail help for coverage expectations.";

@@ -4,7 +4,7 @@ import { SETTINGS_PREFERENCES_PATH } from "@/lib/settings-admin-route-paths";
 export const PREFERENCES_SETTINGS_CANONICAL_PATH = SETTINGS_PREFERENCES_PATH;
 
 export const PREFERENCES_SETTINGS_CLAIM_DISCIPLINE =
-  "This Preferences page saves personal appearance choices to your account - it is not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Getting started, Account security, or Assurance status when you need onboarding, sign-in controls, or trust cites.";
+  "This Preferences page saves personal appearance choices to your account - it is not a signed-review diligence Sources package. Open Getting started, Account security, or Assurance status when you need onboarding, sign-in controls, or trust cites.";
 
 export const PREFERENCES_SETTINGS_SOURCES_INTRO =
   "Use these follow-ups when personal theme settings turn into onboarding, account security, or assurance cites.";

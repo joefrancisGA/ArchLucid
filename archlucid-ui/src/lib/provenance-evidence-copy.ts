@@ -2,7 +2,7 @@ import { REVIEWS_LIST_PATH, reviewDetailPath } from "@/lib/architecture-routes";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const PROVENANCE_CLAIM_DISCIPLINE =
-  "This coordinator provenance graph and timeline show linkage for one review — they are not a complete signed-review diligence Sources export by themselves. Open the Evidence trail or the review workspace before briefing sponsors. Do not imply CPA SOC 2 attestation or a published third-party pen test from this page.";
+  "This coordinator provenance graph and timeline show linkage for one review — they are not a complete signed-review diligence Sources export by themselves. Open the Evidence trail or the review workspace before briefing sponsors.";
 
 export const PROVENANCE_SOURCES_INTRO =
   "Use these follow-ups when provenance nodes need a fuller evidence trail, search, or review context.";

@@ -1,7 +1,7 @@
 export const TRY_CANONICAL_PATH = "/try" as const;
 
 export const TRY_CLAIM_DISCIPLINE =
-  "This try page launches an illustrative sample review for evaluation — it is marketing frictionless trial orientation, not a signed-review diligence Sources package from your tenant, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Assurance status or start an evaluation when you need live workspace evidence.";
+  "This try page launches an illustrative sample review for evaluation — it is marketing frictionless trial orientation, not a signed-review diligence Sources package from your tenant. Open Assurance status or start an evaluation when you need live workspace evidence.";
 
 export const TRY_SOURCES_INTRO =
   "Use these evaluation links when the sample inspection turns into signup, assurance, or a guided first-run path.";

@@ -4,7 +4,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export const PRODUCT_LEARNING_CANONICAL_PATH = PRODUCT_LEARNING_PATH;
 
 export const PRODUCT_LEARNING_CLAIM_DISCIPLINE =
-  "Pilot feedback aggregates review signals for product improvement — ranked opportunities are candidates for human triage, not auto-filed work items, a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Improvement planning or Architecture reviews when you need live workflow trails.";
+  "Pilot feedback aggregates review signals for product improvement — ranked opportunities are candidates for human triage, not auto-filed work items, a signed-review diligence Sources package. Open Improvement planning or Architecture reviews when you need live workflow trails.";
 
 export const PRODUCT_LEARNING_SOURCES_INTRO =
   "Use these follow-ups when feedback trends turn into planning themes, live reviews, or operator help.";

@@ -14,4 +14,4 @@ export const LIVE_DEMO_TRAFFIC_SECTION = "Marketing";
  * Owner workbook Notes for LXX — documents Evidence chrome on live-demo.
  */
 export const LIVE_DEMO_TRAFFIC_NOTE =
-  "Live demo (Marketing) - LiveDemoMarketingPage with LiveDemoEvidenceOrientationStrip (evaluation Sources + claim-discipline: fabricated guided walkthrough only; not diligence / CPA SOC 2 / third-party pen-test). Not an operator PageContextualHelp surface. Sibling DPX = /demo/preview; TRY = /try. Does not imply CPA SOC 2 or third-party pen-test publication. Score 40/100 (2026-08-05) — marketing live-demo page hard-caps higher Evidence.";
+  "Live demo (Marketing) - LiveDemoMarketingPage with LiveDemoEvidenceOrientationStrip (evaluation Sources + claim-discipline: fabricated guided walkthrough only). Not an operator PageContextualHelp surface. Sibling DPX = /demo/preview; TRY = /try. Score 40/100 (2026-08-05) — marketing live-demo page hard-caps higher Evidence.";

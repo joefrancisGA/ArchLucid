@@ -23,4 +23,4 @@ export const ARCHITECTURE_CREATED_CLARIFICATIONS_SOURCES_INTRO =
   "Use these follow-ups when create-home Clarifications gaps turn into evidence capture, findings triage, or a corrected intake pass.";
 
 export const ARCHITECTURE_CREATED_CLARIFICATIONS_CLAIM_DISCIPLINE =
-  "This create-home Clarifications tab lists unresolved gaps and open questions before finalize. It is not a signed-record Sources trail and does not imply CPA SOC 2 attestation or a published third-party pen test.";
+  "This create-home Clarifications tab lists unresolved gaps and open questions before finalize. It is not a signed-record Sources trail";

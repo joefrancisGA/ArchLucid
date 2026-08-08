@@ -14,4 +14,4 @@ export const GOVERNANCE_AUDIT_TRAFFIC_SECTION = "Alerts/gov";
  * Owner workbook Notes for AUD — documents Evidence chrome on Audit trail.
  */
 export const GOVERNANCE_AUDIT_TRAFFIC_NOTE =
-  "Governance audit trail - AuditPageView with AuditPageHeader PageContextualHelpButton (topic map audit-trail; Category-1 registry), Sources follow-up strip + claim-discipline callout (activity log, not diligence pack), search/filters, integrity export/verify when available. Not a signed-record Sources trail by itself. Does not imply CPA SOC 2 or third-party pen-test publication.";
+  "Governance audit trail - AuditPageView with AuditPageHeader PageContextualHelpButton (topic map audit-trail; Category-1 registry), Sources follow-up strip + claim-discipline callout (activity log, not diligence pack), search/filters, integrity export/verify when available. Not a signed-record Sources trail by itself.";

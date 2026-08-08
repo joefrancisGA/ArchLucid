@@ -15,4 +15,4 @@ export const PRIOR_MANIFEST_RETRIEVAL_HELP_TRAFFIC_SECTION = "Help topic";
  * ASCII-only for Windows console note scripts.
  */
 export const PRIOR_MANIFEST_RETRIEVAL_HELP_TRAFFIC_NOTE =
-  "Prior manifest retrieval help (Help topic) - HelpTopicMarkdownView with PageContextualHelp + PriorManifestRetrievalHelpEvidenceOrientationStrip (Sources + claim-discipline), curated PRIOR_MANIFEST_RETRIEVAL_GUIDE.md (TB-1733 host-config strip). Sibling ISE = search; INS = Ask; SI = signed records. Not bare catch-all help chrome. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-08) - help-topic orientation hard-caps higher Evidence.";
+  "Prior manifest retrieval help (Help topic) - HelpTopicMarkdownView with PageContextualHelp + PriorManifestRetrievalHelpEvidenceOrientationStrip (Sources + claim-discipline), curated PRIOR_MANIFEST_RETRIEVAL_GUIDE.md (TB-1733 host-config strip). Sibling ISE = search; INS = Ask; SI = signed records. Not bare catch-all help chrome. Score 52/100 (2026-08-08) - help-topic orientation hard-caps higher Evidence.";

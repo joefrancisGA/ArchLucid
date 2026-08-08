@@ -1,5 +1,5 @@
 export const AUTH_SIGNIN_CLAIM_DISCIPLINE =
-  "Sign-in chooses how you authenticate into ArchLucid — it is an authentication gate, not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. After you enter a workspace, open Assurance status or a finalized review when you need live workspace evidence.";
+  "Sign-in chooses how you authenticate into ArchLucid — it is an authentication gate, not a signed-review diligence Sources package. After you enter a workspace, open Assurance status or a finalized review when you need live workspace evidence.";
 
 export const AUTH_SIGNIN_SOURCES_INTRO =
   "Use these follow-ups when sign-in is blocked or you need product orientation before a workspace is ready.";

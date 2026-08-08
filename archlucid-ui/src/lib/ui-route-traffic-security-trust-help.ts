@@ -14,4 +14,4 @@ export const SECURITY_TRUST_HELP_TRAFFIC_SECTION = "Help topic";
  * Owner workbook Notes for HSE — documents Evidence chrome on Security and trust help.
  */
 export const SECURITY_TRUST_HELP_TRAFFIC_NOTE =
-  "Security and trust help (Help topic) - HelpTopicMarkdownView with PageContextualHelpButton (topic map security-trust; Category-1 registry), workspace Sources + claim-discipline orientation strip, curated trust-center markdown. Sibling SEC = /security-trust hub; TXX = /trust. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-05) — help-topic orientation hard-caps higher Evidence.";
+  "Security and trust help (Help topic) - HelpTopicMarkdownView with PageContextualHelpButton (topic map security-trust; Category-1 registry), workspace Sources + claim-discipline orientation strip, curated trust-center markdown. Sibling SEC = /security-trust hub; TXX = /trust. Score 52/100 (2026-08-05) — help-topic orientation hard-caps higher Evidence.";

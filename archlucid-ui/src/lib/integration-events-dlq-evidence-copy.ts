@@ -4,7 +4,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export const INTEGRATION_EVENTS_DLQ_CANONICAL_PATH = "/internal/integration-events/dlq" as const;
 
 export const INTEGRATION_EVENTS_DLQ_CLAIM_DISCIPLINE =
-  "This dead-letter queue is an Internal Operations triage surface for failed outbound integration events — it is not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Rows can span every tenant; fix the root cause before bulk retry, and open Integration readiness or System health for connector posture.";
+  "This dead-letter queue is an Internal Operations triage surface for failed outbound integration events — it is not a signed-review diligence Sources package. Rows can span every tenant; fix the root cause before bulk retry, and open Integration readiness or System health for connector posture.";
 
 export const INTEGRATION_EVENTS_DLQ_SOURCES_INTRO =
   "Use these follow-ups when a dead-letter needs readiness checks, channel config, or operational health context.";

@@ -31,6 +31,6 @@ describe("policy-pack-delta-demo-help-guide-content", () => {
 
   it("states claim discipline without implying certification", () => {
     expect(POLICY_PACK_DELTA_DEMO_HELP_CLAIM_DISCIPLINE.toLowerCase()).toContain("not certification");
-    expect(POLICY_PACK_DELTA_DEMO_HELP_CLAIM_DISCIPLINE.toLowerCase()).toContain("cpa");
+    expect(POLICY_PACK_DELTA_DEMO_HELP_CLAIM_DISCIPLINE.toLowerCase()).not.toContain("cpa");
   });
 });

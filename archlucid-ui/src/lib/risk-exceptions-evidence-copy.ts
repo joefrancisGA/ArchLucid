@@ -1,7 +1,7 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const RISK_EXCEPTIONS_CLAIM_DISCIPLINE =
-  "Risk exceptions track time-bounded waivers for accepted findings — they are not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Findings, Audit, or a review workspace when you need sponsor-safe trails.";
+  "Risk exceptions track time-bounded waivers for accepted findings — they are not a signed-review diligence Sources package. Open Findings, Audit, or a review workspace when you need sponsor-safe trails.";
 
 export const RISK_EXCEPTIONS_SOURCES_INTRO =
   "Use these follow-ups when an exception needs finding disposition, package context, or an activity trail.";

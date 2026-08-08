@@ -3,7 +3,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export const CLI_USAGE_HELP_CANONICAL_PATH = "/help/cli-usage" as const;
 
 export const CLI_USAGE_HELP_CLAIM_DISCIPLINE =
-  "This CLI usage reference is an engineering runbook for non-interactive commands and environment detail — it is not customer self-serve diligence, a CPA SOC 2 attestation, or a published third-party pen-test report. Prefer customer Troubleshooting and System health before treating CLI output as certification evidence.";
+  "This CLI usage reference is an engineering runbook for non-interactive commands and environment detail — it is not customer self-serve diligence. Prefer customer Troubleshooting and System health before treating CLI output as certification evidence.";
 
 export const CLI_USAGE_HELP_SOURCES_INTRO =
   "Use these follow-ups when CLI vocabulary turns into customer triage, eng troubleshooting, configuration, or API contracts.";

@@ -4,7 +4,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export const ARCHITECTURES_NEW_CANONICAL_PATH = ARCHITECTURES_NEW_PATH;
 
 export const ARCHITECTURES_NEW_CLAIM_DISCIPLINE =
-  "Creating or saving an architecture draft does not start a review - this page is drafting-first bootstrap, not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Start a review or Evidence intake help when you are ready to file evidence.";
+  "Creating or saving an architecture draft does not start a review - this page is drafting-first bootstrap, not a signed-review diligence Sources package. Open Start a review or Evidence intake help when you are ready to file evidence.";
 
 export const ARCHITECTURES_NEW_SOURCES_INTRO =
   "Use these follow-ups when a draft turns into review intake, first-run orientation, or the architectures list.";

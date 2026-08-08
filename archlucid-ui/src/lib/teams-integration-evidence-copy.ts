@@ -4,7 +4,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export const TEAMS_INTEGRATION_CANONICAL_PATH = "/integrations/teams" as const;
 
 export const TEAMS_INTEGRATION_CLAIM_DISCIPLINE =
-  "Teams destinations route governance alerts to Microsoft Teams channels — they are not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Alert rules, Integration readiness, or Audit when you need operational or governed trails.";
+  "Teams destinations route governance alerts to Microsoft Teams channels — they are not a signed-review diligence Sources package. Open Alert rules, Integration readiness, or Audit when you need operational or governed trails.";
 
 export const TEAMS_INTEGRATION_SOURCES_INTRO =
   "Use these follow-ups when the Teams connector needs routing rules, readiness checks, or a sibling notification channel.";

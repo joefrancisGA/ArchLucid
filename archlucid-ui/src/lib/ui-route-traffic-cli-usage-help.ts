@@ -14,4 +14,4 @@ export const CLI_USAGE_HELP_TRAFFIC_SECTION = "Help topic";
  * Owner workbook Notes for HCX — documents HelpCliUsageTechnicalReferenceView Evidence chrome.
  */
 export const CLI_USAGE_HELP_TRAFFIC_NOTE =
-  "CLI usage help (Help topic) - HelpCliUsageTechnicalReferenceView with PageContextualHelpButton (topic map cli-usage; Category-1 registry), workspace Sources + claim-discipline orientation strip, engineering runbook landing + CLI_USAGE.md. Sibling HDX = developer-troubleshooting; HTX = customer troubleshooting. Internal-runbook — not customer diligence. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-05) — help-topic orientation hard-caps higher Evidence.";
+  "CLI usage help (Help topic) - HelpCliUsageTechnicalReferenceView with PageContextualHelpButton (topic map cli-usage; Category-1 registry), workspace Sources + claim-discipline orientation strip, engineering runbook landing + CLI_USAGE.md. Sibling HDX = developer-troubleshooting; HTX = customer troubleshooting. Internal-runbook — not customer diligence. Score 52/100 (2026-08-05) — help-topic orientation hard-caps higher Evidence.";

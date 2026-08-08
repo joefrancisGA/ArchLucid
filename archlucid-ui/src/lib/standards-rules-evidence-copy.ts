@@ -2,7 +2,7 @@ import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const STANDARDS_RULES_CLAIM_DISCIPLINE =
-  "Standards & rules shows effective policy resolution and applied rule rows for the current scope — it is not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Export a diagnostic report when you need a point-in-time citeable snapshot, then open Findings or Policy packs for follow-up.";
+  "Standards & rules shows effective policy resolution and applied rule rows for the current scope — it is not a signed-review diligence Sources package. Export a diagnostic report when you need a point-in-time citeable snapshot, then open Findings or Policy packs for follow-up.";
 
 export const STANDARDS_RULES_SOURCES_INTRO =
   "Use these follow-ups when resolution questions turn into pack authoring, findings, or assurance orientation.";

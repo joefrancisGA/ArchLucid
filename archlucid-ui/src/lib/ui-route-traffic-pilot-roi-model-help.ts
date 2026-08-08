@@ -15,4 +15,4 @@ export const PILOT_ROI_MODEL_HELP_TRAFFIC_SECTION = "Help topic";
  * ASCII-only for Windows console note scripts.
  */
 export const PILOT_ROI_MODEL_HELP_TRAFFIC_NOTE =
-  "Pilot ROI model help (Help topic) - HelpTopicMarkdownView with PageContextualHelpButton (topic map pilot-roi-model; Category-1 registry), workspace Sources + claim-discipline orientation strip, curated PILOT_ROI_MODEL markdown. Sibling SCX = architecture-scorecard; SPP = pilot-outcomes; SPE = executive-summary; ADA = baseline settings. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-05) - help-topic orientation hard-caps higher Evidence.";
+  "Pilot ROI model help (Help topic) - HelpTopicMarkdownView with PageContextualHelpButton (topic map pilot-roi-model; Category-1 registry), workspace Sources + claim-discipline orientation strip, curated PILOT_ROI_MODEL markdown. Sibling SCX = architecture-scorecard; SPP = pilot-outcomes; SPE = executive-summary; ADA = baseline settings. Score 52/100 (2026-08-05) - help-topic orientation hard-caps higher Evidence.";

@@ -3,7 +3,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export const CLOUD_CONNECTIONS_CANONICAL_PATH = "/integrations/cloud-connections" as const;
 
 export const CLOUD_CONNECTIONS_CLAIM_DISCIPLINE =
-  "Provider status tiles and evidence-only upload summarize connection readiness for read-only collection — they are not a signed-review diligence Sources package by themselves. Open Connection status or a provider guide before treating inventory as authoritative. Do not imply CPA SOC 2 attestation or a published third-party pen test from this page.";
+  "Provider status tiles and evidence-only upload summarize connection readiness for read-only collection — they are not a signed-review diligence Sources package by themselves. Open Connection status or a provider guide before treating inventory as authoritative.";
 
 export const CLOUD_CONNECTIONS_SOURCES_INTRO =
   "Pick a cloud provider or evidence-only upload below, then use Connection status, provider help, or How ArchLucid works when you need orientation before production collection.";

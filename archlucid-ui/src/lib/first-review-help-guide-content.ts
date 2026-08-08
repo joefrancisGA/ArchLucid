@@ -12,7 +12,7 @@ export const FIRST_REVIEW_HELP_OVERVIEW =
   "Use this checklist when you need a short printable table of SE/ops success signals before a sponsor demo. Customer architects should stay on Your first architecture review. Capture run id and correlation id on any failed step before treating the package as demo-ready.";
 
 export const FIRST_REVIEW_HELP_CLAIM_DISCIPLINE =
-  "Checklist completion and a signed review record are architecture-review evidence for SE demos — not certification. Do not imply CPA SOC 2 attestation or a published third-party pen test from this page.";
+  "Checklist completion and a signed review record are architecture-review evidence for SE demos — not certification.";
 
 export const FIRST_REVIEW_HELP_EVIDENCE_ARC = [
   "Host + auth ready — API healthy with the intended auth mode for this environment.",

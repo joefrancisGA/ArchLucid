@@ -1,7 +1,7 @@
 export const SESSION_EXPIRED_CANONICAL_PATH = "/auth/session-expired" as const;
 
 export const SESSION_EXPIRED_CLAIM_DISCIPLINE =
-  "This page explains that your ArchLucid session ended and how to sign in again — it is an authentication handoff, not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. After you sign in, open Assurance status or a finalized review when you need live workspace evidence.";
+  "This page explains that your ArchLucid session ended and how to sign in again — it is an authentication handoff, not a signed-review diligence Sources package. After you sign in, open Assurance status or a finalized review when you need live workspace evidence.";
 
 export const SESSION_EXPIRED_SOURCES_INTRO =
   "Use these public follow-ups when you need product orientation before signing in again (authenticated workspace routes stay unavailable until you sign in).";

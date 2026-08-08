@@ -1,7 +1,7 @@
 export const COMPLIANCE_JOURNEY_CANONICAL_PATH = "/compliance-journey" as const;
 
 export const COMPLIANCE_JOURNEY_CLAIM_DISCIPLINE =
-  "This compliance journey page summarizes honest posture and diligence pointers - it is marketing orientation, not a CPA-issued SOC 2 report, a published third-party pen-test summary, or a signed-review diligence Sources package from your tenant. Use Trust Center downloads and NDA channels for materials that actually exist.";
+  "This compliance journey page summarizes honest posture and diligence pointers - it is marketing orientation, not a signed-review diligence Sources package from your tenant. Use Trust Center downloads and NDA channels for materials that actually exist.";
 
 export const COMPLIANCE_JOURNEY_SOURCES_INTRO =
   "Use these evaluation links when compliance questions turn into Trust Center downloads, assurance status, FAQ, or procurement follow-ups.";

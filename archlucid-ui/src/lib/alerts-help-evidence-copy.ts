@@ -3,7 +3,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export const ALERTS_HELP_CANONICAL_PATH = "/help/alerts" as const;
 
 export const ALERTS_HELP_CLAIM_DISCIPLINE =
-  "This alerts guide explains how notifications are raised and routed — it is not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Alert rules, the alerts inbox, or Audit when you need live configuration or governed trails.";
+  "This alerts guide explains how notifications are raised and routed — it is not a signed-review diligence Sources package. Open Alert rules, the alerts inbox, or Audit when you need live configuration or governed trails.";
 
 export const ALERTS_HELP_SOURCES_INTRO =
   "Use these follow-ups when you need live alert configuration, inbox triage, destinations, or product orientation.";

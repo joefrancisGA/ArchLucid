@@ -8,7 +8,7 @@ import {
 export const PILOT_OUTCOMES_CANONICAL_PATH = SPONSOR_REPORT_PILOT_OUTCOMES_PATH;
 
 export const PILOT_OUTCOMES_CLAIM_DISCIPLINE =
-  "Pilot outcomes summarize finalized reviews, findings, and governance activity for the selected period — they are not a signed-review diligence Sources package by themselves, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Evidence trail or Trust Center before treating this report as procurement evidence.";
+  "Pilot outcomes summarize finalized reviews, findings, and governance activity for the selected period — they are not a signed-review diligence Sources package by themselves. Open Evidence trail or Trust Center before treating this report as procurement evidence.";
 
 export const PILOT_OUTCOMES_SOURCES_INTRO =
   "Use these follow-ups when pilot outcomes need a fuller evidence trail, ROI methodology, or sponsor packaging.";

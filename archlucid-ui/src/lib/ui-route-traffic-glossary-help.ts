@@ -14,4 +14,4 @@ export const GLOSSARY_HELP_TRAFFIC_SECTION = "Help topic";
  * Owner workbook Notes for HGE — documents Evidence chrome on Glossary help.
  */
 export const GLOSSARY_HELP_TRAFFIC_NOTE =
-  "Glossary help (Help topic) - HelpGlossaryPageView with PageContextualHelpButton (topic map glossary; Category-1 registry), workspace Sources + claim-discipline orientation strip, searchable term browser. Not bare HelpTopicMarkdownView. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-04) — help-topic orientation hard-caps higher Evidence.";
+  "Glossary help (Help topic) - HelpGlossaryPageView with PageContextualHelpButton (topic map glossary; Category-1 registry), workspace Sources + claim-discipline orientation strip, searchable term browser. Not bare HelpTopicMarkdownView. Score 52/100 (2026-08-04) — help-topic orientation hard-caps higher Evidence.";

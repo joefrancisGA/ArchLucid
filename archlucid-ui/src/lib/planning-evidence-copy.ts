@@ -1,7 +1,7 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const PLANNING_CLAIM_DISCIPLINE =
-  "Themes and plans are derived from captured review feedback in the current workspace scope — not a signed-review diligence Sources trail. Do not imply CPA SOC 2 attestation or a published third-party pen test from this page.";
+  "Themes and plans are derived from captured review feedback in the current workspace scope — not a signed-review diligence Sources trail.";
 
 export const PLANNING_SOURCES_INTRO =
   "Open reviews, findings, or product-learning before treating prioritized plans as executed commitments.";

@@ -14,4 +14,4 @@ export const QUICK_SCAN_TRAFFIC_SECTION = "Marketing";
  * Owner workbook Notes for QXX — documents Evidence chrome on quick-scan.
  */
 export const QUICK_SCAN_TRAFFIC_NOTE =
-  "Quick scan (Marketing) - QuickScanClient with QuickScanEvidenceOrientationStrip (evaluation Sources + claim-discipline: demo scan only; not diligence / CPA SOC 2 / third-party pen-test). Not an operator PageContextualHelp surface. Does not imply CPA SOC 2 or third-party pen-test publication. Score 40/100 (2026-08-05) — marketing demo-scan page hard-caps higher Evidence.";
+  "Quick scan (Marketing) - QuickScanClient with QuickScanEvidenceOrientationStrip (evaluation Sources + claim-discipline: demo scan only). Not an operator PageContextualHelp surface. Score 40/100 (2026-08-05) — marketing demo-scan page hard-caps higher Evidence.";

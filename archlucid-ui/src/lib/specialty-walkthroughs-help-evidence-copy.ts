@@ -3,7 +3,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export const SPECIALTY_WALKTHROUGHS_HELP_CANONICAL_PATH = "/help/specialty-walkthroughs" as const;
 
 export const SPECIALTY_WALKTHROUGHS_HELP_CLAIM_DISCIPLINE =
-  "This Specialty walkthroughs catalog orients operators on starter review templates — it is help orientation and intake scaffolding, not a CPA SOC 2 attestation, a published third-party pen-test report, or a signed-review diligence Sources package from your tenant. Open Start review or Path chooser when you need live intake.";
+  "This Specialty walkthroughs catalog orients operators on starter review templates — it is help orientation and intake scaffolding, not a signed-review diligence Sources package from your tenant. Open Start review or Path chooser when you need live intake.";
 
 export const SPECIALTY_WALKTHROUGHS_HELP_SOURCES_INTRO =
   "Use these follow-ups when template vocabulary turns into live intake, first-review guidance, or path selection.";

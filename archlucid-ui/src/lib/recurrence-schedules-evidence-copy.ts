@@ -1,7 +1,7 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const RECURRENCE_SCHEDULES_CLAIM_DISCIPLINE =
-  "Recurrence schedules configure when architecture reviews repeat — they are not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Findings, approval queue, or Audit when you need disposition or activity trails.";
+  "Recurrence schedules configure when architecture reviews repeat — they are not a signed-review diligence Sources package. Open Findings, approval queue, or Audit when you need disposition or activity trails.";
 
 export const RECURRENCE_SCHEDULES_SOURCES_INTRO =
   "Use these follow-ups when schedule setup needs package context, risk triage, or approval workflow.";

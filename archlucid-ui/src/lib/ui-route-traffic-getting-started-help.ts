@@ -16,4 +16,4 @@ export const GETTING_STARTED_HELP_TRAFFIC_SECTION = "Help topic";
  * Owner workbook Notes for HGX — documents Evidence chrome on Getting started help.
  */
 export const GETTING_STARTED_HELP_TRAFFIC_NOTE =
-  "Getting started help (Help topic) - HelpGettingStartedGuideView with PageContextualHelpButton (topic map getting-started; Category-1 registry), workspace Sources + claim-discipline orientation, quick-start CTAs, workflow stepper, vocabulary. Absorbs former how-it-works twin (alias retired, TB-2050). Orientation guide — not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication.";
+  "Getting started help (Help topic) - HelpGettingStartedGuideView with PageContextualHelpButton (topic map getting-started; Category-1 registry), workspace Sources + claim-discipline orientation, quick-start CTAs, workflow stepper, vocabulary. Absorbs former how-it-works twin (alias retired, TB-2050). Orientation guide — not a signed-record Sources trail.";

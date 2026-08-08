@@ -6,7 +6,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export const PILOT_GUIDE_HELP_CANONICAL_PATH = "/help/pilot-guide" as const;
 
 export const PILOT_GUIDE_HELP_CLAIM_DISCIPLINE =
-  "This pilot guide is operator orientation for running an evaluation pilot — it is not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Reviews, Audit, or Assurance status when you need live packages or assurance claims.";
+  "This pilot guide is operator orientation for running an evaluation pilot — it is not a signed-review diligence Sources package. Open Reviews, Audit, or Assurance status when you need live packages or assurance claims.";
 
 export const PILOT_GUIDE_HELP_SOURCES_INTRO =
   "Use these follow-ups when pilot prep turns into starting a review, first-run onboarding, or sponsor outcomes.";

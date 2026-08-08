@@ -33,7 +33,8 @@ describe("path-chooser-help-guide-content", () => {
   });
 
   it("states claim discipline without implying CPA or third-party pen test", () => {
-    expect(PATH_CHOOSER_HELP_CLAIM_DISCIPLINE.toLowerCase()).toContain("not implied");
-    expect(PATH_CHOOSER_HELP_CLAIM_DISCIPLINE.toLowerCase()).toContain("cpa");
+    expect(PATH_CHOOSER_HELP_CLAIM_DISCIPLINE.toLowerCase()).not.toContain("cpa");
+    expect(PATH_CHOOSER_HELP_CLAIM_DISCIPLINE.toLowerCase()).not.toMatch(/pen[- ]test/i);
+    expect(PATH_CHOOSER_HELP_CLAIM_DISCIPLINE.toLowerCase()).toContain("trust center");
   });
 });

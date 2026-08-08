@@ -20,4 +20,4 @@ export const RUN_DETAIL_GOVERNANCE_PRE_COMMIT_SOURCES: readonly RunDetailGoverna
 ] as const;
 
 export const RUN_DETAIL_GOVERNANCE_PRE_COMMIT_CLAIM_DISCIPLINE =
-  "This create-home tab orients assessment before finalize. It is not the committed governance decision surface and does not imply CPA SOC 2 attestation or a published third-party pen test.";
+  "This create-home tab orients assessment before finalize. It is not the committed governance decision surface";

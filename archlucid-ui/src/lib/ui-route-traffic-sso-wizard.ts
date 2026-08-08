@@ -15,4 +15,4 @@ export const SSO_WIZARD_TRAFFIC_SECTION = "Settings";
  * ASCII-only for Windows console note scripts.
  */
 export const SSO_WIZARD_TRAFFIC_NOTE =
-  "SSO wizard (Settings/Admin) - SsoWizardPageClient with PageContextualHelpButton (topic map enterprise-onboarding; Category-1 registry), workspace Sources + claim-discipline orientation strip, guided OIDC/SAML discover / map / test / activate. Sibling AID = identity-providers hub; ASA = saml; AOI = oidc; SEI = diagnostics. Access configuration - not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 50/100 (2026-08-06) - settings access-hub hard-caps higher Evidence.";
+  "SSO wizard (Settings/Admin) - SsoWizardPageClient with PageContextualHelpButton (topic map enterprise-onboarding; Category-1 registry), workspace Sources + claim-discipline orientation strip, guided OIDC/SAML discover / map / test / activate. Sibling AID = identity-providers hub; ASA = saml; AOI = oidc; SEI = diagnostics. Access configuration - not a signed-record Sources trail. Score 50/100 (2026-08-06) - settings access-hub hard-caps higher Evidence.";

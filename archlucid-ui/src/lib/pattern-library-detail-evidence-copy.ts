@@ -2,7 +2,7 @@ import { PATTERN_LIBRARY_PATH } from "@/lib/pattern-library-route";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const PATTERN_LIBRARY_DETAIL_CLAIM_DISCIPLINE =
-  "Pattern detail copy is anonymized catalog guidance (or labeled sample data) — not a signed-review diligence Sources package and not tenant-identifying usage. Open the Pattern library or start a review before briefing sponsors. Do not imply CPA SOC 2 attestation or a published third-party pen test from this page.";
+  "Pattern detail copy is anonymized catalog guidance (or labeled sample data) — not a signed-review diligence Sources package and not tenant-identifying usage. Open the Pattern library or start a review before briefing sponsors.";
 
 export const PATTERN_LIBRARY_DETAIL_SOURCES_INTRO =
   "Use this pattern as a starting point, then open the Pattern library, Reviews, or Getting started when you need orientation before treating catalog signals as authoritative.";

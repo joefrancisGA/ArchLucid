@@ -3,7 +3,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export const FAQ_CANONICAL_PATH = "/faq" as const;
 
 export const FAQ_CLAIM_DISCIPLINE =
-  "Product FAQ answers are evaluation orientation for architects and sponsors — they are not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Assurance status or Pricing before treating FAQ copy as procurement evidence.";
+  "Product FAQ answers are evaluation orientation for architects and sponsors — they are not a signed-review diligence Sources package. Open Assurance status or Pricing before treating FAQ copy as procurement evidence.";
 
 export const FAQ_SOURCES_INTRO =
   "Use these evaluation links when FAQ answers turn into packaging, assurance, signup, or first-review follow-ups.";

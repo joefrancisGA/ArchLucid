@@ -8,7 +8,7 @@ export const CLOUD_CONNECTIONS_HELP_PAGE_SUBTITLE =
   "Optional Azure, AWS, and GCP connectors for read-only evidence — or run evidence-only reviews without any cloud connector.";
 
 export const CLOUD_CONNECTIONS_HELP_CLAIM_DISCIPLINE =
-  "This guide explains how cloud connectors supply inventory evidence for reviews — it is not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Assurance status or the live Cloud connections hub before treating setup guidance as assurance evidence.";
+  "This guide explains how cloud connectors supply inventory evidence for reviews — it is not a signed-review diligence Sources package. Open Assurance status or the live Cloud connections hub before treating setup guidance as assurance evidence.";
 
 export const CLOUD_CONNECTIONS_HELP_SOURCES_INTRO =
   "Use these follow-ups when connector setup needs the live hub, provider-specific secure-connect help, or assurance cites.";

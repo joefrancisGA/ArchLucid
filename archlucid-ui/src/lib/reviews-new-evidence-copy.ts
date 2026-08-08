@@ -1,7 +1,7 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const REVIEWS_NEW_CLAIM_DISCIPLINE =
-  "Starting a review captures intake for analysis — not a signed-review diligence Sources trail. Do not imply CPA SOC 2 attestation or a published third-party pen test from this page.";
+  "Starting a review captures intake for analysis — not a signed-review diligence Sources trail.";
 
 export const REVIEWS_NEW_SOURCES_INTRO =
   "Choose an intake path below, or open Reviews and the first-review guide when you need orientation before submitting.";

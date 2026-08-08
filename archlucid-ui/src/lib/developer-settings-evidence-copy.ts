@@ -3,7 +3,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export const DEVELOPER_SETTINGS_CANONICAL_PATH = "/administration/developer" as const;
 
 export const DEVELOPER_SETTINGS_CLAIM_DISCIPLINE =
-  "This Internal developer tools page is an operator diagnostic surface for theme evaluation and CLI demos - it is not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open System health, Engineering troubleshooting, or Audit when you need live checks or assurance cites.";
+  "This Internal developer tools page is an operator diagnostic surface for theme evaluation and CLI demos - it is not a signed-review diligence Sources package. Open System health, Engineering troubleshooting, or Audit when you need live checks or assurance cites.";
 
 export const DEVELOPER_SETTINGS_SOURCES_INTRO =
   "Use these follow-ups when theme or CLI experiments turn into engineering runbooks, system health checks, or governed trails.";

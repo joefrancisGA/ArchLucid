@@ -1,7 +1,7 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const ADMINISTRATION_HUB_CLAIM_DISCIPLINE =
-  "Settings is the configuration launcher for workspace, identity, billing, security, and support — it is not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open System health, Audit, or a signed record when you need operational or sponsor-safe trails.";
+  "Settings is the configuration launcher for workspace, identity, billing, security, and support — it is not a signed-review diligence Sources package. Open System health, Audit, or a signed record when you need operational or sponsor-safe trails.";
 
 export const ADMINISTRATION_HUB_SOURCES_INTRO =
   "Use these follow-ups when configuration browsing turns into readiness checks, activity trails, or governance disposition.";

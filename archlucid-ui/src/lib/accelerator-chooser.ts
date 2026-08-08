@@ -17,7 +17,7 @@ export const ACCELERATOR_CHOOSER_ENTRIES: readonly AcceleratorChooserEntry[] = [
     id: "regulated-saas-soc-procurement",
     buyerJob: "Regulated SaaS procurement",
     packLabel: "SOC-style diligence pack",
-    summary: "Policy-pack findings and sponsor-safe caveats for procurement conversations — not CPA SOC 2.",
+    summary: "Policy-pack findings and sponsor-safe caveats for procurement conversations — not certification evidence.",
     requiredInputs: "second-run.json, policy-context.json",
     expectedOutputs: "Governance findings + proof checklist",
     scopeLabel: "V1-ready",

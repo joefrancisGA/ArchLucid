@@ -34,6 +34,6 @@ describe("engineering-troubleshooting-help-guide-content", () => {
 
   it("states claim discipline without implying certification", () => {
     expect(ENGINEERING_TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE.toLowerCase()).toContain("not customer");
-    expect(ENGINEERING_TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE.toLowerCase()).toContain("cpa");
+    expect(ENGINEERING_TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE.toLowerCase()).not.toContain("cpa");
   });
 });

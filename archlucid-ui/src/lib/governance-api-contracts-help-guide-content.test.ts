@@ -33,6 +33,6 @@ describe("governance-api-contracts-help-guide-content", () => {
 
   it("states claim discipline without implying certification", () => {
     expect(GOVERNANCE_API_CONTRACTS_HELP_CLAIM_DISCIPLINE.toLowerCase()).toContain("not certification");
-    expect(GOVERNANCE_API_CONTRACTS_HELP_CLAIM_DISCIPLINE.toLowerCase()).toContain("cpa");
+    expect(GOVERNANCE_API_CONTRACTS_HELP_CLAIM_DISCIPLINE.toLowerCase()).not.toContain("cpa");
   });
 });

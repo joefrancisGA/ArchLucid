@@ -15,4 +15,4 @@ export const TENANT_SETTINGS_TRAFFIC_SECTION = "Settings";
  * ASCII-only for Windows console note scripts.
  */
 export const TENANT_SETTINGS_TRAFFIC_NOTE =
-  "Tenant settings (Settings/Admin) - TenantSettingsPageView with PageContextualHelpButton (topic map scope; Category-1 registry), workspace Sources + claim-discipline orientation strip, workspace defaults / quality gates / cost settings. Sibling STR = recycle-bin; DIS = digests schedule. Access configuration - not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 50/100 (2026-08-06) - settings access-hub hard-caps higher Evidence.";
+  "Tenant settings (Settings/Admin) - TenantSettingsPageView with PageContextualHelpButton (topic map scope; Category-1 registry), workspace Sources + claim-discipline orientation strip, workspace defaults / quality gates / cost settings. Sibling STR = recycle-bin; DIS = digests schedule. Access configuration - not a signed-record Sources trail. Score 50/100 (2026-08-06) - settings access-hub hard-caps higher Evidence.";

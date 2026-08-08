@@ -21,4 +21,4 @@ export const ARCHITECTURE_CREATED_EVIDENCE_SOURCES_INTRO =
   "Use these follow-ups when create-home Evidence upload turns into findings triage, search, or governance readiness.";
 
 export const ARCHITECTURE_CREATED_EVIDENCE_CLAIM_DISCIPLINE =
-  "This create-home Evidence tab is for attaching capture before finalize. It is not a signed-record Sources trail and does not imply CPA SOC 2 attestation or a published third-party pen test.";
+  "This create-home Evidence tab is for attaching capture before finalize. It is not a signed-record Sources trail";

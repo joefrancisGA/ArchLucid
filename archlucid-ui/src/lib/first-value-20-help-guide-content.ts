@@ -11,7 +11,7 @@ export const FIRST_VALUE_20_HELP_OVERVIEW =
   "Use this runbook only when you are an Admin or SE collecting a sponsor-safe artifact in about 20 minutes. Customer architects should stay on Your first architecture review. Label simulator outputs honestly unless real-mode LLM evidence was collected.";
 
 export const FIRST_VALUE_20_HELP_CLAIM_DISCIPLINE =
-  "A completed 20-minute path produces architecture-review evidence for SE demos — not certification. Do not imply CPA SOC 2 attestation or a published third-party pen test from this page.";
+  "A completed 20-minute path produces architecture-review evidence for SE demos — not certification.";
 
 export const FIRST_VALUE_20_HELP_ORIENTATION = [
   "Confirm API health and persistence before starting the time box.",

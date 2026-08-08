@@ -3,7 +3,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export const TRIAL_FUNNEL_CANONICAL_PATH = "/internal/trial-funnel" as const;
 
 export const TRIAL_FUNNEL_CLAIM_DISCIPLINE =
-  "Trial funnel metrics summarize trial-stage conversion for internal operators — they are operational KPI signals, not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Tenant health, Billing settings, or Audit when you need engagement, plan, or governed trails.";
+  "Trial funnel metrics summarize trial-stage conversion for internal operators — they are operational KPI signals, not a signed-review diligence Sources package. Open Tenant health, Billing settings, or Audit when you need engagement, plan, or governed trails.";
 
 export const TRIAL_FUNNEL_SOURCES_INTRO =
   "Use these follow-ups when funnel stages need engagement checks, billing conversion, cost pressure, or assurance orientation.";

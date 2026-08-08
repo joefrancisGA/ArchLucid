@@ -43,7 +43,7 @@ export const DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES: readonly DataHandlingT
   { label: "Open audit trail", href: GOVERNANCE_AUDIT_PATH },
 ] as const;
 
-/** Honesty note — isolation language is orientation, not CPA SOC 2 or third-party pen-test publication. */
+/** Honesty note — isolation language is orientation, not a countersigned agreement. */
 export const DATA_HANDLING_TENANT_ISOLATION_HELP_CLAIM_DISCIPLINE =
-  "This page explains how ArchLucid handles review evidence and enforces tenant scope. It does not publish a CPA-issued SOC 2 report or a third-party pen-test summary, and it is not a countersigned DPA.";
+  "This page explains how ArchLucid handles review evidence and enforces tenant scope. It is operator orientation, and it is not a countersigned DPA.";
 

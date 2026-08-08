@@ -3,7 +3,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export const CONNECT_GCP_SECURELY_CANONICAL_PATH = "/help/cloud-connections/gcp" as const;
 
 export const CONNECT_GCP_SECURELY_CLAIM_DISCIPLINE =
-  "This guide explains how to attach GCP with Workload Identity Federation and Cloud Asset Viewer scope — it is connector setup orientation, not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Assurance status or the live Cloud connections hub before treating setup guidance as assurance evidence.";
+  "This guide explains how to attach GCP with Workload Identity Federation and Cloud Asset Viewer scope — it is connector setup orientation, not a signed-review diligence Sources package. Open Assurance status or the live Cloud connections hub before treating setup guidance as assurance evidence.";
 
 export const CONNECT_GCP_SECURELY_SOURCES_INTRO =
   "Use these follow-ups when GCP setup needs the live hub, parent cloud-connections help, sibling cloud guides, or assurance cites.";

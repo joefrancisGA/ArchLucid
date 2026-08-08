@@ -21,4 +21,4 @@ export const ARCHITECTURE_CREATED_OVERVIEW_SOURCES_INTRO =
   "Use these follow-ups when create-home Overview orientation turns into clarifications, findings triage, or a corrected intake pass.";
 
 export const ARCHITECTURE_CREATED_OVERVIEW_CLAIM_DISCIPLINE =
-  "This create-home Overview tab summarizes the submitted architecture brief before finalize. It is not a signed-record Sources trail and does not imply CPA SOC 2 attestation or a published third-party pen test.";
+  "This create-home Overview tab summarizes the submitted architecture brief before finalize. It is not a signed-record Sources trail";

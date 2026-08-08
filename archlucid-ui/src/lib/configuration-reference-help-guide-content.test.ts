@@ -42,6 +42,6 @@ describe("configuration-reference-help-guide-content", () => {
 
   it("states claim discipline without implying certification", () => {
     expect(CONFIGURATION_REFERENCE_HELP_CLAIM_DISCIPLINE.toLowerCase()).toContain("not a certification");
-    expect(CONFIGURATION_REFERENCE_HELP_CLAIM_DISCIPLINE.toLowerCase()).toContain("cpa");
+    expect(CONFIGURATION_REFERENCE_HELP_CLAIM_DISCIPLINE.toLowerCase()).not.toContain("cpa");
   });
 });

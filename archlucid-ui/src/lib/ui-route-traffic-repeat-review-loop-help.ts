@@ -15,4 +15,4 @@ export const REPEAT_REVIEW_LOOP_HELP_TRAFFIC_SECTION = "Help topic";
  * ASCII-only for Windows console note scripts.
  */
 export const REPEAT_REVIEW_LOOP_HELP_TRAFFIC_NOTE =
-  "Repeat-review loop help (Help topic) - HelpRepeatReviewLoopGuideView with PageContextualHelpButton (topic map repeat-review-loop; Category-1 registry), workspace Sources + claim-discipline orientation strip, start-loop CTAs, prepared SECOND_RUN / REPEAT_REVIEW_LOOP markdown. Sibling CXX = compare-two-reviews; REP = /replay; COR = first-architecture-review. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-05) - help-topic orientation hard-caps higher Evidence.";
+  "Repeat-review loop help (Help topic) - HelpRepeatReviewLoopGuideView with PageContextualHelpButton (topic map repeat-review-loop; Category-1 registry), workspace Sources + claim-discipline orientation strip, start-loop CTAs, prepared SECOND_RUN / REPEAT_REVIEW_LOOP markdown. Sibling CXX = compare-two-reviews; REP = /replay; COR = first-architecture-review. Score 52/100 (2026-08-05) - help-topic orientation hard-caps higher Evidence.";

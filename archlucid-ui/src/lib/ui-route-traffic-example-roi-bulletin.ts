@@ -15,4 +15,4 @@ export const EXAMPLE_ROI_BULLETIN_TRAFFIC_SECTION = "Marketing";
  * ASCII-only for Windows console note scripts.
  */
 export const EXAMPLE_ROI_BULLETIN_TRAFFIC_NOTE =
-  "Example ROI bulletin (Marketing) - ExampleRoiBulletinMarketingPage with ExampleRoiBulletinEvidenceOrientationStrip (evaluation Sources + claim-discipline: synthetic sample only; not diligence / CPA SOC 2 / third-party pen-test). Admin-only preview gate + checked-in sample Markdown; robots noindex. Not an operator PageContextualHelp surface. Sibling PI = pilot-roi-model help; SPE = executive-summary. Does not imply CPA SOC 2 or third-party pen-test publication. Score 40/100 (2026-08-06) - marketing synthetic ROI bulletin hard-caps higher Evidence.";
+  "Example ROI bulletin (Marketing) - ExampleRoiBulletinMarketingPage with ExampleRoiBulletinEvidenceOrientationStrip (evaluation Sources + claim-discipline: synthetic sample only). Admin-only preview gate + checked-in sample Markdown; robots noindex. Not an operator PageContextualHelp surface. Sibling PI = pilot-roi-model help; SPE = executive-summary. Score 40/100 (2026-08-06) - marketing synthetic ROI bulletin hard-caps higher Evidence.";

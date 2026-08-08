@@ -3,7 +3,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export const BASELINE_SETTINGS_CANONICAL_PATH = "/administration/baseline" as const;
 
 export const BASELINE_SETTINGS_CLAIM_DISCIPLINE =
-  "This Baseline settings page captures workspace ROI measurement anchors - it is not a signed-review diligence Sources package, financial reporting, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Pilot ROI model help, Architecture scorecard, or Audit when you need methodology or live packages.";
+  "This Baseline settings page captures workspace ROI measurement anchors - it is not a signed-review diligence Sources package, financial reporting. Open Pilot ROI model help, Architecture scorecard, or Audit when you need methodology or live packages.";
 
 export const BASELINE_SETTINGS_SOURCES_INTRO =
   "Use these follow-ups when baseline anchors turn into ROI methodology, scorecard numbers, or sponsor outcomes.";
