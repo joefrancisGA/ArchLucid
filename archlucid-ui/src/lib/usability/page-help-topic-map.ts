@@ -174,10 +174,6 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "review-packages", label: "Signed review records" },
   },
   { prefix: EXECUTIVE_DASHBOARD_HREF, topic: { slug: "executive-summary", label: "Executive dashboard" } },
-  {
-    prefix: "/executive/scorecard",
-    topic: { slug: "executive-summary", label: "Sponsor scorecard" },
-  },
   { prefix: "/insights/evidence-graph", topic: { slug: "evidence-trail", label: OPERATOR_NAV_LINK_LABELS.evidenceTrail } },
   {
     prefix: "/insights/search-review-evidence",
@@ -199,11 +195,6 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     // Secondary hub — no decision-register specialty; omit Learn more (TB-2050).
     prefix: "/governance/decision-register",
     topic: { label: "Decision register" },
-  },
-  {
-    // Secondary hub — no workspace-health specialty; omit Learn more (TB-2050). Do not reopen TB-1668 mount.
-    prefix: "/governance/dashboard",
-    topic: { label: "Workspace overview" },
   },
   {
     prefix: "/governance/alerts",
@@ -325,6 +316,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   {
     prefix: "/help/pilot-feedback",
     topic: { slug: "pilot-feedback", label: "Pilot feedback" },
+  },
+  {
+    prefix: "/help/pilot-nav-profile",
+    topic: { slug: "pilot-nav-profile", label: "Workspace navigation profile" },
   },
   {
     prefix: "/help/executive-summary",

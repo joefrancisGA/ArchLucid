@@ -26,6 +26,7 @@ import { AuthenticationSignInHelpEvidenceOrientationStrip } from "../_sections/A
 import { AzureBoardsHelpEvidenceOrientationStrip } from "../_sections/AzureBoardsHelpEvidenceOrientationStrip";
 import { IntegrationReadinessHelpEvidenceOrientationStrip } from "../_sections/IntegrationReadinessHelpEvidenceOrientationStrip";
 import { PilotFeedbackHelpEvidenceOrientationStrip } from "../_sections/PilotFeedbackHelpEvidenceOrientationStrip";
+import { PilotNavProfileHelpEvidenceOrientationStrip } from "../_sections/PilotNavProfileHelpEvidenceOrientationStrip";
 import { CaiqSigResponseHelpEvidenceOrientationStrip } from "../_sections/CaiqSigResponseHelpEvidenceOrientationStrip";
 import { ComparisonReplayHelpEvidenceOrientationStrip } from "../_sections/ComparisonReplayHelpEvidenceOrientationStrip";
 import { ConnectAwsSecurelyHelpEvidenceOrientationStrip } from "../_sections/ConnectAwsSecurelyHelpEvidenceOrientationStrip";
@@ -355,6 +356,17 @@ function renderHelpTopicView(
         markdown={loaded.markdown}
         showContextualHelp
         evidenceOrientation={<PilotFeedbackHelpEvidenceOrientationStrip />}
+      />
+    );
+  }
+
+  if (loaded.entry.slug === "pilot-nav-profile") {
+    return (
+      <HelpTopicMarkdownView
+        entry={loaded.entry}
+        markdown={loaded.markdown}
+        showContextualHelp
+        evidenceOrientation={<PilotNavProfileHelpEvidenceOrientationStrip />}
       />
     );
   }

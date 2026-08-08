@@ -13,7 +13,11 @@ import {
   LEGACY_DIGESTS_HUB_PATH,
   LEGACY_DIGEST_SUBSCRIPTIONS_PATH,
 } from "@/lib/digests-route-paths";
-import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance-route-paths";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
+import {
+  GOVERNANCE_APPROVAL_QUEUE_PATH,
+  GOVERNANCE_WORKSPACE_HEALTH_HREF,
+} from "@/lib/governance-route-paths";
 import { PLANNING_PATH } from "@/lib/planning-route";
 import { PRODUCT_LEARNING_PATH } from "@/lib/product-learning-route";
 import {
@@ -96,13 +100,14 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
-    prefix: "/governance/dashboard",
+    prefix: EXECUTIVE_DASHBOARD_HREF,
     entry: {
       whatIsThisPage:
-        "Workspace health at a glance — scoped KPI tiles for pre-commit posture, findings exposure, drift, approval SLAs, and a hours estimate.",
+        "Executive dashboard — portfolio ROI trends, sponsor exports, and workspace-health KPI tiles for governance posture in the current scope.",
       whatToDoNext:
-        "Open Decisions needed items, then use Audit trail or Findings for row-level follow-up before sponsor briefings.",
-      whyEmpty: "Tiles stay at zero until governance and audit activity exists in the current workspace scope.",
+        "Review KPI tiles and sponsor exports, then open Workspace health or Decisions needed for governance follow-up.",
+      whyEmpty:
+        "Tiles stay at zero until you finalize reviews and governance activity exists in the current workspace scope.",
       whereToConfigurePrerequisite:
         "Switch workspace or project scope from the header switcher — figures never roll up across workspaces.",
       whatToDoNextAction: {
@@ -274,6 +279,26 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whereToConfigureAction: {
         label: "Open Improvement planning",
         href: PLANNING_PATH,
+      },
+    },
+  },
+  {
+    prefix: "/help/pilot-nav-profile",
+    entry: {
+      whatIsThisPage:
+        "Workspace navigation profile — how the sidebar stays focused on the first-review path until you finalize a review, then unlocks analysis and governance.",
+      whatToDoNext:
+        "Start or finalize a review to unlock Operate groups, or open Getting started when you need the first-value checklist.",
+      whyEmpty: "This guide is always available; live sidebar unlock reflects finalize progress in this workspace.",
+      whereToConfigurePrerequisite:
+        "Progressive Operate unlock follows your first finalized architecture review in this workspace.",
+      whatToDoNextAction: {
+        label: "Start a review",
+        href: "/architecture/reviews/new",
+      },
+      whereToConfigureAction: {
+        label: "Open Getting started",
+        href: "/help/getting-started",
       },
     },
   },
@@ -706,18 +731,6 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
-    prefix: "/executive/scorecard",
-    entry: {
-      whatIsThisPage:
-        "Sponsor scorecard — key value metrics for completed reviews, findings pressure, and directional hours in the selected window.",
-      whatToDoNext:
-        "Pick a time range, review recommended actions, then open Architecture reviews or Sponsor executive summary for follow-up.",
-      whyEmpty: "KPIs stay empty until you finalize architecture reviews in this workspace scope.",
-      whereToConfigurePrerequisite:
-        "Scorecard windows use the current tenant, workspace, and project selected in the shell header.",
-    },
-  },
-  {
     prefix: "/governance/alert-rules",
     entry: {
       whatIsThisPage:
@@ -745,7 +758,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       },
       whereToConfigureAction: {
         label: "Open workspace health",
-        href: "/governance/dashboard",
+        href: GOVERNANCE_WORKSPACE_HEALTH_HREF,
       },
     },
   },

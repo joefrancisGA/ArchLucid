@@ -10,6 +10,10 @@
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 
+## 2026-08-08 - UI: Pilot nav profile help Evidence notes (PIL)
+
+- `/help/pilot-nav-profile` (PIL) Category-1 + topic map + `PilotNavProfileHelpEvidenceOrientationStrip`; traffic Notes score **52** (help specialty).
+
 ## 2026-08-08 - UI: Pilot feedback help Evidence notes (HPE)
 
 - `/help/pilot-feedback` (HPE) Category-1 + topic map + `PilotFeedbackHelpEvidenceOrientationStrip`; traffic Notes score **52** (help specialty).
