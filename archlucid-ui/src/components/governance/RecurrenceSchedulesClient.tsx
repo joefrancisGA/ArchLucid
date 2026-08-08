@@ -7,10 +7,12 @@ import { useCallback, useEffect, useState } from "react";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { RecurrenceScheduleActivationActions } from "@/components/governance/RecurrenceScheduleActivationActions";
 import { RecurrenceScheduleCreatePanel } from "@/components/governance/RecurrenceScheduleCreatePanel";
 import { RecurrenceScheduleExamplesSection } from "@/components/governance/RecurrenceScheduleExamplesSection";
 import { RecurrenceScheduleFormFields } from "@/components/governance/RecurrenceScheduleFormFields";
+import { RecurrenceSchedulesEvidenceOrientationStrip } from "@/components/governance/RecurrenceSchedulesEvidenceOrientationStrip";
 import { RecurrenceSchedulesWorkflowHelperCard } from "@/components/governance/RecurrenceSchedulesWorkflowHelperCard";
 import { Button } from "@/components/ui/button";
 import {
@@ -306,8 +308,15 @@ export default function RecurrenceSchedulesClient() {
           <OperatorPageHeader
             title="Recurrence schedules"
             subtitle={RECURRENCE_SCHEDULES_PAGE_SUBTITLE}
-            actions={isEmpty ? undefined : createScheduleButton}
+            actions={
+              <div className="flex flex-wrap items-center gap-2">
+                <PageContextualHelpButton />
+                {isEmpty ? null : createScheduleButton}
+              </div>
+            }
           />
+
+          <RecurrenceSchedulesEvidenceOrientationStrip />
 
           <CollapsibleSection
             title={RECURRENCE_SCHEDULES_HOW_IT_WORKS_TITLE}
