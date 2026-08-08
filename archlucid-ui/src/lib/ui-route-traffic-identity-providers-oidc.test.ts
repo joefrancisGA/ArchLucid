@@ -69,5 +69,6 @@ describe("ui-route-traffic-identity-providers-oidc (AOI)", () => {
     expect(row?.section).toBe(IDENTITY_PROVIDERS_OIDC_TRAFFIC_SECTION);
     expect(row?.notes).toBe(IDENTITY_PROVIDERS_OIDC_TRAFFIC_NOTE);
     expect(row?.notes).toContain("IdentityProvidersOidcPageView");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
