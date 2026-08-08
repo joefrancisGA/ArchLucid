@@ -82,10 +82,7 @@ test.describe("Core pilot path (mock API, buyer-polished shell)", () => {
       page.getByRole("main").getByRole("heading", { level: 1, name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN }).first(),
     ).toBeVisible({ timeout: 60_000 });
 
-    const reviewLink = page
-      .locator('[aria-label="Breadcrumb"]')
-      .getByRole("link", { name: /Open review|Claims Intake Modernization Review/i })
-      .first();
+    const reviewLink = page.getByTestId("manifest-detail-back-to-review");
 
     await expect(reviewLink).toBeVisible({ timeout: 60_000 });
     await reviewLink.click();

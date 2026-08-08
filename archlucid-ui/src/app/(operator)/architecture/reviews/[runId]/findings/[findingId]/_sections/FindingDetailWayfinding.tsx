@@ -10,26 +10,23 @@ export type FindingDetailWayfindingProps = {
   readonly currentPageLabel: string;
 };
 
-/** Breadcrumb trail and contextual help for finding detail — replaces flat duplicate nav links. */
+/** Hierarchy back links + contextual help for finding detail (TB-2090: not a breadcrumb trail). */
 export function FindingDetailWayfinding(props: FindingDetailWayfindingProps): React.JSX.Element {
   return (
     <div
       className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2"
       data-testid="finding-detail-wayfinding"
     >
-      <nav aria-label="Breadcrumb" className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-        <Link className={OPERATOR_LINK.nav} href={props.reviewPackageHref}>
-          Review
+      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+        <Link className={OPERATOR_LINK.nav} href={props.reviewPackageHref} data-testid="finding-detail-back-to-review">
+          Back to review
         </Link>
         {" · "}
-        <Link className={OPERATOR_LINK.nav} href={props.reviewFindingsHref}>
+        <Link className={OPERATOR_LINK.nav} href={props.reviewFindingsHref} data-testid="finding-detail-back-to-findings">
           Findings
         </Link>
-        {" · "}
-        <span className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)} aria-current="page">
-          {props.currentPageLabel}
-        </span>
-      </nav>
+        <span className="sr-only"> — {props.currentPageLabel}</span>
+      </p>
       <PageContextualHelpButton />
     </div>
   );

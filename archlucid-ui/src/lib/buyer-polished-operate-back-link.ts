@@ -8,6 +8,28 @@ export type BuyerOperateBackLink = {
 };
 
 /**
+ * Paths that previously showed multi-segment shell breadcrumbs for real hierarchy.
+ * After TB-2090, left-nav + page-local back links own that orientation — not a fixed showcase package link.
+ */
+export function isDeepHierarchyRouteWithoutShowcaseBackLink(pathnameWithSearch: string): boolean {
+  const path = (pathnameWithSearch.split("?")[0] ?? "").trim().replace(/\/$/, "") || "/";
+
+  if (/^\/governance\/approval-requests\/[^/]+/.test(path)) {
+    return true;
+  }
+
+  if (/^\/governance\/policy-packs\/[^/]+/.test(path)) {
+    return true;
+  }
+
+  if (/^\/showcase\/[^/]+/.test(path)) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
  * Buyer-polished shell: contextual return link from golden-path satellite routes to the canonical showcase package.
  */
 export function buyerPolishedOperateBackLink(pathnameWithSearch: string): BuyerOperateBackLink | null {
@@ -18,12 +40,15 @@ export function buyerPolishedOperateBackLink(pathnameWithSearch: string): BuyerO
     return null;
   }
 
+  if (isDeepHierarchyRouteWithoutShowcaseBackLink(path)) {
+    return null;
+  }
+
   if (
     path.startsWith("/insights/evidence-graph") ||
     path.startsWith("/governance") ||
     path.startsWith("/audit") ||
     pathMatchesSignedRecordsDetailRoute(path) ||
-    path.startsWith("/showcase/") ||
     path.startsWith("/insights/ask-review-questions")
   ) {
     return { label: "Back to review", href: packageHref };
@@ -32,14 +57,20 @@ export function buyerPolishedOperateBackLink(pathnameWithSearch: string): BuyerO
   return null;
 }
 
-/** True when shell breadcrumbs already expose the same review-package href (via scoped `runId`). */
-export function resolveBuyerOperateBackLinkWhenShellBreadcrumbsHidden(options: {
+/**
+ * TB-2090: shell breadcrumbs removed — show operate back links when the golden-journey stepper
+ * is not already orienting the route, skip deep hierarchy routes, and skip links that only restate the scoped `runId`.
+ */
+export function resolveBuyerOperateBackLink(options: {
   readonly pathnameWithSearch: string;
   readonly searchRunId: string;
-  readonly showShellBreadcrumbs: boolean;
   readonly buyerGoldenJourneyNav: ResolvedBuyerGoldenJourneyNav | null;
 }): BuyerOperateBackLink | null {
-  if (options.showShellBreadcrumbs || options.buyerGoldenJourneyNav !== null) {
+  if (options.buyerGoldenJourneyNav !== null) {
+    return null;
+  }
+
+  if (isDeepHierarchyRouteWithoutShowcaseBackLink(options.pathnameWithSearch)) {
     return null;
   }
 
@@ -49,14 +80,14 @@ export function resolveBuyerOperateBackLinkWhenShellBreadcrumbsHidden(options: {
     return null;
   }
 
-  if (isBuyerOperateBackLinkRedundantWithBreadcrumbs(options.searchRunId, backLink)) {
+  if (isBuyerOperateBackLinkRedundantWithScopedRun(options.searchRunId, backLink)) {
     return null;
   }
 
   return backLink;
 }
 
-export function isBuyerOperateBackLinkRedundantWithBreadcrumbs(
+export function isBuyerOperateBackLinkRedundantWithScopedRun(
   queryRunId: string,
   backLink: BuyerOperateBackLink,
 ): boolean {

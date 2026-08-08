@@ -3,11 +3,9 @@
 import { usePathname, useSearchParams } from "next/navigation";
 
 import { LayerContextStrip } from "@/components/LayerContextStrip";
-import { getBreadcrumbs } from "@/lib/breadcrumb-map";
-import { shouldShowBreadcrumbTrail } from "@/lib/breadcrumb-visibility";
 import { resolveBuyerGoldenJourneyNav } from "@/lib/buyer-golden-journey-nav";
 import { buyerPolishedRouteOrientation } from "@/lib/buyer-polished-route-orientation";
-import { resolveBuyerOperateBackLinkWhenShellBreadcrumbsHidden } from "@/lib/buyer-polished-operate-back-link";
+import { resolveBuyerOperateBackLink } from "@/lib/buyer-polished-operate-back-link";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { getLayerForRoute } from "@/lib/getLayerForRoute";
 
@@ -30,18 +28,9 @@ export function BuyerGoldenJourneyLayerContextStrip(): React.JSX.Element | null 
 
   const pathnameWithSearch =
     searchRunId.length > 0 ? `${pathname}?runId=${encodeURIComponent(searchRunId)}` : pathname;
-  const breadcrumbItems = getBreadcrumbs(pathname, {
-    buyerPolishedShell: true,
-    queryRunId: searchRunId.length > 0 ? searchRunId : undefined,
-  });
-  const showShellBreadcrumbs = shouldShowBreadcrumbTrail(pathname, breadcrumbItems, {
-    queryRunId: searchRunId.length > 0 ? searchRunId : undefined,
-    buyerGoldenJourneyNav,
-  });
-  const buyerOperateBackLink = resolveBuyerOperateBackLinkWhenShellBreadcrumbsHidden({
+  const buyerOperateBackLink = resolveBuyerOperateBackLink({
     pathnameWithSearch,
     searchRunId,
-    showShellBreadcrumbs,
     buyerGoldenJourneyNav,
   });
 

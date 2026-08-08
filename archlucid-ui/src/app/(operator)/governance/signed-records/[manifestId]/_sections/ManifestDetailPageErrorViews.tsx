@@ -22,15 +22,15 @@ type ManifestDetailPageErrorFrameProps = {
   readonly children: React.ReactNode;
 };
 
-/** Shared chrome for manifest summary error states (breadcrumb + page title). */
+/** Shared chrome for manifest summary error states (back link + page title). */
 export function ManifestDetailPageErrorFrame(props: ManifestDetailPageErrorFrameProps) {
   return (
     <div className="w-full max-w-[1200px] space-y-4 px-1 py-2 sm:px-0">
-      <nav aria-label="Breadcrumb" className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         <Link className={OPERATOR_LINK.nav} href="/architecture/reviews">
-          Reviews
+          Back to reviews
         </Link>
-      </nav>
+      </p>
       <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>
         {props.buyerPolishedLayout ? "Architecture review" : "Finalized architecture review"}
       </h1>

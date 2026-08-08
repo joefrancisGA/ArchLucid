@@ -2,93 +2,97 @@ import { describe, expect, it } from "vitest";
 
 import {
   buyerPolishedOperateBackLink,
-  isBuyerOperateBackLinkRedundantWithBreadcrumbs,
-  resolveBuyerOperateBackLinkWhenShellBreadcrumbsHidden,
-} from "./buyer-polished-operate-back-link";
+  isBuyerOperateBackLinkRedundantWithScopedRun,
+  isDeepHierarchyRouteWithoutShowcaseBackLink,
+  resolveBuyerOperateBackLink,
+} from "@/lib/buyer-polished-operate-back-link";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+
+const packageHref = `/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
 
 describe("buyerPolishedOperateBackLink", () => {
-  it("returns showcase package link for golden-path satellites", () => {
-    expect(buyerPolishedOperateBackLink("/insights/evidence-graph?runId=x")).toEqual({
-      label: "Back to review",
-      href: "/architecture/reviews/claims-intake-modernization",
-    });
-    expect(buyerPolishedOperateBackLink("/audit")).toEqual({
-      label: "Back to review",
-      href: "/architecture/reviews/claims-intake-modernization",
-    });
-    expect(buyerPolishedOperateBackLink("/governance/signed-records/a1c2e3f4-a5b6-7890-abcd-ef1234567890")).toEqual({
-      label: "Back to review",
-      href: "/architecture/reviews/claims-intake-modernization",
-    });
-    expect(buyerPolishedOperateBackLink("/insights/ask-review-questions")).toEqual({
-      label: "Back to review",
-      href: "/architecture/reviews/claims-intake-modernization",
-    });
-    expect(buyerPolishedOperateBackLink("/insights/compare-two-reviews?prior=claims-intake-run-v1&later=claims-intake-run-v2")).toBeNull();
+  it("returns null on the showcase package itself", () => {
+    expect(buyerPolishedOperateBackLink(packageHref)).toBeNull();
+    expect(buyerPolishedOperateBackLink(`${packageHref}/findings`)).toBeNull();
   });
 
-  it("returns null when already on or under the showcase package", () => {
-    expect(buyerPolishedOperateBackLink("/architecture/reviews/claims-intake-modernization")).toBeNull();
-    expect(buyerPolishedOperateBackLink("/architecture/reviews/claims-intake-modernization/findings/f1")).toBeNull();
-    expect(buyerPolishedOperateBackLink("/")).toBeNull();
+  it("returns Back to review on satellite diligence routes", () => {
+    expect(buyerPolishedOperateBackLink("/insights/evidence-graph?runId=x")).toEqual({
+      label: "Back to review",
+      href: packageHref,
+    });
+    expect(buyerPolishedOperateBackLink("/governance/findings")).toEqual({
+      label: "Back to review",
+      href: packageHref,
+    });
+  });
+
+  it("returns null on deep governance hierarchy routes", () => {
+    expect(
+      buyerPolishedOperateBackLink("/governance/approval-requests/e2e-approval-001/lineage"),
+    ).toBeNull();
+    expect(buyerPolishedOperateBackLink("/governance/policy-packs/healthcare-claims-v3-pack")).toBeNull();
   });
 });
 
-describe("resolveBuyerOperateBackLinkWhenShellBreadcrumbsHidden", () => {
-  it("returns back link on buyer satellite routes when shell breadcrumbs and journey stepper are absent", () => {
+describe("isDeepHierarchyRouteWithoutShowcaseBackLink", () => {
+  it("flags approval-request and policy-pack detail trails", () => {
     expect(
-      resolveBuyerOperateBackLinkWhenShellBreadcrumbsHidden({
-        pathnameWithSearch: "/insights/ask-review-questions",
+      isDeepHierarchyRouteWithoutShowcaseBackLink("/governance/approval-requests/e2e-approval-001/lineage"),
+    ).toBe(true);
+    expect(isDeepHierarchyRouteWithoutShowcaseBackLink("/governance/findings")).toBe(false);
+  });
+});
+
+describe("resolveBuyerOperateBackLink", () => {
+  it("returns back link on buyer satellite routes when golden journey is absent", () => {
+    expect(
+      resolveBuyerOperateBackLink({
+        pathnameWithSearch: "/insights/evidence-graph",
         searchRunId: "",
-        showShellBreadcrumbs: false,
         buyerGoldenJourneyNav: null,
       }),
-    ).toEqual({
-      label: "Back to review",
-      href: "/architecture/reviews/claims-intake-modernization",
-    });
+    ).toEqual({ label: "Back to review", href: packageHref });
   });
 
-  it("returns null when shell breadcrumbs or golden journey already orient the route", () => {
+  it("returns null when golden journey already orients the route", () => {
     expect(
-      resolveBuyerOperateBackLinkWhenShellBreadcrumbsHidden({
-        pathnameWithSearch: "/insights/ask-review-questions",
+      resolveBuyerOperateBackLink({
+        pathnameWithSearch: "/insights/evidence-graph",
         searchRunId: "",
-        showShellBreadcrumbs: true,
-        buyerGoldenJourneyNav: null,
-      }),
-    ).toBeNull();
-    expect(
-      resolveBuyerOperateBackLinkWhenShellBreadcrumbsHidden({
-        pathnameWithSearch: "/insights/evidence-graph?runId=claims-intake-modernization",
-        searchRunId: "claims-intake-modernization",
-        showShellBreadcrumbs: false,
         buyerGoldenJourneyNav: {
-          summaryLine: "Step 3 of 5 · Evidence trail",
+          summaryLine: "Step 1 of 5",
           prev: null,
           next: null,
-          currentStepIndex: 2,
+          currentStepIndex: 0,
         },
       }),
     ).toBeNull();
   });
+
+  it("returns null on deep approval-request lineage (no showcase strip link)", () => {
+    expect(
+      resolveBuyerOperateBackLink({
+        pathnameWithSearch: "/governance/approval-requests/claims-intake-approval-001/lineage",
+        searchRunId: "",
+        buyerGoldenJourneyNav: null,
+      }),
+    ).toBeNull();
+  });
 });
 
-describe("isBuyerOperateBackLinkRedundantWithBreadcrumbs", () => {
-  const backLink = {
-    label: "Back to review",
-    href: "/architecture/reviews/claims-intake-modernization",
-  } as const;
+describe("isBuyerOperateBackLinkRedundantWithScopedRun", () => {
+  const backLink = { label: "Back to review", href: "/architecture/reviews/claims-intake-modernization" };
 
-  it("is redundant when query runId matches the back-link href", () => {
-    expect(isBuyerOperateBackLinkRedundantWithBreadcrumbs("claims-intake-modernization", backLink)).toBe(true);
+  it("is redundant when search runId matches the back-link package", () => {
+    expect(isBuyerOperateBackLinkRedundantWithScopedRun("claims-intake-modernization", backLink)).toBe(true);
   });
 
-  it("is not redundant without a scoped runId", () => {
-    expect(isBuyerOperateBackLinkRedundantWithBreadcrumbs("", backLink)).toBe(false);
+  it("is not redundant when search runId is empty", () => {
+    expect(isBuyerOperateBackLinkRedundantWithScopedRun("", backLink)).toBe(false);
   });
 
-  it("is not redundant when query runId targets a different package", () => {
-    expect(isBuyerOperateBackLinkRedundantWithBreadcrumbs("other-run", backLink)).toBe(false);
+  it("is not redundant when search runId differs", () => {
+    expect(isBuyerOperateBackLinkRedundantWithScopedRun("other-run", backLink)).toBe(false);
   });
 });

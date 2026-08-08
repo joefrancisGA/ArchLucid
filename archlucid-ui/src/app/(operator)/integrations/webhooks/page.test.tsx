@@ -34,7 +34,6 @@ vi.mock("@/lib/api", () => ({
   toggleAlertRoutingSubscription: apiMocks.toggle,
 }));
 
-import { getBreadcrumbs } from "@/lib/breadcrumb-map";
 import { OperateIntegrationsNavGroupBuilder } from "@/lib/operate-integrations-nav-group-builder";
 import { resolveNavIconForHref } from "@/lib/resolve-nav-link-for-pathname";
 import { WEBHOOKS_BANNED_UI_PATTERNS, WEBHOOKS_PAGE_TITLE } from "@/lib/webhooks-page-copy";
@@ -64,8 +63,7 @@ describe("WebhooksIntegrationPage", () => {
     expect(webhooksLink?.icon).toBe(WEBHOOKS_SURFACE_ICON);
   });
 
-  it("uses consistent breadcrumb and page title terminology with shared nav icon", () => {
-    expect(getBreadcrumbs("/integrations/webhooks").at(-1)?.label).toBe("Webhooks");
+  it("uses consistent page title terminology with shared nav icon", () => {
     render(<WebhooksIntegrationPage />);
     expect(screen.getByRole("heading", { name: WEBHOOKS_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("page-heading-icon")).toBeInTheDocument();

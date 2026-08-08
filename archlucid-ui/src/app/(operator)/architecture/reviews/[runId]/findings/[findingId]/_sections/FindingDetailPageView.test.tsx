@@ -116,22 +116,18 @@ function buyerModel(overrides: Partial<FindingDetailPageModel> = {}): FindingDet
 }
 
 describe("FindingDetailPageView buyer polish", () => {
-  it("renders breadcrumb wayfinding with contextual help and no top-row evidence trace link", () => {
+  it("renders back-link wayfinding with contextual help and no top-row evidence trace link", () => {
     render(<FindingDetailPageView model={buyerModel()} />);
 
     expect(screen.getByTestId("finding-detail-wayfinding")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.getByRole("navigation", { name: "Breadcrumb" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Review" })).toHaveAttribute("href", "/architecture/reviews/run-1");
-    expect(screen.getByRole("link", { name: "Findings" })).toHaveAttribute(
+    expect(screen.queryByRole("navigation", { name: "Breadcrumb" })).toBeNull();
+    expect(screen.getByTestId("finding-detail-back-to-review")).toHaveAttribute("href", "/architecture/reviews/run-1");
+    expect(screen.getByTestId("finding-detail-back-to-findings")).toHaveAttribute(
       "href",
       "/architecture/reviews/run-1?reviewTab=findings",
     );
-    expect(screen.getByRole("navigation", { name: "Breadcrumb" }).querySelector("[aria-current='page']")).toHaveTextContent(
-      "Over-permissive storage access",
-    );
     expect(screen.queryByRole("link", { name: "Open evidence trace" })).toBeNull();
-    expect(screen.queryByRole("link", { name: "Back to review" })).toBeNull();
   });
 
   it("omits footer inspect link for buyer shell and nests ask/itsm under work-with section", () => {

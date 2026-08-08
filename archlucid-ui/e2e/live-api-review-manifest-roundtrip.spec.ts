@@ -2,7 +2,7 @@
  * Requires ArchLucid.Api + SQL (DevelopmentBypass in default CI live lane).
  *
  * Parity with mock `run-manifest-journey.spec.ts`: canonical showcase review → outcome **Finalized** manifest deep link
- * → manifest detail → breadcrumb link back to the review (live proxy rather than `/api/proxy` mock).
+ * → manifest detail → back-to-review link (live proxy rather than `/api/proxy` mock).
  */
 import { expect, test } from "@playwright/test";
 
@@ -21,9 +21,6 @@ import {
   openVisibleReviewOutcomeSummaryStrip,
   outcomeStripSignedRecordLink,
 } from "./helpers/operator-journey";
-
-/** Breadcrumb label varies with buyer-polished shell vs full-operator manifest layout. */
-const NAV_BACK_TO_REVIEW_FROM_MANIFEST = /^Open review$|^Claims Intake Modernization Review$/;
 
 const productTourRunId = DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID;
 
@@ -80,9 +77,7 @@ test.describe("live-api-review-manifest-roundtrip", { tag: ["@founder"] }, () =>
       timeout: 60_000,
     });
 
-    const reviewLink = page
-      .locator('[aria-label="Breadcrumb"]')
-      .getByRole("link", { name: NAV_BACK_TO_REVIEW_FROM_MANIFEST });
+    const reviewLink = page.getByTestId("manifest-detail-back-to-review");
 
     await expect(reviewLink).toBeVisible({ timeout: 30_000 });
 

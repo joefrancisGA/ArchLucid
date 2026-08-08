@@ -7,8 +7,9 @@ import {
   BUYER_SALES_LED_PRICING_NOTE,
   FORBIDDEN_WORKSPACE_ADMIN_ACCESS_MESSAGE,
 } from "@/lib/buyer-polish-copy";
-import { getBreadcrumbs } from "@/lib/breadcrumb-map";
 import { RUNS_EMPTY } from "@/lib/empty-state-presets";
+import { PILOT_OUTCOMES_PAGE_TITLE } from "@/lib/sponsor-report-navigation";
+import { ROUTE_TITLES } from "@/lib/route-static-titles";
 import {
   INTERNAL_CONCEPT_LEAKAGE_BANNED_PATTERNS,
   INTERNAL_CONCEPT_LEAKAGE_SURFACES,
@@ -52,11 +53,7 @@ describe("internal concept leakage guard (IA-013)", () => {
     expect(RUNS_EMPTY.helpTopicPath).toBe("review-guide");
   });
 
-  it("labels sponsor report pilot outcomes breadcrumb segment", () => {
-    const crumbs = getBreadcrumbs("/insights/pilot-outcomes");
-
-    expect(crumbs.some((crumb) => crumb.label === "Sponsor report")).toBe(true);
-    expect(crumbs.some((crumb) => crumb.label === "Pilot outcomes")).toBe(true);
-    expect(crumbs.some((crumb) => crumb.label === "pilot")).toBe(false);
+  it("labels sponsor report pilot outcomes via route title (not breadcrumbs)", () => {
+    expect(ROUTE_TITLES["/insights/pilot-outcomes"]).toBe(PILOT_OUTCOMES_PAGE_TITLE);
   });
 });

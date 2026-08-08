@@ -59,15 +59,12 @@ test.describe("operator journey — run detail to manifest and back", () => {
       getAppMain(page).getByRole("heading", { level: 1, name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN }).first(),
     ).toBeVisible({ timeout: 60_000 });
 
-    const reviewLink = page
-      .locator('[aria-label="Breadcrumb"]')
-      .getByRole("link", { name: /Open review|Claims Intake Modernization Review/i })
-      .first();
+    const reviewLink = page.getByTestId("manifest-detail-back-to-review");
 
     await expect(reviewLink).toBeVisible({ timeout: 60_000 });
     await expect(reviewLink).toHaveAttribute("href", `/architecture/reviews/${SHOWCASE_DEMO_RUN_ID}`);
 
-    // Full navigation is more reliable than breadcrumb client nav on cold CI agents (RSC + loading.tsx).
+    // Full navigation is more reliable than client nav on cold CI agents (RSC + loading.tsx).
     await page.goto(`/architecture/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`);
     await expect(page).toHaveURL(new RegExp(`/(?:reviews|runs)/${SHOWCASE_DEMO_RUN_ID.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}`), {
       timeout: 60_000,
