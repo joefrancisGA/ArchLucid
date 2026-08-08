@@ -69,5 +69,6 @@ describe("ui-route-traffic-pilot-roi-model-help (PI)", () => {
     expect(row?.section).toBe(PILOT_ROI_MODEL_HELP_TRAFFIC_SECTION);
     expect(row?.notes).toBe(PILOT_ROI_MODEL_HELP_TRAFFIC_NOTE);
     expect(row?.notes).toContain("HelpTopicMarkdownView");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
