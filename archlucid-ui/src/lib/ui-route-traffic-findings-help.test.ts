@@ -72,5 +72,6 @@ describe("ui-route-traffic-findings-help (HFX)", () => {
     expect(row?.notes).toContain("HelpFindingsGuideView");
     expect(row?.notes).toContain("Sources");
     expect(row?.notes).toContain("TB-1387");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
