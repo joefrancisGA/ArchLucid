@@ -11,7 +11,8 @@ export const RUN_PROVENANCE_TRAFFIC_PATH = "/architecture/reviews/[runId]/proven
 export const RUN_PROVENANCE_TRAFFIC_SECTION = "Core review";
 
 /**
- * Owner workbook Notes for RRP — documents Evidence chrome on run provenance.
+ * Owner workbook Notes for RRP - documents Evidence chrome on run provenance.
+ * ASCII-only for Windows console note scripts.
  */
 export const RUN_PROVENANCE_TRAFFIC_NOTE =
-  "Run provenance (Core review) - ProvenancePageWorkspace with PageContextualHelpButton (topic map evidence-trail; Category-1 registry via /provenance path match), workspace Sources + claim-discipline orientation strip, graph/timeline/table views. Coordinator linkage for one run — not a full diligence Sources export alone.";
+  "Run provenance (Core review) - ProvenancePageWorkspace with PageContextualHelpButton (topic map evidence-trail; Category-1 registry via /provenance path match), workspace Sources + claim-discipline orientation strip, graph/timeline/table views. Coordinator linkage for one run - not a full diligence Sources export alone. Does not imply CPA SOC 2 or third-party pen-test publication. Score 55/100 (2026-08-08) - single-run provenance hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";

@@ -65,6 +65,7 @@ describe("ui-route-traffic-run-provenance (RRP)", () => {
     expect(row?.section).toBe(RUN_PROVENANCE_TRAFFIC_SECTION);
     expect(row?.notes).toBe(RUN_PROVENANCE_TRAFFIC_NOTE);
     expect(row?.notes).toContain("ProvenancePageWorkspace");
-    expect(row?.notes).toContain("Sources");
+    expect(row?.notes).toContain("Score 55");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
