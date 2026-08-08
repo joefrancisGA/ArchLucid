@@ -65,5 +65,6 @@ describe("ui-route-traffic-example-roi-bulletin (EXA)", () => {
     expect(row?.section).toBe(EXAMPLE_ROI_BULLETIN_TRAFFIC_SECTION);
     expect(row?.notes).toBe(EXAMPLE_ROI_BULLETIN_TRAFFIC_NOTE);
     expect(row?.notes).toContain("ExampleRoiBulletinEvidenceOrientationStrip");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
