@@ -18,6 +18,7 @@ import {
 import { HealthBuildDetailsDisclosure } from "@/components/health-dashboard/HealthBuildDetailsDisclosure";
 import { TenantCatalogMigrationDiagnosticsSection } from "@/components/tenancy/TenantCatalogMigrationDiagnosticsSection";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isDataArchivalHealthDegraded } from "@/lib/health-dashboard-types";
 import { presentConfigLintFindings } from "@/lib/health-config-lint-presentation";
@@ -28,6 +29,7 @@ import {
   resolveOverallHealthHeadline,
 } from "@/lib/health-readiness-presentation";
 
+import { AdminHealthEvidenceOrientationStrip } from "./AdminHealthEvidenceOrientationStrip";
 import type { AdminHealthPageViewModel } from "./admin-health-view-model";
 
 type Props = {
@@ -71,12 +73,16 @@ export function AdminHealthPageView(props: Props) {
   return (
     <div className={cn(HEALTH_DASHBOARD_PAGE_CLASS, "space-y-6")} data-testid="admin-health-page">
       <header className="space-y-4">
-        <div className="space-y-1">
-          <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Diagnostics dashboard</h1>
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-            Workspace health, required services, and configuration advisories for this deployment.
-          </p>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="space-y-1">
+            <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Diagnostics dashboard</h1>
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+              Workspace health, required services, and configuration advisories for this deployment.
+            </p>
+          </div>
+          <PageContextualHelpButton />
         </div>
+        <AdminHealthEvidenceOrientationStrip />
         <HealthOverallStatusHeader
           overallStatus={overall}
           title={headline.title}
