@@ -69,5 +69,6 @@ describe("ui-route-traffic-evidence-intake-help (EVI)", () => {
     expect(row?.section).toBe(EVIDENCE_INTAKE_HELP_TRAFFIC_SECTION);
     expect(row?.notes).toBe(EVIDENCE_INTAKE_HELP_TRAFFIC_NOTE);
     expect(row?.notes).toContain("HelpTopicMarkdownView");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
