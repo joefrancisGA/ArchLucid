@@ -66,5 +66,6 @@ describe("ui-route-traffic-architecture-governance-tab (REG)", () => {
     expect(row?.notes).toBe(ARCHITECTURE_GOVERNANCE_TAB_TRAFFIC_NOTE);
     expect(row?.notes).toContain("Create-home-only");
     expect(row?.notes).toContain("decisions-remediation");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
