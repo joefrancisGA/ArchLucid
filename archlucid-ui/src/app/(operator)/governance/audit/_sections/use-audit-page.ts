@@ -1,5 +1,6 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 
@@ -15,10 +16,15 @@ import { buyerAuditTrailGovernanceSummaryCounts } from "@/lib/audit-trail-page-h
 import { useNavCallerAuthorityRank, useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
 import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
+import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { AuditEvent, CursorPagedResponse } from "@/lib/api";
-import { downloadAuditExportCsv, getAuditEventTypes, searchAuditEvents } from "@/lib/api";
+import { downloadAuditExportCsv, getAuditEventTypes } from "@/lib/api";
+import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
+import {
+  OPERATOR_QUERY_GC_MS,
+} from "@/lib/query/operator-query-stale-time";
 import { getDemoSampleAuditTrailEvents } from "@/lib/demo-audit-sample-events";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
@@ -43,15 +49,20 @@ import type { AuditSavedViewFilters } from "@/lib/operator-saved-view-types";
 import type { AuditPageViewProps } from "./audit-page-view-props";
 import type { AuditPageServerLoad } from "./load-audit-page-data";
 import {
-  AUDIT_PAGE_SIZE,
   type AuditFilterFields,
   buildAuditSavedViewPayload,
   toDatetimeLocalInputValue,
 } from "./audit-page-helpers";
 import { resolveAuditSearchPageForUi, shouldInjectAuditDemoOnSearchError } from "./resolve-audit-search-page-for-ui";
+import {
+  auditFiltersToQueryRecord,
+  fetchAuditEventsSearch,
+} from "./audit-events-query-fetch";
 
 /** Page controller: audit filters, search/export, and derived buyer display state. */
 export function useAuditPage(serverLoad: AuditPageServerLoad): AuditPageViewProps {
+  const queryClient = useQueryClient();
+  const scope = useOperatorScopeQueryKey();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -179,22 +190,18 @@ export function useAuditPage(serverLoad: AuditPageServerLoad): AuditPageViewProp
     async (filters: AuditFilterFields, loadMoreCursor?: string | null) => {
       setFailure(null);
 
-      const payload = {
-        eventType: filters.eventType || undefined,
-        fromUtc: filters.fromUtc ? new Date(filters.fromUtc).toISOString() : undefined,
-        toUtc: filters.toUtc ? new Date(filters.toUtc).toISOString() : undefined,
-        cursor: loadMoreCursor ?? undefined,
-        correlationId: filters.correlationId.trim() || undefined,
-        actorUserId: filters.actorUserId.trim() || undefined,
-        runId: filters.runId.trim() || undefined,
-        take: AUDIT_PAGE_SIZE,
-      };
-
-      const data: CursorPagedResponse<AuditEvent> = await searchAuditEvents(payload);
-
-      return data;
+      return queryClient.fetchQuery({
+        queryKey: operatorQueryKeys.auditEventsSearch(
+          scope,
+          auditFiltersToQueryRecord(filters),
+          loadMoreCursor ?? null,
+        ),
+        queryFn: () => fetchAuditEventsSearch(filters, loadMoreCursor),
+        staleTime: 0,
+        gcTime: OPERATOR_QUERY_GC_MS,
+      });
     },
-    [],
+    [queryClient, scope],
   );
 
   const currentFilters = useCallback(

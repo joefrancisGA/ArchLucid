@@ -14,9 +14,10 @@ import {
 import type { AuditEvent } from "@/lib/api";
 
 import { AuditEventOperatorTableRow } from "./AuditEventOperatorTableRow";
-
-/** Estimated row height for audit table virtualization (compact operator rows). */
-const AUDIT_TABLE_ROW_ESTIMATE_PX = 72;
+import {
+  AUDIT_TABLE_ROW_ESTIMATE_PX,
+  shouldVirtualizeAuditEventsTable,
+} from "./audit-events-virtualization";
 
 export type AuditEventsOperatorTableProps = {
   readonly events: readonly AuditEvent[];
@@ -27,13 +28,38 @@ export type AuditEventsOperatorTableProps = {
 export function AuditEventsOperatorTable(props: AuditEventsOperatorTableProps): ReactElement {
   const { events, ariaLabel } = props;
   const parentRef = useRef<HTMLDivElement>(null);
+  const useVirtualization = shouldVirtualizeAuditEventsTable(events.length);
 
   const rowVirtualizer = useVirtualizer({
-    count: events.length,
+    count: useVirtualization ? events.length : 0,
     getScrollElement: () => parentRef.current,
     estimateSize: () => AUDIT_TABLE_ROW_ESTIMATE_PX,
     overscan: 8,
   });
+
+  if (!useVirtualization) {
+    return (
+      <div className="overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800">
+        <EnterpriseTable ariaLabel={ariaLabel} className="border-0">
+          <EnterpriseTableHead>
+            <EnterpriseTableHeadRow>
+              <EnterpriseTableHeaderCell>Occurred</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>Event</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>Actor</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>Review</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>Correlation</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>Payload</EnterpriseTableHeaderCell>
+            </EnterpriseTableHeadRow>
+          </EnterpriseTableHead>
+          <EnterpriseTableBody>
+            {events.map((ev) => (
+              <AuditEventOperatorTableRow key={ev.eventId} event={ev} />
+            ))}
+          </EnterpriseTableBody>
+        </EnterpriseTable>
+      </div>
+    );
+  }
 
   return (
     <div

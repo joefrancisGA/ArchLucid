@@ -28,4 +28,17 @@ export const operatorQueryKeys = {
   tenantHomepageSettings: ["operator", "tenant", "homepage-settings"] as const,
   featuredCompletedSampleCandidates: ["operator", "tenant", "homepage-settings", "eligible-samples"] as const,
   patternLibraryInsightCards: ["operator", "analytics", "pattern-insight-cards"] as const,
+  alertsInboxPage: (
+    scope: OperatorScopeQueryKey,
+    params: { readonly statusFilter: string | null; readonly page: number },
+  ) => ["operator", "alerts", "inbox-page", scope, params] as const,
+  alertsInboxSummary: (scope: OperatorScopeQueryKey) =>
+    ["operator", "alerts", "inbox-summary", scope] as const,
+  alertsInboxWorkspaceContext: (scope: OperatorScopeQueryKey) =>
+    ["operator", "alerts", "workspace-context", scope] as const,
+  auditEventsSearch: (
+    scope: OperatorScopeQueryKey,
+    filters: Record<string, string>,
+    cursor: string | null,
+  ) => ["operator", "audit", "events-search", scope, filters, { cursor }] as const,
 };

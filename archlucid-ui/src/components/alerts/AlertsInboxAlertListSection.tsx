@@ -1,6 +1,8 @@
 import { AlertsInboxAlertCard } from "@/components/alerts/AlertsInboxAlertCard";
 import { AlertsInboxListStates } from "@/components/alerts/AlertsInboxListStates";
 import { AlertsInboxPagination } from "@/components/alerts/AlertsInboxPagination";
+import { AlertsInboxVirtualizedAlertList } from "@/components/alerts/AlertsInboxVirtualizedAlertList";
+import { shouldVirtualizeAlertsInboxList } from "@/components/alerts/alerts-inbox-virtualization";
 import type { AlertsInboxController } from "@/components/alerts/use-alerts-inbox-controller";
 import type { AlertRecord } from "@/types/alerts";
 
@@ -43,7 +45,23 @@ export function AlertsInboxAlertListSection({ controller, emptyFilteredProps }: 
       />
 
       {visibleAlerts.length > 0
-        ? visibleAlerts.map((alert: AlertRecord) => (
+        ? shouldVirtualizeAlertsInboxList(visibleAlerts.length)
+          ? (
+            <AlertsInboxVirtualizedAlertList
+              alerts={visibleAlerts}
+              buyerPolishedShell={buyerPolishedShell}
+              canMutateAlertInbox={canMutateAlertInbox}
+              selectedAlertIds={selectedAlertIds}
+              archiveBusyAlertId={archiveBusyAlertId}
+              onToggleSelected={toggleAlertSelected}
+              onPendingAction={queuePendingAction}
+              onArchiveAlert={(alertId) => {
+                void onArchiveAlert(alertId);
+              }}
+              onOpenRoutingDelivery={openRoutingDelivery}
+            />
+          )
+          : visibleAlerts.map((alert: AlertRecord) => (
             <AlertsInboxAlertCard
               key={alert.alertId}
               alert={alert}

@@ -1,30 +1,31 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import type { AlertActionKind } from "@/components/alerts/AlertsInboxAlertCard";
 import { useAlertsInboxEmptyFilteredProps } from "@/components/alerts/use-alerts-inbox-empty-filtered-props";
+import {
+  useAlertsInboxPageQuery,
+  useAlertsInboxSummaryQuery,
+  useAlertsInboxWorkspaceContextQuery,
+} from "@/components/alerts/use-alerts-inbox-queries";
 import { useAlertCardShortcuts } from "@/hooks/useAlertCardShortcuts";
+import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 import {
   acknowledgeAlertsBatch,
   applyAlertAction,
   archiveAlert,
   fetchAlertActionLoop,
-  getAlertsInboxSummary,
-  listAlertRules,
-  listAlertsPaged,
 } from "@/lib/api";
-import { listRunsByProjectPaged } from "@/lib/api/architecture-runs";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import type { AlertsInboxSummaryCounts } from "@/lib/alerts-inbox-summary";
 import {
   ALERTS_INBOX_DEFAULT_PROJECT_ID,
   shouldShowAlertsHeaderConfigureRulesLink,
-  type AlertsInboxWorkspaceContext,
 } from "@/lib/alerts-inbox-workspace-context";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { shouldMergeOperatorDemoAlertSample, tryStaticDemoAlertInboxRow } from "@/lib/operator-static-demo";
+import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { useNavSurface } from "@/lib/use-nav-surface";
 import type { AlertsInboxPageModel } from "@/app/(operator)/governance/alerts/_sections/alerts-inbox-page-model";
 import {
@@ -40,28 +41,13 @@ type PendingActionState = {
   action: AlertActionKind;
 };
 
-const EMPTY_SUMMARY: AlertsInboxSummaryCounts = {
-  open: 0,
-  acknowledged: 0,
-  resolved: 0,
-  blocking: 0,
-  lastEvaluatedUtc: null,
-};
-
-const EMPTY_WORKSPACE_CONTEXT: AlertsInboxWorkspaceContext = {
-  hasReviews: false,
-  hasAlertRules: false,
-  loading: true,
-};
-
 export function useAlertsInboxController(initialModel: AlertsInboxPageModel | null) {
+  const queryClient = useQueryClient();
+  const scope = useOperatorScopeQueryKey();
   const canMutateAlertInbox = useNavSurface("alerts").mutationCapability;
   const buyerPolishedShell = initialModel?.buyerPolishedShell ?? isBuyerPolishedOperatorShellEnv();
-  const [alerts, setAlerts] = useState<AlertRecord[]>(initialModel?.items ?? []);
   const [status, setStatus] = useState<string>(initialModel?.status ?? "Open");
   const [page, setPage] = useState(initialModel?.page ?? 1);
-  const [totalCount, setTotalCount] = useState(initialModel?.totalCount ?? 0);
-  const [loading, setLoading] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(initialModel?.loadFailure ?? null);
   const [pendingAction, setPendingAction] = useState<PendingActionState | null>(null);
   const [actionComment, setActionComment] = useState("");
@@ -74,15 +60,62 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
   const [selectedAlertIds, setSelectedAlertIds] = useState<string[]>([]);
   const [batchAckBusy, setBatchAckBusy] = useState(false);
   const [archiveBusyAlertId, setArchiveBusyAlertId] = useState<string | null>(null);
-  const [summaryCounts, setSummaryCounts] = useState<AlertsInboxSummaryCounts>(() => ({
-    ...EMPTY_SUMMARY,
-    open: initialModel?.status === "Open" ? initialModel.totalCount : 0,
-  }));
-  const [summaryLoading, setSummaryLoading] = useState(initialModel === null);
-  const [workspaceContext, setWorkspaceContext] = useState<AlertsInboxWorkspaceContext>(EMPTY_WORKSPACE_CONTEXT);
   const [lastRefreshedUtc, setLastRefreshedUtc] = useState<string | null>(null);
 
+  const statusFilter = status === ALERTS_INBOX_ALL_STATUSES_VALUE ? null : status;
+  const pageQuery = useAlertsInboxPageQuery({ status, page, initialModel });
+  const summaryQuery = useAlertsInboxSummaryQuery({ initialModel });
+  const workspaceQuery = useAlertsInboxWorkspaceContextQuery();
+
+  const alerts = pageQuery.items;
+  const totalCount = pageQuery.totalCount;
+  const loading = pageQuery.loading;
+  const summaryCounts = summaryQuery.summary;
+  const summaryLoading = summaryQuery.loading;
+  const workspaceContext = workspaceQuery.workspaceContext;
+
   const totalPages = Math.max(1, Math.ceil(totalCount / ALERTS_INBOX_PAGE_SIZE));
+
+  useEffect(() => {
+    if (pageQuery.loadFailure !== null) {
+      setFailure(pageQuery.loadFailure);
+    } else if (!pageQuery.loading) {
+      setFailure(null);
+    }
+  }, [pageQuery.loadFailure, pageQuery.loading]);
+
+  useEffect(() => {
+    if (!pageQuery.loading && pageQuery.loadFailure === null) {
+      setLastRefreshedUtc(new Date().toISOString());
+    }
+  }, [pageQuery.loading, pageQuery.loadFailure, pageQuery.items, pageQuery.totalCount]);
+
+  useEffect(() => {
+    if (totalCount > 0 && page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalCount, totalPages]);
+
+  useEffect(() => {
+    setSelectedAlertIds((prev) => prev.filter((id) => alerts.some((row) => row.alertId === id)));
+  }, [alerts]);
+
+  const refreshInbox = useCallback(
+    async (options?: { readonly refreshSummary?: boolean }) => {
+      const statusFilterValue = status === ALERTS_INBOX_ALL_STATUSES_VALUE ? null : status;
+
+      await queryClient.invalidateQueries({
+        queryKey: operatorQueryKeys.alertsInboxPage(scope, { statusFilter: statusFilterValue, page }),
+      });
+
+      if (options?.refreshSummary === true) {
+        await queryClient.invalidateQueries({
+          queryKey: operatorQueryKeys.alertsInboxSummary(scope),
+        });
+      }
+    },
+    [page, queryClient, scope, status],
+  );
 
   const visibleAlerts = useMemo(
     () => alerts.filter((alert) => alert.isArchived !== true),
@@ -96,123 +129,6 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
 
   const allVisibleSelected =
     visibleAlerts.length > 0 && selectedOnPageCount === visibleAlerts.length;
-
-  const loadWorkspaceContext = useCallback(async (): Promise<void> => {
-    setWorkspaceContext((prev) => ({ ...prev, loading: true }));
-
-    try {
-      const [rules, runs] = await Promise.all([
-        listAlertRules(),
-        listRunsByProjectPaged(ALERTS_INBOX_DEFAULT_PROJECT_ID, 1, 1),
-      ]);
-
-      setWorkspaceContext({
-        hasReviews: runs.totalCount > 0,
-        hasAlertRules: rules.length > 0,
-        loading: false,
-      });
-    } catch {
-      setWorkspaceContext({
-        hasReviews: false,
-        hasAlertRules: false,
-        loading: false,
-      });
-    }
-  }, []);
-
-  const loadSummaryCounts = useCallback(async (): Promise<void> => {
-    setSummaryLoading(true);
-
-    try {
-      const summary = await getAlertsInboxSummary();
-
-      setSummaryCounts({
-        open: summary.openCount,
-        acknowledged: summary.acknowledgedCount,
-        resolved: summary.resolvedCount,
-        blocking: summary.blockingCount,
-        lastEvaluatedUtc: summary.lastEvaluatedUtc?.trim() ? summary.lastEvaluatedUtc : null,
-      });
-    } catch {
-      setSummaryCounts(EMPTY_SUMMARY);
-    } finally {
-      setSummaryLoading(false);
-    }
-  }, []);
-
-  const load = useCallback(async (options?: { readonly refreshSummary?: boolean }) => {
-    setLoading(true);
-    setFailure(null);
-
-    try {
-      const statusFilter = status === ALERTS_INBOX_ALL_STATUSES_VALUE ? null : status;
-      const data = await listAlertsPaged(statusFilter, page, ALERTS_INBOX_PAGE_SIZE);
-      let items = data.items;
-      let total = data.totalCount;
-
-      if (shouldMergeOperatorDemoAlertSample() && items.length === 0) {
-        const demoRow = tryStaticDemoAlertInboxRow();
-
-        if (statusFilter === null || statusFilter === "Open") {
-          items = [demoRow];
-          total = 1;
-        }
-      }
-
-      setAlerts(items);
-      setTotalCount(total);
-      setSelectedAlertIds((prev) => prev.filter((id) => items.some((row) => row.alertId === id)));
-      const pages = Math.max(1, Math.ceil(data.totalCount / ALERTS_INBOX_PAGE_SIZE));
-
-      if (data.totalCount > 0 && page > pages) {
-        setPage(pages);
-      }
-
-      setLastRefreshedUtc(new Date().toISOString());
-    } catch (e) {
-      if (shouldMergeOperatorDemoAlertSample()) {
-        const statusFilter = status === ALERTS_INBOX_ALL_STATUSES_VALUE ? null : status;
-        const demoRow = tryStaticDemoAlertInboxRow();
-
-        if (statusFilter === null || statusFilter === "Open") {
-          setAlerts([demoRow]);
-          setTotalCount(1);
-        } else {
-          setAlerts([]);
-          setTotalCount(0);
-        }
-
-        setLastRefreshedUtc(new Date().toISOString());
-      } else {
-        setFailure(toApiLoadFailure(e));
-      }
-    } finally {
-      setLoading(false);
-
-      // TB-2023: do not re-fan-out summary on every page/filter load — only after mutations.
-      if (options?.refreshSummary === true) {
-        void loadSummaryCounts();
-      }
-    }
-  }, [status, page, loadSummaryCounts]);
-
-  const matchesInitialSnapshot =
-    initialModel !== null &&
-    status === initialModel.status &&
-    page === initialModel.page;
-
-  useEffect(() => {
-    if (matchesInitialSnapshot && initialModel !== null) {
-      return;
-    }
-
-    void load();
-  }, [initialModel, load, matchesInitialSnapshot]);
-
-  useEffect(() => {
-    void loadWorkspaceContext();
-    void loadSummaryCounts();
-  }, [loadSummaryCounts, loadWorkspaceContext]);
 
   const pageMixSummary = useMemo(() => {
     if (visibleAlerts.length === 0) {
@@ -252,12 +168,12 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
 
       try {
         await applyAlertAction(alertId, action, comment);
-        await load({ refreshSummary: true });
+        await refreshInbox({ refreshSummary: true });
       } catch (e) {
         setFailure(toApiLoadFailure(e));
       }
     },
-    [load],
+    [refreshInbox],
   );
 
   const onAlertShortcutAction = useCallback((alertId: string, action: string) => {
@@ -268,7 +184,6 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
     }
   }, []);
 
-  /** Alt+1–3 register only when `canMutateAlertInbox`; buttons may still open read-only triage preview at read rank. */
   useAlertCardShortcuts({ onAction: onAlertShortcutAction, mutationsEnabled: canMutateAlertInbox });
 
   async function onAcknowledgeSelected(): Promise<void> {
@@ -282,7 +197,7 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
     try {
       await acknowledgeAlertsBatch(selectedAlertIds);
       setSelectedAlertIds([]);
-      await load({ refreshSummary: true });
+      await refreshInbox({ refreshSummary: true });
     } catch (e) {
       setFailure(toApiLoadFailure(e));
     } finally {
@@ -301,7 +216,7 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
     try {
       await archiveAlert(alertId);
       setSelectedAlertIds((prev) => prev.filter((id) => id !== alertId));
-      await load({ refreshSummary: true });
+      await refreshInbox({ refreshSummary: true });
     } catch (e) {
       setFailure(toApiLoadFailure(e));
     } finally {
@@ -430,7 +345,7 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
     totalPages,
     visibleAlerts,
     workspaceContext,
-    load,
+    load: refreshInbox,
   };
 }
 

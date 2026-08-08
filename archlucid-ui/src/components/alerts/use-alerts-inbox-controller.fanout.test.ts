@@ -8,22 +8,26 @@ const controllerSource = readFileSync(
   join(dirname(fileURLToPath(import.meta.url)), "use-alerts-inbox-controller.ts"),
   "utf8",
 );
+const fetchSource = readFileSync(
+  join(dirname(fileURLToPath(import.meta.url)), "alerts-inbox-query-fetch.ts"),
+  "utf8",
+);
 
-describe("alerts inbox mount fan-out (TB-2023)", () => {
+describe("alerts inbox mount fan-out (TB-2023 / TB-935)", () => {
   it("loads summary via dedicated inbox-summary endpoint, not N× listAlertsPaged", () => {
-    expect(controllerSource).toContain("getAlertsInboxSummary");
+    expect(fetchSource).toContain("getAlertsInboxSummary");
+    expect(fetchSource).not.toMatch(/fetchAlertsInboxSummary[\s\S]*listAlertsPaged/);
+    expect(controllerSource).toContain("useAlertsInboxSummaryQuery");
     expect(controllerSource).toContain("refreshSummary");
-
-    const summaryFn = controllerSource.match(
-      /const loadSummaryCounts = useCallback\(async \(\): Promise<void> => \{[\s\S]*?\}, \[\]\);/,
-    );
-
-    expect(summaryFn?.[0] ?? "").toContain("getAlertsInboxSummary");
-    expect(summaryFn?.[0] ?? "").not.toContain("listAlertsPaged");
   });
 
-  it("does not re-fetch summary in the default list load finally path", () => {
+  it("only refreshes summary when mutations request it", () => {
     expect(controllerSource).toContain("options?.refreshSummary === true");
-    expect(controllerSource).not.toMatch(/finally \{\s*setLoading\(false\);\s*void loadSummaryCounts\(\);/s);
+    expect(controllerSource).not.toContain("void loadSummaryCounts()");
+  });
+
+  it("uses TanStack Query for inbox page loads", () => {
+    expect(controllerSource).toContain("useAlertsInboxPageQuery");
+    expect(controllerSource).toContain("operatorQueryKeys.alertsInboxPage");
   });
 });
