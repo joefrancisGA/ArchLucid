@@ -25,6 +25,7 @@ import { AdminDiagnosticsHelpEvidenceOrientationStrip } from "../_sections/Admin
 import { AuthenticationSignInHelpEvidenceOrientationStrip } from "../_sections/AuthenticationSignInHelpEvidenceOrientationStrip";
 import { AzureBoardsHelpEvidenceOrientationStrip } from "../_sections/AzureBoardsHelpEvidenceOrientationStrip";
 import { PolicyPacksHelpEvidenceOrientationStrip } from "../_sections/PolicyPacksHelpEvidenceOrientationStrip";
+import { PriorManifestRetrievalHelpEvidenceOrientationStrip } from "../_sections/PriorManifestRetrievalHelpEvidenceOrientationStrip";
 import { IntegrationReadinessHelpEvidenceOrientationStrip } from "../_sections/IntegrationReadinessHelpEvidenceOrientationStrip";
 import { PilotFeedbackHelpEvidenceOrientationStrip } from "../_sections/PilotFeedbackHelpEvidenceOrientationStrip";
 import { PilotNavProfileHelpEvidenceOrientationStrip } from "../_sections/PilotNavProfileHelpEvidenceOrientationStrip";
@@ -346,6 +347,17 @@ function renderHelpTopicView(
         markdown={loaded.markdown}
         showContextualHelp
         evidenceOrientation={<PolicyPacksHelpEvidenceOrientationStrip />}
+      />
+    );
+  }
+
+  if (loaded.entry.slug === "prior-manifest-retrieval") {
+    return (
+      <HelpTopicMarkdownView
+        entry={loaded.entry}
+        markdown={loaded.markdown}
+        showContextualHelp
+        evidenceOrientation={<PriorManifestRetrievalHelpEvidenceOrientationStrip />}
       />
     );
   }
