@@ -9,6 +9,7 @@ import { CopyIdButton } from "@/components/CopyIdButton";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { Button } from "@/components/ui/button";
 import {
   EnterpriseTable,
@@ -20,6 +21,7 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { StatusTag } from "@/components/ui/status-tag";
+import { RiskExceptionsEvidenceOrientationStrip } from "@/components/governance/RiskExceptionsEvidenceOrientationStrip";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import {
   defaultRiskExceptionExpiresAtUtc,
@@ -185,7 +187,9 @@ export default function RiskExceptionsClient() {
         <LayerHeader pageKey="exceptions" density="compact" className="mb-3" />
       )}
 
-      <OperatorPageHeader title={pageTitle} subtitle={pageSubtitle} />
+      <OperatorPageHeader title={pageTitle} subtitle={pageSubtitle} actions={<PageContextualHelpButton />} />
+
+      <RiskExceptionsEvidenceOrientationStrip />
 
       <div className={cn("mt-4", OPERATOR_LAYOUT.sectionStack)}>
         {expiringSoonCount > 0 ? (
