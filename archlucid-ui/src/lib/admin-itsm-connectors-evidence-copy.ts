@@ -1,0 +1,26 @@
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import {
+  INTEGRATIONS_JIRA_PATH,
+  INTEGRATIONS_READINESS_PATH,
+  INTEGRATIONS_SERVICENOW_PATH,
+} from "@/lib/integrations-nav-paths";
+
+export const ADMIN_ITSM_CONNECTORS_CLAIM_DISCIPLINE =
+  "ITSM connectors configures deployment credentials and tenant routing overrides for Jira and ServiceNow — it is not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open buyer Integrations readiness or Audit when you need export posture or activity trails.";
+
+export const ADMIN_ITSM_CONNECTORS_SOURCES_INTRO =
+  "Use these follow-ups when connector onboarding needs buyer export surfaces, readiness checks, or troubleshooting.";
+
+export type AdminItsmConnectorsSourceLink = {
+  readonly label: string;
+  readonly href: string;
+};
+
+/** Operator Sources — no self-href to /internal/integrations/itsm. */
+export const ADMIN_ITSM_CONNECTORS_SOURCES: readonly AdminItsmConnectorsSourceLink[] = [
+  { label: "Integration readiness", href: INTEGRATIONS_READINESS_PATH },
+  { label: "Jira integration", href: INTEGRATIONS_JIRA_PATH },
+  { label: "ServiceNow integration", href: INTEGRATIONS_SERVICENOW_PATH },
+  { label: "System health", href: "/administration/system-health" },
+  { label: "Integration readiness help", href: inAppHelpHref("integration-readiness") },
+] as const;

@@ -13,6 +13,8 @@ import {
 import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { PROVENANCE_HELP_TOPIC, pathIsRunProvenance } from "@/lib/provenance-evidence-copy";
+import { pathIsFindingEvidenceTrace } from "@/lib/evidence-trace-contextual-help";
+import { pathIsFindingDetail } from "@/lib/finding-detail-contextual-help";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 
 export type PageHelpTopic = {
@@ -178,11 +180,12 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "review-packages", label: "Signed review records" },
   },
   { prefix: EXECUTIVE_DASHBOARD_HREF, topic: { slug: "executive-summary", label: "Executive dashboard" } },
-  { prefix: "/insights/evidence-graph", topic: { slug: "evidence-trail", label: OPERATOR_NAV_LINK_LABELS.evidenceGraph } },
+  { prefix: "/insights/evidence-graph", topic: { slug: "evidence-trail", label: OPERATOR_NAV_LINK_LABELS.evidenceTrail } },
   {
     prefix: "/insights/search-review-evidence",
     topic: { slug: "evidence-trail", label: OPERATOR_NAV_LINK_LABELS.searchEvidence },
   },
+  { prefix: "/insights/ask-review-questions", topic: { slug: "evidence-trail", label: "Ask review questions" } },
   { prefix: "/insights/compare-two-reviews", topic: { slug: "comparison-replay", label: "Compare and replay" } },
   {
     // Secondary hub — no pattern-library specialty; omit Learn more (TB-2050).
@@ -191,6 +194,9 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   { prefix: "/replay", topic: { slug: "comparison-replay", label: "Validate review" } },
   { prefix: "/governance/findings", topic: { slug: "governance-approval", label: OPERATOR_NAV_LINK_LABELS.findings } },
+  { prefix: "/governance/exceptions", topic: { slug: "findings", label: "Risk exceptions" } },
+  { prefix: "/governance/recurrence-schedules", topic: { slug: "governance-approval", label: "Recurrence schedules" } },
+  { prefix: "/governance/setup", topic: { slug: "governance-approval", label: "Governance setup" } },
   {
     prefix: "/governance/approval-queue",
     topic: { slug: "governance-approval", label: "Approval queue" },
@@ -246,7 +252,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/help/digests", topic: { slug: "digests", label: "Architecture digests" } },
   {
     // Secondary hub — no planning specialty; omit Learn more (TB-2050).
-    prefix: "/insights/improvement-planning",
+    prefix: "/insights/planning",
     topic: { label: "Improvement planning" },
   },
   {
@@ -380,6 +386,54 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "pilot-feedback", label: "How recommendation learning works" },
   },
   {
+    prefix: "/internal/tenants",
+    topic: { slug: "enterprise-onboarding", label: "Tenant provisioning" },
+  },
+  {
+    prefix: "/internal/fleet-llm-cogs",
+    topic: { slug: "troubleshooting", label: "Fleet LLM COGS" },
+  },
+  {
+    prefix: "/internal/pricing-quote-aging",
+    topic: { slug: "billing-and-plans", label: "Pricing quote follow-up" },
+  },
+  {
+    prefix: "/internal/evidence-proposals",
+    topic: { slug: "evidence-trail", label: "Evidence proposals" },
+  },
+  {
+    prefix: "/internal/trial-funnel",
+    topic: { slug: "billing-and-plans", label: "Trial funnel" },
+  },
+  {
+    prefix: "/internal/tenant-health",
+    topic: { slug: "troubleshooting", label: "Tenant health" },
+  },
+  {
+    prefix: "/internal/health",
+    topic: { slug: "troubleshooting", label: "Diagnostics dashboard" },
+  },
+  {
+    prefix: "/internal/configuration",
+    topic: { slug: "configuration-reference", label: "Configuration summary" },
+  },
+  {
+    prefix: "/internal/rag-health",
+    topic: { slug: "troubleshooting", label: "RAG corpus health" },
+  },
+  {
+    prefix: "/internal/integrations/itsm",
+    topic: { slug: "integration-readiness", label: "ITSM connectors" },
+  },
+  {
+    prefix: "/internal/demo-readiness",
+    topic: { slug: "path-chooser", label: "Demo readiness" },
+  },
+  {
+    prefix: "/internal/deployment-status",
+    topic: { slug: "troubleshooting", label: "Deployment status" },
+  },
+  {
     // Secondary hub — no advisory-scans specialty; omit Learn more (TB-2050).
     prefix: "/governance/advisory-scans",
     topic: { label: "Advisory scans" },
@@ -414,6 +468,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "alerts", label: "Teams integration" },
   },
   { prefix: "/administration/connection-status", topic: { slug: "integration-readiness", label: "How integration readiness works" } },
+  { prefix: "/administration", topic: { slug: "configuration-reference", label: "Settings" } },
   { prefix: "/administration/developer", topic: { slug: "cli-usage", label: "Internal developer tools" } },
   {
     prefix: "/operate/integration-events/dlq",
@@ -528,6 +583,14 @@ export function pageHelpTopicForPathname(pathname: string): PageHelpTopic | null
 
   if (pathIsRunProvenance(path)) {
     return PROVENANCE_HELP_TOPIC;
+  }
+
+  if (pathIsFindingEvidenceTrace(path)) {
+    return { slug: "findings", label: "Finding evidence trace" };
+  }
+
+  if (pathIsFindingDetail(path)) {
+    return { slug: "findings", label: "Finding detail" };
   }
 
   if (path === "/") {

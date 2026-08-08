@@ -23,14 +23,27 @@ import { PRODUCT_LEARNING_PATH } from "@/lib/product-learning-route";
 import {
   INTERNAL_DEMO_READINESS_PATH,
   INTERNAL_DEPLOYMENT_STATUS_PATH,
+  INTERNAL_EVIDENCE_PROPOSALS_PATH,
+  INTERNAL_FLEET_LLM_COGS_PATH,
+  INTERNAL_PRICING_QUOTE_AGING_PATH,
+  INTERNAL_RECOMMENDATION_LEARNING_PATH,
   INTERNAL_REPLAY_PATH,
   INTERNAL_TENANT_HEALTH_PATH,
+  INTERNAL_TENANTS_PATH,
   INTERNAL_TRIAL_FUNNEL_PATH,
 } from "@/lib/internal-ops-route-paths";
 import {
   ARCHITECTURES_DRAFT_CONTEXTUAL_HELP,
   pathIsArchitectureDraftDetail,
 } from "@/lib/architectures-draft-evidence-copy";
+import {
+  EVIDENCE_TRACE_CONTEXTUAL_HELP,
+  pathIsFindingEvidenceTrace,
+} from "@/lib/evidence-trace-contextual-help";
+import {
+  FINDING_DETAIL_CONTEXTUAL_HELP,
+  pathIsFindingDetail,
+} from "@/lib/finding-detail-contextual-help";
 import {
   PROVENANCE_CONTEXTUAL_HELP,
   pathIsRunProvenance,
@@ -132,6 +145,34 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whyEmpty: "Rows appear after findings are accepted or governance decisions are recorded in reviews.",
       whereToConfigurePrerequisite:
         "Policy packs and governance workflow settings shape what becomes a tracked risk.",
+    },
+  },
+  {
+    prefix: "/governance/exceptions",
+    entry: {
+      whatIsThisPage:
+        "Risk exceptions — renew or revoke time-bounded waivers linked to accepted findings.",
+      whatToDoNext:
+        "Review expiring exceptions, renew when still justified, or revoke and return to Findings for disposition.",
+      whyEmpty: "Exceptions appear after findings are waived with an expiry window.",
+      whereToConfigurePrerequisite:
+        "Exceptions follow findings accepted in the current workspace and project scope.",
+      whatToDoNextAction: {
+        label: "Open findings",
+        href: "/governance/findings",
+      },
+    },
+  },
+  {
+    prefix: "/governance/recurrence-schedules",
+    entry: {
+      whatIsThisPage:
+        "Recurrence schedules — configure when architecture reviews repeat for ongoing governance.",
+      whatToDoNext:
+        "Create or activate a schedule, then open Findings or the approval queue when recurring runs need disposition.",
+      whyEmpty: "Schedules appear after you create them for this workspace.",
+      whereToConfigurePrerequisite:
+        "Recurrence needs at least one architecture review package pattern in the current workspace.",
     },
   },
   {
@@ -540,6 +581,18 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/administration",
+    entry: {
+      whatIsThisPage:
+        "Settings — configuration launcher for workspace, identity, billing, security, and support controls.",
+      whatToDoNext:
+        "Search or browse a settings section, then open System health or Audit when you need operational trails.",
+      whyEmpty: "Destination cards appear for the sections your authority rank can access.",
+      whereToConfigurePrerequisite:
+        "Some destinations require AdminAuthority or System Admin; switch workspace scope from the header when needed.",
+    },
+  },
+  {
     prefix: "/administration/system-health",
     entry: {
       whatIsThisPage:
@@ -557,6 +610,75 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
         label: "Open Connection status",
         href: "/administration/connection-status",
       },
+    },
+  },
+  {
+    prefix: "/internal/health",
+    entry: {
+      whatIsThisPage:
+        "Diagnostics dashboard — workspace health, readiness groups, and configuration advisories for tenant administrators.",
+      whatToDoNext:
+        "Review overall status and lint findings, then open System health or Configuration summary for sibling ops views.",
+      whyEmpty: "Diagnostics populate after readiness and configuration probes return.",
+      whereToConfigurePrerequisite: "This page requires tenant administrator access (AdminAuthority).",
+      whatToDoNextAction: {
+        label: "Open System health",
+        href: "/administration/system-health",
+      },
+    },
+  },
+  {
+    prefix: "/internal/configuration",
+    entry: {
+      whatIsThisPage:
+        "Configuration summary — browse effective non-sensitive deployment keys and configuration lint for this API host.",
+      whatToDoNext:
+        "Search by key path, review lint findings, then open Diagnostics when readiness looks wrong.",
+      whyEmpty: "Keys appear after the configuration catalog probe returns for this environment.",
+      whereToConfigurePrerequisite: "This page requires tenant administrator access (AdminAuthority).",
+      whatToDoNextAction: {
+        label: "Open Diagnostics",
+        href: "/internal/health",
+      },
+    },
+  },
+  {
+    prefix: "/internal/rag-health",
+    entry: {
+      whatIsThisPage:
+        "RAG corpus health — per-corpus chunk counts and last-indexed timestamps for this API host process.",
+      whatToDoNext:
+        "Refresh corpora, then open Diagnostics or Troubleshooting when indexing looks stale.",
+      whyEmpty: "Corpus rows appear after the RAG health probe returns for this host.",
+      whereToConfigurePrerequisite: "This page requires tenant administrator access (AdminAuthority).",
+    },
+  },
+  {
+    prefix: "/internal/integrations/itsm",
+    entry: {
+      whatIsThisPage:
+        "ITSM connectors — configure Jira and ServiceNow outbound create and inbound status sync for employee connector onboarding.",
+      whatToDoNext:
+        "Complete the onboarding wizard, refresh connector health, then open buyer Jira or ServiceNow pages for export-first surfaces.",
+      whyEmpty: "Health and settings appear after the connector probes return for this deployment.",
+      whereToConfigurePrerequisite:
+        "Native outbound create may require platform credentials; tenant routing overrides save here.",
+      whatToDoNextAction: {
+        label: "Open Connection status",
+        href: "/administration/connection-status",
+      },
+    },
+  },
+  {
+    prefix: "/governance/setup",
+    entry: {
+      whatIsThisPage:
+        "Governance setup — outcome-framed checklist that links into audited configuration workspaces.",
+      whatToDoNext:
+        "Complete recommended steps, then open Findings or Policy packs when live governance work begins.",
+      whyEmpty: "Steps reflect current workspace readiness; progress updates as configuration completes.",
+      whereToConfigurePrerequisite:
+        "Setup links into Alert rules, Policy packs, and related governance surfaces in this workspace.",
     },
   },
   {
@@ -752,6 +874,22 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
+    prefix: "/governance/alerts",
+    entry: {
+      whatIsThisPage:
+        "Alert inbox — triage governance notifications raised from completed architecture reviews.",
+      whatToDoNext:
+        "Open an alert to disposition the linked finding, configure Alert rules when noise is high, or check Audit for the activity trail.",
+      whyEmpty: "Alerts appear after reviews raise notifications for this workspace.",
+      whereToConfigurePrerequisite:
+        "Alert delivery often needs channel integrations and Alert rules configured under Governance and Integrations.",
+      whatToDoNextAction: {
+        label: "Open alert rules",
+        href: "/governance/alert-rules",
+      },
+    },
+  },
+  {
     prefix: "/governance/alert-rules",
     entry: {
       whatIsThisPage:
@@ -821,6 +959,66 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
       whyEmpty: "Rows appear after tenant scopes have recorded review or governance activity.",
       whereToConfigurePrerequisite:
         "This page requires tenant administrator access; customer tenants never see other tenants here.",
+    },
+  },
+  {
+    prefix: INTERNAL_RECOMMENDATION_LEARNING_PATH,
+    entry: {
+      whatIsThisPage:
+        "Recommendation learning — inspect and rebuild the recommendation-ranking profile from historical advisory outcomes.",
+      whatToDoNext:
+        "Refresh eligibility counts, preview a rebuild when enough outcomes exist, then open Advisory scans or Pilot feedback for live trails.",
+      whyEmpty: "A profile appears after eligible accepted, deferred, rejected, or implemented outcomes exist in scope.",
+      whereToConfigurePrerequisite:
+        "Preview and rebuild require ExecuteAuthority; this Internal Ops surface typically needs System Admin access.",
+    },
+  },
+  {
+    prefix: INTERNAL_TENANTS_PATH,
+    entry: {
+      whatIsThisPage:
+        "Tenants — provision new tenant scopes or shut off existing tenants without deleting retained data.",
+      whatToDoNext:
+        "Create a tenant when onboarding a customer, shut off access when needed, then open Tenant health or Audit for follow-up.",
+      whyEmpty: "Rows appear after platform operators provision tenant registry entries.",
+      whereToConfigurePrerequisite:
+        "This page requires tenant administrator access; customer tenants never see other tenants here.",
+    },
+  },
+  {
+    prefix: INTERNAL_FLEET_LLM_COGS_PATH,
+    entry: {
+      whatIsThisPage:
+        "Fleet LLM COGS — internal estimated token-cost pressure, hard-cap utilization, and budget completeness by tenant.",
+      whatToDoNext:
+        "Refresh the UTC-month table, focus near-threshold or hard-stop rows, then open System health or Billing for follow-up.",
+      whyEmpty: "Rows appear after tenants record LLM usage in the current UTC month.",
+      whereToConfigurePrerequisite:
+        "This page requires tenant administrator access; cost rates must be configured for utilization columns.",
+    },
+  },
+  {
+    prefix: INTERNAL_PRICING_QUOTE_AGING_PATH,
+    entry: {
+      whatIsThisPage:
+        "Pricing quote follow-up — internal sales-operations queue for open pricing requests, SLA age, owner, and follow-up status.",
+      whatToDoNext:
+        "Refresh the table, assign an owner or mark contacted on aging rows, then open Trial funnel or Billing when conversion context is needed.",
+      whyEmpty: "Rows appear after buyers submit pricing quote requests from marketing surfaces.",
+      whereToConfigurePrerequisite:
+        "This page requires tenant administrator access; customer tenants never see other tenants' quote requests.",
+    },
+  },
+  {
+    prefix: INTERNAL_EVIDENCE_PROPOSALS_PATH,
+    entry: {
+      whatIsThisPage:
+        "Evidence proposals — review agent-suggested catalog entries and promote approved items into the tenant curated evidence catalog.",
+      whatToDoNext:
+        "Refresh the list, promote approved proposals, then open Architecture reviews or Evidence trail help for follow-up.",
+      whyEmpty: "Rows appear after agents propose catalog evidence from recent reviews.",
+      whereToConfigurePrerequisite:
+        "This Internal Ops surface typically requires System Admin authority.",
     },
   },
   {
@@ -1858,6 +2056,14 @@ export function contextualHelpForPathname(pathname: string): PageContextualHelpE
 
   if (pathIsRunProvenance(path)) {
     return PROVENANCE_CONTEXTUAL_HELP;
+  }
+
+  if (pathIsFindingEvidenceTrace(path)) {
+    return EVIDENCE_TRACE_CONTEXTUAL_HELP;
+  }
+
+  if (pathIsFindingDetail(path)) {
+    return FINDING_DETAIL_CONTEXTUAL_HELP;
   }
 
   if (pathIsArchitectureDraftDetail(path)) {
