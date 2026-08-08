@@ -66,5 +66,6 @@ describe("ui-route-traffic-signup (SIG)", () => {
     expect(row?.notes).toBe(SIGNUP_TRAFFIC_NOTE);
     expect(row?.notes).toContain("SignupEvidenceOrientationStrip");
     expect(row?.section).toBe("Marketing");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
