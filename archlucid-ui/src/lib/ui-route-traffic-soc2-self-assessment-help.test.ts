@@ -66,5 +66,6 @@ describe("ui-route-traffic-soc2-self-assessment-help (HES)", () => {
     expect(row?.notes).toBe(SOC2_SELF_ASSESSMENT_HELP_TRAFFIC_NOTE);
     expect(row?.notes).toContain("HelpSoc2SelfAssessmentGuideView");
     expect(row?.notes).toContain("not CPA");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
