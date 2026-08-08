@@ -1,11 +1,13 @@
+import { LEGACY_SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
+
 /**
  * Traffic workbook row ID for signed review record detail.
  * Owner backlog shorthand: MMX.
  */
 export const SIGNED_RECORD_DETAIL_TRAFFIC_ROW_ID = "MMX";
 
-/** Canonical path pattern tracked on the MMX workbook row. */
-export const SIGNED_RECORD_DETAIL_TRAFFIC_PATH = "/governance/signed-records/[manifestId]";
+/** Legacy bookmark path tracked on the MMX workbook row (governance alias is redirect-only per TB-748). */
+export const SIGNED_RECORD_DETAIL_TRAFFIC_PATH = `${LEGACY_SIGNED_RECORDS_LIST_PATH}/[manifestId]` as const;
 
 /** Workbook Section column value (governance package surface). */
 export const SIGNED_RECORD_DETAIL_TRAFFIC_SECTION = "Alerts/gov";

@@ -454,6 +454,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "users-and-roles", label: "Users and roles" },
   },
   {
+    prefix: "/settings/roles",
+    topic: { slug: "users-and-roles", label: "Users and roles" },
+  },
+  {
     prefix: "/administration/security-trust",
     topic: { slug: "security-trust", label: "Security and trust" },
   },
