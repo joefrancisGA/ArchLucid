@@ -42,7 +42,8 @@ export const BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS = [
   },
   {
     step: 3,
-    label: "Evidence trail",
+    // Surface name (TB-2097 B): destination pill; “Evidence trail” remains the glossary concept.
+    label: BUYER_SURFACE_VOCABULARY.evidenceGraph,
     href: `/insights/evidence-graph?runId=${showcaseRunEnc}&graphNodeId=${encodeURIComponent(SHOWCASE_PHI_FINDING_GRAPH_NODE_ID)}`,
     chipTooltip: "Interactive graph linking evidence → findings → decisions → signed review record outputs.",
   },

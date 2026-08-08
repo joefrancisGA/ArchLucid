@@ -82,7 +82,6 @@ describe("RunDetailArtifactsExportsSection", () => {
         manifestSummaryForUi={manifestSummary}
         manifestSummary={manifestSummary}
         trustEvidenceCard={null}
-        samplePolicyPackContextLine={null}
       />,
     );
 
@@ -110,7 +109,6 @@ describe("RunDetailArtifactsExportsSection", () => {
         manifestSummaryForUi={manifestSummary}
         manifestSummary={manifestSummary}
         trustEvidenceCard={null}
-        samplePolicyPackContextLine={null}
       />,
     );
 
@@ -131,7 +129,6 @@ describe("RunDetailArtifactsExportsSection", () => {
         manifestSummaryForUi={manifestSummary}
         manifestSummary={manifestSummary}
         trustEvidenceCard={null}
-        samplePolicyPackContextLine={null}
       />,
     );
 
@@ -160,7 +157,6 @@ describe("RunDetailArtifactsExportsSection", () => {
         manifestSummaryForUi={feasibleSummary}
         manifestSummary={feasibleSummary}
         trustEvidenceCard={null}
-        samplePolicyPackContextLine={null}
       />,
     );
 
@@ -190,7 +186,6 @@ describe("RunDetailArtifactsExportsSection", () => {
         manifestSummaryForUi={manifestSummary}
         manifestSummary={manifestSummary}
         trustEvidenceCard={null}
-        samplePolicyPackContextLine={null}
       />,
     );
 
@@ -210,7 +205,6 @@ describe("RunDetailArtifactsExportsSection", () => {
         manifestSummaryForUi={manifestSummary}
         manifestSummary={manifestSummary}
         trustEvidenceCard={null}
-        samplePolicyPackContextLine={null}
       />,
     );
 
@@ -231,7 +225,6 @@ describe("RunDetailArtifactsExportsSection", () => {
         manifestSummaryForUi={manifestSummary}
         manifestSummary={manifestSummary}
         trustEvidenceCard={null}
-        samplePolicyPackContextLine={null}
         usedStaticDemoRun
         deliverablesDefaultOpen
       />,

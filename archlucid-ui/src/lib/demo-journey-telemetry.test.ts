@@ -26,7 +26,7 @@ describe("emitDemoJourneyTelemetry", () => {
     const clarity = vi.fn();
     (window as Window & { clarity?: typeof clarity }).clarity = clarity;
 
-    emitDemoJourneyTelemetry({ kind: "step_entered", stepIndex: 2, stepLabel: "Evidence trail" });
+    emitDemoJourneyTelemetry({ kind: "step_entered", stepIndex: 2, stepLabel: "Evidence graph" });
 
     expect(clarity).toHaveBeenCalledWith("event", "demo_step_entered");
   });

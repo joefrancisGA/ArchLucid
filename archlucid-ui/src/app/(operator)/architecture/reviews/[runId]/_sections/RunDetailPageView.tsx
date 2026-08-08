@@ -12,7 +12,6 @@ import { ShareableReviewLinkButton } from "@/components/usability/ShareableRevie
 import { RunDetailSectionNav } from "@/components/RunDetailSectionNav";
 import { resolveRunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 import { shouldShowOperatorDemoMarketingChrome } from "@/lib/buyer-demo-content-gating";
-import { BUYER_REVIEW_DETAIL_POLICY_PACK_NOTE } from "@/lib/buyer-polish-copy";
 import { isBuyerGoldenReviewPackagePageReady } from "@/lib/buyer-golden-spine-run-id";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
@@ -215,13 +214,6 @@ export function RunDetailPageView(props: {
         manifestSummaryForUi={m.manifestSummaryForUi}
         manifestSummary={m.manifestSummary}
         trustEvidenceCard={m.resolvedDetail.trustEvidenceCard}
-        samplePolicyPackContextLine={
-          m.usedStaticDemoRun === true
-            ? m.buyerPolishedArtifactTable === true
-              ? BUYER_REVIEW_DETAIL_POLICY_PACK_NOTE
-              : "Policy pack used for this sample review."
-            : null
-        }
         usedStaticDemoRun={m.usedStaticDemoRun}
         requestId={
           m.resolvedDetail.run.architectureRequestId ??

@@ -9,7 +9,6 @@ import { ReviewChainOfCustodySection } from "@/components/reviews/ReviewChainOfC
 import { ReviewCliReproduceSection } from "@/components/reviews/ReviewCliReproduceSection";
 import { RunAgentForensicsSection } from "@/components/RunAgentForensicsSection";
 import { RunAgentQualityWarningsSection } from "@/components/RunAgentQualityWarningsSection";
-import { BUYER_REVIEW_DETAIL_POLICY_PACK_NOTE } from "@/lib/buyer-polish-copy";
 
 import { RunDetailAdvancedAnalysisSection } from "./RunDetailAdvancedAnalysisSection";
 import { RunDetailManifestSummaryAlerts } from "./RunDetailManifestSummaryAlerts";
@@ -232,13 +231,6 @@ export function RunDetailBelowFoldSections(props: RunDetailBelowFoldSectionsProp
           manifestSummaryForUi={m.manifestSummaryForUi}
           manifestSummary={m.manifestSummary}
           trustEvidenceCard={m.resolvedDetail.trustEvidenceCard}
-          samplePolicyPackContextLine={
-            m.usedStaticDemoRun === true
-              ? m.buyerPolishedArtifactTable === true
-                ? BUYER_REVIEW_DETAIL_POLICY_PACK_NOTE
-                : "Policy pack used for this sample review."
-              : null
-          }
           usedStaticDemoRun={m.usedStaticDemoRun}
           requestId={m.resolvedDetail.run.architectureRequestId ?? (m.resolvedDetail.run as { requestId?: string }).requestId}
         />

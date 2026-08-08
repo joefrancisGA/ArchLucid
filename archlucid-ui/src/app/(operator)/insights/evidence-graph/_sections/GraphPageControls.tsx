@@ -27,7 +27,6 @@ import {
   BUYER_EVIDENCE_TRAIL_VIEW_TRACE,
   OPERATOR_GRAPH_SCOPE_LABEL,
 } from "@/lib/buyer-polish-copy";
-import { EVIDENCE_GRAPH_TABS_HELPER } from "@/lib/evidence-graph-page";
 
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 
@@ -229,7 +228,6 @@ export function GraphPageControls(props: GraphPageControlsProps) {
                 </Button>
               ) : null}
             </div>
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{EVIDENCE_GRAPH_TABS_HELPER}</p>
           </div>
         ) : null}
 

@@ -742,8 +742,6 @@ export const COMPARE_REVIEW_RECORD_DIFF_OPERATOR_INTRO =
 
 export const BUYER_PIPELINE_IN_PROGRESS_LABEL = "In progress";
 
-export const BUYER_REVIEW_DETAIL_POLICY_PACK_NOTE = "Policy pack used for this review.";
-
 export const BUYER_COMPARE_TECHNICAL_APPENDIX_LABEL = "Detailed comparison appendix";
 
 export const BUYER_SEALED_MANIFEST_TOOLTIP =
@@ -1305,7 +1303,8 @@ export const BUYER_EVIDENCE_GRAPH_OPEN_DECISION_RECORD_CTA = "Open decision";
 
 export const BUYER_EVIDENCE_GRAPH_VIEW_EVIDENCE_CHAIN_CTA = "View evidence chain";
 
-export const BUYER_EVIDENCE_GRAPH_EXPORT_EVIDENCE_TRAIL_CTA = "Export evidence trail";
+/** Opens the Trace table presentation (`presentation=trace`) — not a file download. */
+export const BUYER_EVIDENCE_GRAPH_EXPORT_EVIDENCE_TRAIL_CTA = "Export trace table";
 
 export const BUYER_GRAPH_PAGE_LEAD = BUYER_EVIDENCE_TRAIL_PAGE_SUBTITLE;
 

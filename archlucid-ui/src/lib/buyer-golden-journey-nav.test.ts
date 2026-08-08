@@ -8,10 +8,11 @@ import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 const showcaseRunEnc = encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID);
 
 describe("BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS", () => {
-  it("includes graphNodeId on evidence trail step for pre-focused demo graph", () => {
+  it("includes graphNodeId on evidence graph step for pre-focused demo graph", () => {
     const evidenceStep = BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS.find((def) => def.step === 3);
 
     expect(evidenceStep).toBeDefined();
+    expect(evidenceStep?.label).toBe("Evidence graph");
     expect(evidenceStep?.href).toContain(`graphNodeId=${encodeURIComponent(SHOWCASE_PHI_FINDING_GRAPH_NODE_ID)}`);
   });
 });
