@@ -8,6 +8,7 @@ import { ArchitectureCreatedCompactFirstViewport } from "@/components/architectu
 import { ArchitectureCreatedDiagramEvidenceOrientationStrip } from "@/components/architecture/ArchitectureCreatedDiagramEvidenceOrientationStrip";
 import { ArchitectureCreatedEvidenceOrientationStrip } from "@/components/architecture/ArchitectureCreatedEvidenceOrientationStrip";
 import { ArchitectureCreatedFindingsEvidenceOrientationStrip } from "@/components/architecture/ArchitectureCreatedFindingsEvidenceOrientationStrip";
+import { ArchitectureCreatedOverviewEvidenceOrientationStrip } from "@/components/architecture/ArchitectureCreatedOverviewEvidenceOrientationStrip";
 import { ArchitectureCreatedOverviewPanel } from "@/components/architecture/ArchitectureCreatedOverviewPanel";
 import { ArchitectureCreatedWorkspaceHeader } from "@/components/architecture/ArchitectureCreatedWorkspaceHeader";
 import { ArchitectureDiagramPanel } from "@/components/architecture/ArchitectureDiagramPanel";
@@ -169,14 +170,17 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
         </div>
 
         <TabsContent value="overview" data-testid="architecture-workspace-panel-overview">
-          <ArchitectureCreatedOverviewPanel
-            model={model}
-            sourceText={props.architectureSourceText}
-            userAssertions={userAssertions}
-            correctionHref={props.correctionHref}
-            onNavigateTab={navigateTab}
-            submittedArchitectureSection={props.panels.submittedArchitecture}
-          />
+          <div className="space-y-4">
+            <ArchitectureCreatedOverviewEvidenceOrientationStrip />
+            <ArchitectureCreatedOverviewPanel
+              model={model}
+              sourceText={props.architectureSourceText}
+              userAssertions={userAssertions}
+              correctionHref={props.correctionHref}
+              onNavigateTab={navigateTab}
+              submittedArchitectureSection={props.panels.submittedArchitecture}
+            />
+          </div>
         </TabsContent>
 
         <TabsContent value="diagram" data-testid="architecture-workspace-panel-diagram">
