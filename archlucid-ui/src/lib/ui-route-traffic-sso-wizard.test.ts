@@ -69,5 +69,6 @@ describe("ui-route-traffic-sso-wizard (ASS)", () => {
     expect(row?.section).toBe(SSO_WIZARD_TRAFFIC_SECTION);
     expect(row?.notes).toBe(SSO_WIZARD_TRAFFIC_NOTE);
     expect(row?.notes).toContain("SsoWizardPageClient");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
