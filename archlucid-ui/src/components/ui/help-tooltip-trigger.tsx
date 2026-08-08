@@ -4,7 +4,6 @@ import { cn } from "@/lib/utils";
 import { forwardRef, type ButtonHTMLAttributes } from "react";
 import { CircleHelp, Info } from "lucide-react";
 
-
 /** Contextual explanations beside labels/fields (24px hit target). */
 export type HelpTooltipTriggerSize = "contextual" | "toolbar";
 

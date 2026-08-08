@@ -121,13 +121,12 @@ describe("DigestsHubClient", () => {
     });
   });
 
-  it("places the tab list ahead of the orientation and status chrome", async () => {
+  it("renders the tab list under the header without Sources follow-up chrome (TB-2092)", async () => {
     render(<DigestsHubClient />);
 
-    const tablist = await screen.findByTestId("digests-hub-tablist");
-    const orientation = screen.getByTestId("digests-orientation");
-
-    expect(tablist.compareDocumentPosition(orientation) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(await screen.findByTestId("digests-hub-tablist")).toBeInTheDocument();
+    expect(screen.queryByTestId("digests-orientation")).toBeNull();
+    expect(screen.queryByRole("heading", { name: "Sources for follow-up" })).toBeNull();
   });
 
   it("exposes exactly one primary action and no fake send-test control", async () => {

@@ -14,4 +14,4 @@ export const PILOT_GUIDE_HELP_TRAFFIC_SECTION = "Help topic";
  * Owner workbook Notes for HP — documents Evidence chrome on Pilot guide help.
  */
 export const PILOT_GUIDE_HELP_TRAFFIC_NOTE =
-  "Pilot guide help (Help topic) - HelpPilotGuideView with PageContextualHelpButton (topic map pilot-guide; Category-1 registry), workspace Sources + claim-discipline orientation strip, start-pilot CTAs, prepared PILOT_GUIDE.md body. Not bare HelpTopicMarkdownView. Sibling COR = first-architecture-review; SPP = pilot outcomes. Score 52/100 (2026-08-04) — help-topic orientation hard-caps higher Evidence.";
+  "Pilot guide help (Help topic) - HelpPilotGuideView with PageContextualHelpButton (topic map pilot-guide; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, start-pilot CTAs, prepared PILOT_GUIDE.md body. Not bare HelpTopicMarkdownView. Sibling COR = first-architecture-review; SPP = pilot outcomes. Score 52/100 (2026-08-04) — help-topic orientation hard-caps higher Evidence.";

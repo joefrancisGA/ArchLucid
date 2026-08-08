@@ -15,4 +15,4 @@ export const BASELINE_SETTINGS_TRAFFIC_SECTION = "Admin";
  * ASCII-only for Windows console note scripts.
  */
 export const BASELINE_SETTINGS_TRAFFIC_NOTE =
-  "Baseline settings (Settings/Admin) - BaselineSettingsClient with PageContextualHelpButton (topic map pilot-roi-model; Category-1 registry), workspace Sources + claim-discipline orientation strip, ROI measurement anchors + save/clear. Sibling PI = pilot-roi-model help; SCX = architecture-scorecard; ABI = billing. Measurement anchors - not a signed-record Sources trail. Score 50/100 (2026-08-05) - settings measurement-hub hard-caps higher Evidence.";
+  "Baseline settings (Settings/Admin) - BaselineSettingsClient with PageContextualHelpButton (topic map pilot-roi-model; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, ROI measurement anchors + save/clear. Sibling PI = pilot-roi-model help; SCX = architecture-scorecard; ABI = billing. Measurement anchors - not a signed-record Sources trail. Score 50/100 (2026-08-05) - settings measurement-hub hard-caps higher Evidence.";

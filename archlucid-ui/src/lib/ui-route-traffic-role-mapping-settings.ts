@@ -16,4 +16,4 @@ export const ROLE_MAPPING_SETTINGS_TRAFFIC_SECTION = "Admin";
  * ASCII-only for Windows console note scripts.
  */
 export const ROLE_MAPPING_SETTINGS_TRAFFIC_NOTE =
-  "Role mapping (Settings/Admin) - IdentityProvidersRoleMappingPageView with PageContextualHelpButton (topic map users-and-roles; Category-1 registry), workspace Sources + claim-discipline orientation strip, status / examples / SAML+diagnostics CTAs. Sibling AUX = users; AID = identity-providers hub. Access configuration - not a signed-record Sources trail. Score 50/100 (2026-08-05) - settings access-hub hard-caps higher Evidence.";
+  "Role mapping (Settings/Admin) - IdentityProvidersRoleMappingPageView with PageContextualHelpButton (topic map users-and-roles; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, status / examples / SAML+diagnostics CTAs. Sibling AUX = users; AID = identity-providers hub. Access configuration - not a signed-record Sources trail. Score 50/100 (2026-08-05) - settings access-hub hard-caps higher Evidence.";

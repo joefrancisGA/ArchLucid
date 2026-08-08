@@ -44,7 +44,6 @@ import { FindingInspectItsmWorkflowPanel } from "../FindingInspectItsmWorkflowPa
 import { FindingInspectRecommendedActionSection } from "../FindingInspectRecommendedActionSection";
 import { FindingInspectWhyMattersSection } from "../FindingInspectWhyMattersSection";
 import { FindingDetailDecisionSummary } from "./FindingDetailDecisionSummary";
-import { FindingDetailEvidenceOrientationStrip } from "./FindingDetailEvidenceOrientationStrip";
 import { FindingDetailOperationalActions } from "./FindingDetailOperationalActions";
 import { FindingDetailWayfinding } from "./FindingDetailWayfinding";
 import {
@@ -124,10 +123,7 @@ export function FindingDetailPageView(props: Props) {
         reviewFindingsHref={reviewFindingsHref}
         currentPageLabel={pageTitle}
       />
-
-      <FindingDetailEvidenceOrientationStrip runId={runId} findingId={decodedFindingId} />
-
-      {showBuyerPolishedBody ? (
+{showBuyerPolishedBody ? (
         <div className="space-y-4">
           <section className={cn("overflow-hidden rounded-lg border p-5", DESIGN_TOKENS.surface.card)}>
             <div className="max-w-3xl space-y-3">

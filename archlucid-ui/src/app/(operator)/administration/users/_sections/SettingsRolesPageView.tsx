@@ -34,7 +34,6 @@ import { PendingInvitationsPanel } from "./PendingInvitationsPanel";
 import { SETTINGS_ROLES_ASSIGNABLE } from "./settings-roles-page-constants";
 import { settingsRolesEmptyStateDescription, settingsRolesEmptyStateTitle } from "./settings-roles-page-empty-copy";
 import { SettingsRolesMatrixSection } from "./SettingsRolesMatrixSection";
-import { SettingsUsersEvidenceOrientationStrip } from "./SettingsUsersEvidenceOrientationStrip";
 import type { SettingsRolesPageViewModel } from "./settings-roles-page-view-model";
 
 const ALL_TABS: readonly { id: SettingsUsersTabId; label: string }[] = [
@@ -139,10 +138,7 @@ export function SettingsRolesPageView(props: Props) {
         description="Invite users, assign roles, and manage workspace access."
         actions={<PageContextualHelpButton />}
       />
-
-      <SettingsUsersEvidenceOrientationStrip />
-
-      <Tabs value={activeTab} onValueChange={onSelectTab} className="space-y-6">
+<Tabs value={activeTab} onValueChange={onSelectTab} className="space-y-6">
         <TabsList aria-label="Users and roles sections" data-testid="settings-roles-tablist">
           {tabs.map((tab) => (
             <TabsTrigger key={tab.id} value={tab.id} data-testid={`settings-roles-tab-${tab.id}`}>

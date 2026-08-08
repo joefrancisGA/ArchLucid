@@ -110,7 +110,7 @@ describe("ValueReportPageView buyer-polished chrome (TB-1964)", () => {
     render(<ValueReportPageView model={buildModel()} />);
 
     expect(screen.getByTestId("layer-header")).toBeInTheDocument();
-    expect(screen.getByTestId("value-report-sources")).toBeInTheDocument();
+    expect(screen.queryByTestId("value-report-sources")).toBeNull(); // TB-2092
     expect(screen.getByTestId("value-report-claim-discipline")).toBeInTheDocument();
     expect(screen.queryByText(BUYER_VALUE_REPORT_PAGE_SUBTITLE)).not.toBeInTheDocument();
     expect(screen.queryByText(BUYER_VALUE_REPORT_OUTCOME_LEAD)).not.toBeInTheDocument();

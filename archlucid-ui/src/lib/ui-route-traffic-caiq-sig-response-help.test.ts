@@ -64,7 +64,7 @@ describe("ui-route-traffic-caiq-sig-response-help (ECA)", () => {
     expect(row?.path).toBe(CAIQ_SIG_RESPONSE_HELP_TRAFFIC_PATH);
     expect(row?.section).toBe(CAIQ_SIG_RESPONSE_HELP_TRAFFIC_SECTION);
     expect(row?.notes).toBe(CAIQ_SIG_RESPONSE_HELP_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("CaiqSigResponseHelpEvidenceOrientationStrip");
+    expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
     expect(row?.notes).toContain("Score 52");
   });
 });

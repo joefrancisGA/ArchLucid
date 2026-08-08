@@ -7,7 +7,6 @@ import { useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 
-
 import { OptInTour } from "./OptInTour";
 
 export type OptInTourLauncherProps = {

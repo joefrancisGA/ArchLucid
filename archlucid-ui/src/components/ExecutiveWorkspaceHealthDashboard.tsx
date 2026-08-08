@@ -9,7 +9,6 @@ import { DecisionsNeededSummaryCard } from "@/components/governance/DecisionsNee
 import { GovernanceBypassAuditPanel } from "@/components/governance/GovernanceBypassAuditPanel";
 import { DataArchivalDegradedBanner } from "@/components/governance/DataArchivalDegradedBanner";
 import { ExecutiveWorkspaceHealthPageHero } from "@/components/governance/ExecutiveWorkspaceHealthPageHero";
-import { ExecutiveWorkspaceHealthSourcesStrip } from "@/components/governance/ExecutiveWorkspaceHealthSourcesStrip";
 import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import { LayerHeader } from "@/components/LayerHeader";
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
@@ -191,8 +190,7 @@ export function ExecutiveWorkspaceHealthDashboard() {
       <div className="w-full max-w-[1440px] space-y-4">
         {layerHeader}
         <ExecutiveWorkspaceHealthPageHero buyerPolishedShell={buyerPolishedShell} />
-        <ExecutiveWorkspaceHealthSourcesStrip />
-        <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+<p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           {buyerPolishedShell ? "Loading workspace overview…" : "Loading executive workspace health…"}
         </p>
       </div>
@@ -204,8 +202,7 @@ export function ExecutiveWorkspaceHealthDashboard() {
       <div className="w-full max-w-[1440px] space-y-4">
         {layerHeader}
         <ExecutiveWorkspaceHealthPageHero buyerPolishedShell={buyerPolishedShell} />
-        <ExecutiveWorkspaceHealthSourcesStrip />
-        <OperatorApiProblem
+<OperatorApiProblem
           fallbackMessage={state.message}
           problem={state.problem}
           correlationId={state.correlationId}
@@ -298,10 +295,7 @@ export function ExecutiveWorkspaceHealthDashboard() {
       {layerHeader}
 
       <ExecutiveWorkspaceHealthPageHero buyerPolishedShell={buyerPolishedShell} />
-
-      <ExecutiveWorkspaceHealthSourcesStrip />
-
-      {scopeBannerBlock}
+{scopeBannerBlock}
 
       <DataArchivalDegradedBanner />
 

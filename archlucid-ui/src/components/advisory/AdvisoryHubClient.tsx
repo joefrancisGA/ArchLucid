@@ -22,7 +22,6 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 import { AdvisoryScansContent } from "./AdvisoryScansContent";
-import { AdvisoryScansEvidenceOrientationStrip } from "./AdvisoryScansEvidenceOrientationStrip";
 import { AdvisorySchedulesContent } from "./AdvisorySchedulesContent";
 
 const TAB_PARAM = "tab";
@@ -92,10 +91,7 @@ export function AdvisoryHubClient({ initialTab, initialRunId = null }: AdvisoryH
           {ADVISORY_SCANS_PAGE_LEAD}
         </p>
       </OperatorPageHeader>
-
-      <AdvisoryScansEvidenceOrientationStrip />
-
-      <CollapsibleSection title={ADVISORY_SCANS_HOW_IT_WORKS_TITLE} sectionTestId="advisory-scans-how-it-works">
+<CollapsibleSection title={ADVISORY_SCANS_HOW_IT_WORKS_TITLE} sectionTestId="advisory-scans-how-it-works">
         <p className={cn("m-0 max-w-3xl text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           {ADVISORY_SCANS_HOW_IT_WORKS_BODY}
         </p>

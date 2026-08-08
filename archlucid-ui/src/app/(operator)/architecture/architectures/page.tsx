@@ -7,7 +7,6 @@ import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture-routes";
 
 import { ArchitecturesHubHeaderActions } from "./_sections/ArchitecturesHubHeaderActions";
-import { ArchitecturesListEvidenceOrientationStrip } from "./_sections/ArchitecturesListEvidenceOrientationStrip";
 import {
   ARCHITECTURES_HUB_PAGE_SUBTITLE,
   ARCHITECTURES_HUB_PAGE_TITLE,
@@ -26,8 +25,7 @@ export default function ArchitecturesListPage(): React.JSX.Element {
         navHref={ARCHITECTURES_LIST_PATH}
         actions={<ArchitecturesHubHeaderActions />}
       />
-      <ArchitecturesListEvidenceOrientationStrip />
-      <ArchitectureDraftGuidanceDisclosure className="mb-3" />
+<ArchitectureDraftGuidanceDisclosure className="mb-3" />
       <ArchitectureDraftListClient />
     </OperatorPageContainer>
   );

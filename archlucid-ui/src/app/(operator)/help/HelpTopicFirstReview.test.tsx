@@ -77,13 +77,8 @@ describe("HelpFirstReviewEvidenceChecklistGuideView", () => {
       }),
     ).toHaveAttribute("href", FIRST_REVIEW_HELP_PRIMARY_ACTIONS.startArchitectureReview.href);
 
-    const sources = screen.getByTestId("help-first-review-sources");
-
-    for (const link of FIRST_REVIEW_HELP_SOURCES) {
-      expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
-    }
-
-    for (const banned of FIRST_REVIEW_HELP_BANNED_SUBSTRINGS) {
+    expect(screen.queryByTestId("help-first-review-sources")).toBeNull(); // TB-2092
+for (const banned of FIRST_REVIEW_HELP_BANNED_SUBSTRINGS) {
       expect(preparedMarkdown, `banned substring still present: ${banned}`).not.toContain(banned);
       expect(visible, `banned substring still rendered: ${banned}`).not.toContain(banned);
     }

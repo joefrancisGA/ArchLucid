@@ -64,12 +64,7 @@ describe("HelpPathChooserGuideView", () => {
       expect(screen.getByTestId(`help-path-chooser-branch-${branch.id}`)).toBeInTheDocument();
     }
 
-    const sources = screen.getByTestId("help-path-chooser-sources");
-
-    for (const link of PATH_CHOOSER_HELP_SOURCES) {
-      expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
-    }
-
-    expect(screen.getAllByRole("link", { name: /security and trust/i }).length).toBeGreaterThan(0);
+    expect(screen.queryByTestId("help-path-chooser-sources")).toBeNull(); // TB-2092
+expect(screen.getAllByRole("link", { name: /security and trust/i }).length).toBeGreaterThan(0);
   });
 });

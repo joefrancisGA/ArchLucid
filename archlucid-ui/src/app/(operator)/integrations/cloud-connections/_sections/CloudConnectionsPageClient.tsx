@@ -27,7 +27,6 @@ import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/
 
 import { PageHeading } from "@/components/PageHeading";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { CloudConnectionsEvidenceOrientationStrip } from "./CloudConnectionsEvidenceOrientationStrip";
 import { CloudPlatformScopePanel } from "./CloudPlatformScopePanel";
 import { CloudProviderSummaryCard } from "./CloudProviderSummaryCard";
 import { EvidenceOnlyConnectionCard } from "./EvidenceOnlyConnectionCard";
@@ -148,10 +147,7 @@ export function CloudConnectionsPageClient() {
           </>
         }
       />
-
-      <CloudConnectionsEvidenceOrientationStrip />
-
-      <CloudPlatformScopePanel
+<CloudPlatformScopePanel
         scope={platformScope}
         onScopeChange={handlePlatformScopeChange}
         persistAvailable={persistAvailable}

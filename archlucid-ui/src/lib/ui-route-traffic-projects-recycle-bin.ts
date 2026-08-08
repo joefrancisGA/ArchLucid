@@ -16,4 +16,4 @@ export const PROJECTS_RECYCLE_BIN_TRAFFIC_SECTION = "Settings";
  * ASCII-only for Windows console note scripts.
  */
 export const PROJECTS_RECYCLE_BIN_TRAFFIC_NOTE =
-  "Projects recycle bin (Settings/Admin) - ProjectsRecycleBinPage with PageContextualHelpButton (topic map scope; Category-1 registry), workspace Sources + claim-discipline orientation strip, soft-deleted project restore. Sibling ATE = tenant settings; ARA = architectures list. Access configuration - not a signed-record Sources trail. Score 50/100 (2026-08-06) - settings access-hub hard-caps higher Evidence.";
+  "Projects recycle bin (Settings/Admin) - ProjectsRecycleBinPage with PageContextualHelpButton (topic map scope; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, soft-deleted project restore. Sibling ATE = tenant settings; ARA = architectures list. Access configuration - not a signed-record Sources trail. Score 50/100 (2026-08-06) - settings access-hub hard-caps higher Evidence.";

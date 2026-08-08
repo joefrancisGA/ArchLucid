@@ -6,8 +6,6 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 import { ModelGovernanceSettingsCard } from "./_sections/ModelGovernanceSettingsCard";
-import { ModelGovernanceSettingsEvidenceOrientationStrip } from "./_sections/ModelGovernanceSettingsEvidenceOrientationStrip";
-
 /** Admin workspace model governance: default execution profile, alias registry, and profile mappings (TB-871). */
 export default function ModelGovernanceSettingsPage() {
   return (
@@ -26,10 +24,7 @@ export default function ModelGovernanceSettingsPage() {
           <PageContextualHelpButton />
         </div>
       </div>
-
-      <ModelGovernanceSettingsEvidenceOrientationStrip />
-
-      <ModelGovernanceSettingsCard />
+<ModelGovernanceSettingsCard />
     </div>
   );
 }

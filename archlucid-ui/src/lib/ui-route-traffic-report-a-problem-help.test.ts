@@ -64,7 +64,7 @@ describe("ui-route-traffic-report-a-problem-help (HRE)", () => {
     expect(row?.path).toBe(REPORT_A_PROBLEM_HELP_TRAFFIC_PATH);
     expect(row?.section).toBe(REPORT_A_PROBLEM_HELP_TRAFFIC_SECTION);
     expect(row?.notes).toBe(REPORT_A_PROBLEM_HELP_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("ReportAProblemHelpEvidenceOrientationStrip");
+    expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
     expect(row?.notes).toContain("Score 52");
   });
 });

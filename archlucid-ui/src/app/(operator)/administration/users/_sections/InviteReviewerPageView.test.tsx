@@ -46,7 +46,6 @@ describe("InviteReviewerPageView", () => {
     expect(screen.getByTestId("invite-reviewer-footer")).toBeInTheDocument();
   });
 
-
   it("shows Reader role capability summary below the page lead (TB-511)", () => {
     render(<InviteReviewerPageView model={buildModel()} />);
 

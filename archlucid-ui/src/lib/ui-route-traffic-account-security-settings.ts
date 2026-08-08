@@ -17,4 +17,4 @@ export const ACCOUNT_SECURITY_SETTINGS_TRAFFIC_SECTION = "Admin";
  * ASCII-only for Windows console note scripts.
  */
 export const ACCOUNT_SECURITY_SETTINGS_TRAFFIC_NOTE =
-  "Account security (Settings) - AccountSecurityPageClient with PageContextualHelpButton (topic map security-trust; Category-1 registry), workspace Sources + claim-discipline orientation strip, sign-in methods / link flows. Sibling ADR = preferences; WSX = security-trust settings; HSE = security-trust help. Personal sign-in controls - not a signed-record Sources trail. Score 50/100 (2026-08-05) - settings personal-hub hard-caps higher Evidence.";
+  "Account security (Settings) - AccountSecurityPageClient with PageContextualHelpButton (topic map security-trust; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, sign-in methods / link flows. Sibling ADR = preferences; WSX = security-trust settings; HSE = security-trust help. Personal sign-in controls - not a signed-record Sources trail. Score 50/100 (2026-08-05) - settings personal-hub hard-caps higher Evidence.";

@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useCallback, useId, useMemo, useState } from "react";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
-import { SpecialtyWalkthroughsHelpEvidenceOrientationStrip } from "@/app/(operator)/help/_sections/SpecialtyWalkthroughsHelpEvidenceOrientationStrip";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { ReviewStartInlineError } from "@/components/review-intake/ReviewStartInlineError";
@@ -347,10 +346,7 @@ export function HelpSpecialtyWalkthroughTemplatesClient(
             </p>
           ) : null}
         </header>
-
-        <SpecialtyWalkthroughsHelpEvidenceOrientationStrip />
-
-        {selectedTemplate !== null ? (
+{selectedTemplate !== null ? (
           <SelectedTemplateBanner
             template={selectedTemplate}
             cloudContext={selectedTemplate.supportsCloudContext ? saasCloudContext : "None"}

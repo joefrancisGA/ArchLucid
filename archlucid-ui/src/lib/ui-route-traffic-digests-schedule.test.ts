@@ -66,7 +66,7 @@ describe("ui-route-traffic-digests-schedule (ARS)", () => {
     expect(row?.path).toBe(DIGESTS_SCHEDULE_TRAFFIC_PATH);
     expect(row?.section).toBe(DIGESTS_SCHEDULE_TRAFFIC_SECTION);
     expect(row?.notes).toBe(DIGESTS_SCHEDULE_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("DigestsScheduleEvidenceOrientationStrip");
+    expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
     expect(row?.notes).toContain("Score 52");
     expect(row?.notes.toLowerCase()).not.toContain("/settings/exec-digest");
   });

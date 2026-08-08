@@ -27,7 +27,6 @@ import {
 } from "@/lib/review-scorecard-empty-state";
 import { resolveReviewScorecardDisplayData } from "@/lib/review-scorecard-sample-data";
 
-import { ArchitectureScorecardSourcesStrip } from "./ArchitectureScorecardSourcesStrip";
 import { ReviewScorecardEmptyState } from "./ReviewScorecardEmptyState";
 import {
   ScorecardMetricCard,
@@ -126,10 +125,7 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
           </div>
         </div>
       </header>
-
-      <ArchitectureScorecardSourcesStrip />
-
-      {sampleMode ? (
+{sampleMode ? (
         <div
           role="status"
           className={cn(

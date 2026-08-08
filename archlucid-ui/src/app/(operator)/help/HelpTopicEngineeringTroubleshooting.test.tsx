@@ -58,13 +58,8 @@ describe("HelpEngineeringTroubleshootingGuideView", () => {
       ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.openCustomerTroubleshooting.href,
     );
 
-    const sources = screen.getByTestId("help-engineering-troubleshooting-sources");
-
-    for (const link of ENGINEERING_TROUBLESHOOTING_HELP_SOURCES) {
-      expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
-    }
-
-    expect(preparedMarkdown).not.toMatch(/\]\([^)]*architecture\/adrs\//i);
+    expect(screen.queryByTestId("help-engineering-troubleshooting-sources")).toBeNull(); // TB-2092
+expect(preparedMarkdown).not.toMatch(/\]\([^)]*architecture\/adrs\//i);
     expect(preparedMarkdown).not.toMatch(/\bTB-\d+\b/);
   });
 });

@@ -2,7 +2,6 @@ import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpUsersAndRolesManageAction } from "@/app/(operator)/help/_sections/HelpUsersAndRolesManageAction";
-import { UsersAndRolesHelpEvidenceOrientationStrip } from "@/app/(operator)/help/_sections/UsersAndRolesHelpEvidenceOrientationStrip";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_LAYOUT, OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help-page-layout";
@@ -153,10 +152,7 @@ export function HelpUsersAndRolesGuideView(props: HelpUsersAndRolesGuideViewProp
           <PageContextualHelpButton />
         </div>
       </header>
-
-      <UsersAndRolesHelpEvidenceOrientationStrip />
-
-      <section className="space-y-3" aria-labelledby="users-and-roles-how-access-works-heading">
+<section className="space-y-3" aria-labelledby="users-and-roles-how-access-works-heading">
         <HelpSectionHeading id="how-access-works">{USERS_AND_ROLES_HOW_ACCESS_WORKS_HEADING}</HelpSectionHeading>
         <p id="users-and-roles-how-access-works-heading" className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           {USERS_AND_ROLES_HOW_ACCESS_WORKS_BODY}

@@ -15,8 +15,6 @@ import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-s
 import { showError, showSuccess } from "@/lib/toast";
 import { DESIGN_TOKENS, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { IntegrationEventsDlqEvidenceOrientationStrip } from "./IntegrationEventsDlqEvidenceOrientationStrip";
-
 type IntegrationEventOutboxDeadLetterRow = components["schemas"]["IntegrationEventOutboxDeadLetterRow"];
 
 type LoadState =
@@ -256,10 +254,7 @@ export function IntegrationEventsDlqPageClient() {
           </p>
         ) : null}
       </header>
-
-      <IntegrationEventsDlqEvidenceOrientationStrip />
-
-      <div
+<div
         className={cn(DESIGN_TOKENS.callout.warn, "px-4 py-3")}
         role="status"
         data-testid="integration-events-dlq-cross-tenant-callout"

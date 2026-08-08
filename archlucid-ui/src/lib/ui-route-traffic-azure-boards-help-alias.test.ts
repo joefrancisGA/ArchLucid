@@ -64,7 +64,7 @@ describe("ui-route-traffic-azure-boards-help-alias (HAZ)", () => {
     expect(row?.path).toBe(AZURE_BOARDS_HELP_ALIAS_TRAFFIC_PATH);
     expect(row?.section).toBe(AZURE_BOARDS_HELP_ALIAS_TRAFFIC_SECTION);
     expect(row?.notes).toBe(AZURE_BOARDS_HELP_ALIAS_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("AzureBoardsHelpEvidenceOrientationStrip");
+    expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
     expect(row?.notes).toContain("Score 52");
   });
 });

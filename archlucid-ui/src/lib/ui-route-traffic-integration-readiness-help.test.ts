@@ -64,7 +64,7 @@ describe("ui-route-traffic-integration-readiness-help (HEI)", () => {
     expect(row?.path).toBe(INTEGRATION_READINESS_HELP_TRAFFIC_PATH);
     expect(row?.section).toBe(INTEGRATION_READINESS_HELP_TRAFFIC_SECTION);
     expect(row?.notes).toBe(INTEGRATION_READINESS_HELP_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("IntegrationReadinessHelpEvidenceOrientationStrip");
+    expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
     expect(row?.notes).toContain("Score 52");
   });
 });

@@ -69,7 +69,7 @@ describe("ui-route-traffic-first-review-guide (ARF)", () => {
     expect(row?.section).toBe(FIRST_REVIEW_GUIDE_TRAFFIC_SECTION);
     expect(row?.notes).toBe(FIRST_REVIEW_GUIDE_TRAFFIC_NOTE);
     expect(row?.section.toLowerCase()).not.toBe("marketing");
-    expect(row?.notes).toContain("FirstReviewGuideEvidenceOrientationStrip");
+    expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
     expect(row?.notes).toContain("ONB");
   });
 });

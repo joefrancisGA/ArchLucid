@@ -14,4 +14,4 @@ export const EVIDENCE_TRAIL_HELP_TRAFFIC_SECTION = "Help topic";
  * Owner workbook Notes for EV — documents Evidence chrome on evidence-trail help.
  */
 export const EVIDENCE_TRAIL_HELP_TRAFFIC_NOTE =
-  "Evidence trail help (Help topic) - HelpTopicMarkdownView with PageContextualHelpButton (topic map evidence-trail; Category-1 registry), workspace Sources + claim-discipline orientation strip, curated EVIDENCE_TRAIL_OPERATOR_GUIDE.md. Sibling INE = /insights/evidence-graph; DEX = /demo/explain. Score 52/100 (2026-08-05) — help-topic orientation hard-caps higher Evidence.";
+  "Evidence trail help (Help topic) - HelpTopicMarkdownView with PageContextualHelpButton (topic map evidence-trail; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, curated EVIDENCE_TRAIL_OPERATOR_GUIDE.md. Sibling INE = /insights/evidence-graph; DEX = /demo/explain. Score 52/100 (2026-08-05) — help-topic orientation hard-caps higher Evidence.";

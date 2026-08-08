@@ -16,7 +16,6 @@ import {
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { IdentityProvidersOverviewSummaryRow } from "./IdentityProvidersOverviewSummaryRow";
-import { IdentityProvidersSettingsEvidenceOrientationStrip } from "./IdentityProvidersSettingsEvidenceOrientationStrip";
 import { IdentityProvidersSettingsShell } from "./IdentityProvidersSettingsShell";
 import type { UseIdentityProvidersSettingsPageModel } from "./use-identity-providers-settings-page";
 
@@ -61,9 +60,7 @@ export function IdentityProvidersSettingsPageView(props: IdentityProvidersSettin
       lastRefreshedAt={model.lastRefreshedAt}
       onRefresh={() => void model.refresh()}
     >
-      <IdentityProvidersSettingsEvidenceOrientationStrip />
-
-      {model.note !== null ? (
+{model.note !== null ? (
         <p
           className={cn("m-0 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)}
           data-testid="identity-providers-note"

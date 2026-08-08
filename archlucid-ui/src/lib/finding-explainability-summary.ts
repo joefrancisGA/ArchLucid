@@ -62,7 +62,6 @@ export function findingSeverityAudienceCopy(severityRaw: string): FindingSeverit
   };
 }
 
-
 export function findingTraceCompletenessPlainEnglish(ratioPct: number): string {
   const r = Math.min(100, Math.max(0, Math.round(ratioPct)));
 
@@ -85,7 +84,6 @@ export function findingTraceCompletenessPlainEnglish(ratioPct: number): string {
   return "Minimal — treat this finding as a prompt to look further, not as a settled conclusion.";
 }
 
-
 export function findingEvidenceCountPlainLine(evidenceRefs: readonly string[] | undefined | null): string {
   const n = evidenceRefs?.length ?? 0;
 
@@ -99,7 +97,6 @@ export function findingEvidenceCountPlainLine(evidenceRefs: readonly string[] | 
 
   return `${n} structured sources support this finding.`;
 }
-
 
 /**
  * The pipeline prefixes persisted narratives with `Finding <id>:`. That preamble is meaningless to a
@@ -123,16 +120,13 @@ export function stripFindingNarrativePreamble(narrativeText: string, findingId: 
   return stripLeadingSeparators(trimmed.slice(preamble.length));
 }
 
-
 function stripLeadingSeparators(value: string): string {
   return value.replace(/^[\s:;,.\u2013\u2014-]+/, "").trim();
 }
 
-
 function normalizeForComparison(value: string): string {
   return value.trim().toLowerCase().replace(/\s+/g, " ").replace(/[\s.:;,]+$/, "");
 }
-
 
 /**
  * Drops a leading restatement of `title` so the rationale adds information instead of repeating
@@ -158,14 +152,12 @@ function dropLeadingRestatement(source: string, title: string): string {
   return stripLeadingSeparators(source.trim().slice(title.trim().length));
 }
 
-
 export type FindingRationalePreviewInput = {
   readonly narrativeText: string;
   readonly conclusion: string;
   readonly title: string;
   readonly findingId: string;
 };
-
 
 /**
  * Rationale text worth showing above the fold, or `null` when everything it would say is already
@@ -179,7 +171,6 @@ export function findingRationalePreview(input: FindingRationalePreviewInput): st
   return withoutRestatement.length > 0 ? withoutRestatement : null;
 }
 
-
 export type FindingConfidenceExplanation = {
   /** Coarse bucket as persisted, or `null` when the review did not score confidence. */
   readonly label: string | null;
@@ -187,13 +178,11 @@ export type FindingConfidenceExplanation = {
   readonly reason: string;
 };
 
-
 export type FindingConfidenceExplanationInput = {
   readonly level: string | null | undefined;
   readonly evidenceRefCount: number;
   readonly missingTraceFieldCount: number;
 };
-
 
 function evidenceSourceClause(count: number): string {
   if (count <= 0) {
@@ -207,7 +196,6 @@ function evidenceSourceClause(count: number): string {
   return `${count} supporting sources were identified`;
 }
 
-
 function traceDimensionClause(missingCount: number): string {
   if (missingCount <= 0) {
     return "every part of the reasoning trace was captured";
@@ -219,7 +207,6 @@ function traceDimensionClause(missingCount: number): string {
 
   return `${missingCount} parts of the reasoning trace were left empty`;
 }
-
 
 function confidenceLeadIn(label: string | null): string {
   if (label === "High") {
@@ -236,7 +223,6 @@ function confidenceLeadIn(label: string | null): string {
 
   return "This review did not score confidence for the finding:";
 }
-
 
 /**
  * Turns the bare confidence bucket into a statement of *why* ArchLucid is more or less certain,

@@ -64,7 +64,7 @@ describe("ui-route-traffic-pilot-feedback-help (HPE)", () => {
     expect(row?.path).toBe(PILOT_FEEDBACK_HELP_TRAFFIC_PATH);
     expect(row?.section).toBe(PILOT_FEEDBACK_HELP_TRAFFIC_SECTION);
     expect(row?.notes).toBe(PILOT_FEEDBACK_HELP_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("PilotFeedbackHelpEvidenceOrientationStrip");
+    expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
     expect(row?.notes).toContain("Score 52");
   });
 });

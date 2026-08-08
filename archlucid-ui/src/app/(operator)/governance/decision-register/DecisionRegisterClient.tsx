@@ -19,7 +19,6 @@ import { BUYER_GOVERNANCE_DECISION_REGISTER_TITLE } from "@/lib/buyer-polish-cop
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { DecisionRegisterDecisionCard } from "./DecisionRegisterDecisionCard";
-import { DecisionRegisterSourcesStrip } from "./DecisionRegisterSourcesStrip";
 import { DecisionRegisterViewEmptyShell } from "./DecisionRegisterViewEmptyShell";
 import { DecisionRegisterFiltersPanel } from "./DecisionRegisterFiltersPanel";
 import { DecisionRegisterSummaryRow } from "./DecisionRegisterSummaryRow";
@@ -186,10 +185,7 @@ export default function DecisionRegisterClient() {
           </div>
         }
       />
-
-      <DecisionRegisterSourcesStrip />
-
-      {!loadError ? <DecisionRegisterSummaryRow summary={summary} /> : null}
+{!loadError ? <DecisionRegisterSummaryRow summary={summary} /> : null}
 
       <DecisionRegisterFiltersPanel
         category={category}

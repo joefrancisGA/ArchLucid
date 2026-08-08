@@ -4,7 +4,6 @@ import { cn } from "@/lib/utils";
 import { MessageSquareText, Search } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { ProvenanceEvidenceOrientationStrip } from "@/components/provenance/ProvenanceEvidenceOrientationStrip";
 import { ProvenanceGraphViewport } from "@/components/provenance/ProvenanceGraphViewport";
 import { ProvenanceGraphErrorBoundary } from "@/components/provenance/ProvenanceGraphErrorBoundary";
 import { ProvenanceSectionNav, type ProvenanceSection } from "@/components/provenance/ProvenanceSectionNav";
@@ -226,10 +225,7 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
             </p>
             <RunTraceViewerLink traceId={provenanceTraceId} />
           </header>
-
-          <ProvenanceEvidenceOrientationStrip runId={runId} />
-
-          {graph.traceabilityGaps.length > 0 ? (
+{graph.traceabilityGaps.length > 0 ? (
             <section
               id="trace-gaps"
               aria-labelledby="trace-gaps-heading"

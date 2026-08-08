@@ -24,7 +24,6 @@ import { resolveImpactPreviewSummaryMetrics } from "@/lib/resolve-impact-preview
 import type { EvolutionReviewPageViewModel } from "./evolution-review-view-model";
 import { ImpactPreviewEmptyState } from "./ImpactPreviewEmptyState";
 import { ImpactPreviewEvidenceBasisSection } from "./ImpactPreviewEvidenceBasisSection";
-import { ImpactPreviewEvidenceOrientationStrip } from "./ImpactPreviewEvidenceOrientationStrip";
 import { ImpactPreviewHowItWorksSection } from "./ImpactPreviewHowItWorksSection";
 import { ImpactPreviewOutputPreviewPanel } from "./ImpactPreviewOutputPreviewPanel";
 import { ImpactPreviewPageHeader } from "./ImpactPreviewPageHeader";
@@ -88,10 +87,7 @@ export function EvolutionReviewPageView(props: Props): React.JSX.Element {
           void m.loadList();
         }}
       />
-
-      <ImpactPreviewEvidenceOrientationStrip />
-
-      {buyerPolishedShell ? (
+{buyerPolishedShell ? (
         <CollapsibleSection
           title={IMPACT_PREVIEW_SCOPE_DETAILS_TRIGGER}
           defaultOpen={false}

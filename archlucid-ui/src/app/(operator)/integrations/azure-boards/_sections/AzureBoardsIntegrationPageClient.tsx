@@ -73,7 +73,6 @@ import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-control
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
 
 import { AzureBoardsIntegrationAside } from "./AzureBoardsIntegrationAside";
-import { AzureBoardsIntegrationEvidenceOrientationStrip } from "./AzureBoardsIntegrationEvidenceOrientationStrip";
 import { AzureBoardsIntegrationPageHeader } from "./AzureBoardsIntegrationPageHeader";
 import { AzureBoardsIntegrationPageLoadingSkeleton } from "./AzureBoardsIntegrationPageLoadingSkeleton";
 
@@ -385,10 +384,7 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
         lastRefreshedAt={lastRefreshedAt}
         onRefresh={() => void refresh()}
       />
-
-      <AzureBoardsIntegrationEvidenceOrientationStrip />
-
-      {isInitialLoad ? (
+{isInitialLoad ? (
         <AzureBoardsIntegrationPageLoadingSkeleton />
       ) : (
         <div

@@ -66,7 +66,7 @@ describe("ui-route-traffic-impact-preview (INI)", () => {
     expect(row?.path).toBe(IMPACT_PREVIEW_TRAFFIC_PATH);
     expect(row?.section).toBe(IMPACT_PREVIEW_TRAFFIC_SECTION);
     expect(row?.notes).toBe(IMPACT_PREVIEW_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("ImpactPreviewEvidenceOrientationStrip");
+    expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
     expect(row?.notes).toContain("Score 52");
   });
 });

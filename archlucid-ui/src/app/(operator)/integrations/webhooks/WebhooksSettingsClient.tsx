@@ -69,8 +69,6 @@ import {
 import { showSuccess } from "@/lib/toast";
 
 import { WebhooksAboutPanel } from "./WebhooksAboutPanel";
-import { WebhooksIntegrationEvidenceOrientationStrip } from "./WebhooksIntegrationEvidenceOrientationStrip";
-
 import type { AlertRoutingSubscription, WebhookTestResponse } from "@/types/alert-routing";
 
 function isGenericOutboundWebhookChannel(channelType: string): boolean {
@@ -252,10 +250,7 @@ export function WebhooksSettingsClient() {
           </>
         }
       />
-
-      <WebhooksIntegrationEvidenceOrientationStrip />
-
-      {failure !== null ? (
+{failure !== null ? (
         <div role="alert">
           <OperatorApiProblem
             problem={failure.problem}

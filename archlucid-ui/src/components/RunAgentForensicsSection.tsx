@@ -106,19 +106,16 @@ function averageEvidenceGroundingRatio(scores: AgentOutputEvaluationScoreRow[] |
   for (const row of scores ?? []) {
     const raw = row.semantic?.agentResultFaithfulnessSupportRatio;
 
-
     if (raw === null || raw === undefined)
       continue;
 
     const n = typeof raw === "number" ? raw : Number(raw);
-
 
     if (!Number.isFinite(n))
       continue;
 
     nums.push(n);
   }
-
 
   if (nums.length === 0)
     return null;
@@ -203,7 +200,6 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
   const blobPersistFailed = traces.some((t) => t.blobUploadFailed === true);
   const toolInvocationRows = toolInvocationPayload?.rows ?? [];
   const traceRawByTraceId = buildAgentTraceRawSnapshotByTraceId(traces);
-
 
   return (
     <section id="agent-forensics" className="scroll-mt-24 mb-6" aria-label="Diagnostics — agent traces">

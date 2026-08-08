@@ -15,4 +15,4 @@ export const CONNECTION_STATUS_TRAFFIC_SECTION = "Admin";
  * ASCII-only for Windows console note scripts.
  */
 export const CONNECTION_STATUS_TRAFFIC_NOTE =
-  "Connection status (Admin) - AdministrationConnectionStatusPage with PageContextualHelpButton (topic map integration-readiness; Category-1 registry), workspace Sources + claim-discipline orientation strip, ConnectorOperationsDashboard readiness tiles. Sibling ADY = system-health; IJX/ISX/IWX = connectors; OID = DLQ. Integration readiness hub - not a signed-record Sources trail. Score 48/100 (2026-08-05) - integration-readiness hub hard-caps higher Evidence.";
+  "Connection status (Admin) - AdministrationConnectionStatusPage with PageContextualHelpButton (topic map integration-readiness; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, ConnectorOperationsDashboard readiness tiles. Sibling ADY = system-health; IJX/ISX/IWX = connectors; OID = DLQ. Integration readiness hub - not a signed-record Sources trail. Score 48/100 (2026-08-05) - integration-readiness hub hard-caps higher Evidence.";

@@ -70,13 +70,8 @@ describe("HelpSoc2SelfAssessmentGuideView", () => {
       }),
     ).toHaveAttribute("href", SOC2_SELF_ASSESSMENT_HELP_PRIMARY_ACTIONS.openCaiqSig.href);
 
-    const sources = screen.getByTestId("help-soc2-self-assessment-sources");
-
-    for (const link of SOC2_SELF_ASSESSMENT_HELP_SOURCES) {
-      expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
-    }
-
-    expect(screen.getAllByRole("link", { name: /caiq/i }).length).toBeGreaterThan(0);
+    expect(screen.queryByTestId("help-soc2-self-assessment-sources")).toBeNull(); // TB-2092
+expect(screen.getAllByRole("link", { name: /caiq/i }).length).toBeGreaterThan(0);
   });
 
   it("renders SOC2 Type I roadmap without calendar commitments (TB-1748)", () => {

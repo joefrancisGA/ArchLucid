@@ -64,7 +64,7 @@ describe("ui-route-traffic-signed-records-list (SI)", () => {
     expect(row?.path).toBe(SIGNED_RECORDS_LIST_TRAFFIC_PATH);
     expect(row?.section).toBe(SIGNED_RECORDS_LIST_TRAFFIC_SECTION);
     expect(row?.notes).toBe(SIGNED_RECORDS_LIST_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("SignedRecordsListEvidenceOrientationStrip");
+    expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
     expect(row?.notes).toContain("Score 55");
     expect(rows.find((candidate) => candidate.id === "MA")).toBeUndefined();
   });

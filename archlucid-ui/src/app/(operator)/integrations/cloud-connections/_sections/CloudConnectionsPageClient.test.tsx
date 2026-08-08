@@ -55,7 +55,7 @@ describe("CloudConnectionsPageClient", () => {
     expect(screen.getByRole("heading", { level: 1, name: "Cloud connections" })).toBeInTheDocument();
     expect(screen.getByText(/Cloud connectors are optional/i)).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.getByTestId("cloud-connections-sources")).toBeInTheDocument();
+    expect(screen.queryByTestId("cloud-connections-sources")).toBeNull(); // TB-2092
     expect(screen.getByTestId("cloud-connections-claim-discipline")).toBeInTheDocument();
     expect(screen.getByTestId("cloud-platform-scope-panel")).toBeInTheDocument();
     expect(screen.getByTestId("cloud-connection-card-aws")).toBeInTheDocument();

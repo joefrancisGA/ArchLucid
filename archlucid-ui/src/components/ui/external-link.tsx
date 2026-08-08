@@ -1,7 +1,6 @@
 import { cn } from "@/lib/utils";
 import type { ComponentPropsWithoutRef } from "react";
 
-
 export type ExternalLinkProps = ComponentPropsWithoutRef<"a">;
 
 /**

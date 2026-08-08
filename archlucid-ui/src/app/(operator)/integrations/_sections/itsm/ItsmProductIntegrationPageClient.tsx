@@ -37,8 +37,6 @@ import { useOperateCapability } from "@/hooks/use-operate-capability";
 
 import { ItsmConnectorProbeCard } from "./ItsmConnectorProbeCard";
 import { ItsmNotConfiguredNextStep } from "./ItsmNotConfiguredNextStep";
-import { JiraIntegrationEvidenceOrientationStrip } from "./JiraIntegrationEvidenceOrientationStrip";
-
 type Props = {
   readonly product: ItsmProductId;
 };
@@ -186,7 +184,8 @@ export function ItsmProductIntegrationPageClient(props: Props): React.ReactEleme
         </p>
       </header>
 
-      {props.product === "jira" ? <JiraIntegrationEvidenceOrientationStrip /> : null}
+      {props.product === "jira" ?
+: null}
 
       {loadError ? (
         <p className={cn("text-red-600 dark:text-red-400", OPERATOR_TYPOGRAPHY.body)} role="alert">

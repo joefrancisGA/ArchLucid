@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { BaselineSettingsEvidenceOrientationStrip } from "@/app/(operator)/administration/baseline/_sections/BaselineSettingsEvidenceOrientationStrip";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
@@ -373,10 +372,7 @@ export function BaselineSettingsClient() {
         </div>
         <PageContextualHelpButton />
       </div>
-
-      <BaselineSettingsEvidenceOrientationStrip />
-
-      {demoMode ? (
+{demoMode ? (
         <DemoUnavailableNotice
           title="Baseline settings"
           description="ROI baseline measurement requires a connected deployment and tenant API access."

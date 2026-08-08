@@ -3,7 +3,6 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-import { ProductLearningEvidenceOrientationStrip } from "@/app/(operator)/internal/product-learning/_sections/ProductLearningEvidenceOrientationStrip";
 import { EmptyState } from "@/components/EmptyState";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
@@ -60,8 +59,7 @@ export function ProductLearningPageView(props: Props) {
       </div>
 
       <div className="mt-4 mb-5">
-        <ProductLearningEvidenceOrientationStrip />
-      </div>
+</div>
 
       <div className="flex flex-wrap gap-3 items-center mb-5 mt-4">
         <label className={cn("flex items-center gap-2", OPERATOR_TYPOGRAPHY.body)}>

@@ -64,7 +64,7 @@ describe("ui-route-traffic-approval-queue (GOP)", () => {
     expect(row?.path).toBe(APPROVAL_QUEUE_TRAFFIC_PATH);
     expect(row?.section).toBe(APPROVAL_QUEUE_TRAFFIC_SECTION);
     expect(row?.notes).toBe(APPROVAL_QUEUE_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("ApprovalQueueEvidenceOrientationStrip");
+    expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
     expect(row?.notes).toContain("Score 58");
     expect(row?.notes).toContain("Record-decision deep link");
     expect(row?.notes).toContain("auto-fills signed review record version");

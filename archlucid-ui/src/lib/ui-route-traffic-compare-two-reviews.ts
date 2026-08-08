@@ -14,4 +14,4 @@ export const COMPARE_TWO_REVIEWS_TRAFFIC_SECTION = "Marketing";
  * Owner workbook Notes for CXX — documents Evidence chrome on Compare two reviews.
  */
 export const COMPARE_TWO_REVIEWS_TRAFFIC_NOTE =
-  "Compare two reviews (Insights) - CompareForm with OperatorPageHeader PageContextualHelpButton (topic map comparison-replay; Category-1 registry), workspace Sources + claim-discipline orientation strip, pair Cite Sources after Compare (ComparePairEvidenceCiteStrip), run pickers/results. Formerly /compare (retired; no redirect). Not a signed-record Sources trail by itself.";
+  "Compare two reviews (Insights) - CompareForm with OperatorPageHeader PageContextualHelpButton (topic map comparison-replay; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, pair Cite Sources after Compare (ComparePairEvidenceCiteStrip), run pickers/results. Formerly /compare (retired; no redirect). Not a signed-record Sources trail by itself.";

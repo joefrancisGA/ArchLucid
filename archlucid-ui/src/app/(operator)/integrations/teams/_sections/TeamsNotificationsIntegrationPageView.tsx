@@ -31,7 +31,6 @@ import { cn } from "@/lib/utils";
 
 import { TeamsConnectionSummary } from "./TeamsConnectionSummary";
 import { TeamsIntegrationAside } from "./TeamsIntegrationAside";
-import { TeamsIntegrationEvidenceOrientationStrip } from "./TeamsIntegrationEvidenceOrientationStrip";
 import { TeamsNotificationsSelector } from "./TeamsNotificationsSelector";
 import type { TeamsNotificationsIntegrationPageViewModel } from "./teams-notifications-integration-view-model";
 
@@ -95,10 +94,7 @@ export function TeamsNotificationsIntegrationPageView(props: Props): React.React
           </>
         }
       />
-
-      <TeamsIntegrationEvidenceOrientationStrip />
-
-      {m.failure !== null ? (
+{m.failure !== null ? (
         <div role="alert">
           <OperatorApiProblem
             problem={m.failure.problem}

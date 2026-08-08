@@ -70,7 +70,6 @@ import type {
   GovernancePromotionRecord,
 } from "@/types/governance-workflow";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
-import { ApprovalQueueEvidenceOrientationStrip } from "./ApprovalQueueEvidenceOrientationStrip";
 import { GovernanceOverviewPanel } from "./GovernanceOverviewPanel";
 import { deriveGovernanceApprovalWorkflowState } from "./governance-approval-workflow-state";
 import { GovernanceReviewContextBar } from "./GovernanceReviewContextBar";
@@ -638,10 +637,7 @@ export function GovernanceWorkflowPageContent() {
         }
         actions={overviewHeaderActions}
       />
-
-      <ApprovalQueueEvidenceOrientationStrip />
-
-      {toast ? (
+{toast ? (
         <div className="fixed bottom-6 right-6 z-50 max-w-sm" role="status">
           <div
             className={cn(

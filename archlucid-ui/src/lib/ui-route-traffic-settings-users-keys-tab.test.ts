@@ -64,7 +64,7 @@ describe("ui-route-traffic-settings-users-keys-tab (SEU)", () => {
     expect(row?.path).toBe(SETTINGS_USERS_KEYS_TAB_TRAFFIC_PATH);
     expect(row?.section).toBe(SETTINGS_USERS_KEYS_TAB_TRAFFIC_SECTION);
     expect(row?.notes).toBe(SETTINGS_USERS_KEYS_TAB_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("SettingsUsersEvidenceOrientationStrip");
+    expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
     expect(row?.notes).toContain("Score 48");
   });
 });

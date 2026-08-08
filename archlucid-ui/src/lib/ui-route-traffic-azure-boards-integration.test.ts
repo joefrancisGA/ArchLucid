@@ -64,7 +64,7 @@ describe("ui-route-traffic-azure-boards-integration (INZ)", () => {
     expect(row?.path).toBe(AZURE_BOARDS_INTEGRATION_TRAFFIC_PATH);
     expect(row?.section).toBe(AZURE_BOARDS_INTEGRATION_TRAFFIC_SECTION);
     expect(row?.notes).toBe(AZURE_BOARDS_INTEGRATION_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("AzureBoardsIntegrationEvidenceOrientationStrip");
+    expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
     expect(row?.notes).toContain("Score 48");
   });
 });

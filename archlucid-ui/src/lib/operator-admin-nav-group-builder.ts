@@ -30,8 +30,6 @@ import {
 
 } from "lucide-react";
 
-
-
 import type { NavGroupConfig } from "@/lib/nav-config.types";
 
 import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
@@ -39,8 +37,6 @@ import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
 
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
-
-
 
 /** Tenant admin surfaces — settings, billing, support bundle, directory. */
 

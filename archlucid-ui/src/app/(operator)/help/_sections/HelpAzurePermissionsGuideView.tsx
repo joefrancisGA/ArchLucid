@@ -3,7 +3,6 @@ import Link from "next/link";
 import { Suspense } from "react";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
-import { AzurePermissionsHelpEvidenceOrientationStrip } from "@/app/(operator)/help/_sections/AzurePermissionsHelpEvidenceOrientationStrip";
 import { HelpAzurePermissionsConnectionContext } from "@/app/(operator)/help/_sections/HelpAzurePermissionsConnectionContext";
 import { HelpAzurePermissionsSetupSection } from "@/app/(operator)/help/_sections/HelpAzurePermissionsSetupSection";
 import { HelpAzurePermissionsVerificationPanel } from "@/app/(operator)/help/_sections/HelpAzurePermissionsVerificationPanel";
@@ -231,10 +230,7 @@ export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideVi
           <PageContextualHelpButton />
         </div>
       </header>
-
-      <AzurePermissionsHelpEvidenceOrientationStrip />
-
-      <div className={HELP_PAGE_LAYOUT.contentGrid}>
+<div className={HELP_PAGE_LAYOUT.contentGrid}>
         <div className="min-w-0 space-y-8" data-testid="help-azure-permissions-primary">
           <section aria-labelledby="read-only-summary" className="space-y-3">
             <HelpSectionHeading id="read-only-summary">{AZURE_PERMISSIONS_READ_ONLY_HEADING}</HelpSectionHeading>

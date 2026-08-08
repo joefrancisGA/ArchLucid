@@ -24,8 +24,6 @@ import { groupReadinessRows, presentReadinessRow, resolveOverallHealthHeadline }
 import type { SystemHealthPageViewModel } from "./system-health-page-view-model";
 import { SystemHealthDemoPageView } from "./SystemHealthDemoPageView";
 import { SystemHealthPageHeader } from "./SystemHealthPageHeader";
-import { SystemHealthSourcesStrip } from "./SystemHealthSourcesStrip";
-
 type Props = {
   readonly model: SystemHealthPageViewModel;
 };
@@ -136,10 +134,7 @@ export function SystemHealthPageView(props: Props) {
           <HealthGroupedReadiness groups={readinessGroups} testId="system-health-ready-groups" />
         </HealthDashboardSection>
       </section>
-
-      <SystemHealthSourcesStrip />
-
-      <CollapsibleSection title="Technical details" defaultOpen={false} sectionTestId="system-health-operator-claim-scope">
+<CollapsibleSection title="Technical details" defaultOpen={false} sectionTestId="system-health-operator-claim-scope">
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           {SYSTEM_HEALTH_CLAIM_DISCIPLINE} Tenant administrators can open{" "}
           <Link href="/internal/health" className={OPERATOR_LINK.nav}>

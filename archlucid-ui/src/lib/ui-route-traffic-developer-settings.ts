@@ -15,4 +15,4 @@ export const DEVELOPER_SETTINGS_TRAFFIC_SECTION = "Admin";
  * ASCII-only for Windows console note scripts.
  */
 export const DEVELOPER_SETTINGS_TRAFFIC_NOTE =
-  "Internal developer tools (Admin) - DeveloperSettingsPageClient with PageContextualHelpButton (topic map cli-usage; Category-1 registry), workspace Sources + claim-discipline orientation strip, branded theme evaluation + TryCliDemoCard. Sibling ADY = system-health; HCX = cli-usage help; HDX = developer-troubleshooting. Operator diagnostic surface - not a signed-record Sources trail. Score 45/100 (2026-08-06) - admin diagnostic hard-caps higher Evidence.";
+  "Internal developer tools (Admin) - DeveloperSettingsPageClient with PageContextualHelpButton (topic map cli-usage; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, branded theme evaluation + TryCliDemoCard. Sibling ADY = system-health; HCX = cli-usage help; HDX = developer-troubleshooting. Operator diagnostic surface - not a signed-record Sources trail. Score 45/100 (2026-08-06) - admin diagnostic hard-caps higher Evidence.";

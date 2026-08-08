@@ -64,7 +64,7 @@ describe("ui-route-traffic-help-topic-catchall (HE.)", () => {
     expect(row?.path).toBe(HELP_TOPIC_CATCHALL_TRAFFIC_PATH);
     expect(row?.section).toBe(HELP_TOPIC_CATCHALL_TRAFFIC_SECTION);
     expect(row?.notes).toBe(HELP_TOPIC_CATCHALL_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("HelpTopicCatchAllEvidenceOrientationStrip");
+    expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
     expect(row?.notes).toContain("Score 52");
   });
 });

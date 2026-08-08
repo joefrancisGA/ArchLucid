@@ -1,7 +1,6 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-import { SettingsSecurityTrustEvidenceOrientationStrip } from "@/app/(operator)/administration/security-trust/_sections/SettingsSecurityTrustEvidenceOrientationStrip";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -65,8 +64,7 @@ export function OperatorSecurityTrustPageView() {
         subtitle="Procurement-ready security and trust materials for this workspace."
         actions={<PageContextualHelpButton />}
       />
-      <SettingsSecurityTrustEvidenceOrientationStrip />
-      <LayerHeader density="compact" pageKey="security-trust" />
+<LayerHeader density="compact" pageKey="security-trust" />
 
       <section aria-label="Available now" className="space-y-3">
         <div className="flex items-center gap-2">

@@ -16,4 +16,4 @@ export const ALERT_RULES_ROUTING_TAB_TRAFFIC_SECTION = "Tab surface";
  * Owner workbook Notes for ALE — documents Evidence chrome on the Notifications tab.
  */
 export const ALERT_RULES_ROUTING_TAB_TRAFFIC_NOTE =
-  "Alert rules Notifications/routing tab (Tab surface) - AlertRoutingContent with hub PageContextualHelpButton (topic map alerts), workspace Sources + claim-discipline orientation strip when ?tab=routing. Delivery destinations only — not diligence Sources. Sibling SAX/GOA = hub; Conditions/Advanced/Test tabs are separate rows.";
+  "Alert rules Notifications/routing tab (Tab surface) - AlertRoutingContent with hub PageContextualHelpButton (topic map alerts), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip when ?tab=routing. Delivery destinations only — not diligence Sources. Sibling SAX/GOA = hub; Conditions/Advanced/Test tabs are separate rows.";

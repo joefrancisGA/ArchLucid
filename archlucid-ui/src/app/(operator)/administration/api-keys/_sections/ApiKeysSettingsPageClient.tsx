@@ -48,7 +48,6 @@ import { ApiKeyActionConfirmDialog } from "./ApiKeyActionConfirmDialog";
 import { ApiKeyCredentialTable, type ApiKeyCredentialRowModel } from "./ApiKeyCredentialTable";
 import { ApiKeyRecentEventsTable } from "./ApiKeyRecentEventsTable";
 import { ApiKeyRotateRevealPanel } from "./ApiKeyRotateRevealPanel";
-import { ApiKeysSettingsEvidenceOrientationStrip } from "./ApiKeysSettingsEvidenceOrientationStrip";
 import { ApiKeysSettingsRestrictedState } from "./ApiKeysSettingsRestrictedState";
 import { ApiKeysSettingsSummaryRow } from "./ApiKeysSettingsSummaryRow";
 import { ApiKeysSettingsTechnicalDetails } from "./ApiKeysSettingsTechnicalDetails";
@@ -278,10 +277,7 @@ export function ApiKeysSettingsPageClient() {
           <PageContextualHelpButton />
         </div>
       </header>
-
-      <ApiKeysSettingsEvidenceOrientationStrip />
-
-      {state.status === "loading" ? (
+{state.status === "loading" ? (
         <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading API key status…</p>
       ) : null}
 

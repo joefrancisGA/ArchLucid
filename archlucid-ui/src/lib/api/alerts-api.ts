@@ -191,7 +191,6 @@ export async function testIntegrationWebhook(routingSubscriptionId: string): Pro
   return testWebhookSubscription(routingSubscriptionId);
 }
 
-
 export async function listCompositeAlertRules(): Promise<CompositeAlertRule[]> {
   return apiGet<CompositeAlertRule[]>(`/${ApiV1Routes.compositeAlertRules}`);
 }
@@ -212,7 +211,6 @@ export type SimulateAlertRuleRequestBody = {
 export async function simulateAlertRule(body: SimulateAlertRuleRequestBody): Promise<RuleSimulationResult> {
   return apiPostJson<RuleSimulationResult>(`/${ApiV1Routes.alertSimulation}/simulate`, body);
 }
-
 
 export async function recommendAlertThreshold(body: {
   ruleKind: string;

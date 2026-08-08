@@ -39,8 +39,6 @@ import type { WeeklyDigestHealthDto } from "@/types/operate-rhythm";
 
 import { DigestsBrowseContent } from "./DigestsBrowseContent";
 import { DigestSubscriptionsContent } from "./DigestSubscriptionsContent";
-import { DigestsScheduleEvidenceOrientationStrip } from "./DigestsScheduleEvidenceOrientationStrip";
-import { DigestsSourcesStrip } from "./DigestsSourcesStrip";
 import { ExecDigestScheduleContent } from "./ExecDigestScheduleContent";
 import { DigestsPageHeader } from "./DigestsPageHeader";
 import { WeeklyDigestHealthBanner } from "./WeeklyDigestHealthBanner";
@@ -201,11 +199,9 @@ export function DigestsHubClient(): ReactElement {
 
         {activeTab === "schedule" ? (
           <div className="mt-4">
-            <DigestsScheduleEvidenceOrientationStrip />
-          </div>
+</div>
         ) : (
-          <DigestsSourcesStrip />
-        )}
+)}
 
         {activeTab === "schedule" ? (
           <WeeklyDigestHealthBanner

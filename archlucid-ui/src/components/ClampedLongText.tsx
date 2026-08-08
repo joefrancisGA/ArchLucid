@@ -4,7 +4,6 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { useId, useState } from "react";
 
-
 /**
  * Long policy or rule text: line-clamp by default with an accessible expand control.
  */

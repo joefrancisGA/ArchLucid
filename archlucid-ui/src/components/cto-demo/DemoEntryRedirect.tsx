@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import { DemoEntryEvidenceOrientationStrip } from "@/components/cto-demo/DemoEntryEvidenceOrientationStrip";
 import { DEMO_ENTRY_REDIRECTING_LABEL } from "@/lib/demo-entry-evidence-copy";
 import { resolveDemoEntryRedirectHref } from "@/lib/demo-entry-redirect";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -41,8 +40,6 @@ export function DemoEntryRedirect() {
           .
         </p>
       </header>
-
-      <DemoEntryEvidenceOrientationStrip />
-    </div>
+</div>
   );
 }

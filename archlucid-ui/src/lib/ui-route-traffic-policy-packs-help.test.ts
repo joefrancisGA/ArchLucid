@@ -64,7 +64,7 @@ describe("ui-route-traffic-policy-packs-help (HEO)", () => {
     expect(row?.path).toBe(POLICY_PACKS_HELP_TRAFFIC_PATH);
     expect(row?.section).toBe(POLICY_PACKS_HELP_TRAFFIC_SECTION);
     expect(row?.notes).toBe(POLICY_PACKS_HELP_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("PolicyPacksHelpEvidenceOrientationStrip");
+    expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
     expect(row?.notes).toContain("Score 52");
     expect(rows.find((candidate) => candidate.id === "HPO")).toBeUndefined();
   });

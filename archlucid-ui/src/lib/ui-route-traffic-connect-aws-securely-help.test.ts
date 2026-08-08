@@ -64,7 +64,7 @@ describe("ui-route-traffic-connect-aws-securely-help (HEC)", () => {
     expect(row?.path).toBe(CONNECT_AWS_SECURELY_HELP_TRAFFIC_PATH);
     expect(row?.section).toBe(CONNECT_AWS_SECURELY_HELP_TRAFFIC_SECTION);
     expect(row?.notes).toBe(CONNECT_AWS_SECURELY_HELP_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("ConnectAwsSecurelyHelpEvidenceOrientationStrip");
+    expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
     expect(row?.notes).toContain("Score 52");
   });
 });

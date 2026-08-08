@@ -22,8 +22,6 @@ import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
-import { ProjectsRecycleBinEvidenceOrientationStrip } from "./ProjectsRecycleBinEvidenceOrientationStrip";
-
 const RECYCLE_BIN_PATH = `/api/proxy/${ApiV1Routes.tenantWorkspacesRecycleBin}`;
 
 const PAGE_DESCRIPTION =
@@ -305,10 +303,7 @@ export function ProjectsRecycleBinPage() {
           </>
         }
       />
-
-      <ProjectsRecycleBinEvidenceOrientationStrip />
-
-      {!isAuthorityLoading && !canRestoreExecute ? (
+{!isAuthorityLoading && !canRestoreExecute ? (
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Restore requires Execute authority — you can browse deleted projects below, but restoring is unavailable for this signed-in principal.
         </p>

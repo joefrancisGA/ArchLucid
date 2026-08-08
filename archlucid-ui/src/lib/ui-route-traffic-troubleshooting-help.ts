@@ -14,4 +14,4 @@ export const TROUBLESHOOTING_HELP_TRAFFIC_SECTION = "Help topic";
  * Owner workbook Notes for HTX — documents Evidence chrome on Troubleshooting help.
  */
 export const TROUBLESHOOTING_HELP_TRAFFIC_NOTE =
-  "Troubleshooting help (Help topic) - HelpTroubleshootingGuideView with PageContextualHelpButton (topic map troubleshooting; Category-1 registry), workspace Sources + claim-discipline orientation strip, start-here CTAs, common issues, advanced diagnostics. Operator unblocking guide — not a signed-record Sources trail. Score 52/100 (2026-08-03) — help-topic orientation hard-caps higher Evidence.";
+  "Troubleshooting help (Help topic) - HelpTroubleshootingGuideView with PageContextualHelpButton (topic map troubleshooting; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, start-here CTAs, common issues, advanced diagnostics. Operator unblocking guide — not a signed-record Sources trail. Score 52/100 (2026-08-03) — help-topic orientation hard-caps higher Evidence.";

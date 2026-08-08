@@ -38,13 +38,8 @@ describe("RunDetailGovernanceDecisionSection", () => {
     expect(secondary.getAttribute("href") ?? "").toContain("archTab=activity");
     expect(screen.queryByRole("button", { name: "View assessment activity" })).not.toBeInTheDocument();
 
-    const sources = screen.getByTestId("run-detail-governance-sources");
-
-    for (const link of RUN_DETAIL_GOVERNANCE_PRE_COMMIT_SOURCES) {
-      expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
-    }
-
-    expect(screen.getByTestId("run-detail-governance-claim-discipline")).toHaveTextContent(/not the committed/i);
+    expect(screen.queryByTestId("run-detail-governance-sources")).toBeNull(); // TB-2092
+expect(screen.getByTestId("run-detail-governance-claim-discipline")).toHaveTextContent(/not the committed/i);
   });
 
   it("shows post-commit governance decision chrome when manifest exists", () => {

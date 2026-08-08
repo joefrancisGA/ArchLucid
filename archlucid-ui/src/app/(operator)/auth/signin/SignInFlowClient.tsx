@@ -29,7 +29,6 @@ import {
   SIGN_IN_PAGE_COPY,
 } from "@/lib/auth/sign-in-page-copy";
 import { AuthFlowShell } from "@/components/auth/AuthFlowShell";
-import { SignInEvidenceOrientationStrip } from "@/app/(operator)/auth/signin/SignInEvidenceOrientationStrip";
 import { BUYER_SAFE_AUTH_NOT_CONFIGURED_MESSAGE } from "@/lib/buyer-safe-auth-messages";
 import { resolveSafeReturnPath } from "@/lib/navigation/safe-return-path";
 import { signInHasReturnDestination } from "@/lib/auth/sign-in-return-destination";
@@ -321,7 +320,8 @@ export function SignInFlowClient({ returnUrl, invitationTokenFromQuery }: SignIn
 
   if (fatalError) {
     return (
-      <AuthFlowShell hasReturnDestination={hasReturnDestination} afterPanel={<SignInEvidenceOrientationStrip />}>
+      <AuthFlowShell hasReturnDestination={hasReturnDestination} afterPanel={
+}>
         <AuthErrorPanel message={fatalError} />
       </AuthFlowShell>
     );
@@ -329,7 +329,8 @@ export function SignInFlowClient({ returnUrl, invitationTokenFromQuery }: SignIn
 
   if (!hasAnySignInMethod) {
     return (
-      <AuthFlowShell hasReturnDestination={hasReturnDestination} afterPanel={<SignInEvidenceOrientationStrip />}>
+      <AuthFlowShell hasReturnDestination={hasReturnDestination} afterPanel={
+}>
         <AuthErrorPanel message={BUYER_SAFE_AUTH_NOT_CONFIGURED_MESSAGE} />
       </AuthFlowShell>
     );
@@ -337,7 +338,8 @@ export function SignInFlowClient({ returnUrl, invitationTokenFromQuery }: SignIn
 
   if (step === "options") {
     return (
-      <AuthFlowShell hasReturnDestination={hasReturnDestination} afterPanel={<SignInEvidenceOrientationStrip />}>
+      <AuthFlowShell hasReturnDestination={hasReturnDestination} afterPanel={
+}>
         <SignInMethodPicker
           options={methodOptions}
           onWorkSchool={beginWorkSchool}
@@ -354,7 +356,8 @@ export function SignInFlowClient({ returnUrl, invitationTokenFromQuery }: SignIn
 
   if (step === "email") {
     return (
-      <AuthFlowShell hasReturnDestination={hasReturnDestination} afterPanel={<SignInEvidenceOrientationStrip />}>
+      <AuthFlowShell hasReturnDestination={hasReturnDestination} afterPanel={
+}>
         <SignInEmailStep
           email={email}
           pending={emailPending}
@@ -371,7 +374,8 @@ export function SignInFlowClient({ returnUrl, invitationTokenFromQuery }: SignIn
 
   if (step === "sso") {
     return (
-      <AuthFlowShell hasReturnDestination={hasReturnDestination} afterPanel={<SignInEvidenceOrientationStrip />}>
+      <AuthFlowShell hasReturnDestination={hasReturnDestination} afterPanel={
+}>
         <SignInSsoRequiredStep
           message={ssoMessage}
           onContinueOrganizationSignIn={beginWorkSchool}
@@ -387,7 +391,8 @@ export function SignInFlowClient({ returnUrl, invitationTokenFromQuery }: SignIn
   }
 
   return (
-    <AuthFlowShell hasReturnDestination={hasReturnDestination} afterPanel={<SignInEvidenceOrientationStrip />}>
+    <AuthFlowShell hasReturnDestination={hasReturnDestination} afterPanel={
+}>
       <SignInCodeStep
         maskedEmail={maskedEmail}
         code={code}

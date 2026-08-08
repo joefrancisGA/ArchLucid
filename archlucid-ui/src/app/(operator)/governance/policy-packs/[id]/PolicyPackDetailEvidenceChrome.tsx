@@ -4,8 +4,6 @@ import type { ReactNode } from "react";
 
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 
-import { PolicyPackDetailSourcesStrip } from "./PolicyPackDetailSourcesStrip";
-
 type PolicyPackDetailEvidenceChromeProps = {
   readonly children: ReactNode;
 };
@@ -20,8 +18,7 @@ export function PolicyPackDetailEvidenceChrome(
         <div className="flex justify-end">
           <PageContextualHelpButton />
         </div>
-        <PolicyPackDetailSourcesStrip />
-      </div>
+</div>
       {props.children}
     </div>
   );

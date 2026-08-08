@@ -38,7 +38,6 @@ import { AuditOperatorExportSection } from "./AuditOperatorExportSection";
 import { AuditPageHeader } from "./AuditPageHeader";
 import { AuditResultsSection } from "./AuditResultsSection";
 import { AuditSearchSection } from "./AuditSearchSection";
-import { AuditTrailSourcesStrip } from "./AuditTrailSourcesStrip";
 import type { AuditPageViewProps } from "./audit-page-view-props";
 
 /** Presentational layout for the operator audit log page. */
@@ -110,10 +109,7 @@ export function AuditPageView(props: AuditPageViewProps) {
           )
         }
       />
-
-      <AuditTrailSourcesStrip />
-
-      {buyerPolishedShell && props.buyerAuditTrailMetrics !== null ? (
+{buyerPolishedShell && props.buyerAuditTrailMetrics !== null ? (
         <AuditBuyerHeaderMetrics buyerAuditTrailMetrics={props.buyerAuditTrailMetrics} />
       ) : null}
 

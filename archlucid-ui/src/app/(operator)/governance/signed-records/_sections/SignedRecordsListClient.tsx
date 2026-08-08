@@ -26,7 +26,6 @@ import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 import { enrichSignedRecordsListRows } from "./enrich-signed-records-list-rows";
-import { SignedRecordsListEvidenceOrientationStrip } from "./SignedRecordsListEvidenceOrientationStrip";
 import {
   SIGNED_RECORDS_LIST_EMPTY_BODY,
   SIGNED_RECORDS_LIST_EMPTY_PRIMARY_LABEL,
@@ -138,10 +137,7 @@ export default function SignedRecordsListClient() {
         titleTestId="signed-records-list-page-title"
         actions={<PageContextualHelpButton />}
       />
-
-      <SignedRecordsListEvidenceOrientationStrip />
-
-      {loadError !== null ? (
+{loadError !== null ? (
         <p className={cn(OPERATOR_TYPOGRAPHY.body, "mb-4 text-al-danger")} role="alert">
           {loadError}
         </p>

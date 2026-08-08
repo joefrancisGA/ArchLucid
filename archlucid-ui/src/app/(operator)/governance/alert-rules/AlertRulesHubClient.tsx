@@ -28,8 +28,6 @@ import {
   AlertSimulationTuningSectionDeferred,
   CompositeAlertRulesContentDeferred,
 } from "./_sections/alert-rules-hub-deferred-chunks";
-import { AlertRoutingEvidenceOrientationStrip } from "./_sections/AlertRoutingEvidenceOrientationStrip";
-import { AlertRulesEvidenceOrientationStrip } from "./_sections/AlertRulesEvidenceOrientationStrip";
 import { AlertRulesPageHeader } from "./AlertRulesPageHeader";
 
 const TAB_PARAM = "tab";
@@ -158,9 +156,9 @@ export function AlertRulesHubClient() {
           aria-labelledby={`alert-rules-hub-tab-${activeTab}`}
           data-testid="alert-rules-hub-panel"
         >
-          {activeTab === "routing" ? <AlertRoutingEvidenceOrientationStrip /> : (
-            <AlertRulesEvidenceOrientationStrip />
-          )}
+          {activeTab === "routing" ?
+: (
+)}
           {activeTab === "rules" ? <AlertRulesContentDeferred /> : null}
           {activeTab === "routing" ? <AlertRoutingContentDeferred /> : null}
           {activeTab === "composite" ? <CompositeAlertRulesContentDeferred /> : null}

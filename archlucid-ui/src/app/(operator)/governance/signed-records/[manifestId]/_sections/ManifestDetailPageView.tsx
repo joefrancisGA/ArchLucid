@@ -47,8 +47,6 @@ import {
 } from "@/lib/design-tokens";
 
 import type { ManifestDetailPageSuccessModel } from "./manifest-detail-page-model";
-import { SignedRecordEvidenceOrientationStrip } from "./SignedRecordEvidenceOrientationStrip";
-
 type ManifestDetailPageViewProps = {
   readonly model: ManifestDetailPageSuccessModel;
 };
@@ -275,10 +273,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
           </>
         )}
       </p>
-
-      <SignedRecordEvidenceOrientationStrip />
-
-      {showcaseBuyerManifestHeadline === true ? (
+{showcaseBuyerManifestHeadline === true ? (
         <section
           aria-labelledby="manifest-authority-summary-heading"
           className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-4 shadow-sm"

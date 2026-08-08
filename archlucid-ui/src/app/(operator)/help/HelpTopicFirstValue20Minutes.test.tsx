@@ -67,12 +67,7 @@ describe("HelpFirstValue20GuideView", () => {
       }),
     ).toHaveAttribute("href", FIRST_VALUE_20_HELP_PRIMARY_ACTIONS.openBuyerFirstReview.href);
 
-    const sources = screen.getByTestId("help-first-value-20-sources");
-
-    for (const link of FIRST_VALUE_20_HELP_SOURCES) {
-      expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
-    }
-
-    expect(visible).not.toContain("first-pilot operator path");
+    expect(screen.queryByTestId("help-first-value-20-sources")).toBeNull(); // TB-2092
+expect(visible).not.toContain("first-pilot operator path");
   });
 });

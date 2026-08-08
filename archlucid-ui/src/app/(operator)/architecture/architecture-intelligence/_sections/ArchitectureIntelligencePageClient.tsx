@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 
-import { ArchitectureIntelligenceEvidenceOrientationStrip } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceEvidenceOrientationStrip";
 import { ArchitectureIntelligenceProductRoundTrip } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceProductRoundTrip";
 import { AiBudgetSpendNotice } from "@/components/ai-budget/AiBudgetSpendNotice";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
@@ -619,10 +618,7 @@ export function ArchitectureIntelligencePageClient() {
         titleTestId="architecture-intelligence-page-title"
         actions={<PageContextualHelpButton />}
       />
-
-      <ArchitectureIntelligenceEvidenceOrientationStrip />
-
-      {inboundContextLine ? (
+{inboundContextLine ? (
         <p
           className={cn(OPERATOR_TYPOGRAPHY.body, "text-muted-foreground")}
           data-testid="architecture-intelligence-inbound-context"

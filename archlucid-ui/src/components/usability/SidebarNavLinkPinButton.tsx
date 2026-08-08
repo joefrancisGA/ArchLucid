@@ -3,7 +3,6 @@
 import { cn } from "@/lib/utils";
 import { Pin, PinOff } from "lucide-react";
 
-
 type SidebarNavLinkPinButtonProps = {
   readonly pinned: boolean;
   readonly label: string;

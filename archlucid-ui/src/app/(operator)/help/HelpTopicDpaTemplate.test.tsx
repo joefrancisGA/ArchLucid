@@ -69,12 +69,7 @@ describe("HelpDpaTemplateGuideView", () => {
       }),
     ).toHaveAttribute("href", DPA_TEMPLATE_HELP_PRIMARY_ACTIONS.openSubprocessors.href);
 
-    const sources = screen.getByTestId("help-dpa-template-sources");
-
-    for (const link of DPA_TEMPLATE_HELP_SOURCES) {
-      expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
-    }
-
-    expect(screen.getAllByRole("link", { name: /trust center/i }).length).toBeGreaterThan(0);
+    expect(screen.queryByTestId("help-dpa-template-sources")).toBeNull(); // TB-2092
+expect(screen.getAllByRole("link", { name: /trust center/i }).length).toBeGreaterThan(0);
   });
 });

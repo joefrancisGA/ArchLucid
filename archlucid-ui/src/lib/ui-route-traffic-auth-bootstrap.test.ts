@@ -64,6 +64,6 @@ describe("ui-route-traffic-auth-bootstrap (AUB)", () => {
     expect(row?.path).toBe(AUTH_BOOTSTRAP_TRAFFIC_PATH);
     expect(row?.section).toBe(AUTH_BOOTSTRAP_TRAFFIC_SECTION);
     expect(row?.notes).toBe(AUTH_BOOTSTRAP_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("AuthBootstrapEvidenceOrientationStrip");
+    expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
   });
 });

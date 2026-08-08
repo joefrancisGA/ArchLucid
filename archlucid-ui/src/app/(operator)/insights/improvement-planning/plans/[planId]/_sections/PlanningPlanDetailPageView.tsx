@@ -14,7 +14,6 @@ import { PLANNING_PATH } from "@/lib/planning-route";
 import { PLANNING_PLAN_DETAIL_PAGE_TITLE } from "@/lib/planning-plan-detail-evidence-copy";
 
 import { PlanningPlanDetailSections } from "./PlanningPlanDetailSections";
-import { PlanningPlanDetailSourcesStrip } from "./PlanningPlanDetailSourcesStrip";
 import type { UsePlanningPlanDetailPageModel } from "./use-planning-plan-detail-page";
 
 type PlanningPlanDetailPageViewProps = {
@@ -41,10 +40,7 @@ export function PlanningPlanDetailPageView({ model }: PlanningPlanDetailPageView
               </Link>
             }
           />
-
-          <PlanningPlanDetailSourcesStrip />
-
-          {!planId.trim() ? (
+{!planId.trim() ? (
             <p role="alert" className="text-red-700 dark:text-red-400">
               Missing plan id.
             </p>

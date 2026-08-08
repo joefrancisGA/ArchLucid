@@ -31,8 +31,6 @@ import { showError, showSuccess } from "@/lib/toast";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { ExtractUploadSettingsEvidenceOrientationStrip } from "./ExtractUploadSettingsEvidenceOrientationStrip";
-
 const EXTRACTOR_SCRIPT_CDN_URL =
   process.env.NEXT_PUBLIC_EXTRACTOR_SCRIPT_CDN_URL?.trim() ||
   "https://cdn.archlucid.net/scripts/Get-ArchLucidAzurePackage.ps1";
@@ -229,10 +227,7 @@ export function ExtractUploadSettingsPageClient() {
         </div>
         <PageContextualHelpButton />
       </div>
-
-      <ExtractUploadSettingsEvidenceOrientationStrip />
-
-      <ExtractUploadConstraintsPanel />
+<ExtractUploadConstraintsPanel />
 
       {extractorUpdateBanner ? (
         <div

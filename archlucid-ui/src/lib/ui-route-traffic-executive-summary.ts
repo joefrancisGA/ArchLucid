@@ -9,7 +9,7 @@ export const EXECUTIVE_SUMMARY_TRAFFIC_PATH = "/insights/executive-summary";
  * Absorbs former VXX (legacy `/value-report` redirect) hit share.
  */
 export const EXECUTIVE_SUMMARY_TRAFFIC_NOTE =
-  "Sponsor executive summary (Sponsor report) - ValueReportPageClient/View with PageContextualHelpButton (topic map executive-summary; Category-1 registry on /sponsor-report + /value-report), workspace Sources + claim-discipline orientation strip, period preview/exports, Outcomes nav. Absorbs former VXX hit share from retired legacy `/value-report` bookmark row (LegacyValueReportRedirectPage still permanentRedirects here). Period summary — not a signed-record Sources trail alone.";
+  "Sponsor executive summary (Sponsor report) - ValueReportPageClient/View with PageContextualHelpButton (topic map executive-summary; Category-1 registry on /sponsor-report + /value-report), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, period preview/exports, Outcomes nav. Absorbs former VXX hit share from retired legacy `/value-report` bookmark row (LegacyValueReportRedirectPage still permanentRedirects here). Period summary — not a signed-record Sources trail alone.";
 
 /** Workbook Section column value — operator sponsor-report job, not pre-login marketing. */
 export const EXECUTIVE_SUMMARY_TRAFFIC_SECTION = "Sponsor report";

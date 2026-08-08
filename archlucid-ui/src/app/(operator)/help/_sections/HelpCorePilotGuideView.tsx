@@ -2,7 +2,6 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
-import { CorePilotHelpEvidenceOrientationStrip } from "@/app/(operator)/help/_sections/CorePilotHelpEvidenceOrientationStrip";
 import { HelpCorePilotWorkflowStepper } from "@/app/(operator)/help/_sections/HelpCorePilotWorkflowStepper";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
@@ -74,10 +73,7 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
           <PageContextualHelpButton />
         </div>
       </header>
-
-      <CorePilotHelpEvidenceOrientationStrip />
-
-      <div className={HELP_PAGE_LAYOUT.contentGrid}>
+<div className={HELP_PAGE_LAYOUT.contentGrid}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")}>
           <div className="space-y-6" data-testid="core-pilot-first-viewport">
             <Card

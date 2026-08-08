@@ -1,14 +1,10 @@
 "use client";
 
-
-
 import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 
 import { useEffect, useState } from "react";
-
-
 
 import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
 
@@ -42,8 +38,6 @@ import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-discl
 
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-
-
 /** Anchor ids in docs/CORE_PILOT.md walkthrough (section 3) — keep aligned with headings. */
 
 const CORE_PILOT_HELP_HASH_FRAGMENTS = [
@@ -60,8 +54,6 @@ const CORE_PILOT_HELP_HASH_FRAGMENTS = [
 
 ] as const;
 
-
-
 type CorePilotChecklistProps = {
 
   /** Home page: titles only; full descriptions live in the Core Pilot guide. */
@@ -69,8 +61,6 @@ type CorePilotChecklistProps = {
   readonly variant?: "full" | "compact";
 
 };
-
-
 
 /** First-review checklist — step completion is derived from tenant/review lifecycle signals. */
 
@@ -89,13 +79,9 @@ export function CorePilotChecklist(props: CorePilotChecklistProps = {}) {
   useEffect(() => {
     const panelState = readPilotChecklistPanelState();
 
-
-
     setDefaultExpanded(!panelState.hidden);
 
     setHydrated(true);
-
-
 
     try {
 
@@ -113,23 +99,17 @@ export function CorePilotChecklist(props: CorePilotChecklistProps = {}) {
 
   }, []);
 
-
-
   if (!hydrated) {
 
     return null;
 
   }
 
-
-
   const compact = checklistVariant === "compact";
 
   const requiredComplete = progress.allDone;
 
   const highlightedNextIndex = nextStepIndex;
-
-
 
   if (compact) {
 
@@ -169,8 +149,6 @@ export function CorePilotChecklist(props: CorePilotChecklistProps = {}) {
 
   }
 
-
-
   return (
 
     <OperatorHomeDisclosureSection
@@ -190,15 +168,11 @@ export function CorePilotChecklist(props: CorePilotChecklistProps = {}) {
 
       <OperatorHomeGuidanceLink helpSlug="core-pilot" label="Open Core Pilot guide" className="mb-3 inline-block" />
 
-
-
       <p className={cn("m-0 mb-3", OPERATOR_TYPOGRAPHY.body, "text-neutral-600 dark:text-neutral-400")}>
 
         Progress updates automatically from your workspace reviews. Optional enrichment steps can be skipped.
 
       </p>
-
-
 
       <ol className="m-0 list-none space-y-4 p-0">
 
@@ -213,8 +187,6 @@ export function CorePilotChecklist(props: CorePilotChecklistProps = {}) {
           const stepPresentation = resolveCorePilotStepPresentation(index, commitPresentationContext);
 
           const isHighlightedNext = highlightedNextIndex === index;
-
-
 
           return (
 
@@ -308,8 +280,6 @@ export function CorePilotChecklist(props: CorePilotChecklistProps = {}) {
 
       </ol>
 
-
-
       {requiredComplete ? (
 
         <div
@@ -335,5 +305,4 @@ export function CorePilotChecklist(props: CorePilotChecklistProps = {}) {
   );
 
 }
-
 

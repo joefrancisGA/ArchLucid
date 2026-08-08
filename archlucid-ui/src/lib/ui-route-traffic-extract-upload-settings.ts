@@ -15,4 +15,4 @@ export const EXTRACT_UPLOAD_SETTINGS_TRAFFIC_SECTION = "Admin";
  * ASCII-only for Windows console note scripts.
  */
 export const EXTRACT_UPLOAD_SETTINGS_TRAFFIC_NOTE =
-  "Extract and Upload (Settings) - ExtractUploadSettingsPageClient with PageContextualHelpButton (topic map evidence-intake; Category-1 registry), workspace Sources + claim-discipline orientation strip, extractor command / ZIP upload. Sibling EVI = evidence-intake help; RNX = start review; SCE = cloud-connections. Inventory intake controls - not a signed-record Sources trail. Score 50/100 (2026-08-05) - settings intake-hub hard-caps higher Evidence.";
+  "Extract and Upload (Settings) - ExtractUploadSettingsPageClient with PageContextualHelpButton (topic map evidence-intake; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, extractor command / ZIP upload. Sibling EVI = evidence-intake help; RNX = start review; SCE = cloud-connections. Inventory intake controls - not a signed-record Sources trail. Score 50/100 (2026-08-05) - settings intake-hub hard-caps higher Evidence.";

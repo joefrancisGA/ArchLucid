@@ -20,7 +20,7 @@ export const FIRST_REVIEW_GUIDE_TRAFFIC_SECTION = "Onboarding";
  * ASCII-only for Windows console note scripts.
  */
 export const FIRST_REVIEW_GUIDE_TRAFFIC_NOTE =
-  "First review guide (Onboarding) - FirstReviewGuidePageClient with FirstReviewGuideEvidenceOrientationStrip (workspace Sources + claim-discipline), PageContextualHelpButton (topic map getting-started; Category-1 registry), walkthrough steps, required setup panel, optional workspace setup, and registration trial card (?source=registration). Left nav First review guide. Legacy /onboarding retired (no redirect). Sibling COR = first-architecture-review help; ANE/ARA/ARR = architectures create/list/detail; RNX = start review. Onboarding checklist only - not a signed-record Sources trail. Score 50/100 (2026-08-06) - onboarding hub Evidence chrome (below help-specialty COR 52). Former workbook row ONB.";
+  "First review guide (Onboarding) - FirstReviewGuidePageClient with, PageContextualHelpButton (topic map getting-started; Category-1 registry), walkthrough steps, required setup panel, optional workspace setup, and registration trial card (?source=registration). Left nav First review guide. Legacy /onboarding retired (no redirect). Sibling COR = first-architecture-review help; ANE/ARA/ARR = architectures create/list/detail; RNX = start review. Onboarding checklist only - not a signed-record Sources trail. Score 50/100 (2026-08-06) - onboarding hub Evidence chrome (below help-specialty COR 52). Former workbook row ONB.";
 
 /** Retired onboarding bookmark path (no App Router redirect). */
 export const LEGACY_ONBOARDING_TRAFFIC_PATH = LEGACY_ONBOARDING_PATH;

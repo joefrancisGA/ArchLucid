@@ -74,13 +74,8 @@ describe("HelpConfigurationReferenceGuideView", () => {
       }),
     ).toHaveAttribute("href", CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS.openApiKeys.href);
 
-    const sources = screen.getByTestId("help-configuration-reference-sources");
-
-    for (const link of CONFIGURATION_REFERENCE_HELP_SOURCES) {
-      expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
-    }
-
-    for (const banned of CONFIGURATION_REFERENCE_BANNED_HREF_FRAGMENTS) {
+    expect(screen.queryByTestId("help-configuration-reference-sources")).toBeNull(); // TB-2092
+for (const banned of CONFIGURATION_REFERENCE_BANNED_HREF_FRAGMENTS) {
       expect(preparedMarkdown, `banned href fragment still present: ${banned}`).not.toContain(`](${banned}`);
       expect(preparedMarkdown, `banned href fragment still present: ${banned}`).not.toMatch(
         new RegExp(`\\]\\([^)]*${banned.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`, "i"),

@@ -64,7 +64,7 @@ describe("ui-route-traffic-prior-manifest-retrieval-help (HPR)", () => {
     expect(row?.path).toBe(PRIOR_MANIFEST_RETRIEVAL_HELP_TRAFFIC_PATH);
     expect(row?.section).toBe(PRIOR_MANIFEST_RETRIEVAL_HELP_TRAFFIC_SECTION);
     expect(row?.notes).toBe(PRIOR_MANIFEST_RETRIEVAL_HELP_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("PriorManifestRetrievalHelpEvidenceOrientationStrip");
+    expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
     expect(row?.notes).toContain("Score 52");
   });
 });

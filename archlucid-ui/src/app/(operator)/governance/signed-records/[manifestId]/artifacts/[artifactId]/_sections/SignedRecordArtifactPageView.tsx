@@ -29,7 +29,6 @@ import {
 } from "@/lib/signed-record-artifact-page-copy";
 import { SIGNED_RECORDS_LIST_PATH, signedRecordDetailPath } from "@/lib/signed-records-paths";
 
-import { SignedRecordEvidenceOrientationStrip } from "../../../_sections/SignedRecordEvidenceOrientationStrip";
 import { SignedRecordArtifactPageHeader } from "./SignedRecordArtifactPageHeader";
 import type { SignedRecordArtifactPageSuccessModel } from "./signed-record-artifact-page-model";
 
@@ -79,10 +78,7 @@ export function SignedRecordArtifactPageView(props: SignedRecordArtifactPageView
       </nav>
 
       <SignedRecordArtifactPageHeader subtitle={signedRecordArtifactPageSubtitle(buyerPolishedLayout)} />
-
-      <SignedRecordEvidenceOrientationStrip />
-
-      {buyerPolishedLayout ? (
+{buyerPolishedLayout ? (
         <CollapsibleSection
           title={SIGNED_RECORD_ARTIFACT_SCOPE_DETAILS_TRIGGER}
           defaultOpen={false}

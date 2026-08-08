@@ -16,4 +16,4 @@ export const ADVISORY_SCANS_TRAFFIC_SECTION = "Advisory";
  * Owner workbook Notes for ADV — documents Evidence chrome on Advisory scans.
  */
 export const ADVISORY_SCANS_TRAFFIC_NOTE =
-  "Advisory scans hub (Governance) - AdvisoryHubClient with PageContextualHelpButton (Category-1 registry), workspace Sources + claim-discipline orientation strip, Scans/Schedules tabs, recommendation generate + schedules. Follow-up recommendations — not a signed-record Sources trail. Sibling AD = Schedules tab deep link; ADT = Scans tab deep link. Score 50/100 (2026-08-03) — recommendation-launcher hard-caps higher Evidence.";
+  "Advisory scans hub (Governance) - AdvisoryHubClient with PageContextualHelpButton (Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, Scans/Schedules tabs, recommendation generate + schedules. Follow-up recommendations — not a signed-record Sources trail. Sibling AD = Schedules tab deep link; ADT = Scans tab deep link. Score 50/100 (2026-08-03) — recommendation-launcher hard-caps higher Evidence.";

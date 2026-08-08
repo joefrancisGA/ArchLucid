@@ -18,7 +18,7 @@ export const EXECUTIVE_SUMMARY_HELP_TRAFFIC_SECTION = "Help topic";
  * ASCII-only for Windows console note scripts.
  */
 export const EXECUTIVE_SUMMARY_HELP_TRAFFIC_NOTE =
-  "Executive summary help (Help topic) - HelpExecutiveSummaryGuideView with PageContextualHelpButton (topic map executive-summary; Category-1 registry), workspace Sources + claim-discipline orientation strip, sponsor value-report / executive-dashboard / pilot-roi CTAs, prepared EXECUTIVE_SPONSOR_BRIEF.md (overview + pilot). Absorbs former product-overview twin (TB-1739). Not bare HelpTopicMarkdownView. Score 52/100 (2026-08-07) - help-topic orientation hard-caps higher Evidence.";
+  "Executive summary help (Help topic) - HelpExecutiveSummaryGuideView with PageContextualHelpButton (topic map executive-summary; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, sponsor value-report / executive-dashboard / pilot-roi CTAs, prepared EXECUTIVE_SPONSOR_BRIEF.md (overview + pilot). Absorbs former product-overview twin (TB-1739). Not bare HelpTopicMarkdownView. Score 52/100 (2026-08-07) - help-topic orientation hard-caps higher Evidence.";
 
 /** Live sponsor value report path referenced from EXE handoffs (workbook row SPE). */
 export const EXECUTIVE_SUMMARY_HELP_SPONSOR_REPORT_PATH = SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH;

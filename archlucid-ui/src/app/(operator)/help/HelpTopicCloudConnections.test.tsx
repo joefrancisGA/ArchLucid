@@ -26,15 +26,14 @@ describe("HelpCloudConnectionsGuideView (HCE)", () => {
     );
 
     expect(screen.getByTestId("help-cloud-connections-guide")).toBeInTheDocument();
-    expect(screen.getByTestId("help-cloud-connections-sources")).toBeInTheDocument();
+    expect(screen.queryByTestId("help-cloud-connections-sources")).toBeNull(); // TB-2092
     expect(screen.getByTestId("help-cloud-connections-claim-discipline")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open cloud connections" })).toHaveAttribute(
       "href",
       "/integrations/cloud-connections",
     );
 
-    const sources = screen.getByTestId("help-cloud-connections-sources");
-
+    expect(screen.queryByTestId("help-cloud-connections-sources")).toBeNull(); // TB-2092
     for (const link of CLOUD_CONNECTIONS_HELP_SOURCES) {
       const matches = screen.getAllByRole("link", { name: link.label });
 

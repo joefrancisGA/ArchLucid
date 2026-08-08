@@ -2,7 +2,6 @@ import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTroubleshootingAdvancedDiagnostics } from "@/app/(operator)/help/_sections/HelpTroubleshootingAdvancedDiagnostics";
-import { TroubleshootingHelpEvidenceOrientationStrip } from "@/app/(operator)/help/_sections/TroubleshootingHelpEvidenceOrientationStrip";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
 import { Button } from "@/components/ui/button";
@@ -116,10 +115,7 @@ export function HelpTroubleshootingGuideView(props: HelpTroubleshootingGuideView
         </div>
         <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{TROUBLESHOOTING_HELP_SUBTITLE}</p>
       </header>
-
-      <TroubleshootingHelpEvidenceOrientationStrip />
-
-      <div className={HELP_PAGE_LAYOUT.contentGrid}>
+<div className={HELP_PAGE_LAYOUT.contentGrid}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")}>
           <Card
             id="start-here"

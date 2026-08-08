@@ -64,7 +64,7 @@ describe("ui-route-traffic-specialty-walkthroughs-help (HS)", () => {
     expect(row?.path).toBe(SPECIALTY_WALKTHROUGHS_HELP_TRAFFIC_PATH);
     expect(row?.section).toBe(SPECIALTY_WALKTHROUGHS_HELP_TRAFFIC_SECTION);
     expect(row?.notes).toBe(SPECIALTY_WALKTHROUGHS_HELP_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("SpecialtyWalkthroughsHelpEvidenceOrientationStrip");
+    expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
     expect(row?.notes).toContain("Score 52");
   });
 });
