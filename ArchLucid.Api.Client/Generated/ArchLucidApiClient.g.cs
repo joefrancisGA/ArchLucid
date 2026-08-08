@@ -2171,6 +2171,15 @@ namespace ArchLucid.Api.Client.Generated
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<ExecuteRunResponse> ExecuteAsync(string runId, System.Threading.CancellationToken cancellationToken);
 
+        /// <returns>Accepted</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task AsyncAsync(string runId);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>Accepted</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task AsyncAsync(string runId, System.Threading.CancellationToken cancellationToken);
+
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<ExecuteRunResponse> SelectiveAsync(string runId, Body51? body);
@@ -2252,14 +2261,23 @@ namespace ArchLucid.Api.Client.Generated
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<ReplayRunResponse> ReplayPOST3Async(string runId, Body54? body, System.Threading.CancellationToken cancellationToken);
 
+        /// <returns>Accepted</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task Async2Async(string runId, Body55? body);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>Accepted</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task Async2Async(string runId, Body55? body, System.Threading.CancellationToken cancellationToken);
+
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<SubmitAgentResultResponse> ResultAsync(string runId, Body55? body);
+        System.Threading.Tasks.Task<SubmitAgentResultResponse> ResultAsync(string runId, Body56? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<SubmitAgentResultResponse> ResultAsync(string runId, Body55? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<SubmitAgentResultResponse> ResultAsync(string runId, Body56? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -2389,66 +2407,66 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ArchitectureAnalysisReportResponse> AnalysisReportAsync(string runId, Body56? body);
+        System.Threading.Tasks.Task<ArchitectureAnalysisReportResponse> AnalysisReportAsync(string runId, Body57? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ArchitectureAnalysisReportResponse> AnalysisReportAsync(string runId, Body56? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<ArchitectureAnalysisReportResponse> AnalysisReportAsync(string runId, Body57? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ArchitectureAnalysisExportResponse> ExportPOSTAsync(string runId, Body57? body);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ArchitectureAnalysisExportResponse> ExportPOSTAsync(string runId, Body57? body, System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<FileContentResult> DocxPOSTAsync(string runId, Body58? body);
+        System.Threading.Tasks.Task<ArchitectureAnalysisExportResponse> ExportPOSTAsync(string runId, Body58? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<FileContentResult> DocxPOSTAsync(string runId, Body58? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<ArchitectureAnalysisExportResponse> ExportPOSTAsync(string runId, Body58? body, System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<FileContentResult> DocxPOSTAsync(string runId, Body59? body);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<FileContentResult> DocxPOSTAsync(string runId, Body59? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>Accepted</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<AsyncJobResponse> AsyncAsync(string runId, Body59? body);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>Accepted</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<AsyncJobResponse> AsyncAsync(string runId, Body59? body, System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<FileContentResult> ConsultingAsync(string runId, Body60? body);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<FileContentResult> ConsultingAsync(string runId, Body60? body, System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>Accepted</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<AsyncJobResponse> Async2Async(string runId, Body61? body);
+        System.Threading.Tasks.Task<AsyncJobResponse> Async3Async(string runId, Body60? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Accepted</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<AsyncJobResponse> Async2Async(string runId, Body61? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<AsyncJobResponse> Async3Async(string runId, Body60? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<FileContentResult> FilePOSTAsync(string runId, Body62? body);
+        System.Threading.Tasks.Task<FileContentResult> ConsultingAsync(string runId, Body61? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<FileContentResult> FilePOSTAsync(string runId, Body62? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<FileContentResult> ConsultingAsync(string runId, Body61? body, System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>Accepted</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<AsyncJobResponse> Async4Async(string runId, Body62? body);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>Accepted</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<AsyncJobResponse> Async4Async(string runId, Body62? body, System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<FileContentResult> FilePOSTAsync(string runId, Body63? body);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<FileContentResult> FilePOSTAsync(string runId, Body63? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -2506,12 +2524,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>Accepted</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task PushAsync(System.Guid runId, Body63? body);
+        System.Threading.Tasks.Task PushAsync(System.Guid runId, Body64? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Accepted</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task PushAsync(System.Guid runId, Body63? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task PushAsync(System.Guid runId, Body64? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -2578,21 +2596,21 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<AskResponse> Ask2Async(Body64? body);
+        System.Threading.Tasks.Task<AskResponse> Ask2Async(Body65? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<AskResponse> Ask2Async(Body64? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<AskResponse> Ask2Async(Body65? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<FileResponse> StreamAsync(Body65? body);
+        System.Threading.Tasks.Task<FileResponse> StreamAsync(Body66? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<FileResponse> StreamAsync(Body65? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<FileResponse> StreamAsync(Body66? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -2650,21 +2668,21 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>Accepted</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task AccessRequestAsync(Body66? body);
+        System.Threading.Tasks.Task AccessRequestAsync(Body67? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Accepted</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task AccessRequestAsync(Body66? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task AccessRequestAsync(Body67? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PostAuthBootstrapSessionResponse> AcceptAsync(string? returnUrl, Body67? body);
+        System.Threading.Tasks.Task<PostAuthBootstrapSessionResponse> AcceptAsync(string? returnUrl, Body68? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PostAuthBootstrapSessionResponse> AcceptAsync(string? returnUrl, Body67? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<PostAuthBootstrapSessionResponse> AcceptAsync(string? returnUrl, Body68? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -2677,39 +2695,39 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PostAuthCreateWorkspaceResponse> WorkspacesPOSTAsync(Body68? body);
+        System.Threading.Tasks.Task<PostAuthCreateWorkspaceResponse> WorkspacesPOSTAsync(Body69? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PostAuthCreateWorkspaceResponse> WorkspacesPOSTAsync(Body68? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<PostAuthCreateWorkspaceResponse> WorkspacesPOSTAsync(Body69? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PostAuthBootstrapSessionResponse> SelectAsync(string? returnUrl, Body69? body);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PostAuthBootstrapSessionResponse> SelectAsync(string? returnUrl, Body69? body, System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<EmailOtpChallengeResponse> ChallengeAsync(Body70? body);
+        System.Threading.Tasks.Task<PostAuthBootstrapSessionResponse> SelectAsync(string? returnUrl, Body70? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<EmailOtpChallengeResponse> ChallengeAsync(Body70? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<PostAuthBootstrapSessionResponse> SelectAsync(string? returnUrl, Body70? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<EmailOtpVerifyResponse> VerifyPOST2Async(Body71? body);
+        System.Threading.Tasks.Task<EmailOtpChallengeResponse> ChallengeAsync(Body71? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<EmailOtpVerifyResponse> VerifyPOST2Async(Body71? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<EmailOtpChallengeResponse> ChallengeAsync(Body71? body, System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<EmailOtpVerifyResponse> VerifyPOST2Async(Body72? body);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<EmailOtpVerifyResponse> VerifyPOST2Async(Body72? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -2722,12 +2740,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<AuthSignInRoutingResponse> EvaluateAsync(Body72? body);
+        System.Threading.Tasks.Task<AuthSignInRoutingResponse> EvaluateAsync(Body73? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<AuthSignInRoutingResponse> EvaluateAsync(Body72? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<AuthSignInRoutingResponse> EvaluateAsync(Body73? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -2740,21 +2758,21 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<EmailLinkChallengeResponse> Challenge2Async(Body73? body);
+        System.Threading.Tasks.Task<EmailLinkChallengeResponse> Challenge2Async(Body74? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<EmailLinkChallengeResponse> Challenge2Async(Body73? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<EmailLinkChallengeResponse> Challenge2Async(Body74? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<AuthenticationIdentityLinkProposalView> VerifyPOST3Async(Body74? body);
+        System.Threading.Tasks.Task<AuthenticationIdentityLinkProposalView> VerifyPOST3Async(Body75? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<AuthenticationIdentityLinkProposalView> VerifyPOST3Async(Body74? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<AuthenticationIdentityLinkProposalView> VerifyPOST3Async(Body75? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -2785,30 +2803,30 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>Created</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<TrialLocalRegisterResponse> RegisterAsync(Body75? body);
+        System.Threading.Tasks.Task<TrialLocalRegisterResponse> RegisterAsync(Body76? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Created</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<TrialLocalRegisterResponse> RegisterAsync(Body75? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<TrialLocalRegisterResponse> RegisterAsync(Body76? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<TrialLocalTokenResponse> TokenAsync(Body76? body);
+        System.Threading.Tasks.Task<TrialLocalTokenResponse> TokenAsync(Body77? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<TrialLocalTokenResponse> TokenAsync(Body76? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<TrialLocalTokenResponse> TokenAsync(Body77? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task VerifyEmailAsync(Body77? body);
+        System.Threading.Tasks.Task VerifyEmailAsync(Body78? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task VerifyEmailAsync(Body77? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task VerifyEmailAsync(Body78? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -2839,12 +2857,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ReplayResponse> ReplayPOST4Async(Body78? body);
+        System.Threading.Tasks.Task<ReplayResponse> ReplayPOST4Async(Body79? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ReplayResponse> ReplayPOST4Async(Body78? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<ReplayResponse> ReplayPOST4Async(Body79? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -2866,12 +2884,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<RunOperatorGovernanceDispositionDto> DispositionAsync(System.Guid runId, Body79? body);
+        System.Threading.Tasks.Task<RunOperatorGovernanceDispositionDto> DispositionAsync(System.Guid runId, Body80? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<RunOperatorGovernanceDispositionDto> DispositionAsync(System.Guid runId, Body79? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<RunOperatorGovernanceDispositionDto> DispositionAsync(System.Guid runId, Body80? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -3109,12 +3127,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<LlmTenantWalletGetResponse> WalletPUTAsync(Body80? body);
+        System.Threading.Tasks.Task<LlmTenantWalletGetResponse> WalletPUTAsync(Body81? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<LlmTenantWalletGetResponse> WalletPUTAsync(Body80? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<LlmTenantWalletGetResponse> WalletPUTAsync(Body81? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -3163,12 +3181,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<CompositeAlertRule> CompositeAlertRulesAsync(Body81? body);
+        System.Threading.Tasks.Task<CompositeAlertRule> CompositeAlertRulesAsync(Body82? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<CompositeAlertRule> CompositeAlertRulesAsync(Body81? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<CompositeAlertRule> CompositeAlertRulesAsync(Body82? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -3208,12 +3226,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<DemoQuickStartResponse> QuickstartAsync(Body82? body);
+        System.Threading.Tasks.Task<DemoQuickStartResponse> QuickstartAsync(Body83? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<DemoQuickStartResponse> QuickstartAsync(Body82? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<DemoQuickStartResponse> QuickstartAsync(Body83? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -3269,12 +3287,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task ClientErrorAsync(Body83? body);
+        System.Threading.Tasks.Task ClientErrorAsync(Body84? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task ClientErrorAsync(Body83? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task ClientErrorAsync(Body84? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -3287,21 +3305,21 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task CorePilotRailStepAsync(Body84? body);
+        System.Threading.Tasks.Task CorePilotRailStepAsync(Body85? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task CorePilotRailStepAsync(Body84? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task CorePilotRailStepAsync(Body85? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task FirstTenantFunnelAsync(Body85? body);
+        System.Threading.Tasks.Task FirstTenantFunnelAsync(Body86? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task FirstTenantFunnelAsync(Body85? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task FirstTenantFunnelAsync(Body86? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -3314,12 +3332,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task SponsorBannerFirstCommitBadgeAsync(Body86? body);
+        System.Threading.Tasks.Task SponsorBannerFirstCommitBadgeAsync(Body87? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task SponsorBannerFirstCommitBadgeAsync(Body86? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task SponsorBannerFirstCommitBadgeAsync(Body87? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -3332,39 +3350,39 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task ClickedAsync(Body87? body);
+        System.Threading.Tasks.Task ClickedAsync(Body88? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task ClickedAsync(Body87? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task ClickedAsync(Body88? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task ShownAsync(Body88? body);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>No Content</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task ShownAsync(Body88? body, System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>No Content</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task Clicked2Async(Body89? body);
+        System.Threading.Tasks.Task ShownAsync(Body89? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task Clicked2Async(Body89? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task ShownAsync(Body89? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task Shown2Async(Body90? body);
+        System.Threading.Tasks.Task Clicked2Async(Body90? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task Shown2Async(Body90? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task Clicked2Async(Body90? body, System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>No Content</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task Shown2Async(Body91? body);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>No Content</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task Shown2Async(Body91? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -3377,12 +3395,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<DigestSubscription> DigestSubscriptionsAsync(Body91? body);
+        System.Threading.Tasks.Task<DigestSubscription> DigestSubscriptionsAsync(Body92? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<DigestSubscription> DigestSubscriptionsAsync(Body91? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<DigestSubscription> DigestSubscriptionsAsync(Body92? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -3548,12 +3566,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task Feedback2Async(System.Guid runId, string findingId, Body92? body);
+        System.Threading.Tasks.Task Feedback2Async(System.Guid runId, string findingId, Body93? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task Feedback2Async(System.Guid runId, string findingId, Body92? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task Feedback2Async(System.Guid runId, string findingId, Body93? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -3566,12 +3584,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<HolisticCriticResponse> HolisticCriticAsync(System.Guid runId, Body93? body);
+        System.Threading.Tasks.Task<HolisticCriticResponse> HolisticCriticAsync(System.Guid runId, Body94? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<HolisticCriticResponse> HolisticCriticAsync(System.Guid runId, Body93? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<HolisticCriticResponse> HolisticCriticAsync(System.Guid runId, Body94? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -3620,21 +3638,21 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task MuteAsync(string findingId, Body94? body);
+        System.Threading.Tasks.Task MuteAsync(string findingId, Body95? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task MuteAsync(string findingId, Body94? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task MuteAsync(string findingId, Body95? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task RemediationAssignmentAsync(string findingId, Body95? body);
+        System.Threading.Tasks.Task RemediationAssignmentAsync(string findingId, Body96? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task RemediationAssignmentAsync(string findingId, Body95? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task RemediationAssignmentAsync(string findingId, Body96? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -3665,21 +3683,21 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<GovernanceEnvironmentComparisonResult> CompareEnvironmentsAsync(Body96? body);
+        System.Threading.Tasks.Task<GovernanceEnvironmentComparisonResult> CompareEnvironmentsAsync(Body97? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<GovernanceEnvironmentComparisonResult> CompareEnvironmentsAsync(Body96? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<GovernanceEnvironmentComparisonResult> CompareEnvironmentsAsync(Body97? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<GovernancePreviewResult> PreviewPOSTAsync(Body97? body);
+        System.Threading.Tasks.Task<GovernancePreviewResult> PreviewPOSTAsync(Body98? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<GovernancePreviewResult> PreviewPOSTAsync(Body97? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<GovernancePreviewResult> PreviewPOSTAsync(Body98? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -3692,39 +3710,39 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<GovernanceEnvironmentActivation> ActivationsAsync(Body98? body);
+        System.Threading.Tasks.Task<GovernanceEnvironmentActivation> ActivationsAsync(Body99? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<GovernanceEnvironmentActivation> ActivationsAsync(Body98? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<GovernanceEnvironmentActivation> ActivationsAsync(Body99? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<GovernanceApprovalRequest> ApprovalRequestsAsync(bool? dryRun, Body99? body);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<GovernanceApprovalRequest> ApprovalRequestsAsync(bool? dryRun, Body99? body, System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<GovernanceBatchReviewResponse> BatchReviewAsync(Body100? body);
+        System.Threading.Tasks.Task<GovernanceApprovalRequest> ApprovalRequestsAsync(bool? dryRun, Body100? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<GovernanceBatchReviewResponse> BatchReviewAsync(Body100? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<GovernanceApprovalRequest> ApprovalRequestsAsync(bool? dryRun, Body100? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<GovernanceApprovalRequest> ApproveAsync(string approvalRequestId, Body101? body);
+        System.Threading.Tasks.Task<GovernanceBatchReviewResponse> BatchReviewAsync(Body101? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<GovernanceApprovalRequest> ApproveAsync(string approvalRequestId, Body101? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<GovernanceBatchReviewResponse> BatchReviewAsync(Body101? body, System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<GovernanceApprovalRequest> ApproveAsync(string approvalRequestId, Body102? body);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<GovernanceApprovalRequest> ApproveAsync(string approvalRequestId, Body102? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -3746,12 +3764,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<GovernanceApprovalRequest> RejectAsync(string approvalRequestId, Body102? body);
+        System.Threading.Tasks.Task<GovernanceApprovalRequest> RejectAsync(string approvalRequestId, Body103? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<GovernanceApprovalRequest> RejectAsync(string approvalRequestId, Body102? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<GovernanceApprovalRequest> RejectAsync(string approvalRequestId, Body103? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -3800,12 +3818,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<RecordBulkFindingDispositionResponse> BulkDispositionAsync(Body103? body);
+        System.Threading.Tasks.Task<RecordBulkFindingDispositionResponse> BulkDispositionAsync(Body104? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<RecordBulkFindingDispositionResponse> BulkDispositionAsync(Body103? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<RecordBulkFindingDispositionResponse> BulkDispositionAsync(Body104? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -3818,12 +3836,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<FindingDispositionEventDto> DispositionsAsync(string findingId, Body104? body);
+        System.Threading.Tasks.Task<FindingDispositionEventDto> DispositionsAsync(string findingId, Body105? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<FindingDispositionEventDto> DispositionsAsync(string findingId, Body104? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<FindingDispositionEventDto> DispositionsAsync(string findingId, Body105? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -3836,57 +3854,57 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<DraftPolicyPackRuleResponse> DraftPOST3Async(Body105? body);
+        System.Threading.Tasks.Task<DraftPolicyPackRuleResponse> DraftPOST3Async(Body106? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<DraftPolicyPackRuleResponse> DraftPOST3Async(Body105? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<DraftPolicyPackRuleResponse> DraftPOST3Async(Body106? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<GeneratePolicyPackResponse> GenerateAsync(Body106? body);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<GeneratePolicyPackResponse> GenerateAsync(Body106? body, System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PolicyPackGovernanceDryRunResult> DryRunAsync(Body107? body);
+        System.Threading.Tasks.Task<GeneratePolicyPackResponse> GenerateAsync(Body107? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PolicyPackGovernanceDryRunResult> DryRunAsync(Body107? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<GeneratePolicyPackResponse> GenerateAsync(Body107? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PolicyPackDryRunResponse> DryRun2Async(System.Guid id, int? pageSize, int? page, Body108? body);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PolicyPackDryRunResponse> DryRun2Async(System.Guid id, int? pageSize, int? page, Body108? body, System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PreCommitGateResult> Simulate3Async(Body109? body);
+        System.Threading.Tasks.Task<PolicyPackGovernanceDryRunResult> DryRunAsync(Body108? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PreCommitGateResult> Simulate3Async(Body109? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<PolicyPackGovernanceDryRunResult> DryRunAsync(Body108? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<GovernancePromotionRecord> PromotionsAsync(bool? dryRun, Body110? body);
+        System.Threading.Tasks.Task<PolicyPackDryRunResponse> DryRun2Async(System.Guid id, int? pageSize, int? page, Body109? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<GovernancePromotionRecord> PromotionsAsync(bool? dryRun, Body110? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<PolicyPackDryRunResponse> DryRun2Async(System.Guid id, int? pageSize, int? page, Body109? body, System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<PreCommitGateResult> Simulate3Async(Body110? body);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<PreCommitGateResult> Simulate3Async(Body110? body, System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<GovernancePromotionRecord> PromotionsAsync(bool? dryRun, Body111? body);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<GovernancePromotionRecord> PromotionsAsync(bool? dryRun, Body111? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -3899,12 +3917,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task AttestationPUTAsync(Body111? body);
+        System.Threading.Tasks.Task AttestationPUTAsync(Body112? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task AttestationPUTAsync(Body111? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task AttestationPUTAsync(Body112? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -3917,30 +3935,30 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ArchitectureReviewRecurrenceSchedule> RecurrenceSchedulesPOSTAsync(Body112? body);
+        System.Threading.Tasks.Task<ArchitectureReviewRecurrenceSchedule> RecurrenceSchedulesPOSTAsync(Body113? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ArchitectureReviewRecurrenceSchedule> RecurrenceSchedulesPOSTAsync(Body112? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<ArchitectureReviewRecurrenceSchedule> RecurrenceSchedulesPOSTAsync(Body113? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PreviewRecurrenceScheduleRunsResponse> PreviewNextRunsAsync(Body113? body);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PreviewRecurrenceScheduleRunsResponse> PreviewNextRunsAsync(Body113? body, System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ArchitectureReviewRecurrenceSchedule> RecurrenceSchedulesPUTAsync(System.Guid scheduleId, Body114? body);
+        System.Threading.Tasks.Task<PreviewRecurrenceScheduleRunsResponse> PreviewNextRunsAsync(Body114? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ArchitectureReviewRecurrenceSchedule> RecurrenceSchedulesPUTAsync(System.Guid scheduleId, Body114? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<PreviewRecurrenceScheduleRunsResponse> PreviewNextRunsAsync(Body114? body, System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<ArchitectureReviewRecurrenceSchedule> RecurrenceSchedulesPUTAsync(System.Guid scheduleId, Body115? body);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<ArchitectureReviewRecurrenceSchedule> RecurrenceSchedulesPUTAsync(System.Guid scheduleId, Body115? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -3962,21 +3980,21 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<RiskExceptionRecord> RiskExceptionsAsync(Body115? body);
+        System.Threading.Tasks.Task<RiskExceptionRecord> RiskExceptionsAsync(Body116? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<RiskExceptionRecord> RiskExceptionsAsync(Body115? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<RiskExceptionRecord> RiskExceptionsAsync(Body116? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<RiskExceptionRecord> RenewAsync(System.Guid riskExceptionId, Body116? body);
+        System.Threading.Tasks.Task<RiskExceptionRecord> RenewAsync(System.Guid riskExceptionId, Body117? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<RiskExceptionRecord> RenewAsync(System.Guid riskExceptionId, Body116? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<RiskExceptionRecord> RenewAsync(System.Guid riskExceptionId, Body117? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -4034,12 +4052,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PolicyPackGovernanceDryRunResult> Simulate4Async(Body117? body);
+        System.Threading.Tasks.Task<PolicyPackGovernanceDryRunResult> Simulate4Async(Body118? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PolicyPackGovernanceDryRunResult> Simulate4Async(Body117? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<PolicyPackGovernanceDryRunResult> Simulate4Async(Body118? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -4079,12 +4097,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<AzureBoardsOutboundSettingsResponse> SettingsPUTAsync(Body118? body);
+        System.Threading.Tasks.Task<AzureBoardsOutboundSettingsResponse> SettingsPUTAsync(Body119? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<AzureBoardsOutboundSettingsResponse> SettingsPUTAsync(Body118? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<AzureBoardsOutboundSettingsResponse> SettingsPUTAsync(Body119? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -4106,21 +4124,21 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ItsmAtlassianOAuthConsentCompleteResponse> Complete3Async(Body119? body);
+        System.Threading.Tasks.Task<ItsmAtlassianOAuthConsentCompleteResponse> Complete3Async(Body120? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ItsmAtlassianOAuthConsentCompleteResponse> Complete3Async(Body119? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<ItsmAtlassianOAuthConsentCompleteResponse> Complete3Async(Body120? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ItsmAtlassianOAuthConsentStartResponse> Start3Async(Body120? body);
+        System.Threading.Tasks.Task<ItsmAtlassianOAuthConsentStartResponse> Start3Async(Body121? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ItsmAtlassianOAuthConsentStartResponse> Start3Async(Body120? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<ItsmAtlassianOAuthConsentStartResponse> Start3Async(Body121? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -4142,12 +4160,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<TenantItsmConnectorConnectionResponse> ConnectionsPOST4Async(string provider, Body121? body);
+        System.Threading.Tasks.Task<TenantItsmConnectorConnectionResponse> ConnectionsPOST4Async(string provider, Body122? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<TenantItsmConnectorConnectionResponse> ConnectionsPOST4Async(string provider, Body121? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<TenantItsmConnectorConnectionResponse> ConnectionsPOST4Async(string provider, Body122? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -4196,12 +4214,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<CreateItsmOutboundIssueResponse> IssuesAsync(Body122? body);
+        System.Threading.Tasks.Task<CreateItsmOutboundIssueResponse> IssuesAsync(Body123? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<CreateItsmOutboundIssueResponse> IssuesAsync(Body122? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<CreateItsmOutboundIssueResponse> IssuesAsync(Body123? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -4214,12 +4232,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<TenantItsmOutboundSettingsResponse> SettingsPUT2Async(Body123? body);
+        System.Threading.Tasks.Task<TenantItsmOutboundSettingsResponse> SettingsPUT2Async(Body124? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<TenantItsmOutboundSettingsResponse> SettingsPUT2Async(Body123? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<TenantItsmOutboundSettingsResponse> SettingsPUT2Async(Body124? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -4241,30 +4259,30 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<TeamsIncomingWebhookConnectionResponse> ConnectionsPOST5Async(Body124? body);
+        System.Threading.Tasks.Task<TeamsIncomingWebhookConnectionResponse> ConnectionsPOST5Async(Body125? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<TeamsIncomingWebhookConnectionResponse> ConnectionsPOST5Async(Body124? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<TeamsIncomingWebhookConnectionResponse> ConnectionsPOST5Async(Body125? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<TeamsIncomingWebhookConnectionTestResponse> Test2Async(Body125? body);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<TeamsIncomingWebhookConnectionTestResponse> Test2Async(Body125? body, System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<TeamsIncomingWebhookSecretValidationResponse> ValidateSecretAsync(Body126? body);
+        System.Threading.Tasks.Task<TeamsIncomingWebhookConnectionTestResponse> Test2Async(Body126? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<TeamsIncomingWebhookSecretValidationResponse> ValidateSecretAsync(Body126? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<TeamsIncomingWebhookConnectionTestResponse> Test2Async(Body126? body, System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<TeamsIncomingWebhookSecretValidationResponse> ValidateSecretAsync(Body127? body);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<TeamsIncomingWebhookSecretValidationResponse> ValidateSecretAsync(Body127? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -4313,12 +4331,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<OutboundWebhookDryRunResponse> Simulate5Async(Body127? body);
+        System.Threading.Tasks.Task<OutboundWebhookDryRunResponse> Simulate5Async(Body128? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<OutboundWebhookDryRunResponse> Simulate5Async(Body127? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<OutboundWebhookDryRunResponse> Simulate5Async(Body128? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -4394,21 +4412,21 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<DeterminismCheckResponse> DeterminismCheckAsync(string runId, Body128? body);
+        System.Threading.Tasks.Task<DeterminismCheckResponse> DeterminismCheckAsync(string runId, Body129? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<DeterminismCheckResponse> DeterminismCheckAsync(string runId, Body128? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<DeterminismCheckResponse> DeterminismCheckAsync(string runId, Body129? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ReplayRunResponse> ReplayPOST5Async(string runId, Body129? body);
+        System.Threading.Tasks.Task<ReplayRunResponse> ReplayPOST5Async(string runId, Body130? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ReplayRunResponse> ReplayPOST5Async(string runId, Body129? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<ReplayRunResponse> ReplayPOST5Async(string runId, Body130? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -4421,12 +4439,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ReplayResponse> ReplayPOST6Async(Body130? body);
+        System.Threading.Tasks.Task<ReplayResponse> ReplayPOST6Async(Body131? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ReplayResponse> ReplayPOST6Async(Body130? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<ReplayResponse> ReplayPOST6Async(Body131? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -4538,12 +4556,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task EarlyAccessAsync(Body131? body);
+        System.Threading.Tasks.Task EarlyAccessAsync(Body132? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task EarlyAccessAsync(Body131? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task EarlyAccessAsync(Body132? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -4556,21 +4574,21 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task QuoteRequestAsync(Body132? body);
+        System.Threading.Tasks.Task QuoteRequestAsync(Body133? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task QuoteRequestAsync(Body132? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task QuoteRequestAsync(Body133? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ArchitectureQuickScanResponse> QuickScan2Async(Body133? body);
+        System.Threading.Tasks.Task<ArchitectureQuickScanResponse> QuickScan2Async(Body134? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ArchitectureQuickScanResponse> QuickScan2Async(Body133? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<ArchitectureQuickScanResponse> QuickScan2Async(Body134? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -4664,12 +4682,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<TenantNotificationChannelPreferencesResponse> CustomerChannelPreferencesPUTAsync(Body134? body);
+        System.Threading.Tasks.Task<TenantNotificationChannelPreferencesResponse> CustomerChannelPreferencesPUTAsync(Body135? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<TenantNotificationChannelPreferencesResponse> CustomerChannelPreferencesPUTAsync(Body134? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<TenantNotificationChannelPreferencesResponse> CustomerChannelPreferencesPUTAsync(Body135? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -4700,12 +4718,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>Created</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<OperatorSavedViewResponse> SavedViewsPOSTAsync(Body135? body);
+        System.Threading.Tasks.Task<OperatorSavedViewResponse> SavedViewsPOSTAsync(Body136? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Created</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<OperatorSavedViewResponse> SavedViewsPOSTAsync(Body135? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<OperatorSavedViewResponse> SavedViewsPOSTAsync(Body136? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -4718,21 +4736,21 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<FileResult> BoardPack_pdfAsync(Body136? body);
+        System.Threading.Tasks.Task<FileResult> BoardPack_pdfAsync(Body137? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<FileResult> BoardPack_pdfAsync(Body136? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<FileResult> BoardPack_pdfAsync(Body137? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>Created</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task CloseoutAsync(Body137? body);
+        System.Threading.Tasks.Task CloseoutAsync(Body138? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Created</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task CloseoutAsync(Body137? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task CloseoutAsync(Body138? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -4808,21 +4826,21 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task SponsorPackSentAsync(string runId, Body138? body);
+        System.Threading.Tasks.Task SponsorPackSentAsync(string runId, Body139? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task SponsorPackSentAsync(string runId, Body138? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task SponsorPackSentAsync(string runId, Body139? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task SponsorPreliminaryShareAsync(string runId, Body139? body);
+        System.Threading.Tasks.Task SponsorPreliminaryShareAsync(string runId, Body140? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task SponsorPreliminaryShareAsync(string runId, Body139? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task SponsorPreliminaryShareAsync(string runId, Body140? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -4844,21 +4862,21 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PilotScorecardResponse> ScorecardPOSTAsync(Body140? body);
+        System.Threading.Tasks.Task<PilotScorecardResponse> ScorecardPOSTAsync(Body141? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PilotScorecardResponse> ScorecardPOSTAsync(Body140? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<PilotScorecardResponse> ScorecardPOSTAsync(Body141? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task BaselinesAsync(Body141? body);
+        System.Threading.Tasks.Task BaselinesAsync(Body142? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task BaselinesAsync(Body141? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task BaselinesAsync(Body142? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -4889,12 +4907,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PolicyPack> PolicyPacksPOSTAsync(Body142? body);
+        System.Threading.Tasks.Task<PolicyPack> PolicyPacksPOSTAsync(Body143? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PolicyPack> PolicyPacksPOSTAsync(Body142? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<PolicyPack> PolicyPacksPOSTAsync(Body143? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -4916,21 +4934,21 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task DemoteAsync(Body143? body);
+        System.Threading.Tasks.Task DemoteAsync(Body144? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task DemoteAsync(Body143? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task DemoteAsync(Body144? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PolicyPackCatalogEntryDetail> Promote2Async(Body144? body);
+        System.Threading.Tasks.Task<PolicyPackCatalogEntryDetail> Promote2Async(Body145? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PolicyPackCatalogEntryDetail> Promote2Async(Body144? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<PolicyPackCatalogEntryDetail> Promote2Async(Body145? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -4970,21 +4988,21 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PolicyPackGovernanceDryRunResult> Simulate6Async(Body145? body);
+        System.Threading.Tasks.Task<PolicyPackGovernanceDryRunResult> Simulate6Async(Body146? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PolicyPackGovernanceDryRunResult> Simulate6Async(Body145? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<PolicyPackGovernanceDryRunResult> Simulate6Async(Body146? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PolicyPackContentValidationResponse> ValidatePOSTAsync(Body146? body);
+        System.Threading.Tasks.Task<PolicyPackContentValidationResponse> ValidatePOSTAsync(Body147? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PolicyPackContentValidationResponse> ValidatePOSTAsync(Body146? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<PolicyPackContentValidationResponse> ValidatePOSTAsync(Body147? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -4997,12 +5015,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PolicyPackAssignment> Assign2Async(System.Guid policyPackId, Body147? body);
+        System.Threading.Tasks.Task<PolicyPackAssignment> Assign2Async(System.Guid policyPackId, Body148? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PolicyPackAssignment> Assign2Async(System.Guid policyPackId, Body147? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<PolicyPackAssignment> Assign2Async(System.Guid policyPackId, Body148? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -5024,21 +5042,21 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PolicyPackVersion> Publish2Async(System.Guid policyPackId, Body148? body);
+        System.Threading.Tasks.Task<PolicyPackVersion> Publish2Async(System.Guid policyPackId, Body149? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PolicyPackVersion> Publish2Async(System.Guid policyPackId, Body148? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<PolicyPackVersion> Publish2Async(System.Guid policyPackId, Body149? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PolicyPackSimulateBulkSummaryResponse> SimulateBulkAsync(System.Guid policyPackId, Body149? body);
+        System.Threading.Tasks.Task<PolicyPackSimulateBulkSummaryResponse> SimulateBulkAsync(System.Guid policyPackId, Body150? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PolicyPackSimulateBulkSummaryResponse> SimulateBulkAsync(System.Guid policyPackId, Body149? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<PolicyPackSimulateBulkSummaryResponse> SimulateBulkAsync(System.Guid policyPackId, Body150? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -5087,12 +5105,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task SignalsAsync(Body150? body);
+        System.Threading.Tasks.Task SignalsAsync(Body151? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task SignalsAsync(Body150? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task SignalsAsync(Body151? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -5204,12 +5222,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<TenantProvisioningResult> Register2Async(Body151? body);
+        System.Threading.Tasks.Task<TenantProvisioningResult> Register2Async(Body152? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<TenantProvisioningResult> Register2Async(Body151? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<TenantProvisioningResult> Register2Async(Body152? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -5312,12 +5330,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PatchTechnologyLedgerEntryResponse> TechnologyLedgerPATCHAsync(System.Guid runId, string entryId, Body152? body);
+        System.Threading.Tasks.Task<PatchTechnologyLedgerEntryResponse> TechnologyLedgerPATCHAsync(System.Guid runId, string entryId, Body153? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PatchTechnologyLedgerEntryResponse> TechnologyLedgerPATCHAsync(System.Guid runId, string entryId, Body152? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<PatchTechnologyLedgerEntryResponse> TechnologyLedgerPATCHAsync(System.Guid runId, string entryId, Body153? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -5339,12 +5357,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>Accepted</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<SubmitSupportProblemReportResponse> ProblemReportsAsync(Body153? body);
+        System.Threading.Tasks.Task<SubmitSupportProblemReportResponse> ProblemReportsAsync(Body154? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Accepted</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<SubmitSupportProblemReportResponse> ProblemReportsAsync(Body153? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<SubmitSupportProblemReportResponse> ProblemReportsAsync(Body154? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -5357,21 +5375,21 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<TenantBaselineGetResponse> BaselinePUTAsync(Body154? body);
+        System.Threading.Tasks.Task<TenantBaselineGetResponse> BaselinePUTAsync(Body155? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<TenantBaselineGetResponse> BaselinePUTAsync(Body154? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<TenantBaselineGetResponse> BaselinePUTAsync(Body155? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<BillingCheckoutResponseDto> CheckoutAsync(Body155? body);
+        System.Threading.Tasks.Task<BillingCheckoutResponseDto> CheckoutAsync(Body156? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<BillingCheckoutResponseDto> CheckoutAsync(Body155? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<BillingCheckoutResponseDto> CheckoutAsync(Body156? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -5384,12 +5402,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<BillingPortalResponseDto> PortalAsync(Body156? body);
+        System.Threading.Tasks.Task<BillingPortalResponseDto> PortalAsync(Body157? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<BillingPortalResponseDto> PortalAsync(Body156? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<BillingPortalResponseDto> PortalAsync(Body157? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -5411,12 +5429,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task ConvertAsync(Body157? body);
+        System.Threading.Tasks.Task ConvertAsync(Body158? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task ConvertAsync(Body157? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task ConvertAsync(Body158? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -5429,12 +5447,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task CorePilotChecklistAsync(Body158? body);
+        System.Threading.Tasks.Task CorePilotChecklistAsync(Body159? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task CorePilotChecklistAsync(Body158? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task CorePilotChecklistAsync(Body159? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -5447,12 +5465,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<TenantCostSettingsGetResponse> CostSettingsPUTAsync(Body159? body);
+        System.Threading.Tasks.Task<TenantCostSettingsGetResponse> CostSettingsPUTAsync(Body160? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<TenantCostSettingsGetResponse> CostSettingsPUTAsync(Body159? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<TenantCostSettingsGetResponse> CostSettingsPUTAsync(Body160? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -5483,12 +5501,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task ProductFeedbackAsync(Body160? body);
+        System.Threading.Tasks.Task ProductFeedbackAsync(Body161? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task ProductFeedbackAsync(Body160? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task ProductFeedbackAsync(Body161? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -5528,12 +5546,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ExecDigestPreferencesResponse> ExecDigestPreferencesPOSTAsync(Body161? body);
+        System.Threading.Tasks.Task<ExecDigestPreferencesResponse> ExecDigestPreferencesPOSTAsync(Body162? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ExecDigestPreferencesResponse> ExecDigestPreferencesPOSTAsync(Body161? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<ExecDigestPreferencesResponse> ExecDigestPreferencesPOSTAsync(Body162? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -5546,12 +5564,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<TenantHomepageSettingsGetResponse> HomepageSettingsPUTAsync(Body162? body);
+        System.Threading.Tasks.Task<TenantHomepageSettingsGetResponse> HomepageSettingsPUTAsync(Body163? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<TenantHomepageSettingsGetResponse> HomepageSettingsPUTAsync(Body162? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<TenantHomepageSettingsGetResponse> HomepageSettingsPUTAsync(Body163? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -5573,12 +5591,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task LinkEntraAsync(Body163? body);
+        System.Threading.Tasks.Task LinkEntraAsync(Body164? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task LinkEntraAsync(Body163? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task LinkEntraAsync(Body164? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -5690,12 +5708,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task AppearanceAsync(Body164? body);
+        System.Threading.Tasks.Task AppearanceAsync(Body165? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task AppearanceAsync(Body164? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task AppearanceAsync(Body165? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -5726,12 +5744,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<OutboundWebhookDryRunResponse> DryRun3Async(Body165? body);
+        System.Threading.Tasks.Task<OutboundWebhookDryRunResponse> DryRun3Async(Body166? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<OutboundWebhookDryRunResponse> DryRun3Async(Body165? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<OutboundWebhookDryRunResponse> DryRun3Async(Body166? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -51712,6 +51730,194 @@ namespace ArchLucid.Api.Client.Generated
             }
         }
 
+        /// <returns>Accepted</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task AsyncAsync(string runId)
+        {
+            return AsyncAsync(runId, System.Threading.CancellationToken.None);
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>Accepted</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task AsyncAsync(string runId, System.Threading.CancellationToken cancellationToken)
+        {
+            if (runId == null)
+                throw new System.ArgumentNullException("runId");
+
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    request_.Content = new System.Net.Http.StringContent(string.Empty, System.Text.Encoding.UTF8, "application/json");
+                    request_.Method = new System.Net.Http.HttpMethod("POST");
+
+                    var urlBuilder_ = new System.Text.StringBuilder();
+                    if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
+                    // Operation Path: "v1/architecture/review/{runId}/execute/async"
+                    urlBuilder_.Append("v1/architecture/review/");
+                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
+                    urlBuilder_.Append("/execute/async");
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
+                        foreach (var item_ in response_.Headers)
+                            headers_[item_.Key] = item_.Value;
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 202)
+                        {
+                            return;
+                        }
+                        else
+                        if (status_ == 400)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ArchLucidApiException<ProblemDetails>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 401)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ArchLucidApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 403)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ArchLucidApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 404)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ArchLucidApiException<ProblemDetails>("Not Found", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 405)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ArchLucidApiException<ProblemDetails>("Method Not Allowed.", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 409)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ArchLucidApiException<ProblemDetails>("Conflict", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 415)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ArchLucidApiException<ProblemDetails>("Unsupported Media Type.", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 422)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ArchLucidApiException<ProblemDetails>("Unprocessable Entity.", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 429)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ArchLucidApiException<ProblemDetails>("Too Many Requests.", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 500)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ArchLucidApiException<ProblemDetails>("Internal Server Error.", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 503)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ArchLucidApiException<ProblemDetails>("Service Unavailable.", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await ReadAsStringAsync(response_.Content, cancellationToken).ConfigureAwait(false);
+                            throw new ArchLucidApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
         public virtual System.Threading.Tasks.Task<ExecuteRunResponse> SelectiveAsync(string runId, Body51? body)
@@ -53503,9 +53709,200 @@ namespace ArchLucid.Api.Client.Generated
             }
         }
 
+        /// <returns>Accepted</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task Async2Async(string runId, Body55? body)
+        {
+            return Async2Async(runId, body, System.Threading.CancellationToken.None);
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>Accepted</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task Async2Async(string runId, Body55? body, System.Threading.CancellationToken cancellationToken)
+        {
+            if (runId == null)
+                throw new System.ArgumentNullException("runId");
+
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    var json_ = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(body, JsonSerializerSettings);
+                    var content_ = new System.Net.Http.ByteArrayContent(json_);
+                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/*+json");
+                    request_.Content = content_;
+                    request_.Method = new System.Net.Http.HttpMethod("POST");
+
+                    var urlBuilder_ = new System.Text.StringBuilder();
+                    if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
+                    // Operation Path: "v1/architecture/review/{runId}/replay/async"
+                    urlBuilder_.Append("v1/architecture/review/");
+                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
+                    urlBuilder_.Append("/replay/async");
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
+                        foreach (var item_ in response_.Headers)
+                            headers_[item_.Key] = item_.Value;
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 202)
+                        {
+                            return;
+                        }
+                        else
+                        if (status_ == 400)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ArchLucidApiException<ProblemDetails>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 401)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ArchLucidApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 403)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ArchLucidApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 404)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ArchLucidApiException<ProblemDetails>("Not Found", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 405)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ArchLucidApiException<ProblemDetails>("Method Not Allowed.", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 409)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ArchLucidApiException<ProblemDetails>("Conflict", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 415)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ArchLucidApiException<ProblemDetails>("Unsupported Media Type.", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 422)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ArchLucidApiException<ProblemDetails>("Unprocessable Entity.", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 429)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ArchLucidApiException<ProblemDetails>("Too Many Requests.", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 500)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ArchLucidApiException<ProblemDetails>("Internal Server Error.", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 503)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ArchLucidApiException<ProblemDetails>("Service Unavailable.", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await ReadAsStringAsync(response_.Content, cancellationToken).ConfigureAwait(false);
+                            throw new ArchLucidApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<SubmitAgentResultResponse> ResultAsync(string runId, Body55? body)
+        public virtual System.Threading.Tasks.Task<SubmitAgentResultResponse> ResultAsync(string runId, Body56? body)
         {
             return ResultAsync(runId, body, System.Threading.CancellationToken.None);
         }
@@ -53513,7 +53910,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<SubmitAgentResultResponse> ResultAsync(string runId, Body55? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<SubmitAgentResultResponse> ResultAsync(string runId, Body56? body, System.Threading.CancellationToken cancellationToken)
         {
             if (runId == null)
                 throw new System.ArgumentNullException("runId");
@@ -56449,7 +56846,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ArchitectureAnalysisReportResponse> AnalysisReportAsync(string runId, Body56? body)
+        public virtual System.Threading.Tasks.Task<ArchitectureAnalysisReportResponse> AnalysisReportAsync(string runId, Body57? body)
         {
             return AnalysisReportAsync(runId, body, System.Threading.CancellationToken.None);
         }
@@ -56457,7 +56854,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ArchitectureAnalysisReportResponse> AnalysisReportAsync(string runId, Body56? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ArchitectureAnalysisReportResponse> AnalysisReportAsync(string runId, Body57? body, System.Threading.CancellationToken cancellationToken)
         {
             if (runId == null)
                 throw new System.ArgumentNullException("runId");
@@ -56646,7 +57043,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ArchitectureAnalysisExportResponse> ExportPOSTAsync(string runId, Body57? body)
+        public virtual System.Threading.Tasks.Task<ArchitectureAnalysisExportResponse> ExportPOSTAsync(string runId, Body58? body)
         {
             return ExportPOSTAsync(runId, body, System.Threading.CancellationToken.None);
         }
@@ -56654,7 +57051,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ArchitectureAnalysisExportResponse> ExportPOSTAsync(string runId, Body57? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ArchitectureAnalysisExportResponse> ExportPOSTAsync(string runId, Body58? body, System.Threading.CancellationToken cancellationToken)
         {
             if (runId == null)
                 throw new System.ArgumentNullException("runId");
@@ -56843,7 +57240,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<FileContentResult> DocxPOSTAsync(string runId, Body58? body)
+        public virtual System.Threading.Tasks.Task<FileContentResult> DocxPOSTAsync(string runId, Body59? body)
         {
             return DocxPOSTAsync(runId, body, System.Threading.CancellationToken.None);
         }
@@ -56851,7 +57248,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<FileContentResult> DocxPOSTAsync(string runId, Body58? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<FileContentResult> DocxPOSTAsync(string runId, Body59? body, System.Threading.CancellationToken cancellationToken)
         {
             if (runId == null)
                 throw new System.ArgumentNullException("runId");
@@ -57040,15 +57437,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>Accepted</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<AsyncJobResponse> AsyncAsync(string runId, Body59? body)
+        public virtual System.Threading.Tasks.Task<AsyncJobResponse> Async3Async(string runId, Body60? body)
         {
-            return AsyncAsync(runId, body, System.Threading.CancellationToken.None);
+            return Async3Async(runId, body, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Accepted</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<AsyncJobResponse> AsyncAsync(string runId, Body59? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<AsyncJobResponse> Async3Async(string runId, Body60? body, System.Threading.CancellationToken cancellationToken)
         {
             if (runId == null)
                 throw new System.ArgumentNullException("runId");
@@ -57237,7 +57634,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<FileContentResult> ConsultingAsync(string runId, Body60? body)
+        public virtual System.Threading.Tasks.Task<FileContentResult> ConsultingAsync(string runId, Body61? body)
         {
             return ConsultingAsync(runId, body, System.Threading.CancellationToken.None);
         }
@@ -57245,7 +57642,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<FileContentResult> ConsultingAsync(string runId, Body60? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<FileContentResult> ConsultingAsync(string runId, Body61? body, System.Threading.CancellationToken cancellationToken)
         {
             if (runId == null)
                 throw new System.ArgumentNullException("runId");
@@ -57434,15 +57831,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>Accepted</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<AsyncJobResponse> Async2Async(string runId, Body61? body)
+        public virtual System.Threading.Tasks.Task<AsyncJobResponse> Async4Async(string runId, Body62? body)
         {
-            return Async2Async(runId, body, System.Threading.CancellationToken.None);
+            return Async4Async(runId, body, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Accepted</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<AsyncJobResponse> Async2Async(string runId, Body61? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<AsyncJobResponse> Async4Async(string runId, Body62? body, System.Threading.CancellationToken cancellationToken)
         {
             if (runId == null)
                 throw new System.ArgumentNullException("runId");
@@ -57631,7 +58028,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<FileContentResult> FilePOSTAsync(string runId, Body62? body)
+        public virtual System.Threading.Tasks.Task<FileContentResult> FilePOSTAsync(string runId, Body63? body)
         {
             return FilePOSTAsync(runId, body, System.Threading.CancellationToken.None);
         }
@@ -57639,7 +58036,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<FileContentResult> FilePOSTAsync(string runId, Body62? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<FileContentResult> FilePOSTAsync(string runId, Body63? body, System.Threading.CancellationToken cancellationToken)
         {
             if (runId == null)
                 throw new System.ArgumentNullException("runId");
@@ -58960,7 +59357,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>Accepted</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task PushAsync(System.Guid runId, Body63? body)
+        public virtual System.Threading.Tasks.Task PushAsync(System.Guid runId, Body64? body)
         {
             return PushAsync(runId, body, System.Threading.CancellationToken.None);
         }
@@ -58968,7 +59365,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Accepted</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task PushAsync(System.Guid runId, Body63? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task PushAsync(System.Guid runId, Body64? body, System.Threading.CancellationToken cancellationToken)
         {
             if (runId == null)
                 throw new System.ArgumentNullException("runId");
@@ -60496,7 +60893,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<AskResponse> Ask2Async(Body64? body)
+        public virtual System.Threading.Tasks.Task<AskResponse> Ask2Async(Body65? body)
         {
             return Ask2Async(body, System.Threading.CancellationToken.None);
         }
@@ -60504,7 +60901,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<AskResponse> Ask2Async(Body64? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<AskResponse> Ask2Async(Body65? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -60688,7 +61085,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<FileResponse> StreamAsync(Body65? body)
+        public virtual System.Threading.Tasks.Task<FileResponse> StreamAsync(Body66? body)
         {
             return StreamAsync(body, System.Threading.CancellationToken.None);
         }
@@ -60696,7 +61093,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<FileResponse> StreamAsync(Body65? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<FileResponse> StreamAsync(Body66? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -62118,7 +62515,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>Accepted</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task AccessRequestAsync(Body66? body)
+        public virtual System.Threading.Tasks.Task AccessRequestAsync(Body67? body)
         {
             return AccessRequestAsync(body, System.Threading.CancellationToken.None);
         }
@@ -62126,7 +62523,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Accepted</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task AccessRequestAsync(Body66? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task AccessRequestAsync(Body67? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -62304,7 +62701,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<PostAuthBootstrapSessionResponse> AcceptAsync(string? returnUrl, Body67? body)
+        public virtual System.Threading.Tasks.Task<PostAuthBootstrapSessionResponse> AcceptAsync(string? returnUrl, Body68? body)
         {
             return AcceptAsync(returnUrl, body, System.Threading.CancellationToken.None);
         }
@@ -62312,7 +62709,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<PostAuthBootstrapSessionResponse> AcceptAsync(string? returnUrl, Body67? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<PostAuthBootstrapSessionResponse> AcceptAsync(string? returnUrl, Body68? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -62700,7 +63097,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<PostAuthCreateWorkspaceResponse> WorkspacesPOSTAsync(Body68? body)
+        public virtual System.Threading.Tasks.Task<PostAuthCreateWorkspaceResponse> WorkspacesPOSTAsync(Body69? body)
         {
             return WorkspacesPOSTAsync(body, System.Threading.CancellationToken.None);
         }
@@ -62708,7 +63105,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<PostAuthCreateWorkspaceResponse> WorkspacesPOSTAsync(Body68? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<PostAuthCreateWorkspaceResponse> WorkspacesPOSTAsync(Body69? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -62892,7 +63289,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<PostAuthBootstrapSessionResponse> SelectAsync(string? returnUrl, Body69? body)
+        public virtual System.Threading.Tasks.Task<PostAuthBootstrapSessionResponse> SelectAsync(string? returnUrl, Body70? body)
         {
             return SelectAsync(returnUrl, body, System.Threading.CancellationToken.None);
         }
@@ -62900,7 +63297,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<PostAuthBootstrapSessionResponse> SelectAsync(string? returnUrl, Body69? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<PostAuthBootstrapSessionResponse> SelectAsync(string? returnUrl, Body70? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -63090,7 +63487,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<EmailOtpChallengeResponse> ChallengeAsync(Body70? body)
+        public virtual System.Threading.Tasks.Task<EmailOtpChallengeResponse> ChallengeAsync(Body71? body)
         {
             return ChallengeAsync(body, System.Threading.CancellationToken.None);
         }
@@ -63098,7 +63495,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<EmailOtpChallengeResponse> ChallengeAsync(Body70? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<EmailOtpChallengeResponse> ChallengeAsync(Body71? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -63282,7 +63679,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<EmailOtpVerifyResponse> VerifyPOST2Async(Body71? body)
+        public virtual System.Threading.Tasks.Task<EmailOtpVerifyResponse> VerifyPOST2Async(Body72? body)
         {
             return VerifyPOST2Async(body, System.Threading.CancellationToken.None);
         }
@@ -63290,7 +63687,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<EmailOtpVerifyResponse> VerifyPOST2Async(Body71? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<EmailOtpVerifyResponse> VerifyPOST2Async(Body72? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -63668,7 +64065,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<AuthSignInRoutingResponse> EvaluateAsync(Body72? body)
+        public virtual System.Threading.Tasks.Task<AuthSignInRoutingResponse> EvaluateAsync(Body73? body)
         {
             return EvaluateAsync(body, System.Threading.CancellationToken.None);
         }
@@ -63676,7 +64073,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<AuthSignInRoutingResponse> EvaluateAsync(Body72? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<AuthSignInRoutingResponse> EvaluateAsync(Body73? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -64048,7 +64445,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<EmailLinkChallengeResponse> Challenge2Async(Body73? body)
+        public virtual System.Threading.Tasks.Task<EmailLinkChallengeResponse> Challenge2Async(Body74? body)
         {
             return Challenge2Async(body, System.Threading.CancellationToken.None);
         }
@@ -64056,7 +64453,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<EmailLinkChallengeResponse> Challenge2Async(Body73? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<EmailLinkChallengeResponse> Challenge2Async(Body74? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -64240,7 +64637,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<AuthenticationIdentityLinkProposalView> VerifyPOST3Async(Body74? body)
+        public virtual System.Threading.Tasks.Task<AuthenticationIdentityLinkProposalView> VerifyPOST3Async(Body75? body)
         {
             return VerifyPOST3Async(body, System.Threading.CancellationToken.None);
         }
@@ -64248,7 +64645,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<AuthenticationIdentityLinkProposalView> VerifyPOST3Async(Body74? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<AuthenticationIdentityLinkProposalView> VerifyPOST3Async(Body75? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -64998,7 +65395,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>Created</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<TrialLocalRegisterResponse> RegisterAsync(Body75? body)
+        public virtual System.Threading.Tasks.Task<TrialLocalRegisterResponse> RegisterAsync(Body76? body)
         {
             return RegisterAsync(body, System.Threading.CancellationToken.None);
         }
@@ -65006,7 +65403,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Created</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<TrialLocalRegisterResponse> RegisterAsync(Body75? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<TrialLocalRegisterResponse> RegisterAsync(Body76? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -65190,7 +65587,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<TrialLocalTokenResponse> TokenAsync(Body76? body)
+        public virtual System.Threading.Tasks.Task<TrialLocalTokenResponse> TokenAsync(Body77? body)
         {
             return TokenAsync(body, System.Threading.CancellationToken.None);
         }
@@ -65198,7 +65595,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<TrialLocalTokenResponse> TokenAsync(Body76? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<TrialLocalTokenResponse> TokenAsync(Body77? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -65382,7 +65779,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task VerifyEmailAsync(Body77? body)
+        public virtual System.Threading.Tasks.Task VerifyEmailAsync(Body78? body)
         {
             return VerifyEmailAsync(body, System.Threading.CancellationToken.None);
         }
@@ -65390,7 +65787,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task VerifyEmailAsync(Body77? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task VerifyEmailAsync(Body78? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -66175,7 +66572,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ReplayResponse> ReplayPOST4Async(Body78? body)
+        public virtual System.Threading.Tasks.Task<ReplayResponse> ReplayPOST4Async(Body79? body)
         {
             return ReplayPOST4Async(body, System.Threading.CancellationToken.None);
         }
@@ -66183,7 +66580,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ReplayResponse> ReplayPOST4Async(Body78? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ReplayResponse> ReplayPOST4Async(Body79? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -66752,7 +67149,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<RunOperatorGovernanceDispositionDto> DispositionAsync(System.Guid runId, Body79? body)
+        public virtual System.Threading.Tasks.Task<RunOperatorGovernanceDispositionDto> DispositionAsync(System.Guid runId, Body80? body)
         {
             return DispositionAsync(runId, body, System.Threading.CancellationToken.None);
         }
@@ -66760,7 +67157,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<RunOperatorGovernanceDispositionDto> DispositionAsync(System.Guid runId, Body79? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<RunOperatorGovernanceDispositionDto> DispositionAsync(System.Guid runId, Body80? body, System.Threading.CancellationToken cancellationToken)
         {
             if (runId == null)
                 throw new System.ArgumentNullException("runId");
@@ -71958,7 +72355,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<LlmTenantWalletGetResponse> WalletPUTAsync(Body80? body)
+        public virtual System.Threading.Tasks.Task<LlmTenantWalletGetResponse> WalletPUTAsync(Body81? body)
         {
             return WalletPUTAsync(body, System.Threading.CancellationToken.None);
         }
@@ -71966,7 +72363,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<LlmTenantWalletGetResponse> WalletPUTAsync(Body80? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<LlmTenantWalletGetResponse> WalletPUTAsync(Body81? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -73090,7 +73487,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<CompositeAlertRule> CompositeAlertRulesAsync(Body81? body)
+        public virtual System.Threading.Tasks.Task<CompositeAlertRule> CompositeAlertRulesAsync(Body82? body)
         {
             return CompositeAlertRulesAsync(body, System.Threading.CancellationToken.None);
         }
@@ -73098,7 +73495,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<CompositeAlertRule> CompositeAlertRulesAsync(Body81? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<CompositeAlertRule> CompositeAlertRulesAsync(Body82? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -74065,7 +74462,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<DemoQuickStartResponse> QuickstartAsync(Body82? body)
+        public virtual System.Threading.Tasks.Task<DemoQuickStartResponse> QuickstartAsync(Body83? body)
         {
             return QuickstartAsync(body, System.Threading.CancellationToken.None);
         }
@@ -74073,7 +74470,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<DemoQuickStartResponse> QuickstartAsync(Body82? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<DemoQuickStartResponse> QuickstartAsync(Body83? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -75398,7 +75795,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task ClientErrorAsync(Body83? body)
+        public virtual System.Threading.Tasks.Task ClientErrorAsync(Body84? body)
         {
             return ClientErrorAsync(body, System.Threading.CancellationToken.None);
         }
@@ -75406,7 +75803,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task ClientErrorAsync(Body83? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task ClientErrorAsync(Body84? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -75772,7 +76169,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task CorePilotRailStepAsync(Body84? body)
+        public virtual System.Threading.Tasks.Task CorePilotRailStepAsync(Body85? body)
         {
             return CorePilotRailStepAsync(body, System.Threading.CancellationToken.None);
         }
@@ -75780,7 +76177,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task CorePilotRailStepAsync(Body84? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task CorePilotRailStepAsync(Body85? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -75958,7 +76355,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task FirstTenantFunnelAsync(Body85? body)
+        public virtual System.Threading.Tasks.Task FirstTenantFunnelAsync(Body86? body)
         {
             return FirstTenantFunnelAsync(body, System.Threading.CancellationToken.None);
         }
@@ -75966,7 +76363,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task FirstTenantFunnelAsync(Body85? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task FirstTenantFunnelAsync(Body86? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -76332,7 +76729,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task SponsorBannerFirstCommitBadgeAsync(Body86? body)
+        public virtual System.Threading.Tasks.Task SponsorBannerFirstCommitBadgeAsync(Body87? body)
         {
             return SponsorBannerFirstCommitBadgeAsync(body, System.Threading.CancellationToken.None);
         }
@@ -76340,7 +76737,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task SponsorBannerFirstCommitBadgeAsync(Body86? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task SponsorBannerFirstCommitBadgeAsync(Body87? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -76707,7 +77104,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task ClickedAsync(Body87? body)
+        public virtual System.Threading.Tasks.Task ClickedAsync(Body88? body)
         {
             return ClickedAsync(body, System.Threading.CancellationToken.None);
         }
@@ -76715,7 +77112,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task ClickedAsync(Body87? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task ClickedAsync(Body88? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -76893,7 +77290,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task ShownAsync(Body88? body)
+        public virtual System.Threading.Tasks.Task ShownAsync(Body89? body)
         {
             return ShownAsync(body, System.Threading.CancellationToken.None);
         }
@@ -76901,7 +77298,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task ShownAsync(Body88? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task ShownAsync(Body89? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -77079,7 +77476,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task Clicked2Async(Body89? body)
+        public virtual System.Threading.Tasks.Task Clicked2Async(Body90? body)
         {
             return Clicked2Async(body, System.Threading.CancellationToken.None);
         }
@@ -77087,7 +77484,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task Clicked2Async(Body89? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task Clicked2Async(Body90? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -77265,7 +77662,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task Shown2Async(Body90? body)
+        public virtual System.Threading.Tasks.Task Shown2Async(Body91? body)
         {
             return Shown2Async(body, System.Threading.CancellationToken.None);
         }
@@ -77273,7 +77670,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task Shown2Async(Body90? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task Shown2Async(Body91? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -77639,7 +78036,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<DigestSubscription> DigestSubscriptionsAsync(Body91? body)
+        public virtual System.Threading.Tasks.Task<DigestSubscription> DigestSubscriptionsAsync(Body92? body)
         {
             return DigestSubscriptionsAsync(body, System.Threading.CancellationToken.None);
         }
@@ -77647,7 +78044,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<DigestSubscription> DigestSubscriptionsAsync(Body91? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<DigestSubscription> DigestSubscriptionsAsync(Body92? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -81376,7 +81773,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task Feedback2Async(System.Guid runId, string findingId, Body92? body)
+        public virtual System.Threading.Tasks.Task Feedback2Async(System.Guid runId, string findingId, Body93? body)
         {
             return Feedback2Async(runId, findingId, body, System.Threading.CancellationToken.None);
         }
@@ -81384,7 +81781,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task Feedback2Async(System.Guid runId, string findingId, Body92? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task Feedback2Async(System.Guid runId, string findingId, Body93? body, System.Threading.CancellationToken cancellationToken)
         {
             if (runId == null)
                 throw new System.ArgumentNullException("runId");
@@ -81770,7 +82167,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<HolisticCriticResponse> HolisticCriticAsync(System.Guid runId, Body93? body)
+        public virtual System.Threading.Tasks.Task<HolisticCriticResponse> HolisticCriticAsync(System.Guid runId, Body94? body)
         {
             return HolisticCriticAsync(runId, body, System.Threading.CancellationToken.None);
         }
@@ -81778,7 +82175,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<HolisticCriticResponse> HolisticCriticAsync(System.Guid runId, Body93? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<HolisticCriticResponse> HolisticCriticAsync(System.Guid runId, Body94? body, System.Threading.CancellationToken cancellationToken)
         {
             if (runId == null)
                 throw new System.ArgumentNullException("runId");
@@ -82946,7 +83343,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task MuteAsync(string findingId, Body94? body)
+        public virtual System.Threading.Tasks.Task MuteAsync(string findingId, Body95? body)
         {
             return MuteAsync(findingId, body, System.Threading.CancellationToken.None);
         }
@@ -82954,7 +83351,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task MuteAsync(string findingId, Body94? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task MuteAsync(string findingId, Body95? body, System.Threading.CancellationToken cancellationToken)
         {
             if (findingId == null)
                 throw new System.ArgumentNullException("findingId");
@@ -83137,7 +83534,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task RemediationAssignmentAsync(string findingId, Body95? body)
+        public virtual System.Threading.Tasks.Task RemediationAssignmentAsync(string findingId, Body96? body)
         {
             return RemediationAssignmentAsync(findingId, body, System.Threading.CancellationToken.None);
         }
@@ -83145,7 +83542,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task RemediationAssignmentAsync(string findingId, Body95? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task RemediationAssignmentAsync(string findingId, Body96? body, System.Threading.CancellationToken cancellationToken)
         {
             if (findingId == null)
                 throw new System.ArgumentNullException("findingId");
@@ -83897,7 +84294,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<GovernanceEnvironmentComparisonResult> CompareEnvironmentsAsync(Body96? body)
+        public virtual System.Threading.Tasks.Task<GovernanceEnvironmentComparisonResult> CompareEnvironmentsAsync(Body97? body)
         {
             return CompareEnvironmentsAsync(body, System.Threading.CancellationToken.None);
         }
@@ -83905,7 +84302,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<GovernanceEnvironmentComparisonResult> CompareEnvironmentsAsync(Body96? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<GovernanceEnvironmentComparisonResult> CompareEnvironmentsAsync(Body97? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -84089,7 +84486,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<GovernancePreviewResult> PreviewPOSTAsync(Body97? body)
+        public virtual System.Threading.Tasks.Task<GovernancePreviewResult> PreviewPOSTAsync(Body98? body)
         {
             return PreviewPOSTAsync(body, System.Threading.CancellationToken.None);
         }
@@ -84097,7 +84494,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<GovernancePreviewResult> PreviewPOSTAsync(Body97? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<GovernancePreviewResult> PreviewPOSTAsync(Body98? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -84469,7 +84866,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<GovernanceEnvironmentActivation> ActivationsAsync(Body98? body)
+        public virtual System.Threading.Tasks.Task<GovernanceEnvironmentActivation> ActivationsAsync(Body99? body)
         {
             return ActivationsAsync(body, System.Threading.CancellationToken.None);
         }
@@ -84477,7 +84874,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<GovernanceEnvironmentActivation> ActivationsAsync(Body98? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<GovernanceEnvironmentActivation> ActivationsAsync(Body99? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -84661,7 +85058,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<GovernanceApprovalRequest> ApprovalRequestsAsync(bool? dryRun, Body99? body)
+        public virtual System.Threading.Tasks.Task<GovernanceApprovalRequest> ApprovalRequestsAsync(bool? dryRun, Body100? body)
         {
             return ApprovalRequestsAsync(dryRun, body, System.Threading.CancellationToken.None);
         }
@@ -84669,7 +85066,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<GovernanceApprovalRequest> ApprovalRequestsAsync(bool? dryRun, Body99? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<GovernanceApprovalRequest> ApprovalRequestsAsync(bool? dryRun, Body100? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -84859,7 +85256,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<GovernanceBatchReviewResponse> BatchReviewAsync(Body100? body)
+        public virtual System.Threading.Tasks.Task<GovernanceBatchReviewResponse> BatchReviewAsync(Body101? body)
         {
             return BatchReviewAsync(body, System.Threading.CancellationToken.None);
         }
@@ -84867,7 +85264,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<GovernanceBatchReviewResponse> BatchReviewAsync(Body100? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<GovernanceBatchReviewResponse> BatchReviewAsync(Body101? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -85051,7 +85448,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<GovernanceApprovalRequest> ApproveAsync(string approvalRequestId, Body101? body)
+        public virtual System.Threading.Tasks.Task<GovernanceApprovalRequest> ApproveAsync(string approvalRequestId, Body102? body)
         {
             return ApproveAsync(approvalRequestId, body, System.Threading.CancellationToken.None);
         }
@@ -85059,7 +85456,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<GovernanceApprovalRequest> ApproveAsync(string approvalRequestId, Body101? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<GovernanceApprovalRequest> ApproveAsync(string approvalRequestId, Body102? body, System.Threading.CancellationToken cancellationToken)
         {
             if (approvalRequestId == null)
                 throw new System.ArgumentNullException("approvalRequestId");
@@ -85634,7 +86031,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<GovernanceApprovalRequest> RejectAsync(string approvalRequestId, Body102? body)
+        public virtual System.Threading.Tasks.Task<GovernanceApprovalRequest> RejectAsync(string approvalRequestId, Body103? body)
         {
             return RejectAsync(approvalRequestId, body, System.Threading.CancellationToken.None);
         }
@@ -85642,7 +86039,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<GovernanceApprovalRequest> RejectAsync(string approvalRequestId, Body102? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<GovernanceApprovalRequest> RejectAsync(string approvalRequestId, Body103? body, System.Threading.CancellationToken cancellationToken)
         {
             if (approvalRequestId == null)
                 throw new System.ArgumentNullException("approvalRequestId");
@@ -86839,7 +87236,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<RecordBulkFindingDispositionResponse> BulkDispositionAsync(Body103? body)
+        public virtual System.Threading.Tasks.Task<RecordBulkFindingDispositionResponse> BulkDispositionAsync(Body104? body)
         {
             return BulkDispositionAsync(body, System.Threading.CancellationToken.None);
         }
@@ -86847,7 +87244,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<RecordBulkFindingDispositionResponse> BulkDispositionAsync(Body103? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<RecordBulkFindingDispositionResponse> BulkDispositionAsync(Body104? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -87224,7 +87621,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<FindingDispositionEventDto> DispositionsAsync(string findingId, Body104? body)
+        public virtual System.Threading.Tasks.Task<FindingDispositionEventDto> DispositionsAsync(string findingId, Body105? body)
         {
             return DispositionsAsync(findingId, body, System.Threading.CancellationToken.None);
         }
@@ -87232,7 +87629,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<FindingDispositionEventDto> DispositionsAsync(string findingId, Body104? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<FindingDispositionEventDto> DispositionsAsync(string findingId, Body105? body, System.Threading.CancellationToken cancellationToken)
         {
             if (findingId == null)
                 throw new System.ArgumentNullException("findingId");
@@ -87609,7 +88006,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<DraftPolicyPackRuleResponse> DraftPOST3Async(Body105? body)
+        public virtual System.Threading.Tasks.Task<DraftPolicyPackRuleResponse> DraftPOST3Async(Body106? body)
         {
             return DraftPOST3Async(body, System.Threading.CancellationToken.None);
         }
@@ -87617,7 +88014,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<DraftPolicyPackRuleResponse> DraftPOST3Async(Body105? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<DraftPolicyPackRuleResponse> DraftPOST3Async(Body106? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -87801,7 +88198,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<GeneratePolicyPackResponse> GenerateAsync(Body106? body)
+        public virtual System.Threading.Tasks.Task<GeneratePolicyPackResponse> GenerateAsync(Body107? body)
         {
             return GenerateAsync(body, System.Threading.CancellationToken.None);
         }
@@ -87809,7 +88206,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<GeneratePolicyPackResponse> GenerateAsync(Body106? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<GeneratePolicyPackResponse> GenerateAsync(Body107? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -87993,7 +88390,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<PolicyPackGovernanceDryRunResult> DryRunAsync(Body107? body)
+        public virtual System.Threading.Tasks.Task<PolicyPackGovernanceDryRunResult> DryRunAsync(Body108? body)
         {
             return DryRunAsync(body, System.Threading.CancellationToken.None);
         }
@@ -88001,7 +88398,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<PolicyPackGovernanceDryRunResult> DryRunAsync(Body107? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<PolicyPackGovernanceDryRunResult> DryRunAsync(Body108? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -88185,7 +88582,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<PolicyPackDryRunResponse> DryRun2Async(System.Guid id, int? pageSize, int? page, Body108? body)
+        public virtual System.Threading.Tasks.Task<PolicyPackDryRunResponse> DryRun2Async(System.Guid id, int? pageSize, int? page, Body109? body)
         {
             return DryRun2Async(id, pageSize, page, body, System.Threading.CancellationToken.None);
         }
@@ -88193,7 +88590,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<PolicyPackDryRunResponse> DryRun2Async(System.Guid id, int? pageSize, int? page, Body108? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<PolicyPackDryRunResponse> DryRun2Async(System.Guid id, int? pageSize, int? page, Body109? body, System.Threading.CancellationToken cancellationToken)
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
@@ -88392,7 +88789,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<PreCommitGateResult> Simulate3Async(Body109? body)
+        public virtual System.Threading.Tasks.Task<PreCommitGateResult> Simulate3Async(Body110? body)
         {
             return Simulate3Async(body, System.Threading.CancellationToken.None);
         }
@@ -88400,7 +88797,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<PreCommitGateResult> Simulate3Async(Body109? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<PreCommitGateResult> Simulate3Async(Body110? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -88584,7 +88981,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<GovernancePromotionRecord> PromotionsAsync(bool? dryRun, Body110? body)
+        public virtual System.Threading.Tasks.Task<GovernancePromotionRecord> PromotionsAsync(bool? dryRun, Body111? body)
         {
             return PromotionsAsync(dryRun, body, System.Threading.CancellationToken.None);
         }
@@ -88592,7 +88989,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<GovernancePromotionRecord> PromotionsAsync(bool? dryRun, Body110? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<GovernancePromotionRecord> PromotionsAsync(bool? dryRun, Body111? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -88970,7 +89367,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task AttestationPUTAsync(Body111? body)
+        public virtual System.Threading.Tasks.Task AttestationPUTAsync(Body112? body)
         {
             return AttestationPUTAsync(body, System.Threading.CancellationToken.None);
         }
@@ -88978,7 +89375,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task AttestationPUTAsync(Body111? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task AttestationPUTAsync(Body112? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -89344,7 +89741,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ArchitectureReviewRecurrenceSchedule> RecurrenceSchedulesPOSTAsync(Body112? body)
+        public virtual System.Threading.Tasks.Task<ArchitectureReviewRecurrenceSchedule> RecurrenceSchedulesPOSTAsync(Body113? body)
         {
             return RecurrenceSchedulesPOSTAsync(body, System.Threading.CancellationToken.None);
         }
@@ -89352,7 +89749,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ArchitectureReviewRecurrenceSchedule> RecurrenceSchedulesPOSTAsync(Body112? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ArchitectureReviewRecurrenceSchedule> RecurrenceSchedulesPOSTAsync(Body113? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -89536,7 +89933,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<PreviewRecurrenceScheduleRunsResponse> PreviewNextRunsAsync(Body113? body)
+        public virtual System.Threading.Tasks.Task<PreviewRecurrenceScheduleRunsResponse> PreviewNextRunsAsync(Body114? body)
         {
             return PreviewNextRunsAsync(body, System.Threading.CancellationToken.None);
         }
@@ -89544,7 +89941,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<PreviewRecurrenceScheduleRunsResponse> PreviewNextRunsAsync(Body113? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<PreviewRecurrenceScheduleRunsResponse> PreviewNextRunsAsync(Body114? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -89728,7 +90125,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ArchitectureReviewRecurrenceSchedule> RecurrenceSchedulesPUTAsync(System.Guid scheduleId, Body114? body)
+        public virtual System.Threading.Tasks.Task<ArchitectureReviewRecurrenceSchedule> RecurrenceSchedulesPUTAsync(System.Guid scheduleId, Body115? body)
         {
             return RecurrenceSchedulesPUTAsync(scheduleId, body, System.Threading.CancellationToken.None);
         }
@@ -89736,7 +90133,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ArchitectureReviewRecurrenceSchedule> RecurrenceSchedulesPUTAsync(System.Guid scheduleId, Body114? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ArchitectureReviewRecurrenceSchedule> RecurrenceSchedulesPUTAsync(System.Guid scheduleId, Body115? body, System.Threading.CancellationToken cancellationToken)
         {
             if (scheduleId == null)
                 throw new System.ArgumentNullException("scheduleId");
@@ -90306,7 +90703,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<RiskExceptionRecord> RiskExceptionsAsync(Body115? body)
+        public virtual System.Threading.Tasks.Task<RiskExceptionRecord> RiskExceptionsAsync(Body116? body)
         {
             return RiskExceptionsAsync(body, System.Threading.CancellationToken.None);
         }
@@ -90314,7 +90711,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<RiskExceptionRecord> RiskExceptionsAsync(Body115? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<RiskExceptionRecord> RiskExceptionsAsync(Body116? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -90498,7 +90895,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<RiskExceptionRecord> RenewAsync(System.Guid riskExceptionId, Body116? body)
+        public virtual System.Threading.Tasks.Task<RiskExceptionRecord> RenewAsync(System.Guid riskExceptionId, Body117? body)
         {
             return RenewAsync(riskExceptionId, body, System.Threading.CancellationToken.None);
         }
@@ -90506,7 +90903,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<RiskExceptionRecord> RenewAsync(System.Guid riskExceptionId, Body116? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<RiskExceptionRecord> RenewAsync(System.Guid riskExceptionId, Body117? body, System.Threading.CancellationToken cancellationToken)
         {
             if (riskExceptionId == null)
                 throw new System.ArgumentNullException("riskExceptionId");
@@ -91848,7 +92245,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<PolicyPackGovernanceDryRunResult> Simulate4Async(Body117? body)
+        public virtual System.Threading.Tasks.Task<PolicyPackGovernanceDryRunResult> Simulate4Async(Body118? body)
         {
             return Simulate4Async(body, System.Threading.CancellationToken.None);
         }
@@ -91856,7 +92253,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<PolicyPackGovernanceDryRunResult> Simulate4Async(Body117? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<PolicyPackGovernanceDryRunResult> Simulate4Async(Body118? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -92797,7 +93194,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<AzureBoardsOutboundSettingsResponse> SettingsPUTAsync(Body118? body)
+        public virtual System.Threading.Tasks.Task<AzureBoardsOutboundSettingsResponse> SettingsPUTAsync(Body119? body)
         {
             return SettingsPUTAsync(body, System.Threading.CancellationToken.None);
         }
@@ -92805,7 +93202,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<AzureBoardsOutboundSettingsResponse> SettingsPUTAsync(Body118? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<AzureBoardsOutboundSettingsResponse> SettingsPUTAsync(Body119? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -93366,7 +93763,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ItsmAtlassianOAuthConsentCompleteResponse> Complete3Async(Body119? body)
+        public virtual System.Threading.Tasks.Task<ItsmAtlassianOAuthConsentCompleteResponse> Complete3Async(Body120? body)
         {
             return Complete3Async(body, System.Threading.CancellationToken.None);
         }
@@ -93374,7 +93771,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ItsmAtlassianOAuthConsentCompleteResponse> Complete3Async(Body119? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ItsmAtlassianOAuthConsentCompleteResponse> Complete3Async(Body120? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -93558,7 +93955,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ItsmAtlassianOAuthConsentStartResponse> Start3Async(Body120? body)
+        public virtual System.Threading.Tasks.Task<ItsmAtlassianOAuthConsentStartResponse> Start3Async(Body121? body)
         {
             return Start3Async(body, System.Threading.CancellationToken.None);
         }
@@ -93566,7 +93963,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ItsmAtlassianOAuthConsentStartResponse> Start3Async(Body120? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ItsmAtlassianOAuthConsentStartResponse> Start3Async(Body121? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -94128,7 +94525,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<TenantItsmConnectorConnectionResponse> ConnectionsPOST4Async(string provider, Body121? body)
+        public virtual System.Threading.Tasks.Task<TenantItsmConnectorConnectionResponse> ConnectionsPOST4Async(string provider, Body122? body)
         {
             return ConnectionsPOST4Async(provider, body, System.Threading.CancellationToken.None);
         }
@@ -94136,7 +94533,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<TenantItsmConnectorConnectionResponse> ConnectionsPOST4Async(string provider, Body121? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<TenantItsmConnectorConnectionResponse> ConnectionsPOST4Async(string provider, Body122? body, System.Threading.CancellationToken cancellationToken)
         {
             if (provider == null)
                 throw new System.ArgumentNullException("provider");
@@ -95276,7 +95673,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<CreateItsmOutboundIssueResponse> IssuesAsync(Body122? body)
+        public virtual System.Threading.Tasks.Task<CreateItsmOutboundIssueResponse> IssuesAsync(Body123? body)
         {
             return IssuesAsync(body, System.Threading.CancellationToken.None);
         }
@@ -95284,7 +95681,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<CreateItsmOutboundIssueResponse> IssuesAsync(Body122? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<CreateItsmOutboundIssueResponse> IssuesAsync(Body123? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -95666,7 +96063,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<TenantItsmOutboundSettingsResponse> SettingsPUT2Async(Body123? body)
+        public virtual System.Threading.Tasks.Task<TenantItsmOutboundSettingsResponse> SettingsPUT2Async(Body124? body)
         {
             return SettingsPUT2Async(body, System.Threading.CancellationToken.None);
         }
@@ -95674,7 +96071,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<TenantItsmOutboundSettingsResponse> SettingsPUT2Async(Body123? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<TenantItsmOutboundSettingsResponse> SettingsPUT2Async(Body124? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -96228,7 +96625,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<TeamsIncomingWebhookConnectionResponse> ConnectionsPOST5Async(Body124? body)
+        public virtual System.Threading.Tasks.Task<TeamsIncomingWebhookConnectionResponse> ConnectionsPOST5Async(Body125? body)
         {
             return ConnectionsPOST5Async(body, System.Threading.CancellationToken.None);
         }
@@ -96236,7 +96633,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<TeamsIncomingWebhookConnectionResponse> ConnectionsPOST5Async(Body124? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<TeamsIncomingWebhookConnectionResponse> ConnectionsPOST5Async(Body125? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -96420,7 +96817,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<TeamsIncomingWebhookConnectionTestResponse> Test2Async(Body125? body)
+        public virtual System.Threading.Tasks.Task<TeamsIncomingWebhookConnectionTestResponse> Test2Async(Body126? body)
         {
             return Test2Async(body, System.Threading.CancellationToken.None);
         }
@@ -96428,7 +96825,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<TeamsIncomingWebhookConnectionTestResponse> Test2Async(Body125? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<TeamsIncomingWebhookConnectionTestResponse> Test2Async(Body126? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -96612,7 +97009,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<TeamsIncomingWebhookSecretValidationResponse> ValidateSecretAsync(Body126? body)
+        public virtual System.Threading.Tasks.Task<TeamsIncomingWebhookSecretValidationResponse> ValidateSecretAsync(Body127? body)
         {
             return ValidateSecretAsync(body, System.Threading.CancellationToken.None);
         }
@@ -96620,7 +97017,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<TeamsIncomingWebhookSecretValidationResponse> ValidateSecretAsync(Body126? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<TeamsIncomingWebhookSecretValidationResponse> ValidateSecretAsync(Body127? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -97772,7 +98169,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<OutboundWebhookDryRunResponse> Simulate5Async(Body127? body)
+        public virtual System.Threading.Tasks.Task<OutboundWebhookDryRunResponse> Simulate5Async(Body128? body)
         {
             return Simulate5Async(body, System.Threading.CancellationToken.None);
         }
@@ -97780,7 +98177,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<OutboundWebhookDryRunResponse> Simulate5Async(Body127? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<OutboundWebhookDryRunResponse> Simulate5Async(Body128? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -99511,7 +99908,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<DeterminismCheckResponse> DeterminismCheckAsync(string runId, Body128? body)
+        public virtual System.Threading.Tasks.Task<DeterminismCheckResponse> DeterminismCheckAsync(string runId, Body129? body)
         {
             return DeterminismCheckAsync(runId, body, System.Threading.CancellationToken.None);
         }
@@ -99519,7 +99916,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<DeterminismCheckResponse> DeterminismCheckAsync(string runId, Body128? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<DeterminismCheckResponse> DeterminismCheckAsync(string runId, Body129? body, System.Threading.CancellationToken cancellationToken)
         {
             if (runId == null)
                 throw new System.ArgumentNullException("runId");
@@ -99708,7 +100105,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ReplayRunResponse> ReplayPOST5Async(string runId, Body129? body)
+        public virtual System.Threading.Tasks.Task<ReplayRunResponse> ReplayPOST5Async(string runId, Body130? body)
         {
             return ReplayPOST5Async(runId, body, System.Threading.CancellationToken.None);
         }
@@ -99716,7 +100113,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ReplayRunResponse> ReplayPOST5Async(string runId, Body129? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ReplayRunResponse> ReplayPOST5Async(string runId, Body130? body, System.Threading.CancellationToken cancellationToken)
         {
             if (runId == null)
                 throw new System.ArgumentNullException("runId");
@@ -100105,7 +100502,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ReplayResponse> ReplayPOST6Async(Body130? body)
+        public virtual System.Threading.Tasks.Task<ReplayResponse> ReplayPOST6Async(Body131? body)
         {
             return ReplayPOST6Async(body, System.Threading.CancellationToken.None);
         }
@@ -100113,7 +100510,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ReplayResponse> ReplayPOST6Async(Body130? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ReplayResponse> ReplayPOST6Async(Body131? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -102660,7 +103057,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task EarlyAccessAsync(Body131? body)
+        public virtual System.Threading.Tasks.Task EarlyAccessAsync(Body132? body)
         {
             return EarlyAccessAsync(body, System.Threading.CancellationToken.None);
         }
@@ -102668,7 +103065,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task EarlyAccessAsync(Body131? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task EarlyAccessAsync(Body132? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -103029,7 +103426,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task QuoteRequestAsync(Body132? body)
+        public virtual System.Threading.Tasks.Task QuoteRequestAsync(Body133? body)
         {
             return QuoteRequestAsync(body, System.Threading.CancellationToken.None);
         }
@@ -103037,7 +103434,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task QuoteRequestAsync(Body132? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task QuoteRequestAsync(Body133? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -103215,7 +103612,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ArchitectureQuickScanResponse> QuickScan2Async(Body133? body)
+        public virtual System.Threading.Tasks.Task<ArchitectureQuickScanResponse> QuickScan2Async(Body134? body)
         {
             return QuickScan2Async(body, System.Threading.CancellationToken.None);
         }
@@ -103223,7 +103620,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ArchitectureQuickScanResponse> QuickScan2Async(Body133? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ArchitectureQuickScanResponse> QuickScan2Async(Body134? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -105309,7 +105706,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<TenantNotificationChannelPreferencesResponse> CustomerChannelPreferencesPUTAsync(Body134? body)
+        public virtual System.Threading.Tasks.Task<TenantNotificationChannelPreferencesResponse> CustomerChannelPreferencesPUTAsync(Body135? body)
         {
             return CustomerChannelPreferencesPUTAsync(body, System.Threading.CancellationToken.None);
         }
@@ -105317,7 +105714,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<TenantNotificationChannelPreferencesResponse> CustomerChannelPreferencesPUTAsync(Body134? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<TenantNotificationChannelPreferencesResponse> CustomerChannelPreferencesPUTAsync(Body135? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -106075,7 +106472,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>Created</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<OperatorSavedViewResponse> SavedViewsPOSTAsync(Body135? body)
+        public virtual System.Threading.Tasks.Task<OperatorSavedViewResponse> SavedViewsPOSTAsync(Body136? body)
         {
             return SavedViewsPOSTAsync(body, System.Threading.CancellationToken.None);
         }
@@ -106083,7 +106480,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Created</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<OperatorSavedViewResponse> SavedViewsPOSTAsync(Body135? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<OperatorSavedViewResponse> SavedViewsPOSTAsync(Body136? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -106453,7 +106850,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<FileResult> BoardPack_pdfAsync(Body136? body)
+        public virtual System.Threading.Tasks.Task<FileResult> BoardPack_pdfAsync(Body137? body)
         {
             return BoardPack_pdfAsync(body, System.Threading.CancellationToken.None);
         }
@@ -106461,7 +106858,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<FileResult> BoardPack_pdfAsync(Body136? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<FileResult> BoardPack_pdfAsync(Body137? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -106645,7 +107042,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>Created</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task CloseoutAsync(Body137? body)
+        public virtual System.Threading.Tasks.Task CloseoutAsync(Body138? body)
         {
             return CloseoutAsync(body, System.Threading.CancellationToken.None);
         }
@@ -106653,7 +107050,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Created</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task CloseoutAsync(Body137? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task CloseoutAsync(Body138? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -108369,7 +108766,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task SponsorPackSentAsync(string runId, Body138? body)
+        public virtual System.Threading.Tasks.Task SponsorPackSentAsync(string runId, Body139? body)
         {
             return SponsorPackSentAsync(runId, body, System.Threading.CancellationToken.None);
         }
@@ -108377,7 +108774,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task SponsorPackSentAsync(string runId, Body138? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task SponsorPackSentAsync(string runId, Body139? body, System.Threading.CancellationToken cancellationToken)
         {
             if (runId == null)
                 throw new System.ArgumentNullException("runId");
@@ -108560,7 +108957,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task SponsorPreliminaryShareAsync(string runId, Body139? body)
+        public virtual System.Threading.Tasks.Task SponsorPreliminaryShareAsync(string runId, Body140? body)
         {
             return SponsorPreliminaryShareAsync(runId, body, System.Threading.CancellationToken.None);
         }
@@ -108568,7 +108965,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task SponsorPreliminaryShareAsync(string runId, Body139? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task SponsorPreliminaryShareAsync(string runId, Body140? body, System.Threading.CancellationToken cancellationToken)
         {
             if (runId == null)
                 throw new System.ArgumentNullException("runId");
@@ -109132,7 +109529,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<PilotScorecardResponse> ScorecardPOSTAsync(Body140? body)
+        public virtual System.Threading.Tasks.Task<PilotScorecardResponse> ScorecardPOSTAsync(Body141? body)
         {
             return ScorecardPOSTAsync(body, System.Threading.CancellationToken.None);
         }
@@ -109140,7 +109537,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<PilotScorecardResponse> ScorecardPOSTAsync(Body140? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<PilotScorecardResponse> ScorecardPOSTAsync(Body141? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -109324,7 +109721,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task BaselinesAsync(Body141? body)
+        public virtual System.Threading.Tasks.Task BaselinesAsync(Body142? body)
         {
             return BaselinesAsync(body, System.Threading.CancellationToken.None);
         }
@@ -109332,7 +109729,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task BaselinesAsync(Body141? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task BaselinesAsync(Body142? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -110074,7 +110471,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<PolicyPack> PolicyPacksPOSTAsync(Body142? body)
+        public virtual System.Threading.Tasks.Task<PolicyPack> PolicyPacksPOSTAsync(Body143? body)
         {
             return PolicyPacksPOSTAsync(body, System.Threading.CancellationToken.None);
         }
@@ -110082,7 +110479,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<PolicyPack> PolicyPacksPOSTAsync(Body142? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<PolicyPack> PolicyPacksPOSTAsync(Body143? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -110642,7 +111039,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task DemoteAsync(Body143? body)
+        public virtual System.Threading.Tasks.Task DemoteAsync(Body144? body)
         {
             return DemoteAsync(body, System.Threading.CancellationToken.None);
         }
@@ -110650,7 +111047,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task DemoteAsync(Body143? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task DemoteAsync(Body144? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -110828,7 +111225,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<PolicyPackCatalogEntryDetail> Promote2Async(Body144? body)
+        public virtual System.Threading.Tasks.Task<PolicyPackCatalogEntryDetail> Promote2Async(Body145? body)
         {
             return Promote2Async(body, System.Threading.CancellationToken.None);
         }
@@ -110836,7 +111233,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<PolicyPackCatalogEntryDetail> Promote2Async(Body144? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<PolicyPackCatalogEntryDetail> Promote2Async(Body145? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -111776,7 +112173,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<PolicyPackGovernanceDryRunResult> Simulate6Async(Body145? body)
+        public virtual System.Threading.Tasks.Task<PolicyPackGovernanceDryRunResult> Simulate6Async(Body146? body)
         {
             return Simulate6Async(body, System.Threading.CancellationToken.None);
         }
@@ -111784,7 +112181,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<PolicyPackGovernanceDryRunResult> Simulate6Async(Body145? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<PolicyPackGovernanceDryRunResult> Simulate6Async(Body146? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -111968,7 +112365,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<PolicyPackContentValidationResponse> ValidatePOSTAsync(Body146? body)
+        public virtual System.Threading.Tasks.Task<PolicyPackContentValidationResponse> ValidatePOSTAsync(Body147? body)
         {
             return ValidatePOSTAsync(body, System.Threading.CancellationToken.None);
         }
@@ -111976,7 +112373,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<PolicyPackContentValidationResponse> ValidatePOSTAsync(Body146? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<PolicyPackContentValidationResponse> ValidatePOSTAsync(Body147? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -112346,7 +112743,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<PolicyPackAssignment> Assign2Async(System.Guid policyPackId, Body147? body)
+        public virtual System.Threading.Tasks.Task<PolicyPackAssignment> Assign2Async(System.Guid policyPackId, Body148? body)
         {
             return Assign2Async(policyPackId, body, System.Threading.CancellationToken.None);
         }
@@ -112354,7 +112751,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<PolicyPackAssignment> Assign2Async(System.Guid policyPackId, Body147? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<PolicyPackAssignment> Assign2Async(System.Guid policyPackId, Body148? body, System.Threading.CancellationToken cancellationToken)
         {
             if (policyPackId == null)
                 throw new System.ArgumentNullException("policyPackId");
@@ -112925,7 +113322,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<PolicyPackVersion> Publish2Async(System.Guid policyPackId, Body148? body)
+        public virtual System.Threading.Tasks.Task<PolicyPackVersion> Publish2Async(System.Guid policyPackId, Body149? body)
         {
             return Publish2Async(policyPackId, body, System.Threading.CancellationToken.None);
         }
@@ -112933,7 +113330,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<PolicyPackVersion> Publish2Async(System.Guid policyPackId, Body148? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<PolicyPackVersion> Publish2Async(System.Guid policyPackId, Body149? body, System.Threading.CancellationToken cancellationToken)
         {
             if (policyPackId == null)
                 throw new System.ArgumentNullException("policyPackId");
@@ -113122,7 +113519,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<PolicyPackSimulateBulkSummaryResponse> SimulateBulkAsync(System.Guid policyPackId, Body149? body)
+        public virtual System.Threading.Tasks.Task<PolicyPackSimulateBulkSummaryResponse> SimulateBulkAsync(System.Guid policyPackId, Body150? body)
         {
             return SimulateBulkAsync(policyPackId, body, System.Threading.CancellationToken.None);
         }
@@ -113130,7 +113527,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<PolicyPackSimulateBulkSummaryResponse> SimulateBulkAsync(System.Guid policyPackId, Body149? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<PolicyPackSimulateBulkSummaryResponse> SimulateBulkAsync(System.Guid policyPackId, Body150? body, System.Threading.CancellationToken cancellationToken)
         {
             if (policyPackId == null)
                 throw new System.ArgumentNullException("policyPackId");
@@ -114324,7 +114721,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task SignalsAsync(Body150? body)
+        public virtual System.Threading.Tasks.Task SignalsAsync(Body151? body)
         {
             return SignalsAsync(body, System.Threading.CancellationToken.None);
         }
@@ -114332,7 +114729,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task SignalsAsync(Body150? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task SignalsAsync(Body151? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -116832,7 +117229,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<TenantProvisioningResult> Register2Async(Body151? body)
+        public virtual System.Threading.Tasks.Task<TenantProvisioningResult> Register2Async(Body152? body)
         {
             return Register2Async(body, System.Threading.CancellationToken.None);
         }
@@ -116840,7 +117237,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<TenantProvisioningResult> Register2Async(Body151? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<TenantProvisioningResult> Register2Async(Body152? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -119145,7 +119542,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<PatchTechnologyLedgerEntryResponse> TechnologyLedgerPATCHAsync(System.Guid runId, string entryId, Body152? body)
+        public virtual System.Threading.Tasks.Task<PatchTechnologyLedgerEntryResponse> TechnologyLedgerPATCHAsync(System.Guid runId, string entryId, Body153? body)
         {
             return TechnologyLedgerPATCHAsync(runId, entryId, body, System.Threading.CancellationToken.None);
         }
@@ -119153,7 +119550,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<PatchTechnologyLedgerEntryResponse> TechnologyLedgerPATCHAsync(System.Guid runId, string entryId, Body152? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<PatchTechnologyLedgerEntryResponse> TechnologyLedgerPATCHAsync(System.Guid runId, string entryId, Body153? body, System.Threading.CancellationToken cancellationToken)
         {
             if (runId == null)
                 throw new System.ArgumentNullException("runId");
@@ -119732,7 +120129,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>Accepted</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<SubmitSupportProblemReportResponse> ProblemReportsAsync(Body153? body)
+        public virtual System.Threading.Tasks.Task<SubmitSupportProblemReportResponse> ProblemReportsAsync(Body154? body)
         {
             return ProblemReportsAsync(body, System.Threading.CancellationToken.None);
         }
@@ -119740,7 +120137,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Accepted</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<SubmitSupportProblemReportResponse> ProblemReportsAsync(Body153? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<SubmitSupportProblemReportResponse> ProblemReportsAsync(Body154? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -120112,7 +120509,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<TenantBaselineGetResponse> BaselinePUTAsync(Body154? body)
+        public virtual System.Threading.Tasks.Task<TenantBaselineGetResponse> BaselinePUTAsync(Body155? body)
         {
             return BaselinePUTAsync(body, System.Threading.CancellationToken.None);
         }
@@ -120120,7 +120517,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<TenantBaselineGetResponse> BaselinePUTAsync(Body154? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<TenantBaselineGetResponse> BaselinePUTAsync(Body155? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -120304,7 +120701,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<BillingCheckoutResponseDto> CheckoutAsync(Body155? body)
+        public virtual System.Threading.Tasks.Task<BillingCheckoutResponseDto> CheckoutAsync(Body156? body)
         {
             return CheckoutAsync(body, System.Threading.CancellationToken.None);
         }
@@ -120312,7 +120709,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<BillingCheckoutResponseDto> CheckoutAsync(Body155? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<BillingCheckoutResponseDto> CheckoutAsync(Body156? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -120685,7 +121082,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<BillingPortalResponseDto> PortalAsync(Body156? body)
+        public virtual System.Threading.Tasks.Task<BillingPortalResponseDto> PortalAsync(Body157? body)
         {
             return PortalAsync(body, System.Threading.CancellationToken.None);
         }
@@ -120693,7 +121090,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<BillingPortalResponseDto> PortalAsync(Body156? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<BillingPortalResponseDto> PortalAsync(Body157? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -121253,7 +121650,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task ConvertAsync(Body157? body)
+        public virtual System.Threading.Tasks.Task ConvertAsync(Body158? body)
         {
             return ConvertAsync(body, System.Threading.CancellationToken.None);
         }
@@ -121261,7 +121658,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task ConvertAsync(Body157? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task ConvertAsync(Body158? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -121627,7 +122024,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task CorePilotChecklistAsync(Body158? body)
+        public virtual System.Threading.Tasks.Task CorePilotChecklistAsync(Body159? body)
         {
             return CorePilotChecklistAsync(body, System.Threading.CancellationToken.None);
         }
@@ -121635,7 +122032,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task CorePilotChecklistAsync(Body158? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task CorePilotChecklistAsync(Body159? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -122001,7 +122398,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<TenantCostSettingsGetResponse> CostSettingsPUTAsync(Body159? body)
+        public virtual System.Threading.Tasks.Task<TenantCostSettingsGetResponse> CostSettingsPUTAsync(Body160? body)
         {
             return CostSettingsPUTAsync(body, System.Threading.CancellationToken.None);
         }
@@ -122009,7 +122406,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<TenantCostSettingsGetResponse> CostSettingsPUTAsync(Body159? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<TenantCostSettingsGetResponse> CostSettingsPUTAsync(Body160? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -122757,7 +123154,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task ProductFeedbackAsync(Body160? body)
+        public virtual System.Threading.Tasks.Task ProductFeedbackAsync(Body161? body)
         {
             return ProductFeedbackAsync(body, System.Threading.CancellationToken.None);
         }
@@ -122765,7 +123162,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task ProductFeedbackAsync(Body160? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task ProductFeedbackAsync(Body161? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -123691,7 +124088,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ExecDigestPreferencesResponse> ExecDigestPreferencesPOSTAsync(Body161? body)
+        public virtual System.Threading.Tasks.Task<ExecDigestPreferencesResponse> ExecDigestPreferencesPOSTAsync(Body162? body)
         {
             return ExecDigestPreferencesPOSTAsync(body, System.Threading.CancellationToken.None);
         }
@@ -123699,7 +124096,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ExecDigestPreferencesResponse> ExecDigestPreferencesPOSTAsync(Body161? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ExecDigestPreferencesResponse> ExecDigestPreferencesPOSTAsync(Body162? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -124071,7 +124468,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<TenantHomepageSettingsGetResponse> HomepageSettingsPUTAsync(Body162? body)
+        public virtual System.Threading.Tasks.Task<TenantHomepageSettingsGetResponse> HomepageSettingsPUTAsync(Body163? body)
         {
             return HomepageSettingsPUTAsync(body, System.Threading.CancellationToken.None);
         }
@@ -124079,7 +124476,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<TenantHomepageSettingsGetResponse> HomepageSettingsPUTAsync(Body162? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<TenantHomepageSettingsGetResponse> HomepageSettingsPUTAsync(Body163? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -124639,7 +125036,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task LinkEntraAsync(Body163? body)
+        public virtual System.Threading.Tasks.Task LinkEntraAsync(Body164? body)
         {
             return LinkEntraAsync(body, System.Threading.CancellationToken.None);
         }
@@ -124647,7 +125044,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task LinkEntraAsync(Body163? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task LinkEntraAsync(Body164? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -127105,7 +127502,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task AppearanceAsync(Body164? body)
+        public virtual System.Threading.Tasks.Task AppearanceAsync(Body165? body)
         {
             return AppearanceAsync(body, System.Threading.CancellationToken.None);
         }
@@ -127113,7 +127510,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task AppearanceAsync(Body164? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task AppearanceAsync(Body165? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -127905,7 +128302,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<OutboundWebhookDryRunResponse> DryRun3Async(Body165? body)
+        public virtual System.Threading.Tasks.Task<OutboundWebhookDryRunResponse> DryRun3Async(Body166? body)
         {
             return DryRun3Async(body, System.Threading.CancellationToken.None);
         }
@@ -127913,7 +128310,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<OutboundWebhookDryRunResponse> DryRun3Async(Body165? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<OutboundWebhookDryRunResponse> DryRun3Async(Body166? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -160793,6 +161190,21 @@ namespace ArchLucid.Api.Client.Generated
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class Body165
+    {
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class Body166
     {
 
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
