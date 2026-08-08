@@ -58,8 +58,13 @@ export const ALERT_RULES_PAGE_SUBTITLE = ALERTS_RULES_PAGE_SUBTITLE;
 export const ALERTS_SUMMARY_OPEN_LABEL = "Open alerts";
 export const ALERTS_SUMMARY_ACKNOWLEDGED_LABEL = "Acknowledged";
 export const ALERTS_SUMMARY_RESOLVED_LABEL = "Resolved";
+/** @deprecated Blocking is nested under {@link ALERTS_SUMMARY_OPEN_LABEL} (TB-2107). */
 export const ALERTS_SUMMARY_BLOCKING_LABEL = "Blocking alerts";
 export const ALERTS_SUMMARY_LAST_EVALUATED_LABEL = "Last evaluated";
+
+/** Explains that blocking is a severity subset of open — not a fourth lifecycle total (TB-2107). */
+export const ALERTS_SUMMARY_OPEN_BLOCKING_RELATIONSHIP_TITLE =
+  "Blocking counts open alerts with Critical or High severity. It is not added to the open total.";
 
 export const ALERTS_SUMMARY_LAST_EVALUATED_RULES_NOT_CONFIGURED = "Rules not configured";
 export const ALERTS_SUMMARY_LAST_EVALUATED_NEVER = "Never evaluated";

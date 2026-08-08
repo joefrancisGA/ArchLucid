@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import {
   AlertsInboxSummaryRow,
   resolveAlertsSummaryCountDisplay,
+  resolveOpenAlertsSummaryDisplay,
 } from "@/components/alerts/AlertsInboxSummaryRow";
 import {
   ALERTS_SUMMARY_ACKNOWLEDGED_LABEL,
@@ -13,6 +14,7 @@ import {
   ALERTS_SUMMARY_COUNT_NOT_EVALUATED_NO_RULES_ARIA,
   ALERTS_SUMMARY_LAST_EVALUATED_NEVER,
   ALERTS_SUMMARY_LAST_EVALUATED_RULES_NOT_CONFIGURED,
+  ALERTS_SUMMARY_OPEN_BLOCKING_RELATIONSHIP_TITLE,
   ALERTS_SUMMARY_OPEN_LABEL,
   ALERTS_SUMMARY_RESOLVED_LABEL,
 } from "@/lib/alerts-page-copy";
@@ -23,6 +25,13 @@ const ZERO_SUMMARY = {
   resolved: 0,
   blocking: 0,
   lastEvaluatedUtc: null as string | null,
+};
+
+const MEASURED_CONTEXT = {
+  loading: false,
+  workspaceContextLoading: false,
+  hasAlertRules: true,
+  lastEvaluatedUtc: "2026-08-08T12:00:00Z",
 };
 
 describe("resolveAlertsSummaryCountDisplay", () => {
@@ -87,6 +96,44 @@ describe("resolveAlertsSummaryCountDisplay", () => {
   });
 });
 
+describe("resolveOpenAlertsSummaryDisplay", () => {
+  it("keeps the loading placeholder while summary or workspace context loads", () => {
+    expect(
+      resolveOpenAlertsSummaryDisplay({
+        open: 3,
+        blocking: 2,
+        loading: true,
+        workspaceContextLoading: false,
+        hasAlertRules: true,
+        lastEvaluatedUtc: "2026-08-08T12:00:00Z",
+      }).value,
+    ).toBe("…");
+    expect(
+      resolveOpenAlertsSummaryDisplay({
+        open: 3,
+        blocking: 2,
+        loading: false,
+        workspaceContextLoading: true,
+        hasAlertRules: true,
+        lastEvaluatedUtc: "2026-08-08T12:00:00Z",
+      }).value,
+    ).toBe("…");
+  });
+
+  it("nests blocking inside the open tile when measured", () => {
+    const display = resolveOpenAlertsSummaryDisplay({
+      open: 3,
+      blocking: 2,
+      ...MEASURED_CONTEXT,
+    });
+
+    expect(display.value).toBe("3 open · 2 blocking");
+    expect(display.valueAriaLabel).toContain("3 open alerts");
+    expect(display.valueAriaLabel).toContain("2 blocking of open");
+    expect(display.tileTitle).toBe(ALERTS_SUMMARY_OPEN_BLOCKING_RELATIONSHIP_TITLE);
+  });
+});
+
 describe("AlertsInboxSummaryRow", () => {
   it("does not render numeric 0 counters when alert rules are not configured", () => {
     render(
@@ -103,7 +150,6 @@ describe("AlertsInboxSummaryRow", () => {
       ALERTS_SUMMARY_OPEN_LABEL,
       ALERTS_SUMMARY_ACKNOWLEDGED_LABEL,
       ALERTS_SUMMARY_RESOLVED_LABEL,
-      ALERTS_SUMMARY_BLOCKING_LABEL,
     ];
 
     for (const label of countLabels) {
@@ -116,17 +162,18 @@ describe("AlertsInboxSummaryRow", () => {
       );
     }
 
+    expect(within(row).queryByText(ALERTS_SUMMARY_BLOCKING_LABEL)).toBeNull();
     expect(within(row).getByText(ALERTS_SUMMARY_LAST_EVALUATED_RULES_NOT_CONFIGURED)).toBeInTheDocument();
   });
 
-  it("renders numeric counters when rules exist and an evaluation has run", () => {
+  it("nests blocking under open and omits a separate blocking tile", () => {
     render(
       <AlertsInboxSummaryRow
         summary={{
-          open: 2,
+          open: 3,
           acknowledged: 1,
           resolved: 0,
-          blocking: 3,
+          blocking: 2,
           lastEvaluatedUtc: "2026-08-08T12:00:00Z",
         }}
         loading={false}
@@ -136,10 +183,20 @@ describe("AlertsInboxSummaryRow", () => {
     );
 
     const row = screen.getByTestId("alerts-inbox-summary-row");
-    expect(within(row).getByText("2")).toBeInTheDocument();
+    const openTile = within(row).getByText(ALERTS_SUMMARY_OPEN_LABEL).parentElement;
+
+    expect(openTile).not.toBeNull();
+    expect(within(openTile as HTMLElement).getByText("3 open · 2 blocking")).toHaveAttribute(
+      "aria-label",
+      expect.stringContaining("3 open alerts"),
+    );
+    expect(within(openTile as HTMLElement).getByText("3 open · 2 blocking")).toHaveAttribute(
+      "aria-label",
+      expect.stringContaining("2 blocking of open"),
+    );
+    expect(within(row).queryByText(ALERTS_SUMMARY_BLOCKING_LABEL)).toBeNull();
     expect(within(row).getByText("1")).toBeInTheDocument();
     expect(within(row).getByText("0")).toBeInTheDocument();
-    expect(within(row).getByText("3")).toBeInTheDocument();
   });
 
   it("keeps counters unmeasured when rules exist but never evaluated", () => {
@@ -154,7 +211,7 @@ describe("AlertsInboxSummaryRow", () => {
 
     const row = screen.getByTestId("alerts-inbox-summary-row");
     expect(within(row).queryByText("0")).toBeNull();
-    expect(within(row).getAllByLabelText(ALERTS_SUMMARY_COUNT_NOT_EVALUATED_NEVER_RUN_ARIA)).toHaveLength(4);
+    expect(within(row).getAllByLabelText(ALERTS_SUMMARY_COUNT_NOT_EVALUATED_NEVER_RUN_ARIA)).toHaveLength(3);
     expect(within(row).getByText(ALERTS_SUMMARY_LAST_EVALUATED_NEVER)).toBeInTheDocument();
   });
 });
