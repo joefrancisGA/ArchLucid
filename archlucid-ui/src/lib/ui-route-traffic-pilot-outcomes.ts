@@ -1,19 +1,17 @@
-import { SPONSOR_REPORT_PILOT_OUTCOMES_PATH } from "@/lib/sponsor-report-navigation";
-
 /**
- * Traffic workbook row ID for Pilot outcomes sponsor report.
+ * Traffic workbook row ID for Pilot outcomes.
  * Owner backlog shorthand: SPP.
  */
 export const PILOT_OUTCOMES_TRAFFIC_ROW_ID = "SPP";
 
 /** Canonical path tracked on the SPP workbook row. */
-export const PILOT_OUTCOMES_TRAFFIC_PATH = SPONSOR_REPORT_PILOT_OUTCOMES_PATH;
+export const PILOT_OUTCOMES_TRAFFIC_PATH = "/insights/pilot-outcomes";
 
-/** Workbook Section column value (template catalog). */
+/** Workbook Section column value. */
 export const PILOT_OUTCOMES_TRAFFIC_SECTION = "Sponsor report";
 
 /**
- * Owner workbook Notes for SPP — documents Evidence chrome on Pilot outcomes.
+ * Owner workbook Notes for SPP - documents Evidence chrome on Pilot outcomes.
+ * ASCII-only for Windows console note scripts.
  */
-export const PILOT_OUTCOMES_TRAFFIC_NOTE =
-  "Sponsor pilot outcomes report (Sponsor report) - PilotValueReportPageClient/View with PageContextualHelpButton (topic map executive-summary; Category-1 registry), workspace Sources + claim-discipline orientation strip, period controls, Outcomes nav. Absorbs former VPX hit share from retired legacy `/value-report/pilot` bookmark. Period summary — not a signed-record Sources trail alone. Score 52/100 (2026-08-04) — sponsor period-summary hard-caps higher Evidence without diligence packing.";
+export const PILOT_OUTCOMES_TRAFFIC_NOTE =  "Pilot outcomes (Sponsor report) - PilotValueReportPageView with PageContextualHelpButton (topic map pilot-roi-model; Category-1 registry), PilotOutcomesEvidenceOrientationStrip (workspace Sources + claim-discipline: pilot outcomes only), Outcomes nav. Period pilot outcomes - not a signed-record Sources trail alone. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-08) - pilot outcomes launcher hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";

@@ -66,5 +66,6 @@ describe("ui-route-traffic-pilot-outcomes (SPP)", () => {
     expect(row?.notes).toBe(PILOT_OUTCOMES_TRAFFIC_NOTE);
     expect(row?.notes).toContain("PilotValueReportPageClient");
     expect(row?.notes).toContain("Sources");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
