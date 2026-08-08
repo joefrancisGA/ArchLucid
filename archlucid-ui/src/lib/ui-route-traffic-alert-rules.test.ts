@@ -66,5 +66,6 @@ describe("ui-route-traffic-alert-rules (SAX)", () => {
     expect(row?.notes).toBe(ALERT_RULES_TRAFFIC_NOTE);
     expect(row?.notes).toContain("AlertRulesHubClient");
     expect(row?.notes).toContain("Sources");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
