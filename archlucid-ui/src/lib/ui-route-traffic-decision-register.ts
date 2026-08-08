@@ -11,7 +11,8 @@ export const DECISION_REGISTER_TRAFFIC_PATH = "/governance/decision-register";
 export const DECISION_REGISTER_TRAFFIC_SECTION = "Alerts/gov";
 
 /**
- * Owner workbook Notes for GDO — documents Evidence chrome on Decision register.
+ * Owner workbook Notes for GDO - documents Evidence chrome on Decision register.
+ * ASCII-only for Windows console note scripts.
  */
 export const DECISION_REGISTER_TRAFFIC_NOTE =
-  "Decision register - DecisionRegisterClient with OperatorPageHeader PageContextualHelpButton (Learn more omitted — no decision-register specialty; TB-2050; not governance-approval catch-all), Category-1 registry, Sources follow-up strip + claim-discipline callout (register browse, not diligence pack), filters/summary/cards/timeline. Not a signed-record Sources trail by itself.";
+  "Decision register (Alerts/gov) - DecisionRegisterClient with OperatorPageHeader PageContextualHelpButton (Learn more omitted - no decision-register specialty; TB-2050; not governance-approval catch-all), Category-1 registry, DecisionRegisterSourcesStrip (Sources follow-up + claim-discipline: register browse, not diligence pack), filters/summary/cards/timeline. Not a signed-record Sources trail by itself. Does not imply CPA SOC 2 or third-party pen-test publication. Score 50/100 (2026-08-08) - register browse hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
