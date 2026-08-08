@@ -750,6 +750,12 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         if (string.Equals(previousLegacyRunStatus, nameof(ArchitectureRunStatus.Committed), StringComparison.OrdinalIgnoreCase))
             return;
 
+        if (OperationRunCancellationMarker.IsAlreadyCanceled(header))
+            return;
+
+        if (_operationCancellationRegistry.IsCancelRequested(scope, OperationIdCodec.ForRun(runGuid)))
+            return;
+
         ArchitectureRunStatus derived = _runStateTransitionService.DeriveStatusAfterExecuteCompletion(results);
 
         if (derived is ArchitectureRunStatus.ReadyForCommit
