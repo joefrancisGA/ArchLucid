@@ -1136,6 +1136,12 @@ public static class AuditEventTypes
         public const string SelectiveExecuteRequested = "Run.SelectiveExecuteRequested";
     }
 
+    /// <summary>Unified long-running operation lifecycle events (TB-2074 / TB-2076).</summary>
+    public static class Operation
+    {
+        public const string CancelRequested = "Operation.CancelRequested";
+    }
+
     /// <summary>
     ///     Stable namespaced strings for trusted-baseline mutation audit (<c>IBaselineMutationAuditService</c> → structured
     ///     <c>ILogger</c> only).

@@ -189,11 +189,13 @@ public sealed class OperationQueryServiceTests
             .ReturnsAsync(true);
         Mock<IRunRepository> runRepo = runs ?? new Mock<IRunRepository>();
         Mock<IAgentTaskRepository> taskRepo = agentTasks ?? new Mock<IAgentTaskRepository>();
+        Mock<IOperationCancellationRegistry> cancellation = new();
 
         return new OperationQueryService(
             jobReader.Object,
             access.Object,
             runRepo.Object,
-            taskRepo.Object);
+            taskRepo.Object,
+            cancellation.Object);
     }
 }

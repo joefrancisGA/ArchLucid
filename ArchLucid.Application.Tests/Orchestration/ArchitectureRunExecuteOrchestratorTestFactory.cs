@@ -1,10 +1,12 @@
 using ArchLucid.Application.AiUsage;
 using ArchLucid.Application.Budgeting;
+using ArchLucid.Application.Operations;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Core.AiUsage;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -19,17 +21,26 @@ public sealed record ArchitectureRunExecuteOrchestratorTailDependencies(
     TechnologyLedgerTopologyProposalSeeder TopologyProposalSeeder,
     DemoExpensiveActionGate DemoExpensiveActionGate,
     IRunScopedLlmBudgetReservationService RunScopedLlmBudgetReservationService,
+    IOperationCancellationRegistry OperationCancellationRegistry,
+    OperationRunCancellationMarker RunCancellationMarker,
     ILogger<ArchitectureRunExecuteOrchestrator> Logger);
 
 public static class ArchitectureRunExecuteOrchestratorTestFactory
 {
     internal static ArchitectureRunExecuteOrchestratorTailDependencies CreateStandardTailDependencies(
-        IScopeContextProvider? scopeContextProvider = null) =>
-        new(
+        IScopeContextProvider? scopeContextProvider = null,
+        IRunRepository? runRepository = null)
+    {
+        IRunRepository runs = runRepository ?? Mock.Of<IRunRepository>();
+
+        return new(
             CreateDefaultTopologyProposalSeeder(scopeContextProvider),
             CreatePermissiveDemoExpensiveActionGate(),
             CreatePassThroughRunScopedLlmBudgetReservationService(),
+            new OperationCancellationRegistry(),
+            new OperationRunCancellationMarker(runs),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
+    }
 
     internal static TechnologyLedgerTopologyProposalSeeder CreateDefaultTopologyProposalSeeder(
         IScopeContextProvider? scopeContextProvider = null) =>
@@ -55,4 +66,10 @@ public static class ArchitectureRunExecuteOrchestratorTestFactory
 
     internal static IRunScopedLlmBudgetReservationService CreatePassThroughRunScopedLlmBudgetReservationService() =>
         new PassThroughRunScopedLlmBudgetReservationService();
+
+    internal static IOperationCancellationRegistry CreateDefaultCancellationRegistry() =>
+        new OperationCancellationRegistry();
+
+    internal static OperationRunCancellationMarker CreateRunCancellationMarker(IRunRepository runRepository) =>
+        new(runRepository);
 }

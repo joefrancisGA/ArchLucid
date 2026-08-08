@@ -17,4 +17,6 @@ public interface IBackgroundJobQueue
     ///     Returns the serialized work unit for tenant-scope authorization on poll/download (TB-2073).
     /// </summary>
     Task<BackgroundJobWorkUnit?> TryGetWorkUnitAsync(string jobId, CancellationToken cancellationToken = default);
+
+    Task MarkCanceledAsync(string jobId, CancellationToken cancellationToken = default);
 }

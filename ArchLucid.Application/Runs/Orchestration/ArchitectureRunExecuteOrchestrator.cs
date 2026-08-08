@@ -9,6 +9,7 @@ using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Application.Runs;
+using ArchLucid.Application.Operations;
 using ArchLucid.Core.Budgeting;
 using ArchLucid.Core.Evidence;
 using ArchLucid.Core.Governance.PolicyPacks;
@@ -65,6 +66,8 @@ public sealed class ArchitectureRunExecuteOrchestrator(
     TechnologyLedgerTopologyProposalSeeder technologyLedgerTopologyProposalSeeder,
     DemoExpensiveActionGate demoExpensiveActionGate,
     IRunScopedLlmBudgetReservationService runScopedLlmBudgetReservationService,
+    IOperationCancellationRegistry operationCancellationRegistry,
+    OperationRunCancellationMarker runCancellationMarker,
     ILogger<ArchitectureRunExecuteOrchestrator> logger) : IArchitectureRunExecuteOrchestrator
 {
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
@@ -130,6 +133,12 @@ public sealed class ArchitectureRunExecuteOrchestrator(
 
     private readonly IRunScopedLlmBudgetReservationService _runScopedLlmBudgetReservationService =
         runScopedLlmBudgetReservationService ?? throw new ArgumentNullException(nameof(runScopedLlmBudgetReservationService));
+
+    private readonly IOperationCancellationRegistry _operationCancellationRegistry =
+        operationCancellationRegistry ?? throw new ArgumentNullException(nameof(operationCancellationRegistry));
+
+    private readonly OperationRunCancellationMarker _runCancellationMarker =
+        runCancellationMarker ?? throw new ArgumentNullException(nameof(runCancellationMarker));
 
     /// <inheritdoc/>
     public async Task<ExecuteRunResult> ExecuteRunAsync(string runId, CancellationToken cancellationToken = default)
@@ -315,6 +324,10 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         {
             return await ExecuteRunCoreInnerAsync(runId, actor, cancellationToken);
         }
+        catch (OperationCooperativeCanceledException)
+        {
+            throw;
+        }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             runActivity?.SetStatus(ActivityStatusCode.Error, ex.Message);
@@ -454,6 +467,8 @@ public sealed class ArchitectureRunExecuteOrchestrator(
 
             try
             {
+                await ThrowIfCooperativeCancelRequestedAsync(runId, cancellationToken);
+
                 try
                 {
                     using (AmbientAiUsageFeatureScope.Push(AiUsageFeature.ArchitectureGeneration))
@@ -909,6 +924,22 @@ public sealed class ArchitectureRunExecuteOrchestrator(
     private static bool TryParseRunGuid(string runId, out Guid runGuid)
     {
         return Guid.TryParseExact(runId, "N", out runGuid) || Guid.TryParse(runId, out runGuid);
+    }
+
+    private async Task ThrowIfCooperativeCancelRequestedAsync(string runId, CancellationToken cancellationToken)
+    {
+        if (!TryParseRunGuid(runId, out Guid runGuid))
+            return;
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        string operationId = OperationIdCodec.ForRun(runGuid);
+
+        if (!_operationCancellationRegistry.IsCancelRequested(scope, operationId))
+            return;
+
+        await _runCancellationMarker.TryMarkRunCanceledAsync(scope, runGuid, cancellationToken);
+
+        throw new OperationCooperativeCanceledException(runId);
     }
 
     private Task TryMarkRunExecuteFailedAsync(

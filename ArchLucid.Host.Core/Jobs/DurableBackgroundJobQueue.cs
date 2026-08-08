@@ -89,4 +89,7 @@ public sealed class DurableBackgroundJobQueue(
 
         return BackgroundJobWorkUnitJson.TryDeserialize(row.WorkUnitJson);
     }
+
+    public Task MarkCanceledAsync(string jobId, CancellationToken cancellationToken = default) =>
+        repository.MarkCanceledAsync(jobId, cancellationToken);
 }

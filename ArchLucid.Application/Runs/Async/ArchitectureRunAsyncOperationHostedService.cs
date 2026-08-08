@@ -1,5 +1,6 @@
 using ArchLucid.Application;
 using ArchLucid.Application.Common;
+using ArchLucid.Application.Operations;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Audit;
@@ -17,6 +18,7 @@ public sealed class ArchitectureRunAsyncOperationHostedService(
     ArchitectureRunAsyncOperationQueue queue,
     IServiceScopeFactory scopeFactory,
     IArchitectureRunAsyncOperationRegistrar registrar,
+    IOperationCancellationRegistry operationCancellationRegistry,
     ILogger<ArchitectureRunAsyncOperationHostedService> logger) : BackgroundService
 {
     private readonly ArchitectureRunAsyncOperationQueue _queue =
@@ -27,6 +29,9 @@ public sealed class ArchitectureRunAsyncOperationHostedService(
 
     private readonly IArchitectureRunAsyncOperationRegistrar _registrar =
         registrar ?? throw new ArgumentNullException(nameof(registrar));
+
+    private readonly IOperationCancellationRegistry _operationCancellationRegistry =
+        operationCancellationRegistry ?? throw new ArgumentNullException(nameof(operationCancellationRegistry));
 
     private readonly ILogger<ArchitectureRunAsyncOperationHostedService> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -61,6 +66,25 @@ public sealed class ArchitectureRunAsyncOperationHostedService(
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
 
         using IDisposable _ = AmbientScopeContext.Push(item.Scope);
+
+        string operationRunId = item.Kind == ArchitectureRunAsyncOperationKind.Replay
+            ? item.PreparedReplayRunId ?? item.RunId
+            : item.RunId;
+
+        if (Guid.TryParse(operationRunId, out Guid parsedRunId))
+        {
+            string operationId = OperationIdCodec.ForRun(parsedRunId);
+
+            if (_operationCancellationRegistry.IsCancelRequested(item.Scope, operationId))
+            {
+                OperationRunCancellationMarker runCancellationMarker =
+                    scope.ServiceProvider.GetRequiredService<OperationRunCancellationMarker>();
+
+                await runCancellationMarker.TryMarkRunCanceledAsync(item.Scope, parsedRunId, cancellationToken);
+
+                return;
+            }
+        }
 
         if (item.Kind == ArchitectureRunAsyncOperationKind.Execute)
         {

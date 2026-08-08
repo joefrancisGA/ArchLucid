@@ -1,4 +1,5 @@
 using ArchLucid.Application.Jobs;
+using ArchLucid.Application.Operations;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Jobs;
 
@@ -33,6 +34,7 @@ public sealed class BackgroundJobQueueProcessorHostedServiceTests
             queueClient.Object,
             repo.Object,
             scopeFactory.Object,
+            new OperationCancellationRegistry(),
             Options.Create(options));
 
         using var cts = new CancellationTokenSource();
@@ -70,6 +72,7 @@ public sealed class BackgroundJobQueueProcessorHostedServiceTests
             queueClient.Object,
             repo.Object,
             scopeFactory.Object,
+            new OperationCancellationRegistry(),
             Options.Create(options));
 
         using var cts = new CancellationTokenSource();
@@ -124,6 +127,7 @@ public sealed class BackgroundJobQueueProcessorHostedServiceTests
             queueClient.Object,
             repo.Object,
             scopeFactory.Object,
+            new OperationCancellationRegistry(),
             Options.Create(backgroundJobsOptions));
 
         int capturedMaxMessages = 0;
@@ -169,6 +173,7 @@ public sealed class BackgroundJobQueueProcessorHostedServiceTests
             queueClient.Object,
             repo.Object,
             scopeFactory.Object,
+            new OperationCancellationRegistry(),
             Options.Create(backgroundJobsOptions));
 
         queueClient.Setup(q => q.CreateIfNotExistsAsync(It.IsAny<Dictionary<string, string>>(), It.IsAny<CancellationToken>()))
@@ -203,6 +208,7 @@ public sealed class BackgroundJobQueueProcessorHostedServiceTests
             queueClient.Object,
             repo.Object,
             scopeFactory.Object,
+            new OperationCancellationRegistry(),
             Options.Create(backgroundJobsOptions));
 
         using CancellationTokenSource cts = new();
@@ -280,6 +286,7 @@ public sealed class BackgroundJobQueueProcessorHostedServiceTests
             queueClient.Object,
             repo.Object,
             scopeFactory,
+            new OperationCancellationRegistry(),
             Options.Create(backgroundJobsOptions));
 
         string workJson = BackgroundJobWorkUnitJson.Serialize(

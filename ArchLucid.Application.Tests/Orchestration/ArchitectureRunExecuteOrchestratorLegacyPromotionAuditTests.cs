@@ -187,6 +187,8 @@ public sealed class ArchitectureRunExecuteOrchestratorLegacyPromotionAuditTests
             ArchitectureRunExecuteOrchestratorTestFactory.CreateDefaultTopologyProposalSeeder(),
             ArchitectureRunExecuteOrchestratorTestFactory.CreatePermissiveDemoExpensiveActionGate(),
             ArchitectureRunExecuteOrchestratorTestFactory.CreatePassThroughRunScopedLlmBudgetReservationService(),
+            new OperationCancellationRegistry(),
+            new OperationRunCancellationMarker(runRepo.Object),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
 
         await sut.ExecuteRunAsync(runId);

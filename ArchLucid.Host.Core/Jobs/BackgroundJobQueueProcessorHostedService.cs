@@ -1,4 +1,5 @@
 using ArchLucid.Application.Jobs;
+using ArchLucid.Application.Operations;
 using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Host.Core.Configuration;
@@ -17,6 +18,7 @@ public sealed class BackgroundJobQueueProcessorHostedService(
     QueueClient queueClient,
     IBackgroundJobRepository repository,
     IServiceScopeFactory scopeFactory,
+    IOperationCancellationRegistry operationCancellationRegistry,
     IOptions<BackgroundJobsOptions> options) : BackgroundService, IAsyncDisposable
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -117,6 +119,14 @@ public sealed class BackgroundJobQueueProcessorHostedService(
         {
             logger.LogError("Job {JobId} has invalid WorkUnitJson; failing permanently.", LogSanitizer.Sanitize(jobId));
             await repository.MarkFailedTerminalAsync(jobId, "Invalid job payload.", row.RetryCount + 1, stoppingToken);
+            await queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt, stoppingToken);
+
+            return;
+        }
+
+        if (operationCancellationRegistry.IsCancelRequestedAnyScope(OperationIdCodec.ForJob(jobId)))
+        {
+            await repository.MarkCanceledAsync(jobId, stoppingToken);
             await queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt, stoppingToken);
 
             return;

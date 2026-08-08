@@ -239,6 +239,8 @@ public sealed class ArchitectureRunExecuteOrchestratorSelectiveExecuteTests
             ArchitectureRunExecuteOrchestratorTestFactory.CreateDefaultTopologyProposalSeeder(scopeProvider.Object),
             ArchitectureRunExecuteOrchestratorTestFactory.CreatePermissiveDemoExpensiveActionGate(),
             ArchitectureRunExecuteOrchestratorTestFactory.CreatePassThroughRunScopedLlmBudgetReservationService(),
+            new OperationCancellationRegistry(),
+            new OperationRunCancellationMarker(runRepo.Object),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
     }
 

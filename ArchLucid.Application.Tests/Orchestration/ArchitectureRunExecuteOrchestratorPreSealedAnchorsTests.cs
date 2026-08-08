@@ -191,6 +191,8 @@ public sealed class ArchitectureRunExecuteOrchestratorPreSealedAnchorsTests
             ArchitectureRunExecuteOrchestratorTestFactory.CreateDefaultTopologyProposalSeeder(),
             ArchitectureRunExecuteOrchestratorTestFactory.CreatePermissiveDemoExpensiveActionGate(),
             ArchitectureRunExecuteOrchestratorTestFactory.CreatePassThroughRunScopedLlmBudgetReservationService(),
+            tail.OperationCancellationRegistry,
+            tail.RunCancellationMarker,
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
 
         await sut.ExecuteRunAsync(runId);

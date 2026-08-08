@@ -10,11 +10,18 @@ internal static class RunOperationProjector
   internal static OperationDetail Project(
     string operationId,
     RunRecord run,
-    IReadOnlyList<AgentTask> tasks)
+    IReadOnlyList<AgentTask> tasks,
+    bool cancelRequested)
   {
     ArchitectureRunStatus status = ParseStatus(run.LegacyRunStatus);
-    OperationState state = MapState(status);
+    OperationState state = MapState(status, run, cancelRequested);
     (string stepLabel, int? currentStep, int? totalSteps) = ResolveProgress(status, tasks);
+
+    if (state == OperationState.CancelRequested)
+      stepLabel = "Cancel requested";
+
+    if (state == OperationState.Canceled)
+      stepLabel = "Canceled";
     DateTimeOffset heartbeat = ResolveHeartbeat(run, tasks, state);
 
     OperationResultRef resultRef = new(
@@ -43,7 +50,27 @@ internal static class RunOperationProjector
     return parsed;
   }
 
-  private static OperationState MapState(ArchitectureRunStatus status) =>
+  private static OperationState MapState(
+    ArchitectureRunStatus status,
+    RunRecord run,
+    bool cancelRequested)
+  {
+    if (OperationRunCancellationMarker.IsAlreadyCanceled(run))
+      return OperationState.Canceled;
+
+    if (cancelRequested && status is not (
+        ArchitectureRunStatus.ReadyForCommit
+        or ArchitectureRunStatus.Committed
+        or ArchitectureRunStatus.Failed
+        or ArchitectureRunStatus.FailedPartial
+        or ArchitectureRunStatus.ExecutionCompletedQualityRejected
+        or ArchitectureRunStatus.PartiallyCompleted))
+      return OperationState.CancelRequested;
+
+    return MapStatusState(status);
+  }
+
+  private static OperationState MapStatusState(ArchitectureRunStatus status) =>
     status switch
     {
       ArchitectureRunStatus.Created or ArchitectureRunStatus.TasksGenerated => OperationState.Pending,

@@ -239,6 +239,8 @@ public sealed class ArchitectureRunExecuteOrchestratorQualityGateTierEscalationT
             ArchitectureRunExecuteOrchestratorTestFactory.CreateDefaultTopologyProposalSeeder(),
             ArchitectureRunExecuteOrchestratorTestFactory.CreatePermissiveDemoExpensiveActionGate(),
             ArchitectureRunExecuteOrchestratorTestFactory.CreatePassThroughRunScopedLlmBudgetReservationService(),
+            new OperationCancellationRegistry(),
+            new OperationRunCancellationMarker(runRepo.Object),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
 
         ExecuteRunResult result = await sut.ExecuteRunAsync(runId);
@@ -450,6 +452,8 @@ public sealed class ArchitectureRunExecuteOrchestratorQualityGateTierEscalationT
             ArchitectureRunExecuteOrchestratorTestFactory.CreateDefaultTopologyProposalSeeder(),
             ArchitectureRunExecuteOrchestratorTestFactory.CreatePermissiveDemoExpensiveActionGate(),
             ArchitectureRunExecuteOrchestratorTestFactory.CreatePassThroughRunScopedLlmBudgetReservationService(),
+            new OperationCancellationRegistry(),
+            new OperationRunCancellationMarker(runRepo.Object),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
 
         await sut.ExecuteRunAsync(runId);

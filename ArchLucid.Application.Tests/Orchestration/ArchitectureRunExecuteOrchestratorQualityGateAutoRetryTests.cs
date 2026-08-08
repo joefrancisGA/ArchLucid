@@ -230,6 +230,8 @@ public sealed class ArchitectureRunExecuteOrchestratorQualityGateAutoRetryTests
             ArchitectureRunExecuteOrchestratorTestFactory.CreateDefaultTopologyProposalSeeder(),
             ArchitectureRunExecuteOrchestratorTestFactory.CreatePermissiveDemoExpensiveActionGate(),
             ArchitectureRunExecuteOrchestratorTestFactory.CreatePassThroughRunScopedLlmBudgetReservationService(),
+            new OperationCancellationRegistry(),
+            new OperationRunCancellationMarker(runRepo.Object),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
 
         ExecuteRunResult result = await sut.ExecuteRunAsync(runId);

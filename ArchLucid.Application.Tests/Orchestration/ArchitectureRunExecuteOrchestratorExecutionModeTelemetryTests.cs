@@ -210,6 +210,8 @@ public sealed class ArchitectureRunExecuteOrchestratorExecutionModeTelemetryTest
             ArchitectureRunExecuteOrchestratorTestFactory.CreateDefaultTopologyProposalSeeder(),
             ArchitectureRunExecuteOrchestratorTestFactory.CreatePermissiveDemoExpensiveActionGate(),
             ArchitectureRunExecuteOrchestratorTestFactory.CreatePassThroughRunScopedLlmBudgetReservationService(),
+            new OperationCancellationRegistry(),
+            new OperationRunCancellationMarker(runRepo.Object),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
     }
 }

@@ -38,6 +38,8 @@ public interface IBackgroundJobRepository
         string error,
         CancellationToken cancellationToken = default);
 
+    Task MarkCanceledAsync(string jobId, CancellationToken cancellationToken = default);
+
     Task<int> CountNonTerminalAsync(CancellationToken cancellationToken = default);
 
     /// <summary>

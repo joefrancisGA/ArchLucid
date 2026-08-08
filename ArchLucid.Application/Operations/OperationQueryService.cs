@@ -11,7 +11,8 @@ public sealed class OperationQueryService(
   IBackgroundJobInfoReader jobInfoReader,
   IBackgroundJobTenantAccessVerifier tenantAccessVerifier,
   IRunRepository runRepository,
-  IAgentTaskRepository agentTaskRepository) : IOperationQueryService
+  IAgentTaskRepository agentTaskRepository,
+  IOperationCancellationRegistry cancellationRegistry) : IOperationQueryService
 {
   private readonly IBackgroundJobInfoReader _jobInfoReader =
     jobInfoReader ?? throw new ArgumentNullException(nameof(jobInfoReader));
@@ -24,6 +25,9 @@ public sealed class OperationQueryService(
 
   private readonly IAgentTaskRepository _agentTaskRepository =
     agentTaskRepository ?? throw new ArgumentNullException(nameof(agentTaskRepository));
+
+  private readonly IOperationCancellationRegistry _cancellationRegistry =
+    cancellationRegistry ?? throw new ArgumentNullException(nameof(cancellationRegistry));
 
   public async Task<OperationDetail?> GetAsync(
     string operationId,
@@ -58,7 +62,10 @@ public sealed class OperationQueryService(
     if (job is null)
       return null;
 
-    return BackgroundJobOperationProjector.Project(operationId, job);
+    return BackgroundJobOperationProjector.Project(
+      operationId,
+      job,
+      _cancellationRegistry.IsCancelRequested(scope, operationId));
   }
 
   private async Task<OperationDetail?> GetRunOperationAsync(
@@ -78,6 +85,10 @@ public sealed class OperationQueryService(
     IReadOnlyList<Contracts.Agents.AgentTask> tasks =
       await _agentTaskRepository.GetByRunIdAsync(scope, runId.ToString("D"), cancellationToken);
 
-    return RunOperationProjector.Project(operationId, run, tasks);
+    return RunOperationProjector.Project(
+      operationId,
+      run,
+      tasks,
+      _cancellationRegistry.IsCancelRequested(scope, operationId));
   }
 }

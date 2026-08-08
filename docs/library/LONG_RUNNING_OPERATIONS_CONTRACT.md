@@ -87,7 +87,7 @@ Minimum fields (no `percentComplete` on the wire):
 | Concern | Contract rule |
 |---------|---------------|
 | Tenant scope | Every poll (`/v1/jobs/{id}`, `/v1/operations/{id}`) must authorize by tenant/workspace — not GUID secrecy (**TB-2073** / **TB-2074**). |
-| Cancel | `POST /v1/operations/{id}/cancel` must be cooperative and audited (**TB-2076**). |
+| Cancel | `POST /v1/operations/{id}/cancel` cooperative and audited (**TB-2076** **Done** 2026-08-08). |
 | Cross-tenant probe | Integration tests must reject foreign operation/job ids. |
 | Cost control | Abandoned Real-mode executes should be cancelable; do not leave unbounded AOAI spend without heartbeat/cancel. |
 
@@ -112,7 +112,7 @@ Minimum fields (no `percentComplete` on the wire):
 | 2 | **TB-2073** | Timeout ceiling matrix + job poll tenant audit (**Done** 2026-08-07) |
 | 3 | **TB-2074** | `GET /v1/operations/{operationId}` (**Done** 2026-08-07) |
 | 4 | **TB-2075** | Async execute/replay 202 + `Location` (**Done** 2026-08-08) |
-| 5 | **TB-2076** | Cancel |
+| 5 | **TB-2076** | Cancel (**Done** 2026-08-08) |
 | 6 | **TB-2077** | Shell in-flight operations affordance |
 | 7 | **TB-2078** | Tier B staged wait UX + `loading.tsx` sweep |
 | 8 | **TB-2079** | API latency-tier CI gate |

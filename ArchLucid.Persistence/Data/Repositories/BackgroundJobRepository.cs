@@ -282,6 +282,23 @@ public sealed class BackgroundJobRepository(IDbConnectionFactory connectionFacto
                 cancellationToken: cancellationToken));
     }
 
+    public async Task MarkCanceledAsync(string jobId, CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           UPDATE dbo.BackgroundJobs
+                           SET State = N'Canceled',
+                               CompletedUtc = SYSUTCDATETIME(),
+                               Error = N'Canceled by user.'
+                           WHERE JobId = @JobId
+                             AND State IN (N'Pending', N'Running')
+                           """;
+
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(sql, new { JobId = jobId }, cancellationToken: cancellationToken));
+    }
+
     public async Task<int> CountNonTerminalAsync(CancellationToken cancellationToken = default)
     {
         const string sql = """

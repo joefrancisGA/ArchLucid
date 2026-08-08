@@ -1,6 +1,8 @@
 using ArchLucid.Api.Controllers.Admin;
+using ArchLucid.Application.Common;
 using ArchLucid.Application.Operations;
 using ArchLucid.Contracts.Operations;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.TestSupport;
 
@@ -26,13 +28,24 @@ public sealed class OperationsControllerTests
 
     private static OperationsController CreateSut(
         Mock<IOperationQueryService>? operations = null,
-        Mock<IScopeContextProvider>? scopeProvider = null)
+        Mock<IScopeContextProvider>? scopeProvider = null,
+        Mock<IOperationCancelService>? cancel = null,
+        Mock<IAuditService>? audit = null)
     {
         Mock<IOperationQueryService> query = operations ?? new Mock<IOperationQueryService>();
+        Mock<IOperationCancelService> cancelService = cancel ?? new Mock<IOperationCancelService>();
         Mock<IScopeContextProvider> scope = scopeProvider ?? new Mock<IScopeContextProvider>();
+        Mock<IActorContext> actor = new();
+        Mock<IAuditService> auditService = audit ?? new Mock<IAuditService>();
         scope.Setup(p => p.GetCurrentScope()).Returns(DefaultScope);
+        actor.Setup(a => a.GetActor()).Returns("tester");
 
-        OperationsController controller = new(query.Object, scope.Object)
+        OperationsController controller = new(
+            query.Object,
+            cancelService.Object,
+            scope.Object,
+            actor.Object,
+            auditService.Object)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
@@ -88,5 +101,32 @@ public sealed class OperationsControllerTests
         OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
         string json = System.Text.Json.JsonSerializer.Serialize(ok.Value);
         json.Should().NotContain("percentComplete", "wire shape must not expose fake percentages (TB-2074).");
+    }
+
+    [SkippableFact]
+    public async Task CancelOperation_running_returns_200_and_audits()
+    {
+        string operationId = OperationIdCodec.ForRun(Guid.NewGuid());
+        OperationDetail cancelRequested = new(
+            operationId,
+            OperationState.CancelRequested,
+            "Cancel requested",
+            1,
+            3,
+            TimeProvider.System.GetUtcNow(),
+            null);
+        Mock<IOperationCancelService> cancel = new();
+        cancel
+            .Setup(c => c.RequestCancelAsync(operationId, DefaultScope, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(cancelRequested);
+        Mock<IAuditService> audit = new();
+        OperationsController sut = CreateSut(cancel: cancel, audit: audit);
+
+        IActionResult result = await sut.CancelOperation(operationId, CancellationToken.None);
+
+        result.Should().BeOfType<OkObjectResult>();
+        audit.Verify(
+            a => a.LogAsync(It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.Operation.CancelRequested), It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 }

@@ -88,6 +88,27 @@ public sealed class InMemoryBackgroundJobQueue(
             : Task.FromResult(_workUnits.TryGetValue(jobId, out BackgroundJobWorkUnit? unit) ? unit : null);
     }
 
+    public Task MarkCanceledAsync(string jobId, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(jobId))
+            return Task.CompletedTask;
+
+        if (!_info.TryGetValue(jobId, out BackgroundJobInfo? current))
+            return Task.CompletedTask;
+
+        if (current.State is not BackgroundJobState.Pending and not BackgroundJobState.Running)
+            return Task.CompletedTask;
+
+        _info[jobId] = current with
+        {
+            State = BackgroundJobState.Canceled,
+            CompletedUtc = TimeProvider.System.GetUtcNow(),
+            Error = "Canceled by user request."
+        };
+
+        return Task.CompletedTask;
+    }
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         await foreach (WorkItem item in _queue.Reader.ReadAllAsync(stoppingToken))
@@ -187,7 +208,7 @@ public sealed class InMemoryBackgroundJobQueue(
     private void EvictOldTerminalJobs()
     {
         List<BackgroundJobInfo> terminal = _info.Values
-            .Where(j => j.State is BackgroundJobState.Succeeded or BackgroundJobState.Failed)
+            .Where(j => j.State is BackgroundJobState.Succeeded or BackgroundJobState.Failed or BackgroundJobState.Canceled)
             .OrderBy(j => j.CompletedUtc)
             .ToList();
 

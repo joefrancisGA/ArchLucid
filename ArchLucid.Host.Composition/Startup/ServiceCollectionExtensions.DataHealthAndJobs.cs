@@ -4,6 +4,7 @@ using ArchLucid.Application.Operations;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Hosting;
 using ArchLucid.Host.Composition.Configuration;
+using ArchLucid.Host.Composition.Jobs;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Health;
 using ArchLucid.Host.Core.Hosted;
@@ -171,15 +172,23 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IBackgroundJobTenantAccessVerifier, BackgroundJobTenantAccessVerifier>();
         services.AddScoped<IBackgroundJobWorkUnitAccessor, BackgroundJobWorkUnitAccessor>();
         services.AddScoped<IBackgroundJobInfoReader, BackgroundJobInfoReader>();
+        services.AddSingleton<IOperationCancellationRegistry, OperationCancellationRegistry>();
+        services.AddScoped<OperationRunCancellationMarker>();
+        services.AddScoped<IOperationCancelService, OperationCancelService>();
         services.AddScoped<IOperationQueryService, OperationQueryService>();
 
         if (hostingRole == ArchLucidHostingRole.Worker)
         {
             if (!durable)
+            {
+                services.AddScoped<IBackgroundJobCancellationWriter, NoOpBackgroundJobCancellationWriter>();
+
                 return;
+            }
 
             RegisterDurableBackgroundJobInfrastructure(services);
             services.AddHostedService<BackgroundJobQueueProcessorHostedService>();
+            services.AddScoped<IBackgroundJobCancellationWriter, BackgroundJobRepositoryCancellationWriter>();
 
             return;
         }
@@ -200,6 +209,8 @@ public static partial class ServiceCollectionExtensions
 
             services.AddHostedService(static sp => (InMemoryBackgroundJobQueue)sp.GetRequiredService<IBackgroundJobQueue>());
         }
+
+        services.AddScoped<IBackgroundJobCancellationWriter, BackgroundJobCancellationWriter>();
     }
 
     private static void RegisterDurableBackgroundJobInfrastructure(IServiceCollection services)
