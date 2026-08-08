@@ -69,5 +69,6 @@ describe("ui-route-traffic-connection-status (ADC)", () => {
     expect(row?.section).toBe(CONNECTION_STATUS_TRAFFIC_SECTION);
     expect(row?.notes).toBe(CONNECTION_STATUS_TRAFFIC_NOTE);
     expect(row?.notes).toContain("ConnectorOperationsDashboard");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
