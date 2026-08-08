@@ -15,9 +15,12 @@ import {
 } from "@/components/ui/enterprise-table";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { fetchAdminRagHealth, type AdminRagCorpusHealthItem } from "@/lib/rag-health-admin";
+
+import { RagHealthEvidenceOrientationStrip } from "./RagHealthEvidenceOrientationStrip";
 
 function formatUtc(iso: string | null): string {
   if (!iso) {
@@ -79,15 +82,22 @@ export function RagHealthAdminPageClient() {
   return (
     <div className="w-full max-w-[1440px] space-y-6" data-testid="rag-health-admin-page">
       <div>
-        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>RAG corpus health</h1>
-        <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          Per-corpus chunk counts and last-indexed timestamps for this API host process. Embedding model:{" "}
-          <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{embeddingModelId || "—"}</span>.
-        </p>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>RAG corpus health</h1>
+            <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+              Per-corpus chunk counts and last-indexed timestamps for this API host process. Embedding model:{" "}
+              <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{embeddingModelId || "—"}</span>.
+            </p>
+          </div>
+          <PageContextualHelpButton />
+        </div>
         <Button type="button" variant="outline" size="sm" className="mt-3" disabled={loading} onClick={() => void refresh()}>
           {loading ? "Refreshing…" : "Refresh"}
         </Button>
       </div>
+
+      <RagHealthEvidenceOrientationStrip />
 
       {error ? (
         <p className={cn("text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.body)} role="alert">
