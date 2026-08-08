@@ -219,6 +219,127 @@ def iter_markdown_files(docs_dir: Path, *, exclude_archive: bool) -> list[Path]:
     return paths
 
 
+def is_within(path: Path, parent: Path) -> bool:
+    """True when ``path`` sits inside ``parent`` (both resolved)."""
+    try:
+        path.relative_to(parent.resolve())
+
+        return True
+    except ValueError:
+        return False
+
+
+def git_diff_names(base_ref: str) -> list[str]:
+    """Repo-relative paths changed between ``base_ref`` and ``HEAD``.
+
+    Uses the three-dot form, which diffs from the **merge base** rather than the
+    branch tip. Without it, commits that landed on the base branch after this
+    branch forked would count as "changed here", and a contributor could be
+    blocked by somebody else's headerless file.
+    """
+    completed = subprocess.run(
+        ["git", "diff", "--name-only", f"{base_ref}...HEAD"],
+        cwd=repo_root(),
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    if completed.returncode != 0:
+        detail = (completed.stderr or "").strip() or "unknown git error"
+
+        raise RuntimeError(f"git diff against {base_ref!r} failed: {detail}")
+
+    if not completed.stdout:
+        return []
+
+    return [line.strip() for line in completed.stdout.splitlines() if line.strip()]
+
+
+def changed_scope_targets(
+    base_ref: str,
+    *,
+    docs_dir: Path,
+    exclude_archive: bool,
+    check_readme: bool,
+) -> tuple[list[Path], Path | None]:
+    """Changed markdown this checker owns, as ``(docs files, README or None)``.
+
+    Paths that no longer exist are dropped: a file the branch deleted cannot
+    violate a header rule, and ``git diff --name-only`` still lists it.
+    """
+    root = repo_root()
+    readme_path = (root / "README.md").resolve()
+
+    docs_targets: list[Path] = []
+    readme_target: Path | None = None
+
+    for name in git_diff_names(base_ref):
+        if not name.lower().endswith(".md"):
+            continue
+
+        absolute = (root / name).resolve()
+
+        if not absolute.is_file():
+            continue
+
+        if absolute == readme_path:
+            if check_readme:
+                readme_target = absolute
+
+            continue
+
+        if not is_within(absolute, docs_dir):
+            continue
+
+        if exclude_archive and is_within(absolute, docs_dir / "archive"):
+            continue
+
+        docs_targets.append(absolute)
+
+    return sorted(set(docs_targets)), readme_target
+
+
+def readme_violations(readme: Path | None) -> list[str]:
+    """Scope-header violations for the repo-root README, when it is in scope."""
+    if readme is None:
+        return []
+
+    if not readme.is_file():
+        print("::warning::README.md not found at repo root; skipping.", file=sys.stderr)
+
+        return []
+
+    text = readme.read_text(encoding="utf-8", errors="replace")
+
+    if has_valid_readme_scope_header(text):
+        return []
+
+    return [str(readme.relative_to(repo_root()))]
+
+
+def docs_violations(paths: list[Path]) -> list[str]:
+    """Scope-header violations across ``paths``, formatted ``<rel>: <error>``."""
+    violations: list[str] = []
+
+    for md in paths:
+        text = md.read_text(encoding="utf-8", errors="replace")
+
+        doc_errs = docs_scope_validation_errors(text)
+
+        if not doc_errs:
+            continue
+
+        try:
+            label = str(md.relative_to(repo_root()))
+        except ValueError:
+            label = str(md)
+
+        violations.extend([f"{label}: {e}" for e in doc_errs])
+
+    return violations
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument(
@@ -245,45 +366,63 @@ def main(argv: list[str] | None = None) -> int:
         default=80,
         help="Maximum number of violating paths to print (default: 80).",
     )
+    parser.add_argument(
+        "--changed-only",
+        action="store_true",
+        help="Check only markdown changed vs --base-ref (merge-blocking ratchet mode).",
+    )
+    parser.add_argument(
+        "--base-ref",
+        default=None,
+        help="Base ref for --changed-only, e.g. origin/main.",
+    )
 
     args = parser.parse_args(argv)
 
-    violations: list[str] = []
+    if args.changed_only and not args.base_ref:
+        print("::error::--changed-only requires --base-ref (e.g. --base-ref origin/main).", file=sys.stderr)
 
-    if args.check_readme:
-        readme = repo_root() / "README.md"
+        return 2
 
-        if readme.is_file():
-            text = readme.read_text(encoding="utf-8", errors="replace")
+    if args.changed_only:
+        try:
+            docs_targets, readme_target = changed_scope_targets(
+                args.base_ref,
+                docs_dir=args.docs_dir,
+                exclude_archive=args.exclude_archive,
+                check_readme=args.check_readme,
+            )
+        except RuntimeError as exc:
+            print(f"::error::{exc}", file=sys.stderr)
 
-            if not has_valid_readme_scope_header(text):
-                violations.append(str(readme.relative_to(repo_root())))
-        else:
-            print("::warning::README.md not found at repo root; skipping.", file=sys.stderr)
+            return 2
+    else:
+        docs_targets = iter_markdown_files(args.docs_dir, exclude_archive=args.exclude_archive)
+        readme_target = (repo_root() / "README.md") if args.check_readme else None
 
-    for md in iter_markdown_files(args.docs_dir, exclude_archive=args.exclude_archive):
-        text = md.read_text(encoding="utf-8", errors="replace")
+    violations = readme_violations(readme_target) + docs_violations(docs_targets)
 
-        doc_errs = docs_scope_validation_errors(text)
-
-        if doc_errs:
-            try:
-                rel = md.relative_to(repo_root())
-                violations.extend([f"{rel}: {e}" for e in doc_errs])
-            except ValueError:
-                violations.extend([f"{md}: {e}" for e in doc_errs])
+    scanned = len(docs_targets) + (0 if readme_target is None else 1)
 
     if not violations:
-        print(
-            "check_doc_scope_header: OK (scope blockquote present on first non-empty line "
-            f"for all scanned docs under {args.docs_dir}"
-            + ("; README.md OK" if args.check_readme else "")
-            + ")."
-        )
+        if args.changed_only:
+            print(f"check_doc_scope_header: OK ({scanned} changed markdown file(s) in scope carry a scope header).")
+        else:
+            print(
+                "check_doc_scope_header: OK (scope blockquote present on first non-empty line "
+                f"for all scanned docs under {args.docs_dir}"
+                + ("; README.md OK" if args.check_readme else "")
+                + ")."
+            )
+
         return 0
 
+    # Changed-only is the blocking gate, so its findings are errors. The full scan stays a
+    # warning: annotating 400+ legacy files as errors would bury real failures in noise.
+    level = "error" if args.changed_only else "warning"
+
     print(
-        f"::warning::{len(violations)} markdown file(s) missing a leading `> **Scope:**` blockquote "
+        f"::{level}::{len(violations)} markdown file(s) missing a leading `> **Scope:**` blockquote "
         f"(or README missing `<!-- **Scope:**`). First {min(len(violations), args.max_list)}:",
         file=sys.stderr,
     )
