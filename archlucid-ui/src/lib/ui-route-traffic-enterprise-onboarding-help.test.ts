@@ -69,5 +69,6 @@ describe("ui-route-traffic-enterprise-onboarding-help (HEX)", () => {
     expect(row?.section).toBe(ENTERPRISE_ONBOARDING_HELP_TRAFFIC_SECTION);
     expect(row?.notes).toBe(ENTERPRISE_ONBOARDING_HELP_TRAFFIC_NOTE);
     expect(row?.notes).toContain("HelpTopicMarkdownView");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
