@@ -66,5 +66,6 @@ describe("ui-route-traffic-alerts-inbox-tab (GOI)", () => {
     expect(row?.notes).toBe(ALERTS_INBOX_TAB_TRAFFIC_NOTE);
     expect(row?.notes).toContain("shouldCanonicalizeAlertsInboxTabParam");
     expect(row?.notes).toContain("Score 28");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
