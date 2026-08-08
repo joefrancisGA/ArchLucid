@@ -67,5 +67,6 @@ describe("ui-route-traffic-policy-pack-delta-demo-help (POL)", () => {
     expect(row?.notes).toContain("HelpPolicyPackDeltaDemoGuideView");
     expect(row?.notes).toContain("dry-run");
     expect(row?.notes).toContain("Score 52");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });

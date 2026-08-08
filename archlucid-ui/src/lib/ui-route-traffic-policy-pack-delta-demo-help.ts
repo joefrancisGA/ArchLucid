@@ -9,12 +9,12 @@ export const POLICY_PACK_DELTA_DEMO_HELP_TRAFFIC_ROW_ID = "POL";
 /** Canonical path tracked on the POL workbook row. */
 export const POLICY_PACK_DELTA_DEMO_HELP_TRAFFIC_PATH = POLICY_PACK_DELTA_DEMO_HELP_PATH;
 
-/** Workbook Section column value — in-app help topic, not marketing. */
+/** Workbook Section column value â€” in-app help topic, not marketing. */
 export const POLICY_PACK_DELTA_DEMO_HELP_TRAFFIC_SECTION = "Help topic";
 
 /**
- * Owner workbook Notes for POL — documents the specialty SE/Admin demo guide surface.
+ * Owner workbook Notes for POL â€” documents the specialty SE/Admin demo guide surface.
  * ASCII-only for Windows console note scripts.
  */
 export const POLICY_PACK_DELTA_DEMO_HELP_TRAFFIC_NOTE =
-  "Specialty policy-pack delta demo (internal runbook) - HelpPolicyPackDeltaDemoGuideView with policy-packs / standards-and-rules / audit primary CTAs, Sources diligence strip (findings, audit-trail help, governance-approval, alerts), 5-minute narrative arc, claim-discipline callout (dry-run is not certification), PageContextualHelp, and prepared POLICY_PACK_DELTA_DEMO_SCRIPT.md (TB-1727 leakage strip). Not bare HelpTopicMarkdownView. Admin-gated internal Help Center tier. Score 52/100 (2026-08-08) - help-topic orientation hard-caps higher Evidence.";
+ "Specialty policy-pack delta demo (internal runbook) - HelpPolicyPackDeltaDemoGuideView with policy-packs / standards-and-rules / audit primary CTAs, Sources diligence strip (findings, audit-trail help, governance-approval, alerts), 5-minute narrative arc, claim-discipline callout (dry-run is not certification), PageContextualHelp, and prepared POLICY_PACK_DELTA_DEMO_SCRIPT.md (TB-1727 leakage strip). Not bare HelpTopicMarkdownView. Admin-gated internal Help Center tier. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-08) - help-topic orientation hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";
