@@ -15,4 +15,4 @@ export const AUTH_INVITE_TRAFFIC_SECTION = "Auth";
  * ASCII-only for Windows console note scripts.
  */
 export const AUTH_INVITE_TRAFFIC_NOTE =
-  "Auth invite (Auth) - InvitationAcceptPageClient with AuthInviteEvidenceOrientationStrip (public Sources + claim-discipline: authentication handoff only). Token validation + Continue to sign in. Not an operator PageContextualHelp surface (pre-sign-in handoff). Sibling AUB = bootstrap; ASU = session-expired; ASI = signin; SRI = invite-reviewer admin. Score 40/100 (2026-08-06) - auth invite handoff hard-caps higher Evidence.";
+ "Auth invite (Auth) - InvitationAcceptPageClient with. Token validation + Continue to sign in. Not an operator PageContextualHelp surface (pre-sign-in handoff). Sibling AUB = bootstrap; ASU = session-expired; ASI = signin; SRI = invite-reviewer admin. Does not imply CPA SOC 2 or third-party pen-test publication. Score 40/100 (2026-08-06) - auth invite handoff hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";

@@ -64,6 +64,7 @@ describe("ui-route-traffic-auth-invite (AUI)", () => {
     expect(row?.path).toBe(AUTH_INVITE_TRAFFIC_PATH);
     expect(row?.section).toBe(AUTH_INVITE_TRAFFIC_SECTION);
     expect(row?.notes).toBe(AUTH_INVITE_TRAFFIC_NOTE);
-    expect(row?.notes).toContain("AuthInviteEvidenceOrientationStrip");
+    expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
