@@ -11,7 +11,8 @@ export const REVIEW_WORKSPACE_TRAFFIC_PATH = "/architecture/reviews/[runId]";
 export const REVIEW_WORKSPACE_TRAFFIC_SECTION = "Core review";
 
 /**
- * Owner workbook Notes for RRE — absorbs former SRN (legacy `/snapshot/[runId]` redirect) hit share.
+ * Owner workbook Notes for RRE - documents Evidence chrome on review workspace detail.
+ * ASCII-only for Windows console note scripts.
  */
 export const REVIEW_WORKSPACE_TRAFFIC_NOTE =
-  "Review workspace detail. Absorbs former SRN hit share from retired legacy `/snapshot/[runId]` bookmark row (hard-retired — use `/architecture/reviews/{runId}?readOnly=1` leave-behind). Canonical leave-behind UX. Does not imply CPA SOC 2 or third-party pen-test publication.";
+  "Review workspace detail (Core review) - RunDetailPageView with PageContextualHelpButton (topic map review-packages; Category-1 registry), ReviewWorkspaceEvidenceOrientationStrip (workspace Sources + claim-discipline: package leave-behind only), decision snapshot, findings/tabs. Absorbs former SRN hit share from retired legacy /snapshot/[runId] bookmark (hard-retired; use /architecture/reviews/{runId}?readOnly=1 leave-behind). Sibling RE = reviews list; RRF = finding detail; ERU = evidence-trace. Not a full signed-record diligence package alone. Does not imply CPA SOC 2 or third-party pen-test publication. Score 60/100 (2026-08-08) - package leave-behind hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.";

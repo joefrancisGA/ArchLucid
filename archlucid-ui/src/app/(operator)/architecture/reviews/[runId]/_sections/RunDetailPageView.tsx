@@ -781,6 +781,7 @@ export function RunDetailPageView(props: {
               ) : (
                 <>
                   <RunDetailWorkspaceHeader
+                    runId={m.resolvedDetail.run.runId}
                     reviewTitle={reviewDisplayTitle}
                     systemName={systemName}
                     workspaceStatus={workspaceStatus}
