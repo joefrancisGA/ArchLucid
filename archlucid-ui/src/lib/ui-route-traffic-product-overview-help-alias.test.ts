@@ -66,5 +66,6 @@ describe("ui-route-traffic-product-overview-help-alias (EPR)", () => {
     expect(row?.notes).toBe(PRODUCT_OVERVIEW_HELP_ALIAS_TRAFFIC_NOTE);
     expect(row?.notes).toContain("HelpExecutiveSummaryGuideView");
     expect(row?.notes).toContain("Score 52");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
