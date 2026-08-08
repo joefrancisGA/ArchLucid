@@ -3,11 +3,7 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { REVIEWS_LIST_PATH } from "@/lib/architecture-routes";
-import {
-  artifactPreviewHref,
-  runArtifactPreviewPath,
-} from "@/lib/artifact-preview-href";
+import { artifactPreviewHref } from "@/lib/artifact-preview-href";
 import { signedRecordArtifactPath } from "@/lib/signed-records-paths";
 
 describe("artifactPreviewHref (TB-1821 / TB-1822 / TB-1948)", () => {
@@ -27,13 +23,7 @@ describe("artifactPreviewHref (TB-1821 / TB-1822 / TB-1948)", () => {
     );
   });
 
-  it("keeps runArtifactPreviewPath for bookmark RER redirects only", () => {
-    expect(runArtifactPreviewPath(runId, artifactId)).toBe(
-      `${REVIEWS_LIST_PATH}/${encodeURIComponent(runId)}/artifacts/${encodeURIComponent(artifactId)}`,
-    );
-  });
-
-  it("targets App Router pages that exist on disk", () => {
+  it("does not keep a run-scoped RER App Router page (bookmark redirect removed)", () => {
     const appRoot = join(process.cwd(), "src", "app", "(operator)");
     const rerPage = join(
       appRoot,
@@ -54,7 +44,7 @@ describe("artifactPreviewHref (TB-1821 / TB-1822 / TB-1948)", () => {
       "page.tsx",
     );
 
-    expect(existsSync(rerPage)).toBe(true);
+    expect(existsSync(rerPage)).toBe(false);
     expect(existsSync(mamPage)).toBe(true);
 
     expect(artifactPreviewHref(manifestId, artifactId, runId)).toBe(

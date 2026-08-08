@@ -1,11 +1,11 @@
 /**
  * Removed traffic workbook row ID for run-scoped artifact Preview (TB-1821).
- * Do not reintroduce as a scored surface — Preview hrefs emit GAR only; App Router
- * RER page remains as a bookmark permanentRedirect into GAR (catalog redirect-only).
+ * Do not reintroduce as a scored surface — Preview hrefs emit GAR only.
+ * Bookmark-only RER App Router permanentRedirect removed (old URLs 404).
  */
 export const REMOVED_RUN_ARTIFACT_PREVIEW_TRAFFIC_ROW_ID = "RER";
 
-/** Bookmark redirect path — not scored; product Preview uses GAR. */
+/** Retired run-scoped Preview path — no App Router page; not scored. */
 export const RETIRED_RUN_ARTIFACT_PREVIEW_TRAFFIC_PATH =
   "/architecture/reviews/[runId]/artifacts/[artifactId]" as const;
 

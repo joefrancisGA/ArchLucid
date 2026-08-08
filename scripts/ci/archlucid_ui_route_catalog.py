@@ -117,9 +117,8 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/product-learning": "/internal/product-learning",
 }
 
-# Legacy App Router redirect stubs — canonical nav hrefs live under /governance/advisory-scans (TB-1124).
-# /alert-routing has no App Router page after TB-1441 (next.config permanent redirect only).
-# RER run-scoped artifact Preview is bookmark-only permanentRedirect into GAR (not traffic-scored).
+# Paths that must not appear as scored App Router catalog entries (pages gone / never traffic-scored).
+# RER run-scoped artifact Preview App Router shim removed — old bookmarks 404; Preview hrefs are GAR only.
 REDIRECT_ONLY_APP_PATHS = frozenset(
     {
         "/advisory",

@@ -2,6 +2,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import { ArtifactListTable } from "./ArtifactListTable";
+import { artifactPreviewHref } from "@/lib/artifact-preview-href";
 import { signedRecordArtifactPath } from "@/lib/signed-records-paths";
 
 vi.mock("next/link", () => ({
@@ -141,21 +142,21 @@ describe("ArtifactListTable", () => {
     );
 
     const preview = screen.getByRole("link", { name: "Open sponsor brief" });
-    expect(preview.getAttribute("href")).toBe(artifactPreviewHref("manifest-1", "md", "run-guid-1"));
+    expect(preview.getAttribute("href")).toBe(signedRecordArtifactPath("manifest-1", "md"));
   });
 
   it("sponsor mode: omits redundant filename caption when stem aligns with business label", () => {
     const row = {
       artifactId: "artifact-guid-md",
       artifactType: "MarkdownReport",
-      name: "Sponsor briefing â€” Claims Intake Modernization.md",
+      name: "Sponsor briefing — Claims Intake Modernization.md",
       format: "text/markdown",
       createdUtc: "2020-01-01T00:00:00Z",
       contentHash: "abcdef123456",
     };
     render(<ArtifactListTable manifestId="manifest-1" artifacts={[row]} sponsorMode />);
 
-    expect(screen.queryByText("Sponsor briefing â€” Claims Intake Modernization")).toBeNull();
+    expect(screen.queryByText("Sponsor briefing — Claims Intake Modernization")).toBeNull();
     expect(screen.getByRole("columnheader", { name: "Output" })).toBeInTheDocument();
   });
 
