@@ -66,5 +66,6 @@ describe("ui-route-traffic-creating-runs-help-alias (HER)", () => {
     expect(row?.notes).toBe(CREATING_RUNS_HELP_ALIAS_TRAFFIC_NOTE);
     expect(row?.notes).toContain("HelpReviewGuideView");
     expect(row?.notes).toContain("Score 52");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
