@@ -15,4 +15,4 @@ export const SUBPROCESSORS_HELP_TRAFFIC_SECTION = "Help topic";
  * ASCII-only for Windows console note scripts.
  */
 export const SUBPROCESSORS_HELP_TRAFFIC_NOTE =
-  "Subprocessors help (Help topic) - HelpTopicMarkdownView with PageContextualHelp + SubprocessorsHelpEvidenceOrientationStrip (Sources + claim-discipline), curated subprocessors register (TB-1752/1755 leakage strip). Sibling HDP = DPA template; HSE = security-trust; HED = data-handling. Not bare catch-all help chrome. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-08) - help-topic orientation hard-caps higher Evidence.";
+  "Subprocessors help (Help topic) - HelpTopicMarkdownView with PageContextualHelp + SubprocessorsHelpEvidenceOrientationStrip (Sources + claim-discipline), curated subprocessors register (TB-1752/1755 leakage strip). Sibling HDP = DPA template; HSE = security-trust; HED = data-handling. Not bare catch-all help chrome. Score 52/100 (2026-08-08) - help-topic orientation hard-caps higher Evidence.";

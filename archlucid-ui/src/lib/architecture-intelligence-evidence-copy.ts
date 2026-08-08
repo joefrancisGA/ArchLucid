@@ -5,7 +5,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export const ARCHITECTURE_INTELLIGENCE_CANONICAL_PATH = ARCHITECTURE_INTELLIGENCE_PATH;
 
 export const ARCHITECTURE_INTELLIGENCE_CLAIM_DISCIPLINE =
-  "This Architecture intelligence page runs closed-loop reasoning and optional publish-to-findings - it is not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Findings, Start a review, or Audit when you need live packages or assurance cites.";
+  "This Architecture intelligence page runs closed-loop reasoning and optional publish-to-findings - it is not a signed-review diligence Sources package. Open Findings, Start a review, or Audit when you need live packages or assurance cites.";
 
 export const ARCHITECTURE_INTELLIGENCE_SOURCES_INTRO =
   "Use these follow-ups when reasoning output turns into findings triage, review intake, or assurance cites.";

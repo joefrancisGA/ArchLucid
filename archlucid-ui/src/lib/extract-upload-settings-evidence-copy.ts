@@ -3,7 +3,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export const EXTRACT_UPLOAD_SETTINGS_CANONICAL_PATH = "/administration/extract-upload" as const;
 
 export const EXTRACT_UPLOAD_SETTINGS_CLAIM_DISCIPLINE =
-  "This Extract and Upload page collects a read-only Azure inventory ZIP for architecture reviews - it is not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Evidence intake help, Start a review, or Cloud connections when you need intake guidance or live connectors.";
+  "This Extract and Upload page collects a read-only Azure inventory ZIP for architecture reviews - it is not a signed-review diligence Sources package. Open Evidence intake help, Start a review, or Cloud connections when you need intake guidance or live connectors.";
 
 export const EXTRACT_UPLOAD_SETTINGS_SOURCES_INTRO =
   "Use these follow-ups when an uploaded package turns into a review run, intake guidance, or optional cloud connectors.";

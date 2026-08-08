@@ -3,7 +3,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export const TENANT_HEALTH_CANONICAL_PATH = "/internal/tenant-health" as const;
 
 export const TENANT_HEALTH_CLAIM_DISCIPLINE =
-  "Tenant health scores summarize engagement, governance activity, and pilot funnel stage for customer-success operators — they are not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open System health or Audit when you need operational or governed trails.";
+  "Tenant health scores summarize engagement, governance activity, and pilot funnel stage for customer-success operators — they are not a signed-review diligence Sources package. Open System health or Audit when you need operational or governed trails.";
 
 export const TENANT_HEALTH_SOURCES_INTRO =
   "Use these follow-ups when a low engagement score needs operational checks, isolation guidance, or product orientation.";

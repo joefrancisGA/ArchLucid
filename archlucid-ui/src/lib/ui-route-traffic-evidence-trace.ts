@@ -15,4 +15,4 @@ export const EVIDENCE_TRACE_TRAFFIC_SECTION = "Core review";
  * Owner workbook Notes for ERU — absorbs former RR (legacy `/inspect` redirect) hit share.
  */
 export const EVIDENCE_TRACE_TRAFFIC_NOTE =
-  "Finding evidence-trace (canonical inspector). Absorbs former RR hit share from retired legacy `/inspect` bookmark row (FindingInspectLegacyRedirectPage still permanentRedirects here). Score transferred from RR Evidence hard-cap (redirect/shim honesty). Does not imply CPA SOC 2 or third-party pen-test publication.";
+  "Finding evidence-trace (canonical inspector). Absorbs former RR hit share from retired legacy `/inspect` bookmark row (FindingInspectLegacyRedirectPage still permanentRedirects here). Score transferred from RR Evidence hard-cap (redirect/shim honesty).";

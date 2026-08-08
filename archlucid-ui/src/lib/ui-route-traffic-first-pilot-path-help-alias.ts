@@ -19,4 +19,4 @@ export const FIRST_PILOT_PATH_HELP_ALIAS_TRAFFIC_SECTION = "Help alias";
  * Owner workbook Notes for FIR — documents the legacy slug alias bookmark.
  */
 export const FIRST_PILOT_PATH_HELP_ALIAS_TRAFFIC_NOTE =
-  "Deprecated first-pilot-path help alias (Help alias) - slug alias first-pilot-path -> first-architecture-review; renders HelpCorePilotGuideView Evidence chrome (Sources strip + PageContextualHelp + Category-1 on alias path). Canon COR = /help/first-architecture-review. Body lives in CORE_PILOT.md#complete-review-workflow (TB-1379). Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-05) - help-topic orientation hard-caps higher Evidence (alias inherits COR).";
+  "Deprecated first-pilot-path help alias (Help alias) - slug alias first-pilot-path -> first-architecture-review; renders HelpCorePilotGuideView Evidence chrome (Sources strip + PageContextualHelp + Category-1 on alias path). Canon COR = /help/first-architecture-review. Body lives in CORE_PILOT.md#complete-review-workflow (TB-1379). Score 52/100 (2026-08-05) - help-topic orientation hard-caps higher Evidence (alias inherits COR).";

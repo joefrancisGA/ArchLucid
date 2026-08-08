@@ -16,6 +16,6 @@ describe("run-detail-governance-sources", () => {
 
   it("states claim discipline without implying certification", () => {
     expect(RUN_DETAIL_GOVERNANCE_PRE_COMMIT_CLAIM_DISCIPLINE.toLowerCase()).toContain("not the committed");
-    expect(RUN_DETAIL_GOVERNANCE_PRE_COMMIT_CLAIM_DISCIPLINE.toLowerCase()).toContain("cpa");
+    expect(RUN_DETAIL_GOVERNANCE_PRE_COMMIT_CLAIM_DISCIPLINE.toLowerCase()).not.toContain("cpa");
   });
 });

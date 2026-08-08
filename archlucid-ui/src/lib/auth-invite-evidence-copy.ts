@@ -1,7 +1,7 @@
 export const AUTH_INVITE_CANONICAL_PATH = "/auth/invite" as const;
 
 export const AUTH_INVITE_CLAIM_DISCIPLINE =
-  "This invitation accept page validates a workspace invite before sign-in - it is an authentication handoff, not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. After you sign in and join, open Assurance status or a finalized review when you need live workspace evidence.";
+  "This invitation accept page validates a workspace invite before sign-in - it is an authentication handoff, not a signed-review diligence Sources package. After you sign in and join, open Assurance status or a finalized review when you need live workspace evidence.";
 
 export const AUTH_INVITE_SOURCES_INTRO =
   "Use these follow-ups when the invitation is invalid or you need product orientation before signing in.";

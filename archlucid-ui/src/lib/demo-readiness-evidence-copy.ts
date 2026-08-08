@@ -3,7 +3,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export const DEMO_READINESS_CANONICAL_PATH = "/internal/demo-readiness" as const;
 
 export const DEMO_READINESS_CLAIM_DISCIPLINE =
-  "This Demo readiness page is an internal employee diagnostic for buyer CTO demo checks - it is not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open System health, Trial funnel, or Audit when you need live dependency, conversion, or governed trails.";
+  "This Demo readiness page is an internal employee diagnostic for buyer CTO demo checks - it is not a signed-review diligence Sources package. Open System health, Trial funnel, or Audit when you need live dependency, conversion, or governed trails.";
 
 export const DEMO_READINESS_SOURCES_INTRO =
   "Use these follow-ups when demo checks turn into platform health, trial conversion, or public demo surfaces.";

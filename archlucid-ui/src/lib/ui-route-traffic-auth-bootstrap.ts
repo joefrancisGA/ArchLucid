@@ -15,4 +15,4 @@ export const AUTH_BOOTSTRAP_TRAFFIC_SECTION = "Auth";
  * ASCII-only for Windows console note scripts.
  */
 export const AUTH_BOOTSTRAP_TRAFFIC_NOTE =
-  "Auth bootstrap (Auth) - PostAuthBootstrapClient with AuthBootstrapEvidenceOrientationStrip (public Sources + claim-discipline: authentication handoff only; not diligence / CPA SOC 2 / third-party pen-test). Accept invitation / select workspace / create workspace / no-access steps. Not an operator PageContextualHelp surface (post-sign-in handoff). Sibling ASU = session-expired; ASI = signin; AUI = invite. Does not imply CPA SOC 2 or third-party pen-test publication. Score 40/100 (2026-08-06) - auth bootstrap handoff hard-caps higher Evidence.";
+  "Auth bootstrap (Auth) - PostAuthBootstrapClient with AuthBootstrapEvidenceOrientationStrip (public Sources + claim-discipline: authentication handoff only). Accept invitation / select workspace / create workspace / no-access steps. Not an operator PageContextualHelp surface (post-sign-in handoff). Sibling ASU = session-expired; ASI = signin; AUI = invite. Score 40/100 (2026-08-06) - auth bootstrap handoff hard-caps higher Evidence.";

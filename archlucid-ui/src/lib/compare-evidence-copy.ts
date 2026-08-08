@@ -1,7 +1,7 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const COMPARE_CLAIM_DISCIPLINE =
-  "Comparison output and AI narrative are directional diffs between two finalized reviews — not a signed-review diligence Sources package by themselves. Open pair Sources after Compare before briefing sponsors. Do not imply CPA SOC 2 attestation or a published third-party pen test from this page.";
+  "Comparison output and AI narrative are directional diffs between two finalized reviews — not a signed-review diligence Sources package by themselves. Open pair Sources after Compare before briefing sponsors.";
 
 export const COMPARE_SOURCES_INTRO =
   "Pick two finalized reviews below, then open Reviews, Evidence trail, or Compare help when you need orientation before treating the diff as authoritative.";

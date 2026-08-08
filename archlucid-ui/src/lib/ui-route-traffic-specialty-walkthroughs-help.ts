@@ -15,4 +15,4 @@ export const SPECIALTY_WALKTHROUGHS_HELP_TRAFFIC_SECTION = "Help topic";
  * ASCII-only for Windows console note scripts.
  */
 export const SPECIALTY_WALKTHROUGHS_HELP_TRAFFIC_NOTE =
-  "Specialty walkthroughs help (Help topic) - HelpSpecialtyWalkthroughTemplatesView with PageContextualHelp + SpecialtyWalkthroughsHelpEvidenceOrientationStrip (Sources + claim-discipline), template catalog CTAs into Start review. Sibling RNX = reviews/new; HPX = path-chooser; COR = first-architecture-review. Not bare catch-all help chrome. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-08) - help-topic orientation hard-caps higher Evidence.";
+  "Specialty walkthroughs help (Help topic) - HelpSpecialtyWalkthroughTemplatesView with PageContextualHelp + SpecialtyWalkthroughsHelpEvidenceOrientationStrip (Sources + claim-discipline), template catalog CTAs into Start review. Sibling RNX = reviews/new; HPX = path-chooser; COR = first-architecture-review. Not bare catch-all help chrome. Score 52/100 (2026-08-08) - help-topic orientation hard-caps higher Evidence.";

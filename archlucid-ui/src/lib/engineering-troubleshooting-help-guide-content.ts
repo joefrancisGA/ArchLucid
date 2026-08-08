@@ -10,7 +10,7 @@ export const ENGINEERING_TROUBLESHOOTING_HELP_OVERVIEW =
   "Use this runbook when you need eng-depth failure signatures after customer Troubleshooting and System health. Keep Operators on the customer Troubleshooting guide — this page stays Admin-gated and is not a sponsor diligence pack.";
 
 export const ENGINEERING_TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE =
-  "This Admin eng runbook is operational triage evidence for support engineers — not customer self-serve help and not certification. Do not imply CPA SOC 2 attestation or a published third-party pen test from this page.";
+  "This Admin eng runbook is operational triage evidence for support engineers — not customer self-serve help and not certification.";
 
 export const ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS = {
   openCustomerTroubleshooting: {

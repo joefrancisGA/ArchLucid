@@ -3,7 +3,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export const SIGNUP_VERIFY_CANONICAL_PATH = "/signup/verify" as const;
 
 export const SIGNUP_VERIFY_CLAIM_DISCIPLINE =
-  "Email verification continues evaluation workspace setup — it is not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Assurance status or Pricing before treating verification copy as procurement evidence.";
+  "Email verification continues evaluation workspace setup — it is not a signed-review diligence Sources package. Open Assurance status or Pricing before treating verification copy as procurement evidence.";
 
 export const SIGNUP_VERIFY_SOURCES_INTRO =
   "Use these evaluation links when verification questions turn into signup restart, packaging, or first-run follow-ups.";

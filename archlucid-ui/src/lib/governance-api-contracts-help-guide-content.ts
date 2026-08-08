@@ -11,7 +11,7 @@ export const GOVERNANCE_API_CONTRACTS_HELP_OVERVIEW =
   "Use this runbook when you need the versioned HTTP contract of record for integrators and Admin support. Operators looking for approval workflows should open Governance approval instead. Prefer the published OpenAPI document over prose when the two disagree.";
 
 export const GOVERNANCE_API_CONTRACTS_HELP_CLAIM_DISCIPLINE =
-  "This Admin API-contracts runbook is integrator technical reference — not buyer self-serve governance help and not certification. Do not imply CPA SOC 2 attestation or a published third-party pen test from this page.";
+  "This Admin API-contracts runbook is integrator technical reference — not buyer self-serve governance help and not certification.";
 
 export const GOVERNANCE_API_CONTRACTS_HELP_ORIENTATION = [
   "Confirm you need HTTP/OpenAPI contract detail — not the buyer Governance approval FAQ.",

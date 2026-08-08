@@ -1,7 +1,7 @@
 export const LIVE_DEMO_CANONICAL_PATH = "/live-demo" as const;
 
 export const LIVE_DEMO_CLAIM_DISCIPLINE =
-  "This live demo is a guided, read-only walkthrough of a fabricated sample architecture review — it is marketing evaluation orientation, not a signed-review diligence Sources package from your tenant, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Assurance status or start an evaluation when you need live workspace evidence.";
+  "This live demo is a guided, read-only walkthrough of a fabricated sample architecture review — it is marketing evaluation orientation, not a signed-review diligence Sources package from your tenant. Open Assurance status or start an evaluation when you need live workspace evidence.";
 
 export const LIVE_DEMO_SOURCES_INTRO =
   "Use these evaluation links when the sample walkthrough turns into signup, assurance, or a deeper product tour.";

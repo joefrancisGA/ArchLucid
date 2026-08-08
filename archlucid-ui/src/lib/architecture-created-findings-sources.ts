@@ -21,4 +21,4 @@ export const ARCHITECTURE_CREATED_FINDINGS_SOURCES_INTRO =
   "Use these follow-ups when create-home Findings triage turns into the findings queue, evidence search, or governance readiness.";
 
 export const ARCHITECTURE_CREATED_FINDINGS_CLAIM_DISCIPLINE =
-  "This create-home Findings tab lists assessment findings before finalize. It is not a signed-record Sources trail and does not imply CPA SOC 2 attestation or a published third-party pen test.";
+  "This create-home Findings tab lists assessment findings before finalize. It is not a signed-record Sources trail";

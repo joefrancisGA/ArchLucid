@@ -3,7 +3,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export const BILLING_AND_PLANS_HELP_CANONICAL_PATH = "/help/billing-and-plans" as const;
 
 export const BILLING_AND_PLANS_HELP_CLAIM_DISCIPLINE =
-  "This billing guide orients operators on plans, usage, and invoices — it is not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Billing settings, Pricing, or Audit when you need live subscription controls or governed trails.";
+  "This billing guide orients operators on plans, usage, and invoices — it is not a signed-review diligence Sources package. Open Billing settings, Pricing, or Audit when you need live subscription controls or governed trails.";
 
 export const BILLING_AND_PLANS_HELP_SOURCES_INTRO =
   "Use these follow-ups when plan questions turn into workspace billing controls, public packaging, or first-run orientation.";

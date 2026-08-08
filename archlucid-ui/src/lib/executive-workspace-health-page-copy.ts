@@ -20,7 +20,7 @@ export const EXECUTIVE_WORKSPACE_HEALTH_WORKFLOW_LINK_LABEL = "Open governance w
 export const EXECUTIVE_WORKSPACE_HEALTH_SESSION_SCOPE_SUMMARY = "Session scope";
 
 export const EXECUTIVE_WORKSPACE_HEALTH_CLAIM_DISCIPLINE =
-  "These tiles are scoped workspace aggregates and planning estimates — not a signed-review diligence Sources trail. Hours and SLA figures are derived proxies. Do not imply CPA SOC 2 attestation or a published third-party pen test from this page.";
+  "These tiles are scoped workspace aggregates and planning estimates — not a signed-review diligence Sources trail. Hours and SLA figures are derived proxies.";
 
 export const EXECUTIVE_WORKSPACE_HEALTH_SOURCES_INTRO =
   "Open row-level governance surfaces before briefing sponsors from these KPI tiles.";

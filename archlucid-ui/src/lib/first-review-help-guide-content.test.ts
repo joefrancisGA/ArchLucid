@@ -35,6 +35,6 @@ describe("first-review-help-guide-content", () => {
 
   it("states claim discipline without implying certification", () => {
     expect(FIRST_REVIEW_HELP_CLAIM_DISCIPLINE.toLowerCase()).toContain("not certification");
-    expect(FIRST_REVIEW_HELP_CLAIM_DISCIPLINE.toLowerCase()).toContain("cpa");
+    expect(FIRST_REVIEW_HELP_CLAIM_DISCIPLINE.toLowerCase()).not.toContain("cpa");
   });
 });

@@ -5,7 +5,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export const SIGNED_RECORD_CANONICAL_PATH_PATTERN = "/governance/signed-records/[manifestId]" as const;
 
 export const SIGNED_RECORD_CLAIM_DISCIPLINE =
-  "This signed review record packages decisions, findings, and downloadable artifacts for one finalized review — it is application-layer lineage closure, not a CPA SOC 2 attestation or a published third-party pen-test report. Open Audit or Assurance status when you need broader assurance cites.";
+  "This signed review record packages decisions, findings, and downloadable artifacts for one finalized review — it is application-layer lineage closure. Open Audit or Assurance status when you need broader assurance cites.";
 
 export const SIGNED_RECORD_SOURCES_INTRO =
   "Use these follow-ups when the signed review needs findings triage, audit trail, or assurance cites.";

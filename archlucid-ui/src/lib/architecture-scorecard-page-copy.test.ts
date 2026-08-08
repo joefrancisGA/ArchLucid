@@ -15,7 +15,7 @@ describe("architecture-scorecard-page-copy", () => {
       true,
     );
     expect(ARCHITECTURE_SCORECARD_CLAIM_DISCIPLINE.toLowerCase()).toContain("directional");
-    expect(ARCHITECTURE_SCORECARD_CLAIM_DISCIPLINE.toLowerCase()).toContain("cpa");
-    expect(ARCHITECTURE_SCORECARD_CLAIM_DISCIPLINE.toLowerCase()).toContain("pen test");
+    expect(ARCHITECTURE_SCORECARD_CLAIM_DISCIPLINE.toLowerCase()).not.toContain("cpa");
+    expect(ARCHITECTURE_SCORECARD_CLAIM_DISCIPLINE.toLowerCase()).not.toMatch(/pen[- ]test/i);
   });
 });

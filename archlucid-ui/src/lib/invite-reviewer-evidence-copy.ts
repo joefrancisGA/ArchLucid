@@ -4,7 +4,7 @@ import { SETTINGS_USERS_PATH } from "@/lib/settings-admin-route-paths";
 export const INVITE_REVIEWER_CANONICAL_PATH = `${SETTINGS_USERS_PATH}/invite-reviewer` as const;
 
 export const INVITE_REVIEWER_CLAIM_DISCIPLINE =
-  "Inviting a reviewer grants Reader or Auditor access for architecture review sign-off — it is not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Users and roles or Users and roles help when you need the full directory and role matrix.";
+  "Inviting a reviewer grants Reader or Auditor access for architecture review sign-off — it is not a signed-review diligence Sources package. Open Users and roles or Users and roles help when you need the full directory and role matrix.";
 
 export const INVITE_REVIEWER_SOURCES_INTRO =
   "Use these follow-ups when an invitation needs directory management, role guidance, or SSO prerequisites.";

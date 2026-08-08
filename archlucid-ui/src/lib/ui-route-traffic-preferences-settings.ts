@@ -17,4 +17,4 @@ export const PREFERENCES_SETTINGS_TRAFFIC_SECTION = "Admin";
  * ASCII-only for Windows console note scripts.
  */
 export const PREFERENCES_SETTINGS_TRAFFIC_NOTE =
-  "Preferences (Settings) - PreferencesSettingsPageView with PageContextualHelpButton (topic map getting-started; Category-1 registry), workspace Sources + claim-discipline orientation strip, appearance / theme. Sibling ADS = account-security; HGX = getting-started help. Personal account settings - not a signed-record Sources trail. Does not imply CPA SOC 2 or third-party pen-test publication. Score 50/100 (2026-08-05) - settings personal-hub hard-caps higher Evidence.";
+  "Preferences (Settings) - PreferencesSettingsPageView with PageContextualHelpButton (topic map getting-started; Category-1 registry), workspace Sources + claim-discipline orientation strip, appearance / theme. Sibling ADS = account-security; HGX = getting-started help. Personal account settings - not a signed-record Sources trail. Score 50/100 (2026-08-05) - settings personal-hub hard-caps higher Evidence.";

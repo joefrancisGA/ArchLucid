@@ -15,7 +15,7 @@ export const SIGNED_RECORD_ARTIFACT_PREVIEW_TRAFFIC_PATH =
  * ASCII-only for Windows console note scripts.
  */
 export const SIGNED_RECORD_ARTIFACT_PREVIEW_TRAFFIC_NOTE =
-  "Manifest-scoped artifact preview (Alerts/gov) - SignedRecordArtifactPageView with PageContextualHelpButton (topic map review-artifacts; Category-1 registry), SignedRecordEvidenceOrientationStrip Sources + claim-discipline, metadata/download, ArtifactReviewContent preview, sibling ArtifactListTable (TB-1821 SoT under /governance/signed-records). Formerly `/signed-records/.../artifacts/...`. Run-scoped RER permanentRedirects here. Owner SIM renamed to GAR to match template. Download/proxy paths remain available. Does not imply CPA SOC 2 or third-party pen-test publication. Score 52/100 (2026-08-08) - artifact preview hard-caps higher Evidence without Trust Center attestation artifacts (below MMX package detail).";
+  "Manifest-scoped artifact preview (Alerts/gov) - SignedRecordArtifactPageView with PageContextualHelpButton (topic map review-artifacts; Category-1 registry), SignedRecordEvidenceOrientationStrip Sources + claim-discipline, metadata/download, ArtifactReviewContent preview, sibling ArtifactListTable (TB-1821 SoT under /governance/signed-records). Formerly `/signed-records/.../artifacts/...`. Run-scoped RER permanentRedirects here. Owner SIM renamed to GAR to match template. Download/proxy paths remain available. Score 52/100 (2026-08-08) - artifact preview hard-caps higher Evidence without Trust Center attestation artifacts (below MMX package detail).";
 
 /** Workbook Section column value (Alerts/gov — matches template catalog). */
 export const SIGNED_RECORD_ARTIFACT_PREVIEW_TRAFFIC_SECTION = "Alerts/gov";

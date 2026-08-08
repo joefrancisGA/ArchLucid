@@ -15,7 +15,7 @@ export const POLICY_PACK_DELTA_DEMO_HELP_OVERVIEW =
   "Use this script when a prospect asks why policy packs matter. Show the same architecture package under a looser then stricter enforcement posture, prove the delta with dry-run/simulation, then open the audit trail. Buyers evaluating day-to-day governance should use Governance approval and Alerts help instead.";
 
 export const POLICY_PACK_DELTA_DEMO_HELP_CLAIM_DISCIPLINE =
-  "Dry-run and simulation output is architecture-review governance evidence, not certification. Do not imply CPA SOC 2 attestation or a published third-party pen test from this demo.";
+  "Dry-run and simulation output is architecture-review governance evidence, not certification.";
 
 export const POLICY_PACK_DELTA_DEMO_HELP_NARRATIVE_ARC = [
   "Same review, default posture — bundled packs at the pilot priority floor.",

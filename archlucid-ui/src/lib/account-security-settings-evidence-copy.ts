@@ -4,7 +4,7 @@ import { SETTINGS_ACCOUNT_SECURITY_PATH } from "@/lib/settings-admin-route-paths
 export const ACCOUNT_SECURITY_SETTINGS_CANONICAL_PATH = SETTINGS_ACCOUNT_SECURITY_PATH;
 
 export const ACCOUNT_SECURITY_SETTINGS_CLAIM_DISCIPLINE =
-  "This Account security page manages your personal sign-in methods - it is not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Security and trust help, Preferences, or Assurance status when you need trust cites, theme settings, or published diligence.";
+  "This Account security page manages your personal sign-in methods - it is not a signed-review diligence Sources package. Open Security and trust help, Preferences, or Assurance status when you need trust cites, theme settings, or published diligence.";
 
 export const ACCOUNT_SECURITY_SETTINGS_SOURCES_INTRO =
   "Use these follow-ups when sign-in method changes turn into SSO setup, preferences, or assurance cites.";

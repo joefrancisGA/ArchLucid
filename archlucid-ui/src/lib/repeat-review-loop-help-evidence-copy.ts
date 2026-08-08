@@ -4,7 +4,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export const REPEAT_REVIEW_LOOP_HELP_CANONICAL_PATH = "/help/repeat-review-loop" as const;
 
 export const REPEAT_REVIEW_LOOP_HELP_CLAIM_DISCIPLINE =
-  "This repeat-review loop guide is operator orientation for compare, replay, and second-review proof - it is not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Compare, Validate review, or Audit when you need live packages or assurance claims.";
+  "This repeat-review loop guide is operator orientation for compare, replay, and second-review proof - it is not a signed-review diligence Sources package. Open Compare, Validate review, or Audit when you need live packages or assurance claims.";
 
 export const REPEAT_REVIEW_LOOP_HELP_SOURCES_INTRO =
   "Use these follow-ups when stickiness guidance turns into comparing packages, starting the next review, or sponsor outcomes.";

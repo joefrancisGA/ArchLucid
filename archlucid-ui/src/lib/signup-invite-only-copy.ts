@@ -70,7 +70,7 @@ export type SignupAssuranceFact = {
   readonly detail: string;
 };
 
-/** Verifiable evaluation posture — no CPA SOC 2 / third-party pen-test claims. */
+/** Verifiable evaluation posture — no false certification claims. */
 export const SIGNUP_ASSURANCE_HEADING = "Evaluation workspace posture";
 
 export const SIGNUP_ASSURANCE_FACTS: readonly SignupAssuranceFact[] = [

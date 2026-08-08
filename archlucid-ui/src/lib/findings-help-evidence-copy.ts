@@ -4,7 +4,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export const FINDINGS_HELP_CANONICAL_PATH = FINDINGS_HELP_PATH;
 
 export const FINDINGS_HELP_CLAIM_DISCIPLINE =
-  "This findings guide explains how architecture concerns are inspected and resolved — it is not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Findings, Audit, or a finalized architecture review when you need live or governed trails.";
+  "This findings guide explains how architecture concerns are inspected and resolved — it is not a signed-review diligence Sources package. Open Findings, Audit, or a finalized architecture review when you need live or governed trails.";
 
 export const FINDINGS_HELP_SOURCES_INTRO =
   "Use these follow-ups when a finding needs live triage, evidence search, governance decisions, or product orientation.";

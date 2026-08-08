@@ -21,4 +21,4 @@ export const ARCHITECTURE_CREATED_DIAGRAM_SOURCES_INTRO =
   "Use these follow-ups when create-home Diagram orientation turns into evidence capture, findings triage, or governance readiness.";
 
 export const ARCHITECTURE_CREATED_DIAGRAM_CLAIM_DISCIPLINE =
-  "This create-home Diagram tab shows an illustrative architecture sketch before finalize. It is not authoritative topology, not a signed-record Sources trail, and does not imply CPA SOC 2 attestation or a published third-party pen test.";
+  "This create-home Diagram tab shows an illustrative architecture sketch before finalize. It is not authoritative topology, not a signed-record Sources trail,";

@@ -14,4 +14,4 @@ export const SHOWCASE_TRAFFIC_SECTION = "Marketing";
  * Owner workbook Notes for SRH — documents Evidence chrome on showcase.
  */
 export const SHOWCASE_TRAFFIC_NOTE =
-  "Showcase run detail (Marketing) - MarketingShowcasePage with ShowcaseEvidenceOrientationStrip (evaluation Sources + claim-discipline: illustrative sample only; not diligence / CPA SOC 2 / third-party pen-test). Not an operator PageContextualHelp surface. Sibling DPX = /demo/preview. Does not imply CPA SOC 2 or third-party pen-test publication. Score 40/100 (2026-08-05) — marketing sample-showcase page hard-caps higher Evidence.";
+  "Showcase run detail (Marketing) - MarketingShowcasePage with ShowcaseEvidenceOrientationStrip (evaluation Sources + claim-discipline: illustrative sample only). Not an operator PageContextualHelp surface. Sibling DPX = /demo/preview. Score 40/100 (2026-08-05) — marketing sample-showcase page hard-caps higher Evidence.";

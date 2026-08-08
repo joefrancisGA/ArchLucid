@@ -4,7 +4,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export const HELP_TOPIC_CATCHALL_CANONICAL_PATH = "/help/[...topic]" as const;
 
 export const HELP_TOPIC_CATCHALL_CLAIM_DISCIPLINE =
-  "Residual help topics render curated product markdown in the operator help shell — orientation only, not a CPA SOC 2 attestation, a published third-party pen-test report, or a signed-review diligence Sources package from your tenant. Specialty guides (alerts, governance approval, review guide, and siblings) ship richer chrome on their own workbook rows.";
+  "Residual help topics render curated product markdown in the operator help shell — orientation only, not a signed-review diligence Sources package from your tenant. Specialty guides (alerts, governance approval, review guide, and siblings) ship richer chrome on their own workbook rows.";
 
 export const HELP_TOPIC_CATCHALL_SOURCES_INTRO =
   "Use these follow-ups when a residual markdown topic turns into first-run orientation, troubleshooting, or the help hub.";

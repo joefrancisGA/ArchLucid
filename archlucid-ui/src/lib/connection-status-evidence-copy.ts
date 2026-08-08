@@ -3,7 +3,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export const CONNECTION_STATUS_CANONICAL_PATH = "/administration/connection-status" as const;
 
 export const CONNECTION_STATUS_CLAIM_DISCIPLINE =
-  "This Connection status page shows which workspace integrations are configured or recommended - it is not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open System health, a connector page, or Audit when you need live dependency checks or governed trails.";
+  "This Connection status page shows which workspace integrations are configured or recommended - it is not a signed-review diligence Sources package. Open System health, a connector page, or Audit when you need live dependency checks or governed trails.";
 
 export const CONNECTION_STATUS_SOURCES_INTRO =
   "Use these follow-ups when readiness tiles turn into connector setup, system health checks, or integration methodology.";

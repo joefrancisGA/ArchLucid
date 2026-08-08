@@ -5,7 +5,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export const PRIOR_MANIFEST_RETRIEVAL_HELP_CANONICAL_PATH = "/help/prior-manifest-retrieval" as const;
 
 export const PRIOR_MANIFEST_RETRIEVAL_HELP_CLAIM_DISCIPLINE =
-  "This Prior manifest retrieval guide orients operators on how finalized reviews become searchable tenant memory — it is help orientation, not a CPA SOC 2 attestation, a published third-party pen-test report, or a signed-review diligence Sources package from your tenant. Open Search review evidence or Ask when you need live retrieval hits.";
+  "This Prior manifest retrieval guide orients operators on how finalized reviews become searchable tenant memory — it is help orientation, not a signed-review diligence Sources package from your tenant. Open Search review evidence or Ask when you need live retrieval hits.";
 
 export const PRIOR_MANIFEST_RETRIEVAL_HELP_SOURCES_INTRO =
   "Use these follow-ups when prior-manifest vocabulary turns into live search, Ask answers, or finalized package lineage.";

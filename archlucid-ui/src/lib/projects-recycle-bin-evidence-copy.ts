@@ -3,7 +3,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export const PROJECTS_RECYCLE_BIN_CANONICAL_PATH = "/administration/tenant/recycle-bin" as const;
 
 export const PROJECTS_RECYCLE_BIN_CLAIM_DISCIPLINE =
-  "This Projects recycle bin lists soft-deleted architecture projects you can restore - it is not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Tenant settings, Architectures, or Audit when you need workspace scope or governed trails.";
+  "This Projects recycle bin lists soft-deleted architecture projects you can restore - it is not a signed-review diligence Sources package. Open Tenant settings, Architectures, or Audit when you need workspace scope or governed trails.";
 
 export const PROJECTS_RECYCLE_BIN_SOURCES_INTRO =
   "Use these follow-ups when restored projects turn into architecture drafts, tenant scope checks, or audit cites.";

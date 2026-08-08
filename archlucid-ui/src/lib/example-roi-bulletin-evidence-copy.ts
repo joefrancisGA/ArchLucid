@@ -1,7 +1,7 @@
 export const EXAMPLE_ROI_BULLETIN_CANONICAL_PATH = "/example-roi-bulletin" as const;
 
 export const EXAMPLE_ROI_BULLETIN_CLAIM_DISCIPLINE =
-  "This page shows a synthetic aggregate ROI bulletin Markdown shape for evaluation - it is marketing orientation, not a signed publication, a CPA SOC 2 attestation, a published third-party pen-test report, or live tenant ROI. Real aggregate numbers require Admin preview after N >= 5 qualifying tenants.";
+  "This page shows a synthetic aggregate ROI bulletin Markdown shape for evaluation - it is marketing orientation, not a signed publication, or live tenant ROI. Real aggregate numbers require Admin preview after N >= 5 qualifying tenants.";
 
 export const EXAMPLE_ROI_BULLETIN_SOURCES_INTRO =
   "Use these evaluation links when the synthetic bulletin shape turns into methodology help, sponsor ROI, assurance, or signup.";

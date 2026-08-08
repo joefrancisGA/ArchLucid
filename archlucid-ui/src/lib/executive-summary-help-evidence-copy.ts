@@ -6,7 +6,7 @@ import { SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH } from "@/lib/sponsor-report-navi
 export const EXECUTIVE_SUMMARY_HELP_CANONICAL_PATH = EXECUTIVE_SUMMARY_HELP_PATH;
 
 export const EXECUTIVE_SUMMARY_HELP_CLAIM_DISCIPLINE =
-  "This executive summary guide is sponsor orientation for pilot proof and ROI framing - it is not a signed-review diligence Sources package, financial reporting, a CPA SOC 2 attestation, or a published third-party pen-test report. Open the live executive value report or dashboard when you need workspace numbers.";
+  "This executive summary guide is sponsor orientation for pilot proof and ROI framing - it is not a signed-review diligence Sources package, financial reporting. Open the live executive value report or dashboard when you need workspace numbers.";
 
 export const EXECUTIVE_SUMMARY_HELP_SOURCES_INTRO =
   "Use these follow-ups when sponsor framing turns into live value reports, dashboards, or ROI methodology.";

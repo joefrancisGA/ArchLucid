@@ -6,7 +6,7 @@ import {
 } from "@/lib/integrations-nav-paths";
 
 export const ADMIN_ITSM_CONNECTORS_CLAIM_DISCIPLINE =
-  "ITSM connectors configures deployment credentials and tenant routing overrides for Jira and ServiceNow — it is not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open buyer Integrations readiness or Audit when you need export posture or activity trails.";
+  "ITSM connectors configures deployment credentials and tenant routing overrides for Jira and ServiceNow — it is not a signed-review diligence Sources package. Open buyer Integrations readiness or Audit when you need export posture or activity trails.";
 
 export const ADMIN_ITSM_CONNECTORS_SOURCES_INTRO =
   "Use these follow-ups when connector onboarding needs buyer export surfaces, readiness checks, or troubleshooting.";

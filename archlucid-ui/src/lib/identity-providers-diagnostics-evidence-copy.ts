@@ -4,7 +4,7 @@ export const IDENTITY_PROVIDERS_DIAGNOSTICS_CANONICAL_PATH =
   "/administration/identity-providers/diagnostics" as const;
 
 export const IDENTITY_PROVIDERS_DIAGNOSTICS_CLAIM_DISCIPLINE =
-  "This Identity diagnostics page validates federation health probes and support tooling - it is not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open SSO and identity, Role mapping, or Assurance status when you need hub setup, claim mapping, or trust cites.";
+  "This Identity diagnostics page validates federation health probes and support tooling - it is not a signed-review diligence Sources package. Open SSO and identity, Role mapping, or Assurance status when you need hub setup, claim mapping, or trust cites.";
 
 export const IDENTITY_PROVIDERS_DIAGNOSTICS_SOURCES_INTRO =
   "Use these follow-ups when diagnostic probes turn into SSO setup, role mapping, or assurance cites.";

@@ -4,7 +4,7 @@ import { governanceAlertRulesTabHref } from "@/lib/governance-route-paths";
 export const ALERT_ROUTING_TAB_PATH = "/governance/alert-rules?tab=routing" as const;
 
 export const ALERT_ROUTING_CLAIM_DISCIPLINE =
-  "Notification destinations and delivery attempts configure where qualifying alerts go — they are not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open the Alert inbox or Conditions tab before treating delivery setup as governance evidence.";
+  "Notification destinations and delivery attempts configure where qualifying alerts go — they are not a signed-review diligence Sources package. Open the Alert inbox or Conditions tab before treating delivery setup as governance evidence.";
 
 export const ALERT_ROUTING_SOURCES_INTRO =
   "Use these follow-ups when routing setup needs inbox triage, condition rules, or channel integrations.";

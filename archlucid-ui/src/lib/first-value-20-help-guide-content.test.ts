@@ -45,6 +45,6 @@ describe("first-value-20-help-guide-content", () => {
 
   it("states claim discipline without implying certification", () => {
     expect(FIRST_VALUE_20_HELP_CLAIM_DISCIPLINE.toLowerCase()).toContain("not certification");
-    expect(FIRST_VALUE_20_HELP_CLAIM_DISCIPLINE.toLowerCase()).toContain("cpa");
+    expect(FIRST_VALUE_20_HELP_CLAIM_DISCIPLINE.toLowerCase()).not.toContain("cpa");
   });
 });

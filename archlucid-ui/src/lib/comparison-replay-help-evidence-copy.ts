@@ -3,7 +3,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export const COMPARISON_REPLAY_HELP_CANONICAL_PATH = "/help/comparison-replay" as const;
 
 export const COMPARISON_REPLAY_HELP_CLAIM_DISCIPLINE =
-  "This Compare and replay guide orients operators on diffing two architecture reviews and validating a finalized package — it is help orientation, not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Compare two reviews or Validate review when you need live workspace tools.";
+  "This Compare and replay guide orients operators on diffing two architecture reviews and validating a finalized package — it is help orientation, not a signed-review diligence Sources package. Open Compare two reviews or Validate review when you need live workspace tools.";
 
 export const COMPARISON_REPLAY_HELP_SOURCES_INTRO =
   "Use these follow-ups when compare/replay vocabulary turns into live diffs, validation, or the repeat-review stickiness loop.";

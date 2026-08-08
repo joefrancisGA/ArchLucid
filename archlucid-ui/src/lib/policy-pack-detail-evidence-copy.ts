@@ -2,7 +2,7 @@ import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const POLICY_PACK_DETAIL_CLAIM_DISCIPLINE =
-  "Policy pack detail describes published rules and versions for this workspace — not a signed-review diligence Sources trail. Do not imply CPA SOC 2 attestation or a published third-party pen test from this page.";
+  "Policy pack detail describes published rules and versions for this workspace — not a signed-review diligence Sources trail.";
 
 export const POLICY_PACK_DETAIL_SOURCES_INTRO =
   "Return to the policy pack library to compare packs, or open reviews and findings when applying rules to a review.";

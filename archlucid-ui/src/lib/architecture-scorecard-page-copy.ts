@@ -3,7 +3,7 @@ import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";import { SPONSOR_REPORT_ROI_SUMMARY_PATH } from "@/lib/sponsor-report-navigation";
 
 export const ARCHITECTURE_SCORECARD_CLAIM_DISCIPLINE =
-  "Savings figures are directional for pilot value discussions — not financial reporting and not a signed-review diligence Sources trail. Do not imply CPA SOC 2 attestation or a published third-party pen test from this page.";
+  "Savings figures are directional for pilot value discussions — not financial reporting and not a signed-review diligence Sources trail.";
 
 export const ARCHITECTURE_SCORECARD_SOURCES_INTRO =
   "Open ROI summary, reviews, or methodology help before briefing sponsors from these tiles.";
