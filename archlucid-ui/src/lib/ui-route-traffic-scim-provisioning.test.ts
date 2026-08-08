@@ -69,5 +69,6 @@ describe("ui-route-traffic-scim-provisioning (ASC)", () => {
     expect(row?.section).toBe(SCIM_PROVISIONING_TRAFFIC_SECTION);
     expect(row?.notes).toBe(SCIM_PROVISIONING_TRAFFIC_NOTE);
     expect(row?.notes).toContain("ScimProvisioningSettingsPageClient");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
