@@ -65,5 +65,8 @@ describe("ui-route-traffic-governance-audit (AUD)", () => {
     expect(row?.section).toBe(GOVERNANCE_AUDIT_TRAFFIC_SECTION);
     expect(row?.notes).toBe(GOVERNANCE_AUDIT_TRAFFIC_NOTE);
     expect(row?.notes).toContain("AuditPageView");
+    expect(row?.notes).toContain("AuditTrailSourcesStrip");
+    expect(row?.notes).toContain("Score 55");
+    expect(row?.notes).toContain("cannot improve further toward 80");
   });
 });
