@@ -320,8 +320,7 @@ export function SignInFlowClient({ returnUrl, invitationTokenFromQuery }: SignIn
 
   if (fatalError) {
     return (
-      <AuthFlowShell hasReturnDestination={hasReturnDestination} afterPanel={
-}>
+      <AuthFlowShell hasReturnDestination={hasReturnDestination}>
         <AuthErrorPanel message={fatalError} />
       </AuthFlowShell>
     );
@@ -329,8 +328,7 @@ export function SignInFlowClient({ returnUrl, invitationTokenFromQuery }: SignIn
 
   if (!hasAnySignInMethod) {
     return (
-      <AuthFlowShell hasReturnDestination={hasReturnDestination} afterPanel={
-}>
+      <AuthFlowShell hasReturnDestination={hasReturnDestination}>
         <AuthErrorPanel message={BUYER_SAFE_AUTH_NOT_CONFIGURED_MESSAGE} />
       </AuthFlowShell>
     );
@@ -338,8 +336,7 @@ export function SignInFlowClient({ returnUrl, invitationTokenFromQuery }: SignIn
 
   if (step === "options") {
     return (
-      <AuthFlowShell hasReturnDestination={hasReturnDestination} afterPanel={
-}>
+      <AuthFlowShell hasReturnDestination={hasReturnDestination}>
         <SignInMethodPicker
           options={methodOptions}
           onWorkSchool={beginWorkSchool}
@@ -356,8 +353,7 @@ export function SignInFlowClient({ returnUrl, invitationTokenFromQuery }: SignIn
 
   if (step === "email") {
     return (
-      <AuthFlowShell hasReturnDestination={hasReturnDestination} afterPanel={
-}>
+      <AuthFlowShell hasReturnDestination={hasReturnDestination}>
         <SignInEmailStep
           email={email}
           pending={emailPending}
@@ -374,8 +370,7 @@ export function SignInFlowClient({ returnUrl, invitationTokenFromQuery }: SignIn
 
   if (step === "sso") {
     return (
-      <AuthFlowShell hasReturnDestination={hasReturnDestination} afterPanel={
-}>
+      <AuthFlowShell hasReturnDestination={hasReturnDestination}>
         <SignInSsoRequiredStep
           message={ssoMessage}
           onContinueOrganizationSignIn={beginWorkSchool}
@@ -391,8 +386,7 @@ export function SignInFlowClient({ returnUrl, invitationTokenFromQuery }: SignIn
   }
 
   return (
-    <AuthFlowShell hasReturnDestination={hasReturnDestination} afterPanel={
-}>
+    <AuthFlowShell hasReturnDestination={hasReturnDestination}>
       <SignInCodeStep
         maskedEmail={maskedEmail}
         code={code}

@@ -75,7 +75,6 @@ export function ShellInFlightOperationsAffordance(): React.JSX.Element | null {
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        align="end"
         className="w-80 p-0"
         data-testid="shell-in-flight-operations-panel"
       >

@@ -85,8 +85,6 @@ export function HelpTopicMarkdownClient(props: HelpTopicMarkdownClientProps): Re
       entry={props.entry}
       markdown={state.markdown}
       showContextualHelp
-      evidenceOrientation={
-}
     />
   );
 }

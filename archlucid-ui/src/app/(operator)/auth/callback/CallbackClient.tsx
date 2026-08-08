@@ -195,16 +195,14 @@ export function CallbackClient() {
 
   if (failed) {
     return (
-      <AuthFlowShell afterPanel={
-}>
+      <AuthFlowShell>
         <AuthCallbackAccessPanel technicalDetail={toBuyerSafeAuthFailureMessage(message)} />
       </AuthFlowShell>
     );
   }
 
   return (
-    <AuthFlowShell afterPanel={
-}>
+    <AuthFlowShell>
       <AuthCallbackLoadingView message={message} showSlowHint={showSlowHint} />
     </AuthFlowShell>
   );

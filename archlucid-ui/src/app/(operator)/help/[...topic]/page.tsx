@@ -178,8 +178,6 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
-        evidenceOrientation={
-}
       />
     );
   }
@@ -190,8 +188,6 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
-        evidenceOrientation={
-}
       />
     );
   }
@@ -272,8 +268,6 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
-        evidenceOrientation={
-}
       />
     );
   }
@@ -284,8 +278,6 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
-        evidenceOrientation={
-}
       />
     );
   }
@@ -296,8 +288,6 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
-        evidenceOrientation={
-}
       />
     );
   }
@@ -308,8 +298,6 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
-        evidenceOrientation={
-}
       />
     );
   }
@@ -320,8 +308,6 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
-        evidenceOrientation={
-}
       />
     );
   }
@@ -332,8 +318,6 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
-        evidenceOrientation={
-}
       />
     );
   }
@@ -344,8 +328,6 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
-        evidenceOrientation={
-}
       />
     );
   }
@@ -356,8 +338,6 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
-        evidenceOrientation={
-}
       />
     );
   }
@@ -368,8 +348,6 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
-        evidenceOrientation={
-}
       />
     );
   }
@@ -380,8 +358,6 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
-        evidenceOrientation={
-}
       />
     );
   }
@@ -392,8 +368,6 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
-        evidenceOrientation={
-}
       />
     );
   }
@@ -404,8 +378,6 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
-        evidenceOrientation={
-}
       />
     );
   }
@@ -416,8 +388,6 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
-        evidenceOrientation={
-}
       />
     );
   }
@@ -428,8 +398,6 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
-        evidenceOrientation={
-}
       />
     );
   }
@@ -440,8 +408,6 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
-        evidenceOrientation={
-}
       />
     );
   }
@@ -452,8 +418,6 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
-        evidenceOrientation={
-}
       />
     );
   }
@@ -464,8 +428,6 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
-        evidenceOrientation={
-}
       />
     );
   }
@@ -476,8 +438,6 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
-        evidenceOrientation={
-}
       />
     );
   }
@@ -488,8 +448,6 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
-        evidenceOrientation={
-}
       />
     );
   }
@@ -500,8 +458,6 @@ function renderHelpTopicView(
         entry={loaded.entry}
         markdown={loaded.markdown}
         showContextualHelp
-        evidenceOrientation={
-}
       />
     );
   }
@@ -511,8 +467,6 @@ function renderHelpTopicView(
       entry={loaded.entry}
       markdown={loaded.markdown}
       showContextualHelp
-      evidenceOrientation={
-}
     />
   );
 }
