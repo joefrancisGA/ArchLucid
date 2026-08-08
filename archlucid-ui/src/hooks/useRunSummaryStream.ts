@@ -2,18 +2,22 @@
 
 import { useEffect, useRef, useState } from "react";
 
+import { isDocumentHidden } from "@/lib/document-visibility";
+import {
+  RUN_SUMMARY_FALLBACK_POLL_MS,
+  shouldRunRunSummaryFallbackPoll,
+  type RunSummaryStreamPhase,
+} from "@/lib/run-summary-stream-poll-policy";
 import { getRunSummary } from "@/lib/api";
 import type { RunSummary } from "@/types/authority";
 
-export type RunSummaryStreamPhase = "streaming" | "poll-fallback" | "complete";
+export type { RunSummaryStreamPhase };
 
 export type UseRunSummaryStreamResult = {
   summary: RunSummary | null;
   streamPhase: RunSummaryStreamPhase;
   sseConnected: boolean;
 };
-
-const FALLBACK_POLL_MS = 3000;
 
 /**
  * Live run summary updates via SSE (`GET /v1/authority/runs/{id}/events` through `/api/proxy`), with HTTP polling fallback.
@@ -29,6 +33,16 @@ export function useRunSummaryStream(
   const [sseConnected, setSseConnected] = useState(false);
   const fallbackStartedRef = useRef(false);
   const fallbackIntervalRef = useRef<number | undefined>(undefined);
+  const streamPhaseRef = useRef<RunSummaryStreamPhase>("streaming");
+  const sseConnectedRef = useRef(false);
+
+  useEffect(() => {
+    streamPhaseRef.current = streamPhase;
+  }, [streamPhase]);
+
+  useEffect(() => {
+    sseConnectedRef.current = sseConnected;
+  }, [sseConnected]);
 
   useEffect(() => {
     setSummary(initial);
@@ -50,37 +64,80 @@ export function useRunSummaryStream(
       }
     };
 
+    const tickFallback = async () => {
+      if (
+        cancelled ||
+        !shouldRunRunSummaryFallbackPoll({
+          sseConnected: sseConnectedRef.current,
+          documentHidden: isDocumentHidden(),
+          streamPhase: streamPhaseRef.current,
+        })
+      ) {
+        return;
+      }
+
+      try {
+        const next = await getRunSummary(runId);
+
+        if (cancelled) {
+          return;
+        }
+
+        setSummary(next);
+
+        if (next.hasGoldenManifest) {
+          clearFallback();
+          streamPhaseRef.current = "complete";
+          setStreamPhase("complete");
+        }
+      } catch {
+        /* keep polling */
+      }
+    };
+
+    const ensureFallbackInterval = () => {
+      if (
+        cancelled ||
+        fallbackIntervalRef.current !== undefined ||
+        !shouldRunRunSummaryFallbackPoll({
+          sseConnected: sseConnectedRef.current,
+          documentHidden: isDocumentHidden(),
+          streamPhase: streamPhaseRef.current,
+        })
+      ) {
+        return;
+      }
+
+      void tickFallback();
+      fallbackIntervalRef.current = window.setInterval(() => {
+        void tickFallback();
+      }, RUN_SUMMARY_FALLBACK_POLL_MS);
+    };
+
     const startPollingFallback = () => {
       if (cancelled || fallbackStartedRef.current) {
         return;
       }
 
       fallbackStartedRef.current = true;
+      sseConnectedRef.current = false;
+      streamPhaseRef.current = "poll-fallback";
       setSseConnected(false);
       setStreamPhase("poll-fallback");
-
-      const tick = async () => {
-        try {
-          const next = await getRunSummary(runId);
-
-          if (cancelled) {
-            return;
-          }
-
-          setSummary(next);
-
-          if (next.hasGoldenManifest) {
-            clearFallback();
-            setStreamPhase("complete");
-          }
-        } catch {
-          /* keep polling */
-        }
-      };
-
-      void tick();
-      fallbackIntervalRef.current = window.setInterval(() => void tick(), FALLBACK_POLL_MS);
+      ensureFallbackInterval();
     };
+
+    const onVisibilityChange = () => {
+      if (isDocumentHidden()) {
+        clearFallback();
+
+        return;
+      }
+
+      ensureFallbackInterval();
+    };
+
+    document.addEventListener("visibilitychange", onVisibilityChange);
 
     let es: EventSource | null = null;
 
@@ -91,12 +148,16 @@ export function useRunSummaryStream(
 
       return () => {
         cancelled = true;
+        document.removeEventListener("visibilitychange", onVisibilityChange);
         clearFallback();
       };
     }
 
     es.onopen = () => {
       if (!cancelled) {
+        clearFallback();
+        sseConnectedRef.current = true;
+        streamPhaseRef.current = "streaming";
         setSseConnected(true);
         setStreamPhase("streaming");
       }
@@ -122,6 +183,7 @@ export function useRunSummaryStream(
 
       cancelled = true;
       clearFallback();
+      streamPhaseRef.current = "complete";
       setStreamPhase("complete");
       es?.close();
     });
@@ -132,11 +194,14 @@ export function useRunSummaryStream(
       }
 
       es?.close();
+      sseConnectedRef.current = false;
+      setSseConnected(false);
       startPollingFallback();
     });
 
     return () => {
       cancelled = true;
+      document.removeEventListener("visibilitychange", onVisibilityChange);
       clearFallback();
       es?.close();
     };

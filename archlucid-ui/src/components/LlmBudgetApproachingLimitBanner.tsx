@@ -6,16 +6,18 @@ import { useMemo, useState } from "react";
 
 import { DismissControl } from "@/components/usability/DismissControl";
 import { useLlmMonthlyBudgetStatusQuery } from "@/hooks/use-llm-monthly-budget-status-query";
+import { useDocumentHidden } from "@/lib/document-visibility";
 import { isNextPublicDemoMode, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import {
   llmBudgetUtilizationPercent,
   resolveLlmBudgetUtilizationTone,
 } from "@/lib/llm-monthly-budget-status";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import {
+  shouldPollLlmBudgetApproachingBanner,
+} from "@/lib/shell-banner-poll-policy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
-
-const LLM_BUDGET_WARN_POLL_MS = 60_000;
 
 /**
  * Global warning when UTC-month LLM dollar utilization crosses the configured warn fraction (default 75%).
@@ -23,6 +25,7 @@ const LLM_BUDGET_WARN_POLL_MS = 60_000;
  */
 export function LlmBudgetApproachingLimitBanner() {
   const [dismissed, setDismissed] = useState(false);
+  const documentHidden = useDocumentHidden();
   const queryEnabled =
     !dismissed &&
     !isNextPublicDemoMode() &&
@@ -31,7 +34,8 @@ export function LlmBudgetApproachingLimitBanner() {
 
   const { data: status } = useLlmMonthlyBudgetStatusQuery({
     enabled: queryEnabled,
-    refetchIntervalMs: queryEnabled ? LLM_BUDGET_WARN_POLL_MS : false,
+    documentHidden,
+    shouldPoll: shouldPollLlmBudgetApproachingBanner,
   });
 
   const visible = useMemo(() => {

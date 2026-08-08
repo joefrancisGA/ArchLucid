@@ -4,12 +4,14 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { useLlmMonthlyBudgetStatusQuery } from "@/hooks/use-llm-monthly-budget-status-query";
+import { useDocumentHidden } from "@/lib/document-visibility";
 import { isNextPublicDemoMode, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { formatTrialAiBudgetRemainingCopy } from "@/lib/llm-monthly-budget-status";
+import {
+  shouldPollTrialAiBudgetBanner,
+} from "@/lib/shell-banner-poll-policy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
-
-const TRIAL_BUDGET_POLL_MS = 60_000;
 
 /** Demo workspace banner — sample data with limited AI actions. */
 export function PublicDemoAiUsageBanner() {
@@ -42,10 +44,12 @@ export function PublicDemoAiUsageBanner() {
 
 /** Trial workspace AI budget remaining and exhaustion messaging. */
 export function TrialAiBudgetStatusBanner() {
+  const documentHidden = useDocumentHidden();
   const queryEnabled = isOperatorExperienceFullShellEnv() && !isNextPublicDemoMode();
   const { data: status } = useLlmMonthlyBudgetStatusQuery({
     enabled: queryEnabled,
-    refetchIntervalMs: queryEnabled ? TRIAL_BUDGET_POLL_MS : false,
+    documentHidden,
+    shouldPoll: shouldPollTrialAiBudgetBanner,
   });
 
   if (!status?.monthlyBudgetMonitoringActive || status.workspaceKind !== "Trial") {

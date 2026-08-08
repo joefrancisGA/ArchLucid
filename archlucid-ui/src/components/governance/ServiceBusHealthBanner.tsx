@@ -3,21 +3,26 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
+import { isDocumentHidden } from "@/lib/document-visibility";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { fetchHealthReadySummary } from "@/lib/fetch-health-ready";
 import { isAzureServiceBusHealthUnhealthy } from "@/lib/health-dashboard-types";
 import { SERVICE_BUS_HEALTH_LABELS } from "@/lib/operator-health-labels";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
-
-const SERVICE_BUS_HEALTH_POLL_MS = 60_000;
+import { SHELL_BANNER_POLL_MS } from "@/lib/shell-banner-poll-policy";
 
 /**
  * Global warning when Azure Service Bus readiness is Unhealthy or Degraded (`azure_service_bus` on `GET /health/ready`).
  */
 export function ServiceBusHealthBanner() {
   const [showWarning, setShowWarning] = useState(false);
+  const showWarningRef = useRef(false);
+
+  useEffect(() => {
+    showWarningRef.current = showWarning;
+  }, [showWarning]);
 
   useEffect(() => {
     if (isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled() || isBuyerPolishedOperatorShellEnv()) {
@@ -25,25 +30,64 @@ export function ServiceBusHealthBanner() {
     }
 
     let cancelled = false;
+    let timer: number | undefined;
 
-    async function load() {
+    const clearTimer = () => {
+      if (timer !== undefined) {
+        window.clearInterval(timer);
+        timer = undefined;
+      }
+    };
+
+    async function load(): Promise<boolean> {
       const ready = await fetchHealthReadySummary();
 
       if (cancelled) {
+        return false;
+      }
+
+      const unhealthy = ready !== null && isAzureServiceBusHealthUnhealthy(ready.entries);
+      setShowWarning(unhealthy);
+
+      return unhealthy;
+    }
+
+    const startPollingWhenDegraded = () => {
+      if (cancelled || timer !== undefined || isDocumentHidden() || !showWarningRef.current) {
         return;
       }
 
-      setShowWarning(ready !== null && isAzureServiceBusHealthUnhealthy(ready.entries));
-    }
+      timer = window.setInterval(() => {
+        void load();
+      }, SHELL_BANNER_POLL_MS);
+    };
 
-    void load();
-    const timer = window.setInterval(() => {
-      void load();
-    }, SERVICE_BUS_HEALTH_POLL_MS);
+    const onVisibilityChange = () => {
+      if (isDocumentHidden()) {
+        clearTimer();
+
+        return;
+      }
+
+      void load().then((unhealthy) => {
+        if (!cancelled && unhealthy) {
+          startPollingWhenDegraded();
+        }
+      });
+    };
+
+    void load().then((unhealthy) => {
+      if (!cancelled && unhealthy) {
+        startPollingWhenDegraded();
+      }
+    });
+
+    document.addEventListener("visibilitychange", onVisibilityChange);
 
     return () => {
       cancelled = true;
-      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      clearTimer();
     };
   }, []);
 
@@ -63,7 +107,7 @@ export function ServiceBusHealthBanner() {
     >
       <p className="m-0 font-semibold text-amber-900 dark:text-amber-100">{SERVICE_BUS_HEALTH_LABELS.bannerTitle}</p>
       <p className="m-0 mt-1 leading-snug">
-        {SERVICE_BUS_HEALTH_LABELS.bannerBody}{" "} 
+        {SERVICE_BUS_HEALTH_LABELS.bannerBody}{" "}
         <Link href="/internal/health" className="font-medium text-amber-950 underline underline-offset-2 dark:text-amber-100">
           {SERVICE_BUS_HEALTH_LABELS.systemHealthLink}
         </Link>
@@ -72,4 +116,3 @@ export function ServiceBusHealthBanner() {
     </div>
   );
 }
-
