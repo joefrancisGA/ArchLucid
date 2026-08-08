@@ -19,7 +19,10 @@ export function getRouteTitle(pathname: string): string {
     return "Review detail";
   }
 
-  if (/^\/architectures\/[^/]+$/.test(normalized)) {
+  if (
+    /^\/architecture\/architectures\/[^/]+$/.test(lookupPath)
+    || /^\/architectures\/[^/]+$/.test(normalized)
+  ) {
     return CREATE_ARCHITECTURE_LABEL;
   }
 

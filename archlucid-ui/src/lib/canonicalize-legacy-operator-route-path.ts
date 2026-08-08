@@ -1,4 +1,5 @@
 import {
+  ARCHITECTURES_LIST_PATH,
   LEGACY_REVIEWS_LIST_PATH,
   LEGACY_RUNS_LIST_PATH,
   REVIEWS_LIST_PATH,
@@ -107,6 +108,11 @@ export function canonicalizeLegacyOperatorRoutePath(pathname: string): string {
 
   if (pathMatchesRoutePrefix(normalized, LEGACY_REVIEWS_LIST_PATH)) {
     return normalized.replace(LEGACY_REVIEWS_LIST_PATH, REVIEWS_LIST_PATH);
+  }
+
+  // Exact `/architectures` prefix only — must not rewrite `/architecture/architectures`.
+  if (pathMatchesRoutePrefix(normalized, "/architectures")) {
+    return normalized.replace("/architectures", ARCHITECTURES_LIST_PATH);
   }
 
   if (pathMatchesRoutePrefix(normalized, LEGACY_CLOUD_CONNECTIONS_PATH)) {

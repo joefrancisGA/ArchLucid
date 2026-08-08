@@ -113,7 +113,12 @@ const nextConfig: NextConfig = {
     ];
   },
   async redirects() {
-    return [];
+    return [
+      // Force-canonical architectures namespace — legacy `/architectures` bookmarks only.
+      // Do not rewrite `/architecture/architectures` back onto a deleted on-disk tree (phantom rewrite).
+      { source: "/architectures", destination: "/architecture/architectures", permanent: true },
+      { source: "/architectures/:path*", destination: "/architecture/architectures/:path*", permanent: true },
+    ];
   },
   async rewrites() {
     return [];

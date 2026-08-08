@@ -261,13 +261,8 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
       || architectureId !== null
       || /^\/architectures\/[^/]+$/.test(normalized)
     ) {
-      const listHref =
-        normalized.startsWith("/architectures") && !normalized.startsWith("/architecture/")
-          ? "/architectures"
-          : ARCHITECTURES_LIST_PATH;
-
       return [
-        { label: ARCHITECTURE_DRAFTS_LIST_LABEL, href: listHref },
+        { label: ARCHITECTURE_DRAFTS_LIST_LABEL, href: ARCHITECTURES_LIST_PATH },
         { label: CREATE_ARCHITECTURE_LABEL },
       ];
     }
